@@ -101,6 +101,78 @@ describe('fact-selection configuration is honest about what it enforces', () => 
     ).not.toThrow();
   });
 
+  it('rejects an override whose customer-visible reason names its own reviewer', () => {
+    // The reason is projected to every customer surface; the reviewer is not.
+    // A reason that names the reviewer publishes the identity through the field
+    // that is explicitly documented never to carry it.
+    expect(() =>
+      buildFactSelectionPolicy(
+        config({
+          ...VALID,
+          overrides: [
+            {
+              source: 'acme-hvac-catalog',
+              reviewer: 'j.okafor@example.com',
+              reason: 'Corrected by j.okafor@example.com after a supplier call.',
+            },
+          ],
+        }),
+        { at: AT },
+      ),
+    ).toThrow(PipelineConfigurationError);
+  });
+
+  it('matches the reviewer regardless of case', () => {
+    expect(() =>
+      buildFactSelectionPolicy(
+        config({
+          ...VALID,
+          overrides: [
+            { source: 's', reviewer: 'M. Ruiz', reason: 'Reviewed (M. RUIZ), 2026-04-02.' },
+          ],
+        }),
+        { at: AT },
+      ),
+    ).toThrow(PipelineConfigurationError);
+  });
+
+  it('does not put the identity into the error it raises about the identity', () => {
+    let message = '';
+    try {
+      buildFactSelectionPolicy(
+        config({
+          ...VALID,
+          overrides: [
+            { source: 's', reviewer: 'j.okafor@example.com', reason: 'set by j.okafor@example.com' },
+          ],
+        }),
+        { at: AT },
+      );
+    } catch (error) {
+      message = error instanceof Error ? error.message : String(error);
+    }
+    expect(message).toMatch(/reason/i);
+    expect(message).not.toContain('j.okafor@example.com');
+  });
+
+  it('accepts a reason that explains the correction without naming anyone', () => {
+    expect(() =>
+      buildFactSelectionPolicy(
+        config({
+          ...VALID,
+          overrides: [
+            {
+              source: 'acme-hvac-catalog',
+              reviewer: 'j.okafor@example.com',
+              reason: 'Manufacturer erratum 2026-03: the published SEER2 was a transcription error.',
+            },
+          ],
+        }),
+        { at: AT },
+      ),
+    ).not.toThrow();
+  });
+
   it('accepts a declaration that omits the invariants entirely', () => {
     expect(() =>
       buildFactSelectionPolicy(config({ enabled: true, overrides: [] }), { at: AT }),

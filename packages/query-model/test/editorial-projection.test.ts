@@ -15,6 +15,8 @@ import type { FactSelectionPolicyInput } from '@data-foundry/canonical-store';
 import { isVerified, type VerificationSignals } from '@data-foundry/provenance';
 import {
   CORRECTION_FIELDS_JSON_SCHEMA,
+  ReviewerIdentityLeak,
+  assertNoReviewerIdentity,
   correctionInvariantViolation,
   toExportRow,
   toMcpFact,
@@ -292,5 +294,73 @@ describe('correction invariant', () => {
     for (const row of rows) {
       expect(correctionInvariantViolation(toRestFact(row)), row.property).toBeNull();
     }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// The privacy enforcement the module has always claimed to have
+// ---------------------------------------------------------------------------
+
+describe('reviewer identity never reaches a wire shape', () => {
+  const REVIEWERS = ['j.okafor@example.com', 'M. Ruiz'];
+
+  const fields = (reason: string | null) => ({
+    editoriallyCorrected: reason !== null,
+    editorialCorrectionReason: reason,
+    selectionWarnings: [] as const,
+  });
+
+  it('passes a reason that names no reviewer', () => {
+    expect(() =>
+      assertNoReviewerIdentity(
+        fields('Manufacturer erratum 2026-03: published SEER2 was a typo.'),
+        REVIEWERS,
+      ),
+    ).not.toThrow();
+  });
+
+  it('throws when the customer-visible reason carries a reviewer identity', () => {
+    // The one that actually happens: an editor writes their own name into the
+    // reason, and the reason is projected to every customer surface.
+    expect(() =>
+      assertNoReviewerIdentity(fields('Corrected by j.okafor@example.com after a supplier call.'), REVIEWERS),
+    ).toThrow(ReviewerIdentityLeak);
+  });
+
+  it('matches regardless of case or surrounding punctuation', () => {
+    expect(() =>
+      assertNoReviewerIdentity(fields('Reviewed (M. RUIZ), 2026-04-02.'), REVIEWERS),
+    ).toThrow(ReviewerIdentityLeak);
+  });
+
+  it('names the field and not the identity, so the error is not itself a leak', () => {
+    let message = '';
+    try {
+      assertNoReviewerIdentity(fields('set by j.okafor@example.com'), REVIEWERS);
+    } catch (error) {
+      message = error instanceof Error ? error.message : String(error);
+    }
+    expect(message).toMatch(/editorialCorrectionReason/);
+    expect(message).not.toContain('j.okafor@example.com');
+  });
+
+  it('ignores blank reviewer entries rather than matching everything', () => {
+    // A blank identity is a substring of every string; treating it as a match
+    // would refuse to publish any correction at all.
+    expect(() =>
+      assertNoReviewerIdentity(fields('A perfectly ordinary reason.'), ['', '   ']),
+    ).not.toThrow();
+  });
+
+  it('has nothing to check when no correction was applied', () => {
+    expect(() => assertNoReviewerIdentity(fields(null), REVIEWERS)).not.toThrow();
+  });
+
+  it('guards the export row and the REST/MCP shapes through the same reason', async () => {
+    const row = await view('seer2', CORRECTED);
+    const rest = toRestFact(row);
+    const exported = toExportRow(row);
+    expect(exported.editorial_correction_reason).toBe(rest.editorialCorrectionReason);
+    expect(() => assertNoReviewerIdentity(rest, [REVIEWER])).not.toThrow();
   });
 });

@@ -22,7 +22,9 @@
  * the override's declared reason, authored in version-controlled vertical
  * config and reviewed in a pull request. The REVIEWER IDENTITY is never
  * projected onto any of these shapes; it stays in `explainFact` and the audit
- * record. `assertNoReviewerIdentity` below is the enforcement.
+ * record. `assertNoReviewerIdentity` below is the enforcement — it exists now,
+ * having been named here as the enforcement while not existing, which made the
+ * guarantee a comment rather than a control.
  */
 
 import type { SelectionWarning } from '@data-foundry/canonical-store';
@@ -167,6 +169,64 @@ export const CORRECTION_FIELDS_JSON_SCHEMA = {
     },
   },
 } as const;
+
+/**
+ * A wire projection was about to carry a staff reviewer's identity.
+ *
+ * Deliberately does not repeat the identity in its message: an error string
+ * ends up in logs, in exception trackers and occasionally in an HTTP response
+ * body, and a privacy guard that leaks the thing it is guarding is worse than
+ * none.
+ */
+export class ReviewerIdentityLeak extends Error {
+  override readonly name = 'ReviewerIdentityLeak';
+  /** The wire field that would have carried it. */
+  readonly field: string;
+
+  constructor(field: string) {
+    super(
+      `${field} would expose a staff reviewer's identity to a customer surface. The declared ` +
+        'reason is customer-visible by contract; the reviewer is not. Rewrite the override reason ' +
+        "in the vertical's fact-selection config so it explains the correction without naming who " +
+        'made it.',
+    );
+    this.field = field;
+  }
+}
+
+/**
+ * Refuse to project a correction reason that names a reviewer.
+ *
+ * This module has documented since it was written that "the REVIEWER IDENTITY
+ * is never projected onto any of these shapes" and named this function as the
+ * enforcement. The function did not exist — the guarantee was a comment, and a
+ * vertical whose override reason read "corrected by j.okafor after a supplier
+ * call" would have published exactly what the comment promised it would not.
+ *
+ * `reviewers` comes from the compiled fact-selection policy, which is where
+ * both the reason and the reviewer are declared. Blank entries are skipped:
+ * the empty string is a substring of everything, so treating it as a match
+ * would refuse to publish any correction at all.
+ *
+ * The complementary half is at configuration load: an override whose reason
+ * contains its own reviewer is rejected before a run can publish it. That gate
+ * is unconditional; this one guards the boundary for surfaces that assemble a
+ * payload from anywhere else.
+ */
+export function assertNoReviewerIdentity(
+  fields: WireCorrectionFields,
+  reviewers: Iterable<string>,
+): void {
+  const reason = fields.editorialCorrectionReason;
+  if (reason === null || reason.trim() === '') return;
+
+  const haystack = reason.toLowerCase();
+  for (const reviewer of reviewers) {
+    const needle = reviewer.trim().toLowerCase();
+    if (needle === '') continue;
+    if (haystack.includes(needle)) throw new ReviewerIdentityLeak('editorialCorrectionReason');
+  }
+}
 
 /** The invariant, checkable at a boundary. Returns the offending reason, or null. */
 export function correctionInvariantViolation(fields: WireCorrectionFields): string | null {

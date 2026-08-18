@@ -130,6 +130,29 @@ export function assertEditorialOverrideDeclarationIsHonest(config: VerticalConfi
     );
   }
 
+  // The declared reason is projected to every customer surface; the reviewer is
+  // not, by contract (`packages/query-model/src/serialization.ts`). A reason
+  // that names its own reviewer publishes the identity through the one field
+  // documented never to carry it. Caught here, before a run can publish it —
+  // `assertNoReviewerIdentity` guards the wire boundary as the second line.
+  const declaredOverrides: Yaml[] = Array.isArray(declaration.overrides)
+    ? declaration.overrides
+    : [];
+  for (const [index, entry] of declaredOverrides.entries()) {
+    const reviewer = String(entry?.reviewer ?? '').trim().toLowerCase();
+    const reason = String(entry?.reason ?? '').toLowerCase();
+    if (reviewer === '' || !reason.includes(reviewer)) continue;
+    // The identity is deliberately absent from the message: an error string
+    // reaches logs and trackers, and a guard that leaks what it guards is
+    // worse than none. The index locates the entry without repeating it.
+    throw new PipelineConfigurationError(
+      `editorial_override.overrides[${index}].reason names its own reviewer. The reason is ` +
+        'customer-visible on every surface that renders a corrected value; the reviewer is not. ' +
+        'Rewrite the reason so it explains the correction without identifying who made it — the ' +
+        'reviewer stays in the audit record and in explainFact.',
+    );
+  }
+
   for (const key of ['requires_reason', 'requires_reviewer'] as const) {
     const value = declaration[key];
     if (value === undefined || value === true) continue;
