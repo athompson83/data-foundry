@@ -1,0 +1,46 @@
+# =============================================================================
+# Layer 1 — Primitive cleanup (doc 06).
+#
+# Runs first, on every string value from every source, before anything is typed
+# or interpreted. Purely mechanical: no domain knowledge lives at this layer.
+# =============================================================================
+
+layer: primitive_cleanup
+applies_to: all_sources
+
+rules:
+  - id: unicode_nfkc
+    op: unicode_normalize
+    form: NFKC
+    description: >-
+      Collapse compatibility variants so a full-width digit and an ASCII digit
+      are the same character before anything tries to match on them.
+
+  - id: trim_and_collapse_whitespace
+    op: collapse_whitespace
+    # Also converts non-breaking spaces and tabs to a single ASCII space.
+    trim: true
+
+  - id: decode_html_entities
+    op: decode_html_entities
+    description: HTML-sourced values arrive with &amp; and &nbsp; intact.
+
+  - id: strip_control_characters
+    op: strip_control_characters
+
+# Values that mean "the source does not know", normalized to canonical null.
+# A source writing "N/A" is asserting absence, not asserting the string "N/A".
+null_tokens:
+  - ""
+  - "-"
+  - "--"
+  - "n/a"
+  - "na"
+  - "none"
+  - "null"
+  - "unknown"
+  - "tbd"
+  - "not specified"
+null_token_matching:
+  case_sensitive: false
+  trim: true

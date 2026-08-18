@@ -1,0 +1,214 @@
+# =============================================================================
+# Layer 3 — Domain normalization (doc 06).
+#
+# THE IDENTIFIER LAYER. This is where AGENTS.md rule 7 stops being a slogan:
+# exact identifiers beat semantic search, and the rules below are what make the
+# same physical product from four differently-formatted sources land on one
+# deterministic join key.
+#
+# Worked example — the same model, as each source writes it:
+#
+#     acme-hvac-catalog     24ACC636A003     (canonical form)
+#     coolsupply-distributor 24acc6-36a003   (lowercased, hyphenated)
+#     ahri-directory-export  24ACC6 36A003   (space-separated)
+#     acme-spec-sheets       24ACC636A003    (canonical form)
+#                            ↓
+#     normalized_value:      24ACC636A003
+#
+# The output of these rules is `entity_aliases.normalized_value` — the key the
+# whole pipeline resolves on. Changing a rule here changes every join key in the
+# vertical, so it is ALWAYS a breaking change: bump schema_version, record it in
+# CHANGELOG.md, and re-verify the goldens.
+# =============================================================================
+
+layer: domain_normalization
+
+identifier_rules:
+  - alias_type: model_number
+    strong: true
+    retain_source_form: true
+    description: >-
+      Uppercase and strip every separator. Deliberately aggressive: no source in
+      this vertical uses separators meaningfully, so discarding them costs
+      nothing and collapses all four observed spellings onto one key.
+    ops:
+      - op: uppercase
+      - op: strip_characters
+        characters: "-_. /\\"
+      - op: strip_whitespace
+    validate:
+      min_length: 6
+      max_length: 32
+      pattern: "^[A-Z0-9]+$"
+      # A value failing validation is quarantined for review, never written as a
+      # join key. A garbage key silently creates a duplicate entity, which is
+      # far more expensive than a rejected record.
+      on_failure: quarantine
+
+  - alias_type: ahri_ref
+    strong: true
+    retain_source_form: true
+    description: >-
+      Certification reference. Sources write it bare (`20134501`) or prefixed
+      (`AHRI 20134501`, `AHRI-20134501`); the digits are the identity.
+    ops:
+      - op: uppercase
+      - op: strip_prefix
+        prefixes: ["AHRI", "AHRI-", "AHRI "]
+      - op: strip_characters
+        characters: "-_. /"
+      - op: strip_whitespace
+    validate:
+      min_length: 6
+      max_length: 16
+      pattern: "^[0-9]+$"
+      on_failure: quarantine
+
+  - alias_type: manufacturer_sku
+    strong: true
+    # Source-scoped: two manufacturers may legitimately use the same SKU string,
+    # so this asserts identity only WITHIN a resolved manufacturer. Doc 06:
+    # "never assume global uniqueness without evidence."
+    scoped_to: manufacturer
+    retain_source_form: true
+    description: >-
+      Manufacturer ordering SKU. Hyphens are RETAINED here, unlike model
+      numbers: `ACS-24ACC636A003` is a structured code whose prefix identifies
+      the manufacturer, and flattening it would discard that.
+    ops:
+      - op: uppercase
+      - op: collapse_whitespace
+      - op: strip_whitespace
+    validate:
+      min_length: 3
+      max_length: 64
+      pattern: "^[A-Z0-9][A-Z0-9-]*$"
+      on_failure: quarantine
+
+  - alias_type: upc
+    strong: true
+    retain_source_form: true
+    description: >-
+      Retail barcode, digits only, left-padded to 12. Supplied exclusively by
+      coolsupply-distributor — a low-authority source holding a high-precision
+      identifier, which is a good argument for keeping low-authority sources.
+    ops:
+      - op: strip_non_digits
+      - op: left_pad
+        length: 12
+        character: "0"
+    validate:
+      min_length: 12
+      max_length: 14
+      pattern: "^[0-9]{12,14}$"
+      # A UPC carries its own integrity check; use it rather than trusting the
+      # digits. A mistyped barcode that passes into the alias index attaches one
+      # product's identity to another.
+      checksum: upc_mod10
+      on_failure: quarantine
+
+  - alias_type: series_name
+    # WEAK, deliberately. Many models share "Comfort 16"; matching on it would
+    # merge an entire product line into one entity.
+    strong: false
+    retain_source_form: true
+    description: Marketing series. Narrows candidates; never asserts identity.
+    ops:
+      - op: collapse_whitespace
+      - op: strip_whitespace
+      - op: title_case
+    validate:
+      min_length: 2
+      max_length: 120
+      on_failure: keep_unvalidated
+
+# --- Manufacturer alias resolution ------------------------------------------
+# A deterministic lookup table, not fuzzy matching. Sources name the same
+# company four different ways, and left alone that produces four manufacturers
+# and a shattered graph.
+publisher_aliases:
+  acme-climate-systems:
+    canonical_name: Acme Climate Systems
+    aliases:
+      - Acme Climate Systems
+      - Acme
+      - ACME
+      - ACS
+    match: case_insensitive_exact
+
+  northwind-air-systems:
+    canonical_name: Northwind Air Systems
+    aliases:
+      - Northwind Air Systems
+      - Northwind
+      - NAS
+    match: case_insensitive_exact
+
+  borealis-thermal-works:
+    canonical_name: Borealis Thermal Works
+    aliases:
+      - Borealis Thermal Works
+      - Borealis
+      - BTW
+    match: case_insensitive_exact
+
+# A brand string matching nothing above is quarantined, never auto-created.
+# Auto-creating manufacturers from unrecognized brand strings is how a
+# catalogue silently grows phantom companies.
+unknown_publisher_policy: quarantine
+
+# --- Notation rules ---------------------------------------------------------
+# Domain notations that pack several canonical properties into one string.
+notation_rules:
+  - id: electrical_notation
+    description: >-
+      "208/230-1-60" is voltage-range / phase / frequency. Splits into two
+      canonical properties; frequency is deliberately not modelled (see
+      `excluded` below) because every unit in scope is 60 Hz and a property with
+      one value cannot filter anything.
+    applies_to_source_field: electrical
+    pattern: "^(?<v_low>\\d{2,3})(?:/(?<v_high>\\d{2,3}))?-(?<phase>\\d)-(?<hz>\\d{2})$"
+    emits:
+      - property: voltage
+        from: v_low
+        value_type: number
+        unit: V
+        # See range_policy in 02-typed-values.yaml for why the lower bound wins.
+      - property: phase
+        from: phase
+        value_type: number
+        unit: null
+    excluded:
+      - capture: hz
+        reason: >-
+          Frequency is 60 Hz for every unit in scope. Modelling it would add a
+          fact to every entity that no query could ever discriminate on.
+      - capture: v_high
+        reason: >-
+          Retained in fact_evidence.source_value as part of the full original
+          notation, so the dual rating is recoverable without being a second
+          fact.
+    on_no_match: quarantine
+
+  - id: capacity_with_unit_suffix
+    description: >-
+      "3 Ton", "36,000 BTU/h", "4.0 Tons" — a number and its unit in one cell.
+      The unit decides which canonical property receives the value; the other
+      is then filled by the derived_properties rules in Layer 2.
+    pattern: "^(?<value>[0-9][0-9,.]*)\\s*(?<unit>[A-Za-z/()]+)$"
+    routes:
+      - when_unit_matches: [ton, tons, tonnage]
+        property: nominal_tonnage
+      - when_unit_matches: ["btu/h", btuh, "btu/hr", "btuh"]
+        property: cooling_capacity_btu
+    on_no_match: quarantine
+
+  - id: measurement_with_unit_suffix
+    description: '"72 dB", "187 lb" — strip the suffix, keep the unit for validation.'
+    pattern: "^(?<value>[0-9][0-9,.]*)\\s*(?<unit>[A-Za-z()]+)$"
+    routes:
+      - when_unit_matches: [db, dba, "db(a)"]
+        property: sound_level_db
+      - when_unit_matches: [lb, lbs, pound, pounds]
+        property: weight_lb
+    on_no_match: quarantine

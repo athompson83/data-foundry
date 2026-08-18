@@ -1,0 +1,74 @@
+# =============================================================================
+# Layer 2 — Typed values (doc 06).
+#
+# Turns cleaned strings into typed canonical values. Units are converted into
+# the canonical unit declared on the property in entities/*.yaml, and the
+# original unit and value are ALWAYS retained as evidence.
+# =============================================================================
+
+layer: typed_values
+
+# Numeric parsing.
+number_parsing:
+  decimal_separator: "."
+  thousands_separators: [",", " "]
+  # Strip currency/unit suffixes before parsing; the unit is captured separately
+  # by the unit_patterns below rather than thrown away.
+  strip_trailing_units: true
+  # Reject rather than silently coerce: "about 3" is not 3.
+  reject_on_ambiguity: true
+
+# Date/time parsing. Dates become ISO-8601; timestamps become UTC with the
+# source timezone retained.
+datetime_parsing:
+  output_date_format: iso8601_date
+  output_datetime_format: iso8601_utc
+  retain_source_timezone: true
+  accepted_formats: []
+
+# Boolean vocabularies.
+boolean_parsing:
+  true_tokens: ["true", "yes", "y", "1"]
+  false_tokens: ["false", "no", "n", "0"]
+  case_sensitive: false
+
+# --- Unit conversion --------------------------------------------------------
+# Each entry declares a canonical unit and the source units convertible into it.
+# `factor` is what the source value is MULTIPLIED BY to reach the canonical unit.
+# Conversions are exact ratios wherever the domain defines one; where a
+# conversion is approximate, say so in `note` so nobody assumes precision that
+# is not there.
+unit_conversions: []
+
+# Example shape:
+#
+# unit_conversions:
+#   - canonical_unit: m
+#     aliases: [meter, meters, metre, metres]
+#     convert_from:
+#       - unit: ft
+#         aliases: [foot, feet, "'"]
+#         factor: 0.3048
+#         note: exact by definition
+#       - unit: in
+#         aliases: [inch, inches, '"']
+#         factor: 0.0254
+#         exact: true
+
+# --- Derived values ---------------------------------------------------------
+# Properties computed from other properties by a fixed ratio or expression.
+# A derived value is still a fact and still carries evidence — pointing at the
+# evidence of the property it was derived from, plus the rule id.
+derived_properties: []
+
+# Example shape:
+#
+# derived_properties:
+#   - property: value_in_other_unit
+#     from: value_in_canonical_unit
+#     op: divide
+#     operand: 1000
+#     round_to: 2
+#     # Only fill the gap; never overwrite a directly-sourced value.
+#     only_if_absent: true
+#     evidence: derived

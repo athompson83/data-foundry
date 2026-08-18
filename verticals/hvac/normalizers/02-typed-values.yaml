@@ -1,0 +1,133 @@
+# =============================================================================
+# Layer 2 — Typed values (doc 06).
+#
+# The unit layer. This vertical's defining conversion is:
+#
+#     12000 BTU/h = 1 ton     (exact, by definition of a refrigeration ton)
+#
+# It matters because sources genuinely split on it: the manufacturer feed and
+# the ratings directory publish BTU/h, while distributor listings and spec
+# sheets speak in tons — the unit the trade actually uses. Both canonical
+# properties are populated for every model, whichever way round the source
+# published it, so a filter on tonnage and a filter on BTU/h return the same
+# set.
+# =============================================================================
+
+layer: typed_values
+
+number_parsing:
+  decimal_separator: "."
+  # "36,000 BTU/h" from the PDF spec sheets.
+  thousands_separators: [",", " "]
+  # "3 Ton", "72 dB", "187 lb" — the unit is captured by the patterns below
+  # rather than discarded.
+  strip_trailing_units: true
+  # "about 3" is not 3, and a fabricated precision is worse than a null.
+  reject_on_ambiguity: true
+
+datetime_parsing:
+  output_date_format: iso8601_date
+  output_datetime_format: iso8601_utc
+  retain_source_timezone: true
+  accepted_formats:
+    - "YYYY-MM-DD"
+    - "MM/DD/YYYY"
+
+boolean_parsing:
+  true_tokens: ["true", "yes", "y", "1"]
+  false_tokens: ["false", "no", "n", "0"]
+  case_sensitive: false
+
+# --- Unit conversion --------------------------------------------------------
+# `factor` is what the source value is MULTIPLIED BY to reach the canonical unit.
+unit_conversions:
+  - canonical_unit: BTU/h
+    aliases: [btuh, "btu/h", "btu/hr", btu_h, "BTUh", "BTU/hr", "Btuh"]
+    convert_from:
+      - unit: ton
+        aliases: [tons, tonnage, "TR", "ton of refrigeration"]
+        factor: 12000
+        exact: true
+        note: >-
+          Exact by definition: one refrigeration ton is 12000 BTU/h. Not an
+          approximation and not rounded — an inexact factor here would make
+          the capacity/tonnage consistency check fail on correct data.
+      - unit: kW
+        aliases: [kilowatt, kilowatts]
+        factor: 3412.142
+        exact: false
+        note: Approximate. No current source publishes kW; declared for completeness.
+
+  - canonical_unit: ton
+    aliases: [tons, tonnage, "TR"]
+    convert_from:
+      - unit: BTU/h
+        aliases: [btuh, "btu/h", "btu/hr", "BTUh"]
+        factor: 0.000083333333333
+        exact: true
+        note: >-
+          The exact reciprocal of 12000. Implementations should divide by 12000
+          rather than multiply by this decimal, which is written out only so the
+          declaration is self-describing.
+
+  - canonical_unit: lb
+    aliases: [lbs, pound, pounds]
+    convert_from:
+      - unit: kg
+        aliases: [kilogram, kilograms]
+        factor: 2.20462262
+        exact: false
+
+  - canonical_unit: V
+    aliases: [volt, volts, vac]
+    convert_from: []
+
+  - canonical_unit: dB
+    aliases: [db, dba, "dB(A)", decibel, decibels]
+    convert_from: []
+    note: >-
+      dB and dB(A) are treated as the same canonical unit here because every
+      source in this vertical publishes A-weighted sound ratings while labelling
+      them inconsistently. If a source ever publishes unweighted dB this
+      collapse becomes wrong and must be split.
+
+# --- Derived properties -----------------------------------------------------
+# A derived value is still a fact and still carries evidence: it points at the
+# evidence of the property it came from, plus the rule id that produced it.
+# `only_if_absent` guarantees a derived value never displaces a directly
+# published one — a source that states tonnage outranks arithmetic on its own
+# BTU figure.
+derived_properties:
+  - property: nominal_tonnage
+    from: cooling_capacity_btu
+    op: divide
+    operand: 12000
+    round_to: 2
+    only_if_absent: true
+    evidence: derived
+    description: >-
+      Fills tonnage for acme-hvac-catalog and ahri-directory-export, which
+      publish BTU/h only.
+
+  - property: cooling_capacity_btu
+    from: nominal_tonnage
+    op: multiply
+    operand: 12000
+    round_to: 0
+    only_if_absent: true
+    evidence: derived
+    description: >-
+      Fills BTU/h for coolsupply-distributor, which publishes "3 Ton" and
+      nothing else.
+
+# --- Range notations --------------------------------------------------------
+# Values published as a range rather than a scalar.
+range_policy:
+  # "208/230-1-60" is a dual-voltage rating. The canonical `voltage` fact takes
+  # the LOWER bound (208), because that is the figure that governs minimum
+  # circuit sizing and is what the trade quotes. Recorded as an explicit
+  # convention rather than an accident of parsing: the alternative (230) is
+  # equally defensible and would silently change every voltage fact.
+  voltage:
+    strategy: take_lower
+    retain_full_range_as_source_value: true

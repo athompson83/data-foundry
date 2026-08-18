@@ -1,0 +1,344 @@
+# =============================================================================
+# filters.yaml — declarative filter metadata (doc 04 "Filter metadata").
+#
+# One file, three surfaces: the web filter UI, the API/OpenAPI parameter
+# documentation, and SEO facet generation. That is the point — doc 10's "one
+# canonical query model", not three implementations that drift apart.
+#
+# Field shape follows doc 04 exactly:
+#     field / value_type / unit / filter{type, facet_count} / sort /
+#     search_boost / indexable
+# plus doc 07's `seo` block gating which filter STATES may be indexed.
+# =============================================================================
+
+defaults:
+  # The correct default for a filter state: crawlable so discovery works,
+  # not indexable so we do not flood the index with near-duplicates
+  # (AGENTS.md rule 8).
+  robots: "noindex,follow"
+  facet_count: true
+  sort: false
+  search_boost: 0.0
+  indexable: false
+
+fields:
+
+  - field: product_type
+    entity_type: equipment_model
+    value_type: string
+    unit: null
+    filter:
+      type: multi_select
+      facet_count: true
+      options: [air_conditioner, heat_pump, gas_furnace, air_handler, packaged_unit]
+    sort: false
+    search_boost: 0.6
+    indexable: true
+    seo:
+      indexable: true
+      min_results: 10
+      demand_threshold: 0.7
+    rationale: >-
+      The primary category split, and a genuine search intent in its own right
+      ("3 ton heat pump"). Low cardinality, high demand, no duplication risk.
+
+  - field: nominal_tonnage
+    entity_type: equipment_model
+    value_type: number
+    unit: ton
+    filter:
+      type: multi_select
+      facet_count: true
+      # Discrete, not a slider: equipment is sold in half-ton steps and a
+      # continuous range control would imply a precision the market does not
+      # have.
+      options: [1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0]
+    sort: true
+    search_boost: 0.8
+    indexable: true
+    seo:
+      indexable: true
+      min_results: 10
+      demand_threshold: 0.8
+    rationale: >-
+      The unit the trade actually searches in. "3 ton air conditioner" is a
+      high-intent commercial query; "36000 BTU air conditioner" is not, even
+      though they are the same filter.
+
+  - field: cooling_capacity_btu
+    entity_type: equipment_model
+    value_type: number
+    unit: BTU/h
+    filter:
+      type: range
+      facet_count: true
+      buckets:
+        - { label: "Under 24,000 BTU/h", lt: 24000 }
+        - { label: "24,000-35,999 BTU/h", gte: 24000, lt: 36000 }
+        - { label: "36,000-47,999 BTU/h", gte: 36000, lt: 48000 }
+        - { label: "48,000-59,999 BTU/h", gte: 48000, lt: 60000 }
+        - { label: "60,000 BTU/h and above", gte: 60000 }
+    sort: true
+    search_boost: 0.4
+    indexable: false
+    seo:
+      indexable: false
+      reason: >-
+        Filtering on BTU/h returns the SAME set as filtering on tonnage — they
+        are one measurement in two units. Indexing both would create a
+        near-duplicate page for every capacity. The tonnage facet is indexable;
+        this one is UI and API only.
+    rationale: Essential for engineering-precise API queries; redundant for SEO.
+
+  - field: seer2
+    entity_type: equipment_model
+    value_type: number
+    unit: null
+    filter:
+      type: range
+      facet_count: true
+      buckets:
+        - { label: "13.4-13.9", gte: 13.4, lt: 14.0 }
+        - { label: "14.0-14.9", gte: 14.0, lt: 15.0 }
+        - { label: "15.0-15.9", gte: 15.0, lt: 16.0 }
+        - { label: "16.0 and above", gte: 16.0 }
+    sort: true
+    search_boost: 0.5
+    indexable: true
+    seo:
+      indexable: conditional
+      min_results: 10
+      demand_threshold: 0.5
+    rationale: >-
+      Efficiency minimums are set by regional code, so "14.3 SEER2 or higher"
+      is a real compliance question with real money attached. Conditional
+      because most individual bucket/type combinations are thin.
+
+  - field: eer2
+    entity_type: equipment_model
+    value_type: number
+    unit: null
+    filter:
+      type: range
+      facet_count: true
+    sort: true
+    search_boost: 0.2
+    indexable: false
+    seo:
+      indexable: false
+      reason: Specialist filter with negligible search demand. UI and API only.
+
+  - field: hspf2
+    entity_type: equipment_model
+    value_type: number
+    unit: null
+    filter:
+      type: range
+      facet_count: true
+      # Only meaningful for heat pumps; the facet hides itself otherwise rather
+      # than showing every user a control that returns nothing.
+      visible_when:
+        property: product_type
+        in: [heat_pump]
+    sort: true
+    search_boost: 0.2
+    indexable: false
+    seo:
+      indexable: false
+      reason: Specialist filter, and only applicable to a subset of the catalogue.
+
+  - field: refrigerant
+    entity_type: equipment_model
+    value_type: string
+    unit: null
+    filter:
+      type: multi_select
+      facet_count: true
+      options: [R-410A, R-454B, R-32, R-22]
+    sort: false
+    search_boost: 0.7
+    indexable: true
+    seo:
+      indexable: true
+      min_results: 10
+      demand_threshold: 0.9
+    rationale: >-
+      The highest-demand facet in the vertical right now. The A2L transition
+      means "R-454B air conditioner" is a live purchasing question for every
+      contractor, and the answer decides whether a replacement is a drop-in or
+      a system change.
+
+  - field: voltage
+    entity_type: equipment_model
+    value_type: number
+    unit: V
+    filter:
+      type: multi_select
+      facet_count: true
+      options: [115, 208, 230, 460]
+    sort: false
+    search_boost: 0.3
+    indexable: false
+    seo:
+      indexable: false
+      reason: >-
+        A qualifier on another search, not a search. Nobody looks for "208 volt
+        equipment"; they look for a 3-ton condenser that happens to be 208V.
+
+  - field: phase
+    entity_type: equipment_model
+    value_type: number
+    unit: null
+    filter:
+      type: single_select
+      facet_count: true
+      options: [1, 3]
+    sort: false
+    search_boost: 0.2
+    indexable: false
+    seo:
+      indexable: false
+      reason: Two values, both low-intent. Qualifier only.
+
+  - field: stage_count
+    entity_type: equipment_model
+    value_type: number
+    unit: null
+    filter:
+      type: single_select
+      facet_count: true
+      options: [1, 2]
+    sort: false
+    search_boost: 0.3
+    indexable: false
+    seo:
+      indexable: false
+      reason: Low cardinality and low standalone demand.
+
+  - field: sound_level_db
+    entity_type: equipment_model
+    value_type: number
+    unit: dB
+    filter:
+      type: range
+      facet_count: true
+      buckets:
+        - { label: "Under 70 dB", lt: 70 }
+        - { label: "70-74 dB", gte: 70, lt: 75 }
+        - { label: "75 dB and above", gte: 75 }
+    sort: true
+    search_boost: 0.3
+    indexable: false
+    seo:
+      indexable: false
+      reason: >-
+        Coverage is thin (only two sources publish it) and the distributor's
+        values are unreliable. A facet that silently drops most of the
+        catalogue teaches users the data is incomplete. Revisit when coverage
+        exceeds 80%.
+
+  - field: weight_lb
+    entity_type: equipment_model
+    value_type: number
+    unit: lb
+    filter:
+      type: range
+      facet_count: false
+    sort: true
+    search_boost: 0.1
+    indexable: false
+    seo:
+      indexable: false
+      reason: Logistics detail. Sortable and queryable; never a landing page.
+
+  - field: manufacturer
+    entity_type: equipment_model
+    value_type: string
+    unit: null
+    filter:
+      type: multi_select
+      facet_count: true
+    sort: false
+    search_boost: 0.9
+    indexable: true
+    seo:
+      indexable: true
+      min_results: 5
+      demand_threshold: 0.9
+    rationale: >-
+      Brand plus category is the highest-intent pattern in the vertical. The
+      lower min_results reflects that a manufacturer page is legitimate even
+      with a small catalogue — it is a real entity, not a generated
+      combination.
+
+# --- Indexable filter combinations ------------------------------------------
+# doc 07: "Do not create thin programmatic combinations merely because the
+# database allows them." ONLY the combinations below may ever be indexed, and
+# each must still clear the quality gate in seo.yaml.
+#
+# 13 filterable fields would permit thousands of combinations. Four are allowed.
+indexable_combinations:
+
+  - id: type_by_tonnage
+    fields: [product_type, nominal_tonnage]
+    max_depth: 2
+    min_results: 10
+    rationale: >-
+      "3 ton heat pump" is how contractors and homeowners actually search, and
+      it is the single most common query pattern in the vertical.
+
+  - id: type_by_refrigerant
+    fields: [product_type, refrigerant]
+    max_depth: 2
+    min_results: 10
+    rationale: >-
+      "R-454B air conditioner" is a live compliance and compatibility question
+      during the A2L transition, with a clear commercial decision behind it.
+
+  - id: manufacturer_by_type
+    fields: [manufacturer, product_type]
+    max_depth: 2
+    min_results: 5
+    rationale: >-
+      Brand-plus-category navigation. Distinct intent, distinct content, and a
+      genuine entry point rather than a generated permutation.
+
+  - id: type_by_tonnage_by_refrigerant
+    fields: [product_type, nominal_tonnage, refrigerant]
+    max_depth: 3
+    min_results: 20
+    rationale: >-
+      The one three-field combination that earns a page: a contractor
+      replacing a specific unit under the new refrigerant rules needs exactly
+      this intersection. The raised min_results is what keeps it from becoming
+      a permutation generator.
+
+# Combinations that must NEVER be indexed regardless of result count.
+denied_combinations:
+
+  - fields: [cooling_capacity_btu, nominal_tonnage]
+    reason: >-
+      The same measurement in two units. Every such page is a duplicate of a
+      tonnage page by construction.
+
+  - fields: [voltage, phase]
+    reason: >-
+      Qualifiers, not intents. Would generate a page for every electrical
+      configuration with no distinct user behind any of them.
+
+  - fields: [seer2, eer2]
+    reason: >-
+      Strongly correlated ratings. Combining them produces near-identical result
+      sets across adjacent buckets.
+
+  - fields: [sound_level_db, weight_lb]
+    reason: >-
+      Two thin-coverage properties. Their intersection is a page about almost
+      nothing, backed by data we mostly do not have.
+
+  - pattern: any_combination_of_four_or_more
+    reason: >-
+      A hard ceiling. Beyond three facets the result sets are individually tiny
+      and collectively near-duplicate — the exact failure mode rule 8 exists to
+      prevent. Deeper filtering stays fully available in the UI and the API; it
+      simply never becomes an indexable URL.

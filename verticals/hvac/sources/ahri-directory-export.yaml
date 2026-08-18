@@ -1,0 +1,131 @@
+# =============================================================================
+# ahri-directory-export — CSV bulk file.
+#
+# SYNTHETIC SOURCE. The publisher named below is a FICTIONAL certification body
+# invented for this factory proof. It is NOT the real Air-Conditioning, Heating,
+# and Refrigeration Institute, and nothing here describes that organization's
+# terms, data or directory. The source KEY and the `ahri_ref` alias type are
+# shared-vocabulary strings agreed across waves; they name the SHAPE of a
+# certification-directory source, not a real registry. The domain is an
+# RFC 2606 reserved example domain and resolves nowhere. See RIGHTS.md.
+#
+# Role in the proof: the authority. A certifying body publishing a bulk CSV of
+# rated performance, covering all three manufacturers — the only source with
+# cross-manufacturer coverage, and the source that WINS the SEER2 conflict.
+# =============================================================================
+
+key: ahri-directory-export
+vertical_slug: hvac
+
+publisher: Federated HVAC Ratings Council (SYNTHETIC — fictional certification body)
+domain: ratings-directory.example.org
+source_type: CERTIFICATION_BODY
+
+# The highest rank in this vertical. A certifying body's rated values are
+# definitive for certified performance — that is what certification means, and
+# it is why fact selection prefers this source for SEER2/EER2/HSPF2 even when
+# the manufacturer's own feed is newer.
+authority_rank: 95
+
+status: ACTIVE
+# Directories republish on a quarterly cycle; polling faster only burns budget.
+refresh_cadence: QUARTERLY
+
+rights_classification: GREEN
+
+attribution_requirement:
+  required: true
+  text: >-
+    Certified ratings data from the Federated HVAC Ratings Council directory
+    (synthetic test source).
+  url: https://ratings-directory.example.org/
+
+robots_policy:
+  respect_robots: true
+  user_agent: DataFoundryBot
+  crawl_delay_seconds: null
+  disallowed_paths: []
+  allowed_paths:
+    - /exports/
+  robots_url: https://ratings-directory.example.org/robots.txt
+  snapshot_hash: 51e8a3c7d09b426f8a17c5e304db29f6710c8ba5e42d19f7038c6ea5b91d472f
+  snapshot_at: 2026-07-02T09:26:00Z
+
+rights_policy:
+  publisher_legal_entity: >-
+    Federated HVAC Ratings Council (fictional entity; synthetic test data)
+  terms_url: https://ratings-directory.example.org/terms
+  license_id: CC-BY-4.0
+  license_text_ref: null
+  api_terms_url: null
+  commercial_use_allowed: true
+  redistribution_allowed: true
+  derivative_normalization_allowed: true
+  attribution:
+    required: true
+    text: >-
+      Certified ratings data from the Federated HVAC Ratings Council directory
+      (synthetic test source).
+    url: https://ratings-directory.example.org/
+  images_reusable: false
+  personal_data_present: false
+  geographic_notes: >-
+    Not applicable. Synthetic fixture data authored by the Data Foundry team.
+    Recorded because a real ratings directory would carry directory-specific
+    redistribution terms that would need reading before any of this were true.
+  reviewed_at: 2026-07-02T10:00:00Z
+  reviewed_by: Data Foundry platform team
+  next_review_at: 2027-07-02
+
+acquisition_policy:
+  # A published bulk export, fetched whole rather than crawled. Transport is a
+  # plain HTTPS GET — no rendering, no pagination, no per-record requests. The
+  # method records WHAT is acquired (one complete file); the notes record how.
+  method: BULK_FILE
+  approved: true
+  approved_by: Data Foundry platform team
+  approved_at: 2026-07-02T10:00:00Z
+  # One request per quarter. The cap exists to make an accidental crawl loop
+  # visible immediately.
+  max_requests_per_minute: 5
+  notes: >-
+    Single direct HTTPS GET of a complete CSV export, no browser and no
+    per-record fetching. Preferring the published bulk file over crawling the
+    directory's search UI is both cheaper and the behaviour the publisher
+    intends. In the fixture harness this reads fixtures/ahri-export.csv from
+    disk.
+
+image_policy:
+  images_reusable: false
+  cache_to_r2_permitted: false
+  default_display_modes: []
+  image_attribution:
+    required: false
+    text: null
+    url: null
+
+provenance_retention:
+  retain_artifacts: true
+  # Every quarterly export is kept. The historical series IS the product for
+  # "what was this model rated at in 2024" — discarding old exports would make
+  # that unanswerable (AGENTS.md rule 10).
+  retention_days: null
+  legal_hold: false
+
+license_split:
+  code_license_id: null
+  data_license_id: CC-BY-4.0
+  notes: Data licence only; no code is vendored from this source.
+
+kill_switch_engaged: false
+
+notes: >-
+  The authority for certified performance and the only source spanning all three
+  manufacturers, which makes it the backbone of cross-manufacturer comparison.
+  Uniquely provides the certification reference (`ahri_ref`) and the certified
+  SEER2/EER2/HSPF2 values. Omits electrical data, sound level, weight and UPC
+  entirely. Formats model numbers inconsistently BY MANUFACTURER — spaces for
+  Acme (`24ACC6 36A003`), plain for Northwind, hyphenated for Borealis — which
+  is realistic and is the main workout for identifier normalization. Drops
+  discontinued models from each export, so the gen-1 and gen-2 Acme units in the
+  supersession chain appear in no certification record at all.

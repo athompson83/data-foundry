@@ -1,0 +1,217 @@
+/**
+ * Entities, aliases, redirects and snapshots against real SQL.
+ */
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { entityQualityScore, identityConfidence } from '@data-foundry/canonical-schema';
+import { countRows, createFixtures, ts, type Fixtures } from './support.js';
+
+let fixtures: Fixtures;
+
+beforeAll(async () => {
+  fixtures = await createFixtures();
+});
+
+afterAll(async () => {
+  await fixtures?.driver.close();
+});
+
+describe('entities and aliases', () => {
+  it('upserts an entity on (vertical, type, slug) without duplicating it', async () => {
+    const again = await fixtures.store.upsertEntity({
+      vertical_id: fixtures.vertical.id,
+      entity_type: 'equipment',
+      canonical_name: 'Carrier Infinity 24ANB7 (rev)',
+      canonical_slug: 'carrier-infinity-24anb7',
+      status: 'ACTIVE',
+      quality_score: entityQualityScore(0.82),
+      first_seen_at: ts('2026-01-01T00:00:00Z'),
+      last_verified_at: ts('2026-06-01T00:00:00Z'),
+    });
+
+    expect(again.id).toBe(fixtures.entity.id);
+    expect(again.canonical_name).toBe('Carrier Infinity 24ANB7 (rev)');
+    expect(again.quality_score).toBeCloseTo(0.82);
+    expect(again.last_verified_at).toBe(ts('2026-06-01T00:00:00Z'));
+    expect(await countRows(fixtures.driver, 'entities')).toBe(1);
+  });
+
+  it('reads an entity back by slug', async () => {
+    const found = await fixtures.store.getEntityBySlug(
+      fixtures.vertical.id,
+      'equipment',
+      'carrier-infinity-24anb7',
+    );
+    expect(found?.id).toBe(fixtures.entity.id);
+  });
+
+  it('is idempotent on aliases and looks them up deterministically', async () => {
+    await fixtures.store.addAlias({
+      entity_id: fixtures.entity.id,
+      alias_type: 'model_number',
+      alias_value: '24ANB7',
+      normalized_value: '24anb7',
+      source_id: fixtures.sources.certifier.source.id,
+      identity_confidence: identityConfidence(0.9),
+      valid_from: ts('2026-01-01T00:00:00Z'),
+      valid_to: null,
+    });
+    await fixtures.store.addAlias({
+      entity_id: fixtures.entity.id,
+      alias_type: 'mpn',
+      alias_value: '24ANB736A003',
+      normalized_value: '24anb736a003',
+      source_id: fixtures.sources.manufacturer.source.id,
+      identity_confidence: identityConfidence(0.97),
+      valid_from: ts('2026-01-01T00:00:00Z'),
+      valid_to: null,
+    });
+
+    const aliases = await fixtures.store.listAliases(fixtures.entity.id);
+    expect(aliases).toHaveLength(2);
+    // GREATEST keeps the strongest identity claim rather than the newest.
+    expect(aliases.find((alias) => alias.alias_type === 'model_number')?.identity_confidence)
+      .toBeCloseTo(0.99);
+
+    const matches = await fixtures.store.lookupByAlias({
+      vertical_id: fixtures.vertical.id,
+      values: ['24anb736a003'],
+    });
+    expect(matches).toHaveLength(1);
+    expect(matches[0]?.entity.id).toBe(fixtures.entity.id);
+    expect(matches[0]?.alias.alias_type).toBe('mpn');
+  });
+
+  it('records artifacts idempotently by (source, url, content hash)', async () => {
+    const before = await countRows(fixtures.driver, 'source_artifacts');
+    const again = await fixtures.store.recordSourceArtifact({
+      source_id: fixtures.sources.manufacturer.source.id,
+      url: fixtures.sources.manufacturer.artifact.url,
+      retrieved_at: ts('2026-04-01T00:00:00Z'),
+      content_hash: fixtures.sources.manufacturer.artifact.content_hash,
+      mime_type: 'text/html',
+      r2_uri: fixtures.sources.manufacturer.artifact.r2_uri,
+      http_status: 200,
+      extractor_version: 'html-1.0.0',
+      policy_snapshot_id: null,
+      byte_size: 4096,
+      acquisition_provider: 'http',
+    });
+
+    expect(again.id).toBe(fixtures.sources.manufacturer.artifact.id);
+    // Immutable: re-fetching identical bytes did not rewrite retrieved_at.
+    expect(again.retrieved_at).toBe(fixtures.sources.manufacturer.artifact.retrieved_at);
+    expect(await countRows(fixtures.driver, 'source_artifacts')).toBe(before);
+  });
+});
+
+describe('redirects', () => {
+  it('follows a redirect chain after a merge and keeps the merge reversible', async () => {
+    const duplicate = await fixtures.store.upsertEntity({
+      vertical_id: fixtures.vertical.id,
+      entity_type: 'equipment',
+      canonical_name: 'Carrier 24ANB7 (duplicate)',
+      canonical_slug: 'carrier-24anb7-dup',
+      status: 'ACTIVE',
+      quality_score: entityQualityScore(0.4),
+      first_seen_at: ts('2026-01-02T00:00:00Z'),
+      last_verified_at: null,
+    });
+
+    const redirect = await fixtures.store.mergeEntities({
+      from_entity_id: duplicate.id,
+      to_entity_id: fixtures.entity.id,
+      reason: 'MERGE',
+      from_slug: duplicate.canonical_slug,
+      judgment_id: null,
+    });
+
+    expect(redirect.to_entity_id).toBe(fixtures.entity.id);
+    expect((await fixtures.store.getEntityById(duplicate.id))?.status).toBe('MERGED');
+
+    const resolved = await fixtures.store.resolveRedirect(duplicate.id);
+    expect(resolved.redirected).toBe(true);
+    expect(resolved.entity_id).toBe(fixtures.entity.id);
+    expect(resolved.hops).toHaveLength(1);
+
+    const bySlug = await fixtures.store.findRedirectBySlug(
+      fixtures.vertical.id,
+      'carrier-24anb7-dup',
+    );
+    expect(bySlug?.to_entity_id).toBe(fixtures.entity.id);
+  });
+
+  it('follows a multi-hop chain and terminates on a cycle', async () => {
+    const first = await fixtures.store.upsertEntity({
+      vertical_id: fixtures.vertical.id,
+      entity_type: 'equipment',
+      canonical_name: 'Hop A',
+      canonical_slug: 'hop-a',
+      status: 'ACTIVE',
+      quality_score: entityQualityScore(0.3),
+      first_seen_at: ts('2026-01-02T00:00:00Z'),
+      last_verified_at: null,
+    });
+    const second = await fixtures.store.upsertEntity({
+      vertical_id: fixtures.vertical.id,
+      entity_type: 'equipment',
+      canonical_name: 'Hop B',
+      canonical_slug: 'hop-b',
+      status: 'ACTIVE',
+      quality_score: entityQualityScore(0.3),
+      first_seen_at: ts('2026-01-02T00:00:00Z'),
+      last_verified_at: null,
+    });
+
+    await fixtures.store.mergeEntities({
+      from_entity_id: first.id,
+      to_entity_id: second.id,
+      reason: 'MERGE',
+      from_slug: null,
+      judgment_id: null,
+    });
+    await fixtures.store.mergeEntities({
+      from_entity_id: second.id,
+      to_entity_id: fixtures.entity.id,
+      reason: 'MERGE',
+      from_slug: null,
+      judgment_id: null,
+    });
+
+    const resolved = await fixtures.store.resolveRedirect(first.id);
+    expect(resolved.entity_id).toBe(fixtures.entity.id);
+    expect(resolved.hops).toHaveLength(2);
+
+    // A redirect back to the start must not loop forever.
+    await fixtures.store.recordEntityRedirect({
+      vertical_id: fixtures.vertical.id,
+      from_entity_id: fixtures.entity.id,
+      to_entity_id: first.id,
+      from_slug: null,
+      reason: 'MERGE',
+      judgment_id: null,
+      active: true,
+    });
+    const cyclic = await fixtures.store.resolveRedirect(first.id);
+    expect(cyclic.hops.length).toBeLessThanOrEqual(3);
+  });
+});
+
+describe('dataset snapshots', () => {
+  it('records and re-reads an immutable published version', async () => {
+    const snapshot = await fixtures.store.recordDatasetSnapshot({
+      vertical_id: fixtures.vertical.id,
+      version: '2026-08-14.1',
+      generated_at: ts('2026-08-14T00:00:00Z'),
+      record_counts: { entities: 1, facts: 0 },
+      schema_version: '1.0.0',
+      manifest_uri: 'r2://exports/hvac/2026-08-14.1/manifest.json',
+      checksums: { 'dataset.parquet': 'a'.repeat(64) },
+      status: 'PUBLISHED',
+    });
+
+    expect(snapshot.status).toBe('PUBLISHED');
+    const read = await fixtures.store.getDatasetSnapshot(fixtures.vertical.id, '2026-08-14.1');
+    expect(read?.id).toBe(snapshot.id);
+    expect(read?.record_counts['entities']).toBe(1);
+  });
+});

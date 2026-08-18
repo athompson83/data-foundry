@@ -1,0 +1,57 @@
+# =============================================================================
+# source-mappings.yaml — per-source field paths → canonical properties.
+#
+# THE ONLY FILE THAT KNOWS HOW A SPECIFIC SOURCE SPELLS THINGS.
+#
+# Everything above (layers 1-4) is canonical-model vocabulary shared by all
+# sources. This file is the adapter. Adding a source should touch this file and
+# nothing else; if it forces a change to layers 1-4, that source has introduced
+# genuinely new domain vocabulary and the canonical model is changing.
+#
+# `locator_type` on each field is what makes AGENTS.md rule 2 mechanical: it is
+# written into `fact_evidence` so a disputed value can be re-checked against the
+# exact place in the exact artifact without re-crawling.
+#   WHOLE_DOCUMENT | CSS_SELECTOR | XPATH | JSON_POINTER | PAGE | LINE_RANGE
+#   | BYTE_RANGE | TABLE_CELL | REGEX_MATCH
+# =============================================================================
+
+sources: []
+
+# Example shape:
+#
+# sources:
+#   - source_key: example-source
+#     # json | html | csv | pdf | xml
+#     format: json
+#     # Path to the array of records within the artifact.
+#     record_path: "/items"
+#     # Stable per-record key within the source, for change detection.
+#     source_record_key: "/id"
+#     entity_type: example_entity
+#     locator_type: JSON_POINTER
+#
+#     aliases:
+#       - alias_type: model_number
+#         path: "/model"
+#         strong: true
+#
+#     properties:
+#       - property: example_identifier
+#         path: "/model"
+#       - property: example_quantity
+#         path: "/capacity"
+#         source_unit: ft
+#         # Named rule from 02-typed-values.yaml.
+#         convert_with: length_to_meters
+#
+#     relationships:
+#       - predicate: manufactures
+#         subject_from: "/brand"
+#         subject_type: manufacturer
+#         object_from: "/model"
+#         object_type: example_entity
+#
+#     # Fields present in the source that we deliberately do NOT ingest, and why.
+#     # An explicit exclusion list stops the same "should we take this?" debate
+#     # recurring every time someone reads the fixture.
+#     excluded_fields: []

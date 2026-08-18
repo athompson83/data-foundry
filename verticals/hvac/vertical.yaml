@@ -1,0 +1,153 @@
+# =============================================================================
+# hvac — residential/light-commercial HVAC equipment.
+#
+# The first vertical, and therefore the proof that a vertical is CONFIGURATION
+# AND DATA rather than a fork of the app (AGENTS.md rule 4). Nothing in this
+# folder is TypeScript except the fixture generator and the config tests.
+#
+# The vocabulary below (entity types, alias types, predicates, properties) is
+# SHARED and load-bearing — other waves are coding against these exact strings.
+# Renaming anything here is a breaking change: bump schema_version, record it in
+# CHANGELOG.md, and expect the golden files to move.
+# =============================================================================
+
+slug: hvac
+name: HVAC Equipment
+schema_version: "0.1.0"
+
+# DRAFT until the real (non-synthetic) source families are contracted and
+# rights-reviewed. The current source set is synthetic factory-proof data — see
+# SOURCES.md and RIGHTS.md. Shipping this as ACTIVE would be claiming a product
+# we do not yet have the data rights to sell.
+status: DRAFT
+
+default_refresh_policy:
+  cadence: MONTHLY
+  max_staleness_hours: 720
+  priority: 60
+
+entity_types:
+  - manufacturer
+  - equipment_model
+  - certification
+
+relationship_predicates:
+  - manufactures
+  - supersedes
+  - certified_by
+  - compatible_with
+
+# --- Vertical-owned configuration -------------------------------------------
+
+documentation:
+  generated: []
+  hand_written:
+    - README.md
+    - DATA_DICTIONARY.md
+    - SOURCES.md
+    - RIGHTS.md
+    - QUALITY.md
+    - CHANGELOG.md
+
+config:
+  entities_dir: entities
+  relationships: relationships.yaml
+  filters: filters.yaml
+  seo: seo.yaml
+  mcp: mcp.yaml
+  sources_dir: sources
+  normalizers_dir: normalizers
+  fixtures_dir: fixtures
+  golden_dir: fixtures/golden
+  tests_dir: tests
+
+# Alias types defined by this vertical. Normalization rules for each live in
+# normalizers/03-domain-normalization.yaml.
+#
+# `strong: true` means an exact match on the normalized value asserts identity
+# on its own (doc 06 step 1). AGENTS.md rule 7: this table is the FIRST stop in
+# resolution, never a fallback behind vector similarity.
+#
+# The platform's CORE_ALIAS_TYPES (`name`, `legal_name`, `abbreviation`, ...)
+# are inherited and used for `manufacturer` identity; the five below are this
+# vertical's additions.
+alias_types:
+  - type: model_number
+    applies_to: [equipment_model]
+    strong: true
+    description: >-
+      Outdoor-unit model number. The primary identifier a technician reads off a
+      nameplate and types into a search box. Every source formats it
+      differently; normalization is what makes them the same key.
+
+  - type: ahri_ref
+    applies_to: [equipment_model, certification]
+    strong: true
+    description: >-
+      Certified reference number from the ratings directory. Globally unique
+      within the directory and stable across model-number reformatting, which
+      makes it the best cross-source anchor when a model number is ambiguous.
+
+  - type: manufacturer_sku
+    applies_to: [equipment_model]
+    strong: true
+    # Source-scoped: two manufacturers may legitimately use the same SKU string.
+    # Doc 06: "never assume global uniqueness without evidence."
+    scoped_to: manufacturer
+    description: Manufacturer's own ordering SKU, distinct from the model number.
+
+  - type: upc
+    applies_to: [equipment_model]
+    strong: true
+    description: >-
+      Retail barcode. Rarely published by manufacturers, commonly published by
+      distributors — which is most of why a distributor source is worth having.
+
+  - type: series_name
+    applies_to: [equipment_model]
+    strong: false
+    description: >-
+      Marketing series ("Comfort 16"). Deliberately WEAK: many models share a
+      series, so it can narrow candidates but must never assert identity.
+
+# Doc 06 entity resolution, parameterized. These are policy numbers, so they
+# live in config where they can be tuned without a deploy.
+entity_resolution:
+  auto_merge_threshold: 0.95
+  candidate_floor: 0.55
+
+  # Properties that must never disagree in an automatic merge (doc 06
+  # "no hard-conflict fields"). Two units differing in capacity or refrigerant
+  # are different products, however similar their model numbers look.
+  hard_conflict_properties:
+    - cooling_capacity_btu
+    - refrigerant
+    - product_type
+    - voltage
+
+  # Doc 06 step 4 — candidate generation.
+  blocking_keys:
+    - normalized_manufacturer
+    - model_number_prefix_6
+    - product_type_and_capacity_band
+
+  # Doc 06 step 7 / AGENTS.md rule 3: a model may recommend, never execute.
+  llm_adjudication:
+    enabled: true
+    allowed_decisions: [same, different, uncertain]
+    may_execute_merge: false
+    requires_structured_rationale: true
+    # Only reaches an LLM when deterministic matching has already failed.
+    only_after_deterministic_failure: true
+
+  # Doc 06: supersession is NOT identity. `24ACC636A003` replacing
+  # `24ACB636A003` is an edge between two distinct entities, and conflating
+  # them would destroy the replacement lookup that is this vertical's whole
+  # commercial point.
+  never_merge_across:
+    - supersedes
+
+governance:
+  data_owner: Data Foundry platform team
+  rights_reviewer: Data Foundry platform team
+  rights_review_cadence_days: 365

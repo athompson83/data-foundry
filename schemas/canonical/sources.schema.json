@@ -1,0 +1,233 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.data-foundry.dev/canonical/sources.schema.json",
+  "title": "sources",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+    },
+    "vertical_id": {
+      "type": "string",
+      "format": "uuid",
+      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+    },
+    "publisher": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300
+    },
+    "domain": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 253
+    },
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "REGULATORY",
+        "STANDARDS_BODY",
+        "CERTIFICATION_BODY",
+        "MANUFACTURER",
+        "DISTRIBUTOR",
+        "TRADE_ASSOCIATION",
+        "MARKETPLACE",
+        "AGGREGATOR",
+        "COMMUNITY",
+        "PARTNER_FEED",
+        "LICENSED_DATASET",
+        "OPEN_DATASET",
+        "OTHER"
+      ]
+    },
+    "authority_rank": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "rights_classification": {
+      "type": "string",
+      "enum": [
+        "GREEN",
+        "AMBER",
+        "RED",
+        "UNREVIEWED"
+      ]
+    },
+    "attribution_requirement": {
+      "type": "object",
+      "properties": {
+        "required": {
+          "type": "boolean"
+        },
+        "text": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "url": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uri"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "required",
+        "text",
+        "url"
+      ],
+      "additionalProperties": false
+    },
+    "robots_policy": {
+      "type": "object",
+      "properties": {
+        "respect_robots": {
+          "type": "boolean"
+        },
+        "user_agent": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "crawl_delay_seconds": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 86400
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "disallowed_paths": {
+          "maxItems": 2000,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "allowed_paths": {
+          "maxItems": 2000,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "robots_url": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uri"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "snapshot_hash": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "snapshot_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "respect_robots",
+        "user_agent",
+        "crawl_delay_seconds",
+        "disallowed_paths",
+        "allowed_paths",
+        "robots_url",
+        "snapshot_hash",
+        "snapshot_at"
+      ],
+      "additionalProperties": false
+    },
+    "refresh_cadence": {
+      "type": "string",
+      "enum": [
+        "MANUAL",
+        "HOURLY",
+        "DAILY",
+        "WEEKLY",
+        "MONTHLY",
+        "QUARTERLY",
+        "ANNUALLY",
+        "EVENT_DRIVEN"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "PROPOSED",
+        "UNDER_REVIEW",
+        "APPROVED",
+        "ACTIVE",
+        "PAUSED",
+        "SUSPENDED",
+        "RETIRED"
+      ]
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+    }
+  },
+  "required": [
+    "id",
+    "vertical_id",
+    "publisher",
+    "domain",
+    "source_type",
+    "authority_rank",
+    "rights_classification",
+    "attribution_requirement",
+    "robots_policy",
+    "refresh_cadence",
+    "status",
+    "created_at",
+    "updated_at"
+  ],
+  "additionalProperties": false
+}

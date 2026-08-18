@@ -1,0 +1,24 @@
+node_modules/
+dist/
+.agentworkforce/
+*.log
+.env
+.env.*
+!.env.example
+.data/
+.turbo/
+coverage/
+*.tsbuildinfo
+.DS_Store
+
+# Private product/business strategy — the 20-document foundation pack.
+# Deliberately NOT published: it contains overall strategy, monetization and
+# niche-selection/competitive scoring. ADRs and AGENTS.md cite these files by
+# path; they are available to the team out-of-band, not in this repo.
+docs/foundation/
+
+# Niche scoring is derived from the private foundation framework, and the audit
+# ledger enumerates defects that are known but not yet fixed. Both are held
+# out-of-band for the same reason docs/foundation/ is.
+docs/verticals/
+docs/audit/

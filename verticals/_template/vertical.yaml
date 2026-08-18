@@ -1,0 +1,120 @@
+# =============================================================================
+# vertical.yaml — the root manifest for a vertical.
+#
+# A vertical is CONFIGURATION AND DATA, never a fork of the application
+# (AGENTS.md rule 4). Everything in this folder is declarative: YAML/JSON plus
+# pure normalizer rules. If you cannot express something here, the platform
+# config schema is too narrow — extend the platform's generic schema, do not
+# add vertical-specific TypeScript.
+#
+# Validated by `pnpm verticals:validate` against `VerticalConfigSchema` in
+# tooling/validators/validate-verticals.ts. That schema is `looseObject`: the
+# platform-critical keys below are required and type-checked, and a vertical may
+# add its own keys freely.
+#
+# HOW TO USE THIS TEMPLATE
+#   1. cp -r verticals/_template verticals/<your-slug>
+#   2. Replace every `template` / `REPLACE_ME` marker.
+#   3. Fill in entities/, relationships.yaml, filters.yaml, seo.yaml, mcp.yaml.
+#   4. Declare every source in sources/ WITH COMPLETE RIGHTS METADATA
+#      (AGENTS.md rule 1 — a declaration without rights metadata is not a
+#      declaration).
+#   5. Add fixtures/ and fixtures/golden/ before writing any pipeline code.
+#   6. Fill in the six required docs (doc 11).
+#   7. Run `pnpm verticals:validate` until it is green.
+# =============================================================================
+
+# --- Platform-critical fields (required; validated) --------------------------
+
+# Lowercase hyphen-separated slug. This is the public URL segment
+# (`/data/<slug>/...`) and the join key for sources/*.yaml `vertical_slug`.
+slug: template
+
+# Human-readable product name.
+name: Template Vertical
+
+# Version of THIS vertical's schema, not the platform's. Bump on any breaking
+# change to entity types, properties or predicates, and record it in CHANGELOG.md.
+schema_version: "0.1.0"
+
+# DRAFT | ACTIVE | DEPRECATED | RETIRED.
+# A vertical stays DRAFT until its sources pass the rights gate and its golden
+# fixtures pass.
+status: DRAFT
+
+# Default acquisition cadence. Individual sources override this in their own
+# `refresh_cadence`.
+default_refresh_policy:
+  # MANUAL | HOURLY | DAILY | WEEKLY | MONTHLY | QUARTERLY | ANNUALLY | EVENT_DRIVEN
+  cadence: MONTHLY
+  # Age (hours) at which content is stale enough to warrant re-acquisition.
+  max_staleness_hours: 720
+  # Scheduling priority 0-100, higher runs first.
+  priority: 50
+
+# Entity types this vertical defines. Lowercase snake_case. These are vertical
+# vocabulary, never a platform enum — the platform stores `entity_type` as a
+# free identifier precisely so adding one is a config change (rule 4).
+# One file per type must exist in entities/.
+entity_types:
+  - example_entity
+
+# Relationship predicates this vertical defines. Detailed in relationships.yaml.
+relationship_predicates: []
+
+# --- Vertical-owned fields (optional; the platform ignores what it doesn't use)
+
+# Where the six required documents live, and which are generated.
+documentation:
+  generated: []
+  hand_written:
+    - README.md
+    - DATA_DICTIONARY.md
+    - SOURCES.md
+    - RIGHTS.md
+    - QUALITY.md
+    - CHANGELOG.md
+
+# Pointers to the rest of the declarative config. Kept explicit so a loader
+# never has to glob-and-guess.
+config:
+  entities_dir: entities
+  relationships: relationships.yaml
+  filters: filters.yaml
+  seo: seo.yaml
+  mcp: mcp.yaml
+  sources_dir: sources
+  normalizers_dir: normalizers
+  fixtures_dir: fixtures
+  golden_dir: fixtures/golden
+  tests_dir: tests
+
+# Alias types used for deterministic entity resolution. AGENTS.md rule 7:
+# exact identifiers beat semantic search, so this list is the resolution index,
+# not a fallback. `strong: true` means an exact match on the normalized value is
+# sufficient on its own to assert identity.
+alias_types: []
+
+# Entity-resolution thresholds (doc 06). Declarative because they are policy,
+# not logic: tuning them must not require a code deploy.
+entity_resolution:
+  # Score at/above which an automatic merge may be proposed.
+  auto_merge_threshold: 0.95
+  # Below this, do not even create a candidate pair.
+  candidate_floor: 0.55
+  # Properties that must never disagree in an automatic merge (doc 06
+  # "no hard-conflict fields").
+  hard_conflict_properties: []
+  # Blocking keys for candidate generation (doc 06 step 4).
+  blocking_keys: []
+  # doc 06 step 7: an LLM may recommend, never execute (AGENTS.md rule 3).
+  llm_adjudication:
+    enabled: false
+    allowed_decisions: [same, different, uncertain]
+    may_execute_merge: false
+
+# Ownership and review cadence for this vertical's rights posture.
+governance:
+  data_owner: REPLACE_ME
+  rights_reviewer: REPLACE_ME
+  rights_review_cadence_days: 365

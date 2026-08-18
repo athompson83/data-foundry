@@ -1,0 +1,55 @@
+# =============================================================================
+# Layer 3 — Domain normalization (doc 06).
+#
+# The identifier layer. This is where AGENTS.md rule 7 is implemented: exact
+# identifiers beat semantic search, so identifier normalization has to be
+# deterministic, total and reversible-by-evidence.
+#
+# The output of an identifier rule is the `normalized_value` written to
+# `entity_aliases`. It is the join key the whole pipeline resolves on, so a
+# change here is a breaking change: bump schema_version and re-run goldens.
+# =============================================================================
+
+layer: domain_normalization
+
+# --- Identifier normalization -----------------------------------------------
+# One rule per alias_type declared in vertical.yaml.
+identifier_rules: []
+
+# Example shape:
+#
+# identifier_rules:
+#   - alias_type: model_number
+#     description: >-
+#       Sources write the same model number with different separators and
+#       casing. Uppercase and strip every non-alphanumeric character to get a
+#       single deterministic join key.
+#     ops:
+#       - op: uppercase
+#       - op: strip_characters
+#         characters: "- _./\\"
+#       - op: strip_whitespace
+#     # Reject an alias that normalizes to something implausible rather than
+#     # writing a garbage join key.
+#     validate:
+#       min_length: 4
+#       max_length: 64
+#       pattern: "^[A-Z0-9]+$"
+#     # Keep the source's exact spelling in alias_value for display/provenance.
+#     retain_source_form: true
+#     strong: true
+
+# --- Publisher/manufacturer alias resolution --------------------------------
+# Maps the many ways sources name the same organization onto one canonical
+# entity slug. Deterministic lookup table, not fuzzy matching.
+publisher_aliases: {}
+
+# Example shape:
+#   acme-corp:
+#     canonical_name: Acme Corporation
+#     aliases: ["Acme", "ACME Corp.", "Acme Corp"]
+
+# --- Notation conventions ---------------------------------------------------
+# Domain-specific notations that sources write inconsistently (voltage/phase,
+# sizes, ratings). Each is a deterministic pattern → canonical form.
+notation_rules: []

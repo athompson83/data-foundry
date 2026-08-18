@@ -1,0 +1,411 @@
+# =============================================================================
+# seo.yaml — indexability policy, canonical URLs, structured data and LLM/agent
+# discovery for the HVAC vertical (doc 07).
+#
+# THE CENTRAL RULE — AGENTS.md rule 8: "Do not create thin SEO pages.
+# Indexability is quality/demand gated."
+#
+# This vertical could mint a page for every model × every facet combination
+# tomorrow. Almost none of them would deserve to exist. So indexability here is
+# something a page EARNS by clearing a numeric fact-coverage bar, and the bars
+# are config values so they can be raised without a deploy.
+#
+# The honest consequence, stated up front: on the current fixture set only 6 of
+# 13 equipment models clear the default gate. That is the policy working. A
+# vertical whose gate passes everything is not gated.
+# =============================================================================
+
+url_prefix: /data/hvac
+
+# --- Page classes -----------------------------------------------------------
+page_classes:
+
+  - id: dataset_landing
+    path: "/data/hvac"
+    title: "HVAC Equipment Data"
+    structured_data: Dataset
+    sitemap: datasets
+    indexable: true
+    quality_gate: dataset
+    description: >-
+      The vertical's front door and its Dataset structured-data anchor. Always
+      indexable once the dataset itself clears the dataset gate.
+
+  - id: equipment_model_detail
+    entity_type: equipment_model
+    path: "/data/hvac/equipment/{canonical_slug}"
+    title: "{canonical_name}"
+    structured_data: null
+    sitemap: entities
+    indexable: conditional
+    quality_gate: entity_detail
+    description: >-
+      The core page. structured_data is null deliberately: Schema.org `Product`
+      would imply an offer and a price we do not have, and doc 07 forbids
+      marking up semantics the page does not actually have merely for SEO.
+
+  - id: manufacturer_detail
+    entity_type: manufacturer
+    path: "/data/hvac/manufacturers/{canonical_slug}"
+    title: "{canonical_name} HVAC Equipment"
+    structured_data: null
+    sitemap: manufacturers
+    indexable: conditional
+    quality_gate: manufacturer
+
+  - id: certification_detail
+    entity_type: certification
+    path: "/data/hvac/certifications/{canonical_slug}"
+    title: "AHRI {ahri_ref}"
+    structured_data: null
+    sitemap: entities
+    indexable: conditional
+    quality_gate: certification
+
+  - id: replacement_relationship
+    path: "/data/hvac/equipment/{canonical_slug}/replacements"
+    title: "What replaces {canonical_name}"
+    structured_data: null
+    sitemap: relationships
+    indexable: conditional
+    quality_gate: replacement
+    description: >-
+      The highest-value page class in the vertical and the reason it is worth
+      building: it answers a question a person is currently paying someone to
+      answer by hand. Exists only where a supersession edge actually exists.
+
+  - id: comparison
+    path: "/data/hvac/compare/{slug_a}-vs-{slug_b}"
+    title: "{name_a} vs {name_b}"
+    structured_data: null
+    sitemap: null
+    indexable: conditional
+    quality_gate: comparison
+    description: >-
+      Not in any sitemap. Comparison pages are combinatorial by nature (n²), so
+      they are generated on demand and only the few that earn traffic and clear
+      the gate become indexable. Submitting them wholesale is precisely the
+      thin-page explosion rule 8 forbids.
+
+  - id: filtered_collection
+    path: "/data/hvac/equipment/{facet_path}"
+    title: "{facet_description}"
+    structured_data: null
+    sitemap: entities
+    indexable: conditional
+    quality_gate: filtered_collection
+    description: >-
+      Only the four combinations whitelisted in filters.yaml
+      `indexable_combinations` may reach this class at all; the gate below then
+      applies on top of that.
+
+  - id: docs_api_mcp
+    path: "/data/hvac/docs"
+    title: "HVAC Data API and MCP"
+    structured_data: null
+    sitemap: datasets
+    indexable: true
+    quality_gate: none
+
+# --- Quality gates ----------------------------------------------------------
+# The anti-thin-page machinery. A page is indexable only if EVERY condition in
+# its gate holds.
+quality_gates:
+
+  default:
+    description: Baseline. No page class may loosen below this.
+    min_critical_fact_coverage: 0.75
+    min_total_facts: 6
+    min_evidence_coverage: 1.0
+    min_distinct_sources: 1
+    min_entity_quality_score: 0.6
+    max_staleness_days: 400
+    min_results: 10
+    min_unique_content_words: 120
+    require_all_sources_publishable: true
+    block_on_open_dispute: true
+
+  entity_detail:
+    description: >-
+      The gate that matters most, because equipment_model pages are where a
+      thin-page explosion would happen.
+    #
+    # THE MINIMUM FACT COVERAGE RULE 8 DEMANDS.
+    #
+    # equipment_model declares SIX critical properties: product_type,
+    # cooling_capacity_btu, nominal_tonnage, seer2, refrigerant, voltage.
+    # 0.80 means at least 5 of 6 must be present, evidence-backed and ACTIVE.
+    #
+    # Worked through against fixtures/golden/facts.json — SEVEN of thirteen
+    # models pass:
+    #
+    #   PASS  6/6 critical, 10-11 facts   24ACC636A003, 24ACC648A003,
+    #                                     24ACC660A003, 25HPA630A003,
+    #                                     24ACB636A003, 24ACA636A003
+    #   PASS  5/6 critical, exactly 8     NWH1636HP1 — clears on coverage
+    #                                     (0.833) and lands exactly on the
+    #                                     min_total_facts floor.
+    #   FAIL  5/6 critical, 6-7 facts     NWA1424AC1, NWA1436AC1, NWA1448AC1,
+    #                                     BTWC2036, BTWC2048, BTWH3036
+    #
+    # Every failure is the same failure: no source supplies `voltage` for
+    # Northwind or Borealis, because only the manufacturer family publishes
+    # electrical data and we hold a manufacturer feed for Acme alone. The
+    # gate is therefore reporting a real, specific, fixable source gap —
+    # which is what a coverage instrument is for.
+    #
+    # Note that `min_critical_fact_coverage` alone would pass all thirteen
+    # (0.833 > 0.80). It is `min_total_facts` that catches the genuinely thin
+    # ones. Neither threshold works alone: coverage without a floor passes
+    # six-fact stubs, and a floor without coverage passes entities padded with
+    # unimportant properties.
+    #
+    # The six that fail are not deleted, not hidden from the API or MCP, and
+    # not noindexed out of existence — they are served with `noindex,follow`
+    # plus a coverage notice, and become indexable the moment a manufacturer
+    # source for those brands lands.
+    min_critical_fact_coverage: 0.80
+    min_total_facts: 8
+    min_evidence_coverage: 1.0
+    min_distinct_sources: 1
+    min_entity_quality_score: 0.65
+    max_staleness_days: 400
+    min_unique_content_words: 150
+    require_all_sources_publishable: true
+    block_on_open_dispute: false
+    block_on_disputed_critical_property: true
+    # A page must say something the sources do not already say together —
+    # normalized specs, resolved identifiers, the supersession chain, the
+    # evidence trail. Without that it is a scraped copy with a new URL.
+    require_distinct_value: true
+
+  manufacturer:
+    min_critical_fact_coverage: 0.0
+    min_total_facts: 0
+    # A manufacturer page's substance is its catalogue, not its own facts.
+    min_related_entities: 3
+    min_evidence_coverage: 1.0
+    min_distinct_sources: 1
+    min_entity_quality_score: 0.6
+    min_unique_content_words: 120
+    require_all_sources_publishable: true
+    note: >-
+      All three manufacturers pass: Acme 6 models, Northwind 4, Borealis 3.
+
+  certification:
+    min_critical_fact_coverage: 1.0
+    min_total_facts: 5
+    min_evidence_coverage: 1.0
+    min_distinct_sources: 1
+    min_entity_quality_score: 0.7
+    # A certification page with no linked model is an orphan record.
+    min_related_entities: 1
+    min_unique_content_words: 100
+    require_all_sources_publishable: true
+    note: >-
+      Certification pages are indexable at a LOWER content bar than equipment
+      pages because they carry a unique identifier people search for directly
+      by number. Their critical-fact bar is correspondingly higher: 100%.
+
+  replacement:
+    description: >-
+      A replacement page is only worth having if there is a replacement.
+    min_supersession_edges: 1
+    min_evidence_coverage: 1.0
+    require_terminal_model_indexable: true
+    min_unique_content_words: 100
+    require_all_sources_publishable: true
+    note: >-
+      `require_terminal_model_indexable` matters: sending a technician to a
+      replacement page whose recommended model has a thin, unverified page is
+      worse than not having the page.
+
+  comparison:
+    min_shared_properties: 5
+    min_both_entities_indexable: true
+    min_unique_content_words: 150
+    require_all_sources_publishable: true
+    # Demand-gated as well as quality-gated: generated on request, indexable
+    # only once real demand is observed.
+    demand_threshold: 0.6
+    note: >-
+      Requires BOTH entities to be independently indexable. Two thin pages do
+      not add up to one good one.
+
+  filtered_collection:
+    min_results: 10
+    min_indexable_results: 5
+    min_unique_content_words: 120
+    require_whitelisted_combination: true
+    demand_threshold: 0.5
+    require_all_sources_publishable: true
+    note: >-
+      `min_indexable_results` is the important one: a collection page listing
+      ten entities that are all themselves noindexed is a hub for pages we have
+      already judged not good enough.
+
+  dataset:
+    min_entities: 25
+    min_evidence_coverage: 0.99
+    min_distinct_sources: 3
+    require_all_sources_publishable: true
+    note: >-
+      Three source families is doc 17's gate 1 restated as a publication
+      condition — a "dataset" assembled from one source is a copy.
+
+  none:
+    description: Editorial pages (docs, API reference). No data gate applies.
+
+# What happens when a gate fails. The page still exists and is still crawlable.
+on_gate_failure:
+  robots: "noindex,follow"
+  in_sitemap: false
+  in_api: true
+  in_mcp: true
+  # Show the user WHY, rather than serving a silently deficient page.
+  show_coverage_notice: true
+  notice_template: >-
+    This page is incomplete. {missing_count} of {critical_count} critical
+    specifications are not yet backed by a verified source.
+
+# --- Sitemaps ---------------------------------------------------------------
+sitemaps:
+  index: /sitemap-index.xml
+  max_urls_per_file: 45000
+  # Only canonical indexable URLs. A sitemap is a recommendation, and
+  # recommending a page we have judged too thin to index is incoherent.
+  include_only_indexable: true
+  segments:
+    - { id: datasets, path: "/sitemaps/datasets.xml" }
+    - { id: manufacturers, path: "/sitemaps/manufacturers-{n}.xml" }
+    - { id: entities, path: "/sitemaps/entities-{n}.xml" }
+    - { id: relationships, path: "/sitemaps/relationships-{n}.xml" }
+
+# --- Canonical and redirect policy ------------------------------------------
+canonical:
+  redirect_on_merge: true
+  redirect_status: 301
+  filter_pages_canonicalize_to_parent: true
+  trailing_slash: false
+  # URLs must survive entity merges (doc 07). Model numbers are stable, but
+  # resolution can still split or merge an entity, and a 404 on a model number
+  # a technician typed off a nameplate is the worst possible outcome.
+  preserve_slugs_after_merge: true
+
+# --- Structured data --------------------------------------------------------
+structured_data:
+  dataset_page:
+    type: Dataset
+    required_fields:
+      - name
+      - description
+      - creator
+      - dateModified
+      - license
+      - distribution
+      - keywords
+      - temporalCoverage
+  catalog_page:
+    type: DataCatalog
+    required_fields: [name, description, dataset]
+  entity_page:
+    type: null
+    reason: >-
+      No Schema.org type honestly describes "a manufactured model with certified
+      ratings and no offer attached". `Product` implies commerce we are not
+      doing. Doc 07: do not mark up unsupported or incorrect semantics for SEO.
+
+# --- Images (AGENTS.md rule 9) ----------------------------------------------
+images:
+  require_rights_decision: true
+  fallback_to_generated_visualizations: true
+  require_alt_text: true
+  alt_text_template: "{canonical_name} — {nominal_tonnage} ton {product_type}, {seer2} SEER2"
+  note: >-
+    Only acme-spec-sheets grants reusable image rights, and only for dimensional
+    drawings. Everything else is recorded as a media_asset URL and never cached.
+    Where photo rights are unavailable the page renders a chart generated from
+    the structured facts — which is also better evidence than a marketing photo.
+
+# --- LLM discovery (doc 07 layer 2) -----------------------------------------
+llm_discovery:
+  llms_txt: /data/hvac/llms.txt
+  llms_full_txt: /data/hvac/llms-full.txt
+  markdown_representation: true
+  accept_text_markdown: true
+  include:
+    - dataset_description
+    - resource_groups
+    - schemas
+    - api_docs
+    - openapi_url
+    - mcp_endpoint
+    - bulk_formats
+    - source_methodology
+    - freshness_and_changelog
+    - licensing_and_access_terms
+  # Non-indexable pages still get a Markdown representation: an agent that asked
+  # for a specific model deserves the data and the coverage caveat. Indexability
+  # is a search-engine decision, not a data-availability decision.
+  markdown_for_non_indexable: true
+  markdown_includes_coverage_notice: true
+
+# --- Agent intents (doc 07) -------------------------------------------------
+# Expected prompts mapped to the MCP tool that should win. doc 14 runs these as
+# an eval suite and measures correct-tool rate (target 95%+).
+agent_intents:
+
+  replacement_lookup:
+    tool: find_replacement_model
+    examples:
+      - "What replaces {model_number}?"
+      - "{model_number} is discontinued, what do I order instead?"
+      - "Find the current equivalent for {model_number}"
+      - "Is {model_number} still available?"
+      - "What superseded {model_number}?"
+
+  spec_search:
+    tool: match_equipment_specs
+    examples:
+      - "Find 3 ton heat pumps with SEER2 of at least 15"
+      - "What R-454B condensers are available in 4 ton?"
+      - "Show me single-phase 208V air conditioners between 36000 and 48000 BTU"
+      - "Which models meet 14.3 SEER2 minimum?"
+      - "List two-stage 5 ton units"
+
+  evidence_lookup:
+    tool: get_spec_evidence
+    examples:
+      - "Where does the SEER2 rating for {model_number} come from?"
+      - "Show me the source for the sound rating on {model_number}"
+      - "Why does your SEER2 differ from the manufacturer's brochure?"
+      - "Is this specification certified or manufacturer-published?"
+
+  identifier_resolution:
+    tool: identify_equipment_model
+    examples:
+      - "What is {messy_model_number}?"
+      - "Look up AHRI {ahri_ref}"
+      - "I have a unit with UPC {upc}, what is it?"
+      - "The nameplate reads {partial_model_number}"
+
+  comparison:
+    tool: compare_equipment_models
+    examples:
+      - "Compare {model_a} and {model_b}"
+      - "What changed between {old_model} and its replacement?"
+      - "Which is more efficient, {model_a} or {model_b}?"
+
+  certification_lookup:
+    tool: list_certified_ratings
+    examples:
+      - "Is {model_number} AHRI certified?"
+      - "What are the certified ratings for {model_number}?"
+      - "Show the certification reference for {model_number}"
+
+# --- Guardrail --------------------------------------------------------------
+guardrail: >-
+  Doc 07: "The objective is to be the best factual result, not to game search
+  engines or flood the web." Every threshold in this file exists to keep the
+  page count DOWN. If a change to this file increases indexable pages without
+  increasing the facts behind them, it is the wrong change.

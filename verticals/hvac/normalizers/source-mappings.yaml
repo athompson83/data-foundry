@@ -1,0 +1,378 @@
+# =============================================================================
+# source-mappings.yaml — per-source field paths → canonical properties.
+#
+# THE ONLY FILE THAT KNOWS HOW A SPECIFIC SOURCE SPELLS THINGS. Layers 1-4 are
+# shared canonical vocabulary; this file is the adapter layer. Adding a fifth
+# source should touch this file and nothing else.
+#
+# Each source declares one or more `records` streams. A stream is "one kind of
+# thing this artifact yields" — ahri-directory-export yields TWO from a single
+# CSV row (a certification entity, and facts about the equipment model it
+# certifies), which is why the shape is a list rather than a single entity type.
+#
+# `locator_type` + `locator_value` on every field is what makes AGENTS.md rule 2
+# mechanical rather than aspirational: they are written into `fact_evidence` so
+# a disputed value can be re-checked at the exact place in the exact artifact
+# without re-crawling.
+# =============================================================================
+
+sources:
+
+  # ===========================================================================
+  # 1. acme-hvac-catalog — JSON API feed, direct HTTP.
+  # ===========================================================================
+  - source_key: acme-hvac-catalog
+    format: json
+    locator_type: JSON_POINTER
+    records:
+      - stream: products
+        entity_type: equipment_model
+        record_path: "/products"
+        source_record_key: "/sku"
+
+        aliases:
+          - alias_type: manufacturer_sku
+            path: "/sku"
+            strong: true
+          - alias_type: model_number
+            path: "/model"
+            strong: true
+          - alias_type: series_name
+            path: "/series"
+            strong: false
+
+        properties:
+          - property: product_type
+            path: "/category"
+            map_with: ontology.product_type
+          - property: cooling_capacity_btu
+            path: "/cooling_capacity_btuh"
+            source_unit: BTU/h
+          - property: seer2
+            path: "/efficiency/seer2"
+          - property: eer2
+            path: "/efficiency/eer2"
+          - property: hspf2
+            path: "/efficiency/hspf2"
+            # Absent on cooling-only products. Correct absence, not missing data.
+            optional: true
+          - property: refrigerant
+            path: "/refrigerant"
+            map_with: ontology.refrigerant
+          - property: voltage
+            path: "/electrical"
+            extract_with: notation.electrical_notation
+            emits: voltage
+          - property: phase
+            path: "/electrical"
+            extract_with: notation.electrical_notation
+            emits: phase
+          - property: stage_count
+            path: "/compressor_stages"
+          - property: weight_lb
+            path: "/net_weight_lb"
+            source_unit: lb
+
+        relationships:
+          - predicate: manufactures
+            subject_from: "/brand"
+            subject_type: manufacturer
+            subject_resolve_with: publisher_aliases
+            object_from: "/model"
+            object_type: equipment_model
+
+          - predicate: supersedes
+            # INVERTED. The feed says "this old model was replaced_by X"; the
+            # canonical edge runs from successor to predecessor, so subject and
+            # object swap. Getting this backwards would answer every
+            # replacement question with the discontinued unit.
+            subject_from: "/lifecycle/replaced_by"
+            subject_type: equipment_model
+            object_from: "/model"
+            object_type: equipment_model
+            skip_when_null: subject
+            description: >-
+              The only supersession assertion in the entire source set. No other
+              source publishes replacement data, which is precisely why this
+              vertical is worth building.
+
+        excluded_fields:
+          - path: "/list_price_usd"
+            reason: >-
+              Pricing is volatile, source-specific and commercially sensitive.
+              It is not a durable product fact and republishing it raises rights
+              questions the fact model does not answer.
+          - path: "/image_url"
+            reason: >-
+              AGENTS.md rule 9. Recorded as a media_asset with its URL and
+              rights status; NOT cached to R2, because this source's
+              image_policy sets images_reusable false.
+          - path: "/lifecycle/status"
+            reason: >-
+              No canonical property exists for lifecycle state in the agreed
+              vocabulary, and the graph already encodes it: a model with an
+              inbound `supersedes` edge is superseded. Adding a
+              `lifecycle_status` property would duplicate that as a
+              denormalized fact that can drift out of agreement with the edge.
+              See CHANGELOG.md "Proposed vocabulary additions".
+          - path: "/lifecycle/discontinued_on"
+            reason: >-
+              Same. The date belongs on the `supersedes` edge as its
+              `valid_from`, where it is already carried, rather than as a
+              property of the model.
+          - path: "/feed"
+            reason: Feed-level metadata; recorded on the artifact, not as entity facts.
+
+  # ===========================================================================
+  # 2. coolsupply-distributor — HTML product pages, headless browser.
+  # ===========================================================================
+  - source_key: coolsupply-distributor
+    format: html
+    locator_type: CSS_SELECTOR
+    # Specs are injected client-side; a plain GET yields empty spec cells.
+    requires_rendering: true
+    records:
+      - stream: product_cards
+        entity_type: equipment_model
+        record_path: ".product-card"
+        source_record_key: "[data-item]"
+
+        aliases:
+          - alias_type: model_number
+            path: ".spec-mfr-part"
+            strong: true
+          - alias_type: upc
+            path: ".spec-upc"
+            strong: true
+
+        properties:
+          - property: product_type
+            path: ".product-title"
+            # No explicit category field exists; the category is embedded in the
+            # marketing title, which is normal for distributor pages and is why
+            # this source's product_type is corroborating rather than
+            # authoritative.
+            extract: regex
+            pattern: "(Condenser|Heat Pump|Air Conditioner)"
+            map_with: ontology.product_type
+          - property: nominal_tonnage
+            path: ".spec-capacity"
+            extract_with: notation.capacity_with_unit_suffix
+            source_unit: ton
+          - property: seer2
+            path: ".spec-seer2"
+          - property: refrigerant
+            path: ".spec-refrigerant"
+            map_with: ontology.refrigerant
+          - property: sound_level_db
+            path: ".spec-sound"
+            extract_with: notation.measurement_with_unit_suffix
+            source_unit: dB
+
+        relationships:
+          - predicate: manufactures
+            subject_from: ".spec-brand"
+            subject_type: manufacturer
+            subject_resolve_with: publisher_aliases
+            object_from: ".spec-mfr-part"
+            object_type: equipment_model
+
+        excluded_fields:
+          - path: ".spec-item-no"
+            reason: >-
+              The distributor's own inventory code (`CS-######`). Source-scoped
+              with no cross-source meaning — it is NOT a manufacturer SKU and
+              recording it as one would attach a distributor's numbering to the
+              manufacturer's identity.
+          - path: ".spec-price"
+            reason: Pricing. See acme-hvac-catalog.
+          - path: "script"
+            reason: Hydration payload; not source content.
+
+  # ===========================================================================
+  # 3. ahri-directory-export — CSV bulk file.
+  #    One row yields TWO streams: the certification entity, and facts about the
+  #    equipment model it certifies.
+  # ===========================================================================
+  - source_key: ahri-directory-export
+    format: csv
+    locator_type: TABLE_CELL
+    parsing:
+      delimiter: ","
+      header_row: true
+      # The export ships with a provenance preamble above the header.
+      skip_lines_matching: "^#"
+      encoding: utf-8
+    records:
+
+      - stream: certifications
+        entity_type: certification
+        source_record_key: "AHRI Certified Reference Number"
+
+        aliases:
+          - alias_type: ahri_ref
+            path: "AHRI Certified Reference Number"
+            strong: true
+
+        properties:
+          - property: product_type
+            path: "Equipment Type"
+            map_with: ontology.product_type
+          - property: cooling_capacity_btu
+            path: "Cooling Capacity (BTUh)"
+            source_unit: BTU/h
+          - property: seer2
+            path: "SEER2"
+          - property: eer2
+            path: "EER2"
+          - property: hspf2
+            path: "HSPF2"
+            optional: true
+          - property: refrigerant
+            path: "Refrigerant"
+            map_with: ontology.refrigerant
+
+      - stream: certified_models
+        entity_type: equipment_model
+        source_record_key: "Outdoor Unit Model Number"
+
+        aliases:
+          - alias_type: model_number
+            path: "Outdoor Unit Model Number"
+            strong: true
+          - alias_type: ahri_ref
+            path: "AHRI Certified Reference Number"
+            strong: true
+
+        properties:
+          - property: product_type
+            path: "Equipment Type"
+            map_with: ontology.product_type
+          - property: cooling_capacity_btu
+            path: "Cooling Capacity (BTUh)"
+            source_unit: BTU/h
+          - property: seer2
+            path: "SEER2"
+          - property: eer2
+            path: "EER2"
+          - property: hspf2
+            path: "HSPF2"
+            optional: true
+          - property: refrigerant
+            path: "Refrigerant"
+            map_with: ontology.refrigerant
+
+        relationships:
+          - predicate: manufactures
+            subject_from: "Manufacturer"
+            subject_type: manufacturer
+            subject_resolve_with: publisher_aliases
+            object_from: "Outdoor Unit Model Number"
+            object_type: equipment_model
+
+          - predicate: certified_by
+            subject_from: "Outdoor Unit Model Number"
+            subject_type: equipment_model
+            object_from: "AHRI Certified Reference Number"
+            object_type: certification
+            valid_from: "Effective Date"
+
+    excluded_fields:
+      - path: "Brand"
+        reason: >-
+          A marketing brand under the same manufacturer. Resolved as a
+          manufacturer alias rather than stored as a fact; treating it as a
+          separate value would split one company into two entities.
+      - path: "Certification Status"
+        reason: >-
+          Every row in the export is Active — discontinued models are dropped
+          from each quarterly file. A single-valued column cannot discriminate
+          anything, and the absence of a model from a later export is the real
+          signal. Recorded on the artifact instead.
+
+  # ===========================================================================
+  # 4. acme-spec-sheets — PDF specification sheets, one page per model.
+  # ===========================================================================
+  - source_key: acme-spec-sheets
+    format: pdf
+    locator_type: PAGE
+    parsing:
+      # Text-layer extraction only. No OCR path is approved for this source.
+      mode: text_layer
+      record_per: page
+      # Values sit to the right of their label on the same line.
+      extract: label_value
+      label_value_separator: horizontal_position
+    records:
+      - stream: spec_pages
+        entity_type: equipment_model
+        source_record_key: page_heading
+
+        aliases:
+          - alias_type: model_number
+            path: page_heading
+            extract: regex
+            pattern: "^([A-Z0-9]{6,32})$"
+            strong: true
+          - alias_type: series_name
+            path: page_subheading
+            extract: regex
+            pattern: "^(.+?)\\s+—\\s+"
+            strong: false
+
+        properties:
+          - property: product_type
+            path: page_subheading
+            extract: regex
+            pattern: "—\\s+(.+)$"
+            map_with: ontology.product_type
+          - property: nominal_tonnage
+            label: "Nominal Capacity"
+            extract_with: notation.capacity_with_unit_suffix
+            source_unit: ton
+          - property: cooling_capacity_btu
+            label: "Cooling Capacity"
+            extract_with: notation.capacity_with_unit_suffix
+            source_unit: BTU/h
+            description: >-
+              This source publishes tonnage AND BTU/h on the same page, which is
+              what lets `capacity_tonnage_consistency` validate the 12000 BTU/h
+              = 1 ton conversion against published data instead of trusting it.
+          - property: refrigerant
+            label: "Refrigerant"
+            map_with: ontology.refrigerant
+          - property: voltage
+            label: "Electrical (V-Ph-Hz)"
+            extract_with: notation.electrical_notation
+            emits: voltage
+          - property: phase
+            label: "Electrical (V-Ph-Hz)"
+            extract_with: notation.electrical_notation
+            emits: phase
+          - property: stage_count
+            label: "Compressor Stages"
+          - property: sound_level_db
+            label: "Sound Level"
+            extract_with: notation.measurement_with_unit_suffix
+            source_unit: dB
+          - property: weight_lb
+            label: "Net Weight"
+            extract_with: notation.measurement_with_unit_suffix
+            source_unit: lb
+
+        relationships:
+          - predicate: manufactures
+            subject_literal: Acme Climate Systems
+            subject_type: manufacturer
+            subject_resolve_with: publisher_aliases
+            object_from: page_heading
+            object_type: equipment_model
+            description: >-
+              The publisher is the manufacturer, so the subject is a literal
+              rather than an extracted field. Declared explicitly so the edge
+              still carries evidence (the document itself) rather than being
+              inferred silently.
+
+        excluded_fields:
+          - path: footer_disclaimer
+            reason: Boilerplate, present on every page; not a product fact.

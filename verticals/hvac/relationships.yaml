@@ -1,0 +1,141 @@
+# =============================================================================
+# relationships.yaml — the HVAC graph.
+#
+# Four predicates, matching `relationship_predicates` in vertical.yaml. Every
+# edge requires evidence (doc 04): a relationship is a claim about the world,
+# versioned and evidenced exactly like a fact.
+#
+# The commercial value of this vertical lives here, not in the specs. Anyone can
+# publish a spec table. `supersedes` chains and `compatible_with` edges are what
+# a technician cannot get from a search engine — doc 17's "replacement/
+# supersession questions" and "compatibility questions" strong signals.
+# =============================================================================
+
+predicates:
+  - predicate: manufactures
+    label: Manufactures
+    inverse_label: Manufactured by
+    subject_type: manufacturer
+    object_type: equipment_model
+    cardinality: one_to_many
+    transitive: false
+    symmetric: false
+    evidence_required: true
+    min_confidence: 0.9
+    description: >-
+      The manufacturer builds this model. Asserted by every source that names a
+      brand, so it is the highest-coverage edge in the graph and the one that
+      scopes model-number uniqueness.
+
+  - predicate: supersedes
+    label: Supersedes
+    inverse_label: Superseded by
+    subject_type: equipment_model
+    object_type: equipment_model
+    cardinality: one_to_many
+    # Chains are walked transitively: an installer holding a two-generation-old
+    # model needs the CURRENT replacement, not the one that replaced it in 2019.
+    transitive: true
+    symmetric: false
+    evidence_required: true
+    min_confidence: 0.85
+    description: >-
+      The subject model replaces the object model in the manufacturer's line.
+      The single most commercially valuable edge in this vertical: "what do I
+      order now that this is discontinued" is the question distributors pay
+      staff to answer by hand.
+    # A supersession is asserted by a source or it does not exist. Inferring one
+    # from spec similarity would be fabricating a purchasing recommendation.
+    inference_allowed: false
+    traversal:
+      max_depth: 10
+      # The end of a chain: the newest model with no successor.
+      terminal_is: no_outbound_edge
+
+  - predicate: certified_by
+    label: Certified by
+    inverse_label: Certifies
+    subject_type: equipment_model
+    object_type: certification
+    cardinality: one_to_many
+    transitive: false
+    symmetric: false
+    evidence_required: true
+    min_confidence: 0.95
+    description: >-
+      The model holds this certified ratings record. Carries the authority that
+      makes certified performance values beat manufacturer-published ones during
+      fact selection.
+
+  - predicate: compatible_with
+    label: Compatible with
+    inverse_label: Compatible with
+    subject_type: equipment_model
+    object_type: equipment_model
+    cardinality: many_to_many
+    transitive: false
+    # A is compatible with B iff B is compatible with A. The platform
+    # materializes the reverse edge; sources need only assert one direction.
+    symmetric: true
+    evidence_required: true
+    min_confidence: 0.9
+    description: >-
+      The two models form a valid matched system (typically an outdoor unit with
+      an indoor coil or air handler). Compatibility is a safety- and
+      warranty-relevant claim, so it is never inferred — only a source assertion
+      creates this edge.
+    inference_allowed: false
+    # Compatibility is not transitive: A-B and B-C says nothing about A-C.
+    # Treating it as transitive would generate plausible-looking pairings that
+    # no manufacturer ever certified.
+    transitive_closure_forbidden: true
+
+# --- Graph integrity rules --------------------------------------------------
+integrity_rules:
+  - id: no_supersession_cycles
+    rule: acyclic
+    predicate: supersedes
+    description: >-
+      A cycle means two models each replace the other, which is always a
+      resolution error — usually the same physical model split into two
+      entities by inconsistent model-number formatting.
+    severity: error
+
+  - id: no_self_supersession
+    rule: no_self_edge
+    predicate: supersedes
+    severity: error
+
+  - id: supersession_within_manufacturer
+    rule: same_related_entity
+    predicate: supersedes
+    via: manufactures
+    description: >-
+      Manufacturers supersede their own products. A cross-manufacturer
+      supersession is a competitive cross-reference, which is a different claim
+      and does not belong on this predicate.
+    severity: error
+
+  - id: every_model_has_a_manufacturer
+    rule: required_edge
+    entity_type: equipment_model
+    predicate: manufactures
+    direction: inbound
+    min_count: 1
+    severity: error
+
+  - id: no_self_compatibility
+    rule: no_self_edge
+    predicate: compatible_with
+    severity: error
+
+  - id: certification_capacity_agrees_with_model
+    rule: cross_entity_property
+    predicate: certified_by
+    property: cooling_capacity_btu
+    tolerance: 0.02
+    description: >-
+      A certification whose rated capacity does not match the model it is
+      attached to indicates the model number resolved to the wrong entity.
+      This is the main guard against a bad certification join.
+    severity: error

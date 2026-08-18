@@ -1,0 +1,127 @@
+# =============================================================================
+# Layer 4 — Ontology mapping (doc 06).
+#
+# Source vocabulary → this vertical's controlled vocabulary. Doc 06's example is
+# literally an HVAC one: "Condenser Fan Motor" / "Outdoor Fan Motor" / "OD Fan
+# Motor" → `condenser_fan_motor`.
+#
+# Doc 06: "Retain source wording for provenance/search." Mapping ADDS a
+# canonical term; it never deletes the original. A technician searching the
+# distributor's phrase must still find the page.
+# =============================================================================
+
+layer: ontology_mapping
+
+# An unmapped term is recorded for human review and leaves the fact PROPOSED.
+# Never guessed, never dropped: a new refrigerant designation appearing in a
+# feed is exactly the signal that should reach a person, and silently mapping it
+# to the nearest known value would hide a real market change.
+unmapped_term_policy: quarantine
+
+controlled_vocabularies:
+  - property: product_type
+    description: >-
+      Equipment category. Sources describe the same box as a "Condenser", an
+      "Air Conditioner" and a "Split System Air Conditioner" — one canonical
+      term, because a filter with three synonymous options is a broken filter.
+    terms:
+      - canonical: air_conditioner
+        label: Air Conditioner
+        match: case_insensitive_exact
+        synonyms:
+          - Air Conditioner
+          - Air Conditioning
+          - Split System Air Conditioner
+          - Split System AC
+          - Condenser
+          - Condensing Unit
+          - AC
+          - A/C
+
+      - canonical: heat_pump
+        label: Heat Pump
+        match: case_insensitive_exact
+        synonyms:
+          - Heat Pump
+          - Split System Heat Pump
+          - Heat Pump Condenser
+          - HP
+
+      - canonical: gas_furnace
+        label: Gas Furnace
+        match: case_insensitive_exact
+        synonyms:
+          - Gas Furnace
+          - Furnace
+          - Gas Fired Furnace
+
+      - canonical: air_handler
+        label: Air Handler
+        match: case_insensitive_exact
+        synonyms:
+          - Air Handler
+          - Air Handling Unit
+          - AHU
+          - Fan Coil
+
+      - canonical: packaged_unit
+        label: Packaged Unit
+        match: case_insensitive_exact
+        synonyms:
+          - Packaged Unit
+          - Package Unit
+          - Rooftop Unit
+          - RTU
+
+    excluded:
+      - term: Mini Split
+        reason: >-
+          Ductless systems are a genuinely different product class with
+          different identity and compatibility rules. Mapping them onto
+          air_conditioner would put incomparable equipment in the same filter.
+          They need their own canonical term when the vertical expands, and
+          that is a schema_version bump, not a synonym.
+
+  - property: refrigerant
+    description: >-
+      Normalized to ASHRAE hyphenated form. Commercially load-bearing: the A2L
+      transition means refrigerant type decides whether a replacement is a
+      drop-in or a system change, so `R410A` and `R-410A` colliding as separate
+      filter values would break the single most important compatibility
+      question in the vertical.
+    terms:
+      - canonical: R-410A
+        label: R-410A
+        match: case_insensitive_exact
+        synonyms: ["R410A", "R-410A", "410A", "R 410A", "Puron"]
+
+      - canonical: R-454B
+        label: R-454B
+        match: case_insensitive_exact
+        synonyms: ["R454B", "R-454B", "454B", "R 454B"]
+
+      - canonical: R-32
+        label: R-32
+        match: case_insensitive_exact
+        synonyms: ["R32", "R-32", "32"]
+
+      - canonical: R-22
+        label: R-22
+        match: case_insensitive_exact
+        synonyms: ["R22", "R-22", "22", "Freon"]
+
+    excluded:
+      - term: "Refrigerant"
+        reason: A category label, not a designation. Extraction artifact.
+
+# --- Source wording retention -----------------------------------------------
+# Doc 06's explicit requirement, made concrete.
+source_wording:
+  # The source's own phrasing is stored in fact_evidence.source_value and stays
+  # searchable, so "condensing unit" still finds a page whose canonical
+  # product_type is `air_conditioner`.
+  retain_in_evidence: true
+  include_in_search_index: true
+  # Never displayed as the canonical value — the page shows the canonical term
+  # and cites the source's wording as evidence.
+  display_as_canonical: false

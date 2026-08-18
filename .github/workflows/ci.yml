@@ -1,0 +1,108 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Fail fast on a corepack/pnpm mismatch rather than silently resolving a
+  # different lockfile shape than the one that was committed.
+  CI: 'true'
+
+jobs:
+  verify:
+    name: typecheck • test • migrations • vertical config
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      # 1. Types. tsc --strict over every package, test and tooling script.
+      - name: Typecheck
+        run: pnpm typecheck
+
+      # 2. Unit and contract tests, including the PGlite migration suite.
+      - name: Test
+        run: pnpm test
+
+      # 3. Migration gate. Applies db/migrations in order against a fresh
+      #    Postgres (PGlite), verifies every expected table exists, and proves a
+      #    re-run is a clean no-op. Catches ordering errors, non-portable SQL and
+      #    non-idempotent DDL before they reach a hosted database.
+      - name: Migration apply check
+        run: pnpm migrate:check
+
+      # 4. Generated JSON Schema exports must match the Zod source of truth.
+      #    A stale export means external consumers are reading a model the
+      #    platform no longer implements.
+      - name: Canonical schema exports are current
+        run: pnpm schemas:check
+
+      # 5. Vertical configuration. Validates every verticals/* declaration:
+      #    required docs present, vertical.yaml well-formed, and every source
+      #    carries complete rights metadata (AGENTS.md rule 1). No-ops cleanly
+      #    while verticals/ does not yet exist.
+      - name: Vertical config validation
+        run: pnpm verticals:validate
+
+  migrations-postgres:
+    name: migrations on real Postgres
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: data_foundry
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      # The same SQL, unchanged, against a real Postgres. This is the check that
+      # keeps "portable Postgres DDL" honest rather than aspirational.
+      - name: Apply migrations to Postgres
+        env:
+          POSTGRES_URL: postgres://postgres:postgres@localhost:5432/data_foundry
+        run: pnpm migrate
+
+      - name: Re-apply must be a no-op
+        env:
+          POSTGRES_URL: postgres://postgres:postgres@localhost:5432/data_foundry
+        run: pnpm migrate

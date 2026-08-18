@@ -1,0 +1,49 @@
+# =============================================================================
+# relationships.yaml — the graph edges this vertical defines.
+#
+# Every predicate listed here must also appear in vertical.yaml
+# `relationship_predicates` (the validator checks that list is well-formed;
+# keeping them in sync is this vertical's job).
+#
+# Relationships require evidence exactly like facts do (doc 04). A predicate
+# with no `evidence_required` policy is a bug, not a shortcut.
+# =============================================================================
+
+predicates: []
+
+# Example shape:
+#
+# predicates:
+#   - predicate: manufactures
+#     label: Manufactures
+#     subject_type: manufacturer      # entity_type of the subject
+#     object_type: product            # entity_type of the object
+#     # one_to_many | many_to_many | one_to_one
+#     cardinality: one_to_many
+#     # Whether the reverse direction is materialized for querying.
+#     inverse_label: Manufactured by
+#     # May a chain of this predicate be walked transitively? (supersession: yes)
+#     transitive: false
+#     # May A -> B and B -> A both exist? (supersession: no)
+#     symmetric: false
+#     evidence_required: true
+#     # Minimum relationship_confidence to publish this edge.
+#     min_confidence: 0.8
+#     description: >-
+#       What this edge asserts, in one sentence, written for an agent that has
+#       to decide whether it answers the user's question.
+
+# --- Graph integrity rules --------------------------------------------------
+# Declarative constraints the pipeline enforces on the assembled graph.
+integrity_rules: []
+# Example shapes:
+#   - id: no_supersession_cycles
+#     rule: acyclic
+#     predicate: supersedes
+#     severity: error
+#   - id: every_product_has_a_manufacturer
+#     rule: required_edge
+#     entity_type: product
+#     predicate: manufactures
+#     direction: inbound
+#     severity: warning

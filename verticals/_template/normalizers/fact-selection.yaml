@@ -1,0 +1,126 @@
+# =============================================================================
+# fact-selection.yaml — which competing claim becomes the canonical value.
+#
+# Doc 04 is explicit: "Do not simply use 'latest source wins.'" The canonical
+# view is a COMPUTED SELECTION over the criteria below, in priority order:
+#
+#   0. explicit editorial override   (ADR-0002 — see below)
+#   1. direct authoritative source
+#   2. source-specific reliability for that field
+#   3. recency
+#   4. corroboration
+#   5. deterministic consistency checks
+#
+# ADR-0002 moved the editorial override from LAST to FIRST. Doc 04 lists it
+# sixth, which means it can only fire once the five criteria above it have
+# tied — exactly the case where nothing needed overriding. An editor could not
+# correct a wrong value published by an authoritative source. It now wins
+# outright, but only when auditable: its own evidence, a written reason and a
+# named reviewer. Missing either and it is ignored entirely.
+#
+# The losing claim is NEVER deleted. It stays in `facts` with a non-ACTIVE
+# status and its own evidence, because the question "why does your site say
+# 14.3 when the brochure says 14.5?" has to be answerable.
+# =============================================================================
+
+# Order in which criteria are applied. Earlier criteria decide; later criteria
+# only break remaining ties.
+strategy:
+  - editorial_override
+  - authoritative_source
+  - field_reliability
+  - corroboration
+  - recency
+  - consistency_check
+
+# --- 1. Authoritative source ------------------------------------------------
+# Per-property declaration of which source TYPE is definitive. A certification
+# body's rated value beats a manufacturer's brochure figure, which beats a
+# distributor's listing — regardless of which was published most recently.
+authoritative_by_property: {}
+
+# Example shape:
+#   rated_performance_value:
+#     prefer_source_types: [CERTIFICATION_BODY, STANDARDS_BODY]
+#     rationale: >-
+#       Why this source type is definitive for this specific field. Required —
+#       an unexplained precedence rule is unauditable.
+
+# --- 2. Field reliability ---------------------------------------------------
+# Per-source, per-property reliability overrides. Use where a source is
+# generally good but unreliable on one field (or vice versa). Absent an
+# override, `authority_rank` from the source registry entry is used.
+field_reliability: {}
+
+# --- 3. Recency -------------------------------------------------------------
+recency:
+  # Recency only breaks ties between claims of comparable authority; it never
+  # overrides criterion 1.
+  applies_within_authority_band: 10
+  prefer: newest_observed_at
+
+# --- 4. Corroboration -------------------------------------------------------
+corroboration:
+  # Independent sources agreeing on a value raise its confidence.
+  bonus_per_agreeing_source: 0.05
+  max_bonus: 0.15
+  # Sources that share an upstream origin are not independent and must not
+  # corroborate each other.
+  independent_source_groups: []
+
+# --- 5. Consistency checks --------------------------------------------------
+# Deterministic cross-property checks. A claim that fails one is demoted, not
+# discarded.
+consistency_checks: []
+
+# --- 0. Editorial override (ADR-0002) ---------------------------------------
+# Applied FIRST, and it wins outright — see the header. That is only defensible
+# because it is auditable, so the audit requirements are not optional.
+editorial_override:
+  # The one real switch: false withdraws the mechanism for this vertical.
+  enabled: true
+  # An override is a fact with its own evidence (a named human and a reason),
+  # not a magic value that appears from nowhere. These two are ENFORCED by the
+  # cascade unconditionally; the keys document the invariant, they do not
+  # switch it off. Setting either to false changes nothing.
+  requires_reason: true
+  requires_reviewer: true
+  # DECLARED, NOT YET ENFORCED. Overrides ought to expire so a stale manual
+  # patch cannot outlive the problem it fixed, but expiry needs a declaration
+  # date on each entry and the selection cascade does not read one yet.
+  max_age_days: 365
+
+  # The corrections themselves. Each entry needs `source`, `reason` and
+  # `reviewer`; one missing and the entry is ignored entirely — it does not
+  # degrade into a tiebreaker. `properties` is optional and restricts the
+  # override to the properties it names.
+  #
+  # Two entries competing for the same property cancel each other out: the
+  # cascade falls through to the ordinary criteria and records that it did.
+  #
+  # Example shape:
+  #   - source: editorial.internal
+  #     reason: >-
+  #       Manufacturer erratum EC-2026-14 supersedes the printed nameplate
+  #       value; the directory has not yet re-published.
+  #     reviewer: j.okafor@example.com
+  #     properties: [rated_performance_value]
+  overrides: []
+
+# --- Conflict retention (AGENTS.md rules 2 and 10) --------------------------
+conflict_policy:
+  # Losing claims keep their evidence and stay queryable.
+  retain_losing_claims: true
+  # Status applied to a claim that lost selection but is not known to be wrong.
+  losing_status: SUPERSEDED
+  # Status when two claims of comparable authority disagree beyond tolerance —
+  # nobody wins, and the disagreement itself is the published answer.
+  unresolved_status: DISPUTED
+  # Relative disagreement above which a numeric conflict is material.
+  numeric_tolerance: 0.02
+  # A DISPUTED critical property blocks the entity's page from being indexed
+  # (see seo.yaml `block_on_open_dispute`) but does NOT hide it from API/MCP,
+  # which return the conflict and its evidence.
+  disputed_blocks_indexing: true
+  surface_conflicts_in_api: true
+  surface_conflicts_in_mcp: true

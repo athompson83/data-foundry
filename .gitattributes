@@ -1,0 +1,15 @@
+# Normalize line endings so Windows checkouts do not churn the diff for
+# collaborators on macOS/Linux. Text is stored LF in the repository.
+* text=auto eol=lf
+
+*.sql   text eol=lf
+*.md    text eol=lf
+*.ts    text eol=lf
+*.json  text eol=lf
+*.yaml  text eol=lf
+*.yml   text eol=lf
+
+*.pdf   binary
+*.png   binary
+*.jpg   binary
+*.parquet binary

@@ -1,0 +1,82 @@
+{
+  "_note": "Expected canonical graph edges from the four fixtures. SYNTHETIC TEST DATA. Every edge carries evidence — doc 04: 'Relationships also require evidence.' The `compatible_with` predicate is declared in relationships.yaml and produces ZERO edges here, which is a positive assertion, not an omission: no source asserts compatibility, inference is forbidden, and a pipeline that invents plausible pairings has failed this fixture.",
+  "counts": { "manufactures": 13, "supersedes": 2, "certified_by": 11, "compatible_with": 0, "total": 26 },
+
+  "relationships": [
+    { "subject": "manufacturer:acme-climate-systems", "predicate": "manufactures", "object": "equipment_model:24ACA636A003", "confidence": 0.99, "status": "ACTIVE", "evidence": [ { "source": "acme-hvac-catalog", "source_value": "Acme Climate Systems", "locator_type": "JSON_POINTER", "locator_value": "/products/0/brand" } ] },
+    { "subject": "manufacturer:acme-climate-systems", "predicate": "manufactures", "object": "equipment_model:24ACB636A003", "confidence": 0.99, "status": "ACTIVE", "evidence": [ { "source": "acme-hvac-catalog", "source_value": "Acme Climate Systems", "locator_type": "JSON_POINTER", "locator_value": "/products/1/brand" } ] },
+    { "subject": "manufacturer:acme-climate-systems", "predicate": "manufactures", "object": "equipment_model:24ACC636A003", "confidence": 0.99, "status": "ACTIVE", "evidence": [ { "source": "acme-hvac-catalog", "source_value": "Acme Climate Systems", "locator_type": "JSON_POINTER", "locator_value": "/products/2/brand" }, { "source": "ahri-directory-export", "source_value": "Acme Climate Systems", "locator_type": "TABLE_CELL", "locator_value": "row=1;col=Manufacturer" }, { "source": "acme-spec-sheets", "source_value": "ACME CLIMATE SYSTEMS", "locator_type": "PAGE", "locator_value": "page=1;heading" }, { "source": "coolsupply-distributor", "source_value": "Acme", "locator_type": "CSS_SELECTOR", "locator_value": ".product-card[data-item=\"CS-118822\"] .spec-brand" } ] },
+    { "subject": "manufacturer:acme-climate-systems", "predicate": "manufactures", "object": "equipment_model:24ACC648A003", "confidence": 0.99, "status": "ACTIVE", "evidence": [ { "source": "acme-hvac-catalog", "source_value": "Acme Climate Systems", "locator_type": "JSON_POINTER", "locator_value": "/products/3/brand" }, { "source": "ahri-directory-export", "source_value": "Acme Climate Systems", "locator_type": "TABLE_CELL", "locator_value": "row=2;col=Manufacturer" }, { "source": "acme-spec-sheets", "source_value": "ACME CLIMATE SYSTEMS", "locator_type": "PAGE", "locator_value": "page=2;heading" } ] },
+    { "subject": "manufacturer:acme-climate-systems", "predicate": "manufactures", "object": "equipment_model:24ACC660A003", "confidence": 0.99, "status": "ACTIVE", "evidence": [ { "source": "acme-hvac-catalog", "source_value": "Acme Climate Systems", "locator_type": "JSON_POINTER", "locator_value": "/products/4/brand" }, { "source": "ahri-directory-export", "source_value": "Acme Climate Systems", "locator_type": "TABLE_CELL", "locator_value": "row=3;col=Manufacturer" } ] },
+    { "subject": "manufacturer:acme-climate-systems", "predicate": "manufactures", "object": "equipment_model:25HPA630A003", "confidence": 0.99, "status": "ACTIVE", "evidence": [ { "source": "acme-hvac-catalog", "source_value": "Acme Climate Systems", "locator_type": "JSON_POINTER", "locator_value": "/products/5/brand" }, { "source": "ahri-directory-export", "source_value": "Acme Climate Systems", "locator_type": "TABLE_CELL", "locator_value": "row=4;col=Manufacturer" } ] },
+
+    { "subject": "manufacturer:northwind-air-systems", "predicate": "manufactures", "object": "equipment_model:NWA1424AC1", "confidence": 0.98, "status": "ACTIVE", "evidence": [ { "source": "ahri-directory-export", "source_value": "Northwind Air Systems", "locator_type": "TABLE_CELL", "locator_value": "row=5;col=Manufacturer" } ] },
+    { "subject": "manufacturer:northwind-air-systems", "predicate": "manufactures", "object": "equipment_model:NWA1436AC1", "confidence": 0.99, "status": "ACTIVE", "evidence": [ { "source": "ahri-directory-export", "source_value": "Northwind Air Systems", "locator_type": "TABLE_CELL", "locator_value": "row=6;col=Manufacturer" }, { "source": "coolsupply-distributor", "source_value": "Northwind", "locator_type": "CSS_SELECTOR", "locator_value": ".product-card[data-item=\"CS-204471\"] .spec-brand" } ] },
+    { "subject": "manufacturer:northwind-air-systems", "predicate": "manufactures", "object": "equipment_model:NWA1448AC1", "confidence": 0.98, "status": "ACTIVE", "evidence": [ { "source": "ahri-directory-export", "source_value": "Northwind Air Systems", "locator_type": "TABLE_CELL", "locator_value": "row=7;col=Manufacturer" } ] },
+    { "subject": "manufacturer:northwind-air-systems", "predicate": "manufactures", "object": "equipment_model:NWH1636HP1", "confidence": 0.99, "status": "ACTIVE", "evidence": [ { "source": "ahri-directory-export", "source_value": "Northwind Air Systems", "locator_type": "TABLE_CELL", "locator_value": "row=8;col=Manufacturer" }, { "source": "coolsupply-distributor", "source_value": "Northwind", "locator_type": "CSS_SELECTOR", "locator_value": ".product-card[data-item=\"CS-204488\"] .spec-brand" } ] },
+
+    { "subject": "manufacturer:borealis-thermal-works", "predicate": "manufactures", "object": "equipment_model:BTWC2036", "confidence": 0.99, "status": "ACTIVE", "evidence": [ { "source": "ahri-directory-export", "source_value": "Borealis Thermal Works", "locator_type": "TABLE_CELL", "locator_value": "row=9;col=Manufacturer" }, { "source": "coolsupply-distributor", "source_value": "Borealis", "locator_type": "CSS_SELECTOR", "locator_value": ".product-card[data-item=\"CS-330915\"] .spec-brand" } ] },
+    { "subject": "manufacturer:borealis-thermal-works", "predicate": "manufactures", "object": "equipment_model:BTWC2048", "confidence": 0.98, "status": "ACTIVE", "evidence": [ { "source": "ahri-directory-export", "source_value": "Borealis Thermal Works", "locator_type": "TABLE_CELL", "locator_value": "row=10;col=Manufacturer" } ] },
+    { "subject": "manufacturer:borealis-thermal-works", "predicate": "manufactures", "object": "equipment_model:BTWH3036", "confidence": 0.98, "status": "ACTIVE", "evidence": [ { "source": "ahri-directory-export", "source_value": "Borealis Thermal Works", "locator_type": "TABLE_CELL", "locator_value": "row=11;col=Manufacturer" } ] },
+
+    { "subject": "equipment_model:24ACB636A003", "predicate": "supersedes", "object": "equipment_model:24ACA636A003", "confidence": 0.97, "status": "ACTIVE", "valid_from": "2023-06-30", "direction_note": "The source says 24ACA636A003 was `replaced_by` 24ACB636A003. The canonical edge runs SUCCESSOR → PREDECESSOR, so subject and object are swapped relative to the source field. Getting this backwards answers every replacement question with the discontinued unit.", "evidence": [ { "source": "acme-hvac-catalog", "source_value": "24ACB636A003", "locator_type": "JSON_POINTER", "locator_value": "/products/0/lifecycle/replaced_by" } ] },
+    { "subject": "equipment_model:24ACC636A003", "predicate": "supersedes", "object": "equipment_model:24ACB636A003", "confidence": 0.97, "status": "ACTIVE", "valid_from": "2025-12-31", "evidence": [ { "source": "acme-hvac-catalog", "source_value": "24ACC636A003", "locator_type": "JSON_POINTER", "locator_value": "/products/1/lifecycle/replaced_by" } ] },
+
+    { "subject": "equipment_model:24ACC636A003", "predicate": "certified_by", "object": "certification:20134501", "confidence": 0.99, "status": "ACTIVE", "valid_from": "2026-01-15", "evidence": [ { "source": "ahri-directory-export", "source_value": "20134501", "locator_type": "TABLE_CELL", "locator_value": "row=1;col=AHRI Certified Reference Number" } ] },
+    { "subject": "equipment_model:24ACC648A003", "predicate": "certified_by", "object": "certification:20134502", "confidence": 0.99, "status": "ACTIVE", "valid_from": "2026-01-15", "evidence": [ { "source": "ahri-directory-export", "source_value": "20134502", "locator_type": "TABLE_CELL", "locator_value": "row=2;col=AHRI Certified Reference Number" } ] },
+    { "subject": "equipment_model:24ACC660A003", "predicate": "certified_by", "object": "certification:20134503", "confidence": 0.99, "status": "ACTIVE", "valid_from": "2026-01-15", "evidence": [ { "source": "ahri-directory-export", "source_value": "20134503", "locator_type": "TABLE_CELL", "locator_value": "row=3;col=AHRI Certified Reference Number" } ] },
+    { "subject": "equipment_model:25HPA630A003", "predicate": "certified_by", "object": "certification:20134504", "confidence": 0.99, "status": "ACTIVE", "valid_from": "2026-01-15", "evidence": [ { "source": "ahri-directory-export", "source_value": "20134504", "locator_type": "TABLE_CELL", "locator_value": "row=4;col=AHRI Certified Reference Number" } ] },
+    { "subject": "equipment_model:NWA1424AC1", "predicate": "certified_by", "object": "certification:20155001", "confidence": 0.99, "status": "ACTIVE", "valid_from": "2026-02-01", "evidence": [ { "source": "ahri-directory-export", "source_value": "20155001", "locator_type": "TABLE_CELL", "locator_value": "row=5;col=AHRI Certified Reference Number" } ] },
+    { "subject": "equipment_model:NWA1436AC1", "predicate": "certified_by", "object": "certification:20155002", "confidence": 0.99, "status": "ACTIVE", "valid_from": "2026-02-01", "evidence": [ { "source": "ahri-directory-export", "source_value": "20155002", "locator_type": "TABLE_CELL", "locator_value": "row=6;col=AHRI Certified Reference Number" } ] },
+    { "subject": "equipment_model:NWA1448AC1", "predicate": "certified_by", "object": "certification:20155003", "confidence": 0.99, "status": "ACTIVE", "valid_from": "2026-02-01", "evidence": [ { "source": "ahri-directory-export", "source_value": "20155003", "locator_type": "TABLE_CELL", "locator_value": "row=7;col=AHRI Certified Reference Number" } ] },
+    { "subject": "equipment_model:NWH1636HP1", "predicate": "certified_by", "object": "certification:20155004", "confidence": 0.99, "status": "ACTIVE", "valid_from": "2026-02-01", "evidence": [ { "source": "ahri-directory-export", "source_value": "20155004", "locator_type": "TABLE_CELL", "locator_value": "row=8;col=AHRI Certified Reference Number" } ] },
+    { "subject": "equipment_model:BTWC2036", "predicate": "certified_by", "object": "certification:20166201", "confidence": 0.99, "status": "ACTIVE", "valid_from": "2026-03-10", "evidence": [ { "source": "ahri-directory-export", "source_value": "20166201", "locator_type": "TABLE_CELL", "locator_value": "row=9;col=AHRI Certified Reference Number" } ] },
+    { "subject": "equipment_model:BTWC2048", "predicate": "certified_by", "object": "certification:20166202", "confidence": 0.99, "status": "ACTIVE", "valid_from": "2026-03-10", "evidence": [ { "source": "ahri-directory-export", "source_value": "20166202", "locator_type": "TABLE_CELL", "locator_value": "row=10;col=AHRI Certified Reference Number" } ] },
+    { "subject": "equipment_model:BTWH3036", "predicate": "certified_by", "object": "certification:20166203", "confidence": 0.99, "status": "ACTIVE", "valid_from": "2026-03-10", "evidence": [ { "source": "ahri-directory-export", "source_value": "20166203", "locator_type": "TABLE_CELL", "locator_value": "row=11;col=AHRI Certified Reference Number" } ] }
+  ],
+
+  "expected_traversals": [
+    {
+      "query": "current replacement for 24ACA636A003",
+      "tool": "find_replacement_model",
+      "start": "equipment_model:24ACA636A003",
+      "predicate": "supersedes",
+      "direction": "inbound",
+      "transitive": true,
+      "expected_path": ["equipment_model:24ACA636A003", "equipment_model:24ACB636A003", "equipment_model:24ACC636A003"],
+      "expected_terminal": "equipment_model:24ACC636A003",
+      "hops": 2,
+      "note": "TWO hops, and the two-hop answer is the only correct one. Stopping at the first hop returns 24ACB636A003, which is itself discontinued — an installer who orders it has been given a wrong answer that looks right. This is the single most important traversal in the vertical.",
+      "must_report": ["refrigerant change R-410A → R-454B across the chain", "each hop's evidence", "each hop's supersession date"]
+    },
+    {
+      "query": "current replacement for 24ACB636A003",
+      "start": "equipment_model:24ACB636A003",
+      "expected_path": ["equipment_model:24ACB636A003", "equipment_model:24ACC636A003"],
+      "expected_terminal": "equipment_model:24ACC636A003",
+      "hops": 1
+    },
+    {
+      "query": "current replacement for 24ACC636A003",
+      "start": "equipment_model:24ACC636A003",
+      "expected_path": ["equipment_model:24ACC636A003"],
+      "expected_terminal": "equipment_model:24ACC636A003",
+      "hops": 0,
+      "note": "No outbound edge: this IS the current model. Must return 'this model is current', never an empty result — an empty result reads as 'no data' and sends the user elsewhere."
+    }
+  ],
+
+  "expected_absences": [
+    {
+      "predicate": "compatible_with",
+      "expected_count": 0,
+      "assertion": "No source in this fixture set asserts compatibility, `inference_allowed` is false, and `transitive_closure_forbidden` is true. Any compatible_with edge produced from these fixtures is a fabrication. Compatibility is a safety- and warranty-relevant claim, so inventing one from spec similarity is the most dangerous thing this pipeline could do."
+    },
+    {
+      "predicate": "certified_by",
+      "subjects": ["equipment_model:24ACA636A003", "equipment_model:24ACB636A003"],
+      "expected_count": 0,
+      "assertion": "Discontinued models are dropped from each quarterly directory export, so no certification exists for them. Their absence is correct data, not a join failure — a pipeline that back-fills them from an older export without saying so has invented a currently-valid certification."
+    }
+  ]
+}

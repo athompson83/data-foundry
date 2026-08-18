@@ -1,0 +1,272 @@
+{
+  "_note": "Expected canonical entities and aliases from the four fixtures. SYNTHETIC TEST DATA — all companies are fictional. `ref` is a stable test handle (entity_type:normalized_identifier), not a database id. Every alias `normalized_value` is the output of the Layer 3 identifier rules in normalizers/03-domain-normalization.yaml; the whole point of this file is that four differently-formatted source spellings collapse onto one join key.",
+  "counts": { "manufacturer": 3, "equipment_model": 13, "certification": 11, "total": 27 },
+
+  "entities": [
+    {
+      "ref": "manufacturer:acme-climate-systems",
+      "entity_type": "manufacturer",
+      "canonical_name": "Acme Climate Systems",
+      "canonical_slug": "acme-climate-systems",
+      "status": "ACTIVE",
+      "resolution": { "method": "publisher_alias_table", "note": "Four source spellings ('Acme Climate Systems', 'Acme', 'ACME', 'ACS') resolve deterministically to one manufacturer. Without this table the graph would carry four." },
+      "aliases": [
+        { "alias_type": "legal_name", "alias_value": "Acme Climate Systems", "normalized_value": "ACME CLIMATE SYSTEMS", "sources": ["acme-hvac-catalog", "ahri-directory-export", "acme-spec-sheets"], "strong": true },
+        { "alias_type": "name", "alias_value": "Acme", "normalized_value": "ACME", "sources": ["coolsupply-distributor"], "strong": false },
+        { "alias_type": "name", "alias_value": "ACME", "normalized_value": "ACME", "sources": ["ahri-directory-export"], "strong": false },
+        { "alias_type": "abbreviation", "alias_value": "ACS", "normalized_value": "ACS", "sources": ["acme-hvac-catalog"], "strong": false, "note": "Inferred from the manufacturer_sku prefix `ACS-`; recorded as a weak alias only." }
+      ]
+    },
+    {
+      "ref": "manufacturer:northwind-air-systems",
+      "entity_type": "manufacturer",
+      "canonical_name": "Northwind Air Systems",
+      "canonical_slug": "northwind-air-systems",
+      "status": "ACTIVE",
+      "resolution": { "method": "publisher_alias_table" },
+      "aliases": [
+        { "alias_type": "legal_name", "alias_value": "Northwind Air Systems", "normalized_value": "NORTHWIND AIR SYSTEMS", "sources": ["ahri-directory-export"], "strong": true },
+        { "alias_type": "name", "alias_value": "Northwind", "normalized_value": "NORTHWIND", "sources": ["ahri-directory-export", "coolsupply-distributor"], "strong": false }
+      ]
+    },
+    {
+      "ref": "manufacturer:borealis-thermal-works",
+      "entity_type": "manufacturer",
+      "canonical_name": "Borealis Thermal Works",
+      "canonical_slug": "borealis-thermal-works",
+      "status": "ACTIVE",
+      "resolution": { "method": "publisher_alias_table" },
+      "aliases": [
+        { "alias_type": "legal_name", "alias_value": "Borealis Thermal Works", "normalized_value": "BOREALIS THERMAL WORKS", "sources": ["ahri-directory-export"], "strong": true },
+        { "alias_type": "name", "alias_value": "Borealis", "normalized_value": "BOREALIS", "sources": ["ahri-directory-export", "coolsupply-distributor"], "strong": false }
+      ]
+    },
+
+    {
+      "ref": "equipment_model:24ACC636A003",
+      "entity_type": "equipment_model",
+      "canonical_name": "Acme Climate Systems 24ACC636A003",
+      "canonical_slug": "acme-climate-systems-24acc636a003",
+      "status": "ACTIVE",
+      "resolution": {
+        "method": "strong_identifier_exact_match",
+        "identifier": "model_number",
+        "normalized_value": "24ACC636A003",
+        "sources_merged": 4,
+        "note": "THE CENTRAL ASSERTION OF THIS FIXTURE SET. Four sources, four spellings, one entity — resolved deterministically on the normalized model number with no fuzzy matching and no vector similarity (AGENTS.md rule 7)."
+      },
+      "aliases": [
+        { "alias_type": "model_number", "alias_value": "24ACC636A003", "normalized_value": "24ACC636A003", "sources": ["acme-hvac-catalog", "acme-spec-sheets"], "strong": true },
+        { "alias_type": "model_number", "alias_value": "24acc6-36a003", "normalized_value": "24ACC636A003", "sources": ["coolsupply-distributor"], "strong": true },
+        { "alias_type": "model_number", "alias_value": "24ACC6 36A003", "normalized_value": "24ACC636A003", "sources": ["ahri-directory-export"], "strong": true },
+        { "alias_type": "manufacturer_sku", "alias_value": "ACS-24ACC636A003", "normalized_value": "ACS-24ACC636A003", "sources": ["acme-hvac-catalog"], "strong": true },
+        { "alias_type": "upc", "alias_value": "083456120010", "normalized_value": "083456120010", "sources": ["coolsupply-distributor"], "strong": true },
+        { "alias_type": "ahri_ref", "alias_value": "20134501", "normalized_value": "20134501", "sources": ["ahri-directory-export"], "strong": true },
+        { "alias_type": "series_name", "alias_value": "Comfort 16", "normalized_value": "Comfort 16", "sources": ["acme-hvac-catalog", "acme-spec-sheets"], "strong": false }
+      ]
+    },
+    {
+      "ref": "equipment_model:24ACC648A003",
+      "entity_type": "equipment_model",
+      "canonical_name": "Acme Climate Systems 24ACC648A003",
+      "canonical_slug": "acme-climate-systems-24acc648a003",
+      "status": "ACTIVE",
+      "resolution": { "method": "strong_identifier_exact_match", "identifier": "model_number", "normalized_value": "24ACC648A003", "sources_merged": 4 },
+      "aliases": [
+        { "alias_type": "model_number", "alias_value": "24ACC648A003", "normalized_value": "24ACC648A003", "sources": ["acme-hvac-catalog", "acme-spec-sheets"], "strong": true },
+        { "alias_type": "model_number", "alias_value": "24acc6-48a003", "normalized_value": "24ACC648A003", "sources": ["coolsupply-distributor"], "strong": true },
+        { "alias_type": "model_number", "alias_value": "24ACC6 48A003", "normalized_value": "24ACC648A003", "sources": ["ahri-directory-export"], "strong": true },
+        { "alias_type": "manufacturer_sku", "alias_value": "ACS-24ACC648A003", "normalized_value": "ACS-24ACC648A003", "sources": ["acme-hvac-catalog"], "strong": true },
+        { "alias_type": "upc", "alias_value": "083456120027", "normalized_value": "083456120027", "sources": ["coolsupply-distributor"], "strong": true },
+        { "alias_type": "ahri_ref", "alias_value": "20134502", "normalized_value": "20134502", "sources": ["ahri-directory-export"], "strong": true },
+        { "alias_type": "series_name", "alias_value": "Comfort 16", "normalized_value": "Comfort 16", "sources": ["acme-hvac-catalog", "acme-spec-sheets"], "strong": false }
+      ]
+    },
+    {
+      "ref": "equipment_model:24ACC660A003",
+      "entity_type": "equipment_model",
+      "canonical_name": "Acme Climate Systems 24ACC660A003",
+      "canonical_slug": "acme-climate-systems-24acc660a003",
+      "status": "ACTIVE",
+      "resolution": { "method": "strong_identifier_exact_match", "identifier": "model_number", "normalized_value": "24ACC660A003", "sources_merged": 3 },
+      "aliases": [
+        { "alias_type": "model_number", "alias_value": "24ACC660A003", "normalized_value": "24ACC660A003", "sources": ["acme-hvac-catalog", "acme-spec-sheets"], "strong": true },
+        { "alias_type": "model_number", "alias_value": "24ACC6 60A003", "normalized_value": "24ACC660A003", "sources": ["ahri-directory-export"], "strong": true },
+        { "alias_type": "manufacturer_sku", "alias_value": "ACS-24ACC660A003", "normalized_value": "ACS-24ACC660A003", "sources": ["acme-hvac-catalog"], "strong": true },
+        { "alias_type": "ahri_ref", "alias_value": "20134503", "normalized_value": "20134503", "sources": ["ahri-directory-export"], "strong": true },
+        { "alias_type": "series_name", "alias_value": "Comfort 16", "normalized_value": "Comfort 16", "sources": ["acme-hvac-catalog", "acme-spec-sheets"], "strong": false }
+      ]
+    },
+    {
+      "ref": "equipment_model:25HPA630A003",
+      "entity_type": "equipment_model",
+      "canonical_name": "Acme Climate Systems 25HPA630A003",
+      "canonical_slug": "acme-climate-systems-25hpa630a003",
+      "status": "ACTIVE",
+      "resolution": { "method": "strong_identifier_exact_match", "identifier": "model_number", "normalized_value": "25HPA630A003", "sources_merged": 2 },
+      "aliases": [
+        { "alias_type": "model_number", "alias_value": "25HPA630A003", "normalized_value": "25HPA630A003", "sources": ["acme-hvac-catalog"], "strong": true },
+        { "alias_type": "model_number", "alias_value": "25HPA6 30A003", "normalized_value": "25HPA630A003", "sources": ["ahri-directory-export"], "strong": true },
+        { "alias_type": "manufacturer_sku", "alias_value": "ACS-25HPA630A003", "normalized_value": "ACS-25HPA630A003", "sources": ["acme-hvac-catalog"], "strong": true },
+        { "alias_type": "ahri_ref", "alias_value": "20134504", "normalized_value": "20134504", "sources": ["ahri-directory-export"], "strong": true },
+        { "alias_type": "series_name", "alias_value": "Comfort 16 Heat Pump", "normalized_value": "Comfort 16 Heat Pump", "sources": ["acme-hvac-catalog"], "strong": false }
+      ]
+    },
+    {
+      "ref": "equipment_model:24ACB636A003",
+      "entity_type": "equipment_model",
+      "canonical_name": "Acme Climate Systems 24ACB636A003",
+      "canonical_slug": "acme-climate-systems-24acb636a003",
+      "status": "ACTIVE",
+      "resolution": { "method": "strong_identifier_exact_match", "identifier": "model_number", "normalized_value": "24ACB636A003", "sources_merged": 1, "note": "Discontinued. Appears in NO certification export — directories drop withdrawn models — so the manufacturer feed is its only source. A single-source entity is still a real entity; it simply cannot clear the indexability quality gate." },
+      "aliases": [
+        { "alias_type": "model_number", "alias_value": "24ACB636A003", "normalized_value": "24ACB636A003", "sources": ["acme-hvac-catalog"], "strong": true },
+        { "alias_type": "manufacturer_sku", "alias_value": "ACS-24ACB636A003", "normalized_value": "ACS-24ACB636A003", "sources": ["acme-hvac-catalog"], "strong": true },
+        { "alias_type": "series_name", "alias_value": "Comfort 14", "normalized_value": "Comfort 14", "sources": ["acme-hvac-catalog"], "strong": false }
+      ]
+    },
+    {
+      "ref": "equipment_model:24ACA636A003",
+      "entity_type": "equipment_model",
+      "canonical_name": "Acme Climate Systems 24ACA636A003",
+      "canonical_slug": "acme-climate-systems-24aca636a003",
+      "status": "ACTIVE",
+      "resolution": { "method": "strong_identifier_exact_match", "identifier": "model_number", "normalized_value": "24ACA636A003", "sources_merged": 1, "note": "Discontinued, head of the supersession chain." },
+      "aliases": [
+        { "alias_type": "model_number", "alias_value": "24ACA636A003", "normalized_value": "24ACA636A003", "sources": ["acme-hvac-catalog"], "strong": true },
+        { "alias_type": "manufacturer_sku", "alias_value": "ACS-24ACA636A003", "normalized_value": "ACS-24ACA636A003", "sources": ["acme-hvac-catalog"], "strong": true },
+        { "alias_type": "series_name", "alias_value": "Comfort 13", "normalized_value": "Comfort 13", "sources": ["acme-hvac-catalog"], "strong": false }
+      ]
+    },
+
+    {
+      "ref": "equipment_model:NWA1424AC1",
+      "entity_type": "equipment_model",
+      "canonical_name": "Northwind Air Systems NWA1424AC1",
+      "canonical_slug": "northwind-air-systems-nwa1424ac1",
+      "status": "ACTIVE",
+      "resolution": { "method": "strong_identifier_exact_match", "identifier": "model_number", "normalized_value": "NWA1424AC1", "sources_merged": 1 },
+      "aliases": [
+        { "alias_type": "model_number", "alias_value": "NWA1424AC1", "normalized_value": "NWA1424AC1", "sources": ["ahri-directory-export"], "strong": true },
+        { "alias_type": "ahri_ref", "alias_value": "20155001", "normalized_value": "20155001", "sources": ["ahri-directory-export"], "strong": true }
+      ]
+    },
+    {
+      "ref": "equipment_model:NWA1436AC1",
+      "entity_type": "equipment_model",
+      "canonical_name": "Northwind Air Systems NWA1436AC1",
+      "canonical_slug": "northwind-air-systems-nwa1436ac1",
+      "status": "ACTIVE",
+      "resolution": { "method": "strong_identifier_exact_match", "identifier": "model_number", "normalized_value": "NWA1436AC1", "sources_merged": 2, "note": "Cross-source join with no reformatting needed on one side and lowercasing on the other." },
+      "aliases": [
+        { "alias_type": "model_number", "alias_value": "NWA1436AC1", "normalized_value": "NWA1436AC1", "sources": ["ahri-directory-export"], "strong": true },
+        { "alias_type": "model_number", "alias_value": "nwa1436ac1", "normalized_value": "NWA1436AC1", "sources": ["coolsupply-distributor"], "strong": true },
+        { "alias_type": "upc", "alias_value": "761204880033", "normalized_value": "761204880033", "sources": ["coolsupply-distributor"], "strong": true },
+        { "alias_type": "ahri_ref", "alias_value": "20155002", "normalized_value": "20155002", "sources": ["ahri-directory-export"], "strong": true }
+      ]
+    },
+    {
+      "ref": "equipment_model:NWA1448AC1",
+      "entity_type": "equipment_model",
+      "canonical_name": "Northwind Air Systems NWA1448AC1",
+      "canonical_slug": "northwind-air-systems-nwa1448ac1",
+      "status": "ACTIVE",
+      "resolution": { "method": "strong_identifier_exact_match", "identifier": "model_number", "normalized_value": "NWA1448AC1", "sources_merged": 1 },
+      "aliases": [
+        { "alias_type": "model_number", "alias_value": "NWA1448AC1", "normalized_value": "NWA1448AC1", "sources": ["ahri-directory-export"], "strong": true },
+        { "alias_type": "ahri_ref", "alias_value": "20155003", "normalized_value": "20155003", "sources": ["ahri-directory-export"], "strong": true }
+      ]
+    },
+    {
+      "ref": "equipment_model:NWH1636HP1",
+      "entity_type": "equipment_model",
+      "canonical_name": "Northwind Air Systems NWH1636HP1",
+      "canonical_slug": "northwind-air-systems-nwh1636hp1",
+      "status": "ACTIVE",
+      "resolution": { "method": "strong_identifier_exact_match", "identifier": "model_number", "normalized_value": "NWH1636HP1", "sources_merged": 2 },
+      "aliases": [
+        { "alias_type": "model_number", "alias_value": "NWH1636HP1", "normalized_value": "NWH1636HP1", "sources": ["ahri-directory-export"], "strong": true },
+        { "alias_type": "model_number", "alias_value": "nwh1636hp1", "normalized_value": "NWH1636HP1", "sources": ["coolsupply-distributor"], "strong": true },
+        { "alias_type": "upc", "alias_value": "761204880057", "normalized_value": "761204880057", "sources": ["coolsupply-distributor"], "strong": true },
+        { "alias_type": "ahri_ref", "alias_value": "20155004", "normalized_value": "20155004", "sources": ["ahri-directory-export"], "strong": true }
+      ]
+    },
+
+    {
+      "ref": "equipment_model:BTWC2036",
+      "entity_type": "equipment_model",
+      "canonical_name": "Borealis Thermal Works BTW-C2036",
+      "canonical_slug": "borealis-thermal-works-btwc2036",
+      "status": "ACTIVE",
+      "resolution": { "method": "strong_identifier_exact_match", "identifier": "model_number", "normalized_value": "BTWC2036", "sources_merged": 2, "note": "The hyphen is stripped by the Layer 3 model_number rule, so the normalized key differs visibly from every source spelling. canonical_name keeps the manufacturer's own punctuation for display; the JOIN KEY does not." },
+      "aliases": [
+        { "alias_type": "model_number", "alias_value": "BTW-C2036", "normalized_value": "BTWC2036", "sources": ["ahri-directory-export"], "strong": true },
+        { "alias_type": "model_number", "alias_value": "btw-c2036", "normalized_value": "BTWC2036", "sources": ["coolsupply-distributor"], "strong": true },
+        { "alias_type": "upc", "alias_value": "092817330043", "normalized_value": "092817330043", "sources": ["coolsupply-distributor"], "strong": true },
+        { "alias_type": "ahri_ref", "alias_value": "20166201", "normalized_value": "20166201", "sources": ["ahri-directory-export"], "strong": true }
+      ]
+    },
+    {
+      "ref": "equipment_model:BTWC2048",
+      "entity_type": "equipment_model",
+      "canonical_name": "Borealis Thermal Works BTW-C2048",
+      "canonical_slug": "borealis-thermal-works-btwc2048",
+      "status": "ACTIVE",
+      "resolution": { "method": "strong_identifier_exact_match", "identifier": "model_number", "normalized_value": "BTWC2048", "sources_merged": 1 },
+      "aliases": [
+        { "alias_type": "model_number", "alias_value": "BTW-C2048", "normalized_value": "BTWC2048", "sources": ["ahri-directory-export"], "strong": true },
+        { "alias_type": "ahri_ref", "alias_value": "20166202", "normalized_value": "20166202", "sources": ["ahri-directory-export"], "strong": true }
+      ]
+    },
+    {
+      "ref": "equipment_model:BTWH3036",
+      "entity_type": "equipment_model",
+      "canonical_name": "Borealis Thermal Works BTW-H3036",
+      "canonical_slug": "borealis-thermal-works-btwh3036",
+      "status": "ACTIVE",
+      "resolution": { "method": "strong_identifier_exact_match", "identifier": "model_number", "normalized_value": "BTWH3036", "sources_merged": 1 },
+      "aliases": [
+        { "alias_type": "model_number", "alias_value": "BTW-H3036", "normalized_value": "BTWH3036", "sources": ["ahri-directory-export"], "strong": true },
+        { "alias_type": "ahri_ref", "alias_value": "20166203", "normalized_value": "20166203", "sources": ["ahri-directory-export"], "strong": true }
+      ]
+    },
+
+    { "ref": "certification:20134501", "entity_type": "certification", "canonical_name": "AHRI 20134501", "canonical_slug": "20134501", "status": "ACTIVE", "resolution": { "method": "strong_identifier_exact_match", "identifier": "ahri_ref", "normalized_value": "20134501", "sources_merged": 1 }, "aliases": [ { "alias_type": "ahri_ref", "alias_value": "20134501", "normalized_value": "20134501", "sources": ["ahri-directory-export"], "strong": true } ] },
+    { "ref": "certification:20134502", "entity_type": "certification", "canonical_name": "AHRI 20134502", "canonical_slug": "20134502", "status": "ACTIVE", "resolution": { "method": "strong_identifier_exact_match", "identifier": "ahri_ref", "normalized_value": "20134502", "sources_merged": 1 }, "aliases": [ { "alias_type": "ahri_ref", "alias_value": "20134502", "normalized_value": "20134502", "sources": ["ahri-directory-export"], "strong": true } ] },
+    { "ref": "certification:20134503", "entity_type": "certification", "canonical_name": "AHRI 20134503", "canonical_slug": "20134503", "status": "ACTIVE", "resolution": { "method": "strong_identifier_exact_match", "identifier": "ahri_ref", "normalized_value": "20134503", "sources_merged": 1 }, "aliases": [ { "alias_type": "ahri_ref", "alias_value": "20134503", "normalized_value": "20134503", "sources": ["ahri-directory-export"], "strong": true } ] },
+    { "ref": "certification:20134504", "entity_type": "certification", "canonical_name": "AHRI 20134504", "canonical_slug": "20134504", "status": "ACTIVE", "resolution": { "method": "strong_identifier_exact_match", "identifier": "ahri_ref", "normalized_value": "20134504", "sources_merged": 1 }, "aliases": [ { "alias_type": "ahri_ref", "alias_value": "20134504", "normalized_value": "20134504", "sources": ["ahri-directory-export"], "strong": true } ] },
+    { "ref": "certification:20155001", "entity_type": "certification", "canonical_name": "AHRI 20155001", "canonical_slug": "20155001", "status": "ACTIVE", "resolution": { "method": "strong_identifier_exact_match", "identifier": "ahri_ref", "normalized_value": "20155001", "sources_merged": 1 }, "aliases": [ { "alias_type": "ahri_ref", "alias_value": "20155001", "normalized_value": "20155001", "sources": ["ahri-directory-export"], "strong": true } ] },
+    { "ref": "certification:20155002", "entity_type": "certification", "canonical_name": "AHRI 20155002", "canonical_slug": "20155002", "status": "ACTIVE", "resolution": { "method": "strong_identifier_exact_match", "identifier": "ahri_ref", "normalized_value": "20155002", "sources_merged": 1 }, "aliases": [ { "alias_type": "ahri_ref", "alias_value": "20155002", "normalized_value": "20155002", "sources": ["ahri-directory-export"], "strong": true } ] },
+    { "ref": "certification:20155003", "entity_type": "certification", "canonical_name": "AHRI 20155003", "canonical_slug": "20155003", "status": "ACTIVE", "resolution": { "method": "strong_identifier_exact_match", "identifier": "ahri_ref", "normalized_value": "20155003", "sources_merged": 1 }, "aliases": [ { "alias_type": "ahri_ref", "alias_value": "20155003", "normalized_value": "20155003", "sources": ["ahri-directory-export"], "strong": true } ] },
+    { "ref": "certification:20155004", "entity_type": "certification", "canonical_name": "AHRI 20155004", "canonical_slug": "20155004", "status": "ACTIVE", "resolution": { "method": "strong_identifier_exact_match", "identifier": "ahri_ref", "normalized_value": "20155004", "sources_merged": 1 }, "aliases": [ { "alias_type": "ahri_ref", "alias_value": "20155004", "normalized_value": "20155004", "sources": ["ahri-directory-export"], "strong": true } ] },
+    { "ref": "certification:20166201", "entity_type": "certification", "canonical_name": "AHRI 20166201", "canonical_slug": "20166201", "status": "ACTIVE", "resolution": { "method": "strong_identifier_exact_match", "identifier": "ahri_ref", "normalized_value": "20166201", "sources_merged": 1 }, "aliases": [ { "alias_type": "ahri_ref", "alias_value": "20166201", "normalized_value": "20166201", "sources": ["ahri-directory-export"], "strong": true } ] },
+    { "ref": "certification:20166202", "entity_type": "certification", "canonical_name": "AHRI 20166202", "canonical_slug": "20166202", "status": "ACTIVE", "resolution": { "method": "strong_identifier_exact_match", "identifier": "ahri_ref", "normalized_value": "20166202", "sources_merged": 1 }, "aliases": [ { "alias_type": "ahri_ref", "alias_value": "20166202", "normalized_value": "20166202", "sources": ["ahri-directory-export"], "strong": true } ] },
+    { "ref": "certification:20166203", "entity_type": "certification", "canonical_name": "AHRI 20166203", "canonical_slug": "20166203", "status": "ACTIVE", "resolution": { "method": "strong_identifier_exact_match", "identifier": "ahri_ref", "normalized_value": "20166203", "sources_merged": 1 }, "aliases": [ { "alias_type": "ahri_ref", "alias_value": "20166203", "normalized_value": "20166203", "sources": ["ahri-directory-export"], "strong": true } ] }
+  ],
+
+  "negative_judgments": [
+    {
+      "left": "equipment_model:24ACC636A003",
+      "right": "equipment_model:24ACB636A003",
+      "decision": "different",
+      "method": "supersession_guard",
+      "rationale": "Model numbers differ by one generation character and both are 3-ton Acme air conditioners, so blocking WILL propose this pair. They are different products joined by a `supersedes` edge. Merging them would answer 'what replaces 24ACB636A003?' with itself and destroy the vertical's most valuable query. Recorded as a durable negative judgment (doc 06) so the pair is never re-proposed.",
+      "hard_conflicts": ["refrigerant (R-410A vs R-454B)", "seer2 (13.8 vs 14.3)"]
+    },
+    {
+      "left": "equipment_model:24ACB636A003",
+      "right": "equipment_model:24ACA636A003",
+      "decision": "different",
+      "method": "supersession_guard",
+      "rationale": "Same generation-character trap, one step earlier in the chain.",
+      "hard_conflicts": ["seer2 (13.8 vs 13.4)"]
+    },
+    {
+      "left": "equipment_model:24ACC636A003",
+      "right": "equipment_model:NWA1436AC1",
+      "decision": "different",
+      "method": "hard_conflict_on_manufacturer",
+      "rationale": "Identical capacity (36000 BTU/h), product type and refrigerant, and similar SEER2 — the composite key on specs alone would match. Different manufacturers, so they cannot be the same entity. Demonstrates why `manufacturer_slug` is the first element of every composite key."
+    }
+  ]
+}

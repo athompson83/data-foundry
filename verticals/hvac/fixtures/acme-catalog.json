@@ -1,0 +1,152 @@
+{
+  "_fixture_note": "SYNTHETIC TEST DATA. Acme Climate Systems is a fictional company. This file was authored by the Data Foundry team as a pipeline fixture; it is not a copy of any real manufacturer feed and no real site is contacted to produce it. See verticals/hvac/RIGHTS.md.",
+  "feed": {
+    "publisher": "Acme Climate Systems",
+    "feed_version": "2.4",
+    "generated_at": "2026-07-01T04:00:00Z",
+    "record_count": 6,
+    "capacity_unit": "BTUh",
+    "notes": "Nominal capacities. Certified ratings are published by the ratings directory and may differ."
+  },
+  "products": [
+    {
+      "sku": "ACS-24ACA636A003",
+      "model": "24ACA636A003",
+      "series": "Comfort 13",
+      "brand": "Acme Climate Systems",
+      "category": "Air Conditioner",
+      "cooling_capacity_btuh": 36000,
+      "efficiency": {
+        "seer2": 13.4,
+        "eer2": 11.0
+      },
+      "refrigerant": "R410A",
+      "electrical": "208/230-1-60",
+      "compressor_stages": 1,
+      "net_weight_lb": 178,
+      "lifecycle": {
+        "status": "discontinued",
+        "discontinued_on": "2023-06-30",
+        "replaced_by": "24ACB636A003"
+      },
+      "image_url": "https://catalog.acme-climate.example.com/img/24aca636a003.jpg",
+      "list_price_usd": 1895.00
+    },
+    {
+      "sku": "ACS-24ACB636A003",
+      "model": "24ACB636A003",
+      "series": "Comfort 14",
+      "brand": "Acme Climate Systems",
+      "category": "Air Conditioner",
+      "cooling_capacity_btuh": 36000,
+      "efficiency": {
+        "seer2": 13.8,
+        "eer2": 11.2
+      },
+      "refrigerant": "R410A",
+      "electrical": "208/230-1-60",
+      "compressor_stages": 1,
+      "net_weight_lb": 182,
+      "lifecycle": {
+        "status": "discontinued",
+        "discontinued_on": "2025-12-31",
+        "replaced_by": "24ACC636A003"
+      },
+      "image_url": "https://catalog.acme-climate.example.com/img/24acb636a003.jpg",
+      "list_price_usd": 2050.00
+    },
+    {
+      "sku": "ACS-24ACC636A003",
+      "model": "24ACC636A003",
+      "series": "Comfort 16",
+      "brand": "Acme Climate Systems",
+      "category": "Air Conditioner",
+      "cooling_capacity_btuh": 36000,
+      "efficiency": {
+        "seer2": 14.5,
+        "eer2": 11.7
+      },
+      "refrigerant": "R454B",
+      "electrical": "208/230-1-60",
+      "compressor_stages": 1,
+      "net_weight_lb": 187,
+      "lifecycle": {
+        "status": "active",
+        "discontinued_on": null,
+        "replaced_by": null
+      },
+      "image_url": "https://catalog.acme-climate.example.com/img/24acc636a003.jpg",
+      "list_price_usd": 2385.00
+    },
+    {
+      "sku": "ACS-24ACC648A003",
+      "model": "24ACC648A003",
+      "series": "Comfort 16",
+      "brand": "Acme Climate Systems",
+      "category": "Air Conditioner",
+      "cooling_capacity_btuh": 48000,
+      "efficiency": {
+        "seer2": 14.0,
+        "eer2": 11.4
+      },
+      "refrigerant": "R454B",
+      "electrical": "208/230-1-60",
+      "compressor_stages": 1,
+      "net_weight_lb": 205,
+      "lifecycle": {
+        "status": "active",
+        "discontinued_on": null,
+        "replaced_by": null
+      },
+      "image_url": "https://catalog.acme-climate.example.com/img/24acc648a003.jpg",
+      "list_price_usd": 2740.00
+    },
+    {
+      "sku": "ACS-24ACC660A003",
+      "model": "24ACC660A003",
+      "series": "Comfort 16",
+      "brand": "Acme Climate Systems",
+      "category": "Air Conditioner",
+      "cooling_capacity_btuh": 60000,
+      "efficiency": {
+        "seer2": 13.8,
+        "eer2": 11.2
+      },
+      "refrigerant": "R454B",
+      "electrical": "208/230-1-60",
+      "compressor_stages": 2,
+      "net_weight_lb": 232,
+      "lifecycle": {
+        "status": "active",
+        "discontinued_on": null,
+        "replaced_by": null
+      },
+      "image_url": "https://catalog.acme-climate.example.com/img/24acc660a003.jpg",
+      "list_price_usd": 3150.00
+    },
+    {
+      "sku": "ACS-25HPA630A003",
+      "model": "25HPA630A003",
+      "series": "Comfort 16 Heat Pump",
+      "brand": "Acme Climate Systems",
+      "category": "Heat Pump",
+      "cooling_capacity_btuh": 36000,
+      "efficiency": {
+        "seer2": 15.2,
+        "eer2": 11.9,
+        "hspf2": 7.8
+      },
+      "refrigerant": "R454B",
+      "electrical": "208/230-1-60",
+      "compressor_stages": 1,
+      "net_weight_lb": 196,
+      "lifecycle": {
+        "status": "active",
+        "discontinued_on": null,
+        "replaced_by": null
+      },
+      "image_url": "https://catalog.acme-climate.example.com/img/25hpa630a003.jpg",
+      "list_price_usd": 3480.00
+    }
+  ]
+}

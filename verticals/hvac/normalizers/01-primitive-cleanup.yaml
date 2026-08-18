@@ -1,0 +1,54 @@
+# =============================================================================
+# Layer 1 — Primitive cleanup (doc 06).
+#
+# Mechanical string hygiene, applied to every value from every source before
+# anything is typed or interpreted. No domain knowledge at this layer.
+# =============================================================================
+
+layer: primitive_cleanup
+applies_to: all_sources
+
+rules:
+  - id: unicode_nfkc
+    op: unicode_normalize
+    form: NFKC
+
+  - id: decode_html_entities
+    op: decode_html_entities
+    description: >-
+      coolsupply-distributor is rendered HTML and arrives with `&amp;` and
+      `&nbsp;` intact. Applied before whitespace collapsing so a decoded
+      non-breaking space is then collapsed to a normal one.
+
+  - id: strip_control_characters
+    op: strip_control_characters
+    description: >-
+      PDF text extraction emits stray form feeds and soft hyphens at line
+      breaks; left in place they corrupt model numbers silently.
+
+  - id: trim_and_collapse_whitespace
+    op: collapse_whitespace
+    trim: true
+
+# Values that mean "the source does not know". A source writing "N/A" is
+# asserting absence, not asserting the string "N/A".
+#
+# Note what is NOT here: an empty HSPF2 cell in ahri-export.csv is CORRECT
+# ABSENCE, not unknown — an air conditioner has no heating rating. That
+# distinction is enforced by the `hspf2_only_on_heat_pumps` conditional-presence
+# rule in entities/equipment_model.yaml, not by null-token matching.
+null_tokens:
+  - ""
+  - "-"
+  - "--"
+  - "n/a"
+  - "na"
+  - "none"
+  - "null"
+  - "unknown"
+  - "tbd"
+  - "not specified"
+  - "see spec sheet"
+null_token_matching:
+  case_sensitive: false
+  trim: true

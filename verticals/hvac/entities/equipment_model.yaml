@@ -1,0 +1,248 @@
+# =============================================================================
+# equipment_model — one manufactured HVAC unit model.
+#
+# The centre of this vertical. A model is a distinct product, not a
+# configuration of another product: `24ACC636A003` and `24ACB636A003` are two
+# entities joined by a `supersedes` edge, never one entity with two names.
+# Collapsing them would destroy exactly the replacement lookup that makes this
+# vertical commercially interesting.
+# =============================================================================
+
+entity_type: equipment_model
+
+label:
+  singular: Equipment Model
+  plural: Equipment Models
+
+description: >-
+  A specific HVAC equipment model as manufactured and sold, identified by its
+  outdoor-unit model number and certified performance ratings.
+
+canonical_slug:
+  # Manufacturer-qualified, because model numbers are only unique within a
+  # manufacturer.
+  pattern: "{manufacturer_slug}-{model_number}"
+  case: lower
+  separator: "-"
+
+identity:
+  # Exact match on the normalized value asserts identity on its own.
+  strong_aliases:
+    - ahri_ref
+    - upc
+    - model_number
+  weak_aliases:
+    - series_name
+  # Doc 06 step 2 — composite deterministic match, for records that carry no
+  # strong alias in a recognizable form.
+  composite_keys:
+    - [manufacturer_slug, model_number]
+    - [manufacturer_slug, cooling_capacity_btu, seer2, refrigerant]
+
+# --- Properties -------------------------------------------------------------
+# `value_type: number` with a populated `unit` follows doc 04's own filter
+# metadata example (`field: voltage / value_type: number / unit: V`).
+#
+# `critical: true` feeds the indexability quality gate in seo.yaml. These are
+# the properties without which a page is a stub: what it is, how big it is, how
+# efficient it is, and what it runs on.
+properties:
+  - name: product_type
+    value_type: string
+    unit: null
+    critical: true
+    description: >-
+      Controlled equipment category. Mapped from source wording by
+      normalizers/04-ontology-mapping.yaml; source wording is retained.
+    enum: [air_conditioner, heat_pump, gas_furnace, air_handler, packaged_unit]
+    expected_sources: [acme-hvac-catalog, coolsupply-distributor, ahri-directory-export, acme-spec-sheets]
+
+  - name: cooling_capacity_btu
+    value_type: number
+    unit: BTU/h
+    critical: true
+    description: >-
+      Nominal cooling capacity in BTU per hour. Directly published by the
+      manufacturer feed and the ratings directory; DERIVED from tonnage where a
+      source publishes only tons (12000 BTU/h = 1 ton, exact by definition).
+    expected_sources: [acme-hvac-catalog, ahri-directory-export, acme-spec-sheets]
+
+  - name: nominal_tonnage
+    value_type: number
+    unit: ton
+    critical: true
+    description: >-
+      Nominal cooling capacity in refrigeration tons. The unit the trade
+      actually speaks in. Directly published by distributor listings and spec
+      sheets; DERIVED from BTU/h elsewhere.
+    expected_sources: [coolsupply-distributor, acme-spec-sheets]
+
+  - name: seer2
+    value_type: number
+    unit: null
+    critical: true
+    description: >-
+      Seasonal Energy Efficiency Ratio 2. Dimensionless. The single most
+      contested property in this vertical: manufacturer marketing figures and
+      certified directory ratings routinely disagree, and the directory wins
+      (see normalizers/fact-selection.yaml).
+    expected_sources: [acme-hvac-catalog, coolsupply-distributor, ahri-directory-export]
+
+  - name: eer2
+    value_type: number
+    unit: null
+    critical: false
+    description: Energy Efficiency Ratio 2, at rated conditions. Dimensionless.
+    expected_sources: [acme-hvac-catalog, ahri-directory-export]
+
+  - name: hspf2
+    value_type: number
+    unit: null
+    critical: false
+    description: >-
+      Heating Seasonal Performance Factor 2. Heat pumps only — absent on
+      cooling-only equipment, which is correct absence, not missing data.
+    applies_when:
+      property: product_type
+      in: [heat_pump]
+    expected_sources: [acme-hvac-catalog, ahri-directory-export]
+
+  - name: refrigerant
+    value_type: string
+    unit: null
+    critical: true
+    description: >-
+      Refrigerant designation, normalized to ASHRAE hyphenated form (`R-410A`).
+      Commercially critical: the A2L transition means refrigerant type decides
+      whether a replacement is a drop-in or a system change.
+    enum: [R-410A, R-454B, R-32, R-22]
+    expected_sources: [acme-hvac-catalog, coolsupply-distributor, ahri-directory-export, acme-spec-sheets]
+
+  - name: voltage
+    value_type: number
+    unit: V
+    critical: true
+    description: Nominal supply voltage. Normalized from notations like "208/230-1-60".
+    expected_sources: [acme-hvac-catalog, acme-spec-sheets]
+
+  - name: phase
+    value_type: number
+    unit: null
+    critical: false
+    description: Supply phase count (1 or 3). Parsed from the same notation as voltage.
+    expected_sources: [acme-hvac-catalog, acme-spec-sheets]
+
+  - name: stage_count
+    value_type: number
+    unit: null
+    critical: false
+    description: Number of compressor capacity stages.
+    expected_sources: [acme-hvac-catalog, acme-spec-sheets]
+
+  - name: sound_level_db
+    value_type: number
+    unit: dB
+    critical: false
+    description: >-
+      Rated sound level. Published on spec sheets and repeated — often
+      inaccurately — by distributors. A standing source of conflict.
+    expected_sources: [acme-spec-sheets, coolsupply-distributor]
+
+  - name: weight_lb
+    value_type: number
+    unit: lb
+    critical: false
+    description: Net operating weight of the outdoor unit.
+    expected_sources: [acme-hvac-catalog, acme-spec-sheets]
+
+# --- Quality rules ----------------------------------------------------------
+# Deterministic and declarative. A failing rule DEMOTES a fact (to DISPUTED); it
+# never deletes one. Nothing in this model discards a claim.
+quality_rules:
+  - id: capacity_tonnage_consistency
+    rule: cross_property
+    description: >-
+      12000 BTU/h = 1 ton, exact by definition. If a source's BTU figure and a
+      different source's tonnage figure disagree by more than half a percent,
+      one of them is describing a different unit and both are suspect.
+    expression: "cooling_capacity_btu == nominal_tonnage * 12000"
+    properties: [cooling_capacity_btu, nominal_tonnage]
+    tolerance: 0.005
+    severity: error
+
+  - id: capacity_in_range
+    rule: range
+    property: cooling_capacity_btu
+    min: 6000
+    max: 300000
+    severity: error
+
+  - id: tonnage_in_range
+    rule: range
+    property: nominal_tonnage
+    min: 0.5
+    max: 25
+    severity: error
+
+  - id: seer2_in_range
+    rule: range
+    property: seer2
+    min: 8
+    max: 30
+    severity: error
+
+  - id: eer2_in_range
+    rule: range
+    property: eer2
+    min: 6
+    max: 20
+    severity: error
+
+  - id: hspf2_in_range
+    rule: range
+    property: hspf2
+    min: 5
+    max: 14
+    severity: error
+
+  - id: seer2_exceeds_eer2
+    rule: cross_property
+    description: >-
+      SEER2 is a seasonal average and EER2 a peak-condition rating, so SEER2
+      above EER2 is expected. The reverse almost always means the two columns
+      were swapped during extraction.
+    expression: "seer2 > eer2"
+    properties: [seer2, eer2]
+    severity: warning
+
+  - id: hspf2_only_on_heat_pumps
+    rule: conditional_presence
+    property: hspf2
+    required_when:
+      property: product_type
+      in: [heat_pump]
+    forbidden_when:
+      property: product_type
+      in: [air_conditioner, gas_furnace, air_handler]
+    severity: error
+
+  - id: model_number_format
+    rule: regex
+    property: model_number
+    applies_to_alias: true
+    pattern: "^[A-Z0-9]{6,32}$"
+    description: Applied to the NORMALIZED alias value, not the source spelling.
+    severity: error
+
+  - id: phase_is_one_or_three
+    rule: enum
+    property: phase
+    values: [1, 3]
+    severity: error
+
+  - id: sound_level_plausible
+    rule: range
+    property: sound_level_db
+    min: 40
+    max: 95
+    severity: warning

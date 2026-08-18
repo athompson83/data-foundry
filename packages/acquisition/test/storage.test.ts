@@ -1,0 +1,280 @@
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { afterAll, describe, expect, it } from 'vitest';
+import { ArtifactStoreError } from '../src/errors.js';
+import { InMemoryFileSystem, type WritableFileSystem } from '../src/fs.js';
+import { sha256Hex } from '../src/hashing.js';
+import type { ArtifactPutRequest, ArtifactStore } from '../src/storage/artifact-store.js';
+import {
+  artifactStorageKey,
+  artifactStoragePath,
+  parseArtifactStorageKey,
+} from '../src/storage/keys.js';
+import { LocalFsArtifactStore } from '../src/storage/local-fs-artifact-store.js';
+import { InMemoryObjectClient, R2ArtifactStore } from '../src/storage/r2-artifact-store.js';
+
+const RETRIEVED_AT = '2026-08-14T09:30:00.000Z';
+const BYTES = new TextEncoder().encode('{"unit":"XC21"}');
+const HASH = sha256Hex(BYTES);
+const EXPECTED_KEY = `raw/hvac/ahri-directory/2026/08/14/${HASH}`;
+
+function putRequest(overrides: Partial<ArtifactPutRequest> = {}): ArtifactPutRequest {
+  return {
+    vertical: 'hvac',
+    source: 'ahri-directory',
+    body: BYTES,
+    metadata: {
+      source_key: 'ahri-directory',
+      vertical_slug: 'hvac',
+      url: 'https://www.ahridirectory.org/certified/units.json',
+      retrieved_at: RETRIEVED_AT,
+      http_status: 200,
+      mime_type: 'application/json',
+      policy_snapshot_id: null,
+      acquisition_provider: 'http',
+      etag: '"v1"',
+      last_modified: null,
+    },
+    ...overrides,
+  };
+}
+
+describe('artifact key layout (doc 02)', () => {
+  it('is /raw/{vertical}/{source}/{yyyy}/{mm}/{dd}/{hash}', () => {
+    const key = artifactStorageKey({
+      vertical: 'hvac',
+      source: 'ahri-directory',
+      retrievedAt: RETRIEVED_AT,
+      contentHash: HASH,
+    });
+    expect(key).toBe(EXPECTED_KEY);
+    expect(artifactStoragePath({
+      vertical: 'hvac',
+      source: 'ahri-directory',
+      retrievedAt: RETRIEVED_AT,
+      contentHash: HASH,
+    })).toBe(`/${EXPECTED_KEY}`);
+  });
+
+  it('partitions on the UTC date of retrieval', () => {
+    const key = artifactStorageKey({
+      vertical: 'hvac',
+      source: 'ahri-directory',
+      retrievedAt: '2026-01-05T23:59:59.000Z',
+      contentHash: HASH,
+    });
+    expect(key).toContain('/2026/01/05/');
+  });
+
+  it('round-trips through the parser', () => {
+    expect(parseArtifactStorageKey(EXPECTED_KEY)).toEqual({
+      vertical: 'hvac',
+      source: 'ahri-directory',
+      year: '2026',
+      month: '08',
+      day: '14',
+      contentHash: HASH,
+    });
+    expect(parseArtifactStorageKey(`/${EXPECTED_KEY}`)).not.toBeNull();
+    expect(parseArtifactStorageKey('raw/hvac/x')).toBeNull();
+  });
+
+  it.each(['../escape', 'has/slash', 'UPPER', ''])(
+    'rejects the illegal path segment %s',
+    (segment) => {
+      expect(() =>
+        artifactStorageKey({
+          vertical: segment,
+          source: 'ahri-directory',
+          retrievedAt: RETRIEVED_AT,
+          contentHash: HASH,
+        }),
+      ).toThrow(ArtifactStoreError);
+    },
+  );
+
+  it('rejects a non-sha256 content hash', () => {
+    expect(() =>
+      artifactStorageKey({
+        vertical: 'hvac',
+        source: 'ahri-directory',
+        retrievedAt: RETRIEVED_AT,
+        contentHash: 'not-a-hash',
+      }),
+    ).toThrow(ArtifactStoreError);
+  });
+});
+
+/**
+ * Both adapters must satisfy the same evidence-store contract, so the behavioural
+ * assertions are written once and run against each.
+ */
+const temporaryDirectories: string[] = [];
+
+afterAll(async () => {
+  await Promise.all(temporaryDirectories.map((dir) => rm(dir, { recursive: true, force: true })));
+});
+
+interface StoreCase {
+  readonly name: string;
+  readonly make: () => Promise<{ store: ArtifactStore; writes: () => number }>;
+}
+
+const storeCases: readonly StoreCase[] = [
+  {
+    name: 'R2ArtifactStore',
+    make: () => {
+      const client = new InMemoryObjectClient();
+      return Promise.resolve({
+        store: new R2ArtifactStore({ bucket: 'data-foundry-raw', client }),
+        writes: () => client.writes.length,
+      });
+    },
+  },
+  {
+    name: 'LocalFsArtifactStore (in-memory fs)',
+    make: () => {
+      const files = new InMemoryFileSystem();
+      let writes = 0;
+      const counting: WritableFileSystem = {
+        readFile: (path) => files.readFile(path),
+        exists: (path) => files.exists(path),
+        mkdir: () => files.mkdir(),
+        writeFile: (path, data) => {
+          if (!path.endsWith('.meta.json')) writes += 1;
+          return files.writeFile(path, data);
+        },
+      };
+      return Promise.resolve({
+        store: new LocalFsArtifactStore({ baseDir: '.data', fs: counting }),
+        writes: () => writes,
+      });
+    },
+  },
+  {
+    name: 'LocalFsArtifactStore (real disk)',
+    make: async () => {
+      const dir = await mkdtemp(join(tmpdir(), 'data-foundry-raw-'));
+      temporaryDirectories.push(dir);
+      return { store: new LocalFsArtifactStore({ baseDir: dir }), writes: () => 0 };
+    },
+  },
+];
+
+describe.each(storeCases)('$name — raw evidence contract', ({ make }) => {
+  it('stores content-addressed at the documented key', async () => {
+    const { store } = await make();
+    const stored = await store.put(putRequest());
+    expect(stored.key).toBe(EXPECTED_KEY);
+    expect(stored.contentHash).toBe(HASH);
+    expect(stored.byteSize).toBe(BYTES.byteLength);
+    expect(stored.deduplicated).toBe(false);
+  });
+
+  it('records retrieved_at, http_status, mime_type, content_hash and the policy snapshot', async () => {
+    const { store } = await make();
+    const request = putRequest();
+    const stored = await store.put({
+      ...request,
+      metadata: {
+        ...request.metadata,
+        policy_snapshot_id: '22222222-2222-4222-8222-222222222222' as never,
+      },
+    });
+
+    const head = await store.head(stored.key);
+    expect(head).not.toBeNull();
+    expect(head?.retrieved_at).toBe(RETRIEVED_AT);
+    expect(head?.http_status).toBe(200);
+    expect(head?.mime_type).toBe('application/json');
+    expect(head?.content_hash).toBe(HASH);
+    expect(head?.byte_size).toBe(BYTES.byteLength);
+    expect(head?.policy_snapshot_id).toBe('22222222-2222-4222-8222-222222222222');
+    expect(head?.etag).toBe('"v1"');
+  });
+
+  it('is idempotent: identical bytes are the same key and no second write', async () => {
+    const { store, writes } = await make();
+    const first = await store.put(putRequest());
+    const writesAfterFirst = writes();
+
+    const second = await store.put(putRequest());
+
+    expect(second.key).toBe(first.key);
+    expect(second.contentHash).toBe(first.contentHash);
+    expect(second.deduplicated).toBe(true);
+    expect(writes()).toBe(writesAfterFirst);
+  });
+
+  it('keeps the first retrieval authoritative rather than rewriting history', async () => {
+    const { store } = await make();
+    const request = putRequest();
+    await store.put(request);
+    const second = await store.put({
+      ...request,
+      metadata: { ...request.metadata, http_status: 203, etag: '"v2"' },
+    });
+    expect(second.metadata.http_status).toBe(200);
+    expect(second.metadata.etag).toBe('"v1"');
+  });
+
+  it('gives different bytes a different key', async () => {
+    const { store } = await make();
+    const first = await store.put(putRequest());
+    const changed = new TextEncoder().encode('{"unit":"XC25"}');
+    const second = await store.put({ ...putRequest(), body: changed });
+    expect(second.key).not.toBe(first.key);
+    expect(second.deduplicated).toBe(false);
+  });
+
+  it('reads the bytes back', async () => {
+    const { store } = await make();
+    const stored = await store.put(putRequest());
+    const body = await store.get(stored.key);
+    expect(body).not.toBeNull();
+    expect(new TextDecoder().decode(body?.body ?? new Uint8Array())).toBe('{"unit":"XC21"}');
+  });
+
+  it('returns null for a key it does not hold', async () => {
+    const { store } = await make();
+    expect(await store.head(`raw/hvac/ahri-directory/2026/08/14/${'f'.repeat(64)}`)).toBeNull();
+    expect(await store.get(`raw/hvac/ahri-directory/2026/08/14/${'f'.repeat(64)}`)).toBeNull();
+  });
+});
+
+describe('store-specific URIs', () => {
+  it('R2 addresses objects as r2://bucket/key', async () => {
+    const store = new R2ArtifactStore({
+      bucket: 'data-foundry-raw',
+      client: new InMemoryObjectClient(),
+    });
+    const stored = await store.put(putRequest());
+    expect(stored.uri).toBe(`r2://data-foundry-raw/${EXPECTED_KEY}`);
+  });
+
+  it('R2 honours an environment prefix without changing the documented layout', async () => {
+    const client = new InMemoryObjectClient();
+    const store = new R2ArtifactStore({ bucket: 'b', client, prefix: 'staging' });
+    const stored = await store.put(putRequest());
+    expect(stored.key).toBe(EXPECTED_KEY);
+    expect(client.keys()).toEqual([`b/staging/${EXPECTED_KEY}`]);
+  });
+
+  it('the local store writes under .data/raw/... with a metadata sidecar', async () => {
+    const files = new InMemoryFileSystem();
+    const store = new LocalFsArtifactStore({ baseDir: '.data', fs: files });
+    const stored = await store.put(putRequest());
+
+    expect(files.paths()).toEqual([`.data/${EXPECTED_KEY}`, `.data/${EXPECTED_KEY}.meta.json`]);
+    expect(stored.uri.startsWith('file://')).toBe(true);
+  });
+
+  it('surfaces a corrupt metadata sidecar instead of guessing', async () => {
+    const files = new InMemoryFileSystem();
+    const store = new LocalFsArtifactStore({ baseDir: '.data', fs: files });
+    await store.put(putRequest());
+    await files.writeFile(`.data/${EXPECTED_KEY}.meta.json`, new TextEncoder().encode('{ not json'));
+    await expect(store.head(EXPECTED_KEY)).rejects.toBeInstanceOf(ArtifactStoreError);
+  });
+});

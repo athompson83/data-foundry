@@ -1,0 +1,115 @@
+# =============================================================================
+# acme-hvac-catalog — JSON API feed, direct HTTP.
+#
+# SYNTHETIC SOURCE. Acme Climate Systems is a FICTIONAL company invented for
+# this factory proof. The domain is an RFC 2606 reserved example domain and
+# resolves nowhere. The rights below describe test data we authored ourselves;
+# they are not a claim about any real company's terms. See RIGHTS.md.
+#
+# Role in the proof: the manufacturer's own structured feed. High authority on
+# what it builds, the ONLY source for electrical and lifecycle data, and the
+# origin of the supersession chain. Publishes marketing SEER2 figures that
+# disagree with the certified directory — deliberately.
+# =============================================================================
+
+key: acme-hvac-catalog
+vertical_slug: hvac
+
+publisher: Acme Climate Systems (SYNTHETIC — fictional publisher)
+domain: catalog.acme-climate.example.com
+source_type: MANUFACTURER
+
+# A manufacturer is definitive about what it builds and what replaces what, but
+# not about certified performance — a certifying body outranks it there. Fact
+# selection resolves that per property, not per source.
+authority_rank: 85
+
+status: ACTIVE
+refresh_cadence: DAILY
+
+rights_classification: GREEN
+
+attribution_requirement:
+  required: false
+  text: null
+  url: null
+
+robots_policy:
+  respect_robots: true
+  user_agent: DataFoundryBot
+  crawl_delay_seconds: null
+  disallowed_paths:
+    - /internal/
+    - /pricing/
+  allowed_paths:
+    - /api/v2/catalog
+  robots_url: https://catalog.acme-climate.example.com/robots.txt
+  snapshot_hash: 3f2a9c1e7b4d8056a1c3e5f70928bd4c6e1a8f30b7d2c94e5061a3f7c8b2d9e0
+  snapshot_at: 2026-07-02T09:14:00Z
+
+rights_policy:
+  publisher_legal_entity: Acme Climate Systems (fictional entity; synthetic test data)
+  terms_url: https://catalog.acme-climate.example.com/terms
+  license_id: CC-BY-4.0
+  license_text_ref: null
+  api_terms_url: https://catalog.acme-climate.example.com/api-terms
+  commercial_use_allowed: true
+  redistribution_allowed: true
+  derivative_normalization_allowed: true
+  attribution:
+    required: false
+    text: null
+    url: null
+  images_reusable: false
+  personal_data_present: false
+  geographic_notes: >-
+    Not applicable. Synthetic fixture data authored by the Data Foundry team for
+    pipeline testing; no jurisdiction-specific database right or contractual
+    term attaches to it.
+  reviewed_at: 2026-07-02T10:00:00Z
+  reviewed_by: Data Foundry platform team
+  next_review_at: 2027-07-02
+
+acquisition_policy:
+  method: DIRECT_HTTP
+  approved: true
+  approved_by: Data Foundry platform team
+  approved_at: 2026-07-02T10:00:00Z
+  max_requests_per_minute: 60
+  notes: >-
+    Plain HTTPS GET against a documented JSON endpoint. No rendering, no
+    session, no authentication. In the fixture harness this reads
+    fixtures/acme-catalog.json from disk and makes no network call at all.
+
+# Rule 9. The feed carries image URLs; we record them and copy nothing.
+image_policy:
+  images_reusable: false
+  cache_to_r2_permitted: false
+  default_display_modes: []
+  image_attribution:
+    required: false
+    text: null
+    url: null
+
+provenance_retention:
+  retain_artifacts: true
+  retention_days: null
+  legal_hold: false
+
+license_split:
+  code_license_id: null
+  data_license_id: CC-BY-4.0
+  notes: >-
+    No code is vendored from this source; the licence applies to the feed
+    content only.
+
+kill_switch_engaged: false
+
+notes: >-
+  The manufacturer feed. Uniquely provides: manufacturer SKU, series name,
+  electrical characteristics (voltage/phase), compressor stage count, and the
+  lifecycle block carrying `replaced_by` — the only source that asserts
+  supersession, and therefore the only source that can answer this vertical's
+  highest-value question. Omits sound level, UPC and certification references
+  entirely. Publishes SEER2 as a marketing figure, which is why
+  fact-selection.yaml prefers the certification directory for that property.

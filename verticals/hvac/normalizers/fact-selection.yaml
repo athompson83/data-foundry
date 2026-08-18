@@ -1,0 +1,264 @@
+# =============================================================================
+# fact-selection.yaml — which competing claim becomes the canonical value.
+#
+# Doc 04: "Do not simply use 'latest source wins.'" The canonical view is a
+# computed selection over the criteria below IN PRIORITY ORDER:
+#
+#   0. explicit editorial override   (ADR-0002)
+#   1. direct authoritative source
+#   2. source-specific reliability for that field
+#   3. recency
+#   4. corroboration
+#   5. deterministic consistency checks
+#
+# ADR-0002 moved the editorial override from LAST to FIRST: listed sixth it
+# could only fire once everything above it had tied, i.e. only when nothing
+# needed overriding. It now wins outright — but only when it carries its own
+# evidence, a written reason and a named reviewer. There are no declared
+# overrides in this vertical; the two conflicts below are settled by the
+# source-derived criteria, which is how it should normally be.
+#
+# THE TWO CONFLICTS IN THE FIXTURE SET, and what each proves:
+#
+# ── Conflict A — seer2 on 24ACC636A003 ────────────────────────────────────────
+#     acme-hvac-catalog      14.5   (authority 85, manufacturer)
+#     coolsupply-distributor 14.5   (authority 45, distributor)
+#     ahri-directory-export  14.3   (authority 95, certification body)  ← WINS
+#
+#   TWO sources agree on 14.5 and still lose to the single source that
+#   disagrees. That is the whole point of the priority order: `corroboration`
+#   is criterion 4 and cannot outvote `authoritative_source` at criterion 1.
+#   A naive majority vote, or a confidence average, gets this backwards.
+#
+#   Both values are also genuinely true of different things — a manufacturer's
+#   nominal rating and a certified matched-system rating are different
+#   measurements — which is exactly why the loser is retained with its evidence
+#   rather than deleted.
+#
+# ── Conflict B — sound_level_db on 24ACC648A003 ──────────────────────────────
+#     acme-spec-sheets       72 dB  (authority 90, published engineering doc) ← WINS
+#     coolsupply-distributor 69 dB  (authority 45, re-keyed listing)
+#
+#   The ordinary case: a re-keyed distributor value loses to the published
+#   document. Retained anyway, because "the distributor says 69" is the reason
+#   a customer will phone up confused, and the answer has to be on the page.
+# =============================================================================
+
+strategy:
+  - editorial_override
+  - authoritative_source
+  - field_reliability
+  - corroboration
+  - recency
+  - consistency_check
+
+# --- 1. Authoritative source ------------------------------------------------
+authoritative_by_property:
+
+  seer2:
+    prefer_source_types: [CERTIFICATION_BODY, STANDARDS_BODY]
+    rationale: >-
+      A certified rating is a measurement made under a defined test procedure by
+      a body whose function is to make that measurement comparable across
+      manufacturers. A manufacturer's published figure is a nominal or marketing
+      value. When they disagree the certified value is the one a buyer can rely
+      on and the one a regulator will cite — regardless of how many other
+      sources repeat the marketing number.
+
+  eer2:
+    prefer_source_types: [CERTIFICATION_BODY, STANDARDS_BODY]
+    rationale: Same test-procedure argument as seer2.
+
+  hspf2:
+    prefer_source_types: [CERTIFICATION_BODY, STANDARDS_BODY]
+    rationale: Same test-procedure argument as seer2.
+
+  cooling_capacity_btu:
+    prefer_source_types: [CERTIFICATION_BODY, MANUFACTURER]
+    rationale: >-
+      Certified capacity is authoritative, but the manufacturer is a close
+      second and covers models the directory has dropped. Distributors are
+      excluded: their capacity is usually inferred from the model number.
+
+  sound_level_db:
+    prefer_source_types: [MANUFACTURER]
+    rationale: >-
+      No certification body in scope rates sound. The manufacturer's published
+      spec sheet is the only primary measurement; everything else is a copy of
+      it, and copies acquire errors.
+
+  weight_lb:
+    prefer_source_types: [MANUFACTURER]
+    rationale: Physical property, measured by whoever builds it.
+
+  voltage:
+    prefer_source_types: [MANUFACTURER]
+    rationale: Electrical characteristics come from the nameplate.
+
+  phase:
+    prefer_source_types: [MANUFACTURER]
+    rationale: Electrical characteristics come from the nameplate.
+
+  stage_count:
+    prefer_source_types: [MANUFACTURER]
+    rationale: A design characteristic, known only to the manufacturer.
+
+  refrigerant:
+    prefer_source_types: [MANUFACTURER, CERTIFICATION_BODY]
+    rationale: >-
+      Both are reliable and they rarely disagree. Where they do, it usually
+      signals a mid-production refrigerant change and should be escalated rather
+      than silently resolved — see `escalate_on_conflict` below.
+
+  product_type:
+    prefer_source_types: [CERTIFICATION_BODY, MANUFACTURER]
+    rationale: >-
+      The certifying body applies a consistent taxonomy across manufacturers,
+      which is what makes cross-manufacturer comparison possible at all.
+
+  nominal_tonnage:
+    prefer_source_types: [MANUFACTURER, CERTIFICATION_BODY]
+    # A directly published tonnage beats one derived from BTU/h, even from a
+    # more authoritative source: derivation cannot add information.
+    prefer_direct_over_derived: true
+    rationale: >-
+      Tonnage and capacity are the same measurement in different units, so the
+      authoritative source is whoever published the capacity. The one real rule
+      is that a stated value beats a computed one.
+
+# --- 2. Field reliability ---------------------------------------------------
+# Per-source overrides, for sources that are good in general but not at
+# everything. Absent an override, `authority_rank` from the registry is used.
+field_reliability:
+
+  coolsupply-distributor:
+    # Same publisher, same page, very different trustworthiness per field.
+    upc:
+      reliability: 0.95
+      note: >-
+        The only source of UPCs, and barcodes are transcribed from the carton
+        rather than re-keyed from a spec table. Checksum-validated on ingest.
+    sound_level_db:
+      reliability: 0.30
+      note: >-
+        Demonstrably unreliable — the 69 dB listing for 24ACC648A003 contradicts
+        the manufacturer's published 72 dB. Kept as a corroborating signal only.
+    seer2:
+      reliability: 0.45
+      note: Repeats manufacturer marketing figures rather than certified ratings.
+
+  acme-hvac-catalog:
+    seer2:
+      reliability: 0.60
+      note: >-
+        Nominal/marketing figure. Reliable as a statement of what the
+        manufacturer claims; not as a statement of certified performance.
+    # The only source that asserts supersession at all, and definitive on it.
+    supersedes:
+      reliability: 1.0
+      note: A manufacturer is the only possible authority on its own product line.
+
+  acme-spec-sheets:
+    sound_level_db:
+      reliability: 0.95
+      note: Primary published measurement.
+
+# --- 3. Recency -------------------------------------------------------------
+recency:
+  # Recency only breaks ties between claims of comparable authority. It never
+  # promotes a distributor listing over a certified rating merely for being
+  # fetched this morning.
+  applies_within_authority_band: 10
+  prefer: newest_observed_at
+
+# --- 4. Corroboration -------------------------------------------------------
+corroboration:
+  bonus_per_agreeing_source: 0.05
+  max_bonus: 0.15
+  # Raises CONFIDENCE in a value; never changes WHICH value is selected.
+  affects_selection: false
+  # Sources sharing an upstream origin are not independent and must not
+  # corroborate each other. The distributor re-publishes manufacturer data, so
+  # its agreement with the manufacturer feed is an echo, not a second opinion.
+  independent_source_groups:
+    - [acme-hvac-catalog, acme-spec-sheets]
+    - [coolsupply-distributor]
+    - [ahri-directory-export]
+  non_independent_pairs:
+    - sources: [acme-hvac-catalog, coolsupply-distributor]
+      reason: >-
+        The distributor's spec table is transcribed from the manufacturer's
+        published data. Their agreement on seer2 = 14.5 in Conflict A is one
+        claim counted twice, not two independent confirmations.
+
+# --- 5. Consistency checks --------------------------------------------------
+consistency_checks:
+  - id: capacity_matches_tonnage
+    properties: [cooling_capacity_btu, nominal_tonnage]
+    expression: "cooling_capacity_btu == nominal_tonnage * 12000"
+    tolerance: 0.005
+    on_failure: demote_lower_authority_claim
+
+  - id: seer2_above_eer2
+    properties: [seer2, eer2]
+    expression: "seer2 > eer2"
+    on_failure: flag_for_review
+
+  - id: certified_capacity_matches_model
+    description: >-
+      A certification whose capacity disagrees with the model's means the model
+      number resolved to the wrong entity. Never resolve this by picking a
+      value — break the join and escalate.
+    properties: [cooling_capacity_btu]
+    across: certified_by
+    tolerance: 0.02
+    on_failure: escalate
+
+# --- 0. Editorial override (ADR-0002) ---------------------------------------
+# Applied FIRST and decisive, which is why the audit requirements below are not
+# negotiable.
+editorial_override:
+  enabled: true
+  # Enforced unconditionally by the cascade; these keys document the invariant
+  # rather than switch it on. Setting either to false changes nothing.
+  requires_reason: true
+  requires_reviewer: true
+  # DECLARED, NOT YET ENFORCED — expiry needs a declaration date per entry and
+  # the cascade does not read one yet.
+  max_age_days: 365
+  note: >-
+    An override is a fact with its own evidence — a named human and a written
+    reason — not a magic value. An entry missing either is ignored entirely; it
+    does not quietly demote itself to a tiebreaker. Two entries competing for
+    one property cancel out and the ordinary criteria decide instead.
+
+  # No standing corrections. Conflicts A and B above are settled by authority
+  # and field reliability; reaching for an override to settle either would be
+  # hiding a source-quality problem behind a manual patch.
+  overrides: []
+
+# --- Conflict retention (AGENTS.md rules 2 and 10) --------------------------
+conflict_policy:
+  retain_losing_claims: true
+  losing_status: SUPERSEDED
+  unresolved_status: DISPUTED
+  numeric_tolerance: 0.02
+
+  # A DISPUTED critical property blocks INDEXING but never blocks the API or
+  # MCP: an agent asking about a contested spec should receive the conflict and
+  # its evidence, which is more useful than either value alone. What must not
+  # happen is publishing a confident-looking page that hides the disagreement.
+  disputed_blocks_indexing: true
+  surface_conflicts_in_api: true
+  surface_conflicts_in_mcp: true
+
+  # Properties where a conflict is a signal about the world rather than a data
+  # error, and must reach a human instead of being auto-resolved.
+  escalate_on_conflict:
+    - refrigerant
+    - product_type
+
+  # Every selection decision records WHICH criterion decided it. Without this
+  # the canonical value is unexplainable, and "why does your site say 14.3?"
+  # has no answer.
+  record_selection_reason: true

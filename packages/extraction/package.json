@@ -1,0 +1,26 @@
+{
+  "name": "@data-foundry/extraction",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Extraction providers: turn artifacts into source-native structured records.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "types": "./src/index.ts",
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "test": "vitest run --root ."
+  },
+  "dependencies": {
+    "@data-foundry/canonical-schema": "workspace:*",
+    "cheerio": "^1.0.0",
+    "csv-parse": "^5.6.0",
+    "unpdf": "^0.12.1"
+  },
+  "devDependencies": {
+    "pdf-lib": "^1.17.1"
+  }
+}

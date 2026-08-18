@@ -1,0 +1,38 @@
+# =============================================================================
+# Layer 4 — Ontology mapping (doc 06).
+#
+# Maps source vocabulary onto this vertical's controlled vocabulary. Doc 06's
+# example: "Condenser Fan Motor" / "Outdoor Fan Motor" / "OD Fan Motor" →
+# `condenser_fan_motor`.
+#
+# Canonical targets are lowercase snake_case identifiers.
+#
+# Doc 06 again: "Retain source wording for provenance/search." The source's own
+# phrasing stays searchable — mapping adds a canonical term, it does not delete
+# the original.
+# =============================================================================
+
+layer: ontology_mapping
+
+# Behaviour when a source term matches nothing below. `quarantine` records the
+# unmapped term for human review and leaves the fact PROPOSED rather than
+# guessing — an unmapped value must never be silently dropped or approximated.
+unmapped_term_policy: quarantine
+
+controlled_vocabularies: []
+
+# Example shape:
+#
+# controlled_vocabularies:
+#   - property: product_type
+#     description: What kind of thing this is.
+#     terms:
+#       - canonical: example_category
+#         label: Example Category
+#         synonyms:
+#           - "Example Category"
+#           - "Example Cat."
+#           - "EX CAT"
+#         match: case_insensitive_exact
+#     # Terms seen in the wild that are deliberately NOT mapped, with the reason.
+#     excluded: []

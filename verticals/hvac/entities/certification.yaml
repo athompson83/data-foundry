@@ -1,0 +1,115 @@
+# =============================================================================
+# certification — one certified ratings record from a ratings directory.
+#
+# Modelled as a first-class ENTITY rather than as attributes on the equipment
+# model, for two reasons:
+#
+#   1. A certification has its own lifecycle. It is issued, it stays active, it
+#      is withdrawn — independently of whether the model is still sold. Folding
+#      it into the model would make "was this rating valid on that date?"
+#      unanswerable.
+#   2. A certified rating and a manufacturer-published rating are DIFFERENT
+#      CLAIMS about the same quantity. Keeping the certification separate is
+#      what lets fact selection prefer the certified value while retaining the
+#      manufacturer's, instead of silently overwriting one with the other.
+#
+# This is doc 17's "certifications with multiple registries" strong signal, and
+# it is the single biggest reason this vertical scores well on ambiguity value.
+# =============================================================================
+
+entity_type: certification
+
+label:
+  singular: Certification
+  plural: Certifications
+
+description: >-
+  A certified equipment ratings record published by a ratings directory,
+  carrying the rated performance values and the certification's validity window.
+
+canonical_slug:
+  pattern: "{ahri_ref}"
+  case: lower
+  separator: "-"
+
+identity:
+  strong_aliases:
+    - ahri_ref
+  weak_aliases: []
+  composite_keys: []
+
+properties:
+  - name: product_type
+    value_type: string
+    unit: null
+    critical: true
+    description: Equipment category as classified by the certifying body.
+    enum: [air_conditioner, heat_pump, gas_furnace, air_handler, packaged_unit]
+    expected_sources: [ahri-directory-export]
+
+  - name: cooling_capacity_btu
+    value_type: number
+    unit: BTU/h
+    critical: true
+    description: Certified cooling capacity, as rated.
+    expected_sources: [ahri-directory-export]
+
+  - name: seer2
+    value_type: number
+    unit: null
+    critical: true
+    description: >-
+      Certified SEER2. This is the authoritative value for the linked equipment
+      model — see normalizers/fact-selection.yaml `authoritative_by_property`.
+    expected_sources: [ahri-directory-export]
+
+  - name: eer2
+    value_type: number
+    unit: null
+    critical: false
+    description: Certified EER2.
+    expected_sources: [ahri-directory-export]
+
+  - name: hspf2
+    value_type: number
+    unit: null
+    critical: false
+    description: Certified HSPF2. Heat pumps only.
+    applies_when:
+      property: product_type
+      in: [heat_pump]
+    expected_sources: [ahri-directory-export]
+
+  - name: refrigerant
+    value_type: string
+    unit: null
+    critical: false
+    description: Refrigerant as recorded on the certification.
+    enum: [R-410A, R-454B, R-32, R-22]
+    expected_sources: [ahri-directory-export]
+
+quality_rules:
+  - id: certification_links_to_a_model
+    rule: required_edge
+    predicate: certified_by
+    direction: inbound
+    min_count: 1
+    description: >-
+      A certification nobody points at is an orphan — either the model number
+      failed to resolve, or the directory carries a product we do not hold.
+      Both are worth seeing.
+    severity: warning
+
+  - id: certified_seer2_in_range
+    rule: range
+    property: seer2
+    min: 8
+    max: 30
+    severity: error
+
+  - id: certified_capacity_in_range
+    rule: range
+    property: cooling_capacity_btu
+    min: 6000
+    max: 300000
+    severity: error

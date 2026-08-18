@@ -1,0 +1,154 @@
+# =============================================================================
+# seo.yaml — indexability policy, canonical URLs, structured data and LLM/agent
+# discovery for this vertical (doc 07).
+#
+# THE CENTRAL RULE (AGENTS.md rule 8): indexability is QUALITY AND DEMAND GATED.
+# A page becomes indexable by earning it — by having enough evidence-backed
+# facts to be the best factual result — not by existing. Every threshold below
+# is deliberately a number in config so it can be raised without a deploy.
+# =============================================================================
+
+# Public URL root for this vertical.
+url_prefix: /data/template
+
+# --- Page classes -----------------------------------------------------------
+# doc 07 "Primary page classes". Each declares its canonical URL pattern and its
+# own quality gate.
+page_classes: []
+
+# Example shape:
+#
+# page_classes:
+#   - id: entity_detail
+#     entity_type: example_entity
+#     path: "/data/template/examples/{canonical_slug}"
+#     title: "{canonical_name}"
+#     # Schema.org type, or null. Do not mark up semantics the page does not
+#     # actually have merely for SEO (doc 07).
+#     structured_data: null
+#     sitemap: entities
+#     indexable: conditional
+#     quality_gate: default
+
+# --- Quality gates ----------------------------------------------------------
+# The anti-thin-page machinery. A page is indexable only if EVERY condition in
+# its gate holds. Referenced by `quality_gate:` on each page class.
+quality_gates:
+  default:
+    description: >-
+      Minimum bar for any indexable page. Tighten per page class; never loosen
+      below this.
+
+    # Fraction (0-1) of properties marked `critical: true` in entities/*.yaml
+    # that must have an ACTIVE, evidence-backed fact on this entity. THIS is the
+    # "minimum fact coverage" gate rule 8 demands.
+    min_critical_fact_coverage: 0.75
+
+    # Absolute floor on published facts, so an entity with one critical
+    # property cannot pass on a single value.
+    min_total_facts: 6
+
+    # AGENTS.md rule 2: no published fact without evidence. A page whose facts
+    # are not fully traceable must not be indexed.
+    min_evidence_coverage: 1.0
+
+    # Independent sources that must corroborate the entity's identity, so a
+    # single-source stub cannot become a page.
+    min_distinct_sources: 1
+
+    # Entity quality score floor (doc 04 `entity_quality_score`).
+    min_entity_quality_score: 0.6
+
+    # Reject entities whose facts are all older than this.
+    max_staleness_days: 400
+
+    # Collection/filter pages only: minimum matching entities.
+    min_results: 10
+
+    # Rendered word count of unique, non-boilerplate content.
+    min_unique_content_words: 120
+
+    # Every source backing this page must pass the source publish gate. RED and
+    # UNREVIEWED sources can never contribute to an indexed page (rule 1).
+    require_all_sources_publishable: true
+
+    # Block indexing while an unresolved correction/dispute is open (doc 13).
+    block_on_open_dispute: true
+
+# What to emit when a page fails its gate. It still exists and is still
+# crawlable — it is simply not offered to the index.
+on_gate_failure:
+  robots: "noindex,follow"
+  in_sitemap: false
+  # Still served to API/MCP consumers, who asked for it explicitly.
+  in_api: true
+
+# --- Sitemaps ---------------------------------------------------------------
+# Segmented, and containing ONLY canonical indexable URLs (doc 07).
+sitemaps:
+  index: /sitemap-index.xml
+  max_urls_per_file: 45000
+  segments: []
+
+# --- Canonical/redirect policy ----------------------------------------------
+canonical:
+  # URLs must stay stable after entity merges; merges emit redirects, never 404s.
+  redirect_on_merge: true
+  redirect_status: 301
+  # Filtered pages canonicalize to their unfiltered parent unless the
+  # combination is whitelisted in filters.yaml `indexable_combinations`.
+  filter_pages_canonicalize_to_parent: true
+  trailing_slash: false
+
+# --- Structured data --------------------------------------------------------
+structured_data:
+  dataset_page:
+    type: Dataset
+    required_fields:
+      - name
+      - description
+      - creator
+      - dateModified
+      - license
+      - distribution
+      - keywords
+  catalog_page:
+    type: DataCatalog
+    required_fields: [name, description, dataset]
+  # Only mark up types the page genuinely is.
+  entity_page:
+    type: null
+
+# --- Image policy (AGENTS.md rule 9) ----------------------------------------
+images:
+  # Never republish source imagery without a per-source rights decision.
+  require_rights_decision: true
+  # When photo rights are unavailable, generate visualizations from facts
+  # instead of hotlinking or copying (doc 13).
+  fallback_to_generated_visualizations: true
+  require_alt_text: true
+  alt_text_template: null
+
+# --- LLM discovery (doc 07 layer 2) -----------------------------------------
+llm_discovery:
+  # Per-vertical llms.txt is preferable to one unbounded global file.
+  llms_txt: /data/template/llms.txt
+  llms_full_txt: /data/template/llms-full.txt
+  markdown_representation: true
+  accept_text_markdown: true
+  include:
+    - dataset_description
+    - resource_groups
+    - schemas
+    - api_docs
+    - openapi_url
+    - mcp_endpoint
+    - bulk_formats
+    - source_methodology
+    - freshness_and_changelog
+    - licensing_and_access_terms
+
+# --- Agent intents (doc 07 "Agent-intent configuration") --------------------
+# The prompts this vertical expects, mapped to the MCP tool that should win.
+# doc 14 runs these as an eval suite and measures correct-tool rate.
+agent_intents: {}

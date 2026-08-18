@@ -1,0 +1,64 @@
+# =============================================================================
+# filters.yaml — declarative filter metadata (doc 04 "Filter metadata").
+#
+# This single file drives THREE surfaces: the web filter UI, the API/OpenAPI
+# parameter documentation, and SEO facet generation. That is the point — one
+# canonical query model (doc 10), not three implementations that drift.
+#
+# Per doc 04 each field may declare:
+#   field | value_type | unit | filter{type, facet_count} | sort | search_boost | indexable
+# and per doc 07 an `seo` block gating which filter STATES may be indexed.
+# =============================================================================
+
+# Default posture for any filter state not explicitly whitelisted below.
+# `noindex,follow` is the correct default: crawlable for discovery, not
+# indexable as a thin page (AGENTS.md rule 8).
+defaults:
+  robots: "noindex,follow"
+  facet_count: true
+  sort: false
+  search_boost: 0.0
+  indexable: false
+
+fields: []
+
+# Example shape:
+#
+# fields:
+#   - field: example_quantity
+#     entity_type: example_entity
+#     value_type: number
+#     unit: REPLACE_ME
+#     filter:
+#       # single_select | multi_select | range | boolean | text
+#       type: range
+#       facet_count: true
+#       # For range filters, the buckets offered in the UI and as SEO facets.
+#       buckets:
+#         - { label: "0-100", gte: 0, lte: 100 }
+#     sort: true
+#     search_boost: 0.4
+#     indexable: true
+#     seo:
+#       # true | false | conditional
+#       indexable: conditional
+#       min_results: 10
+#       demand_threshold: 0.5
+
+# --- Indexable filter combinations ------------------------------------------
+# doc 07: "Do not create thin programmatic combinations merely because the
+# database allows them." Only combinations listed here may ever be indexed, and
+# each still has to clear the quality gate in seo.yaml.
+indexable_combinations: []
+# Example shape:
+#   - id: type_by_capacity
+#     fields: [product_type, example_quantity]
+#     max_depth: 2
+#     min_results: 10
+#     rationale: >-
+#       Why a human would search for exactly this combination. If you cannot
+#       write this sentence, the combination is not indexable.
+
+# Combinations that must NEVER be indexed regardless of result count, because
+# they produce near-duplicate pages.
+denied_combinations: []

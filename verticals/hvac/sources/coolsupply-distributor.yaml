@@ -1,0 +1,133 @@
+# =============================================================================
+# coolsupply-distributor — HTML product pages, headless-browser path.
+#
+# SYNTHETIC SOURCE. CoolSupply Wholesale is a FICTIONAL company invented for
+# this factory proof. The domain is an RFC 2606 reserved example domain and
+# resolves nowhere. The rights below describe test data we authored ourselves;
+# they are not a claim about any real distributor's terms. See RIGHTS.md.
+#
+# Role in the proof: the awkward source. Client-rendered HTML requiring a
+# headless browser, AMBER rights, lowest authority, capacity in tons instead of
+# BTU, model numbers lowercased and hyphenated, and specs that are sometimes
+# simply wrong. It exists because it is the ONLY source carrying UPCs — which
+# is exactly why real pipelines end up ingesting sources like this.
+# =============================================================================
+
+key: coolsupply-distributor
+vertical_slug: hvac
+
+publisher: CoolSupply Wholesale (SYNTHETIC — fictional publisher)
+domain: www.coolsupply.example.com
+source_type: DISTRIBUTOR
+
+# Lowest of the four. A distributor re-keys manufacturer data by hand and gets
+# it wrong often enough that it must never win a spec conflict.
+authority_rank: 45
+
+status: ACTIVE
+refresh_cadence: WEEKLY
+
+# AMBER, not GREEN: the facts are usable, but a distributor's listing terms and
+# the database right in a compiled catalogue need business review before this is
+# treated as settled. AMBER publishes — but never silently. The publish gate
+# attaches a warning that follows this source everywhere downstream.
+rights_classification: AMBER
+
+attribution_requirement:
+  required: true
+  text: Listing data courtesy of CoolSupply Wholesale (synthetic test source).
+  url: https://www.coolsupply.example.com/
+
+robots_policy:
+  respect_robots: true
+  user_agent: DataFoundryBot
+  crawl_delay_seconds: 3
+  disallowed_paths:
+    - /cart/
+    - /account/
+    - /search
+    - /checkout/
+  allowed_paths:
+    - /products/
+  robots_url: https://www.coolsupply.example.com/robots.txt
+  snapshot_hash: 8c47b1d0e93f6a25c7104b8ef2d63a915e0c7b48a2f19d63c85074eb3d1a6f92
+  snapshot_at: 2026-07-02T09:20:00Z
+
+rights_policy:
+  publisher_legal_entity: CoolSupply Wholesale (fictional entity; synthetic test data)
+  terms_url: https://www.coolsupply.example.com/terms-of-use
+  license_id: null
+  license_text_ref: fixtures/coolsupply-listing.html
+  api_terms_url: null
+  commercial_use_allowed: true
+  redistribution_allowed: true
+  derivative_normalization_allowed: true
+  attribution:
+    required: true
+    text: Listing data courtesy of CoolSupply Wholesale (synthetic test source).
+    url: https://www.coolsupply.example.com/
+  images_reusable: false
+  personal_data_present: false
+  geographic_notes: >-
+    Not applicable. Synthetic fixture data authored by the Data Foundry team.
+    Noted here because a real distributor catalogue in the EU/UK would raise a
+    sui generis database right question that this synthetic stand-in does not.
+  reviewed_at: 2026-07-02T10:00:00Z
+  reviewed_by: Data Foundry platform team
+  next_review_at: 2027-01-31
+
+acquisition_policy:
+  # The headless-browser path. Specs are injected client-side, so a plain GET
+  # returns an empty spec table — this source cannot be acquired over
+  # DIRECT_HTTP at all, which is the point of including it.
+  method: BROWSER_RUN
+  approved: true
+  approved_by: Data Foundry platform team
+  approved_at: 2026-07-02T10:00:00Z
+  # Deliberately slow. Rendering is expensive for them as well as us, and the
+  # robots crawl-delay is 3s.
+  max_requests_per_minute: 15
+  notes: >-
+    Requires a rendering acquisition adapter (Cloudflare Browser Run or
+    Crawl4AI — swappable, per AGENTS.md rule 6; the registry declares the
+    permitted METHOD, never the vendor). Approval covers rendering public
+    product pages only: no cart, account or search paths, matching the robots
+    snapshot above. Rendering permission is a rights decision, not a technical
+    one — "we could render it" is not "we may render it".
+
+image_policy:
+  images_reusable: false
+  cache_to_r2_permitted: false
+  default_display_modes: []
+  image_attribution:
+    required: false
+    text: null
+    url: null
+
+provenance_retention:
+  retain_artifacts: true
+  # Rendered HTML is bulky and this source is re-fetched weekly; two years is
+  # long enough to explain any published fact and to reprocess a parser change.
+  retention_days: 730
+  legal_hold: false
+
+license_split:
+  code_license_id: null
+  data_license_id: null
+  notes: >-
+    No licence is offered by the publisher. Facts are used under the AMBER
+    classification pending business review; the page markup itself is not
+    republished.
+
+kill_switch_engaged: false
+
+notes: >-
+  The only source of UPCs, and a useful independent corroborator on capacity and
+  refrigerant. Everything it publishes should be treated as re-keyed rather than
+  authoritative: it lists capacity in tons ("3 Ton"), lowercases and hyphenates
+  model numbers (`24acc6-36a003`), omits EER2/HSPF2/phase/stage count/weight,
+  and disagrees with the manufacturer's own spec sheet on sound level for
+  24ACC648A003 (69 dB listed vs 72 dB published). That conflict is intentional
+  and is what exercises authority-weighted fact selection. Its own item numbers
+  (`CS-######`) are deliberately NOT ingested — they are source-scoped
+  inventory codes with no cross-source meaning.

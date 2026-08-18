@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.data-foundry.dev/canonical/index.json",
+  "title": "data-foundry canonical schemas",
+  "description": "Generated from @data-foundry/canonical-schema. Do not edit by hand; run `pnpm schemas:generate`.",
+  "objects": [
+    {
+      "name": "dataset_snapshots",
+      "file": "dataset_snapshots.schema.json"
+    },
+    {
+      "name": "entities",
+      "file": "entities.schema.json"
+    },
+    {
+      "name": "entity_aliases",
+      "file": "entity_aliases.schema.json"
+    },
+    {
+      "name": "entity_redirects",
+      "file": "entity_redirects.schema.json"
+    },
+    {
+      "name": "fact_evidence",
+      "file": "fact_evidence.schema.json"
+    },
+    {
+      "name": "facts",
+      "file": "facts.schema.json"
+    },
+    {
+      "name": "ingestion_jobs",
+      "file": "ingestion_jobs.schema.json"
+    },
+    {
+      "name": "job_status",
+      "file": "job_status.schema.json"
+    },
+    {
+      "name": "media_assets",
+      "file": "media_assets.schema.json"
+    },
+    {
+      "name": "relationship_evidence",
+      "file": "relationship_evidence.schema.json"
+    },
+    {
+      "name": "relationships",
+      "file": "relationships.schema.json"
+    },
+    {
+      "name": "resolution_candidates",
+      "file": "resolution_candidates.schema.json"
+    },
+    {
+      "name": "resolution_judgments",
+      "file": "resolution_judgments.schema.json"
+    },
+    {
+      "name": "source_artifacts",
+      "file": "source_artifacts.schema.json"
+    },
+    {
+      "name": "source_records",
+      "file": "source_records.schema.json"
+    },
+    {
+      "name": "sources",
+      "file": "sources.schema.json"
+    },
+    {
+      "name": "verticals",
+      "file": "verticals.schema.json"
+    }
+  ]
+}

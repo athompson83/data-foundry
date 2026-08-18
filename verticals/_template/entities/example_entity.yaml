@@ -1,0 +1,99 @@
+# =============================================================================
+# entities/<entity_type>.yaml — one file per entity type declared in
+# vertical.yaml `entity_types`.
+#
+# This file declares WHAT AN ENTITY IS: its identity rules, its properties and
+# their units, and which properties are critical enough that a page without
+# them must not be published (AGENTS.md rule 8).
+#
+# It does NOT declare how any particular source spells things — that is
+# normalizers/. Keeping the two apart is what lets a new source be added
+# without touching the canonical model.
+# =============================================================================
+
+# Must match a member of `entity_types` in vertical.yaml.
+entity_type: example_entity
+
+# Display labels for UI/API docs.
+label:
+  singular: Example Entity
+  plural: Example Entities
+
+description: >-
+  One sentence describing the real-world thing this entity represents. Write it
+  for a stranger: it becomes the API/MCP schema description and the SEO
+  meta-description seed.
+
+# How the canonical URL slug is built. Deterministic and stable — URLs must
+# survive entity merges via redirects (doc 07), so the pattern may only use
+# fields that do not change under merge.
+canonical_slug:
+  pattern: "{example_identifier}"
+  # lower | upper | preserve
+  case: lower
+  # Characters replaced by the separator before slugging.
+  separator: "-"
+
+# --- Identity ---------------------------------------------------------------
+# Alias types that identify this entity. `strong: true` means an exact match on
+# `normalized_value` is sufficient to assert identity on its own (doc 06 step 1,
+# AGENTS.md rule 7). Everything else only contributes to candidate scoring.
+identity:
+  strong_aliases: []
+  weak_aliases: []
+  # Composite deterministic match (doc 06 step 2): all listed properties equal
+  # => same entity, even without a strong alias.
+  composite_keys: []
+
+# --- Properties -------------------------------------------------------------
+# Every property becomes a `facts.property` value. `value_type` must be one of
+# the platform's FACT_VALUE_TYPES:
+#   string | number | integer | boolean | date | datetime | enum | url |
+#   quantity | array | object
+#
+# `unit` is required for `quantity` and must be the canonical unit symbol; the
+# normalizer is responsible for converting source units into it and the original
+# value is retained as evidence (doc 06 layer 2).
+#
+# `critical: true` marks a property that feeds the publication quality gate.
+# See seo.yaml `indexability.min_critical_fact_coverage`.
+properties:
+  - name: example_identifier
+    value_type: string
+    unit: null
+    critical: true
+    description: The primary human-facing identifier for this entity.
+    # Which sources are expected to carry this property. Used by QUALITY.md
+    # coverage reporting and by DATA_DICTIONARY.md generation.
+    expected_sources: []
+
+  - name: example_quantity
+    value_type: quantity
+    unit: REPLACE_ME
+    critical: false
+    description: An example measured property. Canonical unit goes in `unit`.
+    expected_sources: []
+
+# --- Quality rules ----------------------------------------------------------
+# Deterministic, declarative validity checks. These run during normalization and
+# mark a fact DISPUTED rather than dropping it — nothing in this model deletes a
+# claim (doc 04 versioning).
+quality_rules: []
+# Example shapes:
+#   - id: example_quantity_in_range
+#     rule: range
+#     property: example_quantity
+#     min: 0
+#     max: 1000
+#     severity: error          # error | warning
+#   - id: identifier_format
+#     rule: regex
+#     property: example_identifier
+#     pattern: "^[A-Z0-9-]+$"
+#     severity: error
+#   - id: derived_consistency
+#     rule: cross_property
+#     expression: "a == b * 2"   # evaluated by the platform rule engine
+#     properties: [a, b]
+#     tolerance: 0.02
+#     severity: warning

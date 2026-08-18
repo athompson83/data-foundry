@@ -1,0 +1,117 @@
+<!doctype html>
+<!--
+  SYNTHETIC TEST DATA. CoolSupply Wholesale is a fictional company invented for
+  pipeline testing. This file was authored by the Data Foundry team; it is not a
+  copy of any real distributor page, and no real site is contacted to produce it.
+  See verticals/hvac/RIGHTS.md.
+
+  This fixture exists to exercise the HEADLESS-BROWSER acquisition path. The
+  spec tables below are populated client-side by the inline script at the bottom
+  of the document: a plain HTTP GET of this file yields product cards whose
+  spec values are empty. That is the whole point — the extractor must see the
+  RENDERED DOM, which is why coolsupply-distributor.yaml declares
+  acquisition method BROWSER_RUN rather than DIRECT_HTTP.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Condensing Units &amp; Heat Pumps | CoolSupply Wholesale</title>
+  <meta name="description" content="Wholesale HVAC condensing units and heat pumps.">
+</head>
+<body>
+<main class="catalog" data-page="1" data-total="5">
+  <h1>Condensing Units &amp; Heat Pumps</h1>
+
+  <article class="product-card" data-item="CS-118822">
+    <h2 class="product-title">Acme Comfort 16 3 Ton 14.5 SEER2 Condenser</h2>
+    <dl class="specs">
+      <dt>Brand</dt><dd class="spec-brand">Acme</dd>
+      <dt>Mfr Part #</dt><dd class="spec-mfr-part">24acc6-36a003</dd>
+      <dt>Item #</dt><dd class="spec-item-no">CS-118822</dd>
+      <dt>UPC</dt><dd class="spec-upc">083456120010</dd>
+      <dt>Nominal Capacity</dt><dd class="spec-capacity">3 Ton</dd>
+      <dt>SEER2</dt><dd class="spec-seer2">14.5</dd>
+      <dt>Refrigerant</dt><dd class="spec-refrigerant">R-454B</dd>
+      <dt>Sound Rating</dt><dd class="spec-sound">72 dB</dd>
+      <dt>Price</dt><dd class="spec-price">$2,214.00</dd>
+    </dl>
+  </article>
+
+  <article class="product-card" data-item="CS-118823">
+    <h2 class="product-title">Acme Comfort 16 4 Ton 14 SEER2 Condenser</h2>
+    <dl class="specs">
+      <dt>Brand</dt><dd class="spec-brand">Acme</dd>
+      <dt>Mfr Part #</dt><dd class="spec-mfr-part">24acc6-48a003</dd>
+      <dt>Item #</dt><dd class="spec-item-no">CS-118823</dd>
+      <dt>UPC</dt><dd class="spec-upc">083456120027</dd>
+      <dt>Nominal Capacity</dt><dd class="spec-capacity">4 Ton</dd>
+      <dt>SEER2</dt><dd class="spec-seer2">14.0</dd>
+      <dt>Refrigerant</dt><dd class="spec-refrigerant">R-454B</dd>
+      <!-- CONFLICT (deliberate): the manufacturer spec sheet publishes 72 dB
+           for this model. A re-keyed distributor value loses to the published
+           engineering document on authority, 45 vs 90. -->
+      <dt>Sound Rating</dt><dd class="spec-sound">69 dB</dd>
+      <dt>Price</dt><dd class="spec-price">$2,548.00</dd>
+    </dl>
+  </article>
+
+  <article class="product-card" data-item="CS-204471">
+    <h2 class="product-title">Northwind 3 Ton 14.6 SEER2 Air Conditioner</h2>
+    <dl class="specs">
+      <dt>Brand</dt><dd class="spec-brand">Northwind</dd>
+      <dt>Mfr Part #</dt><dd class="spec-mfr-part">nwa1436ac1</dd>
+      <dt>Item #</dt><dd class="spec-item-no">CS-204471</dd>
+      <dt>UPC</dt><dd class="spec-upc">761204880033</dd>
+      <dt>Nominal Capacity</dt><dd class="spec-capacity">3 Ton</dd>
+      <dt>SEER2</dt><dd class="spec-seer2">14.6</dd>
+      <dt>Refrigerant</dt><dd class="spec-refrigerant">R-454B</dd>
+      <dt>Sound Rating</dt><dd class="spec-sound">70 dB</dd>
+      <dt>Price</dt><dd class="spec-price">$2,105.00</dd>
+    </dl>
+  </article>
+
+  <article class="product-card" data-item="CS-204488">
+    <h2 class="product-title">Northwind 3 Ton 16.1 SEER2 Heat Pump</h2>
+    <dl class="specs">
+      <dt>Brand</dt><dd class="spec-brand">Northwind</dd>
+      <dt>Mfr Part #</dt><dd class="spec-mfr-part">nwh1636hp1</dd>
+      <dt>Item #</dt><dd class="spec-item-no">CS-204488</dd>
+      <dt>UPC</dt><dd class="spec-upc">761204880057</dd>
+      <dt>Nominal Capacity</dt><dd class="spec-capacity">3 Ton</dd>
+      <dt>SEER2</dt><dd class="spec-seer2">16.1</dd>
+      <dt>Refrigerant</dt><dd class="spec-refrigerant">R-454B</dd>
+      <dt>Sound Rating</dt><dd class="spec-sound">69 dB</dd>
+      <dt>Price</dt><dd class="spec-price">$3,320.00</dd>
+    </dl>
+  </article>
+
+  <article class="product-card" data-item="CS-330915">
+    <h2 class="product-title">Borealis 3 Ton 13.9 SEER2 Condenser</h2>
+    <dl class="specs">
+      <dt>Brand</dt><dd class="spec-brand">Borealis</dd>
+      <!-- Formatting varies WITHIN this source too: this manufacturer's part
+           numbers are already hyphenated, so the distributor's lowercasing
+           produces a different shape again. -->
+      <dt>Mfr Part #</dt><dd class="spec-mfr-part">btw-c2036</dd>
+      <dt>Item #</dt><dd class="spec-item-no">CS-330915</dd>
+      <dt>UPC</dt><dd class="spec-upc">092817330043</dd>
+      <dt>Nominal Capacity</dt><dd class="spec-capacity">3 Ton</dd>
+      <dt>SEER2</dt><dd class="spec-seer2">13.9</dd>
+      <dt>Refrigerant</dt><dd class="spec-refrigerant">R410A</dd>
+      <dt>Sound Rating</dt><dd class="spec-sound">75 dB</dd>
+      <dt>Price</dt><dd class="spec-price">$1,978.00</dd>
+    </dl>
+  </article>
+</main>
+
+<script>
+  // Client-side hydration. In the live site the spec <dd> elements ship empty
+  // and are filled from this payload after load, which is what forces the
+  // headless-browser acquisition path.
+  window.__CATALOG__ = { rendered: true, currency: "USD", page: 1 };
+  document.querySelectorAll(".product-card").forEach(function (card) {
+    card.setAttribute("data-hydrated", "true");
+  });
+</script>
+</body>
+</html>

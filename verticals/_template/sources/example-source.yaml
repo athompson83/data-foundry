@@ -1,0 +1,158 @@
+# =============================================================================
+# sources/<key>.yaml — ONE source declaration.
+#
+# AGENTS.md rule 1: "No source without rights metadata. Unreviewed/RED sources
+# must not publish." Every field below is REQUIRED by `SourceRegistryEntrySchema`
+# in packages/source-registry. There are no optional rights fields, by design:
+# a `null` terms_url is an explicit statement that no terms page exists, not an
+# omission. "We didn't record that" is not an available answer to a lawyer.
+#
+# `pnpm verticals:validate` parses this file, and if `status: ACTIVE` it also
+# runs the doc 13 activation gate. To be ACTIVE a source needs, at minimum:
+#   - rights_classification that is not RED or UNREVIEWED
+#   - a CURRENT human rights review (reviewed_at + reviewed_by, and
+#     next_review_at either null or still in the future)
+#   - acquisition_policy.approved: true
+#   - satisfiable attribution (required:false, or required:true WITH text)
+#   - provenance_retention.retain_artifacts: true (or legal_hold: true)
+#   - image caching only where images are actually reusable
+#
+# Copy this file, rename it to <key>.yaml, and fill it in honestly.
+# =============================================================================
+
+# Stable human-authored key. Lowercase hyphen-separated. Survives a database
+# rebuild — this, not a UUID, is how a source is referenced everywhere.
+key: example-source
+
+# Must equal `slug` in vertical.yaml. The validator enforces this.
+vertical_slug: template
+
+# --- Identity ---------------------------------------------------------------
+publisher: REPLACE_ME
+domain: example.com
+
+# REGULATORY | STANDARDS_BODY | CERTIFICATION_BODY | MANUFACTURER | DISTRIBUTOR
+# | TRADE_ASSOCIATION | MARKETPLACE | AGGREGATOR | COMMUNITY | PARTNER_FEED
+# | LICENSED_DATASET | OPEN_DATASET | OTHER
+source_type: OTHER
+
+# Field-independent trust weight 0-100, used by canonical fact selection.
+# NOT a confidence score and deliberately not on the unit interval so the two
+# cannot be confused. A certification body outranks a manufacturer's marketing
+# page, which outranks a distributor's listing.
+authority_rank: 50
+
+# PROPOSED | UNDER_REVIEW | APPROVED | ACTIVE | PAUSED | SUSPENDED | RETIRED
+# Start at PROPOSED. Do not set ACTIVE until the gate above genuinely passes.
+status: PROPOSED
+
+# MANUAL | HOURLY | DAILY | WEEKLY | MONTHLY | QUARTERLY | ANNUALLY | EVENT_DRIVEN
+refresh_cadence: MONTHLY
+
+# --- Rights (AGENTS.md rule 1) ----------------------------------------------
+
+# GREEN     — clear commercial reuse/redistribution rights.
+# AMBER     — facts probably usable, but terms/database rights/images/
+#             attribution/redistribution scope still need legal review.
+#             Publishable, but never silently: it carries a warning.
+# RED       — explicit restrictions or unresolved risk. Never ingested for
+#             commercial publishing.
+# UNREVIEWED— no decision on record. Absence of a decision is not permission.
+rights_classification: UNREVIEWED
+
+# `required: true` with a null `text` is a misconfiguration, not "no
+# attribution needed" — it fails the gate.
+attribution_requirement:
+  required: false
+  text: null
+  url: null
+
+# Snapshot of the robots directives in force at review time. Stored rather than
+# fetched at crawl time, so a crawl decision can be explained after the fact.
+robots_policy:
+  respect_robots: true
+  user_agent: DataFoundryBot
+  crawl_delay_seconds: null
+  disallowed_paths: []
+  allowed_paths: []
+  robots_url: null
+  snapshot_hash: null
+  snapshot_at: null
+
+# The doc 13 source policy record, in full.
+rights_policy:
+  # The legal entity, not the marketing brand.
+  publisher_legal_entity: REPLACE_ME
+  terms_url: null
+  # SPDX identifier where one applies (CC-BY-4.0, ODbL-1.0).
+  license_id: null
+  # Pointer to stored licence text/screenshot when there is no SPDX id.
+  license_text_ref: null
+  api_terms_url: null
+
+  commercial_use_allowed: false
+  redistribution_allowed: false
+  derivative_normalization_allowed: false
+  attribution:
+    required: false
+    text: null
+    url: null
+  images_reusable: false
+  personal_data_present: false
+
+  geographic_notes: ""
+
+  # A named human. A model is not a reviewer.
+  reviewed_at: null
+  reviewed_by: null
+  next_review_at: null
+
+# How we are ALLOWED to obtain this source. A policy decision, not an
+# implementation detail: "we could render it headlessly" is not the same as
+# "we are permitted to render it headlessly".
+acquisition_policy:
+  # DIRECT_HTTP | BROWSER_RUN | CRAWL4AI | VENDOR_API | SITEMAP | BULK_FILE
+  # | RSS | MANUAL_UPLOAD
+  method: DIRECT_HTTP
+  approved: false
+  approved_by: null
+  approved_at: null
+  max_requests_per_minute: null
+  notes: ""
+
+# AGENTS.md rule 9. Defaults are restrictive: copy nothing, display nothing,
+# until someone decides otherwise.
+image_policy:
+  images_reusable: false
+  # Copying bytes into R2 is republication and needs its own decision.
+  cache_to_r2_permitted: false
+  # NONE | HOTLINK_ONLY | THUMBNAIL | INLINE | FULL | DOWNLOAD
+  default_display_modes: []
+  image_attribution:
+    required: false
+    text: null
+    url: null
+
+# AGENTS.md rule 10. Discarding the artifacts behind a published fact makes the
+# fact unexplainable and unreprocessable.
+provenance_retention:
+  retain_artifacts: true
+  # null means retain indefinitely.
+  retention_days: null
+  # Suspends deletion entirely, regardless of retention_days.
+  legal_hold: false
+
+# Code licence and data licence are independent (doc 13). An MIT-licensed
+# scraper shipping a proprietary dataset is normal; conflating the two is how
+# the dataset gets republished by accident.
+license_split:
+  code_license_id: null
+  data_license_id: null
+  notes: ""
+
+# Operator kill switch (doc 13 takedown/suspension). Overrides everything.
+kill_switch_engaged: false
+
+notes: >-
+  Why this source exists, what it uniquely provides that no other source does,
+  and anything the next person needs to know before touching it.

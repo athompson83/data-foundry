@@ -1,0 +1,72 @@
+# =============================================================================
+# manufacturer — the company that builds equipment models.
+#
+# Deliberately thin. A manufacturer's value in this graph is as an anchor for
+# `manufactures` edges and as the scope within which model numbers and SKUs are
+# unique — not as a company profile. Resisting the urge to accumulate corporate
+# trivia here is what keeps this a facts product rather than a directory.
+# =============================================================================
+
+entity_type: manufacturer
+
+label:
+  singular: Manufacturer
+  plural: Manufacturers
+
+description: >-
+  A company that manufactures HVAC equipment, used as the identity scope for
+  model numbers and SKUs and as the subject of `manufactures` relationships.
+
+canonical_slug:
+  pattern: "{canonical_name}"
+  case: lower
+  separator: "-"
+
+identity:
+  # Uses the platform's CORE_ALIAS_TYPES rather than this vertical's five
+  # additions — manufacturers are named, not part-numbered.
+  strong_aliases:
+    - legal_name
+  weak_aliases:
+    - name
+    - abbreviation
+    - dba
+    - former_name
+  composite_keys: []
+
+properties:
+  - name: product_type
+    value_type: string
+    unit: null
+    critical: false
+    description: >-
+      Equipment categories this manufacturer is observed to produce. Derived
+      from the `manufactures` edges rather than asserted by any source, so it is
+      always consistent with the catalogue actually held.
+    derived: true
+    expected_sources: []
+
+# Manufacturer identity is asserted by every source, so the interesting quality
+# question is not completeness but over-splitting: "Acme", "Acme Climate" and
+# "ACME CLIMATE SYSTEMS" must not become three manufacturers. That is handled
+# deterministically by the publisher_aliases table in
+# normalizers/03-domain-normalization.yaml.
+quality_rules:
+  - id: manufacturer_has_models
+    rule: required_edge
+    predicate: manufactures
+    direction: outbound
+    min_count: 1
+    description: >-
+      A manufacturer with no models is an extraction artifact — usually a brand
+      string that should have been an alias of an existing manufacturer.
+    severity: warning
+
+  - id: canonical_name_not_abbreviation
+    rule: regex
+    property: canonical_name
+    pattern: "^.{3,}$"
+    description: >-
+      Guards against an abbreviation ("ACS") winning canonical-name selection
+      over the full legal name.
+    severity: warning

@@ -1,0 +1,15 @@
+# SYNTHETIC TEST DATA. Federated HVAC Ratings Council is a fictional certification body invented for pipeline testing.
+# This file was authored by the Data Foundry team and is not a copy of any real certification directory export.
+# Export: certified-ratings-2026Q3.csv | Generated: 2026-07-01 | Rows: 11 | Discontinued models are excluded from each export.
+AHRI Certified Reference Number,Manufacturer,Brand,Outdoor Unit Model Number,Equipment Type,Cooling Capacity (BTUh),SEER2,EER2,HSPF2,Refrigerant,Certification Status,Effective Date
+20134501,Acme Climate Systems,ACME,24ACC6 36A003,Split System Air Conditioner,36000,14.3,11.7,,R-454B,Active,2026-01-15
+20134502,Acme Climate Systems,ACME,24ACC6 48A003,Split System Air Conditioner,48000,14.0,11.4,,R-454B,Active,2026-01-15
+20134503,Acme Climate Systems,ACME,24ACC6 60A003,Split System Air Conditioner,60000,13.8,11.2,,R-454B,Active,2026-01-15
+20134504,Acme Climate Systems,ACME,25HPA6 30A003,Split System Heat Pump,36000,15.2,11.9,7.8,R-454B,Active,2026-01-15
+20155001,Northwind Air Systems,Northwind,NWA1424AC1,Split System Air Conditioner,24000,14.8,12.1,,R-454B,Active,2026-02-01
+20155002,Northwind Air Systems,Northwind,NWA1436AC1,Split System Air Conditioner,36000,14.6,11.9,,R-454B,Active,2026-02-01
+20155003,Northwind Air Systems,Northwind,NWA1448AC1,Split System Air Conditioner,48000,14.2,11.6,,R-454B,Active,2026-02-01
+20155004,Northwind Air Systems,Northwind,NWH1636HP1,Split System Heat Pump,36000,16.1,12.4,8.5,R-454B,Active,2026-02-01
+20166201,Borealis Thermal Works,Borealis,BTW-C2036,Split System Air Conditioner,36000,13.9,11.3,,R-410A,Active,2026-03-10
+20166202,Borealis Thermal Works,Borealis,BTW-C2048,Split System Air Conditioner,48000,13.7,11.1,,R-410A,Active,2026-03-10
+20166203,Borealis Thermal Works,Borealis,BTW-H3036,Split System Heat Pump,36000,15.5,12.0,8.1,R-454B,Active,2026-03-10
