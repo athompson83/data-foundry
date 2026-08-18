@@ -51,6 +51,8 @@
 import {
   canPublish,
   canonicalValuesEqual,
+  compareCodeUnits,
+  compareKeys,
   type CanonicalValue,
   type Fact,
   type FactEvidence,
@@ -562,12 +564,44 @@ const ids = (candidates: readonly FactCandidate[]): FactId[] =>
   candidates.map((candidate) => candidate.fact.id);
 
 /**
- * Reproducibility beats arbitrariness: whenever the algorithm must pick one of
- * several indistinguishable claims, it picks the same one every time.
+ * The ordering key for a claim, for the moments when the cascade has nothing
+ * left to say and one of several indistinguishable claims must still be picked.
+ *
+ * Every component is reproduced exactly by a rebuild from the same artifacts:
+ * the claim's own canonical content first, then the content hashes and locators
+ * of the evidence behind it. `fact.id` is deliberately last and is not expected
+ * to be reached — two claims that agree on all of the above publish the same
+ * value with the same evidence, so which row wins changes nothing anyone can
+ * observe.
+ *
+ * It used to be `recorded_at DESC, fact.id.localeCompare(...)`. `facts.id` is
+ * `gen_random_uuid()`: stable inside one database, arbitrary across a replay
+ * into a fresh one, so the same inputs published different values (#8). And
+ * `localeCompare` handed the comparison to the host's collator (#14).
  */
-const byRecordedThenId = (left: FactCandidate, right: FactCandidate): number => {
+const orderingKey = (candidate: FactCandidate): string[] => [
+  JSON.stringify(candidate.fact.normalized_value ?? null),
+  candidate.fact.unit ?? '',
+  candidate.fact.valid_from,
+  candidate.evidence
+    .map(
+      (item) =>
+        `${item.artifact.content_hash}#${item.evidence.locator_type}#${item.evidence.locator_value}`,
+    )
+    .sort(compareCodeUnits)
+    .join('|'),
+  candidate.fact.id,
+];
+
+/**
+ * Reproducibility beats arbitrariness: whenever the algorithm must pick one of
+ * several indistinguishable claims, it picks the same one every time — on this
+ * machine, on a colleague's, and after the whole database is rebuilt from the
+ * raw artifacts.
+ */
+const byRecordedThenContent = (left: FactCandidate, right: FactCandidate): number => {
   const byRecorded = Date.parse(right.fact.recorded_at) - Date.parse(left.fact.recorded_at);
-  return byRecorded !== 0 ? byRecorded : left.fact.id.localeCompare(right.fact.id);
+  return byRecorded !== 0 ? byRecorded : compareKeys(orderingKey(left), orderingKey(right));
 };
 
 /** Argmax over a pool, keeping every candidate tied at the best score. */
@@ -725,7 +759,7 @@ export function selectCanonicalFact(
     // would be inventing an editorial decision nobody made.
     const only = matched.length === 1 ? matched[0] : undefined;
     const ambiguous = matched.length > 1 || (only !== undefined && valueGroups(only.candidates).length > 1);
-    const winner = only === undefined || ambiguous ? undefined : [...only.candidates].sort(byRecordedThenId)[0];
+    const winner = only === undefined || ambiguous ? undefined : [...only.candidates].sort(byRecordedThenContent)[0];
 
     // Contradictory editorial intent is material trust information even though
     // no correction was applied, so it travels as a first-class warning rather
@@ -913,11 +947,13 @@ export function selectCanonicalFact(
   if (decidedBy === null) {
     // Reproducibility beats arbitrariness: the same inputs must always publish
     // the same value, and the tie is surfaced rather than papered over.
-    pool = [...pool].sort(byRecordedThenId);
+    pool = [...pool].sort(byRecordedThenContent);
     decidedBy = 'DETERMINISTIC_TIEBREAK';
     reason =
       'Every selection criterion tied. Selected deterministically by most recent recorded_at, then ' +
-      'by fact id, so the published value is reproducible. The tie is reported as an unresolved conflict.';
+      'by the claim\'s own canonical value and evidence, so the published value is reproducible ' +
+      'across a rebuild and independent of the host locale. The tie is reported as an unresolved ' +
+      'conflict.';
     steps.push({
       rule: 'DETERMINISTIC_TIEBREAK',
       applied: true,

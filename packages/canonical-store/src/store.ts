@@ -500,8 +500,13 @@ class PostgresCanonicalStore implements CanonicalStore {
 
   async listAliases(entityId: EntityId): Promise<EntityAlias[]> {
     const rows = await this.driver.query(
+      // `COLLATE "C"` because this order is a decision, not a display: the
+      // first alias of the primary type is what rebuilds the entity's
+      // canonical name. Left to the database's collation, the published name
+      // would differ between a `C`-collated PGlite and an `en_US`-collated
+      // hosted Postgres (#14).
       `SELECT ${ALIAS_COLUMNS} FROM entity_aliases WHERE entity_id = $1
-        ORDER BY alias_type, normalized_value`,
+        ORDER BY alias_type COLLATE "C", normalized_value COLLATE "C"`,
       [entityId],
     );
     return rows.map(mapEntityAlias);

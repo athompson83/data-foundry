@@ -15,6 +15,7 @@ import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
 import {
   CANONICAL_OBJECT_SCHEMAS,
+  compareCodeUnits,
   type CanonicalObjectName,
 } from '@data-foundry/canonical-schema';
 
@@ -48,7 +49,7 @@ export function generateCanonicalJsonSchemas(): GeneratedSchema[] {
     });
   }
 
-  generated.sort((a, b) => a.filename.localeCompare(b.filename));
+  generated.sort((a, b) => compareCodeUnits(a.filename, b.filename));
   return generated;
 }
 

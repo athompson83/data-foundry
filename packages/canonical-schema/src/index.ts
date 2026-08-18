@@ -12,6 +12,7 @@
  */
 
 export * from './primitives.js';
+export * from './ordering.js';
 export * from './ids.js';
 export * from './confidence.js';
 export * from './rights.js';

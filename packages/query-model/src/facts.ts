@@ -14,6 +14,7 @@ import type {
   SelectionWarning,
 } from '@data-foundry/canonical-store';
 import { factLineage, type FactLineage } from '@data-foundry/provenance';
+import { compareCodeUnits } from '@data-foundry/canonical-schema';
 import type {
   CanonicalValue,
   EntityId,
@@ -142,5 +143,5 @@ export async function canonicalFacts(
     });
   }
 
-  return rows.sort((left, right) => left.property.localeCompare(right.property));
+  return rows.sort((left, right) => compareCodeUnits(left.property, right.property));
 }

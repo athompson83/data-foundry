@@ -16,6 +16,7 @@
  * invisibly and nothing is deleted to undo a decision.
  */
 import {
+  compareCodeUnits,
   entityQualityScore,
   identityConfidence,
   type Entity,
@@ -188,9 +189,26 @@ export class EntityResolver {
       );
     }
 
-    const existing = [...matches.values()].sort((left, right) =>
-      left.entity.id.localeCompare(right.entity.id),
-    )[0];
+    // Which entity a conflicted record provisionally attaches to used to be
+    // "smallest `entity.id`" — a random UUID, so a rebuild into a fresh
+    // database attached the same record somewhere else (#8), and
+    // `localeCompare` handed the comparison to the host's collator (#14).
+    //
+    // The rule is now age: the record joins the entity we have known longest.
+    // That is the conservative choice while the conflict is queued — the older
+    // canonical record is the one with public URLs, redirects and inbound
+    // references already pointing at it, so a review that goes the other way
+    // moves the least. `canonical_slug` settles any remaining tie and is a
+    // total order in its own right: `entities_slug_key` is unique per
+    // (vertical, entity_type), and every candidate here shares both.
+    const existing = [...matches.values()].sort((left, right) => {
+      const byFirstSeen =
+        Date.parse(left.entity.first_seen_at) - Date.parse(right.entity.first_seen_at);
+      if (byFirstSeen !== 0) return byFirstSeen;
+      const byCreated = Date.parse(left.entity.created_at) - Date.parse(right.entity.created_at);
+      if (byCreated !== 0) return byCreated;
+      return compareCodeUnits(left.entity.canonical_slug, right.entity.canonical_slug);
+    })[0];
 
     const display = preferredDisplay(input.aliases, this.#primaryAlias(input.entityType));
     let entity: Entity;
@@ -384,7 +402,12 @@ export class EntityResolver {
    * last". The preference is deterministic: a spelling that is already in
    * canonical form wins (`24ACC636A003` over `24ACC6 36A003`); failing that the
    * most authoritative source's spelling wins (`BTW-C2036`, which no source
-   * writes collapsed); ties break lexicographically.
+   * writes collapsed); ties break by code unit.
+   *
+   * That last step used to be `localeCompare`, which decided the entity's
+   * published name with the host's collator: `abc-9001` wins under `en_US` and
+   * `ABC-9001` wins under `da_DK`, on plain ASCII (#14). The spelling a
+   * customer sees is not allowed to depend on which machine ran the pipeline.
    */
   async #writeAlias(
     entityId: EntityId,
@@ -442,7 +465,7 @@ export class EntityResolver {
     const [rightCanonical, rightAuthority, rightValue] = score(right);
     if (leftCanonical !== rightCanonical) return leftCanonical > rightCanonical ? left : right;
     if (leftAuthority !== rightAuthority) return leftAuthority > rightAuthority ? left : right;
-    return leftValue.localeCompare(rightValue) <= 0 ? left : right;
+    return compareCodeUnits(leftValue, rightValue) <= 0 ? left : right;
   }
 
   /* ---------------- resolution audit tables ---------------- */
