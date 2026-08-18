@@ -189,3 +189,34 @@ describe('#14 — the published display name does not depend on the host locale'
     expect(english.canonical_name).toBe('MODEL ABC-9001');
   });
 });
+
+describe('#8 — the blocking pass names pairs in a reproducible direction', () => {
+  it('orders every negative judgment by slug, not by random entity id', async () => {
+    const rows = await factory.driver.query<{
+      left_slug: string;
+      right_slug: string;
+      left_id: string;
+      right_id: string;
+    }>(
+      `SELECT l.canonical_slug AS left_slug, r.canonical_slug AS right_slug,
+              j.left_entity_id::text AS left_id, j.right_entity_id::text AS right_id
+         FROM resolution_judgments j
+         JOIN entities l ON l.id = j.left_entity_id
+         JOIN entities r ON r.id = j.right_entity_id
+        WHERE j.verdict = 'NOT_MERGE'`,
+    );
+    expect(rows.length).toBeGreaterThan(0);
+
+    for (const row of rows) {
+      expect(
+        row.left_slug < row.right_slug,
+        `${row.left_slug} should precede ${row.right_slug}`,
+      ).toBe(true);
+    }
+
+    // Not vacuous: at least one pair would have been recorded the other way
+    // round under the old id ordering, so the assertion above is doing work.
+    const wouldHaveFlipped = rows.filter((row) => row.left_id > row.right_id);
+    expect(wouldHaveFlipped.length).toBeGreaterThan(0);
+  });
+});

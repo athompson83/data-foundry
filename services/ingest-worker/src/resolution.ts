@@ -726,8 +726,17 @@ export class EntityResolver {
     let proposed = 0;
     let rejected = 0;
 
+    // Pair direction is ordered by `canonical_slug`, not by entity id. A pair's
+    // (left, right) direction is what a NOT_MERGE judgment records, and entity
+    // ids are random UUIDs — so a rebuild from the same artifacts would flip
+    // the direction of every negative judgment and the trail would not
+    // reproduce (#8). The slug is unique per (vertical, entity_type) and every
+    // entity here shares both, so it is a total order in its own right.
+    const bySlug = (left: EntityId, right: EntityId): number =>
+      compareCodeUnits(byId.get(left)?.slug ?? left, byId.get(right)?.slug ?? right);
+
     for (const [blockKey, members] of [...blocks.entries()].sort()) {
-      const ordered = [...new Set(members)].sort();
+      const ordered = [...new Set(members)].sort(bySlug);
       for (let i = 0; i < ordered.length; i += 1) {
         for (let j = i + 1; j < ordered.length; j += 1) {
           const left = ordered[i] as EntityId;
