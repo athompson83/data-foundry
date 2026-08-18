@@ -53,6 +53,15 @@ export interface VerificationSignals {
   readonly allEvidencePublishable: boolean;
   /** Age in days of the most recent supporting retrieval; null when unknown. */
   readonly freshestEvidenceAgeDays: number | null;
+  /**
+   * True when at least one *authoritative* backer carries a usable retrieval
+   * date. Separate from {@link freshestEvidenceAgeDays} because the badge's
+   * promise is about the authoritative evidence: a marketplace listing crawled
+   * this morning does not date a manufacturer sheet of unknown vintage.
+   */
+  readonly hasDatedAuthoritativeEvidence: boolean;
+  /** Age in days of the most recent *authoritative* retrieval; null when none is dated. */
+  readonly freshestAuthoritativeEvidenceAgeDays: number | null;
   /** A rival claim survives that contradicts the selected one. */
   readonly hasUnresolvedConflict: boolean;
   /** The selected claim carries at least one evidence row at all (rule 2). */
@@ -76,8 +85,29 @@ export const VERIFICATION_BLOCKERS = [
 ] as const;
 export type VerificationBlocker = (typeof VERIFICATION_BLOCKERS)[number];
 
-/** Stamped onto every verdict so the historical meaning of the badge is auditable. */
-export const VERIFICATION_POLICY_VERSION = 'verification-policy-v1';
+/**
+ * Stamped onto every verdict so the historical meaning of the badge is
+ * auditable. Bump it whenever the policy's *meaning* changes, never for a
+ * refactor: a stored verdict is only re-readable if the version it names still
+ * describes the rule that produced it.
+ */
+export const VERIFICATION_POLICY_VERSION = 'verification-policy-v2';
+
+/**
+ * Every policy version that has ever been stamped onto a stored verdict, oldest
+ * first. A verdict recorded under an older version is not re-interpretable
+ * under the current one — that is the whole reason the version travels with it
+ * — so the list is append-only and a version is never reused or removed.
+ *
+ * v1 → v2: the date requirement moved from "some backer is dated" to "an
+ * authoritative backer is dated". A v1 verdict may therefore be `verified`
+ * where v2 would refuse.
+ */
+export const VERIFICATION_POLICY_VERSIONS = [
+  'verification-policy-v1',
+  'verification-policy-v2',
+] as const;
+export type VerificationPolicyVersion = (typeof VERIFICATION_POLICY_VERSIONS)[number];
 
 /**
  * The customer-facing meaning of the badge. The compact UI may render
@@ -122,11 +152,18 @@ export function verificationSignals(
   const publishers = new Set(backers.map((a) => a.publisher));
 
   let freshestMs: number | null = null;
+  let freshestAuthoritativeMs: number | null = null;
   for (const a of backers) {
     const t = Date.parse(a.retrieved_at);
     if (Number.isNaN(t)) continue;
     if (freshestMs === null || t > freshestMs) freshestMs = t;
+    if (!AUTHORITATIVE_SOURCE_TYPES.includes(a.source_type)) continue;
+    if (freshestAuthoritativeMs === null || t > freshestAuthoritativeMs) {
+      freshestAuthoritativeMs = t;
+    }
   }
+  const ageDays = (at: number | null): number | null =>
+    at === null ? null : Math.floor((now.getTime() - at) / DAY_MS);
 
   return {
     corroboratingPublishers: publishers.size,
@@ -135,8 +172,9 @@ export function verificationSignals(
     ),
     maxAuthorityRank: backers.reduce((max, a) => Math.max(max, a.authority_rank), 0),
     allEvidencePublishable: backers.length > 0 && backers.every((a) => a.publishable),
-    freshestEvidenceAgeDays:
-      freshestMs === null ? null : Math.floor((now.getTime() - freshestMs) / DAY_MS),
+    freshestEvidenceAgeDays: ageDays(freshestMs),
+    hasDatedAuthoritativeEvidence: freshestAuthoritativeMs !== null,
+    freshestAuthoritativeEvidenceAgeDays: ageDays(freshestAuthoritativeMs),
     hasUnresolvedConflict: explanation.unresolved_conflict,
     hasEvidence: backers.length > 0,
     decidedBy: explanation.rule,
@@ -177,7 +215,8 @@ const BLOCKER_REASON: Record<VerificationBlocker, string> = {
   RIGHTS_RESTRICTED:
     'The supporting evidence cannot be displayed or cited under its current usage rights.',
   UNKNOWN_EVIDENCE_DATE:
-    'The supporting evidence could not be dated, so its verification status cannot be established.',
+    'The authoritative evidence for this value could not be dated, so its verification status ' +
+    'cannot be established.',
 };
 
 /**
@@ -190,7 +229,10 @@ const BLOCKER_REASON: Record<VerificationBlocker, string> = {
  *   4. no unresolved contradiction remains
  *   5. every supporting row is publishable    (rules 1 and 9 — we must be able
  *                                              to SHOW the basis of the claim)
- *   6. the supporting evidence can be dated   (unknown date ≠ fresh)
+ *   6. the AUTHORITATIVE evidence can be dated (unknown date ≠ fresh, and a
+ *                                              dated non-authoritative backer
+ *                                              does not date an authoritative
+ *                                              one)
  *
  * Note what is deliberately ABSENT: any maximum evidence age. An authoritative
  * 2019 spec may be exactly correct for a discontinued 2019 model. "Verified"
@@ -206,7 +248,11 @@ export function isVerified(s: VerificationSignals): VerificationVerdict {
   if (!s.hasAuthoritativeSource) blockers.push('NO_AUTHORITATIVE_SUPPORT');
   if (!VERIFIED_DECIDERS.has(s.decidedBy)) blockers.push('NON_AUTHORITATIVE_ADJUDICATION');
   if (!s.allEvidencePublishable) blockers.push('RIGHTS_RESTRICTED');
-  if (s.freshestEvidenceAgeDays === null) blockers.push('UNKNOWN_EVIDENCE_DATE');
+  // Keyed on the AUTHORITATIVE evidence, not on the freshest of everything.
+  // Mixed attributions were the gap: an undated manufacturer sheet alongside a
+  // distributor listing crawled this morning satisfied "dated" and earned a
+  // badge whose text promises dated authoritative evidence.
+  if (!s.hasDatedAuthoritativeEvidence) blockers.push('UNKNOWN_EVIDENCE_DATE');
 
   const primary = blockers[0];
   return {

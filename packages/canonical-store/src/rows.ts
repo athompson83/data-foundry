@@ -14,6 +14,7 @@
  */
 import {
   DatasetSnapshotSchema,
+  FactVerificationSchema,
   EntityAliasSchema,
   EntityRedirectSchema,
   EntitySchema,
@@ -26,6 +27,7 @@ import {
   SourceSchema,
   VerticalSchema,
   type DatasetSnapshot,
+  type FactVerification,
   type Entity,
   type EntityAlias,
   type EntityRedirect,
@@ -287,6 +289,32 @@ export function mapDatasetSnapshot(row: SqlRow): DatasetSnapshot {
     created_at: toIso(field(row, 'created_at')),
   });
 }
+
+export function mapFactVerification(row: SqlRow): FactVerification {
+  return FactVerificationSchema.parse({
+    id: field(row, 'id'),
+    entity_id: field(row, 'entity_id'),
+    property: field(row, 'property'),
+    fact_id: field(row, 'fact_id'),
+    selected_value: toJson(field(row, 'selected_value')),
+    unit: field(row, 'unit'),
+    verified: field(row, 'verified'),
+    reason: field(row, 'reason'),
+    blockers: field(row, 'blockers'),
+    signals: toJson(field(row, 'signals')),
+    evidence_refs: toJson(field(row, 'evidence_refs')),
+    selection_rule: field(row, 'selection_rule'),
+    policy_version: field(row, 'policy_version'),
+    evaluated_at: toIso(field(row, 'evaluated_at')),
+    verdict_fingerprint: field(row, 'verdict_fingerprint'),
+    created_at: toIso(field(row, 'created_at')),
+  });
+}
+
+export const FACT_VERIFICATION_COLUMNS =
+  'id, entity_id, property, fact_id, selected_value, unit, verified, reason, blockers, ' +
+  'signals, evidence_refs, selection_rule, policy_version, evaluated_at, verdict_fingerprint, ' +
+  'created_at';
 
 /** Column lists, kept next to the mappers so a schema change breaks one file. */
 export const ENTITY_COLUMNS =

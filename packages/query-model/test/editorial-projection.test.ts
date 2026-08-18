@@ -122,6 +122,8 @@ describe('CanonicalFactView projection', () => {
       maxAuthorityRank: 95,
       allEvidencePublishable: true,
       freshestEvidenceAgeDays: 1,
+      hasDatedAuthoritativeEvidence: true,
+      freshestAuthoritativeEvidenceAgeDays: 1,
       hasUnresolvedConflict: false,
       hasEvidence: true,
       decidedBy: 'EDITORIAL_OVERRIDE',

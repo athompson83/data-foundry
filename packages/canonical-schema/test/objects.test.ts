@@ -18,6 +18,7 @@ describe('canonical object registry', () => {
         'entity_aliases',
         'entity_redirects',
         'fact_evidence',
+        'fact_verifications',
         'facts',
         'ingestion_jobs',
         'job_status',

@@ -220,12 +220,15 @@ consistency_checks:
 editorial_override:
   enabled: true
   # Enforced unconditionally by the cascade; these keys document the invariant
-  # rather than switch it on. Setting either to false changes nothing.
+  # rather than switch it on. They must be `true` or absent — writing `false`
+  # is rejected at load time rather than silently overruled.
   requires_reason: true
   requires_reviewer: true
-  # DECLARED, NOT YET ENFORCED — expiry needs a declaration date per entry and
-  # the cascade does not read one yet.
-  max_age_days: 365
+  # There is deliberately no `max_age_days`. Overrides ought to expire so a
+  # stale manual patch cannot outlive the problem it fixed, but expiry needs a
+  # declaration date on each entry and the cascade does not read one (ADR-0002).
+  # The key is now REJECTED at load time: an accepted-but-ignored expiry reads
+  # like a guarantee and is not one.
   note: >-
     An override is a fact with its own evidence — a named human and a written
     reason — not a magic value. An entry missing either is ignored entirely; it

@@ -213,6 +213,7 @@ export const EXPECTED_TABLES = [
   'entity_redirects',
   'facts',
   'fact_evidence',
+  'fact_verifications',
   'relationships',
   'relationship_evidence',
   'resolution_candidates',

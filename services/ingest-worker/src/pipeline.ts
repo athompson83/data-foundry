@@ -44,11 +44,14 @@ import {
   FixtureAcquisitionProvider,
   InMemoryPolicySnapshotRecorder,
   InMemoryValidatorCache,
+  sha256Hex,
+  stableStringify,
   unlimitedRateLimiter,
   type ArtifactStore,
   type Clock,
   type ValidatorCache,
 } from '@data-foundry/acquisition';
+import { explainFact, verifyFact } from '@data-foundry/provenance';
 import {
   JOB_PIPELINE_ORDER,
   factConfidence,
@@ -621,7 +624,100 @@ export class Pipeline {
       );
       if (result.outcome !== 'UNCHANGED') promoted += 1;
     }
+
+    await this.recordVerificationVerdicts();
     return promoted;
+  }
+
+  /**
+   * Record the "Source verified" verdict for every published property.
+   *
+   * The badge used to exist only as a pure function of today's evidence and
+   * today's policy, which cannot answer the question that actually gets asked:
+   * "your export said this was verified in March; on what basis?" Both inputs
+   * move — evidence is superseded, policy is rewritten — so the verdict is
+   * stored as an event carrying the value, the exact evidence, the outcome and
+   * its blockers, the policy version and when it was evaluated.
+   *
+   * Deliberately after promotion, not during it: the verdict is about the value
+   * that was actually published, and promotion is what decides that.
+   *
+   * A verdict is never allowed to fail a run. Verification is a claim ABOUT
+   * published data, not a precondition for publishing it, and losing an
+   * already-written canonical fact because its badge could not be recorded
+   * would be the wrong trade in both directions.
+   */
+  async recordVerificationVerdicts(): Promise<number> {
+    const policy = this.factSelectionPolicy;
+    const evaluatedAt = this.#options.now;
+    const rows = await this.store.driver.query<{ entity_id: string; property: string }>(
+      `SELECT DISTINCT f.entity_id, f.property
+         FROM facts f
+         JOIN entities e ON e.id = f.entity_id
+        WHERE e.vertical_id = $1 AND f.valid_to IS NULL AND f.status = 'ACTIVE'
+        ORDER BY f.entity_id, f.property`,
+      [(await this.#ensureVertical()).id],
+    );
+
+    let recorded = 0;
+    for (const row of rows) {
+      const entityId = row.entity_id as EntityId;
+      const property = row.property as Identifier;
+      try {
+        const explanation = await explainFact(this.store, entityId, property, policy);
+        const selected = explanation?.selected;
+        if (explanation === null || selected === undefined || selected === null) continue;
+
+        const verdict = verifyFact(explanation, new Date(evaluatedAt));
+        const evidenceRefs = (explanation.lineage?.chain ?? []).map((link) => ({
+          artifact_id: link.artifact.id,
+          content_hash: link.artifact.content_hash,
+          source_record_id: link.source_record.id,
+          locator_type: link.locator.type,
+          locator_value: link.locator.value,
+          artifact_url: link.artifact.url,
+          publisher: link.source.publisher,
+          retrieved_at: link.retrieved_at,
+        }));
+
+        await this.store.recordFactVerification({
+          entity_id: entityId,
+          property,
+          fact_id: selected.fact_id,
+          selected_value: selected.value,
+          unit: selected.unit,
+          verified: verdict.verified,
+          reason: verdict.reason,
+          blockers: [...verdict.blockers],
+          signals: { ...verdict.signals },
+          evidence_refs: evidenceRefs,
+          selection_rule: explanation.rule,
+          policy_version: verdict.policy_version,
+          evaluated_at: evaluatedAt,
+          // Outcome plus the evidence it rested on. Two evaluations that agree
+          // on both are the same verdict; anything else is a new event.
+          verdict_fingerprint: sha256Hex(
+            stableStringify({
+              verified: verdict.verified,
+              blockers: [...verdict.blockers].sort(),
+              rule: explanation.rule,
+              value: selected.value,
+              unit: selected.unit,
+              evidence: evidenceRefs
+                .map((ref) => `${ref.content_hash}#${ref.locator_type}#${ref.locator_value}`)
+                .sort(),
+            }),
+          ),
+        });
+        recorded += 1;
+      } catch (error) {
+        this.#diagnostics.push(
+          `verification verdict for ${entityId}/${property} not recorded: ` +
+            (error instanceof Error ? error.message : String(error)),
+        );
+      }
+    }
+    return recorded;
   }
 
   /* ---------------- stages ---------------- */

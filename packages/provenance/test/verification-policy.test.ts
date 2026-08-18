@@ -14,6 +14,7 @@ import {
   AUTHORITATIVE_SOURCE_TYPES,
   SOURCE_VERIFIED_DEFINITION,
   VERIFICATION_POLICY_VERSION,
+  VERIFICATION_POLICY_VERSIONS,
   VERIFIED_DECIDERS,
   isVerified,
   verificationSignals,
@@ -61,6 +62,8 @@ const QUALIFYING: VerificationSignals = {
   maxAuthorityRank: 95,
   allEvidencePublishable: true,
   freshestEvidenceAgeDays: 13,
+  hasDatedAuthoritativeEvidence: true,
+  freshestAuthoritativeEvidenceAgeDays: 13,
   hasUnresolvedConflict: false,
   hasEvidence: true,
   decidedBy: 'DIRECT_AUTHORITATIVE_SOURCE',
@@ -219,7 +222,11 @@ describe('isVerified — policy', () => {
   // 4
   it('allows old dated authoritative evidence because verified is not the same as current', () => {
     // A 2019 spec sheet may be exactly right for a discontinued 2019 model.
-    const v = isVerified({ ...QUALIFYING, freshestEvidenceAgeDays: 2_600 });
+    const v = isVerified({
+      ...QUALIFYING,
+      freshestEvidenceAgeDays: 2_600,
+      freshestAuthoritativeEvidenceAgeDays: 2_600,
+    });
     expect(v.verified).toBe(true);
     expect(v.blockers).toEqual([]);
   });
@@ -245,7 +252,12 @@ describe('isVerified — policy', () => {
 
   // 7
   it('rejects undated evidence and non-authoritative decision paths', () => {
-    const undated = isVerified({ ...QUALIFYING, freshestEvidenceAgeDays: null });
+    const undated = isVerified({
+      ...QUALIFYING,
+      freshestEvidenceAgeDays: null,
+      hasDatedAuthoritativeEvidence: false,
+      freshestAuthoritativeEvidenceAgeDays: null,
+    });
     expect(undated.verified).toBe(false);
     expect(undated.blockers).toContain('UNKNOWN_EVIDENCE_DATE');
 
@@ -275,6 +287,8 @@ describe('isVerified — guarantees', () => {
       ...QUALIFYING,
       hasAuthoritativeSource: false,
       freshestEvidenceAgeDays: null,
+      hasDatedAuthoritativeEvidence: false,
+      freshestAuthoritativeEvidenceAgeDays: null,
       decidedBy: 'CORROBORATION',
     });
     expect(v.blockers).toEqual(
@@ -316,7 +330,12 @@ describe('isVerified — guarantees', () => {
 
   it('stamps the policy version so the badge stays auditable if criteria change', () => {
     expect(isVerified(QUALIFYING).policy_version).toBe(VERIFICATION_POLICY_VERSION);
-    expect(VERIFICATION_POLICY_VERSION).toBe('verification-policy-v1');
+    // v1 -> v2 when the date requirement moved from "some backer is dated" to
+    // "an authoritative backer is dated": a stored v1 verdict may say verified
+    // where v2 refuses, so the version has to travel with the verdict.
+    expect(VERIFICATION_POLICY_VERSION).toBe('verification-policy-v2');
+    expect(VERIFICATION_POLICY_VERSIONS).toContain('verification-policy-v1');
+    expect(VERIFICATION_POLICY_VERSIONS.at(-1)).toBe(VERIFICATION_POLICY_VERSION);
   });
 
   it('always returns a non-empty reason and echoes the signals it judged', () => {
@@ -335,5 +354,75 @@ describe('isVerified — guarantees', () => {
   it('states the customer-facing meaning without overclaiming', () => {
     expect(SOURCE_VERIFIED_DEFINITION).toMatch(/does not guarantee/i);
     expect(SOURCE_VERIFIED_DEFINITION).not.toMatch(/\b(we tested|certified by us|guarantee[sd] fitness)\b/i);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Mixed attributions: which evidence has to be dated
+// ---------------------------------------------------------------------------
+
+describe('the date requirement is about the AUTHORITATIVE evidence', () => {
+  /** An authoritative backer with no usable retrieval date. */
+  const undatedManufacturer = attribution({
+    publisher: 'Acme HVAC',
+    source_type: 'MANUFACTURER' as SourceType,
+    authority_rank: 90,
+    retrieved_at: '' as never,
+  });
+  /** A non-authoritative backer crawled this morning. */
+  const datedDistributor = attribution({
+    publisher: 'CoolSupply',
+    domain: 'coolsupply.example',
+    source_type: 'DISTRIBUTOR' as SourceType,
+    authority_rank: 30,
+    retrieved_at: '2026-08-13T00:00:00.000Z',
+  });
+
+  it('does not treat a dated distributor as dating an undated manufacturer', () => {
+    const signals = verificationSignals(
+      explanation([undatedManufacturer, datedDistributor]),
+      NOW,
+    );
+    expect(
+      signals.hasDatedAuthoritativeEvidence,
+      'the badge claims the AUTHORITATIVE evidence is dated; a marketplace listing ' +
+        'crawled this morning does not date a manufacturer sheet of unknown vintage',
+    ).toBe(false);
+    expect(signals.freshestAuthoritativeEvidenceAgeDays).toBeNull();
+  });
+
+  it('refuses the badge in that mixed case', () => {
+    const verdict = isVerified(
+      verificationSignals(explanation([undatedManufacturer, datedDistributor]), NOW),
+    );
+    expect(verdict.verified).toBe(false);
+    expect(verdict.blockers).toContain('UNKNOWN_EVIDENCE_DATE');
+  });
+
+  it('ages the authoritative evidence on its own dates, not the freshest of all', () => {
+    const signals = verificationSignals(
+      explanation([
+        attribution({ source_type: 'MANUFACTURER' as SourceType, retrieved_at: '2026-07-15T00:00:00.000Z' }),
+        datedDistributor,
+      ]),
+      NOW,
+    );
+    expect(signals.freshestEvidenceAgeDays).toBe(1);
+    expect(signals.freshestAuthoritativeEvidenceAgeDays).toBe(30);
+  });
+
+  it('still grants the badge when the authoritative evidence is itself dated', () => {
+    const verdict = isVerified(
+      verificationSignals(
+        explanation([
+          attribution({ source_type: 'MANUFACTURER' as SourceType, retrieved_at: '2019-01-01T00:00:00.000Z' }),
+          datedDistributor,
+        ]),
+        NOW,
+      ),
+    );
+    // No maximum evidence age: a 2019 manufacturer spec may be exactly right
+    // for a discontinued 2019 model. Dated, not recent, is the requirement.
+    expect(verdict.verified).toBe(true);
   });
 });

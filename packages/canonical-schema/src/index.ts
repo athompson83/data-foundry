@@ -24,6 +24,7 @@ export * from './objects/sources.js';
 export * from './objects/evidence.js';
 export * from './objects/entities.js';
 export * from './objects/facts.js';
+export * from './objects/verifications.js';
 export * from './objects/relationships.js';
 export * from './objects/resolution.js';
 export * from './objects/snapshots.js';
