@@ -139,6 +139,23 @@ MCP tool definitions, the Phase 2 Python/Splink work, and external dataset users
 6. A second job applies the identical migrations to a real `postgres:16` service,
    which is what keeps "portable Postgres" honest rather than aspirational
 
+## Licensing and data rights
+
+The MIT licence in `LICENSE` covers **platform code only** — `packages/`,
+`services/`, `tooling/`, `db/`, `schemas/` and the documentation describing
+them, plus the synthetic HVAC fixtures we wrote ourselves.
+
+It does **not** license data acquired from third-party publishers: source
+artifacts, images, normalized records, exports and API responses are governed
+by the upstream terms and by the rights classification recorded against each
+source. Running this code against a publisher's site does not create a licence
+to that publisher's content.
+
+`DATA_RIGHTS.md` states the split in full, including the gate every dataset has
+to pass before it can be published commercially. `SECURITY.md` covers private
+vulnerability reporting — please do not file security problems as public
+issues.
+
 ## Conventions
 
 - ESM only (`"type": "module"`), `NodeNext` module resolution. Relative imports
