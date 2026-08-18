@@ -1,165 +1,227 @@
 # Data Foundry
 
-A repeatable, AI-native data foundry: it converts messy, lawfully acquired source
-data into canonical, evidence-backed vertical knowledge products, served through
-human pages, a REST API, MCP and bulk exports.
+A repeatable, AI-native data foundry that converts messy, lawfully acquired source data into canonical, evidence-backed vertical knowledge products for human pages, REST APIs, MCP tools and bulk exports.
 
 First vertical: **HVAC**.
 
-> `AGENTS.md` holds the ten non-negotiable rules and the architecture boundaries.
-> The 20-document foundation pack that this repository implements is **not published**
-> here (it covers product strategy, monetization and niche selection). ADRs and
-> `AGENTS.md` cite it by path as `docs/foundation/NN-*.md`; those files are held
-> out-of-band. Everything needed to build, test and understand the code is in-repo.
-> This README describes the code — what exists, where it lives, and how to run it.
+> `AGENTS.md` contains the non-negotiable engineering rules and architecture boundaries. Product strategy, monetization, niche scoring and the private audit ledger are maintained out-of-band. Public ADRs in `docs/decisions/` record architectural decisions that materially affect the codebase.
 
-## What is here today
+## Current status
 
-This is **Wave 1: the contracts layer**. It defines the shared model that every
-later package is written against, and nothing else. Acquisition, extraction,
-normalization, resolution, query model, verticals and services are separate waves
-and do not exist yet.
+**Phase 1 factory proof is complete. Phase 2 real-source validation is next.**
+
+The repository now contains the end-to-end platform path required to prove the factory architecture with synthetic HVAC fixtures:
 
 ```text
-packages/canonical-schema/   Core object model, confidence scores, job state machine, rights gate
-packages/source-registry/    Source rights/health contracts + the publish gate
-db/migrations/               Plain, portable Postgres DDL for every canonical table
-schemas/canonical/           JSON Schema exports, generated from the Zod definitions
-tooling/scripts/             Migration runner, JSON Schema generator
-tooling/validators/          Vertical configuration validator (CI gate)
-docs/decisions/              ADRs
+source registry / rights review
+        ↓
+acquisition adapters
+        ↓
+raw evidence artifact storage
+        ↓
+extraction with source locators
+        ↓
+normalization
+        ↓
+entity resolution
+        ↓
+canonical entities / facts / relationships
+        ↓
+field-level provenance and trust explanations
+        ↓
+canonical query model
+        ↓
+shared REST / MCP / export serialization contracts
 ```
+
+The first vertical is intentionally still `DRAFT`: its four current publishers are synthetic fixtures on reserved example domains. The platform machinery is real; commercial viability is not considered proven until real sources have passed rights review and the same pipeline succeeds against genuinely messy external data.
+
+## Repository map
+
+```text
+packages/
+├── canonical-schema/   Core object model, confidence brands, job state machine, rights types
+├── source-registry/    Source rights/health contracts and fail-closed publication gate
+├── acquisition/        Swappable acquisition providers and raw artifact storage
+├── extraction/         JSON / CSV / HTML / PDF extraction with field-level locators
+├── normalization/      Deterministic identifiers, units, vocabularies and mappings
+├── canonical-store/    Entities, aliases, versioned facts, relationships and evidence
+├── provenance/         Lineage, coverage, verification policy and trust explanations
+└── query-model/        Single read model for future web / REST / MCP / export consumers
+
+services/
+└── ingest-worker/      End-to-end ingestion and resolution pipeline
+
+verticals/
+├── _template/          Configuration template for future verticals
+└── hvac/               Phase 1 HVAC proof: schemas, sources, normalizers and fixtures
+
+db/migrations/          Portable Postgres migrations
+schemas/canonical/      Generated JSON Schema exports
+tooling/                Migration, schema-generation and vertical-validation tooling
+tests/                  Cross-package contract, integration and end-to-end tests
+docs/decisions/         Public architecture decision records
+```
+
+## What is proven today
+
+The current implementation demonstrates:
+
+- source declarations with explicit rights, attribution, image and acquisition policy;
+- a fail-closed publication gate before canonical publication;
+- provider-neutral acquisition interfaces, including HTTP, Cloudflare Browser Run, Crawl4AI and fixture adapters;
+- content hashing and immutable raw-evidence metadata;
+- structured extraction from JSON, CSV, HTML and PDF sources;
+- deterministic normalization of identifiers, units and vocabularies;
+- exact-identifier entity resolution ahead of fuzzy/semantic behavior;
+- auditable resolution candidates and judgments, including retained conflicts;
+- append-only fact versioning with evidence required in the same write transaction;
+- authority-aware fact selection that retains losing claims and explains why a value won;
+- a conservative `Source verified` policy based on evidence, authority, conflicts, rights and dated support rather than LLM confidence;
+- gated editorial correction that changes displayed values without masquerading as source verification;
+- field-level provenance and coverage reporting;
+- a canonical query layer for entities, facts, search, filters, relationships and comparisons;
+- one shared serializer contract for future REST, MCP and bulk-export surfaces;
+- an idempotent Phase 1 factory proof using the HVAC fixture set.
+
+## What is intentionally not here yet
+
+The project is not a customer-facing SaaS application yet. In particular, the repository does not currently ship:
+
+- a production web frontend;
+- a REST routing/auth service;
+- a deployed MCP server;
+- billing or API-key management;
+- production dataset exports;
+- real commercial HVAC sources;
+- a generally available multi-vertical catalog.
+
+Those surfaces should be built only after the remaining high-priority integrity findings are closed and one or more real sources have passed rights review and end-to-end ingestion.
 
 ## Quick start
 
-Requires Node 22+ and pnpm 9 (via corepack).
+Requires Node 22+ and pnpm 9 through Corepack.
 
 ```bash
 corepack enable
 pnpm install
 
-pnpm typecheck        # tsc --strict across every package, test and script
-pnpm test             # vitest: unit, contract and PGlite migration tests
-pnpm migrate:check    # apply migrations to a throwaway database and verify
-pnpm build            # regenerate JSON Schema exports, then typecheck
+pnpm typecheck
+pnpm test
+pnpm migrate:check
+pnpm schemas:check
+pnpm verticals:validate
+pnpm build
 ```
 
 Working against a database:
 
 ```bash
-pnpm migrate                                  # apply to .data/pglite (local, persisted)
-POSTGRES_URL=postgres://... pnpm migrate      # apply to Supabase / real Postgres
+pnpm migrate                                  # local persisted PGlite
+POSTGRES_URL=postgres://... pnpm migrate      # hosted / real Postgres
 ```
 
-## The two contract packages
+## Core contracts
 
 ### `@data-foundry/canonical-schema`
 
-The single source of truth for the core model (doc 04). Zod schemas plus inferred
-TypeScript types for every canonical object: `verticals`, `sources`,
-`source_artifacts`, `source_records`, `entities`, `entity_aliases`, `facts`,
-`fact_evidence`, `relationships`, `relationship_evidence`,
-`resolution_candidates`, `resolution_judgments`, `entity_redirects`,
-`dataset_snapshots`, `media_assets`, `ingestion_jobs`.
+The dependency root for the shared model. It defines Zod schemas and inferred TypeScript types for verticals, sources, artifacts, records, entities, aliases, facts, evidence, relationships, resolution state, redirects, snapshots, media and ingestion jobs.
 
-It also owns three things that everything else depends on:
+It also owns five distinct confidence brands — `ExtractionConfidence`, `IdentityConfidence`, `FactConfidence`, `RelationshipConfidence` and `EntityQualityScore` — so unrelated confidence concepts cannot be accidentally averaged or substituted for one another.
 
-- **Five branded confidence scores.** `ExtractionConfidence`,
-  `IdentityConfidence`, `FactConfidence`, `RelationshipConfidence` and
-  `EntityQualityScore` are nominally distinct types. They cannot be assigned to
-  each other or averaged into one number. See ADR-0001.
-- **The ingestion job state machine** (doc 02) as a discriminated union plus a
-  legal-transition table. `FAILED` is a side state carrying retry metadata, not a
-  terminal delete.
-- **Rights classification** (`GREEN` / `AMBER` / `RED` / `UNREVIEWED`) and
-  `canPublish()`, which returns `false` for `RED` and `UNREVIEWED` — AGENTS.md
-  rule 1, as a function call.
-
-This package **imports nothing from other workspace packages** and knows nothing
-about UI, HTTP, Cloudflare, acquisition providers or any specific vertical. Its
-only runtime dependency is `zod`. Keep it that way: everything depends on it, and
-it depends on nothing downstream.
+This package should remain independent of downstream workspace packages.
 
 ### `@data-foundry/source-registry`
 
-Source rights, acquisition policy, image policy, provenance retention and health.
-Depends only on `canonical-schema`.
+Owns source rights, acquisition policy, image policy, provenance-retention policy, health and publication eligibility.
 
-`evaluateSourcePublishGate()` is the gate AGENTS.md rule 1 demands. It fails
-closed and reports *every* blocker at once, so fixing a source is one pass rather
-than whack-a-mole. `evaluateSourceActivationGate()` implements doc 13's weaker
-"cannot become ACTIVE without…" checklist — a source can be legitimately active
-for internal analysis while remaining unpublishable.
+`evaluateSourcePublishGate()` fails closed and returns all blockers at once. A source may be useful for internal analysis while still being barred from public/commercial publication.
+
+### `@data-foundry/canonical-store`
+
+Owns canonical persistence and fact-selection behavior. Facts and relationships require evidence, fact versions are retained rather than rewritten in place, and conflicts remain auditable.
+
+### `@data-foundry/query-model`
+
+The single customer-facing read model. Future web, REST, MCP and export services should depend on this layer rather than independently reconstructing canonical truth.
+
+The shared wire serializer already carries editorial-correction state and machine-readable selection warnings so those trust signals cannot silently disappear at one interface boundary.
 
 ## Database conventions
 
-Hand-written SQL, no ORM. Every migration must be **plain, portable Postgres**
-that applies unchanged to both PGlite (local dev and CI) and hosted
-Supabase/Postgres. CI proves this by applying the same files to both.
+Migrations are hand-written portable Postgres rather than ORM-generated DDL. The same files are exercised against PGlite and a real PostgreSQL 16 service in CI.
 
-- Status/enum columns are `TEXT` + `CHECK`, not `CREATE TYPE ... AS ENUM`. The
-  Zod schemas are the source of truth for allowed values; a CHECK is trivially
-  widened by a later migration, an enum type is not.
-- Everything is `IF NOT EXISTS`, and the runner keeps a `schema_migrations`
-  ledger with checksums. Editing an applied migration is a hard error — add a new
-  one.
-- Migrations are named `NNNN_snake_case_name.sql` and applied in filename order,
-  each in its own transaction.
+Key conventions:
 
-Several platform rules are enforced in the schema rather than left to
-application discipline:
-
-| Constraint | Enforces |
-|---|---|
-| `sources_active_requires_rights` | A source cannot be `ACTIVE` without a rights decision (rule 1) |
-| `facts_single_open_version_key` | At most one open `ACTIVE` version per `(entity, property)` |
-| `fact_evidence` FKs `ON DELETE RESTRICT` | Evidence outlives convenience (rule 10) |
-| `media_assets_cache_requires_rights` | No caching imagery into R2 without cleared rights (rule 9) |
-| `source_records_source_key_uniq` | One record per `(source_id, source_record_key)` |
-| `ingestion_jobs_failed_shape` | `FAILED` jobs carry retry metadata; others do not |
+- status-like columns use `TEXT` + `CHECK` rather than PostgreSQL enum types;
+- migrations are immutable once applied and tracked in `schema_migrations` with checksums;
+- migrations use `NNNN_snake_case_name.sql` and run in filename order;
+- evidence foreign keys use restrictive deletion where history must outlive convenience;
+- critical invariants are enforced as close to the storage boundary as practical.
 
 ## Generated artifacts
 
-`schemas/canonical/*.schema.json` is **generated** from the Zod definitions by
-`pnpm schemas:generate`. Do not hand-edit; CI fails if the committed output is
-stale. It exists for consumers that cannot import TypeScript: OpenAPI generation,
-MCP tool definitions, the Phase 2 Python/Splink work, and external dataset users.
+`schemas/canonical/*.schema.json` is generated from the Zod source by:
+
+```bash
+pnpm schemas:generate
+```
+
+Do not hand-edit generated schemas. CI runs `pnpm schemas:check` so external consumers cannot silently drift away from the implemented model.
 
 ## CI
 
-`.github/workflows/ci.yml` runs, on every push and pull request:
+`.github/workflows/ci.yml` currently runs two GitHub Actions jobs on pushes and pull requests:
 
-1. `pnpm typecheck` — strict TypeScript over packages, tests and tooling
-2. `pnpm test` — unit, contract and PGlite migration suites
-3. `pnpm migrate:check` — migrations apply in order, create every expected table,
-   and re-run as a clean no-op
-4. `pnpm schemas:check` — generated JSON Schema exports match the Zod source
-5. `pnpm verticals:validate` — vertical configs are well-formed and every source
-   declaration carries complete rights metadata
-6. A second job applies the identical migrations to a real `postgres:16` service,
-   which is what keeps "portable Postgres" honest rather than aspirational
+### Verify
 
-## Conventions
+1. strict TypeScript typecheck;
+2. unit, contract, integration and end-to-end tests;
+3. PGlite migration apply/re-apply checks;
+4. canonical JSON Schema freshness;
+5. vertical configuration and rights validation.
 
-- ESM only (`"type": "module"`), `NodeNext` module resolution. Relative imports
-  are written with a `.js` extension, as TypeScript's ESM mode requires.
-- `tsconfig.base.json` is strict, with `noUncheckedIndexedAccess` and
-  `exactOptionalPropertyTypes` on.
-- Workspace packages export TypeScript source directly (`"exports": "./src/index.ts"`).
-  There is no build step for the contract packages; consumers bundle from source.
-- Field names are `snake_case` throughout the model, matching the SQL columns, so
-  a row and its parsed object are the same shape.
-- Timestamps crossing a package boundary are ISO-8601 strings, never `Date`.
+### Real PostgreSQL
 
-## Adding to the model
+The identical migration files are applied and re-applied against PostgreSQL 16 to catch SQL that only works in PGlite.
 
-1. Add or change the Zod schema in `packages/canonical-schema/src/objects/`.
-2. Register it in `src/registry.ts` — otherwise it silently stops being exported.
-3. Add a new numbered migration in `db/migrations/`. Never edit an applied one.
-4. `pnpm schemas:generate` and commit the output.
-5. `pnpm typecheck && pnpm test && pnpm migrate:check`.
+A separate hosting/deployment integration is not considered part of repository CI until a deployable application exists.
 
-Verticals extend the model through configuration — entity types, fact properties,
-relationship predicates and alias types are all vertical-defined `snake_case`
-identifiers, not platform enums. Adding a field or a filter never requires
-touching shared platform code (AGENTS.md rule 4).
+## Vertical model
+
+Verticals extend the platform through configuration rather than application forks. A vertical defines:
+
+- entity types and schemas;
+- fact properties;
+- relationship predicates;
+- alias/identifier semantics;
+- normalization rules;
+- source registry entries;
+- filter metadata;
+- SEO/indexability rules;
+- MCP intents;
+- quality rules;
+- fixtures/golden records;
+- rights notes and public methodology.
+
+The target architecture is that a new vertical becomes primarily **configuration + source adapters + fixtures**, not another application codebase.
+
+## Public repository boundaries
+
+The MIT `LICENSE` applies to the software repository. It does **not** automatically grant rights to third-party source data, images, artifacts, normalized datasets or future commercial exports. See `DATA_RIGHTS.md`.
+
+Private product strategy, competitive scoring and unresolved security/audit inventories are intentionally maintained outside the public repository.
+
+Security issues should be reported privately according to `SECURITY.md`, not opened publicly with exploit details.
+
+## Near-term milestones
+
+Before building the customer-facing application, the current priority is:
+
+1. close remaining high-priority audit/integrity findings;
+2. make deterministic resolution and artifact lifecycle behavior robust across rebuilds;
+3. onboard 1–3 real sources with documented commercial/derivative/redistribution rights;
+4. measure acquisition cost, change frequency, extraction drift and provenance quality on real data;
+5. then build the generated human frontend, REST API, remote MCP server and bulk-data publishing surfaces.
+
+The next important proof is not another abstract package: it is taking legitimately usable, genuinely messy real-world source data through this entire pipeline without weakening the rights, provenance or trust guarantees.
