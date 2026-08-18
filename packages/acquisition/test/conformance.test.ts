@@ -39,7 +39,7 @@ import {
  */
 
 const HASH = sha256Hex(BODY);
-const EXPECTED_KEY = `raw/hvac/ahri-directory/2026/08/14/${HASH}`;
+const EXPECTED_KEY = `raw/hvac/ahri-directory/content/${HASH.slice(0, 2)}/${HASH}`;
 const JOB_ID = 'job-conformance';
 
 interface BuiltProvider {

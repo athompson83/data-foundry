@@ -43,6 +43,7 @@ export * from './storage/keys.js';
 export * from './storage/artifact-store.js';
 export * from './storage/r2-artifact-store.js';
 export * from './storage/local-fs-artifact-store.js';
+export * from './storage/orphans.js';
 
 export * from './providers/http-client.js';
 export * from './providers/base.js';

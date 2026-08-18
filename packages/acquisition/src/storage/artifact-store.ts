@@ -1,20 +1,28 @@
 import type { ContentHash, PolicySnapshotId, StorageUri } from '@data-foundry/canonical-schema';
 import { sha256Hex } from '../hashing.js';
-import { artifactStorageKey } from './keys.js';
+import { artifactContentKey, artifactRetrievalKey } from './keys.js';
 
 /**
  * The raw evidence store (AGENTS.md rule 10: *"Preserve raw evidence. Do not
  * discard artifacts required to explain or reprocess canonical facts."*).
  *
- * Three properties are non-negotiable and are enforced by
+ * Four properties are non-negotiable and are enforced by
  * {@link storeArtifactBytes} rather than left to each adapter:
  *
- * 1. **Content-addressed** — the key contains the sha256 of the bytes.
- * 2. **Idempotent** — identical bytes produce an identical key, and a second
- *    `put` performs no write at all.
+ * 1. **Content-addressed** — the key is the sha256 of the bytes, and nothing
+ *    else. Not the date, not the run: those belong to the *fetch*, not to the
+ *    *evidence*, and folding them into the key is what made a refresh cycle
+ *    duplicate every artifact it re-verified (finding #6).
+ * 2. **Idempotent** — identical bytes are the same object however many times,
+ *    and on however many days, they are fetched. A second `put` writes no
+ *    bytes.
  * 3. **Explainable** — `retrieved_at`, `http_status`, `mime_type`,
  *    `content_hash` and the policy snapshot are stored *with* the bytes, not
  *    only in a database that might be rebuilt.
+ * 4. **Accountable** — every fetch that confirmed a byte string leaves a small
+ *    retrieval record under its own date, so "when did we last re-check this?"
+ *    is answerable from the store alone. `source_artifacts` cannot answer it:
+ *    it keeps the first retrieval and deduplicates the rest away.
  */
 
 export interface ArtifactMetadata {
@@ -43,13 +51,38 @@ export interface ArtifactPutRequest {
 }
 
 export interface StoredArtifact {
+  /** The content key. Stable for the life of these bytes. */
   readonly key: string;
   readonly uri: StorageUri;
   readonly contentHash: ContentHash;
   readonly byteSize: number;
-  /** True when identical bytes were already present and no write was performed. */
+  /** True when identical bytes were already present and no bytes were written. */
   readonly deduplicated: boolean;
+  /** Where this fetch was recorded, or null when this day's fetch was already recorded. */
+  readonly retrievalKey: string | null;
   readonly metadata: ArtifactMetadata;
+}
+
+/**
+ * A fetch that produced or confirmed one byte string.
+ *
+ * Deliberately not the same shape as {@link ArtifactMetadata}: that describes
+ * the *first* retrieval and is frozen with the content, while this describes
+ * one fetch among many and is written per day.
+ */
+export interface ArtifactRetrievalRecord {
+  readonly content_key: string;
+  readonly content_hash: ContentHash;
+  readonly source_key: string;
+  readonly vertical_slug: string;
+  readonly url: string;
+  readonly retrieved_at: string;
+  readonly http_status: number;
+  readonly byte_size: number;
+  readonly policy_snapshot_id: PolicySnapshotId | null;
+  readonly acquisition_provider: string;
+  readonly etag: string | null;
+  readonly last_modified: string | null;
 }
 
 export interface ArtifactBody {
@@ -64,6 +97,14 @@ export interface ArtifactStore {
   head(key: string): Promise<ArtifactMetadata | null>;
   get(key: string): Promise<ArtifactBody | null>;
   uriFor(key: string): StorageUri;
+  /** Every key under a prefix. Required so orphans can be *found*, not just feared. */
+  list(prefix: string): Promise<readonly string[]>;
+  /**
+   * Remove one object. Reserved for {@link sweepOrphanedArtifacts}: an object
+   * the canonical layer cites is historical evidence and deleting it is a rule
+   * 10 violation, not a cleanup.
+   */
+  delete(key: string): Promise<void>;
 }
 
 /**
@@ -74,7 +115,12 @@ export interface ArtifactStore {
 export interface ArtifactStorePrimitives {
   readHead(key: string): Promise<ArtifactMetadata | null>;
   write(key: string, body: Uint8Array, metadata: ArtifactMetadata): Promise<void>;
+  /** True when this key already exists, whatever it holds. */
+  exists(key: string): Promise<boolean>;
 }
+
+/** The retrieval record's media type, so adapters store it as readable JSON. */
+export const RETRIEVAL_RECORD_MIME = 'application/json';
 
 export async function storeArtifactBytes(
   primitives: ArtifactStorePrimitives,
@@ -82,41 +128,62 @@ export async function storeArtifactBytes(
   request: ArtifactPutRequest,
 ): Promise<StoredArtifact> {
   const contentHash = sha256Hex(request.body);
-  const key = artifactStorageKey({
+  const key = artifactContentKey({
+    vertical: request.vertical,
+    source: request.source,
+    contentHash,
+  });
+
+  const existing = await primitives.readHead(key);
+  const metadata: ArtifactMetadata =
+    // The first retrieval's metadata is authoritative — overwriting it would
+    // rewrite history, which doc 13 forbids. A later fetch of the same bytes
+    // is recorded as a retrieval, not as a correction of the original.
+    existing ??
+    ({
+      ...request.metadata,
+      content_hash: contentHash,
+      byte_size: request.body.byteLength,
+    } satisfies ArtifactMetadata);
+
+  if (existing === null) await primitives.write(key, request.body, metadata);
+
+  const retrievalKey = artifactRetrievalKey({
     vertical: request.vertical,
     source: request.source,
     retrievedAt: request.metadata.retrieved_at,
     contentHash,
   });
-
-  const existing = await primitives.readHead(key);
-  if (existing !== null) {
-    // Same bytes, same day, same source: the artifact is already evidence. The
-    // first retrieval's metadata is authoritative — overwriting it would rewrite
-    // history, which doc 13 forbids.
-    return {
-      key,
-      uri: uriFor(key),
-      contentHash,
-      byteSize: existing.byte_size,
-      deduplicated: true,
-      metadata: existing,
+  const alreadyRecorded = await primitives.exists(retrievalKey);
+  if (!alreadyRecorded) {
+    const record: ArtifactRetrievalRecord = {
+      content_key: key,
+      content_hash: contentHash,
+      source_key: request.metadata.source_key,
+      vertical_slug: request.metadata.vertical_slug,
+      url: request.metadata.url,
+      retrieved_at: request.metadata.retrieved_at,
+      http_status: request.metadata.http_status,
+      byte_size: request.body.byteLength,
+      policy_snapshot_id: request.metadata.policy_snapshot_id,
+      acquisition_provider: request.metadata.acquisition_provider,
+      etag: request.metadata.etag,
+      last_modified: request.metadata.last_modified,
     };
+    await primitives.write(
+      retrievalKey,
+      new TextEncoder().encode(`${JSON.stringify(record, null, 2)}\n`),
+      { ...metadata, mime_type: RETRIEVAL_RECORD_MIME },
+    );
   }
-
-  const metadata: ArtifactMetadata = {
-    ...request.metadata,
-    content_hash: contentHash,
-    byte_size: request.body.byteLength,
-  };
-  await primitives.write(key, request.body, metadata);
 
   return {
     key,
     uri: uriFor(key),
     contentHash,
     byteSize: metadata.byte_size,
-    deduplicated: false,
+    deduplicated: existing !== null,
+    retrievalKey: alreadyRecorded ? null : retrievalKey,
     metadata,
   };
 }
