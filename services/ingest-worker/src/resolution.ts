@@ -27,6 +27,7 @@ import {
   type VerticalId,
 } from '@data-foundry/canonical-schema';
 import { identifiersMatch } from '@data-foundry/normalization';
+import { sha256Hex, stableStringify } from '@data-foundry/acquisition';
 import type { CanonicalStore, SqlParam } from '@data-foundry/canonical-store';
 import { primaryAliasType, resolvePublisher, type VerticalConfig } from './config.js';
 import { AliasNormalizer, slugify } from './identifiers.js';
@@ -291,6 +292,21 @@ export class EntityResolver {
       leftSourceRecordId: input.sourceRecordId,
       rightEntityId: entity.id,
       mergedInto: entity.id,
+      // What this attachment rests on, and nothing about *this run*. The
+      // identifiers come from the record itself rather than from `matchedOn`,
+      // whose wording legitimately differs between the pass that creates an
+      // entity and the pass that re-matches it — a difference in the trail's
+      // narration, not in the claim being made.
+      evidence: {
+        method:
+          conflictingEntityIds === null
+            ? 'strong_identifier_exact_match'
+            : 'strong_identifier_conflict',
+        keyed_on: [
+          ...new Set(strong.map((alias) => `${alias.aliasType}=${alias.normalizedValue}`)),
+        ].sort(),
+        conflicting_entities: conflictingEntityIds ?? [],
+      },
       // A provisional attachment is still a merge that happened and must be
       // auditable and reversible (rule 3) — but it must not claim certainty.
       confidence: conflictingEntityIds === null ? 1 : 0.5,
@@ -520,6 +536,30 @@ export class EntityResolver {
     return String(rows[0]?.['id']);
   }
 
+  /**
+   * Append one resolution decision to the judgment trail (finding #2b).
+   *
+   * The trail used to be deduplicated on
+   * `(vertical, left entity, left source record, right entity, verdict)`. That
+   * tuple is the *pair*, not the *event*: a clean certain MERGE and a later
+   * PROVISIONAL, conflicted MERGE about the same pair share it exactly, so the
+   * second decision was dropped and the audit trail kept asserting the first
+   * one long after it stopped being true.
+   *
+   * Event identity is therefore the pair plus two fingerprints — what the
+   * decision rested on, and what was decided:
+   *
+   *   - identical to the current episode  → the same logical event, retried.
+   *     Nothing is written, which is what keeps re-running a source idempotent.
+   *   - anything else                     → a new episode. It is appended, the
+   *     previous one stops being current (`active = FALSE`) but is never
+   *     rewritten or deleted, and the new row names it in
+   *     `supersedes_judgment_id`.
+   *
+   * `evidence` must carry only what the decision rested on. Per-run bookkeeping
+   * (which run wrote it, whether the entity happened to be created on this
+   * pass) would make every second run look like a new decision.
+   */
   async #recordJudgment(input: {
     readonly candidateId: string | null;
     readonly verdict: 'MERGE' | 'NOT_MERGE' | 'SPLIT';
@@ -529,49 +569,103 @@ export class EntityResolver {
     readonly mergedInto: EntityId | null;
     readonly confidence: number;
     readonly rationale: string;
+    readonly evidence: Record<string, unknown>;
   }): Promise<void> {
     const driver = this.#deps.store.driver;
-    const existing = await driver.query<{ id: string }>(
-      `SELECT id FROM resolution_judgments
-        WHERE vertical_id = $1
+    const evidenceFingerprint = sha256Hex(stableStringify(input.evidence));
+    const decisionFingerprint = sha256Hex(
+      stableStringify({
+        verdict: input.verdict,
+        merged_into_entity_id: input.mergedInto ?? null,
+        identity_confidence: input.confidence,
+      }),
+    );
+    const pair: SqlParam[] = [
+      this.#deps.verticalId,
+      input.leftEntityId ?? null,
+      input.leftSourceRecordId ?? null,
+      input.rightEntityId,
+      input.verdict,
+    ];
+    const PAIR_PREDICATE = `vertical_id = $1
           AND left_entity_id IS NOT DISTINCT FROM $2
           AND left_source_record_id IS NOT DISTINCT FROM $3
           AND right_entity_id IS NOT DISTINCT FROM $4
-          AND verdict = $5
-          AND active
-        LIMIT 1`,
-      [
-        this.#deps.verticalId,
-        input.leftEntityId ?? null,
-        input.leftSourceRecordId ?? null,
-        input.rightEntityId,
-        input.verdict,
-      ],
-    );
-    // Judgments are durable and append-only: an unchanged decision is not
-    // re-recorded, and reversing one would be a new row, never an update.
-    if (existing[0] !== undefined) return;
+          AND verdict = $5`;
 
-    await driver.query(
-      `INSERT INTO resolution_judgments
-         (vertical_id, candidate_id, verdict, left_entity_id, left_source_record_id,
-          right_entity_id, right_source_record_id, merged_into_entity_id,
-          decided_by_kind, decided_by_actor, decided_at, identity_confidence, rationale, active)
-       VALUES ($1, $2, $3, $4, $5, $6, NULL, $7, 'RULE', $8, $9, $10, $11, TRUE)`,
-      [
-        this.#deps.verticalId,
-        input.candidateId,
-        input.verdict,
-        input.leftEntityId ?? null,
-        input.leftSourceRecordId ?? null,
-        input.rightEntityId,
-        input.mergedInto,
-        'ingest-worker/deterministic-identifier-resolver@1',
-        this.#deps.now,
-        input.confidence,
-        input.rationale,
-      ],
-    );
+    await driver.transaction(async (tx) => {
+      const [current] = await tx.query<{
+        id: string;
+        episode_seq: number;
+        evidence_fingerprint: string;
+        decision_fingerprint: string;
+      }>(
+        `SELECT id::text AS id, episode_seq, evidence_fingerprint, decision_fingerprint
+           FROM resolution_judgments
+          WHERE ${PAIR_PREDICATE} AND active
+          LIMIT 1`,
+        pair,
+      );
+
+      if (
+        current !== undefined &&
+        current.evidence_fingerprint === evidenceFingerprint &&
+        current.decision_fingerprint === decisionFingerprint
+      ) {
+        return;
+      }
+
+      // Numbered off the whole history, not off the current episode, so a
+      // superseded number is never handed out twice.
+      const [high] = await tx.query<{ max_seq: number }>(
+        `SELECT COALESCE(MAX(episode_seq), 0)::int AS max_seq
+           FROM resolution_judgments
+          WHERE ${PAIR_PREDICATE}`,
+        pair,
+      );
+      const episodeSeq = Number(high?.max_seq ?? 0) + 1;
+
+      if (current !== undefined) {
+        // The row keeps every byte of what was decided; only its currency
+        // changes. `resolution_judgments_current_episode_key` makes this
+        // mandatory rather than a convention a second writer could skip.
+        await tx.query(`UPDATE resolution_judgments SET active = FALSE WHERE id = $1`, [
+          current.id,
+        ]);
+        this.diagnostics.push(
+          `resolution judgment ${current.id} superseded by a new episode: the evidence or the ` +
+            `decision changed since it was recorded.`,
+        );
+      }
+
+      await tx.query(
+        `INSERT INTO resolution_judgments
+           (vertical_id, candidate_id, verdict, left_entity_id, left_source_record_id,
+            right_entity_id, right_source_record_id, merged_into_entity_id,
+            decided_by_kind, decided_by_actor, decided_at, identity_confidence, rationale,
+            active, evidence_fingerprint, decision_fingerprint, supersedes_judgment_id,
+            episode_seq)
+         VALUES ($1, $2, $3, $4, $5, $6, NULL, $7, 'RULE', $8, $9, $10, $11,
+                 TRUE, $12, $13, $14, $15)`,
+        [
+          this.#deps.verticalId,
+          input.candidateId,
+          input.verdict,
+          input.leftEntityId ?? null,
+          input.leftSourceRecordId ?? null,
+          input.rightEntityId,
+          input.mergedInto,
+          'ingest-worker/deterministic-identifier-resolver@1',
+          this.#deps.now,
+          input.confidence,
+          input.rationale,
+          evidenceFingerprint,
+          decisionFingerprint,
+          current?.id ?? null,
+          episodeSeq,
+        ],
+      );
+    });
   }
 
   /**
@@ -667,6 +761,9 @@ export class EntityResolver {
             mergedInto: null,
             confidence: 0.99,
             rationale: `Blocked by ${blockKey}; rejected because ${reasons.join('; ')}.`,
+            // A pair rejected on a *different* conflict tomorrow is a different
+            // decision, and must not be silently absorbed by today's.
+            evidence: features,
           });
         }
       }

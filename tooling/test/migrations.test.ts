@@ -301,4 +301,35 @@ describe('storage-level invariants', () => {
       ),
     ).rejects.toThrow(/resolution_judgments_merge_target/);
   });
+
+  it('allows only one current judgment per pair, so supersession cannot be skipped', async () => {
+    const insert = (seq: number, evidence: string) =>
+      driver.query(
+        `INSERT INTO resolution_judgments (vertical_id, verdict, left_source_record_id,
+                                           right_entity_id, merged_into_entity_id, decided_by_kind,
+                                           decided_by_actor, decided_at, identity_confidence,
+                                           evidence_fingerprint, decision_fingerprint, episode_seq)
+         VALUES ($1, 'MERGE', $2, $3, $3, 'RULE', 'rule@1', $4, 0.9, $5, 'd', $6)`,
+        [VERTICAL, RECORD, ENTITY, TS, evidence, seq],
+      );
+
+    await insert(1, 'e1');
+    // A second episode that leaves the first one active is exactly the state
+    // that let a stale judgment keep speaking for the pair (finding #2b).
+    // NULLS NOT DISTINCT is what makes the index bite: one side is always NULL.
+    await expect(insert(2, 'e2')).rejects.toThrow(/resolution_judgments_current_episode_key/);
+
+    await driver.query(
+      `UPDATE resolution_judgments SET active = FALSE WHERE left_source_record_id = $1`,
+      [RECORD],
+    );
+    await insert(2, 'e2');
+
+    // History is numbered, and a number is never reused.
+    await driver.query(
+      `UPDATE resolution_judgments SET active = FALSE WHERE left_source_record_id = $1`,
+      [RECORD],
+    );
+    await expect(insert(2, 'e3')).rejects.toThrow(/resolution_judgments_episode_order_key/);
+  });
 });
