@@ -88,6 +88,14 @@ export type JudgmentActorKind = z.infer<typeof JudgmentActorKindSchema>;
  * re-proposing the same wrong pair every crawl. Nothing here is ever deleted.
  * A reversal is a *new* judgment whose `reverses_judgment_id` points at the old
  * one, which is what makes merges auditable and reversible (AGENTS.md rule 3).
+ *
+ * The trail is a history of *episodes*, not a set of current decisions. When
+ * later evidence changes what should be decided about a pair — a clean merge
+ * that becomes provisional once a second strong identifier disagrees — a new
+ * episode is appended and named as superseding the old one, which stays exactly
+ * as it was decided. Deduplicating on the pair alone was finding #2b: it made a
+ * later conflicted decision look like a duplicate of the earlier clean one and
+ * dropped it, leaving the trail contradicting the review queue.
  */
 export const ResolutionJudgmentSchema = z.object({
   id: ResolutionJudgmentIdSchema,
@@ -108,7 +116,29 @@ export const ResolutionJudgmentSchema = z.object({
   rationale: z.string().max(4000),
   /** Set on the *new* row when it undoes an earlier judgment. */
   reverses_judgment_id: ResolutionJudgmentIdSchema.nullable(),
-  /** False once a later judgment reverses this one. History is never deleted. */
+  /**
+   * sha256 of the key-ordered evidence the decision rested on. Two judgments
+   * about the same pair with the same evidence and the same decision are the
+   * same logical event retried, not two decisions — which is what stops a
+   * re-run from duplicating history and stops a later, materially different
+   * decision from being mistaken for a duplicate. Empty on rows recorded before
+   * episode identity existed.
+   */
+  evidence_fingerprint: z.string().regex(/^$|^[0-9a-f]{64}$/),
+  /** sha256 of the key-ordered decision: verdict, surviving entity, confidence. */
+  decision_fingerprint: z.string().regex(/^$|^[0-9a-f]{64}$/),
+  /**
+   * The episode this one replaces as current. Distinct from
+   * `reverses_judgment_id`: a reversal undoes a decision, a supersession
+   * answers the same open question with newer evidence.
+   */
+  supersedes_judgment_id: ResolutionJudgmentIdSchema.nullable(),
+  /** 1-based position in this pair's judgment history. Deterministic ordering. */
+  episode_seq: z.int().min(1).max(2_147_483_647),
+  /**
+   * False once a later judgment reverses or supersedes this one. History is
+   * never deleted; exactly one episode per pair is current.
+   */
   active: z.boolean(),
   created_at: IsoDateTimeSchema,
 });

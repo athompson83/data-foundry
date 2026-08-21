@@ -71,12 +71,16 @@ describe('incremental refresh', () => {
     // the same first-retrieval metadata. Content addressing, not luck.
     expect(after).toEqual(before);
 
-    // The evidence store is content-addressed under a retrieval-date partition
-    // (`raw/{vertical}/{source}/{yyyy}/{mm}/{dd}/{hash}`), so a second run on a
-    // later day writes a second object — but under the *same* hash, because the
-    // bytes are the same. Four sources, four distinct digests, however many
-    // times they are fetched.
-    const digests = new Set(factory.artifacts.keys().map((key) => key.split('/').pop()));
+    // The evidence store is content-addressed: four sources, four digests, four
+    // objects, however many times and on however many days they are fetched.
+    //
+    // This assertion used to count `key.split('/').pop()` — the digest with the
+    // date partition discarded — which reported four while the store actually
+    // held eight, and hid 100% amplification per refresh behind a green test
+    // (finding #6). Count the objects.
+    const contentKeys = factory.artifacts.contentKeys();
+    expect(contentKeys.length).toBe(4);
+    const digests = new Set(contentKeys.map((key) => key.split('/').pop()));
     expect(digests.size).toBe(4);
     expect([...digests].every((digest) => /^[0-9a-f]{64}$/.test(String(digest)))).toBe(true);
   }, 180_000);

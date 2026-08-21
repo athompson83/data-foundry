@@ -175,6 +175,9 @@ describe('incremental refresh through a provider', () => {
     expect(second.stored[0]?.deduplicated).toBe(true);
     expect(second.stored[0]?.key).toBe(first.stored[0]?.key);
     expect(second.artifacts[0]?.id).toBe(first.artifacts[0]?.id);
-    expect(harness.files.size).toBe(2); // one body, one metadata sidecar
+    // One body and its sidecar, plus one retrieval record and its sidecar. The
+    // second fetch re-confirmed the same day's retrieval, so it added nothing:
+    // re-fetching identical bytes must not grow the store (finding #6).
+    expect(harness.files.size).toBe(4);
   });
 });

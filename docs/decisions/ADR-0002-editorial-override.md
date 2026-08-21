@@ -126,17 +126,29 @@ overwrite conflicting facts prematurely"). "The manufacturer's spec sheet says
 - `editorial_override.requires_reason` / `requires_reviewer` are enforced
   unconditionally by the cascade. The YAML keys document the invariant; setting
   either to `false` changes nothing. A vertical cannot opt out of being
-  accountable for its own corrections.
+  accountable for its own corrections. Writing `false` is now **rejected at load
+  time** rather than silently overruled: being overruled without being told is
+  the right outcome reached the wrong way.
 
-## Known gap
+## The expiry gap, and why the knob is refused
 
-`editorial_override.max_age_days` is **declared but not enforced**. The intent —
-an override should expire so a manual patch cannot outlive the problem it fixed
-— is right, but expiry needs a declaration date on each override entry, and the
-cascade does not read one. Until it does, a stale override will keep winning.
-Closing this requires a `declared_at` on `EditorialOverride` and a comparison
-against the selection's `at`, which is a schema change to the vertical config
-and is deliberately left out of this ADR rather than half-implemented.
+`editorial_override.max_age_days` was **declared but not enforced**. The intent
+— an override should expire so a manual patch cannot outlive the problem it
+fixed — is right, but expiry needs a declaration date on each override entry,
+and the cascade does not read one. Until it does, a stale override keeps
+winning. Closing it requires a `declared_at` on `EditorialOverride` and a
+comparison against the selection's `at`, which is a schema change to the
+vertical config and is deliberately left out of this ADR rather than
+half-implemented.
+
+What has changed is that the gap is no longer papered over by an accepted
+option. `buildFactSelectionPolicy` **rejects** `max_age_days` outright, with a
+message naming the missing `declared_at`. A configuration option is a promise
+to whoever reads the YAML, and `max_age_days: 365` read exactly like a
+guarantee that a correction lapses in a year. An option that is accepted and
+disregarded is worse than an option that does not exist: the first misleads, the
+second merely limits. The key is refused whether or not the mechanism is
+`enabled`, because a promise left lying in a file is still read.
 
 ## Rejected alternatives
 

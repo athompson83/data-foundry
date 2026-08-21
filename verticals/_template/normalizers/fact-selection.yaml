@@ -82,13 +82,14 @@ editorial_override:
   # An override is a fact with its own evidence (a named human and a reason),
   # not a magic value that appears from nowhere. These two are ENFORCED by the
   # cascade unconditionally; the keys document the invariant, they do not
-  # switch it off. Setting either to false changes nothing.
+  # switch it off. They must be `true` or absent — `false` is rejected at load
+  # time rather than accepted and disregarded.
   requires_reason: true
   requires_reviewer: true
-  # DECLARED, NOT YET ENFORCED. Overrides ought to expire so a stale manual
-  # patch cannot outlive the problem it fixed, but expiry needs a declaration
-  # date on each entry and the selection cascade does not read one yet.
-  max_age_days: 365
+  # Do NOT add `max_age_days`. Overrides ought to expire so a stale manual patch
+  # cannot outlive the problem it fixed, but expiry needs a declaration date on
+  # each entry and the selection cascade does not read one (ADR-0002). The key
+  # is rejected at load time until that exists.
 
   # The corrections themselves. Each entry needs `source`, `reason` and
   # `reviewer`; one missing and the entry is ignored entirely — it does not

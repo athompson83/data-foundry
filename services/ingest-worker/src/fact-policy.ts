@@ -24,6 +24,8 @@ import {
 import type { Identifier, IsoDateTime, SourceType } from '@data-foundry/canonical-schema';
 import type { SourceRegistryEntry } from '@data-foundry/source-registry';
 import type { VerticalConfig } from './config.js';
+import { PipelineConfigurationError } from './errors.js';
+import { reviewerIdentityTokens } from '@data-foundry/query-model';
 
 /** YAML arrives untyped; every reader below narrows what it needs. */
 type Yaml = any;
@@ -36,6 +38,8 @@ export function buildFactSelectionPolicy(
   config: VerticalConfig,
   options: FactPolicyOptions,
 ): FactSelectionPolicyInput {
+  assertEditorialOverrideDeclarationIsHonest(config);
+
   const byDomain = new Map<string, SourceRegistryEntry>();
   for (const source of config.sources) byDomain.set(source.key, source);
 
@@ -94,8 +98,79 @@ export function buildFactSelectionPolicy(
  * `enabled: false` is the one real switch: it withdraws the whole mechanism for
  * a vertical.
  */
+/**
+ * Refuse a declaration that promises behaviour the platform does not implement.
+ *
+ * A configuration option is a promise to whoever reads the YAML. Two were being
+ * accepted and disregarded:
+ *
+ * `max_age_days` says a correction expires so a manual patch cannot outlive the
+ * problem it fixed. Nothing expires: ADR-0002 records that enforcing it needs a
+ * `declared_at` on each override entry, which the schema does not have and the
+ * cascade does not read. Accepting the key means someone reads "365" and
+ * believes an override lapses in a year when it never will. It is rejected
+ * whether or not the mechanism is `enabled` — a promise left lying in a file is
+ * still read.
+ *
+ * `requires_reason` and `requires_reviewer` are invariants, not switches: the
+ * cascade discards an override with a blank reason or reviewer unconditionally.
+ * Restating them as `true` is fine, and documents what happens. Writing `false`
+ * declares an intention to publish unaccountable corrections; being silently
+ * overruled is the right outcome reached the wrong way, because nobody is told
+ * the file does not mean what it says.
+ */
+export function assertEditorialOverrideDeclarationIsHonest(config: VerticalConfig): void {
+  const declaration: Yaml = config.factSelection?.editorial_override ?? {};
+
+  if (declaration.max_age_days !== undefined) {
+    throw new PipelineConfigurationError(
+      'editorial_override.max_age_days is declared but cannot be enforced: override expiry ' +
+        'needs a declared_at on each override entry, which the vertical schema does not have ' +
+        'and the selection cascade does not read (ADR-0002). Remove the key rather than ' +
+        'shipping an expiry that never expires.',
+    );
+  }
+
+  // The declared reason is projected to every customer surface; the reviewer is
+  // not, by contract (`packages/query-model/src/serialization.ts`). A reason
+  // that names its own reviewer publishes the identity through the one field
+  // documented never to carry it. Caught here, before a run can publish it —
+  // `assertNoReviewerIdentity` guards the wire boundary as the second line.
+  const declaredOverrides: Yaml[] = Array.isArray(declaration.overrides)
+    ? declaration.overrides
+    : [];
+  for (const [index, entry] of declaredOverrides.entries()) {
+    const reason = String(entry?.reason ?? '').toLowerCase();
+    // Same token rule as the wire guard, imported rather than restated so the
+    // two gates cannot drift into disagreeing about what counts as an identity.
+    const tokens = reviewerIdentityTokens(String(entry?.reviewer ?? ''));
+    if (!tokens.some((token) => reason.includes(token))) continue;
+    // The identity is deliberately absent from the message: an error string
+    // reaches logs and trackers, and a guard that leaks what it guards is
+    // worse than none. The index locates the entry without repeating it.
+    throw new PipelineConfigurationError(
+      `editorial_override.overrides[${index}].reason names its own reviewer. The reason is ` +
+        'customer-visible on every surface that renders a corrected value; the reviewer is not. ' +
+        'Rewrite the reason so it explains the correction without identifying who made it — the ' +
+        'reviewer stays in the audit record and in explainFact.',
+    );
+  }
+
+  for (const key of ['requires_reason', 'requires_reviewer'] as const) {
+    const value = declaration[key];
+    if (value === undefined || value === true) continue;
+    throw new PipelineConfigurationError(
+      `editorial_override.${key} must be true or absent: it is an invariant of the selection ` +
+        'cascade, not a switch. An override with no written reason and no named reviewer is ' +
+        'discarded whatever this says, so a "false" here is a declaration the platform will ' +
+        'not honour (ADR-0002).',
+    );
+  }
+}
+
 export function editorialOverrides(config: VerticalConfig): EditorialOverride[] {
   const declaration: Yaml = config.factSelection?.editorial_override ?? {};
+  assertEditorialOverrideDeclarationIsHonest(config);
   if (declaration.enabled !== true) return [];
   const declared: Yaml[] = Array.isArray(declaration.overrides) ? declaration.overrides : [];
 

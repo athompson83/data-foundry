@@ -17,9 +17,12 @@ import {
  *
  * The client is injected, so this file typechecks and unit-tests with no
  * credentials, no network and no `@aws-sdk` dependency; production wires in a
- * thin adapter over `S3Client` or the Workers R2 binding. Keeping the surface at
- * three methods is deliberate — anything richer would start encoding R2
- * specifics into a store the pipeline is supposed to be able to swap.
+ * thin adapter over `S3Client` or the Workers R2 binding. The surface is kept to
+ * the five primitives the platform actually needs — head, put, get, list,
+ * delete — because anything richer would start encoding R2 specifics into a
+ * store the pipeline is supposed to be able to swap. `list` and `delete` are
+ * there for exactly one caller, `sweepOrphanedArtifacts`; nothing on the
+ * ingestion path may delete evidence.
  */
 
 export interface S3ObjectHead {
@@ -45,6 +48,12 @@ export interface S3CompatibleObjectClient {
   headObject(input: { readonly bucket: string; readonly key: string }): Promise<S3ObjectHead | null>;
   putObject(input: S3PutObjectInput): Promise<void>;
   getObject(input: { readonly bucket: string; readonly key: string }): Promise<S3ObjectBody | null>;
+  /** Every key under a prefix. Needed to find orphaned evidence. */
+  listObjects(input: {
+    readonly bucket: string;
+    readonly prefix: string;
+  }): Promise<readonly string[]>;
+  deleteObject(input: { readonly bucket: string; readonly key: string }): Promise<void>;
 }
 
 export interface R2ArtifactStoreOptions {
@@ -77,6 +86,9 @@ export class R2ArtifactStore implements ArtifactStore {
     return storeArtifactBytes(
       {
         readHead: (key) => this.head(key),
+        exists: async (key) =>
+          (await this.#client.headObject({ bucket: this.bucket, key: this.#absolute(key) })) !==
+          null,
         write: async (key, body, metadata) => {
           await this.#client.putObject({
             bucket: this.bucket,
@@ -106,8 +118,26 @@ export class R2ArtifactStore implements ArtifactStore {
     return { body: object.body, metadata };
   }
 
+  async list(prefix: string): Promise<readonly string[]> {
+    const keys = await this.#client.listObjects({
+      bucket: this.bucket,
+      prefix: this.#absolute(prefix),
+    });
+    return keys.map((key) => this.#relative(key));
+  }
+
+  async delete(key: string): Promise<void> {
+    await this.#client.deleteObject({ bucket: this.bucket, key: this.#absolute(key) });
+  }
+
   #absolute(key: string): string {
     return this.#prefix === '' ? key : `${this.#prefix}/${key}`;
+  }
+
+  #relative(key: string): string {
+    return this.#prefix === '' || !key.startsWith(`${this.#prefix}/`)
+      ? key
+      : key.slice(this.#prefix.length + 1);
   }
 }
 
@@ -138,6 +168,21 @@ export class InMemoryObjectClient implements S3CompatibleObjectClient {
 
   getObject(input: { bucket: string; key: string }): Promise<S3ObjectBody | null> {
     return Promise.resolve(this.#objects.get(this.#id(input)) ?? null);
+  }
+
+  listObjects(input: { bucket: string; prefix: string }): Promise<readonly string[]> {
+    const scope = `${input.bucket}/`;
+    return Promise.resolve(
+      [...this.#objects.keys()]
+        .filter((id) => id.startsWith(scope) && id.slice(scope.length).startsWith(input.prefix))
+        .map((id) => id.slice(scope.length))
+        .sort(),
+    );
+  }
+
+  deleteObject(input: { bucket: string; key: string }): Promise<void> {
+    this.#objects.delete(this.#id(input));
+    return Promise.resolve();
   }
 
   keys(): readonly string[] {

@@ -13,8 +13,8 @@
 #      what lets fact selection prefer the certified value while retaining the
 #      manufacturer's, instead of silently overwriting one with the other.
 #
-# This is doc 17's "certifications with multiple registries" strong signal, and
-# it is the single biggest reason this vertical scores well on ambiguity value.
+# Certifications held in a registry separate from the manufacturer's own data
+# are the single biggest source of useful ambiguity in this vertical.
 # =============================================================================
 
 entity_type: certification

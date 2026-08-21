@@ -12,7 +12,7 @@
 
 ## Source families
 
-Doc 17 gate 1 requires **at least 3 materially independent source families**.
+A vertical requires **at least 3 materially independent source families**.
 Independent means a different organization with a different incentive — three
 mirrors of the same upstream feed are one family, not three. State the families
 plainly and name what each one uniquely provides.

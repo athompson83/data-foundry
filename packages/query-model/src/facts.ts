@@ -14,6 +14,7 @@ import type {
   SelectionWarning,
 } from '@data-foundry/canonical-store';
 import { factLineage, type FactLineage } from '@data-foundry/provenance';
+import { compareCodeUnits } from '@data-foundry/canonical-schema';
 import type {
   CanonicalValue,
   EntityId,
@@ -23,6 +24,7 @@ import type {
   Identifier,
   IsoDateTime,
 } from '@data-foundry/canonical-schema';
+import { assertNoReviewerIdentity } from './serialization.js';
 
 export interface FactWithEvidence {
   readonly fact: Fact;
@@ -122,6 +124,24 @@ export async function canonicalFacts(
     const selected = selection.selected;
     const publishers = new Set<string>();
     for (const link of selected?.evidence ?? []) publishers.add(link.source.publisher);
+    // Last point at which the reason and the reviewer are both in hand. The
+    // reviewer is dropped on the next line and the reason travels on alone to
+    // web, REST, MCP and exports, so a reason that names its reviewer has to be
+    // refused here or not at all. The ingest worker rejects the same thing at
+    // config load; this closes the path that skips it by handing
+    // `canonicalFacts` a policy directly.
+    const correction = selection.editorial_correction;
+    if (correction !== null) {
+      assertNoReviewerIdentity(
+        {
+          editoriallyCorrected: true,
+          editorialCorrectionReason: correction.reason,
+          selectionWarnings: [],
+        },
+        [correction.reviewer],
+      );
+    }
+
     rows.push({
       property,
       value: selected?.fact.normalized_value ?? null,
@@ -142,5 +162,5 @@ export async function canonicalFacts(
     });
   }
 
-  return rows.sort((left, right) => left.property.localeCompare(right.property));
+  return rows.sort((left, right) => compareCodeUnits(left.property, right.property));
 }

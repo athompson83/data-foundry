@@ -15,6 +15,8 @@ import type { FactSelectionPolicyInput } from '@data-foundry/canonical-store';
 import { isVerified, type VerificationSignals } from '@data-foundry/provenance';
 import {
   CORRECTION_FIELDS_JSON_SCHEMA,
+  ReviewerIdentityLeak,
+  assertNoReviewerIdentity,
   correctionInvariantViolation,
   toExportRow,
   toMcpFact,
@@ -122,6 +124,8 @@ describe('CanonicalFactView projection', () => {
       maxAuthorityRank: 95,
       allEvidencePublishable: true,
       freshestEvidenceAgeDays: 1,
+      hasDatedAuthoritativeEvidence: true,
+      freshestAuthoritativeEvidenceAgeDays: 1,
       hasUnresolvedConflict: false,
       hasEvidence: true,
       decidedBy: 'EDITORIAL_OVERRIDE',
@@ -290,5 +294,141 @@ describe('correction invariant', () => {
     for (const row of rows) {
       expect(correctionInvariantViolation(toRestFact(row)), row.property).toBeNull();
     }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// The privacy enforcement the module has always claimed to have
+// ---------------------------------------------------------------------------
+
+describe('reviewer identity never reaches a wire shape', () => {
+  const REVIEWERS = ['j.okafor@example.com', 'M. Ruiz'];
+
+  const fields = (reason: string | null) => ({
+    editoriallyCorrected: reason !== null,
+    editorialCorrectionReason: reason,
+    selectionWarnings: [] as const,
+  });
+
+  it('passes a reason that names no reviewer', () => {
+    expect(() =>
+      assertNoReviewerIdentity(
+        fields('Manufacturer erratum 2026-03: published SEER2 was a typo.'),
+        REVIEWERS,
+      ),
+    ).not.toThrow();
+  });
+
+  it('throws when the customer-visible reason carries a reviewer identity', () => {
+    // The one that actually happens: an editor writes their own name into the
+    // reason, and the reason is projected to every customer surface.
+    expect(() =>
+      assertNoReviewerIdentity(fields('Corrected by j.okafor@example.com after a supplier call.'), REVIEWERS),
+    ).toThrow(ReviewerIdentityLeak);
+  });
+
+  it('matches regardless of case or surrounding punctuation', () => {
+    expect(() =>
+      assertNoReviewerIdentity(fields('Reviewed (M. RUIZ), 2026-04-02.'), REVIEWERS),
+    ).toThrow(ReviewerIdentityLeak);
+  });
+
+  it('names the field and not the identity, so the error is not itself a leak', () => {
+    let message = '';
+    try {
+      assertNoReviewerIdentity(fields('set by j.okafor@example.com'), REVIEWERS);
+    } catch (error) {
+      message = error instanceof Error ? error.message : String(error);
+    }
+    expect(message).toMatch(/editorialCorrectionReason/);
+    expect(message).not.toContain('j.okafor@example.com');
+  });
+
+  it('ignores blank reviewer entries rather than matching everything', () => {
+    // A blank identity is a substring of every string; treating it as a match
+    // would refuse to publish any correction at all.
+    expect(() =>
+      assertNoReviewerIdentity(fields('A perfectly ordinary reason.'), ['', '   ']),
+    ).not.toThrow();
+  });
+
+  it('has nothing to check when no correction was applied', () => {
+    expect(() => assertNoReviewerIdentity(fields(null), REVIEWERS)).not.toThrow();
+  });
+
+  it('guards the export row and the REST/MCP shapes through the same reason', async () => {
+    const row = await view('seer2', CORRECTED);
+    const rest = toRestFact(row);
+    const exported = toExportRow(row);
+    expect(exported.editorial_correction_reason).toBe(rest.editorialCorrectionReason);
+    expect(() => assertNoReviewerIdentity(rest, [REVIEWER])).not.toThrow();
+  });
+});
+
+/**
+ * The guard has to be *invoked*, not merely available.
+ *
+ * `assertNoReviewerIdentity` was exported and documented as the wire-boundary
+ * enforcement while nothing outside these tests called it. The configuration
+ * gate in the ingest worker caught the declared case, but `canonicalFacts`
+ * accepts a `FactSelectionPolicyInput` directly — so any caller assembling a
+ * policy in process bypassed the gate entirely and served a reason naming its
+ * own reviewer to web, REST, MCP and exports alike.
+ *
+ * These run the real query model against the real store. The enforcement lives
+ * where the reason and the reviewer are both still in hand, which is the last
+ * point before the identity is dropped and the reason travels on alone.
+ */
+const LEAKING: Partial<FactSelectionPolicyInput> = {
+  editorialOverrides: [
+    {
+      source: 'editorial.internal',
+      reason: `Corrected by ${REVIEWER} after a supplier call.`,
+      reviewer: REVIEWER,
+    },
+  ],
+};
+
+/** Same identity, different casing — a guard that only matches exactly is not one. */
+const LEAKING_CASED: Partial<FactSelectionPolicyInput> = {
+  editorialOverrides: [
+    {
+      source: 'editorial.internal',
+      reason: `Reviewed (${REVIEWER.toUpperCase()}), 2026-04-02.`,
+      reviewer: REVIEWER,
+    },
+  ],
+};
+
+describe('the canonical view refuses to carry a reviewer identity', () => {
+  it('throws rather than serving a reason that names its own reviewer', async () => {
+    await expect(view('seer2', LEAKING)).rejects.toThrow(ReviewerIdentityLeak);
+  });
+
+  it('matches the identity regardless of case', async () => {
+    await expect(view('seer2', LEAKING_CASED)).rejects.toThrow(ReviewerIdentityLeak);
+  });
+
+  it('does not repeat the identity in the error it raises about the identity', async () => {
+    let message = '';
+    try {
+      await view('seer2', LEAKING);
+    } catch (error) {
+      message = error instanceof Error ? error.message : String(error);
+    }
+    expect(message).toMatch(/editorialCorrectionReason/);
+    expect(message).not.toContain(REVIEWER);
+    expect(message).not.toContain(REVIEWER.toUpperCase());
+  });
+
+  it('still serves a correction whose reason explains without naming anyone', async () => {
+    const row = await view('seer2', CORRECTED);
+    expect(row.editorially_corrected).toBe(true);
+    expect(row.editorial_correction_reason).toBe(REASON);
+  });
+
+  it('leaves the reviewer off the view it does serve', async () => {
+    const row = await view('seer2', CORRECTED);
+    expect(JSON.stringify(row)).not.toContain(REVIEWER);
   });
 });

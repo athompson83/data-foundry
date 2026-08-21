@@ -14,9 +14,11 @@ import { artifactMetadataKey } from './keys.js';
 /**
  * Local-disk raw evidence store for development and CI.
  *
- * Same key layout as R2 (`raw/{vertical}/{source}/{yyyy}/{mm}/{dd}/{hash}`),
- * rooted at `.data` — so an offline pipeline run produces a tree that can be
- * diffed against, or uploaded to, the real bucket without rewriting keys.
+ * Same key layout as R2 (`raw/{vertical}/{source}/content/{aa}/{hash}` for the
+ * bytes, `raw/{vertical}/{source}/retrieved/{yyyy}/{mm}/{dd}/{hash}.json` for
+ * each fetch), rooted at `.data` — so an offline pipeline run produces a tree
+ * that can be diffed against, or uploaded to, the real bucket without rewriting
+ * keys.
  *
  * Metadata lives in a `<key>.meta.json` sidecar because a POSIX filesystem has
  * nowhere else to put it, and dropping it would leave the bytes unexplainable.
@@ -54,6 +56,7 @@ export class LocalFsArtifactStore implements ArtifactStore {
     return storeArtifactBytes(
       {
         readHead: (key) => this.head(key),
+        exists: (key) => this.#fs.exists(this.pathFor(artifactMetadataKey(key))),
         write: async (key, body, metadata) => {
           const path = this.pathFor(key);
           await this.#fs.mkdir(path.slice(0, path.lastIndexOf('/')));
@@ -88,5 +91,28 @@ export class LocalFsArtifactStore implements ArtifactStore {
     const path = this.pathFor(key);
     if (!(await this.#fs.exists(path))) return null;
     return { body: await this.#fs.readFile(path), metadata };
+  }
+
+  /** Object keys under a prefix. Metadata sidecars are storage, not objects. */
+  async list(prefix: string): Promise<readonly string[]> {
+    // listFiles() returns forward-slash paths; baseDir may not be, so strip a
+    // root that actually matches rather than leaking absolute paths as keys.
+    const root = `${this.baseDir.replace(/\\/g, '/')}/`;
+    const paths = await this.#fs.listFiles(this.pathFor(prefix));
+    return paths
+      .filter((path) => !path.endsWith('.meta.json'))
+      .map((path) => (path.startsWith(root) ? path.slice(root.length) : path))
+      .sort();
+  }
+
+  /** Removes the bytes and their sidecar together: half an object is worse than none. */
+  async delete(key: string): Promise<void> {
+    await this.#fs.remove(this.pathFor(key));
+    await this.#fs.remove(this.pathFor(artifactMetadataKey(key)));
+  }
+
+  /** Write time of an object, for age-guarded orphan sweeps. */
+  modifiedAt(key: string): Promise<number | null> {
+    return this.#fs.modifiedAt(this.pathFor(key));
   }
 }

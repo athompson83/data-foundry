@@ -30,12 +30,12 @@ Specifically, and in plain language:
    the real Air-Conditioning, Heating, and Refrigeration Institute — and nothing
    here describes that organization's directory, data or terms.
 
-**Consequence for the niche score:** doc 17 gate 4 ("source-rights feasibility is
-not predominantly RED") is **NOT PASSED** for this vertical. Zero real sources
-have been rights-reviewed. Synthetic sources passing a rights gate proves the
-gate works; it proves nothing about the market. This is why `vertical.yaml`
-carries `status: DRAFT`, and it is recorded honestly in
-`docs/verticals/hvac-niche-score.md` rather than argued around.
+**Consequence:** the source-rights condition for leaving `DRAFT` — that the
+contributing sources are reviewed and not predominantly `RED` — is **NOT MET**
+for this vertical. Zero real sources have been rights-reviewed. Synthetic
+sources passing a rights gate proves the gate works; it proves nothing about the
+market. This is why `vertical.yaml` carries `status: DRAFT`, and it is recorded
+here rather than argued around.
 
 ---
 
@@ -186,8 +186,8 @@ rather than a technical assumption.
 1. Identify at least three real, materially independent source families.
 2. Complete a rights review for each, with a **named human** reviewer, a
    classification, and a next-review date.
-3. Confirm the set is not predominantly RED (doc 17 gate 4).
-4. Read the specific risks flagged in the niche score: bulk-reuse terms on
+3. Confirm the set is not predominantly RED.
+4. Review the two risks that recur in this vertical: bulk-reuse terms on
    certification directory exports, and database rights over compiled
    distributor catalogues in the EU/UK.
 5. Only then move `vertical.yaml` from `DRAFT` to `ACTIVE`.

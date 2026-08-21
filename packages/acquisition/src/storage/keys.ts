@@ -2,30 +2,54 @@ import type { ContentHash } from '@data-foundry/canonical-schema';
 import { ArtifactStoreError } from '../errors.js';
 
 /**
- * Raw evidence key layout, exactly as doc 02 specifies:
+ * Raw evidence key layout.
  *
  * ```text
- * /raw/{vertical}/{source}/{yyyy}/{mm}/{dd}/{hash}
+ * /raw/{vertical}/{source}/content/{aa}/{hash}                  the bytes
+ * /raw/{vertical}/{source}/retrieved/{yyyy}/{mm}/{dd}/{hash}.json   a retrieval
  * ```
  *
- * Object stores do not use a leading slash in keys, so {@link artifactStorageKey}
- * emits the slash-free form and {@link artifactStoragePath} emits the documented
- * path form. Both describe the same location.
+ * Doc 02 specified one key, `/raw/{vertical}/{source}/{yyyy}/{mm}/{dd}/{hash}`,
+ * conflating two different facts: *what the bytes are* and *when we fetched
+ * them*. Deduplication keyed on the whole path, so identical bytes fetched on
+ * two different days were two objects — 100% amplification on every refresh
+ * cycle, growing without bound over a source's life. And because
+ * `source_artifacts` deduplicates on `(source_id, url, content_hash)`, the
+ * second copy was never cited by anything: it was an orphan the moment it was
+ * written (finding #6).
  *
- * The date partition comes from `retrieved_at` (when we saw it), not from any
- * publication date on the document — partitions exist to bound a re-scan of "what
- * did we fetch that week", which is a question about our behaviour.
+ * The two facts are now two objects.
+ *
+ * **Content** is addressed by digest alone and written once, ever. Re-fetching
+ * the same page for a decade costs one object. Different bytes are a different
+ * digest and therefore a different object, so history is preserved by
+ * construction rather than by remembering not to overwrite (AGENTS.md rule 10).
+ * The two-hex-character shard keeps any single directory or list page bounded.
+ *
+ * **Retrieval records** are small JSON documents, one per (source, day,
+ * digest), naming the content they confirmed. They keep the date partition's
+ * actual purpose — bounding a re-scan of "what did we fetch that week", a
+ * question about our behaviour, not the document's — and they make the store
+ * able to answer "when did we last re-check these bytes?", which nothing could
+ * answer before: `source_artifacts` keeps only the *first* retrieval, and a
+ * refresh that confirmed unchanged bytes left no trace at all.
  */
 export const RAW_PREFIX = 'raw';
+export const CONTENT_SEGMENT = 'content';
+export const RETRIEVED_SEGMENT = 'retrieved';
 
 const SEGMENT_PATTERN = /^[a-z0-9]+(?:[-_][a-z0-9]+)*$/;
+const HASH_PATTERN = /^[0-9a-f]{64}$/;
 
-export interface ArtifactKeyParts {
+export interface ArtifactContentKeyParts {
   readonly vertical: string;
   readonly source: string;
+  readonly contentHash: ContentHash;
+}
+
+export interface ArtifactRetrievalKeyParts extends ArtifactContentKeyParts {
   /** ISO-8601 instant; only the UTC date part is used. */
   readonly retrievedAt: string;
-  readonly contentHash: ContentHash;
 }
 
 function assertSegment(name: string, value: string): void {
@@ -37,15 +61,40 @@ function assertSegment(name: string, value: string): void {
   }
 }
 
-export function artifactStorageKey(parts: ArtifactKeyParts): string {
+function assertParts(parts: ArtifactContentKeyParts): void {
   assertSegment('vertical', parts.vertical);
   assertSegment('source', parts.source);
-  if (!/^[0-9a-f]{64}$/.test(parts.contentHash)) {
+  if (!HASH_PATTERN.test(parts.contentHash)) {
     throw new ArtifactStoreError(
       `Illegal content hash "${parts.contentHash}": expected a lowercase hex sha256 digest.`,
     );
   }
+}
 
+/** Where a source's immutable content objects live. */
+export function artifactContentPrefix(vertical: string, source: string): string {
+  assertSegment('vertical', vertical);
+  assertSegment('source', source);
+  return `${RAW_PREFIX}/${vertical}/${source}/${CONTENT_SEGMENT}`;
+}
+
+/** The one and only key for these bytes under this source. */
+export function artifactContentKey(parts: ArtifactContentKeyParts): string {
+  assertParts(parts);
+  const shard = parts.contentHash.slice(0, 2);
+  return `${artifactContentPrefix(parts.vertical, parts.source)}/${shard}/${parts.contentHash}`;
+}
+
+/** Where a source's retrieval records live. */
+export function artifactRetrievalPrefix(vertical: string, source: string): string {
+  assertSegment('vertical', vertical);
+  assertSegment('source', source);
+  return `${RAW_PREFIX}/${vertical}/${source}/${RETRIEVED_SEGMENT}`;
+}
+
+/** One record per (source, UTC day, content) — a fetch that confirmed these bytes. */
+export function artifactRetrievalKey(parts: ArtifactRetrievalKeyParts): string {
+  assertParts(parts);
   const at = new Date(parts.retrievedAt);
   if (Number.isNaN(at.getTime())) {
     throw new ArtifactStoreError(`Illegal retrieved_at "${parts.retrievedAt}" in artifact key.`);
@@ -53,16 +102,16 @@ export function artifactStorageKey(parts: ArtifactKeyParts): string {
   const year = String(at.getUTCFullYear()).padStart(4, '0');
   const month = String(at.getUTCMonth() + 1).padStart(2, '0');
   const day = String(at.getUTCDate()).padStart(2, '0');
-
-  return `${RAW_PREFIX}/${parts.vertical}/${parts.source}/${year}/${month}/${day}/${parts.contentHash}`;
+  const prefix = artifactRetrievalPrefix(parts.vertical, parts.source);
+  return `${prefix}/${year}/${month}/${day}/${parts.contentHash}.json`;
 }
 
-/** The documented `/raw/...` form. */
-export function artifactStoragePath(parts: ArtifactKeyParts): string {
-  return `/${artifactStorageKey(parts)}`;
+/** The documented `/raw/...` form of a content key. */
+export function artifactContentPath(parts: ArtifactContentKeyParts): string {
+  return `/${artifactContentKey(parts)}`;
 }
 
-/** Sidecar key holding the artifact's metadata alongside its bytes. */
+/** Sidecar key holding an object's metadata alongside its bytes. */
 export function artifactMetadataKey(key: string): string {
   return `${key}.meta.json`;
 }
@@ -70,27 +119,42 @@ export function artifactMetadataKey(key: string): string {
 export interface ParsedArtifactKey {
   readonly vertical: string;
   readonly source: string;
-  readonly year: string;
-  readonly month: string;
-  readonly day: string;
   readonly contentHash: ContentHash;
 }
 
-export function parseArtifactStorageKey(key: string): ParsedArtifactKey | null {
+export interface ParsedRetrievalKey extends ParsedArtifactKey {
+  readonly year: string;
+  readonly month: string;
+  readonly day: string;
+}
+
+export function parseArtifactContentKey(key: string): ParsedArtifactKey | null {
   const segments = key.replace(/^\//, '').split('/');
-  if (segments.length !== 7) return null;
-  const [prefix, vertical, source, year, month, day, contentHash] = segments;
-  if (prefix !== RAW_PREFIX) return null;
+  if (segments.length !== 6) return null;
+  const [prefix, vertical, source, marker, shard, contentHash] = segments;
+  if (prefix !== RAW_PREFIX || marker !== CONTENT_SEGMENT) return null;
+  if (vertical === undefined || source === undefined || contentHash === undefined) return null;
+  if (!HASH_PATTERN.test(contentHash)) return null;
+  if (shard !== contentHash.slice(0, 2)) return null;
+  return { vertical, source, contentHash };
+}
+
+export function parseArtifactRetrievalKey(key: string): ParsedRetrievalKey | null {
+  const segments = key.replace(/^\//, '').split('/');
+  if (segments.length !== 8) return null;
+  const [prefix, vertical, source, marker, year, month, day, file] = segments;
+  if (prefix !== RAW_PREFIX || marker !== RETRIEVED_SEGMENT) return null;
   if (
     vertical === undefined ||
     source === undefined ||
     year === undefined ||
     month === undefined ||
     day === undefined ||
-    contentHash === undefined
+    file === undefined
   ) {
     return null;
   }
-  if (!/^[0-9a-f]{64}$/.test(contentHash)) return null;
+  const contentHash = file.replace(/\.json$/, '');
+  if (contentHash === file || !HASH_PATTERN.test(contentHash)) return null;
   return { vertical, source, year, month, day, contentHash };
 }

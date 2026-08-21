@@ -25,6 +25,10 @@
       "file": "fact_evidence.schema.json"
     },
     {
+      "name": "fact_verifications",
+      "file": "fact_verifications.schema.json"
+    },
+    {
       "name": "facts",
       "file": "facts.schema.json"
     },

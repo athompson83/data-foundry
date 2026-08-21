@@ -16,6 +16,7 @@
  * invisibly and nothing is deleted to undo a decision.
  */
 import {
+  compareCodeUnits,
   entityQualityScore,
   identityConfidence,
   type Entity,
@@ -27,6 +28,7 @@ import {
   type VerticalId,
 } from '@data-foundry/canonical-schema';
 import { identifiersMatch } from '@data-foundry/normalization';
+import { sha256Hex, stableStringify } from '@data-foundry/acquisition';
 import type { CanonicalStore, SqlParam } from '@data-foundry/canonical-store';
 import { primaryAliasType, resolvePublisher, type VerticalConfig } from './config.js';
 import { AliasNormalizer, slugify } from './identifiers.js';
@@ -187,9 +189,26 @@ export class EntityResolver {
       );
     }
 
-    const existing = [...matches.values()].sort((left, right) =>
-      left.entity.id.localeCompare(right.entity.id),
-    )[0];
+    // Which entity a conflicted record provisionally attaches to used to be
+    // "smallest `entity.id`" — a random UUID, so a rebuild into a fresh
+    // database attached the same record somewhere else (#8), and
+    // `localeCompare` handed the comparison to the host's collator (#14).
+    //
+    // The rule is now age: the record joins the entity we have known longest.
+    // That is the conservative choice while the conflict is queued — the older
+    // canonical record is the one with public URLs, redirects and inbound
+    // references already pointing at it, so a review that goes the other way
+    // moves the least. `canonical_slug` settles any remaining tie and is a
+    // total order in its own right: `entities_slug_key` is unique per
+    // (vertical, entity_type), and every candidate here shares both.
+    const existing = [...matches.values()].sort((left, right) => {
+      const byFirstSeen =
+        Date.parse(left.entity.first_seen_at) - Date.parse(right.entity.first_seen_at);
+      if (byFirstSeen !== 0) return byFirstSeen;
+      const byCreated = Date.parse(left.entity.created_at) - Date.parse(right.entity.created_at);
+      if (byCreated !== 0) return byCreated;
+      return compareCodeUnits(left.entity.canonical_slug, right.entity.canonical_slug);
+    })[0];
 
     const display = preferredDisplay(input.aliases, this.#primaryAlias(input.entityType));
     let entity: Entity;
@@ -291,6 +310,21 @@ export class EntityResolver {
       leftSourceRecordId: input.sourceRecordId,
       rightEntityId: entity.id,
       mergedInto: entity.id,
+      // What this attachment rests on, and nothing about *this run*. The
+      // identifiers come from the record itself rather than from `matchedOn`,
+      // whose wording legitimately differs between the pass that creates an
+      // entity and the pass that re-matches it — a difference in the trail's
+      // narration, not in the claim being made.
+      evidence: {
+        method:
+          conflictingEntityIds === null
+            ? 'strong_identifier_exact_match'
+            : 'strong_identifier_conflict',
+        keyed_on: [
+          ...new Set(strong.map((alias) => `${alias.aliasType}=${alias.normalizedValue}`)),
+        ].sort(),
+        conflicting_entities: conflictingEntityIds ?? [],
+      },
       // A provisional attachment is still a merge that happened and must be
       // auditable and reversible (rule 3) — but it must not claim certainty.
       confidence: conflictingEntityIds === null ? 1 : 0.5,
@@ -368,7 +402,12 @@ export class EntityResolver {
    * last". The preference is deterministic: a spelling that is already in
    * canonical form wins (`24ACC636A003` over `24ACC6 36A003`); failing that the
    * most authoritative source's spelling wins (`BTW-C2036`, which no source
-   * writes collapsed); ties break lexicographically.
+   * writes collapsed); ties break by code unit.
+   *
+   * That last step used to be `localeCompare`, which decided the entity's
+   * published name with the host's collator: `abc-9001` wins under `en_US` and
+   * `ABC-9001` wins under `da_DK`, on plain ASCII (#14). The spelling a
+   * customer sees is not allowed to depend on which machine ran the pipeline.
    */
   async #writeAlias(
     entityId: EntityId,
@@ -426,7 +465,7 @@ export class EntityResolver {
     const [rightCanonical, rightAuthority, rightValue] = score(right);
     if (leftCanonical !== rightCanonical) return leftCanonical > rightCanonical ? left : right;
     if (leftAuthority !== rightAuthority) return leftAuthority > rightAuthority ? left : right;
-    return leftValue.localeCompare(rightValue) <= 0 ? left : right;
+    return compareCodeUnits(leftValue, rightValue) <= 0 ? left : right;
   }
 
   /* ---------------- resolution audit tables ---------------- */
@@ -520,6 +559,30 @@ export class EntityResolver {
     return String(rows[0]?.['id']);
   }
 
+  /**
+   * Append one resolution decision to the judgment trail (finding #2b).
+   *
+   * The trail used to be deduplicated on
+   * `(vertical, left entity, left source record, right entity, verdict)`. That
+   * tuple is the *pair*, not the *event*: a clean certain MERGE and a later
+   * PROVISIONAL, conflicted MERGE about the same pair share it exactly, so the
+   * second decision was dropped and the audit trail kept asserting the first
+   * one long after it stopped being true.
+   *
+   * Event identity is therefore the pair plus two fingerprints — what the
+   * decision rested on, and what was decided:
+   *
+   *   - identical to the current episode  → the same logical event, retried.
+   *     Nothing is written, which is what keeps re-running a source idempotent.
+   *   - anything else                     → a new episode. It is appended, the
+   *     previous one stops being current (`active = FALSE`) but is never
+   *     rewritten or deleted, and the new row names it in
+   *     `supersedes_judgment_id`.
+   *
+   * `evidence` must carry only what the decision rested on. Per-run bookkeeping
+   * (which run wrote it, whether the entity happened to be created on this
+   * pass) would make every second run look like a new decision.
+   */
   async #recordJudgment(input: {
     readonly candidateId: string | null;
     readonly verdict: 'MERGE' | 'NOT_MERGE' | 'SPLIT';
@@ -529,49 +592,111 @@ export class EntityResolver {
     readonly mergedInto: EntityId | null;
     readonly confidence: number;
     readonly rationale: string;
+    readonly evidence: Record<string, unknown>;
   }): Promise<void> {
     const driver = this.#deps.store.driver;
-    const existing = await driver.query<{ id: string }>(
-      `SELECT id FROM resolution_judgments
-        WHERE vertical_id = $1
+    const evidenceFingerprint = sha256Hex(stableStringify(input.evidence));
+    const decisionFingerprint = sha256Hex(
+      stableStringify({
+        verdict: input.verdict,
+        merged_into_entity_id: input.mergedInto ?? null,
+        identity_confidence: input.confidence,
+      }),
+    );
+    // Identity is the QUESTION this judgment answers, never the answer itself.
+    //
+    // A record asks "where do I belong?" — the entity is the answer, so keying
+    // on it would open a second history every time a record moved, leaving the
+    // old judgment active and the trail self-contradictory. Two entities ask
+    // "are we the same?" — there both sides are the question. `verdict` is the
+    // answer in both cases and belongs in neither key. These predicates match
+    // the partial unique indexes in migration 0009 exactly; if they drift, the
+    // database refuses the write rather than letting a stale judgment stand.
+    const asksAboutRecord = input.leftSourceRecordId !== undefined && input.leftSourceRecordId !== null;
+    const pair: SqlParam[] = asksAboutRecord
+      ? [this.#deps.verticalId, input.leftSourceRecordId ?? null]
+      : [this.#deps.verticalId, input.leftEntityId ?? null, input.rightEntityId];
+    const PAIR_PREDICATE = asksAboutRecord
+      ? `vertical_id = $1
+          AND left_source_record_id IS NOT DISTINCT FROM $2`
+      : `vertical_id = $1
+          AND left_source_record_id IS NULL
           AND left_entity_id IS NOT DISTINCT FROM $2
-          AND left_source_record_id IS NOT DISTINCT FROM $3
-          AND right_entity_id IS NOT DISTINCT FROM $4
-          AND verdict = $5
-          AND active
-        LIMIT 1`,
-      [
-        this.#deps.verticalId,
-        input.leftEntityId ?? null,
-        input.leftSourceRecordId ?? null,
-        input.rightEntityId,
-        input.verdict,
-      ],
-    );
-    // Judgments are durable and append-only: an unchanged decision is not
-    // re-recorded, and reversing one would be a new row, never an update.
-    if (existing[0] !== undefined) return;
+          AND right_entity_id IS NOT DISTINCT FROM $3`;
 
-    await driver.query(
-      `INSERT INTO resolution_judgments
-         (vertical_id, candidate_id, verdict, left_entity_id, left_source_record_id,
-          right_entity_id, right_source_record_id, merged_into_entity_id,
-          decided_by_kind, decided_by_actor, decided_at, identity_confidence, rationale, active)
-       VALUES ($1, $2, $3, $4, $5, $6, NULL, $7, 'RULE', $8, $9, $10, $11, TRUE)`,
-      [
-        this.#deps.verticalId,
-        input.candidateId,
-        input.verdict,
-        input.leftEntityId ?? null,
-        input.leftSourceRecordId ?? null,
-        input.rightEntityId,
-        input.mergedInto,
-        'ingest-worker/deterministic-identifier-resolver@1',
-        this.#deps.now,
-        input.confidence,
-        input.rationale,
-      ],
-    );
+    await driver.transaction(async (tx) => {
+      const [current] = await tx.query<{
+        id: string;
+        episode_seq: number;
+        evidence_fingerprint: string;
+        decision_fingerprint: string;
+      }>(
+        `SELECT id::text AS id, episode_seq, evidence_fingerprint, decision_fingerprint
+           FROM resolution_judgments
+          WHERE ${PAIR_PREDICATE} AND active
+          LIMIT 1`,
+        pair,
+      );
+
+      if (
+        current !== undefined &&
+        current.evidence_fingerprint === evidenceFingerprint &&
+        current.decision_fingerprint === decisionFingerprint
+      ) {
+        return;
+      }
+
+      // Numbered off the whole history, not off the current episode, so a
+      // superseded number is never handed out twice.
+      const [high] = await tx.query<{ max_seq: number }>(
+        `SELECT COALESCE(MAX(episode_seq), 0)::int AS max_seq
+           FROM resolution_judgments
+          WHERE ${PAIR_PREDICATE}`,
+        pair,
+      );
+      const episodeSeq = Number(high?.max_seq ?? 0) + 1;
+
+      if (current !== undefined) {
+        // The row keeps every byte of what was decided; only its currency
+        // changes. `resolution_judgments_current_episode_key` makes this
+        // mandatory rather than a convention a second writer could skip.
+        await tx.query(`UPDATE resolution_judgments SET active = FALSE WHERE id = $1`, [
+          current.id,
+        ]);
+        this.diagnostics.push(
+          `resolution judgment ${current.id} superseded by a new episode: the evidence or the ` +
+            `decision changed since it was recorded.`,
+        );
+      }
+
+      await tx.query(
+        `INSERT INTO resolution_judgments
+           (vertical_id, candidate_id, verdict, left_entity_id, left_source_record_id,
+            right_entity_id, right_source_record_id, merged_into_entity_id,
+            decided_by_kind, decided_by_actor, decided_at, identity_confidence, rationale,
+            active, evidence_fingerprint, decision_fingerprint, supersedes_judgment_id,
+            episode_seq)
+         VALUES ($1, $2, $3, $4, $5, $6, NULL, $7, 'RULE', $8, $9, $10, $11,
+                 TRUE, $12, $13, $14, $15)`,
+        [
+          this.#deps.verticalId,
+          input.candidateId,
+          input.verdict,
+          input.leftEntityId ?? null,
+          input.leftSourceRecordId ?? null,
+          input.rightEntityId,
+          input.mergedInto,
+          'ingest-worker/deterministic-identifier-resolver@1',
+          this.#deps.now,
+          input.confidence,
+          input.rationale,
+          evidenceFingerprint,
+          decisionFingerprint,
+          current?.id ?? null,
+          episodeSeq,
+        ],
+      );
+    });
   }
 
   /**
@@ -609,8 +734,22 @@ export class EntityResolver {
     let proposed = 0;
     let rejected = 0;
 
-    for (const [blockKey, members] of [...blocks.entries()].sort()) {
-      const ordered = [...new Set(members)].sort();
+    // Pair direction is ordered by `canonical_slug`, not by entity id. A pair's
+    // (left, right) direction is what a NOT_MERGE judgment records, and entity
+    // ids are random UUIDs — so a rebuild from the same artifacts would flip
+    // the direction of every negative judgment and the trail would not
+    // reproduce (#8). The slug is unique per (vertical, entity_type) and every
+    // entity here shares both, so it is a total order in its own right.
+    const bySlug = (left: EntityId, right: EntityId): number =>
+      compareCodeUnits(byId.get(left)?.slug ?? left, byId.get(right)?.slug ?? right);
+
+    // Default sort would coerce each [key, EntityId[]] entry with String(),
+    // making the sort key depend on member UUID order. Block order decides
+    // which block owns a pair, and the block key is part of the fingerprint.
+    for (const [blockKey, members] of [...blocks.entries()].sort(([left], [right]) =>
+      compareCodeUnits(left, right),
+    )) {
+      const ordered = [...new Set(members)].sort(bySlug);
       for (let i = 0; i < ordered.length; i += 1) {
         for (let j = i + 1; j < ordered.length; j += 1) {
           const left = ordered[i] as EntityId;
@@ -667,6 +806,9 @@ export class EntityResolver {
             mergedInto: null,
             confidence: 0.99,
             rationale: `Blocked by ${blockKey}; rejected because ${reasons.join('; ')}.`,
+            // A pair rejected on a *different* conflict tomorrow is a different
+            // decision, and must not be silently absorbed by today's.
+            evidence: features,
           });
         }
       }
@@ -681,7 +823,10 @@ export class EntityResolver {
       `SELECT e.id, e.canonical_slug, e.entity_type,
               (SELECT a.normalized_value FROM entity_aliases a
                 WHERE a.entity_id = e.id AND a.alias_type = 'model_number'
-                ORDER BY a.normalized_value LIMIT 1) AS model_number,
+                -- COLLATE "C": this LIMIT 1 picks the blocking key, which decides
+                -- which pairs are ever compared and lands in the evidence
+                -- fingerprint. A host collation must not choose it.
+                ORDER BY a.normalized_value COLLATE "C" LIMIT 1) AS model_number,
               (SELECT m.canonical_slug FROM relationships r
                  JOIN entities m ON m.id = r.subject_entity_id
                 WHERE r.object_entity_id = e.id AND r.predicate = 'manufactures'

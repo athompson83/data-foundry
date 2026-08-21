@@ -34,6 +34,9 @@ export type EntityAliasId = z.infer<typeof EntityAliasIdSchema>;
 export const FactIdSchema = uuidId<'FactId'>();
 export type FactId = z.infer<typeof FactIdSchema>;
 
+export const FactVerificationIdSchema = uuidId<'FactVerificationId'>();
+export type FactVerificationId = z.infer<typeof FactVerificationIdSchema>;
+
 export const FactEvidenceIdSchema = uuidId<'FactEvidenceId'>();
 export type FactEvidenceId = z.infer<typeof FactEvidenceIdSchema>;
 

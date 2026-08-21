@@ -31,6 +31,8 @@ import {
   retractFactVersion,
   type DatasetSnapshot,
   type DatasetSnapshotInsert,
+  type FactVerification,
+  type FactVerificationInsert,
   type Entity,
   type EntityAlias,
   type EntityAliasInsert,
@@ -86,6 +88,8 @@ import {
   SOURCE_COLUMNS,
   SOURCE_RECORD_COLUMNS,
   mapDatasetSnapshot,
+  mapFactVerification,
+  FACT_VERIFICATION_COLUMNS,
   mapEntity,
   mapEntityAlias,
   mapEntityRedirect,
@@ -257,6 +261,17 @@ export interface CanonicalStore {
   mergeEntities(input: MergeEntitiesInput): Promise<EntityRedirect>;
   resolveRedirect(entityId: EntityId): Promise<RedirectResolution>;
   findRedirectBySlug(verticalId: VerticalId, slug: Slug): Promise<EntityRedirect | null>;
+
+  /**
+   * Append a verification verdict. Re-evaluating an unchanged claim under an
+   * unchanged policy returns the stored verdict rather than duplicating it.
+   */
+  recordFactVerification(input: FactVerificationInsert): Promise<FactVerification>;
+  /** Verdict history for one property, newest first. Never collapsed. */
+  listFactVerifications(
+    entityId: EntityId,
+    property: Identifier,
+  ): Promise<FactVerification[]>;
 
   recordDatasetSnapshot(input: DatasetSnapshotInsert): Promise<DatasetSnapshot>;
   getDatasetSnapshot(verticalId: VerticalId, version: string): Promise<DatasetSnapshot | null>;
@@ -500,8 +515,13 @@ class PostgresCanonicalStore implements CanonicalStore {
 
   async listAliases(entityId: EntityId): Promise<EntityAlias[]> {
     const rows = await this.driver.query(
+      // `COLLATE "C"` because this order is a decision, not a display: the
+      // first alias of the primary type is what rebuilds the entity's
+      // canonical name. Left to the database's collation, the published name
+      // would differ between a `C`-collated PGlite and an `en_US`-collated
+      // hosted Postgres (#14).
       `SELECT ${ALIAS_COLUMNS} FROM entity_aliases WHERE entity_id = $1
-        ORDER BY alias_type, normalized_value`,
+        ORDER BY alias_type COLLATE "C", normalized_value COLLATE "C"`,
       [entityId],
     );
     return rows.map(mapEntityAlias);
@@ -956,6 +976,67 @@ class PostgresCanonicalStore implements CanonicalStore {
   }
 
   /* ---------------- snapshots ---------------- */
+
+  /**
+   * Append a verification verdict (`fact_verifications`).
+   *
+   * `ON CONFLICT DO NOTHING` on `(fact_id, policy_version, verdict_fingerprint)`
+   * is what keeps a refresh cycle from turning the history into noise: the same
+   * claim re-evaluated under the same policy with the same evidence is the same
+   * verdict, and the stored one — with its original `evaluated_at` — is
+   * returned unchanged. A different outcome, different evidence or a bumped
+   * policy version is a different key and is appended as the new event it is.
+   */
+  async recordFactVerification(input: FactVerificationInsert): Promise<FactVerification> {
+    const rows = await this.driver.query(
+      `INSERT INTO fact_verifications
+         (entity_id, property, fact_id, selected_value, unit, verified, reason, blockers,
+          signals, evidence_refs, selection_rule, policy_version, evaluated_at,
+          verdict_fingerprint)
+       VALUES ($1, $2, $3, $4::jsonb, $5, $6, $7, $8::text[], $9::jsonb, $10::jsonb, $11, $12,
+               $13, $14)
+       ON CONFLICT (fact_id, policy_version, verdict_fingerprint) DO NOTHING
+       RETURNING ${FACT_VERIFICATION_COLUMNS}`,
+      [
+        input.entity_id,
+        input.property,
+        input.fact_id,
+        json(input.selected_value),
+        input.unit,
+        input.verified,
+        input.reason,
+        `{${input.blockers.join(',')}}`,
+        json(input.signals),
+        json(input.evidence_refs),
+        input.selection_rule,
+        input.policy_version,
+        input.evaluated_at,
+        input.verdict_fingerprint,
+      ],
+    );
+    const inserted = rows[0];
+    if (inserted !== undefined) return mapFactVerification(inserted);
+
+    const existing = await this.driver.query(
+      `SELECT ${FACT_VERIFICATION_COLUMNS} FROM fact_verifications
+        WHERE fact_id = $1 AND policy_version = $2 AND verdict_fingerprint = $3`,
+      [input.fact_id, input.policy_version, input.verdict_fingerprint],
+    );
+    return mapFactVerification(requireRow(existing, 'fact_verifications'));
+  }
+
+  async listFactVerifications(
+    entityId: EntityId,
+    property: Identifier,
+  ): Promise<FactVerification[]> {
+    const rows = await this.driver.query(
+      `SELECT ${FACT_VERIFICATION_COLUMNS} FROM fact_verifications
+        WHERE entity_id = $1 AND property = $2
+        ORDER BY evaluated_at DESC, created_at DESC`,
+      [entityId, property],
+    );
+    return rows.map(mapFactVerification);
+  }
 
   async recordDatasetSnapshot(input: DatasetSnapshotInsert): Promise<DatasetSnapshot> {
     const rows = await this.driver.query(

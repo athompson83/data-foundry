@@ -49,7 +49,16 @@ describe('rule 2: no fact without evidence', () => {
         /Fact|Relationship/.test(name) &&
         /^(append|upsert|insert|create|add|write|put|record|persist|save|store)/i.test(name),
     );
-    expect(claimWriters.sort()).toEqual(['appendFactWithEvidence', 'upsertRelationshipWithEvidence']);
+    // `recordFactVerification` is name-shaped like a claim writer and is not
+    // one: it stores a VERDICT ABOUT a claim. Listing it here rather than
+    // renaming it around the guard is the point — the guard exists to force
+    // that decision to be made visibly, and the test below proves the claim by
+    // behaviour rather than by the reader taking this comment on trust.
+    expect(claimWriters.sort()).toEqual([
+      'appendFactWithEvidence',
+      'recordFactVerification',
+      'upsertRelationshipWithEvidence',
+    ]);
 
     // The ONLY non-method handle on the surface is the documented trusted
     // driver. If a second raw handle appears, this fails and forces a decision
@@ -64,6 +73,40 @@ describe('rule 2: no fact without evidence', () => {
       );
     });
     expect(rawHandles).toEqual(['driver']);
+  });
+
+  it('lets the verdict writer write no claim, which is why it is not a claim writer', async () => {
+    // A property no other test in this file reads, so the shared fixture's
+    // state stays exactly as its neighbours expect it.
+    const PROBE = 'verdict_probe_property' as never;
+    const fact = await claim(fixtures, 'manufacturer', {
+      property: PROBE,
+      value: 'probe',
+      valid_from: '2026-03-01T00:00:00Z',
+      observed_at: '2026-03-01T00:00:00Z',
+    });
+    const factsBefore = await countRows(fixtures.driver, 'facts');
+    const evidenceBefore = await countRows(fixtures.driver, 'fact_evidence');
+
+    await fixtures.store.recordFactVerification({
+      entity_id: fixtures.entity.id,
+      property: PROBE,
+      fact_id: fact.fact.id,
+      selected_value: 'probe',
+      unit: null,
+      verified: false,
+      reason: 'probe',
+      blockers: ['NO_AUTHORITATIVE_SUPPORT'],
+      signals: {},
+      evidence_refs: [],
+      selection_rule: 'RECENCY',
+      policy_version: 'verification-policy-v2',
+      evaluated_at: ts('2026-03-01T00:00:00Z'),
+      verdict_fingerprint: 'c'.repeat(64),
+    });
+
+    expect(await countRows(fixtures.driver, 'facts')).toBe(factsBefore);
+    expect(await countRows(fixtures.driver, 'fact_evidence')).toBe(evidenceBefore);
   });
 
   it('keeps the raw driver off the customer-facing query facade', async () => {
