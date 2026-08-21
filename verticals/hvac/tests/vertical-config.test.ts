@@ -84,9 +84,8 @@ describe('vertical.yaml', () => {
   });
 
   it('stays DRAFT while its sources are synthetic', () => {
-    // Doc 17 gate 4 is not passed: no real source has been rights-reviewed.
-    // Promoting to ACTIVE would claim a product we do not have the rights to
-    // sell. See docs/verticals/hvac-niche-score.md.
+    // No real source has been rights-reviewed. Promoting to ACTIVE would
+    // claim a product we do not have the rights to sell.
     expect(vertical.status).toBe('DRAFT');
   });
 
@@ -272,7 +271,7 @@ describe('sources/', () => {
     expect(new Set(sources.map((s) => s.acquisition_policy.method)).size).toBeGreaterThanOrEqual(3);
     expect(new Set(sources.map((s) => s.source_type)).size).toBe(3);
     // acme-hvac-catalog and acme-spec-sheets share a publisher: 4 sources,
-    // 3 families. Doc 17 gate 1 is met exactly, not exceeded.
+    // 3 families. The independence minimum is met exactly, not exceeded.
     expect(new Set(sources.map((s) => s.publisher)).size).toBe(3);
   });
 });

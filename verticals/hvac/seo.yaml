@@ -250,8 +250,8 @@ quality_gates:
     min_distinct_sources: 3
     require_all_sources_publishable: true
     note: >-
-      Three source families is doc 17's gate 1 restated as a publication
-      condition — a "dataset" assembled from one source is a copy.
+      Three source families is the independence minimum restated as a
+      publication condition — a "dataset" assembled from one source is a copy.
 
   none:
     description: Editorial pages (docs, API reference). No data gate applies.

@@ -146,7 +146,7 @@ vertical-specific alerts matter more than the generic ones:
 
 | Gap | Impact | Mitigation | Owner |
 |---|---|---|---|
-| **All sources synthetic** | Doc 17 gate 4 not passed; vertical cannot leave DRAFT | Rights review on ≥3 real families | Platform team |
+| **All sources synthetic** | Source-rights feasibility unproven; vertical cannot leave DRAFT | Rights review on ≥3 real families | Platform team |
 | **`voltage` at 46% coverage** | 6 of 13 models fail the indexability gate | Manufacturer source for Northwind and Borealis | Platform team |
 | `sound_level_db` at 46%, low reliability | Facet not indexable; values from the distributor confidence-capped at 0.55 | Manufacturer spec sheets for more models | Platform team |
 | No `compatible_with` edges | Compatibility questions unanswerable | Correct today — inference is forbidden. Needs a source that asserts matched systems | Platform team |

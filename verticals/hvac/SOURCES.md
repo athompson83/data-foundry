@@ -48,7 +48,7 @@ The publisher is a fictional body — **not** the real Air-Conditioning, Heating
 and Refrigeration Institute — and nothing in this vertical describes that
 organization's data, directory or terms.
 
-## Source families (doc 17 gate 1)
+## Source families
 
 Independence means a different organization with a different incentive. Two
 feeds from one company are **one** family with two formats.
@@ -59,8 +59,8 @@ feeds from one company are **one** family with two formats.
 | Certification body | `ahri-directory-export` | Certified ratings, `ahri_ref`, cross-manufacturer coverage |
 | Distribution channel | `coolsupply-distributor` | UPC barcodes, independent corroboration |
 
-**Three families from four sources.** Doc 17's gate 1 is met exactly, not
-exceeded — see `docs/verticals/hvac-niche-score.md`.
+**Three families from four sources.** The three-family minimum is met exactly,
+not exceeded.
 
 ## Deliberate dissimilarity
 
@@ -154,8 +154,8 @@ only handles one shape of source is not a factory:
 - **Why we need it:** the **only** source of `sound_level_db` for Acme, and the
   only source publishing tonnage and BTU/h side by side — which lets the
   `12000 BTU/h = 1 ton` conversion be *validated* against published data rather
-  than trusted. Doc 17 lists "technical specs buried in PDFs" as a strong niche
-  signal precisely because PDFs resist everyone.
+  than trusted. Specifications buried in PDFs are worth acquiring precisely
+  because PDFs resist everyone.
 - **Authority note:** ranked 90 against the same publisher's JSON feed at 85. A
   spec sheet is a checked engineering document; the catalogue feed is generated
   from a merchandising system. Same publisher, different reliability — which is
@@ -186,8 +186,8 @@ Both losing claims are retained with full evidence and are queryable through
 
 ## Adding a real source
 
-1. Score the family against `docs/verticals/hvac-niche-score.md` gate 1 — does
-   it add an *independent* family or a second feed of one we have?
+1. Check the family against the three-family minimum — does it add an
+   *independent* family, or a second feed of one we already have?
 2. Complete a rights review with a **named human** reviewer. Doc 13: the absence
    of a decision is not permission.
 3. Declare it in `sources/<key>.yaml` with complete rights metadata. Start at

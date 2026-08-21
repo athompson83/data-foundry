@@ -7,8 +7,8 @@
 #
 # The commercial value of this vertical lives here, not in the specs. Anyone can
 # publish a spec table. `supersedes` chains and `compatible_with` edges are what
-# a technician cannot get from a search engine — doc 17's "replacement/
-# supersession questions" and "compatibility questions" strong signals.
+# a technician cannot get from a search engine: replacement/supersession and
+# compatibility questions.
 # =============================================================================
 
 predicates:

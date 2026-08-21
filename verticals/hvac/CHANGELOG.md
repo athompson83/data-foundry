@@ -76,7 +76,7 @@ Declarative rules only; no vertical-specific code.
   its warning path are exercised rather than declared away.
 - `acme-spec-sheets` is the only source granting reusable images, so the
   permissive branch of rule 9 is exercised.
-- **Doc 17 gate 4 NOT PASSED** — every source is synthetic and no real source has
+- **Source-rights feasibility NOT PROVEN** — every source is synthetic and no real source has
   been rights-reviewed. `vertical.yaml` stays `DRAFT` until it is.
 
 ### Known state at 0.1.0
