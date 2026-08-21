@@ -2,9 +2,11 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { CANONICAL_OBJECT_SCHEMAS } from '@data-foundry/canonical-schema';
 import {
   EXPECTED_TABLES,
+  LEDGER_MARKER,
   LEDGER_TABLE,
   applyMigrations,
   assertLedgerIsOurs,
+  ledgerMarker,
   partitionOwnedTables,
   createPGliteDriver,
   listPublicTables,
@@ -668,9 +670,13 @@ describe('a foreign table named like the ledger is refused, not adopted', () => 
 
   it('creates none of its own tables before refusing', async () => {
     await applyMigrations(foreign, migrations).catch(() => undefined);
-    const partition = partitionOwnedTables(await listPublicTables(foreign));
-    expect(partition.owned).toEqual(['schema_migrations']);
-    expect(partition.missing).toEqual([...EXPECTED_TABLES]);
+    // Asserted against the schema itself rather than against `owned`: what
+    // matters here is that nothing of ours was created, not how the partition
+    // happens to classify a table the runner has already refused.
+    expect(await listPublicTables(foreign)).toEqual([LEDGER_TABLE]);
+    expect(partitionOwnedTables(await listPublicTables(foreign)).missing).toEqual([
+      ...EXPECTED_TABLES,
+    ]);
   });
 
   it('accepts a ledger it created itself', async () => {
@@ -681,6 +687,105 @@ describe('a foreign table named like the ledger is refused, not adopted', () => 
       await expect(assertLedgerIsOurs(ours)).resolves.toBeUndefined();
     } finally {
       await ours.close();
+    }
+  }, 120_000);
+});
+
+/**
+ * Shape is compatibility evidence. It is not proof of ownership.
+ *
+ * Refusing a differently-shaped `schema_migrations` closes the collision that
+ * happens in practice, and nothing more: another project whose ledger happens
+ * to carry these five column names is still indistinguishable from ours, and
+ * the runner would read its rows and write its own. "Probably nobody else picks
+ * `execution_ms`" is a guess about strangers, which is not a boundary.
+ *
+ * So the ledger records who made it. The marker is written when the runner
+ * creates the table and never onto a table it found, because stamping a table
+ * to establish that we may write to it is the same circularity in one step.
+ * A ledger with no marker is one we cannot prove is ours, and the run stops and
+ * says so rather than guessing on the operator's behalf.
+ */
+describe('the ledger proves its ownership rather than inferring it', () => {
+  /** Exactly the shape `LEDGER_DDL` creates, so only the marker can decide. */
+  const SAME_SHAPE = `
+    CREATE TABLE schema_migrations (
+        version      TEXT PRIMARY KEY,
+        filename     TEXT        NOT NULL,
+        checksum     TEXT        NOT NULL,
+        applied_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+        execution_ms INTEGER     NOT NULL
+    );
+    INSERT INTO schema_migrations (version, filename, checksum, execution_ms)
+    VALUES ('0001', 'their_first.sql', 'deadbeef', 7);
+  `;
+
+  it('marks the ledger it creates', async () => {
+    const ours = await createPGliteDriver();
+    try {
+      await applyMigrations(ours, migrations);
+      expect(await ledgerMarker(ours)).toBe(LEDGER_MARKER);
+    } finally {
+      await ours.close();
+    }
+  }, 120_000);
+
+  it('refuses a ledger of the right shape that it cannot prove it created', async () => {
+    const stranger = await createPGliteDriver();
+    try {
+      await stranger.exec(SAME_SHAPE);
+      await expect(applyMigrations(stranger, migrations)).rejects.toThrow(
+        /not Data Foundry's ledger.*no ownership marker/is,
+      );
+      // Untouched: no marker written onto it, no row of ours added, and none of
+      // our tables created beside it.
+      expect(await ledgerMarker(stranger)).toBeNull();
+      const [row] = await stranger.query<{ n: string }>(
+        `SELECT count(*)::text AS n FROM schema_migrations`,
+      );
+      expect(Number(row?.n)).toBe(1);
+      expect(await listPublicTables(stranger)).toEqual([LEDGER_TABLE]);
+    } finally {
+      await stranger.close();
+    }
+  }, 120_000);
+
+  it('names the statement that adopts such a ledger deliberately', async () => {
+    // The refusal has to be actionable: a human who knows the table is theirs
+    // needs the exact statement, and a human who does not must not be nudged
+    // into running it. Both come from the same message.
+    const stranger = await createPGliteDriver();
+    try {
+      await stranger.exec(SAME_SHAPE);
+      await expect(applyMigrations(stranger, migrations)).rejects.toThrow(
+        new RegExp(`COMMENT ON TABLE ${LEDGER_TABLE} IS '${LEDGER_MARKER}'`, 'i'),
+      );
+    } finally {
+      await stranger.close();
+    }
+  }, 120_000);
+
+  it('accepts a ledger carrying its own marker', async () => {
+    const adopted = await createPGliteDriver();
+    try {
+      await adopted.exec(SAME_SHAPE);
+      await adopted.exec(`COMMENT ON TABLE schema_migrations IS '${LEDGER_MARKER}';`);
+      await expect(assertLedgerIsOurs(adopted)).resolves.toBeUndefined();
+    } finally {
+      await adopted.close();
+    }
+  }, 120_000);
+
+  it("refuses a ledger carrying somebody else's marker", async () => {
+    const marked = await createPGliteDriver();
+    try {
+      await marked.exec(SAME_SHAPE);
+      await marked.exec(`COMMENT ON TABLE schema_migrations IS 'acme-platform ledger v3';`);
+      await expect(applyMigrations(marked, migrations)).rejects.toThrow(
+        /not Data Foundry's ledger.*acme-platform ledger v3/is,
+      );
+    } finally {
+      await marked.close();
     }
   }, 120_000);
 });

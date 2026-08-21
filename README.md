@@ -128,12 +128,20 @@ the ledger the runner itself creates and writes a row to on every apply. Both
 halves are ours; only the first half can be reported *missing*, because only the
 first half is created by a migration.
 
-`schema_migrations` is the one name here that other tools also use, so it is
-checked by shape rather than trusted by name: a table with that name and a
-different set of columns aborts the run (`assertLedgerIsOurs`) instead of being
-adopted, counted, and written to. Anything else found in `public` is **out of
-scope** — reported by name so you can see it was noticed, and never counted as
-evidence about this schema:
+`schema_migrations` is the one name here that other tools also use, so the
+ledger **proves** it is ours rather than being trusted on its name. The runner
+records `data-foundry:schema_migrations:v1` as a comment on the table when it
+creates it, and reads that back before any write: an unmarked ledger, one marked
+by another project, or one whose columns do not match aborts the run
+(`assertLedgerIsOurs`) instead of being adopted, counted, and written to.
+Matching columns are not accepted as proof — shape shows two ledgers are
+*compatible*, never that they are the same one — and the marker is never written
+onto a table the runner merely found, since stamping a table to establish
+permission to write to it is circular. A ledger created before marking existed
+is adopted deliberately, by a human running the statement the refusal names.
+
+Anything else found in `public` is **out of scope** — reported by name so you
+can see it was noticed, and never counted as evidence about this schema:
 
 ```text
 OK: 19 Data Foundry tables, migrations are ordered and idempotent.

@@ -44,6 +44,14 @@ export interface MigrationDriver {
   close(): Promise<void>;
 }
 
+/**
+ * Written onto the ledger when this runner creates it, so that ownership is
+ * something the database records rather than something we infer from a name or
+ * a set of column names. Versioned, because a marker that cannot be superseded
+ * is a marker that will have to be worked around.
+ */
+export const LEDGER_MARKER = 'data-foundry:schema_migrations:v1';
+
 const LEDGER_DDL = `
 CREATE TABLE IF NOT EXISTS schema_migrations (
     version      TEXT PRIMARY KEY,
@@ -52,20 +60,10 @@ CREATE TABLE IF NOT EXISTS schema_migrations (
     applied_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
     execution_ms INTEGER     NOT NULL
 );
+COMMENT ON TABLE schema_migrations IS '${LEDGER_MARKER}';
 `;
 
-/**
- * The columns `LEDGER_DDL` creates, sorted. A table by the ledger's name that
- * does not have exactly these is not the ledger.
- *
- * The name is not distinctive — `schema_migrations` is what Rails, sqlx and
- * plenty of hand-rolled runners call theirs — so in a shared database
- * `CREATE TABLE IF NOT EXISTS` quietly resolves a collision into an adoption,
- * and the next statement writes a row into another project's bookkeeping. The
- * shape is what distinguishes them. A foreign table that happens to have these
- * five columns under this name is indistinguishable from ours and would still
- * be written to; that is the residual, and it is far narrower than the name.
- */
+/** The columns `LEDGER_DDL` creates, sorted. */
 export const LEDGER_COLUMNS = [
   'applied_at',
   'checksum',
@@ -85,27 +83,62 @@ export async function ledgerColumns(driver: MigrationDriver): Promise<string[]> 
   return rows.map((row) => row.column_name);
 }
 
+/** The ownership marker on `schema_migrations`, or null if it carries none. */
+export async function ledgerMarker(driver: MigrationDriver): Promise<string | null> {
+  const rows = await driver.query<{ marker: string | null }>(
+    `SELECT obj_description(c.oid, 'pg_class') AS marker
+       FROM pg_class c
+       JOIN pg_namespace n ON n.oid = c.relnamespace
+      WHERE n.nspname = 'public' AND c.relname = $1`,
+    [LEDGER_TABLE],
+  );
+  return rows[0]?.marker ?? null;
+}
+
 /**
- * Refuse to write to a ledger this project did not create.
+ * Refuse to write to a ledger this project cannot prove it created.
  *
- * Fail closed: an absent ledger is ours to create, a matching one is ours to
- * append to, and anything else stops the run before a single write. Without
- * this the failure was a bare `column "checksum" does not exist` from deep
- * inside the runner — true, and useless for working out that two projects are
- * sharing one database.
+ * `schema_migrations` is what Rails, sqlx and plenty of hand-rolled runners
+ * call theirs, so in a shared database `CREATE TABLE IF NOT EXISTS` quietly
+ * resolves a collision into an adoption and the next statement writes a row
+ * into somebody else's bookkeeping.
+ *
+ * Matching columns would only narrow that, not close it: shape is evidence that
+ * two ledgers are *compatible*, never that they are the same one. So the runner
+ * records who made the table, and reads that back before it writes. The marker
+ * is written at creation and never onto a table this runner merely found —
+ * stamping a table in order to establish permission to write to it is the same
+ * circular reasoning performed in two steps.
+ *
+ * Fail closed in every direction: absent is ours to create, marked-as-ours is
+ * ours to append to, and anything else — another project's marker, no marker at
+ * all, or our marker on a table of the wrong shape — stops the run before a
+ * single write, and says which of those it found.
  */
 export async function assertLedgerIsOurs(driver: MigrationDriver): Promise<void> {
   const columns = await ledgerColumns(driver);
   if (columns.length === 0) return;
+
   const expected = [...LEDGER_COLUMNS];
-  if (columns.length === expected.length && columns.every((name, i) => name === expected[i])) {
-    return;
-  }
+  const shapeMatches =
+    columns.length === expected.length && columns.every((name, i) => name === expected[i]);
+  const marker = await ledgerMarker(driver);
+  if (marker === LEDGER_MARKER && shapeMatches) return;
+
+  const reason =
+    marker === null
+      ? 'it carries no ownership marker, so there is no evidence this project created it'
+      : marker !== LEDGER_MARKER
+        ? `it is marked as belonging to something else (${marker})`
+        : `its marker is ours but its columns are not (${columns.join(', ')}; ` +
+          `ours are ${expected.join(', ')})`;
+
   throw new Error(
-    `A table named "${LEDGER_TABLE}" already exists here and is not Data Foundry's ledger ` +
-      `(its columns are ${columns.join(', ')}; ours are ${expected.join(', ')}). ` +
-      `Refusing to write to it. Point POSTGRES_URL at a database of this project's own, ` +
-      `or rename the existing table.`,
+    `A table named "${LEDGER_TABLE}" already exists here and is not Data Foundry's ledger: ` +
+      `${reason}. Refusing to read or write it. Point POSTGRES_URL at a database of this ` +
+      `project's own, or rename the existing table. If you know the table IS this project's ` +
+      `— a ledger created before ownership was recorded — adopt it deliberately with: ` +
+      `COMMENT ON TABLE ${LEDGER_TABLE} IS '${LEDGER_MARKER}';`,
   );
 }
 
@@ -272,9 +305,9 @@ export async function createPostgresDriver(connectionString: string): Promise<Mi
  * counted, never touched.
  *
  * Membership is decided by name, which is safe only because the one name that
- * is not distinctive — the ledger — is checked by shape before any write:
- * `assertLedgerIsOurs` aborts the run rather than let a foreign
- * `schema_migrations` be counted here as ours.
+ * is not distinctive — the ledger — has to prove itself before any write:
+ * `assertLedgerIsOurs` aborts the run rather than let a `schema_migrations`
+ * this project cannot show it created be counted here as ours.
  */
 export const LEDGER_TABLE = 'schema_migrations';
 
