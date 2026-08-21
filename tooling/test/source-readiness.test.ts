@@ -9,9 +9,28 @@
  * its failing case here goes green and this file starts lying instead.
  */
 import { describe, expect, it } from 'vitest';
-import { assess, isReservedDomain, readVertical } from '../scripts/source-readiness.js';
+import {
+  assess as assessAt,
+  isReservedDomain,
+  readVertical as readVerticalAt,
+} from '../scripts/source-readiness.js';
 import { join } from 'node:path';
 import { VERTICALS_DIR } from '../validators/validate-verticals.js';
+
+/**
+ * Both entry points require the moment to ask about, so that nothing guesses
+ * it. Every case that is not itself about the clock is asked at this one fixed
+ * instant — otherwise these assertions would start answering differently on a
+ * future Tuesday, when a fixture's `next_review_at` quietly passes.
+ */
+const NOW = '2026-08-21T00:00:00.000Z';
+const assess = (
+  slug: string,
+  status: string,
+  raws: readonly Record<string, unknown>[],
+  asOf: string = NOW,
+) => assessAt(slug, status, raws, asOf);
+const readVertical = (dir: string, slug: string) => readVerticalAt(dir, slug, NOW);
 
 /** A fully permissive, fully reviewed real source. Each case spoils one field. */
 const REAL = {
@@ -317,5 +336,52 @@ describe('the domain a source is identified by is normalized first', () => {
       { ...source({ domain: 'borealis-hvac.com' }), key: 'b' },
     ]);
     expect(report.realPublisherCount).toBe(2);
+  });
+});
+
+/**
+ * Two ways the fix for vacuous green was itself vacuous.
+ */
+describe('the no-publishable-source blocker counts only real sources', () => {
+  it('fires when the only real source is RED and a synthetic one is publishable', () => {
+    // `live` counted synthetic sources, so a publishable fixture satisfied the
+    // check on behalf of a real source that may never publish. The fixtures
+    // standing in for the thing being measured is the whole failure this tool
+    // exists to name.
+    const report = assess('probe', 'DRAFT', [
+      { ...source({ rights_classification: 'RED' }), key: 'real-red' },
+      { ...source({ domain: 'catalog.acme.example.com' }), key: 'synthetic-green' },
+    ]);
+    expect(report.realSourceCount).toBe(1);
+    expect(report.blockers.join(' ')).toMatch(/no real source is cleared to publish/i);
+  });
+
+  it('does not fire when a real source genuinely may publish', () => {
+    const report = assess('probe', 'ACTIVE', [
+      { ...source(), key: 'real-green' },
+      { ...source({ domain: 'catalog.acme.example.com' }), key: 'synthetic-green' },
+    ]);
+    expect(report.blockers).toEqual([]);
+  });
+});
+
+describe('review expiry is measured against the run, not against a date in the source', () => {
+  it('expires a review that lapsed before the moment being asked about', () => {
+    const lapsed = [withRights({ next_review_at: '2026-09-01' })];
+    // Current at the start of August...
+    expect(assess('probe', 'DRAFT', lapsed, '2026-08-01T00:00:00.000Z').hasRealRightsReviewedSource)
+      .toBe(true);
+    // ...and lapsed by December. A fixed default would answer the same for both.
+    expect(assess('probe', 'DRAFT', lapsed, '2026-12-01T00:00:00.000Z').hasRealRightsReviewedSource)
+      .toBe(false);
+  });
+
+  it('has no default clock baked into the module', async () => {
+    // A hardcoded `asOf` looks right on the day it is written and is wrong
+    // forever after, silently. The signature must require one.
+    const src = await import('node:fs/promises').then((fs) =>
+      fs.readFile(new URL('../scripts/source-readiness.ts', import.meta.url), 'utf8'),
+    );
+    expect(src).not.toMatch(/asOf\s*=\s*['"]20\d\d-/);
   });
 });

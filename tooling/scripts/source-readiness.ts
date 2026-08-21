@@ -167,11 +167,20 @@ const publishing = (sources: readonly SourceReadiness[]): SourceReadiness[] =>
       (source.rightsClassification === 'GREEN' || source.rightsClassification === 'AMBER'),
   );
 
+/**
+ * `asOf` is the moment the question is being asked at, and it is required.
+ *
+ * A default here looks right on the day it is written and is silently wrong
+ * every day after: review expiry would be measured against the author's
+ * calendar rather than the run's, so a lapsed review would keep reporting as
+ * current forever. The caller holds the clock; `main()` reads it once so every
+ * vertical in one run is judged at the same instant.
+ */
 export function assess(
   slug: string,
   status: string,
   raws: readonly Record<string, unknown>[],
-  asOf = '2026-08-21T00:00:00.000Z',
+  asOf: string,
 ) {
   const sources = raws.map(readSource);
   const real = sources.filter((source) => source.real);
@@ -251,7 +260,12 @@ export function assess(
   // publish: a lone reviewed RED source satisfies "someone looked at it" and is
   // then excluded from the set the gates examine. Vacuous green is the most
   // dangerous kind.
-  if (real.length > 0 && live.length === 0) {
+  //
+  // Asking that of `live` let a synthetic fixture answer on a real source's
+  // behalf — one publishable `.example.com` source beside a real RED one and
+  // the blocker stayed silent. Fixtures standing in for the thing being
+  // measured is the exact failure this whole report exists to make visible.
+  if (real.length > 0 && live.filter((source) => source.real).length === 0) {
     blockers.push(
       'no real source is cleared to publish, so every publication condition passes vacuously',
     );
@@ -284,7 +298,7 @@ export function assess(
 export async function readVertical(
   dir: string,
   slug: string,
-  asOf?: string,
+  asOf: string,
 ): Promise<VerticalReadiness> {
   const config = parseYaml(await readFile(join(dir, 'vertical.yaml'), 'utf8')) as Record<
     string,
@@ -349,8 +363,13 @@ async function main(): Promise<void> {
     .filter((slug) => wanted.length === 0 || wanted.includes(slug))
     .sort();
 
+  // Read once, before any vertical is assessed. Reading it per vertical would
+  // let a run straddle a review's expiry and report two verticals against two
+  // different clocks.
+  const asOf = new Date().toISOString();
+
   const reports: VerticalReadiness[] = [];
-  for (const slug of slugs) reports.push(await readVertical(join(VERTICALS_DIR, slug), slug));
+  for (const slug of slugs) reports.push(await readVertical(join(VERTICALS_DIR, slug), slug, asOf));
 
   if (asJson) {
     process.stdout.write(`${JSON.stringify(reports, null, 2)}\n`);

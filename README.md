@@ -121,15 +121,19 @@ application discipline:
 ### What this project owns in a database
 
 `POSTGRES_URL` points the migrator at whatever database you name, and that
-database may already belong to something else. `EXPECTED_TABLES` in
-`tooling/scripts/migrate.ts` is the ownership manifest: the complete set of
-tables Data Foundry creates, and the only ones it is entitled to speak about.
+database may already belong to something else. `partitionOwnedTables` in
+`tooling/scripts/migrate.ts` decides the ownership boundary. Its manifest is
+`EXPECTED_TABLES` — every table a migration creates — plus `schema_migrations`,
+the ledger the runner itself creates and writes a row to on every apply. Both
+halves are ours; only the first half can be reported *missing*, because only the
+first half is created by a migration.
 
-The manifest covers the migration-created tables *and* `schema_migrations`: the
-runner creates that ledger and writes a row to it on every apply, so it is ours
-even though no migration file creates it. Anything else found in `public` is
-**out of scope** — reported by name so you can see it was noticed, and never
-counted as evidence about this schema:
+`schema_migrations` is the one name here that other tools also use, so it is
+checked by shape rather than trusted by name: a table with that name and a
+different set of columns aborts the run (`assertLedgerIsOurs`) instead of being
+adopted, counted, and written to. Anything else found in `public` is **out of
+scope** — reported by name so you can see it was noticed, and never counted as
+evidence about this schema:
 
 ```text
 OK: 19 Data Foundry tables, migrations are ordered and idempotent.

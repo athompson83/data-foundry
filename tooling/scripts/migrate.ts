@@ -54,6 +54,61 @@ CREATE TABLE IF NOT EXISTS schema_migrations (
 );
 `;
 
+/**
+ * The columns `LEDGER_DDL` creates, sorted. A table by the ledger's name that
+ * does not have exactly these is not the ledger.
+ *
+ * The name is not distinctive — `schema_migrations` is what Rails, sqlx and
+ * plenty of hand-rolled runners call theirs — so in a shared database
+ * `CREATE TABLE IF NOT EXISTS` quietly resolves a collision into an adoption,
+ * and the next statement writes a row into another project's bookkeeping. The
+ * shape is what distinguishes them. A foreign table that happens to have these
+ * five columns under this name is indistinguishable from ours and would still
+ * be written to; that is the residual, and it is far narrower than the name.
+ */
+export const LEDGER_COLUMNS = [
+  'applied_at',
+  'checksum',
+  'execution_ms',
+  'filename',
+  'version',
+] as const;
+
+/** The columns of `schema_migrations` as it exists, sorted. Empty if absent. */
+export async function ledgerColumns(driver: MigrationDriver): Promise<string[]> {
+  const rows = await driver.query<{ column_name: string }>(
+    `SELECT column_name FROM information_schema.columns
+      WHERE table_schema = 'public' AND table_name = $1
+      ORDER BY column_name`,
+    [LEDGER_TABLE],
+  );
+  return rows.map((row) => row.column_name);
+}
+
+/**
+ * Refuse to write to a ledger this project did not create.
+ *
+ * Fail closed: an absent ledger is ours to create, a matching one is ours to
+ * append to, and anything else stops the run before a single write. Without
+ * this the failure was a bare `column "checksum" does not exist` from deep
+ * inside the runner — true, and useless for working out that two projects are
+ * sharing one database.
+ */
+export async function assertLedgerIsOurs(driver: MigrationDriver): Promise<void> {
+  const columns = await ledgerColumns(driver);
+  if (columns.length === 0) return;
+  const expected = [...LEDGER_COLUMNS];
+  if (columns.length === expected.length && columns.every((name, i) => name === expected[i])) {
+    return;
+  }
+  throw new Error(
+    `A table named "${LEDGER_TABLE}" already exists here and is not Data Foundry's ledger ` +
+      `(its columns are ${columns.join(', ')}; ours are ${expected.join(', ')}). ` +
+      `Refusing to write to it. Point POSTGRES_URL at a database of this project's own, ` +
+      `or rename the existing table.`,
+  );
+}
+
 const MIGRATION_FILENAME = /^(\d{4})_[a-z0-9_]+\.sql$/;
 
 export async function loadMigrations(dir: string = MIGRATIONS_DIR): Promise<Migration[]> {
@@ -107,6 +162,8 @@ export async function applyMigrations(
   driver: MigrationDriver,
   migrations: readonly Migration[],
 ): Promise<AppliedMigration[]> {
+  // Before anything is created or written, not after.
+  await assertLedgerIsOurs(driver);
   await driver.exec(LEDGER_DDL);
 
   const rows = await driver.query<{ version: string; checksum: string; filename: string }>(
@@ -213,6 +270,11 @@ export async function createPostgresDriver(connectionString: string): Promise<Mi
  * schema was reporting other people's tables as though they were evidence
  * about ours. Anything absent from this list is out of scope: reported, never
  * counted, never touched.
+ *
+ * Membership is decided by name, which is safe only because the one name that
+ * is not distinctive — the ledger — is checked by shape before any write:
+ * `assertLedgerIsOurs` aborts the run rather than let a foreign
+ * `schema_migrations` be counted here as ours.
  */
 export const LEDGER_TABLE = 'schema_migrations';
 
@@ -286,6 +348,11 @@ async function main(argv: readonly string[]): Promise<number> {
 
   try {
     console.log(`Applying ${migrations.length} migration(s) to ${driver.label}`);
+
+    // Ask this first: a colliding ledger makes the notice below wrong (it would
+    // count the foreign table as ours), and the operator needs the specific
+    // error, not a reassuring line followed by one.
+    await assertLedgerIsOurs(driver);
 
     // Say so before writing, not after. An operator pointing POSTGRES_URL at a
     // database that already holds someone else's tables should see that we
