@@ -48,7 +48,11 @@ const RESERVED_EXACT = ['example.com', 'example.org', 'example.net', 'localhost'
 
 /** Whether a domain is reserved, and therefore cannot name a real publisher. */
 export function isReservedDomain(domain: string): boolean {
-  const host = domain.trim().toLowerCase();
+  // `example.com.` is the same name as `example.com` — the trailing dot is the
+  // root label written out. Without stripping it, a fully qualified reserved
+  // name is counted as a real publisher, which is the one direction this
+  // function must never get wrong.
+  const host = domain.trim().toLowerCase().replace(/\.$/, '');
   if (host === '') return false;
   if (RESERVED_EXACT.includes(host as (typeof RESERVED_EXACT)[number])) return true;
   return RESERVED_SUFFIXES.some((suffix) => host.endsWith(suffix));
@@ -80,11 +84,12 @@ export interface SourceReadiness {
   readonly imagePolicyDeclared: boolean;
 }
 
-/** The five conditions `DATA_RIGHTS.md` requires before a dataset is sold. */
+/** The conditions `DATA_RIGHTS.md` requires before a dataset is sold. */
 export interface CommercialGate {
   readonly noUnreviewedSources: boolean;
   readonly everyPublishingSourcePermitsCommercialUse: boolean;
   readonly everyPublishingSourcePermitsRedistribution: boolean;
+  readonly everyPublishingSourcePermitsDerivativeNormalization: boolean;
   readonly attributionObligationsRecorded: boolean;
   readonly imageRightsSettledSeparately: boolean;
 }
@@ -161,6 +166,14 @@ export function assess(slug: string, status: string, raws: readonly Record<strin
     noUnreviewedSources: enabled.every((source) => source.rightsClassification !== 'UNREVIEWED'),
     everyPublishingSourcePermitsCommercialUse: live.every((source) => source.commercialUseAllowed),
     everyPublishingSourcePermitsRedistribution: live.every((source) => source.redistributionAllowed),
+    // Condition 2 of DATA_RIGHTS.md asks whether the terms permit "the use being
+    // made, including the derivative and redistribution question". Normalizing
+    // and deriving IS the use being made — a source that forbids it can be read
+    // and cited but not processed, so it cannot be left to a rendered field
+    // nobody gates on.
+    everyPublishingSourcePermitsDerivativeNormalization: live.every(
+      (source) => source.derivativeNormalizationAllowed,
+    ),
     // An obligation can only be honoured if it was written down: a source that
     // requires attribution must carry the text a surface will actually display.
     attributionObligationsRecorded: live.every(

@@ -48,6 +48,9 @@ describe('a reserved domain cannot name a real publisher', () => {
       'anything.test',
       'host.invalid',
       'localhost',
+      // Fully qualified, with the root label written out. Same DNS name.
+      'example.com.',
+      'catalog.acme-climate.example.com.',
     ]) {
       expect(isReservedDomain(domain), domain).toBe(true);
     }
@@ -101,6 +104,18 @@ describe('the commercial publication gate can fail on each of its conditions', (
   it('fails when a publishing source forbids commercial use', () => {
     const report = assess('probe', 'DRAFT', [withRights({ commercial_use_allowed: false })]);
     expect(report.commercialGate.everyPublishingSourcePermitsCommercialUse).toBe(false);
+  });
+
+  it('fails when a publishing source forbids derivative normalization', () => {
+    // The permission the whole platform depends on: normalizing and deriving is
+    // what the factory does to every byte it acquires. A source that forbids it
+    // can be read and cited but cannot be processed, and that has to be visible
+    // rather than merely printed alongside the passing gates.
+    const report = assess('probe', 'DRAFT', [
+      withRights({ derivative_normalization_allowed: false }),
+    ]);
+    expect(report.commercialGate.everyPublishingSourcePermitsDerivativeNormalization).toBe(false);
+    expect(Object.values(report.commercialGate).every(Boolean)).toBe(false);
   });
 
   it('fails when a publishing source forbids redistribution', () => {
