@@ -3,6 +3,7 @@ import { CANONICAL_OBJECT_SCHEMAS } from '@data-foundry/canonical-schema';
 import {
   EXPECTED_TABLES,
   applyMigrations,
+  partitionOwnedTables,
   createPGliteDriver,
   listPublicTables,
   loadMigrations,
@@ -472,5 +473,114 @@ describe('migration 0009 over pre-existing judgment history', () => {
       `SELECT id::text AS id, episode_seq FROM resolution_judgments ORDER BY id`,
     );
     expect(after).toEqual(before);
+  });
+});
+
+/**
+ * A Data Foundry migration run must not speak for a database it does not own.
+ *
+ * `POSTGRES_URL` points the migrator at whatever database the operator names,
+ * and nothing stops that database from belonging to something else. No Data
+ * Foundry migration references a foreign table — there is no statement that
+ * could — but `--check` reported `tables.length` over the whole `public`
+ * schema, so a shared database inflated the count with objects this project
+ * neither created nor understands. A number that counts other people's tables
+ * is not a certification of ours.
+ *
+ * The fix is an ownership boundary, not a bigger number: `EXPECTED_TABLES` is
+ * the manifest, everything else is out of scope and is named as such. These
+ * tests use a disposable in-memory database that deliberately contains an
+ * unrelated table with rows in it, and assert that Data Foundry leaves it
+ * exactly as it found it — structure, row count and all — without ever reading
+ * what is inside it.
+ */
+describe('migrations respect an ownership boundary', () => {
+  let shared: MigrationDriver;
+
+  /** Structure only. Row CONTENTS of an unowned table are never read. */
+  const foreignShape = async () =>
+    shared.query<{ column_name: string; data_type: string }>(
+      `SELECT column_name, data_type FROM information_schema.columns
+        WHERE table_schema = 'public' AND table_name = 'unrelated_tenant_events'
+        ORDER BY column_name`,
+    );
+  const foreignRowCount = async () => {
+    const [row] = await shared.query<{ n: string }>(
+      `SELECT count(*)::text AS n FROM unrelated_tenant_events`,
+    );
+    return Number(row?.n);
+  };
+
+  beforeAll(async () => {
+    shared = await createPGliteDriver();
+    // A table this project did not create, with live-like rows already in it,
+    // sitting in the same schema the migrator writes to.
+    await shared.exec(`
+      CREATE TABLE unrelated_tenant_events (
+          id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+          status      TEXT NOT NULL,
+          payload     JSONB
+      );
+      INSERT INTO unrelated_tenant_events (status, payload)
+      VALUES ('running', '{"a":1}'::jsonb), ('success', '{"b":2}'::jsonb);
+    `);
+    await applyMigrations(shared, migrations);
+  }, 120_000);
+
+  afterAll(async () => {
+    await shared?.close();
+  });
+
+  it('classifies a table it does not own as out of scope', async () => {
+    const partition = partitionOwnedTables(await listPublicTables(shared));
+    expect(partition.unowned).toContain('unrelated_tenant_events');
+    expect(partition.owned).toEqual([...EXPECTED_TABLES].sort());
+    // The count that gets certified is ours, not the whole schema's.
+    expect(partition.owned).not.toContain('unrelated_tenant_events');
+  });
+
+  it('still fails closed when one of its OWN tables is missing', () => {
+    const partition = partitionOwnedTables(
+      [...EXPECTED_TABLES].filter((table) => table !== 'facts'),
+    );
+    expect(partition.missing).toEqual(['facts']);
+  });
+
+  it('reports nothing missing when every owned table is present', async () => {
+    expect(partitionOwnedTables(await listPublicTables(shared)).missing).toEqual([]);
+  });
+
+  it('leaves the unowned table structurally untouched', async () => {
+    expect(await foreignShape()).toEqual([
+      { column_name: 'created_at', data_type: 'timestamp with time zone' },
+      { column_name: 'id', data_type: 'uuid' },
+      { column_name: 'payload', data_type: 'jsonb' },
+      { column_name: 'status', data_type: 'text' },
+    ]);
+  });
+
+  it('leaves its rows in place, without reading them', async () => {
+    expect(await foreignRowCount()).toBe(2);
+  });
+
+  it('re-applying every migration still does not touch it', async () => {
+    const shapeBefore = await foreignShape();
+    const countBefore = await foreignRowCount();
+
+    const second = await applyMigrations(shared, migrations);
+    expect(second.every((result) => result.skipped)).toBe(true);
+
+    expect(await foreignShape()).toEqual(shapeBefore);
+    expect(await foreignRowCount()).toBe(countBefore);
+  });
+
+  it('contains no migration statement naming an object this project does not own', async () => {
+    // The structural half of the guarantee: the boundary above reports, but the
+    // migrations themselves must simply never mention a foreign table.
+    for (const migration of migrations) {
+      expect(migration.sql).not.toMatch(/unrelated_tenant_events/i);
+      expect(migration.sql).not.toMatch(/automation_runs/i);
+    }
   });
 });

@@ -118,6 +118,28 @@ application discipline:
 | `source_records_source_key_uniq` | One record per `(source_id, source_record_key)` |
 | `ingestion_jobs_failed_shape` | `FAILED` jobs carry retry metadata; others do not |
 
+### What this project owns in a database
+
+`POSTGRES_URL` points the migrator at whatever database you name, and that
+database may already belong to something else. `EXPECTED_TABLES` in
+`tooling/scripts/migrate.ts` is the ownership manifest: the complete set of
+tables Data Foundry creates, and the only ones it is entitled to speak about.
+
+Anything else found in `public` is **out of scope** — reported by name so you can
+see it was noticed, never counted as evidence about this schema, and never
+written to. `pnpm migrate:check` certifies the owned tables only, and says so:
+
+```
+  out of scope (present, not ours, untouched): schema_migrations
+OK: 18 Data Foundry tables, migrations are ordered and idempotent.
+```
+
+Applying to a shared database announces the same thing *before* it writes, so an
+operator sees that we are adding beside another project's tables rather than to
+them. No migration references an object outside the manifest, and a test asserts
+that none ever does — a count that included other people's tables would have been
+reporting their schema as though it were a fact about ours.
+
 ## Generated artifacts
 
 `schemas/canonical/*.schema.json` is **generated** from the Zod definitions by
@@ -144,6 +166,16 @@ MCP tool definitions, the Phase 2 Python/Splink work, and external dataset users
 `docs/source-onboarding.md` is the procedure: what to decide before fetching a
 byte, what the declaration has to record, and what counts as proof afterwards.
 `pnpm sources:readiness` reports where a vertical actually stands against it.
+
+## Deployment
+
+There is nothing deployable here yet. AGENTS.md names Cloudflare as the target
+for the web/API/MCP surfaces when they are built; those surfaces do not exist.
+
+`vercel.json` disables Vercel Git deployments for this repository. It is deploy
+suppression, not adoption — see
+[ADR-0005](docs/decisions/ADR-0005-vercel-is-not-a-deployment-target.md), which
+also records why a placeholder application was not the answer.
 
 ## Licensing and data rights
 

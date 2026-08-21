@@ -202,7 +202,18 @@ export async function createPostgresDriver(connectionString: string): Promise<Mi
   };
 }
 
-/** Table names the migrations are expected to create. Used by `--check`. */
+/**
+ * The ownership manifest: every table Data Foundry creates, and the complete
+ * set it is entitled to speak about.
+ *
+ * `POSTGRES_URL` points the migrator at whatever database an operator names,
+ * and that database may belong to something else. Nothing here will modify a
+ * table it did not create — no migration references one, and a test asserts
+ * that none ever does — but a certification that counted the whole `public`
+ * schema was reporting other people's tables as though they were evidence
+ * about ours. Anything absent from this list is out of scope: reported, never
+ * counted, never touched.
+ */
 export const EXPECTED_TABLES = [
   'verticals',
   'sources',
@@ -223,6 +234,30 @@ export const EXPECTED_TABLES = [
   'ingestion_jobs',
   'ingestion_job_transitions',
 ] as const;
+
+/** Owned tables present, unowned tables found beside them, and owned tables missing. */
+export interface TableOwnership {
+  readonly owned: string[];
+  readonly unowned: string[];
+  readonly missing: string[];
+}
+
+/**
+ * Split what is actually in the schema against what this project owns.
+ *
+ * Fail-closed on our side (`missing` is a hard error for `--check`), and merely
+ * descriptive on the other (`unowned` is named so an operator can see we found
+ * it and left it alone).
+ */
+export function partitionOwnedTables(tables: readonly string[]): TableOwnership {
+  const manifest = new Set<string>(EXPECTED_TABLES);
+  const present = new Set(tables);
+  return {
+    owned: tables.filter((table) => manifest.has(table)).sort(),
+    unowned: tables.filter((table) => !manifest.has(table)).sort(),
+    missing: EXPECTED_TABLES.filter((table) => !present.has(table)),
+  };
+}
 
 export async function listPublicTables(driver: MigrationDriver): Promise<string[]> {
   const rows = await driver.query<{ table_name: string }>(
@@ -246,6 +281,18 @@ async function main(argv: readonly string[]): Promise<number> {
 
   try {
     console.log(`Applying ${migrations.length} migration(s) to ${driver.label}`);
+
+    // Say so before writing, not after. An operator pointing POSTGRES_URL at a
+    // database that already holds someone else's tables should see that we
+    // noticed, and that we are adding beside them rather than to them.
+    const before = partitionOwnedTables(await listPublicTables(driver));
+    if (before.unowned.length > 0) {
+      console.log(
+        `  note: ${before.unowned.length} table(s) in this database are not Data Foundry's ` +
+          `(${before.unowned.join(', ')}). Nothing below modifies them.`,
+      );
+    }
+
     const results = await applyMigrations(driver, migrations);
     for (const result of results) {
       console.log(
@@ -255,11 +302,15 @@ async function main(argv: readonly string[]): Promise<number> {
     }
 
     if (check) {
-      const tables = await listPublicTables(driver);
-      const missing = EXPECTED_TABLES.filter((table) => !tables.includes(table));
-      if (missing.length > 0) {
-        console.error(`Missing expected tables: ${missing.join(', ')}`);
+      const ownership = partitionOwnedTables(await listPublicTables(driver));
+      if (ownership.missing.length > 0) {
+        console.error(`Missing expected tables: ${ownership.missing.join(', ')}`);
         return 1;
+      }
+      if (ownership.unowned.length > 0) {
+        console.log(
+          `  out of scope (present, not ours, untouched): ${ownership.unowned.join(', ')}`,
+        );
       }
 
       // Re-applying against the same database must be a clean no-op.
@@ -271,7 +322,9 @@ async function main(argv: readonly string[]): Promise<number> {
         );
         return 1;
       }
-      console.log(`OK: ${tables.length} tables, migrations are ordered and idempotent.`);
+      console.log(
+        `OK: ${ownership.owned.length} Data Foundry tables, migrations are ordered and idempotent.`,
+      );
     }
     return 0;
   } finally {
