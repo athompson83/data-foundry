@@ -47,13 +47,21 @@ const RESERVED_SUFFIXES = [
 
 const RESERVED_EXACT = ['example.com', 'example.org', 'example.net', 'localhost'] as const;
 
+/**
+ * One spelling per host.
+ *
+ * `example.com.` is the same name as `example.com` — the trailing dot is the
+ * root label written out — and DNS names are case-insensitive. The domain is
+ * this report's identity for a source, deciding real-vs-synthetic and how many
+ * distinct publishers there are, so both questions have to be asked of one
+ * canonical form.
+ */
+export const normalizeDomain = (domain: string): string =>
+  domain.trim().toLowerCase().replace(/\.$/, '');
+
 /** Whether a domain is reserved, and therefore cannot name a real publisher. */
 export function isReservedDomain(domain: string): boolean {
-  // `example.com.` is the same name as `example.com` — the trailing dot is the
-  // root label written out. Without stripping it, a fully qualified reserved
-  // name is counted as a real publisher, which is the one direction this
-  // function must never get wrong.
-  const host = domain.trim().toLowerCase().replace(/\.$/, '');
+  const host = normalizeDomain(domain);
   if (host === '') return false;
   if (RESERVED_EXACT.includes(host as (typeof RESERVED_EXACT)[number])) return true;
   return RESERVED_SUFFIXES.some((suffix) => host.endsWith(suffix));
@@ -121,12 +129,15 @@ function readSource(raw: Record<string, unknown>): SourceReadiness {
   const attribution = (rights['attribution'] ?? {}) as Record<string, unknown>;
   const acquisition = (raw['acquisition_policy'] ?? {}) as Record<string, unknown>;
   const retention = (raw['provenance_retention'] ?? {}) as Record<string, unknown>;
-  const domain = text(raw['domain']);
+  const domain = normalizeDomain(text(raw['domain']));
 
   return {
     key: text(raw['key']),
     domain,
-    real: !isReservedDomain(domain),
+    // An absent domain is unknown, not reserved — `isReservedDomain('')` says so
+    // correctly. But "not reserved, therefore real" then turned a missing field
+    // into evidence that a real publisher exists. Real requires a domain.
+    real: domain !== '' && !isReservedDomain(domain),
     rightsClassification: text(raw['rights_classification']) || 'UNREVIEWED',
     status: text(raw['status']),
     commercialUseAllowed: bool(rights['commercial_use_allowed']),

@@ -40,7 +40,11 @@ welcome; a working exploit against someone else's data is not.
 ## What to expect
 
 - **Acknowledgement within 3 working days.** If you have not heard back in that
-  time, assume the message went astray and try the other channel.
+  time, follow up **on the thread you already opened** — a comment on the
+  advisory, or on the channel-request issue if that is the route you had to
+  take. Still no details in a public issue, however long the silence runs; if
+  the issue was closed, open another one asking only for a channel. Silence is
+  our failure to answer, never permission to disclose.
 - **An assessment within 10 working days**, saying whether the report is
   accepted, what severity we think it carries, and a rough remediation timeline.
 - **Credit in the advisory** if you want it, and none if you do not.

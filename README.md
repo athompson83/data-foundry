@@ -131,7 +131,7 @@ even though no migration file creates it. Anything else found in `public` is
 **out of scope** — reported by name so you can see it was noticed, and never
 counted as evidence about this schema:
 
-```
+```text
 OK: 19 Data Foundry tables, migrations are ordered and idempotent.
 ```
 

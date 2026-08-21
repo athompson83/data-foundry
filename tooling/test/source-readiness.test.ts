@@ -277,3 +277,45 @@ describe('a rights review has to be current and attributable', () => {
     expect(report.hasRealRightsReviewedSource).toBe(true);
   });
 });
+
+/**
+ * A domain is the identity this report is built on: it decides real vs
+ * synthetic, and distinct domains are what "independent publishers" counts. A
+ * value that is missing, or spelled two ways, corrupts both answers at once.
+ */
+describe('the domain a source is identified by is normalized first', () => {
+  it('does not count a source with no domain as a real publisher', () => {
+    // `isReservedDomain('')` is false — correctly, an absent domain is unknown
+    // rather than reserved — so "not reserved therefore real" turned a missing
+    // field into evidence that a real publisher exists.
+    const raw = source() as Record<string, unknown>;
+    delete raw['domain'];
+    const report = assess('probe', 'DRAFT', [raw]);
+    expect(report.realSourceCount).toBe(0);
+    expect(report.sources[0]!.real).toBe(false);
+  });
+
+  it('does not count a blank domain as a real publisher', () => {
+    expect(assess('probe', 'DRAFT', [source({ domain: '   ' })]).realSourceCount).toBe(0);
+  });
+
+  it('counts two spellings of one publisher once', () => {
+    const report = assess('probe', 'DRAFT', [
+      { ...source({ domain: 'acme-climate.com' }), key: 'a' },
+      { ...source({ domain: 'ACME-CLIMATE.COM.' }), key: 'b' },
+    ]);
+    expect(report.realSourceCount).toBe(2);
+    expect(
+      report.realPublisherCount,
+      'case and a trailing root label do not make two organisations',
+    ).toBe(1);
+  });
+
+  it('still counts genuinely different publishers separately', () => {
+    const report = assess('probe', 'DRAFT', [
+      { ...source({ domain: 'acme-climate.com' }), key: 'a' },
+      { ...source({ domain: 'borealis-hvac.com' }), key: 'b' },
+    ]);
+    expect(report.realPublisherCount).toBe(2);
+  });
+});

@@ -11,10 +11,12 @@ deployment on every push. Every one of them fails, and each failure posts a red
 `Vercel` commit status on the pull request that caused it.
 
 The failure is not a defect in any commit. There is nothing here to deploy, and
-there never has been:
+there never has been. Taking inventory of the repository **as it stood before
+this decision**:
 
 - no `apps/` directory, though `pnpm-workspace.yaml` reserves the glob;
-- no `vercel.json`, `next.config.*`, or any other framework configuration;
+- no `vercel.json`, `next.config.*`, or any other framework configuration —
+  the `vercel.json` this decision adds is not one, and turns deployment *off*;
 - no web-framework dependency in any of the ten `package.json` files;
 - no `.jsx`, `.tsx`, `.vue`, `.svelte` or `.astro` file anywhere;
 - the two `.html` files in the tree are scraping fixtures;
@@ -28,8 +30,9 @@ contained a deployable application.
 
 Nor is Vercel the intended target. AGENTS.md names Cloudflare — "TypeScript for
 web/API/MCP/Cloudflare services", "Cloudflare Streamable HTTP for new remote MCP
-deployment". Vercel appears exactly once in the tree, in `SECURITY.md`'s
-*out-of-scope* list of third-party services. No ADR adopts it.
+deployment". Before this decision, Vercel appeared exactly once in the whole
+tree: in `SECURITY.md`'s *out-of-scope* list of third-party services. No ADR
+adopted it, and this one does not either — it records the opposite.
 
 The red status is therefore an artefact of a misconfigured integration. It is
 not a required check — `main` has no branch protection, and PR #2 merged while
