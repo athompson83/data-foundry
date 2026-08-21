@@ -27,6 +27,7 @@
 import { readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { parse as parseYaml } from 'yaml';
+import { rightsReviewIsCurrent } from '@data-foundry/source-registry';
 import { VERTICALS_DIR } from '../validators/validate-verticals.js';
 
 /**
@@ -76,6 +77,8 @@ export interface SourceReadiness {
   readonly attributionText: string | null;
   readonly personalDataPresent: boolean;
   readonly reviewedAt: string | null;
+  /** Who did the review. An unattributable review is not a review. */
+  readonly reviewedBy: string | null;
   readonly nextReviewAt: string | null;
   readonly acquisitionApproved: boolean;
   readonly retainsArtifacts: boolean;
@@ -134,6 +137,7 @@ function readSource(raw: Record<string, unknown>): SourceReadiness {
     attributionText: nullableText(attribution['text']),
     personalDataPresent: bool(rights['personal_data_present']),
     reviewedAt: nullableText(rights['reviewed_at']),
+    reviewedBy: nullableText(rights['reviewed_by']),
     nextReviewAt: nullableText(rights['next_review_at']),
     acquisitionApproved: bool(acquisition['approved']),
     retainsArtifacts: bool(retention['retain_artifacts']),
@@ -152,7 +156,12 @@ const publishing = (sources: readonly SourceReadiness[]): SourceReadiness[] =>
       (source.rightsClassification === 'GREEN' || source.rightsClassification === 'AMBER'),
   );
 
-export function assess(slug: string, status: string, raws: readonly Record<string, unknown>[]) {
+export function assess(
+  slug: string,
+  status: string,
+  raws: readonly Record<string, unknown>[],
+  asOf = '2026-08-21T00:00:00.000Z',
+) {
   const sources = raws.map(readSource);
   const real = sources.filter((source) => source.real);
   const live = publishing(sources);
@@ -188,9 +197,23 @@ export function assess(slug: string, status: string, raws: readonly Record<strin
     ),
   };
 
+  // Reuse the platform's own predicate rather than restating it. `publish-gate`
+  // already treats a missing reviewer or an elapsed `next_review_at` as
+  // RIGHTS_REVIEW_MISSING_OR_LAPSED; a readiness report that accepted either
+  // would call a source reviewed that the gate itself refuses.
+  const reviewIsCurrent = (source: SourceReadiness): boolean =>
+    rightsReviewIsCurrent(
+      {
+        reviewed_at: source.reviewedAt,
+        reviewed_by: source.reviewedBy,
+        next_review_at: source.nextReviewAt,
+      } as never,
+      asOf,
+    );
+
   const hasRealRightsReviewedSource = real.some(
     (source) =>
-      source.reviewedAt !== null &&
+      reviewIsCurrent(source) &&
       source.rightsClassification !== 'UNREVIEWED' &&
       source.acquisitionApproved,
   );
@@ -203,7 +226,24 @@ export function assess(slug: string, status: string, raws: readonly Record<strin
     );
   }
   if (!hasRealRightsReviewedSource) {
-    blockers.push('no real source has completed a rights review with an approved acquisition method');
+    blockers.push(
+      'no real source has a current, named rights review with an approved acquisition method',
+    );
+  }
+  // The headline verdict is computed from `blockers`. A failing publication
+  // condition that never reached this list produced "READY" printed directly
+  // above its own FAIL line — a report contradicting itself in six lines.
+  for (const [name, passed] of Object.entries(commercialGate)) {
+    if (!passed) blockers.push(`commercial publication gate fails: ${name}`);
+  }
+  // Every commercial condition passes vacuously when nothing is allowed to
+  // publish: a lone reviewed RED source satisfies "someone looked at it" and is
+  // then excluded from the set the gates examine. Vacuous green is the most
+  // dangerous kind.
+  if (real.length > 0 && live.length === 0) {
+    blockers.push(
+      'no real source is cleared to publish, so every publication condition passes vacuously',
+    );
   }
   for (const source of live) {
     if (!source.retainsArtifacts) {
@@ -230,7 +270,11 @@ export function assess(slug: string, status: string, raws: readonly Record<strin
   } satisfies VerticalReadiness;
 }
 
-export async function readVertical(dir: string, slug: string): Promise<VerticalReadiness> {
+export async function readVertical(
+  dir: string,
+  slug: string,
+  asOf?: string,
+): Promise<VerticalReadiness> {
   const config = parseYaml(await readFile(join(dir, 'vertical.yaml'), 'utf8')) as Record<
     string,
     unknown
@@ -243,7 +287,7 @@ export async function readVertical(dir: string, slug: string): Promise<VerticalR
   for (const file of files.sort()) {
     raws.push(parseYaml(await readFile(join(sourcesDir, file), 'utf8')) as Record<string, unknown>);
   }
-  return assess(slug, text(config['status']) || 'UNKNOWN', raws);
+  return assess(slug, text(config['status']) || 'UNKNOWN', raws, asOf);
 }
 
 function render(report: VerticalReadiness): string {

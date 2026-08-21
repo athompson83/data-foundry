@@ -214,6 +214,8 @@ export async function createPostgresDriver(connectionString: string): Promise<Mi
  * about ours. Anything absent from this list is out of scope: reported, never
  * counted, never touched.
  */
+export const LEDGER_TABLE = 'schema_migrations';
+
 export const EXPECTED_TABLES = [
   'verticals',
   'sources',
@@ -250,7 +252,10 @@ export interface TableOwnership {
  * it and left it alone).
  */
 export function partitionOwnedTables(tables: readonly string[]): TableOwnership {
-  const manifest = new Set<string>(EXPECTED_TABLES);
+  // The ledger belongs to this project too. The runner creates it and inserts a
+  // row per applied migration, so calling it "not ours, untouched" was false in
+  // both halves at once: we own it, and we write to it on every single run.
+  const manifest = new Set<string>([...EXPECTED_TABLES, LEDGER_TABLE]);
   const present = new Set(tables);
   return {
     owned: tables.filter((table) => manifest.has(table)).sort(),
@@ -289,7 +294,7 @@ async function main(argv: readonly string[]): Promise<number> {
     if (before.unowned.length > 0) {
       console.log(
         `  note: ${before.unowned.length} table(s) in this database are not Data Foundry's ` +
-          `(${before.unowned.join(', ')}). Nothing below modifies them.`,
+          `(${before.unowned.join(', ')}). No migration references them.`,
       );
     }
 

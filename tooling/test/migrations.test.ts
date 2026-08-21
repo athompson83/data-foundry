@@ -535,9 +535,25 @@ describe('migrations respect an ownership boundary', () => {
   it('classifies a table it does not own as out of scope', async () => {
     const partition = partitionOwnedTables(await listPublicTables(shared));
     expect(partition.unowned).toContain('unrelated_tenant_events');
-    expect(partition.owned).toEqual([...EXPECTED_TABLES].sort());
+    expect(partition.owned).toEqual([...EXPECTED_TABLES, 'schema_migrations'].sort());
     // The count that gets certified is ours, not the whole schema's.
     expect(partition.owned).not.toContain('unrelated_tenant_events');
+  });
+
+
+  it('claims the migration ledger as its own, because it writes to it', async () => {
+    // `applyMigrations` creates `schema_migrations` and inserts a row per
+    // migration. Reporting it as "not ours, untouched" was false twice over.
+    const partition = partitionOwnedTables(await listPublicTables(shared));
+    expect(partition.owned).toContain('schema_migrations');
+    expect(partition.unowned).not.toContain('schema_migrations');
+  });
+
+  it('does not report the ledger as a missing migration-created table', async () => {
+    // It is owned, but no migration file creates it — the runner does. It must
+    // not show up as a hole in the migration set.
+    expect(partitionOwnedTables(await listPublicTables(shared)).missing).toEqual([]);
+    expect([...EXPECTED_TABLES]).not.toContain('schema_migrations');
   });
 
   it('still fails closed when one of its OWN tables is missing', () => {

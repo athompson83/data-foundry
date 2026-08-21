@@ -125,20 +125,24 @@ database may already belong to something else. `EXPECTED_TABLES` in
 `tooling/scripts/migrate.ts` is the ownership manifest: the complete set of
 tables Data Foundry creates, and the only ones it is entitled to speak about.
 
-Anything else found in `public` is **out of scope** — reported by name so you can
-see it was noticed, never counted as evidence about this schema, and never
-written to. `pnpm migrate:check` certifies the owned tables only, and says so:
+The manifest covers the migration-created tables *and* `schema_migrations`: the
+runner creates that ledger and writes a row to it on every apply, so it is ours
+even though no migration file creates it. Anything else found in `public` is
+**out of scope** — reported by name so you can see it was noticed, and never
+counted as evidence about this schema:
 
 ```
-  out of scope (present, not ours, untouched): schema_migrations
-OK: 18 Data Foundry tables, migrations are ordered and idempotent.
+OK: 19 Data Foundry tables, migrations are ordered and idempotent.
 ```
 
-Applying to a shared database announces the same thing *before* it writes, so an
-operator sees that we are adding beside another project's tables rather than to
-them. No migration references an object outside the manifest, and a test asserts
-that none ever does — a count that included other people's tables would have been
-reporting their schema as though it were a fact about ours.
+Applying to a shared database names any unowned tables it finds *before* it
+writes, so an operator sees we are adding beside another project's tables rather
+than to them. What that notice claims is exactly what is true — **no migration
+references them** — and a test asserts no migration ever names an object outside
+the manifest. It deliberately does not promise more: the earlier wording said
+"nothing below modifies them" while listing `schema_migrations`, which the
+runner then wrote to on the very next line. A count that included other people's
+tables would likewise have reported their schema as a fact about ours.
 
 ## Generated artifacts
 

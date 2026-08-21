@@ -30,6 +30,7 @@ const REAL = {
     images_reusable: false,
     personal_data_present: false,
     reviewed_at: '2026-08-01T00:00:00.000Z',
+    reviewed_by: 'A. Reviewer',
     next_review_at: '2027-08-01',
     attribution: { required: true, text: 'Data from Example Manufacturer.' },
   },
@@ -164,7 +165,7 @@ describe('real-source blockers', () => {
   it('refuses to call a real source reviewed when its acquisition is unapproved', () => {
     const report = assess('probe', 'DRAFT', [source({ acquisition_policy: { approved: false } })]);
     expect(report.hasRealRightsReviewedSource).toBe(false);
-    expect(report.blockers.join(' ')).toMatch(/no real source has completed a rights review/);
+    expect(report.blockers.join(' ')).toMatch(/no real source has a current, named rights review/);
   });
 
   it('blocks a publishing source that does not retain its raw artifacts', () => {
@@ -205,5 +206,74 @@ describe('the shipped vertical, read from its real declarations', () => {
   it('still shows its rights machinery passing, which is the thing that IS proven', async () => {
     const report = await readVertical(join(VERTICALS_DIR, 'hvac'), 'hvac');
     expect(Object.values(report.commercialGate).every(Boolean)).toBe(true);
+  });
+});
+
+/**
+ * Three ways the verdict could say READY while the report below it said no.
+ *
+ * A readiness report exists to be believed at a glance. The headline is the
+ * only line most people read, so a headline that disagrees with the detail
+ * under it is worse than no headline — it converts a careful report into a
+ * confident wrong answer.
+ */
+describe('the verdict cannot contradict the report underneath it', () => {
+  it('is not READY while a commercial condition is failing', () => {
+    const report = assess('probe', 'DRAFT', [
+      withRights({ derivative_normalization_allowed: false }),
+    ]);
+    expect(Object.values(report.commercialGate).every(Boolean)).toBe(false);
+    // The headline is computed from `blockers`, so a failing gate has to reach
+    // it or the two halves of the report disagree.
+    expect(report.blockers.length).toBeGreaterThan(0);
+    expect(report.blockers.join(' ')).toMatch(/derivative|commercial|publication/i);
+  });
+
+  it('is not READY on a lone reviewed RED source, which may never publish', () => {
+    // RED is reviewed, so it satisfies "someone looked at it". It is also
+    // excluded from the publishing set, so every commercial condition passes
+    // with nothing to check. Vacuous truth is the most dangerous kind of green.
+    const report = assess('probe', 'DRAFT', [source({ rights_classification: 'RED' })]);
+    expect(report.blockers.length).toBeGreaterThan(0);
+    expect(report.blockers.join(' ')).toMatch(/publish/i);
+  });
+
+  it('is still READY when a real source genuinely may publish', () => {
+    expect(assess('probe', 'ACTIVE', [source()]).blockers).toEqual([]);
+  });
+});
+
+describe('a rights review has to be current and attributable', () => {
+  it('rejects a review with no named reviewer', () => {
+    const report = assess('probe', 'DRAFT', [withRights({ reviewed_by: null })]);
+    expect(report.hasRealRightsReviewedSource).toBe(false);
+  });
+
+  it('rejects a review whose next_review_at has already passed', () => {
+    const report = assess(
+      'probe',
+      'DRAFT',
+      [withRights({ reviewed_by: 'A. Reviewer', next_review_at: '2020-01-01' })],
+      '2026-08-21T00:00:00.000Z',
+    );
+    expect(report.hasRealRightsReviewedSource).toBe(false);
+    expect(report.blockers.join(' ')).toMatch(/rights review/i);
+  });
+
+  it('accepts a named review that has not lapsed', () => {
+    const report = assess(
+      'probe',
+      'DRAFT',
+      [withRights({ reviewed_by: 'A. Reviewer', next_review_at: '2027-08-01' })],
+      '2026-08-21T00:00:00.000Z',
+    );
+    expect(report.hasRealRightsReviewedSource).toBe(true);
+  });
+
+  it('accepts a named review with no expiry set', () => {
+    const report = assess('probe', 'DRAFT', [
+      withRights({ reviewed_by: 'A. Reviewer', next_review_at: null }),
+    ]);
+    expect(report.hasRealRightsReviewedSource).toBe(true);
   });
 });
