@@ -139,6 +139,12 @@ MCP tool definitions, the Phase 2 Python/Splink work, and external dataset users
 6. A second job applies the identical migrations to a real `postgres:16` service,
    which is what keeps "portable Postgres" honest rather than aspirational
 
+## Adding a real source
+
+`docs/source-onboarding.md` is the procedure: what to decide before fetching a
+byte, what the declaration has to record, and what counts as proof afterwards.
+`pnpm sources:readiness` reports where a vertical actually stands against it.
+
 ## Licensing and data rights
 
 The MIT licence in `LICENSE` covers **platform code only** — `packages/`,
