@@ -1,28 +1,23 @@
 # `hvac` — HVAC Equipment
 
-The first vertical, and the Phase 1 proof that **a vertical is configuration and
-data, not a fork of the app** (AGENTS.md rule 4).
+The first vertical and the Phase 1 proof that **a vertical is configuration and data, not a fork of the app** (AGENTS.md rule 4).
 
-Everything in this folder is YAML, JSON or Markdown. The only TypeScript is a
-fixture generator and config tests. There is no `src/`, and that is the point.
+Everything in this folder is YAML, JSON or Markdown except fixture/configuration support code. There is no vertical-specific application implementation, and that is intentional.
 
-> **Status: `DRAFT`.** All four sources are **synthetic** — fictional publishers
-> on RFC 2606 reserved example domains. No real site is crawled. Doc 17's gate 4
-> (source rights) is **not passed**, because no real source has been
-> rights-reviewed. See [`RIGHTS.md`](RIGHTS.md) and
-> `docs/verticals/hvac-niche-score.md`, which is held out-of-band with the rest
-> of the product-strategy material and is not published in this repository.
+> **Status: `DRAFT`.** All four current sources are **synthetic** fictional publishers on RFC 2606 reserved example domains. No real site is crawled. The source-rights machinery is exercised end to end, but commercial source-rights validation is not considered proven until real external sources have been reviewed and approved. See [`RIGHTS.md`](RIGHTS.md).
 
-## Why HVAC
+## Why HVAC is useful as the factory proof
 
-Doc 17's strong signals, nearly all present at once: replacement and supersession
-questions, certifications held in separate registries, technical specs buried in
-PDFs, entities known by inconsistent identifiers, users searching model numbers
-directly, and businesses currently paying staff to reconcile sources by hand.
+The fixture deliberately combines several difficult data problems that the platform must solve generically:
 
-**Weighted niche score: 4.38 raw, 3.38 after penalties.** Five of six
-qualification gates pass. The one that does not is source rights — which is
-exactly the constraint that keeps this vertical in `DRAFT`.
+- replacement and supersession relationships;
+- certification data held separately from manufacturer/distributor data;
+- technical specifications represented in multiple source formats;
+- entities known by inconsistent identifiers;
+- exact model-number lookup requirements;
+- conflicting values that must be retained and adjudicated rather than silently collapsed.
+
+The business/niche scoring framework is maintained out-of-band and is not part of this public repository.
 
 ## The shape of the problem
 
@@ -37,15 +32,9 @@ acme-spec-sheets        24ACC636A003     PDF spec sheet,         authority 90
                         24ACC636A003     one canonical entity
 ```
 
-Resolved deterministically on the normalized model number — no fuzzy matching,
-no vector similarity (AGENTS.md rule 7).
+Resolution is deterministic on the normalized model number — no fuzzy matching and no vector similarity (AGENTS.md rule 7).
 
-And they disagree. On `seer2` for that model, the certification directory says
-**14.3** while the manufacturer feed *and* the distributor both say **14.5**. The
-certified value wins, because "direct authoritative source" is doc 04's criterion
-1 and "corroboration" is criterion 4. **Two sources agree and still lose.** The
-losing claim is retained with its evidence, because "why does your site say 14.3
-when the brochure says 14.5?" has to have an answer.
+The sources also disagree. For the fixture model's `seer2` value, the certification directory says **14.3** while the manufacturer feed and distributor say **14.5**. The certification value wins because source authority outranks corroboration in the configured fact-selection policy. **Two sources agree and still lose.** The losing claim remains attached to its evidence so the trust layer can answer why the canonical value differs from another source.
 
 ## Contents
 
@@ -53,27 +42,24 @@ when the brochure says 14.5?" has to have an answer.
 hvac/
 ├── vertical.yaml            slug, entity types, predicates, ER thresholds
 ├── entities/
-│   ├── equipment_model.yaml 12 properties, identity rules, 11 quality rules
-│   ├── manufacturer.yaml    deliberately thin — an anchor, not a company profile
-│   └── certification.yaml   a first-class entity, so certified and published
-│                            ratings can coexist as distinct evidenced claims
+│   ├── equipment_model.yaml equipment properties, identity and quality rules
+│   ├── manufacturer.yaml    deliberately thin anchor entity
+│   └── certification.yaml   first-class certification entity
 ├── relationships.yaml       manufactures · supersedes · certified_by · compatible_with
-├── filters.yaml             13 filterable fields; only 4 combinations indexable
-├── seo.yaml                 quality-gated indexability (rule 8), agent intents
-├── mcp.yaml                 6 intent-shaped tools
-├── sources/                 4 declarations, complete rights metadata (rule 1)
-├── normalizers/             doc 06 layers 1-4 + source mappings + fact selection
-├── fixtures/                4 native-format artifacts + generated PDF
-│   └── golden/              27 entities, 171 facts, 26 relationships
-├── tests/                   config and data validation, self-contained
-└── [6 required docs]        README · DATA_DICTIONARY · SOURCES · RIGHTS · QUALITY · CHANGELOG
+├── filters.yaml             schema-driven filter definitions and indexability hints
+├── seo.yaml                 quality-gated indexability and agent intents
+├── mcp.yaml                 intent-shaped MCP tool declarations
+├── sources/                 four synthetic source declarations with rights metadata
+├── normalizers/             deterministic normalization and source mappings
+├── fixtures/                native-format artifacts plus generated PDF fixture
+│   └── golden/              expected canonical entities, facts and relationships
+├── tests/                   vertical configuration/data validation
+└── required docs            README · DATA_DICTIONARY · SOURCES · RIGHTS · QUALITY · CHANGELOG
 ```
 
 ## Shared vocabulary
 
-Other build waves code against these exact strings. **Renaming anything here is a
-breaking change:** bump `schema_version`, record it in `CHANGELOG.md`, and expect
-the golden files to move.
+Other platform components code against these declared strings. Renaming them is a schema change: update `schema_version`, record the change in `CHANGELOG.md`, and expect golden fixtures to move.
 
 | Kind | Values |
 |---|---|
@@ -84,44 +70,43 @@ the golden files to move.
 
 `12000 BTU/h = 1 ton`, exact by definition.
 
-## The fixture set
+## Fixture characteristics
 
-13 equipment models · 3 manufacturers · 11 certifications · 26 edges, described
-from four angles with deliberate, documented messiness:
+The fixture set contains 13 equipment models, 3 manufacturers, 11 certifications and 26 relationship edges described from four source perspectives with deliberate messiness:
 
-- **Same identifier, four formats** — casing, hyphens, spaces.
-- **Same quantity, two units** — BTU/h in two sources, tons in two others, each
-  derived into the other.
-- **Asymmetric coverage** — every source is missing something another has. Four
-  "only source" facts: supersession, `upc`, `ahri_ref`, certified ratings.
-- **Two genuine conflicts** — resolved by authority, not by recency or majority.
-- **A two-hop supersession chain** — `24ACA636A003` → `24ACB636A003` →
-  `24ACC636A003`, crossing a refrigerant change. Stopping at hop one returns
-  another discontinued model, which is the wrong-order scenario reproduced in
-  test data.
+- **Same identifier, four formats** — casing, hyphens and spaces.
+- **Same quantity, multiple representations** — BTU/h and tons.
+- **Asymmetric coverage** — each source omits information another source contains.
+- **Genuine conflicts** — resolved by configured authority rather than recency or simple majority.
+- **A two-hop supersession chain** — ensuring replacement traversal cannot stop at the first discontinued successor.
 
 ## Running
 
+The HVAC vertical is registered in the root Vitest workspace, so its tests run as part of the repository suite.
+
 ```bash
-pnpm verticals:validate                                    # CI gate: config + rights
-npx vitest run --root verticals/hvac                       # vertical config tests
-npx tsx verticals/hvac/fixtures/generate-acme-spec-pdf.ts  # regenerate the PDF
+pnpm test
+pnpm verticals:validate
+npx vitest run --project hvac
+npx tsx verticals/hvac/fixtures/generate-acme-spec-pdf.ts
 ```
 
-`tests/` is not yet picked up by `pnpm test`: root Vitest projects glob
-`test/**/*.test.ts` within registered roots, and adding `verticals/hvac` to
-`vitest.workspace.ts` is platform config a vertical does not own.
+If the local Vitest CLI uses a different project selector after dependency upgrades, `pnpm test` remains the authoritative repository-level command.
 
 ## Honest limitations
 
-- **Every source is synthetic.** The rights machinery genuinely runs and
-  genuinely passes; what it validates is our own test data.
-- **`voltage` is at 46% coverage**, and it is a critical property, so **6 of 13
-  models do not clear the indexability gate.** That is the gate working — the
-  fix is a manufacturer source for the other two brands, not a lower threshold.
-- **`compatible_with` has zero edges.** No source asserts compatibility and
-  inference is forbidden. Compatibility questions are currently unanswerable,
-  and answering them from spec similarity would fabricate a safety- and
-  warranty-relevant claim.
-- **Discontinued models hold no certification**, because directories drop
-  withdrawn models. Correct data, not a join failure.
+- **Every source is synthetic.** The rights machinery genuinely runs; it currently validates controlled fixture declarations rather than contracts/terms for external publishers.
+- **`voltage` coverage is intentionally incomplete**, and it is a critical property, so some models do not clear the indexability gate. The intended fix is better source coverage, not lowering the quality threshold.
+- **`compatible_with` has zero fixture edges.** No source asserts compatibility and inference is forbidden. Compatibility answers should remain unavailable rather than being fabricated from specification similarity.
+- **Some discontinued models have no certification relationship** because the fixture models the reality that directories may drop withdrawn products. Missing relationships are not automatically treated as join failures.
+
+## Phase 2 exit condition
+
+This vertical should not be considered commercially validated until at least one genuinely external source has:
+
+1. passed rights review for the intended acquisition, normalization, commercial use and redistribution behavior;
+2. been acquired through a real provider adapter;
+3. produced immutable raw evidence with provenance;
+4. survived extraction/normalization/entity resolution without fixture-specific code;
+5. been refreshed incrementally without duplicating or losing evidence;
+6. produced canonical output whose conflicts and verification status can be explained to a customer.
