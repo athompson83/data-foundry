@@ -58,15 +58,15 @@ function candidate(options: {
     },
     source: {
       source_id: 'cccccccc-0000-4000-8000-000000000001' as never,
-      publisher: 'Carrier',
-      domain: 'carrier.com',
+      publisher: 'Acme Climate',
+      domain: 'catalog.acme-climate.example.com',
       source_type: 'MANUFACTURER',
       authority_rank: 90,
       rights_classification: 'GREEN',
     },
     artifact: {
       id: 'aaaaaaaa-0000-4000-8000-000000000001' as never,
-      url: 'https://carrier.com/spec',
+      url: 'https://catalog.acme-climate.example.com/spec',
       retrieved_at: '2026-06-01T00:00:00.000Z' as IsoDateTime,
       content_hash: (options.contentHash ?? 'a'.repeat(64)) as never,
     },

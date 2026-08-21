@@ -155,6 +155,45 @@ describe('fact-selection configuration is honest about what it enforces', () => 
     expect(message).not.toContain('j.okafor@example.com');
   });
 
+  it('rejects a reason naming the email local part rather than the full address', () => {
+    // `j.okafor` identifies the reviewer exactly as completely as the address.
+    expect(() =>
+      buildFactSelectionPolicy(
+        config({
+          ...VALID,
+          overrides: [
+            {
+              source: 's',
+              reviewer: 'j.okafor@example.com',
+              reason: 'Corrected by j.okafor after a supplier call.',
+            },
+          ],
+        }),
+        { at: AT },
+      ),
+    ).toThrow(PipelineConfigurationError);
+  });
+
+  it('does not treat a very short local part as an identity match', () => {
+    // `bo` appears inside ordinary words; a two-character token would refuse
+    // every reason that happens to contain it.
+    expect(() =>
+      buildFactSelectionPolicy(
+        config({
+          ...VALID,
+          overrides: [
+            {
+              source: 's',
+              reviewer: 'bo@example.com',
+              reason: 'The published carbon monoxide threshold was a transcription error.',
+            },
+          ],
+        }),
+        { at: AT },
+      ),
+    ).not.toThrow();
+  });
+
   it('accepts a reason that explains the correction without naming anyone', () => {
     expect(() =>
       buildFactSelectionPolicy(

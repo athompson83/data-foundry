@@ -119,6 +119,24 @@ describe('orphan sweep', () => {
       ArtifactStoreError,
     );
     await expect(sweep(fx, { minimumAgeMs: -1 })).rejects.toBeInstanceOf(ArtifactStoreError);
+    // Zero IS no grace period, which is exactly what the message refuses.
+    await expect(sweep(fx, { minimumAgeMs: 0 })).rejects.toBeInstanceOf(ArtifactStoreError);
+  });
+
+  it('refuses a reference set recorded against a different store', async () => {
+    const fx = await fixture();
+    // Membership is exact equality against this store's URI form. A set built
+    // from another backend is full, so the empty-set guard cannot see it, and
+    // matches nothing — every object would look orphaned and be deleted.
+    await expect(
+      sweep(fx, {
+        referencedUris: new Set(['r2://some-bucket/raw/hvac/acme/content/aa/' + 'a'.repeat(64)]),
+        apply: true,
+      }),
+    ).rejects.toBeInstanceOf(ArtifactStoreError);
+
+    // And nothing was removed on the way to refusing.
+    expect(await fx.store.list('raw/')).toContain(fx.cited);
   });
 
   it('leaves an object written moments ago alone: it may be a run in flight', async () => {

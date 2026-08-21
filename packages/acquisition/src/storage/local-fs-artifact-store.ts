@@ -95,7 +95,9 @@ export class LocalFsArtifactStore implements ArtifactStore {
 
   /** Object keys under a prefix. Metadata sidecars are storage, not objects. */
   async list(prefix: string): Promise<readonly string[]> {
-    const root = `${this.baseDir}/`;
+    // listFiles() returns forward-slash paths; baseDir may not be, so strip a
+    // root that actually matches rather than leaking absolute paths as keys.
+    const root = `${this.baseDir.replace(/\\/g, '/')}/`;
     const paths = await this.#fs.listFiles(this.pathFor(prefix));
     return paths
       .filter((path) => !path.endsWith('.meta.json'))

@@ -124,9 +124,9 @@ export const ResolutionJudgmentSchema = z.object({
    * decision from being mistaken for a duplicate. Empty on rows recorded before
    * episode identity existed.
    */
-  evidence_fingerprint: z.string().max(64),
+  evidence_fingerprint: z.string().regex(/^$|^[0-9a-f]{64}$/),
   /** sha256 of the key-ordered decision: verdict, surviving entity, confidence. */
-  decision_fingerprint: z.string().max(64),
+  decision_fingerprint: z.string().regex(/^$|^[0-9a-f]{64}$/),
   /**
    * The episode this one replaces as current. Distinct from
    * `reverses_judgment_id`: a reversal undoes a decision, a supersession
@@ -134,7 +134,7 @@ export const ResolutionJudgmentSchema = z.object({
    */
   supersedes_judgment_id: ResolutionJudgmentIdSchema.nullable(),
   /** 1-based position in this pair's judgment history. Deterministic ordering. */
-  episode_seq: z.int().min(1),
+  episode_seq: z.int().min(1).max(2_147_483_647),
   /**
    * False once a later judgment reverses or supersedes this one. History is
    * never deleted; exactly one episode per pair is current.

@@ -213,6 +213,34 @@ export class ReviewerIdentityLeak extends Error {
  * is unconditional; this one guards the boundary for surfaces that assemble a
  * payload from anywhere else.
  */
+/** Derived tokens shorter than this match too much to be evidence of anything. */
+const MIN_DERIVED_TOKEN = 4;
+
+/**
+ * The forms of one reviewer's identity worth searching a reason for.
+ *
+ * The declared value is always checked. An email address also yields its local
+ * part, because `reviewer: j.okafor@example.com` and a reason reading "corrected
+ * by j.okafor" identify the same person just as completely.
+ *
+ * This is a net, not a proof. A reason that paraphrases the reviewer — initials,
+ * a nickname, "the Tuesday duty editor" — passes, and no substring rule catches
+ * that. It is the second line behind a reviewer who is never projected onto a
+ * wire shape at all, which is the guarantee that does not depend on wording.
+ */
+export function reviewerIdentityTokens(reviewer: string): string[] {
+  const declared = reviewer.trim().toLowerCase();
+  if (declared === '') return [];
+
+  const tokens = [declared];
+  const at = declared.indexOf('@');
+  if (at > 0) {
+    const local = declared.slice(0, at);
+    if (local.length >= MIN_DERIVED_TOKEN) tokens.push(local);
+  }
+  return tokens;
+}
+
 export function assertNoReviewerIdentity(
   fields: WireCorrectionFields,
   reviewers: Iterable<string>,
@@ -222,9 +250,9 @@ export function assertNoReviewerIdentity(
 
   const haystack = reason.toLowerCase();
   for (const reviewer of reviewers) {
-    const needle = reviewer.trim().toLowerCase();
-    if (needle === '') continue;
-    if (haystack.includes(needle)) throw new ReviewerIdentityLeak('editorialCorrectionReason');
+    for (const needle of reviewerIdentityTokens(reviewer)) {
+      if (haystack.includes(needle)) throw new ReviewerIdentityLeak('editorialCorrectionReason');
+    }
   }
 }
 

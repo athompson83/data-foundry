@@ -170,11 +170,16 @@ export async function storeArtifactBytes(
       etag: request.metadata.etag,
       last_modified: request.metadata.last_modified,
     };
-    await primitives.write(
-      retrievalKey,
-      new TextEncoder().encode(`${JSON.stringify(record, null, 2)}\n`),
-      { ...metadata, mime_type: RETRIEVAL_RECORD_MIME },
-    );
+    const recordBody = new TextEncoder().encode(`${JSON.stringify(record, null, 2)}\n`);
+    await primitives.write(retrievalKey, recordBody, {
+      ...metadata,
+      mime_type: RETRIEVAL_RECORD_MIME,
+      // This object is the retrieval record, not the content it points at. Its
+      // own fetch instant and its own length, so `head(retrievalKey)` describes
+      // the object that is actually there rather than the bytes it records.
+      retrieved_at: request.metadata.retrieved_at,
+      byte_size: recordBody.byteLength,
+    });
   }
 
   return {

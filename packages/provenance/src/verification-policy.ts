@@ -252,7 +252,13 @@ export function isVerified(s: VerificationSignals): VerificationVerdict {
   // Mixed attributions were the gap: an undated manufacturer sheet alongside a
   // distributor listing crawled this morning satisfied "dated" and earned a
   // badge whose text promises dated authoritative evidence.
-  if (!s.hasDatedAuthoritativeEvidence) blockers.push('UNKNOWN_EVIDENCE_DATE');
+  // Gated on the source existing: "undated" and "absent" are different refusals,
+  // and NO_AUTHORITATIVE_SUPPORT above already states the second. Ungated, a
+  // value with no authoritative backer at all was told its authoritative
+  // evidence could not be dated, which names evidence that is not there.
+  if (s.hasAuthoritativeSource && !s.hasDatedAuthoritativeEvidence) {
+    blockers.push('UNKNOWN_EVIDENCE_DATE');
+  }
 
   const primary = blockers[0];
   return {

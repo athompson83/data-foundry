@@ -135,11 +135,11 @@
     },
     "evidence_fingerprint": {
       "type": "string",
-      "maxLength": 64
+      "pattern": "^$|^[0-9a-f]{64}$"
     },
     "decision_fingerprint": {
       "type": "string",
-      "maxLength": 64
+      "pattern": "^$|^[0-9a-f]{64}$"
     },
     "supersedes_judgment_id": {
       "anyOf": [
@@ -156,7 +156,7 @@
     "episode_seq": {
       "type": "integer",
       "minimum": 1,
-      "maximum": 9007199254740991
+      "maximum": 2147483647
     },
     "active": {
       "type": "boolean"

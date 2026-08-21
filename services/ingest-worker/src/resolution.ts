@@ -603,18 +603,26 @@ export class EntityResolver {
         identity_confidence: input.confidence,
       }),
     );
-    const pair: SqlParam[] = [
-      this.#deps.verticalId,
-      input.leftEntityId ?? null,
-      input.leftSourceRecordId ?? null,
-      input.rightEntityId,
-      input.verdict,
-    ];
-    const PAIR_PREDICATE = `vertical_id = $1
+    // Identity is the QUESTION this judgment answers, never the answer itself.
+    //
+    // A record asks "where do I belong?" — the entity is the answer, so keying
+    // on it would open a second history every time a record moved, leaving the
+    // old judgment active and the trail self-contradictory. Two entities ask
+    // "are we the same?" — there both sides are the question. `verdict` is the
+    // answer in both cases and belongs in neither key. These predicates match
+    // the partial unique indexes in migration 0009 exactly; if they drift, the
+    // database refuses the write rather than letting a stale judgment stand.
+    const asksAboutRecord = input.leftSourceRecordId !== undefined && input.leftSourceRecordId !== null;
+    const pair: SqlParam[] = asksAboutRecord
+      ? [this.#deps.verticalId, input.leftSourceRecordId ?? null]
+      : [this.#deps.verticalId, input.leftEntityId ?? null, input.rightEntityId];
+    const PAIR_PREDICATE = asksAboutRecord
+      ? `vertical_id = $1
+          AND left_source_record_id IS NOT DISTINCT FROM $2`
+      : `vertical_id = $1
+          AND left_source_record_id IS NULL
           AND left_entity_id IS NOT DISTINCT FROM $2
-          AND left_source_record_id IS NOT DISTINCT FROM $3
-          AND right_entity_id IS NOT DISTINCT FROM $4
-          AND verdict = $5`;
+          AND right_entity_id IS NOT DISTINCT FROM $3`;
 
     await driver.transaction(async (tx) => {
       const [current] = await tx.query<{
@@ -735,7 +743,12 @@ export class EntityResolver {
     const bySlug = (left: EntityId, right: EntityId): number =>
       compareCodeUnits(byId.get(left)?.slug ?? left, byId.get(right)?.slug ?? right);
 
-    for (const [blockKey, members] of [...blocks.entries()].sort()) {
+    // Default sort would coerce each [key, EntityId[]] entry with String(),
+    // making the sort key depend on member UUID order. Block order decides
+    // which block owns a pair, and the block key is part of the fingerprint.
+    for (const [blockKey, members] of [...blocks.entries()].sort(([left], [right]) =>
+      compareCodeUnits(left, right),
+    )) {
       const ordered = [...new Set(members)].sort(bySlug);
       for (let i = 0; i < ordered.length; i += 1) {
         for (let j = i + 1; j < ordered.length; j += 1) {
@@ -810,7 +823,10 @@ export class EntityResolver {
       `SELECT e.id, e.canonical_slug, e.entity_type,
               (SELECT a.normalized_value FROM entity_aliases a
                 WHERE a.entity_id = e.id AND a.alias_type = 'model_number'
-                ORDER BY a.normalized_value LIMIT 1) AS model_number,
+                -- COLLATE "C": this LIMIT 1 picks the blocking key, which decides
+                -- which pairs are ever compared and lands in the evidence
+                -- fingerprint. A host collation must not choose it.
+                ORDER BY a.normalized_value COLLATE "C" LIMIT 1) AS model_number,
               (SELECT m.canonical_slug FROM relationships r
                  JOIN entities m ON m.id = r.subject_entity_id
                 WHERE r.object_entity_id = e.id AND r.predicate = 'manufactures'

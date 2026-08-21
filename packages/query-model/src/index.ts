@@ -47,6 +47,7 @@ export {
   CORRECTION_FIELDS_JSON_SCHEMA,
   ReviewerIdentityLeak,
   assertNoReviewerIdentity,
+  reviewerIdentityTokens,
   correctionFields,
   correctionInvariantViolation,
   toExportRow,

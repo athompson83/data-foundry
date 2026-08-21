@@ -292,12 +292,35 @@ describe('isVerified — guarantees', () => {
       decidedBy: 'CORROBORATION',
     });
     expect(v.blockers).toEqual(
-      expect.arrayContaining([
-        'NO_AUTHORITATIVE_SUPPORT',
-        'NON_AUTHORITATIVE_ADJUDICATION',
-        'UNKNOWN_EVIDENCE_DATE',
-      ]),
+      expect.arrayContaining(['NO_AUTHORITATIVE_SUPPORT', 'NON_AUTHORITATIVE_ADJUDICATION']),
     );
+  });
+
+  it('does not report undated authoritative evidence when there is none to date', () => {
+    // The whole list is rendered in the "why this is not verified" panel, so
+    // "the authoritative evidence could not be dated" must not appear beside
+    // "there is no authoritative evidence". Absent and undated are different
+    // refusals; the first already has its own code.
+    const v = isVerified({
+      ...QUALIFYING,
+      hasAuthoritativeSource: false,
+      hasDatedAuthoritativeEvidence: false,
+      freshestAuthoritativeEvidenceAgeDays: null,
+    });
+    expect(v.blockers).toContain('NO_AUTHORITATIVE_SUPPORT');
+    expect(v.blockers).not.toContain('UNKNOWN_EVIDENCE_DATE');
+    expect(v.verified).toBe(false);
+  });
+
+  it('still reports an authoritative backer that carries no usable date', () => {
+    const v = isVerified({
+      ...QUALIFYING,
+      hasAuthoritativeSource: true,
+      hasDatedAuthoritativeEvidence: false,
+      freshestAuthoritativeEvidenceAgeDays: null,
+    });
+    expect(v.blockers).toContain('UNKNOWN_EVIDENCE_DATE');
+    expect(v.verified).toBe(false);
   });
 
   it('orders the primary reason by the documented blocker priority', () => {

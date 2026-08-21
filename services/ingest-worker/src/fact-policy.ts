@@ -25,6 +25,7 @@ import type { Identifier, IsoDateTime, SourceType } from '@data-foundry/canonica
 import type { SourceRegistryEntry } from '@data-foundry/source-registry';
 import type { VerticalConfig } from './config.js';
 import { PipelineConfigurationError } from './errors.js';
+import { reviewerIdentityTokens } from '@data-foundry/query-model';
 
 /** YAML arrives untyped; every reader below narrows what it needs. */
 type Yaml = any;
@@ -139,9 +140,11 @@ export function assertEditorialOverrideDeclarationIsHonest(config: VerticalConfi
     ? declaration.overrides
     : [];
   for (const [index, entry] of declaredOverrides.entries()) {
-    const reviewer = String(entry?.reviewer ?? '').trim().toLowerCase();
     const reason = String(entry?.reason ?? '').toLowerCase();
-    if (reviewer === '' || !reason.includes(reviewer)) continue;
+    // Same token rule as the wire guard, imported rather than restated so the
+    // two gates cannot drift into disagreeing about what counts as an identity.
+    const tokens = reviewerIdentityTokens(String(entry?.reviewer ?? ''));
+    if (!tokens.some((token) => reason.includes(token))) continue;
     // The identity is deliberately absent from the message: an error string
     // reaches logs and trackers, and a guard that leaks what it guards is
     // worse than none. The index locates the entry without repeating it.

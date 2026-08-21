@@ -33,13 +33,13 @@ const ROBOTS = JSON.stringify({
 });
 const ATTRIBUTION = JSON.stringify({ required: false, text: null, url: null });
 
-async function seed(): Promise<void> {
-  await driver.query(
+async function seed(target: MigrationDriver = driver): Promise<void> {
+  await target.query(
     `INSERT INTO verticals (id, slug, name, schema_version, status, default_refresh_policy)
      VALUES ($1, 'hvac', 'HVAC', '1.0.0', 'ACTIVE', $2::jsonb)`,
     [VERTICAL, JSON.stringify({ cadence: 'WEEKLY', max_staleness_hours: 168, priority: 50 })],
   );
-  await driver.query(
+  await target.query(
     `INSERT INTO sources (id, vertical_id, publisher, domain, source_type, authority_rank,
                           rights_classification, attribution_requirement, robots_policy,
                           refresh_cadence, status)
@@ -47,20 +47,20 @@ async function seed(): Promise<void> {
              'GREEN', $3::jsonb, $4::jsonb, 'WEEKLY', 'ACTIVE')`,
     [SOURCE, VERTICAL, ATTRIBUTION, ROBOTS],
   );
-  await driver.query(
+  await target.query(
     `INSERT INTO source_artifacts (id, source_id, url, retrieved_at, content_hash, mime_type,
                                    r2_uri, http_status, extractor_version, acquisition_provider)
      VALUES ($1, $2, 'https://ahridirectory.org/x', $3, $4, 'text/html',
              'r2://raw/hvac/ahri/x.html', 200, 'html-1.0.0', 'http')`,
     [ARTIFACT, SOURCE, TS, 'a'.repeat(64)],
   );
-  await driver.query(
+  await target.query(
     `INSERT INTO source_records (id, source_id, artifact_id, source_record_key, entity_type,
                                  raw_payload, extraction_confidence, extractor_version)
      VALUES ($1, $2, $3, 'AHRI-123', 'equipment', '{}'::jsonb, 0.95, 'html-1.0.0')`,
     [RECORD, SOURCE, ARTIFACT],
   );
-  await driver.query(
+  await target.query(
     `INSERT INTO entities (id, vertical_id, entity_type, canonical_name, canonical_slug,
                            status, quality_score, first_seen_at)
      VALUES ($1, $2, 'equipment', 'Carrier 24ANB7', 'carrier-24anb7', 'ACTIVE', 0.7, $3)`,
@@ -302,7 +302,46 @@ describe('storage-level invariants', () => {
     ).rejects.toThrow(/resolution_judgments_merge_target/);
   });
 
-  it('allows only one current judgment per pair, so supersession cannot be skipped', async () => {
+  it('refuses to delete an entity whose verification history would go with it', async () => {
+    // `fact_verifications.fact_id` is RESTRICT so a verdict cannot outlive the
+    // claim it judged. That is only as strong as the entity FK beside it: a
+    // CASCADE there deletes the verdicts first, which un-blocks the CASCADE
+    // from `facts.entity_id`, and one entity delete erases the whole trail.
+    // A property of its own: sibling tests hold the only open ACTIVE version of
+    // `seer2_rating` for this entity.
+    const [fact] = await driver.query<{ id: string }>(
+      `INSERT INTO facts (entity_id, property, normalized_value, value_type, valid_from,
+                          status, confidence, recorded_at)
+       VALUES ($1, 'fk_probe_property', '14.5'::jsonb, 'number', $2, 'ACTIVE', 0.9, $2)
+       RETURNING id`,
+      [ENTITY, '2026-03-01T00:00:00.000Z'],
+    );
+    await driver.query(
+      `INSERT INTO fact_verifications
+         (entity_id, property, fact_id, selected_value, verified, reason, blockers, signals,
+          evidence_refs, selection_rule, policy_version, evaluated_at, verdict_fingerprint)
+       VALUES ($1, 'fk_probe_property', $2, '14.5'::jsonb, TRUE, 'authoritative and dated',
+               ARRAY[]::text[], '{}'::jsonb, '[]'::jsonb, 'DIRECT_AUTHORITATIVE_SOURCE',
+               'verification-policy-v2', $3, $4)`,
+      [ENTITY, fact!.id, TS, 'c'.repeat(64)],
+    );
+
+    await expect(driver.query(`DELETE FROM entities WHERE id = $1`, [ENTITY])).rejects.toThrow(
+      /fact_verifications/,
+    );
+
+    // And the evidence is still there to be read.
+    const [after] = await driver.query<{ n: string }>(
+      `SELECT count(*)::text AS n FROM fact_verifications WHERE entity_id = $1`,
+      [ENTITY],
+    );
+    expect(Number(after?.n)).toBe(1);
+
+    await driver.query(`DELETE FROM fact_verifications WHERE entity_id = $1`, [ENTITY]);
+    await driver.query(`DELETE FROM facts WHERE id = $1`, [fact!.id]);
+  });
+
+  it('allows only one current judgment per record, so supersession cannot be skipped', async () => {
     const insert = (seq: number, evidence: string) =>
       driver.query(
         `INSERT INTO resolution_judgments (vertical_id, verdict, left_source_record_id,
@@ -315,9 +354,10 @@ describe('storage-level invariants', () => {
 
     await insert(1, 'e1');
     // A second episode that leaves the first one active is exactly the state
-    // that let a stale judgment keep speaking for the pair (finding #2b).
-    // NULLS NOT DISTINCT is what makes the index bite: one side is always NULL.
-    await expect(insert(2, 'e2')).rejects.toThrow(/resolution_judgments_current_episode_key/);
+    // that let a stale judgment keep speaking for the record. The key is the
+    // question the record asks — where do I belong — so the entity it resolved
+    // to is deliberately not part of it.
+    await expect(insert(2, 'e2')).rejects.toThrow(/resolution_judgments_current_record_key/);
 
     await driver.query(
       `UPDATE resolution_judgments SET active = FALSE WHERE left_source_record_id = $1`,
@@ -330,6 +370,107 @@ describe('storage-level invariants', () => {
       `UPDATE resolution_judgments SET active = FALSE WHERE left_source_record_id = $1`,
       [RECORD],
     );
-    await expect(insert(2, 'e3')).rejects.toThrow(/resolution_judgments_episode_order_key/);
+    await expect(insert(2, 'e3')).rejects.toThrow(/resolution_judgments_record_episode_key/);
+  });
+});
+
+/**
+ * Migration 0009 has to land on a database that already holds judgment history.
+ *
+ * Before 0009 there was no unique constraint on the judgment pair — the table's
+ * own comment promises the opposite of one ("Rows are never deleted; a reversal
+ * is a new row pointing at the old via reverses_judgment_id"). So a pair that
+ * was merged, reversed, and merged again legitimately holds two `MERGE` rows.
+ *
+ * `episode_seq` arrives with `DEFAULT 1`, which hands every one of those rows
+ * the same sequence number. Creating `resolution_judgments_episode_order_key`
+ * over that state cannot succeed, and a migration that refuses to apply over
+ * lawful history is a migration that cannot be deployed at all.
+ */
+describe('migration 0009 over pre-existing judgment history', () => {
+  let legacy: MigrationDriver;
+
+  const PAIR = { record: RECORD, entity: ENTITY };
+
+  beforeAll(async () => {
+    legacy = await createPGliteDriver();
+    // Everything the judgment table needs, and nothing that knows about episodes.
+    const before0009 = migrations.filter((migration) => migration.version < '0009');
+    await applyMigrations(legacy, before0009);
+    await seed(legacy);
+
+    // Two MERGE judgments on one pair: approved, reversed, approved again. The
+    // reversal in between is a NOT_MERGE, so all three share the pair and two
+    // share the verdict.
+    const insertLegacy = (verdict: string, at: string, active: boolean) =>
+      legacy.query(
+        `INSERT INTO resolution_judgments (vertical_id, verdict, left_source_record_id,
+                                           right_entity_id, merged_into_entity_id, decided_by_kind,
+                                           decided_by_actor, decided_at, identity_confidence, active)
+         VALUES ($1, $2, $3, $4, $5, 'HUMAN', 'reviewer@example.com', $6, 0.95, $7)`,
+        [
+          VERTICAL,
+          verdict,
+          PAIR.record,
+          PAIR.entity,
+          verdict === 'MERGE' ? PAIR.entity : null,
+          at,
+          active,
+        ],
+      );
+
+    await insertLegacy('MERGE', '2026-01-01T00:00:00.000Z', false);
+    await insertLegacy('NOT_MERGE', '2026-02-01T00:00:00.000Z', false);
+    await insertLegacy('MERGE', '2026-03-01T00:00:00.000Z', true);
+  }, 120_000);
+
+  afterAll(async () => {
+    await legacy?.close();
+  });
+
+  it('applies over a pair that was merged, reversed and merged again', async () => {
+    await expect(applyMigrations(legacy, migrations)).resolves.toBeDefined();
+  });
+
+  it('numbers that history instead of collapsing it', async () => {
+    const rows = await legacy.query<{ verdict: string; episode_seq: number; active: boolean }>(
+      `SELECT verdict, episode_seq, active FROM resolution_judgments
+        WHERE left_source_record_id = $1 ORDER BY decided_at`,
+      [PAIR.record],
+    );
+    expect(rows.length).toBe(3);
+
+    // All three survive with distinct positions in one history, numbered in
+    // the order the decisions were actually made.
+    const seqs = rows.map((row) => row.episode_seq);
+    expect(new Set(seqs).size).toBe(seqs.length);
+    expect(seqs).toEqual([...seqs].sort((a, b) => a - b));
+
+    // Every episode number is 1-based and positive, per the CHECK constraint.
+    for (const row of rows) expect(row.episode_seq).toBeGreaterThan(0);
+  });
+
+  it('leaves exactly one active judgment for the record', async () => {
+    // One question, one current answer. The verdict is the answer, so a MERGE
+    // and a NOT_MERGE about the same record are the same history, not two.
+    const [row] = await legacy.query<{ n: string }>(
+      `SELECT count(*)::text AS n FROM resolution_judgments
+        WHERE left_source_record_id = $1 AND active`,
+      [PAIR.record],
+    );
+    expect(Number(row?.n)).toBe(1);
+  });
+
+  it('re-applies as a no-op without renumbering the history it already fixed', async () => {
+    const before = await legacy.query<{ id: string; episode_seq: number }>(
+      `SELECT id::text AS id, episode_seq FROM resolution_judgments ORDER BY id`,
+    );
+    const second = await applyMigrations(legacy, migrations);
+    expect(second.every((result) => result.skipped)).toBe(true);
+
+    const after = await legacy.query<{ id: string; episode_seq: number }>(
+      `SELECT id::text AS id, episode_seq FROM resolution_judgments ORDER BY id`,
+    );
+    expect(after).toEqual(before);
   });
 });

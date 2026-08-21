@@ -364,3 +364,71 @@ describe('reviewer identity never reaches a wire shape', () => {
     expect(() => assertNoReviewerIdentity(rest, [REVIEWER])).not.toThrow();
   });
 });
+
+/**
+ * The guard has to be *invoked*, not merely available.
+ *
+ * `assertNoReviewerIdentity` was exported and documented as the wire-boundary
+ * enforcement while nothing outside these tests called it. The configuration
+ * gate in the ingest worker caught the declared case, but `canonicalFacts`
+ * accepts a `FactSelectionPolicyInput` directly — so any caller assembling a
+ * policy in process bypassed the gate entirely and served a reason naming its
+ * own reviewer to web, REST, MCP and exports alike.
+ *
+ * These run the real query model against the real store. The enforcement lives
+ * where the reason and the reviewer are both still in hand, which is the last
+ * point before the identity is dropped and the reason travels on alone.
+ */
+const LEAKING: Partial<FactSelectionPolicyInput> = {
+  editorialOverrides: [
+    {
+      source: 'editorial.internal',
+      reason: `Corrected by ${REVIEWER} after a supplier call.`,
+      reviewer: REVIEWER,
+    },
+  ],
+};
+
+/** Same identity, different casing — a guard that only matches exactly is not one. */
+const LEAKING_CASED: Partial<FactSelectionPolicyInput> = {
+  editorialOverrides: [
+    {
+      source: 'editorial.internal',
+      reason: `Reviewed (${REVIEWER.toUpperCase()}), 2026-04-02.`,
+      reviewer: REVIEWER,
+    },
+  ],
+};
+
+describe('the canonical view refuses to carry a reviewer identity', () => {
+  it('throws rather than serving a reason that names its own reviewer', async () => {
+    await expect(view('seer2', LEAKING)).rejects.toThrow(ReviewerIdentityLeak);
+  });
+
+  it('matches the identity regardless of case', async () => {
+    await expect(view('seer2', LEAKING_CASED)).rejects.toThrow(ReviewerIdentityLeak);
+  });
+
+  it('does not repeat the identity in the error it raises about the identity', async () => {
+    let message = '';
+    try {
+      await view('seer2', LEAKING);
+    } catch (error) {
+      message = error instanceof Error ? error.message : String(error);
+    }
+    expect(message).toMatch(/editorialCorrectionReason/);
+    expect(message).not.toContain(REVIEWER);
+    expect(message).not.toContain(REVIEWER.toUpperCase());
+  });
+
+  it('still serves a correction whose reason explains without naming anyone', async () => {
+    const row = await view('seer2', CORRECTED);
+    expect(row.editorially_corrected).toBe(true);
+    expect(row.editorial_correction_reason).toBe(REASON);
+  });
+
+  it('leaves the reviewer off the view it does serve', async () => {
+    const row = await view('seer2', CORRECTED);
+    expect(JSON.stringify(row)).not.toContain(REVIEWER);
+  });
+});

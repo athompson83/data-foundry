@@ -43,6 +43,31 @@ const NEWER = {
   seenAt: '2026-05-01T00:00:00.000Z',
 };
 
+/**
+ * A pair built so the two candidate orderings disagree: `low` sorts BEFORE
+ * `high` by slug and AFTER it by id. Whichever rule the blocking pass uses,
+ * this pair reveals it — which is what makes the assertion below evidence
+ * rather than luck.
+ *
+ * They share a `model_number_prefix_6` (`ZZOPPO`) so they land in one block, and
+ * carry a `supersedes` edge — a predicate `never_merge_across` names — so the
+ * pass records NOT_MERGE rather than leaving a NEEDS_REVIEW candidate.
+ */
+const OPPOSED = {
+  /** First by slug (`aaa` < `bbb`), last by id (`ffff…` > `1111…`). */
+  low: {
+    id: 'ffffdddd-dddd-4ddd-8ddd-dddddddddddd',
+    slug: 'zz-opposed-aaa',
+    model: 'ZZOPPO01',
+  },
+  /** Last by slug, first by id. */
+  high: {
+    id: '1111dddd-dddd-4ddd-8ddd-dddddddddddd',
+    slug: 'zz-opposed-bbb',
+    model: 'ZZOPPO02',
+  },
+};
+
 interface ProbeResult {
   locale: string;
   normalized: string;
@@ -105,6 +130,31 @@ beforeAll(async () => {
     );
   }
 
+  for (const entity of [OPPOSED.low, OPPOSED.high]) {
+    await factory.driver.query(
+      `INSERT INTO entities (id, vertical_id, entity_type, canonical_name, canonical_slug,
+                             status, quality_score, first_seen_at, created_at, updated_at)
+       VALUES ($1, $2, 'equipment_model', $3, $4, 'ACTIVE', 0.5, $5, $5, $5)`,
+      [entity.id, vertical!.id, entity.model, entity.slug, '2026-03-01T00:00:00.000Z'],
+    );
+    await factory.driver.query(
+      `INSERT INTO entity_aliases (entity_id, alias_type, alias_value, normalized_value,
+                                   source_id, identity_confidence, valid_from)
+       VALUES ($1, 'model_number', $2, $2, $3, 0.99, $4)`,
+      [entity.id, entity.model, sourceId, '2026-03-01T00:00:00.000Z'],
+    );
+  }
+
+  // `never_merge_across: [supersedes]` — an edge the vertical says identity
+  // never crosses. That is the rejection reason that turns this block into a
+  // recorded NOT_MERGE rather than a NEEDS_REVIEW candidate.
+  await factory.driver.query(
+    `INSERT INTO relationships (vertical_id, subject_entity_id, predicate, object_entity_id,
+                                confidence, valid_from, status, recorded_at)
+     VALUES ($1, $2, 'supersedes', $3, 0.99, $4, 'ACTIVE', $4)`,
+    [vertical!.id, OPPOSED.high.id, OPPOSED.low.id, '2026-03-01T00:00:00.000Z'],
+  );
+
   resolver = new EntityResolver({
     store: factory.store,
     config: factory.config,
@@ -112,6 +162,10 @@ beforeAll(async () => {
     now: '2026-08-14T00:00:00.000Z' as never,
     authorityBySourceId: new Map(),
   });
+
+  // The fixture's own blocking pass ran during `factory.run()`, before these
+  // entities existed. Run it again so the opposed pair earns its judgment.
+  await resolver.runBlockingPass();
 });
 
 afterAll(async () => {
@@ -214,9 +268,23 @@ describe('#8 — the blocking pass names pairs in a reproducible direction', () 
       ).toBe(true);
     }
 
-    // Not vacuous: at least one pair would have been recorded the other way
-    // round under the old id ordering, so the assertion above is doing work.
-    const wouldHaveFlipped = rows.filter((row) => row.left_id > row.right_id);
-    expect(wouldHaveFlipped.length).toBeGreaterThan(0);
+    // Not vacuous, and not left to chance. The fixture pairs draw
+    // `gen_random_uuid()` ids, so whether any of them would have been recorded
+    // the other way round under the old ordering is a coin toss — asserting on
+    // that made this test fail roughly one run in eight. `OPPOSED` below is
+    // inserted with its id order deliberately reversed against its slug order,
+    // so exactly one pair is guaranteed to distinguish the two rules.
+    const opposed = rows.find(
+      (row) => row.left_slug === OPPOSED.low.slug || row.right_slug === OPPOSED.low.slug,
+    );
+    expect(
+      opposed,
+      'the opposed-ordering pair produced no judgment, so this test proves nothing',
+    ).toBeDefined();
+    expect(opposed!.left_slug).toBe(OPPOSED.low.slug);
+    expect(opposed!.right_slug).toBe(OPPOSED.high.slug);
+    // Under the old `left_entity_id < right_entity_id` rule this pair would
+    // have been named the other way round.
+    expect(opposed!.left_id > opposed!.right_id).toBe(true);
   });
 });

@@ -77,10 +77,24 @@ export async function sweepOrphanedArtifacts(
         'archive (AGENTS.md rule 10).',
     );
   }
-  if (!Number.isFinite(input.minimumAgeMs) || input.minimumAgeMs < 0) {
+  if (!Number.isFinite(input.minimumAgeMs) || input.minimumAgeMs <= 0) {
     throw new ArtifactStoreError(
       `Refusing to sweep with minimumAgeMs=${String(input.minimumAgeMs)}: a sweep with no grace ` +
         'period races every run that is between storing bytes and committing its row.',
+    );
+  }
+
+  // Membership is exact string equality against `store.uriFor(key)`, and the
+  // URI form is the store's: `r2://…` for R2, `file://…` for local disk. A
+  // reference set gathered from a different store matches nothing, so every
+  // object would look orphaned and `apply` would delete the archive. A full but
+  // irrelevant set is exactly what the empty-set guard above cannot see.
+  const scheme = `${input.store.scheme}://`;
+  if (![...input.referencedUris].some((uri) => uri.startsWith(scheme))) {
+    throw new ArtifactStoreError(
+      `Refusing to sweep: not one referenced URI uses this store's scheme "${input.store.scheme}". ` +
+        'The reference set was recorded against a different store, every object here would look ' +
+        'orphaned, and applying it would delete the archive (AGENTS.md rule 10).',
     );
   }
 

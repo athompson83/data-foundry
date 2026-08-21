@@ -22,7 +22,11 @@
 
 CREATE TABLE IF NOT EXISTS fact_verifications (
     id                  UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
-    entity_id           UUID        NOT NULL REFERENCES entities (id) ON DELETE CASCADE,
+    -- RESTRICT on BOTH foreign keys, not just fact_id. A CASCADE here would
+    -- delete the verdict rows first, which un-blocks the CASCADE from
+    -- facts.entity_id and lets one entity delete erase exactly the history this
+    -- table exists to keep. The RESTRICT below is only as strong as this one.
+    entity_id           UUID        NOT NULL REFERENCES entities (id) ON DELETE RESTRICT,
     property            TEXT        NOT NULL,
     -- RESTRICT, not CASCADE: a verdict outliving the claim it judged would be
     -- unreadable, and a claim is never deleted anyway (AGENTS.md rule 10).
