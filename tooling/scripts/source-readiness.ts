@@ -31,21 +31,16 @@ import { rightsReviewIsCurrent } from '@data-foundry/source-registry';
 import { VERTICALS_DIR } from '../validators/validate-verticals.js';
 
 /**
- * Domains reserved by RFC 2606 and RFC 6761 for documentation and testing. A
- * source on one of these cannot be a real publisher: the names are reserved
+ * Names reserved by RFC 2606 and RFC 6761 for documentation and testing. A
+ * source on one of these cannot be a real publisher: they are reserved
  * precisely so that they never resolve to anyone.
  */
-const RESERVED_SUFFIXES = [
-  '.example.com',
-  '.example.org',
-  '.example.net',
-  '.example',
-  '.test',
-  '.invalid',
-  '.localhost',
-] as const;
 
-const RESERVED_EXACT = ['example.com', 'example.org', 'example.net', 'localhost'] as const;
+/** Reserved top-level labels. Everything beneath them is reserved too. */
+const RESERVED_TLDS = ['example', 'test', 'invalid', 'localhost'] as const;
+
+/** Reserved second-level names, which sit under ordinary top-level domains. */
+const RESERVED_NAMES = ['example.com', 'example.org', 'example.net'] as const;
 
 /**
  * One spelling per host.
@@ -63,8 +58,12 @@ export const normalizeDomain = (domain: string): string =>
 export function isReservedDomain(domain: string): boolean {
   const host = normalizeDomain(domain);
   if (host === '') return false;
-  if (RESERVED_EXACT.includes(host as (typeof RESERVED_EXACT)[number])) return true;
-  return RESERVED_SUFFIXES.some((suffix) => host.endsWith(suffix));
+  // A reserved name and everything under it, asked as one question. Splitting
+  // it into an exact list and a suffix list left the apex forms in neither:
+  // `test` is the reserved TLD itself, and does not end with `.test`. That gap
+  // is not hypothetical either — `test.` normalizes straight into it.
+  const under = (name: string): boolean => host === name || host.endsWith(`.${name}`);
+  return RESERVED_TLDS.some(under) || RESERVED_NAMES.some(under);
 }
 
 /** What a single source declaration says about its own rights posture. */

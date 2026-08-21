@@ -71,6 +71,17 @@ describe('a reserved domain cannot name a real publisher', () => {
       // Fully qualified, with the root label written out. Same DNS name.
       'example.com.',
       'catalog.acme-climate.example.com.',
+      // The reserved top-level labels standing alone. `.test` is reserved as a
+      // TLD, so the TLD itself is the most reserved name there is — but a rule
+      // written as "ends with `.test`" does not match `test`, and the apex form
+      // is exactly what a trailing root dot normalizes down to.
+      'example',
+      'example.',
+      'test',
+      'test.',
+      'invalid',
+      'invalid.',
+      'localhost.',
     ]) {
       expect(isReservedDomain(domain), domain).toBe(true);
     }
@@ -82,6 +93,10 @@ describe('a reserved domain cannot name a real publisher', () => {
       'exampleteam.io',
       'notexample.com',
       'ahridirectory.org',
+      // The reserved label has to be a whole label, not a string ending.
+      'attest.com',
+      'contest.example-registry.io',
+      'notlocalhost.net',
     ]) {
       expect(isReservedDomain(domain), domain).toBe(false);
     }
