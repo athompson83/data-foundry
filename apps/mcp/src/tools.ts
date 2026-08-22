@@ -552,10 +552,17 @@ const compareEntities = defineTool({
     'suitability for any particular use, and never infers a missing value from a similar ' +
     'entity — missing is reported as missing.',
   input: CompareEntitiesInput,
+  // `REVIEWER_IDENTITY_BLOCKED` belongs here even though nothing in this
+  // handler throws it: `compare` reads the same canonical fact sheets
+  // `list_facts` does, and the query layer refuses to project a correction
+  // reason that names its reviewer wherever that sheet is built. A client
+  // handling the code on `list_facts` and not on this tool would be surprised
+  // by the same vertical config on the same entities.
   errors: [
     'INVALID_ARGUMENTS',
     'ENTITY_NOT_FOUND',
     'TOO_FEW_ENTITIES',
+    'REVIEWER_IDENTITY_BLOCKED',
     'INTERNAL_ERROR',
   ],
   handler: async (context, args): Promise<Guarded<CompareEntitiesResult>> => {

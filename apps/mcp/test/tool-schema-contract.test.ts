@@ -1,12 +1,12 @@
 /**
- * The declared input schema must be the one the dispatcher enforces.
+ * The declared contract must be the one the dispatcher honours.
  *
  * This is the classic MCP defect: a tool advertises `limit` as at most 50, the
  * handler happily runs with 5000, and nothing says so until a caller trusts the
  * declaration. The declaration is the only thing a model has to reason with, so
  * a schema nothing enforces is worse than no schema — it is a promise.
  *
- * Three separate claims are proved here, because they fail independently:
+ * Four separate claims are proved here, because they fail independently:
  *
  *   1. IDENTITY — the published JSON Schema is generated from the very Zod
  *      object the dispatcher parses with. Not "consistent with"; generated
@@ -21,10 +21,32 @@
  *      accepted, and the baselines below name every one of them. A schema that
  *      advertises an argument the validator strips is the same lie in the other
  *      direction.
+ *   4. ERROR COMPLETENESS — no tool answers with a code it did not declare.
+ *      `errorCodes` is the other half of the published contract and the only
+ *      thing a client has to write its error handling against; a tool that can
+ *      emit a code missing from that list has told the client the case cannot
+ *      happen. Claim 1 already checks the list contains nothing invented. That
+ *      is the easy direction, and it is why this file used to pass while
+ *      `compare_entities` returned `REVIEWER_IDENTITY_BLOCKED` — a code its
+ *      declaration did not mention — to anyone whose vertical had an override
+ *      reason naming its reviewer.
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { AT, createMcpFixtures, errorOf, type McpFixtures } from './support.js';
-import { MCP_TOOL_ERROR_CODES, TOOLS, publishInputSchema } from '../src/index.js';
+import {
+  AT,
+  POISONED_REASON,
+  createMcpFixtures,
+  errorOf,
+  policyWithOverride,
+  type McpFixtures,
+} from './support.js';
+import {
+  MCP_TOOL_ERROR_CODES,
+  TOOLS,
+  createMcpServer,
+  publishInputSchema,
+  type McpServer,
+} from '../src/index.js';
 import { ENTITY_ID_FIELD, IDENTIFIER_FIELD } from '../src/canonical-schemas.js';
 import entitiesSchema from '../../../schemas/canonical/entities.schema.json' with { type: 'json' };
 import factsSchema from '../../../schemas/canonical/facts.schema.json' with { type: 'json' };
@@ -215,6 +237,98 @@ function violationsFor(property: string, schema: Json): Violation[] {
 
   return found;
 }
+
+/* ------------------------------------------------------------------ *
+ * Claim 4: no tool answers with an undeclared code
+ * ------------------------------------------------------------------ */
+
+/** A well-formed id nothing in this catalogue holds. */
+const UNKNOWN_ID = '00000000-0000-4000-8000-000000000000';
+const OTHER_UNKNOWN_ID = '00000000-0000-4000-8000-000000000001';
+
+/**
+ * Argument values that provoke a failure, keyed by the property they replace.
+ *
+ * Keyed by property rather than by tool so that a tool added later is swept by
+ * whatever its declared arguments happen to be, without anyone remembering to
+ * extend a list. A property with no entry here contributes its baseline value.
+ */
+const PROVOCATIONS: Readonly<Record<string, unknown>> = {
+  entity_id: UNKNOWN_ID,
+  entity_ids: [UNKNOWN_ID, OTHER_UNKNOWN_ID],
+  identifier: 'nothing-in-this-catalogue',
+  property: 'warranty_years',
+  properties: ['warranty_years'],
+  filters: [{ property: 'blower_speed', op: 'exists' }],
+  as_of: '1970-01-01T00:00:00.000Z',
+};
+
+describe('claim 4: no tool answers with a code it does not declare', () => {
+  /**
+   * Every failure these fixtures can provoke, on two servers: the ordinary one
+   * and one whose editorial override reason names its own reviewer. The second
+   * is not an exotic case — it is a vertical config with a badly worded reason,
+   * and it is the state that made `compare_entities` refuse with a code it had
+   * not published.
+   */
+  const observed = new Map<string, Set<string>>();
+
+  it('holds for every tool, on every scenario these fixtures can provoke', async () => {
+    const base = baselines();
+    const poisoned: McpServer = createMcpServer({
+      queryModel: fixtures.qm,
+      vertical: { id: fixtures.vertical.id, slug: 'hvac' },
+      policy: policyWithOverride(POISONED_REASON),
+    });
+
+    for (const tool of TOOLS) {
+      const codes = new Set<string>();
+      const baseline = base[tool.name] as Json;
+      const properties = Object.keys(tool.inputSchema['properties'] as Json);
+
+      const scenarios: Json[] = [
+        baseline,
+        // Missing everything: whatever the schema requires is absent.
+        {},
+        ...properties
+          .filter((property) => property in PROVOCATIONS)
+          .map((property) => ({ ...baseline, [property]: PROVOCATIONS[property] })),
+      ];
+
+      for (const server of [fixtures.server, poisoned]) {
+        for (const args of scenarios) {
+          const call = await server.callTool(tool.name, args);
+          if (!call.isError) continue;
+          const code = errorOf(call).code;
+          codes.add(code);
+          expect(
+            tool.errors,
+            `${tool.name} answered ${code} for ${JSON.stringify(args)}, which its declared ` +
+              'errorCodes do not include — a client cannot handle a case it was told cannot happen',
+          ).toContain(code);
+        }
+      }
+      observed.set(tool.name, codes);
+    }
+  });
+
+  it('provoked enough distinct failures that the sweep is not vacuous', () => {
+    const codes = new Set([...observed.values()].flatMap((set) => [...set]));
+    expect([...codes].sort()).toEqual(
+      expect.arrayContaining([
+        'ENTITY_NOT_FOUND',
+        'INVALID_ARGUMENTS',
+        'PROPERTY_NOT_RECORDED',
+        'REVIEWER_IDENTITY_BLOCKED',
+        'TOO_FEW_ENTITIES',
+        'UNKNOWN_FIELD',
+      ]),
+    );
+    // The specific pairing the sweep exists for: a tool that reads a fact sheet
+    // only indirectly, through `compare`, still refuses on a reviewer leak.
+    expect(observed.get('compare_entities')).toContain('REVIEWER_IDENTITY_BLOCKED');
+  });
+});
 
 describe('claim 2: every declared constraint is enforced', () => {
   it('finds constraints to check, so the walk cannot pass vacuously', () => {
