@@ -20,7 +20,7 @@ import {
 } from './rights-policy.js';
 
 /**
- * Stable, human-authored key for a source (`ahri-directory`, `carrier-docs`).
+ * Stable, human-authored key for a source (`ratings-directory`, `acme-catalog`).
  * Registry files are keyed by this, not by database UUID, so a source survives
  * a database rebuild.
  */

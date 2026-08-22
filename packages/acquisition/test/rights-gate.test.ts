@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { RightsViolationError } from '@data-foundry/canonical-schema';
 import { AcquisitionRefusedError, RobotsDisallowedError } from '../src/errors.js';
-import { evaluateAcquisitionGate } from '../src/policy/rights-gate.js';
+import { assertAcquisitionAllowed, evaluateAcquisitionGate } from '../src/policy/rights-gate.js';
 import { HttpAcquisitionProvider } from '../src/providers/http.js';
 import type { AcquisitionGateCode } from '../src/policy/gate-types.js';
 import {
@@ -81,7 +81,7 @@ describe('acquisition gate — evaluation', () => {
   });
 
   it('allows a subdomain of the declared source domain', () => {
-    expect(codes(compliantEntry(), 'https://data.ahridirectory.org/x.json')).toEqual([]);
+    expect(codes(compliantEntry(), 'https://data.ratings-directory.example.org/x.json')).toEqual([]);
   });
 
   it('blocks a robots-disallowed path', () => {
@@ -213,3 +213,94 @@ describe('acquisition gate — refusal happens before the network (AGENTS.md rul
     expect(result.artifacts).toHaveLength(1);
   });
 });
+
+/**
+ * The prohibition cannot be argued with in YAML.
+ *
+ * Every other refusal in this gate is a statement about the declaration:
+ * RED becomes GREEN, PROPOSED becomes ACTIVE, unapproved becomes approved, and
+ * the gate stops objecting — correctly, because those fields are what a rights
+ * review decides.
+ *
+ * A prohibited publisher is not that kind of question. AHRI's directory does
+ * not permit automated dataset construction, and no field in a source
+ * declaration is evidence that it does. So the test below writes the most
+ * permissive declaration the schema allows — GREEN, ACTIVE, reviewed, approved,
+ * commercial use and redistribution granted, artifacts retained, robots
+ * satisfied — and requires the fetch to be refused anyway. If this test ever
+ * goes green, configuration has become sufficient, and the control is gone.
+ */
+describe('a prohibited publisher cannot be configured back into scope', () => {
+  const prohibitedEntry = () =>
+    compliantEntry({
+      key: 'ahri-directory',
+      publisher: 'Air-Conditioning, Heating, and Refrigeration Institute',
+      domain: 'ahridirectory.org',
+      robots_policy: {
+        ...compliantEntry().robots_policy,
+        robots_url: 'https://www.ahridirectory.org/robots.txt',
+        disallowed_paths: [],
+        allowed_paths: ['/'],
+      },
+    });
+  const PROHIBITED_URL = 'https://www.ahridirectory.org/certified/units.json';
+
+  it('starts from a declaration with nothing else wrong with it', () => {
+    // Guards the test itself: if the fixture were failing for some unrelated
+    // reason, the refusal below would prove nothing at all.
+    const control = compliantEntry();
+    expect(codes(control, TARGET_URL)).toEqual([]);
+  });
+
+  it('refuses the fetch on the most permissive declaration the schema allows', () => {
+    expect(codes(prohibitedEntry(), PROHIBITED_URL)).toContain('SOURCE_PROHIBITED');
+  });
+
+  it('refuses a subdomain of it too', () => {
+    expect(codes(prohibitedEntry(), 'https://data.ahridirectory.org/x.json')).toContain(
+      'SOURCE_PROHIBITED',
+    );
+  });
+
+  it('refuses as a rights violation, not as a politeness or config error', () => {
+    // The error type is load-bearing: rule-1 violations are one catchable type
+    // across every package, and a prohibition is a rule-1 violation.
+    expect(() =>
+      assertAcquisitionAllowed({
+        entry: prohibitedEntry(),
+        url: PROHIBITED_URL,
+        asOf: NOW,
+      }),
+    ).toThrow(RightsViolationError);
+  });
+
+  it('names the publisher, the reason and what would lift it', () => {
+    const result = evaluateAcquisitionGate({
+      entry: prohibitedEntry(),
+      url: PROHIBITED_URL,
+      asOf: NOW,
+    });
+    const finding = result.blockers.find((blocker) => blocker.code === 'SOURCE_PROHIBITED');
+    expect(finding).toBeDefined();
+    expect(finding!.message).toMatch(/Air-Conditioning, Heating, and Refrigeration Institute/);
+    expect(finding!.message).toMatch(/Lifting it requires/);
+  });
+
+  it('refuses each excluded manufacturer on the same terms', () => {
+    for (const domain of ['carrier.com', 'trane.com', 'lennox.com', 'york.com', 'daikin.com']) {
+      const entry = compliantEntry({
+        key: 'manufacturer-docs',
+        domain,
+        robots_policy: {
+          ...compliantEntry().robots_policy,
+          disallowed_paths: [],
+          allowed_paths: ['/'],
+        },
+      });
+      expect(codes(entry, `https://www.${domain}/manuals/index.json`), domain).toContain(
+        'SOURCE_PROHIBITED',
+      );
+    }
+  });
+});
+

@@ -9,10 +9,10 @@ export const NOW = '2026-08-14T00:00:00.000Z';
  */
 export function compliantEntry(overrides: Partial<SourceRegistryEntry> = {}): SourceRegistryEntry {
   return {
-    key: 'ahri-directory',
+    key: 'ratings-directory',
     vertical_slug: 'hvac',
-    publisher: 'Air-Conditioning, Heating, and Refrigeration Institute',
-    domain: 'ahridirectory.org',
+    publisher: 'Federated HVAC Ratings Council (SYNTHETIC — fictional certification body)',
+    domain: 'ratings-directory.example.org',
     source_type: 'CERTIFICATION_BODY',
     authority_rank: 95,
     status: 'ACTIVE',
@@ -21,7 +21,7 @@ export function compliantEntry(overrides: Partial<SourceRegistryEntry> = {}): So
     rights_classification: 'GREEN',
     attribution_requirement: {
       required: true,
-      text: 'Certification data courtesy of AHRI',
+      text: 'Certification data courtesy of the Federated HVAC Ratings Council',
       url: null,
     },
     robots_policy: {
@@ -30,21 +30,21 @@ export function compliantEntry(overrides: Partial<SourceRegistryEntry> = {}): So
       crawl_delay_seconds: 2,
       disallowed_paths: ['/admin'],
       allowed_paths: ['/'],
-      robots_url: 'https://www.ahridirectory.org/robots.txt',
+      robots_url: 'https://www.ratings-directory.example.org/robots.txt',
       snapshot_hash: 'a'.repeat(64),
       snapshot_at: '2026-07-01T00:00:00.000Z',
     },
 
     rights_policy: {
-      publisher_legal_entity: 'Air-Conditioning, Heating, and Refrigeration Institute',
-      terms_url: 'https://www.ahridirectory.org/terms',
+      publisher_legal_entity: 'Federated HVAC Ratings Council (SYNTHETIC — fictional certification body)',
+      terms_url: 'https://www.ratings-directory.example.org/terms',
       license_id: null,
       license_text_ref: 'legal/ahri-terms-2026-07-01.pdf',
       api_terms_url: null,
       commercial_use_allowed: true,
       redistribution_allowed: true,
       derivative_normalization_allowed: true,
-      attribution: { required: true, text: 'Courtesy of AHRI', url: null },
+      attribution: { required: true, text: 'Courtesy of the Federated HVAC Ratings Council', url: null },
       images_reusable: false,
       personal_data_present: false,
       geographic_notes: 'US/Canada certification directory.',

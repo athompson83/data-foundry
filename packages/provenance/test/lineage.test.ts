@@ -29,7 +29,7 @@ describe('field-level lineage', () => {
 
     const link = lineage?.chain[0];
     expect(link?.source.publisher).toBe('Carrier');
-    expect(link?.source.domain).toBe('carrier.com');
+    expect(link?.source.domain).toBe('catalog.acme-climate.example.com');
     expect(link?.source_record.source_record_key).toBe('manufacturer-24ANB7');
     expect(link?.artifact.url).toBe(fixtures.sources.manufacturer.artifact.url);
     // The two things that make a claim re-checkable without re-crawling.
@@ -65,7 +65,7 @@ describe('field-level lineage', () => {
   it('renders a one-line citation', async () => {
     const facts = await fixtures.store.listFacts(fixtures.entity.id, { property: 'refrigerant' });
     const lineage = await factLineage(fixtures.driver, facts[0]!.id);
-    const carrier = lineage!.chain.find((link) => link.source.domain === 'carrier.com');
+    const carrier = lineage!.chain.find((link) => link.source.domain === 'catalog.acme-climate.example.com');
     const line = citation(carrier!);
     expect(line).toContain('Carrier');
     expect(line).toContain('CSS_SELECTOR');

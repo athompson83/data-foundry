@@ -17,7 +17,7 @@ describe('publish gate — the happy path', () => {
     const result = evaluateSourcePublishGate(compliantEntry(), NOW);
     expect(result.blockers).toEqual([]);
     expect(result.allowed).toBe(true);
-    expect(result.sourceKey).toBe('ahri-directory');
+    expect(result.sourceKey).toBe('ratings-directory');
   });
 
   it('parses as a valid registry entry', () => {
@@ -189,7 +189,7 @@ describe('assertSourceCanPublish', () => {
       caught = error;
     }
     expect(caught).toBeInstanceOf(RightsViolationError);
-    expect((caught as Error).message).toContain('ahri-directory');
+    expect((caught as Error).message).toContain('ratings-directory');
     expect((caught as Error).message).toContain('RIGHTS_BLOCKED');
   });
 });

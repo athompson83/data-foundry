@@ -116,7 +116,7 @@ describe('doc 04 fact selection', () => {
     const byFieldPolicy = await fixtures.store.selectFact(fixtures.entity.id, 'seer2_rating', {
       at: AT,
       fieldReliability: {
-        seer2_rating: { 'carrier.com': 0.99, 'ahridirectory.org': 0.4 },
+        seer2_rating: { 'catalog.acme-climate.example.com': 0.99, 'ratings-directory.example.org': 0.4 },
       },
     });
     expect(byFieldPolicy.rule).toBe('SOURCE_FIELD_RELIABILITY');
@@ -142,7 +142,7 @@ describe('doc 04 fact selection', () => {
 
     const selection = await fixtures.store.selectFact(fixtures.entity.id, 'tonnage', {
       at: AT,
-      ...equalReliability('tonnage', ['carrier.com', 'ahridirectory.org']),
+      ...equalReliability('tonnage', ['catalog.acme-climate.example.com', 'ratings-directory.example.org']),
     });
 
     expect(selection.rule).toBe('RECENCY');
@@ -181,9 +181,9 @@ describe('doc 04 fact selection', () => {
     const selection = await fixtures.store.selectFact(fixtures.entity.id, 'compressor_stages', {
       at: AT,
       ...equalReliability('compressor_stages', [
-        'carrier.com',
+        'catalog.acme-climate.example.com',
         'aggregator.example',
-        'ahridirectory.org',
+        'ratings-directory.example.org',
       ]),
     });
 
@@ -212,7 +212,7 @@ describe('doc 04 fact selection', () => {
 
     const selection = await fixtures.store.selectFact(fixtures.entity.id, 'airflow_cfm', {
       at: AT,
-      ...equalReliability('airflow_cfm', ['carrier.com', 'ahridirectory.org']),
+      ...equalReliability('airflow_cfm', ['catalog.acme-climate.example.com', 'ratings-directory.example.org']),
       consistencyChecks: [
         ...DEFAULT_CONSISTENCY_CHECKS,
         numericRangeCheck('airflow_cfm', { min: 100, max: 5000 }),

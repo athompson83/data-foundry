@@ -44,7 +44,7 @@ describe('fixture provider — reading a real fixture directory', () => {
 
     expect(result.artifacts.map((artifact) => artifact.url)).toEqual([
       TARGET_URL,
-      'https://www.ahridirectory.org/certified/units-page-2.json',
+      'https://www.ratings-directory.example.org/certified/units-page-2.json',
     ]);
   });
 
@@ -56,7 +56,7 @@ describe('fixture provider — reading a real fixture directory', () => {
     });
 
     const result = await provider.fetch(
-      makeRequest({ url: 'https://www.ahridirectory.org/certified/index.html' }),
+      makeRequest({ url: 'https://www.ratings-directory.example.org/certified/index.html' }),
     );
     expect(result.artifacts[0]?.mime_type).toBe('text/html');
   });
@@ -69,7 +69,7 @@ describe('fixture provider — reading a real fixture directory', () => {
     });
 
     const result = await provider.fetch(
-      makeRequest({ url: 'https://www.ahridirectory.org/certified/retired.json' }),
+      makeRequest({ url: 'https://www.ratings-directory.example.org/certified/retired.json' }),
     );
     expect(result.outcome).toBe('EMPTY');
     expect(result.artifacts).toEqual([]);
@@ -131,7 +131,7 @@ describe('fixture provider — configuration and failure modes', () => {
     });
 
     await expect(
-      provider.fetch(makeRequest({ url: 'https://www.ahridirectory.org/certified/missing.json' })),
+      provider.fetch(makeRequest({ url: 'https://www.ratings-directory.example.org/certified/missing.json' })),
     ).rejects.toBeInstanceOf(FixtureNotFoundError);
   });
 
@@ -144,7 +144,7 @@ describe('fixture provider — configuration and failure modes', () => {
     });
 
     const result = await provider.fetch(
-      makeRequest({ url: 'https://www.ahridirectory.org/certified/missing.json' }),
+      makeRequest({ url: 'https://www.ratings-directory.example.org/certified/missing.json' }),
     );
     expect(result.outcome).toBe('EMPTY');
     expect(result.diagnostics.join(' ')).toContain('404');
@@ -180,11 +180,11 @@ describe('fixture provider — configuration and failure modes', () => {
     const harness = makeHarness();
     const provider = new FixtureAcquisitionProvider({
       deps: harness.deps,
-      manifest: { version: 1, entries: [{ url: 'https://www.ahridirectory.org/certified/', body: 'x' }] },
+      manifest: { version: 1, entries: [{ url: 'https://www.ratings-directory.example.org/certified/', body: 'x' }] },
     });
 
     const result = await provider.fetch(
-      makeRequest({ url: 'https://WWW.ahridirectory.org/certified' }),
+      makeRequest({ url: 'https://WWW.ratings-directory.example.org/certified' }),
     );
     expect(result.artifacts).toHaveLength(1);
   });

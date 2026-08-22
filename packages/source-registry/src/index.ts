@@ -9,6 +9,7 @@
  */
 
 export * from './rights-policy.js';
+export * from './prohibited-sources.js';
 export * from './entry.js';
 export * from './publish-gate.js';
 export * from './loader.js';

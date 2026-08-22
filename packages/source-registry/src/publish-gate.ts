@@ -6,6 +6,7 @@ import {
 } from '@data-foundry/canonical-schema';
 import type { SourceRegistryEntry } from './entry.js';
 import { rightsReviewIsCurrent } from './rights-policy.js';
+import { prohibitedSourceFor } from './prohibited-sources.js';
 
 /**
  * The rule 1 gate.
@@ -20,6 +21,7 @@ import { rightsReviewIsCurrent } from './rights-policy.js';
  */
 
 export const SOURCE_GATE_CODES = [
+  'SOURCE_PROHIBITED',
   'RIGHTS_BLOCKED',
   'KILL_SWITCH_ENGAGED',
   'SOURCE_NOT_ACTIVE',
@@ -60,6 +62,18 @@ export function evaluateSourcePublishGate(
 ): SourceGateResult {
   const blockers: SourceGateFinding[] = [];
   const warnings: SourceGateFinding[] = [];
+
+  // First, and not overridable by any other field. A prohibited publisher is
+  // not a rights question this declaration gets to answer.
+  const prohibited = prohibitedSourceFor(entry.domain);
+  if (prohibited !== null) {
+    blockers.push({
+      code: 'SOURCE_PROHIBITED',
+      message:
+        `Domain "${entry.domain}" belongs to ${prohibited.publisher}, which is prohibited in ` +
+        `platform code: ${prohibited.reason} Lifting it requires: ${prohibited.liftedBy}`,
+    });
+  }
 
   const decision = publishDecision(entry.rights_classification);
   if (!decision.allowed) {
@@ -186,6 +200,19 @@ export function evaluateSourceActivationGate(
 ): SourceGateResult {
   const blockers: SourceGateFinding[] = [];
   const warnings: SourceGateFinding[] = [];
+
+  // The acquisition gate folds this gate's blockers into its own, so naming the
+  // prohibition here is what keeps a prohibited source off the network — not
+  // only off the published surface.
+  const prohibited = prohibitedSourceFor(entry.domain);
+  if (prohibited !== null) {
+    blockers.push({
+      code: 'SOURCE_PROHIBITED',
+      message:
+        `Domain "${entry.domain}" belongs to ${prohibited.publisher}, which is prohibited in ` +
+        `platform code: ${prohibited.reason} Lifting it requires: ${prohibited.liftedBy}`,
+    });
+  }
 
   if (entry.rights_classification === 'UNREVIEWED') {
     blockers.push({

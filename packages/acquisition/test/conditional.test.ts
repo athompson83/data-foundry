@@ -154,7 +154,7 @@ describe('incremental refresh through a provider', () => {
     expect(second.outcome).toBe('FETCHED');
     expect(second.artifacts[0]?.content_hash).not.toBe(first.artifacts[0]?.content_hash);
     expect(second.stored[0]?.deduplicated).toBe(false);
-    expect(await harness.validators.get('ahri-directory', first.request.url)).toEqual({
+    expect(await harness.validators.get('ratings-directory', first.request.url)).toEqual({
       etag: '"v2"',
       contentHash: sha256Hex('{"unit":"XC25"}'),
     });

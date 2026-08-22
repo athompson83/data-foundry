@@ -36,6 +36,7 @@ export interface AcquisitionGateResult {
 
 /** Codes that mean "the rights record forbids this", as opposed to "we are being polite". */
 export const RIGHTS_GATE_CODES: readonly AcquisitionGateCode[] = [
+  'SOURCE_PROHIBITED',
   'RIGHTS_BLOCKED',
   'KILL_SWITCH_ENGAGED',
   'RIGHTS_REVIEW_MISSING_OR_LAPSED',

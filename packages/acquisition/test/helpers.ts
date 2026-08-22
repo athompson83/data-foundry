@@ -19,14 +19,14 @@ import type { SourceRequest } from '../src/types.js';
 
 export const NOW = '2026-08-14T00:00:00.000Z';
 export const SOURCE_UUID = '11111111-1111-4111-8111-111111111111';
-export const TARGET_URL = 'https://www.ahridirectory.org/certified/units.json';
+export const TARGET_URL = 'https://www.ratings-directory.example.org/certified/units.json';
 export const BODY = '{"unit":"XC21","seer2":16.2}';
 export const ETAG = '"v1"';
 export const LAST_MODIFIED = 'Mon, 10 Aug 2026 00:00:00 GMT';
 
 /** Real on-disk fixture sets, resolved relative to this file rather than to the cwd. */
 const FIXTURE_ROOT = join(dirname(fileURLToPath(import.meta.url)), 'fixtures');
-export const FIXTURE_DIR = join(FIXTURE_ROOT, 'ahri-directory');
+export const FIXTURE_DIR = join(FIXTURE_ROOT, 'ratings-directory');
 export const CONFORMANCE_FIXTURE_DIR = join(FIXTURE_ROOT, 'conformance');
 
 /** The same compliant source, declared as using a particular acquisition method. */
@@ -47,10 +47,10 @@ export function entryForMethod(
  */
 export function compliantEntry(overrides: Partial<SourceRegistryEntry> = {}): SourceRegistryEntry {
   return {
-    key: 'ahri-directory',
+    key: 'ratings-directory',
     vertical_slug: 'hvac',
-    publisher: 'Air-Conditioning, Heating, and Refrigeration Institute',
-    domain: 'ahridirectory.org',
+    publisher: 'Federated HVAC Ratings Council (SYNTHETIC — fictional certification body)',
+    domain: 'ratings-directory.example.org',
     source_type: 'CERTIFICATION_BODY',
     authority_rank: 95,
     status: 'ACTIVE',
@@ -59,7 +59,7 @@ export function compliantEntry(overrides: Partial<SourceRegistryEntry> = {}): So
     rights_classification: 'GREEN',
     attribution_requirement: {
       required: true,
-      text: 'Certification data courtesy of AHRI',
+      text: 'Certification data courtesy of the Federated HVAC Ratings Council',
       url: null,
     },
     robots_policy: {
@@ -68,21 +68,21 @@ export function compliantEntry(overrides: Partial<SourceRegistryEntry> = {}): So
       crawl_delay_seconds: 2,
       disallowed_paths: ['/admin'],
       allowed_paths: ['/'],
-      robots_url: 'https://www.ahridirectory.org/robots.txt',
+      robots_url: 'https://www.ratings-directory.example.org/robots.txt',
       snapshot_hash: 'a'.repeat(64),
       snapshot_at: '2026-07-01T00:00:00.000Z',
     },
 
     rights_policy: {
-      publisher_legal_entity: 'Air-Conditioning, Heating, and Refrigeration Institute',
-      terms_url: 'https://www.ahridirectory.org/terms',
+      publisher_legal_entity: 'Federated HVAC Ratings Council (SYNTHETIC — fictional certification body)',
+      terms_url: 'https://www.ratings-directory.example.org/terms',
       license_id: null,
       license_text_ref: 'legal/ahri-terms-2026-07-01.pdf',
       api_terms_url: null,
       commercial_use_allowed: true,
       redistribution_allowed: true,
       derivative_normalization_allowed: true,
-      attribution: { required: true, text: 'Courtesy of AHRI', url: null },
+      attribution: { required: true, text: 'Courtesy of the Federated HVAC Ratings Council', url: null },
       images_reusable: false,
       personal_data_present: false,
       geographic_notes: 'US/Canada certification directory.',
@@ -168,7 +168,7 @@ export function makeHarness(options: HarnessOptions = {}): Harness {
 export function makeRequest(overrides: Partial<SourceRequest> = {}): SourceRequest {
   return {
     sourceId: sourceId(SOURCE_UUID) as SourceId,
-    sourceKey: 'ahri-directory',
+    sourceKey: 'ratings-directory',
     verticalSlug: 'hvac',
     url: TARGET_URL,
     ...overrides,

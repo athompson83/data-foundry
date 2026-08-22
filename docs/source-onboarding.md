@@ -12,6 +12,14 @@ Run `pnpm sources:readiness` at any point to see where a vertical actually
 stands. It reads the same declarations the pipeline reads and reports the
 blockers by name. `hvac` reports `NOT READY` today, and that is correct.
 
+**Worked example.** The first candidate to go through this procedure is EPA's
+ENERGY STAR certified heat-pump data. Its review packet is at
+`docs/sources/energy-star-air-source-heat-pumps-review-packet.md`, the draft
+declaration at `docs/sources/proposed/energy-star-heat-pumps.yaml`, and the
+retrieved evidence under `docs/sources/evidence/`. It is **not approved** — the
+packet is what a reviewer reads, not a decision. `docs/sources/prohibited-sources.md`
+records the sources that are refused before any of this begins.
+
 ---
 
 ## The rule this all serves

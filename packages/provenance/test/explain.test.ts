@@ -87,7 +87,7 @@ describe('explainFact', () => {
     });
     const narrative = explanation?.narrative ?? [];
 
-    expect(narrative.some((line) => line.includes('Carrier') && line.includes('carrier.com'))).toBe(true);
+    expect(narrative.some((line) => line.includes('Carrier') && line.includes('catalog.acme-climate.example.com'))).toBe(true);
     expect(narrative.some((line) => line.startsWith('Published value for refrigerant'))).toBe(true);
     expect(narrative.some((line) => line.startsWith('Criterion '))).toBe(true);
     expect(narrative.some((line) => line.startsWith('Unresolved conflict retained'))).toBe(true);
