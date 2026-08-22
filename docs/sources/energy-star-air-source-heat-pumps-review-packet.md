@@ -93,7 +93,7 @@ is required** on whether mini-splits are in or out. **[REVIEWER]**
 
 | # | Question | Field | Evidence | Proposed answer |
 | --- | --- | --- | --- | --- |
-| 1 | May we acquire it this way at all? | `acquisition_policy.method` | `robots.txt` sets `Crawl-delay: 1` and disallows only faceted `/browse?…` patterns. The SODA API (`/resource/…`) and metadata API (`/api/views/…`) are **not** disallowed **[VERIFIED]** | `VENDOR_API` via SODA, or `BULK_FILE` via CSV export **[REVIEWER]** |
+| 1 | May we acquire it this way at all? | `acquisition_policy.method` | `robots.txt` sets `Crawl-delay: 1`, disallows faceted query patterns under `/browse`, `/page`, `/catalog` and `/facet`, **and disallows `/api/odata/` and `/OData.svc/` outright**. `/resource/` and `/api/views/` are not disallowed **[VERIFIED]** — see §7 | `VENDOR_API` via SODA `/resource/`. **Not OData** |
 | 2 | May we use it commercially? | `commercial_use_allowed` | EPA licence: *"all data produced by the U.S EPA is by default in the public domain and is not subject to domestic copyright protection under 17 U.S.C. § 105"* **[VERIFIED]** | Yes for EPA-produced content; see §4 for the submitted-content question **[REVIEWER]** |
 | 3 | May we redistribute it? | `redistribution_allowed` | Public domain implies redistribution. No attribution condition is stated in the licence **[VERIFIED]** | Yes **[REVIEWER]** |
 | 4 | May we normalize and derive from it? | `derivative_normalization_allowed` | Public domain; no derivative restriction stated **[VERIFIED]** | Yes **[REVIEWER]** |
@@ -234,18 +234,40 @@ registration step for a person, not an agent. **[REVIEWER]**
 
 `docs/sources/evidence/data.energystar.gov-robots.txt`, retrieved
 2026-08-22T00:40:01Z, SHA-256
-`a6c856352c621a97f9fcfb2b212d4fc530169b319c9e7b49fc2e6299d736c7a2`.
+`a6c856352c621a97f9fcfb2b212d4fc530169b319c9e7b49fc2e6299d736c7a2`. One
+`User-agent: *` group, `Crawl-delay: 1`, 55 `Disallow` lines. In full:
 
-`User-agent: *` with `Crawl-delay: 1`. Disallows only faceted `/browse` query
-patterns. `/resource/` and `/api/` are not disallowed. The recorded
+| Group | Patterns | Bears on us |
+| --- | --- | --- |
+| Faceted search | `/browse`, `/browse/*`, `/*/browse`, `/page/*`, `/catalog/*`, `/facet/*` — each with `?*&category=`, `federation_filter=`, `limitTo=`, `q=`, `sortBy=`, `tags=`, `view_type=` | No. We do not crawl the search UI |
+| **OData** | **`/api/odata/`**, **`/OData.svc/`** | **Yes — see below** |
+| Embeds and internals | `/browse/embed`, `/tiles/`, `/*/*/*/widget_preview`, `*/alt`, `*/edit`, `/views/INLINE/rows.json?*method=clustered2*`, `/api/collocate*` | No |
+| Auth | `/login`, `/reset_password/` | No |
+
+**The correction this forced.** An earlier draft of this packet said robots
+"disallows only faceted `/browse` patterns" and that "`/api/` is not
+disallowed". Both were wrong. `/api/odata/` and `/OData.svc/` are disallowed
+explicitly — and OData is the access route the vendor's own documentation
+promotes for this data. The route that is *not* disallowed is the SODA path,
+`/resource/{id}.json`, along with `/api/views/{id}.json` for metadata.
+
+So the acquisition method is SODA, and **OData is off the table for automated
+access** — not because it does not work, but because `robots.txt` says not to.
+Recording `disallowed_paths: ['/browse']` would have been a summary that
+happened to permit the one thing the file forbids.
+
+There is **no** blanket `Disallow: /` in this file. The recorded
 `max_requests_per_minute` should be **60 or lower** to honour the crawl delay.
 
 ---
 
 ## 8. Update cadence and change monitoring
 
-- `rowsUpdatedAt` moved to 2026-08-21T16:29:50Z, the day before this packet.
-  **[VERIFIED]** The dataset is actively maintained.
+- `rowsUpdatedAt` read as 2026-08-21T16:29:50Z, the day before this packet.
+  **[VERIFIED]** That is one observation. It shows the dataset was updated on
+  that date; it does **not** establish a cadence, and an earlier draft of this
+  packet inferred "at least daily" from it, which the single reading does not
+  support. **Cadence: [UNKNOWN] until several observations exist.**
 - EPA publishes no stated SLA or cadence for this asset. **[UNKNOWN]**
 - **Monitoring plan:** poll `api/views/83eb-xbyy.json` and compare
   `rowsUpdatedAt`; re-acquire only when it advances. This is one small request
@@ -274,8 +296,11 @@ patterns. `/resource/` and `/api/` are not disallowed. The recorded
 
 ## 10. The thirteen proof conditions
 
-From `docs/source-onboarding.md` Stage 3. None can be checked off before review,
-because condition 2 gates the acquisition that conditions 1 and 3–13 need.
+From `docs/source-onboarding.md` Stage 3. **`READY` below means the platform
+capability exists and has been exercised on fixtures — not that the condition is
+satisfied for this source.** Nothing can be satisfied for this source before
+review, because condition 2 gates the acquisition that every other condition
+needs evidence from.
 
 | # | Condition | State | Note |
 | --- | --- | --- | --- |
@@ -360,7 +385,18 @@ invent a fact that the source does not contain. **[REVIEWER]**
    `reviewed_at`, `next_review_at`, and `acquisition_policy.approved`.
 3. Only then does the declaration move into `verticals/hvac/sources/`, where the
    loader can see it and the gates can evaluate it.
-4. Only then is a bounded first acquisition run — a sample, not 281,828 rows.
+4. **The status transition, which nothing automates.** `UNDER_REVIEW` is not in
+   `ACQUIRABLE_STATUSES`, so the declaration does nothing until a person changes
+   it — and it is two steps, not one:
+   - `UNDER_REVIEW` → **`APPROVED`**, which `evaluateAcquisitionGate` accepts.
+     A source may be fetched and analysed internally at this point and still not
+     publish. This is where the first bounded run belongs.
+   - `APPROVED` → **`ACTIVE`**, only once `evaluateSourceActivationGate` passes
+     and the vertical actually intends to publish from it.
+
+   Going straight to `ACTIVE` would skip the state whose entire purpose is
+   "acquired, not yet published".
+5. Only then is a bounded first acquisition run — a sample, not 281,828 rows.
 
 Until step 2, the file in `docs/sources/proposed/` is deliberately outside the
 loader's reach. It cannot be ingested by any code path, because it is not

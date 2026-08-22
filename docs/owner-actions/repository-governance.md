@@ -16,17 +16,26 @@ establishes whether the account has the rights to make these changes.
 
 ## 1. Branch ruleset on `main`
 
-### Evidence of the current state — **[VERIFIED]**
+### Evidence of the current state
 
-`mcp__github__list_branches` reports `"protected": false` for `main` (and for
-every other branch). GitHub reports `protected: true` when either a legacy
-branch-protection rule or a ruleset with restrictions targets a branch, so this
-is evidence that **neither exists**.
+`mcp__github__list_branches` reports `"protected": false` for `main` and for
+every other branch. **[VERIFIED]** GitHub sets `protected: true` when either a
+legacy branch-protection rule or an **active** ruleset restricts the branch.
 
-Behavioural confirmation: pull request #3 was merged at 2026-08-22T00:03Z with
-**zero approving reviews**, and pull request #2 merged earlier with a red
-`Vercel` status. Neither would have been possible under a ruleset requiring
-reviews or checks.
+**What that does not prove.** `protected: false` is silent about rulesets in
+`disabled` or `evaluate` enforcement — those are excluded from the rule-listing
+APIs and do not mark a branch protected. So the accurate statement is *no active
+protection applies to `main`*, not *no ruleset object exists*. During review of
+this pull request, a `GET /repos/athompson83/data-foundry/rulesets` call from an
+environment with GitHub API access returned an empty list, which closes that gap
+— recorded here as **corroborating evidence obtained during review**, not as
+something this document's author verified directly.
+
+Behavioural support: pull request #3 merged at 2026-08-22T00:03Z with **zero
+approving reviews**, and #2 merged with a red `Vercel` status. That is
+*supporting* evidence only — both were merged by the repository owner, who would
+be able to bypass a ruleset anyway, so it cannot distinguish "no rule" from
+"rule bypassed".
 
 ### Design intent
 
@@ -92,9 +101,33 @@ thing it must never be used for, and it leaves an audit trail when used.
 
 ### Verify afterwards
 
-`mcp__github__list_branches` should report `"protected": true` for `main`.
-Then open a throwaway pull request and confirm it cannot merge while checks are
-pending.
+`protected: true` is necessary and nowhere near sufficient: it says *something*
+restricts the branch, not that the right thing does. It cannot tell you the
+ruleset targets `main`, that every rule above is present, that enforcement is
+`active` rather than `evaluate`, or who can bypass it.
+
+So verify against the ruleset payload itself:
+
+- [ ] `GET /repos/athompson83/data-foundry/rulesets` — capture the list **before**
+      creating anything, so "there was nothing here" is on the record
+- [ ] After creating it, `GET /repos/athompson83/data-foundry/rulesets/{id}` and
+      confirm, field by field:
+  - [ ] `target: "branch"` and the condition includes `~DEFAULT_BRANCH`
+  - [ ] `enforcement: "active"` — **not** `evaluate`, which reports without
+        blocking and looks identical from the outside
+  - [ ] `rules` contains `deletion`, `non_fast_forward`, `pull_request` (with
+        `required_approving_review_count: 0` and
+        `required_review_thread_resolution: true`), and
+        `required_status_checks` naming **both** job names exactly
+  - [ ] `bypass_actors` contains only what you intended — an unnoticed bypass
+        entry is the difference between a rule and a decoration
+- [ ] Open a throwaway pull request **from an account that is not on the bypass
+      list**, and confirm it cannot merge while checks are pending. If no such
+      account exists, record explicitly that the check was performed as an admin
+      and that no bypass was used — an untested rule verified by someone who can
+      ignore it is not a tested rule.
+- [ ] `GET /repos/athompson83/data-foundry/rulesets/rule-suites` afterwards to
+      confirm the ruleset actually evaluated against that pull request
 
 ---
 

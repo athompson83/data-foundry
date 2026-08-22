@@ -41,9 +41,24 @@ It is a filing cabinet of manufacturer and importer submissions, and DOE says
 outright that presence in it is *not* a determination of compliance. It
 corroborates **that a party filed a claim**, not **that the claim is true**.
 
-That is still worth something — two independent filings agreeing is evidence,
-and a disagreement is a real signal. But a verification rule that treats CCMS
-presence as confirmation would be asserting something DOE explicitly disclaims.
+That is still worth something — but less than it first appears, and the
+distinction matters enough to state precisely.
+
+**Agreement between these two sources is agreement between two filings, not two
+independent observations.** Both databases hold content submitted by
+manufacturers and importers. The same party very likely submitted both, from the
+same test report. Two copies of one claim agreeing tells you the copying worked;
+it does not tell you the claim is true, and treating it as corroboration would
+manufacture confidence out of a shared upstream.
+
+**Disagreement, by contrast, is genuinely informative** — one filing contradicts
+the other, and whichever is stale or wrong, something needs looking at.
+
+So the asymmetry is the design: a disagreement raises a flag; an agreement earns
+nothing beyond "both filings say the same thing", and must be recorded in those
+words. Only where provenance shows genuinely separate submitters or separate
+test reports may matching records be called independent evidence — and neither
+dataset currently exposes enough to establish that. **[REVIEWER]**
 
 ## 3. Rights posture — **[VERIFIED policy, REVIEWER decision]**
 
@@ -114,9 +129,10 @@ UNKNOWN pending §4]**
 | --- | --- | --- |
 | C-01 | **Different questions.** ENERGY STAR = met a voluntary efficiency specification. CCMS = a compliance certification was filed. A model can legitimately appear in one and not the other | Never model absence from CCMS as contradicting ENERGY STAR |
 | C-02 | **Different test procedures / appendices.** CCMS splits *Central* from *Central, Appendix M1*. Ratings from different appendices are not comparable | Compare only within a matched appendix, or not at all |
-| C-03 | **Update skew.** CCMS ≈ every two weeks **[VERIFIED]**; ENERGY STAR updated at least daily **[VERIFIED — `rowsUpdatedAt` moved 2026-08-21]**. A fresh disagreement is probably skew, not conflict | Require a disagreement to persist across two CCMS cycles before treating it as a conflict |
+| C-03 | **Update skew.** CCMS ≈ every two weeks **[VERIFIED]**; ENERGY STAR `rowsUpdatedAt` read as 2026-08-21 on a single observation, cadence **[UNKNOWN]**. If ENERGY STAR moves faster, a fresh disagreement is probably skew rather than conflict | Establish the ENERGY STAR cadence by observation first. Until then, require a disagreement to persist across two CCMS cycles before treating it as a conflict |
 | C-04 | **Model-number formatting differs between submitters.** The join is the hard part | Measure join yield on a sample before designing anything on top of it |
 | C-05 | **Neither is "the truth".** DOE disclaims compliance determination; EPA disclaims warranty | Publish both with attribution and let the disagreement be visible (rule 3) |
+| C-06 | **Shared submitters make agreement uninformative.** Both databases hold manufacturer/importer filings, plausibly of the same test report | Never record matching values as corroboration. Record them as "two filings agree". Act on disagreement, not on agreement |
 
 ## 8. Conclusion
 

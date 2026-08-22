@@ -28,7 +28,7 @@ describe('field-level lineage', () => {
     expect(lineage?.chain).toHaveLength(1);
 
     const link = lineage?.chain[0];
-    expect(link?.source.publisher).toBe('Carrier');
+    expect(link?.source.publisher).toBe('Acme Climate');
     expect(link?.source.domain).toBe('catalog.acme-climate.example.com');
     expect(link?.source_record.source_record_key).toBe('manufacturer-24ANB7');
     expect(link?.artifact.url).toBe(fixtures.sources.manufacturer.artifact.url);
@@ -69,7 +69,7 @@ describe('field-level lineage', () => {
       (link) => link.source.domain === 'catalog.acme-climate.example.com',
     );
     const line = citation(manufacturer!);
-    expect(line).toContain('Carrier');
+    expect(line).toContain('Acme Climate');
     expect(line).toContain('CSS_SELECTOR');
     expect(line).toContain('retrieved');
     expect(line).toContain(fixtures.sources.manufacturer.artifact.url);
@@ -112,7 +112,7 @@ describe('field-level lineage', () => {
 
     const lineage = await relationshipLineage(fixtures.driver, written.relationship.id);
     expect(lineage?.traceable).toBe(true);
-    expect(lineage?.chain[0]?.source.publisher).toBe('Carrier');
+    expect(lineage?.chain[0]?.source.publisher).toBe('Acme Climate');
     expect(lineage?.chain[0]?.locator.value).toBe('ul.parts li:nth-child(1)');
   });
 

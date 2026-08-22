@@ -23,7 +23,14 @@
 #      packet, section 1a.
 #   3. Record a real robots snapshot for the host being fetched.
 #   4. git mv this file into verticals/hvac/sources/.
-#   5. Run pnpm verticals:validate && pnpm sources:readiness.
+#   5. Change status. Nothing automates this, and it is two steps:
+#        UNDER_REVIEW -> APPROVED  (acquirable, still not publishable — this is
+#                                   where the first bounded run belongs)
+#        APPROVED     -> ACTIVE    (only once the activation gate passes and the
+#                                   vertical intends to publish from it)
+#      Going straight to ACTIVE skips the state whose whole purpose is
+#      "acquired, not yet published".
+#   6. Run pnpm verticals:validate && pnpm sources:readiness.
 # =============================================================================
 
 key: energy-star-heat-pumps
@@ -66,10 +73,23 @@ robots_policy:
   user_agent: DataFoundryBot
   # robots.txt declares Crawl-delay: 1 for User-agent: *.
   crawl_delay_seconds: 1
-  # Verbatim from the retrieved file: only faceted /browse query patterns are
-  # disallowed. /resource/ (SODA) and /api/ (metadata) are not.
+  # ACQUISITION-SCOPED SUMMARY, not the whole file. The retrieved snapshot has
+  # 55 Disallow lines; the ones that bear on how we would fetch are recorded
+  # here, and the complete listing is in the packet, section 7.
+  #
+  # /api/odata/ and /OData.svc/ are disallowed OUTRIGHT — which rules out the
+  # OData route the vendor's own documentation promotes. The SODA path is not
+  # disallowed, and that is why acquisition_policy.method is VENDOR_API over
+  # /resource/ rather than OData.
   disallowed_paths:
+    - /api/odata/
+    - /OData.svc/
     - /browse
+    - /page
+    - /catalog
+    - /facet
+    - /tiles/
+    - /login
   allowed_paths:
     - /resource/
     - /api/views/

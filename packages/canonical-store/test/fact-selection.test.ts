@@ -80,7 +80,7 @@ describe('doc 04 fact selection', () => {
     expect(step(selection, 'DIRECT_AUTHORITATIVE_SOURCE')?.decided).toBe(true);
     // Recency never got a chance to speak.
     expect(step(selection, 'RECENCY')).toBeUndefined();
-    expect(selection.reason).toContain('Carrier');
+    expect(selection.reason).toContain('Acme Climate');
 
     // The rival claim is retained, reported, and still in the database.
     expect(values(selection)).toEqual(['R-410A']);
