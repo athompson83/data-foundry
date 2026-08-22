@@ -83,21 +83,36 @@ export interface RelationshipTraversal {
   readonly depth: number;
   readonly truncated: boolean;
   /**
-   * Edges the walk reached and refused to serve: nothing publishable vouches
-   * for them, so either they carry no evidence at all (rule 2) or every source
-   * behind them fails the publish gate (rule 1).
+   * Edges the walk reached and refused because NOTHING asserts them — no
+   * evidence row at all (rule 2). The store will not write such a relationship,
+   * so one can only exist where something bypassed it; the count is a
+   * store-integrity signal, and in a healthy database it is 0.
    *
-   * Reported rather than silently omitted. A surface that shows fewer edges
-   * than the graph holds, with nothing saying so, is indistinguishable from a
-   * graph that is missing them — and "we hold nothing here" is a different and
-   * stronger claim than "we hold nothing here we may publish". The count says
-   * how many, never which or from whom, so it discloses no blocked source.
+   * Reported rather than silently omitted, because "the graph holds nothing
+   * here" is a stronger claim than "we hold something nothing vouches for", and
+   * a caller cannot tell them apart without this. Reporting it discloses no
+   * source, because an unevidenced edge has none.
    *
-   * Always 0 when `require_publishable_rights` is false, because then the walk
-   * refuses nothing on rights and an unevidenced edge is served as it is
-   * stored.
+   * WHAT THIS DELIBERATELY DOES NOT COUNT is an edge refused on RIGHTS. That
+   * asymmetry is the whole point, and it was learned the hard way: a per-query
+   * count of rights-refused edges is a disclosure oracle. `predicate` and
+   * `direction` are chosen by the caller, so the count is a yes/no answer about
+   * any triple they care to name. Sweeping the predicate list against a subject
+   * and then the entity list against that predicate reconstructs the exact
+   * (subject, predicate, object) a blocked source asserted — the claim rule 1
+   * refused to publish, republished in unary. It was demonstrated end-to-end
+   * against the REST surface before this was changed.
+   *
+   * So rule-1 refusals are silent, and the incompleteness is stated in the
+   * route and tool contracts instead: an edge list from this layer is a view of
+   * the publishable graph, and callers are told not to read it as the whole
+   * graph. A contract a caller reads once cannot be differenced.
+   *
+   * Always 0 when `require_publishable_rights` is false: that mode refuses
+   * nothing, so an unevidenced edge is served exactly as it is stored and there
+   * is no refusal to report.
    */
-  readonly withheld_edge_count: number;
+  readonly unevidenced_edge_count: number;
 }
 
 const MAX_DEPTH = 4;
@@ -114,7 +129,7 @@ export async function traverseRelationships(
     query.require_publishable_rights ?? DEFAULT_REQUIRE_PUBLISHABLE_RIGHTS;
 
   const edges: RelationshipEdge[] = [];
-  let withheld = 0;
+  let unevidenced = 0;
   const visited = new Set<string>([query.entity_id]);
   const seenEdges = new Set<string>();
   let frontier: EntityId[] = [query.entity_id];
@@ -134,14 +149,22 @@ export async function traverseRelationships(
         if (seenEdges.has(relationship.id)) continue;
         seenEdges.add(relationship.id);
 
-        const evidenceCount = counts.get(relationship.id) ?? 0;
+        const tally = counts.get(relationship.id) ?? { stored: 0, publishable: 0 };
+        const evidenceCount = tally.publishable;
+
         // Rule 1 + rule 2: an edge nothing publishable vouches for is not a
         // claim this layer may serve, and it is not a hop this layer may take
         // either — reaching a node *through* a blocked edge would publish the
         // blocked claim as a path. The neighbour stays unvisited, so a
         // publishable edge to the same node later still finds it.
+        //
+        // Both refusals drop the edge; only one of them is counted. An edge
+        // with no evidence at all names no source, so saying how many there
+        // are gives nothing away. An edge refused on rights does name one, and
+        // a per-query count of those is a differencing oracle for the very
+        // claim the gate refused — see `unevidenced_edge_count`.
         if (requirePublishableRights && evidenceCount === 0) {
-          withheld += 1;
+          if (tally.stored === 0) unevidenced += 1;
           continue;
         }
 
@@ -149,6 +172,18 @@ export async function traverseRelationships(
         const neighborId = outgoing ? relationship.object_entity_id : relationship.subject_entity_id;
         const neighbor = await store.getEntityById(neighborId);
         if (neighbor === null) continue;
+
+        // Checked BEFORE the push, not after. Testing `edges.length >= limit`
+        // once an edge is already in the array reports `truncated` for a walk
+        // that served everything and had nothing left to serve — with exactly
+        // `limit` publishable edges, the last successful push tripped it. REST
+        // publishes that as `boundReached`, documented as "more edges exist",
+        // so the old order made the surface say more edges existed when none
+        // did. Here the flag is only set on an edge the bound actually stopped.
+        if (edges.length >= limit) {
+          truncated = true;
+          break;
+        }
 
         edges.push({
           relationship,
@@ -159,10 +194,6 @@ export async function traverseRelationships(
           evidence_count: evidenceCount,
         });
 
-        if (edges.length >= limit) {
-          truncated = true;
-          break;
-        }
         if (!visited.has(neighborId)) {
           visited.add(neighborId);
           next.push(neighborId);
@@ -173,7 +204,7 @@ export async function traverseRelationships(
     frontier = next;
   }
 
-  return { root: query.entity_id, edges, depth, truncated, withheld_edge_count: withheld };
+  return { root: query.entity_id, edges, depth, truncated, unevidenced_edge_count: unevidenced };
 }
 
 /**
@@ -191,12 +222,19 @@ export async function traverseRelationships(
  * and refuse every AMBER source. Grouping by classification and letting the
  * shared predicate decide keeps a single rule.
  */
+interface EvidenceTally {
+  /** Rows from any source at all, whatever its rights. */
+  readonly stored: number;
+  /** Rows from a source that may publish. Equals `stored` when the gate is off. */
+  readonly publishable: number;
+}
+
 async function evidenceCounts(
   store: CanonicalStore,
   relationships: readonly Relationship[],
   requirePublishableRights: boolean,
-): Promise<Map<string, number>> {
-  const counts = new Map<string, number>();
+): Promise<Map<string, EvidenceTally>> {
+  const counts = new Map<string, EvidenceTally>();
   if (relationships.length === 0) return counts;
   const placeholders = relationships.map((_, index) => `$${index + 1}`).join(', ');
   const rows = await store.driver.query(
@@ -210,9 +248,14 @@ async function evidenceCounts(
   );
   for (const row of rows) {
     const rights = String(row['rights_classification']) as RightsClassification;
-    if (requirePublishableRights && !canPublish(rights)) continue;
     const id = String(row['relationship_id']);
-    counts.set(id, (counts.get(id) ?? 0) + Number(row['total'] ?? 0));
+    const total = Number(row['total'] ?? 0);
+    const usable = requirePublishableRights ? canPublish(rights) : true;
+    const running = counts.get(id) ?? { stored: 0, publishable: 0 };
+    counts.set(id, {
+      stored: running.stored + total,
+      publishable: running.publishable + (usable ? total : 0),
+    });
   }
   return counts;
 }

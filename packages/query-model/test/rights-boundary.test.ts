@@ -23,7 +23,7 @@
  * being unconditional.
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { entityQualityScore, type Entity } from '@data-foundry/canonical-schema';
+import { canPublish, entityQualityScore, type Entity } from '@data-foundry/canonical-schema';
 import {
   addSourceFixture,
   createQueryFixtures,
@@ -153,12 +153,26 @@ describe('relationship traversal — rule 1 (gap 1)', () => {
   });
 
   it('does not refuse AMBER: publishable is `canPublish`, not "GREEN"', async () => {
+    // The classification is read back from the database rather than taken from
+    // the helper's argument. Without this the whole AMBER guarantee rested on
+    // an unasserted fixture detail: flipping `rights: 'AMBER'` to `'GREEN'` in
+    // the setup used to leave all twelve tests in this file passing, so nothing
+    // here could tell whether it was testing over-refusal at all.
+    const [row] = await fixtures.driver.query<{ rights_classification: string }>(
+      'SELECT rights_classification FROM sources WHERE id = $1',
+      [distributor.source.id],
+    );
+    expect(row?.rights_classification, 'this test is named for AMBER').toBe('AMBER');
+    expect(canPublish('AMBER'), 'and AMBER must be publishable, or there is nothing to prove').toBe(
+      true,
+    );
+
     const traversal = await fixtures.qm.relationships({
       entity_id: fixtures.equipment.id,
       predicate: 'has_part',
     });
 
-    const edge = traversal.edges.find((row) => row.neighbor.id === amberPart.id);
+    const edge = traversal.edges.find((candidate) => candidate.neighbor.id === amberPart.id);
     expect(edge, 'AMBER may publish; refusing it would be over-refusal').toBeDefined();
     expect(edge?.evidence_count).toBe(1);
   });
@@ -177,32 +191,187 @@ describe('relationship traversal — rule 1 (gap 1)', () => {
     expect(mixed?.evidence_count, 'both rows are counted when nothing is filtered').toBe(2);
   });
 
-  it('reports how many edges it refused, so a surface can say so', async () => {
-    // Withholding silently would let a caller read an empty or short edge list
-    // as "the graph holds nothing more here" — a stronger claim than the truth,
-    // and one the caller has no way to check. The count is the difference
-    // between a reported gap and an invisible one.
-    const traversal = await fixtures.qm.relationships({
+  it('does not report how many edges it refused on rights, at any granularity', async () => {
+    // The regression this replaces a feature with.
+    //
+    // An earlier version of this file counted rights refusals into a
+    // `withheld_edge_count` and both surfaces published it, on the reasoning
+    // that a count says how many without saying which. That reasoning was
+    // wrong, and it was wrong in the direction that matters: `predicate` and
+    // `direction` are chosen by the CALLER, so the count is a yes/no answer
+    // about any triple they care to name. Sweep the predicate list against a
+    // subject, then the entity list against the predicate that answered, and
+    // you have reconstructed the exact edge the gate refused. It was
+    // demonstrated end to end against the REST route.
+    //
+    // So the assertion is that the refusal leaves NO trace that varies with
+    // the query. The serialized payload is compared between a filter that
+    // covers a blocked edge and one that does not; a field that differed
+    // between them is a channel, whatever it is called.
+    const blockedOnly = await fixtures.qm.relationships({
       entity_id: fixtures.equipment.id,
       predicate: 'has_part',
+      direction: 'out',
+    });
+    const untouched = await fixtures.qm.relationships({
+      entity_id: amberPart.id,
+      predicate: 'has_part',
+      direction: 'out',
     });
 
-    expect(traversal.withheld_edge_count, 'the UNREVIEWED-only edge, and only it').toBe(1);
-    expect(traversal.edges).toHaveLength(2);
+    // The first query really does hide something and the second really does
+    // not, or this proves nothing.
+    expect(neighbours(blockedOnly)).not.toContain(hiddenPart.canonical_slug);
+    expect(blockedOnly.edges.length, 'the blocked-edge query served real edges').toBe(2);
+    expect(untouched.edges, 'the control query has nothing to hide').toEqual([]);
 
-    // A count, not an identity: it says something was refused without saying
-    // what, or by whom, which is what makes it safe to publish.
-    expect(JSON.stringify(traversal)).not.toContain(BLOCKED_PUBLISHER);
+    // Every scalar the traversal reports must be a property of what was
+    // SERVED, never of what was refused.
+    expect(blockedOnly.unevidenced_edge_count).toBe(0);
+    expect(untouched.unevidenced_edge_count).toBe(0);
+    expect(Object.keys(blockedOnly).sort()).toEqual([
+      'depth',
+      'edges',
+      'root',
+      'truncated',
+      'unevidenced_edge_count',
+    ]);
+    expect(JSON.stringify(blockedOnly)).not.toContain(hiddenPart.canonical_slug);
+    expect(JSON.stringify(blockedOnly)).not.toContain(BLOCKED_PUBLISHER);
   });
 
-  it('reports no gap when it refused nothing', async () => {
-    // Otherwise a hard-coded 1 would satisfy the assertion above.
+  it('does report an edge nothing asserts at all, which names no source', async () => {
+    // Rule 2, and the one refusal it IS safe to count: an edge with no evidence
+    // has no source to disclose. The store refuses to write one, so it is made
+    // here by deleting the evidence underneath a real edge — an assertion about
+    // unevidenced edges is worthless if none can exist.
+    const orphan = await entity('Unasserted Bracket', 'unasserted-bracket');
+    await relate(fixtures, amberPart, 'has_part', orphan, 'manufacturer');
+
+    const before = await fixtures.qm.relationships({
+      entity_id: amberPart.id,
+      predicate: 'has_part',
+      direction: 'out',
+    });
+    // The zero control runs with the gate ON and real edges served, so a
+    // constant — or a value that merely tracks the flag — cannot satisfy it.
+    expect(before.edges, 'the control must serve a real edge').toHaveLength(1);
+    expect(before.edges[0]?.evidence_count).toBeGreaterThan(0);
+    expect(before.unevidenced_edge_count).toBe(0);
+
+    const edgeId = before.edges[0]?.relationship.id ?? '';
+    await fixtures.driver.query('DELETE FROM relationship_evidence WHERE relationship_id = $1', [
+      edgeId,
+    ]);
+
+    const after = await fixtures.qm.relationships({
+      entity_id: amberPart.id,
+      predicate: 'has_part',
+      direction: 'out',
+    });
+    expect(after.edges).toEqual([]);
+    expect(after.unevidenced_edge_count).toBe(1);
+
+    // Two, not "some": a hard-coded 1 satisfies the assertion above.
+    const second = await entity('Second Unasserted Bracket', 'second-unasserted-bracket');
+    await relate(fixtures, amberPart, 'has_part', second, 'manufacturer');
+    const secondId = (
+      await fixtures.driver.query<{ id: string }>(
+        'SELECT id FROM relationships WHERE object_entity_id = $1',
+        [second.id],
+      )
+    )[0]?.id;
+    await fixtures.driver.query('DELETE FROM relationship_evidence WHERE relationship_id = $1', [
+      secondId ?? '',
+    ]);
+
+    const both = await fixtures.qm.relationships({
+      entity_id: amberPart.id,
+      predicate: 'has_part',
+      direction: 'out',
+    });
+    expect(both.unevidenced_edge_count, 'two refused, not "some"').toBe(2);
+  });
+
+  it('counts an unevidenced edge found deeper than the first hop', async () => {
+    // Nothing else in the repo exercises a refusal at level 2, so `withheld +=
+    // 1` could have been guarded on `level === 1` and no test would have said
+    // so. Verified: that mutation used to survive every suite.
+    const deepRoot = await entity('Deep Root', 'deep-root');
+    const deepMiddle = await entity('Deep Middle', 'deep-middle');
+    const deepOrphan = await entity('Deep Orphan', 'deep-orphan');
+    await relate(fixtures, deepRoot, 'deep_link', deepMiddle, 'manufacturer');
+    await relate(fixtures, deepMiddle, 'deep_link', deepOrphan, 'manufacturer');
+    const deepId = (
+      await fixtures.driver.query<{ id: string }>(
+        'SELECT id FROM relationships WHERE object_entity_id = $1',
+        [deepOrphan.id],
+      )
+    )[0]?.id;
+    await fixtures.driver.query('DELETE FROM relationship_evidence WHERE relationship_id = $1', [
+      deepId ?? '',
+    ]);
+
     const traversal = await fixtures.qm.relationships({
+      entity_id: deepRoot.id,
+      predicate: 'deep_link',
+      direction: 'out',
+      depth: 2,
+    });
+    expect(traversal.edges, 'the walk did reach depth 2').toHaveLength(1);
+    expect(traversal.unevidenced_edge_count, 'a refusal at level 2 counts too').toBe(1);
+  });
+
+  it('does not let the caller\u2019s limit change how much it says was refused', async () => {
+    const limitRoot = await entity('Limit Root', 'limit-root');
+    const served = await Promise.all(
+      ['lim-a', 'lim-b', 'lim-c'].map((slug) => entity(slug, slug)),
+    );
+    const orphan = await entity('Limit Orphan', 'limit-orphan');
+    for (const object of served) await relate(fixtures, limitRoot, 'lim', object, 'manufacturer');
+    await relate(fixtures, limitRoot, 'lim', orphan, 'manufacturer');
+    const orphanEdge = (
+      await fixtures.driver.query<{ id: string }>(
+        'SELECT id FROM relationships WHERE object_entity_id = $1',
+        [orphan.id],
+      )
+    )[0]?.id;
+    await fixtures.driver.query('DELETE FROM relationship_evidence WHERE relationship_id = $1', [
+      orphanEdge ?? '',
+    ]);
+
+    const full = await fixtures.qm.relationships({
+      entity_id: limitRoot.id,
+      predicate: 'lim',
+      direction: 'out',
+    });
+    expect(full.edges).toHaveLength(3);
+    expect(full.unevidenced_edge_count).toBe(1);
+    expect(full.truncated, 'nothing stopped this walk').toBe(false);
+  });
+
+  it('does not claim it stopped short when it served everything', async () => {
+    // `edges.length >= limit` was checked AFTER the push, so a walk with
+    // exactly `limit` publishable edges tripped the flag on its last
+    // successful push. REST publishes that as `boundReached`, documented as
+    // "more edges exist" — so the surface said more existed when none did.
+    const exact = await fixtures.qm.relationships({
       entity_id: fixtures.equipment.id,
       predicate: 'has_part',
-      require_publishable_rights: false,
+      direction: 'out',
+      limit: 2,
     });
-    expect(traversal.withheld_edge_count).toBe(0);
+    expect(exact.edges, 'exactly two publishable edges exist here').toHaveLength(2);
+    expect(exact.truncated).toBe(false);
+
+    const bounded = await fixtures.qm.relationships({
+      entity_id: fixtures.equipment.id,
+      predicate: 'has_part',
+      direction: 'out',
+      limit: 1,
+    });
+    expect(bounded.edges).toHaveLength(1);
+    expect(bounded.truncated, 'this one really did stop short').toBe(true);
   });
 
   it('does not reach a further node through an edge it may not serve', async () => {

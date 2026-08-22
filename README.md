@@ -25,11 +25,23 @@ checks the canonical result against golden records.
 The last step — "web / API / MCP / exports generated" — is implemented for
 three of its four surfaces: `apps/api` (read-only REST), `apps/mcp` (the tool
 contract) and `services/export-builder` (CSV and JSONL bulk exports). All three
-read through `packages/query-model` and nothing beneath it, which is rule 5,
-and all three serialize through the shared projection in
-`packages/query-model/src/serialization.ts`, so they cannot drift apart in what
-they consider true. `tests/contract/surface-parity.test.ts` holds them to that
-over one query model and one policy.
+read their facts through `packages/query-model` and serialize through the
+shared projection in `packages/query-model/src/serialization.ts`, so they
+cannot drift apart in what they consider true.
+
+Rule 5 is enforced by a boundary test in each, and it is worth being exact
+about what each one proves. `apps/api` and `apps/mcp` import nothing beneath
+the query layer at all. `services/export-builder` does: it calls
+`resolveFactSelectionPolicy` from `packages/canonical-store` to record the
+policy it applied in the manifest, and takes an injected `CanonicalStore` to
+write the snapshot row — an export is the one surface here that writes. Its
+boundary test pins exactly which of its files may do that, so widening it is a
+decision rather than a drift.
+
+`tests/contract/surface-parity.test.ts` holds REST and MCP to the same answer
+over one query model and one policy. The export builder is not in that test;
+its projection is checked against the shared mapper in its own
+`test/boundary.test.ts`, which is what discharges ADR-0004.
 
 Two limitations the package list does not show:
 

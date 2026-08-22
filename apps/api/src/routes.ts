@@ -261,12 +261,14 @@ const listRelationships: Route['handler'] = async (context, match) => {
         /** True when the traversal stopped at its bound, so more edges exist. */
         boundReached: traversal.truncated,
         /**
-         * Edges the walk reached and would not serve: no evidence, or evidence
-         * only from sources that may not publish. Reported so an empty result
-         * reads as "nothing publishable here" rather than "nothing here" — a
-         * count only, never which edge or whose source.
+         * Edges the walk reached and would not serve because nothing asserts
+         * them at all. Rights refusals are NOT counted here: `predicate` and
+         * `direction` come from the query string, so a per-query count of them
+         * is a yes/no oracle about any triple a caller names. That was
+         * demonstrated against this route. The route's `caveat` states the
+         * incompleteness instead.
          */
-        withheldEdgeCount: traversal.withheld_edge_count,
+        unevidencedEdgeCount: traversal.unevidenced_edge_count,
       },
       ...page,
     },
@@ -409,7 +411,7 @@ export const ROUTES: readonly Route[] = [
     path: '/v1/entities/{id}/relationships?predicate=&direction=&depth=&limit=&offset=',
     summary: 'Bounded graph traversal from this entity, breadth-first and cycle-guarded.',
     caveat:
-      'Rule 1 applies here as it does to facts: an edge whose every piece of evidence comes from a source that may not publish is withheld, and so is any neighbour reachable only through one. Edge counts are therefore a view of the publishable graph, not of everything recorded.',
+      'This is a view of the publishable graph, not the whole graph. Rule 1 applies here as it does to facts: an edge whose every piece of evidence comes from a source that may not publish is withheld, and so is any neighbour reachable only through one. Those refusals are deliberately not counted in the response — a per-predicate count of them would let a caller reconstruct the withheld claim — so an absent edge means "not publishable, or not asserted", and never "asserted to be false". unevidencedEdgeCount reports a different case: edges nothing asserts at all.',
     handler: listRelationships,
   },
   {

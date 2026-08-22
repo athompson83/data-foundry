@@ -164,9 +164,24 @@ describe('rule 5 — the service reads through the query layer and nothing benea
     const importers = sourceFiles(SRC).filter((file) =>
       /from '@data-foundry\/canonical-store'/.test(stripComments(readFileSync(file, 'utf8'))),
     );
-    // builder/privacy import TYPES only; snapshot.ts is the one that writes.
+    // `privacy.ts` imports a TYPE only. `builder.ts` imports a VALUE —
+    // `resolveFactSelectionPolicy`, called to record the effective policy in
+    // the manifest — and `snapshot.ts` takes an injected `CanonicalStore` to
+    // write the snapshot row. This comment used to say all three were type-only
+    // imports, which was wrong about two of them, so the value imports are now
+    // pinned by name rather than described.
     expect(importers.map((file) => relative(SERVICE_ROOT, file)).sort()).toEqual(
       [join('src', 'builder.ts'), join('src', 'privacy.ts'), join('src', 'snapshot.ts')].sort(),
     );
+
+    const valueImporters = sourceFiles(SRC).filter((file) =>
+      /^import\s+(?!type\b)[^;]*from '@data-foundry\/canonical-store'/m.test(
+        stripComments(readFileSync(file, 'utf8')),
+      ),
+    );
+    expect(
+      valueImporters.map((file) => relative(SERVICE_ROOT, file)).sort(),
+      'a new file executing store code is a boundary decision, not a detail',
+    ).toEqual([join('src', 'builder.ts')]);
   });
 });

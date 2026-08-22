@@ -218,16 +218,34 @@ describe('the published contract matches the routes that exist', () => {
     }
   });
 
-  it('gives every route a summary, and states the caveats that exist', () => {
+  it('publishes a caveat on exactly the routes that need one', () => {
     for (const route of document.routes) {
       expect(route.summary.length, route.path).toBeGreaterThan(20);
     }
-    const caveats = document.routes.filter((route) => route.caveat !== undefined);
-    // Caveats narrow what a route means: which properties can be absent, what
-    // traversal withholds, which trust fields a comparison cell does not carry.
-    // The count is a floor so removing one is visible here; what each one says
-    // is checked against the route's behaviour in `test/privacy.test.ts`.
-    expect(caveats.map((route) => route.path).length).toBeGreaterThanOrEqual(2);
+
+    // An exact set, not a floor. Three routes carry a caveat and the floor was
+    // two, so deleting one was invisible — including the `/v1/compare` one that
+    // `apps/api/README.md` points readers at under "Known limitations", which
+    // could have gone while the README went on promising it.
+    //
+    // Each of these narrows what its route means: which properties can be
+    // absent, that the edge list is the publishable graph rather than the whole
+    // one, and which trust fields a comparison cell does not carry. What the
+    // traversal caveat SAYS is checked against the route's behaviour in
+    // `test/privacy.test.ts`; the other two are prose about behaviour their own
+    // route tests cover.
+    expect(
+      document.routes
+        .filter((route) => route.caveat !== undefined)
+        .map((route) => route.path)
+        .sort(),
+    ).toEqual(
+      [
+        '/v1/compare?ids=a,b&properties=&at=',
+        '/v1/entities/{id}/facts?property=&at=&limit=&offset=',
+        '/v1/entities/{id}/relationships?predicate=&direction=&depth=&limit=&offset=',
+      ].sort(),
+    );
   });
 
   it('says in the document itself that the surface is read-only', () => {

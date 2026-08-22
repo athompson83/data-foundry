@@ -9,6 +9,7 @@
  * identifier match — which is precisely the case AGENTS.md rule 7 exists for.
  */
 import {
+  canPublish,
   entityQualityScore,
   extractionConfidence,
   identityConfidence,
@@ -284,8 +285,12 @@ export async function addSourceFixture(
     },
     refresh_cadence: 'WEEKLY',
     // Same rule-1 storage posture as the shared fixtures: only a source with a
-    // rights decision that permits publication may be ACTIVE.
-    status: spec.rights === 'GREEN' || spec.rights === 'AMBER' ? 'ACTIVE' : 'UNDER_REVIEW',
+    // rights decision that permits publication may be ACTIVE. Asked of
+    // `canPublish` rather than restated as a literal set — a second copy of
+    // "GREEN or AMBER" in a test helper is the same duplication the traversal
+    // gate is written to avoid, and it would go on agreeing with itself after
+    // the real rule changed.
+    status: canPublish(spec.rights) ? 'ACTIVE' : 'UNDER_REVIEW',
   });
   const artifact = await fixtures.store.recordSourceArtifact({
     source_id: source.id,

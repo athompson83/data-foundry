@@ -231,9 +231,17 @@ describe('a relationship no publishable evidence backs', () => {
     expect(JSON.stringify(after)).not.toContain(relationshipId);
   });
 
-  it('is withheld and counted when its only source fails the rights gate', async () => {
+  it('is withheld SILENTLY when its only source fails the rights gate', async () => {
     // The edge is fully evidenced. It fails on rights and nothing else, which
-    // is the case the unevidenced test above cannot reach.
+    // is the case the unevidenced test above cannot reach — and it is reported
+    // differently on purpose.
+    //
+    // An earlier version counted it into `withheldEdgeCount`, on the reasoning
+    // that a count says how many without saying which. That reasoning was
+    // wrong: `predicate` and `direction` are arguments the CALLER supplies, so
+    // the count answers yes/no about any triple they name, and two sweeps
+    // reconstruct the edge the gate refused. An unevidenced edge has no source
+    // to protect and is still counted; a rights-refused one is not.
     await relate(fixtures, fixtures.equipment, PREDICATE, fixtures.heatPump, 'blocked');
 
     const result = resultOf<import('../src/index.js').TraverseRelationshipsResult>(
@@ -244,26 +252,44 @@ describe('a relationship no publishable evidence backs', () => {
       }),
     );
     expect(result.edges).toEqual([]);
-    expect(result.withheldEdgeCount).toBe(1);
+    expect(result.withheldEdgeCount, 'a rights refusal leaves no count behind').toBe(0);
 
-    // The gap is reported; the blocked publisher is not. A count discloses that
-    // something was refused, which is the point; naming the source it came from
-    // would republish exactly what the gate refused.
     const raw = JSON.stringify(result);
     expect(raw).not.toContain(BLOCKED_PUBLISHER);
     expect(raw).not.toContain(BLOCKED_DOMAIN);
+    expect(raw, 'nor the entity on the far end of the refused edge').not.toContain(
+      fixtures.heatPump.canonical_slug,
+    );
+  });
+
+  it('says in its own tool description that the graph it serves is partial', () => {
+    // Withholding silently is only defensible because the incompleteness is
+    // stated somewhere a caller reads once, rather than in a number they can
+    // difference. If that sentence goes, the silence stops being honest.
+    const tool = fixtures.server.listTools().find((entry) => entry.name === 'traverse_relationships');
+    expect(tool, 'the tool must exist to describe anything').toBeDefined();
+    const description = tool?.description ?? '';
+    expect(description).toMatch(/publishable graph/i);
+    expect(description).toMatch(/withheld/i);
+    expect(description, 'and it must not read an absent edge as a denial').toMatch(
+      /never "asserted to be false"|not "asserted to be false"/i,
+    );
   });
 
   it('does not report a gap where there is none', async () => {
-    // Without this, `withheldEdgeCount` could be hard-coded to 1 and both
-    // assertions above would still pass.
+    // The control this replaces asked `heatPump` for `replaced_by` edges going
+    // OUT — but the fixture makes `heatPump` the OBJECT of that edge, so the
+    // walk matched nothing and the assertion held over an empty traversal. It
+    // could not tell "refused nothing" from "there was nothing to refuse".
     const result = resultOf<import('../src/index.js').TraverseRelationshipsResult>(
       await fixtures.server.callTool('traverse_relationships', {
-        entity_id: fixtures.heatPump.id,
+        entity_id: fixtures.equipment.id,
         predicate: 'replaced_by',
         direction: 'out',
       }),
     );
+    expect(result.edges, 'the control must walk a real, publishable edge').toHaveLength(1);
+    expect(result.edges[0]?.evidenceCount).toBeGreaterThan(0);
     expect(result.withheldEdgeCount).toBe(0);
   });
 });

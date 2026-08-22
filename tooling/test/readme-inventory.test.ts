@@ -67,6 +67,93 @@ function readmeInventory(): string[] {
     .sort();
 }
 
+/** Every `.ts` file under a directory, recursively. */
+function typescriptUnder(dir: string): string[] {
+  const found: string[] = [];
+  const walk = (at: string): void => {
+    for (const entry of readdirSync(at, { withFileTypes: true })) {
+      const path = join(at, entry.name);
+      if (entry.isDirectory()) walk(path);
+      else if (path.endsWith('.ts')) found.push(path);
+    }
+  };
+  walk(dir);
+  return found;
+}
+
+/** Import specifiers, whatever quote or form they use. */
+const importsOf = (code: string): string[] =>
+  [...code.matchAll(/(?:from|import)\s*\(?\s*['"]([^'"]+)['"]/g)].map((match) => match[1] ?? '');
+
+describe('the README claims that name specific code', () => {
+  /**
+   * The inventory check below catches a package appearing or disappearing. It
+   * cannot catch a sentence that is wrong about what the code DOES, and two of
+   * those shipped: the README said all three surfaces "read through
+   * `packages/query-model` and nothing beneath it" while
+   * `services/export-builder` imports and calls `canonical-store`, and it
+   * credited `surface-parity.test.ts` with holding all three when that file
+   * imports two.
+   *
+   * Both are now derived from the code rather than asserted about it.
+   */
+  const readme = (): string => readFileSync(join(ROOT, 'README.md'), 'utf8');
+
+  const BENEATH_QUERY_LAYER =
+    /@data-foundry\/(canonical-store|provenance)|packages\/(canonical-store|provenance)/;
+
+  it('names as query-layer-only exactly the surfaces that import nothing beneath it', () => {
+    const clean: string[] = [];
+    const reaches: string[] = [];
+    for (const surface of ['apps/api', 'apps/mcp', 'services/export-builder']) {
+      const offends = typescriptUnder(join(ROOT, surface, 'src')).some((file) =>
+        importsOf(readFileSync(file, 'utf8')).some((specifier) =>
+          BENEATH_QUERY_LAYER.test(specifier),
+        ),
+      );
+      (offends ? reaches : clean).push(surface);
+    }
+    expect(clean.length + reaches.length, 'all three surfaces must be scanned').toBe(3);
+
+    const text = readme();
+    for (const surface of clean) {
+      expect(text, `${surface} imports nothing beneath the query layer`).toContain(surface);
+    }
+    // The README must not claim the reaching surfaces are clean. It says so by
+    // naming what they reach for, so the claim and the code move together.
+    for (const surface of reaches) {
+      expect(
+        text.includes('`packages/canonical-store`') || text.includes('canonical-store'),
+        `${surface} reaches beneath the query layer; the README must say so`,
+      ).toBe(true);
+    }
+    expect(
+      text,
+      'the corrected sentence must not have reverted to the blanket claim',
+    ).not.toMatch(/All three\s+read through `packages\/query-model` and nothing beneath it/);
+  });
+
+  it('credits the parity test only with the surfaces it actually imports', () => {
+    const named = /`(tests\/contract\/[\w.-]+\.test\.ts)`/.exec(readme())?.[1];
+    expect(named, 'the README must name the cross-surface parity test').toBeDefined();
+    const parity = readFileSync(join(ROOT, named as string), 'utf8');
+    const covered = ['apps/api', 'apps/mcp', 'services/export-builder'].filter((surface) =>
+      parity.includes(surface),
+    );
+    expect(covered, 'the parity test must cover something, or this proves nothing').not.toEqual([]);
+
+    // Whatever it covers, the README must not say it holds a surface it never
+    // imports. Asserted as a sentence the corrected text does not contain.
+    for (const surface of ['apps/api', 'apps/mcp', 'services/export-builder']) {
+      if (covered.includes(surface)) continue;
+      expect(
+        readme(),
+        `${named ?? ''} does not import ${surface}; the README must not credit it with holding it`,
+      ).toContain('The export builder is not in that test');
+    }
+  });
+});
+
 describe('the README inventory and the workspace', () => {
   it('lists every workspace package', () => {
     const listed = new Set(readmeInventory());
@@ -81,11 +168,38 @@ describe('the README inventory and the workspace', () => {
     );
   });
 
-  it('is reading a real inventory, not an empty one', () => {
+  it('is reading a real inventory, and one that reaches every workspace root', () => {
     // Both assertions above pass trivially against an empty list, so the
     // parsing is proved separately from what it proves.
-    expect(readmeInventory().length).toBeGreaterThan(10);
-    expect(workspacePackages().length).toBeGreaterThan(5);
-    expect(workspacePackages()).toContain('packages/query-model/');
+    //
+    // "Not empty" was not enough. This check used to be `> 10`, `> 5` and
+    // `toContain('packages/query-model/')` — all three satisfied by the eight
+    // `packages/*` entries alone, so an enumeration that silently dropped
+    // `apps/*` and `services/*` passed, and with it a README that had stopped
+    // mentioning `apps/api` at all. A root that contributes nothing is
+    // therefore a failure rather than a quiet zero.
+    const listed = readmeInventory();
+    const packages = workspacePackages();
+    expect(listed.length).toBeGreaterThan(10);
+    expect(packages.length).toBeGreaterThan(5);
+
+    const roots = workspaceRoots();
+    expect(roots.length, 'pnpm-workspace.yaml declares more than one root').toBeGreaterThan(1);
+    for (const root of roots) {
+      expect(
+        packages.filter((name) => name.startsWith(`${root}/`)),
+        `nothing enumerated under the declared workspace root ${root}/*`,
+      ).not.toEqual([]);
+    }
+
+    // Named anchors from more than one root, so dropping a whole root cannot
+    // pass as "there just are not any there".
+    expect(packages).toEqual(
+      expect.arrayContaining([
+        'packages/query-model/',
+        'apps/api/',
+        'services/export-builder/',
+      ]),
+    );
   });
 });

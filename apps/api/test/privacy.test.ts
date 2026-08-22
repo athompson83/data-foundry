@@ -313,17 +313,22 @@ describe('the published contract for relationship traversal', () => {
    * The contract document at `/v1` is a promise, not a comment: callers read it
    * to decide what an edge means. It used to warn that traversal "carries no
    * rights gate in the query layer today, unlike facts" — true when written,
-   * and false the moment the gate landed. A caveat that understates the
-   * guarantee is not a safe direction to be wrong in either: a caller told an
-   * edge proves nothing about publishability will build their own filter, and
-   * two filters that disagree is exactly what rule 5 exists to prevent.
+   * and false the moment the gate landed. A caller told an edge proves nothing
+   * about publishability will build their own filter, and two filters that
+   * disagree is exactly what rule 5 exists to prevent.
    *
-   * So the wording is checked against what the route actually does, in the
-   * same test, rather than trusted to stay in step on its own.
+   * Checking the wording is not enough on its own, and the first version of
+   * this test proved it: it asserted the caveat did not say "no rights gate"
+   * and did say "withheld", in an `it` block that never called the route. A
+   * caveat reading "Traversal withholds nothing. […] an edge here is proof its
+   * backing source is publishable" satisfied both — the precise falsehood the
+   * test existed to prevent. So the behaviour and the wording are now observed
+   * in the same test, and the wording assertions are written to reject the
+   * inversions rather than to spot a keyword.
    */
   const PREDICATE = 'blocked_only_edge';
 
-  it('withholds an edge no publishable source vouches for', async () => {
+  it('withholds an edge no publishable source vouches for, and says so in the contract', async () => {
     await relate(fixtures, fixtures.equipment, PREDICATE, fixtures.heatPump, 'blocked');
 
     const response = await call(
@@ -331,31 +336,56 @@ describe('the published contract for relationship traversal', () => {
       `/v1/entities/${fixtures.equipment.id}/relationships?predicate=${PREDICATE}`,
     );
     expect(response.status).toBe(200);
+
+    // Observed: the route DOES withhold.
     expect(
       dataOf<{ predicate: string }[]>(response),
       'the only evidence for this edge comes from an UNREVIEWED source',
     ).toEqual([]);
 
-    // Withheld, and said so. An empty edge list on its own tells a caller the
-    // graph holds nothing here, which is a stronger claim than the truth.
-    const body = response.body as { traversal: { withheldEdgeCount: number } };
-    expect(body.traversal.withheldEdgeCount).toBe(1);
+    // …and says nothing anywhere about what it withheld. A rights refusal that
+    // varied any number in this payload would be a yes/no oracle about the
+    // triple the caller named — see the query layer's `unevidenced_edge_count`.
+    const body = response.body as { traversal: { unevidencedEdgeCount: number } };
+    expect(body.traversal.unevidencedEdgeCount, 'a rights refusal is not an unevidenced edge').toBe(
+      0,
+    );
     expect(
       JSON.stringify(response.body),
-      'the count reports the gap; it must not name who was refused',
+      'nothing may name who was refused, either',
     ).not.toContain('HVAC Forum');
+
+    // Published: the caveat must assert the withholding, and must not be
+    // satisfiable by a sentence that denies it.
+    const document = (await call(fixtures.app, '/v1')).body as {
+      routes: { path: string; caveat?: string }[];
+    };
+    const caveat =
+      document.routes.find((candidate) => candidate.path.includes('/relationships'))?.caveat ?? '';
+    expect(caveat, 'the contract must still describe the traversal route').not.toBe('');
+    expect(caveat, 'it must not deny the gate').not.toMatch(
+      /no rights gate|withholds? nothing|never withh|returns every edge/i,
+    );
+    expect(caveat, 'nor claim an edge proves its source is publishable').not.toMatch(
+      /proof (that )?(its|the) backing source|proof its backing source/i,
+    );
+    expect(caveat, 'it must say the view is partial').toMatch(/withheld|withholds/i);
+    expect(caveat, 'and name what the edge list actually is').toMatch(/publishable graph/i);
   });
 
-  it('does not tell callers that traversal is ungated', async () => {
-    const response = await call(fixtures.app, '/v1');
-    expect(response.status).toBe(200);
-    const document = response.body as { routes: { path: string; caveat?: string }[] };
-    const route = document.routes.find((candidate) => candidate.path.includes('/relationships'));
-    expect(route, 'the contract must still describe the traversal route').toBeDefined();
-    const caveat = route?.caveat ?? '';
-    expect(caveat, 'traversal does gate on rights; the contract must not deny it').not.toMatch(
-      /no rights gate/i,
+  it('reports no unevidenced edges on a route that served real ones', async () => {
+    // Without a zero control taken with the gate ON and edges actually served,
+    // hard-coding the field to 1 passed the entire API suite.
+    const response = await call(
+      fixtures.app,
+      `/v1/entities/${fixtures.equipment.id}/relationships?predicate=has_part`,
     );
-    expect(caveat, 'and it must say so, so callers do not re-filter').toMatch(/withheld|withhold/i);
+    expect(response.status).toBe(200);
+    expect(
+      dataOf<{ predicate: string }[]>(response).length,
+      'the control must serve at least one real edge',
+    ).toBeGreaterThan(0);
+    const body = response.body as { traversal: { unevidencedEdgeCount: number } };
+    expect(body.traversal.unevidencedEdgeCount).toBe(0);
   });
 });
