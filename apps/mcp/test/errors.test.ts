@@ -10,7 +10,12 @@
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { AT, createMcpFixtures, errorOf, ts, type McpFixtures } from './support.js';
-import { MCP_TOOL_ERROR_CODES, createMcpServer, type McpServer } from '../src/index.js';
+import {
+  MCP_TOOL_ERROR_CODES,
+  createMcpServer,
+  type McpServer,
+  type McpServerOptions,
+} from '../src/index.js';
 import { entityQualityScore, identityConfidence } from '@data-foundry/canonical-schema';
 
 let fixtures: McpFixtures;
@@ -246,15 +251,17 @@ describe('a filter on a field the vertical does not declare', () => {
 });
 
 describe('an unmodelled failure below the dispatcher', () => {
-  it('becomes a retryable code and never leaks the exception', async () => {
-    const exploding: McpServer = createMcpServer({
-      queryModel: {
-        ...fixtures.qm,
-        search: () => {
-          throw new Error('ECONNREFUSED postgres://user:hunter2@db.internal:5432');
-        },
-      },
+  /** The real query layer, with one method faulted. Nothing else is stubbed. */
+  const faulted = (fault: () => never, onError?: McpServerOptions['onError']): McpServer =>
+    createMcpServer({
+      queryModel: { ...fixtures.qm, search: fault },
       vertical: { id: fixtures.vertical.id, slug: 'hvac' },
+      ...(onError === undefined ? {} : { onError }),
+    });
+
+  it('becomes a retryable code and never leaks the exception', async () => {
+    const exploding = faulted(() => {
+      throw new Error('ECONNREFUSED postgres://user:hunter2@db.internal:5432');
     });
 
     const call = await exploding.callTool('search_entities', { query: 'anything' });
@@ -266,6 +273,75 @@ describe('an unmodelled failure below the dispatcher', () => {
     expect(serialized).not.toContain('hunter2');
     expect(serialized).not.toContain('ECONNREFUSED');
     expect(serialized).not.toContain('at Object');
+  });
+
+  /**
+   * The other half of that opacity. A failure a caller is deliberately told
+   * nothing about has to be told to SOMEBODY, or the exception is simply gone:
+   * no channel, no log, and an operator whose only evidence that anything broke
+   * is a customer reporting a retryable error that never stops being retryable.
+   * `apps/api` solves this with an `onError` operator channel; this is the same
+   * channel, with the tool name and the code the caller was given so the two
+   * ends can be matched up.
+   */
+  it('hands the real cause to the operator channel and nothing to the caller', async () => {
+    const reported: { error: unknown; context: unknown }[] = [];
+    const cause = new Error('ECONNREFUSED postgres://user:hunter2@db.internal:5432');
+    const exploding = faulted(
+      () => {
+        throw cause;
+      },
+      (error, context) => reported.push({ error, context }),
+    );
+
+    const call = await exploding.callTool('search_entities', { query: 'anything' });
+
+    // Operators get the cause itself, not a copy and not a summary.
+    expect(reported).toHaveLength(1);
+    expect(reported[0]?.error).toBe(cause);
+    expect(reported[0]?.context).toEqual({ tool: 'search_entities', code: 'INTERNAL_ERROR' });
+
+    // The caller still gets the opaque code and none of the detail.
+    expect(errorOf(call).code).toBe('INTERNAL_ERROR');
+    const serialized = JSON.stringify(call.structuredContent);
+    expect(serialized).not.toContain('hunter2');
+    expect(serialized).not.toContain('ECONNREFUSED');
+    expect(serialized).not.toContain('db.internal');
+  });
+
+  it('does not report a modelled refusal, which is an answer rather than a fault', async () => {
+    // `ENTITY_NOT_FOUND` is a decided answer to a legitimate question. Paging an
+    // operator for it would bury the failures that mean something.
+    const reported: unknown[] = [];
+    const server = createMcpServer({
+      queryModel: fixtures.qm,
+      vertical: { id: fixtures.vertical.id, slug: 'hvac' },
+      onError: (error) => reported.push(error),
+    });
+
+    const call = await server.callTool('list_facts', {
+      entity_id: '00000000-0000-4000-8000-000000000000',
+    });
+    expect(errorOf(call).code).toBe('ENTITY_NOT_FOUND');
+    expect(reported).toEqual([]);
+  });
+
+  it('keeps its never-throws guarantee even when the channel itself throws', async () => {
+    // The dispatcher's contract is that every failure leaves as a result. A
+    // logger that is itself broken must not be able to turn a structured
+    // failure into a rejected promise the transport has to invent a shape for.
+    const exploding = faulted(
+      () => {
+        throw new Error('the query layer fell over');
+      },
+      () => {
+        throw new Error('the operator channel fell over too');
+      },
+    );
+
+    const call = await exploding.callTool('search_entities', { query: 'anything' });
+    expect(call.isError).toBe(true);
+    expect(errorOf(call).code).toBe('INTERNAL_ERROR');
   });
 });
 

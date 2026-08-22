@@ -21,7 +21,7 @@
  * able to address a neighbouring vertical's data by guessing a uuid, and it
  * should not have to know uuids at all.
  */
-import { McpToolError, internalError, unknownTool } from './errors.js';
+import { McpToolError, internalError, unknownTool, type McpToolErrorCode } from './errors.js';
 import { ReviewerIdentityLeak, type FactSelectionPolicy, type QueryModel, type VerticalId } from './query-layer.js';
 import { fail, succeed, type CallToolResult } from './results.js';
 import {
@@ -48,6 +48,13 @@ export interface ToolDeclaration {
   readonly errorCodes: readonly string[];
 }
 
+/** What an operator is told about a failure, beside the cause itself. */
+export interface McpErrorContext {
+  readonly tool: string;
+  /** The code the CALLER was given, so the two ends can be matched up. */
+  readonly code: McpToolErrorCode;
+}
+
 export interface McpServerOptions {
   /**
    * The canonical query layer. THE ONLY DATA DEPENDENCY. Note what this
@@ -64,6 +71,20 @@ export interface McpServerOptions {
   readonly policy?: FactSelectionPolicy;
   /** Base URL for canonical pages. Omit and `canonicalUrl` is null everywhere. */
   readonly canonicalUrlBase?: string;
+  /**
+   * Where the real cause goes. The SAME channel `apps/api` gives its own
+   * unmodelled failures, for the same reason: a caller is told an opaque code
+   * on purpose — nothing here echoes an exception's message or stack — and an
+   * exception nobody is told about is simply gone. There would be no log, no
+   * channel and no evidence an operator could act on, only a customer
+   * reporting a retryable error that never stops being retryable.
+   *
+   * Called for what the dispatcher did not model — never for a decided refusal
+   * like `ENTITY_NOT_FOUND`, which is an answer rather than a fault, and which
+   * would bury the failures that mean something. Defaults to doing nothing so
+   * tests stay silent.
+   */
+  readonly onError?: (error: unknown, context: McpErrorContext) => void;
 }
 
 export interface McpServer {
@@ -71,6 +92,56 @@ export interface McpServer {
   listTools(): readonly ToolDeclaration[];
   /** Never throws. Failures come back as `isError` results with a code. */
   callTool(name: string, args?: unknown): Promise<CallToolResult>;
+}
+
+/**
+ * Anything a handler or the query layer threw that this app does not model,
+ * rendered as a decided failure — the same split `apps/api` makes between
+ * `normalize` and its error funnel.
+ *
+ * `ReviewerIdentityLeak` is the one such throwable with a code of its own: the
+ * query layer refuses to project a correction reason that names its reviewer,
+ * and that refusal must reach the caller as a refusal rather than as a generic
+ * internal error. Never with the offending text attached, which is why this
+ * maps to a fixed message instead of forwarding one. Everything else collapses
+ * to `INTERNAL_ERROR`; the cause goes to the operator channel and nowhere else.
+ */
+function normalize(tool: string, error: unknown): McpToolError {
+  if (error instanceof ReviewerIdentityLeak) {
+    return new McpToolError(
+      'REVIEWER_IDENTITY_BLOCKED',
+      'This result was withheld: the editorial correction behind one of its values has a ' +
+        'declared reason that names the staff reviewer who made it. The reason is ' +
+        'customer-visible by contract; the reviewer is not. Fix the override reason in ' +
+        "the vertical's fact-selection config.",
+      { withheld: error.field },
+    );
+  }
+  return internalError(tool);
+}
+
+/**
+ * Hand the cause to the operator channel, and never let that be the thing that
+ * breaks the call.
+ *
+ * `callTool` NEVER THROWS is the contract this file's header states and the one
+ * a transport is written against. A sink is supplied by whoever composes the
+ * server — a logger, an exception tracker, something that can be misconfigured
+ * or itself be down — and a throw from it would turn a structured failure into
+ * a rejected promise, which is precisely the shape the dispatcher exists to
+ * stop the transport having to invent.
+ */
+function report(
+  sink: McpServerOptions['onError'],
+  error: unknown,
+  context: McpErrorContext,
+): void {
+  if (sink === undefined) return;
+  try {
+    sink(error, context);
+  } catch {
+    // Nothing to do with it: reporting a reporting failure needs a reporter.
+  }
 }
 
 const declare = (tool: ToolDefinition): ToolDeclaration => ({
@@ -119,27 +190,13 @@ export function createMcpServer(options: McpServerOptions): McpServer {
 
         return succeed(name, guarded.result);
       } catch (error: unknown) {
+        // A modelled error is a decided answer: the handler already chose what
+        // the caller is told, and there is nothing here an operator needs.
         if (error instanceof McpToolError) return fail(name, error.toPayload());
 
-        // The query layer refuses to project a correction reason that names
-        // its reviewer. That refusal must reach the caller as a refusal, not
-        // as a 500 — and never with the offending text attached, which is why
-        // this maps to a fixed message rather than forwarding one.
-        if (error instanceof ReviewerIdentityLeak) {
-          return fail(
-            name,
-            new McpToolError(
-              'REVIEWER_IDENTITY_BLOCKED',
-              'This result was withheld: the editorial correction behind one of its values has a ' +
-                'declared reason that names the staff reviewer who made it. The reason is ' +
-                'customer-visible by contract; the reviewer is not. Fix the override reason in ' +
-                "the vertical's fact-selection config.",
-              { withheld: error.field },
-            ).toPayload(),
-          );
-        }
-
-        return fail(name, internalError(name).toPayload());
+        const failure = normalize(name, error);
+        report(options.onError, error, { tool: name, code: failure.code });
+        return fail(name, failure.toPayload());
       }
     },
   };

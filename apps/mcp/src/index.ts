@@ -77,6 +77,7 @@ export { TOOLS, TOOL_NAMES, type ToolContext, type ToolDefinition } from './tool
 
 export {
   createMcpServer,
+  type McpErrorContext,
   type McpServer,
   type McpServerOptions,
   type ToolDeclaration,
