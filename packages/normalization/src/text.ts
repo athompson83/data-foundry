@@ -48,10 +48,79 @@ const PUNCTUATION_MAP: ReadonlyMap<string, string> = new Map([
   ['⁄', '/'],
 ]);
 
+/**
+ * Invisible formatting characters that carry no meaning in the data this
+ * platform ingests, removed before anything is compared.
+ *
+ * These are the ones that actually turn up. A PDF-to-HTML converter leaves a
+ * soft hyphen wherever it broke a line. A CMS that once justified text leaves
+ * zero-width spaces. A file that travelled through Windows carries a
+ * byte-order mark on its first field. None of them render, so nobody reviewing
+ * the source sees anything wrong, and every one of them makes two strings a
+ * reader would call identical compare unequal.
+ *
+ * `\s` in JavaScript already covers the byte-order mark, which is why some of
+ * this worked by accident; the rest of the list it does not touch.
+ *
+ * A deliberately closed list, in the same spirit as `NAMED_ENTITIES` above: a
+ * format character not named here is left verbatim rather than guessed at. The
+ * zero-width joiner and non-joiner are on it because in Latin-script technical
+ * data they are scraping debris — but they are SEMANTIC in Indic and Arabic
+ * scripts and in emoji sequences. A vertical that ingests those has to revisit
+ * this list, and this comment is where it should start.
+ */
+const FORMAT_CHARACTERS: ReadonlySet<string> = new Set([
+  '\u00AD', // soft hyphen
+  '\u200B', // zero-width space
+  '\u200C', // zero-width non-joiner
+  '\u200D', // zero-width joiner
+  '\u200E', // left-to-right mark
+  '\u200F', // right-to-left mark
+  '\u2060', // word joiner
+  '\u2066', // left-to-right isolate
+  '\u2067', // right-to-left isolate
+  '\u2068', // first strong isolate
+  '\u2069', // pop directional isolate
+  '\uFEFF', // zero-width no-break space / byte-order mark
+]);
+
+export const stripFormatCharacters = (value: string): string =>
+  Array.from(value)
+    .filter((character) => !FORMAT_CHARACTERS.has(character))
+    .join('');
+
 export const normalizePunctuation = (value: string): string =>
   Array.from(value)
     .map((character) => PUNCTUATION_MAP.get(character) ?? character)
     .join('');
+
+/**
+ * The fold every comparison in this package applies before matching anything.
+ *
+ * It existed already, written out by hand in the boolean vocabulary, the unit
+ * index and `vocabularyKey` — and a fourth time in `isNullToken` with one step
+ * missing, which is exactly the failure mode duplicated code has. The missing
+ * step meant a full-width or en-dashed spelling of absence was not recognised
+ * as absence, and `isNullToken` is not one comparison among many: it is the
+ * gate that decides whether a source field means anything at all. A `"N/A"` it
+ * fails to see does not become a missing value, it becomes the published
+ * string `"N/A"`, asserted as a fact about a real product.
+ *
+ * Naming it once removes the possibility of a fifth caller getting it wrong,
+ * and of the next widening reaching three of the four places.
+ *
+ * This fold is never applied to a stored value — it exists to decide whether
+ * two strings mean the same thing, and it lowercases, which would be a lie
+ * about what a source said. That is a separate question from what layer-1
+ * primitive cleanup does, which DOES alter the stored value (it folds NFKC,
+ * decodes entities, strips format characters, normalizes punctuation and
+ * collapses whitespace) and is deliberately narrower for that reason. Only
+ * `display` on a normalized identifier is the untouched original.
+ */
+export const comparisonKey = (value: string): string =>
+  collapseWhitespace(
+    normalizePunctuation(stripFormatCharacters(normalizeUnicode(value))),
+  ).toLowerCase();
 
 const NAMED_ENTITIES: ReadonlyMap<string, string> = new Map([
   ['amp', '&'],
@@ -153,5 +222,4 @@ const NULL_TOKENS: ReadonlySet<string> = new Set([
   'not available',
 ]);
 
-export const isNullToken = (value: string): boolean =>
-  NULL_TOKENS.has(collapseWhitespace(value).toLowerCase());
+export const isNullToken = (value: string): boolean => NULL_TOKENS.has(comparisonKey(value));

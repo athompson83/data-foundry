@@ -22,6 +22,7 @@ import {
   isNullToken,
   normalizePunctuation,
   normalizeUnicode,
+  stripFormatCharacters,
   replacePattern,
   stripCharacters,
 } from './text.js';
@@ -130,12 +131,20 @@ export interface TransformOutcome {
 
 /**
  * Layer 1 runs implicitly on every value before the declared chain: NFKC,
- * entity decoding, typographic punctuation, whitespace collapse. These are
- * universal (doc 06 layer 1) and a rule set that had to repeat them on every
- * field would be noise a vertical author would eventually get wrong.
+ * entity decoding, invisible formatting characters removed, typographic
+ * punctuation, whitespace collapse. These are universal (doc 06 layer 1) and a
+ * rule set that had to repeat them on every field would be noise a vertical
+ * author would eventually get wrong.
+ *
+ * The strip runs after entity decoding on purpose: `&shy;` and `&#8203;` are
+ * how a soft hyphen and a zero-width space usually arrive, so stripping first
+ * would leave the entity to be decoded into the character afterwards and put
+ * it straight back.
  */
 const primitiveCleanup = (raw: string): string =>
-  collapseWhitespace(normalizePunctuation(decodeHtmlEntities(normalizeUnicode(raw))));
+  collapseWhitespace(
+    normalizePunctuation(stripFormatCharacters(decodeHtmlEntities(normalizeUnicode(raw)))),
+  );
 
 /**
  * When a rule declares no transforms, the one implied by its `value_type` is

@@ -1,5 +1,5 @@
 import { fail, ok, type Normalized } from './failures.js';
-import { collapseWhitespace, normalizePunctuation, normalizeUnicode } from './text.js';
+import { comparisonKey } from './text.js';
 
 /**
  * Layer 4 of doc 06: ontology mapping.
@@ -31,8 +31,7 @@ export interface VocabularyDefinition {
  * meaning in a product-category label — but never applied to the stored value.
  */
 export const vocabularyKey = (value: string): string =>
-  collapseWhitespace(normalizePunctuation(normalizeUnicode(value)))
-    .toLowerCase()
+  comparisonKey(value)
     .replace(/[^a-z0-9]+/g, '_')
     .replace(/^_+|_+$/g, '');
 
