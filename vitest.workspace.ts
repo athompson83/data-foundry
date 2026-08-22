@@ -18,6 +18,7 @@ export const projects = [
   'services/ingest-worker',
   'apps/api',
   'apps/mcp',
+  'services/export-builder',
   'verticals/hvac',
   'tooling',
   // The repo-root `tests/` tree: integration, end-to-end and contract suites
