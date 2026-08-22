@@ -10,7 +10,7 @@
  *      a source that may not publish;
  *   2. `canonicalFacts`, which re-derived its `sources` list from the RAW
  *      candidate evidence and so named publishers whose evidence had already
- *      been excluded from the selection. (Covered in the next commit.)
+ *      been excluded from the selection.
  *
  * Rule 1 covers the ASSOCIATION, not only the value. Telling a customer that a
  * published value is backed by a source that is not cleared is a disclosure of
@@ -27,11 +27,14 @@ import { entityQualityScore, type Entity } from '@data-foundry/canonical-schema'
 import {
   addSourceFixture,
   createQueryFixtures,
+  claim,
   relate,
   ts,
   type QueryFixtures,
   type SourceFixture,
 } from './support.js';
+
+const AT = ts('2026-07-01T00:00:00Z');
 
 /** Publisher of the shared UNREVIEWED source. Must never reach a consumer. */
 const BLOCKED_PUBLISHER = 'HVAC Forum';
@@ -84,6 +87,21 @@ beforeAll(async () => {
 
   // Only an AMBER source says this edge exists. AMBER may publish.
   await relate(fixtures, fixtures.equipment, 'has_part', amberPart, distributor);
+
+  // One GREEN and one UNREVIEWED source claim the SAME value for one property.
+  // The value is publishable; the UNREVIEWED publisher's name is not.
+  await claim(fixtures, 'certifier', {
+    property: 'refrigerant',
+    value: 'R-454B',
+    entity_id: mixedPart.id,
+    valid_from: '2026-02-01T00:00:00Z',
+  });
+  await claim(fixtures, 'blocked', {
+    property: 'refrigerant',
+    value: 'R-454B',
+    entity_id: mixedPart.id,
+    valid_from: '2026-02-01T00:00:00Z',
+  });
 });
 
 afterAll(async () => {
@@ -179,5 +197,28 @@ describe('relationship traversal — rule 1 (gap 1)', () => {
       require_publishable_rights: false,
     });
     expect(neighbours(unguarded)).toContain(beyond.canonical_slug);
+  });
+});
+
+describe('canonicalFacts — rule 1 in the publisher list (gap 2)', () => {
+  it('names only the publishable source behind a value backed by GREEN and UNREVIEWED', async () => {
+    const rows = await fixtures.qm.canonicalFacts(mixedPart.id, { at: AT });
+    const refrigerant = rows.find((row) => row.property === 'refrigerant');
+
+    expect(refrigerant?.value, 'the value itself is publishable').toBe('R-454B');
+    expect(refrigerant?.sources).toEqual(['AHRI Directory']);
+    expect(refrigerant?.sources).not.toContain(BLOCKED_PUBLISHER);
+  });
+
+  it('names both when requirePublishableRights is off', async () => {
+    const rows = await fixtures.qm.canonicalFacts(mixedPart.id, {
+      at: AT,
+      requirePublishableRights: false,
+    });
+    const refrigerant = rows.find((row) => row.property === 'refrigerant');
+
+    expect([...(refrigerant?.sources ?? [])].sort()).toEqual(
+      ['AHRI Directory', BLOCKED_PUBLISHER].sort(),
+    );
   });
 });
