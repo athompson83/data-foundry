@@ -69,6 +69,12 @@ export class HttpAcquisitionProvider extends BaseAcquisitionProvider {
 
     const headers = headersToRecord(response.headers);
 
+    // Node's `redirect: 'manual'` returns the real 3xx with a readable
+    // `location` header — NOT the opaque status-0 response a browser produces.
+    // Verified on Node 22 against a live 301: `status: 301, type: 'basic',
+    // location: <target>`. The check below depends on that: were the status 0,
+    // it would not fire and an empty body would be stored as if it were content.
+    //
     // A redirect is a second request to a host the gate never saw. Following it
     // would contact a URL nothing authorised, and would then store the bytes
     // under `request.url` — attributing one host's content to another, which is
