@@ -116,8 +116,8 @@ const without = (value: string, removable: ReadonlySet<string>): string =>
 export const stripInvisibleDebris = (value: string): string => without(value, INVISIBLE_DEBRIS);
 
 /**
- * Debris AND script controls. Correct for a matching key, wrong for anything
- * that will be written back — see `AUTHORED_CONTROLS`.
+ * Debris AND anything a person may have authored. Correct for a matching key,
+ * wrong for anything that will be written back — see `AUTHORED_CONTROLS`.
  */
 export const stripFormatCharacters = (value: string): string =>
   without(without(value, INVISIBLE_DEBRIS), AUTHORED_CONTROLS);
@@ -147,7 +147,7 @@ export const normalizePunctuation = (value: string): string =>
  * about what a source said. That is a separate question from what layer-1
  * primitive cleanup does, which DOES alter the stored value and is
  * deliberately narrower for it: cleanup removes only `INVISIBLE_DEBRIS`, this
- * fold also removes `SCRIPT_CONTROLS`. Only `display` on a normalized
+ * fold also removes `AUTHORED_CONTROLS`. Only `display` on a normalized
  * identifier is the untouched original.
  *
  * It decodes entities, and it has to. `normalizeProperty` and
