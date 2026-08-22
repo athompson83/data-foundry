@@ -13,6 +13,9 @@
  *     than assumed;
  *   - a CSV-hostile value — commas, double quotes and a CRLF inside one field —
  *     because that is where CSV exporters actually break;
+ *   - a FORMULA-SHAPED value, aggregator-sourced, on a second entity: the same
+ *     category of hazard one layer up, where the danger is not that a reader
+ *     misparses the field but that a spreadsheet executes it;
  *   - an `internal_note` property, so "excluded properties stay excluded" has
  *     something real to exclude;
  *   - an opt-in BLOCKED-ONLY pair: two claims whose only evidence is the
@@ -54,6 +57,20 @@ export const GENERATED_AT = '2026-08-14T00:00:00.000Z' as IsoDateTime;
 export const CSV_HOSTILE_PROPERTY = 'warranty_terms' as Identifier;
 export const CSV_HOSTILE_VALUE =
   'Parts, labor "included"\r\n10 years, registered; 5 otherwise — see dealer';
+
+/**
+ * A certification reference as an aggregator supplied it — which is to say, as
+ * somebody outside this repository wrote it.
+ *
+ * It is a live formula: opened in Excel, LibreOffice or Sheets, a cell starting
+ * with `=` is compiled and run, and `HYPERLINK` puts an attacker's URL under a
+ * label of their choosing in a customer's spreadsheet (CWE-1236). Nothing about
+ * the value is invalid as far as this pipeline is concerned — it is a string a
+ * source published — so the export writer is the last place it can be made
+ * inert.
+ */
+export const FORMULA_PROPERTY = 'ahri_certified_ref' as Identifier;
+export const FORMULA_VALUE = '=HYPERLINK("http://evil.example","AHRI-209876543")';
 
 /** Never exported. Present so the exclusion has something to exclude. */
 export const INTERNAL_PROPERTY = 'internal_note' as Identifier;
@@ -346,6 +363,14 @@ export async function createExportFixtures(
   await claim(base, 'certifier', {
     property: 'ahri_certified_ref' as Identifier,
     value: 'AHRI-209876543',
+  });
+  // On the coil, where the aggregator is the only source and its value is
+  // therefore the published one. The equipment's own reference stays clean, so
+  // "the escape fired" and "the escape fired on everything" are distinguishable.
+  await claim(base, 'aggregator', {
+    property: FORMULA_PROPERTY,
+    value: FORMULA_VALUE,
+    entity_id: coil.id,
   });
   await claim(base, 'aggregator', {
     property: 'warranty_years' as Identifier,

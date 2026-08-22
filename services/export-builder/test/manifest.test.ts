@@ -72,7 +72,7 @@ describe('the manifest identifies the snapshot', () => {
     expect(result.manifest.schema_version).toBe(fixtures.vertical.schema_version);
     expect(result.manifest.status).toBe('PUBLISHED');
     expect(result.manifest.manifest_version).toBe('1');
-    expect(result.manifest.contract_version).toBe('1.0.0');
+    expect(result.manifest.contract_version).toBe('2.0.0');
     expect(result.manifest.manifest_uri).toBe('memory://snapshot/manifest.json');
   });
 

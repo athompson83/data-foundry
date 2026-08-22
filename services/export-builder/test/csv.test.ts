@@ -7,87 +7,21 @@
  * until a customer's row counts disagree with the manifest's.
  *
  * These tests therefore do not assert on the emitted string alone. They parse
- * the output back with a conforming RFC 4180 reader written here from the
- * specification, and assert that what comes back is what went in. A writer that
- * only satisfies assertions about its own output format is being marked by
- * itself.
+ * the output back with a conforming RFC 4180 reader written from the
+ * specification in `csv-reader.ts`, and assert that what comes back is what went
+ * in. A writer that only satisfies assertions about its own output format is
+ * being marked by itself.
  */
 import { describe, expect, it } from 'vitest';
 import {
+  CSV_FORMULA_ESCAPE,
   CSV_RECORD_SEPARATOR,
   csvDocument,
   csvField,
   csvRecord,
   type CsvValue,
 } from '../src/csv.js';
-
-/**
- * A conforming RFC 4180 reader.
- *
- * Returns `null` for an UNQUOTED empty field and `''` for a quoted one, which
- * is the distinction the writer encodes and the only way to check it survived.
- */
-type Cell = string | null;
-
-function parseCsv(text: string): Cell[][] {
-  const rows: Cell[][] = [];
-  let row: Cell[] = [];
-  let buffer = '';
-  let quoted = false;
-  let sawQuote = false;
-  let index = 0;
-
-  const endField = (): void => {
-    row.push(!sawQuote && buffer === '' ? null : buffer);
-    buffer = '';
-    sawQuote = false;
-  };
-  const endRow = (): void => {
-    endField();
-    rows.push(row);
-    row = [];
-  };
-
-  while (index < text.length) {
-    const character = text.charAt(index);
-    if (quoted) {
-      if (character === '"') {
-        if (text.charAt(index + 1) === '"') {
-          buffer += '"';
-          index += 2;
-          continue;
-        }
-        quoted = false;
-        index += 1;
-        continue;
-      }
-      buffer += character;
-      index += 1;
-      continue;
-    }
-    if (character === '"') {
-      quoted = true;
-      sawQuote = true;
-      index += 1;
-      continue;
-    }
-    if (character === ',') {
-      endField();
-      index += 1;
-      continue;
-    }
-    if (character === '\r' && text.charAt(index + 1) === '\n') {
-      endRow();
-      index += 2;
-      continue;
-    }
-    buffer += character;
-    index += 1;
-  }
-  if (quoted) throw new Error('unterminated quoted field');
-  if (buffer !== '' || sawQuote || row.length > 0) endRow();
-  return rows;
-}
+import { parseCsv, type Cell } from './csv-reader.js';
 
 describe('the RFC 4180 reader these tests check against', () => {
   it('reads a plain document', () => {
@@ -203,5 +137,92 @@ describe('the failure a naive writer produces', () => {
 
   it('and what the real writer emits instead: one field, unchanged', () => {
     expect(parseCsv(`${csvRecord([value])}\r\n`)[0]).toEqual([value]);
+  });
+});
+
+/**
+ * CWE-1236. A cell is not just text once a spreadsheet opens the file: a value
+ * whose first character is `=`, `+`, `-`, `@`, a tab or a CR is compiled and
+ * run. The strings in this export come from suppliers and forums, so the
+ * attacker writes the cell.
+ *
+ * These tests read the escape back through the same conforming reader the rest
+ * of this file uses, then strip the one documented prefix character, and assert
+ * the ORIGINAL value comes back. An escape that made a cell inert but lost the
+ * value would be a different bug wearing the fix's clothes.
+ */
+describe('a cell cannot smuggle a formula into a spreadsheet', () => {
+  /** The rule a consumer applies: strip one leading escape character, once. */
+  const recover = (cell: Cell): Cell =>
+    cell !== null && cell.startsWith(CSV_FORMULA_ESCAPE) ? cell.slice(1) : cell;
+
+  const FORMULAS = [
+    '=HYPERLINK("http://evil.example","click")',
+    '=1+1',
+    '+1+1',
+    '-1+1',
+    '@SUM(A1:A9)',
+    '\t=1+1',
+    '\r=1+1',
+  ] as const;
+
+  it('prefixes every leading character a spreadsheet would compile', () => {
+    expect(csvField('=1+1')).toBe("'=1+1");
+    expect(csvField('+1+1')).toBe("'+1+1");
+    expect(csvField('-1+1')).toBe("'-1+1");
+    expect(csvField('@SUM(A1:A9)')).toBe("'@SUM(A1:A9)");
+  });
+
+  it('leaves a value that merely contains one alone', () => {
+    // A model number is not a formula. An escape that fired on a `=` anywhere
+    // in the value would rewrite ordinary catalogue data.
+    expect(csvField('24ANB7=A')).toBe('24ANB7=A');
+    expect(csvField('R-454B')).toBe('R-454B');
+    expect(csvField('sales@example.com')).toBe('sales@example.com');
+    expect(csvField('16')).toBe('16');
+    expect(csvField('Parts, labor')).toBe('"Parts, labor"');
+  });
+
+  it('escapes its own escape character, so stripping it is reversible', () => {
+    // Without this, `'96 vintage` and an escaped `96 vintage` are the same
+    // bytes and a consumer cannot tell which value it was handed.
+    expect(csvField("'96 vintage")).toBe("''96 vintage");
+  });
+
+  it('escapes inside the quotes rather than fighting the quoting rules', () => {
+    // A formula that also needs quoting gets both, in the order a reader
+    // expects: the quotes delimit the field, the escape is the first character
+    // OF the field.
+    expect(csvField('=1,2')).toBe(`"'=1,2"`);
+    expect(csvField('=say "hi"')).toBe(`"'=say ""hi"""`);
+    expect(csvField('\t=1+1')).toBe(`"'\t=1+1"`);
+    expect(csvField('\r=1+1')).toBe(`"'\r=1+1"`);
+  });
+
+  it('makes every formula inert and still gives the value back', () => {
+    const text = csvDocument(
+      ['property', 'value'],
+      FORMULAS.map((formula) => ['model_alias', formula] as const),
+    );
+    const parsed = parseCsv(text);
+    expect(parsed).toHaveLength(FORMULAS.length + 1);
+
+    FORMULAS.forEach((formula, index) => {
+      const cell = parsed[index + 1]?.[1];
+      expect(cell, `record ${index} has a value cell`).toBeDefined();
+      // Inert: whatever the spreadsheet reads first, it is not the operator.
+      expect(/^[=+\-@\t\r]/.test(cell as string)).toBe(false);
+      // Recoverable: one documented strip and the supplier's string is back.
+      expect(recover(cell as Cell)).toBe(formula);
+    });
+  });
+
+  it('applies to the header row too, which is written by the same writer', () => {
+    // The column names are ours today. A header taken from vertical
+    // configuration tomorrow must not be the one row that skips the escape.
+    expect(csvDocument(['=danger', 'value'], [])).toBe(`'=danger,value${CSV_RECORD_SEPARATOR}`);
+    expect(csvDocument(['property', 'value'], [])).toBe(
+      `property,value${CSV_RECORD_SEPARATOR}`,
+    );
   });
 });

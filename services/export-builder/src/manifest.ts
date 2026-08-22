@@ -47,11 +47,21 @@ import {
 
 /**
  * Version of the export ROW contract (the column set of `facts.jsonl` /
- * `facts.csv` / `evidence.jsonl`), distinct from the vertical's
- * `schema_version` and from the manifest's own version. A consumer pinning a
- * parser pins this.
+ * `facts.csv` / `evidence.jsonl` and the encoding of their cells), distinct
+ * from the vertical's `schema_version` and from the manifest's own version. A
+ * consumer pinning a parser pins this.
+ *
+ * 2.0.0 — `facts.csv` neutralizes spreadsheet formula injection (CWE-1236): a
+ * cell whose value begins with `=`, `+`, `-`, `@`, a tab, a CR, or the escape
+ * character itself is written with one leading `CSV_FORMULA_ESCAPE`, and a
+ * consumer recovers the value by stripping exactly one of those. The column set
+ * is unchanged, so this could have been read as additive — but a parser pinned
+ * to 1.0.0 reads a different string out of the same cell than it used to, and a
+ * version that lets that pass silently is worth nothing to the person who
+ * pinned it. `facts.jsonl` and `evidence.jsonl` are untouched; JSONL is the
+ * lossless form and no JSON reader executes a cell.
  */
-export const EXPORT_CONTRACT_VERSION = '1.0.0';
+export const EXPORT_CONTRACT_VERSION = '2.0.0';
 
 /** Version of the manifest document shape itself. */
 export const MANIFEST_VERSION = '1';

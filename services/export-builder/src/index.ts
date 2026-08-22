@@ -94,6 +94,7 @@ export {
 
 export {
   CSV_DELIMITER,
+  CSV_FORMULA_ESCAPE,
   CSV_RECORD_SEPARATOR,
   csvDocument,
   csvField,
