@@ -15,17 +15,40 @@ First vertical: **HVAC**.
 
 ## What is here today
 
-This is **Wave 1: the contracts layer**. It defines the shared model that every
-later package is written against, and nothing else. Acquisition, extraction,
-normalization, resolution, query model, verticals and services are separate waves
-and do not exist yet.
+Every stage of the north-star workflow in `AGENTS.md` is implemented and tested:
+acquisition, extraction, normalization, deterministic entity resolution,
+canonical storage and the query layer, plus the ingestion worker that runs them
+in order for one vertical end to end.
+
+Two limitations are worth stating plainly, because neither is visible from the
+package list.
+
+**The consumer surfaces do not exist.** The workflow's last step — "web / API /
+MCP / exports generated" — has no implementation. `packages/query-model` is the
+single seam those surfaces must read through (rule 5), and
+`packages/query-model/src/serialization.ts` already defines the shared wire
+projection so they cannot drift apart in what they consider true when they are
+built. Nothing here is deployable yet.
+
+**Every source is synthetic.** The rights machinery genuinely runs, but it
+currently validates controlled fixture declarations rather than a real
+publisher's terms. `verticals/hvac/README.md` records the Phase 2 exit condition
+that changes, and `docs/source-onboarding.md` is the procedure.
 
 ```text
 packages/canonical-schema/   Core object model, confidence scores, job state machine, rights gate
 packages/source-registry/    Source rights/health contracts + the publish gate
+packages/acquisition/        Provider adapters obtaining artifacts, behind the rights and politeness gate
+packages/extraction/         Artifacts into source-native records
+packages/normalization/      Source-native records into typed canonical candidates
+packages/canonical-store/    Entities, facts, relationships and evidence over Postgres/PGlite
+packages/provenance/         Field-level lineage, coverage reporting, the human-readable trust surface
+packages/query-model/        The single canonical query layer web, REST and MCP read through
+services/ingest-worker/      DISCOVERED -> PUBLISHED job runner wiring the stages together
+verticals/hvac/              The first vertical: configuration, fixtures and golden records
 db/migrations/               Plain, portable Postgres DDL for every canonical table
 schemas/canonical/           JSON Schema exports, generated from the Zod definitions
-tooling/scripts/             Migration runner, JSON Schema generator
+tooling/scripts/             Migration runner, JSON Schema generator, source readiness report
 tooling/validators/          Vertical configuration validator (CI gate)
 docs/decisions/              ADRs
 ```
@@ -51,7 +74,10 @@ pnpm migrate                                  # apply to .data/pglite (local, pe
 POSTGRES_URL=postgres://... pnpm migrate      # apply to Supabase / real Postgres
 ```
 
-## The two contract packages
+## The two foundational contract packages
+
+Every other package depends on these two and they depend on nothing downstream,
+so they are documented here in more detail than the rest.
 
 ### `@data-foundry/canonical-schema`
 
