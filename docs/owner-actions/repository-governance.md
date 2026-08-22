@@ -123,8 +123,14 @@ because a partial enumeration produces a confident false green:
       source. Note its documented blind spot: it omits rules from rulesets in
       `disabled` or `evaluate` enforcement, so it complements the ruleset
       listing rather than replacing it.
-- [ ] After creating it, `GET /repos/athompson83/data-foundry/rulesets/{id}` and
-      confirm, field by field:
+- [ ] After creating it, re-list with `includes_parents=true` and then
+      `GET /repos/athompson83/data-foundry/rulesets/{id}` **for every ruleset in
+      that listing whose target matches `main`** — not only the one you just
+      made. Each ruleset carries its own target, enforcement, rules and
+      `bypass_actors`, so an inherited organisation ruleset can add a bypass
+      actor that your new repository ruleset never mentions. Checking only your
+      own ruleset verifies your intent, not the branch's actual protection.
+      Confirm for each of them, field by field:
   - [ ] **Target matching.** `target: "branch"`, and
         `conditions.ref_name.include` contains `~DEFAULT_BRANCH` (or
         `refs/heads/main`) with nothing in `exclude` that cancels it. A ruleset
@@ -137,13 +143,36 @@ because a partial enumeration produces a confident false green:
         `required_approving_review_count: 0` and
         `required_review_thread_resolution: true`), and
         `required_status_checks` naming **both** job names exactly
+  - [ ] **`strict_required_status_checks_policy: true`.** This is the
+        "branches must be up to date before merging" control, and it is a
+        *required* parameter of the rule — so it is always present, and the
+        thing to catch is it being present and `false`. Left `false`, a green
+        check from a commit that never saw the current `main` satisfies the
+        rule: the checks passed against an older tree, and the merge result was
+        never tested. Absent entirely means a malformed payload, not a default.
   - [ ] **Bind each required check to its source.** Every
         `required_status_checks[].integration_id` must be the **GitHub Actions
-        App ID**. A check entry with no `integration_id` is satisfied by *any*
-        actor holding `statuses: write` — so the rule would then require only
-        that *something* posted a green context with the right name, not that
-        our CI ran. If you deliberately want any source to satisfy it, record
-        that decision here rather than leaving the field absent by accident.
+        App ID**. A check entry with no `integration_id` is satisfied by
+        *anything* that can put a matching context on the commit — a commit
+        status (`statuses: write`) or a check run created by an installed
+        GitHub App (`checks: write`). Both paths are real here: our two required
+        checks are Actions **check runs**, not commit statuses, which is why a
+        commit-status-only reading of this rule would predict our own CI could
+        never satisfy it. So an unbound entry requires only that *something*
+        posted a green context with the right name — not that our CI ran. If you
+        deliberately want any source to satisfy it, record that decision here
+        rather than leaving the field absent unintentionally.
+  - [ ] **First, confirm you can even see `bypass_actors`.** GitHub returns it
+        only to a caller with **write access to the ruleset**: *"To prevent
+        leaking sensitive information, the bypass_actors property is only
+        returned if the user making the API request has write access to the
+        ruleset."* A read-only token therefore produces a payload with the field
+        **missing**, which is indistinguishable from a ruleset with no bypass
+        actors unless you look for the difference. Treat an absent
+        `bypass_actors` as **verification failed / inconclusive**, never as an
+        empty list, and re-run the call with a credential that has write access
+        before ticking anything below. This is the single most likely way this
+        checklist produces a false green.
   - [ ] **Every bypass actor, by type.** `bypass_actors` is a list of typed
         entries, and each type is a different set of people: `OrganizationAdmin`,
         `RepositoryRole` (which role id?), `Team`, `User` (an individual, by
@@ -166,8 +195,13 @@ because a partial enumeration produces a confident false green:
       account exists, record explicitly that the check was performed as an admin
       and that no bypass was used — an untested rule verified by someone who can
       ignore it is not a tested rule.
-- [ ] `GET /repos/athompson83/data-foundry/rulesets/rule-suites` afterward — but
-      a 200 with *some* suites in it is not evidence. Correlate one to the pull
+- [ ] `GET /repos/athompson83/data-foundry/rulesets/rule-suites?time_period=week`
+      afterwards — **set `time_period` explicitly.** It defaults to `day`, which
+      returns only the past 24 hours; allowed values are `hour`, `day`, `week`,
+      `month`. A verification run the morning after the throwaway pull request
+      would come back empty from the default and read as "no evaluation
+      happened". If you use a window other than `week`, record which. A 200 with
+      *some* suites in it is still not evidence. Correlate one to the pull
       request you just opened before believing anything:
   - [ ] Follow pagination (`per_page`, `page`, and the `Link` header) — the
         suite you want may not be on page 1.
@@ -175,10 +209,18 @@ because a partial enumeration produces a confident false green:
         `after_sha` is the head commit the evaluation ran against; on a
         `synchronize` it is the new head of the source branch, which is what
         makes it the right key rather than a timestamp or ordering.
-  - [ ] Then `GET .../rulesets/rule-suites/{id}` for that suite and read
-        `rule_evaluations` and `evaluation_result` — a suite exists whether the
-        rules passed, failed, or were bypassed, so its presence proves
-        evaluation happened and nothing about the outcome.
+  - [ ] Then `GET .../rulesets/rule-suites/{id}` for that suite and read its
+        **top-level `result`**, which is one of `pass`, `fail`, or `bypass`.
+        Require `pass`. A suite exists whether the rules passed, failed, or were
+        bypassed, so its presence proves evaluation happened and nothing about
+        the outcome — and `bypass` is the outcome that looks most like success
+        from a distance, because the merge went through.
+  - [ ] Read `rule_evaluations` and `evaluation_result` **as well as, not
+        instead of, `result`.** Both fields carry the same value set, except
+        that `evaluation_result` may also be `null`; GitHub's reference does not
+        define how the two relate. Since the relationship is undocumented,
+        gate on `result === "pass"` and treat any disagreement between the two
+        as unverified rather than deciding which one to believe.
 
 ---
 
