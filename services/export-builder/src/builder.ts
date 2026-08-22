@@ -5,9 +5,16 @@
  * `@data-foundry/query-model` (AGENTS.md rule 5 — no business SQL here, no
  * second fact-selection implementation), project each value through the shared
  * `toExportRow` serializer (ADR-0004), carry every value's evidence alongside
- * it (rule 10), refuse the whole export if any contributing source is not
- * cleared to publish (rule 1), and write byte-identical output for identical
- * input so a published checksum means something.
+ * it (rule 10), refuse the whole export if any source behind a claim on an
+ * exported property is not cleared to publish (rule 1), and write byte-identical
+ * output for identical input so a published checksum means something.
+ *
+ * THE RIGHTS GATE READS WIDER THAN THE FILES. It audits every source behind a
+ * stored CLAIM on an exported property; the manifest's per-source statistics
+ * count only the SELECTED facts that were actually published. Those are two
+ * different questions — may we build this at all, versus what is in the file —
+ * and collapsing them is how a claim backed only by a blocked source became
+ * invisible to the gate. See `audited` and `published` below.
  *
  * ORDER OF OPERATIONS IS PART OF THE DESIGN. Every gate runs before the first
  * byte reaches the sink. A builder that streams rows and discovers a RED source
@@ -169,6 +176,24 @@ const asJsonlRecord = (row: object, columns: readonly string[]): Record<string, 
 const byEntityOrder = (left: Entity, right: Entity): number =>
   compareKeys([left.canonical_slug, left.id], [right.canonical_slug, right.id]);
 
+/** One source's footprint in a set of facts: which facts, and how many links. */
+interface SourceTally {
+  readonly source: Source;
+  readonly factIds: Set<string>;
+  evidence: number;
+}
+
+/** Record one evidence link from `source` to `factId`. */
+const tally = (into: Map<string, SourceTally>, source: Source, factId: string): void => {
+  const existing = into.get(source.id);
+  if (existing === undefined) {
+    into.set(source.id, { source, factIds: new Set([factId]), evidence: 1 });
+    return;
+  }
+  existing.factIds.add(factId);
+  existing.evidence += 1;
+};
+
 /**
  * Enumerate the entities in scope, through the query layer.
  *
@@ -263,23 +288,54 @@ export async function buildDatasetExport(
   const entities = [...byId.values()].sort(byEntityOrder);
 
   const exports: EntityExport[] = [];
-  const contributors = new Map<string, { source: Source; factIds: Set<string>; evidence: number }>();
+  /**
+   * Sources behind the values this export actually PUBLISHES — the evidence
+   * chains of the selected facts. This is a statistic about the dataset, and it
+   * is the only thing that reaches the manifest's per-source counts.
+   */
+  const published = new Map<string, SourceTally>();
+  /**
+   * Sources behind EVERY stored claim on a property this export includes,
+   * whether or not selection picked that claim. This is what the rule-1 gate
+   * audits, and it is deliberately wider than `published`.
+   *
+   * WHY WIDER. A claim whose only evidence comes from a RED or UNREVIEWED
+   * source is excluded by the selection layer's rights filter, so it is never
+   * selected and its canonical view carries `fact_id === null`. Reading the
+   * gate's input off the selected facts alone therefore made exactly the source
+   * rule 1 exists to stop invisible to it, and the export completed — the
+   * control failed open on its own headline case. It also left the gate's
+   * guarantee entirely derivative of the selection layer's rights filter, which
+   * only sees `sources.rights_classification`; the declaration-level blockers
+   * this service exists to catch (kill switch, lapsed review, redistribution
+   * forbidden) are invisible to the database and so cannot be filtered there.
+   *
+   * WHY NOT WIDER STILL. Scoped to `propertyIsExportable`: a source that only
+   * backs a property this export excludes publishes nothing here and must not
+   * be able to refuse the build.
+   */
+  const audited = new Map<string, SourceTally>();
 
   for (const entity of entities) {
     const all = await qm.canonicalFacts(entity.id, policy);
     const views = all.filter((view) => propertyIsExportable(properties, view.property));
+    // `canonicalView` emits one row per property that has any claim valid at
+    // `at`, so no exportable view means no stored claim on an exportable
+    // property either, and there is nothing here for the gate to look at.
     if (views.length === 0) continue;
 
     const selectedIds = new Set<string>(
       views.map((view) => view.fact_id).filter((id): id is NonNullable<typeof id> => id !== null),
     );
     const lineages = new Map<string, FactLineage>();
-    if (selectedIds.size > 0) {
-      for (const withEvidence of await qm.facts({ entity_id: entity.id, at })) {
-        if (selectedIds.has(withEvidence.fact.id) && withEvidence.lineage !== null) {
-          lineages.set(withEvidence.fact.id, withEvidence.lineage);
-        }
-      }
+    // Read every stored claim, not only the selected ones. `qm.facts` returns
+    // the current, non-retracted claims valid at `at` with their lineage, which
+    // is the honest definition of "what this export's property set draws on".
+    for (const stored of await qm.facts({ entity_id: entity.id, at })) {
+      if (!propertyIsExportable(properties, stored.fact.property)) continue;
+      if (stored.lineage === null) continue;
+      if (selectedIds.has(stored.fact.id)) lineages.set(stored.fact.id, stored.lineage);
+      for (const link of stored.lineage.chain) tally(audited, link.source, stored.fact.id);
     }
 
     for (const view of views) {
@@ -288,6 +344,12 @@ export async function buildDatasetExport(
       // Rule 2 makes an unevidenced fact unwritable and rule 10 makes an
       // unexplainable published value unacceptable. Either way, a selected
       // value we cannot trace is not something to ship quietly.
+      //
+      // This one stays scoped to SELECTED values on purpose. Rule 10 is about
+      // explaining what an export publishes; an unselected claim publishes no
+      // value, so there is nothing for it to owe an explanation for. The
+      // rights gate above is the opposite kind of question — permission, not
+      // explanation — which is why only that one was widened.
       if (lineage === undefined || lineage.chain.length === 0) {
         refusals.push({
           code: 'FACT_WITHOUT_TRACEABLE_EVIDENCE',
@@ -299,19 +361,7 @@ export async function buildDatasetExport(
         });
         continue;
       }
-      for (const link of lineage.chain) {
-        const existing = contributors.get(link.source.id);
-        if (existing === undefined) {
-          contributors.set(link.source.id, {
-            source: link.source,
-            factIds: new Set([view.fact_id as string]),
-            evidence: 1,
-          });
-        } else {
-          existing.factIds.add(view.fact_id);
-          existing.evidence += 1;
-        }
-      }
+      for (const link of lineage.chain) tally(published, link.source, view.fact_id);
     }
 
     exports.push({ entity, views, lineages });
@@ -325,8 +375,8 @@ export async function buildDatasetExport(
   }
   rows.sort(compareExportRows);
 
-  // ---- gate 1: every contributing source is cleared to publish -----------
-  const contributing: ContributingSource[] = [...contributors.values()]
+  // ---- gate 1: every source this export draws on is cleared to publish ----
+  const contributing: ContributingSource[] = [...audited.values()]
     .map((entry) => ({
       source: entry.source,
       fact_ids: entry.factIds,
@@ -452,6 +502,54 @@ export async function buildDatasetExport(
   }
 
   // ---- manifest ---------------------------------------------------------
+  // MANIFEST STATISTICS DESCRIBE WHAT WAS PUBLISHED, NOT WHAT WAS AUDITED.
+  //
+  // `audit.cleared` is now the wider, gate-shaped set: it includes sources that
+  // merely have a claim on an exported property. The manifest is a rights
+  // document about the bytes in this snapshot — it is where a recipient reads
+  // which credit lines they owe — so listing a source that contributed no
+  // published value would overstate the dataset's provenance and demand
+  // attribution for data that is not in the file. `fact_count` and
+  // `evidence_count` therefore keep counting SELECTED facts, exactly as before
+  // this gate was widened, and a cleared source with nothing published is
+  // dropped from the list rather than reported with zeroes.
+  const manifestSources: ManifestSource[] = audit.cleared
+    .flatMap<ManifestSource>((cleared) => {
+      const stats = published.get(cleared.source.id);
+      if (stats === undefined) return [];
+      return [
+        {
+          source_key: cleared.entry.key,
+          source_id: cleared.source.id,
+          publisher: cleared.source.publisher,
+          domain: cleared.source.domain,
+          source_type: cleared.source.source_type,
+          authority_rank: cleared.source.authority_rank,
+          rights: {
+            rights_classification: cleared.source.rights_classification,
+            requires_legal_review: cleared.requires_legal_review,
+            // The obligation as the DATABASE records it: that row is what the
+            // published values were actually selected under.
+            attribution_required: cleared.source.attribution_requirement.required,
+            attribution_text: cleared.source.attribution_requirement.text,
+            attribution_url: cleared.source.attribution_requirement.url,
+            license_id: cleared.entry.rights_policy.license_id,
+            data_license_id: cleared.entry.license_split.data_license_id,
+            terms_url: cleared.entry.rights_policy.terms_url,
+            commercial_use_allowed: cleared.entry.rights_policy.commercial_use_allowed,
+            redistribution_allowed: cleared.entry.rights_policy.redistribution_allowed,
+            derivative_normalization_allowed:
+              cleared.entry.rights_policy.derivative_normalization_allowed,
+            personal_data_present: cleared.entry.rights_policy.personal_data_present,
+            warnings: cleared.warnings.map((warning) => `${warning.code}: ${warning.message}`),
+          },
+          fact_count: stats.factIds.size,
+          evidence_count: stats.evidence,
+        },
+      ];
+    })
+    .sort((left, right) => compareKeys([left.source_key], [right.source_key]));
+
   const manifest: DatasetExportManifest = {
     manifest_version: MANIFEST_VERSION,
     contract_version: EXPORT_CONTRACT_VERSION,
@@ -466,40 +564,11 @@ export async function buildDatasetExport(
       entities: exports.length,
       facts: rows.filter((row) => row.fact_id !== null).length,
       fact_evidence: evidence.length,
-      sources: audit.cleared.length,
+      sources: manifestSources.length,
     },
     checksums,
     files,
-    sources: audit.cleared
-      .map<ManifestSource>((cleared) => ({
-        source_key: cleared.entry.key,
-        source_id: cleared.source.id,
-        publisher: cleared.source.publisher,
-        domain: cleared.source.domain,
-        source_type: cleared.source.source_type,
-        authority_rank: cleared.source.authority_rank,
-        rights: {
-          rights_classification: cleared.source.rights_classification,
-          requires_legal_review: cleared.requires_legal_review,
-          // The obligation as the DATABASE records it: that row is what the
-          // published values were actually selected under.
-          attribution_required: cleared.source.attribution_requirement.required,
-          attribution_text: cleared.source.attribution_requirement.text,
-          attribution_url: cleared.source.attribution_requirement.url,
-          license_id: cleared.entry.rights_policy.license_id,
-          data_license_id: cleared.entry.license_split.data_license_id,
-          terms_url: cleared.entry.rights_policy.terms_url,
-          commercial_use_allowed: cleared.entry.rights_policy.commercial_use_allowed,
-          redistribution_allowed: cleared.entry.rights_policy.redistribution_allowed,
-          derivative_normalization_allowed:
-            cleared.entry.rights_policy.derivative_normalization_allowed,
-          personal_data_present: cleared.entry.rights_policy.personal_data_present,
-          warnings: cleared.warnings.map((warning) => `${warning.code}: ${warning.message}`),
-        },
-        fact_count: cleared.fact_ids.size,
-        evidence_count: cleared.evidence_count,
-      }))
-      .sort((left, right) => compareKeys([left.source_key], [right.source_key])),
+    sources: manifestSources,
     selection_policy: {
       at: policy.at,
       require_publishable_rights: policy.requirePublishableRights,

@@ -24,6 +24,16 @@
  * switch. None of that is visible to the database, and every one of them is a
  * reason a dataset must not ship.
  *
+ * WHAT COUNTS AS CONTRIBUTING. Every source behind a stored claim on a property
+ * the export includes — not only the sources behind the values that won
+ * selection. Fact selection already refuses to build a canonical value on
+ * RED/UNREVIEWED evidence, which means a claim backed ONLY by such a source is
+ * never selected; a gate fed from selected facts alone therefore never sees it
+ * and the export completes. That is the control failing open on the one case it
+ * was written for, so the caller feeds the wider set. Scoping is by exported
+ * PROPERTY, so a source that only backs an excluded property still cannot
+ * refuse a build.
+ *
  * WHY A REGISTRY IS REQUIRED. A contributing source with no declaration is
  * refused rather than assumed fine. That is the same reading of "absence of a
  * decision is not permission" that makes `UNREVIEWED` unpublishable; making the
@@ -43,12 +53,23 @@ import {
 } from '@data-foundry/source-registry';
 import type { ExportRefusal } from './errors.js';
 
-/** A source that actually backs at least one exported value. */
+/**
+ * A source this export draws on: it backs at least one stored CLAIM on a
+ * property the export includes.
+ *
+ * Deliberately not "a source behind a published value". A claim whose only
+ * evidence is RED or UNREVIEWED never survives fact selection, so a set built
+ * from selected facts alone omits precisely the sources rule 1 exists to stop —
+ * the gate then never sees them and the export completes. The caller therefore
+ * hands this function every claim on an exportable property, selected or not.
+ * The manifest's per-source statistics are a different question and are counted
+ * separately, over published values only.
+ */
 export interface ContributingSource {
   readonly source: Source;
-  /** Facts in the export whose evidence chain includes this source. */
+  /** Claims on exported properties whose evidence chain includes this source. */
   readonly fact_ids: ReadonlySet<string>;
-  /** Evidence rows in the export attributable to this source. */
+  /** Evidence links on those claims attributable to this source. */
   readonly evidence_count: number;
 }
 
@@ -105,8 +126,10 @@ export function auditContributingSources(
         code: 'SOURCE_RIGHTS_BLOCKED',
         subject,
         message:
-          `${decision.reason} It backs ${contributor.fact_ids.size} value(s) in this export, ` +
-          'so the export cannot be published without it and must not be published with it.',
+          `${decision.reason} It backs ${contributor.fact_ids.size} stored claim(s) on ` +
+          'properties this export publishes — whether or not fact selection picked them — so ' +
+          'this build cannot be produced without deciding its rights, and must not be produced ' +
+          'with them undecided.',
       });
     }
 

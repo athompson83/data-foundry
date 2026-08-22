@@ -15,6 +15,11 @@
  *     because that is where CSV exporters actually break;
  *   - an `internal_note` property, so "excluded properties stay excluded" has
  *     something real to exclude;
+ *   - an opt-in BLOCKED-ONLY pair: two claims whose only evidence is the
+ *     UNREVIEWED forum, one on a property an export publishes and one on a
+ *     property it does not, so "the rights gate sees unselected claims" and
+ *     "the rights gate is still scoped to the exported properties" are both
+ *     testable;
  *   - an opt-in CONTAMINATED fact: one value whose evidence chain includes an
  *     UNREVIEWED forum source alongside a manufacturer. Fact selection is happy
  *     with it — it has rights-clear evidence — and shipping it would publish the
@@ -56,6 +61,27 @@ export const INTERNAL_VALUE = 'margin thin; distributor renegotiation pending, d
 
 /** The property whose evidence chain reaches an UNREVIEWED source. */
 export const CONTAMINATED_PROPERTY = 'sound_rating_db' as Identifier;
+
+/**
+ * A property whose ONLY claim is backed by the UNREVIEWED forum.
+ *
+ * No rights-clear source says anything about it, so no candidate survives the
+ * selection layer's rights filter, the canonical view carries
+ * `fact_id === null`, and a gate built from selected facts alone never sees the
+ * forum at all. That is the fail-open `fail-closed.test.ts` pins.
+ */
+export const BLOCKED_ONLY_PROPERTY = 'forum_only_rumor' as Identifier;
+export const BLOCKED_ONLY_VALUE = 'quiet-ish';
+
+/**
+ * The same shape, but on a property no export publishes: the forum is the only
+ * source, and the property sits outside every export policy under test. It
+ * exists so "the gate reads wider" can be told apart from "the gate refuses
+ * anything, anywhere, that touches an unreviewed source" — which would be an
+ * over-refusal, and would get the control switched off.
+ */
+export const BLOCKED_ONLY_EXCLUDED_PROPERTY = 'forum_only_gossip' as Identifier;
+export const BLOCKED_ONLY_EXCLUDED_VALUE = 'runs hot in August, allegedly';
 
 /** Everything an export of this vertical may publish. */
 export const PUBLIC_PROPERTIES: readonly Identifier[] = [
@@ -193,6 +219,13 @@ export interface ExportFixtureOptions {
    * source alongside the manufacturer.
    */
   readonly contaminate?: boolean;
+  /**
+   * Add `forum_only_rumor` and `forum_only_gossip`: two claims whose ONLY
+   * evidence is the UNREVIEWED forum. Neither is ever selected, so neither
+   * value is ever published — which is exactly why a gate reading only selected
+   * facts stayed silent about them.
+   */
+  readonly blockedOnlyClaim?: boolean;
 }
 
 export interface ExportFixtures extends QueryFixtures {
@@ -343,6 +376,21 @@ export async function createExportFixtures(
       value: 72,
       value_type: 'number',
       unit: 'dB',
+    });
+  }
+
+  if (options.blockedOnlyClaim === true) {
+    // Nothing else claims either property, so the rights filter leaves no
+    // eligible candidate and both canonical views carry `fact_id === null`.
+    await claim(base, 'blocked', {
+      property: BLOCKED_ONLY_PROPERTY,
+      value: BLOCKED_ONLY_VALUE,
+      entity_id: base.entity.id,
+    });
+    await claim(base, 'blocked', {
+      property: BLOCKED_ONLY_EXCLUDED_PROPERTY,
+      value: BLOCKED_ONLY_EXCLUDED_VALUE,
+      entity_id: base.entity.id,
     });
   }
 

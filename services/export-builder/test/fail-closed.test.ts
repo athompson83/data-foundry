@@ -22,6 +22,8 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { ExportRefusedError, buildDatasetExport, createMemorySink } from '../src/index.js';
 import {
+  BLOCKED_ONLY_EXCLUDED_PROPERTY,
+  BLOCKED_ONLY_PROPERTY,
   CONTAMINATED_PROPERTY,
   GENERATED_AT,
   INTERNAL_PROPERTY,
@@ -35,7 +37,7 @@ import {
 let fixtures: ExportFixtures;
 
 beforeAll(async () => {
-  fixtures = await createExportFixtures({ contaminate: true });
+  fixtures = await createExportFixtures({ contaminate: true, blockedOnlyClaim: true });
 }, 120_000);
 
 afterAll(async () => {
@@ -44,6 +46,21 @@ afterAll(async () => {
 
 /** Publish everything except the internal note — including the contaminated fact. */
 const EVERYTHING = { mode: 'all', exclude: [INTERNAL_PROPERTY] } as const;
+
+/**
+ * Everything the forum touches, excluded — including the claim it alone backs.
+ * The forum still exists in the database and still has claims about this
+ * entity; none of them is on a property this policy publishes.
+ */
+const NOTHING_THE_FORUM_TOUCHES = {
+  mode: 'all',
+  exclude: [
+    INTERNAL_PROPERTY,
+    CONTAMINATED_PROPERTY,
+    BLOCKED_ONLY_PROPERTY,
+    BLOCKED_ONLY_EXCLUDED_PROPERTY,
+  ],
+} as const;
 
 async function refuse(
   overrides: Partial<Parameters<typeof buildDatasetExport>[0]> = {},
@@ -114,6 +131,92 @@ describe('an unpublishable source refuses the whole export', () => {
     expect(result.rows.some((row) => row.property === CONTAMINATED_PROPERTY)).toBe(false);
     expect(result.manifest.sources.map((source) => source.source_key)).not.toContain('hvac-forum');
     expect(sink.files.size).toBe(4);
+  });
+});
+
+describe('a claim backed ONLY by a blocked source', () => {
+  /**
+   * The case the gate was written for, and the one it used to miss.
+   *
+   * `forum_only_rumor` is claimed by the UNREVIEWED forum and by nobody else.
+   * The selection layer's rights filter removes the only candidate, so the
+   * property's canonical view carries `fact_id === null` and the forum appears
+   * in no selected fact's evidence chain. A gate whose input was built from
+   * selected facts therefore never saw the forum, `auditContributingSources`
+   * was never asked about it, and the export COMPLETED — writing four files for
+   * a dataset whose property set draws on a source nobody has cleared.
+   *
+   * Nothing of the forum's reached those files, which is why this was quiet:
+   * the harm is not a leaked URL, it is that rule 1 was being enforced only as
+   * a side effect of fact selection, and fact selection can only see
+   * `sources.rights_classification`. Every declaration-level blocker this
+   * service exists to catch — kill switch, lapsed rights review, terms that
+   * forbid redistribution — is invisible to the database and so could never be
+   * caught that way.
+   */
+  it('refuses the export, naming the source, with nothing written', async () => {
+    const { error, sink } = await refuse({ properties: EVERYTHING });
+
+    const blocked = error.refusals.find(
+      (refusal) =>
+        refusal.code === 'SOURCE_RIGHTS_BLOCKED' &&
+        refusal.subject === 'HVAC Forum (forum.example)',
+    );
+    expect(blocked, 'the forum-only claim must reach the rights gate').toBeDefined();
+    expect(blocked?.message).toContain('UNREVIEWED');
+    expect(blocked?.message).toContain('whether or not fact selection picked them');
+    expect(error.message).toContain('No file was written');
+    expect(sink.files.size, 'a refused export writes nothing at all').toBe(0);
+  });
+
+  it('refuses even when the blocked claim is the ONLY thing the forum touches', async () => {
+    // Without the contaminated property there is no selected fact anywhere in
+    // the export whose evidence chain reaches the forum. If the refusal below
+    // still fires, it fired on the unselected claim and nothing else.
+    const { error, sink } = await refuse({
+      properties: { mode: 'all', exclude: [INTERNAL_PROPERTY, CONTAMINATED_PROPERTY] },
+    });
+    expect(error.subjects).toEqual(['HVAC Forum (forum.example)']);
+    expect(sink.files.size).toBe(0);
+  });
+
+  it('does NOT refuse when the blocked source only backs properties the export excludes', async () => {
+    // The other half of the fix. A gate that refused on any unreviewed source
+    // in the database would refuse every export this vertical will ever build,
+    // and would be switched off within a week. Scoping is by exported PROPERTY.
+    const sink = createMemorySink('scoped');
+    const result = await buildDatasetExport({
+      ...baseOptions(fixtures),
+      properties: NOTHING_THE_FORUM_TOUCHES,
+      sink,
+    });
+
+    expect(result.manifest.sources.map((source) => source.source_key)).not.toContain('hvac-forum');
+    expect(result.rows.some((row) => row.property === BLOCKED_ONLY_PROPERTY)).toBe(false);
+    expect(result.rows.some((row) => row.property === BLOCKED_ONLY_EXCLUDED_PROPERTY)).toBe(false);
+    expect(sink.files.size).toBe(4);
+  });
+
+  it('leaves the manifest counting what was published, not what was audited', async () => {
+    // The widened gate audits the editorial desk's PROPOSED rival refrigerant
+    // claim, which loses selection and publishes nothing. It must not appear in
+    // the manifest: that document tells a recipient whose terms govern the
+    // bytes they hold, and every source it lists carries facts in the file.
+    const sink = createMemorySink('counts');
+    const result = await buildDatasetExport({
+      ...baseOptions(fixtures),
+      properties: NOTHING_THE_FORUM_TOUCHES,
+      sink,
+    });
+
+    expect(result.manifest.sources.map((source) => source.source_key)).not.toContain(
+      'editorial-desk',
+    );
+    expect(result.manifest.record_counts['sources']).toBe(result.manifest.sources.length);
+    for (const source of result.manifest.sources) {
+      expect(source.fact_count).toBeGreaterThan(0);
+      expect(source.evidence_count).toBeGreaterThan(0);
+    }
   });
 });
 
