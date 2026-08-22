@@ -7,7 +7,7 @@
  * reader infers from line one).
  */
 import { describe, expect, it } from 'vitest';
-import { jsonlDocument, jsonlRecord } from '../src/jsonl.js';
+import { jsonlDocument, jsonlRecord, type JsonlValue } from '../src/jsonl.js';
 import { fromUtf8, sha256, stableJson, utf8 } from '../src/bytes.js';
 
 const COLUMNS = ['b', 'a', 'c'] as const;
@@ -33,6 +33,27 @@ describe('jsonlRecord', () => {
 
   it('refuses a non-finite number, which JSON cannot carry', () => {
     expect(() => jsonlRecord(['a'], { a: Number.NaN })).toThrow(/JSON cannot carry/);
+  });
+
+  it('refuses a column that is present and holds nothing', () => {
+    // `hasOwnProperty` is true for `{ b: undefined }`, so the missing-column
+    // check waves this through — and then `JSON.stringify(undefined)` returns
+    // the JS value `undefined`, which a template literal renders as the text
+    // "undefined". The line looks like a record and is not JSON:
+    expect(() => JSON.parse('{"a":1,"b":undefined}')).toThrow(SyntaxError);
+    const holed = { a: 1, b: undefined } as unknown as Record<string, JsonlValue>;
+    expect(() => jsonlRecord(['a', 'b'], holed)).toThrow(/column "b"/);
+  });
+
+  it('refuses anything else JSON.stringify would quietly turn into nothing', () => {
+    // A `symbol` and a function serialize to the same non-value as `undefined`,
+    // and an object would serialize to a nested document the flat row contract
+    // does not have. Every one of them arrives here through the same `as
+    // JsonlValue` cast at the caller, so the cast is what has to be checked.
+    for (const value of [Symbol('x'), (): null => null, { nested: true }, [1, 2]]) {
+      const record = { a: value } as unknown as Record<string, JsonlValue>;
+      expect(() => jsonlRecord(['a'], record), String(typeof value)).toThrow(/column "a"/);
+    }
   });
 
   it('escapes control characters and quotes so each record stays one line', () => {
@@ -63,6 +84,39 @@ describe('jsonlDocument', () => {
 
   it('emits nothing at all for an empty record set', () => {
     expect(jsonlDocument(['a'], [])).toBe('');
+  });
+
+  it('leaves nothing in between: a record is refused, or it parses', () => {
+    // The property that matters is about the BYTES, so it is asserted by
+    // parsing them. Every record either fails the writer's contract loudly or
+    // comes back out of `JSON.parse` as the record that went in; a third
+    // outcome — a line that was written and cannot be read — is the bug.
+    const columns = ['a', 'b'];
+    const records: readonly Record<string, JsonlValue>[] = [
+      { a: 1, b: 'x' },
+      { a: 2, b: null },
+      { a: 3, b: 'Parts, labor "included"\nline two' },
+      { a: 4, b: undefined } as unknown as Record<string, JsonlValue>,
+    ];
+
+    let parsed = 0;
+    let refused = 0;
+    for (const record of records) {
+      let emitted: string;
+      try {
+        emitted = jsonlDocument(columns, [record]);
+      } catch (error) {
+        expect(error).toBeInstanceOf(TypeError);
+        refused += 1;
+        continue;
+      }
+      for (const line of emitted.split('\n').filter((candidate) => candidate !== '')) {
+        expect(JSON.parse(line)).toEqual(record);
+        parsed += 1;
+      }
+    }
+    expect(parsed).toBe(3);
+    expect(refused).toBe(1);
   });
 });
 

@@ -103,6 +103,12 @@ const SEARCH_PAGE = 200;
  * success is precisely the silent-drop failure this service exists to refuse.
  * So it throws instead. Exporting a larger vertical needs a streaming design
  * with a rights pre-pass, which is a different piece of work.
+ *
+ * It bounds the WHOLE export, not each entity type in it. What is held in
+ * memory is one merged set of entities with their facts, lineages and rows, so
+ * a cap applied once per type would let an export naming three types hold three
+ * times what this number says it can hold — and the message quoting the number
+ * would be quoting something nobody had checked.
  */
 export const MAX_EXPORT_ENTITIES = 10_000;
 
@@ -194,23 +200,41 @@ const tally = (into: Map<string, SourceTally>, source: Source, factId: string): 
   existing.evidence += 1;
 };
 
+/** One entity type's scope: the entities in it, and how many the layer reports. */
+interface EntityScope {
+  readonly entities: Entity[];
+  readonly total: number;
+}
+
 /**
- * Enumerate the entities in scope, through the query layer.
+ * Enumerate the entities in scope for one entity type, through the query layer.
  *
  * A text-free `search` is the query layer's browse path; it applies the same
  * scope predicates a filtered search would, so this does not become a second
  * definition of "which entities exist". Its SQL orders by `canonical_name`
  * under the database's collation, so the result is re-sorted here on an
  * explicit, locale-independent, total key before anything is written.
+ *
+ * `claimed` is how many entities the types already enumerated put into the
+ * export, so `MAX_EXPORT_ENTITIES` is checked against the merged total rather
+ * than against this type alone. The check stays inside this loop, on the FIRST
+ * page rather than on the assembled result, because the point of the bound is
+ * to refuse before pulling ten thousand rows into memory — a limit enforced
+ * after the enumeration it exists to prevent has already happened is a limit in
+ * name only. Entity types partition the entities, so summing their reported
+ * totals counts each entity once, which is why the caller deduplicates the type
+ * list before it gets here.
  */
 async function listEntities(
   qm: QueryModel,
   verticalId: VerticalId,
   entityType: Identifier | undefined,
   statuses: readonly EntityStatus[],
-): Promise<Entity[]> {
+  claimed: number,
+): Promise<EntityScope> {
   const found = new Map<string, Entity>();
   let offset = 0;
+  let total = 0;
 
   for (;;) {
     const page = await qm.search({
@@ -220,11 +244,12 @@ async function listEntities(
       offset,
       ...(entityType === undefined ? {} : { entity_type: entityType }),
     });
-    if (page.total > MAX_EXPORT_ENTITIES) {
+    total = page.total;
+    if (claimed + page.total > MAX_EXPORT_ENTITIES) {
       throw new RangeError(
-        `This vertical has ${page.total} entities in scope, above the ${MAX_EXPORT_ENTITIES} this ` +
-          'builder can gate in memory before writing. Refusing rather than exporting a silently ' +
-          'truncated dataset.',
+        `This export has ${claimed + page.total} entities in scope, above the ` +
+          `${MAX_EXPORT_ENTITIES} this builder can gate in memory before writing. Refusing rather ` +
+          'than exporting a silently truncated dataset.',
       );
     }
     if (page.hits.length === 0) break;
@@ -238,7 +263,7 @@ async function listEntities(
     if (found.size === before) break;
   }
 
-  return [...found.values()].sort(byEntityOrder);
+  return { entities: [...found.values()].sort(byEntityOrder), total };
 }
 
 /**
@@ -274,16 +299,22 @@ export async function buildDatasetExport(
   }
 
   // ---- read the canonical view through the query layer --------------------
-  const entityTypes: readonly (Identifier | undefined)[] = options.entityTypes ?? [undefined];
+  // Deduplicated, because each type's scope is counted towards
+  // `MAX_EXPORT_ENTITIES` and the same type named twice is one scope, not two.
+  // The caller's literal list still reaches the manifest: what they asked for is
+  // part of what this snapshot is, and this is only how it is enumerated.
+  const entityTypes: readonly (Identifier | undefined)[] =
+    options.entityTypes === undefined ? [undefined] : [...new Set(options.entityTypes)];
   // Keyed by id, not accumulated into a list: a caller that names the same
   // entity type twice would otherwise publish every one of its rows twice, and
   // a duplicated row in a bulk file is the kind of defect a consumer discovers
   // by getting the wrong answer out of a GROUP BY.
   const byId = new Map<string, Entity>();
+  let claimed = 0;
   for (const entityType of entityTypes) {
-    for (const entity of await listEntities(qm, vertical.id, entityType, statuses)) {
-      byId.set(entity.id, entity);
-    }
+    const scope = await listEntities(qm, vertical.id, entityType, statuses, claimed);
+    claimed += scope.total;
+    for (const entity of scope.entities) byId.set(entity.id, entity);
   }
   const entities = [...byId.values()].sort(byEntityOrder);
 

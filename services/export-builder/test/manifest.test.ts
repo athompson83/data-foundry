@@ -72,7 +72,7 @@ describe('the manifest identifies the snapshot', () => {
     expect(result.manifest.schema_version).toBe(fixtures.vertical.schema_version);
     expect(result.manifest.status).toBe('PUBLISHED');
     expect(result.manifest.manifest_version).toBe('1');
-    expect(result.manifest.contract_version).toBe('1.0.0');
+    expect(result.manifest.contract_version).toBe('2.0.0');
     expect(result.manifest.manifest_uri).toBe('memory://snapshot/manifest.json');
   });
 
@@ -209,6 +209,23 @@ describe('rights and attribution travel with the data', () => {
 describe('the fact files', () => {
   it('JSONL round-trips to exactly the rows that were built', () => {
     expect(jsonLines(FACTS_JSONL)).toEqual(result.rows.map((row) => ({ ...row })));
+  });
+
+  it('emits no JSONL line a reader cannot parse', () => {
+    // Driven off the manifest's own file list rather than a hard-coded pair, so
+    // a fourth file added later is covered by this on the day it ships. The
+    // line count is checked against the manifest too: a file whose lines all
+    // parse because there are none would otherwise pass this quietly.
+    const jsonl = result.manifest.files.filter((file) => file.format === 'jsonl');
+    expect(jsonl.length).toBeGreaterThan(0);
+    let parsed = 0;
+    for (const file of jsonl) {
+      for (const line of text(file.path).split('\n').filter((candidate) => candidate !== '')) {
+        expect(() => JSON.parse(line) as unknown, `${file.path}: ${line.slice(0, 80)}`).not.toThrow();
+        parsed += 1;
+      }
+    }
+    expect(parsed).toBe(jsonl.reduce((total, file) => total + file.rows, 0));
   });
 
   it('publishes the shared serializer’s columns plus the entity identity', () => {
