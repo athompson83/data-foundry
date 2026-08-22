@@ -136,6 +136,56 @@ describe('read-only enforcement', () => {
     }
   });
 
+  it('refuses a write to every shape of path, routed or not', async () => {
+    // The defect this pins: the method check ran AFTER routing, so every answer
+    // that returned before a route was matched answered a write with 200 — the
+    // service document at `/` and the contract document at `/v1` are exactly
+    // those answers. A read-only surface whose read-only-ness depends on the
+    // shape of the path is not read-only; it is read-only where someone
+    // remembered. So the guarantee is asserted at the door, on paths that
+    // route, paths that do not, and a version that does not exist.
+    const paths = [
+      '/',
+      '/v1',
+      '/v1/health',
+      `/v1/entities/${fixtures.equipment.id}`,
+      '/v1/nope',
+      '/v2/health',
+      '/v1/entities/%ZZ',
+    ];
+    for (const method of ['POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'TRACE', 'CONNECT']) {
+      for (const path of paths) {
+        const response = await call(fixtures.app, path, { method });
+        expect(response.status, `${method} ${path}`).toBe(405);
+        expect(response.headers['allow'], `${method} ${path}`).toBe('GET, HEAD');
+        expect(errorOf(response).code, `${method} ${path}`).toBe('METHOD_NOT_ALLOWED');
+      }
+    }
+  });
+
+  it('refuses a method nobody has heard of, rather than listing the bad ones', async () => {
+    // An allow-list, not a deny-list: the failure mode of a deny-list is a
+    // method it has never been told about, and WebDAV alone contributes a dozen
+    // that write. Lower case counts too — a guard that compares the raw string
+    // is bypassed by the shift key.
+    for (const method of ['BREW', 'PROPPATCH', 'MKCOL', 'post', 'delete', '']) {
+      const response = await call(fixtures.app, '/v1', { method });
+      expect(response.status, method).toBe(405);
+      expect(errorOf(response).code, method).toBe('METHOD_NOT_ALLOWED');
+    }
+  });
+
+  it('still serves both read methods everywhere they were already served', async () => {
+    // The other half of the guarantee: closing the bypass must not close the
+    // door on the two methods this surface exists to answer.
+    for (const path of ['/', '/v1', '/v1/health', `/v1/entities/${fixtures.equipment.id}`]) {
+      for (const method of ['GET', 'HEAD']) {
+        const response = await call(fixtures.app, path, { method });
+        expect(response.status, `${method} ${path}`).toBe(200);
+      }
+    }
+  });
+
   it('serves HEAD exactly as GET at the handler level', async () => {
     const get = await call(fixtures.app, `/v1/entities/${fixtures.equipment.id}`);
     const head = await call(fixtures.app, `/v1/entities/${fixtures.equipment.id}`, {

@@ -11,7 +11,9 @@ import { ApiError, OPAQUE_INTERNAL_MESSAGE, toErrorBody } from './errors.js';
 import { baseHeaders, jsonResponse, requestId, type ApiHandler, type ApiRequest, type ApiResponse } from './http.js';
 import { resolveContext, type ApiAppOptions, type ApiContext } from './config.js';
 import {
+  ALLOW_HEADER,
   CURRENT_VERSION,
+  READ_METHODS,
   SUPPORTED_VERSIONS,
   contractDocument,
   matchRoute,
@@ -22,8 +24,8 @@ import {
   UnknownFieldError,
 } from '@data-foundry/query-model';
 
-const READ_METHODS = new Set(['GET', 'HEAD']);
-const ALLOW = 'GET, HEAD';
+/** The published allow-list, in the form the guard needs. No second list. */
+const SERVED_METHODS: ReadonlySet<string> = new Set<string>(READ_METHODS);
 
 /**
  * Parsing only — the base is a placeholder so `URL` accepts a request target.
@@ -60,6 +62,26 @@ function normalize(error: unknown): ApiError {
 }
 
 async function dispatch(context: ApiContext, request: ApiRequest): Promise<ApiResponse> {
+  // FIRST — before the target is parsed, before a version is recognised, before
+  // a route is matched. The check used to sit next to the route table, which
+  // made it a property of *routed* requests: `POST /` was answered by the
+  // service document and `PUT /v1` by the contract document, both 200, because
+  // both return before routing happens. That is a read-only guarantee a client
+  // can walk around by choosing a shorter path.
+  //
+  // Placing it at the top makes the guarantee a property of the surface rather
+  // than of each answer inside it, and the placement is what enforces it: a
+  // route added tomorrow, or another early return like the two above, cannot
+  // reintroduce the hole because there is nothing before this line to return
+  // from. It is an allow-list, so an unknown method fails closed.
+  if (!SERVED_METHODS.has(request.method.toUpperCase())) {
+    throw new ApiError(
+      'METHOD_NOT_ALLOWED',
+      'This API is read-only; only GET and HEAD are supported.',
+      { allow: ALLOW_HEADER },
+    );
+  }
+
   let url: URL;
   try {
     url = new URL(request.url, PARSE_BASE);
@@ -101,14 +123,6 @@ async function dispatch(context: ApiContext, request: ApiRequest): Promise<ApiRe
     });
   }
 
-  if (!READ_METHODS.has(request.method.toUpperCase())) {
-    throw new ApiError(
-      'METHOD_NOT_ALLOWED',
-      'This API is read-only; only GET and HEAD are supported.',
-      { allow: ALLOW },
-    );
-  }
-
   return route.handler(context, {
     params: routeParams(route, rest),
     query: url.searchParams,
@@ -143,7 +157,7 @@ export function createApiApp(options: ApiAppOptions): ApiHandler {
         status: failure.status,
         headers: {
           ...baseHeaders(context.version),
-          ...(failure.code === 'METHOD_NOT_ALLOWED' ? { allow: ALLOW } : {}),
+          ...(failure.code === 'METHOD_NOT_ALLOWED' ? { allow: ALLOW_HEADER } : {}),
         },
         body: toErrorBody(failure, id),
       };
