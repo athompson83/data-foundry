@@ -65,19 +65,19 @@ const PUNCTUATION_MAP: ReadonlyMap<string, string> = new Map([
 const INVISIBLE_DEBRIS: ReadonlySet<string> = new Set([
   '\u00AD', // soft hyphen
   '\u200B', // zero-width space
-  '\u2060', // word joiner
   '\uFEFF', // zero-width no-break space / byte-order mark
 ]);
 
 /**
- * Characters that ARE meaningful in some script, removed only when matching.
+ * Invisible characters a person may have put there on purpose, removed only
+ * when matching.
  *
  * The zero-width joiner and non-joiner change what a word says in Indic and
- * Arabic text, and the directional marks and isolates are what make
- * mixed-direction text render in the right order. In a Latin-script model
- * number they are scraping debris; in a product name, a person's name, or any
- * value from a vertical this platform has not onboarded yet, removing them is
- * silent corruption.
+ * Arabic text; the directional marks and isolates are what make
+ * mixed-direction text render in the right order; the word joiner says do not
+ * break the line here. In a Latin-script model number they are all scraping
+ * debris. In a product name, a person's name, or any value from a vertical
+ * this platform has not onboarded yet, removing them is silent corruption.
  *
  * The first version of this file put them in one list with the debris and
  * removed all of it from stored values, on the reasoning that nothing in an
@@ -85,11 +85,17 @@ const INVISIBLE_DEBRIS: ReadonlySet<string> = new Set([
  * same as it being safe: a closed list limits accidental growth, it does not
  * make global stored-value data loss acceptable. Review was right to press it.
  *
+ * The word joiner arrived here second, and by the same argument. It was in the
+ * debris set because it changes layout rather than meaning — which was the
+ * wrong test. The bar for rewriting a STORED value is not "does this change
+ * what the word says", it is "might somebody have meant it", and accepting
+ * that for the joiners while refusing it here would not have been defensible.
+ *
  * So they are stripped in `comparisonKey` and nowhere else. Matching becomes
- * insensitive to a joiner; storage keeps what the source sent. Those are
- * different questions and they now get different answers.
+ * insensitive to them; storage keeps what the source sent. Those are different
+ * questions and they now get different answers.
  */
-const SCRIPT_CONTROLS: ReadonlySet<string> = new Set([
+const AUTHORED_CONTROLS: ReadonlySet<string> = new Set([
   '\u200C', // zero-width non-joiner
   '\u200D', // zero-width joiner
   '\u200E', // left-to-right mark
@@ -98,6 +104,7 @@ const SCRIPT_CONTROLS: ReadonlySet<string> = new Set([
   '\u2067', // right-to-left isolate
   '\u2068', // first strong isolate
   '\u2069', // pop directional isolate
+  '\u2060', // word joiner — layout rather than script, but still authored
 ]);
 
 const without = (value: string, removable: ReadonlySet<string>): string =>
@@ -110,10 +117,10 @@ export const stripInvisibleDebris = (value: string): string => without(value, IN
 
 /**
  * Debris AND script controls. Correct for a matching key, wrong for anything
- * that will be written back — see `SCRIPT_CONTROLS`.
+ * that will be written back — see `AUTHORED_CONTROLS`.
  */
 export const stripFormatCharacters = (value: string): string =>
-  without(without(value, INVISIBLE_DEBRIS), SCRIPT_CONTROLS);
+  without(without(value, INVISIBLE_DEBRIS), AUTHORED_CONTROLS);
 
 export const normalizePunctuation = (value: string): string =>
   Array.from(value)

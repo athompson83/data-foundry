@@ -217,7 +217,22 @@ describe('a stored value keeps what a script needs', () => {
     expect(stripInvisibleDebris(`24ACC6${SOFT_HYPHEN}36A003`)).toBe('24ACC636A003');
     expect(stripInvisibleDebris(`24ACC6${ZERO_WIDTH_SPACE}36A003`)).toBe('24ACC636A003');
     expect(stripInvisibleDebris(`24ACC6${BOM}36A003`)).toBe('24ACC636A003');
-    expect(stripInvisibleDebris(`24ACC6${WORD_JOINER}36A003`)).toBe('24ACC636A003');
+  });
+
+  it('leaves the word joiner alone too, because somebody may have meant it', () => {
+    // It sat in the debris set on the reasoning that it changes layout rather
+    // than meaning — a line-breaking control, not a script one. Review pushed
+    // back, and the pushback is the same argument that moved the joiners here:
+    // the bar for rewriting a STORED value is not "does this change what the
+    // word says", it is "might a person have put it there on purpose". Someone
+    // writing `ACME<WJ>Corp` is saying do not break here, and that is authored
+    // intent whatever it affects.
+    //
+    // Accepting that reasoning for ZWJ and refusing it for this character
+    // would not have been defensible, and moving it costs nothing: matching
+    // ignores it either way.
+    expect(stripInvisibleDebris(`ACME${WORD_JOINER}Corp`)).toBe(`ACME${WORD_JOINER}Corp`);
+    expect(comparisonKey(`ACME${WORD_JOINER}Corp`)).toBe(comparisonKey('ACMECorp'));
   });
 
   it('leaves a stored value’s script controls alone', () => {
