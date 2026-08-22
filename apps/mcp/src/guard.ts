@@ -33,6 +33,7 @@
  */
 import { McpToolError } from './errors.js';
 import {
+  ReviewerIdentityLeak,
   assertNoReviewerIdentity,
   reviewerIdentityTokens,
   type FactExplanation,
@@ -76,6 +77,15 @@ export function namesReviewer(text: string, tokens: readonly string[]): boolean 
  * Converts `ReviewerIdentityLeak` into a tool error so the caller gets a
  * structured refusal rather than a thrown stack — but note the refusal is the
  * point. There is no path here that returns the payload anyway.
+ *
+ * ONLY that leak is converted. `REVIEWER_IDENTITY_BLOCKED` is a statement about
+ * the content of an answer — we held a publishable value back because
+ * publishing it would have named a member of staff — and an operator who reads
+ * it goes and rewrites an override reason. A bare `catch` here said the same
+ * sentence about a `TypeError` or a database that went away: the real fault was
+ * reported nowhere, wearing a privacy refusal as a disguise, and the one action
+ * the code prescribes was the wrong one. Anything else propagates to the
+ * dispatcher, which has an operator channel for exactly this.
  */
 export function guardCorrectionFields(
   fields: WireCorrectionFields,
@@ -83,8 +93,11 @@ export function guardCorrectionFields(
 ): void {
   try {
     assertNoReviewerIdentity(fields, reviewers);
-  } catch {
-    throw reviewerBlocked('editorialCorrectionReason');
+  } catch (error: unknown) {
+    // `field` is the wire field the query layer refused to project, which is
+    // the same thing this refusal reports as withheld.
+    if (error instanceof ReviewerIdentityLeak) throw reviewerBlocked(error.field);
+    throw error;
   }
 }
 

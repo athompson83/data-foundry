@@ -279,12 +279,28 @@ export interface CompareEntitiesResult {
   readonly unresolvedEntityIds: readonly string[];
 }
 
+/**
+ * One id as the caller wrote it, beside the canonical entity it resolved to.
+ *
+ * Both halves are needed and neither substitutes for the other. `resolvedId` is
+ * what the comparison contains; `requestedId` is what the caller holds and the
+ * only id it can recognise in `unresolvedEntityIds`. They differ whenever a
+ * merge moved the entity, and deriving one from the other by set membership —
+ * which is what this used to do, comparing the ids asked for against the ids
+ * compared — reports every redirected id as unknown.
+ */
+export interface RequestedEntity {
+  readonly requestedId: string;
+  /** The canonical id it resolves to, or null when nothing in scope does. */
+  readonly resolvedId: string | null;
+}
+
 export function comparison(
   result: EntityComparison,
-  requested: readonly string[],
+  requested: readonly RequestedEntity[],
   url: CanonicalUrlBuilder,
 ): CompareEntitiesResult {
-  const resolved = new Set<string>(result.entities.map((entity) => entity.id));
+  const compared = new Set<string>(result.entities.map((entity) => entity.id));
   return {
     entities: result.entities.map((entity) => entityRef(entity, url)),
     rows: result.rows.map((row) => ({
@@ -305,7 +321,12 @@ export function comparison(
     })),
     propertiesCompared: result.properties_compared,
     propertiesDiffering: result.properties_differing,
-    unresolvedEntityIds: requested.filter((id) => !resolved.has(id)),
+    // Unresolved means the id led to no entity this comparison could hold — not
+    // that the id the caller wrote is missing from the answer, which is the
+    // normal state of every id a merge has moved.
+    unresolvedEntityIds: requested
+      .filter((entity) => entity.resolvedId === null || !compared.has(entity.resolvedId))
+      .map((entity) => entity.requestedId),
   };
 }
 

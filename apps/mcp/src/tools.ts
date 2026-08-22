@@ -67,6 +67,7 @@ import {
   type FactSheet,
   type GetEntityResult,
   type ListFactsResult,
+  type RequestedEntity,
   type SearchEntitiesResult,
   type TraverseRelationshipsResult,
 } from './projection.js';
@@ -164,12 +165,37 @@ function defineTool<S extends z.ZodType>(spec: {
  * Shared handler helpers
  * ------------------------------------------------------------------ */
 
-/** Merge a caller-supplied read instant onto the server policy. Nothing else. */
-const at = (context: ToolContext, asOf: string | undefined): FactSelectionPolicy =>
-  asOf === undefined ? context.policy : { ...context.policy, at: asOf };
+/** A call's read instant, and the policy that carries it down every read. */
+interface ReadAt {
+  /** The server policy with this call's instant pinned onto it. */
+  readonly policy: FactSelectionPolicy;
+  /** The same instant, for the answer to report. */
+  readonly instant: string;
+}
 
-const readInstant = (policy: FactSelectionPolicy): string =>
-  policy.at ?? new Date().toISOString();
+/**
+ * Resolve the instant this call is answered as of — ONCE, before any read.
+ *
+ * Facts are versioned and every selection is evaluated as of a moment (doc 04),
+ * so the instant is part of the answer, not decoration. It used to be taken
+ * wherever it was needed: the fact sheet was selected at whatever instant the
+ * query layer read when it found no `at` on the policy, and the `asOf` beside
+ * it came from a LATER call to the clock here. The two differed by however long
+ * the query took, so a response said a value was current as of an instant at
+ * which the catalogue was never consulted — and an agent re-running the call
+ * with the reported `asOf`, which is how an answer gets reproduced, could get a
+ * different one with nothing in either payload explaining the difference. The
+ * refusal for an unrecorded property managed to disagree with ITSELF, naming
+ * one instant in its prose and another in its details.
+ *
+ * Pinning it onto the policy is what makes this structural rather than careful:
+ * every layer below reads `policy.at` and none of them reaches for a clock,
+ * because the policy already has an instant on it.
+ */
+function readAt(context: ToolContext, asOf?: string): ReadAt {
+  const instant = asOf ?? context.policy.at ?? new Date().toISOString();
+  return { policy: { ...context.policy, at: instant }, instant };
+}
 
 /**
  * Fetch by canonical id, refusing ids belonging to another vertical.
@@ -339,7 +365,7 @@ const getEntity = defineTool({
   ],
   handler: async (context, args): Promise<Guarded<GetEntityResult>> => {
     const resolved = await resolveIdentifier(context, args.identifier, args.entity_type);
-    const policy = context.policy;
+    const read = readAt(context);
 
     if (!args.include_facts) {
       return unguarded({
@@ -347,21 +373,21 @@ const getEntity = defineTool({
         resolvedBy: resolved.resolvedBy,
         matchedOn: resolved.matchedOn,
         redirectedFrom: redirectNotice(resolved.view),
-        asOf: readInstant(policy),
+        asOf: read.instant,
         facts: null,
         withheldFacts: null,
         trust: null,
       });
     }
 
-    const sheet = await readFactSheet(context, resolved.view.entity.id, policy);
+    const sheet = await readFactSheet(context, resolved.view.entity.id, read.policy);
     return {
       result: {
         entity: entityRef(resolved.view.entity, context.canonicalUrl),
         resolvedBy: resolved.resolvedBy,
         matchedOn: resolved.matchedOn,
         redirectedFrom: redirectNotice(resolved.view),
-        asOf: readInstant(policy),
+        asOf: read.instant,
         facts: sheet.result.facts,
         withheldFacts: sheet.result.withheldFacts,
         trust: sheet.result.trust,
@@ -488,13 +514,13 @@ const listFacts = defineTool({
   ],
   handler: async (context, args): Promise<Guarded<ListFactsResult>> => {
     const view = await requireEntity(context, args.entity_id);
-    const policy = at(context, args.as_of);
-    const sheet = await readFactSheet(context, view.entity.id, policy, args.properties);
+    const read = readAt(context, args.as_of);
+    const sheet = await readFactSheet(context, view.entity.id, read.policy, args.properties);
 
     return {
       result: {
         entity: entityRef(view.entity, context.canonicalUrl),
-        asOf: readInstant(policy),
+        asOf: read.instant,
         properties: args.properties === undefined ? null : [...args.properties],
         facts: sheet.result.facts,
         withheldFacts: sheet.result.withheldFacts,
@@ -526,40 +552,65 @@ const compareEntities = defineTool({
     'suitability for any particular use, and never infers a missing value from a similar ' +
     'entity — missing is reported as missing.',
   input: CompareEntitiesInput,
+  // `REVIEWER_IDENTITY_BLOCKED` belongs here even though nothing in this
+  // handler throws it: `compare` reads the same canonical fact sheets
+  // `list_facts` does, and the query layer refuses to project a correction
+  // reason that names its reviewer wherever that sheet is built. A client
+  // handling the code on `list_facts` and not on this tool would be surprised
+  // by the same vertical config on the same entities.
   errors: [
     'INVALID_ARGUMENTS',
     'ENTITY_NOT_FOUND',
     'TOO_FEW_ENTITIES',
+    'REVIEWER_IDENTITY_BLOCKED',
     'INTERNAL_ERROR',
   ],
   handler: async (context, args): Promise<Guarded<CompareEntitiesResult>> => {
     // Scope every id to this server's vertical before comparing. `compare`
     // itself silently skips ids it cannot load, which would turn a
     // cross-vertical id into a quietly shorter table.
-    const resolved: string[] = [];
-    const missing: string[] = [];
+    //
+    // The pairing is kept, not just the ids that survived it: `getEntity`
+    // follows merge redirects, so an id the caller saved before a merge
+    // resolves to a DIFFERENT canonical id, and only this loop knows which
+    // requested id each compared entity came from.
+    const requested: RequestedEntity[] = [];
     for (const id of args.entity_ids) {
       const view = await context.queryModel.getEntity(id as never);
-      if (view === null || view.entity.vertical_id !== context.vertical.id) missing.push(id);
-      else resolved.push(view.entity.id);
+      const scoped = view !== null && view.entity.vertical_id === context.vertical.id;
+      requested.push({ requestedId: id, resolvedId: scoped ? view.entity.id : null });
     }
+
+    const resolved = requested.flatMap((entity) =>
+      entity.resolvedId === null ? [] : [entity.resolvedId],
+    );
 
     if (resolved.length < 2) {
       throw new McpToolError(
         'TOO_FEW_ENTITIES',
         `Comparison needs at least two entities that exist in the "${context.vertical.slug}" ` +
           `vertical; ${String(resolved.length)} of ${String(args.entity_ids.length)} resolved.`,
-        { resolved, unresolved: missing, vertical: context.vertical.slug },
+        {
+          resolved,
+          unresolved: requested
+            .filter((entity) => entity.resolvedId === null)
+            .map((entity) => entity.requestedId),
+          vertical: context.vertical.slug,
+        },
       );
     }
 
+    // One instant for the whole table. `compare` selects a fact sheet per
+    // entity, and each of those selections takes its own instant when the
+    // policy carries none — so the columns would be as of different moments,
+    // in a response with no `asOf` field for that to be visible in.
     const result = await context.queryModel.compare({
       entity_ids: resolved as never,
-      policy: context.policy,
+      policy: readAt(context).policy,
       ...(args.properties === undefined ? {} : { properties: args.properties }),
     });
 
-    return unguarded(comparison(result, args.entity_ids, context.canonicalUrl));
+    return unguarded(comparison(result, requested, context.canonicalUrl));
   },
 });
 
@@ -634,8 +685,8 @@ const explainFact = defineTool({
   ],
   handler: async (context, args): Promise<Guarded<ExplainFactResult>> => {
     const view = await requireEntity(context, args.entity_id);
-    const policy = at(context, args.as_of);
-    const found = await context.queryModel.explainFact(view.entity.id, args.property, policy);
+    const read = readAt(context, args.as_of);
+    const found = await context.queryModel.explainFact(view.entity.id, args.property, read.policy);
 
     if (found === null) {
       throw entityNotFound({ entity_id: args.entity_id, vertical: context.vertical.slug });
@@ -644,12 +695,12 @@ const explainFact = defineTool({
       throw new McpToolError(
         'PROPERTY_NOT_RECORDED',
         `"${view.entity.canonical_name}" exists, but no source in this catalogue publishes ` +
-          `"${args.property}" for it at ${readInstant(policy)}. That is a coverage gap, not a ` +
+          `"${args.property}" for it at ${read.instant}. That is a coverage gap, not a ` +
           'rejected value — nothing was excluded, there was nothing to exclude.',
         {
           entity_id: view.entity.id,
           property: args.property,
-          as_of: readInstant(policy),
+          as_of: read.instant,
         },
       );
     }

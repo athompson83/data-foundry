@@ -28,6 +28,57 @@ let fixtures: McpFixtures;
 const BLOCKED_PUBLISHER = 'HVAC Forum';
 const BLOCKED_DOMAIN = 'forum.example';
 const BLOCKED_PROPERTY = 'sound_level_db';
+/** The number that source, and only that source, asserts. */
+const BLOCKED_VALUE = 99;
+/** The same number as the query layer renders it into prose, with its unit. */
+const BLOCKED_VALUE_TEXT = '99 dB';
+
+/** Every primitive in a payload, so a value can be searched for AS a value. */
+function leaves(value: unknown): unknown[] {
+  if (Array.isArray(value)) return value.flatMap((item) => leaves(item));
+  if (value !== null && typeof value === 'object') {
+    return Object.values(value as Record<string, unknown>).flatMap((item) => leaves(item));
+  }
+  return [value];
+}
+
+/**
+ * Every place a blocked claim could surface in one tool result.
+ *
+ * Three things, because a leak into any one of them is a rule-1 breach on its
+ * own and they fail independently:
+ *
+ *   * the PUBLISHER and DOMAIN — naming the source is a disclosure of it even
+ *     where the value is absent;
+ *   * the VALUE — "the forum says 99 dB" is exactly the claim the gate refused,
+ *     and it is a breach whether or not anything says where it came from. It is
+ *     checked as a leaf rather than as a substring because "99" occurs inside
+ *     unrelated numbers (a confidence of 0.99, a uuid) and a substring sweep
+ *     would either refuse ordinary results or have to be weakened until it
+ *     caught nothing;
+ *   * `content[].text` — MCP returns a human-readable block beside the
+ *     structured payload, and a transport is free to forward either. Sweeping
+ *     only `structuredContent` checked the half a model is least likely to
+ *     read out loud.
+ */
+function assertNothingBlockedSurfaced(
+  call: { readonly structuredContent: unknown; readonly content: readonly { text: string }[] },
+  label: string,
+): void {
+  const rendered = [
+    JSON.stringify(call.structuredContent),
+    ...call.content.map((block) => block.text),
+  ];
+  for (const text of rendered) {
+    expect(text, label).not.toContain(BLOCKED_PUBLISHER);
+    expect(text, label).not.toContain(BLOCKED_DOMAIN);
+    expect(text, label).not.toContain(BLOCKED_VALUE_TEXT);
+  }
+  const asserted = leaves(call.structuredContent).filter(
+    (leaf) => leaf === BLOCKED_VALUE || leaf === String(BLOCKED_VALUE),
+  );
+  expect(asserted, `${label} carries the withheld value`).toEqual([]);
+}
 
 beforeAll(async () => {
   fixtures = await createMcpFixtures();
@@ -72,29 +123,45 @@ describe('a fact backed only by an unpublishable source', () => {
     expect(result.trust?.withheldCount).toBeGreaterThan(0);
   });
 
-  it('leaks neither the value nor the publisher through any tool', async () => {
-    const calls = [
-      await fixtures.server.callTool('get_entity', { identifier: '24ANB7' }),
-      await fixtures.server.callTool('list_facts', { entity_id: fixtures.equipment.id }),
-      await fixtures.server.callTool('list_facts', {
-        entity_id: fixtures.equipment.id,
-        properties: [BLOCKED_PROPERTY],
-      }),
-      await fixtures.server.callTool('compare_entities', {
-        entity_ids: [fixtures.equipment.id, fixtures.heatPump.id],
-      }),
-      await fixtures.server.callTool('explain_fact', {
-        entity_id: fixtures.equipment.id,
-        property: BLOCKED_PROPERTY,
-      }),
-      await fixtures.server.callTool('search_entities', { query: 'Carrier' }),
-    ];
+  it('surfaces neither the value nor the publisher, in either half of any result', async () => {
+    const calls: readonly (readonly [string, Awaited<ReturnType<typeof fixtures.server.callTool>>])[] =
+      [
+        ['get_entity', await fixtures.server.callTool('get_entity', { identifier: '24ANB7' })],
+        [
+          'list_facts',
+          await fixtures.server.callTool('list_facts', { entity_id: fixtures.equipment.id }),
+        ],
+        [
+          'list_facts narrowed to the blocked property',
+          await fixtures.server.callTool('list_facts', {
+            entity_id: fixtures.equipment.id,
+            properties: [BLOCKED_PROPERTY],
+          }),
+        ],
+        [
+          'compare_entities',
+          await fixtures.server.callTool('compare_entities', {
+            entity_ids: [fixtures.equipment.id, fixtures.heatPump.id],
+          }),
+        ],
+        [
+          'compare_entities narrowed to the blocked property',
+          await fixtures.server.callTool('compare_entities', {
+            entity_ids: [fixtures.equipment.id, fixtures.heatPump.id],
+            properties: [BLOCKED_PROPERTY],
+          }),
+        ],
+        [
+          'explain_fact',
+          await fixtures.server.callTool('explain_fact', {
+            entity_id: fixtures.equipment.id,
+            property: BLOCKED_PROPERTY,
+          }),
+        ],
+        ['search_entities', await fixtures.server.callTool('search_entities', { query: 'Carrier' })],
+      ];
 
-    for (const call of calls) {
-      const serialized = JSON.stringify(call.structuredContent);
-      expect(serialized).not.toContain(BLOCKED_PUBLISHER);
-      expect(serialized).not.toContain(BLOCKED_DOMAIN);
-    }
+    for (const [label, call] of calls) assertNothingBlockedSurfaced(call, label);
   });
 
   it('is a present-but-empty row in a comparison, not an invented value', async () => {

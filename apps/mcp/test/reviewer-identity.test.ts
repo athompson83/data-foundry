@@ -31,6 +31,7 @@ import {
   type McpFixtures,
 } from './support.js';
 import {
+  McpToolError,
   assertPayloadCarriesNoReviewer,
   createMcpServer,
   namesReviewer,
@@ -40,6 +41,7 @@ import {
   type GetEntityResult,
   type ListFactsResult,
 } from '../src/index.js';
+import { guardCorrectionFields } from '../src/guard.js';
 import { explanation, withheldSourceTokens } from '../src/projection.js';
 
 let fixtures: McpFixtures;
@@ -235,6 +237,31 @@ describe('a correction reason that names its own reviewer', () => {
     }
   });
 
+  it('hands the real cause to the operator channel and nowhere else', async () => {
+    // The same split `apps/api/test/privacy.test.ts` asserts: the caller is told
+    // a code with no offending text in it, and the exception itself — which
+    // does not repeat the identity either — goes to the operator who can fix
+    // the config. `canonicalFacts` is the path that throws the query layer's
+    // own leak; `explain_fact` is refused by this app's layer 1 instead, and a
+    // refusal it decided on is an answer rather than an unmodelled fault.
+    const reported: unknown[] = [];
+    const poisoned = createMcpServer({
+      queryModel: fixtures.qm,
+      vertical: { id: fixtures.vertical.id, slug: 'hvac' },
+      policy: policyWithOverride(POISONED_REASON),
+      onError: (error) => reported.push(error),
+    });
+
+    const call = await poisoned.callTool('list_facts', { entity_id: fixtures.equipment.id });
+    expect(errorOf(call).code).toBe('REVIEWER_IDENTITY_BLOCKED');
+    expect(reported).toHaveLength(1);
+    expect((reported[0] as Error).name).toBe('ReviewerIdentityLeak');
+    expect(carriesReviewer(call.structuredContent)).toBe(false);
+    // Even the operator's copy does not repeat the identity: the query layer's
+    // own error is written that way on purpose, and this forwards it unchanged.
+    expect(carriesReviewer((reported[0] as Error).message)).toBe(false);
+  });
+
   it('fails closed for the whole sheet, and leaves the other tools working', async () => {
     const poisoned = createMcpServer({
       queryModel: fixtures.qm,
@@ -274,6 +301,80 @@ describe('a correction reason that names its own reviewer', () => {
     const other = await poisoned.callTool('list_facts', { entity_id: fixtures.heatPump.id });
     expect(other.isError).toBe(false);
     expect(resultOf<ListFactsResult>(other).facts.length).toBeGreaterThan(0);
+  });
+});
+
+/**
+ * The refusal has to mean what it says.
+ *
+ * `REVIEWER_IDENTITY_BLOCKED` is a statement about the CONTENT of an answer: we
+ * held a publishable value back because publishing it would have named a member
+ * of staff. An operator reading that code goes and rewrites an override reason.
+ * If any fault at all inside the control produced the same code, that operator
+ * is sent to edit a config that was never the problem, while the real fault —
+ * a type error, a query layer that went away — is reported nowhere, wearing a
+ * privacy refusal as a disguise.
+ *
+ * So layer 1 converts the query layer's `ReviewerIdentityLeak` and nothing
+ * else. Both halves are asserted here, because narrowing the conversion and
+ * disarming the control look identical from the passing side of one test.
+ */
+describe('layer 1 converts a reviewer leak, and only a reviewer leak', () => {
+  it('lets an unrelated fault propagate instead of dressing it as a privacy refusal', () => {
+    // Reviewers are strings everywhere this app produces them, so a non-string
+    // in the list is a bug somewhere above — and the query layer's assertion
+    // fails on it with a TypeError, from `reviewer.trim()`. That TypeError is
+    // the unrelated fault: it must reach whatever handles unmodelled errors
+    // (which now reports it to the operator channel) rather than becoming an
+    // answer about a staff reviewer nobody has.
+    expect(() =>
+      guardCorrectionFields(
+        {
+          editoriallyCorrected: true,
+          editorialCorrectionReason: CORRECTION_REASON,
+          selectionWarnings: [],
+        },
+        [42 as unknown as string],
+      ),
+    ).toThrowError(TypeError);
+  });
+
+  it('still refuses a reason that really does name its reviewer', () => {
+    // The other half. A narrowing that let this through would have disarmed the
+    // control rather than sharpened it.
+    let thrown: unknown;
+    try {
+      guardCorrectionFields(
+        {
+          editoriallyCorrected: true,
+          editorialCorrectionReason: POISONED_REASON,
+          selectionWarnings: [],
+        },
+        [REVIEWER],
+      );
+    } catch (error: unknown) {
+      thrown = error;
+    }
+    expect(thrown).toBeInstanceOf(McpToolError);
+    expect((thrown as McpToolError).code).toBe('REVIEWER_IDENTITY_BLOCKED');
+    // The refusal does not repeat what it refused.
+    expect(carriesReviewer((thrown as McpToolError).message)).toBe(false);
+  });
+
+  it('refuses the same reason through the real dispatcher, as a coded failure', async () => {
+    // End to end: `explainFact` is the internal surface and does not throw the
+    // query layer's own leak, so this is the path layer 1 exists for.
+    const poisoned = createMcpServer({
+      queryModel: fixtures.qm,
+      vertical: { id: fixtures.vertical.id, slug: 'hvac' },
+      policy: policyWithOverride(POISONED_REASON),
+    });
+    const call = await poisoned.callTool('explain_fact', {
+      entity_id: fixtures.equipment.id,
+      property: 'refrigerant',
+    });
+    expect(errorOf(call).code).toBe('REVIEWER_IDENTITY_BLOCKED');
+    expect(carriesReviewer(call.structuredContent)).toBe(false);
   });
 });
 
