@@ -76,6 +76,22 @@ import type { EntityView, FacetFilter } from '@data-foundry/query-model';
 export const SUPPORTED_VERSIONS = ['v1'] as const;
 export const CURRENT_VERSION = 'v1';
 
+/**
+ * The only methods this surface serves. An ALLOW-LIST, and the single one.
+ *
+ * `app.ts` refuses anything outside this list before it looks at a path, the
+ * `Allow` header on the refusal is derived from it, and `contractDocument`
+ * publishes it — so what is enforced, what is advertised and what the header
+ * names are one fact with one spelling. They were three, and the document was
+ * the only one of them that was true for every path.
+ *
+ * An allow-list rather than a list of methods known to write: the failure mode
+ * of a deny-list is the method it was never told about, and there is no
+ * shortage of those.
+ */
+export const READ_METHODS = ['GET', 'HEAD'] as const;
+export const ALLOW_HEADER = READ_METHODS.join(', ');
+
 /** The query layer's own traversal ceiling; asking for more is clamped there. */
 const TRAVERSAL_BOUND = 500;
 const MAX_COMPARE_ENTITIES = 8;
@@ -455,14 +471,20 @@ export function routeParams(route: Route, segments: readonly string[]): Readonly
  *
  * A README describing pagination bounds drifts from the code that enforces
  * them; this document is generated from the same constants the handlers use, and
- * `test/contract.test.ts` asserts every route it advertises actually routes.
+ * `test/boundary.test.ts` asserts every route it advertises actually routes, and
+ * every route that exists is advertised.
  */
 export function contractDocument(version: string): unknown {
   return {
     version,
     supportedVersions: [...SUPPORTED_VERSIONS],
     readOnly: true,
-    methods: ['GET', 'HEAD'],
+    methods: [...READ_METHODS],
+    // Stated next to the methods it constrains, and generated from the same
+    // constant the guard reads, so "read-only" is a checkable claim rather than
+    // an adjective: every other method, on every path this deployment answers
+    // at all, is this refusal.
+    otherMethods: { status: 405, code: 'METHOD_NOT_ALLOWED', allow: ALLOW_HEADER },
     versioning: {
       selector: 'path',
       note: 'The /vN path segment is the only version selector; the Accept header is not used.',

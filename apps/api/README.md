@@ -21,14 +21,14 @@ silently serving the newest contract to an unversioned request breaks clients on
 a deploy they did not trigger. An unknown version is `404 UNSUPPORTED_API_VERSION`
 with the served versions in `details`.
 
-`GET /v1` returns the contract as data — routes, pagination bounds, error codes
-— generated from the same constants the handlers use, so it cannot drift from
-the behaviour it describes.
+`GET /v1` returns the contract as data — routes, served methods, pagination
+bounds, error codes — generated from the same constants the handlers use, so it
+cannot drift from the behaviour it describes.
 
 | Method | Path | What it answers |
 | --- | --- | --- |
 | `GET` | `/` | Which versions this deployment serves. |
-| `GET` | `/v1` | The contract document: routes, pagination bounds, error codes. |
+| `GET` | `/v1` | The contract document: routes, served methods, pagination bounds, error codes. |
 | `GET` | `/v1/health` | Liveness **plus** a real round trip through the query layer. `503` if it cannot answer. |
 | `GET` | `/v1/entities/{id}` | One entity. A merged-away id answers `301` with its redirect chain. |
 | `GET` | `/v1/entities/by-slug/{slug}?type=` | One entity by canonical slug. A retired slug answers `301`. |
@@ -37,7 +37,29 @@ the behaviour it describes.
 | `GET` | `/v1/search?q=&type=&filter.{field}=&facets=&limit=&offset=` | Faceted search. Exact identifiers lead the results (rule 7). |
 | `GET` | `/v1/compare?ids=a,b&properties=&at=` | 2–8 entities aligned on declared field order. |
 
-Only `GET` and `HEAD`. Everything else is `405` with an `Allow` header.
+Only `GET` and `HEAD`, on every path — `/` and `/v1` included. Everything else is
+`405` with an `Allow` header. The check is the first thing `dispatch` does, ahead
+of parsing and of routing, so read-only is a property of the surface rather than
+of the paths someone remembered to guard, and it is an allow-list: a method
+nobody has heard of is refused rather than missed.
+
+### Filters
+
+`filter.{field}=a,b` selects values, `filter.{field}.min=` / `.max=` bound a
+numeric range, and `filter.{field}.exists=true` (or `=1`, or the bare flag with
+no value) asks for the property to be present.
+
+* **An unrecognised value is a `400`, never a dropped filter.** Same reasoning
+  as the pagination bounds below: a caller who wrote `exists=yes` and silently
+  received the whole unfiltered collection has no signal that the constraint was
+  never applied. `exists=false` is refused too rather than inverted — presence is
+  the only such operator the query layer models, and composing a negation here
+  would make this surface a second place that decides what a filter means.
+* **An empty range bound is a `400`, not a zero.** `filter.tonnage.min=` is a
+  bound the caller did not supply; reading it as `>= 0` quietly removes every
+  entity that has no such fact at all.
+* Which fields are filterable is the query layer's decision, not this surface's:
+  an undeclared or non-filterable field is `422 UNPROCESSABLE_QUERY`.
 
 ### Pagination
 

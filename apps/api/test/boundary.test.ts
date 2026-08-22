@@ -15,16 +15,49 @@
  * No database here on purpose: these are properties of the source tree.
  */
 import { describe, expect, it } from 'vitest';
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { contractDocument, matchRoute, ROUTES } from '../src/routes.js';
 
 const SRC = fileURLToPath(new URL('../src/', import.meta.url));
+const TEST = fileURLToPath(new URL('./', import.meta.url));
 
-const sourceFiles = (): { name: string; text: string }[] =>
-  readdirSync(SRC)
-    .filter((name) => name.endsWith('.ts'))
-    .map((name) => ({ name, text: readFileSync(`${SRC}${name}`, 'utf8') }));
+/**
+ * Every `.ts` file under `src/`, at ANY depth.
+ *
+ * The read was `readdirSync(SRC)`, which is one directory deep, so every check
+ * in this file silently meant "no violation in a file that happens to sit at
+ * the top of `src/`". A module in a subdirectory — which is where the next
+ * group of handlers lands the moment there are enough of them — could import a
+ * driver, deep-import past the query layer's entry point, write SQL and build a
+ * second fact wire object, and nothing here would ever open it. The checks were
+ * not weaker than they read; they were not running.
+ *
+ * `name` carries the path relative to `src/`, so a violation names the file
+ * rather than a basename that could be any of several. The listing is sorted so
+ * a failure message is the same on every machine.
+ */
+const sourceFiles = (): { name: string; text: string }[] => {
+  const found: { name: string; text: string }[] = [];
+  const walk = (directory: string, prefix: string): void => {
+    const entries = readdirSync(directory, { withFileTypes: true }).sort((left, right) =>
+      left.name.localeCompare(right.name),
+    );
+    for (const entry of entries) {
+      if (entry.isDirectory()) {
+        walk(`${directory}${entry.name}/`, `${prefix}${entry.name}/`);
+        continue;
+      }
+      if (!entry.name.endsWith('.ts')) continue;
+      found.push({
+        name: `${prefix}${entry.name}`,
+        text: readFileSync(`${directory}${entry.name}`, 'utf8'),
+      });
+    }
+  };
+  walk(SRC, '');
+  return found;
+};
 
 /** Every module specifier a file imports from. */
 function importsOf(text: string): string[] {
@@ -185,6 +218,37 @@ describe('ADR-0004 — one fact serializer, shared', () => {
     expect(implementation).toContain('toRestFact(view)');
     expect(implementation).toContain('assertNoReviewerIdentity');
     expect(implementation).not.toContain('...');
+  });
+});
+
+describe('the tests this package’s own comments point at', () => {
+  it('cites only test files that exist', () => {
+    // A comment naming a test is a claim that the property it describes is
+    // enforced somewhere, and it is the reason the next reader stops looking
+    // for the enforcement themselves. Two of these named files that were never
+    // written — `test/contract.test.ts` and `test/wire-boundary.test.ts` — so
+    // the strongest-sounding sentences in `routes.ts` and `wire.ts` were
+    // pointing at nothing. The citation is now checked the same way every other
+    // claim in this file is: structurally, against the directory.
+    //
+    // Only this package's own `test/`, deliberately: a path with a package in
+    // front of it (`query-model/test/...`) names someone else's tree and is not
+    // this suite's to resolve.
+    const citation = /(?<![\w/-])test\/([A-Za-z0-9._-]+\.test\.ts)/g;
+    const cited = new Set<string>();
+    const missing: string[] = [];
+    for (const file of sourceFiles()) {
+      let match = citation.exec(file.text);
+      while (match !== null) {
+        const name = match[1] ?? '';
+        cited.add(name);
+        if (!existsSync(`${TEST}${name}`)) missing.push(`${file.name} → test/${name}`);
+        match = citation.exec(file.text);
+      }
+    }
+    expect(cited.size, 'no comment cites a test — this check would pass vacuously')
+      .toBeGreaterThan(0);
+    expect(missing, 'cite the file that actually asserts it, or say nothing').toEqual([]);
   });
 });
 

@@ -7,9 +7,9 @@
  * objects through the shared serializer... No surface may construct a fact wire
  * object independently." A second fact mapper here is how `editoriallyCorrected`
  * ends up on the MCP payload and not on the REST one, and nobody notices for a
- * quarter. `test/wire-boundary.test.ts` asserts mechanically that this file is
- * the only one that touches fact wire shapes and that it only does so through
- * the shared mapper — the enforcement ADR-0004 deferred until a surface existed.
+ * quarter. `test/boundary.test.ts` asserts mechanically that this file is the
+ * only one that touches fact wire shapes and that it only does so through the
+ * shared mapper — the enforcement ADR-0004 deferred until a surface existed.
  *
  * The other shapes (entities, redirects, edges, comparisons) have no shared
  * mapper yet because no second surface consumes them. When `apps/mcp` lands,

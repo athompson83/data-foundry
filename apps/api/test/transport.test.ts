@@ -12,11 +12,19 @@
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { request as httpRequest } from 'node:http';
+import { ApiError } from '../src/errors.js';
+import type { ApiHandler } from '../src/http.js';
 import { startApiServer, type ListeningApiServer } from '../src/server.js';
-import { createApiFixtures, type ApiFixtures } from './support.js';
+import { createApiFixtures, ts, type ApiFixtures } from './support.js';
+import {
+  entityQualityScore,
+  type Entity,
+} from '../../../packages/canonical-schema/src/index.js';
 
 let fixtures: ApiFixtures;
 let listening: ListeningApiServer;
+/** Merged into the surviving equipment, so its id answers 301 over the wire. */
+let merged: Entity;
 
 interface RawResponse {
   readonly status: number;
@@ -24,10 +32,15 @@ interface RawResponse {
   readonly body: string;
 }
 
-function send(path: string, method = 'GET'): Promise<RawResponse> {
+/**
+ * One request over a real socket. `target` defaults to the suite's server; the
+ * adapter's own failure path needs a second one in front of a handler that
+ * throws, and it must be driven exactly the same way to mean anything.
+ */
+function send(path: string, method = 'GET', target: ListeningApiServer = listening): Promise<RawResponse> {
   return new Promise((resolve, reject) => {
     const call = httpRequest(
-      { host: listening.host, port: listening.port, path, method },
+      { host: target.host, port: target.port, path, method },
       (response) => {
         const chunks: Buffer[] = [];
         response.on('data', (chunk: Buffer) => chunks.push(chunk));
@@ -48,6 +61,28 @@ function send(path: string, method = 'GET'): Promise<RawResponse> {
 beforeAll(async () => {
   fixtures = await createApiFixtures();
   listening = await startApiServer(fixtures.app);
+
+  // A merged-away id, because the 301 it produces is the one response on this
+  // surface whose meaning lives in a HEADER rather than in the body, and a
+  // status line the transport rewrote or a `location` it dropped would leave a
+  // client following nothing.
+  merged = await fixtures.store.upsertEntity({
+    vertical_id: fixtures.vertical.id,
+    entity_type: 'equipment',
+    canonical_name: 'Carrier Infinity 24ANB7 (duplicate)',
+    canonical_slug: 'carrier-infinity-24anb7-transport-dup',
+    status: 'ACTIVE',
+    quality_score: entityQualityScore(0.4),
+    first_seen_at: ts('2026-01-01T00:00:00Z'),
+    last_verified_at: null,
+  });
+  await fixtures.store.mergeEntities({
+    from_entity_id: merged.id,
+    to_entity_id: fixtures.equipment.id,
+    reason: 'MERGE',
+    from_slug: merged.canonical_slug,
+    judgment_id: null,
+  });
 }, 300_000);
 
 afterAll(async () => {
@@ -95,9 +130,36 @@ describe('the node:http adapter', () => {
   });
 
   it('does not follow its own redirects — the 301 reaches the client', async () => {
+    // The name of this test was right and its assertion was about something
+    // else entirely: it fetched an unrouted path and checked for a 404, which
+    // is a routing property with no redirect in it (that check now lives below,
+    // under its own name). What it claimed to cover is this — the adapter
+    // hands a merged-away id's 301 to the client rather than resolving it
+    // internally and answering 200 with the surviving entity, which would make
+    // a merge invisible to exactly the consumer that needs to see it.
+    //
+    // `node:http` does not follow redirects on its own, unlike `fetch`, so what
+    // arrives here is what the adapter actually sent.
+    const response = await send(`/v1/entities/${merged.id}`);
+    expect(response.status).toBe(301);
+    expect(response.headers['location']).toBe(`/v1/entities/${fixtures.equipment.id}`);
+    // The hop chain is in the body, for a client that does not follow it.
+    expect(JSON.parse(response.body)).toMatchObject({
+      redirect: {
+        status: 301,
+        location: `/v1/entities/${fixtures.equipment.id}`,
+        canonicalEntityId: fixtures.equipment.id,
+      },
+    });
+    expect(Number(response.headers['content-length'])).toBe(Buffer.byteLength(response.body));
+  });
+
+  it('carries a routing failure over the wire as the envelope, not a socket error', async () => {
     const response = await send('/v1/nope');
     expect(response.status).toBe(404);
-    expect(JSON.parse(response.body)).toMatchObject({ error: { code: 'ROUTE_NOT_FOUND' } });
+    expect(JSON.parse(response.body)).toMatchObject({
+      error: { code: 'ROUTE_NOT_FOUND', status: 404 },
+    });
   });
 
   it('reports a malformed percent-escape as the client’s error, not the server’s', async () => {
@@ -109,5 +171,80 @@ describe('the node:http adapter', () => {
     expect(JSON.parse(response.body)).toMatchObject({
       error: { code: 'INVALID_PARAMETER', status: 400 },
     });
+  });
+
+  it('never sends a status the body disagrees with', async () => {
+    // Every response this adapter sends says its status twice: once in the
+    // status line and once inside the envelope. They are only a contract if
+    // they are the same number, so it is asserted against itself rather than
+    // against a literal, on the answers a client actually meets.
+    for (const [path, method] of [
+      ['/v1/health', 'GET'],
+      ['/v1/nope', 'GET'],
+      ['/v1/health', 'POST'],
+      ['/v1/entities/%ZZ', 'GET'],
+      ['/v2/health', 'GET'],
+    ] as const) {
+      const response = await send(path, method);
+      const body = JSON.parse(response.body) as { error?: { status: number } };
+      if (body.error === undefined) continue;
+      expect(response.status, `${method} ${path}`).toBe(body.error.status);
+    }
+  });
+});
+
+/**
+ * The one place the TRANSPORT, not the app, decides a status.
+ *
+ * `createApiApp` funnels its own failures into a response, so reaching the
+ * adapter's `catch` means the handler threw outright — an `onError` hook that
+ * failed inside the app's own error path, or a second handler composed in front
+ * of it, `createApiServer` taking an `ApiHandler` precisely so that is possible.
+ * Rare, and that is the problem: it was the only path where the status line and
+ * the envelope were decided separately, and they only agreed by luck. The body
+ * came from `toErrorBody`, which honours an `ApiError`'s own status, while the
+ * status line was a literal 500 written five lines earlier — so a thrown 503
+ * left over a socket as `500` with `{"status": 503}` inside it, and a client
+ * branching on either one was told a different thing about the same failure.
+ */
+describe('a handler that throws instead of returning a response', () => {
+  const serve = async (
+    handler: ApiHandler,
+    assertions: (response: RawResponse) => void,
+  ): Promise<void> => {
+    const target = await startApiServer(handler);
+    try {
+      assertions(await send('/v1/health', 'GET', target));
+    } finally {
+      await target.close();
+    }
+  };
+
+  it('sends the status the envelope it is sending claims', async () => {
+    await serve(
+      () => Promise.reject(new ApiError('SERVICE_UNAVAILABLE', 'The query layer is not reachable.')),
+      (response) => {
+        const body = JSON.parse(response.body) as { error: { code: string; status: number } };
+        expect(body.error).toMatchObject({ code: 'SERVICE_UNAVAILABLE', status: 503 });
+        expect(response.status).toBe(body.error.status);
+      },
+    );
+  });
+
+  it('still collapses a throwable nobody anticipated to 500, in both places', async () => {
+    // The other direction: deriving the status from the envelope must not start
+    // trusting whatever was thrown. A bare `Error` carries no status, so the
+    // envelope says 500 and so does the status line.
+    await serve(
+      () => Promise.reject(new Error('pglite: connection closed at /src/driver.ts:41')),
+      (response) => {
+        const body = JSON.parse(response.body) as { error: { code: string; status: number } };
+        expect(body.error).toMatchObject({ code: 'INTERNAL_ERROR', status: 500 });
+        expect(response.status).toBe(body.error.status);
+        // The thrown text named a driver, a file and a line; none of it left.
+        expect(response.body.toLowerCase()).not.toContain('pglite');
+        expect(response.body).not.toContain('.ts:');
+      },
+    );
   });
 });
