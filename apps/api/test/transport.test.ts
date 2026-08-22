@@ -15,10 +15,16 @@ import { request as httpRequest } from 'node:http';
 import { ApiError } from '../src/errors.js';
 import type { ApiHandler } from '../src/http.js';
 import { startApiServer, type ListeningApiServer } from '../src/server.js';
-import { createApiFixtures, type ApiFixtures } from './support.js';
+import { createApiFixtures, ts, type ApiFixtures } from './support.js';
+import {
+  entityQualityScore,
+  type Entity,
+} from '../../../packages/canonical-schema/src/index.js';
 
 let fixtures: ApiFixtures;
 let listening: ListeningApiServer;
+/** Merged into the surviving equipment, so its id answers 301 over the wire. */
+let merged: Entity;
 
 interface RawResponse {
   readonly status: number;
@@ -55,6 +61,28 @@ function send(path: string, method = 'GET', target: ListeningApiServer = listeni
 beforeAll(async () => {
   fixtures = await createApiFixtures();
   listening = await startApiServer(fixtures.app);
+
+  // A merged-away id, because the 301 it produces is the one response on this
+  // surface whose meaning lives in a HEADER rather than in the body, and a
+  // status line the transport rewrote or a `location` it dropped would leave a
+  // client following nothing.
+  merged = await fixtures.store.upsertEntity({
+    vertical_id: fixtures.vertical.id,
+    entity_type: 'equipment',
+    canonical_name: 'Carrier Infinity 24ANB7 (duplicate)',
+    canonical_slug: 'carrier-infinity-24anb7-transport-dup',
+    status: 'ACTIVE',
+    quality_score: entityQualityScore(0.4),
+    first_seen_at: ts('2026-01-01T00:00:00Z'),
+    last_verified_at: null,
+  });
+  await fixtures.store.mergeEntities({
+    from_entity_id: merged.id,
+    to_entity_id: fixtures.equipment.id,
+    reason: 'MERGE',
+    from_slug: merged.canonical_slug,
+    judgment_id: null,
+  });
 }, 300_000);
 
 afterAll(async () => {
@@ -102,9 +130,36 @@ describe('the node:http adapter', () => {
   });
 
   it('does not follow its own redirects — the 301 reaches the client', async () => {
+    // The name of this test was right and its assertion was about something
+    // else entirely: it fetched an unrouted path and checked for a 404, which
+    // is a routing property with no redirect in it (that check now lives below,
+    // under its own name). What it claimed to cover is this — the adapter
+    // hands a merged-away id's 301 to the client rather than resolving it
+    // internally and answering 200 with the surviving entity, which would make
+    // a merge invisible to exactly the consumer that needs to see it.
+    //
+    // `node:http` does not follow redirects on its own, unlike `fetch`, so what
+    // arrives here is what the adapter actually sent.
+    const response = await send(`/v1/entities/${merged.id}`);
+    expect(response.status).toBe(301);
+    expect(response.headers['location']).toBe(`/v1/entities/${fixtures.equipment.id}`);
+    // The hop chain is in the body, for a client that does not follow it.
+    expect(JSON.parse(response.body)).toMatchObject({
+      redirect: {
+        status: 301,
+        location: `/v1/entities/${fixtures.equipment.id}`,
+        canonicalEntityId: fixtures.equipment.id,
+      },
+    });
+    expect(Number(response.headers['content-length'])).toBe(Buffer.byteLength(response.body));
+  });
+
+  it('carries a routing failure over the wire as the envelope, not a socket error', async () => {
     const response = await send('/v1/nope');
     expect(response.status).toBe(404);
-    expect(JSON.parse(response.body)).toMatchObject({ error: { code: 'ROUTE_NOT_FOUND' } });
+    expect(JSON.parse(response.body)).toMatchObject({
+      error: { code: 'ROUTE_NOT_FOUND', status: 404 },
+    });
   });
 
   it('reports a malformed percent-escape as the client’s error, not the server’s', async () => {
