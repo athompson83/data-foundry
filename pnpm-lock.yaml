@@ -45,6 +45,10 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
 
+  apps/api: {}
+
+  apps/mcp: {}
+
   packages/acquisition:
     dependencies:
       '@data-foundry/canonical-schema':
@@ -129,6 +133,24 @@ importers:
       zod:
         specifier: ^4.4.3
         version: 4.4.3
+
+  services/export-builder:
+    dependencies:
+      '@data-foundry/canonical-schema':
+        specifier: workspace:*
+        version: link:../../packages/canonical-schema
+      '@data-foundry/canonical-store':
+        specifier: workspace:*
+        version: link:../../packages/canonical-store
+      '@data-foundry/provenance':
+        specifier: workspace:*
+        version: link:../../packages/provenance
+      '@data-foundry/query-model':
+        specifier: workspace:*
+        version: link:../../packages/query-model
+      '@data-foundry/source-registry':
+        specifier: workspace:*
+        version: link:../../packages/source-registry
 
   services/ingest-worker:
     dependencies:
