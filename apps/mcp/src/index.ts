@@ -72,3 +72,12 @@ export {
   reviewerTokens,
   reviewersIn,
 } from './guard.js';
+
+export { TOOLS, TOOL_NAMES, type ToolContext, type ToolDefinition } from './tools.js';
+
+export {
+  createMcpServer,
+  type McpServer,
+  type McpServerOptions,
+  type ToolDeclaration,
+} from './server.js';
