@@ -119,25 +119,58 @@ const VALUE_TYPES: readonly string[] = [
   'object',
 ];
 
-const TRANSFORM_KINDS: readonly string[] = [
-  'trim',
-  'collapse_whitespace',
-  'unicode_nfkc',
-  'normalize_punctuation',
-  'decode_html_entities',
-  'case',
-  'strip_characters',
-  'replace',
-  'number',
-  'quantity',
-  'boolean',
-  'date',
-  'datetime',
-  'integer',
-  'round',
-  'range',
-  'vocabulary',
-];
+/** A transform name the pipeline actually dispatches. */
+export type TransformKind = TransformSpec['kind'];
+
+/**
+ * The value-transform vocabulary, tied to `TransformSpec` by the type system
+ * rather than by a promise in a comment.
+ *
+ * This used to be a hand-written `readonly string[]` sitting next to the union
+ * it was supposed to mirror, with nothing checking that it did. Declaring it as
+ * a total `Record<TransformKind, true>` makes both directions of drift a
+ * compile error: a variant added to `TransformSpec` without a key here is a
+ * missing property, and a key here that no variant declares is an excess one.
+ * `applyTransform`'s switch is exhaustive over the same union (it has no
+ * `default`, so a missing case fails `noImplicitReturns`), which chains the
+ * three together — vocabulary, union and dispatch cannot disagree.
+ */
+const TRANSFORM_KIND_MEMBERSHIP: Readonly<Record<TransformKind, true>> = {
+  trim: true,
+  collapse_whitespace: true,
+  unicode_nfkc: true,
+  normalize_punctuation: true,
+  decode_html_entities: true,
+  case: true,
+  strip_characters: true,
+  replace: true,
+  number: true,
+  quantity: true,
+  boolean: true,
+  date: true,
+  datetime: true,
+  integer: true,
+  round: true,
+  range: true,
+  vocabulary: true,
+};
+
+/**
+ * The value transforms this package implements, for anything that has to check
+ * a vertical's declaration before a pipeline run.
+ *
+ * This is the property/value stage vocabulary (doc 06 layers 1, 2 and 4). It is
+ * NOT the identifier-op vocabulary that the ingest worker dispatches for alias
+ * join keys: those are different names for a different stage, and a checker
+ * that pooled the two would accept `left_pad` as a value transform.
+ */
+export const TRANSFORM_KINDS: readonly TransformKind[] = Object.keys(
+  TRANSFORM_KIND_MEMBERSHIP,
+) as readonly TransformKind[];
+
+/** Narrowing membership test over the same table `TRANSFORM_KINDS` is built from. */
+export const isTransformKind = (name: string): name is TransformKind =>
+  Object.prototype.hasOwnProperty.call(TRANSFORM_KIND_MEMBERSHIP, name);
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -226,7 +259,7 @@ export function parseNormalizationRuleSet(
           throw new NormalizationRuleSetError('must be an object with a kind', transformPath);
         }
         const kind = transform['kind'];
-        if (!TRANSFORM_KINDS.includes(kind)) {
+        if (!isTransformKind(kind)) {
           throw new NormalizationRuleSetError(`unknown transform kind ${kind}`, transformPath);
         }
         if (kind === 'vocabulary') {
