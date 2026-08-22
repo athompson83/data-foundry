@@ -50,7 +50,15 @@ export {
   type FixtureBinding,
   type FixtureManifestResult,
 } from './fixtures.js';
-export { AliasNormalizer, slugify, upcMod10, type AliasNormalizationRule } from './identifiers.js';
+export {
+  AliasNormalizer,
+  IDENTIFIER_OPS,
+  isIdentifierOp,
+  slugify,
+  upcMod10,
+  type AliasNormalizationRule,
+  type IdentifierOp,
+} from './identifiers.js';
 export {
   DEFAULT_MAX_ATTEMPTS,
   IngestionJobStore,

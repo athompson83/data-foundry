@@ -100,46 +100,78 @@ export class AliasNormalizer {
   }
 }
 
+/** One implemented identifier op: the working value, plus the declared op node. */
+type IdentifierOpHandler = (value: string, op: Yaml) => string;
+
+/**
+ * The identifier-op vocabulary **is** this table.
+ *
+ * `IDENTIFIER_OPS` below is derived from these keys rather than written out
+ * beside them, and that is the whole point. A second, hand-maintained copy of
+ * the op list — in the CI validator, say — is the same class of bug as the one
+ * this vocabulary exists to catch: it drifts the first time someone adds an op,
+ * and then either rejects a working config or waves a broken one through.
+ * Adding an op here, and only here, updates the exported vocabulary, the
+ * `verticals:validate` gate that imports it, and the error message below, all
+ * at once.
+ */
+const IDENTIFIER_OP_HANDLERS = {
+  uppercase: (value: string): string => applyCase(value, 'upper'),
+  lowercase: (value: string): string => applyCase(value, 'lower'),
+  title_case: (value: string): string => applyCase(value, 'title'),
+  collapse_whitespace: (value: string): string => collapseWhitespace(value),
+  // Trim, not "delete every space". Interior spaces are removed by the
+  // `strip_characters` op, whose character class names the space explicitly —
+  // reading this as a global delete would silently turn the declared
+  // `series_name` key "Comfort 16" into "Comfort16".
+  strip_whitespace: (value: string): string => value.trim(),
+  strip_characters: (value: string, op: Yaml): string =>
+    stripCharacters(value, String(op.characters ?? '')),
+  strip_non_digits: (value: string): string => value.replace(/\D+/g, ''),
+  strip_prefix: (value: string, op: Yaml): string => {
+    for (const prefix of op.prefixes ?? []) {
+      const candidate = String(prefix);
+      if (candidate !== '' && value.startsWith(candidate)) return value.slice(candidate.length);
+    }
+    return value;
+  },
+  left_pad: (value: string, op: Yaml): string => {
+    const length = Number(op.length ?? 0);
+    const character = String(op.character ?? '0');
+    return value.length >= length ? value : value.padStart(length, character);
+  },
+  unicode_normalize: (value: string): string => normalizeUnicode(value),
+} satisfies Record<string, IdentifierOpHandler>;
+
+/** An op name this module actually implements. */
+export type IdentifierOp = keyof typeof IDENTIFIER_OP_HANDLERS;
+
+/**
+ * The identifier ops the ingest worker implements, for anything that has to
+ * check a vertical's declaration *before* ingestion runs.
+ *
+ * This is the alias/join-key stage vocabulary (doc 06 layer 3). It is NOT the
+ * value-transform vocabulary — `@data-foundry/normalization`'s `TRANSFORM_KINDS`
+ * is a different stage with different names, and a checker that pooled the two
+ * would accept `round` as an identifier op and `left_pad` as a value transform.
+ */
+export const IDENTIFIER_OPS: readonly IdentifierOp[] = Object.keys(
+  IDENTIFIER_OP_HANDLERS,
+) as readonly IdentifierOp[];
+
+/** Narrowing membership test over the same table `applyOp` dispatches on. */
+export const isIdentifierOp = (name: string): name is IdentifierOp =>
+  Object.prototype.hasOwnProperty.call(IDENTIFIER_OP_HANDLERS, name);
+
 function applyOp(value: string, op: Yaml): string {
   const kind = String(op.op);
-  switch (kind) {
-    case 'uppercase':
-      return applyCase(value, 'upper');
-    case 'lowercase':
-      return applyCase(value, 'lower');
-    case 'title_case':
-      return applyCase(value, 'title');
-    case 'collapse_whitespace':
-      return collapseWhitespace(value);
-    case 'strip_whitespace':
-      // Trim, not "delete every space". Interior spaces are removed by the
-      // `strip_characters` op, whose character class names the space
-      // explicitly — reading this as a global delete would silently turn the
-      // declared `series_name` key "Comfort 16" into "Comfort16".
-      return value.trim();
-    case 'strip_characters':
-      return stripCharacters(value, String(op.characters ?? ''));
-    case 'strip_non_digits':
-      return value.replace(/\D+/g, '');
-    case 'strip_prefix': {
-      for (const prefix of op.prefixes ?? []) {
-        const candidate = String(prefix);
-        if (candidate !== '' && value.startsWith(candidate)) return value.slice(candidate.length);
-      }
-      return value;
-    }
-    case 'left_pad': {
-      const length = Number(op.length ?? 0);
-      const character = String(op.character ?? '0');
-      return value.length >= length ? value : value.padStart(length, character);
-    }
-    case 'unicode_normalize':
-      return normalizeUnicode(value);
-    default:
-      throw new PipelineConfigurationError(
-        `identifier op "${kind}" is declared by the vertical but not implemented by the ingest worker`,
-      );
+  if (!isIdentifierOp(kind)) {
+    throw new PipelineConfigurationError(
+      `identifier op "${kind}" is declared by the vertical but not implemented by the ingest worker`,
+    );
   }
+  const handler: IdentifierOpHandler = IDENTIFIER_OP_HANDLERS[kind];
+  return handler(value, op);
 }
 
 /**
