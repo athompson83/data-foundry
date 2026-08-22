@@ -106,21 +106,44 @@ restricts the branch, not that the right thing does. It cannot tell you the
 ruleset targets `main`, that every rule above is present, that enforcement is
 `active` rather than `evaluate`, or who can bypass it.
 
-So verify against the ruleset payload itself:
+So verify against the ruleset payload itself — and enumerate **completely**,
+because a partial enumeration produces a confident false green:
 
-- [ ] `GET /repos/athompson83/data-foundry/rulesets` — capture the list **before**
-      creating anything, so "there was nothing here" is on the record
+- [ ] `GET /repos/athompson83/data-foundry/rulesets?includes_parents=true&per_page=100`
+      — capture the list **before** creating anything, so "there was nothing
+      here" is on the record. Two things this must not skip:
+  - [ ] **Pagination.** Follow the `Link: rel="next"` header until it is absent.
+        A ruleset on page 2 is a ruleset you did not check.
+  - [ ] **Inherited organisation-level rulesets.** `includes_parents=true` is
+        what surfaces them. A repository-scoped listing can be empty while an
+        org ruleset governs the branch — and an org ruleset can also *add* a
+        bypass actor that no repository payload mentions.
+- [ ] Cross-check with `GET /repos/athompson83/data-foundry/rules/branches/main`,
+      which resolves everything that actually applies to `main` from every
+      source. Note its documented blind spot: it omits rules from rulesets in
+      `disabled` or `evaluate` enforcement, so it complements the ruleset
+      listing rather than replacing it.
 - [ ] After creating it, `GET /repos/athompson83/data-foundry/rulesets/{id}` and
       confirm, field by field:
-  - [ ] `target: "branch"` and the condition includes `~DEFAULT_BRANCH`
-  - [ ] `enforcement: "active"` — **not** `evaluate`, which reports without
-        blocking and looks identical from the outside
+  - [ ] **Target matching.** `target: "branch"`, and
+        `conditions.ref_name.include` contains `~DEFAULT_BRANCH` (or
+        `refs/heads/main`) with nothing in `exclude` that cancels it. A ruleset
+        that targets `~ALL` and excludes `main`, or targets a pattern that does
+        not match, is active and irrelevant.
+  - [ ] **Enforcement mode.** `enforcement: "active"` — **not** `"evaluate"`,
+        which reports without blocking and is indistinguishable from active in
+        every UI summary, and not `"disabled"`.
   - [ ] `rules` contains `deletion`, `non_fast_forward`, `pull_request` (with
         `required_approving_review_count: 0` and
         `required_review_thread_resolution: true`), and
         `required_status_checks` naming **both** job names exactly
-  - [ ] `bypass_actors` contains only what you intended — an unnoticed bypass
-        entry is the difference between a rule and a decoration
+  - [ ] **Every bypass actor, by type.** `bypass_actors` is a list of typed
+        entries, and each type is a different set of people:
+        `OrganizationAdmin`, `RepositoryRole` (which role id?), `Team`,
+        `Integration` (a GitHub App — this is how a bot silently gains bypass),
+        and `DeployKey`. Check `bypass_mode` on each too: `always` versus
+        `pull_request` are very different permissions. An unnoticed entry is the
+        difference between a rule and a decoration.
 - [ ] Open a throwaway pull request **from an account that is not on the bypass
       list**, and confirm it cannot merge while checks are pending. If no such
       account exists, record explicitly that the check was performed as an admin

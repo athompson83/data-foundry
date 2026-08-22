@@ -23,11 +23,23 @@
 #      packet, section 1a.
 #   3. Record a real robots snapshot for the host being fetched.
 #   4. git mv this file into verticals/hvac/sources/.
-#   5. Change status. Nothing automates this, and it is two steps:
-#        UNDER_REVIEW -> APPROVED  (acquirable, still not publishable — this is
-#                                   where the first bounded run belongs)
-#        APPROVED     -> ACTIVE    (only once the activation gate passes and the
-#                                   vertical intends to publish from it)
+#   5. Change status. Nothing automates this. The lifecycle is:
+#
+#        UNDER_REVIEW -> APPROVED -> bounded acquisition into quarantine
+#                     -> validation -> ACTIVE
+#
+#      APPROVED authorises CONTROLLED FETCHING ONLY. It does not authorise
+#      publication, downstream indexing or entity resolution, customer access,
+#      or use as corroborating evidence for any other source — an APPROVED
+#      source is unvalidated by definition, and corroboration from unvalidated
+#      data is confidence manufactured out of nothing.
+#
+#      The bounded run writes to a non-publishing quarantine path and records
+#      request parameters, response metadata, row count, schema observations,
+#      the source-policy snapshot, artifact digests, and the validation outcome.
+#      ACTIVE only after that artifact proves the real acquisition path behaved
+#      within the documented rights and governance constraints.
+#
 #      Going straight to ACTIVE skips the state whose whole purpose is
 #      "acquired, not yet published".
 #   6. Run pnpm verticals:validate && pnpm sources:readiness.

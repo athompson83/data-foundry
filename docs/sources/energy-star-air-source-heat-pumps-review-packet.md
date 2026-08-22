@@ -93,7 +93,7 @@ is required** on whether mini-splits are in or out. **[REVIEWER]**
 
 | # | Question | Field | Evidence | Proposed answer |
 | --- | --- | --- | --- | --- |
-| 1 | May we acquire it this way at all? | `acquisition_policy.method` | `robots.txt` sets `Crawl-delay: 1`, disallows faceted query patterns under `/browse`, `/page`, `/catalog` and `/facet`, **and disallows `/api/odata/` and `/OData.svc/` outright**. `/resource/` and `/api/views/` are not disallowed **[VERIFIED]** — see §7 | `VENDOR_API` via SODA `/resource/`. **Not OData** |
+| 1 | May we acquire it this way at all? | `acquisition_policy.method` | robots **disallows** `/api/odata/` and `/OData.svc/`, and **does not disallow** `/resource/` or `/api/views/` **[VERIFIED]** — §7. Terms, licence scope, rate limits and redistribution constraints are **[UNVERIFIED]** — §7a | SODA `/resource/`, **not OData** — *proposed*, not authorised. Robots not disallowing a route is not a grant |
 | 2 | May we use it commercially? | `commercial_use_allowed` | EPA licence: *"all data produced by the U.S EPA is by default in the public domain and is not subject to domestic copyright protection under 17 U.S.C. § 105"* **[VERIFIED]** | Yes for EPA-produced content; see §4 for the submitted-content question **[REVIEWER]** |
 | 3 | May we redistribute it? | `redistribution_allowed` | Public domain implies redistribution. No attribution condition is stated in the licence **[VERIFIED]** | Yes **[REVIEWER]** |
 | 4 | May we normalize and derive from it? | `derivative_normalization_allowed` | Public domain; no derivative restriction stated **[VERIFIED]** | Yes **[REVIEWER]** |
@@ -244,20 +244,76 @@ registration step for a person, not an agent. **[REVIEWER]**
 | Embeds and internals | `/browse/embed`, `/tiles/`, `/*/*/*/widget_preview`, `*/alt`, `*/edit`, `/views/INLINE/rows.json?*method=clustered2*`, `/api/collocate*` | No |
 | Auth | `/login`, `/reset_password/` | No |
 
-**The correction this forced.** An earlier draft of this packet said robots
-"disallows only faceted `/browse` patterns" and that "`/api/` is not
-disallowed". Both were wrong. `/api/odata/` and `/OData.svc/` are disallowed
-explicitly — and OData is the access route the vendor's own documentation
-promotes for this data. The route that is *not* disallowed is the SODA path,
-`/resource/{id}.json`, along with `/api/views/{id}.json` for metadata.
+**Group structure and precedence — [VERIFIED].** The snapshot contains exactly
+**one** `User-agent` group (`*`), carrying `Crawl-delay: 1` and **54 `Disallow`
+lines with zero `Allow` lines**. Allow-versus-Disallow precedence therefore does
+not arise *in this snapshot* — there is nothing to take precedence over. That is
+a fact about this file on this date, not a general property, which is exactly
+why the digest below matters: an `Allow` line in a future revision would change
+the analysis and must re-open it.
 
-So the acquisition method is SODA, and **OData is off the table for automated
-access** — not because it does not work, but because `robots.txt` says not to.
-Recording `disallowed_paths: ['/browse']` would have been a summary that
-happened to permit the one thing the file forbids.
+There is **no** blanket `Disallow: /` and no second group.
 
-There is **no** blanket `Disallow: /` in this file. The recorded
-`max_requests_per_minute` should be **60 or lower** to honour the crawl delay.
+**Route-level check — [VERIFIED].** Each candidate path evaluated against all 54
+rules, with `*` as wildcard and `$` as anchor:
+
+| Path | Result |
+| --- | --- |
+| `/resource/83eb-xbyy.json` | no rule matches |
+| `/resource/83eb-xbyy.csv` | no rule matches |
+| `/api/views/83eb-xbyy.json` | no rule matches |
+| `/api/odata/v4/83eb-xbyy` | **`Disallow: /api/odata/`** |
+| `/OData.svc/83eb-xbyy` | **`Disallow: /OData.svc/`** |
+
+**What this does and does not establish.** It establishes that the exact route we
+would use is not disallowed by this snapshot. It establishes **nothing** about
+whether we are authorised to use it. Robots is one input among several, and the
+absence of a prohibition is not a grant. §7a is the rest of the question, and it
+is unfinished.
+
+**The correction this forced.** An earlier draft said robots "disallows only
+faceted `/browse` patterns" and that "`/api/` is not disallowed". Both were
+wrong, and OData is the route the vendor's own documentation promotes for this
+data. **Any earlier statement, artifact or documentation in this repository that
+assumed OData was permitted is superseded by this section.** An audit for
+OData-derived material found none: every occurrence of the string in the tree is
+prose describing the prohibition, and the one committed sample was retrieved from
+`/resource/`, recorded in `docs/sources/evidence/README.md` with its digest.
+**[VERIFIED]**
+
+The recorded `max_requests_per_minute` should be **60 or lower** to honour the
+crawl delay.
+
+---
+
+## 7a. What must be established before the first request — **[UNVERIFIED]**
+
+Robots clears one obstacle. These are the others, and none is done. This section
+gates the bounded run in §13; it is not a formality.
+
+- [ ] **Applicable API terms.** Socrata operates the platform, EPA publishes the
+      data. Whose terms govern an anonymous SODA request, and do they constrain
+      automated or bulk retrieval? Not established.
+- [ ] **Licence scope over submitted content** — §4, whether EPA's public-domain
+      assertion reaches partner- and CB-submitted values.
+- [ ] **Attribution and redistribution constraints** beyond the licence text in §3.
+- [ ] **Rate limits. [VERIFIED: not discoverable from the endpoint.]** A request
+      to `/resource/83eb-xbyy.json?$limit=1` returns no `X-RateLimit-*` and no
+      `Retry-After` — only `X-Socrata-Region` and `X-Socrata-RequestId`. The
+      applicable limit must come from the vendor's published documentation, read
+      by a person. Inferring it from one successful request is how a bounded run
+      becomes an incident.
+- [ ] **Re-confirm the route against a fresh robots snapshot** immediately before
+      the run, comparing the digest to
+      `a6c856352c621a97f9fcfb2b212d4fc530169b319c9e7b49fc2e6299d736c7a2`
+      (retrieved 2026-08-22T00:40:01Z). A changed digest re-opens §7 entirely.
+- [ ] **Re-confirm no OData-derived artifact** has entered fixtures, caches,
+      generated output or provenance records. Clean as of this packet.
+
+**A caution about one metadata field.** The asset carries `"rights": ["read"]`.
+**[VERIFIED]** That is Socrata's portal permission model — what an anonymous
+visitor may do on the site — and it is **not** a licence grant. It must not be
+cited as one.
 
 ---
 
@@ -385,18 +441,41 @@ invent a fact that the source does not contain. **[REVIEWER]**
    `reviewed_at`, `next_review_at`, and `acquisition_policy.approved`.
 3. Only then does the declaration move into `verticals/hvac/sources/`, where the
    loader can see it and the gates can evaluate it.
-4. **The status transition, which nothing automates.** `UNDER_REVIEW` is not in
+4. **The status transitions, which nothing automates.** `UNDER_REVIEW` is not in
    `ACQUIRABLE_STATUSES`, so the declaration does nothing until a person changes
-   it — and it is two steps, not one:
-   - `UNDER_REVIEW` → **`APPROVED`**, which `evaluateAcquisitionGate` accepts.
-     A source may be fetched and analysed internally at this point and still not
-     publish. This is where the first bounded run belongs.
-   - `APPROVED` → **`ACTIVE`**, only once `evaluateSourceActivationGate` passes
-     and the vertical actually intends to publish from it.
+   it. Going straight to `ACTIVE` would skip the state whose entire purpose is
+   "acquired, not yet published":
 
-   Going straight to `ACTIVE` would skip the state whose entire purpose is
-   "acquired, not yet published".
-5. Only then is a bounded first acquisition run — a sample, not 281,828 rows.
+   ```text
+   UNDER_REVIEW → APPROVED → bounded acquisition into quarantine → validation → ACTIVE
+   ```
+
+5. **What `APPROVED` authorises, exactly.** Controlled fetching. Nothing else.
+   It does **not** authorise:
+   - publication to any surface — web, REST, MCP, bulk export;
+   - downstream indexing, entity resolution into the canonical store, or
+     inclusion in a dataset snapshot;
+   - customer access of any kind;
+   - **use as corroborating evidence** for any other source. An APPROVED source
+     is unvalidated by definition, and corroboration from unvalidated data is
+     confidence manufactured out of nothing.
+
+   The gates already separate these: `evaluateAcquisitionGate` accepts
+   `APPROVED`, while `evaluateSourcePublishGate` requires `ACTIVE`. The list
+   above is what that separation is *for*, written down so nobody has to infer
+   it from a status enum.
+
+6. **The bounded run writes to quarantine, not to the store.** A sample, not
+   281,828 rows, landing on a non-publishing path. The run must record:
+   request parameters and the exact URL; response status and headers; row count;
+   observed schema against §11; the source-policy snapshot the gate produced;
+   content digests of every artifact; and the validation outcome.
+
+7. **`APPROVED` → `ACTIVE` only after that artifact proves the real acquisition
+   path behaved** within the documented rights and governance constraints —
+   §7a resolved, the gate refusing what it should, and the observed data
+   matching what the packet predicted. Promotion is a decision made *about
+   evidence that now exists*, not about an expectation.
 
 Until step 2, the file in `docs/sources/proposed/` is deliberately outside the
 loader's reach. It cannot be ingested by any code path, because it is not
