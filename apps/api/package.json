@@ -1,0 +1,18 @@
+{
+  "name": "@data-foundry/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Read-only REST surface over the canonical query layer. Routing and serialization only; it owns no business logic (AGENTS.md rule 5).",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "types": "./src/index.ts",
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "test": "vitest run --root .",
+    "typecheck": "tsc -p tsconfig.json"
+  }
+}
