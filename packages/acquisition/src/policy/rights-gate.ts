@@ -198,16 +198,24 @@ export function assertAcquisitionAllowed(input: AcquisitionGateInput): Acquisiti
 /**
  * Proof that the gate ran and allowed the fetch.
  *
- * The brand is a `unique symbol` that is declared but never exported, so this
- * type cannot be produced anywhere except by {@link requireAcquisitionAllowed}
- * below. `TransportContext` requires one, which means a provider's transport
- * cannot be called at all without a value only the gate can mint.
+ * **What this does guarantee.** The brand is a `unique symbol` declared and
+ * never exported, so the type cannot be *constructed* — no object literal, no
+ * spread, no structural match produces one. `TransportContext` requires it, so
+ * removing `requireAcquisitionAllowed` from `BaseAcquisitionProvider.fetch`
+ * fails the build rather than silently opening a hole. That is the failure this
+ * was built for: the invariant used to rest on one hand-written line, deleting
+ * it compiled cleanly, and the fetch proceeded.
  *
- * This exists because the invariant used to rest on a single hand-written line:
- * `if (!gate.allowed) throwGateRefusal(entry, gate)`. Deleting that line
- * compiled cleanly, and the fetch proceeded. A control whose removal is not a
- * type error is a control that will eventually be removed by someone tidying
- * up, and the tests that would have caught it are the ones nobody wrote.
+ * **What it does not guarantee.** It is not unforgeable. The type is exported,
+ * so any TypeScript caller can write `result as AllowedAcquisition`, and a
+ * caller willing to also cast past `protected` could hand that to `transport`.
+ * A type assertion is not something a type system can prevent — claiming
+ * otherwise would be overstating the control, which is worse than a weaker
+ * control honestly described.
+ *
+ * What closes that gap inside this repository is a scan, not a type:
+ * `packages/acquisition/test/boundary.test.ts` permits the
+ * `as AllowedAcquisition` assertion in exactly one place — the function below.
  */
 declare const ACQUISITION_ALLOWED: unique symbol;
 export type AllowedAcquisition = AcquisitionGateResult & {

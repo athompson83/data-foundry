@@ -1,5 +1,5 @@
 import type { AcquisitionMethod } from '@data-foundry/source-registry';
-import { ProviderTransportError } from '../errors.js';
+import { AcquisitionRefusedError, ProviderTransportError } from '../errors.js';
 import type { ProviderTransportResult } from '../types.js';
 import {
   headersToRecord,
@@ -61,11 +61,41 @@ export class HttpAcquisitionProvider extends BaseAcquisitionProvider {
     const response = await this.#fetch(request.url, {
       method: request.method ?? 'GET',
       headers: { ...context.headers },
+      // Never delegate this to the runtime default, which is 'follow'.
+      redirect: 'manual',
       ...(request.body !== undefined ? { body: request.body } : {}),
       ...(signal !== undefined ? { signal } : {}),
     });
 
     const headers = headersToRecord(response.headers);
+
+    // A redirect is a second request to a host the gate never saw. Following it
+    // would contact a URL nothing authorised, and would then store the bytes
+    // under `request.url` — attributing one host's content to another, which is
+    // a provenance defect on top of a rights one.
+    //
+    // Following safely means re-running the entire gate per hop: rights,
+    // robots, source scope, rate limit, policy snapshot. That machinery is in
+    // the base class, not here. Until it exists, refuse and name the host.
+    // 304 is deliberately excluded — it shares the 3xx range and is the whole
+    // point of conditional requests.
+    if (response.status >= 300 && response.status < 400 && response.status !== 304) {
+      const location = headers['location'] ?? null;
+      throw new AcquisitionRefusedError({
+        sourceKey: context.entry.key,
+        url: request.url,
+        blockers: [
+          {
+            code: 'REDIRECT_NOT_GATED',
+            message:
+              `${request.url} answered ${response.status} redirecting to ` +
+              `${location ?? '(no Location header)'}. The acquisition gate cleared the ` +
+              `original URL only, so the destination is unauthorised. Declare it as a ` +
+              `source URL if it should be fetched.`,
+          },
+        ],
+      });
+    }
 
     // A 304 is the point of conditional requests: no body, nothing to store, and
     // the previous artifact remains the current evidence.

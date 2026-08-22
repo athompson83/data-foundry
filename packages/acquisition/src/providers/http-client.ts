@@ -13,6 +13,15 @@ export interface HttpRequestInit {
   readonly headers?: Record<string, string> | undefined;
   readonly body?: string | undefined;
   readonly signal?: AbortSignal | undefined;
+  /**
+   * Redirect handling. Providers pass `'manual'`.
+   *
+   * Without this field the interface could not express a redirect policy, so
+   * the ambient `fetch` used its default — `'follow'` — and a permitted URL
+   * answering 302 would have the client contact whatever host the `Location`
+   * named. The gate sees one URL; the process would contact two.
+   */
+  readonly redirect?: 'follow' | 'manual' | 'error' | undefined;
 }
 
 export interface HttpHeadersLike {

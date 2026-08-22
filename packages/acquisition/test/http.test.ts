@@ -137,3 +137,93 @@ describe('HTTP acquisition provider', () => {
     expect((await provider.fetch(makeRequest())).artifacts[0]?.url).toBe(TARGET_URL);
   });
 });
+
+/**
+ * A redirect is a second request to a host the gate never saw.
+ *
+ * `evaluateAcquisitionGate` checks the URL it is given. The ambient `fetch`
+ * defaults to `redirect: 'follow'`, and `HttpRequestInit` had no field with
+ * which to say otherwise — so a permitted source could answer 302 and the
+ * client would go on to contact whatever host the `Location` header named,
+ * including one refused by name in platform code. The gate would have allowed
+ * exactly one URL and the process would have contacted two.
+ *
+ * The stored artifact compounds it: `request.url` is recorded as the source of
+ * the bytes, so evidence would attribute a prohibited host's content to a
+ * permitted one. That is a rule-10 defect sitting on top of a rights defect.
+ *
+ * Following redirects safely means re-running the whole gate per hop — rights,
+ * robots, scope, rate limit, policy snapshot — and that machinery lives in the
+ * base class, not here. Until it exists, the honest behaviour is to refuse and
+ * say which host was proposed.
+ */
+describe('a redirect is refused rather than followed', () => {
+  const REDIRECT_TARGET = 'https://www.carrier.com/manuals/index.json';
+
+  const redirectingFetch = (status: number, location: string | null) =>
+    stubFetch(() => ({
+      status,
+      headers: location === null ? {} : { location },
+      body: '',
+    }));
+
+  it('asks the client not to follow in the first place', async () => {
+    const net = stubFetch(() => ({ status: 200, headers: {}, body: '{}' }));
+    const harness = makeHarness();
+    const provider = new HttpAcquisitionProvider({ deps: harness.deps, fetch: net.fetch });
+    await provider.fetch(makeRequest());
+    // Belt: the transport must not delegate the decision to the runtime default.
+    expect(net.calls[0]?.init?.redirect).toBe('manual');
+  });
+
+  it('refuses a redirect to a prohibited host without contacting it', async () => {
+    const net = redirectingFetch(302, REDIRECT_TARGET);
+    const harness = makeHarness();
+    const provider = new HttpAcquisitionProvider({ deps: harness.deps, fetch: net.fetch });
+
+    await expect(provider.fetch(makeRequest())).rejects.toThrow(/redirect/i);
+
+    // Braces: exactly one request, and it was to the gated URL.
+    expect(net.calls.length).toBe(1);
+    expect(net.calls[0]?.url).toBe(TARGET_URL);
+    expect(net.calls.some((call) => call.url.includes('carrier.com'))).toBe(false);
+  });
+
+  it('names the host it was asked to contact', async () => {
+    const net = redirectingFetch(301, REDIRECT_TARGET);
+    const harness = makeHarness();
+    const provider = new HttpAcquisitionProvider({ deps: harness.deps, fetch: net.fetch });
+    await expect(provider.fetch(makeRequest())).rejects.toThrow(/www\.carrier\.com/);
+  });
+
+  it('refuses every redirect status, not only the prohibited destination', async () => {
+    // The refusal is not "that host is prohibited" — it is "the gate has not
+    // seen this URL". A redirect to an innocuous host is equally ungated.
+    for (const status of [301, 302, 303, 307, 308]) {
+      const net = redirectingFetch(status, 'https://elsewhere.example.org/x.json');
+      const harness = makeHarness();
+      const provider = new HttpAcquisitionProvider({ deps: harness.deps, fetch: net.fetch });
+      await expect(provider.fetch(makeRequest()), `status ${status}`).rejects.toThrow(/redirect/i);
+      expect(net.calls.length, `status ${status}`).toBe(1);
+    }
+  });
+
+  it('refuses a 3xx with no Location rather than treating it as a body', async () => {
+    const net = redirectingFetch(302, null);
+    const harness = makeHarness();
+    const provider = new HttpAcquisitionProvider({ deps: harness.deps, fetch: net.fetch });
+    await expect(provider.fetch(makeRequest())).rejects.toThrow(/redirect/i);
+  });
+
+  it('still passes a 304 through, which is not a redirect', async () => {
+    // Guards the fix: 304 shares the 3xx range and is the whole point of
+    // conditional requests. Refusing it would break incremental refresh.
+    const net = stubFetch(() => ({ status: 304, headers: {}, body: '' }));
+    const harness = makeHarness();
+    const provider = new HttpAcquisitionProvider({ deps: harness.deps, fetch: net.fetch });
+    const result = await provider.fetch(makeRequest());
+    // The conditional path stores nothing and says so in diagnostics.
+    expect(result.artifacts).toEqual([]);
+    expect(result.diagnostics.join(' ')).toMatch(/304/);
+  });
+});

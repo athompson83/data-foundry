@@ -47,6 +47,9 @@ const DOMAIN_ALLOWLIST: readonly string[] = [
   'packages/source-registry/src/prohibited-sources.ts',
   'packages/source-registry/test/prohibited-sources.test.ts',
   'packages/acquisition/test/rights-gate.test.ts',
+  // Proves a redirect to a prohibited host is refused. Its central assertion is
+  // that no request ever reaches that host, so naming it is the point.
+  'packages/acquisition/test/http.test.ts',
   'docs/sources/prohibited-sources.md',
   'tooling/test/repository-policy.test.ts',
 ];

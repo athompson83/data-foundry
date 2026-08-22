@@ -96,21 +96,89 @@ describe('network capability is confined to the gated transport layer', () => {
     }
   });
 
-  it('confines every invocation to a transport method, not merely to the file', () => {
-    // File-level allowlisting would permit a second, ungated entry point inside
-    // an already-allowlisted provider. Every invocation must sit below the
-    // `transport` hook, which cannot be called without the gate's proof.
+  /**
+   * The method enclosing a position, by walking declarations rather than
+   * offsets. Source order is not containment: a `#fetch(` that merely appears
+   * *after* `transport` may sit in a wholly different method, including a
+   * public one.
+   */
+  const METHOD_DECL =
+    /^\s{2}(?:(?:public|private|protected|static|override|async|get|set)\s+)*(#?[A-Za-z_$][\w$]*)\s*[(<]/gm;
+
+  function enclosingMethodOf(code: string, index: number): string | null {
+    let name: string | null = null;
+    METHOD_DECL.lastIndex = 0;
+    for (const match of code.matchAll(METHOD_DECL)) {
+      if (match.index === undefined || match.index > index) break;
+      name = match[1] ?? null;
+    }
+    return name;
+  }
+
+  it('confines every invocation to transport or a #private method', () => {
+    // `#private` is the only boundary that survives compilation: TypeScript
+    // erases `protected`, but an ECMAScript private method genuinely cannot be
+    // called from outside the class. So a transport invocation is safe when it
+    // sits in `transport` itself, or in a private method reachable only from it.
     for (const entry of TRANSPORT_ALLOWLIST) {
       const code = stripComments(readFileSync(join(SRC, entry), 'utf8'));
-      const transportAt = code.search(/protected\s+async\s+transport\s*\(/);
-      expect(transportAt, `${entry} has no transport hook`).toBeGreaterThan(-1);
-      for (const match of code.matchAll(/#fetch\s*\(/g)) {
+      const sites = [...code.matchAll(/#fetch\s*\(/g)];
+      expect(sites.length, `${entry} has no transport invocation`).toBeGreaterThan(0);
+      for (const site of sites) {
+        const method = enclosingMethodOf(code, site.index ?? 0);
         expect(
-          match.index,
-          `${entry}: a transport invocation at ${match.index} precedes the transport hook`,
-        ).toBeGreaterThan(transportAt);
+          method !== null && (method === 'transport' || method.startsWith('#')),
+          `${entry}: a transport invocation sits in ${method ?? 'no method'}, which is ` +
+            `reachable without passing the gate`,
+        ).toBe(true);
       }
     }
+  });
+
+  it('rejects an ungated invocation placed after transport', () => {
+    // The negative fixture the positional check would have waved through: a
+    // PUBLIC method, declared after `transport`, calling the same transport.
+    const smuggled = [
+      'class Sneaky extends BaseAcquisitionProvider {',
+      '  protected async transport(context: TransportContext) {',
+      '    return this.#fetch(context.request.url, {});',
+      '  }',
+      '',
+      '  async peek(url: string) {',
+      '    return this.#fetch(url, {});',
+      '  }',
+      '}',
+    ].join('\n');
+
+    const sites = [...smuggled.matchAll(/#fetch\s*\(/g)];
+    expect(sites.length).toBe(2);
+    const enclosing = sites.map((site) => enclosingMethodOf(smuggled, site.index ?? 0));
+    expect(enclosing).toEqual(['transport', 'peek']);
+    // Positional order would accept both, because `peek` comes after
+    // `transport`. Containment rejects the second, which is the point.
+    const offenders = enclosing.filter(
+      (method) => method === null || (method !== 'transport' && !method.startsWith('#')),
+    );
+    expect(offenders, 'the containment rule must reject a public method').toEqual(['peek']);
+  });
+
+  it('permits the same call from a #private helper', () => {
+    // The counterpart: browser-run legitimately calls #fetch from #call, which
+    // is unreachable from outside the class. Over-tightening to "transport
+    // only" would reject correct code and get the rule switched off.
+    const legitimate = [
+      'class Fine extends BaseAcquisitionProvider {',
+      '  protected async transport(c: TransportContext) {',
+      '    return this.#call(c.request.url);',
+      '  }',
+      '',
+      '  async #call(url: string) {',
+      '    return this.#fetch(url, {});',
+      '  }',
+      '}',
+    ].join('\n');
+    const site = [...legitimate.matchAll(/#fetch\s*\(/g)][0];
+    expect(enclosingMethodOf(legitimate, site?.index ?? 0)).toBe('#call');
   });
 
   it('detects the primitives it claims to detect', () => {
@@ -175,5 +243,45 @@ describe('every provider goes through the base class', () => {
     // context type carries the proof, and the proof is minted by the gate.
     expect(base).toMatch(/readonly allowed:\s*AllowedAcquisition/);
     expect(base).toMatch(/requireAcquisitionAllowed\(/);
+  });
+});
+
+/**
+ * The gap a type system cannot close, closed by a scan instead.
+ *
+ * `AllowedAcquisition` cannot be *constructed* outside `rights-gate.ts` — the
+ * brand symbol is never exported. It can be *asserted*: `result as
+ * AllowedAcquisition` type-checks anywhere the type is imported. No type system
+ * prevents a type assertion, so the honest control is a rule about where that
+ * assertion may appear, enforced here.
+ */
+describe('the gate’s proof is minted in exactly one place', () => {
+  const ASSERTION = /\bas\s+(?:unknown\s+as\s+)?AllowedAcquisition\b/;
+  const MINTING_SITE = 'policy/rights-gate.ts';
+
+  it('permits the assertion only where the gate mints the proof', () => {
+    const offenders = sourceFiles()
+      .filter((file) => rel(file) !== MINTING_SITE)
+      .filter((file) => ASSERTION.test(stripComments(readFileSync(file, 'utf8'))))
+      .map(rel);
+    expect(
+      offenders,
+      'these files assert the gate’s proof without having run the gate',
+    ).toEqual([]);
+  });
+
+  it('mints it exactly once, inside requireAcquisitionAllowed', () => {
+    const code = stripComments(readFileSync(join(SRC, MINTING_SITE), 'utf8'));
+    const assertions = [...code.matchAll(new RegExp(ASSERTION.source, 'g'))];
+    expect(assertions.length, 'more than one mint means more than one way in').toBe(1);
+    const fn = code.indexOf('export function requireAcquisitionAllowed');
+    expect(fn, 'the minting function must exist').toBeGreaterThan(-1);
+    expect(assertions[0]?.index ?? -1).toBeGreaterThan(fn);
+  });
+
+  it('detects the assertion it claims to detect', () => {
+    expect(ASSERTION.test('return result as AllowedAcquisition;')).toBe(true);
+    expect(ASSERTION.test('return x as unknown as AllowedAcquisition;')).toBe(true);
+    expect(ASSERTION.test('const g: AcquisitionGateResult = r;')).toBe(false);
   });
 });

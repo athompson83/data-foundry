@@ -51,6 +51,34 @@ not name is not thereby permitted — it is merely unreviewed, and the rights
 review still has to happen. Nobody should read an empty result from
 `prohibitedSourceFor()` as approval.
 
+## Redirects, and the one path this does not cover
+
+A redirect is a second request to a host the gate never saw. The gate checks the
+URL it is given; the ambient `fetch` defaults to following, so a permitted
+source answering `302 Location: https://www.carrier.com/…` would have had the
+client contact a prohibited host — and then store the bytes under the original
+URL, attributing one host's content to another.
+
+`HttpAcquisitionProvider` now passes `redirect: 'manual'` and **refuses** any
+3xx other than 304, naming the host it was asked to contact. The refusal is not
+"that destination is prohibited" but "the gate has not seen this URL", so a
+redirect to an innocuous host is refused too. Following safely would mean
+re-running the whole gate per hop — rights, robots, scope, rate limit, policy
+snapshot — and that machinery lives in the base class, not the provider. Until
+it exists, refusing is the honest behaviour.
+
+**The residual, stated rather than glossed.** `BrowserRunAcquisitionProvider`
+and `Crawl4AIAcquisitionProvider` do not fetch the target themselves. They POST
+the target URL to a remote service — Cloudflare's API, or a Crawl4AI host — and
+that service performs the retrieval. Our own request goes only to the service.
+**Whether the remote service follows a redirect to a prohibited host is outside
+this process and outside this control.** Neither provider can close that gap
+from here; it would need the service to expose a no-follow option, or a
+post-hoc check on the final URL the service reports. Both providers are
+fixture-backed in every current test and neither is wired into a production
+composition root, so nothing exercises the gap today — but it is a gap, and it
+should be closed before either is used against a real source.
+
 ## Two exclusions the list cannot enforce
 
 The initial exclusions include two that are about **claims**, not about hosts.
