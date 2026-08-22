@@ -92,8 +92,15 @@ describe('the manifest identifies the snapshot', () => {
       'facts',
       'sources',
     ]);
-    expect(result.manifest.record_counts['facts']).toBe(result.rows.length);
+    // `record_counts` counts canonical objects; `files[].rows` counts lines.
+    // They coincide only while every exported property has a selected value.
+    expect(result.manifest.record_counts['facts']).toBe(
+      result.rows.filter((row) => row.fact_id !== null).length,
+    );
     expect(result.manifest.record_counts['fact_evidence']).toBe(result.evidence.length);
+    for (const file of result.manifest.files) {
+      expect(file.rows).toBe(file.content === 'facts' ? result.rows.length : result.evidence.length);
+    }
     expect(result.manifest.record_counts['sources']).toBe(result.manifest.sources.length);
     expect(result.manifest.record_counts['entities']).toBeGreaterThan(0);
   });

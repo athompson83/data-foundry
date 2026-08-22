@@ -16,8 +16,6 @@
  * `evaluateSourcePublishGate` collects blockers: an operator fixing a dataset
  * should see the whole list rather than play whack-a-mole across ten builds.
  */
-import type { RightsClassification } from '@data-foundry/canonical-schema';
-
 export const EXPORT_REFUSAL_CODES = [
   /** The `sources` row for a contributing source is RED or UNREVIEWED. */
   'SOURCE_RIGHTS_BLOCKED',
@@ -74,13 +72,6 @@ export class ExportRefusedError extends Error {
     this.refusals = refusals;
     this.subjects = subjects;
   }
-}
-
-/** A source's rights classification blocks it, with the classification attached. */
-export interface BlockedSourceDetail {
-  readonly subject: string;
-  readonly rights: RightsClassification;
-  readonly reason: string;
 }
 
 /**

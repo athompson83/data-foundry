@@ -67,6 +67,13 @@ export interface ManifestFile {
   readonly path: string;
   readonly format: ExportFileFormat;
   readonly content: ExportFileContent;
+  /**
+   * Records in THIS file. Not the same number as `record_counts.facts`: a
+   * property whose every claim was excluded still gets a row, carrying a null
+   * value and the `NO_ELIGIBLE_CANDIDATE` rule, so that "we have nothing to say
+   * about this" is stated rather than silently absent. `record_counts` counts
+   * canonical objects; this counts lines.
+   */
   readonly rows: number;
   readonly bytes: number;
   readonly sha256: ContentHash;
