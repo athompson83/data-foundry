@@ -12,6 +12,8 @@
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { request as httpRequest } from 'node:http';
+import { ApiError } from '../src/errors.js';
+import type { ApiHandler } from '../src/http.js';
 import { startApiServer, type ListeningApiServer } from '../src/server.js';
 import { createApiFixtures, type ApiFixtures } from './support.js';
 
@@ -24,10 +26,15 @@ interface RawResponse {
   readonly body: string;
 }
 
-function send(path: string, method = 'GET'): Promise<RawResponse> {
+/**
+ * One request over a real socket. `target` defaults to the suite's server; the
+ * adapter's own failure path needs a second one in front of a handler that
+ * throws, and it must be driven exactly the same way to mean anything.
+ */
+function send(path: string, method = 'GET', target: ListeningApiServer = listening): Promise<RawResponse> {
   return new Promise((resolve, reject) => {
     const call = httpRequest(
-      { host: listening.host, port: listening.port, path, method },
+      { host: target.host, port: target.port, path, method },
       (response) => {
         const chunks: Buffer[] = [];
         response.on('data', (chunk: Buffer) => chunks.push(chunk));
@@ -109,5 +116,80 @@ describe('the node:http adapter', () => {
     expect(JSON.parse(response.body)).toMatchObject({
       error: { code: 'INVALID_PARAMETER', status: 400 },
     });
+  });
+
+  it('never sends a status the body disagrees with', async () => {
+    // Every response this adapter sends says its status twice: once in the
+    // status line and once inside the envelope. They are only a contract if
+    // they are the same number, so it is asserted against itself rather than
+    // against a literal, on the answers a client actually meets.
+    for (const [path, method] of [
+      ['/v1/health', 'GET'],
+      ['/v1/nope', 'GET'],
+      ['/v1/health', 'POST'],
+      ['/v1/entities/%ZZ', 'GET'],
+      ['/v2/health', 'GET'],
+    ] as const) {
+      const response = await send(path, method);
+      const body = JSON.parse(response.body) as { error?: { status: number } };
+      if (body.error === undefined) continue;
+      expect(response.status, `${method} ${path}`).toBe(body.error.status);
+    }
+  });
+});
+
+/**
+ * The one place the TRANSPORT, not the app, decides a status.
+ *
+ * `createApiApp` funnels its own failures into a response, so reaching the
+ * adapter's `catch` means the handler threw outright — an `onError` hook that
+ * failed inside the app's own error path, or a second handler composed in front
+ * of it, `createApiServer` taking an `ApiHandler` precisely so that is possible.
+ * Rare, and that is the problem: it was the only path where the status line and
+ * the envelope were decided separately, and they only agreed by luck. The body
+ * came from `toErrorBody`, which honours an `ApiError`'s own status, while the
+ * status line was a literal 500 written five lines earlier — so a thrown 503
+ * left over a socket as `500` with `{"status": 503}` inside it, and a client
+ * branching on either one was told a different thing about the same failure.
+ */
+describe('a handler that throws instead of returning a response', () => {
+  const serve = async (
+    handler: ApiHandler,
+    assertions: (response: RawResponse) => void,
+  ): Promise<void> => {
+    const target = await startApiServer(handler);
+    try {
+      assertions(await send('/v1/health', 'GET', target));
+    } finally {
+      await target.close();
+    }
+  };
+
+  it('sends the status the envelope it is sending claims', async () => {
+    await serve(
+      () => Promise.reject(new ApiError('SERVICE_UNAVAILABLE', 'The query layer is not reachable.')),
+      (response) => {
+        const body = JSON.parse(response.body) as { error: { code: string; status: number } };
+        expect(body.error).toMatchObject({ code: 'SERVICE_UNAVAILABLE', status: 503 });
+        expect(response.status).toBe(body.error.status);
+      },
+    );
+  });
+
+  it('still collapses a throwable nobody anticipated to 500, in both places', async () => {
+    // The other direction: deriving the status from the envelope must not start
+    // trusting whatever was thrown. A bare `Error` carries no status, so the
+    // envelope says 500 and so does the status line.
+    await serve(
+      () => Promise.reject(new Error('pglite: connection closed at /src/driver.ts:41')),
+      (response) => {
+        const body = JSON.parse(response.body) as { error: { code: string; status: number } };
+        expect(body.error).toMatchObject({ code: 'INTERNAL_ERROR', status: 500 });
+        expect(response.status).toBe(body.error.status);
+        // The thrown text named a driver, a file and a line; none of it left.
+        expect(response.body.toLowerCase()).not.toContain('pglite');
+        expect(response.body).not.toContain('.ts:');
+      },
+    );
   });
 });
