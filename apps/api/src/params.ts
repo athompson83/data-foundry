@@ -172,6 +172,7 @@ export function parseList(params: URLSearchParams, parameter: string): string[] 
  *   filter.tonnage.min=3                 → { op: 'range', min: 3, max: null }
  *   filter.tonnage.max=5                 → combined into one range filter
  *   filter.seer2_rating.exists=true      → { op: 'exists' }
+ *   filter.seer2_rating.exists           → the same, as a bare flag
  * ```
  *
  * Which properties are filterable, and whether a range makes sense for one, is
@@ -180,6 +181,14 @@ export function parseList(params: URLSearchParams, parameter: string): string[] 
  * this surface renders as 422. That is deliberate: a filter this layer silently
  * dropped would be worse than an error, and a filter this layer *approved* on
  * its own would be a second, divergent definition of "filterable".
+ *
+ * The same sentence governs the VALUES, which is what the two rejections below
+ * are for. A filter the caller wrote and this layer did not apply is invisible
+ * to them: the response is a 200 carrying a result set that answers a different
+ * question, and every count, page and total derived from it is wrong. It is the
+ * failure the pagination bounds already refuse to make — "Rejected with 400
+ * INVALID_PARAMETER. Values are never silently clamped" — so an unrecognised
+ * value is refused here for the same reason, rather than guessed at or dropped.
  */
 export function parseFilters(params: URLSearchParams): FacetFilter[] {
   const ranges = new Map<Identifier, { min: number | null; max: number | null }>();
@@ -193,7 +202,15 @@ export function parseFilters(params: URLSearchParams): FacetFilter[] {
 
     if (suffix === 'min' || suffix === 'max') {
       const property = parseIdentifier(rest.slice(0, dot), key);
-      const bound = Number(value);
+      // Blank is decided BEFORE the conversion, because the conversion cannot
+      // tell it from a bound: `Number('')` and `Number(' ')` are both 0, not
+      // NaN, so `filter.tonnage.min=` passed the finiteness check and became
+      // `tonnage >= 0` — a constraint the caller never wrote, which silently
+      // removed every entity holding no tonnage fact at all. A bound left empty
+      // is a bound the caller did not supply; this layer does not get to pick a
+      // number for it, and it cannot ignore it either, because the caller who
+      // meant to type one would never find out.
+      const bound = value.trim() === '' ? Number.NaN : Number(value);
       if (!Number.isFinite(bound)) {
         throw ApiError.invalidParameter(key, 'expected a number', value.slice(0, 40));
       }
@@ -204,9 +221,25 @@ export function parseFilters(params: URLSearchParams): FacetFilter[] {
 
     if (suffix === 'exists') {
       const property = parseIdentifier(rest.slice(0, dot), key);
-      if (value === 'true' || value === '1' || value === '') {
-        filters.push({ property, op: 'exists' });
+      // `true`, `1`, and the bare `filter.x.exists` with no value at all, which
+      // is how a flag reaches a query string. Everything else is refused rather
+      // than skipped: an unrecognised spelling used to fall through this branch
+      // with no filter pushed and no error raised, so `exists=yes` answered 200
+      // with the entire unfiltered collection.
+      //
+      // `false` and `0` are refused too, and deliberately not inverted here.
+      // `exists` is the only presence operator the query layer models; there is
+      // no absent form to emit, and composing one on this side would be this
+      // surface deciding what a filter means (AGENTS.md rule 5). Saying so is
+      // the honest answer to a question the contract cannot express.
+      if (value !== 'true' && value !== '1' && value !== '') {
+        throw ApiError.invalidParameter(
+          key,
+          'expected "true", "1" or no value; presence has no negated form',
+          value.slice(0, 40),
+        );
       }
+      filters.push({ property, op: 'exists' });
       continue;
     }
 
