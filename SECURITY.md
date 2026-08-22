@@ -6,15 +6,31 @@
 world-readable the moment it is filed, which turns a report into a disclosure
 before anything can be fixed.
 
-Report privately through either channel:
+**GitHub Security Advisories** is the route:
+[Report a vulnerability](https://github.com/athompson83/data-foundry/security/advisories/new).
+It opens a private thread with the maintainers and becomes the advisory if one
+is published.
 
-- **GitHub Security Advisories** — the
-  [Report a vulnerability](https://github.com/athompson83/data-foundry/security/advisories/new)
-  form on this repository. This is the preferred route: it opens a private
-  thread with the maintainers and becomes the advisory if one is published.
-- **Email** — `security@` the project maintainer's domain, or, failing that, the
-  address on the maintainer's GitHub profile. Put `data-foundry security` in the
-  subject so it is not lost.
+**If you do not see a "Report a vulnerability" button** on
+[the advisories page](https://github.com/athompson83/data-foundry/security/advisories),
+that form is not open to you, and nothing you send through it will arrive. That
+is a fault on our side, not yours. In that case:
+
+1. Open a public issue containing **only** the sentence "I have a security
+   report and need a private channel" — no version, no component, no reproduction,
+   nothing that hints at the weakness. That much is not a disclosure.
+2. Wait for a maintainer to open a private advisory thread and invite you to it.
+3. Send the details **only** in that thread.
+
+We would rather answer a bare request for a channel than have you either sit on
+a finding or publish it because the private route silently failed.
+
+> **Maintainer note.** Step 1 above exists because the advisory form depends on
+> *Private vulnerability reporting* being enabled in this repository's settings
+> (Settings → Advanced Security). It is worth knowing that the link tests clean
+> for a maintainer whether or not the setting is on — a maintainer can always
+> open a draft advisory — so clicking it yourself proves nothing about whether
+> an outside reporter can. Verify the setting itself.
 
 Please include enough to reproduce: affected version or commit, the component
 (`packages/*`, `services/*`, `db/migrations`, tooling), what an attacker gains,
@@ -24,7 +40,11 @@ welcome; a working exploit against someone else's data is not.
 ## What to expect
 
 - **Acknowledgement within 3 working days.** If you have not heard back in that
-  time, assume the message went astray and try the other channel.
+  time, follow up **on the thread you already opened** — a comment on the
+  advisory, or on the channel-request issue if that is the route you had to
+  take. Still no details in a public issue, however long the silence runs; if
+  the issue was closed, open another one asking only for a channel. Silence is
+  our failure to answer, never permission to disclose.
 - **An assessment within 10 working days**, saying whether the report is
   accepted, what severity we think it carries, and a rough remediation timeline.
 - **Credit in the advisory** if you want it, and none if you do not.

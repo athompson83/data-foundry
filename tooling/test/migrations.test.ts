@@ -2,7 +2,12 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { CANONICAL_OBJECT_SCHEMAS } from '@data-foundry/canonical-schema';
 import {
   EXPECTED_TABLES,
+  LEDGER_MARKER,
+  LEDGER_TABLE,
   applyMigrations,
+  assertLedgerIsOurs,
+  ledgerMarker,
+  partitionOwnedTables,
   createPGliteDriver,
   listPublicTables,
   loadMigrations,
@@ -473,4 +478,314 @@ describe('migration 0009 over pre-existing judgment history', () => {
     );
     expect(after).toEqual(before);
   });
+});
+
+/**
+ * A Data Foundry migration run must not speak for a database it does not own.
+ *
+ * `POSTGRES_URL` points the migrator at whatever database the operator names,
+ * and nothing stops that database from belonging to something else. No Data
+ * Foundry migration references a foreign table — there is no statement that
+ * could — but `--check` reported `tables.length` over the whole `public`
+ * schema, so a shared database inflated the count with objects this project
+ * neither created nor understands. A number that counts other people's tables
+ * is not a certification of ours.
+ *
+ * The fix is an ownership boundary, not a bigger number: `EXPECTED_TABLES` is
+ * the manifest, everything else is out of scope and is named as such. These
+ * tests use a disposable in-memory database that deliberately contains an
+ * unrelated table with rows in it, and assert that Data Foundry leaves it
+ * exactly as it found it — structure, row count and all — without ever reading
+ * what is inside it.
+ */
+describe('migrations respect an ownership boundary', () => {
+  let shared: MigrationDriver;
+
+  /** Structure only. Row CONTENTS of an unowned table are never read. */
+  const foreignShape = async () =>
+    shared.query<{ column_name: string; data_type: string }>(
+      `SELECT column_name, data_type FROM information_schema.columns
+        WHERE table_schema = 'public' AND table_name = 'unrelated_tenant_events'
+        ORDER BY column_name`,
+    );
+  const foreignRowCount = async () => {
+    const [row] = await shared.query<{ n: string }>(
+      `SELECT count(*)::text AS n FROM unrelated_tenant_events`,
+    );
+    return Number(row?.n);
+  };
+
+  beforeAll(async () => {
+    shared = await createPGliteDriver();
+    // A table this project did not create, with live-like rows already in it,
+    // sitting in the same schema the migrator writes to.
+    await shared.exec(`
+      CREATE TABLE unrelated_tenant_events (
+          id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+          status      TEXT NOT NULL,
+          payload     JSONB
+      );
+      INSERT INTO unrelated_tenant_events (status, payload)
+      VALUES ('running', '{"a":1}'::jsonb), ('success', '{"b":2}'::jsonb);
+    `);
+    await applyMigrations(shared, migrations);
+  }, 120_000);
+
+  afterAll(async () => {
+    await shared?.close();
+  });
+
+  it('classifies a table it does not own as out of scope', async () => {
+    const partition = partitionOwnedTables(await listPublicTables(shared));
+    expect(partition.unowned).toContain('unrelated_tenant_events');
+    expect(partition.owned).toEqual([...EXPECTED_TABLES, 'schema_migrations'].sort());
+    // The count that gets certified is ours, not the whole schema's.
+    expect(partition.owned).not.toContain('unrelated_tenant_events');
+  });
+
+
+  it('claims the migration ledger as its own, because it writes to it', async () => {
+    // `applyMigrations` creates `schema_migrations` and inserts a row per
+    // migration. Reporting it as "not ours, untouched" was false twice over.
+    const partition = partitionOwnedTables(await listPublicTables(shared));
+    expect(partition.owned).toContain('schema_migrations');
+    expect(partition.unowned).not.toContain('schema_migrations');
+  });
+
+  it('does not report the ledger as a missing migration-created table', async () => {
+    // It is owned, but no migration file creates it — the runner does. Asking a
+    // schema that HAS the ledger proves nothing; the question only bites on a
+    // schema without one, which is what every fresh database is before the
+    // first run. If the ledger were listed as migration-created, this reports a
+    // hole that no migration could ever fill.
+    const withoutLedger = (await listPublicTables(shared)).filter(
+      (table) => table !== LEDGER_TABLE,
+    );
+    expect(withoutLedger).not.toContain(LEDGER_TABLE);
+    expect(partitionOwnedTables(withoutLedger).missing).toEqual([]);
+  });
+
+  it('still fails closed when one of its OWN tables is missing', () => {
+    const partition = partitionOwnedTables(
+      [...EXPECTED_TABLES].filter((table) => table !== 'facts'),
+    );
+    expect(partition.missing).toEqual(['facts']);
+  });
+
+  it('reports nothing missing when every owned table is present', async () => {
+    expect(partitionOwnedTables(await listPublicTables(shared)).missing).toEqual([]);
+  });
+
+  it('leaves the unowned table structurally untouched', async () => {
+    expect(await foreignShape()).toEqual([
+      { column_name: 'created_at', data_type: 'timestamp with time zone' },
+      { column_name: 'id', data_type: 'uuid' },
+      { column_name: 'payload', data_type: 'jsonb' },
+      { column_name: 'status', data_type: 'text' },
+    ]);
+  });
+
+  it('leaves its rows in place, without reading them', async () => {
+    expect(await foreignRowCount()).toBe(2);
+  });
+
+  it('re-applying every migration still does not touch it', async () => {
+    const shapeBefore = await foreignShape();
+    const countBefore = await foreignRowCount();
+
+    const second = await applyMigrations(shared, migrations);
+    expect(second.every((result) => result.skipped)).toBe(true);
+
+    expect(await foreignShape()).toEqual(shapeBefore);
+    expect(await foreignRowCount()).toBe(countBefore);
+  });
+
+  it('contains no migration statement naming an object this project does not own', async () => {
+    // The structural half of the guarantee: the boundary above reports, but the
+    // migrations themselves must simply never mention a foreign table.
+    for (const migration of migrations) {
+      expect(migration.sql).not.toMatch(/unrelated_tenant_events/i);
+      expect(migration.sql).not.toMatch(/automation_runs/i);
+    }
+  });
+});
+
+/**
+ * A ledger by the same name that belongs to somebody else.
+ *
+ * The ownership boundary above says Data Foundry writes only to tables it
+ * created — and then `applyMigrations` opens with
+ * `CREATE TABLE IF NOT EXISTS schema_migrations`, which in a database that
+ * already has a table by that name silently resolves to "fine, use theirs".
+ * The name is not distinctive: it is what Rails, sqlx and a dozen hand-rolled
+ * runners call their own ledger. `IF NOT EXISTS` then turns a collision into an
+ * adoption, and the very next statement writes a row into another project's
+ * bookkeeping.
+ *
+ * `partitionOwnedTables` compounded it by claiming the table as owned on the
+ * strength of its name, so the collision would also be counted into the
+ * "N Data Foundry tables" certification.
+ */
+describe('a foreign table named like the ledger is refused, not adopted', () => {
+  let foreign: MigrationDriver;
+
+  const shape = () =>
+    foreign.query<{ column_name: string }>(
+      `SELECT column_name FROM information_schema.columns
+        WHERE table_schema = 'public' AND table_name = 'schema_migrations'
+        ORDER BY column_name`,
+    );
+  const rowCount = async () => {
+    const [row] = await foreign.query<{ n: string }>(
+      `SELECT count(*)::text AS n FROM schema_migrations`,
+    );
+    return Number(row?.n);
+  };
+
+  beforeAll(async () => {
+    foreign = await createPGliteDriver();
+    // Rails' shape: one column, called `version`, and nothing else.
+    await foreign.exec(`
+      CREATE TABLE schema_migrations (version TEXT PRIMARY KEY);
+      INSERT INTO schema_migrations (version) VALUES ('20240102030405'), ('20240607080910');
+    `);
+  }, 120_000);
+
+  afterAll(async () => {
+    await foreign?.close();
+  });
+
+  it('refuses to run against it, naming the collision', async () => {
+    await expect(applyMigrations(foreign, migrations)).rejects.toThrow(
+      /schema_migrations.*not Data Foundry's ledger/is,
+    );
+  });
+
+  it('leaves the foreign ledger exactly as it found it', async () => {
+    await applyMigrations(foreign, migrations).catch(() => undefined);
+    expect(await shape()).toEqual([{ column_name: 'version' }]);
+    expect(await rowCount()).toBe(2);
+  });
+
+  it('creates none of its own tables before refusing', async () => {
+    await applyMigrations(foreign, migrations).catch(() => undefined);
+    // Asserted against the schema itself rather than against `owned`: what
+    // matters here is that nothing of ours was created, not how the partition
+    // happens to classify a table the runner has already refused.
+    expect(await listPublicTables(foreign)).toEqual([LEDGER_TABLE]);
+    expect(partitionOwnedTables(await listPublicTables(foreign)).missing).toEqual([
+      ...EXPECTED_TABLES,
+    ]);
+  });
+
+  it('accepts a ledger it created itself', async () => {
+    const ours = await createPGliteDriver();
+    try {
+      await expect(applyMigrations(ours, migrations)).resolves.toBeDefined();
+      // Second run: the ledger now exists, and must still be recognised as ours.
+      await expect(assertLedgerIsOurs(ours)).resolves.toBeUndefined();
+    } finally {
+      await ours.close();
+    }
+  }, 120_000);
+});
+
+/**
+ * Shape is compatibility evidence. It is not proof of ownership.
+ *
+ * Refusing a differently-shaped `schema_migrations` closes the collision that
+ * happens in practice, and nothing more: another project whose ledger happens
+ * to carry these five column names is still indistinguishable from ours, and
+ * the runner would read its rows and write its own. "Probably nobody else picks
+ * `execution_ms`" is a guess about strangers, which is not a boundary.
+ *
+ * So the ledger records who made it. The marker is written when the runner
+ * creates the table and never onto a table it found, because stamping a table
+ * to establish that we may write to it is the same circularity in one step.
+ * A ledger with no marker is one we cannot prove is ours, and the run stops and
+ * says so rather than guessing on the operator's behalf.
+ */
+describe('the ledger proves its ownership rather than inferring it', () => {
+  /** Exactly the shape `LEDGER_DDL` creates, so only the marker can decide. */
+  const SAME_SHAPE = `
+    CREATE TABLE schema_migrations (
+        version      TEXT PRIMARY KEY,
+        filename     TEXT        NOT NULL,
+        checksum     TEXT        NOT NULL,
+        applied_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+        execution_ms INTEGER     NOT NULL
+    );
+    INSERT INTO schema_migrations (version, filename, checksum, execution_ms)
+    VALUES ('0001', 'their_first.sql', 'deadbeef', 7);
+  `;
+
+  it('marks the ledger it creates', async () => {
+    const ours = await createPGliteDriver();
+    try {
+      await applyMigrations(ours, migrations);
+      expect(await ledgerMarker(ours)).toBe(LEDGER_MARKER);
+    } finally {
+      await ours.close();
+    }
+  }, 120_000);
+
+  it('refuses a ledger of the right shape that it cannot prove it created', async () => {
+    const stranger = await createPGliteDriver();
+    try {
+      await stranger.exec(SAME_SHAPE);
+      await expect(applyMigrations(stranger, migrations)).rejects.toThrow(
+        /not Data Foundry's ledger.*no ownership marker/is,
+      );
+      // Untouched: no marker written onto it, no row of ours added, and none of
+      // our tables created beside it.
+      expect(await ledgerMarker(stranger)).toBeNull();
+      const [row] = await stranger.query<{ n: string }>(
+        `SELECT count(*)::text AS n FROM schema_migrations`,
+      );
+      expect(Number(row?.n)).toBe(1);
+      expect(await listPublicTables(stranger)).toEqual([LEDGER_TABLE]);
+    } finally {
+      await stranger.close();
+    }
+  }, 120_000);
+
+  it('names the statement that adopts such a ledger deliberately', async () => {
+    // The refusal has to be actionable: a human who knows the table is theirs
+    // needs the exact statement, and a human who does not must not be nudged
+    // into running it. Both come from the same message.
+    const stranger = await createPGliteDriver();
+    try {
+      await stranger.exec(SAME_SHAPE);
+      await expect(applyMigrations(stranger, migrations)).rejects.toThrow(
+        new RegExp(`COMMENT ON TABLE ${LEDGER_TABLE} IS '${LEDGER_MARKER}'`, 'i'),
+      );
+    } finally {
+      await stranger.close();
+    }
+  }, 120_000);
+
+  it('accepts a ledger carrying its own marker', async () => {
+    const adopted = await createPGliteDriver();
+    try {
+      await adopted.exec(SAME_SHAPE);
+      await adopted.exec(`COMMENT ON TABLE schema_migrations IS '${LEDGER_MARKER}';`);
+      await expect(assertLedgerIsOurs(adopted)).resolves.toBeUndefined();
+    } finally {
+      await adopted.close();
+    }
+  }, 120_000);
+
+  it("refuses a ledger carrying somebody else's marker", async () => {
+    const marked = await createPGliteDriver();
+    try {
+      await marked.exec(SAME_SHAPE);
+      await marked.exec(`COMMENT ON TABLE schema_migrations IS 'acme-platform ledger v3';`);
+      await expect(applyMigrations(marked, migrations)).rejects.toThrow(
+        /not Data Foundry's ledger.*acme-platform ledger v3/is,
+      );
+    } finally {
+      await marked.close();
+    }
+  }, 120_000);
 });

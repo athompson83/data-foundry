@@ -44,6 +44,14 @@ export interface MigrationDriver {
   close(): Promise<void>;
 }
 
+/**
+ * Written onto the ledger when this runner creates it, so that ownership is
+ * something the database records rather than something we infer from a name or
+ * a set of column names. Versioned, because a marker that cannot be superseded
+ * is a marker that will have to be worked around.
+ */
+export const LEDGER_MARKER = 'data-foundry:schema_migrations:v1';
+
 const LEDGER_DDL = `
 CREATE TABLE IF NOT EXISTS schema_migrations (
     version      TEXT PRIMARY KEY,
@@ -52,7 +60,87 @@ CREATE TABLE IF NOT EXISTS schema_migrations (
     applied_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
     execution_ms INTEGER     NOT NULL
 );
+COMMENT ON TABLE schema_migrations IS '${LEDGER_MARKER}';
 `;
+
+/** The columns `LEDGER_DDL` creates, sorted. */
+export const LEDGER_COLUMNS = [
+  'applied_at',
+  'checksum',
+  'execution_ms',
+  'filename',
+  'version',
+] as const;
+
+/** The columns of `schema_migrations` as it exists, sorted. Empty if absent. */
+export async function ledgerColumns(driver: MigrationDriver): Promise<string[]> {
+  const rows = await driver.query<{ column_name: string }>(
+    `SELECT column_name FROM information_schema.columns
+      WHERE table_schema = 'public' AND table_name = $1
+      ORDER BY column_name`,
+    [LEDGER_TABLE],
+  );
+  return rows.map((row) => row.column_name);
+}
+
+/** The ownership marker on `schema_migrations`, or null if it carries none. */
+export async function ledgerMarker(driver: MigrationDriver): Promise<string | null> {
+  const rows = await driver.query<{ marker: string | null }>(
+    `SELECT obj_description(c.oid, 'pg_class') AS marker
+       FROM pg_class c
+       JOIN pg_namespace n ON n.oid = c.relnamespace
+      WHERE n.nspname = 'public' AND c.relname = $1`,
+    [LEDGER_TABLE],
+  );
+  return rows[0]?.marker ?? null;
+}
+
+/**
+ * Refuse to write to a ledger this project cannot prove it created.
+ *
+ * `schema_migrations` is what Rails, sqlx and plenty of hand-rolled runners
+ * call theirs, so in a shared database `CREATE TABLE IF NOT EXISTS` quietly
+ * resolves a collision into an adoption and the next statement writes a row
+ * into somebody else's bookkeeping.
+ *
+ * Matching columns would only narrow that, not close it: shape is evidence that
+ * two ledgers are *compatible*, never that they are the same one. So the runner
+ * records who made the table, and reads that back before it writes. The marker
+ * is written at creation and never onto a table this runner merely found —
+ * stamping a table in order to establish permission to write to it is the same
+ * circular reasoning performed in two steps.
+ *
+ * Fail closed in every direction: absent is ours to create, marked-as-ours is
+ * ours to append to, and anything else — another project's marker, no marker at
+ * all, or our marker on a table of the wrong shape — stops the run before a
+ * single write, and says which of those it found.
+ */
+export async function assertLedgerIsOurs(driver: MigrationDriver): Promise<void> {
+  const columns = await ledgerColumns(driver);
+  if (columns.length === 0) return;
+
+  const expected = [...LEDGER_COLUMNS];
+  const shapeMatches =
+    columns.length === expected.length && columns.every((name, i) => name === expected[i]);
+  const marker = await ledgerMarker(driver);
+  if (marker === LEDGER_MARKER && shapeMatches) return;
+
+  const reason =
+    marker === null
+      ? 'it carries no ownership marker, so there is no evidence this project created it'
+      : marker !== LEDGER_MARKER
+        ? `it is marked as belonging to something else (${marker})`
+        : `its marker is ours but its columns are not (${columns.join(', ')}; ` +
+          `ours are ${expected.join(', ')})`;
+
+  throw new Error(
+    `A table named "${LEDGER_TABLE}" already exists here and is not Data Foundry's ledger: ` +
+      `${reason}. Refusing to read or write it. Point POSTGRES_URL at a database of this ` +
+      `project's own, or rename the existing table. If you know the table IS this project's ` +
+      `— a ledger created before ownership was recorded — adopt it deliberately with: ` +
+      `COMMENT ON TABLE ${LEDGER_TABLE} IS '${LEDGER_MARKER}';`,
+  );
+}
 
 const MIGRATION_FILENAME = /^(\d{4})_[a-z0-9_]+\.sql$/;
 
@@ -107,6 +195,8 @@ export async function applyMigrations(
   driver: MigrationDriver,
   migrations: readonly Migration[],
 ): Promise<AppliedMigration[]> {
+  // Before anything is created or written, not after.
+  await assertLedgerIsOurs(driver);
   await driver.exec(LEDGER_DDL);
 
   const rows = await driver.query<{ version: string; checksum: string; filename: string }>(
@@ -202,7 +292,25 @@ export async function createPostgresDriver(connectionString: string): Promise<Mi
   };
 }
 
-/** Table names the migrations are expected to create. Used by `--check`. */
+/**
+ * The ownership manifest: every table Data Foundry creates, and the complete
+ * set it is entitled to speak about.
+ *
+ * `POSTGRES_URL` points the migrator at whatever database an operator names,
+ * and that database may belong to something else. Nothing here will modify a
+ * table it did not create — no migration references one, and a test asserts
+ * that none ever does — but a certification that counted the whole `public`
+ * schema was reporting other people's tables as though they were evidence
+ * about ours. Anything absent from this list is out of scope: reported, never
+ * counted, never touched.
+ *
+ * Membership is decided by name, which is safe only because the one name that
+ * is not distinctive — the ledger — has to prove itself before any write:
+ * `assertLedgerIsOurs` aborts the run rather than let a `schema_migrations`
+ * this project cannot show it created be counted here as ours.
+ */
+export const LEDGER_TABLE = 'schema_migrations';
+
 export const EXPECTED_TABLES = [
   'verticals',
   'sources',
@@ -223,6 +331,33 @@ export const EXPECTED_TABLES = [
   'ingestion_jobs',
   'ingestion_job_transitions',
 ] as const;
+
+/** Owned tables present, unowned tables found beside them, and owned tables missing. */
+export interface TableOwnership {
+  readonly owned: string[];
+  readonly unowned: string[];
+  readonly missing: string[];
+}
+
+/**
+ * Split what is actually in the schema against what this project owns.
+ *
+ * Fail-closed on our side (`missing` is a hard error for `--check`), and merely
+ * descriptive on the other (`unowned` is named so an operator can see we found
+ * it and left it alone).
+ */
+export function partitionOwnedTables(tables: readonly string[]): TableOwnership {
+  // The ledger belongs to this project too. The runner creates it and inserts a
+  // row per applied migration, so calling it "not ours, untouched" was false in
+  // both halves at once: we own it, and we write to it on every single run.
+  const manifest = new Set<string>([...EXPECTED_TABLES, LEDGER_TABLE]);
+  const present = new Set(tables);
+  return {
+    owned: tables.filter((table) => manifest.has(table)).sort(),
+    unowned: tables.filter((table) => !manifest.has(table)).sort(),
+    missing: EXPECTED_TABLES.filter((table) => !present.has(table)),
+  };
+}
 
 export async function listPublicTables(driver: MigrationDriver): Promise<string[]> {
   const rows = await driver.query<{ table_name: string }>(
@@ -246,6 +381,23 @@ async function main(argv: readonly string[]): Promise<number> {
 
   try {
     console.log(`Applying ${migrations.length} migration(s) to ${driver.label}`);
+
+    // Ask this first: a colliding ledger makes the notice below wrong (it would
+    // count the foreign table as ours), and the operator needs the specific
+    // error, not a reassuring line followed by one.
+    await assertLedgerIsOurs(driver);
+
+    // Say so before writing, not after. An operator pointing POSTGRES_URL at a
+    // database that already holds someone else's tables should see that we
+    // noticed, and that we are adding beside them rather than to them.
+    const before = partitionOwnedTables(await listPublicTables(driver));
+    if (before.unowned.length > 0) {
+      console.log(
+        `  note: ${before.unowned.length} table(s) in this database are not Data Foundry's ` +
+          `(${before.unowned.join(', ')}). No migration references them.`,
+      );
+    }
+
     const results = await applyMigrations(driver, migrations);
     for (const result of results) {
       console.log(
@@ -255,11 +407,15 @@ async function main(argv: readonly string[]): Promise<number> {
     }
 
     if (check) {
-      const tables = await listPublicTables(driver);
-      const missing = EXPECTED_TABLES.filter((table) => !tables.includes(table));
-      if (missing.length > 0) {
-        console.error(`Missing expected tables: ${missing.join(', ')}`);
+      const ownership = partitionOwnedTables(await listPublicTables(driver));
+      if (ownership.missing.length > 0) {
+        console.error(`Missing expected tables: ${ownership.missing.join(', ')}`);
         return 1;
+      }
+      if (ownership.unowned.length > 0) {
+        console.log(
+          `  out of scope (present, not ours, untouched): ${ownership.unowned.join(', ')}`,
+        );
       }
 
       // Re-applying against the same database must be a clean no-op.
@@ -271,7 +427,9 @@ async function main(argv: readonly string[]): Promise<number> {
         );
         return 1;
       }
-      console.log(`OK: ${tables.length} tables, migrations are ordered and idempotent.`);
+      console.log(
+        `OK: ${ownership.owned.length} Data Foundry tables, migrations are ordered and idempotent.`,
+      );
     }
     return 0;
   } finally {
