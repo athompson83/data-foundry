@@ -111,7 +111,7 @@ describe('network capability is confined to the gated transport layer', () => {
    * because these files are flat classes; a class nested inside a method would
    * defeat it, and none exists here.
    */
-  function declaredMethods(code: string): readonly { name: string; body: string }[] {
+  function declaredMethods(code: string): readonly { name: string; start: number; body: string }[] {
     const starts = [...code.matchAll(METHOD_DECL)].flatMap((match) =>
       match.index === undefined || match[1] === undefined
         ? []
@@ -119,8 +119,21 @@ describe('network capability is confined to the gated transport layer', () => {
     );
     return starts.map((decl, i) => ({
       name: decl.name,
+      start: decl.start,
       body: code.slice(decl.start, starts[i + 1]?.start ?? code.length),
     }));
+  }
+
+  /**
+   * Call sites no method owns. The spans run from the first declaration to the
+   * end of the file, so this is exactly the sites above it — invisible to the
+   * closure, and therefore a way for the scan to pass while proving nothing.
+   */
+  function unownedFetchSites(code: string): number {
+    const firstMethod = declaredMethods(code)[0]?.start ?? code.length;
+    return [...code.matchAll(/#fetch\s*\(/g)].filter(
+      (site) => (site.index ?? 0) < firstMethod,
+    ).length;
   }
 
   /**
@@ -174,6 +187,11 @@ describe('network capability is confined to the gated transport layer', () => {
         [...code.matchAll(/#fetch\s*\(/g)].length,
         `${entry} has no transport invocation`,
       ).toBeGreaterThan(0);
+      expect(
+        unownedFetchSites(code),
+        `${entry}: a transport invocation sits outside every method, where the ` +
+          `reachability closure cannot see it`,
+      ).toBe(0);
       const reaching = methodsReachingFetch(code);
       expect(
         reaching.size,
