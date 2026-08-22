@@ -16,6 +16,23 @@
  *
  * Both are built over the SAME `QueryModel` instance and the SAME selection
  * policy. Any divergence is therefore the surfaces', not the data's.
+ *
+ * TWO GUARDS, NOT ONE. `told()` below reduces each fact to what a customer is
+ * told, and that reduction maps an ABSENT field to the same value as a falsy
+ * one: no `editoriallyCorrected` reads as `false`, no `unresolvedConflict`
+ * reads as `false`, no `editorialCorrectionReason` reads as `null`, no
+ * `selectionWarnings` reads as `[]`. So a comparison of `Told` objects alone
+ * cannot tell "both surfaces say false" apart from "one surface stopped saying
+ * it", and a mutation that deletes a field passes whenever the real value
+ * happens to be falsy. Hence:
+ *
+ *   1. KEY PRESENCE is asserted on the RAW payloads, before any reduction, so a
+ *      dropped field fails whatever its value would have been; and
+ *   2. the FIXTURE carries a true value for every one of the four trust fields,
+ *      so a mutation that hard-codes the falsy value fails too.
+ *
+ * Neither guard is sufficient alone. Both are verified by mutation — see the
+ * fixture notes on `CONTESTED_PROPERTY` and `CORRECTED_PROPERTY`.
  */
 import { beforeAll, describe, expect, it } from 'vitest';
 import { createApiApp, type ApiHandler, type ApiResponse } from '../../apps/api/src/index.js';
@@ -50,6 +67,30 @@ const BLOCKED_PROPERTY = 'forum_rumor';
 const EDITORIAL_SOURCE = 'editorial.internal';
 const CONTESTED_PROPERTY = 'refrigerant';
 
+/**
+ * The same desk, and a property it has corrected CLEANLY.
+ *
+ * `CONTESTED_PROPERTY` cannot also carry the correction: two rival values
+ * behind one override is what produces `AMBIGUOUS_EDITORIAL_INTENT`, and that
+ * warning fires INSTEAD of a correction — `editorially_corrected` stays false
+ * and the reason stays null. So the two trust states need two properties. Here
+ * a single PROPOSED editorial value stands behind a single override
+ * declaration, which is a well-formed correction: the desk's value publishes,
+ * `editoriallyCorrected` is true, the public reason travels with it, and the
+ * source-selected rivals it displaced are retained, which is what makes
+ * `unresolvedConflict` true.
+ *
+ * Without this, three of the four trust fields were `false`/`null` on every
+ * fact in the fixture, and a mutation deleting them from one surface passed.
+ */
+const CORRECTED_PROPERTY = 'seer2_rating';
+const CORRECTED_VALUE = 16.5;
+const CORRECTION_REASON =
+  'SEER2 corrected to the AHRI-certified rating for the as-shipped coil pairing.';
+
+/** In the policy on purpose: it must not reach either surface. */
+const REVIEWER = 'j.okafor@example.com';
+
 interface Surfaces extends QueryFixtures {
   readonly app: ApiHandler;
   readonly server: McpServer;
@@ -79,15 +120,33 @@ beforeAll(async () => {
     });
   }
 
+  // ONE editorial value, so the override has a single thing to stand behind and
+  // the selection is a correction rather than an ambiguity. PROPOSED for the
+  // same reason as above: an ACTIVE claim would supersede the manufacturer's
+  // and leave nothing for the correction to have displaced.
+  await claim(base, 'editorial', {
+    property: CORRECTED_PROPERTY,
+    value: CORRECTED_VALUE,
+    value_type: 'number',
+    status: 'PROPOSED',
+    entity_id: base.equipment.id,
+    valid_from: '2026-02-01T00:00:00Z',
+  });
+
   const policy = {
     at: AT,
     editorialOverrides: [
       {
         source: EDITORIAL_SOURCE,
         reason: 'Refrigerant corrected to the charge shipped from January 2026.',
-        // Present in the policy on purpose: it must not reach either surface.
-        reviewer: 'j.okafor@example.com',
+        reviewer: REVIEWER,
         properties: [CONTESTED_PROPERTY],
+      },
+      {
+        source: EDITORIAL_SOURCE,
+        reason: CORRECTION_REASON,
+        reviewer: REVIEWER,
+        properties: [CORRECTED_PROPERTY],
       },
     ],
   } as const;
@@ -116,6 +175,17 @@ interface Told {
   readonly unresolvedConflict: boolean;
 }
 
+/**
+ * The four fields whose ABSENCE `told()` cannot distinguish from a falsy value.
+ * Asserted present on the raw payload of every fact, on both surfaces.
+ */
+const TRUST_KEYS = [
+  'editoriallyCorrected',
+  'editorialCorrectionReason',
+  'selectionWarnings',
+  'unresolvedConflict',
+] as const;
+
 const told = (fact: Record<string, unknown>): Told => ({
   property: String(fact['property']),
   value: fact['value'],
@@ -128,7 +198,8 @@ const told = (fact: Record<string, unknown>): Told => ({
 const byProperty = (rows: readonly Told[]): Told[] =>
   [...rows].sort((a, b) => (a.property < b.property ? -1 : a.property > b.property ? 1 : 0));
 
-async function restFacts(): Promise<Told[]> {
+/** The REST payload, unreduced. Key presence is only observable here. */
+async function restRaw(): Promise<readonly Record<string, unknown>[]> {
   const response: ApiResponse = await fixtures.app({
     method: 'GET',
     // A limit above the fact count, so pagination cannot be mistaken for a
@@ -137,10 +208,11 @@ async function restFacts(): Promise<Told[]> {
   });
   expect(response.status, JSON.stringify(response.body)).toBe(200);
   const body = response.body as { data: readonly Record<string, unknown>[]; meta?: unknown };
-  return byProperty(body.data.map(told));
+  return body.data;
 }
 
-async function mcpFacts(): Promise<Told[]> {
+/** The MCP payload, unreduced. */
+async function mcpRaw(): Promise<readonly Record<string, unknown>[]> {
   const call = await fixtures.server.callTool('list_facts', {
     entity_id: fixtures.equipment.id,
     as_of: AT,
@@ -152,7 +224,15 @@ async function mcpFacts(): Promise<Told[]> {
     result?: { facts: readonly Record<string, unknown>[] };
   };
   expect(envelope.ok, JSON.stringify(call.structuredContent)).toBe(true);
-  return byProperty((envelope.result?.facts ?? []).map(told));
+  return envelope.result?.facts ?? [];
+}
+
+async function restFacts(): Promise<Told[]> {
+  return byProperty((await restRaw()).map(told));
+}
+
+async function mcpFacts(): Promise<Told[]> {
+  return byProperty((await mcpRaw()).map(told));
 }
 
 describe('REST and MCP publish the same facts', () => {
@@ -171,6 +251,51 @@ describe('REST and MCP publish the same facts', () => {
       warnings,
       'the fixture produced no selection warnings, so the comparison below is vacuous',
     ).toContain('AMBIGUOUS_EDITORIAL_INTENT');
+  });
+
+  it('carries a TRUE value for every trust field, so a falsy hard-code cannot pass', async () => {
+    // The other half of the vacuity fix. `told()` maps an absent field onto the
+    // falsy value, so a surface that hard-codes `editoriallyCorrected: false`
+    // or `unresolvedConflict: false` matches a fixture where those are false
+    // everywhere. Each assertion below names the fact that makes its field bite.
+    const rest = await restFacts();
+    const corrected = rest.find((fact) => fact.property === CORRECTED_PROPERTY);
+    expect(corrected, `${CORRECTED_PROPERTY} is missing, so the correction guards are vacuous`)
+      .toBeDefined();
+    expect(corrected?.editoriallyCorrected, 'no editorially corrected fact in the fixture').toBe(
+      true,
+    );
+    expect(corrected?.editorialCorrectionReason).toBe(CORRECTION_REASON);
+    expect(
+      rest.some((fact) => fact.unresolvedConflict),
+      'no fact carries an unresolved conflict, so that comparison is vacuous',
+    ).toBe(true);
+    expect(
+      rest.flatMap((fact) => fact.selectionWarnings),
+      'the fixture produced no selection warnings, so that comparison is vacuous',
+    ).toContain('AMBIGUOUS_EDITORIAL_INTENT');
+  });
+
+  it('carries every trust key on every fact, present rather than merely falsy', async () => {
+    // Asserted on the RAW payloads. `told()` cannot see the difference between
+    // a field that is absent and a field that is false, so a mutation deleting
+    // `editoriallyCorrected` from one surface is invisible to the equality
+    // check below on any fact whose real value is false. This sees it.
+    const [rest, mcp] = await Promise.all([restRaw(), mcpRaw()]);
+    for (const [surface, rows] of [
+      ['REST', rest],
+      ['MCP', mcp],
+    ] as const) {
+      expect(rows.length, `${surface} returned no facts`).toBeGreaterThan(0);
+      for (const row of rows) {
+        for (const key of TRUST_KEYS) {
+          expect(
+            Object.hasOwn(row, key),
+            `${surface} dropped "${key}" from ${String(row['property'])}`,
+          ).toBe(true);
+        }
+      }
+    }
   });
 
   it('publishes the same properties', async () => {
