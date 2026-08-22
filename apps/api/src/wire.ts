@@ -18,7 +18,7 @@
 import type {
   Entity,
   EntityRedirect,
-} from '../../../packages/canonical-schema/src/index.js';
+} from '@data-foundry/canonical-schema';
 import {
   assertNoReviewerIdentity,
   toRestFact,
@@ -32,7 +32,7 @@ import {
   type RelationshipEdge,
   type RestFact,
   type SearchHit,
-} from '../../../packages/query-model/src/index.js';
+} from '@data-foundry/query-model';
 
 export interface EntityWire {
   readonly id: string;

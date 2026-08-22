@@ -14,5 +14,9 @@
   "scripts": {
     "test": "vitest run --root .",
     "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@data-foundry/canonical-schema": "workspace:*",
+    "@data-foundry/query-model": "workspace:*"
   }
 }

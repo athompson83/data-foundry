@@ -45,9 +45,23 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
 
-  apps/api: {}
+  apps/api:
+    dependencies:
+      '@data-foundry/canonical-schema':
+        specifier: workspace:*
+        version: link:../../packages/canonical-schema
+      '@data-foundry/query-model':
+        specifier: workspace:*
+        version: link:../../packages/query-model
 
-  apps/mcp: {}
+  apps/mcp:
+    dependencies:
+      '@data-foundry/query-model':
+        specifier: workspace:*
+        version: link:../../packages/query-model
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
 
   packages/acquisition:
     dependencies:

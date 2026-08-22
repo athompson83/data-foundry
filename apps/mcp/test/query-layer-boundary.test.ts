@@ -111,7 +111,14 @@ describe('the app reads through the query layer and nothing beneath it', () => {
     // repository. `schemas/canonical/*.json` is a generated build output whose
     // declared consumers include "MCP tool definitions"; it carries no
     // behaviour, and `pnpm schemas:check` keeps it honest.
-    const allowed = /^(\.|zod$)/;
+    //
+    // `@data-foundry/query-model` is anchored, so it permits that one package
+    // entry point and no other bare specifier — not a deep import into its
+    // `src/`, and not a sibling `@data-foundry/*` package. It replaced a
+    // relative climb out of the app, which the `^\.` arm below still allows for
+    // the generated schemas; the arm immediately after is what keeps that from
+    // becoming a way back down to the store.
+    const allowed = /^(\.|zod$|@data-foundry\/query-model$)/;
     for (const source of sources()) {
       for (const specifier of importSpecifiers(source.text)) {
         expect(allowed.test(specifier), `${source.file} imports "${specifier}"`).toBe(true);
@@ -119,11 +126,37 @@ describe('the app reads through the query layer and nothing beneath it', () => {
       for (const specifier of importSpecifiers(source.text).filter((s) => s.startsWith('.'))) {
         if (!specifier.includes('/../')) continue;
         expect(
-          specifier.includes('packages/query-model') || specifier.includes('schemas/canonical'),
+          specifier.includes('schemas/canonical'),
           `${source.file} escapes the app to "${specifier}"`,
         ).toBe(true);
       }
     }
+  });
+
+  it('declares the query layer as a dependency, so the contract is in package.json', () => {
+    // The defect this replaces: `apps/mcp` reached the query layer by climbing
+    // out of its own directory and declared no dependencies at all, so nothing
+    // outside this exact repository layout could resolve it and `pnpm pack`
+    // would have shipped a package that cannot build.
+    const manifest = JSON.parse(readFileSync(join(SRC, '..', 'package.json'), 'utf8')) as {
+      dependencies?: Record<string, string>;
+    };
+    const declared = manifest.dependencies ?? {};
+
+    const imported = new Set<string>();
+    for (const source of sources()) {
+      for (const specifier of importSpecifiers(source.text)) {
+        if (specifier.startsWith('.')) continue;
+        imported.add(specifier);
+      }
+    }
+    expect(imported, 'no bare import found — this check would pass vacuously').toContain(
+      '@data-foundry/query-model',
+    );
+    for (const specifier of imported) {
+      expect(declared[specifier], `${specifier} is imported but not declared`).toBeDefined();
+    }
+    expect(declared['@data-foundry/query-model']).toBe('workspace:*');
   });
 
   it('contains no SQL', () => {

@@ -62,8 +62,8 @@ import {
   relationshipEdgeWire,
   searchHitWire,
 } from './wire.js';
-import type { EntityId, Identifier } from '../../../packages/canonical-schema/src/index.js';
-import type { EntityView, FacetFilter } from '../../../packages/query-model/src/index.js';
+import type { EntityId, Identifier } from '@data-foundry/canonical-schema';
+import type { EntityView, FacetFilter } from '@data-foundry/query-model';
 
 /**
  * The contract versions this deployment serves.

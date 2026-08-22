@@ -20,7 +20,7 @@ import {
 import {
   ReviewerIdentityLeak,
   UnknownFieldError,
-} from '../../../packages/query-model/src/index.js';
+} from '@data-foundry/query-model';
 
 const READ_METHODS = new Set(['GET', 'HEAD']);
 const ALLOW = 'GET, HEAD';

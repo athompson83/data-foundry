@@ -9,14 +9,15 @@
  * SQL string or for `pg` has to edit this file to do it, and
  * `test/query-layer-boundary.test.ts` fails when they do.
  *
- * WHY A RELATIVE PATH AND NOT THE PACKAGE SPECIFIER.
- * `apps/mcp` declares no dependencies. Declaring `@data-foundry/query-model`
- * would add an importer entry to `pnpm-lock.yaml`, and this app was built
- * alongside sibling surfaces where a lockfile edit conflicts destructively. The
- * repo-root `tests/` tree resolves the same packages the same way for the same
- * reason. The path is confined to this file precisely so that swapping it for
- * the package specifier, once the lockfile can be regenerated, is a one-line
- * change with no other module touched.
+ * IT IS THE PACKAGE SPECIFIER, NOT A RELATIVE PATH. It used to be a relative
+ * path up out of the app and into the query layer's source tree, because this
+ * app was built alongside sibling surfaces sharing one lockfile and an importer
+ * entry conflicted destructively. That constraint is gone, and a relative path was
+ * never the dependency — it was a way of having one without declaring it, so
+ * `package.json` did not state the app's contract and nothing outside this
+ * exact directory layout could resolve it. `@data-foundry/query-model` is now a
+ * declared `workspace:*` dependency and the boundary test permits that
+ * specifier and no other bare one.
  *
  * WHAT IS DELIBERATELY NOT RE-EXPORTED: `QueryModel` exposes no `driver` and no
  * `store` — that is a security boundary, not an oversight (see
@@ -47,9 +48,9 @@ export {
   type SearchResult,
   type TraversalDirection,
   type WireCorrectionFields,
-} from '../../../packages/query-model/src/index.js';
+} from '@data-foundry/query-model';
 
-import type { EntityView, QueryModel } from '../../../packages/query-model/src/index.js';
+import type { EntityView, QueryModel } from '@data-foundry/query-model';
 
 /**
  * Branded ids and vertical-defined identifiers, derived from what the query

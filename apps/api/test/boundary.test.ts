@@ -41,11 +41,9 @@ function importsOf(text: string): string[] {
 /**
  * The complete allow-list, and why each entry is on it.
  *
- *   * `query-model/src/index.js` — the canonical query layer, and the reason
- *     this package exists. `index.js` is the package's own declared `exports["."]`
- *     target, so this is the public entry point resolved by path, not a deep
- *     import into its internals.
- *   * `canonical-schema/src/index.js` — the shared object model. It owns no
+ *   * `@data-foundry/query-model` — the canonical query layer, and the reason
+ *     this package exists.
+ *   * `@data-foundry/canonical-schema` — the shared object model. It owns no
  *     storage, no SQL and no selection logic, and the query layer's own public
  *     signatures are expressed in it: `getEntity(id: EntityId)` cannot be called
  *     without it. Validating a path segment with `EntityIdSchema` rather than a
@@ -53,10 +51,17 @@ function importsOf(text: string): string[] {
  *
  * Nothing else. In particular not `canonical-store` — not even for a type —
  * because one import is all it takes for the next handler to reach a driver.
+ *
+ * PACKAGE SPECIFIERS, NOT PATHS. These were relative paths into the packages'
+ * source trees while a shared lockfile made an importer entry costly to add.
+ * Both are now declared `workspace:*` dependencies in this package's
+ * `package.json`, so the allow-list names what the package contract names. The
+ * old paths are NOT kept alongside them: a relative climb out of `apps/api` is
+ * how an undeclared dependency gets in, and it should fail here.
  */
 const ALLOWED_WORKSPACE_IMPORTS = new Set([
-  '../../../packages/query-model/src/index.js',
-  '../../../packages/canonical-schema/src/index.js',
+  '@data-foundry/query-model',
+  '@data-foundry/canonical-schema',
 ]);
 
 describe('what apps/api is allowed to import (AGENTS.md rule 5)', () => {
@@ -97,11 +102,37 @@ describe('what apps/api is allowed to import (AGENTS.md rule 5)', () => {
   });
 
   it('deep-imports nothing from the query layer but its public entry', () => {
+    // The package's declared `exports["."]`, never a path into `src/`: a deep
+    // import binds this surface to the query layer's internal file layout and
+    // reaches modules its entry point deliberately does not re-export.
     for (const file of sourceFiles()) {
       for (const specifier of importsOf(file.text)) {
         if (!specifier.includes('query-model')) continue;
-        expect(specifier, file.name).toBe('../../../packages/query-model/src/index.js');
+        expect(specifier, file.name).toBe('@data-foundry/query-model');
       }
+    }
+  });
+
+  it('declares every workspace package it imports, so the contract is in package.json', () => {
+    // The defect this replaces: `apps/api` reached the query layer by climbing
+    // out of its own directory and declared no dependencies at all, so nothing
+    // outside this exact repository layout could resolve it and `pnpm pack`
+    // would have shipped a package that cannot build.
+    const manifest = JSON.parse(
+      readFileSync(fileURLToPath(new URL('../package.json', import.meta.url)), 'utf8'),
+    ) as { dependencies?: Record<string, string> };
+    const declared = manifest.dependencies ?? {};
+
+    const imported = new Set<string>();
+    for (const file of sourceFiles()) {
+      for (const specifier of importsOf(file.text)) {
+        if (specifier.startsWith('@data-foundry/')) imported.add(specifier);
+      }
+    }
+    expect(imported.size, 'no workspace import found — this check would pass vacuously')
+      .toBeGreaterThan(0);
+    for (const specifier of imported) {
+      expect(declared[specifier], `${specifier} is imported but not declared`).toBe('workspace:*');
     }
   });
 

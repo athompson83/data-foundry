@@ -14,8 +14,8 @@
  * derived from `QueryModel`'s own signature rather than imported by name from
  * the store package, so this file names nothing below the query layer at all.
  */
-import type { QueryModel } from '../../../packages/query-model/src/index.js';
-import type { VerticalId } from '../../../packages/canonical-schema/src/index.js';
+import type { QueryModel } from '@data-foundry/query-model';
+import type { VerticalId } from '@data-foundry/canonical-schema';
 
 /** The fact-selection policy shape, taken from the query layer's signature. */
 export type ApiFactSelectionPolicy = NonNullable<Parameters<QueryModel['canonicalFacts']>[1]>;

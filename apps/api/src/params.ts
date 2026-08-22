@@ -20,8 +20,8 @@ import {
   type Identifier,
   type IsoDateTime,
   type Slug,
-} from '../../../packages/canonical-schema/src/index.js';
-import type { FacetFilter } from '../../../packages/query-model/src/index.js';
+} from '@data-foundry/canonical-schema';
+import type { FacetFilter } from '@data-foundry/query-model';
 import { ApiError } from './errors.js';
 
 /**
