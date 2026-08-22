@@ -154,8 +154,13 @@ export function auditContributingSources(
       blocked = true;
       refusals.push({
         code: 'SOURCE_PUBLISH_GATE_BLOCKED',
-        subject: `${subject} [${entry.key}]`,
-        message: gate.blockers.map((blocker) => `${blocker.code}: ${blocker.message}`).join(' ; '),
+        // The same `subject` string as the classification refusal above, so a
+        // source with two problems reads as one source with two problems
+        // rather than as two sources. The registry key goes in the message.
+        subject,
+        message:
+          `Registry entry "${entry.key}": ` +
+          gate.blockers.map((blocker) => `${blocker.code}: ${blocker.message}`).join(' ; '),
       });
     }
 

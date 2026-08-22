@@ -81,10 +81,13 @@ describe('an unpublishable source refuses the whole export', () => {
   it('also reports the declaration-level blockers, not just the first problem', async () => {
     const { error } = await refuse();
     const gate = error.refusals.find(
-      (refusal) => refusal.code === 'SOURCE_PUBLISH_GATE_BLOCKED' && refusal.subject?.includes('hvac-forum'),
+      (refusal) => refusal.code === 'SOURCE_PUBLISH_GATE_BLOCKED',
     );
+    expect(gate?.message).toContain('hvac-forum');
     expect(gate?.message).toContain('SOURCE_NOT_ACTIVE');
     expect(gate?.message).toContain('RIGHTS_BLOCKED');
+    // One source with two problems must read as one source, not two.
+    expect(error.subjects).toEqual(['HVAC Forum (forum.example)']);
   });
 
   it('writes nothing at all — not even the files that would have been fine', async () => {
@@ -177,7 +180,8 @@ describe('declaration-only blockers the database cannot see', () => {
       ),
     });
     const gate = error.refusals.find((refusal) => refusal.code === 'SOURCE_PUBLISH_GATE_BLOCKED');
-    expect(gate?.subject).toContain('Carrier (carrier.com)');
+    expect(gate?.subject).toBe('Carrier (carrier.com)');
+    expect(gate?.message).toContain('carrier-docs');
     expect(gate?.message).toContain('REDISTRIBUTION_NOT_ALLOWED');
   });
 
