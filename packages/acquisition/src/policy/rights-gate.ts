@@ -1,5 +1,6 @@
 import { publishDecision, RightsViolationError } from '@data-foundry/canonical-schema';
 import {
+  decideHost,
   evaluateSourceActivationGate,
   type AcquisitionMethod,
   type SourceRegistryEntry,
@@ -101,6 +102,24 @@ export function evaluateAcquisitionGate(input: AcquisitionGateInput): Acquisitio
     });
   }
 
+  // 6a. The URL being fetched, checked against the prohibition on its own terms.
+  //     Step 4 already covers the DECLARED domain via the activation gate, and
+  //     step 6 requires the URL to sit under it — so in a correct declaration
+  //     this is redundant. It is here for the case where one of those is wrong:
+  //     the request that actually leaves this process is the one that matters,
+  //     and it should be checked, not inferred. Same policy, second input.
+  const urlHost = decideHost(url);
+  if (urlHost.kind === 'PROHIBITED') {
+    blockers.push({
+      code: 'SOURCE_PROHIBITED',
+      message:
+        `URL host "${urlHost.host}" belongs to ${urlHost.prohibition.publisher}, which is ` +
+        `prohibited in platform code: ${urlHost.prohibition.reason}`,
+    });
+  } else if (urlHost.kind === 'UNDECIDABLE') {
+    blockers.push({ code: 'SOURCE_DOMAIN_UNDECIDABLE', message: urlHost.reason });
+  }
+
   // 6. The URL must belong to the source we hold rights metadata for. Without this,
   //    a GREEN source's rights record would launder a request to any host at all.
   if (!hostIsInScope(entry.domain, url)) {
@@ -175,3 +194,38 @@ export function assertAcquisitionAllowed(input: AcquisitionGateInput): Acquisiti
   if (result.allowed) return result;
   throwGateRefusal(input.entry, result);
 }
+
+/**
+ * Proof that the gate ran and allowed the fetch.
+ *
+ * The brand is a `unique symbol` that is declared but never exported, so this
+ * type cannot be produced anywhere except by {@link requireAcquisitionAllowed}
+ * below. `TransportContext` requires one, which means a provider's transport
+ * cannot be called at all without a value only the gate can mint.
+ *
+ * This exists because the invariant used to rest on a single hand-written line:
+ * `if (!gate.allowed) throwGateRefusal(entry, gate)`. Deleting that line
+ * compiled cleanly, and the fetch proceeded. A control whose removal is not a
+ * type error is a control that will eventually be removed by someone tidying
+ * up, and the tests that would have caught it are the ones nobody wrote.
+ */
+declare const ACQUISITION_ALLOWED: unique symbol;
+export type AllowedAcquisition = AcquisitionGateResult & {
+  readonly [ACQUISITION_ALLOWED]: true;
+};
+
+/**
+ * Refuse unless the gate allowed the fetch, returning the proof if it did.
+ *
+ * The cast is the one place in the codebase where the brand is applied, and it
+ * is unreachable unless `result.allowed` is true — `throwGateRefusal` returns
+ * `never`.
+ */
+export function requireAcquisitionAllowed(
+  entry: SourceRegistryEntry,
+  result: AcquisitionGateResult,
+): AllowedAcquisition {
+  if (!result.allowed) throwGateRefusal(entry, result);
+  return result as AllowedAcquisition;
+}
+

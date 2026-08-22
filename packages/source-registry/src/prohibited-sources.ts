@@ -111,22 +111,151 @@ export const PROHIBITED_SOURCES: readonly ProhibitedSource[] = [
   },
 ] as const;
 
-/** One spelling per host: case-insensitive, and the trailing dot is the root label. */
-const normalizeHost = (host: string): string => host.trim().toLowerCase().replace(/\.$/, '');
+/**
+ * Short, distinctive tokens for the prohibited publishers.
+ *
+ * Separate from `domain` because they answer a different question. A domain
+ * identifies a host to refuse; these identify a NAME that must not appear in a
+ * file that declares a rights posture — a `publisher`, a `license_text_ref`, a
+ * terms URL. The same name appearing as an entity value ("Carrier Infinity
+ * 24ANB7") is nominative and entirely fine, which is why the check that uses
+ * these is scoped to rights-declaring files rather than run over the tree.
+ */
+export const PROHIBITED_PUBLISHER_TOKENS: readonly string[] = [
+  'Air-Conditioning, Heating, and Refrigeration Institute',
+  'Carrier Global',
+  'Trane',
+  'Lennox',
+  'Daikin',
+  'Johnson Controls',
+] as const;
 
 /**
- * The prohibition covering this host, or `null`.
+ * Names that are BOTH a prohibited publisher and a legitimate identifier, and
+ * therefore cannot be policed by a token scan at all.
+ *
+ * `AHRI` is the clearest case. It is the publisher of a prohibited directory —
+ * and it is also the certification-reference vocabulary this vertical is built
+ * on: `ahri_ref`, the CSV column "AHRI Certified Reference Number", the
+ * `AHRI-` prefixes that identifier normalization strips, and
+ * `ahri_reference_number`, which is a column of EPA's own public dataset.
+ * Scanning for the bare token flags all of those, and deleting them to make a
+ * scan quiet would damage identifier normalization while removing no claim.
+ *
+ * So the boundary is drawn where it can actually be drawn: the DOMAIN is
+ * policed mechanically and absolutely, the full legal NAME is policed in
+ * rights-declaring files, and the bare token is documented here as out of reach
+ * rather than half-policed. What guards it instead is the domain check — a
+ * fabricated AHRI rights claim needs a domain to be about.
+ */
+export const AMBIGUOUS_PUBLISHER_TOKENS: readonly string[] = ['AHRI'] as const;
+
+/**
+ * The host a value denotes, or `null` when no host can be determined.
+ *
+ * Accepts what callers actually have: a bare hostname, `host:port`, a full URL
+ * in any scheme, a protocol-relative `//host/path`, with or without
+ * credentials, query, fragment, mixed case or a trailing root dot. All of them
+ * denote one host, and the policy answer must not depend on which was written.
+ *
+ * The first version of this normalized only case and a trailing dot. Its single
+ * caller passed a bare hostname, so it worked — and
+ * `prohibitedSourceFor('https://carrier.com/')` returned `null`. A control that
+ * fails open on the most obvious input a future caller would hand it is not a
+ * control, and no test caught it because the tests only asked what that one
+ * caller asked.
+ *
+ * Non-hierarchical URIs (`mailto:`, `urn:`) have no authority component and
+ * therefore denote no host. They return `null` rather than having a domain
+ * guessed out of them.
+ */
+export function hostnameOf(value: string): string | null {
+  const raw = value.trim();
+  if (raw === '') return null;
+  // Whitespace cannot appear in an authority; refuse rather than let the URL
+  // parser percent-encode it into something that parses.
+  if (/\s/.test(raw)) return null;
+
+  let candidate: string;
+  if (/^[a-z][a-z0-9+.-]*:\/\//i.test(raw)) {
+    candidate = raw; // absolute URL with an authority
+  } else if (raw.startsWith('//')) {
+    candidate = `http:${raw}`; // protocol-relative
+  } else if (/^[a-z][a-z0-9+.-]*:/i.test(raw) && !/^[a-z0-9.-]+:\d+(?:[/?#]|$)/i.test(raw)) {
+    // A scheme with no `//` — mailto:, urn:, data:. No authority, so no host.
+    // Excluded first is the `host:port` form, which looks the same to a regex.
+    return null;
+  } else {
+    candidate = `http://${raw}`; // bare host, host:port, host/path
+  }
+
+  let hostname: string;
+  try {
+    hostname = new URL(candidate).hostname;
+  } catch {
+    return null;
+  }
+
+  const host = hostname.toLowerCase().replace(/\.$/, '');
+  if (host === '') return null;
+  // A hostname is labels of letters, digits and hyphens (or a bracketed IPv6
+  // literal). Anything else is not a host we are willing to reason about.
+  if (!/^\[[0-9a-f:.]+\]$/i.test(host) && !/^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*$/.test(host)) {
+    return null;
+  }
+  return host;
+}
+
+/**
+ * The prohibition covering this value, or `null`.
  *
  * Whole labels only. `endsWith('carrier.com')` would also refuse
  * `aircarrier.com`, an unrelated publisher — a control that refuses the wrong
- * party is a control someone will eventually switch off.
+ * party is a control someone will eventually switch off. By the same token
+ * `carrier.com.lookalike.example` is a different registrable domain and a
+ * different party, and is not refused.
+ *
+ * **Subdomains are prohibited with their parent.** `parts.carrier.com` is the
+ * same publisher as `carrier.com`; a prohibition that stopped at the apex would
+ * be lifted by prepending a label.
+ *
+ * Returns `null` for a value that denotes no host. That is the honest answer to
+ * "which prohibition covers this" — the fail-closed decision belongs to
+ * {@link decideHost}, which is what the gates call.
  */
-export function prohibitedSourceFor(domain: string): ProhibitedSource | null {
-  const host = normalizeHost(domain);
-  if (host === '') return null;
+export function prohibitedSourceFor(hostOrUrl: string): ProhibitedSource | null {
+  const host = hostnameOf(hostOrUrl);
+  if (host === null) return null;
   return (
     PROHIBITED_SOURCES.find(
       (entry) => host === entry.domain || host.endsWith(`.${entry.domain}`),
     ) ?? null
   );
+}
+
+/**
+ * The policy decision for a value, with "could not tell" as its own outcome.
+ *
+ * Gates must treat `UNDECIDABLE` as blocking. Collapsing it into "not
+ * prohibited" is how a malformed domain becomes an allowed one.
+ */
+export type HostDecision =
+  | { readonly kind: 'ALLOWED'; readonly host: string }
+  | { readonly kind: 'PROHIBITED'; readonly host: string; readonly prohibition: ProhibitedSource }
+  | { readonly kind: 'UNDECIDABLE'; readonly reason: string };
+
+export function decideHost(value: string): HostDecision {
+  const host = hostnameOf(value);
+  if (host === null) {
+    return {
+      kind: 'UNDECIDABLE',
+      reason:
+        `"${value}" does not denote a host that can be checked against the prohibited-source ` +
+        `list. Refusing rather than assuming it is permitted.`,
+    };
+  }
+  const prohibition = prohibitedSourceFor(host);
+  return prohibition === null
+    ? { kind: 'ALLOWED', host }
+    : { kind: 'PROHIBITED', host, prohibition };
 }

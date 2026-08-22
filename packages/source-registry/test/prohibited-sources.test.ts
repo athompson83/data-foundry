@@ -19,6 +19,8 @@
 import { describe, expect, it } from 'vitest';
 import {
   PROHIBITED_SOURCES,
+  decideHost,
+  hostnameOf,
   prohibitedSourceFor,
 } from '../src/prohibited-sources.js';
 
@@ -81,3 +83,118 @@ describe('the prohibited-source list', () => {
     }
   });
 });
+
+/**
+ * The control has to answer the same question the same way however the host is
+ * spelled.
+ *
+ * The first implementation normalized only case and a trailing dot, and its one
+ * caller happened to pass a bare hostname — so it worked, and looked like it
+ * worked in general. It did not: every URL form fell straight through and was
+ * reported ALLOWED. `prohibitedSourceFor('https://carrier.com/')` returned
+ * null. A control that fails open on the most obvious input a future caller
+ * would hand it is not a control, and nothing in the tests said so, because the
+ * tests only ever asked it what its one caller asks.
+ */
+describe('the host a value denotes is extracted before any policy decision', () => {
+  const PROHIBITED_SPELLINGS: readonly string[] = [
+    'carrier.com',
+    'CARRIER.COM',
+    '  carrier.com  ',
+    'carrier.com.',
+    'www.carrier.com',
+    'parts.eu.carrier.com',
+    'carrier.com:8443',
+    'https://carrier.com',
+    'https://carrier.com/',
+    'http://carrier.com:8080/manuals/index.json',
+    'https://www.carrier.com/manuals?model=24ANB7#specs',
+    'https://CARRIER.COM/X?a=1#f',
+    'https://carrier.com./manuals',
+    '//carrier.com/manuals',
+    'https://user:secret@carrier.com/manuals',
+    'https://ahridirectory.org/certified/units.json',
+    'ftp://ahridirectory.org/exports/units.csv',
+  ];
+
+  it.each(PROHIBITED_SPELLINGS)('refuses %s', (spelling) => {
+    expect(prohibitedSourceFor(spelling), spelling).not.toBeNull();
+    expect(decideHost(spelling).kind, spelling).toBe('PROHIBITED');
+  });
+
+  const ALLOWED_SPELLINGS: readonly string[] = [
+    'data.energystar.gov',
+    'https://data.energystar.gov/resource/83eb-xbyy.json?$limit=3',
+    'ratings-directory.example.org',
+    'https://catalog.acme-climate.example.com/catalog.json',
+    // Whole labels only, in every form.
+    'aircarrier.com',
+    'https://aircarrier.com/parts',
+    'notahridirectory.org',
+    'https://newyork.com',
+    // A lookalike that puts the prohibited name in the WRONG position: this is
+    // a different registrable domain and a different party.
+    'https://carrier.com.lookalike.example/manuals',
+  ];
+
+  it.each(ALLOWED_SPELLINGS)('permits %s', (spelling) => {
+    expect(prohibitedSourceFor(spelling), spelling).toBeNull();
+    expect(decideHost(spelling).kind, spelling).toBe('ALLOWED');
+  });
+
+  it('extracts the same host from every spelling of one publisher', () => {
+    for (const spelling of [
+      'carrier.com',
+      'CARRIER.COM.',
+      'https://carrier.com/x?y#z',
+      'http://user:pw@carrier.com:8443/x',
+      '//carrier.com',
+    ]) {
+      expect(hostnameOf(spelling), spelling).toBe('carrier.com');
+    }
+  });
+
+  it('preserves the subdomain, because policy is decided per host', () => {
+    expect(hostnameOf('https://parts.eu.carrier.com/x')).toBe('parts.eu.carrier.com');
+  });
+});
+
+/**
+ * Where a host decision is REQUIRED, "I could not tell" must not read as "fine".
+ */
+describe('an undecidable host fails closed', () => {
+  const UNDECIDABLE: readonly string[] = [
+    '',
+    '   ',
+    'not a hostname',
+    'http://',
+    '://carrier.com',
+    'mailto:someone@carrier.com',
+    'urn:isbn:0451450523',
+    'https://',
+    '..',
+  ];
+
+  it.each(UNDECIDABLE)('cannot decide %s', (value) => {
+    expect(hostnameOf(value), value).toBeNull();
+    expect(decideHost(value).kind, value).toBe('UNDECIDABLE');
+  });
+
+  it('says why it could not decide', () => {
+    const decision = decideHost('not a hostname');
+    expect(decision.kind).toBe('UNDECIDABLE');
+    if (decision.kind === 'UNDECIDABLE') {
+      expect(decision.reason.length).toBeGreaterThan(10);
+    }
+  });
+
+  it('does not report an undecidable value as prohibited either', () => {
+    // `prohibitedSourceFor` answers "which prohibition covers this", and the
+    // honest answer for an unparseable value is "none of them". The fail-closed
+    // decision belongs to `decideHost`, which the gates use — so a caller
+    // cannot get a reassuring null without having asked the wrong question.
+    expect(prohibitedSourceFor('not a hostname')).toBeNull();
+    expect(decideHost('not a hostname').kind).toBe('UNDECIDABLE');
+  });
+});
+
