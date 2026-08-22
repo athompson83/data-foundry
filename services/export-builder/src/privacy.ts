@@ -23,7 +23,11 @@
  * manifest field literally named `requires_legal_review` would trip it and
  * refuse a perfectly clean export. So authored prose (correction reasons) gets
  * the derived-token net, and the whole-artifact sweep matches the full declared
- * identity only. Both refuse; neither guesses.
+ * identity only. Both refuse; neither guesses. The sweep takes one more bound
+ * from upstream — `MIN_IDENTITY_FRAGMENT`, the floor `reviewerIdentityTokens`
+ * already applies to a derived token — because its haystack is a whole file of
+ * model numbers, and a needle short enough to sit inside one is not evidence of
+ * a person.
  *
  * INTERNAL NOTES. A `SourceRegistryEntry` carries text that exists for us and
  * not for a customer: `notes`, `geographic_notes`, the acquisition approver, the
@@ -34,6 +38,7 @@
  * fields somebody remembered to write down.
  */
 import {
+  MIN_IDENTITY_FRAGMENT,
   ReviewerIdentityLeak,
   assertNoReviewerIdentity,
   correctionFields,
@@ -86,6 +91,22 @@ export function assertRowsCarryNoReviewerIdentity(
  *
  * Checking the bytes rather than the object is the whole point: the failure
  * mode being guarded against is a field nobody thought to check.
+ *
+ * A declared identity below `MIN_IDENTITY_FRAGMENT` is not searched for, for the
+ * reason `MIN_INTERNAL_FRAGMENT` gives below and `reviewerIdentityTokens` gives
+ * upstream: a needle that short is inside ordinary data. A rights reviewer
+ * recorded by initials — `AH`, which is how a two-person legal team signs a
+ * review off — is a substring of `AHRI-209876543`, a certification reference
+ * this vertical publishes, and with no floor it refused every export of the
+ * vertical. An over-refusal that fires on correct data does not make anything
+ * safer; it gets the control switched off by whoever has to ship.
+ *
+ * The floor is the QUERY LAYER'S, imported rather than chosen here, and it is
+ * deliberately not `MIN_INTERNAL_FRAGMENT`. Twelve characters is right for an
+ * internal note, which is a sentence. Applied to a human identity it would skip
+ * `m.chen` and `j.okafor` and leave this sweep armed against almost nobody,
+ * which is the same control failing in the direction that actually costs
+ * somebody their privacy. Two hazards, one rule each, both already written down.
  */
 export function assertArtifactCarriesNoReviewerIdentity(
   path: string,
@@ -95,7 +116,8 @@ export function assertArtifactCarriesNoReviewerIdentity(
   const haystack = serialized.toLowerCase();
   for (const reviewer of reviewers) {
     const needle = reviewer.trim().toLowerCase();
-    if (needle !== '' && haystack.includes(needle)) throw new ReviewerIdentityLeak(path);
+    if (needle.length < MIN_IDENTITY_FRAGMENT) continue;
+    if (haystack.includes(needle)) throw new ReviewerIdentityLeak(path);
   }
 }
 

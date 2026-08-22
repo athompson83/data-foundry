@@ -17,10 +17,13 @@
  * object, because the failure being guarded is a field nobody thought to check.
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { ReviewerIdentityLeak } from '@data-foundry/query-model';
+import { MIN_IDENTITY_FRAGMENT, ReviewerIdentityLeak } from '@data-foundry/query-model';
 import type { EditorialOverride } from '@data-foundry/canonical-store';
+import type { SourceRegistryEntry } from '@data-foundry/source-registry';
 import {
+  FACTS_JSONL,
   InternalTextLeak,
+  assertArtifactCarriesNoReviewerIdentity,
   assertNoInternalText,
   buildDatasetExport,
   createMemorySink,
@@ -228,5 +231,83 @@ describe('the internal-text sweep itself refuses when it finds something', () =>
     expect(internalOnlyText([registryEntry('carrier-docs', { notes: 'short' })])).not.toContain(
       'short',
     );
+  });
+});
+
+/**
+ * A needle short enough to be inside ordinary data is not evidence of anything.
+ *
+ * `internalOnlyText` already refuses to derive fragments below
+ * `MIN_INTERNAL_FRAGMENT`, and says why: "a four-character note is a substring
+ * of everything and would refuse every export". The reviewer sweep had no floor
+ * at all, so a rights reviewer recorded by initials — which is how a two-person
+ * legal team actually signs a review off — turned every export of this vertical
+ * into a refusal, because `AH` is inside `AHRI-209876543`.
+ *
+ * The floor for THIS path is the query layer's own `MIN_IDENTITY_FRAGMENT`, not
+ * `MIN_INTERNAL_FRAGMENT`. Twelve characters is the right floor for a note,
+ * which is a sentence; applied to a human identity it would skip `m.chen` and
+ * `j.okafor` and leave the sweep armed against almost nobody. Both directions
+ * are asserted below, because a guard that stops false-refusing by never firing
+ * has been switched off rather than fixed.
+ */
+describe('a reviewer identity too short to be a needle', () => {
+  /** A rights reviewer recorded by initials, and a substring of published data. */
+  const INITIALS = 'AH';
+
+  const initialled = (): SourceRegistryEntry[] =>
+    fixtures.sourceRegistry.map((entry) =>
+      entry.key === 'ahri-directory'
+        ? { ...entry, rights_policy: { ...entry.rights_policy, reviewed_by: INITIALS } }
+        : entry,
+    );
+
+  it('does not refuse an export whose ordinary data happens to contain it', async () => {
+    const sink = createMemorySink('initials');
+    const result = await buildDatasetExport({
+      ...baseOptions(fixtures),
+      sink,
+      sourceRegistry: initialled(),
+    });
+    // The collision is real, not hypothetical: the initials are inside the
+    // certification reference this export publishes.
+    expect(fromUtf8(result.artifacts.get(FACTS_JSONL) as Uint8Array)).toContain('AHRI-209876543');
+    expect(result.rows.length).toBeGreaterThan(0);
+    expect(sink.files.size).toBeGreaterThan(0);
+  });
+
+  it('is skipped, while a full identity in the same set is still refused', () => {
+    const reviewers = declaredReviewers([], initialled());
+    expect(reviewers).toEqual(expect.arrayContaining([INITIALS, 'legal@example.com']));
+
+    expect(() =>
+      assertArtifactCarriesNoReviewerIdentity(
+        'facts.csv',
+        'property,value\r\nahri_certified_ref,AHRI-209876543\r\n',
+        reviewers,
+      ),
+    ).not.toThrow();
+
+    // Same set, same sweep, same call: the guard is still armed.
+    expect(() =>
+      assertArtifactCarriesNoReviewerIdentity(
+        'manifest.json',
+        '{"sources":[{"source_key":"ahri-directory","rights_reviewer":"legal@example.com"}]}',
+        reviewers,
+      ),
+    ).toThrow(ReviewerIdentityLeak);
+  });
+
+  it('draws the line where the query layer already draws it', () => {
+    // Pinned to the shared constant rather than to the number, so the two
+    // cannot drift into disagreeing about what counts as an identity.
+    const shortest = 'q'.repeat(MIN_IDENTITY_FRAGMENT);
+    const shorter = 'q'.repeat(MIN_IDENTITY_FRAGMENT - 1);
+    expect(() =>
+      assertArtifactCarriesNoReviewerIdentity('facts.csv', `a ${shortest} b`, [shortest]),
+    ).toThrow(ReviewerIdentityLeak);
+    expect(() =>
+      assertArtifactCarriesNoReviewerIdentity('facts.csv', `a ${shorter} b`, [shorter]),
+    ).not.toThrow();
   });
 });

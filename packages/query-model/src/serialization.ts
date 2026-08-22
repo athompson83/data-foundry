@@ -213,8 +213,17 @@ export class ReviewerIdentityLeak extends Error {
  * is unconditional; this one guards the boundary for surfaces that assemble a
  * payload from anywhere else.
  */
-/** Derived tokens shorter than this match too much to be evidence of anything. */
-const MIN_DERIVED_TOKEN = 4;
+/**
+ * An identity fragment shorter than this matches too much to be evidence of
+ * anything.
+ *
+ * It bounds the tokens derived below, and it is exported because it is the rule
+ * rather than a local detail: any surface that searches a payload for a person
+ * needs the same floor, and two surfaces that pick their own numbers disagree
+ * about what counts as an identity. `services/export-builder` applies it to the
+ * declared identities it sweeps whole artifacts for.
+ */
+export const MIN_IDENTITY_FRAGMENT = 4;
 
 /**
  * The forms of one reviewer's identity worth searching a reason for.
@@ -236,7 +245,7 @@ export function reviewerIdentityTokens(reviewer: string): string[] {
   const at = declared.indexOf('@');
   if (at > 0) {
     const local = declared.slice(0, at);
-    if (local.length >= MIN_DERIVED_TOKEN) tokens.push(local);
+    if (local.length >= MIN_IDENTITY_FRAGMENT) tokens.push(local);
   }
   return tokens;
 }
