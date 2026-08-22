@@ -21,10 +21,42 @@ import { contractDocument, matchRoute, ROUTES } from '../src/routes.js';
 
 const SRC = fileURLToPath(new URL('../src/', import.meta.url));
 
-const sourceFiles = (): { name: string; text: string }[] =>
-  readdirSync(SRC)
-    .filter((name) => name.endsWith('.ts'))
-    .map((name) => ({ name, text: readFileSync(`${SRC}${name}`, 'utf8') }));
+/**
+ * Every `.ts` file under `src/`, at ANY depth.
+ *
+ * The read was `readdirSync(SRC)`, which is one directory deep, so every check
+ * in this file silently meant "no violation in a file that happens to sit at
+ * the top of `src/`". A module in a subdirectory — which is where the next
+ * group of handlers lands the moment there are enough of them — could import a
+ * driver, deep-import past the query layer's entry point, write SQL and build a
+ * second fact wire object, and nothing here would ever open it. The checks were
+ * not weaker than they read; they were not running.
+ *
+ * `name` carries the path relative to `src/`, so a violation names the file
+ * rather than a basename that could be any of several. The listing is sorted so
+ * a failure message is the same on every machine.
+ */
+const sourceFiles = (): { name: string; text: string }[] => {
+  const found: { name: string; text: string }[] = [];
+  const walk = (directory: string, prefix: string): void => {
+    const entries = readdirSync(directory, { withFileTypes: true }).sort((left, right) =>
+      left.name.localeCompare(right.name),
+    );
+    for (const entry of entries) {
+      if (entry.isDirectory()) {
+        walk(`${directory}${entry.name}/`, `${prefix}${entry.name}/`);
+        continue;
+      }
+      if (!entry.name.endsWith('.ts')) continue;
+      found.push({
+        name: `${prefix}${entry.name}`,
+        text: readFileSync(`${directory}${entry.name}`, 'utf8'),
+      });
+    }
+  };
+  walk(SRC, '');
+  return found;
+};
 
 /** Every module specifier a file imports from. */
 function importsOf(text: string): string[] {
