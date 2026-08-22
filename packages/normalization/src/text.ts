@@ -49,45 +49,71 @@ const PUNCTUATION_MAP: ReadonlyMap<string, string> = new Map([
 ]);
 
 /**
- * Invisible formatting characters that carry no meaning in the data this
- * platform ingests, removed before anything is compared.
+ * Invisible characters no script needs, removed everywhere — including from the
+ * value that gets stored.
  *
- * These are the ones that actually turn up. A PDF-to-HTML converter leaves a
- * soft hyphen wherever it broke a line. A CMS that once justified text leaves
- * zero-width spaces. A file that travelled through Windows carries a
- * byte-order mark on its first field. None of them render, so nobody reviewing
- * the source sees anything wrong, and every one of them makes two strings a
- * reader would call identical compare unequal.
+ * These are artefacts of how text travelled, not of what it says. A
+ * PDF-to-HTML converter leaves a soft hyphen wherever it broke a line. A CMS
+ * that once justified text leaves zero-width spaces. A file that came through
+ * Windows carries a byte-order mark on its first field. None of them render,
+ * so nobody reviewing the source sees anything wrong, and every one of them
+ * makes two strings a reader would call identical compare unequal.
  *
  * `\s` in JavaScript already covers the byte-order mark, which is why some of
  * this worked by accident; the rest of the list it does not touch.
- *
- * A deliberately closed list, in the same spirit as `NAMED_ENTITIES` above: a
- * format character not named here is left verbatim rather than guessed at. The
- * zero-width joiner and non-joiner are on it because in Latin-script technical
- * data they are scraping debris — but they are SEMANTIC in Indic and Arabic
- * scripts and in emoji sequences. A vertical that ingests those has to revisit
- * this list, and this comment is where it should start.
  */
-const FORMAT_CHARACTERS: ReadonlySet<string> = new Set([
+const INVISIBLE_DEBRIS: ReadonlySet<string> = new Set([
   '\u00AD', // soft hyphen
   '\u200B', // zero-width space
+  '\u2060', // word joiner
+  '\uFEFF', // zero-width no-break space / byte-order mark
+]);
+
+/**
+ * Characters that ARE meaningful in some script, removed only when matching.
+ *
+ * The zero-width joiner and non-joiner change what a word says in Indic and
+ * Arabic text, and the directional marks and isolates are what make
+ * mixed-direction text render in the right order. In a Latin-script model
+ * number they are scraping debris; in a product name, a person's name, or any
+ * value from a vertical this platform has not onboarded yet, removing them is
+ * silent corruption.
+ *
+ * The first version of this file put them in one list with the debris and
+ * removed all of it from stored values, on the reasoning that nothing in an
+ * HVAC specification table is Devanagari. Documenting that cost is not the
+ * same as it being safe: a closed list limits accidental growth, it does not
+ * make global stored-value data loss acceptable. Review was right to press it.
+ *
+ * So they are stripped in `comparisonKey` and nowhere else. Matching becomes
+ * insensitive to a joiner; storage keeps what the source sent. Those are
+ * different questions and they now get different answers.
+ */
+const SCRIPT_CONTROLS: ReadonlySet<string> = new Set([
   '\u200C', // zero-width non-joiner
   '\u200D', // zero-width joiner
   '\u200E', // left-to-right mark
   '\u200F', // right-to-left mark
-  '\u2060', // word joiner
   '\u2066', // left-to-right isolate
   '\u2067', // right-to-left isolate
   '\u2068', // first strong isolate
   '\u2069', // pop directional isolate
-  '\uFEFF', // zero-width no-break space / byte-order mark
 ]);
 
-export const stripFormatCharacters = (value: string): string =>
+const without = (value: string, removable: ReadonlySet<string>): string =>
   Array.from(value)
-    .filter((character) => !FORMAT_CHARACTERS.has(character))
+    .filter((character) => !removable.has(character))
     .join('');
+
+/** Safe for a stored value: transport artefacts only. */
+export const stripInvisibleDebris = (value: string): string => without(value, INVISIBLE_DEBRIS);
+
+/**
+ * Debris AND script controls. Correct for a matching key, wrong for anything
+ * that will be written back — see `SCRIPT_CONTROLS`.
+ */
+export const stripFormatCharacters = (value: string): string =>
+  without(without(value, INVISIBLE_DEBRIS), SCRIPT_CONTROLS);
 
 export const normalizePunctuation = (value: string): string =>
   Array.from(value)
@@ -112,14 +138,28 @@ export const normalizePunctuation = (value: string): string =>
  * This fold is never applied to a stored value — it exists to decide whether
  * two strings mean the same thing, and it lowercases, which would be a lie
  * about what a source said. That is a separate question from what layer-1
- * primitive cleanup does, which DOES alter the stored value (it folds NFKC,
- * decodes entities, strips format characters, normalizes punctuation and
- * collapses whitespace) and is deliberately narrower for that reason. Only
- * `display` on a normalized identifier is the untouched original.
+ * primitive cleanup does, which DOES alter the stored value and is
+ * deliberately narrower for it: cleanup removes only `INVISIBLE_DEBRIS`, this
+ * fold also removes `SCRIPT_CONTROLS`. Only `display` on a normalized
+ * identifier is the untouched original.
+ *
+ * It decodes entities, and it has to. `normalizeProperty` and
+ * `normalizeIdentifierRule` both ask `isNullToken(source.raw)` — the raw source
+ * string, before layer-1 cleanup has decoded anything — so a fold that did not
+ * decode recognised absence only in whichever spelling a scraper happened to
+ * have already resolved.
+ *
+ * For the three callers that receive an ALREADY-cleaned value this is normally
+ * a no-op, because cleanup has already decoded. Not always, and the exception
+ * is worth naming rather than claiming idempotence it does not have: a
+ * double-encoded `&amp;shy;` survives cleanup's single decode as `&shy;`, and
+ * this fold then decodes it a second time. The stored value is unaffected —
+ * cleanup decodes once — so the consequence is confined to a matching key
+ * over-normalizing an input that would have to be encoded twice to occur.
  */
 export const comparisonKey = (value: string): string =>
   collapseWhitespace(
-    normalizePunctuation(stripFormatCharacters(normalizeUnicode(value))),
+    normalizePunctuation(stripFormatCharacters(decodeHtmlEntities(normalizeUnicode(value)))),
   ).toLowerCase();
 
 const NAMED_ENTITIES: ReadonlyMap<string, string> = new Map([
@@ -129,6 +169,17 @@ const NAMED_ENTITIES: ReadonlyMap<string, string> = new Map([
   ['quot', '"'],
   ['apos', "'"],
   ['nbsp', '\u00A0'], // decoded faithfully; folded to a plain space by normalizePunctuation
+  // The invisible ones. `&shy;` is how a PDF-to-HTML converter writes the soft
+  // hyphen it left at a line break, and it was missing here entirely — so
+  // `N/A&shy;` survived layer-1 cleanup as the literal text `N/A&shy;` and was
+  // published, entity and all, as a value on a spec sheet. Decoded faithfully
+  // to the character; what happens to the character afterwards is
+  // `stripInvisibleDebris`'s decision, not the decoder's.
+  ['shy', '\u00AD'],
+  ['zwnj', '\u200C'],
+  ['zwj', '\u200D'],
+  ['lrm', '\u200E'],
+  ['rlm', '\u200F'],
   ['deg', '°'],
   ['frac12', '½'],
   ['frac14', '¼'],

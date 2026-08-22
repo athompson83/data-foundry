@@ -21,7 +21,12 @@
 import { describe, expect, it } from 'vitest';
 import { normalizeRecord } from '../src/pipeline.js';
 import { HVAC_RULE_SET, hvacRecord, value } from './fixtures.js';
-import { isNullToken, stripFormatCharacters } from '../src/text.js';
+import {
+  comparisonKey,
+  isNullToken,
+  stripFormatCharacters,
+  stripInvisibleDebris,
+} from '../src/text.js';
 import { mapVocabulary } from '../src/vocabulary.js';
 import { findUnit } from '../src/units.js';
 import { normalizeBoolean } from '../src/scalars.js';
@@ -33,6 +38,9 @@ const ZERO_WIDTH_SPACE = '​';
 const BOM = '﻿';
 const LEFT_TO_RIGHT_MARK = '‎';
 const WORD_JOINER = '⁠';
+const ZWNJ = '‌';
+const ZWJ = '‍';
+const LRM = '‎';
 
 const INVISIBLE = [
   ['soft hyphen', SOFT_HYPHEN],
@@ -54,17 +62,16 @@ describe('stripping format characters', () => {
     expect(stripFormatCharacters(`24ACC6${character}36A003`)).toBe('24ACC636A003');
   });
 
-  it('decomposes a joined emoji, which is the cost of the choice', () => {
-    // Not a bug report waiting to happen: the zero-width joiner is on the
-    // removal list because in Latin-script technical data it is scraping
-    // debris, and the price of that is that a ZWJ-joined emoji sequence comes
-    // apart into its components. Nothing in an HVAC specification table is an
-    // emoji, so the trade is worth making today — but it IS a trade, and a
-    // vertical that ingests text where the joiner is semantic (Indic and
-    // Arabic scripts, not only emoji) has to revisit `FORMAT_CHARACTERS`.
-    // Pinned here so that decision is found by reading the tests rather than
-    // by someone's name rendering wrongly in production.
+  it('decomposes a joined emoji — in the comparison key only', () => {
+    // This is what makes the split matter, stated as a pair.
+    //
+    // The comparison key removes the joiner, so two spellings of the same
+    // thing match. The stored value keeps it, so nothing is rewritten. The
+    // first version of this file had only the first behaviour and applied it
+    // to storage too, which would have quietly changed emoji, Devanagari and
+    // Arabic on their way into the database.
     expect(stripFormatCharacters('👩‍🔧')).toBe('👩🔧');
+    expect(stripInvisibleDebris('👩‍🔧'), 'storage keeps what the source sent').toBe('👩‍🔧');
     expect(stripFormatCharacters('🔧'), 'an emoji with no joiner is untouched').toBe('🔧');
   });
 
@@ -156,6 +163,79 @@ describe('identifier matching, which did not need changing', () => {
   });
 });
 
+describe('absence written as an HTML entity', () => {
+  /**
+   * The second half of the same bug, and the half the first fix missed.
+   *
+   * `normalizeProperty` asks `isNullToken(source.raw)` — the RAW source string,
+   * before layer-1 cleanup has decoded anything. So handling the invisible
+   * CHARACTER while leaving the ENTITY that encodes it alone fixes only the
+   * spelling that a scraper happens to have already decoded. `&#8203;` and
+   * `&shy;` are how these usually arrive out of an HTML table.
+   *
+   * Both spellings were reproduced publishing a value on a plain string
+   * property before this was changed: `"N/A&#8203;"` published `"N/A"`, and
+   * `"N/A&shy;"` published the literal `"N/A&shy;"` — the entity itself, on a
+   * spec sheet, because `shy` was not in the decoder's list at all.
+   */
+  it.each([
+    ['a decimal numeric entity', 'N/A&#8203;'],
+    ['a hexadecimal numeric entity', 'N/A&#x200B;'],
+    ['the named soft-hyphen entity', 'N/A&shy;'],
+    ['a named entity mid-token', 'N&shy;/A'],
+  ])('is recognised when written as %s', (_name, raw) => {
+    expect(isNullToken(raw)).toBe(true);
+  });
+
+  it('does not decode its way into calling a real value absent', () => {
+    // The widening must not start eating data. `&amp;` decodes to `&`, and
+    // none of these mean absence however they are decoded.
+    expect(isNullToken('R-410A&#8203;')).toBe(false);
+    expect(isNullToken('Carrier &amp; Sons')).toBe(false);
+    expect(isNullToken('&shy;')).toBe(true); // decodes to a soft hyphen, then to nothing
+    expect(isNullToken('not-applicable-here')).toBe(false);
+  });
+});
+
+describe('a stored value keeps what a script needs', () => {
+  /**
+   * Layer-1 cleanup rewrites the value that gets STORED. Removing a character
+   * there is data loss, and the reasoning that made it acceptable for a soft
+   * hyphen does not carry to a zero-width joiner: in Indic and Arabic text ZWJ
+   * and ZWNJ change what a word says, and the directional controls are what
+   * make mixed-direction text render in the right order. A closed list limits
+   * accidental growth; it does not make global stored-value data loss safe for
+   * a vertical this platform has not onboarded yet.
+   *
+   * So the two sets are separated by what they are for. Debris that no script
+   * needs — a line-break artefact, a justification artefact, a byte-order mark
+   * — is removed everywhere. Anything a script might mean is removed only in
+   * the COMPARISON key, where the scope is matching rather than display and
+   * nothing is written back.
+   */
+  it('strips debris from a stored value', () => {
+    expect(stripInvisibleDebris(`24ACC6${SOFT_HYPHEN}36A003`)).toBe('24ACC636A003');
+    expect(stripInvisibleDebris(`24ACC6${ZERO_WIDTH_SPACE}36A003`)).toBe('24ACC636A003');
+    expect(stripInvisibleDebris(`24ACC6${BOM}36A003`)).toBe('24ACC636A003');
+    expect(stripInvisibleDebris(`24ACC6${WORD_JOINER}36A003`)).toBe('24ACC636A003');
+  });
+
+  it('leaves a stored value’s script controls alone', () => {
+    // The emoji is the legible case; the reason is the Devanagari and Arabic
+    // this platform does not ingest yet and should not corrupt when it does.
+    expect(stripInvisibleDebris('👩‍🔧')).toBe('👩‍🔧');
+    expect(stripInvisibleDebris(`क${ZWNJ}ष`)).toBe(`क${ZWNJ}ष`);
+    expect(stripInvisibleDebris(`${LRM}Carrier 24ANB7`)).toBe(`${LRM}Carrier 24ANB7`);
+  });
+
+  it('still matches across a script control, because comparison is not storage', () => {
+    // The whole point of splitting them: matching stays insensitive to a
+    // joiner even though storage keeps it.
+    expect(comparisonKey(`Split${ZWNJ} System`)).toBe(comparisonKey('Split System'));
+    expect(comparisonKey(`N/A${ZWJ}`)).toBe('n/a');
+  });
+});
+
 describe('the whole pipeline, on a record that spells absence invisibly', () => {
   /**
    * The consequence worth proving, and the reason this is a correctness bug
@@ -181,6 +261,28 @@ describe('the whole pipeline, on a record that spells absence invisibly', () => 
     // assertion above does not cover on its own: a candidate could be absent
     // while a failure or signal quotes it back as though it were data.
     expect(JSON.stringify(result)).not.toContain('N/A');
+  });
+
+  it('stores a script control instead of removing it on the way in', () => {
+    // Asserted through the PIPELINE on a plain string property, because the
+    // helper agreeing with itself proved nothing: reverting layer-1 cleanup to
+    // the wider set — the exact defect this change fixes — passed every other
+    // test in this file, and then passed a first version of THIS test too,
+    // because that version fell through to a branch where the raw value was
+    // echoed back inside a failure record.
+    const joined = `Trane${ZWJ}Pro`;
+    const rules = {
+      ...HVAC_RULE_SET,
+      properties: [
+        ...HVAC_RULE_SET.properties,
+        { property: 'series_label', source_field: 'series_name', value_type: 'string' as const },
+      ],
+    };
+    const result = normalizeRecord(hvacRecord([value('series_name', joined)]), rules);
+    const candidate = result.candidates.find((item) => item.property === 'series_label');
+
+    expect(candidate, 'the property must normalize, or this proves nothing').toBeDefined();
+    expect(candidate?.normalized_value, 'storage keeps what the source sent').toBe(joined);
   });
 
   it('still records a real value from the same field, so the gate has not eaten the data', () => {
