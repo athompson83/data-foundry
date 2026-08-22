@@ -250,11 +250,17 @@ export async function buildDatasetExport(
 
   // ---- read the canonical view through the query layer --------------------
   const entityTypes: readonly (Identifier | undefined)[] = options.entityTypes ?? [undefined];
-  const entities: Entity[] = [];
+  // Keyed by id, not accumulated into a list: a caller that names the same
+  // entity type twice would otherwise publish every one of its rows twice, and
+  // a duplicated row in a bulk file is the kind of defect a consumer discovers
+  // by getting the wrong answer out of a GROUP BY.
+  const byId = new Map<string, Entity>();
   for (const entityType of entityTypes) {
-    entities.push(...(await listEntities(qm, vertical.id, entityType, statuses)));
+    for (const entity of await listEntities(qm, vertical.id, entityType, statuses)) {
+      byId.set(entity.id, entity);
+    }
   }
-  entities.sort(byEntityOrder);
+  const entities = [...byId.values()].sort(byEntityOrder);
 
   const exports: EntityExport[] = [];
   const contributors = new Map<string, { source: Source; factIds: Set<string>; evidence: number }>();

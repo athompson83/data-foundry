@@ -13,7 +13,7 @@
  *      evidence is exactly the artifact rule 10 exists to prevent.
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { DatasetSnapshotInsertSchema } from '@data-foundry/canonical-schema';
+import { DatasetSnapshotInsertSchema, type Identifier } from '@data-foundry/canonical-schema';
 import {
   EVIDENCE_JSONL,
   FACTS_CSV,
@@ -123,6 +123,24 @@ describe('the manifest identifies the snapshot', () => {
     expect(Object.keys(result.manifest.checksums)).not.toContain(MANIFEST_JSON);
     expect(result.manifestSha256).toMatch(/^[0-9a-f]{64}$/);
     expect(result.manifestSha256).toBe(sha256(result.artifacts.get(MANIFEST_JSON) as Uint8Array));
+  });
+
+  it('publishes each entity once even when a caller names a type twice', async () => {
+    const twice = await buildDatasetExport({
+      ...baseOptions(fixtures),
+      sink: createMemorySink('twice'),
+      entityTypes: ['equipment' as Identifier, 'equipment' as Identifier],
+    });
+    const single = await buildDatasetExport({
+      ...baseOptions(fixtures),
+      sink: createMemorySink('once'),
+      entityTypes: ['equipment' as Identifier],
+    });
+    expect(twice.rows).toEqual(single.rows);
+    expect(twice.manifestSha256).not.toBe(single.manifestSha256); // entity_types differs
+    expect(new Set(twice.rows.map((row) => `${row.entity_id}|${row.property}`)).size).toBe(
+      twice.rows.length,
+    );
   });
 
   it('records the selection policy that was actually in force', () => {
