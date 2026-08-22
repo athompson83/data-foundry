@@ -248,3 +248,98 @@ describe('a handler that throws instead of returning a response', () => {
     );
   });
 });
+
+describe('an answer this adapter cannot put on the wire', () => {
+  /**
+   * The failure this covers is not a wrong answer; it is NO answer.
+   *
+   * `JSON.stringify`, the content-length computation and `writeHead` all sat
+   * outside the `try`, and `respond` is invoked as `void respond(...)`. So a
+   * body that cannot be serialized — a cycle, a `BigInt` — or a header value
+   * `node:http` refuses made `respond` reject with nothing listening, and the
+   * socket stayed open until the client's own timeout. No status, no envelope,
+   * no log: the one shape of failure a caller cannot tell from a hung network.
+   *
+   * That such a body is itself a bug upstream is exactly why this matters. A
+   * transport's job is to answer, and "the layer above me is broken" is an
+   * answer it is still able to give.
+   */
+  const serverFor = async (body: unknown): Promise<ListeningApiServer> =>
+    startApiServer(async () => ({ status: 200, headers: {}, body }));
+
+  /**
+   * `send` with a deadline, because the failure under test is a socket that
+   * never answers. Without one the assertion cannot fail — the test hangs
+   * instead, which in CI is a job that burns its whole budget and reports a
+   * timeout rather than the defect. Two seconds is far longer than a loopback
+   * answer needs and far shorter than any runner's patience.
+   */
+  const sendBounded = async (target: ListeningApiServer): Promise<RawResponse> => {
+    let timer: NodeJS.Timeout | undefined;
+    const deadline = new Promise<never>((_, reject) => {
+      timer = setTimeout(() => reject(new Error('the adapter never answered')), 2_000);
+    });
+    try {
+      return await Promise.race([send('/v1/health', 'GET', target), deadline]);
+    } finally {
+      if (timer !== undefined) clearTimeout(timer);
+    }
+  };
+
+  it('answers 500 rather than hanging on a body that will not serialize', async () => {
+    const cyclic: Record<string, unknown> = { entity: 'carrier' };
+    cyclic['self'] = cyclic;
+    const target = await serverFor(cyclic);
+    try {
+      const response = await sendBounded(target);
+      expect(response.status).toBe(500);
+      expect(JSON.parse(response.body)).toMatchObject({
+        error: { code: 'INTERNAL_ERROR', status: 500 },
+      });
+      // The envelope it falls back to must itself be serializable, or the
+      // recovery has the same bug as the thing it is recovering from.
+      expect(response.headers['content-length']).toBe(
+        String(Buffer.byteLength(response.body)),
+      );
+    } finally {
+      await target.close();
+    }
+  });
+
+  it('answers rather than hanging on a value JSON cannot represent', async () => {
+    const target = await serverFor({ tonnage: BigInt(3) });
+    try {
+      const response = await sendBounded(target);
+      expect(response.status).toBe(500);
+      expect(JSON.parse(response.body).error.code).toBe('INTERNAL_ERROR');
+    } finally {
+      await target.close();
+    }
+  });
+
+  it('leaks nothing about why it could not answer', async () => {
+    // A serialization failure quotes the offending structure in its message.
+    const cyclic: Record<string, unknown> = { secret: 'postgres://user:hunter2@db.internal' };
+    cyclic['self'] = cyclic;
+    const target = await serverFor(cyclic);
+    try {
+      const response = await sendBounded(target);
+      expect(response.body).not.toContain('hunter2');
+      expect(response.body).not.toContain('circular');
+      expect(response.body).not.toContain('Converting');
+    } finally {
+      await target.close();
+    }
+  });
+
+  it('still sends an ordinary answer, so the guard has not swallowed the happy path', async () => {
+    const target = await serverFor({ ok: true });
+    try {
+      const response = await sendBounded(target);
+      expect(response.status).toBe(200);
+      expect(JSON.parse(response.body)).toEqual({ ok: true });
+    } finally {
+      await target.close();
+    }
+  });
+});

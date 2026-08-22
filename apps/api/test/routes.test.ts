@@ -19,6 +19,7 @@ import {
   type ApiFixtures,
 } from './support.js';
 import { PAGE_BOUNDS } from '../src/pagination.js';
+import { contractDocument } from '../src/routes.js';
 import type { EntityWire, RelationshipEdgeWire, SearchHitWire } from '../src/wire.js';
 import type { RestFact } from '../../../packages/query-model/src/index.js';
 
@@ -464,5 +465,41 @@ describe('the rights gate (AGENTS.md rule 1)', () => {
     // blocked claim. The handler uses `canonicalFacts` precisely for this.
     const unfiltered = await fixtures.qm.facts({ entity_id: fixtures.equipment.id });
     expect(unfiltered.map((row) => row.fact.property)).toContain(RIGHTS_BLOCKED_PROPERTY);
+  });
+});
+
+describe('every route the contract advertises for HEAD actually answers HEAD', () => {
+  /**
+   * The document now says each route serves GET and HEAD. That sentence was
+   * wrong once already in the other direction — the table said GET alone while
+   * the dispatcher answered both — so it is checked against the dispatcher
+   * rather than trusted. The same lesson as the traversal caveat: a published
+   * claim asserted only against itself is not a claim about the system.
+   */
+  const paths = (contractDocument('v1') as { routes: { path: string }[] }).routes.map(
+    (route) => route.path,
+  );
+
+  it('has routes to check, so this cannot pass vacuously', () => {
+    expect(paths.length).toBeGreaterThan(5);
+  });
+
+  it('answers HEAD wherever it answers GET, with the same status and the same answer', async () => {
+    // The app layer returns HEAD's body; the socket adapter is what withholds
+    // it, because content-length on a HEAD must equal what GET would have sent
+    // and the only way to know that is to render it. So the property here is
+    // that HEAD is ROUTED and decided identically — `server.test`'s
+    // "answers HEAD with GET's headers and no body" covers the suppression.
+    for (const template of paths) {
+      const path = template
+        .replace('{id}', fixtures.equipment.id)
+        .replace('{slug}', fixtures.equipment.canonical_slug)
+        .split('?')[0] as string;
+      const get = await call(fixtures.app, path);
+      const head = await call(fixtures.app, path, { method: 'HEAD' });
+      expect(head.status, `${path} HEAD status`).toBe(get.status);
+      expect(head.status, `${path} must not be refused`).not.toBe(405);
+      expect(head.body, `${path} HEAD answer`).toEqual(get.body);
+    }
   });
 });

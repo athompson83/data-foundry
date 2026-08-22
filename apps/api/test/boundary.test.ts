@@ -17,7 +17,7 @@
 import { describe, expect, it } from 'vitest';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { contractDocument, matchRoute, ROUTES } from '../src/routes.js';
+import { contractDocument, matchRoute, READ_METHODS, ROUTES } from '../src/routes.js';
 
 const SRC = fileURLToPath(new URL('../src/', import.meta.url));
 const TEST = fileURLToPath(new URL('./', import.meta.url));
@@ -278,7 +278,7 @@ describe('the tests this package’s own comments point at', () => {
 
 describe('the published contract matches the routes that exist', () => {
   const document = contractDocument('v1') as {
-    routes: { path: string; summary: string; caveat?: string }[];
+    routes: { path: string; summary: string; caveat?: string; methods: string[] }[];
     supportedVersions: string[];
     readOnly: boolean;
     methods: string[];
@@ -304,6 +304,19 @@ describe('the published contract matches the routes that exist', () => {
       if (route.pattern.at(-1) === 'by-slug') continue;
       expect(documented, route.path).toContain(route.path);
     }
+  });
+
+  it('advertises on each route every method that route answers', () => {
+    // The document's top-level `methods` says GET and HEAD; every route entry
+    // said `GET` alone. A client reading the route table — which is where a
+    // client looks to find out what a route accepts — was told HEAD is not
+    // available on any of them, while the dispatcher answers HEAD everywhere it
+    // answers GET. Derived from `READ_METHODS` so the two cannot disagree
+    // again, rather than a second literal to keep in step.
+    for (const route of document.routes) {
+      expect(route.methods, route.path).toEqual([...READ_METHODS]);
+    }
+    expect(document.methods).toEqual([...READ_METHODS]);
   });
 
   it('publishes a caveat on exactly the routes that need one', () => {

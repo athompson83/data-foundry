@@ -66,11 +66,64 @@ async function respond(
     body = failure.body;
   }
 
+  // Serializing and writing are inside the guard too, and that is the point.
+  //
+  // They used to sit below it, and `respond` is invoked as `void respond(...)`.
+  // So a body that will not serialize — a cycle, a `BigInt` — or a header value
+  // `node:http` refuses made this function reject with nothing listening: no
+  // status, no envelope, no log, and a socket held open until the client's own
+  // timeout. That is the one failure a caller cannot tell apart from a dead
+  // network, and it is worse than any wrong answer.
+  //
+  // Such a body is a bug upstream. It is still this adapter's job to answer:
+  // "the layer above me is broken" is a thing a transport can say.
+  try {
+    write(response, message, status, headers, body);
+  } catch {
+    // What keeps the caller's side of this safe is `toErrorBody`, which
+    // replaces any non-`ApiError` message with the opaque one — a
+    // serialization failure quotes the structure that failed, and a
+    // `writeHead` failure quotes the header value, so neither may be
+    // forwarded. Verified: passing the real cause here instead changes no
+    // assertion, because that substitution is what does the work.
+    //
+    // A fresh `Error` is used anyway, so the fallback envelope is built from a
+    // value known to serialize rather than from the one that just did not.
+    //
+    // HONEST GAP: the cause is then dropped. `createApiApp` has an `onError`
+    // operator channel, but it sits above this adapter and cannot see a
+    // failure that happens while writing. An operator sees a 500 with no
+    // reason. Wiring one through `createApiServer` is a real improvement and a
+    // wider change than this fix.
+    const failure = transportFailure(new Error('response could not be serialized'));
+    if (response.headersSent) {
+      // Past the point of an envelope: bytes are already on the wire and the
+      // declared content-length is now a lie. Ending the socket is the only
+      // honest signal left — a truncated response a client can detect, rather
+      // than one it waits on forever.
+      response.destroy();
+      return;
+    }
+    write(response, message, failure.status, { 'content-type': JSON_CONTENT_TYPE }, failure.body);
+  }
+}
+
+/** Status line, content-length and body, or it throws and nothing was sent. */
+function write(
+  response: ServerResponse,
+  message: IncomingMessage,
+  status: number,
+  headers: Record<string, string>,
+  body: unknown,
+): void {
   const payload = JSON.stringify(body ?? null);
-  headers['content-length'] = String(Buffer.byteLength(payload));
-  response.writeHead(status, headers);
+  // `JSON.stringify` returns undefined for a value it cannot represent at the
+  // top level — a bare `undefined`, a function, a symbol. `'null'` is the
+  // honest rendering, and it keeps content-length truthful.
+  const text = payload ?? 'null';
+  response.writeHead(status, { ...headers, 'content-length': String(Buffer.byteLength(text)) });
   // HEAD carries GET's headers, including content-length, and no body.
-  response.end((message.method ?? 'GET').toUpperCase() === 'HEAD' ? undefined : payload);
+  response.end((message.method ?? 'GET').toUpperCase() === 'HEAD' ? undefined : text);
 }
 
 export function createApiServer(handler: ApiHandler): Server {

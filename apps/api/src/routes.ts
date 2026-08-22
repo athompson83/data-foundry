@@ -504,7 +504,12 @@ export function contractDocument(version: string): unknown {
       codes: API_ERROR_CODES.map((code: ApiErrorCode) => ({ code, status: ERROR_STATUS[code] })),
     },
     routes: ROUTES.filter((route) => route.pattern.at(-1) !== 'by-slug').map((route) => ({
-      method: 'GET',
+      // Every route answers both, because the dispatcher decides the method
+      // once for the whole surface. Read from `READ_METHODS` rather than
+      // written out, so the route table and the document's top-level `methods`
+      // cannot come to disagree — they did: this said `GET` alone while the
+      // adapter had been answering HEAD everywhere all along.
+      methods: [...READ_METHODS],
       path: route.path,
       summary: route.summary,
       ...(route.caveat === undefined ? {} : { caveat: route.caveat }),
