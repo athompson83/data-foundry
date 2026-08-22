@@ -138,7 +138,10 @@ describe('a prohibited publisher may not be named in a rights declaration', () =
     return values;
   }
 
-  const declaredValuesByFile = (): ReadonlyMap<string, string[]> => {
+  // `git ls-files` plus a read of every tracked TS/YAML/JSON file. The token
+  // assertion below is `it.each`, so an uncached scan would repeat the whole
+  // walk once per prohibited token.
+  const scanDeclaredValues = (): ReadonlyMap<string, string[]> => {
     const found = new Map<string, string[]>();
     for (const path of trackedTextFiles()) {
       if (!/\.(ts|yaml|yml|json)$/.test(path)) continue;
@@ -148,6 +151,9 @@ describe('a prohibited publisher may not be named in a rights declaration', () =
     }
     return found;
   };
+
+  let scanned: ReadonlyMap<string, string[]> | null = null;
+  const declaredValuesByFile = (): ReadonlyMap<string, string[]> => (scanned ??= scanDeclaredValues());
 
   it('finds rights-declaring values at all', () => {
     // Without this, an extractor that silently stopped matching would make

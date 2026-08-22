@@ -181,7 +181,13 @@ describe('a redirect is refused rather than followed', () => {
     const harness = makeHarness();
     const provider = new HttpAcquisitionProvider({ deps: harness.deps, fetch: net.fetch });
 
-    await expect(provider.fetch(makeRequest())).rejects.toThrow(/redirect/i);
+    // `REDIRECT_NOT_GATED` is the contract: `gate-types.ts` lists it in
+    // `RIGHTS_GATE_CODES`, which is what makes `isRightsBlocker` treat this as
+    // a rights refusal. Matching the prose would survive a change of code.
+    await expect(provider.fetch(makeRequest())).rejects.toMatchObject({
+      name: 'AcquisitionRefusedError',
+      code: 'REDIRECT_NOT_GATED',
+    });
 
     // Braces: exactly one request, and it was to the gated URL.
     expect(net.calls.length).toBe(1);
@@ -193,6 +199,11 @@ describe('a redirect is refused rather than followed', () => {
     const net = redirectingFetch(301, REDIRECT_TARGET);
     const harness = makeHarness();
     const provider = new HttpAcquisitionProvider({ deps: harness.deps, fetch: net.fetch });
+    // Here the message *is* the subject — the refusal must name the host — so
+    // this one asserts both the code and the text.
+    await expect(provider.fetch(makeRequest())).rejects.toMatchObject({
+      code: 'REDIRECT_NOT_GATED',
+    });
     await expect(provider.fetch(makeRequest())).rejects.toThrow(/www\.carrier\.com/);
   });
 
@@ -203,7 +214,9 @@ describe('a redirect is refused rather than followed', () => {
       const net = redirectingFetch(status, 'https://elsewhere.example.org/x.json');
       const harness = makeHarness();
       const provider = new HttpAcquisitionProvider({ deps: harness.deps, fetch: net.fetch });
-      await expect(provider.fetch(makeRequest()), `status ${status}`).rejects.toThrow(/redirect/i);
+      await expect(provider.fetch(makeRequest()), `status ${status}`).rejects.toMatchObject({
+        code: 'REDIRECT_NOT_GATED',
+      });
       expect(net.calls.length, `status ${status}`).toBe(1);
     }
   });
@@ -212,7 +225,9 @@ describe('a redirect is refused rather than followed', () => {
     const net = redirectingFetch(302, null);
     const harness = makeHarness();
     const provider = new HttpAcquisitionProvider({ deps: harness.deps, fetch: net.fetch });
-    await expect(provider.fetch(makeRequest())).rejects.toThrow(/redirect/i);
+    await expect(provider.fetch(makeRequest())).rejects.toMatchObject({
+      code: 'REDIRECT_NOT_GATED',
+    });
   });
 
   it('still passes a 304 through, which is not a redirect', async () => {

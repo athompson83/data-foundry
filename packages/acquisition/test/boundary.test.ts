@@ -105,33 +105,84 @@ describe('network capability is confined to the gated transport layer', () => {
   const METHOD_DECL =
     /^\s{2}(?:(?:public|private|protected|static|override|async|get|set)\s+)*(#?[A-Za-z_$][\w$]*)\s*[(<]/gm;
 
-  function enclosingMethodOf(code: string, index: number): string | null {
-    let name: string | null = null;
-    METHOD_DECL.lastIndex = 0;
-    for (const match of code.matchAll(METHOD_DECL)) {
-      if (match.index === undefined || match.index > index) break;
-      name = match[1] ?? null;
-    }
-    return name;
+  /**
+   * Every method declaration with the span it owns — its own declaration to the
+   * start of the next. The same approximation `enclosingMethodOf` used, kept
+   * because these files are flat classes; a class nested inside a method would
+   * defeat it, and none exists here.
+   */
+  function declaredMethods(code: string): readonly { name: string; body: string }[] {
+    const starts = [...code.matchAll(METHOD_DECL)].flatMap((match) =>
+      match.index === undefined || match[1] === undefined
+        ? []
+        : [{ name: match[1], start: match.index }],
+    );
+    return starts.map((decl, i) => ({
+      name: decl.name,
+      body: code.slice(decl.start, starts[i + 1]?.start ?? code.length),
+    }));
   }
 
-  it('confines every invocation to transport or a #private method', () => {
-    // `#private` is the only boundary that survives compilation: TypeScript
-    // erases `protected`, but an ECMAScript private method genuinely cannot be
-    // called from outside the class. So a transport invocation is safe when it
-    // sits in `transport` itself, or in a private method reachable only from it.
+  /**
+   * Every method that can reach `#fetch` *without* passing through `transport`.
+   *
+   * This is the property the rule needs, and `#private` alone does not give it.
+   * An ECMAScript private method is callable from any method of the same class,
+   * a public one included — so a public method can reach the transport through
+   * a private helper while never mentioning `#fetch` itself. Asking only "which
+   * method encloses this call site" cannot see that path.
+   *
+   * `transport` is the accepted sink, so reachability stops there rather than
+   * propagating to its callers: being called from `transport` is the whole
+   * point, and its own caller is the base class's gated `fetch`.
+   */
+  function methodsReachingFetch(code: string): ReadonlySet<string> {
+    const methods = declaredMethods(code);
+    const reaching = new Set(
+      methods.filter((method) => /#fetch\s*\(/.test(method.body)).map((method) => method.name),
+    );
+    for (let changed = true; changed; ) {
+      changed = false;
+      for (const method of methods) {
+        if (reaching.has(method.name)) continue;
+        const calls = [...method.body.matchAll(/this\.(#?[A-Za-z_$][\w$]*)\s*\(/g)].map(
+          (call) => call[1],
+        );
+        if (calls.some((callee) => callee !== undefined && callee !== 'transport' && reaching.has(callee))) {
+          reaching.add(method.name);
+          changed = true;
+        }
+      }
+    }
+    return reaching;
+  }
+
+  /** The methods on a reaching-set that anything outside the class could call. */
+  function ungatedIn(reaching: ReadonlySet<string>): string[] {
+    return [...reaching].filter((name) => name !== 'transport' && !name.startsWith('#')).sort();
+  }
+
+  it('confines every path to the transport behind `transport`', () => {
+    // `#private` is the only boundary that survives compilation — TypeScript
+    // erases `protected` — but it bounds who may call a method from *outside*
+    // the class, not which of the class's own methods may. So the rule is
+    // reachability, not enclosure: nothing callable from outside may reach
+    // `#fetch` except through `transport`.
     for (const entry of TRANSPORT_ALLOWLIST) {
       const code = stripComments(readFileSync(join(SRC, entry), 'utf8'));
-      const sites = [...code.matchAll(/#fetch\s*\(/g)];
-      expect(sites.length, `${entry} has no transport invocation`).toBeGreaterThan(0);
-      for (const site of sites) {
-        const method = enclosingMethodOf(code, site.index ?? 0);
-        expect(
-          method !== null && (method === 'transport' || method.startsWith('#')),
-          `${entry}: a transport invocation sits in ${method ?? 'no method'}, which is ` +
-            `reachable without passing the gate`,
-        ).toBe(true);
-      }
+      expect(
+        [...code.matchAll(/#fetch\s*\(/g)].length,
+        `${entry} has no transport invocation`,
+      ).toBeGreaterThan(0);
+      const reaching = methodsReachingFetch(code);
+      expect(
+        reaching.size,
+        `${entry}: no method reaches #fetch, so this scan proved nothing`,
+      ).toBeGreaterThan(0);
+      expect(
+        ungatedIn(reaching),
+        `${entry}: these methods reach the transport without passing the gate`,
+      ).toEqual([]);
     }
   });
 
@@ -150,16 +201,46 @@ describe('network capability is confined to the gated transport layer', () => {
       '}',
     ].join('\n');
 
-    const sites = [...smuggled.matchAll(/#fetch\s*\(/g)];
-    expect(sites.length).toBe(2);
-    const enclosing = sites.map((site) => enclosingMethodOf(smuggled, site.index ?? 0));
-    expect(enclosing).toEqual(['transport', 'peek']);
     // Positional order would accept both, because `peek` comes after
-    // `transport`. Containment rejects the second, which is the point.
-    const offenders = enclosing.filter(
-      (method) => method === null || (method !== 'transport' && !method.startsWith('#')),
-    );
-    expect(offenders, 'the containment rule must reject a public method').toEqual(['peek']);
+    // `transport`. Reachability rejects the second, which is the point.
+    expect([...methodsReachingFetch(smuggled)].sort()).toEqual(['peek', 'transport']);
+    expect(
+      ungatedIn(methodsReachingFetch(smuggled)),
+      'the rule must reject a public method',
+    ).toEqual(['peek']);
+  });
+
+  it('rejects a public method that reaches #fetch through a #private helper', () => {
+    // The hole that `#private`-alone leaves open, and the reason enclosure is
+    // not enough: `peek` never mentions `#fetch`. Asking which method encloses
+    // each call site finds only `#call`, which is private, and accepts the
+    // file — verified RED against exactly this fixture before the closure
+    // existed. An ECMAScript private method is callable from any method of the
+    // same class, so `#call` being private says nothing about `peek`.
+    const smuggled = [
+      'class Sneaky extends BaseAcquisitionProvider {',
+      '  protected async transport(c: TransportContext) {',
+      '    return this.#call(c.request.url);',
+      '  }',
+      '',
+      '  async peek(url: string) {',
+      '    return this.#call(url);',
+      '  }',
+      '',
+      '  async #call(url: string) {',
+      '    return this.#fetch(url, {});',
+      '  }',
+      '}',
+    ].join('\n');
+
+    // Only one call site, and it is inside a private method — which is exactly
+    // why the enclosing-method rule waved this through.
+    expect([...smuggled.matchAll(/#fetch\s*\(/g)].length).toBe(1);
+    expect([...methodsReachingFetch(smuggled)].sort()).toEqual(['#call', 'peek', 'transport']);
+    expect(
+      ungatedIn(methodsReachingFetch(smuggled)),
+      'a public method on a private path must still be rejected',
+    ).toEqual(['peek']);
   });
 
   it('permits the same call from a #private helper', () => {
@@ -177,8 +258,9 @@ describe('network capability is confined to the gated transport layer', () => {
       '  }',
       '}',
     ].join('\n');
-    const site = [...legitimate.matchAll(/#fetch\s*\(/g)][0];
-    expect(enclosingMethodOf(legitimate, site?.index ?? 0)).toBe('#call');
+    const reaching = methodsReachingFetch(legitimate);
+    expect([...reaching].sort()).toEqual(['#call', 'transport']);
+    expect(ungatedIn(reaching), 'over-tightening would reject correct code').toEqual([]);
   });
 
   it('detects the primitives it claims to detect', () => {
@@ -256,7 +338,11 @@ describe('every provider goes through the base class', () => {
  * assertion may appear, enforced here.
  */
 describe('the gate’s proof is minted in exactly one place', () => {
-  const ASSERTION = /\bas\s+(?:unknown\s+as\s+)?AllowedAcquisition\b/;
+  // Both assertion syntaxes TypeScript accepts in a `.ts` file. The negative
+  // lookbehind keeps `Promise<AllowedAcquisition>` and friends out: in a
+  // generic argument the `<` follows an identifier, in an assertion it does not.
+  const ASSERTION =
+    /\bas\s+(?:unknown\s+as\s+)?AllowedAcquisition\b|(?<![\w$])<\s*AllowedAcquisition\s*>/;
   const MINTING_SITE = 'policy/rights-gate.ts';
 
   it('permits the assertion only where the gate mints the proof', () => {
@@ -282,6 +368,11 @@ describe('the gate’s proof is minted in exactly one place', () => {
   it('detects the assertion it claims to detect', () => {
     expect(ASSERTION.test('return result as AllowedAcquisition;')).toBe(true);
     expect(ASSERTION.test('return x as unknown as AllowedAcquisition;')).toBe(true);
+    expect(ASSERTION.test('return <AllowedAcquisition>result;')).toBe(true);
     expect(ASSERTION.test('const g: AcquisitionGateResult = r;')).toBe(false);
+    // Generic arguments are uses of the type, not forgeries of it. Flagging
+    // these would make the rule unusable and get it deleted.
+    expect(ASSERTION.test('async function f(): Promise<AllowedAcquisition> {')).toBe(false);
+    expect(ASSERTION.test('readonly allowed: AllowedAcquisition;')).toBe(false);
   });
 });
