@@ -67,6 +67,7 @@ import {
   type FactSheet,
   type GetEntityResult,
   type ListFactsResult,
+  type RequestedEntity,
   type SearchEntitiesResult,
   type TraverseRelationshipsResult,
 } from './projection.js';
@@ -536,20 +537,34 @@ const compareEntities = defineTool({
     // Scope every id to this server's vertical before comparing. `compare`
     // itself silently skips ids it cannot load, which would turn a
     // cross-vertical id into a quietly shorter table.
-    const resolved: string[] = [];
-    const missing: string[] = [];
+    //
+    // The pairing is kept, not just the ids that survived it: `getEntity`
+    // follows merge redirects, so an id the caller saved before a merge
+    // resolves to a DIFFERENT canonical id, and only this loop knows which
+    // requested id each compared entity came from.
+    const requested: RequestedEntity[] = [];
     for (const id of args.entity_ids) {
       const view = await context.queryModel.getEntity(id as never);
-      if (view === null || view.entity.vertical_id !== context.vertical.id) missing.push(id);
-      else resolved.push(view.entity.id);
+      const scoped = view !== null && view.entity.vertical_id === context.vertical.id;
+      requested.push({ requestedId: id, resolvedId: scoped ? view.entity.id : null });
     }
+
+    const resolved = requested.flatMap((entity) =>
+      entity.resolvedId === null ? [] : [entity.resolvedId],
+    );
 
     if (resolved.length < 2) {
       throw new McpToolError(
         'TOO_FEW_ENTITIES',
         `Comparison needs at least two entities that exist in the "${context.vertical.slug}" ` +
           `vertical; ${String(resolved.length)} of ${String(args.entity_ids.length)} resolved.`,
-        { resolved, unresolved: missing, vertical: context.vertical.slug },
+        {
+          resolved,
+          unresolved: requested
+            .filter((entity) => entity.resolvedId === null)
+            .map((entity) => entity.requestedId),
+          vertical: context.vertical.slug,
+        },
       );
     }
 
@@ -559,7 +574,7 @@ const compareEntities = defineTool({
       ...(args.properties === undefined ? {} : { properties: args.properties }),
     });
 
-    return unguarded(comparison(result, args.entity_ids, context.canonicalUrl));
+    return unguarded(comparison(result, requested, context.canonicalUrl));
   },
 });
 
