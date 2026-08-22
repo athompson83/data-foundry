@@ -22,6 +22,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync, readdirSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import ts from 'typescript';
 import { createMcpServer } from '../src/index.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -43,15 +44,75 @@ function sources(): readonly { file: string; text: string }[] {
   }));
 }
 
-/** Every module specifier this file imports from, including re-exports. */
-function importSpecifiers(text: string): string[] {
+/**
+ * Every module specifier a file names, in every form TypeScript has for naming
+ * one — imports, re-exports, side-effect imports, `import()` in both value and
+ * type position, and `import x = require()`.
+ *
+ * This was a regular expression over the file text, and what it missed was not
+ * exotic. `import 'pg'` has no `from` clause for the pattern to anchor on;
+ * `await import('@data-foundry/canonical-store')` has neither `import ... from`
+ * nor a line to start on; a double-quoted specifier did not match a
+ * single-quoted pattern; a second `import` on one line fell outside the
+ * line anchor; and a `// from './x.js'` written inside a multi-line import list
+ * ended the lazy match early, so the scan reported the decoy and never saw the
+ * real specifier underneath it. Every one of those is a way to reach the store
+ * from inside this app while nine boundary assertions pass, which makes the
+ * rule a review convention again — the exact thing this file exists to replace.
+ *
+ * So the scan asks the compiler's own parser rather than pattern-matching text.
+ * It cannot disagree with what the module system actually does, and a form
+ * added to the language arrives as a node kind rather than as a regex nobody
+ * updated. `tooling/test/typecheck-coverage.test.ts` reads the compiler the
+ * same way for the same reason.
+ */
+function importSpecifiers(file: string, text: string): string[] {
+  const source = ts.createSourceFile(file, text, ts.ScriptTarget.ESNext, true, ts.ScriptKind.TS);
   const found: string[] = [];
-  const pattern = /(?:^|\n)\s*(?:import|export)[\s\S]*?from\s+'([^']+)'/g;
-  for (const match of text.matchAll(pattern)) {
-    const specifier = match[1];
-    if (specifier !== undefined) found.push(specifier);
-  }
+
+  const record = (node: ts.Node | undefined): void => {
+    // A computed specifier is not a string literal and cannot be resolved
+    // statically by anything, this scan included; there are none in `src`.
+    if (node !== undefined && ts.isStringLiteralLike(node)) found.push(node.text);
+  };
+
+  const visit = (node: ts.Node): void => {
+    if (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) {
+      // `import ... from 'x'`, `import 'x'`, `export ... from 'x'`. An export
+      // with nothing to re-export from has no specifier, hence the undefined.
+      record(node.moduleSpecifier);
+    } else if (
+      ts.isImportEqualsDeclaration(node) &&
+      ts.isExternalModuleReference(node.moduleReference)
+    ) {
+      record(node.moduleReference.expression);
+    } else if (
+      ts.isCallExpression(node) &&
+      (node.expression.kind === ts.SyntaxKind.ImportKeyword ||
+        (ts.isIdentifier(node.expression) && node.expression.text === 'require'))
+    ) {
+      record(node.arguments[0]);
+    } else if (ts.isImportTypeNode(node) && ts.isLiteralTypeNode(node.argument)) {
+      // `type Store = import('@data-foundry/canonical-store').CanonicalStore`
+      // is a dependency on the store's shape, written where a regex over
+      // import statements would never look.
+      record(node.argument.literal);
+    }
+    ts.forEachChild(node, visit);
+  };
+
+  visit(source);
   return found;
+}
+
+/** Every specifier named anywhere in `src`, with the file that names it. */
+function importsInSource(): readonly { file: string; specifier: string }[] {
+  return sources().flatMap((source) =>
+    importSpecifiers(source.file, source.text).map((specifier) => ({
+      file: source.file,
+      specifier,
+    })),
+  );
 }
 
 describe('the app reads through the query layer and nothing beneath it', () => {
@@ -61,10 +122,41 @@ describe('the app reads through the query layer and nothing beneath it', () => {
     expect(files.map((source) => source.file)).toContain(SEAM);
   });
 
+  it('sees a specifier however it is written', () => {
+    // The scan is the enforcement, so its blind spots are the boundary's. Every
+    // one of these is a real way to name a module. The pattern this replaced
+    // read some of them and walked past the rest — the side-effect import, the
+    // dynamic and type-position `import()`, `import x = require()`, the
+    // double-quoted specifier, the second import on a line, and the one hidden
+    // behind a `from` in a comment.
+    const forms = [
+      "import * as store from '@data-foundry/canonical-store';",
+      'import { createCanonicalStore as make } from "@data-foundry/canonical-store";',
+      "import type { CanonicalStore } from '@data-foundry/canonical-store';",
+      "import { type CanonicalStore } from '@data-foundry/canonical-store';",
+      "export * from '@data-foundry/canonical-store';",
+      "export * as store from '@data-foundry/canonical-store';",
+      "export { createCanonicalStore } from '@data-foundry/canonical-store';",
+      "import '@data-foundry/canonical-store';",
+      "const store = await import('@data-foundry/canonical-store');",
+      "type Store = import('@data-foundry/canonical-store').CanonicalStore;",
+      "import store = require('@data-foundry/canonical-store');",
+      "import a from './guard.js'; import b from '@data-foundry/canonical-store';",
+      "import {\n  a, // from './decoy.js'\n} from '@data-foundry/canonical-store';",
+    ];
+    for (const form of forms) {
+      expect(importSpecifiers('probe.ts', form), form).toContain('@data-foundry/canonical-store');
+    }
+  });
+
   it('imports the canonical query layer from exactly one module', () => {
-    const importers = sources()
-      .filter((source) => importSpecifiers(source.text).some((s) => s.includes('query-model')))
-      .map((source) => source.file);
+    const importers = [
+      ...new Set(
+        importsInSource()
+          .filter((entry) => entry.specifier.includes('query-model'))
+          .map((entry) => entry.file),
+      ),
+    ];
     expect(importers).toEqual([SEAM]);
   });
 
@@ -89,19 +181,17 @@ describe('the app reads through the query layer and nothing beneath it', () => {
       'packages/provenance',
     ];
 
-    for (const source of sources()) {
-      for (const specifier of importSpecifiers(source.text)) {
-        const explain =
-          `${source.file} imports "${specifier}", which is beneath the canonical query layer. ` +
-          'If the query layer does not expose what this app needs, add it there (AGENTS.md ' +
-          'rule 5) rather than reaching past it.';
-        if (specifier.startsWith('.')) {
-          for (const path of forbiddenPaths) {
-            expect(specifier.includes(path), explain).toBe(false);
-          }
-        } else {
-          expect(forbiddenPackages, explain).not.toContain(specifier);
+    for (const { file, specifier } of importsInSource()) {
+      const explain =
+        `${file} imports "${specifier}", which is beneath the canonical query layer. ` +
+        'If the query layer does not expose what this app needs, add it there (AGENTS.md ' +
+        'rule 5) rather than reaching past it.';
+      if (specifier.startsWith('.')) {
+        for (const path of forbiddenPaths) {
+          expect(specifier.includes(path), explain).toBe(false);
         }
+      } else {
+        expect(forbiddenPackages, explain).not.toContain(specifier);
       }
     }
   });
@@ -119,17 +209,13 @@ describe('the app reads through the query layer and nothing beneath it', () => {
     // the generated schemas; the arm immediately after is what keeps that from
     // becoming a way back down to the store.
     const allowed = /^(\.|zod$|@data-foundry\/query-model$)/;
-    for (const source of sources()) {
-      for (const specifier of importSpecifiers(source.text)) {
-        expect(allowed.test(specifier), `${source.file} imports "${specifier}"`).toBe(true);
-      }
-      for (const specifier of importSpecifiers(source.text).filter((s) => s.startsWith('.'))) {
-        if (!specifier.includes('/../')) continue;
-        expect(
-          specifier.includes('schemas/canonical'),
-          `${source.file} escapes the app to "${specifier}"`,
-        ).toBe(true);
-      }
+    for (const { file, specifier } of importsInSource()) {
+      expect(allowed.test(specifier), `${file} imports "${specifier}"`).toBe(true);
+      if (!specifier.startsWith('.') || !specifier.includes('/../')) continue;
+      expect(
+        specifier.includes('schemas/canonical'),
+        `${file} escapes the app to "${specifier}"`,
+      ).toBe(true);
     }
   });
 
@@ -143,13 +229,11 @@ describe('the app reads through the query layer and nothing beneath it', () => {
     };
     const declared = manifest.dependencies ?? {};
 
-    const imported = new Set<string>();
-    for (const source of sources()) {
-      for (const specifier of importSpecifiers(source.text)) {
-        if (specifier.startsWith('.')) continue;
-        imported.add(specifier);
-      }
-    }
+    const imported = new Set<string>(
+      importsInSource()
+        .map((entry) => entry.specifier)
+        .filter((specifier) => !specifier.startsWith('.')),
+    );
     expect(imported, 'no bare import found — this check would pass vacuously').toContain(
       '@data-foundry/query-model',
     );
