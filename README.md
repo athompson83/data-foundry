@@ -22,15 +22,20 @@ with provenance, and publication into the query layer.
 `tests/e2e/factory-proof.test.ts` runs four sources through the worker and
 checks the canonical result against golden records.
 
-The workflow's remaining step is the one that does not exist, and it is the
-first of two limitations that the package list does not show.
+The last step — "web / API / MCP / exports generated" — is implemented for
+three of its four surfaces: `apps/api` (read-only REST), `apps/mcp` (the tool
+contract) and `services/export-builder` (CSV and JSONL bulk exports). All three
+read through `packages/query-model` and nothing beneath it, which is rule 5,
+and all three serialize through the shared projection in
+`packages/query-model/src/serialization.ts`, so they cannot drift apart in what
+they consider true. `tests/contract/surface-parity.test.ts` holds them to that
+over one query model and one policy.
 
-**The consumer surfaces do not exist.** The last step — "web / API / MCP /
-exports generated" — has no implementation. `packages/query-model` is the
-single seam those surfaces must read through (rule 5), and
-`packages/query-model/src/serialization.ts` already defines the shared wire
-projection so they cannot drift apart in what they consider true when they are
-built. Nothing here is deployable yet.
+Two limitations the package list does not show:
+
+**There are no human pages.** The fourth surface — the rendered web product —
+has no implementation. The three machine surfaces exist; nothing renders them
+for a person, and nothing here is deployed.
 
 **Every source is synthetic.** The rights machinery genuinely runs, but it
 currently validates controlled fixture declarations rather than a real
@@ -47,6 +52,9 @@ packages/canonical-store/    Entities, facts, relationships and evidence over Po
 packages/provenance/         Field-level lineage, coverage reporting, the human-readable trust surface
 packages/query-model/        The single canonical query layer web, REST and MCP read through
 services/ingest-worker/      DISCOVERED -> PUBLISHED job runner wiring the stages together
+services/export-builder/     Bulk CSV and JSONL exports, rights-gated and reviewer-guarded
+apps/api/                    Read-only REST surface over the query layer
+apps/mcp/                    MCP tool contract over the same query layer
 verticals/hvac/              The first vertical: configuration, fixtures and golden records
 db/migrations/               Plain, portable Postgres DDL for every canonical table
 schemas/canonical/           JSON Schema exports, generated from the Zod definitions
