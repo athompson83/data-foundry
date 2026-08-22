@@ -15,6 +15,7 @@
  * some helper. That is what the scans below are for: they are the part of the
  * invariant the type system genuinely cannot express.
  */
+import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
@@ -34,6 +35,13 @@ const stripComments = (source: string): string =>
   source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/.*$/gm, '$1');
 
 const rel = (path: string): string => relative(SRC, path).replaceAll('\\', '/');
+
+/**
+ * Syntax only — no program, no type checker. These scans ask what the source
+ * *says*, and the whole build graph is not needed to answer that.
+ */
+const parse = (code: string, fileName = 'scan.ts'): ts.SourceFile =>
+  ts.createSourceFile(fileName, code, ts.ScriptTarget.ESNext, true, ts.ScriptKind.TS);
 
 /**
  * Network capability in this package comes in two distinct forms, and lumping
@@ -97,109 +105,200 @@ describe('network capability is confined to the gated transport layer', () => {
   });
 
   /**
-   * The method enclosing a position, by walking declarations rather than
-   * offsets. Source order is not containment: a `#fetch(` that merely appears
-   * *after* `transport` may sit in a wholly different method, including a
-   * public one.
+   * Parsed, not pattern-matched.
+   *
+   * Every regex version of this rule has been wrong, and each time in the
+   * direction that lets something through. Two ordinary TypeScript shapes
+   * defeated the last one:
+   *
+   *     peek = async (url: string) => this.#fetch(url, {});
+   *
+   * is a class *field*, so a method-shaped pattern never saw it and billed its
+   * call site to whichever method happened to sit above it. And a member can
+   * take a reference to the transport without ever calling it there.
+   *
+   * The compiler already knows what a class member is. Asking it is not
+   * gold-plating — it is the difference between a control and something that
+   * reads like one.
    */
-  const METHOD_DECL =
-    /^\s{2}(?:(?:public|private|protected|static|override|async|get|set)\s+)*(#?[A-Za-z_$][\w$]*)\s*[(<]/gm;
+  const INJECTED = '#fetch';
+  const SINK = 'transport';
 
-  /**
-   * Every method declaration with the span it owns — its own declaration to the
-   * start of the next. The same approximation `enclosingMethodOf` used, kept
-   * because these files are flat classes; a class nested inside a method would
-   * defeat it, and none exists here.
-   */
-  function declaredMethods(code: string): readonly { name: string; start: number; body: string }[] {
-    const starts = [...code.matchAll(METHOD_DECL)].flatMap((match) =>
-      match.index === undefined || match[1] === undefined
-        ? []
-        : [{ name: match[1], start: match.index }],
-    );
-    return starts.map((decl, i) => ({
-      name: decl.name,
-      start: decl.start,
-      body: code.slice(decl.start, starts[i + 1]?.start ?? code.length),
-    }));
+  interface Member {
+    readonly name: string;
+    /**
+     * Whether anything outside the class can reach it. Only `#private` cannot:
+     * TypeScript's `private` and `protected` are erased and enforce nothing.
+     */
+    readonly external: boolean;
+    readonly touches: ReadonlySet<string>;
   }
 
   /**
-   * Call sites no method owns. The spans run from the first declaration to the
-   * end of the file, so this is exactly the sites above it — invisible to the
-   * closure, and therefore a way for the scan to pass while proving nothing.
+   * Assigning to `this.#fetch` is how the transport gets *in* — the constructor
+   * writing an injected dependency. That is not reaching it, and counting it as
+   * such would flag every provider's constructor. Only a plain `=` is treated
+   * as a write; a compound assignment reads the old value too.
    */
-  function unownedFetchSites(code: string): number {
-    const firstMethod = declaredMethods(code)[0]?.start ?? code.length;
-    return [...code.matchAll(/#fetch\s*\(/g)].filter(
-      (site) => (site.index ?? 0) < firstMethod,
-    ).length;
+  function isAssignmentTarget(node: ts.PropertyAccessExpression): boolean {
+    const parent = node.parent;
+    return (
+      ts.isBinaryExpression(parent) &&
+      parent.left === node &&
+      parent.operatorToken.kind === ts.SyntaxKind.EqualsToken
+    );
   }
 
   /**
-   * Every method that can reach `#fetch` *without* passing through `transport`.
-   *
-   * This is the property the rule needs, and `#private` alone does not give it.
-   * An ECMAScript private method is callable from any method of the same class,
-   * a public one included — so a public method can reach the transport through
-   * a private helper while never mentioning `#fetch` itself. Asking only "which
-   * method encloses this call site" cannot see that path.
-   *
-   * `transport` is the accepted sink, so reachability stops there rather than
-   * propagating to its callers: being called from `transport` is the whole
-   * point, and its own caller is the base class's gated `fetch`.
+   * Every `this.x` and `this.#x` a subtree reads — called or merely referenced,
+   * because taking a reference and invoking it elsewhere reaches exactly as far.
    */
-  function methodsReachingFetch(code: string): ReadonlySet<string> {
-    const methods = declaredMethods(code);
-    const reaching = new Set(
-      methods.filter((method) => /#fetch\s*\(/.test(method.body)).map((method) => method.name),
-    );
-    for (let changed = true; changed; ) {
-      changed = false;
-      for (const method of methods) {
-        if (reaching.has(method.name)) continue;
-        const calls = [...method.body.matchAll(/this\.(#?[A-Za-z_$][\w$]*)\s*\(/g)].map(
-          (call) => call[1],
-        );
-        if (calls.some((callee) => callee !== undefined && callee !== 'transport' && reaching.has(callee))) {
-          reaching.add(method.name);
-          changed = true;
+  function thisAccesses(node: ts.Node): Set<string> {
+    const names = new Set<string>();
+    const visit = (child: ts.Node): void => {
+      if (
+        ts.isPropertyAccessExpression(child) &&
+        child.expression.kind === ts.SyntaxKind.ThisKeyword &&
+        !isAssignmentTarget(child)
+      ) {
+        names.add(child.name.text);
+      }
+      ts.forEachChild(child, visit);
+    };
+    visit(node);
+    return names;
+  }
+
+  function classesIn(file: ts.SourceFile): ts.ClassLikeDeclaration[] {
+    const found: ts.ClassLikeDeclaration[] = [];
+    const visit = (node: ts.Node): void => {
+      if (ts.isClassDeclaration(node) || ts.isClassExpression(node)) found.push(node);
+      ts.forEachChild(node, visit);
+    };
+    ts.forEachChild(file, visit);
+    return found;
+  }
+
+  function membersOf(cls: ts.ClassLikeDeclaration): Member[] {
+    return cls.members.flatMap((member) => {
+      const touches = thisAccesses(member);
+      // A constructor runs on `new`, which makes it as reachable as a public
+      // method even though it has no name of its own.
+      if (ts.isConstructorDeclaration(member)) {
+        return [{ name: 'constructor', external: true, touches }];
+      }
+      const name = member.name;
+      if (name === undefined) return [];
+      return [
+        {
+          name: ts.isPrivateIdentifier(name) ? name.text : name.getText(),
+          external: !ts.isPrivateIdentifier(name),
+          touches,
+        },
+      ];
+    });
+  }
+
+  /**
+   * Members reachable from outside the class that can reach the transport
+   * without going through `transport`.
+   *
+   * Reachability stops at `transport` rather than propagating to its callers:
+   * being called from `transport` is the entire point, and its own caller is
+   * the base class's gated `fetch`, which the type system already guards by
+   * demanding an `AllowedAcquisition`.
+   */
+  function ungatedTransportPaths(code: string): string[] {
+    const offenders = new Set<string>();
+    for (const cls of classesIn(parse(code))) {
+      const members = membersOf(cls);
+      const reaching = new Set(
+        members.filter((member) => member.touches.has(INJECTED)).map((member) => member.name),
+      );
+      for (let changed = true; changed; ) {
+        changed = false;
+        for (const member of members) {
+          if (reaching.has(member.name)) continue;
+          if ([...member.touches].some((name) => name !== SINK && reaching.has(name))) {
+            reaching.add(member.name);
+            changed = true;
+          }
+        }
+      }
+      for (const member of members) {
+        if (reaching.has(member.name) && member.external && member.name !== SINK) {
+          offenders.add(member.name);
         }
       }
     }
-    return reaching;
+    return [...offenders].sort();
   }
 
-  /** The methods on a reaching-set that anything outside the class could call. */
-  function ungatedIn(reaching: ReadonlySet<string>): string[] {
-    return [...reaching].filter((name) => name !== 'transport' && !name.startsWith('#')).sort();
+  /**
+   * References to the transport that belong to no class member. The closure
+   * only walks members, so one of these would be invisible to it — a way for
+   * the scan to pass while proving nothing about that call.
+   */
+  function unownedTransportRefs(code: string): number {
+    let unowned = 0;
+    const visit = (node: ts.Node): void => {
+      if (
+        ts.isPropertyAccessExpression(node) &&
+        node.expression.kind === ts.SyntaxKind.ThisKeyword &&
+        node.name.text === INJECTED
+      ) {
+        let scope: ts.Node | undefined = node.parent;
+        while (scope !== undefined && !ts.isClassElement(scope)) scope = scope.parent;
+        if (scope === undefined) unowned += 1;
+      }
+      ts.forEachChild(node, visit);
+    };
+    ts.forEachChild(parse(code), visit);
+    return unowned;
+  }
+
+  /** Members that reach the transport at all, gated or not. */
+  function transportReachers(code: string): string[] {
+    const names = new Set<string>();
+    for (const cls of classesIn(parse(code))) {
+      const members = membersOf(cls);
+      const reaching = new Set(
+        members.filter((member) => member.touches.has(INJECTED)).map((member) => member.name),
+      );
+      for (let changed = true; changed; ) {
+        changed = false;
+        for (const member of members) {
+          if (reaching.has(member.name)) continue;
+          if ([...member.touches].some((name) => name !== SINK && reaching.has(name))) {
+            reaching.add(member.name);
+            changed = true;
+          }
+        }
+      }
+      for (const name of reaching) names.add(name);
+    }
+    return [...names].sort();
   }
 
   it('confines every path to the transport behind `transport`', () => {
-    // `#private` is the only boundary that survives compilation — TypeScript
-    // erases `protected` — but it bounds who may call a method from *outside*
-    // the class, not which of the class's own methods may. So the rule is
-    // reachability, not enclosure: nothing callable from outside may reach
-    // `#fetch` except through `transport`.
+    // `#private` is the only boundary that survives compilation, but it bounds
+    // who may call a member from *outside* the class — not which of the class's
+    // own members may. So the rule is reachability, not enclosure: nothing
+    // callable from outside may reach `#fetch` except through `transport`.
     for (const entry of TRANSPORT_ALLOWLIST) {
-      const code = stripComments(readFileSync(join(SRC, entry), 'utf8'));
+      const code = readFileSync(join(SRC, entry), 'utf8');
       expect(
-        [...code.matchAll(/#fetch\s*\(/g)].length,
-        `${entry} has no transport invocation`,
+        transportReachers(code).length,
+        `${entry} has no member reaching the transport, so this scan proved nothing`,
       ).toBeGreaterThan(0);
       expect(
-        unownedFetchSites(code),
-        `${entry}: a transport invocation sits outside every method, where the ` +
-          `reachability closure cannot see it`,
+        unownedTransportRefs(code),
+        `${entry}: a transport reference sits outside every class member, where ` +
+          `the reachability closure cannot see it`,
       ).toBe(0);
-      const reaching = methodsReachingFetch(code);
       expect(
-        reaching.size,
-        `${entry}: no method reaches #fetch, so this scan proved nothing`,
-      ).toBeGreaterThan(0);
-      expect(
-        ungatedIn(reaching),
-        `${entry}: these methods reach the transport without passing the gate`,
+        ungatedTransportPaths(code),
+        `${entry}: these members reach the transport without passing the gate`,
       ).toEqual([]);
     }
   });
@@ -219,22 +318,18 @@ describe('network capability is confined to the gated transport layer', () => {
       '}',
     ].join('\n');
 
-    // Positional order would accept both, because `peek` comes after
-    // `transport`. Reachability rejects the second, which is the point.
-    expect([...methodsReachingFetch(smuggled)].sort()).toEqual(['peek', 'transport']);
-    expect(
-      ungatedIn(methodsReachingFetch(smuggled)),
-      'the rule must reject a public method',
-    ).toEqual(['peek']);
+    expect(transportReachers(smuggled)).toEqual(['peek', 'transport']);
+    expect(ungatedTransportPaths(smuggled), 'the rule must reject a public method').toEqual([
+      'peek',
+    ]);
   });
 
   it('rejects a public method that reaches #fetch through a #private helper', () => {
-    // The hole that `#private`-alone leaves open, and the reason enclosure is
-    // not enough: `peek` never mentions `#fetch`. Asking which method encloses
-    // each call site finds only `#call`, which is private, and accepts the
-    // file — verified RED against exactly this fixture before the closure
-    // existed. An ECMAScript private method is callable from any method of the
-    // same class, so `#call` being private says nothing about `peek`.
+    // `peek` never mentions `#fetch`. Asking which member encloses each call
+    // site finds only `#call`, which is private, and accepts the file —
+    // verified RED against exactly this fixture. An ECMAScript private method
+    // is callable from any method of the same class, so `#call` being private
+    // says nothing about `peek`.
     const smuggled = [
       'class Sneaky extends BaseAcquisitionProvider {',
       '  protected async transport(c: TransportContext) {',
@@ -251,14 +346,95 @@ describe('network capability is confined to the gated transport layer', () => {
       '}',
     ].join('\n');
 
-    // Only one call site, and it is inside a private method — which is exactly
-    // why the enclosing-method rule waved this through.
-    expect([...smuggled.matchAll(/#fetch\s*\(/g)].length).toBe(1);
-    expect([...methodsReachingFetch(smuggled)].sort()).toEqual(['#call', 'peek', 'transport']);
+    expect(transportReachers(smuggled)).toEqual(['#call', 'peek', 'transport']);
     expect(
-      ungatedIn(methodsReachingFetch(smuggled)),
+      ungatedTransportPaths(smuggled),
       'a public method on a private path must still be rejected',
     ).toEqual(['peek']);
+  });
+
+  it('rejects a public class field, which is not a method declaration at all', () => {
+    // The shape that defeated the pattern-matching version and the reason this
+    // scan parses. `peek` is a PropertyDeclaration holding an arrow function:
+    // externally callable, reaching the transport directly, and invisible to
+    // anything looking for a method signature. Verified RED by writing exactly
+    // this into the real `providers/http.ts`, which the old scan accepted.
+    const smuggled = [
+      'class Sneaky extends BaseAcquisitionProvider {',
+      '  protected async transport(c: TransportContext) {',
+      '    return this.#fetch(c.request.url, {});',
+      '  }',
+      '',
+      '  peek = async (url: string): Promise<unknown> => this.#fetch(url, {});',
+      '}',
+    ].join('\n');
+
+    expect(ungatedTransportPaths(smuggled), 'a field is a member too').toEqual(['peek']);
+  });
+
+  it('rejects taking a reference to the transport without calling it there', () => {
+    // Reaching is not calling. Handing the function out is enough.
+    const smuggled = [
+      'class Sneaky extends BaseAcquisitionProvider {',
+      '  protected async transport(c: TransportContext) {',
+      '    return this.#fetch(c.request.url, {});',
+      '  }',
+      '',
+      '  escape() {',
+      '    return this.#fetch;',
+      '  }',
+      '}',
+    ].join('\n');
+
+    expect(ungatedTransportPaths(smuggled), 'handing out the transport is reaching it').toEqual([
+      'escape',
+    ]);
+  });
+
+  it('does not mistake injecting the transport for reaching it', () => {
+    // Every provider's constructor assigns `this.#fetch = ...`. That is the
+    // dependency arriving, not the constructor calling out — and this is the
+    // reason the rule reads assignment targets differently rather than simply
+    // exempting constructors, which would hide a real one.
+    const injected = [
+      'class Fine extends BaseAcquisitionProvider {',
+      '  readonly #fetch: FetchLike;',
+      '',
+      '  constructor(options: Options) {',
+      '    super(options.deps);',
+      '    this.#fetch = requireFetch("fine", options.fetch);',
+      '  }',
+      '',
+      '  protected async transport(c: TransportContext) {',
+      '    return this.#fetch(c.request.url, {});',
+      '  }',
+      '}',
+    ].join('\n');
+
+    expect(transportReachers(injected), 'the constructor writes it, transport reads it').toEqual([
+      'transport',
+    ]);
+    expect(ungatedTransportPaths(injected)).toEqual([]);
+  });
+
+  it('still rejects a constructor that actually calls the transport', () => {
+    // The other half of the distinction: reading it in a constructor is a real
+    // ungated path, because construction happens without the gate.
+    const smuggled = [
+      'class Sneaky extends BaseAcquisitionProvider {',
+      '  constructor(options: Options) {',
+      '    super(options.deps);',
+      '    this.#fetch = options.fetch;',
+      '    void this.#fetch("https://example.test/", {});',
+      '  }',
+      '',
+      '  protected async transport(c: TransportContext) {',
+      '    return this.#fetch(c.request.url, {});',
+      '  }',
+      '}',
+    ].join('\n');
+
+    expect(ungatedTransportPaths(smuggled)).toEqual(['constructor']);
   });
 
   it('permits the same call from a #private helper', () => {
@@ -276,9 +452,11 @@ describe('network capability is confined to the gated transport layer', () => {
       '  }',
       '}',
     ].join('\n');
-    const reaching = methodsReachingFetch(legitimate);
-    expect([...reaching].sort()).toEqual(['#call', 'transport']);
-    expect(ungatedIn(reaching), 'over-tightening would reject correct code').toEqual([]);
+
+    expect(transportReachers(legitimate)).toEqual(['#call', 'transport']);
+    expect(ungatedTransportPaths(legitimate), 'over-tightening would reject correct code').toEqual(
+      [],
+    );
   });
 
   it('detects the primitives it claims to detect', () => {
@@ -356,17 +534,92 @@ describe('every provider goes through the base class', () => {
  * assertion may appear, enforced here.
  */
 describe('the gate’s proof is minted in exactly one place', () => {
-  // Both assertion syntaxes TypeScript accepts in a `.ts` file. The negative
-  // lookbehind keeps `Promise<AllowedAcquisition>` and friends out: in a
-  // generic argument the `<` follows an identifier, in an assertion it does not.
-  const ASSERTION =
-    /\bas\s+(?:unknown\s+as\s+)?AllowedAcquisition\b|(?<![\w$])<\s*AllowedAcquisition\s*>/;
+  const PROOF = 'AllowedAcquisition';
   const MINTING_SITE = 'policy/rights-gate.ts';
+
+  /**
+   * The names that denote the proof type *in this file*. A literal search for
+   * `AllowedAcquisition` misses every one of these:
+   *
+   *     import type { AllowedAcquisition as Proof } from '...';  // → `Proof`
+   *     import * as Gate from '...';               // → `Gate.AllowedAcquisition`
+   *
+   * Both forge the token, and neither spells its name where the forgery
+   * happens. A namespace is admitted without resolving what it points at, so
+   * any `Ns.AllowedAcquisition` assertion is flagged — the conservative
+   * direction, since the alternative is a scan that can be renamed around.
+   */
+  function proofNames(file: ts.SourceFile): {
+    readonly locals: ReadonlySet<string>;
+    readonly namespaces: ReadonlySet<string>;
+  } {
+    const locals = new Set<string>();
+    const namespaces = new Set<string>();
+    const visit = (node: ts.Node): void => {
+      if (
+        (ts.isTypeAliasDeclaration(node) || ts.isInterfaceDeclaration(node)) &&
+        node.name.text === PROOF
+      ) {
+        locals.add(PROOF);
+      }
+      if (ts.isImportDeclaration(node)) {
+        const bindings = node.importClause?.namedBindings;
+        if (bindings !== undefined && ts.isNamedImports(bindings)) {
+          for (const element of bindings.elements) {
+            if ((element.propertyName ?? element.name).text === PROOF) {
+              locals.add(element.name.text);
+            }
+          }
+        }
+        if (bindings !== undefined && ts.isNamespaceImport(bindings)) {
+          namespaces.add(bindings.name.text);
+        }
+      }
+      ts.forEachChild(node, visit);
+    };
+    ts.forEachChild(file, visit);
+    return { locals, namespaces };
+  }
+
+  /** Every assertion *to* the proof type, by either syntax, under any name. */
+  function proofAssertions(code: string): ts.Node[] {
+    const file = parse(code);
+    const { locals, namespaces } = proofNames(file);
+    const denotesProof = (type: ts.TypeNode): boolean => {
+      if (!ts.isTypeReferenceNode(type)) return false;
+      const name = type.typeName;
+      if (ts.isIdentifier(name)) return locals.has(name.text);
+      return (
+        ts.isQualifiedName(name) &&
+        ts.isIdentifier(name.left) &&
+        namespaces.has(name.left.text) &&
+        name.right.text === PROOF
+      );
+    };
+    const hits: ts.Node[] = [];
+    const visit = (node: ts.Node): void => {
+      if (
+        (ts.isAsExpression(node) || ts.isTypeAssertionExpression(node)) &&
+        denotesProof(node.type)
+      ) {
+        hits.push(node);
+      }
+      ts.forEachChild(node, visit);
+    };
+    ts.forEachChild(file, visit);
+    return hits;
+  }
+
+  function enclosingFunction(node: ts.Node | undefined): ts.FunctionDeclaration | undefined {
+    let scope = node?.parent;
+    while (scope !== undefined && !ts.isFunctionDeclaration(scope)) scope = scope.parent;
+    return scope;
+  }
 
   it('permits the assertion only where the gate mints the proof', () => {
     const offenders = sourceFiles()
       .filter((file) => rel(file) !== MINTING_SITE)
-      .filter((file) => ASSERTION.test(stripComments(readFileSync(file, 'utf8'))))
+      .filter((file) => proofAssertions(readFileSync(file, 'utf8')).length > 0)
       .map(rel);
     expect(
       offenders,
@@ -375,22 +628,50 @@ describe('the gate’s proof is minted in exactly one place', () => {
   });
 
   it('mints it exactly once, inside requireAcquisitionAllowed', () => {
-    const code = stripComments(readFileSync(join(SRC, MINTING_SITE), 'utf8'));
-    const assertions = [...code.matchAll(new RegExp(ASSERTION.source, 'g'))];
+    const assertions = proofAssertions(readFileSync(join(SRC, MINTING_SITE), 'utf8'));
     expect(assertions.length, 'more than one mint means more than one way in').toBe(1);
-    const fn = code.indexOf('export function requireAcquisitionAllowed');
-    expect(fn, 'the minting function must exist').toBeGreaterThan(-1);
-    expect(assertions[0]?.index ?? -1).toBeGreaterThan(fn);
+    const minting = enclosingFunction(assertions[0]);
+    expect(minting?.name?.text, 'the mint must sit inside the gate’s own function').toBe(
+      'requireAcquisitionAllowed',
+    );
   });
 
-  it('detects the assertion it claims to detect', () => {
-    expect(ASSERTION.test('return result as AllowedAcquisition;')).toBe(true);
-    expect(ASSERTION.test('return x as unknown as AllowedAcquisition;')).toBe(true);
-    expect(ASSERTION.test('return <AllowedAcquisition>result;')).toBe(true);
-    expect(ASSERTION.test('const g: AcquisitionGateResult = r;')).toBe(false);
-    // Generic arguments are uses of the type, not forgeries of it. Flagging
-    // these would make the rule unusable and get it deleted.
-    expect(ASSERTION.test('async function f(): Promise<AllowedAcquisition> {')).toBe(false);
-    expect(ASSERTION.test('readonly allowed: AllowedAcquisition;')).toBe(false);
+  it('detects every assertion syntax, under every name', () => {
+    const imported = "import type { AllowedAcquisition } from './rights-gate.js';\n";
+    expect(proofAssertions(`${imported}const a = r as AllowedAcquisition;`).length).toBe(1);
+    expect(proofAssertions(`${imported}const a = r as unknown as AllowedAcquisition;`).length).toBe(
+      1,
+    );
+    expect(proofAssertions(`${imported}const a = <AllowedAcquisition>r;`).length).toBe(1);
+
+    // The two forms that defeated the literal-name scan, both verified RED
+    // against the real `providers/http.ts` before this rewrite.
+    expect(
+      proofAssertions(
+        "import type { AllowedAcquisition as Proof } from './rights-gate.js';\nconst a = r as Proof;",
+      ).length,
+      'an aliased import renames the token and forges it just the same',
+    ).toBe(1);
+    expect(
+      proofAssertions(
+        "import * as Gate from './rights-gate.js';\nconst a = r as Gate.AllowedAcquisition;",
+      ).length,
+      'a namespace import qualifies the name rather than changing it',
+    ).toBe(1);
+  });
+
+  it('leaves ordinary uses of the type alone', () => {
+    // A scan that flagged these would be correct once and switched off after.
+    const imported = "import type { AllowedAcquisition } from './rights-gate.js';\n";
+    expect(proofAssertions(`${imported}declare function f(): Promise<AllowedAcquisition>;`).length)
+      .toBe(0);
+    expect(proofAssertions(`${imported}interface C { readonly allowed: AllowedAcquisition }`).length)
+      .toBe(0);
+    expect(proofAssertions(`${imported}const g: AcquisitionGateResult = r;`).length).toBe(0);
+    // An unrelated local type that merely shares an alias name is not the token.
+    expect(
+      proofAssertions('type Proof = string;\nconst a = r as Proof;').length,
+      'only names actually bound to the imported token count',
+    ).toBe(0);
   });
 });
