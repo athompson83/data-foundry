@@ -580,8 +580,10 @@ const traverseRelationships = defineTool({
     'recorded confidence and how many pieces of evidence back it; `truncated` says when the ' +
     'limit stopped the walk short. LIMITATIONS: an edge exists only where a source asserted it. ' +
     'Nothing here is inferred from similarity, so an entity with no asserted successor returns ' +
-    'no successor rather than a plausible one. Depth is capped at four by design. Edges with no ' +
-    'evidence at all are withheld and counted in `withheldEdgeCount`, never returned as facts.',
+    'no successor rather than a plausible one. Depth is capped at four by design. Edges backed ' +
+    'by no publishable evidence — none at all, or only sources that fail the rights gate — are ' +
+    'withheld and counted in `withheldEdgeCount`, never returned as facts; so is any neighbour ' +
+    'reachable only through one, which is why a walk can stop short of a node the graph holds.',
   input: TraverseRelationshipsInput,
   errors: ['INVALID_ARGUMENTS', 'ENTITY_NOT_FOUND', 'INTERNAL_ERROR'],
   handler: async (context, args): Promise<Guarded<TraverseRelationshipsResult>> => {

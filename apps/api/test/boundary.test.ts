@@ -223,8 +223,10 @@ describe('the published contract matches the routes that exist', () => {
       expect(route.summary.length, route.path).toBeGreaterThan(20);
     }
     const caveats = document.routes.filter((route) => route.caveat !== undefined);
-    // The two honest limitations: unrights-gated traversal, and comparison
-    // cells that carry no correction state.
+    // Caveats narrow what a route means: which properties can be absent, what
+    // traversal withholds, which trust fields a comparison cell does not carry.
+    // The count is a floor so removing one is visible here; what each one says
+    // is checked against the route's behaviour in `test/privacy.test.ts`.
     expect(caveats.map((route) => route.path).length).toBeGreaterThanOrEqual(2);
   });
 

@@ -101,20 +101,15 @@ boundary (where it throws).
 
 ## Known limitations (honest)
 
-* **Relationship traversal carries no rights gate.** `traverseRelationships`
-  does not filter edges by their evidence's rights classification, the way fact
-  selection filters claims. The fix belongs in the query layer, once, for every
-  surface — not in a second rights filter here. Published as a `caveat` on the
-  route in `GET /v1`.
-* **`sources` on a fact can name a blocked publisher.** `canonicalFacts` builds
-  the publisher list from the selected candidate's raw evidence rather than its
-  rights-filtered evidence, so a fact backed by one `GREEN` and one `UNREVIEWED`
-  source lists both. The *value* is rule-1 clean; the publisher name rides
-  along. Pinned in `test/privacy.test.ts` so the behaviour is known, and again
-  the fix is in `canonicalFacts`.
 * **Comparison cells carry no correction state.** `EntityComparison` does not
   expose it, and deriving it here would mean re-implementing comparison. The
   route says so in its published caveat and points at `/facts`.
+
+Two entries that stood here are gone because the gaps closed, both in the query
+layer rather than in a second filter on this surface (rule 5): traversal now
+applies the same rule-1 gate fact selection applies, and a fact's `sources` now
+names only the publishers its rights-filtered evidence allows. Both are covered
+by `test/privacy.test.ts`.
 
 ## Running
 

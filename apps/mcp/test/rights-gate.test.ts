@@ -14,7 +14,7 @@
  * nothing else, which is the case that matters.
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { createMcpFixtures, errorOf, resultOf, type McpFixtures } from './support.js';
+import { createMcpFixtures, errorOf, relate, resultOf, type McpFixtures } from './support.js';
 import type {
   CompareEntitiesResult,
   ExplainFactResult,
@@ -182,15 +182,25 @@ describe('the payload sweep', () => {
 });
 
 /**
- * AGENTS.md rule 2 at the interface: "No published fact without evidence."
+ * AGENTS.md rules 1 and 2 at the interface, for edges rather than facts.
  *
- * The store refuses to write a fact or a relationship without evidence, so an
- * unevidenced edge can only arrive by a path that bypassed it. The test creates
- * that state deliberately — deleting the evidence rows underneath a real
- * relationship — because an assertion about what happens to unevidenced edges
- * is worthless if no unevidenced edge can exist to test it.
+ * An edge can lose the right to be served two ways: it carries no evidence at
+ * all (rule 2), or every source behind it fails the publish gate (rule 1). The
+ * query layer refuses both — it must, since a hop taken through such an edge
+ * would publish the refused claim as a path — so neither reaches this
+ * projection to be filtered here. What this app is responsible for is that the
+ * refusal is REPORTED. An empty edge list on its own says "the graph holds
+ * nothing here", which is a stronger and different claim than "we hold nothing
+ * here we may publish", and an agent cannot tell them apart without the count.
+ *
+ * Both cases are constructed rather than assumed: the store refuses to write a
+ * relationship without evidence, so the unevidenced one is made by deleting the
+ * evidence rows underneath a real edge.
  */
-describe('a relationship with no evidence', () => {
+describe('a relationship no publishable evidence backs', () => {
+  /** A predicate no fixture uses, so the rights case owns what it walks. */
+  const PREDICATE = 'blocked_only_edge';
+
   it('is withheld from traversal and counted, not returned as a fact', async () => {
     const before = resultOf<import('../src/index.js').TraverseRelationshipsResult>(
       await fixtures.server.callTool('traverse_relationships', {
@@ -219,5 +229,41 @@ describe('a relationship with no evidence', () => {
     // "we hold something we are not willing to publish".
     expect(after.withheldEdgeCount).toBe(1);
     expect(JSON.stringify(after)).not.toContain(relationshipId);
+  });
+
+  it('is withheld and counted when its only source fails the rights gate', async () => {
+    // The edge is fully evidenced. It fails on rights and nothing else, which
+    // is the case the unevidenced test above cannot reach.
+    await relate(fixtures, fixtures.equipment, PREDICATE, fixtures.heatPump, 'blocked');
+
+    const result = resultOf<import('../src/index.js').TraverseRelationshipsResult>(
+      await fixtures.server.callTool('traverse_relationships', {
+        entity_id: fixtures.equipment.id,
+        predicate: PREDICATE,
+        direction: 'out',
+      }),
+    );
+    expect(result.edges).toEqual([]);
+    expect(result.withheldEdgeCount).toBe(1);
+
+    // The gap is reported; the blocked publisher is not. A count discloses that
+    // something was refused, which is the point; naming the source it came from
+    // would republish exactly what the gate refused.
+    const raw = JSON.stringify(result);
+    expect(raw).not.toContain(BLOCKED_PUBLISHER);
+    expect(raw).not.toContain(BLOCKED_DOMAIN);
+  });
+
+  it('does not report a gap where there is none', async () => {
+    // Without this, `withheldEdgeCount` could be hard-coded to 1 and both
+    // assertions above would still pass.
+    const result = resultOf<import('../src/index.js').TraverseRelationshipsResult>(
+      await fixtures.server.callTool('traverse_relationships', {
+        entity_id: fixtures.heatPump.id,
+        predicate: 'replaced_by',
+        direction: 'out',
+      }),
+    );
+    expect(result.withheldEdgeCount).toBe(0);
   });
 });

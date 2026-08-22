@@ -260,6 +260,13 @@ const listRelationships: Route['handler'] = async (context, match) => {
         edgeBound: TRAVERSAL_BOUND,
         /** True when the traversal stopped at its bound, so more edges exist. */
         boundReached: traversal.truncated,
+        /**
+         * Edges the walk reached and would not serve: no evidence, or evidence
+         * only from sources that may not publish. Reported so an empty result
+         * reads as "nothing publishable here" rather than "nothing here" — a
+         * count only, never which edge or whose source.
+         */
+        withheldEdgeCount: traversal.withheld_edge_count,
       },
       ...page,
     },
@@ -402,7 +409,7 @@ export const ROUTES: readonly Route[] = [
     path: '/v1/entities/{id}/relationships?predicate=&direction=&depth=&limit=&offset=',
     summary: 'Bounded graph traversal from this entity, breadth-first and cycle-guarded.',
     caveat:
-      'Relationship traversal carries no rights gate in the query layer today, unlike facts. Do not treat an edge as evidence that its backing source is publishable.',
+      'Rule 1 applies here as it does to facts: an edge whose every piece of evidence comes from a source that may not publish is withheld, and so is any neighbour reachable only through one. Edge counts are therefore a view of the publishable graph, not of everything recorded.',
     handler: listRelationships,
   },
   {

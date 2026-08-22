@@ -332,10 +332,15 @@ export interface TraverseRelationshipsResult {
   readonly truncated: boolean;
   readonly edges: readonly RelationshipEdgeView[];
   /**
-   * Edges dropped for carrying no evidence at all (AGENTS.md rule 2, and the
-   * `suppress_facts_without_evidence` contract in `mcp.yaml`). Counted rather
-   * than hidden: a traversal that quietly returns fewer edges than the graph
-   * holds is indistinguishable from a graph that is missing them.
+   * Edges the walk reached and would not serve: no evidence at all (AGENTS.md
+   * rule 2, and the `suppress_facts_without_evidence` contract in `mcp.yaml`),
+   * or evidence only from sources that fail the publish gate (rule 1, and
+   * `exclude_unpublishable_sources`). Counted rather than hidden: a traversal
+   * that quietly returns fewer edges than the graph holds is indistinguishable
+   * from a graph that is missing them.
+   *
+   * A count, never an identity. It says how many edges were refused, not which
+   * or whose, so it reports the gap without disclosing a blocked source.
    */
   readonly withheldEdgeCount: number;
 }
@@ -358,13 +363,25 @@ export function traversal(
   result: RelationshipTraversal,
   url: CanonicalUrlBuilder,
 ): TraverseRelationshipsResult {
+  // Two withholding points, deliberately added rather than one trusted.
+  //
+  // The query layer refuses an edge nothing publishable backs and reports how
+  // many in `withheld_edge_count` — it has to drop them there, because a hop
+  // taken through a blocked edge would publish the blocked claim as a path, so
+  // this projection never sees them and cannot count them itself.
+  //
+  // The filter below is what is left of the rule-2 check this projection used
+  // to do alone. Under the layer's fail-closed default it drops nothing, since
+  // an unevidenced edge is already withheld upstream. It stays because the
+  // alternative is a surface whose rule-2 guarantee holds only for as long as
+  // somebody else's default does, and it is one predicate.
   const evidenced = result.edges.filter((edge) => edge.evidence_count > 0);
   return {
     root: entityRef(root, url),
     depth: result.depth,
     truncated: result.truncated,
     edges: evidenced.map((edge) => edgeView(edge, url)),
-    withheldEdgeCount: result.edges.length - evidenced.length,
+    withheldEdgeCount: result.withheld_edge_count + (result.edges.length - evidenced.length),
   };
 }
 

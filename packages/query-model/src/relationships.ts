@@ -82,6 +82,22 @@ export interface RelationshipTraversal {
   readonly edges: readonly RelationshipEdge[];
   readonly depth: number;
   readonly truncated: boolean;
+  /**
+   * Edges the walk reached and refused to serve: nothing publishable vouches
+   * for them, so either they carry no evidence at all (rule 2) or every source
+   * behind them fails the publish gate (rule 1).
+   *
+   * Reported rather than silently omitted. A surface that shows fewer edges
+   * than the graph holds, with nothing saying so, is indistinguishable from a
+   * graph that is missing them — and "we hold nothing here" is a different and
+   * stronger claim than "we hold nothing here we may publish". The count says
+   * how many, never which or from whom, so it discloses no blocked source.
+   *
+   * Always 0 when `require_publishable_rights` is false, because then the walk
+   * refuses nothing on rights and an unevidenced edge is served as it is
+   * stored.
+   */
+  readonly withheld_edge_count: number;
 }
 
 const MAX_DEPTH = 4;
@@ -98,6 +114,7 @@ export async function traverseRelationships(
     query.require_publishable_rights ?? DEFAULT_REQUIRE_PUBLISHABLE_RIGHTS;
 
   const edges: RelationshipEdge[] = [];
+  let withheld = 0;
   const visited = new Set<string>([query.entity_id]);
   const seenEdges = new Set<string>();
   let frontier: EntityId[] = [query.entity_id];
@@ -123,7 +140,10 @@ export async function traverseRelationships(
         // either — reaching a node *through* a blocked edge would publish the
         // blocked claim as a path. The neighbour stays unvisited, so a
         // publishable edge to the same node later still finds it.
-        if (requirePublishableRights && evidenceCount === 0) continue;
+        if (requirePublishableRights && evidenceCount === 0) {
+          withheld += 1;
+          continue;
+        }
 
         const outgoing = relationship.subject_entity_id === current;
         const neighborId = outgoing ? relationship.object_entity_id : relationship.subject_entity_id;
@@ -153,7 +173,7 @@ export async function traverseRelationships(
     frontier = next;
   }
 
-  return { root: query.entity_id, edges, depth, truncated };
+  return { root: query.entity_id, edges, depth, truncated, withheld_edge_count: withheld };
 }
 
 /**

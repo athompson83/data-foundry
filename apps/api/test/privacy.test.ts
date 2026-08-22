@@ -30,7 +30,16 @@ import { ROUTES } from '../src/routes.js';
 import { factWire } from '../src/wire.js';
 import type { ApiFactSelectionPolicy } from '../src/config.js';
 import type { ApiHandler } from '../src/http.js';
-import { call, claim, createApiFixtures, dataOf, errorOf, ts, type ApiFixtures } from './support.js';
+import {
+  call,
+  claim,
+  createApiFixtures,
+  dataOf,
+  errorOf,
+  relate,
+  ts,
+  type ApiFixtures,
+} from './support.js';
 
 const PROPERTY = 'blower_rpm';
 const REVIEWER = 'j.okafor@example.com';
@@ -235,10 +244,10 @@ describe('the guard is what stops it (removal proof)', () => {
   });
 });
 
-describe('known gap: rights filtering of the `sources` list (not this surface’s to fix)', () => {
+describe('a value backed by one publishable and one blocked source', () => {
   const PROPERTY_MIXED = 'mixed_evidence_spec';
 
-  it('publishes a value backed by one publishable and one blocked source', async () => {
+  it('publishes the value and credits only the source it may name', async () => {
     const green = fixtures.sources.manufacturer;
     const blocked = fixtures.sources.blocked;
     await fixtures.store.appendFactWithEvidence(
@@ -278,13 +287,75 @@ describe('known gap: rights filtering of the `sources` list (not this surface’
       `/v1/entities/${fixtures.heatPump.id}/facts?property=${PROPERTY_MIXED}`,
     );
     const fact = dataOf<RestFact[]>(response)[0];
+
+    // The value stands: a publishable source backs it, so rule 1 does not
+    // withhold it. What rule 1 also governs is the CREDIT — and this assertion
+    // used to run the other way. It pinned `sources` containing the UNREVIEWED
+    // publisher's name as a known gap, on the reasoning that naming who else
+    // said something is attribution rather than data.
+    //
+    // That reasoning was wrong, and review was right to press it. Telling a
+    // customer that a published value is backed by a source the publish gate
+    // says must not publish is both a disclosure and a false provenance claim,
+    // whatever the field is called. It is fixed once in `canonicalFacts` for
+    // every surface rather than filtered again here (rule 5), by reading the
+    // rights-filtered source list `fact-selection` had already computed.
     expect(fact?.value).toBe(42);
-    // Rule 1 holds for the VALUE: a publishable source backs it. But
-    // `canonicalFacts` builds `sources` from the selected candidate's raw
-    // evidence rather than from its rights-filtered evidence, so the UNREVIEWED
-    // publisher's NAME rides along. Pinned here so the behaviour is known and
-    // the fix goes where it belongs — `canonicalFacts`, once, for every surface
-    // — and not into a second rights filter inside this API (rule 5).
-    expect(fact?.sources).toContain('HVAC Forum');
+    expect(fact?.sources).toContain('Carrier');
+    expect(fact?.sources, 'a blocked source must not be credited for the value').not.toContain(
+      'HVAC Forum',
+    );
+  });
+});
+
+describe('the published contract for relationship traversal', () => {
+  /**
+   * The contract document at `/v1` is a promise, not a comment: callers read it
+   * to decide what an edge means. It used to warn that traversal "carries no
+   * rights gate in the query layer today, unlike facts" — true when written,
+   * and false the moment the gate landed. A caveat that understates the
+   * guarantee is not a safe direction to be wrong in either: a caller told an
+   * edge proves nothing about publishability will build their own filter, and
+   * two filters that disagree is exactly what rule 5 exists to prevent.
+   *
+   * So the wording is checked against what the route actually does, in the
+   * same test, rather than trusted to stay in step on its own.
+   */
+  const PREDICATE = 'blocked_only_edge';
+
+  it('withholds an edge no publishable source vouches for', async () => {
+    await relate(fixtures, fixtures.equipment, PREDICATE, fixtures.heatPump, 'blocked');
+
+    const response = await call(
+      fixtures.app,
+      `/v1/entities/${fixtures.equipment.id}/relationships?predicate=${PREDICATE}`,
+    );
+    expect(response.status).toBe(200);
+    expect(
+      dataOf<{ predicate: string }[]>(response),
+      'the only evidence for this edge comes from an UNREVIEWED source',
+    ).toEqual([]);
+
+    // Withheld, and said so. An empty edge list on its own tells a caller the
+    // graph holds nothing here, which is a stronger claim than the truth.
+    const body = response.body as { traversal: { withheldEdgeCount: number } };
+    expect(body.traversal.withheldEdgeCount).toBe(1);
+    expect(
+      JSON.stringify(response.body),
+      'the count reports the gap; it must not name who was refused',
+    ).not.toContain('HVAC Forum');
+  });
+
+  it('does not tell callers that traversal is ungated', async () => {
+    const response = await call(fixtures.app, '/v1');
+    expect(response.status).toBe(200);
+    const document = response.body as { routes: { path: string; caveat?: string }[] };
+    const route = document.routes.find((candidate) => candidate.path.includes('/relationships'));
+    expect(route, 'the contract must still describe the traversal route').toBeDefined();
+    const caveat = route?.caveat ?? '';
+    expect(caveat, 'traversal does gate on rights; the contract must not deny it').not.toMatch(
+      /no rights gate/i,
+    );
+    expect(caveat, 'and it must say so, so callers do not re-filter').toMatch(/withheld|withhold/i);
   });
 });

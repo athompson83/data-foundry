@@ -177,6 +177,34 @@ describe('relationship traversal — rule 1 (gap 1)', () => {
     expect(mixed?.evidence_count, 'both rows are counted when nothing is filtered').toBe(2);
   });
 
+  it('reports how many edges it refused, so a surface can say so', async () => {
+    // Withholding silently would let a caller read an empty or short edge list
+    // as "the graph holds nothing more here" — a stronger claim than the truth,
+    // and one the caller has no way to check. The count is the difference
+    // between a reported gap and an invisible one.
+    const traversal = await fixtures.qm.relationships({
+      entity_id: fixtures.equipment.id,
+      predicate: 'has_part',
+    });
+
+    expect(traversal.withheld_edge_count, 'the UNREVIEWED-only edge, and only it').toBe(1);
+    expect(traversal.edges).toHaveLength(2);
+
+    // A count, not an identity: it says something was refused without saying
+    // what, or by whom, which is what makes it safe to publish.
+    expect(JSON.stringify(traversal)).not.toContain(BLOCKED_PUBLISHER);
+  });
+
+  it('reports no gap when it refused nothing', async () => {
+    // Otherwise a hard-coded 1 would satisfy the assertion above.
+    const traversal = await fixtures.qm.relationships({
+      entity_id: fixtures.equipment.id,
+      predicate: 'has_part',
+      require_publishable_rights: false,
+    });
+    expect(traversal.withheld_edge_count).toBe(0);
+  });
+
   it('does not reach a further node through an edge it may not serve', async () => {
     const beyond = await entity('Forum-Only Bearing', 'forum-only-bearing');
     await relate(fixtures, hiddenPart, 'has_part', beyond, 'manufacturer');
