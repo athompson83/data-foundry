@@ -74,9 +74,12 @@ DOE web policies (`https://www.energy.gov/web-policies`), verbatim:
 
 Two differences from the EPA position, both material:
 
-1. **Acknowledgement is requested.** Not a licence condition, but where EPA asks
-   for nothing, DOE asks for credit. Attribution should be configured as
-   required for CCMS-derived facts. **[REVIEWER]**
+1. **Acknowledgement is requested, not required.** DOE *asks* for credit where
+   EPA asks for nothing. That is a request, not a licence condition, and the two
+   must not be conflated — writing "required" here would manufacture an
+   obligation the licence does not impose. Proposed: attribute CCMS-derived
+   facts **as a platform policy choice**, because crediting a federal source is
+   right whether or not it is compelled. **[REVIEWER]**
 2. **DOE expressly warns about third-party contributed content.** CCMS is,
    by DOE's own description, a database *of* third-party submissions. The
    caveat and the content coincide exactly here, which is a stronger version of
@@ -131,7 +134,7 @@ UNKNOWN pending §4]**
 | C-02 | **Different test procedures / appendices.** CCMS splits *Central* from *Central, Appendix M1*. Ratings from different appendices are not comparable | Compare only within a matched appendix, or not at all |
 | C-03 | **Update skew.** CCMS ≈ every two weeks **[VERIFIED]**; ENERGY STAR `rowsUpdatedAt` read as 2026-08-21 on a single observation, cadence **[UNKNOWN]**. If ENERGY STAR moves faster, a fresh disagreement is probably skew rather than conflict | Establish the ENERGY STAR cadence by observation first. Until then, require a disagreement to persist across two CCMS cycles before treating it as a conflict |
 | C-04 | **Model-number formatting differs between submitters.** The join is the hard part | Measure join yield on a sample before designing anything on top of it |
-| C-05 | **Neither is "the truth".** DOE disclaims compliance determination; EPA disclaims warranty | Publish both with attribution and let the disagreement be visible (rule 3) |
+| C-05 | **Neither is "the truth".** DOE disclaims compliance determination; EPA disclaims warranty | **Once CCMS is approved** (§8 — it is not), publish both with attribution and let the disagreement be visible (rule 3). Until then nothing from CCMS is published at all |
 | C-06 | **Shared submitters make agreement uninformative.** Both databases hold manufacturer/importer filings, plausibly of the same test report | Never record matching values as corroboration. Record them as "two filings agree". Act on disagreement, not on agreement |
 
 ## 8. Conclusion

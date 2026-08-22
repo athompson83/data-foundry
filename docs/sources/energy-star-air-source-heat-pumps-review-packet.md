@@ -95,9 +95,9 @@ is required** on whether mini-splits are in or out. **[REVIEWER]**
 | --- | --- | --- | --- | --- |
 | 1 | May we acquire it this way at all? | `acquisition_policy.method` | robots **disallows** `/api/odata/` and `/OData.svc/`, and **does not disallow** `/resource/` or `/api/views/` **[VERIFIED]** — §7. Terms, licence scope, rate limits and redistribution constraints are **[UNVERIFIED]** — §7a | SODA `/resource/`, **not OData** — *proposed*, not authorised. Robots not disallowing a route is not a grant |
 | 2 | May we use it commercially? | `commercial_use_allowed` | EPA licence: *"all data produced by the U.S EPA is by default in the public domain and is not subject to domestic copyright protection under 17 U.S.C. § 105"* **[VERIFIED]** | Yes for EPA-produced content; see §4 for the submitted-content question **[REVIEWER]** |
-| 3 | May we redistribute it? | `redistribution_allowed` | Public domain implies redistribution. No attribution condition is stated in the licence **[VERIFIED]** | Yes **[REVIEWER]** |
-| 4 | May we normalize and derive from it? | `derivative_normalization_allowed` | Public domain; no derivative restriction stated **[VERIFIED]** | Yes **[REVIEWER]** |
-| 5 | Must we attribute, and how exactly? | `rights_policy.attribution` | The licence states **no** attribution requirement **[VERIFIED]**. But EPA disclaims warranty and the mark rules forbid implying endorsement (§5) | Attribution **not legally required**; recommended anyway as *"Source: U.S. EPA ENERGY STAR certified product data, retrieved <date>"* **[REVIEWER]** |
+| 3 | May we redistribute it? | `redistribution_allowed` | Public domain implies redistribution for EPA-produced content. No attribution condition is stated **[VERIFIED]** | Yes **for EPA-produced content**; **[UNKNOWN]** for partner- and CB-submitted values until §4 is resolved **[REVIEWER]** |
+| 4 | May we normalize and derive from it? | `derivative_normalization_allowed` | Public domain; no derivative restriction stated **[VERIFIED]** | Yes **for EPA-produced content**; **[UNKNOWN]** for submitted values until §4 is resolved **[REVIEWER]** |
+| 5 | Must we attribute, and how exactly? | `rights_policy.attribution` | The licence states **no** attribution requirement **[VERIFIED]**. But EPA disclaims warranty and the mark rules forbid implying endorsement (§5) | Attribution **not required by the EPA licence**. Proposed as a *platform policy* choice, not a licence obligation: *"Source: U.S. EPA ENERGY STAR certified product data, retrieved <date>"* **[REVIEWER]** |
 | 6 | May we reuse the images? | `images_reusable` + `image_policy` | The dataset contains **no images** — all 48 columns are text, number or date **[VERIFIED]** | `false`, `cache_to_r2_permitted: false`. Nothing to decide, so decide nothing |
 
 ---
@@ -235,7 +235,7 @@ registration step for a person, not an agent. **[REVIEWER]**
 `docs/sources/evidence/data.energystar.gov-robots.txt`, retrieved
 2026-08-22T00:40:01Z, SHA-256
 `a6c856352c621a97f9fcfb2b212d4fc530169b319c9e7b49fc2e6299d736c7a2`. One
-`User-agent: *` group, `Crawl-delay: 1`, 55 `Disallow` lines. In full:
+`User-agent: *` group, `Crawl-delay: 1`, 54 `Disallow` lines. In full:
 
 | Group | Patterns | Bears on us |
 | --- | --- | --- |

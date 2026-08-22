@@ -61,13 +61,18 @@ export const DEFAULT_USER_AGENT = 'DataFoundryBot/0.1 (+https://example.invalid/
  * What the vendor-specific half of a provider is handed.
  *
  * `allowed` is proof the gate ran and permitted this fetch. It is required, and
- * it can only be minted by `requireAcquisitionAllowed`, so there is no way to
- * call a provider's transport — including by casting past `protected` at
- * runtime — without a value the gate produced. The ordering is no longer a
- * property of one `if` statement that someone could delete.
+ * it can only be *constructed* by `requireAcquisitionAllowed`, so removing the
+ * gate call from `fetch` fails the build rather than silently opening a hole.
+ * The ordering is no longer a property of one `if` statement someone could
+ * delete.
+ *
+ * It is not a runtime capability check. A caller determined to bypass the gate
+ * can assert the type and cast past `protected`; no type erased at compile time
+ * stops that. What keeps it honest inside this repository is a scan —
+ * `test/boundary.test.ts` permits the assertion in one function only.
  */
 export interface TransportContext {
-  /** Proof the gate ran and allowed this fetch. Only the gate can produce it. */
+  /** Proof the gate ran and allowed this fetch. Only the gate constructs it. */
   readonly allowed: AllowedAcquisition;
   readonly request: SourceRequest;
   readonly entry: SourceRegistryEntry;

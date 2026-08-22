@@ -100,27 +100,102 @@ describe('a prohibited domain may appear only where naming it is the point', () 
  * claim about what that company permits. So the name check is scoped to files
  * that declare a rights posture, and the entity fixtures are left alone.
  */
+/**
+ * The nominative distinction, encoded — and scoped to where the claim lives.
+ *
+ * "Trane" as an entity name is a product identifier and must stay; removing it
+ * would damage identifier normalization and assert nothing about rights.
+ * "Trane" as a `publisher:` is a claim about what that company permits.
+ *
+ * An earlier version of this check scanned whole FILES that happened to mention
+ * `rights_classification` anywhere. That would have failed a legitimate
+ * `canonical_name: 'Trane XR16'` sitting in the same file as a rights block —
+ * and the only way to make such a test pass is to delete the identifier, which
+ * is exactly the outcome this whole distinction exists to prevent. A control
+ * that punishes correct code gets switched off, and deservedly.
+ *
+ * So it reads the VALUES of rights-declaring fields, and nothing else.
+ */
 describe('a prohibited publisher may not be named in a rights declaration', () => {
-  const RIGHTS_MARKERS = /rights_policy|rights_classification|license_text_ref|publisher:/;
+  /** Fields whose value asserts something about a publisher's terms. */
+  const RIGHTS_FIELDS = [
+    'publisher',
+    'publisher_legal_entity',
+    'license_text_ref',
+    'terms_url',
+    'api_terms_url',
+  ] as const;
 
-  const rightsFiles = (): string[] =>
-    trackedTextFiles()
-      .filter((path) => /\.(ts|yaml|yml|json)$/.test(path))
-      .filter((path) => !DOMAIN_ALLOWLIST.includes(path))
-      .filter((path) => RIGHTS_MARKERS.test(read(path)));
+  /** The values of those fields, across TypeScript, YAML and JSON alike. */
+  function rightsDeclaredValues(content: string): string[] {
+    const values: string[] = [];
+    for (const field of RIGHTS_FIELDS) {
+      const pattern = new RegExp(`^[\\s-]*['"\`]?${field}['"\`]?\\s*:\\s*(.+?),?\\s*$`, 'gm');
+      for (const match of content.matchAll(pattern)) {
+        if (match[1] !== undefined) values.push(match[1]);
+      }
+    }
+    return values;
+  }
 
-  it('finds rights-declaring files at all', () => {
-    expect(rightsFiles().length).toBeGreaterThan(0);
+  const declaredValuesByFile = (): ReadonlyMap<string, string[]> => {
+    const found = new Map<string, string[]>();
+    for (const path of trackedTextFiles()) {
+      if (!/\.(ts|yaml|yml|json)$/.test(path)) continue;
+      if (DOMAIN_ALLOWLIST.includes(path)) continue;
+      const values = rightsDeclaredValues(read(path));
+      if (values.length > 0) found.set(path, values);
+    }
+    return found;
+  };
+
+  it('finds rights-declaring values at all', () => {
+    // Without this, an extractor that silently stopped matching would make
+    // every assertion below pass on an empty set.
+    expect(declaredValuesByFile().size).toBeGreaterThan(0);
   });
 
+  // The tokens are static constants from this repository's own source, not
+  // input, so building a pattern from them carries no injection or ReDoS
+  // exposure; they are escaped regardless.
   it.each(PROHIBITED_PUBLISHER_TOKENS)('does not name %s in one', (token) => {
     const pattern = new RegExp(`\\b${token.replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
-    const offenders = rightsFiles().filter((path) => pattern.test(read(path)));
+    const offenders = [...declaredValuesByFile()]
+      .filter(([, values]) => values.some((value) => pattern.test(value)))
+      .map(([path]) => path);
     expect(
       offenders,
-      `"${token}" is named in a file that declares rights. A fictional publisher on a ` +
+      `"${token}" is the value of a rights-declaring field. A fictional publisher on a ` +
         `reserved domain must not rest on a real organisation's name or terms.`,
     ).toEqual([]);
+  });
+
+  it('permits the name as a product identifier and rejects it as a publisher', () => {
+    // The distinction itself, asserted on both sides. If the extractor ever
+    // widens back to whole-file scanning, the first half of this fails.
+    const nominative = [
+      "    canonical_name: 'Trane XR16 Heat Pump',",
+      "    canonical_slug: 'trane-xr16-heat-pump',",
+      '    rights_classification: GREEN,',
+    ].join('\n');
+    const declaration = [
+      "    publisher: 'Trane Technologies',",
+      '    rights_classification: GREEN,',
+    ].join('\n');
+
+    expect(rightsDeclaredValues(nominative), 'a product name is not a rights claim').toEqual([]);
+    expect(rightsDeclaredValues(declaration).join(' ')).toMatch(/Trane Technologies/);
+  });
+
+  it('reads the field in every format the repository actually uses', () => {
+    // TypeScript object literal, YAML scalar, JSON — one extractor, three
+    // syntaxes. A format it silently skipped would be an unpoliced hiding place.
+    expect(rightsDeclaredValues("  publisher: 'Acme Climate',")).toEqual(["'Acme Climate'"]);
+    expect(rightsDeclaredValues('publisher: Acme Climate')).toEqual(['Acme Climate']);
+    expect(rightsDeclaredValues('  "publisher": "Acme Climate",')).toEqual(['"Acme Climate"']);
+    expect(rightsDeclaredValues('  terms_url: https://example.invalid/terms')).toEqual([
+      'https://example.invalid/terms',
+    ]);
   });
 
   it('leaves nominative entity names alone', () => {

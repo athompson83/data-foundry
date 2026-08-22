@@ -137,20 +137,48 @@ because a partial enumeration produces a confident false green:
         `required_approving_review_count: 0` and
         `required_review_thread_resolution: true`), and
         `required_status_checks` naming **both** job names exactly
+  - [ ] **Bind each required check to its source.** Every
+        `required_status_checks[].integration_id` must be the **GitHub Actions
+        App ID**. A check entry with no `integration_id` is satisfied by *any*
+        actor holding `statuses: write` — so the rule would then require only
+        that *something* posted a green context with the right name, not that
+        our CI ran. If you deliberately want any source to satisfy it, record
+        that decision here rather than leaving the field absent by accident.
   - [ ] **Every bypass actor, by type.** `bypass_actors` is a list of typed
-        entries, and each type is a different set of people:
-        `OrganizationAdmin`, `RepositoryRole` (which role id?), `Team`,
-        `Integration` (a GitHub App — this is how a bot silently gains bypass),
-        and `DeployKey`. Check `bypass_mode` on each too: `always` versus
-        `pull_request` are very different permissions. An unnoticed entry is the
-        difference between a rule and a decoration.
+        entries, and each type is a different set of people: `OrganizationAdmin`,
+        `RepositoryRole` (which role id?), `Team`, `User` (an individual, by
+        numeric `actor_id`), `Integration` (a GitHub App — this is how a bot
+        silently gains bypass), and `DeployKey` (whose `actor_id` must be
+        `null`).
+  - [ ] **And `bypass_mode` on each**, because the three modes are not degrees
+        of the same thing:
+        - `always` — bypasses everywhere;
+        - `pull_request` — bypasses only on pull requests. Valid on **branch**
+          rulesets only, and **not applicable to `DeployKey`**;
+        - `exempt` — **the one to look hardest at.** The rules are not run for
+          that actor at all, and **no bypass audit entry is created**. An
+          `always` bypass at least leaves a trace; an `exempt` actor leaves the
+          ruleset looking untouched precisely when it was not enforced.
+
+        An unnoticed entry is the difference between a rule and a decoration.
 - [ ] Open a throwaway pull request **from an account that is not on the bypass
       list**, and confirm it cannot merge while checks are pending. If no such
       account exists, record explicitly that the check was performed as an admin
       and that no bypass was used — an untested rule verified by someone who can
       ignore it is not a tested rule.
-- [ ] `GET /repos/athompson83/data-foundry/rulesets/rule-suites` afterwards to
-      confirm the ruleset actually evaluated against that pull request
+- [ ] `GET /repos/athompson83/data-foundry/rulesets/rule-suites` afterward — but
+      a 200 with *some* suites in it is not evidence. Correlate one to the pull
+      request you just opened before believing anything:
+  - [ ] Follow pagination (`per_page`, `page`, and the `Link` header) — the
+        suite you want may not be on page 1.
+  - [ ] Match it on **repository**, the evaluated **`ref`**, and **`after_sha`**.
+        `after_sha` is the head commit the evaluation ran against; on a
+        `synchronize` it is the new head of the source branch, which is what
+        makes it the right key rather than a timestamp or ordering.
+  - [ ] Then `GET .../rulesets/rule-suites/{id}` for that suite and read
+        `rule_evaluations` and `evaluation_result` — a suite exists whether the
+        rules passed, failed, or were bypassed, so its presence proves
+        evaluation happened and nothing about the outcome.
 
 ---
 

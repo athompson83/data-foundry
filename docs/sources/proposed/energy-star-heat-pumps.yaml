@@ -86,7 +86,7 @@ robots_policy:
   # robots.txt declares Crawl-delay: 1 for User-agent: *.
   crawl_delay_seconds: 1
   # ACQUISITION-SCOPED SUMMARY, not the whole file. The retrieved snapshot has
-  # 55 Disallow lines; the ones that bear on how we would fetch are recorded
+  # 54 Disallow lines; the ones that bear on how we would fetch are recorded
   # here, and the complete listing is in the packet, section 7.
   #
   # /api/odata/ and /OData.svc/ are disallowed OUTRIGHT — which rules out the
