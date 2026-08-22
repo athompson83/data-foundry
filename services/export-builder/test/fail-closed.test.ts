@@ -20,7 +20,14 @@
  * partially backs, or through a declaration the database cannot see.
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { ExportRefusedError, buildDatasetExport, createMemorySink } from '../src/index.js';
+import type { Identifier } from '@data-foundry/canonical-schema';
+import type { QueryModel } from '@data-foundry/query-model';
+import {
+  MAX_EXPORT_ENTITIES,
+  ExportRefusedError,
+  buildDatasetExport,
+  createMemorySink,
+} from '../src/index.js';
 import {
   BLOCKED_ONLY_EXCLUDED_PROPERTY,
   BLOCKED_ONLY_PROPERTY,
@@ -346,5 +353,96 @@ describe('the caller cannot switch rule 1 off', () => {
     expect(disabled).toBeDefined();
     expect(disabled?.message).toContain('internal analysis');
     expect(sink.files.size).toBe(0);
+  });
+});
+
+/**
+ * The bound is on the export, not on each of its parts.
+ *
+ * `MAX_EXPORT_ENTITIES` exists because every gate in this service runs before
+ * the first byte is written, which means the whole export is held in memory
+ * while it is gated. That is a statement about the export, so a cap applied once
+ * per entity type is not the cap: an export naming three types could hold three
+ * times what the builder claims it can hold, and the number in the message would
+ * be a number nobody had checked.
+ *
+ * The scope size is stubbed rather than inserted. Only `search().total` is
+ * replaced — every entity, fact, lineage and byte still comes from the real
+ * query layer over the real database — because inserting thirty thousand rows to
+ * test arithmetic would test PGlite's insert path instead.
+ */
+describe('the in-memory bound covers the whole export', () => {
+  const EQUIPMENT = 'equipment' as Identifier;
+  const PART = 'part' as Identifier;
+
+  /** The real query model, reporting a larger scope than the fixtures hold. */
+  const reportingScope = (totals: Readonly<Record<string, number>>): QueryModel => ({
+    ...fixtures.qm,
+    search: async (query) => {
+      const page = await fixtures.qm.search(query);
+      const total = totals[String(query.entity_type ?? '')];
+      return total === undefined ? page : { ...page, total };
+    },
+  });
+
+  const build = async (
+    totals: Readonly<Record<string, number>>,
+    entityTypes: readonly Identifier[],
+  ): Promise<{ error: unknown; sink: ReturnType<typeof createMemorySink> }> => {
+    const sink = createMemorySink('bounded');
+    let error: unknown;
+    try {
+      await buildDatasetExport({
+        ...baseOptions(fixtures),
+        // The forum's claims are excluded so a build that fits the bound can
+        // actually succeed here: this file's fixtures are contaminated on
+        // purpose, and rule 1 would otherwise refuse before the bound is
+        // reached, which would make every assertion below say nothing.
+        properties: NOTHING_THE_FORUM_TOUCHES,
+        queryModel: reportingScope(totals),
+        entityTypes: [...entityTypes],
+        sink,
+      });
+    } catch (caught) {
+      error = caught;
+    }
+    return { error, sink };
+  };
+
+  it('refuses when the types are each within the cap but together exceed it', async () => {
+    const { error, sink } = await build(
+      { [EQUIPMENT]: MAX_EXPORT_ENTITIES - 4_000, [PART]: 4_001 },
+      [EQUIPMENT, PART],
+    );
+    expect(error).toBeInstanceOf(RangeError);
+    expect((error as Error).message).toContain(String(MAX_EXPORT_ENTITIES + 1));
+    expect((error as Error).message).toContain(String(MAX_EXPORT_ENTITIES));
+    expect(sink.files.size).toBe(0);
+  });
+
+  it('builds at exactly the cap, so the boundary is a decision and not an accident', async () => {
+    const { error, sink } = await build(
+      { [EQUIPMENT]: MAX_EXPORT_ENTITIES - 4_000, [PART]: 4_000 },
+      [EQUIPMENT, PART],
+    );
+    expect(error).toBeUndefined();
+    expect(sink.files.size).toBeGreaterThan(0);
+  });
+
+  it('still refuses a single type that exceeds the cap on its own', async () => {
+    const { error, sink } = await build({ [EQUIPMENT]: MAX_EXPORT_ENTITIES + 1 }, [EQUIPMENT]);
+    expect(error).toBeInstanceOf(RangeError);
+    expect(sink.files.size).toBe(0);
+  });
+
+  it('does not count a type the caller named twice as two scopes', async () => {
+    // The id-keyed merge already publishes such an entity once. The bound has
+    // to agree with it, or naming a type twice refuses an export that fits.
+    const { error, sink } = await build({ [EQUIPMENT]: MAX_EXPORT_ENTITIES }, [
+      EQUIPMENT,
+      EQUIPMENT,
+    ]);
+    expect(error).toBeUndefined();
+    expect(sink.files.size).toBeGreaterThan(0);
   });
 });
