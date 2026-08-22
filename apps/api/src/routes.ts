@@ -469,7 +469,8 @@ export function routeParams(route: Route, segments: readonly string[]): Readonly
  *
  * A README describing pagination bounds drifts from the code that enforces
  * them; this document is generated from the same constants the handlers use, and
- * `test/contract.test.ts` asserts every route it advertises actually routes.
+ * `test/boundary.test.ts` asserts every route it advertises actually routes, and
+ * every route that exists is advertised.
  */
 export function contractDocument(version: string): unknown {
   return {

@@ -15,11 +15,12 @@
  * No database here on purpose: these are properties of the source tree.
  */
 import { describe, expect, it } from 'vitest';
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { contractDocument, matchRoute, ROUTES } from '../src/routes.js';
 
 const SRC = fileURLToPath(new URL('../src/', import.meta.url));
+const TEST = fileURLToPath(new URL('./', import.meta.url));
 
 /**
  * Every `.ts` file under `src/`, at ANY depth.
@@ -217,6 +218,37 @@ describe('ADR-0004 — one fact serializer, shared', () => {
     expect(implementation).toContain('toRestFact(view)');
     expect(implementation).toContain('assertNoReviewerIdentity');
     expect(implementation).not.toContain('...');
+  });
+});
+
+describe('the tests this package’s own comments point at', () => {
+  it('cites only test files that exist', () => {
+    // A comment naming a test is a claim that the property it describes is
+    // enforced somewhere, and it is the reason the next reader stops looking
+    // for the enforcement themselves. Two of these named files that were never
+    // written — `test/contract.test.ts` and `test/wire-boundary.test.ts` — so
+    // the strongest-sounding sentences in `routes.ts` and `wire.ts` were
+    // pointing at nothing. The citation is now checked the same way every other
+    // claim in this file is: structurally, against the directory.
+    //
+    // Only this package's own `test/`, deliberately: a path with a package in
+    // front of it (`query-model/test/...`) names someone else's tree and is not
+    // this suite's to resolve.
+    const citation = /(?<![\w/-])test\/([A-Za-z0-9._-]+\.test\.ts)/g;
+    const cited = new Set<string>();
+    const missing: string[] = [];
+    for (const file of sourceFiles()) {
+      let match = citation.exec(file.text);
+      while (match !== null) {
+        const name = match[1] ?? '';
+        cited.add(name);
+        if (!existsSync(`${TEST}${name}`)) missing.push(`${file.name} → test/${name}`);
+        match = citation.exec(file.text);
+      }
+    }
+    expect(cited.size, 'no comment cites a test — this check would pass vacuously')
+      .toBeGreaterThan(0);
+    expect(missing, 'cite the file that actually asserts it, or say nothing').toEqual([]);
   });
 });
 
