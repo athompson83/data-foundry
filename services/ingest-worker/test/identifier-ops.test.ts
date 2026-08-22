@@ -13,7 +13,12 @@
  * code does with it.
  */
 import { describe, expect, it } from 'vitest';
-import { AliasNormalizer, IDENTIFIER_OPS, isIdentifierOp } from '../src/identifiers.js';
+import {
+  AliasNormalizer,
+  IDENTIFIER_OPS,
+  isIdentifierOp,
+  type IdentifierOp,
+} from '../src/identifiers.js';
 import { PipelineConfigurationError } from '../src/errors.js';
 import type { VerticalConfig } from '../src/config.js';
 
@@ -38,6 +43,67 @@ const OP_ARGUMENTS: Readonly<Record<string, Record<string, unknown>>> = {
   strip_prefix: { prefixes: ['Probe'] },
   left_pad: { length: 20, character: '0' },
 };
+
+/**
+ * One input/output vector per identifier op.
+ *
+ * Deriving the vocabulary from the dispatch table proves every advertised name
+ * is *runnable*. It does not prove any name still means what it says. Review
+ * found the gap and it is real: rewriting
+ *
+ *     lowercase: (value) => applyCase(value, 'upper')
+ *
+ * keeps membership, keeps reachability, still returns a string — and passed
+ * all 1113 tests. Only an expected output catches a handler that was rewired
+ * to the wrong helper.
+ *
+ * Typed as a total `Record<IdentifierOp, …>`, so adding an op to the dispatch
+ * without a vector is a compile error rather than a silently unanchored name.
+ */
+const SEMANTICS: Record<
+  IdentifierOp,
+  { readonly declared: Record<string, unknown>; readonly input: string; readonly expected: string }
+> = {
+  uppercase: { declared: {}, input: 'hk-32ea', expected: 'HK-32EA' },
+  lowercase: { declared: {}, input: 'HK-32EA', expected: 'hk-32ea' },
+  // First character up, the rest down, per whitespace-separated part.
+  title_case: { declared: {}, input: 'blower MOTOR', expected: 'Blower Motor' },
+  // Collapses runs and trims the ends.
+  collapse_whitespace: { declared: {}, input: '  a   b  ', expected: 'a b' },
+  strip_whitespace: { declared: {}, input: '  hk32  ', expected: 'hk32' },
+  strip_characters: {
+    declared: { characters: '-/' },
+    input: 'HK-32EA/001',
+    expected: 'HK32EA001',
+  },
+  strip_non_digits: { declared: {}, input: 'AHRI 1234-5', expected: '12345' },
+  strip_prefix: {
+    declared: { prefixes: ['CARRIER-'] },
+    input: 'CARRIER-24ANB7',
+    expected: '24ANB7',
+  },
+  left_pad: { declared: { length: 8, character: '0' }, input: '12345', expected: '00012345' },
+  // HONEST LIMITATION: `AliasNormalizer.normalize` runs `normalizeUnicode` over
+  // the raw value before the declared chain, so by the time this op executes
+  // the input is already NFKC. This vector therefore proves the op preserves an
+  // already-normalized value, not that it normalizes — a rewrite to the
+  // identity function would pass it. Anchoring it properly needs a seam that
+  // reaches the handler without the pre-pass, which does not exist today.
+  unicode_normalize: { declared: {}, input: '\uFF11\uFF12\uFF13', expected: '123' },
+};
+
+describe('every identifier op still means what its name says', () => {
+  it('has a vector for every op the dispatch advertises', () => {
+    // The `Record` makes this true at compile time; asserted at runtime too so
+    // a cast or a widened type cannot quietly reopen the hole.
+    expect([...IDENTIFIER_OPS].sort()).toEqual(Object.keys(SEMANTICS).sort());
+  });
+
+  it.each(IDENTIFIER_OPS)('%s transforms its input as declared', (op) => {
+    const vector = SEMANTICS[op];
+    expect(runOp({ op, ...vector.declared }, vector.input), op).toBe(vector.expected);
+  });
+});
 
 describe('the exported identifier vocabulary is the dispatch, not a copy of it', () => {
   it('executes every op it advertises', () => {
