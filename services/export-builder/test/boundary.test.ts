@@ -162,7 +162,7 @@ describe('rule 5 — the service reads through the query layer and nothing benea
 
   it('touches the store only where a write genuinely needs one', () => {
     const importers = sourceFiles(SRC).filter((file) =>
-      /from '@data-foundry\/canonical-store'/.test(stripComments(readFileSync(file, 'utf8'))),
+      /from ['"]@data-foundry\/canonical-store['"]/.test(stripComments(readFileSync(file, 'utf8'))),
     );
     // `privacy.ts` imports a TYPE only. `builder.ts` imports a VALUE —
     // `resolveFactSelectionPolicy`, called to record the effective policy in
@@ -175,7 +175,7 @@ describe('rule 5 — the service reads through the query layer and nothing benea
     );
 
     const valueImporters = sourceFiles(SRC).filter((file) =>
-      /^import\s+(?!type\b)[^;]*from '@data-foundry\/canonical-store'/m.test(
+      /^import\s+(?!type\b)[^;]*from ['"]@data-foundry\/canonical-store['"]/m.test(
         stripComments(readFileSync(file, 'utf8')),
       ),
     );

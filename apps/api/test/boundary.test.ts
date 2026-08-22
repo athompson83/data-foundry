@@ -59,10 +59,19 @@ const sourceFiles = (): { name: string; text: string }[] => {
   return found;
 };
 
-/** Every module specifier a file imports from. */
+/**
+ * Every module specifier a file imports from.
+ *
+ * Quote-agnostic, and it sees `await import(...)` too. It used to match single
+ * quotes only, which meant the one thing this scan exists to catch — a file
+ * under `src/` reaching past the query layer — was invisible when written as
+ * `import x from "@data-foundry/canonical-store"`. The compiler accepts that
+ * form, nothing else in the repo objected, and the scan reported all green.
+ * `scanner` below proves the reader still works rather than assuming it.
+ */
 function importsOf(text: string): string[] {
   const specifiers: string[] = [];
-  const pattern = /(?:from|import)\s+'([^']+)'/g;
+  const pattern = /(?:from|import)\s*\(?\s*['"]([^'"]+)['"]/g;
   let match = pattern.exec(text);
   while (match !== null) {
     if (match[1] !== undefined) specifiers.push(match[1]);
@@ -70,6 +79,21 @@ function importsOf(text: string): string[] {
   }
   return specifiers;
 }
+
+describe('the boundary scan can see what it is looking for', () => {
+  it('reads a specifier whatever quote it uses, and a dynamic one', () => {
+    expect(importsOf(`import type { X } from "@data-foundry/canonical-store";`)).toEqual([
+      '@data-foundry/canonical-store',
+    ]);
+    expect(importsOf(`import { y } from '@data-foundry/query-model';`)).toEqual([
+      '@data-foundry/query-model',
+    ]);
+    expect(importsOf(`const pg = await import("pg");`)).toEqual(['pg']);
+    expect(importsOf(`export { z } from "../../../packages/canonical-store/src/index.js";`)).toEqual(
+      ['../../../packages/canonical-store/src/index.js'],
+    );
+  });
+});
 
 /**
  * The complete allow-list, and why each entry is on it.
