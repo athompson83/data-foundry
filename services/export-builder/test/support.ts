@@ -22,6 +22,7 @@
  *     fail-closed refusal exists for, and it is not hypothetical.
  */
 import {
+  entityQualityScore,
   factConfidence,
   type FactConfidence,
   type Identifier,
@@ -250,6 +251,30 @@ export async function createExportFixtures(
   options: ExportFixtureOptions = {},
 ): Promise<ExportFixtures> {
   const base = await createQueryFixtures();
+
+  // An entity whose DISPLAY NAME and SLUG sort differently: '2' (U+0032) leads
+  // every letter, so the database's `ORDER BY canonical_name` browse puts this
+  // first while the export's declared `(entity_slug, entity_id)` key puts it
+  // last. Entirely ordinary data — a product whose marketing name opens with a
+  // model number — and the reason the ordering assertions in
+  // `determinism.test.ts` are load-bearing rather than coincidentally true.
+  const coil = await base.store.upsertEntity({
+    vertical_id: base.vertical.id,
+    entity_type: 'equipment',
+    canonical_name: '24ANB7 Replacement Coil',
+    canonical_slug: 'replacement-coil-24anb7',
+    status: 'ACTIVE',
+    quality_score: entityQualityScore(0.55),
+    first_seen_at: ts('2026-01-01T00:00:00Z'),
+    last_verified_at: null,
+  });
+  await claim(base, 'manufacturer', {
+    property: 'tonnage' as Identifier,
+    value: 3,
+    value_type: 'number',
+    unit: 'ton',
+    entity_id: coil.id,
+  });
 
   // The aggregator is AMBER in its declaration; the database row has to agree,
   // or the builder refuses the export for a mismatch — which is itself one of
