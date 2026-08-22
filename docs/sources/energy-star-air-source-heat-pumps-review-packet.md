@@ -63,6 +63,22 @@ passes the widening straight through under a name that promises otherwise.
 what we ingest is stated in our configuration rather than assumed from an
 asset's title. **[REVIEWER]**
 
+**That recommendation currently has nowhere machine-readable to live, and that
+is a promotion prerequisite.** `SourceRegistryEntry` has no field for a
+source-side acquisition query — no `query`, `filter`, `params` or `selector` —
+and `verticals/<slug>/filters.yaml` is the *read* model (web facets, API
+parameters, SEO), not an acquisition input. So the filter exists today only as
+prose in `acquisition_policy.notes`, which nothing enforces and nothing reads.
+
+Adding such a field is a real design decision — it belongs with the acquisition
+provider configuration, it needs to be recorded in the policy snapshot so a
+stored artifact can say what scope produced it, and it affects every provider —
+and it should not be invented for a source nobody has approved yet. **Before
+this declaration is promoted, either that field exists and carries the filter,
+or the scope is enforced in the extraction mapping and the notes say so.** A
+recommendation that lives only in a comment is the kind of control that is
+already gone and has not been noticed. **[REVIEWER]**
+
 ### 1b. Scope note — "central" is not what this dataset is
 
 `w7cv-9xjt` is *not* the same asset as "ENERGY STAR Certified Central Air

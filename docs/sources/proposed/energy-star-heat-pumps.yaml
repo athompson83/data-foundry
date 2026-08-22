@@ -18,7 +18,9 @@
 #   1. Fill rights_classification, rights_policy.reviewed_by / reviewed_at /
 #      next_review_at, and acquisition_policy.approved / approved_by /
 #      approved_at with real values.
-#   2. Resolve every [REVIEWER] item in the packet.
+#   2. Resolve every [REVIEWER] item in the packet, including the product_type
+#      scope filter, which currently has no machine-readable home — see the
+#      packet, section 1a.
 #   3. Record a real robots snapshot for the host being fetched.
 #   4. git mv this file into verticals/hvac/sources/.
 #   5. Run pnpm verticals:validate && pnpm sources:readiness.
