@@ -15,16 +15,18 @@ First vertical: **HVAC**.
 
 ## What is here today
 
-Every stage of the north-star workflow in `AGENTS.md` is implemented and tested:
-acquisition, extraction, normalization, deterministic entity resolution,
-canonical storage and the query layer, plus the ingestion worker that runs them
-in order for one vertical end to end.
+The **ingestion half** of the north-star workflow in `AGENTS.md` is implemented
+and tested end to end for one vertical: source approval, acquisition,
+extraction, normalization, deterministic entity resolution, canonical storage
+with provenance, and publication into the query layer.
+`tests/e2e/factory-proof.test.ts` runs four sources through the worker and
+checks the canonical result against golden records.
 
-Two limitations are worth stating plainly, because neither is visible from the
-package list.
+The workflow's remaining step is the one that does not exist, and it is the
+first of two limitations that the package list does not show.
 
-**The consumer surfaces do not exist.** The workflow's last step — "web / API /
-MCP / exports generated" — has no implementation. `packages/query-model` is the
+**The consumer surfaces do not exist.** The last step — "web / API / MCP /
+exports generated" — has no implementation. `packages/query-model` is the
 single seam those surfaces must read through (rule 5), and
 `packages/query-model/src/serialization.ts` already defines the shared wire
 projection so they cannot drift apart in what they consider true when they are
