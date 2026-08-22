@@ -39,7 +39,7 @@ export function compliantEntry(overrides: Partial<SourceRegistryEntry> = {}): So
       publisher_legal_entity: 'Federated HVAC Ratings Council (SYNTHETIC — fictional certification body)',
       terms_url: 'https://www.ratings-directory.example.org/terms',
       license_id: null,
-      license_text_ref: 'legal/ahri-terms-2026-07-01.pdf',
+      license_text_ref: 'legal/ratings-directory-terms-2026-07-01.pdf',
       api_terms_url: null,
       commercial_use_allowed: true,
       redistribution_allowed: true,

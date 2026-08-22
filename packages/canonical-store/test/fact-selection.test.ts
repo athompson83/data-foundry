@@ -104,7 +104,8 @@ describe('doc 04 fact selection', () => {
       valid_from: '2026-02-01T00:00:00Z',
     });
 
-    // Default reliability falls back to authority_rank: AHRI (95) > Carrier (90).
+    // Default reliability falls back to authority_rank: the ratings directory (95)
+    // beats the manufacturer catalog (90).
     const byAuthority = await fixtures.store.selectFact(fixtures.entity.id, 'seer2_rating', {
       at: AT,
     });

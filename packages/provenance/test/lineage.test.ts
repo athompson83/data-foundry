@@ -65,8 +65,10 @@ describe('field-level lineage', () => {
   it('renders a one-line citation', async () => {
     const facts = await fixtures.store.listFacts(fixtures.entity.id, { property: 'refrigerant' });
     const lineage = await factLineage(fixtures.driver, facts[0]!.id);
-    const carrier = lineage!.chain.find((link) => link.source.domain === 'catalog.acme-climate.example.com');
-    const line = citation(carrier!);
+    const manufacturer = lineage!.chain.find(
+      (link) => link.source.domain === 'catalog.acme-climate.example.com',
+    );
+    const line = citation(manufacturer!);
     expect(line).toContain('Carrier');
     expect(line).toContain('CSS_SELECTOR');
     expect(line).toContain('retrieved');
