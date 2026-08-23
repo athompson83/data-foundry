@@ -63,6 +63,7 @@ packages/normalization/      Source-native records into typed canonical candidat
 packages/canonical-store/    Entities, facts, relationships and evidence over Postgres/PGlite
 packages/provenance/         Field-level lineage, coverage reporting, the human-readable trust surface
 packages/query-model/        The single canonical query layer web, REST and MCP read through
+packages/api-keys/           Minting and verifying API credentials. Web Crypto only
 services/ingest-worker/      DISCOVERED -> PUBLISHED job runner wiring the stages together
 services/export-builder/     Bulk CSV and JSONL exports, rights-gated and reviewer-guarded
 apps/api/                    Read-only REST surface over the query layer
@@ -71,7 +72,7 @@ apps/edge/                   Cloudflare Worker: composition root and transport, 
 verticals/hvac/              The first vertical: configuration, fixtures and golden records
 db/migrations/               Plain, portable Postgres DDL for every canonical table
 schemas/canonical/           JSON Schema exports, generated from the Zod definitions
-tooling/scripts/             Migration runner, JSON Schema generator, source readiness report
+tooling/scripts/             Migration runner, schema generator, vertical runtime compiler, readiness report
 tooling/validators/          Vertical configuration validator (CI gate)
 docs/decisions/              ADRs
 ```

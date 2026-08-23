@@ -392,6 +392,114 @@ describe('storage-level invariants', () => {
  * over that state cannot succeed, and a migration that refuses to apply over
  * lawful history is a migration that cannot be deployed at all.
  */
+describe('API tenancy invariants (0011)', () => {
+  /**
+   * Every assertion here runs against the real migration in a real database.
+   *
+   * The unit tests in `packages/api-keys` mirror two of these rules in
+   * TypeScript, which review correctly pointed out proves nothing about the
+   * schema: a regex copied into a test passes whether or not the CHECK it
+   * quotes still exists. These do not mirror. They insert and expect a refusal.
+   */
+  const TENANT_A = '77777777-7777-4777-8777-777777777777';
+  const TENANT_B = '88888888-8888-4888-8888-888888888888';
+  const KEY_A = '99999999-9999-4999-8999-999999999999';
+  const HASH_A = 'b'.repeat(64);
+
+  async function seedTenancy(): Promise<void> {
+    await driver.query(
+      `INSERT INTO api_tenants (id, slug, name) VALUES ($1, 'tenant-a', 'Tenant A'), ($2, 'tenant-b', 'Tenant B')
+       ON CONFLICT DO NOTHING`,
+      [TENANT_A, TENANT_B],
+    );
+    await driver.query(
+      `INSERT INTO api_keys (id, tenant_id, token_hash, token_prefix, label)
+       VALUES ($1, $2, $3, 'df_live_aaaa', 'primary') ON CONFLICT DO NOTHING`,
+      [KEY_A, TENANT_A, HASH_A],
+    );
+  }
+
+  const usage = (tenant: string, key: string, route = '/v1/entities/{id}', method = 'GET') =>
+    driver.query(
+      `INSERT INTO api_usage_events (tenant_id, api_key_id, route, method, status)
+       VALUES ($1, $2, $3, $4, 200)`,
+      [tenant, key, route, method],
+    );
+
+  beforeAll(seedTenancy);
+
+  /**
+   * The one that matters most, and the one that was possible until review.
+   *
+   * Both foreign keys resolve independently: tenant B exists, key A exists. Only
+   * the composite reference compares them. Without it this insert succeeds and
+   * tenant B is invoiced for tenant A's traffic.
+   */
+  it('refuses a usage row that charges a tenant for another tenant\'s key', async () => {
+    await expect(usage(TENANT_B, KEY_A)).rejects.toThrow();
+  });
+
+  it('accepts the same row when the tenant does own the key', async () => {
+    await expect(usage(TENANT_A, KEY_A)).resolves.toBeDefined();
+  });
+
+  it('refuses a raw key stored where a hash belongs', async () => {
+    await expect(
+      driver.query(
+        `INSERT INTO api_keys (tenant_id, token_hash, token_prefix, label)
+         VALUES ($1, 'df_live_Ej8xQ2vN4kLpR7sT1uY6wA9bC3dE5fG8hJ0kL2mN4pQ', 'df_live_Ej8x', 'raw')`,
+        [TENANT_A],
+      ),
+    ).rejects.toThrow();
+  });
+
+  it('refuses two keys with the same hash, so a lookup cannot be ambiguous', async () => {
+    await expect(
+      driver.query(
+        `INSERT INTO api_keys (tenant_id, token_hash, token_prefix, label)
+         VALUES ($1, $2, 'df_live_bbbb', 'duplicate')`,
+        [TENANT_B, HASH_A],
+      ),
+    ).rejects.toThrow();
+  });
+
+  it('refuses to delete a key whose usage rows would go with it (rule 10, applied to invoices)', async () => {
+    await expect(driver.query(`DELETE FROM api_keys WHERE id = $1`, [KEY_A])).rejects.toThrow();
+  });
+
+  it('refuses to delete a tenant that still has keys', async () => {
+    await expect(driver.query(`DELETE FROM api_tenants WHERE id = $1`, [TENANT_A])).rejects.toThrow();
+  });
+
+  it('keeps a request target out of the metering table', async () => {
+    // A query string is one leak shape...
+    await expect(usage(TENANT_A, KEY_A, '/v1/search?q=acme')).rejects.toThrow();
+    // ...an interpolated entity id is the other, and the likelier one, because
+    // `request.url` is closer to hand than the matched template.
+    await expect(
+      usage(TENANT_A, KEY_A, '/v1/entities/9f3c1e77-2b4a-4d6e-8f01-2a3b4c5d6e7f'),
+    ).rejects.toThrow();
+  });
+
+  it('accepts a template, which is what the column is for', async () => {
+    await expect(usage(TENANT_A, KEY_A, '/v1/entities/{id}/facts')).resolves.toBeDefined();
+  });
+
+  it('refuses a method this read-only API does not serve', async () => {
+    await expect(usage(TENANT_A, KEY_A, '/v1/search', 'POST')).rejects.toThrow();
+  });
+
+  it('refuses a status code outside the HTTP range', async () => {
+    await expect(
+      driver.query(
+        `INSERT INTO api_usage_events (tenant_id, api_key_id, route, method, status)
+         VALUES ($1, $2, '/v1/search', 'GET', 999)`,
+        [TENANT_A, KEY_A],
+      ),
+    ).rejects.toThrow();
+  });
+});
+
 describe('migration 0009 over pre-existing judgment history', () => {
   let legacy: MigrationDriver;
 
