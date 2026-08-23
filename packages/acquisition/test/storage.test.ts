@@ -19,18 +19,18 @@ import { InMemoryObjectClient, R2ArtifactStore } from '../src/storage/r2-artifac
 const RETRIEVED_AT = '2026-08-14T09:30:00.000Z';
 const BYTES = new TextEncoder().encode('{"unit":"XC21"}');
 const HASH = sha256Hex(BYTES);
-const EXPECTED_KEY = `raw/hvac/ahri-directory/content/${HASH.slice(0, 2)}/${HASH}`;
-const EXPECTED_RETRIEVAL_KEY = `raw/hvac/ahri-directory/retrieved/2026/08/14/${HASH}.json`;
+const EXPECTED_KEY = `raw/hvac/ratings-directory/content/${HASH.slice(0, 2)}/${HASH}`;
+const EXPECTED_RETRIEVAL_KEY = `raw/hvac/ratings-directory/retrieved/2026/08/14/${HASH}.json`;
 
 function putRequest(overrides: Partial<ArtifactPutRequest> = {}): ArtifactPutRequest {
   return {
     vertical: 'hvac',
-    source: 'ahri-directory',
+    source: 'ratings-directory',
     body: BYTES,
     metadata: {
-      source_key: 'ahri-directory',
+      source_key: 'ratings-directory',
       vertical_slug: 'hvac',
-      url: 'https://www.ahridirectory.org/certified/units.json',
+      url: 'https://www.ratings-directory.example.org/certified/units.json',
       retrieved_at: RETRIEVED_AT,
       http_status: 200,
       mime_type: 'application/json',
@@ -45,7 +45,7 @@ function putRequest(overrides: Partial<ArtifactPutRequest> = {}): ArtifactPutReq
 
 describe('artifact key layout', () => {
   it('addresses content by digest alone, with no date in the key', () => {
-    const parts = { vertical: 'hvac', source: 'ahri-directory', contentHash: HASH } as const;
+    const parts = { vertical: 'hvac', source: 'ratings-directory', contentHash: HASH } as const;
     expect(artifactContentKey(parts)).toBe(EXPECTED_KEY);
     expect(artifactContentPath(parts)).toBe(`/${EXPECTED_KEY}`);
     // Finding #6: a date in the content key meant identical bytes fetched on
@@ -54,7 +54,7 @@ describe('artifact key layout', () => {
   });
 
   it('gives the same bytes the same key however many days pass', () => {
-    const parts = { vertical: 'hvac', source: 'ahri-directory', contentHash: HASH } as const;
+    const parts = { vertical: 'hvac', source: 'ratings-directory', contentHash: HASH } as const;
     expect(artifactContentKey(parts)).toBe(artifactContentKey({ ...parts }));
   });
 
@@ -62,7 +62,7 @@ describe('artifact key layout', () => {
     expect(
       artifactRetrievalKey({
         vertical: 'hvac',
-        source: 'ahri-directory',
+        source: 'ratings-directory',
         retrievedAt: RETRIEVED_AT,
         contentHash: HASH,
       }),
@@ -70,7 +70,7 @@ describe('artifact key layout', () => {
     expect(
       artifactRetrievalKey({
         vertical: 'hvac',
-        source: 'ahri-directory',
+        source: 'ratings-directory',
         retrievedAt: '2026-01-05T23:59:59.000Z',
         contentHash: HASH,
       }),
@@ -80,12 +80,12 @@ describe('artifact key layout', () => {
   it('round-trips both key kinds through their parsers, and does not confuse them', () => {
     expect(parseArtifactContentKey(EXPECTED_KEY)).toEqual({
       vertical: 'hvac',
-      source: 'ahri-directory',
+      source: 'ratings-directory',
       contentHash: HASH,
     });
     expect(parseArtifactRetrievalKey(EXPECTED_RETRIEVAL_KEY)).toEqual({
       vertical: 'hvac',
-      source: 'ahri-directory',
+      source: 'ratings-directory',
       year: '2026',
       month: '08',
       day: '14',
@@ -98,14 +98,14 @@ describe('artifact key layout', () => {
   });
 
   it('rejects a shard that does not match the digest it claims to hold', () => {
-    expect(parseArtifactContentKey(`raw/hvac/ahri-directory/content/zz/${HASH}`)).toBeNull();
+    expect(parseArtifactContentKey(`raw/hvac/ratings-directory/content/zz/${HASH}`)).toBeNull();
   });
 
   it.each(['../escape', 'has/slash', 'UPPER', ''])(
     'rejects the illegal path segment %s',
     (segment) => {
       expect(() =>
-        artifactContentKey({ vertical: segment, source: 'ahri-directory', contentHash: HASH }),
+        artifactContentKey({ vertical: segment, source: 'ratings-directory', contentHash: HASH }),
       ).toThrow(ArtifactStoreError);
     },
   );
@@ -114,7 +114,7 @@ describe('artifact key layout', () => {
     expect(() =>
       artifactContentKey({
         vertical: 'hvac',
-        source: 'ahri-directory',
+        source: 'ratings-directory',
         contentHash: 'not-a-hash',
       }),
     ).toThrow(ArtifactStoreError);
@@ -258,7 +258,7 @@ describe.each(storeCases)('$name — raw evidence contract', ({ make }) => {
 
   it('returns null for a key it does not hold', async () => {
     const { store } = await make();
-    const missing = `raw/hvac/ahri-directory/content/ff/${'f'.repeat(64)}`;
+    const missing = `raw/hvac/ratings-directory/content/ff/${'f'.repeat(64)}`;
     expect(await store.head(missing)).toBeNull();
     expect(await store.get(missing)).toBeNull();
   });
@@ -285,7 +285,7 @@ describe('store-specific URIs', () => {
     ]);
     // `list` speaks in keys, not in bucket paths: the prefix is the store's
     // business and an orphan sweep must never see it.
-    expect(await store.list('raw/hvac/ahri-directory/content')).toEqual([EXPECTED_KEY]);
+    expect(await store.list('raw/hvac/ratings-directory/content')).toEqual([EXPECTED_KEY]);
   });
 
   it('the local store writes under .data/raw/... with a metadata sidecar', async () => {

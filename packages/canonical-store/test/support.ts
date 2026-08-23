@@ -93,16 +93,16 @@ interface SourceSpec {
 const SOURCE_SPECS: readonly SourceSpec[] = [
   {
     key: 'manufacturer',
-    publisher: 'Carrier',
-    domain: 'carrier.com',
+    publisher: 'Acme Climate',
+    domain: 'catalog.acme-climate.example.com',
     source_type: 'MANUFACTURER',
     authority_rank: 90,
     rights: 'GREEN',
   },
   {
     key: 'certifier',
-    publisher: 'AHRI Directory',
-    domain: 'ahridirectory.org',
+    publisher: 'Ratings Directory',
+    domain: 'ratings-directory.example.org',
     source_type: 'CERTIFICATION_BODY',
     authority_rank: 95,
     rights: 'GREEN',

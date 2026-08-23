@@ -79,7 +79,7 @@ describe('verificationSignals (mechanical extraction)', () => {
       explanation([
         attribution({ publisher: 'Acme HVAC', locator: 'a' }),
         attribution({ publisher: 'Acme HVAC', locator: 'b' }),
-        attribution({ publisher: 'AHRI Directory' }),
+        attribution({ publisher: 'Ratings Directory' }),
       ]),
       NOW,
     );
@@ -110,7 +110,7 @@ describe('verificationSignals (mechanical extraction)', () => {
       selected: {
         attributions: [
           attribution({
-            publisher: 'AHRI Directory',
+            publisher: 'Ratings Directory',
             source_type: 'CERTIFICATION_BODY' as SourceType,
             retrieved_at: '2019-03-01T00:00:00.000Z',
           }),

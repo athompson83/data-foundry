@@ -14,6 +14,7 @@ export const ACQUISITION_ONLY_GATE_CODES = [
   'ACQUISITION_METHOD_MISMATCH',
   'ROBOTS_DISALLOWED',
   'URL_NOT_IN_SOURCE_SCOPE',
+  'REDIRECT_NOT_GATED',
 ] as const;
 export type AcquisitionOnlyGateCode = (typeof ACQUISITION_ONLY_GATE_CODES)[number];
 
@@ -36,6 +37,9 @@ export interface AcquisitionGateResult {
 
 /** Codes that mean "the rights record forbids this", as opposed to "we are being polite". */
 export const RIGHTS_GATE_CODES: readonly AcquisitionGateCode[] = [
+  'SOURCE_PROHIBITED',
+  'SOURCE_DOMAIN_UNDECIDABLE',
+  'REDIRECT_NOT_GATED',
   'RIGHTS_BLOCKED',
   'KILL_SWITCH_ENGAGED',
   'RIGHTS_REVIEW_MISSING_OR_LAPSED',

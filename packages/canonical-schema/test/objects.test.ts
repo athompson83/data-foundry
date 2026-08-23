@@ -108,8 +108,8 @@ describe('sources', () => {
     const parsed = SourceSchema.safeParse({
       id: UUID,
       vertical_id: UUID,
-      publisher: 'AHRI',
-      domain: 'ahridirectory.org',
+      publisher: 'Federated HVAC Ratings Council',
+      domain: 'ratings-directory.example.org',
       source_type: 'CERTIFICATION_BODY',
       authority_rank: 95,
       refresh_cadence: 'WEEKLY',
@@ -125,8 +125,8 @@ describe('sources', () => {
     const base = {
       id: UUID,
       vertical_id: UUID,
-      publisher: 'AHRI',
-      domain: 'ahridirectory.org',
+      publisher: 'Federated HVAC Ratings Council',
+      domain: 'ratings-directory.example.org',
       source_type: 'CERTIFICATION_BODY',
       rights_classification: 'GREEN',
       attribution_requirement: { required: false, text: null, url: null },

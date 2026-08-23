@@ -114,7 +114,7 @@ describe('facts and the canonical view', () => {
     expect(seer?.rule).toBe('DIRECT_AUTHORITATIVE_SOURCE');
     expect(seer?.unresolved_conflict).toBe(true);
     expect(seer?.conflicts[0]?.value).toBe(15.2);
-    expect(seer?.sources).toContain('Carrier');
+    expect(seer?.sources).toContain('Acme Climate');
   });
 
   it('exposes the same trust surface the provenance package produces', async () => {

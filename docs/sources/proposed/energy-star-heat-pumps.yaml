@@ -1,0 +1,214 @@
+# =============================================================================
+# PROPOSED SOURCE DECLARATION — NOT IN FORCE.
+#
+# This file lives in docs/, NOT in verticals/hvac/sources/, and that placement
+# is the control. The registry loader reads verticals/<slug>/sources/*.yaml and
+# nothing else, so this declaration cannot be loaded, gated, acquired or
+# published by any code path. It is a draft attached to a review packet.
+#
+# Review packet:
+#   docs/sources/energy-star-air-source-heat-pumps-review-packet.md
+#
+# reviewed_by is null and rights_classification is UNREVIEWED. Both stay that
+# way until a NAMED HUMAN has read the packet and the primary sources and put
+# their own name here. An AI assessment is not a rights review; recording one as
+# though it were is the specific failure this whole procedure exists to prevent.
+#
+# To promote this file after review:
+#   1. Fill rights_classification, rights_policy.reviewed_by / reviewed_at /
+#      next_review_at, and acquisition_policy.approved / approved_by /
+#      approved_at with real values.
+#   2. Resolve every [REVIEWER] item in the packet, including the product_type
+#      scope filter, which currently has no machine-readable home — see the
+#      packet, section 1a.
+#   3. Record a real robots snapshot for the host being fetched.
+#   4. git mv this file into verticals/hvac/sources/.
+#   5. Change status. Nothing automates this. The lifecycle is:
+#
+#        UNDER_REVIEW -> APPROVED -> bounded acquisition into quarantine
+#                     -> validation -> ACTIVE
+#
+#      APPROVED authorises CONTROLLED FETCHING ONLY. It does not authorise
+#      publication, downstream indexing or entity resolution, customer access,
+#      or use as corroborating evidence for any other source — an APPROVED
+#      source is unvalidated by definition, and corroboration from unvalidated
+#      data is confidence manufactured out of nothing.
+#
+#      The bounded run writes to a non-publishing quarantine path and records
+#      request parameters, response metadata, row count, schema observations,
+#      the source-policy snapshot, artifact digests, and the validation outcome.
+#      ACTIVE only after that artifact proves the real acquisition path behaved
+#      within the documented rights and governance constraints.
+#
+#      Going straight to ACTIVE skips the state whose whole purpose is
+#      "acquired, not yet published".
+#   6. Run pnpm verticals:validate && pnpm sources:readiness.
+# =============================================================================
+
+key: energy-star-heat-pumps
+vertical_slug: hvac
+
+publisher: U.S. Environmental Protection Agency (ENERGY STAR program)
+# The Socrata host serving the certified-product datasets. NOTE: the portal root
+# https://data.energystar.gov/ now 301-redirects to www.energystar.gov; the
+# asset and API paths under this host continue to serve.
+domain: data.energystar.gov
+source_type: GOVERNMENT
+
+# PROPOSED, not assigned. A certification programme run by a federal agency
+# would rank high, but authority_rank affects fact selection and must not be set
+# before the source is real.
+authority_rank: 0
+
+# UNDER_REVIEW is not in ACQUIRABLE_STATUSES, so even if this file were moved
+# into the loader's path by accident, the acquisition gate would still refuse.
+status: UNDER_REVIEW
+refresh_cadence: WEEKLY
+
+# Nobody has reviewed this. UNREVIEWED is refused at the write boundary and
+# again at the read boundary, which is correct and is where it stays.
+rights_classification: UNREVIEWED
+
+attribution_requirement:
+  # PROPOSED. The EPA licence states no attribution requirement, but publishing
+  # a federal certification record without naming its source is bad practice
+  # independent of what is compelled. Reviewer decides.
+  required: true
+  text: >-
+    Source: U.S. EPA ENERGY STAR certified product data. EPA makes no warranty
+    as to accuracy or fitness, and does not endorse this platform or any product
+    listed here.
+  url: https://www.energystar.gov/productfinder
+
+robots_policy:
+  respect_robots: true
+  user_agent: DataFoundryBot
+  # robots.txt declares Crawl-delay: 1 for User-agent: *.
+  crawl_delay_seconds: 1
+  # ACQUISITION-SCOPED SUMMARY, not the whole file. The retrieved snapshot has
+  # 54 Disallow lines; the ones that bear on how we would fetch are recorded
+  # here, and the complete listing is in the packet, section 7.
+  #
+  # /api/odata/ and /OData.svc/ are disallowed OUTRIGHT — which rules out the
+  # OData route the vendor's own documentation promotes. The SODA path is not
+  # disallowed, and that is why acquisition_policy.method is VENDOR_API over
+  # /resource/ rather than OData.
+  disallowed_paths:
+    - /api/odata/
+    - /OData.svc/
+    - /browse
+    - /page
+    - /catalog
+    - /facet
+    - /tiles/
+    - /login
+  allowed_paths:
+    - /resource/
+    - /api/views/
+  robots_url: https://data.energystar.gov/robots.txt
+  # Retrieved 2026-08-22T00:40:01Z; the bytes are kept at
+  # docs/sources/evidence/data.energystar.gov-robots.txt so this hash is
+  # checkable rather than asserted.
+  snapshot_hash: a6c856352c621a97f9fcfb2b212d4fc530169b319c9e7b49fc2e6299d736c7a2
+  snapshot_at: 2026-08-22T00:40:01Z
+
+rights_policy:
+  publisher_legal_entity: United States Environmental Protection Agency
+  terms_url: https://edg.epa.gov/EPA_Data_License.html
+  # PROPOSED. The EPA licence asserts US public domain under 17 U.S.C. 105.
+  # Whether that is best recorded as a US-PD SPDX identifier, and whether it
+  # reaches partner-submitted values inside the compilation, is exactly the
+  # question in section 4 of the packet. Left null rather than guessed.
+  license_id: null
+  license_text_ref: null
+  api_terms_url: null
+
+  # ALL FOUR ARE FALSE UNTIL A HUMAN SAYS OTHERWISE. Silence is not permission,
+  # and neither is a model's reading of a licence page.
+  commercial_use_allowed: false
+  redistribution_allowed: false
+  derivative_normalization_allowed: false
+
+  attribution:
+    required: true
+    text: >-
+      Source: U.S. EPA ENERGY STAR certified product data. EPA makes no warranty
+      as to accuracy or fitness, and does not endorse this platform or any
+      product listed here.
+    url: https://www.energystar.gov/productfinder
+  # The dataset contains no images: all 48 columns are text, number or date.
+  # Nothing to decide, so nothing is decided.
+  images_reusable: false
+  personal_data_present: false
+
+  geographic_notes: >-
+    US federal programme. Records carry a `markets` field naming United States
+    and/or Canada. A Canadian listing in a US federal dataset does not
+    automatically carry Canadian publication rights; if Canadian coverage is ever sold,
+    that is a separate question.
+
+  # EMPTY BY DESIGN. This is the field the whole packet exists to fill, and it
+  # must be filled by the person who did the reading.
+  reviewed_at: null
+  reviewed_by: null
+  next_review_at: null
+
+acquisition_policy:
+  # PROPOSED: the SODA API, which robots.txt does not disallow, in preference to
+  # crawling the product-finder UI.
+  method: VENDOR_API
+  approved: false
+  approved_by: null
+  approved_at: null
+  # Honours Crawl-delay: 1 with margin. The cap exists to make an accidental
+  # loop visible immediately, not to describe expected traffic.
+  max_requests_per_minute: 30
+  notes: >-
+    Socrata SODA endpoints on data.energystar.gov, paginated with $limit and
+    $offset against dataset 83eb-xbyy (ENERGY STAR Certified Heat Pumps), which
+    is the canonical parent. The named asset w7cv-9xjt is a derived view whose
+    filter is currently empty, so it returns the identical 281,828 rows;
+    declaring against the parent with our own explicit product_type filter keeps
+    the scope in our configuration rather than in an asset title. No app token
+    has been obtained — anonymous requests are throttled harder, and registering
+    for a token is a step for a person. First run must be bounded to a sample,
+    not the full table.
+
+image_policy:
+  images_reusable: false
+  cache_to_r2_permitted: false
+  default_display_modes: []
+  image_attribution:
+    required: false
+    text: null
+    url: null
+
+provenance_retention:
+  retain_artifacts: true
+  # Certifications lapse and rows disappear from the live list. The retained
+  # series is the only way to answer "was this model certified in 2026", and
+  # discarding it would make every published certification claim unexplainable
+  # (AGENTS.md rule 10).
+  retention_days: null
+  legal_hold: false
+
+license_split:
+  code_license_id: null
+  data_license_id: null
+  notes: >-
+    No code is vendored from this source. The data licence is unresolved
+    pending review: see section 4 of the review packet on whether the EPA
+    public-domain assertion reaches partner-submitted and certification-body
+    -submitted values inside the compilation.
+
+kill_switch_engaged: false
+
+notes: >-
+  CANDIDATE ONLY. 281,828 rows as of 2026-08-21T16:29:50Z. The certified unit is
+  a COMBINATION (outdoor unit + indoor unit + optional furnace), not a product —
+  one outdoor unit appears in many rows with different ratings per pairing, and
+  collapsing that to "the outdoor unit's SEER2" would invent a fact the source
+  does not contain. Carries `ahri_reference_number` as an identifier: storing it
+  as it arrives from EPA is fine, and using it to query, join against or
+  reconstruct the AHRI directory is prohibited in platform code. See
+  docs/sources/prohibited-sources.md.

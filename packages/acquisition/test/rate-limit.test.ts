@@ -18,8 +18,8 @@ describe('per-source rate limiting', () => {
     const limiter = new PerSourceRateLimiter({ clock });
     const policy = { crawlDelaySeconds: 2, maxRequestsPerMinute: null };
 
-    await limiter.acquire('ahri-directory', policy);
-    const waited = await limiter.acquire('ahri-directory', policy);
+    await limiter.acquire('ratings-directory', policy);
+    const waited = await limiter.acquire('ratings-directory', policy);
 
     expect(waited).toBe(2000);
     expect(clock.sleeps).toEqual([2000]);

@@ -18,7 +18,11 @@ import {
   type ValidatorCache,
 } from '../policy/conditional.js';
 import type { PolicySnapshot, PolicySnapshotRecorder } from '../policy/policy-snapshot.js';
-import { evaluateAcquisitionGate, throwGateRefusal } from '../policy/rights-gate.js';
+import {
+  evaluateAcquisitionGate,
+  requireAcquisitionAllowed,
+  type AllowedAcquisition,
+} from '../policy/rights-gate.js';
 import {
   PerSourceRateLimiter,
   type RateLimiter,
@@ -53,8 +57,23 @@ export interface AcquisitionProviderDeps {
 
 export const DEFAULT_USER_AGENT = 'DataFoundryBot/0.1 (+https://example.invalid/bot)';
 
-/** What the vendor-specific half of a provider is handed. */
+/**
+ * What the vendor-specific half of a provider is handed.
+ *
+ * `allowed` is proof the gate ran and permitted this fetch. It is required, and
+ * it can only be *constructed* by `requireAcquisitionAllowed`, so removing the
+ * gate call from `fetch` fails the build rather than silently opening a hole.
+ * The ordering is no longer a property of one `if` statement someone could
+ * delete.
+ *
+ * It is not a runtime capability check. A caller determined to bypass the gate
+ * can assert the type and cast past `protected`; no type erased at compile time
+ * stops that. What keeps it honest inside this repository is a scan —
+ * `test/boundary.test.ts` permits the assertion in one function only.
+ */
 export interface TransportContext {
+  /** Proof the gate ran and allowed this fetch. Only the gate constructs it. */
+  readonly allowed: AllowedAcquisition;
   readonly request: SourceRequest;
   readonly entry: SourceRegistryEntry;
   /** Validators to send, resolved from the request or the cache. */
@@ -132,7 +151,10 @@ export abstract class BaseAcquisitionProvider implements AcquisitionProvider {
       gate,
       capturedAt: asOf,
     });
-    if (!gate.allowed) throwGateRefusal(entry, gate);
+    // Refuses on a blocked gate, and otherwise returns the proof that transport
+    // requires. Removing this line does not "skip a check" — it fails to
+    // produce the token, and the call to `this.transport` below stops compiling.
+    const allowed = requireAcquisitionAllowed(entry, gate);
 
     // 3. Incremental refresh: replay last run's validators unless the caller overrode them.
     const conditional =
@@ -150,13 +172,14 @@ export abstract class BaseAcquisitionProvider implements AcquisitionProvider {
 
     // 4. Politeness budget: crawl-delay from robots, request budget from the source policy.
     const rateLimit: RateLimitPolicy = {
-      crawlDelaySeconds: gate.robots.crawlDelaySeconds,
+      crawlDelaySeconds: allowed.robots.crawlDelaySeconds,
       maxRequestsPerMinute: entry.acquisition_policy.max_requests_per_minute,
     };
     const waitedMs = await this.#rateLimiter.acquire(entry.key, rateLimit);
 
     // 5. The one vendor-specific step.
     const transportResult = await this.transport({
+      allowed,
       request,
       entry,
       conditional,

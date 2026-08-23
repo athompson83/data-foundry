@@ -48,15 +48,15 @@ async function seed(target: MigrationDriver = driver): Promise<void> {
     `INSERT INTO sources (id, vertical_id, publisher, domain, source_type, authority_rank,
                           rights_classification, attribution_requirement, robots_policy,
                           refresh_cadence, status)
-     VALUES ($1, $2, 'AHRI', 'ahridirectory.org', 'CERTIFICATION_BODY', 95,
+     VALUES ($1, $2, 'Federated HVAC Ratings Council', 'ratings-directory.example.org', 'CERTIFICATION_BODY', 95,
              'GREEN', $3::jsonb, $4::jsonb, 'WEEKLY', 'ACTIVE')`,
     [SOURCE, VERTICAL, ATTRIBUTION, ROBOTS],
   );
   await target.query(
     `INSERT INTO source_artifacts (id, source_id, url, retrieved_at, content_hash, mime_type,
                                    r2_uri, http_status, extractor_version, acquisition_provider)
-     VALUES ($1, $2, 'https://ahridirectory.org/x', $3, $4, 'text/html',
-             'r2://raw/hvac/ahri/x.html', 200, 'html-1.0.0', 'http')`,
+     VALUES ($1, $2, 'https://ratings-directory.example.org/x', $3, $4, 'text/html',
+             'r2://raw/hvac/ratings-directory/x.html', 200, 'html-1.0.0', 'http')`,
     [ARTIFACT, SOURCE, TS, 'a'.repeat(64)],
   );
   await target.query(
@@ -225,7 +225,7 @@ describe('storage-level invariants', () => {
       driver.query(
         `INSERT INTO media_assets (vertical_id, source_id, source_url, media_type,
                                    rights_classification, attribution, allowed_display_modes, r2_uri)
-         VALUES ($1, $2, 'https://ahridirectory.org/a.jpg', 'PRODUCT_PHOTO',
+         VALUES ($1, $2, 'https://ratings-directory.example.org/a.jpg', 'PRODUCT_PHOTO',
                  'UNREVIEWED', $3::jsonb, ARRAY['INLINE'], 'r2://images/a.jpg')`,
         [VERTICAL, SOURCE, ATTRIBUTION],
       ),
@@ -237,7 +237,7 @@ describe('storage-level invariants', () => {
       driver.query(
         `INSERT INTO media_assets (vertical_id, source_id, source_url, media_type,
                                    rights_classification, attribution, allowed_display_modes, r2_uri)
-         VALUES ($1, $2, 'https://ahridirectory.org/b.jpg', 'PRODUCT_PHOTO',
+         VALUES ($1, $2, 'https://ratings-directory.example.org/b.jpg', 'PRODUCT_PHOTO',
                  'GREEN', $3::jsonb, ARRAY['HOTLINK_ONLY'], 'r2://images/b.jpg')`,
         [VERTICAL, SOURCE, ATTRIBUTION],
       ),

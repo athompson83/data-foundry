@@ -80,7 +80,7 @@ describe('doc 04 fact selection', () => {
     expect(step(selection, 'DIRECT_AUTHORITATIVE_SOURCE')?.decided).toBe(true);
     // Recency never got a chance to speak.
     expect(step(selection, 'RECENCY')).toBeUndefined();
-    expect(selection.reason).toContain('Carrier');
+    expect(selection.reason).toContain('Acme Climate');
 
     // The rival claim is retained, reported, and still in the database.
     expect(values(selection)).toEqual(['R-410A']);
@@ -104,7 +104,8 @@ describe('doc 04 fact selection', () => {
       valid_from: '2026-02-01T00:00:00Z',
     });
 
-    // Default reliability falls back to authority_rank: AHRI (95) > Carrier (90).
+    // Default reliability falls back to authority_rank: the ratings directory (95)
+    // beats the manufacturer catalog (90).
     const byAuthority = await fixtures.store.selectFact(fixtures.entity.id, 'seer2_rating', {
       at: AT,
     });
@@ -116,7 +117,7 @@ describe('doc 04 fact selection', () => {
     const byFieldPolicy = await fixtures.store.selectFact(fixtures.entity.id, 'seer2_rating', {
       at: AT,
       fieldReliability: {
-        seer2_rating: { 'carrier.com': 0.99, 'ahridirectory.org': 0.4 },
+        seer2_rating: { 'catalog.acme-climate.example.com': 0.99, 'ratings-directory.example.org': 0.4 },
       },
     });
     expect(byFieldPolicy.rule).toBe('SOURCE_FIELD_RELIABILITY');
@@ -142,7 +143,7 @@ describe('doc 04 fact selection', () => {
 
     const selection = await fixtures.store.selectFact(fixtures.entity.id, 'tonnage', {
       at: AT,
-      ...equalReliability('tonnage', ['carrier.com', 'ahridirectory.org']),
+      ...equalReliability('tonnage', ['catalog.acme-climate.example.com', 'ratings-directory.example.org']),
     });
 
     expect(selection.rule).toBe('RECENCY');
@@ -181,9 +182,9 @@ describe('doc 04 fact selection', () => {
     const selection = await fixtures.store.selectFact(fixtures.entity.id, 'compressor_stages', {
       at: AT,
       ...equalReliability('compressor_stages', [
-        'carrier.com',
+        'catalog.acme-climate.example.com',
         'aggregator.example',
-        'ahridirectory.org',
+        'ratings-directory.example.org',
       ]),
     });
 
@@ -212,7 +213,7 @@ describe('doc 04 fact selection', () => {
 
     const selection = await fixtures.store.selectFact(fixtures.entity.id, 'airflow_cfm', {
       at: AT,
-      ...equalReliability('airflow_cfm', ['carrier.com', 'ahridirectory.org']),
+      ...equalReliability('airflow_cfm', ['catalog.acme-climate.example.com', 'ratings-directory.example.org']),
       consistencyChecks: [
         ...DEFAULT_CONSISTENCY_CHECKS,
         numericRangeCheck('airflow_cfm', { min: 100, max: 5000 }),

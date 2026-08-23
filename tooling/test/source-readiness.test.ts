@@ -92,7 +92,7 @@ describe('a reserved domain cannot name a real publisher', () => {
       'catalog.example-manufacturer.co.uk',
       'exampleteam.io',
       'notexample.com',
-      'ahridirectory.org',
+      'certified-ratings.org',
       // The reserved label has to be a whole label, not a string ending.
       'attest.com',
       'contest.example-registry.io',

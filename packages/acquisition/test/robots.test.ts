@@ -21,7 +21,7 @@ User-agent: SomeOtherBot
 Disallow: /private
 Crawl-delay: 1
 
-Sitemap: https://www.ahridirectory.org/sitemap.xml
+Sitemap: https://www.ratings-directory.example.org/sitemap.xml
 `;
 
 function policy(overrides: Partial<RobotsPolicy> = {}): RobotsPolicy {
@@ -44,7 +44,7 @@ describe('robots.txt parsing', () => {
     expect(parsed.groups).toHaveLength(2);
     expect(parsed.groups[0]?.userAgents).toEqual(['*']);
     expect(parsed.groups[1]?.userAgents).toEqual(['datafoundrybot', 'someotherbot']);
-    expect(parsed.sitemaps).toEqual(['https://www.ahridirectory.org/sitemap.xml']);
+    expect(parsed.sitemaps).toEqual(['https://www.ratings-directory.example.org/sitemap.xml']);
   });
 
   it('reads crawl-delay per group', () => {
@@ -73,7 +73,7 @@ describe('robots.txt parsing', () => {
     const snapshot = robotsPolicyFromTxt({
       text: ROBOTS,
       userAgent: 'DataFoundryBot/0.1',
-      robotsUrl: 'https://www.ahridirectory.org/robots.txt',
+      robotsUrl: 'https://www.ratings-directory.example.org/robots.txt',
       fetchedAt: '2026-08-14T00:00:00.000Z',
     });
     expect(snapshot.disallowed_paths).toEqual(['/private']);

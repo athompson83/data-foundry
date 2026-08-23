@@ -53,7 +53,7 @@ describe('explainFact', () => {
     const winner = explanation?.claims.find((claimSummary) => claimSummary.selected);
     const loser = explanation?.claims.find((claimSummary) => !claimSummary.selected);
 
-    expect(winner?.attributions[0]?.publisher).toBe('Carrier');
+    expect(winner?.attributions[0]?.publisher).toBe('Acme Climate');
     expect(winner?.attributions[0]?.source_value).toBe('Refrigerant: R-454B');
     expect(winner?.attributions[0]?.locator).toContain('CSS_SELECTOR');
     expect(winner?.attributions[0]?.retrieved_at).toBe(ts('2026-01-05T00:00:00Z'));
@@ -87,7 +87,7 @@ describe('explainFact', () => {
     });
     const narrative = explanation?.narrative ?? [];
 
-    expect(narrative.some((line) => line.includes('Carrier') && line.includes('carrier.com'))).toBe(true);
+    expect(narrative.some((line) => line.includes('Acme Climate') && line.includes('catalog.acme-climate.example.com'))).toBe(true);
     expect(narrative.some((line) => line.startsWith('Published value for refrigerant'))).toBe(true);
     expect(narrative.some((line) => line.startsWith('Criterion '))).toBe(true);
     expect(narrative.some((line) => line.startsWith('Unresolved conflict retained'))).toBe(true);

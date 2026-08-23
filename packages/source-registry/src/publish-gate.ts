@@ -6,6 +6,7 @@ import {
 } from '@data-foundry/canonical-schema';
 import type { SourceRegistryEntry } from './entry.js';
 import { rightsReviewIsCurrent } from './rights-policy.js';
+import { decideHost } from './prohibited-sources.js';
 
 /**
  * The rule 1 gate.
@@ -20,6 +21,8 @@ import { rightsReviewIsCurrent } from './rights-policy.js';
  */
 
 export const SOURCE_GATE_CODES = [
+  'SOURCE_PROHIBITED',
+  'SOURCE_DOMAIN_UNDECIDABLE',
   'RIGHTS_BLOCKED',
   'KILL_SWITCH_ENGAGED',
   'SOURCE_NOT_ACTIVE',
@@ -54,12 +57,44 @@ export interface SourceGateResult {
  * `asOf` is required rather than defaulted to `Date.now()` so gate decisions are
  * reproducible in tests and re-checkable in audits.
  */
+/**
+ * The prohibition findings for a declared domain, fail-closed.
+ *
+ * Two outcomes block, and they are reported as different things because they
+ * are different things: the publisher is refused in platform code, or the
+ * declared domain does not denote a host we can check at all. Collapsing the
+ * second into "not prohibited" is how a malformed domain becomes an allowed
+ * one — so it gets its own code and blocks on its own terms.
+ */
+function domainFindings(domain: string): SourceGateFinding[] {
+  const decision = decideHost(domain);
+  if (decision.kind === 'PROHIBITED') {
+    return [
+      {
+        code: 'SOURCE_PROHIBITED',
+        message:
+          `Host "${decision.host}" belongs to ${decision.prohibition.publisher}, which is ` +
+          `prohibited in platform code: ${decision.prohibition.reason} ` +
+          `Lifting it requires: ${decision.prohibition.liftedBy}`,
+      },
+    ];
+  }
+  if (decision.kind === 'UNDECIDABLE') {
+    return [{ code: 'SOURCE_DOMAIN_UNDECIDABLE', message: decision.reason }];
+  }
+  return [];
+}
+
 export function evaluateSourcePublishGate(
   entry: SourceRegistryEntry,
   asOf: string,
 ): SourceGateResult {
   const blockers: SourceGateFinding[] = [];
   const warnings: SourceGateFinding[] = [];
+
+  // First, and not overridable by any other field. A prohibited publisher is
+  // not a rights question this declaration gets to answer.
+  blockers.push(...domainFindings(entry.domain));
 
   const decision = publishDecision(entry.rights_classification);
   if (!decision.allowed) {
@@ -186,6 +221,11 @@ export function evaluateSourceActivationGate(
 ): SourceGateResult {
   const blockers: SourceGateFinding[] = [];
   const warnings: SourceGateFinding[] = [];
+
+  // The acquisition gate folds this gate's blockers into its own, so naming the
+  // prohibition here is what keeps a prohibited source off the network — not
+  // only off the published surface.
+  blockers.push(...domainFindings(entry.domain));
 
   if (entry.rights_classification === 'UNREVIEWED') {
     blockers.push({

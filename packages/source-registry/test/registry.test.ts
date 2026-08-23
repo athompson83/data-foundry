@@ -15,15 +15,15 @@ describe('InMemorySourceRegistry', () => {
   it('serves entries by vertical and key', async () => {
     const registry = new InMemorySourceRegistry([
       compliantEntry(),
-      compliantEntry({ key: 'carrier-docs', domain: 'carrier.com', source_type: 'MANUFACTURER' }),
+      compliantEntry({ key: 'acme-catalog', domain: 'catalog.acme-climate.example.com', source_type: 'MANUFACTURER' }),
     ]);
 
     expect(await registry.listVerticals()).toEqual([HVAC]);
     expect((await registry.listSources(HVAC)).map((entry) => entry.key)).toEqual([
-      'ahri-directory',
-      'carrier-docs',
+      'ratings-directory',
+      'acme-catalog',
     ]);
-    expect((await registry.getSource(HVAC, 'ahri-directory'))?.domain).toBe('ahridirectory.org');
+    expect((await registry.getSource(HVAC, 'ratings-directory'))?.domain).toBe('ratings-directory.example.org');
     expect(await registry.getSource(HVAC, 'nope')).toBeNull();
     expect(await registry.listSources('plumbing' as Slug)).toEqual([]);
   });
@@ -54,7 +54,7 @@ describe('parseSourceRegistryEntry', () => {
   });
 
   it('rejects an invalid source key', () => {
-    const result = parseSourceRegistryEntry({ ...compliantEntry(), key: 'AHRI Directory' });
+    const result = parseSourceRegistryEntry({ ...compliantEntry(), key: 'Ratings Directory' });
     expect(result.ok).toBe(false);
     expect(result.ok === false && result.errors.join(' ')).toContain('key');
   });
@@ -65,7 +65,7 @@ describe('toSourceInsert', () => {
     const id = verticalId('11111111-1111-4111-8111-111111111111');
     const row = toSourceInsert(compliantEntry(), id);
     expect(row.vertical_id).toBe(id);
-    expect(row.domain).toBe('ahridirectory.org');
+    expect(row.domain).toBe('ratings-directory.example.org');
     expect(row.rights_classification).toBe('GREEN');
     expect(row.authority_rank).toBe(95);
     expect(row.status).toBe('ACTIVE');

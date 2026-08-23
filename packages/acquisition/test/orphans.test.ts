@@ -20,7 +20,7 @@ import { sweepOrphanedArtifacts } from '../src/storage/orphans.js';
 import type { ArtifactPutRequest } from '../src/storage/artifact-store.js';
 
 const VERTICAL = 'hvac';
-const SOURCE = 'ahri-directory';
+const SOURCE = 'ratings-directory';
 const DAY = 24 * 60 * 60 * 1000;
 
 function putRequest(body: string, retrievedAt: string): ArtifactPutRequest {
@@ -31,7 +31,7 @@ function putRequest(body: string, retrievedAt: string): ArtifactPutRequest {
     metadata: {
       source_key: SOURCE,
       vertical_slug: VERTICAL,
-      url: 'https://www.ahridirectory.org/certified/units.json',
+      url: 'https://www.ratings-directory.example.org/certified/units.json',
       retrieved_at: retrievedAt,
       http_status: 200,
       mime_type: 'application/json',

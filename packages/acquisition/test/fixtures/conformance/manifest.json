@@ -2,7 +2,7 @@
   "version": 1,
   "entries": [
     {
-      "url": "https://www.ahridirectory.org/certified/units.json",
+      "url": "https://www.ratings-directory.example.org/certified/units.json",
       "file": "units.json",
       "status": 200,
       "mimeType": "application/json",
