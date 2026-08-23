@@ -9,9 +9,13 @@
  * identifier match — which is precisely the case AGENTS.md rule 7 exists for.
  */
 import {
+  canPublish,
   entityQualityScore,
+  extractionConfidence,
   identityConfidence,
   type Entity,
+  type RightsClassification,
+  type SourceType,
 } from '@data-foundry/canonical-schema';
 import { FieldMetadataRegistry, createQueryModel, type QueryModel } from '../src/index.js';
 import {
@@ -20,6 +24,8 @@ import {
   ts,
   type Fixtures,
   type FixtureOptions,
+  type SourceFixture,
+  type SourceKey,
 } from '../../canonical-store/test/support.js';
 
 export {
@@ -196,13 +202,28 @@ export async function createQueryFixtures(
   return { ...base, qm, registry, equipment: base.entity, heatPump, motor, rival };
 }
 
-/** Evidence-backed relationship helper for traversal tests. */
+/**
+ * Evidence-backed relationship helper for traversal tests.
+ *
+ * `source` defaults to `manufacturer` — the GREEN source every caller of this
+ * helper used to get unconditionally — so existing callers are unchanged. It is
+ * a parameter because the helper previously could not express the case AGENTS.md
+ * rule 1 is about: an edge whose evidence comes from a source that may not
+ * publish. A helper that can only build the passing case is why the traversal
+ * shipped with no rights filter and no test noticed.
+ *
+ * Called twice for the same triple with two different sources, it appends a
+ * second evidence row rather than replacing the first (the evidence uniqueness
+ * index keys on `source_record_id`), which is how a mixed-rights edge is built.
+ */
 export async function relate(
   fixtures: QueryFixtures,
   subject: Entity,
   predicate: string,
   object: Entity,
+  source: SourceKey | SourceFixture = 'manufacturer',
 ): Promise<void> {
+  const fixture = typeof source === 'string' ? fixtures.sources[source] : source;
   await fixtures.store.upsertRelationshipWithEvidence(
     {
       vertical_id: fixtures.vertical.id,
@@ -216,8 +237,8 @@ export async function relate(
     },
     [
       {
-        artifact_id: fixtures.sources.manufacturer.artifact.id,
-        source_record_id: fixtures.sources.manufacturer.record.id,
+        artifact_id: fixture.artifact.id,
+        source_record_id: fixture.record.id,
         source_value: `${subject.canonical_name} ${predicate} ${object.canonical_name}`,
         locator_type: 'CSS_SELECTOR',
         locator_value: `ul.${predicate} li`,
@@ -226,3 +247,82 @@ export async function relate(
     ],
   );
 }
+
+/**
+ * A source fixture beyond the shared set, for rights cases the shared set does
+ * not carry. The shared fixtures are GREEN or UNREVIEWED only; AMBER is the
+ * classification a rights filter written as `= 'GREEN'` would wrongly refuse,
+ * so a test needs to be able to mint one.
+ */
+export async function addSourceFixture(
+  fixtures: Fixtures,
+  spec: {
+    readonly key: string;
+    readonly publisher: string;
+    readonly domain: string;
+    readonly source_type: SourceType;
+    readonly authority_rank: number;
+    readonly rights: RightsClassification;
+  },
+): Promise<SourceFixture> {
+  const source = await fixtures.store.upsertSource({
+    vertical_id: fixtures.vertical.id,
+    publisher: spec.publisher,
+    domain: spec.domain,
+    source_type: spec.source_type,
+    authority_rank: spec.authority_rank,
+    rights_classification: spec.rights,
+    attribution_requirement: { required: false, text: null, url: null },
+    robots_policy: {
+      respect_robots: true,
+      user_agent: 'data-foundry-bot',
+      crawl_delay_seconds: 1,
+      disallowed_paths: [],
+      allowed_paths: [],
+      robots_url: null,
+      snapshot_hash: null,
+      snapshot_at: null,
+    },
+    refresh_cadence: 'WEEKLY',
+    // Same rule-1 storage posture as the shared fixtures: only a source with a
+    // rights decision that permits publication may be ACTIVE. Asked of
+    // `canPublish` rather than restated as a literal set — a second copy of
+    // "GREEN or AMBER" in a test helper is the same duplication the traversal
+    // gate is written to avoid, and it would go on agreeing with itself after
+    // the real rule changed.
+    status: canPublish(spec.rights) ? 'ACTIVE' : 'UNDER_REVIEW',
+  });
+  const artifact = await fixtures.store.recordSourceArtifact({
+    source_id: source.id,
+    url: `https://${spec.domain}/products/24anb7`,
+    retrieved_at: ts('2026-01-05T00:00:00Z'),
+    content_hash: contentHash(spec.key),
+    mime_type: 'text/html',
+    r2_uri: `r2://raw/hvac/${spec.key}/24anb7.html`,
+    http_status: 200,
+    extractor_version: 'html-1.0.0',
+    policy_snapshot_id: null,
+    byte_size: 4096,
+    acquisition_provider: 'http',
+  });
+  const record = await fixtures.store.recordSourceRecord({
+    source_id: source.id,
+    artifact_id: artifact.id,
+    source_record_key: `${spec.key}-24ANB7`,
+    entity_type: 'equipment',
+    raw_payload: { model: '24ANB7' },
+    normalized_payload: null,
+    extraction_confidence: extractionConfidence(0.95),
+    extractor_version: 'html-1.0.0',
+  });
+  return { source, artifact, record };
+}
+
+/** 64 hex characters derived from a seed, matching the shared fixtures' shape. */
+const contentHash = (seed: string): string =>
+  seed
+    .repeat(64)
+    .slice(0, 64)
+    .split('')
+    .map((character) => (/[0-9a-f]/.test(character) ? character : '0'))
+    .join('');

@@ -22,15 +22,32 @@ with provenance, and publication into the query layer.
 `tests/e2e/factory-proof.test.ts` runs four sources through the worker and
 checks the canonical result against golden records.
 
-The workflow's remaining step is the one that does not exist, and it is the
-first of two limitations that the package list does not show.
+The last step — "web / API / MCP / exports generated" — is implemented for
+three of its four surfaces: `apps/api` (read-only REST), `apps/mcp` (the tool
+contract) and `services/export-builder` (CSV and JSONL bulk exports). All three
+read their facts through `packages/query-model` and serialize through the
+shared projection in `packages/query-model/src/serialization.ts`, so they
+cannot drift apart in what they consider true.
 
-**The consumer surfaces do not exist.** The last step — "web / API / MCP /
-exports generated" — has no implementation. `packages/query-model` is the
-single seam those surfaces must read through (rule 5), and
-`packages/query-model/src/serialization.ts` already defines the shared wire
-projection so they cannot drift apart in what they consider true when they are
-built. Nothing here is deployable yet.
+Rule 5 is enforced by a boundary test in each, and it is worth being exact
+about what each one proves. `apps/api` and `apps/mcp` import nothing beneath
+the query layer at all. `services/export-builder` does: it calls
+`resolveFactSelectionPolicy` from `packages/canonical-store` to record the
+policy it applied in the manifest, and takes an injected `CanonicalStore` to
+write the snapshot row — an export is the one surface here that writes. Its
+boundary test pins exactly which of its files may do that, so widening it is a
+decision rather than a drift.
+
+`tests/contract/surface-parity.test.ts` holds REST and MCP to the same answer
+over one query model and one policy. The export builder is not in that test;
+its projection is checked against the shared mapper in its own
+`test/boundary.test.ts`, which is what discharges ADR-0004.
+
+Two limitations the package list does not show:
+
+**There are no human pages.** The fourth surface — the rendered web product —
+has no implementation. The three machine surfaces exist; nothing renders them
+for a person, and nothing here is deployed.
 
 **Every source is synthetic.** The rights machinery genuinely runs, but it
 currently validates controlled fixture declarations rather than a real
@@ -47,6 +64,9 @@ packages/canonical-store/    Entities, facts, relationships and evidence over Po
 packages/provenance/         Field-level lineage, coverage reporting, the human-readable trust surface
 packages/query-model/        The single canonical query layer web, REST and MCP read through
 services/ingest-worker/      DISCOVERED -> PUBLISHED job runner wiring the stages together
+services/export-builder/     Bulk CSV and JSONL exports, rights-gated and reviewer-guarded
+apps/api/                    Read-only REST surface over the query layer
+apps/mcp/                    MCP tool contract over the same query layer
 verticals/hvac/              The first vertical: configuration, fixtures and golden records
 db/migrations/               Plain, portable Postgres DDL for every canonical table
 schemas/canonical/           JSON Schema exports, generated from the Zod definitions
