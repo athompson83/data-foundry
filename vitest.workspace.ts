@@ -9,6 +9,7 @@
 export const projects = [
   'packages/canonical-schema',
   'packages/source-registry',
+  'packages/api-keys',
   'packages/acquisition',
   'packages/extraction',
   'packages/normalization',

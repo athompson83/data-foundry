@@ -90,6 +90,8 @@ importers:
         specifier: workspace:*
         version: link:../source-registry
 
+  packages/api-keys: {}
+
   packages/canonical-schema:
     dependencies:
       zod:

@@ -330,6 +330,9 @@ export const EXPECTED_TABLES = [
   'media_assets',
   'ingestion_jobs',
   'ingestion_job_transitions',
+  'api_tenants',
+  'api_keys',
+  'api_usage_events',
 ] as const;
 
 /** Owned tables present, unowned tables found beside them, and owned tables missing. */
