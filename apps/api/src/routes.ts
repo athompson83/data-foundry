@@ -108,11 +108,60 @@ export interface RouteMatch {
   readonly query: URLSearchParams;
 }
 
+/**
+ * The closed vocabulary of meterable routes.
+ *
+ * Metering records one of these and nothing else. It is not derived from
+ * `request.url`, it is not a template, and it is not free text: it is a property
+ * OF THE MATCHED ROUTE, so there is no code path by which a caller's URL becomes
+ * a stored value even in a writer that reaches for one.
+ *
+ * `db/migrations/0012_usage_accounting_corrections.sql` seeds `api_route_keys`
+ * with exactly this list, and a foreign key means an unregistered value has
+ * nowhere to be stored. `test/route-keys.test.ts` asserts the two lists are
+ * equal in BOTH directions, so a route added without a key — or a key added
+ * without a route — fails CI rather than failing at the moment a paying
+ * customer's request is metered.
+ *
+ * Three of these belong to no entry in `ROUTES` because the requests they
+ * describe never reach one: the service document at `/`, the contract document
+ * at `/v1`, and everything that matched nothing at all. That last one is the
+ * important one — a 404 still costs a request, and recording it as its URL is
+ * how the vocabulary would have been reopened.
+ */
+export const ROUTE_KEYS = [
+  'service',
+  'contract',
+  'health',
+  'entities.by_slug',
+  'entities.detail',
+  'entities.facts',
+  'entities.relationships',
+  'search',
+  'compare',
+  'unmatched',
+] as const;
+
+export type RouteKey = (typeof ROUTE_KEYS)[number];
+
+/** The service document, the contract document, and a request that matched no route. */
+export const SERVICE_ROUTE_KEY = 'service' satisfies RouteKey;
+export const CONTRACT_ROUTE_KEY = 'contract' satisfies RouteKey;
+export const UNMATCHED_ROUTE_KEY = 'unmatched' satisfies RouteKey;
+
 export interface Route {
   /** Path after the version segment, `:name` marking a parameter. */
   readonly pattern: readonly string[];
   /** Full documented path, version included. */
   readonly path: string;
+  /**
+   * What metering records for this route. Never the path, never the URL.
+   *
+   * Two patterns deliberately share `entities.by_slug`: the bare `by-slug` entry
+   * exists only to refuse a lookup with no slug, and an invoice does not need to
+   * tell a malformed request from a well-formed one.
+   */
+  readonly routeKey: RouteKey;
   readonly summary: string;
   /** A limitation a client must know about. Published in the contract document. */
   readonly caveat?: string;
@@ -389,12 +438,14 @@ export const ROUTES: readonly Route[] = [
   {
     pattern: ['health'],
     path: '/v1/health',
+    routeKey: 'health',
     summary: 'Liveness plus a real round trip through the canonical query layer.',
     handler: health,
   },
   {
     pattern: ['entities', 'by-slug'],
     path: '/v1/entities/by-slug/{slug}',
+    routeKey: 'entities.by_slug',
     summary: 'Reject a slug lookup with no slug, rather than reading "by-slug" as an id.',
     handler: async () => {
       throw ApiError.missingParameter('slug', 'the slug to look up follows /entities/by-slug/');
@@ -403,6 +454,7 @@ export const ROUTES: readonly Route[] = [
   {
     pattern: ['entities', 'by-slug', ':slug'],
     path: '/v1/entities/by-slug/{slug}?type={entityType}',
+    routeKey: 'entities.by_slug',
     summary:
       'Entity by canonical slug. Honours retired slugs: a slug a merge took away answers 301 to the surviving entity.',
     handler: getEntityBySlug,
@@ -410,12 +462,14 @@ export const ROUTES: readonly Route[] = [
   {
     pattern: ['entities', ':id'],
     path: '/v1/entities/{id}',
+    routeKey: 'entities.detail',
     summary: 'Entity by id. A merged-away id answers 301 with its redirect chain, never 404.',
     handler: getEntity,
   },
   {
     pattern: ['entities', ':id', 'facts'],
     path: '/v1/entities/{id}/facts?property=&at=&limit=&offset=',
+    routeKey: 'entities.facts',
     summary:
       'The canonical view: one selected value per property, with the doc-04 rule that chose it and its correction state.',
     caveat:
@@ -425,6 +479,7 @@ export const ROUTES: readonly Route[] = [
   {
     pattern: ['entities', ':id', 'relationships'],
     path: '/v1/entities/{id}/relationships?predicate=&direction=&depth=&limit=&offset=',
+    routeKey: 'entities.relationships',
     summary: 'Bounded graph traversal from this entity, breadth-first and cycle-guarded.',
     caveat:
       'This is a view of the publishable graph, not the whole graph. Rule 1 applies here as it does to facts: an edge whose every piece of evidence comes from a source that may not publish is withheld, and so is any neighbour reachable only through one. Those refusals are deliberately not counted in the response — a per-predicate count of them would let a caller reconstruct the withheld claim — so an absent edge means "not publishable, or not asserted", and never "asserted to be false". unevidencedEdgeCount reports a different case: edges nothing asserts at all.',
@@ -433,6 +488,7 @@ export const ROUTES: readonly Route[] = [
   {
     pattern: ['search'],
     path: '/v1/search?q=&type=&filter.{field}=&facets=&limit=&offset=',
+    routeKey: 'search',
     summary:
       'Faceted search. Exact identifier matches lead the result set ahead of any text ranking (AGENTS.md rule 7).',
     handler: search,
@@ -440,6 +496,7 @@ export const ROUTES: readonly Route[] = [
   {
     pattern: ['compare'],
     path: '/v1/compare?ids=a,b&properties=&at=',
+    routeKey: 'compare',
     summary: 'Side-by-side canonical values for 2–8 entities, aligned on declared field order.',
     caveat:
       'Comparison cells carry the selecting rule and conflict state but not correction state; read /v1/entities/{id}/facts for the full trust surface.',

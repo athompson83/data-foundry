@@ -413,17 +413,17 @@ describe('API tenancy invariants (0011)', () => {
       [TENANT_A, TENANT_B],
     );
     await driver.query(
-      `INSERT INTO api_keys (id, tenant_id, token_hash, token_prefix, label)
-       VALUES ($1, $2, $3, 'df_live_aaaa', 'primary') ON CONFLICT DO NOTHING`,
-      [KEY_A, TENANT_A, HASH_A],
+      `INSERT INTO api_keys (id, tenant_id, vertical_id, token_hash, token_prefix, label)
+       VALUES ($1, $2, $3, $4, 'df_live_aaaaaaaa', 'primary') ON CONFLICT DO NOTHING`,
+      [KEY_A, TENANT_A, VERTICAL, HASH_A],
     );
   }
 
-  const usage = (tenant: string, key: string, route = '/v1/entities/{id}', method = 'GET') =>
+  const usage = (tenant: string, key: string, routeKey = 'entities.detail', method = 'GET') =>
     driver.query(
-      `INSERT INTO api_usage_events (tenant_id, api_key_id, route, method, status)
-       VALUES ($1, $2, $3, $4, 200)`,
-      [tenant, key, route, method],
+      `INSERT INTO api_usage_events (tenant_id, api_key_id, vertical_id, route_key, method, status)
+       VALUES ($1, $2, $3, $4, $5, 200)`,
+      [tenant, key, VERTICAL, routeKey, method],
     );
 
   beforeAll(seedTenancy);
@@ -447,8 +447,8 @@ describe('API tenancy invariants (0011)', () => {
     await expect(
       driver.query(
         `INSERT INTO api_keys (tenant_id, token_hash, token_prefix, label)
-         VALUES ($1, 'df_live_Ej8xQ2vN4kLpR7sT1uY6wA9bC3dE5fG8hJ0kL2mN4pQ', 'df_live_Ej8x', 'raw')`,
-        [TENANT_A],
+         VALUES ($1, $2, 'df_live_Ej8xQ2vN4kLpR7sT1uY6wA9bC3dE5fG8hJ0kL2mN4pQ', 'df_live_Ej8xQ2vN', 'raw')`,
+        [TENANT_A, VERTICAL],
       ),
     ).rejects.toThrow();
   });
@@ -456,9 +456,9 @@ describe('API tenancy invariants (0011)', () => {
   it('refuses two keys with the same hash, so a lookup cannot be ambiguous', async () => {
     await expect(
       driver.query(
-        `INSERT INTO api_keys (tenant_id, token_hash, token_prefix, label)
-         VALUES ($1, $2, 'df_live_bbbb', 'duplicate')`,
-        [TENANT_B, HASH_A],
+        `INSERT INTO api_keys (tenant_id, vertical_id, token_hash, token_prefix, label)
+         VALUES ($1, $2, $3, 'df_live_bbbbbbbb', 'duplicate')`,
+        [TENANT_B, VERTICAL, HASH_A],
       ),
     ).rejects.toThrow();
   });
@@ -471,30 +471,20 @@ describe('API tenancy invariants (0011)', () => {
     await expect(driver.query(`DELETE FROM api_tenants WHERE id = $1`, [TENANT_A])).rejects.toThrow();
   });
 
-  it('keeps a request target out of the metering table', async () => {
-    // A query string is one leak shape...
-    await expect(usage(TENANT_A, KEY_A, '/v1/search?q=acme')).rejects.toThrow();
-    // ...an interpolated entity id is the other, and the likelier one, because
-    // `request.url` is closer to hand than the matched template.
-    await expect(
-      usage(TENANT_A, KEY_A, '/v1/entities/9f3c1e77-2b4a-4d6e-8f01-2a3b4c5d6e7f'),
-    ).rejects.toThrow();
-  });
-
-  it('accepts a template, which is what the column is for', async () => {
-    await expect(usage(TENANT_A, KEY_A, '/v1/entities/{id}/facts')).resolves.toBeDefined();
-  });
+  // The two route-shape guards 0011 carried are gone, along with the free-text
+  // column they guarded. Their replacement is the closed vocabulary asserted in
+  // the 0012 block below, which does not have to predict the shape of a leak.
 
   it('refuses a method this read-only API does not serve', async () => {
-    await expect(usage(TENANT_A, KEY_A, '/v1/search', 'POST')).rejects.toThrow();
+    await expect(usage(TENANT_A, KEY_A, 'search', 'POST')).rejects.toThrow();
   });
 
   it('refuses a status code outside the HTTP range', async () => {
     await expect(
       driver.query(
-        `INSERT INTO api_usage_events (tenant_id, api_key_id, route, method, status)
-         VALUES ($1, $2, '/v1/search', 'GET', 999)`,
-        [TENANT_A, KEY_A],
+        `INSERT INTO api_usage_events (tenant_id, api_key_id, vertical_id, route_key, method, status)
+         VALUES ($1, $2, $3, 'search', 'GET', 999)`,
+        [TENANT_A, KEY_A, VERTICAL],
       ),
     ).rejects.toThrow();
   });
@@ -896,4 +886,220 @@ describe('the ledger proves its ownership rather than inferring it', () => {
       await marked.close();
     }
   }, 120_000);
+});
+
+/**
+ * Corrections to 0011, reproduced before they were made.
+ *
+ * 0011 reached `main` with four structural defects that review named and did not
+ * fix. Every test below failed against it — and the first draft of this block
+ * failed for the WRONG REASON, which is worse than not testing at all: an insert
+ * naming a column that does not exist throws `42703`, so a bare
+ * `rejects.toThrow()` went green against a schema with no control in it
+ * whatsoever. Six of these were vacuous before the codes were pinned.
+ *
+ * So each refusal names the SQLSTATE it expects. `23503` is a foreign key
+ * refusing an unregistered value; `23502` is NOT NULL. Neither is `42703`, and
+ * that difference is the entire point.
+ */
+describe('API usage accounting corrections (0012)', () => {
+  const TENANT = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+  const KEY = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc';
+  const OTHER_VERTICAL = 'dddddddd-dddd-4ddd-8ddd-dddddddddddd';
+  const OTHER_KEY = 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee';
+
+  /** SQLSTATE classes worth telling apart. */
+  const FOREIGN_KEY_VIOLATION = '23503';
+  const NOT_NULL_VIOLATION = '23502';
+  /** ON DELETE RESTRICT raises this, not 23503 — they are different refusals. */
+  const RESTRICT_VIOLATION = '23001';
+
+  /**
+   * Assert a statement is refused, and refused for the stated reason.
+   *
+   * The reason is the assertion. A missing column, a typo in a table name and a
+   * genuine constraint violation are all "it threw", and only one of them is
+   * evidence that a control exists.
+   */
+  async function refusedWith(promise: Promise<unknown>, sqlState: string): Promise<void> {
+    const error = await promise.then(
+      () => null,
+      (caught: unknown) => caught,
+    );
+    if (error === null) throw new Error(`expected SQLSTATE ${sqlState}, but the statement succeeded`);
+    const code = (error as { code?: unknown }).code;
+    expect(code, `${String((error as Error).message)} (SQLSTATE ${String(code)})`).toBe(sqlState);
+  }
+
+  async function seedAccounting(): Promise<void> {
+    await driver.query(
+      `INSERT INTO verticals (id, slug, name, schema_version, status, default_refresh_policy)
+       VALUES ($1, 'solar', 'Solar', '1.0.0', 'ACTIVE', $2::jsonb) ON CONFLICT DO NOTHING`,
+      [
+        OTHER_VERTICAL,
+        JSON.stringify({ cadence: 'WEEKLY', max_staleness_hours: 168, priority: 50 }),
+      ],
+    );
+    await driver.query(
+      `INSERT INTO api_tenants (id, slug, name) VALUES ($1, 'tenant-metered', 'Metered')
+       ON CONFLICT DO NOTHING`,
+      [TENANT],
+    );
+    // One tenant, two keys, one per vertical: the shape a customer buying two
+    // industries actually has, and the shape the attribution tests need.
+    await driver.query(
+      `INSERT INTO api_keys (id, tenant_id, vertical_id, token_hash, token_prefix, label)
+       VALUES ($1, $2, $3, $4, 'df_live_aaaabbbb', 'hvac'),
+              ($5, $2, $6, $7, 'df_live_ccccdddd', 'solar')
+       ON CONFLICT DO NOTHING`,
+      [KEY, TENANT, VERTICAL, 'c'.repeat(64), OTHER_KEY, OTHER_VERTICAL, 'd'.repeat(64)],
+    );
+  }
+
+  beforeAll(seedAccounting);
+
+  const meter = (routeKey: string, vertical: string = VERTICAL, key: string = KEY) =>
+    driver.query(
+      `INSERT INTO api_usage_events (tenant_id, api_key_id, vertical_id, route_key, method, status)
+       VALUES ($1, $2, $3, $4, 'GET', 200)`,
+      [TENANT, key, vertical, routeKey],
+    );
+
+  /**
+   * ROUTE_PRIVACY_CONTROL.
+   *
+   * 0011 held a free-text `route` guarded by two regexes — no query string, no
+   * UUID — and called the result a template. Both are guesses about what a leak
+   * looks like, and its own comment admitted no CHECK can tell a literal path
+   * segment from a parameter. A closed vocabulary is not a guess: a value that
+   * is not a registered route key has nowhere to be stored.
+   */
+  describe('the route a usage row records comes from a closed vocabulary', () => {
+    it('accepts a key the application actually declares', async () => {
+      await expect(meter('entities.detail')).resolves.toBeDefined();
+    });
+
+    it('refuses the URL template the old column was designed to hold', async () => {
+      await refusedWith(meter('/v1/entities/{id}'), FOREIGN_KEY_VIOLATION);
+    });
+
+    it('refuses an identifier neither 0011 guard could see', async () => {
+      // No query string and no UUID, so both of 0011's CHECKs pass it — and it
+      // names precisely which company a paying customer looked up. This is the
+      // leak those regexes were meant to stop and structurally could not.
+      await refusedWith(meter('/v1/entities/by-slug/acme-climate'), FOREIGN_KEY_VIOLATION);
+    });
+
+    it('refuses a key that is plausible but not registered', async () => {
+      // "Looks like one of ours" is not membership. A metering writer allowed to
+      // invent keys has re-opened the free-text column this replaced.
+      await refusedWith(meter('entities.deleted'), FOREIGN_KEY_VIOLATION);
+    });
+
+    it('refuses to drop a route key that usage rows still reference', async () => {
+      await refusedWith(
+        driver.query(`DELETE FROM api_route_keys WHERE key = 'entities.detail'`),
+        RESTRICT_VIOLATION,
+      );
+    });
+  });
+
+  /**
+   * VERTICAL_ATTRIBUTION.
+   *
+   * The product duplicates across industries by configuration rather than by
+   * forking (AGENTS.md rule 4). Usage that cannot be split by vertical cannot
+   * answer the one question that decides whether a second vertical paid for
+   * itself.
+   */
+  describe('every usage row names the vertical it was served from', () => {
+    it('refuses a usage row with no vertical at all', async () => {
+      await refusedWith(
+        driver.query(
+          `INSERT INTO api_usage_events (tenant_id, api_key_id, route_key, method, status)
+           VALUES ($1, $2, 'search', 'GET', 200)`,
+          [TENANT, KEY],
+        ),
+        NOT_NULL_VIOLATION,
+      );
+    });
+
+    it('refuses a vertical the key that made the request cannot read', async () => {
+      // The twin of the cross-tenant defect review found in 0011: both foreign
+      // keys resolve on their own, and only comparing them catches a row that
+      // bills Solar for HVAC traffic.
+      await refusedWith(meter('search', OTHER_VERTICAL), FOREIGN_KEY_VIOLATION);
+    });
+
+    it('separates two verticals in the aggregate an invoice is built from', async () => {
+      await meter('search', VERTICAL, KEY);
+      await meter('search', OTHER_VERTICAL, OTHER_KEY);
+      const rows = await driver.query<{ vertical_id: string; n: string }>(
+        `SELECT vertical_id, count(*) AS n FROM api_usage_events
+          WHERE tenant_id = $1 AND route_key = 'search'
+          GROUP BY vertical_id ORDER BY vertical_id`,
+        [TENANT],
+      );
+      expect(rows).toHaveLength(2);
+      expect(rows.map((row) => Number(row.n))).toEqual([1, 1]);
+    });
+  });
+
+  /**
+   * RATE_LIMIT_PLATFORM_MISMATCH.
+   *
+   * A per-minute limit in a row is a number nothing can enforce. The database is
+   * not on the request path, and an edge that consulted it per request would
+   * become the bottleneck the limit exists to prevent. Storing it invites a
+   * reader to believe a limit is in force when nothing applies it.
+   */
+  it('carries no rate limit, which the database is in no position to enforce', async () => {
+    const columns = await driver.query<{ column_name: string }>(
+      `SELECT column_name FROM information_schema.columns
+        WHERE table_schema = 'public' AND table_name = 'api_keys'`,
+    );
+    expect(columns.map((column) => column.column_name)).not.toContain('rate_limit_per_minute');
+  });
+
+  /**
+   * The scope on a key is now total rather than optional.
+   *
+   * NULL meant "every vertical", and a NULL satisfies a composite foreign key
+   * vacuously — so the attribution constraint above would have been
+   * unenforceable for exactly the keys with the widest reach. One key names one
+   * vertical; access to two industries is two keys. Breadth of entitlement is a
+   * plan, and plans are deliberately not in this schema.
+   */
+  it('refuses a key that names no vertical', async () => {
+    await refusedWith(
+      driver.query(
+        `INSERT INTO api_keys (tenant_id, token_hash, token_prefix, label)
+         VALUES ($1, $2, 'df_live_eeeeffff', 'unscoped')`,
+        [TENANT, 'e'.repeat(64)],
+      ),
+      NOT_NULL_VIOLATION,
+    );
+  });
+});
+
+/**
+ * The ownership partition, asserted in both directions.
+ *
+ * `creates every expected table` asserts only that everything named is present.
+ * Nothing asserted the converse — that every table the migrations create is
+ * named — so a migration adding a table and forgetting the manifest would have
+ * its tables silently classified as a stranger's by the one function whose whole
+ * job is telling ours from a stranger's. 0011 happened to update the manifest.
+ * Nothing made it.
+ */
+describe('the table manifest and the migrations agree', () => {
+  it('claims every table its own migrations create', async () => {
+    const partition = partitionOwnedTables(await listPublicTables(driver));
+    expect(partition.unowned).toEqual([]);
+  });
+
+  it('names no table the migrations do not create', async () => {
+    const partition = partitionOwnedTables(await listPublicTables(driver));
+    expect(partition.missing).toEqual([]);
+  });
 });
