@@ -37,15 +37,36 @@ describe('minting', () => {
     expect((await mintApiKey()).environment).toBe('live');
   });
 
-  it('is unique across mints, which is the whole security argument', async () => {
+  it('is unique across mints', async () => {
     const secrets = new Set<string>();
     for (let index = 0; index < 200; index += 1) secrets.add((await mintApiKey()).secret);
     expect(secrets.size).toBe(200);
   });
 
-  it('carries 256 bits: 32 bytes base64url is 43 characters, unpadded', async () => {
+  it('carries 43 base64url characters, which is what 32 bytes unpadded encodes to', async () => {
     const { secret } = await mintApiKey('live');
     expect(secret.slice('df_live_'.length)).toHaveLength(43);
+  });
+
+  /**
+   * Uniqueness and length are both satisfied by a counter, and length alone is
+   * satisfied by 32 zero bytes. Neither proves the bits are unpredictable, which
+   * is the entire security argument — review made exactly this point.
+   *
+   * This does not prove a CSPRNG either; nothing short of a statistical battery
+   * would, and that does not belong in a unit suite. What it does is fail
+   * against the two implementations somebody would actually write by mistake: a
+   * fixed buffer, and an incrementing counter. Both leave the leading byte
+   * constant across every mint. Real randomness does not.
+   */
+  it('varies in its leading bits, which a counter and a zero buffer do not', async () => {
+    const leading = new Set<string>();
+    for (let index = 0; index < 200; index += 1) {
+      leading.add((await mintApiKey()).secret.slice('df_live_'.length, 'df_live_'.length + 2));
+    }
+    // 200 draws over 4096 two-character combinations. A CSPRNG gives ~195
+    // distinct; a counter or a constant buffer gives 1.
+    expect(leading.size).toBeGreaterThan(100);
   });
 
   it('matches its own recogniser, so a scanner tuned to it finds real keys', async () => {
@@ -72,9 +93,18 @@ describe('what a row stores', () => {
     expect(minted.tokenPrefix.length).toBeLessThan(minted.secret.length / 3);
   });
 
-  it('satisfies the column CHECK the migration enforces', async () => {
+  /**
+   * An assertion about what the MINTER emits, not about the database.
+   *
+   * It restates `db/migrations/0011`'s regex in TypeScript, so it would keep
+   * passing if that CHECK were dropped, renamed or weakened — review flagged
+   * this, and it is right. The constraint itself is proved where it lives, in
+   * `tooling/test/migrations.test.ts`, by inserting a raw key and expecting the
+   * database to refuse it. Both are worth having; only one of them is evidence
+   * about the schema.
+   */
+  it('emits values the migration is willing to store', async () => {
     const minted = await mintApiKey();
-    // db/migrations/0011: token_hash ~ '^[0-9a-f]{64}$', prefix 4..16 chars.
     expect(minted.tokenHash).toMatch(/^[0-9a-f]{64}$/);
     expect(minted.tokenPrefix.length).toBeGreaterThanOrEqual(4);
     expect(minted.tokenPrefix.length).toBeLessThanOrEqual(16);
@@ -83,6 +113,23 @@ describe('what a row stores', () => {
   it('hashes deterministically, so verification is a lookup rather than a search', async () => {
     const minted = await mintApiKey();
     expect(await hashApiKey(minted.secret)).toBe(minted.tokenHash);
+  });
+
+  /**
+   * Determinism only proves minting and verification call the SAME function. It
+   * passes just as well if that function returns a constant, or is not SHA-256
+   * at all — review's point, and correct.
+   *
+   * A published known-answer vector is what distinguishes "some function" from
+   * "SHA-256". NIST FIPS 180-4, one-block message "abc".
+   */
+  it('is actually SHA-256, against a published vector rather than against itself', async () => {
+    expect(await hashApiKey('abc')).toBe(
+      'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad',
+    );
+    expect(await hashApiKey('')).toBe(
+      'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+    );
   });
 
   it('gives different keys different hashes', async () => {
