@@ -1103,3 +1103,60 @@ describe('the table manifest and the migrations agree', () => {
     expect(partition.missing).toEqual([]);
   });
 });
+
+/**
+ * The widened source_type vocabulary (0013).
+ *
+ * Asserted against the database rather than against the TypeScript enum,
+ * because the two are separate declarations of the same list and only one of
+ * them is what a row actually has to satisfy. A test that read `SOURCE_TYPES`
+ * would pass whether or not 0013 ever ran.
+ */
+describe('a regulator-hosted filing is a source type of its own (0013)', () => {
+  const insertSource = (type: string) =>
+    driver.query(
+      `INSERT INTO sources (vertical_id, publisher, domain, source_type, authority_rank,
+                            attribution_requirement, robots_policy, refresh_cadence, status)
+       VALUES ($1, 'probe', $2, $3, 50, $4::jsonb, $5::jsonb, 'WEEKLY', 'UNDER_REVIEW')`,
+      [VERTICAL, `${type.toLowerCase()}.example.com`, type, ATTRIBUTION, ROBOTS],
+    );
+
+  it('accepts REGULATORY_FILING', async () => {
+    await expect(insertSource('REGULATORY_FILING')).resolves.toBeDefined();
+  });
+
+  /**
+   * The negative control. Without it, a migration that dropped the CHECK
+   * entirely — rather than widening it — would pass the assertion above, and the
+   * column would silently accept anything at all.
+   */
+  it('still refuses a type that is not in the vocabulary', async () => {
+    await expect(insertSource('GOVERNMENT')).rejects.toThrow();
+    await expect(insertSource('TOTALLY_MADE_UP')).rejects.toThrow();
+  });
+
+  it('keeps accepting the types that were already valid', async () => {
+    await expect(insertSource('CERTIFICATION_BODY')).resolves.toBeDefined();
+    await expect(insertSource('MANUFACTURER')).resolves.toBeDefined();
+  });
+
+  /**
+   * The distinction the whole change exists for.
+   *
+   * `REGULATORY_FILING` must not be storable as, comparable to, or silently
+   * folded into `CERTIFICATION_BODY`. A government host is not a claim: DOE says
+   * of its own database that appearing in it "is not an indication that DOE has
+   * determined that the model is compliant".
+   */
+  it('does not collapse a filing into a certification', async () => {
+    const rows = await driver.query<{ source_type: string; n: string }>(
+      `SELECT source_type, count(*) AS n FROM sources
+        WHERE source_type IN ('REGULATORY_FILING', 'CERTIFICATION_BODY')
+        GROUP BY source_type ORDER BY source_type`,
+    );
+    expect(rows.map((row) => row.source_type)).toEqual([
+      'CERTIFICATION_BODY',
+      'REGULATORY_FILING',
+    ]);
+  });
+});

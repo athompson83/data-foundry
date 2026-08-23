@@ -56,7 +56,7 @@ strategy:
 authoritative_by_property:
 
   seer2:
-    prefer_source_types: [CERTIFICATION_BODY, STANDARDS_BODY]
+    prefer_source_types: [CERTIFICATION_BODY, STANDARDS_BODY, REGULATORY_FILING]
     rationale: >-
       A certified rating is a measurement made under a defined test procedure by
       a body whose function is to make that measurement comparable across
@@ -66,15 +66,15 @@ authoritative_by_property:
       sources repeat the marketing number.
 
   eer2:
-    prefer_source_types: [CERTIFICATION_BODY, STANDARDS_BODY]
-    rationale: Same test-procedure argument as seer2.
+    prefer_source_types: [CERTIFICATION_BODY, STANDARDS_BODY, REGULATORY_FILING]
+    rationale: Same test-procedure argument as seer2, and the same filing caveat.
 
   hspf2:
-    prefer_source_types: [CERTIFICATION_BODY, STANDARDS_BODY]
-    rationale: Same test-procedure argument as seer2.
+    prefer_source_types: [CERTIFICATION_BODY, STANDARDS_BODY, REGULATORY_FILING]
+    rationale: Same test-procedure argument as seer2, and the same filing caveat.
 
   cooling_capacity_btu:
-    prefer_source_types: [CERTIFICATION_BODY, MANUFACTURER]
+    prefer_source_types: [CERTIFICATION_BODY, REGULATORY_FILING, MANUFACTURER]
     rationale: >-
       Certified capacity is authoritative, but the manufacturer is a close
       second and covers models the directory has dropped. Distributors are
@@ -104,20 +104,62 @@ authoritative_by_property:
     rationale: A design characteristic, known only to the manufacturer.
 
   refrigerant:
-    prefer_source_types: [MANUFACTURER, CERTIFICATION_BODY]
+    prefer_source_types: [MANUFACTURER, CERTIFICATION_BODY, REGULATORY_FILING]
     rationale: >-
       Both are reliable and they rarely disagree. Where they do, it usually
       signals a mid-production refrigerant change and should be escalated rather
       than silently resolved — see `escalate_on_conflict` below.
 
+# ── REGULATORY_FILING, and why it is not a certification ─────────────────────
+#
+# Every tier above now names REGULATORY_FILING, because that is what the lawful
+# sources actually are. It is deliberately ranked BELOW CERTIFICATION_BODY and
+# above MANUFACTURER, and the ordering is the whole point:
+#
+#   CERTIFICATION_BODY  an independent body measured it under a defined test
+#                       procedure. No lawful source in this vertical currently
+#                       has this type — the only registered one is a synthetic
+#                       fixture, and the sole real US HVAC certification
+#                       directory is prohibited in packages/source-registry.
+#   REGULATORY_FILING   a regulator HOSTS the value; the MANUFACTURER asserted
+#                       it. DOE says so itself, verbatim: "The appearance of a
+#                       model on this web site is not an indication that DOE has
+#                       determined that the model is compliant."
+#
+# READ THIS BEFORE ADDING A TYPE TO ANY LIST BELOW.
+#
+# `prefer_source_types` is a MEMBERSHIP SET, not a ranking, however much the
+# name and this file's tier language suggest otherwise. fact-policy.ts expands
+# it to the domains of every registered source of ANY listed type, and doc 04's
+# criterion 1 treats all of them as equally authoritative; order within the list
+# is not read. Ranking between two listed sources falls through to criterion 2
+# (field reliability) and below.
+#
+# So adding a BROADER type does not create a lower tier — it PROMOTES that type
+# to full authority and levels the distinction. Adding MANUFACTURER here was
+# tried and reverted: it made the manufacturer's marketing figure as
+# authoritative as the certified measurement, and Conflict A silently began
+# resolving on field reliability instead of on source authority. The e2e proof
+# caught it.
+#
+# The ratings tiers therefore list only classes that OUTRANK a specification
+# sheet. A value winning at the REGULATORY_FILING tier is a manufacturer's own
+# figure that a regulator holds on file: it beats a marketing page because
+# misstating a filing has legal consequence, and it is NOT independently
+# verified. No surface may describe it as certified, approved, verified or
+# determined. A government host is not a claim.
+#
+# Listing a type that no registered source has is now a hard error at load
+# rather than a silent omission — see services/ingest-worker/src/fact-policy.ts.
+
   product_type:
-    prefer_source_types: [CERTIFICATION_BODY, MANUFACTURER]
+    prefer_source_types: [CERTIFICATION_BODY, REGULATORY_FILING, MANUFACTURER]
     rationale: >-
       The certifying body applies a consistent taxonomy across manufacturers,
       which is what makes cross-manufacturer comparison possible at all.
 
   nominal_tonnage:
-    prefer_source_types: [MANUFACTURER, CERTIFICATION_BODY]
+    prefer_source_types: [MANUFACTURER, CERTIFICATION_BODY, REGULATORY_FILING]
     # A directly published tonnage beats one derived from BTU/h, even from a
     # more authoritative source: derivation cannot add information.
     prefer_direct_over_derived: true

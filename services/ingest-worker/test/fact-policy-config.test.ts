@@ -218,3 +218,175 @@ describe('fact-selection configuration is honest about what it enforces', () => 
     ).not.toThrow();
   });
 });
+
+/**
+ * The third broken promise, and the one with teeth.
+ *
+ * `authoritative_by_property` declares WHICH SOURCE TYPE decides a property —
+ * `seer2: prefer_source_types: [CERTIFICATION_BODY]`, with a rationale in the
+ * YAML explaining that a certified measurement must beat a manufacturer's
+ * marketing figure even when two other sources agree with the manufacturer.
+ *
+ * The loader expanded that to the domains of registered sources of those types,
+ * and then:
+ *
+ *     if (domains.length > 0) authoritativeSourcesByProperty[property] = domains;
+ *
+ * If no registered source has any of the declared types, the property is simply
+ * ABSENT from the policy. Doc 04's criterion 1 never fires for it, and selection
+ * falls through to reliability, recency and corroboration — a majority vote,
+ * which the YAML's own rationale says "gets this backwards".
+ *
+ * That is not a hypothetical. HVAC declares `CERTIFICATION_BODY` for seven
+ * properties, and the only registered source carrying that type is a synthetic
+ * fixture; the sole real US HVAC certification directory is prohibited in
+ * `packages/source-registry`. The day the fixtures are replaced by lawful
+ * sources, the certified-ratings preference disappears with them — silently,
+ * with every test still green.
+ */
+describe('an authority declaration no source can satisfy is refused, not silently dropped', () => {
+  const source = (key: string, type: string) =>
+    ({ key, domain: `${key}.example.com`, source_type: type }) as never;
+
+  const withSources = (
+    sources: readonly unknown[],
+    authoritative: Record<string, unknown>,
+  ): VerticalConfig =>
+    ({
+      slug: 'probe',
+      vertical: {},
+      entities: {},
+      aliasTypes: [],
+      sources,
+      factSelection: { authoritative_by_property: authoritative },
+    }) as unknown as VerticalConfig;
+
+  it('refuses a property whose declared types match no registered source', () => {
+    expect(() =>
+      buildFactSelectionPolicy(
+        withSources(
+          [source('maker', 'MANUFACTURER')],
+          { seer2: { prefer_source_types: ['CERTIFICATION_BODY'] } },
+        ),
+        { at: AT },
+      ),
+    ).toThrow(PipelineConfigurationError);
+  });
+
+  it('names the property and the unsatisfied types, so the fix is obvious', () => {
+    // A refusal that does not say which declaration is wrong just moves the
+    // silent failure from the data to the operator.
+    expect(() =>
+      buildFactSelectionPolicy(
+        withSources(
+          [source('maker', 'MANUFACTURER')],
+          { seer2: { prefer_source_types: ['CERTIFICATION_BODY'] } },
+        ),
+        { at: AT },
+      ),
+    ).toThrow(/seer2[\s\S]*CERTIFICATION_BODY/);
+  });
+
+  /**
+   * Positive control. Without it, an implementation that threw on EVERY
+   * `authoritative_by_property` declaration would pass the two tests above.
+   */
+  it('compiles when a registered source does carry the declared type', () => {
+    expect(() =>
+      buildFactSelectionPolicy(
+        withSources(
+          [source('maker', 'MANUFACTURER'), source('filings', 'REGULATORY_FILING')],
+          { seer2: { prefer_source_types: ['REGULATORY_FILING', 'MANUFACTURER'] } },
+        ),
+        { at: AT },
+      ),
+    ).not.toThrow();
+  });
+
+  it('is satisfied when any one of several declared types is present', () => {
+    // The declaration is a preference ORDER, not a conjunction: one match is
+    // enough for criterion 1 to have something to rank.
+    expect(() =>
+      buildFactSelectionPolicy(
+        withSources(
+          [source('maker', 'MANUFACTURER')],
+          { sound_level_db: { prefer_source_types: ['CERTIFICATION_BODY', 'MANUFACTURER'] } },
+        ),
+        { at: AT },
+      ),
+    ).not.toThrow();
+  });
+
+  it('ignores a property that declares no preference at all', () => {
+    expect(() =>
+      buildFactSelectionPolicy(
+        withSources([source('maker', 'MANUFACTURER')], { seer2: {} }),
+        { at: AT },
+      ),
+    ).not.toThrow();
+  });
+});
+
+/**
+ * `prefer_source_types` is a membership set, not a ranking — pinned here
+ * because the name says otherwise and the mistake is silent.
+ *
+ * The list expands to the domains of every registered source of ANY listed
+ * type, and doc 04's criterion 1 treats all of them as equally authoritative.
+ * Order inside the list is never read. So adding a BROADER type does not add a
+ * lower tier; it promotes that type to full authority and levels the
+ * distinction the declaration existed to make.
+ *
+ * This was not theoretical. Adding MANUFACTURER to the seer2 tier — intending a
+ * fallback below the certified value — made the manufacturer's marketing figure
+ * equally authoritative, and Conflict A in the e2e proof silently began
+ * resolving on SOURCE_FIELD_RELIABILITY instead of DIRECT_AUTHORITATIVE_SOURCE.
+ * Two sources agreeing on the marketing number stopped losing.
+ */
+describe('prefer_source_types confers authority; it does not order it', () => {
+  const source = (key: string, type: string) =>
+    ({ key, domain: `${key}.example.com`, source_type: type }) as never;
+
+  const policy = (types: readonly string[]) =>
+    buildFactSelectionPolicy(
+      {
+        slug: 'probe',
+        vertical: {},
+        entities: {},
+        aliasTypes: [],
+        sources: [
+          source('certifier', 'CERTIFICATION_BODY'),
+          source('filings', 'REGULATORY_FILING'),
+          source('maker', 'MANUFACTURER'),
+        ],
+        factSelection: { authoritative_by_property: { seer2: { prefer_source_types: types } } },
+      } as unknown as VerticalConfig,
+      { at: AT },
+    );
+
+  it('names exactly one source when one type is declared', () => {
+    expect(policy(['CERTIFICATION_BODY']).authoritativeSourcesByProperty?.['seer2']).toEqual([
+      'certifier.example.com',
+    ]);
+  });
+
+  it('promotes every listed type to the same authority, in declaration-independent order', () => {
+    // Both spellings produce the same SET. If order mattered, these would differ.
+    const forwards = policy(['CERTIFICATION_BODY', 'MANUFACTURER']).authoritativeSourcesByProperty?.[
+      'seer2'
+    ];
+    const backwards = policy(['MANUFACTURER', 'CERTIFICATION_BODY'])
+      .authoritativeSourcesByProperty?.['seer2'];
+    expect([...(forwards ?? [])].sort()).toEqual([...(backwards ?? [])].sort());
+    expect(forwards).toHaveLength(2);
+  });
+
+  it('keeps a manufacturer OUT of the ratings tier, which is the point', () => {
+    // The shape the vertical actually ships: classes that outrank a
+    // specification sheet, and nothing else.
+    expect(
+      policy(['CERTIFICATION_BODY', 'STANDARDS_BODY', 'REGULATORY_FILING'])
+        .authoritativeSourcesByProperty?.['seer2'],
+    ).not.toContain('maker.example.com');
+  });
+});

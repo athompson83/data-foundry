@@ -53,7 +53,17 @@ publisher: U.S. Environmental Protection Agency (ENERGY STAR program)
 # https://data.energystar.gov/ now 301-redirects to www.energystar.gov; the
 # asset and API paths under this host continue to serve.
 domain: data.energystar.gov
-source_type: GOVERNMENT
+# REGULATORY_FILING, not REGULATORY and not CERTIFICATION_BODY.
+#
+# The EPA hosts the register; the certified values in it are submitted by
+# partners and certification bodies, not measured by the EPA. `GOVERNMENT` was
+# declared here originally and is not in SOURCE_TYPES at all — it would have
+# failed Zod and the sources_source_type_allowed CHECK on the day this file was
+# promoted, which is the one step of the procedure meant to be mechanical.
+# tooling/test/proposed-sources.test.ts now reads these drafts so that cannot
+# recur. [REVIEWER] confirm this classification against packet section 4, which
+# asks who produced which field.
+source_type: REGULATORY_FILING
 
 # PROPOSED, not assigned. A certification programme run by a federal agency
 # would rank high, but authority_rank affects fact selection and must not be set

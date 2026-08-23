@@ -76,6 +76,24 @@ manufacturer source for Northwind and Borealis.
 
 ## Properties — `certification`
 
+> **These descriptions are true of the fixture set, whose certification source is
+> a synthetic certification body. They are not automatically true of real data.**
+>
+> No lawful source currently available to this vertical is a
+> `CERTIFICATION_BODY`: the only registered one is a fixture, and the sole real
+> US HVAC certification directory is prohibited in `packages/source-registry`.
+> The lawful sources are `REGULATORY_FILING` — a regulator hosts the register,
+> the **manufacturer** asserted the value. DOE says so itself, verbatim: *"The
+> appearance of a model on this web site is not an indication that DOE has
+> determined that the model is compliant with DOE energy conservation
+> standards."*
+>
+> A value selected at the `REGULATORY_FILING` tier must never be described as
+> **certified**, **verified**, **approved**, **independently tested** or
+> **determined**, on any surface. The accurate phrasing is *"manufacturer-reported,
+> as filed with <agency>"*. A government host is not a claim.
+
+
 | Property | Type | Unit | Critical | Coverage | Description |
 |---|---|---|:---:|---:|---|
 | `product_type` | string (enum) | — | ✅ | 100% (11/11) | Category as classified by the certifying body |
