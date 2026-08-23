@@ -35,6 +35,25 @@ describe('the prohibited-source list', () => {
     expect(finding!.liftedBy.length).toBeGreaterThan(20);
   });
 
+  /**
+   * NEEP is the entry that shows why the list is not only about manufacturers.
+   *
+   * Its terms grant "personal, non-commercial use only" — a commercial data
+   * product is the named excluded case rather than something inferred from
+   * silence. And the list is operated in partnership with AHRI, so acquiring it
+   * would route around the entry above rather than avoid it: the subdomain the
+   * product list actually lives on has to be refused, not just the apex.
+   */
+  it('names NEEP, and refuses the subdomain the product list actually lives on', () => {
+    const finding = prohibitedSourceFor('ashp.neep.org');
+    expect(finding).not.toBeNull();
+    expect(finding!.reason).toMatch(/non-commercial/i);
+    // The AHRI relationship is the second, independent reason, and losing it
+    // from the record would make this entry look like a lone terms-of-use call.
+    expect(finding!.reason).toMatch(/AHRI/);
+    expect(finding!.liftedBy.length).toBeGreaterThan(20);
+  });
+
   it('covers each manufacturer named in the initial exclusion', () => {
     for (const domain of [
       'carrier.com',
