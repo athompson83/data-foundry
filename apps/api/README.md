@@ -115,11 +115,16 @@ boundary (where it throws).
   import is all it takes for the next handler to reach through it. Deployment is
   also moot: ADR-0005 records that this repository has no deployment target.
 * **No dependencies.** `node:http` and the workspace, nothing else.
-* **No auth, no rate limiting, no tenancy.** There is no account, API-key or
-  tenant concept anywhere in `db/migrations`; `vertical_id` is the only isolation
-  boundary that exists, and the app is scoped to one vertical at construction.
-  Inventing an auth model here would be inventing architecture ahead of the
-  schema that has to back it.
+* **No auth, no rate limiting, no tenancy — in this package.** `db/migrations`
+  gained an account/API-key/tenant schema (`0011_api_tenancy.sql`) and
+  `apps/edge` enforces it before this package's handler ever runs — see
+  `apps/edge/src/auth.ts`. Nothing changes here: `vertical_id` is still the
+  only isolation boundary this layer itself knows about, and it stays that
+  way on purpose. Authentication is a concern of the deployment that exposes
+  this app to the network, not of the pure request/response contract
+  underneath it; the composition root is where a driver may be opened
+  (see "No composition root" above), and a tenant lookup is exactly that
+  kind of reach-through.
 
 ## Known limitations (honest)
 

@@ -50,6 +50,7 @@ export {
   type ApiContext,
   type ApiErrorContext,
   type ApiFactSelectionPolicy,
+  type ApiRequestTelemetry,
 } from './config.js';
 
 export {

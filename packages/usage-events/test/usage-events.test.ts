@@ -1,0 +1,147 @@
+/**
+ * The contract itself: what a usage event is allowed to say, and what
+ * `parseUsageEvent` refuses before it ever reaches a database CHECK.
+ */
+import { describe, expect, it } from 'vitest';
+import { buildUsageEvent, parseUsageEvent, type UsageEvent } from '../src/index.js';
+
+const TENANT_ID = '11111111-1111-4111-8111-111111111111';
+const KEY_ID = '22222222-2222-4222-8222-222222222222';
+
+const validInput = {
+  tenantId: TENANT_ID,
+  apiKeyId: KEY_ID,
+  routeTemplate: '/v1/entities/{id}',
+  method: 'GET',
+  status: 200,
+};
+
+/** Round-trip through JSON, the way a Queue message actually travels. */
+const overWire = (event: UsageEvent): unknown => JSON.parse(JSON.stringify(event)) as unknown;
+
+describe('buildUsageEvent', () => {
+  it('mints a fresh, well-formed uuid for id', () => {
+    const event = buildUsageEvent(validInput);
+    expect(event.id).toMatch(/^[0-9a-f-]{36}$/i);
+  });
+
+  it('mints a different id on every call — the whole idempotency mechanism depends on this', () => {
+    const ids = new Set(Array.from({ length: 50 }, () => buildUsageEvent(validInput).id));
+    expect(ids.size).toBe(50);
+  });
+
+  it('defaults rows_served to 0 and duration_ms to null', () => {
+    const event = buildUsageEvent(validInput);
+    expect(event.rows_served).toBe(0);
+    expect(event.duration_ms).toBeNull();
+  });
+
+  it('carries through an explicit rows_served and duration_ms', () => {
+    const event = buildUsageEvent({ ...validInput, rowsServed: 12, durationMs: 45 });
+    expect(event.rows_served).toBe(12);
+    expect(event.duration_ms).toBe(45);
+  });
+
+  it('stamps occurred_at as an ISO string, defaulting to now', () => {
+    const before = Date.now();
+    const event = buildUsageEvent(validInput);
+    const stamped = Date.parse(event.occurred_at);
+    expect(stamped).toBeGreaterThanOrEqual(before);
+    expect(stamped).toBeLessThanOrEqual(Date.now());
+  });
+
+  it('never carries a field this package cannot name', () => {
+    const event = buildUsageEvent(validInput);
+    expect(Object.keys(event).sort()).toEqual(
+      [
+        'id',
+        'tenant_id',
+        'api_key_id',
+        'occurred_at',
+        'route',
+        'method',
+        'status',
+        'rows_served',
+        'duration_ms',
+      ].sort(),
+    );
+  });
+});
+
+describe('parseUsageEvent', () => {
+  it('round-trips a built event across a JSON boundary', () => {
+    const event = buildUsageEvent(validInput);
+    expect(parseUsageEvent(overWire(event))).toEqual(event);
+  });
+
+  it('rejects a non-object', () => {
+    expect(parseUsageEvent(null)).toBeNull();
+    expect(parseUsageEvent('not an event')).toBeNull();
+    expect(parseUsageEvent(42)).toBeNull();
+    expect(parseUsageEvent([])).toBeNull();
+  });
+
+  it('rejects a missing required field', () => {
+    const event = overWire(buildUsageEvent(validInput)) as Record<string, unknown>;
+    for (const field of ['id', 'tenant_id', 'api_key_id', 'occurred_at', 'route', 'method', 'status']) {
+      const { [field]: _omitted, ...rest } = event;
+      expect(parseUsageEvent(rest), `missing ${field}`).toBeNull();
+    }
+  });
+
+  it('rejects an id, tenant_id or api_key_id that is not uuid-shaped', () => {
+    for (const field of ['id', 'tenant_id', 'api_key_id']) {
+      const event = overWire(buildUsageEvent(validInput)) as Record<string, unknown>;
+      event[field] = 'not-a-uuid';
+      expect(parseUsageEvent(event), field).toBeNull();
+    }
+  });
+
+  it('rejects an occurred_at that does not parse as a date', () => {
+    const event = overWire(buildUsageEvent(validInput)) as Record<string, unknown>;
+    event['occurred_at'] = 'not-a-date';
+    expect(parseUsageEvent(event)).toBeNull();
+  });
+
+  it('rejects a route carrying a query string — the leak shape the database also refuses', () => {
+    const event = overWire(buildUsageEvent(validInput)) as Record<string, unknown>;
+    event['route'] = '/v1/search?q=leak';
+    expect(parseUsageEvent(event)).toBeNull();
+  });
+
+  it('rejects a route carrying an interpolated uuid — a request target, not a template', () => {
+    const event = overWire(buildUsageEvent(validInput)) as Record<string, unknown>;
+    event['route'] = `/v1/entities/${TENANT_ID}`;
+    expect(parseUsageEvent(event)).toBeNull();
+  });
+
+  it('rejects a method this API never serves', () => {
+    for (const method of ['POST', 'DELETE', 'get', '']) {
+      const event = overWire(buildUsageEvent(validInput)) as Record<string, unknown>;
+      event['method'] = method;
+      expect(parseUsageEvent(event), method).toBeNull();
+    }
+  });
+
+  it('rejects a status outside 100-599, or a non-integer', () => {
+    for (const status of [99, 600, 200.5, '200', NaN]) {
+      const event = overWire(buildUsageEvent(validInput)) as Record<string, unknown>;
+      event['status'] = status;
+      expect(parseUsageEvent(event), String(status)).toBeNull();
+    }
+  });
+
+  it('rejects a negative rows_served', () => {
+    const event = overWire(buildUsageEvent({ ...validInput, rowsServed: 3 })) as Record<string, unknown>;
+    event['rows_served'] = -1;
+    expect(parseUsageEvent(event)).toBeNull();
+  });
+
+  it('rejects a negative duration_ms but accepts null', () => {
+    const event = overWire(buildUsageEvent({ ...validInput, durationMs: 5 })) as Record<string, unknown>;
+    event['duration_ms'] = -1;
+    expect(parseUsageEvent(event)).toBeNull();
+    event['duration_ms'] = null;
+    expect(parseUsageEvent(event)).not.toBeNull();
+  });
+});

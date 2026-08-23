@@ -32,3 +32,12 @@ VERTICAL_SLUG = "hvac"
 
 # `wrangler dev` against a local database can use POSTGRES_URL instead. Put it in
 # .dev.vars (gitignored), never here: this file is committed.
+
+# Where a usage event goes after a request is served. The queue name itself is
+# not a credential — unlike the Hyperdrive id above, it is safe to commit — but
+# the queue has to exist in the account before this binding resolves:
+#   wrangler queues create data-foundry-usage-events
+# `apps/usage-consumer/wrangler.toml` is the consumer side of this same queue.
+[[queues.producers]]
+binding = "USAGE_EVENTS_QUEUE"
+queue = "data-foundry-usage-events"

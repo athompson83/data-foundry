@@ -447,6 +447,36 @@ export const ROUTES: readonly Route[] = [
   },
 ];
 
+/**
+ * Fixed placeholders for requests that never reach a matched route.
+ *
+ * Each is a metering-safe route template on its own terms — a constant, never
+ * an echo of the request — for the paths through `dispatch` that end before
+ * `matchRoute` runs at all, or that `matchRoute` itself refuses.
+ */
+export const ROOT_ROUTE_TEMPLATE = '/';
+export const UNSUPPORTED_VERSION_ROUTE_TEMPLATE = '/{unsupported-version}';
+export const UNMATCHED_ROUTE_TEMPLATE = '/{unmatched}';
+export const METHOD_NOT_ALLOWED_ROUTE_TEMPLATE = '/{method-not-allowed}';
+
+/** The contract document itself, e.g. `/v1`. */
+export function contractRouteTemplate(version: string): string {
+  return `/${version}`;
+}
+
+/**
+ * The metering-safe template for a matched route: `/v1/entities/{id}`, never
+ * `/v1/entities/9f3c...`. Built from `route.pattern`, which is exactly what
+ * `matchRoute` compared the request against — not from the request itself, so
+ * there is no path through this function that can carry a parameter value.
+ */
+export function routeTemplate(version: string, route: Route): string {
+  const rendered = route.pattern.map((piece) =>
+    piece.startsWith(':') ? `{${piece.slice(1)}}` : piece,
+  );
+  return `/${version}/${rendered.join('/')}`;
+}
+
 export function matchRoute(segments: readonly string[]): Route | null {
   for (const route of ROUTES) {
     if (route.pattern.length !== segments.length) continue;

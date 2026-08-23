@@ -10,6 +10,7 @@ export const projects = [
   'packages/canonical-schema',
   'packages/source-registry',
   'packages/api-keys',
+  'packages/usage-events',
   'packages/acquisition',
   'packages/extraction',
   'packages/normalization',
@@ -21,6 +22,7 @@ export const projects = [
   'apps/api',
   'apps/mcp',
   'apps/edge',
+  'apps/usage-consumer',
   'verticals/hvac',
   'tooling',
   // The repo-root `tests/` tree: integration, end-to-end and contract suites

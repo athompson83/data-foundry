@@ -15,6 +15,17 @@ export interface HyperdriveBinding {
   readonly connectionString: string;
 }
 
+/**
+ * Cloudflare's Queue producer binding, narrowed to the one method a producer
+ * calls. Named locally rather than pulled from `@cloudflare/workers-types` —
+ * this repository types every Cloudflare binding it touches by the shape it
+ * reads, the same choice `HyperdriveBinding` already made, so a binding this
+ * Worker does not use cannot widen what it is trusted with.
+ */
+export interface QueueBinding<Message = unknown> {
+  send(message: Message): Promise<void>;
+}
+
 export interface EdgeEnv {
   /**
    * Hyperdrive binding. Preferred over `POSTGRES_URL`: it pools connections at
@@ -25,6 +36,15 @@ export interface EdgeEnv {
   readonly POSTGRES_URL?: string;
   /** Which vertical this deployment serves. One vertical per Worker. */
   readonly VERTICAL_SLUG?: string;
+  /**
+   * Where a usage event goes after a request is served. Optional on purpose,
+   * unlike the database: a Worker that cannot reach its own database has
+   * nothing to serve, but a Worker that cannot meter still has a correct
+   * answer to give. Missing this binding does not refuse requests — it is
+   * `index.ts`'s job to make that state loud rather than silent, because the
+   * alternative is metering that fails forever without anyone noticing.
+   */
+  readonly USAGE_EVENTS_QUEUE?: QueueBinding;
 }
 
 export class EdgeConfigurationError extends Error {
