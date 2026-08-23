@@ -130,18 +130,18 @@ interface RegistrySpec {
 
 const REGISTRY_SPECS: readonly RegistrySpec[] = [
   {
-    key: 'carrier-docs',
-    domain: 'carrier.com',
-    publisher: 'Carrier',
+    key: 'acme-docs',
+    domain: 'catalog.acme-climate.example.com',
+    publisher: 'Acme Climate',
     source_type: 'MANUFACTURER',
     rights: 'GREEN',
     authority_rank: 90,
     status: 'ACTIVE',
   },
   {
-    key: 'ahri-directory',
-    domain: 'ahridirectory.org',
-    publisher: 'AHRI Directory',
+    key: 'ratings-directory',
+    domain: 'ratings-directory.example.org',
+    publisher: 'Ratings Directory',
     source_type: 'CERTIFICATION_BODY',
     rights: 'GREEN',
     authority_rank: 95,
@@ -204,22 +204,22 @@ export function registryEntry(
     status: spec.status,
     rights_classification: spec.rights,
     attribution_requirement:
-      spec.key === 'ahri-directory'
+      spec.key === 'ratings-directory'
         ? {
             required: true,
-            text: 'Certification data courtesy of AHRI',
-            url: 'https://www.ahridirectory.org/',
+            text: 'Certification data courtesy of the Ratings Directory',
+            url: 'https://www.ratings-directory.example.org/',
           }
         : { required: false, text: null, url: null },
     rights_policy: {
       ...base.rights_policy,
       publisher_legal_entity: spec.publisher,
       terms_url: `https://${spec.domain}/terms`,
-      license_id: spec.key === 'ahri-directory' ? 'CC-BY-4.0' : null,
+      license_id: spec.key === 'ratings-directory' ? 'CC-BY-4.0' : null,
     },
     license_split: {
       ...base.license_split,
-      data_license_id: spec.key === 'ahri-directory' ? 'CC-BY-4.0' : null,
+      data_license_id: spec.key === 'ratings-directory' ? 'CC-BY-4.0' : null,
     },
     ...overrides,
   };
@@ -345,15 +345,15 @@ export async function createExportFixtures(
   // The certification body publishes under terms that require a credit line.
   await base.store.upsertSource({
     vertical_id: base.vertical.id,
-    publisher: 'AHRI Directory',
-    domain: 'ahridirectory.org',
+    publisher: 'Ratings Directory',
+    domain: 'ratings-directory.example.org',
     source_type: 'CERTIFICATION_BODY',
     authority_rank: 95,
     rights_classification: 'GREEN',
     attribution_requirement: {
       required: true,
-      text: 'Certification data courtesy of AHRI',
-      url: 'https://www.ahridirectory.org/',
+      text: 'Certification data courtesy of the Ratings Directory',
+      url: 'https://www.ratings-directory.example.org/',
     },
     robots_policy: base.sources.certifier.source.robots_policy,
     refresh_cadence: 'WEEKLY',

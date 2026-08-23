@@ -49,7 +49,7 @@ const OTHER_REVIEWER = 'j.okafor@example.com';
 
 const CLEAN_REASON =
   'The 2026 product literature restated the refrigerant designation; corrected to the value on ' +
-  'the AHRI certification listing.';
+  'the certification listing.';
 const LEAKY_REASON = 'Corrected by j.okafor after a supplier call about the 2026 designation.';
 
 /** An override the standards desk declares but which decides nothing here. */
@@ -184,8 +184,8 @@ describe('a clean correction publishes its reason and nothing about its reviewer
 
   it('carries none of our internal notes about a source either', async () => {
     const marked = fixtures.sourceRegistry.map((entry) =>
-      entry.key === 'carrier-docs'
-        ? registryEntry('carrier-docs', {
+      entry.key === 'acme-docs'
+        ? registryEntry('acme-docs', {
             notes: 'INTERNAL: distributor margin renegotiation in progress, do not surface',
           })
         : entry,
@@ -228,7 +228,7 @@ describe('the internal-text sweep itself refuses when it finds something', () =>
   });
 
   it('ignores fragments too short to be evidence of anything', () => {
-    expect(internalOnlyText([registryEntry('carrier-docs', { notes: 'short' })])).not.toContain(
+    expect(internalOnlyText([registryEntry('acme-docs', { notes: 'short' })])).not.toContain(
       'short',
     );
   });
@@ -257,7 +257,7 @@ describe('a reviewer identity too short to be a needle', () => {
 
   const initialled = (): SourceRegistryEntry[] =>
     fixtures.sourceRegistry.map((entry) =>
-      entry.key === 'ahri-directory'
+      entry.key === 'ratings-directory'
         ? { ...entry, rights_policy: { ...entry.rights_policy, reviewed_by: INITIALS } }
         : entry,
     );

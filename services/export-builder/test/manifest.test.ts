@@ -162,22 +162,22 @@ describe('rights and attribution travel with the data', () => {
   it('lists every contributing source with its classification', () => {
     const keys = result.manifest.sources.map((source) => source.source_key);
     expect(keys).toEqual([...keys].sort());
-    expect(keys).toContain('carrier-docs');
-    expect(keys).toContain('ahri-directory');
+    expect(keys).toContain('acme-docs');
+    expect(keys).toContain('ratings-directory');
     expect(keys).toContain('spec-aggregator');
     // The forum backs nothing in this export, so it is not in the manifest.
     expect(keys).not.toContain('hvac-forum');
   });
 
   it('carries the required credit line for the source that demands one', () => {
-    const ahri = result.manifest.sources.find((source) => source.source_key === 'ahri-directory');
-    expect(ahri).toBeDefined();
-    expect(ahri?.rights.attribution_required).toBe(true);
-    expect(ahri?.rights.attribution_text).toBe('Certification data courtesy of AHRI');
-    expect(ahri?.rights.attribution_url).toBe('https://www.ahridirectory.org/');
-    expect(ahri?.rights.license_id).toBe('CC-BY-4.0');
-    expect(ahri?.rights.data_license_id).toBe('CC-BY-4.0');
-    expect(ahri?.rights.terms_url).toBe('https://ahridirectory.org/terms');
+    const certifier = result.manifest.sources.find((source) => source.source_key === 'ratings-directory');
+    expect(certifier).toBeDefined();
+    expect(certifier?.rights.attribution_required).toBe(true);
+    expect(certifier?.rights.attribution_text).toBe('Certification data courtesy of the Ratings Directory');
+    expect(certifier?.rights.attribution_url).toBe('https://www.ratings-directory.example.org/');
+    expect(certifier?.rights.license_id).toBe('CC-BY-4.0');
+    expect(certifier?.rights.data_license_id).toBe('CC-BY-4.0');
+    expect(certifier?.rights.terms_url).toBe('https://ratings-directory.example.org/terms');
   });
 
   it('says out loud that an AMBER source publishes with conditions', () => {
@@ -271,7 +271,7 @@ describe('the fact files', () => {
     );
     expect(seer?.value).toBe('16');
     expect(seer?.rule).toBe('DIRECT_AUTHORITATIVE_SOURCE');
-    expect(seer?.sources).toBe('Carrier');
+    expect(seer?.sources).toBe('Acme Climate');
     expect(seer?.editorially_corrected).toBe(false);
     expect(seer?.editorial_correction_reason).toBeNull();
     expect(typeof seer?.unresolved_conflict).toBe('boolean');

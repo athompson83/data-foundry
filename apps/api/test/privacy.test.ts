@@ -301,7 +301,7 @@ describe('a value backed by one publishable and one blocked source', () => {
     // every surface rather than filtered again here (rule 5), by reading the
     // rights-filtered source list `fact-selection` had already computed.
     expect(fact?.value).toBe(42);
-    expect(fact?.sources).toContain('Carrier');
+    expect(fact?.sources).toContain('Acme Climate');
     expect(fact?.sources, 'a blocked source must not be credited for the value').not.toContain(
       'HVAC Forum',
     );

@@ -403,7 +403,7 @@ describe('canonicalFacts — rule 1 in the publisher list (gap 2)', () => {
     const refrigerant = rows.find((row) => row.property === 'refrigerant');
 
     expect(refrigerant?.value, 'the value itself is publishable').toBe('R-454B');
-    expect(refrigerant?.sources).toEqual(['AHRI Directory']);
+    expect(refrigerant?.sources).toEqual(['Ratings Directory']);
     expect(refrigerant?.sources).not.toContain(BLOCKED_PUBLISHER);
   });
 
@@ -415,7 +415,7 @@ describe('canonicalFacts — rule 1 in the publisher list (gap 2)', () => {
     const refrigerant = rows.find((row) => row.property === 'refrigerant');
 
     expect([...(refrigerant?.sources ?? [])].sort()).toEqual(
-      ['AHRI Directory', BLOCKED_PUBLISHER].sort(),
+      ['Ratings Directory', BLOCKED_PUBLISHER].sort(),
     );
   });
 });

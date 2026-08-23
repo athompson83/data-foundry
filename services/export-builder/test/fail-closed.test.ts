@@ -121,7 +121,7 @@ describe('an unpublishable source refuses the whole export', () => {
 
   it('does not refuse the sources that were clean', async () => {
     const { error } = await refuse();
-    expect(error.subjects).not.toContain('Carrier (carrier.com)');
+    expect(error.subjects).not.toContain('Acme Climate (catalog.acme-climate.example.com)');
     expect(error.subjects.every((subject) => subject.includes('forum.example'))).toBe(true);
   });
 
@@ -231,10 +231,10 @@ describe('a source with no declaration is refused rather than assumed fine', () 
   it('refuses when the registry does not cover a contributing domain', async () => {
     const { error, sink } = await refuse({
       properties: { mode: 'allowlist', include: PUBLIC_PROPERTIES },
-      sourceRegistry: fixtures.sourceRegistry.filter((entry) => entry.key !== 'carrier-docs'),
+      sourceRegistry: fixtures.sourceRegistry.filter((entry) => entry.key !== 'acme-docs'),
     });
     const missing = error.refusals.find((refusal) => refusal.code === 'SOURCE_NOT_REGISTERED');
-    expect(missing?.subject).toBe('Carrier (carrier.com)');
+    expect(missing?.subject).toBe('Acme Climate (catalog.acme-climate.example.com)');
     expect(missing?.message).toContain('absence of a decision is not permission');
     expect(sink.files.size).toBe(0);
   });
@@ -244,14 +244,14 @@ describe('a source with no declaration is refused rather than assumed fine', () 
       properties: { mode: 'allowlist', include: PUBLIC_PROPERTIES },
       sourceRegistry: [
         ...fixtures.sourceRegistry,
-        registryEntry('carrier-docs', { key: 'carrier-docs-legacy' }),
+        registryEntry('acme-docs', { key: 'acme-docs-legacy' }),
       ],
     });
     const ambiguous = error.refusals.find(
       (refusal) => refusal.code === 'SOURCE_REGISTRY_AMBIGUOUS',
     );
-    expect(ambiguous?.subject).toBe('Carrier (carrier.com)');
-    expect(ambiguous?.message).toContain('carrier-docs, carrier-docs-legacy');
+    expect(ambiguous?.subject).toBe('Acme Climate (catalog.acme-climate.example.com)');
+    expect(ambiguous?.message).toContain('acme-docs, acme-docs-legacy');
   });
 
   it('refuses when the database row and the declaration disagree about rights', async () => {
@@ -279,10 +279,10 @@ describe('declaration-only blockers the database cannot see', () => {
     const { error } = await refuse({
       properties: publicOnly,
       sourceRegistry: fixtures.sourceRegistry.map((entry) =>
-        entry.key === 'carrier-docs'
-          ? registryEntry('carrier-docs', {
+        entry.key === 'acme-docs'
+          ? registryEntry('acme-docs', {
               rights_policy: {
-                ...registryEntry('carrier-docs').rights_policy,
+                ...registryEntry('acme-docs').rights_policy,
                 redistribution_allowed: false,
               },
             })
@@ -290,8 +290,8 @@ describe('declaration-only blockers the database cannot see', () => {
       ),
     });
     const gate = error.refusals.find((refusal) => refusal.code === 'SOURCE_PUBLISH_GATE_BLOCKED');
-    expect(gate?.subject).toBe('Carrier (carrier.com)');
-    expect(gate?.message).toContain('carrier-docs');
+    expect(gate?.subject).toBe('Acme Climate (catalog.acme-climate.example.com)');
+    expect(gate?.message).toContain('acme-docs');
     expect(gate?.message).toContain('REDISTRIBUTION_NOT_ALLOWED');
   });
 
@@ -299,8 +299,8 @@ describe('declaration-only blockers the database cannot see', () => {
     const { error } = await refuse({
       properties: publicOnly,
       sourceRegistry: fixtures.sourceRegistry.map((entry) =>
-        entry.key === 'ahri-directory'
-          ? registryEntry('ahri-directory', { kill_switch_engaged: true })
+        entry.key === 'ratings-directory'
+          ? registryEntry('ratings-directory', { kill_switch_engaged: true })
           : entry,
       ),
     });
@@ -326,8 +326,8 @@ describe('declaration-only blockers the database cannot see', () => {
     const { error } = await refuse({
       properties: publicOnly,
       sourceRegistry: fixtures.sourceRegistry.map((entry) =>
-        entry.key === 'carrier-docs'
-          ? registryEntry('carrier-docs', {
+        entry.key === 'acme-docs'
+          ? registryEntry('acme-docs', {
               provenance_retention: { retain_artifacts: false, retention_days: null, legal_hold: false },
             })
           : entry,

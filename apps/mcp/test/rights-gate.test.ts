@@ -228,7 +228,7 @@ describe('explaining a value that was refused', () => {
     );
     expect(result.claims.length).toBeGreaterThan(1);
     expect(result.withheldClaimCount).toBe(0);
-    expect(result.narrative.some((line) => line.includes('Carrier'))).toBe(true);
+    expect(result.narrative.some((line) => line.includes('Acme Climate'))).toBe(true);
   });
 });
 

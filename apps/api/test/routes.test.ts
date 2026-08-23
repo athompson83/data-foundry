@@ -137,7 +137,7 @@ describe('GET /v1/entities/{id}/facts', () => {
     expect(seer2).toBeDefined();
     expect(seer2?.value).toBe(16);
     expect(seer2?.rule).toBe('DIRECT_AUTHORITATIVE_SOURCE');
-    expect(seer2?.sources).toEqual(['Carrier']);
+    expect(seer2?.sources).toEqual(['Acme Climate']);
     // The three trust fields ADR-0004 exists to keep on every surface.
     expect(seer2).toHaveProperty('editoriallyCorrected', false);
     expect(seer2).toHaveProperty('editorialCorrectionReason', null);
