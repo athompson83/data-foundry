@@ -11,7 +11,7 @@
  * package never reaches that fallback, and refuses instead.
  */
 import { describe, expect, it } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { EdgeConfigurationError, resolveEdgeConfig } from '../src/env.js';
@@ -79,7 +79,13 @@ describe('a Worker with no database refuses to serve', () => {
    * actually regress.
    */
   it('does not name a PGlite factory in src/ either', () => {
-    const sources = ['env.ts', 'composition.ts', 'index.ts', 'adapter.ts'];
+    // Enumerated, not listed. The first version of this named four files, and
+    // `test/bundle.test.ts` demonstrated the consequence: adding a fifth file
+    // that imports the PGlite factory left this test GREEN while the WASM
+    // database was in the deployed bundle. A control with a hardcoded inventory
+    // stops covering the code the moment the code grows.
+    const sources = readdirSync(SRC).filter((file) => file.endsWith('.ts'));
+    expect(sources.length).toBeGreaterThan(3);
     // Comments are stripped first. The doc comments here *name* the fallback in
     // order to explain why it is avoided, and a scan that could not tell prose
     // from code would force the explanation out of the file to stay green.

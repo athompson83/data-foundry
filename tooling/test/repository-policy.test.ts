@@ -51,6 +51,10 @@ const DOMAIN_ALLOWLIST: readonly string[] = [
   // that no request ever reaches that host, so naming it is the point.
   'packages/acquisition/test/http.test.ts',
   'docs/sources/prohibited-sources.md',
+  // The source-landscape assessment. Naming a candidate is the point: it records
+  // WHY neep.org is prohibited, quoting its terms, and an assessment that could
+  // not name what it assessed would be unreviewable.
+  'docs/sources/hvac-source-landscape-2026-08.md',
   'tooling/test/repository-policy.test.ts',
 ];
 
