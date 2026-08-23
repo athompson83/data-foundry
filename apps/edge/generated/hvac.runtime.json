@@ -1,0 +1,288 @@
+{
+  "vertical_slug": "hvac",
+  "fields": [
+    {
+      "field": "product_type",
+      "value_type": "string",
+      "unit": null,
+      "filter": {
+        "type": "multi_select",
+        "facet_count": true
+      },
+      "sort": false,
+      "search_boost": 0.6,
+      "indexable": true
+    },
+    {
+      "field": "nominal_tonnage",
+      "value_type": "number",
+      "unit": "ton",
+      "filter": {
+        "type": "multi_select",
+        "facet_count": true
+      },
+      "sort": true,
+      "search_boost": 0.8,
+      "indexable": true
+    },
+    {
+      "field": "cooling_capacity_btu",
+      "value_type": "number",
+      "unit": "BTU/h",
+      "filter": {
+        "type": "range",
+        "facet_count": true
+      },
+      "sort": true,
+      "search_boost": 0.4,
+      "indexable": false
+    },
+    {
+      "field": "seer2",
+      "value_type": "number",
+      "unit": null,
+      "filter": {
+        "type": "range",
+        "facet_count": true
+      },
+      "sort": true,
+      "search_boost": 0.5,
+      "indexable": true
+    },
+    {
+      "field": "eer2",
+      "value_type": "number",
+      "unit": null,
+      "filter": {
+        "type": "range",
+        "facet_count": true
+      },
+      "sort": true,
+      "search_boost": 0.2,
+      "indexable": false
+    },
+    {
+      "field": "hspf2",
+      "value_type": "number",
+      "unit": null,
+      "filter": {
+        "type": "range",
+        "facet_count": true
+      },
+      "sort": true,
+      "search_boost": 0.2,
+      "indexable": false
+    },
+    {
+      "field": "refrigerant",
+      "value_type": "string",
+      "unit": null,
+      "filter": {
+        "type": "multi_select",
+        "facet_count": true
+      },
+      "sort": false,
+      "search_boost": 0.7,
+      "indexable": true
+    },
+    {
+      "field": "voltage",
+      "value_type": "number",
+      "unit": "V",
+      "filter": {
+        "type": "multi_select",
+        "facet_count": true
+      },
+      "sort": false,
+      "search_boost": 0.3,
+      "indexable": false
+    },
+    {
+      "field": "phase",
+      "value_type": "number",
+      "unit": null,
+      "filter": {
+        "type": "single_select",
+        "facet_count": true
+      },
+      "sort": false,
+      "search_boost": 0.2,
+      "indexable": false
+    },
+    {
+      "field": "stage_count",
+      "value_type": "number",
+      "unit": null,
+      "filter": {
+        "type": "single_select",
+        "facet_count": true
+      },
+      "sort": false,
+      "search_boost": 0.3,
+      "indexable": false
+    },
+    {
+      "field": "sound_level_db",
+      "value_type": "number",
+      "unit": "dB",
+      "filter": {
+        "type": "range",
+        "facet_count": true
+      },
+      "sort": true,
+      "search_boost": 0.3,
+      "indexable": false
+    },
+    {
+      "field": "weight_lb",
+      "value_type": "number",
+      "unit": "lb",
+      "filter": {
+        "type": "range",
+        "facet_count": false
+      },
+      "sort": true,
+      "search_boost": 0.1,
+      "indexable": false
+    },
+    {
+      "field": "manufacturer",
+      "value_type": "string",
+      "unit": null,
+      "filter": {
+        "type": "multi_select",
+        "facet_count": true
+      },
+      "sort": false,
+      "search_boost": 0.9,
+      "indexable": true
+    }
+  ],
+  "fact_selection": {
+    "requirePublishableRights": true,
+    "authoritativeSourceTypes": [
+      "REGULATORY",
+      "STANDARDS_BODY",
+      "CERTIFICATION_BODY",
+      "MANUFACTURER"
+    ],
+    "authoritativeSourcesByProperty": {
+      "seer2": [
+        "ratings-directory.example.org"
+      ],
+      "eer2": [
+        "ratings-directory.example.org"
+      ],
+      "hspf2": [
+        "ratings-directory.example.org"
+      ],
+      "cooling_capacity_btu": [
+        "catalog.acme-climate.example.com",
+        "docs.acme-climate.example.com",
+        "ratings-directory.example.org"
+      ],
+      "sound_level_db": [
+        "catalog.acme-climate.example.com",
+        "docs.acme-climate.example.com"
+      ],
+      "weight_lb": [
+        "catalog.acme-climate.example.com",
+        "docs.acme-climate.example.com"
+      ],
+      "voltage": [
+        "catalog.acme-climate.example.com",
+        "docs.acme-climate.example.com"
+      ],
+      "phase": [
+        "catalog.acme-climate.example.com",
+        "docs.acme-climate.example.com"
+      ],
+      "stage_count": [
+        "catalog.acme-climate.example.com",
+        "docs.acme-climate.example.com"
+      ],
+      "refrigerant": [
+        "catalog.acme-climate.example.com",
+        "docs.acme-climate.example.com",
+        "ratings-directory.example.org"
+      ],
+      "product_type": [
+        "catalog.acme-climate.example.com",
+        "docs.acme-climate.example.com",
+        "ratings-directory.example.org"
+      ],
+      "nominal_tonnage": [
+        "catalog.acme-climate.example.com",
+        "docs.acme-climate.example.com",
+        "ratings-directory.example.org"
+      ]
+    },
+    "fieldReliability": {
+      "upc": {
+        "www.coolsupply.example.com": 0.95
+      },
+      "sound_level_db": {
+        "www.coolsupply.example.com": 0.3,
+        "docs.acme-climate.example.com": 0.95
+      },
+      "seer2": {
+        "www.coolsupply.example.com": 0.45,
+        "catalog.acme-climate.example.com": 0.6
+      },
+      "supersedes": {
+        "catalog.acme-climate.example.com": 1
+      }
+    },
+    "editorialOverrides": [],
+    "consistencyChecks": [
+      {
+        "id": "value_type_agreement",
+        "describe": "normalized_value matches its declared value_type"
+      },
+      {
+        "id": "quantity_requires_unit",
+        "describe": "quantity values carry a unit"
+      },
+      {
+        "id": "non_empty_value",
+        "describe": "value is not empty"
+      },
+      {
+        "id": "numeric_range:cooling_capacity_btu",
+        "describe": "cooling_capacity_btu within [6000, 300000]"
+      },
+      {
+        "id": "numeric_range:nominal_tonnage",
+        "describe": "nominal_tonnage within [0.5, 25]"
+      },
+      {
+        "id": "numeric_range:seer2",
+        "describe": "seer2 within [8, 30]"
+      },
+      {
+        "id": "numeric_range:eer2",
+        "describe": "eer2 within [6, 20]"
+      },
+      {
+        "id": "numeric_range:hspf2",
+        "describe": "hspf2 within [5, 14]"
+      },
+      {
+        "id": "enum_membership:phase",
+        "describe": "phase is one of 1, 3"
+      },
+      {
+        "id": "numeric_range:sound_level_db",
+        "describe": "sound_level_db within [40, 95]"
+      },
+      {
+        "id": "enum_membership:product_type",
+        "describe": "product_type is one of air_conditioner, heat_pump, gas_furnace, air_handler, packaged_unit"
+      },
+      {
+        "id": "enum_membership:refrigerant",
+        "describe": "refrigerant is one of R-410A, R-454B, R-32, R-22"
+      }
+    ]
+  }
+}

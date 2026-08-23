@@ -67,6 +67,7 @@ services/ingest-worker/      DISCOVERED -> PUBLISHED job runner wiring the stage
 services/export-builder/     Bulk CSV and JSONL exports, rights-gated and reviewer-guarded
 apps/api/                    Read-only REST surface over the query layer
 apps/mcp/                    MCP tool contract over the same query layer
+apps/edge/                   Cloudflare Worker: composition root and transport, no routing
 verticals/hvac/              The first vertical: configuration, fixtures and golden records
 db/migrations/               Plain, portable Postgres DDL for every canonical table
 schemas/canonical/           JSON Schema exports, generated from the Zod definitions
@@ -233,13 +234,35 @@ byte, what the declaration has to record, and what counts as proof afterwards.
 
 ## Deployment
 
-There is nothing deployable here yet. AGENTS.md names Cloudflare as the target
-for the web/API/MCP surfaces when they are built; those surfaces do not exist.
+`apps/edge` is a Cloudflare Worker serving the REST surface, per
+[ADR-0006](docs/decisions/ADR-0006-cloudflare-is-the-deployment-target.md). It is
+the composition root — the only package permitted to reach below the query layer
+— plus a `fetch` adapter that translates and decides nothing. `apps/api` is still
+handed a `QueryModel` and still cannot reach past it.
 
-`vercel.json` disables Vercel Git deployments for this repository. It is deploy
-suppression, not adoption — see
-[ADR-0005](docs/decisions/ADR-0005-vercel-is-not-a-deployment-target.md), which
-also records why a placeholder application was not the answer.
+```bash
+pnpm verticals:compile        # emit apps/edge/generated/<slug>.runtime.json
+pnpm verticals:compile:check  # CI gate: fails when the artifact drifts
+```
+
+The edge has no filesystem, so a vertical's filter metadata and fact-selection
+policy are compiled to a committed JSON artifact and bundled. The Worker imports
+it, never parses YAML, and refuses a `VERTICAL_SLUG` its bundle does not carry
+rather than serving one vertical's data through another's field metadata.
+
+A Worker with no database bound **refuses to serve** rather than falling back to
+an empty in-memory database, which is what `createDriverFromEnv` would otherwise
+do. A test reads the source to prove the fallback is never imported.
+
+Deploying needs an account, a Hyperdrive binding and a route, none of which live
+in this repository —
+[docs/owner-actions/cloudflare-deployment.md](docs/owner-actions/cloudflare-deployment.md)
+records what and why, including what pay per crawl actually is and is not.
+
+`vercel.json` still disables Vercel Git deployments. It remains deploy
+suppression, not adoption: ADR-0005's fix — disconnecting the integration in the
+Vercel dashboard — has not been done, so deleting the file would let failing
+deployments resume.
 
 ## Licensing and data rights
 

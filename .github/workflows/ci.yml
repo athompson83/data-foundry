@@ -62,6 +62,14 @@ jobs:
       - name: Vertical config validation
         run: pnpm verticals:validate
 
+      # 6. The edge runtime artifact must match the vertical config it was
+      #    compiled from. The Worker has no filesystem and reads the committed
+      #    JSON, so a stale artifact means the deployed surface is serving a
+      #    filter and fact-selection policy the repository no longer declares —
+      #    invisible at review time, because the YAML looks right.
+      - name: Vertical runtime artifacts are current
+        run: pnpm verticals:compile:check
+
   migrations-postgres:
     name: migrations on real Postgres
     runs-on: ubuntu-latest
