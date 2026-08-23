@@ -41,7 +41,7 @@
  * rather than as an outage. Every alarm stays quiet, and the API tells paying
  * customers that entities do not exist.
  */
-import { readFileSync, mkdtempSync, rmSync } from 'node:fs';
+import { readFileSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -66,13 +66,14 @@ const NODE_BUILTINS = [
 ];
 
 let bundle: string;
+/** The same pipeline run against an entry point that DOES reach PGlite. */
+let controlBundle: string;
 let outDir: string;
 
-beforeAll(async () => {
-  outDir = mkdtempSync(join(tmpdir(), 'df-edge-bundle-'));
-  const outfile = join(outDir, 'worker.js');
+/** One build configuration, used for the real entry point and for the control. */
+async function bundleEntry(entry: string, outfile: string): Promise<string> {
   await build({
-    entryPoints: [ENTRY],
+    entryPoints: [entry],
     bundle: true,
     format: 'esm',
     // `neutral` rather than `node`: a Worker is not Node, and building for Node
@@ -82,8 +83,27 @@ beforeAll(async () => {
     loader: { '.json': 'json', '.wasm': 'binary' },
     outfile,
   });
-  bundle = readFileSync(outfile, 'utf8');
-}, 120_000);
+  return readFileSync(outfile, 'utf8');
+}
+
+beforeAll(async () => {
+  outDir = mkdtempSync(join(tmpdir(), 'df-edge-bundle-'));
+  bundle = await bundleEntry(ENTRY, join(outDir, 'worker.js'));
+
+  // The control entry point. Written to a temp directory rather than into
+  // `src/`, so it can never be shipped by accident, and resolved through this
+  // package's own node_modules so it exercises the same resolution the real
+  // build does.
+  const controlEntry = join(outDir, 'control-entry.mjs');
+  writeFileSync(
+    controlEntry,
+    `import { createPgliteDriver } from ${JSON.stringify(
+      fileURLToPath(new URL('../../../packages/canonical-store/src/index.ts', import.meta.url)),
+    )};\nexport default { fetch: () => new Response(String(typeof createPgliteDriver)) };\n`,
+    'utf8',
+  );
+  controlBundle = await bundleEntry(controlEntry, join(outDir, 'control.js'));
+}, 240_000);
 
 afterAll(() => {
   if (outDir !== undefined) rmSync(outDir, { recursive: true, force: true });
@@ -98,7 +118,11 @@ afterAll(() => {
  * of the files to stay green — which would cost the reader the reasoning and
  * buy no safety at all.
  */
-const code = (): string => bundle.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/\/\/[^\n]*/g, ' ');
+const strip = (source: string): string =>
+  source.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/\/\/[^\n]*/g, ' ');
+
+const code = (): string => strip(bundle);
+const controlCode = (): string => strip(controlBundle);
 
 describe('the deployed bundle cannot reach PGlite', () => {
   it('builds at all', () => {
@@ -135,5 +159,49 @@ describe('the deployed bundle cannot reach PGlite', () => {
   it('does carry the Postgres driver it is supposed to use', () => {
     expect(code()).toMatch(/Hyperdrive|POSTGRES_URL/);
     expect(bundle.length).toBeGreaterThan(100_000);
+  });
+});
+
+/**
+ * The control that makes the four assertions above mean something.
+ *
+ * Every one of them is a NEGATIVE: they pass when a string is absent. A build
+ * configuration that silently stopped resolving `@data-foundry/canonical-store`
+ * — an added `external`, a broken alias, a workspace link that went missing —
+ * would produce a bundle with no PGlite in it and no anything else either, and
+ * all four would go green while proving nothing.
+ *
+ * So the same pipeline is run against an entry point that deliberately imports
+ * the prohibited factory. If the analyzer cannot see PGlite when it is
+ * genuinely there, it cannot be trusted when it says PGlite is absent.
+ *
+ * This replaces a manual mutation. A control that has to be remembered is a
+ * control that stops being run.
+ */
+describe('the analyzer can actually see PGlite when it is present', () => {
+  it('builds the control', () => {
+    expect(controlBundle.length).toBeGreaterThan(10_000);
+  });
+
+  it('finds the package the real bundle is asserted not to have', () => {
+    expect(controlCode()).toMatch(/electric-sql/i);
+  });
+
+  it('finds the factory the real bundle is asserted not to have', () => {
+    expect(controlCode()).toMatch(/createPgliteDriver/);
+  });
+
+  it('finds the WebAssembly payload the real bundle is asserted not to have', () => {
+    expect(controlCode()).toMatch(/WebAssembly\.(instantiate|compile)|\.wasm\b/);
+  });
+
+  /**
+   * And the two bundles are genuinely different artifacts — not the same file
+   * read twice, which is the one way every assertion here could still agree
+   * while measuring nothing.
+   */
+  it('is a different artifact from the real bundle', () => {
+    expect(controlBundle).not.toBe(bundle);
+    expect(code()).not.toMatch(/electric-sql/i);
   });
 });

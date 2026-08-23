@@ -44,6 +44,14 @@ validate is our own test data.
 
 The key and the `ahri_ref` alias type are **shared-vocabulary strings agreed
 across build waves**. They name the *shape* of a certification-directory source.
+
+**And the shape they name is not currently obtainable.** A real
+certification-directory source would be a `CERTIFICATION_BODY`; the only real US
+one is prohibited (`packages/source-registry/src/prohibited-sources.ts`), and the
+lawful replacements are `REGULATORY_FILING` — registers a regulator *hosts* and a
+manufacturer *asserts*. When these fixtures are replaced, the authority tier
+changes with them, and so must every description that calls a value certified.
+See `docs/sources/hvac-source-landscape-2026-08.md`.
 The publisher is a fictional body — **not** the real Air-Conditioning, Heating,
 and Refrigeration Institute — and nothing in this vertical describes that
 organization's data, directory or terms.

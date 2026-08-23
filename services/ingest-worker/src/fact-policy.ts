@@ -52,8 +52,34 @@ export function buildFactSelectionPolicy(
   const declared: Yaml = config.factSelection?.authoritative_by_property ?? {};
   for (const [property, rule] of Object.entries(declared)) {
     const types = ((rule as Yaml)?.prefer_source_types ?? []).map(String);
+    if (types.length === 0) continue;
     const domains = domainsOfType(types);
-    if (domains.length > 0) authoritativeSourcesByProperty[property] = domains;
+
+    // A declaration nothing can satisfy is refused here rather than dropped.
+    //
+    // This line used to read `if (domains.length > 0)`, and the `else` was
+    // silence: the property vanished from the policy, doc 04's criterion 1 never
+    // fired for it, and selection fell through to reliability, recency and
+    // corroboration. That is a majority vote, which this vertical's own YAML
+    // rationale says "gets this backwards" — and it would have happened with
+    // every test green.
+    //
+    // It is not hypothetical. HVAC declares CERTIFICATION_BODY for seven
+    // properties, the only registered source carrying that type is a synthetic
+    // fixture, and the sole real US HVAC certification directory is prohibited
+    // in `packages/source-registry`. Replacing the fixtures with lawful sources
+    // would have removed the certified-ratings preference silently.
+    if (domains.length === 0) {
+      throw new PipelineConfigurationError(
+        `authoritative_by_property.${property} declares prefer_source_types ` +
+          `[${types.join(', ')}], and no source registered for this vertical has any of ` +
+          'those types. The preference cannot be applied, so selection would fall through ' +
+          'to corroboration — a majority vote over exactly the claims this declaration ' +
+          'exists to outrank. Declare a type a registered source actually has, or remove ' +
+          'the property rather than shipping a preference that never fires.',
+      );
+    }
+    authoritativeSourcesByProperty[property] = domains;
   }
 
   // `field_reliability` is declared per source KEY; the cascade matches on the

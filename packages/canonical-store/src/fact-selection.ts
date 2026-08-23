@@ -316,6 +316,10 @@ export const DEFAULT_AUTHORITATIVE_SOURCE_TYPES = [
   'REGULATORY',
   'STANDARDS_BODY',
   'CERTIFICATION_BODY',
+  // A regulator-hosted register of manufacturer filings: above a specification
+  // sheet because misstating one has legal consequence, below a certification
+  // because nobody independent measured it.
+  'REGULATORY_FILING',
   'MANUFACTURER',
 ] as const satisfies readonly SourceType[];
 
