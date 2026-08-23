@@ -1,5 +1,10 @@
 import { fail, ok, type Normalized } from './failures.js';
-import { collapseWhitespace, normalizePunctuation, normalizeUnicode } from './text.js';
+import {
+  collapseWhitespace,
+  comparisonKey,
+  normalizePunctuation,
+  normalizeUnicode,
+} from './text.js';
 
 /**
  * Units, with conversion and **retention**.
@@ -80,20 +85,17 @@ export const UNIT_DEFINITIONS: readonly UnitDefinition[] = [
   { symbol: '°C', dimension: 'temperature', to_base: 1.8, offset: 32, aliases: ['c', 'degc', 'deg c', 'celsius', 'centigrade'] },
 ];
 
-const unitKey = (raw: string): string =>
-  collapseWhitespace(normalizePunctuation(normalizeUnicode(raw))).toLowerCase();
-
 const UNIT_INDEX: ReadonlyMap<string, UnitDefinition> = (() => {
   const index = new Map<string, UnitDefinition>();
   for (const definition of UNIT_DEFINITIONS) {
-    index.set(unitKey(definition.symbol), definition);
-    for (const alias of definition.aliases) index.set(unitKey(alias), definition);
+    index.set(comparisonKey(definition.symbol), definition);
+    for (const alias of definition.aliases) index.set(comparisonKey(alias), definition);
   }
   return index;
 })();
 
 export const findUnit = (symbolOrAlias: string): UnitDefinition | undefined =>
-  UNIT_INDEX.get(unitKey(symbolOrAlias));
+  UNIT_INDEX.get(comparisonKey(symbolOrAlias));
 
 export const isKnownUnit = (symbolOrAlias: string): boolean => findUnit(symbolOrAlias) !== undefined;
 

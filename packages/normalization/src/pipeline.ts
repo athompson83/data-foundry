@@ -22,6 +22,7 @@ import {
   isNullToken,
   normalizePunctuation,
   normalizeUnicode,
+  stripInvisibleDebris,
   replacePattern,
   stripCharacters,
 } from './text.js';
@@ -130,12 +131,27 @@ export interface TransformOutcome {
 
 /**
  * Layer 1 runs implicitly on every value before the declared chain: NFKC,
- * entity decoding, typographic punctuation, whitespace collapse. These are
- * universal (doc 06 layer 1) and a rule set that had to repeat them on every
- * field would be noise a vertical author would eventually get wrong.
+ * entity decoding, invisible TRANSPORT DEBRIS removed, typographic
+ * punctuation, whitespace collapse. These are universal (doc 06 layer 1) and a
+ * rule set that had to repeat them on every field would be noise a vertical
+ * author would eventually get wrong.
+ *
+ * Debris only, deliberately: this rewrites the value that gets STORED, so it
+ * uses `stripInvisibleDebris` rather than the wider set `comparisonKey` uses.
+ * A zero-width joiner is scraping debris in a Latin-script model number and
+ * load-bearing in Indic and Arabic text, and this function cannot tell which
+ * one it is looking at. Matching can afford to be aggressive because nothing
+ * it produces is written back; this cannot.
+ *
+ * The strip runs after entity decoding on purpose: `&shy;` and `&#8203;` are
+ * how a soft hyphen and a zero-width space usually arrive, so stripping first
+ * would leave the entity to be decoded into the character afterwards and put
+ * it straight back.
  */
 const primitiveCleanup = (raw: string): string =>
-  collapseWhitespace(normalizePunctuation(decodeHtmlEntities(normalizeUnicode(raw))));
+  collapseWhitespace(
+    normalizePunctuation(stripInvisibleDebris(decodeHtmlEntities(normalizeUnicode(raw)))),
+  );
 
 /**
  * When a rule declares no transforms, the one implied by its `value_type` is

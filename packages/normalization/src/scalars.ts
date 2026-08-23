@@ -1,6 +1,12 @@
 import type { IsoDate, IsoDateTime } from '@data-foundry/canonical-schema';
 import { fail, ok, type Normalized } from './failures.js';
-import { collapseWhitespace, isNullToken, normalizePunctuation, normalizeUnicode } from './text.js';
+import {
+  collapseWhitespace,
+  comparisonKey,
+  isNullToken,
+  normalizePunctuation,
+  normalizeUnicode,
+} from './text.js';
 
 /**
  * Layer 2 of doc 06: typed values — booleans, dates, timestamps.
@@ -20,9 +26,6 @@ export interface BooleanVocabulary {
 const DEFAULT_TRUE = ['true', 'yes', 'y', '1', 'on', 'included', 'standard', 'equipped', 'available'];
 const DEFAULT_FALSE = ['false', 'no', 'n', '0', 'off', 'excluded', 'not included', 'unavailable'];
 
-const booleanKey = (value: string): string =>
-  collapseWhitespace(normalizePunctuation(normalizeUnicode(value))).toLowerCase();
-
 /**
  * Boolean vocabularies are closed sets. An unrecognised token is a failure, not
  * `false` — `"optional"` and `"field-installed"` are neither yes nor no, and
@@ -32,11 +35,11 @@ export function normalizeBoolean(
   raw: string,
   vocabulary: BooleanVocabulary = {},
 ): Normalized<boolean> {
-  const key = booleanKey(raw);
+  const key = comparisonKey(raw);
   if (key === '') return fail('EMPTY_VALUE', 'boolean value is empty');
 
-  const trueValues = new Set((vocabulary.true_values ?? DEFAULT_TRUE).map(booleanKey));
-  const falseValues = new Set((vocabulary.false_values ?? DEFAULT_FALSE).map(booleanKey));
+  const trueValues = new Set((vocabulary.true_values ?? DEFAULT_TRUE).map(comparisonKey));
+  const falseValues = new Set((vocabulary.false_values ?? DEFAULT_FALSE).map(comparisonKey));
 
   if (trueValues.has(key)) return ok(true);
   if (falseValues.has(key)) return ok(false);
