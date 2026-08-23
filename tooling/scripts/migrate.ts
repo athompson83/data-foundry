@@ -332,6 +332,7 @@ export const EXPECTED_TABLES = [
   'ingestion_job_transitions',
   'api_tenants',
   'api_keys',
+  'api_route_keys',
   'api_usage_events',
 ] as const;
 
