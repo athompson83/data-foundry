@@ -15,6 +15,8 @@ import { readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { EdgeConfigurationError, resolveEdgeConfig } from '../src/env.js';
+import { getDeployment, resetDeployments } from '../src/composition.js';
+import { RUNTIMES } from '../src/index.js';
 
 const SRC = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'src');
 
@@ -38,11 +40,45 @@ describe('a Worker with no database refuses to serve', () => {
   /**
    * The control that makes the rest of this file more than a wish.
    *
-   * Every assertion above passes just as happily against an implementation that
-   * called `createDriverFromEnv` somewhere else and got PGlite. This one reads
-   * the source: the fallback cannot be reached because it is never named.
+   * Composed with no `openDriver` override — the real default path — and pointed
+   * at a closed port. A Worker that reached Postgres fails to connect. A Worker
+   * that had drifted to PGlite would **succeed**, because PGlite ignores the
+   * connection string entirely, and would then serve an empty database.
+   *
+   * So the assertion is the failure. This replaces an earlier source scan that
+   * only proved an identifier was absent; review pointed out it could not see an
+   * aliased import, a wrapper module or a dynamic specifier, which is exactly
+   * right. Behaviour can.
+   *
+   * Bounded explicitly: a hung connection is not a regression assertion. The
+   * observed refusal is ~30ms, so 15s is failure, not slowness.
    */
-  it('never imports the helper that would silently produce an empty database', () => {
+  it(
+    'reaches a real Postgres by default, and fails rather than inventing one',
+    async () => {
+      const attempt = getDeployment({
+        // A port nothing listens on, on the loopback, so there is no DNS and no
+        // network wait — the refusal is immediate and deterministic.
+        env: { POSTGRES_URL: 'postgres://u:p@127.0.0.1:1/df-default-path', VERTICAL_SLUG: 'hvac' },
+        runtime: RUNTIMES['hvac'] as never,
+      });
+
+      await expect(attempt).rejects.toThrow(/ECONNREFUSED|ENOTFOUND|connect/i);
+      resetDeployments();
+    },
+    15_000,
+  );
+
+  /**
+   * Kept as a cheap lint, and demoted on purpose.
+   *
+   * It cannot see an aliased import, a re-export or a dynamic specifier, so it
+   * is not the guarantee — the behavioural test above is. What it still buys is
+   * a fast, legible failure the day somebody adds a new file to `src/` that
+   * imports a PGlite factory directly, which is the likeliest way this would
+   * actually regress.
+   */
+  it('does not name a PGlite factory in src/ either', () => {
     const sources = ['env.ts', 'composition.ts', 'index.ts', 'adapter.ts'];
     // Comments are stripped first. The doc comments here *name* the fallback in
     // order to explain why it is avoided, and a scan that could not tell prose

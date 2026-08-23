@@ -37,13 +37,23 @@ const openFixtureDriver = async () => fixtures.driver;
  * test shares. Recording the call rather than suppressing it silently keeps the
  * no-leak guarantee assertable.
  */
-function observedDriver(): { readonly driver: SqlDriver; readonly wasClosed: () => boolean } {
+function observedDriver(
+  options: { readonly failQueries?: string } = {},
+): { readonly driver: SqlDriver; readonly wasClosed: () => boolean } {
   let closed = false;
   const proxy = new Proxy(fixtures.driver, {
     get(target, property, receiver) {
       if (property === 'close') {
         return async () => {
           closed = true;
+        };
+      }
+      // A database that accepts the connection and then fails the first query
+      // is the ordinary shape of an outage, a failed failover, or a migration
+      // mismatch — not an exotic case.
+      if (property === 'query' && options.failQueries !== undefined) {
+        return async () => {
+          throw new Error(options.failQueries);
         };
       }
       const value = Reflect.get(target, property, receiver);
@@ -167,6 +177,43 @@ describe('a deployment refuses what it cannot serve correctly', () => {
     // A Worker that refused on every cold start while holding a connection open
     // would exhaust the database's connection limit and take the origin with it.
     expect(observed.wasClosed()).toBe(true);
+  });
+
+  /**
+   * The gap the test above did not cover, and the one that actually bites.
+   *
+   * Closing on the `null` return is the easy half. The half that matters is the
+   * lookup *throwing* — a database that accepts the connection and then fails
+   * the first query, which is what an outage, a failed failover or a migration
+   * mismatch looks like. Every cold start then leaks a pool, and the retries a
+   * broken database provokes are exactly what makes it leak fastest.
+   *
+   * Found in review. The original assertion above passed throughout, which is
+   * the point: a cleanup test that only exercises the returning path reads like
+   * coverage of both.
+   */
+  it('closes the pool when the vertical lookup throws, not only when it returns null', async () => {
+    const observed = observedDriver({ failQueries: 'terminating connection due to administrator command' });
+
+    await expect(
+      getDeployment({
+        env: envFor('hvac'),
+        runtime,
+        openDriver: async () => observed.driver,
+      }),
+    ).rejects.toThrow(/terminating connection/);
+
+    expect(observed.wasClosed()).toBe(true);
+  });
+
+  it('lets the original failure through rather than masking it with a cleanup error', async () => {
+    const observed = observedDriver({ failQueries: 'relation "verticals" does not exist' });
+
+    // An operator seeing a close() error instead of "relation does not exist"
+    // would go looking at connection pooling rather than at their migrations.
+    await expect(
+      getDeployment({ env: envFor('hvac'), runtime, openDriver: async () => observed.driver }),
+    ).rejects.toThrow(/relation "verticals" does not exist/);
   });
 });
 

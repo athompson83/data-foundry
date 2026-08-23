@@ -65,36 +65,51 @@ async function build(options: BuildOptions): Promise<EdgeDeployment> {
 
   const open = options.openDriver ?? createPostgresDriver;
   const driver = await open(config.connectionString);
-  const store = createCanonicalStore(driver);
 
-  const vertical = await store.getVerticalBySlug(config.verticalSlug as Slug);
-  if (vertical === null) {
-    await driver.close();
-    throw new EdgeConfigurationError(
-      `Vertical "${config.verticalSlug}" is not present in this database. ` +
-        'Apply migrations and run an ingestion before serving.',
-    );
+  // Everything past this line owns an open pool, so every path out of it has to
+  // give the pool back. Closing only on the branch that *returns* null was the
+  // original shape of this function, and it leaked on the branch that throws —
+  // which is the one a database outage takes, and the one whose retries leak
+  // fastest. Found in review; `test/composition.test.ts` pins both.
+  try {
+    const store = createCanonicalStore(driver);
+
+    const vertical = await store.getVerticalBySlug(config.verticalSlug as Slug);
+    if (vertical === null) {
+      throw new EdgeConfigurationError(
+        `Vertical "${config.verticalSlug}" is not present in this database. ` +
+          'Apply migrations and run an ingestion before serving.',
+      );
+    }
+
+    const queryModel = createQueryModel(store, { fields: options.runtime.fields as never });
+
+    const app = createApiApp({
+      queryModel,
+      verticalId: vertical.id,
+      // The compiled policy, verbatim. This surface never accepts one from a
+      // request: a client that could set `requirePublishableRights: false` would
+      // have a rule-1 bypass in a query string.
+      factSelection: options.runtime.fact_selection as never,
+      ...(options.onError === undefined
+        ? {}
+        : {
+            onError: (error: unknown, context: { readonly path: string }) => {
+              options.onError?.(error, context);
+            },
+          }),
+    });
+
+    return { app, verticalId: vertical.id, close: () => driver.close() };
+  } catch (error) {
+    // The close is best-effort and deliberately silent. A pool that fails to
+    // shut down while the build is already failing must not replace the
+    // diagnosis: an operator shown a close() error instead of
+    // `relation "verticals" does not exist` goes looking at connection pooling
+    // rather than at their migrations.
+    await driver.close().catch(() => undefined);
+    throw error;
   }
-
-  const queryModel = createQueryModel(store, { fields: options.runtime.fields as never });
-
-  const app = createApiApp({
-    queryModel,
-    verticalId: vertical.id,
-    // The compiled policy, verbatim. This surface never accepts one from a
-    // request: a client that could set `requirePublishableRights: false` would
-    // have a rule-1 bypass in a query string.
-    factSelection: options.runtime.fact_selection as never,
-    ...(options.onError === undefined
-      ? {}
-      : {
-          onError: (error: unknown, context: { readonly path: string }) => {
-            options.onError?.(error, context);
-          },
-        }),
-  });
-
-  return { app, verticalId: vertical.id, close: () => driver.close() };
 }
 
 export function getDeployment(options: BuildOptions): Promise<EdgeDeployment> {
