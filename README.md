@@ -15,17 +15,62 @@ First vertical: **HVAC**.
 
 ## What is here today
 
-This is **Wave 1: the contracts layer**. It defines the shared model that every
-later package is written against, and nothing else. Acquisition, extraction,
-normalization, resolution, query model, verticals and services are separate waves
-and do not exist yet.
+The **ingestion half** of the north-star workflow in `AGENTS.md` is implemented
+and tested end to end for one vertical: source approval, acquisition,
+extraction, normalization, deterministic entity resolution, canonical storage
+with provenance, and publication into the query layer.
+`tests/e2e/factory-proof.test.ts` runs four sources through the worker and
+checks the canonical result against golden records.
+
+The last step — "web / API / MCP / exports generated" — is implemented for
+three of its four surfaces: `apps/api` (read-only REST), `apps/mcp` (the tool
+contract) and `services/export-builder` (CSV and JSONL bulk exports). All three
+read their facts through `packages/query-model` and serialize through the
+shared projection in `packages/query-model/src/serialization.ts`, so they
+cannot drift apart in what they consider true.
+
+Rule 5 is enforced by a boundary test in each, and it is worth being exact
+about what each one proves. `apps/api` and `apps/mcp` import nothing beneath
+the query layer at all. `services/export-builder` does: it calls
+`resolveFactSelectionPolicy` from `packages/canonical-store` to record the
+policy it applied in the manifest, and takes an injected `CanonicalStore` to
+write the snapshot row — an export is the one surface here that writes. Its
+boundary test pins exactly which of its files may do that, so widening it is a
+decision rather than a drift.
+
+`tests/contract/surface-parity.test.ts` holds REST and MCP to the same answer
+over one query model and one policy. The export builder is not in that test;
+its projection is checked against the shared mapper in its own
+`test/boundary.test.ts`, which is what discharges ADR-0004.
+
+Two limitations the package list does not show:
+
+**There are no human pages.** The fourth surface — the rendered web product —
+has no implementation. The three machine surfaces exist; nothing renders them
+for a person, and nothing here is deployed.
+
+**Every source is synthetic.** The rights machinery genuinely runs, but it
+currently validates controlled fixture declarations rather than a real
+publisher's terms. `verticals/hvac/README.md` records the Phase 2 exit condition
+that changes, and `docs/source-onboarding.md` is the procedure.
 
 ```text
 packages/canonical-schema/   Core object model, confidence scores, job state machine, rights gate
 packages/source-registry/    Source rights/health contracts + the publish gate
+packages/acquisition/        Provider adapters obtaining artifacts, behind the rights and politeness gate
+packages/extraction/         Artifacts into source-native records
+packages/normalization/      Source-native records into typed canonical candidates
+packages/canonical-store/    Entities, facts, relationships and evidence over Postgres/PGlite
+packages/provenance/         Field-level lineage, coverage reporting, the human-readable trust surface
+packages/query-model/        The single canonical query layer web, REST and MCP read through
+services/ingest-worker/      DISCOVERED -> PUBLISHED job runner wiring the stages together
+services/export-builder/     Bulk CSV and JSONL exports, rights-gated and reviewer-guarded
+apps/api/                    Read-only REST surface over the query layer
+apps/mcp/                    MCP tool contract over the same query layer
+verticals/hvac/              The first vertical: configuration, fixtures and golden records
 db/migrations/               Plain, portable Postgres DDL for every canonical table
 schemas/canonical/           JSON Schema exports, generated from the Zod definitions
-tooling/scripts/             Migration runner, JSON Schema generator
+tooling/scripts/             Migration runner, JSON Schema generator, source readiness report
 tooling/validators/          Vertical configuration validator (CI gate)
 docs/decisions/              ADRs
 ```
@@ -51,7 +96,10 @@ pnpm migrate                                  # apply to .data/pglite (local, pe
 POSTGRES_URL=postgres://... pnpm migrate      # apply to Supabase / real Postgres
 ```
 
-## The two contract packages
+## The two foundational contract packages
+
+Every other package depends on these two and they depend on nothing downstream,
+so they are documented here in more detail than the rest.
 
 ### `@data-foundry/canonical-schema`
 

@@ -1,0 +1,22 @@
+{
+  "name": "@data-foundry/mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "The MCP tool/resource contract over the canonical query layer. Tool definitions, argument validation and dispatch; no transport.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "types": "./src/index.ts",
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "test": "vitest run --root .",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@data-foundry/query-model": "workspace:*",
+    "zod": "^4.4.3"
+  }
+}
