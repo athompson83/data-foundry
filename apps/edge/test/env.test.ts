@@ -79,12 +79,16 @@ describe('a Worker with no database refuses to serve', () => {
    * actually regress.
    */
   it('does not name a PGlite factory in src/ either', () => {
-    // Enumerated, not listed. The first version of this named four files, and
-    // `test/bundle.test.ts` demonstrated the consequence: adding a fifth file
-    // that imports the PGlite factory left this test GREEN while the WASM
-    // database was in the deployed bundle. A control with a hardcoded inventory
-    // stops covering the code the moment the code grows.
-    const sources = readdirSync(SRC).filter((file) => file.endsWith('.ts'));
+    // Enumerated recursively, not listed. The first version named four files,
+    // and `test/bundle.test.ts` demonstrated the consequence: adding a fifth
+    // file that imports the PGlite factory left this test GREEN while the WASM
+    // database was in the deployed bundle. The second version enumerated the
+    // directory — and `readdirSync` is not recursive, so it had the same defect
+    // one level down. `src/` is flat today; a control that only holds while the
+    // tree stays flat is the same mistake wearing a different hat.
+    const sources = readdirSync(SRC, { recursive: true, encoding: 'utf8' }).filter((file) =>
+      file.endsWith('.ts'),
+    );
     expect(sources.length).toBeGreaterThan(3);
     // Comments are stripped first. The doc comments here *name* the fallback in
     // order to explain why it is avoided, and a scan that could not tell prose

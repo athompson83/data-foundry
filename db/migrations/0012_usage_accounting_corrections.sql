@@ -94,6 +94,18 @@ ON CONFLICT (key) DO NOTHING;
 ALTER TABLE api_keys DROP CONSTRAINT IF EXISTS api_keys_rate_limit_positive;
 ALTER TABLE api_keys DROP COLUMN IF EXISTS rate_limit_per_minute;
 
+-- No backfill, and that is a decision rather than an omission.
+--
+-- 0011 permitted a NULL scope, so this statement fails with SQLSTATE 23502 on
+-- any database holding a key that has one. That is the intended behaviour: the
+-- vertical a key was meant to read is not derivable from anything stored, and
+-- the alternatives are all worse — inventing an attribution silently
+-- misroutes accounting, and deleting the key is refused anyway by the
+-- ON DELETE RESTRICT its usage rows hold. Revoking it does not help either;
+-- a revoked key still needs a non-NULL scope to satisfy NOT NULL.
+--
+-- So the migration stops and an operator decides, per key. Nothing writes
+-- api_keys today and no deployment exists, so the expected count is zero.
 ALTER TABLE api_keys ALTER COLUMN vertical_id SET NOT NULL;
 
 -- Redundant against the primary key alone, and the redundancy is the point: a

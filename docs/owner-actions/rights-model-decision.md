@@ -111,13 +111,13 @@ asks why an API response omits a manufacturer their browser can see.
 
 ### Option B — a rights-grant matrix — **recommended**
 
-One row per (source policy × use case × access tier).
+One row per (source policy × use case). The use case names the surface, and
+the surface is the only thing a grant needs to be keyed on.
 
 ```
 rights_grants
   rights_policy_id   → the source's policy
-  use_case           closed vocabulary (see below)
-  access_tier        INTERNAL | PUBLIC_FREE | PUBLIC_PAID | BULK | SUBLICENSE
+  use_case           closed vocabulary (see below) — THE ONLY channel dimension
   permission         ALLOWED | PROHIBITED | REQUIRES_REVIEW | UNKNOWN
   conditions         text — the obligation that travels with the grant
   attribution_ref    the exact required credit, when one applies
@@ -133,6 +133,16 @@ Use-case vocabulary, closed, matching the enforcement points in §5:
 `API_FREE` · `API_PAID` · `BULK_EXPORT` · `REDISTRIBUTION` · `SUBLICENSE` ·
 `DERIVED_STATISTICS` · `LLM_RETRIEVAL` · `MODEL_TRAINING` ·
 `CUSTOMER_ENRICHMENT`
+
+**One dimension, not two.** An earlier draft of this proposal carried both a
+`use_case` containing `API_FREE`/`API_PAID` *and* an `access_tier` containing
+`PUBLIC_FREE`/`PUBLIC_PAID`. Review caught it, and it was right: two ways to
+name the same surface is two ways to answer the same question, and nothing said
+which wins when they disagree. A source could carry `API_PAID = PROHIBITED` and
+`PUBLIC_PAID = ALLOWED` simultaneously, and the resolver would have to pick —
+silently. The tier is folded into the use case, one row per surface, and the
+primary key `(rights_policy_id, use_case)` makes a contradiction unrepresentable
+rather than merely discouraged.
 
 - **Expresses EPREL exactly**: `WEB_SEARCH_COMPARE = ALLOWED`,
   `API_PAID = PROHIBITED`, `SUBLICENSE = PROHIBITED`, each with the quoted

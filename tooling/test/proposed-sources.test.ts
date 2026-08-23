@@ -17,14 +17,21 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { SOURCE_TYPES, SOURCE_STATUSES, RIGHTS_CLASSIFICATIONS } from '@data-foundry/canonical-schema';
+import { SourceRegistryEntrySchema } from '@data-foundry/source-registry';
 import { parse as parseYaml } from 'yaml';
 
 const PROPOSED = fileURLToPath(new URL('../../docs/sources/proposed/', import.meta.url));
 
+/**
+ * Parsed as `unknown`, deliberately.
+ *
+ * Casting to `Record<string, unknown>` would let a scalar or empty YAML
+ * document through and turn a malformed draft into a `TypeError` inside an
+ * assertion, which reads as a broken test rather than as a bad draft.
+ */
 const drafts = readdirSync(PROPOSED)
   .filter((file) => file.endsWith('.yaml'))
-  .map((file) => ({ file, doc: parseYaml(readFileSync(join(PROPOSED, file), 'utf8')) as Record<string, unknown> }));
+  .map((file) => ({ file, doc: parseYaml(readFileSync(join(PROPOSED, file), 'utf8')) as unknown }));
 
 describe('every proposed source declaration could actually be promoted', () => {
   it('finds drafts to check', () => {
@@ -33,20 +40,24 @@ describe('every proposed source declaration could actually be promoted', () => {
     expect(drafts.length).toBeGreaterThan(0);
   });
 
-  it.each(drafts)('$file declares a source_type the schema and the database accept', ({ doc }) => {
-    // The defect this was written for: `GOVERNMENT`, which reads perfectly
-    // sensibly and is in neither `SOURCE_TYPES` nor
-    // `sources_source_type_allowed`. It would have been found by a Zod error on
-    // the day the owner promoted the file.
-    expect(SOURCE_TYPES as readonly string[]).toContain(doc['source_type']);
-  });
-
-  it.each(drafts)('$file declares a status the schema accepts', ({ doc }) => {
-    expect(SOURCE_STATUSES as readonly string[]).toContain(doc['status']);
-  });
-
-  it.each(drafts)('$file declares a rights classification the schema accepts', ({ doc }) => {
-    expect(RIGHTS_CLASSIFICATIONS as readonly string[]).toContain(doc['rights_classification']);
+  /**
+   * The whole entry, against the schema the loader will actually use.
+   *
+   * The first draft of this checked three fields — `source_type`, `status`,
+   * `rights_classification` — which caught the defect it was written for and
+   * nothing else. A draft missing `rights_policy`, `acquisition_policy` or
+   * `provenance_retention` passed it and would still have failed on promotion
+   * day, which is the exact failure this file exists to move earlier. Review
+   * pointed that out, and it was right.
+   */
+  it.each(drafts)('$file satisfies the registry schema it will be loaded by', ({ doc }) => {
+    const result = SourceRegistryEntrySchema.safeParse(doc);
+    const problems = result.success
+      ? ''
+      : result.error.issues
+          .map((issue) => `${issue.path.join('.') || '(root)'}: ${issue.message}`)
+          .join('; ');
+    expect(result.success, problems).toBe(true);
   });
 
   /**
@@ -57,7 +68,8 @@ describe('every proposed source declaration could actually be promoted', () => {
    * in — which is a control nobody re-checks.
    */
   it.each(drafts)('$file is not already claiming to be approved', ({ doc }) => {
-    expect(doc['status']).toBe('UNDER_REVIEW');
-    expect(doc['rights_classification']).toBe('UNREVIEWED');
+    const entry = doc as Record<string, unknown>;
+    expect(entry['status']).toBe('UNDER_REVIEW');
+    expect(entry['rights_classification']).toBe('UNREVIEWED');
   });
 });

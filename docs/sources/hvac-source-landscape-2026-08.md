@@ -37,8 +37,14 @@ candidates would have passed a looser reading.
 4. **Data rights and image rights are assessed separately.** The right to state
    a specification is never the right to republish a photograph (AGENTS.md rule
    9).
-5. **Silence is refusal.** Where terms do not address commercial use,
-   redistribution or derivation, the answer recorded is "no", not "probably".
+5. **Silence is refusal — and that is a different field from `[UNKNOWN]`.**
+   Where terms do not address commercial use, redistribution or derivation, the
+   value recorded in `rights_policy` is `false`, not "probably". The
+   **assessment label** `[UNKNOWN]` in the tables below is a separate statement:
+   it says this review did not establish an answer. Both block acquisition. They
+   are kept apart because one is a recorded permission and the other is a
+   recorded gap in the record, and collapsing them would let "we did not look"
+   read as "we checked and it said no".
 6. **No fictional, placeholder or undocumented sources.** One candidate URL
    assumed at the start of this work returned 404 and was discarded rather than
    written up; the dataset was then located through the publisher's own API.
@@ -83,7 +89,7 @@ revenue model — not by data quality. Several rich sources rank low.
 | # | Candidate | Type | Commercial | Redistribute | **Resale/sublicence** | robots (access path) | Verdict |
 |--:|---|---|---|---|---|---|---|
 | 1 | **EPA ENERGY STAR certified products** | US federal | ✅ public domain | ✅ | ✅ | `Crawl-delay: 1`; asset path not disallowed | **Lead candidate** |
-| 2 | **DOE CCMS** | US federal | ✅ [INFERRED] | ✅ [INFERRED] | ✅ [INFERRED] | only `/@search` disallowed | **Fallback / corroboration** |
+| 2 | **DOE CCMS** | US federal | ✅ [INFERRED] | ✅ [INFERRED] | ✅ [INFERRED] | only `/@search` disallowed | **Fallback / disagreement detector** |
 | 3 | AU DCCEEW — Labelled Products | AU federal | ✅ CC BY 3.0 AU | ✅ | ✅ | **`Disallow: /` — whole host** | Blocked technically, not legally |
 | 4 | AU DCCEEW — Non-Labelled Products | AU federal | ✅ CC BY 3.0 AU | ✅ | ✅ | **`Disallow: /` — whole host** | As 3; not independent of it |
 | 5 | **EU EPREL API** | EU institution | ⚠️ qualified | ⚠️ qualified | ❌ **forbidden** | no `robots.txt` served | **Incompatible with a paid API** |
@@ -129,7 +135,7 @@ before any source ships.
 |---|---|
 | Publisher | U.S. Environmental Protection Agency (ENERGY STAR programme) **[VERIFIED]** |
 | Host | `data.energystar.gov` (Socrata) **[VERIFIED]** |
-| Type | `GOVERNMENT` |
+| Type | `REGULATORY_FILING` — the EPA hosts the register; partners and certification bodies submit the values. The draft declared `GOVERNMENT`, which is in neither `SOURCE_TYPES` nor the database CHECK; corrected, and `tooling/test/proposed-sources.test.ts` now reads the drafts so it cannot recur **[VERIFIED]** |
 | Access | Socrata dataset asset / SODA API **[VERIFIED]** |
 | Licence | US federal public domain — *"all data produced by the U.S EPA is by default in the public domain and is not subject to domestic copyright protection under 17 U.S.C. § 105"* **[VERIFIED]** |
 | Commercial / redistribute / derive / resell | Yes, for EPA-produced content **[VERIFIED]** |
@@ -166,7 +172,7 @@ publisher through a different door.
 
 ---
 
-### 2. DOE Compliance Certification Management System (CCMS) — *fallback*
+### 2. DOE Compliance Certification Management System (CCMS) — *fallback and disagreement detector*
 
 | | |
 |---|---|
@@ -227,10 +233,16 @@ Disallow: /
 
 The entire host, every path, every agent — including the CSV download above.
 This platform sets `robots_policy.respect_robots: true`, so a permissive licence
-and a total crawl prohibition produce **no lawful automated access path**. The
-publisher's own portal, `energyrating.gov.au`, refused the connection outright
-when its `robots.txt` was requested (no HTTP response) **[VERIFIED]**, so there
-is no second door.
+and a total crawl prohibition produce **no approved automated acquisition path
+under the current policy**. The publisher's own portal,
+`energyrating.gov.au`, refused the connection outright when its `robots.txt` was
+requested (no HTTP response) **[VERIFIED]**, so there is no second door either.
+
+Stated that way deliberately. `robots.txt` is a technical directive and this
+platform's policy is to honour it; neither fact establishes that automated
+retrieval would be *unlawful*, and the route to yes below is written permission,
+which would change the policy answer without changing the licence at all.
+**[REVIEWER]**
 
 Rule 1 in action: **the licence answers "may we use it", `robots.txt` answers
 "may we take it", and here they disagree.**
@@ -390,7 +402,7 @@ product, already worked through to a thirteen-condition packet, and free of the
 resale restriction that eliminates the best-licensed alternative. Its blocker is
 a named human reading the packet and signing it.
 
-**Fallback and corroboration: DOE CCMS (candidate 2).** US federal, one
+**Fallback and disagreement detector: DOE CCMS (candidate 2).** US federal, one
 irrelevant `robots` directive, a **stated** update cadence, and an explicit
 publisher warning about what presence in it means. It should be onboarded as a
 **disagreement detector**, not as corroboration — with the asymmetry written into
@@ -444,10 +456,13 @@ ENERGY STAR and DOE CCMS — are registers of **manufacturer and importer
 filings**, and DOE says in its own words that appearing in one is not a
 determination of anything.
 
-So the authoritative tier the vertical was architected around is structurally
-unavailable, and no amount of further searching will produce it: certification
+So the authoritative tier the vertical was architected around is unavailable
+across every candidate assessed here. The reason generalises — certification
 data is the commercial product of the certification body, which is precisely why
-it is licensed rather than published.
+it is licensed rather than published — but this assessment covers twelve
+candidates, not the world, and it cannot establish that no lawful
+certification-body source exists. **None of the assessed candidates provides
+one**, which is enough to act on and not the same claim. **[REVIEWER]**
 
 Three things follow.
 
