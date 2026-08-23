@@ -1,8 +1,9 @@
 # Owner actions — Cloudflare deployment and monetization
 
 Everything here needs a person in a dashboard or a billing relationship.
-`apps/edge` is complete and tested; none of it can reach a customer until these
-are done, and two of them are not code problems at all.
+`apps/edge` and `apps/usage-consumer` are complete and tested; none of it can
+reach a customer until these are done, and two of them are not code problems
+at all.
 
 Each item states what to do, why automation cannot, and how to verify afterwards.
 
@@ -136,15 +137,66 @@ An anonymous fetch of a payable page as a charged crawler returns `402` with a
 
 ---
 
-## 5. Metered API access — the part that is code, and is not built yet
+## 5. Metered API access — built, but not provisioned
 
 Distinct from item 4 and the larger revenue surface.
 
-`apps/api/README.md` is accurate: "No auth, no rate limiting, no tenancy. There
-is no account, API-key or tenant concept anywhere in `db/migrations`." Metering
-API requests per customer needs tables that do not exist — tenants, keys, usage
-counters — plus a Stripe relationship for billing.
+The code side is done: `db/migrations/0011_api_tenancy.sql` has the
+tenant/API-key/usage schema, `apps/edge/src/auth.ts` authenticates and
+scope-checks every request before it reaches a route, and `apps/edge`
+publishes a usage event per successful request to a Cloudflare Queue that
+`apps/usage-consumer` persists idempotently. What remains is provisioning —
+item 6 below — and minting real API keys for real tenants, which is an
+operational action (insert a row, hash and hand the secret to the customer
+once) rather than a code change.
 
-Nothing to do in a dashboard yet. Listed here so item 4 is not mistaken for it:
-enrolling in pay per crawl does not produce a metered API, and building a metered
-API does not enrol the zone.
+Deliberately still absent, and out of scope for this increment: pricing,
+plans, invoices, subscriptions, or any Stripe relationship. What exists
+today is measurement, not billing — see `packages/usage-events` for the
+event contract.
+
+Nothing to do in a dashboard for *this* item beyond §6. Listed here so item 4
+is not mistaken for it: enrolling in pay per crawl does not produce a metered
+API, and a metered API does not enrol the zone.
+
+---
+
+## 6. The usage-metering queue and its dead-letter queue
+
+### Why automation cannot
+
+Creating a Cloudflare Queue is an account-scoped action; this environment has
+no Cloudflare credentials to make the API call with, the same constraint as
+item 1.
+
+### Checklist
+
+1. Create the dead-letter queue first, since the main queue's config
+   references it:
+   ```
+   npx wrangler queues create data-foundry-usage-events-dlq
+   npx wrangler queues create data-foundry-usage-events
+   ```
+   Both names must match `apps/edge/wrangler.toml`'s `[[queues.producers]]`
+   block and `apps/usage-consumer/wrangler.toml`'s `[[queues.consumers]]`
+   block exactly — they are already committed there, since a queue name is
+   not a credential.
+2. Provision `apps/usage-consumer`'s own Hyperdrive binding (or point it at
+   the same Hyperdrive configuration `apps/edge` uses — both read and write
+   the same database) following item 2's steps, then deploy both Workers:
+   ```
+   npx wrangler deploy   # from apps/edge
+   npx wrangler deploy   # from apps/usage-consumer
+   ```
+
+### Verify
+
+A successful, authenticated `GET` against the edge Worker returns its answer
+immediately. Within a few seconds, `select count(*) from api_usage_events` on
+the production database increases by one, and the row's `route` column holds
+a template (`/v1/entities/{id}`) rather than the id that was actually
+requested. Killing the consumer Worker's database connectivity temporarily
+must not change the edge Worker's response time or status — that decoupling
+is the property this whole design exists for, and is exercised (against
+PGlite, not this queue) by `apps/edge/test/index.test.ts`'s "the response
+does not depend on the queue" suite.

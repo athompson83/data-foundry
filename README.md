@@ -64,11 +64,13 @@ packages/canonical-store/    Entities, facts, relationships and evidence over Po
 packages/provenance/         Field-level lineage, coverage reporting, the human-readable trust surface
 packages/query-model/        The single canonical query layer web, REST and MCP read through
 packages/api-keys/           Minting and verifying API credentials. Web Crypto only
+packages/usage-events/       The usage-event contract shared by the edge producer and its queue consumer
 services/ingest-worker/      DISCOVERED -> PUBLISHED job runner wiring the stages together
 services/export-builder/     Bulk CSV and JSONL exports, rights-gated and reviewer-guarded
 apps/api/                    Read-only REST surface over the query layer
 apps/mcp/                    MCP tool contract over the same query layer
-apps/edge/                   Cloudflare Worker: composition root and transport, no routing
+apps/edge/                   Cloudflare Worker: composition root, auth, transport, no routing
+apps/usage-consumer/         Cloudflare Queue consumer: idempotent usage-event persistence
 verticals/hvac/              The first vertical: configuration, fixtures and golden records
 db/migrations/               Plain, portable Postgres DDL for every canonical table
 schemas/canonical/           JSON Schema exports, generated from the Zod definitions
@@ -253,10 +255,22 @@ rather than serving one vertical's data through another's field metadata.
 
 A Worker with no database bound **refuses to serve** rather than falling back to
 an empty in-memory database, which is what `createDriverFromEnv` would otherwise
-do. A test reads the source to prove the fallback is never imported.
+do. A test reads the source to prove the fallback is never imported, and a
+second suite builds the actual artifact with `esbuild` and proves PGlite
+contributes zero bytes to it — a source scan cannot see past the dynamic
+`import()` `createPgliteDriver` uses, so the build itself is what has to answer.
 
-Deploying needs an account, a Hyperdrive binding and a route, none of which live
-in this repository —
+Every request is authenticated and scope-checked (`apps/edge/src/auth.ts`)
+before it reaches a route, and a successful request is metered asynchronously:
+a usage event naming the matched route **template** — never the concrete
+target — is published to a Cloudflare Queue and persisted idempotently by
+`apps/usage-consumer`, without the request's success ever depending on that
+persistence succeeding. `db/migrations/0011_api_tenancy.sql` has the schema;
+this increment is measurement only — no pricing, plans, invoices or
+subscriptions.
+
+Deploying needs an account, a Hyperdrive binding, a route and the usage-metering
+queue, none of which live in this repository —
 [docs/owner-actions/cloudflare-deployment.md](docs/owner-actions/cloudflare-deployment.md)
 records what and why, including what pay per crawl actually is and is not.
 

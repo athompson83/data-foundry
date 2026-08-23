@@ -31,6 +31,16 @@ export interface VerticalRuntime {
 export interface EdgeDeployment {
   readonly app: ApiHandler;
   readonly verticalId: VerticalId;
+  /**
+   * The same pooled connection `app` reads canonical data through, exposed
+   * for the one other thing that needs a database round trip before `app` is
+   * ever called: looking up a presented API key. Deliberately the raw
+   * `SqlDriver`, not a second store — the auth lookup is portable SQL against
+   * tables the canonical store has no reason to know exist, and opening a
+   * second pool for it would spend the connection budget Hyperdrive exists to
+   * conserve.
+   */
+  readonly driver: SqlDriver;
   readonly close: () => Promise<void>;
 }
 
@@ -100,7 +110,7 @@ async function build(options: BuildOptions): Promise<EdgeDeployment> {
           }),
     });
 
-    return { app, verticalId: vertical.id, close: () => driver.close() };
+    return { app, verticalId: vertical.id, driver, close: () => driver.close() };
   } catch (error) {
     // The close is best-effort and deliberately silent. A pool that fails to
     // shut down while the build is already failing must not replace the

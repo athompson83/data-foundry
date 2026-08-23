@@ -77,6 +77,12 @@ describe('a Worker with no database refuses to serve', () => {
    * a fast, legible failure the day somebody adds a new file to `src/` that
    * imports a PGlite factory directly, which is the likeliest way this would
    * actually regress.
+   *
+   * Neither this nor the behavioural test above can say whether PGlite's
+   * *bytes* actually ship in the built Worker — a source scan cannot see
+   * past a dynamic `import()`, and "never called" is a runtime fact, not a
+   * bundler one. `test/artifact.test.ts` is the one that builds the real
+   * entry point and checks the artifact.
    */
   it('does not name a PGlite factory in src/ either', () => {
     // Enumerated recursively, not listed. The first version named four files,

@@ -1,0 +1,48 @@
+# Cloudflare Worker manifest for the usage-event queue consumer (ADR-0006).
+#
+# Same posture as `apps/edge/wrangler.toml`: `account_id` and the Hyperdrive
+# `id` are deployment facts, left unset on purpose. `docs/owner-actions/`
+# records what an operator has to supply. The queue names are not
+# credentials and are committed here and in `apps/edge/wrangler.toml` —
+# both sides of the same queue have to agree on its name.
+
+name = "data-foundry-usage-consumer"
+main = "src/index.ts"
+
+# Required for `pg`, same reason as apps/edge: Hyperdrive reaches Postgres
+# over Workers TCP sockets, and the driver needs Node built-ins to use them.
+compatibility_date = "2026-08-23"
+compatibility_flags = ["nodejs_compat"]
+
+[observability]
+enabled = true
+
+# This consumer never writes anything customer-facing back — its only output
+# is rows in `api_usage_events` — so it needs no [vars] of its own.
+
+[[queues.consumers]]
+queue = "data-foundry-usage-events"
+# A batch's worth of messages is handed to one `queue()` invocation;
+# `consumeBatch` acks or retries each message independently, so a larger
+# batch only changes throughput, never the persistence guarantee.
+max_batch_size = 50
+max_batch_timeout = 5
+# After this many redeliveries of the same message, Cloudflare routes it to
+# the dead-letter queue below instead of retrying again. This consumer never
+# acks a message it could not persist, and never asks for a message to be
+# routed straight to the DLQ — that decision belongs to this platform
+# setting, not to application code.
+max_retries = 5
+dead_letter_queue = "data-foundry-usage-events-dlq"
+
+# Hyperdrive pools Postgres connections at the edge, exactly as in
+# apps/edge/wrangler.toml. Create one (or reuse the same Hyperdrive
+# configuration apps/edge uses — both read/write the same database) with:
+#   wrangler hyperdrive create data-foundry --connection-string="postgres://..."
+# then paste the id below.
+# [[hyperdrive]]
+# binding = "HYPERDRIVE"
+# id = "<hyperdrive-id>"
+
+# `wrangler dev` against a local database can use POSTGRES_URL instead. Put it
+# in .dev.vars (gitignored), never here: this file is committed.

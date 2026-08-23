@@ -17,7 +17,7 @@ import {
 } from '../../../packages/query-model/test/support.js';
 import type { Entity } from '../../../packages/canonical-schema/src/index.js';
 import { createApiApp } from '../src/index.js';
-import type { ApiFactSelectionPolicy } from '../src/config.js';
+import type { ApiFactSelectionPolicy, ApiRequestTelemetry } from '../src/config.js';
 import type { ApiHandler, ApiRequest, ApiResponse } from '../src/http.js';
 
 export { claim, createQueryFixtures, relate, ts };
@@ -98,13 +98,20 @@ export async function createApiFixtures(
 export function call(
   app: ApiHandler,
   url: string,
-  init: { readonly method?: string; readonly headers?: ApiRequest['headers'] } = {},
+  init: {
+    readonly method?: string;
+    readonly headers?: ApiRequest['headers'];
+    readonly onRequest?: (info: ApiRequestTelemetry) => void;
+  } = {},
 ): Promise<ApiResponse> {
-  return app({
-    method: init.method ?? 'GET',
-    url,
-    ...(init.headers === undefined ? {} : { headers: init.headers }),
-  });
+  return app(
+    {
+      method: init.method ?? 'GET',
+      url,
+      ...(init.headers === undefined ? {} : { headers: init.headers }),
+    },
+    init.onRequest,
+  );
 }
 
 /** The error envelope, narrowed. Throws if the body is not one. */

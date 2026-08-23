@@ -1,16 +1,15 @@
 {
-  "name": "@data-foundry/edge",
+  "name": "@data-foundry/usage-consumer",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Cloudflare Worker serving the read-only REST surface. Composition root and transport adapter only; it owns no routing (ADR-0006).",
+  "description": "Cloudflare Queue consumer that persists usage events idempotently. Owns no routing, no auth — it only turns delivered messages into rows (AGENTS.md rule 5).",
   "exports": {
     ".": "./src/index.ts"
   },
   "types": "./src/index.ts",
   "files": [
-    "src",
-    "generated"
+    "src"
   ],
   "scripts": {
     "test": "vitest run --root .",
@@ -19,15 +18,8 @@
     "deploy": "wrangler deploy"
   },
   "dependencies": {
-    "@data-foundry/api": "workspace:*",
-    "@data-foundry/api-keys": "workspace:*",
-    "@data-foundry/canonical-schema": "workspace:*",
     "@data-foundry/canonical-store": "workspace:*",
-    "@data-foundry/query-model": "workspace:*",
     "@data-foundry/usage-events": "workspace:*",
     "pg": "^8.23.0"
-  },
-  "devDependencies": {
-    "esbuild": "0.28.2"
   }
 }

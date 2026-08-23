@@ -26,6 +26,23 @@ export interface ApiErrorContext {
   readonly requestId?: string;
 }
 
+/**
+ * What happened, for whoever meters requests — never what was asked for.
+ *
+ * `routeTemplate` is the matched pattern (`/v1/entities/{id}`), or one of a
+ * small set of fixed placeholders for a request that never reached one. Every
+ * value this field can hold is a constant declared in `routes.ts`; nothing on
+ * the path from a `Request` to this field can turn into a path parameter,
+ * a query string, or anything else the caller sent. A consumer that persists
+ * `routeTemplate` verbatim into a metering table is persisting a template, by
+ * construction, not by discipline.
+ */
+export interface ApiRequestTelemetry {
+  readonly method: string;
+  readonly routeTemplate: string;
+  readonly status: number;
+}
+
 export interface ApiAppOptions {
   readonly queryModel: QueryModel;
   /**
