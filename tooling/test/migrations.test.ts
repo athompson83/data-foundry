@@ -1066,9 +1066,25 @@ describe('API usage accounting corrections (0012)', () => {
    *
    * NULL meant "every vertical", and a NULL satisfies a composite foreign key
    * vacuously — so the attribution constraint above would have been
-   * unenforceable for exactly the keys with the widest reach. One key names one
-   * vertical; access to two industries is two keys. Breadth of entitlement is a
-   * plan, and plans are deliberately not in this schema.
+   * unenforceable for exactly the keys with the widest reach.
+   *
+   * ## This test is also the guard on a product decision
+   *
+   * NOT NULL here encodes **one key per vertical**, and that is deliberate
+   * rather than incidental. It matches the deployment model: `apps/edge/src/env.ts`
+   * refuses to start without a `VERTICAL_SLUG` because "a deployment serves
+   * exactly one vertical", so a key presented to a Worker can only ever exercise
+   * one vertical anyway. A customer buying two industries holds two keys.
+   *
+   * The decision it forecloses is multi-vertical customer keys — and the way
+   * that would be reintroduced is by quietly making this column nullable again,
+   * which would silently re-open the vacuous-composite-FK hole above. If
+   * multi-vertical access is ever required, the answer is a grant or junction
+   * table (`api_key_verticals`), decided by the owner and migrated explicitly.
+   * It is not a nullable column.
+   *
+   * So when this test fails, read it as "somebody is changing the entitlement
+   * model", not as "a constraint got in the way".
    */
   it('refuses a key that names no vertical', async () => {
     await refusedWith(
