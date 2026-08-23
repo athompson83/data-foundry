@@ -218,6 +218,21 @@ export interface FactSelection {
   readonly property: Identifier;
   readonly at: IsoDateTime;
   readonly selected: FactCandidate | null;
+  /**
+   * The sources actually backing `selected` — the ones that survived the rule-1
+   * rights filter, deduplicated by `source_id`. Empty when nothing was selected.
+   *
+   * This is the attribution list a consumer may show. It exists because
+   * `selected.evidence` is the RAW evidence and still carries the rows this
+   * selection refused to publish on: a candidate can win on one GREEN source
+   * while an UNREVIEWED source also sits in its evidence chain. A consumer that
+   * derives publishers from `selected.evidence` therefore names sources that
+   * are not cleared to be named, which is what `canonicalFacts` used to do.
+   *
+   * Computed once, here, from the same `sourcesOf` the cascade itself used, so
+   * the value and its attribution cannot come from two different filters.
+   */
+  readonly selected_sources: readonly CandidateSourceInfo[];
   readonly rule: FactSelectionRule;
   readonly reason: string;
   /** Ordered trace of the selection criteria plus eligibility. */
@@ -304,10 +319,22 @@ export const DEFAULT_AUTHORITATIVE_SOURCE_TYPES = [
   'MANUFACTURER',
 ] as const satisfies readonly SourceType[];
 
+/**
+ * Rule 1 fails closed. Unless a caller explicitly asks for the unfiltered view,
+ * a read excludes evidence whose source may not publish.
+ *
+ * Exported because fact selection is not the only read path that has to make
+ * this decision — relationship traversal makes it too. One exported default
+ * means the two cannot drift into disagreeing about what "unspecified" means,
+ * which is how a second, quietly different rule gets born.
+ */
+export const DEFAULT_REQUIRE_PUBLISHABLE_RIGHTS = true;
+
 export function resolveFactSelectionPolicy(input: FactSelectionPolicyInput): FactSelectionPolicy {
   return {
     at: input.at,
-    requirePublishableRights: input.requirePublishableRights ?? true,
+    requirePublishableRights:
+      input.requirePublishableRights ?? DEFAULT_REQUIRE_PUBLISHABLE_RIGHTS,
     authoritativeSourceTypes: input.authoritativeSourceTypes ?? DEFAULT_AUTHORITATIVE_SOURCE_TYPES,
     authoritativeSourcesByProperty: input.authoritativeSourcesByProperty ?? {},
     fieldReliability: input.fieldReliability ?? {},
@@ -694,6 +721,7 @@ export function selectCanonicalFact(
       property,
       at,
       selected: null,
+      selected_sources: [],
       rule: 'NO_ELIGIBLE_CANDIDATE',
       reason:
         'No claim about this property is publishable: every candidate was retracted, out of its ' +
@@ -1038,6 +1066,9 @@ function finish(
     property,
     at,
     selected,
+    // The same rights-filtered source list every criterion above reasoned over.
+    // Never `selected.evidence`: that is the raw chain, blocked rows included.
+    selected_sources: sourcesOf(selected, policy),
     rule,
     reason,
     steps,

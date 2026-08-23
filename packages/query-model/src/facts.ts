@@ -122,8 +122,21 @@ export async function canonicalFacts(
 
   for (const [property, selection] of view) {
     const selected = selection.selected;
+    // AGENTS.md rule 1 covers the ASSOCIATION, not only the value. Naming a
+    // source that may not publish as the backing for a published value is a
+    // disclosure of that source and a misstatement of provenance, even when the
+    // value itself was selected on clean evidence.
+    //
+    // `selection.selected_sources` is the rights-filtered list the selection
+    // cascade itself reasoned over. This used to walk `selected.evidence`
+    // instead — the RAW chain, which still contains the rows selection
+    // excluded — so a fact backed by one GREEN and one UNREVIEWED source was
+    // selected on the GREEN evidence and then credited to both publishers.
+    // Re-deriving what canonical-store had already derived correctly is what
+    // made the two disagree; the fix is to stop re-deriving it, not to apply a
+    // second filter here that could drift from the first.
     const publishers = new Set<string>();
-    for (const link of selected?.evidence ?? []) publishers.add(link.source.publisher);
+    for (const source of selection.selected_sources) publishers.add(source.publisher);
     // Last point at which the reason and the reviewer are both in hand. The
     // reviewer is dropped on the next line and the reason travels on alone to
     // web, REST, MCP and exports, so a reason that names its reviewer has to be

@@ -16,6 +16,9 @@ export const projects = [
   'packages/provenance',
   'packages/query-model',
   'services/ingest-worker',
+  'services/export-builder',
+  'apps/api',
+  'apps/mcp',
   'verticals/hvac',
   'tooling',
   // The repo-root `tests/` tree: integration, end-to-end and contract suites
