@@ -10,14 +10,17 @@
  *     complete rights metadata (AGENTS.md rule 1 — a source declaration without
  *     rights metadata is not a valid declaration);
  *   - no source claims `status: ACTIVE` while failing the doc 13 activation gate;
- *   - the doc 11 required documentation files exist.
+ *   - the doc 11 required documentation files exist;
+ *   - every operation the vertical declares is one the platform implements, in
+ *     the namespace it was declared in (see `vertical-ops.ts`). Without this the
+ *     first thing to notice a typo was the ingest worker, mid-crawl.
  *
  * Wave 1 does not own `verticals/`. Until that directory exists the validator
  * reports "nothing to validate" and exits 0, so CI is green now and starts
  * enforcing the moment the first vertical lands.
  */
 import { readFile, readdir, stat } from 'node:fs/promises';
-import { dirname, join, resolve } from 'node:path';
+import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parse as parseYaml } from 'yaml';
 import { z } from 'zod';
@@ -32,6 +35,7 @@ import {
   evaluateSourceActivationGate,
   parseSourceRegistryEntry,
 } from '@data-foundry/source-registry';
+import { validateDeclaredOps } from './vertical-ops.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const VERTICALS_DIR = resolve(HERE, '..', '..', 'verticals');
@@ -117,6 +121,10 @@ export async function validateVertical(dir: string, asOf: string): Promise<Valid
       problems.push({ file: join(dir, doc), message: 'required vertical document is missing' });
     }
   }
+
+  // Runs before the sources/ check so a vertical missing its sources directory
+  // still gets told about a bad op rather than only about the directory.
+  problems.push(...(await validateDeclaredOps(dir, config?.slug ?? basename(dir))));
 
   const sourcesDir = join(dir, 'sources');
   if (!(await exists(sourcesDir))) {
