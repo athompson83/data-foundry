@@ -135,7 +135,7 @@ describe('entities/', () => {
   it('marks exactly the six critical properties on equipment_model', () => {
     // These drive the indexability quality gate. Changing the set changes which
     // pages may be indexed, so it is a policy decision, not a tidy-up.
-    const critical = entityDefs.equipment_model.properties
+    const critical = entityDefs['equipment_model'].properties
       .filter((p: any) => p.critical)
       .map((p: any) => p.name)
       .sort();
@@ -185,9 +185,9 @@ describe('relationships.yaml', () => {
     const byName = Object.fromEntries(
       relationships.predicates.map((p: any) => [p.predicate, p]),
     );
-    expect(byName.supersedes.inference_allowed).toBe(false);
-    expect(byName.compatible_with.inference_allowed).toBe(false);
-    expect(byName.compatible_with.transitive_closure_forbidden).toBe(true);
+    expect(byName['supersedes'].inference_allowed).toBe(false);
+    expect(byName['compatible_with'].inference_allowed).toBe(false);
+    expect(byName['compatible_with'].transitive_closure_forbidden).toBe(true);
   });
 
   it('walks supersession transitively', () => {

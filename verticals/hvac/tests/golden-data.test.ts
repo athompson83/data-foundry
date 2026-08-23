@@ -300,13 +300,15 @@ describe('golden facts', () => {
         (byEntity[fact.entity] ??= {})[fact.property] = fact.normalized_value;
       }
     }
-    const pairs = Object.entries(byEntity).filter(
-      ([, v]) => v.cooling_capacity_btu !== undefined && v.nominal_tonnage !== undefined,
-    );
+    const pairs = Object.entries(byEntity).flatMap(([ref, values]) => {
+      const capacity = values['cooling_capacity_btu'];
+      const tonnage = values['nominal_tonnage'];
+      return capacity === undefined || tonnage === undefined ? [] : [{ ref, capacity, tonnage }];
+    });
     // Every one of the 13 models carries both, one direct and one derived.
     expect(pairs).toHaveLength(13);
-    for (const [ref, values] of pairs) {
-      expect(values.cooling_capacity_btu, ref).toBeCloseTo(values.nominal_tonnage * 12000, 6);
+    for (const { ref, capacity, tonnage } of pairs) {
+      expect(capacity, ref).toBeCloseTo(tonnage * 12000, 6);
     }
   });
 
@@ -326,7 +328,7 @@ describe('golden facts', () => {
 
   it('normalizes every refrigerant and product_type to a declared term', () => {
     const enums: Record<string, string[]> = {};
-    for (const definition of entityDefs.equipment_model.properties) {
+    for (const definition of entityDefs['equipment_model'].properties) {
       if (definition.enum) enums[definition.name] = definition.enum;
     }
     for (const fact of golden.facts.facts) {
@@ -344,14 +346,16 @@ describe('golden facts', () => {
       }
     }
     for (const [ref, values] of Object.entries(byEntity)) {
-      if (values.seer2 !== undefined && values.eer2 !== undefined) {
-        expect(values.seer2, `${ref}: SEER2/EER2 look swapped`).toBeGreaterThan(values.eer2);
+      const seer2 = values['seer2'];
+      const eer2 = values['eer2'];
+      if (seer2 !== undefined && eer2 !== undefined) {
+        expect(seer2, `${ref}: SEER2/EER2 look swapped`).toBeGreaterThan(eer2);
       }
     }
   });
 
   it('satisfies every declared range rule', () => {
-    const ranges = entityDefs.equipment_model.quality_rules.filter((r: any) => r.rule === 'range');
+    const ranges = entityDefs['equipment_model'].quality_rules.filter((r: any) => r.rule === 'range');
     expect(ranges.length).toBeGreaterThan(0);
     for (const rule of ranges) {
       for (const fact of activeFacts.filter((f: any) => f.property === rule.property)) {
@@ -427,8 +431,10 @@ describe('golden relationships', () => {
     for (const start of Object.keys(successorOf)) {
       const seen = new Set<string>([start]);
       let node = start;
-      while (successorOf[node] !== undefined) {
-        node = successorOf[node];
+      for (;;) {
+        const next = successorOf[node];
+        if (next === undefined) break;
+        node = next;
         expect(seen.has(node), `cycle through ${node}`).toBe(false);
         seen.add(node);
       }
@@ -455,8 +461,12 @@ describe('golden relationships', () => {
       successorOf[edge.object] = edge.subject;
     }
     const walked = ['equipment_model:24ACA636A003'];
-    while (successorOf[walked[walked.length - 1]] !== undefined) {
-      walked.push(successorOf[walked[walked.length - 1]]);
+    for (;;) {
+      const last = walked[walked.length - 1];
+      if (last === undefined) break;
+      const next = successorOf[last];
+      if (next === undefined) break;
+      walked.push(next);
     }
     expect(walked).toEqual(traversal.expected_path);
   });
@@ -531,7 +541,7 @@ describe('golden relationships', () => {
 
 describe('indexability gate applied to the golden data', () => {
   /** Critical properties present, per equipment model. */
-  const criticalProperties: string[] = entityDefs.equipment_model.properties
+  const criticalProperties: string[] = entityDefs['equipment_model'].properties
     .filter((p: any) => p.critical)
     .map((p: any) => p.name);
 
