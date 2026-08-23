@@ -19,6 +19,7 @@ export const projects = [
   'services/export-builder',
   'apps/api',
   'apps/mcp',
+  'apps/edge',
   'verticals/hvac',
   'tooling',
   // The repo-root `tests/` tree: integration, end-to-end and contract suites

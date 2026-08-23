@@ -54,6 +54,24 @@ importers:
         specifier: workspace:*
         version: link:../../packages/query-model
 
+  apps/edge:
+    dependencies:
+      '@data-foundry/api':
+        specifier: workspace:*
+        version: link:../api
+      '@data-foundry/canonical-schema':
+        specifier: workspace:*
+        version: link:../../packages/canonical-schema
+      '@data-foundry/canonical-store':
+        specifier: workspace:*
+        version: link:../../packages/canonical-store
+      '@data-foundry/query-model':
+        specifier: workspace:*
+        version: link:../../packages/query-model
+      pg:
+        specifier: ^8.23.0
+        version: 8.23.0
+
   apps/mcp:
     dependencies:
       '@data-foundry/query-model':

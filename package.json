@@ -18,6 +18,8 @@
     "schemas:generate": "tsx tooling/scripts/generate-json-schemas.ts",
     "schemas:check": "tsx tooling/scripts/generate-json-schemas.ts --check",
     "verticals:validate": "tsx tooling/validators/validate-verticals.ts",
+    "verticals:compile": "tsx tooling/scripts/compile-vertical-runtime.ts",
+    "verticals:compile:check": "tsx tooling/scripts/compile-vertical-runtime.ts --check",
     "sources:readiness": "tsx tooling/scripts/source-readiness.ts"
   },
   "devDependencies": {
