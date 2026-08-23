@@ -20,7 +20,13 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { ROUTES, ROUTE_KEYS } from '../src/routes.js';
+import {
+  CONTRACT_ROUTE_KEY,
+  ROUTES,
+  ROUTE_KEYS,
+  SERVICE_ROUTE_KEY,
+  UNMATCHED_ROUTE_KEY,
+} from '../src/routes.js';
 
 const MIGRATION = fileURLToPath(
   new URL('../../../db/migrations/0012_usage_accounting_corrections.sql', import.meta.url),
@@ -55,6 +61,26 @@ describe('the application vocabulary and the reference table agree', () => {
 
   it('registers a key for every route in the table', () => {
     for (const route of ROUTES) expect(ROUTE_KEYS).toContain(route.routeKey);
+  });
+
+  /**
+   * The converse of the assertion above, and the one that was missing.
+   *
+   * Everything so far proves the two LISTS agree. None of it proves a key can
+   * actually be produced: a key added to both `ROUTE_KEYS` and the migration
+   * with no route assigning it passes every one of them, and is dead
+   * vocabulary — a value the database will accept and nothing will ever write.
+   *
+   * The three exemptions are the point of the test. `service`, `contract` and
+   * `unmatched` describe requests that reach no `ROUTES` entry by design.
+   * Naming them here forces a fourth routeless key to be justified in this file
+   * rather than added quietly.
+   */
+  it('leaves no key without a route, except the three that describe no route', () => {
+    const assigned = new Set<string>(ROUTES.map((route) => route.routeKey));
+    const exempt = new Set<string>([SERVICE_ROUTE_KEY, CONTRACT_ROUTE_KEY, UNMATCHED_ROUTE_KEY]);
+    const orphans = ROUTE_KEYS.filter((key) => !assigned.has(key) && !exempt.has(key));
+    expect(orphans).toEqual([]);
   });
 
   it('leaves no route without one', () => {

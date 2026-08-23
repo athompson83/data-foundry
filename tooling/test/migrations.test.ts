@@ -911,8 +911,28 @@ describe('API usage accounting corrections (0012)', () => {
   /** SQLSTATE classes worth telling apart. */
   const FOREIGN_KEY_VIOLATION = '23503';
   const NOT_NULL_VIOLATION = '23502';
-  /** ON DELETE RESTRICT raises this, not 23503 — they are different refusals. */
-  const RESTRICT_VIOLATION = '23001';
+  /**
+   * ON DELETE RESTRICT, which the two engines label differently.
+   *
+   * Measured, not assumed: real PostgreSQL 16.13 raises `23503`
+   * (foreign_key_violation) and words it "violates foreign key constraint".
+   * PGlite 0.5.5 raises `23001` (restrict_violation) and words it "violates
+   * RESTRICT setting of foreign key constraint" — the PostgreSQL 18 behaviour,
+   * because PGlite 0.5.x is built on a newer Postgres than the one CI deploys
+   * against.
+   *
+   * The first draft of this pinned `23001` alone. That is the code PGlite
+   * emits, and the suite only ever runs these against PGlite — so the
+   * assertion was green while being wrong for the database this schema is
+   * actually for. Review caught it.
+   *
+   * Both codes mean the same refusal, so both are accepted, and the pair is
+   * named here so the divergence is a recorded fact rather than a loose matcher.
+   */
+  const RESTRICT_VIOLATION = ['23503', '23001'];
+
+  /** A CHECK constraint refusing a value. */
+  const CHECK_VIOLATION = '23514';
 
   /**
    * Assert a statement is refused, and refused for the stated reason.
@@ -921,14 +941,23 @@ describe('API usage accounting corrections (0012)', () => {
    * genuine constraint violation are all "it threw", and only one of them is
    * evidence that a control exists.
    */
-  async function refusedWith(promise: Promise<unknown>, sqlState: string): Promise<void> {
+  async function refusedWith(
+    promise: Promise<unknown>,
+    sqlState: string | readonly string[],
+  ): Promise<void> {
+    const accepted = typeof sqlState === 'string' ? [sqlState] : [...sqlState];
     const error = await promise.then(
       () => null,
       (caught: unknown) => caught,
     );
-    if (error === null) throw new Error(`expected SQLSTATE ${sqlState}, but the statement succeeded`);
+    if (error === null) {
+      throw new Error(`expected SQLSTATE ${accepted.join(' or ')}, but the statement succeeded`);
+    }
     const code = (error as { code?: unknown }).code;
-    expect(code, `${String((error as Error).message)} (SQLSTATE ${String(code)})`).toBe(sqlState);
+    expect(
+      accepted,
+      `${String((error as Error).message)} (SQLSTATE ${String(code)})`,
+    ).toContain(code);
   }
 
   async function seedAccounting(): Promise<void> {
@@ -1145,10 +1174,25 @@ describe('a regulator-hosted filing is a source type of its own (0013)', () => {
    * The negative control. Without it, a migration that dropped the CHECK
    * entirely — rather than widening it — would pass the assertion above, and the
    * column would silently accept anything at all.
+   *
+   * Pinned to `23514` (check_violation) rather than left as a bare
+   * `rejects.toThrow()`, for the reason the 0012 block exists: a rejection for
+   * an unrelated reason — a missing table, a typo in a column name — is also
+   * "it threw", and only one of those is evidence that the constraint is there.
+   * Measured on real PostgreSQL 16.13.
    */
   it('still refuses a type that is not in the vocabulary', async () => {
-    await expect(insertSource('GOVERNMENT')).rejects.toThrow();
-    await expect(insertSource('TOTALLY_MADE_UP')).rejects.toThrow();
+    for (const bogus of ['GOVERNMENT', 'TOTALLY_MADE_UP']) {
+      const error = await insertSource(bogus).then(
+        () => null,
+        (caught: unknown) => caught,
+      );
+      expect(error, `${bogus} was accepted`).not.toBeNull();
+      expect(
+        (error as { code?: unknown }).code,
+        `${bogus}: ${String((error as Error).message)}`,
+      ).toBe('23514');
+    }
   });
 
   it('keeps accepting the types that were already valid', async () => {
