@@ -25,6 +25,29 @@ measurement rather than an argument.
 
 ## Measurement
 
+**Reproducible.** The script is `tooling/scripts/bench-usage-invoicing.ts`:
+
+```
+POSTGRES_URL=postgres://user@host:5432/scratch pnpm tsx tooling/scripts/bench-usage-invoicing.ts
+```
+
+It refuses to run without an explicit `POSTGRES_URL` and refuses a database that
+already holds usage rows. Nothing in CI runs it — it writes two million rows and
+takes about two minutes, which is the wrong shape for a gate. It exists so the
+table below can be checked, and so it can be re-run when a schema, index, query
+or plan assumption changes, which is the condition this ADR sets for revisiting
+the decision.
+
+**The figures below are one run.** A re-run on 2026-08-23 against the same
+PostgreSQL 16.13 gave 77.0 ms vs 160.8 ms on the largest tenant (2.1×) and
+58.3 ms vs 151.9 ms per-vertical (2.6×), with buffers 13,872/0 against
+31,126/3,303. Absolute milliseconds move between runs — different random
+identifiers, different cache state — and the smallest-tenant row moved most, from
+3.0 ms to 0.5 ms, because "smallest" is whichever tenant the key distribution
+happened to give the fewest rows. **The ratio and the plan shape are what the
+decision rests on, and those held.** Quote the ratio, not the milliseconds.
+
+
 PostgreSQL 16.13, 2,000,000 usage events (645 MB) across 200 tenants, 1,398
 keys and 4 verticals, spread over 90 days. One tenant deliberately holds 500
 keys: the case that decides the question, because it is the tenant whose

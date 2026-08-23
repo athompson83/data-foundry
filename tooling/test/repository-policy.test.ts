@@ -50,6 +50,10 @@ const DOMAIN_ALLOWLIST: readonly string[] = [
   // Proves a redirect to a prohibited host is refused. Its central assertion is
   // that no request ever reaches that host, so naming it is the point.
   'packages/acquisition/test/http.test.ts',
+  // Proves the fact-selection authority check consults the prohibition list. A
+  // fake domain would make that assertion vacuous — it would pass whether or
+  // not `prohibitedSourceFor` were called at all.
+  'services/ingest-worker/test/fact-policy-config.test.ts',
   'docs/sources/prohibited-sources.md',
   // The source-landscape assessment. Naming a candidate is the point: it records
   // WHY neep.org is prohibited, quoting its terms, and an assessment that could
