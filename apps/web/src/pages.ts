@@ -8,7 +8,13 @@
 import type { Entity, VerticalId } from '@data-foundry/canonical-schema';
 import type { EntityView, QueryModel } from '@data-foundry/query-model';
 import type { VerticalDeployment, WebDeployment } from './composition.js';
-import { computeEntitySignals, countContentWords, evaluateGate, type GateSignals } from './gates.js';
+import {
+  computeEntitySignals,
+  computeVerticalDatasetSignals,
+  countContentWords,
+  evaluateGate,
+  type GateSignals,
+} from './gates.js';
 import { escapeHtml, layout, renderList } from './render.js';
 import {
   fillTemplate,
@@ -17,8 +23,6 @@ import {
   type PageClass,
   type SeoConfig,
 } from './seo.js';
-
-const MAX_LISTING = 200;
 
 export function entityHref(vertical: VerticalDeployment, entity: Entity): string | null {
   const pageClass = pageClassForEntityType(vertical.runtime.seo, entity.entity_type);
@@ -73,34 +77,9 @@ interface RenderedPage {
   readonly status: number;
 }
 
-async function computeVerticalDatasetSignals(
-  queryModel: QueryModel,
-  verticalId: VerticalId,
-  now: Date,
-): Promise<GateSignals & { readonly entities: number }> {
-  const result = await queryModel.search({
-    vertical_id: verticalId as never,
-    limit: MAX_LISTING,
-    offset: 0,
-  });
-  const sources = new Set<string>();
-  for (const hit of result.hits.slice(0, MAX_LISTING)) {
-    const facts = await queryModel.canonicalFacts(hit.entity.id);
-    for (const fact of facts) for (const s of fact.sources) sources.add(s);
-  }
-  const coverage = await queryModel.provenanceCoverage({ vertical_id: verticalId as never });
-  void now;
-  return {
-    entities: result.total,
-    distinct_sources: sources.size,
-    evidence_coverage: coverage.facts.coverage,
-  };
-}
-
 export async function renderDatasetLanding(
   vertical: VerticalDeployment,
   publicOrigin: string,
-  now: Date,
 ): Promise<RenderedPage> {
   const seo = vertical.runtime.seo;
   const pageClass = seo.page_classes.find((pc) => pc.id === 'dataset_landing') ?? null;
@@ -129,7 +108,7 @@ export async function renderDatasetLanding(
   if (pageClass !== null) {
     const gate = gateFor(seo, pageClass.quality_gate);
     if (gate !== null) {
-      const signals = await computeVerticalDatasetSignals(vertical.queryModel, vertical.verticalId, now);
+      const signals = await computeVerticalDatasetSignals(vertical.queryModel, vertical.verticalId);
       failures = evaluateGate(gate, signals).failures;
     }
   }

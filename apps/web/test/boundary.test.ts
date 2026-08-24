@@ -8,6 +8,13 @@
  * allow-list below applies to every file EXCEPT the composition root itself;
  * everything that renders a page, evaluates a gate, or matches a route must
  * still go through `@data-foundry/query-model` and nothing beneath it.
+ *
+ * The exclusion is `composition.ts` alone, not a wider "supporting cast" —
+ * `env.ts` declares no workspace imports at all, and `index.ts` imports only
+ * `composition.ts`'s own public interface, never `@data-foundry/canonical-store`
+ * directly. Excluding either would let a future storage or driver import land
+ * there unnoticed by this scan; review caught the exclusion list being wider
+ * than what actually needs it.
  */
 import { describe, expect, it } from 'vitest';
 import { readFileSync, readdirSync } from 'node:fs';
@@ -15,8 +22,8 @@ import { fileURLToPath } from 'node:url';
 
 const SRC = fileURLToPath(new URL('../src/', import.meta.url));
 
-/** Files allowed to reach below the query layer — the composition root and its narrow supporting cast. */
-const COMPOSITION_ROOT_FILES = new Set(['composition.ts', 'env.ts', 'index.ts']);
+/** The one file allowed to reach below the query layer. */
+const COMPOSITION_ROOT_FILES = new Set(['composition.ts']);
 
 const sourceFiles = (): { name: string; text: string }[] => {
   const found: { name: string; text: string }[] = [];
@@ -65,7 +72,14 @@ describe('what apps/web is allowed to import outside its composition root (AGENT
     for (const file of sourceFiles()) {
       if (COMPOSITION_ROOT_FILES.has(file.name)) continue;
       for (const specifier of importsOf(file.text)) {
-        const local = specifier.startsWith('./') || specifier.startsWith('node:');
+        // A relative climb (`../`) is exactly what this scan exists to catch
+        // when it reaches into another package's `src/` — see apps/api's own
+        // boundary test for why. A `.json` data import is different in kind:
+        // it has no imports of its own, so it cannot itself reach below the
+        // query layer, however many directories it climbs to get there —
+        // `index.ts`'s `../generated/*.web-runtime.json` is exactly this case.
+        const local =
+          specifier.startsWith('./') || specifier.startsWith('node:') || specifier.endsWith('.json');
         if (local || ALLOWED_WORKSPACE_IMPORTS.has(specifier)) continue;
         violations.push(`${file.name} → ${specifier}`);
       }
