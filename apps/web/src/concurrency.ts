@@ -30,6 +30,9 @@ export async function mapWithConcurrency<T, R>(
   limit: number,
   fn: (item: T, index: number) => Promise<R>,
 ): Promise<R[]> {
+  if (!Number.isSafeInteger(limit) || limit < 1) {
+    throw new RangeError(`mapWithConcurrency: limit must be a positive integer, got ${limit}`);
+  }
   const results: R[] = new Array(items.length);
   let cursor = 0;
 

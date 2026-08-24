@@ -77,4 +77,11 @@ describe('mapWithConcurrency', () => {
     });
     expect(active.max).toBeLessThanOrEqual(2);
   });
+
+  it.each([0, -1, -8, 1.5, Number.NaN, Number.POSITIVE_INFINITY])(
+    'rejects an invalid limit (%s) instead of silently returning an uninitialized array',
+    async (limit) => {
+      await expect(mapWithConcurrency([1, 2, 3], limit, async (n) => n)).rejects.toThrow(RangeError);
+    },
+  );
 });
