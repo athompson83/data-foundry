@@ -1,4 +1,4 @@
-# ADR-0011 — One free web Worker for every industry; one paid API Worker per industry
+# ADR-0011 — One free web Worker for all industries; one paid API Worker per industry
 
 **Status:** Accepted (first implementation: `apps/web`)
 **Date:** 2026-08-24

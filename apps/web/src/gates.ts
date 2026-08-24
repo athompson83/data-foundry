@@ -174,9 +174,14 @@ export async function computeEntitySignals(
   const disputed = criticalPublished.some((f) => f.unresolved_conflict);
 
   const coverage = await queryModel.provenanceCoverage({ entity_id: entityId });
-  const stalenessDays = Math.floor(
-    (now.getTime() - new Date(entityUpdatedAt).getTime()) / (1000 * 60 * 60 * 24),
-  );
+  // An unparseable entityUpdatedAt makes new Date(...).getTime() NaN, and
+  // `NaN > max` is false — the naive form would fail OPEN on the staleness
+  // gate for exactly the value that could not be measured. Omitting the
+  // signal instead routes it through evaluateGate's own UNMEASURED path.
+  const updatedAtMs = new Date(entityUpdatedAt).getTime();
+  const stalenessDays = Number.isNaN(updatedAtMs)
+    ? undefined
+    : Math.max(0, Math.floor((now.getTime() - updatedAtMs) / (1000 * 60 * 60 * 24)));
 
   return {
     entity_quality_score: entityQualityScore,
@@ -184,7 +189,7 @@ export async function computeEntitySignals(
     total_facts: published.length,
     evidence_coverage: coverage.facts.coverage,
     distinct_sources: sources.size,
-    staleness_days: Math.max(0, stalenessDays),
+    ...(stalenessDays === undefined ? {} : { staleness_days: stalenessDays }),
     disputed_critical_property: disputed,
   };
 }

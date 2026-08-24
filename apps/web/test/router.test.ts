@@ -49,6 +49,16 @@ describe('matchPageClass against the compiled hvac runtime', () => {
     expect(matchPageClass(seo, '/data/hvac/nonsense/path')).toBeNull();
   });
 
+  it('returns null rather than throwing on a malformed percent-escape in a captured segment', () => {
+    // Review found this uncaught: decodeURIComponent('%ZZ') throws URIError,
+    // which propagated past every route handler into index.ts's outer catch
+    // and turned a client's malformed request into a 503 "misconfigured
+    // deployment" response instead of an ordinary 404.
+    expect(() => matchPageClass(seo, '/data/hvac/equipment/%ZZ')).not.toThrow();
+    expect(matchPageClass(seo, '/data/hvac/equipment/%ZZ')).toBeNull();
+    expect(matchPageClass(seo, '/data/hvac/equipment/acme-24acc636a003%')).toBeNull();
+  });
+
   it('does not match a slug containing a slash as a single segment', () => {
     // {canonical_slug} is `[^/]+` deliberately — a value containing "/" would
     // otherwise let one path segment masquerade as two, which is exactly the

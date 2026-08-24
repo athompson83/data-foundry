@@ -231,9 +231,11 @@ MCP tool definitions, the Phase 2 Python/Splink work, and external dataset users
 4. `pnpm schemas:check` — generated JSON Schema exports match the Zod source
 5. `pnpm verticals:validate` — vertical configs are well-formed and every source
    declaration carries complete rights metadata
-6. `pnpm web:compile:check` — the web surface's compiled artifact (it
+6. `pnpm verticals:compile:check` — the edge runtime artifact matches the
+   vertical config it was compiled from
+7. `pnpm web:compile:check` — the web surface's own compiled artifact (it
    additionally bundles `seo.yaml`, which the edge runtime artifact does not)
-7. A second job applies the identical migrations to a real `postgres:16` service,
+8. A second job applies the identical migrations to a real `postgres:16` service,
    which is what keeps "portable Postgres" honest rather than aspirational
 
 ## Adding a real source
