@@ -41,7 +41,14 @@ export function layout(options: LayoutOptions): string {
   const jsonLd =
     options.structuredData === undefined
       ? ''
-      : `<script type="application/ld+json">${JSON.stringify(options.structuredData)}</script>`;
+      : // JSON.stringify does not escape `<`, so a value containing the text
+        // `</script>` would close the element early and turn the remainder of
+        // the JSON into markup. `\uXXXX` escapes stay valid JSON, so a parser
+        // reads the same object; only the raw HTML-significant bytes change.
+        `<script type="application/ld+json">${JSON.stringify(options.structuredData)
+          .replace(/</g, '\\u003c')
+          .replace(/>/g, '\\u003e')
+          .replace(/&/g, '\\u0026')}</script>`;
 
   const crumbs =
     options.breadcrumbs === undefined || options.breadcrumbs.length === 0
