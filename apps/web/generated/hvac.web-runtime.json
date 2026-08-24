@@ -1,0 +1,1078 @@
+{
+  "vertical_slug": "hvac",
+  "vertical_name": "HVAC Equipment",
+  "vertical_status": "DRAFT",
+  "entity_types": [
+    "manufacturer",
+    "equipment_model",
+    "certification"
+  ],
+  "entity_type_meta": {
+    "manufacturer": {
+      "label_singular": "Manufacturer",
+      "label_plural": "Manufacturers",
+      "canonical_slug_pattern": "{canonical_name}"
+    },
+    "equipment_model": {
+      "label_singular": "Equipment Model",
+      "label_plural": "Equipment Models",
+      "canonical_slug_pattern": "{manufacturer_slug}-{model_number}"
+    },
+    "certification": {
+      "label_singular": "Certification",
+      "label_plural": "Certifications",
+      "canonical_slug_pattern": "{ahri_ref}"
+    }
+  },
+  "relationship_predicates": [
+    "manufactures",
+    "supersedes",
+    "certified_by",
+    "compatible_with"
+  ],
+  "fields": [
+    {
+      "field": "product_type",
+      "value_type": "string",
+      "unit": null,
+      "filter": {
+        "type": "multi_select",
+        "facet_count": true
+      },
+      "sort": false,
+      "search_boost": 0.6,
+      "indexable": true
+    },
+    {
+      "field": "nominal_tonnage",
+      "value_type": "number",
+      "unit": "ton",
+      "filter": {
+        "type": "multi_select",
+        "facet_count": true
+      },
+      "sort": true,
+      "search_boost": 0.8,
+      "indexable": true
+    },
+    {
+      "field": "cooling_capacity_btu",
+      "value_type": "number",
+      "unit": "BTU/h",
+      "filter": {
+        "type": "range",
+        "facet_count": true
+      },
+      "sort": true,
+      "search_boost": 0.4,
+      "indexable": false
+    },
+    {
+      "field": "seer2",
+      "value_type": "number",
+      "unit": null,
+      "filter": {
+        "type": "range",
+        "facet_count": true
+      },
+      "sort": true,
+      "search_boost": 0.5,
+      "indexable": true
+    },
+    {
+      "field": "eer2",
+      "value_type": "number",
+      "unit": null,
+      "filter": {
+        "type": "range",
+        "facet_count": true
+      },
+      "sort": true,
+      "search_boost": 0.2,
+      "indexable": false
+    },
+    {
+      "field": "hspf2",
+      "value_type": "number",
+      "unit": null,
+      "filter": {
+        "type": "range",
+        "facet_count": true
+      },
+      "sort": true,
+      "search_boost": 0.2,
+      "indexable": false
+    },
+    {
+      "field": "refrigerant",
+      "value_type": "string",
+      "unit": null,
+      "filter": {
+        "type": "multi_select",
+        "facet_count": true
+      },
+      "sort": false,
+      "search_boost": 0.7,
+      "indexable": true
+    },
+    {
+      "field": "voltage",
+      "value_type": "number",
+      "unit": "V",
+      "filter": {
+        "type": "multi_select",
+        "facet_count": true
+      },
+      "sort": false,
+      "search_boost": 0.3,
+      "indexable": false
+    },
+    {
+      "field": "phase",
+      "value_type": "number",
+      "unit": null,
+      "filter": {
+        "type": "single_select",
+        "facet_count": true
+      },
+      "sort": false,
+      "search_boost": 0.2,
+      "indexable": false
+    },
+    {
+      "field": "stage_count",
+      "value_type": "number",
+      "unit": null,
+      "filter": {
+        "type": "single_select",
+        "facet_count": true
+      },
+      "sort": false,
+      "search_boost": 0.3,
+      "indexable": false
+    },
+    {
+      "field": "sound_level_db",
+      "value_type": "number",
+      "unit": "dB",
+      "filter": {
+        "type": "range",
+        "facet_count": true
+      },
+      "sort": true,
+      "search_boost": 0.3,
+      "indexable": false
+    },
+    {
+      "field": "weight_lb",
+      "value_type": "number",
+      "unit": "lb",
+      "filter": {
+        "type": "range",
+        "facet_count": false
+      },
+      "sort": true,
+      "search_boost": 0.1,
+      "indexable": false
+    },
+    {
+      "field": "manufacturer",
+      "value_type": "string",
+      "unit": null,
+      "filter": {
+        "type": "multi_select",
+        "facet_count": true
+      },
+      "sort": false,
+      "search_boost": 0.9,
+      "indexable": true
+    }
+  ],
+  "fact_selection": {
+    "requirePublishableRights": true,
+    "authoritativeSourceTypes": [
+      "REGULATORY",
+      "STANDARDS_BODY",
+      "CERTIFICATION_BODY",
+      "MANUFACTURER"
+    ],
+    "authoritativeSourcesByProperty": {
+      "seer2": [
+        "ratings-directory.example.org"
+      ],
+      "eer2": [
+        "ratings-directory.example.org"
+      ],
+      "hspf2": [
+        "ratings-directory.example.org"
+      ],
+      "cooling_capacity_btu": [
+        "catalog.acme-climate.example.com",
+        "docs.acme-climate.example.com",
+        "ratings-directory.example.org"
+      ],
+      "sound_level_db": [
+        "catalog.acme-climate.example.com",
+        "docs.acme-climate.example.com"
+      ],
+      "weight_lb": [
+        "catalog.acme-climate.example.com",
+        "docs.acme-climate.example.com"
+      ],
+      "voltage": [
+        "catalog.acme-climate.example.com",
+        "docs.acme-climate.example.com"
+      ],
+      "phase": [
+        "catalog.acme-climate.example.com",
+        "docs.acme-climate.example.com"
+      ],
+      "stage_count": [
+        "catalog.acme-climate.example.com",
+        "docs.acme-climate.example.com"
+      ],
+      "refrigerant": [
+        "catalog.acme-climate.example.com",
+        "docs.acme-climate.example.com",
+        "ratings-directory.example.org"
+      ],
+      "product_type": [
+        "catalog.acme-climate.example.com",
+        "docs.acme-climate.example.com",
+        "ratings-directory.example.org"
+      ],
+      "nominal_tonnage": [
+        "catalog.acme-climate.example.com",
+        "docs.acme-climate.example.com",
+        "ratings-directory.example.org"
+      ]
+    },
+    "fieldReliability": {
+      "upc": {
+        "www.coolsupply.example.com": 0.95
+      },
+      "sound_level_db": {
+        "www.coolsupply.example.com": 0.3,
+        "docs.acme-climate.example.com": 0.95
+      },
+      "seer2": {
+        "www.coolsupply.example.com": 0.45,
+        "catalog.acme-climate.example.com": 0.6
+      },
+      "supersedes": {
+        "catalog.acme-climate.example.com": 1
+      }
+    },
+    "editorialOverrides": [],
+    "consistencyChecks": [
+      {
+        "id": "value_type_agreement",
+        "describe": "normalized_value matches its declared value_type"
+      },
+      {
+        "id": "quantity_requires_unit",
+        "describe": "quantity values carry a unit"
+      },
+      {
+        "id": "non_empty_value",
+        "describe": "value is not empty"
+      },
+      {
+        "id": "numeric_range:cooling_capacity_btu",
+        "describe": "cooling_capacity_btu within [6000, 300000]"
+      },
+      {
+        "id": "numeric_range:nominal_tonnage",
+        "describe": "nominal_tonnage within [0.5, 25]"
+      },
+      {
+        "id": "numeric_range:seer2",
+        "describe": "seer2 within [8, 30]"
+      },
+      {
+        "id": "numeric_range:eer2",
+        "describe": "eer2 within [6, 20]"
+      },
+      {
+        "id": "numeric_range:hspf2",
+        "describe": "hspf2 within [5, 14]"
+      },
+      {
+        "id": "enum_membership:phase",
+        "describe": "phase is one of 1, 3"
+      },
+      {
+        "id": "numeric_range:sound_level_db",
+        "describe": "sound_level_db within [40, 95]"
+      },
+      {
+        "id": "enum_membership:product_type",
+        "describe": "product_type is one of air_conditioner, heat_pump, gas_furnace, air_handler, packaged_unit"
+      },
+      {
+        "id": "enum_membership:refrigerant",
+        "describe": "refrigerant is one of R-410A, R-454B, R-32, R-22"
+      }
+    ]
+  },
+  "critical_properties": {
+    "manufacturer": [],
+    "equipment_model": [
+      "product_type",
+      "cooling_capacity_btu",
+      "nominal_tonnage",
+      "seer2",
+      "refrigerant",
+      "voltage"
+    ],
+    "certification": [
+      "product_type",
+      "cooling_capacity_btu",
+      "seer2"
+    ]
+  },
+  "seo": {
+    "url_prefix": "/data/hvac",
+    "page_classes": [
+      {
+        "id": "dataset_landing",
+        "path": "/data/hvac",
+        "title": "HVAC Equipment Data",
+        "structured_data": "Dataset",
+        "sitemap": "datasets",
+        "indexable": true,
+        "quality_gate": "dataset",
+        "description": "The vertical's front door and its Dataset structured-data anchor. Always indexable once the dataset itself clears the dataset gate."
+      },
+      {
+        "id": "equipment_model_detail",
+        "entity_type": "equipment_model",
+        "path": "/data/hvac/equipment/{canonical_slug}",
+        "title": "{canonical_name}",
+        "structured_data": null,
+        "sitemap": "entities",
+        "indexable": "conditional",
+        "quality_gate": "entity_detail",
+        "description": "The core page. structured_data is null deliberately: Schema.org `Product` would imply an offer and a price we do not have, and doc 07 forbids marking up semantics the page does not actually have merely for SEO."
+      },
+      {
+        "id": "manufacturer_detail",
+        "entity_type": "manufacturer",
+        "path": "/data/hvac/manufacturers/{canonical_slug}",
+        "title": "{canonical_name} HVAC Equipment",
+        "structured_data": null,
+        "sitemap": "manufacturers",
+        "indexable": "conditional",
+        "quality_gate": "manufacturer"
+      },
+      {
+        "id": "certification_detail",
+        "entity_type": "certification",
+        "path": "/data/hvac/certifications/{canonical_slug}",
+        "title": "AHRI {ahri_ref}",
+        "structured_data": null,
+        "sitemap": "entities",
+        "indexable": "conditional",
+        "quality_gate": "certification"
+      },
+      {
+        "id": "replacement_relationship",
+        "path": "/data/hvac/equipment/{canonical_slug}/replacements",
+        "title": "What replaces {canonical_name}",
+        "structured_data": null,
+        "sitemap": "relationships",
+        "indexable": "conditional",
+        "quality_gate": "replacement",
+        "description": "The highest-value page class in the vertical and the reason it is worth building: it answers a question a person is currently paying someone to answer by hand. Exists only where a supersession edge actually exists."
+      },
+      {
+        "id": "comparison",
+        "path": "/data/hvac/compare/{slug_a}-vs-{slug_b}",
+        "title": "{name_a} vs {name_b}",
+        "structured_data": null,
+        "sitemap": null,
+        "indexable": "conditional",
+        "quality_gate": "comparison",
+        "description": "Not in any sitemap. Comparison pages are combinatorial by nature (n²), so they are generated on demand and only the few that earn traffic and clear the gate become indexable. Submitting them wholesale is precisely the thin-page explosion rule 8 forbids."
+      },
+      {
+        "id": "filtered_collection",
+        "path": "/data/hvac/equipment/{facet_path}",
+        "title": "{facet_description}",
+        "structured_data": null,
+        "sitemap": "entities",
+        "indexable": "conditional",
+        "quality_gate": "filtered_collection",
+        "description": "Only the four combinations whitelisted in filters.yaml `indexable_combinations` may reach this class at all; the gate below then applies on top of that."
+      },
+      {
+        "id": "docs_api_mcp",
+        "path": "/data/hvac/docs",
+        "title": "HVAC Data API and MCP",
+        "structured_data": null,
+        "sitemap": "datasets",
+        "indexable": true,
+        "quality_gate": "none"
+      }
+    ],
+    "quality_gates": {
+      "default": {
+        "description": "Baseline. No page class may loosen below this.",
+        "min_critical_fact_coverage": 0.75,
+        "min_total_facts": 6,
+        "min_evidence_coverage": 1,
+        "min_distinct_sources": 1,
+        "min_entity_quality_score": 0.6,
+        "max_staleness_days": 400,
+        "min_results": 10,
+        "min_unique_content_words": 120,
+        "require_all_sources_publishable": true,
+        "block_on_open_dispute": true
+      },
+      "entity_detail": {
+        "description": "The gate that matters most, because equipment_model pages are where a thin-page explosion would happen.",
+        "min_critical_fact_coverage": 0.8,
+        "min_total_facts": 8,
+        "min_evidence_coverage": 1,
+        "min_distinct_sources": 1,
+        "min_entity_quality_score": 0.65,
+        "max_staleness_days": 400,
+        "min_unique_content_words": 150,
+        "require_all_sources_publishable": true,
+        "block_on_open_dispute": false,
+        "block_on_disputed_critical_property": true,
+        "require_distinct_value": true
+      },
+      "manufacturer": {
+        "min_critical_fact_coverage": 0,
+        "min_total_facts": 0,
+        "min_related_entities": 3,
+        "min_evidence_coverage": 1,
+        "min_distinct_sources": 1,
+        "min_entity_quality_score": 0.6,
+        "min_unique_content_words": 120,
+        "require_all_sources_publishable": true,
+        "note": "All three manufacturers pass: Acme 6 models, Northwind 4, Borealis 3."
+      },
+      "certification": {
+        "min_critical_fact_coverage": 1,
+        "min_total_facts": 5,
+        "min_evidence_coverage": 1,
+        "min_distinct_sources": 1,
+        "min_entity_quality_score": 0.7,
+        "min_related_entities": 1,
+        "min_unique_content_words": 100,
+        "require_all_sources_publishable": true,
+        "note": "Certification pages are indexable at a LOWER content bar than equipment pages because they carry a unique identifier people search for directly by number. Their critical-fact bar is correspondingly higher: 100%."
+      },
+      "replacement": {
+        "description": "A replacement page is only worth having if there is a replacement.",
+        "min_supersession_edges": 1,
+        "min_evidence_coverage": 1,
+        "require_terminal_model_indexable": true,
+        "min_unique_content_words": 100,
+        "require_all_sources_publishable": true,
+        "note": "`require_terminal_model_indexable` matters: sending a technician to a replacement page whose recommended model has a thin, unverified page is worse than not having the page."
+      },
+      "comparison": {
+        "min_shared_properties": 5,
+        "min_both_entities_indexable": true,
+        "min_unique_content_words": 150,
+        "require_all_sources_publishable": true,
+        "demand_threshold": 0.6,
+        "note": "Requires BOTH entities to be independently indexable. Two thin pages do not add up to one good one."
+      },
+      "filtered_collection": {
+        "min_results": 10,
+        "min_indexable_results": 5,
+        "min_unique_content_words": 120,
+        "require_whitelisted_combination": true,
+        "demand_threshold": 0.5,
+        "require_all_sources_publishable": true,
+        "note": "`min_indexable_results` is the important one: a collection page listing ten entities that are all themselves noindexed is a hub for pages we have already judged not good enough."
+      },
+      "dataset": {
+        "min_entities": 25,
+        "min_evidence_coverage": 0.99,
+        "min_distinct_sources": 3,
+        "require_all_sources_publishable": true,
+        "note": "Three source families is the independence minimum restated as a publication condition — a \"dataset\" assembled from one source is a copy."
+      },
+      "none": {
+        "description": "Editorial pages (docs, API reference). No data gate applies."
+      }
+    },
+    "on_gate_failure": {
+      "robots": "noindex,follow",
+      "in_sitemap": false,
+      "in_api": true,
+      "in_mcp": true,
+      "show_coverage_notice": true,
+      "notice_template": "This page is incomplete. {missing_count} of {critical_count} critical specifications are not yet backed by a verified source."
+    },
+    "sitemaps": {
+      "index": "/sitemap-index.xml",
+      "max_urls_per_file": 45000,
+      "include_only_indexable": true,
+      "segments": [
+        {
+          "id": "datasets",
+          "path": "/sitemaps/datasets.xml"
+        },
+        {
+          "id": "manufacturers",
+          "path": "/sitemaps/manufacturers-{n}.xml"
+        },
+        {
+          "id": "entities",
+          "path": "/sitemaps/entities-{n}.xml"
+        },
+        {
+          "id": "relationships",
+          "path": "/sitemaps/relationships-{n}.xml"
+        }
+      ]
+    },
+    "canonical": {
+      "redirect_on_merge": true,
+      "redirect_status": 301,
+      "filter_pages_canonicalize_to_parent": true,
+      "trailing_slash": false,
+      "preserve_slugs_after_merge": true
+    },
+    "structured_data": {
+      "dataset_page": {
+        "type": "Dataset",
+        "required_fields": [
+          "name",
+          "description",
+          "creator",
+          "dateModified",
+          "license",
+          "distribution",
+          "keywords",
+          "temporalCoverage"
+        ]
+      },
+      "catalog_page": {
+        "type": "DataCatalog",
+        "required_fields": [
+          "name",
+          "description",
+          "dataset"
+        ]
+      },
+      "entity_page": {
+        "type": null,
+        "reason": "No Schema.org type honestly describes \"a manufactured model with certified ratings and no offer attached\". `Product` implies commerce we are not doing. Doc 07: do not mark up unsupported or incorrect semantics for SEO."
+      }
+    },
+    "images": {
+      "require_rights_decision": true,
+      "fallback_to_generated_visualizations": true,
+      "require_alt_text": true,
+      "alt_text_template": "{canonical_name} — {nominal_tonnage} ton {product_type}, {seer2} SEER2",
+      "note": "Only acme-spec-sheets grants reusable image rights, and only for dimensional drawings. Everything else is recorded as a media_asset URL and never cached. Where photo rights are unavailable the page renders a chart generated from the structured facts — which is also better evidence than a marketing photo."
+    },
+    "llm_discovery": {
+      "llms_txt": "/data/hvac/llms.txt",
+      "llms_full_txt": "/data/hvac/llms-full.txt",
+      "markdown_representation": true,
+      "accept_text_markdown": true,
+      "include": [
+        "dataset_description",
+        "resource_groups",
+        "schemas",
+        "api_docs",
+        "openapi_url",
+        "mcp_endpoint",
+        "bulk_formats",
+        "source_methodology",
+        "freshness_and_changelog",
+        "licensing_and_access_terms"
+      ],
+      "markdown_for_non_indexable": true,
+      "markdown_includes_coverage_notice": true
+    },
+    "agent_intents": {
+      "replacement_lookup": {
+        "tool": "find_replacement_model",
+        "examples": [
+          "What replaces {model_number}?",
+          "{model_number} is discontinued, what do I order instead?",
+          "Find the current equivalent for {model_number}",
+          "Is {model_number} still available?",
+          "What superseded {model_number}?"
+        ]
+      },
+      "spec_search": {
+        "tool": "match_equipment_specs",
+        "examples": [
+          "Find 3 ton heat pumps with SEER2 of at least 15",
+          "What R-454B condensers are available in 4 ton?",
+          "Show me single-phase 208V air conditioners between 36000 and 48000 BTU",
+          "Which models meet 14.3 SEER2 minimum?",
+          "List two-stage 5 ton units"
+        ]
+      },
+      "evidence_lookup": {
+        "tool": "get_spec_evidence",
+        "examples": [
+          "Where does the SEER2 rating for {model_number} come from?",
+          "Show me the source for the sound rating on {model_number}",
+          "Why does your SEER2 differ from the manufacturer's brochure?",
+          "Is this specification certified or manufacturer-published?"
+        ]
+      },
+      "identifier_resolution": {
+        "tool": "identify_equipment_model",
+        "examples": [
+          "What is {messy_model_number}?",
+          "Look up AHRI {ahri_ref}",
+          "I have a unit with UPC {upc}, what is it?",
+          "The nameplate reads {partial_model_number}"
+        ]
+      },
+      "comparison": {
+        "tool": "compare_equipment_models",
+        "examples": [
+          "Compare {model_a} and {model_b}",
+          "What changed between {old_model} and its replacement?",
+          "Which is more efficient, {model_a} or {model_b}?"
+        ]
+      },
+      "certification_lookup": {
+        "tool": "list_certified_ratings",
+        "examples": [
+          "Is {model_number} AHRI certified?",
+          "What are the certified ratings for {model_number}?",
+          "Show the certification reference for {model_number}"
+        ]
+      }
+    },
+    "guardrail": "Doc 07: \"The objective is to be the best factual result, not to game search engines or flood the web.\" Every threshold in this file exists to keep the page count DOWN. If a change to this file increases indexable pages without increasing the facts behind them, it is the wrong change."
+  },
+  "filters": {
+    "defaults": {
+      "robots": "noindex,follow",
+      "facet_count": true,
+      "sort": false,
+      "search_boost": 0,
+      "indexable": false
+    },
+    "fields": [
+      {
+        "field": "product_type",
+        "entity_type": "equipment_model",
+        "value_type": "string",
+        "unit": null,
+        "filter": {
+          "type": "multi_select",
+          "facet_count": true,
+          "options": [
+            "air_conditioner",
+            "heat_pump",
+            "gas_furnace",
+            "air_handler",
+            "packaged_unit"
+          ]
+        },
+        "sort": false,
+        "search_boost": 0.6,
+        "indexable": true,
+        "seo": {
+          "indexable": true,
+          "min_results": 10,
+          "demand_threshold": 0.7
+        },
+        "rationale": "The primary category split, and a genuine search intent in its own right (\"3 ton heat pump\"). Low cardinality, high demand, no duplication risk."
+      },
+      {
+        "field": "nominal_tonnage",
+        "entity_type": "equipment_model",
+        "value_type": "number",
+        "unit": "ton",
+        "filter": {
+          "type": "multi_select",
+          "facet_count": true,
+          "options": [
+            1.5,
+            2,
+            2.5,
+            3,
+            3.5,
+            4,
+            5
+          ]
+        },
+        "sort": true,
+        "search_boost": 0.8,
+        "indexable": true,
+        "seo": {
+          "indexable": true,
+          "min_results": 10,
+          "demand_threshold": 0.8
+        },
+        "rationale": "The unit the trade actually searches in. \"3 ton air conditioner\" is a high-intent commercial query; \"36000 BTU air conditioner\" is not, even though they are the same filter."
+      },
+      {
+        "field": "cooling_capacity_btu",
+        "entity_type": "equipment_model",
+        "value_type": "number",
+        "unit": "BTU/h",
+        "filter": {
+          "type": "range",
+          "facet_count": true,
+          "buckets": [
+            {
+              "label": "Under 24,000 BTU/h",
+              "lt": 24000
+            },
+            {
+              "label": "24,000-35,999 BTU/h",
+              "gte": 24000,
+              "lt": 36000
+            },
+            {
+              "label": "36,000-47,999 BTU/h",
+              "gte": 36000,
+              "lt": 48000
+            },
+            {
+              "label": "48,000-59,999 BTU/h",
+              "gte": 48000,
+              "lt": 60000
+            },
+            {
+              "label": "60,000 BTU/h and above",
+              "gte": 60000
+            }
+          ]
+        },
+        "sort": true,
+        "search_boost": 0.4,
+        "indexable": false,
+        "seo": {
+          "indexable": false,
+          "reason": "Filtering on BTU/h returns the SAME set as filtering on tonnage — they are one measurement in two units. Indexing both would create a near-duplicate page for every capacity. The tonnage facet is indexable; this one is UI and API only."
+        },
+        "rationale": "Essential for engineering-precise API queries; redundant for SEO."
+      },
+      {
+        "field": "seer2",
+        "entity_type": "equipment_model",
+        "value_type": "number",
+        "unit": null,
+        "filter": {
+          "type": "range",
+          "facet_count": true,
+          "buckets": [
+            {
+              "label": "13.4-13.9",
+              "gte": 13.4,
+              "lt": 14
+            },
+            {
+              "label": "14.0-14.9",
+              "gte": 14,
+              "lt": 15
+            },
+            {
+              "label": "15.0-15.9",
+              "gte": 15,
+              "lt": 16
+            },
+            {
+              "label": "16.0 and above",
+              "gte": 16
+            }
+          ]
+        },
+        "sort": true,
+        "search_boost": 0.5,
+        "indexable": true,
+        "seo": {
+          "indexable": "conditional",
+          "min_results": 10,
+          "demand_threshold": 0.5
+        },
+        "rationale": "Efficiency minimums are set by regional code, so \"14.3 SEER2 or higher\" is a real compliance question with real money attached. Conditional because most individual bucket/type combinations are thin."
+      },
+      {
+        "field": "eer2",
+        "entity_type": "equipment_model",
+        "value_type": "number",
+        "unit": null,
+        "filter": {
+          "type": "range",
+          "facet_count": true
+        },
+        "sort": true,
+        "search_boost": 0.2,
+        "indexable": false,
+        "seo": {
+          "indexable": false,
+          "reason": "Specialist filter with negligible search demand. UI and API only."
+        }
+      },
+      {
+        "field": "hspf2",
+        "entity_type": "equipment_model",
+        "value_type": "number",
+        "unit": null,
+        "filter": {
+          "type": "range",
+          "facet_count": true,
+          "visible_when": {
+            "property": "product_type",
+            "in": [
+              "heat_pump"
+            ]
+          }
+        },
+        "sort": true,
+        "search_boost": 0.2,
+        "indexable": false,
+        "seo": {
+          "indexable": false,
+          "reason": "Specialist filter, and only applicable to a subset of the catalogue."
+        }
+      },
+      {
+        "field": "refrigerant",
+        "entity_type": "equipment_model",
+        "value_type": "string",
+        "unit": null,
+        "filter": {
+          "type": "multi_select",
+          "facet_count": true,
+          "options": [
+            "R-410A",
+            "R-454B",
+            "R-32",
+            "R-22"
+          ]
+        },
+        "sort": false,
+        "search_boost": 0.7,
+        "indexable": true,
+        "seo": {
+          "indexable": true,
+          "min_results": 10,
+          "demand_threshold": 0.9
+        },
+        "rationale": "The highest-demand facet in the vertical right now. The A2L transition means \"R-454B air conditioner\" is a live purchasing question for every contractor, and the answer decides whether a replacement is a drop-in or a system change."
+      },
+      {
+        "field": "voltage",
+        "entity_type": "equipment_model",
+        "value_type": "number",
+        "unit": "V",
+        "filter": {
+          "type": "multi_select",
+          "facet_count": true,
+          "options": [
+            115,
+            208,
+            230,
+            460
+          ]
+        },
+        "sort": false,
+        "search_boost": 0.3,
+        "indexable": false,
+        "seo": {
+          "indexable": false,
+          "reason": "A qualifier on another search, not a search. Nobody looks for \"208 volt equipment\"; they look for a 3-ton condenser that happens to be 208V."
+        }
+      },
+      {
+        "field": "phase",
+        "entity_type": "equipment_model",
+        "value_type": "number",
+        "unit": null,
+        "filter": {
+          "type": "single_select",
+          "facet_count": true,
+          "options": [
+            1,
+            3
+          ]
+        },
+        "sort": false,
+        "search_boost": 0.2,
+        "indexable": false,
+        "seo": {
+          "indexable": false,
+          "reason": "Two values, both low-intent. Qualifier only."
+        }
+      },
+      {
+        "field": "stage_count",
+        "entity_type": "equipment_model",
+        "value_type": "number",
+        "unit": null,
+        "filter": {
+          "type": "single_select",
+          "facet_count": true,
+          "options": [
+            1,
+            2
+          ]
+        },
+        "sort": false,
+        "search_boost": 0.3,
+        "indexable": false,
+        "seo": {
+          "indexable": false,
+          "reason": "Low cardinality and low standalone demand."
+        }
+      },
+      {
+        "field": "sound_level_db",
+        "entity_type": "equipment_model",
+        "value_type": "number",
+        "unit": "dB",
+        "filter": {
+          "type": "range",
+          "facet_count": true,
+          "buckets": [
+            {
+              "label": "Under 70 dB",
+              "lt": 70
+            },
+            {
+              "label": "70-74 dB",
+              "gte": 70,
+              "lt": 75
+            },
+            {
+              "label": "75 dB and above",
+              "gte": 75
+            }
+          ]
+        },
+        "sort": true,
+        "search_boost": 0.3,
+        "indexable": false,
+        "seo": {
+          "indexable": false,
+          "reason": "Coverage is thin (only two sources publish it) and the distributor's values are unreliable. A facet that silently drops most of the catalogue teaches users the data is incomplete. Revisit when coverage exceeds 80%."
+        }
+      },
+      {
+        "field": "weight_lb",
+        "entity_type": "equipment_model",
+        "value_type": "number",
+        "unit": "lb",
+        "filter": {
+          "type": "range",
+          "facet_count": false
+        },
+        "sort": true,
+        "search_boost": 0.1,
+        "indexable": false,
+        "seo": {
+          "indexable": false,
+          "reason": "Logistics detail. Sortable and queryable; never a landing page."
+        }
+      },
+      {
+        "field": "manufacturer",
+        "entity_type": "equipment_model",
+        "value_type": "string",
+        "unit": null,
+        "filter": {
+          "type": "multi_select",
+          "facet_count": true
+        },
+        "sort": false,
+        "search_boost": 0.9,
+        "indexable": true,
+        "seo": {
+          "indexable": true,
+          "min_results": 5,
+          "demand_threshold": 0.9
+        },
+        "rationale": "Brand plus category is the highest-intent pattern in the vertical. The lower min_results reflects that a manufacturer page is legitimate even with a small catalogue — it is a real entity, not a generated combination."
+      }
+    ],
+    "indexable_combinations": [
+      {
+        "id": "type_by_tonnage",
+        "fields": [
+          "product_type",
+          "nominal_tonnage"
+        ],
+        "max_depth": 2,
+        "min_results": 10,
+        "rationale": "\"3 ton heat pump\" is how contractors and homeowners actually search, and it is the single most common query pattern in the vertical."
+      },
+      {
+        "id": "type_by_refrigerant",
+        "fields": [
+          "product_type",
+          "refrigerant"
+        ],
+        "max_depth": 2,
+        "min_results": 10,
+        "rationale": "\"R-454B air conditioner\" is a live compliance and compatibility question during the A2L transition, with a clear commercial decision behind it."
+      },
+      {
+        "id": "manufacturer_by_type",
+        "fields": [
+          "manufacturer",
+          "product_type"
+        ],
+        "max_depth": 2,
+        "min_results": 5,
+        "rationale": "Brand-plus-category navigation. Distinct intent, distinct content, and a genuine entry point rather than a generated permutation."
+      },
+      {
+        "id": "type_by_tonnage_by_refrigerant",
+        "fields": [
+          "product_type",
+          "nominal_tonnage",
+          "refrigerant"
+        ],
+        "max_depth": 3,
+        "min_results": 20,
+        "rationale": "The one three-field combination that earns a page: a contractor replacing a specific unit under the new refrigerant rules needs exactly this intersection. The raised min_results is what keeps it from becoming a permutation generator."
+      }
+    ],
+    "denied_combinations": [
+      {
+        "fields": [
+          "cooling_capacity_btu",
+          "nominal_tonnage"
+        ],
+        "reason": "The same measurement in two units. Every such page is a duplicate of a tonnage page by construction."
+      },
+      {
+        "fields": [
+          "voltage",
+          "phase"
+        ],
+        "reason": "Qualifiers, not intents. Would generate a page for every electrical configuration with no distinct user behind any of them."
+      },
+      {
+        "fields": [
+          "seer2",
+          "eer2"
+        ],
+        "reason": "Strongly correlated ratings. Combining them produces near-identical result sets across adjacent buckets."
+      },
+      {
+        "fields": [
+          "sound_level_db",
+          "weight_lb"
+        ],
+        "reason": "Two thin-coverage properties. Their intersection is a page about almost nothing, backed by data we mostly do not have."
+      },
+      {
+        "pattern": "any_combination_of_four_or_more",
+        "reason": "A hard ceiling. Beyond three facets the result sets are individually tiny and collectively near-duplicate — the exact failure mode rule 8 exists to prevent. Deeper filtering stays fully available in the UI and the API; it simply never becomes an indexable URL."
+      }
+    ]
+  }
+}

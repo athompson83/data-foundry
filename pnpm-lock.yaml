@@ -108,6 +108,21 @@ importers:
       '@data-foundry/usage-events':
         specifier: workspace:*
         version: link:../../packages/usage-events
+
+  apps/web:
+    dependencies:
+      '@data-foundry/canonical-schema':
+        specifier: workspace:*
+        version: link:../../packages/canonical-schema
+      '@data-foundry/canonical-store':
+        specifier: workspace:*
+        version: link:../../packages/canonical-store
+      '@data-foundry/provenance':
+        specifier: workspace:*
+        version: link:../../packages/provenance
+      '@data-foundry/query-model':
+        specifier: workspace:*
+        version: link:../../packages/query-model
       pg:
         specifier: ^8.23.0
         version: 8.23.0

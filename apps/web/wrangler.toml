@@ -1,0 +1,31 @@
+# Cloudflare Worker manifest for the Data Foundry public web surface (ADR-0011).
+#
+# `account_id`, the Hyperdrive `id` and the route are deployment facts, not
+# repository facts — see `apps/edge/wrangler.toml` for why they are left unset.
+# `docs/owner-actions/cloudflare-deployment.md` records what an operator has to
+# supply; this Worker needs the same Hyperdrive binding `apps/edge` does and
+# may point at the same one, since both read the same database.
+
+name = "data-foundry-web"
+main = "src/index.ts"
+
+# node_compat is required for `pg`: Hyperdrive reaches Postgres over Workers TCP
+# sockets, and the driver needs Node built-ins to use them.
+compatibility_date = "2026-08-23"
+compatibility_flags = ["nodejs_compat"]
+
+[observability]
+enabled = true
+
+# No VERTICAL_SLUG here, unlike apps/edge: this is the ONE deployment that
+# serves every vertical — the parent site and every child industry site are
+# one Worker, one route, one bundle (ADR-0011). Which verticals it can serve
+# is decided at build time by `pnpm web:compile`, not at deploy time by an env
+# var, because the bundle only carries what was compiled into it.
+
+# [[hyperdrive]]
+# binding = "HYPERDRIVE"
+# id = "<hyperdrive-id>"
+
+# `wrangler dev` against a local database can use POSTGRES_URL instead. Put it
+# in .dev.vars (gitignored), never here: this file is committed.
