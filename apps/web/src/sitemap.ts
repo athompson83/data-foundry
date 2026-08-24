@@ -15,8 +15,24 @@ import type { VerticalDeployment, WebDeployment } from './composition.js';
 
 const MAX_ENTITIES_PER_SEGMENT = 2000;
 
+/**
+ * `&`, `<` etc. in a `loc` value break the surrounding XML for the WHOLE
+ * document, not just one entry — a crawler that fails to parse the sitemap
+ * gets none of it. `canonical_slug` is ingested, third-party-sourced data by
+ * the time it reaches here, not something this module may assume is already
+ * XML-safe.
+ */
+function escapeXml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
 function urlEntry(loc: string): string {
-  return `<url><loc>${loc}</loc></url>`;
+  return `<url><loc>${escapeXml(loc)}</loc></url>`;
 }
 
 function urlset(entries: readonly string[]): string {
@@ -30,7 +46,7 @@ export function sitemapIndexXml(deployment: WebDeployment): string {
     for (const segment of vertical.runtime.seo.sitemaps.segments) {
       const path = segment.path.replace('{n}', '1');
       const loc = `${deployment.publicOrigin}${vertical.runtime.seo.url_prefix}${path}`;
-      entries.push(`<sitemap><loc>${loc}</loc></sitemap>`);
+      entries.push(`<sitemap><loc>${escapeXml(loc)}</loc></sitemap>`);
     }
   }
   return `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.join('\n')}\n</sitemapindex>\n`;
@@ -103,8 +119,12 @@ export async function sitemapSegmentXml(
     });
     for (const hit of result.hits) {
       if (!(await isIndexable(vertical, hit.entity.id, hit.entity.entity_type, now))) continue;
-      const loc = `${publicOrigin}${pageClass.path.replace('{canonical_slug}', hit.entity.canonical_slug)}`;
-      entries.push(urlEntry(loc));
+      // A function replacer, not a string one: String.replace's string form
+      // treats `$&`/`$'`/`` $` `` in the replacement as special patterns, so a
+      // slug containing a literal `$` would corrupt the URL. A function
+      // replacer's return value is inserted literally.
+      const path = pageClass.path.replace('{canonical_slug}', () => hit.entity.canonical_slug);
+      entries.push(urlEntry(`${publicOrigin}${path}`));
     }
   }
   return urlset(entries);

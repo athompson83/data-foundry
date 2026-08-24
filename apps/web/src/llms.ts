@@ -35,7 +35,11 @@ export function llmsTxt(vertical: VerticalDeployment, publicOrigin: string): str
   if (include.has('licensing_and_access_terms')) {
     lines.push(
       '## Licensing',
-      `Platform code is MIT. Data itself is governed per-source rights, not by the code licence — see ${publicOrigin}/DATA_RIGHTS.md.`,
+      // publicOrigin is this deployment's own host — it doesn't serve
+      // DATA_RIGHTS.md (a repo-root file, not a route this Worker owns), so
+      // that link has to point at the source of truth instead of a 404.
+      'Platform code is MIT. Data itself is governed per-source rights, not by the code licence — see ' +
+        'https://github.com/athompson83/data-foundry/blob/main/DATA_RIGHTS.md.',
       '',
     );
   }

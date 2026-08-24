@@ -20,16 +20,40 @@ export interface PageMatch {
   readonly params: Readonly<Record<string, string>>;
 }
 
+/** `decodeURIComponent` throws `URIError` on a malformed escape (`%ZZ`, a lone `%`, a truncated UTF-8 sequence). */
+function tryDecode(value: string): string | null {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return null;
+  }
+}
+
 export function matchPageClass(seo: SeoConfig, pathname: string): PageMatch | null {
   for (const pageClass of seo.page_classes) {
     const match = toRegex(pageClass.path).exec(pathname);
-    if (match !== null) {
-      const params: Record<string, string> = {};
-      for (const [key, value] of Object.entries(match.groups ?? {})) {
-        if (value !== undefined) params[key] = decodeURIComponent(value);
+    if (match === null) continue;
+
+    const params: Record<string, string> = {};
+    let malformed = false;
+    for (const [key, value] of Object.entries(match.groups ?? {})) {
+      if (value === undefined) continue;
+      const decoded = tryDecode(value);
+      // A malformed capture is not evidence this page class doesn't match —
+      // the same raw bytes would fail to decode against every other page
+      // class's pattern too. It IS evidence the request names no valid
+      // resource, so this falls through to the caller's ordinary 404 rather
+      // than throwing past every route handler into index.ts's outer catch,
+      // which would otherwise turn it into a 503 — a client's malformed
+      // request is not a "this deployment is not configured" outage.
+      if (decoded === null) {
+        malformed = true;
+        break;
       }
-      return { pageClass, params };
+      params[key] = decoded;
     }
+    if (malformed) return null;
+    return { pageClass, params };
   }
   return null;
 }

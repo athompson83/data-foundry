@@ -15,7 +15,7 @@ import {
   evaluateGate,
   type GateSignals,
 } from './gates.js';
-import { escapeHtml, layout, renderList } from './render.js';
+import { escapeAttr, escapeHtml, layout, renderList } from './render.js';
 import {
   fillTemplate,
   gateFor,
@@ -51,7 +51,7 @@ export function renderParentIndex(deployment: WebDeployment): string {
   const items = [...deployment.verticals.values()]
     .sort((a, b) => a.slug.localeCompare(b.slug))
     .map((v) => {
-      const href = v.runtime.seo.url_prefix;
+      const href = escapeAttr(v.runtime.seo.url_prefix);
       return `<li><a href="${href}">${escapeHtml(v.runtime.vertical_name)}</a> — <span>${escapeHtml(v.runtime.vertical_status)}</span></li>`;
     });
 
@@ -303,11 +303,16 @@ ${replacements.length === 0 ? '<p>No recorded replacement.</p>' : `<ul>${list}</
         }
       }
     }
+    // This page's substance is the relationship traversal, not the entity's
+    // own facts — its evidence_coverage reads relationships.coverage from the
+    // same provenanceCoverage report computeEntitySignals reads facts.coverage
+    // from, rather than asserting full coverage as a constant.
+    const coverage = await vertical.queryModel.provenanceCoverage({ entity_id: entity.id });
     const signals: GateSignals = {
       supersession_edges: replacements.length,
       terminal_model_indexable: terminalIndexable,
       unique_content_words: contentWords,
-      evidence_coverage: 1,
+      evidence_coverage: coverage.relationships.coverage,
     };
     failures = evaluateGate(gate, signals).failures;
   }

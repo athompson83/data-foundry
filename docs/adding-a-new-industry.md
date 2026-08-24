@@ -23,9 +23,10 @@ Fill in, in this order — each one is checkable before the next:
 2. **`entities/<type>.yaml`** per entity type — properties, which ones are
    `critical: true` (this is what feeds the indexability quality gate, see
    step 4), identity rules, quality rules.
-3. **`relationships.yaml`**, **`filters.yaml`** — the same file, one canonical
-   definition, that drives the web filter UI, the API/OpenAPI docs, and SEO
-   facet generation (doc 10 — one model, not three that can drift).
+3. **`relationships.yaml`** and **`filters.yaml`** — two separate files.
+   `filters.yaml` in particular is one canonical definition that drives the
+   web filter UI, the API/OpenAPI docs, and SEO facet generation (doc 10 —
+   one model, not three separately-maintained ones that can drift).
 4. **`normalizers/*.yaml`** — extraction/normalization rules, controlled
    vocabularies, fact-selection policy (the doc-04 authority cascade).
 
