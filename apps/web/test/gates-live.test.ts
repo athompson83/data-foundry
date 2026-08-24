@@ -10,7 +10,8 @@
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createQueryFixtures, type QueryFixtures } from '../../../packages/query-model/test/support.js';
-import { computeEntitySignals, evaluateGate } from '../src/gates.js';
+import { computeEntitySignals, computeVerticalDatasetSignals, evaluateGate } from '../src/gates.js';
+import { DEFAULT_CONCURRENCY } from '../src/concurrency.js';
 import type { QualityGate } from '../src/seo.js';
 
 let fixtures: QueryFixtures;
@@ -133,5 +134,51 @@ describe('the entity_detail-shaped gate against real data', () => {
       new Date('2026-03-01T00:00:00Z'),
     );
     expect(evaluateGate(gate, signals).passed).toBe(false);
+  });
+});
+
+describe('computeVerticalDatasetSignals — bounded per-entity fan-out', () => {
+  it('computes the same distinct_sources as a manual serial union over the same search results', async () => {
+    // The oracle: exactly what the old sequential for-loop computed, done by
+    // hand here so this does not depend on which implementation gates.ts
+    // currently uses — it proves the bounded-concurrency rewrite did not
+    // change what gets counted, only how the awaits are scheduled.
+    const result = await fixtures.qm.search({ vertical_id: fixtures.vertical.id, limit: 200, offset: 0 });
+    const expectedSources = new Set<string>();
+    for (const hit of result.hits.slice(0, 200)) {
+      const facts = await fixtures.qm.canonicalFacts(hit.entity.id);
+      for (const fact of facts) for (const s of fact.sources) expectedSources.add(s);
+    }
+
+    const signals = await computeVerticalDatasetSignals(fixtures.qm, fixtures.vertical.id);
+    expect(signals.distinct_sources).toBe(expectedSources.size);
+    expect(signals.entities).toBe(result.total);
+  });
+
+  it('runs canonicalFacts for more than one entity concurrently, bounded by DEFAULT_CONCURRENCY', async () => {
+    // RED under the pre-fix code: this was a plain serial `for` loop, so at
+    // most one canonicalFacts call was ever in flight.
+    let active = 0;
+    let maxActive = 0;
+    const spied = {
+      ...fixtures.qm,
+      canonicalFacts: async (
+        entityId: Parameters<typeof fixtures.qm.canonicalFacts>[0],
+        policy?: Parameters<typeof fixtures.qm.canonicalFacts>[1],
+      ) => {
+        active += 1;
+        maxActive = Math.max(maxActive, active);
+        await new Promise((resolve) => setTimeout(resolve, 5));
+        try {
+          return await fixtures.qm.canonicalFacts(entityId, policy);
+        } finally {
+          active -= 1;
+        }
+      },
+    };
+
+    await computeVerticalDatasetSignals(spied, fixtures.vertical.id);
+    expect(maxActive).toBeGreaterThan(1);
+    expect(maxActive).toBeLessThanOrEqual(DEFAULT_CONCURRENCY);
   });
 });

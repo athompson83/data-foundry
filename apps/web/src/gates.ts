@@ -19,6 +19,7 @@
 import type { QueryModel } from '@data-foundry/query-model';
 import type { EntityId, VerticalId } from '@data-foundry/canonical-schema';
 import type { QualityGate } from './seo.js';
+import { DEFAULT_CONCURRENCY, mapWithConcurrency } from './concurrency.js';
 
 /** Entities scanned when computing a vertical-wide signal (the `dataset` gate). */
 const MAX_VERTICAL_SCAN = 200;
@@ -224,11 +225,16 @@ export async function computeVerticalDatasetSignals(
   verticalId: VerticalId,
 ): Promise<GateSignals & { readonly entities: number }> {
   const result = await queryModel.search({ vertical_id: verticalId, limit: MAX_VERTICAL_SCAN, offset: 0 });
+  // Bounded rather than serial, for the same reason as sitemap.ts's
+  // per-entity fan-out (see concurrency.ts): up to MAX_VERTICAL_SCAN
+  // sequential canonicalFacts round trips is slow at scale, and unbounded
+  // parallel fan-out risks the connection pool instead.
+  const scanned = result.hits.slice(0, MAX_VERTICAL_SCAN);
+  const factLists = await mapWithConcurrency(scanned, DEFAULT_CONCURRENCY, (hit) =>
+    queryModel.canonicalFacts(hit.entity.id),
+  );
   const sources = new Set<string>();
-  for (const hit of result.hits.slice(0, MAX_VERTICAL_SCAN)) {
-    const facts = await queryModel.canonicalFacts(hit.entity.id);
-    for (const fact of facts) for (const s of fact.sources) sources.add(s);
-  }
+  for (const facts of factLists) for (const fact of facts) for (const s of fact.sources) sources.add(s);
   const coverage = await queryModel.provenanceCoverage({ vertical_id: verticalId });
   return {
     entities: result.total,
