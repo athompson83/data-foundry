@@ -20,6 +20,8 @@
     "verticals:validate": "tsx tooling/validators/validate-verticals.ts",
     "verticals:compile": "tsx tooling/scripts/compile-vertical-runtime.ts",
     "verticals:compile:check": "tsx tooling/scripts/compile-vertical-runtime.ts --check",
+    "web:compile": "tsx tooling/scripts/compile-web-runtime.ts",
+    "web:compile:check": "tsx tooling/scripts/compile-web-runtime.ts --check",
     "sources:readiness": "tsx tooling/scripts/source-readiness.ts"
   },
   "devDependencies": {

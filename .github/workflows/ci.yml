@@ -70,6 +70,12 @@ jobs:
       - name: Vertical runtime artifacts are current
         run: pnpm verticals:compile:check
 
+      # 7. Same reasoning as step 6, for the web surface's own compiled
+      #    artifact — it additionally bundles seo.yaml, which the edge runtime
+      #    artifact does not carry.
+      - name: Web runtime artifacts are current
+        run: pnpm web:compile:check
+
   migrations-postgres:
     name: migrations on real Postgres
     runs-on: ubuntu-latest
