@@ -117,8 +117,12 @@ export function evaluateGate(gate: QualityGate, signals: GateSignals): GateVerdi
   if (gate.min_entities !== undefined) {
     need(signals.entities, gate.min_entities, 'entities');
   }
-  if (gate.block_on_disputed_critical_property === true && signals.disputed_critical_property === true) {
-    failures.push('a critical property is under an unresolved conflict');
+  if (gate.block_on_disputed_critical_property === true) {
+    if (signals.disputed_critical_property === undefined) {
+      failures.push(UNMEASURED('disputed_critical_property'));
+    } else if (signals.disputed_critical_property === true) {
+      failures.push('a critical property is under an unresolved conflict');
+    }
   }
   if (gate.require_terminal_model_indexable === true) {
     needTrue(signals.terminal_model_indexable, 'terminal_model_indexable');

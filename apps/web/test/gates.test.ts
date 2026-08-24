@@ -70,6 +70,16 @@ describe('evaluateGate', () => {
     expect(failing.passed).toBe(false);
   });
 
+  it('fails closed on block_on_disputed_critical_property when the signal is unmeasured, not just when it is true', () => {
+    // Review found the original `=== true && === true` form treated an
+    // undefined signal the same as `false` — silently NOT disputed — which is
+    // the fail-open bug this whole module exists to avoid. `false` must still
+    // pass; only `undefined` should be UNMEASURED.
+    const gate: QualityGate = { block_on_disputed_critical_property: true };
+    expect(evaluateGate(gate, {}).passed).toBe(false);
+    expect(evaluateGate(gate, { disputed_critical_property: false }).passed).toBe(true);
+  });
+
   it('enforces max_staleness_days as an upper bound, not a lower one', () => {
     const gate: QualityGate = { max_staleness_days: 400 };
     expect(evaluateGate(gate, { staleness_days: 100 }).passed).toBe(true);
