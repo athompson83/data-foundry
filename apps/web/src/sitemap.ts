@@ -11,6 +11,7 @@
  * known gap rather than silently only-ever-emitting page 1 of something larger.
  */
 import { computeEntitySignals, computeVerticalDatasetSignals, evaluateGate } from './gates.js';
+import { sitemapSegmentUrl } from './router.js';
 import type { VerticalDeployment, WebDeployment } from './composition.js';
 
 const MAX_ENTITIES_PER_SEGMENT = 2000;
@@ -45,7 +46,7 @@ export function sitemapIndexXml(deployment: WebDeployment): string {
   for (const vertical of deployment.verticals.values()) {
     for (const segment of vertical.runtime.seo.sitemaps.segments) {
       const path = segment.path.replace('{n}', '1');
-      const loc = `${deployment.publicOrigin}${vertical.runtime.seo.url_prefix}${path}`;
+      const loc = `${deployment.publicOrigin}${sitemapSegmentUrl(vertical.runtime.seo.url_prefix, path)}`;
       entries.push(`<sitemap><loc>${escapeXml(loc)}</loc></sitemap>`);
     }
   }
