@@ -47,6 +47,15 @@ describe('evaluateGate', () => {
     expect(verdict.passed).toBe(false);
   });
 
+  it('fails closed on require_distinct_value — no measurement of "says something the sources do not" exists', () => {
+    // hvac's real entity_detail gate declares this. Review found evaluateGate
+    // never checked it at all, so an entity page could pass without proving
+    // distinct value — the fail-closed default this test pins is the fix.
+    const gate: QualityGate = { require_distinct_value: true };
+    const verdict = evaluateGate(gate, { entity_quality_score: 1, total_facts: 999 });
+    expect(verdict.passed).toBe(false);
+  });
+
   it('does not fail on block_on_open_dispute when the gate does not declare it', () => {
     const gate: QualityGate = { min_entity_quality_score: 0 };
     const verdict = evaluateGate(gate, { entity_quality_score: 1 });

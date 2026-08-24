@@ -17,8 +17,11 @@
  * the page had not earned yet.
  */
 import type { QueryModel } from '@data-foundry/query-model';
-import type { EntityId } from '@data-foundry/canonical-schema';
+import type { EntityId, VerticalId } from '@data-foundry/canonical-schema';
 import type { QualityGate } from './seo.js';
+
+/** Entities scanned when computing a vertical-wide signal (the `dataset` gate). */
+const MAX_VERTICAL_SCAN = 200;
 
 export interface GateSignals {
   readonly entity_quality_score?: number;
@@ -132,13 +135,18 @@ export function evaluateGate(gate: QualityGate, signals: GateSignals): GateVerdi
   // evidence. Re-deriving the same filter here is the mistake the comment in
   // `apps/api/src/routes.ts` warns against.
   //
-  // demand_threshold and block_on_open_dispute are declared in seo.yaml but
-  // have no signal in this deployment (no traffic/analytics pipeline, no
-  // dispute ledger beyond per-fact conflicts) — a gate that declares either
-  // therefore never passes here, which is the fail-closed default this module
-  // commits to, not a bug to silence.
+  // demand_threshold, block_on_open_dispute and require_distinct_value are
+  // declared in seo.yaml but have no signal in this deployment: no
+  // traffic/analytics pipeline, no dispute ledger beyond per-fact conflicts,
+  // and no measurement of "does this page say something the sources do not
+  // already say together" (seo.yaml's own definition of distinct value —
+  // normalized specs, resolved identifiers, the supersession chain — is a
+  // real property but not one this module computes). A gate that declares
+  // any of the three therefore never passes here, which is the fail-closed
+  // default this module commits to, not a bug to silence.
   if (gate.demand_threshold !== undefined) failures.push(UNMEASURED('demand_threshold'));
   if (gate.block_on_open_dispute === true) failures.push(UNMEASURED('open_dispute'));
+  if (gate.require_distinct_value === true) failures.push(UNMEASURED('distinct_value'));
 
   return { passed: failures.length === 0, failures };
 }
@@ -192,4 +200,30 @@ export function countContentWords(renderedText: string): number {
     .trim()
     .split(/\s+/)
     .filter((w) => w.length > 0).length;
+}
+
+/**
+ * Signals for the `dataset` gate — the whole vertical, not one entity.
+ *
+ * The single implementation both `pages.ts` (deciding a page's own robots
+ * meta) and `sitemap.ts` (deciding whether to list that same page) call.
+ * Two implementations of "is the dataset landing page indexable" is exactly
+ * how a sitemap and the page it points at end up disagreeing.
+ */
+export async function computeVerticalDatasetSignals(
+  queryModel: QueryModel,
+  verticalId: VerticalId,
+): Promise<GateSignals & { readonly entities: number }> {
+  const result = await queryModel.search({ vertical_id: verticalId, limit: MAX_VERTICAL_SCAN, offset: 0 });
+  const sources = new Set<string>();
+  for (const hit of result.hits.slice(0, MAX_VERTICAL_SCAN)) {
+    const facts = await queryModel.canonicalFacts(hit.entity.id);
+    for (const fact of facts) for (const s of fact.sources) sources.add(s);
+  }
+  const coverage = await queryModel.provenanceCoverage({ vertical_id: verticalId });
+  return {
+    entities: result.total,
+    distinct_sources: sources.size,
+    evidence_coverage: coverage.facts.coverage,
+  };
 }

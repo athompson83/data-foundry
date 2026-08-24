@@ -10,7 +10,7 @@
  * complexity doc 07 warns against manufacturing ahead of need. Documented as a
  * known gap rather than silently only-ever-emitting page 1 of something larger.
  */
-import { computeEntitySignals, evaluateGate } from './gates.js';
+import { computeEntitySignals, computeVerticalDatasetSignals, evaluateGate } from './gates.js';
 import type { VerticalDeployment, WebDeployment } from './composition.js';
 
 const MAX_ENTITIES_PER_SEGMENT = 2000;
@@ -78,10 +78,20 @@ export async function sitemapSegmentXml(
 
   for (const pageClass of pageClasses) {
     if (pageClass.entity_type === undefined) {
-      // Static page classes (dataset_landing, docs_api_mcp) that share the
-      // `datasets` segment: always indexable, no gate to evaluate per-URL —
-      // their own gate is evaluated when the page itself renders.
-      if (pageClass.id === 'dataset_landing') entries.push(urlEntry(`${publicOrigin}${seo.url_prefix}`));
+      // Static page classes sharing the `datasets` segment. `docs_api_mcp`
+      // declares `quality_gate: none` — "no data gate applies" per seo.yaml,
+      // so it is unconditionally indexable. `dataset_landing` declares
+      // `quality_gate: dataset`, which DOES have thresholds
+      // (min_entities/min_evidence_coverage/min_distinct_sources) — it must
+      // be evaluated the same way `renderDatasetLanding` evaluates it, or the
+      // sitemap can recommend a page the page itself marks `noindex`.
+      if (pageClass.id === 'dataset_landing') {
+        const gate = seo.quality_gates[pageClass.quality_gate];
+        const signals = await computeVerticalDatasetSignals(vertical.queryModel, vertical.verticalId);
+        if (gate !== undefined && evaluateGate(gate, signals).passed) {
+          entries.push(urlEntry(`${publicOrigin}${seo.url_prefix}`));
+        }
+      }
       if (pageClass.id === 'docs_api_mcp') entries.push(urlEntry(`${publicOrigin}${seo.url_prefix}/docs`));
       continue;
     }
