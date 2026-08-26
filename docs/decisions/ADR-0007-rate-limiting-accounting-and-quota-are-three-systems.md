@@ -85,6 +85,15 @@ What a caller is *entitled* to is a commercial arrangement, and this schema
 holds no commercial arrangements — see 0011's closing note on prices, plans and
 invoices, which this decision extends rather than revises.
 
+**The API-key display prefix is 16 characters by design.** Eight characters are
+the fixed `df_live_` or `df_test_` label and eight are variable base64url
+characters, about 48 bits of distinguishing power. The previous 12-character
+shape exposed only about 24 distinguishing bits and reaches birthday collisions
+at ordinary large-tenant key counts, defeating the prefix's support and
+revocation purpose. The remaining secret still carries more than 200 undisclosed
+bits. `packages/api-keys/src/index.ts` implements the length and
+`packages/api-keys/test/api-keys.test.ts` pins both sides of the trade-off.
+
 **Abuse protection is an owner action, not a code change.** It is configured in
 the Cloudflare dashboard against the zone; see
 `docs/owner-actions/cloudflare-deployment.md`. Nothing in this repository can

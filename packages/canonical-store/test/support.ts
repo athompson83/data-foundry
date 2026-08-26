@@ -75,6 +75,7 @@ export interface Fixtures {
 export type SourceKey =
   | 'manufacturer'
   | 'certifier'
+  | 'filing'
   | 'aggregator'
   | 'blocked'
   | 'editorial'
@@ -105,6 +106,14 @@ const SOURCE_SPECS: readonly SourceSpec[] = [
     domain: 'ratings-directory.example.org',
     source_type: 'CERTIFICATION_BODY',
     authority_rank: 95,
+    rights: 'GREEN',
+  },
+  {
+    key: 'filing',
+    publisher: 'Federal Equipment Register',
+    domain: 'filings.regulator.example.gov',
+    source_type: 'REGULATORY_FILING',
+    authority_rank: 80,
     rights: 'GREEN',
   },
   {

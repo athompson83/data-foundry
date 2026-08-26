@@ -49,8 +49,8 @@ across build waves**. They name the *shape* of a certification-directory source.
 certification-directory source would be a `CERTIFICATION_BODY`; the only real US
 one is prohibited (`packages/source-registry/src/prohibited-sources.ts`), and the
 lawful replacements are `REGULATORY_FILING` — registers a regulator *hosts* and a
-manufacturer *asserts*. When these fixtures are replaced, the authority tier
-changes with them, and so must every description that calls a value certified.
+manufacturer *asserts*. When these fixtures are replaced, the source authority
+class changes with them, and so must every description that calls a value certified.
 See `docs/sources/hvac-source-landscape-2026-08.md`.
 The publisher is a fictional body — **not** the real Air-Conditioning, Heating,
 and Refrigeration Institute — and nothing in this vertical describes that

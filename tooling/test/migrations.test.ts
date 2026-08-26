@@ -120,6 +120,88 @@ describe('migration runner', () => {
     expect(second.every((result) => result.skipped)).toBe(true);
   });
 
+  it('stops 0012 with an operator-readable error when an existing key has no vertical', async () => {
+    const upgrade = await createPGliteDriver();
+    try {
+      await applyMigrations(
+        upgrade,
+        migrations.filter((migration) => migration.version < '0012'),
+      );
+      await upgrade.query(
+        `INSERT INTO api_tenants (id, slug, name)
+         VALUES ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'legacy-null-key', 'Legacy null key')`,
+      );
+      await upgrade.query(
+        `INSERT INTO api_keys (tenant_id, token_hash, token_prefix, label, vertical_id)
+         VALUES ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', $1, 'df_live_abcd', 'needs owner scope', NULL)`,
+        ['a'.repeat(64)],
+      );
+
+      await expect(applyMigrations(upgrade, migrations)).rejects.toThrow(
+        /0012 precondition failed: api_keys\.vertical_id contains 1 NULL row\(s\); assign every key to its intended vertical before retrying/i,
+      );
+
+      const applied = await upgrade.query<{ version: string }>(
+        `SELECT version FROM schema_migrations WHERE version = '0012'`,
+      );
+      expect(applied).toHaveLength(0);
+      const [column] = await upgrade.query<{ is_nullable: string }>(
+        `SELECT is_nullable FROM information_schema.columns
+          WHERE table_schema = 'public' AND table_name = 'api_keys' AND column_name = 'vertical_id'`,
+      );
+      expect(column?.is_nullable).toBe('YES');
+    } finally {
+      await upgrade.close();
+    }
+  }, 120_000);
+
+  it('stops 0012 before guessing attribution for an existing usage event', async () => {
+    const upgrade = await createPGliteDriver();
+    try {
+      await applyMigrations(
+        upgrade,
+        migrations.filter((migration) => migration.version < '0012'),
+      );
+      await upgrade.query(
+        `INSERT INTO verticals (id, slug, name, schema_version, status, default_refresh_policy)
+         VALUES ($1, 'legacy-metering', 'Legacy metering', '1.0.0', 'ACTIVE', $2::jsonb)`,
+        [VERTICAL, JSON.stringify({ cadence: 'WEEKLY', max_staleness_hours: 168, priority: 50 })],
+      );
+      await upgrade.query(
+        `INSERT INTO api_tenants (id, slug, name)
+         VALUES ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'legacy-usage', 'Legacy usage')`,
+      );
+      await upgrade.query(
+        `INSERT INTO api_keys (id, tenant_id, token_hash, token_prefix, label, vertical_id)
+         VALUES ('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+                 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', $1, 'df_live_abcd', 'scoped key', $2)`,
+        ['b'.repeat(64), VERTICAL],
+      );
+      await upgrade.query(
+        `INSERT INTO api_usage_events (tenant_id, api_key_id, route, method, status)
+         VALUES ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+                 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', '/v1/search', 'GET', 200)`,
+      );
+
+      await expect(applyMigrations(upgrade, migrations)).rejects.toThrow(
+        /0012 precondition failed: api_usage_events contains 1 existing row\(s\); route_key and vertical_id cannot be inferred safely/i,
+      );
+
+      const applied = await upgrade.query<{ version: string }>(
+        `SELECT version FROM schema_migrations WHERE version = '0012'`,
+      );
+      expect(applied).toHaveLength(0);
+      const columns = await upgrade.query<{ column_name: string }>(
+        `SELECT column_name FROM information_schema.columns
+          WHERE table_schema = 'public' AND table_name = 'api_usage_events'`,
+      );
+      expect(columns.map((column) => column.column_name)).toContain('route');
+      expect(columns.map((column) => column.column_name)).not.toContain('route_key');
+    } finally {
+      await upgrade.close();
+    }
+  }, 120_000);
+
   it('refuses to run when an applied migration has been edited', async () => {
     const tampered = migrations.map((migration, index) =>
       index === 0 ? { ...migration, checksum: 'f'.repeat(64) } : migration,

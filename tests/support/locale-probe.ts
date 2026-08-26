@@ -2,12 +2,12 @@
  * Runs the real entity resolver over two competing spellings of one identifier
  * and prints what it published, as JSON, on the last line of stdout.
  *
- * It exists to be executed twice from `selection-determinism.test.ts` under two
- * different `LC_ALL` values. A collator-based tiebreak answers differently in
- * `da_DK` than in `en_US` for plain ASCII model numbers, so "the published name
- * depends on the machine's locale" is observable rather than theoretical. The
- * probe therefore has to be a separate process: `Intl`'s default locale is
- * fixed when the process starts.
+ * It exists to be executed twice from `resolution-determinism.test.ts` under
+ * two deliberately opposing collation modes. POSIX locale environment
+ * variables do not select Node's default ICU locale on Windows, so relying on
+ * `LC_ALL` made the original proof vacuous there. Patching `localeCompare` for
+ * this exact pair keeps the test portable and mutation-sensitive: restoring the
+ * old production call makes the two real resolver runs disagree.
  *
  * Nothing here is a stand-in for production code. It is the real migrations,
  * the real store, the real vertical configuration and the real `EntityResolver`.
@@ -31,6 +31,37 @@ const TS = '2026-08-14T00:00:00.000Z';
 /** Two spellings of one model number. Neither is the normalized form. */
 const SPELLINGS = ['abc-9001', 'ABC-9001'] as const;
 
+type CollationMode = 'lower-first' | 'upper-first';
+
+function readCollationMode(): CollationMode {
+  const mode = process.argv[2];
+  if (mode === 'lower-first' || mode === 'upper-first') return mode;
+  throw new Error('locale-probe requires lower-first or upper-first');
+}
+
+/**
+ * Make the obsolete implementation observably wrong without depending on the
+ * host operating system's locale configuration. The child process is thrown
+ * away after this probe, so no other test inherits the patched method.
+ */
+function installAdversarialCollator(mode: CollationMode): void {
+  const nativeLocaleCompare = String.prototype.localeCompare;
+  Object.defineProperty(String.prototype, 'localeCompare', {
+    configurable: true,
+    writable: true,
+    value(this: string, compareString: string, ...rest: unknown[]): number {
+      const left = String(this);
+      const right = String(compareString);
+      const pair = new Set([left, right]);
+      if (pair.size === 2 && SPELLINGS.every((spelling) => pair.has(spelling))) {
+        const lowerIsFirst = mode === 'lower-first';
+        return (left === SPELLINGS[0]) === lowerIsFirst ? -1 : 1;
+      }
+      return Reflect.apply(nativeLocaleCompare, left, [right, ...rest]) as number;
+    },
+  });
+}
+
 const ATTRIBUTION = JSON.stringify({ required: false, text: null, url: null });
 const ROBOTS = JSON.stringify({
   respect_robots: true,
@@ -44,6 +75,8 @@ const ROBOTS = JSON.stringify({
 });
 
 async function main(): Promise<void> {
+  const collationMode = readCollationMode();
+  installAdversarialCollator(collationMode);
   const driver = await migratedDriver();
   const store = createCanonicalStore(driver);
   const config = await loadVerticalConfig('hvac', {
@@ -136,7 +169,7 @@ async function main(): Promise<void> {
   await driver.close();
   process.stdout.write(
     `\n${JSON.stringify({
-      locale: new Intl.Collator().resolvedOptions().locale,
+      collation_mode: collationMode,
       normalized,
       canonical_name: entity?.canonical_name ?? null,
       canonical_slug: entity?.canonical_slug ?? null,

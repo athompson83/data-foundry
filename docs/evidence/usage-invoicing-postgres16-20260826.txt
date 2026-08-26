@@ -1,0 +1,215 @@
+Data Foundry usage-invoicing benchmark evidence
+Captured: 2026-08-26
+Engine: PostgreSQL 16.15 (Ubuntu 16.15-0ubuntu0.24.04.1), x86_64
+Dataset: 2,000,000 synthetic usage events; 200 synthetic tenants;
+         1,398 synthetic keys; 4 synthetic verticals; 90-day window
+Script: tooling/scripts/bench-usage-invoicing.ts
+Safety: disposable local scratch database; no production data or credentials
+
+All 13 migrations were applied before the run. The script ran each query five
+times after ANALYZE and reported the best execution with the buffer counts from
+that same execution.
+
+BENCHMARK STDOUT
+
+| read | best ms | shared hit | shared read |
+|---|--:|--:|--:|
+| tenant invoice, largest tenant — denormalized | 35.9 | 13874 | 0 |
+| tenant invoice, largest tenant — normalized join | 77.8 | 14673 | 19756 |
+| tenant invoice, smallest tenant — denormalized | 0.3 | 480 | 0 |
+| tenant invoice, smallest tenant — normalized join | 0.3 | 484 | 0 |
+| per-vertical attribution — denormalized | 27.9 | 13121 | 0 |
+| per-vertical attribution — normalized join | 69.5 | 15169 | 19260 |
+
+RAW PLAN CAPTURE
+
+These are later single-run EXPLAIN (ANALYZE, BUFFERS, COSTS OFF) captures over
+the same seeded database. They preserve the plan shape behind the benchmark;
+their wall-clock values are not the best-of-five values above. UUID literals
+were synthetic and are represented below by their semantic filter names. No
+plan node or measured value was changed.
+
+LARGE_TENANT_DENORMALIZED
+
+Finalize GroupAggregate (actual time=44.110..47.738 rows=5 loops=1)
+  Group Key: route_key
+  Buffers: shared hit=13873
+  ->  Gather Merge (actual time=44.105..47.731 rows=15 loops=1)
+        Workers Planned: 2
+        Workers Launched: 2
+        Buffers: shared hit=13873
+        ->  Sort (actual time=41.752..41.754 rows=5 loops=3)
+              Sort Key: route_key
+              Sort Method: quicksort  Memory: 25kB
+              Buffers: shared hit=13873
+              Worker 0:  Sort Method: quicksort  Memory: 25kB
+              Worker 1:  Sort Method: quicksort  Memory: 25kB
+              ->  Partial HashAggregate (actual time=41.731..41.732 rows=5 loops=3)
+                    Group Key: route_key
+                    Batches: 1  Memory Usage: 24kB
+                    Buffers: shared hit=13857
+                    ->  Parallel Bitmap Heap Scan on api_usage_events e
+                          (actual time=13.024..33.106 rows=79457 loops=3)
+                          Recheck Cond: tenant_id + occurred_at window
+                          Heap Blocks: exact=4001
+                          Buffers: shared hit=13857
+                          ->  Bitmap Index Scan on api_usage_events_tenant_window
+                                (actual time=13.879..13.880 rows=238370 loops=1)
+                                Index Cond: tenant_id + occurred_at window
+                                Buffers: shared hit=1503
+Planning: Buffers: shared hit=113
+Planning Time: 0.223 ms
+Execution Time: 47.794 ms
+
+LARGE_TENANT_NORMALIZED
+
+Finalize GroupAggregate (actual time=70.199..72.671 rows=5 loops=1)
+  Group Key: e.route_key
+  Buffers: shared hit=12575 read=21854
+  ->  Gather Merge (actual time=70.193..72.664 rows=15 loops=1)
+        Workers Planned: 2
+        Workers Launched: 2
+        Buffers: shared hit=12575 read=21854
+        ->  Sort (actual time=68.345..68.347 rows=5 loops=3)
+              Sort Key: e.route_key
+              Sort Method: quicksort  Memory: 25kB
+              Buffers: shared hit=12575 read=21854
+              Worker 0:  Sort Method: quicksort  Memory: 25kB
+              Worker 1:  Sort Method: quicksort  Memory: 25kB
+              ->  Partial HashAggregate (actual time=68.327..68.329 rows=5 loops=3)
+                    Group Key: e.route_key
+                    Batches: 1  Memory Usage: 24kB
+                    Buffers: shared hit=12559 read=21854
+                    ->  Hash Join (actual time=0.233..60.375 rows=79457 loops=3)
+                          Hash Cond: (e.api_key_id = k.id)
+                          Buffers: shared hit=12559 read=21854
+                          ->  Parallel Seq Scan on api_usage_events e
+                                (actual time=0.063..45.013 rows=222164 loops=3)
+                                Filter: occurred_at window
+                                Rows Removed by Filter: 444503
+                                Buffers: shared hit=12432 read=21854
+                          ->  Hash (actual time=0.141..0.141 rows=500 loops=3)
+                                Buckets: 1024  Batches: 1  Memory Usage: 32kB
+                                Buffers: shared hit=99
+                                ->  Seq Scan on api_keys k
+                                      (actual time=0.007..0.097 rows=500 loops=3)
+                                      Filter: tenant_id
+                                      Rows Removed by Filter: 898
+                                      Buffers: shared hit=99
+Planning: Buffers: shared hit=39 read=1
+Planning Time: 0.239 ms
+Execution Time: 72.700 ms
+
+SMALL_TENANT_DENORMALIZED
+
+HashAggregate (actual time=0.515..0.516 rows=5 loops=1)
+  Group Key: route_key
+  Batches: 1  Memory Usage: 24kB
+  Buffers: shared hit=480 read=5
+  ->  Bitmap Heap Scan on api_usage_events e
+        (actual time=0.113..0.469 rows=479 loops=1)
+        Recheck Cond: tenant_id + occurred_at window
+        Heap Blocks: exact=479
+        Buffers: shared hit=480 read=5
+        ->  Bitmap Index Scan on api_usage_events_tenant_window
+              (actual time=0.076..0.076 rows=479 loops=1)
+              Index Cond: tenant_id + occurred_at window
+              Buffers: shared hit=1 read=5
+Planning Time: 0.083 ms
+Execution Time: 0.538 ms
+
+SMALL_TENANT_NORMALIZED
+
+HashAggregate (actual time=0.572..0.573 rows=5 loops=1)
+  Group Key: e.route_key
+  Batches: 1  Memory Usage: 24kB
+  Buffers: shared hit=481 read=16
+  ->  Nested Loop (actual time=0.207..0.526 rows=479 loops=1)
+        Buffers: shared hit=481 read=16
+        ->  Index Only Scan using api_keys_id_tenant_uniq on api_keys k
+              (actual time=0.040..0.040 rows=1 loops=1)
+              Index Cond: tenant_id
+              Heap Fetches: 0
+              Buffers: shared hit=1 read=10
+        ->  Bitmap Heap Scan on api_usage_events e
+              (actual time=0.166..0.463 rows=479 loops=1)
+              Recheck Cond: api_key_id + occurred_at window
+              Heap Blocks: exact=479
+              Buffers: shared hit=480 read=6
+              ->  Bitmap Index Scan on api_usage_events_key_window
+                    (actual time=0.129..0.129 rows=479 loops=1)
+                    Index Cond: api_key_id + occurred_at window
+                    Buffers: shared hit=1 read=6
+Planning: Buffers: shared hit=14
+Planning Time: 0.137 ms
+Execution Time: 0.588 ms
+
+VERTICAL_DENORMALIZED
+
+Finalize GroupAggregate (actual time=21.904..24.985 rows=5 loops=1)
+  Group Key: route_key
+  Buffers: shared hit=13107 read=16
+  ->  Gather Merge (actual time=21.898..24.978 rows=15 loops=1)
+        Workers Planned: 2
+        Workers Launched: 2
+        Buffers: shared hit=13107 read=16
+        ->  Sort (actual time=20.193..20.194 rows=5 loops=3)
+              Sort Key: route_key
+              Sort Method: quicksort  Memory: 25kB
+              Buffers: shared hit=13107 read=16
+              Worker 0:  Sort Method: quicksort  Memory: 25kB
+              Worker 1:  Sort Method: quicksort  Memory: 25kB
+              ->  Partial HashAggregate (actual time=20.173..20.174 rows=5 loops=3)
+                    Group Key: route_key
+                    Batches: 1  Memory Usage: 24kB
+                    Buffers: shared hit=13091 read=16
+                    ->  Parallel Bitmap Heap Scan on api_usage_events e
+                          (actual time=5.962..16.304 rows=43712 loops=3)
+                          Recheck Cond: vertical_id + occurred_at window
+                          Heap Blocks: exact=4978
+                          Buffers: shared hit=13091 read=16
+                          ->  Bitmap Index Scan on api_usage_events_vertical_window
+                                (actual time=6.379..6.380 rows=131136 loops=1)
+                                Index Cond: vertical_id + occurred_at window
+                                Buffers: shared hit=834 read=5
+Planning Time: 0.053 ms
+Execution Time: 25.006 ms
+
+VERTICAL_NORMALIZED
+
+Finalize GroupAggregate (actual time=58.606..61.227 rows=5 loops=1)
+  Group Key: e.route_key
+  Buffers: shared hit=12678 read=21751 written=2
+  ->  Gather Merge (actual time=58.600..61.219 rows=15 loops=1)
+        Workers Planned: 2
+        Workers Launched: 2
+        Buffers: shared hit=12678 read=21751 written=2
+        ->  Sort (actual time=56.887..56.889 rows=5 loops=3)
+              Sort Key: e.route_key
+              Sort Method: quicksort  Memory: 25kB
+              Buffers: shared hit=12678 read=21751 written=2
+              Worker 0:  Sort Method: quicksort  Memory: 25kB
+              Worker 1:  Sort Method: quicksort  Memory: 25kB
+              ->  Partial HashAggregate (actual time=56.869..56.872 rows=5 loops=3)
+                    Group Key: e.route_key
+                    Batches: 1  Memory Usage: 24kB
+                    Buffers: shared hit=12662 read=21751 written=2
+                    ->  Hash Join (actual time=0.230..52.685 rows=43712 loops=3)
+                          Hash Cond: (e.api_key_id = k.id)
+                          Buffers: shared hit=12662 read=21751 written=2
+                          ->  Parallel Seq Scan on api_usage_events e
+                                (actual time=0.098..40.530 rows=222164 loops=3)
+                                Filter: occurred_at window
+                                Rows Removed by Filter: 444503
+                                Buffers: shared hit=12535 read=21751 written=2
+                          ->  Hash (actual time=0.106..0.106 rows=275 loops=3)
+                                Buckets: 1024  Batches: 1  Memory Usage: 21kB
+                                Buffers: shared hit=99
+                                ->  Seq Scan on api_keys k
+                                      (actual time=0.007..0.084 rows=275 loops=3)
+                                      Filter: vertical_id
+                                      Rows Removed by Filter: 1123
+                                      Buffers: shared hit=99
+Planning: Buffers: shared hit=17
+Planning Time: 0.173 ms
+Execution Time: 61.252 ms

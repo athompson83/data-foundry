@@ -258,8 +258,8 @@ Three corrections, each with a test that failed first:
    this web site is not an indication that DOE has determined that the model is
    compliant."*
 2. The loader now **refuses** a preference no registered source can satisfy.
-3. `DATA_DICTIONARY.md` and `SOURCES.md` now state that a value selected at that
-   tier may never be called certified, verified, approved or determined.
+3. `DATA_DICTIONARY.md` and `SOURCES.md` now state that a value selected from that
+   source class may never be called certified, verified, approved or determined.
 
 **The product consequence:** Data Foundry can accurately offer *"manufacturer-
 reported HVAC specifications as filed with US regulators, with the filing's

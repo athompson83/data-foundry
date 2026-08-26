@@ -106,6 +106,25 @@ ALTER TABLE api_keys DROP COLUMN IF EXISTS rate_limit_per_minute;
 --
 -- So the migration stops and an operator decides, per key. Nothing writes
 -- api_keys today and no deployment exists, so the expected count is zero.
+DO $$
+DECLARE
+    unscoped_key_count BIGINT;
+BEGIN
+    SELECT count(*) INTO unscoped_key_count
+      FROM api_keys
+     WHERE vertical_id IS NULL;
+
+    IF unscoped_key_count > 0 THEN
+        RAISE EXCEPTION USING
+            ERRCODE = '23502',
+            MESSAGE = format(
+                '0012 precondition failed: api_keys.vertical_id contains %s NULL row(s); assign every key to its intended vertical before retrying',
+                unscoped_key_count
+            ),
+            HINT = 'Do not guess or bulk-backfill key scope. Review each existing key with its owner.';
+    END IF;
+END $$;
+
 ALTER TABLE api_keys ALTER COLUMN vertical_id SET NOT NULL;
 
 -- Redundant against the primary key alone, and the redundancy is the point: a
@@ -124,6 +143,23 @@ COMMENT ON COLUMN api_keys.vertical_id IS
 -- ---------------------------------------------------------------------------
 -- api_usage_events: an opaque route, and a vertical that must match the key.
 -- ---------------------------------------------------------------------------
+
+DO $$
+DECLARE
+    legacy_usage_count BIGINT;
+BEGIN
+    SELECT count(*) INTO legacy_usage_count FROM api_usage_events;
+
+    IF legacy_usage_count > 0 THEN
+        RAISE EXCEPTION USING
+            ERRCODE = '23502',
+            MESSAGE = format(
+                '0012 precondition failed: api_usage_events contains %s existing row(s); route_key and vertical_id cannot be inferred safely',
+                legacy_usage_count
+            ),
+            HINT = 'Reconcile each legacy event with the matched route vocabulary and key vertical before retrying.';
+    END IF;
+END $$;
 
 ALTER TABLE api_usage_events ADD COLUMN IF NOT EXISTS route_key TEXT;
 ALTER TABLE api_usage_events ADD COLUMN IF NOT EXISTS vertical_id UUID;

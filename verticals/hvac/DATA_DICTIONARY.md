@@ -88,7 +88,7 @@ manufacturer source for Northwind and Borealis.
 > determined that the model is compliant with DOE energy conservation
 > standards."*
 >
-> A value selected at the `REGULATORY_FILING` tier must never be described as
+> A value selected from a `REGULATORY_FILING` source must never be described as
 > **certified**, **verified**, **approved**, **independently tested** or
 > **determined**, on any surface. The accurate phrasing is *"manufacturer-reported,
 > as filed with <agency>"*. A government host is not a claim.

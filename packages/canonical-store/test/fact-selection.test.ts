@@ -124,6 +124,38 @@ describe('doc 04 fact selection', () => {
     expect(byFieldPolicy.selected?.fact.normalized_value).toBe(16);
   });
 
+  it('treats certification and regulatory-filing authority as membership, not list rank', async () => {
+    const property = 'authority_membership_probe';
+    const certifier = 'ratings-directory.example.org';
+    const filing = 'filings.regulator.example.gov';
+    await claim(fixtures, 'certifier', {
+      property,
+      value: 15.2,
+      value_type: 'number',
+    });
+    await claim(fixtures, 'filing', {
+      property,
+      value: 16,
+      value_type: 'number',
+      status: 'PROPOSED',
+    });
+
+    const select = (authoritativeSources: readonly string[]) =>
+      fixtures.store.selectFact(fixtures.entity.id, property, {
+        at: AT,
+        authoritativeSourcesByProperty: { [property]: authoritativeSources },
+        fieldReliability: { [property]: { [certifier]: 0.4, [filing]: 0.9 } },
+      });
+
+    const forwards = await select([certifier, filing]);
+    const backwards = await select([filing, certifier]);
+    for (const selection of [forwards, backwards]) {
+      expect(selection.rule).toBe('SOURCE_FIELD_RELIABILITY');
+      expect(selection.selected?.fact.normalized_value).toBe(16);
+      expect(step(selection, 'DIRECT_AUTHORITATIVE_SOURCE')?.decided).toBe(false);
+    }
+  });
+
   it('rule 3 — recency breaks a reliability tie (and only then)', async () => {
     await claim(fixtures, 'manufacturer', {
       property: 'tonnage',

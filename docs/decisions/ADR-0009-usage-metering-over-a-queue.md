@@ -45,11 +45,13 @@ message body ≤ 128 KB; consumer batch ≤ 100 messages; `max_retries` defaults
 3 (configurable to 100); **5,000 messages per second per queue**, above which
 `send()` returns `Too Many Requests`.
 
-**Retention defaults to 4 days and is configurable to a maximum of 14.** An
-earlier draft of this ADR said "up to fourteen days" where it meant the
-configured value, which would have promised a recovery window the default does
-not give. Retention is therefore something this design must *set*, not inherit —
-see the configuration table.
+**A configurable queue defaults to 4 days and can be set to 14; Workers Free is
+fixed at 24 hours.** An earlier draft of this ADR treated the 4-day configurable
+default as universal, but Cloudflare's
+[limits](https://developers.cloudflare.com/queues/platform/limits/) explicitly
+exclude Free-plan retention from that rule. Production therefore requires a
+paid/configurable queue plan and an explicit 14-day setting; neither may be
+inferred from a checked-in Wrangler value. See the configuration table.
 
 No ordering guarantee is documented, and none is needed: usage events are
 commutative and carry their own `occurred_at`.
@@ -73,6 +75,10 @@ The *registration* must happen while the handler is still running — code after
 is a floating promise the runtime may cancel when it tears the isolate down. The
 *execution* is what continues afterwards. An eighth probe therefore asserts the
 ordering directly: that `waitUntil` was called before the handler resolved.
+Cloudflare currently limits post-response `waitUntil()` lifetime to 30 seconds
+([Workers limits](https://developers.cloudflare.com/workers/platform/limits/));
+one Queue send fits that lifecycle, but the producer must not accumulate or
+retry messages inside the request Worker.
 
 `apps/edge/src/index.ts` currently takes `(request, env)`; it gains
 `ctx: ExecutionContext`, which is the only signature change the Worker needs.
@@ -151,7 +157,7 @@ message that should have a rate of zero, and a non-zero DLQ is itself the alarm.
 | `max_batch_size` | 100 | The maximum. One statement per batch amortizes the round trip. |
 | `max_batch_timeout` | 5s | Latency here costs nothing; a customer is not waiting. |
 | `max_retries` | 3 | The default. Postgres outages outlast three retries, so the DLQ is the real backstop. |
-| `message_retention_period` | **14 days (the maximum)** | Explicit, not inherited. The 4-day default would silently shorten the window in which a Postgres outage can be ridden out. |
+| `message_retention_period` | **14 days (the configurable maximum)** | Explicit, not inherited. Requires a paid/configurable queue plan; Workers Free is fixed at 24 hours and is not an eligible production topology. |
 | `dead_letter_queue` | set | **Required.** Without one, messages that fail repeatedly are *discarded* — silent revenue loss, which is the failure this whole design exists to avoid. |
 
 ## Probes this design must pass before it ships
