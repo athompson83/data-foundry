@@ -1,10 +1,9 @@
 # Adding a new industry (child site)
 
 AGENTS.md rule 4: a new industry is a **configuration and data change**, never
-a fork of the platform. This is the checklist that keeps that true, and the
-order that makes each step checkable before moving to the next. Every command
-below is one already used elsewhere in CI — nothing here is bespoke to onboard
-a vertical.
+a fork of the platform. This checklist keeps that true and separates structural
+readiness, public-web readiness and commercial/API readiness so one does not get
+mistaken for another.
 
 `verticals/_template/` is the starting point for every step that edits a file.
 
@@ -14,113 +13,161 @@ a vertical.
 cp -r verticals/_template verticals/<slug>
 ```
 
-Fill in, in this order — each one is checkable before the next:
+Fill in, in this order:
 
 1. **`vertical.yaml`** — slug, name, entity types, relationship predicates,
-   alias types, entity-resolution parameters. Read `verticals/hvac/vertical.yaml`
-   for a worked example; the comments there explain what each field is for and
-   which mistakes it exists to prevent (e.g. `never_merge_across: supersedes`).
-2. **`entities/<type>.yaml`** per entity type — properties, which ones are
-   `critical: true` (this is what feeds the indexability quality gate, see
-   step 4), identity rules, quality rules.
-3. **`relationships.yaml`** and **`filters.yaml`** — two separate files.
-   `filters.yaml` in particular is one canonical definition that drives the
-   web filter UI, the API/OpenAPI docs, and SEO facet generation (doc 10 —
-   one model, not three separately-maintained ones that can drift).
+   alias types, entity-resolution parameters.
+2. **`entities/<type>.yaml`** per entity type — properties, `critical: true`
+   flags, identity rules and quality rules.
+3. **`relationships.yaml`** and **`filters.yaml`** — one canonical filter model
+   drives web, REST/OpenAPI and SEO behavior.
 4. **`normalizers/*.yaml`** — extraction/normalization rules, controlled
-   vocabularies, fact-selection policy (the doc-04 authority cascade).
+   vocabularies and fact-selection policy.
 
-Validate as you go:
+Validate continuously:
 
 ```bash
-pnpm verticals:validate   # config is well-formed; every source carries complete rights metadata
+pnpm verticals:validate
 ```
 
 ## 2. Write `seo.yaml`
 
-The file that makes this vertical's pages exist at all, and — just as
-importantly — makes most of them **not** indexable until they earn it
-(AGENTS.md rule 8). `verticals/hvac/seo.yaml` is the fullest worked example in
-the repository; `verticals/_template/seo.yaml` is the annotated skeleton.
+This file makes the vertical's pages exist and controls when they are eligible
+to be indexed. `verticals/hvac/seo.yaml` is the worked example and
+`verticals/_template/seo.yaml` is the annotated skeleton.
 
-The one thing worth internalizing before writing thresholds:
-`min_critical_fact_coverage` and `min_total_facts` are BOTH required, and for
-a reason found the hard way in `hvac`'s own gate: coverage without a floor
-passes six-fact stubs, and a floor without coverage passes entities padded
-with unimportant properties. Set both.
+`min_critical_fact_coverage` and `min_total_facts` should both be set. Coverage
+without a floor can pass sparse stubs; a floor without coverage can pass pages
+padded with unimportant properties.
 
-## 3. Sources — proposed, not active
+## 3. Sources — proposed first, rights before publication
 
-`docs/source-onboarding.md` is the full procedure. The short version: a
-proposed source lives in `docs/sources/proposed/*.yaml`, `reviewed_by: null`,
-status `UNREVIEWED`, every permission flag `false`. **Real source acquisition
-is an owner decision, not something this checklist — or any automated
-session — authorizes on its own.** `pnpm sources:readiness` reports exactly
-where the vertical stands against real, rights-cleared sources; a vertical can
-be structurally complete and still correctly report `NOT READY` with zero real
-sources, same as `hvac` does today.
+`docs/source-onboarding.md` is the full procedure. A proposed source starts
+unreviewed and fail-closed. Real acquisition and commercial publication require
+an explicit rights decision; synthetic fixtures only prove the machinery.
 
-Synthetic fixtures (`fixtures/*`, on RFC 2606 reserved domains — `.example`,
-`.test`, never a real publisher's domain) let every step from here on be
-proven end to end before a single real byte is fetched.
+The rights model must answer the actual intended use, not merely whether a
+source is generically “commercially usable.” A source may be allowed for a
+public comparison page and prohibited for paid API or marketplace access.
+
+Before activation, record/review the grants required by the surfaces this
+vertical will use, including as applicable:
+
+- public item/search/compare pages;
+- free API access;
+- paid API access;
+- MCP/LLM retrieval;
+- bulk export;
+- redistribution/sublicense.
+
+Unknown or absent permission remains refusal. `pnpm sources:readiness` should
+therefore be read as a rights/readiness signal, not as permission manufactured
+by a successful build.
 
 ## 4. Compile the runtime artifacts
 
-Both Workers have no filesystem; they read committed JSON, never YAML:
+Both Workers have no filesystem; they read committed runtime JSON:
 
 ```bash
-pnpm verticals:compile   # apps/edge/generated/<slug>.runtime.json — the metered API
-pnpm web:compile         # apps/web/generated/<slug>.web-runtime.json — the free site
+pnpm verticals:compile
+pnpm web:compile
 ```
 
-Add the slug to `DEPLOYED_VERTICALS` in
-`tooling/scripts/compile-vertical-runtime.ts` and to `PUBLISHED_VERTICALS` in
-`tooling/scripts/compile-web-runtime.ts` first — both default to `hvac` only,
-deliberately, so a vertical is not silently bundled before it is ready.
+Add the slug to the platform's explicit deployed/published vertical lists only
+when the intended surface is actually ready.
 
 ```bash
-pnpm verticals:compile:check   # CI gate: fails when the artifact drifts from seo.yaml/filters.yaml/entities
+pnpm verticals:compile:check
 pnpm web:compile:check
 ```
 
 ## 5. Ingest and verify
 
-Run the ingest worker against the vertical's fixtures — `tests/e2e/factory-proof.test.ts`
-is the worked HVAC example, running four sources through the worker and
-checking the canonical result against golden records — then:
+Run the ingest worker against fixtures first. The HVAC factory proof is the
+reference pattern. Then run:
 
 ```bash
-pnpm test              # includes the vertical's own tests/vertical-config.test.ts and golden-data.test.ts
+pnpm test
 pnpm migrate:check
 ```
 
-`apps/web/test/gates-live.test.ts` is the pattern to follow for proving the
-new vertical's quality gate measures something real against its own fixture
-data, not a hand-copied assumption from `hvac`.
+Add a live quality-gate test for the vertical so indexability decisions are
+proved against real query-model behavior rather than copied assumptions.
 
-## 6. Deploy — two independent decisions
+## 6. Decide publication surfaces independently
 
-Per [ADR-0011](decisions/ADR-0011-web-frontend-and-multi-industry-sites.md),
-the two Workers are added independently:
+A vertical can be ready for one surface and not another.
 
-- **`apps/web`** — no new deployment. The single Worker picks up the new
-  vertical automatically once it is in `PUBLISHED_VERTICALS`, rebuilt, and
-  redeployed; the parent index lists it the moment its data is present.
-- **`apps/edge`** — needs its OWN Cloudflare Worker deployment
-  (`VERTICAL_SLUG=<slug>`), because the metered API is deliberately siloed per
-  industry. Not required for the vertical to have a public presence — a
-  vertical can be discoverable on the free site well before it is sold
-  through the metered API.
+- **Public web (`apps/web`)** — becomes part of the single multi-industry Worker
+  once its runtime is compiled, data exists and web-use rights pass.
+- **Direct REST API (`apps/edge`)** — receives its commercial vertical deployment
+  and Data Foundry authentication only when API-use rights pass.
+- **MCP** — may be enabled only when the LLM/agent retrieval use case is cleared.
+- **Bulk export** — is independently gated by export/redistribution rights.
 
-`docs/owner-actions/cloudflare-deployment.md` has the full deployment
-checklist; `docs/owner-actions/revenue-readiness.md` has what turns either
-deployment into revenue.
+Do not infer “paid gets everything the website gets.” The rights resolver, not
+pricing, decides which facts each surface may expose.
+
+## 7. Marketplace publication (RapidAPI initially)
+
+Marketplace publication is an optional distribution step after the canonical
+Cloudflare API exists. It does **not** create a new vertical implementation.
+
+For a marketplace-ready vertical:
+
+1. Confirm `API_FREE` and/or `API_PAID` rights for the exact marketplace plans
+   being offered, plus redistribution/sublicense treatment where applicable.
+2. Confirm every required attribution/condition can travel through API responses
+   and marketplace documentation.
+3. Generate the marketplace OpenAPI/listing contract from the same canonical
+   route/filter definitions used by `apps/api`; add or run the drift check.
+4. Route the marketplace to the existing Cloudflare Worker using a hidden,
+   dedicated Data Foundry marketplace credential.
+5. Require the marketplace proxy secret so callers cannot bypass the marketplace
+   and self-assert a marketplace plan/channel.
+6. Record marketplace calls internally for operations and unit economics, but
+   classify them as marketplace-billed so they can never also enter direct
+   invoicing.
+7. Use one listing per vertical, named around the buyer problem/domain rather
+   than the internal “Data Foundry” platform name.
+8. Start with conservative request allowances until real Cloudflare/database
+   unit cost and support load are measured.
+9. Verify current marketplace fee, payout and logging terms at launch rather
+   than hard-coding a percentage into the product architecture.
+
+Marketplace publication is complete only after an end-to-end request from a
+real marketplace test subscriber reaches Cloudflare, passes rights/auth checks,
+returns the canonical response, records one idempotent usage event and cannot be
+double-billed internally.
+
+## 8. Direct commercial expansion
+
+The marketplace is intended to validate demand quickly, not become the only
+commercial channel. Keep these offerings direct unless there is a reason to do
+otherwise:
+
+- large-volume contracts;
+- custom enrichment;
+- bulk datasets;
+- enterprise redistribution rights;
+- multi-vertical access;
+- negotiated SLAs.
+
+Build first-party self-service billing only when marketplace traction or direct
+customer demand makes the additional control/margin worth the implementation
+cost.
+
+## 9. Deployment verification
+
+`docs/owner-actions/cloudflare-deployment.md` contains the production-resource
+checklist. A new vertical is not considered live because CI is green; verify the
+exact deployed SHA, production health/readiness, real database access, auth,
+rights behavior and usage-event persistence.
 
 ## What this checklist deliberately does not cover
 
-Choosing WHICH industry to add next is a market decision this checklist has
-no opinion on. `docs/sources/energy-star-air-source-heat-pumps-review-packet.md`
-is the kind of research a next-industry proposal should look like — every
-claim about a candidate source labelled `[VERIFIED]`, `[INFERRED]`, `[UNKNOWN]`
-or `[REVIEWER]`, so nothing an automated review concluded is mistaken for a
-decision a person made — before a line of vertical config is written.
+Choosing which industry to add next is a market decision. Candidate verticals
+should still be evaluated for source stability, rights, data quality, refresh
+cadence, demand and realistic acquisition cost before configuration work starts.
+The platform goal is to make a good vertical cheap to launch, not to make a bad
+vertical worth launching.
