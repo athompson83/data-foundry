@@ -1,73 +1,77 @@
 # Owner actions — Cloudflare deployment and monetization
 
-Everything here needs a person in a dashboard or a billing relationship.
-`apps/edge` is complete and tested; none of it can reach a customer until these
-are done, and two of them are not code problems at all.
+Everything here either requires a person in a dashboard/billing relationship or
+coordinates repository work with Cloudflare resources that cannot be inferred
+from source code alone.
 
-Each item states what to do, why automation cannot, and how to verify afterwards.
+`apps/edge` exists on `main`; usage-accounting corrections are proposed in PR
+#14, auth/asynchronous metering in PR #15, the rights-grant model in PR #16, and
+the public multi-industry Worker in PR #17. Nothing in this document should be
+read as proof those open changes are merged or deployed.
 
 ---
 
-## 1. Cloudflare account, zone and Worker route
+## 1. Cloudflare account, zone and Worker routes
 
-### Why automation cannot
+### Why automation cannot finish this from repository code alone
 
-The repository has no Cloudflare credentials. `wrangler.toml` deliberately omits
-`account_id`, the Hyperdrive `id` and the route: committing an account id is how
-a repository starts carrying deployment-shaped secrets, and the values differ per
-environment anyway.
+The repository does not contain production account identifiers, routes,
+Hyperdrive configuration ids or credentials. Those are environment facts and
+must remain outside source control.
 
 ### Checklist
 
-1. Create (or choose) a Cloudflare account, and note the **Account ID** from the
-   dashboard sidebar.
-2. Add the production domain as a **zone** and move its nameservers to
-   Cloudflare. Pay per crawl (§4) operates per zone and is unavailable without
-   this — a Worker on `*.workers.dev` cannot be enrolled.
-3. `npx wrangler login`, then set `account_id` in `apps/edge/wrangler.toml`.
-4. Add a `route` (or a Workers Custom Domain) binding the Worker to the hostname
-   the API should answer on.
+1. Create or choose the Cloudflare account.
+2. Add the production domain as a Cloudflare zone and move its nameservers.
+3. Authenticate Wrangler against the intended account.
+4. Bind the API Worker to its production hostname/custom domain.
+5. Bind the public web Worker to its production hostname/custom domain after PR
+   #17 or its successor is merged.
+6. Keep marketplace traffic on a dedicated hostname or clearly identifiable
+   route if that makes operations and bypass testing simpler, but do not deploy
+   a second API implementation.
 
 ### Verify
 
-`npx wrangler deploy --dry-run` resolves the account and route without error.
+Dry-run deployment resolves the intended account/resources, and production DNS
+points only at the intended Workers. A deployment should be attributable to an
+exact repository SHA.
 
 ---
 
 ## 2. Hyperdrive binding to Postgres
 
-### Why automation cannot
+### Why this is operational
 
-Creating a Hyperdrive configuration means handing Cloudflare a live database
-connection string. That is a credential this environment does not hold and should
-not.
+Creating Hyperdrive requires a live production database connection string. The
+credential must not be committed.
 
 ### Checklist
 
-1. Have the production Postgres reachable from the public internet with TLS
-   (Supabase is fine; note the **session pooler** connection string).
-2. Apply migrations to it once: `POSTGRES_URL=postgres://... pnpm migrate`.
-3. Create the config:
-   ```
-   npx wrangler hyperdrive create data-foundry \
-     --connection-string="postgres://user:pass@host:5432/db"
-   ```
-4. Uncomment the `[[hyperdrive]]` block in `apps/edge/wrangler.toml` and paste
-   the returned id.
+1. Provision the production Postgres database and require TLS.
+2. Apply the exact repository migrations to production once.
+3. Create a Hyperdrive configuration for the API Worker.
+4. Configure the usage-consumer Worker with its database binding as required by
+   the final PR #15 implementation.
+5. Configure the public Worker with the same canonical database access model
+   required by PR #17.
+6. Record the environment bindings outside the repository and make them
+   reproducible through deployment configuration/secret management rather than
+   manual memory.
 
 ### Verify
 
-`GET https://<your-route>/v1/health` returns 200. A 503 with
-`x-unavailable-reason: configuration` means the binding is missing or
-`VERTICAL_SLUG` is unset; `startup` means the database is unreachable. The Worker
-never falls back to an empty in-memory database, so a 503 here is the intended
-behaviour rather than a fault to work around.
+- API `/v1/health` returns success and proves a real query-layer round trip.
+- A missing/misbound database returns fail-closed unavailability rather than an
+  empty in-memory dataset.
+- Public pages query the same canonical data as REST/MCP.
+- The usage consumer can persist a test event idempotently.
 
 ---
 
-## 3. Disconnect the Vercel Git integration
+## 3. Disconnect the legacy Vercel Git integration
 
-Carried over from ADR-0005, still outstanding.
+Carried over from ADR-0005 and still independent of Cloudflare adoption.
 
 ### Checklist
 
@@ -76,75 +80,174 @@ Vercel dashboard → the project for this repository → Settings → Git →
 
 ### Verify
 
-A push creates no Vercel deployment and posts no `Vercel` commit status. Once
-confirmed, delete `vercel.json` and amend ADR-0005 — until then the file is the
-only thing suppressing failing deployments.
+A push creates no Vercel deployment/status. Only after that proof should
+`vercel.json` be removed and the old ADR amended.
 
 ---
 
-## 4. Pay per crawl — enrolment, not implementation
+## 4. Pay per crawl — enrollment, not implementation
 
-**This is not something the repository can build.** It is worth stating plainly
-because it changes what "wire up pay per crawl" means.
-
-### What it actually is
-
-Per Cloudflare's documentation: pay per crawl is a feature of **AI Crawl
-Control** that sets a **price per zone**. An AI crawler either presents payment
-intent in request headers and gets `HTTP 200`, or receives `HTTP 402 Payment
-Required` with the price in a `crawler-price` header. **Cloudflare is the
-Merchant of Record**; payouts run through Stripe. It is configured entirely in
-the dashboard.
-
-So there is no Worker code to write. There is an account to enrol and a price to
-set.
-
-### Constraints that affect the plan
-
-- **Closed beta.** Enrolment is via the pay-per-crawl signup form, or an account
-  executive for existing Enterprise customers. Availability is not guaranteed and
-  is outside anyone here's control.
-- **Zone-scoped.** It prices content served through the Cloudflare zone — the
-  human-facing pages a crawler fetches. It does **not** meter the JSON API per
-  customer; that is item 5.
-- **It trades against ad revenue.** Cloudflare's own guidance: setting Search
-  Engine Crawlers to Charge or Block "may negatively impact your site's SEO
-  performance, as search engines may not be able to properly index your
-  content." A frontend monetized by ads needs search traffic, and search traffic
-  needs crawlers that are not being charged. The two goals point in opposite
-  directions and the split has to be chosen deliberately — charge the AI
-  crawlers, allow the search crawlers — rather than enabled globally.
-- **WAF and Bot Management override it.** A crawler blocked by either never
-  reaches the charge.
+Pay per crawl is a Cloudflare zone capability, not a Worker billing subsystem.
+The repository's role is to provide a public site worth crawling; Cloudflare
+controls enrollment, charging and payout mechanics.
 
 ### Checklist
 
-1. Join the beta (signup form or account executive).
-2. Dashboard → AI Crawl Control → Account Settings → set the domain's visibility
-   to **Visible**.
-3. **Payments** tab → Pay Per Crawl → Enable → set a default price (minimum
-   $0.001 USD per crawl).
-4. **Security** tab → per crawler, choose Charge / Allow / Block. Use the
-   **Category** column to keep Search Engine Crawlers on **Allow** if the
-   frontend is meant to rank.
-5. Connect Stripe for payouts.
+1. Enroll the zone if the feature is available.
+2. Keep normal search-engine crawlers allowed if organic search is a required
+   acquisition channel.
+3. Configure AI-crawler charging separately from search-engine crawling.
+4. Connect the payout account required by Cloudflare.
+5. Measure the effect on crawl volume and organic discovery before treating
+   crawler revenue as primary.
 
 ### Verify
 
-An anonymous fetch of a payable page as a charged crawler returns `402` with a
-`crawler-price` header. The Metrics tab reports successful deliveries.
+Charged crawler requests exhibit Cloudflare's expected payment behavior and
+normal search crawlers remain able to index the public site.
 
 ---
 
-## 5. Metered API access — the part that is code, and is not built yet
+## 5. Metered API access — active implementation, not greenfield anymore
 
-Distinct from item 4 and the larger revenue surface.
+The old statement that auth, tenancy and usage accounting were wholly absent is
+stale. `main` contains the initial tenancy/API-key schema; PR #14 corrects its
+usage-accounting semantics and PR #15 implements authentication plus asynchronous
+usage persistence.
 
-`apps/api/README.md` is accurate: "No auth, no rate limiting, no tenancy. There
-is no account, API-key or tenant concept anywhere in `db/migrations`." Metering
-API requests per customer needs tables that do not exist — tenants, keys, usage
-counters — plus a Stripe relationship for billing.
+The intended deployment after those changes land is:
 
-Nothing to do in a dashboard yet. Listed here so item 4 is not mistaken for it:
-enrolling in pay per crawl does not produce a metered API, and building a metered
-API does not enrol the zone.
+```text
+client / marketplace
+        |
+        v
+apps/edge Cloudflare Worker
+        |
+        +-- authenticate + authorize before route execution
+        +-- serve canonical query result
+        +-- enqueue usage event asynchronously
+                           |
+                           v
+                 Cloudflare Queue
+                           |
+                           v
+                 apps/usage-consumer
+                           |
+                           v
+                       Postgres
+```
+
+### Cloudflare resources required
+
+1. API Worker deployment for each commercial vertical as defined by the final
+   architecture.
+2. Hyperdrive/database binding for the API Worker.
+3. Usage-events Queue.
+4. Dead-letter Queue.
+5. Usage-consumer Worker bound to the queue and database.
+6. Secrets/variables required for environment and vertical selection.
+7. Observability for queue failures, DLQ accumulation and authentication errors.
+
+### Verification before accepting paying traffic
+
+- invalid/missing credentials fail before the route executes;
+- revoked, expired and wrong-scope credentials fail closed;
+- a valid request succeeds when the usage database is temporarily unavailable
+  after the event has been accepted by the queue, matching the chosen
+  fail-open accounting policy;
+- duplicate queue delivery leaves one usage row;
+- usage rows contain the closed route key/template rather than raw entity ids,
+  query strings or request bodies;
+- tenant and vertical cannot disagree with the authenticating key;
+- DLQ behavior is demonstrated against real Cloudflare Queues, not only test
+  doubles, before billing depends on it.
+
+---
+
+## 6. RapidAPI / marketplace connection — proxy to Cloudflare, do not redeploy
+
+RapidAPI should be treated as a marketplace/distribution and billing layer over
+the canonical Cloudflare API. It does not require another database or another
+copy of `apps/api`.
+
+Target path:
+
+```text
+RapidAPI subscriber
+        |
+        v
+RapidAPI gateway
+        |
+        | hidden Data Foundry bearer credential
+        | marketplace proxy-secret header
+        v
+Cloudflare API Worker
+        |
+        v
+canonical query layer
+```
+
+### Checklist
+
+1. Create a dedicated Data Foundry marketplace tenant/service credential using
+   the existing API-key system.
+2. Store that credential as a hidden marketplace header; never expose it in
+   public documentation or client-generated snippets.
+3. Store the RapidAPI proxy secret as a Cloudflare secret and verify it on the
+   marketplace path.
+4. Classify the request as marketplace-originated only after both marketplace
+   and Data Foundry authentication checks pass.
+5. Record marketplace usage internally for reconciliation and unit economics,
+   but do not feed those rows into future direct invoicing.
+6. Export/generate the marketplace OpenAPI definition from the canonical API
+   contract and add a drift check.
+7. Disable/minimize marketplace request/response logging beyond what is needed
+   operationally, particularly for query parameters that may reveal customer
+   research patterns.
+8. Perform a bypass test: direct requests to the marketplace hostname without
+   valid marketplace proof must fail even if they attempt to spoof plan/channel
+   headers.
+
+### Billing rule
+
+RapidAPI is the billing authority for marketplace-originated calls. Data
+Foundry still pays its Cloudflare/Postgres infrastructure costs and records
+usage, but must not issue a second invoice for the same requests. Direct API
+customers remain on a separate billing source/channel.
+
+---
+
+## 7. Rights gate before any commercial route goes live
+
+Deployment readiness is not publication-rights readiness. PR #16 is required
+because the same source may legitimately be allowed on a free web comparison
+page while prohibited in a paid API, marketplace or sublicensed access path.
+
+Before enabling a paid Cloudflare route or RapidAPI listing:
+
+1. Every contributing real source must have a reviewed rights decision.
+2. The exact use case (`API_FREE`, `API_PAID`, `LLM_RETRIEVAL`, export, web,
+   redistribution/sublicense as applicable) must resolve to permission.
+3. Every required attribution/condition must be enforced on that surface.
+4. Unknown/absent grants fail closed.
+5. Customer-facing terms must not grant rights broader than Data Foundry has.
+
+Synthetic fixtures can prove deployment mechanics; they cannot satisfy this
+commercial gate.
+
+---
+
+## 8. Production launch order
+
+1. Merge/reconcile PR #16 rights model.
+2. Merge/reconcile PR #14 usage-accounting corrections.
+3. Rebase/land PR #15 auth and metering on the final schema.
+4. Rebase/land PR #17 public web on the final rights/query semantics.
+5. Provision Cloudflare Postgres/Hyperdrive, Workers, Queues, DLQ, routes and
+   secrets.
+6. Deploy and prove exact-SHA health/readiness plus real queue behavior.
+7. Rights-clear and ingest the first real commercial vertical.
+8. Enable public web publication for rights-cleared web use cases.
+9. Add the thin RapidAPI adapter and publish one marketplace vertical.
+10. Measure demand/cost before expanding plans, verticals or building first-
+    party billing.
