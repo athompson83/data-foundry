@@ -26,7 +26,7 @@ import {
   type SearchHit,
 } from '@data-foundry/query-model';
 import { jsonResponse, type ApiResponse } from './http.js';
-import { PAGE_BOUNDS } from './pagination.js';
+import { PAGE_BOUNDS } from './page-bounds.js';
 
 const uuid = z.uuid();
 const instant = z.iso.datetime({ offset: true });
@@ -182,6 +182,7 @@ export const ApiErrorEnvelopeSchema = z.strictObject({
     requestId: z.string().max(64).optional(),
   }),
 });
+export type ApiErrorEnvelope = RuntimeSchemaOutput<typeof ApiErrorEnvelopeSchema>;
 
 export const OpaqueEdgeErrorEnvelopeSchema = z.strictObject({
   error: z.strictObject({
@@ -189,6 +190,19 @@ export const OpaqueEdgeErrorEnvelopeSchema = z.strictObject({
     message: z.string(),
   }),
 });
+export type OpaqueEdgeErrorEnvelope = RuntimeSchemaOutput<typeof OpaqueEdgeErrorEnvelopeSchema>;
+
+/** Validate an API error at the same runtime boundary projected into OpenAPI. */
+export function validateApiErrorEnvelope<T extends ApiErrorEnvelope>(body: T): T {
+  ApiErrorEnvelopeSchema.parse(body);
+  return body;
+}
+
+/** Validate an edge-owned opaque error at the same boundary projected into OpenAPI. */
+export function validateOpaqueEdgeErrorEnvelope<T extends OpaqueEdgeErrorEnvelope>(body: T): T {
+  OpaqueEdgeErrorEnvelopeSchema.parse(body);
+  return body;
+}
 
 export const HealthResponseSchema = z.strictObject({
   status: z.literal('ok'),

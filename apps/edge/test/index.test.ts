@@ -13,11 +13,27 @@ import {
   type QueryFixtures,
 } from '../../../packages/query-model/test/support.js';
 import { mintApiKey } from '@data-foundry/api-keys';
+import { buildOpenApiDocument, parseWireResponse } from '@data-foundry/api';
+import { runtimeSchema as z } from '@data-foundry/query-model';
 import type { UsageEvent } from '@data-foundry/usage-events';
 import { serveRequest, resetDeployments, RUNTIMES, type VerticalRuntime, type QueueBinding } from '../src/index.js';
 
 let fixtures: QueryFixtures;
 const runtime = RUNTIMES['hvac'] as VerticalRuntime;
+
+const openApiDocument = buildOpenApiDocument({ slug: 'fixture', fields: [] }) as {
+  readonly components: { readonly schemas: Readonly<Record<string, unknown>> };
+};
+const opaqueEdgeErrorValidator = z.fromJSONSchema(
+  openApiDocument.components.schemas['OpaqueEdgeErrorEnvelope'] as Parameters<
+    typeof z.fromJSONSchema
+  >[0],
+);
+
+function expectOpaqueEdgeError(body: unknown): void {
+  expect(parseWireResponse('OpaqueEdgeErrorEnvelope', body)).toEqual(body);
+  expect(opaqueEdgeErrorValidator.safeParse(body).success).toBe(true);
+}
 
 const envFor = (queue?: QueueBinding) => ({
   POSTGRES_URL: 'postgres://fixture/db',
@@ -147,6 +163,7 @@ describe('an unauthorized request never reaches the route or gets metered', () =
     await settle();
 
     expect(response.status).toBe(401);
+    expectOpaqueEdgeError(await response.json());
     expect(sent).toHaveLength(0);
   });
 
@@ -179,6 +196,7 @@ describe('an unauthorized request never reaches the route or gets metered', () =
     await settle();
 
     expect(response.status).toBe(403);
+    expectOpaqueEdgeError(await response.json());
     expect(sent).toHaveLength(0);
   });
 });
@@ -275,12 +293,14 @@ describe('durable metering acceptance is an availability gate', () => {
     await settle();
     expect(response.status).toBe(503);
     expect(response.headers.get('retry-after')).toBe('30');
-    expect(await response.json()).toEqual({
+    const body = await response.json();
+    expect(body).toEqual({
       error: {
         code: 'SERVICE_UNAVAILABLE',
         message: 'This deployment is not configured to serve requests.',
       },
     });
+    expectOpaqueEdgeError(body);
     expect(errorSpy).toHaveBeenCalledWith(
       '[edge] usage event publish failed',
       expect.objectContaining({ error: expect.any(Error) }),

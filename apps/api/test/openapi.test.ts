@@ -37,6 +37,17 @@ const FILTER_FIELDS = [
     filter: { type: 'range', facet_count: true },
   },
   {
+    field: 'compressor_stages',
+    value_type: 'integer',
+    filter: { type: 'range', facet_count: true },
+  },
+  {
+    field: 'cooling_capacity',
+    value_type: 'quantity',
+    unit: 'BTU/h',
+    filter: { type: 'range', facet_count: true },
+  },
+  {
     field: 'internal_note',
     value_type: 'string',
     filter: { type: 'none', facet_count: false },
@@ -104,6 +115,14 @@ describe('the generated OpenAPI document', () => {
       'filter.seer2.min',
       'filter.seer2.max',
       'filter.seer2.exists',
+      'filter.compressor_stages',
+      'filter.compressor_stages.min',
+      'filter.compressor_stages.max',
+      'filter.compressor_stages.exists',
+      'filter.cooling_capacity',
+      'filter.cooling_capacity.min',
+      'filter.cooling_capacity.max',
+      'filter.cooling_capacity.exists',
       'limit',
     ]));
     expect(searchParameterNames).not.toContain('filter.{field}');

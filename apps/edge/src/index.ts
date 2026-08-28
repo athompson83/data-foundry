@@ -9,7 +9,11 @@
  * `composition.ts` for why the object graph is built here rather than in
  * `apps/api`.
  */
-import { UNMATCHED_ROUTE_KEY, type ApiRequestTelemetry } from '@data-foundry/api';
+import {
+  UNMATCHED_ROUTE_KEY,
+  validateOpaqueEdgeErrorEnvelope,
+  type ApiRequestTelemetry,
+} from '@data-foundry/api';
 import { buildUsageEvent, type UsageEvent } from '@data-foundry/usage-events';
 import { toApiRequest, toFetchResponse } from './adapter.js';
 import { authenticate, toAuthResponse, type AuthFailure } from './auth.js';
@@ -71,9 +75,9 @@ export { BUNDLED_VERTICALS, RUNTIMES } from '../generated/runtime-registry.js';
  * operator channel gets the cause.
  */
 function unavailable(reason: string, method = 'GET'): Response {
-  const body = JSON.stringify({
+  const body = JSON.stringify(validateOpaqueEdgeErrorEnvelope({
     error: { code: 'SERVICE_UNAVAILABLE', message: 'This deployment is not configured to serve requests.' },
-  });
+  }));
   return new Response(method.toUpperCase() === 'HEAD' ? null : body, {
     status: 503,
     headers: {

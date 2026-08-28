@@ -1,6 +1,7 @@
 /** OpenAPI 3.1 projection of live routes, vertical fields, and runtime wire schemas. */
 import {
   FieldMetadataSchema,
+  isNumericValueType,
   runtimeSchema as z,
   type FieldMetadata,
 } from '@data-foundry/query-model';
@@ -40,8 +41,6 @@ const QUERY_PARAMETER_SCHEMA: Readonly<Record<string, JsonObject>> = {
   properties: { type: 'string', description: 'Comma-separated vertical-defined fact properties.' },
 };
 
-const NUMERIC_VALUE_TYPES = new Set(['number', 'integer', 'quantity']);
-
 function splitDocumentedPath(path: string): { readonly pathname: string; readonly queryNames: string[] } {
   const [pathname = path, query = ''] = path.split('?', 2);
   const queryNames = query === ''
@@ -67,7 +66,7 @@ function verticalFilterParameters(fields: readonly FieldMetadata[]): readonly Js
         `Comma-separated exact values for ${field.field}` +
         (field.unit === null ? '.' : ` (${field.unit}).`),
     });
-    if (NUMERIC_VALUE_TYPES.has(field.value_type)) {
+    if (isNumericValueType(field.value_type)) {
       parameters.push(
         {
           name: `${name}.min`,

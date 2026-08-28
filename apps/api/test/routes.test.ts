@@ -552,5 +552,18 @@ describe('runtime and generated response contracts', () => {
       );
       expect(validator.safeParse(response.body).success, `${url} generated JSON Schema`).toBe(true);
     }
+
+    const errorResponse = await call(fixtures.app, '/v1/not-a-route');
+    expect(errorResponse.status).toBe(404);
+    expect(
+      (parseWireResponse as (name: string, value: unknown) => unknown)(
+        'ApiErrorEnvelope',
+        errorResponse.body,
+      ),
+    ).toEqual(errorResponse.body);
+    const errorValidator = z.fromJSONSchema(
+      document.components.schemas['ApiErrorEnvelope'] as Parameters<typeof z.fromJSONSchema>[0],
+    );
+    expect(errorValidator.safeParse(errorResponse.body).success).toBe(true);
   });
 });

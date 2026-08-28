@@ -28,6 +28,7 @@ import {
   type ApiBillingSource,
   type StoredApiKey,
 } from '@data-foundry/api-keys';
+import { validateOpaqueEdgeErrorEnvelope } from '@data-foundry/api';
 import type { SqlExecutor } from '@data-foundry/canonical-store';
 
 /**
@@ -228,5 +229,6 @@ export function toAuthResponse(failure: AuthFailure): { status: 401 | 403; body:
     status === 401
       ? 'A valid API key is required. Provide one as a Bearer token in the Authorization header.'
       : 'This API key may not access this deployment.';
-  return { status, body: { error: { code, message } } };
+  const body: AuthResponseBody = { error: { code, message } };
+  return { status, body: validateOpaqueEdgeErrorEnvelope(body) };
 }

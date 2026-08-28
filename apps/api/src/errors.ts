@@ -20,6 +20,8 @@
  * echo of what the client itself sent.
  */
 
+import { validateApiErrorEnvelope } from './wire.js';
+
 export const API_ERROR_CODES = [
   /** A path segment or query parameter is syntactically invalid. */
   'INVALID_PARAMETER',
@@ -129,7 +131,7 @@ export const OPAQUE_INTERNAL_MESSAGE =
 export function toErrorBody(error: unknown, requestId?: string): ApiErrorBody {
   const id = requestId === undefined ? {} : { requestId };
   if (error instanceof ApiError) {
-    return {
+    return validateApiErrorEnvelope({
       error: {
         code: error.code,
         status: error.status,
@@ -137,14 +139,14 @@ export function toErrorBody(error: unknown, requestId?: string): ApiErrorBody {
         ...(error.details === null ? {} : { details: error.details }),
         ...id,
       },
-    };
+    });
   }
-  return {
+  return validateApiErrorEnvelope({
     error: {
       code: 'INTERNAL_ERROR',
       status: ERROR_STATUS.INTERNAL_ERROR,
       message: OPAQUE_INTERNAL_MESSAGE,
       ...id,
     },
-  };
+  });
 }

@@ -8,7 +8,7 @@
  * tests pin.
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { API_ERROR_CODES, ERROR_STATUS } from '../src/errors.js';
+import { ApiError, API_ERROR_CODES, ERROR_STATUS, toErrorBody } from '../src/errors.js';
 import { call, createApiFixtures, dataOf, errorOf, type ApiFixtures } from './support.js';
 
 let fixtures: ApiFixtures;
@@ -55,6 +55,19 @@ const FAILURES: readonly { url: string; method?: string; status: number; code: s
 ];
 
 describe('the error envelope', () => {
+  it('validates the body through the shared wire schema before returning it', () => {
+    const failure = new ApiError('ROUTE_NOT_FOUND', 'No route matches this request.');
+    expect(() => toErrorBody(failure, 'x'.repeat(65))).toThrow();
+    expect(toErrorBody(failure, 'request-123')).toEqual({
+      error: {
+        code: 'ROUTE_NOT_FOUND',
+        status: 404,
+        message: 'No route matches this request.',
+        requestId: 'request-123',
+      },
+    });
+  });
+
   it('is the same shape for every failure', async () => {
     for (const failure of FAILURES) {
       const response = await call(fixtures.app, failure.url, {
