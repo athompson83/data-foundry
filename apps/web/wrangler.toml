@@ -23,6 +23,12 @@ enabled = true
 # is decided at build time by `pnpm web:compile`, not at deploy time by an env
 # var, because the bundle only carries what was compiled into it.
 
+# PUBLIC_ORIGIN is required at runtime and must be the exact HTTPS origin used
+# by this deployment. It is intentionally not guessed from request headers.
+# Configure the non-secret value in the deployed environment, for example:
+#   wrangler deploy --var PUBLIC_ORIGIN:https://data.example.com
+# Local development may use an explicit localhost HTTP origin in .dev.vars.
+
 # [[hyperdrive]]
 # binding = "HYPERDRIVE"
 # id = "<hyperdrive-id>"

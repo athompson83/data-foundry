@@ -21,6 +21,7 @@ url_prefix: /data/hvac
 page_classes:
 
   - id: dataset_landing
+    route_kind: static
     path: "/data/hvac"
     title: "HVAC Equipment Data"
     structured_data: Dataset
@@ -32,6 +33,7 @@ page_classes:
       indexable once the dataset itself clears the dataset gate.
 
   - id: equipment_model_detail
+    route_kind: entity_detail
     entity_type: equipment_model
     path: "/data/hvac/equipment/{canonical_slug}"
     title: "{canonical_name}"
@@ -45,6 +47,7 @@ page_classes:
       marking up semantics the page does not actually have merely for SEO.
 
   - id: manufacturer_detail
+    route_kind: entity_detail
     entity_type: manufacturer
     path: "/data/hvac/manufacturers/{canonical_slug}"
     title: "{canonical_name} HVAC Equipment"
@@ -54,6 +57,7 @@ page_classes:
     quality_gate: manufacturer
 
   - id: certification_detail
+    route_kind: entity_detail
     entity_type: certification
     path: "/data/hvac/certifications/{canonical_slug}"
     title: "AHRI {ahri_ref}"
@@ -63,6 +67,8 @@ page_classes:
     quality_gate: certification
 
   - id: replacement_relationship
+    route_kind: relationship
+    subject_entity_type: equipment_model
     path: "/data/hvac/equipment/{canonical_slug}/replacements"
     title: "What replaces {canonical_name}"
     structured_data: null
@@ -75,6 +81,7 @@ page_classes:
       answer by hand. Exists only where a supersession edge actually exists.
 
   - id: comparison
+    route_kind: comparison
     path: "/data/hvac/compare/{slug_a}-vs-{slug_b}"
     title: "{name_a} vs {name_b}"
     structured_data: null
@@ -88,6 +95,8 @@ page_classes:
       thin-page explosion rule 8 forbids.
 
   - id: filtered_collection
+    route_kind: filtered_collection
+    entity_type: equipment_model
     path: "/data/hvac/equipment/{facet_path}"
     title: "{facet_description}"
     structured_data: null
@@ -100,6 +109,7 @@ page_classes:
       applies on top of that.
 
   - id: docs_api_mcp
+    route_kind: static
     path: "/data/hvac/docs"
     title: "HVAC Data API and MCP"
     structured_data: null

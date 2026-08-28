@@ -20,6 +20,7 @@ page_classes: []
 #
 # page_classes:
 #   - id: entity_detail
+#     route_kind: entity_detail
 #     entity_type: example_entity
 #     path: "/data/template/examples/{canonical_slug}"
 #     title: "{canonical_name}"

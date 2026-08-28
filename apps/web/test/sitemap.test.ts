@@ -9,18 +9,29 @@
  * fixtures (four entities) genuinely fail — not a contrived double.
  */
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
-import { entityQualityScore } from '@data-foundry/canonical-schema';
-import { createQueryFixtures, ts, type QueryFixtures } from '../../../packages/query-model/test/support.js';
+import { entityQualityScore, type Entity } from '@data-foundry/canonical-schema';
+import {
+  addSyntheticEntityEvidence,
+  createQueryFixtures,
+  seedSyntheticSurfaceRights,
+  ts,
+  type QueryFixtures,
+} from '../../../packages/query-model/test/support.js';
 import { getDeployment, resetDeployments, type VerticalDeployment } from '../src/composition.js';
-import { sitemapSegmentXml } from '../src/sitemap.js';
+import { sitemapIndexXml, sitemapSegmentXml } from '../src/sitemap.js';
 import { DEFAULT_CONCURRENCY } from '../src/concurrency.js';
 import { RUNTIMES } from '../src/index.js';
+import type { SearchQuery, SurfaceQueryModel } from '@data-foundry/query-model';
 
 let fixtures: QueryFixtures;
 const openFixtureDriver = async () => fixtures.driver;
 
 beforeAll(async () => {
   fixtures = await createQueryFixtures();
+  await seedSyntheticSurfaceRights(fixtures, ['PUBLIC_WEB', 'SEARCH_INDEX']);
+  for (const entity of [fixtures.equipment, fixtures.heatPump, fixtures.motor, fixtures.rival]) {
+    await addSyntheticEntityEvidence(fixtures, entity);
+  }
 });
 
 afterAll(async () => {
@@ -37,7 +48,7 @@ describe('sitemapSegmentXml — dataset_landing is gate-checked, not assumed', (
     // seed four. This is the fixture set every other apps/web test already
     // uses, not one written to make this assertion pass.
     const deployment = await getDeployment({
-      env: { POSTGRES_URL: 'postgres://fixture/db' },
+      env: { POSTGRES_URL: 'postgres://fixture/db', PUBLIC_ORIGIN: 'https://data-foundry.test' },
       runtimes: RUNTIMES,
       openDriver: openFixtureDriver,
     });
@@ -49,7 +60,7 @@ describe('sitemapSegmentXml — dataset_landing is gate-checked, not assumed', (
 
   it('still includes docs_api_mcp — its gate is `none`, unconditionally indexable', async () => {
     const deployment = await getDeployment({
-      env: { POSTGRES_URL: 'postgres://fixture/db' },
+      env: { POSTGRES_URL: 'postgres://fixture/db', PUBLIC_ORIGIN: 'https://data-foundry.test' },
       runtimes: RUNTIMES,
       openDriver: openFixtureDriver,
     });
@@ -78,7 +89,7 @@ async function seedEquipmentModels(f: QueryFixtures, count: number, prefix: stri
       quality_score: entityQualityScore(0.5),
       first_seen_at: ts('2026-01-01T00:00:00Z'),
       last_verified_at: null,
-    });
+    }).then((entity) => addSyntheticEntityEvidence(f, entity));
   }
 }
 
@@ -89,7 +100,7 @@ describe('sitemapSegmentXml — per-entity fan-out performance', () => {
     // already returns the full entity (quality_score, updated_at included).
     await seedEquipmentModels(fixtures, 3, 'nolookup');
     const deployment = await getDeployment({
-      env: { POSTGRES_URL: 'postgres://fixture/db' },
+      env: { POSTGRES_URL: 'postgres://fixture/db', PUBLIC_ORIGIN: 'https://data-foundry.test' },
       runtimes: RUNTIMES,
       openDriver: openFixtureDriver,
     });
@@ -98,11 +109,11 @@ describe('sitemapSegmentXml — per-entity fan-out performance', () => {
     let getEntityCalls = 0;
     const spied: VerticalDeployment = {
       ...vertical,
-      queryModel: {
-        ...vertical.queryModel,
+      publicQueryModel: {
+        ...vertical.publicQueryModel,
         getEntity: async (id) => {
           getEntityCalls += 1;
-          return vertical.queryModel.getEntity(id);
+          return vertical.publicQueryModel.getEntity(id);
         },
       },
     };
@@ -118,7 +129,7 @@ describe('sitemapSegmentXml — per-entity fan-out performance', () => {
     // nor unbounded.
     await seedEquipmentModels(fixtures, 5, 'concurrency');
     const deployment = await getDeployment({
-      env: { POSTGRES_URL: 'postgres://fixture/db' },
+      env: { POSTGRES_URL: 'postgres://fixture/db', PUBLIC_ORIGIN: 'https://data-foundry.test' },
       runtimes: RUNTIMES,
       openDriver: openFixtureDriver,
     });
@@ -128,14 +139,14 @@ describe('sitemapSegmentXml — per-entity fan-out performance', () => {
     let maxActive = 0;
     const spied: VerticalDeployment = {
       ...vertical,
-      queryModel: {
-        ...vertical.queryModel,
+      publicQueryModel: {
+        ...vertical.publicQueryModel,
         canonicalFacts: async (entityId, policy) => {
           active += 1;
           maxActive = Math.max(maxActive, active);
           await new Promise((resolve) => setTimeout(resolve, 5));
           try {
-            return await vertical.queryModel.canonicalFacts(entityId, policy);
+            return await vertical.publicQueryModel.canonicalFacts(entityId, policy);
           } finally {
             active -= 1;
           }
@@ -146,5 +157,126 @@ describe('sitemapSegmentXml — per-entity fan-out performance', () => {
     await sitemapSegmentXml(spied, deployment.publicOrigin, 'entities', new Date('2026-03-01T00:00:00Z'));
     expect(maxActive).toBeGreaterThan(1);
     expect(maxActive).toBeLessThanOrEqual(DEFAULT_CONCURRENCY);
+  });
+});
+
+function fakeSurfaceModel(
+  surface: 'PUBLIC_WEB' | 'SEARCH_INDEX',
+  entities: readonly typeof fixtures.equipment[],
+  searchCalls: SearchQuery[],
+): SurfaceQueryModel {
+  return {
+    fields: fixtures.registry,
+    surface,
+    search: async (query: SearchQuery) => {
+      searchCalls.push(query);
+      const offset = query.offset ?? 0;
+      const limit = Math.min(query.limit ?? 200, 200);
+      return {
+        hits: entities.slice(offset, offset + limit).map((entity) => ({
+          entity,
+          match_kind: 'FILTER_ONLY' as const,
+          score: 0,
+          text_rank: 0,
+          exact: false,
+          matched_on: null,
+          explain: 'synthetic pagination hit',
+        })),
+        total: entities.length,
+        limit,
+        offset,
+        exact_short_circuit: false,
+        exact_count: 0,
+        facets: [],
+        strategy: { exact_first: true, full_text: false, trigram: false, vector: false },
+      };
+    },
+    getEntity: async (id: Entity['id']) => {
+      const entity = entities.find((candidate) => candidate.id === id);
+      return entity === undefined ? null : { entity, redirected_from: null };
+    },
+    canonicalFacts: async () => [],
+  } as unknown as SurfaceQueryModel;
+}
+
+function paginationVertical(count: number, maxUrlsPerFile: number) {
+  const entities = Array.from({ length: count }, (_, index) => ({
+    ...fixtures.equipment,
+    id: `00000000-0000-4000-8000-${String(index).padStart(12, '0')}` as typeof fixtures.equipment.id,
+    entity_type: 'equipment_model' as typeof fixtures.equipment.entity_type,
+    canonical_name: `Pagination Model ${index}` as typeof fixtures.equipment.canonical_name,
+    canonical_slug: `pagination-model-${index}` as typeof fixtures.equipment.canonical_slug,
+  }));
+  const publicCalls: SearchQuery[] = [];
+  const indexCalls: SearchQuery[] = [];
+  const runtime = {
+    ...RUNTIMES['hvac']!,
+    seo: {
+      ...RUNTIMES['hvac']!.seo,
+      page_classes: [
+        {
+          id: 'equipment_model_detail',
+          route_kind: 'entity_detail' as const,
+          entity_type: 'equipment_model',
+          path: '/data/hvac/equipment/{canonical_slug}',
+          title: '{canonical_name}',
+          structured_data: null,
+          sitemap: 'entities',
+          indexable: 'conditional' as const,
+          quality_gate: 'none',
+        },
+      ],
+      quality_gates: { none: {} },
+      sitemaps: {
+        ...RUNTIMES['hvac']!.seo.sitemaps,
+        max_urls_per_file: maxUrlsPerFile,
+        segments: [{ id: 'entities', path: '/sitemaps/entities-{n}.xml' }],
+      },
+    },
+  };
+  const vertical: VerticalDeployment = {
+    slug: 'hvac',
+    verticalId: fixtures.vertical.id,
+    runtime,
+    publicQueryModel: fakeSurfaceModel('PUBLIC_WEB', entities, publicCalls),
+    searchIndexQueryModel: fakeSurfaceModel('SEARCH_INDEX', entities, indexCalls),
+  };
+  return { vertical, entities, publicCalls, indexCalls };
+}
+
+describe('sitemap pagination and configured file limits', () => {
+  it('paginates in query-layer-sized batches instead of losing results after 200', async () => {
+    const { vertical, publicCalls } = paginationVertical(205, 45_000);
+    const xml = await sitemapSegmentXml(
+      vertical,
+      'https://data-foundry.test',
+      'entities',
+      new Date('2026-03-01T00:00:00Z'),
+    );
+
+    expect(xml).toContain('pagination-model-204');
+    expect(publicCalls.map((call) => call.offset)).toEqual([0, 200]);
+    expect(publicCalls.every((call) => (call.limit ?? 0) <= 200)).toBe(true);
+  });
+
+  it('shards output and advertises every shard without exceeding max_urls_per_file', async () => {
+    const { vertical } = paginationVertical(5, 2);
+    const now = new Date('2026-03-01T00:00:00Z');
+    const first = await sitemapSegmentXml(vertical, 'https://data-foundry.test', 'entities', now, 1);
+    const second = await sitemapSegmentXml(vertical, 'https://data-foundry.test', 'entities', now, 2);
+    const index = await sitemapIndexXml({
+      publicOrigin: 'https://data-foundry.test',
+      verticals: new Map([['hvac', vertical]]),
+      close: async () => undefined,
+    }, now);
+
+    expect((first.match(/<url>/g) ?? []).length).toBe(2);
+    expect((second.match(/<url>/g) ?? []).length).toBe(2);
+    expect(first).toContain('pagination-model-0');
+    expect(first).not.toContain('pagination-model-2');
+    expect(second).toContain('pagination-model-2');
+    expect(index).toContain('/sitemaps/entities-1.xml');
+    expect(index).toContain('/sitemaps/entities-2.xml');
+    expect(index).toContain('/sitemaps/entities-3.xml');
   });
 });

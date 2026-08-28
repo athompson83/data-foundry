@@ -16,7 +16,7 @@
  * `noindex,follow` — so failing closed here costs nothing but an index entry
  * the page had not earned yet.
  */
-import type { QueryModel } from '@data-foundry/query-model';
+import type { CanonicalFactView, SurfaceQueryModel } from '@data-foundry/query-model';
 import type { EntityId, VerticalId } from '@data-foundry/canonical-schema';
 import type { QualityGate } from './seo.js';
 import { DEFAULT_CONCURRENCY, mapWithConcurrency } from './concurrency.js';
@@ -156,14 +156,14 @@ export function evaluateGate(gate: QualityGate, signals: GateSignals): GateVerdi
   return { passed: failures.length === 0, failures };
 }
 
-/** Facts + entity signals shared by every entity-scoped gate. One round trip through the query layer. */
+/** Facts plus surface-authorized evidence signals shared by every entity-scoped gate. */
 export async function computeEntitySignals(
-  queryModel: QueryModel,
+  queryModel: SurfaceQueryModel,
   entityId: EntityId,
   entityQualityScore: number,
   entityUpdatedAt: string,
   criticalProperties: readonly string[],
-  policy: Parameters<QueryModel['canonicalFacts']>[1],
+  policy: Parameters<SurfaceQueryModel['canonicalFacts']>[1],
   now: Date,
 ): Promise<GateSignals> {
   const facts = await queryModel.canonicalFacts(entityId, policy);
@@ -173,12 +173,10 @@ export async function computeEntitySignals(
   const criticalCoverage =
     criticalProperties.length === 0 ? 1 : criticalPublished.length / criticalProperties.length;
 
-  const sources = new Set<string>();
-  for (const fact of published) for (const source of fact.sources) sources.add(source);
+  const evidence = await measureAuthorizedFactEvidence(queryModel, entityId, published, policy);
 
   const disputed = criticalPublished.some((f) => f.unresolved_conflict);
 
-  const coverage = await queryModel.provenanceCoverage({ entity_id: entityId });
   // An unparseable entityUpdatedAt makes new Date(...).getTime() NaN, and
   // `NaN > max` is false — the naive form would fail OPEN on the staleness
   // gate for exactly the value that could not be measured. Omitting the
@@ -192,8 +190,8 @@ export async function computeEntitySignals(
     entity_quality_score: entityQualityScore,
     critical_fact_coverage: criticalCoverage,
     total_facts: published.length,
-    evidence_coverage: coverage.facts.coverage,
-    distinct_sources: sources.size,
+    evidence_coverage: evidence.coverage,
+    distinct_sources: evidence.distinctSources,
     ...(stalenessDays === undefined ? {} : { staleness_days: stalenessDays }),
     disputed_critical_property: disputed,
   };
@@ -221,7 +219,7 @@ export function countContentWords(renderedText: string): number {
  * how a sitemap and the page it points at end up disagreeing.
  */
 export async function computeVerticalDatasetSignals(
-  queryModel: QueryModel,
+  queryModel: SurfaceQueryModel,
   verticalId: VerticalId,
 ): Promise<GateSignals & { readonly entities: number }> {
   const result = await queryModel.search({ vertical_id: verticalId, limit: MAX_VERTICAL_SCAN, offset: 0 });
@@ -233,12 +231,69 @@ export async function computeVerticalDatasetSignals(
   const factLists = await mapWithConcurrency(scanned, DEFAULT_CONCURRENCY, (hit) =>
     queryModel.canonicalFacts(hit.entity.id),
   );
+  const evidenceLists = await mapWithConcurrency(
+    scanned,
+    DEFAULT_CONCURRENCY,
+    (hit, index) =>
+      measureAuthorizedFactEvidence(queryModel, hit.entity.id, factLists[index] ?? [], {}),
+  );
   const sources = new Set<string>();
-  for (const facts of factLists) for (const fact of facts) for (const s of fact.sources) sources.add(s);
-  const coverage = await queryModel.provenanceCoverage({ vertical_id: verticalId });
+  let factTotal = 0;
+  let traceable = 0;
+  for (const evidence of evidenceLists) {
+    factTotal += evidence.total;
+    traceable += evidence.traceable;
+    for (const source of evidence.sources) sources.add(source);
+  }
   return {
     entities: result.total,
     distinct_sources: sources.size,
-    evidence_coverage: coverage.facts.coverage,
+    evidence_coverage: factTotal === 0 ? 1 : traceable / factTotal,
+  };
+}
+
+interface AuthorizedFactEvidence {
+  readonly total: number;
+  readonly traceable: number;
+  readonly coverage: number;
+  readonly distinctSources: number;
+  readonly sources: ReadonlySet<string>;
+}
+
+/**
+ * Measure only evidence the already-bound surface model is allowed to return.
+ * A raw provenance aggregate would include neighboring denied claims and turn
+ * a public quality gate into an authorization side channel.
+ */
+async function measureAuthorizedFactEvidence(
+  queryModel: SurfaceQueryModel,
+  entityId: EntityId,
+  facts: readonly CanonicalFactView[],
+  policy: Parameters<SurfaceQueryModel['canonicalFacts']>[1],
+): Promise<AuthorizedFactEvidence> {
+  const selected = facts.filter((fact) => fact.fact_id !== null);
+  const explanations = await mapWithConcurrency(selected, DEFAULT_CONCURRENCY, (fact) =>
+    queryModel.explainFact(entityId, fact.property, policy),
+  );
+  const sources = new Set<string>();
+  let traceable = 0;
+  for (const [index, explanation] of explanations.entries()) {
+    const fact = selected[index];
+    const selectedExplanation = explanation?.selected ?? null;
+    const attributions =
+      selectedExplanation !== null && selectedExplanation.fact_id === fact?.fact_id
+        ? selectedExplanation.attributions
+        : [];
+    if (attributions.length > 0) traceable += 1;
+    for (const attribution of attributions) {
+      sources.add(JSON.stringify([attribution.publisher, attribution.domain]));
+    }
+  }
+  return {
+    total: selected.length,
+    traceable,
+    coverage: selected.length === 0 ? 1 : traceable / selected.length,
+    distinctSources: sources.size,
+    sources,
   };
 }

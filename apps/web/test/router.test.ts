@@ -27,6 +27,12 @@ describe('matchPageClass against the compiled hvac runtime', () => {
   it('matches the replacement page and NOT the entity detail page for the same slug', () => {
     const match = matchPageClass(seo, '/data/hvac/equipment/acme-24acb636a003/replacements');
     expect(match?.pageClass.id).toBe('replacement_relationship');
+    expect(match?.pageClass.route_kind).toBe('relationship');
+    expect(
+      match?.pageClass.route_kind === 'relationship'
+        ? match.pageClass.subject_entity_type
+        : undefined,
+    ).toBe('equipment_model');
   });
 
   it('matches a manufacturer detail page', () => {

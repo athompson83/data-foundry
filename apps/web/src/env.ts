@@ -34,8 +34,6 @@ export interface ResolvedWebConfig {
   readonly publicOrigin: string;
 }
 
-const DEFAULT_ORIGIN = 'http://localhost';
-
 export function resolveWebConfig(env: WebEnv): ResolvedWebConfig {
   const connectionString = env.HYPERDRIVE?.connectionString ?? env.POSTGRES_URL ?? '';
   if (connectionString.trim() === '') {
@@ -45,13 +43,40 @@ export function resolveWebConfig(env: WebEnv): ResolvedWebConfig {
     );
   }
 
-  const publicOrigin = (env.PUBLIC_ORIGIN ?? '').trim() || DEFAULT_ORIGIN;
+  const publicOrigin = (env.PUBLIC_ORIGIN ?? '').trim();
+  if (publicOrigin === '') {
+    throw new WebConfigurationError(
+      'PUBLIC_ORIGIN is required. Configure the exact public origin used for canonical URLs.',
+    );
+  }
+
+  let parsed: URL;
   try {
-    // eslint-disable-next-line no-new -- validation only, the URL is discarded
-    new URL(publicOrigin);
+    parsed = new URL(publicOrigin);
   } catch {
     throw new WebConfigurationError(`PUBLIC_ORIGIN "${publicOrigin}" is not a valid absolute URL.`);
   }
 
-  return { connectionString, publicOrigin: publicOrigin.replace(/\/+$/, '') };
+  if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
+    throw new WebConfigurationError('PUBLIC_ORIGIN must use HTTPS (or HTTP for local development).');
+  }
+
+  if (
+    parsed.username !== '' ||
+    parsed.password !== '' ||
+    parsed.pathname !== '/' ||
+    parsed.search !== '' ||
+    parsed.hash !== ''
+  ) {
+    throw new WebConfigurationError(
+      'PUBLIC_ORIGIN must be an origin only, without credentials, a path, query, or fragment.',
+    );
+  }
+
+  const localHosts = new Set(['localhost', '127.0.0.1', '[::1]']);
+  if (parsed.protocol !== 'https:' && !localHosts.has(parsed.hostname)) {
+    throw new WebConfigurationError('PUBLIC_ORIGIN must use HTTPS outside local development.');
+  }
+
+  return { connectionString, publicOrigin: parsed.origin };
 }

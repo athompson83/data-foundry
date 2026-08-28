@@ -324,6 +324,19 @@ describe('seo.yaml', () => {
     }
   });
 
+  it('declares an explicit dispatch kind for every page class', () => {
+    for (const pageClass of seo.page_classes) {
+      expect(
+        ['static', 'entity_detail', 'relationship', 'comparison', 'filtered_collection'],
+        pageClass.id,
+      ).toContain(pageClass.route_kind);
+    }
+    expect(seo.page_classes.find((page: any) => page.id === 'replacement_relationship')).toMatchObject({
+      route_kind: 'relationship',
+      subject_entity_type: 'equipment_model',
+    });
+  });
+
   it('demands real fact coverage before an entity page may be indexed', () => {
     // The anti-thin-page numbers rule 8 requires.
     const gate = seo.quality_gates.entity_detail;

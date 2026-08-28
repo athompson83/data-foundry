@@ -3,7 +3,12 @@
  * `apps/edge/test/composition.test.ts`. Nothing here stubs the query layer.
  */
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
-import { createQueryFixtures, type QueryFixtures } from '../../../packages/query-model/test/support.js';
+import {
+  addSyntheticEntityEvidence,
+  createQueryFixtures,
+  seedSyntheticSurfaceRights,
+  type QueryFixtures,
+} from '../../../packages/query-model/test/support.js';
 import { getDeployment, resetDeployments } from '../src/composition.js';
 import { WebConfigurationError } from '../src/env.js';
 import { RUNTIMES } from '../src/index.js';
@@ -12,12 +17,17 @@ let fixtures: QueryFixtures;
 
 const envFor = (overrides: Record<string, string> = {}) => ({
   POSTGRES_URL: 'postgres://fixture/db',
+  PUBLIC_ORIGIN: 'https://data-foundry.test',
   ...overrides,
 });
 const openFixtureDriver = async () => fixtures.driver;
 
 beforeAll(async () => {
   fixtures = await createQueryFixtures();
+  await seedSyntheticSurfaceRights(fixtures, ['PUBLIC_WEB', 'SEARCH_INDEX']);
+  for (const entity of [fixtures.equipment, fixtures.heatPump, fixtures.motor, fixtures.rival]) {
+    await addSyntheticEntityEvidence(fixtures, entity);
+  }
 });
 
 afterAll(async () => {
@@ -37,6 +47,19 @@ describe('composing a deployment', () => {
     });
     expect(deployment.verticals.has('hvac')).toBe(true);
     expect(deployment.verticals.get('hvac')?.slug).toBe('hvac');
+  });
+
+  it('binds separate immutable models for public rendering and search indexing', async () => {
+    const deployment = await getDeployment({
+      env: envFor(),
+      runtimes: RUNTIMES,
+      openDriver: openFixtureDriver,
+    });
+    const vertical = deployment.verticals.get('hvac')!;
+
+    expect(vertical.publicQueryModel.surface).toBe('PUBLIC_WEB');
+    expect(vertical.searchIndexQueryModel.surface).toBe('SEARCH_INDEX');
+    expect('provenanceCoverage' in vertical.publicQueryModel).toBe(false);
   });
 
   it('warns rather than throws for a bundled vertical the database does not have', async () => {
@@ -83,5 +106,28 @@ describe('composing a deployment', () => {
     await getDeployment({ env, runtimes: RUNTIMES, openDriver: countingDriver });
     await getDeployment({ env, runtimes: RUNTIMES, openDriver: countingDriver });
     expect(opens).toBe(1);
+  });
+
+  it('does not reuse canonical URLs across two origins backed by the same database', async () => {
+    let opens = 0;
+    const countingDriver = async () => {
+      opens += 1;
+      return fixtures.driver;
+    };
+
+    const first = await getDeployment({
+      env: envFor({ PUBLIC_ORIGIN: 'https://one.example' }),
+      runtimes: RUNTIMES,
+      openDriver: countingDriver,
+    });
+    const second = await getDeployment({
+      env: envFor({ PUBLIC_ORIGIN: 'https://two.example' }),
+      runtimes: RUNTIMES,
+      openDriver: countingDriver,
+    });
+
+    expect(first.publicOrigin).toBe('https://one.example');
+    expect(second.publicOrigin).toBe('https://two.example');
+    expect(opens).toBe(2);
   });
 });

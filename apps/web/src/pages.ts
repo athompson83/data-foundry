@@ -1,12 +1,12 @@
 /**
- * Page renderers. Each one: read through `QueryModel` (rule 5), build the
+ * Page renderers. Each one: read through a surface-bound query model (rule 5), build the
  * body HTML, measure its own real word count, evaluate the doc-07 quality
  * gate against real signals, then hand `robots` + `structuredData` +
  * `bodyHtml` to `layout()`. No page decides its own indexability by fiat —
  * `gates.ts` does, from what was actually measured.
  */
 import type { Entity, VerticalId } from '@data-foundry/canonical-schema';
-import type { EntityView, QueryModel } from '@data-foundry/query-model';
+import type { EntityView, SurfaceQueryModel } from '@data-foundry/query-model';
 import type { VerticalDeployment, WebDeployment } from './composition.js';
 import {
   computeEntitySignals,
@@ -23,6 +23,7 @@ import {
   type PageClass,
   type SeoConfig,
 } from './seo.js';
+import { DEFAULT_CONCURRENCY, mapWithConcurrency } from './concurrency.js';
 
 export function entityHref(vertical: VerticalDeployment, entity: Entity): string | null {
   const pageClass = pageClassForEntityType(vertical.runtime.seo, entity.entity_type);
@@ -32,6 +33,10 @@ export function entityHref(vertical: VerticalDeployment, entity: Entity): string
 
 function robotsFor(seo: SeoConfig, passed: boolean): string {
   return passed ? 'index,follow' : seo.on_gate_failure.robots;
+}
+
+function combinedFailures(...groups: readonly (readonly string[])[]): readonly string[] {
+  return [...new Set(groups.flat())];
 }
 
 function coverageNotice(seo: SeoConfig, failures: readonly string[]): string {
@@ -44,6 +49,32 @@ function coverageNotice(seo: SeoConfig, failures: readonly string[]): string {
   return `<div class="notice"><p>${escapeHtml(text)}</p><ul>${failures
     .map((f) => `<li>${escapeHtml(f)}</li>`)
     .join('')}</ul></div>`;
+}
+
+/**
+ * Emit structured data only when the vertical can substantiate every field it
+ * declared mandatory. Missing legal/provenance metadata is not filled with a
+ * convenient guess merely to obtain a rich result.
+ */
+function datasetStructuredData(
+  vertical: VerticalDeployment,
+  pageClass: PageClass | null,
+): Readonly<Record<string, unknown>> | undefined {
+  if (pageClass?.structured_data !== 'Dataset') return undefined;
+  const spec = vertical.runtime.seo.structured_data['dataset_page'];
+  if (spec?.type !== 'Dataset') return undefined;
+
+  const candidate: Readonly<Record<string, unknown>> = {
+    '@context': 'https://schema.org',
+    '@type': 'Dataset',
+    name: vertical.runtime.vertical_name,
+    description: `Evidence-backed ${vertical.runtime.vertical_name} data.`,
+  };
+  const complete = (spec.required_fields ?? []).every((field) => {
+    const value = candidate[field];
+    return value !== undefined && value !== null && (typeof value !== 'string' || value.trim() !== '');
+  });
+  return complete ? candidate : undefined;
 }
 
 /** The parent site: every industry this deployment serves (ADR-0011). */
@@ -87,7 +118,7 @@ export async function renderDatasetLanding(
 
   const byType = await Promise.all(
     vertical.runtime.entity_types.map(async (entityType) => {
-      const result = await vertical.queryModel.search({
+      const result = await vertical.publicQueryModel.search({
         vertical_id: vertical.verticalId as never,
         entity_type: entityType as never,
         limit: 1,
@@ -108,8 +139,14 @@ export async function renderDatasetLanding(
   if (pageClass !== null) {
     const gate = gateFor(seo, pageClass.quality_gate);
     if (gate !== null) {
-      const signals = await computeVerticalDatasetSignals(vertical.queryModel, vertical.verticalId);
-      failures = evaluateGate(gate, signals).failures;
+      const [publicSignals, indexSignals] = await Promise.all([
+        computeVerticalDatasetSignals(vertical.publicQueryModel, vertical.verticalId),
+        computeVerticalDatasetSignals(vertical.searchIndexQueryModel, vertical.verticalId),
+      ]);
+      failures = combinedFailures(
+        evaluateGate(gate, publicSignals).failures,
+        evaluateGate(gate, indexSignals).failures,
+      );
     }
   }
   const passed = failures.length === 0;
@@ -127,15 +164,7 @@ ${coverageNotice(seo, failures)}
     description: `Evidence-backed ${vertical.runtime.vertical_name} data: every value cites its source.`,
     canonicalUrl,
     robots: robotsFor(seo, passed),
-    structuredData:
-      pageClass?.structured_data === 'Dataset'
-        ? {
-            '@context': 'https://schema.org',
-            '@type': 'Dataset',
-            name: vertical.runtime.vertical_name,
-            description: `Evidence-backed ${vertical.runtime.vertical_name} data.`,
-          }
-        : undefined,
+    structuredData: datasetStructuredData(vertical, pageClass),
     bodyHtml: body,
     breadcrumbs: [
       { label: 'Data Foundry', href: '/' },
@@ -145,18 +174,53 @@ ${coverageNotice(seo, failures)}
   return { html, status: 200 };
 }
 
-function factsTable(
-  facts: Awaited<ReturnType<QueryModel['canonicalFacts']>>,
+function safeEvidenceHref(value: string): string | null {
+  try {
+    const url = new URL(value);
+    if (
+      (url.protocol !== 'https:' && url.protocol !== 'http:') ||
+      url.username !== '' ||
+      url.password !== ''
+    ) {
+      return null;
+    }
+    return url.href;
+  } catch {
+    return null;
+  }
+}
+
+async function factsTable(
+  vertical: VerticalDeployment,
+  entityId: Entity['id'],
+  facts: Awaited<ReturnType<SurfaceQueryModel['canonicalFacts']>>,
   criticalProperties: readonly string[],
-): string {
-  const rows = facts
-    .filter((f) => f.fact_id !== null)
-    .map((f) => {
+): Promise<string> {
+  const published = facts.filter((fact) => fact.fact_id !== null);
+  const explanations = await mapWithConcurrency(published, DEFAULT_CONCURRENCY, (fact) =>
+    vertical.publicQueryModel.explainFact(entityId, fact.property),
+  );
+  const rows = published
+    .map((f, index) => {
       const critical = criticalProperties.includes(f.property) ? ' *' : '';
       const value = f.value === null ? '—' : String(f.value);
-      const sources = f.sources.join(', ');
       const conflict = f.unresolved_conflict ? ' <span title="disputed value">⚠</span>' : '';
-      return `<tr><th scope="row">${escapeHtml(f.property)}${critical}</th><td>${escapeHtml(value)}${f.unit ? ` ${escapeHtml(f.unit)}` : ''}${conflict}</td><td class="evidence">${escapeHtml(sources)}</td></tr>`;
+      const explanation = explanations[index];
+      const selected =
+        explanation?.selected?.fact_id === f.fact_id ? explanation.selected : null;
+      const attributions = selected?.attributions ?? [];
+      const evidenceItems = attributions
+        .map((attribution) => {
+          const href = safeEvidenceHref(attribution.artifact_url);
+          const artifact =
+            href === null
+              ? ''
+              : ` — <a href="${escapeAttr(href)}" rel="nofollow noreferrer">source artifact</a>`;
+          return `<li>${escapeHtml(attribution.publisher)} (${escapeHtml(attribution.domain)}, ${escapeHtml(attribution.source_type)}) — ${escapeHtml(attribution.locator)}${artifact}</li>`;
+        })
+        .join('');
+      const evidence = `<details class="evidence"><summary>Fact ${escapeHtml(String(f.fact_id))}</summary><p>Selection: ${escapeHtml(explanation?.reason ?? f.reason)}</p>${evidenceItems === '' ? '<p>No surface-authorized attribution is available.</p>' : `<ul>${evidenceItems}</ul>`}</details>`;
+      return `<tr><th scope="row">${escapeHtml(f.property)}${critical}</th><td>${escapeHtml(value)}${f.unit ? ` ${escapeHtml(f.unit)}` : ''}${conflict}</td><td>${evidence}</td></tr>`;
     })
     .join('');
   return `<table><thead><tr><th>Property</th><th>Value</th><th>Source(s)</th></tr></thead><tbody>${rows}</tbody></table>
@@ -173,9 +237,9 @@ export async function renderEntityDetail(
   const seo = vertical.runtime.seo;
   const entity = entityView.entity;
   const critical = vertical.runtime.critical_properties[entity.entity_type] ?? [];
-  const facts = await vertical.queryModel.canonicalFacts(entity.id);
+  const facts = await vertical.publicQueryModel.canonicalFacts(entity.id);
 
-  const traversal = await vertical.queryModel.relationships({
+  const traversal = await vertical.publicQueryModel.relationships({
     entity_id: entity.id,
     direction: 'both',
     depth: 1,
@@ -192,10 +256,11 @@ export async function renderEntityDetail(
   const title = fillTemplate(pageClass.title, { canonical_name: entity.canonical_name });
   const canonicalUrl = `${publicOrigin}${fillTemplate(pageClass.path, { canonical_slug: entity.canonical_slug })}`;
 
+  const evidenceTable = await factsTable(vertical, entity.id, facts, critical);
   const contentBody = `
 <h1>${escapeHtml(entity.canonical_name)}</h1>
 <p class="evidence">Quality score ${entity.quality_score.toFixed(2)} · last verified ${entity.last_verified_at ?? 'never'}</p>
-${factsTable(facts, critical)}
+${evidenceTable}
 ${relatedLinks.length > 0 ? `<h2>Related</h2><ul>${relatedLinks.join('')}</ul>` : ''}`;
 
   const contentWords = countContentWords(contentBody.replace(/<[^>]+>/g, ' '));
@@ -203,8 +268,8 @@ ${relatedLinks.length > 0 ? `<h2>Related</h2><ul>${relatedLinks.join('')}</ul>` 
   let failures: readonly string[] = [];
   const gate = gateFor(seo, pageClass.quality_gate);
   if (gate !== null) {
-    const base = await computeEntitySignals(
-      vertical.queryModel,
+    const publicBase = await computeEntitySignals(
+      vertical.publicQueryModel,
       entity.id,
       entity.quality_score,
       entity.updated_at,
@@ -212,11 +277,44 @@ ${relatedLinks.length > 0 ? `<h2>Related</h2><ul>${relatedLinks.join('')}</ul>` 
       {},
       now,
     );
-    const signals: GateSignals = { ...base, unique_content_words: contentWords };
+    const publicSignals: GateSignals = { ...publicBase, unique_content_words: contentWords };
     if (gate.min_related_entities !== undefined) {
-      (signals as { related_entities?: number }).related_entities = traversal.edges.length;
+      (publicSignals as { related_entities?: number }).related_entities = traversal.edges.length;
     }
-    failures = evaluateGate(gate, signals).failures;
+    const publicFailures = evaluateGate(gate, publicSignals).failures;
+
+    const indexView = await vertical.searchIndexQueryModel.getEntity(entity.id);
+    if (indexView === null) {
+      failures = combinedFailures(publicFailures, [
+        'SEARCH_INDEX surface authorization could not be established.',
+      ]);
+    } else {
+      const [indexBase, indexTraversal] = await Promise.all([
+        computeEntitySignals(
+          vertical.searchIndexQueryModel,
+          entity.id,
+          entity.quality_score,
+          entity.updated_at,
+          critical,
+          {},
+          now,
+        ),
+        gate.min_related_entities === undefined
+          ? Promise.resolve(null)
+          : vertical.searchIndexQueryModel.relationships({
+              entity_id: entity.id,
+              direction: 'both',
+              depth: 1,
+              limit: 50,
+            }),
+      ]);
+      const indexSignals: GateSignals = { ...indexBase, unique_content_words: contentWords };
+      if (indexTraversal !== null) {
+        (indexSignals as { related_entities?: number }).related_entities =
+          indexTraversal.edges.length;
+      }
+      failures = combinedFailures(publicFailures, evaluateGate(gate, indexSignals).failures);
+    }
   }
   const passed = failures.length === 0;
 
@@ -246,7 +344,7 @@ export async function renderReplacement(
 ): Promise<RenderedPage> {
   const seo = vertical.runtime.seo;
   const entity = entityView.entity;
-  const traversal = await vertical.queryModel.relationships({
+  const traversal = await vertical.publicQueryModel.relationships({
     entity_id: entity.id,
     predicate: 'supersedes' as never,
     direction: 'both',
@@ -282,11 +380,11 @@ ${replacements.length === 0 ? '<p>No recorded replacement.</p>' : `<ul>${list}</
       if (targetPageClass !== null) {
         const targetGate = gateFor(seo, targetPageClass.quality_gate);
         if (targetGate !== null) {
-          const targetView = await vertical.queryModel.getEntity(target.id);
+          const targetView = await vertical.publicQueryModel.getEntity(target.id);
           if (targetView !== null) {
             const targetCritical = vertical.runtime.critical_properties[target.entity_type] ?? [];
             const targetSignals = await computeEntitySignals(
-              vertical.queryModel,
+              vertical.publicQueryModel,
               target.id,
               target.quality_score,
               target.updated_at,
@@ -305,14 +403,17 @@ ${replacements.length === 0 ? '<p>No recorded replacement.</p>' : `<ul>${list}</
     }
     // This page's substance is the relationship traversal, not the entity's
     // own facts — its evidence_coverage reads relationships.coverage from the
-    // same provenanceCoverage report computeEntitySignals reads facts.coverage
-    // from, rather than asserting full coverage as a constant.
-    const coverage = await vertical.queryModel.provenanceCoverage({ entity_id: entity.id });
+    // surface-authorized edge evidence, rather than an unrestricted provenance
+    // aggregate or a constant assertion.
     const signals: GateSignals = {
       supersession_edges: replacements.length,
       terminal_model_indexable: terminalIndexable,
       unique_content_words: contentWords,
-      evidence_coverage: coverage.relationships.coverage,
+      evidence_coverage:
+        traversal.edges.length === 0
+          ? 1
+          : traversal.edges.filter((edge) => edge.evidence_count > 0).length /
+            traversal.edges.length,
     };
     failures = evaluateGate(gate, signals).failures;
   }
@@ -389,7 +490,7 @@ export async function renderSearch(
 
   let resultsHtml = '';
   if (hasQuery) {
-    const result = await vertical.queryModel.search({
+    const result = await vertical.publicQueryModel.search({
       vertical_id: vertical.verticalId as never,
       ...(query.q ? { text: query.q } : {}),
       ...(query.type ? { entity_type: query.type as never } : {}),

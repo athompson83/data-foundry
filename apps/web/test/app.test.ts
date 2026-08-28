@@ -8,17 +8,72 @@
  * (entity_type `equipment`/`part`) are not.
  */
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
-import { createQueryFixtures, type QueryFixtures } from '../../../packages/query-model/test/support.js';
+import {
+  addSyntheticEntityEvidence,
+  claim,
+  createQueryFixtures,
+  relate,
+  seedSyntheticSurfaceRights,
+  ts,
+  type QueryFixtures,
+} from '../../../packages/query-model/test/support.js';
+import { entityQualityScore, type Entity } from '@data-foundry/canonical-schema';
 import { createWebApp } from '../src/app.js';
 import { resolveContext } from '../src/config.js';
 import { getDeployment, resetDeployments } from '../src/composition.js';
 import { RUNTIMES } from '../src/index.js';
 
 let fixtures: QueryFixtures;
+let replacedModel: Entity;
+let replacementModel: Entity;
+let publishedFactId: string;
 const openFixtureDriver = async () => fixtures.driver;
 
 beforeAll(async () => {
   fixtures = await createQueryFixtures();
+  await seedSyntheticSurfaceRights(fixtures, ['PUBLIC_WEB', 'SEARCH_INDEX']);
+  for (const entity of [fixtures.equipment, fixtures.heatPump, fixtures.motor, fixtures.rival]) {
+    await addSyntheticEntityEvidence(fixtures, entity);
+  }
+  replacedModel = await fixtures.store.upsertEntity({
+    vertical_id: fixtures.vertical.id,
+    entity_type: 'equipment_model',
+    canonical_name: 'Synthetic Legacy Model',
+    canonical_slug: 'synthetic-legacy-model',
+    status: 'ACTIVE',
+    quality_score: entityQualityScore(0.8),
+    first_seen_at: ts('2026-01-01T00:00:00Z'),
+    last_verified_at: ts('2026-02-01T00:00:00Z'),
+  });
+  replacementModel = await fixtures.store.upsertEntity({
+    vertical_id: fixtures.vertical.id,
+    entity_type: 'equipment_model',
+    canonical_name: 'Synthetic Replacement Model',
+    canonical_slug: 'synthetic-replacement-model',
+    status: 'ACTIVE',
+    quality_score: entityQualityScore(0.8),
+    first_seen_at: ts('2026-01-01T00:00:00Z'),
+    last_verified_at: ts('2026-02-01T00:00:00Z'),
+  });
+  await addSyntheticEntityEvidence(fixtures, replacedModel);
+  await addSyntheticEntityEvidence(fixtures, replacementModel);
+  const publishedFact = await claim(fixtures, 'manufacturer', {
+    entity_id: replacedModel.id,
+    property: 'seer2_rating',
+    value: 18.5,
+    value_type: 'number',
+    source_value: 'SEER2 18.5',
+  });
+  publishedFactId = publishedFact.fact.id;
+  await claim(fixtures, 'blocked', {
+    entity_id: replacedModel.id,
+    property: 'seer2_rating',
+    value: 99.9,
+    value_type: 'number',
+    status: 'PROPOSED',
+    source_value: 'BLOCKED NEIGHBOR VALUE',
+  });
+  await relate(fixtures, replacementModel, 'supersedes', replacedModel);
 });
 
 afterAll(async () => {
@@ -31,7 +86,7 @@ afterEach(() => {
 
 async function appHandler() {
   const deployment = await getDeployment({
-    env: { POSTGRES_URL: 'postgres://fixture/db' },
+    env: { POSTGRES_URL: 'postgres://fixture/db', PUBLIC_ORIGIN: 'https://data-foundry.test' },
     runtimes: RUNTIMES,
     openDriver: openFixtureDriver,
   });
@@ -80,6 +135,50 @@ describe('the hvac dataset landing page', () => {
     expect(response.status).toBe(200);
     expect(response.body).toContain('Equipment Models');
     expect(response.body).toContain('Manufacturers');
+  });
+
+  it('suppresses Dataset JSON-LD until every declared required field is known', async () => {
+    const app = await appHandler();
+    const response = await app({ method: 'GET', url: '/data/hvac' });
+
+    expect(response.body).not.toContain('type="application/ld+json"');
+    expect(response.body).not.toContain('"@type":"Dataset"');
+  });
+});
+
+describe('relationship page dispatch', () => {
+  it('renders the explicit replacement route instead of treating it as static', async () => {
+    const app = await appHandler();
+    const response = await app({
+      method: 'GET',
+      url: `/data/hvac/equipment/${replacedModel.canonical_slug}/replacements`,
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toContain(replacementModel.canonical_name);
+    expect(response.body).toContain('What replaces');
+  });
+});
+
+describe('surface-safe inline evidence', () => {
+  it('explains each visible fact without leaking a neighboring blocked claim', async () => {
+    const app = await appHandler();
+    const response = await app({
+      method: 'GET',
+      url: `/data/hvac/equipment/${replacedModel.canonical_slug}`,
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toContain(publishedFactId);
+    expect(response.body).toContain('Selection:');
+    expect(response.body).toContain('Acme Climate');
+    expect(response.body).toContain('table.specs');
+    expect(response.body).toContain('catalog.acme-climate.example.com');
+    expect(response.body).not.toContain('BLOCKED NEIGHBOR VALUE');
+    expect(response.body).not.toContain('HVAC Forum');
+    expect(response.body).not.toContain('99.9');
+    expect(response.body).not.toContain('reviewed_by');
+    expect(response.body).not.toContain('withheld');
   });
 });
 

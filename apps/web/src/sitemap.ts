@@ -1,54 +1,26 @@
 /**
- * Sitemaps, generated from the same gate every page itself is rendered
- * against — `include_only_indexable: true` in `seo.yaml` is enforced here by
- * calling `evaluateGate` per candidate URL, not by a separate "is this thing
- * good" heuristic that could drift from what the page actually decided.
- *
- * Single-shard only: `max_urls_per_file` sharding (`entities-{n}.xml`) is not
- * implemented — every deployment today is far under 45,000 URLs per segment,
- * and building pagination for a limit nothing is near is exactly the kind of
- * complexity doc 07 warns against manufacturing ahead of need. Documented as a
- * known gap rather than silently only-ever-emitting page 1 of something larger.
- *
- * Per-entity fan-out is bounded (see concurrency.ts), not eliminated: each
- * hit still costs `computeEntitySignals` a `canonicalFacts` call, and
- * `canonicalStore.canonicalView`/`selectFact` (packages/canonical-store)
- * issues one query per distinct property on the entity — for an
- * `equipment_model`-shaped entity (~12 properties) that is roughly a dozen
- * sequential queries PER entity before this module even runs its own
- * `provenanceCoverage` call. A batch/aggregate fetch for that would live in
- * `canonical-store` itself, which is a shared package used by `apps/api`,
- * `apps/mcp`, `services/export-builder` and `services/ingest-worker` too —
- * out of scope here, and left as a follow-up rather than special-cased for
- * this one caller.
- *
- * Bounded concurrency cuts wall-clock per request; it does not cut total
- * query volume across repeated crawls. Cloudflare Workers do not cache a
- * Worker's own response from its `Cache-Control` header alone (confirmed
- * against Cloudflare's current docs, Aug 2026) — the existing header on
- * `xmlResponse` (http.ts) states an intent this module cannot itself
- * fulfil; real edge caching needs an explicit `caches.default.put()`/`.match()`
- * call, which is a bigger, separately-testable change (this repo's test
- * harness has no Miniflare/workerd runtime, so a Cache API integration needs
- * its own injectable seam, the same way `composition.ts`'s `openDriver`
- * lets tests substitute PGlite for a real connection). Left as a follow-up
- * rather than folded into this fix.
+ * Sitemap generation is a distribution surface, not a reflection of every
+ * public page. An entity must independently pass PUBLIC_WEB and SEARCH_INDEX
+ * rights plus the same quality gate used by its public page.
  */
+import type { Entity } from '@data-foundry/canonical-schema';
+import type { SurfaceQueryModel } from '@data-foundry/query-model';
 import { computeEntitySignals, computeVerticalDatasetSignals, evaluateGate } from './gates.js';
 import { sitemapSegmentUrl } from './router.js';
 import { DEFAULT_CONCURRENCY, mapWithConcurrency } from './concurrency.js';
 import type { VerticalDeployment, WebDeployment } from './composition.js';
-import type { Entity } from '@data-foundry/canonical-schema';
+import type { PageClass, QualityGate } from './seo.js';
 
-const MAX_ENTITIES_PER_SEGMENT = 2000;
+/** The canonical query layer clamps searches to 200; never pretend a larger request bypasses it. */
+const SEARCH_PAGE_SIZE = 200;
 
-/**
- * `&`, `<` etc. in a `loc` value break the surrounding XML for the WHOLE
- * document, not just one entry — a crawler that fails to parse the sitemap
- * gets none of it. `canonical_slug` is ingested, third-party-sourced data by
- * the time it reaches here, not something this module may assume is already
- * XML-safe.
- */
+export class SitemapConfigurationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'SitemapConfigurationError';
+  }
+}
+
 function escapeXml(value: string): string {
   return value
     .replace(/&/g, '&amp;')
@@ -62,38 +34,55 @@ function urlEntry(loc: string): string {
   return `<url><loc>${escapeXml(loc)}</loc></url>`;
 }
 
-function urlset(entries: readonly string[]): string {
+function urlset(locations: readonly string[]): string {
+  const entries = locations.map(urlEntry);
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.join('\n')}\n</urlset>\n`;
 }
 
-/** Every (vertical, segment) this deployment could serve, whether or not it has any URLs yet. */
-export function sitemapIndexXml(deployment: WebDeployment): string {
-  const entries: string[] = [];
-  for (const vertical of deployment.verticals.values()) {
-    for (const segment of vertical.runtime.seo.sitemaps.segments) {
-      const path = segment.path.replace('{n}', '1');
-      const loc = `${deployment.publicOrigin}${sitemapSegmentUrl(vertical.runtime.seo.url_prefix, path)}`;
-      entries.push(`<sitemap><loc>${escapeXml(loc)}</loc></sitemap>`);
-    }
+function checkedFileLimit(vertical: VerticalDeployment): number {
+  const limit = vertical.runtime.seo.sitemaps.max_urls_per_file;
+  if (!Number.isSafeInteger(limit) || limit < 1 || limit > 50_000) {
+    throw new SitemapConfigurationError(
+      `sitemaps.max_urls_per_file must be an integer from 1 through 50000; received ${limit}.`,
+    );
   }
-  return `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.join('\n')}\n</sitemapindex>\n`;
+  return limit;
 }
 
-/**
- * `entity` is the search hit's own entity — `SearchHit.entity` already
- * carries `quality_score`/`updated_at`, so this never re-fetches an entity
- * the caller just got back from `search()`. A second `getEntity` per hit
- * would add a full extra round trip on top of the several `computeEntitySignals`
- * already needs, for a value already in hand.
- */
-async function isIndexable(vertical: VerticalDeployment, entity: Entity, now: Date): Promise<boolean> {
-  const pageClass = vertical.runtime.seo.page_classes.find((pc) => pc.entity_type === entity.entity_type);
-  if (pageClass === null || pageClass === undefined) return false;
-  const gate = vertical.runtime.seo.quality_gates[pageClass.quality_gate];
-  if (gate === undefined) return false;
+async function allVisibleEntities(
+  model: SurfaceQueryModel,
+  vertical: VerticalDeployment,
+  entityType: string,
+): Promise<readonly Entity[]> {
+  const entities: Entity[] = [];
+  let offset = 0;
+  let total = Number.POSITIVE_INFINITY;
+
+  while (offset < total) {
+    const result = await model.search({
+      vertical_id: vertical.verticalId,
+      entity_type: entityType as never,
+      limit: SEARCH_PAGE_SIZE,
+      offset,
+    });
+    entities.push(...result.hits.map((hit) => hit.entity));
+    total = result.total;
+    if (result.hits.length === 0) break;
+    offset += result.hits.length;
+  }
+  return entities;
+}
+
+async function entitySignals(
+  model: SurfaceQueryModel,
+  vertical: VerticalDeployment,
+  entity: Entity,
+  gate: QualityGate,
+  now: Date,
+) {
   const critical = vertical.runtime.critical_properties[entity.entity_type] ?? [];
-  const signals = await computeEntitySignals(
-    vertical.queryModel,
+  const base = await computeEntitySignals(
+    model,
     entity.id,
     entity.quality_score,
     entity.updated_at,
@@ -101,71 +90,158 @@ async function isIndexable(vertical: VerticalDeployment, entity: Entity, now: Da
     {},
     now,
   );
-  // `min_unique_content_words` is not measured here — computing it would mean
-  // rendering the full page, which is exactly the O(n) full-render cost this
-  // module exists to avoid for a sitemap listing. A gate that declares it
-  // fails closed here (see gates.ts's UNMEASURED convention) and is decided
-  // for real when the page itself is requested; a sitemap is a recommendation,
-  // never the source of truth for what serves.
-  return evaluateGate(gate, signals).passed;
+  if (gate.min_related_entities === undefined) return base;
+  const traversal = await model.relationships({
+    entity_id: entity.id,
+    direction: 'both',
+    depth: 1,
+    limit: 500,
+  });
+  return { ...base, related_entities: traversal.edges.length };
 }
 
-/**
- * One segment's URLs, gate-filtered. `segmentId` is `seo.yaml`'s own
- * `sitemaps.segments[].id` (e.g. `entities`, `manufacturers`, `datasets`).
- */
+async function isEntityIndexable(
+  vertical: VerticalDeployment,
+  pageClass: PageClass & { readonly route_kind: 'entity_detail' },
+  entity: Entity,
+  now: Date,
+): Promise<boolean> {
+  // The public search already proved PUBLIC_WEB identity authorization. This
+  // separate lookup is the non-implication check for SEARCH_INDEX.
+  if ((await vertical.searchIndexQueryModel.getEntity(entity.id)) === null) return false;
+  const gate = vertical.runtime.seo.quality_gates[pageClass.quality_gate];
+  if (gate === undefined) return false;
+
+  const [publicSignals, indexSignals] = await Promise.all([
+    entitySignals(vertical.publicQueryModel, vertical, entity, gate, now),
+    entitySignals(vertical.searchIndexQueryModel, vertical, entity, gate, now),
+  ]);
+  return evaluateGate(gate, publicSignals).passed && evaluateGate(gate, indexSignals).passed;
+}
+
+async function collectEntityPageLocations(
+  vertical: VerticalDeployment,
+  publicOrigin: string,
+  pageClass: PageClass & { readonly route_kind: 'entity_detail' },
+  now: Date,
+): Promise<readonly string[]> {
+  const entities = await allVisibleEntities(
+    vertical.publicQueryModel,
+    vertical,
+    pageClass.entity_type,
+  );
+  const indexable = await mapWithConcurrency(entities, DEFAULT_CONCURRENCY, (entity) =>
+    isEntityIndexable(vertical, pageClass, entity, now),
+  );
+  const locations: string[] = [];
+  for (const [index, entity] of entities.entries()) {
+    if (!indexable[index]) continue;
+    const path = pageClass.path.replace('{canonical_slug}', () => entity.canonical_slug);
+    locations.push(`${publicOrigin}${path}`);
+  }
+  return locations;
+}
+
+async function collectStaticLocation(
+  vertical: VerticalDeployment,
+  publicOrigin: string,
+  pageClass: PageClass & { readonly route_kind: 'static' },
+): Promise<readonly string[]> {
+  if (pageClass.id === 'docs_api_mcp') {
+    return [`${publicOrigin}${vertical.runtime.seo.url_prefix}/docs`];
+  }
+  if (pageClass.id !== 'dataset_landing') return [];
+
+  const gate = vertical.runtime.seo.quality_gates[pageClass.quality_gate];
+  if (gate === undefined) return [];
+  const [publicSignals, indexSignals] = await Promise.all([
+    computeVerticalDatasetSignals(vertical.publicQueryModel, vertical.verticalId),
+    computeVerticalDatasetSignals(vertical.searchIndexQueryModel, vertical.verticalId),
+  ]);
+  return evaluateGate(gate, publicSignals).passed && evaluateGate(gate, indexSignals).passed
+    ? [`${publicOrigin}${vertical.runtime.seo.url_prefix}`]
+    : [];
+}
+
+async function collectSegmentLocations(
+  vertical: VerticalDeployment,
+  publicOrigin: string,
+  segmentId: string,
+  now: Date,
+): Promise<readonly string[]> {
+  const locations: string[] = [];
+  for (const pageClass of vertical.runtime.seo.page_classes) {
+    if (pageClass.sitemap !== segmentId) continue;
+    switch (pageClass.route_kind) {
+      case 'static':
+        locations.push(...(await collectStaticLocation(vertical, publicOrigin, pageClass)));
+        break;
+      case 'entity_detail':
+        locations.push(
+          ...(await collectEntityPageLocations(vertical, publicOrigin, pageClass, now)),
+        );
+        break;
+      case 'relationship':
+        // Relationship indexing also needs terminal-page indexability and
+        // rendered unique content. Until those signals are shared with the
+        // page renderer, omission is the only honest result.
+        break;
+      case 'comparison':
+      case 'filtered_collection':
+        // These spaces are not finitely enumerable yet and their demand
+        // signals are intentionally unmeasured. Fail closed.
+        break;
+    }
+  }
+  return [...new Set(locations)];
+}
+
+/** Build the global index after measuring actual authorized shard counts. */
+export async function sitemapIndexXml(
+  deployment: WebDeployment,
+  now = new Date(),
+): Promise<string> {
+  const entries: string[] = [];
+  for (const vertical of deployment.verticals.values()) {
+    const limit = checkedFileLimit(vertical);
+    for (const segment of vertical.runtime.seo.sitemaps.segments) {
+      const locations = await collectSegmentLocations(
+        vertical,
+        deployment.publicOrigin,
+        segment.id,
+        now,
+      );
+      const shardCount = Math.max(1, Math.ceil(locations.length / limit));
+      if (shardCount > 1 && !segment.path.includes('{n}')) {
+        throw new SitemapConfigurationError(
+          `Sitemap segment "${segment.id}" exceeds max_urls_per_file but its path has no {n} shard placeholder.`,
+        );
+      }
+      for (let shard = 1; shard <= shardCount; shard += 1) {
+        const path = segment.path.replace('{n}', String(shard));
+        const loc = `${deployment.publicOrigin}${sitemapSegmentUrl(vertical.runtime.seo.url_prefix, path)}`;
+        entries.push(`<sitemap><loc>${escapeXml(loc)}</loc></sitemap>`);
+      }
+    }
+  }
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.join('\n')}\n</sitemapindex>\n`;
+}
+
+/** One authorized, quality-gated sitemap shard. */
 export async function sitemapSegmentXml(
   vertical: VerticalDeployment,
   publicOrigin: string,
   segmentId: string,
   now: Date,
+  shard = 1,
 ): Promise<string> {
-  const seo = vertical.runtime.seo;
-  const pageClasses = seo.page_classes.filter((pc) => pc.sitemap === segmentId);
-  const entries: string[] = [];
+  const limit = checkedFileLimit(vertical);
+  if (!Number.isSafeInteger(shard) || shard < 1) return urlset([]);
+  const segment = vertical.runtime.seo.sitemaps.segments.find((entry) => entry.id === segmentId);
+  if (segment === undefined) return urlset([]);
+  if (shard > 1 && !segment.path.includes('{n}')) return urlset([]);
 
-  for (const pageClass of pageClasses) {
-    if (pageClass.entity_type === undefined) {
-      // Static page classes sharing the `datasets` segment. `docs_api_mcp`
-      // declares `quality_gate: none` — "no data gate applies" per seo.yaml,
-      // so it is unconditionally indexable. `dataset_landing` declares
-      // `quality_gate: dataset`, which DOES have thresholds
-      // (min_entities/min_evidence_coverage/min_distinct_sources) — it must
-      // be evaluated the same way `renderDatasetLanding` evaluates it, or the
-      // sitemap can recommend a page the page itself marks `noindex`.
-      if (pageClass.id === 'dataset_landing') {
-        const gate = seo.quality_gates[pageClass.quality_gate];
-        const signals = await computeVerticalDatasetSignals(vertical.queryModel, vertical.verticalId);
-        if (gate !== undefined && evaluateGate(gate, signals).passed) {
-          entries.push(urlEntry(`${publicOrigin}${seo.url_prefix}`));
-        }
-      }
-      if (pageClass.id === 'docs_api_mcp') entries.push(urlEntry(`${publicOrigin}${seo.url_prefix}/docs`));
-      continue;
-    }
-
-    const result = await vertical.queryModel.search({
-      vertical_id: vertical.verticalId,
-      entity_type: pageClass.entity_type as never,
-      limit: MAX_ENTITIES_PER_SEGMENT,
-    });
-    // Bounded, not serial and not unbounded: up to MAX_ENTITIES_PER_SEGMENT
-    // hits, each needing several sequential DB round trips inside
-    // computeEntitySignals, would either make one request take far too long
-    // (serial) or flood the connection pool (unbounded Promise.all). See
-    // concurrency.ts for why DEFAULT_CONCURRENCY is what it is.
-    const indexable = await mapWithConcurrency(result.hits, DEFAULT_CONCURRENCY, (hit) =>
-      isIndexable(vertical, hit.entity, now),
-    );
-    for (const [i, hit] of result.hits.entries()) {
-      if (!indexable[i]) continue;
-      // A function replacer, not a string one: String.replace's string form
-      // treats `$&`/`$'`/`` $` `` in the replacement as special patterns, so a
-      // slug containing a literal `$` would corrupt the URL. A function
-      // replacer's return value is inserted literally.
-      const path = pageClass.path.replace('{canonical_slug}', () => hit.entity.canonical_slug);
-      entries.push(urlEntry(`${publicOrigin}${path}`));
-    }
-  }
-  return urlset(entries);
+  const locations = await collectSegmentLocations(vertical, publicOrigin, segmentId, now);
+  const start = (shard - 1) * limit;
+  return urlset(locations.slice(start, start + limit));
 }

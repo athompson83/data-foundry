@@ -19,7 +19,7 @@ import {
   type CanonicalStore,
   type SqlDriver,
 } from '@data-foundry/canonical-store';
-import { createQueryModel, type QueryModel } from '@data-foundry/query-model';
+import { createQueryModel, type SurfaceQueryModel } from '@data-foundry/query-model';
 import type { VerticalId } from '@data-foundry/canonical-schema';
 import { resolveWebConfig, type WebEnv } from './env.js';
 import type { WebRuntime } from './seo.js';
@@ -27,7 +27,10 @@ import type { WebRuntime } from './seo.js';
 export interface VerticalDeployment {
   readonly slug: string;
   readonly verticalId: VerticalId;
-  readonly queryModel: QueryModel;
+  /** All human-visible reads are irreversibly bound to PUBLIC_WEB rights. */
+  readonly publicQueryModel: SurfaceQueryModel;
+  /** Sitemap eligibility is independently bound to SEARCH_INDEX rights. */
+  readonly searchIndexQueryModel: SurfaceQueryModel;
   readonly runtime: WebRuntime;
 }
 
@@ -55,7 +58,13 @@ async function buildVertical(
   if (vertical === null) return null;
 
   const queryModel = createQueryModel(store, { fields: runtime.fields as never });
-  return { slug: runtime.vertical_slug, verticalId: vertical.id, queryModel, runtime };
+  return {
+    slug: runtime.vertical_slug,
+    verticalId: vertical.id,
+    publicQueryModel: queryModel.forSurface('PUBLIC_WEB'),
+    searchIndexQueryModel: queryModel.forSurface('SEARCH_INDEX'),
+    runtime,
+  };
 }
 
 async function build(options: BuildOptions): Promise<WebDeployment> {
@@ -94,7 +103,7 @@ const deployments = new Map<string, Promise<WebDeployment>>();
 
 export function getDeployment(options: BuildOptions): Promise<WebDeployment> {
   const config = resolveWebConfig(options.env);
-  const key = config.connectionString;
+  const key = JSON.stringify([config.connectionString, config.publicOrigin]);
   const existing = deployments.get(key);
   if (existing !== undefined) return existing;
 

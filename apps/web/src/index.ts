@@ -12,7 +12,7 @@ import { resolveContext } from './config.js';
 import { getDeployment } from './composition.js';
 import { WebConfigurationError, type WebEnv } from './env.js';
 import type { WebRuntime } from './seo.js';
-import hvacRuntime from '../generated/hvac.web-runtime.json' with { type: 'json' };
+import { RUNTIMES as compiledRuntimes } from '../generated/runtime-registry.js';
 
 export { toWebRequest, toFetchResponse } from './adapter.js';
 export { createWebApp } from './app.js';
@@ -26,10 +26,8 @@ export {
 } from './composition.js';
 export { WebConfigurationError, resolveWebConfig, type WebEnv } from './env.js';
 
-/** Every vertical this bundle carries. Adding an industry is an entry here plus a rebuild, not a fork. */
-export const RUNTIMES: Readonly<Record<string, WebRuntime>> = {
-  hvac: hvacRuntime as WebRuntime,
-};
+/** Every vertical this bundle carries, generated from the compiler's single bundle list. */
+export const RUNTIMES = compiledRuntimes as unknown as Readonly<Record<string, WebRuntime>>;
 
 function unavailable(reason: string): Response {
   const body = '<!doctype html><title>Unavailable</title><h1>This deployment is not configured to serve requests.</h1>';

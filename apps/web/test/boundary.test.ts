@@ -60,7 +60,16 @@ const ALLOWED_WORKSPACE_IMPORTS = new Set([
   '@data-foundry/canonical-schema',
 ]);
 
+/** Generated data-only module; its JSON-only build graph is verified by tooling tests. */
+const ALLOWED_GENERATED_IMPORTS = new Set(['../generated/runtime-registry.js']);
+
 describe('what apps/web is allowed to import outside its composition root (AGENTS.md rule 5)', () => {
+  it('contains no NUL control bytes in source files', () => {
+    for (const file of sourceFiles()) {
+      expect(file.text, `${file.name} contains a NUL byte`).not.toContain('\0');
+    }
+  });
+
   it('finds at least one page-rendering file and at least one composition-root file — the scope this test claims to cover', () => {
     const files = sourceFiles();
     expect(files.some((f) => COMPOSITION_ROOT_FILES.has(f.name))).toBe(true);
@@ -79,7 +88,10 @@ describe('what apps/web is allowed to import outside its composition root (AGENT
         // query layer, however many directories it climbs to get there —
         // `index.ts`'s `../generated/*.web-runtime.json` is exactly this case.
         const local =
-          specifier.startsWith('./') || specifier.startsWith('node:') || specifier.endsWith('.json');
+          specifier.startsWith('./') ||
+          specifier.startsWith('node:') ||
+          specifier.endsWith('.json') ||
+          ALLOWED_GENERATED_IMPORTS.has(specifier);
         if (local || ALLOWED_WORKSPACE_IMPORTS.has(specifier)) continue;
         violations.push(`${file.name} → ${specifier}`);
       }
