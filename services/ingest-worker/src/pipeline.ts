@@ -42,8 +42,8 @@
 import {
   AcquisitionProviderRegistry,
   FixtureAcquisitionProvider,
-  InMemoryPolicySnapshotRecorder,
   InMemoryValidatorCache,
+  SqlPolicySnapshotRecorder,
   sha256Hex,
   stableStringify,
   unlimitedRateLimiter,
@@ -70,6 +70,7 @@ import {
 } from '@data-foundry/canonical-schema';
 import {
   createCanonicalStore,
+  loadStoredRightsContext,
   type CanonicalStore,
   type FactEvidenceInput,
   type FactSelectionPolicyInput,
@@ -83,11 +84,17 @@ import {
 } from '@data-foundry/extraction';
 import { normalizeRecord, type NormalizationResult } from '@data-foundry/normalization';
 import {
-  evaluateSourcePublishGate,
   toSourceInsert,
   type SourceRegistryEntry,
 } from '@data-foundry/source-registry';
 import { RightsViolationError } from '@data-foundry/canonical-schema';
+import {
+  evaluateRights,
+  type RightsAssetClass,
+  type RightsEvaluation,
+  type RightsOperation,
+  type RightsOutputClass,
+} from '@data-foundry/rights-engine';
 import { compileSourcePlans, type RelationshipPlan, type SourcePlan, type StreamPlan } from './compile.js';
 import { loadVerticalConfig, type LoadVerticalOptions, type VerticalConfig } from './config.js';
 import { IngestError, PipelineConfigurationError } from './errors.js';
@@ -154,6 +161,13 @@ interface ResolvedRecordContext {
   readonly manufacturer: Entity | null;
 }
 
+interface InternalRightsIntent {
+  readonly operation: Extract<RightsOperation, 'ACQUIRE' | 'STORE' | 'CACHE' | 'NORMALIZE' | 'DERIVE'>;
+  readonly assetClass: RightsAssetClass;
+  readonly outputClass: RightsOutputClass;
+  readonly fieldKey: string | null;
+}
+
 export class Pipeline {
   readonly store: CanonicalStore;
   readonly config: VerticalConfig;
@@ -164,6 +178,7 @@ export class Pipeline {
   readonly #plans: ReadonlyMap<string, SourcePlan>;
   readonly #fixtures: ReadonlyMap<string, FixtureBinding>;
   readonly #diagnostics: string[] = [];
+  readonly #rightsContexts = new Map<string, ReturnType<typeof loadStoredRightsContext>>();
 
   #vertical: Vertical | null = null;
   readonly #sources = new Map<string, Source>();
@@ -204,7 +219,7 @@ export class Pipeline {
       deps: {
         registry: config.registry,
         artifactStore: options.artifactStore,
-        policyRecorder: new InMemoryPolicySnapshotRecorder(),
+        policyRecorder: new SqlPolicySnapshotRecorder(options.driver),
         validatorCache,
         clock,
         // Politeness is a property of the live adapters; sleeping through a
@@ -361,6 +376,17 @@ export class Pipeline {
       await advanceTo('FETCH_QUEUED', 'rights record present; queued');
 
       // ---- FETCHED --------------------------------------------------------
+      const plan = this.#plans.get(sourceKey);
+      if (plan === undefined) {
+        throw new PipelineConfigurationError(
+          `source "${sourceKey}" has a rights record but no mapping in source-mappings.yaml`,
+        );
+      }
+      await this.#requireInternalRights(source, entry, 'APPROVED_OR_ACTIVE', [
+        { operation: 'ACQUIRE', assetClass: 'DOCUMENT', outputClass: 'RAW_RECORD', fieldKey: null },
+        { operation: 'STORE', assetClass: 'DOCUMENT', outputClass: 'RAW_RECORD', fieldKey: null },
+        { operation: 'CACHE', assetClass: 'DOCUMENT', outputClass: 'RAW_RECORD', fieldKey: null },
+      ]);
       const provider = this.#options.providers.forEntry(entry);
       const acquisition = await provider.fetch({
         sourceId: source.id,
@@ -386,6 +412,9 @@ export class Pipeline {
           policy_snapshot_id: artifact.policy_snapshot_id,
           byte_size: artifact.byte_size,
           acquisition_provider: artifact.acquisition_provider,
+          acquisition_route: artifact.acquisition_route,
+          account_or_product_plan: artifact.account_or_product_plan,
+          acquisition_jurisdiction: artifact.acquisition_jurisdiction,
         });
         const body =
           stored === undefined ? null : await this.#options.artifactStore.get(stored.key);
@@ -403,12 +432,6 @@ export class Pipeline {
       await advanceTo('FETCHED', `${acquired.length} artifact(s) stored`);
 
       // ---- EXTRACTED ------------------------------------------------------
-      const plan = this.#plans.get(sourceKey);
-      if (plan === undefined) {
-        throw new PipelineConfigurationError(
-          `source "${sourceKey}" has a rights record but no mapping in source-mappings.yaml`,
-        );
-      }
       for (const stream of plan.streams) diagnostics.push(...stream.diagnostics);
 
       const extracted: { plan: StreamPlan; record: ExtractedRecord; artifact: SourceArtifact }[] = [];
@@ -444,6 +467,52 @@ export class Pipeline {
       // ---- NORMALIZED -----------------------------------------------------
       const normalized: NormalizedRecord[] = [];
       for (const item of persisted) {
+        const permittedProperties = [];
+        for (const rule of item.plan.ruleSet.properties) {
+          const normalize = await this.#internalRightsDecision(source, entry, 'ACTIVE', {
+            operation: 'NORMALIZE',
+            assetClass: 'DATA',
+            outputClass: 'NORMALIZED_FACT',
+            fieldKey: rule.property,
+          });
+          const derive = await this.#internalRightsDecision(source, entry, 'ACTIVE', {
+            operation: 'DERIVE',
+            assetClass: 'DATA',
+            outputClass: 'NORMALIZED_FACT',
+            fieldKey: rule.property,
+          });
+          if (normalize.permitted && derive.permitted) {
+            permittedProperties.push(rule);
+          } else {
+            diagnostics.push(
+              `${sourceKey}/${item.row.source_record_key}: field ${rule.property} withheld by ` +
+                `rights matrix (NORMALIZE=${normalize.reasonCode}, DERIVE=${derive.reasonCode})`,
+            );
+          }
+        }
+        const permittedIdentifiers = [];
+        for (const rule of item.plan.ruleSet.identifiers) {
+          const normalize = await this.#internalRightsDecision(source, entry, 'ACTIVE', {
+            operation: 'NORMALIZE',
+            assetClass: 'DATA',
+            outputClass: 'METADATA',
+            fieldKey: rule.alias_type,
+          });
+          const derive = await this.#internalRightsDecision(source, entry, 'ACTIVE', {
+            operation: 'DERIVE',
+            assetClass: 'DATA',
+            outputClass: 'METADATA',
+            fieldKey: rule.alias_type,
+          });
+          if (normalize.permitted && derive.permitted) {
+            permittedIdentifiers.push(rule);
+          } else {
+            diagnostics.push(
+              `${sourceKey}/${item.row.source_record_key}: identifier ${rule.alias_type} withheld by ` +
+                `rights matrix (NORMALIZE=${normalize.reasonCode}, DERIVE=${derive.reasonCode})`,
+            );
+          }
+        }
         const normalization = normalizeRecord(
           {
             source_record_key: item.row.source_record_key,
@@ -452,7 +521,11 @@ export class Pipeline {
             extraction_confidence: item.extracted.extraction_confidence,
             artifact_id: item.artifact.id,
           },
-          item.plan.ruleSet,
+          {
+            ...item.plan.ruleSet,
+            properties: permittedProperties,
+            identifiers: permittedIdentifiers,
+          },
         );
         normalizationFailures += normalization.failures.length;
         for (const failure of normalization.failures) {
@@ -474,30 +547,12 @@ export class Pipeline {
       }
       await advanceTo('NORMALIZED', `${normalized.length} record(s) normalized`);
 
-      // ---- publish gate, BEFORE any canonical write -----------------------
-      // Rule 1. This used to run after RESOLVED, which meant `#resolveRecord`
-      // had already committed entities, aliases and MERGE judgments by the time
-      // a RightsViolationError was thrown — and those writes stood, because
-      // nothing wrapped them. `canonical_name` and `canonical_slug` ARE
-      // derivative normalization of the source's data, so a source whose gate
-      // message is literally "canonical facts cannot be built from it" was
-      // nonetheless producing live, queryable canonical entities. No read path
-      // filters entities by source rights, so they were served.
-      //
-      // Fetching and publishing are already separate gates; resolution belongs
-      // on the publish side of the line. The VALIDATED transition stays where
-      // it was so the job state machine order is unchanged.
-      const gate = evaluateSourcePublishGate(entry, now);
-      for (const warning of gate.warnings) {
-        diagnostics.push(`${sourceKey}: ${warning.code}: ${warning.message}`);
-      }
-      if (!gate.allowed) {
-        throw new RightsViolationError(
-          entry.rights_classification,
-          `source "${sourceKey}"`,
-          gate.blockers.map((blocker) => `${blocker.code}: ${blocker.message}`).join(' | '),
-        );
-      }
+      // Canonical identity is itself a derived output. The legacy source-wide
+      // publication booleans no longer decide this boundary: the accepted
+      // matrix does, with absence of a DERIVE grant treated as refusal.
+      await this.#requireInternalRights(source, entry, 'ACTIVE', [
+        { operation: 'DERIVE', assetClass: 'DATA', outputClass: 'METADATA', fieldKey: null },
+      ]);
 
       // ---- RESOLUTION_PENDING → RESOLVED ----------------------------------
       await advanceTo('RESOLUTION_PENDING', 'deterministic resolution queued');
@@ -513,14 +568,20 @@ export class Pipeline {
       // The gate itself ran before resolution (above); this records that the
       // record set passed it. A source that may be *fetched* is not
       // automatically a source that may be *published*.
-      await advanceTo('VALIDATED', 'publish gate passed');
+      await advanceTo('VALIDATED', 'internal rights matrix passed');
 
       // ---- PUBLISHED ------------------------------------------------------
       if (this.#options.dryRun === true) {
         diagnostics.push('dry run: no canonical claims were written');
       } else {
         claimCount = await this.#writeClaims(resolved, source);
-        relationshipCount = await this.#writeRelationships(resolved, source, vertical.id, diagnostics);
+        relationshipCount = await this.#writeRelationships(
+          resolved,
+          source,
+          entry,
+          vertical.id,
+          diagnostics,
+        );
       }
       job = await this.jobs.advance(
         job,
@@ -747,6 +808,8 @@ export class Pipeline {
     item: NormalizedRecord,
   ): Promise<ResolvedRecordContext | null> {
     const raw = item.extracted.raw_payload;
+    await this.store.driver.exec('BEGIN');
+    try {
 
     // The manufacturer is resolved first: it is the scope a model number is
     // unique within, and the slug pattern needs it.
@@ -789,6 +852,7 @@ export class Pipeline {
       this.#diagnostics.push(
         `${source.domain}/${item.row.source_record_key}: no usable strong identifier; record not resolved`,
       );
+      await this.store.driver.exec('ROLLBACK');
       return null;
     }
 
@@ -799,6 +863,38 @@ export class Pipeline {
       sourceId: source.id,
       sourceRecordId: item.row.id,
     });
+
+    await this.store.recordEntityEvidence({
+      entity_id: resolved.entity.id,
+      artifact_id: item.artifact.id,
+      source_record_id: item.row.id,
+      contribution_role: 'EXISTENCE',
+      locator_type: item.extracted.locator.type,
+      locator_value: item.extracted.locator.value,
+      observed_at: item.artifact.retrieved_at,
+    });
+    for (const identifier of item.normalization.identifiers) {
+      await this.store.recordEntityEvidence({
+        entity_id: resolved.entity.id,
+        artifact_id: item.artifact.id,
+        source_record_id: item.row.id,
+        contribution_role: 'ALIAS',
+        locator_type: identifier.locator.type,
+        locator_value: identifier.locator.value,
+        observed_at: item.artifact.retrieved_at,
+      });
+    }
+    if (manufacturer !== null) {
+      await this.store.recordEntityEvidence({
+        entity_id: manufacturer.id,
+        artifact_id: item.artifact.id,
+        source_record_id: item.row.id,
+        contribution_role: 'EXISTENCE',
+        locator_type: item.extracted.locator.type,
+        locator_value: item.extracted.locator.value,
+        observed_at: item.artifact.retrieved_at,
+      });
+    }
 
     if (manufacturer !== null) {
       for (const alias of aliases) {
@@ -811,7 +907,7 @@ export class Pipeline {
       }
     }
 
-    return {
+    const context = {
       plan: item.plan,
       extracted: item.extracted,
       sourceRecord: item.row,
@@ -820,6 +916,12 @@ export class Pipeline {
       entity: resolved.entity,
       manufacturer,
     };
+    await this.store.driver.exec('COMMIT');
+    return context;
+    } catch (error) {
+      await this.store.driver.exec('ROLLBACK');
+      throw error;
+    }
   }
 
   /**
@@ -869,12 +971,26 @@ export class Pipeline {
   async #writeRelationships(
     resolved: readonly ResolvedRecordContext[],
     source: Source,
+    entry: SourceRegistryEntry,
     verticalId: VerticalId,
     diagnostics: string[],
   ): Promise<number> {
     let written = 0;
     for (const context of resolved) {
       for (const plan of context.plan.relationships) {
+        const decision = await this.#internalRightsDecision(source, entry, 'ACTIVE', {
+          operation: 'DERIVE',
+          assetClass: 'DATA',
+          outputClass: 'METADATA',
+          fieldKey: plan.predicate,
+        });
+        if (!decision.permitted) {
+          diagnostics.push(
+            `${source.domain}/${context.sourceRecord.source_record_key}: relationship ` +
+              `${plan.predicate} withheld by rights matrix (${decision.reasonCode})`,
+          );
+          continue;
+        }
         const edge = await this.#buildEdge(context, plan, diagnostics);
         if (edge === null) continue;
         await this.store.upsertRelationshipWithEvidence(
@@ -1010,6 +1126,94 @@ export class Pipeline {
   }
 
   /* ---------------- lazily-created singletons ---------------- */
+
+  async #storedRights(source: Source): ReturnType<typeof loadStoredRightsContext> {
+    const cached = this.#rightsContexts.get(source.id);
+    if (cached !== undefined) return cached;
+    const loaded = loadStoredRightsContext(this.store.driver, source.id, this.#options.now);
+    this.#rightsContexts.set(source.id, loaded);
+    return loaded;
+  }
+
+  async #internalRightsDecision(
+    source: Source,
+    entry: SourceRegistryEntry,
+    sourceStatusRequirement: 'ACTIVE' | 'APPROVED_OR_ACTIVE',
+    intent: InternalRightsIntent,
+  ): Promise<RightsEvaluation> {
+    const context = await this.#storedRights(source);
+    if (context === null) {
+      return {
+        permitted: false,
+        state: 'UNKNOWN',
+        reasonCode: 'NO_GRANT',
+        cellId: null,
+        decisionId: null,
+        blockingDecisionIds: [],
+        exceptionIds: [],
+        unmetConditions: [],
+        obligations: [],
+        termsVersionId: null,
+        evaluatedAt: this.#options.now,
+      };
+    }
+    const fieldGroupIds =
+      intent.fieldKey === null
+        ? []
+        : [...(context.snapshot.fieldGroupMembers ?? new Map())]
+            .filter(([, members]) => members.includes(intent.fieldKey as string))
+            .map(([groupId]) => groupId);
+    return evaluateRights(
+      {
+        source: {
+          ...context.source,
+          killSwitchEngaged: entry.kill_switch_engaged,
+        },
+        sourceStatusRequirement,
+        acquisitionRoute: entry.acquisition_policy.method,
+        accountOrProductPlan: entry.acquisition_policy.account_or_product_plan,
+        jurisdiction: entry.acquisition_policy.jurisdiction,
+        assetClass: intent.assetClass,
+        fieldKey: intent.fieldKey,
+        fieldGroupIds,
+        outputClass: intent.outputClass,
+        operation: intent.operation,
+        channel: 'INTERNAL_PROCESSING',
+        asOf: this.#options.now,
+        conditionReceipts: [],
+      },
+      context.snapshot,
+    );
+  }
+
+  async #requireInternalRights(
+    source: Source,
+    entry: SourceRegistryEntry,
+    sourceStatusRequirement: 'ACTIVE' | 'APPROVED_OR_ACTIVE',
+    intents: readonly InternalRightsIntent[],
+  ): Promise<void> {
+    const refused: string[] = [];
+    for (const intent of intents) {
+      const decision = await this.#internalRightsDecision(
+        source,
+        entry,
+        sourceStatusRequirement,
+        intent,
+      );
+      if (!decision.permitted) {
+        refused.push(
+          `${intent.operation}/${intent.outputClass}/${intent.fieldKey ?? '*'}=${decision.reasonCode}`,
+        );
+      }
+    }
+    if (refused.length > 0) {
+      throw new RightsViolationError(
+        entry.rights_classification,
+        `source "${entry.key}"`,
+        `RIGHTS_MATRIX_REFUSED: ${refused.join(' | ')}`,
+      );
+    }
+  }
 
   async #ensureVertical(): Promise<Vertical> {
     if (this.#vertical !== null) return this.#vertical;

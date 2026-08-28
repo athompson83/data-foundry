@@ -15,7 +15,12 @@ import { request as httpRequest } from 'node:http';
 import { ApiError } from '../src/errors.js';
 import type { ApiHandler } from '../src/http.js';
 import { startApiServer, type ListeningApiServer } from '../src/server.js';
-import { createApiFixtures, ts, type ApiFixtures } from './support.js';
+import {
+  addSyntheticEntityEvidence,
+  createApiFixtures,
+  ts,
+  type ApiFixtures,
+} from './support.js';
 import {
   entityQualityScore,
   type Entity,
@@ -60,7 +65,7 @@ function send(path: string, method = 'GET', target: ListeningApiServer = listeni
 
 beforeAll(async () => {
   fixtures = await createApiFixtures();
-  listening = await startApiServer(fixtures.app);
+  listening = await startApiServer(fixtures.app, { access: { surface: 'API_FREE' } });
 
   // A merged-away id, because the 301 it produces is the one response on this
   // surface whose meaning lives in a HEADER rather than in the body, and a
@@ -76,6 +81,7 @@ beforeAll(async () => {
     first_seen_at: ts('2026-01-01T00:00:00Z'),
     last_verified_at: null,
   });
+  await addSyntheticEntityEvidence(fixtures, merged);
   await fixtures.store.mergeEntities({
     from_entity_id: merged.id,
     to_entity_id: fixtures.equipment.id,

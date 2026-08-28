@@ -147,11 +147,10 @@ async function dispatch(
 }
 
 export function createApiApp(options: ApiAppOptions): ApiHandler {
-  const context = resolveContext(options, CURRENT_VERSION);
-
   return async (
     request: ApiRequest,
     onRequest?: (info: ApiRequestTelemetry) => void,
+    access?: import('./http.js').ApiRequestAccess,
   ): Promise<ApiResponse> => {
     const id = requestId(request);
     // `dispatch` reports its closed route key through this callback rather than a
@@ -165,6 +164,13 @@ export function createApiApp(options: ApiAppOptions): ApiHandler {
       matchedRouteKey = routeKey;
     };
     try {
+      if (access === undefined) {
+        throw new ApiError(
+          'SERVICE_UNAVAILABLE',
+          'The trusted request access context is unavailable.',
+        );
+      }
+      const context = resolveContext(options, CURRENT_VERSION, access);
       const response = await dispatch(context, request, report);
       onRequest?.({ method: request.method, routeKey: matchedRouteKey, status: response.status });
       return response;
@@ -188,7 +194,7 @@ export function createApiApp(options: ApiAppOptions): ApiHandler {
       const response: ApiResponse = {
         status: failure.status,
         headers: {
-          ...baseHeaders(context.version),
+          ...baseHeaders(CURRENT_VERSION),
           ...(failure.code === 'METHOD_NOT_ALLOWED' ? { allow: ALLOW_HEADER } : {}),
         },
         body: toErrorBody(failure, id),

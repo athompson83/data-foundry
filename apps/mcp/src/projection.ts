@@ -16,18 +16,16 @@
  * fields — `explainFact` already carries a staff reviewer's name — and a spread
  * publishes tomorrow's additions without anybody deciding to.
  *
- * SUPPRESSION IS REPORTED, NOT SILENT. A property with no publishable claim is
- * withheld (AGENTS.md rules 1 and 2, and the `suppress_facts_without_evidence`
- * and `exclude_unpublishable_sources` contract every vertical's `mcp.yaml`
- * declares) — but it is listed in `withheld_facts` with the query layer's own
- * reason. An agent that cannot see the gap will assume the property does not
- * exist, which is a different and worse claim than "we hold nothing publishable
- * about it".
+ * RIGHTS REFUSALS ARE NOT ORACLES. The live server receives a surface-bound
+ * model whose candidate set contains only exact MCP grants. It does not count
+ * or name neighboring blocked claims: a caller-controlled property/predicate
+ * plus a refusal count would reveal the very assertion the gate refused.
  */
 import {
   toMcpFact,
   type CanonicalFactView,
   type ClaimSummary,
+  type CustomerFactExplanation,
   type Entity,
   type EntityComparison,
   type EntityView,
@@ -424,7 +422,7 @@ export interface ClaimSourceView {
   readonly sourceType: string;
   readonly authorityRank: number;
   /** The value exactly as the source wrote it, before normalization. */
-  readonly sourceValue: string;
+  readonly sourceValue: string | null;
   readonly locator: string;
   readonly artifactUrl: string;
   readonly retrievedAt: string;
@@ -591,6 +589,64 @@ export function explanation(
     })),
     withheldClaimCount,
     narrative,
+  };
+}
+
+/**
+ * Project the rights-bound trust object used by the live MCP server. Unlike
+ * `explanation`, this function never receives the internal audit shape: there
+ * are no blocked claims to trim, reviewer identities to redact, or refusal
+ * counts that could be differenced into an oracle.
+ */
+export function customerExplanation(source: CustomerFactExplanation): ExplainFactResult {
+  return {
+    entity: {
+      entityId: source.entity.id,
+      entityType: source.entity.entity_type,
+      name: source.entity.canonical_name,
+      slug: source.entity.canonical_slug,
+    },
+    property: source.property,
+    asOf: source.at,
+    canonicalValue: source.selected?.value ?? null,
+    valueType: source.selected?.value_type ?? null,
+    unit: source.selected?.unit ?? null,
+    selectedBy: source.rule,
+    selectionReason: source.reason,
+    editoriallyCorrected: source.editorially_corrected,
+    editorialCorrectionReason: source.editorial_correction_reason,
+    selectionWarnings: [...source.selection_warnings],
+    claims: source.claims.map((claim) => ({
+      value: claim.value,
+      valueType: claim.value_type,
+      unit: claim.unit,
+      status: claim.status,
+      confidence: claim.confidence,
+      selected: claim.selected,
+      sources: claim.attributions.map((attribution) => ({
+        publisher: attribution.publisher,
+        domain: attribution.domain,
+        sourceType: attribution.source_type,
+        authorityRank: attribution.authority_rank,
+        sourceValue: attribution.source_value,
+        locator: attribution.locator,
+        artifactUrl: attribution.artifact_url,
+        retrievedAt: attribution.retrieved_at,
+        observedAt: attribution.observed_at,
+      })),
+      withheldSourceCount: 0,
+    })),
+    conflicts: source.conflicts.map((conflict) => ({
+      value: conflict.value,
+      valueType: conflict.value_type,
+      unit: conflict.unit,
+      claimedBy: conflict.claimed_by.map((info) => info.publisher),
+      lastObservedAt: conflict.last_observed_at,
+    })),
+    unresolvedConflict: source.unresolved_conflict,
+    excluded: [],
+    withheldClaimCount: 0,
+    narrative: [...source.narrative],
   };
 }
 

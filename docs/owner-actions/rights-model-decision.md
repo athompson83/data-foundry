@@ -1,29 +1,34 @@
 # Owner decision — the rights model, and what it costs to get it wrong
 
-**Prepared:** 2026-08-23 · **Status:** DECISION REQUIRED · **Nothing here is implemented.**
+**Prepared:** 2026-08-23 · **Status:** DECIDED — Option B accepted with required corrections
 
 > This is an engineering analysis of publisher terms. **It is not a legal
 > review** and must not be recorded as one. Where it says a licence permits or
 > forbids something, that is a reading of the text, offered so the engineering
 > consequences can be seen — not advice that the reading is correct.
 
+> **Outcome recorded 2026-08-28:** the owner accepted the rights-grant matrix,
+> designed to support field-level scope, subject to corrections RIGHTS-ADR-001
+> through RIGHTS-ADR-007. ADR-0010 is the normative architecture and records the
+> implemented schema and resolver. Sections 2–10 below preserve the analysis
+> presented for the decision; their illustrative table and pseudocode are not
+> the current schema. Acceptance creates no source permission or legal clearance.
+
 ---
 
 ## 1. The decision
 
-**Choose how finely the platform records what each source may be used for.**
+**The question presented was how finely the platform records what each source
+may be used for.**
 
 Everything else in this memo exists to make that choice concrete. The
-recommendation is **Option B, a rights-grant matrix** — but the decision is
-yours, and the reason it cannot wait is in §2: the current model has no setting
-that describes the second-strongest candidate source, and picking either
-available value produces a wrong outcome.
+recommendation was **Option B, a rights-grant matrix**. The owner accepted that
+direction with the corrections now incorporated in ADR-0010.
 
-**This blocks nothing today and blocks everything soon.** No real source has
-been acquired, so no rights are currently being mis-enforced. The moment the
-ENERGY STAR packet is signed, the model in force is the one the first real
-source is recorded against — and changing it later means re-reviewing every
-source declared under the old one.
+The architecture decision is resolved. Real-source publication remains blocked
+unless the exact surface-specific grants are independently evidenced and
+effective. In particular, the ENERGY STAR packet remains deferred as recorded
+in §11.
 
 ---
 
@@ -321,16 +326,16 @@ acquisition-ready on that basis.
 
 ---
 
-## 11. Your decisions
+## 11. Owner decisions
 
-| # | Decision | Recommended default | If you defer |
+| # | Decision | Outcome | Current engineering rule |
 |---|---|---|---|
-| 1 | **Rights model granularity** | **Option B**, rights-grant matrix; design for C, build B | The first real source is recorded under a model that cannot describe it, and re-review is needed later |
-| 2 | **Partner-submitted field ownership** (legal) | Treat as `REQUIRES_REVIEW` until answered — do not assume the publisher's licence flows through | Every source's rights rest on an untested assumption |
-| 3 | **Sign or reject the ENERGY STAR packet** | Read packet §4 first; decision 2 gates it | Nothing proceeds — no real data, no product |
-| 4 | **One API key per vertical** | **Confirm as-is.** It matches the deployment model (`env.ts`: a deployment serves exactly one vertical). Multi-vertical access would be a grant table, never a nullable column | Someone eventually makes `vertical_id` nullable, silently reopening a cross-vertical accounting hole |
-| 5 | **Product claim wording for HVAC** | *"Manufacturer-reported, as filed with US regulators"* — never "certified" | The marketing claim outruns what the data supports |
-| 6 | **Publisher outreach** (non-blocking) | EPREL first | Costs only time |
+| 1 | **Rights model granularity** | **ACCEPTED:** corrected Option B; field-level scope is representable | Follow ADR-0010. Absence is refusal and migration creates no `ALLOW`. |
+| 2 | **Partner-submitted field ownership** (legal) | **UNKNOWN until explicitly reviewed** | Do not assume a publisher licence flows through to third-party-submitted fields. No implicit field grant. |
+| 3 | **ENERGY STAR packet** | **DEFERRED** | Do not sign, promote, or mark the source acquisition-ready until the partner-submitted-rights question receives the required human review. Synthetic-fixture work may continue. |
+| 4 | **One API key per vertical** | **CONFIRMED for V1** | Each key has exactly one `vertical_id`; future multi-vertical access must be modeled explicitly. |
+| 5 | **Product claim wording for HVAC** | **CONFIRMED** | Use *“Manufacturer-reported, as filed with US regulators”*. Do not imply regulator certification, verification, approval, or determination without exact supporting provenance. |
+| 6 | **Publisher outreach** | **NOT AUTHORIZED in this work package** | Do not send publisher communications or accept terms. Existing draft material may remain documentation only. |
 
 ### What breaks under each rights option
 
@@ -354,5 +359,6 @@ access we do not have.
 ---
 
 *Prepared from repository evidence and publisher documentation retrieved
-2026-08-23. No source records were downloaded. No publisher was contacted. No
-rights decision has been implemented in code.*
+2026-08-23. No source records were downloaded and no publisher was contacted in
+preparing this memo. The accepted engineering mechanism is implemented by
+ADR-0010; it grants no real source permission.*

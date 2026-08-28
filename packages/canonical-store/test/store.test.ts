@@ -95,12 +95,45 @@ describe('entities and aliases', () => {
       policy_snapshot_id: null,
       byte_size: 4096,
       acquisition_provider: 'http',
+      acquisition_route: 'DIRECT_HTTP',
+      account_or_product_plan: null,
+      acquisition_jurisdiction: null,
     });
 
     expect(again.id).toBe(fixtures.sources.manufacturer.artifact.id);
+    expect(again.acquisition_route).toBe('DIRECT_HTTP');
+    expect(again.account_or_product_plan).toBeNull();
+    expect(again.acquisition_jurisdiction).toBeNull();
     // Immutable: re-fetching identical bytes did not rewrite retrieved_at.
     expect(again.retrieved_at).toBe(fixtures.sources.manufacturer.artifact.retrieved_at);
     expect(await countRows(fixtures.driver, 'source_artifacts')).toBe(before);
+  });
+
+  it('keeps identical bytes distinct when their acquisition rights scope differs', async () => {
+    const original = fixtures.sources.manufacturer.artifact;
+    const before = await countRows(fixtures.driver, 'source_artifacts');
+    const differentlyScoped = await fixtures.store.recordSourceArtifact({
+      source_id: fixtures.sources.manufacturer.source.id,
+      url: original.url,
+      retrieved_at: ts('2026-04-02T00:00:00Z'),
+      content_hash: original.content_hash,
+      mime_type: original.mime_type,
+      r2_uri: original.r2_uri,
+      http_status: 200,
+      extractor_version: 'browser-run@1.0.0',
+      policy_snapshot_id: null,
+      byte_size: original.byte_size,
+      acquisition_provider: 'browser-run',
+      acquisition_route: 'BROWSER_RUN',
+      account_or_product_plan: 'partner-pro',
+      acquisition_jurisdiction: 'US',
+    });
+
+    expect(differentlyScoped.id).not.toBe(original.id);
+    expect(differentlyScoped.acquisition_route).toBe('BROWSER_RUN');
+    expect(differentlyScoped.account_or_product_plan).toBe('partner-pro');
+    expect(differentlyScoped.acquisition_jurisdiction).toBe('US');
+    expect(await countRows(fixtures.driver, 'source_artifacts')).toBe(before + 1);
   });
 });
 

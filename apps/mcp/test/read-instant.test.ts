@@ -1,5 +1,6 @@
 /**
- * One request reads one instant.
+ * One request reads one fact-selection instant plus one independent current
+ * rights-evaluation instant.
  *
  * Every fact in this platform is versioned and every selection is evaluated AS
  * OF a moment (doc 04). A tool call that reads the clock twice is therefore
@@ -79,18 +80,17 @@ afterAll(async () => {
 });
 
 describe('a call with no instant supplied by the caller', () => {
-  it('reads the clock once and reports the instant it actually selected at', async () => {
+  it('separates current rights time from the fact instant it reports', async () => {
     const { result, reads: clockReads } = await timed(async () =>
       resultOf<ListFactsResult>(
         await live.callTool('list_facts', { entity_id: fixtures.equipment.id }),
       ),
     );
 
-    // One read, so there is only one instant this answer could be as of...
-    expect(clockReads).toBe(1);
-    // ...and it is the one the selection below was evaluated at, not a later
-    // one taken after the query layer had already chosen an instant of its own.
-    expect(result.asOf).toBe(tick(1));
+    // Rights are evaluated at response time (tick 1), independently of the
+    // historical fact-selection instant reported on the answer (tick 2).
+    expect(clockReads).toBe(2);
+    expect(result.asOf).toBe(tick(2));
     expect(result.facts.length).toBeGreaterThan(0);
   });
 
@@ -98,8 +98,8 @@ describe('a call with no instant supplied by the caller', () => {
     const { result, reads: clockReads } = await timed(async () =>
       resultOf<GetEntityResult>(await live.callTool('get_entity', { identifier: '24ANB7' })),
     );
-    expect(clockReads).toBe(1);
-    expect(result.asOf).toBe(tick(1));
+    expect(clockReads).toBe(2);
+    expect(result.asOf).toBe(tick(2));
   });
 
   it('explains a value as of the instant it says it did', async () => {
@@ -114,8 +114,8 @@ describe('a call with no instant supplied by the caller', () => {
         }),
       ),
     );
-    expect(clockReads).toBe(1);
-    expect(result.asOf).toBe(tick(1));
+    expect(clockReads).toBe(2);
+    expect(result.asOf).toBe(tick(2));
   });
 
   it('compares entities as of one instant, not one instant per entity', async () => {
@@ -131,7 +131,7 @@ describe('a call with no instant supplied by the caller', () => {
         }),
       ),
     );
-    expect(clockReads).toBe(1);
+    expect(clockReads).toBe(2);
   });
 
   it('states one instant in a refusal, not one per sentence', async () => {
@@ -149,21 +149,22 @@ describe('a call with no instant supplied by the caller', () => {
     );
 
     expect(error.code).toBe('PROPERTY_NOT_RECORDED');
-    expect(clockReads).toBe(1);
-    expect(error.details['as_of']).toBe(tick(1));
-    expect(error.message).toContain(tick(1));
+    expect(clockReads).toBe(2);
+    expect(error.details['as_of']).toBe(tick(2));
+    expect(error.message).toContain(tick(2));
   });
 });
 
 describe('a call that names its own instant', () => {
-  it('does not read the clock at all, and reports what was asked for', async () => {
+  it('still evaluates current rights once and reports the requested fact instant', async () => {
     const asOf = '2026-03-01T00:00:00.000Z';
     const { result, reads: clockReads } = await timed(async () =>
       resultOf<ListFactsResult>(
         await live.callTool('list_facts', { entity_id: fixtures.equipment.id, as_of: asOf }),
       ),
     );
-    expect(clockReads).toBe(0);
+    // The caller controls fact history, never the current rights decision.
+    expect(clockReads).toBe(1);
     expect(result.asOf).toBe(asOf);
   });
 });

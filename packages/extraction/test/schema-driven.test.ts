@@ -42,6 +42,7 @@ describe('schema-driven onboarding', () => {
       mime_type: 'text/csv',
       url: 'https://bryant.example/parts.psv',
       body: SECOND_SOURCE_CSV,
+      acquisition_route: 'BULK_FILE',
     });
 
     const records = await registry.extract(artifact, SECOND_SOURCE_SCHEMA);
@@ -60,6 +61,7 @@ describe('schema-driven onboarding', () => {
       mime_type: 'text/csv',
       url: 'https://acme-hvac.example/partial.csv',
       body,
+      acquisition_route: 'BULK_FILE',
     });
 
     const base = {
@@ -113,6 +115,7 @@ describe('schema-driven onboarding', () => {
       mime_type: 'text/csv',
       url: 'https://legacy.example/dump.csv',
       body: '24ACC636A003,Infinity 16,36000\n',
+      acquisition_route: 'BULK_FILE',
     });
 
     const records = await createExtractionRegistry().extract(artifact, headerless);

@@ -212,6 +212,9 @@ export async function createFixtures(options: FixtureOptions = {}): Promise<Fixt
       policy_snapshot_id: null,
       byte_size: 4096,
       acquisition_provider: 'http',
+      acquisition_route: 'DIRECT_HTTP',
+      account_or_product_plan: null,
+      acquisition_jurisdiction: null,
     });
     const record = await store.recordSourceRecord({
       source_id: source.id,

@@ -6,7 +6,7 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { createPgliteDriver, type SqlDriver, type SqlExecutor, type SqlParam, type SqlRow } from '@data-foundry/canonical-store';
 import { migrate } from '../../../packages/canonical-store/test/support.js';
-import { buildUsageEvent, type UsageEvent } from '@data-foundry/usage-events';
+import { buildUsageEvent } from '@data-foundry/usage-events';
 import {
   consumeBatch,
   resetDrivers,
@@ -20,6 +20,7 @@ import { ConsumerConfigurationError } from '../src/env.js';
 let driver: SqlDriver;
 let tenantId: string;
 let apiKeyId: string;
+let unclassifiedLegacyApiKeyId: string;
 let verticalId: string;
 
 beforeAll(async () => {
@@ -48,13 +49,37 @@ beforeAll(async () => {
   tenantId = seededTenantId;
 
   const [key] = await driver.query<{ id: string }>(
-    `insert into api_keys (tenant_id, token_hash, token_prefix, label, vertical_id)
-     values ($1, $2, $3, $4, $5) returning id`,
+    `insert into api_keys
+       (tenant_id, token_hash, token_prefix, label, vertical_id, access_tier, billing_source)
+     values ($1, $2, $3, $4, $5, 'API_PAID', 'DIRECT') returning id`,
     [tenantId, 'a'.repeat(64), 'df_test_abcdefgh', 'usage-consumer test key', verticalId],
   );
   const seededKeyId = key?.id;
   if (seededKeyId === undefined) throw new Error('key insert returned no row');
   apiKeyId = seededKeyId;
+
+  // Simulate a key that existed before migration 0015. The production
+  // migration deliberately leaves such rows NULL/NULL; disabling this one
+  // INSERT trigger is only a test harness shortcut to recreate that historical
+  // state after the complete migration set has already been applied.
+  await driver.exec(
+    'alter table api_keys disable trigger api_keys_access_classification_guard',
+  );
+  try {
+    const [legacyKey] = await driver.query<{ id: string }>(
+      `insert into api_keys
+         (tenant_id, token_hash, token_prefix, label, vertical_id)
+       values ($1, $2, $3, $4, $5) returning id`,
+      [tenantId, 'b'.repeat(64), 'df_test_legacy12', 'unclassified legacy key', verticalId],
+    );
+    const legacyKeyId = legacyKey?.id;
+    if (legacyKeyId === undefined) throw new Error('legacy key insert returned no row');
+    unclassifiedLegacyApiKeyId = legacyKeyId;
+  } finally {
+    await driver.exec(
+      'alter table api_keys enable trigger api_keys_access_classification_guard',
+    );
+  }
 });
 
 afterAll(async () => {
@@ -71,7 +96,9 @@ async function rowCount(): Promise<number> {
   return Number(rows[0]?.n ?? '0');
 }
 
-function event(overrides: Partial<Parameters<typeof buildUsageEvent>[0]> = {}): UsageEvent {
+function event(
+  overrides: Partial<Parameters<typeof buildUsageEvent>[0]> = {},
+): ReturnType<typeof buildUsageEvent> {
   return buildUsageEvent({
     tenantId,
     apiKeyId,
@@ -79,6 +106,8 @@ function event(overrides: Partial<Parameters<typeof buildUsageEvent>[0]> = {}): 
     routeKey: 'entities.detail',
     method: 'GET',
     status: 200,
+    accessTier: 'API_PAID',
+    billingSource: 'DIRECT',
     ...overrides,
   });
 }
@@ -162,6 +191,59 @@ describe('duplicate delivery', () => {
     expect(await rowCount()).toBe(before + 1);
     expect(a.acked).toBe(true);
     expect(b.acked).toBe(true);
+  });
+});
+
+describe('consumer-first usage-event rollout', () => {
+  const asLegacy = (current: ReturnType<typeof buildUsageEvent>) => {
+    const {
+      schema_version: _schemaVersion,
+      access_tier: _accessTier,
+      billing_source: _billingSource,
+      ...legacy
+    } = current;
+    return legacy;
+  };
+
+  it('enriches a legacy v1 event from the immutable classified key before persisting it', async () => {
+    const legacyEvent = asLegacy(event());
+    const queued = message('legacy-classified', legacyEvent);
+
+    await consumeBatch(batchOf([queued]), {
+      env: { POSTGRES_URL: 'unused' },
+      openDriver: async () => driver,
+    });
+
+    const rows = await driver.query<{ access_tier: string; billing_source: string }>(
+      `select access_tier, billing_source
+         from api_usage_events
+        where id = $1`,
+      [legacyEvent.id],
+    );
+    expect(rows).toEqual([{ access_tier: 'API_PAID', billing_source: 'DIRECT' }]);
+    expect(queued.acked).toBe(true);
+    expect(queued.retried).toBe(false);
+  });
+
+  it('retries rather than guessing a classification for a legacy key still in quarantine', async () => {
+    const legacyEvent = {
+      ...asLegacy(event()),
+      api_key_id: unclassifiedLegacyApiKeyId,
+    };
+    const queued = message('legacy-unclassified', legacyEvent);
+
+    await consumeBatch(batchOf([queued]), {
+      env: { POSTGRES_URL: 'unused' },
+      openDriver: async () => driver,
+    });
+
+    const rows = await driver.query<{ n: string }>(
+      'select count(*)::text as n from api_usage_events where id = $1',
+      [legacyEvent.id],
+    );
+    expect(rows[0]?.n).toBe('0');
+    expect(queued.acked).toBe(false);
+    expect(queued.retried).toBe(true);
   });
 });
 

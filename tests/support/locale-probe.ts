@@ -107,9 +107,10 @@ async function main(): Promise<void> {
 
   await driver.query(
     `INSERT INTO source_artifacts (id, source_id, url, retrieved_at, content_hash, mime_type,
-                                   r2_uri, http_status, extractor_version, acquisition_provider)
+                                   r2_uri, http_status, extractor_version, acquisition_provider,
+                                   acquisition_route)
      VALUES ($1, $2, 'https://a.example/spec', $3, $4, 'text/html',
-             'r2://raw/probe.html', 200, 'html-1.0.0', 'fixture')`,
+             'r2://raw/probe.html', 200, 'html-1.0.0', 'fixture', 'DIRECT_HTTP')`,
     [ARTIFACT, SOURCE_A, TS, 'a'.repeat(64)],
   );
 

@@ -167,6 +167,10 @@ acquisition_policy:
   # PROPOSED: the SODA API, which robots.txt does not disallow, in preference to
   # crawling the product-finder UI.
   method: VENDOR_API
+  # UNKNOWN until the deferred partner-submitted-rights review establishes the
+  # exact account/terms and jurisdictional scope. Null is not permission.
+  account_or_product_plan: null
+  jurisdiction: null
   approved: false
   approved_by: null
   approved_at: null

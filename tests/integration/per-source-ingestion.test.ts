@@ -14,10 +14,12 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createFactory, type Factory } from '../support/harness.js';
 import type { SourceRunResult } from '../../services/ingest-worker/src/index.js';
+import type { AcquisitionMethod } from '@data-foundry/canonical-schema';
 
 interface SourceExpectation {
   readonly key: string;
   readonly format: string;
+  readonly acquisitionRoute: AcquisitionMethod;
   /** Source records the mapping's streams should yield from one artifact. */
   readonly records: number;
   /** Entity type → number of canonical entities this source alone produces. */
@@ -33,6 +35,7 @@ const EXPECTATIONS: readonly SourceExpectation[] = [
   {
     key: 'acme-hvac-catalog',
     format: 'json',
+    acquisitionRoute: 'DIRECT_HTTP',
     records: 6,
     entities: { manufacturer: 1, equipment_model: 6 },
     // The only source that asserts electrical data and lifecycle succession.
@@ -43,6 +46,7 @@ const EXPECTATIONS: readonly SourceExpectation[] = [
   {
     key: 'acme-spec-sheets',
     format: 'pdf',
+    acquisitionRoute: 'DIRECT_HTTP',
     records: 3,
     entities: { manufacturer: 1, equipment_model: 3 },
     uniqueProperties: ['sound_level_db'],
@@ -52,6 +56,7 @@ const EXPECTATIONS: readonly SourceExpectation[] = [
   {
     key: 'ahri-directory-export',
     format: 'csv',
+    acquisitionRoute: 'BULK_FILE',
     // One CSV row yields two records: the certification, and the certified model.
     records: 22,
     entities: { manufacturer: 3, equipment_model: 11, certification: 11 },
@@ -62,6 +67,7 @@ const EXPECTATIONS: readonly SourceExpectation[] = [
   {
     key: 'coolsupply-distributor',
     format: 'html',
+    acquisitionRoute: 'BROWSER_RUN',
     records: 5,
     entities: { manufacturer: 3, equipment_model: 5 },
     uniqueProperties: [],
@@ -98,7 +104,13 @@ describe.each(EXPECTATIONS)('source $key ($format)', (expectation) => {
 
   it('stores exactly one content-addressed artifact', async () => {
     const rows = await factory.driver.query(
-      `SELECT content_hash, r2_uri, http_status, policy_snapshot_id FROM source_artifacts`,
+      `SELECT artifact.content_hash, artifact.r2_uri, artifact.http_status,
+              artifact.policy_snapshot_id, artifact.acquisition_route,
+              artifact.account_or_product_plan, artifact.acquisition_jurisdiction,
+              snapshot.snapshot
+         FROM source_artifacts artifact
+         LEFT JOIN acquisition_policy_snapshots snapshot
+           ON snapshot.id = artifact.policy_snapshot_id`,
     );
     expect(rows).toHaveLength(1);
     expect(String(rows[0]?.['content_hash'])).toMatch(/^[0-9a-f]{64}$/);
@@ -106,6 +118,14 @@ describe.each(EXPECTATIONS)('source $key ($format)', (expectation) => {
     // Doc 13: every artifact must be able to answer "why were we allowed to
     // fetch this?" months later.
     expect(rows[0]?.['policy_snapshot_id']).not.toBeNull();
+    expect(rows[0]?.['acquisition_route']).toBe(expectation.acquisitionRoute);
+    expect(rows[0]?.['account_or_product_plan']).toBeNull();
+    expect(rows[0]?.['acquisition_jurisdiction']).toBeNull();
+    expect(rows[0]?.['snapshot']).toMatchObject({
+      acquisition_method: expectation.acquisitionRoute,
+      account_or_product_plan: null,
+      acquisition_jurisdiction: null,
+    });
   });
 
   it('extracts the declared number of source records', async () => {

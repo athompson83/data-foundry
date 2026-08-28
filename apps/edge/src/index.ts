@@ -188,9 +188,12 @@ export async function serveRequest(
     const auth = await authenticate(
       deployment.driver,
       request.headers.get('authorization'),
-      deployment.verticalId,
-      config.apiKeyEnvironment,
-      new Date(),
+      {
+        verticalId: deployment.verticalId,
+        environment: config.apiKeyEnvironment,
+        expectedBillingSource: 'DIRECT',
+        now: new Date(),
+      },
     );
     if (!auth.ok) return authFailureResponse(request, auth);
 
@@ -208,7 +211,9 @@ export async function serveRequest(
     };
 
     const startedAt = Date.now();
-    const response = await deployment.app(toApiRequest(request), onRequest);
+    const response = await deployment.app(toApiRequest(request), onRequest, {
+      surface: auth.accessTier,
+    });
     const durationMs = Date.now() - startedAt;
 
     const method = request.method.toUpperCase();
@@ -223,6 +228,8 @@ export async function serveRequest(
           routeKey: captured.info?.routeKey ?? UNMATCHED_ROUTE_KEY,
           method,
           status: response.status,
+          accessTier: auth.accessTier,
+          billingSource: auth.billingSource,
           rowsServed: roughRowsServed(response.body),
           durationMs,
         });

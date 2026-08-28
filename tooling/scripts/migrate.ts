@@ -334,6 +334,22 @@ export const EXPECTED_TABLES = [
   'api_keys',
   'api_route_keys',
   'api_usage_events',
+  'acquisition_policy_snapshots',
+  'rights_publishers',
+  'rights_evidence_artifacts',
+  'rights_terms_cells',
+  'rights_terms_versions',
+  'rights_terms_activation_events',
+  'rights_field_groups',
+  'rights_field_group_members',
+  'rights_cells',
+  'rights_decisions',
+  'rights_decision_conditions',
+  'rights_decision_activation_events',
+  'rights_deny_exceptions',
+  'rights_migration_assessments',
+  'entity_evidence',
+  'fact_dependencies',
 ] as const;
 
 /** Owned tables present, unowned tables found beside them, and owned tables missing. */

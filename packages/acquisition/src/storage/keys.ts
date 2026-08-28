@@ -1,4 +1,4 @@
-import type { ContentHash } from '@data-foundry/canonical-schema';
+import type { ContentHash, PolicySnapshotId } from '@data-foundry/canonical-schema';
 import { ArtifactStoreError } from '../errors.js';
 
 /**
@@ -50,6 +50,8 @@ export interface ArtifactContentKeyParts {
 export interface ArtifactRetrievalKeyParts extends ArtifactContentKeyParts {
   /** ISO-8601 instant; only the UTC date part is used. */
   readonly retrievedAt: string;
+  /** Separates same-day retrievals made under different rights/policy states. */
+  readonly policySnapshotId?: PolicySnapshotId | null;
 }
 
 function assertSegment(name: string, value: string): void {
@@ -92,7 +94,7 @@ export function artifactRetrievalPrefix(vertical: string, source: string): strin
   return `${RAW_PREFIX}/${vertical}/${source}/${RETRIEVED_SEGMENT}`;
 }
 
-/** One record per (source, UTC day, content) — a fetch that confirmed these bytes. */
+/** One record per (source, UTC day, content, policy state) that confirmed these bytes. */
 export function artifactRetrievalKey(parts: ArtifactRetrievalKeyParts): string {
   assertParts(parts);
   const at = new Date(parts.retrievedAt);
@@ -103,7 +105,11 @@ export function artifactRetrievalKey(parts: ArtifactRetrievalKeyParts): string {
   const month = String(at.getUTCMonth() + 1).padStart(2, '0');
   const day = String(at.getUTCDate()).padStart(2, '0');
   const prefix = artifactRetrievalPrefix(parts.vertical, parts.source);
-  return `${prefix}/${year}/${month}/${day}/${parts.contentHash}.json`;
+  const policySuffix =
+    parts.policySnapshotId === undefined || parts.policySnapshotId === null
+      ? ''
+      : `.${parts.policySnapshotId}`;
+  return `${prefix}/${year}/${month}/${day}/${parts.contentHash}${policySuffix}.json`;
 }
 
 /** The documented `/raw/...` form of a content key. */
@@ -126,6 +132,7 @@ export interface ParsedRetrievalKey extends ParsedArtifactKey {
   readonly year: string;
   readonly month: string;
   readonly day: string;
+  readonly policySnapshotId?: PolicySnapshotId;
 }
 
 export function parseArtifactContentKey(key: string): ParsedArtifactKey | null {
@@ -154,7 +161,23 @@ export function parseArtifactRetrievalKey(key: string): ParsedRetrievalKey | nul
   ) {
     return null;
   }
-  const contentHash = file.replace(/\.json$/, '');
-  if (contentHash === file || !HASH_PATTERN.test(contentHash)) return null;
-  return { vertical, source, year, month, day, contentHash };
+  const stem = file.replace(/\.json$/, '');
+  if (stem === file) return null;
+  const contentHash = stem.slice(0, 64);
+  if (!HASH_PATTERN.test(contentHash)) return null;
+  const suffix = stem.slice(64);
+  if (suffix === '') return { vertical, source, year, month, day, contentHash };
+  const policySnapshotId = suffix.startsWith('.') ? suffix.slice(1) : '';
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(policySnapshotId)) {
+    return null;
+  }
+  return {
+    vertical,
+    source,
+    year,
+    month,
+    day,
+    contentHash,
+    policySnapshotId: policySnapshotId as PolicySnapshotId,
+  };
 }

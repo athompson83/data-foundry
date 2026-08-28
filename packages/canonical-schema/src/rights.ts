@@ -120,3 +120,109 @@ export type AttributionRequirement = z.infer<typeof AttributionRequirementSchema
 export function attributionIsSatisfiable(attribution: AttributionRequirement): boolean {
   return !attribution.required || attribution.text !== null;
 }
+
+/** Closed acquisition routes shared by source policy and the rights matrix. */
+export const ACQUISITION_METHODS = [
+  'DIRECT_HTTP',
+  'BROWSER_RUN',
+  'CRAWL4AI',
+  'VENDOR_API',
+  'SITEMAP',
+  'BULK_FILE',
+  'RSS',
+  'MANUAL_UPLOAD',
+] as const;
+export const AcquisitionMethodSchema = z.enum(ACQUISITION_METHODS);
+export type AcquisitionMethod = z.infer<typeof AcquisitionMethodSchema>;
+
+export const RIGHTS_STATES = [
+  'ALLOW',
+  'DENY',
+  'CONDITIONAL',
+  'UNKNOWN',
+  'NOT_APPLICABLE',
+] as const;
+export const RightsStateSchema = z.enum(RIGHTS_STATES);
+export type RightsState = z.infer<typeof RightsStateSchema>;
+
+export const RIGHTS_OPERATIONS = [
+  'ACQUIRE',
+  'STORE',
+  'NORMALIZE',
+  'DERIVE',
+  'DISPLAY_PUBLICLY',
+  'BUILD_COMPARISON_TOOLS',
+  'QUOTE_OR_EXCERPT',
+  'SERVE_API_ACCESS',
+  'SELL_API_ACCESS',
+  'REDISTRIBUTE_RAW',
+  'REDISTRIBUTE_NORMALIZED',
+  'OFFER_BULK_EXPORT',
+  'SUBLICENSE_ACCESS',
+  'LLM_RETRIEVAL',
+  'DELIVER_TO_PARTNERS',
+  'TRAIN_MODELS',
+  'EVALUATE_MODELS',
+  'CACHE',
+  'RETAIN_AFTER_TERMINATION',
+] as const;
+export const RightsOperationSchema = z.enum(RIGHTS_OPERATIONS);
+export type RightsOperation = z.infer<typeof RightsOperationSchema>;
+
+export const RIGHTS_CHANNELS = [
+  'INTERNAL_PROCESSING',
+  'PUBLIC_WEBSITE',
+  'SEARCH_INDEX',
+  'DIRECT_CUSTOMER_API',
+  'RAPIDAPI_MARKETPLACE',
+  'MCP_AGENT',
+  'BULK_DOWNLOAD',
+  'PARTNER_DELIVERY',
+  'MODEL_PIPELINE',
+] as const;
+export const RightsChannelSchema = z.enum(RIGHTS_CHANNELS);
+export type RightsChannel = z.infer<typeof RightsChannelSchema>;
+
+export const RIGHTS_OUTPUT_CLASSES = [
+  'RAW_RECORD',
+  'NORMALIZED_FACT',
+  'DERIVED_METRIC',
+  'METADATA',
+  'IMAGE_OR_MEDIA',
+  'PERSONAL_DATA',
+] as const;
+export const RightsOutputClassSchema = z.enum(RIGHTS_OUTPUT_CLASSES);
+export type RightsOutputClass = z.infer<typeof RightsOutputClassSchema>;
+
+export const RIGHTS_ASSET_CLASSES = [
+  'DATA',
+  'DOCUMENT',
+  'IMAGE',
+  'TRADEMARK',
+  'PERSONAL_DATA',
+] as const;
+export const RightsAssetClassSchema = z.enum(RIGHTS_ASSET_CLASSES);
+export type RightsAssetClass = z.infer<typeof RightsAssetClassSchema>;
+
+export const RIGHTS_REVIEWER_TYPES = ['AUTOMATED', 'HUMAN', 'COUNSEL'] as const;
+export const RightsReviewerTypeSchema = z.enum(RIGHTS_REVIEWER_TYPES);
+export type RightsReviewerType = z.infer<typeof RightsReviewerTypeSchema>;
+
+export const RIGHTS_REVIEW_STATUSES = ['ASSESSMENT', 'APPROVED', 'REJECTED'] as const;
+export const RightsReviewStatusSchema = z.enum(RIGHTS_REVIEW_STATUSES);
+export type RightsReviewStatus = z.infer<typeof RightsReviewStatusSchema>;
+
+export const RIGHTS_TERMS_ACTIVATION_STATES = ['ACTIVE', 'REVOKED'] as const;
+export const RightsTermsActivationStateSchema = z.enum(RIGHTS_TERMS_ACTIVATION_STATES);
+export type RightsTermsActivationState = z.infer<typeof RightsTermsActivationStateSchema>;
+
+export const RIGHTS_CONDITION_TYPES = [
+  'ATTRIBUTION',
+  'FRESHNESS',
+  'VOLUME_CAP',
+  'PURPOSE_LIMITATION',
+  'JURISDICTION',
+  'OTHER',
+] as const;
+export const RightsConditionTypeSchema = z.enum(RIGHTS_CONDITION_TYPES);
+export type RightsConditionType = z.infer<typeof RightsConditionTypeSchema>;

@@ -3,6 +3,7 @@ import { nodeFileSystem, type WritableFileSystem } from '../fs.js';
 import { ArtifactStoreError } from '../errors.js';
 import {
   storeArtifactBytes,
+  parseArtifactMetadata,
   type ArtifactBody,
   type ArtifactMetadata,
   type ArtifactPutRequest,
@@ -77,7 +78,7 @@ export class LocalFsArtifactStore implements ArtifactStore {
     if (!(await this.#fs.exists(metadataPath))) return null;
     const raw = await this.#fs.readFile(metadataPath);
     try {
-      return JSON.parse(new TextDecoder().decode(raw)) as ArtifactMetadata;
+      return parseArtifactMetadata(JSON.parse(new TextDecoder().decode(raw)) as unknown);
     } catch (cause) {
       throw new ArtifactStoreError(
         `Corrupt artifact metadata sidecar at ${metadataPath}: ${String(cause)}`,

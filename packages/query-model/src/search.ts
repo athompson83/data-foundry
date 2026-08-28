@@ -54,6 +54,14 @@ export interface SearchQuery {
   readonly include_facets?: boolean;
   /** Minimum trigram similarity, when pg_trgm is available. */
   readonly fuzzy_threshold?: number;
+  /**
+   * Trusted query-layer restriction used by a surface-bound QueryModel. These
+   * ids are never accepted from an HTTP query. An empty list means no entity
+   * is visible; omission is the internal/unbound behavior.
+   */
+  readonly authorized_entity_ids?: readonly Entity['id'][];
+  /** Current facts whose evidence passed the same surface rights evaluation. */
+  readonly authorized_fact_ids?: readonly string[];
 }
 
 export interface SearchHit {
@@ -117,15 +125,31 @@ function entityScope(
   params: Params,
   alias = 'e',
 ): string {
+  if (query.authorized_entity_ids !== undefined && query.authorized_entity_ids.length === 0) {
+    return 'FALSE';
+  }
   const statuses = query.statuses ?? DEFAULT_STATUSES;
   const clauses = [`${alias}.vertical_id = ${params.add(query.vertical_id)}`];
+  if (query.authorized_entity_ids !== undefined) {
+    clauses.push(
+      `${alias}.id IN (${params.addAll([...query.authorized_entity_ids]).join(', ')})`,
+    );
+  }
   if (statuses.length > 0) {
     clauses.push(`${alias}.status IN (${params.addAll([...statuses]).join(', ')})`);
   }
   if (query.entity_type !== undefined) {
     clauses.push(`${alias}.entity_type = ${params.add(query.entity_type)}`);
   }
-  clauses.push(...facetFilterPredicates(query.filters ?? [], registry, alias, params));
+  clauses.push(
+    ...facetFilterPredicates(
+      query.filters ?? [],
+      registry,
+      alias,
+      params,
+      query.authorized_fact_ids,
+    ),
+  );
   return clauses.join(' AND ');
 }
 
@@ -243,11 +267,18 @@ function buildMatchesCte(
   // Doc 04 "search_boost": a field's declared weight is what makes its values
   // searchable, not a hard-coded list of interesting columns.
   for (const field of registry.boosted()) {
+    const authorizedFacts = query.authorized_fact_ids;
+    if (authorizedFacts !== undefined && authorizedFacts.length === 0) continue;
+    const accessPredicate =
+      authorizedFacts === undefined
+        ? ''
+        : ` AND f.id IN (${params.addAll([...authorizedFacts]).join(', ')})`;
     arms.push(
       `SELECT f.entity_id, ${params.add(String(field.search_boost * 0.6))}::real, 4
          FROM facts f
         WHERE f.property = ${params.add(field.field)}
           AND ${CURRENT_FACT('f')}
+          ${accessPredicate}
           AND lower(${VALUE_TEXT('f')}) LIKE ${params.add(likePattern(text))}`,
     );
   }
@@ -384,6 +415,12 @@ export async function searchEntities(
       ? await computeFacets(driver, registry, {
           vertical_id: query.vertical_id,
           ...(query.entity_type === undefined ? {} : { entity_type: query.entity_type }),
+          ...(query.authorized_entity_ids === undefined
+            ? {}
+            : { entity_ids: query.authorized_entity_ids }),
+          ...(query.authorized_fact_ids === undefined
+            ? {}
+            : { authorized_fact_ids: query.authorized_fact_ids }),
         })
       : [];
 

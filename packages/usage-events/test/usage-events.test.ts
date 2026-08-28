@@ -16,6 +16,8 @@ const validInput = {
   routeKey: 'entities.detail',
   method: 'GET',
   status: 200,
+  accessTier: 'API_PAID',
+  billingSource: 'DIRECT',
 } as const;
 
 /** Round-trip through JSON, the way a Queue message actually travels. */
@@ -66,6 +68,9 @@ describe('buildUsageEvent', () => {
         'status',
         'rows_served',
         'duration_ms',
+        'schema_version',
+        'access_tier',
+        'billing_source',
       ].sort(),
     );
   });
@@ -97,6 +102,9 @@ describe('parseUsageEvent', () => {
       'status',
       'rows_served',
       'duration_ms',
+      'schema_version',
+      'access_tier',
+      'billing_source',
     ]) {
       const { [field]: _omitted, ...rest } = event;
       expect(parseUsageEvent(rest), `missing ${field}`).toBeNull();
@@ -143,6 +151,28 @@ describe('parseUsageEvent', () => {
       event[field] = value;
       expect(parseUsageEvent(event), field).toBeNull();
     }
+  });
+
+  it('accepts the exact legacy v1 shape for a consumer-first rolling deploy', () => {
+    const current = overWire(buildUsageEvent(validInput)) as Record<string, unknown>;
+    const {
+      schema_version: _version,
+      access_tier: _tier,
+      billing_source: _source,
+      ...legacy
+    } = current;
+    expect(parseUsageEvent(legacy)).toEqual(legacy);
+  });
+
+  it('rejects unknown versions and crossed marketplace billing classifications', () => {
+    const unknown = overWire(buildUsageEvent(validInput)) as Record<string, unknown>;
+    unknown['schema_version'] = 3;
+    expect(parseUsageEvent(unknown)).toBeNull();
+
+    const crossed = overWire(buildUsageEvent(validInput)) as Record<string, unknown>;
+    crossed['access_tier'] = 'RAPIDAPI';
+    crossed['billing_source'] = 'DIRECT';
+    expect(parseUsageEvent(crossed)).toBeNull();
   });
 
   it('rejects a method this API never serves', () => {

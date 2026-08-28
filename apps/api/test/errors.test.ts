@@ -21,6 +21,20 @@ afterAll(async () => {
   await fixtures?.driver.close();
 });
 
+describe('trusted access context', () => {
+  it('fails closed when the transport does not bind an authenticated surface', async () => {
+    const response = await fixtures.app({
+      method: 'GET',
+      url: '/v1/health',
+      // A caller-controlled header must never substitute for composition-root
+      // authentication and billing classification.
+      headers: { 'x-data-foundry-surface': 'API_PAID' },
+    });
+    expect(response.status).toBe(503);
+    expect(errorOf(response).code).toBe('SERVICE_UNAVAILABLE');
+  });
+});
+
 /** Every failure this suite can provoke, with the code it must carry. */
 const FAILURES: readonly { url: string; method?: string; status: number; code: string }[] = [
   { url: '/v1/nope', status: 404, code: 'ROUTE_NOT_FOUND' },

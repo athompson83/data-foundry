@@ -29,7 +29,10 @@ export {
   baseHeaders,
   jsonResponse,
   requestId,
+  API_REQUEST_SURFACES,
   type ApiHandler,
+  type ApiRequestAccess,
+  type ApiRequestSurface,
   type ApiRequest,
   type ApiResponse,
 } from './http.js';

@@ -56,6 +56,7 @@ that changes, and `docs/source-onboarding.md` is the procedure.
 
 ```text
 packages/canonical-schema/   Core object model, confidence scores, job state machine, rights gate
+packages/rights-engine/      Fail-closed rights grants and surface-specific permission resolution
 packages/source-registry/    Source rights/health contracts + the publish gate
 packages/acquisition/        Provider adapters obtaining artifacts, behind the rights and politeness gate
 packages/extraction/         Artifacts into source-native records

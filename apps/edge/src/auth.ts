@@ -19,10 +19,13 @@
 import {
   evaluateStoredKey,
   hashApiKey,
+  isApiAccessClassification,
   keyEnvironment,
   looksLikeApiKey,
   readBearerToken,
   type KeyEnvironment,
+  type ApiAccessTier,
+  type ApiBillingSource,
   type StoredApiKey,
 } from '@data-foundry/api-keys';
 import type { SqlExecutor } from '@data-foundry/canonical-store';
@@ -45,13 +48,17 @@ export type AuthFailureReason =
   | 'TENANT_SUSPENDED'
   | 'TENANT_CLOSED'
   | 'TENANT_INACTIVE'
-  | 'WRONG_VERTICAL';
+  | 'WRONG_VERTICAL'
+  | 'ACCESS_PROFILE_MISSING'
+  | 'WRONG_BILLING_SOURCE';
 
 export interface AuthSuccess {
   readonly ok: true;
   readonly tenantId: string;
   readonly apiKeyId: string;
   readonly verticalId: string;
+  readonly accessTier: ApiAccessTier;
+  readonly billingSource: ApiBillingSource;
 }
 
 export interface AuthFailure {
@@ -67,13 +74,18 @@ export type AuthResult = AuthSuccess | AuthFailure;
  * with an index signature, not an `interface extends`, because the driver's
  * `query<R extends SqlRow>` constrains `R` to have one.
  */
-type ApiKeyRow = StoredApiKey & { readonly vertical_id: string } & Record<string, unknown>;
+type ApiKeyRow = StoredApiKey & {
+  readonly vertical_id: string;
+  readonly access_tier: string | null;
+  readonly billing_source: string | null;
+} & Record<string, unknown>;
 
 type ApiTenantRow = { readonly id: string; readonly status: string } & Record<string, unknown>;
 
 async function findKeyByHash(executor: SqlExecutor, tokenHash: string): Promise<ApiKeyRow | null> {
   const rows = await executor.query<ApiKeyRow>(
-    `select id, tenant_id, token_hash, token_prefix, vertical_id, revoked_at, expires_at
+    `select id, tenant_id, token_hash, token_prefix, vertical_id,
+            access_tier, billing_source, revoked_at, expires_at
        from api_keys
       where token_hash = $1`,
     [tokenHash],
@@ -95,13 +107,19 @@ async function findTenantById(executor: SqlExecutor, tenantId: string): Promise<
  * step after the first needs the previous step's row and there is no request
  * state to thread between separate handlers here — `index.ts` calls this once.
  */
+export interface AuthenticateOptions {
+  readonly verticalId: string;
+  readonly environment: KeyEnvironment;
+  readonly expectedBillingSource: ApiBillingSource;
+  readonly now: Date;
+}
+
 export async function authenticate(
   executor: SqlExecutor,
   authorizationHeader: string | null | undefined,
-  verticalId: string,
-  environment: KeyEnvironment,
-  now: Date,
+  options: AuthenticateOptions,
 ): Promise<AuthResult> {
+  const { verticalId, environment, expectedBillingSource, now } = options;
   const token = readBearerToken(authorizationHeader);
   if (token === null) return { ok: false, reason: 'MISSING_CREDENTIAL' };
 
@@ -135,6 +153,17 @@ export async function authenticate(
     return { ok: false, reason: 'WRONG_VERTICAL' };
   }
 
+  const classification = {
+    accessTier: key.access_tier,
+    billingSource: key.billing_source,
+  };
+  if (!isApiAccessClassification(classification)) {
+    return { ok: false, reason: 'ACCESS_PROFILE_MISSING' };
+  }
+  if (classification.billingSource !== expectedBillingSource) {
+    return { ok: false, reason: 'WRONG_BILLING_SOURCE' };
+  }
+
   const tenant = await findTenantById(executor, key.tenant_id);
   // Unreachable while the foreign key holds; not a case a live deployment can
   // reach, but a null-check earns its line over a non-null assertion here.
@@ -143,7 +172,14 @@ export async function authenticate(
   if (tenant.status === 'CLOSED') return { ok: false, reason: 'TENANT_CLOSED' };
   if (tenant.status !== 'ACTIVE') return { ok: false, reason: 'TENANT_INACTIVE' };
 
-  return { ok: true, tenantId: key.tenant_id, apiKeyId: key.id, verticalId: key.vertical_id };
+  return {
+    ok: true,
+    tenantId: key.tenant_id,
+    apiKeyId: key.id,
+    verticalId: key.vertical_id,
+    accessTier: classification.accessTier,
+    billingSource: classification.billingSource,
+  };
 }
 
 /**
@@ -167,6 +203,8 @@ const REASON_STATUS: Readonly<Record<AuthFailureReason, 401 | 403>> = {
   WRONG_VERTICAL: 403,
   TENANT_CLOSED: 403,
   TENANT_INACTIVE: 403,
+  ACCESS_PROFILE_MISSING: 403,
+  WRONG_BILLING_SOURCE: 403,
 };
 
 export interface AuthResponseBody {

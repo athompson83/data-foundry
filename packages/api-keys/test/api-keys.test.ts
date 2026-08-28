@@ -7,10 +7,15 @@
  */
 import { describe, expect, it } from 'vitest';
 import {
+  API_ACCESS_CLASSIFICATIONS,
+  API_ACCESS_TIERS,
+  API_BILLING_SOURCES,
   KEY_PREFIX,
   apiKeyPrefix,
   evaluateStoredKey,
   hashApiKey,
+  isApiAccessClassification,
+  isInternallyInvoiceEligible,
   keyEnvironment,
   looksLikeApiKey,
   mintApiKey,
@@ -35,6 +40,43 @@ const stored = (overrides: Partial<StoredApiKey> = {}): StoredApiKey => ({
 
 /** A live deployment being shown a live key: the ordinary case. */
 const onLive = { presented: LIVE_SECRET, environment: 'live' } as const;
+
+describe('API access and billing classification', () => {
+  it('exposes one closed vocabulary and only the three valid pairings', () => {
+    expect(API_ACCESS_TIERS).toEqual(['API_FREE', 'API_PAID', 'RAPIDAPI']);
+    expect(API_BILLING_SOURCES).toEqual(['DIRECT', 'RAPIDAPI']);
+    expect(API_ACCESS_CLASSIFICATIONS).toEqual([
+      { accessTier: 'API_FREE', billingSource: 'DIRECT' },
+      { accessTier: 'API_PAID', billingSource: 'DIRECT' },
+      { accessTier: 'RAPIDAPI', billingSource: 'RAPIDAPI' },
+    ]);
+  });
+
+  it('rejects unknown, crossed, partial and missing classifications', () => {
+    for (const value of [
+      null,
+      {},
+      { accessTier: 'API_FREE' },
+      { billingSource: 'DIRECT' },
+      { accessTier: 'API_FREE', billingSource: 'RAPIDAPI' },
+      { accessTier: 'API_PAID', billingSource: 'RAPIDAPI' },
+      { accessTier: 'RAPIDAPI', billingSource: 'DIRECT' },
+      { accessTier: 'ENTERPRISE', billingSource: 'DIRECT' },
+    ]) {
+      expect(isApiAccessClassification(value), JSON.stringify(value)).toBe(false);
+    }
+  });
+
+  it('makes only direct paid usage internally invoice-eligible', () => {
+    expect(isInternallyInvoiceEligible({ accessTier: 'API_FREE', billingSource: 'DIRECT' })).toBe(false);
+    expect(isInternallyInvoiceEligible({ accessTier: 'API_PAID', billingSource: 'DIRECT' })).toBe(true);
+    expect(isInternallyInvoiceEligible({ accessTier: 'RAPIDAPI', billingSource: 'RAPIDAPI' })).toBe(false);
+
+    // Fail closed even when an untyped database/message value reaches the helper.
+    expect(isInternallyInvoiceEligible({ accessTier: 'API_PAID', billingSource: 'RAPIDAPI' })).toBe(false);
+    expect(isInternallyInvoiceEligible(null)).toBe(false);
+  });
+});
 
 describe('minting', () => {
   it('produces a key with an environment segment a human can read', async () => {

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { ExtractionConfidenceSchema } from '../confidence.js';
+import { AcquisitionMethodSchema } from '../rights.js';
 import {
   PolicySnapshotIdSchema,
   SourceArtifactIdSchema,
@@ -38,6 +39,12 @@ export const SourceArtifactSchema = z.object({
   byte_size: z.number().int().min(0).nullable(),
   /** Acquisition adapter that produced this artifact (`browser-run`, `crawl4ai`, `http`). */
   acquisition_provider: z.string().min(1).max(120),
+  /** Rights-relevant route that was approved for this retrieval. */
+  acquisition_route: AcquisitionMethodSchema.nullable(),
+  /** Contract/account tier used to acquire the bytes; explicit null means no tier was recorded. */
+  account_or_product_plan: z.string().min(1).max(300).nullable(),
+  /** Acquisition jurisdiction in force; explicit null means it was not recorded. */
+  acquisition_jurisdiction: z.string().min(1).max(120).nullable(),
   created_at: IsoDateTimeSchema,
 });
 export type SourceArtifact = z.infer<typeof SourceArtifactSchema>;

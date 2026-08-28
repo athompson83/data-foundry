@@ -247,7 +247,7 @@ describe('the guard is what stops it (removal proof)', () => {
 describe('a value backed by one publishable and one blocked source', () => {
   const PROPERTY_MIXED = 'mixed_evidence_spec';
 
-  it('publishes the value and credits only the source it may name', async () => {
+  it('withholds the whole candidate rather than laundering blocked provenance', async () => {
     const green = fixtures.sources.manufacturer;
     const blocked = fixtures.sources.blocked;
     await fixtures.store.appendFactWithEvidence(
@@ -286,25 +286,15 @@ describe('a value backed by one publishable and one blocked source', () => {
       fixtures.app,
       `/v1/entities/${fixtures.heatPump.id}/facts?property=${PROPERTY_MIXED}`,
     );
-    const fact = dataOf<RestFact[]>(response)[0];
+    const facts = dataOf<RestFact[]>(response);
 
-    // The value stands: a publishable source backs it, so rule 1 does not
-    // withhold it. What rule 1 also governs is the CREDIT — and this assertion
-    // used to run the other way. It pinned `sources` containing the UNREVIEWED
-    // publisher's name as a known gap, on the reasoning that naming who else
-    // said something is attribution rather than data.
-    //
-    // That reasoning was wrong, and review was right to press it. Telling a
-    // customer that a published value is backed by a source the publish gate
-    // says must not publish is both a disclosure and a false provenance claim,
-    // whatever the field is called. It is fixed once in `canonicalFacts` for
-    // every surface rather than filtered again here (rule 5), by reading the
-    // rights-filtered source list `fact-selection` had already computed.
-    expect(fact?.value).toBe(42);
-    expect(fact?.sources).toContain('Acme Climate');
-    expect(fact?.sources, 'a blocked source must not be credited for the value').not.toContain(
-      'HVAC Forum',
-    );
+    // A fact candidate is one provenance assertion, not a bag of sources a
+    // surface may edit into a different claim. If any contributing evidence
+    // lacks this surface's grants, dropping that source and retaining the value
+    // would launder the blocked contribution through the allowed one.
+    expect(facts).toEqual([]);
+    expect(JSON.stringify(response.body)).not.toContain('HVAC Forum');
+    expect(JSON.stringify(response.body)).not.toContain('Acme Climate');
   });
 });
 

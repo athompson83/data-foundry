@@ -92,6 +92,8 @@ export function compliantEntry(overrides: Partial<SourceRegistryEntry> = {}): So
     },
     acquisition_policy: {
       method: 'DIRECT_HTTP',
+      account_or_product_plan: null,
+      jurisdiction: null,
       approved: true,
       approved_by: 'legal@example.com',
       approved_at: '2026-07-01T00:00:00.000Z',

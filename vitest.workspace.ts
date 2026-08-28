@@ -11,6 +11,7 @@ export const projects = [
   'packages/source-registry',
   'packages/api-keys',
   'packages/usage-events',
+  'packages/rights-engine',
   'packages/acquisition',
   'packages/extraction',
   'packages/normalization',

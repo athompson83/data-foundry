@@ -158,8 +158,7 @@ export function createMcpServer(options: McpServerOptions): McpServer {
       ? noCanonicalUrls
       : canonicalUrlsUnder(options.canonicalUrlBase);
 
-  const context: ToolContext = {
-    queryModel: options.queryModel,
+  const contextBase: Omit<ToolContext, 'queryModel'> = {
     vertical: options.vertical,
     policy: options.policy ?? {},
     canonicalUrl,
@@ -177,6 +176,13 @@ export function createMcpServer(options: McpServerOptions): McpServer {
       if (tool === undefined) return fail(null, unknownTool(name, TOOL_NAMES).toPayload());
 
       try {
+        // Bind at call time, not server construction time. A long-lived MCP
+        // process must observe terms revocation/re-review expiry without a
+        // restart, and one call gets one immutable cached rights snapshot.
+        const context: ToolContext = {
+          ...contextBase,
+          queryModel: options.queryModel.forSurface('MCP'),
+        };
         // `invoke` validates against the tool's declared input schema before
         // the handler runs; there is no path from here to a handler that
         // skips it.

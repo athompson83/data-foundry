@@ -87,6 +87,7 @@ export {
   numericRangeCheck,
   resolveFactSelectionPolicy,
   selectCanonicalFact,
+  type CandidateArtifactInfo,
   type CandidateEvidence,
   type CandidateExclusionReason,
   type CandidateSourceInfo,
@@ -113,6 +114,7 @@ export {
   type AliasLookupQuery,
   type AliasMatch,
   type CanonicalStore,
+  type EntityEvidenceInput,
   type FactEvidenceInput,
   type FactVersionDraft,
   type FactWriteOutcome,
@@ -126,3 +128,8 @@ export {
   type RelationshipWriteOutcome,
   type RelationshipWriteResult,
 } from './store.js';
+
+export {
+  loadStoredRightsContext,
+  type StoredRightsContext,
+} from './rights-store.js';

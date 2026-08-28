@@ -27,6 +27,14 @@ export interface ApiResponse {
   readonly body: unknown;
 }
 
+export const API_REQUEST_SURFACES = ['API_FREE', 'API_PAID', 'RAPIDAPI'] as const;
+export type ApiRequestSurface = (typeof API_REQUEST_SURFACES)[number];
+
+/** Trusted authentication result supplied by the transport/composition root. */
+export interface ApiRequestAccess {
+  readonly surface: ApiRequestSurface;
+}
+
 /**
  * `onRequest` is per-call, not part of `ApiAppOptions` at construction. A
  * built handler is shared across every request a deployment serves, and two
@@ -39,6 +47,7 @@ export interface ApiResponse {
 export type ApiHandler = (
   request: ApiRequest,
   onRequest?: (info: ApiRequestTelemetry) => void,
+  access?: ApiRequestAccess,
 ) => Promise<ApiResponse>;
 
 export const JSON_CONTENT_TYPE = 'application/json; charset=utf-8';

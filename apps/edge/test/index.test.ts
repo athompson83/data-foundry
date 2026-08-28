@@ -5,7 +5,12 @@
  * to whether the queue accepted the event.
  */
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
-import { createQueryFixtures, type QueryFixtures } from '../../../packages/query-model/test/support.js';
+import {
+  addSyntheticEntityEvidence,
+  createQueryFixtures,
+  seedSyntheticSurfaceRights,
+  type QueryFixtures,
+} from '../../../packages/query-model/test/support.js';
 import { mintApiKey } from '@data-foundry/api-keys';
 import type { UsageEvent } from '@data-foundry/usage-events';
 import { serveRequest, resetDeployments, RUNTIMES, type VerticalRuntime, type QueueBinding } from '../src/index.js';
@@ -64,8 +69,9 @@ async function mintKeyFor(tenantSlug: string): Promise<{
   if (tenantId === undefined) throw new Error('tenant insert returned no row');
   const minted = await mintApiKey('test');
   const [key] = await fixtures.driver.query<{ id: string }>(
-    `insert into api_keys (tenant_id, token_hash, token_prefix, label, vertical_id)
-     values ($1, $2, $3, $4, $5) returning id`,
+    `insert into api_keys
+       (tenant_id, token_hash, token_prefix, label, vertical_id, access_tier, billing_source)
+     values ($1, $2, $3, $4, $5, 'API_PAID', 'DIRECT') returning id`,
     [tenantId, minted.tokenHash, minted.tokenPrefix, `${tenantSlug} key`, fixtures.vertical.id],
   );
   const apiKeyId = key?.id;
@@ -81,6 +87,10 @@ async function mintKeyFor(tenantSlug: string): Promise<{
 
 beforeAll(async () => {
   fixtures = await createQueryFixtures();
+  await seedSyntheticSurfaceRights(fixtures, ['API_PAID']);
+  for (const entity of [fixtures.equipment, fixtures.heatPump, fixtures.motor, fixtures.rival]) {
+    await addSyntheticEntityEvidence(fixtures, entity);
+  }
 });
 
 afterAll(async () => {
@@ -114,11 +124,14 @@ describe('an authorized request executes and is metered', () => {
       route_key: 'entities.detail',
       method: 'GET',
       status: 200,
+      schema_version: 2,
+      access_tier: 'API_PAID',
+      billing_source: 'DIRECT',
     });
     // The event names only the closed route key, never the id that was asked for.
     expect(JSON.stringify(event)).not.toContain(fixtures.equipment.id);
     expect(Object.keys(event ?? {}).sort()).toEqual(
-      ['id', 'tenant_id', 'api_key_id', 'vertical_id', 'occurred_at', 'route_key', 'method', 'status', 'rows_served', 'duration_ms'].sort(),
+      ['schema_version', 'id', 'tenant_id', 'api_key_id', 'vertical_id', 'occurred_at', 'route_key', 'method', 'status', 'rows_served', 'duration_ms', 'access_tier', 'billing_source'].sort(),
     );
   });
 });
@@ -150,8 +163,9 @@ describe('an unauthorized request never reaches the route or gets metered', () =
     const tenantId = tenant?.id;
     if (tenantId === undefined) throw new Error('tenant insert returned no row');
     await fixtures.driver.query(
-      `insert into api_keys (tenant_id, token_hash, token_prefix, label, vertical_id)
-       values ($1, $2, $3, 'scoped', $4)`,
+      `insert into api_keys
+         (tenant_id, token_hash, token_prefix, label, vertical_id, access_tier, billing_source)
+       values ($1, $2, $3, 'scoped', $4, 'API_PAID', 'DIRECT')`,
       [tenantId, minted.tokenHash, minted.tokenPrefix, otherVerticalId],
     );
 

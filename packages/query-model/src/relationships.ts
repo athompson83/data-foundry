@@ -108,12 +108,16 @@ export interface RelationshipTraversal {
    * the publishable graph, and callers are told not to read it as the whole
    * graph. A contract a caller reads once cannot be differenced.
    *
-   * Always 0 when `require_publishable_rights` is false: that mode refuses
-   * nothing, so an unevidenced edge is served exactly as it is stored and there
-   * is no refusal to report.
+   * Evidence is never optional, even when the deprecated coarse rights filter
+   * is disabled in favor of a matrix gate. An unevidenced edge is always
+   * refused and counted; the flag controls source-classification filtering,
+   * not AGENTS.md rule 2.
    */
   readonly unevidenced_edge_count: number;
 }
+
+/** Trusted, request-scoped matrix gate supplied by a surface-bound QueryModel. */
+export type RelationshipRightsGate = (relationship: Relationship) => Promise<boolean>;
 
 const MAX_DEPTH = 4;
 const MAX_EDGES = 500;
@@ -121,6 +125,7 @@ const MAX_EDGES = 500;
 export async function traverseRelationships(
   store: CanonicalStore,
   query: TraversalQuery,
+  rightsGate?: RelationshipRightsGate,
 ): Promise<RelationshipTraversal> {
   const depth = Math.max(1, Math.min(Math.trunc(query.depth ?? 1), MAX_DEPTH));
   const limit = Math.max(1, Math.min(Math.trunc(query.limit ?? MAX_EDGES), MAX_EDGES));
@@ -163,10 +168,20 @@ export async function traverseRelationships(
         // are gives nothing away. An edge refused on rights does name one, and
         // a per-query count of those is a differencing oracle for the very
         // claim the gate refused — see `unevidenced_edge_count`.
-        if (requirePublishableRights && evidenceCount === 0) {
-          if (tally.stored === 0) unevidenced += 1;
+        if (tally.stored === 0) {
+          unevidenced += 1;
           continue;
         }
+        if (requirePublishableRights && evidenceCount === 0) {
+          continue;
+        }
+
+        // Matrix refusals are intentionally silent for the same reason coarse
+        // rights refusals are: a caller-controlled predicate/direction plus a
+        // refusal count would be a differencing oracle for the hidden claim.
+        // This check happens before the neighbor is loaded or visited, so a
+        // blocked edge cannot be used as a traversal hop.
+        if (rightsGate !== undefined && !(await rightsGate(relationship))) continue;
 
         const outgoing = relationship.subject_entity_id === current;
         const neighborId = outgoing ? relationship.object_entity_id : relationship.subject_entity_id;
@@ -256,6 +271,15 @@ async function evidenceCounts(
       stored: running.stored + total,
       publishable: running.publishable + (usable ? total : 0),
     });
+  }
+  if (requirePublishableRights) {
+    for (const [id, tally] of counts) {
+      // A relationship is one combined claim. Every evidence contribution must
+      // authorize the intent; an allowed row never launders a blocked neighbor.
+      if (tally.publishable !== tally.stored) {
+        counts.set(id, { stored: tally.stored, publishable: 0 });
+      }
+    }
   }
   return counts;
 }

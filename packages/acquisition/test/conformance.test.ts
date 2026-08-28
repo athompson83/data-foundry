@@ -208,6 +208,9 @@ describe.each(scenarios)('$name — AcquisitionProvider contract', (scenario) =>
     const { provider } = setup(scenario);
     const artifact = (await provider.fetch(makeRequest())).artifacts[0];
     expect(artifact?.acquisition_provider).toBe(scenario.providerId);
+    expect(artifact?.acquisition_route).toBe(scenario.method);
+    expect(artifact?.account_or_product_plan).toBeNull();
+    expect(artifact?.acquisition_jurisdiction).toBeNull();
     expect(artifact?.extractor_version).toBe(`${scenario.providerId}@1.0.0`);
     expect(artifact?.source_id).toBe(makeRequest().sourceId);
   });

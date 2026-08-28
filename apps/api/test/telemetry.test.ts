@@ -15,13 +15,22 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createApiApp } from '../src/index.js';
 import type { ApiRequestTelemetry } from '../src/config.js';
-import { createQueryFixtures, type QueryFixtures } from '../../../packages/query-model/test/support.js';
+import {
+  addSyntheticEntityEvidence,
+  createQueryFixtures,
+  seedSyntheticSurfaceRights,
+  type QueryFixtures,
+} from '../../../packages/query-model/test/support.js';
 import { call } from './support.js';
 
 let fixtures: QueryFixtures;
 
 beforeAll(async () => {
   fixtures = await createQueryFixtures();
+  await seedSyntheticSurfaceRights(fixtures, ['API_FREE']);
+  for (const entity of [fixtures.equipment, fixtures.heatPump, fixtures.motor, fixtures.rival]) {
+    await addSyntheticEntityEvidence(fixtures, entity);
+  }
 }, 300_000);
 
 afterAll(async () => {

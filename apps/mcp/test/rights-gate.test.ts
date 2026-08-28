@@ -106,7 +106,7 @@ describe('the fixture is not vacuous', () => {
 });
 
 describe('a fact backed only by an unpublishable source', () => {
-  it('is absent from the fact sheet and reported as withheld', async () => {
+  it('is absent from the fact sheet without becoming a refusal oracle', async () => {
     const result = resultOf<GetEntityResult>(
       await fixtures.server.callTool('get_entity', { identifier: '24ANB7' }),
     );
@@ -115,12 +115,8 @@ describe('a fact backed only by an unpublishable source', () => {
     const withheld = (result.withheldFacts ?? []).find(
       (item) => item.property === BLOCKED_PROPERTY,
     );
-    // Reported, not hidden: an agent that cannot see the gap will conclude the
-    // property does not exist, which is a different and worse claim.
-    expect(withheld).toBeDefined();
-    expect(withheld?.rule).toBe('NO_ELIGIBLE_CANDIDATE');
-    expect(withheld?.reason).toContain('RED/UNREVIEWED');
-    expect(result.trust?.withheldCount).toBeGreaterThan(0);
+    expect(withheld).toBeUndefined();
+    expect(result.trust?.withheldCount).toBe(0);
   });
 
   it('surfaces neither the value nor the publisher, in either half of any result', async () => {
@@ -187,36 +183,23 @@ describe('a fact backed only by an unpublishable source', () => {
       }),
     );
     expect(result.facts).toEqual([]);
-    expect(result.withheldFacts.map((item) => item.property)).toEqual([BLOCKED_PROPERTY]);
+    expect(result.withheldFacts).toEqual([]);
   });
 });
 
 describe('explaining a value that was refused', () => {
-  it('counts the withheld claim without repeating it', async () => {
-    const result = resultOf<ExplainFactResult>(
+  it('returns the same unavailable answer as an absent property', async () => {
+    const error = errorOf(
       await fixtures.server.callTool('explain_fact', {
         entity_id: fixtures.equipment.id,
         property: BLOCKED_PROPERTY,
       }),
     );
-
-    expect(result.canonicalValue).toBeNull();
-    expect(result.claims).toEqual([]);
-    expect(result.withheldClaimCount).toBe(1);
-
-    // The exclusion is disclosed as a reason, which is actionable, rather than
-    // as the claim itself, which is not publishable.
-    expect(result.excluded.map((item) => item.reason)).toContain('RIGHTS_BLOCKED');
-    expect(result.selectedBy).toBe('NO_ELIGIBLE_CANDIDATE');
-
-    // The query layer's narrative renders one line per attribution, including
-    // the excluded ones, complete with the value asserted and the document it
-    // came from. None of those lines survive the projection.
-    for (const line of result.narrative) {
-      expect(line).not.toContain(BLOCKED_PUBLISHER);
-      expect(line).not.toContain(BLOCKED_DOMAIN);
-    }
-    expect(result.narrative.some((line) => line.includes('publish gate'))).toBe(true);
+    expect(error.code).toBe('PROPERTY_NOT_RECORDED');
+    expect(error.message).toContain('may be absent or unavailable');
+    const serialized = JSON.stringify(error);
+    expect(serialized).not.toContain(BLOCKED_PUBLISHER);
+    expect(serialized).not.toContain(BLOCKED_DOMAIN);
   });
 
   it('still explains a publishable value in full', async () => {

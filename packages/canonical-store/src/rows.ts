@@ -145,6 +145,9 @@ export function mapSourceArtifact(row: SqlRow): SourceArtifact {
     policy_snapshot_id: field(row, 'policy_snapshot_id') ?? null,
     byte_size: byteSize === null || byteSize === undefined ? null : toNumber(byteSize),
     acquisition_provider: field(row, 'acquisition_provider'),
+    acquisition_route: field(row, 'acquisition_route') ?? null,
+    account_or_product_plan: field(row, 'account_or_product_plan') ?? null,
+    acquisition_jurisdiction: field(row, 'acquisition_jurisdiction') ?? null,
     created_at: toIso(field(row, 'created_at')),
   });
 }
@@ -347,7 +350,8 @@ export const SOURCE_COLUMNS =
 
 export const ARTIFACT_COLUMNS =
   'id, source_id, url, retrieved_at, content_hash, mime_type, r2_uri, http_status, ' +
-  'extractor_version, policy_snapshot_id, byte_size, acquisition_provider, created_at';
+  'extractor_version, policy_snapshot_id, byte_size, acquisition_provider, acquisition_route, ' +
+  'account_or_product_plan, acquisition_jurisdiction, created_at';
 
 export const SOURCE_RECORD_COLUMNS =
   'id, source_id, artifact_id, source_record_key, entity_type, raw_payload, ' +

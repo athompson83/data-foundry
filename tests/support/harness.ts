@@ -28,7 +28,12 @@ import {
 } from '../../packages/canonical-store/src/index.js';
 import { createQueryModel, type QueryModel } from '../../packages/query-model/src/index.js';
 import type { ValidatorCache } from '../../packages/acquisition/src/index.js';
-import type { EntityId, IsoDateTime } from '../../packages/canonical-schema/src/index.js';
+import type {
+  EntityId,
+  IsoDateTime,
+  Vertical,
+} from '../../packages/canonical-schema/src/index.js';
+import { toSourceInsert } from '../../packages/source-registry/src/index.js';
 import {
   InMemoryArtifactStore,
   Pipeline,
@@ -100,6 +105,7 @@ export async function createFactory(verticalSlug = 'hvac'): Promise<Factory> {
   const config = await loadVerticalConfig(verticalSlug, {
     verticalsDir: join(REPO_ROOT, 'verticals'),
   });
+  await seedSyntheticInternalRights(driver, store, config);
 
   return {
     driver,
@@ -129,6 +135,188 @@ export async function createFactory(verticalSlug = 'hvac'): Promise<Factory> {
     },
     close: () => driver.close(),
   };
+}
+
+/**
+ * Test-only human-approved rights for the repository's fictional fixtures.
+ * Production migrations deliberately create no permissions from legacy
+ * classifications or booleans; this helper makes every ALLOW explicit in the
+ * one harness that needs an end-to-end synthetic factory.
+ */
+export async function seedSyntheticInternalRights(
+  driver: SqlDriver,
+  store: CanonicalStore,
+  config: VerticalConfig,
+  options: {
+    readonly omit?: Readonly<Record<string, readonly string[]>>;
+    readonly fieldAllows?: Readonly<
+      Record<string, Readonly<Record<string, readonly string[]>>>
+    >;
+  } = {},
+): Promise<void> {
+  const vertical = await store.upsertVertical({
+    slug: config.slug,
+    name: config.name,
+    schema_version: config.schemaVersion,
+    status: config.status as Vertical['status'],
+    default_refresh_policy:
+      config.defaultRefreshPolicy as Vertical['default_refresh_policy'],
+  });
+  const operations = ['ACQUIRE', 'STORE', 'CACHE', 'NORMALIZE', 'DERIVE'] as const;
+  let sourceIndex = 0;
+  for (const entry of config.sources) {
+    sourceIndex += 1;
+    const source = await store.upsertSource(toSourceInsert(entry, vertical.id));
+    const publisherId = crypto.randomUUID();
+    const termsEvidenceId = crypto.randomUUID();
+    const reviewEvidenceId = crypto.randomUUID();
+    const termsCellId = crypto.randomUUID();
+    const termsVersionId = crypto.randomUUID();
+    const termsHash = sourceIndex.toString(16).padStart(64, '0');
+    const reviewHash = (sourceIndex + 100).toString(16).padStart(64, '0');
+    const reviewedAt = '2026-06-01T00:00:00.000Z';
+    const recheckAt = '2027-06-01T00:00:00.000Z';
+
+    await driver.query(
+      `INSERT INTO rights_publishers (id, publisher_key, legal_name, status)
+       VALUES ($1, $2, $3, 'ACTIVE')`,
+      [publisherId, `synthetic-${entry.key}`, `${entry.publisher} synthetic test fixture`],
+    );
+    await driver.query(
+      `INSERT INTO rights_evidence_artifacts
+         (id, kind, canonical_uri, storage_uri, content_sha256, mime_type,
+          captured_at, created_by)
+       VALUES ($1, 'TERMS', $3, $4, $5, 'text/plain', $7, 'synthetic-test-fixture'),
+              ($2, 'REVIEW_MEMO', $6, $6, $8, 'text/plain', $7, 'synthetic-test-fixture')`,
+      [
+        termsEvidenceId,
+        reviewEvidenceId,
+        `fixture://terms/${entry.key}`,
+        `fixture://terms/${entry.key}.txt`,
+        termsHash,
+        `fixture://review/${entry.key}`,
+        reviewedAt,
+        reviewHash,
+      ],
+    );
+    await driver.query(
+      `UPDATE sources
+          SET rights_publisher_id = $1,
+              rights_publisher_mapping_evidence_artifact_id = $3,
+              rights_publisher_mapping_reviewer_type = 'HUMAN',
+              rights_publisher_mapping_reviewed_by = 'synthetic-test-fixture',
+              rights_publisher_mapping_reviewed_at = $4
+        WHERE id = $2`,
+      [publisherId, source.id, reviewEvidenceId, reviewedAt],
+    );
+    await driver.query(
+      `INSERT INTO rights_terms_cells
+         (id, source_id, acquisition_route, account_or_product_plan, jurisdiction, created_by)
+       VALUES ($1, $2, $3, $4, $5, 'synthetic-test-fixture')`,
+      [
+        termsCellId,
+        source.id,
+        entry.acquisition_policy.method,
+        entry.acquisition_policy.account_or_product_plan,
+        entry.acquisition_policy.jurisdiction,
+      ],
+    );
+    await driver.query(
+      `INSERT INTO rights_terms_versions
+         (id, terms_cell_id, evidence_artifact_id, content_sha256, version_label,
+          effective_from, recheck_at, created_by)
+       VALUES ($1, $2, $3, $4, 'synthetic-v1', $5, $6, 'synthetic-test-fixture')`,
+      [termsVersionId, termsCellId, termsEvidenceId, termsHash, reviewedAt, recheckAt],
+    );
+    await driver.query(
+      `SELECT activate_rights_terms($1, 'HUMAN', 'synthetic-test-fixture',
+                                    'activate synthetic fixture terms', $2)`,
+      [termsVersionId, reviewedAt],
+    );
+
+    const omitted = new Set(options.omit?.[entry.key] ?? []);
+    await driver.exec('BEGIN');
+    try {
+      for (const operation of operations) {
+        if (omitted.has(operation)) continue;
+        const cellId = crypto.randomUUID();
+        const decisionId = crypto.randomUUID();
+        await driver.query(
+          `INSERT INTO rights_cells
+             (id, source_id, acquisition_route, account_or_product_plan, jurisdiction,
+              operation, channel, created_by)
+           VALUES ($1, $2, $3, $4, $5, $6, 'INTERNAL_PROCESSING',
+                   'synthetic-test-fixture')`,
+          [
+            cellId,
+            source.id,
+            entry.acquisition_policy.method,
+            entry.acquisition_policy.account_or_product_plan,
+            entry.acquisition_policy.jurisdiction,
+            operation,
+          ],
+        );
+        await driver.query(
+          `INSERT INTO rights_decisions
+             (id, cell_id, state, controlling_terms_version_id, evidence_artifact_id,
+              clause_ref, review_status, reviewer_type, reviewed_by, reviewed_at,
+              effective_from, recheck_at, rationale, created_by)
+           VALUES ($1, $2, 'ALLOW', $3, $4, 'synthetic fixture only', 'APPROVED',
+                   'HUMAN', 'synthetic-test-fixture', $5, $5, $6,
+                   'explicit synthetic internal processing grant',
+                   'synthetic-test-fixture')`,
+          [decisionId, cellId, termsVersionId, reviewEvidenceId, reviewedAt, recheckAt],
+        );
+        await driver.query(
+          `SELECT activate_rights_decision($1, 'HUMAN', 'synthetic-test-fixture',
+                                           'activate synthetic fixture grant', $2)`,
+          [decisionId, reviewedAt],
+        );
+      }
+      for (const [operation, fields] of Object.entries(options.fieldAllows?.[entry.key] ?? {})) {
+        for (const fieldKey of fields) {
+          const cellId = crypto.randomUUID();
+          const decisionId = crypto.randomUUID();
+          await driver.query(
+            `INSERT INTO rights_cells
+               (id, source_id, acquisition_route, account_or_product_plan, jurisdiction,
+                field_key, operation, channel, created_by)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, 'INTERNAL_PROCESSING',
+                     'synthetic-test-fixture')`,
+            [
+              cellId,
+              source.id,
+              entry.acquisition_policy.method,
+              entry.acquisition_policy.account_or_product_plan,
+              entry.acquisition_policy.jurisdiction,
+              fieldKey,
+              operation,
+            ],
+          );
+          await driver.query(
+            `INSERT INTO rights_decisions
+               (id, cell_id, state, controlling_terms_version_id, evidence_artifact_id,
+                clause_ref, review_status, reviewer_type, reviewed_by, reviewed_at,
+                effective_from, recheck_at, rationale, created_by)
+             VALUES ($1, $2, 'ALLOW', $3, $4, 'synthetic fixture field scope', 'APPROVED',
+                     'HUMAN', 'synthetic-test-fixture', $5, $5, $6,
+                     'explicit synthetic field-level internal grant',
+                     'synthetic-test-fixture')`,
+            [decisionId, cellId, termsVersionId, reviewEvidenceId, reviewedAt, recheckAt],
+          );
+          await driver.query(
+            `SELECT activate_rights_decision($1, 'HUMAN', 'synthetic-test-fixture',
+                                             'activate synthetic field grant', $2)`,
+            [decisionId, reviewedAt],
+          );
+        }
+      }
+      await driver.exec('COMMIT');
+    } catch (error) {
+      await driver.exec('ROLLBACK');
+      throw error;
+    }
+  }
 }
 
 /* ------------------------------------------------------------------ *

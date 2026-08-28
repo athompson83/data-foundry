@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@data-foundry/canonical-schema": "workspace:*",
+    "@data-foundry/rights-engine": "workspace:*",
     "@electric-sql/pglite": "^0.5.5",
     "pg": "^8.23.0"
   }

@@ -39,6 +39,65 @@ export const KEY_PREFIX = 'df';
 
 export type KeyEnvironment = 'live' | 'test';
 
+/**
+ * The access surface a key is issued for.
+ *
+ * This is not a price, quota or subscription plan. It is the trusted request
+ * classification needed to choose the correct rights requirements. In
+ * particular, a free tier sold by RapidAPI remains `RAPIDAPI`: marketplace
+ * distribution does not become a direct free API merely because the customer
+ * paid zero dollars for that marketplace plan.
+ */
+export const API_ACCESS_TIERS = ['API_FREE', 'API_PAID', 'RAPIDAPI'] as const;
+export type ApiAccessTier = (typeof API_ACCESS_TIERS)[number];
+
+/** Who is authoritative for billing this request, if anybody bills it. */
+export const API_BILLING_SOURCES = ['DIRECT', 'RAPIDAPI'] as const;
+export type ApiBillingSource = (typeof API_BILLING_SOURCES)[number];
+
+export interface ApiAccessClassification {
+  readonly accessTier: ApiAccessTier;
+  readonly billingSource: ApiBillingSource;
+}
+
+/**
+ * The only valid combinations. Keeping the pair closed prevents a marketplace
+ * request from being recorded as direct usage (and later invoiced twice), and
+ * prevents a direct key from claiming marketplace treatment.
+ */
+export const API_ACCESS_CLASSIFICATIONS = [
+  { accessTier: 'API_FREE', billingSource: 'DIRECT' },
+  { accessTier: 'API_PAID', billingSource: 'DIRECT' },
+  { accessTier: 'RAPIDAPI', billingSource: 'RAPIDAPI' },
+] as const satisfies readonly ApiAccessClassification[];
+
+/** Runtime guard for database/message values, which arrive without TS types. */
+export function isApiAccessClassification(value: unknown): value is ApiAccessClassification {
+  if (value === null || typeof value !== 'object') return false;
+  const candidate = value as Record<string, unknown>;
+  return API_ACCESS_CLASSIFICATIONS.some(
+    (classification) =>
+      candidate['accessTier'] === classification.accessTier &&
+      candidate['billingSource'] === classification.billingSource,
+  );
+}
+
+/**
+ * Whether Data Foundry itself may treat usage as an invoice candidate.
+ *
+ * Measurement and invoicing remain separate systems: this helper does not
+ * create an invoice or decide a price. It only pins the negative control that
+ * RapidAPI usage is never eligible for a second, internal invoice. Unknown or
+ * malformed input fails closed to `false`.
+ */
+export function isInternallyInvoiceEligible(classification: unknown): boolean {
+  return (
+    isApiAccessClassification(classification) &&
+    classification.accessTier === 'API_PAID' &&
+    classification.billingSource === 'DIRECT'
+  );
+}
+
 /** Bytes of randomness behind each key. 32 bytes is 256 bits. */
 const SECRET_BYTES = 32;
 

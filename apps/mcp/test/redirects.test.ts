@@ -16,7 +16,14 @@
  * store's own merge, not a test-local notion of "redirected".
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { createMcpFixtures, errorOf, resultOf, ts, type McpFixtures } from './support.js';
+import {
+  addSyntheticEntityEvidence,
+  createMcpFixtures,
+  errorOf,
+  resultOf,
+  ts,
+  type McpFixtures,
+} from './support.js';
 import { entityQualityScore, type Entity } from '@data-foundry/canonical-schema';
 import type { CompareEntitiesResult, GetEntityResult } from '../src/index.js';
 
@@ -40,6 +47,7 @@ beforeAll(async () => {
     first_seen_at: ts('2026-01-01T00:00:00Z'),
     last_verified_at: null,
   });
+  await addSyntheticEntityEvidence(fixtures, merged);
   await fixtures.store.mergeEntities({
     from_entity_id: merged.id,
     to_entity_id: fixtures.equipment.id,

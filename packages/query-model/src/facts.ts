@@ -8,6 +8,7 @@
  */
 import type {
   CanonicalStore,
+  FactSelection,
   FactSelectionPolicyInput,
   FactSelectionRule,
   RetainedConflict,
@@ -109,6 +110,54 @@ export interface CanonicalFactView {
 }
 
 /**
+ * Project one already-resolved selection onto the customer-safe fact shape.
+ *
+ * Surface-bound reads resolve selection only after removing candidates that
+ * lack the exact surface grant. Keeping this projection separate prevents the
+ * REST, MCP, web, and bulk facades from each re-implementing the trust fields
+ * after making that surface-specific selection.
+ */
+export function canonicalFactView(selection: FactSelection): CanonicalFactView | null {
+  const selected = selection.selected;
+  // A withheld property is not a customer-facing row with a null value. Such
+  // a row discloses that the property/claim exists and can be differenced by
+  // callers. Full refusal detail remains in the internal explanation path.
+  if (selected === null) return null;
+
+  const publishers = new Set<string>();
+  for (const source of selection.selected_sources) publishers.add(source.publisher);
+
+  const correction = selection.editorial_correction;
+  if (correction !== null) {
+    assertNoReviewerIdentity(
+      {
+        editoriallyCorrected: true,
+        editorialCorrectionReason: correction.reason,
+        selectionWarnings: [],
+      },
+      [correction.reviewer],
+    );
+  }
+
+  return {
+    property: selection.property,
+    value: selected.fact.normalized_value,
+    value_type: selected.fact.value_type,
+    unit: selected.fact.unit,
+    confidence: selected.fact.confidence,
+    fact_id: selected.fact.id,
+    rule: selection.rule,
+    reason: selection.reason,
+    sources: [...publishers],
+    conflicts: selection.conflicts,
+    unresolved_conflict: selection.unresolved_conflict,
+    editorially_corrected: selection.editorially_corrected,
+    editorial_correction_reason: correction?.reason ?? null,
+    selection_warnings: selection.selection_warnings,
+  };
+}
+
+/**
  * The canonical view of an entity: one selected value per property, each
  * carrying the doc-04 rule that chose it and any conflict still outstanding.
  */
@@ -120,8 +169,7 @@ export async function canonicalFacts(
   const view = await store.canonicalView(entityId, policy);
   const rows: CanonicalFactView[] = [];
 
-  for (const [property, selection] of view) {
-    const selected = selection.selected;
+  for (const selection of view.values()) {
     // AGENTS.md rule 1 covers the ASSOCIATION, not only the value. Naming a
     // source that may not publish as the backing for a published value is a
     // disclosure of that source and a misstatement of provenance, even when the
@@ -135,44 +183,14 @@ export async function canonicalFacts(
     // Re-deriving what canonical-store had already derived correctly is what
     // made the two disagree; the fix is to stop re-deriving it, not to apply a
     // second filter here that could drift from the first.
-    const publishers = new Set<string>();
-    for (const source of selection.selected_sources) publishers.add(source.publisher);
     // Last point at which the reason and the reviewer are both in hand. The
     // reviewer is dropped on the next line and the reason travels on alone to
     // web, REST, MCP and exports, so a reason that names its reviewer has to be
     // refused here or not at all. The ingest worker rejects the same thing at
     // config load; this closes the path that skips it by handing
     // `canonicalFacts` a policy directly.
-    const correction = selection.editorial_correction;
-    if (correction !== null) {
-      assertNoReviewerIdentity(
-        {
-          editoriallyCorrected: true,
-          editorialCorrectionReason: correction.reason,
-          selectionWarnings: [],
-        },
-        [correction.reviewer],
-      );
-    }
-
-    rows.push({
-      property,
-      value: selected?.fact.normalized_value ?? null,
-      value_type: selected?.fact.value_type ?? null,
-      unit: selected?.fact.unit ?? null,
-      confidence: selected?.fact.confidence ?? null,
-      fact_id: selected?.fact.id ?? null,
-      rule: selection.rule,
-      reason: selection.reason,
-      sources: [...publishers],
-      conflicts: selection.conflicts,
-      unresolved_conflict: selection.unresolved_conflict,
-      // Derived from the SAME selection result explainFact reads. Never
-      // recomputed here, so the two read paths cannot drift apart.
-      editorially_corrected: selection.editorially_corrected,
-      editorial_correction_reason: selection.editorial_correction?.reason ?? null,
-      selection_warnings: selection.selection_warnings,
-    });
+    const row = canonicalFactView(selection);
+    if (row !== null) rows.push(row);
   }
 
   return rows.sort((left, right) => compareCodeUnits(left.property, right.property));

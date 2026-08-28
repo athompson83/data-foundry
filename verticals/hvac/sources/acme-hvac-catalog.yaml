@@ -72,6 +72,8 @@ rights_policy:
 
 acquisition_policy:
   method: DIRECT_HTTP
+  account_or_product_plan: null
+  jurisdiction: null
   approved: true
   approved_by: Data Foundry platform team
   approved_at: 2026-07-02T10:00:00Z

@@ -1,310 +1,326 @@
-# ADR-0010 — The rights-grant matrix
+# ADR-0010 — Surface-aware rights-grant matrix
 
-**Status:** PROPOSED — not accepted, not implemented, awaiting owner decision 1
-**Date:** 2026-08-23
-**Relates to:** `docs/owner-actions/rights-model-decision.md`, ADR-0007, `packages/source-registry/src/rights-policy.ts`, `packages/source-registry/src/publish-gate.ts`
-
-> **This ADR specifies a design. It does not change any code.** It exists so the
-> owner can approve or reject a concrete thing rather than a direction, and so
-> that whoever implements it is not making the unresolved decisions on the way
-> past.
->
-> It is also **not a legal review.** Where it describes what a licence permits,
-> that is an engineering reading offered so the mechanism can be built — never
-> advice that the reading is correct.
+**Status:** ACCEPTED
 
----
+**Original proposal:** 2026-08-23
 
-## 1. What this replaces, and why
-
-`rights_policy` records permission as three booleans — `commercial_use_allowed`,
-`redistribution_allowed`, `derivative_normalization_allowed` — and
-`publish-gate.ts` turns each `false` into a blocker. One gate, all-or-nothing: a
-source is publishable everywhere or nowhere.
-
-The decision memo shows why that cannot hold. EPREL's terms permit comparison
-tools and forbid selling the data as it is or sublicensing access to it. Setting
-`redistribution_allowed = true` ships the source to the paid API in breach;
-`false` blocks it from the website the terms expressly permit. There is no third
-value, and ten of twelve assessed candidates split *using* the data from
-*selling access to* it.
-
-**The failure is representational, not procedural.** No amount of care in filling
-in the booleans produces a correct answer, because the correct answer is not
-expressible.
-
----
-
-## 2. The shape
-
-**A grant is an assertion about one cell of a scope × operation space. Absence is
-never permission.**
-
-### 2.1 Decision states
-
-| State | Runtime effect | Means |
-|---|---|---|
-| `ALLOW` | permit | The controlling terms permit this, and the evidence says where |
-| `DENY` | refuse | The controlling terms forbid this |
-| `CONDITIONAL` | **refuse unless every condition is satisfied and auditable** | Permitted with obligations — attribution, freshness, volume caps |
-| `UNKNOWN` | refuse | Nobody has established an answer |
-| `NOT_APPLICABLE` | refuse | The operation is meaningless for this combination |
-
-`NOT_APPLICABLE` refuses like the others but is **reported differently**, and the
-distinction is the point: "we do not need to ask" must never be mistaken for "we
-asked and it said no", nor for "nobody looked". A review dashboard that
-collapses them produces a false sense of coverage.
-
-### 2.2 Scope dimensions
-
-A grant may be scoped on any subset of these. Unset means "any".
-
-| Dimension | Why it is separate |
-|---|---|
-| `publisher` | The legal entity. Broadest useful scope; a publisher-level `DENY` covers sources not yet declared |
-| `source` | One registered source |
-| `acquisition_route` | Bulk file, documented API, page fetch. **Terms routinely differ by route** — an API's terms are not the website's |
-| `account_or_product_plan` | Rights can attach to the account that fetched, not just the data |
-| `jurisdiction` | The same dataset can be reusable in one jurisdiction and not another |
-| `asset_class` | Data, images, documents, trademarks |
-| `field_or_field_group` | Where publisher-produced and partner-submitted values coexist in one source |
-| `output_class` | What we would emit, which is not what we ingested |
-
-### 2.3 Operations
-
-`acquire` · `store` · `normalize` · `derive` · `display_publicly` ·
-`build_comparison_tools` · `quote_or_excerpt` · `redistribute_raw` ·
-`offer_bulk_export` · `sell_api_access` · `deliver_to_partners` ·
-`train_models` · `evaluate_models` · `cache` · `retain_after_termination`
-
-### 2.4 Distribution channels and output classes
-
-Channels: `internal_processing` · `public_website` · `customer_api` ·
-`bulk_download` · `partner_delivery`
-
-Output classes: `raw_record` · `normalized_fact` · `derived_metric` ·
-`metadata` · `image_or_media` · `personal_data`
-
-**These are independent axes and are evaluated independently.** Permission to
-display a `normalized_fact` on the `public_website` says nothing about emitting
-a `raw_record` over the `customer_api`, and nothing at all about
-`image_or_media` or `personal_data`.
-
----
-
-## 3. The part that makes it usable
-
-A naive reading of §2 is a combinatorial explosion — eight scope dimensions,
-fifteen operations, five channels, six output classes. Nobody can answer that
-many questions per source, and a model that demands it will be filled in
-carelessly, which is worse than the booleans.
-
-**It is sparse, and absence is refusal.** A source begins with zero grants and is
-therefore refused for everything. A reviewer asserts only what the terms
-actually say — typically five to fifteen rows — and every unasserted cell stays
-`UNKNOWN` and blocked. **The work scales with what the terms address, not with
-the size of the space.**
-
-### 3.1 Resolution
-
-Given a request tuple `(publisher, source, acquisition_route, plan,
-jurisdiction, asset_class, field, operation, channel, output_class)`:
-
-1. Select every grant whose scope matches the tuple (unset dimensions match
-   anything).
-2. **If any matching grant is `DENY`, the answer is `DENY`.** Deny is sticky and
-   is not overridden by a more specific `ALLOW`.
-3. Otherwise take the **most specific** matching grant by the precedence in
-   §3.2 and return its state.
-4. If no grant matches, return `UNKNOWN`.
-
-**Step 2 is the load-bearing rule and deserves argument.** The natural
-alternative — most-specific-wins for every state — is wrong here, because it
-lets a narrow `ALLOW` defeat a broad prohibition. A publisher-level `DENY` (the
-AHRI case) must not be overridable by someone adding a source-level `ALLOW` for
-one dataset under that publisher. Prohibitions are the thing least likely to be
-re-reviewed and most costly to get wrong, so they win.
-
-The cost is real and should be stated: a genuine narrow exception — "this
-publisher forbids redistribution *except* this one CC-BY dataset" — cannot be
-expressed by adding an `ALLOW` under a `DENY`. It must be expressed by scoping
-the `DENY` to exclude that source. That is more work, and it is work that leaves
-the exception visible in the record instead of buried in resolution order.
-
-### 3.2 Specificity precedence
-
-Most specific first. **The order is total**, so two grants can never tie:
-
-```
-field_or_field_group > output_class > asset_class > acquisition_route
-  > account_or_product_plan > jurisdiction > source > publisher
-```
-
-A uniqueness constraint over the full scope tuple plus operation and channel
-prevents two grants occupying the same cell. Without both, the resolver picks
-between equals silently — which is exactly the flaw review found in the memo's
-first draft, where `use_case` and `access_tier` both named the API surface and
-nothing said which won.
-
-### 3.3 Every decision returns a reason
-
-```ts
-interface RightsDecision {
-  readonly permitted: boolean;
-  readonly state: 'ALLOW' | 'DENY' | 'CONDITIONAL' | 'UNKNOWN' | 'NOT_APPLICABLE';
-  readonly reasonCode: string;      // machine-readable
-  readonly grantId: string | null;  // null when the answer is absence
-  readonly unmetConditions: readonly string[];
-  readonly evidenceRef: string | null;
-}
-```
-
-A blocked request must be able to say **which grant blocked it, or that none
-existed** — otherwise an operator debugging a withheld fact cannot tell a
-deliberate prohibition from an unfinished review.
-
----
-
-## 4. Evidence
-
-Every grant carries the record that justifies it. A grant without evidence is an
-opinion with a primary key.
-
-| Field | Note |
-|---|---|
-| `controlling_terms` | Licence, terms of use, or agreement |
-| `artifact_version_or_hash` | Terms change; the hash says which text this reads |
-| `clause_ref` | Exact section, page or clause |
-| `effective_date` | When those terms took effect |
-| `acquired_or_reviewed_at` | When we read them |
-| `reviewer_type` | `HUMAN` / `COUNSEL` / `AUTOMATED` — **an automated assessment is never a rights review** |
-| `jurisdiction` | |
-| `conditions` | Structured; each independently checkable for `CONDITIONAL` |
-| `attribution_requirements` | Exact required text where one applies |
-| `expires_or_recheck_at` | A review with no expiry is one that will silently go stale |
-| `superseded_by` | Points at the grant that replaced this one |
-
-Grants are **append-only**. Superseding writes a new row and links back;
-correcting by mutation would destroy the record of what we believed when we
-published.
-
----
-
-## 5. Rules the implementation must enforce
-
-1. `UNKNOWN` blocks.
-2. `CONDITIONAL` blocks unless every condition is satisfied **and auditable** — a
-   condition nothing can check is not a condition, it is a hope.
-3. Permission for one operation, output class or channel never implies another.
-4. Rights attach to the acquisition route, the account or plan, and the intended
-   output — not merely to the publisher.
-5. Raw records, normalized facts, derived outputs, images and personal data are
-   evaluated independently.
-6. **No general commercial-use flag may imply permission to resell, sublicense,
-   bulk-export or sell API access.** This is the specific error the booleans
-   made possible.
-7. Terms change, revocation or expiry triggers auditable disablement and
-   re-review.
-8. Every runtime decision returns a machine-readable allow or blocker reason.
-
----
-
-## 6. Migration from the three booleans
-
-**Existing declarations backfill to `UNKNOWN`, not to `ALLOW`.**
-
-This is the only honest mapping and it should be stated plainly, because it is
-the step most likely to be softened under delivery pressure. `commercial_use_allowed: true`
-was recorded by someone answering *"may we use this commercially?"*. It is not
-an answer to *"may we sell API access to it?"* — nobody was asked that, and a
-migration that writes `ALLOW` would manufacture permission at scale, in bulk,
-with no evidence rows behind it.
-
-The cost is that every source is blocked for everything until reviewed. **That
-cost is currently zero**: no real source has been acquired, no deployment
-exists, and the fixture sources are synthetic. This is the cheapest moment this
-migration will ever have.
-
-`publish-gate.ts` gains an operation and channel parameter. A caller that cannot
-name the surface it is gating for is a caller that should not be publishing.
-
----
-
-## 7. Delivery, in order
-
-Each phase is independently reviewable and leaves the tree working.
-
-| Phase | Contents | Gate |
-|---|---|---|
-| 1 | Vocabularies as closed enums + schemas; no storage | Types compile; enums match this ADR |
-| 2 | Migration: `rights_grants` table, uniqueness over the scope tuple, evidence columns, append-only trigger or convention | Applies to clean and populated PG16; reapply is a no-op |
-| 3 | Resolver + reason codes, deny-by-default, sticky `DENY`, total specificity order | Unit tests incl. negative controls in §8 |
-| 4 | `publish-gate.ts` takes operation and channel; call sites updated | Full suite; no caller left passing a default |
-| 5 | Backfill to `UNKNOWN`; booleans marked deprecated, not dropped | Both models readable during transition |
-| 6 | Enforcement at API/web/export/MCP boundaries | Integration tests per channel |
-| 7 | Remove the booleans | Only once nothing reads them |
-
-**Phases 1–3 are safe to build before the owner answers decision 2** (partner-
-submitted field ownership), because `field_or_field_group` scoping exists in the
-model whether or not it is used. Phase 4 onward changes runtime behaviour and
-should wait for decision 1.
-
----
-
-## 8. Tests this must pass, including the negative controls
-
-A permission system whose tests only assert permitted paths is a permission
-system nobody has checked.
-
-1. **Absence blocks.** A source with zero grants is refused for every operation.
-   *Negative control:* the resolver must return `UNKNOWN`, not a default.
-2. **Sticky deny.** A publisher-level `DENY` beats a source-level `ALLOW`.
-   *Mutation:* make deny non-sticky; this test must fail.
-3. **No cross-implication.** `display_publicly` = `ALLOW` leaves
-   `sell_api_access` `UNKNOWN`. Asserted for every adjacent pair that a careless
-   implementation would conflate.
-4. **Channel independence.** `public_website` `ALLOW` does not permit
-   `customer_api`.
-5. **Output-class independence.** `normalized_fact` `ALLOW` does not permit
-   `raw_record`, `image_or_media` or `personal_data`.
-6. **Route independence.** An API-route grant does not permit a page fetch.
-7. **`CONDITIONAL` blocks with unmet conditions**, and the decision names which.
-   *Negative control:* a condition that nothing can evaluate must block, never
-   pass by default.
-8. **`NOT_APPLICABLE` is not permission** — it refuses, and reports distinctly
-   from `UNKNOWN`.
-9. **Expiry blocks.** A grant past `expires_or_recheck_at` stops permitting
-   without anyone editing it.
-10. **Specificity is total.** No two grants can occupy one cell; the constraint
-    is proved by an insert the database refuses.
-11. **Every decision carries a reason**, including the absence case.
-12. **The EPREL shape, end to end**: `build_comparison_tools` on
-    `public_website` permitted; `sell_api_access` on `customer_api` and
-    `deliver_to_partners` refused; from one source's grants.
-
----
-
-## 9. What this deliberately does not do
-
-- **It does not decide any source's rights.** It is a place to record decisions,
-  not a substitute for making them.
-- **It does not replace legal review.** `reviewer_type` exists to record that
-  distinction, and an `AUTOMATED` reviewer never satisfies a rights review.
-- **It does not implement partner-submitted field ownership.** The
-  `field_or_field_group` dimension makes it *representable*; whether those
-  values carry separate rights is owner decision 2, and it is legal.
-- **It does not add plans, prices or invoices.** `account_or_product_plan` is a
-  scope key, not a billing entity. ADR-0007 keeps commercial arrangements out of
-  this schema and that stands.
-
----
-
-## 10. What the owner is approving
-
-Approving this ADR means: the shape in §2, deny-by-default and sticky `DENY` in
-§3, the evidence requirements in §4, and the backfill-to-`UNKNOWN` in §6. It
-does **not** authorise deployment, source acquisition, or any change to what is
-currently published — there is nothing published.
-
-Rejecting it means Option A (columns) or the status quo, and the memo's §3 says
-what each costs.
+**Acceptance recorded:** 2026-08-28
+
+**Relates to:** `docs/owner-actions/rights-model-decision.md`, ADR-0007
+
+**Implemented by:** `packages/canonical-schema/src/rights.ts`,
+`packages/rights-engine/`, and `db/migrations/0014_rights_grant_matrix.sql`
+
+> This is an engineering control architecture, not a legal review. It records
+> rights conclusions reached through the required review process; it does not
+> create those conclusions. Acceptance of this ADR does not approve a source,
+> authorize acquisition or publication, or establish that any licence covers a
+> Data Foundry surface.
+
+## 1. Decision
+
+Data Foundry uses a sparse, fail-closed rights-grant matrix. A rights decision
+applies to one stable scope cell and one exact operation/channel pair. No row
+means no permission. Permission for one operation, channel, output class,
+field, route, plan, or jurisdiction never implies permission for a neighboring
+one.
+
+This replaces the legacy all-or-nothing interpretation of
+`commercial_use_allowed`, `redistribution_allowed`, and
+`derivative_normalization_allowed`. Those declarations remain legacy metadata
+during transition; they cannot create a matrix `ALLOW`.
+
+The accepted design is Option B with field-level Option C semantics available
+in the schema. Field-level capability is not a field-level grant. In particular,
+manufacturer-, supplier-, certification-body-, partner-, or other third-party-
+submitted values remain `UNKNOWN`/review-required unless an independently
+supported decision covers their exact field or field group.
+
+## 2. Decision vocabulary and runtime effect
+
+| State | Runtime effect | Meaning |
+| --- | --- | --- |
+| `ALLOW` | Permit only when the decision, review, activation, terms, and dates are all effective | Affirmative permission is on record |
+| `DENY` | Refuse | A prohibition is on record |
+| `CONDITIONAL` | Refuse unless every structured condition has a current trusted receipt and required audit evidence | Permission carries enforceable obligations |
+| `UNKNOWN` | Refuse | No affirmative answer has been established |
+| `NOT_APPLICABLE` | Refuse, reported distinctly from `UNKNOWN` | The operation does not apply to this scope |
+
+The resolver returns a machine-readable reason, selected cell and decision,
+controlling terms version, blockers, applied exception relationships, unmet
+conditions, and auditable obligations. Malformed input, malformed snapshots,
+missing provenance, or ambiguous resolution refuse rather than degrade to a
+default.
+
+The existing coarse source guards remain additional hard stops. A prohibited
+source, engaged kill switch, disallowed lifecycle status, `RED` or `UNREVIEWED`
+classification, or missing evidenced publisher mapping cannot be rescued by a
+matrix row.
+
+## 3. Matrix axes
+
+### 3.1 Sparse scope
+
+Each `rights_cells` row names exactly one publisher or one source and may narrow
+that identity with:
+
+- acquisition route;
+- account or product plan;
+- jurisdiction;
+- asset class;
+- one field key or one source-owned, non-overlapping field group; and
+- output class.
+
+Unset optional dimensions match any request value, but do not create a grant
+for an unrecorded operation or channel. Field scopes require a source; a field
+key and field group cannot both be set.
+
+Acquisition routes are `DIRECT_HTTP`, `BROWSER_RUN`, `CRAWL4AI`, `VENDOR_API`,
+`SITEMAP`, `BULK_FILE`, `RSS`, and `MANUAL_UPLOAD`.
+
+Asset classes are `DATA`, `DOCUMENT`, `IMAGE`, `TRADEMARK`, and `PERSONAL_DATA`.
+Output classes are `RAW_RECORD`, `NORMALIZED_FACT`, `DERIVED_METRIC`, `METADATA`,
+`IMAGE_OR_MEDIA`, and `PERSONAL_DATA`.
+
+### 3.2 Operations and channels
+
+Operations are:
+
+`ACQUIRE` · `STORE` · `NORMALIZE` · `DERIVE` · `DISPLAY_PUBLICLY` ·
+`BUILD_COMPARISON_TOOLS` · `QUOTE_OR_EXCERPT` · `SERVE_API_ACCESS` ·
+`SELL_API_ACCESS` · `REDISTRIBUTE_RAW` · `REDISTRIBUTE_NORMALIZED` ·
+`OFFER_BULK_EXPORT` · `SUBLICENSE_ACCESS` · `LLM_RETRIEVAL` ·
+`DELIVER_TO_PARTNERS` · `TRAIN_MODELS` · `EVALUATE_MODELS` · `CACHE` ·
+`RETAIN_AFTER_TERMINATION`.
+
+Channels are:
+
+`INTERNAL_PROCESSING` · `PUBLIC_WEBSITE` · `SEARCH_INDEX` ·
+`DIRECT_CUSTOMER_API` · `RAPIDAPI_MARKETPLACE` · `MCP_AGENT` ·
+`BULK_DOWNLOAD` · `PARTNER_DELIVERY` · `MODEL_PIPELINE`.
+
+Operations and channels are separate axes because a commercial surface can
+require several independent permissions. The code defines explicit AND-bundles:
+
+| Surface | Required operation/channel decisions |
+| --- | --- |
+| `PUBLIC_WEB` | `DISPLAY_PUBLICLY` / `PUBLIC_WEBSITE` |
+| `SEARCH_INDEX` | `DISPLAY_PUBLICLY` / `SEARCH_INDEX` |
+| `API_FREE` | `SERVE_API_ACCESS` / `DIRECT_CUSTOMER_API` |
+| `API_PAID` | API service + `SELL_API_ACCESS` + `REDISTRIBUTE_NORMALIZED`, all on `DIRECT_CUSTOMER_API` |
+| `RAPIDAPI` | API service + sale + normalized redistribution + `SUBLICENSE_ACCESS`, all on `RAPIDAPI_MARKETPLACE` |
+| `MCP` | `LLM_RETRIEVAL` / `MCP_AGENT` |
+| `BULK_EXPORT` | `OFFER_BULK_EXPORT` + normalized redistribution on `BULK_DOWNLOAD` |
+| `PARTNER_DELIVERY` | partner delivery + sublicense on `PARTNER_DELIVERY` |
+| `MODEL_TRAINING` | `TRAIN_MODELS` / `MODEL_PIPELINE` |
+| `MODEL_EVALUATION` | `EVALUATE_MODELS` / `MODEL_PIPELINE` |
+
+These bundles are entitlements, not a hierarchy. Public-web permission does not
+authorize a free API. Direct paid-API permission does not authorize RapidAPI.
+API service permission alone does not authorize selling or redistribution.
+
+## 4. Immutable storage and current activation
+
+The PostgreSQL model separates stable identity from immutable history:
+
+- `rights_publishers` records stable publisher identity. A source-to-publisher
+  mapping requires independent evidence and a human/counsel reviewer. The
+  resolver refuses unmapped sources, and an evidenced mapping cannot be added
+  or changed after source rights history exists.
+- `rights_evidence_artifacts` stores immutable content hashes and storage
+  pointers for terms, agreements, policies, correspondence, and review memos.
+- `rights_terms_cells`, `rights_terms_versions`, and append-only terms activation
+  events preserve every terms version while exposing one current state per cell.
+- `rights_cells` records the stable sparse matrix identity.
+- `rights_decisions` records immutable decision versions. Append-only activation
+  events select one unambiguous current decision for a cell; a replacement must
+  explicitly supersede the previous current decision in the same cell.
+- `rights_decision_conditions` freezes structured condition definitions when a
+  decision is first activated.
+- `rights_deny_exceptions` records the exceptional relationship described in
+  §5, rather than mutating either decision.
+
+All nullable scope identity indexes use PostgreSQL
+`UNIQUE ... NULLS NOT DISTINCT`. Therefore two all-null or partially-null
+representations of the same scope are duplicates on PostgreSQL 16, not distinct
+rows that evade uniqueness. Real-PostgreSQL negative tests cover duplicate
+terms scopes and duplicate matrix cells.
+
+Rights, terms, activation, exception, field-group, migration-assessment, entity-
+evidence, and fact-dependency history tables reject update, delete, and truncate.
+Historical evidence is never silently rewritten.
+
+## 5. Sticky `DENY` and explicit narrow exceptions
+
+`DENY` is sticky by default. An ordinary, more-specific `ALLOW` or
+`CONDITIONAL` never overrides any matching denial. Every matching denial is
+evaluated; clearing one denial does not clear another.
+
+A genuine lawful exception is representable only by an explicit
+`rights_deny_exceptions` relationship that:
+
+1. names one exact current `DENY` decision and one matching `ALLOW` or
+   `CONDITIONAL` decision;
+2. keeps the same operation and channel;
+3. is a strict, non-widening subset of the denied identity and every scope
+   dimension;
+4. carries independent relationship evidence whose artifact and content hash
+   are distinct from both decisions' evidence;
+5. records a human or counsel reviewer, clause, effective window, expiry or
+   re-review date, and reviewer provenance; and
+6. is itself current while the exception decision independently resolves to an
+   effective permission.
+
+An equal, broader, cross-operation, cross-channel, stale, automated, weakly
+evidenced, or incorrectly mapped exception refuses. A conservative current
+`DENY` remains blocking when its supporting terms are old; it must be explicitly
+superseded or validly excepted rather than expiring into permission.
+
+This resolves RIGHTS-ADR-001 without weakening sticky-deny semantics.
+
+## 6. Precise resolution order
+
+For a request tuple, the resolver executes this order:
+
+1. Validate the request and snapshot. Invalid structures return
+   `MALFORMED_SNAPSHOT`.
+2. Apply the source hard stops in §2.
+3. Select cells matching the exact operation and channel, publisher/source
+   identity, and every populated scope dimension. No match returns `NO_GRANT`
+   with state `UNKNOWN`.
+4. Evaluate every matching `DENY`. Any denial lacking a valid exact exception
+   returns `STICKY_DENY` and names all remaining blocking decision IDs.
+5. Remove denied candidates. Sort remaining candidates by the following
+   lexicographic specificity vector, most specific first:
+
+   ```text
+   field key (2) > field group (1) > unset (0),
+   then output class,
+   then asset class,
+   then acquisition route,
+   then account or product plan,
+   then jurisdiction,
+   then source identity over publisher identity
+   ```
+
+   Each later component breaks a tie only when all earlier components are
+   equal. Specificity is not the count of populated dimensions. An equal vector
+   remaining after database and snapshot validation returns `AMBIGUOUS_SCOPE`;
+   IDs are never a hidden tie-breaker.
+6. Evaluate the selected decision's activation, review, terms, dates, and
+   conditions. Only `ALLOW` and fully satisfied `CONDITIONAL` return permitted.
+
+Adversarial tests cover cross-dimension precedence, equal scope shapes, multiple
+matching denials, strict exceptions, expiry/re-review, and absence. This resolves
+RIGHTS-ADR-002 and RIGHTS-ADR-006 together with the database identity rules.
+
+## 7. Terms, review, and conditions
+
+Positive permission is bound to an immutable controlling terms version whose
+SHA-256 must equal its immutable evidence artifact hash and whose terms scope
+must cover the decision cell. That terms version must still be the current,
+active, effective version, activated by a human or counsel, and not expired or
+due for re-review. Superseding terms explicitly name the previous current
+version; revocation is terminal for the revoked version.
+
+An `ALLOW` or `CONDITIONAL` decision also requires:
+
+- review status `APPROVED` by a named `HUMAN` or `COUNSEL` reviewer;
+- activation by that reviewer type and identity after review;
+- an effective window and future re-review time;
+- the exact current terms binding, evidence artifact, and clause reference; and
+- for `CONDITIONAL`, at least one frozen structured condition.
+
+`AUTOMATED` assessments may record `UNKNOWN`, `DENY`, or research findings. They
+cannot activate effective `ALLOW` or `CONDITIONAL` permission, and the runtime
+rejects automated positive reviews or activations even if malformed data evades
+one storage boundary. This resolves RIGHTS-ADR-004 and RIGHTS-ADR-005.
+
+A condition is satisfied only by a trusted server-computed receipt matching the
+condition ID, evaluator key and version, parameters SHA-256, and exact canonical
+parameters. It must be current, explicitly satisfied, and carry an audit
+reference when required. Client input is never a trusted receipt. Unknown
+evaluators, stale or mismatched receipts, missing audit evidence, or an empty
+condition list refuse.
+
+## 8. All provenance contributions must authorize
+
+Rights are evaluated as an AND across every relevant contribution and every
+required surface intent. One permissive source cannot launder a blocked source.
+An empty contribution set refuses as `MISSING_PROVENANCE`.
+
+The persistence model records exact entity evidence and fact evidence, and
+`fact_dependencies` records the input DAG for derived facts. Derived output must
+authorize the derived fact and recursively authorize every contributing input;
+cycles are rejected. A canonical candidate or relationship with multiple source
+contributions is withheld in full when any contribution lacks the exact grants.
+This resolves RIGHTS-ADR-007.
+
+## 9. Migration semantics
+
+Migration `0014_rights_grant_matrix.sql` creates no `ALLOW` from legacy
+classifications or booleans. Every existing source receives only an immutable
+`REVIEW_REQUIRED` migration assessment. No publisher mapping, terms record,
+rights cell, decision, evidence row, or grant is fabricated.
+
+New acquisition artifacts record immutable acquisition route, plan,
+jurisdiction, and the exact durable policy snapshot so later rights resolution
+cannot silently reinterpret how bytes were obtained. Legacy artifact scope that
+cannot be truthfully backfilled remains unmanufactured and fail-closed.
+
+This resolves RIGHTS-ADR-003 by preserving immutable versions while selecting
+one current activation, rather than combining mutable `superseded_by` fields
+with a one-row-per-cell table.
+
+## 10. Required negative controls
+
+The implementation must continue to prove at least these cases:
+
+1. Absence, explicit `UNKNOWN`, and `NOT_APPLICABLE` all refuse and remain
+   distinguishable.
+2. Public web does not imply free API, paid API, RapidAPI, MCP, bulk export,
+   partner delivery, model training, or evaluation.
+3. `SERVE_API_ACCESS` does not imply sale, redistribution, or sublicense.
+4. Channel, route, plan, jurisdiction, asset, output, and neighboring field
+   permissions do not imply one another.
+5. Every matching `DENY` remains sticky unless its exact, independently
+   evidenced, strict-narrow exception is effective.
+6. PostgreSQL refuses duplicate sparse terms and rights cells with null scope
+   dimensions.
+7. Superseding, revocation, activation, expiry, and re-review changes fail
+   positive permission closed without mutating history.
+8. Automated positive permission, unknown condition evaluators, invalid or stale
+   condition receipts, and missing audit references refuse.
+9. Any unauthorized provenance contribution blocks the complete emitted fact,
+   relationship, or derived output.
+10. Legacy migration records review work but manufactures no permission.
+
+## 11. Owner decisions recorded with acceptance
+
+- **Partner-submitted values:** `UNKNOWN` until explicitly reviewed. The field
+  and field-group schema supports a later evidenced decision but creates no
+  implicit grant.
+- **ENERGY STAR:** deferred. Do not sign, promote, acquire as ready, or publish
+  the proposed source until the partner-submitted-rights question receives the
+  required human review. Synthetic fixture verification may continue.
+- **API-key vertical scope:** one API key maps to exactly one vertical for V1.
+  Rights scope and customer access entitlement are separate controls; future
+  multi-vertical entitlement must be explicit, not a nullable `vertical_id`.
+- **HVAC product wording:** regulatory-filing values may be described as
+  “Manufacturer-reported, as filed with US regulators.” They must not be called
+  certified, verified, approved, or determined by the regulator unless exact
+  provenance supports that claim.
+- **Publisher outreach:** not authorized in this work package. No communication
+  or terms acceptance follows from this ADR.
+
+## 12. Consequences and non-goals
+
+The free public surface may be broader than a paid API or marketplace surface
+when independently reviewed grants permit public display but not paid
+distribution. That is an intentional consequence of surface-specific
+enforcement, not a reason to infer paid rights from web rights.
+
+This ADR does not decide any real source's rights, replace counsel or owner
+review, approve the ENERGY STAR packet, authorize publisher contact, define
+plans or prices, or create invoices. It provides the auditable mechanism that
+keeps those decisions independent and fail-closed.

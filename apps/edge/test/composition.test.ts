@@ -10,7 +10,13 @@
  * client turn rule 1 off.
  */
 import { afterEach, beforeAll, afterAll, describe, expect, it } from 'vitest';
-import { claim, createQueryFixtures, type QueryFixtures } from '../../../packages/query-model/test/support.js';
+import {
+  addSyntheticEntityEvidence,
+  claim,
+  createQueryFixtures,
+  seedSyntheticSurfaceRights,
+  type QueryFixtures,
+} from '../../../packages/query-model/test/support.js';
 import type { SqlDriver } from '@data-foundry/canonical-store';
 import { getDeployment, resetDeployments, type VerticalRuntime } from '../src/composition.js';
 import { EdgeConfigurationError } from '../src/env.js';
@@ -66,6 +72,10 @@ function observedDriver(
 
 beforeAll(async () => {
   fixtures = await createQueryFixtures();
+  await seedSyntheticSurfaceRights(fixtures, ['API_PAID']);
+  for (const entity of [fixtures.equipment, fixtures.heatPump, fixtures.motor, fixtures.rival]) {
+    await addSyntheticEntityEvidence(fixtures, entity);
+  }
 });
 
 afterAll(async () => {
@@ -99,7 +109,11 @@ describe('composing a deployment', () => {
       openDriver: openFixtureDriver,
     });
 
-    const response = await deployment.app({ method: 'GET', url: '/v1/health' });
+    const response = await deployment.app(
+      { method: 'GET', url: '/v1/health' },
+      undefined,
+      { surface: 'API_PAID' },
+    );
     expect(response.status).toBe(200);
   });
 
@@ -248,10 +262,14 @@ describe('rule 1 survives the trip to the edge', () => {
       runtime,
       openDriver: openFixtureDriver,
     });
-    const response = await deployment.app({
-      method: 'GET',
-      url: `/v1/entities/${fixtures.equipment.id}/facts`,
-    });
+    const response = await deployment.app(
+      {
+        method: 'GET',
+        url: `/v1/entities/${fixtures.equipment.id}/facts`,
+      },
+      undefined,
+      { surface: 'API_PAID' },
+    );
 
     expect(response.status).toBe(200);
     expect(JSON.stringify(response.body)).not.toContain(BLOCKED_PROPERTY);
@@ -262,7 +280,7 @@ describe('rule 1 survives the trip to the edge', () => {
    * flipping it to `false` would change no answer and the test above would be
    * passing for an unrelated reason.
    */
-  it('would serve it if the policy said so, which is what makes the guard load-bearing', async () => {
+  it('does not let a coarse-policy override bypass the surface grant matrix', async () => {
     const permissive: VerticalRuntime = {
       ...runtime,
       fact_selection: { ...runtime.fact_selection, requirePublishableRights: false },
@@ -274,12 +292,16 @@ describe('rule 1 survives the trip to the edge', () => {
       runtime: permissive,
       openDriver: openFixtureDriver,
     });
-    const response = await deployment.app({
-      method: 'GET',
-      url: `/v1/entities/${fixtures.equipment.id}/facts`,
-    });
+    const response = await deployment.app(
+      {
+        method: 'GET',
+        url: `/v1/entities/${fixtures.equipment.id}/facts`,
+      },
+      undefined,
+      { surface: 'API_PAID' },
+    );
 
-    expect(JSON.stringify(response.body)).toContain(BLOCKED_PROPERTY);
+    expect(JSON.stringify(response.body)).not.toContain(BLOCKED_PROPERTY);
   });
 
   /**
@@ -295,10 +317,14 @@ describe('rule 1 survives the trip to the edge', () => {
       runtime,
       openDriver: openFixtureDriver,
     });
-    const attempted = await deployment.app({
-      method: 'GET',
-      url: `/v1/entities/${fixtures.equipment.id}/facts?requirePublishableRights=false`,
-    });
+    const attempted = await deployment.app(
+      {
+        method: 'GET',
+        url: `/v1/entities/${fixtures.equipment.id}/facts?requirePublishableRights=false`,
+      },
+      undefined,
+      { surface: 'API_PAID' },
+    );
 
     expect(attempted.status).toBe(200);
     expect(JSON.stringify(attempted.body)).not.toContain(BLOCKED_PROPERTY);

@@ -128,6 +128,9 @@ importers:
       '@data-foundry/canonical-schema':
         specifier: workspace:*
         version: link:../canonical-schema
+      '@data-foundry/rights-engine':
+        specifier: workspace:*
+        version: link:../rights-engine
       '@electric-sql/pglite':
         specifier: ^0.5.5
         version: 0.5.5
@@ -180,6 +183,18 @@ importers:
       '@data-foundry/provenance':
         specifier: workspace:*
         version: link:../provenance
+      '@data-foundry/rights-engine':
+        specifier: workspace:*
+        version: link:../rights-engine
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
+
+  packages/rights-engine:
+    dependencies:
+      '@data-foundry/canonical-schema':
+        specifier: workspace:*
+        version: link:../canonical-schema
       zod:
         specifier: ^4.4.3
         version: 4.4.3
@@ -195,6 +210,9 @@ importers:
 
   packages/usage-events:
     dependencies:
+      '@data-foundry/api-keys':
+        specifier: workspace:*
+        version: link:../api-keys
       '@data-foundry/canonical-store':
         specifier: workspace:*
         version: link:../canonical-store
@@ -240,6 +258,9 @@ importers:
       '@data-foundry/query-model':
         specifier: workspace:*
         version: link:../../packages/query-model
+      '@data-foundry/rights-engine':
+        specifier: workspace:*
+        version: link:../../packages/rights-engine
       '@data-foundry/source-registry':
         specifier: workspace:*
         version: link:../../packages/source-registry

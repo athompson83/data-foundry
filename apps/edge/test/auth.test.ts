@@ -10,7 +10,26 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { createQueryFixtures, type QueryFixtures } from '../../../packages/query-model/test/support.js';
 import { mintApiKey } from '@data-foundry/api-keys';
 import type { SqlExecutor } from '@data-foundry/canonical-store';
-import { authenticate, toAuthResponse, type AuthFailure } from '../src/auth.js';
+import {
+  authenticate as authenticateRequest,
+  toAuthResponse,
+  type AuthFailure,
+} from '../src/auth.js';
+
+const authenticate = (
+  executor: SqlExecutor,
+  authorizationHeader: string | null | undefined,
+  verticalId: string,
+  environment: 'test' | 'live',
+  now: Date,
+  expectedBillingSource: 'DIRECT' | 'RAPIDAPI' = 'DIRECT',
+) =>
+  authenticateRequest(executor, authorizationHeader, {
+    verticalId,
+    environment,
+    expectedBillingSource,
+    now,
+  });
 
 let fixtures: QueryFixtures;
 let hvacVerticalId: string;
@@ -27,6 +46,8 @@ async function seedTenant(options: {
   readonly revoked?: boolean;
   readonly expiresAt?: string;
   readonly verticalId?: string;
+  readonly accessTier?: 'API_FREE' | 'API_PAID' | 'RAPIDAPI';
+  readonly billingSource?: 'DIRECT' | 'RAPIDAPI';
   readonly slug: string;
 }): Promise<SeededTenant> {
   const [tenant] = await fixtures.driver.query<{ id: string }>(
@@ -38,8 +59,10 @@ async function seedTenant(options: {
 
   const minted = await mintApiKey('test');
   const [key] = await fixtures.driver.query<{ id: string }>(
-    `insert into api_keys (tenant_id, token_hash, token_prefix, label, vertical_id, revoked_at, expires_at)
-       values ($1, $2, $3, $4, $5, $6, $7)
+    `insert into api_keys
+       (tenant_id, token_hash, token_prefix, label, vertical_id, revoked_at, expires_at,
+        access_tier, billing_source)
+       values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
      returning id`,
     [
       tenantId,
@@ -49,6 +72,8 @@ async function seedTenant(options: {
       options.verticalId === undefined ? hvacVerticalId : options.verticalId,
       options.revoked === true ? new Date().toISOString() : null,
       options.expiresAt ?? null,
+      options.accessTier ?? 'API_PAID',
+      options.billingSource ?? 'DIRECT',
     ],
   );
   const apiKeyId = key?.id;
@@ -81,6 +106,8 @@ describe('a valid key authenticates', () => {
       tenantId: seeded.tenantId,
       apiKeyId: seeded.apiKeyId,
       verticalId: hvacVerticalId,
+      accessTier: 'API_PAID',
+      billingSource: 'DIRECT',
     });
   });
 });
@@ -163,6 +190,8 @@ describe('a suspended or closed tenant rejects', () => {
           token_hash: minted.tokenHash,
           token_prefix: minted.tokenPrefix,
           vertical_id: hvacVerticalId,
+          access_tier: 'API_PAID',
+          billing_source: 'DIRECT',
           revoked_at: null,
           expires_at: null,
         }];
@@ -196,8 +225,8 @@ describe('wrong tenant cannot cross the tenant boundary', () => {
     const aliceResult = await authenticate(fixtures.driver, `Bearer ${alice.secret}`, hvacVerticalId, 'test', new Date());
     const bobResult = await authenticate(fixtures.driver, `Bearer ${bob.secret}`, hvacVerticalId, 'test', new Date());
 
-    expect(aliceResult).toEqual({ ok: true, tenantId: alice.tenantId, apiKeyId: alice.apiKeyId, verticalId: hvacVerticalId });
-    expect(bobResult).toEqual({ ok: true, tenantId: bob.tenantId, apiKeyId: bob.apiKeyId, verticalId: hvacVerticalId });
+    expect(aliceResult).toEqual({ ok: true, tenantId: alice.tenantId, apiKeyId: alice.apiKeyId, verticalId: hvacVerticalId, accessTier: 'API_PAID', billingSource: 'DIRECT' });
+    expect(bobResult).toEqual({ ok: true, tenantId: bob.tenantId, apiKeyId: bob.apiKeyId, verticalId: hvacVerticalId, accessTier: 'API_PAID', billingSource: 'DIRECT' });
     expect(aliceResult.ok && bobResult.ok && aliceResult.tenantId).not.toBe(
       aliceResult.ok && bobResult.ok && bobResult.tenantId,
     );
@@ -225,6 +254,89 @@ describe('missing scope rejects', () => {
   });
 });
 
+describe('access tier and billing channel are part of authentication', () => {
+  it('rejects a quarantined legacy key whose access profile has not been classified', async () => {
+    const minted = await mintApiKey('test');
+    const query = vi.fn(async (sql: string) => {
+      if (!sql.includes('from api_keys')) {
+        throw new Error('tenant lookup must not run for an unclassified key');
+      }
+      return [{
+        id: '11111111-1111-4111-8111-111111111111',
+        tenant_id: '22222222-2222-4222-8222-222222222222',
+        token_hash: minted.tokenHash,
+        token_prefix: minted.tokenPrefix,
+        vertical_id: hvacVerticalId,
+        access_tier: null,
+        billing_source: null,
+        revoked_at: null,
+        expires_at: null,
+      }];
+    });
+
+    const result = await authenticate(
+      { query } as unknown as SqlExecutor,
+      `Bearer ${minted.secret}`,
+      hvacVerticalId,
+      'test',
+      new Date(),
+    );
+
+    expect(result).toEqual({ ok: false, reason: 'ACCESS_PROFILE_MISSING' });
+    expect(query).toHaveBeenCalledTimes(1);
+  });
+
+  it('rejects a RapidAPI marketplace key at the direct API edge', async () => {
+    const seeded = await seedTenant({
+      slug: 'rapidapi-at-direct-edge',
+      accessTier: 'RAPIDAPI',
+      billingSource: 'RAPIDAPI',
+    });
+    const result = await authenticate(
+      fixtures.driver,
+      `Bearer ${seeded.secret}`,
+      hvacVerticalId,
+      'test',
+      new Date(),
+      'DIRECT',
+    );
+    expect(result).toEqual({ ok: false, reason: 'WRONG_BILLING_SOURCE' });
+  });
+
+  it('rejects a direct key at the marketplace edge', async () => {
+    const seeded = await seedTenant({ slug: 'direct-at-rapidapi-edge' });
+    const result = await authenticate(
+      fixtures.driver,
+      `Bearer ${seeded.secret}`,
+      hvacVerticalId,
+      'test',
+      new Date(),
+      'RAPIDAPI',
+    );
+    expect(result).toEqual({ ok: false, reason: 'WRONG_BILLING_SOURCE' });
+  });
+
+  it('accepts a direct free-tier key and preserves its surface classification', async () => {
+    const seeded = await seedTenant({
+      slug: 'direct-free-tier',
+      accessTier: 'API_FREE',
+      billingSource: 'DIRECT',
+    });
+    const result = await authenticate(
+      fixtures.driver,
+      `Bearer ${seeded.secret}`,
+      hvacVerticalId,
+      'test',
+      new Date(),
+    );
+    expect(result).toMatchObject({
+      ok: true,
+      accessTier: 'API_FREE',
+      billingSource: 'DIRECT',
+    });
+  });
+});
+
 describe('the response never discloses which failure occurred', () => {
   const reasons: AuthFailure['reason'][] = [
     'MISSING_CREDENTIAL',
@@ -242,7 +354,7 @@ describe('the response never discloses which failure occurred', () => {
     });
   }
 
-  for (const reason of ['TENANT_SUSPENDED', 'TENANT_CLOSED', 'TENANT_INACTIVE', 'WRONG_VERTICAL'] as const) {
+  for (const reason of ['TENANT_SUSPENDED', 'TENANT_CLOSED', 'TENANT_INACTIVE', 'WRONG_VERTICAL', 'ACCESS_PROFILE_MISSING', 'WRONG_BILLING_SOURCE'] as const) {
     it(`${reason} produces the same 403 body as every other 403 reason`, () => {
       const { status, body } = toAuthResponse({ ok: false, reason });
       expect(status).toBe(403);
@@ -256,7 +368,7 @@ describe('the response never discloses which failure occurred', () => {
     );
     expect(new Set(unauthorized).size).toBe(1);
 
-    const forbidden = (['TENANT_SUSPENDED', 'TENANT_CLOSED', 'TENANT_INACTIVE', 'WRONG_VERTICAL'] as const).map((reason) =>
+    const forbidden = (['TENANT_SUSPENDED', 'TENANT_CLOSED', 'TENANT_INACTIVE', 'WRONG_VERTICAL', 'ACCESS_PROFILE_MISSING', 'WRONG_BILLING_SOURCE'] as const).map((reason) =>
       JSON.stringify(toAuthResponse({ ok: false, reason }).body),
     );
     expect(new Set(forbidden).size).toBe(1);

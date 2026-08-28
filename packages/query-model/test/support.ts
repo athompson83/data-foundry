@@ -18,6 +18,7 @@ import {
   type SourceType,
 } from '@data-foundry/canonical-schema';
 import { FieldMetadataRegistry, createQueryModel, type QueryModel } from '../src/index.js';
+import { rightsRequirementsForSurface, type RightsSurface } from '@data-foundry/rights-engine';
 import {
   claim,
   createFixtures,
@@ -304,6 +305,9 @@ export async function addSourceFixture(
     policy_snapshot_id: null,
     byte_size: 4096,
     acquisition_provider: 'http',
+    acquisition_route: 'DIRECT_HTTP',
+    account_or_product_plan: null,
+    acquisition_jurisdiction: null,
   });
   const record = await fixtures.store.recordSourceRecord({
     source_id: source.id,
@@ -316,6 +320,161 @@ export async function addSourceFixture(
     extractor_version: 'html-1.0.0',
   });
   return { source, artifact, record };
+}
+
+const SYNTHETIC_RIGHTS_EFFECTIVE = ts('2026-01-01T00:00:00Z');
+const SYNTHETIC_RIGHTS_RECHECK = ts('2027-01-01T00:00:00Z');
+
+/**
+ * Explicit grants for synthetic test publishers. This is intentionally test
+ * data, never a migration/backfill: production legacy rows remain UNKNOWN.
+ */
+export async function seedSyntheticSurfaceRights(
+  fixtures: QueryFixtures,
+  surfaces: readonly RightsSurface[],
+): Promise<void> {
+  const requirements = new Map(
+    [
+      ...surfaces.flatMap((surface) => rightsRequirementsForSurface(surface)),
+      ...(surfaces.includes('MCP')
+        ? [{ id: 'mcp-excerpt', operation: 'QUOTE_OR_EXCERPT', channel: 'MCP_AGENT' } as const]
+        : []),
+    ]
+      .map((entry) => [`${entry.operation}:${entry.channel}`, entry] as const),
+  );
+
+  let sourceIndex = 0;
+  for (const [sourceKey, fixture] of Object.entries(fixtures.sources)) {
+    if (!canPublish(fixture.source.rights_classification) || fixture.source.status !== 'ACTIVE') {
+      continue;
+    }
+    sourceIndex += 1;
+    const publisherId = crypto.randomUUID();
+    const termsEvidenceId = crypto.randomUUID();
+    const reviewEvidenceId = crypto.randomUUID();
+    const termsCellId = crypto.randomUUID();
+    const termsVersionId = crypto.randomUUID();
+    const termsHash = sourceIndex.toString(16).padStart(64, '0');
+    const reviewHash = (sourceIndex + 100).toString(16).padStart(64, '0');
+
+    await fixtures.driver.query(
+      `INSERT INTO rights_publishers (id, publisher_key, legal_name, status)
+       VALUES ($1, $2, $3, 'ACTIVE')`,
+      [
+        publisherId,
+        `synthetic-${sourceKey.replaceAll('_', '-')}`,
+        `${fixture.source.publisher} synthetic rights`,
+      ],
+    );
+    await fixtures.driver.query(
+      `INSERT INTO rights_evidence_artifacts
+         (id, kind, canonical_uri, storage_uri, content_sha256, mime_type,
+          captured_at, created_by)
+       VALUES ($1, 'TERMS', $3, $4, $5, 'text/plain', $7, 'test-fixture'),
+              ($2, 'REVIEW_MEMO', $6, $6, $8, 'text/plain', $7, 'test-fixture')`,
+      [
+        termsEvidenceId,
+        reviewEvidenceId,
+        `fixture://terms/${sourceKey}`,
+        `fixture://terms/${sourceKey}.txt`,
+        termsHash,
+        `fixture://review/${sourceKey}`,
+        SYNTHETIC_RIGHTS_EFFECTIVE,
+        reviewHash,
+      ],
+    );
+    await fixtures.driver.query(
+      `UPDATE sources
+          SET rights_publisher_id = $1,
+              rights_publisher_mapping_evidence_artifact_id = $3,
+              rights_publisher_mapping_reviewer_type = 'HUMAN',
+              rights_publisher_mapping_reviewed_by = 'test-fixture',
+              rights_publisher_mapping_reviewed_at = $4
+        WHERE id = $2`,
+      [publisherId, fixture.source.id, reviewEvidenceId, SYNTHETIC_RIGHTS_EFFECTIVE],
+    );
+    await fixtures.driver.query(
+      `INSERT INTO rights_terms_cells (id, source_id, acquisition_route, created_by)
+       VALUES ($1, $2, 'DIRECT_HTTP', 'test-fixture')`,
+      [termsCellId, fixture.source.id],
+    );
+    await fixtures.driver.query(
+      `INSERT INTO rights_terms_versions
+         (id, terms_cell_id, evidence_artifact_id, content_sha256, version_label,
+          effective_from, recheck_at, created_by)
+       VALUES ($1, $2, $3, $4, 'synthetic-v1', $5, $6, 'test-fixture')`,
+      [
+        termsVersionId,
+        termsCellId,
+        termsEvidenceId,
+        termsHash,
+        SYNTHETIC_RIGHTS_EFFECTIVE,
+        SYNTHETIC_RIGHTS_RECHECK,
+      ],
+    );
+    await fixtures.driver.query(
+      `SELECT activate_rights_terms($1, 'HUMAN', 'test-fixture',
+                                    'synthetic fixture terms', $2)`,
+      [termsVersionId, SYNTHETIC_RIGHTS_EFFECTIVE],
+    );
+
+    await fixtures.driver.exec('BEGIN');
+    try {
+      for (const entry of requirements.values()) {
+        const cellId = crypto.randomUUID();
+        const decisionId = crypto.randomUUID();
+        await fixtures.driver.query(
+          `INSERT INTO rights_cells
+             (id, source_id, acquisition_route, operation, channel, created_by)
+           VALUES ($1, $2, 'DIRECT_HTTP', $3, $4, 'test-fixture')`,
+          [cellId, fixture.source.id, entry.operation, entry.channel],
+        );
+        await fixtures.driver.query(
+          `INSERT INTO rights_decisions
+             (id, cell_id, state, controlling_terms_version_id, evidence_artifact_id,
+              clause_ref, review_status, reviewer_type, reviewed_by, reviewed_at,
+              effective_from, recheck_at, rationale, created_by)
+           VALUES ($1, $2, 'ALLOW', $3, $4, 'synthetic fixture only', 'APPROVED',
+                   'HUMAN', 'test-fixture', $5, $5, $6,
+                   'explicit synthetic surface grant', 'test-fixture')`,
+          [
+            decisionId,
+            cellId,
+            termsVersionId,
+            reviewEvidenceId,
+            SYNTHETIC_RIGHTS_EFFECTIVE,
+            SYNTHETIC_RIGHTS_RECHECK,
+          ],
+        );
+        await fixtures.driver.query(
+          `SELECT activate_rights_decision($1, 'HUMAN', 'test-fixture',
+                                           'activate synthetic grant', $2)`,
+          [decisionId, SYNTHETIC_RIGHTS_EFFECTIVE],
+        );
+      }
+      await fixtures.driver.exec('COMMIT');
+    } catch (error) {
+      await fixtures.driver.exec('ROLLBACK');
+      throw error;
+    }
+  }
+}
+
+/** Attach explicit synthetic identity provenance to an entity used by a surface test. */
+export async function addSyntheticEntityEvidence(
+  fixtures: QueryFixtures,
+  entity: Entity,
+  source: SourceKey = 'manufacturer',
+): Promise<void> {
+  const fixture = fixtures.sources[source];
+  await fixtures.driver.query(
+    `INSERT INTO entity_evidence
+       (entity_id, artifact_id, source_record_id, contribution_role,
+        locator_type, locator_value, observed_at)
+     VALUES ($1, $2, $3, 'EXISTENCE', 'WHOLE_DOCUMENT', '', $4)
+     ON CONFLICT DO NOTHING`,
+    [entity.id, fixture.artifact.id, fixture.record.id, fixture.artifact.retrieved_at],
+  );
 }
 
 /** 64 hex characters derived from a seed, matching the shared fixtures' shape. */

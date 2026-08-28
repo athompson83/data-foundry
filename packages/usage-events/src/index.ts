@@ -18,6 +18,11 @@
  * primary key the table already had.
  */
 import type { SqlExecutor, SqlParam } from '@data-foundry/canonical-store';
+import {
+  isApiAccessClassification,
+  type ApiAccessTier,
+  type ApiBillingSource,
+} from '@data-foundry/api-keys';
 
 /** The two methods this API ever serves, and therefore the only ones a usage event can name. */
 const ALLOWED_METHODS = new Set(['GET', 'HEAD']);
@@ -26,7 +31,7 @@ export type UsageMethod = 'GET' | 'HEAD';
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const ROUTE_KEY_RE = /^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)*$/;
 const POSTGRES_INTEGER_MAX = 2_147_483_647;
-const USAGE_EVENT_FIELDS = [
+const LEGACY_USAGE_EVENT_FIELDS = [
   'id',
   'tenant_id',
   'api_key_id',
@@ -38,6 +43,12 @@ const USAGE_EVENT_FIELDS = [
   'rows_served',
   'duration_ms',
 ] as const;
+const USAGE_EVENT_V2_FIELDS = [
+  'schema_version',
+  ...LEGACY_USAGE_EVENT_FIELDS,
+  'access_tier',
+  'billing_source',
+] as const;
 
 /**
  * One request, metered. Every field here is either a constant the server
@@ -45,7 +56,7 @@ const USAGE_EVENT_FIELDS = [
  * customer supplied. `route_key` in particular is a member of the registered
  * accounting vocabulary, never a path or request target.
  */
-export interface UsageEvent {
+export interface UsageEventBase {
   readonly id: string;
   readonly tenant_id: string;
   readonly api_key_id: string;
@@ -58,6 +69,18 @@ export interface UsageEvent {
   readonly duration_ms: number | null;
 }
 
+/** Queue payload shipped before access/billing classification existed. */
+export interface LegacyUsageEvent extends UsageEventBase {}
+
+/** Current wire payload. The explicit version makes staged consumer-first deployment possible. */
+export interface UsageEventV2 extends UsageEventBase {
+  readonly schema_version: 2;
+  readonly access_tier: ApiAccessTier;
+  readonly billing_source: ApiBillingSource;
+}
+
+export type UsageEvent = LegacyUsageEvent | UsageEventV2;
+
 export interface UsageEventInput {
   readonly tenantId: string;
   readonly apiKeyId: string;
@@ -65,6 +88,8 @@ export interface UsageEventInput {
   readonly routeKey: string;
   readonly method: UsageMethod;
   readonly status: number;
+  readonly accessTier: ApiAccessTier;
+  readonly billingSource: ApiBillingSource;
   readonly rowsServed?: number;
   readonly durationMs?: number | null;
   /** Test seam only. Production callers never supply these. */
@@ -77,8 +102,17 @@ export interface UsageEventInput {
  * a row that does not exist yet — every other function in this package reads
  * one that was already built.
  */
-export function buildUsageEvent(input: UsageEventInput): UsageEvent {
+export function buildUsageEvent(input: UsageEventInput): UsageEventV2 {
+  if (
+    !isApiAccessClassification({
+      accessTier: input.accessTier,
+      billingSource: input.billingSource,
+    })
+  ) {
+    throw new TypeError('usage event access classification is invalid');
+  }
   return {
+    schema_version: 2,
     id: input.id ?? crypto.randomUUID(),
     tenant_id: input.tenantId,
     api_key_id: input.apiKeyId,
@@ -89,6 +123,8 @@ export function buildUsageEvent(input: UsageEventInput): UsageEvent {
     status: input.status,
     rows_served: input.rowsServed ?? 0,
     duration_ms: input.durationMs ?? null,
+    access_tier: input.accessTier,
+    billing_source: input.billingSource,
   };
 }
 
@@ -108,7 +144,8 @@ export function parseUsageEvent(raw: unknown): UsageEvent | null {
   if (raw === null || typeof raw !== 'object') return null;
   const value = raw as Record<string, unknown>;
   const keys = Object.keys(value).sort();
-  const expectedKeys = [...USAGE_EVENT_FIELDS].sort();
+  const isV2 = value['schema_version'] === 2;
+  const expectedKeys = [...(isV2 ? USAGE_EVENT_V2_FIELDS : LEGACY_USAGE_EVENT_FIELDS)].sort();
   if (keys.length !== expectedKeys.length || keys.some((key, index) => key !== expectedKeys[index])) {
     return null;
   }
@@ -123,6 +160,8 @@ export function parseUsageEvent(raw: unknown): UsageEvent | null {
   const status = value['status'];
   const rowsServed = value['rows_served'];
   const durationMs = value['duration_ms'];
+  const accessTier = value['access_tier'];
+  const billingSource = value['billing_source'];
 
   if (typeof id !== 'string' || !UUID_RE.test(id)) return null;
   if (typeof tenantId !== 'string' || !UUID_RE.test(tenantId)) return null;
@@ -159,7 +198,7 @@ export function parseUsageEvent(raw: unknown): UsageEvent | null {
     ) return null;
   }
 
-  return {
+  const base: UsageEventBase = {
     id,
     tenant_id: tenantId,
     api_key_id: apiKeyId,
@@ -170,6 +209,15 @@ export function parseUsageEvent(raw: unknown): UsageEvent | null {
     status,
     rows_served: typeof rowsServed === 'number' ? rowsServed : 0,
     duration_ms: typeof durationMs === 'number' ? durationMs : null,
+  };
+  if (!isV2) return base;
+  const classification = { accessTier, billingSource };
+  if (!isApiAccessClassification(classification)) return null;
+  return {
+    schema_version: 2,
+    ...base,
+    access_tier: classification.accessTier,
+    billing_source: classification.billingSource,
   };
 }
 
@@ -191,7 +239,7 @@ export async function persistUsageEvent(
 
 /**
  * Persist one queue batch with one idempotent statement. The producer caps a
- * batch at 100 messages, so this is at most 1,000 parameters — comfortably
+ * batch at 100 messages, so this is at most 1,200 parameters — comfortably
  * below PostgreSQL's protocol limit. A statement failure commits none of the
  * batch, allowing the consumer to retry every valid message coherently.
  */
@@ -203,7 +251,9 @@ export async function persistUsageEvents(
 
   const params: SqlParam[] = [];
   const values = events.map((event, rowIndex) => {
-    const offset = rowIndex * 10;
+    const offset = rowIndex * 12;
+    const accessTier = 'schema_version' in event ? event.access_tier : null;
+    const billingSource = 'schema_version' in event ? event.billing_source : null;
     params.push(
       event.id,
       event.tenant_id,
@@ -215,14 +265,44 @@ export async function persistUsageEvents(
       event.status,
       event.rows_served,
       event.duration_ms,
+      accessTier,
+      billingSource,
     );
-    return `(${Array.from({ length: 10 }, (_, columnIndex) => `$${offset + columnIndex + 1}`).join(', ')})`;
+    const casts = [
+      'uuid',
+      'uuid',
+      'uuid',
+      'uuid',
+      'timestamptz',
+      'text',
+      'text',
+      'integer',
+      'integer',
+      'integer',
+      'text',
+      'text',
+    ] as const;
+    return `(${casts
+      .map((cast, columnIndex) => `$${offset + columnIndex + 1}::${cast}`)
+      .join(', ')})`;
   });
 
   const rows = await executor.query<{ id: string }>(
-    `insert into api_usage_events
-       (id, tenant_id, api_key_id, vertical_id, occurred_at, route_key, method, status, rows_served, duration_ms)
-     values ${values.join(',\n            ')}
+    `with incoming
+       (id, tenant_id, api_key_id, vertical_id, occurred_at, route_key, method,
+        status, rows_served, duration_ms, access_tier, billing_source) as (
+       values ${values.join(',\n              ')}
+     )
+     insert into api_usage_events
+       (id, tenant_id, api_key_id, vertical_id, occurred_at, route_key, method,
+        status, rows_served, duration_ms, access_tier, billing_source)
+     select incoming.id, incoming.tenant_id, incoming.api_key_id, incoming.vertical_id,
+            incoming.occurred_at, incoming.route_key, incoming.method, incoming.status,
+            incoming.rows_served, incoming.duration_ms,
+            coalesce(incoming.access_tier, key.access_tier),
+            coalesce(incoming.billing_source, key.billing_source)
+       from incoming
+       left join api_keys key on key.id = incoming.api_key_id
      on conflict (id) do nothing
      returning id`,
     params,

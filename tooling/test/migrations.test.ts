@@ -38,7 +38,7 @@ const ROBOTS = JSON.stringify({
 });
 const ATTRIBUTION = JSON.stringify({ required: false, text: null, url: null });
 
-async function seed(target: MigrationDriver = driver): Promise<void> {
+async function seed(target: MigrationDriver = driver, withAcquisitionScope = true): Promise<void> {
   await target.query(
     `INSERT INTO verticals (id, slug, name, schema_version, status, default_refresh_policy)
      VALUES ($1, 'hvac', 'HVAC', '1.0.0', 'ACTIVE', $2::jsonb)`,
@@ -53,10 +53,17 @@ async function seed(target: MigrationDriver = driver): Promise<void> {
     [SOURCE, VERTICAL, ATTRIBUTION, ROBOTS],
   );
   await target.query(
-    `INSERT INTO source_artifacts (id, source_id, url, retrieved_at, content_hash, mime_type,
-                                   r2_uri, http_status, extractor_version, acquisition_provider)
-     VALUES ($1, $2, 'https://ratings-directory.example.org/x', $3, $4, 'text/html',
-             'r2://raw/hvac/ratings-directory/x.html', 200, 'html-1.0.0', 'http')`,
+    withAcquisitionScope
+      ? `INSERT INTO source_artifacts (id, source_id, url, retrieved_at, content_hash, mime_type,
+                                      r2_uri, http_status, extractor_version, acquisition_provider,
+                                      acquisition_route)
+         VALUES ($1, $2, 'https://ratings-directory.example.org/x', $3, $4, 'text/html',
+                 'r2://raw/hvac/ratings-directory/x.html', 200, 'html-1.0.0', 'http',
+                 'DIRECT_HTTP')`
+      : `INSERT INTO source_artifacts (id, source_id, url, retrieved_at, content_hash, mime_type,
+                                      r2_uri, http_status, extractor_version, acquisition_provider)
+         VALUES ($1, $2, 'https://ratings-directory.example.org/x', $3, $4, 'text/html',
+                 'r2://raw/hvac/ratings-directory/x.html', 200, 'html-1.0.0', 'http')`,
     [ARTIFACT, SOURCE, TS, 'a'.repeat(64)],
   );
   await target.query(
@@ -495,16 +502,21 @@ describe('API tenancy invariants (0011)', () => {
       [TENANT_A, TENANT_B],
     );
     await driver.query(
-      `INSERT INTO api_keys (id, tenant_id, vertical_id, token_hash, token_prefix, label)
-       VALUES ($1, $2, $3, $4, 'df_live_aaaaaaaa', 'primary') ON CONFLICT DO NOTHING`,
+      `INSERT INTO api_keys
+         (id, tenant_id, vertical_id, token_hash, token_prefix, label,
+          access_tier, billing_source)
+       VALUES ($1, $2, $3, $4, 'df_live_aaaaaaaa', 'primary',
+               'API_PAID', 'DIRECT') ON CONFLICT DO NOTHING`,
       [KEY_A, TENANT_A, VERTICAL, HASH_A],
     );
   }
 
   const usage = (tenant: string, key: string, routeKey = 'entities.detail', method = 'GET') =>
     driver.query(
-      `INSERT INTO api_usage_events (tenant_id, api_key_id, vertical_id, route_key, method, status)
-       VALUES ($1, $2, $3, $4, $5, 200)`,
+      `INSERT INTO api_usage_events
+         (tenant_id, api_key_id, vertical_id, route_key, method, status,
+          access_tier, billing_source)
+       VALUES ($1, $2, $3, $4, $5, 200, 'API_PAID', 'DIRECT')`,
       [tenant, key, VERTICAL, routeKey, method],
     );
 
@@ -528,8 +540,11 @@ describe('API tenancy invariants (0011)', () => {
   it('refuses a raw key stored where a hash belongs', async () => {
     await expect(
       driver.query(
-        `INSERT INTO api_keys (tenant_id, token_hash, token_prefix, label)
-         VALUES ($1, $2, 'df_live_Ej8xQ2vN4kLpR7sT1uY6wA9bC3dE5fG8hJ0kL2mN4pQ', 'df_live_Ej8xQ2vN', 'raw')`,
+        `INSERT INTO api_keys
+           (tenant_id, vertical_id, token_hash, token_prefix, label,
+            access_tier, billing_source)
+         VALUES ($1, $2, 'df_live_Ej8xQ2vN4kLpR7sT1uY6wA9bC3dE5fG8hJ0kL2mN4pQ',
+                 'df_live_Ej8xQ2vN', 'raw', 'API_PAID', 'DIRECT')`,
         [TENANT_A, VERTICAL],
       ),
     ).rejects.toThrow();
@@ -538,8 +553,11 @@ describe('API tenancy invariants (0011)', () => {
   it('refuses two keys with the same hash, so a lookup cannot be ambiguous', async () => {
     await expect(
       driver.query(
-        `INSERT INTO api_keys (tenant_id, vertical_id, token_hash, token_prefix, label)
-         VALUES ($1, $2, $3, 'df_live_bbbbbbbb', 'duplicate')`,
+        `INSERT INTO api_keys
+           (tenant_id, vertical_id, token_hash, token_prefix, label,
+            access_tier, billing_source)
+         VALUES ($1, $2, $3, 'df_live_bbbbbbbb', 'duplicate',
+                 'API_PAID', 'DIRECT')`,
         [TENANT_B, VERTICAL, HASH_A],
       ),
     ).rejects.toThrow();
@@ -564,8 +582,10 @@ describe('API tenancy invariants (0011)', () => {
   it('refuses a status code outside the HTTP range', async () => {
     await expect(
       driver.query(
-        `INSERT INTO api_usage_events (tenant_id, api_key_id, vertical_id, route_key, method, status)
-         VALUES ($1, $2, $3, 'search', 'GET', 999)`,
+        `INSERT INTO api_usage_events
+           (tenant_id, api_key_id, vertical_id, route_key, method, status,
+            access_tier, billing_source)
+         VALUES ($1, $2, $3, 'search', 'GET', 999, 'API_PAID', 'DIRECT')`,
         [TENANT_A, KEY_A, VERTICAL],
       ),
     ).rejects.toThrow();
@@ -582,7 +602,7 @@ describe('migration 0009 over pre-existing judgment history', () => {
     // Everything the judgment table needs, and nothing that knows about episodes.
     const before0009 = migrations.filter((migration) => migration.version < '0009');
     await applyMigrations(legacy, before0009);
-    await seed(legacy);
+    await seed(legacy, false);
 
     // Two MERGE judgments on one pair: approved, reversed, approved again. The
     // reversal in between is a NOT_MERGE, so all three share the pair and two
@@ -1059,9 +1079,11 @@ describe('API usage accounting corrections (0012)', () => {
     // One tenant, two keys, one per vertical: the shape a customer buying two
     // industries actually has, and the shape the attribution tests need.
     await driver.query(
-      `INSERT INTO api_keys (id, tenant_id, vertical_id, token_hash, token_prefix, label)
-       VALUES ($1, $2, $3, $4, 'df_live_aaaabbbb', 'hvac'),
-              ($5, $2, $6, $7, 'df_live_ccccdddd', 'solar')
+      `INSERT INTO api_keys
+         (id, tenant_id, vertical_id, token_hash, token_prefix, label,
+          access_tier, billing_source)
+       VALUES ($1, $2, $3, $4, 'df_live_aaaabbbb', 'hvac', 'API_PAID', 'DIRECT'),
+              ($5, $2, $6, $7, 'df_live_ccccdddd', 'solar', 'API_PAID', 'DIRECT')
        ON CONFLICT DO NOTHING`,
       [KEY, TENANT, VERTICAL, 'c'.repeat(64), OTHER_KEY, OTHER_VERTICAL, 'd'.repeat(64)],
     );
@@ -1071,8 +1093,10 @@ describe('API usage accounting corrections (0012)', () => {
 
   const meter = (routeKey: string, vertical: string = VERTICAL, key: string = KEY) =>
     driver.query(
-      `INSERT INTO api_usage_events (tenant_id, api_key_id, vertical_id, route_key, method, status)
-       VALUES ($1, $2, $3, $4, 'GET', 200)`,
+      `INSERT INTO api_usage_events
+         (tenant_id, api_key_id, vertical_id, route_key, method, status,
+          access_tier, billing_source)
+       VALUES ($1, $2, $3, $4, 'GET', 200, 'API_PAID', 'DIRECT')`,
       [TENANT, key, vertical, routeKey],
     );
 
@@ -1127,8 +1151,10 @@ describe('API usage accounting corrections (0012)', () => {
     it('refuses a usage row with no vertical at all', async () => {
       await refusedWith(
         driver.query(
-          `INSERT INTO api_usage_events (tenant_id, api_key_id, route_key, method, status)
-           VALUES ($1, $2, 'search', 'GET', 200)`,
+          `INSERT INTO api_usage_events
+             (tenant_id, api_key_id, route_key, method, status,
+              access_tier, billing_source)
+           VALUES ($1, $2, 'search', 'GET', 200, 'API_PAID', 'DIRECT')`,
           [TENANT, KEY],
         ),
         NOT_NULL_VIOLATION,
@@ -1200,8 +1226,9 @@ describe('API usage accounting corrections (0012)', () => {
   it('refuses a key that names no vertical', async () => {
     await refusedWith(
       driver.query(
-        `INSERT INTO api_keys (tenant_id, token_hash, token_prefix, label)
-         VALUES ($1, $2, 'df_live_eeeeffff', 'unscoped')`,
+        `INSERT INTO api_keys
+           (tenant_id, token_hash, token_prefix, label, access_tier, billing_source)
+         VALUES ($1, $2, 'df_live_eeeeffff', 'unscoped', 'API_PAID', 'DIRECT')`,
         [TENANT, 'e'.repeat(64)],
       ),
       NOT_NULL_VIOLATION,

@@ -10,6 +10,7 @@ import {
 } from '@data-foundry/canonical-schema';
 import type { AcquisitionMethod, SourceRegistryEntry } from '@data-foundry/source-registry';
 import { deterministicUuid, sha256Hex, stableStringify } from '../hashing.js';
+import { AcquisitionConfigurationError } from '../errors.js';
 import type { AcquisitionGateFinding, AcquisitionGateResult } from './gate-types.js';
 import type { RobotsDecision } from './robots.js';
 
@@ -41,6 +42,8 @@ export interface PolicySnapshot {
   readonly source_status: SourceStatus;
 
   readonly acquisition_method: AcquisitionMethod;
+  readonly account_or_product_plan: string | null;
+  readonly acquisition_jurisdiction: string | null;
   readonly acquisition_approved: boolean;
   readonly max_requests_per_minute: number | null;
 
@@ -82,6 +85,8 @@ function snapshotContent(input: PolicySnapshotInput): SnapshotContent {
     source_status: entry.status,
 
     acquisition_method: entry.acquisition_policy.method,
+    account_or_product_plan: entry.acquisition_policy.account_or_product_plan,
+    acquisition_jurisdiction: entry.acquisition_policy.jurisdiction,
     acquisition_approved: entry.acquisition_policy.approved,
     max_requests_per_minute: entry.acquisition_policy.max_requests_per_minute,
 
@@ -143,5 +148,86 @@ export class InMemoryPolicySnapshotRecorder implements PolicySnapshotRecorder {
 
   get size(): number {
     return this.#byId.size;
+  }
+}
+
+export interface PolicySnapshotSqlDriver {
+  query(
+    sql: string,
+    params?: readonly unknown[],
+  ): Promise<readonly Readonly<Record<string, unknown>>[]>;
+}
+
+function parseStoredSnapshot(value: unknown): PolicySnapshot {
+  const parsed = typeof value === 'string' ? (JSON.parse(value) as unknown) : value;
+  if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    throw new AcquisitionConfigurationError('Stored acquisition policy snapshot is not an object.');
+  }
+  const record = parsed as Record<string, unknown>;
+  const id = record['id'];
+  const capturedAt = record['captured_at'];
+  const snapshotHash = record['snapshot_hash'];
+  if (typeof id !== 'string' || typeof capturedAt !== 'string' || typeof snapshotHash !== 'string') {
+    throw new AcquisitionConfigurationError(
+      'Stored acquisition policy snapshot is missing its id, capture time, or content hash.',
+    );
+  }
+  const { id: ignoredId, captured_at: ignoredCapturedAt, snapshot_hash: ignoredHash, ...content } =
+    record;
+  void ignoredId;
+  void ignoredCapturedAt;
+  void ignoredHash;
+  const computedHash = sha256Hex(stableStringify(content));
+  const computedId = policySnapshotId(
+    deterministicUuid('data-foundry:policy-snapshot', computedHash),
+  );
+  if (snapshotHash !== computedHash || id !== computedId) {
+    throw new AcquisitionConfigurationError(
+      `Stored acquisition policy snapshot ${id} failed its content-address integrity check.`,
+    );
+  }
+  return record as unknown as PolicySnapshot;
+}
+
+/** Durable recorder used by the ingest worker. The first observation wins. */
+export class SqlPolicySnapshotRecorder implements PolicySnapshotRecorder {
+  readonly #driver: PolicySnapshotSqlDriver;
+
+  constructor(driver: PolicySnapshotSqlDriver) {
+    this.#driver = driver;
+  }
+
+  async record(input: PolicySnapshotInput): Promise<PolicySnapshot> {
+    const snapshot = buildPolicySnapshot(input);
+    await this.#driver.query(
+      `INSERT INTO acquisition_policy_snapshots
+         (id, snapshot_hash, captured_at, snapshot)
+       VALUES ($1, $2, $3, $4::jsonb)
+       ON CONFLICT (id) DO NOTHING`,
+      [snapshot.id, snapshot.snapshot_hash, snapshot.captured_at, JSON.stringify(snapshot)],
+    );
+    const stored = await this.get(snapshot.id);
+    if (stored === null || stored.snapshot_hash !== snapshot.snapshot_hash) {
+      throw new AcquisitionConfigurationError(
+        `Acquisition policy snapshot ${snapshot.id} could not be persisted exactly.`,
+      );
+    }
+    return stored;
+  }
+
+  async get(id: PolicySnapshotId): Promise<PolicySnapshot | null> {
+    const rows = await this.#driver.query(
+      `SELECT snapshot FROM acquisition_policy_snapshots WHERE id = $1`,
+      [id],
+    );
+    const row = rows[0];
+    return row === undefined ? null : parseStoredSnapshot(row['snapshot']);
+  }
+
+  async list(): Promise<readonly PolicySnapshot[]> {
+    const rows = await this.#driver.query(
+      `SELECT snapshot FROM acquisition_policy_snapshots ORDER BY captured_at, id`,
+    );
+    return rows.map((row) => parseStoredSnapshot(row['snapshot']));
   }
 }

@@ -101,7 +101,6 @@ import {
   mapSourceArtifact,
   mapSourceRecord,
   mapVertical,
-  toIso,
   toNumber,
 } from './rows.js';
 import { placeholders, type SqlDriver, type SqlExecutor, type SqlParam } from './sql-driver.js';
@@ -125,6 +124,17 @@ export interface RelationshipEvidenceInput {
   readonly source_record_id: SourceRecord['id'];
   readonly source_value: string;
   readonly locator_type: RelationshipEvidence['locator_type'];
+  readonly locator_value: string;
+  readonly observed_at: IsoDateTime;
+}
+
+/** Exact provenance for a canonical entity or identity contribution. */
+export interface EntityEvidenceInput {
+  readonly entity_id: EntityId;
+  readonly artifact_id: SourceArtifact['id'];
+  readonly source_record_id: SourceRecord['id'];
+  readonly contribution_role: 'EXISTENCE' | 'CANONICAL_NAME' | 'CANONICAL_SLUG' | 'IDENTITY' | 'ALIAS';
+  readonly locator_type: FactEvidence['locator_type'];
   readonly locator_value: string;
   readonly observed_at: IsoDateTime;
 }
@@ -221,6 +231,8 @@ export interface CanonicalStore {
   recordSourceRecord(input: SourceRecordInsert): Promise<SourceRecord>;
 
   upsertEntity(input: EntityInsert): Promise<Entity>;
+  /** Entity identity is publishable only when its exact source contribution is recorded. */
+  recordEntityEvidence(input: EntityEvidenceInput): Promise<void>;
   getEntityById(id: EntityId): Promise<Entity | null>;
   getEntityBySlug(
     verticalId: VerticalId,
@@ -390,9 +402,12 @@ class PostgresCanonicalStore implements CanonicalStore {
     const rows = await this.driver.query(
       `INSERT INTO source_artifacts (source_id, url, retrieved_at, content_hash, mime_type, r2_uri,
                                      http_status, extractor_version, policy_snapshot_id, byte_size,
-                                     acquisition_provider)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-       ON CONFLICT (source_id, url, content_hash) DO UPDATE SET source_id = source_artifacts.source_id
+                                     acquisition_provider, acquisition_route,
+                                     account_or_product_plan, acquisition_jurisdiction)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+       ON CONFLICT (source_id, url, content_hash, acquisition_route,
+                    account_or_product_plan, acquisition_jurisdiction)
+       DO UPDATE SET source_id = source_artifacts.source_id
        RETURNING ${ARTIFACT_COLUMNS}`,
       [
         input.source_id,
@@ -406,6 +421,9 @@ class PostgresCanonicalStore implements CanonicalStore {
         input.policy_snapshot_id,
         input.byte_size,
         input.acquisition_provider,
+        input.acquisition_route,
+        input.account_or_product_plan,
+        input.acquisition_jurisdiction,
       ],
     );
     return mapSourceArtifact(requireRow(rows, 'source_artifacts'));
@@ -440,6 +458,27 @@ class PostgresCanonicalStore implements CanonicalStore {
   }
 
   /* ---------------- entities & aliases ---------------- */
+
+  async recordEntityEvidence(input: EntityEvidenceInput): Promise<void> {
+    await this.driver.query(
+      `INSERT INTO entity_evidence
+         (entity_id, artifact_id, source_record_id, contribution_role,
+          locator_type, locator_value, observed_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       ON CONFLICT
+         (entity_id, source_record_id, contribution_role, locator_type, locator_value)
+       DO NOTHING`,
+      [
+        input.entity_id,
+        input.artifact_id,
+        input.source_record_id,
+        input.contribution_role,
+        input.locator_type,
+        input.locator_value,
+        input.observed_at,
+      ],
+    );
+  }
 
   async upsertEntity(input: EntityInsert): Promise<Entity> {
     const rows = await this.driver.query(
@@ -1107,8 +1146,7 @@ class PostgresCanonicalStore implements CanonicalStore {
 
     const rows = await this.driver.query(
       `SELECT ${prefix('fe', FACT_EVIDENCE_COLUMNS, 'fe_')},
-              sa.id AS sa_id, sa.url AS sa_url, sa.retrieved_at AS sa_retrieved_at,
-              sa.content_hash AS sa_content_hash,
+              ${prefix('sa', ARTIFACT_COLUMNS, 'sa_')},
               s.id AS s_id, s.publisher AS s_publisher, s.domain AS s_domain,
               s.source_type AS s_source_type, s.authority_rank AS s_authority_rank,
               s.rights_classification AS s_rights_classification
@@ -1123,13 +1161,18 @@ class PostgresCanonicalStore implements CanonicalStore {
 
     for (const row of rows) {
       const evidence = mapFactEvidence(unprefix(row, 'fe_'));
+      const artifact = mapSourceArtifact(unprefix(row, 'sa_'));
       const link: CandidateEvidence = {
         evidence,
         artifact: {
-          id: evidence.artifact_id,
-          url: String(row['sa_url']),
-          retrieved_at: toIso(row['sa_retrieved_at']),
-          content_hash: String(row['sa_content_hash']),
+          id: artifact.id,
+          url: artifact.url,
+          retrieved_at: artifact.retrieved_at,
+          content_hash: artifact.content_hash,
+          policy_snapshot_id: artifact.policy_snapshot_id,
+          acquisition_route: artifact.acquisition_route,
+          account_or_product_plan: artifact.account_or_product_plan,
+          acquisition_jurisdiction: artifact.acquisition_jurisdiction,
         },
         source: {
           source_id: String(row['s_id']) as SourceId,

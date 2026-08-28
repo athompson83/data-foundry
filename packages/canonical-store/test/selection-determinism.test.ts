@@ -69,6 +69,10 @@ function candidate(options: {
       url: 'https://catalog.acme-climate.example.com/spec',
       retrieved_at: '2026-06-01T00:00:00.000Z' as IsoDateTime,
       content_hash: (options.contentHash ?? 'a'.repeat(64)) as never,
+      policy_snapshot_id: null,
+      acquisition_route: 'DIRECT_HTTP',
+      account_or_product_plan: null,
+      acquisition_jurisdiction: null,
     },
   };
 
