@@ -267,7 +267,15 @@ describe('assertNonDestructiveFactUpdate', () => {
     ).not.toThrow();
   });
 
-  it.each(['normalized_value', 'valid_from', 'property', 'entity_id', 'value_type', 'unit'] as const)(
+  it.each([
+    'normalized_value',
+    'valid_from',
+    'property',
+    'entity_id',
+    'value_type',
+    'output_kind',
+    'unit',
+  ] as const)(
     'rejects an update to %s',
     (field) => {
       expect(() => assertNonDestructiveFactUpdate({ [field]: null } as never)).toThrow(

@@ -82,7 +82,12 @@ import {
   type ExtractionProviderRegistry,
   type ExtractionSchema,
 } from '@data-foundry/extraction';
-import { normalizeRecord, type NormalizationResult } from '@data-foundry/normalization';
+import {
+  DerivedCandidateGraphError,
+  normalizeRecord,
+  orderCanonicalCandidatesByDerivation,
+  type NormalizationResult,
+} from '@data-foundry/normalization';
 import {
   toSourceInsert,
   type SourceRegistryEntry,
@@ -955,13 +960,15 @@ export class Pipeline {
     let written = 0;
     for (const context of resolved) {
       const factsByProperty = new Map<string, Awaited<ReturnType<CanonicalStore['appendFactWithEvidence']>>['fact']>();
-      const candidates = [...context.normalization.candidates].sort((left, right) =>
-        left.output_kind === right.output_kind
-          ? 0
-          : left.output_kind === 'NORMALIZED_FACT'
-            ? -1
-            : 1,
-      );
+      let candidates;
+      try {
+        candidates = orderCanonicalCandidatesByDerivation(context.normalization.candidates);
+      } catch (error) {
+        if (error instanceof DerivedCandidateGraphError) {
+          throw new IngestError('DERIVED_GRAPH_INVALID', error.message, 'DATA', { cause: error });
+        }
+        throw error;
+      }
       for (const candidate of candidates) {
         const evidence: FactEvidenceInput = {
           artifact_id: context.artifact.id,

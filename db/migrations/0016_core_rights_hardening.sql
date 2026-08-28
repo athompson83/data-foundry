@@ -6,6 +6,38 @@
 -- Once a rights cell names a field group, its membership is part of that
 -- cell's immutable meaning. Serialize cell creation and member insertion on
 -- the group row so a concurrent insert cannot race the first reference.
+LOCK TABLE rights_field_groups IN SHARE ROW EXCLUSIVE MODE;
+LOCK TABLE rights_cells IN SHARE ROW EXCLUSIVE MODE;
+LOCK TABLE rights_field_group_members IN SHARE ROW EXCLUSIVE MODE;
+
+DO $$
+BEGIN
+    -- Lock every referenced group before auditing the upgrade boundary. A
+    -- member created after the first cell reference is already an ambiguous
+    -- expansion; migration must stop instead of blessing today's membership.
+    PERFORM group_row.id
+      FROM rights_field_groups group_row
+     WHERE EXISTS (
+        SELECT 1 FROM rights_cells cell WHERE cell.field_group_id = group_row.id
+     )
+     ORDER BY group_row.id
+       FOR UPDATE;
+    IF EXISTS (
+        SELECT 1
+          FROM rights_field_group_members member
+          JOIN LATERAL (
+            SELECT min(cell.created_at) AS first_referenced_at
+              FROM rights_cells cell
+             WHERE cell.field_group_id = member.field_group_id
+          ) reference ON reference.first_referenced_at IS NOT NULL
+         WHERE member.created_at > reference.first_referenced_at
+    ) THEN
+        RAISE EXCEPTION 'referenced rights field group contains a post-reference member; create a new reviewed lineage before upgrading'
+            USING ERRCODE = '23514';
+    END IF;
+END;
+$$;
+
 CREATE OR REPLACE FUNCTION rights_validate_cell_field_group()
 RETURNS trigger
 LANGUAGE plpgsql

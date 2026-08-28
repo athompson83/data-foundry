@@ -305,6 +305,40 @@ export function parseNormalizationRuleSet(
     }
   });
 
+  const propertyByName = new Map(
+    properties.map((rule) => [(rule as Record<string, unknown>)['property'] as string, rule] as const),
+  );
+  const orderedProperties: unknown[] = [];
+  const visiting = new Set<string>();
+  const visited = new Set<string>();
+  const visit = (property: string): void => {
+    if (visited.has(property)) return;
+    if (visiting.has(property)) {
+      throw new NormalizationRuleSetError(
+        `derived property cycle includes ${property}`,
+        `${path}.properties`,
+      );
+    }
+    const rule = propertyByName.get(property) as Record<string, unknown> | undefined;
+    if (rule === undefined) return;
+    visiting.add(property);
+    if ((rule['output_kind'] ?? 'NORMALIZED_FACT') === 'DERIVED_METRIC') {
+      const parent = rule['derived_from_property'] as string;
+      if (!propertyByName.has(parent)) {
+        const index = properties.indexOf(rule);
+        throw new NormalizationRuleSetError(
+          `derived input property ${parent} is not declared`,
+          `${path}.properties[${index}].derived_from_property`,
+        );
+      }
+      visit(parent);
+    }
+    visiting.delete(property);
+    visited.add(property);
+    orderedProperties.push(rule);
+  };
+  for (const property of propertyByName.keys()) visit(property);
+
   const identifiers = input['identifiers'];
   if (!Array.isArray(identifiers)) {
     throw new NormalizationRuleSetError('must be an array', `${path}.identifiers`);
@@ -316,7 +350,7 @@ export function parseNormalizationRuleSet(
     requireIdentifier(rule['source_field'], `${rulePath}.source_field`);
   });
 
-  return input as unknown as NormalizationRuleSet;
+  return { ...input, properties: orderedProperties } as unknown as NormalizationRuleSet;
 }
 
 /** Rule sets are keyed by source-native entity type. */

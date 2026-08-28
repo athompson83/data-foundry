@@ -205,6 +205,67 @@ describe('parseNormalizationRuleSet', () => {
       expect((error as NormalizationRuleSetError).path).toBe('rule_set.properties[1]');
     }
   });
+
+  it('orders a reverse-declared multi-level derived graph from inputs to outputs', () => {
+    const parsed = parseNormalizationRuleSet({
+      id: 'graph',
+      version: '1',
+      vertical: 'hvac',
+      entity_types: ['equipment_model'],
+      properties: [
+        {
+          property: 'grandchild', source_field: 'grandchild', value_type: 'number',
+          output_kind: 'DERIVED_METRIC', derived_from_property: 'child',
+          transformation_ref: 'graph.grandchild.v1',
+        },
+        {
+          property: 'child', source_field: 'child', value_type: 'number',
+          output_kind: 'DERIVED_METRIC', derived_from_property: 'root',
+          transformation_ref: 'graph.child.v1',
+        },
+        { property: 'root', source_field: 'root', value_type: 'number' },
+      ],
+      identifiers: [],
+    });
+    expect(parsed.properties.map((rule) => rule.property)).toEqual(['root', 'child', 'grandchild']);
+  });
+
+  it('rejects a derived graph with a missing parent before ingestion can write a partial record', () => {
+    expect(() => parseNormalizationRuleSet({
+      id: 'missing-parent',
+      version: '1',
+      vertical: 'hvac',
+      entity_types: ['equipment_model'],
+      properties: [{
+        property: 'child', source_field: 'child', value_type: 'number',
+        output_kind: 'DERIVED_METRIC', derived_from_property: 'absent',
+        transformation_ref: 'graph.child.v1',
+      }],
+      identifiers: [],
+    })).toThrow(/derived input property absent is not declared/);
+  });
+
+  it('rejects a cyclic derived graph before ingestion can silently skip it', () => {
+    expect(() => parseNormalizationRuleSet({
+      id: 'cycle',
+      version: '1',
+      vertical: 'hvac',
+      entity_types: ['equipment_model'],
+      properties: [
+        {
+          property: 'first', source_field: 'first', value_type: 'number',
+          output_kind: 'DERIVED_METRIC', derived_from_property: 'second',
+          transformation_ref: 'graph.first.v1',
+        },
+        {
+          property: 'second', source_field: 'second', value_type: 'number',
+          output_kind: 'DERIVED_METRIC', derived_from_property: 'first',
+          transformation_ref: 'graph.second.v1',
+        },
+      ],
+      identifiers: [],
+    })).toThrow(/derived property cycle/);
+  });
 });
 
 describe('vocabulary mapping', () => {

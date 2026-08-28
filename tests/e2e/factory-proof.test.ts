@@ -29,7 +29,7 @@
  * the reason is recorded — is asserted in full below.
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { explainFact, provenanceCoverage } from '../../packages/provenance/src/index.js';
+import { explainFact, factLineage, provenanceCoverage } from '../../packages/provenance/src/index.js';
 import type { FactSelectionPolicyInput } from '../../packages/canonical-store/src/index.js';
 import type {
   EntityId,
@@ -134,17 +134,40 @@ describe('Phase 1 factory proof — four HVAC sources into one canonical databas
       }
     });
 
-    it('produces exactly the golden claim set — winners and retained losers, 171 of them', async () => {
+    it('produces the 171 golden value claims plus 11 lineage-distinct derived assertions', async () => {
       const actual = await factKeys(factory.driver);
       const expected = goldenFactKeys();
       expect(difference(expected, actual), 'claims the pipeline failed to produce').toEqual([]);
       expect(difference(actual, expected), 'claims the pipeline invented').toEqual([]);
       expect(actual.size).toBe(goldenFacts().counts.total);
 
-      const rows = await factory.driver.query<{ n: string }>(
-        `SELECT count(*)::text AS n FROM facts`,
+      const rows = await factory.driver.query<{ output_kind: string; n: string }>(
+        `SELECT output_kind, count(*)::text AS n
+           FROM facts GROUP BY output_kind ORDER BY output_kind`,
       );
-      expect(Number(rows[0]?.n)).toBe(171);
+      // A direct source assertion and an arithmetically derived assertion can
+      // agree on value while carrying different immutable lineage. The golden
+      // key set intentionally collapses those equal values; storage must not.
+      expect(rows).toEqual([
+        { output_kind: 'DERIVED_METRIC', n: '18' },
+        { output_kind: 'NORMALIZED_FACT', n: '164' },
+      ]);
+      const duplicatedValues = await factory.driver.query<{
+        property: string;
+        kinds: string[];
+      }>(
+        `SELECT property, array_agg(DISTINCT output_kind ORDER BY output_kind) AS kinds
+           FROM facts
+          GROUP BY entity_id, property, normalized_value, value_type, unit
+         HAVING count(*) > 1
+          ORDER BY property`,
+      );
+      expect(duplicatedValues).toHaveLength(11);
+      for (const duplicate of duplicatedValues) {
+        expect(['cooling_capacity_btu', 'nominal_tonnage']).toContain(duplicate.property);
+        expect(duplicate.kinds).toEqual(['DERIVED_METRIC', 'NORMALIZED_FACT']);
+      }
+      expect(rows.reduce((total, row) => total + Number(row.n), 0)).toBe(171 + 11);
     });
 
     it('produces exactly the golden relationship set, and asserts no compatibility', async () => {
@@ -393,8 +416,13 @@ describe('Phase 1 factory proof — four HVAC sources into one canonical databas
         property: 'cooling_capacity_btu' as Identifier,
         at: RUN_1_AT,
       });
-      const evidence = await factory.store.listFactEvidence(facts[0]!.id);
-      expect(evidence.some((row) => row.source_value === '3 Ton')).toBe(true);
+      const derived = facts.find((fact) => fact.output_kind === 'DERIVED_METRIC');
+      expect(derived).toBeDefined();
+      const lineage = await factLineage(factory.driver, derived!.id);
+      expect(lineage?.chain.some((row) => row.source_value === '3 Ton')).toBe(true);
+      expect(lineage?.dependencies[0]?.transformation_ref).toBe(
+        'hvac.cooling_capacity_btu.from.nominal_tonnage.v1',
+      );
     });
   });
 
@@ -480,8 +508,10 @@ describe('Phase 1 factory proof — four HVAC sources into one canonical databas
   describe('(e) every published fact traces to an artifact', () => {
     it('measures provenance coverage at exactly 1.0', async () => {
       const report = await provenanceCoverage(factory.driver);
-      expect(report.facts.total).toBe(171);
-      expect(report.facts.traceable).toBe(171);
+      // Coverage counts immutable lineage rows, not the value-collapsed golden
+      // set: 171 logical claims plus 11 direct/derived pairs with equal values.
+      expect(report.facts.total).toBe(182);
+      expect(report.facts.traceable).toBe(182);
       expect(report.facts.coverage).toBe(1);
       expect(report.untraceable_fact_ids).toEqual([]);
 

@@ -235,6 +235,7 @@ export const IMMUTABLE_FACT_FIELDS = [
   'property',
   'normalized_value',
   'value_type',
+  'output_kind',
   'unit',
   'valid_from',
   'supersedes_fact_id',

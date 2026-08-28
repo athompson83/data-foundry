@@ -75,11 +75,23 @@ export interface EvidenceChainLink {
 
 export interface FactLineage {
   readonly fact: Fact;
+  /** Evidence attached directly to this fact version. */
+  readonly direct_chain: readonly EvidenceChainLink[];
+  /** Direct evidence plus every recursively contributing dependency link. */
   readonly chain: readonly EvidenceChainLink[];
+  readonly dependencies: readonly FactDependencyLineage[];
   /** At least one complete chain back to a source. */
   readonly traceable: boolean;
   readonly distinct_sources: number;
   readonly publishable_sources: number;
+  readonly cycle_detected: boolean;
+}
+
+export interface FactDependencyLineage {
+  readonly input_fact_id: FactId;
+  readonly transformation_ref: string;
+  readonly lineage: FactLineage | null;
+  readonly cycle_detected: boolean;
 }
 
 export interface RelationshipLineage {
@@ -120,6 +132,14 @@ function summarize(chain: readonly EvidenceChainLink[]): {
 
 /** The full lineage of one canonical fact. Returns `null` if the fact is gone. */
 export async function factLineage(driver: SqlDriver, factId: FactId): Promise<FactLineage | null> {
+  return factLineageRecursive(driver, factId, new Set());
+}
+
+async function factLineageRecursive(
+  driver: SqlDriver,
+  factId: FactId,
+  ancestors: ReadonlySet<string>,
+): Promise<FactLineage | null> {
   const factRows = await driver.query(`SELECT ${FACT_COLUMNS} FROM facts WHERE id = $1`, [factId]);
   const factRow = factRows[0];
   if (factRow === undefined) return null;
@@ -128,7 +148,7 @@ export async function factLineage(driver: SqlDriver, factId: FactId): Promise<Fa
   const rows = await driver.query(CHAIN_SELECT('fact_evidence', FACT_EVIDENCE_COLUMNS, 'fact_id'), [
     factId,
   ]);
-  const chain = rows.map((row) => {
+  const directChain = rows.map((row) => {
     const evidence = mapFactEvidence(unprefixRow(row, 'fe_'));
     return link(
       evidence,
@@ -140,7 +160,65 @@ export async function factLineage(driver: SqlDriver, factId: FactId): Promise<Fa
     );
   });
 
-  return { fact, chain, ...summarize(chain) };
+  if (ancestors.has(factId)) {
+    return {
+      fact,
+      direct_chain: directChain,
+      chain: directChain,
+      dependencies: [],
+      traceable: false,
+      distinct_sources: summarize(directChain).distinct_sources,
+      publishable_sources: summarize(directChain).publishable_sources,
+      cycle_detected: true,
+    };
+  }
+
+  const dependencyRows = await driver.query<{
+    input_fact_id: string;
+    transformation_ref: string;
+  }>(
+    `SELECT input_fact_id, transformation_ref
+       FROM fact_dependencies
+      WHERE derived_fact_id = $1
+      ORDER BY input_fact_id::text COLLATE "C", transformation_ref COLLATE "C"`,
+    [factId],
+  );
+  const nextAncestors = new Set(ancestors);
+  nextAncestors.add(factId);
+  const dependencies: FactDependencyLineage[] = [];
+  for (const dependency of dependencyRows) {
+    const inputFactId = dependency.input_fact_id as FactId;
+    const cycleDetected = nextAncestors.has(inputFactId);
+    const lineage = await factLineageRecursive(driver, inputFactId, nextAncestors);
+    dependencies.push({
+      input_fact_id: inputFactId,
+      transformation_ref: dependency.transformation_ref,
+      lineage,
+      cycle_detected: cycleDetected || lineage?.cycle_detected === true,
+    });
+  }
+
+  const chainByEvidenceId = new Map<string, EvidenceChainLink>();
+  for (const chainLink of directChain) chainByEvidenceId.set(chainLink.evidence.id, chainLink);
+  for (const dependency of dependencies) {
+    for (const chainLink of dependency.lineage?.chain ?? []) {
+      chainByEvidenceId.set(chainLink.evidence.id, chainLink);
+    }
+  }
+  const chain = [...chainByEvidenceId.values()];
+  const cycleDetected = dependencies.some((dependency) => dependency.cycle_detected);
+  const traceable = directChain.length > 0 && !cycleDetected && dependencies.every(
+    (dependency) => dependency.lineage?.traceable === true,
+  );
+  return {
+    fact,
+    direct_chain: directChain,
+    chain,
+    dependencies,
+    ...summarize(chain),
+    traceable,
+    cycle_detected: cycleDetected,
+  };
 }
 
 /** The full lineage of one canonical relationship. */

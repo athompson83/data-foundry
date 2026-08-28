@@ -3,6 +3,8 @@ import { describe, expect, it } from 'vitest';
 import {
   normalizeRecord,
   normalizeRecords,
+  orderCanonicalCandidatesByDerivation,
+  DerivedCandidateGraphError,
   rawNormalizationConfidence,
   type CanonicalCandidate,
   type IdentifierCandidate,
@@ -185,6 +187,49 @@ describe('normalizeRecord — golden HVAC record', () => {
     for (const forbidden of ['entity_id', 'canonical_name', 'identity_confidence', 'merged_into']) {
       expect(asRecord[forbidden]).toBeUndefined();
     }
+  });
+});
+
+describe('derived candidate graph ordering', () => {
+  const normalized = normalizeRecord(hvacRecord(), HVAC_RULE_SET);
+  const root = candidate(normalized, 'cooling_capacity_btu');
+  const child = candidate(normalized, 'nominal_tonnage');
+
+  it('topologically orders a reverse-arriving multi-level candidate graph', () => {
+    const grandchild: CanonicalCandidate = {
+      ...child,
+      property: 'derived_grandchild',
+      derived_from_property: 'nominal_tonnage',
+      transformation_ref: 'test.derived_grandchild.v1',
+    };
+    expect(orderCanonicalCandidatesByDerivation([grandchild, child, root]).map(
+      (item) => item.property,
+    )).toEqual(['cooling_capacity_btu', 'nominal_tonnage', 'derived_grandchild']);
+  });
+
+  it('rejects a missing runtime input before the caller writes any claim', () => {
+    expect(() => orderCanonicalCandidatesByDerivation([child])).toThrow(
+      DerivedCandidateGraphError,
+    );
+    expect(() => orderCanonicalCandidatesByDerivation([child])).toThrow(
+      /nominal_tonnage.*cooling_capacity_btu/,
+    );
+  });
+
+  it('rejects a runtime cycle instead of silently skipping candidates', () => {
+    const first: CanonicalCandidate = {
+      ...child,
+      property: 'cycle_first',
+      derived_from_property: 'cycle_second',
+    };
+    const second: CanonicalCandidate = {
+      ...child,
+      property: 'cycle_second',
+      derived_from_property: 'cycle_first',
+    };
+    expect(() => orderCanonicalCandidatesByDerivation([second, first])).toThrow(
+      /derived candidate cycle/,
+    );
   });
 });
 

@@ -208,6 +208,129 @@ describe('0014 populated upgrade is fail closed', () => {
   }, 120_000);
 });
 
+describe('0016 referenced field-group upgrade audit', () => {
+  it('refuses to bless a member inserted after the group was first referenced', async () => {
+    const upgrade = await createPGliteDriver();
+    const group = '71000000-0000-4000-8000-000000000101';
+    const cell = '71000000-0000-4000-8000-000000000102';
+    const decision = '71000000-0000-4000-8000-000000000103';
+    try {
+      await applyMigrations(upgrade, migrations.filter((migration) => migration.version < '0016'));
+      await seedSource(upgrade);
+      await seedRightsFoundation(upgrade);
+      await upgrade.exec('BEGIN');
+      await upgrade.query(
+        `INSERT INTO rights_field_groups (id, source_id, group_key, name, created_by, created_at)
+         VALUES ($1, $2, 'upgrade_group', 'Upgrade group', 'test-suite', '2026-07-01T00:00:00Z')`,
+        [group, SOURCE],
+      );
+      await upgrade.query(
+        `INSERT INTO rights_field_group_members
+           (field_group_id, source_id, field_key, created_by, created_at)
+         VALUES ($1, $2, 'seer2', 'test-suite', '2026-07-02T00:00:00Z')`,
+        [group, SOURCE],
+      );
+      await upgrade.query(
+        `INSERT INTO rights_cells
+           (id, source_id, field_group_id, operation, channel, created_by, created_at)
+         VALUES ($1, $2, $3, 'DISPLAY_PUBLICLY', 'PUBLIC_WEBSITE', 'test-suite',
+                 '2026-07-03T00:00:00Z')`,
+        [cell, SOURCE, group],
+      );
+      await upgrade.query(
+        `INSERT INTO rights_decisions
+           (id, cell_id, state, review_status, reviewer_type, reviewed_at, rationale, created_by)
+         VALUES ($1, $2, 'UNKNOWN', 'ASSESSMENT', 'AUTOMATED', $3,
+                 'fixture assessment', 'test-suite')`,
+        [decision, cell, TS],
+      );
+      await upgrade.query(
+        `SELECT activate_rights_decision($1, 'AUTOMATED', 'test-suite', 'fixture', $2)`,
+        [decision, TS],
+      );
+      await upgrade.exec('COMMIT');
+      await upgrade.query(
+        `INSERT INTO rights_field_group_members
+           (field_group_id, source_id, field_key, created_by, created_at)
+         VALUES ($1, $2, 'eer2', 'test-suite', '2026-07-04T00:00:00Z')`,
+        [group, SOURCE],
+      );
+
+      const error = await captureError(applyMigrations(upgrade, migrations));
+      expect(errorCode((error as { cause?: unknown } | null)?.cause)).toBe('23514');
+      expect(String((error as Error | null)?.message)).toContain('post-reference member');
+      const applied = await upgrade.query<{ version: string }>(
+        `SELECT version FROM schema_migrations WHERE version = '0016'`,
+      );
+      expect(applied).toEqual([]);
+    } finally {
+      await upgrade.close();
+    }
+  }, 120_000);
+
+  it('preserves a populated group whose complete membership predates its first reference', async () => {
+    const upgrade = await createPGliteDriver();
+    const group = '71000000-0000-4000-8000-000000000111';
+    const cell = '71000000-0000-4000-8000-000000000112';
+    const decision = '71000000-0000-4000-8000-000000000113';
+    try {
+      await applyMigrations(upgrade, migrations.filter((migration) => migration.version < '0016'));
+      await seedSource(upgrade);
+      await upgrade.exec('BEGIN');
+      await upgrade.query(
+        `INSERT INTO rights_field_groups (id, source_id, group_key, name, created_by, created_at)
+         VALUES ($1, $2, 'safe_upgrade_group', 'Safe upgrade group', 'test-suite',
+                 '2026-07-01T00:00:00Z')`,
+        [group, SOURCE],
+      );
+      await upgrade.query(
+        `INSERT INTO rights_field_group_members
+           (field_group_id, source_id, field_key, created_by, created_at)
+         VALUES ($1, $2, 'seer2', 'test-suite', '2026-07-02T00:00:00Z'),
+                ($1, $2, 'eer2', 'test-suite', '2026-07-02T00:00:00Z')`,
+        [group, SOURCE],
+      );
+      await upgrade.query(
+        `INSERT INTO rights_cells
+           (id, source_id, field_group_id, operation, channel, created_by, created_at)
+         VALUES ($1, $2, $3, 'DISPLAY_PUBLICLY', 'PUBLIC_WEBSITE', 'test-suite',
+                 '2026-07-03T00:00:00Z')`,
+        [cell, SOURCE, group],
+      );
+      await upgrade.query(
+        `INSERT INTO rights_decisions
+           (id, cell_id, state, review_status, reviewer_type, reviewed_at, rationale, created_by)
+         VALUES ($1, $2, 'UNKNOWN', 'ASSESSMENT', 'AUTOMATED', $3,
+                 'fixture assessment', 'test-suite')`,
+        [decision, cell, TS],
+      );
+      await upgrade.query(
+        `SELECT activate_rights_decision($1, 'AUTOMATED', 'test-suite', 'fixture', $2)`,
+        [decision, TS],
+      );
+      await upgrade.exec('COMMIT');
+
+      await expect(applyMigrations(upgrade, migrations)).resolves.toBeDefined();
+      const members = await upgrade.query<{ field_key: string }>(
+        `SELECT field_key FROM rights_field_group_members
+          WHERE field_group_id = $1 ORDER BY field_key`,
+        [group],
+      );
+      expect(members).toEqual([{ field_key: 'eer2' }, { field_key: 'seer2' }]);
+      const expansionError = await rollbackProbeOn(
+        upgrade,
+        `INSERT INTO rights_field_group_members
+           (field_group_id, source_id, field_key, created_by)
+         VALUES ($1, $2, 'hspf2', 'test-suite')`,
+        [group, SOURCE],
+      );
+      expect(errorCode(expansionError)).toBe('55000');
+    } finally {
+      await upgrade.close();
+    }
+  }, 120_000);
+});
+
 describe('0016 source kill-switch migration', () => {
   it('leaves upgraded source state unknown until an explicit synchronization writes a boolean', async () => {
     const upgrade = await createPGliteDriver();
@@ -364,6 +487,19 @@ describe('0016 fact output-kind migration', () => {
         [derived],
       );
       expect(dependencies).toEqual([{ input_fact_id: inputA }]);
+      const mutationError = await rollbackProbeOn(
+        probe,
+        `UPDATE fact_dependencies SET transformation_ref = 'fixture:tampered'
+          WHERE derived_fact_id = $1 AND input_fact_id = $2`,
+        [derived, inputA],
+      );
+      expect(errorCode(mutationError)).toBe('55000');
+      const deletionError = await rollbackProbeOn(
+        probe,
+        `DELETE FROM fact_dependencies WHERE derived_fact_id = $1 AND input_fact_id = $2`,
+        [derived, inputA],
+      );
+      expect(errorCode(deletionError)).toBe('55000');
     } finally {
       await probe.close();
     }
@@ -478,6 +614,28 @@ describe.sequential('0014 sparse scopes and immutable history', () => {
         [group],
       );
       expect(members.map((row) => row.field_key)).toEqual(['seer2']);
+
+      await driver.exec('SAVEPOINT field_group_update_probe');
+      const updateError = await captureError(
+        driver.query(
+          `UPDATE rights_field_group_members SET field_key = 'eer2'
+            WHERE field_group_id = $1 AND field_key = 'seer2'`,
+          [group],
+        ),
+      );
+      expect(errorCode(updateError)).toBe('55000');
+      await driver.exec('ROLLBACK TO SAVEPOINT field_group_update_probe');
+
+      await driver.exec('SAVEPOINT field_group_delete_probe');
+      const deleteError = await captureError(
+        driver.query(
+          `DELETE FROM rights_field_group_members
+            WHERE field_group_id = $1 AND field_key = 'seer2'`,
+          [group],
+        ),
+      );
+      expect(errorCode(deleteError)).toBe('55000');
+      await driver.exec('ROLLBACK TO SAVEPOINT field_group_delete_probe');
     } finally {
       await driver.exec('ROLLBACK');
     }

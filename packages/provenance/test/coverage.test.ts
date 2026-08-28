@@ -88,9 +88,10 @@ describe('provenanceCoverage', () => {
   it('detects a fact written behind the store\'s back and fails the gate', async () => {
     // Exactly what the store's API makes impossible: a bare fact, no evidence.
     await fixtures.driver.query(
-      `INSERT INTO facts (entity_id, property, normalized_value, value_type, valid_from, status,
-                          confidence, recorded_at)
-       VALUES ($1, 'smuggled_in', '"unsupported"'::jsonb, 'string', $2, 'PROPOSED', 0.99, $2)`,
+      `INSERT INTO facts (entity_id, property, normalized_value, value_type, output_kind,
+                          valid_from, status, confidence, recorded_at)
+       VALUES ($1, 'smuggled_in', '"unsupported"'::jsonb, 'string', 'NORMALIZED_FACT',
+               $2, 'PROPOSED', 0.99, $2)`,
       [fixtures.entity.id, ts('2026-02-01T00:00:00Z')],
     );
 

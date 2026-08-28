@@ -67,6 +67,7 @@ import {
   type Vertical,
   type VerticalId,
   type VerticalInsert,
+  compareCodeUnits,
 } from '@data-foundry/canonical-schema';
 import { FactDependencyError, MissingEvidenceError, NotFoundError } from './errors.js';
 import {
@@ -104,7 +105,13 @@ import {
   mapVertical,
   toNumber,
 } from './rows.js';
-import { placeholders, type SqlDriver, type SqlExecutor, type SqlParam } from './sql-driver.js';
+import {
+  placeholders,
+  type SqlDriver,
+  type SqlExecutor,
+  type SqlParam,
+  type SqlRow,
+} from './sql-driver.js';
 
 /** Compile-time proof that an evidence set is not empty. */
 export type NonEmptyArray<T> = readonly [T, ...T[]];
@@ -628,9 +635,7 @@ class PostgresCanonicalStore implements CanonicalStore {
     if (dependencies.some((item) => item.transformation_ref.trim() === '')) {
       throw new FactDependencyError('Every derived fact dependency requires a transformation reference.');
     }
-    const unique = new Set(
-      dependencies.map((item) => `${item.input_fact_id}\u0000${item.transformation_ref}`),
-    );
+    const unique = new Set(dependencies.map((item) => item.input_fact_id));
     if (unique.size !== dependencies.length) {
       throw new FactDependencyError('A derived fact dependency set cannot contain duplicate edges.');
     }
@@ -659,13 +664,26 @@ class PostgresCanonicalStore implements CanonicalStore {
       );
       const open = openRows.map(mapFact);
 
-      const identical = open.find(
+      const sameValue = open.filter(
         (fact) =>
           fact.output_kind === outputKind &&
           fact.value_type === draft.value_type &&
           fact.unit === draft.unit &&
           canonicalValuesEqual(fact.normalized_value, draft.normalized_value),
       );
+      let identical: Fact | undefined;
+      if (outputKind === 'DERIVED_METRIC') {
+        const expected = normalizeDependencies(dependencies);
+        for (const candidate of sameValue) {
+          const stored = await loadDependencies(tx, candidate.id);
+          if (dependenciesEqual(stored, expected)) {
+            identical = candidate;
+            break;
+          }
+        }
+      } else {
+        identical = sameValue[0];
+      }
 
       let outcome: FactWriteOutcome;
       let fact: Fact;
@@ -744,24 +762,9 @@ class PostgresCanonicalStore implements CanonicalStore {
           );
           fact = mapFact(requireRow(classified, 'facts'));
         } else {
-          const stored = await tx.query(
-            `SELECT input_fact_id, transformation_ref
-               FROM fact_dependencies
-              WHERE derived_fact_id = $1
-              ORDER BY input_fact_id, transformation_ref`,
-            [fact.id],
-          );
-          const expected = [...dependencies]
-            .map((item) => ({
-              input_fact_id: item.input_fact_id as string,
-              transformation_ref: item.transformation_ref,
-            }))
-            .sort((left, right) =>
-              `${left.input_fact_id}\u0000${left.transformation_ref}`.localeCompare(
-                `${right.input_fact_id}\u0000${right.transformation_ref}`,
-              ),
-            );
-          if (JSON.stringify(stored) !== JSON.stringify(expected)) {
+          const stored = await loadDependencies(tx, fact.id);
+          const expected = normalizeDependencies(dependencies);
+          if (!dependenciesEqual(stored, expected)) {
             throw new FactDependencyError(
               `Derived fact ${fact.id} already has a different immutable dependency set.`,
             );
@@ -1324,6 +1327,52 @@ async function closeVersion(tx: SqlExecutor, id: FactId, validTo: IsoDateTime): 
   assertNonDestructiveFactUpdate({ valid_to: validTo, status: 'SUPERSEDED' });
   await tx.query(`UPDATE facts SET valid_to = $2, status = 'SUPERSEDED' WHERE id = $1`, [id, validTo]);
 }
+
+interface StoredFactDependency extends SqlRow {
+  readonly input_fact_id: string;
+  readonly transformation_ref: string;
+}
+
+const compareFactDependencies = (
+  left: StoredFactDependency,
+  right: StoredFactDependency,
+): number => compareCodeUnits(
+  `${left.input_fact_id}\u0000${left.transformation_ref}`,
+  `${right.input_fact_id}\u0000${right.transformation_ref}`,
+);
+
+const normalizeDependencies = (
+  dependencies: readonly FactDependencyInput[],
+): StoredFactDependency[] => dependencies
+  .map((item) => ({
+    input_fact_id: item.input_fact_id as string,
+    transformation_ref: item.transformation_ref,
+  }))
+  .sort(compareFactDependencies);
+
+async function loadDependencies(
+  tx: SqlExecutor,
+  factId: FactId,
+): Promise<StoredFactDependency[]> {
+  const rows = await tx.query<StoredFactDependency>(
+    `SELECT input_fact_id, transformation_ref
+       FROM fact_dependencies
+      WHERE derived_fact_id = $1
+      ORDER BY input_fact_id::text COLLATE "C", transformation_ref COLLATE "C"`,
+    [factId],
+  );
+  return [...rows].sort(compareFactDependencies);
+}
+
+const dependenciesEqual = (
+  left: readonly StoredFactDependency[],
+  right: readonly StoredFactDependency[],
+): boolean => left.length === right.length && left.every((item, index) => {
+  const expected = right[index];
+  return expected !== undefined &&
+    item.input_fact_id === expected.input_fact_id &&
+    item.transformation_ref === expected.transformation_ref;
+});
 
 function requireRow<T>(rows: readonly T[], table: string): T {
   const row = rows[0];

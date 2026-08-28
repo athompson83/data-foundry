@@ -29,6 +29,7 @@ import {
   type RightsSurface,
 } from '@data-foundry/rights-engine';
 import type { FieldMetadataRegistry, FacetResult } from './field-metadata.js';
+import { factLineage, type EvidenceChainLink } from '@data-foundry/provenance';
 import { computeFacets, type FacetQuery } from './filters.js';
 import {
   getEntityById,
@@ -177,6 +178,7 @@ const summarizeSurfaceClaim = (
   candidate: FactCandidate,
   selectedId: FactCandidate['fact']['id'] | null,
   quoteAllowed: boolean,
+  lineage: readonly EvidenceChainLink[],
 ): SurfaceClaimSummary => ({
   fact_id: candidate.fact.id,
   value: candidate.fact.normalized_value,
@@ -185,16 +187,22 @@ const summarizeSurfaceClaim = (
   status: candidate.fact.status,
   confidence: candidate.fact.confidence,
   selected: candidate.fact.id === selectedId,
-  attributions: candidate.evidence.map((evidence) => ({
-    publisher: evidence.source.publisher,
-    domain: evidence.source.domain,
-    source_type: evidence.source.source_type,
-    authority_rank: evidence.source.authority_rank,
-    source_value: quoteAllowed ? evidence.evidence.source_value : null,
-    locator: locatorFor(evidence),
-    artifact_url: evidence.artifact.url,
-    retrieved_at: evidence.artifact.retrieved_at,
-    observed_at: evidence.evidence.observed_at,
+  attributions: lineage.map((link) => ({
+    publisher: link.source.publisher,
+    domain: link.source.domain,
+    source_type: link.source.source_type,
+    authority_rank: link.source.authority_rank,
+    source_value:
+      quoteAllowed && 'fact_id' in link.evidence && link.evidence.fact_id === candidate.fact.id
+        ? link.source_value
+        : null,
+    locator:
+      link.locator.type === 'WHOLE_DOCUMENT'
+        ? 'whole document'
+        : `${link.locator.type} ${link.locator.value}`,
+    artifact_url: link.artifact.url,
+    retrieved_at: link.retrieved_at,
+    observed_at: link.observed_at,
   })),
 });
 
@@ -413,6 +421,29 @@ class SurfaceRightsAuthorizer {
     );
   }
 
+  async #authorizeDerivationContribution(
+    contributions: readonly ArtifactContribution[],
+    targetFieldKey: string,
+  ): Promise<boolean> {
+    const expanded = await this.#expandContributions(
+      contributions,
+      targetFieldKey,
+      'DERIVED_METRIC',
+    );
+    if (expanded === null) return false;
+    return expanded.every((contribution) =>
+      evaluateRights(
+        {
+          ...contribution.request,
+          operation: 'DERIVE',
+          channel: 'INTERNAL_PROCESSING',
+        },
+        contribution.snapshot,
+        this.#evaluationOptions,
+      ).permitted,
+    );
+  }
+
   authorizeEntity(entityId: EntityId): Promise<boolean> {
     const cached = this.#entityResults.get(entityId);
     if (cached !== undefined) return cached;
@@ -512,11 +543,9 @@ class SurfaceRightsAuthorizer {
       const inputContributions = inputCandidate.evidence.map(contributionFromEvidence);
       if (
         inputContributions.some((entry) => entry === null) ||
-        !(await this.#authorizeContributions(
+        !(await this.#authorizeDerivationContribution(
           inputContributions as ArtifactContribution[],
-          input.property,
-          input.output_kind,
-          true,
+          fact.property,
         )) ||
         !(await this.#authorizeFact(row.input_fact_id, nextAncestors))
       ) {
@@ -689,7 +718,12 @@ export function createSurfaceQueryModel(
         { ...policy, at },
       );
       const view = canonicalFactView(selection);
-      if (view !== null) views.push(view);
+      if (view !== null) {
+        const lineage = view.fact_id === null ? null : await factLineage(store.driver, view.fact_id);
+        const publishers = new Set(view.sources);
+        for (const link of lineage?.chain ?? []) publishers.add(link.source.publisher);
+        views.push({ ...view, sources: [...publishers] });
+      }
     }
     return views;
   };
@@ -716,8 +750,16 @@ export function createSurfaceQueryModel(
     const quoteDecisions = await Promise.all(
       candidates.map((candidate) => authorizer.authorizeCandidateExcerpt(candidate)),
     );
+    const lineages = await Promise.all(
+      candidates.map((candidate) => factLineage(store.driver, candidate.fact.id)),
+    );
     const claims = candidates.map((candidate, index) =>
-      summarizeSurfaceClaim(candidate, selectedId, quoteDecisions[index] ?? false),
+      summarizeSurfaceClaim(
+        candidate,
+        selectedId,
+        quoteDecisions[index] ?? false,
+        lineages[index]?.chain ?? [],
+      ),
     );
     return {
       entity: {

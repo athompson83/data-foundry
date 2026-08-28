@@ -27,7 +27,7 @@ async function sqlState(promise: Promise<unknown>): Promise<string | undefined> 
 
 beforeAll(async () => {
   migrations = await loadMigrations();
-  expect(migrations.at(-1)?.version).toBe('0015');
+  expect(migrations.at(-1)?.version).toBe('0016');
 
   driver = await createPGliteDriver();
   await applyMigrations(

@@ -82,9 +82,9 @@ async function seed(target: MigrationDriver = driver, withAcquisitionScope = tru
 
 const insertFact = (validFrom: string, validTo: string | null, status: string, value: number) =>
   driver.query(
-    `INSERT INTO facts (entity_id, property, normalized_value, value_type, valid_from, valid_to,
-                        status, confidence, recorded_at)
-     VALUES ($1, 'seer2_rating', $2::jsonb, 'number', $3, $4, $5, 0.9, $6)
+    `INSERT INTO facts (entity_id, property, normalized_value, value_type, output_kind,
+                        valid_from, valid_to, status, confidence, recorded_at)
+     VALUES ($1, 'seer2_rating', $2::jsonb, 'number', 'NORMALIZED_FACT', $3, $4, $5, 0.9, $6)
      RETURNING id`,
     [ENTITY, JSON.stringify(value), validFrom, validTo, status, validFrom],
   );
@@ -404,9 +404,10 @@ describe('storage-level invariants', () => {
     // A property of its own: sibling tests hold the only open ACTIVE version of
     // `seer2_rating` for this entity.
     const [fact] = await driver.query<{ id: string }>(
-      `INSERT INTO facts (entity_id, property, normalized_value, value_type, valid_from,
+      `INSERT INTO facts (entity_id, property, normalized_value, value_type, output_kind, valid_from,
                           status, confidence, recorded_at)
-       VALUES ($1, 'fk_probe_property', '14.5'::jsonb, 'number', $2, 'ACTIVE', 0.9, $2)
+       VALUES ($1, 'fk_probe_property', '14.5'::jsonb, 'number', 'NORMALIZED_FACT',
+               $2, 'ACTIVE', 0.9, $2)
        RETURNING id`,
       [ENTITY, '2026-03-01T00:00:00.000Z'],
     );
