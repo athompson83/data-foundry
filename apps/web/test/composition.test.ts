@@ -10,6 +10,7 @@ import {
   type QueryFixtures,
 } from '../../../packages/query-model/test/support.js';
 import { getDeployment, resetDeployments } from '../src/composition.js';
+import { resolveContext } from '../src/config.js';
 import { WebConfigurationError } from '../src/env.js';
 import { RUNTIMES } from '../src/index.js';
 
@@ -49,14 +50,20 @@ describe('composing a deployment', () => {
     expect(deployment.verticals.get('hvac')?.slug).toBe('hvac');
   });
 
-  it('binds separate immutable models for public rendering and search indexing', async () => {
+  it('caches the canonical graph and binds separate immutable surface models per request', async () => {
     const deployment = await getDeployment({
       env: envFor(),
       runtimes: RUNTIMES,
       openDriver: openFixtureDriver,
     });
-    const vertical = deployment.verticals.get('hvac')!;
+    const cached = deployment.verticals.get('hvac')!;
+    const vertical = resolveContext(
+      deployment,
+      () => new Date('2026-07-01T00:00:00Z'),
+    ).deployment.verticals.get('hvac')!;
 
+    expect(cached.bindRequestSurfaces).toBeTypeOf('function');
+    expect('publicQueryModel' in cached).toBe(false);
     expect(vertical.publicQueryModel.surface).toBe('PUBLIC_WEB');
     expect(vertical.searchIndexQueryModel.surface).toBe('SEARCH_INDEX');
     expect('provenanceCoverage' in vertical.publicQueryModel).toBe(false);

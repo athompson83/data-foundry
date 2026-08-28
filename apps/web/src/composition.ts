@@ -19,8 +19,11 @@ import {
   type CanonicalStore,
   type SqlDriver,
 } from '@data-foundry/canonical-store';
-import { createQueryModel, type SurfaceQueryModel } from '@data-foundry/query-model';
-import type { VerticalId } from '@data-foundry/canonical-schema';
+import {
+  createQueryModel,
+  type SurfaceQueryModel,
+} from '@data-foundry/query-model';
+import type { IsoDateTime, VerticalId } from '@data-foundry/canonical-schema';
 import { resolveWebConfig, type WebEnv } from './env.js';
 import type { WebRuntime } from './seo.js';
 
@@ -34,11 +37,28 @@ export interface VerticalDeployment {
   readonly runtime: WebRuntime;
 }
 
+export interface CachedVerticalDeployment {
+  readonly slug: string;
+  readonly verticalId: VerticalId;
+  /** The canonical graph stays captured here; callers receive only safe surfaces. */
+  readonly bindRequestSurfaces: (asOf: IsoDateTime) => {
+    readonly publicQueryModel: SurfaceQueryModel;
+    readonly searchIndexQueryModel: SurfaceQueryModel;
+  };
+  readonly runtime: WebRuntime;
+}
+
 export interface WebDeployment {
   readonly publicOrigin: string;
   /** Keyed by vertical slug. Only verticals present in BOTH the bundle and the database. */
-  readonly verticals: ReadonlyMap<string, VerticalDeployment>;
+  readonly verticals: ReadonlyMap<string, CachedVerticalDeployment>;
   readonly close: () => Promise<void>;
+}
+
+export interface RequestWebDeployment {
+  readonly publicOrigin: string;
+  /** Fresh surface bindings, shared only within this one request. */
+  readonly verticals: ReadonlyMap<string, VerticalDeployment>;
 }
 
 export interface BuildOptions {
@@ -53,7 +73,7 @@ export interface BuildOptions {
 async function buildVertical(
   store: CanonicalStore,
   runtime: WebRuntime,
-): Promise<VerticalDeployment | null> {
+): Promise<CachedVerticalDeployment | null> {
   const vertical = await store.getVerticalBySlug(runtime.vertical_slug as never);
   if (vertical === null) return null;
 
@@ -61,10 +81,34 @@ async function buildVertical(
   return {
     slug: runtime.vertical_slug,
     verticalId: vertical.id,
-    publicQueryModel: queryModel.forSurface('PUBLIC_WEB'),
-    searchIndexQueryModel: queryModel.forSurface('SEARCH_INDEX'),
+    bindRequestSurfaces: (asOf) => ({
+      publicQueryModel: queryModel.forSurface('PUBLIC_WEB', { asOf }),
+      searchIndexQueryModel: queryModel.forSurface('SEARCH_INDEX', { asOf }),
+    }),
     runtime,
   };
+}
+
+/**
+ * Bind one immutable rights snapshot for one web request. Both surface models
+ * receive the exact same instant while retaining their own request-local
+ * rights context/result memoization.
+ */
+export function materializeRequestDeployment(
+  deployment: WebDeployment,
+  asOf: IsoDateTime,
+): RequestWebDeployment {
+  const verticals = new Map<string, VerticalDeployment>();
+  for (const [slug, vertical] of deployment.verticals) {
+    const surfaces = vertical.bindRequestSurfaces(asOf);
+    verticals.set(slug, {
+      slug: vertical.slug,
+      verticalId: vertical.verticalId,
+      ...surfaces,
+      runtime: vertical.runtime,
+    });
+  }
+  return { publicOrigin: deployment.publicOrigin, verticals };
 }
 
 async function build(options: BuildOptions): Promise<WebDeployment> {
@@ -77,7 +121,7 @@ async function build(options: BuildOptions): Promise<WebDeployment> {
   // must give it back.
   try {
     const store = createCanonicalStore(driver);
-    const verticals = new Map<string, VerticalDeployment>();
+    const verticals = new Map<string, CachedVerticalDeployment>();
 
     for (const runtime of Object.values(options.runtimes)) {
       const deployed = await buildVertical(store, runtime);

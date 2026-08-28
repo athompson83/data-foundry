@@ -12,7 +12,7 @@ import type {
   RelationshipEdge,
   SurfaceFactExplanation,
 } from '@data-foundry/query-model';
-import type { VerticalDeployment, WebDeployment } from './composition.js';
+import type { RequestWebDeployment, VerticalDeployment } from './composition.js';
 import {
   computeEntitySignals,
   computeVerticalDatasetSignals,
@@ -90,7 +90,7 @@ function datasetStructuredData(
 }
 
 /** The parent site: every industry this deployment serves (ADR-0011). */
-export async function renderParentIndex(deployment: WebDeployment): Promise<string> {
+export async function renderParentIndex(deployment: RequestWebDeployment): Promise<string> {
   const verticals = [...deployment.verticals.values()].sort((a, b) =>
     a.slug.localeCompare(b.slug),
   );

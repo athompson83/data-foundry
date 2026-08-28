@@ -16,11 +16,16 @@ import { RUNTIMES as compiledRuntimes } from '../generated/runtime-registry.js';
 
 export { toWebRequest, toFetchResponse } from './adapter.js';
 export { createWebApp } from './app.js';
-export { resolveContext, type WebContext } from './config.js';
+export {
+  resolveContext,
+  type WebContext,
+} from './config.js';
 export {
   getDeployment,
   resetDeployments,
   type BuildOptions,
+  type CachedVerticalDeployment,
+  type RequestWebDeployment,
   type VerticalDeployment,
   type WebDeployment,
 } from './composition.js';

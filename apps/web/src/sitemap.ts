@@ -8,7 +8,7 @@ import type { SurfaceQueryModel } from '@data-foundry/query-model';
 import { computeEntitySignals, computeVerticalDatasetSignals, evaluateGate } from './gates.js';
 import { sitemapSegmentUrl } from './router.js';
 import { DEFAULT_CONCURRENCY, mapWithConcurrency } from './concurrency.js';
-import type { VerticalDeployment, WebDeployment } from './composition.js';
+import type { RequestWebDeployment, VerticalDeployment } from './composition.js';
 import type { PageClass, QualityGate } from './seo.js';
 import {
   datasetRenderedCountsCovered,
@@ -212,7 +212,7 @@ async function collectSegmentLocations(
 
 /** Build the global index after measuring actual authorized shard counts. */
 export async function sitemapIndexXml(
-  deployment: WebDeployment,
+  deployment: RequestWebDeployment,
   now = new Date(),
 ): Promise<string> {
   const entries: string[] = [];

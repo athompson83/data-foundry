@@ -14,6 +14,7 @@ import {
   extractionConfidence,
   identityConfidence,
   type Entity,
+  type IsoDateTime,
   type RightsClassification,
   type SourceType,
 } from '@data-foundry/canonical-schema';
@@ -326,6 +327,12 @@ export async function addSourceFixture(
 const SYNTHETIC_RIGHTS_EFFECTIVE = ts('2026-01-01T00:00:00Z');
 const SYNTHETIC_RIGHTS_RECHECK = ts('2027-01-01T00:00:00Z');
 
+export interface SyntheticSurfaceRightsOptions {
+  readonly termsRecheckAt?: IsoDateTime;
+  readonly decisionRecheckAt?: IsoDateTime;
+  readonly decisionRecheckAtByRequirement?: Readonly<Record<string, IsoDateTime>>;
+}
+
 /**
  * Explicit grants for synthetic test publishers. This is intentionally test
  * data, never a migration/backfill: production legacy rows remain UNKNOWN.
@@ -334,7 +341,10 @@ export async function seedSyntheticSurfaceRights(
   fixtures: QueryFixtures,
   surfaces: readonly RightsSurface[],
   sourceKeys: readonly SourceKey[] = Object.keys(fixtures.sources) as SourceKey[],
+  options: SyntheticSurfaceRightsOptions = {},
 ): Promise<void> {
+  const termsRecheckAt = options.termsRecheckAt ?? SYNTHETIC_RIGHTS_RECHECK;
+  const decisionRecheckAt = options.decisionRecheckAt ?? SYNTHETIC_RIGHTS_RECHECK;
   const requirements = new Map(
     [
       ...surfaces.flatMap((surface) => rightsRequirementsForSurface(surface)),
@@ -412,7 +422,7 @@ export async function seedSyntheticSurfaceRights(
         termsEvidenceId,
         termsHash,
         SYNTHETIC_RIGHTS_EFFECTIVE,
-        SYNTHETIC_RIGHTS_RECHECK,
+        termsRecheckAt,
       ],
     );
     await fixtures.driver.query(
@@ -426,6 +436,9 @@ export async function seedSyntheticSurfaceRights(
       for (const entry of requirements.values()) {
         const cellId = crypto.randomUUID();
         const decisionId = crypto.randomUUID();
+        const requirementKey = `${entry.operation}:${entry.channel}`;
+        const requirementRecheckAt =
+          options.decisionRecheckAtByRequirement?.[requirementKey] ?? decisionRecheckAt;
         await fixtures.driver.query(
           `INSERT INTO rights_cells
              (id, source_id, acquisition_route, operation, channel, created_by)
@@ -446,7 +459,7 @@ export async function seedSyntheticSurfaceRights(
             termsVersionId,
             reviewEvidenceId,
             SYNTHETIC_RIGHTS_EFFECTIVE,
-            SYNTHETIC_RIGHTS_RECHECK,
+            requirementRecheckAt,
           ],
         );
         await fixtures.driver.query(

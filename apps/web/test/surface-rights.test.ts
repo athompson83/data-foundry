@@ -70,8 +70,9 @@ describe('independent public and index rights', () => {
   it('renders a PUBLIC_WEB entity but omits it from the sitemap without SEARCH_INDEX', async () => {
     await exercise(['PUBLIC_WEB'], async (fixtures) => {
       const deployment = await deploymentFor(fixtures);
-      const vertical = deployment.verticals.get('hvac')!;
-      const response = await createWebApp(resolveContext(deployment))({
+      const context = resolveContext(deployment);
+      const vertical = context.deployment.verticals.get('hvac')!;
+      const response = await createWebApp(context)({
         method: 'GET',
         url: `/data/hvac/equipment/${fixtures.equipment.canonical_slug}`,
       });
@@ -91,8 +92,9 @@ describe('independent public and index rights', () => {
   it('does not render or index an entity granted only to SEARCH_INDEX', async () => {
     await exercise(['SEARCH_INDEX'], async (fixtures) => {
       const deployment = await deploymentFor(fixtures);
-      const vertical = deployment.verticals.get('hvac')!;
-      const response = await createWebApp(resolveContext(deployment))({
+      const context = resolveContext(deployment);
+      const vertical = context.deployment.verticals.get('hvac')!;
+      const response = await createWebApp(context)({
         method: 'GET',
         url: `/data/hvac/equipment/${fixtures.equipment.canonical_slug}`,
       });
@@ -106,8 +108,9 @@ describe('independent public and index rights', () => {
   it('does not treat paid API, MCP, or bulk grants as public or index grants', async () => {
     await exercise(['API_PAID', 'MCP', 'BULK_EXPORT'], async (fixtures) => {
       const deployment = await deploymentFor(fixtures);
-      const vertical = deployment.verticals.get('hvac')!;
-      const response = await createWebApp(resolveContext(deployment))({
+      const context = resolveContext(deployment);
+      const vertical = context.deployment.verticals.get('hvac')!;
+      const response = await createWebApp(context)({
         method: 'GET',
         url: `/data/hvac/equipment/${fixtures.equipment.canonical_slug}`,
       });
@@ -121,8 +124,9 @@ describe('independent public and index rights', () => {
   it('indexes an entity only when both independent grants exist', async () => {
     await exercise(['PUBLIC_WEB', 'SEARCH_INDEX'], async (fixtures) => {
       const deployment = await deploymentFor(fixtures);
-      const vertical = deployment.verticals.get('hvac')!;
-      const response = await createWebApp(resolveContext(deployment))({
+      const context = resolveContext(deployment);
+      const vertical = context.deployment.verticals.get('hvac')!;
+      const response = await createWebApp(context)({
         method: 'GET',
         url: `/data/hvac/equipment/${fixtures.equipment.canonical_slug}`,
       });
@@ -151,8 +155,9 @@ describe('independent public and index rights', () => {
       });
 
       const deployment = await deploymentFor(fixtures);
-      const vertical = deployment.verticals.get('hvac')!;
-      const response = await createWebApp(resolveContext(deployment))({
+      const context = resolveContext(deployment);
+      const vertical = context.deployment.verticals.get('hvac')!;
+      const response = await createWebApp(context)({
         method: 'GET',
         url: `/data/hvac/equipment/${fixtures.equipment.canonical_slug}`,
       });

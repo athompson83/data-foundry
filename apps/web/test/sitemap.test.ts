@@ -18,6 +18,7 @@ import {
   type QueryFixtures,
 } from '../../../packages/query-model/test/support.js';
 import { getDeployment, resetDeployments, type VerticalDeployment } from '../src/composition.js';
+import { resolveContext } from '../src/config.js';
 import { sitemapIndexXml, sitemapSegmentXml } from '../src/sitemap.js';
 import { DEFAULT_CONCURRENCY } from '../src/concurrency.js';
 import { RUNTIMES } from '../src/index.js';
@@ -60,10 +61,11 @@ describe('sitemapSegmentXml — dataset_landing is gate-checked, not assumed', (
       runtimes: ACTIVE_RUNTIMES,
       openDriver: openFixtureDriver,
     });
-    const vertical = deployment.verticals.get('hvac')!;
+    const context = resolveContext(deployment);
+    const vertical = context.deployment.verticals.get('hvac')!;
 
-    const xml = await sitemapSegmentXml(vertical, deployment.publicOrigin, 'datasets', new Date());
-    expect(xml).not.toContain(`<loc>${deployment.publicOrigin}/data/hvac</loc>`);
+    const xml = await sitemapSegmentXml(vertical, context.deployment.publicOrigin, 'datasets', new Date());
+    expect(xml).not.toContain(`<loc>${context.deployment.publicOrigin}/data/hvac</loc>`);
   });
 
   it('still includes docs_api_mcp — its gate is `none`, unconditionally indexable', async () => {
@@ -72,10 +74,11 @@ describe('sitemapSegmentXml — dataset_landing is gate-checked, not assumed', (
       runtimes: ACTIVE_RUNTIMES,
       openDriver: openFixtureDriver,
     });
-    const vertical = deployment.verticals.get('hvac')!;
+    const context = resolveContext(deployment);
+    const vertical = context.deployment.verticals.get('hvac')!;
 
-    const xml = await sitemapSegmentXml(vertical, deployment.publicOrigin, 'datasets', new Date());
-    expect(xml).toContain(`<loc>${deployment.publicOrigin}/data/hvac/docs</loc>`);
+    const xml = await sitemapSegmentXml(vertical, context.deployment.publicOrigin, 'datasets', new Date());
+    expect(xml).toContain(`<loc>${context.deployment.publicOrigin}/data/hvac/docs</loc>`);
   });
 });
 
@@ -112,7 +115,8 @@ describe('sitemapSegmentXml — per-entity fan-out performance', () => {
       runtimes: ACTIVE_RUNTIMES,
       openDriver: openFixtureDriver,
     });
-    const vertical = deployment.verticals.get('hvac')!;
+    const context = resolveContext(deployment);
+    const vertical = context.deployment.verticals.get('hvac')!;
 
     let getEntityCalls = 0;
     const spied: VerticalDeployment = {
@@ -126,7 +130,7 @@ describe('sitemapSegmentXml — per-entity fan-out performance', () => {
       },
     };
 
-    await sitemapSegmentXml(spied, deployment.publicOrigin, 'entities', new Date('2026-03-01T00:00:00Z'));
+    await sitemapSegmentXml(spied, context.deployment.publicOrigin, 'entities', new Date('2026-03-01T00:00:00Z'));
     expect(getEntityCalls).toBe(0);
   });
 
@@ -141,7 +145,8 @@ describe('sitemapSegmentXml — per-entity fan-out performance', () => {
       runtimes: ACTIVE_RUNTIMES,
       openDriver: openFixtureDriver,
     });
-    const vertical = deployment.verticals.get('hvac')!;
+    const context = resolveContext(deployment);
+    const vertical = context.deployment.verticals.get('hvac')!;
 
     let active = 0;
     let maxActive = 0;
@@ -162,7 +167,7 @@ describe('sitemapSegmentXml — per-entity fan-out performance', () => {
       },
     };
 
-    await sitemapSegmentXml(spied, deployment.publicOrigin, 'entities', new Date('2026-03-01T00:00:00Z'));
+    await sitemapSegmentXml(spied, context.deployment.publicOrigin, 'entities', new Date('2026-03-01T00:00:00Z'));
     expect(maxActive).toBeGreaterThan(1);
     expect(maxActive).toBeLessThanOrEqual(DEFAULT_CONCURRENCY);
   });
@@ -300,7 +305,6 @@ describe('sitemap pagination and configured file limits', () => {
     const index = await sitemapIndexXml({
       publicOrigin: 'https://data-foundry.test',
       verticals: new Map([['hvac', vertical]]),
-      close: async () => undefined,
     }, now);
 
     expect((first.match(/<url>/g) ?? []).length).toBe(2);
