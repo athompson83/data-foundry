@@ -1,0 +1,85 @@
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { afterAll, describe, expect, it } from 'vitest';
+
+const REPO_ROOT = fileURLToPath(new URL('../../', import.meta.url));
+const EDGE_CONFIG = join(REPO_ROOT, 'apps', 'edge', 'wrangler.toml');
+const CONSUMER_CONFIG = join(REPO_ROOT, 'apps', 'usage-consumer', 'wrangler.toml');
+const temporaryDirectories: string[] = [];
+
+afterAll(async () => {
+  await Promise.all(temporaryDirectories.map((directory) => rm(directory, { recursive: true, force: true })));
+});
+
+async function loadValidator(): Promise<(
+  options?: { readonly edgeConfigPath?: string; readonly consumerConfigPath?: string },
+) => Promise<readonly string[]>> {
+  const module = await import('../scripts/check-cloudflare-topology.js').catch(() => null);
+  expect(module, 'the repository needs a cross-manifest Cloudflare topology validator').not.toBeNull();
+  const validate = (module as Record<string, unknown> | null)?.['validateCloudflareTopology'];
+  expect(typeof validate).toBe('function');
+  return validate as (
+    options?: { readonly edgeConfigPath?: string; readonly consumerConfigPath?: string },
+  ) => Promise<readonly string[]>;
+}
+
+describe('the committed Cloudflare topology', () => {
+  it('defines a production edge producer and idempotent consumer with one matching queue and DLQ', async () => {
+    const validate = await loadValidator();
+    expect(await validate()).toEqual([]);
+  });
+
+  it('detects cross-file queue drift and a missing DLQ', async () => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-cloudflare-topology-'));
+    temporaryDirectories.push(directory);
+    const edgePath = join(directory, 'edge.toml');
+    const consumerPath = join(directory, 'consumer.toml');
+    const edge = await readFile(EDGE_CONFIG, 'utf8');
+    const consumer = await readFile(CONSUMER_CONFIG, 'utf8');
+    await writeFile(
+      edgePath,
+      edge.replace('queue = "data-foundry-usage-events"', 'queue = "drifted-usage-events"'),
+      'utf8',
+    );
+    await writeFile(
+      consumerPath,
+      consumer.replace(/^dead_letter_queue\s*=.*$/m, ''),
+      'utf8',
+    );
+
+    const errors = await validate({ edgeConfigPath: edgePath, consumerConfigPath: consumerPath });
+    expect(errors).toEqual(
+      expect.arrayContaining([
+        expect.stringMatching(/producer.*consumer.*queue/i),
+        expect.stringMatching(/dead.?letter/i),
+      ]),
+    );
+  });
+
+  it('rejects account-specific ids, database URLs, and plaintext marketplace secrets in committed TOML', async () => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-cloudflare-policy-'));
+    temporaryDirectories.push(directory);
+    const edgePath = join(directory, 'edge.toml');
+    const consumerPath = join(directory, 'consumer.toml');
+    const edge = await readFile(EDGE_CONFIG, 'utf8');
+    await writeFile(
+      edgePath,
+      `${edge}\naccount_id = "00000000000000000000000000000000"\n` +
+        '[[env.production.hyperdrive]]\nbinding = "HYPERDRIVE"\nid = "11111111111111111111111111111111"\n' +
+        '[env.production.vars]\nPOSTGRES_URL = "postgres://plain.example/db"\n' +
+        'RAPIDAPI_PROXY_SECRET = "plain-secret"\n',
+      'utf8',
+    );
+    await writeFile(consumerPath, await readFile(CONSUMER_CONFIG, 'utf8'), 'utf8');
+
+    const errors = await validate({ edgeConfigPath: edgePath, consumerConfigPath: consumerPath });
+    expect(errors.join('\n')).toMatch(/account_id/);
+    expect(errors.join('\n')).toMatch(/hyperdrive.*id/i);
+    expect(errors.join('\n')).toMatch(/POSTGRES_URL/);
+    expect(errors.join('\n')).toMatch(/RAPIDAPI_PROXY_SECRET/);
+  });
+});

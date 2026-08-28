@@ -89,13 +89,14 @@ scoped to a different vertical never reaches a route, and its failure
 response is uniform across every 401 reason and every 403 reason, so a
 client cannot use the response shape to probe which one applies.
 
-A successful GET/HEAD request is metered asynchronously: `src/index.ts` builds
+A successful GET/HEAD request is metered through an asynchronous consumer:
+`src/index.ts` builds
 a `UsageEvent` from `apps/api`'s `onRequest` telemetry. Telemetry carries only a
 registered route key such as `entities.detail`, never a path, query, slug, or
-entity identifier. The Worker publishes it to `USAGE_EVENTS_QUEUE` via
-`ctx.waitUntil`,
-without ever awaiting the publish before answering. A request's success
-never depends on the queue, or on the database write the queue's consumer
+entity identifier. The Worker awaits `USAGE_EVENTS_QUEUE.send` acceptance
+before returning success, which begins Cloudflare's at-least-once delivery.
+A missing or rejected queue handoff returns an opaque, retryable 503. The
+request never waits on the database write the queue's consumer
 (`apps/usage-consumer`) eventually makes — see that package for the
 idempotent-persistence half of this design, and migrations 0011–0012
 for the schema and the invariants it enforces (revocation is a timestamp,

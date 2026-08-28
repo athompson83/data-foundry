@@ -58,6 +58,9 @@ jobs:
       - name: OpenAPI contract is current
         run: pnpm openapi:check
 
+      - name: Cloudflare topology is internally consistent
+        run: pnpm cloudflare:topology:check
+
       # 5. Vertical configuration. Validates every verticals/* declaration:
       #    required docs present, vertical.yaml well-formed, and every source
       #    carries complete rights metadata (AGENTS.md rule 1). No-ops cleanly
@@ -72,6 +75,12 @@ jobs:
       #    invisible at review time, because the YAML looks right.
       - name: Vertical runtime artifacts are current
         run: pnpm verticals:compile:check
+
+      # 7. Build the exact Cloudflare bundles only after generated inputs are
+      #    known current, then reject any production artifact that carries the
+      #    local PGlite/WASM runtime.
+      - name: Cloudflare production artifacts are deployable and PGlite-free
+        run: pnpm cloudflare:artifacts:check
 
   migrations-postgres:
     name: migrations on real Postgres

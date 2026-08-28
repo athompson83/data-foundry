@@ -18,6 +18,7 @@ compatibility_flags = ["nodejs_compat"]
 enabled = true
 
 [vars]
+DEPLOYMENT_ENVIRONMENT = "production"
 # One vertical per deployment. The bundle carries the compiled runtimes by slug
 # (see src/index.ts RUNTIMES); this selects which one this Worker serves.
 VERTICAL_SLUG = "hvac"

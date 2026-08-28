@@ -15,7 +15,7 @@ import {
   type QueueMessageBatch,
 } from '../src/index.js';
 import consumerWorker from '../src/index.js';
-import { ConsumerConfigurationError } from '../src/env.js';
+import { ConsumerConfigurationError, resolveConsumerConfig } from '../src/env.js';
 
 let driver: SqlDriver;
 let tenantId: string;
@@ -343,6 +343,24 @@ describe('configuration', () => {
     await expect(consumeBatch(batchOf([m]), { env: {} })).rejects.toThrow(ConsumerConfigurationError);
     expect(m.acked).toBe(false);
     expect(m.retried).toBe(false);
+  });
+
+  it('requires Hyperdrive in production but preserves POSTGRES_URL for local development', () => {
+    expect(() =>
+      resolveConsumerConfig({
+        DEPLOYMENT_ENVIRONMENT: 'production',
+        POSTGRES_URL: 'postgres://origin/db',
+      }),
+    ).toThrow(/HYPERDRIVE/);
+    expect(
+      resolveConsumerConfig({
+        DEPLOYMENT_ENVIRONMENT: 'production',
+        HYPERDRIVE: { connectionString: 'postgres://hyperdrive/db' },
+      }).deploymentEnvironment,
+    ).toBe('production');
+    expect(resolveConsumerConfig({ POSTGRES_URL: 'postgres://local/db' }).connectionString).toBe(
+      'postgres://local/db',
+    );
   });
 });
 

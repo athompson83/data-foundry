@@ -1,4 +1,4 @@
-# ADR-0009 — Usage metering runs over a queue, and never on the request path
+# ADR-0009 — Usage persistence runs over a queue; durable enqueue precedes success
 
 **Status:** Accepted and implemented
 **Date:** 2026-08-23
@@ -9,18 +9,20 @@
 `api_usage_events` is written asynchronously by `apps/usage-consumer`. This ADR
 records the implemented design so its failure modes remain explicit.
 
-Three owner decisions bound the design and are not re-litigated here:
+Three decisions bound the design:
 
 - **Transport is a Cloudflare Queue.** Not a Durable Object.
 - **No Durable Object for usage metering.**
-- **On metering failure, fail open and undercount rather than block an
-  authorized read.**
+- **Database persistence remains outside the request path.**
+- **A metered success is returned only after Cloudflare Queues accepts the
+  producer-generated event.** Missing or rejected queue handoff is an opaque,
+  retryable 503 rather than an unmetered success.
 
-The last one is the load-bearing decision, and it is right. A metering pipeline
-that can refuse a paid request has converted a bookkeeping failure into a
-customer-facing outage — a strictly worse trade for both parties. The cost of
-failing open is a request we did not bill, which we can absorb and detect. The
-cost of failing closed is a request the customer paid for and did not receive.
+The 2026-08-28 durability correction distinguishes queue acceptance from the
+usage-database write. Awaiting `Queue.send` starts Cloudflare's at-least-once
+delivery guarantee; it does not wait for `apps/usage-consumer` or Postgres. This
+puts a bounded durable-handoff step on the request path while keeping accounting
+persistence, retries, and poison isolation asynchronous.
 
 ### What Cloudflare actually guarantees
 
@@ -57,38 +59,30 @@ commutative and carry their own `occurred_at`.
 
 ## Decision
 
-> The Worker enqueues one message per billable response from inside
-> `ctx.waitUntil`, after the response has been returned. A consumer Worker
-> inserts each batch into `api_usage_events` in one statement, keyed on a
-> producer-generated id, `ON CONFLICT (id) DO NOTHING`.
+> The Worker creates one event per authenticated GET/HEAD and awaits
+> `Queue.send` before returning the API response. A consumer Worker inserts
+> each batch into `api_usage_events` asynchronously in one statement, keyed on
+> a producer-generated id, `ON CONFLICT (id) DO NOTHING`.
 
 ### The producer
 
-Registered with `ctx.waitUntil` **before** `fetch` returns, and executed after
-the response is handed back, so the customer's latency contains no part of
-metering.
+The API route is computed first, then the event is built from its closed
+telemetry fields and passed to `Queue.send`. The handler awaits only that durable
+acceptance. It never waits for the consumer to run or for Postgres to persist the
+row.
 
-The ordering is worth stating precisely, because getting it wrong is silent.
-The *registration* must happen while the handler is still running — code after
-`return response` is unreachable, and a promise created without being registered
-is a floating promise the runtime may cancel when it tears the isolate down. The
-*execution* is what continues afterwards. An eighth probe therefore asserts the
-ordering directly: that `waitUntil` was called before the handler resolved.
-Cloudflare currently limits post-response `waitUntil()` lifetime to 30 seconds
-([Workers limits](https://developers.cloudflare.com/workers/platform/limits/));
-one Queue send fits that lifecycle, but the producer must not accumulate or
-retry messages inside the request Worker.
+The ordering is explicit because getting it wrong loses revenue silently:
+returning the API response before `Queue.send` resolves allows the isolate to be
+recycled before at-least-once delivery begins. `ctx.waitUntil` is intentionally
+not used for this handoff.
 
-`apps/edge/src/index.ts` takes `(request, env, ctx)` and registers the Queue send
-with the supplied execution context.
+Failures are fail-closed and opaque to the caller:
 
-Every failure here is swallowed and counted, never propagated:
-
-- `queue.send()` throws (rate limit, transient platform error) → log, drop the
-  event, serve the response that was already sent.
-- Serialization throws → same.
-- No queue binding configured → same, once per isolate rather than once per
-  request.
+- `queue.send()` throws (rate limit or transient platform error) → log only
+  privacy-safe event identifiers and return retryable 503.
+- Serialization throws → return the same opaque 503.
+- No queue binding configured → return the same opaque 503. Production
+  environment validation also refuses the incomplete topology.
 
 **A request that was not authorized produces no event.** There is no usage to
 bill for a 401, and recording one would inflate an invoice with traffic the
@@ -142,12 +136,10 @@ valid subset until it isolates the poison event. Valid messages are persisted
 and acked; only the poison message is retried toward the DLQ. A transient or
 systemic database error never takes this branch and retries the whole subset.
 
-**The consumer fails closed, and that asymmetry is the design.** At the producer
-a customer is waiting, so a failure is dropped. At the consumer nobody is
-waiting, so a failure is retried — Postgres unavailable means the messages stay
-queued for up to fourteen days rather than being discarded. Accounting's
-requirement is durability, not immediacy; an invoice built an hour late is still
-an invoice.
+**The consumer fails closed after durable acceptance.** Postgres unavailable
+means accepted messages stay queued for the configured retention period rather
+than being discarded. Accounting's requirement is durability, not immediacy;
+an invoice built an hour late is still an invoice.
 
 A message whose body does not validate is not retryable in any useful sense —
 it will fail identically forever. There is no API to route a message straight to
@@ -180,10 +172,10 @@ acceptance criteria for the implementation PR, not a wish list.
    window that makes producer-generated ids necessary; a database default would
    make every crash a double-count.*
 
-3. **Enqueue failure.** Make `queue.send()` throw. The response is unchanged —
-   same status, same body, same headers — and the failure is counted. *A failure
-   here means metering can take down a paid read, which contradicts the owner's
-   explicit policy.*
+3. **Enqueue failure.** Make `queue.send()` throw or remove the binding. The
+   request returns the same opaque, retryable 503 in either case and no request
+   target or credential is logged. *A failure here means an unmetered paid
+   success escaped before at-least-once delivery began.*
 
 4. **Auth storage failure.** Two halves, failing in opposite directions.
    *Producer:* the key lookup fails, so no read was authorized, so **no event is
@@ -209,21 +201,20 @@ acceptance criteria for the implementation PR, not a wish list.
    one that cannot be run twice safely will not be run at all during an
    incident.*
 
-8. **`waitUntil` is registered before the handler returns.** Assert the call
-   happens while `fetch` is still running, not after it resolves. *A
-   registration written after `return` is unreachable code, and an unregistered
-   promise is one the runtime may cancel — both lose the event silently, which
-   is the failure mode this whole design is built to make visible.*
+8. **Queue acceptance precedes response resolution.** Hold the `Queue.send`
+   promise open and assert the handler remains unresolved; release it and assert
+   the original API response is returned. *A failure here means the event can be
+   lost before Cloudflare owns its retry lifecycle.*
 
 ## Consequences
 
-**Metering is invisible in the latency profile.** If it ever appears there, this
-design has been violated — the check is whether the work happens inside
-`waitUntil`.
+**Queue acceptance is in the latency and availability profile; database writes
+are not.** This is the narrowest boundary that begins durable, at-least-once
+delivery without coupling reads to Postgres accounting writes.
 
-**Undercounting is possible and expected.** Dropped enqueues are real lost
-revenue, bounded and logged. The counter is the number to watch, and a rising
-one is a platform problem rather than an accounting one.
+**Dropped enqueues are not successful usage.** A queue outage produces a
+retryable 503, making the failure visible to both operator and caller without
+inventing an invoice row for an event Cloudflare never accepted.
 
 **Overcounting is not possible.** That is the asymmetry worth having: the
 dedup key makes double-billing structurally impossible, while undercounting

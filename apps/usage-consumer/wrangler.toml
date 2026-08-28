@@ -17,8 +17,8 @@ compatibility_flags = ["nodejs_compat"]
 [observability]
 enabled = true
 
-# This consumer never writes anything customer-facing back — its only output
-# is rows in `api_usage_events` — so it needs no [vars] of its own.
+[vars]
+DEPLOYMENT_ENVIRONMENT = "production"
 
 [[queues.consumers]]
 queue = "data-foundry-usage-events"

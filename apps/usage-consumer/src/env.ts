@@ -16,6 +16,8 @@ export interface HyperdriveBinding {
 }
 
 export interface ConsumerEnv {
+  /** Explicit production mode requires Hyperdrive; absence is local development. */
+  readonly DEPLOYMENT_ENVIRONMENT?: string;
   /** Hyperdrive binding. Preferred over `POSTGRES_URL` for the same reason `apps/edge` prefers it. */
   readonly HYPERDRIVE?: HyperdriveBinding;
   /** Direct connection string. A fallback for `wrangler dev` against a local database. */
@@ -31,6 +33,7 @@ export class ConsumerConfigurationError extends Error {
 
 export interface ResolvedConsumerConfig {
   readonly connectionString: string;
+  readonly deploymentEnvironment: 'development' | 'production';
 }
 
 /**
@@ -41,6 +44,17 @@ export interface ResolvedConsumerConfig {
  * Hyperdrive to reach the origin directly is never what an operator meant.
  */
 export function resolveConsumerConfig(env: ConsumerEnv): ResolvedConsumerConfig {
+  const deploymentEnvironment = env.DEPLOYMENT_ENVIRONMENT ?? 'development';
+  if (deploymentEnvironment !== 'development' && deploymentEnvironment !== 'production') {
+    throw new ConsumerConfigurationError(
+      'DEPLOYMENT_ENVIRONMENT must be exactly "development" or "production" when set.',
+    );
+  }
+  if (deploymentEnvironment === 'production' && env.HYPERDRIVE === undefined) {
+    throw new ConsumerConfigurationError(
+      'Production requires the HYPERDRIVE binding; POSTGRES_URL is for local development only.',
+    );
+  }
   const connectionString = env.HYPERDRIVE?.connectionString ?? env.POSTGRES_URL ?? '';
   if (connectionString.trim() === '') {
     throw new ConsumerConfigurationError(
@@ -49,5 +63,5 @@ export function resolveConsumerConfig(env: ConsumerEnv): ResolvedConsumerConfig 
         'that would silently discard every usage event it receives.',
     );
   }
-  return { connectionString };
+  return { connectionString, deploymentEnvironment };
 }

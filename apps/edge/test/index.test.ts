@@ -1,8 +1,9 @@
 /**
  * The whole pipeline, through the one function `wrangler dev` and a deployed
  * Worker actually call: parse the credential, authenticate, execute the
- * route, publish a usage event, answer — without ever coupling the response
- * to whether the queue accepted the event.
+ * route, durably hand a usage event to Cloudflare Queues, then answer. The
+ * response never waits on usage-database writes, but paid success is not
+ * returned before at-least-once delivery has begun.
  */
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import {
@@ -27,7 +28,7 @@ const envFor = (queue?: QueueBinding) => ({
 
 const openFixtureDriver = async () => fixtures.driver;
 
-/** `waitUntil` that actually waits, so a test can assert on what it awaited. */
+/** Minimal Worker context; durable queue acceptance is awaited by serveRequest itself. */
 function immediateContext(): { ctx: { waitUntil(p: Promise<unknown>): void }; settle: () => Promise<void> } {
   let pending: Promise<unknown> = Promise.resolve();
   return {
@@ -201,41 +202,30 @@ describe('an unsupported method is not a usage event', () => {
 });
 
 describe('metering isolation and privacy', () => {
-  it('registers waitUntil before the request promise resolves', async () => {
-    const key = await mintKeyFor('acme-wait-order');
-    const { queue } = recordingQueue();
-    let registered = false;
-    const response = await serveRequest(
+  it('does not resolve the response until Cloudflare Queues accepts the event', async () => {
+    const key = await mintKeyFor('acme-queue-accept-order');
+    let accept: (() => void) | undefined;
+    const send = vi.fn(
+      async () => new Promise<void>((resolve) => { accept = resolve; }),
+    );
+    let resolved = false;
+    const responsePromise = serveRequest(
       new Request('https://edge.invalid/v1/health', {
         headers: { authorization: `Bearer ${key.secret}` },
       }),
-      envFor(queue),
-      { waitUntil: () => { registered = true; } },
+      envFor({ send }),
+      { waitUntil: () => { throw new Error('durable acceptance must not be deferred'); } },
       openFixtureDriver,
-    );
+    ).then((response) => {
+      resolved = true;
+      return response;
+    });
 
+    await vi.waitFor(() => expect(send).toHaveBeenCalledTimes(1));
+    expect(resolved).toBe(false);
+    accept?.();
+    const response = await responsePromise;
     expect(response.status).toBe(200);
-    expect(registered).toBe(true);
-  });
-
-  it('never replaces an already-computed API response when waitUntil registration throws', async () => {
-    const key = await mintKeyFor('acme-wait-throws');
-    const { queue } = recordingQueue();
-    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    const response = await serveRequest(
-      new Request('https://edge.invalid/v1/health', {
-        headers: { authorization: `Bearer ${key.secret}` },
-      }),
-      envFor(queue),
-      { waitUntil: () => { throw new Error('context closed'); } },
-      openFixtureDriver,
-    );
-
-    expect(response.status).toBe(200);
-    expect(errorSpy).toHaveBeenCalledWith(
-      '[edge] usage event scheduling failed',
-      expect.objectContaining({ error: expect.any(Error) }),
-    );
   });
 
   it('persists none of the request target, query, credential, headers, or response details', async () => {
@@ -273,20 +263,33 @@ describe('metering isolation and privacy', () => {
   });
 });
 
-describe('the response does not depend on the queue', () => {
-  it('still answers successfully when USAGE_EVENTS_QUEUE is not bound at all', async () => {
+describe('durable metering acceptance is an availability gate', () => {
+  it('fails retriably and opaquely when USAGE_EVENTS_QUEUE is not bound', async () => {
     const key = await mintKeyFor('acme-no-queue');
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     const { ctx, settle } = immediateContext();
     const request = new Request('https://edge.invalid/v1/health', {
       headers: { authorization: `Bearer ${key.secret}` },
     });
     const response = await serveRequest(request, envFor(undefined), ctx, openFixtureDriver);
     await settle();
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(503);
+    expect(response.headers.get('retry-after')).toBe('30');
+    expect(await response.json()).toEqual({
+      error: {
+        code: 'SERVICE_UNAVAILABLE',
+        message: 'This deployment is not configured to serve requests.',
+      },
+    });
+    expect(errorSpy).toHaveBeenCalledWith(
+      '[edge] usage event publish failed',
+      expect.objectContaining({ error: expect.any(Error) }),
+    );
   });
 
-  it('still answers successfully when the queue rejects the publish', async () => {
+  it('fails retriably and opaquely when the queue rejects the publish', async () => {
     const key = await mintKeyFor('acme-queue-down');
+    const privateQuery = 'queue-failure-private-query';
     const failingQueue: QueueBinding = {
       send: async () => {
         throw new Error('queue unavailable');
@@ -294,19 +297,32 @@ describe('the response does not depend on the queue', () => {
     };
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     const { ctx, settle } = immediateContext();
-    const request = new Request('https://edge.invalid/v1/health', {
-      headers: { authorization: `Bearer ${key.secret}` },
-    });
+    const request = new Request(
+      `https://edge.invalid/v1/entities/${fixtures.equipment.id}?private=${privateQuery}`,
+      {
+        headers: { authorization: `Bearer ${key.secret}` },
+      },
+    );
     const response = await serveRequest(request, envFor(failingQueue), ctx, openFixtureDriver);
     await settle();
 
-    expect(response.status).toBe(200);
-    // Not silent: a failed publish is a lost usage record, and this is the
-    // one channel an operator has for it.
+    expect(response.status).toBe(503);
+    expect(response.headers.get('retry-after')).toBe('30');
+    expect(await response.json()).toMatchObject({
+      error: { code: 'SERVICE_UNAVAILABLE' },
+    });
     expect(errorSpy).toHaveBeenCalledWith(
       '[edge] usage event publish failed',
-      expect.objectContaining({ error: expect.any(Error) }),
+      {
+        eventId: expect.any(String),
+        routeKey: 'entities.detail',
+        error: expect.any(Error),
+      },
     );
+    const logs = JSON.stringify(errorSpy.mock.calls);
+    for (const forbidden of [key.secret, fixtures.equipment.id, privateQuery]) {
+      expect(logs).not.toContain(forbidden);
+    }
   });
 
   it('the read the request served does not depend on any write path at all — this Worker never writes to api_usage_events', async () => {

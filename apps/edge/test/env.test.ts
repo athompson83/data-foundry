@@ -171,3 +171,44 @@ describe('Hyperdrive outranks a direct connection string', () => {
     expect(config.verticalSlug).toBe('hvac');
   });
 });
+
+describe('production topology is explicit and fail closed', () => {
+  const queue = { send: async (): Promise<void> => undefined };
+
+  it('requires Hyperdrive instead of a direct origin connection', () => {
+    expect(() =>
+      resolveEdgeConfig({
+        DEPLOYMENT_ENVIRONMENT: 'production',
+        POSTGRES_URL: 'postgres://origin/db',
+        VERTICAL_SLUG: 'hvac',
+        API_KEY_ENVIRONMENT: 'live',
+        USAGE_EVENTS_QUEUE: queue,
+      }),
+    ).toThrow(/HYPERDRIVE/);
+  });
+
+  it('requires the asynchronous usage queue binding and live key namespace', () => {
+    const base = {
+      DEPLOYMENT_ENVIRONMENT: 'production',
+      HYPERDRIVE: { connectionString: 'postgres://hyperdrive/db' },
+      VERTICAL_SLUG: 'hvac',
+    } as const;
+    expect(() => resolveEdgeConfig({ ...base, API_KEY_ENVIRONMENT: 'live' })).toThrow(
+      /USAGE_EVENTS_QUEUE/,
+    );
+    expect(() =>
+      resolveEdgeConfig({ ...base, API_KEY_ENVIRONMENT: 'test', USAGE_EVENTS_QUEUE: queue }),
+    ).toThrow(/live/);
+  });
+
+  it('accepts the complete production binding shape', () => {
+    const config = resolveEdgeConfig({
+      DEPLOYMENT_ENVIRONMENT: 'production',
+      HYPERDRIVE: { connectionString: 'postgres://hyperdrive/db' },
+      VERTICAL_SLUG: 'hvac',
+      API_KEY_ENVIRONMENT: 'live',
+      USAGE_EVENTS_QUEUE: queue,
+    });
+    expect(config.deploymentEnvironment).toBe('production');
+  });
+});

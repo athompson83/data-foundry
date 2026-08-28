@@ -18,9 +18,10 @@ import {
   EdgeConfigurationError,
   resolveEdgeConfig,
   type EdgeEnv,
+  type DeploymentEnvironment,
   type ResolvedEdgeConfig,
 } from './env.js';
-import hvacRuntime from '../generated/hvac.runtime.json' with { type: 'json' };
+import { RUNTIMES } from '../generated/runtime-registry.js';
 
 export { toApiRequest, toFetchResponse } from './adapter.js';
 export {
@@ -43,6 +44,7 @@ export {
   EdgeConfigurationError,
   resolveEdgeConfig,
   type EdgeEnv,
+  type DeploymentEnvironment,
   type QueueBinding,
   type RapidApiConfig,
   type ResolvedEdgeConfig,
@@ -57,9 +59,7 @@ export {
  * refuses a mismatch rather than serving one vertical's data through another's
  * field metadata.
  */
-export const RUNTIMES: Readonly<Record<string, VerticalRuntime>> = {
-  hvac: hvacRuntime as VerticalRuntime,
-};
+export { BUNDLED_VERTICALS, RUNTIMES } from '../generated/runtime-registry.js';
 
 /**
  * A configuration failure is a 503, and it is deliberately not a 500.
@@ -70,11 +70,11 @@ export const RUNTIMES: Readonly<Record<string, VerticalRuntime>> = {
  * diagnosed as a query bug. The body carries no configuration detail; the
  * operator channel gets the cause.
  */
-function unavailable(reason: string): Response {
+function unavailable(reason: string, method = 'GET'): Response {
   const body = JSON.stringify({
     error: { code: 'SERVICE_UNAVAILABLE', message: 'This deployment is not configured to serve requests.' },
   });
-  return new Response(body, {
+  return new Response(method.toUpperCase() === 'HEAD' ? null : body, {
     status: 503,
     headers: {
       'content-type': 'application/json; charset=utf-8',
@@ -212,36 +212,23 @@ function roughRowsServed(body: unknown): number {
 }
 
 /**
- * Cloudflare's `ExecutionContext`, narrowed to the one method a request
- * handler that meters asynchronously needs. Named locally for the same
- * reason `QueueBinding` is: this Worker is trusted with exactly the surface
- * it reads.
+ * Cloudflare's `ExecutionContext`, retained in the exported Worker signature
+ * for future non-durable background work. Usage handoff deliberately does not
+ * use `waitUntil`: at-least-once delivery begins only after Queue.send resolves.
  */
 export interface MinimalExecutionContext {
   waitUntil(promise: Promise<unknown>): void;
 }
 
 /**
- * Publish a usage event without letting the queue's availability affect the
- * response the customer already received.
- *
- * This is the explicit policy for "queue publish failure": never retried
- * from here (a Worker about to be recycled is not where a durable retry
- * belongs), never thrown from here (nothing awaits this call), and never
- * silent — a failed publish is a lost usage record, and the operator channel
- * is where that has to be visible. `waitUntil` in the caller is what lets
- * this run after the response has already gone out.
+ * Begin at-least-once delivery before returning a metered response. Queue
+ * acceptance may be on the availability path; usage-database writes are not.
  */
 async function publishUsageEvent(env: EdgeEnv, event: UsageEvent): Promise<void> {
   if (env.USAGE_EVENTS_QUEUE === undefined) {
-    console.error('[edge] usage event dropped: USAGE_EVENTS_QUEUE is not bound', event);
-    return;
+    throw new Error('USAGE_EVENTS_QUEUE is not bound');
   }
-  try {
-    await env.USAGE_EVENTS_QUEUE.send(event);
-  } catch (error) {
-    console.error('[edge] usage event publish failed', { event, error });
-  }
+  await env.USAGE_EVENTS_QUEUE.send(event);
 }
 
 /**
@@ -257,6 +244,9 @@ export async function serveRequest(
   ctx: MinimalExecutionContext,
   driverOverride?: BuildOptions['openDriver'],
 ): Promise<Response> {
+  // Durable usage handoff is awaited below; ExecutionContext is intentionally
+  // not used to defer it past the response boundary.
+  void ctx;
   const slug = (env.VERTICAL_SLUG ?? '').trim();
   const runtime = RUNTIMES[slug];
 
@@ -318,8 +308,9 @@ export async function serveRequest(
 
     const method = request.method.toUpperCase();
     if (method === 'GET' || method === 'HEAD') {
+      let event: UsageEvent | undefined;
       try {
-        const event = buildUsageEvent({
+        event = buildUsageEvent({
           tenantId: auth.tenantId,
           apiKeyId: auth.apiKeyId,
           verticalId: auth.verticalId,
@@ -333,15 +324,15 @@ export async function serveRequest(
           rowsServed: roughRowsServed(response.body),
           durationMs,
         });
-        // Never awaited: the response below returns whether or not the queue
-        // has accepted the event yet. See `publishUsageEvent` for the policy on
-        // what happens if it never does.
-        ctx.waitUntil(publishUsageEvent(env, event));
+        await publishUsageEvent(env, event);
       } catch (error) {
-        // Metering is deliberately off the availability path. Even a
-        // synchronous platform failure while registering waitUntil cannot
-        // replace the API response already computed above.
-        console.error('[edge] usage event scheduling failed', { error });
+        // Log only the closed event/route identifiers and the platform error;
+        // never the request target, query, body, credential, or response.
+        console.error('[edge] usage event publish failed', {
+          ...(event === undefined ? {} : { eventId: event.id, routeKey: event.route_key }),
+          error,
+        });
+        return unavailable('metering', request.method);
       }
     }
 
@@ -349,12 +340,12 @@ export async function serveRequest(
   } catch (error) {
     if (error instanceof EdgeConfigurationError) {
       console.error('[edge] configuration', error);
-      return unavailable('configuration');
+      return unavailable('configuration', request.method);
     }
     // Anything else at this level is the composition root failing - the
     // database is unreachable, most likely. Still not a request-level bug.
     console.error('[edge] startup', error);
-    return unavailable('startup');
+    return unavailable('startup', request.method);
   }
 }
 

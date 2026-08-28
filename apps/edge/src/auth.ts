@@ -218,8 +218,8 @@ export interface AuthResponseBody {
  * The response for a rejected request — deliberately one shape regardless of
  * `reason`. A client that could distinguish "wrong vertical" from "revoked"
  * from the body would learn more about this deployment's key model than an
- * error page needs to say; the operator channel (`waitUntil`-logged, not
- * returned) is where the real reason belongs.
+ * error page needs to say; the operator log (never returned) is where the real
+ * reason belongs.
  */
 export function toAuthResponse(failure: AuthFailure): { status: 401 | 403; body: AuthResponseBody } {
   const status = REASON_STATUS[failure.reason];

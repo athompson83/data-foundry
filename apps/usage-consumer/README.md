@@ -14,12 +14,11 @@ half of this design — `apps/edge` publishes, this consumes.
 
 ## Why a separate Worker
 
-`apps/edge` answers a request without ever waiting on a database write:
-its usage event is published to a queue and the response goes out regardless
-of whether that publish, or any write it eventually causes, succeeds. This
+`apps/edge` answers a request without ever waiting on a usage-database write:
+it first awaits durable queue acceptance, then this
 package is where that write actually happens, on its own schedule, in its
-own isolate, so a read request's latency and success can never be coupled to
-this consumer's health.
+own isolate. A read request's latency and success are therefore coupled only to
+the queue handoff, never to this consumer's health or Postgres write latency.
 
 ## The ack/retry policy
 

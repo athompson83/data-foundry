@@ -29,6 +29,7 @@ import { join } from 'node:path';
 import { parse as parseYaml } from 'yaml';
 import { rightsReviewIsCurrent } from '@data-foundry/source-registry';
 import { VERTICALS_DIR } from '../validators/validate-verticals.js';
+import { isMain } from '../lib/cli-entry.js';
 
 /**
  * Names reserved by RFC 2606 and RFC 6761 for documentation and testing. A
@@ -382,6 +383,6 @@ async function main(): Promise<void> {
   process.stdout.write(`${reports.map(render).join('\n\n')}\n`);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isMain(import.meta.url)) {
   await main();
 }

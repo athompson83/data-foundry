@@ -29,6 +29,8 @@ export interface QueueBinding<Message = unknown> {
 }
 
 export interface EdgeEnv {
+  /** Explicit production mode tightens topology checks; absence is local development. */
+  readonly DEPLOYMENT_ENVIRONMENT?: string;
   /**
    * Hyperdrive binding. Preferred over `POSTGRES_URL`: it pools connections at
    * Cloudflare's edge, which is what makes Postgres viable from a Worker at all.
@@ -47,12 +49,10 @@ export interface EdgeEnv {
   /** Server-held Data Foundry key issued as RAPIDAPI/RAPIDAPI for one vertical. */
   readonly RAPIDAPI_API_KEY?: string;
   /**
-   * Where a usage event goes after a request is served. Optional on purpose,
-   * unlike the database: a Worker that cannot reach its own database has
-   * nothing to serve, but a Worker that cannot meter still has a correct
-   * answer to give. Missing this binding does not refuse requests — it is
-   * `index.ts`'s job to make that state loud rather than silent, because the
-   * alternative is metering that fails forever without anyone noticing.
+   * Durable handoff for usage events. Optional in the type so local/test code
+   * can prove the missing-binding failure; production configuration requires
+   * it, and an authenticated GET/HEAD returns 503 unless `send` is accepted.
+   * Database persistence remains asynchronous in the queue consumer.
    */
   readonly USAGE_EVENTS_QUEUE?: QueueBinding;
 }
@@ -68,13 +68,24 @@ export interface ResolvedEdgeConfig {
   readonly connectionString: string;
   readonly verticalSlug: string;
   readonly apiKeyEnvironment: KeyEnvironment;
+  readonly deploymentEnvironment: DeploymentEnvironment;
   readonly rapidApi: RapidApiConfig | null;
 }
+
+export type DeploymentEnvironment = 'development' | 'production';
 
 export interface RapidApiConfig {
   readonly hostname: string;
   readonly proxySecret: string;
   readonly apiKey: string;
+}
+
+function resolveDeploymentEnvironment(value: string | undefined): DeploymentEnvironment {
+  if (value === undefined || value === 'development') return 'development';
+  if (value === 'production') return 'production';
+  throw new EdgeConfigurationError(
+    'DEPLOYMENT_ENVIRONMENT must be exactly "development" or "production" when set.',
+  );
 }
 
 function resolveRapidApiConfig(env: EdgeEnv): RapidApiConfig | null {
@@ -121,6 +132,12 @@ function resolveRapidApiConfig(env: EdgeEnv): RapidApiConfig | null {
  * they meant.
  */
 export function resolveEdgeConfig(env: EdgeEnv): ResolvedEdgeConfig {
+  const deploymentEnvironment = resolveDeploymentEnvironment(env.DEPLOYMENT_ENVIRONMENT);
+  if (deploymentEnvironment === 'production' && env.HYPERDRIVE === undefined) {
+    throw new EdgeConfigurationError(
+      'Production requires the HYPERDRIVE binding; POSTGRES_URL is for local development only.',
+    );
+  }
   const connectionString = env.HYPERDRIVE?.connectionString ?? env.POSTGRES_URL ?? '';
   if (connectionString.trim() === '') {
     throw new EdgeConfigurationError(
@@ -144,11 +161,20 @@ export function resolveEdgeConfig(env: EdgeEnv): ResolvedEdgeConfig {
         'A deployment must never infer which credential namespace it accepts.',
     );
   }
+  if (deploymentEnvironment === 'production' && apiKeyEnvironment !== 'live') {
+    throw new EdgeConfigurationError('Production requires API_KEY_ENVIRONMENT="live".');
+  }
+  if (deploymentEnvironment === 'production' && env.USAGE_EVENTS_QUEUE === undefined) {
+    throw new EdgeConfigurationError(
+      'Production requires the USAGE_EVENTS_QUEUE binding for asynchronous metering.',
+    );
+  }
 
   return {
     connectionString,
     verticalSlug,
     apiKeyEnvironment,
+    deploymentEnvironment,
     rapidApi: resolveRapidApiConfig(env),
   };
 }
