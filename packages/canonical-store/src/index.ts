@@ -138,13 +138,23 @@ export {
 
 export {
   createScheduledAcquisitionStore,
+  SCHEDULED_ACQUISITION_FAILURE_CODES,
+  SCHEDULED_ACQUISITION_PROVIDERS,
   type AcquisitionAssetClass,
   type AcquisitionOutputClass,
   type ScheduledAcquisitionClaim,
   type ScheduledAcquisitionCompletion,
   type ScheduledAcquisitionFailure,
+  type ScheduledAcquisitionFailureCode,
+  type ScheduledAcquisitionFreshnessScope,
   type ScheduledAcquisitionOutcome,
   type ScheduledAcquisitionRun,
+  type ScheduledAcquisitionProvider,
   type ScheduledAcquisitionStatus,
   type ScheduledAcquisitionStore,
+  type ScheduledAcquisitionValidators,
+  type ScheduledRightsDecisionReceipt,
+  type ScheduledRightsOperation,
+  type ScheduledRightsReceipt,
+  type ScheduledRightsReceiptStage,
 } from './scheduled-acquisition.js';
