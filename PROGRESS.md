@@ -6,7 +6,7 @@
 - Lifecycle stage: MVP implementation / pre-deployment
 - Control-graph node: `RECONCILE -> IMPLEMENT -> VERIFY -> HANDOFF`
 - Current milestone: Integrate and deploy the first lawful, revenue-capable HVAC vertical
-- Branch: `codex/revenue-integration-20260826`
+- Branch: Verify the current isolated-worktree branch at handoff; this document does not record a transient branch name.
 - PR: Not created at the time of this closeout-file update
 - Preview: None verified
 - Production: Not deployed

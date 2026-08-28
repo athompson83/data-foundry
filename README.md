@@ -269,7 +269,7 @@ Three Cloudflare Workers, per
 - **`apps/usage-consumer`** — the queue consumer that persists metering events
   idempotently after the edge Worker has accepted and handed them off.
 
-Both are composition roots — the only packages in their surface permitted to
+The edge and web Workers are both composition roots — the only packages in their surface permitted to
 reach below the query layer — plus a `fetch` adapter that translates and
 decides nothing.
 
