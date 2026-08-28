@@ -332,6 +332,7 @@ const SYNTHETIC_RIGHTS_RECHECK = ts('2027-01-01T00:00:00Z');
 export async function seedSyntheticSurfaceRights(
   fixtures: QueryFixtures,
   surfaces: readonly RightsSurface[],
+  sourceKeys: readonly SourceKey[] = Object.keys(fixtures.sources) as SourceKey[],
 ): Promise<void> {
   const requirements = new Map(
     [
@@ -345,6 +346,7 @@ export async function seedSyntheticSurfaceRights(
 
   let sourceIndex = 0;
   for (const [sourceKey, fixture] of Object.entries(fixtures.sources)) {
+    if (!sourceKeys.includes(sourceKey as SourceKey)) continue;
     if (!canPublish(fixture.source.rights_classification) || fixture.source.status !== 'ACTIVE') {
       continue;
     }

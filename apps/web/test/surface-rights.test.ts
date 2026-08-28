@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import {
   addSyntheticEntityEvidence,
+  claim,
   createQueryFixtures,
   seedSyntheticSurfaceRights,
   type QueryFixtures,
@@ -16,6 +17,7 @@ import type { WebRuntime } from '../src/seo.js';
 const ORIGIN = 'https://data-foundry.test';
 const TEST_RUNTIME: WebRuntime = {
   ...RUNTIMES['hvac']!,
+  vertical_status: 'ACTIVE',
   seo: {
     ...RUNTIMES['hvac']!.seo,
     page_classes: [
@@ -77,6 +79,11 @@ describe('independent public and index rights', () => {
 
       expect(response.status).toBe(200);
       expect(response.body).toContain('name="robots" content="noindex,follow"');
+      expect(response.body).toContain('This page does not currently meet publication-quality requirements.');
+      expect(response.body).not.toContain('SEARCH_INDEX');
+      expect(response.body).not.toContain('surface authorization');
+      expect(response.body).not.toContain('could not be established');
+      expect(response.body).not.toMatch(/\d+ (?:of|check|critical|permission|denial)/i);
       expect(xml).not.toContain(fixtures.equipment.canonical_slug);
     });
   });
@@ -125,5 +132,38 @@ describe('independent public and index rights', () => {
       expect(response.body).toContain('name="robots" content="index,follow"');
       expect(xml).toContain(fixtures.equipment.canonical_slug);
     });
+  });
+
+  it('does not index a PUBLIC_WEB fact selected from a source without SEARCH_INDEX rights', async () => {
+    const fixtures = await createQueryFixtures();
+    try {
+      await seedSyntheticSurfaceRights(fixtures, ['PUBLIC_WEB'], ['manufacturer']);
+      await seedSyntheticSurfaceRights(
+        fixtures,
+        ['PUBLIC_WEB', 'SEARCH_INDEX'],
+        ['certifier'],
+      );
+      await addSyntheticEntityEvidence(fixtures, fixtures.equipment, 'certifier');
+      await claim(fixtures, 'manufacturer', {
+        entity_id: fixtures.equipment.id,
+        property: 'public_web_only_claim',
+        value: 'PUBLIC WEB ONLY VALUE',
+      });
+
+      const deployment = await deploymentFor(fixtures);
+      const vertical = deployment.verticals.get('hvac')!;
+      const response = await createWebApp(resolveContext(deployment))({
+        method: 'GET',
+        url: `/data/hvac/equipment/${fixtures.equipment.canonical_slug}`,
+      });
+      const xml = await sitemapSegmentXml(vertical, ORIGIN, 'entities', new Date());
+
+      expect(response.status).toBe(200);
+      expect(response.body).toContain('PUBLIC WEB ONLY VALUE');
+      expect(response.body).toContain('name="robots" content="noindex,follow"');
+      expect(xml).not.toContain(fixtures.equipment.canonical_slug);
+    } finally {
+      await fixtures.driver.close();
+    }
   });
 });

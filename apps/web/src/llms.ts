@@ -1,7 +1,8 @@
 /**
  * `llms.txt` (doc 07 layer 2) — a per-vertical, plain-text map for an LLM or
- * agent, distinct from a page's SEO metadata: sections here are always
- * served regardless of a page's own indexability, because "not indexable"
+ * agent, distinct from a page's SEO metadata: after app.ts has proved the
+ * vertical is ACTIVE and PUBLIC_WEB-eligible, sections here are served
+ * regardless of an individual page's own indexability, because "not indexable"
  * means a search engine should not recommend it, not that an agent that asked
  * for it by name should be refused (`markdown_for_non_indexable: true` in
  * `seo.yaml`, applied here at the discovery-document level).

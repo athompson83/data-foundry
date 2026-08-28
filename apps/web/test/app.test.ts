@@ -22,12 +22,18 @@ import { createWebApp } from '../src/app.js';
 import { resolveContext } from '../src/config.js';
 import { getDeployment, resetDeployments } from '../src/composition.js';
 import { RUNTIMES } from '../src/index.js';
+import type { WebRuntime } from '../src/seo.js';
 
 let fixtures: QueryFixtures;
 let replacedModel: Entity;
 let replacementModel: Entity;
+let mergedLegacyModel: Entity;
 let publishedFactId: string;
 const openFixtureDriver = async () => fixtures.driver;
+const ACTIVE_RUNTIME: WebRuntime = {
+  ...RUNTIMES['hvac']!,
+  vertical_status: 'ACTIVE',
+};
 
 beforeAll(async () => {
   fixtures = await createQueryFixtures();
@@ -57,6 +63,24 @@ beforeAll(async () => {
   });
   await addSyntheticEntityEvidence(fixtures, replacedModel);
   await addSyntheticEntityEvidence(fixtures, replacementModel);
+  mergedLegacyModel = await fixtures.store.upsertEntity({
+    vertical_id: fixtures.vertical.id,
+    entity_type: 'equipment_model',
+    canonical_name: 'Synthetic Merged Legacy Model',
+    canonical_slug: 'synthetic-merged-legacy-model',
+    status: 'ACTIVE',
+    quality_score: entityQualityScore(0.8),
+    first_seen_at: ts('2026-01-01T00:00:00Z'),
+    last_verified_at: ts('2026-02-01T00:00:00Z'),
+  });
+  await addSyntheticEntityEvidence(fixtures, mergedLegacyModel);
+  await fixtures.store.mergeEntities({
+    from_entity_id: mergedLegacyModel.id,
+    to_entity_id: replacedModel.id,
+    reason: 'MERGE',
+    from_slug: mergedLegacyModel.canonical_slug,
+    judgment_id: null,
+  });
   const publishedFact = await claim(fixtures, 'manufacturer', {
     entity_id: replacedModel.id,
     property: 'seer2_rating',
@@ -84,10 +108,10 @@ afterEach(() => {
   resetDeployments();
 });
 
-async function appHandler() {
+async function appHandler(runtime: WebRuntime = ACTIVE_RUNTIME) {
   const deployment = await getDeployment({
     env: { POSTGRES_URL: 'postgres://fixture/db', PUBLIC_ORIGIN: 'https://data-foundry.test' },
-    runtimes: RUNTIMES,
+    runtimes: { hvac: runtime },
     openDriver: openFixtureDriver,
   });
   return createWebApp(resolveContext(deployment));
@@ -157,6 +181,47 @@ describe('relationship page dispatch', () => {
     expect(response.status).toBe(200);
     expect(response.body).toContain(replacementModel.canonical_name);
     expect(response.body).toContain('What replaces');
+  });
+
+  it('redirects a merged relationship subject to the canonical relationship path and configured status', async () => {
+    const runtime: WebRuntime = {
+      ...ACTIVE_RUNTIME,
+      seo: {
+        ...ACTIVE_RUNTIME.seo,
+        canonical: { ...ACTIVE_RUNTIME.seo.canonical, redirect_status: 308 },
+      },
+    };
+    const app = await appHandler(runtime);
+    const response = await app({
+      method: 'GET',
+      url: `/data/hvac/equipment/${mergedLegacyModel.canonical_slug}/replacements`,
+    });
+
+    expect(response.status).toBe(308);
+    expect(response.headers['location']).toBe(
+      `/data/hvac/equipment/${replacedModel.canonical_slug}/replacements`,
+    );
+  });
+
+  it('renders the canonical relationship with a canonical tag when redirects are disabled', async () => {
+    const runtime: WebRuntime = {
+      ...ACTIVE_RUNTIME,
+      seo: {
+        ...ACTIVE_RUNTIME.seo,
+        canonical: { ...ACTIVE_RUNTIME.seo.canonical, redirect_on_merge: false },
+      },
+    };
+    const app = await appHandler(runtime);
+    const response = await app({
+      method: 'GET',
+      url: `/data/hvac/equipment/${mergedLegacyModel.canonical_slug}/replacements`,
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.headers['location']).toBeUndefined();
+    expect(response.body).toContain(
+      `href="https://data-foundry.test/data/hvac/equipment/${replacedModel.canonical_slug}/replacements"`,
+    );
   });
 });
 

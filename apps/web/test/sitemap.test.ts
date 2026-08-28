@@ -21,7 +21,15 @@ import { getDeployment, resetDeployments, type VerticalDeployment } from '../src
 import { sitemapIndexXml, sitemapSegmentXml } from '../src/sitemap.js';
 import { DEFAULT_CONCURRENCY } from '../src/concurrency.js';
 import { RUNTIMES } from '../src/index.js';
-import type { SearchQuery, SurfaceQueryModel } from '@data-foundry/query-model';
+import type {
+  SearchQuery,
+  SurfaceQueryModel,
+  TraversalQuery,
+} from '@data-foundry/query-model';
+
+const ACTIVE_RUNTIMES = {
+  hvac: { ...RUNTIMES['hvac']!, vertical_status: 'ACTIVE' },
+};
 
 let fixtures: QueryFixtures;
 const openFixtureDriver = async () => fixtures.driver;
@@ -49,7 +57,7 @@ describe('sitemapSegmentXml — dataset_landing is gate-checked, not assumed', (
     // uses, not one written to make this assertion pass.
     const deployment = await getDeployment({
       env: { POSTGRES_URL: 'postgres://fixture/db', PUBLIC_ORIGIN: 'https://data-foundry.test' },
-      runtimes: RUNTIMES,
+      runtimes: ACTIVE_RUNTIMES,
       openDriver: openFixtureDriver,
     });
     const vertical = deployment.verticals.get('hvac')!;
@@ -61,7 +69,7 @@ describe('sitemapSegmentXml — dataset_landing is gate-checked, not assumed', (
   it('still includes docs_api_mcp — its gate is `none`, unconditionally indexable', async () => {
     const deployment = await getDeployment({
       env: { POSTGRES_URL: 'postgres://fixture/db', PUBLIC_ORIGIN: 'https://data-foundry.test' },
-      runtimes: RUNTIMES,
+      runtimes: ACTIVE_RUNTIMES,
       openDriver: openFixtureDriver,
     });
     const vertical = deployment.verticals.get('hvac')!;
@@ -101,7 +109,7 @@ describe('sitemapSegmentXml — per-entity fan-out performance', () => {
     await seedEquipmentModels(fixtures, 3, 'nolookup');
     const deployment = await getDeployment({
       env: { POSTGRES_URL: 'postgres://fixture/db', PUBLIC_ORIGIN: 'https://data-foundry.test' },
-      runtimes: RUNTIMES,
+      runtimes: ACTIVE_RUNTIMES,
       openDriver: openFixtureDriver,
     });
     const vertical = deployment.verticals.get('hvac')!;
@@ -130,7 +138,7 @@ describe('sitemapSegmentXml — per-entity fan-out performance', () => {
     await seedEquipmentModels(fixtures, 5, 'concurrency');
     const deployment = await getDeployment({
       env: { POSTGRES_URL: 'postgres://fixture/db', PUBLIC_ORIGIN: 'https://data-foundry.test' },
-      runtimes: RUNTIMES,
+      runtimes: ACTIVE_RUNTIMES,
       openDriver: openFixtureDriver,
     });
     const vertical = deployment.verticals.get('hvac')!;
@@ -206,6 +214,14 @@ function fakeSurfaceModel(
       return entity === undefined ? null : { entity, redirected_from: null };
     },
     canonicalFacts: async () => [],
+    explainFact: async () => null,
+    relationships: async (query: TraversalQuery) => ({
+      root: query.entity_id,
+      edges: [],
+      depth: query.depth ?? 1,
+      truncated: false,
+      unevidenced_edge_count: 0,
+    }),
   } as unknown as SurfaceQueryModel;
 }
 
@@ -225,6 +241,7 @@ function paginationVertical(
   const indexCalls: SearchQuery[] = [];
   const runtime = {
     ...RUNTIMES['hvac']!,
+    vertical_status: 'ACTIVE',
     seo: {
       ...RUNTIMES['hvac']!.seo,
       page_classes: [
@@ -269,7 +286,9 @@ describe('sitemap pagination and configured file limits', () => {
     );
 
     expect(xml).toContain('pagination-model-204');
-    expect(publicCalls.map((call) => call.offset)).toEqual([0, 200]);
+    expect(
+      publicCalls.filter((call) => (call.limit ?? 200) > 1).map((call) => call.offset),
+    ).toEqual([0, 200]);
     expect(publicCalls.every((call) => (call.limit ?? 0) <= 200)).toBe(true);
   });
 

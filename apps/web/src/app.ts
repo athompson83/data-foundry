@@ -19,7 +19,7 @@ import {
 } from './http.js';
 import { llmsTxt } from './llms.js';
 import {
-  entityHref,
+  pageClassHref,
   render404,
   renderDatasetLanding,
   renderDocs,
@@ -31,6 +31,7 @@ import {
 import { matchPageClass } from './router.js';
 import { robotsTxt } from './robots.js';
 import { sitemapIndexXml, sitemapSegmentXml } from './sitemap.js';
+import { verticalPublicationEligibility } from './publication.js';
 
 const READ_METHODS = new Set(['GET', 'HEAD']);
 const PARSE_BASE = 'http://web.invalid';
@@ -69,7 +70,7 @@ type VerticalResult =
   | { readonly kind: 'html'; readonly status: number; readonly body: string }
   | { readonly kind: 'xml'; readonly body: string }
   | { readonly kind: 'text'; readonly body: string }
-  | { readonly kind: 'redirect'; readonly location: string };
+  | { readonly kind: 'redirect'; readonly location: string; readonly status: number };
 
 async function dispatchVertical(
   vertical: VerticalDeployment,
@@ -80,6 +81,8 @@ async function dispatchVertical(
   const origin = context.deployment.publicOrigin;
   const prefix = vertical.runtime.seo.url_prefix;
   const rest = pathname.slice(prefix.length);
+  const eligibility = await verticalPublicationEligibility(vertical);
+  if (!eligibility.publicWeb) return null;
 
   if (rest === '' || rest === '/') {
     const page = await renderDatasetLanding(vertical, origin);
@@ -88,14 +91,19 @@ async function dispatchVertical(
   if (rest === '/search') {
     const q = query.get('q');
     const type = query.get('type');
-    const page = await renderSearch(vertical, origin, {
-      ...(q === null ? {} : { q }),
-      ...(type === null ? {} : { type }),
-    });
+    const page = await renderSearch(
+      vertical,
+      origin,
+      {
+        ...(q === null ? {} : { q }),
+        ...(type === null ? {} : { type }),
+      },
+      eligibility.searchIndex,
+    );
     return { kind: 'html', status: page.status, body: page.html };
   }
   if (rest === '/docs') {
-    const page = renderDocs(vertical, origin);
+    const page = renderDocs(vertical, origin, eligibility.searchIndex);
     return { kind: 'html', status: page.status, body: page.html };
   }
   if (rest === '/llms.txt' || rest === '/llms-full.txt') {
@@ -136,9 +144,15 @@ async function dispatchVertical(
     slug as never,
   );
   if (view === null) return null;
-  if (view.redirected_from !== null) {
-    const canonicalHref = entityHref(vertical, view.entity);
-    if (canonicalHref !== null) return { kind: 'redirect', location: canonicalHref };
+  if (
+    view.redirected_from !== null &&
+    vertical.runtime.seo.canonical.redirect_on_merge
+  ) {
+    return {
+      kind: 'redirect',
+      location: pageClassHref(pageClass, view.entity),
+      status: vertical.runtime.seo.canonical.redirect_status,
+    };
   }
 
   const page =
@@ -163,7 +177,7 @@ async function dispatch(context: WebContext, request: WebRequest): Promise<WebRe
   }
   const pathname = url.pathname;
 
-  if (pathname === '/') return htmlResponse(200, renderParentIndex(context.deployment));
+  if (pathname === '/') return htmlResponse(200, await renderParentIndex(context.deployment));
   if (pathname === '/robots.txt') return textResponse(200, robotsTxt(context.deployment));
   if (pathname === '/sitemap-index.xml') {
     return xmlResponse(200, await sitemapIndexXml(context.deployment, context.now()));
@@ -178,7 +192,7 @@ async function dispatch(context: WebContext, request: WebRequest): Promise<WebRe
   switch (result.kind) {
     case 'redirect':
       return {
-        status: 301,
+        status: result.status,
         headers: {
           location: result.location,
           'cache-control': 'no-store',

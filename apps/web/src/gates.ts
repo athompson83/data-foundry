@@ -46,7 +46,7 @@ export interface GateSignals {
 
 export interface GateVerdict {
   readonly passed: boolean;
-  /** Human-readable, in `seo.yaml`'s own vocabulary — surfaced in the coverage notice. */
+  /** Internal diagnostics only. Never render these strings on a public page. */
   readonly failures: readonly string[];
 }
 

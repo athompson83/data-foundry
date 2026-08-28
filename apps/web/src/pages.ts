@@ -5,8 +5,13 @@
  * `bodyHtml` to `layout()`. No page decides its own indexability by fiat —
  * `gates.ts` does, from what was actually measured.
  */
-import type { Entity, VerticalId } from '@data-foundry/canonical-schema';
-import type { EntityView, SurfaceQueryModel } from '@data-foundry/query-model';
+import type { Entity } from '@data-foundry/canonical-schema';
+import type {
+  CanonicalFactView,
+  EntityView,
+  RelationshipEdge,
+  SurfaceFactExplanation,
+} from '@data-foundry/query-model';
 import type { VerticalDeployment, WebDeployment } from './composition.js';
 import {
   computeEntitySignals,
@@ -24,11 +29,22 @@ import {
   type SeoConfig,
 } from './seo.js';
 import { DEFAULT_CONCURRENCY, mapWithConcurrency } from './concurrency.js';
+import {
+  datasetRenderedCountsCovered,
+  loadEntityContentIntersection,
+  relationshipTraversalEquivalent,
+  sameRenderedEntityIdentity,
+  verticalPublicationEligibility,
+} from './publication.js';
+
+export function pageClassHref(pageClass: PageClass, entity: Entity): string {
+  return fillTemplate(pageClass.path, { canonical_slug: entity.canonical_slug });
+}
 
 export function entityHref(vertical: VerticalDeployment, entity: Entity): string | null {
   const pageClass = pageClassForEntityType(vertical.runtime.seo, entity.entity_type);
   if (pageClass === null) return null;
-  return fillTemplate(pageClass.path, { canonical_slug: entity.canonical_slug });
+  return pageClassHref(pageClass, entity);
 }
 
 function robotsFor(seo: SeoConfig, passed: boolean): string {
@@ -39,16 +55,12 @@ function combinedFailures(...groups: readonly (readonly string[])[]): readonly s
   return [...new Set(groups.flat())];
 }
 
-function coverageNotice(seo: SeoConfig, failures: readonly string[]): string {
-  if (!seo.on_gate_failure.show_coverage_notice || failures.length === 0) return '';
-  const template =
-    seo.on_gate_failure.notice_template ?? 'This page is incomplete: {missing_count} check(s) unmet.';
-  const text = template
-    .replace('{missing_count}', String(failures.length))
-    .replace('{critical_count}', String(failures.length));
-  return `<div class="notice"><p>${escapeHtml(text)}</p><ul>${failures
-    .map((f) => `<li>${escapeHtml(f)}</li>`)
-    .join('')}</ul></div>`;
+function coverageNotice(seo: SeoConfig, failed: boolean): string {
+  if (!seo.on_gate_failure.show_coverage_notice || !failed) return '';
+  // Gate and authorization diagnostics remain server-internal. Counts and
+  // causes are differenceable and would turn this otherwise harmless notice
+  // into a source/permission oracle.
+  return '<div class="notice"><p>This page does not currently meet publication-quality requirements.</p></div>';
 }
 
 /**
@@ -78,12 +90,22 @@ function datasetStructuredData(
 }
 
 /** The parent site: every industry this deployment serves (ADR-0011). */
-export function renderParentIndex(deployment: WebDeployment): string {
-  const items = [...deployment.verticals.values()]
-    .sort((a, b) => a.slug.localeCompare(b.slug))
-    .map((v) => {
+export async function renderParentIndex(deployment: WebDeployment): Promise<string> {
+  const verticals = [...deployment.verticals.values()].sort((a, b) =>
+    a.slug.localeCompare(b.slug),
+  );
+  const eligibility = await mapWithConcurrency(
+    verticals,
+    DEFAULT_CONCURRENCY,
+    verticalPublicationEligibility,
+  );
+  const published = verticals
+    .map((vertical, index) => ({ vertical, eligibility: eligibility[index] }))
+    .filter((entry) => entry.eligibility?.publicWeb === true);
+  const items = published
+    .map(({ vertical: v }) => {
       const href = escapeAttr(v.runtime.seo.url_prefix);
-      return `<li><a href="${href}">${escapeHtml(v.runtime.vertical_name)}</a> — <span>${escapeHtml(v.runtime.vertical_status)}</span></li>`;
+      return `<a href="${href}">${escapeHtml(v.runtime.vertical_name)}</a> — <span>${escapeHtml(v.runtime.vertical_status)}</span>`;
     });
 
   const body = `
@@ -98,7 +120,9 @@ ${items.length === 0 ? '<p>No industry is currently serving data from this deplo
     description:
       'A repeatable data foundry: evidence-backed, source-cited knowledge products, one dataset per industry.',
     canonicalUrl: `${deployment.publicOrigin}/`,
-    robots: 'index,follow',
+    robots: published.every((entry) => entry.eligibility?.searchIndex === true)
+      ? 'index,follow'
+      : 'noindex,follow',
     bodyHtml: body,
   });
 }
@@ -147,14 +171,21 @@ export async function renderDatasetLanding(
         evaluateGate(gate, publicSignals).failures,
         evaluateGate(gate, indexSignals).failures,
       );
+      if (!(await datasetRenderedCountsCovered(vertical))) {
+        failures = combinedFailures(failures, ['rendered dataset counts differ by surface']);
+      }
+    } else {
+      failures = ['dataset page quality gate is unavailable'];
     }
+  } else {
+    failures = ['dataset page policy is unavailable'];
   }
   const passed = failures.length === 0;
 
   const body = `
 <h1>${escapeHtml(vertical.runtime.vertical_name)}</h1>
 <p>${escapeHtml(vertical.runtime.vertical_status)} vertical. Browse by type, or <a href="${escapeHtml(`${seo.url_prefix}/search`)}">search all ${escapeHtml(vertical.runtime.vertical_name)} data</a>.</p>
-${coverageNotice(seo, failures)}
+${coverageNotice(seo, !passed)}
 <h2>Browse</h2>
 <ul>${browseLinks}</ul>
 <p><a href="${escapeHtml(`${seo.url_prefix}/docs`)}">API &amp; MCP access</a> for programmatic and agent queries.</p>`;
@@ -164,7 +195,7 @@ ${coverageNotice(seo, failures)}
     description: `Evidence-backed ${vertical.runtime.vertical_name} data: every value cites its source.`,
     canonicalUrl,
     robots: robotsFor(seo, passed),
-    structuredData: datasetStructuredData(vertical, pageClass),
+    structuredData: passed ? datasetStructuredData(vertical, pageClass) : undefined,
     bodyHtml: body,
     breadcrumbs: [
       { label: 'Data Foundry', href: '/' },
@@ -191,15 +222,11 @@ function safeEvidenceHref(value: string): string | null {
 }
 
 async function factsTable(
-  vertical: VerticalDeployment,
-  entityId: Entity['id'],
-  facts: Awaited<ReturnType<SurfaceQueryModel['canonicalFacts']>>,
+  facts: readonly CanonicalFactView[],
+  explanations: readonly (SurfaceFactExplanation | null)[],
   criticalProperties: readonly string[],
 ): Promise<string> {
   const published = facts.filter((fact) => fact.fact_id !== null);
-  const explanations = await mapWithConcurrency(published, DEFAULT_CONCURRENCY, (fact) =>
-    vertical.publicQueryModel.explainFact(entityId, fact.property),
-  );
   const rows = published
     .map((f, index) => {
       const critical = criticalProperties.includes(f.property) ? ' *' : '';
@@ -237,15 +264,12 @@ export async function renderEntityDetail(
   const seo = vertical.runtime.seo;
   const entity = entityView.entity;
   const critical = vertical.runtime.critical_properties[entity.entity_type] ?? [];
-  const facts = await vertical.publicQueryModel.canonicalFacts(entity.id);
-
-  const traversal = await vertical.publicQueryModel.relationships({
-    entity_id: entity.id,
+  const content = await loadEntityContentIntersection(vertical, entity, {
     direction: 'both',
     depth: 1,
     limit: 50,
   });
-  const relatedLinks = traversal.edges
+  const relatedLinks = content.publicTraversal.edges
     .map((edge) => {
       const href = entityHref(vertical, edge.neighbor);
       if (href === null) return null;
@@ -256,7 +280,11 @@ export async function renderEntityDetail(
   const title = fillTemplate(pageClass.title, { canonical_name: entity.canonical_name });
   const canonicalUrl = `${publicOrigin}${fillTemplate(pageClass.path, { canonical_slug: entity.canonical_slug })}`;
 
-  const evidenceTable = await factsTable(vertical, entity.id, facts, critical);
+  const evidenceTable = await factsTable(
+    content.publicFacts,
+    content.publicExplanations,
+    critical,
+  );
   const contentBody = `
 <h1>${escapeHtml(entity.canonical_name)}</h1>
 <p class="evidence">Quality score ${entity.quality_score.toFixed(2)} · last verified ${entity.last_verified_at ?? 'never'}</p>
@@ -265,7 +293,9 @@ ${relatedLinks.length > 0 ? `<h2>Related</h2><ul>${relatedLinks.join('')}</ul>` 
 
   const contentWords = countContentWords(contentBody.replace(/<[^>]+>/g, ' '));
 
-  let failures: readonly string[] = [];
+  let failures: readonly string[] = content.searchIndexCoversRenderedContent
+    ? []
+    : ['SEARCH_INDEX does not cover the exact rendered entity claims'];
   const gate = gateFor(seo, pageClass.quality_gate);
   if (gate !== null) {
     const publicBase = await computeEntitySignals(
@@ -279,46 +309,36 @@ ${relatedLinks.length > 0 ? `<h2>Related</h2><ul>${relatedLinks.join('')}</ul>` 
     );
     const publicSignals: GateSignals = { ...publicBase, unique_content_words: contentWords };
     if (gate.min_related_entities !== undefined) {
-      (publicSignals as { related_entities?: number }).related_entities = traversal.edges.length;
+      (publicSignals as { related_entities?: number }).related_entities =
+        content.publicTraversal.edges.length;
     }
     const publicFailures = evaluateGate(gate, publicSignals).failures;
 
-    const indexView = await vertical.searchIndexQueryModel.getEntity(entity.id);
-    if (indexView === null) {
-      failures = combinedFailures(publicFailures, [
-        'SEARCH_INDEX surface authorization could not be established.',
-      ]);
-    } else {
-      const [indexBase, indexTraversal] = await Promise.all([
-        computeEntitySignals(
-          vertical.searchIndexQueryModel,
-          entity.id,
-          entity.quality_score,
-          entity.updated_at,
-          critical,
-          {},
-          now,
-        ),
-        gate.min_related_entities === undefined
-          ? Promise.resolve(null)
-          : vertical.searchIndexQueryModel.relationships({
-              entity_id: entity.id,
-              direction: 'both',
-              depth: 1,
-              limit: 50,
-            }),
-      ]);
-      const indexSignals: GateSignals = { ...indexBase, unique_content_words: contentWords };
-      if (indexTraversal !== null) {
-        (indexSignals as { related_entities?: number }).related_entities =
-          indexTraversal.edges.length;
-      }
-      failures = combinedFailures(publicFailures, evaluateGate(gate, indexSignals).failures);
+    const indexBase = await computeEntitySignals(
+      vertical.searchIndexQueryModel,
+      entity.id,
+      entity.quality_score,
+      entity.updated_at,
+      critical,
+      {},
+      now,
+    );
+    const indexSignals: GateSignals = { ...indexBase, unique_content_words: contentWords };
+    if (gate.min_related_entities !== undefined) {
+      (indexSignals as { related_entities?: number }).related_entities =
+        content.indexTraversal.edges.length;
     }
+    failures = combinedFailures(
+      failures,
+      publicFailures,
+      evaluateGate(gate, indexSignals).failures,
+    );
+  } else {
+    failures = combinedFailures(failures, ['entity page quality gate is unavailable']);
   }
   const passed = failures.length === 0;
 
-  const body = `${coverageNotice(seo, failures)}${contentBody}`;
+  const body = `${coverageNotice(seo, !passed)}${contentBody}`;
 
   const html = layout({
     title,
@@ -335,6 +355,92 @@ ${relatedLinks.length > 0 ? `<h2>Related</h2><ul>${relatedLinks.join('')}</ul>` 
   return { html, status: 200 };
 }
 
+function relationshipEvidenceCoverage(edges: readonly RelationshipEdge[]): number {
+  return edges.length === 0
+    ? 1
+    : edges.filter((edge) => edge.evidence_count > 0).length / edges.length;
+}
+
+async function terminalEntityIndexable(
+  vertical: VerticalDeployment,
+  entity: Entity,
+  now: Date,
+): Promise<boolean> {
+  const pageClass = pageClassForEntityType(vertical.runtime.seo, entity.entity_type);
+  if (pageClass === null) return false;
+  const gate = gateFor(vertical.runtime.seo, pageClass.quality_gate);
+  if (gate === null) return false;
+
+  const content = await loadEntityContentIntersection(vertical, entity);
+  if (!content.searchIndexCoversRenderedContent) return false;
+  const critical = vertical.runtime.critical_properties[entity.entity_type] ?? [];
+  const [publicBase, indexBase] = await Promise.all([
+    computeEntitySignals(
+      vertical.publicQueryModel,
+      entity.id,
+      entity.quality_score,
+      entity.updated_at,
+      critical,
+      {},
+      now,
+    ),
+    computeEntitySignals(
+      vertical.searchIndexQueryModel,
+      entity.id,
+      entity.quality_score,
+      entity.updated_at,
+      critical,
+      {},
+      now,
+    ),
+  ]);
+  const publicSignals: GateSignals = { ...publicBase };
+  const indexSignals: GateSignals = { ...indexBase };
+  if (gate.min_related_entities !== undefined) {
+    (publicSignals as { related_entities?: number }).related_entities =
+      content.publicTraversal.edges.length;
+    (indexSignals as { related_entities?: number }).related_entities =
+      content.indexTraversal.edges.length;
+  }
+  // unique_content_words and other unavailable dimensions remain unmeasured,
+  // so a target gate that requires them fails closed here.
+  return evaluateGate(gate, publicSignals).passed && evaluateGate(gate, indexSignals).passed;
+}
+
+async function terminalChainIndexable(
+  vertical: VerticalDeployment,
+  start: Entity,
+  now: Date,
+): Promise<boolean> {
+  const seen = new Set<string>();
+  let current = start;
+  for (let hop = 0; hop < 32; hop += 1) {
+    if (seen.has(current.id)) return false;
+    seen.add(current.id);
+
+    const query = {
+      entity_id: current.id,
+      predicate: 'supersedes' as never,
+      direction: 'in' as const,
+      depth: 1,
+      limit: 2,
+    };
+    const [publicTraversal, indexTraversal] = await Promise.all([
+      vertical.publicQueryModel.relationships(query),
+      vertical.searchIndexQueryModel.relationships(query),
+    ]);
+    if (!relationshipTraversalEquivalent(publicTraversal, indexTraversal, true)) return false;
+    if (publicTraversal.edges.length === 0) {
+      return terminalEntityIndexable(vertical, current, now);
+    }
+    // Multiple active successors are ambiguous; choosing one would turn input
+    // ordering into a recommendation. Resolve only an exact single chain.
+    if (publicTraversal.edges.length !== 1) return false;
+    current = publicTraversal.edges[0]!.neighbor;
+  }
+  return false;
+}
+
 export async function renderReplacement(
   vertical: VerticalDeployment,
   entityView: EntityView,
@@ -344,18 +450,33 @@ export async function renderReplacement(
 ): Promise<RenderedPage> {
   const seo = vertical.runtime.seo;
   const entity = entityView.entity;
-  const traversal = await vertical.publicQueryModel.relationships({
+  const query = {
     entity_id: entity.id,
     predicate: 'supersedes' as never,
-    direction: 'both',
+    direction: 'in' as const,
     depth: 1,
     limit: 10,
-  });
+  };
+  const [publicTraversal, indexTraversal, indexView] = await Promise.all([
+    vertical.publicQueryModel.relationships(query),
+    vertical.searchIndexQueryModel.relationships(query),
+    vertical.searchIndexQueryModel.getEntity(entity.id),
+  ]);
+  const replacements = publicTraversal.edges;
+  const exactRenderedRelationships =
+    indexView !== null &&
+    sameRenderedEntityIdentity(entity, indexView.entity) &&
+    relationshipTraversalEquivalent(publicTraversal, indexTraversal, true);
+  const terminalResults = await mapWithConcurrency(
+    replacements,
+    DEFAULT_CONCURRENCY,
+    (edge) => terminalChainIndexable(vertical, edge.neighbor, now),
+  );
+  const everyTerminalIndexable =
+    replacements.length > 0 && terminalResults.every((result) => result);
 
-  const replacements = traversal.edges.filter((e) => e.direction === 'in');
   const title = fillTemplate(pageClass.title, { canonical_name: entity.canonical_name });
-  const canonicalUrl = `${publicOrigin}${fillTemplate(pageClass.path, { canonical_slug: entity.canonical_slug })}`;
-
+  const canonicalUrl = `${publicOrigin}${pageClassHref(pageClass, entity)}`;
   const list = replacements
     .map((edge) => {
       const href = entityHref(vertical, edge.neighbor);
@@ -364,58 +485,35 @@ export async function renderReplacement(
         : `<li><a href="${escapeHtml(href)}">${escapeHtml(edge.neighbor.canonical_name)}</a></li>`;
     })
     .join('');
-
   const contentBody = `
 <h1>${escapeHtml(title)}</h1>
 ${replacements.length === 0 ? '<p>No recorded replacement.</p>' : `<ul>${list}</ul>`}`;
   const contentWords = countContentWords(contentBody.replace(/<[^>]+>/g, ' '));
 
-  let failures: readonly string[] = [];
+  let failures: readonly string[] = exactRenderedRelationships
+    ? []
+    : ['SEARCH_INDEX does not cover the exact rendered replacement claims'];
   const gate = gateFor(seo, pageClass.quality_gate);
   if (gate !== null) {
-    let terminalIndexable = false;
-    if (replacements.length > 0) {
-      const target = replacements[0]!.neighbor;
-      const targetPageClass = pageClassForEntityType(seo, target.entity_type);
-      if (targetPageClass !== null) {
-        const targetGate = gateFor(seo, targetPageClass.quality_gate);
-        if (targetGate !== null) {
-          const targetView = await vertical.publicQueryModel.getEntity(target.id);
-          if (targetView !== null) {
-            const targetCritical = vertical.runtime.critical_properties[target.entity_type] ?? [];
-            const targetSignals = await computeEntitySignals(
-              vertical.publicQueryModel,
-              target.id,
-              target.quality_score,
-              target.updated_at,
-              targetCritical,
-              {},
-              now,
-            );
-            // Content words are not re-rendered for the target here — that
-            // would recurse into a full page render. `false` is the honest,
-            // fail-closed answer when that dimension cannot be checked
-            // without doing so; see gates.ts's UNMEASURED convention.
-            terminalIndexable = evaluateGate(targetGate, targetSignals).passed;
-          }
-        }
-      }
-    }
-    // This page's substance is the relationship traversal, not the entity's
-    // own facts — its evidence_coverage reads relationships.coverage from the
-    // surface-authorized edge evidence, rather than an unrestricted provenance
-    // aggregate or a constant assertion.
-    const signals: GateSignals = {
+    const publicSignals: GateSignals = {
       supersession_edges: replacements.length,
-      terminal_model_indexable: terminalIndexable,
+      terminal_model_indexable: everyTerminalIndexable,
       unique_content_words: contentWords,
-      evidence_coverage:
-        traversal.edges.length === 0
-          ? 1
-          : traversal.edges.filter((edge) => edge.evidence_count > 0).length /
-            traversal.edges.length,
+      evidence_coverage: relationshipEvidenceCoverage(replacements),
     };
-    failures = evaluateGate(gate, signals).failures;
+    const indexSignals: GateSignals = {
+      supersession_edges: indexTraversal.edges.length,
+      terminal_model_indexable: everyTerminalIndexable,
+      unique_content_words: contentWords,
+      evidence_coverage: relationshipEvidenceCoverage(indexTraversal.edges),
+    };
+    failures = combinedFailures(
+      failures,
+      evaluateGate(gate, publicSignals).failures,
+      evaluateGate(gate, indexSignals).failures,
+    );
+  } else {
+    failures = combinedFailures(failures, ['replacement quality gate is unavailable']);
   }
   const passed = failures.length === 0;
 
@@ -424,7 +522,7 @@ ${replacements.length === 0 ? '<p>No recorded replacement.</p>' : `<ul>${list}</
     description: `What replaces ${entity.canonical_name}, with evidence.`,
     canonicalUrl,
     robots: robotsFor(seo, passed),
-    bodyHtml: `${coverageNotice(seo, failures)}${contentBody}`,
+    bodyHtml: `${coverageNotice(seo, !passed)}${contentBody}`,
     breadcrumbs: [
       { label: 'Data Foundry', href: '/' },
       { label: vertical.runtime.vertical_name, href: seo.url_prefix },
@@ -435,7 +533,11 @@ ${replacements.length === 0 ? '<p>No recorded replacement.</p>' : `<ul>${list}</
   return { html, status: 200 };
 }
 
-export function renderDocs(vertical: VerticalDeployment, publicOrigin: string): RenderedPage {
+export function renderDocs(
+  vertical: VerticalDeployment,
+  publicOrigin: string,
+  searchIndexEligible: boolean,
+): RenderedPage {
   const seo = vertical.runtime.seo;
   const canonicalUrl = `${publicOrigin}${seo.url_prefix}/docs`;
   const body = `
@@ -452,7 +554,7 @@ export function renderDocs(vertical: VerticalDeployment, publicOrigin: string): 
     title: `${vertical.runtime.vertical_name} — API and MCP docs`,
     description: `How to query ${vertical.runtime.vertical_name} data programmatically.`,
     canonicalUrl,
-    robots: 'index,follow',
+    robots: robotsFor(seo, searchIndexEligible),
     bodyHtml: body,
     breadcrumbs: [
       { label: 'Data Foundry', href: '/' },
@@ -467,6 +569,7 @@ export async function renderSearch(
   vertical: VerticalDeployment,
   publicOrigin: string,
   query: { readonly q?: string; readonly type?: string },
+  searchIndexEligible: boolean,
 ): Promise<RenderedPage> {
   const seo = vertical.runtime.seo;
   const hasQuery = (query.q !== undefined && query.q.trim() !== '') || query.type !== undefined;
@@ -515,7 +618,7 @@ export async function renderSearch(
     // A parametrized result view is a generated, combinatorial page — the same
     // reasoning `seo.yaml` applies to `filtered_collection`. The bare form
     // (no query) is the indexable wayfinding hub; a specific query is not.
-    robots: hasQuery ? 'noindex,follow' : 'index,follow',
+    robots: hasQuery ? 'noindex,follow' : robotsFor(seo, searchIndexEligible),
     bodyHtml: body,
     breadcrumbs: [
       { label: 'Data Foundry', href: '/' },

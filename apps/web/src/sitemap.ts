@@ -10,6 +10,11 @@ import { sitemapSegmentUrl } from './router.js';
 import { DEFAULT_CONCURRENCY, mapWithConcurrency } from './concurrency.js';
 import type { VerticalDeployment, WebDeployment } from './composition.js';
 import type { PageClass, QualityGate } from './seo.js';
+import {
+  datasetRenderedCountsCovered,
+  loadEntityContentIntersection,
+  verticalPublicationEligibility,
+} from './publication.js';
 
 /** The canonical query layer clamps searches to 200; never pretend a larger request bypasses it. */
 const SEARCH_PAGE_SIZE = 200;
@@ -112,9 +117,8 @@ async function isEntityIndexable(
   entity: Entity,
   now: Date,
 ): Promise<boolean> {
-  // The public search already proved PUBLIC_WEB identity authorization. This
-  // separate lookup is the non-implication check for SEARCH_INDEX.
-  if ((await vertical.searchIndexQueryModel.getEntity(entity.id)) === null) return false;
+  const content = await loadEntityContentIntersection(vertical, entity);
+  if (!content.searchIndexCoversRenderedContent) return false;
   const gate = vertical.runtime.seo.quality_gates[pageClass.quality_gate];
   if (gate === undefined) return false;
 
@@ -154,7 +158,9 @@ async function collectStaticLocation(
   pageClass: PageClass & { readonly route_kind: 'static' },
 ): Promise<readonly string[]> {
   if (pageClass.id === 'docs_api_mcp') {
-    return [`${publicOrigin}${vertical.runtime.seo.url_prefix}/docs`];
+    return (await verticalPublicationEligibility(vertical)).searchIndex
+      ? [`${publicOrigin}${vertical.runtime.seo.url_prefix}/docs`]
+      : [];
   }
   if (pageClass.id !== 'dataset_landing') return [];
 
@@ -164,7 +170,9 @@ async function collectStaticLocation(
     computeVerticalDatasetSignals(vertical.publicQueryModel, vertical.verticalId),
     computeVerticalDatasetSignals(vertical.searchIndexQueryModel, vertical.verticalId),
   ]);
-  return evaluateGate(gate, publicSignals).passed && evaluateGate(gate, indexSignals).passed
+  const contentCovered = await datasetRenderedCountsCovered(vertical);
+  return contentCovered &&
+    evaluateGate(gate, publicSignals).passed && evaluateGate(gate, indexSignals).passed
     ? [`${publicOrigin}${vertical.runtime.seo.url_prefix}`]
     : [];
 }
@@ -209,6 +217,8 @@ export async function sitemapIndexXml(
 ): Promise<string> {
   const entries: string[] = [];
   for (const vertical of deployment.verticals.values()) {
+    const eligibility = await verticalPublicationEligibility(vertical);
+    if (!eligibility.publicWeb || !eligibility.searchIndex) continue;
     const limit = checkedFileLimit(vertical);
     for (const segment of vertical.runtime.seo.sitemaps.segments) {
       const locations = await collectSegmentLocations(
@@ -242,6 +252,8 @@ export async function sitemapSegmentXml(
   shard = 1,
 ): Promise<string> {
   const limit = checkedFileLimit(vertical);
+  const eligibility = await verticalPublicationEligibility(vertical);
+  if (!eligibility.publicWeb || !eligibility.searchIndex) return urlset([]);
   if (!Number.isSafeInteger(shard) || shard < 1) return urlset([]);
   const segment = vertical.runtime.seo.sitemaps.segments.find((entry) => entry.id === segmentId);
   if (segment === undefined) return urlset([]);
