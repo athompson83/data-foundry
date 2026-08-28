@@ -37,6 +37,7 @@ import type {
   TransformSpec,
   VocabularyDefinition,
 } from '@data-foundry/normalization';
+import { parseNormalizationRuleSet } from '@data-foundry/normalization';
 import type { FactValueType, Identifier } from '@data-foundry/canonical-schema';
 import { MappingCompilationError } from './errors.js';
 import { primaryAliasType, type VerticalConfig } from './config.js';
@@ -293,38 +294,76 @@ function compileStreamPlan(
   }
 
   // ---- derived properties (layer 2, `only_if_absent`) ----------------------
-  for (const derived of config.typedValues?.derived_properties ?? []) {
-    const property = String(derived.property);
-    const from = String(derived.from);
-    if (derived.only_if_absent === true && propertyFields.has(property)) continue;
-    if (!declaredProperties.has(property)) continue;
-    const origin = propertyFields.get(from);
-    if (origin === undefined) continue;
-
-    const declared = declaredProperties.get(property) as Yaml;
-    const unit = declared.unit === null || declared.unit === undefined ? null : String(declared.unit);
-    if (unit === null) continue;
-
-    const transforms: TransformSpec[] = [
-      {
-        kind: 'quantity',
-        target_unit: unit,
-        default_unit: origin.sourceUnit ?? unit,
-      },
-    ];
-    if (typeof derived.round_to === 'number') {
-      transforms.push({ kind: 'round', decimals: derived.round_to });
-    }
-    propertyRules.push({
-      property: asIdentifier(property, `derived.${property}`),
-      source_field: origin.field,
-      value_type: String(declared.value_type) as FactValueType,
-      output_kind: 'DERIVED_METRIC',
-      derived_from_property: asIdentifier(from, `derived.${property}.from`),
-      transformation_ref: `${config.slug}.${property}.from.${from}.v1`,
-      unit,
-      transforms,
+  // A declaration may name another derived output as its parent and may be
+  // written before that parent. Compile the per-stream graph to a fixed point;
+  // every emitted output becomes available to later descendants. The field
+  // and source unit remain those of the root extraction value because the
+  // normalization contract reads source fields, while dependency identity is
+  // carried separately by `derived_from_property`.
+  const pendingDerived: Yaml[] = (config.typedValues?.derived_properties ?? [])
+    .filter((derived: Yaml) => {
+      const property = String(derived.property);
+      if (!declaredProperties.has(property)) return false;
+      return !(derived.only_if_absent === true && propertyFields.has(property));
     });
+  while (pendingDerived.length > 0) {
+    let progressed = false;
+    for (let index = 0; index < pendingDerived.length;) {
+      const derived = pendingDerived[index] as Yaml;
+      const property = String(derived.property);
+      const from = String(derived.from);
+      if (derived.only_if_absent === true && propertyFields.has(property)) {
+        pendingDerived.splice(index, 1);
+        progressed = true;
+        continue;
+      }
+      const origin = propertyFields.get(from);
+      if (origin === undefined) {
+        index += 1;
+        continue;
+      }
+
+      const declared = declaredProperties.get(property) as Yaml;
+      const unit = declared.unit === null || declared.unit === undefined ? null : String(declared.unit);
+      if (unit === null) {
+        throw new MappingCompilationError(
+          `${path}.derived_properties.${property}`,
+          'derived quantity requires a declared canonical unit',
+        );
+      }
+      const transforms: TransformSpec[] = [
+        {
+          kind: 'quantity',
+          target_unit: unit,
+          default_unit: origin.sourceUnit ?? unit,
+        },
+      ];
+      if (typeof derived.round_to === 'number') {
+        transforms.push({ kind: 'round', decimals: derived.round_to });
+      }
+      propertyRules.push({
+        property: asIdentifier(property, `derived.${property}`),
+        source_field: origin.field,
+        value_type: String(declared.value_type) as FactValueType,
+        output_kind: 'DERIVED_METRIC',
+        derived_from_property: asIdentifier(from, `derived.${property}.from`),
+        transformation_ref: `${config.slug}.${property}.from.${from}.v1`,
+        unit,
+        transforms,
+      });
+      propertyFields.set(property, origin);
+      pendingDerived.splice(index, 1);
+      progressed = true;
+    }
+    if (!progressed) {
+      const unresolved = pendingDerived.map(
+        (derived) => `${String(derived.property)} <- ${String(derived.from)} (parent unavailable)`,
+      );
+      throw new MappingCompilationError(
+        `${path}.derived_properties`,
+        `unresolved derived graph (missing parent or cycle): ${unresolved.join(', ')}`,
+      );
+    }
   }
 
   // ---- relationships -------------------------------------------------------
@@ -403,7 +442,7 @@ function compileStreamPlan(
     vocabularies[id] = vocabulary;
   }
 
-  const ruleSet: NormalizationRuleSet = {
+  const ruleSet = parseNormalizationRuleSet({
     id: `${config.slug}:${sourceKey}:${stream}`,
     version: config.schemaVersion,
     vertical: config.slug,
@@ -411,7 +450,7 @@ function compileStreamPlan(
     properties: propertyRules,
     identifiers: identifierRules,
     vocabularies,
-  };
+  }, `${path}.rule_set`);
 
   return {
     sourceKey,

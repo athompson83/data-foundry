@@ -172,7 +172,7 @@ export function canonicalFactView(selection: FactSelection): CanonicalFactView |
     fact_id: selected.fact.id,
     rule: selection.rule,
     reason: selection.reason,
-    sources: [...publishers],
+    sources: [...publishers].sort(compareCodeUnits),
     conflicts: selection.conflicts,
     unresolved_conflict: selection.unresolved_conflict,
     editorially_corrected: selection.editorially_corrected,

@@ -210,7 +210,7 @@ describe('field-level lineage', () => {
     }))).toEqual([
       { input_fact_id: inputB.fact.id, transformation_ref: 'lineage.add.v1' },
       { input_fact_id: intermediate.fact.id, transformation_ref: 'lineage.multiply.v1' },
-    ].sort((left, right) => left.input_fact_id < right.input_fact_id ? -1 : 1));
+    ]);
     expect(lineage?.dependencies.find(
       (dependency) => dependency.input_fact_id === intermediate.fact.id,
     )?.lineage?.dependencies[0]?.transformation_ref).toBe('lineage.divide.v1');

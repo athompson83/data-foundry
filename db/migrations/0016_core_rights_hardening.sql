@@ -12,9 +12,13 @@ LOCK TABLE rights_field_group_members IN SHARE ROW EXCLUSIVE MODE;
 
 DO $$
 BEGIN
-    -- Lock every referenced group before auditing the upgrade boundary. A
-    -- member created after the first cell reference is already an ambiguous
-    -- expansion; migration must stop instead of blessing today's membership.
+    -- Lock every referenced group before auditing the upgrade boundary.
+    -- `created_at` is caller-supplied and can be backdated; transaction-stable
+    -- `now()` also gives cell-then-member writes equal timestamps. Therefore no
+    -- timestamp ordering can prove that existing membership was reviewed when
+    -- the cell was created. Without an independent proof mechanism in the old
+    -- schema, every populated referenced group is ambiguous and must move to a
+    -- new reviewed group/cell lineage rather than be blessed by this migration.
     PERFORM group_row.id
       FROM rights_field_groups group_row
      WHERE EXISTS (
@@ -25,14 +29,13 @@ BEGIN
     IF EXISTS (
         SELECT 1
           FROM rights_field_group_members member
-          JOIN LATERAL (
-            SELECT min(cell.created_at) AS first_referenced_at
+         WHERE EXISTS (
+            SELECT 1
               FROM rights_cells cell
              WHERE cell.field_group_id = member.field_group_id
-          ) reference ON reference.first_referenced_at IS NOT NULL
-         WHERE member.created_at > reference.first_referenced_at
+         )
     ) THEN
-        RAISE EXCEPTION 'referenced rights field group contains a post-reference member; create a new reviewed lineage before upgrading'
+        RAISE EXCEPTION 'referenced rights field group has pre-existing membership whose review ordering cannot be proven; create a new reviewed group/cell lineage before upgrading'
             USING ERRCODE = '23514';
     END IF;
 END;

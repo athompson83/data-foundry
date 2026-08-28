@@ -154,7 +154,12 @@ describe('the manifest identifies the snapshot', () => {
       mode: 'allowlist',
       include: expect.arrayContaining(['refrigerant', 'seer2_rating']) as unknown,
     });
-    expect(policy.ordering.facts).toEqual(['entity_slug', 'entity_id', 'property']);
+    expect(policy.ordering.facts).toEqual([
+      'entity_type',
+      'entity_slug',
+      'property',
+      'entity_id',
+    ]);
   });
 });
 

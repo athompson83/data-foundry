@@ -8,14 +8,15 @@ import {
   type FactSelectionPolicyInput,
   type SqlRow,
 } from '@data-foundry/canonical-store';
-import type {
-  EntityId,
-  FactId,
-  Identifier,
-  IsoDateTime,
-  Relationship,
-  Slug,
-  VerticalId,
+import {
+  compareCodeUnits,
+  type EntityId,
+  type FactId,
+  type Identifier,
+  type IsoDateTime,
+  type Relationship,
+  type Slug,
+  type VerticalId,
 } from '@data-foundry/canonical-schema';
 import {
   authorizeSurface,
@@ -530,29 +531,72 @@ class SurfaceRightsAuthorizer {
     if (!derived) return true;
     const nextAncestors = new Set(ancestors);
     nextAncestors.add(factId);
+    const dependencyContributions = new Map<string, ArtifactContribution>();
     for (const row of dependencyRows) {
-      const input = await this.#store.getFactById(row.input_fact_id as FactId);
-      if (input === null || input.output_kind === null) return false;
-      const inputCandidates = await this.#store.loadFactCandidates(
-        input.entity_id,
-        input.property,
-        this.#asOf,
-      );
-      const inputCandidate = inputCandidates.find((entry) => entry.fact.id === input.id);
-      if (inputCandidate === undefined) return false;
-      const inputContributions = inputCandidate.evidence.map(contributionFromEvidence);
-      if (
-        inputContributions.some((entry) => entry === null) ||
-        !(await this.#authorizeDerivationContribution(
-          inputContributions as ArtifactContribution[],
-          fact.property,
-        )) ||
-        !(await this.#authorizeFact(row.input_fact_id, nextAncestors))
-      ) {
-        return false;
+      const subtree = await this.#collectFactContributions(row.input_fact_id, nextAncestors);
+      if (subtree === null) return false;
+      for (const contribution of subtree) {
+        dependencyContributions.set(contribution.contributionId, contribution);
       }
     }
+    if (
+      !(await this.#authorizeDerivationContribution(
+        [...dependencyContributions.values()],
+        fact.property,
+      ))
+    ) {
+      return false;
+    }
+    // DERIVE on the ultimate target is separate from whether each input may be
+    // distributed on this surface under its own field/output tuple.
+    for (const row of dependencyRows) {
+      if (!(await this.#authorizeFact(row.input_fact_id, nextAncestors))) return false;
+    }
     return true;
+  }
+
+  async #collectFactContributions(
+    factId: string,
+    ancestors: ReadonlySet<string>,
+  ): Promise<readonly ArtifactContribution[] | null> {
+    if (ancestors.has(factId)) return null;
+    const fact = await this.#store.getFactById(factId as FactId);
+    if (fact === null || fact.output_kind === null) return null;
+    const candidates = await this.#store.loadFactCandidates(
+      fact.entity_id,
+      fact.property,
+      this.#asOf,
+    );
+    const candidate = candidates.find((entry) => entry.fact.id === fact.id);
+    if (candidate === undefined || candidate.evidence.length === 0) return null;
+    const direct = candidate.evidence.map(contributionFromEvidence);
+    if (direct.some((entry) => entry === null)) return null;
+
+    const dependencyRows = await this.#store.driver.query<{ input_fact_id: string } & SqlRow>(
+      `SELECT input_fact_id
+         FROM fact_dependencies
+        WHERE derived_fact_id = $1
+        ORDER BY input_fact_id`,
+      [fact.id],
+    );
+    const derived = fact.output_kind === 'DERIVED_METRIC';
+    if ((derived && dependencyRows.length === 0) || (!derived && dependencyRows.length > 0)) {
+      return null;
+    }
+    const contributions = new Map<string, ArtifactContribution>();
+    for (const contribution of direct as ArtifactContribution[]) {
+      contributions.set(contribution.contributionId, contribution);
+    }
+    const nextAncestors = new Set(ancestors);
+    nextAncestors.add(factId);
+    for (const row of dependencyRows) {
+      const nested = await this.#collectFactContributions(row.input_fact_id, nextAncestors);
+      if (nested === null) return null;
+      for (const contribution of nested) {
+        contributions.set(contribution.contributionId, contribution);
+      }
+    }
+    return [...contributions.values()];
   }
 
   authorizeRelationship(relationship: Relationship): Promise<boolean> {
@@ -722,7 +766,7 @@ export function createSurfaceQueryModel(
         const lineage = view.fact_id === null ? null : await factLineage(store.driver, view.fact_id);
         const publishers = new Set(view.sources);
         for (const link of lineage?.chain ?? []) publishers.add(link.source.publisher);
-        views.push({ ...view, sources: [...publishers] });
+        views.push({ ...view, sources: [...publishers].sort(compareCodeUnits) });
       }
     }
     return views;

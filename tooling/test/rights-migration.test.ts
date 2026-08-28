@@ -258,7 +258,7 @@ describe('0016 referenced field-group upgrade audit', () => {
 
       const error = await captureError(applyMigrations(upgrade, migrations));
       expect(errorCode((error as { cause?: unknown } | null)?.cause)).toBe('23514');
-      expect(String((error as Error | null)?.message)).toContain('post-reference member');
+      expect(String((error as Error | null)?.message)).toContain('cannot be proven');
       const applied = await upgrade.query<{ version: string }>(
         `SELECT version FROM schema_migrations WHERE version = '0016'`,
       );
@@ -268,7 +268,7 @@ describe('0016 referenced field-group upgrade audit', () => {
     }
   }, 120_000);
 
-  it('preserves a populated group whose complete membership predates its first reference', async () => {
+  it('refuses a populated referenced group even when timestamps claim membership predates reference', async () => {
     const upgrade = await createPGliteDriver();
     const group = '71000000-0000-4000-8000-000000000111';
     const cell = '71000000-0000-4000-8000-000000000112';
@@ -310,21 +310,141 @@ describe('0016 referenced field-group upgrade audit', () => {
       );
       await upgrade.exec('COMMIT');
 
-      await expect(applyMigrations(upgrade, migrations)).resolves.toBeDefined();
+      const error = await captureError(applyMigrations(upgrade, migrations));
+      expect(errorCode((error as { cause?: unknown } | null)?.cause)).toBe('23514');
+      expect(String((error as Error | null)?.message)).toContain('cannot be proven');
       const members = await upgrade.query<{ field_key: string }>(
         `SELECT field_key FROM rights_field_group_members
           WHERE field_group_id = $1 ORDER BY field_key`,
         [group],
       );
       expect(members).toEqual([{ field_key: 'eer2' }, { field_key: 'seer2' }]);
-      const expansionError = await rollbackProbeOn(
-        upgrade,
+      expect(await upgrade.query(
+        `SELECT version FROM schema_migrations WHERE version = '0016'`,
+      )).toEqual([]);
+    } finally {
+      await upgrade.close();
+    }
+  }, 120_000);
+
+  it.each([
+    {
+      label: 'an explicit timestamp equal to the first reference',
+      cellCreatedAt: '2026-07-03T00:00:00Z',
+      memberCreatedAt: '2026-07-03T00:00:00Z',
+    },
+    {
+      label: 'a caller-supplied backdated timestamp earlier than the first reference',
+      cellCreatedAt: '2026-07-03T00:00:00Z',
+      memberCreatedAt: '2026-07-02T00:00:00Z',
+    },
+  ])('refuses $label when the member was inserted after the cell', async ({
+    cellCreatedAt,
+    memberCreatedAt,
+  }) => {
+    const upgrade = await createPGliteDriver();
+    const group = crypto.randomUUID();
+    const cell = crypto.randomUUID();
+    const decision = crypto.randomUUID();
+    try {
+      await applyMigrations(upgrade, migrations.filter((migration) => migration.version < '0016'));
+      await seedSource(upgrade);
+      await seedRightsFoundation(upgrade);
+      await upgrade.exec('BEGIN');
+      await upgrade.query(
+        `INSERT INTO rights_field_groups (id, source_id, group_key, name, created_by)
+         VALUES ($1, $2, $3, 'Ambiguous upgrade group', 'test-suite')`,
+        [group, SOURCE, `ambiguous_${group.replaceAll('-', '')}`],
+      );
+      await upgrade.query(
+        `INSERT INTO rights_cells
+           (id, source_id, field_group_id, operation, channel, created_by, created_at)
+         VALUES ($1, $2, $3, 'DISPLAY_PUBLICLY', 'PUBLIC_WEBSITE', 'test-suite', $4)`,
+        [cell, SOURCE, group, cellCreatedAt],
+      );
+      await upgrade.query(
+        `INSERT INTO rights_field_group_members
+           (field_group_id, source_id, field_key, created_by, created_at)
+         VALUES ($1, $2, 'seer2', 'test-suite', $3)`,
+        [group, SOURCE, memberCreatedAt],
+      );
+      await upgrade.query(
+        `INSERT INTO rights_decisions
+           (id, cell_id, state, review_status, reviewer_type, reviewed_at, rationale, created_by)
+         VALUES ($1, $2, 'UNKNOWN', 'ASSESSMENT', 'AUTOMATED', $3,
+                 'fixture assessment', 'test-suite')`,
+        [decision, cell, TS],
+      );
+      await upgrade.query(
+        `SELECT activate_rights_decision($1, 'AUTOMATED', 'test-suite', 'fixture', $2)`,
+        [decision, TS],
+      );
+      await upgrade.exec('COMMIT');
+
+      const error = await captureError(applyMigrations(upgrade, migrations));
+      expect(errorCode((error as { cause?: unknown } | null)?.cause)).toBe('23514');
+      expect(String((error as Error | null)?.message)).toContain('cannot be proven');
+      expect(await upgrade.query(
+        `SELECT version FROM schema_migrations WHERE version = '0016'`,
+      )).toEqual([]);
+    } finally {
+      await upgrade.close();
+    }
+  }, 120_000);
+
+  it('refuses cell-then-member defaults whose transaction-stable timestamps are equal', async () => {
+    const upgrade = await createPGliteDriver();
+    const group = crypto.randomUUID();
+    const cell = crypto.randomUUID();
+    const decision = crypto.randomUUID();
+    try {
+      await applyMigrations(upgrade, migrations.filter((migration) => migration.version < '0016'));
+      await seedSource(upgrade);
+      await seedRightsFoundation(upgrade);
+      await upgrade.exec('BEGIN');
+      await upgrade.query(
+        `INSERT INTO rights_field_groups (id, source_id, group_key, name, created_by)
+         VALUES ($1, $2, $3, 'Default timestamp group', 'test-suite')`,
+        [group, SOURCE, `default_${group.replaceAll('-', '')}`],
+      );
+      await upgrade.query(
+        `INSERT INTO rights_cells
+           (id, source_id, field_group_id, operation, channel, created_by)
+         VALUES ($1, $2, $3, 'DISPLAY_PUBLICLY', 'PUBLIC_WEBSITE', 'test-suite')`,
+        [cell, SOURCE, group],
+      );
+      await upgrade.query(
         `INSERT INTO rights_field_group_members
            (field_group_id, source_id, field_key, created_by)
-         VALUES ($1, $2, 'hspf2', 'test-suite')`,
+         VALUES ($1, $2, 'seer2', 'test-suite')`,
         [group, SOURCE],
       );
-      expect(errorCode(expansionError)).toBe('55000');
+      await upgrade.query(
+        `INSERT INTO rights_decisions
+           (id, cell_id, state, review_status, reviewer_type, reviewed_at, rationale, created_by)
+         VALUES ($1, $2, 'UNKNOWN', 'ASSESSMENT', 'AUTOMATED', $3,
+                 'fixture assessment', 'test-suite')`,
+        [decision, cell, TS],
+      );
+      await upgrade.query(
+        `SELECT activate_rights_decision($1, 'AUTOMATED', 'test-suite', 'fixture', $2)`,
+        [decision, TS],
+      );
+      await upgrade.exec('COMMIT');
+      expect(await upgrade.query<{ timestamps_equal: boolean }>(
+        `SELECT member.created_at = cell.created_at AS timestamps_equal
+           FROM rights_field_group_members member
+           JOIN rights_cells cell ON cell.field_group_id = member.field_group_id
+          WHERE member.field_group_id = $1`,
+        [group],
+      )).toEqual([{ timestamps_equal: true }]);
+
+      const error = await captureError(applyMigrations(upgrade, migrations));
+      expect(errorCode((error as { cause?: unknown } | null)?.cause)).toBe('23514');
+      expect(String((error as Error | null)?.message)).toContain('cannot be proven');
+      expect(await upgrade.query(
+        `SELECT version FROM schema_migrations WHERE version = '0016'`,
+      )).toEqual([]);
     } finally {
       await upgrade.close();
     }

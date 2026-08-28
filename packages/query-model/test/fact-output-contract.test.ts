@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { factConfidence } from '@data-foundry/canonical-schema';
+import { factConfidence, type Fact } from '@data-foundry/canonical-schema';
 import {
   addSyntheticEntityEvidence,
   claim,
@@ -254,7 +254,177 @@ describe('fact output contract at canonical query boundaries', () => {
       new Set(['Acme Climate', 'Ratings Directory']),
     );
   });
+
+  it('requires a deep contributor to authorize the exact ultimate target through deny and revocation history', async () => {
+    fixtures = await createQueryFixtures({ trigram: false });
+    await seedSyntheticSurfaceRights(fixtures, ['PUBLIC_WEB'], ['manufacturer', 'certifier']);
+    await addSyntheticEntityEvidence(fixtures, fixtures.equipment);
+    await appendThreeLevelFixture(fixtures, {
+      root: 'ultimate_root',
+      middle: 'ultimate_middle',
+      output: 'ultimate_output',
+    });
+    await seedScopedDeriveDecision(fixtures, {
+      sourceKey: 'certifier',
+      fieldKey: 'ultimate_middle',
+      outputClass: 'DERIVED_METRIC',
+      state: 'ALLOW',
+    });
+    await seedScopedDeriveDecision(fixtures, {
+      sourceKey: 'manufacturer',
+      fieldKey: 'ultimate_output',
+      outputClass: 'DERIVED_METRIC',
+      state: 'ALLOW',
+    });
+
+    // The immediate manufacturer input is authorized for the ultimate target,
+    // but the deep certifier is not. Its middle-target grant cannot be laundered.
+    expect(await surfaceProperties(fixtures, '2026-02-01T00:00:00Z')).not.toContain(
+      'ultimate_output',
+    );
+
+    const denied = await seedScopedDeriveDecision(fixtures, {
+      sourceKey: 'certifier',
+      fieldKey: 'ultimate_output',
+      outputClass: 'DERIVED_METRIC',
+      state: 'DENY',
+    });
+    expect(await surfaceProperties(fixtures, '2026-02-01T00:00:00Z')).not.toContain(
+      'ultimate_output',
+    );
+
+    const allowed = await seedScopedDeriveDecision(fixtures, {
+      sourceKey: 'certifier',
+      fieldKey: 'ultimate_output',
+      outputClass: 'DERIVED_METRIC',
+      state: 'ALLOW',
+      cellId: denied.cellId,
+      supersedesDecisionId: denied.decisionId,
+      occurredAt: '2026-03-01T00:00:00Z',
+    });
+    expect(await surfaceProperties(fixtures, '2026-04-01T00:00:00Z')).toContain(
+      'ultimate_output',
+    );
+
+    const revoked = await seedScopedDeriveDecision(fixtures, {
+      sourceKey: 'certifier',
+      fieldKey: 'ultimate_output',
+      outputClass: 'DERIVED_METRIC',
+      state: 'UNKNOWN',
+      cellId: allowed.cellId,
+      supersedesDecisionId: allowed.decisionId,
+      occurredAt: '2026-05-01T00:00:00Z',
+    });
+    expect(await surfaceProperties(fixtures, '2026-06-01T00:00:00Z')).not.toContain(
+      'ultimate_output',
+    );
+
+    await seedScopedDeriveDecision(fixtures, {
+      sourceKey: 'certifier',
+      fieldKey: 'ultimate_output',
+      outputClass: 'DERIVED_METRIC',
+      state: 'ALLOW',
+      cellId: revoked.cellId,
+      supersedesDecisionId: revoked.decisionId,
+      occurredAt: '2026-07-01T00:00:00Z',
+    });
+    expect(await surfaceProperties(fixtures, '2026-08-01T00:00:00Z')).toContain(
+      'ultimate_output',
+    );
+  });
+
+  it('does not reuse a fact-only authorization result across two ultimate targets', async () => {
+    fixtures = await createQueryFixtures({ trigram: false });
+    await seedSyntheticSurfaceRights(fixtures, ['PUBLIC_WEB'], ['manufacturer', 'certifier']);
+    await addSyntheticEntityEvidence(fixtures, fixtures.equipment);
+    const middle = await appendThreeLevelFixture(fixtures, {
+      root: 'cache_root',
+      middle: 'cache_middle',
+      output: 'cache_allowed_output',
+    });
+    await appendDerivedOutput(
+      fixtures,
+      middle,
+      'cache_blocked_output',
+      'cache.blocked.v1',
+    );
+    await seedScopedDeriveDecision(fixtures, {
+      sourceKey: 'certifier', fieldKey: 'cache_middle',
+      outputClass: 'DERIVED_METRIC', state: 'ALLOW',
+    });
+    for (const fieldKey of ['cache_allowed_output', 'cache_blocked_output']) {
+      await seedScopedDeriveDecision(fixtures, {
+        sourceKey: 'manufacturer', fieldKey,
+        outputClass: 'DERIVED_METRIC', state: 'ALLOW',
+      });
+    }
+    await seedScopedDeriveDecision(fixtures, {
+      sourceKey: 'certifier', fieldKey: 'cache_allowed_output',
+      outputClass: 'DERIVED_METRIC', state: 'ALLOW',
+    });
+
+    const properties = await surfaceProperties(fixtures, '2026-07-01T00:00:00Z');
+    expect(properties).toContain('cache_allowed_output');
+    expect(properties).not.toContain('cache_blocked_output');
+  });
 });
+
+async function appendThreeLevelFixture(
+  current: QueryFixtures,
+  properties: { readonly root: string; readonly middle: string; readonly output: string },
+): Promise<Awaited<ReturnType<QueryFixtures['store']['appendDerivedFactWithEvidence']>>['fact']> {
+  const root = await claim(current, 'certifier', {
+    entity_id: current.equipment.id,
+    property: properties.root as never,
+    value: 12,
+    value_type: 'number',
+  });
+  const middle = await appendDerivedOutput(
+    current,
+    root.fact,
+    properties.middle,
+    `test.${properties.middle}.v1`,
+  );
+  await appendDerivedOutput(
+    current,
+    middle,
+    properties.output,
+    `test.${properties.output}.v1`,
+  );
+  return middle;
+}
+
+async function appendDerivedOutput(
+  current: QueryFixtures,
+  input: Fact,
+  property: string,
+  transformationRef: string,
+): Promise<Awaited<ReturnType<QueryFixtures['store']['appendDerivedFactWithEvidence']>>['fact']> {
+  const source = current.sources.manufacturer;
+  const result = await current.store.appendDerivedFactWithEvidence(
+    {
+      entity_id: current.equipment.id,
+      property: property as never,
+      normalized_value: 6,
+      value_type: 'number',
+      unit: null,
+      valid_from: ts('2026-02-01T00:00:00Z'),
+      confidence: factConfidence(0.9),
+      recorded_at: ts('2026-02-01T00:00:00Z'),
+      status: 'ACTIVE',
+    },
+    [{
+      artifact_id: source.artifact.id,
+      source_record_id: source.record.id,
+      source_value: '6',
+      locator_type: 'WHOLE_DOCUMENT',
+      locator_value: '',
+      observed_at: source.artifact.retrieved_at,
+    }],
+    [{ input_fact_id: input.id, transformation_ref: transformationRef }],
+  );
+  return result.fact;
+}
 
 async function appendDerivedFixture(
   current: QueryFixtures,

@@ -34,6 +34,8 @@ import {
 } from '@data-foundry/canonical-store';
 import {
   canPublish,
+  compareCodeUnits,
+  compareKeys,
   type EntityId,
   type Fact,
   type FactEvidence,
@@ -112,7 +114,60 @@ const CHAIN_SELECT = (evidenceTable: string, evidenceColumns: string, key: strin
      JOIN source_artifacts sa ON sa.id = fe.artifact_id
      JOIN sources s ON s.id = sr.source_id
     WHERE fe.${key} = $1
-    ORDER BY fe.observed_at, fe.id`;
+    ORDER BY fe.observed_at`;
+
+/** Stable JSON-like text used only as a semantic ordering key. */
+function semanticValue(value: unknown): string {
+  if (value === null || typeof value !== 'object') return JSON.stringify(value);
+  if (Array.isArray(value)) return `[${value.map(semanticValue).join(',')}]`;
+  const record = value as Record<string, unknown>;
+  return `{${Object.keys(record)
+    .sort(compareCodeUnits)
+    .map((key) => `${JSON.stringify(key)}:${semanticValue(record[key])}`)
+    .join(',')}}`;
+}
+
+/** Public lineage order. Deliberately contains no database-minted identifier. */
+function evidenceSemanticKey(link: EvidenceChainLink): readonly string[] {
+  return [
+    link.source.publisher,
+    link.source.domain,
+    link.source.source_type,
+    link.source_record.source_record_key,
+    link.artifact.content_hash,
+    link.artifact.url,
+    link.retrieved_at,
+    link.locator.type,
+    link.locator.value,
+    link.source_value,
+    link.observed_at,
+  ];
+}
+
+function compareEvidenceLinks(left: EvidenceChainLink, right: EvidenceChainLink): number {
+  return compareKeys(evidenceSemanticKey(left), evidenceSemanticKey(right));
+}
+
+function dependencySemanticKey(dependency: FactDependencyLineage): readonly string[] {
+  const fact = dependency.lineage?.fact;
+  return [
+    fact?.property ?? '',
+    semanticValue(fact?.normalized_value ?? null),
+    fact?.value_type ?? '',
+    fact?.unit ?? '',
+    fact?.valid_from ?? '',
+    fact?.recorded_at ?? '',
+    dependency.transformation_ref,
+    ...(dependency.lineage?.chain.flatMap((link) => evidenceSemanticKey(link)) ?? []),
+  ];
+}
+
+function compareDependencies(
+  left: FactDependencyLineage,
+  right: FactDependencyLineage,
+): number {
+  return compareKeys(dependencySemanticKey(left), dependencySemanticKey(right));
+}
 
 function summarize(chain: readonly EvidenceChainLink[]): {
   traceable: boolean;
@@ -158,7 +213,7 @@ async function factLineageRecursive(
       evidence.observed_at,
       row,
     );
-  });
+  }).sort(compareEvidenceLinks);
 
   if (ancestors.has(factId)) {
     return {
@@ -180,7 +235,7 @@ async function factLineageRecursive(
     `SELECT input_fact_id, transformation_ref
        FROM fact_dependencies
       WHERE derived_fact_id = $1
-      ORDER BY input_fact_id::text COLLATE "C", transformation_ref COLLATE "C"`,
+      ORDER BY transformation_ref COLLATE "C"`,
     [factId],
   );
   const nextAncestors = new Set(ancestors);
@@ -197,6 +252,7 @@ async function factLineageRecursive(
       cycle_detected: cycleDetected || lineage?.cycle_detected === true,
     });
   }
+  dependencies.sort(compareDependencies);
 
   const chainByEvidenceId = new Map<string, EvidenceChainLink>();
   for (const chainLink of directChain) chainByEvidenceId.set(chainLink.evidence.id, chainLink);
@@ -205,7 +261,7 @@ async function factLineageRecursive(
       chainByEvidenceId.set(chainLink.evidence.id, chainLink);
     }
   }
-  const chain = [...chainByEvidenceId.values()];
+  const chain = [...chainByEvidenceId.values()].sort(compareEvidenceLinks);
   const cycleDetected = dependencies.some((dependency) => dependency.cycle_detected);
   const traceable = directChain.length > 0 && !cycleDetected && dependencies.every(
     (dependency) => dependency.lineage?.traceable === true,
@@ -248,7 +304,7 @@ export async function relationshipLineage(
       evidence.observed_at,
       chainRow,
     );
-  });
+  }).sort(compareEvidenceLinks);
 
   return { relationship, chain, ...summarize(chain) };
 }

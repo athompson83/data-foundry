@@ -17,10 +17,9 @@
  * ORDERING. Both row sets carry an explicit, total sort key. Nothing here
  * depends on the order rows came back from Postgres, on `Map` iteration, or on
  * a collator: `compareCodeUnits` is the only comparator, per
- * `tests/contract/ordering-determinism`. The keys are total, not merely
- * deterministic — `(entity_slug, entity_id, property)` is unique because
- * `canonicalFacts` returns one row per property, and evidence rows add the
- * evidence row's own id, which is a primary key.
+ * `tests/contract/ordering-determinism`. Semantic fields lead every key;
+ * database-minted UUIDs appear only as final tie-breakers so the order remains
+ * total without letting random ids reorder distinguishable public rows.
  */
 import { compareKeys, type Entity, type Slug } from '@data-foundry/canonical-schema';
 import { toExportRow, type CanonicalFactView, type ExportFactRow } from '@data-foundry/query-model';
@@ -107,8 +106,8 @@ export function exportRow(
 
 export function compareExportRows(left: ExportRow, right: ExportRow): number {
   return compareKeys(
-    [left.entity_slug, left.entity_id, left.property],
-    [right.entity_slug, right.entity_id, right.property],
+    [left.entity_type, left.entity_slug, left.property, left.entity_id],
+    [right.entity_type, right.entity_slug, right.property, right.entity_id],
   );
 }
 
@@ -211,7 +210,39 @@ export function exportEvidenceRow(
 
 export function compareEvidenceRows(left: ExportEvidenceRow, right: ExportEvidenceRow): number {
   return compareKeys(
-    [left.entity_slug, left.entity_id, left.property, left.fact_id, left.source_key, left.evidence_id],
-    [right.entity_slug, right.entity_id, right.property, right.fact_id, right.source_key, right.evidence_id],
+    [
+      left.entity_slug,
+      left.property,
+      left.source_key,
+      left.source_publisher,
+      left.source_domain,
+      left.artifact_content_hash,
+      left.artifact_url,
+      left.artifact_retrieved_at,
+      left.locator_type,
+      left.locator_value,
+      left.source_value,
+      left.observed_at,
+      left.entity_id,
+      left.fact_id,
+      left.evidence_id,
+    ],
+    [
+      right.entity_slug,
+      right.property,
+      right.source_key,
+      right.source_publisher,
+      right.source_domain,
+      right.artifact_content_hash,
+      right.artifact_url,
+      right.artifact_retrieved_at,
+      right.locator_type,
+      right.locator_value,
+      right.source_value,
+      right.observed_at,
+      right.entity_id,
+      right.fact_id,
+      right.evidence_id,
+    ],
   );
 }

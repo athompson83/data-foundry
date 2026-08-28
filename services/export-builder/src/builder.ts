@@ -180,7 +180,10 @@ const asJsonlRecord = (row: object, columns: readonly string[]): Record<string, 
 };
 
 const byEntityOrder = (left: Entity, right: Entity): number =>
-  compareKeys([left.canonical_slug, left.id], [right.canonical_slug, right.id]);
+  compareKeys(
+    [left.entity_type, left.canonical_slug, left.canonical_name, left.id],
+    [right.entity_type, right.canonical_slug, right.canonical_name, right.id],
+  );
 
 /** One source's footprint in a set of facts: which facts, and how many links. */
 interface SourceTally {
@@ -495,7 +498,10 @@ export async function buildDatasetExport(
       evidence_count: entry.evidence,
     }))
     .sort((left, right) =>
-      compareKeys([left.source.domain, left.source.id], [right.source.domain, right.source.id]),
+      compareKeys(
+        [left.source.domain, left.source.publisher, left.source.source_type, left.source.id],
+        [right.source.domain, right.source.publisher, right.source.source_type, right.source.id],
+      ),
     );
 
   const audit = auditContributingSources(
@@ -700,8 +706,24 @@ export async function buildDatasetExport(
       entity_statuses: [...statuses],
       properties,
       ordering: {
-        facts: ['entity_slug', 'entity_id', 'property'],
-        evidence: ['entity_slug', 'entity_id', 'property', 'fact_id', 'source_key', 'evidence_id'],
+        facts: ['entity_type', 'entity_slug', 'property', 'entity_id'],
+        evidence: [
+          'entity_slug',
+          'property',
+          'source_key',
+          'source_publisher',
+          'source_domain',
+          'artifact_content_hash',
+          'artifact_url',
+          'artifact_retrieved_at',
+          'locator_type',
+          'locator_value',
+          'source_value',
+          'observed_at',
+          'entity_id',
+          'fact_id',
+          'evidence_id',
+        ],
       },
     },
     rights_notice: RIGHTS_NOTICE,
