@@ -35,6 +35,7 @@ export * from './provider.js';
 export * from './policy/gate-types.js';
 export * from './policy/robots.js';
 export * from './policy/rights-gate.js';
+export * from './policy/refresh-schedule.js';
 export * from './policy/rate-limit.js';
 export * from './policy/conditional.js';
 export * from './policy/policy-snapshot.js';
