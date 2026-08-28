@@ -55,6 +55,9 @@ jobs:
       - name: Canonical schema exports are current
         run: pnpm schemas:check
 
+      - name: OpenAPI contract is current
+        run: pnpm openapi:check
+
       # 5. Vertical configuration. Validates every verticals/* declaration:
       #    required docs present, vertical.yaml well-formed, and every source
       #    carries complete rights metadata (AGENTS.md rule 1). No-ops cleanly

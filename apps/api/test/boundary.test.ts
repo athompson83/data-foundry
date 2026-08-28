@@ -215,6 +215,9 @@ describe('ADR-0004 — one fact serializer, shared', () => {
   it('constructs no fact wire object anywhere else', () => {
     // The camelCase field names only exist on the shared wire shape. A literal
     // carrying them outside `wire.ts` is a second serializer by definition.
+    // `openapi-schema.ts` is declarative JSON Schema metadata: it emits no
+    // runtime fact value and its correction fragment is identity-checked
+    // against query-model in `test/openapi.test.ts`.
     const factWireFields = [
       'editoriallyCorrected',
       'editorialCorrectionReason',
@@ -223,7 +226,7 @@ describe('ADR-0004 — one fact serializer, shared', () => {
       'valueType',
     ];
     for (const file of sourceFiles()) {
-      if (file.name === 'wire.ts') continue;
+      if (file.name === 'wire.ts' || file.name === 'openapi-schema.ts') continue;
       for (const field of factWireFields) {
         expect(file.text, `${file.name} builds a fact wire field: ${field}`).not.toContain(
           `${field}:`,

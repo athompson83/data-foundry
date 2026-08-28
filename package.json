@@ -17,6 +17,8 @@
     "migrate:check": "tsx tooling/scripts/migrate.ts --check",
     "schemas:generate": "tsx tooling/scripts/generate-json-schemas.ts",
     "schemas:check": "tsx tooling/scripts/generate-json-schemas.ts --check",
+    "openapi:generate": "tsx tooling/scripts/generate-openapi.ts",
+    "openapi:check": "tsx tooling/scripts/generate-openapi.ts --check",
     "verticals:validate": "tsx tooling/validators/validate-verticals.ts",
     "verticals:compile": "tsx tooling/scripts/compile-vertical-runtime.ts",
     "verticals:compile:check": "tsx tooling/scripts/compile-vertical-runtime.ts --check",

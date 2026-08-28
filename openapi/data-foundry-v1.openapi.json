@@ -1,0 +1,3157 @@
+{
+  "openapi": "3.1.0",
+  "jsonSchemaDialect": "https://json-schema.org/draft/2020-12/schema",
+  "info": {
+    "title": "Data Foundry API",
+    "version": "1.0.0",
+    "description": "One read-only canonical API served directly and through a trusted RapidAPI marketplace origin."
+  },
+  "servers": [
+    {
+      "url": "/",
+      "description": "The configured Data Foundry Cloudflare origin."
+    }
+  ],
+  "paths": {
+    "/v1/health": {
+      "get": {
+        "operationId": "getHealth",
+        "summary": "Liveness plus a real round trip through the canonical query layer.",
+        "tags": [
+          "health"
+        ],
+        "parameters": [],
+        "security": [
+          {
+            "DataFoundryBearer": []
+          },
+          {
+            "RapidApiProxySecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid or missing request parameter.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Origin authentication failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The authenticated key may not access this origin or vertical.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The version, route, or entity was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "The method is not allowed; this API is read-only.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The query is syntactically valid but unsupported by this vertical.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An opaque internal failure occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The query layer or deployment configuration is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-data-foundry-route-key": "health"
+      },
+      "head": {
+        "operationId": "getHealthHead",
+        "summary": "Liveness plus a real round trip through the canonical query layer.",
+        "tags": [
+          "health"
+        ],
+        "parameters": [],
+        "security": [
+          {
+            "DataFoundryBearer": []
+          },
+          {
+            "RapidApiProxySecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Same status and headers as GET, with no response body."
+          },
+          "400": {
+            "description": "Invalid or missing request parameter.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Origin authentication failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The authenticated key may not access this origin or vertical.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The version, route, or entity was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "The method is not allowed; this API is read-only.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The query is syntactically valid but unsupported by this vertical.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An opaque internal failure occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The query layer or deployment configuration is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-data-foundry-route-key": "health"
+      }
+    },
+    "/v1/entities/by-slug/{slug}": {
+      "get": {
+        "operationId": "getEntityBySlug",
+        "summary": "Entity by canonical slug. Honours retired slugs: a slug a merge took away answers 301 to the surviving entity.",
+        "tags": [
+          "entities"
+        ],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Vertical-defined entity type."
+            }
+          }
+        ],
+        "security": [
+          {
+            "DataFoundryBearer": []
+          },
+          {
+            "RapidApiProxySecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntityResponse"
+                }
+              }
+            }
+          },
+          "301": {
+            "description": "The canonical entity moved. Follow the Location header.",
+            "headers": {
+              "Location": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Canonical resource path."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RedirectResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid or missing request parameter.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Origin authentication failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The authenticated key may not access this origin or vertical.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The version, route, or entity was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "The method is not allowed; this API is read-only.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The query is syntactically valid but unsupported by this vertical.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An opaque internal failure occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The query layer or deployment configuration is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-data-foundry-route-key": "entities.by_slug"
+      },
+      "head": {
+        "operationId": "getEntityBySlugHead",
+        "summary": "Entity by canonical slug. Honours retired slugs: a slug a merge took away answers 301 to the surviving entity.",
+        "tags": [
+          "entities"
+        ],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Vertical-defined entity type."
+            }
+          }
+        ],
+        "security": [
+          {
+            "DataFoundryBearer": []
+          },
+          {
+            "RapidApiProxySecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Same status and headers as GET, with no response body."
+          },
+          "301": {
+            "description": "The canonical entity moved. Follow the Location header."
+          },
+          "400": {
+            "description": "Invalid or missing request parameter.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Origin authentication failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The authenticated key may not access this origin or vertical.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The version, route, or entity was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "The method is not allowed; this API is read-only.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The query is syntactically valid but unsupported by this vertical.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An opaque internal failure occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The query layer or deployment configuration is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-data-foundry-route-key": "entities.by_slug"
+      }
+    },
+    "/v1/entities/{id}": {
+      "get": {
+        "operationId": "getEntity",
+        "summary": "Entity by id. A merged-away id answers 301 with its redirect chain, never 404.",
+        "tags": [
+          "entities"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "security": [
+          {
+            "DataFoundryBearer": []
+          },
+          {
+            "RapidApiProxySecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntityResponse"
+                }
+              }
+            }
+          },
+          "301": {
+            "description": "The canonical entity moved. Follow the Location header.",
+            "headers": {
+              "Location": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Canonical resource path."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RedirectResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid or missing request parameter.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Origin authentication failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The authenticated key may not access this origin or vertical.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The version, route, or entity was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "The method is not allowed; this API is read-only.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The query is syntactically valid but unsupported by this vertical.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An opaque internal failure occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The query layer or deployment configuration is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-data-foundry-route-key": "entities.detail"
+      },
+      "head": {
+        "operationId": "getEntityHead",
+        "summary": "Entity by id. A merged-away id answers 301 with its redirect chain, never 404.",
+        "tags": [
+          "entities"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "security": [
+          {
+            "DataFoundryBearer": []
+          },
+          {
+            "RapidApiProxySecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Same status and headers as GET, with no response body."
+          },
+          "301": {
+            "description": "The canonical entity moved. Follow the Location header."
+          },
+          "400": {
+            "description": "Invalid or missing request parameter.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Origin authentication failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The authenticated key may not access this origin or vertical.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The version, route, or entity was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "The method is not allowed; this API is read-only.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The query is syntactically valid but unsupported by this vertical.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An opaque internal failure occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The query layer or deployment configuration is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-data-foundry-route-key": "entities.detail"
+      }
+    },
+    "/v1/entities/{id}/facts": {
+      "get": {
+        "operationId": "listEntityFacts",
+        "summary": "The canonical view: one selected value per property, with the doc-04 rule that chose it and its correction state.",
+        "description": "Only properties with a published value appear. A property whose every claim is retracted, unevidenced or backed only by RED/UNREVIEWED sources is omitted entirely.",
+        "tags": [
+          "entities"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "property",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Vertical-defined fact property."
+            }
+          },
+          {
+            "name": "at",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10000,
+              "default": 0
+            }
+          }
+        ],
+        "security": [
+          {
+            "DataFoundryBearer": []
+          },
+          {
+            "RapidApiProxySecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FactPageResponse"
+                }
+              }
+            }
+          },
+          "301": {
+            "description": "The canonical entity moved. Follow the Location header.",
+            "headers": {
+              "Location": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Canonical resource path."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RedirectResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid or missing request parameter.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Origin authentication failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The authenticated key may not access this origin or vertical.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The version, route, or entity was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "The method is not allowed; this API is read-only.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The query is syntactically valid but unsupported by this vertical.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An opaque internal failure occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The query layer or deployment configuration is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-data-foundry-route-key": "entities.facts"
+      },
+      "head": {
+        "operationId": "listEntityFactsHead",
+        "summary": "The canonical view: one selected value per property, with the doc-04 rule that chose it and its correction state.",
+        "description": "Only properties with a published value appear. A property whose every claim is retracted, unevidenced or backed only by RED/UNREVIEWED sources is omitted entirely.",
+        "tags": [
+          "entities"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "property",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Vertical-defined fact property."
+            }
+          },
+          {
+            "name": "at",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10000,
+              "default": 0
+            }
+          }
+        ],
+        "security": [
+          {
+            "DataFoundryBearer": []
+          },
+          {
+            "RapidApiProxySecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Same status and headers as GET, with no response body."
+          },
+          "301": {
+            "description": "The canonical entity moved. Follow the Location header."
+          },
+          "400": {
+            "description": "Invalid or missing request parameter.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Origin authentication failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The authenticated key may not access this origin or vertical.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The version, route, or entity was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "The method is not allowed; this API is read-only.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The query is syntactically valid but unsupported by this vertical.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An opaque internal failure occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The query layer or deployment configuration is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-data-foundry-route-key": "entities.facts"
+      }
+    },
+    "/v1/entities/{id}/relationships": {
+      "get": {
+        "operationId": "listEntityRelationships",
+        "summary": "Bounded graph traversal from this entity, breadth-first and cycle-guarded.",
+        "description": "This is a view of the publishable graph, not the whole graph. Rule 1 applies here as it does to facts: an edge whose every piece of evidence comes from a source that may not publish is withheld, and so is any neighbour reachable only through one. Those refusals are deliberately not counted in the response — a per-predicate count of them would let a caller reconstruct the withheld claim — so an absent edge means \"not publishable, or not asserted\", and never \"asserted to be false\". unevidencedEdgeCount reports a different case: edges nothing asserts at all.",
+        "tags": [
+          "entities"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "predicate",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Vertical-defined relationship predicate."
+            }
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "out",
+                "in",
+                "both"
+              ],
+              "default": "both"
+            }
+          },
+          {
+            "name": "depth",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 4,
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10000,
+              "default": 0
+            }
+          }
+        ],
+        "security": [
+          {
+            "DataFoundryBearer": []
+          },
+          {
+            "RapidApiProxySecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RelationshipPageResponse"
+                }
+              }
+            }
+          },
+          "301": {
+            "description": "The canonical entity moved. Follow the Location header.",
+            "headers": {
+              "Location": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Canonical resource path."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RedirectResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid or missing request parameter.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Origin authentication failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The authenticated key may not access this origin or vertical.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The version, route, or entity was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "The method is not allowed; this API is read-only.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The query is syntactically valid but unsupported by this vertical.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An opaque internal failure occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The query layer or deployment configuration is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-data-foundry-route-key": "entities.relationships"
+      },
+      "head": {
+        "operationId": "listEntityRelationshipsHead",
+        "summary": "Bounded graph traversal from this entity, breadth-first and cycle-guarded.",
+        "description": "This is a view of the publishable graph, not the whole graph. Rule 1 applies here as it does to facts: an edge whose every piece of evidence comes from a source that may not publish is withheld, and so is any neighbour reachable only through one. Those refusals are deliberately not counted in the response — a per-predicate count of them would let a caller reconstruct the withheld claim — so an absent edge means \"not publishable, or not asserted\", and never \"asserted to be false\". unevidencedEdgeCount reports a different case: edges nothing asserts at all.",
+        "tags": [
+          "entities"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "predicate",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Vertical-defined relationship predicate."
+            }
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "out",
+                "in",
+                "both"
+              ],
+              "default": "both"
+            }
+          },
+          {
+            "name": "depth",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 4,
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10000,
+              "default": 0
+            }
+          }
+        ],
+        "security": [
+          {
+            "DataFoundryBearer": []
+          },
+          {
+            "RapidApiProxySecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Same status and headers as GET, with no response body."
+          },
+          "301": {
+            "description": "The canonical entity moved. Follow the Location header."
+          },
+          "400": {
+            "description": "Invalid or missing request parameter.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Origin authentication failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The authenticated key may not access this origin or vertical.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The version, route, or entity was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "The method is not allowed; this API is read-only.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The query is syntactically valid but unsupported by this vertical.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An opaque internal failure occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The query layer or deployment configuration is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-data-foundry-route-key": "entities.relationships"
+      }
+    },
+    "/v1/search": {
+      "get": {
+        "operationId": "searchEntities",
+        "summary": "Faceted search. Exact identifier matches lead the result set ahead of any text ranking (AGENTS.md rule 7).",
+        "tags": [
+          "search"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Text or exact identifier search."
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Vertical-defined entity type."
+            }
+          },
+          {
+            "name": "filter.{field}",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Repeatable dotted filter parameter, such as filter.tonnage.min=3 or filter.refrigerant=R-454B,R-410A."
+            }
+          },
+          {
+            "name": "facets",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10000,
+              "default": 0
+            }
+          }
+        ],
+        "security": [
+          {
+            "DataFoundryBearer": []
+          },
+          {
+            "RapidApiProxySecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid or missing request parameter.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Origin authentication failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The authenticated key may not access this origin or vertical.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The version, route, or entity was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "The method is not allowed; this API is read-only.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The query is syntactically valid but unsupported by this vertical.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An opaque internal failure occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The query layer or deployment configuration is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-data-foundry-route-key": "search"
+      },
+      "head": {
+        "operationId": "searchEntitiesHead",
+        "summary": "Faceted search. Exact identifier matches lead the result set ahead of any text ranking (AGENTS.md rule 7).",
+        "tags": [
+          "search"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Text or exact identifier search."
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Vertical-defined entity type."
+            }
+          },
+          {
+            "name": "filter.{field}",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Repeatable dotted filter parameter, such as filter.tonnage.min=3 or filter.refrigerant=R-454B,R-410A."
+            }
+          },
+          {
+            "name": "facets",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10000,
+              "default": 0
+            }
+          }
+        ],
+        "security": [
+          {
+            "DataFoundryBearer": []
+          },
+          {
+            "RapidApiProxySecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Same status and headers as GET, with no response body."
+          },
+          "400": {
+            "description": "Invalid or missing request parameter.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Origin authentication failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The authenticated key may not access this origin or vertical.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The version, route, or entity was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "The method is not allowed; this API is read-only.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The query is syntactically valid but unsupported by this vertical.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An opaque internal failure occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The query layer or deployment configuration is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-data-foundry-route-key": "search"
+      }
+    },
+    "/v1/compare": {
+      "get": {
+        "operationId": "compareEntities",
+        "summary": "Side-by-side canonical values for 2–8 entities, aligned on declared field order.",
+        "description": "Comparison cells carry the selecting rule and conflict state but not correction state; read /v1/entities/{id}/facts for the full trust surface.",
+        "tags": [
+          "compare"
+        ],
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Comma-separated canonical entity UUIDs. Between 2 and 8 distinct entities after redirects."
+            }
+          },
+          {
+            "name": "properties",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Comma-separated vertical-defined fact properties."
+            }
+          },
+          {
+            "name": "at",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "security": [
+          {
+            "DataFoundryBearer": []
+          },
+          {
+            "RapidApiProxySecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompareResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid or missing request parameter.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Origin authentication failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The authenticated key may not access this origin or vertical.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The version, route, or entity was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "The method is not allowed; this API is read-only.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The query is syntactically valid but unsupported by this vertical.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An opaque internal failure occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The query layer or deployment configuration is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-data-foundry-route-key": "compare"
+      },
+      "head": {
+        "operationId": "compareEntitiesHead",
+        "summary": "Side-by-side canonical values for 2–8 entities, aligned on declared field order.",
+        "description": "Comparison cells carry the selecting rule and conflict state but not correction state; read /v1/entities/{id}/facts for the full trust surface.",
+        "tags": [
+          "compare"
+        ],
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Comma-separated canonical entity UUIDs. Between 2 and 8 distinct entities after redirects."
+            }
+          },
+          {
+            "name": "properties",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Comma-separated vertical-defined fact properties."
+            }
+          },
+          {
+            "name": "at",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "security": [
+          {
+            "DataFoundryBearer": []
+          },
+          {
+            "RapidApiProxySecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Same status and headers as GET, with no response body."
+          },
+          "400": {
+            "description": "Invalid or missing request parameter.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Origin authentication failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The authenticated key may not access this origin or vertical.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The version, route, or entity was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "The method is not allowed; this API is read-only.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The query is syntactically valid but unsupported by this vertical.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An opaque internal failure occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The query layer or deployment configuration is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-data-foundry-route-key": "compare"
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "DataFoundryBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "Data Foundry API key",
+        "description": "Direct API requests use a tenant/vertical-scoped Data Foundry bearer key."
+      },
+      "RapidApiProxySecret": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-RapidAPI-Proxy-Secret",
+        "description": "Marketplace-origin verification configured between RapidAPI and Data Foundry. This is not a customer credential."
+      }
+    },
+    "schemas": {
+      "ApiErrorEnvelope": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "code",
+              "status",
+              "message"
+            ],
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "status": {
+                "type": "integer",
+                "minimum": 400,
+                "maximum": 599
+              },
+              "message": {
+                "type": "string"
+              },
+              "details": {
+                "type": "object",
+                "additionalProperties": true
+              },
+              "requestId": {
+                "type": "string",
+                "maxLength": 64
+              }
+            }
+          }
+        }
+      },
+      "OpaqueEdgeErrorEnvelope": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "code",
+              "message"
+            ],
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "UNAUTHORIZED",
+                  "FORBIDDEN",
+                  "SERVICE_UNAVAILABLE"
+                ]
+              },
+              "message": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "PageMeta": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "limit",
+          "offset",
+          "total",
+          "hasMore"
+        ],
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "hasMore": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Entity": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "verticalId",
+          "entityType",
+          "canonicalName",
+          "canonicalSlug",
+          "status",
+          "qualityScore",
+          "firstSeenAt",
+          "lastVerifiedAt",
+          "createdAt",
+          "updatedAt"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "verticalId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "entityType": {
+            "type": "string"
+          },
+          "canonicalName": {
+            "type": "string"
+          },
+          "canonicalSlug": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "qualityScore": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "firstSeenAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastVerifiedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "RedirectHop": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "fromEntityId",
+          "toEntityId",
+          "fromSlug",
+          "reason",
+          "createdAt"
+        ],
+        "properties": {
+          "fromEntityId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "toEntityId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "fromSlug": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "RedirectTrace": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "fromEntityId",
+          "fromSlug",
+          "reason",
+          "hops"
+        ],
+        "properties": {
+          "fromEntityId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "fromSlug": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "hops": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RedirectHop"
+            }
+          }
+        }
+      },
+      "RedirectResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "redirect"
+        ],
+        "properties": {
+          "redirect": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "location",
+              "canonicalEntityId",
+              "redirectedFrom"
+            ],
+            "properties": {
+              "status": {
+                "type": "integer",
+                "const": 301
+              },
+              "location": {
+                "type": "string"
+              },
+              "canonicalEntityId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "redirectedFrom": {
+                "$ref": "#/components/schemas/RedirectTrace"
+              }
+            }
+          }
+        }
+      },
+      "EntityView": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "entity",
+          "redirectedFrom"
+        ],
+        "properties": {
+          "entity": {
+            "$ref": "#/components/schemas/Entity"
+          },
+          "redirectedFrom": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/RedirectTrace"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "Fact": {
+        "unevaluatedProperties": false,
+        "allOf": [
+          {
+            "type": "object",
+            "required": [
+              "property",
+              "value",
+              "valueType",
+              "unit",
+              "confidence",
+              "factId",
+              "rule",
+              "reason",
+              "sources",
+              "unresolvedConflict"
+            ],
+            "properties": {
+              "property": {
+                "type": "string"
+              },
+              "value": true,
+              "valueType": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "unit": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "confidence": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "minimum": 0,
+                "maximum": 1
+              },
+              "factId": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "uuid"
+              },
+              "rule": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              },
+              "sources": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "unresolvedConflict": {
+                "type": "boolean"
+              },
+              "verified": {
+                "type": "boolean"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "editoriallyCorrected",
+              "editorialCorrectionReason",
+              "selectionWarnings"
+            ],
+            "properties": {
+              "editoriallyCorrected": {
+                "type": "boolean",
+                "description": "True when a reviewed editorial correction replaced the source-selected value."
+              },
+              "editorialCorrectionReason": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Customer-visible explanation of the correction. Non-empty when editoriallyCorrected is true, null otherwise. Never contains reviewer identity."
+              },
+              "selectionWarnings": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Machine-readable trust warnings about how the value was selected. Consumers must ignore unrecognised codes rather than failing."
+              }
+            }
+          }
+        ]
+      },
+      "RelationshipEdge": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "relationshipId",
+          "predicate",
+          "direction",
+          "fromEntityId",
+          "neighbor",
+          "depth",
+          "evidenceCount",
+          "confidence",
+          "validFrom",
+          "validTo"
+        ],
+        "properties": {
+          "relationshipId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "predicate": {
+            "type": "string"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "out",
+              "in"
+            ]
+          },
+          "fromEntityId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "neighbor": {
+            "$ref": "#/components/schemas/Entity"
+          },
+          "depth": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4
+          },
+          "evidenceCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "validFrom": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "validTo": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        }
+      },
+      "SearchHit": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "entity",
+          "matchKind",
+          "score",
+          "textRank",
+          "exact",
+          "matchedOn",
+          "explain"
+        ],
+        "properties": {
+          "entity": {
+            "$ref": "#/components/schemas/Entity"
+          },
+          "matchKind": {
+            "type": "string"
+          },
+          "score": {
+            "type": "number"
+          },
+          "textRank": {
+            "type": "number"
+          },
+          "exact": {
+            "type": "boolean"
+          },
+          "matchedOn": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "explain": {
+            "type": "string"
+          }
+        }
+      },
+      "Facet": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "property",
+          "label",
+          "control",
+          "valueType",
+          "unit",
+          "values",
+          "range",
+          "entityCount"
+        ],
+        "properties": {
+          "property": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "control": {
+            "type": "string"
+          },
+          "valueType": {
+            "type": "string"
+          },
+          "unit": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "value",
+                "count"
+              ],
+              "properties": {
+                "value": {
+                  "type": "string"
+                },
+                "count": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            }
+          },
+          "range": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "min",
+                  "max"
+                ],
+                "properties": {
+                  "min": {
+                    "type": "number"
+                  },
+                  "max": {
+                    "type": "number"
+                  }
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "entityCount": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "Comparison": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "entities",
+          "rows",
+          "propertiesCompared",
+          "propertiesDiffering"
+        ],
+        "properties": {
+          "entities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Entity"
+            },
+            "minItems": 2,
+            "maxItems": 8
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "propertiesCompared": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "propertiesDiffering": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "HealthResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "status",
+          "version",
+          "verticalId",
+          "declaredFields",
+          "checks"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "ok"
+          },
+          "version": {
+            "type": "string",
+            "const": "v1"
+          },
+          "verticalId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "declaredFields": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "checks": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "queryLayer"
+            ],
+            "properties": {
+              "queryLayer": {
+                "type": "string",
+                "const": "ok"
+              }
+            }
+          }
+        }
+      },
+      "EntityResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/EntityView"
+          }
+        }
+      },
+      "FactPageResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "entityId",
+          "data",
+          "page"
+        ],
+        "properties": {
+          "entityId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Fact"
+            }
+          },
+          "page": {
+            "$ref": "#/components/schemas/PageMeta"
+          }
+        }
+      },
+      "RelationshipPageResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "entityId",
+          "traversal",
+          "data",
+          "page"
+        ],
+        "properties": {
+          "entityId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "traversal": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RelationshipEdge"
+            }
+          },
+          "page": {
+            "$ref": "#/components/schemas/PageMeta"
+          }
+        }
+      },
+      "SearchResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data",
+          "page",
+          "match",
+          "strategy",
+          "facets"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SearchHit"
+            }
+          },
+          "page": {
+            "$ref": "#/components/schemas/PageMeta"
+          },
+          "match": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "strategy": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "facets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Facet"
+            }
+          }
+        }
+      },
+      "CompareResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data",
+          "redirects"
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Comparison"
+          },
+          "redirects": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "requestedId",
+                "canonicalEntityId"
+              ],
+              "properties": {
+                "requestedId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "canonicalEntityId": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

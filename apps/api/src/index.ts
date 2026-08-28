@@ -72,6 +72,9 @@ export {
   type RouteMatch,
 } from './routes.js';
 
+export { buildOpenApiDocument } from './openapi.js';
+export { OPENAPI_SCHEMAS, type OpenApiResponseSchemaName } from './openapi-schema.js';
+
 export {
   comparisonWire,
   entityViewWire,

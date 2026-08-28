@@ -64,6 +64,7 @@ import {
 } from './wire.js';
 import type { EntityId, Identifier } from '@data-foundry/canonical-schema';
 import type { EntityView, FacetFilter } from '@data-foundry/query-model';
+import type { OpenApiResponseSchemaName } from './openapi-schema.js';
 
 /**
  * The contract versions this deployment serves.
@@ -165,6 +166,13 @@ export interface Route {
   readonly summary: string;
   /** A limitation a client must know about. Published in the contract document. */
   readonly caveat?: string;
+  /** Metadata projected into OpenAPI beside the existing human contract. */
+  readonly openapi: {
+    readonly operationId: string;
+    readonly responseSchema: OpenApiResponseSchemaName;
+    readonly requiredQueryParameters?: readonly string[];
+    readonly mayRedirect?: boolean;
+  };
   readonly handler: (context: ApiContext, match: RouteMatch) => Promise<ApiResponse>;
 }
 
@@ -440,6 +448,7 @@ export const ROUTES: readonly Route[] = [
     path: '/v1/health',
     routeKey: 'health',
     summary: 'Liveness plus a real round trip through the canonical query layer.',
+    openapi: { operationId: 'getHealth', responseSchema: 'HealthResponse' },
     handler: health,
   },
   {
@@ -447,6 +456,7 @@ export const ROUTES: readonly Route[] = [
     path: '/v1/entities/by-slug/{slug}',
     routeKey: 'entities.by_slug',
     summary: 'Reject a slug lookup with no slug, rather than reading "by-slug" as an id.',
+    openapi: { operationId: 'getEntityBySlugMissing', responseSchema: 'EntityResponse' },
     handler: async () => {
       throw ApiError.missingParameter('slug', 'the slug to look up follows /entities/by-slug/');
     },
@@ -457,6 +467,12 @@ export const ROUTES: readonly Route[] = [
     routeKey: 'entities.by_slug',
     summary:
       'Entity by canonical slug. Honours retired slugs: a slug a merge took away answers 301 to the surviving entity.',
+    openapi: {
+      operationId: 'getEntityBySlug',
+      responseSchema: 'EntityResponse',
+      requiredQueryParameters: ['type'],
+      mayRedirect: true,
+    },
     handler: getEntityBySlug,
   },
   {
@@ -464,6 +480,7 @@ export const ROUTES: readonly Route[] = [
     path: '/v1/entities/{id}',
     routeKey: 'entities.detail',
     summary: 'Entity by id. A merged-away id answers 301 with its redirect chain, never 404.',
+    openapi: { operationId: 'getEntity', responseSchema: 'EntityResponse', mayRedirect: true },
     handler: getEntity,
   },
   {
@@ -474,6 +491,11 @@ export const ROUTES: readonly Route[] = [
       'The canonical view: one selected value per property, with the doc-04 rule that chose it and its correction state.',
     caveat:
       'Only properties with a published value appear. A property whose every claim is retracted, unevidenced or backed only by RED/UNREVIEWED sources is omitted entirely.',
+    openapi: {
+      operationId: 'listEntityFacts',
+      responseSchema: 'FactPageResponse',
+      mayRedirect: true,
+    },
     handler: listFacts,
   },
   {
@@ -483,6 +505,11 @@ export const ROUTES: readonly Route[] = [
     summary: 'Bounded graph traversal from this entity, breadth-first and cycle-guarded.',
     caveat:
       'This is a view of the publishable graph, not the whole graph. Rule 1 applies here as it does to facts: an edge whose every piece of evidence comes from a source that may not publish is withheld, and so is any neighbour reachable only through one. Those refusals are deliberately not counted in the response — a per-predicate count of them would let a caller reconstruct the withheld claim — so an absent edge means "not publishable, or not asserted", and never "asserted to be false". unevidencedEdgeCount reports a different case: edges nothing asserts at all.',
+    openapi: {
+      operationId: 'listEntityRelationships',
+      responseSchema: 'RelationshipPageResponse',
+      mayRedirect: true,
+    },
     handler: listRelationships,
   },
   {
@@ -491,6 +518,7 @@ export const ROUTES: readonly Route[] = [
     routeKey: 'search',
     summary:
       'Faceted search. Exact identifier matches lead the result set ahead of any text ranking (AGENTS.md rule 7).',
+    openapi: { operationId: 'searchEntities', responseSchema: 'SearchResponse' },
     handler: search,
   },
   {
@@ -500,6 +528,11 @@ export const ROUTES: readonly Route[] = [
     summary: 'Side-by-side canonical values for 2–8 entities, aligned on declared field order.',
     caveat:
       'Comparison cells carry the selecting rule and conflict state but not correction state; read /v1/entities/{id}/facts for the full trust surface.',
+    openapi: {
+      operationId: 'compareEntities',
+      responseSchema: 'CompareResponse',
+      requiredQueryParameters: ['ids'],
+    },
     handler: compare,
   },
 ];
