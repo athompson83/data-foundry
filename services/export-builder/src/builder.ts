@@ -234,7 +234,7 @@ async function listEntities(
 ): Promise<EntityScope> {
   const found = new Map<string, Entity>();
   let offset = 0;
-  let total = 0;
+  let total: number | null = null;
 
   for (;;) {
     const page = await qm.search({
@@ -244,7 +244,13 @@ async function listEntities(
       offset,
       ...(entityType === undefined ? {} : { entity_type: entityType }),
     });
-    total = page.total;
+    if (total === null) total = page.total;
+    else if (page.total !== total) {
+      throw new RangeError(
+        `Export pagination total changed from ${total} to ${page.total} at offset ${offset}; ` +
+          'refusing an apparently complete partial artifact.',
+      );
+    }
     if (claimed + page.total > MAX_EXPORT_ENTITIES) {
       throw new RangeError(
         `This export has ${claimed + page.total} entities in scope, above the ` +
@@ -252,18 +258,37 @@ async function listEntities(
           'than exporting a silently truncated dataset.',
       );
     }
-    if (page.hits.length === 0) break;
+    if (page.hits.length === 0) {
+      if (found.size !== total) {
+        throw new RangeError(
+          `Export pagination returned an empty page at offset ${offset} after ${found.size} of ` +
+            `${total} claimed entities; refusing a partial artifact.`,
+        );
+      }
+      break;
+    }
 
     const before = found.size;
     for (const hit of page.hits) found.set(hit.entity.id, hit.entity);
     offset += page.hits.length;
-    if (offset >= page.total) break;
-    // Defensive: a page that adds nothing new means paging is not advancing,
-    // and looping forever is worse than stopping with what we have.
-    if (found.size === before) break;
+    if (found.size === before) {
+      throw new RangeError(
+        `Export pagination made no unique progress at offset ${offset - page.hits.length}; ` +
+          'refusing a partial artifact.',
+      );
+    }
+    if (offset >= total) {
+      if (found.size !== total) {
+        throw new RangeError(
+          `Export pagination reported ${total} entities but yielded ${found.size} unique rows; ` +
+            'refusing a total-mismatch partial artifact.',
+        );
+      }
+      break;
+    }
   }
 
-  return { entities: [...found.values()].sort(byEntityOrder), total };
+  return { entities: [...found.values()].sort(byEntityOrder), total: total ?? 0 };
 }
 
 /**
@@ -362,8 +387,6 @@ export async function buildDatasetExport(
     const storedFacts = (await qm.facts({ entity_id: entity.id, at })).filter((stored) =>
       propertyIsExportable(properties, stored.fact.property),
     );
-    if (storedFacts.length === 0) continue;
-
     for (const stored of storedFacts) {
       if (stored.lineage === null) continue;
       for (const link of stored.lineage.chain) tally(audited, link.source, stored.fact.id);
@@ -371,7 +394,8 @@ export async function buildDatasetExport(
 
     // Entity existence is an independently evidenced claim. A source with a
     // fact grant cannot manufacture permission to put the containing entity in
-    // a downloadable dataset.
+    // a downloadable dataset. This check deliberately precedes the no-facts
+    // shortcut: a factless entity is still entity evidence on the bulk surface.
     if (await bulk.getEntity(entity.id) === null) {
       refusals.push({
         code: 'ENTITY_RIGHTS_MATRIX_REFUSED',
@@ -386,6 +410,8 @@ export async function buildDatasetExport(
       });
       continue;
     }
+
+    if (storedFacts.length === 0) continue;
 
     // The surface explanation returns only already-authorized candidate IDs
     // and no blocked-candidate oracle. Comparing that internal allow-set with

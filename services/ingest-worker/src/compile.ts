@@ -319,6 +319,9 @@ function compileStreamPlan(
       property: asIdentifier(property, `derived.${property}`),
       source_field: origin.field,
       value_type: String(declared.value_type) as FactValueType,
+      output_kind: 'DERIVED_METRIC',
+      derived_from_property: asIdentifier(from, `derived.${property}.from`),
+      transformation_ref: `${config.slug}.${property}.from.${from}.v1`,
       unit,
       transforms,
     });
@@ -530,6 +533,7 @@ function buildPropertyRule(input: PropertyRuleInput): PropertyRule {
     property,
     source_field: field,
     value_type: valueType,
+    output_kind: 'NORMALIZED_FACT',
     ...(unit === null ? {} : { unit }),
     ...(transforms.length === 0 ? {} : { transforms }),
   };

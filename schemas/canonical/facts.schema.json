@@ -97,6 +97,20 @@
         "object"
       ]
     },
+    "output_kind": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "NORMALIZED_FACT",
+            "DERIVED_METRIC"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
     "unit": {
       "anyOf": [
         {
@@ -170,6 +184,7 @@
     "property",
     "normalized_value",
     "value_type",
+    "output_kind",
     "unit",
     "valid_from",
     "valid_to",

@@ -84,6 +84,9 @@ export interface CanonicalCandidate {
   readonly property: Identifier;
   readonly normalized_value: CanonicalValue;
   readonly value_type: FactValueType;
+  readonly output_kind: import('@data-foundry/canonical-schema').FactOutputKind;
+  readonly derived_from_property?: Identifier;
+  readonly transformation_ref?: string;
   /** Canonical unit symbol for quantities; `null` for unitless value types. */
   readonly unit: string | null;
   readonly confidence: NormalizationConfidence;

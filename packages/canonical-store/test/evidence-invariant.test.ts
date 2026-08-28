@@ -55,6 +55,7 @@ describe('rule 2: no fact without evidence', () => {
     // that decision to be made visibly, and the test below proves the claim by
     // behaviour rather than by the reader taking this comment on trust.
     expect(claimWriters.sort()).toEqual([
+      'appendDerivedFactWithEvidence',
       'appendFactWithEvidence',
       'recordFactVerification',
       'upsertRelationshipWithEvidence',
@@ -198,11 +199,64 @@ describe('rule 2: no fact without evidence', () => {
       value: 'R-454B',
     });
     expect(result.outcome).toBe('CREATED');
+    expect(result.fact.output_kind).toBe('NORMALIZED_FACT');
     expect(result.evidence).toHaveLength(1);
 
     const evidence = await fixtures.store.listFactEvidence(result.fact.id);
     expect(evidence).toHaveLength(1);
     expect(evidence[0]?.fact_id).toBe(result.fact.id);
+  });
+
+  it('commits a derived fact, evidence, and its complete dependency set atomically', async () => {
+    const input = await claim(fixtures, 'manufacturer', {
+      property: 'cooling_capacity_btu',
+      value: 36_000,
+      value_type: 'integer',
+      unit: 'BTU/h',
+    });
+
+    const derived = await fixtures.store.appendDerivedFactWithEvidence(
+      {
+        entity_id: fixtures.entity.id,
+        property: 'nominal_tonnage',
+        normalized_value: 3,
+        value_type: 'number',
+        unit: 'ton',
+        valid_from: ts('2026-02-01T00:00:00Z'),
+        confidence: factConfidence(0.9),
+        recorded_at: ts('2026-02-01T00:00:00Z'),
+        status: 'ACTIVE',
+      },
+      [
+        {
+          artifact_id: fixtures.sources.manufacturer.artifact.id,
+          source_record_id: fixtures.sources.manufacturer.record.id,
+          source_value: '36000 BTU/h',
+          locator_type: 'WHOLE_DOCUMENT',
+          locator_value: '',
+          observed_at: ts('2026-02-01T00:00:00Z'),
+        },
+      ],
+      [
+        {
+          input_fact_id: input.fact.id,
+          transformation_ref: 'hvac.capacity_btu_to_tons.v1',
+        },
+      ],
+    );
+
+    expect(derived.fact.output_kind).toBe('DERIVED_METRIC');
+    const dependencies = await fixtures.driver.query(
+      `SELECT input_fact_id, transformation_ref FROM fact_dependencies
+        WHERE derived_fact_id = $1`,
+      [derived.fact.id],
+    );
+    expect(dependencies).toEqual([
+      {
+        input_fact_id: input.fact.id,
+        transformation_ref: 'hvac.capacity_btu_to_tons.v1',
+      },
+    ]);
   });
 
   it('applies the same contract to relationships', async () => {

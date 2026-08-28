@@ -199,6 +199,7 @@ export async function createFixtures(options: FixtureOptions = {}): Promise<Fixt
       refresh_cadence: 'WEEKLY',
       // rule 1 at the storage layer: UNREVIEWED can never be ACTIVE.
       status: spec.rights === 'GREEN' ? 'ACTIVE' : 'UNDER_REVIEW',
+      kill_switch_engaged: false,
     });
     const artifact = await store.recordSourceArtifact({
       source_id: source.id,

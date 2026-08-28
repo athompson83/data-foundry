@@ -268,6 +268,14 @@ jurisdiction, and the exact durable policy snapshot so later rights resolution
 cannot silently reinterpret how bytes were obtained. Legacy artifact scope that
 cannot be truthfully backfilled remains unmanufactured and fail-closed.
 
+Forward migration `0016_core_rights_hardening.sql` applies the same rule to
+operational and derived-output state. Existing sources receive no guessed kill
+switch value, existing facts receive no inferred output kind, and neither state
+may authorize a distribution query while NULL. A referenced field group's
+membership is sealed, and newly classified derived facts must commit their
+complete dependency set atomically; later membership or dependency mutation
+requires a new immutable lineage rather than changing the meaning of history.
+
 This resolves RIGHTS-ADR-003 by preserving immutable versions while selecting
 one current activation, rather than combining mutable `superseded_by` fields
 with a one-row-per-cell table.

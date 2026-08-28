@@ -83,6 +83,7 @@ function candidate(options: {
       property: PROPERTY,
       normalized_value: options.value,
       value_type: 'string',
+      output_kind: 'NORMALIZED_FACT',
       unit: null,
       valid_from: '2026-01-01T00:00:00.000Z' as IsoDateTime,
       valid_to: null,

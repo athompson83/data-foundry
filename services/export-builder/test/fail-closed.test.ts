@@ -20,7 +20,7 @@
  * partially backs, or through a declaration the database cannot see.
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import type { Identifier } from '@data-foundry/canonical-schema';
+import { entityQualityScore, type Identifier } from '@data-foundry/canonical-schema';
 import type { QueryModel } from '@data-foundry/query-model';
 import {
   MAX_EXPORT_ENTITIES,
@@ -139,6 +139,57 @@ describe('an unpublishable source refuses the whole export', () => {
     expect(result.manifest.sources.map((source) => source.source_key)).not.toContain('hvac-forum');
     expect(sink.files.size).toBe(4);
   });
+});
+
+describe('entity-only bulk authorization', () => {
+  it('refuses a factless entity whose stored existence source is killed', async () => {
+    const local = await createExportFixtures();
+    const sink = createMemorySink('entity-only-killed');
+    try {
+      const entity = await local.store.upsertEntity({
+        vertical_id: local.vertical.id,
+        entity_type: 'equipment',
+        canonical_name: 'Killed Entity Only Model',
+        canonical_slug: 'killed-entity-only-model',
+        status: 'ACTIVE',
+        quality_score: entityQualityScore(0.5),
+        first_seen_at: GENERATED_AT,
+        last_verified_at: null,
+      });
+      const source = local.sources.manufacturer;
+      await local.store.recordEntityEvidence({
+        entity_id: entity.id,
+        artifact_id: source.artifact.id,
+        source_record_id: source.record.id,
+        contribution_role: 'EXISTENCE',
+        locator_type: 'WHOLE_DOCUMENT',
+        locator_value: '',
+        observed_at: source.artifact.retrieved_at,
+      });
+      await local.driver.query(
+        `UPDATE sources SET kill_switch_engaged = TRUE WHERE id = $1`,
+        [source.source.id],
+      );
+
+      let error: unknown;
+      try {
+        await buildDatasetExport({ ...baseOptions(local), sink });
+      } catch (caught) {
+        error = caught;
+      }
+      expect(error).toBeInstanceOf(ExportRefusedError);
+      expect(
+        (error as ExportRefusedError).refusals.some(
+          (refusal) =>
+            refusal.code === 'ENTITY_RIGHTS_MATRIX_REFUSED' &&
+            refusal.message.includes(entity.canonical_slug),
+        ),
+      ).toBe(true);
+      expect(sink.files.size).toBe(0);
+    } finally {
+      await local.driver.close();
+    }
+  }, 120_000);
 });
 
 describe('a claim backed ONLY by a blocked source', () => {
@@ -363,6 +414,57 @@ describe('the caller cannot switch rule 1 off', () => {
   });
 });
 
+describe('pagination integrity is all-or-nothing', () => {
+  const buildWith = async (queryModel: QueryModel) => {
+    const sink = createMemorySink('pagination-refused');
+    let error: unknown;
+    try {
+      await buildDatasetExport({
+        ...baseOptions(fixtures),
+        properties: NOTHING_THE_FORUM_TOUCHES,
+        queryModel,
+        sink,
+      });
+    } catch (caught) {
+      error = caught;
+    }
+    return { error, sink };
+  };
+
+  it('refuses a page that makes no unique progress while more rows are claimed', async () => {
+    let first: Awaited<ReturnType<QueryModel['search']>> | undefined;
+    const queryModel: QueryModel = {
+      ...fixtures.qm,
+      search: async (query) => {
+        first ??= await fixtures.qm.search({ ...query, offset: 0 });
+        return { ...first, total: first.hits.length + 1 };
+      },
+    };
+    const { error, sink } = await buildWith(queryModel);
+    expect(error).toBeInstanceOf(Error);
+    expect((error as Error).message).toContain('no unique progress');
+    expect(sink.files.size).toBe(0);
+  });
+
+  it('refuses an early empty page or changed total instead of emitting a partial snapshot', async () => {
+    let calls = 0;
+    const queryModel: QueryModel = {
+      ...fixtures.qm,
+      search: async (query) => {
+        const page = await fixtures.qm.search(query);
+        calls += 1;
+        return calls === 1
+          ? { ...page, total: page.hits.length + 2 }
+          : { ...page, hits: [], total: page.hits.length + 3 };
+      },
+    };
+    const { error, sink } = await buildWith(queryModel);
+    expect(error).toBeInstanceOf(Error);
+    expect((error as Error).message).toMatch(/total changed|empty page/);
+    expect(sink.files.size).toBe(0);
+  });
+});
+
 /**
  * The bound is on the export, not on each of its parts.
  *
@@ -417,8 +519,15 @@ describe('the in-memory bound covers the whole export', () => {
   };
 
   it('refuses when the types are each within the cap but together exceed it', async () => {
+    const equipmentTotal = (
+      await fixtures.qm.search({
+        vertical_id: fixtures.vertical.id,
+        entity_type: EQUIPMENT,
+        statuses: ['ACTIVE'],
+      })
+    ).total;
     const { error, sink } = await build(
-      { [EQUIPMENT]: MAX_EXPORT_ENTITIES - 4_000, [PART]: 4_001 },
+      { [EQUIPMENT]: equipmentTotal, [PART]: MAX_EXPORT_ENTITIES - equipmentTotal + 1 },
       [EQUIPMENT, PART],
     );
     expect(error).toBeInstanceOf(RangeError);
@@ -427,11 +536,15 @@ describe('the in-memory bound covers the whole export', () => {
     expect(sink.files.size).toBe(0);
   });
 
-  it('builds at exactly the cap, so the boundary is a decision and not an accident', async () => {
-    const { error, sink } = await build(
-      { [EQUIPMENT]: MAX_EXPORT_ENTITIES - 4_000, [PART]: 4_000 },
-      [EQUIPMENT, PART],
-    );
+  it('builds when the reported total exactly matches the fully enumerated scope', async () => {
+    const total = (
+      await fixtures.qm.search({
+        vertical_id: fixtures.vertical.id,
+        entity_type: EQUIPMENT,
+        statuses: ['ACTIVE'],
+      })
+    ).total;
+    const { error, sink } = await build({ [EQUIPMENT]: total }, [EQUIPMENT]);
     expect(error).toBeUndefined();
     expect(sink.files.size).toBeGreaterThan(0);
   });
@@ -445,7 +558,14 @@ describe('the in-memory bound covers the whole export', () => {
   it('does not count a type the caller named twice as two scopes', async () => {
     // The id-keyed merge already publishes such an entity once. The bound has
     // to agree with it, or naming a type twice refuses an export that fits.
-    const { error, sink } = await build({ [EQUIPMENT]: MAX_EXPORT_ENTITIES }, [
+    const total = (
+      await fixtures.qm.search({
+        vertical_id: fixtures.vertical.id,
+        entity_type: EQUIPMENT,
+        statuses: ['ACTIVE'],
+      })
+    ).total;
+    const { error, sink } = await build({ [EQUIPMENT]: total }, [
       EQUIPMENT,
       EQUIPMENT,
     ]);

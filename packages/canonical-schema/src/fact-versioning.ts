@@ -6,6 +6,7 @@ import type {
   CanonicalValue,
   Fact,
   FactInsert,
+  FactOutputKind,
   FactStatus,
   FactValueType,
 } from './objects/facts.js';
@@ -156,12 +157,17 @@ export interface FactAppendResult {
  * backdated before the version it supersedes, or overlapping a version that was
  * already closed later).
  */
-export function appendFactVersion(previous: Fact | null, draft: FactVersionDraft): FactAppendResult {
+export function appendFactVersion(
+  previous: Fact | null,
+  draft: FactVersionDraft,
+  outputKind: FactOutputKind = 'NORMALIZED_FACT',
+): FactAppendResult {
   const insertBase: FactInsert = {
     entity_id: draft.entity_id,
     property: draft.property,
     normalized_value: draft.normalized_value,
     value_type: draft.value_type,
+    output_kind: outputKind,
     unit: draft.unit,
     valid_from: draft.valid_from,
     valid_to: null,

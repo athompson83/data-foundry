@@ -95,6 +95,8 @@ export const SourceSchema = z.object({
   robots_policy: RobotsPolicySchema,
   refresh_cadence: RefreshCadenceSchema,
   status: SourceStatusSchema,
+  /** NULL exists only for pre-0016 rows and is refusal at every distribution surface. */
+  kill_switch_engaged: z.boolean().nullable(),
   created_at: IsoDateTimeSchema,
   updated_at: IsoDateTimeSchema,
 });
@@ -104,5 +106,6 @@ export const SourceInsertSchema = SourceSchema.omit({
   id: true,
   created_at: true,
   updated_at: true,
-});
+  kill_switch_engaged: true,
+}).extend({ kill_switch_engaged: z.boolean() });
 export type SourceInsert = z.infer<typeof SourceInsertSchema>;

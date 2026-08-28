@@ -69,6 +69,7 @@ describe('facts', () => {
     property: 'seer2_rating',
     normalized_value: 16,
     value_type: 'number',
+    output_kind: 'NORMALIZED_FACT',
     unit: null,
     valid_from: TS,
     valid_to: null,
@@ -142,6 +143,7 @@ describe('sources', () => {
       },
       refresh_cadence: 'WEEKLY',
       status: 'ACTIVE',
+      kill_switch_engaged: false,
       created_at: TS,
       updated_at: TS,
     };

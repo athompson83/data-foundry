@@ -292,6 +292,7 @@ export async function addSourceFixture(
     // gate is written to avoid, and it would go on agreeing with itself after
     // the real rule changed.
     status: canPublish(spec.rights) ? 'ACTIVE' : 'UNDER_REVIEW',
+    kill_switch_engaged: false,
   });
   const artifact = await fixtures.store.recordSourceArtifact({
     source_id: source.id,

@@ -100,6 +100,7 @@ export async function loadStoredRightsContext(
 ): Promise<StoredRightsContext | null> {
   const sourceRows = await driver.query(
     `SELECT s.id, s.rights_publisher_id, s.status, s.rights_classification,
+            s.kill_switch_engaged,
             rp.status AS publisher_status
        FROM sources s
        LEFT JOIN rights_publishers rp ON rp.id = s.rights_publisher_id
@@ -259,7 +260,10 @@ export async function loadStoredRightsContext(
       publisherId,
       status: toText(sourceRow['status']),
       rightsClassification: toText(sourceRow['rights_classification']) as RightsSourceGuard['rightsClassification'],
-      killSwitchEngaged: false,
+      // Only an explicitly synchronized FALSE is operable. TRUE and legacy
+      // NULL both refuse; neither another rights boolean nor a grant can
+      // substitute for this operational state.
+      killSwitchEngaged: sourceRow['kill_switch_engaged'] !== false,
       prohibited:
         sourceRow['publisher_status'] === 'PROHIBITED' ||
         sourceRow['publisher_status'] === 'RETIRED',

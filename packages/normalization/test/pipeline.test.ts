@@ -52,6 +52,7 @@ describe('normalizeRecord — golden HVAC record', () => {
       source_field: 'cooling_capacity_btu',
       source_value: '36,000 BTU/h',
       source_unit: 'BTU/h',
+      output_kind: 'NORMALIZED_FACT',
     });
     expect(capacity.locator).toEqual(CSS('table > tbody > tr:nth-of-type(1) > td'));
     expect(rawNormalizationConfidence(capacity.confidence)).toBe(1);
@@ -68,6 +69,9 @@ describe('normalizeRecord — golden HVAC record', () => {
       unit: 'ton',
       source_unit: 'BTU/h',
       source_value: '36,000 BTU/h',
+      output_kind: 'DERIVED_METRIC',
+      derived_from_property: 'cooling_capacity_btu',
+      transformation_ref: 'hvac.nominal_tonnage.from.cooling_capacity_btu.v1',
     });
   });
 

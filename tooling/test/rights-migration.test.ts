@@ -55,6 +55,19 @@ async function rollbackProbe(statement: string, parameters: readonly unknown[] =
   }
 }
 
+async function rollbackProbeOn(
+  target: MigrationDriver,
+  statement: string,
+  parameters: readonly unknown[] = [],
+): Promise<unknown> {
+  await target.exec('BEGIN');
+  try {
+    return await captureError(target.query(statement, parameters));
+  } finally {
+    await target.exec('ROLLBACK');
+  }
+}
+
 const sha256 = (value: string): string =>
   createHash('sha256').update(value, 'utf8').digest('hex');
 
@@ -195,6 +208,168 @@ describe('0014 populated upgrade is fail closed', () => {
   }, 120_000);
 });
 
+describe('0016 source kill-switch migration', () => {
+  it('leaves upgraded source state unknown until an explicit synchronization writes a boolean', async () => {
+    const upgrade = await createPGliteDriver();
+    try {
+      await applyMigrations(
+        upgrade,
+        migrations.filter((migration) => migration.version < '0016'),
+      );
+      await seedSource(upgrade);
+      await applyMigrations(upgrade, migrations);
+
+      const before = await upgrade.query<{ kill_switch_engaged: boolean | null }>(
+        `SELECT kill_switch_engaged FROM sources WHERE id = $1`,
+        [SOURCE],
+      );
+      expect(before).toEqual([{ kill_switch_engaged: null }]);
+
+      await upgrade.query(`UPDATE sources SET kill_switch_engaged = TRUE WHERE id = $1`, [SOURCE]);
+      const after = await upgrade.query<{ kill_switch_engaged: boolean | null }>(
+        `SELECT kill_switch_engaged FROM sources WHERE id = $1`,
+        [SOURCE],
+      );
+      expect(after).toEqual([{ kill_switch_engaged: true }]);
+      expect((await applyMigrations(upgrade, migrations)).every((entry) => entry.skipped)).toBe(true);
+    } finally {
+      await upgrade.close();
+    }
+  }, 120_000);
+});
+
+describe('0016 fact output-kind migration', () => {
+  it('preserves an upgraded fact as explicitly unclassified instead of guessing its kind', async () => {
+    const upgrade = await createPGliteDriver();
+    const entity = '71500000-0000-4000-8000-000000000001';
+    const fact = '71500000-0000-4000-8000-000000000002';
+    try {
+      await applyMigrations(
+        upgrade,
+        migrations.filter((migration) => migration.version < '0016'),
+      );
+      await seedSource(upgrade);
+      await upgrade.query(
+        `INSERT INTO entities
+           (id, vertical_id, entity_type, canonical_name, canonical_slug, status,
+            quality_score, first_seen_at)
+         VALUES ($1, $2, 'equipment_model', 'Legacy kind fixture', 'legacy-kind-fixture',
+                 'CANDIDATE', 0, $3)`,
+        [entity, VERTICAL, TS],
+      );
+      await upgrade.query(
+        `INSERT INTO facts
+           (id, entity_id, property, normalized_value, value_type, valid_from, status,
+            confidence, recorded_at)
+         VALUES ($1, $2, 'legacy_value', '1'::jsonb, 'integer', $3, 'PROPOSED', 1, $3)`,
+        [fact, entity, TS],
+      );
+
+      await applyMigrations(upgrade, migrations);
+      const rows = await upgrade.query<{ output_kind: string | null }>(
+        `SELECT output_kind FROM facts WHERE id = $1`,
+        [fact],
+      );
+      expect(rows).toEqual([{ output_kind: null }]);
+      expect((await applyMigrations(upgrade, migrations)).every((entry) => entry.skipped)).toBe(true);
+    } finally {
+      await upgrade.close();
+    }
+  }, 120_000);
+
+  it.each([
+    { label: 'unclassified', outputKind: null },
+    { label: 'derived without dependencies', outputKind: 'DERIVED_METRIC' },
+  ])('rejects committing a new $label fact', async ({ outputKind }) => {
+    const probe = await createPGliteDriver();
+    const entity = crypto.randomUUID();
+    const fact = crypto.randomUUID();
+    try {
+      await applyMigrations(probe, migrations);
+      await seedSource(probe);
+      await probe.exec('BEGIN');
+      await probe.query(
+        `INSERT INTO entities
+           (id, vertical_id, entity_type, canonical_name, canonical_slug, status,
+            quality_score, first_seen_at)
+         VALUES ($1, $2, 'equipment_model', 'Atomic kind fixture', $3,
+                 'CANDIDATE', 0, $4)`,
+        [entity, VERTICAL, `atomic-kind-${fact}`, TS],
+      );
+      await probe.query(
+        `INSERT INTO facts
+           (id, entity_id, property, normalized_value, value_type, valid_from, status,
+            confidence, recorded_at, output_kind)
+         VALUES ($1, $2, 'atomic_value', '1'::jsonb, 'integer', $3, 'PROPOSED', 1, $3, $4)`,
+        [fact, entity, TS, outputKind],
+      );
+      const commitError = await captureError(probe.exec('COMMIT'));
+      expect(errorCode(commitError)).toBe('23514');
+    } finally {
+      await probe.exec('ROLLBACK').catch(() => undefined);
+      await probe.close();
+    }
+  }, 120_000);
+
+  it('classifies a derived fact only with dependencies and rejects later set expansion', async () => {
+    const probe = await createPGliteDriver();
+    const entity = '71500000-0000-4000-8000-000000000011';
+    const inputA = '71500000-0000-4000-8000-000000000012';
+    const inputB = '71500000-0000-4000-8000-000000000013';
+    const derived = '71500000-0000-4000-8000-000000000014';
+    try {
+      await applyMigrations(probe, migrations);
+      await seedSource(probe);
+      await probe.exec('BEGIN');
+      await probe.query(
+        `INSERT INTO entities
+           (id, vertical_id, entity_type, canonical_name, canonical_slug, status,
+            quality_score, first_seen_at)
+         VALUES ($1, $2, 'equipment_model', 'Sealed dependency fixture',
+                 'sealed-dependency-fixture', 'CANDIDATE', 0, $3)`,
+        [entity, VERTICAL, TS],
+      );
+      await probe.query(
+        `INSERT INTO facts
+           (id, entity_id, property, normalized_value, value_type, valid_from, status,
+            confidence, recorded_at, output_kind)
+         VALUES ($1, $4, 'input_a', '1'::jsonb, 'integer', $5, 'PROPOSED', 1, $5,
+                 'NORMALIZED_FACT'),
+                ($2, $4, 'input_b', '2'::jsonb, 'integer', $5, 'PROPOSED', 1, $5,
+                 'NORMALIZED_FACT'),
+                ($3, $4, 'derived_value', '3'::jsonb, 'integer', $5, 'PROPOSED', 1, $5,
+                 NULL)`,
+        [inputA, inputB, derived, entity, TS],
+      );
+      await probe.query(
+        `INSERT INTO fact_dependencies (derived_fact_id, input_fact_id, transformation_ref)
+         VALUES ($1, $2, 'fixture:derive-a')`,
+        [derived, inputA],
+      );
+      await probe.query(
+        `UPDATE facts SET output_kind = 'DERIVED_METRIC' WHERE id = $1`,
+        [derived],
+      );
+      await probe.exec('COMMIT');
+
+      const expansionError = await rollbackProbeOn(
+        probe,
+        `INSERT INTO fact_dependencies (derived_fact_id, input_fact_id, transformation_ref)
+         VALUES ($1, $2, 'fixture:late-expansion')`,
+        [derived, inputB],
+      );
+      expect(errorCode(expansionError)).toBe('55000');
+      const dependencies = await probe.query<{ input_fact_id: string }>(
+        `SELECT input_fact_id FROM fact_dependencies WHERE derived_fact_id = $1`,
+        [derived],
+      );
+      expect(dependencies).toEqual([{ input_fact_id: inputA }]);
+    } finally {
+      await probe.close();
+    }
+  }, 120_000);
+});
+
 describe.sequential('0014 sparse scopes and immutable history', () => {
   it('treats NULL scope coordinates as equal for rights-cell uniqueness', async () => {
     const first = '72000000-0000-4000-8000-000000000001';
@@ -260,6 +435,52 @@ describe.sequential('0014 sparse scopes and immutable history', () => {
       TERMS_EVIDENCE,
     ]);
     expect(errorCode(actualDelete)).toBe('55000');
+  });
+
+  it('rejects insert-expanding a field group after a rights cell references it', async () => {
+    const group = '72000000-0000-4000-8000-000000000011';
+    const cell = '72000000-0000-4000-8000-000000000012';
+    await driver.exec('BEGIN');
+    try {
+      await driver.query(
+        `INSERT INTO rights_field_groups (id, source_id, group_key, name, created_by)
+         VALUES ($1, $2, 'published_performance', 'Published performance', 'test-suite')`,
+        [group, SOURCE],
+      );
+      await driver.query(
+        `INSERT INTO rights_field_group_members
+           (field_group_id, source_id, field_key, created_by)
+         VALUES ($1, $2, 'seer2', 'test-suite')`,
+        [group, SOURCE],
+      );
+      await driver.query(
+        `INSERT INTO rights_cells
+           (id, source_id, field_group_id, operation, channel, created_by)
+         VALUES ($1, $2, $3, 'DISPLAY_PUBLICLY', 'PUBLIC_WEBSITE', 'test-suite')`,
+        [cell, SOURCE, group],
+      );
+
+      await driver.exec('SAVEPOINT field_group_expansion_probe');
+      const expansionError = await captureError(
+        driver.query(
+          `INSERT INTO rights_field_group_members
+             (field_group_id, source_id, field_key, created_by)
+           VALUES ($1, $2, 'eer2', 'test-suite')`,
+          [group, SOURCE],
+        ),
+      );
+      expect(errorCode(expansionError)).toBe('55000');
+      await driver.exec('ROLLBACK TO SAVEPOINT field_group_expansion_probe');
+
+      const members = await driver.query<{ field_key: string }>(
+        `SELECT field_key FROM rights_field_group_members
+          WHERE field_group_id = $1 ORDER BY field_key`,
+        [group],
+      );
+      expect(members.map((row) => row.field_key)).toEqual(['seer2']);
+    } finally {
+      await driver.exec('ROLLBACK');
+    }
   });
 });
 
@@ -800,17 +1021,31 @@ describe.sequential('0014 authorization scope and provenance integrity', () => {
       await driver.query(
         `INSERT INTO facts
            (id, entity_id, property, normalized_value, value_type, valid_from, status,
-            confidence, recorded_at)
-         VALUES ($1, $4, 'derived_a', '1'::jsonb, 'integer', $5, 'PROPOSED', 1, $5),
-                ($2, $4, 'derived_b', '2'::jsonb, 'integer', $5, 'PROPOSED', 1, $5),
-                ($3, $4, 'derived_c', '3'::jsonb, 'integer', $5, 'PROPOSED', 1, $5)`,
-        [factA, factB, factC, entity, TS],
+            confidence, recorded_at, output_kind)
+         VALUES ($2, $3, 'derived_c', '3'::jsonb, 'integer', $4, 'PROPOSED', 1, $4,
+                 'NORMALIZED_FACT'),
+                ($1, $3, 'derived_b', '2'::jsonb, 'integer', $4, 'PROPOSED', 1, $4, NULL)`,
+        [factB, factC, entity, TS],
       );
       await driver.query(
         `INSERT INTO fact_dependencies (derived_fact_id, input_fact_id, transformation_ref)
-         VALUES ($1, $2, 'derive-a-from-b'), ($2, $3, 'derive-b-from-c')`,
-        [factA, factB, factC],
+         VALUES ($1, $2, 'derive-b-from-c')`,
+        [factB, factC],
       );
+      await driver.query(`UPDATE facts SET output_kind = 'DERIVED_METRIC' WHERE id = $1`, [factB]);
+      await driver.query(
+        `INSERT INTO facts
+           (id, entity_id, property, normalized_value, value_type, valid_from, status,
+            confidence, recorded_at, output_kind)
+         VALUES ($1, $2, 'derived_a', '1'::jsonb, 'integer', $3, 'PROPOSED', 1, $3, NULL)`,
+        [factA, entity, TS],
+      );
+      await driver.query(
+        `INSERT INTO fact_dependencies (derived_fact_id, input_fact_id, transformation_ref)
+         VALUES ($1, $2, 'derive-a-from-b')`,
+        [factA, factB],
+      );
+      await driver.query(`UPDATE facts SET output_kind = 'DERIVED_METRIC' WHERE id = $1`, [factA]);
 
       await driver.exec('SAVEPOINT provenance_cycle_probe');
       const cycleError = await captureError(

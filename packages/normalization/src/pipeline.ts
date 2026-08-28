@@ -616,6 +616,13 @@ function normalizeProperty(
       property: rule.property,
       normalized_value: canonicalValueOf(value),
       value_type: rule.value_type,
+      output_kind: rule.output_kind ?? 'NORMALIZED_FACT',
+      ...(rule.derived_from_property === undefined
+        ? {}
+        : { derived_from_property: rule.derived_from_property }),
+      ...(rule.transformation_ref === undefined
+        ? {}
+        : { transformation_ref: rule.transformation_ref }),
       unit,
       confidence: computeNormalizationConfidence(
         transformed.value.signals,

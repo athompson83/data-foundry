@@ -1,4 +1,4 @@
-import type { FactValueType, Identifier } from '@data-foundry/canonical-schema';
+import type { FactOutputKind, FactValueType, Identifier } from '@data-foundry/canonical-schema';
 import type { IdentifierNormalizationOptions } from './identifier.js';
 import type { DateFormat } from './scalars.js';
 import type { CaseMode } from './text.js';
@@ -67,6 +67,10 @@ export interface PropertyRule {
   /** Source-native field produced by extraction. */
   readonly source_field: Identifier;
   readonly value_type: FactValueType;
+  /** Direct source-normalization by default; derived rules must name their input lineage. */
+  readonly output_kind?: FactOutputKind;
+  readonly derived_from_property?: Identifier;
+  readonly transformation_ref?: string;
   /** Canonical unit for quantities. A rule that declares one refuses unitless values. */
   readonly unit?: string;
   readonly required?: boolean;
@@ -239,6 +243,18 @@ export function parseNormalizationRuleSet(
     }
     seenProperties.add(property);
     requireIdentifier(rule['source_field'], `${rulePath}.source_field`);
+
+    const outputKind = rule['output_kind'] ?? 'NORMALIZED_FACT';
+    if (outputKind !== 'NORMALIZED_FACT' && outputKind !== 'DERIVED_METRIC') {
+      throw new NormalizationRuleSetError(
+        'must be NORMALIZED_FACT or DERIVED_METRIC',
+        `${rulePath}.output_kind`,
+      );
+    }
+    if (outputKind === 'DERIVED_METRIC') {
+      requireIdentifier(rule['derived_from_property'], `${rulePath}.derived_from_property`);
+      requireString(rule['transformation_ref'], `${rulePath}.transformation_ref`);
+    }
 
     const valueType = rule['value_type'];
     if (typeof valueType !== 'string' || !VALUE_TYPES.includes(valueType)) {

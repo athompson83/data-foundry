@@ -128,6 +128,11 @@ describe('compiled extraction schemas', () => {
       (rule) => rule.property === 'nominal_tonnage',
     );
     expect(derivedTonnage?.source_field).toBe('prop_cooling_capacity_btu');
+    expect(derivedTonnage).toMatchObject({
+      output_kind: 'DERIVED_METRIC',
+      derived_from_property: 'cooling_capacity_btu',
+      transformation_ref: 'hvac.nominal_tonnage.from.cooling_capacity_btu.v1',
+    });
     expect(derivedTonnage?.transforms?.[0]).toMatchObject({
       kind: 'quantity',
       target_unit: 'ton',
@@ -140,6 +145,11 @@ describe('compiled extraction schemas', () => {
       (rule) => rule.property === 'cooling_capacity_btu',
     );
     expect(derivedCapacity?.source_field).toBe('prop_nominal_tonnage');
+    expect(derivedCapacity).toMatchObject({
+      output_kind: 'DERIVED_METRIC',
+      derived_from_property: 'nominal_tonnage',
+      transformation_ref: 'hvac.cooling_capacity_btu.from.nominal_tonnage.v1',
+    });
 
     // Both published: nothing is derived, because derivation cannot add
     // information to a directly published pair.

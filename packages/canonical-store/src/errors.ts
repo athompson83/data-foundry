@@ -32,6 +32,11 @@ export class MissingEvidenceError extends CanonicalStoreError {
   }
 }
 
+/** A derived output was requested without one complete, stable input lineage. */
+export class FactDependencyError extends CanonicalStoreError {
+  override readonly name = 'FactDependencyError';
+}
+
 /** A referenced row does not exist (entity, artifact, source record, ...). */
 export class NotFoundError extends CanonicalStoreError {
   override readonly name = 'NotFoundError';

@@ -45,6 +45,11 @@ export const FACT_VALUE_TYPES = [
 export const FactValueTypeSchema = z.enum(FACT_VALUE_TYPES);
 export type FactValueType = z.infer<typeof FactValueTypeSchema>;
 
+/** Authoritative classification of how the stored value was produced. */
+export const FACT_OUTPUT_KINDS = ['NORMALIZED_FACT', 'DERIVED_METRIC'] as const;
+export const FactOutputKindSchema = z.enum(FACT_OUTPUT_KINDS);
+export type FactOutputKind = z.infer<typeof FactOutputKindSchema>;
+
 /**
  * Fact lifecycle.
  *
@@ -78,6 +83,8 @@ export const FactSchema = z.object({
   property: IdentifierSchema,
   normalized_value: CanonicalValueSchema,
   value_type: FactValueTypeSchema,
+  /** NULL is retained only for unclassified rows from an upgraded database. */
+  output_kind: FactOutputKindSchema.nullable(),
   /** Unit symbol for `quantity` values (`V`, `BTU/h`, `in`); null otherwise. */
   unit: z.string().min(1).max(40).nullable(),
   valid_from: IsoDateTimeSchema,
@@ -92,7 +99,9 @@ export const FactSchema = z.object({
 });
 export type Fact = z.infer<typeof FactSchema>;
 
-export const FactInsertSchema = FactSchema.omit({ id: true, created_at: true });
+export const FactInsertSchema = FactSchema.omit({ id: true, created_at: true, output_kind: true }).extend({
+  output_kind: FactOutputKindSchema,
+});
 export type FactInsert = z.infer<typeof FactInsertSchema>;
 
 /**

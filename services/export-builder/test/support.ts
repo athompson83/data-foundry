@@ -349,6 +349,7 @@ export async function createExportFixtures(
     robots_policy: base.sources.aggregator.source.robots_policy,
     refresh_cadence: 'WEEKLY',
     status: 'ACTIVE',
+    kill_switch_engaged: false,
   });
 
   // The certification body publishes under terms that require a credit line.
@@ -367,6 +368,7 @@ export async function createExportFixtures(
     robots_policy: base.sources.certifier.source.robots_policy,
     refresh_cadence: 'WEEKLY',
     status: 'ACTIVE',
+    kill_switch_engaged: false,
   });
 
   await claim(base, 'certifier', {

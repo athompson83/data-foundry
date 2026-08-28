@@ -45,6 +45,7 @@ import {
   type FactConfidence,
   type FactEvidence,
   type FactId,
+  type FactOutputKind,
   type FactStatus,
   type FactVersionDraft,
   type Identifier,
@@ -67,7 +68,7 @@ import {
   type VerticalId,
   type VerticalInsert,
 } from '@data-foundry/canonical-schema';
-import { MissingEvidenceError, NotFoundError } from './errors.js';
+import { FactDependencyError, MissingEvidenceError, NotFoundError } from './errors.js';
 import {
   selectCanonicalFact,
   type CandidateEvidence,
@@ -116,6 +117,12 @@ export interface FactEvidenceInput {
   readonly locator_type: FactEvidence['locator_type'];
   readonly locator_value: string;
   readonly observed_at: IsoDateTime;
+}
+
+/** One immutable input edge for a derived output. */
+export interface FactDependencyInput {
+  readonly input_fact_id: FactId;
+  readonly transformation_ref: string;
 }
 
 /** Evidence for a relationship, minus the `relationship_id`. */
@@ -249,6 +256,12 @@ export interface CanonicalStore {
     draft: FactVersionDraft,
     evidence: NonEmptyArray<FactEvidenceInput>,
   ): Promise<FactWriteResult>;
+  /** Derived outputs commit their evidence and complete, non-empty lineage atomically. */
+  appendDerivedFactWithEvidence(
+    draft: FactVersionDraft,
+    evidence: NonEmptyArray<FactEvidenceInput>,
+    dependencies: NonEmptyArray<FactDependencyInput>,
+  ): Promise<FactWriteResult>;
   listFacts(entityId: EntityId, options?: ListFactsOptions): Promise<Fact[]>;
   getFactById(id: FactId): Promise<Fact | null>;
   listFactEvidence(factId: FactId): Promise<FactEvidence[]>;
@@ -359,8 +372,8 @@ class PostgresCanonicalStore implements CanonicalStore {
     const rows = await this.driver.query(
       `INSERT INTO sources (vertical_id, publisher, domain, source_type, authority_rank,
                             rights_classification, attribution_requirement, robots_policy,
-                            refresh_cadence, status)
-       VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8::jsonb, $9, $10)
+                            refresh_cadence, status, kill_switch_engaged)
+       VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8::jsonb, $9, $10, $11)
        ON CONFLICT (vertical_id, domain, source_type) DO UPDATE
          SET publisher = EXCLUDED.publisher,
              authority_rank = EXCLUDED.authority_rank,
@@ -369,6 +382,7 @@ class PostgresCanonicalStore implements CanonicalStore {
              robots_policy = EXCLUDED.robots_policy,
              refresh_cadence = EXCLUDED.refresh_cadence,
              status = EXCLUDED.status,
+             kill_switch_engaged = EXCLUDED.kill_switch_engaged,
              updated_at = now()
        RETURNING ${SOURCE_COLUMNS}`,
       [
@@ -382,6 +396,7 @@ class PostgresCanonicalStore implements CanonicalStore {
         json(input.robots_policy),
         input.refresh_cadence,
         input.status,
+        input.kill_switch_engaged,
       ],
     );
     return mapSource(requireRow(rows, 'sources'));
@@ -599,6 +614,35 @@ class PostgresCanonicalStore implements CanonicalStore {
     draft: FactVersionDraft,
     evidence: NonEmptyArray<FactEvidenceInput>,
   ): Promise<FactWriteResult> {
+    return this.#appendClassifiedFactWithEvidence(draft, evidence, 'NORMALIZED_FACT', []);
+  }
+
+  async appendDerivedFactWithEvidence(
+    draft: FactVersionDraft,
+    evidence: NonEmptyArray<FactEvidenceInput>,
+    dependencies: NonEmptyArray<FactDependencyInput>,
+  ): Promise<FactWriteResult> {
+    if (dependencies.length === 0) {
+      throw new FactDependencyError('A derived fact requires at least one input dependency.');
+    }
+    if (dependencies.some((item) => item.transformation_ref.trim() === '')) {
+      throw new FactDependencyError('Every derived fact dependency requires a transformation reference.');
+    }
+    const unique = new Set(
+      dependencies.map((item) => `${item.input_fact_id}\u0000${item.transformation_ref}`),
+    );
+    if (unique.size !== dependencies.length) {
+      throw new FactDependencyError('A derived fact dependency set cannot contain duplicate edges.');
+    }
+    return this.#appendClassifiedFactWithEvidence(draft, evidence, 'DERIVED_METRIC', dependencies);
+  }
+
+  async #appendClassifiedFactWithEvidence(
+    draft: FactVersionDraft,
+    evidence: NonEmptyArray<FactEvidenceInput>,
+    outputKind: FactOutputKind,
+    dependencies: readonly FactDependencyInput[],
+  ): Promise<FactWriteResult> {
     // Runtime backstop for the type-level guarantee. A JavaScript caller, or a
     // dynamically-built array, must not be able to slip past rule 2.
     if (evidence.length === 0) {
@@ -617,6 +661,7 @@ class PostgresCanonicalStore implements CanonicalStore {
 
       const identical = open.find(
         (fact) =>
+          fact.output_kind === outputKind &&
           fact.value_type === draft.value_type &&
           fact.unit === draft.unit &&
           canonicalValuesEqual(fact.normalized_value, draft.normalized_value),
@@ -652,7 +697,7 @@ class PostgresCanonicalStore implements CanonicalStore {
         // ACTIVE version is superseded, and only by another ACTIVE version.
         const previous =
           draft.status === 'ACTIVE' ? (open.find((row) => row.status === 'ACTIVE') ?? null) : null;
-        const { close, insert } = appendFactVersion(previous, draft);
+        const { close, insert } = appendFactVersion(previous, draft, outputKind);
 
         if (close !== null) {
           await closeVersion(tx, close.id, close.valid_to);
@@ -660,15 +705,16 @@ class PostgresCanonicalStore implements CanonicalStore {
         }
 
         const inserted = await tx.query(
-          `INSERT INTO facts (entity_id, property, normalized_value, value_type, unit, valid_from,
+          `INSERT INTO facts (entity_id, property, normalized_value, value_type, output_kind, unit, valid_from,
                               valid_to, status, confidence, supersedes_fact_id, recorded_at)
-           VALUES ($1, $2, $3::jsonb, $4, $5, $6, $7, $8, $9, $10, $11)
+           VALUES ($1, $2, $3::jsonb, $4, $5, $6, $7, $8, $9, $10, $11, $12)
            RETURNING ${FACT_COLUMNS}`,
           [
             insert.entity_id,
             insert.property,
             json(insert.normalized_value),
             insert.value_type,
+            outputKind === 'DERIVED_METRIC' ? null : insert.output_kind,
             insert.unit,
             insert.valid_from,
             insert.valid_to,
@@ -680,6 +726,47 @@ class PostgresCanonicalStore implements CanonicalStore {
         );
         fact = mapFact(requireRow(inserted, 'facts'));
         outcome = 'CREATED';
+      }
+
+      if (outputKind === 'DERIVED_METRIC') {
+        if (outcome === 'CREATED') {
+          for (const dependency of dependencies) {
+            await tx.query(
+              `INSERT INTO fact_dependencies (derived_fact_id, input_fact_id, transformation_ref)
+               VALUES ($1, $2, $3)`,
+              [fact.id, dependency.input_fact_id, dependency.transformation_ref],
+            );
+          }
+          const classified = await tx.query(
+            `UPDATE facts SET output_kind = 'DERIVED_METRIC' WHERE id = $1
+             RETURNING ${FACT_COLUMNS}`,
+            [fact.id],
+          );
+          fact = mapFact(requireRow(classified, 'facts'));
+        } else {
+          const stored = await tx.query(
+            `SELECT input_fact_id, transformation_ref
+               FROM fact_dependencies
+              WHERE derived_fact_id = $1
+              ORDER BY input_fact_id, transformation_ref`,
+            [fact.id],
+          );
+          const expected = [...dependencies]
+            .map((item) => ({
+              input_fact_id: item.input_fact_id as string,
+              transformation_ref: item.transformation_ref,
+            }))
+            .sort((left, right) =>
+              `${left.input_fact_id}\u0000${left.transformation_ref}`.localeCompare(
+                `${right.input_fact_id}\u0000${right.transformation_ref}`,
+              ),
+            );
+          if (JSON.stringify(stored) !== JSON.stringify(expected)) {
+            throw new FactDependencyError(
+              `Derived fact ${fact.id} already has a different immutable dependency set.`,
+            );
+          }
+        }
       }
 
       const added: FactEvidence[] = [];
@@ -1124,6 +1211,15 @@ class PostgresCanonicalStore implements CanonicalStore {
       `SELECT ${FACT_COLUMNS} FROM facts
         WHERE entity_id = $1 AND property = $2
           AND valid_from <= $3 AND (valid_to IS NULL OR valid_to > $3)
+          AND (
+            (output_kind = 'NORMALIZED_FACT' AND NOT EXISTS (
+              SELECT 1 FROM fact_dependencies fd WHERE fd.derived_fact_id = facts.id
+            ))
+            OR
+            (output_kind = 'DERIVED_METRIC' AND EXISTS (
+              SELECT 1 FROM fact_dependencies fd WHERE fd.derived_fact_id = facts.id
+            ))
+          )
         ORDER BY recorded_at DESC, id`,
       [entityId, property, at],
     );

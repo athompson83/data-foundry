@@ -54,6 +54,7 @@ export async function listFactsWithEvidence(
 
   const out: FactWithEvidence[] = [];
   for (const fact of facts) {
+    if (!(await hasCompleteOutputContract(store, fact, new Set()))) continue;
     const lineage = await factLineage(store.driver, fact.id);
     out.push({
       fact,
@@ -63,6 +64,29 @@ export async function listFactsWithEvidence(
     });
   }
   return out;
+}
+
+async function hasCompleteOutputContract(
+  store: CanonicalStore,
+  fact: Fact,
+  ancestors: ReadonlySet<string>,
+): Promise<boolean> {
+  if (fact.output_kind === null || ancestors.has(fact.id)) return false;
+  const dependencies = await store.driver.query<{ input_fact_id: string }>(
+    `SELECT input_fact_id FROM fact_dependencies
+      WHERE derived_fact_id = $1 ORDER BY input_fact_id`,
+    [fact.id],
+  );
+  if (fact.output_kind === 'NORMALIZED_FACT') return dependencies.length === 0;
+  if (dependencies.length === 0) return false;
+
+  const next = new Set(ancestors);
+  next.add(fact.id);
+  for (const dependency of dependencies) {
+    const input = await store.getFactById(dependency.input_fact_id as Fact['id']);
+    if (input === null || !(await hasCompleteOutputContract(store, input, next))) return false;
+  }
+  return true;
 }
 
 /** One property of the canonical view, with the rule that produced it. */

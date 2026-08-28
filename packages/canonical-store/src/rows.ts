@@ -125,6 +125,7 @@ export function mapSource(row: SqlRow): Source {
     robots_policy: toJson(field(row, 'robots_policy')),
     refresh_cadence: field(row, 'refresh_cadence'),
     status: field(row, 'status'),
+    kill_switch_engaged: field(row, 'kill_switch_engaged') ?? null,
     created_at: toIso(field(row, 'created_at')),
     updated_at: toIso(field(row, 'updated_at')),
   });
@@ -222,6 +223,7 @@ export function mapFact(row: SqlRow): Fact {
     property: field(row, 'property'),
     normalized_value: toJson(field(row, 'normalized_value')),
     value_type: field(row, 'value_type'),
+    output_kind: field(row, 'output_kind') ?? null,
     unit: field(row, 'unit') ?? null,
     valid_from: toIso(field(row, 'valid_from')),
     valid_to: toIsoOrNull(field(row, 'valid_to')),
@@ -325,7 +327,7 @@ export const ENTITY_COLUMNS =
   'first_seen_at, last_verified_at, created_at, updated_at';
 
 export const FACT_COLUMNS =
-  'id, entity_id, property, normalized_value, value_type, unit, valid_from, valid_to, ' +
+  'id, entity_id, property, normalized_value, value_type, output_kind, unit, valid_from, valid_to, ' +
   'status, confidence, supersedes_fact_id, recorded_at, created_at';
 
 export const FACT_EVIDENCE_COLUMNS =
@@ -346,7 +348,8 @@ export const ALIAS_COLUMNS =
 
 export const SOURCE_COLUMNS =
   'id, vertical_id, publisher, domain, source_type, authority_rank, rights_classification, ' +
-  'attribution_requirement, robots_policy, refresh_cadence, status, created_at, updated_at';
+  'attribution_requirement, robots_policy, refresh_cadence, status, kill_switch_engaged, ' +
+  'created_at, updated_at';
 
 export const ARTIFACT_COLUMNS =
   'id, source_id, url, retrieved_at, content_hash, mime_type, r2_uri, http_status, ' +

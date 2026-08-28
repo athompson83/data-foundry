@@ -472,13 +472,13 @@ export class Pipeline {
           const normalize = await this.#internalRightsDecision(source, entry, 'ACTIVE', {
             operation: 'NORMALIZE',
             assetClass: 'DATA',
-            outputClass: 'NORMALIZED_FACT',
+            outputClass: rule.output_kind ?? 'NORMALIZED_FACT',
             fieldKey: rule.property,
           });
           const derive = await this.#internalRightsDecision(source, entry, 'ACTIVE', {
             operation: 'DERIVE',
             assetClass: 'DATA',
-            outputClass: 'NORMALIZED_FACT',
+            outputClass: rule.output_kind ?? 'NORMALIZED_FACT',
             fieldKey: rule.property,
           });
           if (normalize.permitted && derive.permitted) {
@@ -660,29 +660,48 @@ export class Pipeline {
       // evidence chain.
       const evidence = winner.evidence[0];
       if (evidence === undefined) continue;
-      const result = await this.store.appendFactWithEvidence(
+      const draft = {
+        entity_id: entityId,
+        property,
+        normalized_value: winner.fact.normalized_value,
+        value_type: winner.fact.value_type,
+        unit: winner.fact.unit,
+        valid_from: now,
+        confidence: winner.fact.confidence,
+        recorded_at: now,
+        status: 'ACTIVE' as const,
+      };
+      const evidenceInput = [
         {
-          entity_id: entityId,
-          property,
-          normalized_value: winner.fact.normalized_value,
-          value_type: winner.fact.value_type,
-          unit: winner.fact.unit,
-          valid_from: now,
-          confidence: winner.fact.confidence,
-          recorded_at: now,
-          status: 'ACTIVE',
+          artifact_id: evidence.evidence.artifact_id,
+          source_record_id: evidence.evidence.source_record_id,
+          source_value: evidence.evidence.source_value,
+          locator_type: evidence.evidence.locator_type,
+          locator_value: evidence.evidence.locator_value,
+          observed_at: evidence.evidence.observed_at,
         },
-        [
-          {
-            artifact_id: evidence.evidence.artifact_id,
-            source_record_id: evidence.evidence.source_record_id,
-            source_value: evidence.evidence.source_value,
-            locator_type: evidence.evidence.locator_type,
-            locator_value: evidence.evidence.locator_value,
-            observed_at: evidence.evidence.observed_at,
-          },
-        ],
+      ] as const;
+      const dependencies = await this.store.driver.query<{
+        input_fact_id: string;
+        transformation_ref: string;
+      }>(
+        `SELECT input_fact_id, transformation_ref FROM fact_dependencies
+          WHERE derived_fact_id = $1 ORDER BY input_fact_id, transformation_ref`,
+        [winner.fact.id],
       );
+      const result = winner.fact.output_kind === 'DERIVED_METRIC'
+        ? await this.store.appendDerivedFactWithEvidence(
+            draft,
+            evidenceInput,
+            dependencies.map((dependency) => ({
+              input_fact_id: dependency.input_fact_id as never,
+              transformation_ref: dependency.transformation_ref,
+            })) as never,
+          )
+        : await this.store.appendFactWithEvidence(
+            draft,
+            evidenceInput,
+          );
       if (result.outcome !== 'UNCHANGED') promoted += 1;
     }
 
@@ -935,7 +954,15 @@ export class Pipeline {
   async #writeClaims(resolved: readonly ResolvedRecordContext[], source: Source): Promise<number> {
     let written = 0;
     for (const context of resolved) {
-      for (const candidate of context.normalization.candidates) {
+      const factsByProperty = new Map<string, Awaited<ReturnType<CanonicalStore['appendFactWithEvidence']>>['fact']>();
+      const candidates = [...context.normalization.candidates].sort((left, right) =>
+        left.output_kind === right.output_kind
+          ? 0
+          : left.output_kind === 'NORMALIZED_FACT'
+            ? -1
+            : 1,
+      );
+      for (const candidate of candidates) {
         const evidence: FactEvidenceInput = {
           artifact_id: context.artifact.id,
           source_record_id: context.sourceRecord.id,
@@ -946,8 +973,7 @@ export class Pipeline {
           // the wall clock, so a re-run produces byte-identical evidence.
           observed_at: context.artifact.retrieved_at,
         };
-        await this.store.appendFactWithEvidence(
-          {
+        const draft = {
             entity_id: context.entity.id,
             property: candidate.property,
             normalized_value: candidate.normalized_value,
@@ -959,9 +985,29 @@ export class Pipeline {
             ),
             recorded_at: context.artifact.retrieved_at,
             status: 'PROPOSED',
-          },
-          [evidence],
-        );
+          } as const;
+        const result = candidate.output_kind === 'DERIVED_METRIC'
+          ? await this.store.appendDerivedFactWithEvidence(
+              draft,
+              [evidence],
+              [
+                {
+                  input_fact_id:
+                    factsByProperty.get(candidate.derived_from_property ?? '')?.id ??
+                    (() => {
+                      throw new IngestError(
+                        'DERIVED_INPUT_MISSING',
+                        `derived property ${candidate.property} has no stored input ` +
+                          `${candidate.derived_from_property ?? '(undeclared)'}`,
+                        'DATA',
+                      );
+                    })(),
+                  transformation_ref: candidate.transformation_ref ?? '',
+                },
+              ],
+            )
+          : await this.store.appendFactWithEvidence(draft, [evidence]);
+        factsByProperty.set(candidate.property, result.fact);
         written += 1;
       }
     }
@@ -1165,10 +1211,7 @@ export class Pipeline {
             .map(([groupId]) => groupId);
     return evaluateRights(
       {
-        source: {
-          ...context.source,
-          killSwitchEngaged: entry.kill_switch_engaged,
-        },
+        source: context.source,
         sourceStatusRequirement,
         acquisitionRoute: entry.acquisition_policy.method,
         accountOrProductPlan: entry.acquisition_policy.account_or_product_plan,

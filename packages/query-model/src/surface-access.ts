@@ -464,7 +464,7 @@ class SurfaceRightsAuthorizer {
   async #authorizeFact(factId: string, ancestors: ReadonlySet<string>): Promise<boolean> {
     if (ancestors.has(factId)) return false;
     const fact = await this.#store.getFactById(factId as FactId);
-    if (fact === null) return false;
+    if (fact === null || fact.output_kind === null) return false;
     const candidates = await this.#store.loadFactCandidates(
       fact.entity_id,
       fact.property,
@@ -482,7 +482,10 @@ class SurfaceRightsAuthorizer {
         ORDER BY input_fact_id`,
       [fact.id],
     );
-    const derived = dependencyRows.length > 0;
+    const derived = fact.output_kind === 'DERIVED_METRIC';
+    if ((derived && dependencyRows.length === 0) || (!derived && dependencyRows.length > 0)) {
+      return false;
+    }
     if (
       !(await this.#authorizeContributions(
         contributions as ArtifactContribution[],
@@ -498,7 +501,7 @@ class SurfaceRightsAuthorizer {
     nextAncestors.add(factId);
     for (const row of dependencyRows) {
       const input = await this.#store.getFactById(row.input_fact_id as FactId);
-      if (input === null) return false;
+      if (input === null || input.output_kind === null) return false;
       const inputCandidates = await this.#store.loadFactCandidates(
         input.entity_id,
         input.property,
@@ -512,7 +515,7 @@ class SurfaceRightsAuthorizer {
         !(await this.#authorizeContributions(
           inputContributions as ArtifactContribution[],
           input.property,
-          'NORMALIZED_FACT',
+          input.output_kind,
           true,
         )) ||
         !(await this.#authorizeFact(row.input_fact_id, nextAncestors))

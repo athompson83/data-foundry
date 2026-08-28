@@ -23,6 +23,7 @@ export {
   CanonicalStoreError,
   DestructiveWriteError,
   DriverCapabilityError,
+  FactDependencyError,
   MissingEvidenceError,
   NotFoundError,
 } from './errors.js';
@@ -115,6 +116,7 @@ export {
   type AliasMatch,
   type CanonicalStore,
   type EntityEvidenceInput,
+  type FactDependencyInput,
   type FactEvidenceInput,
   type FactVersionDraft,
   type FactWriteOutcome,

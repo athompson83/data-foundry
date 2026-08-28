@@ -36,6 +36,7 @@ const fact = (overrides: Partial<Fact> = {}): Fact => ({
   property: 'seer2_rating',
   normalized_value: 15.2,
   value_type: 'number',
+  output_kind: 'NORMALIZED_FACT',
   unit: null,
   valid_from: JAN,
   valid_to: null,
