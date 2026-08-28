@@ -68,10 +68,6 @@ async function filesUnder(directory: string): Promise<string[]> {
   return files.sort();
 }
 
-function withoutComments(source: string): string {
-  return source.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/\/\/[^\n]*/g, ' ');
-}
-
 export async function scanCloudflareArtifacts(outputRoot: string): Promise<{
   readonly files: number;
   readonly bytes: number;
@@ -85,7 +81,9 @@ export async function scanCloudflareArtifacts(outputRoot: string): Promise<{
       throw new Error('Cloudflare artifact includes a WebAssembly file; PGlite must not ship.');
     }
     if (!/\.(?:c|m)?js$/i.test(path)) continue;
-    const code = withoutComments(await readFile(path, 'utf8'));
+    // Scan the bytes Wrangler would deploy. Regex-removing comments is unsafe:
+    // `//` inside a URL string can erase executable code later on that line.
+    const code = await readFile(path, 'utf8');
     const prohibited = [
       /electric-sql/i,
       /createPgliteDriver/,

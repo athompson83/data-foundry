@@ -57,4 +57,25 @@ describe('Cloudflare production artifacts', () => {
       /PGlite|WebAssembly/,
     );
   });
+
+  it('does not mistake a URL string for a line comment before a prohibited signature', async () => {
+    const module = await loadArtifactModule();
+    const scan = module['scanCloudflareArtifacts'];
+    expect(typeof scan).toBe('function');
+    if (typeof scan !== 'function') return;
+
+    const outputRoot = await mkdtemp(join(tmpdir(), 'data-foundry-wrangler-url-leak-'));
+    temporaryDirectories.push(outputRoot);
+    const service = join(outputRoot, 'edge');
+    await mkdir(service, { recursive: true });
+    await writeFile(
+      join(service, 'index.js'),
+      'const docs = "https://example.test/runtime"; const createPgliteDriver = () => docs;\n',
+      'utf8',
+    );
+
+    await expect((scan as (root: string) => Promise<unknown>)(outputRoot)).rejects.toThrow(
+      /PGlite|createPgliteDriver/,
+    );
+  });
 });
