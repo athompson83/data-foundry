@@ -146,6 +146,54 @@ export interface VerticalRunResult {
   readonly diagnostics: readonly string[];
 }
 
+/**
+ * Final offline-ingest transport guard. It deliberately reloads the database
+ * instead of consulting Pipeline's per-run cache: a kill switch or rights
+ * activation can change while the provider waits on a rate limit.
+ */
+export async function requireStoredAcquisitionTransportRights(input: {
+  readonly driver: SqlDriver;
+  readonly sourceId: string;
+  readonly entry: SourceRegistryEntry;
+  readonly asOf: string;
+}): Promise<void> {
+  const context = await loadStoredRightsContext(input.driver, input.sourceId, input.asOf);
+  const refused: string[] = [];
+  for (const operation of ['ACQUIRE', 'STORE', 'CACHE'] as const) {
+    const decision =
+      context === null
+        ? null
+        : evaluateRights(
+            {
+              source: context.source,
+              sourceStatusRequirement: 'APPROVED_OR_ACTIVE',
+              acquisitionRoute: input.entry.acquisition_policy.method,
+              accountOrProductPlan: input.entry.acquisition_policy.account_or_product_plan,
+              jurisdiction: input.entry.acquisition_policy.jurisdiction,
+              assetClass: 'DOCUMENT',
+              fieldKey: null,
+              fieldGroupIds: [],
+              outputClass: 'RAW_RECORD',
+              operation,
+              channel: 'INTERNAL_PROCESSING',
+              asOf: input.asOf,
+              conditionReceipts: [],
+            },
+            context.snapshot,
+          );
+    if (decision?.permitted !== true) {
+      refused.push(`${operation}=${decision?.reasonCode ?? 'NO_GRANT'}`);
+    }
+  }
+  if (refused.length > 0) {
+    throw new RightsViolationError(
+      'UNREVIEWED',
+      `source "${input.entry.key}" transport`,
+      `STORED_RIGHTS_REFUSED: ${refused.join(', ')}`,
+    );
+  }
+}
+
 /** An extracted record, its persisted row and its normalization output. */
 interface NormalizedRecord {
   readonly plan: StreamPlan;
@@ -231,6 +279,14 @@ export class Pipeline {
         // 3-second crawl delay per fixture would make the offline factory
         // useless in CI without proving anything.
         rateLimiter: unlimitedRateLimiter,
+        beforeTransport: ({ request, entry, asOf }) =>
+          requireStoredAcquisitionTransportRights({
+            driver: options.driver,
+            sourceId: request.sourceId,
+            entry,
+            asOf,
+          }),
+        beforeStoreResource: () => Promise.resolve(),
       },
       directory,
       manifest: { version: 1, entries: bindings.map((binding) => binding.entry) },

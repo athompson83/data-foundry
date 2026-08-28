@@ -68,8 +68,8 @@ export interface StoredArtifact {
   readonly byteSize: number;
   /** True when identical bytes were already present and no bytes were written. */
   readonly deduplicated: boolean;
-  /** Where this fetch was recorded, or null when this day's fetch was already recorded. */
-  readonly retrievalKey: string | null;
+  /** Durable retrieval record for this fetch scope, whether newly written or already present. */
+  readonly retrievalKey: string;
   readonly metadata: ArtifactMetadata;
 }
 
@@ -277,7 +277,7 @@ export async function storeArtifactBytes(
     contentHash,
     byteSize: metadata.byte_size,
     deduplicated: existing !== null,
-    retrievalKey: alreadyRecorded ? null : retrievalKey,
+    retrievalKey,
     metadata,
   };
 }

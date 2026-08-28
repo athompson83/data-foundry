@@ -13,6 +13,7 @@ import {
   InMemoryArtifactStore,
   loadVerticalConfig,
   Pipeline,
+  requireStoredAcquisitionTransportRights,
   type VerticalConfig,
 } from '../src/index.js';
 
@@ -242,6 +243,14 @@ async function pipelineForConfig(
       validatorCache,
       clock,
       rateLimiter: unlimitedRateLimiter,
+      beforeTransport: ({ request, entry, asOf }) =>
+        requireStoredAcquisitionTransportRights({
+          driver,
+          sourceId: request.sourceId,
+          entry,
+          asOf,
+        }),
+      beforeStoreResource: () => Promise.resolve(),
     },
     directory,
     manifest: { version: 1, entries: bindings.map((binding) => binding.entry) },

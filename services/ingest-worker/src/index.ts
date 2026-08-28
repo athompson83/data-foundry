@@ -67,6 +67,7 @@ export {
 } from './jobs.js';
 export {
   Pipeline,
+  requireStoredAcquisitionTransportRights,
   type CreatePipelineOptions,
   type PipelineOptions,
   type SourceRunResult,

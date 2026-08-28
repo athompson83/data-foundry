@@ -1,5 +1,12 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { createScheduledAcquisitionStore, type ScheduledAcquisitionStore } from '../src/index.js';
+import type { SourceArtifactInsert } from '@data-foundry/canonical-schema';
+import {
+  createScheduledAcquisitionStore,
+  type ScheduledAcquisitionRun,
+  type ScheduledAcquisitionStore,
+  type ScheduledRightsReceipt,
+  type ScheduledRightsReceiptStage,
+} from '../src/index.js';
 import { countRows, createFixtures, ts, type Fixtures } from './support.js';
 
 let fixtures: Fixtures;
@@ -29,26 +36,51 @@ const claim = (
   jurisdiction: null,
   assetClass: 'DATA' as const,
   outputClass: 'RAW_RECORD' as const,
+  resultUrlPolicy: {
+    allowedOrigins: ['https://catalog.acme-climate.example.com'],
+    allowedPathPrefixes: ['/api/v2/catalog'],
+  },
   scheduledFor: ts(slot),
   runtimeDigest: 'a'.repeat(64),
   claimedAt: ts('2026-08-28T17:00:01.000Z'),
   ...overrides,
 });
 
-const rightsReceipt = (permitted = true) => [
-  {
-    stage: 'INITIAL' as const,
-    evaluatedAt: ts('2026-08-28T17:00:00.000Z'),
-    decisions: (['ACQUIRE', 'STORE', 'CACHE'] as const).map((operation, index) => ({
+const checkpoint = (
+  run: ScheduledAcquisitionRun,
+  stage: ScheduledRightsReceiptStage,
+  index: number,
+  permitted: boolean,
+  basis: ScheduledRightsReceipt['basis'],
+): ScheduledRightsReceipt => ({
+    stage,
+    basis,
+    scopeDigest: run.rightsScopeDigest,
+    evaluatedAt: ts(new Date(Date.parse(run.claimedAt) + index).toISOString()),
+    decisions: (['ACQUIRE', 'STORE', 'CACHE'] as const).map((operation, decisionIndex) => ({
       operation,
       permitted,
       state: permitted ? ('ALLOW' as const) : ('UNKNOWN' as const),
       reasonCode: permitted ? ('ALLOW' as const) : ('NO_GRANT' as const),
-      cellId: permitted ? `71000000-0000-4000-8000-00000000000${index}` : null,
-      decisionId: permitted ? `72000000-0000-4000-8000-00000000000${index}` : null,
-      termsVersionId: permitted ? `73000000-0000-4000-8000-00000000000${index}` : null,
+      cellId: permitted ? `71000000-0000-4000-8000-00000000000${decisionIndex}` : null,
+      decisionId: permitted ? `72000000-0000-4000-8000-00000000000${decisionIndex}` : null,
+      termsVersionId: permitted ? `73000000-0000-4000-8000-00000000000${decisionIndex}` : null,
     })),
-  },
+  });
+
+const rightsReceipt = (
+  run: ScheduledAcquisitionRun,
+  permitted = true,
+): readonly ScheduledRightsReceipt[] => permitted
+  ? [
+      checkpoint(run, 'INITIAL', 0, true, 'ADMITTED'),
+      checkpoint(run, 'PRE_PROVIDER', 1, true, 'ADMITTED'),
+      checkpoint(run, 'PRE_TRANSPORT', 2, true, 'ADMITTED'),
+    ]
+  : [checkpoint(run, 'INITIAL', 0, false, 'RIGHTS_REFUSED')];
+
+const notDueReceipt = (run: ScheduledAcquisitionRun): readonly ScheduledRightsReceipt[] => [
+  checkpoint(run, 'INITIAL', 0, true, 'NOT_DUE'),
 ];
 
 const artifact = (suffix: string) => ({
@@ -68,6 +100,51 @@ const artifact = (suffix: string) => ({
   acquisition_jurisdiction: null,
 });
 
+const scheduledArtifact = (
+  value: SourceArtifactInsert,
+  resultRelation: 'TARGET' | 'CHILD_RESOURCE' = 'TARGET',
+) => ({
+  artifact: value,
+  retrievalKey: `raw/hvac/acme-hvac-catalog/retrieved/2026/08/28/${value.content_hash}.json`,
+  resultRelation,
+});
+
+async function linkRawArtifact(
+  run: ScheduledAcquisitionRun,
+  value: SourceArtifactInsert,
+  acquisitionProvider = 'http',
+  resultRelation: 'TARGET' | 'CHILD_RESOURCE' = 'TARGET',
+): Promise<void> {
+  const persisted = await fixtures.store.recordSourceArtifact(value);
+  await fixtures.driver.query(
+    `INSERT INTO scheduled_acquisition_run_artifacts
+       (run_id, artifact_id, ordinal, target_url, result_url, result_relation,
+        retrieval_key, acquisition_provider)
+     VALUES ($1, $2, 0, $3, $4, $5, $6, $7)`,
+    [
+      run.id, persisted.id, run.targetUrl, value.url, resultRelation,
+      scheduledArtifact(value, resultRelation).retrievalKey, acquisitionProvider,
+    ],
+  );
+}
+
+async function rawFetchedSuccess(
+  run: ScheduledAcquisitionRun,
+  receipt: unknown,
+  completedAt = ts('2026-08-28T23:59:00.000Z'),
+  freshAt = completedAt,
+): Promise<void> {
+  await fixtures.driver.query(
+    `UPDATE scheduled_acquisition_runs
+        SET status = 'SUCCEEDED', outcome = 'FETCHED',
+            completed_at = $2, fresh_at = $3, provider = 'http',
+            expected_artifact_count = 1, artifact_count = 1,
+            rights_receipt = $4::jsonb
+      WHERE id = $1`,
+    [run.id, completedAt, freshAt, JSON.stringify(receipt)],
+  );
+}
+
 describe('scheduled acquisition claims', () => {
   it('atomically claims an idempotency key only once', async () => {
     const input = claim();
@@ -82,6 +159,141 @@ describe('scheduled acquisition claims', () => {
 });
 
 describe('terminal outcomes and freshness', () => {
+  it.each([
+    ['missing checkpoints', '2026-08-28T17:11:00.000Z', '1'],
+    ['duplicate checkpoints', '2026-08-28T17:12:00.000Z', '2'],
+    ['out-of-order checkpoints', '2026-08-28T17:13:00.000Z', '3'],
+    ['a denied checkpoint', '2026-08-28T17:14:00.000Z', '4'],
+  ] as const)('rejects raw-SQL success with %s', async (_label, slot, suffix) => {
+    const run = await scheduler.claim(claim(slot, {
+      targetId: `receipt-negative-${_label.replaceAll(' ', '-')}`,
+    }));
+    const valid = rightsReceipt(run!);
+    const receipt = _label === 'missing checkpoints'
+      ? [valid[0]]
+      : _label === 'duplicate checkpoints'
+        ? [valid[0], valid[1], valid[1]]
+        : _label === 'out-of-order checkpoints'
+          ? [valid[0], valid[2], valid[1]]
+          : [valid[0], valid[1], checkpoint(run!, 'PRE_TRANSPORT', 2, false, 'RIGHTS_REFUSED')];
+    const persisted = await fixtures.store.recordSourceArtifact(artifact(suffix));
+    await fixtures.driver.query(
+      `INSERT INTO scheduled_acquisition_run_artifacts
+         (run_id, artifact_id, ordinal, target_url, result_url, result_relation,
+          retrieval_key, acquisition_provider)
+       VALUES ($1, $2, 0, $3, $3, 'TARGET', $4, 'http')`,
+      [run!.id, persisted.id, run!.targetUrl, scheduledArtifact(artifact(suffix)).retrievalKey],
+    );
+    await expect(
+      fixtures.driver.query(
+        `UPDATE scheduled_acquisition_runs
+            SET status = 'SUCCEEDED', outcome = 'FETCHED',
+                completed_at = $2, fresh_at = $2, provider = 'http',
+                expected_artifact_count = 1, artifact_count = 1,
+                validators = $3::jsonb, rights_receipt = $4::jsonb
+          WHERE id = $1`,
+        [
+          run!.id,
+          ts('2026-08-28T17:20:00.000Z'),
+          JSON.stringify({ etag: '"v1"' }),
+          JSON.stringify(receipt),
+        ],
+      ),
+    ).rejects.toThrow(/receipt|checkpoint|permission/i);
+    expect((await scheduler.get(run!.id))?.status).toBe('CLAIMED');
+  });
+
+  it.each([
+    [
+      'unknown reason code',
+      '2026-08-28T17:21:00.000Z',
+      (receipt: any[]) => { receipt[0].decisions[0].reasonCode = 'FUTURE_ALLOW'; },
+    ],
+    [
+      'malformed UUID',
+      '2026-08-28T17:22:00.000Z',
+      (receipt: any[]) => { receipt[0].decisions[0].cellId = 'not-a-uuid'; },
+    ],
+    [
+      'invalid UUID version',
+      '2026-08-28T17:23:00.000Z',
+      (receipt: any[]) => { receipt[0].decisions[0].decisionId = '72000000-0000-9000-8000-000000000000'; },
+    ],
+    [
+      'invalid UUID variant',
+      '2026-08-28T17:24:00.000Z',
+      (receipt: any[]) => { receipt[0].decisions[0].termsVersionId = '73000000-0000-4000-7000-000000000000'; },
+    ],
+    [
+      'null allowed cell provenance',
+      '2026-08-28T17:25:00.000Z',
+      (receipt: any[]) => { receipt[0].decisions[0].cellId = null; },
+    ],
+    [
+      'null allowed decision provenance',
+      '2026-08-28T17:26:00.000Z',
+      (receipt: any[]) => { receipt[0].decisions[0].decisionId = null; },
+    ],
+    [
+      'null allowed terms provenance',
+      '2026-08-28T17:27:00.000Z',
+      (receipt: any[]) => { receipt[0].decisions[0].termsVersionId = null; },
+    ],
+    [
+      'noncanonical timestamp',
+      '2026-08-28T17:28:00.000Z',
+      (receipt: any[]) => { receipt[0].evaluatedAt = '2026-08-28 17:00:01+00'; },
+    ],
+    [
+      'impossible timestamp',
+      '2026-08-28T17:29:00.000Z',
+      (receipt: any[]) => { receipt[0].evaluatedAt = '2026-02-31T17:00:01.000Z'; },
+    ],
+    [
+      'decreasing checkpoint time',
+      '2026-08-28T17:30:00.000Z',
+      (receipt: any[]) => {
+        receipt[1].evaluatedAt = ts('2026-08-28T17:00:01.002Z');
+        receipt[2].evaluatedAt = ts('2026-08-28T17:00:01.001Z');
+      },
+    ],
+    [
+      'checkpoint after completion',
+      '2026-08-28T17:31:00.000Z',
+      (receipt: any[]) => { receipt[2].evaluatedAt = '2026-08-29T00:00:00.000Z'; },
+    ],
+  ] as const)('rejects raw-SQL receipt divergence: %s', async (_label, slot, mutate) => {
+    const run = await scheduler.claim(claim(slot, { targetId: `raw-${slot.slice(14, 19).replace(':', '-')}` }));
+    await linkRawArtifact(run!, artifact('5'));
+    const receipt = structuredClone(rightsReceipt(run!)) as any[];
+    mutate(receipt);
+    await expect(rawFetchedSuccess(run!, receipt)).rejects.toThrow();
+    expect(await scheduler.get(run!.id)).toMatchObject({ status: 'CLAIMED', freshAt: null });
+  });
+
+  it('binds every checkpoint to the database-derived immutable claim scope', async () => {
+    const first = await scheduler.claim(claim('2026-08-28T17:32:00.000Z', { targetId: 'scope-first' }));
+    const neighbor = await scheduler.claim(claim('2026-08-28T17:33:00.000Z', { targetId: 'scope-neighbor' }));
+    expect(first!.rightsScopeDigest).toMatch(/^[0-9a-f]{64}$/);
+    expect(neighbor!.rightsScopeDigest).not.toBe(first!.rightsScopeDigest);
+    await linkRawArtifact(neighbor!, artifact('6'));
+
+    await expect(rawFetchedSuccess(neighbor!, rightsReceipt(first!))).rejects.toThrow(/receipt/i);
+    await expect(
+      scheduler.complete({
+        runId: neighbor!.id,
+        outcome: 'FETCHED',
+        completedAt: ts('2026-08-28T17:40:00.000Z'),
+        freshAt: ts('2026-08-28T17:39:59.000Z'),
+        provider: 'http',
+        validators: {},
+        rightsReceipt: rightsReceipt(first!),
+        artifacts: [scheduledArtifact(artifact('6'))],
+      }),
+    ).rejects.toThrow(/scope/i);
+    expect((await scheduler.get(neighbor!.id))?.freshAt).toBeNull();
+  });
+
   it('commits every artifact link before publishing FETCHED success', async () => {
     const run = await scheduler.claim(claim('2026-08-28T18:00:00.000Z'));
     expect(run).not.toBeNull();
@@ -93,8 +305,8 @@ describe('terminal outcomes and freshness', () => {
       freshAt: ts('2026-08-28T18:00:59.000Z'),
       provider: 'http',
       validators: { etag: '"v1"' },
-      rightsReceipt: rightsReceipt(),
-      artifacts: [artifact('b'), artifact('c')],
+      rightsReceipt: rightsReceipt(run!),
+      artifacts: [scheduledArtifact(artifact('b')), scheduledArtifact(artifact('c'))],
     });
 
     expect(completed).toMatchObject({
@@ -106,7 +318,13 @@ describe('terminal outcomes and freshness', () => {
     expect(await scheduler.latestSuccessAt(run!)).toBe(
       ts('2026-08-28T18:00:59.000Z'),
     );
-    expect(await countRows(fixtures.driver, 'scheduled_acquisition_run_artifacts')).toBe(2);
+    expect(
+      Number((await fixtures.driver.query<{ count: number }>(
+        `SELECT count(*)::integer AS count
+           FROM scheduled_acquisition_run_artifacts WHERE run_id = $1`,
+        [run!.id],
+      ))[0]?.count),
+    ).toBe(2);
   });
 
   it.each([
@@ -140,8 +358,11 @@ describe('terminal outcomes and freshness', () => {
         freshAt: ts('2026-08-28T19:00:59.000Z'),
         provider: 'http',
         validators: {},
-        rightsReceipt: rightsReceipt(),
-        artifacts: [artifact('d'), { ...artifact('e'), content_hash: 'not-a-hash' }],
+        rightsReceipt: rightsReceipt(run!),
+        artifacts: [
+          scheduledArtifact(artifact('d')),
+          scheduledArtifact({ ...artifact('e'), content_hash: 'not-a-hash' }),
+        ],
       }),
     ).rejects.toThrow();
 
@@ -172,10 +393,10 @@ describe('terminal outcomes and freshness', () => {
         freshAt: ts('2026-08-28T19:39:59.000Z'),
         provider: 'http',
         validators: {},
-        rightsReceipt: rightsReceipt(),
-        artifacts: [{ ...artifact('f'), ...override }],
+        rightsReceipt: rightsReceipt(run!),
+        artifacts: [scheduledArtifact({ ...artifact('f'), ...override })],
       }),
-    ).rejects.toThrow(/target or acquisition scope/i);
+    ).rejects.toThrow(/target|acquisition scope|associated/i);
     expect(await countRows(fixtures.driver, 'source_artifacts')).toBe(before);
     expect((await scheduler.get(run!.id))?.status).toBe('CLAIMED');
     expect((await scheduler.get(run!.id))?.freshAt).toBeNull();
@@ -192,8 +413,8 @@ describe('terminal outcomes and freshness', () => {
         freshAt: ts('2026-08-28T19:39:59.000Z'),
         provider: 'http',
         validators: {},
-        rightsReceipt: rightsReceipt(),
-        artifacts: [{ ...artifact('f'), acquisition_provider: 'neighbor-provider' }],
+        rightsReceipt: rightsReceipt(run!),
+        artifacts: [scheduledArtifact({ ...artifact('f'), acquisition_provider: 'neighbor-provider' })],
       }),
     ).rejects.toThrow(/artifact provider does not match/i);
     expect(await countRows(fixtures.driver, 'source_artifacts')).toBe(before);
@@ -208,36 +429,167 @@ describe('terminal outcomes and freshness', () => {
     });
     await expect(
       fixtures.driver.query(
-        `INSERT INTO scheduled_acquisition_run_artifacts (run_id, artifact_id, ordinal)
-         VALUES ($1, $2, 0)`,
-        [run!.id, neighboring.id],
+        `INSERT INTO scheduled_acquisition_run_artifacts
+           (run_id, artifact_id, ordinal, target_url, result_url, result_relation,
+            retrieval_key, acquisition_provider)
+         VALUES ($1, $2, 0, $3, $4, 'CHILD_RESOURCE', $5, 'http')`,
+        [
+          run!.id, neighboring.id, run!.targetUrl, neighboring.url,
+          scheduledArtifact(artifact('9')).retrievalKey,
+        ],
       ),
-    ).rejects.toThrow(/target or acquisition scope/i);
+    ).rejects.toThrow(/target policy/i);
     expect((await scheduler.get(run!.id))?.freshAt).toBeNull();
   });
 
   it('validates linked artifact providers again at the database terminal boundary', async () => {
     const run = await scheduler.claim(claim('2026-08-28T19:46:00.000Z'));
-    const neighboring = await fixtures.store.recordSourceArtifact({
-      ...artifact('8'),
-      acquisition_provider: 'neighbor-provider',
-    });
+    const neighboring = await fixtures.store.recordSourceArtifact(artifact('8'));
     await fixtures.driver.query(
-      `INSERT INTO scheduled_acquisition_run_artifacts (run_id, artifact_id, ordinal)
-       VALUES ($1, $2, 0)`,
-      [run!.id, neighboring.id],
+      `INSERT INTO scheduled_acquisition_run_artifacts
+         (run_id, artifact_id, ordinal, target_url, result_url, result_relation,
+          retrieval_key, acquisition_provider)
+       VALUES ($1, $2, 0, $3, $3, 'TARGET', $4, 'browser-run')`,
+      [run!.id, neighboring.id, run!.targetUrl, scheduledArtifact(artifact('8')).retrievalKey],
     );
     await expect(
       fixtures.driver.query(
         `UPDATE scheduled_acquisition_runs
             SET status = 'SUCCEEDED', outcome = 'FETCHED',
                 completed_at = $2, fresh_at = $2, provider = 'http',
-                expected_artifact_count = 1, artifact_count = 1
+                expected_artifact_count = 1, artifact_count = 1,
+                rights_receipt = $3::jsonb
           WHERE id = $1`,
-        [run!.id, ts('2026-08-28T19:47:00.000Z')],
+        [
+          run!.id, ts('2026-08-28T19:47:00.000Z'),
+          JSON.stringify(rightsReceipt(run!)),
+        ],
       ),
-    ).rejects.toThrow(/artifact provider does not match/i);
+    ).rejects.toThrow(/retrieval provider does not match/i);
     expect((await scheduler.get(run!.id))?.freshAt).toBeNull();
+  });
+
+  it('records the current retrieval provider when identical content deduplicates across providers', async () => {
+    const first = await scheduler.claim(claim('2026-08-28T19:48:00.000Z', {
+      targetId: 'cross-provider',
+      acquisitionRoute: 'BROWSER_RUN',
+    }));
+    const firstArtifact = {
+      ...artifact('a'),
+      acquisition_provider: 'browser-run',
+      acquisition_route: 'BROWSER_RUN' as const,
+      extractor_version: 'browser-run@1.0.0',
+    };
+    await scheduler.complete({
+      runId: first!.id,
+      outcome: 'FETCHED',
+      completedAt: ts('2026-08-28T19:49:00.000Z'),
+      freshAt: ts('2026-08-28T19:48:59.000Z'),
+      provider: 'browser-run',
+      validators: {},
+      rightsReceipt: rightsReceipt(first!),
+      artifacts: [scheduledArtifact(firstArtifact)],
+    });
+
+    const second = await scheduler.claim(claim('2026-08-28T19:50:00.000Z', {
+      targetId: 'cross-provider',
+      acquisitionRoute: 'BROWSER_RUN',
+    }));
+    await scheduler.complete({
+      runId: second!.id,
+      outcome: 'FETCHED',
+      completedAt: ts('2026-08-28T19:51:00.000Z'),
+      freshAt: ts('2026-08-28T19:50:59.000Z'),
+      provider: 'fixture',
+      validators: {},
+      rightsReceipt: rightsReceipt(second!),
+      artifacts: [scheduledArtifact({
+        ...firstArtifact,
+        acquisition_provider: 'fixture',
+        extractor_version: 'fixture@1.0.0',
+      })],
+    });
+
+    const artifacts = await fixtures.driver.query<{ count: number; acquisition_provider: string }>(
+      `SELECT count(*)::integer AS count, min(acquisition_provider) AS acquisition_provider
+         FROM source_artifacts
+        WHERE source_id = $1 AND url = $2 AND content_hash = $3
+          AND acquisition_route = 'BROWSER_RUN'
+        GROUP BY source_id, url, content_hash, acquisition_route`,
+      [first!.sourceId, first!.targetUrl, firstArtifact.content_hash],
+    );
+    expect(artifacts[0]).toEqual({ count: 1, acquisition_provider: 'browser-run' });
+    expect(
+      await fixtures.driver.query<{ acquisition_provider: string }>(
+        `SELECT acquisition_provider FROM scheduled_acquisition_run_artifacts
+          WHERE run_id IN ($1, $2) ORDER BY created_at`,
+        [first!.id, second!.id],
+      ),
+    ).toEqual([
+      { acquisition_provider: 'browser-run' },
+      { acquisition_provider: 'fixture' },
+    ]);
+  });
+
+  it('admits only policy-bound BrowserRun child resources and records their target association', async () => {
+    const run = await scheduler.claim(claim('2026-08-28T19:52:00.000Z', {
+      targetId: 'multi-resource',
+      acquisitionRoute: 'BROWSER_RUN',
+    }));
+    const childBase = {
+      ...artifact('a'),
+      acquisition_provider: 'browser-run',
+      acquisition_route: 'BROWSER_RUN' as const,
+      extractor_version: 'browser-run@1.0.0',
+    };
+    for (const url of [
+      'https://off-scope.example.com/api/v2/catalog?page=2',
+      'https://catalog.acme-climate.example.com/admin?page=2',
+    ]) {
+      await expect(
+        scheduler.complete({
+          runId: run!.id,
+          outcome: 'FETCHED',
+          completedAt: ts('2026-08-28T19:53:00.000Z'),
+          freshAt: ts('2026-08-28T19:52:59.000Z'),
+          provider: 'browser-run',
+          validators: {},
+          rightsReceipt: rightsReceipt(run!),
+          artifacts: [scheduledArtifact({ ...childBase, url }, 'CHILD_RESOURCE')],
+        }),
+      ).rejects.toThrow(/associated with the claimed target/i);
+      expect((await scheduler.get(run!.id))?.status).toBe('CLAIMED');
+    }
+
+    const targetArtifact = { ...childBase, content_hash: 'b'.repeat(64) };
+    const childArtifact = {
+      ...childBase,
+      url: `${run!.targetUrl}?page=2`,
+      content_hash: 'c'.repeat(64),
+    };
+    await scheduler.complete({
+      runId: run!.id,
+      outcome: 'FETCHED',
+      completedAt: ts('2026-08-28T19:54:00.000Z'),
+      freshAt: ts('2026-08-28T19:53:59.000Z'),
+      provider: 'browser-run',
+      validators: {},
+      rightsReceipt: rightsReceipt(run!),
+      artifacts: [
+        scheduledArtifact(targetArtifact, 'TARGET'),
+        scheduledArtifact(childArtifact, 'CHILD_RESOURCE'),
+      ],
+    });
+    expect(
+      await fixtures.driver.query<{ target_url: string; result_url: string; result_relation: string }>(
+        `SELECT target_url, result_url, result_relation
+           FROM scheduled_acquisition_run_artifacts WHERE run_id = $1 ORDER BY ordinal`,
+        [run!.id],
+      ),
+    ).toEqual([
+      { target_url: run!.targetUrl, result_url: run!.targetUrl, result_relation: 'TARGET' },
+      { target_url: run!.targetUrl, result_url: childArtifact.url, result_relation: 'CHILD_RESOURCE' },
+    ]);
   });
 
   it('treats NOT_MODIFIED as successful freshness without inventing artifacts', async () => {
@@ -249,7 +601,7 @@ describe('terminal outcomes and freshness', () => {
       freshAt: ts('2026-08-28T20:00:59.000Z'),
       provider: 'http',
       validators: { etag: '"v1"' },
-      rightsReceipt: rightsReceipt(),
+      rightsReceipt: rightsReceipt(run!),
       artifacts: [],
     });
 
@@ -271,7 +623,7 @@ describe('terminal outcomes and freshness', () => {
         freshAt: ts('2026-08-28T20:10:59.000Z'),
         provider: 'http',
         validators: { etag: '"v1"' },
-        rightsReceipt: rightsReceipt(),
+        rightsReceipt: rightsReceipt(run!),
         artifacts: [],
       }),
     ).rejects.toThrow(/prior artifact-backed fetched success/i);
@@ -290,7 +642,7 @@ describe('terminal outcomes and freshness', () => {
         freshAt: ts('2026-08-28T20:12:59.000Z'),
         provider: 'http',
         validators: { etag: '"v1"' },
-        rightsReceipt: rightsReceipt(),
+        rightsReceipt: rightsReceipt(run!),
         artifacts: [],
       }),
     ).rejects.toThrow(/prior artifact-backed fetched success/i);
@@ -312,7 +664,7 @@ describe('terminal outcomes and freshness', () => {
           run!.id,
           ts('2026-08-28T20:15:00.000Z'),
           JSON.stringify({ etag: '"v1"' }),
-          JSON.stringify(rightsReceipt()),
+          JSON.stringify(rightsReceipt(run!)),
         ],
       ),
     ).rejects.toThrow(/prior artifact-backed fetched success/i);
@@ -320,23 +672,22 @@ describe('terminal outcomes and freshness', () => {
   });
 
   it.each([
-    ['unknown validator key', 'unsafe-validator', '2026-08-28T20:20:00.000Z', { validators: { authorization: 'Bearer plaintext' } }],
-    ['empty successful receipt', 'empty-receipt', '2026-08-28T20:21:00.000Z', { rightsReceipt: [] }],
-    ['unknown provider', 'unknown-provider', '2026-08-28T20:22:00.000Z', { provider: 'raw-provider-error' }],
-    [
-      'raw receipt field',
-      'raw-receipt',
-      '2026-08-28T20:23:00.000Z',
-      {
-        rightsReceipt: [
-          { ...rightsReceipt()[0], rawError: 'Authorization: Bearer plaintext' },
-        ],
-      },
-    ],
-  ] as const)('rejects privacy-unsafe terminal DTO data: %s', async (_label, targetId, slot, override) => {
+    ['unknown validator key', 'unsafe-validator', '2026-08-28T20:20:00.000Z', 'validator'],
+    ['empty successful receipt', 'empty-receipt', '2026-08-28T20:21:00.000Z', 'empty-receipt'],
+    ['unknown provider', 'unknown-provider', '2026-08-28T20:22:00.000Z', 'provider'],
+    ['raw receipt field', 'raw-receipt', '2026-08-28T20:23:00.000Z', 'raw-receipt'],
+  ] as const)('rejects privacy-unsafe terminal DTO data: %s', async (_label, targetId, slot, kind) => {
     const run = await scheduler.claim(
       claim(slot, { targetId }),
     );
+    const receipt = rightsReceipt(run!);
+    const override = kind === 'validator'
+      ? { validators: { authorization: 'Bearer plaintext' } }
+      : kind === 'empty-receipt'
+        ? { rightsReceipt: [] }
+        : kind === 'provider'
+          ? { provider: 'raw-provider-error' }
+          : { rightsReceipt: [{ ...receipt[0], rawError: 'Authorization: Bearer plaintext' }] };
     await expect(
       scheduler.complete({
         runId: run!.id,
@@ -345,11 +696,11 @@ describe('terminal outcomes and freshness', () => {
         freshAt: ts('2026-08-28T20:58:59.000Z'),
         provider: 'http',
         validators: {},
-        rightsReceipt: rightsReceipt(),
-        artifacts: [artifact('7')],
+        rightsReceipt: receipt,
+        artifacts: [scheduledArtifact(artifact('7'))],
         ...override,
       } as never),
-    ).rejects.toThrow(/validator|receipt|provider/i);
+    ).rejects.toThrow(/validator|receipt|provider|checkpoint/i);
     expect((await scheduler.get(run!.id))?.freshAt).toBeNull();
   });
 
@@ -367,6 +718,100 @@ describe('terminal outcomes and freshness', () => {
     ).rejects.toThrow(/failure code/i);
   });
 
+  it('persists only the explicit skipped and refused receipt forms', async () => {
+    const skipped = await scheduler.claim(claim('2026-08-28T20:52:00.000Z', { targetId: 'skip-valid' }));
+    expect(await scheduler.fail({
+      runId: skipped!.id,
+      status: 'SKIPPED',
+      outcome: null,
+      failureCode: 'NOT_DUE',
+      completedAt: ts('2026-08-28T20:53:00.000Z'),
+      rightsReceipt: notDueReceipt(skipped!),
+    })).toMatchObject({ status: 'SKIPPED', failureCode: 'NOT_DUE' });
+
+    const refused = await scheduler.claim(claim('2026-08-28T20:54:00.000Z', { targetId: 'refuse-valid' }));
+    const refusalReceipt = [
+      rightsReceipt(refused!)[0]!,
+      checkpoint(refused!, 'PRE_PROVIDER', 1, false, 'RIGHTS_REFUSED'),
+    ];
+    expect(await scheduler.fail({
+      runId: refused!.id,
+      status: 'REFUSED',
+      outcome: null,
+      failureCode: 'RIGHTS_REFUSED',
+      completedAt: ts('2026-08-28T20:55:00.000Z'),
+      rightsReceipt: refusalReceipt,
+    })).toMatchObject({ status: 'REFUSED', failureCode: 'RIGHTS_REFUSED' });
+  });
+
+  it.each([
+    ['skipped without not-due basis', '2026-08-28T20:56:00.000Z', 'SKIPPED'],
+    ['refused with an admitted final checkpoint', '2026-08-28T20:57:00.000Z', 'REFUSED'],
+    ['refused with a non-prefix stage', '2026-08-28T20:58:00.000Z', 'REFUSED_STAGE'],
+    ['failed with a refusal checkpoint', '2026-08-28T20:59:00.000Z', 'FAILED'],
+  ] as const)('rejects terminal receipt mismatch: %s', async (_label, slot, kind) => {
+    const run = await scheduler.claim(claim(slot, { targetId: `terminal-${kind.toLowerCase()}` }));
+    const admitted = rightsReceipt(run!)[0]!;
+    const deniedTransport = checkpoint(run!, 'PRE_TRANSPORT', 1, false, 'RIGHTS_REFUSED');
+    const input = kind === 'SKIPPED'
+      ? {
+          runId: run!.id, status: 'SKIPPED', outcome: null, failureCode: 'NOT_DUE',
+          completedAt: ts('2026-08-28T21:10:00.000Z'), rightsReceipt: [admitted],
+        }
+      : kind === 'FAILED'
+        ? {
+            runId: run!.id, status: 'FAILED', outcome: null, failureCode: 'INTERNAL_ERROR',
+            completedAt: ts('2026-08-28T21:10:00.000Z'), rightsReceipt: [
+              { ...admitted, basis: 'RIGHTS_REFUSED', decisions: deniedTransport.decisions },
+            ],
+          }
+        : {
+            runId: run!.id, status: 'REFUSED', outcome: null, failureCode: 'RIGHTS_REFUSED',
+            completedAt: ts('2026-08-28T21:10:00.000Z'), rightsReceipt: kind === 'REFUSED_STAGE'
+              ? [admitted, deniedTransport]
+              : [admitted],
+          };
+    await expect(scheduler.fail(input as never)).rejects.toThrow(/receipt|refus|skipped|failed/i);
+    expect((await scheduler.get(run!.id))?.status).toBe('CLAIMED');
+  });
+
+  it('enforces terminal time order in TypeScript and raw SQL', async () => {
+    const typed = await scheduler.claim(claim('2026-08-28T21:11:00.000Z', { targetId: 'time-typed' }));
+    await expect(scheduler.fail({
+      runId: typed!.id,
+      status: 'FAILED',
+      outcome: null,
+      failureCode: 'INTERNAL_ERROR',
+      completedAt: ts('2026-08-28T17:00:00.000Z'),
+      rightsReceipt: [],
+    })).rejects.toThrow(/precedes its claim/i);
+
+    const raw = await scheduler.claim(claim('2026-08-28T21:12:00.000Z', { targetId: 'time-raw' }));
+    await expect(fixtures.driver.query(
+      `UPDATE scheduled_acquisition_runs
+          SET status = 'FAILED', outcome = NULL, failure_code = 'INTERNAL_ERROR',
+              completed_at = $2, rights_receipt = '[]'::jsonb
+        WHERE id = $1`,
+      [raw!.id, ts('2026-08-28T17:00:00.000Z')],
+    )).rejects.toThrow();
+    expect((await scheduler.get(raw!.id))?.completedAt).toBeNull();
+  });
+
+  it.each([
+    ['freshness before claim', '2026-08-28T21:13:00.000Z', '2026-08-28T17:00:00.000Z'],
+    ['freshness after completion', '2026-08-28T21:14:00.000Z', '2026-08-28T22:01:00.000Z'],
+  ] as const)('rejects raw-SQL %s', async (_label, slot, freshAt) => {
+    const run = await scheduler.claim(claim(slot, { targetId: `fresh-${slot.slice(14, 16)}` }));
+    await linkRawArtifact(run!, artifact('d'));
+    await expect(rawFetchedSuccess(
+      run!,
+      rightsReceipt(run!),
+      ts('2026-08-28T22:00:00.000Z'),
+      ts(freshAt),
+    )).rejects.toThrow();
+    expect((await scheduler.get(run!.id))?.freshAt).toBeNull();
+  });
+
   it('never advances freshness for EMPTY, refused, failed, or claimed runs', async () => {
     const empty = await scheduler.claim(claim('2026-08-28T21:00:00.000Z'));
     const refused = await scheduler.claim(claim('2026-08-28T22:00:00.000Z'));
@@ -376,7 +821,8 @@ describe('terminal outcomes and freshness', () => {
       outcome: 'EMPTY',
       failureCode: 'EMPTY_RESPONSE',
       completedAt: ts('2026-08-28T21:01:00.000Z'),
-      rightsReceipt: [],
+      rightsReceipt: rightsReceipt(empty!),
+      provider: 'http',
     });
     await scheduler.fail({
       runId: refused!.id,
@@ -384,7 +830,7 @@ describe('terminal outcomes and freshness', () => {
       outcome: null,
       failureCode: 'RIGHTS_REFUSED',
       completedAt: ts('2026-08-28T22:01:00.000Z'),
-      rightsReceipt: rightsReceipt(false),
+      rightsReceipt: rightsReceipt(refused!, false),
     });
 
     expect(await scheduler.latestSuccessAt(empty!)).toBe(
@@ -413,3 +859,12 @@ describe('terminal outcomes and freshness', () => {
     ).rejects.toThrow(/claim identity and scope are immutable/i);
   });
 });
+
+if (false) {
+  // @ts-expect-error SKIPPED is statically coupled to NOT_DUE and a null outcome.
+  void scheduler.fail({ runId: 'compile-only', status: 'SKIPPED', outcome: 'EMPTY', failureCode: 'EMPTY_RESPONSE', completedAt: ts('2026-08-28T00:00:00.000Z'), rightsReceipt: [], provider: 'http' });
+  // @ts-expect-error REFUSED cannot persist a provider or a non-rights failure code.
+  void scheduler.fail({ runId: 'compile-only', status: 'REFUSED', outcome: null, failureCode: 'TRANSPORT_FAILED', completedAt: ts('2026-08-28T00:00:00.000Z'), rightsReceipt: [], provider: 'http' });
+  // @ts-expect-error EMPTY_RESPONSE is a provider-backed FAILED outcome.
+  void scheduler.fail({ runId: 'compile-only', status: 'FAILED', outcome: 'EMPTY', failureCode: 'EMPTY_RESPONSE', completedAt: ts('2026-08-28T00:00:00.000Z'), rightsReceipt: [] });
+}

@@ -138,6 +138,8 @@ export interface HarnessOptions {
   readonly entries?: readonly SourceRegistryEntry[] | undefined;
   readonly store?: ArtifactStore | undefined;
   readonly now?: string | undefined;
+  readonly beforeTransport?: AcquisitionProviderDeps['beforeTransport'];
+  readonly beforeStoreResource?: AcquisitionProviderDeps['beforeStoreResource'];
 }
 
 export function makeHarness(options: HarnessOptions = {}): Harness {
@@ -163,6 +165,8 @@ export function makeHarness(options: HarnessOptions = {}): Harness {
       validatorCache: validators,
       clock,
       userAgent: 'DataFoundryBot/test',
+      beforeTransport: options.beforeTransport ?? (() => Promise.resolve()),
+      beforeStoreResource: options.beforeStoreResource ?? (() => Promise.resolve()),
     },
   };
 }

@@ -31,29 +31,189 @@ BEGIN
 END;
 $$;
 
+CREATE OR REPLACE FUNCTION scheduled_acquisition_iso_utc_valid(value TEXT)
+RETURNS BOOLEAN LANGUAGE plpgsql IMMUTABLE AS $$
+DECLARE
+    parsed TIMESTAMPTZ;
+BEGIN
+    IF value IS NULL OR value !~
+       '^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])T([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]\.[0-9]{3}Z$' THEN
+        RETURN FALSE;
+    END IF;
+    BEGIN
+        parsed := value::TIMESTAMPTZ;
+    EXCEPTION WHEN OTHERS THEN
+        RETURN FALSE;
+    END;
+    RETURN to_char(parsed AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') = value;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION scheduled_acquisition_scope_frame(value TEXT)
+RETURNS TEXT LANGUAGE sql IMMUTABLE AS $$
+    SELECT CASE WHEN value IS NULL THEN '-1:'
+                ELSE octet_length(convert_to(value, 'UTF8'))::TEXT || ':' || value END
+$$;
+
+CREATE OR REPLACE FUNCTION scheduled_acquisition_scope_digest(
+    run_id UUID,
+    idempotency_key TEXT,
+    vertical_slug TEXT,
+    source_id UUID,
+    source_key TEXT,
+    target_id TEXT,
+    target_url TEXT,
+    acquisition_route TEXT,
+    account_or_product_plan TEXT,
+    acquisition_jurisdiction TEXT,
+    asset_class TEXT,
+    output_class TEXT,
+    result_url_policy JSONB,
+    scheduled_for TIMESTAMPTZ,
+    runtime_digest TEXT
+) RETURNS TEXT LANGUAGE sql IMMUTABLE AS $$
+    SELECT encode(sha256(convert_to(array_to_string(ARRAY[
+        scheduled_acquisition_scope_frame('scheduled-acquisition-scope-v1'),
+        scheduled_acquisition_scope_frame(lower(run_id::TEXT)),
+        scheduled_acquisition_scope_frame(idempotency_key),
+        scheduled_acquisition_scope_frame(vertical_slug),
+        scheduled_acquisition_scope_frame(lower(source_id::TEXT)),
+        scheduled_acquisition_scope_frame(source_key),
+        scheduled_acquisition_scope_frame(target_id),
+        scheduled_acquisition_scope_frame(target_url),
+        scheduled_acquisition_scope_frame(acquisition_route),
+        scheduled_acquisition_scope_frame(account_or_product_plan),
+        scheduled_acquisition_scope_frame(acquisition_jurisdiction),
+        scheduled_acquisition_scope_frame(asset_class),
+        scheduled_acquisition_scope_frame(output_class),
+        scheduled_acquisition_scope_frame(result_url_policy::TEXT),
+        scheduled_acquisition_scope_frame(
+            to_char(scheduled_for AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
+        ),
+        scheduled_acquisition_scope_frame(runtime_digest),
+        scheduled_acquisition_scope_frame('ACTIVE'),
+        scheduled_acquisition_scope_frame('INTERNAL_PROCESSING'),
+        scheduled_acquisition_scope_frame(NULL),
+        scheduled_acquisition_scope_frame('[]'),
+        scheduled_acquisition_scope_frame('ACQUIRE,STORE,CACHE')
+    ], '|'), 'UTF8')), 'hex')
+$$;
+
+CREATE OR REPLACE FUNCTION scheduled_acquisition_result_url_policy_valid(value JSONB)
+RETURNS BOOLEAN LANGUAGE plpgsql IMMUTABLE AS $$
+BEGIN
+    IF jsonb_typeof(value) <> 'object'
+       OR NOT (value ?& ARRAY['allowedOrigins', 'allowedPathPrefixes'])
+       OR value - 'allowedOrigins' - 'allowedPathPrefixes' <> '{}'::JSONB
+       OR jsonb_typeof(value -> 'allowedOrigins') <> 'array'
+       OR jsonb_array_length(value -> 'allowedOrigins') NOT BETWEEN 1 AND 16
+       OR jsonb_typeof(value -> 'allowedPathPrefixes') <> 'array'
+       OR jsonb_array_length(value -> 'allowedPathPrefixes') NOT BETWEEN 1 AND 32
+       OR EXISTS (
+            SELECT 1 FROM jsonb_array_elements(value -> 'allowedOrigins') item
+             WHERE jsonb_typeof(item) <> 'string'
+                OR item #>> '{}' !~ '^https://[a-z0-9.-]+(:[0-9]{1,5})?$'
+       )
+       OR EXISTS (
+            SELECT 1 FROM jsonb_array_elements(value -> 'allowedPathPrefixes') item
+             WHERE jsonb_typeof(item) <> 'string'
+                OR item #>> '{}' !~ '^/[^?#]*$'
+                OR item #>> '{}' ~ '(^|/)\.\.(/|$)'
+       ) THEN
+        RETURN FALSE;
+    END IF;
+    RETURN TRUE;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION scheduled_acquisition_result_url_allowed(
+    target_url TEXT,
+    acquisition_route TEXT,
+    policy JSONB,
+    result_url TEXT,
+    relation TEXT
+) RETURNS BOOLEAN LANGUAGE plpgsql IMMUTABLE AS $$
+DECLARE
+    result_origin TEXT;
+    result_path TEXT;
+    prefix TEXT;
+    origin_allowed BOOLEAN;
+    path_allowed BOOLEAN := FALSE;
+BEGIN
+    IF NOT scheduled_acquisition_result_url_policy_valid(policy)
+       OR result_url !~ '^https://'
+       OR result_url LIKE '%#%' THEN
+        RETURN FALSE;
+    END IF;
+    IF relation = 'TARGET' THEN
+        IF result_url IS DISTINCT FROM target_url THEN RETURN FALSE; END IF;
+    ELSIF relation = 'CHILD_RESOURCE' THEN
+        IF result_url IS NOT DISTINCT FROM target_url
+           OR acquisition_route NOT IN ('BROWSER_RUN', 'CRAWL4AI') THEN
+            RETURN FALSE;
+        END IF;
+    ELSE
+        RETURN FALSE;
+    END IF;
+
+    result_origin := lower(substring(result_url FROM '^(https://[^/?#]+)'));
+    result_path := substring(result_url FROM '^https://[^/?#]+([^?#]*)');
+    IF result_origin IS NULL OR result_path IS NULL THEN RETURN FALSE; END IF;
+    IF result_path = '' THEN result_path := '/'; END IF;
+    SELECT EXISTS (
+        SELECT 1 FROM jsonb_array_elements_text(policy -> 'allowedOrigins') origin
+         WHERE lower(origin) = result_origin
+    ) INTO origin_allowed;
+    IF NOT origin_allowed THEN RETURN FALSE; END IF;
+    FOR prefix IN SELECT item FROM jsonb_array_elements_text(policy -> 'allowedPathPrefixes') item LOOP
+        IF result_path = prefix
+           OR (right(prefix, 1) = '/' AND left(result_path, length(prefix)) = prefix)
+           OR (right(prefix, 1) <> '/' AND left(result_path, length(prefix) + 1) = prefix || '/') THEN
+            path_allowed := TRUE;
+            EXIT;
+        END IF;
+    END LOOP;
+    RETURN path_allowed;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION scheduled_acquisition_uuid_or_null_valid(value JSONB)
+RETURNS BOOLEAN LANGUAGE sql IMMUTABLE AS $$
+    SELECT value = 'null'::JSONB OR (
+        jsonb_typeof(value) = 'string'
+        AND value #>> '{}' ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
+    )
+$$;
+
 CREATE OR REPLACE FUNCTION scheduled_acquisition_receipt_valid(value JSONB)
 RETURNS BOOLEAN LANGUAGE plpgsql IMMUTABLE AS $$
 DECLARE
     checkpoint JSONB;
     decision JSONB;
-    operations TEXT[];
+    decision_index INTEGER;
+    expected_operations TEXT[] := ARRAY['ACQUIRE', 'STORE', 'CACHE'];
+    permission BOOLEAN;
 BEGIN
     IF jsonb_typeof(value) <> 'array' OR jsonb_array_length(value) > 3 THEN
         RETURN FALSE;
     END IF;
     FOR checkpoint IN SELECT item FROM jsonb_array_elements(value) item LOOP
         IF jsonb_typeof(checkpoint) <> 'object'
-           OR NOT (checkpoint ?& ARRAY['stage', 'evaluatedAt', 'decisions'])
-           OR checkpoint - 'stage' - 'evaluatedAt' - 'decisions' <> '{}'::jsonb
+           OR NOT (checkpoint ?& ARRAY['stage', 'basis', 'scopeDigest', 'evaluatedAt', 'decisions'])
+           OR checkpoint - 'stage' - 'basis' - 'scopeDigest' - 'evaluatedAt' - 'decisions' <> '{}'::jsonb
            OR checkpoint ->> 'stage' NOT IN ('INITIAL', 'PRE_PROVIDER', 'PRE_TRANSPORT')
+           OR checkpoint ->> 'basis' NOT IN ('ADMITTED', 'RIGHTS_REFUSED', 'NOT_DUE')
+           OR jsonb_typeof(checkpoint -> 'scopeDigest') <> 'string'
+           OR (checkpoint ->> 'scopeDigest') !~ '^[0-9a-f]{64}$'
            OR jsonb_typeof(checkpoint -> 'evaluatedAt') <> 'string'
-           OR length(checkpoint ->> 'evaluatedAt') NOT BETWEEN 20 AND 40
+           OR NOT scheduled_acquisition_iso_utc_valid(checkpoint ->> 'evaluatedAt')
            OR jsonb_typeof(checkpoint -> 'decisions') <> 'array'
            OR jsonb_array_length(checkpoint -> 'decisions') <> 3 THEN
             RETURN FALSE;
         END IF;
-        operations := ARRAY[]::TEXT[];
+        decision_index := 0;
         FOR decision IN SELECT item FROM jsonb_array_elements(checkpoint -> 'decisions') item LOOP
+            decision_index := decision_index + 1;
             IF jsonb_typeof(decision) <> 'object'
                OR NOT (decision ?& ARRAY[
                     'operation', 'permitted', 'state', 'reasonCode',
@@ -61,30 +221,109 @@ BEGIN
                   ])
                OR decision - 'operation' - 'permitted' - 'state' - 'reasonCode'
                            - 'cellId' - 'decisionId' - 'termsVersionId' <> '{}'::jsonb
-               OR decision ->> 'operation' NOT IN ('ACQUIRE', 'STORE', 'CACHE')
-               OR (decision ->> 'operation') = ANY(operations)
+               OR decision ->> 'operation' <> expected_operations[decision_index]
                OR jsonb_typeof(decision -> 'permitted') <> 'boolean'
                OR decision ->> 'state' NOT IN ('ALLOW', 'DENY', 'CONDITIONAL', 'UNKNOWN', 'NOT_APPLICABLE')
-               OR (decision ->> 'reasonCode') !~ '^[A-Z][A-Z0-9_]{1,63}$' THEN
+               OR decision ->> 'reasonCode' NOT IN (
+                    'ALLOW', 'CONDITIONAL_ALLOW', 'NO_GRANT', 'EXPLICIT_UNKNOWN',
+                    'MISSING_PROVENANCE', 'MALFORMED_SNAPSHOT', 'SOURCE_PROHIBITED',
+                    'KILL_SWITCH_ENGAGED', 'SOURCE_STATUS_BLOCKED',
+                    'RIGHTS_CLASSIFICATION_BLOCKED', 'PUBLISHER_UNMAPPED', 'STICKY_DENY',
+                    'AMBIGUOUS_SCOPE', 'NOT_APPLICABLE', 'TERMS_MISSING',
+                    'TERMS_NOT_CURRENT', 'TERMS_REVOKED', 'TERMS_NOT_EFFECTIVE',
+                    'TERMS_VERSION_INVALID', 'TERMS_SCOPE_MISMATCH',
+                    'DECISION_NOT_EFFECTIVE', 'REVIEW_DUE', 'AUTOMATED_PERMISSION',
+                    'PERMISSION_REVIEW_INVALID', 'CONDITION_MISSING',
+                    'UNKNOWN_CONDITION_EVALUATOR', 'CONDITION_UNMET',
+                    'CONDITION_AUDIT_MISSING', 'CONDITION_RECEIPT_INVALID',
+                    'CONDITION_RECEIPT_STALE', 'ACTIVATION_INVALID'
+                  )
+               OR NOT scheduled_acquisition_uuid_or_null_valid(decision -> 'cellId')
+               OR NOT scheduled_acquisition_uuid_or_null_valid(decision -> 'decisionId')
+               OR NOT scheduled_acquisition_uuid_or_null_valid(decision -> 'termsVersionId') THEN
                 RETURN FALSE;
             END IF;
-            IF (decision -> 'cellId') <> 'null'::jsonb AND (
-               jsonb_typeof(decision -> 'cellId') <> 'string'
-               OR (decision ->> 'cellId') !~* '^[0-9a-f-]{36}$') THEN
+            permission := (decision ->> 'permitted')::BOOLEAN;
+            IF permission IS DISTINCT FROM (
+                (decision ->> 'state' = 'ALLOW' AND decision ->> 'reasonCode' = 'ALLOW')
+                OR (decision ->> 'state' = 'CONDITIONAL'
+                    AND decision ->> 'reasonCode' = 'CONDITIONAL_ALLOW')
+            ) THEN
                 RETURN FALSE;
             END IF;
-            IF (decision -> 'decisionId') <> 'null'::jsonb AND (
-               jsonb_typeof(decision -> 'decisionId') <> 'string'
-               OR (decision ->> 'decisionId') !~* '^[0-9a-f-]{36}$') THEN
+            IF permission AND (
+               decision -> 'cellId' = 'null'::JSONB
+               OR decision -> 'decisionId' = 'null'::JSONB
+               OR decision -> 'termsVersionId' = 'null'::JSONB) THEN
                 RETURN FALSE;
             END IF;
-            IF (decision -> 'termsVersionId') <> 'null'::jsonb AND (
-               jsonb_typeof(decision -> 'termsVersionId') <> 'string'
-               OR (decision ->> 'termsVersionId') !~* '^[0-9a-f-]{36}$') THEN
-                RETURN FALSE;
-            END IF;
-            operations := array_append(operations, decision ->> 'operation');
         END LOOP;
+    END LOOP;
+    RETURN TRUE;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION scheduled_acquisition_receipt_valid_for(
+    value JSONB,
+    run_status TEXT,
+    expected_scope_digest TEXT,
+    claimed_at TIMESTAMPTZ,
+    completed_at TIMESTAMPTZ
+) RETURNS BOOLEAN LANGUAGE plpgsql IMMUTABLE AS $$
+DECLARE
+    checkpoint JSONB;
+    checkpoint_index INTEGER := 0;
+    checkpoint_count INTEGER;
+    expected_stages TEXT[] := ARRAY['INITIAL', 'PRE_PROVIDER', 'PRE_TRANSPORT'];
+    evaluated_at TIMESTAMPTZ;
+    previous_evaluated_at TIMESTAMPTZ := claimed_at;
+    all_permitted BOOLEAN;
+BEGIN
+    IF NOT scheduled_acquisition_receipt_valid(value) THEN
+        RETURN FALSE;
+    END IF;
+    checkpoint_count := jsonb_array_length(value);
+    IF run_status = 'CLAIMED' THEN
+        RETURN checkpoint_count = 0;
+    END IF;
+    IF run_status NOT IN ('SUCCEEDED', 'SKIPPED', 'REFUSED', 'FAILED')
+       OR completed_at IS NULL THEN
+        RETURN FALSE;
+    END IF;
+    IF (run_status = 'SUCCEEDED' AND checkpoint_count <> 3)
+       OR (run_status = 'SKIPPED' AND checkpoint_count <> 1)
+       OR (run_status = 'REFUSED' AND checkpoint_count NOT BETWEEN 1 AND 3) THEN
+        RETURN FALSE;
+    END IF;
+
+    FOR checkpoint IN SELECT item FROM jsonb_array_elements(value) item LOOP
+        checkpoint_index := checkpoint_index + 1;
+        evaluated_at := (checkpoint ->> 'evaluatedAt')::TIMESTAMPTZ;
+        SELECT bool_and((decision ->> 'permitted')::BOOLEAN)
+          INTO all_permitted
+          FROM jsonb_array_elements(checkpoint -> 'decisions') decision;
+        IF checkpoint ->> 'stage' <> expected_stages[checkpoint_index]
+           OR checkpoint ->> 'scopeDigest' <> expected_scope_digest
+           OR evaluated_at < claimed_at
+           OR evaluated_at > completed_at
+           OR evaluated_at < previous_evaluated_at THEN
+            RETURN FALSE;
+        END IF;
+        previous_evaluated_at := evaluated_at;
+
+        IF run_status IN ('SUCCEEDED', 'FAILED') AND (
+           checkpoint ->> 'basis' <> 'ADMITTED' OR NOT all_permitted) THEN
+            RETURN FALSE;
+        ELSIF run_status = 'SKIPPED' AND (
+           checkpoint ->> 'basis' <> 'NOT_DUE' OR NOT all_permitted) THEN
+            RETURN FALSE;
+        ELSIF run_status = 'REFUSED' AND checkpoint_index < checkpoint_count AND (
+           checkpoint ->> 'basis' <> 'ADMITTED' OR NOT all_permitted) THEN
+            RETURN FALSE;
+        ELSIF run_status = 'REFUSED' AND checkpoint_index = checkpoint_count AND (
+           checkpoint ->> 'basis' <> 'RIGHTS_REFUSED' OR all_permitted) THEN
+            RETURN FALSE;
+        END IF;
     END LOOP;
     RETURN TRUE;
 END;
@@ -103,6 +342,7 @@ CREATE TABLE IF NOT EXISTS scheduled_acquisition_runs (
     acquisition_jurisdiction   TEXT            NULL,
     asset_class                TEXT        NOT NULL,
     output_class               TEXT        NOT NULL,
+    result_url_policy          JSONB       NOT NULL,
     scheduled_for              TIMESTAMPTZ NOT NULL,
     claimed_at                 TIMESTAMPTZ NOT NULL DEFAULT now(),
     completed_at               TIMESTAMPTZ     NULL,
@@ -116,6 +356,14 @@ CREATE TABLE IF NOT EXISTS scheduled_acquisition_runs (
     expected_artifact_count    INTEGER     NOT NULL DEFAULT 0,
     artifact_count             INTEGER     NOT NULL DEFAULT 0,
     runtime_digest             TEXT        NOT NULL,
+    rights_scope_digest        TEXT        GENERATED ALWAYS AS (
+        scheduled_acquisition_scope_digest(
+            id, idempotency_key, vertical_slug, source_id, source_key, target_id,
+            target_url, acquisition_route, account_or_product_plan,
+            acquisition_jurisdiction, asset_class, output_class, result_url_policy,
+            scheduled_for, runtime_digest
+        )
+    ) STORED,
     created_at                 TIMESTAMPTZ NOT NULL DEFAULT now(),
 
     CONSTRAINT scheduled_acquisition_runs_idempotency_nonempty
@@ -124,20 +372,30 @@ CREATE TABLE IF NOT EXISTS scheduled_acquisition_runs (
         CHECK (btrim(vertical_slug) <> '' AND btrim(source_key) <> '' AND btrim(target_id) <> ''),
     CONSTRAINT scheduled_acquisition_runs_target_url_absolute
         CHECK (target_url ~ '^https://'),
+    CONSTRAINT scheduled_acquisition_runs_result_url_policy
+        CHECK (scheduled_acquisition_result_url_policy_valid(result_url_policy)
+           AND scheduled_acquisition_result_url_allowed(
+               target_url, acquisition_route, result_url_policy, target_url, 'TARGET'
+           )),
     CONSTRAINT scheduled_acquisition_runs_route_allowed
         CHECK (acquisition_route IN (
             'DIRECT_HTTP', 'BROWSER_RUN', 'CRAWL4AI', 'VENDOR_API',
             'SITEMAP', 'BULK_FILE', 'RSS', 'MANUAL_UPLOAD'
         )),
     CONSTRAINT scheduled_acquisition_runs_scope_allowed
-        CHECK (asset_class IN ('DOCUMENT', 'DATA', 'IMAGE', 'MODEL_OUTPUT')
-           AND output_class IN ('RAW_RECORD', 'NORMALIZED_FACT', 'DERIVED_METRIC')),
+        CHECK (asset_class IN ('DATA', 'DOCUMENT', 'IMAGE', 'TRADEMARK', 'PERSONAL_DATA')
+           AND output_class IN (
+               'RAW_RECORD', 'NORMALIZED_FACT', 'DERIVED_METRIC', 'METADATA',
+               'IMAGE_OR_MEDIA', 'PERSONAL_DATA'
+           )),
     CONSTRAINT scheduled_acquisition_runs_status_allowed
         CHECK (status IN ('CLAIMED', 'SUCCEEDED', 'SKIPPED', 'REFUSED', 'FAILED')),
     CONSTRAINT scheduled_acquisition_runs_outcome_allowed
         CHECK (outcome IS NULL OR outcome IN ('FETCHED', 'NOT_MODIFIED', 'EMPTY')),
-    CONSTRAINT scheduled_acquisition_runs_receipt_shape
-        CHECK (scheduled_acquisition_receipt_valid(rights_receipt)),
+    CONSTRAINT scheduled_acquisition_runs_receipt_contract
+        CHECK (scheduled_acquisition_receipt_valid_for(
+            rights_receipt, status, rights_scope_digest, claimed_at, completed_at
+        )),
     CONSTRAINT scheduled_acquisition_runs_validators_shape
         CHECK (scheduled_acquisition_validators_valid(validators)),
     CONSTRAINT scheduled_acquisition_runs_provider_allowed
@@ -153,6 +411,12 @@ CREATE TABLE IF NOT EXISTS scheduled_acquisition_runs (
         CHECK (expected_artifact_count >= 0 AND artifact_count >= 0),
     CONSTRAINT scheduled_acquisition_runs_runtime_digest
         CHECK (runtime_digest ~ '^[0-9a-f]{64}$'),
+    CONSTRAINT scheduled_acquisition_runs_time_order CHECK (
+        (completed_at IS NULL OR completed_at >= claimed_at)
+        AND (fresh_at IS NULL OR (
+            completed_at IS NOT NULL AND fresh_at >= claimed_at AND fresh_at <= completed_at
+        ))
+    ),
     CONSTRAINT scheduled_acquisition_runs_terminal_shape CHECK (
         (status = 'CLAIMED'
           AND completed_at IS NULL AND fresh_at IS NULL AND outcome IS NULL
@@ -163,7 +427,6 @@ CREATE TABLE IF NOT EXISTS scheduled_acquisition_runs (
           AND completed_at IS NOT NULL AND fresh_at IS NOT NULL
           AND outcome IN ('FETCHED', 'NOT_MODIFIED')
           AND failure_code IS NULL AND provider IS NOT NULL
-          AND jsonb_array_length(rights_receipt) > 0
           AND expected_artifact_count = artifact_count
           AND ((outcome = 'FETCHED' AND artifact_count > 0)
             OR (outcome = 'NOT_MODIFIED' AND artifact_count = 0 AND validators <> '{}'::jsonb)))
@@ -171,19 +434,20 @@ CREATE TABLE IF NOT EXISTS scheduled_acquisition_runs (
         (status = 'SKIPPED'
           AND completed_at IS NOT NULL AND fresh_at IS NULL AND outcome IS NULL
           AND failure_code = 'NOT_DUE' AND provider IS NULL
-          AND jsonb_array_length(rights_receipt) > 0
           AND expected_artifact_count = 0 AND artifact_count = 0)
         OR
         (status = 'REFUSED'
           AND completed_at IS NOT NULL AND fresh_at IS NULL AND outcome IS NULL
           AND failure_code = 'RIGHTS_REFUSED'
-          AND jsonb_array_length(rights_receipt) > 0
           AND provider IS NULL AND expected_artifact_count = 0 AND artifact_count = 0)
         OR
         (status = 'FAILED'
           AND completed_at IS NOT NULL AND fresh_at IS NULL
-          AND (outcome IS NULL OR outcome = 'EMPTY')
-          AND failure_code IS NOT NULL AND btrim(failure_code) <> ''
+          AND ((outcome = 'EMPTY' AND failure_code = 'EMPTY_RESPONSE' AND provider IS NOT NULL)
+            OR (outcome IS NULL AND failure_code IN (
+                'PROVIDER_UNAVAILABLE', 'PROVIDER_CONFIGURATION', 'TRANSPORT_FAILED',
+                'PERSISTENCE_FAILED', 'RUNTIME_CONFIGURATION', 'INTERNAL_ERROR'
+            )))
           AND expected_artifact_count = 0 AND artifact_count = 0)
     )
 );
@@ -197,13 +461,29 @@ CREATE INDEX IF NOT EXISTS scheduled_acquisition_runs_status_idx
     ON scheduled_acquisition_runs (status, claimed_at);
 
 CREATE TABLE IF NOT EXISTS scheduled_acquisition_run_artifacts (
-    run_id       UUID        NOT NULL REFERENCES scheduled_acquisition_runs (id) ON DELETE RESTRICT,
-    artifact_id  UUID        NOT NULL REFERENCES source_artifacts (id) ON DELETE RESTRICT,
-    ordinal      INTEGER     NOT NULL,
-    created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+    run_id                UUID        NOT NULL REFERENCES scheduled_acquisition_runs (id) ON DELETE RESTRICT,
+    artifact_id           UUID        NOT NULL REFERENCES source_artifacts (id) ON DELETE RESTRICT,
+    ordinal               INTEGER     NOT NULL,
+    target_url            TEXT        NOT NULL,
+    result_url            TEXT        NOT NULL,
+    result_relation       TEXT        NOT NULL,
+    retrieval_key         TEXT        NOT NULL,
+    acquisition_provider  TEXT        NOT NULL,
+    created_at            TIMESTAMPTZ NOT NULL DEFAULT now(),
     PRIMARY KEY (run_id, artifact_id),
     CONSTRAINT scheduled_acquisition_run_artifacts_ordinal_nonnegative CHECK (ordinal >= 0),
-    CONSTRAINT scheduled_acquisition_run_artifacts_ordinal_unique UNIQUE (run_id, ordinal)
+    CONSTRAINT scheduled_acquisition_run_artifacts_ordinal_unique UNIQUE (run_id, ordinal),
+    CONSTRAINT scheduled_acquisition_run_artifacts_urls_https
+        CHECK (target_url ~ '^https://' AND result_url ~ '^https://'),
+    CONSTRAINT scheduled_acquisition_run_artifacts_relation_allowed
+        CHECK (result_relation IN ('TARGET', 'CHILD_RESOURCE')),
+    CONSTRAINT scheduled_acquisition_run_artifacts_retrieval_key CHECK (
+        length(retrieval_key) BETWEEN 1 AND 2048
+        AND retrieval_key ~ '^[a-z0-9][a-z0-9._/-]*$'
+        AND retrieval_key !~ '(^|/)\.\.(/|$)'
+    ),
+    CONSTRAINT scheduled_acquisition_run_artifacts_provider_allowed
+        CHECK (acquisition_provider IN ('http', 'browser-run', 'crawl4ai', 'fixture'))
 );
 
 CREATE OR REPLACE FUNCTION scheduled_acquisition_run_artifact_guard()
@@ -215,6 +495,7 @@ DECLARE
     run_route TEXT;
     run_plan TEXT;
     run_jurisdiction TEXT;
+    run_result_url_policy JSONB;
     artifact_source UUID;
     artifact_url TEXT;
     artifact_route TEXT;
@@ -222,9 +503,9 @@ DECLARE
     artifact_jurisdiction TEXT;
 BEGIN
     SELECT status, source_id, target_url, acquisition_route,
-           account_or_product_plan, acquisition_jurisdiction
+           account_or_product_plan, acquisition_jurisdiction, result_url_policy
       INTO run_status, run_source, run_target_url, run_route,
-           run_plan, run_jurisdiction
+           run_plan, run_jurisdiction, run_result_url_policy
       FROM scheduled_acquisition_runs WHERE id = NEW.run_id FOR UPDATE;
     SELECT source_id, url, acquisition_route,
            account_or_product_plan, acquisition_jurisdiction
@@ -240,11 +521,19 @@ BEGIN
         RAISE EXCEPTION 'scheduled acquisition artifact source does not match the run source'
             USING ERRCODE = '23514';
     END IF;
-    IF artifact_url IS DISTINCT FROM run_target_url
-       OR artifact_route IS DISTINCT FROM run_route
+    IF artifact_route IS DISTINCT FROM run_route
        OR artifact_plan IS DISTINCT FROM run_plan
        OR artifact_jurisdiction IS DISTINCT FROM run_jurisdiction THEN
         RAISE EXCEPTION 'scheduled acquisition artifact target or acquisition scope does not match the run'
+            USING ERRCODE = '23514';
+    END IF;
+    IF NEW.target_url IS DISTINCT FROM run_target_url
+       OR NEW.result_url IS DISTINCT FROM artifact_url
+       OR NOT scheduled_acquisition_result_url_allowed(
+           run_target_url, run_route, run_result_url_policy,
+           NEW.result_url, NEW.result_relation
+       ) THEN
+        RAISE EXCEPTION 'scheduled acquisition result is not associated with the claimed target policy'
             USING ERRCODE = '23514';
     END IF;
     RETURN NEW;
@@ -280,6 +569,7 @@ BEGIN
        OR NEW.acquisition_jurisdiction IS DISTINCT FROM OLD.acquisition_jurisdiction
        OR NEW.asset_class IS DISTINCT FROM OLD.asset_class
        OR NEW.output_class IS DISTINCT FROM OLD.output_class
+       OR NEW.result_url_policy IS DISTINCT FROM OLD.result_url_policy
        OR NEW.scheduled_for IS DISTINCT FROM OLD.scheduled_for
        OR NEW.claimed_at IS DISTINCT FROM OLD.claimed_at
        OR NEW.runtime_digest IS DISTINCT FROM OLD.runtime_digest
@@ -297,7 +587,7 @@ BEGIN
     IF TG_OP = 'UPDATE' AND NEW.status <> 'CLAIMED' THEN
         SELECT count(*)::integer,
                count(*) FILTER (
-                 WHERE artifact.acquisition_provider IS DISTINCT FROM NEW.provider
+                 WHERE link.acquisition_provider IS DISTINCT FROM NEW.provider
                )::integer
           INTO linked_count, wrong_provider_count
           FROM scheduled_acquisition_run_artifacts link
@@ -308,7 +598,7 @@ BEGIN
                 USING ERRCODE = '23514';
         END IF;
         IF NEW.status = 'SUCCEEDED' AND wrong_provider_count <> 0 THEN
-            RAISE EXCEPTION 'scheduled acquisition artifact provider does not match the completion provider'
+            RAISE EXCEPTION 'scheduled acquisition retrieval provider does not match the completion provider'
                 USING ERRCODE = '23514';
         END IF;
         IF NEW.status = 'SUCCEEDED' AND NEW.outcome = 'NOT_MODIFIED' THEN

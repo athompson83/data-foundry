@@ -2,7 +2,16 @@ import { describe, expect, it } from 'vitest';
 import { ProviderTransportError } from '../src/errors.js';
 import { headersToRecord, parseMimeType, requireFetch } from '../src/providers/http-client.js';
 import { HttpAcquisitionProvider } from '../src/providers/http.js';
-import { BODY, ETAG, TARGET_URL, makeHarness, makeRequest, makeResponse, stubFetch } from './helpers.js';
+import {
+  BODY,
+  ETAG,
+  TARGET_URL,
+  forbiddenFetch,
+  makeHarness,
+  makeRequest,
+  makeResponse,
+  stubFetch,
+} from './helpers.js';
 
 describe('HTTP client helpers', () => {
   it('lowercases response header names', () => {
@@ -36,6 +45,39 @@ describe('HTTP client helpers', () => {
 });
 
 describe('HTTP acquisition provider', () => {
+  it('rechecks authorization immediately before transport', async () => {
+    const checks: string[] = [];
+    const harness = makeHarness({
+      beforeTransport: ({ request }) => {
+        checks.push(request.url);
+        return Promise.reject(new Error('stored rights changed before transport'));
+      },
+    });
+    const net = forbiddenFetch();
+    const provider = new HttpAcquisitionProvider({ deps: harness.deps, fetch: net.fetch });
+
+    await expect(provider.fetch(makeRequest())).rejects.toThrow(/stored rights changed/);
+    expect(checks).toEqual([TARGET_URL]);
+    expect(net.calls).toEqual([]);
+  });
+
+  it('checks every result URL before writing returned bytes', async () => {
+    const checked: string[] = [];
+    const harness = makeHarness({
+      beforeStoreResource: ({ resource }) => {
+        checked.push(resource.url);
+        return Promise.reject(new Error('result URL is outside the compiled target policy'));
+      },
+    });
+    const net = stubFetch(() => ({ status: 200, body: BODY }));
+    const provider = new HttpAcquisitionProvider({ deps: harness.deps, fetch: net.fetch });
+
+    await expect(provider.fetch(makeRequest())).rejects.toThrow(/outside the compiled target policy/i);
+    expect(net.calls).toHaveLength(1);
+    expect(checked).toEqual([TARGET_URL]);
+    expect(harness.files.size).toBe(0);
+  });
+
   it('identifies the crawler on every request', async () => {
     const harness = makeHarness();
     const net = stubFetch(() => ({ status: 200, body: BODY }));

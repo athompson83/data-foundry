@@ -48,11 +48,32 @@ export interface AcquisitionProviderDeps {
   readonly registry: SourceRegistryLoader;
   readonly artifactStore: ArtifactStore;
   readonly policyRecorder: PolicySnapshotRecorder;
+  /**
+   * Trusted, fresh authorization check performed after politeness waiting and
+   * immediately before vendor transport. Production composition must reload
+   * stored rights here; an earlier admission is not reusable after a wait.
+   */
+  readonly beforeTransport: (input: PreTransportCheckInput) => Promise<void>;
+  /** Target result-manifest check performed before returned bytes reach R2. */
+  readonly beforeStoreResource: (input: PreStoreResourceCheckInput) => Promise<void>;
   readonly rateLimiter?: RateLimiter | undefined;
   readonly validatorCache?: ValidatorCache | undefined;
   readonly clock?: Clock | undefined;
   /** Crawler identity, sent on every request (doc 05: "identify the crawler"). */
   readonly userAgent?: string | undefined;
+}
+
+export interface PreTransportCheckInput {
+  readonly request: SourceRequest;
+  readonly entry: SourceRegistryEntry;
+  readonly asOf: string;
+}
+
+export interface PreStoreResourceCheckInput {
+  readonly request: SourceRequest;
+  readonly entry: SourceRegistryEntry;
+  readonly resource: FetchedResource;
+  readonly asOf: string;
 }
 
 export const DEFAULT_USER_AGENT = 'DataFoundryBot/0.1 (+https://example.invalid/bot)';
@@ -177,7 +198,16 @@ export abstract class BaseAcquisitionProvider implements AcquisitionProvider {
     };
     const waitedMs = await this.#rateLimiter.acquire(entry.key, rateLimit);
 
-    // 5. The one vendor-specific step.
+    // 5. Rights or the operator kill switch may have changed while this run
+    //    waited for its politeness budget. Reload trusted state at the last
+    //    possible boundary; refusal here happens before any vendor transport.
+    await this.deps.beforeTransport({
+      request,
+      entry,
+      asOf: this.clock.nowIso(),
+    });
+
+    // 6. The one vendor-specific step.
     const transportResult = await this.transport({
       allowed,
       request,
@@ -225,6 +255,8 @@ export abstract class BaseAcquisitionProvider implements AcquisitionProvider {
         );
         continue;
       }
+
+      await this.deps.beforeStoreResource({ request, entry, resource, asOf: fetchedAt });
 
       const record = await this.#storeResource({ entry, request, resource, fetchedAt, policySnapshot });
       stored.push(record.stored);
