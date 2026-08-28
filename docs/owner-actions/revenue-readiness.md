@@ -71,9 +71,10 @@ usage event model.
 - Usage accounting ties an event to the authenticating
   key, tenant, vertical and closed route vocabulary rather than a raw request
   target.
-- The edge authenticates requests before routing and asynchronously records usage
-  through a queue/consumer path so metering cannot become response latency or
-  availability.
+- The edge authenticates requests before routing and requires durable queue
+  acceptance before returning an authenticated response. Database persistence
+  stays asynchronous and idempotent behind the consumer; a missing or rejecting
+  queue fails closed instead of producing an unmetered success.
 
 These are prerequisites for both direct and marketplace access even though a
 marketplace may be the system that actually charges a subscriber.
@@ -199,8 +200,9 @@ semantics established earlier:
    `ALLOW`.
 2. **Usage-accounting corrections — integrated.** The combined schema preserves
    route privacy, tenant/vertical attribution and database integrity.
-3. **Auth and asynchronous metering — integrated.** API keys fail closed and
-   the request path emits privacy-safe queue events without awaiting persistence.
+3. **Auth and asynchronous metering — integrated.** API keys fail closed; the
+   request path awaits privacy-safe queue acceptance, while idempotent database
+   persistence remains asynchronous behind the consumer.
 4. **Public web — integrated.** Page reads bind to `PUBLIC_WEB`; sitemap reads
    independently require `PUBLIC_WEB` and `SEARCH_INDEX`.
 5. **Deploy the canonical Cloudflare stack.** Provision production Postgres,

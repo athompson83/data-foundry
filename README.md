@@ -293,11 +293,12 @@ contributes zero bytes to it — a source scan cannot see past the dynamic
 Every request is authenticated and scope-checked (`apps/edge/src/auth.ts`)
 before it reaches a route, and a successful request is metered asynchronously:
 a usage event naming the matched route **template** — never the concrete
-target — is published to a Cloudflare Queue and persisted idempotently by
-`apps/usage-consumer`, without the request's success ever depending on that
-persistence succeeding. `db/migrations/0011_api_tenancy.sql` has the schema;
-this increment is measurement only — no pricing, plans, invoices or
-subscriptions.
+target — must be accepted by a Cloudflare Queue before the edge returns the
+authenticated response. A missing or rejecting queue fails closed with an
+opaque, retryable `503`. `apps/usage-consumer` then persists accepted events
+idempotently; that database write remains off the request path.
+`db/migrations/0011_api_tenancy.sql` has the schema; this increment is
+measurement only — no pricing, plans, invoices or subscriptions.
 
 Deploying needs an account, Hyperdrive bindings, routes for each Worker and the
 usage-metering queues, none of which live in this repository —

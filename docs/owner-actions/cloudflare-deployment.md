@@ -177,20 +177,24 @@ item 1.
 
 ### Verify
 
-A successful, authenticated `GET` against the edge Worker returns its answer
-immediately. Within a few seconds, `select count(*) from api_usage_events` on
-the production database increases by one, and the row's `route_key` column
-holds a registered key (`entities.detail`) rather than any path, query, slug,
-or entity id. Confirm `npx wrangler queues info data-foundry-usage-events`
-reports 1,209,600 seconds of retention. Killing the consumer Worker's database connectivity temporarily
-must not change the edge Worker's response time or status — that decoupling
-is the property this whole design exists for, and is exercised (against
-PGlite, not this queue) by `apps/edge/test/index.test.ts`'s "the response
-does not depend on the queue" suite. Before accepting paying traffic, also
-verify invalid, revoked, expired and wrong-scope credentials fail before route
-execution; duplicate delivery leaves one usage row; tenant and vertical remain
-bound to the authenticating key; and real queue/DLQ behavior matches the tested
-idempotency contract.
+A successful, authenticated `GET` or `HEAD` returns only after Cloudflare Queue
+accepts its usage event. Within a few seconds,
+`select count(*) from api_usage_events` on the production database increases by
+one, and the row's `route_key` holds a registered key (`entities.detail`)
+rather than any path, query, slug, or entity id. Confirm
+`npx wrangler queues info data-foundry-usage-events` reports 1,209,600 seconds
+of retention.
+
+Temporarily removing or rejecting the producer binding must return an opaque,
+retryable `503`; it must never return an unmetered success. By contrast,
+temporarily breaking only the consumer Worker's database connectivity must not
+change edge responses after queue acceptance: the accepted message retries and
+ultimately follows the configured DLQ policy. This distinction is deliberate:
+durable queue acceptance is on the request path, while database persistence is
+not. Before accepting paying traffic, also verify invalid, revoked, expired and
+wrong-scope credentials fail before route execution; duplicate delivery leaves
+one usage row; tenant and vertical remain bound to the authenticating key; and
+real queue/DLQ behavior matches the tested idempotency contract.
 
 ---
 
