@@ -112,6 +112,7 @@ async function buildSurfaceBytes(
   );
   await seedScopedDeriveAllow(fixtures, 'manufacturer', TARGET);
   await seedScopedDeriveAllow(fixtures, 'certifier', TARGET);
+  await seedScopedDeriveAllow(fixtures, 'aggregator', TARGET);
 
   const apiSurface = fixtures.qm.forSurface('API_FREE', { asOf: AT });
   const view = (await apiSurface.canonicalFacts(fixtures.equipment.id, { at: AT }))
@@ -186,7 +187,7 @@ async function insertNormalizedInput(
 
 async function seedScopedDeriveAllow(
   fixtures: ExportFixtures,
-  sourceKey: 'manufacturer' | 'certifier',
+  sourceKey: 'manufacturer' | 'certifier' | 'aggregator',
   fieldKey: Identifier,
 ): Promise<void> {
   const source = fixtures.sources[sourceKey].source;

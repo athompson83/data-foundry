@@ -531,17 +531,25 @@ class SurfaceRightsAuthorizer {
     if (!derived) return true;
     const nextAncestors = new Set(ancestors);
     nextAncestors.add(factId);
-    const dependencyContributions = new Map<string, ArtifactContribution>();
+    // DERIVE is permission to create this exact output, so every contribution
+    // behind it must authorize the target tuple. That includes both the
+    // target fact's direct evidence and the complete recursive input closure.
+    const derivationContributions = new Map<string, ArtifactContribution>(
+      (contributions as ArtifactContribution[]).map((contribution) => [
+        contribution.contributionId,
+        contribution,
+      ]),
+    );
     for (const row of dependencyRows) {
       const subtree = await this.#collectFactContributions(row.input_fact_id, nextAncestors);
       if (subtree === null) return false;
       for (const contribution of subtree) {
-        dependencyContributions.set(contribution.contributionId, contribution);
+        derivationContributions.set(contribution.contributionId, contribution);
       }
     }
     if (
       !(await this.#authorizeDerivationContribution(
-        [...dependencyContributions.values()],
+        [...derivationContributions.values()],
         fact.property,
       ))
     ) {

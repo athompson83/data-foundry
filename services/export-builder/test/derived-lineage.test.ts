@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { factConfidence } from '@data-foundry/canonical-schema';
 import {
+  ExportRefusedError,
   buildDatasetExport,
   createMemorySink,
 } from '../src/index.js';
@@ -53,6 +54,7 @@ describe('derived provenance in bulk artifacts', () => {
       [{ input_fact_id: input.fact.id, transformation_ref: 'bulk.divide.v1' }],
     );
     await seedScopedDeriveAllow(fixtures, 'certifier', 'bulk_lineage_output');
+    await seedScopedDeriveAllow(fixtures, 'manufacturer', 'bulk_lineage_output');
 
     const result = await buildDatasetExport({
       ...baseOptions(fixtures),
@@ -73,6 +75,64 @@ describe('derived provenance in bulk artifacts', () => {
       'Certification data courtesy of the Ratings Directory',
     );
     expect(certifier?.fact_count).toBe(1);
+  }, 120_000);
+
+  it('refuses the whole bulk artifact when the direct output source lacks exact DERIVE', async () => {
+    fixtures = await createExportFixtures();
+    const input = await claim(fixtures, 'manufacturer', {
+      entity_id: fixtures.equipment.id,
+      property: 'bulk_direct_rights_input' as never,
+      value: 12,
+      value_type: 'number',
+    });
+    const outputSource = fixtures.sources.aggregator;
+    await fixtures.store.appendDerivedFactWithEvidence(
+      {
+        entity_id: fixtures.equipment.id,
+        property: 'bulk_direct_rights_output' as never,
+        normalized_value: 6,
+        value_type: 'number',
+        unit: null,
+        valid_from: ts('2026-02-01T00:00:00Z'),
+        confidence: factConfidence(0.9),
+        recorded_at: ts('2026-02-01T00:00:00Z'),
+        status: 'ACTIVE',
+      },
+      [{
+        artifact_id: outputSource.artifact.id,
+        source_record_id: outputSource.record.id,
+        source_value: '6',
+        locator_type: 'WHOLE_DOCUMENT',
+        locator_value: '',
+        observed_at: outputSource.artifact.retrieved_at,
+      }],
+      [{ input_fact_id: input.fact.id, transformation_ref: 'bulk.direct-rights.v1' }],
+    );
+    await seedScopedDeriveAllow(fixtures, 'manufacturer', 'bulk_direct_rights_output');
+    const sink = createMemorySink('derived-direct-rights-refused');
+    let failure: unknown;
+
+    try {
+      await buildDatasetExport({
+        ...baseOptions(fixtures),
+        sink,
+        version: '2026-08-14.derived-direct-rights-refused',
+        properties: {
+          mode: 'allowlist',
+          include: ['bulk_direct_rights_output'] as never,
+        },
+      });
+    } catch (error) {
+      failure = error;
+    }
+
+    expect(failure).toBeInstanceOf(ExportRefusedError);
+    expect((failure as ExportRefusedError).refusals).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ code: 'FACT_RIGHTS_MATRIX_REFUSED' }),
+      ]),
+    );
+    expect(sink.files.size).toBe(0);
   }, 120_000);
 });
 

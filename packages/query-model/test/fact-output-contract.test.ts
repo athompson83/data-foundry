@@ -7,6 +7,7 @@ import {
   seedSyntheticSurfaceRights,
   ts,
   type QueryFixtures,
+  type SourceKey,
 } from './support.js';
 
 let fixtures: QueryFixtures | undefined;
@@ -237,6 +238,12 @@ describe('fact output contract at canonical query boundaries', () => {
       outputClass: 'DERIVED_METRIC',
       state: 'ALLOW',
     });
+    await seedScopedDeriveDecision(fixtures, {
+      sourceKey: 'manufacturer',
+      fieldKey: 'attribution_output',
+      outputClass: 'DERIVED_METRIC',
+      state: 'ALLOW',
+    });
 
     const surface = fixtures.qm.forSurface('PUBLIC_WEB', {
       asOf: ts('2026-07-01T00:00:00Z'),
@@ -266,6 +273,12 @@ describe('fact output contract at canonical query boundaries', () => {
     });
     await seedScopedDeriveDecision(fixtures, {
       sourceKey: 'certifier',
+      fieldKey: 'ultimate_middle',
+      outputClass: 'DERIVED_METRIC',
+      state: 'ALLOW',
+    });
+    await seedScopedDeriveDecision(fixtures, {
+      sourceKey: 'manufacturer',
       fieldKey: 'ultimate_middle',
       outputClass: 'DERIVED_METRIC',
       state: 'ALLOW',
@@ -352,6 +365,10 @@ describe('fact output contract at canonical query boundaries', () => {
       sourceKey: 'certifier', fieldKey: 'cache_middle',
       outputClass: 'DERIVED_METRIC', state: 'ALLOW',
     });
+    await seedScopedDeriveDecision(fixtures, {
+      sourceKey: 'manufacturer', fieldKey: 'cache_middle',
+      outputClass: 'DERIVED_METRIC', state: 'ALLOW',
+    });
     for (const fieldKey of ['cache_allowed_output', 'cache_blocked_output']) {
       await seedScopedDeriveDecision(fixtures, {
         sourceKey: 'manufacturer', fieldKey,
@@ -366,6 +383,127 @@ describe('fact output contract at canonical query boundaries', () => {
     const properties = await surfaceProperties(fixtures, '2026-07-01T00:00:00Z');
     expect(properties).toContain('cache_allowed_output');
     expect(properties).not.toContain('cache_blocked_output');
+  });
+
+  it('requires the direct output-only source to authorize the exact target through deny and revocation history', async () => {
+    fixtures = await createQueryFixtures({ trigram: false });
+    await seedSyntheticSurfaceRights(
+      fixtures,
+      ['PUBLIC_WEB'],
+      ['manufacturer', 'aggregator'],
+    );
+    await addSyntheticEntityEvidence(fixtures, fixtures.equipment);
+    const target = 'direct_output_rights';
+    await appendDerivedFixtureWithOutputSource(
+      fixtures,
+      'manufacturer',
+      'direct_output_input',
+      target,
+      'aggregator',
+    );
+    await seedScopedDeriveDecision(fixtures, {
+      sourceKey: 'manufacturer',
+      fieldKey: target,
+      outputClass: 'DERIVED_METRIC',
+      state: 'ALLOW',
+    });
+
+    // The aggregator contributes only the derived fact's direct evidence. It
+    // is absent from the dependency closure, but still must authorize DERIVE.
+    expect(await surfaceProperties(fixtures, '2026-02-01T00:00:00Z')).not.toContain(target);
+
+    await seedScopedDeriveDecision(fixtures, {
+      sourceKey: 'aggregator',
+      fieldKey: target,
+      outputClass: 'NORMALIZED_FACT',
+      state: 'ALLOW',
+    });
+    await seedScopedDeriveDecision(fixtures, {
+      sourceKey: 'aggregator',
+      fieldKey: 'neighbor_direct_output',
+      outputClass: 'DERIVED_METRIC',
+      state: 'ALLOW',
+    });
+    expect(await surfaceProperties(fixtures, '2026-02-01T00:00:00Z')).not.toContain(target);
+
+    const denied = await seedScopedDeriveDecision(fixtures, {
+      sourceKey: 'aggregator',
+      fieldKey: target,
+      outputClass: 'DERIVED_METRIC',
+      state: 'DENY',
+      occurredAt: '2026-03-01T00:00:00Z',
+    });
+    expect(await surfaceProperties(fixtures, '2026-03-02T00:00:00Z')).not.toContain(target);
+
+    const allowed = await seedScopedDeriveDecision(fixtures, {
+      sourceKey: 'aggregator',
+      fieldKey: target,
+      outputClass: 'DERIVED_METRIC',
+      state: 'ALLOW',
+      cellId: denied.cellId,
+      supersedesDecisionId: denied.decisionId,
+      occurredAt: '2026-04-01T00:00:00Z',
+    });
+    expect(await surfaceProperties(fixtures, '2026-04-02T00:00:00Z')).toContain(target);
+
+    const revoked = await seedScopedDeriveDecision(fixtures, {
+      sourceKey: 'aggregator',
+      fieldKey: target,
+      outputClass: 'DERIVED_METRIC',
+      state: 'UNKNOWN',
+      cellId: allowed.cellId,
+      supersedesDecisionId: allowed.decisionId,
+      occurredAt: '2026-05-01T00:00:00Z',
+    });
+    expect(await surfaceProperties(fixtures, '2026-05-02T00:00:00Z')).not.toContain(target);
+
+    await seedScopedDeriveDecision(fixtures, {
+      sourceKey: 'aggregator',
+      fieldKey: target,
+      outputClass: 'DERIVED_METRIC',
+      state: 'ALLOW',
+      cellId: revoked.cellId,
+      supersedesDecisionId: revoked.decisionId,
+      occurredAt: '2026-06-01T00:00:00Z',
+    });
+    expect(await surfaceProperties(fixtures, '2026-06-02T00:00:00Z')).toContain(target);
+  });
+
+  it('refuses a derived fact with an unauthorized direct source on every customer path', async () => {
+    fixtures = await createQueryFixtures({ trigram: false });
+    const surfaces = [
+      'PUBLIC_WEB',
+      'API_FREE',
+      'API_PAID',
+      'RAPIDAPI',
+      'MCP',
+      'BULK_EXPORT',
+    ] as const;
+    await seedSyntheticSurfaceRights(fixtures, surfaces, ['manufacturer', 'aggregator']);
+    await addSyntheticEntityEvidence(fixtures, fixtures.equipment);
+    const target = 'direct_output_surface_block';
+    await appendDerivedFixtureWithOutputSource(
+      fixtures,
+      'manufacturer',
+      'direct_output_surface_input',
+      target,
+      'aggregator',
+    );
+    await seedScopedDeriveDecision(fixtures, {
+      sourceKey: 'manufacturer',
+      fieldKey: target,
+      outputClass: 'DERIVED_METRIC',
+      state: 'ALLOW',
+    });
+
+    for (const surface of surfaces) {
+      const properties = (
+        await fixtures.qm
+          .forSurface(surface, { asOf: ts('2026-07-01T00:00:00Z') })
+          .canonicalFacts(fixtures.equipment.id, { at: ts('2026-07-01T00:00:00Z') })
+      ).map((row) => row.property);
+      expect(properties, surface).not.toContain(target);
+    }
   });
 });
 
@@ -457,6 +595,44 @@ async function appendDerivedFixture(
       locator_type: 'WHOLE_DOCUMENT',
       locator_value: '',
       observed_at: source.artifact.retrieved_at,
+    }],
+    [{ input_fact_id: input.fact.id, transformation_ref: `test.${outputProperty}.v1` }],
+  );
+}
+
+async function appendDerivedFixtureWithOutputSource(
+  current: QueryFixtures,
+  inputSourceKey: SourceKey,
+  inputProperty: string,
+  outputProperty: string,
+  outputSourceKey: SourceKey,
+): Promise<void> {
+  const input = await claim(current, inputSourceKey, {
+    entity_id: current.equipment.id,
+    property: inputProperty as never,
+    value: 12,
+    value_type: 'number',
+  });
+  const outputSource = current.sources[outputSourceKey];
+  await current.store.appendDerivedFactWithEvidence(
+    {
+      entity_id: current.equipment.id,
+      property: outputProperty as never,
+      normalized_value: 6,
+      value_type: 'number',
+      unit: null,
+      valid_from: ts('2026-02-01T00:00:00Z'),
+      confidence: factConfidence(0.9),
+      recorded_at: ts('2026-02-01T00:00:00Z'),
+      status: 'ACTIVE',
+    },
+    [{
+      artifact_id: outputSource.artifact.id,
+      source_record_id: outputSource.record.id,
+      source_value: '6',
+      locator_type: 'WHOLE_DOCUMENT',
+      locator_value: '',
+      observed_at: outputSource.artifact.retrieved_at,
     }],
     [{ input_fact_id: input.fact.id, transformation_ref: `test.${outputProperty}.v1` }],
   );

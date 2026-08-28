@@ -24,15 +24,16 @@ Close Task 8's core rights, fact-lineage, kill-switch, and bulk-pagination findi
 - Sealed field-group membership after first rights-cell reference while retaining the existing UPDATE/DELETE/TRUNCATE history guards.
 - Persisted the registry kill switch through source synchronization and made every database-backed distribution surface refuse killed or unknown source state, including factless bulk entities.
 - Classified fact outputs as `NORMALIZED_FACT` or `DERIVED_METRIC`; added an atomic derived writer with a non-empty immutable dependency set.
-- Made canonical and surface query paths refuse ambiguous/incomplete output contracts, require `DERIVE`, recursively authorize every input, and reject cycles.
+- Made canonical and surface query paths refuse ambiguous/incomplete output contracts, require exact-target `DERIVE` from both direct output evidence and every recursive input contribution, recursively authorize every input, and reject cycles.
 - Updated the real HVAC mapping/normalization/ingestion path to record derived output lineage and preserve that lineage during promotion.
 - Changed bulk enumeration to refuse changing totals, early empty pages, duplicate/no-progress pages, and unique-total mismatches before writing any artifact.
 - Regenerated the canonical fact/source JSON Schemas.
 
 ### Verification
 
-- Focused schema, registry, store, query, normalization, ingestion, export, and migration suites passed: 740 tests.
-- TypeScript typecheck, JSON Schema drift check, PGlite migration check, and clean migration replay passed.
+- Focused direct-output rights, bulk refusal, and deterministic recursive-lineage suites passed: 3 files / 14 tests.
+- Full repository suite passed: 153 files / 2,204 tests.
+- TypeScript typecheck, JSON Schema/OpenAPI drift checks, PGlite migration check, vertical validation/runtime drift check, and production Worker artifact check passed.
 - Disposable PostgreSQL 16 clean apply/reapply and populated upgrade apply passed. Real SQL refused field-group expansion, field/dependency UPDATE and DELETE, output-kind mutation, unclassified inserts, and derived inserts without dependencies.
 - Full commands, RED/GREEN evidence, and self-review are recorded in the Task 8 implementation report.
 
