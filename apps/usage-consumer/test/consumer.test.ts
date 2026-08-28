@@ -20,10 +20,20 @@ import { ConsumerConfigurationError } from '../src/env.js';
 let driver: SqlDriver;
 let tenantId: string;
 let apiKeyId: string;
+let verticalId: string;
 
 beforeAll(async () => {
   driver = await createPgliteDriver({ trigram: false });
   await migrate(driver);
+
+  const [vertical] = await driver.query<{ id: string }>(
+    `insert into verticals (slug, name, schema_version, status, default_refresh_policy)
+     values ('usage-consumer-test', 'Usage consumer test', '1', 'ACTIVE', '{}'::jsonb)
+     returning id`,
+  );
+  const seededVerticalId = vertical?.id;
+  if (seededVerticalId === undefined) throw new Error('vertical insert returned no row');
+  verticalId = seededVerticalId;
 
   // `api_usage_events` carries a composite FK to `api_keys (id, tenant_id)` —
   // AGENTS.md rule "a usage row cannot name a tenant other than the one
@@ -38,8 +48,9 @@ beforeAll(async () => {
   tenantId = seededTenantId;
 
   const [key] = await driver.query<{ id: string }>(
-    `insert into api_keys (tenant_id, token_hash, token_prefix, label) values ($1, $2, $3, $4) returning id`,
-    [tenantId, 'a'.repeat(64), 'test-key', 'usage-consumer test key'],
+    `insert into api_keys (tenant_id, token_hash, token_prefix, label, vertical_id)
+     values ($1, $2, $3, $4, $5) returning id`,
+    [tenantId, 'a'.repeat(64), 'df_test_abcdefgh', 'usage-consumer test key', verticalId],
   );
   const seededKeyId = key?.id;
   if (seededKeyId === undefined) throw new Error('key insert returned no row');
@@ -64,7 +75,8 @@ function event(overrides: Partial<Parameters<typeof buildUsageEvent>[0]> = {}): 
   return buildUsageEvent({
     tenantId,
     apiKeyId,
-    routeTemplate: '/v1/entities/{id}',
+    verticalId,
+    routeKey: 'entities.detail',
     method: 'GET',
     status: 200,
     ...overrides,
@@ -111,10 +123,12 @@ describe('batch persistence', () => {
     const events = [event(), event(), event()];
     const messages = events.map((e, i) => message(`msg-${i}`, e));
     const before = await rowCount();
+    const querySpy = vi.spyOn(driver, 'query');
 
     await consumeBatch(batchOf(messages), { env: { POSTGRES_URL: 'unused' }, openDriver: async () => driver });
 
     expect(await rowCount()).toBe(before + events.length);
+    expect(querySpy.mock.calls.filter(([sql]) => String(sql).includes('insert into api_usage_events'))).toHaveLength(1);
     for (const m of messages) {
       expect(m.acked).toBe(true);
       expect(m.retried).toBe(false);
@@ -158,6 +172,7 @@ describe('a malformed message does not discard the rest of the batch', () => {
     const good2 = message('good-2', event());
     const before = await rowCount();
     const errors: ConsumerErrorContext[] = [];
+    const querySpy = vi.spyOn(driver, 'query');
 
     await consumeBatch(batchOf([good1, bad, good2]), {
       env: { POSTGRES_URL: 'unused' },
@@ -170,19 +185,44 @@ describe('a malformed message does not discard the rest of the batch', () => {
     expect(good2.acked).toBe(true);
     expect(bad.acked).toBe(false);
     expect(bad.retried).toBe(true);
+    expect(querySpy.mock.calls.filter(([sql]) => String(sql).includes('insert into api_usage_events'))).toHaveLength(1);
     expect(errors).toContainEqual({ stage: 'parse', messageId: 'bad-1' });
   });
 });
 
+describe('a database-invalid message does not poison unrelated valid usage', () => {
+  it('isolates the constraint failure, retries only the poison event, and acks the valid event', async () => {
+    const good = message('constraint-good', event());
+    const poisonEvent = { ...event(), vertical_id: '44444444-4444-4444-8444-444444444444' };
+    const poison = message('constraint-poison', poisonEvent);
+    const before = await rowCount();
+
+    await consumeBatch(batchOf([good, poison]), {
+      env: { POSTGRES_URL: 'unused' },
+      openDriver: async () => driver,
+    });
+
+    expect(await rowCount()).toBe(before + 1);
+    expect(good.acked).toBe(true);
+    expect(good.retried).toBe(false);
+    expect(poison.acked).toBe(false);
+    expect(poison.retried).toBe(true);
+  });
+});
+
 describe('a transient persistence failure retries rather than acks or drops', () => {
-  it('retries the failing message and still persists the others in the batch', async () => {
+  it('retries every valid message in the atomic batch and persists none of them', async () => {
     const willFail = event();
     const willSucceed = event();
     const failing = message('flaky-1', willFail);
     const succeeding = message('flaky-2', willSucceed);
     const before = await rowCount();
 
-    const failOnce = flakyDriver(driver, (sql, params) => sql.includes('insert into api_usage_events') && params?.[0] === willFail.id);
+    let remainingFailures = 1;
+    const failOnce = flakyDriver(
+      driver,
+      (sql) => sql.includes('insert into api_usage_events') && remainingFailures-- > 0,
+    );
 
     await consumeBatch(batchOf([failing, succeeding]), {
       env: { POSTGRES_URL: 'unused' },
@@ -191,9 +231,9 @@ describe('a transient persistence failure retries rather than acks or drops', ()
 
     expect(failing.acked).toBe(false);
     expect(failing.retried).toBe(true);
-    expect(succeeding.acked).toBe(true);
-    // Only the message that actually succeeded landed a row.
-    expect(await rowCount()).toBe(before + 1);
+    expect(succeeding.acked).toBe(false);
+    expect(succeeding.retried).toBe(true);
+    expect(await rowCount()).toBe(before);
   });
 
   it('never acks a message whose persistence keeps failing — the platform, not this consumer, decides when that reaches the dead-letter queue', async () => {

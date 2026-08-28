@@ -59,7 +59,11 @@ describe('a Worker with no database refuses to serve', () => {
       const attempt = getDeployment({
         // A port nothing listens on, on the loopback, so there is no DNS and no
         // network wait — the refusal is immediate and deterministic.
-        env: { POSTGRES_URL: 'postgres://u:p@127.0.0.1:1/df-default-path', VERTICAL_SLUG: 'hvac' },
+        env: {
+          POSTGRES_URL: 'postgres://u:p@127.0.0.1:1/df-default-path',
+          VERTICAL_SLUG: 'hvac',
+          API_KEY_ENVIRONMENT: 'test',
+        },
         runtime: RUNTIMES['hvac'] as never,
       });
 
@@ -123,19 +127,46 @@ describe('one vertical per deployment', () => {
   });
 });
 
+describe('one credential environment per deployment', () => {
+  it('refuses an absent or unknown API_KEY_ENVIRONMENT', () => {
+    const base = { POSTGRES_URL: 'postgres://x/y', VERTICAL_SLUG: 'hvac' };
+    expect(() => resolveEdgeConfig(base)).toThrow(/API_KEY_ENVIRONMENT/);
+    for (const value of ['', 'production', 'LIVE', ' live ', 'test\n']) {
+      expect(() => resolveEdgeConfig({ ...base, API_KEY_ENVIRONMENT: value })).toThrow(/live.*test/i);
+    }
+  });
+
+  it('accepts only an explicit live or test environment', () => {
+    for (const apiKeyEnvironment of ['live', 'test'] as const) {
+      expect(
+        resolveEdgeConfig({
+          POSTGRES_URL: 'postgres://x/y',
+          VERTICAL_SLUG: 'hvac',
+          API_KEY_ENVIRONMENT: apiKeyEnvironment,
+        }).apiKeyEnvironment,
+      ).toBe(apiKeyEnvironment);
+    }
+  });
+});
+
 describe('Hyperdrive outranks a direct connection string', () => {
   it('uses the binding when both are present', () => {
     const config = resolveEdgeConfig({
       HYPERDRIVE: { connectionString: 'postgres://hyperdrive/db' },
       POSTGRES_URL: 'postgres://origin/db',
       VERTICAL_SLUG: 'hvac',
+      API_KEY_ENVIRONMENT: 'test',
     });
     // An operator who bound Hyperdrive did not mean "go around it to the origin".
     expect(config.connectionString).toBe('postgres://hyperdrive/db');
   });
 
   it('falls back to POSTGRES_URL when no binding exists, for `wrangler dev`', () => {
-    const config = resolveEdgeConfig({ POSTGRES_URL: 'postgres://local/db', VERTICAL_SLUG: 'hvac' });
+    const config = resolveEdgeConfig({
+      POSTGRES_URL: 'postgres://local/db',
+      VERTICAL_SLUG: 'hvac',
+      API_KEY_ENVIRONMENT: 'test',
+    });
     expect(config.connectionString).toBe('postgres://local/db');
     expect(config.verticalSlug).toBe('hvac');
   });

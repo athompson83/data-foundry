@@ -1,14 +1,13 @@
 # ADR-0009 — Usage metering runs over a queue, and never on the request path
 
-**Status:** Accepted (design; not yet implemented)
+**Status:** Accepted and implemented
 **Date:** 2026-08-23
 **Relates to:** ADR-0006 (Cloudflare Workers), ADR-0007 (three systems), ADR-0008 (usage events carry tenant and vertical), `db/migrations/0012_usage_accounting_corrections.sql`
 
 ## Context
 
-`api_usage_events` exists and nothing writes to it. This ADR is the design for
-what will, recorded before the code so the failure modes are argued once rather
-than discovered one at a time in production.
+`api_usage_events` is written asynchronously by `apps/usage-consumer`. This ADR
+records the implemented design so its failure modes remain explicit.
 
 Three owner decisions bound the design and are not re-litigated here:
 
@@ -80,8 +79,8 @@ Cloudflare currently limits post-response `waitUntil()` lifetime to 30 seconds
 one Queue send fits that lifecycle, but the producer must not accumulate or
 retry messages inside the request Worker.
 
-`apps/edge/src/index.ts` currently takes `(request, env)`; it gains
-`ctx: ExecutionContext`, which is the only signature change the Worker needs.
+`apps/edge/src/index.ts` takes `(request, env, ctx)` and registers the Queue send
+with the supplied execution context.
 
 Every failure here is swallowed and counted, never propagated:
 
@@ -131,11 +130,17 @@ surprise.
 ### The consumer
 
 A separate Worker with a `queue()` handler, reaching Postgres through
-Hyperdrive. One multi-row `INSERT ... ON CONFLICT (id) DO NOTHING` per batch,
-then per-message `ack()`.
+Hyperdrive. One multi-row `INSERT ... ON CONFLICT (id) DO NOTHING` on the normal
+path, then per-message `ack()`.
 
 **Acknowledge per message, never `ackAll()` after the fact.** One malformed
 message must not force redelivery of the ninety-nine good ones beside it.
+
+Shape-valid messages can still violate a database foreign key or CHECK. On an
+SQLSTATE class 23 integrity error only, the consumer recursively bisects the
+valid subset until it isolates the poison event. Valid messages are persisted
+and acked; only the poison message is retried toward the DLQ. A transient or
+systemic database error never takes this branch and retries the whole subset.
 
 **The consumer fails closed, and that asymmetry is the design.** At the producer
 a customer is waiting, so a failure is dropped. At the consumer nobody is

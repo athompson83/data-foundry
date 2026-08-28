@@ -23,16 +23,17 @@ enabled = true
 [[queues.consumers]]
 queue = "data-foundry-usage-events"
 # A batch's worth of messages is handed to one `queue()` invocation;
-# `consumeBatch` acks or retries each message independently, so a larger
-# batch only changes throughput, never the persistence guarantee.
-max_batch_size = 50
+# `consumeBatch` parses independently, then persists all valid messages in one
+# idempotent statement. 100 is Cloudflare's maximum and remains only 1,000 SQL
+# parameters for this event shape.
+max_batch_size = 100
 max_batch_timeout = 5
 # After this many redeliveries of the same message, Cloudflare routes it to
 # the dead-letter queue below instead of retrying again. This consumer never
 # acks a message it could not persist, and never asks for a message to be
 # routed straight to the DLQ — that decision belongs to this platform
 # setting, not to application code.
-max_retries = 5
+max_retries = 3
 dead_letter_queue = "data-foundry-usage-events-dlq"
 
 # Hyperdrive pools Postgres connections at the edge, exactly as in

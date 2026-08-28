@@ -5,7 +5,7 @@ The Cloudflare Queue consumer that turns delivered usage events into rows in
 
 | file | what it is |
 |---|---|
-| `src/index.ts` | the `queue()` handler and its per-message ack/retry policy |
+| `src/index.ts` | the `queue()` handler, atomic batch insert, poison isolation, and per-message ack/retry policy |
 | `src/env.ts` | what this consumer is configured with, and what it refuses to start without |
 
 See [ADR-0006](../../docs/decisions/ADR-0006-cloudflare-is-the-deployment-target.md)
@@ -23,12 +23,13 @@ this consumer's health.
 
 ## The ack/retry policy
 
-Every message in a batch is handled independently — one `for` loop, one
-try/catch per message, no transaction wrapping the whole batch. Cloudflare
-redelivers per message, not per batch, so one bad message must never roll
-back or block the ack of the others alongside it.
+Messages are parsed independently, then every valid message is persisted in one
+multi-row `INSERT ... ON CONFLICT (id) DO NOTHING`. A transient/systemic
+database failure retries the entire valid subset. If PostgreSQL identifies a
+constraint violation, the consumer bisects only that subset to isolate the
+poison event: valid usage is acked, and only the invalid event reaches retry/DLQ.
 
-* **Persists, then acks.** `persistUsageEvent`'s `ON CONFLICT (id) DO NOTHING`
+* **Persists, then acks.** `persistUsageEvents`'s `ON CONFLICT (id) DO NOTHING`
   is what makes redelivery safe: a duplicate is not a failure, and is acked
   exactly like a first-time insert.
 * **Malformed → retry, never ack.** A message that fails
@@ -46,6 +47,10 @@ back or block the ack of the others alongside it.
   message. Nothing is acked or retried by this code; Cloudflare's own
   whole-batch retry (triggered when `queue()` throws) takes over, which is
   the correct behaviour for a systemic failure rather than a per-message one.
+* **Constraint poison → isolate, then retry only poison.** Shape validation
+  cannot prove foreign keys. A crafted/stale route, key, tenant, or vertical may
+  reach PostgreSQL; recursive bisection prevents it from sending unrelated valid
+  usage to the DLQ while retaining one statement on the normal path.
 
 ## Running
 

@@ -24,6 +24,7 @@ const runtime = RUNTIMES['hvac'] as VerticalRuntime;
 const envFor = (slug: string) => ({
   POSTGRES_URL: 'postgres://fixture/db',
   VERTICAL_SLUG: slug,
+  API_KEY_ENVIRONMENT: 'test',
 });
 
 /** The fixture driver stands in for the pool Hyperdrive would hand us. */

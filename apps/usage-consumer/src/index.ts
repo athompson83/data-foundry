@@ -14,7 +14,7 @@ import {
   createPostgresDriver,
   type SqlDriver,
 } from '@data-foundry/canonical-store';
-import { parseUsageEvent, persistUsageEvent } from '@data-foundry/usage-events';
+import { parseUsageEvent, persistUsageEvents, type UsageEvent } from '@data-foundry/usage-events';
 import { resolveConsumerConfig, type ConsumerEnv } from './env.js';
 
 export { ConsumerConfigurationError, resolveConsumerConfig, type ConsumerEnv, type HyperdriveBinding } from './env.js';
@@ -73,14 +73,52 @@ export function resetDrivers(): void {
   drivers.clear();
 }
 
+function isIntegrityViolation(error: unknown): boolean {
+  if (error === null || typeof error !== 'object') return false;
+  const code = (error as { readonly code?: unknown }).code;
+  return typeof code === 'string' && code.startsWith('23');
+}
+
+type ValidMessage = { readonly message: QueueMessage; readonly event: UsageEvent };
+
+/**
+ * Normal delivery is one statement. If and only if PostgreSQL identifies an
+ * integrity violation, bisect the batch to isolate the poison message: valid
+ * usage is still acked, while the one event that violates a foreign key or
+ * CHECK reaches retry/DLQ. Transient/systemic failures never take this path;
+ * they retry the whole valid subset so no partially acknowledged batch hides
+ * an outage.
+ */
+async function persistValidMessages(
+  driver: SqlDriver,
+  valid: readonly ValidMessage[],
+  onError: ConsumeOptions['onError'],
+): Promise<void> {
+  try {
+    await persistUsageEvents(driver, valid.map(({ event }) => event));
+    for (const { message } of valid) message.ack();
+  } catch (error) {
+    if (isIntegrityViolation(error) && valid.length > 1) {
+      const midpoint = Math.floor(valid.length / 2);
+      await persistValidMessages(driver, valid.slice(0, midpoint), onError);
+      await persistValidMessages(driver, valid.slice(midpoint), onError);
+      return;
+    }
+    for (const { message } of valid) {
+      onError?.(error, { stage: 'persist', messageId: message.id });
+      message.retry();
+    }
+  }
+}
+
 /**
  * Consume one batch.
  *
- * Every message is handled independently, deliberately: a single `for`
- * loop with a per-message try/catch, not one transaction wrapping the whole
- * batch. Cloudflare re-delivers per message, not per batch, so one bad
- * message must never roll back — or block the ack of — every other message
- * that arrived alongside it.
+ * Malformed messages are isolated before persistence. Every well-formed
+ * message is then written in one multi-row, idempotent statement. This keeps
+ * the database round-trip count bounded and gives the valid subset atomic
+ * semantics: either all valid rows are inserted/deduplicated and acked, or
+ * none are committed and all are retried.
  *
  * A malformed message (fails `parseUsageEvent`) is retried rather than
  * acked. Queues has no "send straight to the dead-letter queue" API — the
@@ -90,10 +128,9 @@ export function resetDrivers(): void {
  * message disappear without ever being persisted *or* dead-lettered, so it
  * is never done here.
  *
- * A transient persistence failure (the database round trip throws) is
- * retried for the same reason. `persistUsageEvent`'s `ON CONFLICT (id) DO
- * NOTHING` is what makes a retried message safe to redeliver: `duplicate` is
- * not a failure, and is acked exactly like `inserted`.
+ * A transient persistence failure (the database round trip throws) retries
+ * every valid message. `persistUsageEvents`'s `ON CONFLICT (id) DO NOTHING`
+ * makes redelivery safe: duplicates are acked exactly like newly inserted rows.
  */
 export async function consumeBatch(batch: QueueMessageBatch, options: ConsumeOptions): Promise<void> {
   let driver: SqlDriver;
@@ -109,6 +146,7 @@ export async function consumeBatch(batch: QueueMessageBatch, options: ConsumeOpt
     throw error;
   }
 
+  const valid: ValidMessage[] = [];
   for (const message of batch.messages) {
     const event = parseUsageEvent(message.body);
     if (event === null) {
@@ -116,15 +154,12 @@ export async function consumeBatch(batch: QueueMessageBatch, options: ConsumeOpt
       message.retry();
       continue;
     }
-
-    try {
-      await persistUsageEvent(driver, event);
-      message.ack();
-    } catch (error) {
-      options.onError?.(error, { stage: 'persist', messageId: message.id });
-      message.retry();
-    }
+    valid.push({ message, event });
   }
+
+  if (valid.length === 0) return;
+
+  await persistValidMessages(driver, valid, options.onError);
 }
 
 export default {

@@ -19,8 +19,10 @@
 import {
   evaluateStoredKey,
   hashApiKey,
+  keyEnvironment,
   looksLikeApiKey,
   readBearerToken,
+  type KeyEnvironment,
   type StoredApiKey,
 } from '@data-foundry/api-keys';
 import type { SqlExecutor } from '@data-foundry/canonical-store';
@@ -39,14 +41,17 @@ export type AuthFailureReason =
   | 'UNKNOWN_KEY'
   | 'REVOKED'
   | 'EXPIRED'
+  | 'WRONG_ENVIRONMENT'
   | 'TENANT_SUSPENDED'
   | 'TENANT_CLOSED'
+  | 'TENANT_INACTIVE'
   | 'WRONG_VERTICAL';
 
 export interface AuthSuccess {
   readonly ok: true;
   readonly tenantId: string;
   readonly apiKeyId: string;
+  readonly verticalId: string;
 }
 
 export interface AuthFailure {
@@ -62,13 +67,13 @@ export type AuthResult = AuthSuccess | AuthFailure;
  * with an index signature, not an `interface extends`, because the driver's
  * `query<R extends SqlRow>` constrains `R` to have one.
  */
-type ApiKeyRow = StoredApiKey & { readonly vertical_id: string | null } & Record<string, unknown>;
+type ApiKeyRow = StoredApiKey & { readonly vertical_id: string } & Record<string, unknown>;
 
 type ApiTenantRow = { readonly id: string; readonly status: string } & Record<string, unknown>;
 
 async function findKeyByHash(executor: SqlExecutor, tokenHash: string): Promise<ApiKeyRow | null> {
   const rows = await executor.query<ApiKeyRow>(
-    `select id, tenant_id, token_hash, vertical_id, revoked_at, expires_at
+    `select id, tenant_id, token_hash, token_prefix, vertical_id, revoked_at, expires_at
        from api_keys
       where token_hash = $1`,
     [tokenHash],
@@ -94,6 +99,7 @@ export async function authenticate(
   executor: SqlExecutor,
   authorizationHeader: string | null | undefined,
   verticalId: string,
+  environment: KeyEnvironment,
   now: Date,
 ): Promise<AuthResult> {
   const token = readBearerToken(authorizationHeader);
@@ -104,21 +110,28 @@ export async function authenticate(
   // no purpose other than a marginally slower rejection.
   if (!looksLikeApiKey(token)) return { ok: false, reason: 'MALFORMED_CREDENTIAL' };
 
+  // Environment is encoded in a well-formed credential. Refuse the wrong
+  // namespace before hashing or querying so a test key can never probe live
+  // storage (and vice versa), whether or not its hash exists there.
+  if (keyEnvironment(token) !== environment) {
+    return { ok: false, reason: 'WRONG_ENVIRONMENT' };
+  }
+
   const tokenHash = await hashApiKey(token);
   const row = await findKeyByHash(executor, tokenHash);
-  const verdict = evaluateStoredKey(row, now);
+  const verdict = evaluateStoredKey(row, now, { presented: token, environment });
   if (!verdict.ok) return { ok: false, reason: verdict.reason };
 
   const key = verdict.key as ApiKeyRow;
 
-  // NULL means every vertical this deployment serves; a value scopes the key
-  // to one. There is no broader route- or resource-level scope model yet —
+  // Every key names exactly one vertical. There is no broader route- or
+  // resource-level scope model yet —
   // every valid, correctly-scoped key may call every GET/HEAD route this
   // deployment exposes. AGENTS.md's scope-control rule is the reason: nothing
   // measured yet needs finer granularity than "which vertical", and inventing
   // a permissions model ahead of a second one that needs it is exactly the
   // kind of speculative generality this repository avoids.
-  if (key.vertical_id !== null && key.vertical_id !== verticalId) {
+  if (key.vertical_id !== verticalId) {
     return { ok: false, reason: 'WRONG_VERTICAL' };
   }
 
@@ -128,8 +141,9 @@ export async function authenticate(
   if (tenant === null) return { ok: false, reason: 'UNKNOWN_KEY' };
   if (tenant.status === 'SUSPENDED') return { ok: false, reason: 'TENANT_SUSPENDED' };
   if (tenant.status === 'CLOSED') return { ok: false, reason: 'TENANT_CLOSED' };
+  if (tenant.status !== 'ACTIVE') return { ok: false, reason: 'TENANT_INACTIVE' };
 
-  return { ok: true, tenantId: key.tenant_id, apiKeyId: key.id };
+  return { ok: true, tenantId: key.tenant_id, apiKeyId: key.id, verticalId: key.vertical_id };
 }
 
 /**
@@ -148,9 +162,11 @@ const REASON_STATUS: Readonly<Record<AuthFailureReason, 401 | 403>> = {
   UNKNOWN_KEY: 401,
   REVOKED: 401,
   EXPIRED: 401,
+  WRONG_ENVIRONMENT: 401,
   TENANT_SUSPENDED: 403,
   WRONG_VERTICAL: 403,
   TENANT_CLOSED: 403,
+  TENANT_INACTIVE: 403,
 };
 
 export interface AuthResponseBody {

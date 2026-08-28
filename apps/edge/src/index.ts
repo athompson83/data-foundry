@@ -9,12 +9,12 @@
  * `composition.ts` for why the object graph is built here rather than in
  * `apps/api`.
  */
-import type { ApiRequestTelemetry } from '@data-foundry/api';
+import { UNMATCHED_ROUTE_KEY, type ApiRequestTelemetry } from '@data-foundry/api';
 import { buildUsageEvent, type UsageEvent } from '@data-foundry/usage-events';
 import { toApiRequest, toFetchResponse } from './adapter.js';
 import { authenticate, toAuthResponse, type AuthFailure } from './auth.js';
 import { getDeployment, type BuildOptions, type VerticalRuntime } from './composition.js';
-import { EdgeConfigurationError, type EdgeEnv } from './env.js';
+import { EdgeConfigurationError, resolveEdgeConfig, type EdgeEnv } from './env.js';
 import hvacRuntime from '../generated/hvac.runtime.json' with { type: 'json' };
 
 export { toApiRequest, toFetchResponse } from './adapter.js';
@@ -180,6 +180,7 @@ export async function serveRequest(
         console.error(`[edge] ${context.path}`, error);
       },
     });
+    const config = resolveEdgeConfig(env);
 
     // Authenticate, resolve tenant, enforce scope — all of it before a
     // route ever executes. `auth.ts` is the one place this deployment
@@ -188,6 +189,7 @@ export async function serveRequest(
       deployment.driver,
       request.headers.get('authorization'),
       deployment.verticalId,
+      config.apiKeyEnvironment,
       new Date(),
     );
     if (!auth.ok) return authFailureResponse(request, auth);
@@ -209,24 +211,32 @@ export async function serveRequest(
     const response = await deployment.app(toApiRequest(request), onRequest);
     const durationMs = Date.now() - startedAt;
 
-    const event = buildUsageEvent({
-      tenantId: auth.tenantId,
-      apiKeyId: auth.apiKeyId,
-      // `captured.info` is always set by the time `deployment.app` resolves
-      // — `onRequest` fires on every path out of it, success and error
-      // alike. The fallback exists only for the type system; reaching it
-      // would be `apps/api` breaking its own contract, not a case this
-      // Worker causes.
-      routeTemplate: captured.info?.routeTemplate ?? '/{unmatched}',
-      method: request.method,
-      status: response.status,
-      rowsServed: roughRowsServed(response.body),
-      durationMs,
-    });
-    // Never awaited: the response below returns whether or not the queue
-    // has accepted the event yet. See `publishUsageEvent` for the policy on
-    // what happens if it never does.
-    ctx.waitUntil(publishUsageEvent(env, event));
+    const method = request.method.toUpperCase();
+    if (method === 'GET' || method === 'HEAD') {
+      try {
+        const event = buildUsageEvent({
+          tenantId: auth.tenantId,
+          apiKeyId: auth.apiKeyId,
+          verticalId: auth.verticalId,
+          // `captured.info` is always set by the time `deployment.app` resolves.
+          // The fallback is the closed unmatched key, never the request target.
+          routeKey: captured.info?.routeKey ?? UNMATCHED_ROUTE_KEY,
+          method,
+          status: response.status,
+          rowsServed: roughRowsServed(response.body),
+          durationMs,
+        });
+        // Never awaited: the response below returns whether or not the queue
+        // has accepted the event yet. See `publishUsageEvent` for the policy on
+        // what happens if it never does.
+        ctx.waitUntil(publishUsageEvent(env, event));
+      } catch (error) {
+        // Metering is deliberately off the availability path. Even a
+        // synchronous platform failure while registering waitUntil cannot
+        // replace the API response already computed above.
+        console.error('[edge] usage event scheduling failed', { error });
+      }
+    }
 
     return toFetchResponse(response, request.method);
   } catch (error) {

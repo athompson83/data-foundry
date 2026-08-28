@@ -16,6 +16,7 @@ const runtime = RUNTIMES['hvac'] as VerticalRuntime;
 const envFor = (queue?: QueueBinding) => ({
   POSTGRES_URL: 'postgres://fixture/db',
   VERTICAL_SLUG: 'hvac',
+  API_KEY_ENVIRONMENT: 'test',
   ...(queue === undefined ? {} : { USAGE_EVENTS_QUEUE: queue }),
 });
 
@@ -48,7 +49,13 @@ function recordingQueue(): { queue: QueueBinding; sent: UsageEvent[] } {
   };
 }
 
-async function mintKeyFor(tenantSlug: string): Promise<{ secret: string; tenantId: string; apiKeyId: string }> {
+async function mintKeyFor(tenantSlug: string): Promise<{
+  secret: string;
+  tokenHash: string;
+  tokenPrefix: string;
+  tenantId: string;
+  apiKeyId: string;
+}> {
   const [tenant] = await fixtures.driver.query<{ id: string }>(
     `insert into api_tenants (slug, name, status) values ($1, $2, 'ACTIVE') returning id`,
     [tenantSlug, tenantSlug],
@@ -63,7 +70,13 @@ async function mintKeyFor(tenantSlug: string): Promise<{ secret: string; tenantI
   );
   const apiKeyId = key?.id;
   if (apiKeyId === undefined) throw new Error('key insert returned no row');
-  return { secret: minted.secret, tenantId, apiKeyId };
+  return {
+    secret: minted.secret,
+    tokenHash: minted.tokenHash,
+    tokenPrefix: minted.tokenPrefix,
+    tenantId,
+    apiKeyId,
+  };
 }
 
 beforeAll(async () => {
@@ -97,12 +110,16 @@ describe('an authorized request executes and is metered', () => {
     expect(event).toMatchObject({
       tenant_id: key.tenantId,
       api_key_id: key.apiKeyId,
-      route: '/v1/entities/{id}',
+      vertical_id: fixtures.vertical.id,
+      route_key: 'entities.detail',
       method: 'GET',
       status: 200,
     });
-    // The event names the template, never the id that was actually asked for.
+    // The event names only the closed route key, never the id that was asked for.
     expect(JSON.stringify(event)).not.toContain(fixtures.equipment.id);
+    expect(Object.keys(event ?? {}).sort()).toEqual(
+      ['id', 'tenant_id', 'api_key_id', 'vertical_id', 'occurred_at', 'route_key', 'method', 'status', 'rows_served', 'duration_ms'].sort(),
+    );
   });
 });
 
@@ -148,6 +165,97 @@ describe('an unauthorized request never reaches the route or gets metered', () =
 
     expect(response.status).toBe(403);
     expect(sent).toHaveLength(0);
+  });
+});
+
+describe('an unsupported method is not a usage event', () => {
+  it('answers 405 after authentication but does not enqueue a message the consumer must reject', async () => {
+    const key = await mintKeyFor('acme-post');
+    const { queue, sent } = recordingQueue();
+    const { ctx, settle } = immediateContext();
+    const request = new Request('https://edge.invalid/v1/health?should=never-persist', {
+      method: 'POST',
+      headers: { authorization: `Bearer ${key.secret}` },
+    });
+
+    const response = await serveRequest(request, envFor(queue), ctx, openFixtureDriver);
+    await settle();
+
+    expect(response.status).toBe(405);
+    expect(sent).toEqual([]);
+  });
+});
+
+describe('metering isolation and privacy', () => {
+  it('registers waitUntil before the request promise resolves', async () => {
+    const key = await mintKeyFor('acme-wait-order');
+    const { queue } = recordingQueue();
+    let registered = false;
+    const response = await serveRequest(
+      new Request('https://edge.invalid/v1/health', {
+        headers: { authorization: `Bearer ${key.secret}` },
+      }),
+      envFor(queue),
+      { waitUntil: () => { registered = true; } },
+      openFixtureDriver,
+    );
+
+    expect(response.status).toBe(200);
+    expect(registered).toBe(true);
+  });
+
+  it('never replaces an already-computed API response when waitUntil registration throws', async () => {
+    const key = await mintKeyFor('acme-wait-throws');
+    const { queue } = recordingQueue();
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const response = await serveRequest(
+      new Request('https://edge.invalid/v1/health', {
+        headers: { authorization: `Bearer ${key.secret}` },
+      }),
+      envFor(queue),
+      { waitUntil: () => { throw new Error('context closed'); } },
+      openFixtureDriver,
+    );
+
+    expect(response.status).toBe(200);
+    expect(errorSpy).toHaveBeenCalledWith(
+      '[edge] usage event scheduling failed',
+      expect.objectContaining({ error: expect.any(Error) }),
+    );
+  });
+
+  it('persists none of the request target, query, credential, headers, or response details', async () => {
+    const key = await mintKeyFor('acme-privacy');
+    const { queue, sent } = recordingQueue();
+    const { ctx, settle } = immediateContext();
+    const privatePath = 'customer-private-slug-7491';
+    const privateQuery = 'query-secret-2864';
+    const privateHeader = 'header-secret-9032';
+    const request = new Request(`https://edge.invalid/v1/${privatePath}?q=${privateQuery}`, {
+      headers: {
+        authorization: `Bearer ${key.secret}`,
+        'x-customer-context': privateHeader,
+      },
+    });
+
+    const response = await serveRequest(request, envFor(queue), ctx, openFixtureDriver);
+    const responseText = await response.clone().text();
+    await settle();
+
+    expect(response.status).toBe(404);
+    expect(sent).toHaveLength(1);
+    const serialized = JSON.stringify(sent[0]);
+    for (const forbidden of [
+      privatePath,
+      privateQuery,
+      privateHeader,
+      key.secret,
+      key.tokenHash,
+      key.tokenPrefix,
+      responseText,
+    ]) {
+      expect(serialized, forbidden).not.toContain(forbidden);
+    }
   });
 });
 

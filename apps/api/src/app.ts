@@ -12,18 +12,16 @@ import { baseHeaders, jsonResponse, requestId, type ApiHandler, type ApiRequest,
 import { resolveContext, type ApiAppOptions, type ApiContext, type ApiRequestTelemetry } from './config.js';
 import {
   ALLOW_HEADER,
+  CONTRACT_ROUTE_KEY,
   CURRENT_VERSION,
-  METHOD_NOT_ALLOWED_ROUTE_TEMPLATE,
   READ_METHODS,
-  ROOT_ROUTE_TEMPLATE,
+  SERVICE_ROUTE_KEY,
   SUPPORTED_VERSIONS,
-  UNMATCHED_ROUTE_TEMPLATE,
-  UNSUPPORTED_VERSION_ROUTE_TEMPLATE,
+  UNMATCHED_ROUTE_KEY,
   contractDocument,
-  contractRouteTemplate,
   matchRoute,
   routeParams,
-  routeTemplate,
+  type RouteKey,
 } from './routes.js';
 import {
   ReviewerIdentityLeak,
@@ -70,7 +68,7 @@ function normalize(error: unknown): ApiError {
 async function dispatch(
   context: ApiContext,
   request: ApiRequest,
-  report: (template: string) => void,
+  report: (routeKey: RouteKey) => void,
 ): Promise<ApiResponse> {
   // FIRST — before the target is parsed, before a version is recognised, before
   // a route is matched. The check used to sit next to the route table, which
@@ -85,7 +83,7 @@ async function dispatch(
   // reintroduce the hole because there is nothing before this line to return
   // from. It is an allow-list, so an unknown method fails closed.
   if (!SERVED_METHODS.has(request.method.toUpperCase())) {
-    report(METHOD_NOT_ALLOWED_ROUTE_TEMPLATE);
+    report(UNMATCHED_ROUTE_KEY);
     throw new ApiError(
       'METHOD_NOT_ALLOWED',
       'This API is read-only; only GET and HEAD are supported.',
@@ -99,13 +97,13 @@ async function dispatch(
   } catch {
     // A request target the URL parser rejects is the client's mistake, not a
     // server fault; it must not fall through to the generic 500.
-    report(UNMATCHED_ROUTE_TEMPLATE);
+    report(UNMATCHED_ROUTE_KEY);
     throw ApiError.invalidParameter('url', 'expected a well-formed request target');
   }
   const segments = url.pathname.split('/').filter((segment) => segment !== '');
 
   if (segments.length === 0) {
-    report(ROOT_ROUTE_TEMPLATE);
+    report(SERVICE_ROUTE_KEY);
     return jsonResponse(
       200,
       {
@@ -120,7 +118,7 @@ async function dispatch(
 
   const [version, ...rest] = segments;
   if (version === undefined || !isSupportedVersion(version)) {
-    report(UNSUPPORTED_VERSION_ROUTE_TEMPLATE);
+    report(UNMATCHED_ROUTE_KEY);
     throw new ApiError(
       'UNSUPPORTED_API_VERSION',
       'This deployment does not serve that API version.',
@@ -129,19 +127,19 @@ async function dispatch(
   }
 
   if (rest.length === 0) {
-    report(contractRouteTemplate(version));
+    report(CONTRACT_ROUTE_KEY);
     return jsonResponse(200, contractDocument(version), version);
   }
 
   const route = matchRoute(rest);
   if (route === null) {
-    report(UNMATCHED_ROUTE_TEMPLATE);
+    report(UNMATCHED_ROUTE_KEY);
     throw new ApiError('ROUTE_NOT_FOUND', 'No route matches this path.', {
       path: url.pathname.slice(0, 200),
     });
   }
 
-  report(routeTemplate(version, route));
+  report(route.routeKey);
   return route.handler(context, {
     params: routeParams(route, rest),
     query: url.searchParams,
@@ -156,19 +154,19 @@ export function createApiApp(options: ApiAppOptions): ApiHandler {
     onRequest?: (info: ApiRequestTelemetry) => void,
   ): Promise<ApiResponse> => {
     const id = requestId(request);
-    // `dispatch` reports its template through this callback rather than a
+    // `dispatch` reports its closed route key through this callback rather than a
     // return value, because it also has to be known on the throw path — a
     // 404 or a 405 is exactly the kind of request usage-based billing must
     // still see. Defaults to "unmatched": if `dispatch` throws before its
     // first `report` call, that default is precisely what happened — nothing
     // matched yet.
-    let matchedTemplate: string = UNMATCHED_ROUTE_TEMPLATE;
-    const report = (template: string): void => {
-      matchedTemplate = template;
+    let matchedRouteKey: RouteKey = UNMATCHED_ROUTE_KEY;
+    const report = (routeKey: RouteKey): void => {
+      matchedRouteKey = routeKey;
     };
     try {
       const response = await dispatch(context, request, report);
-      onRequest?.({ method: request.method, routeTemplate: matchedTemplate, status: response.status });
+      onRequest?.({ method: request.method, routeKey: matchedRouteKey, status: response.status });
       return response;
     } catch (error) {
       const failure = normalize(error);
@@ -195,7 +193,7 @@ export function createApiApp(options: ApiAppOptions): ApiHandler {
         },
         body: toErrorBody(failure, id),
       };
-      onRequest?.({ method: request.method, routeTemplate: matchedTemplate, status: response.status });
+      onRequest?.({ method: request.method, routeKey: matchedRouteKey, status: response.status });
       return response;
     }
   };

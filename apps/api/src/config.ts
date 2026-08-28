@@ -16,6 +16,7 @@
  */
 import type { QueryModel } from '@data-foundry/query-model';
 import type { VerticalId } from '@data-foundry/canonical-schema';
+import type { RouteKey } from './routes.js';
 
 /** The fact-selection policy shape, taken from the query layer's signature. */
 export type ApiFactSelectionPolicy = NonNullable<Parameters<QueryModel['canonicalFacts']>[1]>;
@@ -29,17 +30,13 @@ export interface ApiErrorContext {
 /**
  * What happened, for whoever meters requests — never what was asked for.
  *
- * `routeTemplate` is the matched pattern (`/v1/entities/{id}`), or one of a
- * small set of fixed placeholders for a request that never reached one. Every
- * value this field can hold is a constant declared in `routes.ts`; nothing on
- * the path from a `Request` to this field can turn into a path parameter,
- * a query string, or anything else the caller sent. A consumer that persists
- * `routeTemplate` verbatim into a metering table is persisting a template, by
- * construction, not by discipline.
+ * `routeKey` is a member of the closed accounting vocabulary declared in
+ * `routes.ts`. It contains no slash or interpolation slot, so no request path,
+ * query string, entity identifier, or response content can enter metering.
  */
 export interface ApiRequestTelemetry {
   readonly method: string;
-  readonly routeTemplate: string;
+  readonly routeKey: RouteKey;
   readonly status: number;
 }
 

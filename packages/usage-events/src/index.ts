@@ -17,30 +17,42 @@
  * DO NOTHING` is the whole of the idempotency mechanism, enforced by the
  * primary key the table already had.
  */
-import type { SqlExecutor } from '@data-foundry/canonical-store';
+import type { SqlExecutor, SqlParam } from '@data-foundry/canonical-store';
 
 /** The two methods this API ever serves, and therefore the only ones a usage event can name. */
 const ALLOWED_METHODS = new Set(['GET', 'HEAD']);
+export type UsageMethod = 'GET' | 'HEAD';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const ROUTE_HAS_QUERY_RE = /[?&]/;
-const ROUTE_HAS_UUID_RE = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+const ROUTE_KEY_RE = /^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)*$/;
+const POSTGRES_INTEGER_MAX = 2_147_483_647;
+const USAGE_EVENT_FIELDS = [
+  'id',
+  'tenant_id',
+  'api_key_id',
+  'vertical_id',
+  'occurred_at',
+  'route_key',
+  'method',
+  'status',
+  'rows_served',
+  'duration_ms',
+] as const;
 
 /**
  * One request, metered. Every field here is either a constant the server
  * chose or a count — never a request body, a query string, or a value a
- * customer supplied. `route` in particular is a matched TEMPLATE
- * (`/v1/entities/{id}`), never the request target: see
- * `@data-foundry/api`'s `routeTemplate()`, the only function that is allowed
- * to produce one of these strings.
+ * customer supplied. `route_key` in particular is a member of the registered
+ * accounting vocabulary, never a path or request target.
  */
 export interface UsageEvent {
   readonly id: string;
   readonly tenant_id: string;
   readonly api_key_id: string;
+  readonly vertical_id: string;
   readonly occurred_at: string;
-  readonly route: string;
-  readonly method: string;
+  readonly route_key: string;
+  readonly method: UsageMethod;
   readonly status: number;
   readonly rows_served: number;
   readonly duration_ms: number | null;
@@ -49,8 +61,9 @@ export interface UsageEvent {
 export interface UsageEventInput {
   readonly tenantId: string;
   readonly apiKeyId: string;
-  readonly routeTemplate: string;
-  readonly method: string;
+  readonly verticalId: string;
+  readonly routeKey: string;
+  readonly method: UsageMethod;
   readonly status: number;
   readonly rowsServed?: number;
   readonly durationMs?: number | null;
@@ -69,8 +82,9 @@ export function buildUsageEvent(input: UsageEventInput): UsageEvent {
     id: input.id ?? crypto.randomUUID(),
     tenant_id: input.tenantId,
     api_key_id: input.apiKeyId,
+    vertical_id: input.verticalId,
     occurred_at: (input.occurredAt ?? new Date()).toISOString(),
-    route: input.routeTemplate,
+    route_key: input.routeKey,
     method: input.method,
     status: input.status,
     rows_served: input.rowsServed ?? 0,
@@ -93,12 +107,18 @@ export function buildUsageEvent(input: UsageEventInput): UsageEvent {
 export function parseUsageEvent(raw: unknown): UsageEvent | null {
   if (raw === null || typeof raw !== 'object') return null;
   const value = raw as Record<string, unknown>;
+  const keys = Object.keys(value).sort();
+  const expectedKeys = [...USAGE_EVENT_FIELDS].sort();
+  if (keys.length !== expectedKeys.length || keys.some((key, index) => key !== expectedKeys[index])) {
+    return null;
+  }
 
   const id = value['id'];
   const tenantId = value['tenant_id'];
   const apiKeyId = value['api_key_id'];
+  const verticalId = value['vertical_id'];
   const occurredAt = value['occurred_at'];
-  const route = value['route'];
+  const routeKey = value['route_key'];
   const method = value['method'];
   const status = value['status'];
   const rowsServed = value['rows_served'];
@@ -107,27 +127,46 @@ export function parseUsageEvent(raw: unknown): UsageEvent | null {
   if (typeof id !== 'string' || !UUID_RE.test(id)) return null;
   if (typeof tenantId !== 'string' || !UUID_RE.test(tenantId)) return null;
   if (typeof apiKeyId !== 'string' || !UUID_RE.test(apiKeyId)) return null;
-  if (typeof occurredAt !== 'string' || Number.isNaN(Date.parse(occurredAt))) return null;
-  if (typeof route !== 'string' || route.length === 0) return null;
-  if (ROUTE_HAS_QUERY_RE.test(route) || ROUTE_HAS_UUID_RE.test(route)) return null;
+  if (typeof verticalId !== 'string' || !UUID_RE.test(verticalId)) return null;
+  if (typeof occurredAt !== 'string') return null;
+  try {
+    if (new Date(occurredAt).toISOString() !== occurredAt) return null;
+  } catch {
+    return null;
+  }
+  if (
+    typeof routeKey !== 'string' ||
+    routeKey.length < 3 ||
+    routeKey.length > 64 ||
+    !ROUTE_KEY_RE.test(routeKey)
+  ) return null;
   if (typeof method !== 'string' || !ALLOWED_METHODS.has(method)) return null;
   if (typeof status !== 'number' || !Number.isInteger(status) || status < 100 || status > 599) {
     return null;
   }
-  if (rowsServed !== undefined) {
-    if (typeof rowsServed !== 'number' || !Number.isInteger(rowsServed) || rowsServed < 0) return null;
-  }
-  if (durationMs !== null && durationMs !== undefined) {
-    if (typeof durationMs !== 'number' || !Number.isFinite(durationMs) || durationMs < 0) return null;
+  if (
+    typeof rowsServed !== 'number' ||
+    !Number.isInteger(rowsServed) ||
+    rowsServed < 0 ||
+    rowsServed > POSTGRES_INTEGER_MAX
+  ) return null;
+  if (durationMs !== null) {
+    if (
+      typeof durationMs !== 'number' ||
+      !Number.isInteger(durationMs) ||
+      durationMs < 0 ||
+      durationMs > POSTGRES_INTEGER_MAX
+    ) return null;
   }
 
   return {
     id,
     tenant_id: tenantId,
     api_key_id: apiKeyId,
+    vertical_id: verticalId,
     occurred_at: occurredAt,
-    route,
-    method,
+    route_key: routeKey,
+    method: method as UsageMethod,
     status,
     rows_served: typeof rowsServed === 'number' ? rowsServed : 0,
     duration_ms: typeof durationMs === 'number' ? durationMs : null,
@@ -146,23 +185,47 @@ export async function persistUsageEvent(
   executor: SqlExecutor,
   event: UsageEvent,
 ): Promise<PersistOutcome> {
-  const rows = await executor.query<{ id: string }>(
-    `insert into api_usage_events
-       (id, tenant_id, api_key_id, occurred_at, route, method, status, rows_served, duration_ms)
-     values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-     on conflict (id) do nothing
-     returning id`,
-    [
+  const inserted = await persistUsageEvents(executor, [event]);
+  return inserted === 1 ? 'inserted' : 'duplicate';
+}
+
+/**
+ * Persist one queue batch with one idempotent statement. The producer caps a
+ * batch at 100 messages, so this is at most 1,000 parameters — comfortably
+ * below PostgreSQL's protocol limit. A statement failure commits none of the
+ * batch, allowing the consumer to retry every valid message coherently.
+ */
+export async function persistUsageEvents(
+  executor: SqlExecutor,
+  events: readonly UsageEvent[],
+): Promise<number> {
+  if (events.length === 0) return 0;
+
+  const params: SqlParam[] = [];
+  const values = events.map((event, rowIndex) => {
+    const offset = rowIndex * 10;
+    params.push(
       event.id,
       event.tenant_id,
       event.api_key_id,
+      event.vertical_id,
       event.occurred_at,
-      event.route,
+      event.route_key,
       event.method,
       event.status,
       event.rows_served,
       event.duration_ms,
-    ],
+    );
+    return `(${Array.from({ length: 10 }, (_, columnIndex) => `$${offset + columnIndex + 1}`).join(', ')})`;
+  });
+
+  const rows = await executor.query<{ id: string }>(
+    `insert into api_usage_events
+       (id, tenant_id, api_key_id, vertical_id, occurred_at, route_key, method, status, rows_served, duration_ms)
+     values ${values.join(',\n            ')}
+     on conflict (id) do nothing
+     returning id`,
+    params,
   );
-  return rows.length > 0 ? 'inserted' : 'duplicate';
+  return rows.length;
 }

@@ -2,8 +2,9 @@
  * The route vocabulary has two copies, and this file is why that is safe.
  *
  * One lives in `routes.ts`, because the application is what knows which routes
- * exist. The other lives in `db/migrations/0012_usage_accounting_corrections.sql`,
- * because a foreign key can only reference rows that are actually there. Two
+ * exist. The other is the cumulative set seeded by immutable forward
+ * migrations, because a foreign key can only reference rows that are actually
+ * there. Two
  * copies of a list is ordinarily a drift bug waiting to happen; it is not one
  * here only because these assertions fail CI the moment they disagree.
  *
@@ -12,12 +13,11 @@
  * a paying customer's request is metered — in production, on the revenue path,
  * long after the change that caused it looked complete.
  *
- * This reads the migration as TEXT rather than querying a database, deliberately.
- * The question is whether the file the runner will apply agrees with the code
- * that will insert against it. A live database would only prove that whatever
- * migration ran once agreed — which is a different, weaker claim.
+ * This reads every migration as TEXT rather than querying a database,
+ * deliberately. Future keys belong in a new migration; this test must never
+ * encourage editing applied migration 0012.
  */
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import {
@@ -28,9 +28,7 @@ import {
   UNMATCHED_ROUTE_KEY,
 } from '../src/routes.js';
 
-const MIGRATION = fileURLToPath(
-  new URL('../../../db/migrations/0012_usage_accounting_corrections.sql', import.meta.url),
-);
+const MIGRATIONS = fileURLToPath(new URL('../../../db/migrations/', import.meta.url));
 
 /**
  * The keys the migration seeds into `api_route_keys`.
@@ -39,10 +37,16 @@ const MIGRATION = fileURLToPath(
  * key mentioned in a comment is not mistaken for a registered one.
  */
 function seededKeys(): string[] {
-  const sql = readFileSync(MIGRATION, 'utf8');
-  const insert = /INSERT INTO api_route_keys \(key, description\) VALUES([\s\S]*?);/.exec(sql);
-  if (insert?.[1] === undefined) throw new Error('the route-key INSERT is no longer recognisable');
-  return [...insert[1].matchAll(/\(\s*'([^']+)'\s*,/g)].map((match) => match[1] as string);
+  const keys: string[] = [];
+  for (const file of readdirSync(MIGRATIONS).filter((name) => name.endsWith('.sql')).sort()) {
+    const sql = readFileSync(`${MIGRATIONS}/${file}`, 'utf8');
+    for (const insert of sql.matchAll(/INSERT INTO api_route_keys \(key, description\) VALUES([\s\S]*?);/g)) {
+      if (insert[1] === undefined) throw new Error(`route-key INSERT in ${file} is not recognisable`);
+      keys.push(...[...insert[1].matchAll(/\(\s*'([^']+)'\s*,/g)].map((match) => match[1] as string));
+    }
+  }
+  if (keys.length === 0) throw new Error('no migration seeds api_route_keys');
+  return [...new Set(keys)];
 }
 
 describe('the application vocabulary and the reference table agree', () => {

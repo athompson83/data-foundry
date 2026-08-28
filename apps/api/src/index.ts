@@ -55,12 +55,17 @@ export {
 
 export {
   CURRENT_VERSION,
+  CONTRACT_ROUTE_KEY,
+  ROUTE_KEYS,
   ROUTES,
+  SERVICE_ROUTE_KEY,
   SUPPORTED_VERSIONS,
+  UNMATCHED_ROUTE_KEY,
   contractDocument,
   matchRoute,
   routeParams,
   type Route,
+  type RouteKey,
   type RouteMatch,
 } from './routes.js';
 

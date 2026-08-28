@@ -6,9 +6,10 @@
  * the cross-tenant case is checked by actually minting two tenants and
  * proving one's key resolves to its own tenant id and no other.
  */
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { createQueryFixtures, type QueryFixtures } from '../../../packages/query-model/test/support.js';
 import { mintApiKey } from '@data-foundry/api-keys';
+import type { SqlExecutor } from '@data-foundry/canonical-store';
 import { authenticate, toAuthResponse, type AuthFailure } from '../src/auth.js';
 
 let fixtures: QueryFixtures;
@@ -25,7 +26,7 @@ async function seedTenant(options: {
   readonly status?: 'ACTIVE' | 'SUSPENDED' | 'CLOSED';
   readonly revoked?: boolean;
   readonly expiresAt?: string;
-  readonly verticalId?: string | null;
+  readonly verticalId?: string;
   readonly slug: string;
 }): Promise<SeededTenant> {
   const [tenant] = await fixtures.driver.query<{ id: string }>(
@@ -74,51 +75,63 @@ afterAll(async () => {
 describe('a valid key authenticates', () => {
   it('resolves the tenant and key that minted it', async () => {
     const seeded = await seedTenant({ slug: 'acme-valid' });
-    const result = await authenticate(fixtures.driver, `Bearer ${seeded.secret}`, hvacVerticalId, new Date());
-    expect(result).toEqual({ ok: true, tenantId: seeded.tenantId, apiKeyId: seeded.apiKeyId });
-  });
-
-  it('accepts a key scoped to no particular vertical for any vertical this deployment serves', async () => {
-    const seeded = await seedTenant({ slug: 'acme-unscoped', verticalId: null });
-    const result = await authenticate(fixtures.driver, `Bearer ${seeded.secret}`, hvacVerticalId, new Date());
-    expect(result.ok).toBe(true);
+    const result = await authenticate(fixtures.driver, `Bearer ${seeded.secret}`, hvacVerticalId, 'test', new Date());
+    expect(result).toEqual({
+      ok: true,
+      tenantId: seeded.tenantId,
+      apiKeyId: seeded.apiKeyId,
+      verticalId: hvacVerticalId,
+    });
   });
 });
 
 describe('an invalid key rejects', () => {
   it('rejects a missing Authorization header', async () => {
-    const result = await authenticate(fixtures.driver, undefined, hvacVerticalId, new Date());
+    const result = await authenticate(fixtures.driver, undefined, hvacVerticalId, 'test', new Date());
     expect(result).toEqual({ ok: false, reason: 'MISSING_CREDENTIAL' });
   });
 
   it('rejects a non-Bearer scheme', async () => {
     const seeded = await seedTenant({ slug: 'acme-basic' });
-    const result = await authenticate(fixtures.driver, `Basic ${seeded.secret}`, hvacVerticalId, new Date());
+    const result = await authenticate(fixtures.driver, `Basic ${seeded.secret}`, hvacVerticalId, 'test', new Date());
     expect(result).toEqual({ ok: false, reason: 'MISSING_CREDENTIAL' });
   });
 
   it('rejects a value that does not even look like one of our keys, without a database round trip', async () => {
-    const result = await authenticate(fixtures.driver, 'Bearer not-a-real-key', hvacVerticalId, new Date());
+    const result = await authenticate(fixtures.driver, 'Bearer not-a-real-key', hvacVerticalId, 'test', new Date());
     expect(result).toEqual({ ok: false, reason: 'MALFORMED_CREDENTIAL' });
   });
 
   it('rejects a well-formed key that was never minted', async () => {
     const fake = await mintApiKey('test'); // minted, never stored
-    const result = await authenticate(fixtures.driver, `Bearer ${fake.secret}`, hvacVerticalId, new Date());
+    const result = await authenticate(fixtures.driver, `Bearer ${fake.secret}`, hvacVerticalId, 'test', new Date());
     expect(result).toEqual({ ok: false, reason: 'UNKNOWN_KEY' });
   });
 
   it('rejects an expired key', async () => {
     const seeded = await seedTenant({ slug: 'acme-expired', expiresAt: '2000-01-01T00:00:00Z' });
-    const result = await authenticate(fixtures.driver, `Bearer ${seeded.secret}`, hvacVerticalId, new Date());
+    const result = await authenticate(fixtures.driver, `Bearer ${seeded.secret}`, hvacVerticalId, 'test', new Date());
     expect(result).toEqual({ ok: false, reason: 'EXPIRED' });
+  });
+
+  it('rejects a key for another environment before any database lookup', async () => {
+    const live = await mintApiKey('live');
+    const query = vi.fn(async () => {
+      throw new Error('database must not be consulted');
+    });
+    const executor = { query } as unknown as SqlExecutor;
+
+    const result = await authenticate(executor, `Bearer ${live.secret}`, hvacVerticalId, 'test', new Date());
+
+    expect(result).toEqual({ ok: false, reason: 'WRONG_ENVIRONMENT' });
+    expect(query).not.toHaveBeenCalled();
   });
 });
 
 describe('a revoked key rejects', () => {
   it('rejects, even though the key is still well-formed and unexpired', async () => {
     const seeded = await seedTenant({ slug: 'acme-revoked', revoked: true });
-    const result = await authenticate(fixtures.driver, `Bearer ${seeded.secret}`, hvacVerticalId, new Date());
+    const result = await authenticate(fixtures.driver, `Bearer ${seeded.secret}`, hvacVerticalId, 'test', new Date());
     expect(result).toEqual({ ok: false, reason: 'REVOKED' });
   });
 
@@ -128,7 +141,7 @@ describe('a revoked key rejects', () => {
       revoked: true,
       expiresAt: '2000-01-01T00:00:00Z',
     });
-    const result = await authenticate(fixtures.driver, `Bearer ${seeded.secret}`, hvacVerticalId, new Date());
+    const result = await authenticate(fixtures.driver, `Bearer ${seeded.secret}`, hvacVerticalId, 'test', new Date());
     expect(result).toEqual({ ok: false, reason: 'REVOKED' });
   });
 });
@@ -136,13 +149,41 @@ describe('a revoked key rejects', () => {
 describe('a suspended or closed tenant rejects', () => {
   it('rejects a key whose tenant is suspended, even though the key itself is fine', async () => {
     const seeded = await seedTenant({ slug: 'acme-suspended', status: 'SUSPENDED' });
-    const result = await authenticate(fixtures.driver, `Bearer ${seeded.secret}`, hvacVerticalId, new Date());
+    const result = await authenticate(fixtures.driver, `Bearer ${seeded.secret}`, hvacVerticalId, 'test', new Date());
     expect(result).toEqual({ ok: false, reason: 'TENANT_SUSPENDED' });
+  });
+
+  it('fails closed for an unknown future or corrupt tenant status', async () => {
+    const minted = await mintApiKey('test');
+    const query = vi.fn(async (sql: string) => {
+      if (sql.includes('from api_keys')) {
+        return [{
+          id: '11111111-1111-4111-8111-111111111111',
+          tenant_id: '22222222-2222-4222-8222-222222222222',
+          token_hash: minted.tokenHash,
+          token_prefix: minted.tokenPrefix,
+          vertical_id: hvacVerticalId,
+          revoked_at: null,
+          expires_at: null,
+        }];
+      }
+      return [{ id: '22222222-2222-4222-8222-222222222222', status: 'PAUSED' }];
+    });
+
+    const result = await authenticate(
+      { query } as unknown as SqlExecutor,
+      `Bearer ${minted.secret}`,
+      hvacVerticalId,
+      'test',
+      new Date(),
+    );
+
+    expect(result).toEqual({ ok: false, reason: 'TENANT_INACTIVE' });
   });
 
   it('rejects a key whose tenant is closed', async () => {
     const seeded = await seedTenant({ slug: 'acme-closed', status: 'CLOSED' });
-    const result = await authenticate(fixtures.driver, `Bearer ${seeded.secret}`, hvacVerticalId, new Date());
+    const result = await authenticate(fixtures.driver, `Bearer ${seeded.secret}`, hvacVerticalId, 'test', new Date());
     expect(result).toEqual({ ok: false, reason: 'TENANT_CLOSED' });
   });
 });
@@ -152,11 +193,11 @@ describe('wrong tenant cannot cross the tenant boundary', () => {
     const alice = await seedTenant({ slug: 'alice-co' });
     const bob = await seedTenant({ slug: 'bob-co' });
 
-    const aliceResult = await authenticate(fixtures.driver, `Bearer ${alice.secret}`, hvacVerticalId, new Date());
-    const bobResult = await authenticate(fixtures.driver, `Bearer ${bob.secret}`, hvacVerticalId, new Date());
+    const aliceResult = await authenticate(fixtures.driver, `Bearer ${alice.secret}`, hvacVerticalId, 'test', new Date());
+    const bobResult = await authenticate(fixtures.driver, `Bearer ${bob.secret}`, hvacVerticalId, 'test', new Date());
 
-    expect(aliceResult).toEqual({ ok: true, tenantId: alice.tenantId, apiKeyId: alice.apiKeyId });
-    expect(bobResult).toEqual({ ok: true, tenantId: bob.tenantId, apiKeyId: bob.apiKeyId });
+    expect(aliceResult).toEqual({ ok: true, tenantId: alice.tenantId, apiKeyId: alice.apiKeyId, verticalId: hvacVerticalId });
+    expect(bobResult).toEqual({ ok: true, tenantId: bob.tenantId, apiKeyId: bob.apiKeyId, verticalId: hvacVerticalId });
     expect(aliceResult.ok && bobResult.ok && aliceResult.tenantId).not.toBe(
       aliceResult.ok && bobResult.ok && bobResult.tenantId,
     );
@@ -167,8 +208,8 @@ describe('wrong tenant cannot cross the tenant boundary', () => {
     const bob = await seedTenant({ slug: 'bob-concurrent' });
 
     const [aliceResult, bobResult] = await Promise.all([
-      authenticate(fixtures.driver, `Bearer ${alice.secret}`, hvacVerticalId, new Date()),
-      authenticate(fixtures.driver, `Bearer ${bob.secret}`, hvacVerticalId, new Date()),
+      authenticate(fixtures.driver, `Bearer ${alice.secret}`, hvacVerticalId, 'test', new Date()),
+      authenticate(fixtures.driver, `Bearer ${bob.secret}`, hvacVerticalId, 'test', new Date()),
     ]);
 
     expect(aliceResult.ok && aliceResult.tenantId).toBe(alice.tenantId);
@@ -179,7 +220,7 @@ describe('wrong tenant cannot cross the tenant boundary', () => {
 describe('missing scope rejects', () => {
   it('rejects a key scoped to a different vertical than this deployment serves', async () => {
     const seeded = await seedTenant({ slug: 'acme-wrong-vertical', verticalId: otherVerticalId });
-    const result = await authenticate(fixtures.driver, `Bearer ${seeded.secret}`, hvacVerticalId, new Date());
+    const result = await authenticate(fixtures.driver, `Bearer ${seeded.secret}`, hvacVerticalId, 'test', new Date());
     expect(result).toEqual({ ok: false, reason: 'WRONG_VERTICAL' });
   });
 });
@@ -191,6 +232,7 @@ describe('the response never discloses which failure occurred', () => {
     'UNKNOWN_KEY',
     'REVOKED',
     'EXPIRED',
+    'WRONG_ENVIRONMENT',
   ];
   for (const reason of reasons) {
     it(`${reason} produces the same 401 body as every other 401 reason`, () => {
@@ -200,7 +242,7 @@ describe('the response never discloses which failure occurred', () => {
     });
   }
 
-  for (const reason of ['TENANT_SUSPENDED', 'TENANT_CLOSED', 'WRONG_VERTICAL'] as const) {
+  for (const reason of ['TENANT_SUSPENDED', 'TENANT_CLOSED', 'TENANT_INACTIVE', 'WRONG_VERTICAL'] as const) {
     it(`${reason} produces the same 403 body as every other 403 reason`, () => {
       const { status, body } = toAuthResponse({ ok: false, reason });
       expect(status).toBe(403);
@@ -209,12 +251,12 @@ describe('the response never discloses which failure occurred', () => {
   }
 
   it('the 401 and 403 bodies are themselves identical regardless of which specific reason produced them', () => {
-    const unauthorized = (['MISSING_CREDENTIAL', 'MALFORMED_CREDENTIAL', 'UNKNOWN_KEY', 'REVOKED', 'EXPIRED'] as const).map(
+    const unauthorized = (['MISSING_CREDENTIAL', 'MALFORMED_CREDENTIAL', 'UNKNOWN_KEY', 'REVOKED', 'EXPIRED', 'WRONG_ENVIRONMENT'] as const).map(
       (reason) => JSON.stringify(toAuthResponse({ ok: false, reason }).body),
     );
     expect(new Set(unauthorized).size).toBe(1);
 
-    const forbidden = (['TENANT_SUSPENDED', 'TENANT_CLOSED', 'WRONG_VERTICAL'] as const).map((reason) =>
+    const forbidden = (['TENANT_SUSPENDED', 'TENANT_CLOSED', 'TENANT_INACTIVE', 'WRONG_VERTICAL'] as const).map((reason) =>
       JSON.stringify(toAuthResponse({ ok: false, reason }).body),
     );
     expect(new Set(forbidden).size).toBe(1);

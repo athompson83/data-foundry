@@ -58,7 +58,9 @@ not.
 
 ### Verify
 
-`GET https://<your-route>/v1/health` returns 200. A 503 with
+Mint a one-vertical `df_live_*` key, then an authenticated
+`GET https://<your-route>/v1/health` with `Authorization: Bearer <key>` returns
+200. An unauthenticated probe correctly returns 401. A 503 with
 `x-unavailable-reason: configuration` means the binding is missing or
 `VERTICAL_SLUG` is unset; `startup` means the database is unreachable. The Worker
 never falls back to an empty in-memory database, so a 503 here is the intended
@@ -176,11 +178,14 @@ item 1.
    ```
    npx wrangler queues create data-foundry-usage-events-dlq
    npx wrangler queues create data-foundry-usage-events
+   npx wrangler queues update data-foundry-usage-events --message-retention-period-secs 1209600
    ```
    Both names must match `apps/edge/wrangler.toml`'s `[[queues.producers]]`
    block and `apps/usage-consumer/wrangler.toml`'s `[[queues.consumers]]`
    block exactly — they are already committed there, since a queue name is
-   not a credential.
+   not a credential. The 14-day retention update requires a paid/configurable
+   Workers plan; Workers Free is fixed at 24 hours and is not an eligible
+   production accounting topology.
 2. Provision `apps/usage-consumer`'s own Hyperdrive binding (or point it at
    the same Hyperdrive configuration `apps/edge` uses — both read and write
    the same database) following item 2's steps, then deploy both Workers:
@@ -193,9 +198,10 @@ item 1.
 
 A successful, authenticated `GET` against the edge Worker returns its answer
 immediately. Within a few seconds, `select count(*) from api_usage_events` on
-the production database increases by one, and the row's `route` column holds
-a template (`/v1/entities/{id}`) rather than the id that was actually
-requested. Killing the consumer Worker's database connectivity temporarily
+the production database increases by one, and the row's `route_key` column
+holds a registered key (`entities.detail`) rather than any path, query, slug,
+or entity id. Confirm `npx wrangler queues info data-foundry-usage-events`
+reports 1,209,600 seconds of retention. Killing the consumer Worker's database connectivity temporarily
 must not change the edge Worker's response time or status — that decoupling
 is the property this whole design exists for, and is exercised (against
 PGlite, not this queue) by `apps/edge/test/index.test.ts`'s "the response

@@ -1,11 +1,10 @@
 /**
  * `onRequest`: the one channel a metering caller may read.
  *
- * The property under test is not "the hook fires". It is that `routeTemplate`
- * is always one of a small set of constants — the matched pattern or a fixed
- * placeholder — and never anything built from the request itself. A caller
- * that persists it verbatim into a metering table is persisting a template by
- * construction, which is the property the rest of this increment relies on.
+ * The property under test is not "the hook fires". It is that `routeKey` is
+ * always one member of the closed accounting vocabulary and never anything
+ * built from the request itself. A caller that persists it verbatim therefore
+ * cannot persist a path, query string, or entity identifier by construction.
  *
  * `onRequest` is a per-call parameter, not a construction-time option: a
  * built app is shared across every request a deployment serves, and two of
@@ -35,47 +34,44 @@ function appAndEvents(): { app: ReturnType<typeof createApiApp>; events: ApiRequ
 }
 
 describe('onRequest telemetry', () => {
-  it('reports the matched route template for a successful request, not the request target', async () => {
+  it('reports the matched route key for a successful request, not the request target', async () => {
     const { app, events } = appAndEvents();
     await call(app, `/v1/entities/${fixtures.equipment.id}`, { onRequest: (info) => events.push(info) });
-    expect(events).toEqual([{ method: 'GET', routeTemplate: '/v1/entities/{id}', status: 200 }]);
+    expect(events).toEqual([{ method: 'GET', routeKey: 'entities.detail', status: 200 }]);
   });
 
-  it('reports the same template for a parameterised route regardless of the parameter value', async () => {
+  it('reports the same key for a parameterised route regardless of the parameter value', async () => {
     const { app, events } = appAndEvents();
     const onRequest = (info: ApiRequestTelemetry): number => events.push(info);
     await call(app, '/v1/entities/00000000-0000-4000-8000-000000000000', { onRequest }); // well-formed, no match
     await call(app, `/v1/entities/${fixtures.equipment.id}`, { onRequest }); // well-formed, matches
-    expect(events.map((event) => event.routeTemplate)).toEqual([
-      '/v1/entities/{id}',
-      '/v1/entities/{id}',
-    ]);
+    expect(events.map((event) => event.routeKey)).toEqual(['entities.detail', 'entities.detail']);
     // Neither event, nor anything serialisable from this suite, carries the id.
     for (const event of events) {
       expect(JSON.stringify(event)).not.toContain(fixtures.equipment.id);
     }
   });
 
-  it('reports a fixed placeholder, never the attempted path, when nothing matches', async () => {
+  it('reports unmatched, never the attempted path, when nothing matches', async () => {
     const { app, events } = appAndEvents();
     await call(app, '/v1/this-route-does-not-exist', { onRequest: (info) => events.push(info) });
-    expect(events).toEqual([{ method: 'GET', routeTemplate: '/{unmatched}', status: 404 }]);
+    expect(events).toEqual([{ method: 'GET', routeKey: 'unmatched', status: 404 }]);
     expect(JSON.stringify(events)).not.toContain('this-route-does-not-exist');
   });
 
-  it('reports a fixed placeholder for a disallowed method, before the target is parsed', async () => {
+  it('reports unmatched for a disallowed method, before the target is parsed', async () => {
     const { app, events } = appAndEvents();
     await call(app, '/v1/entities/anything-at-all', {
       method: 'POST',
       onRequest: (info) => events.push(info),
     });
-    expect(events).toEqual([{ method: 'POST', routeTemplate: '/{method-not-allowed}', status: 405 }]);
+    expect(events).toEqual([{ method: 'POST', routeKey: 'unmatched', status: 405 }]);
   });
 
-  it('reports a fixed placeholder for an unsupported version', async () => {
+  it('reports unmatched for an unsupported version', async () => {
     const { app, events } = appAndEvents();
     await call(app, '/v99/health', { onRequest: (info) => events.push(info) });
-    expect(events).toEqual([{ method: 'GET', routeTemplate: '/{unsupported-version}', status: 404 }]);
+    expect(events).toEqual([{ method: 'GET', routeKey: 'unmatched', status: 404 }]);
   });
 
   it('reports the root and contract documents by their own path', async () => {
@@ -83,7 +79,7 @@ describe('onRequest telemetry', () => {
     const onRequest = (info: ApiRequestTelemetry): number => events.push(info);
     await call(app, '/', { onRequest });
     await call(app, '/v1', { onRequest });
-    expect(events.map((event) => event.routeTemplate)).toEqual(['/', '/v1']);
+    expect(events.map((event) => event.routeKey)).toEqual(['service', 'contract']);
   });
 
   it('fires exactly once per request, on the error path too', async () => {
@@ -107,7 +103,7 @@ describe('onRequest telemetry', () => {
       call(app, `/v1/entities/${fixtures.equipment.id}`, { onRequest: (info) => callerA.push(info) }),
       call(app, '/v1/health', { onRequest: (info) => callerB.push(info) }),
     ]);
-    expect(callerA).toEqual([{ method: 'GET', routeTemplate: '/v1/entities/{id}', status: 200 }]);
-    expect(callerB).toEqual([{ method: 'GET', routeTemplate: '/v1/health', status: 200 }]);
+    expect(callerA).toEqual([{ method: 'GET', routeKey: 'entities.detail', status: 200 }]);
+    expect(callerB).toEqual([{ method: 'GET', routeKey: 'health', status: 200 }]);
   });
 });

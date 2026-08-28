@@ -10,6 +10,8 @@
  * with no database refuses to answer at all.
  */
 
+import type { KeyEnvironment } from '@data-foundry/api-keys';
+
 /** Cloudflare's Hyperdrive binding, narrowed to the one field we read. */
 export interface HyperdriveBinding {
   readonly connectionString: string;
@@ -36,6 +38,8 @@ export interface EdgeEnv {
   readonly POSTGRES_URL?: string;
   /** Which vertical this deployment serves. One vertical per Worker. */
   readonly VERTICAL_SLUG?: string;
+  /** Which credential namespace this deployment accepts. Never inferred. */
+  readonly API_KEY_ENVIRONMENT?: string;
   /**
    * Where a usage event goes after a request is served. Optional on purpose,
    * unlike the database: a Worker that cannot reach its own database has
@@ -57,6 +61,7 @@ export class EdgeConfigurationError extends Error {
 export interface ResolvedEdgeConfig {
   readonly connectionString: string;
   readonly verticalSlug: string;
+  readonly apiKeyEnvironment: KeyEnvironment;
 }
 
 /**
@@ -83,5 +88,13 @@ export function resolveEdgeConfig(env: EdgeEnv): ResolvedEdgeConfig {
     );
   }
 
-  return { connectionString, verticalSlug };
+  const apiKeyEnvironment = env.API_KEY_ENVIRONMENT ?? '';
+  if (apiKeyEnvironment !== 'live' && apiKeyEnvironment !== 'test') {
+    throw new EdgeConfigurationError(
+      'API_KEY_ENVIRONMENT must be set explicitly to "live" or "test". ' +
+        'A deployment must never infer which credential namespace it accepts.',
+    );
+  }
+
+  return { connectionString, verticalSlug, apiKeyEnvironment };
 }

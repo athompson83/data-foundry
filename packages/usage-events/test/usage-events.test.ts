@@ -7,14 +7,16 @@ import { buildUsageEvent, parseUsageEvent, type UsageEvent } from '../src/index.
 
 const TENANT_ID = '11111111-1111-4111-8111-111111111111';
 const KEY_ID = '22222222-2222-4222-8222-222222222222';
+const VERTICAL_ID = '33333333-3333-4333-8333-333333333333';
 
 const validInput = {
   tenantId: TENANT_ID,
   apiKeyId: KEY_ID,
-  routeTemplate: '/v1/entities/{id}',
+  verticalId: VERTICAL_ID,
+  routeKey: 'entities.detail',
   method: 'GET',
   status: 200,
-};
+} as const;
 
 /** Round-trip through JSON, the way a Queue message actually travels. */
 const overWire = (event: UsageEvent): unknown => JSON.parse(JSON.stringify(event)) as unknown;
@@ -58,7 +60,8 @@ describe('buildUsageEvent', () => {
         'tenant_id',
         'api_key_id',
         'occurred_at',
-        'route',
+        'vertical_id',
+        'route_key',
         'method',
         'status',
         'rows_served',
@@ -83,14 +86,25 @@ describe('parseUsageEvent', () => {
 
   it('rejects a missing required field', () => {
     const event = overWire(buildUsageEvent(validInput)) as Record<string, unknown>;
-    for (const field of ['id', 'tenant_id', 'api_key_id', 'occurred_at', 'route', 'method', 'status']) {
+    for (const field of [
+      'id',
+      'tenant_id',
+      'api_key_id',
+      'vertical_id',
+      'occurred_at',
+      'route_key',
+      'method',
+      'status',
+      'rows_served',
+      'duration_ms',
+    ]) {
       const { [field]: _omitted, ...rest } = event;
       expect(parseUsageEvent(rest), `missing ${field}`).toBeNull();
     }
   });
 
-  it('rejects an id, tenant_id or api_key_id that is not uuid-shaped', () => {
-    for (const field of ['id', 'tenant_id', 'api_key_id']) {
+  it('rejects an id, tenant_id, api_key_id or vertical_id that is not uuid-shaped', () => {
+    for (const field of ['id', 'tenant_id', 'api_key_id', 'vertical_id']) {
       const event = overWire(buildUsageEvent(validInput)) as Record<string, unknown>;
       event[field] = 'not-a-uuid';
       expect(parseUsageEvent(event), field).toBeNull();
@@ -103,16 +117,32 @@ describe('parseUsageEvent', () => {
     expect(parseUsageEvent(event)).toBeNull();
   });
 
-  it('rejects a route carrying a query string — the leak shape the database also refuses', () => {
+  it('rejects a parseable but noncanonical timestamp', () => {
     const event = overWire(buildUsageEvent(validInput)) as Record<string, unknown>;
-    event['route'] = '/v1/search?q=leak';
+    event['occurred_at'] = '2026-08-28 09:00:00-04';
     expect(parseUsageEvent(event)).toBeNull();
   });
 
-  it('rejects a route carrying an interpolated uuid — a request target, not a template', () => {
+  it('rejects a route key carrying a query string or path-shaped data', () => {
     const event = overWire(buildUsageEvent(validInput)) as Record<string, unknown>;
-    event['route'] = `/v1/entities/${TENANT_ID}`;
+    event['route_key'] = '/v1/search?q=leak';
     expect(parseUsageEvent(event)).toBeNull();
+    event['route_key'] = `entities.${TENANT_ID}`;
+    expect(parseUsageEvent(event)).toBeNull();
+  });
+
+  it('rejects unknown fields so a raw target or credential cannot hitchhike through the event', () => {
+    for (const [field, value] of [
+      ['path', `/v1/entities/${TENANT_ID}`],
+      ['query', 'q=secret'],
+      ['entity_id', TENANT_ID],
+      ['authorization', 'Bearer df_live_secret'],
+      ['response_body', '{"private":true}'],
+    ] as const) {
+      const event = overWire(buildUsageEvent(validInput)) as Record<string, unknown>;
+      event[field] = value;
+      expect(parseUsageEvent(event), field).toBeNull();
+    }
   });
 
   it('rejects a method this API never serves', () => {
@@ -137,9 +167,19 @@ describe('parseUsageEvent', () => {
     expect(parseUsageEvent(event)).toBeNull();
   });
 
-  it('rejects a negative duration_ms but accepts null', () => {
+  it('rejects counters that overflow PostgreSQL INTEGER', () => {
+    for (const field of ['rows_served', 'duration_ms']) {
+      const event = overWire(buildUsageEvent(validInput)) as Record<string, unknown>;
+      event[field] = 2_147_483_648;
+      expect(parseUsageEvent(event), field).toBeNull();
+    }
+  });
+
+  it('rejects a negative or fractional duration_ms but accepts null', () => {
     const event = overWire(buildUsageEvent({ ...validInput, durationMs: 5 })) as Record<string, unknown>;
     event['duration_ms'] = -1;
+    expect(parseUsageEvent(event)).toBeNull();
+    event['duration_ms'] = 1.5;
     expect(parseUsageEvent(event)).toBeNull();
     event['duration_ms'] = null;
     expect(parseUsageEvent(event)).not.toBeNull();

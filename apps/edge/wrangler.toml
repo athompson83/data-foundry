@@ -21,6 +21,9 @@ enabled = true
 # One vertical per deployment. The bundle carries the compiled runtimes by slug
 # (see src/index.ts RUNTIMES); this selects which one this Worker serves.
 VERTICAL_SLUG = "hvac"
+# Credential namespaces are enforced, not labels. Production accepts only
+# df_live_* keys; local/test deployments must override this to "test".
+API_KEY_ENVIRONMENT = "live"
 
 # Hyperdrive pools Postgres connections at the edge, which is what makes a
 # database-backed Worker viable at all. Create one with:
