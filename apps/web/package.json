@@ -23,5 +23,8 @@
     "@data-foundry/canonical-store": "workspace:*",
     "@data-foundry/query-model": "workspace:*",
     "pg": "^8.23.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
   }
 }
