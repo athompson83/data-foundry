@@ -1,11 +1,21 @@
-/** OpenAPI 3.1 projection of the same ROUTES table the REST dispatcher uses. */
+/** OpenAPI 3.1 projection of live routes, vertical fields, and runtime wire schemas. */
+import {
+  FieldMetadataSchema,
+  runtimeSchema as z,
+  type FieldMetadata,
+} from '@data-foundry/query-model';
 import { PAGE_BOUNDS } from './pagination.js';
 import { READ_METHODS, ROUTES, type Route } from './routes.js';
-import { OPENAPI_SCHEMAS } from './openapi-schema.js';
+import { WIRE_COMPONENT_SCHEMAS } from './wire.js';
 
 type JsonObject = Readonly<Record<string, unknown>>;
 
-const SECURITY = [{ DataFoundryBearer: [] }, { RapidApiProxySecret: [] }] as const;
+export interface OpenApiVerticalMetadata {
+  readonly slug: string;
+  readonly fields: readonly unknown[];
+}
+
+const SECURITY = [{ DataFoundryBearer: [] }] as const;
 
 const QUERY_PARAMETER_SCHEMA: Readonly<Record<string, JsonObject>> = {
   q: { type: 'string', description: 'Text or exact identifier search.' },
@@ -28,12 +38,9 @@ const QUERY_PARAMETER_SCHEMA: Readonly<Record<string, JsonObject>> = {
     description: 'Comma-separated canonical entity UUIDs. Between 2 and 8 distinct entities after redirects.',
   },
   properties: { type: 'string', description: 'Comma-separated vertical-defined fact properties.' },
-  'filter.{field}': {
-    type: 'string',
-    description:
-      'Repeatable dotted filter parameter, such as filter.tonnage.min=3 or filter.refrigerant=R-454B,R-410A.',
-  },
 };
+
+const NUMERIC_VALUE_TYPES = new Set(['number', 'integer', 'quantity']);
 
 function splitDocumentedPath(path: string): { readonly pathname: string; readonly queryNames: string[] } {
   const [pathname = path, query = ''] = path.split('?', 2);
@@ -46,7 +53,51 @@ function splitDocumentedPath(path: string): { readonly pathname: string; readonl
   return { pathname, queryNames };
 }
 
-function parametersFor(route: Route): readonly JsonObject[] {
+function verticalFilterParameters(fields: readonly FieldMetadata[]): readonly JsonObject[] {
+  const parameters: JsonObject[] = [];
+  for (const field of fields) {
+    if (field.filter === null || field.filter.type === 'none') continue;
+    const name = `filter.${field.field}`;
+    parameters.push({
+      name,
+      in: 'query',
+      required: false,
+      schema: { type: 'string' },
+      description:
+        `Comma-separated exact values for ${field.field}` +
+        (field.unit === null ? '.' : ` (${field.unit}).`),
+    });
+    if (NUMERIC_VALUE_TYPES.has(field.value_type)) {
+      parameters.push(
+        {
+          name: `${name}.min`,
+          in: 'query',
+          required: false,
+          schema: { type: 'number' },
+          description: `Inclusive minimum for ${field.field}.`,
+        },
+        {
+          name: `${name}.max`,
+          in: 'query',
+          required: false,
+          schema: { type: 'number' },
+          description: `Inclusive maximum for ${field.field}.`,
+        },
+      );
+    }
+    parameters.push({
+      name: `${name}.exists`,
+      in: 'query',
+      required: false,
+      allowEmptyValue: true,
+      schema: { type: 'string', enum: ['true', '1'] },
+      description: `Require an authorized current ${field.field} fact; false/0 are not supported.`,
+    });
+  }
+  return parameters;
+}
+
+function parametersFor(route: Route, fields: readonly FieldMetadata[]): readonly JsonObject[] {
   const { pathname, queryNames } = splitDocumentedPath(route.path);
   const parameters: JsonObject[] = [];
   for (const match of pathname.matchAll(/\{([^}]+)\}/g)) {
@@ -61,6 +112,10 @@ function parametersFor(route: Route): readonly JsonObject[] {
   }
   const required = new Set(route.openapi.requiredQueryParameters ?? []);
   for (const name of queryNames) {
+    if (name === 'filter.{field}') {
+      parameters.push(...verticalFilterParameters(fields));
+      continue;
+    }
     parameters.push({
       name,
       in: 'query',
@@ -94,17 +149,19 @@ function responsesFor(route: Route, method: 'GET' | 'HEAD'): JsonObject {
           },
         },
       };
-  const redirect = method === 'HEAD'
-    ? { description: 'The canonical entity moved. Follow the Location header.' }
-    : {
-        description: 'The canonical entity moved. Follow the Location header.',
-        headers: {
-          Location: { schema: { type: 'string' }, description: 'Canonical resource path.' },
-        },
-        content: {
-          'application/json': { schema: { $ref: '#/components/schemas/RedirectResponse' } },
-        },
-      };
+  const redirect = {
+    description: 'The canonical entity moved. Follow the Location header.',
+    headers: {
+      Location: { schema: { type: 'string' }, description: 'Canonical resource path.' },
+    },
+    ...(method === 'HEAD'
+      ? {}
+      : {
+          content: {
+            'application/json': { schema: { $ref: '#/components/schemas/RedirectResponse' } },
+          },
+        }),
+  };
   return {
     '200': success,
     ...(route.openapi.mayRedirect === true ? { '301': redirect } : {}),
@@ -119,20 +176,41 @@ function responsesFor(route: Route, method: 'GET' | 'HEAD'): JsonObject {
   };
 }
 
-function operationFor(route: Route, method: 'GET' | 'HEAD'): JsonObject {
+function operationFor(
+  route: Route,
+  method: 'GET' | 'HEAD',
+  fields: readonly FieldMetadata[],
+): JsonObject {
   return {
     operationId: method === 'GET' ? route.openapi.operationId : `${route.openapi.operationId}Head`,
     summary: route.summary,
     ...(route.caveat === undefined ? {} : { description: route.caveat }),
     tags: [route.routeKey.split('.')[0] ?? 'api'],
-    parameters: parametersFor(route),
+    parameters: parametersFor(route, fields),
     security: SECURITY,
     responses: responsesFor(route, method),
     'x-data-foundry-route-key': route.routeKey,
   };
 }
 
-export function buildOpenApiDocument(): JsonObject {
+function generatedComponentSchemas(): Readonly<Record<string, JsonObject>> {
+  return Object.fromEntries(
+    Object.entries(WIRE_COMPONENT_SCHEMAS).map(([name, schema]) => {
+      const generated = z.toJSONSchema(schema, {
+        target: 'draft-2020-12',
+        reused: 'inline',
+        unrepresentable: 'any',
+      }) as Record<string, unknown>;
+      delete generated['$schema'];
+      return [name, generated];
+    }),
+  );
+}
+
+export function buildOpenApiDocument(vertical: OpenApiVerticalMetadata): JsonObject {
+  const slug = vertical.slug.trim();
+  if (slug === '') throw new Error('OpenAPI vertical slug must not be blank.');
+  const fields = vertical.fields.map((field) => FieldMetadataSchema.parse(field));
   const paths: Record<string, Record<string, JsonObject>> = {};
   const operationIds = new Set<string>();
   for (const route of ROUTES) {
@@ -142,7 +220,7 @@ export function buildOpenApiDocument(): JsonObject {
     if (paths[pathname] !== undefined) throw new Error(`duplicate documented API path: ${pathname}`);
     const operations: Record<string, JsonObject> = {};
     for (const method of READ_METHODS) {
-      const operation = operationFor(route, method);
+      const operation = operationFor(route, method, fields);
       const operationId = operation['operationId'];
       if (typeof operationId !== 'string' || operationIds.has(operationId)) {
         throw new Error(`duplicate OpenAPI operationId: ${String(operationId)}`);
@@ -172,15 +250,9 @@ export function buildOpenApiDocument(): JsonObject {
           bearerFormat: 'Data Foundry API key',
           description: 'Direct API requests use a tenant/vertical-scoped Data Foundry bearer key.',
         },
-        RapidApiProxySecret: {
-          type: 'apiKey',
-          in: 'header',
-          name: 'X-RapidAPI-Proxy-Secret',
-          description:
-            'Marketplace-origin verification configured between RapidAPI and Data Foundry. This is not a customer credential.',
-        },
       },
-      schemas: OPENAPI_SCHEMAS,
+      schemas: generatedComponentSchemas(),
     },
+    'x-data-foundry-vertical': slug,
   };
 }

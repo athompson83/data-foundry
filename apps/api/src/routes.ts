@@ -32,7 +32,7 @@ import {
   ERROR_STATUS,
   type ApiErrorCode,
 } from './errors.js';
-import { jsonResponse, type ApiResponse } from './http.js';
+import type { ApiResponse } from './http.js';
 import {
   PAGE_BOUNDS,
   pageMeta,
@@ -61,10 +61,11 @@ import {
   redirectTraceWire,
   relationshipEdgeWire,
   searchHitWire,
+  wireJsonResponse,
+  type OpenApiResponseSchemaName,
 } from './wire.js';
 import type { EntityId, Identifier } from '@data-foundry/canonical-schema';
 import type { EntityView, FacetFilter } from '@data-foundry/query-model';
-import type { OpenApiResponseSchemaName } from './openapi-schema.js';
 
 /**
  * The contract versions this deployment serves.
@@ -201,7 +202,8 @@ function redirectResponse(
 ): ApiResponse {
   const trace = view.redirected_from;
   if (trace === null) throw new ApiError('INTERNAL_ERROR', 'redirect without a trace');
-  return jsonResponse(
+  return wireJsonResponse(
+    'RedirectResponse',
     301,
     {
       redirect: {
@@ -247,7 +249,8 @@ const health: Route['handler'] = async (context) => {
   } catch {
     throw new ApiError('SERVICE_UNAVAILABLE', 'The canonical query layer is not reachable.');
   }
-  return jsonResponse(
+  return wireJsonResponse(
+    'HealthResponse',
     200,
     {
       status: 'ok',
@@ -263,7 +266,12 @@ const health: Route['handler'] = async (context) => {
 const getEntity: Route['handler'] = async (context, match) => {
   const resolved = await resolveEntity(context, param(match, 'id'), '');
   if ('redirect' in resolved) return resolved.redirect;
-  return jsonResponse(200, { data: entityViewWire(resolved.view) }, context.version);
+  return wireJsonResponse(
+    'EntityResponse',
+    200,
+    { data: entityViewWire(resolved.view) },
+    context.version,
+  );
 };
 
 const getEntityBySlug: Route['handler'] = async (context, match) => {
@@ -278,7 +286,7 @@ const getEntityBySlug: Route['handler'] = async (context, match) => {
   if (view.redirected_from !== null) {
     return redirectResponse(context, view, `/${context.version}/entities/${view.entity.id}`);
   }
-  return jsonResponse(200, { data: entityViewWire(view) }, context.version);
+  return wireJsonResponse('EntityResponse', 200, { data: entityViewWire(view) }, context.version);
 };
 
 const listFacts: Route['handler'] = async (context, match) => {
@@ -299,7 +307,8 @@ const listFacts: Route['handler'] = async (context, match) => {
   const facts = published.map((view) => factWire(view, context.reviewers));
   const page = paginate(facts, parsePageRequest(match.query));
 
-  return jsonResponse(
+  return wireJsonResponse(
+    'FactPageResponse',
     200,
     { entityId: resolved.view.entity.id, ...page },
     context.version,
@@ -323,7 +332,8 @@ const listRelationships: Route['handler'] = async (context, match) => {
   });
 
   const page = paginate(traversal.edges.map(relationshipEdgeWire), parsePageRequest(match.query));
-  return jsonResponse(
+  return wireJsonResponse(
+    'RelationshipPageResponse',
     200,
     {
       entityId: resolved.view.entity.id,
@@ -366,7 +376,8 @@ const search: Route['handler'] = async (context, match) => {
     include_facets: includeFacets,
   });
 
-  return jsonResponse(
+  return wireJsonResponse(
+    'SearchResponse',
     200,
     {
       data: result.hits.map(searchHitWire),
@@ -435,7 +446,8 @@ const compare: Route['handler'] = async (context, match) => {
     policy: requestPolicy(context, match.query),
   });
 
-  return jsonResponse(
+  return wireJsonResponse(
+    'CompareResponse',
     200,
     { data: comparisonWire(comparison), redirects },
     context.version,

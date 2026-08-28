@@ -72,8 +72,7 @@ export {
   type RouteMatch,
 } from './routes.js';
 
-export { buildOpenApiDocument } from './openapi.js';
-export { OPENAPI_SCHEMAS, type OpenApiResponseSchemaName } from './openapi-schema.js';
+export { buildOpenApiDocument, type OpenApiVerticalMetadata } from './openapi.js';
 
 export {
   comparisonWire,
@@ -84,6 +83,11 @@ export {
   redirectTraceWire,
   relationshipEdgeWire,
   searchHitWire,
+  parseWireResponse,
+  wireJsonResponse,
+  WIRE_COMPONENT_SCHEMAS,
+  type OpenApiResponseSchemaName,
+  type WireComponentSchemaName,
   type ComparisonWire,
   type EntityWire,
   type FacetWire,

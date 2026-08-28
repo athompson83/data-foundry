@@ -126,3 +126,8 @@ export {
   type SurfaceQueryModel,
 } from './surface-access.js';
 export { RIGHTS_SURFACES, type RightsSurface } from '@data-foundry/rights-engine';
+
+export {
+  runtimeSchema,
+  type RuntimeSchemaOutput,
+} from './runtime-schema.js';

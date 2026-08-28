@@ -2,6 +2,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildOpenApiDocument } from '../../apps/api/src/openapi.js';
+import { BUNDLED_VERTICALS, RUNTIMES } from '../../apps/edge/generated/runtime-registry.js';
 import { isMain } from '../lib/cli-entry.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -13,7 +14,16 @@ export interface GenerateOpenApiOptions {
 }
 
 export function serializeOpenApi(): string {
-  return `${JSON.stringify(buildOpenApiDocument(), null, 2)}\n`;
+  const [slug] = BUNDLED_VERTICALS;
+  if (slug === undefined) throw new Error('At least one bundled vertical is required for OpenAPI generation.');
+  if (BUNDLED_VERTICALS.length !== 1) {
+    throw new Error(
+      'The canonical OpenAPI artifact is vertical-specific; select one output per bundled vertical before bundling more than one.',
+    );
+  }
+  const runtime = RUNTIMES[slug];
+  if (runtime === undefined) throw new Error(`Missing compiled runtime for OpenAPI vertical "${slug}".`);
+  return `${JSON.stringify(buildOpenApiDocument({ slug, fields: runtime.fields }), null, 2)}\n`;
 }
 
 async function readIfPresent(path: string): Promise<string | null> {

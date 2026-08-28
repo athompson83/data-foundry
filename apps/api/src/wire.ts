@@ -1,24 +1,14 @@
 /**
- * Internal snake_case → wire camelCase.
+ * Internal snake_case -> validated REST wire contract.
  *
- * **Facts do not have a serializer here.** `factWire` calls `toRestFact` from
- * `@data-foundry/query-model` and adds nothing. ADR-0004 is explicit about why:
- * "Every REST, MCP, search-index and bulk-export handler MUST produce its wire
- * objects through the shared serializer... No surface may construct a fact wire
- * object independently." A second fact mapper here is how `editoriallyCorrected`
- * ends up on the MCP payload and not on the REST one, and nobody notices for a
- * quarter. `test/boundary.test.ts` asserts mechanically that this file is the
- * only one that touches fact wire shapes and that it only does so through the
- * shared mapper — the enforcement ADR-0004 deferred until a surface existed.
+ * The Zod objects in this file are the runtime boundary used by route
+ * serialization and the source projected into OpenAPI. A handler therefore
+ * cannot emit one shape while the generated contract advertises another.
  *
- * The other shapes (entities, redirects, edges, comparisons) have no shared
- * mapper yet because no second surface consumes them. When `apps/mcp` lands,
- * the mappers move down into query-model rather than being copied sideways.
+ * Facts still have exactly one mapper: `toRestFact` in the canonical query
+ * layer. This package validates that mapper's result and adds no fields.
  */
-import type {
-  Entity,
-  EntityRedirect,
-} from '@data-foundry/canonical-schema';
+import type { Entity, EntityRedirect } from '@data-foundry/canonical-schema';
 import {
   assertNoReviewerIdentity,
   toRestFact,
@@ -31,25 +21,277 @@ import {
   type RedirectTrace,
   type RelationshipEdge,
   type RestFact,
+  runtimeSchema as z,
+  type RuntimeSchemaOutput,
   type SearchHit,
 } from '@data-foundry/query-model';
+import { jsonResponse, type ApiResponse } from './http.js';
+import { PAGE_BOUNDS } from './pagination.js';
 
-export interface EntityWire {
-  readonly id: string;
-  readonly verticalId: string;
-  readonly entityType: string;
-  readonly canonicalName: string;
-  readonly canonicalSlug: string;
-  readonly status: string;
-  readonly qualityScore: number;
-  readonly firstSeenAt: string;
-  readonly lastVerifiedAt: string | null;
-  readonly createdAt: string;
-  readonly updatedAt: string;
+const uuid = z.uuid();
+const instant = z.iso.datetime({ offset: true });
+const nullableString = z.string().nullable();
+
+export const EntityWireSchema = z.strictObject({
+  id: uuid,
+  verticalId: uuid,
+  entityType: z.string(),
+  canonicalName: z.string(),
+  canonicalSlug: z.string(),
+  status: z.string(),
+  qualityScore: z.number().min(0).max(1),
+  firstSeenAt: instant,
+  lastVerifiedAt: instant.nullable(),
+  createdAt: instant,
+  updatedAt: instant,
+});
+export type EntityWire = RuntimeSchemaOutput<typeof EntityWireSchema>;
+
+export const RedirectHopWireSchema = z.strictObject({
+  fromEntityId: uuid,
+  toEntityId: uuid,
+  fromSlug: nullableString,
+  reason: z.string(),
+  createdAt: instant,
+});
+export type RedirectHopWire = RuntimeSchemaOutput<typeof RedirectHopWireSchema>;
+
+export const RedirectTraceWireSchema = z.strictObject({
+  fromEntityId: uuid.nullable(),
+  fromSlug: nullableString,
+  reason: nullableString,
+  hops: z.array(RedirectHopWireSchema),
+});
+export type RedirectTraceWire = RuntimeSchemaOutput<typeof RedirectTraceWireSchema>;
+
+export const FactWireSchema = z.strictObject({
+  property: z.string(),
+  value: z.any(),
+  valueType: nullableString,
+  unit: nullableString,
+  confidence: z.number().min(0).max(1).nullable(),
+  factId: uuid.nullable(),
+  rule: z.string(),
+  reason: z.string(),
+  sources: z.array(z.string()),
+  unresolvedConflict: z.boolean(),
+  editoriallyCorrected: z.boolean(),
+  editorialCorrectionReason: nullableString,
+  selectionWarnings: z.array(z.string()),
+  verified: z.boolean().optional(),
+});
+
+export const SearchHitWireSchema = z.strictObject({
+  entity: EntityWireSchema,
+  matchKind: z.string(),
+  score: z.number(),
+  textRank: z.number(),
+  exact: z.boolean(),
+  matchedOn: nullableString,
+  explain: z.string(),
+});
+export type SearchHitWire = RuntimeSchemaOutput<typeof SearchHitWireSchema>;
+
+const FacetValueWireSchema = z.strictObject({
+  value: z.string(),
+  count: z.number().int().min(0),
+});
+const FacetRangeWireSchema = z.strictObject({ min: z.number(), max: z.number() });
+export const FacetWireSchema = z.strictObject({
+  property: z.string(),
+  label: z.string(),
+  control: z.string(),
+  valueType: z.string(),
+  unit: nullableString,
+  values: z.array(FacetValueWireSchema),
+  range: FacetRangeWireSchema.nullable(),
+  entityCount: z.number().int().min(0),
+});
+export type FacetWire = RuntimeSchemaOutput<typeof FacetWireSchema>;
+
+export const RelationshipEdgeWireSchema = z.strictObject({
+  relationshipId: uuid,
+  predicate: z.string(),
+  direction: z.enum(['out', 'in']),
+  fromEntityId: uuid,
+  neighbor: EntityWireSchema,
+  depth: z.number().int().min(1).max(4),
+  evidenceCount: z.number().int().min(0),
+  confidence: z.number().min(0).max(1),
+  validFrom: instant,
+  validTo: instant.nullable(),
+});
+export type RelationshipEdgeWire = RuntimeSchemaOutput<typeof RelationshipEdgeWireSchema>;
+
+export const ComparisonCellWireSchema = z.strictObject({
+  entityId: uuid,
+  present: z.boolean(),
+  value: z.any(),
+  valueType: nullableString,
+  unit: nullableString,
+  rule: nullableString,
+  sources: z.array(z.string()),
+  unresolvedConflict: z.boolean(),
+});
+export type ComparisonCellWire = RuntimeSchemaOutput<typeof ComparisonCellWireSchema>;
+
+export const ComparisonRowWireSchema = z.strictObject({
+  property: z.string(),
+  label: z.string(),
+  unit: nullableString,
+  differs: z.boolean(),
+  cells: z.array(ComparisonCellWireSchema),
+});
+export type ComparisonRowWire = RuntimeSchemaOutput<typeof ComparisonRowWireSchema>;
+
+export const ComparisonWireSchema = z.strictObject({
+  entities: z.array(EntityWireSchema).min(2).max(8),
+  rows: z.array(ComparisonRowWireSchema),
+  propertiesCompared: z.number().int().min(0),
+  propertiesDiffering: z.number().int().min(0),
+});
+export type ComparisonWire = RuntimeSchemaOutput<typeof ComparisonWireSchema>;
+
+export const EntityViewWireSchema = z.strictObject({
+  entity: EntityWireSchema,
+  redirectedFrom: RedirectTraceWireSchema.nullable(),
+});
+
+export const PageMetaWireSchema = z.strictObject({
+  limit: z.number().int().min(PAGE_BOUNDS.minLimit).max(PAGE_BOUNDS.maxLimit),
+  offset: z.number().int().min(0).max(PAGE_BOUNDS.maxOffset),
+  total: z.number().int().min(0),
+  hasMore: z.boolean(),
+});
+
+export const RedirectResponseSchema = z.strictObject({
+  redirect: z.strictObject({
+    status: z.literal(301),
+    location: z.string(),
+    canonicalEntityId: uuid,
+    redirectedFrom: RedirectTraceWireSchema,
+  }),
+});
+
+export const ApiErrorEnvelopeSchema = z.strictObject({
+  error: z.strictObject({
+    code: z.string(),
+    status: z.number().int().min(400).max(599),
+    message: z.string(),
+    details: z.record(z.string(), z.unknown()).optional(),
+    requestId: z.string().max(64).optional(),
+  }),
+});
+
+export const OpaqueEdgeErrorEnvelopeSchema = z.strictObject({
+  error: z.strictObject({
+    code: z.enum(['UNAUTHORIZED', 'FORBIDDEN', 'SERVICE_UNAVAILABLE']),
+    message: z.string(),
+  }),
+});
+
+export const HealthResponseSchema = z.strictObject({
+  status: z.literal('ok'),
+  version: z.literal('v1'),
+  verticalId: uuid,
+  declaredFields: z.number().int().min(0),
+  checks: z.strictObject({ queryLayer: z.literal('ok') }),
+});
+
+export const EntityResponseSchema = z.strictObject({ data: EntityViewWireSchema });
+
+export const FactPageResponseSchema = z.strictObject({
+  entityId: uuid,
+  data: z.array(FactWireSchema),
+  page: PageMetaWireSchema,
+});
+
+export const RelationshipPageResponseSchema = z.strictObject({
+  entityId: uuid,
+  traversal: z.strictObject({
+    depth: z.number().int().min(1).max(4),
+    direction: z.enum(['out', 'in', 'both']),
+    edgeBound: z.number().int().min(1),
+    boundReached: z.boolean(),
+    unevidencedEdgeCount: z.number().int().min(0),
+  }),
+  data: z.array(RelationshipEdgeWireSchema),
+  page: PageMetaWireSchema,
+});
+
+export const SearchResponseSchema = z.strictObject({
+  data: z.array(SearchHitWireSchema),
+  page: PageMetaWireSchema,
+  match: z.strictObject({
+    exactShortCircuit: z.boolean(),
+    exactCount: z.number().int().min(0),
+  }),
+  strategy: z.strictObject({
+    exactFirst: z.boolean(),
+    fullText: z.boolean(),
+    trigram: z.boolean(),
+    vector: z.boolean(),
+  }),
+  facets: z.array(FacetWireSchema),
+});
+
+export const CompareResponseSchema = z.strictObject({
+  data: ComparisonWireSchema,
+  redirects: z.array(z.strictObject({ requestedId: uuid, canonicalEntityId: uuid })),
+});
+
+/** Every component emitted into OpenAPI, all executable at the REST boundary. */
+export const WIRE_COMPONENT_SCHEMAS = {
+  ApiErrorEnvelope: ApiErrorEnvelopeSchema,
+  OpaqueEdgeErrorEnvelope: OpaqueEdgeErrorEnvelopeSchema,
+  PageMeta: PageMetaWireSchema,
+  Entity: EntityWireSchema,
+  RedirectHop: RedirectHopWireSchema,
+  RedirectTrace: RedirectTraceWireSchema,
+  RedirectResponse: RedirectResponseSchema,
+  EntityView: EntityViewWireSchema,
+  Fact: FactWireSchema,
+  RelationshipEdge: RelationshipEdgeWireSchema,
+  SearchHit: SearchHitWireSchema,
+  Facet: FacetWireSchema,
+  Comparison: ComparisonWireSchema,
+  HealthResponse: HealthResponseSchema,
+  EntityResponse: EntityResponseSchema,
+  FactPageResponse: FactPageResponseSchema,
+  RelationshipPageResponse: RelationshipPageResponseSchema,
+  SearchResponse: SearchResponseSchema,
+  CompareResponse: CompareResponseSchema,
+} as const;
+
+export const OPENAPI_RESPONSE_SCHEMA_NAMES = [
+  'HealthResponse',
+  'EntityResponse',
+  'FactPageResponse',
+  'RelationshipPageResponse',
+  'SearchResponse',
+  'CompareResponse',
+] as const;
+export type OpenApiResponseSchemaName = (typeof OPENAPI_RESPONSE_SCHEMA_NAMES)[number];
+export type WireComponentSchemaName = keyof typeof WIRE_COMPONENT_SCHEMAS;
+
+/** Runtime parser shared by route serialization and contract-level tests. */
+export function parseWireResponse(name: WireComponentSchemaName, value: unknown): unknown {
+  return WIRE_COMPONENT_SCHEMAS[name].parse(value);
+}
+
+/** Serialize only after the named runtime response contract accepts the body. */
+export function wireJsonResponse(
+  schema: OpenApiResponseSchemaName | 'RedirectResponse',
+  status: number,
+  body: unknown,
+  version: string,
+  extraHeaders: Readonly<Record<string, string>> = {},
+): ApiResponse {
+  return jsonResponse(status, parseWireResponse(schema, body), version, extraHeaders);
 }
 
 export function entityWire(entity: Entity): EntityWire {
-  return {
+  return EntityWireSchema.parse({
     id: entity.id,
     verticalId: entity.vertical_id,
     entityType: entity.entity_type,
@@ -61,25 +303,10 @@ export function entityWire(entity: Entity): EntityWire {
     lastVerifiedAt: entity.last_verified_at,
     createdAt: entity.created_at,
     updatedAt: entity.updated_at,
-  };
+  });
 }
 
-export interface RedirectHopWire {
-  readonly fromEntityId: string;
-  readonly toEntityId: string;
-  readonly fromSlug: string | null;
-  readonly reason: string;
-  readonly createdAt: string;
-}
-
-export interface RedirectTraceWire {
-  readonly fromEntityId: string | null;
-  readonly fromSlug: string | null;
-  readonly reason: string | null;
-  readonly hops: readonly RedirectHopWire[];
-}
-
-const hopWire = (hop: EntityRedirect): RedirectHopWire => ({
+const hopWire = (hop: EntityRedirect): RedirectHopWire => RedirectHopWireSchema.parse({
   fromEntityId: hop.from_entity_id,
   toEntityId: hop.to_entity_id,
   fromSlug: hop.from_slug,
@@ -88,43 +315,24 @@ const hopWire = (hop: EntityRedirect): RedirectHopWire => ({
 });
 
 export function redirectTraceWire(trace: RedirectTrace): RedirectTraceWire {
-  return {
+  return RedirectTraceWireSchema.parse({
     fromEntityId: trace.from_entity_id,
     fromSlug: trace.from_slug,
     reason: trace.reason,
     hops: trace.hops.map(hopWire),
-  };
+  });
 }
 
-/**
- * The one fact projection. `reviewers` comes from the deployment's compiled
- * fact-selection policy — the only place a reviewer identity is declared — and
- * every fact leaving this surface is checked against it.
- *
- * The query layer already refuses a reviewer-naming reason inside
- * `canonicalFacts`. This is the second gate that `serialization.ts` describes
- * as guarding "the boundary for surfaces that assemble a payload from anywhere
- * else": a fact view reaching this function from a cache, a fixture or a future
- * batch path never passed through that first gate.
- */
+/** The shared query-layer fact mapper, followed only by validation/privacy gates. */
 export function factWire(view: CanonicalFactView, reviewers: readonly string[]): RestFact {
   const wire = toRestFact(view);
+  FactWireSchema.parse(wire);
   assertNoReviewerIdentity(wire, reviewers);
   return wire;
 }
 
-export interface SearchHitWire {
-  readonly entity: EntityWire;
-  readonly matchKind: string;
-  readonly score: number;
-  readonly textRank: number;
-  readonly exact: boolean;
-  readonly matchedOn: string | null;
-  readonly explain: string;
-}
-
 export function searchHitWire(hit: SearchHit): SearchHitWire {
-  return {
+  return SearchHitWireSchema.parse({
     entity: entityWire(hit.entity),
     matchKind: hit.match_kind,
     score: hit.score,
@@ -132,22 +340,11 @@ export function searchHitWire(hit: SearchHit): SearchHitWire {
     exact: hit.exact,
     matchedOn: hit.matched_on,
     explain: hit.explain,
-  };
-}
-
-export interface FacetWire {
-  readonly property: string;
-  readonly label: string;
-  readonly control: string;
-  readonly valueType: string;
-  readonly unit: string | null;
-  readonly values: readonly { readonly value: string; readonly count: number }[];
-  readonly range: { readonly min: number; readonly max: number } | null;
-  readonly entityCount: number;
+  });
 }
 
 export function facetWire(facet: FacetResult): FacetWire {
-  return {
+  return FacetWireSchema.parse({
     property: facet.property,
     label: facet.label,
     control: facet.control,
@@ -156,24 +353,11 @@ export function facetWire(facet: FacetResult): FacetWire {
     values: facet.values.map((value) => ({ value: value.value, count: value.count })),
     range: facet.range,
     entityCount: facet.entity_count,
-  };
-}
-
-export interface RelationshipEdgeWire {
-  readonly relationshipId: string;
-  readonly predicate: string;
-  readonly direction: 'out' | 'in';
-  readonly fromEntityId: string;
-  readonly neighbor: EntityWire;
-  readonly depth: number;
-  readonly evidenceCount: number;
-  readonly confidence: number;
-  readonly validFrom: string;
-  readonly validTo: string | null;
+  });
 }
 
 export function relationshipEdgeWire(edge: RelationshipEdge): RelationshipEdgeWire {
-  return {
+  return RelationshipEdgeWireSchema.parse({
     relationshipId: edge.relationship.id,
     predicate: edge.relationship.predicate,
     direction: edge.direction,
@@ -184,36 +368,10 @@ export function relationshipEdgeWire(edge: RelationshipEdge): RelationshipEdgeWi
     confidence: edge.relationship.confidence,
     validFrom: edge.relationship.valid_from,
     validTo: edge.relationship.valid_to,
-  };
+  });
 }
 
-export interface ComparisonCellWire {
-  readonly entityId: string;
-  readonly present: boolean;
-  readonly value: unknown;
-  readonly valueType: string | null;
-  readonly unit: string | null;
-  readonly rule: string | null;
-  readonly sources: readonly string[];
-  readonly unresolvedConflict: boolean;
-}
-
-export interface ComparisonRowWire {
-  readonly property: string;
-  readonly label: string;
-  readonly unit: string | null;
-  readonly differs: boolean;
-  readonly cells: readonly ComparisonCellWire[];
-}
-
-export interface ComparisonWire {
-  readonly entities: readonly EntityWire[];
-  readonly rows: readonly ComparisonRowWire[];
-  readonly propertiesCompared: number;
-  readonly propertiesDiffering: number;
-}
-
-const cellWire = (cell: ComparisonCell): ComparisonCellWire => ({
+const cellWire = (cell: ComparisonCell): ComparisonCellWire => ComparisonCellWireSchema.parse({
   entityId: cell.entity_id,
   present: cell.present,
   value: cell.value,
@@ -224,7 +382,7 @@ const cellWire = (cell: ComparisonCell): ComparisonCellWire => ({
   unresolvedConflict: cell.unresolved_conflict,
 });
 
-const rowWire = (row: ComparisonRow): ComparisonRowWire => ({
+const rowWire = (row: ComparisonRow): ComparisonRowWire => ComparisonRowWireSchema.parse({
   property: row.property,
   label: row.label,
   unit: row.unit,
@@ -233,20 +391,17 @@ const rowWire = (row: ComparisonRow): ComparisonRowWire => ({
 });
 
 export function comparisonWire(comparison: EntityComparison): ComparisonWire {
-  return {
+  return ComparisonWireSchema.parse({
     entities: comparison.entities.map(entityWire),
     rows: comparison.rows.map(rowWire),
     propertiesCompared: comparison.properties_compared,
     propertiesDiffering: comparison.properties_differing,
-  };
+  });
 }
 
-export function entityViewWire(view: EntityView): {
-  readonly entity: EntityWire;
-  readonly redirectedFrom: RedirectTraceWire | null;
-} {
-  return {
+export function entityViewWire(view: EntityView): RuntimeSchemaOutput<typeof EntityViewWireSchema> {
+  return EntityViewWireSchema.parse({
     entity: entityWire(view.entity),
     redirectedFrom: view.redirected_from === null ? null : redirectTraceWire(view.redirected_from),
-  };
+  });
 }

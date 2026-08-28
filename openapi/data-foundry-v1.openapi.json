@@ -24,9 +24,6 @@
         "security": [
           {
             "DataFoundryBearer": []
-          },
-          {
-            "RapidApiProxySecret": []
           }
         ],
         "responses": {
@@ -154,9 +151,6 @@
         "security": [
           {
             "DataFoundryBearer": []
-          },
-          {
-            "RapidApiProxySecret": []
           }
         ],
         "responses": {
@@ -297,9 +291,6 @@
         "security": [
           {
             "DataFoundryBearer": []
-          },
-          {
-            "RapidApiProxySecret": []
           }
         ],
         "responses": {
@@ -463,9 +454,6 @@
         "security": [
           {
             "DataFoundryBearer": []
-          },
-          {
-            "RapidApiProxySecret": []
           }
         ],
         "responses": {
@@ -473,7 +461,15 @@
             "description": "Same status and headers as GET, with no response body."
           },
           "301": {
-            "description": "The canonical entity moved. Follow the Location header."
+            "description": "The canonical entity moved. Follow the Location header.",
+            "headers": {
+              "Location": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Canonical resource path."
+              }
+            }
           },
           "400": {
             "description": "Invalid or missing request parameter.",
@@ -601,9 +597,6 @@
         "security": [
           {
             "DataFoundryBearer": []
-          },
-          {
-            "RapidApiProxySecret": []
           }
         ],
         "responses": {
@@ -759,9 +752,6 @@
         "security": [
           {
             "DataFoundryBearer": []
-          },
-          {
-            "RapidApiProxySecret": []
           }
         ],
         "responses": {
@@ -769,7 +759,15 @@
             "description": "Same status and headers as GET, with no response body."
           },
           "301": {
-            "description": "The canonical entity moved. Follow the Location header."
+            "description": "The canonical entity moved. Follow the Location header.",
+            "headers": {
+              "Location": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Canonical resource path."
+              }
+            }
           },
           "400": {
             "description": "Invalid or missing request parameter.",
@@ -938,9 +936,6 @@
         "security": [
           {
             "DataFoundryBearer": []
-          },
-          {
-            "RapidApiProxySecret": []
           }
         ],
         "responses": {
@@ -1137,9 +1132,6 @@
         "security": [
           {
             "DataFoundryBearer": []
-          },
-          {
-            "RapidApiProxySecret": []
           }
         ],
         "responses": {
@@ -1147,7 +1139,15 @@
             "description": "Same status and headers as GET, with no response body."
           },
           "301": {
-            "description": "The canonical entity moved. Follow the Location header."
+            "description": "The canonical entity moved. Follow the Location header.",
+            "headers": {
+              "Location": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Canonical resource path."
+              }
+            }
           },
           "400": {
             "description": "Invalid or missing request parameter.",
@@ -1332,9 +1332,6 @@
         "security": [
           {
             "DataFoundryBearer": []
-          },
-          {
-            "RapidApiProxySecret": []
           }
         ],
         "responses": {
@@ -1547,9 +1544,6 @@
         "security": [
           {
             "DataFoundryBearer": []
-          },
-          {
-            "RapidApiProxySecret": []
           }
         ],
         "responses": {
@@ -1557,7 +1551,15 @@
             "description": "Same status and headers as GET, with no response body."
           },
           "301": {
-            "description": "The canonical entity moved. Follow the Location header."
+            "description": "The canonical entity moved. Follow the Location header.",
+            "headers": {
+              "Location": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Canonical resource path."
+              }
+            }
           },
           "400": {
             "description": "Invalid or missing request parameter.",
@@ -1691,13 +1693,483 @@
             }
           },
           {
-            "name": "filter.{field}",
+            "name": "filter.product_type",
             "in": "query",
             "required": false,
             "schema": {
+              "type": "string"
+            },
+            "description": "Comma-separated exact values for product_type."
+          },
+          {
+            "name": "filter.product_type.exists",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": true,
+            "schema": {
               "type": "string",
-              "description": "Repeatable dotted filter parameter, such as filter.tonnage.min=3 or filter.refrigerant=R-454B,R-410A."
-            }
+              "enum": [
+                "true",
+                "1"
+              ]
+            },
+            "description": "Require an authorized current product_type fact; false/0 are not supported."
+          },
+          {
+            "name": "filter.nominal_tonnage",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Comma-separated exact values for nominal_tonnage (ton)."
+          },
+          {
+            "name": "filter.nominal_tonnage.min",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Inclusive minimum for nominal_tonnage."
+          },
+          {
+            "name": "filter.nominal_tonnage.max",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Inclusive maximum for nominal_tonnage."
+          },
+          {
+            "name": "filter.nominal_tonnage.exists",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "1"
+              ]
+            },
+            "description": "Require an authorized current nominal_tonnage fact; false/0 are not supported."
+          },
+          {
+            "name": "filter.cooling_capacity_btu",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Comma-separated exact values for cooling_capacity_btu (BTU/h)."
+          },
+          {
+            "name": "filter.cooling_capacity_btu.min",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Inclusive minimum for cooling_capacity_btu."
+          },
+          {
+            "name": "filter.cooling_capacity_btu.max",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Inclusive maximum for cooling_capacity_btu."
+          },
+          {
+            "name": "filter.cooling_capacity_btu.exists",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "1"
+              ]
+            },
+            "description": "Require an authorized current cooling_capacity_btu fact; false/0 are not supported."
+          },
+          {
+            "name": "filter.seer2",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Comma-separated exact values for seer2."
+          },
+          {
+            "name": "filter.seer2.min",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Inclusive minimum for seer2."
+          },
+          {
+            "name": "filter.seer2.max",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Inclusive maximum for seer2."
+          },
+          {
+            "name": "filter.seer2.exists",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "1"
+              ]
+            },
+            "description": "Require an authorized current seer2 fact; false/0 are not supported."
+          },
+          {
+            "name": "filter.eer2",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Comma-separated exact values for eer2."
+          },
+          {
+            "name": "filter.eer2.min",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Inclusive minimum for eer2."
+          },
+          {
+            "name": "filter.eer2.max",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Inclusive maximum for eer2."
+          },
+          {
+            "name": "filter.eer2.exists",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "1"
+              ]
+            },
+            "description": "Require an authorized current eer2 fact; false/0 are not supported."
+          },
+          {
+            "name": "filter.hspf2",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Comma-separated exact values for hspf2."
+          },
+          {
+            "name": "filter.hspf2.min",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Inclusive minimum for hspf2."
+          },
+          {
+            "name": "filter.hspf2.max",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Inclusive maximum for hspf2."
+          },
+          {
+            "name": "filter.hspf2.exists",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "1"
+              ]
+            },
+            "description": "Require an authorized current hspf2 fact; false/0 are not supported."
+          },
+          {
+            "name": "filter.refrigerant",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Comma-separated exact values for refrigerant."
+          },
+          {
+            "name": "filter.refrigerant.exists",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "1"
+              ]
+            },
+            "description": "Require an authorized current refrigerant fact; false/0 are not supported."
+          },
+          {
+            "name": "filter.voltage",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Comma-separated exact values for voltage (V)."
+          },
+          {
+            "name": "filter.voltage.min",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Inclusive minimum for voltage."
+          },
+          {
+            "name": "filter.voltage.max",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Inclusive maximum for voltage."
+          },
+          {
+            "name": "filter.voltage.exists",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "1"
+              ]
+            },
+            "description": "Require an authorized current voltage fact; false/0 are not supported."
+          },
+          {
+            "name": "filter.phase",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Comma-separated exact values for phase."
+          },
+          {
+            "name": "filter.phase.min",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Inclusive minimum for phase."
+          },
+          {
+            "name": "filter.phase.max",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Inclusive maximum for phase."
+          },
+          {
+            "name": "filter.phase.exists",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "1"
+              ]
+            },
+            "description": "Require an authorized current phase fact; false/0 are not supported."
+          },
+          {
+            "name": "filter.stage_count",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Comma-separated exact values for stage_count."
+          },
+          {
+            "name": "filter.stage_count.min",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Inclusive minimum for stage_count."
+          },
+          {
+            "name": "filter.stage_count.max",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Inclusive maximum for stage_count."
+          },
+          {
+            "name": "filter.stage_count.exists",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "1"
+              ]
+            },
+            "description": "Require an authorized current stage_count fact; false/0 are not supported."
+          },
+          {
+            "name": "filter.sound_level_db",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Comma-separated exact values for sound_level_db (dB)."
+          },
+          {
+            "name": "filter.sound_level_db.min",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Inclusive minimum for sound_level_db."
+          },
+          {
+            "name": "filter.sound_level_db.max",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Inclusive maximum for sound_level_db."
+          },
+          {
+            "name": "filter.sound_level_db.exists",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "1"
+              ]
+            },
+            "description": "Require an authorized current sound_level_db fact; false/0 are not supported."
+          },
+          {
+            "name": "filter.weight_lb",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Comma-separated exact values for weight_lb (lb)."
+          },
+          {
+            "name": "filter.weight_lb.min",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Inclusive minimum for weight_lb."
+          },
+          {
+            "name": "filter.weight_lb.max",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Inclusive maximum for weight_lb."
+          },
+          {
+            "name": "filter.weight_lb.exists",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "1"
+              ]
+            },
+            "description": "Require an authorized current weight_lb fact; false/0 are not supported."
+          },
+          {
+            "name": "filter.manufacturer",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Comma-separated exact values for manufacturer."
+          },
+          {
+            "name": "filter.manufacturer.exists",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "1"
+              ]
+            },
+            "description": "Require an authorized current manufacturer fact; false/0 are not supported."
           },
           {
             "name": "facets",
@@ -1734,9 +2206,6 @@
         "security": [
           {
             "DataFoundryBearer": []
-          },
-          {
-            "RapidApiProxySecret": []
           }
         ],
         "responses": {
@@ -1880,13 +2349,483 @@
             }
           },
           {
-            "name": "filter.{field}",
+            "name": "filter.product_type",
             "in": "query",
             "required": false,
             "schema": {
+              "type": "string"
+            },
+            "description": "Comma-separated exact values for product_type."
+          },
+          {
+            "name": "filter.product_type.exists",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": true,
+            "schema": {
               "type": "string",
-              "description": "Repeatable dotted filter parameter, such as filter.tonnage.min=3 or filter.refrigerant=R-454B,R-410A."
-            }
+              "enum": [
+                "true",
+                "1"
+              ]
+            },
+            "description": "Require an authorized current product_type fact; false/0 are not supported."
+          },
+          {
+            "name": "filter.nominal_tonnage",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Comma-separated exact values for nominal_tonnage (ton)."
+          },
+          {
+            "name": "filter.nominal_tonnage.min",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Inclusive minimum for nominal_tonnage."
+          },
+          {
+            "name": "filter.nominal_tonnage.max",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Inclusive maximum for nominal_tonnage."
+          },
+          {
+            "name": "filter.nominal_tonnage.exists",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "1"
+              ]
+            },
+            "description": "Require an authorized current nominal_tonnage fact; false/0 are not supported."
+          },
+          {
+            "name": "filter.cooling_capacity_btu",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Comma-separated exact values for cooling_capacity_btu (BTU/h)."
+          },
+          {
+            "name": "filter.cooling_capacity_btu.min",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Inclusive minimum for cooling_capacity_btu."
+          },
+          {
+            "name": "filter.cooling_capacity_btu.max",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Inclusive maximum for cooling_capacity_btu."
+          },
+          {
+            "name": "filter.cooling_capacity_btu.exists",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "1"
+              ]
+            },
+            "description": "Require an authorized current cooling_capacity_btu fact; false/0 are not supported."
+          },
+          {
+            "name": "filter.seer2",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Comma-separated exact values for seer2."
+          },
+          {
+            "name": "filter.seer2.min",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Inclusive minimum for seer2."
+          },
+          {
+            "name": "filter.seer2.max",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Inclusive maximum for seer2."
+          },
+          {
+            "name": "filter.seer2.exists",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "1"
+              ]
+            },
+            "description": "Require an authorized current seer2 fact; false/0 are not supported."
+          },
+          {
+            "name": "filter.eer2",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Comma-separated exact values for eer2."
+          },
+          {
+            "name": "filter.eer2.min",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Inclusive minimum for eer2."
+          },
+          {
+            "name": "filter.eer2.max",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Inclusive maximum for eer2."
+          },
+          {
+            "name": "filter.eer2.exists",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "1"
+              ]
+            },
+            "description": "Require an authorized current eer2 fact; false/0 are not supported."
+          },
+          {
+            "name": "filter.hspf2",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Comma-separated exact values for hspf2."
+          },
+          {
+            "name": "filter.hspf2.min",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Inclusive minimum for hspf2."
+          },
+          {
+            "name": "filter.hspf2.max",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Inclusive maximum for hspf2."
+          },
+          {
+            "name": "filter.hspf2.exists",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "1"
+              ]
+            },
+            "description": "Require an authorized current hspf2 fact; false/0 are not supported."
+          },
+          {
+            "name": "filter.refrigerant",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Comma-separated exact values for refrigerant."
+          },
+          {
+            "name": "filter.refrigerant.exists",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "1"
+              ]
+            },
+            "description": "Require an authorized current refrigerant fact; false/0 are not supported."
+          },
+          {
+            "name": "filter.voltage",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Comma-separated exact values for voltage (V)."
+          },
+          {
+            "name": "filter.voltage.min",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Inclusive minimum for voltage."
+          },
+          {
+            "name": "filter.voltage.max",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Inclusive maximum for voltage."
+          },
+          {
+            "name": "filter.voltage.exists",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "1"
+              ]
+            },
+            "description": "Require an authorized current voltage fact; false/0 are not supported."
+          },
+          {
+            "name": "filter.phase",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Comma-separated exact values for phase."
+          },
+          {
+            "name": "filter.phase.min",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Inclusive minimum for phase."
+          },
+          {
+            "name": "filter.phase.max",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Inclusive maximum for phase."
+          },
+          {
+            "name": "filter.phase.exists",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "1"
+              ]
+            },
+            "description": "Require an authorized current phase fact; false/0 are not supported."
+          },
+          {
+            "name": "filter.stage_count",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Comma-separated exact values for stage_count."
+          },
+          {
+            "name": "filter.stage_count.min",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Inclusive minimum for stage_count."
+          },
+          {
+            "name": "filter.stage_count.max",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Inclusive maximum for stage_count."
+          },
+          {
+            "name": "filter.stage_count.exists",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "1"
+              ]
+            },
+            "description": "Require an authorized current stage_count fact; false/0 are not supported."
+          },
+          {
+            "name": "filter.sound_level_db",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Comma-separated exact values for sound_level_db (dB)."
+          },
+          {
+            "name": "filter.sound_level_db.min",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Inclusive minimum for sound_level_db."
+          },
+          {
+            "name": "filter.sound_level_db.max",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Inclusive maximum for sound_level_db."
+          },
+          {
+            "name": "filter.sound_level_db.exists",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "1"
+              ]
+            },
+            "description": "Require an authorized current sound_level_db fact; false/0 are not supported."
+          },
+          {
+            "name": "filter.weight_lb",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Comma-separated exact values for weight_lb (lb)."
+          },
+          {
+            "name": "filter.weight_lb.min",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Inclusive minimum for weight_lb."
+          },
+          {
+            "name": "filter.weight_lb.max",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Inclusive maximum for weight_lb."
+          },
+          {
+            "name": "filter.weight_lb.exists",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "1"
+              ]
+            },
+            "description": "Require an authorized current weight_lb fact; false/0 are not supported."
+          },
+          {
+            "name": "filter.manufacturer",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Comma-separated exact values for manufacturer."
+          },
+          {
+            "name": "filter.manufacturer.exists",
+            "in": "query",
+            "required": false,
+            "allowEmptyValue": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "1"
+              ]
+            },
+            "description": "Require an authorized current manufacturer fact; false/0 are not supported."
           },
           {
             "name": "facets",
@@ -1923,9 +2862,6 @@
         "security": [
           {
             "DataFoundryBearer": []
-          },
-          {
-            "RapidApiProxySecret": []
           }
         ],
         "responses": {
@@ -2077,9 +3013,6 @@
         "security": [
           {
             "DataFoundryBearer": []
-          },
-          {
-            "RapidApiProxySecret": []
           }
         ],
         "responses": {
@@ -2236,9 +3169,6 @@
         "security": [
           {
             "DataFoundryBearer": []
-          },
-          {
-            "RapidApiProxySecret": []
           }
         ],
         "responses": {
@@ -2358,30 +3288,14 @@
         "scheme": "bearer",
         "bearerFormat": "Data Foundry API key",
         "description": "Direct API requests use a tenant/vertical-scoped Data Foundry bearer key."
-      },
-      "RapidApiProxySecret": {
-        "type": "apiKey",
-        "in": "header",
-        "name": "X-RapidAPI-Proxy-Secret",
-        "description": "Marketplace-origin verification configured between RapidAPI and Data Foundry. This is not a customer credential."
       }
     },
     "schemas": {
       "ApiErrorEnvelope": {
         "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "error"
-        ],
         "properties": {
           "error": {
             "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "code",
-              "status",
-              "message"
-            ],
             "properties": {
               "code": {
                 "type": "string"
@@ -2396,30 +3310,34 @@
               },
               "details": {
                 "type": "object",
-                "additionalProperties": true
+                "propertyNames": {
+                  "type": "string"
+                },
+                "additionalProperties": {}
               },
               "requestId": {
                 "type": "string",
                 "maxLength": 64
               }
-            }
+            },
+            "required": [
+              "code",
+              "status",
+              "message"
+            ],
+            "additionalProperties": false
           }
-        }
-      },
-      "OpaqueEdgeErrorEnvelope": {
-        "type": "object",
-        "additionalProperties": false,
+        },
         "required": [
           "error"
         ],
+        "additionalProperties": false
+      },
+      "OpaqueEdgeErrorEnvelope": {
+        "type": "object",
         "properties": {
           "error": {
             "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "code",
-              "message"
-            ],
             "properties": {
               "code": {
                 "type": "string",
@@ -2432,19 +3350,21 @@
               "message": {
                 "type": "string"
               }
-            }
+            },
+            "required": [
+              "code",
+              "message"
+            ],
+            "additionalProperties": false
           }
-        }
+        },
+        "required": [
+          "error"
+        ],
+        "additionalProperties": false
       },
       "PageMeta": {
         "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "limit",
-          "offset",
-          "total",
-          "hasMore"
-        ],
         "properties": {
           "limit": {
             "type": "integer",
@@ -2458,37 +3378,33 @@
           },
           "total": {
             "type": "integer",
-            "minimum": 0
+            "minimum": 0,
+            "maximum": 9007199254740991
           },
           "hasMore": {
             "type": "boolean"
           }
-        }
+        },
+        "required": [
+          "limit",
+          "offset",
+          "total",
+          "hasMore"
+        ],
+        "additionalProperties": false
       },
       "Entity": {
         "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "id",
-          "verticalId",
-          "entityType",
-          "canonicalName",
-          "canonicalSlug",
-          "status",
-          "qualityScore",
-          "firstSeenAt",
-          "lastVerifiedAt",
-          "createdAt",
-          "updatedAt"
-        ],
         "properties": {
           "id": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
           },
           "verticalId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
           },
           "entityType": {
             "type": "string"
@@ -2509,48 +3425,68 @@
           },
           "firstSeenAt": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
           },
           "lastVerifiedAt": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "format": "date-time"
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "createdAt": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
           },
           "updatedAt": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
           }
-        }
+        },
+        "required": [
+          "id",
+          "verticalId",
+          "entityType",
+          "canonicalName",
+          "canonicalSlug",
+          "status",
+          "qualityScore",
+          "firstSeenAt",
+          "lastVerifiedAt",
+          "createdAt",
+          "updatedAt"
+        ],
+        "additionalProperties": false
       },
       "RedirectHop": {
         "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "fromEntityId",
-          "toEntityId",
-          "fromSlug",
-          "reason",
-          "createdAt"
-        ],
         "properties": {
           "fromEntityId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
           },
           "toEntityId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
           },
           "fromSlug": {
-            "type": [
-              "string",
-              "null"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
             ]
           },
           "reason": {
@@ -2558,66 +3494,115 @@
           },
           "createdAt": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
           }
-        }
+        },
+        "required": [
+          "fromEntityId",
+          "toEntityId",
+          "fromSlug",
+          "reason",
+          "createdAt"
+        ],
+        "additionalProperties": false
       },
       "RedirectTrace": {
         "type": "object",
-        "additionalProperties": false,
+        "properties": {
+          "fromEntityId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "fromSlug": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "hops": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "fromEntityId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "toEntityId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "fromSlug": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "reason": {
+                  "type": "string"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                }
+              },
+              "required": [
+                "fromEntityId",
+                "toEntityId",
+                "fromSlug",
+                "reason",
+                "createdAt"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
         "required": [
           "fromEntityId",
           "fromSlug",
           "reason",
           "hops"
         ],
-        "properties": {
-          "fromEntityId": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "format": "uuid"
-          },
-          "fromSlug": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "reason": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "hops": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/RedirectHop"
-            }
-          }
-        }
+        "additionalProperties": false
       },
       "RedirectResponse": {
         "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "redirect"
-        ],
         "properties": {
           "redirect": {
             "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "status",
-              "location",
-              "canonicalEntityId",
-              "redirectedFrom"
-            ],
             "properties": {
               "status": {
-                "type": "integer",
+                "type": "number",
                 "const": 301
               },
               "location": {
@@ -2625,156 +3610,403 @@
               },
               "canonicalEntityId": {
                 "type": "string",
-                "format": "uuid"
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
               },
               "redirectedFrom": {
-                "$ref": "#/components/schemas/RedirectTrace"
+                "type": "object",
+                "properties": {
+                  "fromEntityId": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "fromSlug": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "reason": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "hops": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "fromEntityId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "toEntityId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "fromSlug": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "reason": {
+                          "type": "string"
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                        }
+                      },
+                      "required": [
+                        "fromEntityId",
+                        "toEntityId",
+                        "fromSlug",
+                        "reason",
+                        "createdAt"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "fromEntityId",
+                  "fromSlug",
+                  "reason",
+                  "hops"
+                ],
+                "additionalProperties": false
               }
-            }
+            },
+            "required": [
+              "status",
+              "location",
+              "canonicalEntityId",
+              "redirectedFrom"
+            ],
+            "additionalProperties": false
           }
-        }
+        },
+        "required": [
+          "redirect"
+        ],
+        "additionalProperties": false
       },
       "EntityView": {
         "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "entity",
-          "redirectedFrom"
-        ],
         "properties": {
           "entity": {
-            "$ref": "#/components/schemas/Entity"
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "verticalId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "entityType": {
+                "type": "string"
+              },
+              "canonicalName": {
+                "type": "string"
+              },
+              "canonicalSlug": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "qualityScore": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "firstSeenAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+              },
+              "lastVerifiedAt": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+              }
+            },
+            "required": [
+              "id",
+              "verticalId",
+              "entityType",
+              "canonicalName",
+              "canonicalSlug",
+              "status",
+              "qualityScore",
+              "firstSeenAt",
+              "lastVerifiedAt",
+              "createdAt",
+              "updatedAt"
+            ],
+            "additionalProperties": false
           },
           "redirectedFrom": {
-            "oneOf": [
+            "anyOf": [
               {
-                "$ref": "#/components/schemas/RedirectTrace"
+                "type": "object",
+                "properties": {
+                  "fromEntityId": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "fromSlug": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "reason": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "hops": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "fromEntityId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "toEntityId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "fromSlug": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "reason": {
+                          "type": "string"
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                        }
+                      },
+                      "required": [
+                        "fromEntityId",
+                        "toEntityId",
+                        "fromSlug",
+                        "reason",
+                        "createdAt"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "fromEntityId",
+                  "fromSlug",
+                  "reason",
+                  "hops"
+                ],
+                "additionalProperties": false
               },
               {
                 "type": "null"
               }
             ]
           }
-        }
+        },
+        "required": [
+          "entity",
+          "redirectedFrom"
+        ],
+        "additionalProperties": false
       },
       "Fact": {
-        "unevaluatedProperties": false,
-        "allOf": [
-          {
-            "type": "object",
-            "required": [
-              "property",
-              "value",
-              "valueType",
-              "unit",
-              "confidence",
-              "factId",
-              "rule",
-              "reason",
-              "sources",
-              "unresolvedConflict"
-            ],
-            "properties": {
-              "property": {
+        "type": "object",
+        "properties": {
+          "property": {
+            "type": "string"
+          },
+          "value": {},
+          "valueType": {
+            "anyOf": [
+              {
                 "type": "string"
               },
-              "value": true,
-              "valueType": {
-                "type": [
-                  "string",
-                  "null"
-                ]
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
               },
-              "unit": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "confidence": {
-                "type": [
-                  "number",
-                  "null"
-                ],
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "confidence": {
+            "anyOf": [
+              {
+                "type": "number",
                 "minimum": 0,
                 "maximum": 1
               },
-              "factId": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "format": "uuid"
-              },
-              "rule": {
-                "type": "string"
-              },
-              "reason": {
-                "type": "string"
-              },
-              "sources": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "unresolvedConflict": {
-                "type": "boolean"
-              },
-              "verified": {
-                "type": "boolean"
+              {
+                "type": "null"
               }
+            ]
+          },
+          "factId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "rule": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "type": "string"
             }
           },
-          {
-            "type": "object",
-            "required": [
-              "editoriallyCorrected",
-              "editorialCorrectionReason",
-              "selectionWarnings"
-            ],
-            "properties": {
-              "editoriallyCorrected": {
-                "type": "boolean",
-                "description": "True when a reviewed editorial correction replaced the source-selected value."
+          "unresolvedConflict": {
+            "type": "boolean"
+          },
+          "editoriallyCorrected": {
+            "type": "boolean"
+          },
+          "editorialCorrectionReason": {
+            "anyOf": [
+              {
+                "type": "string"
               },
-              "editorialCorrectionReason": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Customer-visible explanation of the correction. Non-empty when editoriallyCorrected is true, null otherwise. Never contains reviewer identity."
-              },
-              "selectionWarnings": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                },
-                "description": "Machine-readable trust warnings about how the value was selected. Consumers must ignore unrecognised codes rather than failing."
+              {
+                "type": "null"
               }
+            ]
+          },
+          "selectionWarnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
             }
+          },
+          "verified": {
+            "type": "boolean"
           }
-        ]
+        },
+        "required": [
+          "property",
+          "value",
+          "valueType",
+          "unit",
+          "confidence",
+          "factId",
+          "rule",
+          "reason",
+          "sources",
+          "unresolvedConflict",
+          "editoriallyCorrected",
+          "editorialCorrectionReason",
+          "selectionWarnings"
+        ],
+        "additionalProperties": false
       },
       "RelationshipEdge": {
         "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "relationshipId",
-          "predicate",
-          "direction",
-          "fromEntityId",
-          "neighbor",
-          "depth",
-          "evidenceCount",
-          "confidence",
-          "validFrom",
-          "validTo"
-        ],
         "properties": {
           "relationshipId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
           },
           "predicate": {
             "type": "string"
@@ -2788,10 +4020,81 @@
           },
           "fromEntityId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
           },
           "neighbor": {
-            "$ref": "#/components/schemas/Entity"
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "verticalId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "entityType": {
+                "type": "string"
+              },
+              "canonicalName": {
+                "type": "string"
+              },
+              "canonicalSlug": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "qualityScore": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "firstSeenAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+              },
+              "lastVerifiedAt": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+              }
+            },
+            "required": [
+              "id",
+              "verticalId",
+              "entityType",
+              "canonicalName",
+              "canonicalSlug",
+              "status",
+              "qualityScore",
+              "firstSeenAt",
+              "lastVerifiedAt",
+              "createdAt",
+              "updatedAt"
+            ],
+            "additionalProperties": false
           },
           "depth": {
             "type": "integer",
@@ -2800,7 +4103,8 @@
           },
           "evidenceCount": {
             "type": "integer",
-            "minimum": 0
+            "minimum": 0,
+            "maximum": 9007199254740991
           },
           "confidence": {
             "type": "number",
@@ -2809,32 +4113,111 @@
           },
           "validFrom": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
           },
           "validTo": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "format": "date-time"
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
-        }
+        },
+        "required": [
+          "relationshipId",
+          "predicate",
+          "direction",
+          "fromEntityId",
+          "neighbor",
+          "depth",
+          "evidenceCount",
+          "confidence",
+          "validFrom",
+          "validTo"
+        ],
+        "additionalProperties": false
       },
       "SearchHit": {
         "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "entity",
-          "matchKind",
-          "score",
-          "textRank",
-          "exact",
-          "matchedOn",
-          "explain"
-        ],
         "properties": {
           "entity": {
-            "$ref": "#/components/schemas/Entity"
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "verticalId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "entityType": {
+                "type": "string"
+              },
+              "canonicalName": {
+                "type": "string"
+              },
+              "canonicalSlug": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "qualityScore": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "firstSeenAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+              },
+              "lastVerifiedAt": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+              }
+            },
+            "required": [
+              "id",
+              "verticalId",
+              "entityType",
+              "canonicalName",
+              "canonicalSlug",
+              "status",
+              "qualityScore",
+              "firstSeenAt",
+              "lastVerifiedAt",
+              "createdAt",
+              "updatedAt"
+            ],
+            "additionalProperties": false
           },
           "matchKind": {
             "type": "string"
@@ -2849,29 +4232,32 @@
             "type": "boolean"
           },
           "matchedOn": {
-            "type": [
-              "string",
-              "null"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
             ]
           },
           "explain": {
             "type": "string"
           }
-        }
+        },
+        "required": [
+          "entity",
+          "matchKind",
+          "score",
+          "textRank",
+          "exact",
+          "matchedOn",
+          "explain"
+        ],
+        "additionalProperties": false
       },
       "Facet": {
         "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "property",
-          "label",
-          "control",
-          "valueType",
-          "unit",
-          "values",
-          "range",
-          "entityCount"
-        ],
         "properties": {
           "property": {
             "type": "string"
@@ -2886,40 +4272,40 @@
             "type": "string"
           },
           "unit": {
-            "type": [
-              "string",
-              "null"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
             ]
           },
           "values": {
             "type": "array",
             "items": {
               "type": "object",
-              "additionalProperties": false,
-              "required": [
-                "value",
-                "count"
-              ],
               "properties": {
                 "value": {
                   "type": "string"
                 },
                 "count": {
                   "type": "integer",
-                  "minimum": 0
+                  "minimum": 0,
+                  "maximum": 9007199254740991
                 }
-              }
+              },
+              "required": [
+                "value",
+                "count"
+              ],
+              "additionalProperties": false
             }
           },
           "range": {
-            "oneOf": [
+            "anyOf": [
               {
                 "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "min",
-                  "max"
-                ],
                 "properties": {
                   "min": {
                     "type": "number"
@@ -2927,7 +4313,12 @@
                   "max": {
                     "type": "number"
                   }
-                }
+                },
+                "required": [
+                  "min",
+                  "max"
+                ],
+                "additionalProperties": false
               },
               {
                 "type": "null"
@@ -2936,55 +4327,226 @@
           },
           "entityCount": {
             "type": "integer",
-            "minimum": 0
+            "minimum": 0,
+            "maximum": 9007199254740991
           }
-        }
+        },
+        "required": [
+          "property",
+          "label",
+          "control",
+          "valueType",
+          "unit",
+          "values",
+          "range",
+          "entityCount"
+        ],
+        "additionalProperties": false
       },
       "Comparison": {
         "type": "object",
-        "additionalProperties": false,
+        "properties": {
+          "entities": {
+            "minItems": 2,
+            "maxItems": 8,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "verticalId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "entityType": {
+                  "type": "string"
+                },
+                "canonicalName": {
+                  "type": "string"
+                },
+                "canonicalSlug": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "qualityScore": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "firstSeenAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                },
+                "lastVerifiedAt": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                },
+                "updatedAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                }
+              },
+              "required": [
+                "id",
+                "verticalId",
+                "entityType",
+                "canonicalName",
+                "canonicalSlug",
+                "status",
+                "qualityScore",
+                "firstSeenAt",
+                "lastVerifiedAt",
+                "createdAt",
+                "updatedAt"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "property": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "unit": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "differs": {
+                  "type": "boolean"
+                },
+                "cells": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "entityId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "present": {
+                        "type": "boolean"
+                      },
+                      "value": {},
+                      "valueType": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "unit": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "rule": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "sources": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "unresolvedConflict": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "entityId",
+                      "present",
+                      "value",
+                      "valueType",
+                      "unit",
+                      "rule",
+                      "sources",
+                      "unresolvedConflict"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "required": [
+                "property",
+                "label",
+                "unit",
+                "differs",
+                "cells"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "propertiesCompared": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "propertiesDiffering": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
         "required": [
           "entities",
           "rows",
           "propertiesCompared",
           "propertiesDiffering"
         ],
-        "properties": {
-          "entities": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Entity"
-            },
-            "minItems": 2,
-            "maxItems": 8
-          },
-          "rows": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "additionalProperties": true
-            }
-          },
-          "propertiesCompared": {
-            "type": "integer",
-            "minimum": 0
-          },
-          "propertiesDiffering": {
-            "type": "integer",
-            "minimum": 0
-          }
-        }
+        "additionalProperties": false
       },
       "HealthResponse": {
         "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "status",
-          "version",
-          "verticalId",
-          "declaredFields",
-          "checks"
-        ],
         "properties": {
           "status": {
             "type": "string",
@@ -2996,95 +4558,893 @@
           },
           "verticalId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
           },
           "declaredFields": {
             "type": "integer",
-            "minimum": 0
+            "minimum": 0,
+            "maximum": 9007199254740991
           },
           "checks": {
             "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "queryLayer"
-            ],
             "properties": {
               "queryLayer": {
                 "type": "string",
                 "const": "ok"
               }
-            }
+            },
+            "required": [
+              "queryLayer"
+            ],
+            "additionalProperties": false
           }
-        }
+        },
+        "required": [
+          "status",
+          "version",
+          "verticalId",
+          "declaredFields",
+          "checks"
+        ],
+        "additionalProperties": false
       },
       "EntityResponse": {
         "type": "object",
-        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "entity": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "verticalId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "entityType": {
+                    "type": "string"
+                  },
+                  "canonicalName": {
+                    "type": "string"
+                  },
+                  "canonicalSlug": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string"
+                  },
+                  "qualityScore": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "firstSeenAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                  },
+                  "lastVerifiedAt": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "format": "date-time",
+                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "createdAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                  },
+                  "updatedAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                  }
+                },
+                "required": [
+                  "id",
+                  "verticalId",
+                  "entityType",
+                  "canonicalName",
+                  "canonicalSlug",
+                  "status",
+                  "qualityScore",
+                  "firstSeenAt",
+                  "lastVerifiedAt",
+                  "createdAt",
+                  "updatedAt"
+                ],
+                "additionalProperties": false
+              },
+              "redirectedFrom": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "fromEntityId": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "fromSlug": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "reason": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "hops": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "fromEntityId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "toEntityId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "fromSlug": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "reason": {
+                              "type": "string"
+                            },
+                            "createdAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                            }
+                          },
+                          "required": [
+                            "fromEntityId",
+                            "toEntityId",
+                            "fromSlug",
+                            "reason",
+                            "createdAt"
+                          ],
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "required": [
+                      "fromEntityId",
+                      "fromSlug",
+                      "reason",
+                      "hops"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "entity",
+              "redirectedFrom"
+            ],
+            "additionalProperties": false
+          }
+        },
         "required": [
           "data"
         ],
-        "properties": {
-          "data": {
-            "$ref": "#/components/schemas/EntityView"
-          }
-        }
+        "additionalProperties": false
       },
       "FactPageResponse": {
         "type": "object",
-        "additionalProperties": false,
+        "properties": {
+          "entityId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "property": {
+                  "type": "string"
+                },
+                "value": {},
+                "valueType": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "unit": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "confidence": {
+                  "anyOf": [
+                    {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "factId": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "rule": {
+                  "type": "string"
+                },
+                "reason": {
+                  "type": "string"
+                },
+                "sources": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "unresolvedConflict": {
+                  "type": "boolean"
+                },
+                "editoriallyCorrected": {
+                  "type": "boolean"
+                },
+                "editorialCorrectionReason": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "selectionWarnings": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "verified": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "property",
+                "value",
+                "valueType",
+                "unit",
+                "confidence",
+                "factId",
+                "rule",
+                "reason",
+                "sources",
+                "unresolvedConflict",
+                "editoriallyCorrected",
+                "editorialCorrectionReason",
+                "selectionWarnings"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "page": {
+            "type": "object",
+            "properties": {
+              "limit": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100
+              },
+              "offset": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 10000
+              },
+              "total": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "hasMore": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "limit",
+              "offset",
+              "total",
+              "hasMore"
+            ],
+            "additionalProperties": false
+          }
+        },
         "required": [
           "entityId",
           "data",
           "page"
         ],
+        "additionalProperties": false
+      },
+      "RelationshipPageResponse": {
+        "type": "object",
         "properties": {
           "entityId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "traversal": {
+            "type": "object",
+            "properties": {
+              "depth": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4
+              },
+              "direction": {
+                "type": "string",
+                "enum": [
+                  "out",
+                  "in",
+                  "both"
+                ]
+              },
+              "edgeBound": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              },
+              "boundReached": {
+                "type": "boolean"
+              },
+              "unevidencedEdgeCount": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "depth",
+              "direction",
+              "edgeBound",
+              "boundReached",
+              "unevidencedEdgeCount"
+            ],
+            "additionalProperties": false
           },
           "data": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Fact"
+              "type": "object",
+              "properties": {
+                "relationshipId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "predicate": {
+                  "type": "string"
+                },
+                "direction": {
+                  "type": "string",
+                  "enum": [
+                    "out",
+                    "in"
+                  ]
+                },
+                "fromEntityId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "neighbor": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "verticalId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "entityType": {
+                      "type": "string"
+                    },
+                    "canonicalName": {
+                      "type": "string"
+                    },
+                    "canonicalSlug": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "qualityScore": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    },
+                    "firstSeenAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                    },
+                    "lastVerifiedAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "verticalId",
+                    "entityType",
+                    "canonicalName",
+                    "canonicalSlug",
+                    "status",
+                    "qualityScore",
+                    "firstSeenAt",
+                    "lastVerifiedAt",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                },
+                "depth": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 4
+                },
+                "evidenceCount": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "confidence": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "validFrom": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                },
+                "validTo": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "relationshipId",
+                "predicate",
+                "direction",
+                "fromEntityId",
+                "neighbor",
+                "depth",
+                "evidenceCount",
+                "confidence",
+                "validFrom",
+                "validTo"
+              ],
+              "additionalProperties": false
             }
           },
           "page": {
-            "$ref": "#/components/schemas/PageMeta"
+            "type": "object",
+            "properties": {
+              "limit": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100
+              },
+              "offset": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 10000
+              },
+              "total": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "hasMore": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "limit",
+              "offset",
+              "total",
+              "hasMore"
+            ],
+            "additionalProperties": false
           }
-        }
-      },
-      "RelationshipPageResponse": {
-        "type": "object",
-        "additionalProperties": false,
+        },
         "required": [
           "entityId",
           "traversal",
           "data",
           "page"
         ],
-        "properties": {
-          "entityId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "traversal": {
-            "type": "object",
-            "additionalProperties": true
-          },
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/RelationshipEdge"
-            }
-          },
-          "page": {
-            "$ref": "#/components/schemas/PageMeta"
-          }
-        }
+        "additionalProperties": false
       },
       "SearchResponse": {
         "type": "object",
-        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "entity": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "verticalId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "entityType": {
+                      "type": "string"
+                    },
+                    "canonicalName": {
+                      "type": "string"
+                    },
+                    "canonicalSlug": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "qualityScore": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    },
+                    "firstSeenAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                    },
+                    "lastVerifiedAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "verticalId",
+                    "entityType",
+                    "canonicalName",
+                    "canonicalSlug",
+                    "status",
+                    "qualityScore",
+                    "firstSeenAt",
+                    "lastVerifiedAt",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                },
+                "matchKind": {
+                  "type": "string"
+                },
+                "score": {
+                  "type": "number"
+                },
+                "textRank": {
+                  "type": "number"
+                },
+                "exact": {
+                  "type": "boolean"
+                },
+                "matchedOn": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "explain": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "entity",
+                "matchKind",
+                "score",
+                "textRank",
+                "exact",
+                "matchedOn",
+                "explain"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "page": {
+            "type": "object",
+            "properties": {
+              "limit": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100
+              },
+              "offset": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 10000
+              },
+              "total": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "hasMore": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "limit",
+              "offset",
+              "total",
+              "hasMore"
+            ],
+            "additionalProperties": false
+          },
+          "match": {
+            "type": "object",
+            "properties": {
+              "exactShortCircuit": {
+                "type": "boolean"
+              },
+              "exactCount": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "exactShortCircuit",
+              "exactCount"
+            ],
+            "additionalProperties": false
+          },
+          "strategy": {
+            "type": "object",
+            "properties": {
+              "exactFirst": {
+                "type": "boolean"
+              },
+              "fullText": {
+                "type": "boolean"
+              },
+              "trigram": {
+                "type": "boolean"
+              },
+              "vector": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "exactFirst",
+              "fullText",
+              "trigram",
+              "vector"
+            ],
+            "additionalProperties": false
+          },
+          "facets": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "property": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "control": {
+                  "type": "string"
+                },
+                "valueType": {
+                  "type": "string"
+                },
+                "unit": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "values": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "string"
+                      },
+                      "count": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      }
+                    },
+                    "required": [
+                      "value",
+                      "count"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "range": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "min": {
+                          "type": "number"
+                        },
+                        "max": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "min",
+                        "max"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "entityCount": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "property",
+                "label",
+                "control",
+                "valueType",
+                "unit",
+                "values",
+                "range",
+                "entityCount"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
         "required": [
           "data",
           "page",
@@ -3092,66 +5452,244 @@
           "strategy",
           "facets"
         ],
-        "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/SearchHit"
-            }
-          },
-          "page": {
-            "$ref": "#/components/schemas/PageMeta"
-          },
-          "match": {
-            "type": "object",
-            "additionalProperties": true
-          },
-          "strategy": {
-            "type": "object",
-            "additionalProperties": true
-          },
-          "facets": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Facet"
-            }
-          }
-        }
+        "additionalProperties": false
       },
       "CompareResponse": {
         "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "data",
-          "redirects"
-        ],
         "properties": {
           "data": {
-            "$ref": "#/components/schemas/Comparison"
+            "type": "object",
+            "properties": {
+              "entities": {
+                "minItems": 2,
+                "maxItems": 8,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "verticalId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "entityType": {
+                      "type": "string"
+                    },
+                    "canonicalName": {
+                      "type": "string"
+                    },
+                    "canonicalSlug": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "qualityScore": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    },
+                    "firstSeenAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                    },
+                    "lastVerifiedAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "verticalId",
+                    "entityType",
+                    "canonicalName",
+                    "canonicalSlug",
+                    "status",
+                    "qualityScore",
+                    "firstSeenAt",
+                    "lastVerifiedAt",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "rows": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "property": {
+                      "type": "string"
+                    },
+                    "label": {
+                      "type": "string"
+                    },
+                    "unit": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "differs": {
+                      "type": "boolean"
+                    },
+                    "cells": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "entityId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "present": {
+                            "type": "boolean"
+                          },
+                          "value": {},
+                          "valueType": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "unit": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "rule": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "sources": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "unresolvedConflict": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "entityId",
+                          "present",
+                          "value",
+                          "valueType",
+                          "unit",
+                          "rule",
+                          "sources",
+                          "unresolvedConflict"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "property",
+                    "label",
+                    "unit",
+                    "differs",
+                    "cells"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "propertiesCompared": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "propertiesDiffering": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "entities",
+              "rows",
+              "propertiesCompared",
+              "propertiesDiffering"
+            ],
+            "additionalProperties": false
           },
           "redirects": {
             "type": "array",
             "items": {
               "type": "object",
-              "additionalProperties": false,
+              "properties": {
+                "requestedId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "canonicalEntityId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                }
+              },
               "required": [
                 "requestedId",
                 "canonicalEntityId"
               ],
-              "properties": {
-                "requestedId": {
-                  "type": "string",
-                  "format": "uuid"
-                },
-                "canonicalEntityId": {
-                  "type": "string",
-                  "format": "uuid"
-                }
-              }
+              "additionalProperties": false
             }
           }
-        }
+        },
+        "required": [
+          "data",
+          "redirects"
+        ],
+        "additionalProperties": false
       }
     }
-  }
+  },
+  "x-data-foundry-vertical": "hvac"
 }

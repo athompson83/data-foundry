@@ -8,6 +8,7 @@
  * exclusions, rule 7's ordering) or a contract break (page arithmetic).
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { runtimeSchema as z } from '@data-foundry/query-model';
 import {
   EXTRA_PROPERTIES,
   RIGHTS_BLOCKED_PROPERTY,
@@ -19,6 +20,7 @@ import {
   type ApiFixtures,
 } from './support.js';
 import { PAGE_BOUNDS } from '../src/pagination.js';
+import { buildOpenApiDocument } from '../src/openapi.js';
 import { contractDocument } from '../src/routes.js';
 import type { EntityWire, RelationshipEdgeWire, SearchHitWire } from '../src/wire.js';
 import type { RestFact } from '../../../packages/query-model/src/index.js';
@@ -500,6 +502,55 @@ describe('every route the contract advertises for HEAD actually answers HEAD', (
       expect(head.status, `${path} HEAD status`).toBe(get.status);
       expect(head.status, `${path} must not be refused`).not.toBe(405);
       expect(head.body, `${path} HEAD answer`).toEqual(get.body);
+    }
+  });
+});
+
+describe('runtime and generated response contracts', () => {
+  it('validates representative actual handler responses through both projections', async () => {
+    const wireModule = await import('../src/wire.js') as Record<string, unknown>;
+    const parseWireResponse = wireModule['parseWireResponse'];
+    expect(
+      typeof parseWireResponse,
+      'REST handlers need the runtime response validator that also generates OpenAPI schemas',
+    ).toBe('function');
+    if (typeof parseWireResponse !== 'function') return;
+
+    const document = buildOpenApiDocument({
+      slug: 'fixture',
+      fields: fixtures.qm.fields.all(),
+    }) as {
+      readonly components: { readonly schemas: Readonly<Record<string, unknown>> };
+    };
+    const cases = [
+      ['HealthResponse', '/v1/health'],
+      ['EntityResponse', `/v1/entities/${fixtures.equipment.id}`],
+      ['FactPageResponse', `/v1/entities/${fixtures.equipment.id}/facts?limit=100`],
+      [
+        'RelationshipPageResponse',
+        `/v1/entities/${fixtures.equipment.id}/relationships?limit=100`,
+      ],
+      ['SearchResponse', '/v1/search?type=equipment&facets=true'],
+      [
+        'CompareResponse',
+        `/v1/compare?ids=${fixtures.equipment.id},${fixtures.heatPump.id}`,
+      ],
+    ] as const;
+
+    for (const [schemaName, url] of cases) {
+      const response = await call(fixtures.app, url);
+      expect(response.status, url).toBe(200);
+      expect(
+        (parseWireResponse as (name: string, value: unknown) => unknown)(schemaName, response.body),
+        `${url} runtime schema`,
+      ).toEqual(response.body);
+
+      const jsonSchema = document.components.schemas[schemaName];
+      expect(jsonSchema, `${schemaName} OpenAPI component`).toBeDefined();
+      const validator = z.fromJSONSchema(
+        jsonSchema as Parameters<typeof z.fromJSONSchema>[0],
+      );
+      expect(validator.safeParse(response.body).success, `${url} generated JSON Schema`).toBe(true);
     }
   });
 });
