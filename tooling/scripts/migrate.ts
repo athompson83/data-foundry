@@ -350,6 +350,8 @@ export const EXPECTED_TABLES = [
   'rights_migration_assessments',
   'entity_evidence',
   'fact_dependencies',
+  'scheduled_acquisition_runs',
+  'scheduled_acquisition_run_artifacts',
 ] as const;
 
 /** Owned tables present, unowned tables found beside them, and owned tables missing. */

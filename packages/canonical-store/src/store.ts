@@ -389,7 +389,11 @@ class PostgresCanonicalStore implements CanonicalStore {
              robots_policy = EXCLUDED.robots_policy,
              refresh_cadence = EXCLUDED.refresh_cadence,
              status = EXCLUDED.status,
-             kill_switch_engaged = EXCLUDED.kill_switch_engaged,
+             -- Registry synchronization may engage an operational stop but it
+             -- must never clear one. Only an explicit operator/database action
+             -- may move TRUE back to FALSE.
+             kill_switch_engaged = COALESCE(sources.kill_switch_engaged, FALSE)
+                                   OR EXCLUDED.kill_switch_engaged,
              updated_at = now()
        RETURNING ${SOURCE_COLUMNS}`,
       [

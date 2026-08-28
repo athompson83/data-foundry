@@ -135,3 +135,16 @@ export {
   loadStoredRightsContext,
   type StoredRightsContext,
 } from './rights-store.js';
+
+export {
+  createScheduledAcquisitionStore,
+  type AcquisitionAssetClass,
+  type AcquisitionOutputClass,
+  type ScheduledAcquisitionClaim,
+  type ScheduledAcquisitionCompletion,
+  type ScheduledAcquisitionFailure,
+  type ScheduledAcquisitionOutcome,
+  type ScheduledAcquisitionRun,
+  type ScheduledAcquisitionStatus,
+  type ScheduledAcquisitionStore,
+} from './scheduled-acquisition.js';

@@ -16,6 +16,42 @@ afterAll(async () => {
 });
 
 describe('entities and aliases', () => {
+  it.each([
+    [null, false, false],
+    [null, true, true],
+    [false, false, false],
+    [false, true, true],
+    [true, false, true],
+    [true, true, true],
+  ] as const)(
+    'synchronizes kill switch stored=%s bundled=%s to %s',
+    async (stored, bundled, expected) => {
+      const source = fixtures.sources.manufacturer.source;
+      const input = {
+        vertical_id: source.vertical_id,
+        publisher: source.publisher,
+        domain: source.domain,
+        source_type: source.source_type,
+        authority_rank: source.authority_rank,
+        rights_classification: source.rights_classification,
+        attribution_requirement: source.attribution_requirement,
+        robots_policy: source.robots_policy,
+        refresh_cadence: source.refresh_cadence,
+        status: source.status,
+      } as const;
+
+      await fixtures.driver.query(
+        'UPDATE sources SET kill_switch_engaged = $2 WHERE id = $1',
+        [source.id, stored],
+      );
+      const synchronized = await fixtures.store.upsertSource({
+        ...input,
+        kill_switch_engaged: bundled,
+      });
+      expect(synchronized.kill_switch_engaged).toBe(expected);
+    },
+  );
+
   it('upserts an entity on (vertical, type, slug) without duplicating it', async () => {
     const again = await fixtures.store.upsertEntity({
       vertical_id: fixtures.vertical.id,
