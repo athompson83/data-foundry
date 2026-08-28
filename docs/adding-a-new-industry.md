@@ -40,6 +40,10 @@ to be indexed. `verticals/hvac/seo.yaml` is the worked example and
 without a floor can pass sparse stubs; a floor without coverage can pass pages
 padded with unimportant properties.
 
+Every page class must declare an explicit `route_kind`; an entity detail names
+`entity_type`, while a relationship page names `subject_entity_type`. Do not
+make dispatch depend on whether an unrelated optional field happens to exist.
+
 ## 3. Sources — proposed first, rights before publication
 
 `docs/source-onboarding.md` is the full procedure. A proposed source starts
@@ -53,11 +57,13 @@ public comparison page and prohibited for paid API or marketplace access.
 Before activation, record/review the grants required by the surfaces this
 vertical will use, including as applicable:
 
-- public item/search/compare pages;
-- free API access;
-- paid API access;
-- MCP/LLM retrieval;
-- bulk export;
+- `PUBLIC_WEB` page display;
+- `SEARCH_INDEX` indexing (independent of public display);
+- `API_FREE` access;
+- `API_PAID` access;
+- `RAPIDAPI` marketplace access;
+- `MCP`/LLM retrieval;
+- `BULK_EXPORT`;
 - redistribution/sublicense.
 
 Unknown or absent permission remains refusal. `pnpm sources:readiness` should
@@ -66,15 +72,18 @@ by a successful build.
 
 ## 4. Compile the runtime artifacts
 
-Both Workers have no filesystem; they read committed runtime JSON:
+Workers have no runtime filesystem. The compilers emit committed runtime JSON,
+and the web compiler also emits a static TypeScript registry so every bundled
+vertical is visible to the Worker bundler:
 
 ```bash
 pnpm verticals:compile
 pnpm web:compile
 ```
 
-Add the slug to the platform's explicit deployed/published vertical lists only
-when the intended surface is actually ready.
+Add the slug to the explicit bundled-runtime list and regenerate. Bundling a
+runtime is not publication permission; database presence, exact surface grants
+and page-quality gates still decide what can be returned or indexed.
 
 ```bash
 pnpm verticals:compile:check
@@ -98,8 +107,8 @@ proved against real query-model behavior rather than copied assumptions.
 
 A vertical can be ready for one surface and not another.
 
-- **Public web (`apps/web`)** — becomes part of the single multi-industry Worker
-  once its runtime is compiled, data exists and web-use rights pass.
+- **Public web (`apps/web`)** — page data requires `PUBLIC_WEB`; sitemap
+  inclusion independently requires both `PUBLIC_WEB` and `SEARCH_INDEX`.
 - **Direct REST API (`apps/edge`)** — receives its commercial vertical deployment
   and Data Foundry authentication only when API-use rights pass.
 - **MCP** — may be enabled only when the LLM/agent retrieval use case is cleared.
@@ -115,8 +124,10 @@ Cloudflare API exists. It does **not** create a new vertical implementation.
 
 For a marketplace-ready vertical:
 
-1. Confirm `API_FREE` and/or `API_PAID` rights for the exact marketplace plans
-   being offered, plus redistribution/sublicense treatment where applicable.
+1. Confirm the exact `RAPIDAPI` bundle for every contribution. Direct
+   `API_FREE` or `API_PAID` permission does not imply marketplace permission;
+   the marketplace bundle includes service, sale, normalized redistribution
+   and sublicense decisions on the RapidAPI channel.
 2. Confirm every required attribution/condition can travel through API responses
    and marketplace documentation.
 3. Generate the marketplace OpenAPI/listing contract from the same canonical

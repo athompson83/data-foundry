@@ -25,8 +25,8 @@ must remain outside source control.
 2. Add the production domain as a Cloudflare zone and move its nameservers.
 3. Authenticate Wrangler against the intended account.
 4. Bind the API Worker to its production hostname/custom domain.
-5. Bind the public web Worker to its production hostname/custom domain after PR
-   #17 or its successor is merged.
+5. Bind the reviewed public web candidate to its production hostname/custom
+   domain and configure its exact HTTPS `PUBLIC_ORIGIN`.
 6. Keep marketplace traffic on a dedicated hostname or clearly identifiable
    route if that makes operations and bypass testing simpler, but do not deploy
    a second API implementation.
@@ -51,10 +51,10 @@ credential must not be committed.
 1. Provision the production Postgres database and require TLS.
 2. Apply the exact repository migrations to production once.
 3. Create a Hyperdrive configuration for the API Worker.
-4. Configure the usage-consumer Worker with its database binding as required by
-   the final PR #15 implementation.
-5. Configure the public Worker with the same canonical database access model
-   required by PR #17.
+4. Configure the usage-consumer Worker with its `HYPERDRIVE` binding.
+5. Configure the public Worker with `HYPERDRIVE` and the non-secret
+   `PUBLIC_ORIGIN=https://<public-host>` value. Missing or non-origin values
+   fail closed; only explicit localhost HTTP is accepted for local development.
 6. Record the environment bindings outside the repository and make them
    reproducible through deployment configuration/secret management rather than
    manual memory.
@@ -169,6 +169,11 @@ item 1.
    npx wrangler deploy   # from apps/edge
    npx wrangler deploy   # from apps/usage-consumer
    ```
+3. Configure `apps/web/wrangler.toml` with the real Hyperdrive id, then deploy
+   the public Worker with its exact, non-secret origin:
+   ```
+   npx wrangler deploy --var PUBLIC_ORIGIN:https://<public-host>  # from apps/web
+   ```
 
 ### Verify
 
@@ -244,15 +249,15 @@ customers remain on a separate billing source/channel.
 
 ## 8. Rights gate before any commercial route goes live
 
-Deployment readiness is not publication-rights readiness. PR #16 is required
-because the same source may legitimately be allowed on a free web comparison
-page while prohibited in a paid API, marketplace or sublicensed access path.
+Deployment readiness is not publication-rights readiness. Accepted ADR-0010
+distinguishes a public page from paid API, marketplace and sublicensed access.
 
 Before enabling a paid Cloudflare route or RapidAPI listing:
 
 1. Every contributing real source must have a reviewed rights decision.
-2. The exact use case (`API_FREE`, `API_PAID`, `LLM_RETRIEVAL`, export, web,
-   redistribution/sublicense as applicable) must resolve to permission.
+2. The exact surface (`PUBLIC_WEB`, `SEARCH_INDEX`, `API_FREE`, `API_PAID`,
+   `RAPIDAPI`, `MCP`, `BULK_EXPORT`, or another ADR-0010 surface) must resolve
+   to an effective `ALLOW` or fully satisfied `CONDITIONAL` decision.
 3. Every required attribution/condition must be enforced on that surface.
 4. Unknown/absent grants fail closed.
 5. Customer-facing terms must not grant rights broader than Data Foundry has.
@@ -264,15 +269,14 @@ commercial gate.
 
 ## 9. Production launch order
 
-1. Merge/reconcile PR #16 rights model.
-2. Merge/reconcile PR #14 usage-accounting corrections.
-3. Rebase/land PR #15 auth and metering on the final schema.
-4. Rebase/land PR #17 public web on the final rights/query semantics.
-5. Provision Cloudflare Postgres/Hyperdrive, Workers, Queues, DLQ, routes and
+1. Review and land the already-reconciled rights, usage, auth/metering and web
+   integration as one exact candidate; do not merge the stale PR trees blindly.
+2. Provision Cloudflare Postgres/Hyperdrive, Workers, Queues, DLQ, routes and
    secrets.
-6. Deploy and prove exact-SHA health/readiness plus real queue behavior.
-7. Rights-clear and ingest the first real commercial vertical.
-8. Enable public web publication for rights-cleared web use cases.
-9. Add the thin RapidAPI adapter and publish one marketplace vertical.
-10. Measure demand/cost before expanding plans, verticals or building first-
-    party billing.
+3. Deploy and prove exact-SHA health/readiness plus real queue behavior.
+4. Rights-clear and ingest the first real commercial vertical.
+5. Enable public web publication only for `PUBLIC_WEB`-cleared contributions;
+   include URLs in sitemaps only when `SEARCH_INDEX` also clears.
+6. Add the thin RapidAPI adapter and publish one marketplace vertical.
+7. Measure demand/cost before expanding plans, verticals or building first-
+   party billing.

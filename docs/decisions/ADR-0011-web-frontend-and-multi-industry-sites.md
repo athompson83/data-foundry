@@ -2,12 +2,10 @@
 
 **Status:** Accepted (first implementation: `apps/web`)
 **Date:** 2026-08-24
-**Relates to:** ADR-0006 (Cloudflare is the deployment target, merged);
-ADR-0007 (abuse protection, accounting and quota are three systems) and
-ADR-0008/0009 (usage metering) — proposed in open PR #14, not yet merged to
-`main` as of this ADR's date; `docs/owner-actions/cloudflare-deployment.md`;
-`docs/owner-actions/revenue-readiness.md`, which states plainly what is
-merged versus proposed for the paid-API half of the revenue split below.
+**Relates to:** ADR-0006 (Cloudflare deployment), ADR-0007/0008/0009
+(privacy-safe asynchronous usage metering), ADR-0010 (accepted surface-aware
+rights), `docs/owner-actions/cloudflare-deployment.md`, and
+`docs/owner-actions/revenue-readiness.md`.
 
 ## Context
 
@@ -51,10 +49,10 @@ This is also the revenue architecture, not just the URL scheme:
 | | `apps/web` | `apps/edge` |
 |---|---|---|
 | Audience | People, search engines, LLM web tools | Applications with an API key |
-| Auth | None | None on `main` today; API key auth (`packages/api-keys`) is designed in ADR-0007/0008/0009 and implemented in open PR #15 |
-| Cost model | Free, cached, crawlable | Metered per request once PR #14/#15 merge; unmetered, open reads today |
+| Auth | None; reads are still rights-bound | Fail-closed API-key authentication and tenant/vertical authorization |
+| Cost model | Free, cacheable, crawlable | Asynchronously metered per request; persistence is off the response path |
 | Failure mode | Cacheable 503 if misconfigured | Same, but a paying customer is waiting |
-| Job | Discovery, trust, citation — the funnel | The thing that earns money, once metering lands |
+| Job | Discovery, trust, citation — the funnel | The metered product that can earn revenue after deployment and source clearance |
 
 The free site is not a loss leader tolerated alongside the paid API; it is
 meant as the **demand-generation half of the same revenue design** ADR-0007
@@ -66,14 +64,14 @@ or the paid API free to browse, has confused the split.
 ### Why one Worker rather than N
 
 A vertical is added to `apps/web` by adding it to
-`tooling/scripts/compile-web-runtime.ts`'s `PUBLISHED_VERTICALS` list and
-running `pnpm web:compile` — the same "configuration, not a fork" shape rule 4
-already requires of `verticals/*`. `apps/web/src/composition.ts` opens ONE
-database connection and builds one `QueryModel` per vertical the bundle
-carries AND the database actually holds; a vertical compiled into the bundle
-but not yet ingested is not an error, it is simply not offered — a child site
-can exist in code before it exists in data without taking the parent site
-down with it (proven in `apps/web/test/composition.test.ts`).
+`tooling/scripts/compile-web-runtime.ts`'s `BUNDLED_WEB_VERTICALS` list and
+running `pnpm web:compile`. That command emits runtime JSON and a static
+TypeScript registry from the same list, so a new vertical cannot be compiled
+but forgotten in the Worker map. Bundling is not publication permission.
+`apps/web/src/composition.ts` opens one database connection and builds separate
+`PUBLIC_WEB` and `SEARCH_INDEX` surface models per vertical the bundle carries
+and the database holds. A bundled vertical absent from the database is simply
+not offered and does not take the parent site down.
 
 ### Indexability is measured, not asserted
 
@@ -82,11 +80,10 @@ gates, sitemap segments, structured data and LLM discovery (doc 07) before
 this ADR — nothing rendered it. AGENTS.md rule 8's "Do not create thin SEO
 pages. Indexability is quality/demand gated" is enforced for real in
 `apps/web/src/gates.ts`: every threshold `seo.yaml` declares is checked
-against a signal computed from the same `QueryModel` every other surface
-reads — `entity.quality_score`, `canonicalFacts` for critical-property
-coverage, `provenanceCoverage` for evidence coverage, real relationship
-traversals for supersession and related-entity counts, and the page's own
-rendered word count.
+against a signal computed from the same surface-bound query model the page
+reads. Evidence coverage and source counts are derived only from
+surface-authorized facts and customer-safe explanations; raw unrestricted
+provenance aggregates cannot leak neighboring denied claims into a gate.
 
 **A threshold this deployment cannot honestly measure fails closed, not
 open.** No traffic/analytics system exists in this repository, so
@@ -106,17 +103,14 @@ API and MCP, and only withholds the index entry it had not yet earned.
 assuming a URL space scoped to one vertical's own deployment. Served from the
 single multi-vertical `apps/web` origin, they are resolved relative to that
 vertical's `url_prefix` (`/data/hvac/sitemaps/entities-1.xml`), and the global
-`/sitemap-index.xml` lists every vertical's segments together. This is an
-interpretation this ADR makes explicit rather than one `seo.yaml` states,
-because `seo.yaml` predates the multi-vertical-single-origin decision.
+`/sitemap-index.xml` lists every vertical's segments together. Generation
+paginates through the query layer in batches of at most 200, honors
+`max_urls_per_file`, and advertises every resulting shard. A URL is eligible
+only when its identity/data independently clears both `PUBLIC_WEB` and
+`SEARCH_INDEX`; neither permission implies the other.
 
 ### What is not built here
 
-- **Sitemap sharding.** `max_urls_per_file` is honored in spirit — every
-  segment is single-shard (`-1.xml`) today because no deployment is within two
-  orders of magnitude of the 45,000-URL limit. Building pagination for a limit
-  nothing is near is exactly the complexity doc 07 warns against manufacturing
-  ahead of need; `apps/web/src/sitemap.ts` documents this as a known gap.
 - **`comparison` and `filtered_collection` page rendering.** Both are
   demand-gated in `seo.yaml`, and with no demand signal in this deployment
   (see above), both would always render `noindex` today. Building the UI for a

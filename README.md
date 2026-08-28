@@ -22,12 +22,11 @@ with provenance, and publication into the query layer.
 `tests/e2e/factory-proof.test.ts` runs four sources through the worker and
 checks the canonical result against golden records.
 
-The last step — "web / API / MCP / exports generated" — is implemented for
-three of its four surfaces: `apps/api` (read-only REST), `apps/mcp` (the tool
-contract) and `services/export-builder` (CSV and JSONL bulk exports). All three
-read their facts through `packages/query-model` and serialize through the
-shared projection in `packages/query-model/src/serialization.ts`, so they
-cannot drift apart in what they consider true.
+The last step — "web / API / MCP / exports generated" — has code implementations
+for all four surfaces: `apps/web`, `apps/api`, `apps/mcp`, and
+`services/export-builder`. They read through `packages/query-model`; customer
+surfaces bind each request to an exact ADR-0010 rights surface, so public web,
+search indexing, direct API, MCP and bulk permissions never imply one another.
 
 Rule 5 is enforced by a boundary test in each, and it is worth being exact
 about what each one proves. `apps/api` and `apps/mcp` import nothing beneath
@@ -45,15 +44,17 @@ its projection is checked against the shared mapper in its own
 
 Two limitations the package list does not show:
 
-**The fourth surface — human pages — now has a first implementation.**
+**The human-page surface has a first implementation.**
 `apps/web` is the free, public, multi-vertical site: a parent index of every
-industry plus a child site per industry, entity pages with cited evidence, and
-a plain `<form>` search UI with no client-side JavaScript required. See
+industry plus a child site per industry, entity pages with surface-safe cited
+evidence, and a plain `<form>` search UI with no client-side JavaScript required. See
 [ADR-0011](docs/decisions/ADR-0011-web-frontend-and-multi-industry-sites.md)
 for the parent/child architecture and the free-web/paid-API revenue split it
-implements, and the quality-gate evaluator (`apps/web/src/gates.ts`) that
-decides indexability from real signals rather than by fiat. Nothing here is
-deployed yet — see Deployment below.
+implements. Page reads require `PUBLIC_WEB`; sitemap inclusion also requires an
+independent `SEARCH_INDEX` grant. The quality-gate evaluator
+(`apps/web/src/gates.ts`) decides indexability from authorized evidence rather
+than raw database aggregates or fiat. Nothing here is deployed yet — see
+Deployment below.
 
 **Every source is synthetic.** The rights machinery genuinely runs, but it
 currently validates controlled fixture declarations rather than a real
@@ -98,6 +99,7 @@ pnpm install
 pnpm typecheck        # tsc --strict across every package, test and script
 pnpm test             # vitest: unit, contract and PGlite migration tests
 pnpm migrate:check    # apply migrations to a throwaway database and verify
+pnpm web:compile:check # verify web runtime JSON and generated TS registry parity
 pnpm build            # regenerate JSON Schema exports, then typecheck
 ```
 

@@ -1,14 +1,11 @@
 # Owner actions — the revenue path, end to end
 
-**Status check first, because it matters for how to read this document:**
-ADR-0007, ADR-0008, ADR-0009 and `db/migrations/0012_usage_accounting_corrections.sql`
-are proposed in PR #14 (`claude/df-usage-schema`); the auth/metering
-implementation described below (`apps/edge/src/auth.ts`, `apps/usage-consumer`,
-`packages/usage-events`) is proposed in PR #15 (`claude/df-edge-auth-metering`).
-The rights-grant model needed to distinguish public web, free API, paid API,
-MCP/LLM and redistribution rights is proposed in PR #16. The public multi-industry
-site is proposed in PR #17. **None of those four PRs is merged to `main` as of
-this writing.**
+**Status check first, because it matters for how to read this document:** the
+current integration candidate reconciles the usage-accounting corrections from
+PR #14, auth/queue metering from PR #15, the accepted and implemented ADR-0010
+rights matrix from PR #16, and the public multi-industry site from PR #17.
+Those capabilities are repository code, but the combined candidate is not yet
+deployed and no real HVAC source has acquired an effective surface grant.
 
 This document describes the end-to-end revenue path those changes enable and
 states plainly what is implemented, proposed, operational, legal or still a
@@ -19,10 +16,10 @@ relationship or live deployment can be verified from repository code alone.
 
 | | Channel | Role | Status |
 |---|---|---|---|
-| 1 | **Public web / pay per crawl** | Discovery, SEO, ads/AI-crawler monetization | Public site in PR #17; Cloudflare pay-per-crawl is owner enrollment |
-| 2A | **API marketplace (RapidAPI initially)** | Low-friction developer discovery, checkout, plans and marketplace billing | Planned; depends on rights + auth/metering + deployment |
-| 2B | **Direct Data Foundry API** | Higher-margin customers, larger volumes, negotiated terms | Auth/metering drafted; direct billing not built |
-| 3 | **MCP / agent access** | Agent-native retrieval | MCP surface exists; commercial entitlement model depends on rights-grant implementation |
+| 1 | **Public web / pay per crawl** | Discovery, SEO, ads/AI-crawler monetization | Rights-bound Worker implemented; deployment and Cloudflare enrollment remain |
+| 2A | **API marketplace (RapidAPI initially)** | Low-friction developer discovery, checkout, plans and marketplace billing | Thin adapter remains before listing/deployment |
+| 2B | **Direct Data Foundry API** | Higher-margin customers, larger volumes, negotiated terms | Auth/metering implemented; direct billing not built |
+| 3 | **MCP / agent access** | Agent-native retrieval | MCP and its independent `MCP` rights surface exist; commercial packaging remains |
 | 4 | **Bulk / enterprise data** | Dataset snapshots, custom enrichment, enterprise licensing | Export surface exists; commercial rights and contracts remain separate decisions |
 
 All channels must read the same canonical truth through the same query layer.
@@ -37,7 +34,8 @@ public, discoverable asset a crawler or search engine reaches.
 
 Owner actions:
 
-1. Deploy the public Worker after PR #17 is merged and production data exists.
+1. Deploy the exact integrated candidate after its review gates pass, setting
+   `PUBLIC_ORIGIN` to the exact HTTPS origin and binding canonical Postgres.
 2. Keep normal search-engine crawlers allowed if organic search is part of the
    acquisition strategy.
 3. Enroll the zone in pay per crawl if available and economically sensible.
@@ -68,12 +66,12 @@ Target topology:
 This preserves one deployment, one query layer, one rights resolver and one
 usage event model.
 
-### What PR #14 and PR #15 provide
+### What the reconciled usage and auth work provides
 
-- PR #14 corrects usage accounting so an event is tied to the authenticating
+- Usage accounting ties an event to the authenticating
   key, tenant, vertical and closed route vocabulary rather than a raw request
   target.
-- PR #15 authenticates requests before routing and asynchronously records usage
+- The edge authenticates requests before routing and asynchronously records usage
   through a queue/consumer path so metering cannot become response latency or
   availability.
 
@@ -137,23 +135,25 @@ Implementation rules:
 A marketplace listing is commercial redistribution/access. It cannot be treated
 as merely another hostname.
 
-PR #16 exists because a source can legally be permitted on a public comparison
-page while prohibited in a paid API or sublicensed access. Before a vertical is
-listed on RapidAPI, every fact that can reach that listing must resolve to a
-permitted grant for the actual use being made.
+ADR-0010 exists because one source may be permitted on the public web while
+prohibited in a paid API or sublicensed access. Before a vertical is listed on
+RapidAPI, every contribution must resolve the exact `RAPIDAPI` AND-bundle.
 
 At minimum the rights system must distinguish:
 
-- `WEB_ITEM_PAGE` / `WEB_SEARCH_COMPARE`
+- `PUBLIC_WEB`
+- `SEARCH_INDEX`
 - `API_FREE`
 - `API_PAID`
-- `LLM_RETRIEVAL`
+- `RAPIDAPI`
+- `MCP`
 - `BULK_EXPORT`
-- `REDISTRIBUTION` / `SUBLICENSE` where applicable
+- `PARTNER_DELIVERY`, `MODEL_TRAINING`, and `MODEL_EVALUATION` where applicable
 
-Absence of permission remains refusal. A free RapidAPI tier does not make the
-surface non-commercial or automatically convert `API_PAID` rights into
-`API_FREE` rights; the grant recorded for that exact use case controls.
+Absence of permission remains refusal. A free RapidAPI tier does not become
+`API_FREE`, and direct `API_PAID` permission does not imply `RAPIDAPI`; the
+marketplace bundle separately requires service, sale, normalized redistribution
+and sublicense permission on the marketplace channel.
 
 ### Marketplace product shape
 
@@ -194,18 +194,15 @@ not a permanent exclusivity decision.
 The next work should proceed in this order because later steps depend on the
 semantics established earlier:
 
-1. **Resolve and implement the rights model (PR #16).** Approve the rights-grant
-   design, preserve fail-closed defaults, and add enforcement contexts for web,
-   free API, paid API, MCP/LLM and export use cases.
-2. **Land the usage-accounting corrections (PR #14 or successor).** Reconcile
-   it with the rights changes if either branch touches shared schema/runtime
-   assumptions; rerun full migration and contract evidence on the combined tree.
-3. **Land auth and asynchronous metering (PR #15 or successor).** Rebase/replay
-   it onto the corrected schema instead of merging a branch that targets stale
-   assumptions.
-4. **Land the public web surface (PR #17 or successor).** Re-run its rights and
-   query-boundary tests against the final combined rights model; public web must
-   pass the correct web use-case rather than rely on the old global gate.
+1. **Rights model — integrated.** ADR-0010 is accepted and implemented with
+   sparse, fail-closed, surface-specific grants; no migration manufactured an
+   `ALLOW`.
+2. **Usage-accounting corrections — integrated.** The combined schema preserves
+   route privacy, tenant/vertical attribution and database integrity.
+3. **Auth and asynchronous metering — integrated.** API keys fail closed and
+   the request path emits privacy-safe queue events without awaiting persistence.
+4. **Public web — integrated.** Page reads bind to `PUBLIC_WEB`; sitemap reads
+   independently require `PUBLIC_WEB` and `SEARCH_INDEX`.
 5. **Deploy the canonical Cloudflare stack.** Provision production Postgres,
    Hyperdrive, API Worker, usage queue/consumer, public Worker, routes and
    secrets; prove health/readiness and perform live smoke tests.
@@ -234,8 +231,8 @@ A vertical is not revenue-ready merely because its tests pass. Before any paid
 API or marketplace listing is enabled, all of the following must be true:
 
 - real source data exists and has completed rights review;
-- the exact commercial use case resolves ALLOW/allowed with every condition
-  enforceable and honored;
+- the exact commercial use case resolves `ALLOW` (or satisfied `CONDITIONAL`)
+  with every condition enforceable and honored;
 - attribution obligations are carried through the response/documentation;
 - API contract and OpenAPI/listing docs match the deployed routes;
 - production auth rejects invalid, revoked, expired and wrong-scope keys;
