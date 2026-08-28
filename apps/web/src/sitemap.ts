@@ -59,12 +59,18 @@ async function allVisibleEntities(
   let total = Number.POSITIVE_INFINITY;
 
   while (offset < total) {
+    const requestedOffset = offset;
     const result = await model.search({
       vertical_id: vertical.verticalId,
       entity_type: entityType as never,
       limit: SEARCH_PAGE_SIZE,
-      offset,
+      offset: requestedOffset,
     });
+    if (result.offset !== requestedOffset) {
+      throw new SitemapConfigurationError(
+        `Sitemap pagination could not advance: requested offset ${requestedOffset}, but the query layer returned ${result.offset}.`,
+      );
+    }
     entities.push(...result.hits.map((hit) => hit.entity));
     total = result.total;
     if (result.hits.length === 0) break;

@@ -164,24 +164,34 @@ function fakeSurfaceModel(
   surface: 'PUBLIC_WEB' | 'SEARCH_INDEX',
   entities: readonly typeof fixtures.equipment[],
   searchCalls: SearchQuery[],
+  options: {
+    readonly maxLimit?: number;
+    readonly maxOffset?: number;
+    readonly emptyWhenOffsetClamped?: boolean;
+  } = {},
 ): SurfaceQueryModel {
   return {
     fields: fixtures.registry,
     surface,
     search: async (query: SearchQuery) => {
       searchCalls.push(query);
-      const offset = query.offset ?? 0;
-      const limit = Math.min(query.limit ?? 200, 200);
+      const requestedOffset = query.offset ?? 0;
+      const offset = Math.min(requestedOffset, options.maxOffset ?? Number.MAX_SAFE_INTEGER);
+      const limit = Math.min(query.limit ?? 200, options.maxLimit ?? 200);
+      const hits =
+        options.emptyWhenOffsetClamped === true && offset !== requestedOffset
+          ? []
+          : entities.slice(offset, offset + limit).map((entity) => ({
+              entity,
+              match_kind: 'FILTER_ONLY' as const,
+              score: 0,
+              text_rank: 0,
+              exact: false,
+              matched_on: null,
+              explain: 'synthetic pagination hit',
+            }));
       return {
-        hits: entities.slice(offset, offset + limit).map((entity) => ({
-          entity,
-          match_kind: 'FILTER_ONLY' as const,
-          score: 0,
-          text_rank: 0,
-          exact: false,
-          matched_on: null,
-          explain: 'synthetic pagination hit',
-        })),
+        hits,
         total: entities.length,
         limit,
         offset,
@@ -199,7 +209,11 @@ function fakeSurfaceModel(
   } as unknown as SurfaceQueryModel;
 }
 
-function paginationVertical(count: number, maxUrlsPerFile: number) {
+function paginationVertical(
+  count: number,
+  maxUrlsPerFile: number,
+  searchOptions: Parameters<typeof fakeSurfaceModel>[3] = {},
+) {
   const entities = Array.from({ length: count }, (_, index) => ({
     ...fixtures.equipment,
     id: `00000000-0000-4000-8000-${String(index).padStart(12, '0')}` as typeof fixtures.equipment.id,
@@ -238,8 +252,8 @@ function paginationVertical(count: number, maxUrlsPerFile: number) {
     slug: 'hvac',
     verticalId: fixtures.vertical.id,
     runtime,
-    publicQueryModel: fakeSurfaceModel('PUBLIC_WEB', entities, publicCalls),
-    searchIndexQueryModel: fakeSurfaceModel('SEARCH_INDEX', entities, indexCalls),
+    publicQueryModel: fakeSurfaceModel('PUBLIC_WEB', entities, publicCalls, searchOptions),
+    searchIndexQueryModel: fakeSurfaceModel('SEARCH_INDEX', entities, indexCalls, searchOptions),
   };
   return { vertical, entities, publicCalls, indexCalls };
 }
@@ -278,5 +292,22 @@ describe('sitemap pagination and configured file limits', () => {
     expect(index).toContain('/sitemaps/entities-1.xml');
     expect(index).toContain('/sitemaps/entities-2.xml');
     expect(index).toContain('/sitemaps/entities-3.xml');
+  });
+
+  it('fails closed instead of truncating or looping when the query cursor is clamped', async () => {
+    const { vertical } = paginationVertical(5, 45_000, {
+      maxLimit: 2,
+      maxOffset: 2,
+      emptyWhenOffsetClamped: true,
+    });
+
+    await expect(
+      sitemapSegmentXml(
+        vertical,
+        'https://data-foundry.test',
+        'entities',
+        new Date('2026-03-01T00:00:00Z'),
+      ),
+    ).rejects.toThrow(/pagination could not advance/i);
   });
 });
