@@ -16,7 +16,7 @@ async function loadArtifactModule(): Promise<Record<string, unknown>> {
 }
 
 describe('Cloudflare production artifacts', () => {
-  it('builds both Workers with pinned Wrangler dry-run and finds no local PGlite runtime', async () => {
+  it('builds every deployed Worker with pinned Wrangler dry-run and finds no local PGlite runtime', async () => {
     const module = await loadArtifactModule();
     const build = module['buildCloudflareArtifacts'];
     expect(typeof build).toBe('function');
@@ -32,8 +32,8 @@ describe('Cloudflare production artifacts', () => {
       }>
     )({ outputRoot });
 
-    expect(result.services).toEqual(['edge', 'usage-consumer']);
-    expect(result.files).toBeGreaterThanOrEqual(2);
+    expect(result.services).toEqual(['edge', 'usage-consumer', 'web']);
+    expect(result.files).toBeGreaterThanOrEqual(3);
     expect(result.bytes).toBeGreaterThan(100_000);
   }, 240_000);
 

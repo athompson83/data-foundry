@@ -6,7 +6,7 @@
 - Lifecycle stage: MVP implementation / pre-deployment
 - Control-graph node: `RECONCILE -> IMPLEMENT -> VERIFY -> HANDOFF`
 - Current milestone: Integrate and deploy the first lawful, revenue-capable HVAC vertical
-- Branch: `codex/rapidapi-openapi-20260828`
+- Branch: `codex/revenue-integration-20260826`
 - PR: Not created at the time of this closeout-file update
 - Preview: None verified
 - Production: Not deployed

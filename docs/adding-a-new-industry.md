@@ -81,14 +81,24 @@ pnpm verticals:compile
 pnpm web:compile
 ```
 
-Add the slug to the explicit bundled-runtime list and regenerate. Bundling a
-runtime is not publication permission; database presence, exact surface grants
-and page-quality gates still decide what can be returned or indexed.
+Add the slug to `BUNDLED_VERTICALS` in `compile-vertical-runtime.ts` only when
+the vertical has an edge/API deployment, and to `BUNDLED_WEB_VERTICALS` in
+`compile-web-runtime.ts` only when the public Worker should carry it. The lists
+are intentionally independent: an industry can be public without being sold by
+API, or sold by API before its public pages are eligible. Run the matching
+compiler(s). Bundling a runtime is not publication permission; database
+presence, exact surface grants and page-quality gates still decide what can be
+returned or indexed.
 
 ```bash
 pnpm verticals:compile:check
 pnpm web:compile:check
 ```
+
+`pnpm openapi:generate` emits one canonical edge contract per edge bundle as
+`openapi/data-foundry-<slug>-v1.openapi.json` (and retains the existing HVAC
+path during migration). Run it whenever `BUNDLED_VERTICALS` changes; the CI
+drift check covers every generated contract.
 
 ## 5. Ingest and verify
 

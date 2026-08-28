@@ -13,6 +13,7 @@ export const CONSUMER_CONFIG_PATH = join(
   'usage-consumer',
   'wrangler.toml',
 );
+export const WEB_CONFIG_PATH = join(REPO_ROOT, 'apps', 'web', 'wrangler.toml');
 
 const USAGE_QUEUE = 'data-foundry-usage-events';
 const USAGE_DLQ = 'data-foundry-usage-events-dlq';
@@ -22,6 +23,7 @@ type TomlObject = Record<string, unknown>;
 export interface CloudflareTopologyOptions {
   readonly edgeConfigPath?: string;
   readonly consumerConfigPath?: string;
+  readonly webConfigPath?: string;
 }
 
 function object(value: unknown): TomlObject {
@@ -118,10 +120,13 @@ export async function validateCloudflareTopology(
     'usage-consumer',
     errors,
   );
+  const web = await parseConfig(options.webConfigPath ?? WEB_CONFIG_PATH, 'web', errors);
   checkWorkerBase('edge', edge, errors);
   checkWorkerBase('usage-consumer', consumer, errors);
+  checkWorkerBase('web', web, errors);
   checkRepositoryPolicy('edge', edge, errors);
   checkRepositoryPolicy('usage-consumer', consumer, errors);
+  checkRepositoryPolicy('web', web, errors);
 
   const edgeVars = object(edge['vars']);
   if (edgeVars['VERTICAL_SLUG'] !== 'hvac') {
@@ -174,7 +179,7 @@ export async function run(options: CloudflareTopologyOptions = {}): Promise<numb
     process.stderr.write(`Cloudflare topology validation failed:\n${errors.map((error) => `- ${error}`).join('\n')}\n`);
     return 1;
   }
-  process.stdout.write('OK: Cloudflare edge/queue/consumer topology is internally consistent.\n');
+  process.stdout.write('OK: Cloudflare edge, queue consumer, and public web topology is internally consistent.\n');
   return 0;
 }
 

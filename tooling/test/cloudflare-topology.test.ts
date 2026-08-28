@@ -7,6 +7,7 @@ import { afterAll, describe, expect, it } from 'vitest';
 const REPO_ROOT = fileURLToPath(new URL('../../', import.meta.url));
 const EDGE_CONFIG = join(REPO_ROOT, 'apps', 'edge', 'wrangler.toml');
 const CONSUMER_CONFIG = join(REPO_ROOT, 'apps', 'usage-consumer', 'wrangler.toml');
+const WEB_CONFIG = join(REPO_ROOT, 'apps', 'web', 'wrangler.toml');
 const temporaryDirectories: string[] = [];
 
 afterAll(async () => {
@@ -14,14 +15,22 @@ afterAll(async () => {
 });
 
 async function loadValidator(): Promise<(
-  options?: { readonly edgeConfigPath?: string; readonly consumerConfigPath?: string },
+  options?: {
+    readonly edgeConfigPath?: string;
+    readonly consumerConfigPath?: string;
+    readonly webConfigPath?: string;
+  },
 ) => Promise<readonly string[]>> {
   const module = await import('../scripts/check-cloudflare-topology.js').catch(() => null);
   expect(module, 'the repository needs a cross-manifest Cloudflare topology validator').not.toBeNull();
   const validate = (module as Record<string, unknown> | null)?.['validateCloudflareTopology'];
   expect(typeof validate).toBe('function');
   return validate as (
-    options?: { readonly edgeConfigPath?: string; readonly consumerConfigPath?: string },
+    options?: {
+      readonly edgeConfigPath?: string;
+      readonly consumerConfigPath?: string;
+      readonly webConfigPath?: string;
+    },
   ) => Promise<readonly string[]>;
 }
 
@@ -81,5 +90,20 @@ describe('the committed Cloudflare topology', () => {
     expect(errors.join('\n')).toMatch(/hyperdrive.*id/i);
     expect(errors.join('\n')).toMatch(/POSTGRES_URL/);
     expect(errors.join('\n')).toMatch(/RAPIDAPI_PROXY_SECRET/);
+  });
+
+  it('validates the public web Worker manifest under the same repository policy', async () => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-cloudflare-web-policy-'));
+    temporaryDirectories.push(directory);
+    const webPath = join(directory, 'web.toml');
+    await writeFile(
+      webPath,
+      `${await readFile(WEB_CONFIG, 'utf8')}\naccount_id = "00000000000000000000000000000000"\n`,
+      'utf8',
+    );
+
+    const errors = await validate({ webConfigPath: webPath });
+    expect(errors.join('\n')).toMatch(/web.*account_id/i);
   });
 });

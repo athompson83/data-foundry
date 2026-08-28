@@ -10,6 +10,37 @@ afterAll(async () => {
 });
 
 describe('the OpenAPI artifact gate', () => {
+  it('creates a deterministic contract artifact for every bundled edge vertical', async () => {
+    const module = await import('../scripts/generate-openapi.js').catch(() => null);
+    expect(module, 'the OpenAPI generator must support more than one edge vertical').not.toBeNull();
+    if (module === null) return;
+    const serialize = (module as Record<string, unknown>)['serializeOpenApiArtifacts'];
+    expect(typeof serialize).toBe('function');
+    if (typeof serialize !== 'function') return;
+
+    const artifacts = (serialize as (
+      bundledVerticals: readonly string[],
+      runtimes: Readonly<Record<string, { readonly fields: readonly unknown[] }>>,
+    ) => Readonly<Record<string, string>>)(
+      ['solar', 'hvac'],
+      {
+        hvac: { fields: [] },
+        solar: { fields: [] },
+      },
+    );
+
+    expect(Object.keys(artifacts)).toEqual([
+      'data-foundry-hvac-v1.openapi.json',
+      'data-foundry-solar-v1.openapi.json',
+    ]);
+    expect(JSON.parse(artifacts['data-foundry-hvac-v1.openapi.json'] ?? '{}')).toMatchObject({
+      'x-data-foundry-vertical': 'hvac',
+    });
+    expect(JSON.parse(artifacts['data-foundry-solar-v1.openapi.json'] ?? '{}')).toMatchObject({
+      'x-data-foundry-vertical': 'solar',
+    });
+  });
+
   it('fails when absent or stale and passes only after generation', async () => {
     const module = await import('../scripts/generate-openapi.js').catch(() => null);
     expect(module, 'the repository needs an executable OpenAPI generator').not.toBeNull();

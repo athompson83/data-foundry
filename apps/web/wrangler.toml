@@ -17,6 +17,11 @@ compatibility_flags = ["nodejs_compat"]
 [observability]
 enabled = true
 
+[vars]
+# Keep the committed production template subject to the same topology checks as
+# the API and queue consumer. The web runtime does not read this value itself.
+DEPLOYMENT_ENVIRONMENT = "production"
+
 # No VERTICAL_SLUG here, unlike apps/edge: this is the ONE deployment that
 # serves every vertical — the parent site and every child industry site are
 # one Worker, one route, one bundle (ADR-0011). Which verticals it can serve

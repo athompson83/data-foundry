@@ -253,7 +253,7 @@ byte, what the declaration has to record, and what counts as proof afterwards.
 
 ## Deployment
 
-Two Cloudflare Workers, per
+Three Cloudflare Workers, per
 [ADR-0006](docs/decisions/ADR-0006-cloudflare-is-the-deployment-target.md) and
 [ADR-0011](docs/decisions/ADR-0011-web-frontend-and-multi-industry-sites.md):
 
@@ -266,6 +266,8 @@ Two Cloudflare Workers, per
   industry, because that is the surface search engines and agents are meant to
   discover through, and siloing it per industry would fragment exactly the
   discoverability it exists for.
+- **`apps/usage-consumer`** — the queue consumer that persists metering events
+  idempotently after the edge Worker has accepted and handed them off.
 
 Both are composition roots — the only packages in their surface permitted to
 reach below the query layer — plus a `fetch` adapter that translates and

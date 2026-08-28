@@ -197,7 +197,8 @@ item 1.
 ### Verify
 
 A successful, authenticated `GET` against the edge Worker returns its answer
-immediately. Within a few seconds, `select count(*) from api_usage_events` on
+after Cloudflare Queues accepts its usage event, not after the consumer persists
+that event to Postgres. Within a few seconds, `select count(*) from api_usage_events` on
 the production database increases by one, and the row's `route_key` column
 holds a registered key (`entities.detail`) rather than any path, query, slug,
 or entity id. Confirm `npx wrangler queues info data-foundry-usage-events`

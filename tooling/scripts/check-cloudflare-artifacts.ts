@@ -34,6 +34,11 @@ const SERVICES = [
     configPath: join(REPO_ROOT, 'apps', 'usage-consumer', 'wrangler.toml'),
     mainPath: join(REPO_ROOT, 'apps', 'usage-consumer', 'src', 'index.ts'),
   },
+  {
+    name: 'web',
+    configPath: join(REPO_ROOT, 'apps', 'web', 'wrangler.toml'),
+    mainPath: join(REPO_ROOT, 'apps', 'web', 'src', 'index.ts'),
+  },
 ] as const;
 
 type TomlObject = Record<string, unknown>;
