@@ -87,6 +87,7 @@ describe('surface-bound vertical publication eligibility', () => {
       expect(docs.status).toBe(200);
       expect(docs.body).toContain('name="robots" content="noindex,follow"');
       expect(llms.status).toBe(200);
+      expect(llms.headers['x-robots-tag']).toBe('noindex, follow');
       expect(sitemapIndex.body).not.toContain('/data/hvac/');
       expect(datasetSitemap.body).not.toContain('/data/hvac/docs');
     });
@@ -94,15 +95,17 @@ describe('surface-bound vertical publication eligibility', () => {
 
   it('indexes discovery pages only when the ACTIVE vertical independently has both grants', async () => {
     await withApp('ACTIVE', ['PUBLIC_WEB', 'SEARCH_INDEX'], async (app) => {
-      const [search, docs, sitemapIndex, datasetSitemap] = await Promise.all([
+      const [search, docs, llms, sitemapIndex, datasetSitemap] = await Promise.all([
         app({ method: 'GET', url: '/data/hvac/search' }),
         app({ method: 'GET', url: '/data/hvac/docs' }),
+        app({ method: 'GET', url: '/data/hvac/llms.txt' }),
         app({ method: 'GET', url: '/sitemap-index.xml' }),
         app({ method: 'GET', url: '/data/hvac/sitemaps/datasets.xml' }),
       ]);
 
       expect(search.body).toContain('name="robots" content="index,follow"');
       expect(docs.body).toContain('name="robots" content="index,follow"');
+      expect(llms.headers['x-robots-tag']).toBeUndefined();
       expect(sitemapIndex.body).toContain('/data/hvac/sitemaps/');
       expect(datasetSitemap.body).toContain('/data/hvac/docs');
     });

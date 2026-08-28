@@ -46,8 +46,17 @@ export function xmlResponse(status: number, xml: string): WebResponse {
   return { status, headers: headersFor('application/xml; charset=utf-8', PUBLIC_CACHE), body: xml };
 }
 
-export function textResponse(status: number, text: string, cache: string = PUBLIC_CACHE): WebResponse {
-  return { status, headers: headersFor('text/plain; charset=utf-8', cache), body: text };
+export function textResponse(
+  status: number,
+  text: string,
+  extraHeaders: Readonly<Record<string, string>> = {},
+  cache: string = PUBLIC_CACHE,
+): WebResponse {
+  return {
+    status,
+    headers: { ...headersFor('text/plain; charset=utf-8', cache), ...extraHeaders },
+    body: text,
+  };
 }
 
 export function notFound(html: string): WebResponse {

@@ -184,14 +184,14 @@ item 1.
    Deploy the public Worker from `apps/web` with its exact, non-secret origin:
    ```
    npx wrangler deploy --config wrangler.production.toml --var PUBLIC_ORIGIN:https://<public-host>
-   git diff --exit-code -- wrangler.toml
+   git diff --exit-code HEAD -- wrangler.toml
    ```
    Repeat the `--config wrangler.production.toml` form from `apps/edge` and
-   `apps/usage-consumer`. The final `git diff` is the required check that no
-   live environment value reached the tracked manifest.
+   `apps/usage-consumer`. Comparing to `HEAD` is required: a plain working-tree
+   diff ignores staged edits and could falsely pass after a live id was staged.
    From the repository root, verify all three tracked templates together:
    ```powershell
-   git diff --exit-code -- apps/edge/wrangler.toml apps/usage-consumer/wrangler.toml apps/web/wrangler.toml
+   git diff --exit-code HEAD -- apps/edge/wrangler.toml apps/usage-consumer/wrangler.toml apps/web/wrangler.toml
    ```
 
 ### Verify

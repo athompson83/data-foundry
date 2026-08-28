@@ -69,7 +69,11 @@ function segmentFor(vertical: VerticalDeployment, rest: string): SitemapSegmentM
 type VerticalResult =
   | { readonly kind: 'html'; readonly status: number; readonly body: string }
   | { readonly kind: 'xml'; readonly body: string }
-  | { readonly kind: 'text'; readonly body: string }
+  | {
+      readonly kind: 'text';
+      readonly body: string;
+      readonly headers?: Readonly<Record<string, string>>;
+    }
   | { readonly kind: 'redirect'; readonly location: string; readonly status: number };
 
 async function dispatchVertical(
@@ -107,7 +111,13 @@ async function dispatchVertical(
     return { kind: 'html', status: page.status, body: page.html };
   }
   if (rest === '/llms.txt' || rest === '/llms-full.txt') {
-    return { kind: 'text', body: llmsTxt(vertical, origin) };
+    return {
+      kind: 'text',
+      body: llmsTxt(vertical, origin),
+      ...(eligibility.searchIndex
+        ? {}
+        : { headers: { 'x-robots-tag': 'noindex, follow' } }),
+    };
   }
   if (rest.startsWith('/sitemaps/')) {
     const segment = segmentFor(vertical, rest);
@@ -203,7 +213,7 @@ async function dispatch(context: WebContext, request: WebRequest): Promise<WebRe
     case 'xml':
       return xmlResponse(200, result.body);
     case 'text':
-      return textResponse(200, result.body);
+      return textResponse(200, result.body, result.headers);
     case 'html':
       return htmlResponse(result.status, result.body);
   }
