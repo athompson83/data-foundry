@@ -234,6 +234,10 @@ importers:
       '@data-foundry/source-registry':
         specifier: workspace:*
         version: link:../../packages/source-registry
+    devDependencies:
+      '@data-foundry/rights-engine':
+        specifier: workspace:*
+        version: link:../../packages/rights-engine
 
   services/ingest-worker:
     dependencies:

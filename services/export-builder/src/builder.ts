@@ -279,6 +279,15 @@ export async function buildDatasetExport(
   const { queryModel: qm, vertical, sink, properties } = options;
   const at = options.selection?.at ?? options.generatedAt;
   const policy = resolveFactSelectionPolicy({ ...(options.selection ?? {}), at });
+  // The builder receives the internal model because its pre-write audit must
+  // inspect claims that will NOT be published. All customer-bound selection is
+  // nevertheless performed through the exact BULK_EXPORT surface. Keeping the
+  // two handles visibly separate prevents an audit read from becoming a wire
+  // read and prevents web/API grants from being mistaken for export rights.
+  // Rights are judged when the snapshot is produced, even when the caller asks
+  // for a historical fact view. Using `selection.at` here would resurrect a
+  // grant that has since expired or been revoked.
+  const bulk = qm.forSurface('BULK_EXPORT', { asOf: options.generatedAt });
   const statuses: readonly EntityStatus[] = options.entityStatuses ?? ['ACTIVE'];
   const refusals: ExportRefusal[] = [];
 
@@ -348,25 +357,71 @@ export async function buildDatasetExport(
   const audited = new Map<string, SourceTally>();
 
   for (const entity of entities) {
-    const all = await qm.canonicalFacts(entity.id, policy);
-    const views = all.filter((view) => propertyIsExportable(properties, view.property));
-    // `canonicalView` emits one row per property that has any claim valid at
-    // `at`, so no exportable view means no stored claim on an exportable
-    // property either, and there is nothing here for the gate to look at.
-    if (views.length === 0) continue;
+    // Read every stored claim, not only a selected one. This is the internal
+    // audit pre-pass; none of these objects crosses the export boundary.
+    const storedFacts = (await qm.facts({ entity_id: entity.id, at })).filter((stored) =>
+      propertyIsExportable(properties, stored.fact.property),
+    );
+    if (storedFacts.length === 0) continue;
 
+    for (const stored of storedFacts) {
+      if (stored.lineage === null) continue;
+      for (const link of stored.lineage.chain) tally(audited, link.source, stored.fact.id);
+    }
+
+    // Entity existence is an independently evidenced claim. A source with a
+    // fact grant cannot manufacture permission to put the containing entity in
+    // a downloadable dataset.
+    if (await bulk.getEntity(entity.id) === null) {
+      refusals.push({
+        code: 'ENTITY_RIGHTS_MATRIX_REFUSED',
+        // The surface-safe model deliberately does not disclose which
+        // contribution failed. Keep the structured subject empty rather than
+        // guessing and accusing an otherwise-cleared source.
+        subject: null,
+        message:
+          `Entity ${entity.canonical_slug} existence provenance does not satisfy the exact ` +
+          'BULK_EXPORT rights ' +
+          'bundle. Public web, API, MCP and neighboring grants do not imply bulk permission.',
+      });
+      continue;
+    }
+
+    // The surface explanation returns only already-authorized candidate IDs
+    // and no blocked-candidate oracle. Comparing that internal allow-set with
+    // the wider audit read lets this builder retain its deliberate all-or-
+    // nothing rule: a blocked rival claim on an exported property refuses the
+    // snapshot instead of being silently omitted from a file that looks whole.
+    const authorizedFactIds = new Set<string>();
+    const exportedProperties = [...new Set(storedFacts.map((stored) => stored.fact.property))];
+    for (const property of exportedProperties) {
+      const explanation = await bulk.explainFact(entity.id, property, policy);
+      for (const claim of explanation?.claims ?? []) authorizedFactIds.add(claim.fact_id);
+    }
+    for (const stored of storedFacts) {
+      if (!authorizedFactIds.has(stored.fact.id)) {
+        refusals.push({
+          code: 'FACT_RIGHTS_MATRIX_REFUSED',
+          subject: null,
+          message:
+            `${entity.canonical_slug}.${stored.fact.property} (stored fact ${stored.fact.id}) ` +
+            'does not satisfy the exact BULK_EXPORT rights ' +
+            'bundle. No neighboring surface grant can authorize this snapshot.',
+        });
+      }
+    }
+
+    const views = (await bulk.canonicalFacts(entity.id, policy)).filter((view) =>
+      propertyIsExportable(properties, view.property),
+    );
     const selectedIds = new Set<string>(
       views.map((view) => view.fact_id).filter((id): id is NonNullable<typeof id> => id !== null),
     );
     const lineages = new Map<string, FactLineage>();
-    // Read every stored claim, not only the selected ones. `qm.facts` returns
-    // the current, non-retracted claims valid at `at` with their lineage, which
-    // is the honest definition of "what this export's property set draws on".
-    for (const stored of await qm.facts({ entity_id: entity.id, at })) {
-      if (!propertyIsExportable(properties, stored.fact.property)) continue;
-      if (stored.lineage === null) continue;
-      if (selectedIds.has(stored.fact.id)) lineages.set(stored.fact.id, stored.lineage);
-      for (const link of stored.lineage.chain) tally(audited, link.source, stored.fact.id);
+    for (const stored of storedFacts) {
+      if (stored.lineage !== null && selectedIds.has(stored.fact.id)) {
+        lineages.set(stored.fact.id, stored.lineage);
+      }
     }
 
     for (const view of views) {

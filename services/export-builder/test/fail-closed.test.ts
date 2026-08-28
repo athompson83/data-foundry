@@ -320,6 +320,13 @@ describe('declaration-only blockers the database cannot see', () => {
         refusal.message.includes('RIGHTS_REVIEW_MISSING_OR_LAPSED'),
       ),
     ).toBe(true);
+    expect(
+      error.refusals.some((refusal) =>
+        refusal.code === 'ENTITY_RIGHTS_MATRIX_REFUSED' ||
+        refusal.code === 'FACT_RIGHTS_MATRIX_REFUSED',
+      ),
+      'current export rights must not be evaluated at the historical fact-selection instant',
+    ).toBe(true);
   });
 
   it('refuses when artifact retention is off, because the values become unexplainable', async () => {

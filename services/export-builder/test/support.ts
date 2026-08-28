@@ -41,11 +41,14 @@ import type { SourceRegistryEntry } from '@data-foundry/source-registry';
 import { compliantEntry } from '../../../packages/source-registry/test/fixtures.js';
 import {
   claim,
+  addSyntheticEntityEvidence,
   createQueryFixtures,
+  seedSyntheticSurfaceRights,
   ts,
   type QueryFixtures,
   type SourceKey,
 } from '../../../packages/query-model/test/support.js';
+import type { RightsSurface } from '@data-foundry/rights-engine';
 
 export { claim, ts } from '../../../packages/query-model/test/support.js';
 export type { QueryFixtures } from '../../../packages/query-model/test/support.js';
@@ -243,6 +246,12 @@ export interface ExportFixtureOptions {
    * facts stayed silent about them.
    */
   readonly blockedOnlyClaim?: boolean;
+  /**
+   * Explicit synthetic matrix grants. Defaults to the surface this service
+   * actually publishes; neighboring-surface tests override it to prove that
+   * web/API/MCP permission never implies a bulk-export grant.
+   */
+  readonly surfaceRights?: readonly RightsSurface[];
 }
 
 export interface ExportFixtures extends QueryFixtures {
@@ -417,6 +426,14 @@ export async function createExportFixtures(
       value: BLOCKED_ONLY_EXCLUDED_VALUE,
       entity_id: base.entity.id,
     });
+  }
+
+  // Surface permission is explicit test data, never a production backfill.
+  // Every entity also needs exact existence provenance: a fact grant cannot
+  // manufacture permission to publish the entity that contains it.
+  await seedSyntheticSurfaceRights(base, options.surfaceRights ?? ['BULK_EXPORT']);
+  for (const entity of [base.entity, base.heatPump, base.motor, base.rival, coil]) {
+    await addSyntheticEntityEvidence(base, entity, 'manufacturer');
   }
 
   return { ...base, sourceRegistry: exportRegistry() };

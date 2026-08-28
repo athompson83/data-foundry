@@ -17,6 +17,10 @@
  * should see the whole list rather than play whack-a-mole across ten builds.
  */
 export const EXPORT_REFUSAL_CODES = [
+  /** The entity's exact provenance is not cleared for the BULK_EXPORT surface. */
+  'ENTITY_RIGHTS_MATRIX_REFUSED',
+  /** A stored claim on an exported property is not cleared for BULK_EXPORT. */
+  'FACT_RIGHTS_MATRIX_REFUSED',
   /** The `sources` row for a contributing source is RED or UNREVIEWED. */
   'SOURCE_RIGHTS_BLOCKED',
   /** A contributing source has no entry in the supplied source registry. */
