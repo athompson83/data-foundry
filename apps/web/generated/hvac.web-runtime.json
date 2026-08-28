@@ -519,7 +519,7 @@
       "in_api": true,
       "in_mcp": true,
       "show_coverage_notice": true,
-      "notice_template": "This page is incomplete. {missing_count} of {critical_count} critical specifications are not yet backed by a verified source."
+      "notice_template": "This page does not currently meet publication-quality requirements."
     },
     "sitemaps": {
       "index": "/sitemap-index.xml",

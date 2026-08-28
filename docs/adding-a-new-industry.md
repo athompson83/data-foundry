@@ -107,8 +107,11 @@ proved against real query-model behavior rather than copied assumptions.
 
 A vertical can be ready for one surface and not another.
 
-- **Public web (`apps/web`)** — page data requires `PUBLIC_WEB`; sitemap
-  inclusion independently requires both `PUBLIC_WEB` and `SEARCH_INDEX`.
+- **Public web (`apps/web`)** — the vertical must be `ACTIVE` and have exact
+  `PUBLIC_WEB`-eligible data before any child route is exposed. Indexing and
+  sitemap inclusion additionally require `SEARCH_INDEX` to cover every exact
+  fact, attribution and relationship rendered on that page; disjoint grants on
+  different claims do not combine into permission.
 - **Direct REST API (`apps/edge`)** — receives its commercial vertical deployment
   and Data Foundry authentication only when API-use rights pass.
 - **MCP** — may be enabled only when the LLM/agent retrieval use case is cleared.

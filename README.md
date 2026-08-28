@@ -50,8 +50,10 @@ industry plus a child site per industry, entity pages with surface-safe cited
 evidence, and a plain `<form>` search UI with no client-side JavaScript required. See
 [ADR-0011](docs/decisions/ADR-0011-web-frontend-and-multi-industry-sites.md)
 for the parent/child architecture and the free-web/paid-API revenue split it
-implements. Page reads require `PUBLIC_WEB`; sitemap inclusion also requires an
-independent `SEARCH_INDEX` grant. The quality-gate evaluator
+implements. A vertical is exposed only while it is `ACTIVE` and has an exact
+`PUBLIC_WEB`-authorized entity. A page may render public-only claims, but it is
+`noindex` and absent from sitemaps unless `SEARCH_INDEX` independently covers
+the exact rendered facts, attributions and relationships. The quality-gate evaluator
 (`apps/web/src/gates.ts`) decides indexability from authorized evidence rather
 than raw database aggregates or fiat. Nothing here is deployed yet — see
 Deployment below.
@@ -293,12 +295,11 @@ contributes zero bytes to it — a source scan cannot see past the dynamic
 Every request is authenticated and scope-checked (`apps/edge/src/auth.ts`)
 before it reaches a route, and a successful request is metered asynchronously:
 a usage event naming the matched route **template** — never the concrete
-target — must be accepted by a Cloudflare Queue before the edge returns the
-authenticated response. A missing or rejecting queue fails closed with an
-opaque, retryable `503`. `apps/usage-consumer` then persists accepted events
-idempotently; that database write remains off the request path.
-`db/migrations/0011_api_tenancy.sql` has the schema; this increment is
-measurement only — no pricing, plans, invoices or subscriptions.
+target — is published to a Cloudflare Queue and persisted idempotently by
+`apps/usage-consumer`, without the request's success ever depending on that
+persistence succeeding. `db/migrations/0011_api_tenancy.sql` has the schema;
+this increment is measurement only — no pricing, plans, invoices or
+subscriptions.
 
 Deploying needs an account, Hyperdrive bindings, routes for each Worker and the
 usage-metering queues, none of which live in this repository —

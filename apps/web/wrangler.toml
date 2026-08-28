@@ -32,6 +32,8 @@ enabled = true
 # [[hyperdrive]]
 # binding = "HYPERDRIVE"
 # id = "<hyperdrive-id>"
+# Supply the live id only through an ignored `wrangler.production.toml` copy or
+# the Cloudflare dashboard; keep this tracked placeholder unchanged.
 
 # `wrangler dev` against a local database can use POSTGRES_URL instead. Put it
 # in .dev.vars (gitignored), never here: this file is committed.

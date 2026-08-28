@@ -164,37 +164,51 @@ item 1.
    production accounting topology.
 2. Provision `apps/usage-consumer`'s own Hyperdrive binding (or point it at
    the same Hyperdrive configuration `apps/edge` uses — both read and write
-   the same database) following item 2's steps, then deploy both Workers:
+   the same database) following item 2's steps.
+3. Keep every tracked `wrangler.toml` free of live account, route and Hyperdrive
+   ids. For CLI deployment, copy each service manifest beside the original as
+   `wrangler.production.toml`, add that path to the local repository's
+   `.git/info/exclude`, and put the environment-specific bindings only in that
+   ignored copy. Alternatively, add the bindings in the Cloudflare dashboard.
+   From the repository root, the PowerShell setup for ignored CLI manifests is:
+   ```powershell
+   $exclude = git rev-parse --git-path info/exclude
+   Add-Content -LiteralPath $exclude -Value "`napps/edge/wrangler.production.toml`napps/usage-consumer/wrangler.production.toml`napps/web/wrangler.production.toml"
+   Copy-Item apps/edge/wrangler.toml apps/edge/wrangler.production.toml
+   Copy-Item apps/usage-consumer/wrangler.toml apps/usage-consumer/wrangler.production.toml
+   Copy-Item apps/web/wrangler.toml apps/web/wrangler.production.toml
    ```
-   npx wrangler deploy   # from apps/edge
-   npx wrangler deploy   # from apps/usage-consumer
+   Add the live binding/account/route values only to those three ignored files.
+   Deploy the edge and consumer from their directories with
+   `npx wrangler deploy --config wrangler.production.toml`.
+   Deploy the public Worker from `apps/web` with its exact, non-secret origin:
    ```
-3. Configure `apps/web/wrangler.toml` with the real Hyperdrive id, then deploy
-   the public Worker with its exact, non-secret origin:
+   npx wrangler deploy --config wrangler.production.toml --var PUBLIC_ORIGIN:https://<public-host>
+   git diff --exit-code -- wrangler.toml
    ```
-   npx wrangler deploy --var PUBLIC_ORIGIN:https://<public-host>  # from apps/web
+   Repeat the `--config wrangler.production.toml` form from `apps/edge` and
+   `apps/usage-consumer`. The final `git diff` is the required check that no
+   live environment value reached the tracked manifest.
+   From the repository root, verify all three tracked templates together:
+   ```powershell
+   git diff --exit-code -- apps/edge/wrangler.toml apps/usage-consumer/wrangler.toml apps/web/wrangler.toml
    ```
 
 ### Verify
 
-A successful, authenticated `GET` or `HEAD` returns only after Cloudflare Queue
-accepts its usage event. Within a few seconds,
-`select count(*) from api_usage_events` on the production database increases by
-one, and the row's `route_key` holds a registered key (`entities.detail`)
-rather than any path, query, slug, or entity id. Confirm
-`npx wrangler queues info data-foundry-usage-events` reports 1,209,600 seconds
-of retention.
-
-Temporarily removing or rejecting the producer binding must return an opaque,
-retryable `503`; it must never return an unmetered success. By contrast,
-temporarily breaking only the consumer Worker's database connectivity must not
-change edge responses after queue acceptance: the accepted message retries and
-ultimately follows the configured DLQ policy. This distinction is deliberate:
-durable queue acceptance is on the request path, while database persistence is
-not. Before accepting paying traffic, also verify invalid, revoked, expired and
-wrong-scope credentials fail before route execution; duplicate delivery leaves
-one usage row; tenant and vertical remain bound to the authenticating key; and
-real queue/DLQ behavior matches the tested idempotency contract.
+A successful, authenticated `GET` against the edge Worker returns its answer
+immediately. Within a few seconds, `select count(*) from api_usage_events` on
+the production database increases by one, and the row's `route_key` column
+holds a registered key (`entities.detail`) rather than any path, query, slug,
+or entity id. Confirm `npx wrangler queues info data-foundry-usage-events`
+reports 1,209,600 seconds of retention. Killing the consumer Worker's database
+connectivity temporarily must not change the edge Worker's response time or
+status — that database-write decoupling is exercised (against PGlite, not this
+queue) by `apps/edge/test/index.test.ts`. Before accepting paying traffic, also
+verify invalid, revoked, expired and wrong-scope credentials fail before route
+execution; duplicate delivery leaves one usage row; tenant and vertical remain
+bound to the authenticating key; and real queue/DLQ behavior matches the tested
+idempotency contract.
 
 ---
 
@@ -279,8 +293,10 @@ commercial gate.
    secrets.
 3. Deploy and prove exact-SHA health/readiness plus real queue behavior.
 4. Rights-clear and ingest the first real commercial vertical.
-5. Enable public web publication only for `PUBLIC_WEB`-cleared contributions;
-   include URLs in sitemaps only when `SEARCH_INDEX` also clears.
+5. Mark a vertical `ACTIVE` only after its real-source review is complete, and
+   enable public pages only for exact `PUBLIC_WEB` grants. A rendered page may
+   be indexed or enter a sitemap only when `SEARCH_INDEX` covers those same
+   rendered facts, attributions and relationships claim by claim.
 6. Add the thin RapidAPI adapter and publish one marketplace vertical.
 7. Measure demand/cost before expanding plans, verticals or building first-
    party billing.

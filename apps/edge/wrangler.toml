@@ -29,7 +29,8 @@ API_KEY_ENVIRONMENT = "live"
 # Hyperdrive pools Postgres connections at the edge, which is what makes a
 # database-backed Worker viable at all. Create one with:
 #   wrangler hyperdrive create data-foundry --connection-string="postgres://..."
-# then paste the id below.
+# then place the id in an ignored `wrangler.production.toml` copy or the
+# Cloudflare dashboard. Never uncomment it with a live id in this tracked file.
 # [[hyperdrive]]
 # binding = "HYPERDRIVE"
 # id = "<hyperdrive-id>"
