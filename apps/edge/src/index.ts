@@ -14,7 +14,12 @@ import { buildUsageEvent, type UsageEvent } from '@data-foundry/usage-events';
 import { toApiRequest, toFetchResponse } from './adapter.js';
 import { authenticate, toAuthResponse, type AuthFailure } from './auth.js';
 import { getDeployment, type BuildOptions, type VerticalRuntime } from './composition.js';
-import { EdgeConfigurationError, resolveEdgeConfig, type EdgeEnv } from './env.js';
+import {
+  EdgeConfigurationError,
+  resolveEdgeConfig,
+  type EdgeEnv,
+  type ResolvedEdgeConfig,
+} from './env.js';
 import hvacRuntime from '../generated/hvac.runtime.json' with { type: 'json' };
 
 export { toApiRequest, toFetchResponse } from './adapter.js';
@@ -34,7 +39,14 @@ export {
   type EdgeDeployment,
   type VerticalRuntime,
 } from './composition.js';
-export { EdgeConfigurationError, resolveEdgeConfig, type EdgeEnv, type QueueBinding } from './env.js';
+export {
+  EdgeConfigurationError,
+  resolveEdgeConfig,
+  type EdgeEnv,
+  type QueueBinding,
+  type RapidApiConfig,
+  type ResolvedEdgeConfig,
+} from './env.js';
 
 /**
  * Runtimes compiled into this bundle.
@@ -95,6 +107,92 @@ function authFailureResponse(request: Request, failure: AuthFailure): Response {
       'content-length': String(new TextEncoder().encode(serialized).byteLength),
     },
   });
+}
+
+const RAPIDAPI_PROXY_SECRET_HEADER = 'x-rapidapi-proxy-secret';
+
+/**
+ * Compare origin secrets without an early return on length or the first
+ * differing byte. Hashing both values gives a fixed-size comparison, and the
+ * XOR loop always visits all 32 SHA-256 bytes.
+ */
+async function matchesProxySecret(presented: string, expected: string): Promise<boolean> {
+  const encoder = new TextEncoder();
+  const [presentedHash, expectedHash] = await Promise.all([
+    crypto.subtle.digest('SHA-256', encoder.encode(presented)),
+    crypto.subtle.digest('SHA-256', encoder.encode(expected)),
+  ]);
+  const left = new Uint8Array(presentedHash);
+  const right = new Uint8Array(expectedHash);
+  let difference = 0;
+  for (let index = 0; index < left.length; index += 1) {
+    difference |= (left[index] ?? 0) ^ (right[index] ?? 0);
+  }
+  return difference === 0;
+}
+
+type RequestChannel =
+  | {
+      readonly ok: true;
+      readonly authorizationHeader: string | null;
+      readonly expectedBillingSource: 'DIRECT' | 'RAPIDAPI';
+    }
+  | AuthFailure;
+
+function hasRapidApiHeader(request: Request): boolean {
+  for (const name of request.headers.keys()) {
+    if (name.toLowerCase().startsWith('x-rapidapi-')) return true;
+  }
+  return false;
+}
+
+/**
+ * Select a trusted access channel before API-key authentication.
+ *
+ * The hostname decides whether this is the marketplace origin. A client cannot
+ * opt into marketplace billing by sending a header to the direct origin, and a
+ * marketplace request never gets to choose its Data Foundry tenant/key through
+ * Authorization: the server-held RAPIDAPI/RAPIDAPI credential is the only one
+ * handed to the existing authenticator.
+ */
+async function resolveRequestChannel(
+  request: Request,
+  config: ResolvedEdgeConfig,
+): Promise<RequestChannel> {
+  const hostname = new URL(request.url).hostname.toLowerCase();
+  const rapidApiSignal = hasRapidApiHeader(request);
+
+  if (config.rapidApi === null) {
+    if (rapidApiSignal) {
+      throw new EdgeConfigurationError('A RapidAPI-shaped request reached an unconfigured deployment.');
+    }
+    return {
+      ok: true,
+      authorizationHeader: request.headers.get('authorization'),
+      expectedBillingSource: 'DIRECT',
+    };
+  }
+
+  if (hostname === config.rapidApi.hostname) {
+    const presented = request.headers.get(RAPIDAPI_PROXY_SECRET_HEADER);
+    if (presented === null || !(await matchesProxySecret(presented, config.rapidApi.proxySecret))) {
+      return { ok: false, reason: 'MISSING_CREDENTIAL' };
+    }
+    return {
+      ok: true,
+      authorizationHeader: `Bearer ${config.rapidApi.apiKey}`,
+      expectedBillingSource: 'RAPIDAPI',
+    };
+  }
+
+  // RapidAPI headers on any other host are spoofed or misrouted. Refuse them
+  // instead of falling through to a valid direct Authorization header.
+  if (rapidApiSignal) return { ok: false, reason: 'MISSING_CREDENTIAL' };
+  return {
+    ok: true,
+    authorizationHeader: request.headers.get('authorization'),
+    expectedBillingSource: 'DIRECT',
+  };
 }
 
 /**
@@ -170,6 +268,10 @@ export async function serveRequest(
       );
     }
 
+    const config = resolveEdgeConfig(env);
+    const channel = await resolveRequestChannel(request, config);
+    if (!channel.ok) return authFailureResponse(request, channel);
+
     const deployment = await getDeployment({
       env,
       runtime,
@@ -180,18 +282,16 @@ export async function serveRequest(
         console.error(`[edge] ${context.path}`, error);
       },
     });
-    const config = resolveEdgeConfig(env);
-
     // Authenticate, resolve tenant, enforce scope — all of it before a
     // route ever executes. `auth.ts` is the one place this deployment
     // reaches `api_keys`/`api_tenants`; nothing below this line does.
     const auth = await authenticate(
       deployment.driver,
-      request.headers.get('authorization'),
+      channel.authorizationHeader,
       {
         verticalId: deployment.verticalId,
         environment: config.apiKeyEnvironment,
-        expectedBillingSource: 'DIRECT',
+        expectedBillingSource: channel.expectedBillingSource,
         now: new Date(),
       },
     );

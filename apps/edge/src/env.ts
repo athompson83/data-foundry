@@ -40,6 +40,12 @@ export interface EdgeEnv {
   readonly VERTICAL_SLUG?: string;
   /** Which credential namespace this deployment accepts. Never inferred. */
   readonly API_KEY_ENVIRONMENT?: string;
+  /** Hostname reserved for requests proxied by RapidAPI. No scheme or path. */
+  readonly RAPIDAPI_HOSTNAME?: string;
+  /** RapidAPI's origin-verification secret. Configure as a Worker secret. */
+  readonly RAPIDAPI_PROXY_SECRET?: string;
+  /** Server-held Data Foundry key issued as RAPIDAPI/RAPIDAPI for one vertical. */
+  readonly RAPIDAPI_API_KEY?: string;
   /**
    * Where a usage event goes after a request is served. Optional on purpose,
    * unlike the database: a Worker that cannot reach its own database has
@@ -62,6 +68,49 @@ export interface ResolvedEdgeConfig {
   readonly connectionString: string;
   readonly verticalSlug: string;
   readonly apiKeyEnvironment: KeyEnvironment;
+  readonly rapidApi: RapidApiConfig | null;
+}
+
+export interface RapidApiConfig {
+  readonly hostname: string;
+  readonly proxySecret: string;
+  readonly apiKey: string;
+}
+
+function resolveRapidApiConfig(env: EdgeEnv): RapidApiConfig | null {
+  const anyConfigured =
+    env.RAPIDAPI_HOSTNAME !== undefined ||
+    env.RAPIDAPI_PROXY_SECRET !== undefined ||
+    env.RAPIDAPI_API_KEY !== undefined;
+  if (!anyConfigured) return null;
+
+  const hostname = (env.RAPIDAPI_HOSTNAME ?? '').trim().toLowerCase();
+  const proxySecret = env.RAPIDAPI_PROXY_SECRET ?? '';
+  const apiKey = env.RAPIDAPI_API_KEY ?? '';
+  if (hostname === '' || proxySecret === '' || apiKey === '') {
+    throw new EdgeConfigurationError(
+      'RapidAPI configuration is incomplete. RAPIDAPI_HOSTNAME, ' +
+        'RAPIDAPI_PROXY_SECRET, and RAPIDAPI_API_KEY must be configured together.',
+    );
+  }
+
+  let parsed: URL;
+  try {
+    parsed = new URL(`https://${hostname}`);
+  } catch {
+    throw new EdgeConfigurationError('RAPIDAPI_HOSTNAME must be a hostname without a scheme or path.');
+  }
+  if (
+    parsed.hostname.toLowerCase() !== hostname ||
+    parsed.port !== '' ||
+    parsed.pathname !== '/' ||
+    parsed.search !== '' ||
+    parsed.hash !== ''
+  ) {
+    throw new EdgeConfigurationError('RAPIDAPI_HOSTNAME must be a hostname without a scheme or path.');
+  }
+
+  return { hostname, proxySecret, apiKey };
 }
 
 /**
@@ -96,5 +145,10 @@ export function resolveEdgeConfig(env: EdgeEnv): ResolvedEdgeConfig {
     );
   }
 
-  return { connectionString, verticalSlug, apiKeyEnvironment };
+  return {
+    connectionString,
+    verticalSlug,
+    apiKeyEnvironment,
+    rapidApi: resolveRapidApiConfig(env),
+  };
 }

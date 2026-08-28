@@ -309,3 +309,86 @@ export async function persistUsageEvents(
   );
   return rows.length;
 }
+
+export interface DirectInvoiceUsageWindow {
+  /** Inclusive ISO-8601 lower bound. */
+  readonly from: string;
+  /** Exclusive ISO-8601 upper bound. */
+  readonly before: string;
+}
+
+export interface DirectInvoiceUsageSummary {
+  readonly tenant_id: string;
+  readonly vertical_id: string;
+  readonly request_count: number;
+  readonly rows_served: number;
+  readonly duration_ms: number;
+}
+
+type DirectInvoiceUsageRow = {
+  readonly tenant_id: string;
+  readonly vertical_id: string;
+  readonly request_count: string;
+  readonly rows_served: string;
+  readonly duration_ms: string;
+} & Record<string, unknown>;
+
+function canonicalInstant(value: string, name: string): number {
+  let canonical: string;
+  try {
+    canonical = new Date(value).toISOString();
+  } catch {
+    throw new TypeError(`${name} must be a canonical ISO-8601 instant`);
+  }
+  if (canonical !== value) throw new TypeError(`${name} must be a canonical ISO-8601 instant`);
+  return Date.parse(value);
+}
+
+function safeCount(value: string, name: string): number {
+  const parsed = Number(value);
+  if (!Number.isSafeInteger(parsed) || parsed < 0) {
+    throw new RangeError(`${name} exceeded the safe integer range`);
+  }
+  return parsed;
+}
+
+/**
+ * Aggregate the only usage Data Foundry may invoice itself.
+ *
+ * This is intentionally the canonical query rather than a caller-supplied
+ * filter. Marketplace events remain in `api_usage_events` for analytics and
+ * reconciliation, but the closed API_PAID/DIRECT predicate makes them
+ * structurally absent from this projection.
+ */
+export async function aggregateDirectInvoiceEligibleUsage(
+  executor: SqlExecutor,
+  window: DirectInvoiceUsageWindow,
+): Promise<readonly DirectInvoiceUsageSummary[]> {
+  const from = canonicalInstant(window.from, 'from');
+  const before = canonicalInstant(window.before, 'before');
+  if (from >= before) throw new RangeError('from must be earlier than before');
+
+  const rows = await executor.query<DirectInvoiceUsageRow>(
+    `select tenant_id,
+            vertical_id,
+            count(*)::text as request_count,
+            coalesce(sum(rows_served), 0)::text as rows_served,
+            coalesce(sum(duration_ms), 0)::text as duration_ms
+       from api_usage_events
+      where access_tier = 'API_PAID'
+        and billing_source = 'DIRECT'
+        and occurred_at >= $1::timestamptz
+        and occurred_at < $2::timestamptz
+      group by tenant_id, vertical_id
+      order by tenant_id, vertical_id`,
+    [window.from, window.before],
+  );
+
+  return rows.map((row) => ({
+    tenant_id: row.tenant_id,
+    vertical_id: row.vertical_id,
+    request_count: safeCount(row.request_count, 'request_count'),
+    rows_served: safeCount(row.rows_served, 'rows_served'),
+    duration_ms: safeCount(row.duration_ms, 'duration_ms'),
+  }));
+}
