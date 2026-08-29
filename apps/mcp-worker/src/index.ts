@@ -179,7 +179,11 @@ export async function serveMcpRequest(
       runtime,
       ...(options.openDriver === undefined ? {} : { openDriver: options.openDriver }),
       onToolError: (context) => {
-        console.error('[mcp-worker] tool execution failed', context);
+        console.error('[mcp-worker] tool execution failed', {
+          classification: 'MCP_TOOL_FAILURE',
+          code: context.code,
+          correlationId: crypto.randomUUID(),
+        });
       },
       onProtocolError: () => {
         console.error('[mcp-worker] SDK protocol failure');

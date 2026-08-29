@@ -1,4 +1,5 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
+import { isSpecType, specTypeSchemas } from '@modelcontextprotocol/server';
 import { createMcpServer, TOOL_NAMES } from '@data-foundry/mcp';
 import {
   addSyntheticEntityEvidence,
@@ -45,6 +46,59 @@ async function json(response: Response): Promise<JsonRpcEnvelope> {
 function structured(response: JsonRpcEnvelope): unknown {
   return (response.result as { readonly structuredContent?: unknown } | undefined)?.structuredContent;
 }
+
+interface NotificationSchemaJson {
+  readonly anyOf?: readonly {
+    readonly properties?: {
+      readonly method?: { readonly const?: unknown };
+    };
+  }[];
+}
+
+interface SchemaWithRuntimeJson {
+  readonly '~standard': {
+    readonly jsonSchema: { readonly input: () => unknown };
+  };
+}
+
+function notificationMethods(schema: unknown): readonly string[] {
+  // SDK 2.0.0 types the registry as StandardSchemaV1Sync even though its
+  // runtime objects also implement the standard JSON Schema extension. Keep
+  // that declaration mismatch isolated to this parity-test extractor.
+  const json = (
+    schema as SchemaWithRuntimeJson
+  )['~standard'].jsonSchema.input() as NotificationSchemaJson;
+  return (json.anyOf ?? []).map((branch) => branch.properties?.method?.const).filter(
+    (method): method is string => typeof method === 'string',
+  ).sort();
+}
+
+const CLIENT_NOTIFICATION_PARAMS: Readonly<Record<string, Readonly<Record<string, unknown>>>> = {
+  'notifications/cancelled': { requestId: 'cancelled-request' },
+  'notifications/progress': { progressToken: 'progress-token', progress: 1 },
+  'notifications/initialized': {},
+  'notifications/roots/list_changed': {},
+};
+
+const SERVER_ONLY_NOTIFICATION_PARAMS: Readonly<Record<string, Readonly<Record<string, unknown>>>> = {
+  'notifications/message': { level: 'info', data: 'server-origin message' },
+  'notifications/resources/updated': { uri: 'https://data.example.test/resource' },
+  'notifications/resources/list_changed': {},
+  'notifications/tools/list_changed': {},
+  'notifications/prompts/list_changed': {},
+  'notifications/subscriptions/acknowledged': { notifications: {} },
+  'notifications/elicitation/complete': { elicitationId: 'server-elicitation' },
+};
+
+// `specTypeSchemas.ClientNotification` is the public SDK 2.0.0 exposure of
+// ClientNotificationSchema. Derive the exercised direction set from the pinned
+// official schema, while the literal fixture maps make unexpected SDK drift
+// visible instead of silently blessing a new method.
+const CLIENT_NOTIFICATION_METHODS = notificationMethods(specTypeSchemas.ClientNotification);
+const SERVER_NOTIFICATION_METHODS = notificationMethods(specTypeSchemas.ServerNotification);
+const SERVER_ONLY_NOTIFICATION_METHODS = SERVER_NOTIFICATION_METHODS.filter(
+  (method) => !CLIENT_NOTIFICATION_METHODS.includes(method),
+);
 
 beforeAll(async () => {
   fixtures = await createQueryFixtures();
@@ -164,6 +218,52 @@ describe('Streamable HTTP lifecycle and executable tool parity', () => {
       'mcp.protocol_failure',
     ]);
   });
+
+  it('pins the complete SDK client and server-only notification directions', () => {
+    expect(CLIENT_NOTIFICATION_METHODS).toEqual(Object.keys(CLIENT_NOTIFICATION_PARAMS).sort());
+    expect(SERVER_ONLY_NOTIFICATION_METHODS).toEqual(
+      Object.keys(SERVER_ONLY_NOTIFICATION_PARAMS).sort(),
+    );
+  });
+
+  it.each(CLIENT_NOTIFICATION_METHODS)(
+    'accepts SDK client-to-server notification %s',
+    async (method) => {
+      const params = CLIENT_NOTIFICATION_PARAMS[method];
+      if (params === undefined) throw new Error(`missing client notification fixture: ${method}`);
+      expect(isSpecType.ClientNotification({ method, params })).toBe(true);
+      const key = await seedKey(fixtures, `mcp-client-notification-${method.replaceAll('/', '-')}`);
+      const { queue, sent } = recordingQueue();
+      const response = await serveMcpRequest(
+        mcpRequest(key.secret, modernBody(method, params, null)),
+        envFor(queue),
+        serveOptions,
+      );
+      expect({ status: response.status, body: await response.text() }).toEqual({
+        status: 202,
+        body: '',
+      });
+      expect(sent).toEqual([]);
+    },
+  );
+
+  it.each(SERVER_ONLY_NOTIFICATION_METHODS)(
+    'rejects SDK server-to-client notification %s',
+    async (method) => {
+      const params = SERVER_ONLY_NOTIFICATION_PARAMS[method];
+      if (params === undefined) throw new Error(`missing server notification fixture: ${method}`);
+      expect(isSpecType.ServerNotification({ method, params })).toBe(true);
+      const key = await seedKey(fixtures, `mcp-server-notification-${method.replaceAll('/', '-')}`);
+      const { queue, sent } = recordingQueue();
+      const response = await serveMcpRequest(
+        mcpRequest(key.secret, modernBody(method, params, null)),
+        envFor(queue),
+        serveOptions,
+      );
+      expect(response.status).toBe(400);
+      expect(sent.map((event) => event.route_key)).toEqual(['mcp.protocol_failure']);
+    },
+  );
 
   it('does not reopen the database driver for each request in one warm isolate', async () => {
     const key = await seedKey(fixtures, 'mcp-warm-isolate');
@@ -473,6 +573,66 @@ describe('surface-rights freshness and non-implication', () => {
 });
 
 describe('privacy-safe analytics handoff', () => {
+  it('logs an opaque correlation for an unexpected tool failure without caller or tool material', async () => {
+    const key = await seedKey(fixtures, 'mcp-tool-failure-log');
+    const privateFailure = 'private-query-failure-7159';
+    const privateRpcId = 'private-rpc-id-2054';
+    const failingDriver: SqlDriver = {
+      label: fixtures.driver.label,
+      dialect: fixtures.driver.dialect,
+      query: async <R extends SqlRow = SqlRow>(
+        sql: string,
+        params?: readonly SqlParam[],
+      ): Promise<R[]> => {
+        if (/\bFROM facts\b/i.test(sql)) throw new Error(privateFailure);
+        return await fixtures.driver.query<R>(sql, params);
+      },
+      exec: fixtures.driver.exec.bind(fixtures.driver),
+      transaction: fixtures.driver.transaction.bind(fixtures.driver),
+      close: async () => undefined,
+    };
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const { queue, sent } = recordingQueue();
+    const response = await serveMcpRequest(
+      mcpRequest(key.secret, modernBody('tools/call', {
+        name: 'list_facts',
+        arguments: {
+          entity_id: fixtures.equipment.id,
+          as_of: '2026-08-01T00:00:00.000Z',
+        },
+      }, privateRpcId)),
+      envFor(queue),
+      { runtime: fixtureRuntime, openDriver: async () => failingDriver },
+    );
+
+    expect(response.status).toBe(200);
+    expect(JSON.stringify(await json(response))).toContain('INTERNAL_ERROR');
+    expect(sent.map((event) => event.route_key)).toEqual(['mcp.tools_call']);
+    expect(errorSpy).toHaveBeenCalledTimes(1);
+    const logs = JSON.stringify(errorSpy.mock.calls);
+    for (const forbidden of [
+      'list_facts',
+      privateFailure,
+      privateRpcId,
+      fixtures.equipment.id,
+      key.secret,
+      key.tokenHash,
+      key.tokenPrefix,
+      `https://${HOSTNAME}/mcp`,
+    ]) {
+      expect(logs, forbidden).not.toContain(forbidden);
+    }
+    const details = errorSpy.mock.calls[0]?.[1] as Record<string, unknown> | undefined;
+    expect(details).toMatchObject({
+      classification: 'MCP_TOOL_FAILURE',
+      code: 'INTERNAL_ERROR',
+    });
+    expect(Object.keys(details ?? {}).sort()).toEqual(['classification', 'code', 'correlationId']);
+    expect(details?.['correlationId']).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
+    );
+  });
+
   it('awaits Queue acceptance and emits only the fixed MCP/NONE usage shape', async () => {
     const key = await seedKey(fixtures, 'mcp-queue-await');
     let accept: (() => void) | undefined;

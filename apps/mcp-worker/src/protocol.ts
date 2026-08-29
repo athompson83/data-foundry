@@ -1,22 +1,9 @@
 /** Strict, bounded request classification before the official SDK sees a body. */
 import type { McpUsageRouteKey } from '@data-foundry/usage-events';
+import { isSpecType } from '@modelcontextprotocol/server';
 
 export const MCP_PROTOCOL_VERSION = '2026-07-28';
 export const MAX_MCP_BODY_BYTES = 262_144;
-
-// Keep this list aligned with the exact modern notification registry exposed
-// by @modelcontextprotocol/server 2.0.0. A missing JSON-RPC id is never enough
-// to turn an arbitrary request method into a notification.
-const MODERN_NOTIFICATION_METHODS = new Set([
-  'notifications/cancelled',
-  'notifications/progress',
-  'notifications/message',
-  'notifications/resources/updated',
-  'notifications/resources/list_changed',
-  'notifications/tools/list_changed',
-  'notifications/prompts/list_changed',
-  'notifications/subscriptions/acknowledged',
-]);
 
 export type McpRouteKey = McpUsageRouteKey;
 
@@ -49,6 +36,17 @@ function accepted(request: Request, mediaType: string): boolean {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+function isClientNotification(raw: Readonly<Record<string, unknown>>, method: string): boolean {
+  if (!method.startsWith('notifications/')) return false;
+  // The SDK schema describes the MCP message beneath its JSON-RPC framing.
+  // Project only those fields so the official pinned ClientNotificationSchema,
+  // not a second hand-maintained method registry, owns direction and shape.
+  return isSpecType.ClientNotification({
+    method,
+    ...(Object.hasOwn(raw, 'params') ? { params: raw['params'] } : {}),
+  });
 }
 
 const BASE64_SENTINEL = /^=\?base64\?((?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?)\?=$/;
@@ -155,7 +153,7 @@ export async function guardProtocolRequest(request: Request): Promise<ProtocolGu
     return { ok: false, status: 400 };
   }
   const hasId = Object.hasOwn(raw, 'id');
-  const notification = MODERN_NOTIFICATION_METHODS.has(method);
+  const notification = isClientNotification(raw, method);
   if (
     method === 'initialize' ||
     (notification && hasId) ||
