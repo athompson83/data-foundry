@@ -80,6 +80,7 @@ services/export-builder/     Bulk CSV and JSONL exports, rights-gated and review
 apps/api/                    Read-only REST surface over the query layer
 apps/mcp/                    MCP tool contract over the same query layer
 apps/edge/                   Cloudflare Worker: composition root, auth, transport, no routing
+apps/acquisition-worker/     Cloudflare Cron Worker: rights-gated acquisition and immutable R2 evidence
 apps/usage-consumer/         Cloudflare Queue consumer: idempotent usage-event persistence
 apps/web/                    Cloudflare Worker: the free public site — parent index + one child site per industry
 verticals/hvac/              The first vertical: configuration, fixtures and golden records

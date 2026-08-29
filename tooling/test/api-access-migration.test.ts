@@ -27,7 +27,7 @@ async function sqlState(promise: Promise<unknown>): Promise<string | undefined> 
 
 beforeAll(async () => {
   migrations = await loadMigrations();
-  expect(migrations.at(-1)?.version).toBe('0016');
+  expect(migrations.some((migration) => migration.version === '0015')).toBe(true);
 
   driver = await createPGliteDriver();
   await applyMigrations(
@@ -62,7 +62,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await driver.close();
+  if (driver !== undefined) await driver.close();
 });
 
 describe('0015 API access and billing classification', () => {
