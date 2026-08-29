@@ -33,8 +33,6 @@ export interface McpWorkerRuntime {
     readonly version: string;
     readonly transport: 'streamable_http';
     readonly endpoint: '/mcp';
-    readonly server_card: string;
-    readonly agent_card: string;
   };
   readonly tools: readonly CompiledMcpTool[];
 }

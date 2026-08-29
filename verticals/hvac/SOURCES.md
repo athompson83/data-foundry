@@ -190,7 +190,7 @@ not independent — the distributor transcribes manufacturer data, so their
 agreement is one claim counted twice.
 
 Both losing claims are retained with full evidence and are queryable through
-`get_spec_evidence`.
+the canonical evidence path surfaced by `explain_fact`.
 
 ## Adding a real source
 

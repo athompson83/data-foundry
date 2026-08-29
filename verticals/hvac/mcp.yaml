@@ -10,8 +10,6 @@ server:
   version: 0.1.0
   transport: streamable_http
   endpoint: /mcp
-  server_card: /.well-known/mcp.json
-  agent_card: /.well-known/agent.json
 
 tools:
   - name: search_entities

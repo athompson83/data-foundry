@@ -1,4 +1,6 @@
 /** Strict, bounded request classification before the official SDK sees a body. */
+import type { McpUsageRouteKey } from '@data-foundry/usage-events';
+
 export const MCP_PROTOCOL_VERSION = '2026-07-28';
 export const MAX_MCP_BODY_BYTES = 262_144;
 
@@ -16,11 +18,7 @@ const MODERN_NOTIFICATION_METHODS = new Set([
   'notifications/subscriptions/acknowledged',
 ]);
 
-export type McpRouteKey =
-  | 'mcp.server_discover'
-  | 'mcp.tools_list'
-  | 'mcp.tools_call'
-  | 'mcp.protocol_failure';
+export type McpRouteKey = McpUsageRouteKey;
 
 export type ProtocolGuardResult =
   | {

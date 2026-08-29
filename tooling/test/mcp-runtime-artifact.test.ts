@@ -17,12 +17,12 @@ describe('the MCP Worker runtime compiler', () => {
 
     expect(module.BUNDLED_MCP_VERTICALS).toEqual(['hvac']);
     expect(runtime.vertical_slug).toBe('hvac');
-    expect(runtime.server).toEqual(expect.objectContaining({
+    expect(runtime.server).toEqual({
       name: 'data-foundry-hvac',
       version: '0.1.0',
       transport: 'streamable_http',
       endpoint: '/mcp',
-    }));
+    });
     expect(runtime.tools.map((tool) => tool.name)).toEqual(TOOL_NAMES);
     expect(runtime.tools).toHaveLength(6);
 

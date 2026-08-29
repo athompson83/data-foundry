@@ -38,7 +38,7 @@
   "expected_traversals": [
     {
       "query": "current replacement for 24ACA636A003",
-      "tool": "find_replacement_model",
+      "tool": "traverse_relationships",
       "start": "equipment_model:24ACA636A003",
       "predicate": "supersedes",
       "direction": "inbound",

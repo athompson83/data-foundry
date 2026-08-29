@@ -198,7 +198,7 @@ function readAt(context: ToolContext, asOf?: string): ReadAt {
 /**
  * Fetch by canonical id, refusing ids belonging to another vertical.
  *
- * One server serves one vertical (`mcp.yaml`: `server.vertical`). Without this
+ * One deployed server serves one compiled vertical. Without this
  * check a caller holding an id from a neighbouring vertical would read it
  * here, which is a tenancy leak dressed as a successful lookup.
  */

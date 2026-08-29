@@ -39,8 +39,6 @@ export interface McpWorkerRuntime {
     readonly version: string;
     readonly transport: 'streamable_http';
     readonly endpoint: '/mcp';
-    readonly server_card: string;
-    readonly agent_card: string;
   };
   readonly tools: readonly CompiledMcpTool[];
 }
@@ -74,8 +72,6 @@ function compileServer(raw: unknown): McpWorkerRuntime['server'] {
     version: string(server['version'], 'mcp.yaml server.version'),
     transport,
     endpoint,
-    server_card: string(server['server_card'], 'mcp.yaml server.server_card'),
-    agent_card: string(server['agent_card'], 'mcp.yaml server.agent_card'),
   };
 }
 

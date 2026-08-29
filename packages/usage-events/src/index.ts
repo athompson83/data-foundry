@@ -28,6 +28,15 @@ import {
 const ALLOWED_METHODS = new Set(['GET', 'HEAD', 'POST']);
 export type UsageMethod = 'GET' | 'HEAD' | 'POST';
 
+export const MCP_USAGE_ROUTE_KEYS = [
+  'mcp.server_discover',
+  'mcp.tools_list',
+  'mcp.tools_call',
+  'mcp.protocol_failure',
+] as const;
+export type McpUsageRouteKey = (typeof MCP_USAGE_ROUTE_KEYS)[number];
+const MCP_USAGE_ROUTES = new Set<string>(MCP_USAGE_ROUTE_KEYS);
+
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const ROUTE_KEY_RE = /^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)*$/;
 const POSTGRES_INTEGER_MAX = 2_147_483_647;
@@ -97,19 +106,48 @@ export interface UsageEventInput {
   readonly occurredAt?: Date;
 }
 
+function validOperationForClassification(
+  classification: { readonly accessTier: ApiAccessTier; readonly billingSource: ApiBillingSource },
+  method: UsageMethod,
+  routeKey: string,
+  rowsServed: number,
+): boolean {
+  if (classification.accessTier === 'MCP') {
+    return (
+      classification.billingSource === 'NONE' &&
+      method === 'POST' &&
+      MCP_USAGE_ROUTES.has(routeKey) &&
+      rowsServed === 0
+    );
+  }
+  return (
+    classification.billingSource !== 'NONE' &&
+    (method === 'GET' || method === 'HEAD') &&
+    !routeKey.startsWith('mcp.')
+  );
+}
+
 /**
  * Construct a usage event at the producer. The one place `id` is minted for
  * a row that does not exist yet — every other function in this package reads
  * one that was already built.
  */
 export function buildUsageEvent(input: UsageEventInput): UsageEventV2 {
-  if (
-    !isApiAccessClassification({
-      accessTier: input.accessTier,
-      billingSource: input.billingSource,
-    })
-  ) {
+  const classification = {
+    accessTier: input.accessTier,
+    billingSource: input.billingSource,
+  };
+  if (!isApiAccessClassification(classification)) {
     throw new TypeError('usage event access classification is invalid');
+  }
+  const rowsServed = input.rowsServed ?? 0;
+  if (!validOperationForClassification(
+    classification,
+    input.method,
+    input.routeKey,
+    rowsServed,
+  )) {
+    throw new TypeError('usage event operation does not match its access classification');
   }
   return {
     schema_version: 2,
@@ -121,10 +159,10 @@ export function buildUsageEvent(input: UsageEventInput): UsageEventV2 {
     route_key: input.routeKey,
     method: input.method,
     status: input.status,
-    rows_served: input.rowsServed ?? 0,
+    rows_served: rowsServed,
     duration_ms: input.durationMs ?? null,
-    access_tier: input.accessTier,
-    billing_source: input.billingSource,
+    access_tier: classification.accessTier,
+    billing_source: classification.billingSource,
   };
 }
 
@@ -210,9 +248,15 @@ export function parseUsageEvent(raw: unknown): UsageEvent | null {
     rows_served: typeof rowsServed === 'number' ? rowsServed : 0,
     duration_ms: typeof durationMs === 'number' ? durationMs : null,
   };
-  if (!isV2) return base;
+  if (!isV2) {
+    if (method === 'POST' || routeKey.startsWith('mcp.')) return null;
+    return base;
+  }
   const classification = { accessTier, billingSource };
   if (!isApiAccessClassification(classification)) return null;
+  if (!validOperationForClassification(classification, method as UsageMethod, routeKey, rowsServed)) {
+    return null;
+  }
   return {
     schema_version: 2,
     ...base,

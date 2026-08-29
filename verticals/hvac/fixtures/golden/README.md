@@ -58,7 +58,8 @@ overlook and expensive to get wrong:
 paths. The load-bearing one:
 
 ```text
-find_replacement_model("24ACA636A003")
+get_entity({ identifier: "24ACA636A003" })
+  → traverse_relationships({ entity_id, predicate: "supersedes", direction: "both", depth: 4 })
   → 24ACA636A003 → 24ACB636A003 → 24ACC636A003
   → 2 hops, terminal 24ACC636A003, refrigerant changed R-410A → R-454B
 ```
@@ -66,9 +67,10 @@ find_replacement_model("24ACA636A003")
 A one-hop answer returns `24ACB636A003`, which is itself discontinued. It looks
 right and is wrong — the failure this vertical exists to prevent.
 
-Note also the zero-hop case: `find_replacement_model("24ACC636A003")` must return
-*"this model is current"*, never an empty result. An empty result reads as "no
-data" and sends the user elsewhere.
+Note also the zero-hop case: `traverse_relationships` for `24ACC636A003` must
+make the absence of a further supersession edge observable, never invent a
+replacement. An ambiguous empty result reads as "no data" and sends the user
+elsewhere.
 
 ## Entity refs
 

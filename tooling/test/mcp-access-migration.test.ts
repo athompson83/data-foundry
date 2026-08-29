@@ -10,6 +10,8 @@ import {
 const VERTICAL = '81000000-0000-4000-8000-000000000001';
 const TENANT = '81000000-0000-4000-8000-000000000002';
 const LEGACY_KEY = '81000000-0000-4000-8000-000000000003';
+const MCP_KEY = '81000000-0000-4000-8000-000000000010';
+const DIRECT_KEY = '81000000-0000-4000-8000-000000000011';
 
 let driver: MigrationDriver;
 let migrations: Migration[];
@@ -48,6 +50,14 @@ beforeAll(async () => {
     `alter table api_keys enable trigger api_keys_access_classification_guard`,
   );
   await applyMigrations(driver, migrations);
+  await driver.query(
+    `insert into api_keys
+       (id, tenant_id, vertical_id, token_hash, token_prefix, label, access_tier, billing_source)
+     values
+       ($1, $3, $4, $5, 'df_test_mcp00001', 'MCP key', 'MCP', 'NONE'),
+       ($2, $3, $4, $6, 'df_test_direct01', 'direct key', 'API_PAID', 'DIRECT')`,
+    [MCP_KEY, DIRECT_KEY, TENANT, VERTICAL, 'b'.repeat(64), 'd'.repeat(64)],
+  );
 });
 
 afterAll(async () => {
@@ -64,16 +74,6 @@ describe('0018 MCP access and analytics-only usage classification', () => {
   });
 
   it('admits only the MCP/NONE pair and keeps it immutable', async () => {
-    await expect(
-      driver.query(
-        `insert into api_keys
-           (id, tenant_id, vertical_id, token_hash, token_prefix, label, access_tier, billing_source)
-         values ('81000000-0000-4000-8000-000000000010', $1, $2, $3,
-                 'df_test_mcp00001', 'MCP key', 'MCP', 'NONE')`,
-        [TENANT, VERTICAL, 'b'.repeat(64)],
-      ),
-    ).resolves.toBeDefined();
-
     expect(await sqlState(driver.query(
       `insert into api_keys
          (tenant_id, vertical_id, token_hash, token_prefix, label, access_tier, billing_source)
@@ -83,20 +83,21 @@ describe('0018 MCP access and analytics-only usage classification', () => {
 
     expect(await sqlState(driver.query(
       `update api_keys set access_tier = 'API_PAID', billing_source = 'DIRECT'
-        where id = '81000000-0000-4000-8000-000000000010'`,
+        where id = $1`,
+      [MCP_KEY],
     ))).toBe('55000');
   });
 
-  it('allows POST only for a usage event whose classification matches its key', async () => {
+  it('reserves POST, fixed MCP route keys, and zero rows for MCP/NONE analytics', async () => {
     await expect(
       driver.query(
         `insert into api_usage_events
            (id, tenant_id, api_key_id, vertical_id, route_key, method, status,
             rows_served, access_tier, billing_source)
          values ('81000000-0000-4000-8000-000000000020', $1,
-                 '81000000-0000-4000-8000-000000000010', $2,
+                 $2, $3,
                  'mcp.tools_call', 'POST', 200, 0, 'MCP', 'NONE')`,
-        [TENANT, VERTICAL],
+        [TENANT, MCP_KEY, VERTICAL],
       ),
     ).resolves.toBeDefined();
 
@@ -105,10 +106,23 @@ describe('0018 MCP access and analytics-only usage classification', () => {
          (id, tenant_id, api_key_id, vertical_id, route_key, method, status,
           rows_served, access_tier, billing_source)
        values ('81000000-0000-4000-8000-000000000021', $1,
-               '81000000-0000-4000-8000-000000000010', $2,
-               'mcp.tools_call', 'POST', 200, 0, 'API_PAID', 'DIRECT')`,
-      [TENANT, VERTICAL],
-    ))).toBe('23503');
+               $2, $3, 'search', 'POST', 200, 0, 'API_PAID', 'DIRECT')`,
+      [TENANT, DIRECT_KEY, VERTICAL],
+    ))).toBe('23514');
+
+    for (const [method, routeKey, rowsServed] of [
+      ['GET', 'mcp.tools_call', 0],
+      ['POST', 'search', 0],
+      ['POST', 'mcp.tools_call', 1],
+    ] as const) {
+      expect(await sqlState(driver.query(
+        `insert into api_usage_events
+           (tenant_id, api_key_id, vertical_id, route_key, method, status,
+            rows_served, access_tier, billing_source)
+         values ($1, $2, $3, $4, $5, 200, $6, 'MCP', 'NONE')`,
+        [TENANT, MCP_KEY, VERTICAL, routeKey, method, rowsServed],
+      )), `${method}/${routeKey}/${rowsServed}`).toBe('23514');
+    }
   });
 
   it('is a migration no-op when applied again', async () => {

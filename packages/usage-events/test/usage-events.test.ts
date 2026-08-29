@@ -46,6 +46,44 @@ describe('buildUsageEvent', () => {
     expect(event.duration_ms).toBe(45);
   });
 
+  it('keeps direct/marketplace reads and MCP analytics in disjoint operation classes', () => {
+    for (const invalid of [
+      { ...validInput, method: 'POST' as const },
+      { ...validInput, routeKey: 'mcp.unknown' },
+      {
+        ...validInput,
+        routeKey: 'mcp.tools_call',
+        method: 'POST' as const,
+        accessTier: 'API_PAID' as const,
+        billingSource: 'DIRECT' as const,
+      },
+      {
+        ...validInput,
+        routeKey: 'search',
+        method: 'POST' as const,
+        accessTier: 'MCP' as const,
+        billingSource: 'NONE' as const,
+      },
+      {
+        ...validInput,
+        routeKey: 'mcp.tools_call',
+        method: 'GET' as const,
+        accessTier: 'MCP' as const,
+        billingSource: 'NONE' as const,
+      },
+      {
+        ...validInput,
+        routeKey: 'mcp.tools_call',
+        method: 'POST' as const,
+        accessTier: 'MCP' as const,
+        billingSource: 'NONE' as const,
+        rowsServed: 1,
+      },
+    ]) {
+      expect(() => buildUsageEvent(invalid), JSON.stringify(invalid)).toThrow(TypeError);
+    }
+  });
+
   it('stamps occurred_at as an ISO string, defaulting to now', () => {
     const before = Date.now();
     const event = buildUsageEvent(validInput);
@@ -162,6 +200,10 @@ describe('parseUsageEvent', () => {
       ...legacy
     } = current;
     expect(parseUsageEvent(legacy)).toEqual(legacy);
+
+    expect(parseUsageEvent({ ...legacy, method: 'POST' })).toBeNull();
+    expect(parseUsageEvent({ ...legacy, route_key: 'mcp.tools_call' })).toBeNull();
+    expect(parseUsageEvent({ ...legacy, route_key: 'mcp.unknown' })).toBeNull();
   });
 
   it('rejects unknown versions and crossed marketplace billing classifications', () => {
@@ -189,6 +231,14 @@ describe('parseUsageEvent', () => {
     const crossed = overWire(event) as Record<string, unknown>;
     crossed['access_tier'] = 'API_PAID';
     expect(parseUsageEvent(crossed)).toBeNull();
+
+    for (const mutation of [
+      { method: 'GET' },
+      { route_key: 'search' },
+      { rows_served: 1 },
+    ]) {
+      expect(parseUsageEvent({ ...(overWire(event) as object), ...mutation })).toBeNull();
+    }
   });
 
   it('rejects a method this API never serves', () => {

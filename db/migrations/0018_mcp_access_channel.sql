@@ -41,7 +41,35 @@ ALTER TABLE api_usage_events
     DROP CONSTRAINT api_usage_events_method_allowed;
 
 ALTER TABLE api_usage_events
-    ADD CONSTRAINT api_usage_events_method_allowed CHECK (method IN ('GET', 'HEAD', 'POST'));
+    ADD CONSTRAINT api_usage_events_method_allowed CHECK (
+        (
+            method IN ('GET', 'HEAD')
+            AND route_key NOT IN (
+                'mcp.server_discover',
+                'mcp.tools_list',
+                'mcp.tools_call',
+                'mcp.protocol_failure'
+            )
+            AND (
+                (access_tier IS NULL AND billing_source IS NULL)
+                OR (access_tier = 'API_FREE' AND billing_source = 'DIRECT')
+                OR (access_tier = 'API_PAID' AND billing_source = 'DIRECT')
+                OR (access_tier = 'RAPIDAPI' AND billing_source = 'RAPIDAPI')
+            )
+        )
+        OR (
+            method = 'POST'
+            AND access_tier = 'MCP'
+            AND billing_source = 'NONE'
+            AND route_key IN (
+                'mcp.server_discover',
+                'mcp.tools_list',
+                'mcp.tools_call',
+                'mcp.protocol_failure'
+            )
+            AND rows_served = 0
+        )
+    );
 
 CREATE OR REPLACE FUNCTION enforce_api_key_access_classification()
 RETURNS TRIGGER

@@ -368,50 +368,43 @@ describe('seo.yaml', () => {
 });
 
 describe('mcp.yaml', () => {
-  it('exposes a small, intent-shaped tool set (doc 10)', () => {
-    expect(mcp.tools.length).toBeGreaterThanOrEqual(4);
-    expect(mcp.tools.length).toBeLessThanOrEqual(6);
+  it('selects exactly the six executable generic tools in stable order', () => {
+    expect(mcp.tools.map((tool: any) => tool.name)).toEqual([
+      'search_entities',
+      'get_entity',
+      'list_facts',
+      'compare_entities',
+      'traverse_relationships',
+      'explain_fact',
+    ]);
   });
 
-  it('names no tool as a CRUD wrapper', () => {
-    // "get_entity", "list_facts", "search" are database methods in costume.
-    const crud = /^(get|list|create|update|delete|read)_(entity|entities|fact|facts|record|records|row|rows)$/;
+  it('declares only vertical server identity and executable-tool display metadata', () => {
+    expect(Object.keys(mcp).sort()).toEqual(['server', 'tools']);
+    expect(mcp.server).toEqual({
+      name: 'data-foundry-hvac',
+      version: '0.1.0',
+      transport: 'streamable_http',
+      endpoint: '/mcp',
+    });
     for (const tool of mcp.tools) {
-      expect(crud.test(tool.name), `${tool.name} is a CRUD wrapper`).toBe(false);
+      expect(Object.keys(tool).sort(), tool.name).toEqual(['name', 'summary', 'title']);
       expect(tool.name).toMatch(/^[a-z][a-z0-9_]*$/);
+      expect(tool.title.trim(), tool.name).not.toBe('');
+      expect(tool.summary.trim(), tool.name).not.toBe('');
     }
   });
 
-  it('writes descriptions that communicate all five doc 07 requirements', () => {
-    for (const tool of mcp.tools) {
-      // Intent, identifiers, output meaning, citation behaviour, limitations.
-      expect(tool.description.length, `${tool.name} description is too thin`).toBeGreaterThan(300);
-      expect(tool.limitations, `${tool.name} must state its limitations`).toBeTruthy();
-      expect(tool.evidence, `${tool.name}`).toBe('required');
-      expect(tool.errors.length, `${tool.name} must declare its errors`).toBeGreaterThan(0);
-      expect(tool.intent, `${tool.name}`).toBeTruthy();
-    }
-  });
-
-  it('references only declared properties in tool schemas', () => {
-    const evidenceTool = mcp.tools.find((t: any) => t.name === 'get_spec_evidence');
-    const propertyInput = evidenceTool.inputs.find((i: any) => i.name === 'property');
-    for (const property of propertyInput.enum) {
-      expect(declaredProperties.has(property), property).toBe(true);
-    }
-  });
-
-  it('never returns a fact without evidence or an unpublishable source', () => {
-    // AGENTS.md rules 1 and 2, enforced at the interface.
-    expect(mcp.response_contract.suppress_facts_without_evidence).toBe(true);
-    expect(mcp.response_contract.exclude_unpublishable_sources).toBe(true);
-    expect(mcp.response_contract.include_evidence_refs).toBe(true);
-  });
-
-  it('declares negative cases the server should decline', () => {
-    expect(mcp.evals.negative_cases.length).toBeGreaterThanOrEqual(3);
-    for (const negativeCase of mcp.evals.negative_cases) {
-      expect(negativeCase.reason).toBeTruthy();
+  it('does not duplicate executable schemas, error contracts, rights policy, or eval claims', () => {
+    const serialized = JSON.stringify(mcp);
+    for (const configurationOwnedElsewhere of [
+      'input_schema',
+      'response_contract',
+      'negative_cases',
+      'suppress_facts_without_evidence',
+      'exclude_unpublishable_sources',
+    ]) {
+      expect(serialized, configurationOwnedElsewhere).not.toContain(configurationOwnedElsewhere);
     }
   });
 });

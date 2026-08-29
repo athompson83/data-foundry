@@ -165,7 +165,7 @@ accessible.
 | Media kill switch | Per media asset |
 | Entity unpublish | Removes from index and sitemap; stays queryable internally |
 | Export exclusion | Follows the publish gate automatically |
-| MCP/API exclusion | `response_contract.exclude_unpublishable_sources` |
+| MCP/API exclusion | Surface-bound QueryModel rights gates plus MCP/API negative controls |
 | Legal hold | `provenance_retention.legal_hold` — preserves evidence past retention |
 
 **Never silently rewrite history.** Corrections follow doc 13's flow: reported →

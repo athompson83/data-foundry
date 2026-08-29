@@ -352,8 +352,8 @@ export interface TraverseRelationshipsResult {
   readonly edges: readonly RelationshipEdgeView[];
   /**
    * Edges the walk reached and would not serve because NOTHING asserts them —
-   * no evidence row at all (AGENTS.md rule 2, and the
-   * `suppress_facts_without_evidence` contract in `mcp.yaml`). Counted rather
+   * no evidence row at all (AGENTS.md rule 2 and the executable MCP response
+   * contract). Counted rather
    * than hidden: a traversal that quietly returns fewer edges than the graph
    * holds is indistinguishable from a graph that is missing them, and an
    * unevidenced edge names no source, so counting it discloses none.

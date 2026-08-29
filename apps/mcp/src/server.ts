@@ -1,14 +1,12 @@
 /**
  * The dispatcher: a tool name plus arguments in, a stable result out.
  *
- * NO TRANSPORT. AGENTS.md names Cloudflare Streamable HTTP as the eventual
- * deployment and it does not exist yet, so there is deliberately no JSON-RPC
- * framing, no stdio loop and no HTTP handler here. What a transport will need
- * is this: a list of tool declarations, and a function from (name, arguments)
- * to an MCP-shaped result that never throws. Both are in-process and testable
- * without a socket, which is the point — the interesting behaviour is the
- * mapping, and a transport wrapped around it should be able to add nothing but
- * framing.
+ * NO TRANSPORT. `apps/mcp-worker` is the Cloudflare Streamable HTTP adapter;
+ * JSON-RPC framing, HTTP guards and authentication stay there. This package
+ * remains the in-process list of tool declarations plus a function from (name,
+ * arguments) to a stable result, testable without a socket. The interesting
+ * behaviour is the mapping, and the deployed transport adds only framing and
+ * access concerns.
  *
  * `callTool` NEVER THROWS. Every failure — unknown tool, malformed argument,
  * missing entity, an unmodelled exception from below — leaves as a structured
@@ -16,8 +14,8 @@
  * returns for another forces the transport to invent the missing half, which is
  * where the two halves start disagreeing.
  *
- * ONE VERTICAL PER SERVER, matching `mcp.yaml` (`server.vertical`). The
- * vertical id is configuration, never a tool argument: an agent should not be
+ * ONE VERTICAL PER SERVER, selected by the deployment and compiled runtime.
+ * The vertical id is configuration, never a tool argument: an agent should not be
  * able to address a neighbouring vertical's data by guessing a uuid, and it
  * should not have to know uuids at all.
  */
@@ -62,7 +60,7 @@ export interface McpServerOptions {
    * string. There is no configuration of this server that gives it SQL.
    */
   readonly queryModel: QueryModel;
-  /** The single vertical served, as declared in the vertical's `mcp.yaml`. */
+  /** The single vertical selected by the deployment's compiled runtime. */
   readonly vertical: { readonly id: VerticalId; readonly slug: string };
   /**
    * Compiled fact-selection policy for this vertical. Server-side only; see

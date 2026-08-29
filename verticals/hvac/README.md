@@ -48,7 +48,7 @@ hvac/
 ├── relationships.yaml       manufactures · supersedes · certified_by · compatible_with
 ├── filters.yaml             schema-driven filter definitions and indexability hints
 ├── seo.yaml                 quality-gated indexability and agent intents
-├── mcp.yaml                 intent-shaped MCP tool declarations
+├── mcp.yaml                 shared six-tool MCP selection and server identity
 ├── sources/                 four synthetic source declarations with rights metadata
 ├── normalizers/             deterministic normalization and source mappings
 ├── fixtures/                native-format artifacts plus generated PDF fixture

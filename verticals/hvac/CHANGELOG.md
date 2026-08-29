@@ -4,6 +4,18 @@ All notable changes to this vertical's schema and data. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions are the
 `schema_version` in `vertical.yaml`.
 
+## [Unreleased] — 2026-08-28
+
+### Changed — MCP publication metadata
+
+- Replaced the aspirational vertical-specific MCP declarations with the exact
+  six executable generic tools from `apps/mcp`.
+- Moved schemas, descriptions, errors, evidence behavior, and rights enforcement
+  to the compiled executable contract so `mcp.yaml` cannot advertise behavior
+  the deployed Worker does not implement.
+- Updated agent-intent routing to those six tool names and removed unused
+  server/agent-card paths that no route serves.
+
 ## [0.1.0] — 2026-08-14
 
 Initial vertical. Phase 1 factory proof.

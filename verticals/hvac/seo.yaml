@@ -369,7 +369,7 @@ llm_discovery:
 agent_intents:
 
   replacement_lookup:
-    tool: find_replacement_model
+    tool: traverse_relationships
     examples:
       - "What replaces {model_number}?"
       - "{model_number} is discontinued, what do I order instead?"
@@ -378,7 +378,7 @@ agent_intents:
       - "What superseded {model_number}?"
 
   spec_search:
-    tool: match_equipment_specs
+    tool: search_entities
     examples:
       - "Find 3 ton heat pumps with SEER2 of at least 15"
       - "What R-454B condensers are available in 4 ton?"
@@ -387,7 +387,7 @@ agent_intents:
       - "List two-stage 5 ton units"
 
   evidence_lookup:
-    tool: get_spec_evidence
+    tool: explain_fact
     examples:
       - "Where does the SEER2 rating for {model_number} come from?"
       - "Show me the source for the sound rating on {model_number}"
@@ -395,7 +395,7 @@ agent_intents:
       - "Is this specification certified or manufacturer-published?"
 
   identifier_resolution:
-    tool: identify_equipment_model
+    tool: get_entity
     examples:
       - "What is {messy_model_number}?"
       - "Look up AHRI {ahri_ref}"
@@ -403,14 +403,14 @@ agent_intents:
       - "The nameplate reads {partial_model_number}"
 
   comparison:
-    tool: compare_equipment_models
+    tool: compare_entities
     examples:
       - "Compare {model_a} and {model_b}"
       - "What changed between {old_model} and its replacement?"
       - "Which is more efficient, {model_a} or {model_b}?"
 
   certification_lookup:
-    tool: list_certified_ratings
+    tool: get_entity
     examples:
       - "Is {model_number} AHRI certified?"
       - "What are the certified ratings for {model_number}?"
