@@ -8,9 +8,11 @@ Phase 2 is the first time that stops being true. This document is the procedure
 for it: what to decide before fetching a byte, what has to be recorded, and what
 counts as proof afterwards.
 
-Run `pnpm sources:readiness` at any point to see where a vertical actually
-stands. It reads the same declarations the pipeline reads and reports the
-blockers by name. `hvac` reports `NOT READY` today, and that is correct.
+Run `pnpm sources:readiness -- --as-of 2026-08-28T12:00:00.000Z hvac` at the
+explicit instant being reviewed. It reads the same declarations the pipeline
+reads, evaluates exact canonical surface bundles when live DB or validated
+snapshot evidence is supplied, and reports blockers by name. With no rights
+evidence the seven surfaces are `UNKNOWN`, which is correct.
 
 **Worked example.** The first candidate to go through this procedure is EPA's
 ENERGY STAR certified heat-pump data. Its review packet is at
@@ -139,8 +141,9 @@ thing that says so early.
 
 ## Stage 4 — before anything is sold
 
-`DATA_RIGHTS.md` states the five conditions. `pnpm sources:readiness` checks the
-mechanical ones and prints the rest as the gate they are. A vertical stays
+`DATA_RIGHTS.md` states the five conditions. The command
+`pnpm sources:readiness -- --as-of <canonical-UTC-instant>` checks the mechanical
+ones and prints the rest as the gate they are. A vertical stays
 `status: DRAFT` until all five hold, and `DRAFT` verticals do not publish.
 
 The condition no tool can check for you is the fourth: a published dataset

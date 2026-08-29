@@ -11,6 +11,12 @@ importers:
       '@data-foundry/canonical-schema':
         specifier: workspace:*
         version: link:packages/canonical-schema
+      '@data-foundry/canonical-store':
+        specifier: workspace:*
+        version: link:packages/canonical-store
+      '@data-foundry/rights-engine':
+        specifier: workspace:*
+        version: link:packages/rights-engine
       '@data-foundry/source-registry':
         specifier: workspace:*
         version: link:packages/source-registry

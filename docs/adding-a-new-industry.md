@@ -66,9 +66,11 @@ vertical will use, including as applicable:
 - `BULK_EXPORT`;
 - redistribution/sublicense.
 
-Unknown or absent permission remains refusal. `pnpm sources:readiness` should
-therefore be read as a rights/readiness signal, not as permission manufactured
-by a successful build.
+Unknown or absent permission remains refusal. Run
+`pnpm sources:readiness -- --as-of 2026-08-28T12:00:00.000Z <vertical-slug>`;
+without live DB or a validated snapshot, all seven surfaces report `UNKNOWN`.
+The command is a readiness signal, not permission manufactured by a successful
+build.
 
 ## 4. Compile the runtime artifacts
 

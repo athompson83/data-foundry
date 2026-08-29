@@ -32,8 +32,8 @@ describe('cross-platform CLI entry detection', () => {
     },
     {
       script: 'tooling/scripts/source-readiness.ts',
-      args: [],
-      expected: 'commercial publication gate:',
+      args: ['--as-of', '2026-08-28T12:00:00.000Z'],
+      expected: 'seven-surface revenue readiness',
     },
   ])('executes $script when tsx receives a Windows filesystem entry path', async ({
     script,

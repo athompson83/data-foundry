@@ -155,6 +155,60 @@ Absence of permission remains refusal. A free RapidAPI tier does not become
 marketplace bundle separately requires service, sale, normalized redistribution
 and sublicense permission on the marketplace channel.
 
+### Mechanical source-readiness report
+
+The report requires an explicit canonical UTC instant with millisecond
+precision. It evaluates a conservative source-wide `DATA` / `NORMALIZED_FACT`
+scope through the canonical rights engine for `PUBLIC_WEB`, `SEARCH_INDEX`,
+`API_FREE`, `API_PAID`, `RAPIDAPI`, `MCP`, and `BULK_EXPORT`. A narrower
+field-scoped grant does not make the whole source ready, and no neighboring
+surface implies another.
+
+Run without rights evidence to inventory sources and get deterministic
+`UNKNOWN` for every surface:
+
+```powershell
+pnpm sources:readiness -- --as-of 2026-08-28T12:00:00.000Z hvac
+pnpm sources:readiness -- --as-of 2026-08-28T12:00:00.000Z --json hvac
+```
+
+Use a live database only by naming the environment variable that contains the
+connection string. Never put the connection string on the command line; the
+report prints the variable name, not its value:
+
+```powershell
+pnpm sources:readiness -- --as-of 2026-08-28T12:00:00.000Z --database-env DATA_FOUNDRY_DATABASE_URL hvac
+```
+
+An offline snapshot is accepted only when its strict v1 schema, explicit
+`generatedAt`, exact `asOf`, provenance label, canonicalization identifier and
+SHA-256 canonical digest validate. The digest proves integrity, not legal
+authority, and output remains visibly `SNAPSHOT_BACKED`; only the live-database
+mode is live-current proof.
+
+```powershell
+pnpm sources:readiness -- --as-of 2026-08-28T12:00:00.000Z --rights-snapshot .\rights-snapshot.json --json hvac
+
+# Export a credential-free snapshot from live DB evidence. Every clock and the
+# provenance label is explicit; the tool never guesses the current time.
+pnpm sources:readiness -- --as-of 2026-08-28T12:00:00.000Z --database-env DATA_FOUNDRY_DATABASE_URL --snapshot-out .\rights-snapshot.json --snapshot-provenance "owner-qualified production rights export" --generated-at 2026-08-28T12:05:00.000Z --json hvac
+```
+
+The accepted owner decision leaves ENERGY STAR deferred. It is absent from the
+runtime registry and from this report by default. It can be included only for a
+decision packet, where the report keeps it non-ready and names missing publisher
+mapping, terms evidence, named-reviewer, activation and exact surface grants:
+
+```powershell
+pnpm sources:readiness -- --as-of 2026-08-28T12:00:00.000Z --include-source energy-star-heat-pumps --json hvac
+```
+
+Legacy `GREEN`/`AMBER` classifications and source-declaration booleans appear as
+inventory/risk metadata and additional hard stops only. They never manufacture
+an `ALLOW`. The generated offline schema is
+`schemas/source-readiness-snapshot-v1.schema.json`; `pnpm schemas:check` rejects
+schema drift.
+
 ### Marketplace product shape
 
 Publish one marketplace product per vertical rather than one generic Data

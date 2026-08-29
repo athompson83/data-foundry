@@ -250,7 +250,9 @@ MCP tool definitions, the Phase 2 Python/Splink work, and external dataset users
 
 `docs/source-onboarding.md` is the procedure: what to decide before fetching a
 byte, what the declaration has to record, and what counts as proof afterwards.
-`pnpm sources:readiness` reports where a vertical actually stands against it.
+`pnpm sources:readiness -- --as-of 2026-08-28T12:00:00.000Z hvac` reports the
+seven-surface posture at an explicit instant. Without live DB or validated
+snapshot evidence, every surface is `UNKNOWN`; see the revenue-readiness runbook.
 
 ## Deployment
 

@@ -42,7 +42,8 @@
 #
 #      Going straight to ACTIVE skips the state whose whole purpose is
 #      "acquired, not yet published".
-#   6. Run pnpm verticals:validate && pnpm sources:readiness.
+#   6. Run pnpm verticals:validate, then run pnpm sources:readiness --
+#      --as-of <canonical-UTC-instant> --include-source energy-star-heat-pumps hvac.
 # =============================================================================
 
 key: energy-star-heat-pumps

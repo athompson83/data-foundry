@@ -16,44 +16,43 @@
 
 ### Objective
 
-Close Task 8's core rights, fact-lineage, kill-switch, and bulk-pagination findings without fabricating grants or changing provider infrastructure.
+Implement Task 9's rights-aware source-readiness command so release readiness is derived from exact canonical rights evidence at an explicit instant, without treating inventory metadata as legal permission.
 
 ### Completed
 
-- Added forward migration `0016_core_rights_hardening.sql`, preserving legacy source kill-switch and fact-kind state as unknown/NULL and therefore fail-closed.
-- Sealed field-group membership after first rights-cell reference while retaining the existing UPDATE/DELETE/TRUNCATE history guards.
-- Persisted the registry kill switch through source synchronization and made every database-backed distribution surface refuse killed or unknown source state, including factless bulk entities.
-- Classified fact outputs as `NORMALIZED_FACT` or `DERIVED_METRIC`; added an atomic derived writer with a non-empty immutable dependency set.
-- Made canonical and surface query paths refuse ambiguous/incomplete output contracts, require exact-target `DERIVE` from both direct output evidence and every recursive input contribution, recursively authorize every input, and reject cycles.
-- Kept the web deployment's driver/store/canonical query graph isolate-cached while rebinding fresh `PUBLIC_WEB` and `SEARCH_INDEX` surface models once per request at one shared explicit instant, so kill switches, revocations, and recheck expiry fail closed on the next request.
-- Updated the real HVAC mapping/normalization/ingestion path to record derived output lineage and preserve that lineage during promotion.
-- Changed bulk enumeration to refuse changing totals, early empty pages, duplicate/no-progress pages, and unique-total mismatches before writing any artifact.
-- Regenerated the canonical fact/source JSON Schemas.
+- Made `--as-of` mandatory and canonical UTC for every readiness evaluation; the command no longer falls back to wall-clock time or YAML permission booleans.
+- Evaluated `PUBLIC_WEB`, `SEARCH_INDEX`, `API_FREE`, `API_PAID`, `RAPIDAPI`, `MCP`, and `BULK_EXPORT` through the canonical rights engine using the conservative whole-source `DATA` / `NORMALIZED_FACT` scope.
+- Added live-database evidence selected by environment-variable name only, with credential values excluded from command output.
+- Added a versioned offline snapshot format with explicit generation/as-of/provenance metadata, deterministic code-unit ordering, canonical SHA-256 digest validation, generated JSON Schema, and drift checks. Snapshot output is explicitly qualified as snapshot-backed rather than live-current proof.
+- Made absent evidence deterministically return `UNKNOWN` for all seven surfaces and report each exact missing operation/channel cell; malformed, stale-for-request, or non-canonical snapshots fail closed.
+- Kept the proposed ENERGY STAR source opt-in and `DEFERRED`; even matching snapshot grants cannot mark it ready while its governance blockers remain.
+- Changed aggregate revenue readiness to consider only real, active, enabled publication candidates, so synthetic fixtures and inactive/deferred neighbors neither manufacture nor suppress readiness.
+- Added negative controls for field-scoped versus source-wide grants, neighboring permission non-implication, source filtering, deferred-source behavior, snapshot integrity, and secret-safe failures.
+- Updated the existing revenue-readiness, onboarding, industry-addition, README, and proposed-source documentation with the exact evidence modes and command contract.
 
 ### Verification
 
-- Focused web and query-rights suites passed: 19 files / 148 tests.
-- Full repository suite passed: 154 files / 2,210 tests.
-- TypeScript typecheck, JSON Schema/OpenAPI drift checks, PGlite migration check, vertical validation/runtime drift check, and production Worker artifact check passed.
-- Disposable PostgreSQL 16 clean apply/reapply and populated upgrade apply passed. Real SQL refused field-group expansion, field/dependency UPDATE and DELETE, output-kind mutation, unclassified inserts, and derived inserts without dependencies.
-- Full commands, RED/GREEN evidence, and self-review are recorded in the Task 8 implementation report.
+- Focused source-readiness and CLI entry suites passed, including the seven-surface, snapshot, deferred-source, aggregation, and scope negative controls.
+- Full repository suite passed: 154 files / 2,234 tests.
+- TypeScript typecheck, JSON Schema and source-readiness-schema drift checks, OpenAPI drift check, PGlite migration apply/idempotence check, vertical validation/runtime drift check, web runtime drift check, Cloudflare topology check, and production Worker artifact check passed.
+- Wrangler dry-run built all three production Worker artifacts with no PGlite runtime leakage.
 
 ### Deployment / Database Activity
 
-- No deployment, hosted database migration, grant creation, source approval, provider resource, or production change was performed.
-- Only isolated disposable local PostgreSQL databases were created for verification and removed afterward.
+- No deployment, hosted database connection, hosted migration, grant creation, source approval, provider resource, or production change was performed.
+- Migration verification used the repository's in-memory PGlite target. The live-database readiness path remains unexercised because no approved credential environment variable was supplied.
 
 ## Blockers
 
 - No real HVAC source has the exact effective grants and independent legal/rights review required for publication or paid distribution.
 - Canonical Cloudflare account/zone/routes, queue/DLQ, Hyperdrive, and hosted Postgres connectivity are not evidenced as configured.
-- This isolated branch still requires integration-owner review and reconciliation with the other release slices.
+- This isolated branch still requires integration-owner review and reconciliation with the scheduled-acquisition and other release slices.
 
 ## Risks
 
-- Existing legacy source kill-switch and fact output-kind values remain intentionally unknown until explicitly synchronized/classified; they will not be served meanwhile.
-- Engineering verification does not provide legal approval or manufacture any rights decision.
-- The in-memory export cap remains 10,000 entities; larger exports require a separately designed rights pre-pass/streaming architecture.
+- A snapshot digest proves integrity of canonical snapshot bytes, not authenticity, authority, or live-current database state; operational review must preserve the declared provenance qualification.
+- Readiness is deliberately assessed at whole-source `DATA` / `NORMALIZED_FACT` scope. Field-scoped grants are not silently promoted to equivalent source-wide permission.
+- Engineering verification does not provide legal approval or manufacture any rights decision. Legacy GREEN/AMBER labels and booleans remain inventory/risk metadata only.
 
 ## Required User Actions
 
@@ -61,15 +60,15 @@ See `PROJECT_CHECKLIST.md` items `UA-001` through `UA-003`. No routine local imp
 
 ## Recommended Next Steps
 
-1. Integration-owner: review and replay this commit with Tasks 7 and 9 plus the web/runtime branch, resolving overlap without weakening the fail-closed boundaries.
+1. Integration-owner: review and replay this commit with the Task 9 scheduled-acquisition slice and other release branches, resolving overlap without weakening the exact-bundle or evidence boundaries.
 2. Owner/legal: review the first real HVAC source and record only exact evidenced grants; absent grants remain refusal.
-3. Owner/platform: configure the canonical hosted Postgres/Hyperdrive/Cloudflare topology, then run the same migration and surface negatives against an isolated hosted environment.
-4. Release-owner: freeze the integrated 40-character SHA before hosted certification.
+3. Owner/platform: expose an approved hosted database URL through a named protected environment variable, then run `sources:readiness` at an explicit canonical UTC instant and retain qualified evidence.
+4. Release-owner: freeze the integrated 40-character SHA before hosted certification or deployment.
 
 ## Production Impact
 
-None. Repository code, tests, documentation, generated schemas, and local disposable database state changed only.
+None. Repository code, tests, documentation, generated schema, and local verification state changed only.
 
 ## Previous Session Summary
 
-The preceding Task 7 session completed repository-owned RapidAPI/OpenAPI and Cloudflare preflight work on `codex/rapidapi-openapi-20260828`, with no deployment or provider credential changes. Task 8 began from the explicit base `1ba45f88f164aa6a8d0ba19d2f6948879fbe75b2`; hosted state must be refreshed before any merge or deployment claim.
+The preceding Task 8 session completed core rights, fact-lineage, kill-switch, and bulk-pagination hardening. This Task 9 readiness slice began from explicit base `b19257d6ecda4a0c677e5e30f981a8625df1e2e9`; hosted state and the integrated candidate must be refreshed before any merge or deployment claim.
