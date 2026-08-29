@@ -135,3 +135,8 @@ jobs:
         env:
           POSTGRES_URL: postgres://postgres:postgres@localhost:5432/data_foundry
         run: pnpm migrate
+
+      - name: Scheduled acquisition concurrency and transaction controls
+        env:
+          POSTGRES_URL: postgres://postgres:postgres@localhost:5432/data_foundry
+        run: pnpm acquisition:postgres:check

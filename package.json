@@ -24,6 +24,7 @@
     "verticals:compile:check": "tsx tooling/scripts/compile-vertical-runtime.ts --check",
     "acquisition:compile": "tsx tooling/scripts/compile-acquisition-runtime.ts",
     "acquisition:check": "tsx tooling/scripts/compile-acquisition-runtime.ts --check",
+    "acquisition:postgres:check": "tsx tooling/scripts/check-scheduled-acquisition-postgres.ts",
     "cloudflare:topology:check": "tsx tooling/scripts/check-cloudflare-topology.ts",
     "cloudflare:artifacts:check": "tsx tooling/scripts/check-cloudflare-artifacts.ts",
     "web:compile": "tsx tooling/scripts/compile-web-runtime.ts",

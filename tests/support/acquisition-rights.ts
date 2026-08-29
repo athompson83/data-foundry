@@ -66,32 +66,31 @@ export async function seedAcquisitionRightsScopes(input: {
      WHERE id = $2`,
     [publisherId, input.sourceId, reviewEvidenceId, effective],
   );
-  await input.driver.exec('BEGIN');
-  try {
+  await input.driver.transaction(async (tx) => {
     for (const scope of input.scopes) {
       const termsCellId = crypto.randomUUID();
       const termsVersionId = crypto.randomUUID();
-      await input.driver.query(
+      await tx.query(
         `INSERT INTO rights_terms_cells
            (id, source_id, acquisition_route, created_by)
          VALUES ($1, $2, $3, 'test-fixture')`,
         [termsCellId, input.sourceId, scope.acquisitionRoute],
       );
-      await input.driver.query(
+      await tx.query(
         `INSERT INTO rights_terms_versions
            (id, terms_cell_id, evidence_artifact_id, content_sha256, version_label,
             effective_from, recheck_at, created_by)
          VALUES ($1, $2, $3, $4, 'test-v1', $5, $6, 'test-fixture')`,
         [termsVersionId, termsCellId, termsEvidenceId, 'a'.repeat(64), effective, termsRecheck],
       );
-      await input.driver.query(
+      await tx.query(
         `SELECT activate_rights_terms($1, 'HUMAN', 'test-fixture', 'synthetic test terms', $2)`,
         [termsVersionId, effective],
       );
       for (const operation of ['ACQUIRE', 'STORE', 'CACHE']) {
         const cellId = crypto.randomUUID();
         const decisionId = crypto.randomUUID();
-        await input.driver.query(
+        await tx.query(
           `INSERT INTO rights_cells
              (id, source_id, acquisition_route, asset_class, output_class,
               operation, channel, created_by)
@@ -105,7 +104,7 @@ export async function seedAcquisitionRightsScopes(input: {
             operation,
           ],
         );
-        await input.driver.query(
+        await tx.query(
           `INSERT INTO rights_decisions
              (id, cell_id, state, controlling_terms_version_id, evidence_artifact_id, clause_ref,
               review_status, reviewer_type, reviewed_by, reviewed_at, effective_from, recheck_at,
@@ -114,15 +113,11 @@ export async function seedAcquisitionRightsScopes(input: {
                    'test-fixture', $5, $5, $6, 'explicit acquisition test grant', 'test-fixture')`,
           [decisionId, cellId, termsVersionId, reviewEvidenceId, effective, decisionRecheck],
         );
-        await input.driver.query(
+        await tx.query(
           `SELECT activate_rights_decision($1, 'HUMAN', 'test-fixture', 'synthetic test grant', $2)`,
           [decisionId, effective],
         );
       }
     }
-    await input.driver.exec('COMMIT');
-  } catch (error) {
-    await input.driver.exec('ROLLBACK');
-    throw error;
-  }
+  });
 }
