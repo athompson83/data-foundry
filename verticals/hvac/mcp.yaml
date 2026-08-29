@@ -1,267 +1,34 @@
-# =============================================================================
-# mcp.yaml — the MCP tool surface for the HVAC vertical.
+# MCP publication declaration for the HVAC vertical.
 #
-# SIX tools. Doc 10: "Keep tool count small and intent-oriented." AGENTS.md
-# scope control forbids "dozens of MCP tools".
-#
-# Every tool here is a QUESTION SOMEONE ASKS, not a table with a costume on.
-# There is no `get_entity_by_id`, no `list_facts`, no `search`. The test applied
-# to each: can it be stated as something a technician says out loud in a supply
-# house? If not, it is not a tool.
-#
-# Doc 07: "MCP descriptions are agent SEO." Each description states all five of
-# the required things — intent served, identifiers accepted, output meaning,
-# citation behaviour, and limitations. The limitations matter most: a model that
-# knows what a tool cannot do stops calling it for the wrong reason.
-# =============================================================================
+# The names, titles and summaries must match apps/mcp/src/tools.ts exactly.
+# The compiler takes descriptions, schemas and error codes from those
+# executable declarations, so this file cannot advertise an unimplemented
+# domain tool or an unsupported certification claim.
 
 server:
   name: data-foundry-hvac
-  # Streamable HTTP. SSE is deprecated for new remote MCP connections (doc 10).
+  version: 0.1.0
   transport: streamable_http
   endpoint: /mcp
   server_card: /.well-known/mcp.json
   agent_card: /.well-known/agent.json
-  vertical: hvac
-
-# Inherited by every tool, declared once so no tool can quietly omit citations.
-response_contract:
-  include_canonical_ids: true
-  include_normalized_values: true
-  include_confidence: true
-  include_evidence_refs: true
-  include_freshness: true
-  include_canonical_url: true
-  include_raw_source: on_request_only
-  # AGENTS.md rule 2 at the interface: a value with no evidence is not a fact
-  # and is not returned as one.
-  suppress_facts_without_evidence: true
-  # Rule 1: sources failing the publish gate never reach an MCP response.
-  exclude_unpublishable_sources: true
-  # Indexability is a search-engine decision, not a data-availability one. An
-  # agent that asked for a specific model gets it, with the caveat attached.
-  include_non_indexable_entities: true
-  attach_coverage_notice_when_below_gate: true
 
 tools:
-
-  # ===========================================================================
-  - name: find_replacement_model
-    intent: replacement_lookup
-    summary: What replaces this discontinued model?
-    description: >-
-      Find the current replacement for a discontinued or superseded HVAC
-      equipment model, accepting a model number in any common formatting
-      (`24ACC636A003`, `24acc6-36a003`, `24ACC6 36A003`), a manufacturer SKU, a
-      UPC or an AHRI certified reference number. Walks the ENTIRE supersession
-      chain to the newest active model and returns every intermediate hop with
-      the date and source citation for each, so a technician can see what
-      changed along the way — in particular any refrigerant change, which
-      decides whether the replacement is a drop-in or a system change. Returns
-      canonical IDs, the full hop list, evidence for every hop, and the
-      canonical page URL. Does NOT infer replacements from specification
-      similarity: an edge exists only where a manufacturer asserted it, so a
-      model with no published successor returns no recommendation rather than a
-      plausible guess.
-    inputs:
-      - { name: identifier, type: string, required: true, description: "Model number in any formatting, manufacturer SKU, UPC or AHRI reference. Normalized before lookup." }
-      - { name: include_chain, type: boolean, required: false, default: true, description: "Return every hop rather than only the terminal model." }
-    returns:
-      shape: replacement_chain
-      fields: [canonical_id, model_number, manufacturer, status, is_current, chain, hop_count, refrigerant_changed, evidence, canonical_url, last_verified_at]
-    evidence: required
-    errors:
-      - { code: MODEL_NOT_FOUND, when: "The identifier does not resolve to any known model." }
-      - { code: AMBIGUOUS_IDENTIFIER, when: "A source-scoped SKU matched more than one manufacturer. Returns the candidates rather than choosing." }
-    limitations: >-
-      Covers only manufacturer-asserted supersession within a single
-      manufacturer's line. Does not suggest competitor cross-references, does not
-      assess whether a replacement fits an existing installation, and cannot
-      answer for models absent from the catalogue.
-    examples:
-      - { input: "24ACA636A003", expect: "Two hops to 24ACC636A003, reporting the R-410A → R-454B change." }
-      - { input: "24acc6-36a003", expect: "Already current; returns is_current true, not an empty result." }
-
-  # ===========================================================================
-  - name: match_equipment_specs
-    intent: spec_search
-    summary: Find models matching these specifications.
-    description: >-
-      Find HVAC equipment models matching a set of specification constraints —
-      capacity in tons or BTU/h, efficiency minimums (SEER2, EER2, HSPF2),
-      refrigerant, voltage, phase, compressor stages, product type and
-      manufacturer. Capacity may be given in either unit and is matched in both,
-      because a 3 ton and a 36000 BTU/h unit are the same equipment. Efficiency
-      constraints are evaluated against CERTIFIED ratings where a certification
-      exists, not manufacturer marketing figures, so a "minimum 14.3 SEER2"
-      filter returns models that genuinely meet code. Returns ranked matches
-      with canonical IDs, normalized specs, the certification behind each
-      efficiency value, and page URLs. Every returned specification carries its
-      source.
-    inputs:
-      - { name: product_type, type: string, required: false, enum: [air_conditioner, heat_pump, gas_furnace, air_handler, packaged_unit] }
-      - { name: nominal_tonnage, type: number_or_range, required: false, unit: ton }
-      - { name: cooling_capacity_btu, type: number_or_range, required: false, unit: "BTU/h" }
-      - { name: min_seer2, type: number, required: false }
-      - { name: min_eer2, type: number, required: false }
-      - { name: min_hspf2, type: number, required: false, description: "Heat pumps only; implies product_type heat_pump." }
-      - { name: refrigerant, type: string_array, required: false, enum: [R-410A, R-454B, R-32, R-22] }
-      - { name: voltage, type: number, required: false, unit: V }
-      - { name: phase, type: number, required: false, enum: [1, 3] }
-      - { name: stage_count, type: number, required: false }
-      - { name: manufacturer, type: string, required: false }
-      - { name: limit, type: number, required: false, default: 20, max: 100 }
-    returns:
-      shape: model_list
-      fields: [canonical_id, model_number, manufacturer, product_type, nominal_tonnage, cooling_capacity_btu, seer2, seer2_is_certified, eer2, hspf2, refrigerant, voltage, phase, stage_count, evidence, canonical_url, coverage_notice]
-    evidence: required
-    errors:
-      - { code: NO_MATCHES, when: "No model satisfies the constraints. Returns the nearest relaxations rather than an empty set." }
-      - { code: CONSTRAINT_CONFLICT, when: "Mutually unsatisfiable constraints, e.g. min_hspf2 with product_type air_conditioner." }
-    limitations: >-
-      Matches only specifications the catalogue holds. A model missing a
-      constrained property is EXCLUDED rather than assumed to comply — so
-      narrowing on a thinly-covered property such as sound level silently
-      shrinks the result set, and the response says so in `coverage_notice`.
-      Does not price, does not check availability, and does not size equipment
-      for a building.
-
-  # ===========================================================================
-  - name: get_spec_evidence
-    intent: evidence_lookup
-    summary: Show the evidence behind a specification.
-    description: >-
-      Show the complete evidence trail for one specification on one model: every
-      source that published a value, the value each published, the exact
-      location within each source artifact, when it was observed, which value
-      was selected as canonical, and WHICH SELECTION RULE decided it. Where
-      sources disagree, returns ALL competing claims including the ones that
-      lost — a certified rating and a manufacturer's brochure figure are both
-      real claims, and the disagreement is often the answer the user needs. This
-      is the tool that answers "why does your site say 14.3 when the brochure
-      says 14.5?" and it is the reason conflicting facts are retained rather
-      than overwritten.
-    inputs:
-      - { name: identifier, type: string, required: true, description: "Model number in any formatting, SKU, UPC or AHRI reference." }
-      - { name: property, type: string, required: true, enum: [product_type, cooling_capacity_btu, nominal_tonnage, seer2, eer2, hspf2, refrigerant, voltage, phase, stage_count, sound_level_db, weight_lb] }
-      - { name: include_superseded, type: boolean, required: false, default: true, description: "Include claims that lost fact selection. Defaults true — the losers are usually the point." }
-    returns:
-      shape: evidence_trail
-      fields: [canonical_id, property, canonical_value, unit, selected_by, selection_rationale, claims, has_conflict, conflict_explanation, last_verified_at, canonical_url]
-      claim_fields: [source_publisher, source_type, authority_rank, source_value, normalized_value, status, locator_type, locator_value, observed_at, attribution_required, attribution_text]
-    evidence: required
-    errors:
-      - { code: MODEL_NOT_FOUND, when: "The identifier does not resolve." }
-      - { code: PROPERTY_NOT_RECORDED, when: "No source publishes this property for this model. Reports which sources WOULD carry it, so the gap is actionable." }
-    limitations: >-
-      Returns evidence only for values that reached canonical storage. Quarantined
-      extractions and values from sources failing the publish gate are excluded
-      by design — those are internal review state, not published claims.
-    examples:
-      - { input: "24ACC636A003 / seer2", expect: "Three claims, two values (14.3 certified, 14.5 manufacturer + distributor), selected_by authoritative_source, has_conflict true." }
-
-  # ===========================================================================
-  - name: identify_equipment_model
-    intent: identifier_resolution
-    summary: What is this thing on the nameplate?
-    description: >-
-      Resolve a messy, partial or unfamiliar identifier to a canonical
-      equipment model. Accepts model numbers in any casing or separator style,
-      manufacturer SKUs, UPC barcodes, AHRI certified reference numbers and
-      marketing series names. Matching is deterministic on normalized
-      identifiers — never fuzzy or semantic — so a returned match is an exact
-      identifier match rather than a resemblance. A partial or ambiguous input
-      returns RANKED CANDIDATES with the distinguishing specifications between
-      them, so the caller can narrow it down from what is actually on the
-      nameplate, instead of a single confident guess. Returns canonical ID,
-      manufacturer, key specs, current lifecycle position and the page URL.
-    inputs:
-      - { name: identifier, type: string, required: true, description: "Anything read off a nameplate, carton, invoice or certificate." }
-      - { name: identifier_type, type: string, required: false, enum: [model_number, manufacturer_sku, upc, ahri_ref, series_name, auto], default: auto }
-      - { name: manufacturer_hint, type: string, required: false, description: "Disambiguates source-scoped SKUs, which are not globally unique." }
-    returns:
-      shape: identification_result
-      fields: [match_type, confidence, canonical_id, model_number, manufacturer, product_type, nominal_tonnage, seer2, refrigerant, is_current, superseded_by, candidates, evidence, canonical_url]
-    evidence: required
-    errors:
-      - { code: NO_MATCH, when: "No deterministic match. Returns the normalized form attempted, so the caller can see how the input was read." }
-      - { code: AMBIGUOUS_IDENTIFIER, when: "Multiple matches; returns candidates with distinguishing specs." }
-    limitations: >-
-      Exact-identifier matching only (AGENTS.md rule 7). Will not guess from a
-      partial fragment, will not match on visual or specification similarity,
-      and cannot identify equipment from a photograph or a description. If the
-      identifier is not in the catalogue, it says so rather than offering the
-      closest-looking model.
-
-  # ===========================================================================
-  - name: compare_equipment_models
-    intent: comparison
-    summary: How do these two models differ?
-    description: >-
-      Compare two or more equipment models side by side across every
-      specification either one holds. Flags three things distinctly, because
-      they mean different things: values that DIFFER, values that are MISSING
-      for one model but present for another, and values where the sources
-      themselves DISAGREE. Where the models are related by supersession, also
-      reports what changed across the replacement — refrigerant, efficiency and
-      physical differences — which is the actual question behind most
-      comparisons. Every compared value carries its source, so a difference can
-      be checked rather than trusted.
-    inputs:
-      - { name: identifiers, type: string_array, required: true, min_items: 2, max_items: 5, description: "Model numbers in any formatting, SKUs, UPCs or AHRI references." }
-      - { name: properties, type: string_array, required: false, description: "Restrict the comparison. Defaults to all properties held by any of the models." }
-    returns:
-      shape: comparison_table
-      fields: [models, rows, differences, missing_values, conflicts, supersession_relationship, refrigerant_change, evidence, canonical_urls]
-    evidence: required
-    errors:
-      - { code: MODEL_NOT_FOUND, when: "One or more identifiers do not resolve; names which." }
-      - { code: TOO_FEW_MODELS, when: "Fewer than two identifiers resolved." }
-    limitations: >-
-      Compares published specifications only. Does not judge which model is
-      "better", does not assess suitability for a particular installation, and
-      does not compare price or availability. A missing value is reported as
-      missing, never inferred from a similar model.
-
-  # ===========================================================================
-  - name: list_certified_ratings
-    intent: certification_lookup
-    summary: Is this model certified, and at what ratings?
-    description: >-
-      Return the certified performance ratings held by an equipment model —
-      the certification reference number, the certified SEER2, EER2 and HSPF2,
-      certified cooling capacity, refrigerant, and the date the certification
-      took effect. Certified ratings are the values that satisfy efficiency
-      codes and rebate programmes, and they routinely differ from the figures
-      in manufacturer literature; this tool returns the certified values
-      specifically, and says plainly when a model holds NO certification rather
-      than falling back to manufacturer-published numbers. Accepts a model
-      identifier or a certification reference number in either direction.
-    inputs:
-      - { name: identifier, type: string, required: true, description: "Model number in any formatting, SKU, UPC, or an AHRI reference to look up in reverse." }
-    returns:
-      shape: certification_list
-      fields: [canonical_id, model_number, is_certified, certifications, certifying_body, attribution, evidence, canonical_url]
-      certification_fields: [ahri_ref, product_type, cooling_capacity_btu, seer2, eer2, hspf2, refrigerant, effective_date, canonical_url]
-    evidence: required
-    errors:
-      - { code: MODEL_NOT_FOUND, when: "The identifier does not resolve." }
-      - { code: NOT_CERTIFIED, when: "The model resolves but holds no certification — commonly because it is discontinued and directories drop withdrawn models. Reported explicitly, never as an error to be swallowed." }
-    limitations: >-
-      Reflects the most recent directory export only. A certification withdrawn
-      between exports still appears until the next refresh, and the response
-      carries the export date so the caller can judge. Does not verify a
-      certificate against the issuing body in real time, and does not cover
-      certifications from bodies not in the source registry.
-
-# --- Eval suite (doc 14) ----------------------------------------------------
-evals:
-  target_correct_tool_rate: 0.95
-  suite: seo.yaml#agent_intents
-  # Prompts a well-behaved server should DECLINE rather than answer, because a
-  # confident wrong answer here has physical and financial consequences.
-  negative_cases:
-    - { prompt: "What size unit do I need for a 2000 square foot house?", expect: decline, reason: "Load calculation is engineering judgement about a building. This dataset holds equipment facts, not sizing advice." }
-    - { prompt: "Is {model_a} compatible with {model_b}?", expect: "decline_when_no_edge", reason: "No source asserts compatibility, and inference is forbidden. Answering from spec similarity would fabricate a safety- and warranty-relevant claim." }
-    - { prompt: "How much does {model_number} cost?", expect: decline, reason: "Pricing is deliberately excluded from the canonical model." }
-    - { prompt: "Which brand is most reliable?", expect: decline, reason: "No reliability data exists in any source. An opinion dressed as a dataset answer." }
+  - name: search_entities
+    title: Search the catalogue
+    summary: Find entities by identifier or description.
+  - name: get_entity
+    title: Resolve an identifier to a canonical entity
+    summary: What is this thing, and what do we publish about it?
+  - name: list_facts
+    title: Read the published fact sheet
+    summary: What do we publish about this entity, and how sure are we?
+  - name: compare_entities
+    title: Compare entities side by side
+    summary: How do these differ?
+  - name: traverse_relationships
+    title: Follow canonical relationships
+    summary: What is this connected to — and what replaces it?
+  - name: explain_fact
+    title: Show the evidence behind one value
+    summary: Why does the catalogue say this?

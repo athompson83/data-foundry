@@ -96,6 +96,9 @@ importers:
 
   apps/edge:
     dependencies:
+      '@data-foundry/access-auth':
+        specifier: workspace:*
+        version: link:../../packages/access-auth
       '@data-foundry/api':
         specifier: workspace:*
         version: link:../api
@@ -131,6 +134,43 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
 
+  apps/mcp-worker:
+    dependencies:
+      '@data-foundry/access-auth':
+        specifier: workspace:*
+        version: link:../../packages/access-auth
+      '@data-foundry/api-keys':
+        specifier: workspace:*
+        version: link:../../packages/api-keys
+      '@data-foundry/canonical-schema':
+        specifier: workspace:*
+        version: link:../../packages/canonical-schema
+      '@data-foundry/canonical-store':
+        specifier: workspace:*
+        version: link:../../packages/canonical-store
+      '@data-foundry/mcp':
+        specifier: workspace:*
+        version: link:../mcp
+      '@data-foundry/query-model':
+        specifier: workspace:*
+        version: link:../../packages/query-model
+      '@data-foundry/usage-events':
+        specifier: workspace:*
+        version: link:../../packages/usage-events
+      '@modelcontextprotocol/server':
+        specifier: 2.0.0
+        version: 2.0.0
+      pg:
+        specifier: ^8.23.0
+        version: 8.23.0
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
+    devDependencies:
+      esbuild:
+        specifier: 0.28.2
+        version: 0.28.2
+
   apps/usage-consumer:
     dependencies:
       '@data-foundry/canonical-store':
@@ -161,6 +201,15 @@ importers:
       esbuild:
         specifier: 0.28.2
         version: 0.28.2
+
+  packages/access-auth:
+    dependencies:
+      '@data-foundry/api-keys':
+        specifier: workspace:*
+        version: link:../api-keys
+      '@data-foundry/canonical-store':
+        specifier: workspace:*
+        version: link:../canonical-store
 
   packages/acquisition:
     dependencies:
@@ -1004,6 +1053,14 @@ packages:
   '@mapbox/node-pre-gyp@1.0.11':
     resolution: {integrity: sha512-Yhlar6v9WQgUp/He7BdgzOz8lqMQ8sU+jkCq7Wx8Myc5YFJLbEe7lgui/V7G1qB1DJykHSGwreceSaD60Y0PUQ==}
     hasBin: true
+
+  '@modelcontextprotocol/core@2.0.0':
+    resolution: {integrity: sha512-pJCEwGG7Lfr/+PQp9ZTwKXNeO5wzbfKL7H3MYpCorM4oFBoQrdjnBgEoqG+RjhsvS1FKrDbKux+M1HhlnGWqcA==}
+    engines: {node: '>=20'}
+
+  '@modelcontextprotocol/server@2.0.0':
+    resolution: {integrity: sha512-YhHWdHfpFMQfd0prsEnxKeS3Qz3ytIGmsS0sth4KDjnacIT7hxk6hXHkJ9KysxlkvTM+WZAtQbbcUhdoP4Hvtw==}
+    engines: {node: '>=20'}
 
   '@napi-rs/lzma-linux-x64-gnu@1.5.1':
     resolution: {integrity: sha512-oTXEIha4SsuXdTA4Iyskj0kpdx2yVXdhd75c2v3xGrHFfVMsbhTPZU/nMPL4sWKo4pBHm3aucLaqGlF696dTyQ==}
@@ -2290,6 +2347,15 @@ snapshots:
       - encoding
       - supports-color
     optional: true
+
+  '@modelcontextprotocol/core@2.0.0':
+    dependencies:
+      zod: 4.4.3
+
+  '@modelcontextprotocol/server@2.0.0':
+    dependencies:
+      '@modelcontextprotocol/core': 2.0.0
+      zod: 4.4.3
 
   '@napi-rs/lzma-linux-x64-gnu@1.5.1':
     optional: true

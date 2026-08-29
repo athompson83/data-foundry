@@ -1,17 +1,12 @@
 {
-  "name": "@data-foundry/edge",
+  "name": "@data-foundry/mcp-worker",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Cloudflare Worker serving the read-only REST surface. Composition root and transport adapter only; it owns no routing (ADR-0006).",
-  "exports": {
-    ".": "./src/index.ts"
-  },
+  "description": "Cloudflare Streamable HTTP adapter for the pure Data Foundry MCP contract.",
+  "exports": { ".": "./src/index.ts" },
   "types": "./src/index.ts",
-  "files": [
-    "src",
-    "generated"
-  ],
+  "files": ["src", "generated"],
   "scripts": {
     "test": "vitest run --root .",
     "typecheck": "tsc -p tsconfig.json",
@@ -20,13 +15,15 @@
   },
   "dependencies": {
     "@data-foundry/access-auth": "workspace:*",
-    "@data-foundry/api": "workspace:*",
     "@data-foundry/api-keys": "workspace:*",
     "@data-foundry/canonical-schema": "workspace:*",
     "@data-foundry/canonical-store": "workspace:*",
+    "@data-foundry/mcp": "workspace:*",
     "@data-foundry/query-model": "workspace:*",
     "@data-foundry/usage-events": "workspace:*",
-    "pg": "^8.23.0"
+    "@modelcontextprotocol/server": "2.0.0",
+    "pg": "^8.23.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "esbuild": "0.28.2"

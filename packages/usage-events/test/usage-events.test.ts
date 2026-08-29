@@ -175,8 +175,24 @@ describe('parseUsageEvent', () => {
     expect(parseUsageEvent(crossed)).toBeNull();
   });
 
+  it('accepts privacy-safe MCP/NONE POST events and refuses crossed NONE classifications', () => {
+    const event = buildUsageEvent({
+      ...validInput,
+      routeKey: 'mcp.tools_call',
+      method: 'POST',
+      accessTier: 'MCP',
+      billingSource: 'NONE',
+      rowsServed: 0,
+    });
+    expect(parseUsageEvent(overWire(event))).toEqual(event);
+
+    const crossed = overWire(event) as Record<string, unknown>;
+    crossed['access_tier'] = 'API_PAID';
+    expect(parseUsageEvent(crossed)).toBeNull();
+  });
+
   it('rejects a method this API never serves', () => {
-    for (const method of ['POST', 'DELETE', 'get', '']) {
+    for (const method of ['DELETE', 'get', '']) {
       const event = overWire(buildUsageEvent(validInput)) as Record<string, unknown>;
       event['method'] = method;
       expect(parseUsageEvent(event), method).toBeNull();

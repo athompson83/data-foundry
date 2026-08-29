@@ -24,9 +24,9 @@ import {
   type ApiBillingSource,
 } from '@data-foundry/api-keys';
 
-/** The two methods this API ever serves, and therefore the only ones a usage event can name. */
-const ALLOWED_METHODS = new Set(['GET', 'HEAD']);
-export type UsageMethod = 'GET' | 'HEAD';
+/** Closed transport methods that a privacy-safe usage event may name. */
+const ALLOWED_METHODS = new Set(['GET', 'HEAD', 'POST']);
+export type UsageMethod = 'GET' | 'HEAD' | 'POST';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const ROUTE_KEY_RE = /^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)*$/;

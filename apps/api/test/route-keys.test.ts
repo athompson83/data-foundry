@@ -53,14 +53,18 @@ describe('the application vocabulary and the reference table agree', () => {
   it('registers every key the application can record', () => {
     // Fails when a route is added without seeding its key. The failure a
     // database would give instead arrives in production, on the revenue path.
-    expect(seededKeys().sort()).toEqual([...ROUTE_KEYS].sort());
+    expect(seededKeys().filter((key) => !key.startsWith('mcp.')).sort()).toEqual(
+      [...ROUTE_KEYS].sort(),
+    );
   });
 
   it('seeds no key the application will never write', () => {
     // Same assertion, stated as its converse on purpose: `toEqual` on sorted
     // arrays covers both, and a future edit that weakens one half to a subset
     // check should have to notice it is deleting the other.
-    for (const key of seededKeys()) expect(ROUTE_KEYS).toContain(key);
+    for (const key of seededKeys().filter((candidate) => !candidate.startsWith('mcp.'))) {
+      expect(ROUTE_KEYS).toContain(key);
+    }
   });
 
   it('registers a key for every route in the table', () => {

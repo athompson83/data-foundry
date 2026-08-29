@@ -42,13 +42,14 @@ const stored = (overrides: Partial<StoredApiKey> = {}): StoredApiKey => ({
 const onLive = { presented: LIVE_SECRET, environment: 'live' } as const;
 
 describe('API access and billing classification', () => {
-  it('exposes one closed vocabulary and only the three valid pairings', () => {
-    expect(API_ACCESS_TIERS).toEqual(['API_FREE', 'API_PAID', 'RAPIDAPI']);
-    expect(API_BILLING_SOURCES).toEqual(['DIRECT', 'RAPIDAPI']);
+  it('exposes one closed vocabulary and only the four valid pairings', () => {
+    expect(API_ACCESS_TIERS).toEqual(['API_FREE', 'API_PAID', 'RAPIDAPI', 'MCP']);
+    expect(API_BILLING_SOURCES).toEqual(['DIRECT', 'RAPIDAPI', 'NONE']);
     expect(API_ACCESS_CLASSIFICATIONS).toEqual([
       { accessTier: 'API_FREE', billingSource: 'DIRECT' },
       { accessTier: 'API_PAID', billingSource: 'DIRECT' },
       { accessTier: 'RAPIDAPI', billingSource: 'RAPIDAPI' },
+      { accessTier: 'MCP', billingSource: 'NONE' },
     ]);
   });
 
@@ -61,6 +62,9 @@ describe('API access and billing classification', () => {
       { accessTier: 'API_FREE', billingSource: 'RAPIDAPI' },
       { accessTier: 'API_PAID', billingSource: 'RAPIDAPI' },
       { accessTier: 'RAPIDAPI', billingSource: 'DIRECT' },
+      { accessTier: 'MCP', billingSource: 'DIRECT' },
+      { accessTier: 'MCP', billingSource: 'RAPIDAPI' },
+      { accessTier: 'API_PAID', billingSource: 'NONE' },
       { accessTier: 'ENTERPRISE', billingSource: 'DIRECT' },
     ]) {
       expect(isApiAccessClassification(value), JSON.stringify(value)).toBe(false);
@@ -71,6 +75,7 @@ describe('API access and billing classification', () => {
     expect(isInternallyInvoiceEligible({ accessTier: 'API_FREE', billingSource: 'DIRECT' })).toBe(false);
     expect(isInternallyInvoiceEligible({ accessTier: 'API_PAID', billingSource: 'DIRECT' })).toBe(true);
     expect(isInternallyInvoiceEligible({ accessTier: 'RAPIDAPI', billingSource: 'RAPIDAPI' })).toBe(false);
+    expect(isInternallyInvoiceEligible({ accessTier: 'MCP', billingSource: 'NONE' })).toBe(false);
 
     // Fail closed even when an untyped database/message value reaches the helper.
     expect(isInternallyInvoiceEligible({ accessTier: 'API_PAID', billingSource: 'RAPIDAPI' })).toBe(false);

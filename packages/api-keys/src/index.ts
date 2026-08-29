@@ -48,11 +48,11 @@ export type KeyEnvironment = 'live' | 'test';
  * distribution does not become a direct free API merely because the customer
  * paid zero dollars for that marketplace plan.
  */
-export const API_ACCESS_TIERS = ['API_FREE', 'API_PAID', 'RAPIDAPI'] as const;
+export const API_ACCESS_TIERS = ['API_FREE', 'API_PAID', 'RAPIDAPI', 'MCP'] as const;
 export type ApiAccessTier = (typeof API_ACCESS_TIERS)[number];
 
 /** Who is authoritative for billing this request, if anybody bills it. */
-export const API_BILLING_SOURCES = ['DIRECT', 'RAPIDAPI'] as const;
+export const API_BILLING_SOURCES = ['DIRECT', 'RAPIDAPI', 'NONE'] as const;
 export type ApiBillingSource = (typeof API_BILLING_SOURCES)[number];
 
 export interface ApiAccessClassification {
@@ -69,6 +69,7 @@ export const API_ACCESS_CLASSIFICATIONS = [
   { accessTier: 'API_FREE', billingSource: 'DIRECT' },
   { accessTier: 'API_PAID', billingSource: 'DIRECT' },
   { accessTier: 'RAPIDAPI', billingSource: 'RAPIDAPI' },
+  { accessTier: 'MCP', billingSource: 'NONE' },
 ] as const satisfies readonly ApiAccessClassification[];
 
 /** Runtime guard for database/message values, which arrive without TS types. */
@@ -87,8 +88,9 @@ export function isApiAccessClassification(value: unknown): value is ApiAccessCla
  *
  * Measurement and invoicing remain separate systems: this helper does not
  * create an invoice or decide a price. It only pins the negative control that
- * RapidAPI usage is never eligible for a second, internal invoice. Unknown or
- * malformed input fails closed to `false`.
+ * RapidAPI usage is never eligible for a second, internal invoice, and
+ * MCP/NONE usage remains analytics-only until an explicit billing decision.
+ * Unknown or malformed input fails closed to `false`.
  */
 export function isInternallyInvoiceEligible(classification: unknown): boolean {
   return (
