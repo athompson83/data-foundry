@@ -14,13 +14,15 @@ reads, evaluates exact canonical surface bundles when live DB or validated
 snapshot evidence is supplied, and reports blockers by name. With no rights
 evidence the seven surfaces are `UNKNOWN`, which is correct.
 
-**Worked example.** The first candidate to go through this procedure is EPA's
-ENERGY STAR certified heat-pump data. Its review packet is at
+**Deferred research example.** EPA's ENERGY STAR heat-pump dataset has a review
+packet at
 `docs/sources/energy-star-air-source-heat-pumps-review-packet.md`, the draft
 declaration at `docs/sources/proposed/energy-star-heat-pumps.yaml`, and the
-retrieved evidence under `docs/sources/evidence/`. It is **not approved** — the
-packet is what a reviewer reads, not a decision. `docs/sources/prohibited-sources.md`
-records the sources that are refused before any of this begins.
+retrieved evidence under `docs/sources/evidence/`. It is **DEFERRED**, not an
+active onboarding candidate: do not sign, promote, acquire, publish, contact,
+or initiate publisher outreach. It remains `UNDER_REVIEW`, `UNREVIEWED`,
+unapproved, and without grants. `docs/sources/prohibited-sources.md` records the
+sources that are refused before any of this begins.
 
 ---
 
@@ -44,8 +46,8 @@ candidate, and finding that out costs one afternoon rather than one migration.
 API terms if there is an API, the licence file if the data ships with one, and
 the `robots.txt`. Record the URLs; they are fields on the declaration.
 
-**2. Answer the six questions the declaration asks.** Each maps to a field in
-`sources/<key>.yaml`, and each has a real answer, not a default:
+**2. Answer the six inventory questions the declaration asks.** Each maps to a
+field in `sources/<key>.yaml`, and each has a conservative answer, not a default:
 
 | Question | Field | If unclear |
 | --- | --- | --- |
@@ -56,20 +58,27 @@ the `robots.txt`. Record the URLs; they are fields on the declaration.
 | Must we attribute, and how exactly? | `rights_policy.attribution` | If required, the display text is mandatory. An obligation nobody wrote down cannot be honoured |
 | May we reuse the images? | `rights_policy.images_reusable` + `image_policy` | `false`. The right to state a specification is never the right to republish a photograph (rule 9) |
 
+These fields are source inventory and additional hard stops. They do not grant
+any operation/channel. After recording them, create separately evidenced
+matrix decisions for the exact intended acquisition/publication surfaces under
+ADR-0010. Missing matrix cells remain refusal.
+
 **3. Decide the classification honestly.**
 
-- `GREEN` — reviewed; use, redistribution and derivation permitted on the
-  recorded terms.
-- `AMBER` — reviewed; permitted **with conditions**. Write the conditions down;
-  they travel with the data to every surface.
+- `GREEN` — inventory review found no broad legacy blocker; it still does not
+  create an exact matrix `ALLOW`.
+- `AMBER` — the inventory review recorded conditions or narrower scope. Write
+  them down; they travel with the data to each exact surface that is separately
+  permitted by an effective matrix decision.
 - `RED` — reviewed; publication is not permitted. Acquiring for internal
   analysis may still be fine; publishing is not.
 - `UNREVIEWED` — nobody has looked. Refused at the write boundary and again at
   the read boundary.
 
 `RED` and `UNREVIEWED` are not failure states. They are correct outcomes that
-keep bad data out. A source recorded honestly as `RED` is worth more than one
-optimistically marked `GREEN`.
+keep bad data out. `GREEN` and `AMBER` are not permission states. A source
+recorded honestly as `RED` is worth more than one optimistically marked
+`GREEN`.
 
 **4. Record personal data if present.** `rights_policy.personal_data_present`.
 If true, stop and get a handling decision before acquisition — the readiness
@@ -82,6 +91,12 @@ silently go stale.
 ---
 
 ## Stage 2 — acquisition
+
+Before provider construction or transport, the scheduled acquisition Worker
+must find effective stored `ACQUIRE`, `STORE`, and `CACHE` decisions for the
+exact route/plan/jurisdiction/asset/output scope. It rechecks that scope before
+transport. A declaration, approval boolean, Cron schedule, or successful build
+cannot substitute for those decisions.
 
 **Prefer the published bulk file over crawling.** It is cheaper, it is more
 stable, and it is usually what the publisher intends. `acquisition_policy.method`
@@ -98,6 +113,12 @@ answer.
 there is a specific reason not to, and if not, say why. Content is addressed by
 digest and written once; a re-fetch of unchanged bytes adds a retrieval record,
 not a second copy.
+
+For a source intentionally enabled in `verticals/<slug>/acquisition.yaml`, run
+`pnpm acquisition:compile` and `pnpm acquisition:check`. Migration 0017 records
+deterministic Cron claims, rights receipts, outcomes, validators, and R2
+associations. These prove the runner shape, not that a real source is cleared or
+that the Worker is deployed.
 
 ---
 
@@ -143,7 +164,9 @@ thing that says so early.
 
 `DATA_RIGHTS.md` states the five conditions. The command
 `pnpm sources:readiness -- --as-of <canonical-UTC-instant>` checks the mechanical
-ones and prints the rest as the gate they are. A vertical stays
+ones and prints the rest as the gate they are. Current rights evidence requires
+either a named-environment live database or a validated qualified snapshot;
+YAML/fixtures alone deterministically return `UNKNOWN`. A vertical stays
 `status: DRAFT` until all five hold, and `DRAFT` verticals do not publish.
 
 The condition no tool can check for you is the fourth: a published dataset

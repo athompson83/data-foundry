@@ -35,21 +35,34 @@ not about this repository's licence.
 
 ## How rights are tracked here
 
-Rights are not an afterthought bolted onto the data; they are a required field
-on every source declaration, and the platform fails closed without them
-(`AGENTS.md` rule 1). Every source carries a classification:
+Rights are not an afterthought bolted onto the data. The accepted Option B
+model in ADR-0010 stores immutable, evidence-backed decisions in a sparse rights
+matrix keyed by exact operation, channel, publisher/source identity, and any
+applicable scope dimensions. Customer-facing and acquisition surfaces evaluate
+their exact required bundle at one explicit instant. A missing cell is
+`UNKNOWN`/`NO_GRANT`, never implied permission.
+
+Every source declaration also carries the legacy classification below. These
+values remain useful inventory/risk metadata and additional hard stops:
 
 | Class | Meaning | May reach a published surface |
 | --- | --- | --- |
-| `GREEN` | Reviewed; use, redistribution and derivation permitted on the recorded terms | ✅ |
-| `AMBER` | Reviewed; permitted with conditions — attribution, a warning, or a narrower scope | ⚠️ with its conditions honoured |
+| `GREEN` | Inventory says the broad source review found no legacy blocker | Only with an effective exact matrix bundle |
+| `AMBER` | Inventory says conditions or narrower scope require attention | Only with an effective exact matrix bundle and satisfied conditions |
 | `RED` | Reviewed; publication is not permitted | ❌ |
 | `UNREVIEWED` | Nobody has looked | ❌ |
 
-`RED` and `UNREVIEWED` are refused at the write boundary and again at the read
-boundary, so an unreviewed source cannot become a published value by accident
-or by a caller forgetting to check. Attribution requirements travel with the
-source and are carried through to the surfaces that display its data.
+`RED`, `UNREVIEWED`, a kill switch, stale review, or other source hard stop is
+refused even if a matrix decision appears positive. `GREEN`/`AMBER` and legacy
+booleans never create an `ALLOW` and never let one surface imply another. An
+ordinary narrower `ALLOW` cannot override a sticky `DENY`; only the explicit,
+independently evidenced strict-narrow exception relationship in ADR-0010 can.
+
+Migration 0014 deliberately created no publisher mapping, terms version,
+rights decision, or `ALLOW` from existing declarations. Each legacy source
+received only a `REVIEW_REQUIRED` assessment. Rights are also an AND across
+every provenance contribution: one permissive source cannot launder a blocked
+contributor.
 
 A source's rights record is a statement about *that source*. It says nothing
 about any other source, and re-classifying one does not re-classify its
@@ -75,9 +88,11 @@ This section is a gate, not a wish list. Before a dataset built with this
 platform is offered for sale or redistribution:
 
 1. Every contributing source is rights-reviewed and classified — no
-   `UNREVIEWED` sources in the lineage of any published fact.
-2. The commercial terms of each `GREEN`/`AMBER` source actually permit the use
-   being made, including the derivative and redistribution question, in writing.
+   `UNREVIEWED` source or hard stop in the lineage of any published fact.
+2. Every contributing source resolves an effective exact matrix decision for
+   every operation/channel in the intended surface bundle. Absence is refusal;
+   public web, indexing, direct API, RapidAPI, MCP, and bulk export do not imply
+   one another.
 3. Attribution obligations are honoured on every surface that carries the data:
    pages, API responses, MCP results and bulk exports alike.
 4. This file is superseded by, or accompanied by, a published dataset licence
@@ -88,7 +103,7 @@ platform is offered for sale or redistribution:
 
 Until all five hold, a vertical stays `status: DRAFT` and does not publish.
 `verticals/hvac` is `DRAFT` today for exactly this reason: zero real sources
-have been rights-reviewed.
+have an effective reviewed publication/commercial bundle.
 
 ## If you use this code
 

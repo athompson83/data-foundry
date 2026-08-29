@@ -1,7 +1,7 @@
 # `apps/api` — the read-only REST surface
 
-The first of the three consumer surfaces AGENTS.md rule 5 names ("Web/API/MCP
-must read from the same canonical query layer"). It reads through
+The pure REST contract for one of the customer surfaces AGENTS.md rule 5 names
+("Web/API/MCP must read from the same canonical query layer"). It reads through
 `@data-foundry/query-model` and nothing beneath it, and it owns no business
 logic: no SQL, no fact selection, no filtering, no search ranking, no redirect
 following, no notion of what is publishable. All of that already exists once,
@@ -113,7 +113,8 @@ boundary (where it throws).
 * **No composition root, no CLI, no `main`.** A `QueryModel` is injected. Opening
   a driver here would mean importing `@data-foundry/canonical-store`, and one
   import is all it takes for the next handler to reach through it. Deployment is
-  also moot: ADR-0005 records that this repository has no deployment target.
+  is supplied by `apps/edge`; ADR-0006 records Cloudflare Workers as the
+  deployment target.
 * **No dependencies.** `node:http` and the workspace, nothing else.
 * **No auth, no rate limiting, no tenancy — in this package.** `db/migrations`
   gained an account/API-key/tenant schema (`0011_api_tenancy.sql`) and

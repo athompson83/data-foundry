@@ -1,7 +1,8 @@
 # `@data-foundry/usage-consumer`
 
 The Cloudflare Queue consumer that turns delivered usage events into rows in
-`api_usage_events`. One file of substance.
+`api_usage_events`. One file of substance. It is implemented but not deployed;
+live Queue/DLQ/Hyperdrive behavior remains an external verification gate.
 
 | file | what it is |
 |---|---|

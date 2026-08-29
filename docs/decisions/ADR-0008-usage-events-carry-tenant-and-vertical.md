@@ -103,10 +103,23 @@ broad a customer's access is belongs to a plan, and this schema holds no plans
 
 ## Consequences
 
-**The denormalization is no longer a correctness risk, which is the whole
-argument.** Normalizing would have removed the defect by removing the column;
-the composite keys remove it by making the disagreement unrepresentable. Both
-are sound, and only one of them also answers the invoicing query twice as fast.
+**Tenant and vertical denormalization is constrained, not trusted.** Normalizing
+would have removed the defect by removing the columns; the composite keys make
+a disagreement with the authenticating key unrepresentable. Both are sound,
+and only one also preserves the measured invoice-query plan.
+
+Migrations 0015 and 0018 extend that same rule to the access/billing channel.
+New keys and usage rows carry exactly one valid pair:
+
+- `API_FREE/DIRECT`
+- `API_PAID/DIRECT`
+- `RAPIDAPI/RAPIDAPI`
+- `MCP/NONE`
+
+RapidAPI and MCP rows remain useful for analytics and reconciliation but are
+excluded from the one canonical direct-invoice aggregation, which selects only
+`API_PAID/DIRECT`. A caller cannot self-assert these values: authentication and
+the database bind each event to the stored key classification.
 
 **A metering writer cannot invent an attribution.** It must supply the tenant
 and vertical that the key it authenticated actually belongs to, or the insert is

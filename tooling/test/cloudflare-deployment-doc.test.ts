@@ -9,7 +9,7 @@ const RUNBOOK = readFileSync(
   'utf8',
 );
 const TRACKED_MANIFESTS =
-  'apps/edge/wrangler.toml apps/usage-consumer/wrangler.toml apps/web/wrangler.toml apps/mcp-worker/wrangler.toml';
+  'apps/edge/wrangler.toml apps/web/wrangler.toml apps/usage-consumer/wrangler.toml apps/acquisition-worker/wrangler.toml apps/mcp-worker/wrangler.toml';
 
 describe('the no-commit Cloudflare deployment check', () => {
   it('compares tracked manifests to HEAD so staged environment ids cannot pass', () => {

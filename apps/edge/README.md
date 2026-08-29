@@ -115,9 +115,10 @@ A `df_test_*` key is rejected by live before hashing or any database lookup.
 
 ## Deliberately absent
 
-* **No MCP handler yet.** `apps/mcp` exists and AGENTS.md names Cloudflare
-  Streamable HTTP as its target. It is a second entry point over the same
-  composition root, not a second composition root.
+* **No MCP handler in this Worker.** `apps/mcp-worker` is the separate
+  one-vertical Streamable HTTP composition root over `apps/mcp`. It uses an
+  exact `MCP/NONE` credential and shares canonical query behavior without
+  turning the REST Worker into a multi-protocol entry point.
 * **No caching.** `apps/api` sets `cache-control: no-store` and says why:
   correctness first, no shared caching until there is a documented invalidation
   story. Putting a cache in front of it here would be that decision made silently.

@@ -7,6 +7,9 @@ registers the existing generic tools with `@modelcontextprotocol/server@2.0.0`.
 It owns no fact selection, entity resolution, rights implication, or vertical-
 specific tool behavior.
 
+The Worker is deployable repository code, not a live service. No MCP hostname,
+Hyperdrive/Queue binding, customer grant, or live-client proof is recorded.
+
 ## Protocol and access contract
 
 - Endpoint: `POST /mcp`.

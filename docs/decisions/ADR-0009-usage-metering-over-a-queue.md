@@ -2,12 +2,13 @@
 
 **Status:** Accepted and implemented
 **Date:** 2026-08-23
-**Relates to:** ADR-0006 (Cloudflare Workers), ADR-0007 (three systems), ADR-0008 (usage events carry tenant and vertical), `db/migrations/0012_usage_accounting_corrections.sql`
+**Relates to:** ADR-0006 (Cloudflare Workers), ADR-0007 (three systems), ADR-0008 (usage event attribution), migrations 0012, 0015, and 0018
 
 ## Context
 
-`api_usage_events` is written asynchronously by `apps/usage-consumer`. This ADR
-records the implemented design so its failure modes remain explicit.
+`api_usage_events` is written asynchronously by `apps/usage-consumer` for the
+direct REST, RapidAPI, and MCP channels. This ADR records the implemented design
+so its failure modes and billing boundaries remain explicit.
 
 Three decisions bound the design:
 
@@ -59,10 +60,11 @@ commutative and carry their own `occurred_at`.
 
 ## Decision
 
-> The Worker creates one event per authenticated GET/HEAD and awaits
-> `Queue.send` before returning the API response. A consumer Worker inserts
-> each batch into `api_usage_events` asynchronously in one statement, keyed on
-> a producer-generated id, `ON CONFLICT (id) DO NOTHING`.
+> The REST Worker creates one event per authenticated GET/HEAD; the MCP Worker
+> creates privacy-safe events for its fixed POST operation classes. Each awaits
+> `Queue.send` before returning its metered response. A consumer Worker inserts
+> each batch into `api_usage_events` asynchronously in one statement, keyed on a
+> producer-generated id, `ON CONFLICT (id) DO NOTHING`.
 
 ### The producer
 
@@ -93,18 +95,28 @@ a 500, a timeout — *is* metered, because we spent the work.
 
 ```jsonc
 {
-  "id":          "uuid",     // generated HERE; the dedup key
-  "tenantId":    "uuid",
-  "apiKeyId":    "uuid",
-  "verticalId":  "uuid",
-  "routeKey":    "entities.detail",   // from the MATCHED route
-  "method":      "GET",
-  "status":      200,
-  "rowsServed":  25,
-  "durationMs":  14,
-  "occurredAt":  "2026-08-23T17:00:00.000Z"  // producer's clock, not insert time
+  "schema_version": 2,
+  "id":             "uuid",     // generated HERE; the dedup key
+  "tenant_id":      "uuid",
+  "api_key_id":     "uuid",
+  "vertical_id":    "uuid",
+  "route_key":      "entities.detail",   // from the MATCHED route
+  "method":         "GET",
+  "status":         200,
+  "rows_served":    25,
+  "duration_ms":    14,
+  "access_tier":    "API_PAID",
+  "billing_source": "DIRECT",
+  "occurred_at":    "2026-08-23T17:00:00.000Z"  // producer's clock, not insert time
 }
 ```
+
+Only the closed pairs `API_FREE/DIRECT`, `API_PAID/DIRECT`,
+`RAPIDAPI/RAPIDAPI`, and `MCP/NONE` are valid. RapidAPI is billed by the
+marketplace and MCP is analytics-only, so neither enters Data Foundry's direct
+invoice aggregation. MCP events use `POST`, `rows_served = 0`, and only the
+fixed `mcp.*` route classes; direct/marketplace REST events use `GET`/`HEAD` and
+registered REST route templates.
 
 **What must never appear, and is probed for:** the presented credential, its
 SHA-256 hash, the display prefix, `request.url`, any request header, any query
@@ -184,12 +196,13 @@ acceptance criteria for the implementation PR, not a wish list.
    in the first half invoices unserved traffic; in the second, it discards
    revenue.*
 
-5. **Message inspection.** Serialize a message produced by a fully-populated
-   authenticated request and assert the bytes contain no credential, no token
-   hash, no display prefix, no URL, no header, no query string, no entity id or
-   slug. Assert against the **serialized bytes**, not the object's declared
-   fields — a leak arrives as an extra property somebody added, which a
-   field-by-field check is precisely blind to.
+5. **Message inspection.** Serialize messages produced by fully populated REST,
+   RapidAPI, and MCP requests and assert the bytes contain no credential, token
+   hash, display prefix, URL, header, query string, entity id/slug, MCP tool
+   name/arguments, JSON-RPC id, raw target, body, or response payload. Assert
+   against the **serialized bytes**, not the object's declared fields — a leak
+   arrives as an extra property somebody added, which a field-by-field check is
+   precisely blind to.
 
 6. **Malformed message inside a good batch.** One unparseable message among
    ninety-nine valid ones. The ninety-nine are inserted and acknowledged; only
@@ -224,3 +237,7 @@ bill, only one of them is a dispute.
 **This does not build strict quota.** Refusing request N+1 because N have been
 served needs a synchronous consistent counter, which a queue is definitionally
 not. ADR-0007 keeps that separate and unbuilt.
+
+**This does not create a second invoice authority.** Only
+`API_PAID/DIRECT` rows are candidates for Data Foundry direct invoices.
+`RAPIDAPI/RAPIDAPI` and `MCP/NONE` remain analytics/reconciliation records.

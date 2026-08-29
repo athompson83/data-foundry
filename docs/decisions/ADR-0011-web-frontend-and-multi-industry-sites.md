@@ -50,16 +50,16 @@ This is also the revenue architecture, not just the URL scheme:
 |---|---|---|
 | Audience | People, search engines, LLM web tools | Applications with an API key |
 | Auth | None; reads are still rights-bound | Fail-closed API-key authentication and tenant/vertical authorization |
-| Cost model | Free, cacheable, crawlable | Asynchronously metered per request; persistence is off the response path |
-| Failure mode | Cacheable 503 if misconfigured | Same, but a paying customer is waiting |
+| Cost model | Free, cacheable, crawlable | Metered per request; Queue acceptance precedes success and Postgres persistence is asynchronous |
+| Failure mode | `no-store` 503 if misconfigured | Opaque retryable 503 before metered success when configuration/auth storage/Queue acceptance fails |
 | Job | Discovery, trust, citation — the funnel | The metered product that can earn revenue after deployment and source clearance |
 
 The free site is not a loss leader tolerated alongside the paid API; it is
 meant as the **demand-generation half of the same revenue design** ADR-0007
-proposes. That ADR's own test for whether a change confuses two systems is
-"abuse protection fails closed, accounting fails open"; the test here is
-symmetric: a change that makes the free site slower to earn discovery traffic,
-or the paid API free to browse, has confused the split.
+proposes. That ADR separates abuse protection, durable metering handoff,
+asynchronous persistence, and strict quota; the test here is symmetric: a
+change that makes the free site slower to earn discovery traffic, or the paid
+API free to browse, has confused the split.
 
 ### Why one Worker rather than N
 
@@ -121,13 +121,19 @@ only when its identity/data independently clears both `PUBLIC_WEB` and
 
 ## Consequences
 
-**The free site can be cached aggressively; the paid API cannot.**
+**The free site can use bounded public caching; the paid API cannot.**
 `apps/web/src/http.ts` sets `public, max-age=3600` on every 200 response,
 deliberately the opposite of `apps/api`'s `no-store` — nothing on the free
-surface is personalized, and an hour of shared caching is real cost saved with
-no correctness risk. Getting this backwards in either direction — caching a
-per-customer API response, or serving the marketing site uncached at crawl
-volume — is the failure this split exists to prevent.
+surface is personalized, and an hour of fresh shared caching can reduce crawl
+cost. The current header also permits 86,400 seconds of stale-while-revalidate,
+so an intermediary may serve older content while it revalidates. Rights, terms,
+kill-switch, or publication changes therefore require an emergency cache purge;
+operators may also force `no-store`, remove stale-while-revalidate, or reduce
+the TTL during a rights incident. Provider cache-rule ownership and purge execution are
+deployment responsibilities outside this repository; the application header is
+not proof that every intermediary obeyed or purged it. The paid API remains
+`no-store` because per-customer responses and immediate revocation semantics are
+not compatible with shared caching.
 
 **Adding an industry is additive to both Workers independently.** A second
 vertical needs its own `apps/edge` deployment (or none, if it is not yet sold

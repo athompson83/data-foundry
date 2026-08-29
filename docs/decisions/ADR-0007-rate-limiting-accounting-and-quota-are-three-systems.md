@@ -45,16 +45,20 @@ because a counter was unavailable is how an outage becomes a bigger outage.
 
 **Question:** what did we serve, and to whom?
 
-Runs asynchronously, off the critical path, over a Cloudflare Queue into
-`api_usage_events`. Its requirement is durability and attribution — the right
-tenant, the right vertical, the right route — not immediacy. An invoice built an
-hour late is an invoice; an invoice for the wrong customer is a liability.
+Durable handoff runs on the request path; consumption and Postgres persistence
+run asynchronously through Cloudflare Queue into `api_usage_events`. The
+requirement is durability and attribution — the right tenant, the right
+vertical, the right route — not immediate database insertion. An invoice built
+an hour late is an invoice; an invoice for the wrong customer is a liability.
 
-**Fails open.** The owner decision on this is explicit: undercount rather than
-block an authorized read. A metering pipeline that could refuse a paid request
-has converted a bookkeeping failure into a customer-facing outage, which is a
-strictly worse trade for both parties. The cost of failing open is a request we
-did not bill, and that is a cost we can absorb and detect.
+**Durable acceptance fails closed; persistence remains asynchronous.** An
+authorized metered response is returned only after Cloudflare Queue accepts its
+privacy-safe event. A missing or rejected enqueue returns an opaque, retryable
+503, because returning success before acceptance creates usage that has no
+durable accounting path. The request does not wait for `apps/usage-consumer` or
+Postgres: once accepted, database outages retry through Queue/DLQ and therefore
+remain outside response latency and availability. This is the exact boundary
+recorded by ADR-0009.
 
 ### 3. Strict quota — entitlement
 
@@ -74,10 +78,12 @@ rather than worked around.
 
 ## Consequences
 
-**The failure directions are the test.** If a proposed change would make abuse
-protection fail open, or accounting fail closed, the change has confused two of
-these systems. That is a cheaper check than re-deriving the argument, and it is
-the check to apply to the next person who proposes putting a limit in a column.
+**The failure boundaries are the test.** Abuse protection fails closed. A
+metered response also fails closed until durable Queue acceptance, while the
+later database write is asynchronous and retryable. Strict quota, if added,
+requires its own synchronous entitlement mechanism. A proposed change that
+returns metered success before Queue acceptance or waits for the usage row to
+reach Postgres has crossed one of those boundaries.
 
 **`api_keys` holds no limits.** It holds identity, scope and lifecycle: who the
 key belongs to, which vertical it may read, and whether it is still usable.

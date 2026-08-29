@@ -1,10 +1,12 @@
 # Source rights review packet — EPA ENERGY STAR Certified Heat Pumps
 
-> **STATUS: AWAITING HUMAN REVIEW. NOT APPROVED. NOT INGESTED.**
+> **STATUS: DEFERRED. UNDER_REVIEW. UNREVIEWED. NOT APPROVED. NOT INGESTED.**
 >
 > This packet is evidence assembled for a reviewer. It is **not** a rights
-> decision and must not be read as one. `reviewed_by` is empty and stays empty
-> until a person has read this, checked it, and put their own name to it.
+> decision and must not be read as one. `reviewed_by` stays empty, no grant may
+> be recorded, and no acquisition/promotion/publication may begin unless the
+> owner explicitly reopens the source. Do not contact the listed steward or
+> initiate publisher outreach in this work package.
 >
 > Everything below is labelled **[VERIFIED]** (observed directly, with the
 > command or URL that produced it), **[INFERRED]** (a reasonable reading of
@@ -63,8 +65,9 @@ passes the widening straight through under a name that promises otherwise.
 what we ingest is stated in our configuration rather than assumed from an
 asset's title. **[REVIEWER]**
 
-**That recommendation currently has nowhere machine-readable to live, and that
-is a promotion prerequisite.** `SourceRegistryEntry` has no field for a
+**That recommendation currently has nowhere machine-readable to live, and
+would be a prerequisite if the owner ever reopened the source.**
+`SourceRegistryEntry` has no field for a
 source-side acquisition query — no `query`, `filter`, `params` or `selector` —
 and `verticals/<slug>/filters.yaml` is the *read* model (web facets, API
 parameters, SEO), not an acquisition input. So the filter exists today only as
@@ -73,9 +76,9 @@ prose in `acquisition_policy.notes`, which nothing enforces and nothing reads.
 Adding such a field is a real design decision — it belongs with the acquisition
 provider configuration, it needs to be recorded in the policy snapshot so a
 stored artifact can say what scope produced it, and it affects every provider —
-and it should not be invented for a source nobody has approved yet. **Before
-this declaration is promoted, either that field exists and carries the filter,
-or the scope is enforced in the extraction mapping and the notes say so.** A
+and it should not be invented for a deferred source. **If the source is ever
+explicitly reopened, either that field must exist and carry the filter, or the
+scope must be enforced in the extraction mapping and the notes must say so.** A
 recommendation that lives only in a comment is the kind of control that is
 already gone and has not been noticed. **[REVIEWER]**
 
@@ -94,10 +97,10 @@ is required** on whether mini-splits are in or out. **[REVIEWER]**
 | # | Question | Field | Evidence | Proposed answer |
 | --- | --- | --- | --- | --- |
 | 1 | May we acquire it this way at all? | `acquisition_policy.method` | robots **disallows** `/api/odata/` and `/OData.svc/`, and **does not disallow** `/resource/` or `/api/views/` **[VERIFIED]** — §7. Terms, licence scope, rate limits and redistribution constraints are **[UNVERIFIED]** — §7a | SODA `/resource/`, **not OData** — *proposed*, not authorised. Robots not disallowing a route is not a grant |
-| 2 | May we use it commercially? | `commercial_use_allowed` | EPA licence: *"all data produced by the U.S EPA is by default in the public domain and is not subject to domestic copyright protection under 17 U.S.C. § 105"* **[VERIFIED]** | Yes for EPA-produced content; see §4 for the submitted-content question **[REVIEWER]** |
-| 3 | May we redistribute it? | `redistribution_allowed` | Public domain implies redistribution for EPA-produced content. No attribution condition is stated **[VERIFIED]** | Yes **for EPA-produced content**; **[UNKNOWN]** for partner- and CB-submitted values until §4 is resolved **[REVIEWER]** |
-| 4 | May we normalize and derive from it? | `derivative_normalization_allowed` | Public domain; no derivative restriction stated **[VERIFIED]** | Yes **for EPA-produced content**; **[UNKNOWN]** for submitted values until §4 is resolved **[REVIEWER]** |
-| 5 | Must we attribute, and how exactly? | `rights_policy.attribution` | The licence states **no** attribution requirement **[VERIFIED]**. But EPA disclaims warranty and the mark rules forbid implying endorsement (§5) | Attribution **not required by the EPA licence**. Proposed as a *platform policy* choice, not a licence obligation: *"Source: U.S. EPA ENERGY STAR certified product data, retrieved <date>"* **[REVIEWER]** |
+| 2 | May we use it commercially? | `commercial_use_allowed` | EPA licence text addresses data produced by EPA **[VERIFIED quote]**; whether and how that reaches this mixed-origin dataset is unresolved | **UNKNOWN** pending appropriate human review; legacy boolean remains `false` and no matrix grant exists |
+| 3 | May we redistribute it? | `redistribution_allowed` | No explicit attribution condition was observed in the cited EPA text, but partner-/CB-submitted scope remains unresolved | **UNKNOWN** pending appropriate human review; legacy boolean remains `false` and no matrix grant exists |
+| 4 | May we normalize and derive from it? | `derivative_normalization_allowed` | The cited EPA text contains no observed derivative restriction, but mixed-origin scope remains unresolved | **UNKNOWN** pending appropriate human review; legacy boolean remains `false` and no matrix grant exists |
+| 5 | Must we attribute, and how exactly? | `rights_policy.attribution` | The licence states **no** attribution requirement **[VERIFIED]**. But EPA disclaims warranty and the mark rules forbid implying endorsement (§5) | If ever reopened, the general product wording must be “Manufacturer-reported, as filed with US regulators”, followed by a dated source citation. This is a proposed platform policy, not a licence obligation **[REVIEWER]** |
 | 6 | May we reuse the images? | `images_reusable` + `image_policy` | The dataset contains **no images** — all 48 columns are text, number or date **[VERIFIED]** | `false`, `cache_to_r2_permitted: false`. Nothing to decide, so decide nothing |
 
 ---
@@ -155,13 +158,12 @@ The dataset's own column labels are the evidence that most of it is submitted:
 | Connectivity fields (`connected_capability`, `connects_using`, `dr_protocol`, communication module brands/models) | Partner | Manufacturer-declared **[INFERRED]** |
 | `date_available_on_market`, `markets` | Partner | Manufacturer-declared **[INFERRED]** |
 
-**Why this is probably fine, and why a person still has to say so:**
-the submitted values are overwhelmingly **facts** — a model number, a measured
-SEER2, a capacity in Btu/h. Facts are not copyrightable, and a compilation of
-them published by EPA is public domain. That is a strong position. It is not a
-position an AI should record as settled, because the "unless otherwise
-specified" clause and the treatment of partner-submitted content are exactly the
-kind of question a rights review exists to have a human answer. **[REVIEWER]**
+**Why this remains unresolved:** the submitted values include model identifiers,
+measurements, and capacities, but this packet does not decide their legal status
+or the scope of any compilation rights. The "unless otherwise specified" clause
+and treatment of partner-submitted content require appropriate human review.
+Until then every related commercial, redistribution, normalization, and surface
+cell remains absent and therefore refused. **[REVIEWER]**
 
 ---
 
@@ -186,9 +188,11 @@ The position this platform should take, for the reviewer to accept or reject:
 - **Do not** display the ENERGY STAR logo or any certification mark artwork.
   We are not an ENERGY STAR partner and have no licence to.
 - **Do not** phrase anything as endorsement — not of us by EPA, and not of a
-  product by us. Publish the certification as a dated observation of a public
-  record ("appeared in EPA's certified list as of 2026-08-21"), never as
-  "ENERGY STAR approved by us".
+  product by us. If the source is ever reopened and cleared, the general product
+  wording is exactly “Manufacturer-reported, as filed with US regulators”,
+  accompanied by dated provenance. Cite the official dataset title only as a
+  title, never as Data Foundry certification, verification, approval, or a
+  regulator determination.
 - Do not use "ENERGY STAR" in any product name, domain, or marketing claim of
   ours. **[REVIEWER]**
 
@@ -345,8 +349,9 @@ cited as one.
 - **Correction:** EPA's correction path is `certification@energystar.gov`.
   **[VERIFIED contact]** Our own corrections must follow the editorial-override
   route in ADR-0002 so a correction is auditable rather than an edit.
-- **Caching:** the licence permits retention. Rule 10 requires it: raw artifacts
-  are kept, addressed by digest, so any published value can be traced to bytes.
+- **Caching:** if the source is ever reopened and exact `STORE`/`CACHE` rights
+  are granted, rule 10 requires raw artifacts to be kept by digest so any
+  published value can be traced to bytes. No such grant exists now.
 
 ---
 
@@ -421,7 +426,7 @@ invent a fact that the source does not contain. **[REVIEWER]**
 | --- | --- | --- | --- | --- |
 | R-01 | Partner-submitted content inside a public-domain compilation may not itself be public domain | **High** | §4 | Human rights review before ingestion. Publish facts, not prose |
 | R-02 | Certification-mark misuse implying EPA endorsement | **High** | §5 | No marks, no logos, dated factual phrasing only |
-| R-03 | The certified unit is a combination, not a product; naive modelling fabricates facts | **High** | §11 | Model the combination as the entity |
+| R-03 | The listed unit is a combination, not a product; naive modelling fabricates facts | **High** | §11 | Model the combination as the entity |
 | R-04 | Model-number normalisation across 281,828 rows will collide or over-split | Medium | Condition 6 | Measure before publishing; retain conflicts (rule 3) |
 | R-05 | Named view performs no filtering and may silently widen | Medium | §1a **[VERIFIED]** | Declare against the parent with our own explicit filter |
 | R-06 | Warranty disclaimer travels with the data | Medium | §3 | Carry the disclaimer to every published surface |
@@ -433,50 +438,16 @@ invent a fact that the source does not contain. **[REVIEWER]**
 
 ---
 
-## 13. What happens next
+## 13. Deferred state
 
-1. A human reads this packet and the linked primary sources.
-2. That human records their decision in `docs/sources/proposed/energy-star-heat-pumps.yaml`
-   — setting `rights_classification`, `reviewed_by` (**their own name**),
-   `reviewed_at`, `next_review_at`, and `acquisition_policy.approved`.
-3. Only then does the declaration move into `verticals/hvac/sources/`, where the
-   loader can see it and the gates can evaluate it.
-4. **The status transitions, which nothing automates.** `UNDER_REVIEW` is not in
-   `ACQUIRABLE_STATUSES`, so the declaration does nothing until a person changes
-   it. Going straight to `ACTIVE` would skip the state whose entire purpose is
-   "acquired, not yet published":
+No action follows from this packet in the current work package. Keep the draft
+in `docs/sources/proposed/`, outside the registry and acquisition runtime. Keep
+`status: UNDER_REVIEW`, `rights_classification: UNREVIEWED`, all review fields
+null, `acquisition_policy.approved: false`, and every exact rights cell absent.
 
-   ```text
-   UNDER_REVIEW → APPROVED → bounded acquisition into quarantine → validation → ACTIVE
-   ```
-
-5. **What `APPROVED` authorises, exactly.** Controlled fetching. Nothing else.
-   It does **not** authorise:
-   - publication to any surface — web, REST, MCP, bulk export;
-   - downstream indexing, entity resolution into the canonical store, or
-     inclusion in a dataset snapshot;
-   - customer access of any kind;
-   - **use as corroborating evidence** for any other source. An APPROVED source
-     is unvalidated by definition, and corroboration from unvalidated data is
-     confidence manufactured out of nothing.
-
-   The gates already separate these: `evaluateAcquisitionGate` accepts
-   `APPROVED`, while `evaluateSourcePublishGate` requires `ACTIVE`. The list
-   above is what that separation is *for*, written down so nobody has to infer
-   it from a status enum.
-
-6. **The bounded run writes to quarantine, not to the store.** A sample, not
-   281,828 rows, landing on a non-publishing path. The run must record:
-   request parameters and the exact URL; response status and headers; row count;
-   observed schema against §11; the source-policy snapshot the gate produced;
-   content digests of every artifact; and the validation outcome.
-
-7. **`APPROVED` → `ACTIVE` only after that artifact proves the real acquisition
-   path behaved** within the documented rights and governance constraints —
-   §7a resolved, the gate refusing what it should, and the observed data
-   matching what the packet predicted. Promotion is a decision made *about
-   evidence that now exists*, not about an expectation.
-
-Until step 2, the file in `docs/sources/proposed/` is deliberately outside the
-loader's reach. It cannot be ingested by any code path, because it is not
-anywhere the registry looks.
+Do not sign, promote, acquire, publish, contact, or initiate publisher outreach.
+Validation, fixture tests, a snapshot digest, or readiness inventory cannot
+reopen the source or manufacture an `ALLOW`. If the owner later explicitly
+reopens it, the packet must first be refreshed against current primary evidence
+and the partner-submitted-rights question must receive the appropriate human
+review before any new workflow is authorized.

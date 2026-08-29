@@ -26,6 +26,8 @@ Fill in, in this order:
 5. **`mcp.yaml`** — one server identity and the exact six generic executable
    tools from `apps/mcp`. The names, titles and summaries must match; add
    vertical behavior through fields/configuration, not domain-specific tools.
+6. **`acquisition.yaml`** — only enabled, reviewed source targets intended for
+   scheduled execution. A proposed/deferred source stays outside this file.
 
 Validate continuously:
 
@@ -84,6 +86,7 @@ vertical is visible to the Worker bundler:
 ```bash
 pnpm verticals:compile
 pnpm mcp:compile
+pnpm acquisition:compile
 pnpm web:compile
 ```
 
@@ -91,15 +94,18 @@ Add the slug to `BUNDLED_VERTICALS` in `compile-vertical-runtime.ts` only when
 the vertical has an edge/API deployment, and to `BUNDLED_WEB_VERTICALS` in
 `compile-web-runtime.ts` only when the public Worker should carry it. Add it to
 `BUNDLED_MCP_VERTICALS` in `compile-mcp-runtime.ts` only when an MCP deployment
-is intended. The lists are intentionally independent: an industry can be public
-without being sold by API/MCP, or sold by API before its public pages are
-eligible. Run the matching compiler(s). Bundling a runtime is not publication permission; database
+is intended. Add scheduled targets through the acquisition compiler only when
+exact acquisition rights and source governance allow them. The lists are
+intentionally independent: an industry can be public without being sold by
+API/MCP, or sold by API before its public pages are eligible. Run the matching
+compiler(s). Bundling a runtime is not publication permission; database
 presence, exact surface grants and page-quality gates still decide what can be
 returned or indexed.
 
 ```bash
 pnpm verticals:compile:check
 pnpm mcp:compile:check
+pnpm acquisition:check
 pnpm web:compile:check
 ```
 
@@ -137,6 +143,10 @@ A vertical can be ready for one surface and not another.
   Direct/RapidAPI credentials are not interchangeable with it. `NONE` means
   analytics-only billing authority, not anonymous access.
 - **Bulk export** — is independently gated by export/redistribution rights.
+- **Scheduled acquisition (`apps/acquisition-worker`)** — is independently
+  gated by exact stored `ACQUIRE`/`STORE`/`CACHE` decisions and uses Cron,
+  migration-0017 run state, and immutable R2 evidence. Its source YAML and
+  schedule never create permission.
 
 Do not infer “paid gets everything the website gets.” The rights resolver, not
 pricing, decides which facts each surface may expose.
@@ -198,7 +208,9 @@ cost.
 checklist. A new vertical is not considered live because CI is green; verify the
 exact deployed SHA, production health/readiness, real database access, auth,
 rights behavior and usage-event persistence independently for web, direct REST,
-RapidAPI and MCP. An MCP smoke test must cover initialize/discovery, tools/list,
+RapidAPI and MCP. Also prove an acquisition Cron claim, rights refusal, and one
+authorized R2/Postgres result in an isolated provider environment. An MCP smoke
+test must cover initialize/discovery, tools/list,
 one authenticated tools/call, wrong-channel credentials, and a post-deploy
 rights-revocation negative.
 

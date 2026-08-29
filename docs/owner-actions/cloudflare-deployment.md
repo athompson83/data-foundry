@@ -4,10 +4,18 @@ Everything here either requires a person in a dashboard/billing relationship or
 coordinates repository work with Cloudflare resources that cannot be inferred
 from source code alone.
 
-The integration candidate contains `apps/edge`, `apps/mcp-worker`,
-`apps/usage-consumer`, the rights-grant matrix and the public multi-industry
-Worker. None is deployed, and repository state is not proof that Cloudflare
-resources or real-source rights have been provisioned.
+The integration candidate contains the final five-Worker topology:
+`apps/edge`, `apps/web`, `apps/usage-consumer`,
+`apps/acquisition-worker`, and `apps/mcp-worker`. None is deployed, and
+repository state is not proof that Cloudflare resources or real-source rights
+have been provisioned.
+
+The minimal owner/platform work is: choose the canonical account/zone and
+database; provision Hyperdrive, one raw-artifact R2 bucket, the usage Queue/DLQ,
+and the five Worker deployments; set protected values without exposing them;
+then prove the exact deployed SHA, rights behavior, Queue persistence, Cron/R2
+acquisition, and emergency public-cache purge. RapidAPI and MCP live-channel
+proof are separate external gates.
 
 ---
 
@@ -33,6 +41,8 @@ must remain outside source control.
 7. Keep marketplace traffic on a dedicated hostname or clearly identifiable
    route if that makes operations and bypass testing simpler, but do not deploy
    a second API implementation.
+8. Deploy the acquisition Worker with its hourly Cron trigger. It needs no
+   public route and must not be bound to the usage Queue.
 
 ### Verify
 
@@ -61,7 +71,10 @@ credential must not be committed.
 6. Configure `apps/mcp-worker` with `HYPERDRIVE`, `VERTICAL_SLUG`, the live-key
    namespace, exact MCP host/origin allowlist and `PUBLIC_ORIGIN`. It reuses the
    canonical database; it is not a second data backend.
-7. Record the environment bindings outside the repository and make them
+7. Configure `apps/acquisition-worker` with `HYPERDRIVE`, `VERTICAL_SLUG`, the
+   canonical `RAW_ARTIFACTS` R2 binding/name, and only the provider credentials
+   needed by already admitted targets. No provider secret is a grant.
+8. Record the environment bindings outside the repository and make them
    reproducible through deployment configuration/secret management rather than
    manual memory.
 
@@ -80,6 +93,12 @@ that the usage consumer can persist a test event idempotently. A one-vertical
 `MCP/NONE` `df_live_*` key must complete current `server/discover`, `tools/list`
 and one `tools/call`; a direct or RapidAPI key must receive 403 at that same MCP
 origin.
+
+Verify the acquisition Worker separately: a duplicate Cron slot is a no-op; a
+missing/stale exact grant records refusal before provider construction,
+transport, or R2; and one authorized isolated target records migration-0017 run
+state plus immutable R2 evidence. No real source is required for infrastructure
+proof, and the deferred ENERGY STAR proposal must remain untouched.
 
 ---
 
@@ -189,13 +208,14 @@ item 1.
    From the repository root, the PowerShell setup for ignored CLI manifests is:
    ```powershell
    $exclude = git rev-parse --git-path info/exclude
-   Add-Content -LiteralPath $exclude -Value "`napps/edge/wrangler.production.toml`napps/mcp-worker/wrangler.production.toml`napps/usage-consumer/wrangler.production.toml`napps/web/wrangler.production.toml"
+   Add-Content -LiteralPath $exclude -Value "`napps/edge/wrangler.production.toml`napps/web/wrangler.production.toml`napps/usage-consumer/wrangler.production.toml`napps/acquisition-worker/wrangler.production.toml`napps/mcp-worker/wrangler.production.toml"
    Copy-Item apps/edge/wrangler.toml apps/edge/wrangler.production.toml
    Copy-Item apps/mcp-worker/wrangler.toml apps/mcp-worker/wrangler.production.toml
    Copy-Item apps/usage-consumer/wrangler.toml apps/usage-consumer/wrangler.production.toml
+   Copy-Item apps/acquisition-worker/wrangler.toml apps/acquisition-worker/wrangler.production.toml
    Copy-Item apps/web/wrangler.toml apps/web/wrangler.production.toml
    ```
-   Add the live binding/account/route values only to those four ignored files.
+   Add the live binding/account/route values only to those five ignored files.
    Deploy the edge and consumer from their directories with
    `npx wrangler deploy --config wrangler.production.toml`.
    Deploy the public Worker from `apps/web` with its exact, non-secret origin:
@@ -211,9 +231,13 @@ item 1.
    ```powershell
    npx wrangler deploy --config wrangler.production.toml --var MCP_HOSTNAME:<mcp-host> --var MCP_ALLOWED_ORIGINS:https://<allowed-client-origin> --var PUBLIC_ORIGIN:https://<public-host>
    ```
-   From the repository root, verify all four tracked templates together:
+   Deploy `apps/acquisition-worker` from its ignored manifest after adding the
+   Hyperdrive id and canonical R2 binding. Its tracked hourly Cron and non-secret
+   vertical/bucket names remain unchanged.
+
+   From the repository root, verify all five tracked templates together:
    ```powershell
-   git diff --exit-code HEAD -- apps/edge/wrangler.toml apps/usage-consumer/wrangler.toml apps/web/wrangler.toml apps/mcp-worker/wrangler.toml
+   git diff --exit-code HEAD -- apps/edge/wrangler.toml apps/web/wrangler.toml apps/usage-consumer/wrangler.toml apps/acquisition-worker/wrangler.toml apps/mcp-worker/wrangler.toml
    ```
 
 ### Verify
@@ -315,14 +339,24 @@ commercial gate.
 
 1. Review and land the already-reconciled rights, usage, auth/metering and web
    integration as one exact candidate; do not merge the stale PR trees blindly.
-2. Provision Cloudflare Postgres/Hyperdrive, REST/MCP/web/consumer Workers,
-   Queues, DLQ, routes and secrets.
+2. Provision Cloudflare Postgres/Hyperdrive, all five Workers, R2, Queue/DLQ,
+   routes and secrets.
 3. Deploy and prove exact-SHA health/readiness plus real queue behavior.
 4. Rights-clear and ingest the first real commercial vertical.
 5. Mark a vertical `ACTIVE` only after its real-source review is complete, and
    enable public pages only for exact `PUBLIC_WEB` grants. A rendered page may
    be indexed or enter a sitemap only when `SEARCH_INDEX` covers those same
    rendered facts, attributions and relationships claim by claim.
-6. Add the thin RapidAPI adapter and publish one marketplace vertical.
-7. Measure demand/cost before expanding plans, verticals or building first-
+6. Verify the acquisition Cron/R2 path only for an exact rights-admitted target;
+   keep ENERGY STAR deferred and outside the runtime registry.
+7. Configure the already-built thin RapidAPI channel and publish one marketplace
+   vertical only after enrollment, proxy secret, plan/payout, and live subscriber
+   proof.
+8. Measure demand/cost before expanding plans, verticals or building first-
    party billing.
+
+Public 200 responses currently advertise one hour of freshness plus 86,400
+seconds of stale-while-revalidate. Before public deployment, establish an
+emergency Cloudflare cache-purge procedure and the ability to force `no-store`,
+remove stale-while-revalidate, or shorten TTL during a rights revocation. The
+repo controls its response header, not every provider cache rule or purge result.

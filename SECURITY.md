@@ -71,9 +71,10 @@ maintainers.
   documented invariant.
 - Anything that lets a caller bypass a trust control this repository claims to
   enforce: publishing a fact without evidence, publishing from a source whose
-  rights classification forbids it, clearing a queued human review
-  automatically, altering an append-only audit trail, or reaching the raw
-  database handle from an application-layer surface.
+  exact rights bundle is absent/ineffective or whose legacy hard stops refuse
+  it, clearing a queued human review automatically, altering an append-only
+  audit trail, returning metered success before durable Queue acceptance, or
+  reaching the raw database handle from a pure application-layer surface.
 - Exposure of staff reviewer identities or internal editorial notes through a
   public query, API, MCP, export or frontend surface.
 
@@ -102,8 +103,10 @@ branch is the only supported thing to run.
 | any tag or fork | ❌ |
 
 There is no production deployment of this repository serving customer data at
-the time of writing, and the shipped vertical is `status: DRAFT` with synthetic
-fixture data. If that changes, this section changes with it.
+the time of writing. The five-Worker Cloudflare topology exists as repository
+code and credential-free artifacts only, and the HVAC vertical is `status:
+DRAFT` with synthetic fixture data. If that changes, this section changes with
+it.
 
 ## What this policy is not
 

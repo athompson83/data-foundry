@@ -30,30 +30,31 @@ Specifically, and in plain language:
    the real Air-Conditioning, Heating, and Refrigeration Institute — and nothing
    here describes that organization's directory, data or terms.
 
-**Consequence:** the source-rights condition for leaving `DRAFT` — that the
-contributing sources are reviewed and not predominantly `RED` — is **NOT MET**
-for this vertical. Zero real sources have been rights-reviewed. Synthetic
+**Consequence:** the source-rights condition for leaving `DRAFT` — that every
+real contribution has effective exact acquisition/publication/commercial matrix
+decisions and no source hard stop — is **NOT MET** for this vertical. No real
+source has an effective reviewed publication/commercial bundle. Synthetic
 sources passing a rights gate proves the gate works; it proves nothing about the
 market. This is why `vertical.yaml` carries `status: DRAFT`, and it is recorded
 here rather than argued around.
 
 ---
 
-## Classification summary
+## Legacy synthetic classification summary
 
-| Source | Class | Publishable | Commercial | Redistribution | Derivative norm. | Attribution | Reviewed | Next review |
+| Source | Class | Legacy publish field | Legacy commercial field | Legacy redistribution field | Legacy derivative field | Attribution | Reviewed | Next review |
 |---|---|:---:|:---:|:---:|:---:|---|---|---|
 | `acme-hvac-catalog` | GREEN | ✅ | ✅ | ✅ | ✅ | not required | 2026-07-02 | 2027-07-02 |
 | `coolsupply-distributor` | **AMBER** | ⚠️ with warning | ✅ | ✅ | ✅ | **required** | 2026-07-02 | 2027-01-31 |
 | `ahri-directory-export` | GREEN | ✅ | ✅ | ✅ | ✅ | **required** | 2026-07-02 | 2027-07-02 |
 | `acme-spec-sheets` | GREEN | ✅ | ✅ | ✅ | ✅ | not required | 2026-07-02 | 2027-07-02 |
 
-Classifications (doc 13; the code model writes doc 13's `YELLOW` as `AMBER`):
+Classifications (doc 13; the code model writes doc 13's `YELLOW` as `AMBER`) are
+inventory/risk metadata and additional hard stops, not grants:
 
-- **GREEN** — clear commercial reuse and redistribution rights.
-- **AMBER** — facts probably usable, but terms, database rights, images,
-  attribution or redistribution scope still need legal/business review.
-  Publishable, **but never silently**.
+- **GREEN** — the synthetic inventory review records no broad legacy blocker.
+- **AMBER** — the synthetic inventory records conditions, warnings, or narrower
+  scope. It is not permission for any matrix surface.
 - **RED** — explicit restrictions or unresolved risk. Not ingested for
   commercial publishing.
 - **UNREVIEWED** — no decision on record. **The absence of a decision is not
@@ -68,10 +69,12 @@ synthetic stand-in only gestures at: the listing terms attached to a wholesale
 catalogue, and the *sui generis* database right in a compiled catalogue under
 EU/UK law.
 
-AMBER publishes and carries a warning that follows it downstream. Its attribution
-is required and configured, so the gate passes; had `text` been left null while
-`required: true`, the source would fail activation — a required attribution with
-no credit line is a misconfiguration, not "no attribution needed".
+For this synthetic fixture, AMBER exercises the legacy warning path and carries
+a warning downstream only after the exact requested surface is separately
+permitted. Its attribution is required and configured, so the inventory gate
+passes; had `text` been left null while `required: true`, the source would fail
+activation — a required attribution with no credit line is a misconfiguration,
+not "no attribution needed".
 
 ## Gates
 
@@ -101,8 +104,10 @@ Everything above, plus redistribution allowed, commercial use allowed,
 derivative normalization allowed, image attribution satisfiable, and the kill
 switch disengaged.
 
-All four sources pass; `coolsupply-distributor` passes **with an AMBER warning**
-attached, which downstream surfaces must carry rather than discard.
+All four synthetic declarations pass this legacy gate;
+`coolsupply-distributor` passes **with an AMBER warning** attached. That result
+does not create any ADR-0010 surface `ALLOW`; exact current decisions still
+govern every acquisition, page, index, API, MCP, and export request.
 
 ## Attribution obligations
 
@@ -184,12 +189,15 @@ rather than a technical assumption.
 ## What must happen before real ingestion
 
 1. Identify at least three real, materially independent source families.
-2. Complete a rights review for each, with a **named human** reviewer, a
-   classification, and a next-review date.
-3. Confirm the set is not predominantly RED.
+2. Complete a rights review for each, with a **named human** reviewer, immutable
+   terms/evidence, exact matrix decisions, and a next-review date.
+3. Confirm every intended acquisition/publication/commercial bundle is
+   effective at the release instant; absence remains refusal.
 4. Review the two risks that recur in this vertical: bulk-reuse terms on
    certification directory exports, and database rights over compiled
    distributor catalogues in the EU/UK.
-5. Only then move `vertical.yaml` from `DRAFT` to `ACTIVE`.
+5. Use exactly “Manufacturer-reported, as filed with US regulators” for the
+   general regulatory-filing product claim.
+6. Only then move `vertical.yaml` from `DRAFT` to `ACTIVE`.
 
 Until every one of these is done, this vertical publishes nothing.

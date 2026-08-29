@@ -6,12 +6,11 @@
  * the placement is the control that stops an unreviewed source being acquired.
  * The cost is that no schema, no validator and no test has ever read these
  * files, so a declaration can be wrong for as long as it likes and only reveal
- * it at the worst moment — when a named human has signed the rights packet and
- * `git mv`s the file into `verticals/<slug>/sources/`, which is the one step in
- * the whole procedure that is supposed to be mechanical.
+ * it if an owner later reopens the proposal. The current ENERGY STAR proposal
+ * is deferred and this test does not authorize promotion.
  *
- * These assertions read the drafts without loading them, so a draft can be
- * wrong in review and cannot be wrong on promotion day.
+ * These assertions read the drafts without loading them, preserving structural
+ * validity while their placement and state remain fail-closed.
  */
 import { readdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -33,7 +32,7 @@ const drafts = readdirSync(PROPOSED)
   .filter((file) => file.endsWith('.yaml'))
   .map((file) => ({ file, doc: parseYaml(readFileSync(join(PROPOSED, file), 'utf8')) as unknown }));
 
-describe('every proposed source declaration could actually be promoted', () => {
+describe('every proposed source declaration remains structurally valid and fail-closed', () => {
   it('finds drafts to check', () => {
     // Without this the whole suite passes vacuously the day the directory is
     // renamed or emptied.
@@ -47,8 +46,8 @@ describe('every proposed source declaration could actually be promoted', () => {
    * `rights_classification` — which caught the defect it was written for and
    * nothing else. A draft missing `rights_policy`, `acquisition_policy` or
    * `provenance_retention` passed it and would still have failed on promotion
-   * day, which is the exact failure this file exists to move earlier. Review
-   * pointed that out, and it was right.
+   * if the proposal is ever reopened, which is the exact failure this file
+   * exists to move earlier. Structural validity is not a grant.
    */
   it.each(drafts)('$file satisfies the registry schema it will be loaded by', ({ doc }) => {
     const result = SourceRegistryEntrySchema.safeParse(doc);

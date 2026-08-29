@@ -5,8 +5,10 @@ current integration candidate reconciles the usage-accounting corrections from
 PR #14, auth/queue metering from PR #15, the accepted and implemented ADR-0010
 rights matrix from PR #16, and the public multi-industry site from PR #17.
 It also contains the thin RapidAPI origin adapter and the deployable authenticated
-MCP Worker. Those capabilities are repository code, but the combined candidate is not yet
-deployed and no real HVAC source has acquired an effective surface grant.
+MCP Worker, plus Task 9's Cron/R2 acquisition Worker and rights-backed readiness
+command. Those capabilities are repository code, but the combined candidate is
+not yet deployed and no real HVAC source has an effective reviewed
+publication/commercial bundle.
 
 This document describes the end-to-end revenue path those changes enable and
 states plainly what is implemented, proposed, operational, legal or still a
@@ -72,9 +74,10 @@ usage event model.
 - Usage accounting ties an event to the authenticating
   key, tenant, vertical and closed route vocabulary rather than a raw request
   target.
-- The edge authenticates requests before routing and asynchronously records usage
-  through a queue/consumer path so database persistence does not become response
-  latency or availability.
+- The edge authenticates requests before routing and awaits durable Queue
+  acceptance before returning metered success. A missing/rejected enqueue is an
+  opaque retryable 503. Only the later idempotent Postgres persistence remains
+  asynchronous and outside response latency/availability.
 
 These are prerequisites for both direct and marketplace access even though a
 marketplace may be the system that actually charges a subscriber.
@@ -184,8 +187,9 @@ pnpm sources:readiness -- --as-of 2026-08-28T12:00:00.000Z --database-env DATA_F
 An offline snapshot is accepted only when its strict v1 schema, explicit
 `generatedAt`, exact `asOf`, provenance label, canonicalization identifier and
 SHA-256 canonical digest validate. The digest proves integrity, not legal
-authority, and output remains visibly `SNAPSHOT_BACKED`; only the live-database
-mode is live-current proof.
+authority, and output remains visibly `SNAPSHOT_BACKED`. A validated snapshot is
+qualified evidence for the instant it declares, not a claim about live-current
+database state; named-environment live database mode is the live-current mode.
 
 ```powershell
 pnpm sources:readiness -- --as-of 2026-08-28T12:00:00.000Z --rights-snapshot .\rights-snapshot.json --json hvac
@@ -275,7 +279,8 @@ semantics established earlier:
 2. **Usage-accounting corrections — integrated.** The combined schema preserves
    route privacy, tenant/vertical attribution and database integrity.
 3. **Auth and asynchronous metering — integrated.** API keys fail closed and
-   the request path emits privacy-safe queue events without awaiting persistence.
+   the request path awaits privacy-safe Queue acceptance without awaiting later
+   Postgres persistence.
 4. **Public web — integrated.** Only `ACTIVE`, `PUBLIC_WEB`-eligible verticals
    render. Indexing and sitemaps additionally require `SEARCH_INDEX` to cover
    the exact facts, attributions and relationships rendered on the public page;
@@ -283,24 +288,28 @@ semantics established earlier:
 5. **RapidAPI and MCP adapters — integrated.** RapidAPI stays a thin authenticated
    proxy over `apps/edge`; MCP stays a thin Streamable HTTP adapter over
    `apps/mcp`. Both have independent closed billing/access classifications.
-6. **Deploy the canonical Cloudflare stack.** Provision production Postgres,
-   Hyperdrive, REST/MCP Workers, usage queue/consumer, public Worker, routes and
-   secrets; prove health/readiness and perform live smoke tests.
-7. **Rights-clear the first real vertical.** Synthetic HVAC fixtures prove the
+6. **Scheduled acquisition and readiness — integrated.** The hourly
+   `apps/acquisition-worker` uses migration 0017, exact stored
+   `ACQUIRE`/`STORE`/`CACHE` checks, and immutable R2 evidence. The readiness
+   command requires canonical `--as-of` and qualified DB/snapshot evidence.
+7. **Deploy the canonical Cloudflare stack.** Provision production Postgres,
+   Hyperdrive, all five Workers, R2, usage Queue/DLQ, routes and secrets; prove
+   health/readiness and perform live smoke tests.
+8. **Rights-clear the first real vertical.** Synthetic HVAC fixtures prove the
    machinery, not the commercial dataset. No marketplace listing goes live
    until the actual contributing sources are cleared for the listed use cases.
-8. **Create the first RapidAPI listing.** Start with one vertical, a deliberately
+9. **Create the first RapidAPI listing.** Start with one vertical, a deliberately
    small free allowance and paid tiers sized from observed Cloudflare/database
    cost and expected value. Verify the marketplace's current fee and payout
    terms at launch rather than hard-coding an old percentage into architecture.
-9. **Package and expose MCP only for cleared data.** Issue a dedicated MCP key,
+10. **Package and expose MCP only for cleared data.** Issue a dedicated MCP key,
    verify current/legacy-handshake behavior and revocation on the deployed
    hostname, and keep its analytics outside internal invoices.
-10. **Measure before expanding.** Track signups, activation, paid conversion,
+11. **Measure before expanding.** Track signups, activation, paid conversion,
    requests per account, costly endpoints, support load, churn and gross margin.
    Publish additional marketplace verticals only when their source rights and
    data quality are ready.
-11. **Add first-party billing when justified by evidence.** Preserve the direct
+12. **Add first-party billing when justified by evidence.** Preserve the direct
     API route from day one so successful customers can later move to a higher-
     margin channel without changing the underlying product.
 
@@ -321,6 +330,11 @@ API or marketplace listing is enabled, all of the following must be true:
 - health/readiness checks pass against production storage;
 - unit cost per request is measured enough to set a non-destructive plan limit;
 - customer terms do not grant rights Data Foundry does not itself possess.
+
+RapidAPI enrollment, the marketplace proxy secret, plans, payout setup, a live
+route, and a real subscriber request remain external. MCP likewise still needs
+a hostname, bindings, exact grants, packaging, and live-client proof; its custom
+bearer credential is not OAuth.
 
 ## What ties the channels together
 

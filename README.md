@@ -213,7 +213,7 @@ Anything else found in `public` is **out of scope** — reported by name so you
 can see it was noticed, and never counted as evidence about this schema:
 
 ```text
-OK: 19 Data Foundry tables, migrations are ordered and idempotent.
+OK: Data Foundry-owned tables are present; migrations are ordered and idempotent.
 ```
 
 Applying to a shared database names any unowned tables it finds *before* it
@@ -236,22 +236,29 @@ MCP tool definitions, the Phase 2 Python/Splink work, and external dataset users
 
 `.github/workflows/ci.yml` runs, on every push and pull request:
 
-1. `pnpm typecheck` — strict TypeScript over packages, tests and tooling
-2. `pnpm test` — unit, contract and PGlite migration suites
-3. `pnpm migrate:check` — migrations apply in order, create every expected table,
+- `pnpm typecheck` — strict TypeScript over packages, tests and tooling
+- `pnpm test` — unit, contract and PGlite migration suites
+- `pnpm migrate:check` — migrations apply in order, create every expected table,
    and re-run as a clean no-op
-4. `pnpm schemas:check` — generated JSON Schema exports match the Zod source
-5. `pnpm verticals:validate` — vertical configs are well-formed and every source
+- `pnpm schemas:check` — generated JSON Schema exports and the readiness snapshot
+  schema match their sources
+- `pnpm openapi:check` — generated direct/RapidAPI OpenAPI contracts match the
+  canonical REST route and access-channel contract
+- `pnpm cloudflare:topology:check` — all five Worker manifests preserve the
+  Queue, Cron, R2, Hyperdrive, route, and secret-free topology contract
+- `pnpm verticals:validate` — vertical configs are well-formed and every source
    declaration carries complete rights metadata
-6. `pnpm verticals:compile:check` — the edge runtime artifact matches the
+- `pnpm verticals:compile:check` — the edge runtime artifact matches the
    vertical config it was compiled from
-7. `pnpm mcp:compile:check` — the MCP Worker runtime advertises exactly the six
+- `pnpm acquisition:check` — the Cron/R2 acquisition runtime matches the
+  enabled source declarations and committed generated artifact
+- `pnpm mcp:compile:check` — the MCP Worker runtime advertises exactly the six
    executable generic tools and current compiled vertical metadata
-8. `pnpm web:compile:check` — the web surface's own compiled artifact (it
+- `pnpm web:compile:check` — the web surface's own compiled artifact (it
    additionally bundles `seo.yaml`, which the edge runtime artifact does not)
-9. `pnpm cloudflare:artifacts:check` — all four Worker bundles build without
+- `pnpm cloudflare:artifacts:check` — all five Worker bundles build without
    credentials and contain no local PGlite/WASM runtime
-10. A second job applies the identical migrations to a real `postgres:16` service,
+- A second job applies the identical migrations to a real `postgres:16` service,
    which is what keeps "portable Postgres" honest rather than aspirational
 
 ## Adding a real source
@@ -264,7 +271,7 @@ snapshot evidence, every surface is `UNKNOWN`; see the revenue-readiness runbook
 
 ## Deployment
 
-Four Cloudflare Workers, per
+Five Cloudflare Workers, per
 [ADR-0006](docs/decisions/ADR-0006-cloudflare-is-the-deployment-target.md) and
 [ADR-0011](docs/decisions/ADR-0011-web-frontend-and-multi-industry-sites.md):
 
@@ -277,21 +284,28 @@ Four Cloudflare Workers, per
   industry, because that is the surface search engines and agents are meant to
   discover through, and siloing it per industry would fragment exactly the
   discoverability it exists for.
+- **`apps/usage-consumer`** — the queue consumer that persists metering events
+  idempotently after the edge Worker has accepted and handed them off.
+- **`apps/acquisition-worker`** — hourly Cron runner for configuration-compiled
+  source targets. It claims migration-0017 run state in Postgres, rechecks exact
+  stored `ACQUIRE`/`STORE`/`CACHE` permission before provider construction and
+  transport, and stores immutable raw evidence in the canonical R2 bucket.
 - **`apps/mcp-worker`** — authenticated MCP 2026-07-28 Streamable HTTP. One
   vertical per deployment, backed by the six generic tools in `apps/mcp` and
   an exact `MCP/NONE` key that is distinct from direct and RapidAPI keys.
-- **`apps/usage-consumer`** — the queue consumer that persists metering events
-  idempotently after the edge Worker has accepted and handed them off.
 
-The edge, web and MCP Workers are composition roots — the only packages in
-their surface permitted to reach below the query layer — plus `fetch` adapters
-that translate and decide no canonical fact behavior.
+The edge, web and MCP Workers are read-surface composition roots; the acquisition
+Worker is the scheduled write-side composition root; the usage consumer owns
+only accepted-event persistence. Pure `apps/api` and `apps/mcp` contracts still
+cannot reach beneath the canonical query layer.
 
 ```bash
 pnpm verticals:compile        # emit apps/edge/generated/<slug>.runtime.json
 pnpm verticals:compile:check  # CI gate: fails when the artifact drifts
 pnpm mcp:compile              # emit apps/mcp-worker/generated/<slug>.runtime.json
 pnpm mcp:compile:check        # CI gate: executable tool/runtime metadata parity
+pnpm acquisition:compile      # emit apps/acquisition-worker/generated runtime
+pnpm acquisition:check        # CI gate: scheduled source/runtime parity
 pnpm web:compile              # emit apps/web/generated/<slug>.web-runtime.json + index.json
 pnpm web:compile:check        # CI gate: fails when the artifact drifts
 ```
@@ -312,14 +326,15 @@ contributes zero bytes to it — a source scan cannot see past the dynamic
 
 Every REST or MCP request is authenticated and scope-checked through
 `packages/access-auth` before it reaches a route/tool, and accepted consumption
-is metered asynchronously:
-a usage event naming the matched route **template** — never the concrete
-target — is published to a Cloudflare Queue and persisted idempotently by
-`apps/usage-consumer`, without the request's success ever depending on that
-persistence succeeding. `db/migrations/0011_api_tenancy.sql` has the schema;
+is durably handed off before success: a usage event naming the matched route
+**template** — never the concrete target — must be accepted by Cloudflare Queue
+or the caller receives an opaque retryable 503. `apps/usage-consumer` persists
+the accepted event idempotently later; only that Postgres write stays off the
+response path. `db/migrations/0011_api_tenancy.sql` has the schema;
 this increment is measurement only — no pricing, plans, invoices or
 subscriptions. MCP events are explicitly `MCP/NONE`: useful for analytics, but
-never eligible for internal invoicing.
+never eligible for internal invoicing. RapidAPI events are likewise excluded
+from direct invoices because the marketplace is their billing authority.
 
 Deploying needs an account, Hyperdrive bindings, routes for each Worker and the
 usage-metering queues, none of which live in this repository —

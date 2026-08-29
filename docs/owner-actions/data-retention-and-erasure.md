@@ -35,8 +35,11 @@ Four parts, and only the first is technical:
 
 1. **What identifies a person here?** `api_tenants.contact_email` is the obvious
    one. `name` and `slug` may be a sole trader's name. Usage rows carry no
-   personal data by design — the route-template constraints exist so that what a
-   named customer *looked up* never lands in the metering table.
+   direct personal data by design — the route-template constraints exist so
+   that what a named customer *looked up* never lands in the metering table.
+   Direct, RapidAPI, and MCP events use closed access/billing classifications;
+   MCP tool arguments and concrete REST targets are excluded, and RapidAPI/MCP
+   rows are analytics-only for Data Foundry invoicing.
 2. **How long do metering rows have to live?** Pick from the actual obligation —
    tax retention, contractual dispute windows, fraud investigation — not from
    "it might be useful". Write the period and its basis down.
@@ -59,5 +62,6 @@ its own history. A key deleted to "clean up" takes the audit trail with it, and
 ## Verify
 
 Once the policy exists, it belongs somewhere a customer can read it — a privacy
-notice — and somewhere an operator can execute it. This document is neither; it
-is the record that the decision is open.
+notice — and somewhere an operator can execute it. It must cover direct API,
+marketplace, and MCP analytics consistently. This document is neither; it is
+the record that the decision is open.
