@@ -334,6 +334,25 @@ describe('scheduled acquisition claims', () => {
       resultUrlPolicy: policy,
     }))).rejects.toThrow(/path prefix/i);
   });
+
+  it.each([
+    ['TARGET', 'DIRECT_HTTP', 'https://catalog.acme-climate.example.com/api/v2/catalog/../admin'],
+    ['TARGET', 'DIRECT_HTTP', 'https://catalog.acme-climate.example.com/api/v2/catalog/./page'],
+    ['CHILD_RESOURCE', 'BROWSER_RUN', 'https://catalog.acme-climate.example.com/api/v2/catalog/../admin'],
+    ['CHILD_RESOURCE', 'BROWSER_RUN', 'https://catalog.acme-climate.example.com/api/v2/catalog/./page'],
+  ] as const)(
+    'rejects a literal dot-segment %s result through the database URL function',
+    async (relation, route, resultUrl) => {
+      const targetUrl = relation === 'TARGET' ? resultUrl : claim().targetUrl;
+      const rows = await fixtures.driver.query<{ allowed: boolean }>(
+        `SELECT scheduled_acquisition_result_url_allowed(
+           $1, $2, $3::jsonb, $4, $5
+         ) AS allowed`,
+        [targetUrl, route, JSON.stringify(claim().resultUrlPolicy), resultUrl, relation],
+      );
+      expect(rows).toEqual([{ allowed: false }]);
+    },
+  );
 });
 
 describe('terminal outcomes and freshness', () => {
@@ -832,6 +851,8 @@ describe('terminal outcomes and freshness', () => {
       'https://off-scope.example.com/api/v2/catalog?page=2',
       'https://catalog.acme-climate.example.com/admin?page=2',
       'https://catalog.acme-climate.example.com/api/v2/catalog/%2e%2e/admin',
+      'https://catalog.acme-climate.example.com/api/v2/catalog/../admin',
+      'https://catalog.acme-climate.example.com/api/v2/catalog/./page',
     ]) {
       await expect(
         scheduler.complete({
@@ -878,6 +899,45 @@ describe('terminal outcomes and freshness', () => {
       { target_url: run!.targetUrl, result_url: run!.targetUrl, result_relation: 'TARGET' },
       { target_url: run!.targetUrl, result_url: childArtifact.url, result_relation: 'CHILD_RESOURCE' },
     ]);
+  });
+
+  it('revalidates a legacy literal-dot child link at the direct terminal boundary', async () => {
+    const run = await scheduler.claim(claim('2026-08-28T19:55:00.000Z', {
+      targetId: 'legacy-literal-dot-link',
+      acquisitionRoute: 'BROWSER_RUN',
+    }));
+    const malicious = {
+      ...artifact('7'),
+      url: 'https://catalog.acme-climate.example.com/api/v2/catalog/../admin',
+      acquisition_route: 'BROWSER_RUN' as const,
+    };
+    const persisted = await fixtures.store.recordSourceArtifact(malicious);
+    await fixtures.driver.exec(
+      'ALTER TABLE scheduled_acquisition_run_artifacts DISABLE TRIGGER scheduled_acquisition_run_artifact_insert_guard',
+    );
+    try {
+      await fixtures.driver.query(
+        `INSERT INTO scheduled_acquisition_run_artifacts
+           (run_id, artifact_id, ordinal, target_url, result_url, result_relation,
+            retrieval_key, retrieval_receipt_id, acquisition_provider)
+         VALUES ($1, $2, 0, $3, $4, 'CHILD_RESOURCE', $5, $6, 'http')`,
+        [
+          run!.id,
+          persisted.id,
+          run!.targetUrl,
+          malicious.url,
+          scheduledArtifact(run!, malicious, 'CHILD_RESOURCE').retrievalKey,
+          artifactRetrievalReceiptId(run!.id, malicious.url, 'http'),
+        ],
+      );
+    } finally {
+      await fixtures.driver.exec(
+        'ALTER TABLE scheduled_acquisition_run_artifacts ENABLE TRIGGER scheduled_acquisition_run_artifact_insert_guard',
+      );
+    }
+
+    await expect(rawFetchedSuccess(run!, rightsReceipt(run!))).rejects.toThrow(/target policy/i);
+    expect(await scheduler.get(run!.id)).toMatchObject({ status: 'CLAIMED', freshAt: null });
   });
 
   it('treats NOT_MODIFIED as successful freshness without inventing artifacts', async () => {

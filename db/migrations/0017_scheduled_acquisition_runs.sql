@@ -193,6 +193,10 @@ BEGIN
     result_path := substring(result_url FROM '^https://[^/?#]+([^?#]*)');
     IF result_origin IS NULL OR result_path IS NULL THEN RETURN FALSE; END IF;
     IF result_path = '' THEN result_path := '/'; END IF;
+    -- WHATWG URL parsing removes literal `.` and `..` path segments before
+    -- applying the compiled prefix policy. SQL must never authorize the raw,
+    -- unnormalized spelling against a different effective path.
+    IF result_path ~ '(^|/)\.{1,2}(/|$)' THEN RETURN FALSE; END IF;
     SELECT EXISTS (
         SELECT 1 FROM jsonb_array_elements_text(policy -> 'allowedOrigins') origin
          WHERE lower(origin) = result_origin
@@ -823,6 +827,7 @@ RETURNS TRIGGER LANGUAGE plpgsql AS $$
 DECLARE
     linked_count INTEGER;
     wrong_provider_count INTEGER;
+    invalid_target_count INTEGER;
     prior_fetched_count INTEGER;
 BEGIN
     IF TG_OP = 'DELETE' OR (TG_OP = 'UPDATE' AND OLD.status <> 'CLAIMED') THEN
@@ -876,8 +881,20 @@ BEGIN
         SELECT count(*)::integer,
                count(*) FILTER (
                  WHERE link.acquisition_provider IS DISTINCT FROM NEW.provider
+               )::integer,
+               count(*) FILTER (
+                 WHERE artifact.source_id IS DISTINCT FROM OLD.source_id
+                    OR artifact.acquisition_route IS DISTINCT FROM OLD.acquisition_route
+                    OR artifact.account_or_product_plan IS DISTINCT FROM OLD.account_or_product_plan
+                    OR artifact.acquisition_jurisdiction IS DISTINCT FROM OLD.acquisition_jurisdiction
+                    OR link.target_url IS DISTINCT FROM OLD.target_url
+                    OR link.result_url IS DISTINCT FROM artifact.url
+                    OR NOT scheduled_acquisition_result_url_allowed(
+                        OLD.target_url, OLD.acquisition_route, OLD.result_url_policy,
+                        link.result_url, link.result_relation
+                    )
                )::integer
-          INTO linked_count, wrong_provider_count
+          INTO linked_count, wrong_provider_count, invalid_target_count
           FROM scheduled_acquisition_run_artifacts link
           JOIN source_artifacts artifact ON artifact.id = link.artifact_id
          WHERE link.run_id = OLD.id;
@@ -887,6 +904,10 @@ BEGIN
         END IF;
         IF NEW.status = 'SUCCEEDED' AND wrong_provider_count <> 0 THEN
             RAISE EXCEPTION 'scheduled acquisition retrieval provider does not match the completion provider'
+                USING ERRCODE = '23514';
+        END IF;
+        IF NEW.status = 'SUCCEEDED' AND invalid_target_count <> 0 THEN
+            RAISE EXCEPTION 'scheduled acquisition terminal artifact scope or target policy is invalid'
                 USING ERRCODE = '23514';
         END IF;
         IF NEW.status = 'SUCCEEDED' AND NEW.outcome = 'NOT_MODIFIED' THEN

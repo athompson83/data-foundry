@@ -16,7 +16,7 @@ import {
   authorizeStoredAcquisition,
   recheckStoredAcquisition,
 } from '../../apps/acquisition-worker/src/admission.js';
-import { seedAcquisitionRights } from '../../tests/support/acquisition-rights.js';
+import { seedAcquisitionRightsScopes } from '../../tests/support/acquisition-rights.js';
 import { isMain } from '../lib/cli-entry.js';
 
 const iso = (value: string): ScheduledAcquisitionRun['claimedAt'] =>
@@ -193,6 +193,30 @@ async function assertKillSwitchTruthTable(driver: SqlDriver, suffix: string): Pr
   }
 }
 
+async function assertLiteralDotTraversalRejected(driver: SqlDriver): Promise<void> {
+  const policy = JSON.stringify({
+    allowedOrigins: ['https://catalog.example.invalid'],
+    allowedPathPrefixes: ['/api/catalog'],
+  });
+  for (const [relation, route, resultUrl] of [
+    ['TARGET', 'DIRECT_HTTP', 'https://catalog.example.invalid/api/catalog/../admin'],
+    ['TARGET', 'DIRECT_HTTP', 'https://catalog.example.invalid/api/catalog/./page'],
+    ['CHILD_RESOURCE', 'BROWSER_RUN', 'https://catalog.example.invalid/api/catalog/../admin'],
+    ['CHILD_RESOURCE', 'BROWSER_RUN', 'https://catalog.example.invalid/api/catalog/./page'],
+  ] as const) {
+    const targetUrl = relation === 'TARGET'
+      ? resultUrl
+      : 'https://catalog.example.invalid/api/catalog';
+    const rows = await driver.query<{ allowed: boolean }>(
+      `SELECT scheduled_acquisition_result_url_allowed(
+         $1, $2, $3::jsonb, $4, $5
+       ) AS allowed`,
+      [targetUrl, route, policy, resultUrl, relation],
+    );
+    assert.equal(rows[0]?.allowed, false, `${relation} must reject ${resultUrl}`);
+  }
+}
+
 async function assertAtomicClaim(
   driver: SqlDriver,
   scheduler: ScheduledAcquisitionStore,
@@ -217,12 +241,14 @@ async function assertAtomicTerminalPersistence(
   source: Awaited<ReturnType<typeof registeredSource>>,
   suffix: string,
 ): Promise<void> {
-  await seedAcquisitionRights({
+  await seedAcquisitionRightsScopes({
     driver,
     sourceId: source.source.id,
-    acquisitionRoute: 'DIRECT_HTTP',
-    assetClass: 'DATA',
-    outputClass: 'RAW_RECORD',
+    scopes: ['DIRECT_HTTP', 'BROWSER_RUN'].map((acquisitionRoute) => ({
+      acquisitionRoute,
+      assetClass: 'DATA',
+      outputClass: 'RAW_RECORD',
+    })),
   });
 
   const failedRun = await scheduler.claim(
@@ -274,6 +300,63 @@ async function assertAtomicTerminalPersistence(
   assert.equal(completed.status, 'SUCCEEDED');
   assert.equal(completed.artifactCount, 1);
   assert.equal(await scheduler.latestSuccessAt(successfulRun), iso('2026-08-28T19:00:04.000Z'));
+
+  const legacyRun = await scheduler.claim({
+    ...claimFor(`${suffix}-legacy-literal-dot`, source, '2026-08-28T20:00:00.000Z'),
+    acquisitionRoute: 'BROWSER_RUN',
+  });
+  assert.ok(legacyRun);
+  const maliciousArtifact = artifactFor(legacyRun, 'd'.repeat(64));
+  const maliciousUrl = `${legacyRun.targetUrl}/../admin`;
+  const persisted = await createCanonicalStore(driver).recordSourceArtifact({
+    ...maliciousArtifact,
+    url: maliciousUrl,
+  });
+  const retrieval = scheduledArtifact(legacyRun, { ...maliciousArtifact, url: maliciousUrl });
+  const retrievalReceiptId = artifactRetrievalReceiptId(legacyRun.id, maliciousUrl, 'http');
+  await driver.exec(
+    'ALTER TABLE scheduled_acquisition_run_artifacts DISABLE TRIGGER scheduled_acquisition_run_artifact_insert_guard',
+  );
+  try {
+    await driver.query(
+      `INSERT INTO scheduled_acquisition_run_artifacts
+         (run_id, artifact_id, ordinal, target_url, result_url, result_relation,
+          retrieval_key, retrieval_receipt_id, acquisition_provider)
+       VALUES ($1, $2, 0, $3, $4, 'CHILD_RESOURCE', $5, $6, 'http')`,
+      [
+        legacyRun.id,
+        persisted.id,
+        legacyRun.targetUrl,
+        maliciousUrl,
+        retrieval.retrievalKey,
+        retrievalReceiptId,
+      ],
+    );
+  } finally {
+    await driver.exec(
+      'ALTER TABLE scheduled_acquisition_run_artifacts ENABLE TRIGGER scheduled_acquisition_run_artifact_insert_guard',
+    );
+  }
+  await assert.rejects(
+    driver.query(
+      `UPDATE scheduled_acquisition_runs
+          SET status = 'SUCCEEDED', outcome = 'FETCHED',
+              completed_at = $2, fresh_at = $3, provider = 'http',
+              expected_artifact_count = 1, artifact_count = 1,
+              rights_receipt = $4::jsonb
+        WHERE id = $1`,
+      [
+        legacyRun.id,
+        iso('2026-08-28T20:00:05.000Z'),
+        iso('2026-08-28T20:00:04.000Z'),
+        JSON.stringify(await receiptsFor(driver, legacyRun)),
+      ],
+    ),
+    /target policy/i,
+  );
+  const storedLegacy = await scheduler.get(legacyRun.id);
+  assert.equal(storedLegacy?.status, 'CLAIMED');
+  assert.equal(storedLegacy?.freshAt, null);
 }
 
 export async function run(): Promise<number> {
@@ -288,13 +371,14 @@ export async function run(): Promise<number> {
     );
     assert.match(version[0]?.server_version ?? '', /^16\./, 'PostgreSQL 16 is required');
     const suffix = crypto.randomUUID().replaceAll('-', '').slice(0, 12);
+    await assertLiteralDotTraversalRejected(driver);
     await assertKillSwitchTruthTable(driver, suffix);
     const source = await registeredSource(driver, `${suffix}-ledger`);
     const scheduler = createScheduledAcquisitionStore(driver);
     await assertAtomicClaim(driver, scheduler, source, suffix);
     await assertAtomicTerminalPersistence(driver, scheduler, source, suffix);
     process.stdout.write(
-      'OK: PostgreSQL 16 proved the monotone kill switch, one-winner concurrent claim, transactional rollback, and durable freshness.\n',
+      'OK: PostgreSQL 16 proved literal-dot function/terminal refusal, the monotone kill switch, one-winner concurrent claim, transactional rollback, and durable freshness.\n',
     );
     return 0;
   } finally {

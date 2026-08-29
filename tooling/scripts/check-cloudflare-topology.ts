@@ -107,12 +107,21 @@ function checkRepositoryPolicy(label: string, config: TomlObject, errors: string
   if (hyperdrive.some((binding) => typeof binding['id'] === 'string')) {
     errors.push(`${label} commits a Hyperdrive id; inject the HYPERDRIVE binding during deployment.`);
   }
-  for (const name of ['POSTGRES_URL', 'RAPIDAPI_PROXY_SECRET', 'RAPIDAPI_API_KEY']) {
+  for (const name of [
+    'POSTGRES_URL',
+    'RAPIDAPI_PROXY_SECRET',
+    'RAPIDAPI_API_KEY',
+    'CLOUDFLARE_ACCOUNT_ID',
+    'CLOUDFLARE_API_TOKEN',
+    'CRAWL4AI_API_TOKEN',
+  ]) {
     const configuredAsPlainVar = valuesAtKey(config, 'vars').some(
       (vars) => collectKeyPaths(object(vars), new Set([name])).length > 0,
     );
     if (configuredAsPlainVar) {
-      errors.push(`${label} commits ${name} in vars; configure it as a secret outside the repository.`);
+      errors.push(
+        `${label} commits ${name} in vars; configure provider identity and credentials outside the repository.`,
+      );
     }
   }
 }

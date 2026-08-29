@@ -129,4 +129,25 @@ describe('the committed Cloudflare topology', () => {
     expect(errors.join('\n')).toMatch(/RAW_ARTIFACTS/);
     expect(errors.join('\n')).toMatch(/must not declare.*Queue/i);
   });
+
+  it('rejects acquisition provider identity and credentials committed as plaintext vars', async () => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-cloudflare-acquisition-policy-'));
+    temporaryDirectories.push(directory);
+    const acquisitionPath = join(directory, 'acquisition.toml');
+    await writeFile(
+      acquisitionPath,
+      `${await readFile(ACQUISITION_CONFIG, 'utf8')}\n` +
+        '[env.production.vars]\n' +
+        'CLOUDFLARE_ACCOUNT_ID = "account-id"\n' +
+        'CLOUDFLARE_API_TOKEN = "plain-cloudflare-token"\n' +
+        'CRAWL4AI_API_TOKEN = "plain-crawl-token"\n',
+      'utf8',
+    );
+
+    const errors = await validate({ acquisitionConfigPath: acquisitionPath });
+    expect(errors.join('\n')).toMatch(/acquisition-worker.*CLOUDFLARE_ACCOUNT_ID/i);
+    expect(errors.join('\n')).toMatch(/acquisition-worker.*CLOUDFLARE_API_TOKEN/i);
+    expect(errors.join('\n')).toMatch(/acquisition-worker.*CRAWL4AI_API_TOKEN/i);
+  });
 });
