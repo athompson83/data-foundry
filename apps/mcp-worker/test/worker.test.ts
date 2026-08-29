@@ -6,6 +6,7 @@ import {
   seedSyntheticSurfaceRights,
   type QueryFixtures,
 } from '../../../packages/query-model/test/support.js';
+import type { SqlDriver, SqlParam, SqlRow } from '@data-foundry/canonical-store';
 import type { UsageEvent } from '@data-foundry/usage-events';
 import {
   resetMcpDeployments,
@@ -138,6 +139,30 @@ describe('Streamable HTTP lifecycle and executable tool parity', () => {
       body: '',
     });
     expect(sent).toEqual([]);
+  });
+
+  it('accepts only closed-set, id-free modern notifications', async () => {
+    const key = await seedKey(fixtures, 'mcp-notification-shape');
+    const { queue, sent } = recordingQueue();
+    const requestShapedNotification = await serveMcpRequest(
+      mcpRequest(key.secret, modernBody('notifications/cancelled', {
+        requestId: 'cancelled-request',
+      })),
+      envFor(queue),
+      serveOptions,
+    );
+    const unknownNotification = await serveMcpRequest(
+      mcpRequest(key.secret, modernBody('notifications/not-supported', {}, null)),
+      envFor(queue),
+      serveOptions,
+    );
+
+    expect(requestShapedNotification.status).toBe(400);
+    expect(unknownNotification.status).toBe(400);
+    expect(sent.map((event) => event.route_key)).toEqual([
+      'mcp.protocol_failure',
+      'mcp.protocol_failure',
+    ]);
   });
 
   it('does not reopen the database driver for each request in one warm isolate', async () => {
@@ -294,6 +319,57 @@ describe('pre-SDK request guards and authorization', () => {
     expect(response.status).toBe(404);
     expect((await json(response)).error?.code).toBe(-32601);
     expect(sent[0]?.route_key).toBe('mcp.protocol_failure');
+  });
+
+  it('rejects a no-id tools/call before tool SQL and meters the fixed protocol-failure route', async () => {
+    const key = await seedKey(fixtures, 'mcp-no-id-call');
+    const privateIdentifier = 'must-never-reach-query-7194';
+    const observedQueries: { readonly sql: string; readonly params?: readonly SqlParam[] }[] = [];
+    const guardedDriver: SqlDriver = {
+      label: fixtures.driver.label,
+      dialect: fixtures.driver.dialect,
+      query: async <R extends SqlRow = SqlRow>(
+        sql: string,
+        params?: readonly SqlParam[],
+      ): Promise<R[]> => {
+        observedQueries.push({ sql, ...(params === undefined ? {} : { params }) });
+        return await fixtures.driver.query<R>(sql, params);
+      },
+      exec: fixtures.driver.exec.bind(fixtures.driver),
+      transaction: fixtures.driver.transaction.bind(fixtures.driver),
+      close: async () => undefined,
+    };
+    const { queue, sent } = recordingQueue();
+    const response = await serveMcpRequest(
+      mcpRequest(key.secret, modernBody('tools/call', {
+        name: 'get_entity',
+        arguments: { identifier: privateIdentifier },
+      }, null)),
+      envFor(queue),
+      { runtime: fixtureRuntime, openDriver: async () => guardedDriver },
+    );
+
+    expect(response.status).toBe(400);
+    expect(sent.map((event) => event.route_key)).toEqual(['mcp.protocol_failure']);
+    expect(JSON.stringify(observedQueries)).not.toContain(privateIdentifier);
+  });
+
+  it('keeps initialize on the bounded legacy path and rejects a modern initialize claim', async () => {
+    const key = await seedKey(fixtures, 'mcp-modern-initialize');
+    const { queue, sent } = recordingQueue();
+    const response = await serveMcpRequest(
+      mcpRequest(key.secret, modernBody('initialize', {
+        protocolVersion: PROTOCOL_VERSION,
+        capabilities: {},
+        clientInfo: { name: 'modern-client', version: '1.0.0' },
+      })),
+      envFor(queue),
+      serveOptions,
+    );
+
+    expect(response.status).toBe(400);
+    expect(await json(response)).toMatchObject({ jsonrpc: '2.0', id: null, error: {} });
+    expect(sent.map((event) => event.route_key)).toEqual(['mcp.protocol_failure']);
   });
 });
 
