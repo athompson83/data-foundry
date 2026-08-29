@@ -19,7 +19,8 @@ enabled = true
 
 [vars]
 # Keep the committed production template subject to the same topology checks as
-# the API and queue consumer. The web runtime does not read this value itself.
+# the API and queue consumer. The web runtime reads this value and refuses a
+# production deployment that lacks the HYPERDRIVE binding.
 DEPLOYMENT_ENVIRONMENT = "production"
 
 # No VERTICAL_SLUG here, unlike apps/edge: this is the ONE deployment that

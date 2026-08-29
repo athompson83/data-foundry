@@ -1162,6 +1162,10 @@ function parseCliArguments(args: readonly string[]): CliArguments {
 
   for (let index = 0; index < args.length; index += 1) {
     const argument = args[index]!;
+    // pnpm 9 passes the conventional script-argument separator through to the
+    // script. Accept exactly one leading separator so the documented command
+    // works without turning a later unknown `--` into a silently ignored typo.
+    if (index === 0 && argument === '--') continue;
     if (argument === '--json') {
       asJson = true;
       continue;

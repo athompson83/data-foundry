@@ -12,6 +12,8 @@ export interface HyperdriveBinding {
 }
 
 export interface WebEnv {
+  /** Explicit production mode tightens topology checks; absence is local development. */
+  readonly DEPLOYMENT_ENVIRONMENT?: string;
   readonly HYPERDRIVE?: HyperdriveBinding;
   readonly POSTGRES_URL?: string;
   /**
@@ -32,9 +34,26 @@ export class WebConfigurationError extends Error {
 export interface ResolvedWebConfig {
   readonly connectionString: string;
   readonly publicOrigin: string;
+  readonly deploymentEnvironment: DeploymentEnvironment;
+}
+
+export type DeploymentEnvironment = 'development' | 'production';
+
+function resolveDeploymentEnvironment(value: string | undefined): DeploymentEnvironment {
+  if (value === undefined || value === 'development') return 'development';
+  if (value === 'production') return 'production';
+  throw new WebConfigurationError(
+    'DEPLOYMENT_ENVIRONMENT must be exactly "development" or "production" when set.',
+  );
 }
 
 export function resolveWebConfig(env: WebEnv): ResolvedWebConfig {
+  const deploymentEnvironment = resolveDeploymentEnvironment(env.DEPLOYMENT_ENVIRONMENT);
+  if (deploymentEnvironment === 'production' && env.HYPERDRIVE === undefined) {
+    throw new WebConfigurationError(
+      'Production requires the HYPERDRIVE binding; POSTGRES_URL is for local development only.',
+    );
+  }
   const connectionString = env.HYPERDRIVE?.connectionString ?? env.POSTGRES_URL ?? '';
   if (connectionString.trim() === '') {
     throw new WebConfigurationError(
@@ -78,5 +97,5 @@ export function resolveWebConfig(env: WebEnv): ResolvedWebConfig {
     throw new WebConfigurationError('PUBLIC_ORIGIN must use HTTPS outside local development.');
   }
 
-  return { connectionString, publicOrigin: parsed.origin };
+  return { connectionString, publicOrigin: parsed.origin, deploymentEnvironment };
 }

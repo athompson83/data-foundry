@@ -36,3 +36,36 @@ describe('public origin configuration', () => {
     ).toThrow(WebConfigurationError);
   });
 });
+
+describe('production topology is explicit and fail closed', () => {
+  it('requires Hyperdrive instead of a direct origin connection', () => {
+    expect(() =>
+      resolveWebConfig({
+        DEPLOYMENT_ENVIRONMENT: 'production',
+        POSTGRES_URL: 'postgres://origin/db',
+        PUBLIC_ORIGIN: 'https://data-foundry.example',
+      }),
+    ).toThrow(/HYPERDRIVE/);
+  });
+
+  it('accepts a production Hyperdrive binding', () => {
+    const config = resolveWebConfig({
+      DEPLOYMENT_ENVIRONMENT: 'production',
+      HYPERDRIVE: { connectionString: 'postgres://hyperdrive/db' },
+      PUBLIC_ORIGIN: 'https://data-foundry.example',
+    });
+
+    expect(config.connectionString).toBe('postgres://hyperdrive/db');
+    expect(config.deploymentEnvironment).toBe('production');
+  });
+
+  it('refuses an unknown deployment environment', () => {
+    expect(() =>
+      resolveWebConfig({
+        DEPLOYMENT_ENVIRONMENT: 'preview',
+        HYPERDRIVE: { connectionString: 'postgres://hyperdrive/db' },
+        PUBLIC_ORIGIN: 'https://data-foundry.example',
+      }),
+    ).toThrow(/development.*production/);
+  });
+});
