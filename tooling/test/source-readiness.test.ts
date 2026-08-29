@@ -9,6 +9,7 @@
  * its failing case here goes green and this file starts lying instead.
  */
 import { execFile } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
@@ -16,11 +17,19 @@ import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import {
+  aggregateRevenueReadiness,
   assess as assessAt,
+  canonicalJson,
+  createRightsEvidenceSnapshot,
   createLiveDatabaseRightsEvidenceResolver,
+  createSnapshotRightsEvidenceResolver,
   evaluateSourceSurfaceReadiness,
   isReservedDomain,
+  parseRightsEvidenceSnapshot,
   readVertical as readVerticalAt,
+  type RightsEvidenceResolver,
+  type RightsEvidenceSnapshotSourceInput,
+  type VerticalReadiness,
 } from '../scripts/source-readiness.js';
 import * as readinessModule from '../scripts/source-readiness.js';
 import type {
@@ -164,6 +173,78 @@ function allowCandidate(
       actor: 'Named reviewer',
       occurredAt: '2026-08-01T00:00:00.000Z',
     },
+  };
+}
+
+function decisionCondition(
+  id: string,
+  conditionKey: string,
+): RightsDecisionCandidate['conditions'][number] {
+  return {
+    id,
+    decisionId: 'decision-conditioned',
+    conditionKey,
+    conditionType: 'ATTRIBUTION',
+    evaluatorKey: 'attribution_present',
+    evaluatorVersion: '1',
+    parametersSha256: 'b'.repeat(64),
+    parametersCanonical: `{"credit":"${conditionKey}"}`,
+    parameters: { credit: conditionKey },
+    auditRequired: true,
+  };
+}
+
+function conditionSnapshot(
+  conditions: RightsDecisionCandidate['conditions'],
+): ReturnType<typeof createRightsEvidenceSnapshot> {
+  return createRightsEvidenceSnapshot({
+    generatedAt: '2026-08-28T13:00:00.000Z',
+    asOf: NOW,
+    provenance: 'condition-order test',
+    sources: [
+      {
+        verticalSlug: 'hvac',
+        sourceKey: 'source-a',
+        domain: 'catalog.example-manufacturer.co.uk',
+        sourceType: 'MANUFACTURER',
+        acquisitionRoute: 'DIRECT_HTTP',
+        accountOrProductPlan: null,
+        jurisdiction: null,
+        context: {
+          source: {
+            id: SOURCE_ID,
+            publisherId: PUBLISHER_ID,
+            status: 'ACTIVE',
+            rightsClassification: 'GREEN',
+            killSwitchEngaged: false,
+            prohibited: false,
+          },
+          snapshot: {
+            candidates: [
+              {
+                ...allowCandidate('DISPLAY_PUBLICLY', 'PUBLIC_WEBSITE', 'conditioned'),
+                conditions,
+              },
+            ],
+            denyExceptions: [],
+            sourcePublisherIds: new Map([[SOURCE_ID, PUBLISHER_ID]]),
+            fieldGroupMembers: new Map(),
+          },
+        },
+      },
+    ],
+  });
+}
+
+function redigestSnapshot(
+  snapshot: ReturnType<typeof createRightsEvidenceSnapshot>,
+): ReturnType<typeof createRightsEvidenceSnapshot> {
+  const payload = Object.fromEntries(
+    Object.entries(snapshot).filter(([key]) => key !== 'canonicalDigest'),
+  );
+  return {
+    ...snapshot,
+    canonicalDigest: createHash('sha256').update(canonicalJson(payload), 'utf8').digest('hex'),
   };
 }
 
@@ -343,6 +424,47 @@ describe('rights evidence is explicit and fail-closed', () => {
     })(first, NOW);
     expect(parsed.sources[0]?.context.snapshot.fieldGroupMembers).toEqual(
       new Map([['product-fields', ['model_number', 'seer2']]]),
+    );
+  });
+
+  it('canonicalizes condition order so equivalent snapshots have one digest', () => {
+    const conditionA = decisionCondition('condition-A', 'alpha');
+    const conditionZ = decisionCondition('condition-z', 'zeta');
+    const forward = conditionSnapshot([conditionA, conditionZ]);
+    const reversed = conditionSnapshot([conditionZ, conditionA]);
+
+    expect(reversed.canonicalDigest).toBe(forward.canonicalDigest);
+    expect(
+      reversed.sources[0]?.context.snapshot.candidates[0]?.conditions.map(({ id }) => id),
+    ).toEqual(['condition-A', 'condition-z']);
+  });
+
+  it('rejects digest-valid snapshots whose conditions are not in canonical order', () => {
+    const snapshot = conditionSnapshot([
+      decisionCondition('condition-A', 'alpha'),
+      decisionCondition('condition-z', 'zeta'),
+    ]);
+    const unsorted = structuredClone(snapshot);
+    unsorted.sources[0]!.context.snapshot.candidates[0]!.conditions.reverse();
+
+    expect(() => parseRightsEvidenceSnapshot(redigestSnapshot(unsorted), NOW)).toThrow(
+      /conditions.*canonical code-unit order/i,
+    );
+  });
+
+  it('rejects digest-valid snapshots with duplicate condition identities', () => {
+    const snapshot = conditionSnapshot([
+      decisionCondition('condition-A', 'alpha'),
+      decisionCondition('condition-z', 'zeta'),
+    ]);
+    const duplicate = structuredClone(snapshot);
+    duplicate.sources[0]!.context.snapshot.candidates[0]!.conditions = [
+      duplicate.sources[0]!.context.snapshot.candidates[0]!.conditions[0]!,
+      structuredClone(duplicate.sources[0]!.context.snapshot.candidates[0]!.conditions[0]!),
+    ];
+
+    expect(() => parseRightsEvidenceSnapshot(redigestSnapshot(duplicate), NOW)).toThrow(
+      /conditions.*duplicates/i,
     );
   });
 
@@ -557,6 +679,88 @@ describe('rights evidence is explicit and fail-closed', () => {
     } finally {
       await fixtures.driver.close();
     }
+  });
+
+  it('exports the exact context evaluated for each source without a second resolver lookup', async () => {
+    const readEvaluation = (readinessModule as Record<string, unknown>)[
+      'readVerticalWithRightsEvidence'
+    ];
+    expect(typeof readEvaluation).toBe('function');
+    if (typeof readEvaluation !== 'function') return;
+
+    const evaluatedContext = {
+      source: {
+        id: SOURCE_ID,
+        publisherId: PUBLISHER_ID,
+        status: 'ACTIVE',
+        rightsClassification: 'GREEN',
+        killSwitchEngaged: false,
+        prohibited: false,
+      },
+      snapshot: {
+        candidates: [allowCandidate('DISPLAY_PUBLICLY', 'PUBLIC_WEBSITE', 'first-read')],
+        denyExceptions: [],
+        sourcePublisherIds: new Map([[SOURCE_ID, PUBLISHER_ID]]),
+        fieldGroupMembers: new Map(),
+      },
+    } as const;
+    const changedContext = {
+      ...evaluatedContext,
+      snapshot: { ...evaluatedContext.snapshot, candidates: [] },
+    };
+    const calls = new Map<string, number>();
+    const resolver: RightsEvidenceResolver = {
+      descriptor: {
+        kind: 'LIVE_DATABASE',
+        qualification: 'LIVE_AS_OF',
+        credentialEnv: 'DF_TEST_DATABASE_URL',
+        asOf: NOW,
+      },
+      async contextFor(verticalSlug, declaredSource) {
+        const identity = `${verticalSlug}/${declaredSource.key}`;
+        const count = (calls.get(identity) ?? 0) + 1;
+        calls.set(identity, count);
+        return count === 1 ? evaluatedContext : changedContext;
+      },
+    };
+
+    const evaluation = await (
+      readEvaluation as (
+        dir: string,
+        slug: string,
+        asOf: string,
+        evidence: RightsEvidenceResolver,
+      ) => Promise<{
+        report: VerticalReadiness;
+        snapshotSources: readonly RightsEvidenceSnapshotSourceInput[];
+      }>
+    )(join(VERTICALS_DIR, 'hvac'), 'hvac', NOW, resolver);
+
+    expect([...calls.values()]).toEqual([1, 1, 1, 1]);
+    const snapshot = createRightsEvidenceSnapshot({
+      generatedAt: NOW,
+      asOf: NOW,
+      provenance: 'same-run parity test',
+      sources: evaluation.snapshotSources,
+    });
+    const replay = createSnapshotRightsEvidenceResolver(
+      parseRightsEvidenceSnapshot(snapshot, NOW),
+    );
+    for (const declaredSource of evaluation.report.sources) {
+      const context = await replay.contextFor(evaluation.report.slug, declaredSource);
+      expect(context).not.toBeNull();
+      expect(
+        evaluateSourceSurfaceReadiness({
+          sourceKey: declaredSource.key,
+          acquisitionRoute: declaredSource.acquisitionRoute,
+          accountOrProductPlan: declaredSource.accountOrProductPlan,
+          jurisdiction: declaredSource.jurisdiction,
+          asOf: NOW,
+          context,
+        }),
+      ).toEqual(declaredSource.surfaces);
+    }
+    expect([...calls.values()]).toEqual([1, 1, 1, 1]);
   });
 
   it('includes the owner-deferred ENERGY STAR candidate only when explicitly selected', async () => {
@@ -1046,6 +1250,47 @@ describe('the verdict cannot contradict the report underneath it', () => {
 
   it('is still READY when a real source genuinely may publish', () => {
     expect(assess('probe', 'ACTIVE', [source()]).blockers).toEqual([]);
+  });
+
+  it('renders NOT_READY overall when seven-surface rights pass but a hard stop fails', () => {
+    const renderReport = (readinessModule as Record<string, unknown>)[
+      'renderReadinessReport'
+    ];
+    expect(typeof renderReport).toBe('function');
+    if (typeof renderReport !== 'function') return;
+
+    const baseline = assess('probe', 'ACTIVE', [
+      source({ provenance_retention: { retain_artifacts: false } }),
+    ]);
+    const ready = { status: 'READY' as const, missing: [] };
+    const readySurfaces = {
+      PUBLIC_WEB: ready,
+      SEARCH_INDEX: ready,
+      API_FREE: ready,
+      API_PAID: ready,
+      RAPIDAPI: ready,
+      MCP: ready,
+      BULK_EXPORT: ready,
+    } satisfies VerticalReadiness['sources'][number]['surfaces'];
+    const sources = baseline.sources.map((declaredSource) => ({
+      ...declaredSource,
+      surfaces: readySurfaces,
+    }));
+    const revenueReadiness = aggregateRevenueReadiness(sources);
+    expect(revenueReadiness.status).toBe('READY');
+    expect(baseline.blockers).not.toEqual([]);
+
+    const headline = (
+      renderReport as (report: VerticalReadiness) => string
+    )({
+      ...baseline,
+      sources,
+      revenueReadiness,
+      ready: false,
+    }).split('\n')[0];
+    expect(headline).toBe(
+      'probe — NOT_READY overall (seven-surface revenue readiness: READY; vertical status: ACTIVE)',
+    );
   });
 });
 

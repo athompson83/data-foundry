@@ -300,6 +300,11 @@ export function canonicalJson(value: unknown): string {
   return JSON.stringify(canonicalJsonValue(value));
 }
 
+/** Database identity is the stable, unique order key for decision conditions. */
+function conditionCanonicalKey(condition: { readonly id: string }): string {
+  return condition.id;
+}
+
 function digestSnapshotPayload(payload: RightsEvidenceSnapshotPayload): string {
   return createHash('sha256').update(canonicalJson(payload), 'utf8').digest('hex');
 }
@@ -310,12 +315,19 @@ function contextToWire(context: ReadinessRightsContext): z.infer<typeof snapshot
   return {
     source,
     snapshot: {
-      candidates: [...snapshot.candidates].sort((left, right) =>
-        compareCodeUnits(
-          `${left.cell.id}\u0000${left.decision.id}`,
-          `${right.cell.id}\u0000${right.decision.id}`,
+      candidates: [...snapshot.candidates]
+        .map((candidate) => ({
+          ...candidate,
+          conditions: [...candidate.conditions].sort((left, right) =>
+            compareCodeUnits(conditionCanonicalKey(left), conditionCanonicalKey(right)),
+          ),
+        }))
+        .sort((left, right) =>
+          compareCodeUnits(
+            `${left.cell.id}\u0000${left.decision.id}`,
+            `${right.cell.id}\u0000${right.decision.id}`,
+          ),
         ),
-      ),
       denyExceptions: [...snapshot.denyExceptions].sort((left, right) =>
         compareCodeUnits(left.id, right.id),
       ),
@@ -446,6 +458,12 @@ export function parseRightsEvidenceSnapshot(
       ),
       `${source.sourceKey} candidates`,
     );
+    for (const candidate of source.context.snapshot.candidates) {
+      requireStrictOrder(
+        candidate.conditions.map(conditionCanonicalKey),
+        `${source.sourceKey}/${candidate.decision.id} conditions`,
+      );
+    }
     requireStrictOrder(
       source.context.snapshot.denyExceptions.map((exception) => exception.id),
       `${source.sourceKey} deny exceptions`,
@@ -667,6 +685,12 @@ export interface RightsEvidenceResolver {
     verticalSlug: string,
     source: SourceReadiness,
   ): Promise<ReadinessRightsContext | null>;
+}
+
+export interface VerticalReadinessEvaluation {
+  readonly report: VerticalReadiness;
+  /** Exact immutable-in-practice contexts used to compute `report`. */
+  readonly snapshotSources: readonly RightsEvidenceSnapshotSourceInput[];
 }
 
 export function createLiveDatabaseRightsEvidenceResolver(
@@ -924,13 +948,13 @@ export function assess(
   } satisfies VerticalReadiness;
 }
 
-export async function readVertical(
+export async function readVerticalWithRightsEvidence(
   dir: string,
   slug: string,
   asOf: string,
   evidence?: RightsEvidenceResolver,
   deferredRaws: readonly Record<string, unknown>[] = [],
-): Promise<VerticalReadiness> {
+): Promise<VerticalReadinessEvaluation> {
   const config = parseYaml(await readFile(join(dir, 'vertical.yaml'), 'utf8')) as Record<
     string,
     unknown
@@ -951,10 +975,23 @@ export async function readVertical(
     asOf,
     new Set(deferredRaws.map((raw) => text(raw['key']))),
   );
-  if (evidence === undefined) return report;
+  if (evidence === undefined) return { report, snapshotSources: [] };
   const sources: SourceReadiness[] = [];
+  const snapshotSources: RightsEvidenceSnapshotSourceInput[] = [];
   for (const source of report.sources) {
     const context = await evidence.contextFor(slug, source);
+    if (context !== null) {
+      snapshotSources.push({
+        verticalSlug: slug,
+        sourceKey: source.key,
+        domain: source.domain,
+        sourceType: source.sourceType,
+        acquisitionRoute: source.acquisitionRoute,
+        accountOrProductPlan: source.accountOrProductPlan,
+        jurisdiction: source.jurisdiction,
+        context,
+      });
+    }
     const evaluated = evaluateSourceSurfaceReadiness({
       sourceKey: source.key,
       acquisitionRoute: source.acquisitionRoute,
@@ -983,19 +1020,40 @@ export async function readVertical(
   }
   const revenueReadiness = aggregateRevenueReadiness(sources);
   return {
-    ...report,
-    sources,
-    rightsEvidence: evidence.descriptor,
-    revenueReadiness,
-    ready: report.blockers.length === 0 && revenueReadiness.status === 'READY',
+    report: {
+      ...report,
+      sources,
+      rightsEvidence: evidence.descriptor,
+      revenueReadiness,
+      ready: report.blockers.length === 0 && revenueReadiness.status === 'READY',
+    },
+    snapshotSources,
   };
 }
 
-function render(report: VerticalReadiness): string {
+export async function readVertical(
+  dir: string,
+  slug: string,
+  asOf: string,
+  evidence?: RightsEvidenceResolver,
+  deferredRaws: readonly Record<string, unknown>[] = [],
+): Promise<VerticalReadiness> {
+  return (
+    await readVerticalWithRightsEvidence(dir, slug, asOf, evidence, deferredRaws)
+  ).report;
+}
+
+export function renderReadinessReport(report: VerticalReadiness): string {
   const lines: string[] = [];
+  const overallStatus = report.ready
+    ? 'READY'
+    : report.blockers.length > 0 || report.revenueReadiness.status === 'NOT_READY'
+      ? 'NOT_READY'
+      : 'UNKNOWN';
   lines.push(
-    `${report.slug} — ${report.revenueReadiness.status} for seven-surface revenue readiness` +
-      ` (vertical status: ${report.status})`,
+    `${report.slug} — ${overallStatus} overall` +
+      ` (seven-surface revenue readiness: ${report.revenueReadiness.status};` +
+      ` vertical status: ${report.status})`,
   );
   lines.push('  evaluation scope: source-wide DATA / NORMALIZED_FACT (field-scoped grants do not substitute)');
   if (report.rightsEvidence.kind === 'NONE') {
@@ -1264,6 +1322,7 @@ async function main(): Promise<void> {
   }
 
   const reports: VerticalReadiness[] = [];
+  const evaluatedSnapshotSources: RightsEvidenceSnapshotSourceInput[] = [];
   try {
     const entries = await readdir(VERTICALS_DIR, { withFileTypes: true });
     const slugs = entries
@@ -1275,15 +1334,15 @@ async function main(): Promise<void> {
     for (const slug of slugs) {
       // Deferred candidates are read only when explicitly selected and never
       // enter the runtime registry or acquisition path.
-      reports.push(
-        await readVertical(
-          join(VERTICALS_DIR, slug),
-          slug,
-          options.asOf,
-          evidence,
-          deferredByVertical.get(slug) ?? [],
-        ),
+      const evaluation = await readVerticalWithRightsEvidence(
+        join(VERTICALS_DIR, slug),
+        slug,
+        options.asOf,
+        evidence,
+        deferredByVertical.get(slug) ?? [],
       );
+      reports.push(evaluation.report);
+      evaluatedSnapshotSources.push(...evaluation.snapshotSources);
     }
     if (
       options.snapshotOut !== null &&
@@ -1291,28 +1350,11 @@ async function main(): Promise<void> {
       options.generatedAt !== null &&
       evidence !== undefined
     ) {
-      const sources: RightsEvidenceSnapshotSourceInput[] = [];
-      for (const report of reports) {
-        for (const source of report.sources) {
-          const context = await evidence.contextFor(report.slug, source);
-          if (context === null) continue;
-          sources.push({
-            verticalSlug: report.slug,
-            sourceKey: source.key,
-            domain: source.domain,
-            sourceType: source.sourceType,
-            acquisitionRoute: source.acquisitionRoute,
-            accountOrProductPlan: source.accountOrProductPlan,
-            jurisdiction: source.jurisdiction,
-            context,
-          });
-        }
-      }
       const snapshot = createRightsEvidenceSnapshot({
         generatedAt: options.generatedAt,
         asOf: options.asOf,
         provenance: options.snapshotProvenance,
-        sources,
+        sources: evaluatedSnapshotSources,
       });
       await writeFile(options.snapshotOut, `${JSON.stringify(snapshot, null, 2)}\n`, 'utf8');
     }
@@ -1337,7 +1379,7 @@ async function main(): Promise<void> {
     process.stdout.write('No verticals to report on.\n');
     return;
   }
-  process.stdout.write(`${reports.map(render).join('\n\n')}\n`);
+  process.stdout.write(`${reports.map(renderReadinessReport).join('\n\n')}\n`);
 }
 
 if (isMain(import.meta.url)) {
