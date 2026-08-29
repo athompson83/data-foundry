@@ -20,6 +20,7 @@ export const ACQUISITION_CONFIG_PATH = join(
   'acquisition-worker',
   'wrangler.toml',
 );
+export const MCP_CONFIG_PATH = join(REPO_ROOT, 'apps', 'mcp-worker', 'wrangler.toml');
 
 const USAGE_QUEUE = 'data-foundry-usage-events';
 const USAGE_DLQ = 'data-foundry-usage-events-dlq';
@@ -31,6 +32,7 @@ export interface CloudflareTopologyOptions {
   readonly consumerConfigPath?: string;
   readonly webConfigPath?: string;
   readonly acquisitionConfigPath?: string;
+  readonly mcpConfigPath?: string;
 }
 
 function object(value: unknown): TomlObject {
@@ -142,14 +144,17 @@ export async function validateCloudflareTopology(
     'acquisition-worker',
     errors,
   );
+  const mcp = await parseConfig(options.mcpConfigPath ?? MCP_CONFIG_PATH, 'mcp-worker', errors);
   checkWorkerBase('edge', edge, errors);
   checkWorkerBase('usage-consumer', consumer, errors);
   checkWorkerBase('web', web, errors);
   checkWorkerBase('acquisition-worker', acquisition, errors);
+  checkWorkerBase('mcp-worker', mcp, errors);
   checkRepositoryPolicy('edge', edge, errors);
   checkRepositoryPolicy('usage-consumer', consumer, errors);
   checkRepositoryPolicy('web', web, errors);
   checkRepositoryPolicy('acquisition-worker', acquisition, errors);
+  checkRepositoryPolicy('mcp-worker', mcp, errors);
 
   const edgeVars = object(edge['vars']);
   if (edgeVars['VERTICAL_SLUG'] !== 'hvac') {
@@ -157,6 +162,14 @@ export async function validateCloudflareTopology(
   }
   if (edgeVars['API_KEY_ENVIRONMENT'] !== 'live') {
     errors.push('edge production manifest must accept only live API keys.');
+  }
+
+  const mcpVars = object(mcp['vars']);
+  if (mcpVars['VERTICAL_SLUG'] !== 'hvac') {
+    errors.push('mcp-worker must select the bundled hvac vertical in the canonical manifest.');
+  }
+  if (mcpVars['API_KEY_ENVIRONMENT'] !== 'live') {
+    errors.push('mcp-worker production manifest must accept only live MCP keys.');
   }
 
   const producers = objects(object(edge['queues'])['producers']);
@@ -169,6 +182,18 @@ export async function validateCloudflareTopology(
     errors.push(`edge usage queue producer must target ${USAGE_QUEUE}.`);
   }
 
+  const mcpProducers = objects(object(mcp['queues'])['producers']);
+  if (mcpProducers.length !== 1) {
+    errors.push('mcp-worker must declare exactly one usage queue producer.');
+  }
+  const mcpProducer = mcpProducers[0] ?? {};
+  if (mcpProducer['binding'] !== 'USAGE_EVENTS_QUEUE') {
+    errors.push('mcp-worker usage queue producer binding must be USAGE_EVENTS_QUEUE.');
+  }
+  if (mcpProducer['queue'] !== USAGE_QUEUE) {
+    errors.push(`mcp-worker usage queue producer must target ${USAGE_QUEUE}.`);
+  }
+
   const consumers = objects(object(consumer['queues'])['consumers']);
   if (consumers.length !== 1) {
     errors.push('usage-consumer must declare exactly one queue consumer.');
@@ -179,6 +204,9 @@ export async function validateCloudflareTopology(
   }
   if (producer['queue'] !== queueConsumer['queue']) {
     errors.push('The edge producer and usage-consumer consumer queue names do not match.');
+  }
+  if (mcpProducer['queue'] !== queueConsumer['queue']) {
+    errors.push('The mcp-worker producer and usage-consumer consumer queue names do not match.');
   }
   if (queueConsumer['max_batch_size'] !== 100) {
     errors.push('usage-consumer max_batch_size must remain 100.');
@@ -226,7 +254,7 @@ export async function run(options: CloudflareTopologyOptions = {}): Promise<numb
     return 1;
   }
   process.stdout.write(
-    'OK: Cloudflare edge, usage consumer, acquisition Cron, and public web topology is internally consistent.\n',
+    'OK: Cloudflare REST, MCP, usage consumer, acquisition Cron, and public web topology is internally consistent.\n',
   );
   return 0;
 }

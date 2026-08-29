@@ -23,8 +23,9 @@ with provenance, and publication into the query layer.
 checks the canonical result against golden records.
 
 The last step — "web / API / MCP / exports generated" — has code implementations
-for all four surfaces: `apps/web`, `apps/api`, `apps/mcp`, and
-`services/export-builder`. They read through `packages/query-model`; customer
+for all four surfaces: `apps/web`, `apps/api`, `apps/mcp` plus its deployable
+`apps/mcp-worker` adapter, and `services/export-builder`. They read through
+`packages/query-model`; customer
 surfaces bind each request to an exact ADR-0010 rights surface, so public web,
 search indexing, direct API, MCP and bulk permissions never imply one another.
 
@@ -74,11 +75,13 @@ packages/canonical-store/    Entities, facts, relationships and evidence over Po
 packages/provenance/         Field-level lineage, coverage reporting, the human-readable trust surface
 packages/query-model/        The single canonical query layer web, REST and MCP read through
 packages/api-keys/           Minting and verifying API credentials. Web Crypto only
+packages/access-auth/        Shared DB bearer-key, tenant and one-vertical authorization
 packages/usage-events/       The usage-event contract shared by the edge producer and its queue consumer
 services/ingest-worker/      DISCOVERED -> PUBLISHED job runner wiring the stages together
 services/export-builder/     Bulk CSV and JSONL exports, rights-gated and reviewer-guarded
 apps/api/                    Read-only REST surface over the query layer
 apps/mcp/                    MCP tool contract over the same query layer
+apps/mcp-worker/             Cloudflare Streamable HTTP adapter, MCP/NONE auth and analytics handoff
 apps/edge/                   Cloudflare Worker: composition root, auth, transport, no routing
 apps/acquisition-worker/     Cloudflare Cron Worker: rights-gated acquisition and immutable R2 evidence
 apps/usage-consumer/         Cloudflare Queue consumer: idempotent usage-event persistence
@@ -102,6 +105,7 @@ pnpm install
 pnpm typecheck        # tsc --strict across every package, test and script
 pnpm test             # vitest: unit, contract and PGlite migration tests
 pnpm migrate:check    # apply migrations to a throwaway database and verify
+pnpm mcp:compile:check # verify executable MCP/runtime metadata parity
 pnpm web:compile:check # verify web runtime JSON and generated TS registry parity
 pnpm build            # regenerate JSON Schema exports, then typecheck
 ```
@@ -241,9 +245,13 @@ MCP tool definitions, the Phase 2 Python/Splink work, and external dataset users
    declaration carries complete rights metadata
 6. `pnpm verticals:compile:check` — the edge runtime artifact matches the
    vertical config it was compiled from
-7. `pnpm web:compile:check` — the web surface's own compiled artifact (it
+7. `pnpm mcp:compile:check` — the MCP Worker runtime advertises exactly the six
+   executable generic tools and current compiled vertical metadata
+8. `pnpm web:compile:check` — the web surface's own compiled artifact (it
    additionally bundles `seo.yaml`, which the edge runtime artifact does not)
-8. A second job applies the identical migrations to a real `postgres:16` service,
+9. `pnpm cloudflare:artifacts:check` — all four Worker bundles build without
+   credentials and contain no local PGlite/WASM runtime
+10. A second job applies the identical migrations to a real `postgres:16` service,
    which is what keeps "portable Postgres" honest rather than aspirational
 
 ## Adding a real source
@@ -256,7 +264,7 @@ snapshot evidence, every surface is `UNKNOWN`; see the revenue-readiness runbook
 
 ## Deployment
 
-Three Cloudflare Workers, per
+Four Cloudflare Workers, per
 [ADR-0006](docs/decisions/ADR-0006-cloudflare-is-the-deployment-target.md) and
 [ADR-0011](docs/decisions/ADR-0011-web-frontend-and-multi-industry-sites.md):
 
@@ -269,24 +277,29 @@ Three Cloudflare Workers, per
   industry, because that is the surface search engines and agents are meant to
   discover through, and siloing it per industry would fragment exactly the
   discoverability it exists for.
+- **`apps/mcp-worker`** — authenticated MCP 2026-07-28 Streamable HTTP. One
+  vertical per deployment, backed by the six generic tools in `apps/mcp` and
+  an exact `MCP/NONE` key that is distinct from direct and RapidAPI keys.
 - **`apps/usage-consumer`** — the queue consumer that persists metering events
   idempotently after the edge Worker has accepted and handed them off.
 
-The edge and web Workers are both composition roots — the only packages in their surface permitted to
-reach below the query layer — plus a `fetch` adapter that translates and
-decides nothing.
+The edge, web and MCP Workers are composition roots — the only packages in
+their surface permitted to reach below the query layer — plus `fetch` adapters
+that translate and decide no canonical fact behavior.
 
 ```bash
 pnpm verticals:compile        # emit apps/edge/generated/<slug>.runtime.json
 pnpm verticals:compile:check  # CI gate: fails when the artifact drifts
+pnpm mcp:compile              # emit apps/mcp-worker/generated/<slug>.runtime.json
+pnpm mcp:compile:check        # CI gate: executable tool/runtime metadata parity
 pnpm web:compile              # emit apps/web/generated/<slug>.web-runtime.json + index.json
 pnpm web:compile:check        # CI gate: fails when the artifact drifts
 ```
 
-Neither Worker has a filesystem, so a vertical's filter metadata and
+No Worker has a filesystem, so a vertical's filter metadata and
 fact-selection policy — and, for `apps/web`, `seo.yaml` and the per-entity-type
 `critical` property list its quality gates run against — are compiled to a
-committed JSON artifact and bundled. Both Workers import their artifact, never
+committed JSON artifact and bundled. The API, MCP and web Workers import their artifact, never
 parse YAML, and refuse to serve a vertical their bundle does not carry rather
 than serving its data through another vertical's field metadata.
 
@@ -297,14 +310,16 @@ second suite builds the actual artifact with `esbuild` and proves PGlite
 contributes zero bytes to it — a source scan cannot see past the dynamic
 `import()` `createPgliteDriver` uses, so the build itself is what has to answer.
 
-Every request is authenticated and scope-checked (`apps/edge/src/auth.ts`)
-before it reaches a route, and a successful request is metered asynchronously:
+Every REST or MCP request is authenticated and scope-checked through
+`packages/access-auth` before it reaches a route/tool, and accepted consumption
+is metered asynchronously:
 a usage event naming the matched route **template** — never the concrete
 target — is published to a Cloudflare Queue and persisted idempotently by
 `apps/usage-consumer`, without the request's success ever depending on that
 persistence succeeding. `db/migrations/0011_api_tenancy.sql` has the schema;
 this increment is measurement only — no pricing, plans, invoices or
-subscriptions.
+subscriptions. MCP events are explicitly `MCP/NONE`: useful for analytics, but
+never eligible for internal invoicing.
 
 Deploying needs an account, Hyperdrive bindings, routes for each Worker and the
 usage-metering queues, none of which live in this repository —

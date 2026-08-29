@@ -54,21 +54,113 @@ Implement Task 9's rights-aware source-readiness command so release readiness is
 - Readiness is deliberately assessed at whole-source `DATA` / `NORMALIZED_FACT` scope. Field-scoped grants are not silently promoted to equivalent source-wide permission.
 - Engineering verification does not provide legal approval or manufacture any rights decision. Legacy GREEN/AMBER labels and booleans remain inventory/risk metadata only.
 
+### Task 10 MCP objective
+
+Turn the pure six-tool MCP contract into a deployable Cloudflare Streamable
+HTTP surface without duplicating canonical query behavior, weakening rights
+freshness, or making analytics invoice eligible.
+
+### Completed
+
+- Added neutral `packages/access-auth` and moved database-backed bearer-key,
+  tenant, environment and one-vertical authorization out of `apps/edge` without
+  changing the REST error adapter.
+- Added migration `0018_mcp_access_channel.sql`: exact `MCP/NONE` credentials,
+  four fixed MCP analytics routes and `POST` events. No key or event is
+  backfilled/reclassified. Database and wire checks reserve MCP route keys,
+  `POST`, and `rows_served = 0` for `MCP/NONE`; direct/marketplace reads remain
+  `GET`/`HEAD` and MCP usage is not invoice eligible.
+- Kept `apps/mcp` transport-free and added `apps/mcp-worker` as the Cloudflare
+  composition/protocol adapter over `@modelcontextprotocol/server@2.0.0`.
+- Implemented MCP 2026-07-28 per-request Streamable HTTP plus only the required
+  claimless legacy `initialize`. Modern `initialize`, request methods without
+  ids, id-bearing/unknown notifications, batches, malformed body/header mirrors,
+  wrong Host/Origin, wrong-channel keys, and unsupported methods fail closed.
+- Cached one driver/store/base QueryModel per warm isolate while binding a fresh
+  `MCP` surface model per tool call, so later kill switches, rights changes and
+  review/terms expiry apply on the next request without reopening the pool.
+- Compiled `verticals/<slug>/mcp.yaml` into a static Worker runtime and replaced
+  aspirational HVAC/domain tools and unused card paths with the exact six
+  executable generic tools. Updated agent intents and the reusable vertical
+  template to the same contract.
+- Awaited Cloudflare Queue acceptance for metered responses and kept event data
+  to fixed operation keys and server-created counters/ids. Tool names,
+  arguments, JSON-RPC ids, entity ids, targets, bodies, response payloads and
+  plaintext credentials do not enter usage events; queue failure is opaque 503.
+- Added the MCP Wrangler template, shared Queue/Hyperdrive topology validation,
+  four-Worker credential-free dry-run/PGlite isolation, CI drift checks, and
+  current Cloudflare/revenue/new-industry runbooks.
+
+### Verification
+
+- Full repository suite passed: 159 files / 2,254 tests.
+- TypeScript typecheck, JSON Schema/OpenAPI drift checks, PGlite migration
+  apply/idempotency, vertical validation, edge/MCP/web runtime drift, and
+  Cloudflare topology checks passed.
+- Wrangler dry-run built all four production Worker artifacts and found no
+  PGlite/WebAssembly runtime.
+- Disposable PostgreSQL 16 clean apply and exact reapply-as-no-op passed. Real
+  PostgreSQL accepted a fixed-route zero-row `MCP/NONE` POST and refused both a
+  direct `API_PAID/DIRECT` POST and an MCP POST carrying a non-MCP route key.
+- Focused auth/edge/MCP verification passed 7 files / 118 tests; the MCP Worker
+  package passed 2 files / 31 tests, including protocol, auth, privacy, rights
+  freshness, neighboring-surface refusal and Queue failure controls.
+
+### Deployment / Database Activity
+
+- No deployment, hosted database migration, credential creation, grant creation,
+  source approval, provider resource, or production change was performed.
+- One isolated disposable local PostgreSQL 16 container was created for
+  verification and removed afterward; its data was intentionally disposable.
+
+## Blockers
+
+- No real HVAC source has the exact effective MCP grant bundle and independent
+  legal/rights review required for agent publication; this is independent from
+  public-web, paid API, RapidAPI and bulk permission.
+- Canonical Cloudflare account/zone/routes, MCP hostname/origin allowlist,
+  Queue/DLQ, Hyperdrive and hosted Postgres connectivity are not evidenced as
+  configured, so no live MCP/Queue proof was possible.
+- This isolated branch still requires integration-owner review and replay after
+  the accepted Task 9 `0017` migration; `0018` deliberately remains the next
+  reserved migration number and does not infer Task 9 state.
+
+## Risks
+
+- The current MCP credential is a custom high-entropy Data Foundry bearer key,
+  not a standards-based OAuth token. No authorization server or OAuth
+  interoperability is claimed.
+- Cloudflare Queue retry/DLQ behavior, real Hyperdrive pooling, live client
+  compatibility and deployment observability still require provider-backed
+  verification.
+- Engineering tests prove enforcement behavior, not legal approval, customer
+  terms, pricing, or an effective source grant.
+
 ## Required User Actions
 
 See `PROJECT_CHECKLIST.md` items `UA-001` through `UA-003`. No routine local implementation or verification work is assigned to the Product Owner.
 
 ## Recommended Next Steps
 
-1. Integration-owner: review and replay this commit with the Task 9 scheduled-acquisition slice and other release branches, resolving overlap without weakening the exact-bundle or evidence boundaries.
-2. Owner/legal: review the first real HVAC source and record only exact evidenced grants; absent grants remain refusal.
-3. Owner/platform: expose an approved hosted database URL through a named protected environment variable, then run `sources:readiness` at an explicit canonical UTC instant and retain qualified evidence.
-4. Release-owner: freeze the integrated 40-character SHA before hosted certification or deployment.
+1. Release-owner: freeze the final integrated 40-character SHA after the combined
+   full-suite, generated-artifact, PostgreSQL, and review gates complete.
+2. Owner/platform: configure hosted Postgres/Hyperdrive, the REST/MCP/web/
+   acquisition/usage-consumer Workers, R2, Queue/DLQ, hostnames/routes, allowed
+   origins, and protected credentials; then perform live channel smoke tests.
+3. Owner/legal: record only exact evidenced surface grants for the first real
+   HVAC source; absent grants remain refusal and do not block a synthetic-data
+   platform deployment.
+4. Owner/business: complete RapidAPI enrollment, listing, plan, payout, and
+   marketplace proxy-secret configuration before marketplace traffic is enabled.
 
 ## Production Impact
 
-None. Repository code, tests, documentation, generated schema, and local verification state changed only.
+None. Repository code, tests, generated artifacts, documentation, and disposable
+local verification databases changed only; no hosted/provider state changed.
 
 ## Previous Session Summary
 
-The preceding Task 8 session completed core rights, fact-lineage, kill-switch, and bulk-pagination hardening. This Task 9 readiness slice began from explicit base `b19257d6ecda4a0c677e5e30f981a8625df1e2e9`; hosted state and the integrated candidate must be refreshed before any merge or deployment claim.
+Task 8 closed the core rights model; Task 9 added scheduled acquisition and
+rights-backed readiness; Task 10 added deployable MCP. The integration branch
+replays them in dependency order with migrations `0017` then `0018`. Hosted
+state and real-source permission remain external evidence, never inferred here.

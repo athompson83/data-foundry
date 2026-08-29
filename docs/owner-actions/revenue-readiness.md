@@ -4,7 +4,8 @@
 current integration candidate reconciles the usage-accounting corrections from
 PR #14, auth/queue metering from PR #15, the accepted and implemented ADR-0010
 rights matrix from PR #16, and the public multi-industry site from PR #17.
-Those capabilities are repository code, but the combined candidate is not yet
+It also contains the thin RapidAPI origin adapter and the deployable authenticated
+MCP Worker. Those capabilities are repository code, but the combined candidate is not yet
 deployed and no real HVAC source has acquired an effective surface grant.
 
 This document describes the end-to-end revenue path those changes enable and
@@ -17,9 +18,9 @@ relationship or live deployment can be verified from repository code alone.
 | | Channel | Role | Status |
 |---|---|---|---|
 | 1 | **Public web / pay per crawl** | Discovery, SEO, ads/AI-crawler monetization | Rights-bound Worker implemented; deployment and Cloudflare enrollment remain |
-| 2A | **API marketplace (RapidAPI initially)** | Low-friction developer discovery, checkout, plans and marketplace billing | Thin adapter remains before listing/deployment |
+| 2A | **API marketplace (RapidAPI initially)** | Low-friction developer discovery, checkout, plans and marketplace billing | Thin origin adapter implemented; marketplace enrollment/listing and deployment remain |
 | 2B | **Direct Data Foundry API** | Higher-margin customers, larger volumes, negotiated terms | Auth/metering implemented; direct billing not built |
-| 3 | **MCP / agent access** | Agent-native retrieval | MCP and its independent `MCP` rights surface exist; commercial packaging remains |
+| 3 | **MCP / agent access** | Agent-native retrieval | Six-tool MCP contract and Cloudflare Streamable HTTP Worker implemented; deployment and commercial packaging remain |
 | 4 | **Bulk / enterprise data** | Dataset snapshots, custom enrichment, enterprise licensing | Export surface exists; commercial rights and contracts remain separate decisions |
 
 All channels must read the same canonical truth through the same query layer.
@@ -243,6 +244,26 @@ Build direct billing when one or more of these are true:
 Until then, marketplace billing is a deliberate market-validation shortcut,
 not a permanent exclusivity decision.
 
+## Channel 3 — MCP / agent access
+
+`apps/mcp-worker` is the deployable Cloudflare adapter around the pure six-tool
+contract in `apps/mcp`. It uses current MCP 2026-07-28 per-request Streamable
+HTTP through the pinned official SDK, with only a bounded legacy `initialize`
+handshake. Tool behavior still comes from the canonical QueryModel; the Worker
+does not implement a second data path.
+
+Access is one key, one vertical, and exactly `MCP/NONE`. Direct and RapidAPI
+credentials are refused. `NONE` means Data Foundry does not treat the analytics
+row as invoice eligible; it does not mean anonymous access. Queue records carry
+only fixed MCP operation keys and never tool names, arguments, JSON-RPC ids,
+entity ids, raw targets, bodies, or plaintext credentials.
+
+The bearer key is a Data Foundry credential, not a standards-based MCP OAuth
+token. No authorization server has been selected, so OAuth interoperability is
+a later product/security decision rather than a claim made by this release.
+Commercial launch still needs a deployed MCP hostname, exact source grants for
+the MCP rights bundle, customer terms/packaging, and a live client smoke test.
+
 ## Required execution order
 
 The next work should proceed in this order because later steps depend on the
@@ -259,25 +280,27 @@ semantics established earlier:
    render. Indexing and sitemaps additionally require `SEARCH_INDEX` to cover
    the exact facts, attributions and relationships rendered on the public page;
    a neighboring or disjoint grant never qualifies it.
-5. **Deploy the canonical Cloudflare stack.** Provision production Postgres,
-   Hyperdrive, API Worker, usage queue/consumer, public Worker, routes and
+5. **RapidAPI and MCP adapters — integrated.** RapidAPI stays a thin authenticated
+   proxy over `apps/edge`; MCP stays a thin Streamable HTTP adapter over
+   `apps/mcp`. Both have independent closed billing/access classifications.
+6. **Deploy the canonical Cloudflare stack.** Provision production Postgres,
+   Hyperdrive, REST/MCP Workers, usage queue/consumer, public Worker, routes and
    secrets; prove health/readiness and perform live smoke tests.
-6. **Rights-clear the first real vertical.** Synthetic HVAC fixtures prove the
+7. **Rights-clear the first real vertical.** Synthetic HVAC fixtures prove the
    machinery, not the commercial dataset. No marketplace listing goes live
    until the actual contributing sources are cleared for the listed use cases.
-7. **Add the marketplace adapter.** Dedicated marketplace tenant/key, proxy
-   secret validation, channel/billing-source classification, OpenAPI export and
-   contract tests. This should be a thin adapter around the deployed API, not a
-   new product core.
 8. **Create the first RapidAPI listing.** Start with one vertical, a deliberately
    small free allowance and paid tiers sized from observed Cloudflare/database
    cost and expected value. Verify the marketplace's current fee and payout
    terms at launch rather than hard-coding an old percentage into architecture.
-9. **Measure before expanding.** Track signups, activation, paid conversion,
+9. **Package and expose MCP only for cleared data.** Issue a dedicated MCP key,
+   verify current/legacy-handshake behavior and revocation on the deployed
+   hostname, and keep its analytics outside internal invoices.
+10. **Measure before expanding.** Track signups, activation, paid conversion,
    requests per account, costly endpoints, support load, churn and gross margin.
    Publish additional marketplace verticals only when their source rights and
    data quality are ready.
-10. **Add first-party billing when justified by evidence.** Preserve the direct
+11. **Add first-party billing when justified by evidence.** Preserve the direct
     API route from day one so successful customers can later move to a higher-
     margin channel without changing the underlying product.
 

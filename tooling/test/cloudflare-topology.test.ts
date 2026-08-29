@@ -9,6 +9,7 @@ const EDGE_CONFIG = join(REPO_ROOT, 'apps', 'edge', 'wrangler.toml');
 const CONSUMER_CONFIG = join(REPO_ROOT, 'apps', 'usage-consumer', 'wrangler.toml');
 const WEB_CONFIG = join(REPO_ROOT, 'apps', 'web', 'wrangler.toml');
 const ACQUISITION_CONFIG = join(REPO_ROOT, 'apps', 'acquisition-worker', 'wrangler.toml');
+const MCP_CONFIG = join(REPO_ROOT, 'apps', 'mcp-worker', 'wrangler.toml');
 const temporaryDirectories: string[] = [];
 
 afterAll(async () => {
@@ -21,6 +22,7 @@ async function loadValidator(): Promise<(
     readonly consumerConfigPath?: string;
     readonly webConfigPath?: string;
     readonly acquisitionConfigPath?: string;
+    readonly mcpConfigPath?: string;
   },
 ) => Promise<readonly string[]>> {
   const module = await import('../scripts/check-cloudflare-topology.js').catch(() => null);
@@ -33,6 +35,7 @@ async function loadValidator(): Promise<(
       readonly consumerConfigPath?: string;
       readonly webConfigPath?: string;
       readonly acquisitionConfigPath?: string;
+      readonly mcpConfigPath?: string;
     },
   ) => Promise<readonly string[]>;
 }
@@ -149,5 +152,24 @@ describe('the committed Cloudflare topology', () => {
     expect(errors.join('\n')).toMatch(/acquisition-worker.*CLOUDFLARE_ACCOUNT_ID/i);
     expect(errors.join('\n')).toMatch(/acquisition-worker.*CLOUDFLARE_API_TOKEN/i);
     expect(errors.join('\n')).toMatch(/acquisition-worker.*CRAWL4AI_API_TOKEN/i);
+  });
+
+  it('requires MCP to share the usage queue while selecting live MCP configuration', async () => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-cloudflare-mcp-policy-'));
+    temporaryDirectories.push(directory);
+    const mcpPath = join(directory, 'mcp.toml');
+    const mcp = await readFile(MCP_CONFIG, 'utf8');
+    await writeFile(
+      mcpPath,
+      mcp
+        .replace('API_KEY_ENVIRONMENT = "live"', 'API_KEY_ENVIRONMENT = "test"')
+        .replace('queue = "data-foundry-usage-events"', 'queue = "mcp-private-queue"'),
+      'utf8',
+    );
+
+    const errors = await validate({ mcpConfigPath: mcpPath });
+    expect(errors.join('\n')).toMatch(/mcp.*live/i);
+    expect(errors.join('\n')).toMatch(/mcp.*data-foundry-usage-events/i);
   });
 });

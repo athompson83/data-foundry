@@ -79,13 +79,19 @@ jobs:
       - name: Acquisition runtime artifacts are current
         run: pnpm acquisition:check
 
-      # 7. Same reasoning as step 6, for the web surface's own compiled
+      # 7. MCP advertises the same six executable generic tools implemented by
+      #    apps/mcp, plus compiled vertical query/server metadata. Drift would
+      #    make the remote server advertise a contract it does not execute.
+      - name: MCP runtime artifacts are current
+        run: pnpm mcp:compile:check
+
+      # 8. Same reasoning as step 6, for the web surface's own compiled
       #    artifact — it additionally bundles seo.yaml, which the edge runtime
       #    artifact does not carry.
       - name: Web runtime artifacts are current
         run: pnpm web:compile:check
 
-      # 8. Build the exact Cloudflare bundles only after every generated input
+      # 9. Build the exact Cloudflare bundles only after every generated input
       #    is known current, then reject any production artifact that carries
       #    the local PGlite/WASM runtime.
       - name: Cloudflare production artifacts are deployable and PGlite-free

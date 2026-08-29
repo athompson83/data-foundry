@@ -1,0 +1,36 @@
+# Cloudflare Worker manifest for the authenticated remote MCP surface.
+#
+# Account id, routes, the Hyperdrive id, and public host/origin values are
+# deployment facts. Keep them in an ignored production override or dashboard,
+# never in this tracked manifest.
+
+name = "data-foundry-mcp-hvac"
+main = "src/index.ts"
+compatibility_date = "2026-08-23"
+compatibility_flags = ["nodejs_compat"]
+
+[observability]
+enabled = true
+
+[vars]
+DEPLOYMENT_ENVIRONMENT = "production"
+VERTICAL_SLUG = "hvac"
+API_KEY_ENVIRONMENT = "live"
+
+# Required non-secret production values, injected at deploy time:
+#   MCP_HOSTNAME=<exact MCP hostname, without scheme or path>
+#   MCP_ALLOWED_ORIGINS=<comma-separated exact HTTPS origins>
+#   PUBLIC_ORIGIN=<exact public-web HTTPS origin for canonical entity URLs>
+# Do not infer any of them from request headers.
+
+# [[hyperdrive]]
+# binding = "HYPERDRIVE"
+# id = "<hyperdrive-id>"
+# Supply the live id only through an ignored production override or dashboard.
+
+# Local `wrangler dev` may set POSTGRES_URL in .dev.vars and override the
+# deployment/key environment to development/test. Never commit that URL.
+
+[[queues.producers]]
+binding = "USAGE_EVENTS_QUEUE"
+queue = "data-foundry-usage-events"

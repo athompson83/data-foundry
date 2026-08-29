@@ -4,10 +4,10 @@ Everything here either requires a person in a dashboard/billing relationship or
 coordinates repository work with Cloudflare resources that cannot be inferred
 from source code alone.
 
-The integration candidate contains `apps/edge`, `apps/usage-consumer`, the
-rights-grant matrix and the public multi-industry Worker. None is deployed, and
-repository state is not proof that Cloudflare resources or real-source rights
-have been provisioned.
+The integration candidate contains `apps/edge`, `apps/mcp-worker`,
+`apps/usage-consumer`, the rights-grant matrix and the public multi-industry
+Worker. None is deployed, and repository state is not proof that Cloudflare
+resources or real-source rights have been provisioned.
 
 ---
 
@@ -27,7 +27,10 @@ must remain outside source control.
 4. Bind the API Worker to its production hostname/custom domain.
 5. Bind the reviewed public web candidate to its production hostname/custom
    domain and configure its exact HTTPS `PUBLIC_ORIGIN`.
-6. Keep marketplace traffic on a dedicated hostname or clearly identifiable
+6. Bind each one-vertical MCP Worker to its exact production hostname and
+   configure `MCP_HOSTNAME`, `MCP_ALLOWED_ORIGINS`, and the public site's
+   `PUBLIC_ORIGIN`; do not infer these from requests.
+7. Keep marketplace traffic on a dedicated hostname or clearly identifiable
    route if that makes operations and bypass testing simpler, but do not deploy
    a second API implementation.
 
@@ -55,7 +58,10 @@ credential must not be committed.
 5. Configure the public Worker with `HYPERDRIVE` and the non-secret
    `PUBLIC_ORIGIN=https://<public-host>` value. Missing or non-origin values
    fail closed; only explicit localhost HTTP is accepted for local development.
-6. Record the environment bindings outside the repository and make them
+6. Configure `apps/mcp-worker` with `HYPERDRIVE`, `VERTICAL_SLUG`, the live-key
+   namespace, exact MCP host/origin allowlist and `PUBLIC_ORIGIN`. It reuses the
+   canonical database; it is not a second data backend.
+7. Record the environment bindings outside the repository and make them
    reproducible through deployment configuration/secret management rather than
    manual memory.
 
@@ -70,7 +76,10 @@ never falls back to an empty in-memory database, so a 503 here is the intended
 behaviour rather than a fault to work around.
 
 Also verify that public pages query the same canonical data as REST/MCP and
-that the usage consumer can persist a test event idempotently.
+that the usage consumer can persist a test event idempotently. A one-vertical
+`MCP/NONE` `df_live_*` key must complete current `server/discover`, `tools/list`
+and one `tools/call`; a direct or RapidAPI key must receive 403 at that same MCP
+origin.
 
 ---
 
@@ -113,7 +122,7 @@ normal search crawlers remain able to index the public site.
 
 ---
 
-## 5. Metered API access — built, but not provisioned
+## 5. Metered API and MCP analytics — built, but not provisioned
 
 The old statement that auth, tenancy and usage accounting were wholly absent is
 stale. The integration candidate contains corrected usage-accounting semantics,
@@ -132,6 +141,12 @@ Deliberately still absent, and out of scope for this increment: pricing,
 plans, invoices, subscriptions, or any Stripe relationship. What exists
 today is measurement, not billing — see `packages/usage-events` for the
 event contract.
+
+`apps/mcp-worker` uses the same shared database authenticator and Queue, but
+accepts only the exact `MCP/NONE` pair. `NONE` is a billing source: the call is
+authenticated and recorded for analytics, while remaining ineligible for Data
+Foundry invoicing. These are custom high-entropy Data Foundry bearer keys, not
+standards-based MCP OAuth tokens; no authorization server has been selected.
 
 Nothing to do in a dashboard for *this* item beyond §6. Listed here so item 4
 is not mistaken for it: enrolling in pay per crawl does not produce a metered
@@ -156,8 +171,9 @@ item 1.
    npx wrangler queues create data-foundry-usage-events
    npx wrangler queues update data-foundry-usage-events --message-retention-period-secs 1209600
    ```
-   Both names must match `apps/edge/wrangler.toml`'s `[[queues.producers]]`
-   block and `apps/usage-consumer/wrangler.toml`'s `[[queues.consumers]]`
+   Both names must match `apps/edge/wrangler.toml` and
+   `apps/mcp-worker/wrangler.toml`'s `[[queues.producers]]` blocks and
+   `apps/usage-consumer/wrangler.toml`'s `[[queues.consumers]]`
    block exactly — they are already committed there, since a queue name is
    not a credential. The 14-day retention update requires a paid/configurable
    Workers plan; Workers Free is fixed at 24 hours and is not an eligible
@@ -173,12 +189,13 @@ item 1.
    From the repository root, the PowerShell setup for ignored CLI manifests is:
    ```powershell
    $exclude = git rev-parse --git-path info/exclude
-   Add-Content -LiteralPath $exclude -Value "`napps/edge/wrangler.production.toml`napps/usage-consumer/wrangler.production.toml`napps/web/wrangler.production.toml"
+   Add-Content -LiteralPath $exclude -Value "`napps/edge/wrangler.production.toml`napps/mcp-worker/wrangler.production.toml`napps/usage-consumer/wrangler.production.toml`napps/web/wrangler.production.toml"
    Copy-Item apps/edge/wrangler.toml apps/edge/wrangler.production.toml
+   Copy-Item apps/mcp-worker/wrangler.toml apps/mcp-worker/wrangler.production.toml
    Copy-Item apps/usage-consumer/wrangler.toml apps/usage-consumer/wrangler.production.toml
    Copy-Item apps/web/wrangler.toml apps/web/wrangler.production.toml
    ```
-   Add the live binding/account/route values only to those three ignored files.
+   Add the live binding/account/route values only to those four ignored files.
    Deploy the edge and consumer from their directories with
    `npx wrangler deploy --config wrangler.production.toml`.
    Deploy the public Worker from `apps/web` with its exact, non-secret origin:
@@ -189,9 +206,14 @@ item 1.
    Repeat the `--config wrangler.production.toml` form from `apps/edge` and
    `apps/usage-consumer`. Comparing to `HEAD` is required: a plain working-tree
    diff ignores staged edits and could falsely pass after a live id was staged.
-   From the repository root, verify all three tracked templates together:
+   From `apps/mcp-worker`, deploy with its three exact non-secret values (quote
+   the comma-separated origin value in the shell if it contains commas):
    ```powershell
-   git diff --exit-code HEAD -- apps/edge/wrangler.toml apps/usage-consumer/wrangler.toml apps/web/wrangler.toml
+   npx wrangler deploy --config wrangler.production.toml --var MCP_HOSTNAME:<mcp-host> --var MCP_ALLOWED_ORIGINS:https://<allowed-client-origin> --var PUBLIC_ORIGIN:https://<public-host>
+   ```
+   From the repository root, verify all four tracked templates together:
+   ```powershell
+   git diff --exit-code HEAD -- apps/edge/wrangler.toml apps/usage-consumer/wrangler.toml apps/web/wrangler.toml apps/mcp-worker/wrangler.toml
    ```
 
 ### Verify
@@ -209,7 +231,10 @@ queue) by `apps/edge/test/index.test.ts`. Before accepting paying traffic, also
 verify invalid, revoked, expired and wrong-scope credentials fail before route
 execution; duplicate delivery leaves one usage row; tenant and vertical remain
 bound to the authenticating key; and real queue/DLQ behavior matches the tested
-idempotency contract.
+idempotency contract. Repeat the acceptance check through MCP: the row must use
+only `mcp.server_discover`, `mcp.tools_list`, `mcp.tools_call`, or the fixed
+protocol-failure class, have `POST`, `rows_served = 0`, and `MCP/NONE`, with no
+tool name, arguments, JSON-RPC id, entity id, request target, or credential.
 
 ---
 
@@ -290,8 +315,8 @@ commercial gate.
 
 1. Review and land the already-reconciled rights, usage, auth/metering and web
    integration as one exact candidate; do not merge the stale PR trees blindly.
-2. Provision Cloudflare Postgres/Hyperdrive, Workers, Queues, DLQ, routes and
-   secrets.
+2. Provision Cloudflare Postgres/Hyperdrive, REST/MCP/web/consumer Workers,
+   Queues, DLQ, routes and secrets.
 3. Deploy and prove exact-SHA health/readiness plus real queue behavior.
 4. Rights-clear and ingest the first real commercial vertical.
 5. Mark a vertical `ACTIVE` only after its real-source review is complete, and

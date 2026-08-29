@@ -23,6 +23,9 @@ Fill in, in this order:
    drives web, REST/OpenAPI and SEO behavior.
 4. **`normalizers/*.yaml`** — extraction/normalization rules, controlled
    vocabularies and fact-selection policy.
+5. **`mcp.yaml`** — one server identity and the exact six generic executable
+   tools from `apps/mcp`. The names, titles and summaries must match; add
+   vertical behavior through fields/configuration, not domain-specific tools.
 
 Validate continuously:
 
@@ -80,20 +83,23 @@ vertical is visible to the Worker bundler:
 
 ```bash
 pnpm verticals:compile
+pnpm mcp:compile
 pnpm web:compile
 ```
 
 Add the slug to `BUNDLED_VERTICALS` in `compile-vertical-runtime.ts` only when
 the vertical has an edge/API deployment, and to `BUNDLED_WEB_VERTICALS` in
-`compile-web-runtime.ts` only when the public Worker should carry it. The lists
-are intentionally independent: an industry can be public without being sold by
-API, or sold by API before its public pages are eligible. Run the matching
-compiler(s). Bundling a runtime is not publication permission; database
+`compile-web-runtime.ts` only when the public Worker should carry it. Add it to
+`BUNDLED_MCP_VERTICALS` in `compile-mcp-runtime.ts` only when an MCP deployment
+is intended. The lists are intentionally independent: an industry can be public
+without being sold by API/MCP, or sold by API before its public pages are
+eligible. Run the matching compiler(s). Bundling a runtime is not publication permission; database
 presence, exact surface grants and page-quality gates still decide what can be
 returned or indexed.
 
 ```bash
 pnpm verticals:compile:check
+pnpm mcp:compile:check
 pnpm web:compile:check
 ```
 
@@ -126,7 +132,10 @@ A vertical can be ready for one surface and not another.
   different claims do not combine into permission.
 - **Direct REST API (`apps/edge`)** — receives its commercial vertical deployment
   and Data Foundry authentication only when API-use rights pass.
-- **MCP** — may be enabled only when the LLM/agent retrieval use case is cleared.
+- **MCP (`apps/mcp-worker`)** — gets its own one-vertical deployment and exact
+  `MCP/NONE` credential only when the LLM/agent retrieval use case is cleared.
+  Direct/RapidAPI credentials are not interchangeable with it. `NONE` means
+  analytics-only billing authority, not anonymous access.
 - **Bulk export** — is independently gated by export/redistribution rights.
 
 Do not infer “paid gets everything the website gets.” The rights resolver, not
@@ -188,7 +197,10 @@ cost.
 `docs/owner-actions/cloudflare-deployment.md` contains the production-resource
 checklist. A new vertical is not considered live because CI is green; verify the
 exact deployed SHA, production health/readiness, real database access, auth,
-rights behavior and usage-event persistence.
+rights behavior and usage-event persistence independently for web, direct REST,
+RapidAPI and MCP. An MCP smoke test must cover initialize/discovery, tools/list,
+one authenticated tools/call, wrong-channel credentials, and a post-deploy
+rights-revocation negative.
 
 ## What this checklist deliberately does not cover
 
