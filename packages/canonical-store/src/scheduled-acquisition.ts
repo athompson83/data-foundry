@@ -98,6 +98,7 @@ export interface ScheduledAcquisitionFreshnessScope {
   readonly jurisdiction: string | null;
   readonly assetClass: AcquisitionAssetClass;
   readonly outputClass: AcquisitionOutputClass;
+  readonly resultUrlPolicy: ScheduledAcquisitionResultUrlPolicy;
   /** Runtime changes intentionally force a conservative re-acquisition. */
   readonly runtimeDigest: string;
 }
@@ -222,8 +223,10 @@ const RECEIPT_STAGE_ORDER = ['INITIAL', 'PRE_PROVIDER', 'PRE_TRANSPORT'] as cons
 const RECEIPT_OPERATION_ORDER = ['ACQUIRE', 'STORE', 'CACHE'] as const;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const CONTENT_HASH = /^[0-9a-f]{64}$/;
-const ISO_UTC = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])T([01]\d|2[0-3]):[0-5]\d:[0-5]\d\.\d{3}Z$/;
+const ISO_UTC = /^(?!0000)\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])T([01]\d|2[0-3]):[0-5]\d:[0-5]\d\.\d{3}Z$/;
 const RETRIEVAL_KEY = /^[a-z0-9][a-z0-9._/-]{0,2047}$/;
+const ENCODED_PATH_SEPARATOR_OR_DOT = /%(?:2e|2f|5c)/i;
+const CANONICAL_HTTPS_ORIGIN = /^https:\/\/[a-z0-9.-]+(?::([1-9][0-9]{0,4}))?$/;
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -298,6 +301,23 @@ function pathMatchesPrefix(pathname: string, prefix: string): boolean {
   );
 }
 
+function isCanonicalHttpsOrigin(value: string): boolean {
+  const match = CANONICAL_HTTPS_ORIGIN.exec(value);
+  if (match === null) return false;
+  const explicitPort = match[1];
+  if (explicitPort !== undefined) {
+    const port = Number(explicitPort);
+    if (port > 65_535 || port === 443) return false;
+  }
+  try {
+    const parsed = new URL(value);
+    return parsed.origin === value && parsed.pathname === '/' && parsed.search === '' &&
+      parsed.hash === '' && parsed.username === '' && parsed.password === '';
+  } catch {
+    return false;
+  }
+}
+
 function parseResultUrlPolicy(
   value: unknown,
   targetUrl: string,
@@ -317,16 +337,7 @@ function parseResultUrlPolicy(
     throw new Error('scheduled acquisition result URL policy requires 1-32 path prefixes');
   }
   const allowedOrigins = origins.map((origin) => {
-    if (typeof origin !== 'string') throw new Error('scheduled acquisition allowed origin must be a string');
-    const parsed = new URL(origin);
-    if (
-      parsed.protocol !== 'https:' ||
-      parsed.origin !== origin ||
-      parsed.pathname !== '/' ||
-      parsed.search !== '' ||
-      parsed.hash !== '' ||
-      origin !== origin.toLowerCase()
-    ) {
+    if (typeof origin !== 'string' || !isCanonicalHttpsOrigin(origin)) {
       throw new Error('scheduled acquisition allowed origin must be a lowercase HTTPS origin');
     }
     return origin;
@@ -337,6 +348,8 @@ function parseResultUrlPolicy(
       !prefix.startsWith('/') ||
       prefix.includes('?') ||
       prefix.includes('#') ||
+      prefix.includes('\\') ||
+      ENCODED_PATH_SEPARATOR_OR_DOT.test(prefix) ||
       prefix.split('/').includes('..')
     ) {
       throw new Error('scheduled acquisition allowed path prefix is invalid');
@@ -349,8 +362,19 @@ function parseResultUrlPolicy(
   ) {
     throw new Error('scheduled acquisition result URL policy entries must be unique');
   }
-  const target = new URL(targetUrl);
+  let target: URL;
+  try {
+    target = new URL(targetUrl);
+  } catch {
+    throw new Error('scheduled acquisition result URL policy target is invalid');
+  }
   if (
+    target.protocol !== 'https:' ||
+    target.username !== '' ||
+    target.password !== '' ||
+    target.hash !== '' ||
+    targetUrl.includes('\\') ||
+    ENCODED_PATH_SEPARATOR_OR_DOT.test(targetUrl) ||
     !allowedOrigins.includes(target.origin) ||
     !allowedPathPrefixes.some((prefix) => pathMatchesPrefix(target.pathname, prefix))
   ) {
@@ -372,7 +396,14 @@ function resultUrlAllowed(
   } catch {
     return false;
   }
-  if (result.protocol !== 'https:' || result.hash !== '') return false;
+  if (
+    result.protocol !== 'https:' ||
+    result.username !== '' ||
+    result.password !== '' ||
+    result.hash !== '' ||
+    resultUrl.includes('\\') ||
+    ENCODED_PATH_SEPARATOR_OR_DOT.test(resultUrl)
+  ) return false;
   if (relation === 'TARGET' && resultUrl !== targetUrl) return false;
   if (
     relation === 'CHILD_RESOURCE' &&
@@ -403,6 +434,33 @@ function parseCanonicalIso(value: unknown, label: string): IsoDateTime {
     throw new Error(`${label} must be a canonical UTC ISO timestamp`);
   }
   return value as IsoDateTime;
+}
+
+function stateReasonValid(state: RightsState, reason: RightsReasonCode): boolean {
+  switch (state) {
+    case 'DENY':
+      return ['SOURCE_PROHIBITED', 'KILL_SWITCH_ENGAGED', 'SOURCE_STATUS_BLOCKED',
+        'RIGHTS_CLASSIFICATION_BLOCKED', 'STICKY_DENY'].includes(reason);
+    case 'UNKNOWN':
+      return ['NO_GRANT', 'EXPLICIT_UNKNOWN', 'MISSING_PROVENANCE', 'MALFORMED_SNAPSHOT',
+        'PUBLISHER_UNMAPPED', 'AMBIGUOUS_SCOPE'].includes(reason);
+    case 'NOT_APPLICABLE':
+      return reason === 'NOT_APPLICABLE';
+    case 'ALLOW':
+      return ['ALLOW', 'TERMS_MISSING', 'TERMS_NOT_CURRENT', 'TERMS_REVOKED',
+        'TERMS_NOT_EFFECTIVE', 'TERMS_VERSION_INVALID', 'TERMS_SCOPE_MISMATCH',
+        'DECISION_NOT_EFFECTIVE', 'REVIEW_DUE', 'AUTOMATED_PERMISSION',
+        'PERMISSION_REVIEW_INVALID', 'ACTIVATION_INVALID', 'CONDITION_MISSING',
+        'UNKNOWN_CONDITION_EVALUATOR', 'CONDITION_UNMET', 'CONDITION_AUDIT_MISSING',
+        'CONDITION_RECEIPT_INVALID', 'CONDITION_RECEIPT_STALE'].includes(reason);
+    case 'CONDITIONAL':
+      return ['CONDITIONAL_ALLOW', 'TERMS_MISSING', 'TERMS_NOT_CURRENT', 'TERMS_REVOKED',
+        'TERMS_NOT_EFFECTIVE', 'TERMS_VERSION_INVALID', 'TERMS_SCOPE_MISMATCH',
+        'DECISION_NOT_EFFECTIVE', 'REVIEW_DUE', 'AUTOMATED_PERMISSION',
+        'PERMISSION_REVIEW_INVALID', 'ACTIVATION_INVALID', 'CONDITION_MISSING',
+        'UNKNOWN_CONDITION_EVALUATOR', 'CONDITION_UNMET', 'CONDITION_AUDIT_MISSING',
+        'CONDITION_RECEIPT_INVALID', 'CONDITION_RECEIPT_STALE'].includes(reason);
+  }
 }
 
 function parseRightsReceiptShape(value: unknown): readonly ScheduledRightsReceipt[] {
@@ -464,6 +522,9 @@ function parseRightsReceiptShape(value: unknown): readonly ScheduledRightsReceip
           (state === 'CONDITIONAL' && reasonCode === 'CONDITIONAL_ALLOW'))
       ) {
         throw new Error('scheduled acquisition rights receipt permission is inconsistent');
+      }
+      if (!stateReasonValid(state as RightsState, reasonCode as RightsReasonCode)) {
+        throw new Error('scheduled acquisition rights receipt state and reason are inconsistent');
       }
       const cellId = parseNullableUuid(decision['cellId'], 'rights receipt cellId');
       const decisionId = parseNullableUuid(decision['decisionId'], 'rights receipt decisionId');
@@ -728,6 +789,7 @@ class PostgresScheduledAcquisitionStore implements ScheduledAcquisitionStore {
               AND prior.asset_class = $8
               AND prior.output_class = $9
               AND prior.runtime_digest = $10
+              AND prior.result_url_policy = $11::jsonb
               AND prior.status = 'SUCCEEDED'
               AND prior.outcome = 'FETCHED'
               AND prior.artifact_count > 0
@@ -738,7 +800,7 @@ class PostgresScheduledAcquisitionStore implements ScheduledAcquisitionStore {
           [
             run.id, run.sourceId, run.targetId, run.targetUrl, run.acquisitionRoute,
             run.accountOrProductPlan, run.jurisdiction, run.assetClass, run.outputClass,
-            run.runtimeDigest,
+            run.runtimeDigest, JSON.stringify(run.resultUrlPolicy),
           ],
         );
         if (prior.length === 0) {
@@ -889,12 +951,14 @@ class PostgresScheduledAcquisitionStore implements ScheduledAcquisitionStore {
           AND acquisition_jurisdiction IS NOT DISTINCT FROM $6
           AND asset_class = $7 AND output_class = $8
           AND runtime_digest = $9
+          AND result_url_policy = $10::jsonb
           AND status = 'SUCCEEDED'
         ORDER BY fresh_at DESC LIMIT 1`,
       [
         scope.sourceId, scope.targetId, scope.targetUrl, scope.acquisitionRoute,
         scope.accountOrProductPlan, scope.jurisdiction, scope.assetClass,
         scope.outputClass, scope.runtimeDigest,
+        JSON.stringify(parseResultUrlPolicy(scope.resultUrlPolicy, scope.targetUrl)),
       ],
     );
     return rows[0] === undefined ? null : mapRun(rows[0]);

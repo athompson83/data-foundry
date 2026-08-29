@@ -13,6 +13,12 @@ import {
 } from './helpers.js';
 
 const BASE_URL = 'http://crawl4ai.internal:11235';
+const childRequest = () => makeRequest({
+  resultUrlPolicy: {
+    allowedOrigins: [new URL(TARGET_URL).origin],
+    allowedPathPrefixes: [new URL(TARGET_URL).pathname],
+  },
+});
 
 function crawl4aiEntry() {
   const entry = compliantEntry();
@@ -108,7 +114,7 @@ describe('Crawl4AI provider — result mapping', () => {
       fetch: api.fetch,
     });
 
-    const result = await provider.fetch(makeRequest());
+    const result = await provider.fetch(childRequest());
     expect(result.artifacts).toHaveLength(1);
     expect(result.artifacts[0]?.mime_type).toBe('text/html');
     expect(result.artifacts[0]?.acquisition_provider).toBe('crawl4ai');
@@ -126,7 +132,7 @@ describe('Crawl4AI provider — result mapping', () => {
       formats: ['html', 'markdown'],
     });
 
-    const result = await provider.fetch(makeRequest());
+    const result = await provider.fetch(childRequest());
     expect(result.artifacts[0]?.mime_type).toBe('text/markdown');
   });
 
@@ -145,7 +151,7 @@ describe('Crawl4AI provider — result mapping', () => {
       formats: ['markdown'],
     });
 
-    const result = await provider.fetch(makeRequest());
+    const result = await provider.fetch(childRequest());
     expect(result.artifacts).toHaveLength(1);
     expect(result.artifacts[0]?.byte_size).toBe(new TextEncoder().encode('# raw').byteLength);
   });
@@ -248,7 +254,7 @@ describe('Crawl4AI provider — degrading cleanly', () => {
       fetch: api.fetch,
     });
 
-    const result = await provider.fetch(makeRequest());
+    const result = await provider.fetch(childRequest());
     expect(result.artifacts).toHaveLength(1);
     expect(result.diagnostics.join(' ')).toContain('timeout');
   });

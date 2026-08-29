@@ -58,6 +58,7 @@ export interface ArtifactPutRequest {
   readonly source: string;
   readonly body: Uint8Array;
   readonly metadata: ArtifactMetadataInput;
+  readonly retrievalReceiptId?: ContentHash | undefined;
 }
 
 export interface StoredArtifact {
@@ -70,6 +71,7 @@ export interface StoredArtifact {
   readonly deduplicated: boolean;
   /** Durable retrieval record for this fetch scope, whether newly written or already present. */
   readonly retrievalKey: string;
+  readonly retrievalReceiptId: ContentHash | null;
   readonly metadata: ArtifactMetadata;
 }
 
@@ -96,6 +98,7 @@ export interface ArtifactRetrievalRecord {
   readonly acquisition_jurisdiction: string | null;
   readonly etag: string | null;
   readonly last_modified: string | null;
+  readonly retrieval_receipt_id: ContentHash | null;
 }
 
 export interface ArtifactBody {
@@ -238,6 +241,7 @@ export async function storeArtifactBytes(
     retrievedAt: request.metadata.retrieved_at,
     contentHash,
     policySnapshotId: request.metadata.policy_snapshot_id,
+    retrievalReceiptId: request.retrievalReceiptId ?? null,
   });
   const alreadyRecorded = await primitives.exists(retrievalKey);
   if (!alreadyRecorded) {
@@ -257,6 +261,7 @@ export async function storeArtifactBytes(
       acquisition_jurisdiction: request.metadata.acquisition_jurisdiction,
       etag: request.metadata.etag,
       last_modified: request.metadata.last_modified,
+      retrieval_receipt_id: request.retrievalReceiptId ?? null,
     };
     const recordBody = new TextEncoder().encode(`${JSON.stringify(record, null, 2)}\n`);
     await primitives.write(retrievalKey, recordBody, {
@@ -278,6 +283,7 @@ export async function storeArtifactBytes(
     byteSize: metadata.byte_size,
     deduplicated: existing !== null,
     retrievalKey,
+    retrievalReceiptId: request.retrievalReceiptId ?? null,
     metadata,
   };
 }

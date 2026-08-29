@@ -40,6 +40,9 @@ BEGIN
        '^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])T([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]\.[0-9]{3}Z$' THEN
         RETURN FALSE;
     END IF;
+    IF substring(value FROM 1 FOR 4)::INTEGER = 0 THEN
+        RETURN FALSE;
+    END IF;
     BEGIN
         parsed := value::TIMESTAMPTZ;
     EXCEPTION WHEN OTHERS THEN
@@ -99,6 +102,23 @@ CREATE OR REPLACE FUNCTION scheduled_acquisition_scope_digest(
     ], '|'), 'UTF8')), 'hex')
 $$;
 
+CREATE OR REPLACE FUNCTION scheduled_acquisition_origin_valid(value TEXT)
+RETURNS BOOLEAN LANGUAGE plpgsql IMMUTABLE AS $$
+DECLARE
+    port_text TEXT;
+    port_number INTEGER;
+BEGIN
+    IF value IS NULL
+       OR value !~ '^https://[a-z0-9.-]+(:[1-9][0-9]{0,4})?$' THEN
+        RETURN FALSE;
+    END IF;
+    port_text := substring(value FROM ':([0-9]+)$');
+    IF port_text IS NULL THEN RETURN TRUE; END IF;
+    port_number := port_text::INTEGER;
+    RETURN port_number BETWEEN 1 AND 65535 AND port_number <> 443;
+END;
+$$;
+
 CREATE OR REPLACE FUNCTION scheduled_acquisition_result_url_policy_valid(value JSONB)
 RETURNS BOOLEAN LANGUAGE plpgsql IMMUTABLE AS $$
 BEGIN
@@ -109,16 +129,24 @@ BEGIN
        OR jsonb_array_length(value -> 'allowedOrigins') NOT BETWEEN 1 AND 16
        OR jsonb_typeof(value -> 'allowedPathPrefixes') <> 'array'
        OR jsonb_array_length(value -> 'allowedPathPrefixes') NOT BETWEEN 1 AND 32
+       OR (SELECT count(DISTINCT (item #>> '{}'))
+             FROM jsonb_array_elements(value -> 'allowedOrigins') item)
+          <> jsonb_array_length(value -> 'allowedOrigins')
+       OR (SELECT count(DISTINCT (item #>> '{}'))
+             FROM jsonb_array_elements(value -> 'allowedPathPrefixes') item)
+          <> jsonb_array_length(value -> 'allowedPathPrefixes')
        OR EXISTS (
             SELECT 1 FROM jsonb_array_elements(value -> 'allowedOrigins') item
              WHERE jsonb_typeof(item) <> 'string'
-                OR item #>> '{}' !~ '^https://[a-z0-9.-]+(:[0-9]{1,5})?$'
+                OR NOT scheduled_acquisition_origin_valid(item #>> '{}')
        )
        OR EXISTS (
             SELECT 1 FROM jsonb_array_elements(value -> 'allowedPathPrefixes') item
              WHERE jsonb_typeof(item) <> 'string'
                 OR item #>> '{}' !~ '^/[^?#]*$'
                 OR item #>> '{}' ~ '(^|/)\.\.(/|$)'
+                OR item #>> '{}' ~* '%(2e|2f|5c)'
+                OR strpos(item #>> '{}', chr(92)) > 0
        ) THEN
         RETURN FALSE;
     END IF;
@@ -142,7 +170,10 @@ DECLARE
 BEGIN
     IF NOT scheduled_acquisition_result_url_policy_valid(policy)
        OR result_url !~ '^https://'
-       OR result_url LIKE '%#%' THEN
+       OR strpos(COALESCE(substring(result_url FROM '^https://([^/?#]+)'), ''), '@') > 0
+       OR result_url LIKE '%#%'
+       OR result_url ~* '%(2e|2f|5c)'
+       OR strpos(result_url, chr(92)) > 0 THEN
         RETURN FALSE;
     END IF;
     IF relation = 'TARGET' THEN
@@ -201,7 +232,9 @@ BEGIN
         IF jsonb_typeof(checkpoint) <> 'object'
            OR NOT (checkpoint ?& ARRAY['stage', 'basis', 'scopeDigest', 'evaluatedAt', 'decisions'])
            OR checkpoint - 'stage' - 'basis' - 'scopeDigest' - 'evaluatedAt' - 'decisions' <> '{}'::jsonb
+           OR jsonb_typeof(checkpoint -> 'stage') IS DISTINCT FROM 'string'
            OR checkpoint ->> 'stage' NOT IN ('INITIAL', 'PRE_PROVIDER', 'PRE_TRANSPORT')
+           OR jsonb_typeof(checkpoint -> 'basis') IS DISTINCT FROM 'string'
            OR checkpoint ->> 'basis' NOT IN ('ADMITTED', 'RIGHTS_REFUSED', 'NOT_DUE')
            OR jsonb_typeof(checkpoint -> 'scopeDigest') <> 'string'
            OR (checkpoint ->> 'scopeDigest') !~ '^[0-9a-f]{64}$'
@@ -221,9 +254,12 @@ BEGIN
                   ])
                OR decision - 'operation' - 'permitted' - 'state' - 'reasonCode'
                            - 'cellId' - 'decisionId' - 'termsVersionId' <> '{}'::jsonb
-               OR decision ->> 'operation' <> expected_operations[decision_index]
+               OR jsonb_typeof(decision -> 'operation') IS DISTINCT FROM 'string'
+               OR decision ->> 'operation' IS DISTINCT FROM expected_operations[decision_index]
                OR jsonb_typeof(decision -> 'permitted') <> 'boolean'
+               OR jsonb_typeof(decision -> 'state') IS DISTINCT FROM 'string'
                OR decision ->> 'state' NOT IN ('ALLOW', 'DENY', 'CONDITIONAL', 'UNKNOWN', 'NOT_APPLICABLE')
+               OR jsonb_typeof(decision -> 'reasonCode') IS DISTINCT FROM 'string'
                OR decision ->> 'reasonCode' NOT IN (
                     'ALLOW', 'CONDITIONAL_ALLOW', 'NO_GRANT', 'EXPLICIT_UNKNOWN',
                     'MISSING_PROVENANCE', 'MALFORMED_SNAPSHOT', 'SOURCE_PROHIBITED',
@@ -251,11 +287,197 @@ BEGIN
             ) THEN
                 RETURN FALSE;
             END IF;
+            IF (decision ->> 'state' = 'DENY' AND decision ->> 'reasonCode' NOT IN (
+                  'SOURCE_PROHIBITED', 'KILL_SWITCH_ENGAGED', 'SOURCE_STATUS_BLOCKED',
+                  'RIGHTS_CLASSIFICATION_BLOCKED', 'STICKY_DENY'
+                ))
+               OR (decision ->> 'state' = 'UNKNOWN' AND decision ->> 'reasonCode' NOT IN (
+                  'NO_GRANT', 'EXPLICIT_UNKNOWN', 'MISSING_PROVENANCE', 'MALFORMED_SNAPSHOT',
+                  'PUBLISHER_UNMAPPED', 'AMBIGUOUS_SCOPE'
+                ))
+               OR (decision ->> 'state' = 'NOT_APPLICABLE'
+                   AND decision ->> 'reasonCode' IS DISTINCT FROM 'NOT_APPLICABLE')
+               OR (decision ->> 'state' = 'ALLOW' AND decision ->> 'reasonCode' NOT IN (
+                  'ALLOW', 'TERMS_MISSING', 'TERMS_NOT_CURRENT', 'TERMS_REVOKED',
+                  'TERMS_NOT_EFFECTIVE', 'TERMS_VERSION_INVALID', 'TERMS_SCOPE_MISMATCH',
+                  'DECISION_NOT_EFFECTIVE', 'REVIEW_DUE', 'AUTOMATED_PERMISSION',
+                  'PERMISSION_REVIEW_INVALID', 'ACTIVATION_INVALID', 'CONDITION_MISSING',
+                  'UNKNOWN_CONDITION_EVALUATOR', 'CONDITION_UNMET', 'CONDITION_AUDIT_MISSING',
+                  'CONDITION_RECEIPT_INVALID', 'CONDITION_RECEIPT_STALE'
+                ))
+               OR (decision ->> 'state' = 'CONDITIONAL' AND decision ->> 'reasonCode' NOT IN (
+                  'CONDITIONAL_ALLOW', 'TERMS_MISSING', 'TERMS_NOT_CURRENT', 'TERMS_REVOKED',
+                  'TERMS_NOT_EFFECTIVE', 'TERMS_VERSION_INVALID', 'TERMS_SCOPE_MISMATCH',
+                  'DECISION_NOT_EFFECTIVE', 'REVIEW_DUE', 'AUTOMATED_PERMISSION',
+                  'PERMISSION_REVIEW_INVALID', 'ACTIVATION_INVALID', 'CONDITION_MISSING',
+                  'UNKNOWN_CONDITION_EVALUATOR', 'CONDITION_UNMET', 'CONDITION_AUDIT_MISSING',
+                  'CONDITION_RECEIPT_INVALID', 'CONDITION_RECEIPT_STALE'
+                )) THEN
+                RETURN FALSE;
+            END IF;
             IF permission AND (
                decision -> 'cellId' = 'null'::JSONB
                OR decision -> 'decisionId' = 'null'::JSONB
                OR decision -> 'termsVersionId' = 'null'::JSONB) THEN
                 RETURN FALSE;
+            END IF;
+        END LOOP;
+    END LOOP;
+    RETURN TRUE;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION scheduled_acquisition_receipt_provenance_valid(
+    value JSONB,
+    run_source_id UUID,
+    run_acquisition_route TEXT,
+    run_account_or_product_plan TEXT,
+    run_jurisdiction TEXT,
+    run_asset_class TEXT,
+    run_output_class TEXT,
+    require_current_permission BOOLEAN,
+    terminal_at TIMESTAMPTZ
+) RETURNS BOOLEAN LANGUAGE plpgsql AS $$
+DECLARE
+    checkpoint JSONB;
+    decision_receipt JSONB;
+    evaluated_at TIMESTAMPTZ;
+    provenance_valid BOOLEAN;
+BEGIN
+    IF require_current_permission AND NOT EXISTS (
+        SELECT 1
+          FROM sources source
+          JOIN rights_publishers publisher ON publisher.id = source.rights_publisher_id
+         WHERE source.id = run_source_id
+           AND source.status = 'ACTIVE'
+           AND source.kill_switch_engaged IS FALSE
+           AND source.rights_classification NOT IN ('RED', 'UNREVIEWED')
+           AND publisher.status NOT IN ('PROHIBITED', 'RETIRED')
+    ) THEN
+        RETURN FALSE;
+    END IF;
+    FOR checkpoint IN SELECT item FROM jsonb_array_elements(value) item LOOP
+        evaluated_at := (checkpoint ->> 'evaluatedAt')::TIMESTAMPTZ;
+        FOR decision_receipt IN
+            SELECT item FROM jsonb_array_elements(checkpoint -> 'decisions') item
+        LOOP
+            IF (decision_receipt ->> 'permitted')::BOOLEAN THEN
+                -- Current scheduler admission supplies no durable condition
+                -- receipts, so CONDITIONAL_ALLOW cannot be audited and fails closed.
+                IF decision_receipt ->> 'state' IS DISTINCT FROM 'ALLOW'
+                   OR decision_receipt ->> 'reasonCode' IS DISTINCT FROM 'ALLOW' THEN
+                    RETURN FALSE;
+                END IF;
+                SELECT EXISTS (
+                    SELECT 1
+                      FROM rights_cells cell
+                      JOIN rights_decisions rights_decision
+                        ON rights_decision.id = (decision_receipt ->> 'decisionId')::UUID
+                       AND rights_decision.cell_id = cell.id
+                      JOIN rights_terms_versions terms
+                        ON terms.id = (decision_receipt ->> 'termsVersionId')::UUID
+                       AND rights_decision.controlling_terms_version_id = terms.id
+                     WHERE cell.id = (decision_receipt ->> 'cellId')::UUID
+                       AND cell.source_id = run_source_id
+                       AND cell.publisher_id IS NULL
+                       AND cell.acquisition_route IS NOT DISTINCT FROM run_acquisition_route
+                       AND cell.account_or_product_plan IS NOT DISTINCT FROM run_account_or_product_plan
+                       AND cell.jurisdiction IS NOT DISTINCT FROM run_jurisdiction
+                       AND cell.asset_class IS NOT DISTINCT FROM run_asset_class
+                       AND cell.output_class IS NOT DISTINCT FROM run_output_class
+                       AND cell.field_key IS NULL
+                       AND cell.field_group_id IS NULL
+                       AND cell.operation IS NOT DISTINCT FROM decision_receipt ->> 'operation'
+                       AND cell.channel = 'INTERNAL_PROCESSING'
+                       AND rights_decision.state = 'ALLOW'
+                       AND rights_decision.review_status = 'APPROVED'
+                       AND rights_decision.reviewer_type IN ('HUMAN', 'COUNSEL')
+                       AND rights_decision.reviewed_by IS NOT NULL
+                       AND rights_decision.reviewed_at <= evaluated_at
+                       AND rights_decision.effective_from <= evaluated_at
+                       AND (rights_decision.effective_until IS NULL
+                            OR rights_decision.effective_until > evaluated_at)
+                       AND rights_decision.recheck_at > evaluated_at
+                       AND NOT EXISTS (
+                           SELECT 1 FROM rights_decision_conditions condition
+                            WHERE condition.decision_id = rights_decision.id
+                       )
+                       AND EXISTS (
+                           SELECT 1
+                             FROM rights_decision_activation_events activation
+                            WHERE activation.cell_id = cell.id
+                              AND activation.decision_id = rights_decision.id
+                              AND activation.occurred_at <= evaluated_at
+                              AND activation.actor_type = rights_decision.reviewer_type
+                              AND activation.actor = rights_decision.reviewed_by
+                              AND NOT EXISTS (
+                                  SELECT 1 FROM rights_decision_activation_events later
+                                   WHERE later.cell_id = activation.cell_id
+                                     AND later.occurred_at <= evaluated_at
+                                     AND later.sequence_no > activation.sequence_no
+                              )
+                       )
+                       AND (
+                           NOT require_current_permission OR EXISTS (
+                               SELECT 1
+                                 FROM rights_decision_activation_events activation
+                                WHERE activation.cell_id = cell.id
+                                  AND activation.decision_id = rights_decision.id
+                                  AND activation.occurred_at <= terminal_at
+                                  AND NOT EXISTS (
+                                      SELECT 1 FROM rights_decision_activation_events later
+                                       WHERE later.cell_id = activation.cell_id
+                                         AND later.occurred_at <= terminal_at
+                                         AND later.sequence_no > activation.sequence_no
+                                  )
+                           )
+                       )
+                       AND terms.effective_from <= evaluated_at
+                       AND (terms.effective_until IS NULL OR terms.effective_until > evaluated_at)
+                       AND terms.recheck_at > evaluated_at
+                       AND rights_terms_cover_cell(terms.id, cell.id)
+                       AND EXISTS (
+                           SELECT 1
+                             FROM rights_terms_activation_events activation
+                            WHERE activation.terms_cell_id = terms.terms_cell_id
+                              AND activation.terms_version_id = terms.id
+                              AND activation.state = 'ACTIVE'
+                              AND activation.actor_type IN ('HUMAN', 'COUNSEL')
+                              AND activation.occurred_at <= evaluated_at
+                              AND NOT EXISTS (
+                                  SELECT 1 FROM rights_terms_activation_events later
+                                   WHERE later.terms_cell_id = activation.terms_cell_id
+                                     AND later.occurred_at <= evaluated_at
+                                     AND later.sequence_no > activation.sequence_no
+                              )
+                       )
+                       AND (
+                           NOT require_current_permission OR (
+                               rights_decision.effective_from <= terminal_at
+                               AND (rights_decision.effective_until IS NULL
+                                    OR rights_decision.effective_until > terminal_at)
+                               AND rights_decision.recheck_at > terminal_at
+                               AND terms.effective_from <= terminal_at
+                               AND (terms.effective_until IS NULL OR terms.effective_until > terminal_at)
+                               AND terms.recheck_at > terminal_at
+                               AND EXISTS (
+                                   SELECT 1
+                                     FROM rights_terms_activation_events activation
+                                    WHERE activation.terms_cell_id = terms.terms_cell_id
+                                      AND activation.terms_version_id = terms.id
+                                      AND activation.state = 'ACTIVE'
+                                      AND activation.occurred_at <= terminal_at
+                                      AND NOT EXISTS (
+                                          SELECT 1 FROM rights_terms_activation_events later
+                                           WHERE later.terms_cell_id = activation.terms_cell_id
+                                             AND later.occurred_at <= terminal_at
+                                             AND later.sequence_no > activation.sequence_no
+                                      )
+                               )
+                           )
+                       )
+                ) INTO provenance_valid;
+                IF NOT provenance_valid THEN RETURN FALSE; END IF;
             END IF;
         END LOOP;
     END LOOP;
@@ -302,8 +524,8 @@ BEGIN
         SELECT bool_and((decision ->> 'permitted')::BOOLEAN)
           INTO all_permitted
           FROM jsonb_array_elements(checkpoint -> 'decisions') decision;
-        IF checkpoint ->> 'stage' <> expected_stages[checkpoint_index]
-           OR checkpoint ->> 'scopeDigest' <> expected_scope_digest
+        IF checkpoint ->> 'stage' IS DISTINCT FROM expected_stages[checkpoint_index]
+           OR checkpoint ->> 'scopeDigest' IS DISTINCT FROM expected_scope_digest
            OR evaluated_at < claimed_at
            OR evaluated_at > completed_at
            OR evaluated_at < previous_evaluated_at THEN
@@ -312,16 +534,16 @@ BEGIN
         previous_evaluated_at := evaluated_at;
 
         IF run_status IN ('SUCCEEDED', 'FAILED') AND (
-           checkpoint ->> 'basis' <> 'ADMITTED' OR NOT all_permitted) THEN
+           checkpoint ->> 'basis' IS DISTINCT FROM 'ADMITTED' OR NOT all_permitted) THEN
             RETURN FALSE;
         ELSIF run_status = 'SKIPPED' AND (
-           checkpoint ->> 'basis' <> 'NOT_DUE' OR NOT all_permitted) THEN
+           checkpoint ->> 'basis' IS DISTINCT FROM 'NOT_DUE' OR NOT all_permitted) THEN
             RETURN FALSE;
         ELSIF run_status = 'REFUSED' AND checkpoint_index < checkpoint_count AND (
-           checkpoint ->> 'basis' <> 'ADMITTED' OR NOT all_permitted) THEN
+           checkpoint ->> 'basis' IS DISTINCT FROM 'ADMITTED' OR NOT all_permitted) THEN
             RETURN FALSE;
         ELSIF run_status = 'REFUSED' AND checkpoint_index = checkpoint_count AND (
-           checkpoint ->> 'basis' <> 'RIGHTS_REFUSED' OR all_permitted) THEN
+           checkpoint ->> 'basis' IS DISTINCT FROM 'RIGHTS_REFUSED' OR all_permitted) THEN
             RETURN FALSE;
         END IF;
     END LOOP;
@@ -460,6 +682,43 @@ CREATE INDEX IF NOT EXISTS scheduled_acquisition_runs_latest_success_idx
 CREATE INDEX IF NOT EXISTS scheduled_acquisition_runs_status_idx
     ON scheduled_acquisition_runs (status, claimed_at);
 
+CREATE OR REPLACE FUNCTION scheduled_acquisition_run_insert_guard()
+RETURNS TRIGGER LANGUAGE plpgsql AS $$
+BEGIN
+    IF NEW.status IS DISTINCT FROM 'CLAIMED'
+       OR NEW.completed_at IS NOT NULL
+       OR NEW.fresh_at IS NOT NULL
+       OR NEW.outcome IS NOT NULL
+       OR NEW.failure_code IS NOT NULL
+       OR NEW.provider IS NOT NULL
+       OR NEW.rights_receipt IS DISTINCT FROM '[]'::JSONB
+       OR NEW.validators IS DISTINCT FROM '{}'::JSONB
+       OR NEW.expected_artifact_count IS DISTINCT FROM 0
+       OR NEW.artifact_count IS DISTINCT FROM 0 THEN
+        RAISE EXCEPTION 'scheduled acquisition runs must be inserted as an empty CLAIMED row'
+            USING ERRCODE = '23514';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER scheduled_acquisition_runs_insert_claimed_only
+    BEFORE INSERT ON scheduled_acquisition_runs
+    FOR EACH ROW EXECUTE FUNCTION scheduled_acquisition_run_insert_guard();
+
+CREATE OR REPLACE FUNCTION scheduled_acquisition_retrieval_receipt_id(
+    run_id UUID,
+    result_url TEXT,
+    acquisition_provider TEXT
+) RETURNS TEXT LANGUAGE sql IMMUTABLE AS $$
+    SELECT encode(sha256(convert_to(array_to_string(ARRAY[
+        scheduled_acquisition_scope_frame('artifact-retrieval-receipt-v1'),
+        scheduled_acquisition_scope_frame(lower(run_id::TEXT)),
+        scheduled_acquisition_scope_frame(result_url),
+        scheduled_acquisition_scope_frame(acquisition_provider)
+    ], '|'), 'UTF8')), 'hex')
+$$;
+
 CREATE TABLE IF NOT EXISTS scheduled_acquisition_run_artifacts (
     run_id                UUID        NOT NULL REFERENCES scheduled_acquisition_runs (id) ON DELETE RESTRICT,
     artifact_id           UUID        NOT NULL REFERENCES source_artifacts (id) ON DELETE RESTRICT,
@@ -468,6 +727,7 @@ CREATE TABLE IF NOT EXISTS scheduled_acquisition_run_artifacts (
     result_url            TEXT        NOT NULL,
     result_relation       TEXT        NOT NULL,
     retrieval_key         TEXT        NOT NULL,
+    retrieval_receipt_id  TEXT        NOT NULL,
     acquisition_provider  TEXT        NOT NULL,
     created_at            TIMESTAMPTZ NOT NULL DEFAULT now(),
     PRIMARY KEY (run_id, artifact_id),
@@ -481,6 +741,10 @@ CREATE TABLE IF NOT EXISTS scheduled_acquisition_run_artifacts (
         length(retrieval_key) BETWEEN 1 AND 2048
         AND retrieval_key ~ '^[a-z0-9][a-z0-9._/-]*$'
         AND retrieval_key !~ '(^|/)\.\.(/|$)'
+    ),
+    CONSTRAINT scheduled_acquisition_run_artifacts_retrieval_receipt CHECK (
+        retrieval_receipt_id ~ '^[0-9a-f]{64}$'
+        AND right(retrieval_key, 70) = '.' || retrieval_receipt_id || '.json'
     ),
     CONSTRAINT scheduled_acquisition_run_artifacts_provider_allowed
         CHECK (acquisition_provider IN ('http', 'browser-run', 'crawl4ai', 'fixture'))
@@ -536,6 +800,14 @@ BEGIN
         RAISE EXCEPTION 'scheduled acquisition result is not associated with the claimed target policy'
             USING ERRCODE = '23514';
     END IF;
+    NEW.retrieval_receipt_id := scheduled_acquisition_retrieval_receipt_id(
+        NEW.run_id, NEW.result_url, NEW.acquisition_provider
+    );
+    IF right(NEW.retrieval_key, 70) IS DISTINCT FROM
+       '.' || NEW.retrieval_receipt_id || '.json' THEN
+        RAISE EXCEPTION 'scheduled acquisition retrieval receipt is not bound to this run result and provider'
+            USING ERRCODE = '23514';
+    END IF;
     RETURN NEW;
 END;
 $$;
@@ -585,6 +857,20 @@ BEGIN
     END IF;
 
     IF TG_OP = 'UPDATE' AND NEW.status <> 'CLAIMED' THEN
+        IF NOT scheduled_acquisition_receipt_provenance_valid(
+            NEW.rights_receipt,
+            OLD.source_id,
+            OLD.acquisition_route,
+            OLD.account_or_product_plan,
+            OLD.acquisition_jurisdiction,
+            OLD.asset_class,
+            OLD.output_class,
+            NEW.status = 'SUCCEEDED',
+            NEW.completed_at
+        ) THEN
+            RAISE EXCEPTION 'scheduled acquisition affirmative receipt provenance is not current and exact'
+                USING ERRCODE = '23514';
+        END IF;
         SELECT count(*)::integer,
                count(*) FILTER (
                  WHERE link.acquisition_provider IS DISTINCT FROM NEW.provider
@@ -614,6 +900,7 @@ BEGIN
                AND prior.asset_class = OLD.asset_class
                AND prior.output_class = OLD.output_class
                AND prior.runtime_digest = OLD.runtime_digest
+               AND prior.result_url_policy = OLD.result_url_policy
                AND prior.status = 'SUCCEEDED'
                AND prior.outcome = 'FETCHED'
                AND prior.artifact_count > 0

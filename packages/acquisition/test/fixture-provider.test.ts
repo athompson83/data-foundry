@@ -12,19 +12,30 @@ import {
   LAST_MODIFIED,
   TARGET_URL,
   compliantEntry,
+  entryForMethod,
   makeHarness,
   makeRequest,
 } from './helpers.js';
 
+const fixtureRequest = (overrides: Parameters<typeof makeRequest>[0] = {}) => makeRequest({
+  ...overrides,
+  resultUrlPolicy: {
+    allowedOrigins: [new URL(TARGET_URL).origin],
+    allowedPathPrefixes: ['/certified'],
+  },
+});
+
+const crawlFixtureHarness = () => makeHarness({ entry: entryForMethod('BROWSER_RUN') });
+
 describe('fixture provider — reading a real fixture directory', () => {
   it('serves the declared body, status and mime type', async () => {
-    const harness = makeHarness();
+    const harness = crawlFixtureHarness();
     const provider = new FixtureAcquisitionProvider({
       deps: harness.deps,
       directory: FIXTURE_DIR,
     });
 
-    const result = await provider.fetch(makeRequest());
+    const result = await provider.fetch(fixtureRequest());
 
     expect(result.outcome).toBe('FETCHED');
     expect(result.artifacts[0]?.mime_type).toBe('application/json');
@@ -34,13 +45,13 @@ describe('fixture provider — reading a real fixture directory', () => {
   });
 
   it('returns related resources, so crawl-shaped sources can be replayed offline', async () => {
-    const harness = makeHarness();
+    const harness = crawlFixtureHarness();
     const provider = new FixtureAcquisitionProvider({
       deps: harness.deps,
       directory: FIXTURE_DIR,
     });
 
-    const result = await provider.fetch(makeRequest());
+    const result = await provider.fetch(fixtureRequest());
 
     expect(result.artifacts.map((artifact) => artifact.url)).toEqual([
       TARGET_URL,
@@ -49,7 +60,7 @@ describe('fixture provider — reading a real fixture directory', () => {
   });
 
   it('infers a mime type from the file extension when none is declared', async () => {
-    const harness = makeHarness();
+    const harness = crawlFixtureHarness();
     const provider = new FixtureAcquisitionProvider({
       deps: harness.deps,
       directory: FIXTURE_DIR,
@@ -77,16 +88,16 @@ describe('fixture provider — reading a real fixture directory', () => {
   });
 
   it('answers 304 when the caller replays matching validators', async () => {
-    const harness = makeHarness();
+    const harness = crawlFixtureHarness();
     const provider = new FixtureAcquisitionProvider({
       deps: harness.deps,
       directory: FIXTURE_DIR,
     });
 
-    const first = await provider.fetch(makeRequest());
+    const first = await provider.fetch(fixtureRequest());
     expect(first.outcome).toBe('FETCHED');
 
-    const second = await provider.fetch(makeRequest());
+    const second = await provider.fetch(fixtureRequest());
     expect(second.outcome).toBe('NOT_MODIFIED');
     expect(second.artifacts).toEqual([]);
   });
@@ -177,15 +188,15 @@ describe('fixture provider — configuration and failure modes', () => {
   });
 
   it('tolerates a trailing slash and host casing when matching a fixture', async () => {
-    const harness = makeHarness();
+    const harness = crawlFixtureHarness();
     const provider = new FixtureAcquisitionProvider({
       deps: harness.deps,
       manifest: { version: 1, entries: [{ url: 'https://www.ratings-directory.example.org/certified/', body: 'x' }] },
     });
 
-    const result = await provider.fetch(
-      makeRequest({ url: 'https://WWW.ratings-directory.example.org/certified' }),
-    );
+    const result = await provider.fetch(fixtureRequest({
+      url: 'https://WWW.ratings-directory.example.org/certified',
+    }));
     expect(result.artifacts).toHaveLength(1);
   });
 

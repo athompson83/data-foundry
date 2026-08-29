@@ -139,7 +139,6 @@ export interface HarnessOptions {
   readonly store?: ArtifactStore | undefined;
   readonly now?: string | undefined;
   readonly beforeTransport?: AcquisitionProviderDeps['beforeTransport'];
-  readonly beforeStoreResource?: AcquisitionProviderDeps['beforeStoreResource'];
 }
 
 export function makeHarness(options: HarnessOptions = {}): Harness {
@@ -166,7 +165,6 @@ export function makeHarness(options: HarnessOptions = {}): Harness {
       clock,
       userAgent: 'DataFoundryBot/test',
       beforeTransport: options.beforeTransport ?? (() => Promise.resolve()),
-      beforeStoreResource: options.beforeStoreResource ?? (() => Promise.resolve()),
     },
   };
 }

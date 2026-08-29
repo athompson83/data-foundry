@@ -20,6 +20,13 @@ const ACCOUNT = 'acct_123';
 const TOKEN = 'cf_token_do_not_hardcode';
 const JOB_ID = 'c7f8s2d9-a8e7-4b6e-8e4d-3d4a1b2c3f4e';
 
+const childRequest = () => makeRequest({
+  resultUrlPolicy: {
+    allowedOrigins: [new URL(TARGET_URL).origin],
+    allowedPathPrefixes: [new URL(TARGET_URL).pathname],
+  },
+});
+
 function browserRunEntry() {
   const entry = compliantEntry();
   return {
@@ -127,7 +134,7 @@ describe('Browser Run provider — crawl results', () => {
       fetch: api.fetch,
     });
 
-    const result = await provider.fetch(makeRequest());
+    const result = await provider.fetch(childRequest());
 
     expect(result.artifacts).toHaveLength(2);
     expect(result.artifacts[0]?.acquisition_provider).toBe('browser-run');
@@ -153,7 +160,7 @@ describe('Browser Run provider — crawl results', () => {
       fetch: api.fetch,
     });
 
-    const result = await provider.fetch(makeRequest());
+    const result = await provider.fetch(childRequest());
 
     expect(result.artifacts).toHaveLength(1);
     expect(result.diagnostics.join(' ')).toContain('robots disallowed');
@@ -200,10 +207,34 @@ describe('Browser Run provider — crawl results', () => {
       fetch: api.fetch,
     });
 
-    const result = await provider.fetch(makeRequest());
+    const result = await provider.fetch(childRequest());
 
     expect(result.artifacts).toHaveLength(2);
     expect(api.calls[2]?.url).toContain('cursor=10');
+  });
+
+  it.each([
+    'https://off-scope.example.net/catalog/units.json?page=2',
+    `${new URL(TARGET_URL).origin}/admin/units.json?page=2`,
+    `${TARGET_URL}/%2e%2e/admin`,
+  ])('preflights every result and leaves R2 empty for an off-scope child: %s', async (badUrl) => {
+    const harness = makeHarness({ entry: browserRunEntry() });
+    const api = crawlApi([{
+      status: 'completed',
+      records: [
+        { url: TARGET_URL, status: 'completed', html: BODY },
+        { url: badUrl, status: 'completed', html: '<p>bad</p>' },
+      ],
+    }]);
+    const provider = new BrowserRunAcquisitionProvider({
+      deps: harness.deps,
+      accountId: ACCOUNT,
+      apiToken: TOKEN,
+      fetch: api.fetch,
+    });
+
+    await expect(provider.fetch(childRequest())).rejects.toThrow(/result policy/i);
+    expect(harness.files.size).toBe(0);
   });
 
   it('sends modifiedSince and reports NOT_MODIFIED when everything was skipped', async () => {

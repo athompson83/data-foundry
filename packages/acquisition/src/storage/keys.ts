@@ -1,5 +1,6 @@
 import type { ContentHash, PolicySnapshotId } from '@data-foundry/canonical-schema';
 import { ArtifactStoreError } from '../errors.js';
+import { sha256Hex } from '../hashing.js';
 
 /**
  * Raw evidence key layout.
@@ -52,6 +53,30 @@ export interface ArtifactRetrievalKeyParts extends ArtifactContentKeyParts {
   readonly retrievedAt: string;
   /** Separates same-day retrievals made under different rights/policy states. */
   readonly policySnapshotId?: PolicySnapshotId | null;
+  /** Current fetch receipt, bound to a caller scope + result URL + provider. */
+  readonly retrievalReceiptId?: ContentHash | null;
+}
+
+const frame = (value: string): string =>
+  `${new TextEncoder().encode(value).byteLength}:${value}`;
+
+/** Stable receipt shared with the scheduled-run SQL guard. */
+export function artifactRetrievalReceiptId(
+  retrievalScopeId: string,
+  resultUrl: string,
+  provider: string,
+): ContentHash {
+  if (retrievalScopeId.trim() === '' || resultUrl.trim() === '' || provider.trim() === '') {
+    throw new ArtifactStoreError('Retrieval receipt scope, result URL, and provider are required.');
+  }
+  return sha256Hex(
+    [
+      'artifact-retrieval-receipt-v1',
+      retrievalScopeId.toLowerCase(),
+      resultUrl,
+      provider,
+    ].map(frame).join('|'),
+  );
 }
 
 function assertSegment(name: string, value: string): void {
@@ -109,7 +134,13 @@ export function artifactRetrievalKey(parts: ArtifactRetrievalKeyParts): string {
     parts.policySnapshotId === undefined || parts.policySnapshotId === null
       ? ''
       : `.${parts.policySnapshotId}`;
-  return `${prefix}/${year}/${month}/${day}/${parts.contentHash}${policySuffix}.json`;
+  const receiptSuffix =
+    parts.retrievalReceiptId === undefined || parts.retrievalReceiptId === null
+      ? ''
+      : HASH_PATTERN.test(parts.retrievalReceiptId)
+        ? `.${parts.retrievalReceiptId}`
+        : (() => { throw new ArtifactStoreError('Illegal retrieval receipt id.'); })();
+  return `${prefix}/${year}/${month}/${day}/${parts.contentHash}${policySuffix}${receiptSuffix}.json`;
 }
 
 /** The documented `/raw/...` form of a content key. */
@@ -133,6 +164,7 @@ export interface ParsedRetrievalKey extends ParsedArtifactKey {
   readonly month: string;
   readonly day: string;
   readonly policySnapshotId?: PolicySnapshotId;
+  readonly retrievalReceiptId?: ContentHash;
 }
 
 export function parseArtifactContentKey(key: string): ParsedArtifactKey | null {
@@ -167,9 +199,21 @@ export function parseArtifactRetrievalKey(key: string): ParsedRetrievalKey | nul
   if (!HASH_PATTERN.test(contentHash)) return null;
   const suffix = stem.slice(64);
   if (suffix === '') return { vertical, source, year, month, day, contentHash };
-  const policySnapshotId = suffix.startsWith('.') ? suffix.slice(1) : '';
-  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(policySnapshotId)) {
-    return null;
+  if (!suffix.startsWith('.')) return null;
+  const parts = suffix.slice(1).split('.');
+  if (parts.length < 1 || parts.length > 2) return null;
+  let policySnapshotId: string | undefined;
+  let retrievalReceiptId: string | undefined;
+  for (const part of parts) {
+    if (/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(part)) {
+      if (policySnapshotId !== undefined) return null;
+      policySnapshotId = part;
+    } else if (HASH_PATTERN.test(part)) {
+      if (retrievalReceiptId !== undefined) return null;
+      retrievalReceiptId = part;
+    } else {
+      return null;
+    }
   }
   return {
     vertical,
@@ -178,6 +222,11 @@ export function parseArtifactRetrievalKey(key: string): ParsedRetrievalKey | nul
     month,
     day,
     contentHash,
-    policySnapshotId: policySnapshotId as PolicySnapshotId,
+    ...(policySnapshotId === undefined
+      ? {}
+      : { policySnapshotId: policySnapshotId as PolicySnapshotId }),
+    ...(retrievalReceiptId === undefined
+      ? {}
+      : { retrievalReceiptId: retrievalReceiptId as ContentHash }),
   };
 }

@@ -18,6 +18,7 @@ import {
   type ValidatorCache,
 } from '../policy/conditional.js';
 import type { PolicySnapshot, PolicySnapshotRecorder } from '../policy/policy-snapshot.js';
+import { classifyAcquisitionResult } from '../policy/result-policy.js';
 import {
   evaluateAcquisitionGate,
   requireAcquisitionAllowed,
@@ -29,6 +30,7 @@ import {
   type RateLimitPolicy,
 } from '../policy/rate-limit.js';
 import type { ArtifactStore, StoredArtifact } from '../storage/artifact-store.js';
+import { artifactRetrievalReceiptId } from '../storage/keys.js';
 import type { AcquisitionProvider } from '../provider.js';
 import type {
   AcquisitionOutcome,
@@ -54,8 +56,6 @@ export interface AcquisitionProviderDeps {
    * stored rights here; an earlier admission is not reusable after a wait.
    */
   readonly beforeTransport: (input: PreTransportCheckInput) => Promise<void>;
-  /** Target result-manifest check performed before returned bytes reach R2. */
-  readonly beforeStoreResource: (input: PreStoreResourceCheckInput) => Promise<void>;
   readonly rateLimiter?: RateLimiter | undefined;
   readonly validatorCache?: ValidatorCache | undefined;
   readonly clock?: Clock | undefined;
@@ -66,13 +66,6 @@ export interface AcquisitionProviderDeps {
 export interface PreTransportCheckInput {
   readonly request: SourceRequest;
   readonly entry: SourceRegistryEntry;
-  readonly asOf: string;
-}
-
-export interface PreStoreResourceCheckInput {
-  readonly request: SourceRequest;
-  readonly entry: SourceRegistryEntry;
-  readonly resource: FetchedResource;
   readonly asOf: string;
 }
 
@@ -238,6 +231,18 @@ export abstract class BaseAcquisitionProvider implements AcquisitionProvider {
 
     const artifacts: SourceArtifact[] = [];
     const stored: StoredArtifact[] = [];
+    // Preflight the complete result manifest before the first byte is written.
+    // A multi-resource provider returning one off-scope URL must leave R2 empty,
+    // not persist an allowed prefix and fail halfway through the response.
+    for (const resource of transportResult.resources) {
+      if (resource.httpStatus === 304 || resource.httpStatus >= 400) continue;
+      classifyAcquisitionResult({
+        targetUrl: request.url,
+        resultUrl: resource.url,
+        acquisitionRoute: entry.acquisition_policy.method,
+        policy: request.resultUrlPolicy,
+      });
+    }
     // A crawl-shaped provider returns many resources; the validators we replay next
     // run must be the ones belonging to the URL we asked for, not whichever page
     // happened to come last.
@@ -255,8 +260,6 @@ export abstract class BaseAcquisitionProvider implements AcquisitionProvider {
         );
         continue;
       }
-
-      await this.deps.beforeStoreResource({ request, entry, resource, asOf: fetchedAt });
 
       const record = await this.#storeResource({ entry, request, resource, fetchedAt, policySnapshot });
       stored.push(record.stored);
@@ -309,6 +312,15 @@ export abstract class BaseAcquisitionProvider implements AcquisitionProvider {
       vertical: entry.vertical_slug,
       source: entry.key,
       body: resource.body,
+      ...(request.retrievalScopeId === undefined
+        ? {}
+        : {
+            retrievalReceiptId: artifactRetrievalReceiptId(
+              request.retrievalScopeId,
+              resource.url,
+              this.id,
+            ),
+          }),
       metadata: {
         source_key: entry.key,
         vertical_slug: entry.vertical_slug,

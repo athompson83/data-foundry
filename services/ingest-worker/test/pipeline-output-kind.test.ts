@@ -250,7 +250,6 @@ async function pipelineForConfig(
           entry,
           asOf,
         }),
-      beforeStoreResource: () => Promise.resolve(),
     },
     directory,
     manifest: { version: 1, entries: bindings.map((binding) => binding.entry) },

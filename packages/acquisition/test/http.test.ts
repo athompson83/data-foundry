@@ -61,23 +61,6 @@ describe('HTTP acquisition provider', () => {
     expect(net.calls).toEqual([]);
   });
 
-  it('checks every result URL before writing returned bytes', async () => {
-    const checked: string[] = [];
-    const harness = makeHarness({
-      beforeStoreResource: ({ resource }) => {
-        checked.push(resource.url);
-        return Promise.reject(new Error('result URL is outside the compiled target policy'));
-      },
-    });
-    const net = stubFetch(() => ({ status: 200, body: BODY }));
-    const provider = new HttpAcquisitionProvider({ deps: harness.deps, fetch: net.fetch });
-
-    await expect(provider.fetch(makeRequest())).rejects.toThrow(/outside the compiled target policy/i);
-    expect(net.calls).toHaveLength(1);
-    expect(checked).toEqual([TARGET_URL]);
-    expect(harness.files.size).toBe(0);
-  });
-
   it('identifies the crawler on every request', async () => {
     const harness = makeHarness();
     const net = stubFetch(() => ({ status: 200, body: BODY }));

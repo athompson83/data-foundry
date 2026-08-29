@@ -8,13 +8,65 @@ import {
   type ScheduledRightsReceiptStage,
 } from '../src/index.js';
 import { countRows, createFixtures, ts, type Fixtures } from './support.js';
+import { artifactRetrievalReceiptId } from '../../acquisition/src/storage/keys.js';
+import { seedAcquisitionRightsScopes } from '../../../apps/acquisition-worker/test/support.js';
 
 let fixtures: Fixtures;
 let scheduler: ScheduledAcquisitionStore;
+let receiptProvenance = new Map<string, {
+  readonly cellId: string;
+  readonly decisionId: string;
+  readonly termsVersionId: string;
+}>();
+
+async function loadReceiptProvenance(sourceId: string): Promise<typeof receiptProvenance> {
+  const rows = await fixtures.driver.query<{
+    acquisition_route: string;
+    operation: string;
+    cell_id: string;
+    decision_id: string;
+    terms_version_id: string;
+  }>(
+    `SELECT cell.acquisition_route, cell.operation, cell.id AS cell_id,
+            decision.id AS decision_id,
+            decision.controlling_terms_version_id AS terms_version_id
+       FROM rights_cells cell
+       JOIN LATERAL (
+         SELECT event.decision_id
+           FROM rights_decision_activation_events event
+          WHERE event.cell_id = cell.id
+          ORDER BY event.sequence_no DESC LIMIT 1
+       ) active ON TRUE
+       JOIN rights_decisions decision ON decision.id = active.decision_id
+      WHERE cell.source_id = $1
+        AND cell.asset_class = 'DATA'
+        AND cell.output_class = 'RAW_RECORD'
+        AND cell.channel = 'INTERNAL_PROCESSING'`,
+    [sourceId],
+  );
+  return new Map(rows.map((row) => [
+    `${row.acquisition_route}:${row.operation}`,
+    {
+      cellId: row.cell_id,
+      decisionId: row.decision_id,
+      termsVersionId: row.terms_version_id,
+    },
+  ]));
+}
 
 beforeAll(async () => {
   fixtures = await createFixtures();
   scheduler = createScheduledAcquisitionStore(fixtures.driver);
+  await seedAcquisitionRightsScopes({
+    driver: fixtures.driver,
+    sourceId: fixtures.sources.manufacturer.source.id,
+    scopes: ['DIRECT_HTTP', 'BROWSER_RUN'].map((acquisitionRoute) => ({
+      acquisitionRoute,
+      assetClass: 'DATA',
+      outputClass: 'RAW_RECORD',
+    })),
+  });
+  receiptProvenance = await loadReceiptProvenance(fixtures.sources.manufacturer.source.id);
 });
 
 afterAll(async () => {
@@ -52,32 +104,43 @@ const checkpoint = (
   index: number,
   permitted: boolean,
   basis: ScheduledRightsReceipt['basis'],
+  provenanceMap: typeof receiptProvenance = receiptProvenance,
 ): ScheduledRightsReceipt => ({
     stage,
     basis,
     scopeDigest: run.rightsScopeDigest,
     evaluatedAt: ts(new Date(Date.parse(run.claimedAt) + index).toISOString()),
-    decisions: (['ACQUIRE', 'STORE', 'CACHE'] as const).map((operation, decisionIndex) => ({
+  decisions: (['ACQUIRE', 'STORE', 'CACHE'] as const).map((operation) => ({
       operation,
       permitted,
       state: permitted ? ('ALLOW' as const) : ('UNKNOWN' as const),
       reasonCode: permitted ? ('ALLOW' as const) : ('NO_GRANT' as const),
-      cellId: permitted ? `71000000-0000-4000-8000-00000000000${decisionIndex}` : null,
-      decisionId: permitted ? `72000000-0000-4000-8000-00000000000${decisionIndex}` : null,
-      termsVersionId: permitted ? `73000000-0000-4000-8000-00000000000${decisionIndex}` : null,
+      cellId: permitted
+        ? provenanceMap.get(`${run.acquisitionRoute}:${operation}`)?.cellId ??
+          provenanceMap.get(`DIRECT_HTTP:${operation}`)!.cellId
+        : null,
+      decisionId: permitted
+        ? provenanceMap.get(`${run.acquisitionRoute}:${operation}`)?.decisionId ??
+          provenanceMap.get(`DIRECT_HTTP:${operation}`)!.decisionId
+        : null,
+      termsVersionId: permitted
+        ? provenanceMap.get(`${run.acquisitionRoute}:${operation}`)?.termsVersionId ??
+          provenanceMap.get(`DIRECT_HTTP:${operation}`)!.termsVersionId
+        : null,
     })),
   });
 
 const rightsReceipt = (
   run: ScheduledAcquisitionRun,
   permitted = true,
+  provenanceMap: typeof receiptProvenance = receiptProvenance,
 ): readonly ScheduledRightsReceipt[] => permitted
   ? [
-      checkpoint(run, 'INITIAL', 0, true, 'ADMITTED'),
-      checkpoint(run, 'PRE_PROVIDER', 1, true, 'ADMITTED'),
-      checkpoint(run, 'PRE_TRANSPORT', 2, true, 'ADMITTED'),
+      checkpoint(run, 'INITIAL', 0, true, 'ADMITTED', provenanceMap),
+      checkpoint(run, 'PRE_PROVIDER', 1, true, 'ADMITTED', provenanceMap),
+      checkpoint(run, 'PRE_TRANSPORT', 2, true, 'ADMITTED', provenanceMap),
     ]
-  : [checkpoint(run, 'INITIAL', 0, false, 'RIGHTS_REFUSED')];
+  : [checkpoint(run, 'INITIAL', 0, false, 'RIGHTS_REFUSED', provenanceMap)];
 
 const notDueReceipt = (run: ScheduledAcquisitionRun): readonly ScheduledRightsReceipt[] => [
   checkpoint(run, 'INITIAL', 0, true, 'NOT_DUE'),
@@ -101,11 +164,16 @@ const artifact = (suffix: string) => ({
 });
 
 const scheduledArtifact = (
+  run: ScheduledAcquisitionRun,
   value: SourceArtifactInsert,
   resultRelation: 'TARGET' | 'CHILD_RESOURCE' = 'TARGET',
 ) => ({
   artifact: value,
-  retrievalKey: `raw/hvac/acme-hvac-catalog/retrieved/2026/08/28/${value.content_hash}.json`,
+  retrievalKey: `raw/hvac/acme-hvac-catalog/retrieved/2026/08/28/${value.content_hash}.${artifactRetrievalReceiptId(
+    run.id,
+    value.url,
+    value.acquisition_provider,
+  )}.json`,
   resultRelation,
 });
 
@@ -123,7 +191,8 @@ async function linkRawArtifact(
      VALUES ($1, $2, 0, $3, $4, $5, $6, $7)`,
     [
       run.id, persisted.id, run.targetUrl, value.url, resultRelation,
-      scheduledArtifact(value, resultRelation).retrievalKey, acquisitionProvider,
+      scheduledArtifact(run, { ...value, acquisition_provider: acquisitionProvider }, resultRelation).retrievalKey,
+      acquisitionProvider,
     ],
   );
 }
@@ -156,6 +225,108 @@ describe('scheduled acquisition claims', () => {
     expect([first, duplicate].filter((run) => run !== null)).toHaveLength(1);
     expect(await countRows(fixtures.driver, 'scheduled_acquisition_runs')).toBe(1);
   });
+
+  it.each([
+    ['SUCCEEDED', 'FETCHED'],
+    ['SUCCEEDED', 'NOT_MODIFIED'],
+  ] as const)('rejects a direct terminal INSERT for %s/%s', async (status, outcome) => {
+    await expect(fixtures.driver.query(
+      `INSERT INTO scheduled_acquisition_runs
+         (idempotency_key, vertical_slug, source_id, source_key, target_id, target_url,
+          acquisition_route, account_or_product_plan, acquisition_jurisdiction,
+          asset_class, output_class, result_url_policy, scheduled_for, claimed_at,
+          completed_at, fresh_at, status, outcome, provider, validators,
+          expected_artifact_count, artifact_count, runtime_digest)
+       VALUES ($1, 'hvac', $2, 'acme-hvac-catalog', 'raw-terminal-insert', $3,
+               'DIRECT_HTTP', NULL, NULL, 'DATA', 'RAW_RECORD', $4::jsonb,
+               $5, $5, $6, $6, $7, $8, 'http', $9::jsonb, 1, 1, $10)`,
+      [
+        `raw-terminal-insert-${outcome}`,
+        fixtures.sources.manufacturer.source.id,
+        claim().targetUrl,
+        JSON.stringify(claim().resultUrlPolicy),
+        ts('2026-08-28T14:00:00.000Z'),
+        ts('2026-08-28T14:01:00.000Z'),
+        status,
+        outcome,
+        JSON.stringify(outcome === 'NOT_MODIFIED' ? { etag: '"v1"' } : {}),
+        'a'.repeat(64),
+      ],
+    )).rejects.toThrow(/inserted as an empty CLAIMED row/i);
+  });
+
+  it.each([
+    ['plain origin', 'https://catalog.acme-climate.example.com', true],
+    ['maximum port', 'https://catalog.acme-climate.example.com:65535', true],
+    ['zero port', 'https://catalog.acme-climate.example.com:0', false],
+    ['default port', 'https://catalog.acme-climate.example.com:443', false],
+    ['above maximum port', 'https://catalog.acme-climate.example.com:65536', false],
+    ['five-digit invalid port', 'https://catalog.acme-climate.example.com:99999', false],
+    ['credential-bearing origin', 'https://user:secret@catalog.acme-climate.example.com', false],
+  ] as const)('keeps TypeScript/Postgres origin policy parity: %s', async (_label, origin, accepted) => {
+    const policy = { allowedOrigins: [origin], allowedPathPrefixes: ['/api/v2/catalog'] };
+    const rows = await fixtures.driver.query<{ valid: boolean }>(
+      `SELECT scheduled_acquisition_result_url_policy_valid($1::jsonb) AS valid`,
+      [JSON.stringify(policy)],
+    );
+    expect(rows[0]?.valid).toBe(accepted);
+    const attempt = scheduler.claim(claim('2026-08-28T13:00:00.000Z', {
+      idempotencyKey: `origin-vector-${_label}`,
+      targetId: `origin-vector-${_label.replaceAll(' ', '-')}`,
+      targetUrl: `${origin}/api/v2/catalog`,
+      resultUrlPolicy: policy,
+    }));
+    if (accepted) expect(await attempt).not.toBeNull();
+    else await expect(attempt).rejects.toThrow(/origin|policy/i);
+  });
+
+  it.each([
+    ['duplicate origin', {
+      allowedOrigins: [
+        'https://catalog.acme-climate.example.com',
+        'https://catalog.acme-climate.example.com',
+      ],
+      allowedPathPrefixes: ['/api/v2/catalog'],
+    }],
+    ['duplicate prefix', {
+      allowedOrigins: ['https://catalog.acme-climate.example.com'],
+      allowedPathPrefixes: ['/api/v2/catalog', '/api/v2/catalog'],
+    }],
+  ] as const)('rejects duplicate policy entries in TypeScript and Postgres: %s', async (_label, policy) => {
+    const rows = await fixtures.driver.query<{ valid: boolean }>(
+      `SELECT scheduled_acquisition_result_url_policy_valid($1::jsonb) AS valid`,
+      [JSON.stringify(policy)],
+    );
+    expect(rows[0]?.valid).toBe(false);
+    await expect(scheduler.claim(claim('2026-08-28T13:01:00.000Z', {
+      idempotencyKey: `duplicate-policy-${_label}`,
+      targetId: `duplicate-policy-${_label.replaceAll(' ', '-')}`,
+      resultUrlPolicy: policy,
+    }))).rejects.toThrow(/unique/i);
+  });
+
+  it.each([
+    ['literal dot segment', '/api/v2/catalog/../admin'],
+    ['encoded dot segment', '/api/v2/catalog/%2e%2e/admin'],
+    ['encoded slash', '/api/v2/catalog%2fadmin'],
+    ['encoded backslash', '/api/v2/catalog%5cadmin'],
+    ['literal backslash', '/api/v2/catalog\\admin'],
+  ] as const)('rejects unsafe path vector in TypeScript and Postgres: %s', async (_label, unsafePrefix) => {
+    const policy = {
+      allowedOrigins: ['https://catalog.acme-climate.example.com'],
+      allowedPathPrefixes: ['/api/v2/catalog', unsafePrefix],
+    };
+    const rows = await fixtures.driver.query<{ valid: boolean }>(
+      `SELECT scheduled_acquisition_result_url_policy_valid($1::jsonb) AS valid`,
+      [JSON.stringify(policy)],
+    );
+    expect(rows[0]?.valid).toBe(false);
+    await expect(scheduler.claim(claim('2026-08-28T13:02:00.000Z', {
+      idempotencyKey: `path-vector-${_label}`,
+      targetId: `path-vector-${_label.replaceAll(' ', '-')}`,
+      resultUrlPolicy: policy,
+    }))).rejects.toThrow(/path prefix/i);
+  });
 });
 
 describe('terminal outcomes and freshness', () => {
@@ -182,7 +353,7 @@ describe('terminal outcomes and freshness', () => {
          (run_id, artifact_id, ordinal, target_url, result_url, result_relation,
           retrieval_key, acquisition_provider)
        VALUES ($1, $2, 0, $3, $3, 'TARGET', $4, 'http')`,
-      [run!.id, persisted.id, run!.targetUrl, scheduledArtifact(artifact(suffix)).retrievalKey],
+      [run!.id, persisted.id, run!.targetUrl, scheduledArtifact(run!, artifact(suffix)).retrievalKey],
     );
     await expect(
       fixtures.driver.query(
@@ -262,6 +433,66 @@ describe('terminal outcomes and freshness', () => {
       '2026-08-28T17:31:00.000Z',
       (receipt: any[]) => { receipt[2].evaluatedAt = '2026-08-29T00:00:00.000Z'; },
     ],
+    [
+      'JSON-null stage',
+      '2026-08-28T15:00:00.000Z',
+      (receipt: any[]) => { receipt[0].stage = null; },
+    ],
+    [
+      'JSON-null basis',
+      '2026-08-28T15:01:00.000Z',
+      (receipt: any[]) => { receipt[0].basis = null; },
+    ],
+    [
+      'JSON-null operation',
+      '2026-08-28T15:02:00.000Z',
+      (receipt: any[]) => { receipt[0].decisions[0].operation = null; },
+    ],
+    [
+      'year zero timestamp',
+      '2026-08-28T15:03:00.000Z',
+      (receipt: any[]) => { receipt[0].evaluatedAt = '0000-08-28T17:00:01.000Z'; },
+    ],
+    [
+      'engine-impossible state and reason',
+      '2026-08-28T15:04:00.000Z',
+      (receipt: any[]) => {
+        receipt[0].decisions[0].permitted = false;
+        receipt[0].decisions[0].state = 'DENY';
+        receipt[0].decisions[0].reasonCode = 'ALLOW';
+      },
+    ],
+    [
+      'fabricated but well-formed provenance UUID',
+      '2026-08-28T15:05:00.000Z',
+      (receipt: any[]) => {
+        receipt[0].decisions[0].decisionId = 'deadbeef-dead-4bee-8bee-deadbeefdead';
+      },
+    ],
+    [
+      'neighboring route provenance replay',
+      '2026-08-28T15:06:00.000Z',
+      (receipt: any[]) => {
+        const provenance = receiptProvenance.get('BROWSER_RUN:ACQUIRE')!;
+        Object.assign(receipt[0].decisions[0], provenance);
+      },
+    ],
+    [
+      'cross-operation provenance replay',
+      '2026-08-28T15:07:00.000Z',
+      (receipt: any[]) => {
+        const provenance = receiptProvenance.get('DIRECT_HTTP:STORE')!;
+        Object.assign(receipt[0].decisions[0], provenance);
+      },
+    ],
+    [
+      'conditional allow without durable condition evidence',
+      '2026-08-28T15:08:00.000Z',
+      (receipt: any[]) => {
+        receipt[0].decisions[0].state = 'CONDITIONAL';
+        receipt[0].decisions[0].reasonCode = 'CONDITIONAL_ALLOW';
+      },
+    ],
   ] as const)('rejects raw-SQL receipt divergence: %s', async (_label, slot, mutate) => {
     const run = await scheduler.claim(claim(slot, { targetId: `raw-${slot.slice(14, 19).replace(':', '-')}` }));
     await linkRawArtifact(run!, artifact('5'));
@@ -288,7 +519,7 @@ describe('terminal outcomes and freshness', () => {
         provider: 'http',
         validators: {},
         rightsReceipt: rightsReceipt(first!),
-        artifacts: [scheduledArtifact(artifact('6'))],
+        artifacts: [scheduledArtifact(neighbor!, artifact('6'))],
       }),
     ).rejects.toThrow(/scope/i);
     expect((await scheduler.get(neighbor!.id))?.freshAt).toBeNull();
@@ -306,7 +537,7 @@ describe('terminal outcomes and freshness', () => {
       provider: 'http',
       validators: { etag: '"v1"' },
       rightsReceipt: rightsReceipt(run!),
-      artifacts: [scheduledArtifact(artifact('b')), scheduledArtifact(artifact('c'))],
+      artifacts: [scheduledArtifact(run!, artifact('b')), scheduledArtifact(run!, artifact('c'))],
     });
 
     expect(completed).toMatchObject({
@@ -328,13 +559,19 @@ describe('terminal outcomes and freshness', () => {
   });
 
   it.each([
-    ['target URL', { targetUrl: 'https://catalog.acme-climate.example.com/api/v2/changed' }],
+    ['target URL', { targetUrl: 'https://catalog.acme-climate.example.com/api/v2/catalog/changed' }],
     ['route', { acquisitionRoute: 'VENDOR_API' }],
     ['plan', { accountOrProductPlan: 'paid-plan' }],
     ['jurisdiction', { jurisdiction: 'US' }],
     ['asset class', { assetClass: 'DOCUMENT' }],
     ['output class', { outputClass: 'NORMALIZED_FACT' }],
     ['runtime digest', { runtimeDigest: 'b'.repeat(64) }],
+    ['result URL policy', {
+      resultUrlPolicy: {
+        allowedOrigins: ['https://catalog.acme-climate.example.com'],
+        allowedPathPrefixes: ['/api/v2'],
+      },
+    }],
   ] as const)('does not reuse freshness across a neighboring %s', async (_dimension, override) => {
     const exact = await scheduler.get(
       (await fixtures.driver.query<{ id: string }>(
@@ -360,8 +597,8 @@ describe('terminal outcomes and freshness', () => {
         validators: {},
         rightsReceipt: rightsReceipt(run!),
         artifacts: [
-          scheduledArtifact(artifact('d')),
-          scheduledArtifact({ ...artifact('e'), content_hash: 'not-a-hash' }),
+          scheduledArtifact(run!, artifact('d')),
+          scheduledArtifact(run!, { ...artifact('e'), content_hash: 'not-a-hash' }),
         ],
       }),
     ).rejects.toThrow();
@@ -394,7 +631,7 @@ describe('terminal outcomes and freshness', () => {
         provider: 'http',
         validators: {},
         rightsReceipt: rightsReceipt(run!),
-        artifacts: [scheduledArtifact({ ...artifact('f'), ...override })],
+        artifacts: [scheduledArtifact(run!, { ...artifact('f'), ...override })],
       }),
     ).rejects.toThrow(/target|acquisition scope|associated/i);
     expect(await countRows(fixtures.driver, 'source_artifacts')).toBe(before);
@@ -414,7 +651,7 @@ describe('terminal outcomes and freshness', () => {
         provider: 'http',
         validators: {},
         rightsReceipt: rightsReceipt(run!),
-        artifacts: [scheduledArtifact({ ...artifact('f'), acquisition_provider: 'neighbor-provider' })],
+        artifacts: [scheduledArtifact(run!, { ...artifact('f'), acquisition_provider: 'neighbor-provider' })],
       }),
     ).rejects.toThrow(/artifact provider does not match/i);
     expect(await countRows(fixtures.driver, 'source_artifacts')).toBe(before);
@@ -435,7 +672,7 @@ describe('terminal outcomes and freshness', () => {
          VALUES ($1, $2, 0, $3, $4, 'CHILD_RESOURCE', $5, 'http')`,
         [
           run!.id, neighboring.id, run!.targetUrl, neighboring.url,
-          scheduledArtifact(artifact('9')).retrievalKey,
+          scheduledArtifact(run!, artifact('9')).retrievalKey,
         ],
       ),
     ).rejects.toThrow(/target policy/i);
@@ -450,7 +687,7 @@ describe('terminal outcomes and freshness', () => {
          (run_id, artifact_id, ordinal, target_url, result_url, result_relation,
           retrieval_key, acquisition_provider)
        VALUES ($1, $2, 0, $3, $3, 'TARGET', $4, 'browser-run')`,
-      [run!.id, neighboring.id, run!.targetUrl, scheduledArtifact(artifact('8')).retrievalKey],
+      [run!.id, neighboring.id, run!.targetUrl, scheduledArtifact(run!, { ...artifact('8'), acquisition_provider: 'browser-run' }).retrievalKey],
     );
     await expect(
       fixtures.driver.query(
@@ -488,7 +725,7 @@ describe('terminal outcomes and freshness', () => {
       provider: 'browser-run',
       validators: {},
       rightsReceipt: rightsReceipt(first!),
-      artifacts: [scheduledArtifact(firstArtifact)],
+      artifacts: [scheduledArtifact(first!, firstArtifact)],
     });
 
     const second = await scheduler.claim(claim('2026-08-28T19:50:00.000Z', {
@@ -503,7 +740,7 @@ describe('terminal outcomes and freshness', () => {
       provider: 'fixture',
       validators: {},
       rightsReceipt: rightsReceipt(second!),
-      artifacts: [scheduledArtifact({
+      artifacts: [scheduledArtifact(second!, {
         ...firstArtifact,
         acquisition_provider: 'fixture',
         extractor_version: 'fixture@1.0.0',
@@ -519,16 +756,57 @@ describe('terminal outcomes and freshness', () => {
       [first!.sourceId, first!.targetUrl, firstArtifact.content_hash],
     );
     expect(artifacts[0]).toEqual({ count: 1, acquisition_provider: 'browser-run' });
-    expect(
-      await fixtures.driver.query<{ acquisition_provider: string }>(
-        `SELECT acquisition_provider FROM scheduled_acquisition_run_artifacts
-          WHERE run_id IN ($1, $2) ORDER BY created_at`,
+    const retrievals = await fixtures.driver.query<{
+      run_id: string;
+      acquisition_provider: string;
+      retrieval_receipt_id: string;
+      retrieval_key: string;
+    }>(
+        `SELECT run_id, acquisition_provider, retrieval_receipt_id, retrieval_key
+           FROM scheduled_acquisition_run_artifacts
+          WHERE run_id IN ($1, $2)`,
         [first!.id, second!.id],
-      ),
-    ).toEqual([
-      { acquisition_provider: 'browser-run' },
-      { acquisition_provider: 'fixture' },
-    ]);
+      );
+    const retrievalByRun = new Map(retrievals.map((retrieval) => [retrieval.run_id, retrieval]));
+    expect(retrievalByRun.get(first!.id)).toMatchObject({
+      acquisition_provider: 'browser-run',
+      retrieval_receipt_id: artifactRetrievalReceiptId(first!.id, first!.targetUrl, 'browser-run'),
+    });
+    expect(retrievalByRun.get(second!.id)).toMatchObject({
+      acquisition_provider: 'fixture',
+      retrieval_receipt_id: artifactRetrievalReceiptId(second!.id, second!.targetUrl, 'fixture'),
+    });
+    expect(retrievalByRun.get(first!.id)?.retrieval_receipt_id).not.toBe(
+      retrievalByRun.get(second!.id)?.retrieval_receipt_id,
+    );
+    for (const retrieval of retrievals) {
+      expect(retrieval.retrieval_key).toMatch(
+        new RegExp(`\\.${retrieval.retrieval_receipt_id}\\.json$`),
+      );
+    }
+  });
+
+  it('rejects a legacy day/content retrieval key that is not bound to this exact fetch', async () => {
+    const run = await scheduler.claim(claim('2026-08-28T19:51:30.000Z', {
+      targetId: 'unbound-retrieval-key',
+    }));
+    const persisted = await fixtures.store.recordSourceArtifact(artifact('1'));
+    await expect(fixtures.driver.query(
+      `INSERT INTO scheduled_acquisition_run_artifacts
+         (run_id, artifact_id, ordinal, target_url, result_url, result_relation,
+          retrieval_key, acquisition_provider)
+       VALUES ($1, $2, 0, $3, $3, 'TARGET', $4, 'http')`,
+      [
+        run!.id,
+        persisted.id,
+        run!.targetUrl,
+        `raw/hvac/acme-hvac-catalog/retrieved/2026/08/28/${persisted.content_hash}.json`,
+      ],
+    )).rejects.toThrow(/retrieval receipt is not bound/i);
+    expect(await fixtures.driver.query(
+      `SELECT 1 FROM scheduled_acquisition_run_artifacts WHERE run_id = $1`,
+      [run!.id],
+    )).toEqual([]);
   });
 
   it('admits only policy-bound BrowserRun child resources and records their target association', async () => {
@@ -542,9 +820,11 @@ describe('terminal outcomes and freshness', () => {
       acquisition_route: 'BROWSER_RUN' as const,
       extractor_version: 'browser-run@1.0.0',
     };
+    const before = await countRows(fixtures.driver, 'source_artifacts');
     for (const url of [
       'https://off-scope.example.com/api/v2/catalog?page=2',
       'https://catalog.acme-climate.example.com/admin?page=2',
+      'https://catalog.acme-climate.example.com/api/v2/catalog/%2e%2e/admin',
     ]) {
       await expect(
         scheduler.complete({
@@ -555,10 +835,11 @@ describe('terminal outcomes and freshness', () => {
           provider: 'browser-run',
           validators: {},
           rightsReceipt: rightsReceipt(run!),
-          artifacts: [scheduledArtifact({ ...childBase, url }, 'CHILD_RESOURCE')],
+          artifacts: [scheduledArtifact(run!, { ...childBase, url }, 'CHILD_RESOURCE')],
         }),
       ).rejects.toThrow(/associated with the claimed target/i);
       expect((await scheduler.get(run!.id))?.status).toBe('CLAIMED');
+      expect(await countRows(fixtures.driver, 'source_artifacts')).toBe(before);
     }
 
     const targetArtifact = { ...childBase, content_hash: 'b'.repeat(64) };
@@ -576,8 +857,8 @@ describe('terminal outcomes and freshness', () => {
       validators: {},
       rightsReceipt: rightsReceipt(run!),
       artifacts: [
-        scheduledArtifact(targetArtifact, 'TARGET'),
-        scheduledArtifact(childArtifact, 'CHILD_RESOURCE'),
+        scheduledArtifact(run!, targetArtifact, 'TARGET'),
+        scheduledArtifact(run!, childArtifact, 'CHILD_RESOURCE'),
       ],
     });
     expect(
@@ -649,6 +930,41 @@ describe('terminal outcomes and freshness', () => {
     expect((await scheduler.get(run!.id))?.freshAt).toBeNull();
   });
 
+  it('does not reuse FETCHED history from a neighboring result URL policy for NOT_MODIFIED', async () => {
+    const run = await scheduler.claim(claim('2026-08-28T20:13:30.000Z', {
+      resultUrlPolicy: {
+        allowedOrigins: ['https://catalog.acme-climate.example.com'],
+        allowedPathPrefixes: ['/api/v2'],
+      },
+    }));
+    await expect(scheduler.complete({
+      runId: run!.id,
+      outcome: 'NOT_MODIFIED',
+      completedAt: ts('2026-08-28T20:13:59.000Z'),
+      freshAt: ts('2026-08-28T20:13:58.000Z'),
+      provider: 'http',
+      validators: { etag: '"v1"' },
+      rightsReceipt: rightsReceipt(run!),
+      artifacts: [],
+    })).rejects.toThrow(/prior artifact-backed fetched success/i);
+    expect((await scheduler.get(run!.id))?.freshAt).toBeNull();
+  });
+
+  it.each([
+    ['encoded dot segment', '/api/v2/catalog/%2e%2e/admin'],
+    ['encoded path separator', '/api/v2/catalog%2fadmin'],
+    ['encoded backslash', '/api/v2/catalog%5cadmin'],
+  ] as const)('rejects a claim policy with an %s', async (_label, prefix) => {
+    await expect(scheduler.claim(claim('2026-08-28T16:00:00.000Z', {
+      idempotencyKey: `unsafe-policy-${prefix}`,
+      targetId: `unsafe-policy-${_label.replaceAll(' ', '-')}`,
+      resultUrlPolicy: {
+        allowedOrigins: ['https://catalog.acme-climate.example.com'],
+        allowedPathPrefixes: [prefix],
+      },
+    }))).rejects.toThrow(/path prefix|result URL policy/i);
+  });
+
   it('enforces the prior FETCHED requirement at the database terminal boundary', async () => {
     const run = await scheduler.claim(
       claim('2026-08-28T20:14:00.000Z', { targetId: 'never-fetched-db' }),
@@ -697,7 +1013,7 @@ describe('terminal outcomes and freshness', () => {
         provider: 'http',
         validators: {},
         rightsReceipt: receipt,
-        artifacts: [scheduledArtifact(artifact('7'))],
+        artifacts: [scheduledArtifact(run!, artifact('7'))],
         ...override,
       } as never),
     ).rejects.toThrow(/validator|receipt|provider|checkpoint/i);
@@ -857,6 +1173,118 @@ describe('terminal outcomes and freshness', () => {
         [run!.id],
       ),
     ).rejects.toThrow(/claim identity and scope are immutable/i);
+  });
+
+  it('rejects success after the source kill switch engages, without publishing freshness', async () => {
+    const source = fixtures.sources.certifier.source;
+    await seedAcquisitionRightsScopes({
+      driver: fixtures.driver,
+      sourceId: source.id,
+      scopes: [{ acquisitionRoute: 'DIRECT_HTTP', assetClass: 'DATA', outputClass: 'RAW_RECORD' }],
+    });
+    const provenance = await loadReceiptProvenance(source.id);
+    const run = await scheduler.claim(claim('2026-08-28T23:10:00.000Z', {
+      idempotencyKey: 'current-source-kill-switch',
+      sourceId: source.id,
+      sourceKey: 'ratings-directory',
+      targetId: 'current-source-kill-switch',
+    }));
+    const value = { ...artifact('1'), source_id: source.id };
+    await linkRawArtifact(run!, value);
+    await fixtures.driver.query(`UPDATE sources SET kill_switch_engaged = TRUE WHERE id = $1`, [source.id]);
+    await expect(rawFetchedSuccess(run!, rightsReceipt(run!, true, provenance))).rejects.toThrow(
+      /provenance/i,
+    );
+    expect(await scheduler.get(run!.id)).toMatchObject({ status: 'CLAIMED', freshAt: null });
+    await fixtures.driver.query(`UPDATE sources SET kill_switch_engaged = FALSE WHERE id = $1`, [source.id]);
+  });
+
+  it('rejects a receipt whose decision was superseded before terminal success', async () => {
+    const source = fixtures.sources.filing.source;
+    await seedAcquisitionRightsScopes({
+      driver: fixtures.driver,
+      sourceId: source.id,
+      scopes: [{ acquisitionRoute: 'DIRECT_HTTP', assetClass: 'DATA', outputClass: 'RAW_RECORD' }],
+    });
+    const provenance = await loadReceiptProvenance(source.id);
+    const run = await scheduler.claim(claim('2026-08-28T23:11:00.000Z', {
+      idempotencyKey: 'superseded-rights-receipt',
+      sourceId: source.id,
+      sourceKey: 'federal-equipment-register',
+      targetId: 'superseded-rights-receipt',
+    }));
+    await linkRawArtifact(run!, { ...artifact('2'), source_id: source.id });
+    const priorDecision = provenance.get('DIRECT_HTTP:ACQUIRE')!.decisionId;
+    const successor = crypto.randomUUID();
+    await fixtures.driver.query(
+      `INSERT INTO rights_decisions
+         (id, cell_id, state, controlling_terms_version_id, evidence_artifact_id, clause_ref,
+          review_status, reviewer_type, reviewed_by, reviewed_at, effective_from, effective_until,
+          recheck_at, rationale, supersedes_decision_id, created_by)
+       SELECT $1, cell_id, state, controlling_terms_version_id, evidence_artifact_id, clause_ref,
+              review_status, reviewer_type, reviewed_by, reviewed_at, effective_from, effective_until,
+              recheck_at, rationale, $2, created_by
+         FROM rights_decisions WHERE id = $2`,
+      [successor, priorDecision],
+    );
+    await fixtures.driver.query(
+      `SELECT activate_rights_decision($1, 'HUMAN', 'test-fixture', 'supersede before completion', $2)`,
+      [successor, ts('2026-08-28T18:00:00.000Z')],
+    );
+    await expect(rawFetchedSuccess(run!, rightsReceipt(run!, true, provenance))).rejects.toThrow(
+      /provenance/i,
+    );
+    expect(await scheduler.get(run!.id)).toMatchObject({ status: 'CLAIMED', freshAt: null });
+  });
+
+  it('rejects a receipt whose controlling terms were revoked before terminal success', async () => {
+    const source = fixtures.sources.aggregator.source;
+    await seedAcquisitionRightsScopes({
+      driver: fixtures.driver,
+      sourceId: source.id,
+      scopes: [{ acquisitionRoute: 'DIRECT_HTTP', assetClass: 'DATA', outputClass: 'RAW_RECORD' }],
+    });
+    const provenance = await loadReceiptProvenance(source.id);
+    const run = await scheduler.claim(claim('2026-08-28T23:12:00.000Z', {
+      idempotencyKey: 'revoked-terms-receipt',
+      sourceId: source.id,
+      sourceKey: 'spec-aggregator',
+      targetId: 'revoked-terms-receipt',
+    }));
+    await linkRawArtifact(run!, { ...artifact('3'), source_id: source.id });
+    await fixtures.driver.query(
+      `SELECT revoke_rights_terms($1, 'HUMAN', 'test-fixture', 'revoke before completion', $2)`,
+      [
+        provenance.get('DIRECT_HTTP:ACQUIRE')!.termsVersionId,
+        ts('2026-08-28T18:00:00.000Z'),
+      ],
+    );
+    await expect(rawFetchedSuccess(run!, rightsReceipt(run!, true, provenance))).rejects.toThrow(
+      /provenance/i,
+    );
+    expect(await scheduler.get(run!.id)).toMatchObject({ status: 'CLAIMED', freshAt: null });
+  });
+
+  it('rejects a receipt whose controlling terms are stale at terminal time', async () => {
+    const source = fixtures.sources.editorial.source;
+    await seedAcquisitionRightsScopes({
+      driver: fixtures.driver,
+      sourceId: source.id,
+      scopes: [{ acquisitionRoute: 'DIRECT_HTTP', assetClass: 'DATA', outputClass: 'RAW_RECORD' }],
+      termsRecheckAt: '2026-08-28T18:00:00.000Z',
+    });
+    const provenance = await loadReceiptProvenance(source.id);
+    const run = await scheduler.claim(claim('2026-08-28T23:13:00.000Z', {
+      idempotencyKey: 'stale-terms-receipt',
+      sourceId: source.id,
+      sourceKey: 'data-foundry-editorial',
+      targetId: 'stale-terms-receipt',
+    }));
+    await linkRawArtifact(run!, { ...artifact('4'), source_id: source.id });
+    await expect(rawFetchedSuccess(run!, rightsReceipt(run!, true, provenance))).rejects.toThrow(
+      /provenance/i,
+    );
+    expect(await scheduler.get(run!.id)).toMatchObject({ status: 'CLAIMED', freshAt: null });
   });
 });
 
