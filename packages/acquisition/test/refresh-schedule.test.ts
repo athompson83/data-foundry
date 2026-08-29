@@ -6,7 +6,7 @@
  * UNREVIEWED source would violate rule 1 unattended, repeatedly, and with
  * nobody watching. Every other bug here wastes bandwidth.
  */
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import type {
   AcquisitionMethod,
   RefreshCadence,
@@ -34,7 +34,10 @@ const POLICY: RefreshPolicy = { cadence: 'WEEKLY', max_staleness_hours: 168, pri
 
 interface CandidateOptions {
   readonly sourceId?: string;
+  readonly targetId?: string;
   readonly targetUrl?: string;
+  readonly assetClass?: RefreshAdmission['assetClass'];
+  readonly outputClass?: RefreshAdmission['outputClass'];
   readonly providerMethods?: readonly AcquisitionMethod[];
   readonly admission?: RefreshAdmission | null;
   readonly includeAdmission?: boolean;
@@ -43,19 +46,23 @@ interface CandidateOptions {
 function allowedAdmission(
   entry: ReturnType<typeof compliantEntry>,
   sourceId: string,
+  targetId: string,
   targetUrl: string,
+  assetClass: RefreshAdmission['assetClass'],
+  outputClass: RefreshAdmission['outputClass'],
   overrides: Partial<RefreshAdmission> = {},
 ): RefreshAdmission {
   return {
     sourceId,
     sourceKey: entry.key,
+    targetId,
     targetUrl,
     acquisitionRoute: entry.acquisition_policy.method,
     accountOrProductPlan: entry.acquisition_policy.account_or_product_plan,
     jurisdiction: entry.acquisition_policy.jurisdiction,
     channel: 'INTERNAL_PROCESSING',
-    assetClass: 'DOCUMENT',
-    outputClass: 'RAW_RECORD',
+    assetClass,
+    outputClass,
     fieldKey: null,
     evaluatedAt: NOW,
     decisions: {
@@ -76,18 +83,26 @@ function candidate(
 ): RefreshCandidate {
   const entry = compliantEntry({ key: key as never, refresh_cadence: cadence, ...overrides });
   const sourceId = options.sourceId ?? SOURCE_ID;
+  const targetId = options.targetId ?? 'catalog-units';
   const targetUrl = options.targetUrl ?? TARGET_URL;
+  const assetClass = options.assetClass ?? 'DATA';
+  const outputClass = options.outputClass ?? 'RAW_RECORD';
   const base = {
     entry,
     sourceId,
+    targetId,
     targetUrl,
+    assetClass,
+    outputClass,
     providerMethods: options.providerMethods ?? (['DIRECT_HTTP'] as const),
     lastAcquiredAt,
   };
   if (options.includeAdmission === false) return base as RefreshCandidate;
   return {
     ...base,
-    admission: options.admission ?? allowedAdmission(entry, sourceId, targetUrl),
+    admission:
+      options.admission ??
+      allowedAdmission(entry, sourceId, targetId, targetUrl, assetClass, outputClass),
   };
 }
 
@@ -238,6 +253,7 @@ describe('the final rights admission is exact and fail-closed', () => {
     ['route', { acquisitionRoute: 'VENDOR_API' }],
     ['plan', { accountOrProductPlan: 'neighbor-plan' }],
     ['jurisdiction', { jurisdiction: 'CA' }],
+    ['target identity', { targetId: 'neighbor-target' }],
     ['target', { targetUrl: 'https://ratings-directory.example.org/catalog/other.json' }],
     ['channel', { channel: 'PUBLIC_WEBSITE' }],
     ['asset class', { assetClass: 'IMAGE' }],
@@ -265,6 +281,43 @@ describe('the final rights admission is exact and fail-closed', () => {
 });
 
 describe('when a clock-driven source comes due', () => {
+  it('orders source and target keys by code unit without consulting a host locale', () => {
+    const localeCompare = vi
+      .spyOn(String.prototype, 'localeCompare')
+      .mockImplementation(() => {
+        throw new Error('host collator must not be used');
+      });
+    try {
+      expect(
+        plan([
+          candidate('a-source', 'DAILY', null, {}, { targetId: 'b-target' }),
+          candidate('Z-source', 'DAILY', null, {}, { targetId: 'z-target' }),
+          candidate('a-source', 'DAILY', null, {}, { targetId: 'A-target' }),
+        ]).map(({ sourceKey, targetId }) => `${sourceKey}/${targetId}`),
+      ).toEqual(['Z-source/z-target', 'a-source/A-target', 'a-source/b-target']);
+    } finally {
+      localeCompare.mockRestore();
+    }
+  });
+
+  it('plans multiple targets from one source independently', () => {
+    const decisions = plan([
+      candidate('catalog', 'DAILY', hoursAgo(25), {}, { targetId: 'api-data' }),
+      candidate('catalog', 'DAILY', hoursAgo(1), {}, {
+        targetId: 'spec-pdf',
+        targetUrl: 'https://ratings-directory.example.org/catalog/spec.pdf',
+        assetClass: 'DOCUMENT',
+      }),
+    ]);
+
+    expect(decisions).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ sourceKey: 'catalog', targetId: 'api-data', due: true }),
+        expect.objectContaining({ sourceKey: 'catalog', targetId: 'spec-pdf', due: false }),
+      ]),
+    );
+  });
+
   it('is not due before its interval has elapsed', () => {
     const [decision] = plan([candidate('daily', 'DAILY', hoursAgo(23))]);
     expect(decision?.due).toBe(false);

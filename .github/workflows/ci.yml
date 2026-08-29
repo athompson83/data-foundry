@@ -76,6 +76,9 @@ jobs:
       - name: Vertical runtime artifacts are current
         run: pnpm verticals:compile:check
 
+      - name: Acquisition runtime artifacts are current
+        run: pnpm acquisition:check
+
       # 7. Same reasoning as step 6, for the web surface's own compiled
       #    artifact — it additionally bundles seo.yaml, which the edge runtime
       #    artifact does not carry.

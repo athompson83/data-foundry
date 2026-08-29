@@ -8,6 +8,7 @@ const REPO_ROOT = fileURLToPath(new URL('../../', import.meta.url));
 const EDGE_CONFIG = join(REPO_ROOT, 'apps', 'edge', 'wrangler.toml');
 const CONSUMER_CONFIG = join(REPO_ROOT, 'apps', 'usage-consumer', 'wrangler.toml');
 const WEB_CONFIG = join(REPO_ROOT, 'apps', 'web', 'wrangler.toml');
+const ACQUISITION_CONFIG = join(REPO_ROOT, 'apps', 'acquisition-worker', 'wrangler.toml');
 const temporaryDirectories: string[] = [];
 
 afterAll(async () => {
@@ -19,6 +20,7 @@ async function loadValidator(): Promise<(
     readonly edgeConfigPath?: string;
     readonly consumerConfigPath?: string;
     readonly webConfigPath?: string;
+    readonly acquisitionConfigPath?: string;
   },
 ) => Promise<readonly string[]>> {
   const module = await import('../scripts/check-cloudflare-topology.js').catch(() => null);
@@ -30,6 +32,7 @@ async function loadValidator(): Promise<(
       readonly edgeConfigPath?: string;
       readonly consumerConfigPath?: string;
       readonly webConfigPath?: string;
+      readonly acquisitionConfigPath?: string;
     },
   ) => Promise<readonly string[]>;
 }
@@ -105,5 +108,25 @@ describe('the committed Cloudflare topology', () => {
 
     const errors = await validate({ webConfigPath: webPath });
     expect(errors.join('\n')).toMatch(/web.*account_id/i);
+  });
+
+  it('requires the acquisition Worker hourly Cron, canonical R2 binding, and no usage Queue', async () => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-cloudflare-acquisition-'));
+    temporaryDirectories.push(directory);
+    const acquisitionPath = join(directory, 'acquisition.toml');
+    const acquisition = await readFile(ACQUISITION_CONFIG, 'utf8');
+    await writeFile(
+      acquisitionPath,
+      acquisition
+        .replace('crons = ["0 * * * *"]', 'crons = ["*/5 * * * *"]')
+        .replace('binding = "RAW_ARTIFACTS"', 'binding = "DRIFTED_BUCKET"') +
+        '\n[[queues.producers]]\nbinding = "USAGE_EVENTS_QUEUE"\nqueue = "data-foundry-usage-events"\n',
+      'utf8',
+    );
+    const errors = await validate({ acquisitionConfigPath: acquisitionPath });
+    expect(errors.join('\n')).toMatch(/hourly/i);
+    expect(errors.join('\n')).toMatch(/RAW_ARTIFACTS/);
+    expect(errors.join('\n')).toMatch(/must not declare.*Queue/i);
   });
 });

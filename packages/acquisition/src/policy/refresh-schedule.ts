@@ -27,7 +27,10 @@ import type {
   AcquisitionMethod,
   RefreshCadence,
   RefreshPolicy,
+  RightsAssetClass,
+  RightsOutputClass,
 } from '@data-foundry/canonical-schema';
+import { compareCodeUnits } from '@data-foundry/canonical-schema';
 import type { SourceRegistryEntry } from '@data-foundry/source-registry';
 import { evaluateAcquisitionGate } from './rights-gate.js';
 
@@ -103,13 +106,14 @@ export interface RefreshAdmissionDecision {
 export interface RefreshAdmission {
   readonly sourceId: string;
   readonly sourceKey: string;
+  readonly targetId: string;
   readonly targetUrl: string;
   readonly acquisitionRoute: AcquisitionMethod;
   readonly accountOrProductPlan: string | null;
   readonly jurisdiction: string | null;
   readonly channel: 'INTERNAL_PROCESSING';
-  readonly assetClass: 'DOCUMENT';
-  readonly outputClass: 'RAW_RECORD';
+  readonly assetClass: RightsAssetClass;
+  readonly outputClass: RightsOutputClass;
   readonly fieldKey: null;
   /** Must equal the schedule instant so an expired or future decision cannot be replayed. */
   readonly evaluatedAt: string;
@@ -120,8 +124,12 @@ export interface RefreshCandidate {
   readonly entry: SourceRegistryEntry;
   /** Canonical source identity against which the rights admission was evaluated. */
   readonly sourceId: string;
+  /** Stable identity for one target. A source may expose more than one target. */
+  readonly targetId: string;
   /** The real request target. Never replace this with a synthesized origin root. */
   readonly targetUrl: string;
+  readonly assetClass: RefreshAdmission['assetClass'];
+  readonly outputClass: RefreshAdmission['outputClass'];
   /** Methods the selected provider actually implements. Empty fails closed. */
   readonly providerMethods: readonly AcquisitionMethod[];
   /** Missing or malformed admission is refusal, including for GREEN and AMBER. */
@@ -137,6 +145,7 @@ export interface RefreshCandidate {
 
 export interface RefreshDecision {
   readonly sourceKey: string;
+  readonly targetId: string;
   readonly due: boolean;
   readonly reason:
     | RefreshSkipReason
@@ -194,14 +203,15 @@ function admissionAllows(
   if (
     admission['sourceId'] !== candidate.sourceId ||
     admission['sourceKey'] !== candidate.entry.key ||
+    admission['targetId'] !== candidate.targetId ||
     admission['targetUrl'] !== candidate.targetUrl ||
     admission['acquisitionRoute'] !== candidate.entry.acquisition_policy.method ||
     admission['accountOrProductPlan'] !==
       candidate.entry.acquisition_policy.account_or_product_plan ||
     admission['jurisdiction'] !== candidate.entry.acquisition_policy.jurisdiction ||
     admission['channel'] !== 'INTERNAL_PROCESSING' ||
-    admission['assetClass'] !== 'DOCUMENT' ||
-    admission['outputClass'] !== 'RAW_RECORD' ||
+    admission['assetClass'] !== candidate.assetClass ||
+    admission['outputClass'] !== candidate.outputClass ||
     admission['fieldKey'] !== null ||
     admission['evaluatedAt'] !== input.now
   ) {
@@ -244,7 +254,8 @@ export function planRefresh(input: RefreshScheduleInput): RefreshDecision[] {
     }
     if (a.overdueHours !== b.overdueHours) return b.overdueHours - a.overdueHours;
     if (a.priority !== b.priority) return b.priority - a.priority;
-    return a.sourceKey.localeCompare(b.sourceKey);
+    const sourceOrder = compareCodeUnits(a.sourceKey, b.sourceKey);
+    return sourceOrder === 0 ? compareCodeUnits(a.targetId, b.targetId) : sourceOrder;
   });
 }
 
@@ -252,6 +263,7 @@ function decide(candidate: RefreshCandidate, input: RefreshScheduleInput): Refre
   const { entry } = candidate;
   const base = {
     sourceKey: entry.key as string,
+    targetId: candidate.targetId,
     overdueHours: 0,
     stale: false,
     priority: input.policy.priority,

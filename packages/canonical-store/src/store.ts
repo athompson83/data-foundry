@@ -237,8 +237,15 @@ export interface CanonicalStore {
   readonly driver: SqlDriver;
 
   upsertVertical(input: VerticalInsert): Promise<Vertical>;
+  /** Insert bundled identity/config only when absent; never overwrite stored lifecycle state. */
+  registerVertical(input: VerticalInsert): Promise<Vertical>;
   getVerticalBySlug(slug: Slug): Promise<Vertical | null>;
   upsertSource(input: SourceInsert): Promise<Source>;
+  /**
+   * Insert bundled source metadata when absent. On conflict, preserve every
+   * database-owned field and apply only the monotone kill-switch join.
+   */
+  registerSource(input: SourceInsert): Promise<Source>;
   getSourceById(id: SourceId): Promise<Source | null>;
 
   recordSourceArtifact(input: SourceArtifactInsert): Promise<SourceArtifact>;
@@ -375,6 +382,27 @@ class PostgresCanonicalStore implements CanonicalStore {
     return row === undefined ? null : mapVertical(row);
   }
 
+  async registerVertical(input: VerticalInsert): Promise<Vertical> {
+    const inserted = await this.driver.query(
+      `INSERT INTO verticals (slug, name, schema_version, status, default_refresh_policy)
+       VALUES ($1, $2, $3, $4, $5::jsonb)
+       ON CONFLICT (slug) DO NOTHING
+       RETURNING id, slug, name, schema_version, status, default_refresh_policy, created_at, updated_at`,
+      [
+        input.slug,
+        input.name,
+        input.schema_version,
+        input.status,
+        json(input.default_refresh_policy),
+      ],
+    );
+    const row = inserted[0];
+    if (row !== undefined) return mapVertical(row);
+    const stored = await this.getVerticalBySlug(input.slug);
+    if (stored === null) throw new Error('vertical registration conflict did not resolve');
+    return stored;
+  }
+
   async upsertSource(input: SourceInsert): Promise<Source> {
     const rows = await this.driver.query(
       `INSERT INTO sources (vertical_id, publisher, domain, source_type, authority_rank,
@@ -395,6 +423,41 @@ class PostgresCanonicalStore implements CanonicalStore {
              kill_switch_engaged = COALESCE(sources.kill_switch_engaged, FALSE)
                                    OR EXCLUDED.kill_switch_engaged,
              updated_at = now()
+       RETURNING ${SOURCE_COLUMNS}`,
+      [
+        input.vertical_id,
+        input.publisher,
+        input.domain,
+        input.source_type,
+        input.authority_rank,
+        input.rights_classification,
+        json(input.attribution_requirement),
+        json(input.robots_policy),
+        input.refresh_cadence,
+        input.status,
+        input.kill_switch_engaged,
+      ],
+    );
+    return mapSource(requireRow(rows, 'sources'));
+  }
+
+  async registerSource(input: SourceInsert): Promise<Source> {
+    const rows = await this.driver.query(
+      `INSERT INTO sources (vertical_id, publisher, domain, source_type, authority_rank,
+                            rights_classification, attribution_requirement, robots_policy,
+                            refresh_cadence, status, kill_switch_engaged)
+       VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8::jsonb, $9, $10, $11)
+       ON CONFLICT (vertical_id, domain, source_type) DO UPDATE
+         SET updated_at = CASE
+               WHEN sources.kill_switch_engaged IS DISTINCT FROM
+                    (COALESCE(sources.kill_switch_engaged, FALSE) OR EXCLUDED.kill_switch_engaged)
+                 THEN now()
+               ELSE sources.updated_at
+             END,
+             -- The registry may engage an operational stop, and migration-0016
+             -- NULL is synchronized explicitly. It may never clear stored TRUE.
+             kill_switch_engaged = COALESCE(sources.kill_switch_engaged, FALSE)
+                                   OR EXCLUDED.kill_switch_engaged
        RETURNING ${SOURCE_COLUMNS}`,
       [
         input.vertical_id,

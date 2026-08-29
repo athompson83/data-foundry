@@ -24,6 +24,7 @@ export const projects = [
   'apps/mcp',
   'apps/edge',
   'apps/usage-consumer',
+  'apps/acquisition-worker',
   'apps/web',
   'verticals/hvac',
   'tooling',

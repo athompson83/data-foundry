@@ -14,6 +14,12 @@ export const CONSUMER_CONFIG_PATH = join(
   'wrangler.toml',
 );
 export const WEB_CONFIG_PATH = join(REPO_ROOT, 'apps', 'web', 'wrangler.toml');
+export const ACQUISITION_CONFIG_PATH = join(
+  REPO_ROOT,
+  'apps',
+  'acquisition-worker',
+  'wrangler.toml',
+);
 
 const USAGE_QUEUE = 'data-foundry-usage-events';
 const USAGE_DLQ = 'data-foundry-usage-events-dlq';
@@ -24,6 +30,7 @@ export interface CloudflareTopologyOptions {
   readonly edgeConfigPath?: string;
   readonly consumerConfigPath?: string;
   readonly webConfigPath?: string;
+  readonly acquisitionConfigPath?: string;
 }
 
 function object(value: unknown): TomlObject {
@@ -121,12 +128,19 @@ export async function validateCloudflareTopology(
     errors,
   );
   const web = await parseConfig(options.webConfigPath ?? WEB_CONFIG_PATH, 'web', errors);
+  const acquisition = await parseConfig(
+    options.acquisitionConfigPath ?? ACQUISITION_CONFIG_PATH,
+    'acquisition-worker',
+    errors,
+  );
   checkWorkerBase('edge', edge, errors);
   checkWorkerBase('usage-consumer', consumer, errors);
   checkWorkerBase('web', web, errors);
+  checkWorkerBase('acquisition-worker', acquisition, errors);
   checkRepositoryPolicy('edge', edge, errors);
   checkRepositoryPolicy('usage-consumer', consumer, errors);
   checkRepositoryPolicy('web', web, errors);
+  checkRepositoryPolicy('acquisition-worker', acquisition, errors);
 
   const edgeVars = object(edge['vars']);
   if (edgeVars['VERTICAL_SLUG'] !== 'hvac') {
@@ -170,6 +184,29 @@ export async function validateCloudflareTopology(
     errors.push(`usage-consumer dead-letter queue must be ${USAGE_DLQ}.`);
   }
 
+  const acquisitionVars = object(acquisition['vars']);
+  if (acquisitionVars['VERTICAL_SLUG'] !== 'hvac') {
+    errors.push('acquisition-worker must select the bundled hvac acquisition runtime.');
+  }
+  if (acquisitionVars['RAW_ARTIFACTS_BUCKET_NAME'] !== 'data-foundry-raw-artifacts') {
+    errors.push('acquisition-worker must name the canonical raw-artifact bucket.');
+  }
+  const crons = object(acquisition['triggers'])['crons'];
+  if (!Array.isArray(crons) || crons.length !== 1 || crons[0] !== '0 * * * *') {
+    errors.push('acquisition-worker must declare exactly the hourly `0 * * * *` Cron.');
+  }
+  const r2Buckets = objects(acquisition['r2_buckets']);
+  if (
+    r2Buckets.length !== 1 ||
+    r2Buckets[0]?.['binding'] !== 'RAW_ARTIFACTS' ||
+    r2Buckets[0]?.['bucket_name'] !== 'data-foundry-raw-artifacts'
+  ) {
+    errors.push('acquisition-worker must bind RAW_ARTIFACTS to data-foundry-raw-artifacts.');
+  }
+  if (valuesAtKey(acquisition, 'queues').length !== 0) {
+    errors.push('acquisition-worker must not declare a usage Queue producer or consumer.');
+  }
+
   return errors;
 }
 
@@ -179,7 +216,9 @@ export async function run(options: CloudflareTopologyOptions = {}): Promise<numb
     process.stderr.write(`Cloudflare topology validation failed:\n${errors.map((error) => `- ${error}`).join('\n')}\n`);
     return 1;
   }
-  process.stdout.write('OK: Cloudflare edge, queue consumer, and public web topology is internally consistent.\n');
+  process.stdout.write(
+    'OK: Cloudflare edge, usage consumer, acquisition Cron, and public web topology is internally consistent.\n',
+  );
   return 0;
 }
 

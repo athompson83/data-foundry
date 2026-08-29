@@ -22,6 +22,8 @@
     "verticals:validate": "tsx tooling/validators/validate-verticals.ts",
     "verticals:compile": "tsx tooling/scripts/compile-vertical-runtime.ts",
     "verticals:compile:check": "tsx tooling/scripts/compile-vertical-runtime.ts --check",
+    "acquisition:compile": "tsx tooling/scripts/compile-acquisition-runtime.ts",
+    "acquisition:check": "tsx tooling/scripts/compile-acquisition-runtime.ts --check",
     "cloudflare:topology:check": "tsx tooling/scripts/check-cloudflare-topology.ts",
     "cloudflare:artifacts:check": "tsx tooling/scripts/check-cloudflare-artifacts.ts",
     "web:compile": "tsx tooling/scripts/compile-web-runtime.ts",

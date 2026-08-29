@@ -24,7 +24,7 @@ describe('entities and aliases', () => {
     [true, false, true],
     [true, true, true],
   ] as const)(
-    'synchronizes kill switch stored=%s bundled=%s to %s',
+    'registers kill switch stored=%s bundled=%s to monotone %s',
     async (stored, bundled, expected) => {
       const source = fixtures.sources.manufacturer.source;
       const input = {
@@ -44,13 +44,59 @@ describe('entities and aliases', () => {
         'UPDATE sources SET kill_switch_engaged = $2 WHERE id = $1',
         [source.id, stored],
       );
-      const synchronized = await fixtures.store.upsertSource({
+      const synchronized = await fixtures.store.registerSource({
         ...input,
         kill_switch_engaged: bundled,
       });
       expect(synchronized.kill_switch_engaged).toBe(expected);
     },
   );
+
+  it('registers bundled metadata without overwriting stored vertical or source governance state', async () => {
+    const source = fixtures.sources.manufacturer.source;
+    const vertical = fixtures.vertical;
+    await fixtures.driver.query(
+      `UPDATE verticals SET status = 'DEPRECATED' WHERE id = $1`,
+      [vertical.id],
+    );
+    await fixtures.driver.query(
+      `UPDATE sources
+          SET status = 'PAUSED', rights_classification = 'RED', publisher = 'Database reviewer',
+              kill_switch_engaged = FALSE
+        WHERE id = $1`,
+      [source.id],
+    );
+
+    const registeredVertical = await fixtures.store.registerVertical({
+      slug: vertical.slug,
+      name: 'Bundled replacement name',
+      schema_version: vertical.schema_version,
+      status: 'ACTIVE',
+      default_refresh_policy: vertical.default_refresh_policy,
+    });
+    const registeredSource = await fixtures.store.registerSource({
+      vertical_id: vertical.id,
+      publisher: source.publisher,
+      domain: source.domain,
+      source_type: source.source_type,
+      authority_rank: source.authority_rank,
+      rights_classification: 'GREEN',
+      attribution_requirement: source.attribution_requirement,
+      robots_policy: source.robots_policy,
+      refresh_cadence: source.refresh_cadence,
+      status: 'ACTIVE',
+      kill_switch_engaged: false,
+    });
+
+    expect(registeredVertical.status).toBe('DEPRECATED');
+    expect(registeredVertical.name).toBe(vertical.name);
+    expect(registeredSource).toMatchObject({
+      status: 'PAUSED',
+      rights_classification: 'RED',
+      publisher: 'Database reviewer',
+      kill_switch_engaged: false,
+    });
+  });
 
   it('upserts an entity on (vertical, type, slug) without duplicating it', async () => {
     const again = await fixtures.store.upsertEntity({

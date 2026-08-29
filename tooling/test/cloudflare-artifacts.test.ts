@@ -32,8 +32,8 @@ describe('Cloudflare production artifacts', () => {
       }>
     )({ outputRoot });
 
-    expect(result.services).toEqual(['edge', 'usage-consumer', 'web']);
-    expect(result.files).toBeGreaterThanOrEqual(3);
+    expect(result.services).toEqual(['edge', 'usage-consumer', 'web', 'acquisition-worker']);
+    expect(result.files).toBeGreaterThanOrEqual(4);
     expect(result.bytes).toBeGreaterThan(100_000);
   }, 240_000);
 

@@ -31,6 +31,8 @@ export * from './hashing.js';
 export * from './fs.js';
 export * from './types.js';
 export * from './provider.js';
+export * from './runtime.js';
+
 export * from './policy/gate-types.js';
 export * from './policy/robots.js';
 export * from './policy/rights-gate.js';

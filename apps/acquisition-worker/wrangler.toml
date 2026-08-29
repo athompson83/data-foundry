@@ -1,0 +1,30 @@
+# Scheduled acquisition composition root. Account ids, Hyperdrive ids, and
+# credentials are deployment facts and never belong in this tracked file.
+name = "data-foundry-acquisition-worker"
+main = "src/index.ts"
+compatibility_date = "2026-08-28"
+compatibility_flags = ["nodejs_compat"]
+
+[observability]
+enabled = true
+
+[vars]
+DEPLOYMENT_ENVIRONMENT = "production"
+VERTICAL_SLUG = "hvac"
+RAW_ARTIFACTS_BUCKET_NAME = "data-foundry-raw-artifacts"
+
+[triggers]
+crons = ["0 * * * *"]
+
+[[r2_buckets]]
+binding = "RAW_ARTIFACTS"
+bucket_name = "data-foundry-raw-artifacts"
+
+# Create/reuse the canonical database Hyperdrive configuration, then put its
+# id in an ignored environment-specific Wrangler config or the dashboard.
+# [[hyperdrive]]
+# binding = "HYPERDRIVE"
+# id = "<hyperdrive-id>"
+
+# No Queue binding belongs here. This Worker writes acquisition run/artifact
+# transactions synchronously; usage metering is a different topology.
