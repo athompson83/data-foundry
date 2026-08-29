@@ -205,14 +205,18 @@ The position this platform should take, for the reviewer to accept or reject:
 This is the one place where the excluded source and the candidate source touch,
 and the distinction is sharp:
 
-- **Permitted:** storing the AHRI reference number *as it appears in EPA's
-  public dataset*, as an identifier. It reached us from EPA, under EPA's terms.
+- **Observed, not cleared:** the field appears in EPA's public dataset, but this
+  packet does not establish that Data Foundry may retain or use it. Any such
+  retention or use remains **UNKNOWN** and merely proposed pending appropriate
+  human review and an exact grant for the applicable rights-matrix use and
+  surface.
 - **Prohibited:** using that number to query, scrape, join against, or
   reconstruct the AHRI Certification Directory. That is acquiring from AHRI,
   and `packages/source-registry/src/prohibited-sources.ts` refuses it in code —
   see `docs/sources/prohibited-sources.md`.
 
-An identifier is not a licence to the thing it identifies.
+Observing an identifier in one dataset is neither a grant to retain or use that
+field nor a licence to the thing it identifies.
 
 ---
 

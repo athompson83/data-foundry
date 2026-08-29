@@ -198,7 +198,9 @@ notes: >-
   a COMBINATION (outdoor unit + indoor unit + optional furnace), not a product —
   one outdoor unit appears in many rows with different ratings per pairing, and
   collapsing that to "the outdoor unit's SEER2" would invent a fact the source
-  does not contain. Carries `ahri_reference_number` as an identifier: storing it
-  as it arrives from EPA is fine, and using it to query, join against or
-  reconstruct the AHRI directory is prohibited in platform code. See
+  does not contain. The EPA dataset is observed to carry
+  `ahri_reference_number`, but retaining or using that field remains UNKNOWN and
+  merely proposed pending appropriate human review and an exact grant for the
+  applicable rights-matrix use and surface. Using it to query, join against or
+  reconstruct the AHRI directory remains prohibited in platform code. See
   docs/sources/prohibited-sources.md.

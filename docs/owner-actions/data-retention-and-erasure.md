@@ -43,11 +43,16 @@ Four parts, and only the first is technical:
 2. **How long do metering rows have to live?** Pick from the actual obligation —
    tax retention, contractual dispute windows, fraud investigation — not from
    "it might be useful". Write the period and its basis down.
-3. **What happens at closure?** The workable pattern is close-and-pseudonymise
-   rather than delete: set `api_tenants.status = 'CLOSED'`, null or tokenise
-   `contact_email` and any other direct identifier, keep the row so the usage
-   rows it anchors still resolve. This satisfies erasure of personal data while
-   preserving the financial record, and it needs no schema change.
+3. **What happens at closure?** Close-and-pseudonymise is one possible
+   engineering pattern, not the policy: an approved controller policy could set
+   `api_tenants.status = 'CLOSED'`, null or tokenise `contact_email` and other
+   direct identifiers, and retain the anchor row for usage history. Before that
+   pattern can be adopted, the controller must document the legal basis and
+   jurisdiction-specific requirements, analyse whether the remaining data can
+   be re-identified or linked back to a person, and verify the implemented
+   transformation and downstream copies. Pseudonymisation alone does **not**
+   establish that an erasure request has been satisfied, and it is not a claim
+   that the retained data is anonymous.
 4. **What happens after the retention period?** Delete or anonymise the usage
    rows. This is the only part that needs new code — a scheduled job, and a
    migration if `ON DELETE RESTRICT` has to be worked around for the anchor row.

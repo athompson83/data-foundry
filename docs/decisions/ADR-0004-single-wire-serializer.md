@@ -43,18 +43,32 @@ Corollaries:
 
 ## Enforcement
 
-`apps/api/test/boundary.test.ts`, `apps/mcp/test/boundary.test.ts`, and
-`services/export-builder/test/boundary.test.ts` reject private serializers and
-pin the shared projections. `tests/contract/surface-parity.test.ts` holds REST
-and MCP to the same canonical answer. The export builder is not falsely credited
-to that parity test: its own boundary test compares its projection with the
-shared mapper while allowing the narrowly documented canonical-store access
-needed to record an export snapshot.
+The evidence is split by the property each test actually checks:
 
-`apps/web` renders surface-bound canonical views and evidence explanations; its
-tests cover evidence disclosure, rights filtering, and route dispatch. Search
-index documents are produced from that same public model and independently
-require `SEARCH_INDEX` permission.
+- `apps/api/test/boundary.test.ts` scans the REST source tree. It requires
+  `toRestFact` to be used from `wire.ts`, rejects a second REST fact-wire shape
+  elsewhere in that app, and checks that the wrapper adds only the reviewer
+  privacy guard rather than another projection.
+- `apps/mcp/test/query-layer-boundary.test.ts` is a query-layer boundary test,
+  not a private-serializer test. It requires MCP source to import the canonical
+  query layer through its single seam and rejects store, driver, SQL, and
+  selection/ranking implementations in the interface.
+- `packages/query-model/test/editorial-projection.test.ts` exercises the shared
+  `toRestFact`, `toMcpFact`, and `toExportRow` projections. It verifies that the
+  correction fields and warnings survive each projection, reviewer identity is
+  excluded, and the shared correction-schema fragment has the required shape.
+- `services/export-builder/test/boundary.test.ts` compares emitted export rows
+  with `toExportRow` field for field, checks that no projected fields are
+  dropped, and rejects another export projection elsewhere in that service.
+- `tests/contract/surface-parity.test.ts` is behavioral contract evidence: with
+  the same query state and instant, REST and MCP must publish the same facts,
+  values, trust fields, rights withholding, and reviewer-identity exclusion.
+  It does not cover export rows.
+
+`apps/web/test/boundary.test.ts` separately requires page-rendering code outside
+the composition root to stay at or above the canonical query layer. Search-index
+publication separately requires `SEARCH_INDEX` permission. Neither check is
+described here as a private-serializer assertion.
 
 ## Consequences
 
