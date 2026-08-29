@@ -126,7 +126,9 @@ BEGIN
        OR NOT (value ?& ARRAY['allowedOrigins', 'allowedPathPrefixes'])
        OR value - 'allowedOrigins' - 'allowedPathPrefixes' <> '{}'::JSONB
        OR jsonb_typeof(value -> 'allowedOrigins') <> 'array'
-       OR jsonb_array_length(value -> 'allowedOrigins') NOT BETWEEN 1 AND 16
+       -- Origins and path prefixes are deliberately not independent sets:
+       -- exactly one origin prevents an unintended Cartesian product.
+       OR jsonb_array_length(value -> 'allowedOrigins') <> 1
        OR jsonb_typeof(value -> 'allowedPathPrefixes') <> 'array'
        OR jsonb_array_length(value -> 'allowedPathPrefixes') NOT BETWEEN 1 AND 32
        OR (SELECT count(DISTINCT (item #>> '{}'))

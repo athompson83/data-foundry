@@ -330,8 +330,8 @@ function parseResultUrlPolicy(
   );
   const origins = value['allowedOrigins'];
   const prefixes = value['allowedPathPrefixes'];
-  if (!Array.isArray(origins) || origins.length < 1 || origins.length > 16) {
-    throw new Error('scheduled acquisition result URL policy requires 1-16 origins');
+  if (!Array.isArray(origins) || origins.length !== 1) {
+    throw new Error('scheduled acquisition result URL policy requires exactly one origin');
   }
   if (!Array.isArray(prefixes) || prefixes.length < 1 || prefixes.length > 32) {
     throw new Error('scheduled acquisition result URL policy requires 1-32 path prefixes');

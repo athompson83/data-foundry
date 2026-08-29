@@ -9,7 +9,7 @@ import {
 } from '../src/index.js';
 import { countRows, createFixtures, ts, type Fixtures } from './support.js';
 import { artifactRetrievalReceiptId } from '../../acquisition/src/storage/keys.js';
-import { seedAcquisitionRightsScopes } from '../../../apps/acquisition-worker/test/support.js';
+import { seedAcquisitionRightsScopes } from '../../../tests/support/acquisition-rights.js';
 
 let fixtures: Fixtures;
 let scheduler: ScheduledAcquisitionStore;
@@ -288,6 +288,13 @@ describe('scheduled acquisition claims', () => {
       ],
       allowedPathPrefixes: ['/api/v2/catalog'],
     }],
+    ['unpaired multiple origins', {
+      allowedOrigins: [
+        'https://catalog.acme-climate.example.com',
+        'https://neighbor.acme-climate.example.com',
+      ],
+      allowedPathPrefixes: ['/api/v2/catalog'],
+    }],
     ['duplicate prefix', {
       allowedOrigins: ['https://catalog.acme-climate.example.com'],
       allowedPathPrefixes: ['/api/v2/catalog', '/api/v2/catalog'],
@@ -302,7 +309,7 @@ describe('scheduled acquisition claims', () => {
       idempotencyKey: `duplicate-policy-${_label}`,
       targetId: `duplicate-policy-${_label.replaceAll(' ', '-')}`,
       resultUrlPolicy: policy,
-    }))).rejects.toThrow(/unique/i);
+    }))).rejects.toThrow(/unique|exactly one origin/i);
   });
 
   it.each([
