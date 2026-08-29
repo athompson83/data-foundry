@@ -147,9 +147,10 @@ export interface VerticalRunResult {
 }
 
 /**
- * Final offline-ingest transport guard. It deliberately reloads the database
- * instead of consulting Pipeline's per-run cache: a kill switch or rights
- * activation can change while the provider waits on a rate limit.
+ * Fresh offline-ingest acquisition guard. The provider calls it before
+ * transport and again immediately before persistence. It deliberately reloads
+ * the database instead of consulting Pipeline's per-run cache because a kill
+ * switch or rights activation can change during either wait.
  */
 export async function requireStoredAcquisitionTransportRights(input: {
   readonly driver: SqlDriver;
@@ -221,6 +222,13 @@ interface InternalRightsIntent {
   readonly fieldKey: string | null;
 }
 
+/**
+ * Returning normally from a transaction commits it. An unresolved record must
+ * instead roll back any manufacturer/alias writes performed before identifier
+ * validation, while remaining a non-error pipeline outcome.
+ */
+class UnresolvableRecordRollback extends Error {}
+
 export class Pipeline {
   readonly store: CanonicalStore;
   readonly config: VerticalConfig;
@@ -280,6 +288,13 @@ export class Pipeline {
         // useless in CI without proving anything.
         rateLimiter: unlimitedRateLimiter,
         beforeTransport: ({ request, entry, asOf }) =>
+          requireStoredAcquisitionTransportRights({
+            driver: options.driver,
+            sourceId: request.sourceId,
+            entry,
+            asOf,
+          }),
+        beforePersistence: ({ request, entry, asOf }) =>
           requireStoredAcquisitionTransportRights({
             driver: options.driver,
             sourceId: request.sourceId,
@@ -887,118 +902,129 @@ export class Pipeline {
     item: NormalizedRecord,
   ): Promise<ResolvedRecordContext | null> {
     const raw = item.extracted.raw_payload;
-    await this.store.driver.exec('BEGIN');
     try {
+      return await this.store.driver.transaction(async (tx) => {
+        // The manufacturer is resolved first: it is the scope a model number is
+        // unique within, and the slug pattern needs it.
+        let manufacturer: Entity | null = null;
+        for (const relationship of item.plan.relationships) {
+          for (const endpoint of [relationship.subject, relationship.object]) {
+            if (endpoint.kind !== 'publisher') continue;
+            const value =
+              endpoint.literal ??
+              (endpoint.field === null ? null : stringOrNull(raw[endpoint.field]));
+            if (value === null) continue;
+            manufacturer = await resolver.resolveManufacturer(value, source.id, tx);
+            break;
+          }
+          if (manufacturer !== null) break;
+        }
 
-    // The manufacturer is resolved first: it is the scope a model number is
-    // unique within, and the slug pattern needs it.
-    let manufacturer: Entity | null = null;
-    for (const relationship of item.plan.relationships) {
-      for (const endpoint of [relationship.subject, relationship.object]) {
-        if (endpoint.kind !== 'publisher') continue;
-        const value =
-          endpoint.literal ??
-          (endpoint.field === null ? null : stringOrNull(raw[endpoint.field]));
-        if (value === null) continue;
-        manufacturer = await resolver.resolveManufacturer(value, source.id);
-        break;
-      }
-      if (manufacturer !== null) break;
-    }
+        const aliases: AliasClaim[] = [];
+        for (const identifier of item.normalization.identifiers) {
+          const plan = item.plan.aliases.find((alias) => alias.aliasType === identifier.alias_type);
+          const normalizedValue = resolver.normalizer.normalize(
+            identifier.alias_type,
+            identifier.alias_value,
+          );
+          const invalid = resolver.normalizer.validate(identifier.alias_type, normalizedValue);
+          if (invalid !== null) {
+            // Quarantine, never write. A garbage join key silently creates a
+            // duplicate entity, which is far more expensive than a rejected value.
+            this.#diagnostics.push(
+              `${source.domain}/${item.row.source_record_key}: alias ${identifier.alias_type} quarantined — ${invalid}`,
+            );
+            continue;
+          }
+          aliases.push({
+            aliasType: identifier.alias_type,
+            aliasValue: identifier.alias_value,
+            normalizedValue,
+            strong: plan?.strong ?? false,
+          });
+        }
 
-    const aliases: AliasClaim[] = [];
-    for (const identifier of item.normalization.identifiers) {
-      const plan = item.plan.aliases.find((alias) => alias.aliasType === identifier.alias_type);
-      const normalizedValue = resolver.normalizer.normalize(identifier.alias_type, identifier.alias_value);
-      const invalid = resolver.normalizer.validate(identifier.alias_type, normalizedValue);
-      if (invalid !== null) {
-        // Quarantine, never write. A garbage join key silently creates a
-        // duplicate entity, which is far more expensive than a rejected value.
-        this.#diagnostics.push(
-          `${source.domain}/${item.row.source_record_key}: alias ${identifier.alias_type} quarantined — ${invalid}`,
+        if (aliases.every((alias) => !alias.strong)) {
+          this.#diagnostics.push(
+            `${source.domain}/${item.row.source_record_key}: no usable strong identifier; record not resolved`,
+          );
+          throw new UnresolvableRecordRollback();
+        }
+
+        const resolved = await resolver.resolveRecord(
+          {
+            entityType: item.plan.entityType,
+            aliases,
+            manufacturer,
+            sourceId: source.id,
+            sourceRecordId: item.row.id,
+          },
+          tx,
         );
-        continue;
-      }
-      aliases.push({
-        aliasType: identifier.alias_type,
-        aliasValue: identifier.alias_value,
-        normalizedValue,
-        strong: plan?.strong ?? false,
-      });
-    }
 
-    if (aliases.every((alias) => !alias.strong)) {
-      this.#diagnostics.push(
-        `${source.domain}/${item.row.source_record_key}: no usable strong identifier; record not resolved`,
-      );
-      await this.store.driver.exec('ROLLBACK');
-      return null;
-    }
+        await this.store.recordEntityEvidence(
+          {
+            entity_id: resolved.entity.id,
+            artifact_id: item.artifact.id,
+            source_record_id: item.row.id,
+            contribution_role: 'EXISTENCE',
+            locator_type: item.extracted.locator.type,
+            locator_value: item.extracted.locator.value,
+            observed_at: item.artifact.retrieved_at,
+          },
+          tx,
+        );
+        for (const identifier of item.normalization.identifiers) {
+          await this.store.recordEntityEvidence(
+            {
+              entity_id: resolved.entity.id,
+              artifact_id: item.artifact.id,
+              source_record_id: item.row.id,
+              contribution_role: 'ALIAS',
+              locator_type: identifier.locator.type,
+              locator_value: identifier.locator.value,
+              observed_at: item.artifact.retrieved_at,
+            },
+            tx,
+          );
+        }
+        if (manufacturer !== null) {
+          await this.store.recordEntityEvidence(
+            {
+              entity_id: manufacturer.id,
+              artifact_id: item.artifact.id,
+              source_record_id: item.row.id,
+              contribution_role: 'EXISTENCE',
+              locator_type: item.extracted.locator.type,
+              locator_value: item.extracted.locator.value,
+              observed_at: item.artifact.retrieved_at,
+            },
+            tx,
+          );
 
-    const resolved = await resolver.resolveRecord({
-      entityType: item.plan.entityType,
-      aliases,
-      manufacturer,
-      sourceId: source.id,
-      sourceRecordId: item.row.id,
-    });
+          for (const alias of aliases) {
+            await resolver.recordScopedIdentifierPrefix(
+              manufacturer,
+              alias.aliasType,
+              alias.aliasValue,
+              source.id,
+              tx,
+            );
+          }
+        }
 
-    await this.store.recordEntityEvidence({
-      entity_id: resolved.entity.id,
-      artifact_id: item.artifact.id,
-      source_record_id: item.row.id,
-      contribution_role: 'EXISTENCE',
-      locator_type: item.extracted.locator.type,
-      locator_value: item.extracted.locator.value,
-      observed_at: item.artifact.retrieved_at,
-    });
-    for (const identifier of item.normalization.identifiers) {
-      await this.store.recordEntityEvidence({
-        entity_id: resolved.entity.id,
-        artifact_id: item.artifact.id,
-        source_record_id: item.row.id,
-        contribution_role: 'ALIAS',
-        locator_type: identifier.locator.type,
-        locator_value: identifier.locator.value,
-        observed_at: item.artifact.retrieved_at,
-      });
-    }
-    if (manufacturer !== null) {
-      await this.store.recordEntityEvidence({
-        entity_id: manufacturer.id,
-        artifact_id: item.artifact.id,
-        source_record_id: item.row.id,
-        contribution_role: 'EXISTENCE',
-        locator_type: item.extracted.locator.type,
-        locator_value: item.extracted.locator.value,
-        observed_at: item.artifact.retrieved_at,
-      });
-    }
-
-    if (manufacturer !== null) {
-      for (const alias of aliases) {
-        await resolver.recordScopedIdentifierPrefix(
+        return {
+          plan: item.plan,
+          extracted: item.extracted,
+          sourceRecord: item.row,
+          normalization: item.normalization,
+          artifact: item.artifact,
+          entity: resolved.entity,
           manufacturer,
-          alias.aliasType,
-          alias.aliasValue,
-          source.id,
-        );
-      }
-    }
-
-    const context = {
-      plan: item.plan,
-      extracted: item.extracted,
-      sourceRecord: item.row,
-      normalization: item.normalization,
-      artifact: item.artifact,
-      entity: resolved.entity,
-      manufacturer,
-    };
-    await this.store.driver.exec('COMMIT');
-    return context;
+        };
+      });
     } catch (error) {
-      await this.store.driver.exec('ROLLBACK');
+      if (error instanceof UnresolvableRecordRollback) return null;
       throw error;
     }
   }

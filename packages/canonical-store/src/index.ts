@@ -138,6 +138,7 @@ export {
 
 export {
   createScheduledAcquisitionStore,
+  CURRENT_SCHEDULED_RIGHTS_RECEIPT_CONTRACT_VERSION,
   SCHEDULED_ACQUISITION_FAILURE_CODES,
   SCHEDULED_ACQUISITION_PROVIDERS,
   type AcquisitionAssetClass,
@@ -160,5 +161,6 @@ export {
   type ScheduledRightsOperation,
   type ScheduledRightsReceipt,
   type ScheduledRightsReceiptBasis,
+  type ScheduledRightsReceiptContractVersion,
   type ScheduledRightsReceiptStage,
 } from './scheduled-acquisition.js';

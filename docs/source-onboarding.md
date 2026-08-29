@@ -95,8 +95,10 @@ silently go stale.
 Before provider construction or transport, the scheduled acquisition Worker
 must find effective stored `ACQUIRE`, `STORE`, and `CACHE` decisions for the
 exact route/plan/jurisdiction/asset/output scope. It rechecks that scope before
-transport. A declaration, approval boolean, Cron schedule, or successful build
-cannot substitute for those decisions.
+transport and again after transport at `PRE_PERSISTENCE`, immediately before
+the first R2 write or a `NOT_MODIFIED` freshness update. A declaration, approval
+boolean, Cron schedule, or successful build cannot substitute for those
+decisions.
 
 **Prefer the published bulk file over crawling.** It is cheaper, it is more
 stable, and it is usually what the publisher intends. `acquisition_policy.method`
@@ -115,10 +117,13 @@ digest and written once; a re-fetch of unchanged bytes adds a retrieval record,
 not a second copy.
 
 For a source intentionally enabled in `verticals/<slug>/acquisition.yaml`, run
-`pnpm acquisition:compile` and `pnpm acquisition:check`. Migration 0017 records
-deterministic Cron claims, rights receipts, outcomes, validators, and R2
-associations. These prove the runner shape, not that a real source is cleared or
-that the Worker is deployed.
+`pnpm acquisition:compile` and `pnpm acquisition:check`. Every direct
+HTTP-backed target must declare the smallest documented positive
+`max_direct_http_response_bytes` that safely fits its artifact; oversized
+declared or chunked responses are refused rather than truncated. Migrations
+0017 and 0019 record deterministic Cron claims, versioned rights receipts,
+outcomes, validators, and R2 associations. These prove the runner shape, not
+that a real source is cleared or that the Worker is deployed.
 
 ---
 

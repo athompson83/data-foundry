@@ -16,7 +16,11 @@ import {
 } from '@data-foundry/canonical-store';
 import { toSourceInsert } from '@data-foundry/source-registry';
 import { createFixtures, type Fixtures } from '../../../packages/canonical-store/test/support.js';
-import { stubFetch } from '../../../packages/acquisition/test/helpers.js';
+import {
+  makeResponse,
+  makeStreamingResponse,
+  stubFetch,
+} from '../../../packages/acquisition/test/helpers.js';
 import { seedAcquisitionRights } from '../../../tests/support/acquisition-rights.js';
 import { ACQUISITION_RUNTIMES } from '../generated/runtime-registry.js';
 import { runScheduledAcquisition } from '../src/runner.js';
@@ -89,6 +93,7 @@ async function activateStickyDeny(
   driver: SqlDriver,
   sourceId: string,
   occurredAt: string,
+  operation: 'ACQUIRE' | 'STORE' | 'CACHE' = 'ACQUIRE',
 ): Promise<void> {
   const current = await driver.query<{ cell_id: string; decision_id: string }>(
     `SELECT cell.id AS cell_id, active.decision_id
@@ -100,12 +105,12 @@ async function activateStickyDeny(
           ORDER BY event.sequence_no DESC LIMIT 1
        ) active ON TRUE
       WHERE cell.source_id = $1
-        AND cell.operation = 'ACQUIRE'
+        AND cell.operation = $2
         AND cell.channel = 'INTERNAL_PROCESSING'`,
-    [sourceId],
+    [sourceId, operation],
   );
   const prior = current[0];
-  if (prior === undefined) throw new Error('test fixture has no active ACQUIRE decision');
+  if (prior === undefined) throw new Error(`test fixture has no active ${operation} decision`);
   const decisionId = crypto.randomUUID();
   await driver.query(
     `INSERT INTO rights_decisions
@@ -121,6 +126,38 @@ async function activateStickyDeny(
                                      'activate scheduler revocation test', $2)`,
     [decisionId, occurredAt],
   );
+}
+
+async function activateBroaderStickyDeny(
+  driver: SqlDriver,
+  sourceId: string,
+  occurredAt: string,
+  operation: 'ACQUIRE' | 'STORE' | 'CACHE',
+): Promise<void> {
+  const cellId = crypto.randomUUID();
+  const decisionId = crypto.randomUUID();
+  await driver.transaction(async (tx) => {
+    await tx.query(
+      `INSERT INTO rights_cells
+         (id, source_id, operation, channel, created_by)
+       VALUES ($1, $2, $3, 'INTERNAL_PROCESSING', 'test-fixture')`,
+      [cellId, sourceId, operation],
+    );
+    await tx.query(
+      `INSERT INTO rights_decisions
+         (id, cell_id, state, review_status, reviewer_type, reviewed_by, reviewed_at,
+          effective_from, recheck_at, rationale, created_by)
+       VALUES ($1, $2, 'DENY', 'APPROVED', 'HUMAN', 'test-fixture', $3,
+               $3, '2027-08-01T00:00:00.000Z', 'broader scheduler revocation test',
+               'test-fixture')`,
+      [decisionId, cellId, occurredAt],
+    );
+    await tx.query(
+      `SELECT activate_rights_decision($1, 'HUMAN', 'test-fixture',
+                                       'activate broader scheduler revocation test', $2)`,
+      [decisionId, occurredAt],
+    );
+  });
 }
 
 function denyOnRightsLoad(
@@ -152,6 +189,35 @@ const artifactStore = (objects: InMemoryObjectClient) =>
   new R2ArtifactStore({ bucket: 'test-raw', client: objects });
 
 describe('scheduled acquisition runner', () => {
+  it('forwards the compiled response ceiling to a direct HTTP acquisition', async () => {
+    const base = runtimeFor();
+    const target = base.targets[0]!;
+    const runtime: AcquisitionRuntime = {
+      ...base,
+      targets: [{ ...target, max_direct_http_response_bytes: 8 }],
+    };
+    await authorizeRuntime(runtime);
+    const response = makeStreamingResponse({
+      chunks: [new Uint8Array([1, 2, 3, 4]), new Uint8Array([5, 6, 7, 8, 9])],
+    });
+    const objects = new InMemoryObjectClient();
+
+    const result = await runScheduledAcquisition({
+      driver: fixtures.driver,
+      runtime,
+      scheduledFor: SLOT,
+      clock: new ManualClock(SLOT),
+      artifactStore: artifactStore(objects),
+      env: {},
+      fetch: () => Promise.resolve(response.response),
+    });
+
+    expect(result.executions[0]?.disposition).toBe('FAILED');
+    expect(response.cancellations).toBe(1);
+    expect(response.arrayBufferReads).toBe(0);
+    expect(objects.writes).toEqual([]);
+  });
+
   it('durably refuses all four synthetic targets without grants and makes duplicate Cron a no-op', async () => {
     const objects = new InMemoryObjectClient();
     const network = vi.fn<FetchLike>(() => Promise.reject(new Error('network must not run')));
@@ -296,6 +362,119 @@ describe('scheduled acquisition runner', () => {
     expect(objects.writes).toEqual([]);
   });
 
+  it('refuses a STORE revocation after transport but before persistence', async () => {
+    const runtime = runtimeFor();
+    const sourceId = await authorizeRuntime(runtime);
+    const clock = new SteppingClock(SLOT);
+    const objects = new InMemoryObjectClient();
+    let networkCalls = 0;
+    const network: FetchLike = async () => {
+      networkCalls += 1;
+      await activateStickyDeny(fixtures.driver, sourceId, clock.nowIso(), 'STORE');
+      return makeResponse({
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+        body: '{"models":["SYNTHETIC-1"]}',
+      });
+    };
+
+    const result = await runScheduledAcquisition({
+      driver: fixtures.driver,
+      runtime,
+      scheduledFor: SLOT,
+      clock,
+      artifactStore: artifactStore(objects),
+      env: {},
+      fetch: network,
+    });
+
+    expect(networkCalls).toBe(1);
+    expect(result.executions[0]?.disposition).toBe('REFUSED');
+    expect(objects.writes).toEqual([]);
+    const rows = await fixtures.driver.query<{
+      status: string;
+      failure_code: string;
+      fresh_at: string | null;
+      rights_receipt: {
+        stage: string;
+        basis: string;
+        decisions: { operation: string; permitted: boolean }[];
+      }[];
+    }>(
+      `SELECT status, failure_code, fresh_at, rights_receipt
+         FROM scheduled_acquisition_runs
+        WHERE id = $1`,
+      [result.executions[0]!.runId],
+    );
+    expect(rows[0]).toMatchObject({
+      status: 'REFUSED',
+      failure_code: 'RIGHTS_REFUSED',
+      fresh_at: null,
+    });
+    expect(rows[0]?.rights_receipt.map(({ stage }) => stage)).toEqual([
+      'INITIAL',
+      'PRE_PROVIDER',
+      'PRE_TRANSPORT',
+      'PRE_PERSISTENCE',
+    ]);
+    expect(rows[0]?.rights_receipt.at(-1)).toMatchObject({
+      stage: 'PRE_PERSISTENCE',
+      basis: 'RIGHTS_REFUSED',
+      decisions: expect.arrayContaining([
+        expect.objectContaining({ operation: 'STORE', permitted: false }),
+      ]),
+    });
+  });
+
+  it('refuses a newly matching broader STORE DENY after transport', async () => {
+    const runtime = runtimeFor();
+    const sourceId = await authorizeRuntime(runtime);
+    const clock = new SteppingClock(SLOT);
+    const objects = new InMemoryObjectClient();
+    let networkCalls = 0;
+    const network: FetchLike = async () => {
+      networkCalls += 1;
+      await activateBroaderStickyDeny(fixtures.driver, sourceId, clock.nowIso(), 'STORE');
+      return makeResponse({
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+        body: '{"models":["SYNTHETIC-1"]}',
+      });
+    };
+
+    const result = await runScheduledAcquisition({
+      driver: fixtures.driver,
+      runtime,
+      scheduledFor: SLOT,
+      clock,
+      artifactStore: artifactStore(objects),
+      env: {},
+      fetch: network,
+    });
+
+    const rows = await fixtures.driver.query<{
+      status: string;
+      failure_code: string;
+      fresh_at: string | null;
+      rights_receipt: { stage: string; basis: string }[];
+    }>(
+      `SELECT status, failure_code, fresh_at, rights_receipt
+         FROM scheduled_acquisition_runs WHERE id = $1`,
+      [result.executions[0]!.runId],
+    );
+    expect(networkCalls).toBe(1);
+    expect({ disposition: result.executions[0]?.disposition, row: rows[0] }).toMatchObject({
+      disposition: 'REFUSED',
+      row: { status: 'REFUSED', failure_code: 'RIGHTS_REFUSED' },
+    });
+    expect(objects.writes).toEqual([]);
+    expect(rows[0]?.fresh_at).toBeNull();
+    expect(rows[0]?.rights_receipt.at(-1)).toMatchObject({
+      stage: 'PRE_PERSISTENCE',
+      basis: 'RIGHTS_REFUSED',
+    });
+  });
+
   it('persists a successful canonical provider run with exact ordered receipts and a per-run retrieval id', async () => {
     const runtime = runtimeFor();
     await authorizeRuntime(runtime);
@@ -338,6 +517,7 @@ describe('scheduled acquisition runner', () => {
       'INITIAL',
       'PRE_PROVIDER',
       'PRE_TRANSPORT',
+      'PRE_PERSISTENCE',
     ]);
     expect(rows[0]?.retrieval_receipt_id).toBe(
       artifactRetrievalReceiptId(runId, runtime.targets[0]!.target_url, 'http'),
@@ -417,11 +597,19 @@ describe('scheduled acquisition runner', () => {
       outcome: string;
       artifact_count: number;
       fresh_at: string | Date | null;
+      rights_receipt: { stage: string }[];
     }>(
-      `SELECT outcome, artifact_count, fresh_at FROM scheduled_acquisition_runs WHERE id = $1`,
+      `SELECT outcome, artifact_count, fresh_at, rights_receipt
+         FROM scheduled_acquisition_runs WHERE id = $1`,
       [second.executions[0]!.runId],
     );
     expect(rows[0]).toMatchObject({ outcome: 'NOT_MODIFIED', artifact_count: 0 });
     expect(new Date(rows[0]!.fresh_at!).toISOString()).toBe(REFRESH_SLOT);
+    expect(rows[0]?.rights_receipt.map(({ stage }) => stage)).toEqual([
+      'INITIAL',
+      'PRE_PROVIDER',
+      'PRE_TRANSPORT',
+      'PRE_PERSISTENCE',
+    ]);
   });
 });

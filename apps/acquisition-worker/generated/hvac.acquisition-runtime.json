@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "vertical_slug": "hvac",
   "vertical_name": "HVAC Equipment",
   "vertical_schema_version": "0.1.0",
@@ -13,6 +13,7 @@
     {
       "target_id": "catalog-api",
       "target_url": "https://catalog.acme-climate.example.com/api/v2/catalog",
+      "max_direct_http_response_bytes": 1048576,
       "result_url_policy": {
         "allowedOrigins": [
           "https://catalog.acme-climate.example.com"
@@ -111,6 +112,7 @@
     {
       "target_id": "specification-sheet",
       "target_url": "https://docs.acme-climate.example.com/spec-sheets/acme-spec.pdf",
+      "max_direct_http_response_bytes": 8388608,
       "result_url_policy": {
         "allowedOrigins": [
           "https://docs.acme-climate.example.com"
@@ -212,6 +214,7 @@
     {
       "target_id": "quarterly-export",
       "target_url": "https://ratings-directory.example.org/exports/ahri-export.csv",
+      "max_direct_http_response_bytes": 16777216,
       "result_url_policy": {
         "allowedOrigins": [
           "https://ratings-directory.example.org"
@@ -405,5 +408,5 @@
       }
     }
   ],
-  "runtime_digest": "1c942c62f866e0f5a9c4769e9a2dfabe16f947670542ef16047520b0c9bcde1a"
+  "runtime_digest": "fde03f7946e98804c5040a2645f2833245454ff6a9ec550aa1f34f27650ccf12"
 }

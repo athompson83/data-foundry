@@ -495,15 +495,11 @@ class SurfaceRightsAuthorizer {
 
   async #authorizeFact(factId: string, ancestors: ReadonlySet<string>): Promise<boolean> {
     if (ancestors.has(factId)) return false;
-    const fact = await this.#store.getFactById(factId as FactId);
-    if (fact === null || fact.output_kind === null) return false;
-    const candidates = await this.#store.loadFactCandidates(
-      fact.entity_id,
-      fact.property,
-      this.#asOf,
-    );
-    const candidate = candidates.find((entry) => entry.fact.id === fact.id);
-    if (candidate === undefined || candidate.evidence.length === 0) return false;
+    const candidate = await this.#store.loadFactCandidateById(factId as FactId);
+    if (candidate === null || candidate.fact.output_kind === null || candidate.evidence.length === 0) {
+      return false;
+    }
+    const { fact } = candidate;
     const contributions = candidate.evidence.map(contributionFromEvidence);
     if (contributions.some((entry) => entry === null)) return false;
 
@@ -568,15 +564,11 @@ class SurfaceRightsAuthorizer {
     ancestors: ReadonlySet<string>,
   ): Promise<readonly ArtifactContribution[] | null> {
     if (ancestors.has(factId)) return null;
-    const fact = await this.#store.getFactById(factId as FactId);
-    if (fact === null || fact.output_kind === null) return null;
-    const candidates = await this.#store.loadFactCandidates(
-      fact.entity_id,
-      fact.property,
-      this.#asOf,
-    );
-    const candidate = candidates.find((entry) => entry.fact.id === fact.id);
-    if (candidate === undefined || candidate.evidence.length === 0) return null;
+    const candidate = await this.#store.loadFactCandidateById(factId as FactId);
+    if (candidate === null || candidate.fact.output_kind === null || candidate.evidence.length === 0) {
+      return null;
+    }
+    const { fact } = candidate;
     const direct = candidate.evidence.map(contributionFromEvidence);
     if (direct.some((entry) => entry === null)) return null;
 

@@ -193,6 +193,62 @@ describe('Crawl4AI provider — result mapping', () => {
 
     expect((await provider.fetch(makeRequest())).artifacts[0]?.http_status).toBe(203);
   });
+
+  it('preflights a later malformed result before storing an earlier valid result', async () => {
+    const harness = makeHarness({ entry: crawl4aiEntry() });
+    const api = stubFetch(() =>
+      results({
+        success: true,
+        results: [
+          { url: TARGET_URL, html: BODY, status_code: 200 },
+          { url: TARGET_URL, html: '<p>invalid status</p>', status_code: -1 },
+        ],
+      }),
+    );
+    const provider = new Crawl4AIAcquisitionProvider({
+      deps: harness.deps,
+      baseUrl: BASE_URL,
+      fetch: api.fetch,
+    });
+
+    await expect(provider.fetch(makeRequest())).rejects.toThrow();
+    expect(harness.files.size).toBe(0);
+  });
+
+  it('refuses an oversized result collection before accumulating diagnostics', async () => {
+    const harness = makeHarness({ entry: crawl4aiEntry() });
+    const api = stubFetch(() =>
+      results({ success: true, results: Array.from({ length: 1_001 }, () => ({})) }),
+    );
+    const provider = new Crawl4AIAcquisitionProvider({
+      deps: harness.deps,
+      baseUrl: BASE_URL,
+      fetch: api.fetch,
+    });
+
+    await expect(provider.fetch(makeRequest())).rejects.toThrow(/result limit/i);
+    expect(harness.files.size).toBe(0);
+  });
+
+  it('caps cumulative diagnostics produced from a bounded control response', async () => {
+    const harness = makeHarness({ entry: crawl4aiEntry() });
+    const api = stubFetch(() =>
+      results({
+        success: true,
+        results: Array.from({ length: 40 }, (_, index) => ({
+          url: `${TARGET_URL}?diagnostic=${index}${'x'.repeat(7_800)}`,
+        })),
+      }),
+    );
+    const provider = new Crawl4AIAcquisitionProvider({
+      deps: harness.deps,
+      baseUrl: BASE_URL,
+      fetch: api.fetch,
+    });
+
+    await expect(provider.fetch(makeRequest())).rejects.toThrow(/diagnostics exceeded/i);
+    expect(harness.files.size).toBe(0);
+  });
 });
 
 describe('Crawl4AI provider — degrading cleanly', () => {

@@ -13,6 +13,8 @@ import {
   VerticalStatusSchema,
 } from '@data-foundry/canonical-schema';
 import {
+  HTTP_ACQUISITION_METHODS,
+  MAX_HTTP_RESPONSE_BYTES,
   stableStringify,
   type AcquisitionRuntime,
   type AcquisitionRuntimeTarget,
@@ -48,6 +50,7 @@ const TargetSchema = z.strictObject({
       parsed.username === '' && parsed.password === '' &&
       !value.includes('\\') && !/%(?:2e|2f|5c)/i.test(value);
   }, 'must be a canonical traversal-free HTTPS URL'),
+  max_direct_http_response_bytes: z.number().int().min(1).max(MAX_HTTP_RESPONSE_BYTES).optional(),
   result_url_policy: z.strictObject({
     allowedOrigins: z.array(
       z.string().refine(canonicalHttpsOrigin, 'must be a lowercase canonical HTTPS origin'),
@@ -67,9 +70,13 @@ const TargetSchema = z.strictObject({
   output_class: z.enum(RIGHTS_OUTPUT_CLASSES),
 });
 const AcquisitionConfigSchema = z.strictObject({
-  version: z.literal(1),
+  version: z.literal(2),
   targets: z.array(TargetSchema).min(1),
 });
+
+export function parseAcquisitionConfig(value: unknown): z.infer<typeof AcquisitionConfigSchema> {
+  return AcquisitionConfigSchema.parse(value);
+}
 
 export interface CompileAcquisitionRuntimeOptions {
   readonly outputDir?: string;
@@ -96,7 +103,7 @@ export async function compileAcquisitionRuntime(slug: string): Promise<Acquisiti
   if (typeof configPath !== 'string' || configPath.trim() === '') {
     throw new Error(`${slug}/vertical.yaml must declare config.acquisition`);
   }
-  const config = AcquisitionConfigSchema.parse(
+  const config = parseAcquisitionConfig(
     parseYaml(await readFile(join(verticalDir, configPath), 'utf8')),
   );
   const policy = RefreshPolicySchema.parse(vertical.default_refresh_policy);
@@ -123,6 +130,21 @@ export async function compileAcquisitionRuntime(slug: string): Promise<Acquisiti
     if (source.vertical_slug !== slug) {
       throw new Error(`acquisition target ${target.target_id} crosses verticals`);
     }
+    const usesDirectHttp = (HTTP_ACQUISITION_METHODS as readonly string[]).includes(
+      source.acquisition_policy.method,
+    );
+    if (usesDirectHttp && target.max_direct_http_response_bytes === undefined) {
+      throw new Error(
+        `acquisition target ${target.target_id} requires max_direct_http_response_bytes for ` +
+          `${source.acquisition_policy.method}`,
+      );
+    }
+    if (!usesDirectHttp && target.max_direct_http_response_bytes !== undefined) {
+      throw new Error(
+        `acquisition target ${target.target_id} may declare max_direct_http_response_bytes only ` +
+          'for a direct HTTP-backed acquisition method',
+      );
+    }
     const url = new URL(target.target_url);
     if (url.hostname !== source.domain) {
       throw new Error(
@@ -145,6 +167,9 @@ export async function compileAcquisitionRuntime(slug: string): Promise<Acquisiti
     targets.push({
       target_id: target.target_id,
       target_url: target.target_url,
+      ...(target.max_direct_http_response_bytes === undefined
+        ? {}
+        : { max_direct_http_response_bytes: target.max_direct_http_response_bytes }),
       result_url_policy: target.result_url_policy,
       asset_class: target.asset_class,
       output_class: target.output_class,
@@ -153,7 +178,7 @@ export async function compileAcquisitionRuntime(slug: string): Promise<Acquisiti
   }
 
   const payload = {
-    schema_version: 1 as const,
+    schema_version: 2 as const,
     vertical_slug: slug,
     vertical_name: name,
     vertical_schema_version: schemaVersion,

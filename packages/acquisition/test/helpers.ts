@@ -11,6 +11,7 @@ import type { ArtifactStore } from '../src/storage/artifact-store.js';
 import type { AcquisitionProviderDeps } from '../src/providers/base.js';
 import type {
   FetchLike,
+  HttpBodyReadResult,
   HttpHeadersLike,
   HttpRequestInit,
   HttpResponseLike,
@@ -139,6 +140,7 @@ export interface HarnessOptions {
   readonly store?: ArtifactStore | undefined;
   readonly now?: string | undefined;
   readonly beforeTransport?: AcquisitionProviderDeps['beforeTransport'];
+  readonly beforePersistence?: AcquisitionProviderDeps['beforePersistence'];
 }
 
 export function makeHarness(options: HarnessOptions = {}): Harness {
@@ -165,6 +167,7 @@ export function makeHarness(options: HarnessOptions = {}): Harness {
       clock,
       userAgent: 'DataFoundryBot/test',
       beforeTransport: options.beforeTransport ?? (() => Promise.resolve()),
+      beforePersistence: options.beforePersistence ?? (() => Promise.resolve()),
     },
   };
 }
@@ -199,6 +202,13 @@ export interface StubbedFetch {
   readonly calls: RecordedCall[];
 }
 
+export interface StreamingResponseProbe {
+  readonly response: HttpResponseLike;
+  readonly reads: number;
+  readonly cancellations: number;
+  readonly arrayBufferReads: number;
+}
+
 function headersLike(record: Readonly<Record<string, string>>): HttpHeadersLike {
   const lower: Record<string, string> = {};
   for (const [key, value] of Object.entries(record)) lower[key.toLowerCase()] = value;
@@ -215,11 +225,93 @@ export function makeResponse(response: StubResponse): HttpResponseLike {
     typeof response.body === 'string'
       ? new TextEncoder().encode(response.body)
       : (response.body ?? new Uint8Array());
+  const stream = {
+    getReader: () => {
+      let read = false;
+      return {
+        read: (): Promise<HttpBodyReadResult> => {
+          if (read) return Promise.resolve({ done: true, value: undefined });
+          read = true;
+          return Promise.resolve({ done: false, value: body });
+        },
+        cancel: () => Promise.resolve(),
+        releaseLock: () => undefined,
+      };
+    },
+    cancel: () => Promise.resolve(),
+  };
   return {
     status: response.status ?? 200,
     headers: headersLike(response.headers ?? {}),
-    arrayBuffer: () =>
-      Promise.resolve(body.buffer.slice(body.byteOffset, body.byteOffset + body.byteLength) as ArrayBuffer),
+    body: stream,
+  };
+}
+
+/**
+ * Deterministic response-body probe for the direct HTTP provider.
+ *
+ * This is deliberately a narrow transport double rather than a mock assertion:
+ * the provider must exercise the response reader, and the counters expose the
+ * externally important effects (how much upstream data was requested and
+ * whether the body was cancelled).
+ */
+export function makeStreamingResponse(input: {
+  readonly chunks: readonly Uint8Array[];
+  readonly status?: number | undefined;
+  readonly headers?: Readonly<Record<string, string>> | undefined;
+}): StreamingResponseProbe {
+  let next = 0;
+  let reads = 0;
+  let cancellations = 0;
+  let arrayBufferReads = 0;
+  let cancelled = false;
+
+  const cancel = (): Promise<void> => {
+    if (!cancelled) cancellations += 1;
+    cancelled = true;
+    return Promise.resolve();
+  };
+  const body = {
+    getReader: () => ({
+      read: (): Promise<HttpBodyReadResult> => {
+        if (cancelled || next >= input.chunks.length) {
+          return Promise.resolve({ done: true, value: undefined });
+        }
+        const value = input.chunks[next]!;
+        next += 1;
+        reads += 1;
+        return Promise.resolve({ done: false, value });
+      },
+      cancel,
+      releaseLock: () => undefined,
+    }),
+    cancel,
+  };
+  const response = {
+    status: input.status ?? 200,
+    headers: headersLike(input.headers ?? {}),
+    body,
+    arrayBuffer: async (): Promise<ArrayBuffer> => {
+      arrayBufferReads += 1;
+      const remaining = input.chunks.slice(next);
+      reads += remaining.length;
+      next = input.chunks.length;
+      const size = remaining.reduce((total, chunk) => total + chunk.byteLength, 0);
+      const joined = new Uint8Array(size);
+      let offset = 0;
+      for (const chunk of remaining) {
+        joined.set(chunk, offset);
+        offset += chunk.byteLength;
+      }
+      return joined.buffer;
+    },
+  };
+
+  return {
+    response,
+    get reads() { return reads; },
+    get cancellations() { return cancellations; },
+    get arrayBufferReads() { return arrayBufferReads; },
   };
 }
 

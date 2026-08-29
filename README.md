@@ -27,7 +27,8 @@ for all four surfaces: `apps/web`, `apps/api`, `apps/mcp` plus its deployable
 `apps/mcp-worker` adapter, and `services/export-builder`. They read through
 `packages/query-model`; customer
 surfaces bind each request to an exact ADR-0010 rights surface, so public web,
-search indexing, direct API, MCP and bulk permissions never imply one another.
+search indexing, direct API, RapidAPI, MCP and bulk permissions never imply one
+another.
 
 Rule 5 is enforced by a boundary test in each, and it is worth being exact
 about what each one proves. `apps/api` and `apps/mcp` import nothing beneath
@@ -56,8 +57,10 @@ implements. A vertical is exposed only while it is `ACTIVE` and has an exact
 `noindex` and absent from sitemaps unless `SEARCH_INDEX` independently covers
 the exact rendered facts, attributions and relationships. The quality-gate evaluator
 (`apps/web/src/gates.ts`) decides indexability from authorized evidence rather
-than raw database aggregates or fiat. Nothing here is deployed yet — see
-Deployment below.
+than raw database aggregates or fiat. No production deployment of this
+integration candidate is recorded or verified. Live Cloudflare account state
+could not be inspected from the available environment, so exact deployment IDs
+and runtime probes remain owner/platform evidence — see Deployment below.
 
 **Every source is synthetic.** The rights machinery genuinely runs, but it
 currently validates controlled fixture declarations rather than a real
@@ -287,9 +290,12 @@ Five Cloudflare Workers, per
 - **`apps/usage-consumer`** — the queue consumer that persists metering events
   idempotently after the edge Worker has accepted and handed them off.
 - **`apps/acquisition-worker`** — hourly Cron runner for configuration-compiled
-  source targets. It claims migration-0017 run state in Postgres, rechecks exact
-  stored `ACQUIRE`/`STORE`/`CACHE` permission before provider construction and
-  transport, and stores immutable raw evidence in the canonical R2 bucket.
+  source targets. It claims durable run state in Postgres, rechecks exact stored
+  `ACQUIRE`/`STORE`/`CACHE` permission before provider construction, before
+  transport, and again after transport immediately before persistence or
+  `NOT_MODIFIED` freshness. Direct publisher responses and provider
+  control-plane JSON are streamed under finite byte ceilings before immutable
+  raw evidence enters the canonical R2 bucket.
 - **`apps/mcp-worker`** — authenticated MCP 2026-07-28 Streamable HTTP. One
   vertical per deployment, backed by the six generic tools in `apps/mcp` and
   an exact `MCP/NONE` key that is distinct from direct and RapidAPI keys.
@@ -336,8 +342,10 @@ subscriptions. MCP events are explicitly `MCP/NONE`: useful for analytics, but
 never eligible for internal invoicing. RapidAPI events are likewise excluded
 from direct invoices because the marketplace is their billing authority.
 
-Deploying needs an account, Hyperdrive bindings, routes for each Worker and the
-usage-metering queues, none of which live in this repository —
+Deploying needs an account, Hyperdrive bindings, public hostnames/routes for the
+edge, web and MCP Workers, Queue delivery for the usage consumer, Cron for the
+acquisition Worker, and the usage-metering queues, none of which live in this
+repository —
 [docs/owner-actions/cloudflare-deployment.md](docs/owner-actions/cloudflare-deployment.md)
 records what and why, including what pay per crawl actually is and is not, and
 [docs/owner-actions/revenue-readiness.md](docs/owner-actions/revenue-readiness.md)

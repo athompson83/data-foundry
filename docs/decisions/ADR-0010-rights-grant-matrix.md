@@ -9,7 +9,9 @@
 **Relates to:** `docs/owner-actions/rights-model-decision.md`, ADR-0007
 
 **Implemented by:** `packages/canonical-schema/src/rights.ts`,
-`packages/rights-engine/`, and `db/migrations/0014_rights_grant_matrix.sql`
+`packages/rights-engine/`, `packages/canonical-store/`,
+`packages/query-model/`, migrations `0014`, `0016`, and `0019`, and the
+scheduled-acquisition enforcement path
 
 > This is an engineering control architecture, not a legal review. It records
 > rights conclusions reached through the required review process; it does not
@@ -256,6 +258,13 @@ cycles are rejected. A canonical candidate or relationship with multiple source
 contributions is withheld in full when any contribution lacks the exact grants.
 This resolves RIGHTS-ADR-007.
 
+Fact validity and publication authorization use separate clocks. `policy.at`
+selects the exact immutable fact version. The surface authorizer loads that fact
+and its recursive dependencies by ID even when now superseded, then evaluates
+source status, terms, and grants at the response or export `asOf`. It never
+substitutes the currently valid fact; failure to authorize the exact historical
+provenance refuses the output.
+
 ## 9. Migration semantics
 
 Migration `0014_rights_grant_matrix.sql` creates no `ALLOW` from legacy
@@ -275,6 +284,14 @@ may authorize a distribution query while NULL. A referenced field group's
 membership is sealed, and newly classified derived facts must commit their
 complete dependency set atomically; later membership or dependency mutation
 requires a new immutable lineage rather than changing the meaning of history.
+
+Forward migration `0019_scheduled_acquisition_pre_persistence.sql` leaves every
+pre-existing scheduled run at immutable receipt contract v1 with its three
+successful-checkpoint contract. Every new claim is immutable contract v2 and
+requires four ordered checkpoints: `INITIAL`, `PRE_PROVIDER`, `PRE_TRANSPORT`,
+and `PRE_PERSISTENCE`. The migration manufactures no fourth checkpoint for an
+existing run, and a refusal may end either contract at the checkpoint where the
+current rights resolver refuses.
 
 This resolves RIGHTS-ADR-003 by preserving immutable versions while selecting
 one current activation, rather than combining mutable `superseded_by` fields
@@ -302,6 +319,13 @@ The implementation must continue to prove at least these cases:
 9. Any unauthorized provenance contribution blocks the complete emitted fact,
    relationship, or derived output.
 10. Legacy migration records review work but manufactures no permission.
+11. Scheduled acquisition re-runs the complete stored ACQUIRE/STORE/CACHE
+     resolver after transport and result-manifest validation, immediately before
+     the first artifact write or a NOT_MODIFIED freshness success; revocation at
+     that boundary refuses the run and leaves no new artifact or freshness.
+12. Historical selection loads the exact selected fact and every recursive
+    contributor by immutable ID while current publication rights govern; a
+    now-superseded fact is never silently replaced by its current successor.
 
 ## 11. Owner decisions recorded with acceptance
 

@@ -343,6 +343,8 @@ async function executeClaim(
   }
 
   let preTransportReceipt: ScheduledRightsReceipt | null = null;
+  let prePersistenceReceipt: ScheduledRightsReceipt | null = null;
+  let prePersistenceChecks = 0;
   let ledgerPersistenceStarted = false;
   const deps: AcquisitionProviderDeps = {
     registry: input.registry,
@@ -362,12 +364,32 @@ async function executeClaim(
         throw error;
       }
     },
+    beforePersistence: async () => {
+      prePersistenceChecks += 1;
+      if (prePersistenceChecks !== 1) {
+        throw new Error('The provider invoked the pre-persistence recheck more than once.');
+      }
+      try {
+        prePersistenceReceipt = await recheckStoredAcquisition(
+          item.capability,
+          input.driver,
+          completedAt(clock),
+          'PRE_PERSISTENCE',
+        );
+      } catch (error) {
+        if (error instanceof StoredAcquisitionRefusal) prePersistenceReceipt = error.receipt;
+        throw error;
+      }
+    },
   };
 
   let provider: AcquisitionProvider;
   try {
     provider = createScheduledProvider({
       entry: item.target.source,
+      ...(item.target.max_direct_http_response_bytes === undefined
+        ? {}
+        : { maxBytes: item.target.max_direct_http_response_bytes }),
       deps,
       env: input.env,
       ...(input.fetch === undefined ? {} : { fetch: input.fetch }),
@@ -406,6 +428,9 @@ async function executeClaim(
       url: item.run.targetUrl,
       retrievalScopeId: item.run.id,
       resultUrlPolicy: item.target.result_url_policy,
+      ...(item.target.max_direct_http_response_bytes === undefined
+        ? {}
+        : { maxBytes: item.target.max_direct_http_response_bytes }),
       ...(item.latest === null ? {} : { conditional: item.latest.validators }),
     });
     if (preTransportReceipt === null) {
@@ -427,6 +452,10 @@ async function executeClaim(
       });
       return 'FAILED';
     }
+    if (prePersistenceChecks !== 1 || prePersistenceReceipt === null) {
+      throw new Error('The provider returned success without the mandatory pre-persistence recheck.');
+    }
+    receipts.push(prePersistenceReceipt);
     if (result.artifacts.length !== result.stored.length) {
       throw new Error('The provider returned an incomplete artifact/retrieval association.');
     }
@@ -453,7 +482,15 @@ async function executeClaim(
     return 'SUCCEEDED';
   } catch (error) {
     if (error instanceof StoredAcquisitionRefusal) {
-      if (preTransportReceipt !== null) receipts.push(preTransportReceipt);
+      if (preTransportReceipt !== null && !receipts.some(({ stage }) => stage === 'PRE_TRANSPORT')) {
+        receipts.push(preTransportReceipt);
+      }
+      if (
+        prePersistenceReceipt !== null &&
+        !receipts.some(({ stage }) => stage === 'PRE_PERSISTENCE')
+      ) {
+        receipts.push(prePersistenceReceipt);
+      }
       await store.fail({
         runId: item.run.id,
         status: 'REFUSED',
@@ -465,6 +502,12 @@ async function executeClaim(
       return 'REFUSED';
     }
     if (preTransportReceipt !== null && receipts.length === 2) receipts.push(preTransportReceipt);
+    if (
+      prePersistenceReceipt !== null &&
+      !receipts.some(({ stage }) => stage === 'PRE_PERSISTENCE')
+    ) {
+      receipts.push(prePersistenceReceipt);
+    }
     const failureCode =
       error instanceof ArtifactStoreError || ledgerPersistenceStarted
         ? 'PERSISTENCE_FAILED'

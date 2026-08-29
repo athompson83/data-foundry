@@ -6,7 +6,13 @@ import {
   SqlPolicySnapshotRecorder,
   unlimitedRateLimiter,
 } from '@data-foundry/acquisition';
-import { createPgliteDriver, type SqlDriver } from '@data-foundry/canonical-store';
+import {
+  createPgliteDriver,
+  type SqlDriver,
+  type SqlExecutor,
+  type SqlParam,
+  type SqlRow,
+} from '@data-foundry/canonical-store';
 import { migrate } from '../../../packages/canonical-store/test/support.js';
 import {
   buildFixtureManifest,
@@ -216,7 +222,193 @@ describe('real ingestion fact output lineage', () => {
       expect(parent?.normalized_value).toBe(2.9);
     }
   });
+
+  it('keeps resolution, aliases, judgments, and entity evidence on the transaction executor', async () => {
+    await ensureIngestionRights();
+    const guarded = transactionAffinityGuard(driver);
+    const artifactStore = new InMemoryArtifactStore();
+    const pipeline = await Pipeline.create({
+      driver: guarded,
+      verticalSlug: 'hvac',
+      artifactStore,
+      now: '2026-08-15T12:00:00.000Z' as never,
+      runId: 'transaction-affinity-success',
+      fixtureOverrides: {
+        'acme-hvac-catalog': JSON.stringify({
+          products: [catalogProduct('ACS-TXAFFINITY001', 'TXAFFINITY001')],
+        }),
+      },
+    });
+
+    const result = await pipeline.runSource('acme-hvac-catalog');
+
+    expect(result.error).toBeNull();
+    expect(result.records).toBe(1);
+    const [persisted] = await driver.query<{ entity_id: string; evidence_count: number }>(
+      `SELECT alias.entity_id, COUNT(evidence.entity_id)::int AS evidence_count
+         FROM entity_aliases alias
+         JOIN entity_evidence evidence ON evidence.entity_id = alias.entity_id
+        WHERE alias.alias_type = 'model_number' AND alias.normalized_value = 'TXAFFINITY001'
+        GROUP BY alias.entity_id`,
+    );
+    expect(persisted?.entity_id).toBeTruthy();
+    expect(persisted?.evidence_count).toBeGreaterThan(0);
+  });
+
+  it('rolls back every resolution write when entity evidence persistence fails', async () => {
+    await ensureIngestionRights();
+    const guarded = transactionAffinityGuard(driver, {
+      failTransactionSql: /INSERT INTO entity_evidence/,
+    });
+    const pipeline = await Pipeline.create({
+      driver: guarded,
+      verticalSlug: 'hvac',
+      artifactStore: new InMemoryArtifactStore(),
+      now: '2026-08-15T12:00:00.000Z' as never,
+      runId: 'transaction-affinity-rollback',
+      fixtureOverrides: {
+        'acme-hvac-catalog': JSON.stringify({
+          products: [catalogProduct('ACS-TXROLLBACK001', 'TXROLLBACK001')],
+        }),
+      },
+    });
+
+    const result = await pipeline.runSource('acme-hvac-catalog');
+
+    expect(result.error).toContain('injected entity-evidence failure');
+    const aliases = await driver.query(
+      `SELECT entity_id FROM entity_aliases
+        WHERE alias_type = 'model_number' AND normalized_value = 'TXROLLBACK001'`,
+    );
+    const entities = await driver.query(
+      `SELECT id FROM entities WHERE canonical_slug = 'acme-climate-systems-txrollback001'`,
+    );
+    expect(aliases).toEqual([]);
+    expect(entities).toEqual([]);
+  });
+
+  it('rolls back manufacturer writes when a record has no usable strong identifier', async () => {
+    await ensureIngestionRights();
+    const guarded = transactionAffinityGuard(driver);
+    const pipeline = await Pipeline.create({
+      driver: guarded,
+      verticalSlug: 'hvac',
+      artifactStore: new InMemoryArtifactStore(),
+      now: '2026-08-15T12:00:00.000Z' as never,
+      runId: 'transaction-affinity-unresolved',
+      fixtureOverrides: {
+        'acme-hvac-catalog': JSON.stringify({
+          products: [
+            {
+              ...catalogProduct('---', '----'),
+              brand: 'Borealis Thermal Works',
+            },
+          ],
+        }),
+      },
+    });
+
+    const result = await pipeline.runSource('acme-hvac-catalog');
+
+    expect(result.error).toBeNull();
+    expect(result.claims).toBe(0);
+    const manufacturers = await driver.query(
+      `SELECT id FROM entities
+        WHERE entity_type = 'manufacturer' AND canonical_slug = 'borealis-thermal-works'`,
+    );
+    expect(manufacturers).toEqual([]);
+  });
 });
+
+function catalogProduct(sku: string, model: string): Record<string, unknown> {
+  return {
+    sku,
+    model,
+    series: 'Transaction affinity probe',
+    brand: 'Acme Climate Systems',
+    category: 'Air Conditioner',
+    cooling_capacity_btuh: 36_000,
+    efficiency: { seer2: 14.5, eer2: 11.7 },
+    refrigerant: 'R454B',
+    electrical: '208/230-1-60',
+    compressor_stages: 1,
+    net_weight_lb: 187,
+    lifecycle: { status: 'active', discontinued_on: null, replaced_by: null },
+  };
+}
+
+function transactionAffinityGuard(
+  delegate: SqlDriver,
+  options: { readonly failTransactionSql?: RegExp } = {},
+): SqlDriver {
+  let transactionActive = false;
+  return {
+    label: `${delegate.label} (transaction-affinity guard)`,
+    dialect: delegate.dialect,
+    async exec(sql) {
+      if (/^\s*(BEGIN|COMMIT|ROLLBACK)\b/i.test(sql)) {
+        throw new Error('raw transaction control bypassed SqlDriver.transaction()');
+      }
+      if (transactionActive) {
+        throw new Error('exec escaped the active transaction executor');
+      }
+      await delegate.exec(sql);
+    },
+    async query<R extends SqlRow = SqlRow>(sql: string, params?: readonly SqlParam[]) {
+      if (transactionActive) {
+        throw new Error('query escaped the active transaction executor');
+      }
+      return delegate.query<R>(sql, params);
+    },
+    async transaction<T>(fn: (tx: SqlExecutor) => Promise<T>): Promise<T> {
+      if (transactionActive) {
+        throw new Error('nested transaction escaped the active transaction executor');
+      }
+      return delegate.transaction(async (delegateTx) => {
+        transactionActive = true;
+        const tx: SqlExecutor = {
+          async query<R extends SqlRow = SqlRow>(sql: string, params?: readonly SqlParam[]) {
+            if (options.failTransactionSql?.test(sql) === true) {
+              throw new Error('injected entity-evidence failure');
+            }
+            return delegateTx.query<R>(sql, params);
+          },
+        };
+        try {
+          return await fn(tx);
+        } finally {
+          transactionActive = false;
+        }
+      });
+    },
+    async close() {
+      // The owning test fixture closes the delegate exactly once.
+    },
+  };
+}
+
+async function ensureIngestionRights(): Promise<void> {
+  let [source] = await driver.query<{ id: string; rights_publisher_id: string | null }>(
+    `SELECT id, rights_publisher_id FROM sources
+      WHERE domain = 'catalog.acme-climate.example.com'`,
+  );
+  if (source === undefined) {
+    const bootstrap = await Pipeline.create({
+      driver,
+      verticalSlug: 'hvac',
+      artifactStore: new InMemoryArtifactStore(),
+      now: '2026-08-15T12:00:00.000Z' as never,
+      runId: 'transaction-affinity-rights-bootstrap',
+    });
+    await bootstrap.runSource('acme-hvac-catalog');
+    [source] = await driver.query<{ id: string; rights_publisher_id: string | null }>(
+      `SELECT id, rights_publisher_id FROM sources
+        WHERE domain = 'catalog.acme-climate.example.com'`,
+    );
+  }
+  if (source === undefined) throw new Error('bootstrap did not synchronize the synthetic source');
+  if (source.rights_publisher_id === null) await seedIngestionRights(source.id);
+}
 
 async function pipelineForConfig(
   config: VerticalConfig,
@@ -244,6 +436,13 @@ async function pipelineForConfig(
       clock,
       rateLimiter: unlimitedRateLimiter,
       beforeTransport: ({ request, entry, asOf }) =>
+        requireStoredAcquisitionTransportRights({
+          driver,
+          sourceId: request.sourceId,
+          entry,
+          asOf,
+        }),
+      beforePersistence: ({ request, entry, asOf }) =>
         requireStoredAcquisitionTransportRights({
           driver,
           sourceId: request.sourceId,

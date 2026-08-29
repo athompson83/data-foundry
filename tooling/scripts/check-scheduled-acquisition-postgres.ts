@@ -127,6 +127,12 @@ async function receiptsFor(
       '2026-08-28T17:00:03.000Z',
       'PRE_TRANSPORT',
     ),
+    await recheckStoredAcquisition(
+      admitted.capability,
+      driver,
+      '2026-08-28T17:00:04.000Z',
+      'PRE_PERSISTENCE',
+    ),
   ];
 }
 

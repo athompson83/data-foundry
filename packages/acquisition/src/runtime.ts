@@ -11,6 +11,8 @@ import type { AcquisitionResultUrlPolicy } from './types.js';
 export interface AcquisitionRuntimeTarget {
   readonly target_id: string;
   readonly target_url: string;
+  /** Required only for methods served by the direct HTTP adapter. */
+  readonly max_direct_http_response_bytes?: number | undefined;
   readonly asset_class: RightsAssetClass;
   readonly output_class: RightsOutputClass;
   /** Exact host/path boundary for target and multi-resource provider results. */
@@ -20,7 +22,7 @@ export interface AcquisitionRuntimeTarget {
 
 /** Filesystem-free runtime configuration consumed by the scheduled Worker. */
 export interface AcquisitionRuntime {
-  readonly schema_version: 1;
+  readonly schema_version: 2;
   readonly vertical_slug: string;
   /** Canonical vertical row fields needed by the filesystem-free write path. */
   readonly vertical_name: string;

@@ -28,6 +28,19 @@ Fill in, in this order:
    vertical behavior through fields/configuration, not domain-specific tools.
 6. **`acquisition.yaml`** — only enabled, reviewed source targets intended for
    scheduled execution. A proposed/deferred source stays outside this file.
+   For `DIRECT_HTTP`, `VENDOR_API`, `SITEMAP`, `BULK_FILE`, and `RSS`, set the
+   required `max_direct_http_response_bytes` to the smallest documented positive
+   ceiling that fits the expected artifact, up to 16 MiB. The direct adapter
+   rejects a larger declared or streamed body and never silently truncates it.
+   Do not set that field for `BROWSER_RUN` or `CRAWL4AI`; their remote service
+   JSON is independently streamed under a fixed 4 MiB ceiling before parsing.
+   Browser Run additionally defaults its upstream and local crawl-record limit
+   to 100 (hard maximum 1,000), permits at most 100 paginated result responses,
+   refuses repeated cursors, and caps cumulative artifact bodies at 16 MiB.
+   Polling defaults to 60 attempts (hard maximum 600); job identifiers, cursors,
+   result metadata, and cumulative diagnostics also have finite local bounds.
+   A limit refusal fails the whole transport before artifact persistence; it
+   never returns or stores a partial crawl.
 
 Validate continuously:
 
@@ -145,8 +158,9 @@ A vertical can be ready for one surface and not another.
 - **Bulk export** — is independently gated by export/redistribution rights.
 - **Scheduled acquisition (`apps/acquisition-worker`)** — is independently
   gated by exact stored `ACQUIRE`/`STORE`/`CACHE` decisions and uses Cron,
-  migration-0017 run state, and immutable R2 evidence. Its source YAML and
-  schedule never create permission.
+  migrations `0017` and `0019`, immutable versioned receipts through
+  `PRE_PERSISTENCE`, bounded transports, and immutable R2 evidence. Its source
+  YAML and schedule never create permission.
 
 Do not infer “paid gets everything the website gets.” The rights resolver, not
 pricing, decides which facts each surface may expose.
@@ -209,8 +223,11 @@ checklist. A new vertical is not considered live because CI is green; verify the
 exact deployed SHA, production health/readiness, real database access, auth,
 rights behavior and usage-event persistence independently for web, direct REST,
 RapidAPI and MCP. Also prove an acquisition Cron claim, rights refusal, and one
-authorized R2/Postgres result in an isolated provider environment. An MCP smoke
-test must cover initialize/discovery, tools/list,
+authorized R2/Postgres result in an isolated provider environment. Acquisition
+proof must include post-transport revocation; oversized declared and chunked
+direct responses; Browser Run repeated-cursor, page, record, diagnostic, and
+cumulative-artifact refusals; and zero partial R2 writes. An MCP smoke test must
+cover initialize/discovery, tools/list,
 one authenticated tools/call, wrong-channel credentials, and a post-deploy
 rights-revocation negative.
 

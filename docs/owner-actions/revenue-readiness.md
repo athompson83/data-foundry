@@ -289,9 +289,11 @@ semantics established earlier:
    proxy over `apps/edge`; MCP stays a thin Streamable HTTP adapter over
    `apps/mcp`. Both have independent closed billing/access classifications.
 6. **Scheduled acquisition and readiness — integrated.** The hourly
-   `apps/acquisition-worker` uses migration 0017, exact stored
-   `ACQUIRE`/`STORE`/`CACHE` checks, and immutable R2 evidence. The readiness
-   command requires canonical `--as-of` and qualified DB/snapshot evidence.
+   `apps/acquisition-worker` uses durable versioned run receipts, exact stored
+   `ACQUIRE`/`STORE`/`CACHE` checks before transport and again at the
+   post-transport `PRE_PERSISTENCE` boundary, bounded publisher/provider
+   responses, and immutable R2 evidence. The readiness command requires
+   canonical `--as-of` and qualified DB/snapshot evidence.
 7. **Deploy the canonical Cloudflare stack.** Provision production Postgres,
    Hyperdrive, all five Workers, R2, usage Queue/DLQ, routes and secrets; prove
    health/readiness and perform live smoke tests.

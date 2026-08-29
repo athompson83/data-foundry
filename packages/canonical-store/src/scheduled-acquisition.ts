@@ -48,9 +48,15 @@ export interface ScheduledAcquisitionValidators {
   readonly contentHash?: string;
 }
 
-export type ScheduledRightsReceiptStage = 'INITIAL' | 'PRE_PROVIDER' | 'PRE_TRANSPORT';
+export type ScheduledRightsReceiptStage =
+  | 'INITIAL'
+  | 'PRE_PROVIDER'
+  | 'PRE_TRANSPORT'
+  | 'PRE_PERSISTENCE';
 export type ScheduledRightsReceiptBasis = 'ADMITTED' | 'RIGHTS_REFUSED' | 'NOT_DUE';
 export type ScheduledRightsOperation = 'ACQUIRE' | 'STORE' | 'CACHE';
+export type ScheduledRightsReceiptContractVersion = 1 | 2;
+export const CURRENT_SCHEDULED_RIGHTS_RECEIPT_CONTRACT_VERSION = 2 as const;
 
 export interface ScheduledRightsDecisionReceipt {
   readonly operation: ScheduledRightsOperation;
@@ -125,6 +131,7 @@ export interface ScheduledAcquisitionRun {
   readonly outcome: ScheduledAcquisitionOutcome | null;
   readonly failureCode: ScheduledAcquisitionFailureCode | null;
   readonly rightsReceipt: readonly ScheduledRightsReceipt[];
+  readonly rightsReceiptContractVersion: ScheduledRightsReceiptContractVersion;
   readonly provider: ScheduledAcquisitionProvider | null;
   readonly validators: ScheduledAcquisitionValidators;
   readonly expectedArtifactCount: number;
@@ -209,17 +216,27 @@ export interface ScheduledAcquisitionStore {
 const RUN_COLUMNS = `id, idempotency_key, vertical_slug, source_id, source_key, target_id,
   target_url, acquisition_route, account_or_product_plan, acquisition_jurisdiction,
   asset_class, output_class, result_url_policy, scheduled_for, claimed_at, completed_at, fresh_at, status,
-  outcome, failure_code, rights_receipt, provider, validators, expected_artifact_count,
+  outcome, failure_code, rights_receipt, rights_receipt_contract_version, provider, validators, expected_artifact_count,
   artifact_count, runtime_digest, rights_scope_digest`;
 
 const PROVIDERS = new Set<string>(SCHEDULED_ACQUISITION_PROVIDERS);
 const FAILURE_CODES = new Set<string>(SCHEDULED_ACQUISITION_FAILURE_CODES);
 const RIGHTS_STATE_SET = new Set<string>(RIGHTS_STATES);
 const RIGHTS_REASON_SET = new Set<string>(RIGHTS_REASON_CODES);
-const RECEIPT_STAGES = new Set<string>(['INITIAL', 'PRE_PROVIDER', 'PRE_TRANSPORT']);
+const RECEIPT_STAGES = new Set<string>([
+  'INITIAL',
+  'PRE_PROVIDER',
+  'PRE_TRANSPORT',
+  'PRE_PERSISTENCE',
+]);
 const RECEIPT_BASES = new Set<string>(['ADMITTED', 'RIGHTS_REFUSED', 'NOT_DUE']);
 const RECEIPT_OPERATIONS = new Set<string>(['ACQUIRE', 'STORE', 'CACHE']);
-const RECEIPT_STAGE_ORDER = ['INITIAL', 'PRE_PROVIDER', 'PRE_TRANSPORT'] as const;
+const RECEIPT_STAGE_ORDER = [
+  'INITIAL',
+  'PRE_PROVIDER',
+  'PRE_TRANSPORT',
+  'PRE_PERSISTENCE',
+] as const;
 const RECEIPT_OPERATION_ORDER = ['ACQUIRE', 'STORE', 'CACHE'] as const;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const CONTENT_HASH = /^[0-9a-f]{64}$/;
@@ -464,8 +481,8 @@ function stateReasonValid(state: RightsState, reason: RightsReasonCode): boolean
 }
 
 function parseRightsReceiptShape(value: unknown): readonly ScheduledRightsReceipt[] {
-  if (!Array.isArray(value) || value.length > 3) {
-    throw new Error('scheduled acquisition rights receipt must contain 0-3 trusted checkpoints');
+  if (!Array.isArray(value) || value.length > 4) {
+    throw new Error('scheduled acquisition rights receipt must contain 0-4 trusted checkpoints');
   }
   return value.map((checkpoint) => {
     if (!isRecord(checkpoint)) throw new Error('scheduled acquisition rights receipt checkpoint must be an object');
@@ -563,6 +580,7 @@ interface RightsReceiptContext {
   readonly rightsScopeDigest: string;
   readonly claimedAt: IsoDateTime;
   readonly completedAt: IsoDateTime | null;
+  readonly contractVersion: ScheduledRightsReceiptContractVersion;
 }
 
 function parseRightsReceipt(
@@ -570,6 +588,13 @@ function parseRightsReceipt(
   context: RightsReceiptContext,
 ): readonly ScheduledRightsReceipt[] {
   const receipt = parseRightsReceiptShape(value);
+  const expectedCheckpointCount = context.contractVersion === 1 ? 3 : 4;
+  if (receipt.length > expectedCheckpointCount) {
+    throw new Error(
+      `scheduled acquisition receipt contract v${context.contractVersion} allows at most ` +
+        `${expectedCheckpointCount} checkpoints`,
+    );
+  }
   if (context.status === 'CLAIMED') {
     if (receipt.length !== 0) {
       throw new Error('a claimed scheduled acquisition must have an empty rights receipt');
@@ -608,9 +633,10 @@ function parseRightsReceipt(
 
   switch (context.status) {
     case 'SUCCEEDED':
-      if (receipt.length !== 3 || !receipt.every(admitted)) {
+      if (receipt.length !== expectedCheckpointCount || !receipt.every(admitted)) {
         throw new Error(
-          'successful scheduled acquisition requires three admitted, fully permitted checkpoints',
+          `successful scheduled acquisition receipt contract v${context.contractVersion} requires ` +
+            `${expectedCheckpointCount} admitted, fully permitted checkpoints`,
         );
       }
       break;
@@ -655,6 +681,10 @@ function mapRun(row: SqlRow): ScheduledAcquisitionRun {
   const completedAt = toIsoOrNull(row['completed_at']);
   const rightsScopeDigest = String(row['rights_scope_digest']);
   const targetUrl = String(row['target_url']);
+  const rightsReceiptContractVersion = toNumber(row['rights_receipt_contract_version']);
+  if (rightsReceiptContractVersion !== 1 && rightsReceiptContractVersion !== 2) {
+    throw new Error('scheduled acquisition rights receipt contract version is invalid');
+  }
   return {
     id: String(row['id']),
     idempotencyKey: String(row['idempotency_key']),
@@ -681,7 +711,9 @@ function mapRun(row: SqlRow): ScheduledAcquisitionRun {
       rightsScopeDigest,
       claimedAt,
       completedAt,
+      contractVersion: rightsReceiptContractVersion,
     }),
+    rightsReceiptContractVersion,
     provider: parseProvider(row['provider']),
     validators: parseValidators(validators),
     expectedArtifactCount: toNumber(row['expected_artifact_count']),
@@ -725,8 +757,9 @@ class PostgresScheduledAcquisitionStore implements ScheduledAcquisitionStore {
       `INSERT INTO scheduled_acquisition_runs
          (idempotency_key, vertical_slug, source_id, source_key, target_id, target_url,
           acquisition_route, account_or_product_plan, acquisition_jurisdiction,
-          asset_class, output_class, result_url_policy, scheduled_for, claimed_at, runtime_digest)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12::jsonb, $13, $14, $15)
+          asset_class, output_class, result_url_policy, scheduled_for, claimed_at, runtime_digest,
+          rights_receipt_contract_version)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12::jsonb, $13, $14, $15, $16)
        ON CONFLICT DO NOTHING
        RETURNING ${RUN_COLUMNS}`,
       [
@@ -734,6 +767,7 @@ class PostgresScheduledAcquisitionStore implements ScheduledAcquisitionStore {
         input.targetId, input.targetUrl, input.acquisitionRoute, input.accountOrProductPlan,
         input.jurisdiction, input.assetClass, input.outputClass, JSON.stringify(resultUrlPolicy),
         scheduledFor, claimedAt, input.runtimeDigest,
+        CURRENT_SCHEDULED_RIGHTS_RECEIPT_CONTRACT_VERSION,
       ],
     );
     return rows[0] === undefined ? null : mapRun(rows[0]);
@@ -773,6 +807,7 @@ class PostgresScheduledAcquisitionStore implements ScheduledAcquisitionStore {
         rightsScopeDigest: run.rightsScopeDigest,
         claimedAt: run.claimedAt,
         completedAt,
+        contractVersion: run.rightsReceiptContractVersion,
       });
 
       if (input.outcome === 'NOT_MODIFIED') {
@@ -917,6 +952,7 @@ class PostgresScheduledAcquisitionStore implements ScheduledAcquisitionStore {
         rightsScopeDigest: run.rightsScopeDigest,
         claimedAt: run.claimedAt,
         completedAt,
+        contractVersion: run.rightsReceiptContractVersion,
       });
       const rows = await tx.query(
         `UPDATE scheduled_acquisition_runs

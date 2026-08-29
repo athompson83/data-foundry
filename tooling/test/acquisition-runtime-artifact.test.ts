@@ -32,6 +32,7 @@ describe('the acquisition runtime compiler', () => {
       vertical_status: string;
       targets: readonly {
         target_id: string;
+        max_direct_http_response_bytes?: number;
         source: { key: string };
         target_url: string;
         result_url_policy: { allowedOrigins: readonly string[]; allowedPathPrefixes: readonly string[] };
@@ -50,6 +51,12 @@ describe('the acquisition runtime compiler', () => {
       'coolsupply-distributor',
     ]);
     expect(new Set(runtime.targets.map((target) => target.target_id)).size).toBe(4);
+    expect(runtime.targets.map((target) => target.max_direct_http_response_bytes)).toEqual([
+      1_048_576,
+      8_388_608,
+      16_777_216,
+      undefined,
+    ]);
     expect(JSON.stringify(runtime).toLowerCase()).not.toContain('energy-star');
     expect(JSON.stringify(runtime).toLowerCase()).not.toContain('energystar');
     expect(runtime.targets.every((target) => target.target_url.startsWith('https://'))).toBe(true);
@@ -71,4 +78,29 @@ describe('the acquisition runtime compiler', () => {
     expect(stdout).toHaveBeenCalled();
     expect(stderr).toHaveBeenCalled();
   });
+
+  it.each([0, -1, 1.5, 16_777_217, Number.POSITIVE_INFINITY])(
+    'refuses an unsafe max_direct_http_response_bytes value (%s)',
+    async (maxResponseBytes) => {
+      const module = await import('../scripts/compile-acquisition-runtime.js');
+      const parseConfig = Reflect.get(module, 'parseAcquisitionConfig');
+      expect(parseConfig).toBeTypeOf('function');
+      if (typeof parseConfig !== 'function') return;
+      expect(() => parseConfig({
+        version: 2,
+        targets: [{
+          target_id: 'example',
+          source_key: 'example-source',
+          target_url: 'https://example.com/data.json',
+          max_direct_http_response_bytes: maxResponseBytes,
+          result_url_policy: {
+            allowedOrigins: ['https://example.com'],
+            allowedPathPrefixes: ['/data.json'],
+          },
+          asset_class: 'DATA',
+          output_class: 'RAW_RECORD',
+        }],
+      })).toThrow(/max_direct_http_response_bytes/i);
+    },
+  );
 });

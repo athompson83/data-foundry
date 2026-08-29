@@ -1,7 +1,9 @@
 import {
   BrowserRunAcquisitionProvider,
   Crawl4AIAcquisitionProvider,
+  HTTP_ACQUISITION_METHODS,
   HttpAcquisitionProvider,
+  MAX_HTTP_RESPONSE_BYTES,
   type AcquisitionProvider,
   type AcquisitionProviderDeps,
   type FetchLike,
@@ -17,10 +19,10 @@ export class ScheduledProviderConfigurationError extends Error {
   }
 }
 
-const HTTP_METHODS = ['DIRECT_HTTP', 'VENDOR_API', 'SITEMAP', 'BULK_FILE', 'RSS'] as const;
-
 export function providerMethodsFor(method: AcquisitionMethod): readonly AcquisitionMethod[] {
-  if ((HTTP_METHODS as readonly string[]).includes(method)) return HTTP_METHODS;
+  if ((HTTP_ACQUISITION_METHODS as readonly string[]).includes(method)) {
+    return HTTP_ACQUISITION_METHODS;
+  }
   if (method === 'BROWSER_RUN') return ['BROWSER_RUN'];
   if (method === 'CRAWL4AI') return ['CRAWL4AI'];
   return [];
@@ -29,13 +31,33 @@ export function providerMethodsFor(method: AcquisitionMethod): readonly Acquisit
 /** Construct secrets-bearing adapters only after stored rights are admitted. */
 export function createScheduledProvider(input: {
   readonly entry: SourceRegistryEntry;
+  readonly maxBytes?: number | undefined;
   readonly deps: AcquisitionProviderDeps;
   readonly env: AcquisitionWorkerEnv;
   readonly fetch?: FetchLike;
 }): AcquisitionProvider {
   const method = input.entry.acquisition_policy.method;
-  if ((HTTP_METHODS as readonly string[]).includes(method)) {
-    return new HttpAcquisitionProvider({ deps: input.deps, fetch: input.fetch });
+  if ((HTTP_ACQUISITION_METHODS as readonly string[]).includes(method)) {
+    if (
+      !Number.isSafeInteger(input.maxBytes) ||
+      input.maxBytes === undefined ||
+      input.maxBytes <= 0 ||
+      input.maxBytes > MAX_HTTP_RESPONSE_BYTES
+    ) {
+      throw new ScheduledProviderConfigurationError(
+        `The compiled direct HTTP response byte ceiling must be between 1 and ${MAX_HTTP_RESPONSE_BYTES}.`,
+      );
+    }
+    return new HttpAcquisitionProvider({
+      deps: input.deps,
+      fetch: input.fetch,
+      maxBytes: input.maxBytes,
+    });
+  }
+  if (input.maxBytes !== undefined) {
+    throw new ScheduledProviderConfigurationError(
+      'The direct HTTP response byte ceiling is only supported for direct HTTP-backed acquisition methods.',
+    );
   }
   if (method === 'BROWSER_RUN') {
     const accountId = input.env.CLOUDFLARE_ACCOUNT_ID?.trim() ?? '';

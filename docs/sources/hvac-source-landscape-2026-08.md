@@ -81,19 +81,23 @@ Every candidate is assessed against these. They extend the six questions in
 
 ---
 
-## Ranked comparison
+## Research comparison — not an onboarding ranking
 
-Ranked by whether the source can lawfully back **a paid API**, which is the
-revenue model — not by data quality. Several rich sources rank low.
+This is a dated research inventory, not permission to select or onboard a
+source. The later owner decision keeps ENERGY STAR `DEFERRED`, treats rights in
+partner- and certification-body-submitted values as `UNKNOWN`, and authorizes no
+signing, contact, outreach, acquisition, promotion, or publication. The table
+therefore records questions for a future human/legal review; it does not rank an
+actionable first source.
 
 | # | Candidate | Type | Commercial | Redistribute | **Resale/sublicence** | robots (access path) | Verdict |
 |--:|---|---|---|---|---|---|---|
-| 1 | **EPA ENERGY STAR certified products** | US federal | ✅ public domain | ✅ | ✅ | `Crawl-delay: 1`; asset path not disallowed | **Lead candidate** |
+| 1 | **EPA ENERGY STAR certified products** | US federal | EPA-produced content only; submitted values **[UNKNOWN]** | **[UNKNOWN]** for the relevant submitted values | **[UNKNOWN]** for the relevant submitted values | `Crawl-delay: 1`; asset path not disallowed | **DEFERRED research — do not act** |
 | 2 | **DOE CCMS** | US federal | ✅ [INFERRED] | ✅ [INFERRED] | ✅ [INFERRED] | only `/@search` disallowed | **Fallback / disagreement detector** |
 | 3 | AU DCCEEW — Labelled Products | AU federal | ✅ CC BY 3.0 AU | ✅ | ✅ | **`Disallow: /` — whole host** | Blocked technically, not legally |
 | 4 | AU DCCEEW — Non-Labelled Products | AU federal | ✅ CC BY 3.0 AU | ✅ | ✅ | **`Disallow: /` — whole host** | As 3; not independent of it |
 | 5 | **EU EPREL API** | EU institution | ⚠️ qualified | ⚠️ qualified | ❌ **forbidden** | no `robots.txt` served | **Incompatible with a paid API** |
-| 6 | EPA ENERGY STAR Product Finder API | US federal | ✅ | ✅ | ✅ | as 1 | Same publisher as 1 — **not independent** |
+| 6 | EPA ENERGY STAR Product Finder API | US federal | Same unresolved submitted-value question as 1 | **[UNKNOWN]** | **[UNKNOWN]** | as 1 | **DEFERRED; same publisher/data, not independent** |
 | 7 | CEC MAEDbS | US state | [UNKNOWN] | [UNKNOWN] | [UNKNOWN] | **no `robots.txt` (404)** | Access-controlled; needs written permission |
 | 8 | NRCan searchable product list | CA federal | [UNKNOWN] | [UNKNOWN] | [UNKNOWN] | **no `robots.txt` (404)** | No documented export or licence |
 | 9 | UK MCS Product Directory | UK scheme | [UNKNOWN] | [UNKNOWN] | [UNKNOWN] | `ClaudeBot: Disallow: /`; `ai-train=no` | Rights expressly reserved |
@@ -107,11 +111,11 @@ here.
 
 ---
 
-## The finding that changes the plan
+## The research finding that changed the rights architecture
 
-**A source can be lawful for the free front end and unlawful for the paid API.**
-They are different rights, and until now this repository has treated "may we
-publish it" as one question.
+**Permission for the free front end does not imply permission for the paid
+API.** They are different engineering rights questions, and the repository now
+models them independently through the accepted ADR-0010 rights matrix.
 
 The free web surface consumes data to *display* it; the metered API
 *redistributes* it to a paying customer, and several licences that permit the
@@ -119,17 +123,18 @@ first explicitly forbid the second. Field 11 exists because of this, and EPREL
 is the case that forced it: the same terms that grant a worldwide licence and an
 API key forbid the thing the API is for.
 
-`rights_policy` has no field for it. Every source declared today records
-`redistribution_allowed` and stops, which cannot express "publish on the web
-page, but do not sell API access to it". **[REVIEWER]** — this is a schema gap,
-not a paperwork gap, and it is the one finding here that requires a code change
-before any source ships.
+Legacy `rights_policy` booleans still cannot express "publish on the web page,
+but do not sell API access to it", so they remain inventory metadata and hard
+stops rather than positive authority. The implemented rights cells distinguish
+`PUBLIC_WEB`, direct free/paid API, `RAPIDAPI`, `MCP`, bulk export, training, and
+other documented uses. Absence of the exact grant refuses; this research does
+not create any grant.
 
 ---
 
 ## Detailed assessment — the top five
 
-### 1. EPA ENERGY STAR certified products — *lead candidate*
+### 1. EPA ENERGY STAR certified products — *deferred research candidate*
 
 | | |
 |---|---|
@@ -138,8 +143,8 @@ before any source ships.
 | Type | `REGULATORY_FILING` — the EPA hosts the register; partners and certification bodies submit the values. The draft declared `GOVERNMENT`, which is in neither `SOURCE_TYPES` nor the database CHECK; corrected, and `tooling/test/proposed-sources.test.ts` now reads the drafts so it cannot recur **[VERIFIED]** |
 | Access | Socrata dataset asset / SODA API **[VERIFIED]** |
 | Licence | US federal public domain — *"all data produced by the U.S EPA is by default in the public domain and is not subject to domestic copyright protection under 17 U.S.C. § 105"* **[VERIFIED]** |
-| Commercial / redistribute / derive / resell | Yes, for EPA-produced content **[VERIFIED]** |
-| Attribution | **Not required by the licence** **[VERIFIED]** |
+| Commercial / redistribute / derive / resell | EPA-produced content may differ from partner- or certification-body-submitted values. Permission for the values relevant to this dataset is **[UNKNOWN]** pending human/legal review; no use is authorized by this document. |
+| Attribution | EPA's notice addresses EPA-produced content. Attribution and other conditions for partner- or certification-body-submitted values remain **[UNKNOWN]** pending human/legal review. |
 | Volume | 281,828 rows (heat pumps dataset `83eb-xbyy`), observed **[VERIFIED]** |
 | Personal data | None identified **[INFERRED]** |
 
@@ -148,13 +153,17 @@ directives, every one of them a `/browse`, `/catalog` or `/page` URL carrying a
 query parameter (`&category=`, `&q=`, `&sortBy=`, `&view_type=` and similar).
 They target the faceted-browse UI. **No directive covers the dataset asset or
 API paths**, and `User-agent: *` carries `Crawl-delay: 1`. The access path is
-permitted; the crawl delay is a hard floor for `max_requests_per_minute`.
+not disallowed by that observed robots snapshot; this is transport evidence,
+not proof of publication or commercial rights. The crawl delay is a hard floor
+for `max_requests_per_minute` if the source is ever independently cleared.
 
-**What is already done:** a full rights review packet exists at
+**What is already done:** a research packet exists at
 `docs/sources/energy-star-air-source-heat-pumps-review-packet.md`, with thirteen
-proof conditions. **Condition 2 — "rights metadata complete, named human
-reviewer and review date" — is the only structural blocker, and it is a
-signature, not research.**
+proof conditions. It is not a clearance packet or an action request. The source
+remains deferred until an owner explicitly reopens it, authorized human/legal
+review resolves the submitted-value rights and conditions, evidence is
+recorded, and every required surface-specific grant is independently activated.
+No signature, contact, acquisition, or publication is authorized now.
 
 **The unresolved rights question is real, not a formality.** §4 of that packet
 asks who produced which field. EPA's public-domain notice covers *EPA-produced*
@@ -356,9 +365,11 @@ itself.
 ## The rest, briefly
 
 **6. ENERGY STAR Product Finder API** — same publisher and same underlying
-certification data as candidate 1. Rights identical. **Fails independence: it is
+certification data as candidate 1. It carries the same unresolved
+partner-submitted-value rights question; this document does not establish that
+the two access paths have identical rights. **It still fails independence: it is
 a second door onto the first candidate**, and treating agreement between them as
-corroboration would manufacture confidence from nothing.
+corroboration would manufacture confidence from nothing. It remains deferred.
 
 **7. CEC MAEDbS** — no `robots.txt` (404 on 2026-08-23). The login page carries
 **[VERIFIED, verbatim]**: *"The Modernized Appliance Efficiency Database System
@@ -392,95 +403,69 @@ candidate.**
 
 ---
 
-## Recommendation
+## Current disposition
 
-**First source: EPA ENERGY STAR certified products (candidate 1).**
+**No first real source is selected or authorized.** ENERGY STAR (candidate 1)
+is `DEFERRED`, `UNDER_REVIEW`, `UNREVIEWED`, outside the runtime registry, and
+has no grant. Partner- and certification-body-submitted value rights remain
+`UNKNOWN`. Do not sign its packet, promote it, acquire it, publish it, contact
+the publisher, or initiate outreach under this work package.
 
-It is the only candidate that is simultaneously public domain, permitted by
-`robots.txt` on the exact path that would be fetched, large enough to be a real
-product, already worked through to a thirteen-condition packet, and free of the
-resale restriction that eliminates the best-licensed alternative. Its blocker is
-a named human reading the packet and signing it.
+DOE CCMS (candidate 2) remains research only. Its explicit warning means that,
+if it is ever separately rights-cleared and approved, it could describe filings
+or detect disagreement; it must not be presented as regulator certification or
+as corroboration. This document does not authorize its onboarding.
 
-**Fallback and disagreement detector: DOE CCMS (candidate 2).** US federal, one
-irrelevant `robots` directive, a **stated** update cadence, and an explicit
-publisher warning about what presence in it means. It should be onboarded as a
-**disagreement detector**, not as corroboration — with the asymmetry written into
-the source declaration so no later reader has to rediscover it.
-
-**Neither before the schema gap in field 11 is closed**, because both would
-otherwise be declared with a `redistribution_allowed` flag that cannot express
-what this research found.
+The rights-grant matrix now represents paid API, RapidAPI, public web, MCP,
+bulk export, and neighboring uses independently. That engineering capability
+does not convert any research candidate into a grant.
 
 ---
 
-## Owner decisions required
+## Deferred review questions — no current owner action or outreach
 
-None of these can be made from the repository, and none is made here.
+The owner has already decided not to advance ENERGY STAR or publisher outreach
+in this work package. These questions are preserved only so a future explicitly
+authorized review can see what remains unresolved:
 
-1. **Sign or reject the ENERGY STAR packet.** Condition 2 is a signature. Until
-   a named human fills `reviewed_by`, nothing proceeds. *Blocks everything.*
-2. **Resolve packet §4** — whether partner- and certification-body-submitted
-   values inherit EPA's public-domain status. A legal determination.
-3. **Decide the ENERGY STAR trademark posture** (packet §5), separately from the
-   data question.
-4. **Decide whether the paid API and the free front end get separate rights
-   fields.** This document says they must. It is a schema change and a code
-   change, and it should land before the first real source, not after.
-5. **Decide whether to write to DCCEEW** for an exemption to `Disallow: /`. The
-   best licence of the twelve is behind it.
-6. **Decide whether to seek EPREL front-end-only clearance** — permitted for
-   comparison tools, forbidden for the API, and the split needs legal sign-off.
-7. **Decide whether to approach CEC** for written MAEDbS permission, given the
-   criminal-prosecution language.
-8. **Decide the product framing** — see below.
+1. Whether partner- and certification-body-submitted values inherit any rights
+   associated with EPA-produced content. Current state: `UNKNOWN`.
+2. Whether a future approved use could satisfy the separate ENERGY STAR mark
+   and trademark conditions. Current state: unresolved and inactive.
+3. Whether a separately reviewed candidate has the exact surface-specific
+   grants needed for public web, paid API, RapidAPI, MCP, or bulk export.
+4. Whether a future owner-authorized process should contact a publisher about
+   an acquisition path. No contact or outreach is authorized now.
+Do not sign or reject terms, contact a publisher, or treat any question above as
+an action request without a new explicit owner decision.
 
 ---
 
-## Should HVAC remain the first vertical?
+## HVAC launch status
 
-**Yes — but the product it was designed to be cannot be built from lawful
-sources, and continuing without saying so would be the mistake.**
+HVAC remains the planned first vertical, but no first real HVAC source is
+selected or authorized. The vertical remains `DRAFT`; this research cannot
+clear a source or establish publication rights. The synthetic factory proof
+demonstrates stable model identifiers, provenance, conflict retention, and
+multi-surface controls; it does not prove that an assessed real source is
+commercially publishable.
 
-The vertical's own configuration is the evidence.
-`verticals/hvac/normalizers/fact-selection.yaml` resolves the most contested
-property in the vertical, `seer2`, by preferring `CERTIFICATION_BODY` over the
-manufacturer, with an explicit rationale: a certified rating is a measurement
-made under a defined test procedure, and a manufacturer's figure is a nominal or
-marketing value. The fixture that demonstrates it names `ahri-directory-export`
-as the winning source.
+The current evidence is narrower:
 
-**AHRI is prohibited in code.** So is every major manufacturer. The obvious
-substitute, NEEP, is non-commercial *and* AHRI-derived. What remains lawful —
-ENERGY STAR and DOE CCMS — are registers of **manufacturer and importer
-filings**, and DOE says in its own words that appearing in one is not a
-determination of anything.
+- AHRI remains prohibited by repository policy.
+- ENERGY STAR remains deferred with partner-submitted value rights `UNKNOWN`.
+- DOE and the other researched candidates have no activated exact
+  surface-specific grants in the canonical rights store.
+- A filing hosted by a regulator is not thereby certified, approved, verified,
+  or regulator-determined.
 
-So the authoritative tier the vertical was architected around is unavailable
-across every candidate assessed here. The reason generalises — certification
-data is the commercial product of the certification body, which is precisely why
-it is licensed rather than published — but this assessment covers twelve
-candidates, not the world, and it cannot establish that no lawful
-certification-body source exists. **None of the assessed candidates provides
-one**, which is enough to act on and not the same claim. **[REVIEWER]**
-
-Three things follow.
-
-**The vertical is still the right first one.** The lawful sources are large,
-free, machine-readable, and genuinely useful; equipment models have stable
-identifiers and real conflicts to resolve; and the rights work is already
-furthest along here.
-
-**The product must be described honestly.** It is a registry of *what
-manufacturers have certified to regulators*, with the filing's own provenance
-attached — not a certified-ratings directory. That is a defensible and
-differentiated product. Describing it as the second one would be a claim the
-data cannot support, and rule 1 is not only about publication rights.
-
-**`fact-selection.yaml` needs revisiting before any real source lands.** Its
-`authoritative_by_property` entries prefer a source type this platform is
-forbidden to acquire. That is not urgent while the only data is fixtures, and it
-becomes wrong on the day real data arrives. **[REVIEWER]**
+If an authorized review later clears a regulatory-filing source, the approved
+general description is exactly: **“Manufacturer-reported, as filed with US
+regulators”**. Its exact provenance and any source-specific qualifications must
+remain attached. `fact-selection.yaml` now distinguishes a
+`REGULATORY_FILING` from independent certification, but its synthetic authority
+configuration must be re-evaluated against the actual cleared source and grant
+evidence before any real record is acquired or published.
 
 ---
 

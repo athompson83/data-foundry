@@ -251,9 +251,10 @@ export interface CanonicalStore {
   recordSourceArtifact(input: SourceArtifactInsert): Promise<SourceArtifact>;
   recordSourceRecord(input: SourceRecordInsert): Promise<SourceRecord>;
 
-  upsertEntity(input: EntityInsert): Promise<Entity>;
+  /** Identity writes may join a caller-owned transaction through its pinned executor. */
+  upsertEntity(input: EntityInsert, executor?: SqlExecutor): Promise<Entity>;
   /** Entity identity is publishable only when its exact source contribution is recorded. */
-  recordEntityEvidence(input: EntityEvidenceInput): Promise<void>;
+  recordEntityEvidence(input: EntityEvidenceInput, executor?: SqlExecutor): Promise<void>;
   getEntityById(id: EntityId): Promise<Entity | null>;
   getEntityBySlug(
     verticalId: VerticalId,
@@ -261,9 +262,9 @@ export interface CanonicalStore {
     slug: Slug,
   ): Promise<Entity | null>;
 
-  addAlias(input: EntityAliasInsert): Promise<EntityAlias>;
-  listAliases(entityId: EntityId): Promise<EntityAlias[]>;
-  lookupByAlias(query: AliasLookupQuery): Promise<AliasMatch[]>;
+  addAlias(input: EntityAliasInsert, executor?: SqlExecutor): Promise<EntityAlias>;
+  listAliases(entityId: EntityId, executor?: SqlExecutor): Promise<EntityAlias[]>;
+  lookupByAlias(query: AliasLookupQuery, executor?: SqlExecutor): Promise<AliasMatch[]>;
 
   /** The only way to record a fact. Evidence is required and written atomically. */
   appendFactWithEvidence(
@@ -321,6 +322,8 @@ export interface CanonicalStore {
     property: Identifier,
     at?: IsoDateTime,
   ): Promise<FactCandidate[]>;
+  /** One exact stored fact version and its evidence, independent of its current validity window. */
+  loadFactCandidateById(id: FactId): Promise<FactCandidate | null>;
   /** Doc 04 fact selection for one property, with the rule that fired. */
   selectFact(
     entityId: EntityId,
@@ -548,8 +551,8 @@ class PostgresCanonicalStore implements CanonicalStore {
 
   /* ---------------- entities & aliases ---------------- */
 
-  async recordEntityEvidence(input: EntityEvidenceInput): Promise<void> {
-    await this.driver.query(
+  async recordEntityEvidence(input: EntityEvidenceInput, executor?: SqlExecutor): Promise<void> {
+    await (executor ?? this.driver).query(
       `INSERT INTO entity_evidence
          (entity_id, artifact_id, source_record_id, contribution_role,
           locator_type, locator_value, observed_at)
@@ -569,8 +572,8 @@ class PostgresCanonicalStore implements CanonicalStore {
     );
   }
 
-  async upsertEntity(input: EntityInsert): Promise<Entity> {
-    const rows = await this.driver.query(
+  async upsertEntity(input: EntityInsert, executor?: SqlExecutor): Promise<Entity> {
+    const rows = await (executor ?? this.driver).query(
       `INSERT INTO entities (vertical_id, entity_type, canonical_name, canonical_slug, status,
                              quality_score, first_seen_at, last_verified_at)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
@@ -616,8 +619,8 @@ class PostgresCanonicalStore implements CanonicalStore {
     return row === undefined ? null : mapEntity(row);
   }
 
-  async addAlias(input: EntityAliasInsert): Promise<EntityAlias> {
-    const rows = await this.driver.query(
+  async addAlias(input: EntityAliasInsert, executor?: SqlExecutor): Promise<EntityAlias> {
+    const rows = await (executor ?? this.driver).query(
       `INSERT INTO entity_aliases (entity_id, alias_type, alias_value, normalized_value, source_id,
                                    identity_confidence, valid_from, valid_to)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
@@ -641,8 +644,8 @@ class PostgresCanonicalStore implements CanonicalStore {
     return mapEntityAlias(requireRow(rows, 'entity_aliases'));
   }
 
-  async listAliases(entityId: EntityId): Promise<EntityAlias[]> {
-    const rows = await this.driver.query(
+  async listAliases(entityId: EntityId, executor?: SqlExecutor): Promise<EntityAlias[]> {
+    const rows = await (executor ?? this.driver).query(
       // `COLLATE "C"` because this order is a decision, not a display: the
       // first alias of the primary type is what rebuilds the entity's
       // canonical name. Left to the database's collation, the published name
@@ -655,7 +658,7 @@ class PostgresCanonicalStore implements CanonicalStore {
     return rows.map(mapEntityAlias);
   }
 
-  async lookupByAlias(query: AliasLookupQuery): Promise<AliasMatch[]> {
+  async lookupByAlias(query: AliasLookupQuery, executor?: SqlExecutor): Promise<AliasMatch[]> {
     if (query.values.length === 0) return [];
     const params: SqlParam[] = [query.vertical_id, ...query.values];
     const valueList = placeholders(query.values.length, 1);
@@ -675,7 +678,7 @@ class PostgresCanonicalStore implements CanonicalStore {
       sql += ` AND e.entity_type = $${params.length}`;
     }
     sql += ' ORDER BY a.identity_confidence DESC, e.canonical_slug';
-    const rows = await this.driver.query(sql, params);
+    const rows = await (executor ?? this.driver).query(sql, params);
     return rows.map((row) => ({
       entity: mapEntity(unprefix(row, 'e_')),
       alias: mapEntityAlias(unprefix(row, 'a_')),
@@ -1301,6 +1304,13 @@ class PostgresCanonicalStore implements CanonicalStore {
       fact,
       evidence: evidenceByFact.get(fact.id) ?? [],
     }));
+  }
+
+  async loadFactCandidateById(id: FactId): Promise<FactCandidate | null> {
+    const fact = await this.getFactById(id);
+    if (fact === null) return null;
+    const evidenceByFact = await this.loadEvidenceChains([fact.id]);
+    return { fact, evidence: evidenceByFact.get(fact.id) ?? [] };
   }
 
   /** Evidence + source_record + artifact + source, for a set of facts. */

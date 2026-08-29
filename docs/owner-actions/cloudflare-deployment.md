@@ -6,9 +6,11 @@ from source code alone.
 
 The integration candidate contains the final five-Worker topology:
 `apps/edge`, `apps/web`, `apps/usage-consumer`,
-`apps/acquisition-worker`, and `apps/mcp-worker`. None is deployed, and
-repository state is not proof that Cloudflare resources or real-source rights
-have been provisioned.
+`apps/acquisition-worker`, and `apps/mcp-worker`. No production deployment of
+this integration candidate is recorded or verified. Live Cloudflare account
+state could not be inspected from the available environment; exact deployment
+IDs and runtime probes remain owner/platform evidence. Repository state is not
+proof that Cloudflare resources or real-source rights have been provisioned.
 
 The minimal owner/platform work is: choose the canonical account/zone and
 database; provision Hyperdrive, one raw-artifact R2 bucket, the usage Queue/DLQ,
@@ -96,9 +98,15 @@ origin.
 
 Verify the acquisition Worker separately: a duplicate Cron slot is a no-op; a
 missing/stale exact grant records refusal before provider construction,
-transport, or R2; and one authorized isolated target records migration-0017 run
-state plus immutable R2 evidence. No real source is required for infrastructure
-proof, and the deferred ENERGY STAR proposal must remain untouched.
+transport, or R2; a revocation that lands while transport is in flight is
+rechecked at `PRE_PERSISTENCE` before any R2 write or `NOT_MODIFIED` freshness;
+and one authorized isolated target records the versioned run receipt plus
+immutable R2 evidence. Also prove that an oversized declared and chunked direct
+publisher response is refused without a partial object. No real source is
+required for infrastructure proof. Browser Run proof must additionally cover
+page and record ceilings, repeated-cursor refusal, cumulative decoded-artifact
+limits, bounded provider diagnostics, and zero partial R2 writes. The deferred
+ENERGY STAR proposal must remain untouched.
 
 ---
 
@@ -147,14 +155,15 @@ The old statement that auth, tenancy and usage accounting were wholly absent is
 stale. The integration candidate contains corrected usage-accounting semantics,
 authentication and asynchronous usage persistence.
 
-The code side is done: `db/migrations/0011_api_tenancy.sql` has the
-tenant/API-key/usage schema, `apps/edge/src/auth.ts` authenticates and
-scope-checks every request before it reaches a route, and `apps/edge`
-publishes a usage event per successful request to a Cloudflare Queue that
-`apps/usage-consumer` persists idempotently. What remains is provisioning —
-item 6 below — and minting real API keys for real tenants, which is an
-operational action (insert a row, hash and hand the secret to the customer
-once) rather than a code change.
+Candidate implementation exists in migrations `0011`, `0012`, `0015`, and
+`0018`, `packages/usage-events`, `apps/edge`, and `apps/usage-consumer`.
+`apps/edge/src/auth.ts` authenticates and scope-checks every request before it
+reaches a route, then publishes a usage event per successful request to a
+Cloudflare Queue that `apps/usage-consumer` persists idempotently. Exact-SHA
+verification and merge, plus live Queue, DLQ, and Hyperdrive proof, remain
+separate gates. Provisioning — item 6 below — and minting real API keys for real
+tenants remain operational actions (insert a row, hash and hand the secret to
+the customer once) rather than additional canonical API implementations.
 
 Deliberately still absent, and out of scope for this increment: pricing,
 plans, invoices, subscriptions, or any Stripe relationship. What exists
@@ -348,7 +357,8 @@ commercial gate.
    be indexed or enter a sitemap only when `SEARCH_INDEX` covers those same
    rendered facts, attributions and relationships claim by claim.
 6. Verify the acquisition Cron/R2 path only for an exact rights-admitted target;
-   keep ENERGY STAR deferred and outside the runtime registry.
+   include the post-transport `PRE_PERSISTENCE` refusal and bounded-response
+   negatives, and keep ENERGY STAR deferred and outside the runtime registry.
 7. Configure the already-built thin RapidAPI channel and publish one marketplace
    vertical only after enrollment, proxy secret, plan/payout, and live subscriber
    proof.

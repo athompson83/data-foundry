@@ -137,6 +137,67 @@ describe('fact output contract at canonical query boundaries', () => {
     );
   });
 
+  it('loads an exact historical recursive contributor while using current grants', async () => {
+    fixtures = await createQueryFixtures({ trigram: false });
+    await seedSyntheticSurfaceRights(fixtures, ['PUBLIC_WEB'], ['manufacturer']);
+    await addSyntheticEntityEvidence(fixtures, fixtures.equipment);
+    const historicalInput = await claim(fixtures, 'manufacturer', {
+      entity_id: fixtures.equipment.id,
+      property: 'historical_recursive_input',
+      value: 12,
+      value_type: 'number',
+      valid_from: '2026-02-01T00:00:00Z',
+    });
+    const source = fixtures.sources.manufacturer;
+    const output = await fixtures.store.appendDerivedFactWithEvidence(
+      {
+        entity_id: fixtures.equipment.id,
+        property: 'historical_recursive_output',
+        normalized_value: 6,
+        value_type: 'number',
+        unit: null,
+        valid_from: ts('2026-02-01T00:00:00Z'),
+        confidence: factConfidence(0.9),
+        recorded_at: ts('2026-02-01T00:00:00Z'),
+        status: 'ACTIVE',
+      },
+      [{
+        artifact_id: source.artifact.id,
+        source_record_id: source.record.id,
+        source_value: '6',
+        locator_type: 'WHOLE_DOCUMENT',
+        locator_value: '',
+        observed_at: source.artifact.retrieved_at,
+      }],
+      [{
+        input_fact_id: historicalInput.fact.id,
+        transformation_ref: 'test.historical-recursive.v1',
+      }],
+    );
+    await seedScopedDeriveDecision(fixtures, {
+      fieldKey: 'historical_recursive_output',
+      outputClass: 'DERIVED_METRIC',
+      state: 'ALLOW',
+    });
+    await claim(fixtures, 'manufacturer', {
+      entity_id: fixtures.equipment.id,
+      property: 'historical_recursive_input',
+      value: 14,
+      value_type: 'number',
+      valid_from: '2026-07-01T00:00:00Z',
+    });
+
+    const views = await fixtures.qm
+      .forSurface('PUBLIC_WEB', { asOf: ts('2026-08-14T00:00:00Z') })
+      .canonicalFacts(fixtures.equipment.id, { at: ts('2026-06-01T00:00:00Z') });
+
+    expect(views).toContainEqual(expect.objectContaining({
+      fact_id: output.fact.id,
+      property: 'historical_recursive_output',
+      value: 6,
+    }));
+  });
+
   it('matches DERIVE on the target output field and DERIVED_METRIC tuple, not neighboring tuples', async () => {
     fixtures = await createQueryFixtures({ trigram: false });
     await seedSyntheticSurfaceRights(fixtures, ['PUBLIC_WEB'], ['manufacturer']);

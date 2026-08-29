@@ -139,6 +139,7 @@ const rightsReceipt = (
       checkpoint(run, 'INITIAL', 0, true, 'ADMITTED', provenanceMap),
       checkpoint(run, 'PRE_PROVIDER', 1, true, 'ADMITTED', provenanceMap),
       checkpoint(run, 'PRE_TRANSPORT', 2, true, 'ADMITTED', provenanceMap),
+      checkpoint(run, 'PRE_PERSISTENCE', 3, true, 'ADMITTED', provenanceMap),
     ]
   : [checkpoint(run, 'INITIAL', 0, false, 'RIGHTS_REFUSED', provenanceMap)];
 
