@@ -11,7 +11,7 @@ import {
   keyEnvironment,
   looksLikeApiKey,
   readBearerToken,
-  type ApiAccessTier,
+  type ApiAccessClassification,
   type ApiBillingSource,
   type KeyEnvironment,
   type StoredApiKey,
@@ -32,21 +32,30 @@ export type AuthFailureReason =
   | 'ACCESS_PROFILE_MISSING'
   | 'WRONG_BILLING_SOURCE';
 
-export interface AuthSuccess {
+interface AuthPrincipal {
   readonly ok: true;
   readonly tenantId: string;
   readonly apiKeyId: string;
   readonly verticalId: string;
-  readonly accessTier: ApiAccessTier;
-  readonly billingSource: ApiBillingSource;
 }
+
+type ClassificationForBillingSource<BillingSource extends ApiBillingSource> =
+  BillingSource extends ApiBillingSource
+    ? Extract<ApiAccessClassification, { readonly billingSource: BillingSource }>
+    : never;
+
+export type AuthSuccess<
+  BillingSource extends ApiBillingSource = ApiBillingSource,
+> = AuthPrincipal & ClassificationForBillingSource<BillingSource>;
 
 export interface AuthFailure {
   readonly ok: false;
   readonly reason: AuthFailureReason;
 }
 
-export type AuthResult = AuthSuccess | AuthFailure;
+export type AuthResult<
+  BillingSource extends ApiBillingSource = ApiBillingSource,
+> = AuthSuccess<BillingSource> | AuthFailure;
 
 type ApiKeyRow = StoredApiKey & {
   readonly vertical_id: string;
@@ -75,7 +84,9 @@ async function findTenantById(executor: SqlExecutor, tenantId: string): Promise<
   return rows[0] ?? null;
 }
 
-export interface AuthenticateOptions {
+export interface AuthenticateOptions<
+  BillingSource extends ApiBillingSource = ApiBillingSource,
+> {
   readonly verticalId: string;
   readonly environment: KeyEnvironment;
   /**
@@ -84,10 +95,15 @@ export interface AuthenticateOptions {
    * identifies exactly RAPIDAPI/RAPIDAPI, and `DIRECT` admits only the two
    * first-party API tiers.
    */
-  readonly expectedBillingSource: ApiBillingSource;
+  readonly expectedBillingSource: BillingSource;
   readonly now: Date;
 }
 
+export function authenticate<BillingSource extends ApiBillingSource>(
+  executor: SqlExecutor,
+  authorizationHeader: string | null | undefined,
+  options: AuthenticateOptions<BillingSource>,
+): Promise<AuthResult<BillingSource>>;
 export async function authenticate(
   executor: SqlExecutor,
   authorizationHeader: string | null | undefined,
@@ -128,7 +144,6 @@ export async function authenticate(
     tenantId: key.tenant_id,
     apiKeyId: key.id,
     verticalId: key.vertical_id,
-    accessTier: classification.accessTier,
-    billingSource: classification.billingSource,
+    ...classification,
   };
 }

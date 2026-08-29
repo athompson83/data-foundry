@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { mintApiKey } from '@data-foundry/api-keys';
+import { mintApiKey, type ApiAccessTier } from '@data-foundry/api-keys';
 import type { SqlExecutor } from '@data-foundry/canonical-store';
 import { authenticate } from '../src/index.js';
 
@@ -65,6 +65,25 @@ describe('shared database-backed access authentication', () => {
         authenticate(other.executor, `Bearer ${other.key.secret}`, mcpOptions),
       ).resolves.toEqual({ ok: false, reason: 'WRONG_BILLING_SOURCE' });
     }
+  });
+
+  it('rejects MCP credentials at a direct adapter and narrows successful direct tiers', async () => {
+    const mcp = await executorFor({ accessTier: 'MCP', billingSource: 'NONE' });
+    const directOptions = { ...mcpOptions, expectedBillingSource: 'DIRECT' } as const;
+    await expect(
+      authenticate(mcp.executor, `Bearer ${mcp.key.secret}`, directOptions),
+    ).resolves.toEqual({ ok: false, reason: 'WRONG_BILLING_SOURCE' });
+
+    const direct = await executorFor({ accessTier: 'API_PAID', billingSource: 'DIRECT' });
+    const result = await authenticate(
+      direct.executor,
+      `Bearer ${direct.key.secret}`,
+      directOptions,
+    );
+    if (!result.ok) throw new Error(`direct key unexpectedly failed: ${result.reason}`);
+    const directTier: Exclude<ApiAccessTier, 'MCP' | 'RAPIDAPI'> = result.accessTier;
+    expect(directTier).toBe('API_PAID');
+    expect(result.billingSource).toBe('DIRECT');
   });
 
   it('preserves one-key-one-vertical scope and live revocation checks', async () => {

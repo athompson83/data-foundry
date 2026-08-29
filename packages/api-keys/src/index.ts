@@ -55,11 +55,6 @@ export type ApiAccessTier = (typeof API_ACCESS_TIERS)[number];
 export const API_BILLING_SOURCES = ['DIRECT', 'RAPIDAPI', 'NONE'] as const;
 export type ApiBillingSource = (typeof API_BILLING_SOURCES)[number];
 
-export interface ApiAccessClassification {
-  readonly accessTier: ApiAccessTier;
-  readonly billingSource: ApiBillingSource;
-}
-
 /**
  * The only valid combinations. Keeping the pair closed prevents a marketplace
  * request from being recorded as direct usage (and later invoiced twice), and
@@ -70,7 +65,13 @@ export const API_ACCESS_CLASSIFICATIONS = [
   { accessTier: 'API_PAID', billingSource: 'DIRECT' },
   { accessTier: 'RAPIDAPI', billingSource: 'RAPIDAPI' },
   { accessTier: 'MCP', billingSource: 'NONE' },
-] as const satisfies readonly ApiAccessClassification[];
+] as const satisfies readonly {
+  readonly accessTier: ApiAccessTier;
+  readonly billingSource: ApiBillingSource;
+}[];
+
+/** The closed access/billing pair, preserved as a discriminated union. */
+export type ApiAccessClassification = (typeof API_ACCESS_CLASSIFICATIONS)[number];
 
 /** Runtime guard for database/message values, which arrive without TS types. */
 export function isApiAccessClassification(value: unknown): value is ApiAccessClassification {
