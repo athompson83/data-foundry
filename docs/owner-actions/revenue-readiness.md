@@ -292,8 +292,11 @@ semantics established earlier:
    `apps/acquisition-worker` uses durable versioned run receipts, exact stored
    `ACQUIRE`/`STORE`/`CACHE` checks before transport and again at the
    post-transport `PRE_PERSISTENCE` boundary, bounded publisher/provider
-   responses, and immutable R2 evidence. The readiness command requires
-   canonical `--as-of` and qualified DB/snapshot evidence.
+   responses, immutable R2 evidence, and a fenced recoverable lease on the one
+   logical slot row. Unexpected orchestration failures that escape expected
+   terminal handling release still-owned claims; crash recovery rotates the
+   token only after expiry, and stale attempts cannot terminalize. The readiness
+   command requires canonical `--as-of` and qualified DB/snapshot evidence.
 7. **Deploy the canonical Cloudflare stack.** Provision production Postgres,
    Hyperdrive, all five Workers, R2, usage Queue/DLQ, routes and secrets; prove
    health/readiness and perform live smoke tests.

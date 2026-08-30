@@ -80,6 +80,18 @@ credential must not be committed.
    reproducible through deployment configuration/secret management rather than
    manual memory.
 
+For a future upgrade from a deployment older than migration `0020`, temporarily
+disable the acquisition Cron and confirm no invocation is active before applying
+`0020`; then deploy the matching acquisition Worker SHA before re-enabling the
+trigger. The older bundle does not supply the exact lease shape required for new
+claims, while the newer bundle cannot select lease columns before the migration.
+Migration `0020` starts a pre-upgrade active claim's 20-minute lease at the later
+of migration time and its stored `claimed_at`. An abandoned claim can therefore
+remain `ACTIVE` until that lease expires, and a future-skewed legacy timestamp can
+extend the wait; retry after the recorded expiry rather than editing the row.
+This coordination is unnecessary for the first deployment, where all migrations
+are applied before any Worker or Cron is made live.
+
 ### Verify
 
 Mint a one-vertical `df_live_*` key, then an authenticated
@@ -96,8 +108,13 @@ that the usage consumer can persist a test event idempotently. A one-vertical
 and one `tools/call`; a direct or RapidAPI key must receive 403 at that same MCP
 origin.
 
-Verify the acquisition Worker separately: a duplicate Cron slot is a no-op; a
-missing/stale exact grant records refusal before provider construction,
+Verify the acquisition Worker separately: a terminal duplicate Cron slot is a
+no-op; an unexpired concurrent owner fails retryably; an unexpected orchestration
+failure that escapes expected terminal handling releases any still-owned claim
+and resumes the same slot on the same database row; and an abandoned attempt can
+be reclaimed after its 20-minute lease only by rotating the fencing token. Prove
+that the stale token cannot pass `PRE_PERSISTENCE` or terminalize.
+A missing/stale exact grant records refusal before provider construction,
 transport, or R2; a revocation that lands while transport is in flight is
 rechecked at `PRE_PERSISTENCE` before any R2 write or `NOT_MODIFIED` freshness;
 and one authorized isolated target records the versioned run receipt plus

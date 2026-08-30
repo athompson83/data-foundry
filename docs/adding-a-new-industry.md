@@ -158,9 +158,11 @@ A vertical can be ready for one surface and not another.
 - **Bulk export** — is independently gated by export/redistribution rights.
 - **Scheduled acquisition (`apps/acquisition-worker`)** — is independently
   gated by exact stored `ACQUIRE`/`STORE`/`CACHE` decisions and uses Cron,
-  migrations `0017` and `0019`, immutable versioned receipts through
-  `PRE_PERSISTENCE`, bounded transports, and immutable R2 evidence. Its source
-  YAML and schedule never create permission.
+  migrations `0017`, `0019`, and `0020`, immutable versioned receipts through
+  `PRE_PERSISTENCE`, fenced recoverable execution leases, bounded transports,
+  and immutable R2 evidence. Its source YAML and schedule never create
+  permission. A new vertical must prove that a caught same-slot retry reuses one
+  run row and that an expired owner cannot persist after token rotation.
 
 Do not infer “paid gets everything the website gets.” The rights resolver, not
 pricing, decides which facts each surface may expose.

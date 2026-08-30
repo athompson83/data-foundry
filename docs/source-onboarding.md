@@ -121,9 +121,11 @@ For a source intentionally enabled in `verticals/<slug>/acquisition.yaml`, run
 HTTP-backed target must declare the smallest documented positive
 `max_direct_http_response_bytes` that safely fits its artifact; oversized
 declared or chunked responses are refused rather than truncated. Migrations
-0017 and 0019 record deterministic Cron claims, versioned rights receipts,
-outcomes, validators, and R2 associations. These prove the runner shape, not
-that a real source is cleared or that the Worker is deployed.
+0017, 0019, and 0020 record deterministic Cron claims, versioned rights
+receipts, outcomes, validators, R2 associations, and server-timed execution
+leases. Recovery reuses the same slot row, rotates its fencing token, and
+refuses stale-owner persistence. These prove the runner shape, not that a real
+source is cleared or that the Worker is deployed.
 
 ---
 

@@ -13,19 +13,28 @@ configuration into a committed runtime artifact. The Worker never reads YAML at
 runtime and refuses a `VERTICAL_SLUG` that is not bundled.
 
 Migration `0017_scheduled_acquisition_runs.sql` stores deterministic Cron claims,
-rights receipts, provider/result state, validators, and artifact associations.
-Duplicate delivery of the same scheduled slot is a no-op. Successful artifacts
-are content-addressed and immutable in R2; retrieval/run history remains in
-Postgres so deduplication does not erase when or why bytes were obtained.
+rights receipts, provider/result state, validators, and artifact associations;
+`0019_scheduled_acquisition_pre_persistence.sql` adds the fourth rights
+checkpoint; and `0020_scheduled_acquisition_claim_leases.sql` makes an abandoned
+claim recoverable without creating a second slot row. One opaque attempt token
+owns a 20-minute execution lease. A terminal duplicate is a no-op, an unexpired
+concurrent owner is reported as retryable, an unexpected caught failure releases
+its attempt immediately, and an expired attempt is reclaimed with a rotated
+fencing token. Successful artifacts are content-addressed and immutable in R2;
+retrieval/run history remains in Postgres so deduplication does not erase when
+or why bytes were obtained.
 
 ## Fail-closed rights boundary
 
 The runner evaluates exact stored `ACQUIRE`, `STORE`, and `CACHE` decisions on
-`INTERNAL_PROCESSING`. It rechecks before provider construction and again before
-transport. A missing grant, sticky denial, stale terms/review, kill switch, or
-changed stored scope produces a recorded refusal before provider secrets,
-network access, or R2 writes. Source YAML classification and booleans are only
-inventory/additional hard stops; they cannot manufacture permission.
+`INTERNAL_PROCESSING`. It rechecks before provider construction, before
+transport, and after the provider result has been fully preflighted immediately
+before persistence. The pre-persistence hook also verifies that the same
+unexpired fencing token still owns the run. A missing grant, sticky denial,
+stale terms/review, kill switch, changed stored scope, or lost lease refuses
+before the affected provider secret, network boundary, or R2 write. Source YAML
+classification and booleans are only inventory/additional hard stops; they
+cannot manufacture permission.
 
 The proposed ENERGY STAR source is not bundled. It remains `UNDER_REVIEW`,
 `UNREVIEWED`, unapproved, and deferred; this Worker does not contact or acquire

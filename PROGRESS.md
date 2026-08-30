@@ -4,11 +4,12 @@
 
 - Product: Data Foundry
 - Lifecycle stage: MVP integration / pre-deployment
-- Control-graph node: `FINAL_REPAIR -> EXACT_SHA_VERIFY -> REVIEW -> DRAFT_PR`
+- Control-graph node: `REVIEW_REPAIR -> EXACT_SHA_VERIFY -> HOSTED_REVIEW -> OWNER_MERGE_DECISION`
 - Current milestone: freeze, verify, and review the integrated revenue-capable
   platform candidate without implying that a real HVAC dataset is cleared
-- Branch: verify the current isolated-worktree branch at handoff
-- PR: not recorded here; reconcile live before release action
+- Branch: `codex/revenue-integration-20260826`
+- PR: [#19](https://github.com/athompson83/data-foundry/pull/19); reconcile
+  its live head and checks before any merge action
 - Preview: none verified
 - Production: no deployment of this integration candidate is recorded or
   verified; live Cloudflare account state was unavailable for inspection
@@ -29,13 +30,16 @@
 - REST and MCP await Cloudflare Queue acceptance before returning a metered
   success. Missing/rejected enqueue returns an opaque retryable 503. Only the
   later Postgres persistence remains asynchronous and idempotent.
-- Scheduled acquisition uses migrations 0017 and 0019 with immutable versioned
-  receipts. Pre-migration rows remain contract v1; every new claim is contract
-  v2 and requires ordered `INITIAL`, `PRE_PROVIDER`, `PRE_TRANSPORT`, and
-  `PRE_PERSISTENCE` authorization before R2 persistence or `NOT_MODIFIED`
-  freshness. Direct and provider transports enforce finite response, record,
-  pagination, cursor, diagnostic, and cumulative-artifact bounds without
-  partial persistence.
+- Scheduled acquisition uses migrations 0017, 0019, and 0020 with immutable
+  versioned receipts and fenced recoverable execution leases. Pre-migration
+  terminal rows remain contract v1; every new or reclaimed claim is contract v2
+  and requires ordered `INITIAL`, `PRE_PROVIDER`, `PRE_TRANSPORT`, and
+  `PRE_PERSISTENCE` authorization within the current attempt before R2
+  persistence or `NOT_MODIFIED` freshness. Unexpected orchestration failures
+  that escape expected terminal handling release still-owned claims; expired
+  attempts rotate tokens on the same slot row. Direct and provider
+  transports enforce finite response, record, pagination, cursor, diagnostic,
+  and cumulative-artifact bounds without partial persistence.
 - Offline entity resolution uses one driver-managed transaction executor for
   manufacturer, entity, alias, judgment, and evidence writes. Any failure or
   unusable strong identifier rolls the record back.
@@ -81,13 +85,16 @@
 ## Verification
 
 - The last broad pre-freeze repair-tree run passed TypeScript typecheck, 170
-  Vitest files / 2,494 tests, 19 ordered/idempotent migrations over 41 tables,
+  Vitest files / 2,520 tests, 20 ordered/idempotent migrations over 41 tables,
   schema/OpenAPI/runtime/topology/artifact gates, and PostgreSQL 16 migration
   plus scheduled-acquisition checks.
 - Subsequent focused test-first repair proved post-transport rights revocation,
   exact historical selection, recursive historical contributors, bulk-export
   refusal, one-client resolution transactions, bounded direct/provider
-  transports, and no partial acquisition persistence.
+  transports, no partial acquisition persistence, bounded surface-authorization
+  fan-out, keyset sitemap enumeration beyond 10,000 rows, an empty-parent
+  `noindex` control, and server-clock same-row acquisition recovery with stale
+  fencing.
 - Final authority is the frozen 40-character PR head and its complete local/CI
   gate set. Any candidate-affecting change invalidates SHA-sensitive evidence;
   do not use the earlier rejected `1ca6f61` candidate as release proof.
@@ -114,7 +121,9 @@ activation, source acquisition, publisher contact, or provider mutation.
 
 The integrated branch combines usage accounting/auth, corrected Option B
 rights, public web, RapidAPI, scheduled acquisition/readiness, and MCP in
-dependency order through migration 0019. Final review repairs add a last
+dependency order through migration 0020. Final review repairs add a last
 practical pre-persistence rights checkpoint, exact historical authorization,
-one-client resolution transactions, bounded provider-controlled input, and
-non-actionable HVAC source research consistent with the owner decisions.
+one-client resolution transactions, bounded provider-controlled input and
+surface authorization, recoverable server-clock acquisition leases, keyset
+sitemap enumeration, and non-actionable HVAC source research consistent with
+the owner decisions.

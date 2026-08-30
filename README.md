@@ -293,9 +293,12 @@ Five Cloudflare Workers, per
   source targets. It claims durable run state in Postgres, rechecks exact stored
   `ACQUIRE`/`STORE`/`CACHE` permission before provider construction, before
   transport, and again after transport immediately before persistence or
-  `NOT_MODIFIED` freshness. Direct publisher responses and provider
-  control-plane JSON are streamed under finite byte ceilings before immutable
-  raw evidence enters the canonical R2 bucket.
+  `NOT_MODIFIED` freshness. Each logical slot has one row and a server-timed
+  20-minute execution lease; recovery rotates an opaque fencing token so an
+  expired owner cannot persist or terminalize after a retry takes ownership.
+  Direct publisher responses and provider control-plane JSON are streamed under
+  finite byte ceilings before immutable raw evidence enters the canonical R2
+  bucket.
 - **`apps/mcp-worker`** — authenticated MCP 2026-07-28 Streamable HTTP. One
   vertical per deployment, backed by the six generic tools in `apps/mcp` and
   an exact `MCP/NONE` key that is distinct from direct and RapidAPI keys.
