@@ -4,12 +4,14 @@
 
 - Product: Data Foundry
 - Lifecycle stage: MVP integration / pre-deployment
-- Control-graph node: `REVIEW_REPAIR -> EXACT_SHA_VERIFY -> HOSTED_REVIEW -> OWNER_MERGE_DECISION`
-- Current milestone: freeze, verify, and review the integrated revenue-capable
-  platform candidate without implying that a real HVAC dataset is cleared
+- Control-graph node: `REVIEW_REPAIR -> EXACT_SHA_VERIFY -> PROTECTED_PR -> MERGED_MAIN -> EXTERNAL_DEPLOY`
+- Current milestone: verify and merge the integrated, synthetic-data-capable
+  deployment candidate without implying that a real HVAC dataset is cleared
 - Branch: `codex/revenue-integration-20260826`
-- PR: [#19](https://github.com/athompson83/data-foundry/pull/19); reconcile
-  its live head and checks before any merge action
+- PR: [#19](https://github.com/athompson83/data-foundry/pull/19) is the integration
+  vehicle. Its live 40-character head, not a SHA embedded in this mutable file,
+  is the candidate authority; every candidate-affecting push requires fresh
+  local, hosted, review, and ruleset evidence.
 - Preview: none verified
 - Production: no deployment of this integration candidate is recorded or
   verified; live Cloudflare account state was unavailable for inspection
@@ -79,13 +81,21 @@
 
 ## Deployment and Revenue State
 
-- Repository implementation is in final exact-SHA verification and review;
-  repository-ready does not mean deployed or production-ready.
+- The integrated implementation has completed its focused repair verification;
+  it is not a release candidate until the final documentation tree passes fresh
+  exact-SHA local, hosted, review, and ruleset gates. Repository-ready does not
+  mean deployed or commercially publishable.
 - RapidAPI enrollment, proxy-secret configuration, plans, payout setup, live
   route, and real subscriber proof remain external.
 - Cloudflare account/zone/routes, Hyperdrive, production Postgres, R2,
   Queue/DLQ, hostnames, protected values, and exact deployment IDs remain
   external and unverified.
+- GitHub `main` is protected by active ruleset `21855694`; its two strict
+  required checks are bound to GitHub Actions. Private vulnerability reporting,
+  Dependabot vulnerability/security-update controls, secret scanning, and push
+  protection are enabled, and repository hooks are empty. Only the Vercel App's
+  sudo-gated repository selection remains an owner-only governance check; it
+  does not block protected merge or Cloudflare deployment.
 - Public production begins with `PUBLIC_CACHE_MODE=no-store`; `cache` is a
   later operational choice only after live purge, provider cache-bypass, and
   stale-object proof. A rights revocation switches to `no-store` and purges
@@ -100,11 +110,14 @@
 
 ## Verification
 
-- The Task 2 local verification run passed TypeScript typecheck, 170 Vitest
-  files / 2,565 tests, 21 ordered/idempotent migrations over 42 tables,
-  generated-schema/runtime checks, and repository Cloudflare topology checks.
-  Deployment-mode validation is intentionally blocked until the five ignored
-  exact-deployment manifests exist; its missing-file output is secret-safe.
+- Implementation commit `a123179df3675980f65d8f92d8abe9777ab67dcc`
+  passed TypeScript typecheck, 171 Vitest files / 2,579 tests, 22
+  ordered/idempotent migrations over 42 tables, generated-schema/runtime
+  checks, repository Cloudflare topology, Worker artifact checks, and an
+  isolated PostgreSQL 16 source-record race regression. Later documentation or
+  code commits still require a fresh final run. Deployment-mode validation is
+  intentionally blocked until the five ignored exact-deployment manifests
+  exist; its missing-file output is secret-safe.
 - Subsequent focused test-first repair proved post-transport rights revocation,
   exact historical selection, recursive historical contributors, bulk-export
   refusal, one-client resolution transactions, bounded direct/provider
@@ -119,9 +132,10 @@
   PostgreSQL concurrency regression. Repository topology now canonicalizes
   loopback hosts, rejects mixed-case plaintext credential names and nested
   deployment-only fields; ignored production manifests remain an operator gate.
-- Final authority is the frozen 40-character PR head and its complete local/CI
-  gate set. Any candidate-affecting change invalidates SHA-sensitive evidence;
-  do not use the earlier rejected `1ca6f61` candidate as release proof.
+- Final authority is the live frozen 40-character PR head and its complete
+  local/CI/review/ruleset gate set. Any candidate-affecting change invalidates
+  SHA-sensitive evidence; neither `a123179` nor the earlier rejected `1ca6f61`
+  is final release proof after a later commit.
 
 ## Blockers
 
@@ -139,7 +153,7 @@ deferred; it is not an action request in this work package.
 
 ## Production Impact
 
-Repository code, one forward migration, tests, generated artifacts, and control
+Repository code, two forward migrations, tests, generated artifacts, and control
 documents changed. This work performs no deployment, hosted migration, grant
 activation, source acquisition, publisher contact, or provider mutation.
 
@@ -147,7 +161,7 @@ activation, source acquisition, publisher contact, or provider mutation.
 
 The integrated branch combines usage accounting/auth, corrected Option B
 rights, public web, RapidAPI, scheduled acquisition/readiness, and MCP in
-dependency order through migration 0020. Final review repairs add a last
+dependency order through migration 0022. Final review repairs add a last
 practical pre-persistence rights checkpoint, exact historical authorization,
 one-client resolution transactions, bounded provider-controlled input and
 surface authorization, recoverable server-clock acquisition leases with
