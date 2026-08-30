@@ -121,6 +121,12 @@
   protection are enabled, and repository hooks are empty. Only the Vercel App's
   sudo-gated repository selection remains an owner-only governance check; it
   does not block protected merge or Cloudflare deployment.
+- The candidate upgrades the production PDF parser to `unpdf@1.8.1`, removing
+  the legacy `canvas` / `node-pre-gyp` / vulnerable `node-tar` install chain
+  behind all twelve Dependabot advisories discovered on the prior
+  default-branch lockfile. A parsed-lockfile regression and
+  `pnpm audit --prod --audit-level high` keep that dependency repair executable
+  rather than documentary.
 - Public production requires `PUBLIC_CACHE_MODE=no-store`; the runtime rejects
   `cache` in production because request-time rights checks cannot revoke an
   object already retained by a browser or intermediary. Shared caching is a
@@ -141,8 +147,9 @@
   reconciliation transactions and advisory locks, source-record currentness,
   alias epochs/claims, identifier-less successors, bounded provider input,
   Queue privacy/idempotency, bounded sitemap work, and credential-delivery
-  refusal/compensation paths. Those iteration results are diagnostic evidence,
-  not release certification while the candidate tree is still mutable.
+  refusal/compensation paths, plus removal of the vulnerable transitive
+  `node-tar` chain. Those iteration results are diagnostic evidence, not
+  release certification while the candidate tree is still mutable.
 - The exact frozen candidate must freshly pass typecheck, the complete Vitest
   suite, ordered/idempotent migrations, generated schema/OpenAPI/runtime drift
   checks, vertical/acquisition checks, repository Cloudflare topology, all five
