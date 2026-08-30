@@ -37,7 +37,9 @@
   `PRE_PERSISTENCE` authorization within the current attempt before R2
   persistence or `NOT_MODIFIED` freshness. Unexpected orchestration failures
   that escape expected terminal handling release still-owned claims; expired
-  attempts rotate tokens on the same slot row. Direct and provider
+  attempts rotate tokens on the same slot row. Only a winning claimant receives
+  the current fencing token; active/terminal duplicate observations and
+  diagnostic/freshness reads physically omit it. Direct and provider
   transports enforce finite response, record, pagination, cursor, diagnostic,
   and cumulative-artifact bounds without partial persistence.
 - Offline entity resolution uses one driver-managed transaction executor for
@@ -81,6 +83,12 @@
   emergency provider-cache purge path plus the ability to force `no-store`,
   remove stale-while-revalidate, or reduce TTL during an incident. The
   repository does not control every provider cache rule.
+- Public sitemap work is keyset-paged and subject to one validated raw-page
+  budget per request, shared across all verticals and segments for the global
+  index. Capacity exhaustion returns an opaque, non-cacheable retryable 503
+  without partial XML; malformed and configuration-impossible shard aliases do
+  no query work. A provider-level rate limit still requires live configuration
+  and verification.
 
 ## Verification
 
@@ -93,8 +101,9 @@
   refusal, one-client resolution transactions, bounded direct/provider
   transports, no partial acquisition persistence, bounded surface-authorization
   fan-out, keyset sitemap enumeration beyond 10,000 rows, an empty-parent
-  `noindex` control, and server-clock same-row acquisition recovery with stale
-  fencing.
+  `noindex` control, server-clock same-row acquisition recovery with stale
+  fencing, non-owner claim-token isolation, request-wide sitemap capacity, and
+  canonical zero-work sitemap route refusal.
 - Final authority is the frozen 40-character PR head and its complete local/CI
   gate set. Any candidate-affecting change invalidates SHA-sensitive evidence;
   do not use the earlier rejected `1ca6f61` candidate as release proof.
@@ -103,6 +112,8 @@
 
 - No exact deployment of this candidate or hosted database/Queue/R2 proof is
   recorded. Live Cloudflare account state could not be inspected here.
+- Public sitemap rate limiting and its ordinary-crawler bypass policy have not
+  been configured or verified on the canonical Cloudflare account.
 - No real HVAC source has the required exact grants and human rights review.
 - RapidAPI and MCP have no live external-channel proof.
 
@@ -124,6 +135,6 @@ rights, public web, RapidAPI, scheduled acquisition/readiness, and MCP in
 dependency order through migration 0020. Final review repairs add a last
 practical pre-persistence rights checkpoint, exact historical authorization,
 one-client resolution transactions, bounded provider-controlled input and
-surface authorization, recoverable server-clock acquisition leases, keyset
-sitemap enumeration, and non-actionable HVAC source research consistent with
-the owner decisions.
+surface authorization, recoverable server-clock acquisition leases with
+non-owner capability redaction, request-bounded keyset sitemap enumeration,
+and non-actionable HVAC source research consistent with the owner decisions.
