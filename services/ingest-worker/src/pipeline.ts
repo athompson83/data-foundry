@@ -86,6 +86,7 @@ import {
   DerivedCandidateGraphError,
   normalizeRecord,
   orderCanonicalCandidatesByDerivation,
+  type IdentifierCandidate,
   type NormalizationResult,
 } from '@data-foundry/normalization';
 import {
@@ -920,7 +921,10 @@ export class Pipeline {
           if (manufacturer !== null) break;
         }
 
-        const aliases: AliasClaim[] = [];
+        const validatedAliases: Array<{
+          readonly claim: AliasClaim;
+          readonly locator: IdentifierCandidate['locator'];
+        }> = [];
         for (const identifier of item.normalization.identifiers) {
           const plan = item.plan.aliases.find((alias) => alias.aliasType === identifier.alias_type);
           const normalizedValue = resolver.normalizer.normalize(
@@ -936,13 +940,18 @@ export class Pipeline {
             );
             continue;
           }
-          aliases.push({
-            aliasType: identifier.alias_type,
-            aliasValue: identifier.alias_value,
-            normalizedValue,
-            strong: plan?.strong ?? false,
+          validatedAliases.push({
+            claim: {
+              aliasType: identifier.alias_type,
+              aliasValue: identifier.alias_value,
+              normalizedValue,
+              strong: plan?.strong ?? false,
+            },
+            locator: identifier.locator,
           });
         }
+
+        const aliases = validatedAliases.map(({ claim }) => claim);
 
         if (aliases.every((alias) => !alias.strong)) {
           this.#diagnostics.push(
@@ -974,15 +983,15 @@ export class Pipeline {
           },
           tx,
         );
-        for (const identifier of item.normalization.identifiers) {
+        for (const { locator } of validatedAliases) {
           await this.store.recordEntityEvidence(
             {
               entity_id: resolved.entity.id,
               artifact_id: item.artifact.id,
               source_record_id: item.row.id,
               contribution_role: 'ALIAS',
-              locator_type: identifier.locator.type,
-              locator_value: identifier.locator.value,
+              locator_type: locator.type,
+              locator_value: locator.value,
               observed_at: item.artifact.retrieved_at,
             },
             tx,

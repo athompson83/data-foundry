@@ -255,6 +255,48 @@ describe('real ingestion fact output lineage', () => {
     expect(persisted?.evidence_count).toBeGreaterThan(0);
   });
 
+  it('records alias evidence only for identifiers that pass alias validation', async () => {
+    await ensureIngestionRights();
+    const pipeline = await Pipeline.create({
+      driver,
+      verticalSlug: 'hvac',
+      artifactStore: new InMemoryArtifactStore(),
+      now: '2026-08-15T12:00:00.000Z' as never,
+      runId: 'validated-alias-evidence',
+      fixtureOverrides: {
+        'acme-hvac-catalog': JSON.stringify({
+          products: [catalogProduct('ACS-ALIASPROOF001', 'AB')],
+        }),
+      },
+    });
+
+    const result = await pipeline.runSource('acme-hvac-catalog');
+
+    expect(result.error).toBeNull();
+    expect(result.records).toBe(1);
+    expect(
+      pipeline.diagnostics.some((entry) => entry.includes('alias model_number quarantined')),
+    ).toBe(true);
+    const rejectedAliases = await driver.query(
+      `SELECT entity_id FROM entity_aliases
+        WHERE alias_type = 'model_number' AND normalized_value = 'AB'`,
+    );
+    expect(rejectedAliases).toEqual([]);
+    const evidence = await driver.query<{ locator_value: string }>(
+      `SELECT evidence.locator_value
+         FROM entity_aliases alias
+         JOIN entity_evidence evidence ON evidence.entity_id = alias.entity_id
+        WHERE alias.alias_type = 'manufacturer_sku'
+          AND alias.normalized_value = 'ACS-ALIASPROOF001'
+          AND evidence.contribution_role = 'ALIAS'
+        ORDER BY evidence.locator_value`,
+    );
+    expect(evidence.map((row) => row.locator_value)).toEqual([
+      '/products/0/series',
+      '/products/0/sku',
+    ]);
+  });
+
   it('rolls back every resolution write when entity evidence persistence fails', async () => {
     await ensureIngestionRights();
     const guarded = transactionAffinityGuard(driver, {
