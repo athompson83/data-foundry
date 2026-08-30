@@ -523,7 +523,7 @@ export class Pipeline {
       const persisted: { plan: StreamPlan; extracted: ExtractedRecord; artifact: SourceArtifact; row: SourceRecord }[] =
         [];
       for (const item of extracted) {
-        const row = await this.store.recordSourceRecord({
+        const row = await this.store.ensureSourceRecord({
           source_id: source.id,
           artifact_id: item.artifact.id,
           source_record_key: item.record.source_record_key,
@@ -609,16 +609,6 @@ export class Pipeline {
             `${sourceKey}/${item.row.source_record_key}: ${failure.reason} — ${failure.message}`,
           );
         }
-        await this.store.recordSourceRecord({
-          source_id: source.id,
-          artifact_id: item.artifact.id,
-          source_record_key: item.row.source_record_key,
-          entity_type: item.plan.entityType,
-          raw_payload: item.extracted.raw_payload,
-          normalized_payload: normalization.normalized_payload,
-          extraction_confidence: item.extracted.extraction_confidence,
-          extractor_version: item.extracted.extractor_version,
-        });
         normalized.push({ ...item, normalization });
       }
       await advanceTo('NORMALIZED', `${normalized.length} record(s) normalized`);
@@ -905,6 +895,19 @@ export class Pipeline {
     const raw = item.extracted.raw_payload;
     try {
       return await this.store.driver.transaction(async (tx) => {
+        const sourceRecord = await this.store.reconcileSourceRecord(
+          {
+            source_id: source.id,
+            artifact_id: item.artifact.id,
+            source_record_key: item.row.source_record_key,
+            entity_type: item.plan.entityType,
+            raw_payload: item.extracted.raw_payload,
+            normalized_payload: item.normalization.normalized_payload,
+            extraction_confidence: item.extracted.extraction_confidence,
+            extractor_version: item.extracted.extractor_version,
+          },
+          tx,
+        );
         // The manufacturer is resolved first: it is the scope a model number is
         // unique within, and the slug pattern needs it.
         let manufacturer: Entity | null = null;
@@ -966,7 +969,7 @@ export class Pipeline {
             aliases,
             manufacturer,
             sourceId: source.id,
-            sourceRecordId: item.row.id,
+            sourceRecordId: sourceRecord.id,
           },
           tx,
         );
@@ -975,7 +978,7 @@ export class Pipeline {
           {
             entity_id: resolved.entity.id,
             artifact_id: item.artifact.id,
-            source_record_id: item.row.id,
+            source_record_id: sourceRecord.id,
             contribution_role: 'EXISTENCE',
             locator_type: item.extracted.locator.type,
             locator_value: item.extracted.locator.value,
@@ -988,7 +991,7 @@ export class Pipeline {
             {
               entity_id: resolved.entity.id,
               artifact_id: item.artifact.id,
-              source_record_id: item.row.id,
+              source_record_id: sourceRecord.id,
               contribution_role: 'ALIAS',
               locator_type: locator.type,
               locator_value: locator.value,
@@ -1002,7 +1005,7 @@ export class Pipeline {
             {
               entity_id: manufacturer.id,
               artifact_id: item.artifact.id,
-              source_record_id: item.row.id,
+              source_record_id: sourceRecord.id,
               contribution_role: 'EXISTENCE',
               locator_type: item.extracted.locator.type,
               locator_value: item.extracted.locator.value,
@@ -1025,7 +1028,7 @@ export class Pipeline {
         return {
           plan: item.plan,
           extracted: item.extracted,
-          sourceRecord: item.row,
+          sourceRecord,
           normalization: item.normalization,
           artifact: item.artifact,
           entity: resolved.entity,

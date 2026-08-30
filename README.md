@@ -187,7 +187,7 @@ application discipline:
 | `facts_single_open_version_key` | At most one open `ACTIVE` version per `(entity, property)` |
 | `fact_evidence` FKs `ON DELETE RESTRICT` | Evidence outlives convenience (rule 10) |
 | `media_assets_cache_requires_rights` | No caching imagery into R2 without cleared rights (rule 9) |
-| `source_records_source_key_uniq` | One record per `(source_id, source_record_key)` |
+| `source_records_current_source_key_uniq` | One current immutable revision per logical `(source_id, source_record_key)`; superseded revisions retain their evidence lineage |
 | `ingestion_jobs_failed_shape` | `FAILED` jobs carry retry metadata; others do not |
 
 ### What this project owns in a database
@@ -249,6 +249,8 @@ MCP tool definitions, the Phase 2 Python/Splink work, and external dataset users
   canonical REST route and access-channel contract
 - `pnpm cloudflare:topology:check` — all five Worker manifests preserve the
   Queue, Cron, R2, Hyperdrive, route, and secret-free topology contract
+- `pnpm cloudflare:deployment:check` — validates the five ignored exact-deployment
+  manifests before a dry run or deploy; it emits no deployment values on success
 - `pnpm verticals:validate` — vertical configs are well-formed and every source
    declaration carries complete rights metadata
 - `pnpm verticals:compile:check` — the edge runtime artifact matches the

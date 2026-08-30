@@ -26,7 +26,7 @@ async function withApp(
     await addSyntheticEntityEvidence(fixtures, fixtures.equipment);
     const runtime: WebRuntime = { ...RUNTIMES['hvac']!, vertical_status: status };
     const deployment = await getDeployment({
-      env: { POSTGRES_URL: 'postgres://fixture/db', PUBLIC_ORIGIN: ORIGIN },
+      env: { DEPLOYMENT_ENVIRONMENT: 'development', POSTGRES_URL: 'postgres://fixture/db', PUBLIC_ORIGIN: ORIGIN },
       runtimes: { hvac: runtime },
       openDriver: async () => fixtures.driver,
     });

@@ -85,6 +85,7 @@ export function recordingQueue(): { readonly queue: QueueBinding; readonly sent:
 
 export function envFor(queue?: QueueBinding): McpWorkerEnv {
   return {
+    DEPLOYMENT_ENVIRONMENT: 'development',
     POSTGRES_URL: 'postgres://fixture/db',
     VERTICAL_SLUG: 'hvac',
     API_KEY_ENVIRONMENT: 'test',

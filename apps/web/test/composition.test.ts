@@ -17,6 +17,7 @@ import { RUNTIMES } from '../src/index.js';
 let fixtures: QueryFixtures;
 
 const envFor = (overrides: Record<string, string> = {}) => ({
+  DEPLOYMENT_ENVIRONMENT: 'development',
   POSTGRES_URL: 'postgres://fixture/db',
   PUBLIC_ORIGIN: 'https://data-foundry.test',
   ...overrides,
@@ -135,6 +136,27 @@ describe('composing a deployment', () => {
 
     expect(first.publicOrigin).toBe('https://one.example');
     expect(second.publicOrigin).toBe('https://two.example');
+    expect(opens).toBe(2);
+  });
+
+  it('does not reuse a composed deployment across different public cache modes', async () => {
+    let opens = 0;
+    const countingDriver = async () => {
+      opens += 1;
+      return fixtures.driver;
+    };
+
+    await getDeployment({
+      env: envFor({ PUBLIC_CACHE_MODE: 'cache' }),
+      runtimes: RUNTIMES,
+      openDriver: countingDriver,
+    });
+    await getDeployment({
+      env: envFor({ PUBLIC_CACHE_MODE: 'no-store' }),
+      runtimes: RUNTIMES,
+      openDriver: countingDriver,
+    });
+
     expect(opens).toBe(2);
   });
 });

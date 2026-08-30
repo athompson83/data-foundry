@@ -186,9 +186,10 @@ async function dispatchVertical(
 
 async function dispatch(context: WebContext, request: WebRequest): Promise<WebResponse> {
   const notFoundHtml = (): string => render404(context.deployment.publicOrigin).html;
+  const cacheMode = context.cacheMode ?? 'cache';
 
   if (!READ_METHODS.has(request.method.toUpperCase())) {
-    return htmlResponse(405, notFoundHtml());
+    return htmlResponse(405, notFoundHtml(), {}, cacheMode);
   }
 
   let url: URL;
@@ -199,10 +200,10 @@ async function dispatch(context: WebContext, request: WebRequest): Promise<WebRe
   }
   const pathname = url.pathname;
 
-  if (pathname === '/') return htmlResponse(200, await renderParentIndex(context.deployment));
-  if (pathname === '/robots.txt') return textResponse(200, robotsTxt(context.deployment));
+  if (pathname === '/') return htmlResponse(200, await renderParentIndex(context.deployment), {}, cacheMode);
+  if (pathname === '/robots.txt') return textResponse(200, robotsTxt(context.deployment), {}, cacheMode);
   if (pathname === '/sitemap-index.xml') {
-    return xmlResponse(200, await sitemapIndexXml(context.deployment, context.now()));
+    return xmlResponse(200, await sitemapIndexXml(context.deployment, context.now()), cacheMode);
   }
 
   const vertical = verticalFor(context, pathname);
@@ -223,11 +224,11 @@ async function dispatch(context: WebContext, request: WebRequest): Promise<WebRe
         body: '',
       };
     case 'xml':
-      return xmlResponse(200, result.body);
+      return xmlResponse(200, result.body, cacheMode);
     case 'text':
-      return textResponse(200, result.body, result.headers);
+      return textResponse(200, result.body, result.headers, cacheMode);
     case 'html':
-      return htmlResponse(result.status, result.body);
+      return htmlResponse(result.status, result.body, {}, cacheMode);
   }
 }
 

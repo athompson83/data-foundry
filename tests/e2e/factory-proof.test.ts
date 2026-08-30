@@ -698,14 +698,31 @@ describe('Phase 1 factory proof — four HVAC sources into one canonical databas
       expect(asOfJuly.selected?.fact.normalized_value).toBe(196);
     });
 
-    it('changes nothing else: one new version, no new entities, no lost evidence', async () => {
+    it('preserves historic lineage while reconciling every current source-record revision', async () => {
       const after = await snapshotCanonical(factory.driver);
       expect(after.entities).toBe(before.entities);
       expect(after.relationships).toBe(before.relationships);
       expect(after.artifacts).toBe(before.artifacts + 1); // new bytes, new artifact
-      expect(after.factEvidence).toBe(before.factEvidence + 1);
-      // Every evidence row that existed before still exists.
+      expect(after.sourceRecords).toBeGreaterThan(before.sourceRecords);
+      expect(after.factEvidence).toBeGreaterThan(before.factEvidence + 1);
+      // Every historic evidence row remains explainable after the current
+      // source-record revisions are replaced by the changed artifact.
       expect(before.evidenceIds.every((id) => after.evidenceIds.includes(id))).toBe(true);
+
+      const mismatchedCurrentLineage = await factory.driver.query<{ source_record_id: string }>(
+        `SELECT ee.source_record_id FROM entity_evidence ee
+           JOIN source_records sr ON sr.id = ee.source_record_id
+          WHERE sr.is_current AND ee.artifact_id <> sr.artifact_id
+         UNION ALL
+         SELECT fe.source_record_id FROM fact_evidence fe
+           JOIN source_records sr ON sr.id = fe.source_record_id
+          WHERE sr.is_current AND fe.artifact_id <> sr.artifact_id
+         UNION ALL
+         SELECT re.source_record_id FROM relationship_evidence re
+           JOIN source_records sr ON sr.id = re.source_record_id
+          WHERE sr.is_current AND re.artifact_id <> sr.artifact_id`,
+      );
+      expect(mismatchedCurrentLineage).toEqual([]);
 
       const report = await provenanceCoverage(factory.driver);
       expect(report.facts.coverage).toBe(1);

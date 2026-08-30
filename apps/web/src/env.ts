@@ -12,8 +12,8 @@ export interface HyperdriveBinding {
 }
 
 export interface WebEnv {
-  /** Explicit production mode tightens topology checks; absence is local development. */
-  readonly DEPLOYMENT_ENVIRONMENT?: string;
+  /** Explicit deployment identity; absence is rejected. */
+  readonly DEPLOYMENT_ENVIRONMENT?: string | undefined;
   readonly HYPERDRIVE?: HyperdriveBinding;
   readonly POSTGRES_URL?: string;
   /**
@@ -22,6 +22,8 @@ export interface WebEnv {
    * index and `<link rel="canonical">` — never to build a relative link.
    */
   readonly PUBLIC_ORIGIN?: string;
+  /** Explicit public-response caching posture; no-store is the revocation-safe incident mode. */
+  readonly PUBLIC_CACHE_MODE?: string;
 }
 
 export class WebConfigurationError extends Error {
@@ -35,15 +37,32 @@ export interface ResolvedWebConfig {
   readonly connectionString: string;
   readonly publicOrigin: string;
   readonly deploymentEnvironment: DeploymentEnvironment;
+  readonly cacheMode: PublicCacheMode;
 }
 
 export type DeploymentEnvironment = 'development' | 'production';
+export type PublicCacheMode = 'cache' | 'no-store';
 
 function resolveDeploymentEnvironment(value: string | undefined): DeploymentEnvironment {
-  if (value === undefined || value === 'development') return 'development';
+  if (value === 'development') return 'development';
   if (value === 'production') return 'production';
   throw new WebConfigurationError(
-    'DEPLOYMENT_ENVIRONMENT must be exactly "development" or "production" when set.',
+    'DEPLOYMENT_ENVIRONMENT must be exactly "development" or "production".',
+  );
+}
+
+function isLoopbackHostname(value: string): boolean {
+  const hostname = value.toLowerCase().replace(/^\[/, '').replace(/\]$/, '');
+  if (hostname === 'localhost' || hostname === '::1') return true;
+  const octets = hostname.split('.');
+  return octets.length === 4 && octets.every((octet) => /^\d{1,3}$/.test(octet)) && octets[0] === '127';
+}
+
+function resolveCacheMode(value: string | undefined, deployment: DeploymentEnvironment): PublicCacheMode {
+  if (value === 'cache' || value === 'no-store') return value;
+  if (deployment === 'development' && (value === undefined || value.trim() === '')) return 'cache';
+  throw new WebConfigurationError(
+    'PUBLIC_CACHE_MODE must be exactly "cache" or "no-store" and is required in production.',
   );
 }
 
@@ -54,7 +73,9 @@ export function resolveWebConfig(env: WebEnv): ResolvedWebConfig {
       'Production requires the HYPERDRIVE binding; POSTGRES_URL is for local development only.',
     );
   }
-  const connectionString = env.HYPERDRIVE?.connectionString ?? env.POSTGRES_URL ?? '';
+  const connectionString = deploymentEnvironment === 'production'
+    ? env.HYPERDRIVE?.connectionString ?? ''
+    : env.HYPERDRIVE?.connectionString ?? env.POSTGRES_URL ?? '';
   if (connectionString.trim() === '') {
     throw new WebConfigurationError(
       'No database is configured. Bind HYPERDRIVE or set POSTGRES_URL. ' +
@@ -92,10 +113,17 @@ export function resolveWebConfig(env: WebEnv): ResolvedWebConfig {
     );
   }
 
-  const localHosts = new Set(['localhost', '127.0.0.1', '[::1]']);
-  if (parsed.protocol !== 'https:' && !localHosts.has(parsed.hostname)) {
+  if (deploymentEnvironment === 'production' && (parsed.protocol !== 'https:' || isLoopbackHostname(parsed.hostname))) {
+    throw new WebConfigurationError('PUBLIC_ORIGIN must use HTTPS and a non-loopback hostname in production.');
+  }
+  if (deploymentEnvironment === 'development' && parsed.protocol !== 'https:' && !isLoopbackHostname(parsed.hostname)) {
     throw new WebConfigurationError('PUBLIC_ORIGIN must use HTTPS outside local development.');
   }
 
-  return { connectionString, publicOrigin: parsed.origin, deploymentEnvironment };
+  return {
+    connectionString,
+    publicOrigin: parsed.origin,
+    deploymentEnvironment,
+    cacheMode: resolveCacheMode(env.PUBLIC_CACHE_MODE, deploymentEnvironment),
+  };
 }

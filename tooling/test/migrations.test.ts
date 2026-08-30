@@ -239,7 +239,7 @@ describe('storage-level invariants', () => {
     ).rejects.toThrow(/sources_active_requires_rights/);
   });
 
-  it('enforces uniqueness on (source_id, source_record_key)', async () => {
+  it('enforces uniqueness on a current (source_id, source_record_key) revision', async () => {
     await expect(
       driver.query(
         `INSERT INTO source_records (source_id, artifact_id, source_record_key, entity_type,
@@ -247,7 +247,7 @@ describe('storage-level invariants', () => {
          VALUES ($1, $2, 'AHRI-123', 'equipment', '{}'::jsonb, 0.9, 'html-1.0.0')`,
         [SOURCE, ARTIFACT],
       ),
-    ).rejects.toThrow(/source_records_source_key_uniq/);
+    ).rejects.toThrow(/source_records_current_source_key_uniq/);
   });
 
   it('allows exactly one open ACTIVE version per (entity, property)', async () => {

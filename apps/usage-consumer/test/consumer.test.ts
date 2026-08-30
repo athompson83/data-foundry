@@ -154,7 +154,7 @@ describe('batch persistence', () => {
     const before = await rowCount();
     const querySpy = vi.spyOn(driver, 'query');
 
-    await consumeBatch(batchOf(messages), { env: { POSTGRES_URL: 'unused' }, openDriver: async () => driver });
+    await consumeBatch(batchOf(messages), { env: { DEPLOYMENT_ENVIRONMENT: 'development', POSTGRES_URL: 'unused' }, openDriver: async () => driver });
 
     expect(await rowCount()).toBe(before + events.length);
     expect(querySpy.mock.calls.filter(([sql]) => String(sql).includes('insert into api_usage_events'))).toHaveLength(1);
@@ -172,8 +172,8 @@ describe('duplicate delivery', () => {
     const second = message('dup-2', shared);
     const before = await rowCount();
 
-    await consumeBatch(batchOf([first]), { env: { POSTGRES_URL: 'unused' }, openDriver: async () => driver });
-    await consumeBatch(batchOf([second]), { env: { POSTGRES_URL: 'unused' }, openDriver: async () => driver });
+    await consumeBatch(batchOf([first]), { env: { DEPLOYMENT_ENVIRONMENT: 'development', POSTGRES_URL: 'unused' }, openDriver: async () => driver });
+    await consumeBatch(batchOf([second]), { env: { DEPLOYMENT_ENVIRONMENT: 'development', POSTGRES_URL: 'unused' }, openDriver: async () => driver });
 
     expect(await rowCount()).toBe(before + 1);
     expect(first.acked).toBe(true);
@@ -186,7 +186,7 @@ describe('duplicate delivery', () => {
     const b = message('dup-b', shared);
     const before = await rowCount();
 
-    await consumeBatch(batchOf([a, b]), { env: { POSTGRES_URL: 'unused' }, openDriver: async () => driver });
+    await consumeBatch(batchOf([a, b]), { env: { DEPLOYMENT_ENVIRONMENT: 'development', POSTGRES_URL: 'unused' }, openDriver: async () => driver });
 
     expect(await rowCount()).toBe(before + 1);
     expect(a.acked).toBe(true);
@@ -210,7 +210,7 @@ describe('consumer-first usage-event rollout', () => {
     const queued = message('legacy-classified', legacyEvent);
 
     await consumeBatch(batchOf([queued]), {
-      env: { POSTGRES_URL: 'unused' },
+      env: { DEPLOYMENT_ENVIRONMENT: 'development', POSTGRES_URL: 'unused' },
       openDriver: async () => driver,
     });
 
@@ -233,7 +233,7 @@ describe('consumer-first usage-event rollout', () => {
     const queued = message('legacy-unclassified', legacyEvent);
 
     await consumeBatch(batchOf([queued]), {
-      env: { POSTGRES_URL: 'unused' },
+      env: { DEPLOYMENT_ENVIRONMENT: 'development', POSTGRES_URL: 'unused' },
       openDriver: async () => driver,
     });
 
@@ -257,7 +257,7 @@ describe('a malformed message does not discard the rest of the batch', () => {
     const querySpy = vi.spyOn(driver, 'query');
 
     await consumeBatch(batchOf([good1, bad, good2]), {
-      env: { POSTGRES_URL: 'unused' },
+      env: { DEPLOYMENT_ENVIRONMENT: 'development', POSTGRES_URL: 'unused' },
       openDriver: async () => driver,
       onError: (_error, context) => errors.push(context),
     });
@@ -280,7 +280,7 @@ describe('a database-invalid message does not poison unrelated valid usage', () 
     const before = await rowCount();
 
     await consumeBatch(batchOf([good, poison]), {
-      env: { POSTGRES_URL: 'unused' },
+      env: { DEPLOYMENT_ENVIRONMENT: 'development', POSTGRES_URL: 'unused' },
       openDriver: async () => driver,
     });
 
@@ -307,7 +307,7 @@ describe('a transient persistence failure retries rather than acks or drops', ()
     );
 
     await consumeBatch(batchOf([failing, succeeding]), {
-      env: { POSTGRES_URL: 'unused' },
+      env: { DEPLOYMENT_ENVIRONMENT: 'development', POSTGRES_URL: 'unused' },
       openDriver: async () => failOnce,
     });
 
@@ -328,7 +328,7 @@ describe('a transient persistence failure retries rather than acks or drops', ()
     // dead-letters the message is outside code this package controls.
     for (let attempt = 0; attempt < 3; attempt++) {
       const redelivery = message('doomed-1', doomed);
-      await consumeBatch(batchOf([redelivery]), { env: { POSTGRES_URL: 'unused' }, openDriver: async () => alwaysFail });
+      await consumeBatch(batchOf([redelivery]), { env: { DEPLOYMENT_ENVIRONMENT: 'development', POSTGRES_URL: 'unused' }, openDriver: async () => alwaysFail });
       expect(redelivery.acked).toBe(false);
       expect(redelivery.retried).toBe(true);
     }
@@ -336,6 +336,12 @@ describe('a transient persistence failure retries rather than acks or drops', ()
 });
 
 describe('configuration', () => {
+  it.each([undefined, '', ' ', 'preview'])('refuses an absent, blank, or unknown deployment environment: %j', (value) => {
+    expect(() =>
+      resolveConsumerConfig({ DEPLOYMENT_ENVIRONMENT: value, POSTGRES_URL: 'postgres://local/db' }),
+    ).toThrow(/DEPLOYMENT_ENVIRONMENT/);
+  });
+
   it('refuses to consume without a database, and never acks or retries any message', async () => {
     const m = message('unconfigured-1', event());
     resetDrivers();
@@ -358,7 +364,7 @@ describe('configuration', () => {
         HYPERDRIVE: { connectionString: 'postgres://hyperdrive/db' },
       }).deploymentEnvironment,
     ).toBe('production');
-    expect(resolveConsumerConfig({ POSTGRES_URL: 'postgres://local/db' }).connectionString).toBe(
+    expect(resolveConsumerConfig({ DEPLOYMENT_ENVIRONMENT: 'development', POSTGRES_URL: 'postgres://local/db' }).connectionString).toBe(
       'postgres://local/db',
     );
   });

@@ -250,6 +250,10 @@ export interface CanonicalStore {
 
   recordSourceArtifact(input: SourceArtifactInsert): Promise<SourceArtifact>;
   recordSourceRecord(input: SourceRecordInsert): Promise<SourceRecord>;
+  /** Create a record if absent, but leave its current payload/evidence untouched until reconciliation. */
+  ensureSourceRecord(input: SourceRecordInsert): Promise<SourceRecord>;
+  /** Replace one source record and its dependent evidence atomically through a caller-owned transaction. */
+  reconcileSourceRecord(input: SourceRecordInsert, executor?: SqlExecutor): Promise<SourceRecord>;
 
   /** Identity writes may join a caller-owned transaction through its pinned executor. */
   upsertEntity(input: EntityInsert, executor?: SqlExecutor): Promise<Entity>;
@@ -521,13 +525,13 @@ class PostgresCanonicalStore implements CanonicalStore {
     return mapSourceArtifact(requireRow(rows, 'source_artifacts'));
   }
 
-  async recordSourceRecord(input: SourceRecordInsert): Promise<SourceRecord> {
-    const rows = await this.driver.query(
+  async recordSourceRecord(input: SourceRecordInsert, executor?: SqlExecutor): Promise<SourceRecord> {
+    const rows = await (executor ?? this.driver).query(
       `INSERT INTO source_records (source_id, artifact_id, source_record_key, entity_type,
                                    raw_payload, normalized_payload, extraction_confidence,
                                    extractor_version)
        VALUES ($1, $2, $3, $4, $5::jsonb, $6::jsonb, $7, $8)
-       ON CONFLICT (source_id, source_record_key) DO UPDATE
+       ON CONFLICT (source_id, source_record_key) WHERE is_current DO UPDATE
          SET artifact_id = EXCLUDED.artifact_id,
              raw_payload = EXCLUDED.raw_payload,
              normalized_payload = EXCLUDED.normalized_payload,
@@ -547,6 +551,67 @@ class PostgresCanonicalStore implements CanonicalStore {
       ],
     );
     return mapSourceRecord(requireRow(rows, 'source_records'));
+  }
+
+  async ensureSourceRecord(input: SourceRecordInsert): Promise<SourceRecord> {
+    const inserted = await this.driver.query(
+      `INSERT INTO source_records (source_id, artifact_id, source_record_key, entity_type,
+                                   raw_payload, normalized_payload, extraction_confidence,
+                                   extractor_version)
+       VALUES ($1, $2, $3, $4, $5::jsonb, $6::jsonb, $7, $8)
+       ON CONFLICT (source_id, source_record_key) WHERE is_current DO NOTHING
+       RETURNING ${SOURCE_RECORD_COLUMNS}`,
+      [
+        input.source_id,
+        input.artifact_id,
+        input.source_record_key,
+        input.entity_type,
+        json(input.raw_payload),
+        input.normalized_payload === null ? null : json(input.normalized_payload),
+        input.extraction_confidence,
+        input.extractor_version,
+      ],
+    );
+    if (inserted[0] !== undefined) return mapSourceRecord(inserted[0]);
+    const existing = await this.driver.query(
+      `SELECT ${SOURCE_RECORD_COLUMNS} FROM source_records
+        WHERE source_id = $1 AND source_record_key = $2 AND is_current`,
+      [input.source_id, input.source_record_key],
+    );
+    return mapSourceRecord(requireRow(existing, 'source_records'));
+  }
+
+  async reconcileSourceRecord(
+    input: SourceRecordInsert,
+    executor?: SqlExecutor,
+  ): Promise<SourceRecord> {
+    const driver = executor ?? this.driver;
+    const current = await driver.query<{ id: string; artifact_id: string }>(
+      `SELECT id, artifact_id FROM source_records
+        WHERE source_id = $1 AND source_record_key = $2 AND is_current
+        FOR UPDATE`,
+      [input.source_id, input.source_record_key],
+    );
+    const existing = current[0];
+    if (existing !== undefined && existing.artifact_id !== input.artifact_id) {
+      // Evidence is append-only. Supersede the logical record's active
+      // revision, then write a fresh current revision whose evidence can only
+      // cite this acquisition's immutable artifact.
+      await driver.query(
+        `UPDATE source_records SET is_current = FALSE, updated_at = now()
+          WHERE id = $1 AND is_current`,
+        [existing.id],
+      );
+      const replacement = await this.recordSourceRecord(input, driver);
+      await driver.query(
+        `INSERT INTO source_record_reconciliations
+           (superseded_source_record_id, replacement_source_record_id)
+         VALUES ($1, $2)`,
+        [existing.id, replacement.id],
+      );
+      return replacement;
+    }
+    return this.recordSourceRecord(input, driver);
   }
 
   /* ---------------- entities & aliases ---------------- */

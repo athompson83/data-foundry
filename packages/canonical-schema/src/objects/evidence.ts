@@ -60,9 +60,9 @@ export type SourceArtifactInsert = z.infer<typeof SourceArtifactInsertSchema>;
  * resolution. A source record is a *claim*, not an entity.
  *
  * `source_id` is carried alongside `artifact_id` because the business key
- * `(source_id, source_record_key)` must be unique across every artifact that
- * source ever produced — the same part number seen on three crawls is one
- * record with three artifacts of evidence, not three records.
+ * `(source_id, source_record_key)` identifies one logical record. A current
+ * immutable revision is replaced when a later artifact changes its payload;
+ * historic revisions retain the evidence needed to explain earlier output.
  */
 export const SourceRecordSchema = z.object({
   id: SourceRecordIdSchema,
@@ -75,6 +75,8 @@ export const SourceRecordSchema = z.object({
   normalized_payload: JsonObjectSchema.nullable(),
   extraction_confidence: ExtractionConfidenceSchema,
   extractor_version: ExtractorVersionSchema,
+  /** One revision per logical source record is current and eligible for new lineage. */
+  is_current: z.boolean(),
   created_at: IsoDateTimeSchema,
   updated_at: IsoDateTimeSchema,
 });
@@ -82,6 +84,7 @@ export type SourceRecord = z.infer<typeof SourceRecordSchema>;
 
 export const SourceRecordInsertSchema = SourceRecordSchema.omit({
   id: true,
+  is_current: true,
   created_at: true,
   updated_at: true,
 });

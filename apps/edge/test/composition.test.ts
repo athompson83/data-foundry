@@ -28,6 +28,7 @@ let fixtures: QueryFixtures;
 const runtime = RUNTIMES['hvac'] as VerticalRuntime;
 
 const envFor = (slug: string) => ({
+  DEPLOYMENT_ENVIRONMENT: 'development',
   POSTGRES_URL: 'postgres://fixture/db',
   VERTICAL_SLUG: slug,
   API_KEY_ENVIRONMENT: 'test',

@@ -65,7 +65,7 @@ describe('sitemapSegmentXml — dataset_landing is gate-checked, not assumed', (
     // seed four. This is the fixture set every other apps/web test already
     // uses, not one written to make this assertion pass.
     const deployment = await getDeployment({
-      env: { POSTGRES_URL: 'postgres://fixture/db', PUBLIC_ORIGIN: 'https://data-foundry.test' },
+      env: { DEPLOYMENT_ENVIRONMENT: 'development', POSTGRES_URL: 'postgres://fixture/db', PUBLIC_ORIGIN: 'https://data-foundry.test' },
       runtimes: ACTIVE_RUNTIMES,
       openDriver: openFixtureDriver,
     });
@@ -78,7 +78,7 @@ describe('sitemapSegmentXml — dataset_landing is gate-checked, not assumed', (
 
   it('still includes docs_api_mcp — its gate is `none`, unconditionally indexable', async () => {
     const deployment = await getDeployment({
-      env: { POSTGRES_URL: 'postgres://fixture/db', PUBLIC_ORIGIN: 'https://data-foundry.test' },
+      env: { DEPLOYMENT_ENVIRONMENT: 'development', POSTGRES_URL: 'postgres://fixture/db', PUBLIC_ORIGIN: 'https://data-foundry.test' },
       runtimes: ACTIVE_RUNTIMES,
       openDriver: openFixtureDriver,
     });
@@ -120,7 +120,7 @@ describe('sitemapSegmentXml — per-entity fan-out performance', () => {
     // updated_at included).
     await seedEquipmentModels(fixtures, 3, 'nolookup');
     const deployment = await getDeployment({
-      env: { POSTGRES_URL: 'postgres://fixture/db', PUBLIC_ORIGIN: 'https://data-foundry.test' },
+      env: { DEPLOYMENT_ENVIRONMENT: 'development', POSTGRES_URL: 'postgres://fixture/db', PUBLIC_ORIGIN: 'https://data-foundry.test' },
       runtimes: ACTIVE_RUNTIMES,
       openDriver: openFixtureDriver,
     });
@@ -150,7 +150,7 @@ describe('sitemapSegmentXml — per-entity fan-out performance', () => {
     // nor unbounded.
     await seedEquipmentModels(fixtures, 5, 'concurrency');
     const deployment = await getDeployment({
-      env: { POSTGRES_URL: 'postgres://fixture/db', PUBLIC_ORIGIN: 'https://data-foundry.test' },
+      env: { DEPLOYMENT_ENVIRONMENT: 'development', POSTGRES_URL: 'postgres://fixture/db', PUBLIC_ORIGIN: 'https://data-foundry.test' },
       runtimes: ACTIVE_RUNTIMES,
       openDriver: openFixtureDriver,
     });

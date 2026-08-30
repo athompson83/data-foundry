@@ -36,6 +36,7 @@ function expectOpaqueEdgeError(body: unknown): void {
 }
 
 const envFor = (queue?: QueueBinding) => ({
+  DEPLOYMENT_ENVIRONMENT: 'development',
   POSTGRES_URL: 'postgres://fixture/db',
   VERTICAL_SLUG: 'hvac',
   API_KEY_ENVIRONMENT: 'test',

@@ -235,27 +235,30 @@ item 1.
    the same database) following item 2's steps.
 3. Keep every tracked `wrangler.toml` free of live account, route and Hyperdrive
    ids. For CLI deployment, copy each service manifest beside the original as
-   `wrangler.production.toml`, add that path to the local repository's
-   `.git/info/exclude`, and put the environment-specific bindings only in that
-   ignored copy. Alternatively, add the bindings in the Cloudflare dashboard.
-   From the repository root, the PowerShell setup for ignored CLI manifests is:
+   `wrangler.production.toml`; the five conventional paths are already ignored
+   by this repository. Put only non-secret live account/binding ids, routes, and
+   exact host/origin values in those copies. Protected values remain Wrangler
+   secrets or provider bindings, never manifest text or command output.
+   From the repository root, create the ignored deployment manifests with:
    ```powershell
-   $exclude = git rev-parse --git-path info/exclude
-   Add-Content -LiteralPath $exclude -Value "`napps/edge/wrangler.production.toml`napps/web/wrangler.production.toml`napps/usage-consumer/wrangler.production.toml`napps/acquisition-worker/wrangler.production.toml`napps/mcp-worker/wrangler.production.toml"
    Copy-Item apps/edge/wrangler.toml apps/edge/wrangler.production.toml
    Copy-Item apps/mcp-worker/wrangler.toml apps/mcp-worker/wrangler.production.toml
    Copy-Item apps/usage-consumer/wrangler.toml apps/usage-consumer/wrangler.production.toml
    Copy-Item apps/acquisition-worker/wrangler.toml apps/acquisition-worker/wrangler.production.toml
    Copy-Item apps/web/wrangler.toml apps/web/wrangler.production.toml
    ```
-   Add the live binding/account/route values only to those five ignored files.
+   Add the non-secret live binding/account/route/host values only to those five
+   ignored files. Set `PUBLIC_CACHE_MODE = "no-store"` in the web deployment
+   manifest initially. Before every `wrangler deploy --dry-run` or deploy, run:
+   ```powershell
+   pnpm cloudflare:deployment:check
+   ```
+   A successful check intentionally prints no account ids, routes, URLs, or
+   secret values, so its receipt is safe to archive.
    Deploy the edge and consumer from their directories with
    `npx wrangler deploy --config wrangler.production.toml`.
-   Deploy the public Worker from `apps/web` with its exact, non-secret origin:
-   ```
-   npx wrangler deploy --config wrangler.production.toml --var PUBLIC_ORIGIN:https://<public-host>
-   git diff --exit-code HEAD -- wrangler.toml
-   ```
+   Deploy the public Worker from `apps/web` with its exact non-secret
+   `PUBLIC_ORIGIN` in the ignored manifest, not as a shell argument.
    Repeat the `--config wrangler.production.toml` form from `apps/edge` and
    `apps/usage-consumer`. Comparing to `HEAD` is required: a plain working-tree
    diff ignores staged edits and could falsely pass after a live id was staged.
@@ -292,6 +295,12 @@ idempotency contract. Repeat the acceptance check through MCP: the row must use
 only `mcp.server_discover`, `mcp.tools_list`, `mcp.tools_call`, or the fixed
 protocol-failure class, have `POST`, `rows_served = 0`, and `MCP/NONE`, with no
 tool name, arguments, JSON-RPC id, entity id, request target, or credential.
+Also prove the workers.dev and preview URLs refuse traffic, then send a
+non-secret URL canary and confirm no retained invocation log contains it.
+`PUBLIC_CACHE_MODE` begins as `no-store`. It may change to `cache` only after a
+live purge, provider cache-bypass check, and stale-object probes all pass; a
+rights revocation first switches back to `no-store` and purges existing cached
+objects because preventing new cache writes cannot remove older objects.
 
 ---
 
@@ -389,8 +398,9 @@ commercial gate.
 8. Measure demand/cost before expanding plans, verticals or building first-
    party billing.
 
-Public 200 responses currently advertise one hour of freshness plus 86,400
-seconds of stale-while-revalidate. Before public deployment, establish an
-emergency Cloudflare cache-purge procedure and the ability to force `no-store`,
-remove stale-while-revalidate, or shorten TTL during a rights revocation. The
-repo controls its response header, not every provider cache rule or purge result.
+Public production starts in `PUBLIC_CACHE_MODE=no-store`. Switch to the bounded
+shared-cache policy only after live purge, provider cache-bypass, and stale-object
+probes have passed. For a rights revocation, switch back to `no-store` and purge
+existing cached objects: disabling future cache headers does not remove objects
+already retained by a provider. The repository controls response headers, not
+every provider cache rule or purge result.

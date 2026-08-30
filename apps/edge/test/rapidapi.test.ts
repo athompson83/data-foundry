@@ -82,6 +82,7 @@ const openFixtureDriver = async () => fixtures.driver;
 
 function marketplaceEnv(key: SeededKey, queue: QueueBinding) {
   return {
+    DEPLOYMENT_ENVIRONMENT: 'development',
     POSTGRES_URL: 'postgres://fixture/db',
     VERTICAL_SLUG: 'hvac',
     API_KEY_ENVIRONMENT: 'test',
@@ -201,6 +202,7 @@ describe('the RapidAPI marketplace origin', () => {
       withoutProxySecret,
       withoutApiKey,
       {
+        DEPLOYMENT_ENVIRONMENT: 'development',
         POSTGRES_URL: complete.POSTGRES_URL,
         VERTICAL_SLUG: complete.VERTICAL_SLUG,
         API_KEY_ENVIRONMENT: complete.API_KEY_ENVIRONMENT,
@@ -280,6 +282,7 @@ describe('the direct origin remains direct', () => {
         headers: { authorization: `Bearer ${direct.secret}` },
       }),
       {
+        DEPLOYMENT_ENVIRONMENT: 'development',
         POSTGRES_URL: 'postgres://fixture/db',
         VERTICAL_SLUG: 'hvac',
         API_KEY_ENVIRONMENT: 'test',

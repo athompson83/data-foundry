@@ -25,6 +25,7 @@ import {
 } from '@data-foundry/query-model';
 import type { IsoDateTime, VerticalId } from '@data-foundry/canonical-schema';
 import { resolveWebConfig, type WebEnv } from './env.js';
+import type { PublicCacheMode } from './http.js';
 import type { WebRuntime } from './seo.js';
 
 export interface VerticalDeployment {
@@ -50,6 +51,7 @@ export interface CachedVerticalDeployment {
 
 export interface WebDeployment {
   readonly publicOrigin: string;
+  readonly cacheMode: PublicCacheMode;
   /** Keyed by vertical slug. Only verticals present in BOTH the bundle and the database. */
   readonly verticals: ReadonlyMap<string, CachedVerticalDeployment>;
   readonly close: () => Promise<void>;
@@ -57,6 +59,8 @@ export interface WebDeployment {
 
 export interface RequestWebDeployment {
   readonly publicOrigin: string;
+  /** Optional only so narrow routing tests can supply a static deployment fixture. */
+  readonly cacheMode?: PublicCacheMode;
   /** Fresh surface bindings, shared only within this one request. */
   readonly verticals: ReadonlyMap<string, VerticalDeployment>;
 }
@@ -108,7 +112,7 @@ export function materializeRequestDeployment(
       runtime: vertical.runtime,
     });
   }
-  return { publicOrigin: deployment.publicOrigin, verticals };
+  return { publicOrigin: deployment.publicOrigin, cacheMode: deployment.cacheMode, verticals };
 }
 
 async function build(options: BuildOptions): Promise<WebDeployment> {
@@ -135,7 +139,12 @@ async function build(options: BuildOptions): Promise<WebDeployment> {
       verticals.set(runtime.vertical_slug, deployed);
     }
 
-    return { publicOrigin: config.publicOrigin, verticals, close: () => driver.close() };
+    return {
+      publicOrigin: config.publicOrigin,
+      cacheMode: config.cacheMode,
+      verticals,
+      close: () => driver.close(),
+    };
   } catch (error) {
     await driver.close().catch(() => undefined);
     throw error;
@@ -147,7 +156,7 @@ const deployments = new Map<string, Promise<WebDeployment>>();
 
 export function getDeployment(options: BuildOptions): Promise<WebDeployment> {
   const config = resolveWebConfig(options.env);
-  const key = JSON.stringify([config.connectionString, config.publicOrigin]);
+  const key = JSON.stringify([config.connectionString, config.publicOrigin, config.cacheMode]);
   const existing = deployments.get(key);
   if (existing !== undefined) return existing;
 

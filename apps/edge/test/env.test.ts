@@ -22,16 +22,16 @@ const SRC = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'src');
 
 describe('a Worker with no database refuses to serve', () => {
   it('throws rather than returning a connectionless config', () => {
-    expect(() => resolveEdgeConfig({ VERTICAL_SLUG: 'hvac' })).toThrow(EdgeConfigurationError);
+    expect(() => resolveEdgeConfig({ DEPLOYMENT_ENVIRONMENT: 'development', VERTICAL_SLUG: 'hvac' })).toThrow(EdgeConfigurationError);
   });
 
   it('says what to do about it, because the operator is the only one who can', () => {
-    expect(() => resolveEdgeConfig({ VERTICAL_SLUG: 'hvac' })).toThrow(/HYPERDRIVE or set POSTGRES_URL/);
+    expect(() => resolveEdgeConfig({ DEPLOYMENT_ENVIRONMENT: 'development', VERTICAL_SLUG: 'hvac' })).toThrow(/HYPERDRIVE or set POSTGRES_URL/);
   });
 
   it('treats blank and whitespace as absent, not as a connection string', () => {
     for (const blank of ['', '   ', '\t']) {
-      expect(() => resolveEdgeConfig({ POSTGRES_URL: blank, VERTICAL_SLUG: 'hvac' })).toThrow(
+      expect(() => resolveEdgeConfig({ DEPLOYMENT_ENVIRONMENT: 'development', POSTGRES_URL: blank, VERTICAL_SLUG: 'hvac' })).toThrow(
         EdgeConfigurationError,
       );
     }
@@ -60,6 +60,7 @@ describe('a Worker with no database refuses to serve', () => {
         // A port nothing listens on, on the loopback, so there is no DNS and no
         // network wait — the refusal is immediate and deterministic.
         env: {
+          DEPLOYMENT_ENVIRONMENT: 'development',
           POSTGRES_URL: 'postgres://u:p@127.0.0.1:1/df-default-path',
           VERTICAL_SLUG: 'hvac',
           API_KEY_ENVIRONMENT: 'test',
@@ -117,19 +118,19 @@ describe('a Worker with no database refuses to serve', () => {
 
 describe('one vertical per deployment', () => {
   it('refuses a deployment that does not name one', () => {
-    expect(() => resolveEdgeConfig({ POSTGRES_URL: 'postgres://x/y' })).toThrow(/VERTICAL_SLUG/);
+    expect(() => resolveEdgeConfig({ DEPLOYMENT_ENVIRONMENT: 'development', POSTGRES_URL: 'postgres://x/y' })).toThrow(/VERTICAL_SLUG/);
   });
 
   it('trims, so a stray newline in a dashboard variable is not a vertical name', () => {
     expect(() =>
-      resolveEdgeConfig({ POSTGRES_URL: 'postgres://x/y', VERTICAL_SLUG: '  \n ' }),
+      resolveEdgeConfig({ DEPLOYMENT_ENVIRONMENT: 'development', POSTGRES_URL: 'postgres://x/y', VERTICAL_SLUG: '  \n ' }),
     ).toThrow(/VERTICAL_SLUG/);
   });
 });
 
 describe('one credential environment per deployment', () => {
   it('refuses an absent or unknown API_KEY_ENVIRONMENT', () => {
-    const base = { POSTGRES_URL: 'postgres://x/y', VERTICAL_SLUG: 'hvac' };
+    const base = { DEPLOYMENT_ENVIRONMENT: 'development', POSTGRES_URL: 'postgres://x/y', VERTICAL_SLUG: 'hvac' };
     expect(() => resolveEdgeConfig(base)).toThrow(/API_KEY_ENVIRONMENT/);
     for (const value of ['', 'production', 'LIVE', ' live ', 'test\n']) {
       expect(() => resolveEdgeConfig({ ...base, API_KEY_ENVIRONMENT: value })).toThrow(/live.*test/i);
@@ -140,6 +141,7 @@ describe('one credential environment per deployment', () => {
     for (const apiKeyEnvironment of ['live', 'test'] as const) {
       expect(
         resolveEdgeConfig({
+          DEPLOYMENT_ENVIRONMENT: 'development',
           POSTGRES_URL: 'postgres://x/y',
           VERTICAL_SLUG: 'hvac',
           API_KEY_ENVIRONMENT: apiKeyEnvironment,
@@ -152,6 +154,7 @@ describe('one credential environment per deployment', () => {
 describe('Hyperdrive outranks a direct connection string', () => {
   it('uses the binding when both are present', () => {
     const config = resolveEdgeConfig({
+      DEPLOYMENT_ENVIRONMENT: 'development',
       HYPERDRIVE: { connectionString: 'postgres://hyperdrive/db' },
       POSTGRES_URL: 'postgres://origin/db',
       VERTICAL_SLUG: 'hvac',
@@ -163,6 +166,7 @@ describe('Hyperdrive outranks a direct connection string', () => {
 
   it('falls back to POSTGRES_URL when no binding exists, for `wrangler dev`', () => {
     const config = resolveEdgeConfig({
+      DEPLOYMENT_ENVIRONMENT: 'development',
       POSTGRES_URL: 'postgres://local/db',
       VERTICAL_SLUG: 'hvac',
       API_KEY_ENVIRONMENT: 'test',
@@ -174,6 +178,17 @@ describe('Hyperdrive outranks a direct connection string', () => {
 
 describe('production topology is explicit and fail closed', () => {
   const queue = { send: async (): Promise<void> => undefined };
+
+  it.each([undefined, '', ' ', 'preview'])('refuses an absent, blank, or unknown deployment environment: %j', (value) => {
+    expect(() =>
+      resolveEdgeConfig({
+        DEPLOYMENT_ENVIRONMENT: value,
+        POSTGRES_URL: 'postgres://fixture/db',
+        VERTICAL_SLUG: 'hvac',
+        API_KEY_ENVIRONMENT: 'test',
+      }),
+    ).toThrow(/DEPLOYMENT_ENVIRONMENT/);
+  });
 
   it('requires Hyperdrive instead of a direct origin connection', () => {
     expect(() =>
@@ -210,5 +225,20 @@ describe('production topology is explicit and fail closed', () => {
       USAGE_EVENTS_QUEUE: queue,
     });
     expect(config.deploymentEnvironment).toBe('production');
+  });
+
+  it('refuses a loopback RapidAPI hostname in production', () => {
+    expect(() =>
+      resolveEdgeConfig({
+        DEPLOYMENT_ENVIRONMENT: 'production',
+        HYPERDRIVE: { connectionString: 'postgres://hyperdrive/db' },
+        VERTICAL_SLUG: 'hvac',
+        API_KEY_ENVIRONMENT: 'live',
+        USAGE_EVENTS_QUEUE: queue,
+        RAPIDAPI_HOSTNAME: 'localhost',
+        RAPIDAPI_PROXY_SECRET: 'test-proxy-secret',
+        RAPIDAPI_API_KEY: 'test-api-key',
+      }),
+    ).toThrow(/loopback/i);
   });
 });

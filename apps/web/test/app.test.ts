@@ -18,6 +18,7 @@ import {
   type QueryFixtures,
 } from '../../../packages/query-model/test/support.js';
 import { entityQualityScore, type Entity } from '@data-foundry/canonical-schema';
+import { toFetchResponse } from '../src/adapter.js';
 import { createWebApp } from '../src/app.js';
 import { resolveContext } from '../src/config.js';
 import { getDeployment, resetDeployments } from '../src/composition.js';
@@ -108,9 +109,17 @@ afterEach(() => {
   resetDeployments();
 });
 
-async function appHandler(runtime: WebRuntime = ACTIVE_RUNTIME) {
+async function appHandler(
+  runtime: WebRuntime = ACTIVE_RUNTIME,
+  cacheMode: 'cache' | 'no-store' = 'cache',
+) {
   const deployment = await getDeployment({
-    env: { POSTGRES_URL: 'postgres://fixture/db', PUBLIC_ORIGIN: 'https://data-foundry.test' },
+    env: {
+      DEPLOYMENT_ENVIRONMENT: 'development',
+      POSTGRES_URL: 'postgres://fixture/db',
+      PUBLIC_ORIGIN: 'https://data-foundry.test',
+      PUBLIC_CACHE_MODE: cacheMode,
+    } as never,
     runtimes: { hvac: runtime },
     openDriver: openFixtureDriver,
   });
@@ -134,6 +143,21 @@ describe('the parent site', () => {
 });
 
 describe('robots.txt and the sitemap index', () => {
+  it('returns no-store for successful HTML, text, and XML through the real app and Fetch adapter', async () => {
+    const app = await appHandler(ACTIVE_RUNTIME, 'no-store');
+    const responses = await Promise.all([
+      app({ method: 'GET', url: '/' }),
+      app({ method: 'GET', url: '/robots.txt' }),
+      app({ method: 'GET', url: '/sitemap-index.xml' }),
+    ]);
+
+    for (const response of responses) {
+      const fetchResponse = toFetchResponse(response, 'GET');
+      expect(fetchResponse.status).toBe(200);
+      expect(fetchResponse.headers.get('cache-control')).toBe('no-store');
+    }
+  });
+
   it('serves robots.txt pointing at one global sitemap index', async () => {
     const app = await appHandler();
     const response = await app({ method: 'GET', url: '/robots.txt' });

@@ -45,6 +45,11 @@
 - Offline entity resolution uses one driver-managed transaction executor for
   manufacturer, entity, alias, judgment, and evidence writes. Any failure or
   unusable strong identifier rolls the record back.
+- Re-ingestion now supersedes a logical source record's current immutable
+  revision rather than mutating or deleting provenance. Migration `0021`
+  preserves historic evidence, records the supersession link, and makes every
+  new current revision's entity/fact/relationship lineage cite its current
+  artifact.
 - Rights-backed readiness exists and requires canonical `--as-of` plus either a
   named-environment live database or a schema/digest-validated qualified
   snapshot. YAML/fixture metadata alone never proves a current grant.
@@ -78,11 +83,11 @@
 - Cloudflare account/zone/routes, Hyperdrive, production Postgres, R2,
   Queue/DLQ, hostnames, protected values, and exact deployment IDs remain
   external and unverified.
-- Public 200 responses advertise one hour of freshness plus 86,400 seconds of
-  stale-while-revalidate. That creates revocation staleness and requires an
-  emergency provider-cache purge path plus the ability to force `no-store`,
-  remove stale-while-revalidate, or reduce TTL during an incident. The
-  repository does not control every provider cache rule.
+- Public production begins with `PUBLIC_CACHE_MODE=no-store`; `cache` is a
+  later operational choice only after live purge, provider cache-bypass, and
+  stale-object proof. A rights revocation switches to `no-store` and purges
+  already cached objects because disabling new caching does not remove retained
+  provider objects. The repository does not control every provider cache rule.
 - Public sitemap work is keyset-paged and subject to one validated raw-page
   budget per request, shared across all verticals and segments for the global
   index. Capacity exhaustion returns an opaque, non-cacheable retryable 503
@@ -92,10 +97,11 @@
 
 ## Verification
 
-- The last broad pre-freeze repair-tree run passed TypeScript typecheck, 170
-  Vitest files / 2,520 tests, 20 ordered/idempotent migrations over 41 tables,
-  schema/OpenAPI/runtime/topology/artifact gates, and PostgreSQL 16 migration
-  plus scheduled-acquisition checks.
+- The Task 2 local verification run passed TypeScript typecheck, 170 Vitest
+  files / 2,565 tests, 21 ordered/idempotent migrations over 42 tables,
+  generated-schema/runtime checks, and repository Cloudflare topology checks.
+  Deployment-mode validation is intentionally blocked until the five ignored
+  exact-deployment manifests exist; its missing-file output is secret-safe.
 - Subsequent focused test-first repair proved post-transport rights revocation,
   exact historical selection, recursive historical contributors, bulk-export
   refusal, one-client resolution transactions, bounded direct/provider

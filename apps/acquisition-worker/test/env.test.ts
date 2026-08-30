@@ -12,6 +12,18 @@ const production = (): AcquisitionWorkerEnv => ({
 });
 
 describe('acquisition Worker configuration', () => {
+  it.each([undefined, '', ' ', 'preview'])('refuses an absent, blank, or unknown deployment environment: %j', (value) => {
+    expect(() =>
+      resolveAcquisitionConfig({
+        DEPLOYMENT_ENVIRONMENT: value,
+        POSTGRES_URL: 'postgres://localhost/data-foundry',
+        VERTICAL_SLUG: 'hvac',
+        RAW_ARTIFACTS_BUCKET_NAME: 'local-raw',
+        RAW_ARTIFACTS: bucket,
+      }),
+    ).toThrow(/DEPLOYMENT_ENVIRONMENT/);
+  });
+
   it('resolves production Hyperdrive and R2 without any queue binding', () => {
     expect(resolveAcquisitionConfig(production())).toMatchObject({
       deploymentEnvironment: 'production',

@@ -60,7 +60,7 @@ async function exercise(
 
 async function deploymentFor(fixtures: QueryFixtures) {
   return getDeployment({
-    env: { POSTGRES_URL: 'postgres://fixture/db', PUBLIC_ORIGIN: ORIGIN },
+    env: { DEPLOYMENT_ENVIRONMENT: 'development', POSTGRES_URL: 'postgres://fixture/db', PUBLIC_ORIGIN: ORIGIN },
     runtimes: { hvac: TEST_RUNTIME },
     openDriver: async () => fixtures.driver,
   });

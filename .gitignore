@@ -9,6 +9,7 @@ dist/
 .turbo/
 coverage/
 *.tsbuildinfo
+apps/*/wrangler.production.toml
 .DS_Store
 
 # Private product/business strategy — the 20-document foundation pack.

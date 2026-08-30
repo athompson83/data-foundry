@@ -5,7 +5,7 @@ export interface HyperdriveBinding {
 }
 
 export interface AcquisitionWorkerEnv {
-  readonly DEPLOYMENT_ENVIRONMENT?: string;
+  readonly DEPLOYMENT_ENVIRONMENT?: string | undefined;
   readonly VERTICAL_SLUG?: string;
   readonly RAW_ARTIFACTS_BUCKET_NAME?: string;
   readonly HYPERDRIVE?: HyperdriveBinding;
@@ -33,7 +33,7 @@ export class AcquisitionWorkerConfigurationError extends Error {
 }
 
 export function resolveAcquisitionConfig(env: AcquisitionWorkerEnv): ResolvedAcquisitionConfig {
-  const deploymentEnvironment = env.DEPLOYMENT_ENVIRONMENT ?? 'development';
+  const deploymentEnvironment = env.DEPLOYMENT_ENVIRONMENT;
   if (deploymentEnvironment !== 'development' && deploymentEnvironment !== 'production') {
     throw new AcquisitionWorkerConfigurationError(
       'DEPLOYMENT_ENVIRONMENT must be exactly development or production.',
@@ -42,7 +42,9 @@ export function resolveAcquisitionConfig(env: AcquisitionWorkerEnv): ResolvedAcq
   if (deploymentEnvironment === 'production' && env.HYPERDRIVE === undefined) {
     throw new AcquisitionWorkerConfigurationError('Production requires the HYPERDRIVE binding.');
   }
-  const connectionString = env.HYPERDRIVE?.connectionString ?? env.POSTGRES_URL ?? '';
+  const connectionString = deploymentEnvironment === 'production'
+    ? env.HYPERDRIVE?.connectionString ?? ''
+    : env.HYPERDRIVE?.connectionString ?? env.POSTGRES_URL ?? '';
   if (connectionString.trim() === '') {
     throw new AcquisitionWorkerConfigurationError(
       'No database is configured; acquisition never falls back to an in-memory database.',

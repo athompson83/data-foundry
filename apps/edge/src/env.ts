@@ -29,8 +29,8 @@ export interface QueueBinding<Message = unknown> {
 }
 
 export interface EdgeEnv {
-  /** Explicit production mode tightens topology checks; absence is local development. */
-  readonly DEPLOYMENT_ENVIRONMENT?: string;
+  /** Explicit deployment identity; absence is rejected. */
+  readonly DEPLOYMENT_ENVIRONMENT?: string | undefined;
   /**
    * Hyperdrive binding. Preferred over `POSTGRES_URL`: it pools connections at
    * Cloudflare's edge, which is what makes Postgres viable from a Worker at all.
@@ -81,14 +81,24 @@ export interface RapidApiConfig {
 }
 
 function resolveDeploymentEnvironment(value: string | undefined): DeploymentEnvironment {
-  if (value === undefined || value === 'development') return 'development';
+  if (value === 'development') return 'development';
   if (value === 'production') return 'production';
   throw new EdgeConfigurationError(
-    'DEPLOYMENT_ENVIRONMENT must be exactly "development" or "production" when set.',
+    'DEPLOYMENT_ENVIRONMENT must be exactly "development" or "production".',
   );
 }
 
-function resolveRapidApiConfig(env: EdgeEnv): RapidApiConfig | null {
+function isLoopbackHostname(hostname: string): boolean {
+  const normalized = hostname.toLowerCase().replace(/^\[/, '').replace(/\]$/, '');
+  if (normalized === 'localhost' || normalized === '::1') return true;
+  const octets = normalized.split('.');
+  return octets.length === 4 && octets.every((octet) => /^\d{1,3}$/.test(octet)) && octets[0] === '127';
+}
+
+function resolveRapidApiConfig(
+  env: EdgeEnv,
+  deploymentEnvironment: DeploymentEnvironment,
+): RapidApiConfig | null {
   const anyConfigured =
     env.RAPIDAPI_HOSTNAME !== undefined ||
     env.RAPIDAPI_PROXY_SECRET !== undefined ||
@@ -120,6 +130,9 @@ function resolveRapidApiConfig(env: EdgeEnv): RapidApiConfig | null {
   ) {
     throw new EdgeConfigurationError('RAPIDAPI_HOSTNAME must be a hostname without a scheme or path.');
   }
+  if (deploymentEnvironment === 'production' && isLoopbackHostname(hostname)) {
+    throw new EdgeConfigurationError('RAPIDAPI_HOSTNAME must not be a loopback hostname in production.');
+  }
 
   return { hostname, proxySecret, apiKey };
 }
@@ -138,7 +151,9 @@ export function resolveEdgeConfig(env: EdgeEnv): ResolvedEdgeConfig {
       'Production requires the HYPERDRIVE binding; POSTGRES_URL is for local development only.',
     );
   }
-  const connectionString = env.HYPERDRIVE?.connectionString ?? env.POSTGRES_URL ?? '';
+  const connectionString = deploymentEnvironment === 'production'
+    ? env.HYPERDRIVE?.connectionString ?? ''
+    : env.HYPERDRIVE?.connectionString ?? env.POSTGRES_URL ?? '';
   if (connectionString.trim() === '') {
     throw new EdgeConfigurationError(
       'No database is configured. Bind HYPERDRIVE or set POSTGRES_URL. ' +
@@ -175,6 +190,6 @@ export function resolveEdgeConfig(env: EdgeEnv): ResolvedEdgeConfig {
     verticalSlug,
     apiKeyEnvironment,
     deploymentEnvironment,
-    rapidApi: resolveRapidApiConfig(env),
+    rapidApi: resolveRapidApiConfig(env, deploymentEnvironment),
   };
 }

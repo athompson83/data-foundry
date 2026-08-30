@@ -93,7 +93,7 @@ async function createHarness(
 
   let driverOpens = 0;
   const options = {
-    env: { POSTGRES_URL: 'postgres://fresh-rights/db', PUBLIC_ORIGIN: ORIGIN },
+    env: { DEPLOYMENT_ENVIRONMENT: 'development', POSTGRES_URL: 'postgres://fresh-rights/db', PUBLIC_ORIGIN: ORIGIN },
     runtimes: { hvac: TEST_RUNTIME },
     openDriver: async () => {
       driverOpens += 1;

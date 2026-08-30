@@ -3,7 +3,7 @@ import { resolveWebConfig, WebConfigurationError } from '../src/env.js';
 
 describe('public origin configuration', () => {
   it('refuses to manufacture a localhost canonical origin when none is configured', () => {
-    expect(() => resolveWebConfig({ POSTGRES_URL: 'postgres://fixture/db' })).toThrow(
+    expect(() => resolveWebConfig({ DEPLOYMENT_ENVIRONMENT: 'development', POSTGRES_URL: 'postgres://fixture/db' })).toThrow(
       WebConfigurationError,
     );
   });
@@ -11,6 +11,7 @@ describe('public origin configuration', () => {
   it('accepts an explicit localhost origin for local development', () => {
     expect(
       resolveWebConfig({
+        DEPLOYMENT_ENVIRONMENT: 'development',
         POSTGRES_URL: 'postgres://fixture/db',
         PUBLIC_ORIGIN: 'http://localhost:8787/',
       }).publicOrigin,
@@ -20,6 +21,7 @@ describe('public origin configuration', () => {
   it('requires HTTPS for a non-local public origin', () => {
     expect(() =>
       resolveWebConfig({
+        DEPLOYMENT_ENVIRONMENT: 'development',
         POSTGRES_URL: 'postgres://fixture/db',
         PUBLIC_ORIGIN: 'http://data-foundry.example',
       }),
@@ -32,12 +34,22 @@ describe('public origin configuration', () => {
     'https://user:data@data-foundry.example',
   ])('refuses a value that is not an origin: %s', (publicOrigin) => {
     expect(() =>
-      resolveWebConfig({ POSTGRES_URL: 'postgres://fixture/db', PUBLIC_ORIGIN: publicOrigin }),
+      resolveWebConfig({ DEPLOYMENT_ENVIRONMENT: 'development', POSTGRES_URL: 'postgres://fixture/db', PUBLIC_ORIGIN: publicOrigin }),
     ).toThrow(WebConfigurationError);
   });
 });
 
 describe('production topology is explicit and fail closed', () => {
+  it.each([undefined, '', ' ', 'preview'])('refuses an absent, blank, or unknown deployment environment: %j', (value) => {
+    expect(() =>
+      resolveWebConfig({
+        DEPLOYMENT_ENVIRONMENT: value,
+        POSTGRES_URL: 'postgres://fixture/db',
+        PUBLIC_ORIGIN: 'https://data-foundry.example',
+      }),
+    ).toThrow(/DEPLOYMENT_ENVIRONMENT/);
+  });
+
   it('requires Hyperdrive instead of a direct origin connection', () => {
     expect(() =>
       resolveWebConfig({
@@ -53,10 +65,38 @@ describe('production topology is explicit and fail closed', () => {
       DEPLOYMENT_ENVIRONMENT: 'production',
       HYPERDRIVE: { connectionString: 'postgres://hyperdrive/db' },
       PUBLIC_ORIGIN: 'https://data-foundry.example',
+      PUBLIC_CACHE_MODE: 'no-store',
     });
 
     expect(config.connectionString).toBe('postgres://hyperdrive/db');
     expect(config.deploymentEnvironment).toBe('production');
+  });
+
+  it('refuses a loopback production public origin', () => {
+    expect(() =>
+      resolveWebConfig({
+        DEPLOYMENT_ENVIRONMENT: 'production',
+        HYPERDRIVE: { connectionString: 'postgres://hyperdrive/db' },
+        PUBLIC_ORIGIN: 'https://localhost',
+      }),
+    ).toThrow(/loopback/i);
+  });
+
+  it('requires the production cache incident mode but defaults it for explicit development', () => {
+    expect(() =>
+      resolveWebConfig({
+        DEPLOYMENT_ENVIRONMENT: 'production',
+        HYPERDRIVE: { connectionString: 'postgres://hyperdrive/db' },
+        PUBLIC_ORIGIN: 'https://data-foundry.example',
+      }),
+    ).toThrow(/PUBLIC_CACHE_MODE/);
+    expect(
+      resolveWebConfig({
+        DEPLOYMENT_ENVIRONMENT: 'development',
+        POSTGRES_URL: 'postgres://fixture/db',
+        PUBLIC_ORIGIN: 'http://localhost:8787',
+      }).cacheMode,
+    ).toBe('cache');
   });
 
   it('refuses an unknown deployment environment', () => {

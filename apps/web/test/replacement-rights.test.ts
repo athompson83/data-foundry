@@ -93,7 +93,7 @@ async function responseFor(
     const legacy = await model(fixtures, 'legacy-model');
     await configure(fixtures, legacy);
     const deployment = await getDeployment({
-      env: { POSTGRES_URL: 'postgres://fixture/db', PUBLIC_ORIGIN: ORIGIN },
+      env: { DEPLOYMENT_ENVIRONMENT: 'development', POSTGRES_URL: 'postgres://fixture/db', PUBLIC_ORIGIN: ORIGIN },
       runtimes: { hvac: REPLACEMENT_RUNTIME },
       openDriver: async () => fixtures.driver,
     });

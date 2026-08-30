@@ -297,6 +297,128 @@ describe('real ingestion fact output lineage', () => {
     ]);
   });
 
+  it('replaces stale evidence for a reused source record without deleting current valid lineage', async () => {
+    await ensureIngestionRights();
+    const artifactStore = new InMemoryArtifactStore();
+    const sourceKey = 'ACS-REINGEST001';
+    const first = await Pipeline.create({
+      driver,
+      verticalSlug: 'hvac',
+      artifactStore,
+      now: '2026-08-16T12:00:00.000Z' as never,
+      runId: 'reingest-lineage-first',
+      fixtureOverrides: {
+        'acme-hvac-catalog': JSON.stringify({
+          products: [catalogProduct(sourceKey, 'REINGEST001')],
+        }),
+      },
+    });
+    expect((await first.runSource('acme-hvac-catalog')).error).toBeNull();
+
+    const second = await Pipeline.create({
+      driver,
+      verticalSlug: 'hvac',
+      artifactStore,
+      now: '2026-08-17T12:00:00.000Z' as never,
+      runId: 'reingest-lineage-second',
+      fixtureOverrides: {
+        'acme-hvac-catalog': JSON.stringify({
+          products: [catalogProduct(sourceKey, 'AB')],
+        }),
+      },
+    });
+    expect((await second.runSource('acme-hvac-catalog')).error).toBeNull();
+
+    const [sourceRecord] = await driver.query<{ id: string; artifact_id: string }>(
+      `SELECT id, artifact_id FROM source_records WHERE source_record_key = $1 AND is_current`,
+      [sourceKey],
+    );
+    expect(sourceRecord).toBeDefined();
+
+    const aliasEvidence = await driver.query<{
+      contribution_role: string;
+      locator_value: string;
+      artifact_id: string;
+    }>(
+      `SELECT contribution_role, locator_value, artifact_id
+         FROM entity_evidence
+        WHERE source_record_id = $1
+        ORDER BY contribution_role, locator_value`,
+      [sourceRecord?.id ?? 'missing-source-record'],
+    );
+    expect(aliasEvidence).not.toContainEqual(
+      expect.objectContaining({ contribution_role: 'ALIAS', locator_value: '/products/0/model' }),
+    );
+    expect(aliasEvidence).toContainEqual(
+      expect.objectContaining({ contribution_role: 'ALIAS', locator_value: '/products/0/sku' }),
+    );
+
+    const survivingEvidence = await driver.query<{ artifact_id: string }>(
+      `SELECT artifact_id FROM entity_evidence WHERE source_record_id = $1
+       UNION ALL
+       SELECT artifact_id FROM fact_evidence WHERE source_record_id = $1
+       UNION ALL
+       SELECT artifact_id FROM relationship_evidence WHERE source_record_id = $1`,
+      [sourceRecord?.id ?? 'missing-source-record'],
+    );
+    expect(survivingEvidence.length).toBeGreaterThan(0);
+    expect(new Set(survivingEvidence.map((row) => row.artifact_id))).toEqual(
+      new Set([sourceRecord?.artifact_id]),
+    );
+  });
+
+  it('rolls back source-record evidence replacement when the transaction cannot persist current lineage', async () => {
+    await ensureIngestionRights();
+    const artifactStore = new InMemoryArtifactStore();
+    const sourceKey = 'ACS-REINGESTROLLBACK001';
+    const first = await Pipeline.create({
+      driver,
+      verticalSlug: 'hvac',
+      artifactStore,
+      now: '2026-08-18T12:00:00.000Z' as never,
+      runId: 'reingest-rollback-first',
+      fixtureOverrides: {
+        'acme-hvac-catalog': JSON.stringify({
+          products: [catalogProduct(sourceKey, 'REINGESTROLLBACK001')],
+        }),
+      },
+    });
+    expect((await first.runSource('acme-hvac-catalog')).error).toBeNull();
+
+    const [before] = await driver.query<{ id: string; artifact_id: string }>(
+      `SELECT id, artifact_id FROM source_records WHERE source_record_key = $1 AND is_current`,
+      [sourceKey],
+    );
+    expect(before).toBeDefined();
+
+    const second = await Pipeline.create({
+      driver: transactionAffinityGuard(driver, { failTransactionSql: /INSERT INTO entity_evidence/ }),
+      verticalSlug: 'hvac',
+      artifactStore,
+      now: '2026-08-19T12:00:00.000Z' as never,
+      runId: 'reingest-rollback-second',
+      fixtureOverrides: {
+        'acme-hvac-catalog': JSON.stringify({
+          products: [catalogProduct(sourceKey, 'AB')],
+        }),
+      },
+    });
+    expect((await second.runSource('acme-hvac-catalog')).error).toContain('injected entity-evidence failure');
+
+    const [after] = await driver.query<{ artifact_id: string }>(
+      `SELECT artifact_id FROM source_records WHERE source_record_key = $1 AND is_current`,
+      [sourceKey],
+    );
+    expect(after?.artifact_id).toBe(before?.artifact_id);
+    const preserved = await driver.query<{ locator_value: string }>(
+      `SELECT locator_value FROM entity_evidence
+        WHERE source_record_id = $1 AND contribution_role = 'ALIAS'
+        ORDER BY locator_value`,
+      [before?.id ?? 'missing-source-record'],
+    );
+    expect(preserved.map((row) => row.locator_value)).toContain('/products/0/model');
+  });
+
   it('rolls back every resolution write when entity evidence persistence fails', async () => {
     await ensureIngestionRights();
     const guarded = transactionAffinityGuard(driver, {

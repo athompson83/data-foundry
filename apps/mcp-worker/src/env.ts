@@ -43,17 +43,22 @@ export interface ResolvedMcpWorkerConfig {
   readonly publicOrigin: string;
 }
 
-const LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]']);
-
 function deploymentEnvironment(value: string | undefined): DeploymentEnvironment {
-  if (value === undefined || value === 'development') return 'development';
+  if (value === 'development') return 'development';
   if (value === 'production') return 'production';
   throw new McpWorkerConfigurationError(
-    'DEPLOYMENT_ENVIRONMENT must be exactly "development" or "production" when set.',
+    'DEPLOYMENT_ENVIRONMENT must be exactly "development" or "production".',
   );
 }
 
-function exactHostname(value: string | undefined): string {
+function isLoopbackHostname(value: string): boolean {
+  const hostname = value.toLowerCase().replace(/^\[/, '').replace(/\]$/, '');
+  if (hostname === 'localhost' || hostname === '::1') return true;
+  const octets = hostname.split('.');
+  return octets.length === 4 && octets.every((octet) => /^\d{1,3}$/.test(octet)) && octets[0] === '127';
+}
+
+function exactHostname(value: string | undefined, deployment: DeploymentEnvironment): string {
   const hostname = (value ?? '').trim().toLowerCase();
   if (hostname === '') {
     throw new McpWorkerConfigurationError('MCP_HOSTNAME is required.');
@@ -77,10 +82,13 @@ function exactHostname(value: string | undefined): string {
       'MCP_HOSTNAME must be one hostname without a scheme, port, path, query, or fragment.',
     );
   }
+  if (deployment === 'production' && isLoopbackHostname(hostname)) {
+    throw new McpWorkerConfigurationError('MCP_HOSTNAME must not be a loopback hostname in production.');
+  }
   return hostname;
 }
 
-function exactOrigin(value: string, label: string): string {
+function exactOrigin(value: string, label: string, deployment: DeploymentEnvironment): string {
   let parsed: URL;
   try {
     parsed = new URL(value);
@@ -100,13 +108,16 @@ function exactOrigin(value: string, label: string): string {
       `${label} values must be origins only, without credentials, paths, queries, or fragments.`,
     );
   }
-  if (parsed.protocol !== 'https:' && !LOOPBACK_HOSTS.has(parsed.hostname)) {
+  if (deployment === 'production' && (parsed.protocol !== 'https:' || isLoopbackHostname(parsed.hostname))) {
+    throw new McpWorkerConfigurationError(`${label} must use HTTPS and a non-loopback hostname in production.`);
+  }
+  if (deployment === 'development' && parsed.protocol !== 'https:' && !isLoopbackHostname(parsed.hostname)) {
     throw new McpWorkerConfigurationError(`${label} must use HTTPS outside local development.`);
   }
   return parsed.origin;
 }
 
-function allowedOrigins(value: string | undefined): ReadonlySet<string> {
+function allowedOrigins(value: string | undefined, deployment: DeploymentEnvironment): ReadonlySet<string> {
   const raw = value ?? '';
   const entries = raw.split(',').map((entry) => entry.trim());
   if (entries.length === 0 || entries.some((entry) => entry === '')) {
@@ -114,7 +125,7 @@ function allowedOrigins(value: string | undefined): ReadonlySet<string> {
       'MCP_ALLOWED_ORIGINS must list one or more comma-separated exact origins.',
     );
   }
-  return new Set(entries.map((entry) => exactOrigin(entry, 'MCP_ALLOWED_ORIGINS')));
+  return new Set(entries.map((entry) => exactOrigin(entry, 'MCP_ALLOWED_ORIGINS', deployment)));
 }
 
 export function resolveMcpWorkerConfig(env: McpWorkerEnv): ResolvedMcpWorkerConfig {
@@ -124,7 +135,9 @@ export function resolveMcpWorkerConfig(env: McpWorkerEnv): ResolvedMcpWorkerConf
       'Production requires the HYPERDRIVE binding; POSTGRES_URL is for local development only.',
     );
   }
-  const connectionString = env.HYPERDRIVE?.connectionString ?? env.POSTGRES_URL ?? '';
+  const connectionString = deployment === 'production'
+    ? env.HYPERDRIVE?.connectionString ?? ''
+    : env.HYPERDRIVE?.connectionString ?? env.POSTGRES_URL ?? '';
   if (connectionString.trim() === '') {
     throw new McpWorkerConfigurationError(
       'No database is configured. Bind HYPERDRIVE or set POSTGRES_URL; MCP never falls back to PGlite.',
@@ -165,8 +178,8 @@ export function resolveMcpWorkerConfig(env: McpWorkerEnv): ResolvedMcpWorkerConf
     verticalSlug,
     apiKeyEnvironment,
     deploymentEnvironment: deployment,
-    hostname: exactHostname(env.MCP_HOSTNAME),
-    allowedOrigins: allowedOrigins(env.MCP_ALLOWED_ORIGINS),
-    publicOrigin: exactOrigin(publicOriginValue, 'PUBLIC_ORIGIN'),
+    hostname: exactHostname(env.MCP_HOSTNAME, deployment),
+    allowedOrigins: allowedOrigins(env.MCP_ALLOWED_ORIGINS, deployment),
+    publicOrigin: exactOrigin(publicOriginValue, 'PUBLIC_ORIGIN', deployment),
   };
 }

@@ -13,15 +13,23 @@ main = "src/index.ts"
 # sockets, and the driver needs Node built-ins to use them.
 compatibility_date = "2026-08-23"
 compatibility_flags = ["nodejs_compat"]
+workers_dev = false
+preview_urls = false
 
 [observability]
 enabled = true
+
+[observability.logs]
+invocation_logs = false
 
 [vars]
 # Keep the committed production template subject to the same topology checks as
 # the API and queue consumer. The web runtime reads this value and refuses a
 # production deployment that lacks the HYPERDRIVE binding.
 DEPLOYMENT_ENVIRONMENT = "production"
+# Public caching begins fail-safe until operators prove purge, provider bypass,
+# and stale-object controls against the live route.
+PUBLIC_CACHE_MODE = "no-store"
 
 # No VERTICAL_SLUG here, unlike apps/edge: this is the ONE deployment that
 # serves every vertical — the parent site and every child industry site are

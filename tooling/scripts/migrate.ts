@@ -316,6 +316,7 @@ export const EXPECTED_TABLES = [
   'sources',
   'source_artifacts',
   'source_records',
+  'source_record_reconciliations',
   'entities',
   'entity_aliases',
   'entity_redirects',

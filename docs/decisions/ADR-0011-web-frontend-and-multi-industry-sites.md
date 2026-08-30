@@ -135,19 +135,18 @@ for this deterministic application bound.
 
 ## Consequences
 
-**The free site can use bounded public caching; the paid API cannot.**
-`apps/web/src/http.ts` sets `public, max-age=3600` on every 200 response,
-deliberately the opposite of `apps/api`'s `no-store` — nothing on the free
-surface is personalized, and an hour of fresh shared caching can reduce crawl
-cost. The current header also permits 86,400 seconds of stale-while-revalidate,
-so an intermediary may serve older content while it revalidates. Rights, terms,
-kill-switch, or publication changes therefore require an emergency cache purge;
-operators may also force `no-store`, remove stale-while-revalidate, or reduce
-the TTL during a rights incident. Provider cache-rule ownership and purge execution are
-deployment responsibilities outside this repository; the application header is
-not proof that every intermediary obeyed or purged it. The paid API remains
-`no-store` because per-customer responses and immediate revocation semantics are
-not compatible with shared caching.
+**The free site begins no-store; bounded public caching is an earned incident
+mode.** `PUBLIC_CACHE_MODE=no-store` is the tracked production setting, so every
+successful public response begins revocation-safe. Operators may switch it to
+`cache` (the existing one-hour fresh plus 86,400-second stale-while-revalidate
+policy) only after live purge, provider cache-bypass, and stale-object probes
+pass. A rights, terms, kill-switch, or publication revocation first switches the
+mode back to `no-store` and purges existing cached objects—stopping future cache
+writes cannot remove objects a provider already retains. Provider cache-rule
+ownership and purge execution remain deployment responsibilities outside this
+repository; application headers are not proof that every intermediary obeyed or
+purged them. The paid API remains `no-store` because per-customer responses and
+immediate revocation semantics are not compatible with shared caching.
 
 **Adding an industry is additive to both Workers independently.** A second
 vertical needs its own `apps/edge` deployment (or none, if it is not yet sold

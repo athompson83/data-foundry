@@ -8,6 +8,7 @@ import {
 const queue = { send: async (): Promise<void> => undefined };
 
 const base: McpWorkerEnv = {
+  DEPLOYMENT_ENVIRONMENT: 'development',
   POSTGRES_URL: 'postgres://fixture/db',
   VERTICAL_SLUG: 'hvac',
   API_KEY_ENVIRONMENT: 'test',
@@ -18,6 +19,12 @@ const base: McpWorkerEnv = {
 };
 
 describe('MCP Worker environment', () => {
+  it.each([undefined, '', ' ', 'preview'])('refuses an absent, blank, or unknown deployment environment: %j', (value) => {
+    expect(() => resolveMcpWorkerConfig({ ...base, DEPLOYMENT_ENVIRONMENT: value })).toThrow(
+      /DEPLOYMENT_ENVIRONMENT/,
+    );
+  });
+
   it('resolves one explicit vertical, credential namespace, host, origin set, and public origin', () => {
     expect(resolveMcpWorkerConfig(base)).toEqual({
       connectionString: 'postgres://fixture/db',
@@ -90,5 +97,21 @@ describe('MCP Worker environment', () => {
         API_KEY_ENVIRONMENT: 'live',
       }).connectionString,
     ).toBe('postgres://hyperdrive/db');
+  });
+
+  it.each([
+    ['MCP hostname', { MCP_HOSTNAME: 'localhost' }],
+    ['allowed origin', { MCP_ALLOWED_ORIGINS: 'https://127.0.0.1' }],
+    ['public origin', { PUBLIC_ORIGIN: 'https://[::1]' }],
+  ] as const)('refuses a loopback production %s', (_label, override) => {
+    expect(() =>
+      resolveMcpWorkerConfig({
+        ...base,
+        ...override,
+        DEPLOYMENT_ENVIRONMENT: 'production',
+        HYPERDRIVE: { connectionString: 'postgres://hyperdrive/db' },
+        API_KEY_ENVIRONMENT: 'live',
+      }),
+    ).toThrow(/loopback/i);
   });
 });

@@ -19,6 +19,7 @@ export interface WebResponse {
 }
 
 export type WebHandler = (request: WebRequest) => Promise<WebResponse>;
+export type PublicCacheMode = 'cache' | 'no-store';
 
 /**
  * Public, cacheable content. Unlike `apps/api` (no-store: it is the metered,
@@ -33,28 +34,36 @@ function headersFor(contentType: string, cache: string): Record<string, string> 
   return { 'content-type': contentType, 'cache-control': cache };
 }
 
+function successfulResponseCache(status: number, mode: PublicCacheMode): string {
+  return status >= 200 && status < 300 && mode === 'cache' ? PUBLIC_CACHE : NO_STORE;
+}
+
 export function htmlResponse(
   status: number,
   html: string,
   extraHeaders: Readonly<Record<string, string>> = {},
+  cacheMode: PublicCacheMode = 'cache',
 ): WebResponse {
-  const cache = status === 200 ? PUBLIC_CACHE : NO_STORE;
+  const cache = successfulResponseCache(status, cacheMode);
   return { status, headers: { ...headersFor('text/html; charset=utf-8', cache), ...extraHeaders }, body: html };
 }
 
-export function xmlResponse(status: number, xml: string): WebResponse {
-  return { status, headers: headersFor('application/xml; charset=utf-8', PUBLIC_CACHE), body: xml };
+export function xmlResponse(status: number, xml: string, cacheMode: PublicCacheMode = 'cache'): WebResponse {
+  return { status, headers: headersFor('application/xml; charset=utf-8', successfulResponseCache(status, cacheMode)), body: xml };
 }
 
 export function textResponse(
   status: number,
   text: string,
   extraHeaders: Readonly<Record<string, string>> = {},
-  cache: string = PUBLIC_CACHE,
+  cacheMode: PublicCacheMode = 'cache',
 ): WebResponse {
   return {
     status,
-    headers: { ...headersFor('text/plain; charset=utf-8', cache), ...extraHeaders },
+    headers: {
+      ...headersFor('text/plain; charset=utf-8', successfulResponseCache(status, cacheMode)),
+      ...extraHeaders,
+    },
     body: text,
   };
 }

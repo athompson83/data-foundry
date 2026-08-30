@@ -30,6 +30,7 @@
     "mcp:compile": "tsx tooling/scripts/compile-mcp-runtime.ts",
     "mcp:compile:check": "tsx tooling/scripts/compile-mcp-runtime.ts --check",
     "cloudflare:topology:check": "tsx tooling/scripts/check-cloudflare-topology.ts",
+    "cloudflare:deployment:check": "tsx tooling/scripts/check-cloudflare-topology.ts --mode deployment",
     "cloudflare:artifacts:check": "tsx tooling/scripts/check-cloudflare-artifacts.ts",
     "web:compile": "tsx tooling/scripts/compile-web-runtime.ts",
     "web:compile:check": "tsx tooling/scripts/compile-web-runtime.ts --check",

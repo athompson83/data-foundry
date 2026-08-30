@@ -21,6 +21,21 @@ export const ACQUISITION_CONFIG_PATH = join(
   'wrangler.toml',
 );
 export const MCP_CONFIG_PATH = join(REPO_ROOT, 'apps', 'mcp-worker', 'wrangler.toml');
+export const EDGE_DEPLOYMENT_CONFIG_PATH = join(REPO_ROOT, 'apps', 'edge', 'wrangler.production.toml');
+export const CONSUMER_DEPLOYMENT_CONFIG_PATH = join(
+  REPO_ROOT,
+  'apps',
+  'usage-consumer',
+  'wrangler.production.toml',
+);
+export const WEB_DEPLOYMENT_CONFIG_PATH = join(REPO_ROOT, 'apps', 'web', 'wrangler.production.toml');
+export const ACQUISITION_DEPLOYMENT_CONFIG_PATH = join(
+  REPO_ROOT,
+  'apps',
+  'acquisition-worker',
+  'wrangler.production.toml',
+);
+export const MCP_DEPLOYMENT_CONFIG_PATH = join(REPO_ROOT, 'apps', 'mcp-worker', 'wrangler.production.toml');
 
 const USAGE_QUEUE = 'data-foundry-usage-events';
 const USAGE_DLQ = 'data-foundry-usage-events-dlq';
@@ -28,6 +43,7 @@ const USAGE_DLQ = 'data-foundry-usage-events-dlq';
 type TomlObject = Record<string, unknown>;
 
 export interface CloudflareTopologyOptions {
+  readonly mode?: 'repository' | 'deployment';
   readonly edgeConfigPath?: string;
   readonly consumerConfigPath?: string;
   readonly webConfigPath?: string;
@@ -71,6 +87,15 @@ function checkWorkerBase(label: string, config: TomlObject, errors: string[]): v
   if (object(config['observability'])['enabled'] !== true) {
     errors.push(`${label} must enable Cloudflare observability.`);
   }
+  if (config['workers_dev'] !== false) {
+    errors.push(`${label} must set workers_dev = false.`);
+  }
+  if (config['preview_urls'] !== false) {
+    errors.push(`${label} must set preview_urls = false.`);
+  }
+  if (object(object(config['observability'])['logs'])['invocation_logs'] !== false) {
+    errors.push(`${label} must set observability.logs.invocation_logs = false.`);
+  }
   if (object(config['vars'])['DEPLOYMENT_ENVIRONMENT'] !== 'production') {
     errors.push(`${label} must set DEPLOYMENT_ENVIRONMENT="production".`);
   }
@@ -101,9 +126,15 @@ function valuesAtKey(value: unknown, wanted: string): unknown[] {
   return found;
 }
 
+function keyNames(value: unknown): readonly string[] {
+  if (Array.isArray(value)) return value.flatMap(keyNames);
+  if (value === null || typeof value !== 'object') return [];
+  return Object.entries(value as TomlObject).flatMap(([key, child]) => [key, ...keyNames(child)]);
+}
+
 function checkRepositoryPolicy(label: string, config: TomlObject, errors: string[]): void {
-  for (const path of collectKeyPaths(config, new Set(['account_id']))) {
-    errors.push(`${label} commits an account-specific ${path}; supply account_id outside the repository.`);
+  for (const path of collectKeyPaths(config, new Set(['account_id', 'route', 'routes']))) {
+    errors.push(`${label} commits deployment-specific ${path}; supply it outside the repository.`);
   }
   const hyperdrive = valuesAtKey(config, 'hyperdrive').flatMap(objects);
   if (hyperdrive.some((binding) => typeof binding['id'] === 'string')) {
@@ -116,6 +147,10 @@ function checkRepositoryPolicy(label: string, config: TomlObject, errors: string
     'CLOUDFLARE_ACCOUNT_ID',
     'CLOUDFLARE_API_TOKEN',
     'CRAWL4AI_API_TOKEN',
+    'PUBLIC_ORIGIN',
+    'MCP_HOSTNAME',
+    'MCP_ALLOWED_ORIGINS',
+    'RAPIDAPI_HOSTNAME',
   ]) {
     const configuredAsPlainVar = valuesAtKey(config, 'vars').some(
       (vars) => collectKeyPaths(object(vars), new Set([name])).length > 0,
@@ -128,33 +163,185 @@ function checkRepositoryPolicy(label: string, config: TomlObject, errors: string
   }
 }
 
+function isLoopbackHostname(value: string): boolean {
+  const hostname = value.toLowerCase().replace(/^\[/, '').replace(/\]$/, '');
+  if (hostname === 'localhost' || hostname === '::1') return true;
+  const octets = hostname.split('.');
+  return octets.length === 4 && octets.every((octet) => /^\d{1,3}$/.test(octet)) && octets[0] === '127';
+}
+
+function isExactProductionOrigin(value: unknown): boolean {
+  if (typeof value !== 'string' || value.trim() === '') return false;
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === 'https:' &&
+      parsed.username === '' &&
+      parsed.password === '' &&
+      parsed.pathname === '/' &&
+      parsed.search === '' &&
+      parsed.hash === '' &&
+      parsed.origin === value &&
+      !isLoopbackHostname(parsed.hostname);
+  } catch {
+    return false;
+  }
+}
+
+function isExactProductionHostname(value: unknown): boolean {
+  if (typeof value !== 'string' || value.trim() === '') return false;
+  const hostname = value.trim().toLowerCase();
+  try {
+    const parsed = new URL(`https://${hostname}`);
+    return parsed.hostname.toLowerCase() === hostname &&
+      parsed.port === '' &&
+      parsed.pathname === '/' &&
+      parsed.search === '' &&
+      parsed.hash === '' &&
+      !isLoopbackHostname(hostname);
+  } catch {
+    return false;
+  }
+}
+
+function routeValues(config: TomlObject): readonly string[] {
+  const visit = (value: unknown): string[] => {
+    if (typeof value === 'string') return [value];
+    if (Array.isArray(value)) return value.flatMap(visit);
+    const candidate = object(value);
+    return [candidate['pattern'], candidate['route']].flatMap(visit);
+  };
+  return [...valuesAtKey(config, 'route'), ...valuesAtKey(config, 'routes')].flatMap(visit);
+}
+
+function hasDeploymentHyperdrive(config: TomlObject): boolean {
+  return valuesAtKey(config, 'hyperdrive').flatMap(objects).some(
+    (binding) => binding['binding'] === 'HYPERDRIVE' &&
+      typeof binding['id'] === 'string' && binding['id'].trim() !== '',
+  );
+}
+
+function isPlaintextProtectedKey(key: string): boolean {
+  if (key === 'API_KEY_ENVIRONMENT') return false;
+  return key === 'POSTGRES_URL' ||
+    key === 'RAPIDAPI_PROXY_SECRET' ||
+    key === 'RAPIDAPI_API_KEY' ||
+    key === 'CLOUDFLARE_API_TOKEN' ||
+    key === 'CRAWL4AI_API_TOKEN' ||
+    /(?:PASSWORD|PASSWD|TOKEN|SECRET)$/.test(key) ||
+    /(?:API_KEY|API_SECRET)$/.test(key);
+}
+
+function checkPlaintextProtectedVars(label: string, config: TomlObject, errors: string[]): void {
+  for (const vars of valuesAtKey(config, 'vars')) {
+    for (const key of keyNames(object(vars))) {
+      if (isPlaintextProtectedKey(key)) {
+        errors.push(`${label} commits plaintext protected variable ${key}; use provider secrets or bindings.`);
+      }
+    }
+  }
+}
+
+function checkDeploymentWorker(label: string, config: TomlObject, errors: string[]): void {
+  if (!hasDeploymentHyperdrive(config)) {
+    errors.push(`${label} deployment manifest must bind HYPERDRIVE with a non-empty id.`);
+  }
+  checkPlaintextProtectedVars(label, config, errors);
+}
+
+function checkDeploymentEndpoints(
+  edge: TomlObject,
+  web: TomlObject,
+  mcp: TomlObject,
+  errors: string[],
+): void {
+  for (const [label, config] of [['edge', edge], ['web', web], ['mcp-worker', mcp]] as const) {
+    const routes = routeValues(config);
+    if (routes.length === 0 || routes.some((route) => route.trim() === '' || /(?:^|\.)workers\.dev(?:\/|$)/i.test(route))) {
+      errors.push(`${label} deployment manifest must declare non-workers.dev route(s).`);
+    }
+  }
+
+  const edgeVars = object(edge['vars']);
+  if (edgeVars['RAPIDAPI_HOSTNAME'] !== undefined && !isExactProductionHostname(edgeVars['RAPIDAPI_HOSTNAME'])) {
+    errors.push('edge RAPIDAPI_HOSTNAME must be a non-loopback exact production hostname when configured.');
+  }
+
+  const webVars = object(web['vars']);
+  if (!isExactProductionOrigin(webVars['PUBLIC_ORIGIN'])) {
+    errors.push('web deployment manifest must provide a non-loopback exact HTTPS PUBLIC_ORIGIN.');
+  }
+  if (webVars['PUBLIC_CACHE_MODE'] !== 'cache' && webVars['PUBLIC_CACHE_MODE'] !== 'no-store') {
+    errors.push('web deployment manifest must provide PUBLIC_CACHE_MODE as exactly cache or no-store.');
+  }
+
+  const mcpVars = object(mcp['vars']);
+  if (!isExactProductionHostname(mcpVars['MCP_HOSTNAME'])) {
+    errors.push('mcp-worker deployment manifest must provide a non-loopback exact MCP_HOSTNAME.');
+  }
+  if (!isExactProductionOrigin(mcpVars['PUBLIC_ORIGIN'])) {
+    errors.push('mcp-worker deployment manifest must provide a non-loopback exact HTTPS PUBLIC_ORIGIN.');
+  }
+  const allowed = mcpVars['MCP_ALLOWED_ORIGINS'];
+  if (typeof allowed !== 'string' || allowed.split(',').map((entry) => entry.trim()).some((entry) => !isExactProductionOrigin(entry))) {
+    errors.push('mcp-worker deployment manifest must provide non-loopback exact HTTPS MCP_ALLOWED_ORIGINS.');
+  }
+}
+
 export async function validateCloudflareTopology(
   options: CloudflareTopologyOptions = {},
 ): Promise<readonly string[]> {
   const errors: string[] = [];
-  const edge = await parseConfig(options.edgeConfigPath ?? EDGE_CONFIG_PATH, 'edge', errors);
+  const mode = options.mode ?? 'repository';
+  const edge = await parseConfig(
+    options.edgeConfigPath ?? (mode === 'deployment' ? EDGE_DEPLOYMENT_CONFIG_PATH : EDGE_CONFIG_PATH),
+    'edge',
+    errors,
+  );
   const consumer = await parseConfig(
-    options.consumerConfigPath ?? CONSUMER_CONFIG_PATH,
+    options.consumerConfigPath ??
+      (mode === 'deployment' ? CONSUMER_DEPLOYMENT_CONFIG_PATH : CONSUMER_CONFIG_PATH),
     'usage-consumer',
     errors,
   );
-  const web = await parseConfig(options.webConfigPath ?? WEB_CONFIG_PATH, 'web', errors);
+  const web = await parseConfig(
+    options.webConfigPath ?? (mode === 'deployment' ? WEB_DEPLOYMENT_CONFIG_PATH : WEB_CONFIG_PATH),
+    'web',
+    errors,
+  );
   const acquisition = await parseConfig(
-    options.acquisitionConfigPath ?? ACQUISITION_CONFIG_PATH,
+    options.acquisitionConfigPath ??
+      (mode === 'deployment' ? ACQUISITION_DEPLOYMENT_CONFIG_PATH : ACQUISITION_CONFIG_PATH),
     'acquisition-worker',
     errors,
   );
-  const mcp = await parseConfig(options.mcpConfigPath ?? MCP_CONFIG_PATH, 'mcp-worker', errors);
+  const mcp = await parseConfig(
+    options.mcpConfigPath ?? (mode === 'deployment' ? MCP_DEPLOYMENT_CONFIG_PATH : MCP_CONFIG_PATH),
+    'mcp-worker',
+    errors,
+  );
+  // A missing ignored deployment manifest is an owner-action boundary, not a
+  // malformed empty Worker. Return only the actionable file errors rather than
+  // a cascade of consequences from parsing `{}`.
+  if (errors.length > 0) return errors;
   checkWorkerBase('edge', edge, errors);
   checkWorkerBase('usage-consumer', consumer, errors);
   checkWorkerBase('web', web, errors);
   checkWorkerBase('acquisition-worker', acquisition, errors);
   checkWorkerBase('mcp-worker', mcp, errors);
-  checkRepositoryPolicy('edge', edge, errors);
-  checkRepositoryPolicy('usage-consumer', consumer, errors);
-  checkRepositoryPolicy('web', web, errors);
-  checkRepositoryPolicy('acquisition-worker', acquisition, errors);
-  checkRepositoryPolicy('mcp-worker', mcp, errors);
+  if (mode === 'repository') {
+    checkRepositoryPolicy('edge', edge, errors);
+    checkRepositoryPolicy('usage-consumer', consumer, errors);
+    checkRepositoryPolicy('web', web, errors);
+    checkRepositoryPolicy('acquisition-worker', acquisition, errors);
+    checkRepositoryPolicy('mcp-worker', mcp, errors);
+  } else {
+    checkDeploymentWorker('edge', edge, errors);
+    checkDeploymentWorker('usage-consumer', consumer, errors);
+    checkDeploymentWorker('web', web, errors);
+    checkDeploymentWorker('acquisition-worker', acquisition, errors);
+    checkDeploymentWorker('mcp-worker', mcp, errors);
+    checkDeploymentEndpoints(edge, web, mcp, errors);
+  }
 
   const edgeVars = object(edge['vars']);
   if (edgeVars['VERTICAL_SLUG'] !== 'hvac') {
@@ -254,17 +441,25 @@ export async function run(options: CloudflareTopologyOptions = {}): Promise<numb
     return 1;
   }
   process.stdout.write(
-    'OK: Cloudflare REST, MCP, usage consumer, acquisition Cron, and public web topology is internally consistent.\n',
+    options.mode === 'deployment'
+      ? 'OK: Cloudflare deployment manifests are internally consistent.\n'
+      : 'OK: Cloudflare repository templates are internally consistent.\n',
   );
   return 0;
 }
 
 if (isMain(import.meta.url)) {
-  run().then(
+  const mode = process.argv[2] === '--mode' ? process.argv[3] : undefined;
+  if (mode !== undefined && mode !== 'repository' && mode !== 'deployment') {
+    process.stderr.write('Usage: check-cloudflare-topology.ts [--mode repository|deployment]\n');
+    process.exitCode = 1;
+  } else {
+    run(mode === undefined ? {} : { mode }).then(
     (code) => { process.exitCode = code; },
     (error: unknown) => {
       process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
       process.exitCode = 1;
     },
-  );
+    );
+  }
 }
