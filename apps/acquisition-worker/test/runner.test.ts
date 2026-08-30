@@ -4,12 +4,16 @@ import {
   ManualClock,
   R2ArtifactStore,
   artifactRetrievalReceiptId,
+  sha256Hex,
+  stableStringify,
   type AcquisitionRuntime,
   type Clock,
   type FetchLike,
 } from '@data-foundry/acquisition';
 import {
   createCanonicalStore,
+  createScheduledAcquisitionStore,
+  type ScheduledAcquisitionRun,
   type SqlDriver,
   type SqlParam,
   type SqlRow,
@@ -23,11 +27,14 @@ import {
 } from '../../../packages/acquisition/test/helpers.js';
 import { seedAcquisitionRights } from '../../../tests/support/acquisition-rights.js';
 import { ACQUISITION_RUNTIMES } from '../generated/runtime-registry.js';
-import { runScheduledAcquisition } from '../src/runner.js';
+import {
+  ScheduledAcquisitionClaimBusyError,
+  runScheduledAcquisition,
+} from '../src/runner.js';
 
 const SLOT = '2026-08-28T17:00:00.000Z';
 const NEXT_SLOT = '2026-08-28T18:00:00.000Z';
-const REFRESH_SLOT = '2026-09-28T17:00:00.000Z';
+const REFRESH_SLOT = new Date(Date.now() + 31 * 24 * 60 * 60 * 1_000).toISOString();
 const BASE_RUNTIME = ACQUISITION_RUNTIMES['hvac']!;
 let fixtures: Fixtures;
 
@@ -43,7 +50,9 @@ function runtimeFor(index = 0): AcquisitionRuntime {
   return { ...BASE_RUNTIME, targets: [target] };
 }
 
-async function authorizeRuntime(runtime: AcquisitionRuntime): Promise<string> {
+async function authorizeRuntime(
+  runtime: AcquisitionRuntime,
+): Promise<ScheduledAcquisitionRun['sourceId']> {
   const target = runtime.targets[0]!;
   const canonical = createCanonicalStore(fixtures.driver);
   const vertical = await canonical.upsertVertical({
@@ -160,11 +169,69 @@ async function activateBroaderStickyDeny(
   });
 }
 
+async function databaseNow(driver: SqlDriver): Promise<string> {
+  const rows = await driver.query<{ observed_at: string }>(
+    `SELECT statement_timestamp()::text AS observed_at`,
+  );
+  const observedAt = rows[0]?.observed_at;
+  if (observedAt === undefined) throw new Error('test database did not return statement time');
+  return new Date(observedAt).toISOString();
+}
+
 function denyOnRightsLoad(
   driver: SqlDriver,
   sourceId: string,
   loadNumber: number,
-  clock: SteppingClock,
+): SqlDriver {
+  let rightsLoads = 0;
+  let acquisitionObservedAt: string | undefined;
+  return {
+    label: driver.label,
+    dialect: driver.dialect,
+    exec: (sql) => driver.exec(sql),
+    async query<R extends SqlRow = SqlRow>(sql: string, params?: readonly SqlParam[]): Promise<R[]> {
+      if (sql.includes('AS acquisition_observed_at')) {
+        const rows = await driver.query<R>(sql, params);
+        acquisitionObservedAt = String(rows[0]?.['acquisition_observed_at']);
+        return rows;
+      }
+      if (sql.includes('FROM sources s')) {
+        rightsLoads += 1;
+        if (rightsLoads === loadNumber) {
+          if (acquisitionObservedAt === undefined) {
+            throw new Error('test expected a database acquisition observation');
+          }
+          await activateStickyDeny(driver, sourceId, acquisitionObservedAt);
+        }
+      }
+      return driver.query<R>(sql, params);
+    },
+    transaction: (fn) => driver.transaction(fn),
+    close: () => Promise.resolve(),
+  };
+}
+
+function failFirstRightsLoad(driver: SqlDriver): SqlDriver {
+  let failed = false;
+  return {
+    label: driver.label,
+    dialect: driver.dialect,
+    exec: (sql) => driver.exec(sql),
+    async query<R extends SqlRow = SqlRow>(sql: string, params?: readonly SqlParam[]): Promise<R[]> {
+      if (!failed && sql.includes('FROM sources s')) {
+        failed = true;
+        throw new Error('synthetic transient rights database failure');
+      }
+      return driver.query<R>(sql, params);
+    },
+    transaction: (fn) => driver.transaction(fn),
+    close: () => Promise.resolve(),
+  };
+}
+
+function releaseLeaseOnRightsLoad(
+  driver: SqlDriver,
+  loadNumber: number,
 ): SqlDriver {
   let rightsLoads = 0;
   return {
@@ -172,13 +239,26 @@ function denyOnRightsLoad(
     dialect: driver.dialect,
     exec: (sql) => driver.exec(sql),
     async query<R extends SqlRow = SqlRow>(sql: string, params?: readonly SqlParam[]): Promise<R[]> {
+      const rows = await driver.query<R>(sql, params);
       if (sql.includes('FROM sources s')) {
         rightsLoads += 1;
         if (rightsLoads === loadNumber) {
-          await activateStickyDeny(driver, sourceId, clock.lastIso);
+          const claims = await driver.query<{ id: string; claim_token: string }>(
+            `SELECT id, claim_token
+               FROM scheduled_acquisition_runs
+              WHERE status = 'CLAIMED'
+              ORDER BY created_at DESC LIMIT 1`,
+          );
+          const claim = claims[0];
+          if (claim === undefined) throw new Error('test expected an active scheduled claim');
+          await createScheduledAcquisitionStore(driver).release({
+            runId: claim.id,
+            claimToken: claim.claim_token,
+            reason: 'UNEXPECTED_ERROR',
+          });
         }
       }
-      return driver.query<R>(sql, params);
+      return rows;
     },
     transaction: (fn) => driver.transaction(fn),
     close: () => Promise.resolve(),
@@ -246,6 +326,106 @@ describe('scheduled acquisition runner', () => {
     )).toEqual([{ status: 'REFUSED', count: 4 }]);
   });
 
+  it('releases a claimed slot after an unexpected admission failure so the same-slot retry resumes one run', async () => {
+    const runtime = runtimeFor();
+    await authorizeRuntime(runtime);
+    const objects = new InMemoryObjectClient();
+    const network = stubFetch(() => ({
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+      body: '{"models":["SYNTHETIC-1"]}',
+    }));
+    const first = runScheduledAcquisition({
+      driver: failFirstRightsLoad(fixtures.driver),
+      runtime,
+      scheduledFor: SLOT,
+      clock: new ManualClock(SLOT),
+      artifactStore: artifactStore(objects),
+      env: {},
+      fetch: network.fetch,
+    });
+
+    await expect(first).rejects.toThrow('synthetic transient rights database failure');
+
+    const recovered = await runScheduledAcquisition({
+      driver: fixtures.driver,
+      runtime,
+      scheduledFor: SLOT,
+      clock: new ManualClock(SLOT),
+      artifactStore: artifactStore(objects),
+      env: {},
+      fetch: network.fetch,
+    });
+
+    expect(recovered.executions).toEqual([
+      expect.objectContaining({ disposition: 'SUCCEEDED' }),
+    ]);
+    expect(network.calls).toHaveLength(1);
+    expect(await fixtures.driver.query<{ status: string; count: number }>(
+      `SELECT status, count(*)::INTEGER AS count
+         FROM scheduled_acquisition_runs
+        WHERE scheduled_for = $1 GROUP BY status`,
+      [SLOT],
+    )).toEqual([{ status: 'SUCCEEDED', count: 1 }]);
+  });
+
+  it('finishes independently acquired targets before reporting an active neighboring claim as retryable', async () => {
+    const firstTarget = BASE_RUNTIME.targets[0]!;
+    const secondTarget = BASE_RUNTIME.targets[1]!;
+    const runtime: AcquisitionRuntime = { ...BASE_RUNTIME, targets: [firstTarget, secondTarget] };
+    const sourceId = await authorizeRuntime(runtimeFor(0));
+    await authorizeRuntime(runtimeFor(1));
+    const scheduler = createScheduledAcquisitionStore(fixtures.driver);
+    const active = await scheduler.acquire({
+      idempotencyKey: `scheduled-acquisition-v1:${sha256Hex(stableStringify({
+        verticalSlug: runtime.vertical_slug,
+        targetId: firstTarget.target_id,
+        scheduledFor: SLOT,
+        runtimeDigest: runtime.runtime_digest,
+      }))}`,
+      verticalSlug: runtime.vertical_slug,
+      sourceId,
+      sourceKey: firstTarget.source.key,
+      targetId: firstTarget.target_id,
+      targetUrl: firstTarget.target_url,
+      acquisitionRoute: firstTarget.source.acquisition_policy.method,
+      accountOrProductPlan: firstTarget.source.acquisition_policy.account_or_product_plan,
+      jurisdiction: firstTarget.source.acquisition_policy.jurisdiction,
+      assetClass: firstTarget.asset_class,
+      outputClass: firstTarget.output_class,
+      resultUrlPolicy: firstTarget.result_url_policy,
+      scheduledFor: SLOT,
+      runtimeDigest: runtime.runtime_digest,
+    });
+    expect(active.disposition).toBe('ACQUIRED');
+    const network = stubFetch(() => ({
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+      body: '{"models":["SYNTHETIC-2"]}',
+    }));
+
+    await expect(runScheduledAcquisition({
+      driver: fixtures.driver,
+      runtime,
+      scheduledFor: SLOT,
+      clock: new ManualClock(SLOT),
+      artifactStore: artifactStore(new InMemoryObjectClient()),
+      env: {},
+      fetch: network.fetch,
+    })).rejects.toBeInstanceOf(ScheduledAcquisitionClaimBusyError);
+
+    expect(network.calls).toHaveLength(1);
+    expect(await fixtures.driver.query<{ target_id: string; status: string }>(
+      `SELECT target_id, status
+         FROM scheduled_acquisition_runs
+        WHERE scheduled_for = $1 ORDER BY target_id`,
+      [SLOT],
+    )).toEqual([
+      { target_id: firstTarget.target_id, status: 'CLAIMED' },
+      { target_id: secondTarget.target_id, status: 'SUCCEEDED' },
+    ]);
+  });
+
   it('refuses an initial sticky DENY before lazy provider secrets, transport, or R2', async () => {
     const runtime = runtimeFor(3);
     const sourceId = await authorizeRuntime(runtime);
@@ -281,7 +461,7 @@ describe('scheduled acquisition runner', () => {
     const runtime = runtimeFor(3);
     const sourceId = await authorizeRuntime(runtime);
     const clock = new SteppingClock(SLOT);
-    const driver = denyOnRightsLoad(fixtures.driver, sourceId, 2, clock);
+    const driver = denyOnRightsLoad(fixtures.driver, sourceId, 2);
     const objects = new InMemoryObjectClient();
     const network = vi.fn<FetchLike>(() => Promise.reject(new Error('network must not run')));
     let secretReads = 0;
@@ -345,7 +525,7 @@ describe('scheduled acquisition runner', () => {
     const runtime = runtimeFor();
     const sourceId = await authorizeRuntime(runtime);
     const clock = new SteppingClock(SLOT);
-    const driver = denyOnRightsLoad(fixtures.driver, sourceId, 3, clock);
+    const driver = denyOnRightsLoad(fixtures.driver, sourceId, 3);
     const network = vi.fn<FetchLike>(() => Promise.reject(new Error('network must not run')));
     const objects = new InMemoryObjectClient();
     const result = await runScheduledAcquisition({
@@ -370,7 +550,12 @@ describe('scheduled acquisition runner', () => {
     let networkCalls = 0;
     const network: FetchLike = async () => {
       networkCalls += 1;
-      await activateStickyDeny(fixtures.driver, sourceId, clock.nowIso(), 'STORE');
+      await activateStickyDeny(
+        fixtures.driver,
+        sourceId,
+        await databaseNow(fixtures.driver),
+        'STORE',
+      );
       return makeResponse({
         status: 200,
         headers: { 'content-type': 'application/json' },
@@ -426,6 +611,48 @@ describe('scheduled acquisition runner', () => {
     });
   });
 
+  it('fences a released lease at PRE_PERSISTENCE before the first R2 write', async () => {
+    const runtime = runtimeFor();
+    await authorizeRuntime(runtime);
+    const clock = new SteppingClock(SLOT);
+    const driver = releaseLeaseOnRightsLoad(fixtures.driver, 4);
+    const objects = new InMemoryObjectClient();
+    let networkCalls = 0;
+
+    await expect(runScheduledAcquisition({
+      driver,
+      runtime,
+      scheduledFor: SLOT,
+      clock,
+      artifactStore: artifactStore(objects),
+      env: {},
+      fetch: async () => {
+        networkCalls += 1;
+        return makeResponse({
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+          body: '{"models":["SYNTHETIC-1"]}',
+        });
+      },
+    })).rejects.toThrow(/current unexpired claim owner/i);
+
+    expect(networkCalls).toBe(1);
+    expect(objects.writes).toEqual([]);
+    expect(await fixtures.driver.query<{
+      status: string;
+      claim_attempt: number;
+      last_claim_release_reason: string;
+    }>(
+      `SELECT status, claim_attempt, last_claim_release_reason
+         FROM scheduled_acquisition_runs WHERE scheduled_for = $1`,
+      [SLOT],
+    )).toEqual([{
+      status: 'CLAIMED',
+      claim_attempt: 1,
+      last_claim_release_reason: 'UNEXPECTED_ERROR',
+    }]);
+  });
+
   it('refuses a newly matching broader STORE DENY after transport', async () => {
     const runtime = runtimeFor();
     const sourceId = await authorizeRuntime(runtime);
@@ -434,7 +661,12 @@ describe('scheduled acquisition runner', () => {
     let networkCalls = 0;
     const network: FetchLike = async () => {
       networkCalls += 1;
-      await activateBroaderStickyDeny(fixtures.driver, sourceId, clock.nowIso(), 'STORE');
+      await activateBroaderStickyDeny(
+        fixtures.driver,
+        sourceId,
+        await databaseNow(fixtures.driver),
+        'STORE',
+      );
       return makeResponse({
         status: 200,
         headers: { 'content-type': 'application/json' },
@@ -597,19 +829,30 @@ describe('scheduled acquisition runner', () => {
       outcome: string;
       artifact_count: number;
       fresh_at: string | Date | null;
-      rights_receipt: { stage: string }[];
+      claim_lease_acquired_at: string | Date;
+      completed_at: string | Date;
+      rights_receipt: { stage: string; evaluatedAt: string }[];
     }>(
-      `SELECT outcome, artifact_count, fresh_at, rights_receipt
+      `SELECT outcome, artifact_count, fresh_at, claim_lease_acquired_at,
+              completed_at, rights_receipt
          FROM scheduled_acquisition_runs WHERE id = $1`,
       [second.executions[0]!.runId],
     );
     expect(rows[0]).toMatchObject({ outcome: 'NOT_MODIFIED', artifact_count: 0 });
-    expect(new Date(rows[0]!.fresh_at!).toISOString()).toBe(REFRESH_SLOT);
+    expect(Date.parse(String(rows[0]!.fresh_at))).toBeGreaterThanOrEqual(
+      Date.parse(String(rows[0]!.claim_lease_acquired_at)),
+    );
+    expect(Date.parse(String(rows[0]!.fresh_at))).toBeLessThanOrEqual(
+      Date.parse(String(rows[0]!.completed_at)),
+    );
     expect(rows[0]?.rights_receipt.map(({ stage }) => stage)).toEqual([
       'INITIAL',
       'PRE_PROVIDER',
       'PRE_TRANSPORT',
       'PRE_PERSISTENCE',
     ]);
+    expect(rows[0]?.rights_receipt.every(
+      ({ evaluatedAt }) => Date.parse(evaluatedAt) < Date.parse(REFRESH_SLOT),
+    )).toBe(true);
   });
 });

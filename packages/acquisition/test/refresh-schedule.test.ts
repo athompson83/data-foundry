@@ -23,6 +23,7 @@ import {
 import { compliantEntry } from './helpers.js';
 
 const NOW = '2026-08-14T00:00:00.000Z';
+const FUTURE_SCHEDULE_INSTANT = '2026-09-14T00:00:00.000Z';
 const SOURCE_ID = '11111111-1111-4111-8111-111111111111';
 const TARGET_URL = 'https://ratings-directory.example.org/catalog/units.json';
 
@@ -107,10 +108,12 @@ function candidate(
 }
 
 const plan = (candidates: readonly RefreshCandidate[], policy: RefreshPolicy = POLICY) =>
-  planRefresh({ candidates, policy, now: NOW });
+  planRefresh({ candidates, policy, rightsAsOf: NOW, now: NOW });
 
 const keys = (candidates: readonly RefreshCandidate[], policy: RefreshPolicy = POLICY) =>
-  dueSources({ candidates, policy, now: NOW }).map((decision) => decision.sourceKey);
+  dueSources({ candidates, policy, rightsAsOf: NOW, now: NOW }).map(
+    (decision) => decision.sourceKey,
+  );
 
 describe('a cadence that is not a clock is never scheduled', () => {
   it.each(['MANUAL', 'EVENT_DRIVEN'] as const)('never schedules %s, however old', (cadence) => {
@@ -277,6 +280,46 @@ describe('the final rights admission is exact and fail-closed', () => {
     const [decision] = plan([candidate('admitted', 'DAILY', hoursAgo(25))]);
     expect(decision?.due).toBe(true);
     expect(decision?.reason).toBe('DUE');
+  });
+
+  it('binds rights to the current trusted instant while planning cadence at a future slot', () => {
+    const input = {
+      candidates: [
+        candidate('admitted-now', 'DAILY', hoursAgo(1), {
+          rights_policy: {
+            ...compliantEntry().rights_policy,
+            next_review_at: '2026-08-20',
+          },
+        }),
+      ],
+      policy: POLICY,
+      rightsAsOf: NOW,
+      now: FUTURE_SCHEDULE_INSTANT,
+    };
+
+    const [decision] = planRefresh(input);
+
+    expect(decision).toMatchObject({ due: true, reason: 'STALE' });
+  });
+
+  it('does not accept a future-slot admission as evidence of current rights', () => {
+    const base = candidate('future-admission', 'DAILY', hoursAgo(1));
+    const input = {
+      candidates: [{
+        ...base,
+        admission: {
+          ...(base.admission as RefreshAdmission),
+          evaluatedAt: FUTURE_SCHEDULE_INSTANT,
+        },
+      }],
+      policy: POLICY,
+      rightsAsOf: NOW,
+      now: FUTURE_SCHEDULE_INSTANT,
+    };
+
+    const [decision] = planRefresh(input);
+
+    expect(decision).toMatchObject({ due: false, reason: 'RIGHTS_MATRIX_REFUSED' });
   });
 });
 

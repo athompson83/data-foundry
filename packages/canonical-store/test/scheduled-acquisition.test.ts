@@ -94,8 +94,19 @@ const claim = (
   },
   scheduledFor: ts(slot),
   runtimeDigest: 'a'.repeat(64),
-  claimedAt: ts('2026-08-28T17:00:01.000Z'),
   ...overrides,
+});
+
+const runAt = (
+  run: ScheduledAcquisitionRun,
+  milliseconds: number,
+): ScheduledAcquisitionRun['claimedAt'] => ts(
+  new Date(Date.parse(run.claimLeaseAcquiredAt) + milliseconds).toISOString(),
+);
+
+const terminalTimes = (run: ScheduledAcquisitionRun) => ({
+  completedAt: runAt(run, 60_000),
+  freshAt: runAt(run, 59_000),
 });
 
 const checkpoint = (
@@ -109,7 +120,7 @@ const checkpoint = (
     stage,
     basis,
     scopeDigest: run.rightsScopeDigest,
-    evaluatedAt: ts(new Date(Date.parse(run.claimedAt) + index).toISOString()),
+    evaluatedAt: runAt(run, index),
   decisions: (['ACQUIRE', 'STORE', 'CACHE'] as const).map((operation) => ({
       operation,
       permitted,
@@ -201,8 +212,8 @@ async function linkRawArtifact(
 async function rawFetchedSuccess(
   run: ScheduledAcquisitionRun,
   receipt: unknown,
-  completedAt = ts('2026-08-28T23:59:00.000Z'),
-  freshAt = completedAt,
+  completedAt = runAt(run, 60_000),
+  freshAt: ScheduledAcquisitionRun['claimedAt'] = completedAt,
 ): Promise<void> {
   await fixtures.driver.query(
     `UPDATE scheduled_acquisition_runs
@@ -225,6 +236,147 @@ describe('scheduled acquisition claims', () => {
 
     expect([first, duplicate].filter((run) => run !== null)).toHaveLength(1);
     expect(await countRows(fixtures.driver, 'scheduled_acquisition_runs')).toBe(1);
+  });
+
+  it('fences an active claim, atomically reclaims it after expiry, and rejects the stale owner', async () => {
+    const input = claim('2026-08-28T17:05:00.000Z', {
+      idempotencyKey: 'lease-recovery',
+      targetId: 'lease-recovery',
+    });
+    const first = await scheduler.acquire(input);
+    expect(first.disposition).toBe('ACQUIRED');
+
+    const active = await scheduler.acquire(input);
+    expect(active).toMatchObject({
+      disposition: 'ACTIVE',
+      run: { id: first.run.id, claimAttempt: 1 },
+    });
+
+    await expect(
+      scheduler.assertLease(first.run.id, first.run.claimToken),
+    ).resolves.toBeUndefined();
+
+    const repeated = await scheduler.acquire(input);
+    expect(repeated).toMatchObject({
+      disposition: 'ACTIVE',
+      run: { id: first.run.id, claimAttempt: 1, claimToken: first.run.claimToken },
+    });
+
+    await expect(scheduler.release({
+      runId: first.run.id,
+      claimToken: first.run.claimToken,
+      reason: 'UNEXPECTED_ERROR',
+    })).resolves.toMatchObject({ status: 'CLAIMED', claimAttempt: 1 });
+
+    const reclaimed = await scheduler.acquire(input);
+    expect(reclaimed).toMatchObject({
+      disposition: 'ACQUIRED',
+      run: { id: first.run.id, claimAttempt: 2, status: 'CLAIMED' },
+    });
+    expect(reclaimed.run.claimToken).not.toBe(first.run.claimToken);
+    expect(await fixtures.driver.query<{ count: number }>(
+      `SELECT count(*)::INTEGER AS count
+         FROM scheduled_acquisition_runs WHERE idempotency_key = $1`,
+      [input.idempotencyKey],
+    )).toEqual([{ count: 1 }]);
+
+    const completionAt = ts(new Date(
+      Date.parse(reclaimed.run.claimLeaseAcquiredAt) + 1_000,
+    ).toISOString());
+    const preReclaimReceipt = [checkpoint(first.run, 'INITIAL', 0, true, 'ADMITTED')];
+    await expect(scheduler.fail({
+      runId: reclaimed.run.id,
+      claimToken: reclaimed.run.claimToken,
+      status: 'FAILED',
+      outcome: null,
+      failureCode: 'INTERNAL_ERROR',
+      completedAt: completionAt,
+      rightsReceipt: preReclaimReceipt,
+    })).rejects.toThrow(/timestamp|claim|out of order|rights receipt/i);
+    await expect(fixtures.driver.query(
+      `UPDATE scheduled_acquisition_runs
+          SET status = 'FAILED', failure_code = 'INTERNAL_ERROR', completed_at = $2,
+              rights_receipt = $3::jsonb
+        WHERE id = $1`,
+       [reclaimed.run.id, completionAt, JSON.stringify(preReclaimReceipt)],
+    )).rejects.toThrow(/receipt|checkpoint|permission/i);
+
+    await expect(scheduler.fail({
+      runId: first.run.id,
+      claimToken: first.run.claimToken,
+      status: 'FAILED',
+      outcome: null,
+      failureCode: 'INTERNAL_ERROR',
+      completedAt: completionAt,
+      rightsReceipt: [],
+    })).rejects.toThrow(/current (?:unexpired )?claim owner|lease/i);
+
+    expect(await scheduler.fail({
+      runId: reclaimed.run.id,
+      claimToken: reclaimed.run.claimToken,
+      status: 'FAILED',
+      outcome: null,
+      failureCode: 'INTERNAL_ERROR',
+      completedAt: completionAt,
+      rightsReceipt: [],
+    })).toMatchObject({ status: 'FAILED', claimAttempt: 2 });
+  });
+
+  it('rejects backdated terminalization after the server has released the lease', async () => {
+    const run = await scheduler.claim(claim('2026-08-28T17:32:00.000Z', {
+      idempotencyKey: 'expired-current-owner',
+      targetId: 'expired-current-owner',
+    }));
+    const backdatedCompletion = run!.claimLeaseAcquiredAt;
+    await scheduler.release({
+      runId: run!.id,
+      claimToken: run!.claimToken,
+      reason: 'UNEXPECTED_ERROR',
+    });
+
+    await expect(scheduler.fail({
+      runId: run!.id,
+      claimToken: run!.claimToken,
+      status: 'FAILED',
+      outcome: null,
+      failureCode: 'INTERNAL_ERROR',
+      completedAt: backdatedCompletion,
+      rightsReceipt: [],
+    })).rejects.toThrow(/unexpired claim owner|lease/i);
+
+    await expect(fixtures.driver.query(
+      `UPDATE scheduled_acquisition_runs
+          SET status = 'FAILED', failure_code = 'INTERNAL_ERROR', completed_at = $2
+        WHERE id = $1`,
+      [run!.id, backdatedCompletion],
+    )).rejects.toThrow(/unexpired claim lease/i);
+    expect(await scheduler.get(run!.id)).toMatchObject({ status: 'CLAIMED', claimAttempt: 1 });
+  });
+
+  it('rejects a new CLAIMED row whose initial lease shape is not exact', async () => {
+    const input = claim('2026-08-28T17:33:00.000Z', {
+      idempotencyKey: 'invalid-initial-lease',
+      targetId: 'invalid-initial-lease',
+    });
+    const claimedAt = ts(new Date().toISOString());
+    await expect(fixtures.driver.query(
+      `INSERT INTO scheduled_acquisition_runs
+         (idempotency_key, vertical_slug, source_id, source_key, target_id, target_url,
+          acquisition_route, account_or_product_plan, acquisition_jurisdiction,
+          asset_class, output_class, result_url_policy, scheduled_for, claimed_at, runtime_digest,
+          rights_receipt_contract_version, claim_token, claim_lease_acquired_at,
+          claim_lease_expires_at, claim_attempt)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12::jsonb, $13, $14,
+               $15, 2, $16, $14, $17, 2)`,
+      [
+        input.idempotencyKey, input.verticalSlug, input.sourceId, input.sourceKey,
+        input.targetId, input.targetUrl, input.acquisitionRoute, input.accountOrProductPlan,
+        input.jurisdiction, input.assetClass, input.outputClass,
+        JSON.stringify(input.resultUrlPolicy), input.scheduledFor, claimedAt,
+        input.runtimeDigest, crypto.randomUUID(),
+        ts(new Date(Date.parse(claimedAt) + 20 * 60_000).toISOString()),
+      ],
+    )).rejects.toThrow(/exact empty leased CLAIMED attempt/i);
   });
 
   it.each([
@@ -253,7 +405,7 @@ describe('scheduled acquisition claims', () => {
         JSON.stringify(outcome === 'NOT_MODIFIED' ? { etag: '"v1"' } : {}),
         'a'.repeat(64),
       ],
-    )).rejects.toThrow(/inserted as an empty CLAIMED row/i);
+    )).rejects.toThrow(/inserted as (?:one exact )?(?:empty leased )?CLAIMED/i);
   });
 
   it.each([
@@ -392,7 +544,7 @@ describe('terminal outcomes and freshness', () => {
           WHERE id = $1`,
         [
           run!.id,
-          ts('2026-08-28T17:20:00.000Z'),
+          runAt(run!, 60_000),
           JSON.stringify({ etag: '"v1"' }),
           JSON.stringify(receipt),
         ],
@@ -540,9 +692,9 @@ describe('terminal outcomes and freshness', () => {
     await expect(
       scheduler.complete({
         runId: neighbor!.id,
+        claimToken: neighbor!.claimToken,
         outcome: 'FETCHED',
-        completedAt: ts('2026-08-28T17:40:00.000Z'),
-        freshAt: ts('2026-08-28T17:39:59.000Z'),
+        ...terminalTimes(neighbor!),
         provider: 'http',
         validators: {},
         rightsReceipt: rightsReceipt(first!),
@@ -558,9 +710,9 @@ describe('terminal outcomes and freshness', () => {
 
     const completed = await scheduler.complete({
       runId: run!.id,
+      claimToken: run!.claimToken,
       outcome: 'FETCHED',
-      completedAt: ts('2026-08-28T18:01:00.000Z'),
-      freshAt: ts('2026-08-28T18:00:59.000Z'),
+      ...terminalTimes(run!),
       provider: 'http',
       validators: { etag: '"v1"' },
       rightsReceipt: rightsReceipt(run!),
@@ -573,9 +725,7 @@ describe('terminal outcomes and freshness', () => {
       expectedArtifactCount: 2,
       artifactCount: 2,
     });
-    expect(await scheduler.latestSuccessAt(run!)).toBe(
-      ts('2026-08-28T18:00:59.000Z'),
-    );
+    expect(await scheduler.latestSuccessAt(run!)).toBe(terminalTimes(run!).freshAt);
     expect(
       Number((await fixtures.driver.query<{ count: number }>(
         `SELECT count(*)::integer AS count
@@ -613,13 +763,14 @@ describe('terminal outcomes and freshness', () => {
   it('rolls back every artifact and leaves no freshness on a partial failure', async () => {
     const run = await scheduler.claim(claim('2026-08-28T19:00:00.000Z'));
     const before = await countRows(fixtures.driver, 'source_artifacts');
+    const beforeFreshness = await scheduler.latestSuccessAt(run!);
 
     await expect(
       scheduler.complete({
         runId: run!.id,
+        claimToken: run!.claimToken,
         outcome: 'FETCHED',
-        completedAt: ts('2026-08-28T19:01:00.000Z'),
-        freshAt: ts('2026-08-28T19:00:59.000Z'),
+        ...terminalTimes(run!),
         provider: 'http',
         validators: {},
         rightsReceipt: rightsReceipt(run!),
@@ -632,9 +783,7 @@ describe('terminal outcomes and freshness', () => {
 
     expect(await countRows(fixtures.driver, 'source_artifacts')).toBe(before);
     expect((await scheduler.get(run!.id))?.status).toBe('CLAIMED');
-    expect(await scheduler.latestSuccessAt(run!)).toBe(
-      ts('2026-08-28T18:00:59.000Z'),
-    );
+    expect(await scheduler.latestSuccessAt(run!)).toBe(beforeFreshness);
   });
 
   it.each([
@@ -652,9 +801,9 @@ describe('terminal outcomes and freshness', () => {
     await expect(
       scheduler.complete({
         runId: run!.id,
+        claimToken: run!.claimToken,
         outcome: 'FETCHED',
-        completedAt: ts('2026-08-28T19:40:00.000Z'),
-        freshAt: ts('2026-08-28T19:39:59.000Z'),
+        ...terminalTimes(run!),
         provider: 'http',
         validators: {},
         rightsReceipt: rightsReceipt(run!),
@@ -672,9 +821,9 @@ describe('terminal outcomes and freshness', () => {
     await expect(
       scheduler.complete({
         runId: run!.id,
+        claimToken: run!.claimToken,
         outcome: 'FETCHED',
-        completedAt: ts('2026-08-28T19:40:00.000Z'),
-        freshAt: ts('2026-08-28T19:39:59.000Z'),
+        ...terminalTimes(run!),
         provider: 'http',
         validators: {},
         rightsReceipt: rightsReceipt(run!),
@@ -725,7 +874,7 @@ describe('terminal outcomes and freshness', () => {
                 rights_receipt = $3::jsonb
           WHERE id = $1`,
         [
-          run!.id, ts('2026-08-28T19:47:00.000Z'),
+          run!.id, runAt(run!, 60_000),
           JSON.stringify(rightsReceipt(run!)),
         ],
       ),
@@ -746,9 +895,9 @@ describe('terminal outcomes and freshness', () => {
     };
     await scheduler.complete({
       runId: first!.id,
+      claimToken: first!.claimToken,
       outcome: 'FETCHED',
-      completedAt: ts('2026-08-28T19:49:00.000Z'),
-      freshAt: ts('2026-08-28T19:48:59.000Z'),
+      ...terminalTimes(first!),
       provider: 'browser-run',
       validators: {},
       rightsReceipt: rightsReceipt(first!),
@@ -761,9 +910,9 @@ describe('terminal outcomes and freshness', () => {
     }));
     await scheduler.complete({
       runId: second!.id,
+      claimToken: second!.claimToken,
       outcome: 'FETCHED',
-      completedAt: ts('2026-08-28T19:51:00.000Z'),
-      freshAt: ts('2026-08-28T19:50:59.000Z'),
+      ...terminalTimes(second!),
       provider: 'fixture',
       validators: {},
       rightsReceipt: rightsReceipt(second!),
@@ -858,9 +1007,9 @@ describe('terminal outcomes and freshness', () => {
       await expect(
         scheduler.complete({
           runId: run!.id,
+          claimToken: run!.claimToken,
           outcome: 'FETCHED',
-          completedAt: ts('2026-08-28T19:53:00.000Z'),
-          freshAt: ts('2026-08-28T19:52:59.000Z'),
+          ...terminalTimes(run!),
           provider: 'browser-run',
           validators: {},
           rightsReceipt: rightsReceipt(run!),
@@ -879,9 +1028,9 @@ describe('terminal outcomes and freshness', () => {
     };
     await scheduler.complete({
       runId: run!.id,
+      claimToken: run!.claimToken,
       outcome: 'FETCHED',
-      completedAt: ts('2026-08-28T19:54:00.000Z'),
-      freshAt: ts('2026-08-28T19:53:59.000Z'),
+      ...terminalTimes(run!),
       provider: 'browser-run',
       validators: {},
       rightsReceipt: rightsReceipt(run!),
@@ -945,9 +1094,9 @@ describe('terminal outcomes and freshness', () => {
     const run = await scheduler.claim(claim('2026-08-28T20:00:00.000Z'));
     const completed = await scheduler.complete({
       runId: run!.id,
+      claimToken: run!.claimToken,
       outcome: 'NOT_MODIFIED',
-      completedAt: ts('2026-08-28T20:01:00.000Z'),
-      freshAt: ts('2026-08-28T20:00:59.000Z'),
+      ...terminalTimes(run!),
       provider: 'http',
       validators: { etag: '"v1"' },
       rightsReceipt: rightsReceipt(run!),
@@ -955,9 +1104,7 @@ describe('terminal outcomes and freshness', () => {
     });
 
     expect(completed).toMatchObject({ status: 'SUCCEEDED', outcome: 'NOT_MODIFIED' });
-    expect(await scheduler.latestSuccessAt(run!)).toBe(
-      ts('2026-08-28T20:00:59.000Z'),
-    );
+    expect(await scheduler.latestSuccessAt(run!)).toBe(terminalTimes(run!).freshAt);
   });
 
   it('does not manufacture freshness from a first-ever NOT_MODIFIED response', async () => {
@@ -967,9 +1114,9 @@ describe('terminal outcomes and freshness', () => {
     await expect(
       scheduler.complete({
         runId: run!.id,
+        claimToken: run!.claimToken,
         outcome: 'NOT_MODIFIED',
-        completedAt: ts('2026-08-28T20:11:00.000Z'),
-        freshAt: ts('2026-08-28T20:10:59.000Z'),
+        ...terminalTimes(run!),
         provider: 'http',
         validators: { etag: '"v1"' },
         rightsReceipt: rightsReceipt(run!),
@@ -986,9 +1133,9 @@ describe('terminal outcomes and freshness', () => {
     await expect(
       scheduler.complete({
         runId: run!.id,
+        claimToken: run!.claimToken,
         outcome: 'NOT_MODIFIED',
-        completedAt: ts('2026-08-28T20:13:00.000Z'),
-        freshAt: ts('2026-08-28T20:12:59.000Z'),
+        ...terminalTimes(run!),
         provider: 'http',
         validators: { etag: '"v1"' },
         rightsReceipt: rightsReceipt(run!),
@@ -1007,9 +1154,9 @@ describe('terminal outcomes and freshness', () => {
     }));
     await expect(scheduler.complete({
       runId: run!.id,
+      claimToken: run!.claimToken,
       outcome: 'NOT_MODIFIED',
-      completedAt: ts('2026-08-28T20:13:59.000Z'),
-      freshAt: ts('2026-08-28T20:13:58.000Z'),
+      ...terminalTimes(run!),
       provider: 'http',
       validators: { etag: '"v1"' },
       rightsReceipt: rightsReceipt(run!),
@@ -1046,7 +1193,7 @@ describe('terminal outcomes and freshness', () => {
           WHERE id = $1`,
         [
           run!.id,
-          ts('2026-08-28T20:15:00.000Z'),
+          runAt(run!, 60_000),
           JSON.stringify({ etag: '"v1"' }),
           JSON.stringify(rightsReceipt(run!)),
         ],
@@ -1065,6 +1212,8 @@ describe('terminal outcomes and freshness', () => {
       claim(slot, { targetId }),
     );
     const receipt = rightsReceipt(run!);
+    const completedAt = ts(new Date(Date.parse(run!.claimedAt) + 10 * 60_000).toISOString());
+    const freshAt = ts(new Date(Date.parse(run!.claimedAt) + 9 * 60_000).toISOString());
     const override = kind === 'validator'
       ? { validators: { authorization: 'Bearer plaintext' } }
       : kind === 'empty-receipt'
@@ -1075,9 +1224,10 @@ describe('terminal outcomes and freshness', () => {
     await expect(
       scheduler.complete({
         runId: run!.id,
+        claimToken: run!.claimToken,
         outcome: 'FETCHED',
-        completedAt: ts('2026-08-28T20:59:00.000Z'),
-        freshAt: ts('2026-08-28T20:58:59.000Z'),
+        completedAt,
+        freshAt,
         provider: 'http',
         validators: {},
         rightsReceipt: receipt,
@@ -1093,6 +1243,7 @@ describe('terminal outcomes and freshness', () => {
     await expect(
       scheduler.fail({
         runId: run!.id,
+        claimToken: run!.claimToken,
         status: 'FAILED',
         outcome: null,
         failureCode: 'upstream said Authorization: Bearer plaintext',
@@ -1106,10 +1257,11 @@ describe('terminal outcomes and freshness', () => {
     const skipped = await scheduler.claim(claim('2026-08-28T20:52:00.000Z', { targetId: 'skip-valid' }));
     expect(await scheduler.fail({
       runId: skipped!.id,
+      claimToken: skipped!.claimToken,
       status: 'SKIPPED',
       outcome: null,
       failureCode: 'NOT_DUE',
-      completedAt: ts('2026-08-28T20:53:00.000Z'),
+      completedAt: runAt(skipped!, 60_000),
       rightsReceipt: notDueReceipt(skipped!),
     })).toMatchObject({ status: 'SKIPPED', failureCode: 'NOT_DUE' });
 
@@ -1120,10 +1272,11 @@ describe('terminal outcomes and freshness', () => {
     ];
     expect(await scheduler.fail({
       runId: refused!.id,
+      claimToken: refused!.claimToken,
       status: 'REFUSED',
       outcome: null,
       failureCode: 'RIGHTS_REFUSED',
-      completedAt: ts('2026-08-28T20:55:00.000Z'),
+      completedAt: runAt(refused!, 60_000),
       rightsReceipt: refusalReceipt,
     })).toMatchObject({ status: 'REFUSED', failureCode: 'RIGHTS_REFUSED' });
   });
@@ -1137,21 +1290,25 @@ describe('terminal outcomes and freshness', () => {
     const run = await scheduler.claim(claim(slot, { targetId: `terminal-${kind.toLowerCase()}` }));
     const admitted = rightsReceipt(run!)[0]!;
     const deniedTransport = checkpoint(run!, 'PRE_TRANSPORT', 1, false, 'RIGHTS_REFUSED');
+    const completedAt = runAt(run!, 60_000);
     const input = kind === 'SKIPPED'
       ? {
-          runId: run!.id, status: 'SKIPPED', outcome: null, failureCode: 'NOT_DUE',
-          completedAt: ts('2026-08-28T21:10:00.000Z'), rightsReceipt: [admitted],
+          runId: run!.id, claimToken: run!.claimToken,
+          status: 'SKIPPED', outcome: null, failureCode: 'NOT_DUE',
+          completedAt, rightsReceipt: [admitted],
         }
       : kind === 'FAILED'
         ? {
-            runId: run!.id, status: 'FAILED', outcome: null, failureCode: 'INTERNAL_ERROR',
-            completedAt: ts('2026-08-28T21:10:00.000Z'), rightsReceipt: [
+            runId: run!.id, claimToken: run!.claimToken,
+            status: 'FAILED', outcome: null, failureCode: 'INTERNAL_ERROR',
+            completedAt, rightsReceipt: [
               { ...admitted, basis: 'RIGHTS_REFUSED', decisions: deniedTransport.decisions },
             ],
           }
         : {
-            runId: run!.id, status: 'REFUSED', outcome: null, failureCode: 'RIGHTS_REFUSED',
-            completedAt: ts('2026-08-28T21:10:00.000Z'), rightsReceipt: kind === 'REFUSED_STAGE'
+            runId: run!.id, claimToken: run!.claimToken,
+            status: 'REFUSED', outcome: null, failureCode: 'RIGHTS_REFUSED',
+            completedAt, rightsReceipt: kind === 'REFUSED_STAGE'
               ? [admitted, deniedTransport]
               : [admitted],
           };
@@ -1163,6 +1320,7 @@ describe('terminal outcomes and freshness', () => {
     const typed = await scheduler.claim(claim('2026-08-28T21:11:00.000Z', { targetId: 'time-typed' }));
     await expect(scheduler.fail({
       runId: typed!.id,
+      claimToken: typed!.claimToken,
       status: 'FAILED',
       outcome: null,
       failureCode: 'INTERNAL_ERROR',
@@ -1199,27 +1357,28 @@ describe('terminal outcomes and freshness', () => {
   it('never advances freshness for EMPTY, refused, failed, or claimed runs', async () => {
     const empty = await scheduler.claim(claim('2026-08-28T21:00:00.000Z'));
     const refused = await scheduler.claim(claim('2026-08-28T22:00:00.000Z'));
+    const beforeFreshness = await scheduler.latestSuccessAt(empty!);
     await scheduler.fail({
       runId: empty!.id,
+      claimToken: empty!.claimToken,
       status: 'FAILED',
       outcome: 'EMPTY',
       failureCode: 'EMPTY_RESPONSE',
-      completedAt: ts('2026-08-28T21:01:00.000Z'),
+      completedAt: runAt(empty!, 60_000),
       rightsReceipt: rightsReceipt(empty!),
       provider: 'http',
     });
     await scheduler.fail({
       runId: refused!.id,
+      claimToken: refused!.claimToken,
       status: 'REFUSED',
       outcome: null,
       failureCode: 'RIGHTS_REFUSED',
-      completedAt: ts('2026-08-28T22:01:00.000Z'),
+      completedAt: runAt(refused!, 60_000),
       rightsReceipt: rightsReceipt(refused!, false),
     });
 
-    expect(await scheduler.latestSuccessAt(empty!)).toBe(
-      ts('2026-08-28T20:00:59.000Z'),
-    );
+    expect(await scheduler.latestSuccessAt(empty!)).toBe(beforeFreshness);
     await expect(
       fixtures.driver.query(
         `UPDATE scheduled_acquisition_runs SET failure_code = 'CHANGED' WHERE id = $1`,
@@ -1240,7 +1399,7 @@ describe('terminal outcomes and freshness', () => {
         `UPDATE scheduled_acquisition_runs SET ${column} = ${value} WHERE id = $1`,
         [run!.id],
       ),
-    ).rejects.toThrow(/claim identity and scope are immutable/i);
+    ).rejects.toThrow(/claim identity and (?:scope|state) are immutable/i);
   });
 
   it('rejects success after the source kill switch engages, without publishing freshness', async () => {

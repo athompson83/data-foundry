@@ -19,9 +19,10 @@
  * ## It decides, it does not act
  *
  * Nothing here fetches, writes or schedules anything. It is a pure function
- * from (sources, last acquisition, now) to an ordered list of decisions, so the
- * policy is testable without a database, a network or a fake timer — and so the
- * runner that eventually executes it has no policy of its own to get wrong.
+ * from (sources, last acquisition, rights observation, schedule instant) to an
+ * ordered list of decisions, so the policy is testable without a database, a
+ * network or a fake timer — and so the runner that eventually executes it has
+ * no policy of its own to get wrong.
  */
 import type {
   AcquisitionMethod,
@@ -115,7 +116,7 @@ export interface RefreshAdmission {
   readonly assetClass: RightsAssetClass;
   readonly outputClass: RightsOutputClass;
   readonly fieldKey: null;
-  /** Must equal the schedule instant so an expired or future decision cannot be replayed. */
+  /** Must equal the trusted rights-observation instant so another decision cannot be replayed. */
   readonly evaluatedAt: string;
   readonly decisions: Readonly<Record<RefreshAdmissionOperation, RefreshAdmissionDecision>>;
 }
@@ -179,6 +180,9 @@ export interface RefreshScheduleInput {
   readonly candidates: readonly RefreshCandidate[];
   /** The vertical's default policy. Supplies staleness and priority. */
   readonly policy: RefreshPolicy;
+  /** Trusted current time used for source governance and exact matrix admission. */
+  readonly rightsAsOf: string;
+  /** Scheduled planning instant used only for cadence and freshness age. */
   readonly now: string;
 }
 
@@ -213,7 +217,7 @@ function admissionAllows(
     admission['assetClass'] !== candidate.assetClass ||
     admission['outputClass'] !== candidate.outputClass ||
     admission['fieldKey'] !== null ||
-    admission['evaluatedAt'] !== input.now
+    admission['evaluatedAt'] !== input.rightsAsOf
   ) {
     return false;
   }
@@ -280,7 +284,7 @@ function decide(candidate: RefreshCandidate, input: RefreshScheduleInput): Refre
   const gate = evaluateAcquisitionGate({
     entry,
     url: candidate.targetUrl,
-    asOf: input.now,
+    asOf: input.rightsAsOf,
     providerMethods: Array.isArray(candidate.providerMethods) ? candidate.providerMethods : [],
   });
   if (!gate.allowed) {

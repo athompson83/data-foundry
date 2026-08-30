@@ -19,6 +19,7 @@ const POLICY = JSON.stringify({
 
 let driver: MigrationDriver;
 let migrations: Migration[];
+let through0019: Migration[];
 let historicalRunId: string;
 let historicalScopeDigest: string;
 let inFlightRunId: string;
@@ -43,8 +44,12 @@ const checkpoint = (stage: string, scopeDigest: string, offset: number) => ({
 const receipt = (scopeDigest: string, stages: readonly string[]) =>
   stages.map((stage, index) => checkpoint(stage, scopeDigest, index));
 
-async function insertClaim(idempotencyKey: string, targetId: string) {
-  const rows = await driver.query<{ id: string; rights_scope_digest: string }>(
+async function insertClaim(
+  idempotencyKey: string,
+  targetId: string,
+  targetDriver: MigrationDriver = driver,
+) {
+  const rows = await targetDriver.query<{ id: string; rights_scope_digest: string }>(
     `INSERT INTO scheduled_acquisition_runs
        (idempotency_key, vertical_slug, source_id, source_key, target_id, target_url,
         acquisition_route, asset_class, output_class, result_url_policy,
@@ -58,17 +63,13 @@ async function insertClaim(idempotencyKey: string, targetId: string) {
   return rows[0]!;
 }
 
-beforeAll(async () => {
-  migrations = await loadMigrations();
-  expect(migrations.at(-1)?.version).toBe('0019');
-  driver = await createPGliteDriver();
-  await applyMigrations(driver, migrations.filter(({ version }) => version < '0019'));
-  await driver.query(
+async function seedSource(targetDriver: MigrationDriver = driver): Promise<void> {
+  await targetDriver.query(
     `INSERT INTO verticals (id, slug, name, schema_version, status, default_refresh_policy)
      VALUES ($1, 'migration-receipts', 'Migration receipts', '1.0.0', 'ACTIVE', '{}'::jsonb)`,
     [VERTICAL],
   );
-  await driver.query(
+  await targetDriver.query(
     `INSERT INTO sources
        (id, vertical_id, publisher, domain, source_type, authority_rank,
         rights_classification, attribution_requirement, robots_policy,
@@ -91,6 +92,15 @@ beforeAll(async () => {
       }),
     ],
   );
+}
+
+beforeAll(async () => {
+  migrations = await loadMigrations();
+  expect(migrations.some(({ version }) => version === '0019')).toBe(true);
+  through0019 = migrations.filter(({ version }) => version <= '0019');
+  driver = await createPGliteDriver();
+  await applyMigrations(driver, through0019.filter(({ version }) => version < '0019'));
+  await seedSource();
   const historical = await insertClaim('receipt-contract-v1-history', 'v1-history');
   historicalRunId = historical.id;
   historicalScopeDigest = historical.rights_scope_digest;
@@ -115,7 +125,7 @@ beforeAll(async () => {
   await driver.exec(
     'ALTER TABLE scheduled_acquisition_runs ENABLE TRIGGER scheduled_acquisition_runs_terminal_immutable',
   );
-  await applyMigrations(driver, migrations);
+  await applyMigrations(driver, through0019);
 });
 
 afterAll(async () => driver?.close());
@@ -210,12 +220,140 @@ describe('0019 scheduled acquisition pre-persistence receipt contract', () => {
     const migration = migrations.find(({ version }) => version === '0019');
     if (migration === undefined) throw new Error('migration 0019 was not loaded');
     await expect(driver.exec(migration.sql)).resolves.toBeUndefined();
-    const second = await applyMigrations(driver, migrations);
+    const second = await applyMigrations(driver, through0019);
     expect(second.every(({ skipped }) => skipped)).toBe(true);
     const rows = await driver.query<{ rights_receipt_contract_version: number }>(
       `SELECT rights_receipt_contract_version FROM scheduled_acquisition_runs WHERE id = $1`,
       [historicalRunId],
     );
     expect(rows).toEqual([{ rights_receipt_contract_version: 1 }]);
+  });
+});
+
+describe('0020 scheduled acquisition claim-lease migration', () => {
+  it('preserves a v1 in-flight row, fences reclaim, and re-applies as a no-op', async () => {
+    const leaseDriver = await createPGliteDriver();
+    try {
+      await applyMigrations(leaseDriver, migrations.filter(({ version }) => version < '0019'));
+      await seedSource(leaseDriver);
+      const legacy = await insertClaim('claim-lease-v1-in-flight', 'claim-lease-v1', leaseDriver);
+      await applyMigrations(leaseDriver, through0019);
+      await applyMigrations(leaseDriver, migrations);
+
+      const migrated = await leaseDriver.query<{
+        rights_receipt_contract_version: number;
+        claim_token: string;
+        claim_attempt: number;
+        claim_lease_acquired_at: string;
+        claim_lease_expires_at: string;
+      }>(
+        `SELECT rights_receipt_contract_version, claim_token, claim_attempt,
+                claim_lease_acquired_at::text, claim_lease_expires_at::text
+           FROM scheduled_acquisition_runs WHERE id = $1`,
+        [legacy.id],
+      );
+      const before = migrated[0]!;
+      expect(before.rights_receipt_contract_version).toBe(1);
+      expect(before.claim_attempt).toBe(1);
+      expect(Date.parse(before.claim_lease_expires_at) - Date.parse(before.claim_lease_acquired_at))
+        .toBe(20 * 60_000);
+
+      const forgedReclaimAt = new Date(
+        Date.parse(before.claim_lease_expires_at) + 60_000,
+      ).toISOString();
+      const nextToken = crypto.randomUUID();
+
+      await expect(leaseDriver.query(
+        `UPDATE scheduled_acquisition_runs
+            SET claim_token = $2,
+                claim_lease_acquired_at = $3,
+                claim_lease_expires_at = $3::timestamptz + INTERVAL '20 minutes',
+                claim_attempt = claim_attempt + 1,
+                last_released_attempt = claim_attempt,
+                last_claim_release_reason = 'LEASE_EXPIRED',
+                last_claim_released_at = claim_lease_expires_at,
+                rights_receipt_contract_version = 2
+          WHERE id = $1 AND status = 'CLAIMED' AND claim_lease_expires_at <= $3
+          RETURNING id`,
+        [legacy.id, crypto.randomUUID(), forgedReclaimAt],
+      )).rejects.toThrow(/valid release or expired-lease reclaim/);
+
+      const released = await leaseDriver.query<{
+        claim_attempt: number;
+        last_released_attempt: number;
+        last_claim_release_reason: string;
+      }>(
+        `UPDATE scheduled_acquisition_runs
+            SET claim_lease_expires_at = statement_timestamp(),
+                last_released_attempt = claim_attempt,
+                last_claim_release_reason = 'UNEXPECTED_ERROR',
+                last_claim_released_at = statement_timestamp()
+          WHERE id = $1 AND status = 'CLAIMED'
+          RETURNING claim_attempt, last_released_attempt, last_claim_release_reason`,
+        [legacy.id],
+      );
+      expect(released).toEqual([{
+        claim_attempt: 1,
+        last_released_attempt: 1,
+        last_claim_release_reason: 'UNEXPECTED_ERROR',
+      }]);
+
+      const reclaimed = await leaseDriver.query<{
+        rights_receipt_contract_version: number;
+        claim_token: string;
+        claim_attempt: number;
+        last_released_attempt: number;
+        last_claim_release_reason: string;
+        claim_lease_acquired_at: string;
+      }>(
+        `UPDATE scheduled_acquisition_runs
+            SET claim_token = $2,
+                claim_lease_acquired_at = statement_timestamp(),
+                claim_lease_expires_at = statement_timestamp() + INTERVAL '20 minutes',
+                claim_attempt = claim_attempt + 1,
+                rights_receipt_contract_version = 2
+          WHERE id = $1
+            AND status = 'CLAIMED'
+            AND claim_lease_expires_at <= statement_timestamp()
+          RETURNING rights_receipt_contract_version, claim_token, claim_attempt,
+                    last_released_attempt, last_claim_release_reason,
+                    claim_lease_acquired_at::text`,
+        [legacy.id, nextToken],
+      );
+      expect(reclaimed).toEqual([expect.objectContaining({
+        rights_receipt_contract_version: 2,
+        claim_token: nextToken,
+        claim_attempt: 2,
+        last_released_attempt: 1,
+        last_claim_release_reason: 'UNEXPECTED_ERROR',
+      })]);
+
+      const completionAt = new Date(
+        Date.parse(reclaimed[0]!.claim_lease_acquired_at) + 1_000,
+      ).toISOString();
+      const oldReceipt = receipt(legacy.rights_scope_digest, ['INITIAL']);
+      const validity = await leaseDriver.query<{ old_window: boolean; current_window: boolean }>(
+        `SELECT
+           scheduled_acquisition_receipt_valid_for_contract(
+             $2::jsonb, 'FAILED', rights_scope_digest,
+             claimed_at, $3::timestamptz, 2::smallint
+           ) AS old_window,
+           scheduled_acquisition_receipt_valid_for_contract(
+             $2::jsonb, 'FAILED', rights_scope_digest,
+             claim_lease_acquired_at, $3::timestamptz, 2::smallint
+           ) AS current_window
+           FROM scheduled_acquisition_runs WHERE id = $1`,
+        [legacy.id, JSON.stringify(oldReceipt), completionAt],
+      );
+      expect(validity).toEqual([{ old_window: true, current_window: false }]);
+
+      const migration = migrations.find(({ version }) => version === '0020');
+      if (migration === undefined) throw new Error('migration 0020 was not loaded');
+      await expect(leaseDriver.exec(migration.sql)).resolves.toBeUndefined();
+      const repeated = await applyMigrations(leaseDriver, migrations);
+      expect(repeated.every(({ skipped }) => skipped)).toBe(true);
+    } finally {
+      await leaseDriver.close();
+    }
   });
 });

@@ -5,6 +5,7 @@ import {
   createCanonicalStore,
   createPostgresDriver,
   createScheduledAcquisitionStore,
+  ScheduledAcquisitionClaimOwnershipError,
   type ScheduledAcquisitionClaim,
   type ScheduledAcquisitionRun,
   type ScheduledAcquisitionStore,
@@ -21,6 +22,26 @@ import { isMain } from '../lib/cli-entry.js';
 
 const iso = (value: string): ScheduledAcquisitionRun['claimedAt'] =>
   value as ScheduledAcquisitionRun['claimedAt'];
+
+async function observedDatabaseTime(
+  driver: SqlDriver,
+  strictlyAfter?: ScheduledAcquisitionRun['claimedAt'],
+): Promise<ScheduledAcquisitionRun['claimedAt']> {
+  for (let attempt = 0; attempt < 16; attempt += 1) {
+    const rows = await driver.query<{ observed_at: string | Date }>(
+      'SELECT statement_timestamp() AS observed_at',
+    );
+    const raw = rows[0]?.observed_at;
+    if (raw === undefined) throw new Error('PostgreSQL returned no server-clock observation');
+    const observed = iso(
+      new Date(raw instanceof Date ? raw.getTime() : raw).toISOString(),
+    );
+    if (strictlyAfter === undefined || Date.parse(observed) > Date.parse(strictlyAfter)) {
+      return observed;
+    }
+  }
+  throw new Error('PostgreSQL server clock did not advance beyond the claim timestamp');
+}
 
 const ATTRIBUTION = { required: false, text: null, url: null };
 const ROBOTS = {
@@ -88,7 +109,6 @@ function claimFor(
     },
     scheduledFor: iso(slot),
     runtimeDigest: 'a'.repeat(64),
-    claimedAt: iso('2026-08-28T17:00:01.000Z'),
   };
 }
 
@@ -108,29 +128,30 @@ async function receiptsFor(
     outputClass: run.outputClass,
     rightsScopeDigest: run.rightsScopeDigest,
   } as const;
+  const initialAt = await observedDatabaseTime(driver, run.claimLeaseAcquiredAt);
   const admitted = await authorizeStoredAcquisition(
     driver,
     scope,
-    '2026-08-28T17:00:01.000Z',
+    initialAt,
   );
   return [
     admitted.receipt,
     await recheckStoredAcquisition(
       admitted.capability,
       driver,
-      '2026-08-28T17:00:02.000Z',
+      await observedDatabaseTime(driver),
       'PRE_PROVIDER',
     ),
     await recheckStoredAcquisition(
       admitted.capability,
       driver,
-      '2026-08-28T17:00:03.000Z',
+      await observedDatabaseTime(driver),
       'PRE_TRANSPORT',
     ),
     await recheckStoredAcquisition(
       admitted.capability,
       driver,
-      '2026-08-28T17:00:04.000Z',
+      await observedDatabaseTime(driver),
       'PRE_PERSISTENCE',
     ),
   ];
@@ -139,11 +160,12 @@ async function receiptsFor(
 function artifactFor(
   run: ScheduledAcquisitionRun,
   contentHash: string,
+  retrievedAt: ScheduledAcquisitionRun['claimedAt'],
 ): SourceArtifactInsert {
   return {
     source_id: run.sourceId,
     url: run.targetUrl,
-    retrieved_at: iso('2026-08-28T17:00:03.000Z'),
+    retrieved_at: retrievedAt,
     content_hash: contentHash,
     mime_type: 'application/json',
     r2_uri: `r2://postgres-control/${run.id}/${contentHash}`,
@@ -241,6 +263,169 @@ async function assertAtomicClaim(
   assert.equal(stored[0]?.count, 1);
 }
 
+async function assertLeaseRecoveryAndFencing(
+  driver: SqlDriver,
+  scheduler: ScheduledAcquisitionStore,
+  source: Awaited<ReturnType<typeof registeredSource>>,
+  suffix: string,
+): Promise<void> {
+  const input = claimFor(
+    `${suffix}-lease-recovery`,
+    source,
+    '2026-08-28T17:15:00.000Z',
+  );
+  const acquired = await scheduler.acquire(input);
+  assert.equal(acquired.disposition, 'ACQUIRED');
+  assert.equal(acquired.run.claimAttempt, 1);
+
+  const repeated = await scheduler.acquire(input);
+  assert.equal(repeated.disposition, 'ACTIVE');
+  assert.equal(repeated.run.id, acquired.run.id);
+  assert.equal(repeated.run.claimToken, acquired.run.claimToken);
+  assert.equal(repeated.run.claimAttempt, acquired.run.claimAttempt);
+  await scheduler.assertLease(acquired.run.id, acquired.run.claimToken);
+
+  const released = await scheduler.release({
+    runId: acquired.run.id,
+    claimToken: acquired.run.claimToken,
+    reason: 'UNEXPECTED_ERROR',
+  });
+  assert.ok(released);
+  assert.equal(released.id, acquired.run.id);
+  assert.equal(released.claimToken, acquired.run.claimToken);
+  assert.equal(released.claimAttempt, acquired.run.claimAttempt);
+  assert.equal(released.lastReleasedAttempt, acquired.run.claimAttempt);
+  assert.equal(released.lastClaimReleaseReason, 'UNEXPECTED_ERROR');
+  assert.equal(released.lastClaimReleasedAt, released.claimLeaseExpiresAt);
+  await assert.rejects(
+    scheduler.assertLease(acquired.run.id, acquired.run.claimToken),
+    ScheduledAcquisitionClaimOwnershipError,
+  );
+
+  const reacquired = await scheduler.acquire(input);
+  assert.equal(reacquired.disposition, 'ACQUIRED');
+  assert.equal(reacquired.run.id, acquired.run.id);
+  assert.notEqual(reacquired.run.claimToken, acquired.run.claimToken);
+  assert.equal(reacquired.run.claimAttempt, acquired.run.claimAttempt + 1);
+  assert.equal(reacquired.run.lastReleasedAttempt, acquired.run.claimAttempt);
+  assert.equal(reacquired.run.lastClaimReleaseReason, 'UNEXPECTED_ERROR');
+  await scheduler.assertLease(reacquired.run.id, reacquired.run.claimToken);
+
+  const rightsReceipt = await receiptsFor(driver, reacquired.run);
+  const staleAttemptedAt = await observedDatabaseTime(driver);
+  await assert.rejects(
+    scheduler.assertLease(reacquired.run.id, acquired.run.claimToken),
+    ScheduledAcquisitionClaimOwnershipError,
+  );
+  assert.equal(
+    await scheduler.release({
+      runId: reacquired.run.id,
+      claimToken: acquired.run.claimToken,
+      reason: 'UNEXPECTED_ERROR',
+    }),
+    null,
+  );
+  await assert.rejects(
+    scheduler.fail({
+      runId: reacquired.run.id,
+      claimToken: acquired.run.claimToken,
+      status: 'FAILED',
+      outcome: null,
+      failureCode: 'INTERNAL_ERROR',
+      completedAt: staleAttemptedAt,
+      rightsReceipt,
+      provider: null,
+    }),
+    ScheduledAcquisitionClaimOwnershipError,
+  );
+  await assert.rejects(
+    scheduler.complete({
+      runId: reacquired.run.id,
+      claimToken: acquired.run.claimToken,
+      outcome: 'NOT_MODIFIED',
+      completedAt: staleAttemptedAt,
+      freshAt: staleAttemptedAt,
+      provider: 'http',
+      validators: { etag: '"lease-control"' },
+      rightsReceipt,
+      artifacts: [],
+    }),
+    ScheduledAcquisitionClaimOwnershipError,
+  );
+  await scheduler.assertLease(reacquired.run.id, reacquired.run.claimToken);
+
+  const terminalAt = await observedDatabaseTime(driver);
+  const terminal = await scheduler.fail({
+    runId: reacquired.run.id,
+    claimToken: reacquired.run.claimToken,
+    status: 'FAILED',
+    outcome: null,
+    failureCode: 'INTERNAL_ERROR',
+    completedAt: terminalAt,
+    rightsReceipt,
+    provider: null,
+  });
+  assert.equal(terminal.status, 'FAILED');
+  assert.equal(terminal.id, acquired.run.id);
+  assert.equal(terminal.claimToken, reacquired.run.claimToken);
+  assert.equal(terminal.claimAttempt, acquired.run.claimAttempt + 1);
+
+  const concurrentInput = claimFor(
+    `${suffix}-concurrent-reclaim`,
+    source,
+    '2026-08-28T17:30:00.000Z',
+  );
+  const concurrentInitial = await scheduler.acquire(concurrentInput);
+  assert.equal(concurrentInitial.disposition, 'ACQUIRED');
+  assert.ok(await scheduler.release({
+    runId: concurrentInitial.run.id,
+    claimToken: concurrentInitial.run.claimToken,
+    reason: 'UNEXPECTED_ERROR',
+  }));
+
+  const concurrentResults = await Promise.all(
+    Array.from({ length: 8 }, () => scheduler.acquire(concurrentInput)),
+  );
+  const winners = concurrentResults.filter((result) => result.disposition === 'ACQUIRED');
+  const active = concurrentResults.filter((result) => result.disposition === 'ACTIVE');
+  assert.equal(winners.length, 1, 'exactly one concurrent post-release claimant must reacquire');
+  assert.equal(active.length, 7, 'all losing post-release claimants must observe the active owner');
+  const winner = winners[0]!;
+  assert.equal(winner.run.id, concurrentInitial.run.id);
+  assert.notEqual(winner.run.claimToken, concurrentInitial.run.claimToken);
+  assert.equal(winner.run.claimAttempt, concurrentInitial.run.claimAttempt + 1);
+  for (const observed of active) {
+    assert.equal(observed.run.id, winner.run.id);
+    assert.equal(observed.run.claimToken, winner.run.claimToken);
+    assert.equal(observed.run.claimAttempt, winner.run.claimAttempt);
+  }
+  const winnerReceipt = await receiptsFor(driver, winner.run);
+  const winnerTerminalAt = await observedDatabaseTime(driver);
+  const winnerTerminal = await scheduler.fail({
+    runId: winner.run.id,
+    claimToken: winner.run.claimToken,
+    status: 'FAILED',
+    outcome: null,
+    failureCode: 'INTERNAL_ERROR',
+    completedAt: winnerTerminalAt,
+    rightsReceipt: winnerReceipt,
+    provider: null,
+  });
+  assert.equal(winnerTerminal.status, 'FAILED');
+  await assert.rejects(
+    scheduler.assertLease(winner.run.id, winner.run.claimToken),
+    ScheduledAcquisitionClaimOwnershipError,
+  );
+  const stored = await driver.query<{ count: number; claimed_count: number }>(
+    `SELECT count(*)::INTEGER AS count,
+            count(*) FILTER (WHERE status = 'CLAIMED')::INTEGER AS claimed_count
+       FROM scheduled_acquisition_runs WHERE idempotency_key = $1`,
+    [concurrentInput.idempotencyKey],
+  );
+  assert.equal(stored[0]?.count, 1, 'reclaim must retain exactly one durable run row');
+  assert.equal(stored[0]?.claimed_count, 0, 'the concurrent reclaim winner must be terminal');
+}
+
 async function assertAtomicTerminalPersistence(
   driver: SqlDriver,
   scheduler: ScheduledAcquisitionStore,
@@ -262,21 +447,24 @@ async function assertAtomicTerminalPersistence(
   );
   assert.ok(failedRun);
   const failedReceipts = await receiptsFor(driver, failedRun);
+  const failedFreshAt = await observedDatabaseTime(driver);
+  const failedCompletedAt = await observedDatabaseTime(driver);
   const before = await driver.query<{ count: number }>(
     'SELECT count(*)::INTEGER AS count FROM source_artifacts',
   );
   await assert.rejects(
     scheduler.complete({
       runId: failedRun.id,
+      claimToken: failedRun.claimToken,
       outcome: 'FETCHED',
-      completedAt: iso('2026-08-28T18:00:05.000Z'),
-      freshAt: iso('2026-08-28T18:00:04.000Z'),
+      completedAt: failedCompletedAt,
+      freshAt: failedFreshAt,
       provider: 'http',
       validators: {},
       rightsReceipt: failedReceipts,
       artifacts: [
-        scheduledArtifact(failedRun, artifactFor(failedRun, 'b'.repeat(64))),
-        scheduledArtifact(failedRun, artifactFor(failedRun, 'not-a-content-hash')),
+        scheduledArtifact(failedRun, artifactFor(failedRun, 'b'.repeat(64), failedFreshAt)),
+        scheduledArtifact(failedRun, artifactFor(failedRun, 'not-a-content-hash', failedFreshAt)),
       ],
     }),
   );
@@ -293,26 +481,37 @@ async function assertAtomicTerminalPersistence(
     claimFor(`${suffix}-success`, source, '2026-08-28T19:00:00.000Z'),
   );
   assert.ok(successfulRun);
+  const successfulReceipt = await receiptsFor(driver, successfulRun);
+  const successfulFreshAt = await observedDatabaseTime(driver);
+  const successfulCompletedAt = await observedDatabaseTime(driver);
   const completed = await scheduler.complete({
     runId: successfulRun.id,
+    claimToken: successfulRun.claimToken,
     outcome: 'FETCHED',
-    completedAt: iso('2026-08-28T19:00:05.000Z'),
-    freshAt: iso('2026-08-28T19:00:04.000Z'),
+    completedAt: successfulCompletedAt,
+    freshAt: successfulFreshAt,
     provider: 'http',
     validators: { etag: '"postgres-v1"' },
-    rightsReceipt: await receiptsFor(driver, successfulRun),
-    artifacts: [scheduledArtifact(successfulRun, artifactFor(successfulRun, 'c'.repeat(64)))],
+    rightsReceipt: successfulReceipt,
+    artifacts: [scheduledArtifact(
+      successfulRun,
+      artifactFor(successfulRun, 'c'.repeat(64), successfulFreshAt),
+    )],
   });
   assert.equal(completed.status, 'SUCCEEDED');
   assert.equal(completed.artifactCount, 1);
-  assert.equal(await scheduler.latestSuccessAt(successfulRun), iso('2026-08-28T19:00:04.000Z'));
+  assert.equal(
+    await scheduler.latestSuccessAt(successfulRun),
+    successfulFreshAt,
+  );
 
   const legacyRun = await scheduler.claim({
     ...claimFor(`${suffix}-legacy-literal-dot`, source, '2026-08-28T20:00:00.000Z'),
     acquisitionRoute: 'BROWSER_RUN',
   });
   assert.ok(legacyRun);
-  const maliciousArtifact = artifactFor(legacyRun, 'd'.repeat(64));
+  const legacyArtifactAt = await observedDatabaseTime(driver, legacyRun.claimLeaseAcquiredAt);
+  const maliciousArtifact = artifactFor(legacyRun, 'd'.repeat(64), legacyArtifactAt);
   const maliciousUrl = `${legacyRun.targetUrl}/../admin`;
   const persisted = await createCanonicalStore(driver).recordSourceArtifact({
     ...maliciousArtifact,
@@ -343,6 +542,9 @@ async function assertAtomicTerminalPersistence(
       'ALTER TABLE scheduled_acquisition_run_artifacts ENABLE TRIGGER scheduled_acquisition_run_artifact_insert_guard',
     );
   }
+  const legacyReceipt = await receiptsFor(driver, legacyRun);
+  const legacyFreshAt = await observedDatabaseTime(driver);
+  const legacyCompletedAt = await observedDatabaseTime(driver);
   await assert.rejects(
     driver.query(
       `UPDATE scheduled_acquisition_runs
@@ -353,9 +555,9 @@ async function assertAtomicTerminalPersistence(
         WHERE id = $1`,
       [
         legacyRun.id,
-        iso('2026-08-28T20:00:05.000Z'),
-        iso('2026-08-28T20:00:04.000Z'),
-        JSON.stringify(await receiptsFor(driver, legacyRun)),
+        legacyCompletedAt,
+        legacyFreshAt,
+        JSON.stringify(legacyReceipt),
       ],
     ),
     /target policy/i,
@@ -383,8 +585,9 @@ export async function run(): Promise<number> {
     const scheduler = createScheduledAcquisitionStore(driver);
     await assertAtomicClaim(driver, scheduler, source, suffix);
     await assertAtomicTerminalPersistence(driver, scheduler, source, suffix);
+    await assertLeaseRecoveryAndFencing(driver, scheduler, source, suffix);
     process.stdout.write(
-      'OK: PostgreSQL 16 proved literal-dot function/terminal refusal, the monotone kill switch, one-winner concurrent claim, transactional rollback, and durable freshness.\n',
+      'OK: PostgreSQL 16 proved literal-dot function/terminal refusal, the monotone kill switch, one-winner claims, server-clock lease recovery, stale-owner fencing, transactional rollback, and durable freshness.\n',
     );
     return 0;
   } finally {

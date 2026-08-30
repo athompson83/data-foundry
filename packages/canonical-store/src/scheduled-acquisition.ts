@@ -42,6 +42,21 @@ export const SCHEDULED_ACQUISITION_FAILURE_CODES = [
 export type ScheduledAcquisitionFailureCode =
   (typeof SCHEDULED_ACQUISITION_FAILURE_CODES)[number];
 
+export const SCHEDULED_ACQUISITION_CLAIM_LEASE_MS = 20 * 60 * 1_000;
+export const SCHEDULED_ACQUISITION_CLAIM_RELEASE_REASONS = [
+  'UNEXPECTED_ERROR',
+  'LEASE_EXPIRED',
+] as const;
+export type ScheduledAcquisitionClaimReleaseReason =
+  (typeof SCHEDULED_ACQUISITION_CLAIM_RELEASE_REASONS)[number];
+
+export class ScheduledAcquisitionClaimOwnershipError extends Error {
+  constructor() {
+    super('scheduled acquisition execution is not the current unexpired claim owner');
+    this.name = 'ScheduledAcquisitionClaimOwnershipError';
+  }
+}
+
 export interface ScheduledAcquisitionValidators {
   readonly etag?: string;
   readonly lastModified?: string;
@@ -125,6 +140,14 @@ export interface ScheduledAcquisitionRun {
   readonly resultUrlPolicy: ScheduledAcquisitionResultUrlPolicy;
   readonly scheduledFor: IsoDateTime;
   readonly claimedAt: IsoDateTime;
+  /** Opaque fencing token for the current execution attempt. */
+  readonly claimToken: string;
+  readonly claimLeaseAcquiredAt: IsoDateTime;
+  readonly claimLeaseExpiresAt: IsoDateTime;
+  readonly claimAttempt: number;
+  readonly lastReleasedAttempt: number | null;
+  readonly lastClaimReleaseReason: ScheduledAcquisitionClaimReleaseReason | null;
+  readonly lastClaimReleasedAt: IsoDateTime | null;
   readonly completedAt: IsoDateTime | null;
   readonly freshAt: IsoDateTime | null;
   readonly status: ScheduledAcquisitionStatus;
@@ -155,11 +178,24 @@ export interface ScheduledAcquisitionClaim {
   readonly resultUrlPolicy: ScheduledAcquisitionResultUrlPolicy;
   readonly scheduledFor: IsoDateTime;
   readonly runtimeDigest: string;
-  readonly claimedAt: IsoDateTime;
+}
+
+export type ScheduledAcquisitionClaimDisposition = 'ACQUIRED' | 'ACTIVE' | 'TERMINAL';
+
+export interface ScheduledAcquisitionClaimResult {
+  readonly disposition: ScheduledAcquisitionClaimDisposition;
+  readonly run: ScheduledAcquisitionRun;
+}
+
+export interface ScheduledAcquisitionClaimRelease {
+  readonly runId: string;
+  readonly claimToken: string;
+  readonly reason: Extract<ScheduledAcquisitionClaimReleaseReason, 'UNEXPECTED_ERROR'>;
 }
 
 export interface ScheduledAcquisitionCompletion {
   readonly runId: string;
+  readonly claimToken: string;
   readonly outcome: Extract<ScheduledAcquisitionOutcome, 'FETCHED' | 'NOT_MODIFIED'>;
   readonly completedAt: IsoDateTime;
   readonly freshAt: IsoDateTime;
@@ -171,6 +207,7 @@ export interface ScheduledAcquisitionCompletion {
 
 interface ScheduledAcquisitionFailureBase {
   readonly runId: string;
+  readonly claimToken: string;
   readonly completedAt: IsoDateTime;
   readonly rightsReceipt: readonly ScheduledRightsReceipt[];
 }
@@ -205,7 +242,10 @@ export type ScheduledAcquisitionFailure =
     });
 
 export interface ScheduledAcquisitionStore {
+  acquire(input: ScheduledAcquisitionClaim): Promise<ScheduledAcquisitionClaimResult>;
   claim(input: ScheduledAcquisitionClaim): Promise<ScheduledAcquisitionRun | null>;
+  release(input: ScheduledAcquisitionClaimRelease): Promise<ScheduledAcquisitionRun | null>;
+  assertLease(runId: string, claimToken: string): Promise<void>;
   complete(input: ScheduledAcquisitionCompletion): Promise<ScheduledAcquisitionRun>;
   fail(input: ScheduledAcquisitionFailure): Promise<ScheduledAcquisitionRun>;
   get(runId: string): Promise<ScheduledAcquisitionRun | null>;
@@ -215,12 +255,16 @@ export interface ScheduledAcquisitionStore {
 
 const RUN_COLUMNS = `id, idempotency_key, vertical_slug, source_id, source_key, target_id,
   target_url, acquisition_route, account_or_product_plan, acquisition_jurisdiction,
-  asset_class, output_class, result_url_policy, scheduled_for, claimed_at, completed_at, fresh_at, status,
+  asset_class, output_class, result_url_policy, scheduled_for, claimed_at,
+  claim_token, claim_lease_acquired_at, claim_lease_expires_at, claim_attempt,
+  last_released_attempt, last_claim_release_reason, last_claim_released_at,
+  completed_at, fresh_at, status,
   outcome, failure_code, rights_receipt, rights_receipt_contract_version, provider, validators, expected_artifact_count,
   artifact_count, runtime_digest, rights_scope_digest`;
 
 const PROVIDERS = new Set<string>(SCHEDULED_ACQUISITION_PROVIDERS);
 const FAILURE_CODES = new Set<string>(SCHEDULED_ACQUISITION_FAILURE_CODES);
+const CLAIM_RELEASE_REASONS = new Set<string>(SCHEDULED_ACQUISITION_CLAIM_RELEASE_REASONS);
 const RIGHTS_STATE_SET = new Set<string>(RIGHTS_STATES);
 const RIGHTS_REASON_SET = new Set<string>(RIGHTS_REASON_CODES);
 const RECEIPT_STAGES = new Set<string>([
@@ -268,6 +312,14 @@ function parseFailureCode(value: unknown): ScheduledAcquisitionFailureCode | nul
     throw new Error('scheduled acquisition failure code is not enumerated');
   }
   return value as ScheduledAcquisitionFailureCode;
+}
+
+function parseClaimReleaseReason(value: unknown): ScheduledAcquisitionClaimReleaseReason | null {
+  if (value === null || value === undefined) return null;
+  if (typeof value !== 'string' || !CLAIM_RELEASE_REASONS.has(value)) {
+    throw new Error('scheduled acquisition claim release reason is not enumerated');
+  }
+  return value as ScheduledAcquisitionClaimReleaseReason;
 }
 
 function parseRetrievalKey(value: unknown): string {
@@ -678,10 +730,17 @@ function mapRun(row: SqlRow): ScheduledAcquisitionRun {
   const validators = toJson(row['validators']);
   const status = row['status'] as ScheduledAcquisitionStatus;
   const claimedAt = toIso(row['claimed_at']);
+  const claimLeaseAcquiredAt = toIso(row['claim_lease_acquired_at']);
   const completedAt = toIsoOrNull(row['completed_at']);
   const rightsScopeDigest = String(row['rights_scope_digest']);
   const targetUrl = String(row['target_url']);
   const rightsReceiptContractVersion = toNumber(row['rights_receipt_contract_version']);
+  const claimToken = parseNullableUuid(row['claim_token'], 'scheduled acquisition claim token');
+  if (claimToken === null) throw new Error('scheduled acquisition claim token cannot be null');
+  const claimAttempt = toNumber(row['claim_attempt']);
+  const lastReleasedAttempt = row['last_released_attempt'] === null
+    ? null
+    : toNumber(row['last_released_attempt']);
   if (rightsReceiptContractVersion !== 1 && rightsReceiptContractVersion !== 2) {
     throw new Error('scheduled acquisition rights receipt contract version is invalid');
   }
@@ -701,6 +760,13 @@ function mapRun(row: SqlRow): ScheduledAcquisitionRun {
     resultUrlPolicy: parseResultUrlPolicy(toJson(row['result_url_policy']), targetUrl),
     scheduledFor: toIso(row['scheduled_for']),
     claimedAt,
+    claimToken,
+    claimLeaseAcquiredAt,
+    claimLeaseExpiresAt: toIso(row['claim_lease_expires_at']),
+    claimAttempt,
+    lastReleasedAttempt,
+    lastClaimReleaseReason: parseClaimReleaseReason(row['last_claim_release_reason']),
+    lastClaimReleasedAt: toIsoOrNull(row['last_claim_released_at']),
     completedAt,
     freshAt: toIsoOrNull(row['fresh_at']),
     status,
@@ -709,7 +775,7 @@ function mapRun(row: SqlRow): ScheduledAcquisitionRun {
     rightsReceipt: parseRightsReceipt(receipt, {
       status,
       rightsScopeDigest,
-      claimedAt,
+      claimedAt: claimLeaseAcquiredAt,
       completedAt,
       contractVersion: rightsReceiptContractVersion,
     }),
@@ -749,31 +815,163 @@ async function persistArtifact(tx: SqlExecutor, input: SourceArtifactInsert): Pr
 class PostgresScheduledAcquisitionStore implements ScheduledAcquisitionStore {
   constructor(readonly driver: SqlDriver) {}
 
-  async claim(input: ScheduledAcquisitionClaim): Promise<ScheduledAcquisitionRun | null> {
+  async acquire(input: ScheduledAcquisitionClaim): Promise<ScheduledAcquisitionClaimResult> {
     const resultUrlPolicy = parseResultUrlPolicy(input.resultUrlPolicy, input.targetUrl);
     const scheduledFor = parseCanonicalIso(input.scheduledFor, 'scheduled acquisition scheduledFor');
-    const claimedAt = parseCanonicalIso(input.claimedAt, 'scheduled acquisition claimedAt');
+    const claimToken = crypto.randomUUID();
+    const params = [
+      input.idempotencyKey, input.verticalSlug, input.sourceId, input.sourceKey,
+      input.targetId, input.targetUrl, input.acquisitionRoute, input.accountOrProductPlan,
+      input.jurisdiction, input.assetClass, input.outputClass, JSON.stringify(resultUrlPolicy),
+      scheduledFor, input.runtimeDigest,
+      CURRENT_SCHEDULED_RIGHTS_RECEIPT_CONTRACT_VERSION, claimToken,
+    ] as const;
+
+    return this.driver.transaction(async (tx) => {
+      const inserted = await tx.query(
+        `INSERT INTO scheduled_acquisition_runs
+           (idempotency_key, vertical_slug, source_id, source_key, target_id, target_url,
+            acquisition_route, account_or_product_plan, acquisition_jurisdiction,
+            asset_class, output_class, result_url_policy, scheduled_for, claimed_at, runtime_digest,
+            rights_receipt_contract_version, claim_token, claim_lease_acquired_at,
+            claim_lease_expires_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12::jsonb, $13,
+                 statement_timestamp(), $14, $15, $16,
+                 statement_timestamp(),
+                 statement_timestamp() + INTERVAL '20 minutes')
+         ON CONFLICT DO NOTHING
+         RETURNING ${RUN_COLUMNS}`,
+        params,
+      );
+      const insertedRow = inserted[0];
+      if (insertedRow !== undefined) {
+        return { disposition: 'ACQUIRED', run: mapRun(insertedRow) };
+      }
+
+      const reclaimed = await tx.query(
+        `UPDATE scheduled_acquisition_runs
+            SET claim_token = $16,
+                claim_lease_acquired_at = statement_timestamp(),
+                claim_lease_expires_at = statement_timestamp() + INTERVAL '20 minutes',
+                claim_attempt = claim_attempt + 1,
+                last_released_attempt = claim_attempt,
+                last_claim_release_reason = CASE
+                  WHEN last_released_attempt = claim_attempt THEN last_claim_release_reason
+                  ELSE 'LEASE_EXPIRED'
+                END,
+                last_claim_released_at = CASE
+                  WHEN last_released_attempt = claim_attempt THEN last_claim_released_at
+                  ELSE claim_lease_expires_at
+                END,
+                rights_receipt_contract_version = $15
+          WHERE idempotency_key = $1
+            AND status = 'CLAIMED'
+            AND claim_lease_expires_at <= statement_timestamp()
+            AND vertical_slug = $2
+            AND source_id = $3
+            AND source_key = $4
+            AND target_id = $5
+            AND target_url = $6
+            AND acquisition_route = $7
+            AND account_or_product_plan IS NOT DISTINCT FROM $8
+            AND acquisition_jurisdiction IS NOT DISTINCT FROM $9
+            AND asset_class = $10
+            AND output_class = $11
+            AND result_url_policy = $12::jsonb
+            AND scheduled_for = $13
+            AND runtime_digest = $14
+          RETURNING ${RUN_COLUMNS}`,
+        params,
+      );
+      const reclaimedRow = reclaimed[0];
+      if (reclaimedRow !== undefined) {
+        return { disposition: 'ACQUIRED', run: mapRun(reclaimedRow) };
+      }
+
+      const conflicts = await tx.query(
+        `SELECT ${RUN_COLUMNS}
+           FROM scheduled_acquisition_runs
+          WHERE idempotency_key = $1
+             OR (vertical_slug = $2 AND source_id = $3 AND target_id = $4 AND scheduled_for = $5)
+          ORDER BY (idempotency_key = $1) DESC
+          LIMIT 1`,
+        [input.idempotencyKey, input.verticalSlug, input.sourceId, input.targetId, scheduledFor],
+      );
+      const conflictRow = conflicts[0];
+      if (conflictRow === undefined) {
+        throw new Error('scheduled acquisition claim conflicted without a durable row');
+      }
+      const run = mapRun(conflictRow);
+      if (
+        run.idempotencyKey !== input.idempotencyKey ||
+        run.verticalSlug !== input.verticalSlug ||
+        run.sourceId !== input.sourceId ||
+        run.sourceKey !== input.sourceKey ||
+        run.targetId !== input.targetId ||
+        run.targetUrl !== input.targetUrl ||
+        run.acquisitionRoute !== input.acquisitionRoute ||
+        run.accountOrProductPlan !== input.accountOrProductPlan ||
+        run.jurisdiction !== input.jurisdiction ||
+        run.assetClass !== input.assetClass ||
+        run.outputClass !== input.outputClass ||
+        JSON.stringify(run.resultUrlPolicy) !== JSON.stringify(resultUrlPolicy) ||
+        run.scheduledFor !== scheduledFor ||
+        run.runtimeDigest !== input.runtimeDigest
+      ) {
+        throw new Error('scheduled acquisition claim collision does not match its immutable scope');
+      }
+      return {
+        disposition: run.status === 'CLAIMED' ? 'ACTIVE' : 'TERMINAL',
+        run,
+      };
+    });
+  }
+
+  async claim(input: ScheduledAcquisitionClaim): Promise<ScheduledAcquisitionRun | null> {
+    const result = await this.acquire(input);
+    return result.disposition === 'ACQUIRED' ? result.run : null;
+  }
+
+  async release(input: ScheduledAcquisitionClaimRelease): Promise<ScheduledAcquisitionRun | null> {
+    const claimToken = parseNullableUuid(input.claimToken, 'scheduled acquisition claim token');
+    if (claimToken === null) throw new Error('scheduled acquisition claim token cannot be null');
     const rows = await this.driver.query(
-      `INSERT INTO scheduled_acquisition_runs
-         (idempotency_key, vertical_slug, source_id, source_key, target_id, target_url,
-          acquisition_route, account_or_product_plan, acquisition_jurisdiction,
-          asset_class, output_class, result_url_policy, scheduled_for, claimed_at, runtime_digest,
-          rights_receipt_contract_version)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12::jsonb, $13, $14, $15, $16)
-       ON CONFLICT DO NOTHING
-       RETURNING ${RUN_COLUMNS}`,
-      [
-        input.idempotencyKey, input.verticalSlug, input.sourceId, input.sourceKey,
-        input.targetId, input.targetUrl, input.acquisitionRoute, input.accountOrProductPlan,
-        input.jurisdiction, input.assetClass, input.outputClass, JSON.stringify(resultUrlPolicy),
-        scheduledFor, claimedAt, input.runtimeDigest,
-        CURRENT_SCHEDULED_RIGHTS_RECEIPT_CONTRACT_VERSION,
-      ],
+      `UPDATE scheduled_acquisition_runs
+          SET claim_lease_expires_at = statement_timestamp(),
+              last_released_attempt = claim_attempt,
+              last_claim_release_reason = $3,
+              last_claim_released_at = statement_timestamp()
+        WHERE id = $1
+          AND status = 'CLAIMED'
+          AND claim_token = $2
+          AND claim_lease_acquired_at <= statement_timestamp()
+          AND claim_lease_expires_at >= statement_timestamp()
+          AND last_released_attempt IS DISTINCT FROM claim_attempt
+        RETURNING ${RUN_COLUMNS}`,
+      [input.runId, claimToken, input.reason],
     );
     return rows[0] === undefined ? null : mapRun(rows[0]);
   }
 
+  async assertLease(runId: string, claimTokenValue: string): Promise<void> {
+    const claimToken = parseNullableUuid(claimTokenValue, 'scheduled acquisition claim token');
+    if (claimToken === null) throw new Error('scheduled acquisition claim token cannot be null');
+    const rows = await this.driver.query(
+      `SELECT 1
+         FROM scheduled_acquisition_runs
+        WHERE id = $1 AND status = 'CLAIMED' AND claim_token = $2
+          AND claim_lease_acquired_at <= statement_timestamp()
+          AND claim_lease_expires_at > statement_timestamp()`,
+      [runId, claimToken],
+    );
+    if (rows[0] === undefined) {
+      throw new ScheduledAcquisitionClaimOwnershipError();
+    }
+  }
+
   async complete(input: ScheduledAcquisitionCompletion): Promise<ScheduledAcquisitionRun> {
+    const claimToken = parseNullableUuid(input.claimToken, 'scheduled acquisition claim token');
+    if (claimToken === null) throw new Error('scheduled acquisition claim token cannot be null');
     const provider = parseProvider(input.provider);
     if (provider === null) throw new Error('scheduled acquisition completion requires a provider');
     const validators = parseValidators(input.validators);
@@ -790,14 +988,28 @@ class PostgresScheduledAcquisitionStore implements ScheduledAcquisitionStore {
     }
 
     return this.driver.transaction(async (tx) => {
-      const locked = await tx.query(`SELECT ${RUN_COLUMNS} FROM scheduled_acquisition_runs WHERE id = $1 FOR UPDATE`, [input.runId]);
+      const locked = await tx.query(
+        `SELECT ${RUN_COLUMNS}, statement_timestamp() AS lease_checked_at
+           FROM scheduled_acquisition_runs WHERE id = $1 FOR UPDATE`,
+        [input.runId],
+      );
       const current = locked[0];
       if (current === undefined) throw new Error(`scheduled acquisition run ${input.runId} was not found`);
       const run = mapRun(current);
       if (run.status !== 'CLAIMED') throw new Error(`scheduled acquisition run ${input.runId} is already terminal`);
+      if (run.claimToken !== claimToken) {
+        throw new ScheduledAcquisitionClaimOwnershipError();
+      }
+      const leaseCheckedAt = toIso(current['lease_checked_at']);
       if (
-        Date.parse(completedAt) < Date.parse(run.claimedAt) ||
-        Date.parse(freshAt) < Date.parse(run.claimedAt) ||
+        Date.parse(leaseCheckedAt) >= Date.parse(run.claimLeaseExpiresAt) ||
+        Date.parse(completedAt) >= Date.parse(run.claimLeaseExpiresAt)
+      ) {
+        throw new ScheduledAcquisitionClaimOwnershipError();
+      }
+      if (
+        Date.parse(completedAt) < Date.parse(run.claimLeaseAcquiredAt) ||
+        Date.parse(freshAt) < Date.parse(run.claimLeaseAcquiredAt) ||
         Date.parse(freshAt) > Date.parse(completedAt)
       ) {
         throw new Error('scheduled acquisition completion and freshness timestamps are out of order');
@@ -805,7 +1017,7 @@ class PostgresScheduledAcquisitionStore implements ScheduledAcquisitionStore {
       const rightsReceipt = parseRightsReceipt(input.rightsReceipt, {
         status: 'SUCCEEDED',
         rightsScopeDigest: run.rightsScopeDigest,
-        claimedAt: run.claimedAt,
+        claimedAt: run.claimLeaseAcquiredAt,
         completedAt,
         contractVersion: run.rightsReceiptContractVersion,
       });
@@ -896,12 +1108,15 @@ class PostgresScheduledAcquisitionStore implements ScheduledAcquisitionStore {
         `UPDATE scheduled_acquisition_runs
             SET status = 'SUCCEEDED', outcome = $2, completed_at = $3, fresh_at = $4,
                 provider = $5, validators = $6::jsonb, rights_receipt = $7::jsonb,
-                expected_artifact_count = $8, artifact_count = $8
-          WHERE id = $1
+             expected_artifact_count = $8, artifact_count = $8
+          WHERE id = $1 AND claim_token = $9
+            AND claim_lease_acquired_at <= statement_timestamp()
+            AND claim_lease_expires_at > statement_timestamp()
           RETURNING ${RUN_COLUMNS}`,
         [
           run.id, input.outcome, completedAt, freshAt, provider,
           JSON.stringify(validators), JSON.stringify(rightsReceipt), input.artifacts.length,
+          claimToken,
         ],
       );
       const row = rows[0];
@@ -911,6 +1126,8 @@ class PostgresScheduledAcquisitionStore implements ScheduledAcquisitionStore {
   }
 
   async fail(input: ScheduledAcquisitionFailure): Promise<ScheduledAcquisitionRun> {
+    const claimToken = parseNullableUuid(input.claimToken, 'scheduled acquisition claim token');
+    if (claimToken === null) throw new Error('scheduled acquisition claim token cannot be null');
     const failureCode = parseFailureCode(input.failureCode);
     if (failureCode === null) {
       throw new Error('scheduled acquisition failure code is not enumerated');
@@ -933,7 +1150,8 @@ class PostgresScheduledAcquisitionStore implements ScheduledAcquisitionStore {
     const provider = parseProvider(input.provider ?? null);
     return this.driver.transaction(async (tx) => {
       const locked = await tx.query(
-        `SELECT ${RUN_COLUMNS} FROM scheduled_acquisition_runs WHERE id = $1 FOR UPDATE`,
+        `SELECT ${RUN_COLUMNS}, statement_timestamp() AS lease_checked_at
+           FROM scheduled_acquisition_runs WHERE id = $1 FOR UPDATE`,
         [input.runId],
       );
       const current = locked[0];
@@ -944,13 +1162,23 @@ class PostgresScheduledAcquisitionStore implements ScheduledAcquisitionStore {
       if (run.status !== 'CLAIMED') {
         throw new Error(`scheduled acquisition run ${input.runId} is already terminal`);
       }
-      if (Date.parse(completedAt) < Date.parse(run.claimedAt)) {
+      if (run.claimToken !== claimToken) {
+        throw new ScheduledAcquisitionClaimOwnershipError();
+      }
+      const leaseCheckedAt = toIso(current['lease_checked_at']);
+      if (
+        Date.parse(leaseCheckedAt) >= Date.parse(run.claimLeaseExpiresAt) ||
+        Date.parse(completedAt) >= Date.parse(run.claimLeaseExpiresAt)
+      ) {
+        throw new ScheduledAcquisitionClaimOwnershipError();
+      }
+      if (Date.parse(completedAt) < Date.parse(run.claimLeaseAcquiredAt)) {
         throw new Error('scheduled acquisition completion timestamp precedes its claim');
       }
       const rightsReceipt = parseRightsReceipt(input.rightsReceipt, {
         status: input.status,
         rightsScopeDigest: run.rightsScopeDigest,
-        claimedAt: run.claimedAt,
+        claimedAt: run.claimLeaseAcquiredAt,
         completedAt,
         contractVersion: run.rightsReceiptContractVersion,
       });
@@ -958,11 +1186,13 @@ class PostgresScheduledAcquisitionStore implements ScheduledAcquisitionStore {
         `UPDATE scheduled_acquisition_runs
             SET status = $2, outcome = $3, failure_code = $4, completed_at = $5,
                 rights_receipt = $6::jsonb, provider = $7
-          WHERE id = $1 AND status = 'CLAIMED'
+          WHERE id = $1 AND status = 'CLAIMED' AND claim_token = $8
+            AND claim_lease_acquired_at <= statement_timestamp()
+            AND claim_lease_expires_at > statement_timestamp()
           RETURNING ${RUN_COLUMNS}`,
         [
           input.runId, input.status, input.outcome, failureCode, completedAt,
-          JSON.stringify(rightsReceipt), provider,
+          JSON.stringify(rightsReceipt), provider, claimToken,
         ],
       );
       const row = rows[0];

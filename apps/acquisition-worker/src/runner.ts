@@ -17,6 +17,7 @@ import {
 } from '@data-foundry/acquisition';
 import {
   SCHEDULED_ACQUISITION_PROVIDERS,
+  ScheduledAcquisitionClaimOwnershipError,
   createCanonicalStore,
   createScheduledAcquisitionStore,
   type ScheduledAcquisitionFreshnessScope,
@@ -72,6 +73,13 @@ export interface RunScheduledAcquisitionInput {
   readonly env: AcquisitionWorkerEnv;
   readonly clock?: Clock | undefined;
   readonly fetch?: FetchLike | undefined;
+}
+
+export class ScheduledAcquisitionClaimBusyError extends Error {
+  constructor() {
+    super('A scheduled acquisition slot still has an active claim owner; retry after its lease.');
+    this.name = 'ScheduledAcquisitionClaimBusyError';
+  }
 }
 
 interface AdmittedClaim {
@@ -133,8 +141,27 @@ function idempotencyKey(runtime: AcquisitionRuntime, target: AcquisitionRuntimeT
   )}`;
 }
 
-const completedAt = (clock: Clock): ScheduledAcquisitionRun['claimedAt'] =>
-  new Date(clock.nowIso()).toISOString() as ScheduledAcquisitionRun['claimedAt'];
+const atOrAfter = (
+  candidate: string,
+  ...floors: readonly string[]
+): ScheduledAcquisitionRun['claimedAt'] => new Date(Math.max(
+  Date.parse(candidate),
+  ...floors.map((value) => Date.parse(value)),
+)).toISOString() as ScheduledAcquisitionRun['claimedAt'];
+
+const observedAt = async (
+  driver: SqlDriver,
+  ...floors: readonly string[]
+): Promise<ScheduledAcquisitionRun['claimedAt']> => {
+  const rows = await driver.query<{ acquisition_observed_at: string }>(
+    `SELECT statement_timestamp()::text AS acquisition_observed_at`,
+  );
+  const databaseTime = rows[0]?.acquisition_observed_at;
+  if (databaseTime === undefined) {
+    throw new Error('PostgreSQL did not return the acquisition observation time.');
+  }
+  return atOrAfter(databaseTime, ...floors);
+};
 
 const scheduledValidators = (
   value: Readonly<{ etag?: string | undefined; lastModified?: string | undefined; contentHash?: string | undefined }>,
@@ -181,11 +208,12 @@ export async function runScheduledAcquisition(
   const registry = new InMemorySourceRegistry(sources);
   const executions: ScheduledTargetExecution[] = [];
   const claimed: { target: AcquisitionRuntimeTarget; run: ScheduledAcquisitionRun }[] = [];
-  const claimTime = completedAt(clock);
+  let activeClaims = 0;
+  try {
   for (const target of input.runtime.targets) {
     const sourceId = sourceIds.get(target.source.key);
     if (sourceId === undefined) throw new Error('A runtime target has no synchronized source.');
-    const run = await store.claim({
+    const acquisition = await store.acquire({
       idempotencyKey: idempotencyKey(input.runtime, target, slot),
       verticalSlug: input.runtime.vertical_slug,
       sourceId,
@@ -200,16 +228,21 @@ export async function runScheduledAcquisition(
       resultUrlPolicy: target.result_url_policy,
       scheduledFor: slot as ScheduledAcquisitionRun['scheduledFor'],
       runtimeDigest: input.runtime.runtime_digest,
-      claimedAt: claimTime,
     });
-    if (run === null) {
+    if (acquisition.disposition === 'TERMINAL') {
       executions.push({ targetId: target.target_id, disposition: 'DUPLICATE', runId: null });
+    } else if (acquisition.disposition === 'ACTIVE') {
+      activeClaims += 1;
     } else {
-      claimed.push({ target, run });
+      claimed.push({ target, run: acquisition.run });
     }
   }
 
-  const planningAsOf = completedAt(clock);
+  const rightsAsOf = await observedAt(
+    input.driver,
+    ...claimed.map(({ run }) => run.claimLeaseAcquiredAt),
+  );
+  const plannerAsOf = atOrAfter(slot, rightsAsOf);
   const admitted: AdmittedClaim[] = [];
   for (const item of claimed) {
     const scope = {
@@ -228,7 +261,7 @@ export async function runScheduledAcquisition(
       const authorization = await authorizeStoredAcquisition(
         input.driver,
         scope,
-        planningAsOf,
+        rightsAsOf,
       );
       admitted.push({
         ...item,
@@ -242,10 +275,15 @@ export async function runScheduledAcquisition(
       if (!(error instanceof StoredAcquisitionRefusal)) throw error;
       await store.fail({
         runId: item.run.id,
+        claimToken: item.run.claimToken,
         status: 'REFUSED',
         outcome: null,
         failureCode: 'RIGHTS_REFUSED',
-        completedAt: completedAt(clock),
+        completedAt: await observedAt(
+          input.driver,
+          item.run.claimLeaseAcquiredAt,
+          error.receipt.evaluatedAt,
+        ),
         rightsReceipt: [error.receipt],
       });
       executions.push({
@@ -269,7 +307,8 @@ export async function runScheduledAcquisition(
       lastAcquiredAt: item.latest?.freshAt ?? null,
     })),
     policy: input.runtime.default_refresh_policy,
-    now: planningAsOf,
+    rightsAsOf,
+    now: plannerAsOf,
   });
 
   const byTarget = new Map(admitted.map((item) => [item.target.target_id, item]));
@@ -279,10 +318,15 @@ export async function runScheduledAcquisition(
     if (!decision.due) {
       await store.fail({
         runId: item.run.id,
+        claimToken: item.run.claimToken,
         status: 'SKIPPED',
         outcome: null,
         failureCode: 'NOT_DUE',
-        completedAt: completedAt(clock),
+        completedAt: await observedAt(
+          input.driver,
+          item.run.claimLeaseAcquiredAt,
+          item.initialReceipt.evaluatedAt,
+        ),
         rightsReceipt: [{ ...item.initialReceipt, basis: 'NOT_DUE' }],
       });
       executions.push({
@@ -302,11 +346,20 @@ export async function runScheduledAcquisition(
       (targetOrder.get(left.targetId) ?? Number.MAX_SAFE_INTEGER) -
       (targetOrder.get(right.targetId) ?? Number.MAX_SAFE_INTEGER),
   );
+  if (activeClaims > 0) throw new ScheduledAcquisitionClaimBusyError();
   return {
     verticalSlug: input.runtime.vertical_slug,
     scheduledFor: slot,
     executions,
   };
+  } catch (error) {
+    await Promise.allSettled(claimed.map(({ run }) => store.release({
+      runId: run.id,
+      claimToken: run.claimToken,
+      reason: 'UNEXPECTED_ERROR',
+    })));
+    throw error;
+  }
 }
 
 async function executeClaim(
@@ -324,19 +377,29 @@ async function executeClaim(
       await recheckStoredAcquisition(
         item.capability,
         input.driver,
-        completedAt(clock),
+        await observedAt(
+          input.driver,
+          item.run.claimLeaseAcquiredAt,
+          ...receipts.map(({ evaluatedAt }) => evaluatedAt),
+        ),
         'PRE_PROVIDER',
       ),
     );
+    await store.assertLease(item.run.id, item.run.claimToken);
   } catch (error) {
     if (!(error instanceof StoredAcquisitionRefusal)) throw error;
     receipts.push(error.receipt);
     await store.fail({
       runId: item.run.id,
+      claimToken: item.run.claimToken,
       status: 'REFUSED',
       outcome: null,
       failureCode: 'RIGHTS_REFUSED',
-      completedAt: completedAt(clock),
+      completedAt: await observedAt(
+        input.driver,
+        item.run.claimLeaseAcquiredAt,
+        ...receipts.map(({ evaluatedAt }) => evaluatedAt),
+      ),
       rightsReceipt: receipts,
     });
     return 'REFUSED';
@@ -356,9 +419,14 @@ async function executeClaim(
         preTransportReceipt = await recheckStoredAcquisition(
           item.capability,
           input.driver,
-          completedAt(clock),
+          await observedAt(
+            input.driver,
+            item.run.claimLeaseAcquiredAt,
+            ...receipts.map(({ evaluatedAt }) => evaluatedAt),
+          ),
           'PRE_TRANSPORT',
         );
+        await store.assertLease(item.run.id, item.run.claimToken);
       } catch (error) {
         if (error instanceof StoredAcquisitionRefusal) preTransportReceipt = error.receipt;
         throw error;
@@ -373,9 +441,16 @@ async function executeClaim(
         prePersistenceReceipt = await recheckStoredAcquisition(
           item.capability,
           input.driver,
-          completedAt(clock),
+          await observedAt(
+            input.driver,
+            item.run.claimLeaseAcquiredAt,
+            preTransportReceipt?.evaluatedAt ?? item.initialReceipt.evaluatedAt,
+          ),
           'PRE_PERSISTENCE',
         );
+        // BaseAcquisitionProvider invokes this hook after complete manifest
+        // preflight and immediately before the first R2 write.
+        await store.assertLease(item.run.id, item.run.claimToken);
       } catch (error) {
         if (error instanceof StoredAcquisitionRefusal) prePersistenceReceipt = error.receipt;
         throw error;
@@ -397,10 +472,15 @@ async function executeClaim(
   } catch {
     await store.fail({
       runId: item.run.id,
+      claimToken: item.run.claimToken,
       status: 'FAILED',
       outcome: null,
       failureCode: 'PROVIDER_CONFIGURATION',
-      completedAt: completedAt(clock),
+      completedAt: await observedAt(
+        input.driver,
+        item.run.claimLeaseAcquiredAt,
+        ...receipts.map(({ evaluatedAt }) => evaluatedAt),
+      ),
       rightsReceipt: receipts,
       provider: null,
     });
@@ -410,10 +490,15 @@ async function executeClaim(
   if (providerId === null) {
     await store.fail({
       runId: item.run.id,
+      claimToken: item.run.claimToken,
       status: 'FAILED',
       outcome: null,
       failureCode: 'PROVIDER_UNAVAILABLE',
-      completedAt: completedAt(clock),
+      completedAt: await observedAt(
+        input.driver,
+        item.run.claimLeaseAcquiredAt,
+        ...receipts.map(({ evaluatedAt }) => evaluatedAt),
+      ),
       rightsReceipt: receipts,
       provider: null,
     });
@@ -443,10 +528,15 @@ async function executeClaim(
     if (result.outcome === 'EMPTY') {
       await store.fail({
         runId: item.run.id,
+        claimToken: item.run.claimToken,
         status: 'FAILED',
         outcome: 'EMPTY',
         failureCode: 'EMPTY_RESPONSE',
-        completedAt: completedAt(clock),
+        completedAt: await observedAt(
+          input.driver,
+          item.run.claimLeaseAcquiredAt,
+          ...receipts.map(({ evaluatedAt }) => evaluatedAt),
+        ),
         rightsReceipt: receipts,
         provider: providerId,
       });
@@ -469,11 +559,21 @@ async function executeClaim(
       } as const;
     });
     ledgerPersistenceStarted = true;
+    const finishedAt = await observedAt(
+      input.driver,
+      item.run.claimLeaseAcquiredAt,
+      ...receipts.map(({ evaluatedAt }) => evaluatedAt),
+    );
+    const freshAt = new Date(Math.min(
+      Date.parse(finishedAt),
+      Math.max(Date.parse(item.run.claimLeaseAcquiredAt), Date.parse(result.fetchedAt)),
+    )).toISOString() as ScheduledAcquisitionRun['claimedAt'];
     await store.complete({
       runId: item.run.id,
+      claimToken: item.run.claimToken,
       outcome: result.outcome,
-      completedAt: completedAt(clock),
-      freshAt: new Date(result.fetchedAt).toISOString() as ScheduledAcquisitionRun['claimedAt'],
+      completedAt: finishedAt,
+      freshAt,
       provider: providerId,
       validators: scheduledValidators(result.validators),
       rightsReceipt: receipts,
@@ -481,6 +581,7 @@ async function executeClaim(
     });
     return 'SUCCEEDED';
   } catch (error) {
+    if (error instanceof ScheduledAcquisitionClaimOwnershipError) throw error;
     if (error instanceof StoredAcquisitionRefusal) {
       if (preTransportReceipt !== null && !receipts.some(({ stage }) => stage === 'PRE_TRANSPORT')) {
         receipts.push(preTransportReceipt);
@@ -493,10 +594,15 @@ async function executeClaim(
       }
       await store.fail({
         runId: item.run.id,
+        claimToken: item.run.claimToken,
         status: 'REFUSED',
         outcome: null,
         failureCode: 'RIGHTS_REFUSED',
-        completedAt: completedAt(clock),
+        completedAt: await observedAt(
+          input.driver,
+          item.run.claimLeaseAcquiredAt,
+          ...receipts.map(({ evaluatedAt }) => evaluatedAt),
+        ),
         rightsReceipt: receipts,
       });
       return 'REFUSED';
@@ -518,10 +624,15 @@ async function executeClaim(
           : 'TRANSPORT_FAILED';
     await store.fail({
       runId: item.run.id,
+      claimToken: item.run.claimToken,
       status: 'FAILED',
       outcome: null,
       failureCode,
-      completedAt: completedAt(clock),
+      completedAt: await observedAt(
+        input.driver,
+        item.run.claimLeaseAcquiredAt,
+        ...receipts.map(({ evaluatedAt }) => evaluatedAt),
+      ),
       rightsReceipt: receipts,
       provider: providerId,
     });
