@@ -11,6 +11,7 @@
  */
 
 import type { KeyEnvironment } from '@data-foundry/api-keys';
+import { isUnsafeProductionEndpointHostname } from '@data-foundry/canonical-schema';
 
 /** Cloudflare's Hyperdrive binding, narrowed to the one field we read. */
 export interface HyperdriveBinding {
@@ -88,18 +89,6 @@ function resolveDeploymentEnvironment(value: string | undefined): DeploymentEnvi
   );
 }
 
-function isLoopbackHostname(hostname: string): boolean {
-  const normalized = hostname
-    .trim()
-    .toLowerCase()
-    .replace(/^\[/, '')
-    .replace(/\]$/, '')
-    .replace(/\.+$/, '');
-  if (normalized === 'localhost' || normalized === '::1') return true;
-  const octets = normalized.split('.');
-  return octets.length === 4 && octets.every((octet) => /^\d{1,3}$/.test(octet)) && octets[0] === '127';
-}
-
 function resolveRapidApiConfig(
   env: EdgeEnv,
   deploymentEnvironment: DeploymentEnvironment,
@@ -119,6 +108,11 @@ function resolveRapidApiConfig(
         'RAPIDAPI_PROXY_SECRET, and RAPIDAPI_API_KEY must be configured together.',
     );
   }
+  if (deploymentEnvironment === 'production' && isUnsafeProductionEndpointHostname(hostname)) {
+    throw new EdgeConfigurationError(
+      'RAPIDAPI_HOSTNAME must not be a loopback or unspecified hostname in production.',
+    );
+  }
 
   let parsed: URL;
   try {
@@ -135,10 +129,6 @@ function resolveRapidApiConfig(
   ) {
     throw new EdgeConfigurationError('RAPIDAPI_HOSTNAME must be a hostname without a scheme or path.');
   }
-  if (deploymentEnvironment === 'production' && isLoopbackHostname(hostname)) {
-    throw new EdgeConfigurationError('RAPIDAPI_HOSTNAME must not be a loopback hostname in production.');
-  }
-
   return { hostname, proxySecret, apiKey };
 }
 

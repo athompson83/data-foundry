@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parse } from 'smol-toml';
+import { isUnsafeProductionEndpointHostname } from '@data-foundry/canonical-schema';
 import { isMain } from '../lib/cli-entry.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -140,7 +141,7 @@ function checkRepositoryPolicy(label: string, config: TomlObject, errors: string
   if (hyperdrive.some((binding) => typeof binding['id'] === 'string')) {
     errors.push(`${label} commits a Hyperdrive id; inject the HYPERDRIVE binding during deployment.`);
   }
-  for (const name of [
+  const forbiddenDeploymentVariables = new Set([
     'POSTGRES_URL',
     'RAPIDAPI_PROXY_SECRET',
     'RAPIDAPI_API_KEY',
@@ -151,28 +152,16 @@ function checkRepositoryPolicy(label: string, config: TomlObject, errors: string
     'MCP_HOSTNAME',
     'MCP_ALLOWED_ORIGINS',
     'RAPIDAPI_HOSTNAME',
-  ]) {
-    const configuredAsPlainVar = valuesAtKey(config, 'vars').some(
-      (vars) => collectKeyPaths(object(vars), new Set([name])).length > 0,
-    );
-    if (configuredAsPlainVar) {
-      errors.push(
-        `${label} commits ${name} in vars; configure provider identity and credentials outside the repository.`,
-      );
+  ]);
+  for (const vars of valuesAtKey(config, 'vars')) {
+    for (const key of keyNames(object(vars))) {
+      if (forbiddenDeploymentVariables.has(key.toUpperCase()) || isPlaintextProtectedKey(key)) {
+        errors.push(
+          `${label} commits ${key} in vars; configure provider identity and credentials outside the repository.`,
+        );
+      }
     }
   }
-}
-
-function isLoopbackHostname(value: string): boolean {
-  const hostname = value
-    .trim()
-    .toLowerCase()
-    .replace(/^\[/, '')
-    .replace(/\]$/, '')
-    .replace(/\.+$/, '');
-  if (hostname === 'localhost' || hostname === '::1') return true;
-  const octets = hostname.split('.');
-  return octets.length === 4 && octets.every((octet) => /^\d{1,3}$/.test(octet)) && octets[0] === '127';
 }
 
 function isExactProductionOrigin(value: unknown): boolean {
@@ -186,7 +175,7 @@ function isExactProductionOrigin(value: unknown): boolean {
       parsed.search === '' &&
       parsed.hash === '' &&
       parsed.origin === value &&
-      !isLoopbackHostname(parsed.hostname);
+      !isUnsafeProductionEndpointHostname(parsed.hostname);
   } catch {
     return false;
   }
@@ -195,14 +184,14 @@ function isExactProductionOrigin(value: unknown): boolean {
 function isExactProductionHostname(value: unknown): boolean {
   if (typeof value !== 'string' || value.trim() === '') return false;
   const hostname = value.trim().toLowerCase();
+  if (isUnsafeProductionEndpointHostname(hostname)) return false;
   try {
     const parsed = new URL(`https://${hostname}`);
     return parsed.hostname.toLowerCase() === hostname &&
       parsed.port === '' &&
       parsed.pathname === '/' &&
       parsed.search === '' &&
-      parsed.hash === '' &&
-      !isLoopbackHostname(hostname);
+      parsed.hash === '';
   } catch {
     return false;
   }

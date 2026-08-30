@@ -102,11 +102,20 @@ describe('MCP Worker environment', () => {
   it.each([
     ['MCP hostname', { MCP_HOSTNAME: 'localhost' }],
     ['canonical MCP hostname', { MCP_HOSTNAME: 'localhost.' }],
+    ['MCP hostname subdomain', { MCP_HOSTNAME: 'api.localhost.' }],
+    ['IPv4 loopback MCP hostname', { MCP_HOSTNAME: '127.0.0.1' }],
+    ['IPv6 loopback MCP hostname', { MCP_HOSTNAME: '[0:0:0:0:0:0:0:1]' }],
+    ['IPv4-mapped IPv6 loopback MCP hostname', { MCP_HOSTNAME: '[::ffff:7f00:1]' }],
+    ['unspecified MCP hostname', { MCP_HOSTNAME: '0.0.0.0' }],
     ['allowed origin', { MCP_ALLOWED_ORIGINS: 'https://127.0.0.1' }],
     ['canonical allowed origin', { MCP_ALLOWED_ORIGINS: 'https://localhost.' }],
+    ['IPv4-mapped IPv6 loopback allowed origin', { MCP_ALLOWED_ORIGINS: 'https://[::ffff:7f00:1]' }],
+    ['unspecified allowed origin', { MCP_ALLOWED_ORIGINS: 'https://[::]' }],
     ['public origin', { PUBLIC_ORIGIN: 'https://[::1]' }],
     ['canonical public origin', { PUBLIC_ORIGIN: 'https://localhost.' }],
-  ] as const)('refuses a loopback production %s', (_label, override) => {
+    ['IPv4-mapped IPv6 loopback public origin', { PUBLIC_ORIGIN: 'https://[::ffff:7f00:1]' }],
+    ['unspecified public origin', { PUBLIC_ORIGIN: 'https://0.0.0.0' }],
+  ] as const)('refuses a loopback or unspecified production %s', (_label, override) => {
     expect(() =>
       resolveMcpWorkerConfig({
         ...base,

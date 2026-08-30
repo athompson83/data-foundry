@@ -247,6 +247,48 @@ describe('the committed Cloudflare topology', () => {
     expect(errors.join('\n')).toMatch(/non-loopback.*MCP_ALLOWED_ORIGINS/i);
   });
 
+  it.each([
+    ['IPv4-mapped IPv6 loopback', '[::ffff:7f00:1]'],
+    ['unspecified IPv6', '[::]'],
+  ])('rejects %s in every ignored deployment endpoint', async (_label, hostname) => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-cloudflare-canonical-host-'));
+    temporaryDirectories.push(directory);
+    const paths = await writeDeploymentManifests(directory);
+    await Promise.all([
+      writeFile(
+        paths.edgeConfigPath,
+        (await readFile(paths.edgeConfigPath, 'utf8')).replace(
+          'VERTICAL_SLUG = "hvac"',
+          `VERTICAL_SLUG = "hvac"\nRAPIDAPI_HOSTNAME = "${hostname}"`,
+        ),
+        'utf8',
+      ),
+      writeFile(
+        paths.webConfigPath,
+        (await readFile(paths.webConfigPath, 'utf8')).replace(
+          'https://web.example.invalid',
+          `https://${hostname}`,
+        ),
+        'utf8',
+      ),
+      writeFile(
+        paths.mcpConfigPath,
+        (await readFile(paths.mcpConfigPath, 'utf8'))
+          .replace('MCP_HOSTNAME = "mcp.example.invalid"', `MCP_HOSTNAME = "${hostname}"`)
+          .replace('https://client.example.invalid', `https://${hostname}`)
+          .replace('https://web.example.invalid', `https://${hostname}`),
+        'utf8',
+      ),
+    ]);
+
+    const errors = await validate({ mode: 'deployment', ...paths });
+    expect(errors.join('\n')).toMatch(/RAPIDAPI_HOSTNAME.*non-loopback/i);
+    expect(errors.join('\n')).toMatch(/web.*non-loopback.*PUBLIC_ORIGIN/i);
+    expect(errors.join('\n')).toMatch(/non-loopback.*MCP_HOSTNAME/i);
+    expect(errors.join('\n')).toMatch(/non-loopback.*MCP_ALLOWED_ORIGINS/i);
+  });
+
   it('rejects lower and mixed-case plaintext credentials but not a Hyperdrive id binding', async () => {
     const validate = await loadValidator();
     const directory = await mkdtemp(join(tmpdir(), 'data-foundry-cloudflare-case-secret-'));
@@ -265,6 +307,22 @@ describe('the committed Cloudflare topology', () => {
     expect(errors.join('\n')).toMatch(/rapidApiToken/);
     expect(errors.join('\n')).toMatch(/privateKey/);
     expect(errors.join('\n')).not.toMatch(/HYPERDRIVE.*protected/i);
+  });
+
+  it('rejects mixed-case plaintext protected variables nested under repository env vars', async () => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-cloudflare-repository-case-secret-'));
+    temporaryDirectories.push(directory);
+    const edgePath = join(directory, 'edge.toml');
+    await writeFile(
+      edgePath,
+      `${await readFile(EDGE_CONFIG, 'utf8')}\n[env.production.vars]\nrapidApiToken = "fixture-value"\nprivateKey = "fixture-value"\n`,
+      'utf8',
+    );
+
+    const errors = await validate({ edgeConfigPath: edgePath });
+    expect(errors.join('\n')).toMatch(/rapidApiToken/);
+    expect(errors.join('\n')).toMatch(/privateKey/);
   });
 
   it('rejects deployment-only topology fields nested under a Hyperdrive binding', async () => {

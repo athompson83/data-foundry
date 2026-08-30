@@ -72,7 +72,17 @@ describe('production topology is explicit and fail closed', () => {
     expect(config.deploymentEnvironment).toBe('production');
   });
 
-  it.each(['https://localhost', 'https://localhost.'])('refuses canonical loopback production public origin %s', (publicOrigin) => {
+  it.each([
+    'https://localhost',
+    'https://localhost.',
+    'https://api.localhost.',
+    'https://127.0.0.1',
+    'https://[::1]',
+    'https://[0:0:0:0:0:0:0:1]',
+    'https://[::ffff:7f00:1]',
+    'https://0.0.0.0',
+    'https://[::]',
+  ])('refuses canonical loopback or unspecified production public origin %s', (publicOrigin) => {
     expect(() =>
       resolveWebConfig({
         DEPLOYMENT_ENVIRONMENT: 'production',

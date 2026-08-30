@@ -1,3 +1,8 @@
+import {
+  isLoopbackEndpointHostname,
+  isUnsafeProductionEndpointHostname,
+} from '@data-foundry/canonical-schema';
+
 /**
  * What a deployed Worker is configured with, and what it refuses to start
  * without. Same fail-closed reasoning as `apps/edge/src/env.ts`: a Worker with
@@ -49,18 +54,6 @@ function resolveDeploymentEnvironment(value: string | undefined): DeploymentEnvi
   throw new WebConfigurationError(
     'DEPLOYMENT_ENVIRONMENT must be exactly "development" or "production".',
   );
-}
-
-function isLoopbackHostname(value: string): boolean {
-  const hostname = value
-    .trim()
-    .toLowerCase()
-    .replace(/^\[/, '')
-    .replace(/\]$/, '')
-    .replace(/\.+$/, '');
-  if (hostname === 'localhost' || hostname === '::1') return true;
-  const octets = hostname.split('.');
-  return octets.length === 4 && octets.every((octet) => /^\d{1,3}$/.test(octet)) && octets[0] === '127';
 }
 
 function resolveCacheMode(value: string | undefined, deployment: DeploymentEnvironment): PublicCacheMode {
@@ -118,10 +111,10 @@ export function resolveWebConfig(env: WebEnv): ResolvedWebConfig {
     );
   }
 
-  if (deploymentEnvironment === 'production' && (parsed.protocol !== 'https:' || isLoopbackHostname(parsed.hostname))) {
-    throw new WebConfigurationError('PUBLIC_ORIGIN must use HTTPS and a non-loopback hostname in production.');
+  if (deploymentEnvironment === 'production' && (parsed.protocol !== 'https:' || isUnsafeProductionEndpointHostname(parsed.hostname))) {
+    throw new WebConfigurationError('PUBLIC_ORIGIN must use HTTPS and a non-loopback, non-unspecified hostname in production.');
   }
-  if (deploymentEnvironment === 'development' && parsed.protocol !== 'https:' && !isLoopbackHostname(parsed.hostname)) {
+  if (deploymentEnvironment === 'development' && parsed.protocol !== 'https:' && !isLoopbackEndpointHostname(parsed.hostname)) {
     throw new WebConfigurationError('PUBLIC_ORIGIN must use HTTPS outside local development.');
   }
 

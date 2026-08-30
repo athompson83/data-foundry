@@ -227,7 +227,18 @@ describe('production topology is explicit and fail closed', () => {
     expect(config.deploymentEnvironment).toBe('production');
   });
 
-  it.each(['localhost', 'localhost.', 'LOCALHOST.'])('refuses canonical loopback RapidAPI hostname %s in production', (hostname) => {
+  it.each([
+    'localhost',
+    'localhost.',
+    'LOCALHOST.',
+    'api.localhost.',
+    '127.0.0.1',
+    '[::1]',
+    '[0:0:0:0:0:0:0:1]',
+    '[::ffff:7f00:1]',
+    '0.0.0.0',
+    '[::]',
+  ])('refuses canonical loopback or unspecified RapidAPI hostname %s in production', (hostname) => {
     expect(() =>
       resolveEdgeConfig({
         DEPLOYMENT_ENVIRONMENT: 'production',

@@ -1,5 +1,9 @@
 /** Fail-closed deployment configuration for the remote MCP Worker. */
 import type { KeyEnvironment } from '@data-foundry/api-keys';
+import {
+  isLoopbackEndpointHostname,
+  isUnsafeProductionEndpointHostname,
+} from '@data-foundry/canonical-schema';
 
 export interface HyperdriveBinding {
   readonly connectionString: string;
@@ -51,22 +55,15 @@ function deploymentEnvironment(value: string | undefined): DeploymentEnvironment
   );
 }
 
-function isLoopbackHostname(value: string): boolean {
-  const hostname = value
-    .trim()
-    .toLowerCase()
-    .replace(/^\[/, '')
-    .replace(/\]$/, '')
-    .replace(/\.+$/, '');
-  if (hostname === 'localhost' || hostname === '::1') return true;
-  const octets = hostname.split('.');
-  return octets.length === 4 && octets.every((octet) => /^\d{1,3}$/.test(octet)) && octets[0] === '127';
-}
-
 function exactHostname(value: string | undefined, deployment: DeploymentEnvironment): string {
   const hostname = (value ?? '').trim().toLowerCase();
   if (hostname === '') {
     throw new McpWorkerConfigurationError('MCP_HOSTNAME is required.');
+  }
+  if (deployment === 'production' && isUnsafeProductionEndpointHostname(hostname)) {
+    throw new McpWorkerConfigurationError(
+      'MCP_HOSTNAME must not be a loopback or unspecified hostname in production.',
+    );
   }
   let parsed: URL;
   try {
@@ -86,9 +83,6 @@ function exactHostname(value: string | undefined, deployment: DeploymentEnvironm
     throw new McpWorkerConfigurationError(
       'MCP_HOSTNAME must be one hostname without a scheme, port, path, query, or fragment.',
     );
-  }
-  if (deployment === 'production' && isLoopbackHostname(hostname)) {
-    throw new McpWorkerConfigurationError('MCP_HOSTNAME must not be a loopback hostname in production.');
   }
   return hostname;
 }
@@ -113,10 +107,10 @@ function exactOrigin(value: string, label: string, deployment: DeploymentEnviron
       `${label} values must be origins only, without credentials, paths, queries, or fragments.`,
     );
   }
-  if (deployment === 'production' && (parsed.protocol !== 'https:' || isLoopbackHostname(parsed.hostname))) {
-    throw new McpWorkerConfigurationError(`${label} must use HTTPS and a non-loopback hostname in production.`);
+  if (deployment === 'production' && (parsed.protocol !== 'https:' || isUnsafeProductionEndpointHostname(parsed.hostname))) {
+    throw new McpWorkerConfigurationError(`${label} must use HTTPS and a non-loopback, non-unspecified hostname in production.`);
   }
-  if (deployment === 'development' && parsed.protocol !== 'https:' && !isLoopbackHostname(parsed.hostname)) {
+  if (deployment === 'development' && parsed.protocol !== 'https:' && !isLoopbackEndpointHostname(parsed.hostname)) {
     throw new McpWorkerConfigurationError(`${label} must use HTTPS outside local development.`);
   }
   return parsed.origin;

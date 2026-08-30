@@ -52,8 +52,10 @@
   `0022` preserve historic evidence, record a one-way supersession link, make
   source-record lifecycle explicit (`PROVISIONAL` versus `FINALIZED`), and make
   each entity/fact/relationship lineage cite its exact current artifact.
-  Finalized no-op reuse additionally requires a persisted fingerprint of the
-  validated evidence semantics; same-artifact semantic changes append a new
+  Finalized no-op reuse additionally requires a persisted v2 fingerprint of
+  record/entity, validated-alias, fact, and relationship evidence inputs,
+  locators, values, and mapping semantics; an exact full-evidence replay does
+  not churn `updated_at`, while a same-artifact semantic change appends a new
   immutable revision instead of retaining stale evidence.
 - Rights-backed readiness exists and requires canonical `--as-of` plus either a
   named-environment live database or a schema/digest-validated qualified
@@ -132,6 +134,14 @@
   PostgreSQL concurrency regression. Repository topology now canonicalizes
   loopback hosts, rejects mixed-case plaintext credential names and nested
   deployment-only fields; ignored production manifests remain an operator gate.
+- The subsequent Task 2 round-two repair centralizes canonical endpoint-host
+  classification for Workers and topology validation, covering localhost
+  subdomains/trailing dots, 127/8, expanded/compressed IPv6 loopback,
+  IPv4-mapped IPv6 loopback, and unspecified production binds. Its expanded
+  evidence fingerprint covers every persisted entity, fact, and relationship
+  locator/value projection, with two-run same-artifact regressions and an exact
+  no-op replay control. Repository-mode nested `env.*.vars` also now applies
+  case-insensitive plaintext protected-key detection.
 - Final authority is the live frozen 40-character PR head and its complete
   local/CI/review/ruleset gate set. Any candidate-affecting change invalidates
   SHA-sensitive evidence; neither `a123179` nor the earlier rejected `1ca6f61`

@@ -14,6 +14,15 @@ import {
   type SqlRow,
   type SqlTransactionExecutor,
 } from '@data-foundry/canonical-store';
+import {
+  createExtractionRegistry,
+  JsonExtractor,
+  type ExtractedRecord,
+  type ExtractionArtifact,
+  type ExtractionProvider,
+  type ExtractionProviderRegistry,
+  type ExtractionSchema,
+} from '@data-foundry/extraction';
 import { migrate } from '../../../packages/canonical-store/test/support.js';
 import {
   buildFixtureManifest,
@@ -596,6 +605,128 @@ describe('real ingestion fact output lineage', () => {
     );
     expect(manufacturers).toEqual([]);
   });
+
+  it.each([
+    ['record locator', 'record', '/products/0#reprocessed-record', 'entity'],
+    ['fact locator', 'fact', '/products/0/efficiency/seer2#reprocessed-fact', 'fact'],
+    ['relationship locator', 'relationship', '/products/0/brand#reprocessed-relationship', 'relationship'],
+  ] as const)(
+    'supersedes a same-artifact source-record revision when its persisted %s changes',
+    async (_label, mutation, expectedLocator, evidenceKind) => {
+      await ensureIngestionRights();
+      const config = await loadVerticalConfig('hvac');
+      const artifactStore = new InMemoryArtifactStore();
+      const sku = `ACS-FINGERPRINT-${mutation.toUpperCase()}-001`;
+      const overrides = {
+        'acme-hvac-catalog': JSON.stringify({
+          products: [catalogProduct(sku, `FINGERPRINT${mutation.toUpperCase()}001`)],
+        }),
+      };
+      const first = await pipelineForConfig(
+        config,
+        artifactStore,
+        `evidence-fingerprint-${mutation}-first`,
+        overrides,
+      );
+      expect((await first.runSource('acme-hvac-catalog')).error).toBeNull();
+
+      const replay = await pipelineForConfig(
+        config,
+        artifactStore,
+        `evidence-fingerprint-${mutation}-replay`,
+        overrides,
+        relocatingExtraction(mutation),
+      );
+      expect((await replay.runSource('acme-hvac-catalog')).error).toBeNull();
+
+      const revisions = await driver.query<{ id: string; is_current: boolean }>(
+        `SELECT id, is_current
+           FROM source_records
+          WHERE source_record_key = $1
+          ORDER BY created_at, id`,
+        [sku],
+      );
+      expect(revisions).toHaveLength(2);
+      const current = revisions.filter((revision) => revision.is_current);
+      expect(current).toHaveLength(1);
+      const currentSourceRecordId = current[0]?.id;
+      if (currentSourceRecordId === undefined) throw new Error('current source record revision missing');
+
+      const rows = evidenceKind === 'entity'
+        ? await driver.query<{ locator_value: string }>(
+            `SELECT locator_value FROM entity_evidence
+              WHERE source_record_id = $1
+              ORDER BY locator_value`,
+            [currentSourceRecordId],
+          )
+        : evidenceKind === 'fact'
+          ? await driver.query<{ locator_value: string }>(
+              `SELECT locator_value FROM fact_evidence
+                WHERE source_record_id = $1
+                ORDER BY locator_value`,
+              [currentSourceRecordId],
+            )
+          : await driver.query<{ locator_value: string }>(
+              `SELECT locator_value FROM relationship_evidence
+                WHERE source_record_id = $1
+                ORDER BY locator_value`,
+              [currentSourceRecordId],
+            );
+      expect(rows.map((row) => row.locator_value)).toContain(expectedLocator);
+      expect(rows.map((row) => row.locator_value)).not.toContain(
+        expectedLocator.replace('#reprocessed-record', '').replace('#reprocessed-fact', '').replace('#reprocessed-relationship', ''),
+      );
+    },
+  );
+
+  it('keeps an exact full-evidence same-artifact replay a source-record no-op', async () => {
+    await ensureIngestionRights();
+    const config = await loadVerticalConfig('hvac');
+    const artifactStore = new InMemoryArtifactStore();
+    const sku = 'ACS-FINGERPRINT-EXACT-001';
+    const overrides = {
+      'acme-hvac-catalog': JSON.stringify({
+        products: [catalogProduct(sku, 'FINGERPRINTEXACT001')],
+      }),
+    };
+    const first = await pipelineForConfig(config, artifactStore, 'evidence-fingerprint-exact-first', overrides);
+    expect((await first.runSource('acme-hvac-catalog')).error).toBeNull();
+    const [before] = await driver.query<{
+      id: string;
+      updated_at: string;
+      entity_evidence_count: number;
+      fact_evidence_count: number;
+      relationship_evidence_count: number;
+    }>(
+      `SELECT record.id, record.updated_at,
+              (SELECT count(*)::int FROM entity_evidence WHERE source_record_id = record.id) AS entity_evidence_count,
+              (SELECT count(*)::int FROM fact_evidence WHERE source_record_id = record.id) AS fact_evidence_count,
+              (SELECT count(*)::int FROM relationship_evidence WHERE source_record_id = record.id) AS relationship_evidence_count
+         FROM source_records record
+        WHERE record.source_record_key = $1`,
+      [sku],
+    );
+    if (before === undefined) throw new Error('first exact replay revision missing');
+
+    const replay = await pipelineForConfig(config, artifactStore, 'evidence-fingerprint-exact-replay', overrides);
+    expect((await replay.runSource('acme-hvac-catalog')).error).toBeNull();
+    const after = await driver.query<{
+      id: string;
+      updated_at: string;
+      entity_evidence_count: number;
+      fact_evidence_count: number;
+      relationship_evidence_count: number;
+    }>(
+      `SELECT record.id, record.updated_at,
+              (SELECT count(*)::int FROM entity_evidence WHERE source_record_id = record.id) AS entity_evidence_count,
+              (SELECT count(*)::int FROM fact_evidence WHERE source_record_id = record.id) AS fact_evidence_count,
+              (SELECT count(*)::int FROM relationship_evidence WHERE source_record_id = record.id) AS relationship_evidence_count
+         FROM source_records record
+        WHERE record.source_record_key = $1`,
+      [sku],
+    );
+    expect(after).toEqual([before]);
+  });
 });
 
 function catalogProduct(sku: string, model: string): Record<string, unknown> {
@@ -613,6 +744,40 @@ function catalogProduct(sku: string, model: string): Record<string, unknown> {
     net_weight_lb: 187,
     lifecycle: { status: 'active', discontinued_on: null, replaced_by: null },
   };
+}
+
+type LocatorMutation = 'record' | 'fact' | 'relationship';
+
+function relocatingExtraction(mutation: LocatorMutation): ExtractionProviderRegistry {
+  const delegate = new JsonExtractor();
+  const provider: ExtractionProvider = {
+    name: `relocating-json-extractor-${mutation}`,
+    format: 'json',
+    version: delegate.version,
+    supports: (schema: ExtractionSchema) => delegate.supports(schema),
+    async extract(artifact: ExtractionArtifact, schema: ExtractionSchema): Promise<ExtractedRecord[]> {
+      const records = await delegate.extract(artifact, schema);
+      return records.map((record) => {
+        if (mutation === 'record') {
+          return {
+            ...record,
+            locator: { ...record.locator, value: `${record.locator.value}#reprocessed-record` },
+          };
+        }
+        const field = mutation === 'fact' ? 'prop_seer2' : 'rel_manufactures_subject';
+        const suffix = mutation === 'fact' ? 'fact' : 'relationship';
+        return {
+          ...record,
+          values: record.values.map((value) =>
+            value.field === field
+              ? { ...value, locator: { ...value.locator, value: `${value.locator.value}#reprocessed-${suffix}` } }
+              : value,
+          ),
+        };
+      });
+    },
+  };
+  return createExtractionRegistry([delegate, provider]);
 }
 
 function transactionAffinityGuard(
@@ -693,6 +858,7 @@ async function pipelineForConfig(
   artifactStore: InMemoryArtifactStore,
   runId: string,
   overrides?: Readonly<Record<string, string>>,
+  extraction?: ExtractionProviderRegistry,
 ): Promise<Pipeline> {
   const { directory, bindings } = await buildFixtureManifest(
     config,
@@ -740,6 +906,7 @@ async function pipelineForConfig(
     now,
     runId,
     validatorCache,
+    ...(extraction === undefined ? {} : { extraction }),
   });
 }
 

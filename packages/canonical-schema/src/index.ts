@@ -18,6 +18,7 @@ export * from './confidence.js';
 export * from './rights.js';
 export * from './job-state.js';
 export * from './fact-versioning.js';
+export * from './hostnames.js';
 
 export * from './objects/verticals.js';
 export * from './objects/sources.js';

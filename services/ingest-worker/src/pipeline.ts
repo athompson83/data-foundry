@@ -86,7 +86,6 @@ import {
   DerivedCandidateGraphError,
   normalizeRecord,
   orderCanonicalCandidatesByDerivation,
-  type IdentifierCandidate,
   type NormalizationResult,
 } from '@data-foundry/normalization';
 import {
@@ -113,7 +112,7 @@ import { EntityResolver, type AliasClaim } from './resolution.js';
 // persisted evidence chain. The fingerprint also contains the actual accepted
 // claims and locators, so a changed validation outcome cannot reuse an older
 // finalized source-record revision.
-const SOURCE_RECORD_EVIDENCE_SEMANTICS_VERSION = 'source-record-evidence@1';
+const SOURCE_RECORD_EVIDENCE_SEMANTICS_VERSION = 'source-record-evidence@2';
 
 export interface PipelineOptions {
   readonly driver: SqlDriver;
@@ -211,6 +210,11 @@ interface NormalizedRecord {
   readonly normalization: NormalizationResult;
 }
 
+interface ValidatedAlias {
+  readonly claim: AliasClaim;
+  readonly locator: ExtractedRecord['locator'];
+}
+
 /** One resolved source record, carried from the RESOLVED stage into PUBLISHED. */
 interface ResolvedRecordContext {
   readonly plan: StreamPlan;
@@ -227,6 +231,104 @@ interface InternalRightsIntent {
   readonly assetClass: RightsAssetClass;
   readonly outputClass: RightsOutputClass;
   readonly fieldKey: string | null;
+}
+
+function sortedEvidenceProjection<T>(items: readonly T[]): readonly T[] {
+  return [...items].sort((left, right) => {
+    const leftKey = stableStringify(left);
+    const rightKey = stableStringify(right);
+    return leftKey < rightKey ? -1 : leftKey > rightKey ? 1 : 0;
+  });
+}
+
+/**
+ * The exact source-side evidence fields that `#buildEdge` later persists. Keep
+ * this pure so the fingerprint and writer cannot drift apart as mappings grow.
+ */
+function relationshipEvidenceInput(
+  extracted: ExtractedRecord,
+  plan: RelationshipPlan,
+): {
+  readonly sourceValue: string;
+  readonly locatorType: FactEvidenceInput['locator_type'];
+  readonly locatorValue: string;
+} {
+  const evidenceEndpoint = plan.subject.kind === 'self' ? plan.object : plan.subject;
+  let sourceValue = '';
+  let locatorType: FactEvidenceInput['locator_type'] = extracted.locator.type;
+  let locatorValue = extracted.locator.value;
+  if (evidenceEndpoint.kind === 'publisher' && evidenceEndpoint.literal !== null) {
+    sourceValue = evidenceEndpoint.literal;
+  } else if (evidenceEndpoint.kind !== 'self') {
+    const field = evidenceEndpoint.field;
+    const value = field === null ? null : extracted.values.find((item) => item.field === field);
+    if (value?.raw != null) {
+      sourceValue = value.raw;
+      locatorType = value.locator.type;
+      locatorValue = value.locator.value;
+    }
+  }
+  return {
+    sourceValue: sourceValue === '' ? extracted.source_record_key : sourceValue,
+    locatorType,
+    locatorValue,
+  };
+}
+
+/**
+ * Fingerprint every input that can appear in persisted entity, fact, or
+ * relationship evidence. A matching artifact/payload is insufficient: an
+ * extractor or mapper may move a locator or change the value/edge semantics
+ * without changing either artifact bytes or the normalized record payload.
+ */
+function sourceRecordEvidenceFingerprint(
+  item: NormalizedRecord,
+  validatedAliases: readonly ValidatedAlias[],
+): string {
+  return sha256Hex(stableStringify({
+    semanticsVersion: SOURCE_RECORD_EVIDENCE_SEMANTICS_VERSION,
+    entity: {
+      entityType: item.plan.entityType,
+      recordLocator: {
+        locatorType: item.extracted.locator.type,
+        locatorValue: item.extracted.locator.value,
+      },
+      validatedAliases: sortedEvidenceProjection(validatedAliases.map(({ claim, locator }) => ({
+        aliasType: claim.aliasType,
+        aliasValue: claim.aliasValue,
+        normalizedValue: claim.normalizedValue,
+        strong: claim.strong,
+        locatorType: locator.type,
+        locatorValue: locator.value,
+      }))),
+    },
+    facts: sortedEvidenceProjection(item.normalization.candidates.map((candidate) => ({
+      property: candidate.property,
+      normalizedValue: candidate.normalized_value,
+      valueType: candidate.value_type,
+      outputKind: candidate.output_kind,
+      derivedFromProperty: candidate.derived_from_property ?? null,
+      transformationRef: candidate.transformation_ref ?? null,
+      unit: candidate.unit,
+      confidence: candidate.confidence,
+      extractionConfidence: candidate.extraction_confidence,
+      sourceField: candidate.source_field,
+      sourceValue: candidate.source_value,
+      sourceUnit: candidate.source_unit,
+      transforms: candidate.transforms,
+      locatorType: candidate.locator.type,
+      locatorValue: candidate.locator.value,
+    }))),
+    relationships: sortedEvidenceProjection(item.plan.relationships.map((plan) => ({
+      plan,
+      evidence: relationshipEvidenceInput(item.extracted, plan),
+    }))),
+    mapping: {
+      schema: item.plan.schema,
+      ruleSet: item.plan.ruleSet,
+      aliases: item.plan.aliases,
+    },
+  }));
 }
 
 /**
@@ -917,10 +1019,7 @@ export class Pipeline {
           if (manufacturer !== null) break;
         }
 
-        const validatedAliases: Array<{
-          readonly claim: AliasClaim;
-          readonly locator: IdentifierCandidate['locator'];
-        }> = [];
+        const validatedAliases: ValidatedAlias[] = [];
         for (const identifier of item.normalization.identifiers) {
           const plan = item.plan.aliases.find((alias) => alias.aliasType === identifier.alias_type);
           const normalizedValue = resolver.normalizer.normalize(
@@ -956,30 +1055,7 @@ export class Pipeline {
           throw new UnresolvableRecordRollback();
         }
 
-        const evidenceFingerprint = sha256Hex(stableStringify({
-          semanticsVersion: SOURCE_RECORD_EVIDENCE_SEMANTICS_VERSION,
-          plan: {
-            entityType: item.plan.entityType,
-            schema: item.plan.schema,
-            ruleSet: item.plan.ruleSet,
-            aliases: item.plan.aliases,
-            relationships: item.plan.relationships,
-          },
-          validatedAliases: validatedAliases
-            .map(({ claim, locator }) => ({
-              aliasType: claim.aliasType,
-              aliasValue: claim.aliasValue,
-              normalizedValue: claim.normalizedValue,
-              strong: claim.strong,
-              locatorType: locator.type,
-              locatorValue: locator.value,
-            }))
-            .sort((left, right) => {
-              const leftKey = stableStringify(left);
-              const rightKey = stableStringify(right);
-              return leftKey < rightKey ? -1 : leftKey > rightKey ? 1 : 0;
-            }),
-        }));
+        const evidenceFingerprint = sourceRecordEvidenceFingerprint(item, validatedAliases);
         const sourceRecord = await this.store.reconcileSourceRecord(
           {
             source_id: source.id,
@@ -1252,24 +1328,7 @@ export class Pipeline {
       return match.entity.id;
     };
 
-    // The evidence for an edge is the endpoint the source actually wrote down;
-    // the other end is the record itself.
-    const evidenceEndpoint = plan.subject.kind === 'self' ? plan.object : plan.subject;
-    let sourceValue = '';
-    let locatorType: FactEvidenceInput['locator_type'] = context.extracted.locator.type;
-    let locatorValue = context.extracted.locator.value;
-    if (evidenceEndpoint.kind === 'publisher' && evidenceEndpoint.literal !== null) {
-      sourceValue = evidenceEndpoint.literal;
-    } else if (evidenceEndpoint.kind !== 'self') {
-      const field = evidenceEndpoint.field;
-      const value =
-        field === null ? null : context.extracted.values.find((item) => item.field === field);
-      if (value?.raw != null) {
-        sourceValue = value.raw;
-        locatorType = value.locator.type;
-        locatorValue = value.locator.value;
-      }
-    }
+    const evidence = relationshipEvidenceInput(context.extracted, plan);
 
     if (plan.skipWhenNull === 'subject' && plan.subject.kind === 'alias') {
       if (stringOrNull(raw[plan.subject.field]) === null) return null;
@@ -1297,9 +1356,9 @@ export class Pipeline {
       subject,
       object,
       validFrom,
-      sourceValue: sourceValue === '' ? context.sourceRecord.source_record_key : sourceValue,
-      locatorType,
-      locatorValue,
+      sourceValue: evidence.sourceValue,
+      locatorType: evidence.locatorType,
+      locatorValue: evidence.locatorValue,
     };
   }
 
