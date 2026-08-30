@@ -219,9 +219,9 @@ item 1.
 1. Create the dead-letter queue first, since the main queue's config
    references it:
    ```
-   npx wrangler queues create data-foundry-usage-events-dlq
-   npx wrangler queues create data-foundry-usage-events
-   npx wrangler queues update data-foundry-usage-events --message-retention-period-secs 1209600
+   pnpm exec wrangler queues create data-foundry-usage-events-dlq
+   pnpm exec wrangler queues create data-foundry-usage-events
+   pnpm exec wrangler queues update data-foundry-usage-events --message-retention-period-secs 1209600
    ```
    Both names must match `apps/edge/wrangler.toml` and
    `apps/mcp-worker/wrangler.toml`'s `[[queues.producers]]` blocks and
@@ -255,21 +255,36 @@ item 1.
    ```
    A successful check intentionally prints no account ids, routes, URLs, or
    secret values, so its receipt is safe to archive.
-   Deploy the edge and consumer from their directories with
-   `npx wrangler deploy --config wrangler.production.toml`.
-   Deploy the public Worker from `apps/web` with its exact non-secret
-   `PUBLIC_ORIGIN` in the ignored manifest, not as a shell argument.
-   Repeat the `--config wrangler.production.toml` form from `apps/edge` and
-   `apps/usage-consumer`. Comparing to `HEAD` is required: a plain working-tree
-   diff ignores staged edits and could falsely pass after a live id was staged.
-   From `apps/mcp-worker`, deploy with its three exact non-secret values (quote
-   the comma-separated origin value in the shell if it contains commas):
+   Comparing tracked templates to `HEAD` is required: a plain working-tree diff
+   ignores staged edits and could falsely pass after a live id was staged. Keep
+   every non-secret live value in the matching ignored manifest rather than
+   duplicating it on the command line. From the repository root, dry-run and
+   deploy the five exact manifests with the repository-pinned Wrangler:
    ```powershell
-   npx wrangler deploy --config wrangler.production.toml --var MCP_HOSTNAME:<mcp-host> --var MCP_ALLOWED_ORIGINS:https://<allowed-client-origin> --var PUBLIC_ORIGIN:https://<public-host>
+   pnpm exec wrangler deploy --dry-run --config apps/edge/wrangler.production.toml
+   pnpm exec wrangler deploy --dry-run --config apps/web/wrangler.production.toml
+   pnpm exec wrangler deploy --dry-run --config apps/usage-consumer/wrangler.production.toml
+   pnpm exec wrangler deploy --dry-run --config apps/acquisition-worker/wrangler.production.toml
+   pnpm exec wrangler deploy --dry-run --config apps/mcp-worker/wrangler.production.toml
+
+   pnpm exec wrangler deploy --config apps/edge/wrangler.production.toml
+   pnpm exec wrangler deploy --config apps/web/wrangler.production.toml
+   pnpm exec wrangler deploy --config apps/usage-consumer/wrangler.production.toml
+   pnpm exec wrangler deploy --config apps/acquisition-worker/wrangler.production.toml
+   pnpm exec wrangler deploy --config apps/mcp-worker/wrangler.production.toml
    ```
-   Deploy `apps/acquisition-worker` from its ignored manifest after adding the
-   Hyperdrive id and canonical R2 binding. Its tracked hourly Cron and non-secret
-   vertical/bucket names remain unchanged.
+   Before those commands, store protected values interactively without placing
+   their values in shell history or any manifest. Use the exact Worker manifest
+   that consumes each name, for example:
+   ```powershell
+   pnpm exec wrangler secret put RAPIDAPI_PROXY_SECRET --config apps/edge/wrangler.production.toml
+   pnpm exec wrangler secret put RAPIDAPI_API_KEY --config apps/edge/wrangler.production.toml
+   ```
+   Add acquisition-provider secrets only for an exact rights-admitted target:
+   `CLOUDFLARE_API_TOKEN` for Browser Run and/or `CRAWL4AI_API_TOKEN` for
+   Crawl4AI. `CLOUDFLARE_ACCOUNT_ID` is a non-secret manifest variable when
+   Browser Run is enabled. The acquisition Worker's tracked hourly Cron and
+   non-secret vertical/bucket names otherwise remain unchanged.
 
    From the repository root, verify all five tracked templates together:
    ```powershell
@@ -283,7 +298,7 @@ after Cloudflare Queues accepts its usage event, not after the consumer persists
 that event to Postgres. Within a few seconds, `select count(*) from api_usage_events` on
 the production database increases by one, and the row's `route_key` column
 holds a registered key (`entities.detail`) rather than any path, query, slug,
-or entity id. Confirm `npx wrangler queues info data-foundry-usage-events`
+or entity id. Confirm `pnpm exec wrangler queues info data-foundry-usage-events`
 reports 1,209,600 seconds of retention. Killing the consumer Worker's database
 connectivity temporarily must not change the edge Worker's response time or
 status — that database-write decoupling is exercised (against PGlite, not this
