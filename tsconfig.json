@@ -11,6 +11,7 @@
     "services/*/test/**/*.ts",
     "services/*/vitest.config.ts",
     "apps/*/src/**/*.ts",
+    "apps/*/generated/**/*.ts",
     "apps/*/test/**/*.ts",
     "apps/*/vitest.config.ts",
     "verticals/*/tests/**/*.ts",

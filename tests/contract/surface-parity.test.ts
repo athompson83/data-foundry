@@ -38,8 +38,10 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { createApiApp, type ApiHandler, type ApiResponse } from '../../apps/api/src/index.js';
 import { createMcpServer, type McpServer } from '../../apps/mcp/src/index.js';
 import {
+  addSyntheticEntityEvidence,
   claim,
   createQueryFixtures,
+  seedSyntheticSurfaceRights,
   ts,
   type QueryFixtures,
 } from '../../packages/query-model/test/support.js';
@@ -100,6 +102,10 @@ let fixtures: Surfaces;
 
 beforeAll(async () => {
   const base = await createQueryFixtures();
+  await seedSyntheticSurfaceRights(base, ['API_FREE', 'MCP']);
+  for (const entity of [base.equipment, base.heatPump, base.motor, base.rival]) {
+    await addSyntheticEntityEvidence(base, entity);
+  }
 
   await claim(base, 'blocked', {
     property: BLOCKED_PROPERTY,
@@ -205,7 +211,7 @@ async function restRaw(): Promise<readonly Record<string, unknown>[]> {
     // A limit above the fact count, so pagination cannot be mistaken for a
     // rights decision — a truncated page and a withheld fact look identical.
     url: `/v1/entities/${fixtures.equipment.id}/facts?limit=100&at=${encodeURIComponent(AT)}`,
-  });
+  }, undefined, { surface: 'API_FREE' });
   expect(response.status, JSON.stringify(response.body)).toBe(200);
   const body = response.body as { data: readonly Record<string, unknown>[]; meta?: unknown };
   return body.data;

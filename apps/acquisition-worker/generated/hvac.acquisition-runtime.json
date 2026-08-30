@@ -1,0 +1,412 @@
+{
+  "schema_version": 2,
+  "vertical_slug": "hvac",
+  "vertical_name": "HVAC Equipment",
+  "vertical_schema_version": "0.1.0",
+  "vertical_status": "DRAFT",
+  "default_refresh_policy": {
+    "cadence": "MONTHLY",
+    "max_staleness_hours": 720,
+    "priority": 60
+  },
+  "targets": [
+    {
+      "target_id": "catalog-api",
+      "target_url": "https://catalog.acme-climate.example.com/api/v2/catalog",
+      "max_direct_http_response_bytes": 1048576,
+      "result_url_policy": {
+        "allowedOrigins": [
+          "https://catalog.acme-climate.example.com"
+        ],
+        "allowedPathPrefixes": [
+          "/api/v2/catalog"
+        ]
+      },
+      "asset_class": "DATA",
+      "output_class": "RAW_RECORD",
+      "source": {
+        "key": "acme-hvac-catalog",
+        "vertical_slug": "hvac",
+        "publisher": "Acme Climate Systems (SYNTHETIC — fictional publisher)",
+        "domain": "catalog.acme-climate.example.com",
+        "source_type": "MANUFACTURER",
+        "authority_rank": 85,
+        "status": "ACTIVE",
+        "refresh_cadence": "DAILY",
+        "rights_classification": "GREEN",
+        "attribution_requirement": {
+          "required": false,
+          "text": null,
+          "url": null
+        },
+        "robots_policy": {
+          "respect_robots": true,
+          "user_agent": "DataFoundryBot",
+          "crawl_delay_seconds": null,
+          "disallowed_paths": [
+            "/internal/",
+            "/pricing/"
+          ],
+          "allowed_paths": [
+            "/api/v2/catalog"
+          ],
+          "robots_url": "https://catalog.acme-climate.example.com/robots.txt",
+          "snapshot_hash": "3f2a9c1e7b4d8056a1c3e5f70928bd4c6e1a8f30b7d2c94e5061a3f7c8b2d9e0",
+          "snapshot_at": "2026-07-02T09:14:00Z"
+        },
+        "rights_policy": {
+          "publisher_legal_entity": "Acme Climate Systems (fictional entity; synthetic test data)",
+          "terms_url": "https://catalog.acme-climate.example.com/terms",
+          "license_id": "CC-BY-4.0",
+          "license_text_ref": null,
+          "api_terms_url": "https://catalog.acme-climate.example.com/api-terms",
+          "commercial_use_allowed": true,
+          "redistribution_allowed": true,
+          "derivative_normalization_allowed": true,
+          "attribution": {
+            "required": false,
+            "text": null,
+            "url": null
+          },
+          "images_reusable": false,
+          "personal_data_present": false,
+          "geographic_notes": "Not applicable. Synthetic fixture data authored by the Data Foundry team for pipeline testing; no jurisdiction-specific database right or contractual term attaches to it.",
+          "reviewed_at": "2026-07-02T10:00:00Z",
+          "reviewed_by": "Data Foundry platform team",
+          "next_review_at": "2027-07-02"
+        },
+        "acquisition_policy": {
+          "method": "DIRECT_HTTP",
+          "account_or_product_plan": null,
+          "jurisdiction": null,
+          "approved": true,
+          "approved_by": "Data Foundry platform team",
+          "approved_at": "2026-07-02T10:00:00Z",
+          "max_requests_per_minute": 60,
+          "notes": "Plain HTTPS GET against a documented JSON endpoint. No rendering, no session, no authentication. In the fixture harness this reads fixtures/acme-catalog.json from disk and makes no network call at all."
+        },
+        "image_policy": {
+          "images_reusable": false,
+          "cache_to_r2_permitted": false,
+          "default_display_modes": [],
+          "image_attribution": {
+            "required": false,
+            "text": null,
+            "url": null
+          }
+        },
+        "provenance_retention": {
+          "retain_artifacts": true,
+          "retention_days": null,
+          "legal_hold": false
+        },
+        "license_split": {
+          "code_license_id": null,
+          "data_license_id": "CC-BY-4.0",
+          "notes": "No code is vendored from this source; the licence applies to the feed content only."
+        },
+        "kill_switch_engaged": false,
+        "notes": "The manufacturer feed. Uniquely provides: manufacturer SKU, series name, electrical characteristics (voltage/phase), compressor stage count, and the lifecycle block carrying `replaced_by` — the only source that asserts supersession, and therefore the only source that can answer this vertical's highest-value question. Omits sound level, UPC and certification references entirely. Publishes SEER2 as a marketing figure, which is why fact-selection.yaml prefers the certification directory for that property."
+      }
+    },
+    {
+      "target_id": "specification-sheet",
+      "target_url": "https://docs.acme-climate.example.com/spec-sheets/acme-spec.pdf",
+      "max_direct_http_response_bytes": 8388608,
+      "result_url_policy": {
+        "allowedOrigins": [
+          "https://docs.acme-climate.example.com"
+        ],
+        "allowedPathPrefixes": [
+          "/spec-sheets/acme-spec.pdf"
+        ]
+      },
+      "asset_class": "DOCUMENT",
+      "output_class": "RAW_RECORD",
+      "source": {
+        "key": "acme-spec-sheets",
+        "vertical_slug": "hvac",
+        "publisher": "Acme Climate Systems (SYNTHETIC — fictional publisher)",
+        "domain": "docs.acme-climate.example.com",
+        "source_type": "MANUFACTURER",
+        "authority_rank": 90,
+        "status": "ACTIVE",
+        "refresh_cadence": "QUARTERLY",
+        "rights_classification": "GREEN",
+        "attribution_requirement": {
+          "required": false,
+          "text": null,
+          "url": null
+        },
+        "robots_policy": {
+          "respect_robots": true,
+          "user_agent": "DataFoundryBot",
+          "crawl_delay_seconds": 2,
+          "disallowed_paths": [
+            "/drafts/",
+            "/internal/"
+          ],
+          "allowed_paths": [
+            "/spec-sheets/"
+          ],
+          "robots_url": "https://docs.acme-climate.example.com/robots.txt",
+          "snapshot_hash": "ba0d472f19e8c536a7b13f6048d2ce915a03b7e6c81d4f29307a6be5d1c4082f",
+          "snapshot_at": "2026-07-02T09:31:00Z"
+        },
+        "rights_policy": {
+          "publisher_legal_entity": "Acme Climate Systems (fictional entity; synthetic test data)",
+          "terms_url": "https://docs.acme-climate.example.com/terms",
+          "license_id": "CC-BY-4.0",
+          "license_text_ref": null,
+          "api_terms_url": null,
+          "commercial_use_allowed": true,
+          "redistribution_allowed": true,
+          "derivative_normalization_allowed": true,
+          "attribution": {
+            "required": false,
+            "text": null,
+            "url": null
+          },
+          "images_reusable": true,
+          "personal_data_present": false,
+          "geographic_notes": "Not applicable. Synthetic fixture data authored by the Data Foundry team.",
+          "reviewed_at": "2026-07-02T10:00:00Z",
+          "reviewed_by": "Data Foundry platform team",
+          "next_review_at": "2027-07-02"
+        },
+        "acquisition_policy": {
+          "method": "DIRECT_HTTP",
+          "account_or_product_plan": null,
+          "jurisdiction": null,
+          "approved": true,
+          "approved_by": "Data Foundry platform team",
+          "approved_at": "2026-07-02T10:00:00Z",
+          "max_requests_per_minute": 20,
+          "notes": "Direct HTTPS GET of individual PDF documents linked from model pages. Text-layer extraction only; the fixture PDF is generated with a real text layer so extraction is genuinely exercised rather than stubbed. No OCR path is approved — a scanned spec sheet would be a different acquisition decision with different accuracy characteristics, and would need its own review."
+        },
+        "image_policy": {
+          "images_reusable": true,
+          "cache_to_r2_permitted": true,
+          "default_display_modes": [
+            "THUMBNAIL",
+            "INLINE"
+          ],
+          "image_attribution": {
+            "required": true,
+            "text": "Dimensional drawings © Acme Climate Systems (synthetic test source).",
+            "url": "https://docs.acme-climate.example.com/"
+          }
+        },
+        "provenance_retention": {
+          "retain_artifacts": true,
+          "retention_days": null,
+          "legal_hold": false
+        },
+        "license_split": {
+          "code_license_id": null,
+          "data_license_id": "CC-BY-4.0",
+          "notes": "Document content is licensed; the fixture PDF itself is generated by our own committed script under the repository's own terms."
+        },
+        "kill_switch_engaged": false,
+        "notes": "Engineering spec sheets for the current Acme line (24ACC636A003, 24ACC648A003, 24ACC660A003). Uniquely provides sound level and net weight, and is the only source publishing nominal tonnage and BTU/h side by side — which makes it the reference for validating the 12000 BTU/h = 1 ton conversion rather than trusting it. Covers only three current models: no discontinued units, no other manufacturers, no UPC, no certification reference. Disagrees with coolsupply-distributor on sound level for 24ACC648A003 (72 dB published vs 69 dB listed) and wins on authority, 90 to 45."
+      }
+    },
+    {
+      "target_id": "quarterly-export",
+      "target_url": "https://ratings-directory.example.org/exports/ahri-export.csv",
+      "max_direct_http_response_bytes": 16777216,
+      "result_url_policy": {
+        "allowedOrigins": [
+          "https://ratings-directory.example.org"
+        ],
+        "allowedPathPrefixes": [
+          "/exports/ahri-export.csv"
+        ]
+      },
+      "asset_class": "DATA",
+      "output_class": "RAW_RECORD",
+      "source": {
+        "key": "ahri-directory-export",
+        "vertical_slug": "hvac",
+        "publisher": "Federated HVAC Ratings Council (SYNTHETIC — fictional certification body)",
+        "domain": "ratings-directory.example.org",
+        "source_type": "CERTIFICATION_BODY",
+        "authority_rank": 95,
+        "status": "ACTIVE",
+        "refresh_cadence": "QUARTERLY",
+        "rights_classification": "GREEN",
+        "attribution_requirement": {
+          "required": true,
+          "text": "Certified ratings data from the Federated HVAC Ratings Council directory (synthetic test source).",
+          "url": "https://ratings-directory.example.org/"
+        },
+        "robots_policy": {
+          "respect_robots": true,
+          "user_agent": "DataFoundryBot",
+          "crawl_delay_seconds": null,
+          "disallowed_paths": [],
+          "allowed_paths": [
+            "/exports/"
+          ],
+          "robots_url": "https://ratings-directory.example.org/robots.txt",
+          "snapshot_hash": "51e8a3c7d09b426f8a17c5e304db29f6710c8ba5e42d19f7038c6ea5b91d472f",
+          "snapshot_at": "2026-07-02T09:26:00Z"
+        },
+        "rights_policy": {
+          "publisher_legal_entity": "Federated HVAC Ratings Council (fictional entity; synthetic test data)",
+          "terms_url": "https://ratings-directory.example.org/terms",
+          "license_id": "CC-BY-4.0",
+          "license_text_ref": null,
+          "api_terms_url": null,
+          "commercial_use_allowed": true,
+          "redistribution_allowed": true,
+          "derivative_normalization_allowed": true,
+          "attribution": {
+            "required": true,
+            "text": "Certified ratings data from the Federated HVAC Ratings Council directory (synthetic test source).",
+            "url": "https://ratings-directory.example.org/"
+          },
+          "images_reusable": false,
+          "personal_data_present": false,
+          "geographic_notes": "Not applicable. Synthetic fixture data authored by the Data Foundry team. Recorded because a real ratings directory would carry directory-specific redistribution terms that would need reading before any of this were true.",
+          "reviewed_at": "2026-07-02T10:00:00Z",
+          "reviewed_by": "Data Foundry platform team",
+          "next_review_at": "2027-07-02"
+        },
+        "acquisition_policy": {
+          "method": "BULK_FILE",
+          "account_or_product_plan": null,
+          "jurisdiction": null,
+          "approved": true,
+          "approved_by": "Data Foundry platform team",
+          "approved_at": "2026-07-02T10:00:00Z",
+          "max_requests_per_minute": 5,
+          "notes": "Single direct HTTPS GET of a complete CSV export, no browser and no per-record fetching. Preferring the published bulk file over crawling the directory's search UI is both cheaper and the behaviour the publisher intends. In the fixture harness this reads fixtures/ahri-export.csv from disk."
+        },
+        "image_policy": {
+          "images_reusable": false,
+          "cache_to_r2_permitted": false,
+          "default_display_modes": [],
+          "image_attribution": {
+            "required": false,
+            "text": null,
+            "url": null
+          }
+        },
+        "provenance_retention": {
+          "retain_artifacts": true,
+          "retention_days": null,
+          "legal_hold": false
+        },
+        "license_split": {
+          "code_license_id": null,
+          "data_license_id": "CC-BY-4.0",
+          "notes": "Data licence only; no code is vendored from this source."
+        },
+        "kill_switch_engaged": false,
+        "notes": "The authority for certified performance and the only source spanning all three manufacturers, which makes it the backbone of cross-manufacturer comparison. Uniquely provides the certification reference (`ahri_ref`) and the certified SEER2/EER2/HSPF2 values. Omits electrical data, sound level, weight and UPC entirely. Formats model numbers inconsistently BY MANUFACTURER — spaces for Acme (`24ACC6 36A003`), plain for Northwind, hyphenated for Borealis — which is realistic and is the main workout for identifier normalization. Drops discontinued models from each export, so the gen-1 and gen-2 Acme units in the supersession chain appear in no certification record at all."
+      }
+    },
+    {
+      "target_id": "rendered-listing",
+      "target_url": "https://www.coolsupply.example.com/products/coolsupply-listing.html",
+      "result_url_policy": {
+        "allowedOrigins": [
+          "https://www.coolsupply.example.com"
+        ],
+        "allowedPathPrefixes": [
+          "/products/coolsupply-listing.html"
+        ]
+      },
+      "asset_class": "DOCUMENT",
+      "output_class": "RAW_RECORD",
+      "source": {
+        "key": "coolsupply-distributor",
+        "vertical_slug": "hvac",
+        "publisher": "CoolSupply Wholesale (SYNTHETIC — fictional publisher)",
+        "domain": "www.coolsupply.example.com",
+        "source_type": "DISTRIBUTOR",
+        "authority_rank": 45,
+        "status": "ACTIVE",
+        "refresh_cadence": "WEEKLY",
+        "rights_classification": "AMBER",
+        "attribution_requirement": {
+          "required": true,
+          "text": "Listing data courtesy of CoolSupply Wholesale (synthetic test source).",
+          "url": "https://www.coolsupply.example.com/"
+        },
+        "robots_policy": {
+          "respect_robots": true,
+          "user_agent": "DataFoundryBot",
+          "crawl_delay_seconds": 3,
+          "disallowed_paths": [
+            "/cart/",
+            "/account/",
+            "/search",
+            "/checkout/"
+          ],
+          "allowed_paths": [
+            "/products/"
+          ],
+          "robots_url": "https://www.coolsupply.example.com/robots.txt",
+          "snapshot_hash": "8c47b1d0e93f6a25c7104b8ef2d63a915e0c7b48a2f19d63c85074eb3d1a6f92",
+          "snapshot_at": "2026-07-02T09:20:00Z"
+        },
+        "rights_policy": {
+          "publisher_legal_entity": "CoolSupply Wholesale (fictional entity; synthetic test data)",
+          "terms_url": "https://www.coolsupply.example.com/terms-of-use",
+          "license_id": null,
+          "license_text_ref": "fixtures/coolsupply-listing.html",
+          "api_terms_url": null,
+          "commercial_use_allowed": true,
+          "redistribution_allowed": true,
+          "derivative_normalization_allowed": true,
+          "attribution": {
+            "required": true,
+            "text": "Listing data courtesy of CoolSupply Wholesale (synthetic test source).",
+            "url": "https://www.coolsupply.example.com/"
+          },
+          "images_reusable": false,
+          "personal_data_present": false,
+          "geographic_notes": "Not applicable. Synthetic fixture data authored by the Data Foundry team. Noted here because a real distributor catalogue in the EU/UK would raise a sui generis database right question that this synthetic stand-in does not.",
+          "reviewed_at": "2026-07-02T10:00:00Z",
+          "reviewed_by": "Data Foundry platform team",
+          "next_review_at": "2027-01-31"
+        },
+        "acquisition_policy": {
+          "method": "BROWSER_RUN",
+          "account_or_product_plan": null,
+          "jurisdiction": null,
+          "approved": true,
+          "approved_by": "Data Foundry platform team",
+          "approved_at": "2026-07-02T10:00:00Z",
+          "max_requests_per_minute": 15,
+          "notes": "Requires a rendering acquisition adapter (Cloudflare Browser Run or Crawl4AI — swappable, per AGENTS.md rule 6; the registry declares the permitted METHOD, never the vendor). Approval covers rendering public product pages only: no cart, account or search paths, matching the robots snapshot above. Rendering permission is a rights decision, not a technical one — \"we could render it\" is not \"we may render it\"."
+        },
+        "image_policy": {
+          "images_reusable": false,
+          "cache_to_r2_permitted": false,
+          "default_display_modes": [],
+          "image_attribution": {
+            "required": false,
+            "text": null,
+            "url": null
+          }
+        },
+        "provenance_retention": {
+          "retain_artifacts": true,
+          "retention_days": 730,
+          "legal_hold": false
+        },
+        "license_split": {
+          "code_license_id": null,
+          "data_license_id": null,
+          "notes": "No licence is offered by the publisher. Facts are used under the AMBER classification pending business review; the page markup itself is not republished."
+        },
+        "kill_switch_engaged": false,
+        "notes": "The only source of UPCs, and a useful independent corroborator on capacity and refrigerant. Everything it publishes should be treated as re-keyed rather than authoritative: it lists capacity in tons (\"3 Ton\"), lowercases and hyphenates model numbers (`24acc6-36a003`), omits EER2/HSPF2/phase/stage count/weight, and disagrees with the manufacturer's own spec sheet on sound level for 24ACC648A003 (69 dB listed vs 72 dB published). That conflict is intentional and is what exercises authority-weighted fact selection. Its own item numbers (`CS-######`) are deliberately NOT ingested — they are source-scoped inventory codes with no cross-source meaning."
+      }
+    }
+  ],
+  "runtime_digest": "fde03f7946e98804c5040a2645f2833245454ff6a9ec550aa1f34f27650ccf12"
+}

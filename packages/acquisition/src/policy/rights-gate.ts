@@ -29,7 +29,15 @@ import { evaluateRobots, type RobotsDecision } from './robots.js';
  */
 
 /** Only these lifecycle states may be fetched from at all. */
-const ACQUIRABLE_STATUSES = new Set(['APPROVED', 'ACTIVE']);
+/**
+ * The statuses from which anything may be fetched at all.
+ *
+ * Exported rather than private because a second reader now needs it:
+ * `services/ingest-worker/src/fact-policy.ts` refuses an authority declaration
+ * that only unusable sources satisfy, and a private copy of this set there
+ * would be the drift `refresh-schedule.ts` was written to avoid.
+ */
+export const ACQUIRABLE_STATUSES: ReadonlySet<string> = new Set(['APPROVED', 'ACTIVE']);
 
 export interface AcquisitionGateInput {
   readonly entry: SourceRegistryEntry;

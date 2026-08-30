@@ -95,6 +95,7 @@ export {
 
 export {
   traverseRelationships,
+  type RelationshipRightsGate,
   type RelationshipEdge,
   type RelationshipTraversal,
   type TraversalDirection,
@@ -103,6 +104,7 @@ export {
 
 export {
   compareEntities,
+  type ComparisonAccess,
   type ComparisonCell,
   type ComparisonRow,
   type CompareQuery,
@@ -114,3 +116,20 @@ export {
   type QueryModel,
   type QueryModelOptions,
 } from './query-model.js';
+
+export {
+  createSurfaceQueryModel,
+  type SurfaceClaimAttribution,
+  type SurfaceClaimSummary,
+  type SurfaceFactExplanation,
+  type SurfaceAccessOptions,
+  type SurfaceEntityListPage,
+  type SurfaceEntityListQuery,
+  type SurfaceQueryModel,
+} from './surface-access.js';
+export { RIGHTS_SURFACES, type RightsSurface } from '@data-foundry/rights-engine';
+
+export {
+  runtimeSchema,
+  type RuntimeSchemaOutput,
+} from './runtime-schema.js';

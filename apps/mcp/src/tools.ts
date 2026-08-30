@@ -37,7 +37,7 @@ import {
   assertPayloadCarriesNoWithheldSource,
   guardCorrectionFields,
   reviewerTokens as reviewerTokensFor,
-  reviewersIn,
+  reviewersInPolicy,
 } from './guard.js';
 import {
   UnknownFieldError,
@@ -45,17 +45,15 @@ import {
   type CanonicalFactView,
   type EntityView,
   type FacetFilter,
-  type FactExplanation,
   type FactSelectionPolicy,
-  type QueryModel,
+  type CustomerQueryModel,
   type SearchQuery,
   type VerticalId,
 } from './query-layer.js';
 import {
   comparison,
-  explanation,
+  customerExplanation,
   factSheet,
-  withheldSourceTokens,
   entityRef,
   redirectNotice,
   searchResult,
@@ -84,7 +82,7 @@ import {
 
 /** Everything a handler is given. Note what is absent: a store, a driver, SQL. */
 export interface ToolContext {
-  readonly queryModel: QueryModel;
+  readonly queryModel: CustomerQueryModel;
   readonly vertical: { readonly id: VerticalId; readonly slug: string };
   /**
    * Server-side fact-selection policy. NOT caller-controllable: it carries
@@ -200,7 +198,7 @@ function readAt(context: ToolContext, asOf?: string): ReadAt {
 /**
  * Fetch by canonical id, refusing ids belonging to another vertical.
  *
- * One server serves one vertical (`mcp.yaml`: `server.vertical`). Without this
+ * One deployed server serves one compiled vertical. Without this
  * check a caller holding an id from a neighbouring vertical would read it
  * here, which is a tenancy leak dressed as a successful lookup.
  */
@@ -239,19 +237,14 @@ async function readFactSheet(
 
   const sheet = factSheet(views);
 
-  // Reviewer names are only in play where a correction was applied, and the
-  // only way to learn them is `explainFact` — the internal surface. Asking for
-  // them unconditionally would double the query count of every fact read to
-  // guard against a state that is usually absent.
+  // Reviewer names come only from trusted server policy. The surface-bound
+  // query model never receives the internal explanation object that contains
+  // them, but the final payload sweep still uses the policy identities as a
+  // defense against a correction reason that names its author.
   const corrected = views.filter((view: CanonicalFactView) => view.editorially_corrected);
   if (corrected.length === 0) return unguarded(sheet);
 
-  const explanations: FactExplanation[] = [];
-  for (const view of corrected) {
-    const found = await context.queryModel.explainFact(entityId as never, view.property, policy);
-    if (found !== null) explanations.push(found);
-  }
-  const reviewers = reviewersIn(explanations);
+  const reviewers = reviewersInPolicy(context.policy);
 
   // Layer 1 of the control, per fact, using the query layer's own assertion.
   for (const fact of sheet.facts) {
@@ -632,10 +625,14 @@ const traverseRelationships = defineTool({
     'limit stopped the walk short. LIMITATIONS: an edge exists only where a source asserted it. ' +
     'Nothing here is inferred from similarity, so an entity with no asserted successor returns ' +
     'no successor rather than a plausible one. Depth is capped at four by design. IMPORTANT: this ' +
-    'is a view of the PUBLISHABLE graph, not the whole graph. An edge whose evidence comes only ' +
-    'from sources that fail the rights gate is withheld, and so is any neighbour reachable only ' +
-    'through one — silently, because saying how many were withheld for a given predicate would ' +
-    'republish the very claim the gate refused. So an absent edge means "not publishable or not ' +
+    'is a view of the PUBLISHABLE graph, not the whole graph. An edge is served only when both ' +
+    'endpoint identities retain current FINALIZED source-record support, at least one current ' +
+    'FINALIZED source-record assertion supports the edge, and every required provenance ' +
+    'contribution passes this surface\'s rights bundle. If any required provenance contribution ' +
+    'is refused, the whole edge and any neighbour reachable only through it are withheld; one ' +
+    'allowed contribution never launders a refused one. Refusals stay silent because saying how ' +
+    'many were withheld for a given predicate would republish the claim the gate refused. So an ' +
+    'absent edge means "not publishable or not ' +
     'asserted", never "asserted to be false". `withheldEdgeCount` reports a different and rarer ' +
     'case: edges nothing asserts at all, which should be 0 against a healthy database.',
   input: TraverseRelationshipsInput,
@@ -670,8 +667,9 @@ const explainFact = defineTool({
     'often the answer the user actually needs. This is the tool for "why does your value differ ' +
     'from the one I have?". Where an editorial correction replaced the source-selected value, ' +
     'that is stated together with its customer-visible reason. LIMITATIONS: covers only claims ' +
-    'that reached canonical storage. Claims backed solely by sources failing the rights gate are ' +
-    'withheld and counted, not shown. The identity of the staff reviewer behind an editorial ' +
+    'authorized for this MCP surface. Claims lacking that exact grant do not enter the answer or ' +
+    'a refusal count, so the tool cannot be differenced into a rights oracle. Exact source text ' +
+    'is returned only under a separate quote/excerpt grant. The identity of the staff reviewer behind an editorial ' +
     'correction is never returned by this or any other tool — the reason is publishable, the ' +
     'reviewer is not.',
   input: ExplainFactInput,
@@ -694,9 +692,9 @@ const explainFact = defineTool({
     if (found.claims.length === 0) {
       throw new McpToolError(
         'PROPERTY_NOT_RECORDED',
-        `"${view.entity.canonical_name}" exists, but no source in this catalogue publishes ` +
-          `"${args.property}" for it at ${read.instant}. That is a coverage gap, not a ` +
-          'rejected value — nothing was excluded, there was nothing to exclude.',
+        `No value is available for "${args.property}" on this MCP surface at ${read.instant}. ` +
+          'The property may be absent or unavailable under the current surface rights; this ' +
+          'response deliberately does not distinguish those cases.',
         {
           entity_id: view.entity.id,
           property: args.property,
@@ -705,10 +703,9 @@ const explainFact = defineTool({
       );
     }
 
-    const reviewers = reviewersIn([found]);
+    const reviewers = reviewersInPolicy(context.policy);
     const tokens = reviewerTokensFor(reviewers);
-    const sourceTokens = withheldSourceTokens(found);
-    const result = explanation(found, tokens, sourceTokens);
+    const result = customerExplanation(found);
 
     // Layer 1, on the one field that carries a correction's prose.
     guardCorrectionFields(
@@ -720,7 +717,7 @@ const explainFact = defineTool({
       reviewers,
     );
 
-    return { result, reviewerTokens: tokens, withheldSourceTokens: sourceTokens };
+    return { result, reviewerTokens: tokens, withheldSourceTokens: [] };
   },
 });
 

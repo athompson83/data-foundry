@@ -21,6 +21,8 @@ const BYTES = new TextEncoder().encode('{"unit":"XC21"}');
 const HASH = sha256Hex(BYTES);
 const EXPECTED_KEY = `raw/hvac/ratings-directory/content/${HASH.slice(0, 2)}/${HASH}`;
 const EXPECTED_RETRIEVAL_KEY = `raw/hvac/ratings-directory/retrieved/2026/08/14/${HASH}.json`;
+const POLICY_A = '22222222-2222-4222-8222-222222222222' as never;
+const POLICY_B = '33333333-3333-4333-8333-333333333333' as never;
 
 function putRequest(overrides: Partial<ArtifactPutRequest> = {}): ArtifactPutRequest {
   return {
@@ -36,6 +38,9 @@ function putRequest(overrides: Partial<ArtifactPutRequest> = {}): ArtifactPutReq
       mime_type: 'application/json',
       policy_snapshot_id: null,
       acquisition_provider: 'http',
+      acquisition_route: 'DIRECT_HTTP',
+      account_or_product_plan: null,
+      acquisition_jurisdiction: null,
       etag: '"v1"',
       last_modified: null,
     },
@@ -75,6 +80,20 @@ describe('artifact key layout', () => {
         contentHash: HASH,
       }),
     ).toContain('/2026/01/05/');
+  });
+
+  it('separates same-day retrievals made under different policy snapshots', () => {
+    const key = artifactRetrievalKey({
+      vertical: 'hvac',
+      source: 'ratings-directory',
+      retrievedAt: RETRIEVED_AT,
+      contentHash: HASH,
+      policySnapshotId: POLICY_A,
+    });
+    expect(key).toBe(
+      `raw/hvac/ratings-directory/retrieved/2026/08/14/${HASH}.${POLICY_A}.json`,
+    );
+    expect(parseArtifactRetrievalKey(key)?.policySnapshotId).toBe(POLICY_A);
   });
 
   it('round-trips both key kinds through their parsers, and does not confuse them', () => {
@@ -192,7 +211,7 @@ describe.each(storeCases)('$name — raw evidence contract', ({ make }) => {
     expect(stored.deduplicated).toBe(false);
   });
 
-  it('records retrieved_at, http_status, mime_type, content_hash and the policy snapshot', async () => {
+  it('records evidence and the exact acquisition scope with the bytes', async () => {
     const { store } = await make();
     const request = putRequest();
     const stored = await store.put({
@@ -211,6 +230,9 @@ describe.each(storeCases)('$name — raw evidence contract', ({ make }) => {
     expect(head?.content_hash).toBe(HASH);
     expect(head?.byte_size).toBe(BYTES.byteLength);
     expect(head?.policy_snapshot_id).toBe('22222222-2222-4222-8222-222222222222');
+    expect(head?.acquisition_route).toBe('DIRECT_HTTP');
+    expect(head?.account_or_product_plan).toBeNull();
+    expect(head?.acquisition_jurisdiction).toBeNull();
     expect(head?.etag).toBe('"v1"');
   });
 
@@ -237,6 +259,37 @@ describe.each(storeCases)('$name — raw evidence contract', ({ make }) => {
     });
     expect(second.metadata.http_status).toBe(200);
     expect(second.metadata.etag).toBe('"v1"');
+  });
+
+  it('records a new retrieval when identical bytes are fetched under a new rights scope', async () => {
+    const { store } = await make();
+    const firstRequest = putRequest();
+    await store.put({
+      ...firstRequest,
+      metadata: { ...firstRequest.metadata, policy_snapshot_id: POLICY_A },
+    });
+    const second = await store.put({
+      ...firstRequest,
+      metadata: {
+        ...firstRequest.metadata,
+        policy_snapshot_id: POLICY_B,
+        acquisition_route: 'BROWSER_RUN',
+        account_or_product_plan: 'partner-pro',
+        acquisition_jurisdiction: 'US',
+      },
+    });
+
+    expect(second.deduplicated).toBe(true);
+    expect(second.retrievalKey).toContain(String(POLICY_B));
+    const retrieval = await store.get(second.retrievalKey ?? 'missing');
+    expect(retrieval?.metadata.acquisition_route).toBe('BROWSER_RUN');
+    expect(retrieval?.metadata.account_or_product_plan).toBe('partner-pro');
+    const record = JSON.parse(new TextDecoder().decode(retrieval?.body ?? new Uint8Array())) as {
+      acquisition_route?: string;
+      policy_snapshot_id?: string;
+    };
+    expect(record.acquisition_route).toBe('BROWSER_RUN');
+    expect(record.policy_snapshot_id).toBe(POLICY_B);
   });
 
   it('gives different bytes a different key', async () => {

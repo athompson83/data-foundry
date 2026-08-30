@@ -36,6 +36,7 @@ const fact = (overrides: Partial<Fact> = {}): Fact => ({
   property: 'seer2_rating',
   normalized_value: 15.2,
   value_type: 'number',
+  output_kind: 'NORMALIZED_FACT',
   unit: null,
   valid_from: JAN,
   valid_to: null,
@@ -266,7 +267,15 @@ describe('assertNonDestructiveFactUpdate', () => {
     ).not.toThrow();
   });
 
-  it.each(['normalized_value', 'valid_from', 'property', 'entity_id', 'value_type', 'unit'] as const)(
+  it.each([
+    'normalized_value',
+    'valid_from',
+    'property',
+    'entity_id',
+    'value_type',
+    'output_kind',
+    'unit',
+  ] as const)(
     'rejects an update to %s',
     (field) => {
       expect(() => assertNonDestructiveFactUpdate({ [field]: null } as never)).toThrow(

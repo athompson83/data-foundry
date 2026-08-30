@@ -77,6 +77,7 @@ export function toSourceInsert(entry: SourceRegistryEntry, verticalId: VerticalI
     robots_policy: entry.robots_policy,
     refresh_cadence: entry.refresh_cadence,
     status: entry.status,
+    kill_switch_engaged: entry.kill_switch_engaged,
   };
 }
 

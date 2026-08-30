@@ -31,6 +31,9 @@ export type EntityId = z.infer<typeof EntityIdSchema>;
 export const EntityAliasIdSchema = uuidId<'EntityAliasId'>();
 export type EntityAliasId = z.infer<typeof EntityAliasIdSchema>;
 
+export const EntityAliasClaimIdSchema = uuidId<'EntityAliasClaimId'>();
+export type EntityAliasClaimId = z.infer<typeof EntityAliasClaimIdSchema>;
+
 export const FactIdSchema = uuidId<'FactId'>();
 export type FactId = z.infer<typeof FactIdSchema>;
 
@@ -81,6 +84,8 @@ export const sourceArtifactId = (value: string): SourceArtifactId =>
 export const sourceRecordId = (value: string): SourceRecordId => SourceRecordIdSchema.parse(value);
 export const entityId = (value: string): EntityId => EntityIdSchema.parse(value);
 export const entityAliasId = (value: string): EntityAliasId => EntityAliasIdSchema.parse(value);
+export const entityAliasClaimId = (value: string): EntityAliasClaimId =>
+  EntityAliasClaimIdSchema.parse(value);
 export const factId = (value: string): FactId => FactIdSchema.parse(value);
 export const factEvidenceId = (value: string): FactEvidenceId => FactEvidenceIdSchema.parse(value);
 export const relationshipId = (value: string): RelationshipId => RelationshipIdSchema.parse(value);

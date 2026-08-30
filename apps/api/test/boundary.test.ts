@@ -206,6 +206,18 @@ describe('what apps/api is allowed to import (AGENTS.md rule 5)', () => {
   });
 });
 
+describe('canonical field metadata predicates', () => {
+  it('defines no second numeric value-type classifier in the API package', () => {
+    const duplicates = sourceFiles()
+      .filter((file) => file.text.includes('NUMERIC_VALUE_TYPES'))
+      .map((file) => file.name);
+    expect(
+      duplicates,
+      'use query-model isNumericValueType so future fact types cannot drift between filtering and OpenAPI',
+    ).toEqual([]);
+  });
+});
+
 describe('ADR-0004 — one fact serializer, shared', () => {
   it('routes every fact through the query layer’s mapper, from one file', () => {
     const users = sourceFiles().filter((file) => file.text.includes('toRestFact'));
@@ -215,6 +227,8 @@ describe('ADR-0004 — one fact serializer, shared', () => {
   it('constructs no fact wire object anywhere else', () => {
     // The camelCase field names only exist on the shared wire shape. A literal
     // carrying them outside `wire.ts` is a second serializer by definition.
+    // Runtime response schemas live beside the serializer in `wire.ts`; a
+    // second file spelling these fields would be a second wire model.
     const factWireFields = [
       'editoriallyCorrected',
       'editorialCorrectionReason',

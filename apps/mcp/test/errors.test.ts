@@ -254,7 +254,13 @@ describe('an unmodelled failure below the dispatcher', () => {
   /** The real query layer, with one method faulted. Nothing else is stubbed. */
   const faulted = (fault: () => never, onError?: McpServerOptions['onError']): McpServer =>
     createMcpServer({
-      queryModel: { ...fixtures.qm, search: fault },
+      queryModel: {
+        ...fixtures.qm,
+        forSurface: (surface, options) => ({
+          ...fixtures.qm.forSurface(surface, options),
+          search: fault,
+        }),
+      },
       vertical: { id: fixtures.vertical.id, slug: 'hvac' },
       ...(onError === undefined ? {} : { onError }),
     });

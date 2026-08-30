@@ -1,7 +1,7 @@
 # `apps/api` — the read-only REST surface
 
-The first of the three consumer surfaces AGENTS.md rule 5 names ("Web/API/MCP
-must read from the same canonical query layer"). It reads through
+The pure REST contract for one of the customer surfaces AGENTS.md rule 5 names
+("Web/API/MCP must read from the same canonical query layer"). It reads through
 `@data-foundry/query-model` and nothing beneath it, and it owns no business
 logic: no SQL, no fact selection, no filtering, no search ranking, no redirect
 following, no notion of what is publishable. All of that already exists once,
@@ -113,13 +113,19 @@ boundary (where it throws).
 * **No composition root, no CLI, no `main`.** A `QueryModel` is injected. Opening
   a driver here would mean importing `@data-foundry/canonical-store`, and one
   import is all it takes for the next handler to reach through it. Deployment is
-  also moot: ADR-0005 records that this repository has no deployment target.
+  is supplied by `apps/edge`; ADR-0006 records Cloudflare Workers as the
+  deployment target.
 * **No dependencies.** `node:http` and the workspace, nothing else.
-* **No auth, no rate limiting, no tenancy.** There is no account, API-key or
-  tenant concept anywhere in `db/migrations`; `vertical_id` is the only isolation
-  boundary that exists, and the app is scoped to one vertical at construction.
-  Inventing an auth model here would be inventing architecture ahead of the
-  schema that has to back it.
+* **No auth, no rate limiting, no tenancy — in this package.** `db/migrations`
+  gained an account/API-key/tenant schema (`0011_api_tenancy.sql`) and
+  `apps/edge` enforces it before this package's handler ever runs — see
+  `apps/edge/src/auth.ts`. Nothing changes here: `vertical_id` is still the
+  only isolation boundary this layer itself knows about, and it stays that
+  way on purpose. Authentication is a concern of the deployment that exposes
+  this app to the network, not of the pure request/response contract
+  underneath it; the composition root is where a driver may be opened
+  (see "No composition root" above), and a tenant lookup is exactly that
+  kind of reach-through.
 
 ## Known limitations (honest)
 

@@ -69,6 +69,10 @@ function candidate(options: {
       url: 'https://catalog.acme-climate.example.com/spec',
       retrieved_at: '2026-06-01T00:00:00.000Z' as IsoDateTime,
       content_hash: (options.contentHash ?? 'a'.repeat(64)) as never,
+      policy_snapshot_id: null,
+      acquisition_route: 'DIRECT_HTTP',
+      account_or_product_plan: null,
+      acquisition_jurisdiction: null,
     },
   };
 
@@ -79,6 +83,7 @@ function candidate(options: {
       property: PROPERTY,
       normalized_value: options.value,
       value_type: 'string',
+      output_kind: 'NORMALIZED_FACT',
       unit: null,
       valid_from: '2026-01-01T00:00:00.000Z' as IsoDateTime,
       valid_to: null,

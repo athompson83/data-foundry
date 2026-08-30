@@ -114,6 +114,10 @@ acquisition_policy:
   # DIRECT_HTTP | BROWSER_RUN | CRAWL4AI | VENDOR_API | SITEMAP | BULK_FILE
   # | RSS | MANUAL_UPLOAD
   method: DIRECT_HTTP
+  # Contract/account tier and jurisdiction whose terms were reviewed. Keep null
+  # only when the source genuinely has no such acquisition scope.
+  account_or_product_plan: null
+  jurisdiction: null
   approved: false
   approved_by: null
   approved_at: null

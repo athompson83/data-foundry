@@ -60,6 +60,9 @@ export const HVAC_RULE_SET: NormalizationRuleSet = parseNormalizationRuleSet({
       property: 'nominal_tonnage',
       source_field: 'cooling_capacity_btu',
       value_type: 'number',
+      output_kind: 'DERIVED_METRIC',
+      derived_from_property: 'cooling_capacity_btu',
+      transformation_ref: 'hvac.nominal_tonnage.from.cooling_capacity_btu.v1',
       unit: 'ton',
       transforms: [
         { kind: 'quantity', target_unit: 'ton', default_unit: 'BTU/h' },

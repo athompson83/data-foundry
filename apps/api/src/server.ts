@@ -11,7 +11,12 @@
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { toErrorBody, type ApiErrorBody } from './errors.js';
-import { JSON_CONTENT_TYPE, type ApiHandler, type ApiRequest } from './http.js';
+import {
+  JSON_CONTENT_TYPE,
+  type ApiHandler,
+  type ApiRequest,
+  type ApiRequestAccess,
+} from './http.js';
 
 /**
  * The response this adapter sends when it has no handler answer to send.
@@ -43,6 +48,7 @@ async function respond(
   handler: ApiHandler,
   message: IncomingMessage,
   response: ServerResponse,
+  access?: ApiRequestAccess,
 ): Promise<void> {
   // This surface reads; it never accepts a payload. Draining rather than
   // ignoring keeps a client that sent one from stalling on backpressure.
@@ -53,7 +59,7 @@ async function respond(
   let headers: Record<string, string> = { 'content-type': JSON_CONTENT_TYPE };
   let body: unknown = unanswered.body;
   try {
-    const result = await handler(toApiRequest(message));
+    const result = await handler(toApiRequest(message), undefined, access);
     status = result.status;
     headers = { ...result.headers };
     body = result.body;
@@ -126,9 +132,9 @@ function write(
   response.end((message.method ?? 'GET').toUpperCase() === 'HEAD' ? undefined : text);
 }
 
-export function createApiServer(handler: ApiHandler): Server {
+export function createApiServer(handler: ApiHandler, access?: ApiRequestAccess): Server {
   return createServer((message, response) => {
-    void respond(handler, message, response);
+    void respond(handler, message, response, access);
   });
 }
 
@@ -145,10 +151,15 @@ export interface ListeningApiServer {
  */
 export function startApiServer(
   handler: ApiHandler,
-  options: { readonly port?: number; readonly host?: string } = {},
+  options: {
+    readonly port?: number;
+    readonly host?: string;
+    /** Trusted deployment identity. Never inferred from an HTTP header. */
+    readonly access?: ApiRequestAccess;
+  } = {},
 ): Promise<ListeningApiServer> {
   const host = options.host ?? '127.0.0.1';
-  const server = createApiServer(handler);
+  const server = createApiServer(handler, options.access);
   return new Promise<ListeningApiServer>((resolve, reject) => {
     server.once('error', reject);
     server.listen(options.port ?? 0, host, () => {

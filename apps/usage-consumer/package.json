@@ -1,0 +1,25 @@
+{
+  "name": "@data-foundry/usage-consumer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Cloudflare Queue consumer that persists usage events idempotently. Owns no routing, no auth — it only turns delivered messages into rows (AGENTS.md rule 5).",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "types": "./src/index.ts",
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "test": "vitest run --root .",
+    "typecheck": "tsc -p tsconfig.json",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "@data-foundry/canonical-store": "workspace:*",
+    "@data-foundry/usage-events": "workspace:*",
+    "pg": "^8.23.0"
+  }
+}

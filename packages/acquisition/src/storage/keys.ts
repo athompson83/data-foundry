@@ -1,5 +1,6 @@
-import type { ContentHash } from '@data-foundry/canonical-schema';
+import type { ContentHash, PolicySnapshotId } from '@data-foundry/canonical-schema';
 import { ArtifactStoreError } from '../errors.js';
+import { sha256Hex } from '../hashing.js';
 
 /**
  * Raw evidence key layout.
@@ -50,6 +51,32 @@ export interface ArtifactContentKeyParts {
 export interface ArtifactRetrievalKeyParts extends ArtifactContentKeyParts {
   /** ISO-8601 instant; only the UTC date part is used. */
   readonly retrievedAt: string;
+  /** Separates same-day retrievals made under different rights/policy states. */
+  readonly policySnapshotId?: PolicySnapshotId | null;
+  /** Current fetch receipt, bound to a caller scope + result URL + provider. */
+  readonly retrievalReceiptId?: ContentHash | null;
+}
+
+const frame = (value: string): string =>
+  `${new TextEncoder().encode(value).byteLength}:${value}`;
+
+/** Stable receipt shared with the scheduled-run SQL guard. */
+export function artifactRetrievalReceiptId(
+  retrievalScopeId: string,
+  resultUrl: string,
+  provider: string,
+): ContentHash {
+  if (retrievalScopeId.trim() === '' || resultUrl.trim() === '' || provider.trim() === '') {
+    throw new ArtifactStoreError('Retrieval receipt scope, result URL, and provider are required.');
+  }
+  return sha256Hex(
+    [
+      'artifact-retrieval-receipt-v1',
+      retrievalScopeId.toLowerCase(),
+      resultUrl,
+      provider,
+    ].map(frame).join('|'),
+  );
 }
 
 function assertSegment(name: string, value: string): void {
@@ -92,7 +119,7 @@ export function artifactRetrievalPrefix(vertical: string, source: string): strin
   return `${RAW_PREFIX}/${vertical}/${source}/${RETRIEVED_SEGMENT}`;
 }
 
-/** One record per (source, UTC day, content) — a fetch that confirmed these bytes. */
+/** One record per (source, UTC day, content, policy state) that confirmed these bytes. */
 export function artifactRetrievalKey(parts: ArtifactRetrievalKeyParts): string {
   assertParts(parts);
   const at = new Date(parts.retrievedAt);
@@ -103,7 +130,17 @@ export function artifactRetrievalKey(parts: ArtifactRetrievalKeyParts): string {
   const month = String(at.getUTCMonth() + 1).padStart(2, '0');
   const day = String(at.getUTCDate()).padStart(2, '0');
   const prefix = artifactRetrievalPrefix(parts.vertical, parts.source);
-  return `${prefix}/${year}/${month}/${day}/${parts.contentHash}.json`;
+  const policySuffix =
+    parts.policySnapshotId === undefined || parts.policySnapshotId === null
+      ? ''
+      : `.${parts.policySnapshotId}`;
+  const receiptSuffix =
+    parts.retrievalReceiptId === undefined || parts.retrievalReceiptId === null
+      ? ''
+      : HASH_PATTERN.test(parts.retrievalReceiptId)
+        ? `.${parts.retrievalReceiptId}`
+        : (() => { throw new ArtifactStoreError('Illegal retrieval receipt id.'); })();
+  return `${prefix}/${year}/${month}/${day}/${parts.contentHash}${policySuffix}${receiptSuffix}.json`;
 }
 
 /** The documented `/raw/...` form of a content key. */
@@ -126,6 +163,8 @@ export interface ParsedRetrievalKey extends ParsedArtifactKey {
   readonly year: string;
   readonly month: string;
   readonly day: string;
+  readonly policySnapshotId?: PolicySnapshotId;
+  readonly retrievalReceiptId?: ContentHash;
 }
 
 export function parseArtifactContentKey(key: string): ParsedArtifactKey | null {
@@ -154,7 +193,40 @@ export function parseArtifactRetrievalKey(key: string): ParsedRetrievalKey | nul
   ) {
     return null;
   }
-  const contentHash = file.replace(/\.json$/, '');
-  if (contentHash === file || !HASH_PATTERN.test(contentHash)) return null;
-  return { vertical, source, year, month, day, contentHash };
+  const stem = file.replace(/\.json$/, '');
+  if (stem === file) return null;
+  const contentHash = stem.slice(0, 64);
+  if (!HASH_PATTERN.test(contentHash)) return null;
+  const suffix = stem.slice(64);
+  if (suffix === '') return { vertical, source, year, month, day, contentHash };
+  if (!suffix.startsWith('.')) return null;
+  const parts = suffix.slice(1).split('.');
+  if (parts.length < 1 || parts.length > 2) return null;
+  let policySnapshotId: string | undefined;
+  let retrievalReceiptId: string | undefined;
+  for (const part of parts) {
+    if (/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(part)) {
+      if (policySnapshotId !== undefined) return null;
+      policySnapshotId = part;
+    } else if (HASH_PATTERN.test(part)) {
+      if (retrievalReceiptId !== undefined) return null;
+      retrievalReceiptId = part;
+    } else {
+      return null;
+    }
+  }
+  return {
+    vertical,
+    source,
+    year,
+    month,
+    day,
+    contentHash,
+    ...(policySnapshotId === undefined
+      ? {}
+      : { policySnapshotId: policySnapshotId as PolicySnapshotId }),
+    ...(retrievalReceiptId === undefined
+      ? {}
+      : { retrievalReceiptId: retrievalReceiptId as ContentHash }),
+  };
 }

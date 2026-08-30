@@ -50,6 +50,7 @@ documentation:
     - CHANGELOG.md
 
 config:
+  acquisition: acquisition.yaml
   entities_dir: entities
   relationships: relationships.yaml
   filters: filters.yaml

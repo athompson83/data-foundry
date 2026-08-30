@@ -32,7 +32,7 @@ import {
   ERROR_STATUS,
   type ApiErrorCode,
 } from './errors.js';
-import { jsonResponse, type ApiResponse } from './http.js';
+import type { ApiResponse } from './http.js';
 import {
   PAGE_BOUNDS,
   pageMeta,
@@ -61,6 +61,8 @@ import {
   redirectTraceWire,
   relationshipEdgeWire,
   searchHitWire,
+  wireJsonResponse,
+  type OpenApiResponseSchemaName,
 } from './wire.js';
 import type { EntityId, Identifier } from '@data-foundry/canonical-schema';
 import type { EntityView, FacetFilter } from '@data-foundry/query-model';
@@ -108,14 +110,70 @@ export interface RouteMatch {
   readonly query: URLSearchParams;
 }
 
+/**
+ * The closed vocabulary of meterable routes.
+ *
+ * Metering records one of these and nothing else. It is not derived from
+ * `request.url`, it is not a template, and it is not free text: it is a property
+ * OF THE MATCHED ROUTE, so there is no code path by which a caller's URL becomes
+ * a stored value even in a writer that reaches for one.
+ *
+ * `db/migrations/0012_usage_accounting_corrections.sql` seeds `api_route_keys`
+ * with exactly this list, and a foreign key means an unregistered value has
+ * nowhere to be stored. `test/route-keys.test.ts` asserts the two lists are
+ * equal in BOTH directions, so a route added without a key — or a key added
+ * without a route — fails CI rather than failing at the moment a paying
+ * customer's request is metered.
+ *
+ * Three of these belong to no entry in `ROUTES` because the requests they
+ * describe never reach one: the service document at `/`, the contract document
+ * at `/v1`, and everything that matched nothing at all. That last one is the
+ * important one — a 404 still costs a request, and recording it as its URL is
+ * how the vocabulary would have been reopened.
+ */
+export const ROUTE_KEYS = [
+  'service',
+  'contract',
+  'health',
+  'entities.by_slug',
+  'entities.detail',
+  'entities.facts',
+  'entities.relationships',
+  'search',
+  'compare',
+  'unmatched',
+] as const;
+
+export type RouteKey = (typeof ROUTE_KEYS)[number];
+
+/** The service document, the contract document, and a request that matched no route. */
+export const SERVICE_ROUTE_KEY = 'service' satisfies RouteKey;
+export const CONTRACT_ROUTE_KEY = 'contract' satisfies RouteKey;
+export const UNMATCHED_ROUTE_KEY = 'unmatched' satisfies RouteKey;
+
 export interface Route {
   /** Path after the version segment, `:name` marking a parameter. */
   readonly pattern: readonly string[];
   /** Full documented path, version included. */
   readonly path: string;
+  /**
+   * What metering records for this route. Never the path, never the URL.
+   *
+   * Two patterns deliberately share `entities.by_slug`: the bare `by-slug` entry
+   * exists only to refuse a lookup with no slug, and an invoice does not need to
+   * tell a malformed request from a well-formed one.
+   */
+  readonly routeKey: RouteKey;
   readonly summary: string;
   /** A limitation a client must know about. Published in the contract document. */
   readonly caveat?: string;
+  /** Metadata projected into OpenAPI beside the existing human contract. */
+  readonly openapi: {
+    readonly operationId: string;
+    readonly responseSchema: OpenApiResponseSchemaName;
+    readonly requiredQueryParameters?: readonly string[];
+    readonly mayRedirect?: boolean;
+  };
   readonly handler: (context: ApiContext, match: RouteMatch) => Promise<ApiResponse>;
 }
 
@@ -144,7 +202,8 @@ function redirectResponse(
 ): ApiResponse {
   const trace = view.redirected_from;
   if (trace === null) throw new ApiError('INTERNAL_ERROR', 'redirect without a trace');
-  return jsonResponse(
+  return wireJsonResponse(
+    'RedirectResponse',
     301,
     {
       redirect: {
@@ -190,7 +249,8 @@ const health: Route['handler'] = async (context) => {
   } catch {
     throw new ApiError('SERVICE_UNAVAILABLE', 'The canonical query layer is not reachable.');
   }
-  return jsonResponse(
+  return wireJsonResponse(
+    'HealthResponse',
     200,
     {
       status: 'ok',
@@ -206,7 +266,12 @@ const health: Route['handler'] = async (context) => {
 const getEntity: Route['handler'] = async (context, match) => {
   const resolved = await resolveEntity(context, param(match, 'id'), '');
   if ('redirect' in resolved) return resolved.redirect;
-  return jsonResponse(200, { data: entityViewWire(resolved.view) }, context.version);
+  return wireJsonResponse(
+    'EntityResponse',
+    200,
+    { data: entityViewWire(resolved.view) },
+    context.version,
+  );
 };
 
 const getEntityBySlug: Route['handler'] = async (context, match) => {
@@ -221,7 +286,7 @@ const getEntityBySlug: Route['handler'] = async (context, match) => {
   if (view.redirected_from !== null) {
     return redirectResponse(context, view, `/${context.version}/entities/${view.entity.id}`);
   }
-  return jsonResponse(200, { data: entityViewWire(view) }, context.version);
+  return wireJsonResponse('EntityResponse', 200, { data: entityViewWire(view) }, context.version);
 };
 
 const listFacts: Route['handler'] = async (context, match) => {
@@ -242,7 +307,8 @@ const listFacts: Route['handler'] = async (context, match) => {
   const facts = published.map((view) => factWire(view, context.reviewers));
   const page = paginate(facts, parsePageRequest(match.query));
 
-  return jsonResponse(
+  return wireJsonResponse(
+    'FactPageResponse',
     200,
     { entityId: resolved.view.entity.id, ...page },
     context.version,
@@ -266,7 +332,8 @@ const listRelationships: Route['handler'] = async (context, match) => {
   });
 
   const page = paginate(traversal.edges.map(relationshipEdgeWire), parsePageRequest(match.query));
-  return jsonResponse(
+  return wireJsonResponse(
+    'RelationshipPageResponse',
     200,
     {
       entityId: resolved.view.entity.id,
@@ -309,7 +376,8 @@ const search: Route['handler'] = async (context, match) => {
     include_facets: includeFacets,
   });
 
-  return jsonResponse(
+  return wireJsonResponse(
+    'SearchResponse',
     200,
     {
       data: result.hits.map(searchHitWire),
@@ -378,7 +446,8 @@ const compare: Route['handler'] = async (context, match) => {
     policy: requestPolicy(context, match.query),
   });
 
-  return jsonResponse(
+  return wireJsonResponse(
+    'CompareResponse',
     200,
     { data: comparisonWire(comparison), redirects },
     context.version,
@@ -389,13 +458,17 @@ export const ROUTES: readonly Route[] = [
   {
     pattern: ['health'],
     path: '/v1/health',
+    routeKey: 'health',
     summary: 'Liveness plus a real round trip through the canonical query layer.',
+    openapi: { operationId: 'getHealth', responseSchema: 'HealthResponse' },
     handler: health,
   },
   {
     pattern: ['entities', 'by-slug'],
     path: '/v1/entities/by-slug/{slug}',
+    routeKey: 'entities.by_slug',
     summary: 'Reject a slug lookup with no slug, rather than reading "by-slug" as an id.',
+    openapi: { operationId: 'getEntityBySlugMissing', responseSchema: 'EntityResponse' },
     handler: async () => {
       throw ApiError.missingParameter('slug', 'the slug to look up follows /entities/by-slug/');
     },
@@ -403,46 +476,75 @@ export const ROUTES: readonly Route[] = [
   {
     pattern: ['entities', 'by-slug', ':slug'],
     path: '/v1/entities/by-slug/{slug}?type={entityType}',
+    routeKey: 'entities.by_slug',
     summary:
       'Entity by canonical slug. Honours retired slugs: a slug a merge took away answers 301 to the surviving entity.',
+    openapi: {
+      operationId: 'getEntityBySlug',
+      responseSchema: 'EntityResponse',
+      requiredQueryParameters: ['type'],
+      mayRedirect: true,
+    },
     handler: getEntityBySlug,
   },
   {
     pattern: ['entities', ':id'],
     path: '/v1/entities/{id}',
+    routeKey: 'entities.detail',
     summary: 'Entity by id. A merged-away id answers 301 with its redirect chain, never 404.',
+    openapi: { operationId: 'getEntity', responseSchema: 'EntityResponse', mayRedirect: true },
     handler: getEntity,
   },
   {
     pattern: ['entities', ':id', 'facts'],
     path: '/v1/entities/{id}/facts?property=&at=&limit=&offset=',
+    routeKey: 'entities.facts',
     summary:
       'The canonical view: one selected value per property, with the doc-04 rule that chose it and its correction state.',
     caveat:
       'Only properties with a published value appear. A property whose every claim is retracted, unevidenced or backed only by RED/UNREVIEWED sources is omitted entirely.',
+    openapi: {
+      operationId: 'listEntityFacts',
+      responseSchema: 'FactPageResponse',
+      mayRedirect: true,
+    },
     handler: listFacts,
   },
   {
     pattern: ['entities', ':id', 'relationships'],
     path: '/v1/entities/{id}/relationships?predicate=&direction=&depth=&limit=&offset=',
+    routeKey: 'entities.relationships',
     summary: 'Bounded graph traversal from this entity, breadth-first and cycle-guarded.',
     caveat:
-      'This is a view of the publishable graph, not the whole graph. Rule 1 applies here as it does to facts: an edge whose every piece of evidence comes from a source that may not publish is withheld, and so is any neighbour reachable only through one. Those refusals are deliberately not counted in the response — a per-predicate count of them would let a caller reconstruct the withheld claim — so an absent edge means "not publishable, or not asserted", and never "asserted to be false". unevidencedEdgeCount reports a different case: edges nothing asserts at all.',
+      'This is a view of the publishable graph, not the whole graph. An edge is served only when both endpoint identities retain current FINALIZED source-record support, at least one current FINALIZED source-record assertion supports the edge, and every required provenance contribution passes this surface\'s rights bundle. If any required provenance contribution is refused, the whole edge and any neighbour reachable only through it are withheld; one allowed contribution never launders a refused one. Those refusals are deliberately not counted in the response — a per-predicate count would let a caller reconstruct the withheld claim — so an absent edge means "not publishable, or not asserted", and never "asserted to be false". unevidencedEdgeCount reports a different case: edges nothing asserts at all.',
+    openapi: {
+      operationId: 'listEntityRelationships',
+      responseSchema: 'RelationshipPageResponse',
+      mayRedirect: true,
+    },
     handler: listRelationships,
   },
   {
     pattern: ['search'],
     path: '/v1/search?q=&type=&filter.{field}=&facets=&limit=&offset=',
+    routeKey: 'search',
     summary:
       'Faceted search. Exact identifier matches lead the result set ahead of any text ranking (AGENTS.md rule 7).',
+    openapi: { operationId: 'searchEntities', responseSchema: 'SearchResponse' },
     handler: search,
   },
   {
     pattern: ['compare'],
     path: '/v1/compare?ids=a,b&properties=&at=',
+    routeKey: 'compare',
     summary: 'Side-by-side canonical values for 2–8 entities, aligned on declared field order.',
     caveat:
       'Comparison cells carry the selecting rule and conflict state but not correction state; read /v1/entities/{id}/facts for the full trust surface.',
+    openapi: {
+      operationId: 'compareEntities',
+      responseSchema: 'CompareResponse',
+      requiredQueryParameters: ['ids'],
+    },
     handler: compare,
   },
 ];

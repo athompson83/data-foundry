@@ -1,9 +1,9 @@
 /**
  * The result envelope, and why it has this shape.
  *
- * The transport is out of scope here (AGENTS.md names Cloudflare Streamable
- * HTTP as the eventual deployment, and it does not exist yet), so dispatch is a
- * plain in-process function. What it returns is nonetheless shaped like an MCP
+ * Transport remains out of scope for this pure package; `apps/mcp-worker` owns
+ * the deployed Cloudflare Streamable HTTP boundary. Dispatch here is a plain
+ * in-process function. What it returns is shaped like an MCP
  * `CallToolResult` — `isError`, a `content` block and `structuredContent` —
  * because that shape is the contract a transport will have to produce, and a
  * dispatcher that returns something else just moves the mapping somewhere

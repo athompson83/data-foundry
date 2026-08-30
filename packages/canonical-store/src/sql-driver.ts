@@ -25,6 +25,13 @@ export interface SqlExecutor {
   query<R extends SqlRow = SqlRow>(sql: string, params?: readonly SqlParam[]): Promise<R[]>;
 }
 
+declare const transactionExecutorBrand: unique symbol;
+
+/** A pinned executor issued only by SqlDriver.transaction(). */
+export interface SqlTransactionExecutor extends SqlExecutor {
+  readonly [transactionExecutorBrand]: true;
+}
+
 export interface SqlDriver extends SqlExecutor {
   /** Human-readable identity for logs and test output. */
   readonly label: string;
@@ -36,7 +43,7 @@ export interface SqlDriver extends SqlExecutor {
    * transaction commits when `fn` resolves and rolls back when it throws —
    * there is no partial-commit path.
    */
-  transaction<T>(fn: (tx: SqlExecutor) => Promise<T>): Promise<T>;
+  transaction<T>(fn: (tx: SqlTransactionExecutor) => Promise<T>): Promise<T>;
   close(): Promise<void>;
 }
 
@@ -104,14 +111,14 @@ export async function createPgliteDriver(
       const result = await db.query<R>(sql, params === undefined ? undefined : [...params]);
       return result.rows;
     },
-    async transaction<T>(fn: (tx: SqlExecutor) => Promise<T>): Promise<T> {
+    async transaction<T>(fn: (tx: SqlTransactionExecutor) => Promise<T>): Promise<T> {
       const outcome = await db.transaction(async (tx) => {
-        const executor: SqlExecutor = {
+        const executor = {
           async query<R extends SqlRow = SqlRow>(sql: string, params?: readonly SqlParam[]) {
             const result = await tx.query<R>(sql, params === undefined ? undefined : [...params]);
             return result.rows;
           },
-        };
+        } as SqlTransactionExecutor;
         return await fn(executor);
       });
       // PGlite types the transaction result as `T | undefined` because the
@@ -144,16 +151,16 @@ export async function createPostgresDriver(connectionString: string): Promise<Sq
       const result = await pool.query(sql, params === undefined ? undefined : [...params]);
       return result.rows as R[];
     },
-    async transaction<T>(fn: (tx: SqlExecutor) => Promise<T>): Promise<T> {
+    async transaction<T>(fn: (tx: SqlTransactionExecutor) => Promise<T>): Promise<T> {
       const client = await pool.connect();
       try {
         await client.query('BEGIN');
-        const executor: SqlExecutor = {
+        const executor = {
           async query<R extends SqlRow = SqlRow>(sql: string, params?: readonly SqlParam[]) {
             const result = await client.query(sql, params === undefined ? undefined : [...params]);
             return result.rows as R[];
           },
-        };
+        } as SqlTransactionExecutor;
         const value = await fn(executor);
         await client.query('COMMIT');
         return value;

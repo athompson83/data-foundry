@@ -9,15 +9,19 @@
  */
 import { ApiError, OPAQUE_INTERNAL_MESSAGE, toErrorBody } from './errors.js';
 import { baseHeaders, jsonResponse, requestId, type ApiHandler, type ApiRequest, type ApiResponse } from './http.js';
-import { resolveContext, type ApiAppOptions, type ApiContext } from './config.js';
+import { resolveContext, type ApiAppOptions, type ApiContext, type ApiRequestTelemetry } from './config.js';
 import {
   ALLOW_HEADER,
+  CONTRACT_ROUTE_KEY,
   CURRENT_VERSION,
   READ_METHODS,
+  SERVICE_ROUTE_KEY,
   SUPPORTED_VERSIONS,
+  UNMATCHED_ROUTE_KEY,
   contractDocument,
   matchRoute,
   routeParams,
+  type RouteKey,
 } from './routes.js';
 import {
   ReviewerIdentityLeak,
@@ -61,7 +65,11 @@ function normalize(error: unknown): ApiError {
   return new ApiError('INTERNAL_ERROR', OPAQUE_INTERNAL_MESSAGE);
 }
 
-async function dispatch(context: ApiContext, request: ApiRequest): Promise<ApiResponse> {
+async function dispatch(
+  context: ApiContext,
+  request: ApiRequest,
+  report: (routeKey: RouteKey) => void,
+): Promise<ApiResponse> {
   // FIRST — before the target is parsed, before a version is recognised, before
   // a route is matched. The check used to sit next to the route table, which
   // made it a property of *routed* requests: `POST /` was answered by the
@@ -75,6 +83,7 @@ async function dispatch(context: ApiContext, request: ApiRequest): Promise<ApiRe
   // reintroduce the hole because there is nothing before this line to return
   // from. It is an allow-list, so an unknown method fails closed.
   if (!SERVED_METHODS.has(request.method.toUpperCase())) {
+    report(UNMATCHED_ROUTE_KEY);
     throw new ApiError(
       'METHOD_NOT_ALLOWED',
       'This API is read-only; only GET and HEAD are supported.',
@@ -88,11 +97,13 @@ async function dispatch(context: ApiContext, request: ApiRequest): Promise<ApiRe
   } catch {
     // A request target the URL parser rejects is the client's mistake, not a
     // server fault; it must not fall through to the generic 500.
+    report(UNMATCHED_ROUTE_KEY);
     throw ApiError.invalidParameter('url', 'expected a well-formed request target');
   }
   const segments = url.pathname.split('/').filter((segment) => segment !== '');
 
   if (segments.length === 0) {
+    report(SERVICE_ROUTE_KEY);
     return jsonResponse(
       200,
       {
@@ -107,6 +118,7 @@ async function dispatch(context: ApiContext, request: ApiRequest): Promise<ApiRe
 
   const [version, ...rest] = segments;
   if (version === undefined || !isSupportedVersion(version)) {
+    report(UNMATCHED_ROUTE_KEY);
     throw new ApiError(
       'UNSUPPORTED_API_VERSION',
       'This deployment does not serve that API version.',
@@ -114,15 +126,20 @@ async function dispatch(context: ApiContext, request: ApiRequest): Promise<ApiRe
     );
   }
 
-  if (rest.length === 0) return jsonResponse(200, contractDocument(version), version);
+  if (rest.length === 0) {
+    report(CONTRACT_ROUTE_KEY);
+    return jsonResponse(200, contractDocument(version), version);
+  }
 
   const route = matchRoute(rest);
   if (route === null) {
+    report(UNMATCHED_ROUTE_KEY);
     throw new ApiError('ROUTE_NOT_FOUND', 'No route matches this path.', {
       path: url.pathname.slice(0, 200),
     });
   }
 
+  report(route.routeKey);
   return route.handler(context, {
     params: routeParams(route, rest),
     query: url.searchParams,
@@ -130,12 +147,33 @@ async function dispatch(context: ApiContext, request: ApiRequest): Promise<ApiRe
 }
 
 export function createApiApp(options: ApiAppOptions): ApiHandler {
-  const context = resolveContext(options, CURRENT_VERSION);
-
-  return async (request: ApiRequest): Promise<ApiResponse> => {
+  return async (
+    request: ApiRequest,
+    onRequest?: (info: ApiRequestTelemetry) => void,
+    access?: import('./http.js').ApiRequestAccess,
+  ): Promise<ApiResponse> => {
     const id = requestId(request);
+    // `dispatch` reports its closed route key through this callback rather than a
+    // return value, because it also has to be known on the throw path — a
+    // 404 or a 405 is exactly the kind of request usage-based billing must
+    // still see. Defaults to "unmatched": if `dispatch` throws before its
+    // first `report` call, that default is precisely what happened — nothing
+    // matched yet.
+    let matchedRouteKey: RouteKey = UNMATCHED_ROUTE_KEY;
+    const report = (routeKey: RouteKey): void => {
+      matchedRouteKey = routeKey;
+    };
     try {
-      return await dispatch(context, request);
+      if (access === undefined) {
+        throw new ApiError(
+          'SERVICE_UNAVAILABLE',
+          'The trusted request access context is unavailable.',
+        );
+      }
+      const context = resolveContext(options, CURRENT_VERSION, access);
+      const response = await dispatch(context, request, report);
+      onRequest?.({ method: request.method, routeKey: matchedRouteKey, status: response.status });
+      return response;
     } catch (error) {
       const failure = normalize(error);
       // Operators get the cause; customers get the code. This is the only
@@ -153,14 +191,16 @@ export function createApiApp(options: ApiAppOptions): ApiHandler {
           ...(id === undefined ? {} : { requestId: id }),
         });
       }
-      return {
+      const response: ApiResponse = {
         status: failure.status,
         headers: {
-          ...baseHeaders(context.version),
+          ...baseHeaders(CURRENT_VERSION),
           ...(failure.code === 'METHOD_NOT_ALLOWED' ? { allow: ALLOW_HEADER } : {}),
         },
         body: toErrorBody(failure, id),
       };
+      onRequest?.({ method: request.method, routeKey: matchedRouteKey, status: response.status });
+      return response;
     }
   };
 }

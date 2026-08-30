@@ -18,18 +18,27 @@
 import {
   compareCodeUnits,
   entityQualityScore,
+  EntitySchema,
   identityConfidence,
   type Entity,
+  type EntityAlias,
   type EntityId,
   type Identifier,
+  type IdentityConfidence,
   type IsoDateTime,
+  type LocatorType,
   type SourceId,
   type SourceRecordId,
   type VerticalId,
 } from '@data-foundry/canonical-schema';
 import { identifiersMatch } from '@data-foundry/normalization';
 import { sha256Hex, stableStringify } from '@data-foundry/acquisition';
-import type { CanonicalStore, SqlParam } from '@data-foundry/canonical-store';
+import type {
+  CanonicalStore,
+  SqlExecutor,
+  SqlParam,
+  SqlTransactionExecutor,
+} from '@data-foundry/canonical-store';
 import { primaryAliasType, resolvePublisher, type VerticalConfig } from './config.js';
 import { AliasNormalizer, slugify } from './identifiers.js';
 
@@ -41,13 +50,83 @@ export interface AliasClaim {
   readonly strong: boolean;
 }
 
+export interface LocatedAliasClaim extends AliasClaim {
+  /** Exact immutable source locator required before this assertion can become current. */
+  readonly locatorType: LocatorType;
+  readonly locatorValue: string;
+}
+
 export interface ResolveRecordInput {
   readonly entityType: Identifier;
-  readonly aliases: readonly AliasClaim[];
+  readonly aliases: readonly LocatedAliasClaim[];
   readonly manufacturer: Entity | null;
   readonly sourceId: SourceId;
   readonly sourceRecordId: SourceRecordId;
 }
+
+export interface ResolveRecordTargetInput {
+  readonly entityType: Identifier;
+  readonly aliases: readonly AliasClaim[];
+  readonly manufacturer: Entity | null;
+  readonly sourceId: SourceId;
+  readonly sourceRecordKey: string;
+  /** Stable source/evidence projection used only to disambiguate a historical slug collision. */
+  readonly resolutionDiscriminator: string;
+  readonly stagedAliases?: readonly StagedAliasMatch[];
+  /** Alias rows whose only current automated claims belong to this replacement batch. */
+  readonly maskedAliasIds?: ReadonlySet<string>;
+  /** Masked aliases this same logical record asserts again, preserving exact replay identity. */
+  readonly continuityAliasIds?: ReadonlySet<string>;
+}
+
+export interface StagedAliasMatch {
+  readonly entity: Entity;
+  readonly aliasType: Identifier;
+  readonly aliasValue: string;
+  readonly normalizedValue: string;
+}
+
+export interface SourceAliasDraft {
+  readonly entity: Entity;
+  readonly aliasType: Identifier;
+  readonly aliasValue: string;
+  readonly normalizedValue: string;
+  readonly sourceId: SourceId;
+  readonly identityConfidence: IdentityConfidence;
+}
+
+export interface AliasLockIdentity {
+  readonly entityType: Identifier;
+  readonly aliasType: Identifier;
+  readonly normalizedValue: string;
+}
+
+export interface ManufacturerResolutionPlan {
+  readonly entity: Entity;
+  readonly aliases: readonly SourceAliasDraft[];
+}
+
+export interface ResolutionAuditProjection {
+  readonly decision: 'MATCH' | 'NEEDS_REVIEW';
+  readonly score: number;
+  readonly method: 'strong_identifier_exact_match' | 'strong_identifier_conflict';
+  readonly matchedOn: readonly string[];
+  readonly keyedOn: readonly string[];
+  readonly conflictingEntityIds: readonly EntityId[];
+  readonly resolvedEntityId: EntityId;
+  readonly deterministic: boolean;
+}
+
+export interface ResolvedEntityPlan extends ResolvedEntity {
+  readonly audit: ResolutionAuditProjection;
+  readonly rationale: string;
+}
+
+type ResolutionNamingInput = {
+  readonly entityType: Identifier;
+  readonly aliases: readonly AliasClaim[];
+  readonly manufacturer: Pick<Entity, 'canonical_name' | 'canonical_slug'> | null;
+};
 
 export interface ResolvedEntity {
   readonly entity: Entity;
@@ -87,7 +166,22 @@ export class EntityResolver {
   async resolveManufacturer(
     brand: string,
     sourceId: SourceId,
+    executor?: SqlExecutor,
   ): Promise<Entity | null> {
+    const plan = await this.planManufacturer(brand, sourceId, executor);
+    if (plan === null) return null;
+    for (const alias of plan.aliases) {
+      await this.stageSourceAlias(alias, executor);
+    }
+    return plan.entity;
+  }
+
+  /** Resolve the manufacturer target and describe its aliases without publishing them. */
+  async planManufacturer(
+    brand: string,
+    sourceId: SourceId,
+    executor?: SqlExecutor,
+  ): Promise<ManufacturerResolutionPlan | null> {
     const publisher = resolvePublisher(this.#deps.config, brand);
     if (publisher === null) {
       this.diagnostics.push(
@@ -97,25 +191,117 @@ export class EntityResolver {
     }
 
     const slug = slugify(publisher.canonicalName);
-    const entity = await this.#deps.store.upsertEntity({
-      vertical_id: this.#deps.verticalId,
-      entity_type: 'manufacturer' as Identifier,
-      canonical_name: publisher.canonicalName,
-      canonical_slug: slug,
-      status: 'ACTIVE',
-      quality_score: entityQualityScore(0.5),
-      first_seen_at: this.#deps.now,
-      last_verified_at: this.#deps.now,
-    });
+    const entity = await this.#deps.store.upsertEntity(
+      {
+        vertical_id: this.#deps.verticalId,
+        entity_type: 'manufacturer' as Identifier,
+        canonical_name: publisher.canonicalName,
+        canonical_slug: slug,
+        status: 'ACTIVE',
+        quality_score: entityQualityScore(0.5),
+        first_seen_at: this.#deps.now,
+        last_verified_at: this.#deps.now,
+      },
+      executor,
+    );
 
-    // The legal name is always asserted; the observed spelling is recorded as a
-    // weak `name` alias only when it differs, so the alias index reflects what
-    // sources actually wrote.
-    await this.#writeAlias(entity.id, 'legal_name', publisher.canonicalName, sourceId, 0.99);
+    const aliases: SourceAliasDraft[] = [{
+      entity,
+      aliasType: 'legal_name' as Identifier,
+      aliasValue: publisher.canonicalName,
+      normalizedValue: this.#normalizer.normalize('legal_name', publisher.canonicalName),
+      sourceId,
+      identityConfidence: identityConfidence(0.99),
+    }];
     if (brand.trim() !== publisher.canonicalName) {
-      await this.#writeAlias(entity.id, 'name', brand.trim(), sourceId, 0.8);
+      aliases.push({
+        entity,
+        aliasType: 'name' as Identifier,
+        aliasValue: brand.trim(),
+        normalizedValue: this.#normalizer.normalize('name', brand.trim()),
+        sourceId,
+        identityConfidence: identityConfidence(0.8),
+      });
     }
-    return entity;
+    return { entity, aliases };
+  }
+
+  /**
+   * Return every manufacturer alias identity that a later source-record claim
+   * can stage, without touching the database. The pipeline uses this preview
+   * to acquire the complete sorted advisory-lock set before entity resolution
+   * begins; keeping it beside the draft builders prevents lock/write drift.
+   */
+  previewManufacturerAliasIdentities(
+    brand: string,
+    productAliases: readonly AliasClaim[],
+  ): readonly AliasLockIdentity[] {
+    const publisher = resolvePublisher(this.#deps.config, brand);
+    if (publisher === null) return [];
+
+    const identities: AliasLockIdentity[] = [{
+      entityType: 'manufacturer' as Identifier,
+      aliasType: 'legal_name' as Identifier,
+      normalizedValue: this.#normalizer.normalize('legal_name', publisher.canonicalName),
+    }];
+    if (brand.trim() !== publisher.canonicalName) {
+      identities.push({
+        entityType: 'manufacturer' as Identifier,
+        aliasType: 'name' as Identifier,
+        normalizedValue: this.#normalizer.normalize('name', brand.trim()),
+      });
+    }
+
+    const manufacturerSlug = slugify(publisher.canonicalName);
+    for (const alias of productAliases) {
+      const declared = this.#deps.config.aliasTypes.find(
+        (candidate) => candidate.type === alias.aliasType,
+      );
+      if (declared?.scoped_to !== 'manufacturer') continue;
+      const prefix = alias.aliasValue.split('-')[0];
+      if (prefix === undefined || prefix === alias.aliasValue) continue;
+      const prefixPublisher = resolvePublisher(this.#deps.config, prefix);
+      if (
+        prefixPublisher === null ||
+        slugify(prefixPublisher.canonicalName) !== manufacturerSlug
+      ) {
+        continue;
+      }
+      identities.push({
+        entityType: 'manufacturer' as Identifier,
+        aliasType: 'abbreviation' as Identifier,
+        normalizedValue: this.#normalizer.normalize('abbreviation', prefix),
+      });
+    }
+
+    const byKey = new Map<string, AliasLockIdentity>();
+    for (const identity of identities) {
+      byKey.set(stableStringify(identity), identity);
+    }
+    return [...byKey.values()].sort((left, right) =>
+      compareCodeUnits(stableStringify(left), stableStringify(right))
+    );
+  }
+
+  /** Pure preview used to lock canonical slug allocation before writes begin. */
+  previewCanonicalSlug(
+    entityType: Identifier,
+    aliases: readonly AliasClaim[],
+    manufacturerBrand: string | null,
+  ): string {
+    const publisher = manufacturerBrand === null
+      ? null
+      : resolvePublisher(this.#deps.config, manufacturerBrand);
+    const manufacturer = publisher === null
+      ? null
+      : {
+          canonical_name: publisher.canonicalName,
+          canonical_slug: slugify(publisher.canonicalName),
+        };
+    return this.#buildSlug(
+      { entityType, aliases, manufacturer },
+      preferredDisplay(aliases, this.#primaryAlias(entityType)),
+    );
   }
 
   /**
@@ -129,14 +315,36 @@ export class EntityResolver {
     aliasType: string,
     aliasValue: string,
     sourceId: SourceId,
+    executor?: SqlExecutor,
   ): Promise<void> {
+    const draft = this.planScopedIdentifierPrefix(manufacturer, aliasType, aliasValue, sourceId);
+    if (draft === null) return;
+    await this.stageSourceAlias(draft, executor);
+  }
+
+  /** Describe a manufacturer-prefix observation without making it current. */
+  planScopedIdentifierPrefix(
+    manufacturer: Entity,
+    aliasType: string,
+    aliasValue: string,
+    sourceId: SourceId,
+  ): SourceAliasDraft | null {
     const declared = this.#deps.config.aliasTypes.find((alias) => alias.type === aliasType);
-    if (declared?.scoped_to !== 'manufacturer') return;
+    if (declared?.scoped_to !== 'manufacturer') return null;
     const prefix = aliasValue.split('-')[0];
-    if (prefix === undefined || prefix === aliasValue) return;
+    if (prefix === undefined || prefix === aliasValue) return null;
     const publisher = resolvePublisher(this.#deps.config, prefix);
-    if (publisher === null || slugify(publisher.canonicalName) !== manufacturer.canonical_slug) return;
-    await this.#writeAlias(manufacturer.id, 'abbreviation', prefix, sourceId, 0.7);
+    if (publisher === null || slugify(publisher.canonicalName) !== manufacturer.canonical_slug) {
+      return null;
+    }
+    return {
+      entity: manufacturer,
+      aliasType: 'abbreviation' as Identifier,
+      aliasValue: prefix,
+      normalizedValue: this.#normalizer.normalize('abbreviation', prefix),
+      sourceId,
+      identityConfidence: identityConfidence(0.7),
+    };
   }
 
   /**
@@ -147,28 +355,161 @@ export class EntityResolver {
    * `@data-foundry/normalization` must agree on the raw spellings. Recording
    * both in `explanation_features` is what makes the merge reviewable.
    */
-  async resolveRecord(input: ResolveRecordInput): Promise<ResolvedEntity> {
+  async resolveRecord(
+    input: ResolveRecordInput,
+    executor?: SqlTransactionExecutor,
+  ): Promise<ResolvedEntity> {
+    if (!input.aliases.some((alias) => alias.strong)) {
+      throw new Error('resolveRecord requires at least one validated strong identifier');
+    }
+    const aliasLockKeys = new Set(input.aliases.map((alias) => stableStringify([
+      input.entityType,
+      alias.aliasType,
+      alias.normalizedValue,
+    ])));
+    aliasLockKeys.add(stableStringify([
+      'canonical-slug',
+      this.#deps.verticalId,
+      input.entityType,
+      this.#buildSlug(
+        {
+          entityType: input.entityType,
+          aliases: input.aliases,
+          manufacturer: input.manufacturer,
+        },
+        preferredDisplay(input.aliases, this.#primaryAlias(input.entityType)),
+      ),
+    ]));
+    const write = async (tx: SqlTransactionExecutor): Promise<ResolvedEntity> => {
+      // Match the production pipeline's lock order: logical record first, then
+      // every alias/slug identity in deterministic order. Different records
+      // asserting one exact alias therefore re-read current claims after the
+      // first transaction commits instead of allocating parallel successors.
+      await tx.query(`SELECT pg_advisory_xact_lock(hashtext($1), hashtext($2))`, [
+        input.sourceId,
+        input.sourceRecordId,
+      ]);
+      for (const key of [...aliasLockKeys].sort(compareCodeUnits)) {
+        await tx.query(
+          `SELECT pg_advisory_xact_lock(hashtext('entity-alias-resolution'), hashtext($1))`,
+          [key],
+        );
+      }
+      const plan = await this.planRecord(
+        {
+          entityType: input.entityType,
+          aliases: input.aliases,
+          manufacturer: input.manufacturer,
+          sourceId: input.sourceId,
+          sourceRecordKey: input.sourceRecordId,
+          resolutionDiscriminator: sha256Hex(stableStringify({
+            entityType: input.entityType,
+            aliases: input.aliases,
+            manufacturerSlug: input.manufacturer?.canonical_slug ?? null,
+          })),
+        },
+        tx,
+      );
+      for (const alias of input.aliases) {
+        const staged = await this.stageSourceAlias({
+          entity: plan.entity,
+          aliasType: alias.aliasType,
+          aliasValue: alias.aliasValue,
+          normalizedValue: alias.normalizedValue,
+          sourceId: input.sourceId,
+          identityConfidence: identityConfidence(alias.strong ? 0.99 : 0.6),
+        }, tx);
+        await this.#deps.store.recordSourceAliasClaim({
+          entity_alias_id: staged.id,
+          asserted_alias_value: alias.aliasValue,
+          asserted_normalized_value: alias.normalizedValue,
+          identity_confidence: identityConfidence(alias.strong ? 0.99 : 0.6),
+          source_record_id: input.sourceRecordId,
+          locator_type: alias.locatorType,
+          locator_value: alias.locatorValue,
+        }, tx);
+      }
+      const entity = await this.refreshPreferredName(plan.entity, input, tx);
+      await this.persistResolution(plan, input.sourceRecordId, tx);
+      return { entity, created: plan.created, matchedOn: plan.matchedOn };
+    };
+    return executor === undefined ? this.#deps.store.driver.transaction(write) : write(executor);
+  }
+
+  /** Resolve or create the target without writing aliases, evidence, or audit rows. */
+  async planRecord(
+    input: ResolveRecordTargetInput,
+    executor?: SqlExecutor,
+  ): Promise<ResolvedEntityPlan> {
     const strong = input.aliases.filter((alias) => alias.strong);
     const matches = new Map<EntityId, { entity: Entity; on: string[] }>();
 
     for (const alias of strong) {
-      const found = await this.#deps.store.lookupByAlias({
-        vertical_id: this.#deps.verticalId,
-        values: [alias.normalizedValue],
-        alias_type: alias.aliasType,
-        entity_type: input.entityType,
-      });
+      const found = await this.#deps.store.lookupByAlias(
+        {
+          vertical_id: this.#deps.verticalId,
+          values: [alias.normalizedValue],
+          alias_type: alias.aliasType,
+          entity_type: input.entityType,
+        },
+        executor,
+      );
       for (const match of found) {
         if (match.alias.normalized_value !== alias.normalizedValue) continue;
+        const continuityOnly =
+          input.maskedAliasIds?.has(match.alias.id) === true &&
+          input.continuityAliasIds?.has(match.alias.id) === true;
+        if (
+          input.maskedAliasIds?.has(match.alias.id) === true &&
+          input.continuityAliasIds?.has(match.alias.id) !== true
+        ) {
+          continue;
+        }
         const bucket = matches.get(match.entity.id) ?? { entity: match.entity, on: [] };
-        bucket.on.push(
-          `${alias.aliasType}=${alias.normalizedValue}` +
-            (identifiersMatch(match.alias.alias_value, alias.aliasValue, { keep: 'alphanumeric', case: 'upper' })
-              ? ''
-              : ' (spelling differs)'),
-        );
+        // A claim made only by this same logical record is continuity, not
+        // fresh corroboration. It may preserve the entity attachment on exact
+        // replay, but adding it to `matchedOn` would make the record's own first
+        // write change its evidence fingerprint on the next identical run.
+        if (!continuityOnly) {
+          bucket.on.push(
+            `${alias.aliasType}=${alias.normalizedValue}` +
+              (identifiersMatch(match.alias.alias_value, alias.aliasValue, { keep: 'alphanumeric', case: 'upper' })
+                ? ''
+                : ' (spelling differs)'),
+          );
+        }
         matches.set(match.entity.id, bucket);
       }
+    }
+
+    for (const staged of input.stagedAliases ?? []) {
+      if (
+        staged.entity.entity_type !== input.entityType ||
+        !strong.some(
+          (alias) =>
+            alias.aliasType === staged.aliasType &&
+            alias.normalizedValue === staged.normalizedValue,
+        )
+      ) {
+        continue;
+      }
+      const incoming = strong.find(
+        (alias) =>
+          alias.aliasType === staged.aliasType &&
+          alias.normalizedValue === staged.normalizedValue,
+      );
+      if (incoming === undefined) continue;
+      const bucket = matches.get(staged.entity.id) ?? { entity: staged.entity, on: [] };
+      bucket.on.push(
+        `${incoming.aliasType}=${incoming.normalizedValue}` +
+          (identifiersMatch(staged.aliasValue, incoming.aliasValue, {
+            keep: 'alphanumeric',
+            case: 'upper',
+          })
+            ? ''
+            : ' (spelling differs)'),
+      );
+      matches.set(staged.entity.id, bucket);
     }
 
     // Two strong identifiers on one record pointing at different entities is a
@@ -185,7 +526,7 @@ export class EntityResolver {
     const conflictingEntityIds = matches.size > 1 ? [...matches.keys()].sort() : null;
     if (conflictingEntityIds !== null) {
       this.diagnostics.push(
-        `source record ${input.sourceRecordId} matched ${matches.size} entities on strong identifiers; queued for review.`,
+        `source record ${input.sourceRecordKey} matched ${matches.size} entities on strong identifiers; queued for review.`,
       );
     }
 
@@ -215,50 +556,191 @@ export class EntityResolver {
     let created = false;
 
     if (existing === undefined) {
-      const slug = this.#buildSlug(input, display);
-      entity = await this.#deps.store.upsertEntity({
-        vertical_id: this.#deps.verticalId,
-        entity_type: input.entityType,
-        canonical_name: this.#buildName(input, display),
-        canonical_slug: slug,
-        status: 'ACTIVE',
-        // The quality worker owns this score (doc 04); ingestion sets a neutral
-        // value rather than inventing one it has no signal for.
-        quality_score: entityQualityScore(0.5),
-        first_seen_at: this.#deps.now,
-        last_verified_at: this.#deps.now,
-      });
+      const baseSlug = this.#buildSlug(input, display);
+      const slug = await this.#availableSlug(baseSlug, input, executor);
+      entity = await this.#deps.store.upsertEntity(
+        {
+          vertical_id: this.#deps.verticalId,
+          entity_type: input.entityType,
+          canonical_name: this.#buildName(input, display),
+          canonical_slug: slug,
+          status: 'ACTIVE',
+          // The quality worker owns this score (doc 04); ingestion sets a neutral
+          // value rather than inventing one it has no signal for.
+          quality_score: entityQualityScore(0.5),
+          first_seen_at: this.#deps.now,
+          last_verified_at: this.#deps.now,
+        },
+        executor,
+      );
       created = entity.created_at === entity.updated_at;
     } else {
       // Freshness is updated on every run even when nothing changed — that is
       // the difference between "we have not checked" and "we checked and it is
       // unchanged".
-      entity = await this.#deps.store.upsertEntity({
-        vertical_id: this.#deps.verticalId,
-        entity_type: input.entityType,
-        canonical_name: existing.entity.canonical_name,
-        canonical_slug: existing.entity.canonical_slug,
-        status: existing.entity.status,
-        quality_score: existing.entity.quality_score,
-        first_seen_at: existing.entity.first_seen_at,
-        last_verified_at: this.#deps.now,
-      });
-    }
-
-    for (const alias of input.aliases) {
-      await this.#writeAlias(
-        entity.id,
-        alias.aliasType,
-        alias.aliasValue,
-        input.sourceId,
-        alias.strong ? 0.99 : 0.6,
-        alias.normalizedValue,
+      entity = await this.#deps.store.upsertEntity(
+        {
+          vertical_id: this.#deps.verticalId,
+          entity_type: input.entityType,
+          canonical_name: existing.entity.canonical_name,
+          canonical_slug: existing.entity.canonical_slug,
+          status: existing.entity.status,
+          quality_score: existing.entity.quality_score,
+          first_seen_at: existing.entity.first_seen_at,
+          last_verified_at: this.#deps.now,
+        },
+        executor,
       );
     }
 
-    const finalName = await this.#preferredNameFromAliases(entity, input);
-    if (finalName !== null && finalName !== entity.canonical_name) {
-      entity = await this.#deps.store.upsertEntity({
+    // When the record conflicted, `existing.on` lists only the identifiers that
+    // pointed at the WINNING entity — reporting just those is what made the old
+    // audit row actively false, because the identifier that pointed elsewhere
+    // was the whole reason for the conflict. Report every identifier involved.
+    const keyedIdentifiers = strong.map(
+      (alias) => `${alias.aliasType}=${alias.normalizedValue}`,
+    );
+    // Resolution provenance must be a function of this record's evidence, not
+    // of which neighboring source happened to land first. The entity set above
+    // still detects real conflicts and determines the target; `matchedOn`
+    // records every strong identifier that keyed this decision so an identical
+    // batch is byte-stable after those aliases themselves become current.
+    const matchedOn = keyedIdentifiers;
+
+    const method = conflictingEntityIds === null
+      ? 'strong_identifier_exact_match'
+      : 'strong_identifier_conflict';
+    const audit: ResolutionAuditProjection = {
+      decision: conflictingEntityIds === null ? 'MATCH' : 'NEEDS_REVIEW',
+      score: conflictingEntityIds === null ? 1 : 0.5,
+      method,
+      matchedOn: [...new Set(matchedOn)].sort(compareCodeUnits),
+      keyedOn: [
+        ...new Set(strong.map((alias) => `${alias.aliasType}=${alias.normalizedValue}`)),
+      ].sort(compareCodeUnits),
+      conflictingEntityIds: conflictingEntityIds ?? [],
+      resolvedEntityId: entity.id,
+      deterministic: conflictingEntityIds === null,
+    };
+    const rationale = conflictingEntityIds !== null
+      ? `PROVISIONAL: strong identifiers on this record resolve to ${conflictingEntityIds.length} ` +
+        `entities (${conflictingEntityIds.join(', ')}) on ${audit.matchedOn.join(', ')}. Attached to ` +
+        `${entity.id} pending review; not a deterministic match.`
+      : existing === undefined
+        ? `New canonical entity created from ${audit.matchedOn.join(', ') || 'no strong identifier'}.`
+        : `Exact normalized identifier match on ${audit.matchedOn.join(', ')}.`;
+
+    return { entity, created, matchedOn: audit.matchedOn, audit, rationale };
+  }
+
+  /**
+   * Canonical slugs are URLs, not identity claims. If a historical entity owns
+   * the natural slug after its alias claim has expired, allocate a stable
+   * successor slug instead of silently reattaching through the uniqueness
+   * constraint. The pipeline holds the base-slug advisory lock while this runs.
+   */
+  async #availableSlug(
+    baseSlug: string,
+    input: ResolveRecordTargetInput,
+    executor?: SqlExecutor,
+  ): Promise<string> {
+    const sql = `SELECT id FROM entities
+      WHERE vertical_id = $1 AND entity_type = $2 AND canonical_slug = $3`;
+    const query = executor ?? this.#deps.store.driver;
+    if ((await query.query(sql, [this.#deps.verticalId, input.entityType, baseSlug]))[0] === undefined) {
+      return baseSlug;
+    }
+
+    const suffix = sha256Hex(stableStringify({
+      sourceRecordKey: input.sourceRecordKey,
+      entityType: input.entityType,
+      resolutionDiscriminator: input.resolutionDiscriminator,
+    })).slice(0, 12);
+    let attempt = 0;
+    while (true) {
+      const candidate = `${baseSlug}-${suffix}${attempt === 0 ? '' : `-${attempt}`}`;
+      if ((await query.query(sql, [this.#deps.verticalId, input.entityType, candidate]))[0] === undefined) {
+        return candidate;
+      }
+      attempt += 1;
+    }
+  }
+
+  /** Persist the deterministic audit only after reconciliation returns the final revision ID. */
+  async persistResolution(
+    plan: ResolvedEntityPlan,
+    sourceRecordId: SourceRecordId,
+    executor?: SqlExecutor,
+  ): Promise<void> {
+    const features = plan.audit.deterministic
+      ? {
+          method: plan.audit.method,
+          matched_on: plan.audit.matchedOn,
+          deterministic: true,
+        }
+      : {
+          method: plan.audit.method,
+          matched_on: plan.audit.matchedOn,
+          deterministic: false,
+          conflicting_entities: plan.audit.conflictingEntityIds,
+          provisional_entity: plan.entity.id,
+          reason: 'strong identifiers on one record resolve to different entities',
+        };
+    const candidateId = await this.#recordCandidate(
+      {
+        leftSourceRecordId: sourceRecordId,
+        rightEntityId: plan.entity.id,
+        decision: plan.audit.decision,
+        score: plan.audit.score,
+        features,
+      },
+      executor,
+    );
+    await this.#recordJudgment(
+      {
+        candidateId,
+        verdict: 'MERGE',
+        leftSourceRecordId: sourceRecordId,
+        rightEntityId: plan.entity.id,
+        mergedInto: plan.entity.id,
+        evidence: {
+          method: plan.audit.method,
+          keyed_on: plan.audit.keyedOn,
+          conflicting_entities: plan.audit.conflictingEntityIds,
+        },
+        confidence: plan.audit.score,
+        rationale: plan.rationale,
+      },
+      executor,
+    );
+  }
+
+  /** Stage a source alias row; only a later source-record claim makes it current. */
+  async stageSourceAlias(
+    draft: SourceAliasDraft,
+    executor?: SqlExecutor,
+  ): Promise<EntityAlias> {
+    return this.#writeAlias(
+      draft.entity.id,
+      draft.aliasType,
+      draft.aliasValue,
+      draft.sourceId,
+      draft.identityConfidence,
+      draft.normalizedValue,
+      executor,
+    );
+  }
+
+  /** Recompute the preferred name after the final current alias claims exist. */
+  async refreshPreferredName(
+    entity: Entity,
+    input: ResolutionNamingInput,
+    executor?: SqlExecutor,
+  ): Promise<Entity> {
+    const finalName = await this.#preferredNameFromAliases(entity, input, executor);
+    if (finalName === null || finalName === entity.canonical_name) return entity;
+    return this.#deps.store.upsertEntity(
+      {
         vertical_id: this.#deps.verticalId,
         entity_type: entity.entity_type,
         canonical_name: finalName,
@@ -267,78 +749,73 @@ export class EntityResolver {
         quality_score: entity.quality_score,
         first_seen_at: entity.first_seen_at,
         last_verified_at: this.#deps.now,
-      });
-    }
-
-    // When the record conflicted, `existing.on` lists only the identifiers that
-    // pointed at the WINNING entity — reporting just those is what made the old
-    // audit row actively false, because the identifier that pointed elsewhere
-    // was the whole reason for the conflict. Report every identifier involved.
-    const matchedOn =
-      conflictingEntityIds !== null
-        ? [...new Set([...matches.values()].flatMap((bucket) => bucket.on))]
-        : (existing?.on ?? strong.map((alias) => `${alias.aliasType}=${alias.normalizedValue}`));
-
-    const candidateId = await this.#recordCandidate({
-      leftSourceRecordId: input.sourceRecordId,
-      rightEntityId: entity.id,
-      decision: conflictingEntityIds === null ? 'MATCH' : 'NEEDS_REVIEW',
-      score: conflictingEntityIds === null ? 1 : 0.5,
-      features:
-        conflictingEntityIds === null
-          ? {
-              method: 'strong_identifier_exact_match',
-              matched_on: matchedOn,
-              deterministic: true,
-              created_entity: existing === undefined,
-            }
-          : {
-              method: 'strong_identifier_conflict',
-              matched_on: matchedOn,
-              // NOT a clean deterministic match: the identifiers disagree about
-              // which entity this record belongs to.
-              deterministic: false,
-              created_entity: false,
-              conflicting_entities: conflictingEntityIds,
-              provisional_entity: entity.id,
-              reason: 'strong identifiers on one record resolve to different entities',
-            },
-    });
-    await this.#recordJudgment({
-      candidateId,
-      verdict: 'MERGE',
-      leftSourceRecordId: input.sourceRecordId,
-      rightEntityId: entity.id,
-      mergedInto: entity.id,
-      // What this attachment rests on, and nothing about *this run*. The
-      // identifiers come from the record itself rather than from `matchedOn`,
-      // whose wording legitimately differs between the pass that creates an
-      // entity and the pass that re-matches it — a difference in the trail's
-      // narration, not in the claim being made.
-      evidence: {
-        method:
-          conflictingEntityIds === null
-            ? 'strong_identifier_exact_match'
-            : 'strong_identifier_conflict',
-        keyed_on: [
-          ...new Set(strong.map((alias) => `${alias.aliasType}=${alias.normalizedValue}`)),
-        ].sort(),
-        conflicting_entities: conflictingEntityIds ?? [],
       },
-      // A provisional attachment is still a merge that happened and must be
-      // auditable and reversible (rule 3) — but it must not claim certainty.
-      confidence: conflictingEntityIds === null ? 1 : 0.5,
-      rationale:
-        conflictingEntityIds !== null
-          ? `PROVISIONAL: strong identifiers on this record resolve to ${conflictingEntityIds.length} ` +
-            `entities (${conflictingEntityIds.join(', ')}) on ${matchedOn.join(', ')}. Attached to ` +
-            `${entity.id} pending review; not a deterministic match.`
-          : existing === undefined
-            ? `New canonical entity created from ${matchedOn.join(', ') || 'no strong identifier'}.`
-            : `Exact normalized identifier match on ${matchedOn.join(', ')}.`,
-    });
+      executor,
+    );
+  }
 
-    return { entity, created, matchedOn };
+  /**
+   * Recompute an already-existing entity after one of its source records was
+   * replaced. If no current alias remains, retain the old name only as
+   * historical storage; surface authorization hides entities with no current
+   * alias authority, so that spelling cannot be presented as current.
+   */
+  async refreshStoredPreferredName(
+    entityId: EntityId,
+    executor?: SqlExecutor,
+  ): Promise<void> {
+    const query = executor ?? this.#deps.store.driver;
+    const rows = await query.query(
+      `SELECT id, vertical_id, entity_type, canonical_name, canonical_slug, status,
+              quality_score, first_seen_at, last_verified_at, created_at, updated_at
+         FROM entities WHERE id = $1`,
+      [entityId],
+    );
+    const row = rows[0];
+    if (row === undefined) return;
+    const iso = (value: unknown): string => {
+      const date = value instanceof Date ? value : new Date(String(value));
+      if (Number.isNaN(date.getTime())) throw new Error(`invalid entity timestamp: ${String(value)}`);
+      return date.toISOString();
+    };
+    const entity = EntitySchema.parse({
+      ...row,
+      quality_score: Number(row['quality_score']),
+      first_seen_at: iso(row['first_seen_at']),
+      last_verified_at:
+        row['last_verified_at'] === null ? null : iso(row['last_verified_at']),
+      created_at: iso(row['created_at']),
+      updated_at: iso(row['updated_at']),
+    });
+    const manufacturerRows = await query.query<{
+      readonly canonical_name: string;
+      readonly canonical_slug: string;
+    }>(
+      `SELECT manufacturer.canonical_name, manufacturer.canonical_slug
+         FROM relationships relationship
+         JOIN entities manufacturer ON manufacturer.id = relationship.subject_entity_id
+        WHERE relationship.object_entity_id = $1
+          AND relationship.predicate = 'manufactures'
+          AND relationship.status <> 'RETRACTED'
+          AND relationship.valid_to IS NULL
+          AND EXISTS (
+            SELECT 1
+              FROM relationship_evidence evidence
+              JOIN source_records record ON record.id = evidence.source_record_id
+             WHERE evidence.relationship_id = relationship.id
+               AND record.is_current
+               AND record.revision_state = 'FINALIZED'
+          )
+        ORDER BY manufacturer.canonical_slug COLLATE "C"
+        LIMIT 1`,
+      [entityId],
+    );
+    const manufacturer = manufacturerRows[0] ?? null;
+    await this.refreshPreferredName(
+      entity,
+      { entityType: entity.entity_type, aliases: [], manufacturer },
+      executor,
+    );
   }
 
   #primaryAlias(entityType: Identifier): string | null {
@@ -346,7 +823,7 @@ export class EntityResolver {
   }
 
   /** `entities/<type>.yaml` `canonical_slug.pattern`, with its tokens resolved. */
-  #buildSlug(input: ResolveRecordInput, display: AliasClaim | null): string {
+  #buildSlug(input: ResolutionNamingInput, display: AliasClaim | null): string {
     const definition = this.#deps.config.entities[input.entityType];
     const pattern = String(definition?.canonical_slug?.pattern ?? '{canonical_name}');
     const resolved = pattern.replace(/\{([a-z0-9_]+)\}/g, (_match, token: string) => {
@@ -366,26 +843,40 @@ export class EntityResolver {
    * scheme is the leading segment of its alias type (`ahri_ref` → `AHRI`) —
    * a bare number is not a name a human can act on.
    */
-  #buildName(input: ResolveRecordInput, display: AliasClaim | null): string {
+  #buildName(input: ResolutionNamingInput, display: AliasClaim | null): string {
     const value = display?.aliasValue ?? display?.normalizedValue ?? 'unknown';
     if (input.manufacturer !== null) {
       return `${input.manufacturer.canonical_name} ${value}`;
     }
-    const primary = this.#primaryAlias(input.entityType);
-    const scheme = primary === null ? null : (primary.split('_')[0] ?? '').toUpperCase();
+    const namingAlias = display?.aliasType ?? this.#primaryAlias(input.entityType);
+    const scheme = namingAlias === null ? null : (namingAlias.split('_')[0] ?? '').toUpperCase();
     return scheme === null || scheme === '' ? value : `${scheme} ${value}`;
   }
 
   /** Rebuilds the display name from the stored spelling of the primary alias. */
-  async #preferredNameFromAliases(entity: Entity, input: ResolveRecordInput): Promise<string | null> {
+  async #preferredNameFromAliases(
+    entity: Entity,
+    input: ResolutionNamingInput,
+    executor?: SqlExecutor,
+  ): Promise<string | null> {
     const primary = this.#primaryAlias(entity.entity_type);
     if (primary === null) return null;
-    const alias = (await this.#deps.store.listAliases(entity.id)).find(
-      (candidate) => candidate.alias_type === primary,
-    );
+    const aliases = await this.#deps.store.listAliases(entity.id, executor);
+    const preferredTypes = [
+      primary,
+      'legal_name',
+      'name',
+      'dba',
+      ...this.#deps.config.aliasTypes
+        .filter((candidate) => candidate.strong && candidate.applies_to.includes(entity.entity_type))
+        .map((candidate) => candidate.type),
+    ];
+    const alias = [...new Set(preferredTypes)]
+      .map((aliasType) => aliases.find((candidate) => candidate.alias_type === aliasType))
+      .find((candidate) => candidate !== undefined);
     if (alias === undefined) return null;
     return this.#buildName(input, {
-      aliasType: primary as Identifier,
+      aliasType: alias.alias_type,
       aliasValue: alias.alias_value,
       normalizedValue: alias.normalized_value,
       strong: true,
@@ -416,14 +907,17 @@ export class EntityResolver {
     sourceId: SourceId,
     confidence: number,
     normalized?: string,
-  ): Promise<void> {
+    executor?: SqlExecutor,
+  ): Promise<EntityAlias> {
     const normalizedValue = normalized ?? this.#normalizer.normalize(aliasType, aliasValue);
-    if (normalizedValue === '') return;
+    if (normalizedValue === '') {
+      throw new Error(`alias ${aliasType} normalized to an empty value after validation`);
+    }
 
     let display = aliasValue;
     let displaySource = sourceId;
-    const rows = await this.#deps.store.driver.query(
-      `SELECT alias_value, source_id FROM entity_aliases
+    const rows = await (executor ?? this.#deps.store.driver).query(
+      `SELECT alias_value, source_id FROM current_entity_aliases
         WHERE entity_id = $1 AND alias_type = $2 AND normalized_value = $3`,
       [entityId, aliasType, normalizedValue],
     );
@@ -439,7 +933,7 @@ export class EntityResolver {
       displaySource = winner.sourceId ?? sourceId;
     }
 
-    await this.#deps.store.addAlias({
+    const input = {
       entity_id: entityId,
       alias_type: aliasType as Identifier,
       alias_value: display,
@@ -448,7 +942,8 @@ export class EntityResolver {
       identity_confidence: identityConfidence(confidence),
       valid_from: this.#deps.now,
       valid_to: null,
-    });
+    } as const;
+    return this.#deps.store.stageSourceAlias(input, executor);
   }
 
   #preferDisplay<T extends { readonly value: string; readonly sourceId: SourceId | null }>(
@@ -470,15 +965,18 @@ export class EntityResolver {
 
   /* ---------------- resolution audit tables ---------------- */
 
-  async #recordCandidate(input: {
-    readonly leftSourceRecordId?: SourceRecordId;
-    readonly leftEntityId?: EntityId;
-    readonly rightEntityId: EntityId;
-    readonly decision: 'PENDING' | 'MATCH' | 'NO_MATCH' | 'NEEDS_REVIEW';
-    readonly score: number;
-    readonly features: Record<string, unknown>;
-  }): Promise<string> {
-    const driver = this.#deps.store.driver;
+  async #recordCandidate(
+    input: {
+      readonly leftSourceRecordId?: SourceRecordId;
+      readonly leftEntityId?: EntityId;
+      readonly rightEntityId: EntityId;
+      readonly decision: 'PENDING' | 'MATCH' | 'NO_MATCH' | 'NEEDS_REVIEW';
+      readonly score: number;
+      readonly features: Record<string, unknown>;
+    },
+    executor?: SqlExecutor,
+  ): Promise<string> {
+    const driver = executor ?? this.#deps.store.driver;
     const left: SqlParam = input.leftEntityId ?? null;
     const leftRecord: SqlParam = input.leftSourceRecordId ?? null;
 
@@ -583,18 +1081,20 @@ export class EntityResolver {
    * (which run wrote it, whether the entity happened to be created on this
    * pass) would make every second run look like a new decision.
    */
-  async #recordJudgment(input: {
-    readonly candidateId: string | null;
-    readonly verdict: 'MERGE' | 'NOT_MERGE' | 'SPLIT';
-    readonly leftSourceRecordId?: SourceRecordId;
-    readonly leftEntityId?: EntityId;
-    readonly rightEntityId: EntityId;
-    readonly mergedInto: EntityId | null;
-    readonly confidence: number;
-    readonly rationale: string;
-    readonly evidence: Record<string, unknown>;
-  }): Promise<void> {
-    const driver = this.#deps.store.driver;
+  async #recordJudgment(
+    input: {
+      readonly candidateId: string | null;
+      readonly verdict: 'MERGE' | 'NOT_MERGE' | 'SPLIT';
+      readonly leftSourceRecordId?: SourceRecordId;
+      readonly leftEntityId?: EntityId;
+      readonly rightEntityId: EntityId;
+      readonly mergedInto: EntityId | null;
+      readonly confidence: number;
+      readonly rationale: string;
+      readonly evidence: Record<string, unknown>;
+    },
+    executor?: SqlExecutor,
+  ): Promise<void> {
     const evidenceFingerprint = sha256Hex(stableStringify(input.evidence));
     const decisionFingerprint = sha256Hex(
       stableStringify({
@@ -624,7 +1124,7 @@ export class EntityResolver {
           AND left_entity_id IS NOT DISTINCT FROM $2
           AND right_entity_id IS NOT DISTINCT FROM $3`;
 
-    await driver.transaction(async (tx) => {
+    const writeJudgment = async (tx: SqlExecutor): Promise<void> => {
       const [current] = await tx.query<{
         id: string;
         episode_seq: number;
@@ -696,7 +1196,12 @@ export class EntityResolver {
           episodeSeq,
         ],
       );
-    });
+    };
+    if (executor === undefined) {
+      await this.#deps.store.driver.transaction(writeJudgment);
+      return;
+    }
+    await writeJudgment(executor);
   }
 
   /**
@@ -821,16 +1326,23 @@ export class EntityResolver {
     const driver = this.#deps.store.driver;
     const rows = await driver.query(
       `SELECT e.id, e.canonical_slug, e.entity_type,
-              (SELECT a.normalized_value FROM entity_aliases a
+              (SELECT a.normalized_value FROM current_entity_aliases a
                 WHERE a.entity_id = e.id AND a.alias_type = 'model_number'
                 -- COLLATE "C": this LIMIT 1 picks the blocking key, which decides
                 -- which pairs are ever compared and lands in the evidence
                 -- fingerprint. A host collation must not choose it.
                 ORDER BY a.normalized_value COLLATE "C" LIMIT 1) AS model_number,
-              (SELECT m.canonical_slug FROM relationships r
-                 JOIN entities m ON m.id = r.subject_entity_id
-                WHERE r.object_entity_id = e.id AND r.predicate = 'manufactures'
-                  AND r.valid_to IS NULL LIMIT 1) AS manufacturer_slug
+               (SELECT m.canonical_slug FROM relationships r
+                  JOIN entities m ON m.id = r.subject_entity_id
+                 WHERE r.object_entity_id = e.id AND r.predicate = 'manufactures'
+                   AND r.valid_to IS NULL
+                   AND EXISTS (
+                     SELECT 1 FROM relationship_evidence re
+                     JOIN source_records sr ON sr.id = re.source_record_id
+                     WHERE re.relationship_id = r.id
+                       AND sr.is_current AND sr.revision_state = 'FINALIZED'
+                   )
+                 LIMIT 1) AS manufacturer_slug
          FROM entities e
         WHERE e.vertical_id = $1 AND e.entity_type = 'equipment_model' AND e.status = 'ACTIVE'
         ORDER BY e.id`,

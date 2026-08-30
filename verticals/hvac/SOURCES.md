@@ -29,7 +29,9 @@ you do not control.
 
 The rights metadata on these sources is therefore **real machinery exercised on
 fictional inputs**. The gates genuinely run and genuinely pass. What they
-validate is our own test data.
+validate is our own test data. `GREEN`/`AMBER` and legacy booleans are
+inventory/additional hard stops only; exact ADR-0010 matrix decisions authorize
+real acquisition and publication surfaces.
 
 ## Source inventory
 
@@ -44,6 +46,17 @@ validate is our own test data.
 
 The key and the `ahri_ref` alias type are **shared-vocabulary strings agreed
 across build waves**. They name the *shape* of a certification-directory source.
+
+**And the shape they name is not currently obtainable.** A real
+certification-directory source would be a `CERTIFICATION_BODY`; the only real US
+one is prohibited (`packages/source-registry/src/prohibited-sources.ts`), and the
+lawful replacements are `REGULATORY_FILING` — registers a regulator *hosts* and a
+manufacturer *asserts*. When these fixtures are replaced, the source authority
+class changes with them, and so must every description that calls a value certified.
+See `docs/sources/hvac-source-landscape-2026-08.md`. For a real
+`REGULATORY_FILING`, the general product wording is exactly
+“Manufacturer-reported, as filed with US regulators”; fixture certification
+language must not be carried over to regulator-hosted values.
 The publisher is a fictional body — **not** the real Air-Conditioning, Heating,
 and Refrigeration Institute — and nothing in this vertical describes that
 organization's data, directory or terms.
@@ -182,7 +195,7 @@ not independent — the distributor transcribes manufacturer data, so their
 agreement is one claim counted twice.
 
 Both losing claims are retained with full evidence and are queryable through
-`get_spec_evidence`.
+the canonical evidence path surfaced by `explain_fact`.
 
 ## Adding a real source
 
@@ -199,3 +212,9 @@ Both losing claims are retained with full evidence and are queryable through
    introduced new domain vocabulary and the canonical model is changing:
    `CHANGELOG.md` entry and `schema_version` bump.
 6. Run `pnpm verticals:validate`.
+7. Record effective exact matrix decisions for the intended acquisition and
+   publication bundles; absence is refusal and no YAML field creates `ALLOW`.
+8. If scheduled acquisition is intended, add the reviewed target to
+   `acquisition.yaml`, run `pnpm acquisition:compile` and
+   `pnpm acquisition:check`, then require live Cron/R2/Postgres proof before
+   calling it operational.

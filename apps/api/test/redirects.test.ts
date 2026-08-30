@@ -16,7 +16,14 @@ import {
   entityQualityScore,
   type Entity,
 } from '../../../packages/canonical-schema/src/index.js';
-import { call, createApiFixtures, errorOf, ts, type ApiFixtures } from './support.js';
+import {
+  addSyntheticEntityEvidence,
+  call,
+  createApiFixtures,
+  errorOf,
+  ts,
+  type ApiFixtures,
+} from './support.js';
 
 let fixtures: ApiFixtures;
 /** Merged into the surviving equipment; keeps its own slug. */
@@ -29,7 +36,7 @@ let renamed: Entity;
 const RETIRED_SLUG = 'carrier-infinity-24anb7-2024';
 
 async function makeEntity(name: string, slug: string): Promise<Entity> {
-  return fixtures.store.upsertEntity({
+  const entity = await fixtures.store.upsertEntity({
     vertical_id: fixtures.vertical.id,
     entity_type: 'equipment',
     canonical_name: name,
@@ -39,6 +46,8 @@ async function makeEntity(name: string, slug: string): Promise<Entity> {
     first_seen_at: ts('2026-01-01T00:00:00Z'),
     last_verified_at: null,
   });
+  await addSyntheticEntityEvidence(fixtures, entity);
+  return entity;
 }
 
 beforeAll(async () => {

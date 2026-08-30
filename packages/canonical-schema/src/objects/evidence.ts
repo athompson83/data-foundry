@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { ExtractionConfidenceSchema } from '../confidence.js';
+import { AcquisitionMethodSchema } from '../rights.js';
 import {
   PolicySnapshotIdSchema,
   SourceArtifactIdSchema,
@@ -38,6 +39,12 @@ export const SourceArtifactSchema = z.object({
   byte_size: z.number().int().min(0).nullable(),
   /** Acquisition adapter that produced this artifact (`browser-run`, `crawl4ai`, `http`). */
   acquisition_provider: z.string().min(1).max(120),
+  /** Rights-relevant route that was approved for this retrieval. */
+  acquisition_route: AcquisitionMethodSchema.nullable(),
+  /** Contract/account tier used to acquire the bytes; explicit null means no tier was recorded. */
+  account_or_product_plan: z.string().min(1).max(300).nullable(),
+  /** Acquisition jurisdiction in force; explicit null means it was not recorded. */
+  acquisition_jurisdiction: z.string().min(1).max(120).nullable(),
   created_at: IsoDateTimeSchema,
 });
 export type SourceArtifact = z.infer<typeof SourceArtifactSchema>;
@@ -53,21 +60,29 @@ export type SourceArtifactInsert = z.infer<typeof SourceArtifactInsertSchema>;
  * resolution. A source record is a *claim*, not an entity.
  *
  * `source_id` is carried alongside `artifact_id` because the business key
- * `(source_id, source_record_key)` must be unique across every artifact that
- * source ever produced — the same part number seen on three crawls is one
- * record with three artifacts of evidence, not three records.
+ * `(source_id, source_record_key)` identifies one logical record. A current
+ * immutable revision is replaced when a later artifact changes its payload;
+ * historic revisions retain the evidence needed to explain earlier output.
  */
 export const SourceRecordSchema = z.object({
   id: SourceRecordIdSchema,
   source_id: SourceIdSchema,
   artifact_id: SourceArtifactIdSchema,
   source_record_key: SourceRecordKeySchema,
+  /** Explicit mapping stream; null only on fail-closed historical revisions. */
+  source_stream: IdentifierSchema.nullable(),
   entity_type: IdentifierSchema,
   raw_payload: JsonObjectSchema,
   /** Populated by the normalization stage; null between EXTRACTED and NORMALIZED. */
   normalized_payload: JsonObjectSchema.nullable(),
   extraction_confidence: ExtractionConfidenceSchema,
   extractor_version: ExtractorVersionSchema,
+  /** Hash of evidence-affecting validation/resolution semantics for no-op replays. */
+  evidence_fingerprint: z.string().regex(/^[0-9a-f]{64}$/),
+  /** Explicit lifecycle state; evidence may cite only a FINALIZED revision. */
+  revision_state: z.enum(['PROVISIONAL', 'FINALIZED']),
+  /** One revision per logical source record is current and eligible for new lineage. */
+  is_current: z.boolean(),
   created_at: IsoDateTimeSchema,
   updated_at: IsoDateTimeSchema,
 });
@@ -75,7 +90,11 @@ export type SourceRecord = z.infer<typeof SourceRecordSchema>;
 
 export const SourceRecordInsertSchema = SourceRecordSchema.omit({
   id: true,
+  source_stream: true,
+  evidence_fingerprint: true,
+  revision_state: true,
+  is_current: true,
   created_at: true,
   updated_at: true,
-});
+}).extend({ source_stream: IdentifierSchema });
 export type SourceRecordInsert = z.infer<typeof SourceRecordInsertSchema>;

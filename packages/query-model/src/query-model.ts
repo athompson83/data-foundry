@@ -41,6 +41,12 @@ import {
 import { searchEntities, type SearchQuery, type SearchResult } from './search.js';
 import { traverseRelationships, type RelationshipTraversal, type TraversalQuery } from './relationships.js';
 import { compareEntities, type CompareQuery, type EntityComparison } from './compare.js';
+import {
+  createSurfaceQueryModel,
+  type SurfaceAccessOptions,
+  type SurfaceQueryModel,
+} from './surface-access.js';
+import type { RightsSurface } from '@data-foundry/rights-engine';
 
 export interface QueryModelOptions {
   /**
@@ -71,6 +77,9 @@ export interface QueryModelOptions {
  */
 export interface QueryModel {
   readonly fields: FieldMetadataRegistry;
+
+  /** Bind immutable, trusted per-request distribution rights to every read. */
+  forSurface(surface: RightsSurface, options?: SurfaceAccessOptions): SurfaceQueryModel;
 
   getEntity(id: EntityId): Promise<EntityView | null>;
   getEntityBySlug(
@@ -115,6 +124,9 @@ export function createQueryModel(
 
   return {
     fields,
+
+    forSurface: (surface, accessOptions = {}) =>
+      createSurfaceQueryModel(store, fields, surface, accessOptions),
 
     getEntity: (id) => getEntityById(store, id),
     getEntityBySlug: (verticalId, entityType, slug) =>

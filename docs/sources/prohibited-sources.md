@@ -32,6 +32,7 @@ the same `RightsViolationError` as any other rule-1 violation.
 | --- | --- | --- |
 | `ahridirectory.org` | AHRI | Certification Directory is offered for individual look-up; automated copying, bulk ingestion, redistribution and derived-dataset construction are outside that, and unlicensed |
 | `ahrinet.org` | AHRI | Same terms, same absence of a reuse grant |
+| `neep.org` | Northeast Energy Efficiency Partnerships | Terms grant use "for personal, non-commercial use only"; a commercial data product is the named excluded case. Also operated in partnership with AHRI, so acquiring it routes around the entry above rather than avoiding it. Assessed 2026-08-23 — see [the source landscape](hvac-source-landscape-2026-08.md) |
 | `carrier.com` | Carrier Global Corporation | Manuals, images, parts data and specification documents are copyrighted works with no reuse grant |
 | `trane.com` | Trane Technologies | as above |
 | `lennox.com` | Lennox International | as above |

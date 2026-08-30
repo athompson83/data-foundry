@@ -21,6 +21,8 @@ import {
   type EditorialOverride,
   type FactSelectionPolicyInput,
 } from '@data-foundry/canonical-store';
+import { canPublish, prohibitedSourceFor } from '@data-foundry/source-registry';
+import { ACQUIRABLE_STATUSES } from '@data-foundry/acquisition';
 import type { Identifier, IsoDateTime, SourceType } from '@data-foundry/canonical-schema';
 import type { SourceRegistryEntry } from '@data-foundry/source-registry';
 import type { VerticalConfig } from './config.js';
@@ -43,17 +45,80 @@ export function buildFactSelectionPolicy(
   const byDomain = new Map<string, SourceRegistryEntry>();
   for (const source of config.sources) byDomain.set(source.key, source);
 
+  /**
+   * Why this source can never contribute a published fact, or `null`.
+   *
+   * Deliberately NARROWER than `evaluateAcquisitionGate`. Status, rights and
+   * prohibition are properties of the declaration and are stable; the kill
+   * switch and robots are operational state, and failing a vertical build
+   * because an operator paused a fetch would couple compilation to something it
+   * has no business knowing.
+   *
+   * `ACQUIRABLE_STATUSES` is imported rather than restated, for the reason
+   * `refresh-schedule.ts` gives: a second copy of the rule is how the two drift,
+   * and the drift shows up as a source this file thinks is usable and the gate
+   * refuses.
+   */
+  const unusableBecause = (source: SourceRegistryEntry): string | null => {
+    if (!ACQUIRABLE_STATUSES.has(source.status)) return `status ${source.status}`;
+    if (!canPublish(source.rights_classification)) {
+      return `rights ${source.rights_classification}`;
+    }
+    const prohibition = prohibitedSourceFor(source.domain);
+    if (prohibition !== null) return `prohibited (${prohibition.publisher})`;
+    return null;
+  };
+
+  const ofType = (types: readonly string[]): readonly SourceRegistryEntry[] =>
+    config.sources.filter((source) => types.includes(source.source_type));
+
   const domainsOfType = (types: readonly string[]): string[] =>
-    config.sources
-      .filter((source) => types.includes(source.source_type))
+    ofType(types)
+      .filter((source) => unusableBecause(source) === null)
       .map((source) => source.domain);
 
   const authoritativeSourcesByProperty: Record<string, readonly string[]> = {};
   const declared: Yaml = config.factSelection?.authoritative_by_property ?? {};
   for (const [property, rule] of Object.entries(declared)) {
     const types = ((rule as Yaml)?.prefer_source_types ?? []).map(String);
+    if (types.length === 0) continue;
     const domains = domainsOfType(types);
-    if (domains.length > 0) authoritativeSourcesByProperty[property] = domains;
+
+    // A declaration nothing can satisfy is refused here rather than dropped.
+    //
+    // This line used to read `if (domains.length > 0)`, and the `else` was
+    // silence: the property vanished from the policy, doc 04's criterion 1 never
+    // fired for it, and selection fell through to reliability, recency and
+    // corroboration. That is a majority vote, which this vertical's own YAML
+    // rationale says "gets this backwards" — and it would have happened with
+    // every test green.
+    //
+    // It is not hypothetical. HVAC declares CERTIFICATION_BODY for seven
+    // properties, the only registered source carrying that type is a synthetic
+    // fixture, and the sole real US HVAC certification directory is prohibited
+    // in `packages/source-registry`. Replacing the fixtures with lawful sources
+    // would have removed the certified-ratings preference silently.
+    if (domains.length === 0) {
+      // Name the sources that ALMOST satisfied it. A refusal that only says
+      // "no source of that type" sends an operator looking for a source that is
+      // sitting in the registry, disqualified for a reason nobody mentioned.
+      const disqualified = ofType(types)
+        .map((source) => `${source.domain} (${unusableBecause(source) ?? 'usable'})`)
+        .join(', ');
+      throw new PipelineConfigurationError(
+        `authoritative_by_property.${property} declares prefer_source_types ` +
+          `[${types.join(', ')}], and no source registered for this vertical both has one of ` +
+          'those types and can contribute a published fact. The preference cannot be ' +
+          'applied, so selection would fall through to corroboration — a majority vote ' +
+          'over exactly the claims this declaration exists to outrank. ' +
+          (disqualified === ''
+            ? 'No registered source carries any of those types at all.'
+            : `Disqualified: ${disqualified}.`) +
+          ' Declare a type a usable source actually has, or remove the property rather ' +
+          'than shipping a preference that never fires.',
+      );
+    }
+    authoritativeSourcesByProperty[property] = domains;
   }
 
   // `field_reliability` is declared per source KEY; the cascade matches on the

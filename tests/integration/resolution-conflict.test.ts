@@ -71,9 +71,9 @@ beforeAll(async () => {
   sourceId = seed!.source_id;
   const [record] = await factory.driver.query<{ id: string }>(
     `INSERT INTO source_records
-       (source_id, artifact_id, source_record_key, entity_type, raw_payload,
+       (source_id, artifact_id, source_record_key, source_stream, entity_type, raw_payload,
         normalized_payload, extraction_confidence, extractor_version)
-     VALUES ($1, $2, 'conflict-probe-0001', 'equipment_model', '{}'::jsonb,
+     VALUES ($1, $2, 'conflict-probe-0001', 'products', 'equipment_model', '{}'::jsonb,
              '{}'::jsonb, 0.9, 'test')
      RETURNING id`,
     [seed!.source_id, seed!.artifact_id],
@@ -105,8 +105,8 @@ beforeAll(async () => {
   await resolver.resolveRecord({
     entityType: 'equipment_model' as never,
     aliases: [
-      { aliasType: 'model_number' as never, aliasValue: entityA.alias, normalizedValue: entityA.alias, strong: true },
-      { aliasType: 'model_number' as never, aliasValue: entityB.alias, normalizedValue: entityB.alias, strong: true },
+      { aliasType: 'model_number' as never, aliasValue: entityA.alias, normalizedValue: entityA.alias, strong: true, locatorType: 'JSON_POINTER' as never, locatorValue: '/identifiers/0' },
+      { aliasType: 'model_number' as never, aliasValue: entityB.alias, normalizedValue: entityB.alias, strong: true, locatorType: 'JSON_POINTER' as never, locatorValue: '/identifiers/1' },
     ],
     manufacturer: null,
     sourceId: sourceId as never,
@@ -119,6 +119,44 @@ afterAll(async () => {
 });
 
 describe('conflicted resolution keeps its review flag and tells the truth', () => {
+  it('converges repeated claimed-record resolution on one canonical identity', async () => {
+    const [seed] = await factory.driver.query<{ source_id: string; artifact_id: string }>(
+      `SELECT source_id, artifact_id FROM source_records LIMIT 1`,
+    );
+    const [record] = await factory.driver.query<{ id: string }>(
+      `INSERT INTO source_records
+         (source_id, artifact_id, source_record_key, source_stream, entity_type, raw_payload,
+          normalized_payload, extraction_confidence, extractor_version)
+       VALUES ($1, $2, 'resolver-repeat-probe-0001', 'products', 'equipment_model', '{}'::jsonb,
+               '{}'::jsonb, 0.9, 'test')
+       RETURNING id`,
+      [seed!.source_id, seed!.artifact_id],
+    );
+    const input = {
+      entityType: 'equipment_model' as never,
+      aliases: [{
+        aliasType: 'model_number' as never,
+        aliasValue: 'RESOLVER-REPEAT-001',
+        normalizedValue: 'RESOLVER-REPEAT-001',
+        strong: true,
+        locatorType: 'JSON_POINTER' as never,
+        locatorValue: '/model',
+      }],
+      manufacturer: null,
+      sourceId: seed!.source_id as never,
+      sourceRecordId: record!.id as never,
+    } as const;
+
+    const first = await resolver.resolveRecord(input);
+    const second = await resolver.resolveRecord(input);
+    expect(second.entity.id).toBe(first.entity.id);
+    expect(await factory.driver.query<{ count: number }>(
+      `SELECT count(*)::int AS count
+         FROM entity_aliases
+        WHERE alias_type = 'model_number' AND normalized_value = 'RESOLVER-REPEAT-001'`,
+    )).toEqual([{ count: 1 }]);
+  });
+
   it('writes exactly one candidate row for the record, not two that overwrite', async () => {
     const rows = await candidates();
     expect(rows.length).toBe(1);
@@ -177,6 +215,8 @@ describe('conflicted resolution keeps its review flag and tells the truth', () =
           aliasValue: entityA.alias,
           normalizedValue: entityA.alias,
           strong: true,
+          locatorType: 'JSON_POINTER' as never,
+          locatorValue: '/identifiers/0',
         },
       ],
       manufacturer: null,

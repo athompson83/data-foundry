@@ -46,11 +46,18 @@ export {
   type SearchHit,
   type SearchMatchKind,
   type SearchResult,
+  type SurfaceFactExplanation,
+  type SurfaceQueryModel,
   type TraversalDirection,
   type WireCorrectionFields,
 } from '@data-foundry/query-model';
 
-import type { EntityView, QueryModel } from '@data-foundry/query-model';
+import type {
+  EntityView,
+  QueryModel,
+  SurfaceFactExplanation,
+  SurfaceQueryModel,
+} from '@data-foundry/query-model';
 
 /**
  * Branded ids and vertical-defined identifiers, derived from what the query
@@ -88,6 +95,9 @@ export type FactSelectionPolicy = NonNullable<Parameters<QueryModel['canonicalFa
  * `src/guard.ts` exists because this type crosses into this app at all.
  */
 export type FactExplanation = NonNullable<Awaited<ReturnType<QueryModel['explainFact']>>>;
+/** Customer-safe explanation exposed by a rights-bound surface facade. */
+export type CustomerFactExplanation = SurfaceFactExplanation;
+export type CustomerQueryModel = SurfaceQueryModel;
 export type ClaimSummary = FactExplanation['claims'][number];
 export type ClaimAttribution = ClaimSummary['attributions'][number];
 export type RetainedConflict = FactExplanation['conflicts'][number];

@@ -82,6 +82,8 @@ acquisition_policy:
   # plain HTTPS GET — no rendering, no pagination, no per-record requests. The
   # method records WHAT is acquired (one complete file); the notes record how.
   method: BULK_FILE
+  account_or_product_plan: null
+  jurisdiction: null
   approved: true
   approved_by: Data Foundry platform team
   approved_at: 2026-07-02T10:00:00Z

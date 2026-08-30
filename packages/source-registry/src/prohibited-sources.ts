@@ -66,6 +66,20 @@ export const PROHIBITED_SOURCES: readonly ProhibitedSource[] = [
     liftedBy: WRITTEN_LICENCE,
   },
   {
+    domain: 'neep.org',
+    publisher: 'Northeast Energy Efficiency Partnerships (NEEP)',
+    reason:
+      'The Cold Climate Air Source Heat Pump Product List is governed by NEEP terms of use ' +
+      'granting a licence to "display, copy, print, and download the Content for personal, ' +
+      'non-commercial use only", and stating that NEEP "is the exclusive owner (licensee) of ' +
+      'all right, title and interest in the Content on its Site". A commercial data product is ' +
+      'the excluded case, named in the terms rather than inferred from silence. The list is ' +
+      'also operated in partnership with AHRI, so acquiring it would route around the AHRI ' +
+      'entry above rather than avoid it. Assessed 2026-08-23; see ' +
+      'docs/sources/hvac-source-landscape-2026-08.md.',
+    liftedBy: WRITTEN_LICENCE,
+  },
+  {
     domain: 'carrier.com',
     publisher: 'Carrier Global Corporation',
     reason: MANUFACTURER_REASON,

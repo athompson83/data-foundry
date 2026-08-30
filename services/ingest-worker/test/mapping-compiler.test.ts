@@ -80,6 +80,58 @@ describe('compiled extraction schemas', () => {
     }
   });
 
+  it('requires every stream to declare whether an artifact is complete or incremental', () => {
+    expect(plans.flatMap((plan) => plan.streams.map((stream) => stream.refreshMode)))
+      .toEqual(['FULL_SNAPSHOT', 'FULL_SNAPSHOT', 'FULL_SNAPSHOT', 'FULL_SNAPSHOT', 'FULL_SNAPSHOT']);
+
+    const missing = structuredClone(config) as VerticalConfig & { sourceMappings: any };
+    delete missing.sourceMappings.sources[0].records[0].refresh_mode;
+    expect(() => compileSourcePlans(missing)).toThrow(/refresh_mode.*required|required.*refresh_mode/i);
+
+    const invalid = structuredClone(config) as VerticalConfig & { sourceMappings: any };
+    invalid.sourceMappings.sources[0].records[0].refresh_mode = 'replace_everything';
+    expect(() => compileSourcePlans(invalid)).toThrow(/refresh_mode.*full_snapshot.*incremental/i);
+  });
+
+  it('requires one unique lowercase identifier for each source stream', () => {
+    for (const invalidName of ['', 'Products', 'product-events']) {
+      const invalid = {
+        ...config,
+        sourceMappings: structuredClone(config.sourceMappings),
+      } as VerticalConfig & { sourceMappings: any };
+      invalid.sourceMappings.sources[0].records[0].stream = invalidName;
+      expect(() => compileSourcePlans(invalid), invalidName).toThrow(/stream.*lowercase|stream.*identifier/i);
+    }
+
+    const duplicate = {
+      ...config,
+      sourceMappings: structuredClone(config.sourceMappings),
+    } as VerticalConfig & { sourceMappings: any };
+    duplicate.sourceMappings.sources[0].records.push(
+      structuredClone(duplicate.sourceMappings.sources[0].records[0]),
+    );
+    expect(() => compileSourcePlans(duplicate)).toThrow(/duplicate.*stream|stream.*duplicate/i);
+  });
+
+  it('requires one non-empty mapping entry per source key', () => {
+    const duplicate = {
+      ...config,
+      sourceMappings: structuredClone(config.sourceMappings),
+    } as VerticalConfig & { sourceMappings: any };
+    duplicate.sourceMappings.sources.push(
+      structuredClone(duplicate.sourceMappings.sources[0]),
+    );
+    duplicate.sourceMappings.sources.at(-1).records[0].stream = 'shadow_products';
+    expect(() => compileSourcePlans(duplicate)).toThrow(/duplicate.*source|source.*duplicate/i);
+
+    const empty = {
+      ...config,
+      sourceMappings: structuredClone(config.sourceMappings),
+    } as VerticalConfig & { sourceMappings: any };
+    empty.sourceMappings.sources[0].records = [];
+    expect(() => compileSourcePlans(empty)).toThrow(/source.*record stream|record stream.*source/i);
+  });
+
   it('yields two streams from one CSV row: the certification and the certified model', () => {
     const plan = planFor('ahri-directory-export');
     expect(plan.streams.map((stream) => stream.stream)).toEqual([
@@ -128,6 +180,11 @@ describe('compiled extraction schemas', () => {
       (rule) => rule.property === 'nominal_tonnage',
     );
     expect(derivedTonnage?.source_field).toBe('prop_cooling_capacity_btu');
+    expect(derivedTonnage).toMatchObject({
+      output_kind: 'DERIVED_METRIC',
+      derived_from_property: 'cooling_capacity_btu',
+      transformation_ref: 'hvac.nominal_tonnage.from.cooling_capacity_btu.v1',
+    });
     expect(derivedTonnage?.transforms?.[0]).toMatchObject({
       kind: 'quantity',
       target_unit: 'ton',
@@ -140,6 +197,11 @@ describe('compiled extraction schemas', () => {
       (rule) => rule.property === 'cooling_capacity_btu',
     );
     expect(derivedCapacity?.source_field).toBe('prop_nominal_tonnage');
+    expect(derivedCapacity).toMatchObject({
+      output_kind: 'DERIVED_METRIC',
+      derived_from_property: 'nominal_tonnage',
+      transformation_ref: 'hvac.cooling_capacity_btu.from.nominal_tonnage.v1',
+    });
 
     // Both published: nothing is derived, because derivation cannot add
     // information to a directly published pair.
@@ -224,7 +286,144 @@ describe('compiled extraction schemas', () => {
       MappingCompilationError,
     );
   });
+
+  it('compiles reverse-declared multi-level derivations in dependency order', () => {
+    const graph = compileSourcePlans(derivedGraphConfig())[0]?.streams[0];
+    expect(graph?.ruleSet.properties.map((rule) => rule.property)).toEqual([
+      'cooling_capacity_btu',
+      'nominal_tonnage',
+      'derived_capacity_index',
+    ]);
+    expect(graph?.ruleSet.properties.map((rule) => ({
+      property: rule.property,
+      source_field: rule.source_field,
+      derived_from_property: rule.derived_from_property ?? null,
+    }))).toEqual([
+      {
+        property: 'cooling_capacity_btu',
+        source_field: 'prop_cooling_capacity_btu',
+        derived_from_property: null,
+      },
+      {
+        property: 'nominal_tonnage',
+        source_field: 'prop_cooling_capacity_btu',
+        derived_from_property: 'cooling_capacity_btu',
+      },
+      {
+        property: 'derived_capacity_index',
+        source_field: 'prop_cooling_capacity_btu',
+        derived_from_property: 'nominal_tonnage',
+      },
+    ]);
+  });
+
+  it('preserves only_if_absent when a stream directly maps a derived output', () => {
+    const withDirectGrandchild = derivedGraphConfig();
+    const source = withDirectGrandchild.sourceMappings.sources[0];
+    source.records[0].properties.push({
+      property: 'derived_capacity_index',
+      path: '/capacity',
+      source_unit: 'BTU/h',
+    });
+    const properties = compileSourcePlans(withDirectGrandchild)[0]?.streams[0]?.ruleSet.properties;
+    expect(properties?.filter((rule) => rule.property === 'derived_capacity_index')).toEqual([
+      expect.objectContaining({ output_kind: 'NORMALIZED_FACT' }),
+    ]);
+  });
+
+  it('refuses an emitted derivation whose parent is unavailable in the stream', () => {
+    const missing = derivedGraphConfig();
+    missing.typedValues.derived_properties = [
+      {
+        property: 'derived_capacity_index',
+        from: 'nominal_tonnage',
+        only_if_absent: true,
+      },
+    ];
+    expect(() => compileSourcePlans(missing)).toThrow(/nominal_tonnage.*unavailable|unavailable.*nominal_tonnage/);
+  });
+
+  it('refuses a per-stream derived cycle instead of omitting both outputs', () => {
+    const cyclic = derivedGraphConfig();
+    cyclic.typedValues.derived_properties = [
+      {
+        property: 'nominal_tonnage',
+        from: 'derived_capacity_index',
+        only_if_absent: true,
+      },
+      {
+        property: 'derived_capacity_index',
+        from: 'nominal_tonnage',
+        only_if_absent: true,
+      },
+    ];
+    expect(() => compileSourcePlans(cyclic)).toThrow(/cycle|unresolved/);
+  });
 });
+
+function derivedGraphConfig(): VerticalConfig & { typedValues: any; sourceMappings: any } {
+  const equipment = config.entities['equipment_model'];
+  return {
+    ...config,
+    entities: {
+      ...config.entities,
+      equipment_model: {
+        ...equipment,
+        properties: [
+          ...(equipment?.properties ?? []),
+          {
+            name: 'derived_capacity_index',
+            value_type: 'number',
+            unit: 'BTU/h',
+            critical: false,
+          },
+        ],
+      },
+    },
+    typedValues: {
+      ...config.typedValues,
+      derived_properties: [
+        {
+          property: 'derived_capacity_index',
+          from: 'nominal_tonnage',
+          only_if_absent: true,
+        },
+        {
+          property: 'nominal_tonnage',
+          from: 'cooling_capacity_btu',
+          only_if_absent: true,
+        },
+      ],
+    },
+    sourceMappings: {
+      sources: [
+        {
+          source_key: 'acme-hvac-catalog',
+          format: 'json',
+          records: [
+            {
+              stream: 'products',
+              refresh_mode: 'full_snapshot',
+              entity_type: 'equipment_model',
+              record_path: '/products',
+              source_record_key: '/model_number',
+              aliases: [
+                { alias_type: 'model_number', path: '/model_number', strong: true },
+              ],
+              properties: [
+                {
+                  property: 'cooling_capacity_btu',
+                  path: '/capacity',
+                  source_unit: 'BTU/h',
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  };
+}
 
 describe('alias normalization follows the vertical, not a built-in default', () => {
   it('collapses every declared identifier the way layer 3 says to', async () => {

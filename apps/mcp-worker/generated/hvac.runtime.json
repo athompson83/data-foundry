@@ -1,0 +1,693 @@
+{
+  "vertical_slug": "hvac",
+  "fields": [
+    {
+      "field": "product_type",
+      "value_type": "string",
+      "unit": null,
+      "filter": {
+        "type": "multi_select",
+        "facet_count": true
+      },
+      "sort": false,
+      "search_boost": 0.6,
+      "indexable": true
+    },
+    {
+      "field": "nominal_tonnage",
+      "value_type": "number",
+      "unit": "ton",
+      "filter": {
+        "type": "multi_select",
+        "facet_count": true
+      },
+      "sort": true,
+      "search_boost": 0.8,
+      "indexable": true
+    },
+    {
+      "field": "cooling_capacity_btu",
+      "value_type": "number",
+      "unit": "BTU/h",
+      "filter": {
+        "type": "range",
+        "facet_count": true
+      },
+      "sort": true,
+      "search_boost": 0.4,
+      "indexable": false
+    },
+    {
+      "field": "seer2",
+      "value_type": "number",
+      "unit": null,
+      "filter": {
+        "type": "range",
+        "facet_count": true
+      },
+      "sort": true,
+      "search_boost": 0.5,
+      "indexable": true
+    },
+    {
+      "field": "eer2",
+      "value_type": "number",
+      "unit": null,
+      "filter": {
+        "type": "range",
+        "facet_count": true
+      },
+      "sort": true,
+      "search_boost": 0.2,
+      "indexable": false
+    },
+    {
+      "field": "hspf2",
+      "value_type": "number",
+      "unit": null,
+      "filter": {
+        "type": "range",
+        "facet_count": true
+      },
+      "sort": true,
+      "search_boost": 0.2,
+      "indexable": false
+    },
+    {
+      "field": "refrigerant",
+      "value_type": "string",
+      "unit": null,
+      "filter": {
+        "type": "multi_select",
+        "facet_count": true
+      },
+      "sort": false,
+      "search_boost": 0.7,
+      "indexable": true
+    },
+    {
+      "field": "voltage",
+      "value_type": "number",
+      "unit": "V",
+      "filter": {
+        "type": "multi_select",
+        "facet_count": true
+      },
+      "sort": false,
+      "search_boost": 0.3,
+      "indexable": false
+    },
+    {
+      "field": "phase",
+      "value_type": "number",
+      "unit": null,
+      "filter": {
+        "type": "single_select",
+        "facet_count": true
+      },
+      "sort": false,
+      "search_boost": 0.2,
+      "indexable": false
+    },
+    {
+      "field": "stage_count",
+      "value_type": "number",
+      "unit": null,
+      "filter": {
+        "type": "single_select",
+        "facet_count": true
+      },
+      "sort": false,
+      "search_boost": 0.3,
+      "indexable": false
+    },
+    {
+      "field": "sound_level_db",
+      "value_type": "number",
+      "unit": "dB",
+      "filter": {
+        "type": "range",
+        "facet_count": true
+      },
+      "sort": true,
+      "search_boost": 0.3,
+      "indexable": false
+    },
+    {
+      "field": "weight_lb",
+      "value_type": "number",
+      "unit": "lb",
+      "filter": {
+        "type": "range",
+        "facet_count": false
+      },
+      "sort": true,
+      "search_boost": 0.1,
+      "indexable": false
+    },
+    {
+      "field": "manufacturer",
+      "value_type": "string",
+      "unit": null,
+      "filter": {
+        "type": "multi_select",
+        "facet_count": true
+      },
+      "sort": false,
+      "search_boost": 0.9,
+      "indexable": true
+    }
+  ],
+  "fact_selection": {
+    "requirePublishableRights": true,
+    "authoritativeSourceTypes": [
+      "REGULATORY",
+      "STANDARDS_BODY",
+      "CERTIFICATION_BODY",
+      "REGULATORY_FILING",
+      "MANUFACTURER"
+    ],
+    "authoritativeSourcesByProperty": {
+      "seer2": [
+        "ratings-directory.example.org"
+      ],
+      "eer2": [
+        "ratings-directory.example.org"
+      ],
+      "hspf2": [
+        "ratings-directory.example.org"
+      ],
+      "cooling_capacity_btu": [
+        "catalog.acme-climate.example.com",
+        "docs.acme-climate.example.com",
+        "ratings-directory.example.org"
+      ],
+      "sound_level_db": [
+        "catalog.acme-climate.example.com",
+        "docs.acme-climate.example.com"
+      ],
+      "weight_lb": [
+        "catalog.acme-climate.example.com",
+        "docs.acme-climate.example.com"
+      ],
+      "voltage": [
+        "catalog.acme-climate.example.com",
+        "docs.acme-climate.example.com"
+      ],
+      "phase": [
+        "catalog.acme-climate.example.com",
+        "docs.acme-climate.example.com"
+      ],
+      "stage_count": [
+        "catalog.acme-climate.example.com",
+        "docs.acme-climate.example.com"
+      ],
+      "refrigerant": [
+        "catalog.acme-climate.example.com",
+        "docs.acme-climate.example.com",
+        "ratings-directory.example.org"
+      ],
+      "product_type": [
+        "catalog.acme-climate.example.com",
+        "docs.acme-climate.example.com",
+        "ratings-directory.example.org"
+      ],
+      "nominal_tonnage": [
+        "catalog.acme-climate.example.com",
+        "docs.acme-climate.example.com",
+        "ratings-directory.example.org"
+      ]
+    },
+    "fieldReliability": {
+      "upc": {
+        "www.coolsupply.example.com": 0.95
+      },
+      "sound_level_db": {
+        "www.coolsupply.example.com": 0.3,
+        "docs.acme-climate.example.com": 0.95
+      },
+      "seer2": {
+        "www.coolsupply.example.com": 0.45,
+        "catalog.acme-climate.example.com": 0.6
+      },
+      "supersedes": {
+        "catalog.acme-climate.example.com": 1
+      }
+    },
+    "editorialOverrides": [],
+    "consistencyChecks": [
+      {
+        "id": "value_type_agreement",
+        "describe": "normalized_value matches its declared value_type"
+      },
+      {
+        "id": "quantity_requires_unit",
+        "describe": "quantity values carry a unit"
+      },
+      {
+        "id": "non_empty_value",
+        "describe": "value is not empty"
+      },
+      {
+        "id": "numeric_range:cooling_capacity_btu",
+        "describe": "cooling_capacity_btu within [6000, 300000]"
+      },
+      {
+        "id": "numeric_range:nominal_tonnage",
+        "describe": "nominal_tonnage within [0.5, 25]"
+      },
+      {
+        "id": "numeric_range:seer2",
+        "describe": "seer2 within [8, 30]"
+      },
+      {
+        "id": "numeric_range:eer2",
+        "describe": "eer2 within [6, 20]"
+      },
+      {
+        "id": "numeric_range:hspf2",
+        "describe": "hspf2 within [5, 14]"
+      },
+      {
+        "id": "enum_membership:phase",
+        "describe": "phase is one of 1, 3"
+      },
+      {
+        "id": "numeric_range:sound_level_db",
+        "describe": "sound_level_db within [40, 95]"
+      },
+      {
+        "id": "enum_membership:product_type",
+        "describe": "product_type is one of air_conditioner, heat_pump, gas_furnace, air_handler, packaged_unit"
+      },
+      {
+        "id": "enum_membership:refrigerant",
+        "describe": "refrigerant is one of R-410A, R-454B, R-32, R-22"
+      }
+    ]
+  },
+  "canonical_url_prefix": "/data/hvac",
+  "server": {
+    "name": "data-foundry-hvac",
+    "version": "0.1.0",
+    "transport": "streamable_http",
+    "endpoint": "/mcp"
+  },
+  "tools": [
+    {
+      "name": "search_entities",
+      "title": "Search the catalogue",
+      "summary": "Find entities by identifier or description.",
+      "description": "Find canonical entities in this vertical by an exact identifier in any formatting (model number, SKU, part number, certification reference), by a name or description, or by declared field filters alone. AN EXACT IDENTIFIER MATCH IS RETURNED AHEAD OF EVERY RANKED TEXT MATCH, always: exactness is a separate tier evaluated before ranking, not a bonus added to a score, so a textually better-scoring near-namesake cannot displace the unit whose part number you typed. Each hit reports why it matched (`matchKind`, `matchedOn`) and both its ordering score and its purely textual rank, so the ordering can be checked rather than trusted. Returns canonical ids to pass to the other tools, plus optional facet counts. LIMITATIONS: there is no vector or semantic search here by design — a query that describes a thing without naming it will match only on indexed text, never on meaning. Filters are rejected, not ignored, when the field is not declared filterable for this vertical. Returns entities, never fact values: read those with get_entity or list_facts.",
+      "input_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "query": {
+            "description": "Free text, or an exact identifier in any formatting. An exact identifier match is returned ahead of every ranked text match, never blended into a score.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "entity_type": {
+            "description": "Restrict to one vertical-declared entity type, e.g. \"equipment\".",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120,
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "filters": {
+            "description": "Field filters. A field the vertical does not declare as filterable is rejected rather than ignored.",
+            "maxItems": 10,
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "property": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 120,
+                      "pattern": "^[a-z][a-z0-9_]*$",
+                      "description": "Declared, filterable field for this vertical."
+                    },
+                    "op": {
+                      "type": "string",
+                      "const": "in"
+                    },
+                    "values": {
+                      "minItems": 1,
+                      "type": "array",
+                      "items": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "boolean"
+                          }
+                        ]
+                      },
+                      "description": "Match any of these values."
+                    }
+                  },
+                  "required": [
+                    "property",
+                    "op",
+                    "values"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "property": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 120,
+                      "pattern": "^[a-z][a-z0-9_]*$"
+                    },
+                    "op": {
+                      "type": "string",
+                      "const": "range"
+                    },
+                    "min": {
+                      "default": null,
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "max": {
+                      "default": null,
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "property",
+                    "op"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "property": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 120,
+                      "pattern": "^[a-z][a-z0-9_]*$"
+                    },
+                    "op": {
+                      "type": "string",
+                      "const": "exists"
+                    }
+                  },
+                  "required": [
+                    "property",
+                    "op"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
+          "include_retired": {
+            "default": false,
+            "description": "Also return entities retired from the catalogue.",
+            "type": "boolean"
+          },
+          "include_facets": {
+            "default": false,
+            "description": "Return facet counts alongside the hits.",
+            "type": "boolean"
+          },
+          "limit": {
+            "default": 20,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50
+          },
+          "offset": {
+            "default": 0,
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000
+          }
+        },
+        "additionalProperties": false,
+        "description": "Arguments for search_entities."
+      },
+      "error_codes": [
+        "INVALID_ARGUMENTS",
+        "UNKNOWN_FIELD",
+        "INTERNAL_ERROR"
+      ]
+    },
+    {
+      "name": "get_entity",
+      "title": "Resolve an identifier to a canonical entity",
+      "summary": "What is this thing, and what do we publish about it?",
+      "description": "Resolve one identifier — a canonical entity id, a canonical slug, or any recorded identifier or alias in any casing or separator style — to the single canonical entity it names, and return the published fact sheet for it. Matching is DETERMINISTIC: an alias is matched on its normalized form, never on resemblance, so a returned match is an exact match and an unknown identifier is reported as unknown rather than answered with the closest-looking entity. An identifier that matches more than one entity returns the candidates instead of a guess. Follows merge/rename redirects, so an id or URL saved before a merge still resolves and the response says it was redirected. Every returned fact carries its selecting rule, its publishers, whether an editorial correction replaced the source-selected value and why, and any trust warnings about how it was selected. LIMITATIONS: resolves within one vertical only; will not guess from a partial fragment; and a property backed only by sources that fail the publish gate is reported in `withheldFacts` with the reason, never as a value.",
+      "input_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "identifier": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500,
+            "description": "A canonical entity id, a canonical slug, or any recorded identifier/alias in any formatting."
+          },
+          "entity_type": {
+            "description": "Disambiguates identifiers that are only unique within a type, and is required to resolve a bare slug.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120,
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "include_facts": {
+            "default": true,
+            "description": "Include the canonical fact sheet. Set false for identity resolution only.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "identifier"
+        ],
+        "additionalProperties": false,
+        "description": "Arguments for get_entity."
+      },
+      "error_codes": [
+        "INVALID_ARGUMENTS",
+        "ENTITY_NOT_FOUND",
+        "AMBIGUOUS_IDENTIFIER",
+        "REVIEWER_IDENTITY_BLOCKED",
+        "INTERNAL_ERROR"
+      ]
+    },
+    {
+      "name": "list_facts",
+      "title": "Read the published fact sheet",
+      "summary": "What do we publish about this entity, and how sure are we?",
+      "description": "Return the canonical published facts for one entity by canonical id — optionally narrowed to named properties, and optionally as the sheet stood at an earlier instant. Each fact carries its normalized value and unit, its confidence, the publishers behind it, the selection rule that chose it and why, whether rival claims are still unresolved, whether an editorial correction replaced the source-selected value together with the customer-visible reason, and machine-readable selection warnings (ignore codes you do not recognise; the list is designed to grow). Properties the platform holds claims about but publishes nothing for are listed separately in `withheldFacts` with the reason — a claim with no evidence, or backed only by sources that fail the rights gate, is never returned as a value. LIMITATIONS: takes a canonical id, not a model number — resolve one with get_entity first. Returns the selected value per property, not the full evidence trail: call explain_fact for that. It does not compute or infer values.",
+      "input_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "entity_id": {
+            "type": "string",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "description": "Canonical entity id, as returned by get_entity or search."
+          },
+          "properties": {
+            "description": "Restrict to these properties. Omit for the whole fact sheet.",
+            "minItems": 1,
+            "maxItems": 50,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120,
+              "pattern": "^[a-z][a-z0-9_]*$"
+            }
+          },
+          "as_of": {
+            "description": "Read the fact sheet as it stood at this instant. Defaults to now.",
+            "type": "string",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          }
+        },
+        "required": [
+          "entity_id"
+        ],
+        "additionalProperties": false,
+        "description": "Arguments for list_facts."
+      },
+      "error_codes": [
+        "INVALID_ARGUMENTS",
+        "ENTITY_NOT_FOUND",
+        "REVIEWER_IDENTITY_BLOCKED",
+        "INTERNAL_ERROR"
+      ]
+    },
+    {
+      "name": "compare_entities",
+      "title": "Compare entities side by side",
+      "summary": "How do these differ?",
+      "description": "Compare two to five entities by canonical id across every property any of them holds, or across named properties only. Rows are ordered by the vertical’s own declared field order, and each row says whether the entities differ; each cell says whether the property is PRESENT for that entity, which is a different statement from the values being equal. Every cell carries the publishers and the selection rule behind its value, so a difference can be checked rather than trusted, and any id that resolved to nothing is reported in `unresolvedEntityIds` so a partial comparison is legible as partial. LIMITATIONS: compares published values only. It does not judge which entity is better, does not assess suitability for any particular use, and never infers a missing value from a similar entity — missing is reported as missing.",
+      "input_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "entity_ids": {
+            "minItems": 2,
+            "maxItems": 5,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "description": "Canonical entity ids. Resolve identifiers with get_entity first."
+          },
+          "properties": {
+            "description": "Restrict the comparison. Defaults to every property any of them holds.",
+            "minItems": 1,
+            "maxItems": 50,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120,
+              "pattern": "^[a-z][a-z0-9_]*$"
+            }
+          }
+        },
+        "required": [
+          "entity_ids"
+        ],
+        "additionalProperties": false,
+        "description": "Arguments for compare_entities."
+      },
+      "error_codes": [
+        "INVALID_ARGUMENTS",
+        "ENTITY_NOT_FOUND",
+        "TOO_FEW_ENTITIES",
+        "REVIEWER_IDENTITY_BLOCKED",
+        "INTERNAL_ERROR"
+      ]
+    },
+    {
+      "name": "traverse_relationships",
+      "title": "Follow canonical relationships",
+      "summary": "What is this connected to — and what replaces it?",
+      "description": "Walk the canonical relationship graph out from one entity: optionally restricted to a single declared predicate, in either or both directions, up to four hops. This is the tool for chain questions — what replaced a discontinued item, what a thing is part of, what certifies it — because a one-hop answer to a multi-hop chain is wrong in a way that looks right. Every edge reports its predicate, direction, hop depth, the neighbouring entity, the recorded confidence and how many pieces of evidence back it; `truncated` says when the limit stopped the walk short. LIMITATIONS: an edge exists only where a source asserted it. Nothing here is inferred from similarity, so an entity with no asserted successor returns no successor rather than a plausible one. Depth is capped at four by design. IMPORTANT: this is a view of the PUBLISHABLE graph, not the whole graph. An edge is served only when both endpoint identities retain current FINALIZED source-record support, at least one current FINALIZED source-record assertion supports the edge, and every required provenance contribution passes this surface's rights bundle. If any required provenance contribution is refused, the whole edge and any neighbour reachable only through it are withheld; one allowed contribution never launders a refused one. Refusals stay silent because saying how many were withheld for a given predicate would republish the claim the gate refused. So an absent edge means \"not publishable or not asserted\", never \"asserted to be false\". `withheldEdgeCount` reports a different and rarer case: edges nothing asserts at all, which should be 0 against a healthy database.",
+      "input_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "entity_id": {
+            "type": "string",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "predicate": {
+            "description": "Restrict to one vertical-declared predicate, e.g. \"replaced_by\".",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120,
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "direction": {
+            "default": "both",
+            "type": "string",
+            "enum": [
+              "out",
+              "in",
+              "both"
+            ]
+          },
+          "depth": {
+            "default": 1,
+            "description": "Hops to follow. Capped at 4.",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4
+          },
+          "limit": {
+            "default": 50,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200
+          }
+        },
+        "required": [
+          "entity_id"
+        ],
+        "additionalProperties": false,
+        "description": "Arguments for traverse_relationships."
+      },
+      "error_codes": [
+        "INVALID_ARGUMENTS",
+        "ENTITY_NOT_FOUND",
+        "INTERNAL_ERROR"
+      ]
+    },
+    {
+      "name": "explain_fact",
+      "title": "Show the evidence behind one value",
+      "summary": "Why does the catalogue say this?",
+      "description": "Show the complete evidence trail behind one property of one entity: every publishable source that made a claim, the value each published, the exact location inside the source document, when it was observed, which claim was selected as canonical, and WHICH SELECTION RULE decided it. Losing claims are returned too — conflicting claims are retained, never overwritten, and the disagreement between a certified figure and a brochure figure is often the answer the user actually needs. This is the tool for \"why does your value differ from the one I have?\". Where an editorial correction replaced the source-selected value, that is stated together with its customer-visible reason. LIMITATIONS: covers only claims authorized for this MCP surface. Claims lacking that exact grant do not enter the answer or a refusal count, so the tool cannot be differenced into a rights oracle. Exact source text is returned only under a separate quote/excerpt grant. The identity of the staff reviewer behind an editorial correction is never returned by this or any other tool — the reason is publishable, the reviewer is not.",
+      "input_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "entity_id": {
+            "type": "string",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "property": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120,
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "description": "The single property to explain."
+          },
+          "as_of": {
+            "description": "Explain the selection as it stood at this instant.",
+            "type": "string",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          }
+        },
+        "required": [
+          "entity_id",
+          "property"
+        ],
+        "additionalProperties": false,
+        "description": "Arguments for explain_fact."
+      },
+      "error_codes": [
+        "INVALID_ARGUMENTS",
+        "ENTITY_NOT_FOUND",
+        "PROPERTY_NOT_RECORDED",
+        "REVIEWER_IDENTITY_BLOCKED",
+        "UNPUBLISHABLE_SOURCE_BLOCKED",
+        "INTERNAL_ERROR"
+      ]
+    }
+  ]
+}

@@ -37,6 +37,7 @@ import {
   assertNoReviewerIdentity,
   reviewerIdentityTokens,
   type FactExplanation,
+  type FactSelectionPolicy,
   type WireCorrectionFields,
 } from './query-layer.js';
 
@@ -51,6 +52,15 @@ export function reviewersIn(explanations: Iterable<FactExplanation>): string[] {
   for (const explanation of explanations) {
     const reviewer = explanation.editorial_correction?.reviewer;
     if (reviewer !== undefined && reviewer.trim() !== '') reviewers.add(reviewer);
+  }
+  return [...reviewers];
+}
+
+/** Reviewer identities from trusted server policy, never from customer data. */
+export function reviewersInPolicy(policy: FactSelectionPolicy): string[] {
+  const reviewers = new Set<string>();
+  for (const override of policy.editorialOverrides ?? []) {
+    if (override.reviewer.trim() !== '') reviewers.add(override.reviewer);
   }
   return [...reviewers];
 }

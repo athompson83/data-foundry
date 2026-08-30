@@ -24,6 +24,19 @@
       "minLength": 1,
       "maxLength": 512
     },
+    "source_stream": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
     "entity_type": {
       "type": "string",
       "minLength": 1,
@@ -61,6 +74,20 @@
       "minLength": 1,
       "maxLength": 120
     },
+    "evidence_fingerprint": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "revision_state": {
+      "type": "string",
+      "enum": [
+        "PROVISIONAL",
+        "FINALIZED"
+      ]
+    },
+    "is_current": {
+      "type": "boolean"
+    },
     "created_at": {
       "type": "string",
       "format": "date-time",
@@ -77,11 +104,15 @@
     "source_id",
     "artifact_id",
     "source_record_key",
+    "source_stream",
     "entity_type",
     "raw_payload",
     "normalized_payload",
     "extraction_confidence",
     "extractor_version",
+    "evidence_fingerprint",
+    "revision_state",
+    "is_current",
     "created_at",
     "updated_at"
   ],

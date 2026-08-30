@@ -39,17 +39,90 @@ export const KEY_PREFIX = 'df';
 
 export type KeyEnvironment = 'live' | 'test';
 
+/**
+ * The access surface a key is issued for.
+ *
+ * This is not a price, quota or subscription plan. It is the trusted request
+ * classification needed to choose the correct rights requirements. In
+ * particular, a free tier sold by RapidAPI remains `RAPIDAPI`: marketplace
+ * distribution does not become a direct free API merely because the customer
+ * paid zero dollars for that marketplace plan.
+ */
+export const API_ACCESS_TIERS = ['API_FREE', 'API_PAID', 'RAPIDAPI', 'MCP'] as const;
+export type ApiAccessTier = (typeof API_ACCESS_TIERS)[number];
+
+/** Who is authoritative for billing this request, if anybody bills it. */
+export const API_BILLING_SOURCES = ['DIRECT', 'RAPIDAPI', 'NONE'] as const;
+export type ApiBillingSource = (typeof API_BILLING_SOURCES)[number];
+
+/**
+ * The only valid combinations. Keeping the pair closed prevents a marketplace
+ * request from being recorded as direct usage (and later invoiced twice), and
+ * prevents a direct key from claiming marketplace treatment.
+ */
+export const API_ACCESS_CLASSIFICATIONS = [
+  { accessTier: 'API_FREE', billingSource: 'DIRECT' },
+  { accessTier: 'API_PAID', billingSource: 'DIRECT' },
+  { accessTier: 'RAPIDAPI', billingSource: 'RAPIDAPI' },
+  { accessTier: 'MCP', billingSource: 'NONE' },
+] as const satisfies readonly {
+  readonly accessTier: ApiAccessTier;
+  readonly billingSource: ApiBillingSource;
+}[];
+
+/** The closed access/billing pair, preserved as a discriminated union. */
+export type ApiAccessClassification = (typeof API_ACCESS_CLASSIFICATIONS)[number];
+
+/** Runtime guard for database/message values, which arrive without TS types. */
+export function isApiAccessClassification(value: unknown): value is ApiAccessClassification {
+  if (value === null || typeof value !== 'object') return false;
+  const candidate = value as Record<string, unknown>;
+  return API_ACCESS_CLASSIFICATIONS.some(
+    (classification) =>
+      candidate['accessTier'] === classification.accessTier &&
+      candidate['billingSource'] === classification.billingSource,
+  );
+}
+
+/**
+ * Whether Data Foundry itself may treat usage as an invoice candidate.
+ *
+ * Measurement and invoicing remain separate systems: this helper does not
+ * create an invoice or decide a price. It only pins the negative control that
+ * RapidAPI usage is never eligible for a second, internal invoice, and
+ * MCP/NONE usage remains analytics-only until an explicit billing decision.
+ * Unknown or malformed input fails closed to `false`.
+ */
+export function isInternallyInvoiceEligible(classification: unknown): boolean {
+  return (
+    isApiAccessClassification(classification) &&
+    classification.accessTier === 'API_PAID' &&
+    classification.billingSource === 'DIRECT'
+  );
+}
+
 /** Bytes of randomness behind each key. 32 bytes is 256 bits. */
 const SECRET_BYTES = 32;
 
 /**
  * Characters kept for display, counted over the whole key.
  *
- * Enough to identify a key in a list, far too few to reconstruct it: the stored
- * prefix covers the fixed `df_live_` and a handful of secret characters, leaving
- * well over 200 bits unguessable.
+ * The prefix has two jobs pulling in opposite directions, and the first version
+ * of this constant was measured against only one of them.
+ *
+ * Twelve characters is eight fixed (`df_live_`) plus four that vary — about 24
+ * bits of distinguishing power, so a tenant with a few thousand keys should
+ * expect two of them to share a prefix. A colliding prefix defeats the whole
+ * point of storing one: an operator revoking "the key starting `df_live_a3Kq`"
+ * cannot tell which key that is, and gets the wrong answer at precisely the
+ * moment somebody is trying to contain a leak.
+ *
+ * Sixteen gives eight varying characters, ~48 bits, and no expected collision
+ * short of tens of millions of keys — while disclosing 48 bits of a 256-bit
+ * secret, leaving over 200 bits unguessable. The secret is untouched by the
+ * change; only the ambiguity is.
  */
-const DISPLAY_PREFIX_LENGTH = 12;
+const DISPLAY_PREFIX_LENGTH = 16;
 
 export class InvalidApiKeyError extends Error {
   constructor(message: string) {
@@ -131,35 +204,110 @@ export function readBearerToken(authorization: string | null | undefined): strin
   return match?.[1] ?? null;
 }
 
+const KEY_SHAPE = /^df_(live|test)_[A-Za-z0-9_-]{43}$/;
+
 /** Does this string even look like one of our keys? */
 export function looksLikeApiKey(candidate: string): boolean {
-  return /^df_(live|test)_[A-Za-z0-9_-]{43}$/.test(candidate);
+  return KEY_SHAPE.test(candidate);
+}
+
+/**
+ * Which environment a credential names, or `null` if it is not a credential.
+ *
+ * Read from a WELL-FORMED key only. A string that merely starts with `df_live_`
+ * is not one, and accepting it would make the environment check depend on a
+ * prefix an attacker chooses rather than on a key we minted.
+ */
+export function keyEnvironment(candidate: string): KeyEnvironment | null {
+  const match = KEY_SHAPE.exec(candidate);
+  return (match?.[1] as KeyEnvironment | undefined) ?? null;
+}
+
+/**
+ * The environment segment of a stored DISPLAY PREFIX.
+ *
+ * Separate from `keyEnvironment` because a display prefix is a truncated key by
+ * construction, so the full-key shape can never match one. Kept private: the
+ * distinction between "a credential someone presented" and "the fragment we
+ * stored" is exactly the distinction a caller would collapse, and collapsing it
+ * would let a truncated string be accepted as a credential.
+ */
+const PREFIX_SHAPE = /^df_(live|test)_/;
+
+function storedKeyEnvironment(tokenPrefix: string): KeyEnvironment | null {
+  const match = PREFIX_SHAPE.exec(tokenPrefix);
+  return (match?.[1] as KeyEnvironment | undefined) ?? null;
 }
 
 export interface StoredApiKey {
   readonly id: string;
   readonly tenant_id: string;
   readonly token_hash: string;
+  /** The stored display prefix. Carries the environment segment; see below. */
+  readonly token_prefix: string;
   readonly revoked_at: string | null;
   readonly expires_at: string | null;
 }
 
-export type KeyRejection = 'UNKNOWN_KEY' | 'REVOKED' | 'EXPIRED';
+export type KeyRejection = 'UNKNOWN_KEY' | 'REVOKED' | 'EXPIRED' | 'WRONG_ENVIRONMENT';
+
+/**
+ * The request being judged, and the deployment judging it.
+ *
+ * Required rather than optional, and that is the whole control. The environment
+ * segment existed from the first version of this package and nothing read it —
+ * it was a label for humans, and a label nothing enforces is one that is
+ * eventually wrong. An optional parameter here would be the same mistake in a
+ * new place: every caller that forgot it would compile.
+ */
+export interface CredentialPresentation {
+  /** The credential exactly as presented on the request. */
+  readonly presented: string;
+  /** The environment THIS deployment serves. */
+  readonly environment: KeyEnvironment;
+}
 
 export type KeyVerdict =
   | { readonly ok: true; readonly key: StoredApiKey }
   | { readonly ok: false; readonly reason: KeyRejection };
 
 /**
- * Is this stored key usable right now?
+ * Is this stored key usable right now, on this deployment?
  *
  * Separate from the lookup so the decision is testable without a database, and
- * so the ordering is explicit: a revoked key is revoked whether or not it has
- * also expired. Reporting expiry for a key somebody deliberately revoked would
- * send its owner to renew it instead of asking why it was withdrawn.
+ * so the ordering is explicit.
+ *
+ * ## The order is the design
+ *
+ * **Environment first, before the row is consulted at all.** It is a property of
+ * the request rather than of the database, so a key from the wrong environment
+ * is refused without a lookup — which also means the response cannot be used to
+ * learn whether a key from the other environment exists. The failure this
+ * prevents is ordinary rather than exotic: a test key that works against live is
+ * one somebody will paste into a CI job or a public repository believing it
+ * reaches nothing real, and live traffic recorded against a key its owner
+ * believed was free is the same mistake sending an invoice.
+ *
+ * **Then the stored row's own prefix.** This one catches a bug rather than an
+ * attacker: a row minted in the other environment coming back from a hash lookup
+ * means the lookup matched something it should not have.
+ *
+ * **Then revocation, then expiry.** A key somebody deliberately revoked and
+ * which has also lapsed reports REVOKED: telling its owner it expired sends them
+ * to renew it instead of asking why it was withdrawn.
  */
-export function evaluateStoredKey(key: StoredApiKey | null, now: Date): KeyVerdict {
+export function evaluateStoredKey(
+  key: StoredApiKey | null,
+  now: Date,
+  presentation: CredentialPresentation,
+): KeyVerdict {
+  if (keyEnvironment(presentation.presented) !== presentation.environment) {
+    return { ok: false, reason: 'WRONG_ENVIRONMENT' };
+  }
   if (key === null) return { ok: false, reason: 'UNKNOWN_KEY' };
+  if (storedKeyEnvironment(key.token_prefix) !== presentation.environment) {
+    return { ok: false, reason: 'WRONG_ENVIRONMENT' };
+  }
   if (key.revoked_at !== null) return { ok: false, reason: 'REVOKED' };
   if (key.expires_at !== null && new Date(key.expires_at).getTime() <= now.getTime()) {
     return { ok: false, reason: 'EXPIRED' };

@@ -10,9 +10,10 @@
 # something a page EARNS by clearing a numeric fact-coverage bar, and the bars
 # are config values so they can be raised without a deploy.
 #
-# The honest consequence, stated up front: on the current fixture set only 6 of
-# 13 equipment models clear the default gate. That is the policy working. A
-# vertical whose gate passes everything is not gated.
+# The honest consequence, stated up front: seven of the thirteen synthetic
+# equipment models clear the numeric fact-count/coverage examples below, but
+# none clears the complete entity gate because `distinct_value` has no honest
+# measurement source yet. The fixture arithmetic is not a publication claim.
 # =============================================================================
 
 url_prefix: /data/hvac
@@ -21,6 +22,7 @@ url_prefix: /data/hvac
 page_classes:
 
   - id: dataset_landing
+    route_kind: static
     path: "/data/hvac"
     title: "HVAC Equipment Data"
     structured_data: Dataset
@@ -32,6 +34,7 @@ page_classes:
       indexable once the dataset itself clears the dataset gate.
 
   - id: equipment_model_detail
+    route_kind: entity_detail
     entity_type: equipment_model
     path: "/data/hvac/equipment/{canonical_slug}"
     title: "{canonical_name}"
@@ -45,6 +48,7 @@ page_classes:
       marking up semantics the page does not actually have merely for SEO.
 
   - id: manufacturer_detail
+    route_kind: entity_detail
     entity_type: manufacturer
     path: "/data/hvac/manufacturers/{canonical_slug}"
     title: "{canonical_name} HVAC Equipment"
@@ -54,6 +58,7 @@ page_classes:
     quality_gate: manufacturer
 
   - id: certification_detail
+    route_kind: entity_detail
     entity_type: certification
     path: "/data/hvac/certifications/{canonical_slug}"
     title: "AHRI {ahri_ref}"
@@ -63,6 +68,8 @@ page_classes:
     quality_gate: certification
 
   - id: replacement_relationship
+    route_kind: relationship
+    subject_entity_type: equipment_model
     path: "/data/hvac/equipment/{canonical_slug}/replacements"
     title: "What replaces {canonical_name}"
     structured_data: null
@@ -75,6 +82,7 @@ page_classes:
       answer by hand. Exists only where a supersession edge actually exists.
 
   - id: comparison
+    route_kind: comparison
     path: "/data/hvac/compare/{slug_a}-vs-{slug_b}"
     title: "{name_a} vs {name_b}"
     structured_data: null
@@ -88,6 +96,8 @@ page_classes:
       thin-page explosion rule 8 forbids.
 
   - id: filtered_collection
+    route_kind: filtered_collection
+    entity_type: equipment_model
     path: "/data/hvac/equipment/{facet_path}"
     title: "{facet_description}"
     structured_data: null
@@ -100,6 +110,7 @@ page_classes:
       applies on top of that.
 
   - id: docs_api_mcp
+    route_kind: static
     path: "/data/hvac/docs"
     title: "HVAC Data API and MCP"
     structured_data: null
@@ -137,7 +148,7 @@ quality_gates:
     # 0.80 means at least 5 of 6 must be present, evidence-backed and ACTIVE.
     #
     # Worked through against fixtures/golden/facts.json — SEVEN of thirteen
-    # models pass:
+    # models clear the fact-count and critical-coverage dimensions:
     #
     #   PASS  6/6 critical, 10-11 facts   24ACC636A003, 24ACC648A003,
     #                                     24ACC660A003, 25HPA630A003,
@@ -160,10 +171,12 @@ quality_gates:
     # six-fact stubs, and a floor without coverage passes entities padded with
     # unimportant properties.
     #
-    # The six that fail are not deleted, not hidden from the API or MCP, and
-    # not noindexed out of existence — they are served with `noindex,follow`
-    # plus a coverage notice, and become indexable the moment a manufacturer
-    # source for those brands lands.
+    # In an ACTIVE, rights-cleared publication, the six that miss those numeric
+    # dimensions may still render on PUBLIC_WEB with `noindex,follow`. Landing
+    # another manufacturer source is not sufficient to make any page indexable:
+    # every dimension below must pass on the exact rendered PUBLIC_WEB claims
+    # and their SEARCH_INDEX-authorized intersection, and `distinct_value`
+    # remains deliberately unmeasured today.
     min_critical_fact_coverage: 0.80
     min_total_facts: 8
     min_evidence_coverage: 1.0
@@ -262,16 +275,19 @@ on_gate_failure:
   in_sitemap: false
   in_api: true
   in_mcp: true
-  # Show the user WHY, rather than serving a silently deficient page.
+  # Tell the user only that quality is incomplete. Exact gate/rights causes and
+  # counts stay internal because differencing them would create a rights oracle.
   show_coverage_notice: true
   notice_template: >-
-    This page is incomplete. {missing_count} of {critical_count} critical
-    specifications are not yet backed by a verified source.
+    This page does not currently meet publication-quality requirements.
 
 # --- Sitemaps ---------------------------------------------------------------
 sitemaps:
   index: /sitemap-index.xml
   max_urls_per_file: 45000
+  # 250 x the canonical 200-row keyset page is the absolute 50,000-candidate
+  # ceiling for one request, shared across the complete sitemap-index walk.
+  max_scan_pages_per_request: 250
   # Only canonical indexable URLs. A sitemap is a recommendation, and
   # recommending a page we have judged too thin to index is incoherent.
   include_only_indexable: true
@@ -356,7 +372,7 @@ llm_discovery:
 agent_intents:
 
   replacement_lookup:
-    tool: find_replacement_model
+    tool: traverse_relationships
     examples:
       - "What replaces {model_number}?"
       - "{model_number} is discontinued, what do I order instead?"
@@ -365,7 +381,7 @@ agent_intents:
       - "What superseded {model_number}?"
 
   spec_search:
-    tool: match_equipment_specs
+    tool: search_entities
     examples:
       - "Find 3 ton heat pumps with SEER2 of at least 15"
       - "What R-454B condensers are available in 4 ton?"
@@ -374,7 +390,7 @@ agent_intents:
       - "List two-stage 5 ton units"
 
   evidence_lookup:
-    tool: get_spec_evidence
+    tool: explain_fact
     examples:
       - "Where does the SEER2 rating for {model_number} come from?"
       - "Show me the source for the sound rating on {model_number}"
@@ -382,7 +398,7 @@ agent_intents:
       - "Is this specification certified or manufacturer-published?"
 
   identifier_resolution:
-    tool: identify_equipment_model
+    tool: get_entity
     examples:
       - "What is {messy_model_number}?"
       - "Look up AHRI {ahri_ref}"
@@ -390,14 +406,14 @@ agent_intents:
       - "The nameplate reads {partial_model_number}"
 
   comparison:
-    tool: compare_equipment_models
+    tool: compare_entities
     examples:
       - "Compare {model_a} and {model_b}"
       - "What changed between {old_model} and its replacement?"
       - "Which is more efficient, {model_a} or {model_b}?"
 
   certification_lookup:
-    tool: list_certified_ratings
+    tool: get_entity
     examples:
       - "Is {model_number} AHRI certified?"
       - "What are the certified ratings for {model_number}?"

@@ -445,12 +445,33 @@ export function normalizeRecord(
 
   const values = valueIndex(record);
   const candidates: CanonicalCandidate[] = [];
+  const candidatesByProperty = new Map<Identifier, CanonicalCandidate>();
   const identifiers: IdentifierCandidate[] = [];
   const failures: NormalizationFailure[] = [];
 
   for (const rule of ruleSet.properties) {
-    const outcome = normalizeProperty(record, values, rule, ruleSet, options);
-    if (outcome.candidate !== null) candidates.push(outcome.candidate);
+    const derivedInput = rule.output_kind === 'DERIVED_METRIC'
+      ? candidatesByProperty.get(rule.derived_from_property as Identifier)
+      : undefined;
+    if (rule.output_kind === 'DERIVED_METRIC' && derivedInput === undefined) {
+      const source = values.get(rule.source_field);
+      failures.push(normalizationFailure({
+        reason: 'NO_SOURCE_FIELD',
+        message:
+          `derived property ${rule.property} cannot be computed because normalized parent ` +
+          `${rule.derived_from_property ?? '(undeclared)'} is unavailable`,
+        property: rule.property,
+        source_field: rule.source_field,
+        source_value: source?.raw ?? null,
+        ...(source === undefined ? {} : { locator: source.locator }),
+      }));
+      continue;
+    }
+    const outcome = normalizeProperty(record, values, rule, ruleSet, options, derivedInput);
+    if (outcome.candidate !== null) {
+      candidates.push(outcome.candidate);
+      candidatesByProperty.set(outcome.candidate.property, outcome.candidate);
+    }
     if (outcome.failure !== null) failures.push(outcome.failure);
   }
 
@@ -483,8 +504,17 @@ function normalizeProperty(
   rule: PropertyRule,
   ruleSet: NormalizationRuleSet,
   options: NormalizeOptions,
+  derivedInput?: CanonicalCandidate,
 ): PropertyOutcome {
-  const source = values.get(rule.source_field);
+  const directSource = values.get(rule.source_field);
+  const source = derivedInput === undefined
+    ? directSource
+    : {
+        field: rule.source_field,
+        raw: renderDerivedInput(derivedInput),
+        locator: derivedInput.locator,
+      };
+  const evidenceSourceValue = derivedInput?.source_value ?? source?.raw ?? null;
 
   // Absence is not a normalization failure — the source simply made no claim.
   // A *required* absence is, because the vertical said the field must be there.
@@ -513,7 +543,7 @@ function normalizeProperty(
               message: `required property ${rule.property} is empty in the source (${JSON.stringify(source.raw)})`,
               property: rule.property,
               source_field: rule.source_field,
-              source_value: source.raw,
+              source_value: evidenceSourceValue,
               locator: source.locator,
             })
           : null,
@@ -530,7 +560,7 @@ function normalizeProperty(
         message: `property ${rule.property}: ${transformed.message}`,
         property: rule.property,
         source_field: rule.source_field,
-        source_value: source.raw,
+        source_value: evidenceSourceValue,
         locator: source.locator,
       }),
     };
@@ -546,7 +576,7 @@ function normalizeProperty(
         message: `property ${rule.property} declares value_type ${rule.value_type} but the transform chain produced a ${working.kind} value; ${acceptedKinds.length === 0 ? `value_type ${rule.value_type} is not supported by the scalar transform chain` : `declare one of the transforms that yields ${acceptedKinds.join(' or ')}`}`,
         property: rule.property,
         source_field: rule.source_field,
-        source_value: source.raw,
+        source_value: evidenceSourceValue,
         locator: source.locator,
       }),
     };
@@ -565,7 +595,7 @@ function normalizeProperty(
           message: `property ${rule.property} declares unit ${rule.unit} but the transform chain produced a ${working.kind} value`,
           property: rule.property,
           source_field: rule.source_field,
-          source_value: source.raw,
+          source_value: evidenceSourceValue,
           locator: source.locator,
         }),
       };
@@ -578,7 +608,7 @@ function normalizeProperty(
           message: `property ${rule.property} is declared in ${rule.unit} but ${JSON.stringify(source.raw)} produced a unitless number; a bare number will not be assumed to be ${rule.unit}`,
           property: rule.property,
           source_field: rule.source_field,
-          source_value: source.raw,
+          source_value: evidenceSourceValue,
           locator: source.locator,
         }),
       };
@@ -593,7 +623,7 @@ function normalizeProperty(
             message: `property ${rule.property}: ${converted.message}`,
             property: rule.property,
             source_field: rule.source_field,
-            source_value: source.raw,
+            source_value: evidenceSourceValue,
             locator: source.locator,
           }),
         };
@@ -616,21 +646,43 @@ function normalizeProperty(
       property: rule.property,
       normalized_value: canonicalValueOf(value),
       value_type: rule.value_type,
+      output_kind: rule.output_kind ?? 'NORMALIZED_FACT',
+      ...(rule.derived_from_property === undefined
+        ? {}
+        : { derived_from_property: rule.derived_from_property }),
+      ...(rule.transformation_ref === undefined
+        ? {}
+        : { transformation_ref: rule.transformation_ref }),
       unit,
-      confidence: computeNormalizationConfidence(
-        transformed.value.signals,
-        options.confidence_policy ?? {},
-      ),
+      confidence: normalizationConfidence(Math.min(
+        derivedInput?.confidence ?? 1,
+        computeNormalizationConfidence(
+          transformed.value.signals,
+          options.confidence_policy ?? {},
+        ),
+      )),
       extraction_confidence: record.extraction_confidence,
       locator: source.locator,
       source_field: rule.source_field,
-      source_value: source.raw,
-      source_unit: sourceUnit,
-      transforms: transformed.value.applied,
+      source_value: evidenceSourceValue ?? source.raw,
+      source_unit: derivedInput?.source_unit ?? sourceUnit,
+      transforms: [
+        ...(derivedInput?.transforms ?? []),
+        ...transformed.value.applied,
+      ],
     },
     failure: null,
   };
 }
+
+const renderDerivedInput = (candidate: CanonicalCandidate): string => {
+  const value = typeof candidate.normalized_value === 'string'
+    ? candidate.normalized_value
+    : typeof candidate.normalized_value === 'number' || typeof candidate.normalized_value === 'boolean'
+      ? String(candidate.normalized_value)
+      : (JSON.stringify(candidate.normalized_value) ?? 'null');
+  return candidate.unit === null ? value : `${value} ${candidate.unit}`;
+};
 
 interface IdentifierOutcome {
   readonly candidate: IdentifierCandidate | null;

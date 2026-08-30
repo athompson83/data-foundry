@@ -11,6 +11,7 @@
  * `body` is a JSON value, not a string. Serializing once at the edge keeps the
  * tests asserting on structure rather than on whitespace.
  */
+import type { ApiRequestTelemetry } from './config.js';
 
 export interface ApiRequest {
   readonly method: string;
@@ -26,7 +27,28 @@ export interface ApiResponse {
   readonly body: unknown;
 }
 
-export type ApiHandler = (request: ApiRequest) => Promise<ApiResponse>;
+export const API_REQUEST_SURFACES = ['API_FREE', 'API_PAID', 'RAPIDAPI'] as const;
+export type ApiRequestSurface = (typeof API_REQUEST_SURFACES)[number];
+
+/** Trusted authentication result supplied by the transport/composition root. */
+export interface ApiRequestAccess {
+  readonly surface: ApiRequestSurface;
+}
+
+/**
+ * `onRequest` is per-call, not part of `ApiAppOptions` at construction. A
+ * built handler is shared across every request a deployment serves, and two
+ * of those can be in flight at once for different callers — a callback bound
+ * once at construction has nowhere concurrency-safe to put per-request
+ * context like which tenant asked. Passing it here instead means the closure
+ * that eventually reads that context belongs to the caller of one specific
+ * request, never to two at once.
+ */
+export type ApiHandler = (
+  request: ApiRequest,
+  onRequest?: (info: ApiRequestTelemetry) => void,
+  access?: ApiRequestAccess,
+) => Promise<ApiResponse>;
 
 export const JSON_CONTENT_TYPE = 'application/json; charset=utf-8';
 

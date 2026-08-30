@@ -7,6 +7,26 @@ export const SOURCE_TYPES = [
   'REGULATORY',
   'STANDARDS_BODY',
   'CERTIFICATION_BODY',
+  /**
+   * A register maintained by a regulator, holding values the MANUFACTURER
+   * asserted to it.
+   *
+   * Distinct from `REGULATORY` and from `CERTIFICATION_BODY`, because those two
+   * describe different things and this sits between them. `REGULATORY` says the
+   * agency asserts the value. `CERTIFICATION_BODY` says an independent body
+   * measured it under a defined test procedure. A filing is neither: the
+   * regulator hosts it and the manufacturer asserts it.
+   *
+   * The distinction is the publisher's own, not ours. DOE says of its
+   * Compliance Certification Database, verbatim: "The appearance of a model on
+   * this web site is not an indication that DOE has determined that the model is
+   * compliant with DOE energy conservation standards."
+   *
+   * It ranks above `MANUFACTURER` because a filing carries legal consequence for
+   * misstatement that a specification sheet does not, and below
+   * `CERTIFICATION_BODY` because nobody independent measured it.
+   */
+  'REGULATORY_FILING',
   'MANUFACTURER',
   'DISTRIBUTOR',
   'TRADE_ASSOCIATION',
@@ -75,6 +95,8 @@ export const SourceSchema = z.object({
   robots_policy: RobotsPolicySchema,
   refresh_cadence: RefreshCadenceSchema,
   status: SourceStatusSchema,
+  /** NULL exists only for pre-0016 rows and is refusal at every distribution surface. */
+  kill_switch_engaged: z.boolean().nullable(),
   created_at: IsoDateTimeSchema,
   updated_at: IsoDateTimeSchema,
 });
@@ -84,5 +106,6 @@ export const SourceInsertSchema = SourceSchema.omit({
   id: true,
   created_at: true,
   updated_at: true,
-});
+  kill_switch_engaged: true,
+}).extend({ kill_switch_engaged: z.boolean() });
 export type SourceInsert = z.infer<typeof SourceInsertSchema>;

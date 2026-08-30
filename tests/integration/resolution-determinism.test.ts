@@ -9,10 +9,10 @@
  *      smallest random UUID. `entities.id` is `gen_random_uuid()`, so a rebuild
  *      into a fresh database attaches the same record to a different entity;
  *   2. which spelling of an identifier is published as the entity's display
- *      name broke its final tie with `localeCompare`, so the same inputs
- *      produce `MODEL abc-9001` on an `en_US` host and `MODEL ABC-9001` on a
- *      `da_DK` one. That is not a hypothetical: it is asserted below by running
- *      the real resolver in two processes under two locales.
+ *      name broke its final tie with `localeCompare`, so the same inputs could
+ *      produce different names under collators that order case differently.
+ *      That is asserted below by running the real resolver in two isolated
+ *      processes whose collation orders deliberately oppose one another.
  */
 import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
@@ -69,22 +69,22 @@ const OPPOSED = {
 };
 
 interface ProbeResult {
-  locale: string;
+  collation_mode: 'lower-first' | 'upper-first';
   normalized: string;
   canonical_name: string | null;
   canonical_slug: string | null;
   alias_value: string | null;
 }
 
-/** Runs the real resolver in a child process pinned to one locale. */
-function probe(locale: string): ProbeResult {
+/** Runs the real resolver in a child process with an adversarial collator. */
+function probe(mode: ProbeResult['collation_mode']): ProbeResult {
   const output = execFileSync(
     process.execPath,
-    ['--import', 'tsx', join(REPO_ROOT, 'tests', 'support', 'locale-probe.ts')],
+    ['--import', 'tsx', join(REPO_ROOT, 'tests', 'support', 'locale-probe.ts'), mode],
     {
       cwd: REPO_ROOT,
       encoding: 'utf8',
-      env: { ...process.env, LC_ALL: locale, LANG: locale },
+      env: process.env,
       timeout: 120_000,
     },
   );
@@ -106,9 +106,9 @@ beforeAll(async () => {
 
   const [record] = await factory.driver.query<{ id: string }>(
     `INSERT INTO source_records
-       (source_id, artifact_id, source_record_key, entity_type, raw_payload,
+       (source_id, artifact_id, source_record_key, source_stream, entity_type, raw_payload,
         normalized_payload, extraction_confidence, extractor_version)
-     VALUES ($1, $2, 'determinism-probe-0001', 'equipment_model', '{}'::jsonb,
+     VALUES ($1, $2, 'determinism-probe-0001', 'products', 'equipment_model', '{}'::jsonb,
              '{}'::jsonb, 0.9, 'test')
      RETURNING id`,
     [seed!.source_id, seed!.artifact_id],
@@ -122,12 +122,16 @@ beforeAll(async () => {
        VALUES ($1, $2, 'equipment_model', $3, $4, 'ACTIVE', 0.5, $5, $5, $5)`,
       [entity.id, vertical!.id, entity.model, entity.slug, entity.seenAt],
     );
-    await factory.driver.query(
-      `INSERT INTO entity_aliases (entity_id, alias_type, alias_value, normalized_value,
-                                   source_id, identity_confidence, valid_from)
-       VALUES ($1, 'model_number', $2, $2, $3, 0.99, $4)`,
-      [entity.id, entity.model, sourceId, entity.seenAt],
-    );
+    await factory.store.addAlias({
+      entity_id: entity.id as never,
+      alias_type: 'model_number',
+      alias_value: entity.model,
+      normalized_value: entity.model,
+      source_id: sourceId as never,
+      identity_confidence: 0.99 as never,
+      valid_from: entity.seenAt as never,
+      valid_to: null,
+    });
   }
 
   for (const entity of [OPPOSED.low, OPPOSED.high]) {
@@ -137,12 +141,16 @@ beforeAll(async () => {
        VALUES ($1, $2, 'equipment_model', $3, $4, 'ACTIVE', 0.5, $5, $5, $5)`,
       [entity.id, vertical!.id, entity.model, entity.slug, '2026-03-01T00:00:00.000Z'],
     );
-    await factory.driver.query(
-      `INSERT INTO entity_aliases (entity_id, alias_type, alias_value, normalized_value,
-                                   source_id, identity_confidence, valid_from)
-       VALUES ($1, 'model_number', $2, $2, $3, 0.99, $4)`,
-      [entity.id, entity.model, sourceId, '2026-03-01T00:00:00.000Z'],
-    );
+    await factory.store.addAlias({
+      entity_id: entity.id as never,
+      alias_type: 'model_number',
+      alias_value: entity.model,
+      normalized_value: entity.model,
+      source_id: sourceId as never,
+      identity_confidence: 0.99 as never,
+      valid_from: '2026-03-01T00:00:00.000Z' as never,
+      valid_to: null,
+    });
   }
 
   // `never_merge_across: [supersedes]` — an edge the vertical says identity
@@ -176,11 +184,13 @@ describe('#8 — a provisional attachment is chosen by age, not by random UUID',
   it('attaches the conflicted record to the longest-known entity', async () => {
     const resolved = await resolver.resolveRecord({
       entityType: 'equipment_model' as never,
-      aliases: [OLDER, NEWER].map((entity) => ({
+      aliases: [OLDER, NEWER].map((entity, index) => ({
         aliasType: 'model_number' as never,
         aliasValue: entity.model,
         normalizedValue: entity.model,
         strong: true,
+        locatorType: 'JSON_POINTER' as never,
+        locatorValue: `/identifiers/${index}`,
       })),
       manufacturer: null,
       sourceId: sourceId as never,
@@ -212,35 +222,32 @@ describe('#8 — a provisional attachment is chosen by age, not by random UUID',
 
 describe('#14 — the published display name does not depend on the host locale', () => {
   // Two child processes, each booting a real PGlite database and running the
-  // real resolver. Slower than an in-process assertion, and the only way to
-  // observe a collator: `Intl`'s default locale is fixed at process start.
-  let english: ProbeResult;
-  let danish: ProbeResult;
+  // real resolver. Each process makes localeCompare choose the opposite winner
+  // for the exact tie below. The isolation keeps that mutation out of Vitest.
+  let lowerFirst: ProbeResult;
+  let upperFirst: ProbeResult;
 
   beforeAll(() => {
-    english = probe('en_US.UTF-8');
-    danish = probe('da_DK.UTF-8');
+    lowerFirst = probe('lower-first');
+    upperFirst = probe('upper-first');
   }, 300_000);
 
-  it('actually compared two different locales', () => {
-    expect(
-      danish.locale,
-      'the runtime resolved both probes to the same locale, so this test proved nothing',
-    ).not.toBe(english.locale);
+  it('actually compared two opposing collation orders', () => {
+    expect(upperFirst.collation_mode).not.toBe(lowerFirst.collation_mode);
   });
 
   it('publishes the same canonical name under either locale', () => {
-    expect(danish.canonical_name).toBe(english.canonical_name);
-    expect(danish.alias_value).toBe(english.alias_value);
-    expect(danish.canonical_slug).toBe(english.canonical_slug);
+    expect(upperFirst.canonical_name).toBe(lowerFirst.canonical_name);
+    expect(upperFirst.alias_value).toBe(lowerFirst.alias_value);
+    expect(upperFirst.canonical_slug).toBe(lowerFirst.canonical_slug);
   });
 
   it('breaks the tie in codepoint order rather than collation order', () => {
-    // ICU in en_US puts "abc-9001" first; codepoint order puts "ABC-9001"
-    // first. Pinning the codepoint answer is what makes the result a function
-    // of the data alone.
-    expect(english.alias_value).toBe('ABC-9001');
-    expect(english.canonical_name).toBe('MODEL ABC-9001');
+    // One adversarial collator puts "abc-9001" first; codepoint order puts
+    // "ABC-9001" first. Pinning the codepoint answer is what makes the result
+    // a function of the data alone.
+    expect(lowerFirst.alias_value).toBe('ABC-9001');
+    expect(lowerFirst.canonical_name).toBe('MODEL ABC-9001');
   });
 });
 

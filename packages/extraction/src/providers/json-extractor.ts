@@ -89,14 +89,25 @@ function resolveRecordScopes(document: unknown, schema: ExtractionSchema): JsonS
     );
   }
   const resolved = resolveJsonPointer(document, selector.pointer);
-  if (!resolved.found) return [];
+  if (!resolved.found) {
+    throw new ExtractionError(
+      `record selector ${selector.pointer || '(document root)'} was not found`,
+      { schemaId: schema.schema_id },
+    );
+  }
   if (Array.isArray(resolved.value)) {
     return resolved.value.map((node, index) => ({
       node,
       pointer: joinJsonPointer(selector.pointer, index),
     }));
   }
-  return [{ node: resolved.value, pointer: selector.pointer }];
+  if (resolved.value !== null && typeof resolved.value === 'object') {
+    return [{ node: resolved.value, pointer: selector.pointer }];
+  }
+  throw new ExtractionError(
+    `record selector ${selector.pointer || '(document root)'} must resolve to an array or object`,
+    { schemaId: schema.schema_id },
+  );
 }
 
 interface PointerMatch {

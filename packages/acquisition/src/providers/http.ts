@@ -1,9 +1,14 @@
 import type { AcquisitionMethod } from '@data-foundry/source-registry';
-import { AcquisitionRefusedError, ProviderTransportError } from '../errors.js';
+import {
+  AcquisitionConfigurationError,
+  AcquisitionRefusedError,
+  ProviderTransportError,
+} from '../errors.js';
 import type { ProviderTransportResult } from '../types.js';
 import {
   headersToRecord,
   parseMimeType,
+  readBoundedResponseBody,
   requireFetch,
   timeoutSignal,
   type FetchLike,
@@ -29,13 +34,30 @@ export interface HttpAcquisitionProviderOptions {
   readonly methods?: readonly AcquisitionMethod[] | undefined;
 }
 
-const DEFAULT_METHODS: readonly AcquisitionMethod[] = [
+export const HTTP_ACQUISITION_METHODS: readonly AcquisitionMethod[] = [
   'DIRECT_HTTP',
   'VENDOR_API',
   'SITEMAP',
   'BULK_FILE',
   'RSS',
 ];
+
+/**
+ * A permitted body is retained as chunks and then copied into the canonical
+ * Uint8Array contract. Keeping the ceiling at 16 MiB bounds that peak well
+ * below the Worker isolate's 128 MiB memory budget while still allowing each
+ * scheduled target to choose a smaller limit.
+ */
+export const MAX_HTTP_RESPONSE_BYTES = 16 * 1024 * 1024;
+
+function requireByteCeiling(value: number): number {
+  if (!Number.isSafeInteger(value) || value <= 0 || value > MAX_HTTP_RESPONSE_BYTES) {
+    throw new AcquisitionConfigurationError(
+      `HTTP response byte ceiling must be a positive integer no greater than ${MAX_HTTP_RESPONSE_BYTES}.`,
+    );
+  }
+  return value;
+}
 
 export class HttpAcquisitionProvider extends BaseAcquisitionProvider {
   readonly id = 'http';
@@ -44,18 +66,19 @@ export class HttpAcquisitionProvider extends BaseAcquisitionProvider {
 
   readonly #fetch: FetchLike;
   readonly #defaultTimeoutMs: number;
-  readonly #maxBytes: number | null;
+  readonly #maxBytes: number;
 
   constructor(options: HttpAcquisitionProviderOptions) {
     super(options.deps);
     this.#fetch = requireFetch('http', options.fetch);
     this.#defaultTimeoutMs = options.defaultTimeoutMs ?? 30_000;
-    this.#maxBytes = options.maxBytes ?? null;
-    this.methods = options.methods ?? DEFAULT_METHODS;
+    this.#maxBytes = requireByteCeiling(options.maxBytes ?? MAX_HTTP_RESPONSE_BYTES);
+    this.methods = options.methods ?? HTTP_ACQUISITION_METHODS;
   }
 
   protected async transport(context: TransportContext): Promise<ProviderTransportResult> {
     const { request } = context;
+    const ceiling = requireByteCeiling(request.maxBytes ?? this.#maxBytes);
     const signal = timeoutSignal(request.timeoutMs ?? this.#defaultTimeoutMs);
 
     const response = await this.#fetch(request.url, {
@@ -87,6 +110,11 @@ export class HttpAcquisitionProvider extends BaseAcquisitionProvider {
     // point of conditional requests.
     if (response.status >= 300 && response.status < 400 && response.status !== 304) {
       const location = headers['location'] ?? null;
+      try {
+        await response.body?.cancel('redirect destination was not acquisition-gated');
+      } catch {
+        // Cancellation is cleanup. The rights refusal remains authoritative.
+      }
       throw new AcquisitionRefusedError({
         sourceKey: context.entry.key,
         url: request.url,
@@ -113,15 +141,12 @@ export class HttpAcquisitionProvider extends BaseAcquisitionProvider {
       };
     }
 
-    const body = new Uint8Array(await response.arrayBuffer());
-    const ceiling = request.maxBytes ?? this.#maxBytes;
-    if (ceiling !== null && ceiling !== undefined && body.byteLength > ceiling) {
-      throw new ProviderTransportError(
-        this.id,
-        `response body for ${request.url} is ${body.byteLength} bytes, over the ${ceiling}-byte ceiling`,
-        response.status,
-      );
-    }
+    const body = await readBoundedResponseBody(
+      this.id,
+      response,
+      ceiling,
+      `response body for ${request.url}`,
+    );
 
     return {
       resources: [

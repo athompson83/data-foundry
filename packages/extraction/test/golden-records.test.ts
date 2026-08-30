@@ -87,10 +87,29 @@ describe('JsonExtractor golden record', () => {
     expect(rawScore(second.extraction_confidence)).toBe(0.9157);
   });
 
+  it('fails a missing or scalar record selector but accepts an explicitly empty collection', async () => {
+    const base = jsonArtifact();
+    const extractor = new JsonExtractor();
+
+    expect(() => extractor.extract(
+      { ...base, body: JSON.stringify({ data: {} }) },
+      JSON_SCHEMA,
+    )).toThrow(/record selector.*not found|not found.*record selector/i);
+    expect(() => extractor.extract(
+      { ...base, body: JSON.stringify({ data: { models: 'not-a-collection' } }) },
+      JSON_SCHEMA,
+    )).toThrow(/record selector.*array or object|array or object.*record selector/i);
+    await expect(extractor.extract(
+      { ...base, body: JSON.stringify({ data: { models: [] } }) },
+      JSON_SCHEMA,
+    )).resolves.toEqual([]);
+  });
+
   it('projects onto the source_records insert shape without a normalized payload', async () => {
     const [record] = await new JsonExtractor().extract(jsonArtifact(), JSON_SCHEMA);
     if (record === undefined) throw new Error('expected a record');
-    const insert = toSourceRecordInsert(record);
+    const insert = toSourceRecordInsert(record, 'products' as never);
+    expect(insert.source_stream).toBe('products');
     expect(insert.normalized_payload).toBeNull();
     expect(insert.entity_type).toBe('equipment_model');
     expect(insert.source_record_key).toBe('24ACC636A003');

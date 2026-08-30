@@ -180,7 +180,10 @@ const asJsonlRecord = (row: object, columns: readonly string[]): Record<string, 
 };
 
 const byEntityOrder = (left: Entity, right: Entity): number =>
-  compareKeys([left.canonical_slug, left.id], [right.canonical_slug, right.id]);
+  compareKeys(
+    [left.entity_type, left.canonical_slug, left.canonical_name, left.id],
+    [right.entity_type, right.canonical_slug, right.canonical_name, right.id],
+  );
 
 /** One source's footprint in a set of facts: which facts, and how many links. */
 interface SourceTally {
@@ -234,7 +237,7 @@ async function listEntities(
 ): Promise<EntityScope> {
   const found = new Map<string, Entity>();
   let offset = 0;
-  let total = 0;
+  let total: number | null = null;
 
   for (;;) {
     const page = await qm.search({
@@ -244,7 +247,13 @@ async function listEntities(
       offset,
       ...(entityType === undefined ? {} : { entity_type: entityType }),
     });
-    total = page.total;
+    if (total === null) total = page.total;
+    else if (page.total !== total) {
+      throw new RangeError(
+        `Export pagination total changed from ${total} to ${page.total} at offset ${offset}; ` +
+          'refusing an apparently complete partial artifact.',
+      );
+    }
     if (claimed + page.total > MAX_EXPORT_ENTITIES) {
       throw new RangeError(
         `This export has ${claimed + page.total} entities in scope, above the ` +
@@ -252,18 +261,37 @@ async function listEntities(
           'than exporting a silently truncated dataset.',
       );
     }
-    if (page.hits.length === 0) break;
+    if (page.hits.length === 0) {
+      if (found.size !== total) {
+        throw new RangeError(
+          `Export pagination returned an empty page at offset ${offset} after ${found.size} of ` +
+            `${total} claimed entities; refusing a partial artifact.`,
+        );
+      }
+      break;
+    }
 
     const before = found.size;
     for (const hit of page.hits) found.set(hit.entity.id, hit.entity);
     offset += page.hits.length;
-    if (offset >= page.total) break;
-    // Defensive: a page that adds nothing new means paging is not advancing,
-    // and looping forever is worse than stopping with what we have.
-    if (found.size === before) break;
+    if (found.size === before) {
+      throw new RangeError(
+        `Export pagination made no unique progress at offset ${offset - page.hits.length}; ` +
+          'refusing a partial artifact.',
+      );
+    }
+    if (offset >= total) {
+      if (found.size !== total) {
+        throw new RangeError(
+          `Export pagination reported ${total} entities but yielded ${found.size} unique rows; ` +
+            'refusing a total-mismatch partial artifact.',
+        );
+      }
+      break;
+    }
   }
 
-  return { entities: [...found.values()].sort(byEntityOrder), total };
+  return { entities: [...found.values()].sort(byEntityOrder), total: total ?? 0 };
 }
 
 /**
@@ -279,6 +307,15 @@ export async function buildDatasetExport(
   const { queryModel: qm, vertical, sink, properties } = options;
   const at = options.selection?.at ?? options.generatedAt;
   const policy = resolveFactSelectionPolicy({ ...(options.selection ?? {}), at });
+  // The builder receives the internal model because its pre-write audit must
+  // inspect claims that will NOT be published. All customer-bound selection is
+  // nevertheless performed through the exact BULK_EXPORT surface. Keeping the
+  // two handles visibly separate prevents an audit read from becoming a wire
+  // read and prevents web/API grants from being mistaken for export rights.
+  // Rights are judged when the snapshot is produced, even when the caller asks
+  // for a historical fact view. Using `selection.at` here would resurrect a
+  // grant that has since expired or been revoked.
+  const bulk = qm.forSurface('BULK_EXPORT', { asOf: options.generatedAt });
   const statuses: readonly EntityStatus[] = options.entityStatuses ?? ['ACTIVE'];
   const refusals: ExportRefusal[] = [];
 
@@ -348,25 +385,72 @@ export async function buildDatasetExport(
   const audited = new Map<string, SourceTally>();
 
   for (const entity of entities) {
-    const all = await qm.canonicalFacts(entity.id, policy);
-    const views = all.filter((view) => propertyIsExportable(properties, view.property));
-    // `canonicalView` emits one row per property that has any claim valid at
-    // `at`, so no exportable view means no stored claim on an exportable
-    // property either, and there is nothing here for the gate to look at.
-    if (views.length === 0) continue;
+    // Read every stored claim, not only a selected one. This is the internal
+    // audit pre-pass; none of these objects crosses the export boundary.
+    const storedFacts = (await qm.facts({ entity_id: entity.id, at })).filter((stored) =>
+      propertyIsExportable(properties, stored.fact.property),
+    );
+    for (const stored of storedFacts) {
+      if (stored.lineage === null) continue;
+      for (const link of stored.lineage.chain) tally(audited, link.source, stored.fact.id);
+    }
 
+    // Entity existence is an independently evidenced claim. A source with a
+    // fact grant cannot manufacture permission to put the containing entity in
+    // a downloadable dataset. This check deliberately precedes the no-facts
+    // shortcut: a factless entity is still entity evidence on the bulk surface.
+    if (await bulk.getEntity(entity.id) === null) {
+      refusals.push({
+        code: 'ENTITY_RIGHTS_MATRIX_REFUSED',
+        // The surface-safe model deliberately does not disclose which
+        // contribution failed. Keep the structured subject empty rather than
+        // guessing and accusing an otherwise-cleared source.
+        subject: null,
+        message:
+          `Entity ${entity.canonical_slug} existence provenance does not satisfy the exact ` +
+          'BULK_EXPORT rights ' +
+          'bundle. Public web, API, MCP and neighboring grants do not imply bulk permission.',
+      });
+      continue;
+    }
+
+    if (storedFacts.length === 0) continue;
+
+    // The surface explanation returns only already-authorized candidate IDs
+    // and no blocked-candidate oracle. Comparing that internal allow-set with
+    // the wider audit read lets this builder retain its deliberate all-or-
+    // nothing rule: a blocked rival claim on an exported property refuses the
+    // snapshot instead of being silently omitted from a file that looks whole.
+    const authorizedFactIds = new Set<string>();
+    const exportedProperties = [...new Set(storedFacts.map((stored) => stored.fact.property))];
+    for (const property of exportedProperties) {
+      const explanation = await bulk.explainFact(entity.id, property, policy);
+      for (const claim of explanation?.claims ?? []) authorizedFactIds.add(claim.fact_id);
+    }
+    for (const stored of storedFacts) {
+      if (!authorizedFactIds.has(stored.fact.id)) {
+        refusals.push({
+          code: 'FACT_RIGHTS_MATRIX_REFUSED',
+          subject: null,
+          message:
+            `${entity.canonical_slug}.${stored.fact.property} (stored fact ${stored.fact.id}) ` +
+            'does not satisfy the exact BULK_EXPORT rights ' +
+            'bundle. No neighboring surface grant can authorize this snapshot.',
+        });
+      }
+    }
+
+    const views = (await bulk.canonicalFacts(entity.id, policy)).filter((view) =>
+      propertyIsExportable(properties, view.property),
+    );
     const selectedIds = new Set<string>(
       views.map((view) => view.fact_id).filter((id): id is NonNullable<typeof id> => id !== null),
     );
     const lineages = new Map<string, FactLineage>();
-    // Read every stored claim, not only the selected ones. `qm.facts` returns
-    // the current, non-retracted claims valid at `at` with their lineage, which
-    // is the honest definition of "what this export's property set draws on".
-    for (const stored of await qm.facts({ entity_id: entity.id, at })) {
-      if (!propertyIsExportable(properties, stored.fact.property)) continue;
-      if (stored.lineage === null) continue;
-      if (selectedIds.has(stored.fact.id)) lineages.set(stored.fact.id, stored.lineage);
-      for (const link of stored.lineage.chain) tally(audited, link.source, stored.fact.id);
+    for (const stored of storedFacts) {
+      if (stored.lineage !== null && selectedIds.has(stored.fact.id)) {
+        lineages.set(stored.fact.id, stored.lineage);
+      }
     }
 
     for (const view of views) {
@@ -414,7 +498,10 @@ export async function buildDatasetExport(
       evidence_count: entry.evidence,
     }))
     .sort((left, right) =>
-      compareKeys([left.source.domain, left.source.id], [right.source.domain, right.source.id]),
+      compareKeys(
+        [left.source.domain, left.source.publisher, left.source.source_type, left.source.id],
+        [right.source.domain, right.source.publisher, right.source.source_type, right.source.id],
+      ),
     );
 
   const audit = auditContributingSources(
@@ -619,8 +706,24 @@ export async function buildDatasetExport(
       entity_statuses: [...statuses],
       properties,
       ordering: {
-        facts: ['entity_slug', 'entity_id', 'property'],
-        evidence: ['entity_slug', 'entity_id', 'property', 'fact_id', 'source_key', 'evidence_id'],
+        facts: ['entity_type', 'entity_slug', 'property', 'entity_id'],
+        evidence: [
+          'entity_slug',
+          'property',
+          'source_key',
+          'source_publisher',
+          'source_domain',
+          'artifact_content_hash',
+          'artifact_url',
+          'artifact_retrieved_at',
+          'locator_type',
+          'locator_value',
+          'source_value',
+          'observed_at',
+          'entity_id',
+          'fact_id',
+          'evidence_id',
+        ],
       },
     },
     rights_notice: RIGHTS_NOTICE,

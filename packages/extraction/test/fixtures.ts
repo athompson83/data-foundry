@@ -1,6 +1,7 @@
 import {
   sourceArtifactId,
   sourceId,
+  type AcquisitionMethod,
   type SourceArtifact,
 } from '@data-foundry/canonical-schema';
 import { PDFDocument, StandardFonts } from 'pdf-lib';
@@ -25,6 +26,7 @@ export function artifactFixture(overrides: {
   readonly mime_type: string;
   readonly url: string;
   readonly body: string | Uint8Array;
+  readonly acquisition_route: AcquisitionMethod;
   readonly extractor_version?: string;
 }): ExtractionArtifact {
   const artifact: SourceArtifact = {
@@ -40,6 +42,9 @@ export function artifactFixture(overrides: {
     policy_snapshot_id: null,
     byte_size: typeof overrides.body === 'string' ? overrides.body.length : overrides.body.length,
     acquisition_provider: 'http',
+    acquisition_route: overrides.acquisition_route,
+    account_or_product_plan: null,
+    acquisition_jurisdiction: null,
     created_at: FIXED_CREATED_AT,
   };
   return { artifact, body: overrides.body };
@@ -126,6 +131,7 @@ export const jsonArtifact = (): ExtractionArtifact =>
     mime_type: 'application/json',
     url: 'https://api.acme-hvac.example/v1/models',
     body: JSON_BODY,
+    acquisition_route: 'VENDOR_API',
     extractor_version: 'json-extractor@1.0.0',
   });
 
@@ -171,6 +177,7 @@ export const csvArtifact = (): ExtractionArtifact =>
     mime_type: 'text/csv',
     url: 'https://acme-hvac.example/downloads/models.csv',
     body: CSV_BODY,
+    acquisition_route: 'BULK_FILE',
     extractor_version: 'csv-extractor@1.0.0',
   });
 
@@ -247,6 +254,7 @@ export const htmlArtifact = (): ExtractionArtifact =>
     mime_type: 'text/html',
     url: 'https://acme-hvac.example/products/24acc6',
     body: HTML_BODY,
+    acquisition_route: 'DIRECT_HTTP',
     extractor_version: 'html-extractor@1.0.0',
   });
 
@@ -318,5 +326,6 @@ export const pdfArtifact = async (): Promise<ExtractionArtifact> =>
     mime_type: 'application/pdf',
     url: 'https://acme-hvac.example/docs/24acc6-submittal.pdf',
     body: await buildPdfBytes(),
+    acquisition_route: 'DIRECT_HTTP',
     extractor_version: 'pdf-extractor@1.0.0',
   });

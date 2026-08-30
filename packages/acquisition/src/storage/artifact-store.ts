@@ -1,4 +1,11 @@
-import type { ContentHash, PolicySnapshotId, StorageUri } from '@data-foundry/canonical-schema';
+import {
+  AcquisitionMethodSchema,
+  type AcquisitionMethod,
+  type ContentHash,
+  type PolicySnapshotId,
+  type StorageUri,
+} from '@data-foundry/canonical-schema';
+import { ArtifactStoreError } from '../errors.js';
 import { sha256Hex } from '../hashing.js';
 import { artifactContentKey, artifactRetrievalKey } from './keys.js';
 
@@ -36,6 +43,9 @@ export interface ArtifactMetadata {
   readonly byte_size: number;
   readonly policy_snapshot_id: PolicySnapshotId | null;
   readonly acquisition_provider: string;
+  readonly acquisition_route: AcquisitionMethod | null;
+  readonly account_or_product_plan: string | null;
+  readonly acquisition_jurisdiction: string | null;
   readonly etag: string | null;
   readonly last_modified: string | null;
 }
@@ -48,6 +58,7 @@ export interface ArtifactPutRequest {
   readonly source: string;
   readonly body: Uint8Array;
   readonly metadata: ArtifactMetadataInput;
+  readonly retrievalReceiptId?: ContentHash | undefined;
 }
 
 export interface StoredArtifact {
@@ -58,8 +69,9 @@ export interface StoredArtifact {
   readonly byteSize: number;
   /** True when identical bytes were already present and no bytes were written. */
   readonly deduplicated: boolean;
-  /** Where this fetch was recorded, or null when this day's fetch was already recorded. */
-  readonly retrievalKey: string | null;
+  /** Durable retrieval record for this fetch scope, whether newly written or already present. */
+  readonly retrievalKey: string;
+  readonly retrievalReceiptId: ContentHash | null;
   readonly metadata: ArtifactMetadata;
 }
 
@@ -81,8 +93,12 @@ export interface ArtifactRetrievalRecord {
   readonly byte_size: number;
   readonly policy_snapshot_id: PolicySnapshotId | null;
   readonly acquisition_provider: string;
+  readonly acquisition_route: AcquisitionMethod | null;
+  readonly account_or_product_plan: string | null;
+  readonly acquisition_jurisdiction: string | null;
   readonly etag: string | null;
   readonly last_modified: string | null;
+  readonly retrieval_receipt_id: ContentHash | null;
 }
 
 export interface ArtifactBody {
@@ -105,6 +121,77 @@ export interface ArtifactStore {
    * 10 violation, not a cleanup.
    */
   delete(key: string): Promise<void>;
+}
+
+const requiredString = (record: Readonly<Record<string, unknown>>, key: string): string => {
+  const value = record[key];
+  if (typeof value !== 'string' || value.trim() === '') {
+    throw new ArtifactStoreError(`Artifact metadata field ${key} must be a non-empty string.`);
+  }
+  return value;
+};
+
+const nullableString = (
+  record: Readonly<Record<string, unknown>>,
+  key: string,
+): string | null => {
+  const value = record[key];
+  if (value === undefined || value === null) return null;
+  if (typeof value !== 'string' || value.trim() === '') {
+    throw new ArtifactStoreError(`Artifact metadata field ${key} must be null or non-empty.`);
+  }
+  return value;
+};
+
+/** Validate local/R2 metadata while mapping legacy missing scope fields to explicit null. */
+export function parseArtifactMetadata(value: unknown): ArtifactMetadata {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+    throw new ArtifactStoreError('Artifact metadata must be an object.');
+  }
+  const record = value as Readonly<Record<string, unknown>>;
+  const routeValue = record['acquisition_route'] ?? null;
+  const route = AcquisitionMethodSchema.nullable().safeParse(routeValue);
+  if (!route.success) {
+    throw new ArtifactStoreError('Artifact metadata has an invalid acquisition_route.');
+  }
+  const contentHash = requiredString(record, 'content_hash');
+  if (!/^[0-9a-f]{64}$/.test(contentHash)) {
+    throw new ArtifactStoreError('Artifact metadata has an invalid content_hash.');
+  }
+  const httpStatus = record['http_status'];
+  const byteSize = record['byte_size'];
+  if (typeof httpStatus !== 'number' || !Number.isInteger(httpStatus) || httpStatus < 0 || httpStatus > 599) {
+    throw new ArtifactStoreError('Artifact metadata has an invalid http_status.');
+  }
+  if (typeof byteSize !== 'number' || !Number.isInteger(byteSize) || byteSize < 0) {
+    throw new ArtifactStoreError('Artifact metadata has an invalid byte_size.');
+  }
+  const policySnapshotId = nullableString(record, 'policy_snapshot_id');
+  if (
+    policySnapshotId !== null &&
+    !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
+      policySnapshotId,
+    )
+  ) {
+    throw new ArtifactStoreError('Artifact metadata has an invalid policy_snapshot_id.');
+  }
+  return {
+    source_key: requiredString(record, 'source_key'),
+    vertical_slug: requiredString(record, 'vertical_slug'),
+    url: requiredString(record, 'url'),
+    retrieved_at: requiredString(record, 'retrieved_at'),
+    http_status: httpStatus,
+    mime_type: requiredString(record, 'mime_type'),
+    content_hash: contentHash as ContentHash,
+    byte_size: byteSize,
+    policy_snapshot_id: policySnapshotId as PolicySnapshotId | null,
+    acquisition_provider: requiredString(record, 'acquisition_provider'),
+    acquisition_route: route.data,
+    account_or_product_plan: nullableString(record, 'account_or_product_plan'),
+    acquisition_jurisdiction: nullableString(record, 'acquisition_jurisdiction'),
+    etag: nullableString(record, 'etag'),
+    last_modified: nullableString(record, 'last_modified'),
+  };
 }
 
 /**
@@ -153,6 +240,8 @@ export async function storeArtifactBytes(
     source: request.source,
     retrievedAt: request.metadata.retrieved_at,
     contentHash,
+    policySnapshotId: request.metadata.policy_snapshot_id,
+    retrievalReceiptId: request.retrievalReceiptId ?? null,
   });
   const alreadyRecorded = await primitives.exists(retrievalKey);
   if (!alreadyRecorded) {
@@ -167,17 +256,22 @@ export async function storeArtifactBytes(
       byte_size: request.body.byteLength,
       policy_snapshot_id: request.metadata.policy_snapshot_id,
       acquisition_provider: request.metadata.acquisition_provider,
+      acquisition_route: request.metadata.acquisition_route,
+      account_or_product_plan: request.metadata.account_or_product_plan,
+      acquisition_jurisdiction: request.metadata.acquisition_jurisdiction,
       etag: request.metadata.etag,
       last_modified: request.metadata.last_modified,
+      retrieval_receipt_id: request.retrievalReceiptId ?? null,
     };
     const recordBody = new TextEncoder().encode(`${JSON.stringify(record, null, 2)}\n`);
     await primitives.write(retrievalKey, recordBody, {
-      ...metadata,
+      ...request.metadata,
       mime_type: RETRIEVAL_RECORD_MIME,
       // This object is the retrieval record, not the content it points at. Its
       // own fetch instant and its own length, so `head(retrievalKey)` describes
       // the object that is actually there rather than the bytes it records.
       retrieved_at: request.metadata.retrieved_at,
+      content_hash: sha256Hex(recordBody),
       byte_size: recordBody.byteLength,
     });
   }
@@ -188,7 +282,8 @@ export async function storeArtifactBytes(
     contentHash,
     byteSize: metadata.byte_size,
     deduplicated: existing !== null,
-    retrievalKey: alreadyRecorded ? null : retrievalKey,
+    retrievalKey,
+    retrievalReceiptId: request.retrievalReceiptId ?? null,
     metadata,
   };
 }
@@ -206,6 +301,9 @@ export function metadataToRecord(metadata: ArtifactMetadata): Record<string, str
     'byte-size': String(metadata.byte_size),
     'policy-snapshot-id': metadata.policy_snapshot_id ?? '',
     'acquisition-provider': metadata.acquisition_provider,
+    'acquisition-route': metadata.acquisition_route ?? '',
+    'account-or-product-plan': metadata.account_or_product_plan ?? '',
+    'acquisition-jurisdiction': metadata.acquisition_jurisdiction ?? '',
     etag: metadata.etag ?? '',
     'last-modified': metadata.last_modified ?? '',
   };
@@ -221,7 +319,10 @@ export function metadataFromRecord(
   const policySnapshot = record['policy-snapshot-id'];
   const etag = record['etag'];
   const lastModified = record['last-modified'];
-  return {
+  const acquisitionRoute = record['acquisition-route'];
+  const accountOrProductPlan = record['account-or-product-plan'];
+  const acquisitionJurisdiction = record['acquisition-jurisdiction'];
+  return parseArtifactMetadata({
     source_key: record['source-key'] ?? '',
     vertical_slug: record['vertical-slug'] ?? '',
     url: record['url'] ?? '',
@@ -235,7 +336,16 @@ export function metadataFromRecord(
         ? null
         : (policySnapshot as PolicySnapshotId),
     acquisition_provider: record['acquisition-provider'] ?? 'unknown',
+    acquisition_route: acquisitionRoute === undefined || acquisitionRoute === '' ? null : acquisitionRoute,
+    account_or_product_plan:
+      accountOrProductPlan === undefined || accountOrProductPlan === ''
+        ? null
+        : accountOrProductPlan,
+    acquisition_jurisdiction:
+      acquisitionJurisdiction === undefined || acquisitionJurisdiction === ''
+        ? null
+        : acquisitionJurisdiction,
     etag: etag === undefined || etag === '' ? null : etag,
     last_modified: lastModified === undefined || lastModified === '' ? null : lastModified,
-  };
+  });
 }

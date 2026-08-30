@@ -86,6 +86,8 @@ const cleanAliases = () => [
     aliasValue: MODEL_A,
     normalizedValue: MODEL_A,
     strong: true,
+    locatorType: 'JSON_POINTER' as never,
+    locatorValue: '/identifiers/model-a',
   },
 ];
 
@@ -97,6 +99,8 @@ const conflictedAliases = () => [
     aliasValue: MODEL_B,
     normalizedValue: MODEL_B,
     strong: true,
+    locatorType: 'JSON_POINTER' as never,
+    locatorValue: '/identifiers/model-b',
   },
 ];
 
@@ -126,9 +130,9 @@ beforeAll(async () => {
 
   const [record] = await factory.driver.query<{ id: string }>(
     `INSERT INTO source_records
-       (source_id, artifact_id, source_record_key, entity_type, raw_payload,
+       (source_id, artifact_id, source_record_key, source_stream, entity_type, raw_payload,
         normalized_payload, extraction_confidence, extractor_version)
-     VALUES ($1, $2, 'judgment-history-probe-0001', 'equipment_model', '{}'::jsonb,
+     VALUES ($1, $2, 'judgment-history-probe-0001', 'products', 'equipment_model', '{}'::jsonb,
              '{}'::jsonb, 0.9, 'test')
      RETURNING id`,
     [seed!.source_id, seed!.artifact_id],
@@ -147,12 +151,16 @@ beforeAll(async () => {
        VALUES ($1, $2, 'equipment_model', $3, $4, 'ACTIVE', 0.5, $5, $5, $5)`,
       [id, verticalId, model, slug, seenAt],
     );
-    await factory.driver.query(
-      `INSERT INTO entity_aliases (entity_id, alias_type, alias_value, normalized_value,
-                                   source_id, identity_confidence, valid_from)
-       VALUES ($1, 'model_number', $2, $2, $3, 0.99, $4)`,
-      [id, model, sourceId, seenAt],
-    );
+    await factory.store.addAlias({
+      entity_id: id as never,
+      alias_type: 'model_number',
+      alias_value: model,
+      normalized_value: model,
+      source_id: sourceId as never,
+      identity_confidence: 0.99 as never,
+      valid_from: seenAt as never,
+      valid_to: null,
+    });
   }
 
   resolver = new EntityResolver({

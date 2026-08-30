@@ -14,8 +14,10 @@
  * derived from `QueryModel`'s own signature rather than imported by name from
  * the store package, so this file names nothing below the query layer at all.
  */
-import type { QueryModel } from '@data-foundry/query-model';
+import type { QueryModel, SurfaceQueryModel } from '@data-foundry/query-model';
 import type { VerticalId } from '@data-foundry/canonical-schema';
+import type { RouteKey } from './routes.js';
+import type { ApiRequestAccess } from './http.js';
 
 /** The fact-selection policy shape, taken from the query layer's signature. */
 export type ApiFactSelectionPolicy = NonNullable<Parameters<QueryModel['canonicalFacts']>[1]>;
@@ -24,6 +26,19 @@ export interface ApiErrorContext {
   readonly method: string;
   readonly path: string;
   readonly requestId?: string;
+}
+
+/**
+ * What happened, for whoever meters requests — never what was asked for.
+ *
+ * `routeKey` is a member of the closed accounting vocabulary declared in
+ * `routes.ts`. It contains no slash or interpolation slot, so no request path,
+ * query string, entity identifier, or response content can enter metering.
+ */
+export interface ApiRequestTelemetry {
+  readonly method: string;
+  readonly routeKey: RouteKey;
+  readonly status: number;
 }
 
 export interface ApiAppOptions {
@@ -51,7 +66,7 @@ export interface ApiAppOptions {
 
 /** Everything a handler is allowed to see. Resolved once, at construction. */
 export interface ApiContext {
-  readonly queryModel: QueryModel;
+  readonly queryModel: SurfaceQueryModel;
   readonly verticalId: VerticalId;
   readonly factSelection: ApiFactSelectionPolicy;
   /**
@@ -63,13 +78,17 @@ export interface ApiContext {
   readonly version: string;
 }
 
-export function resolveContext(options: ApiAppOptions, version: string): ApiContext {
+export function resolveContext(
+  options: ApiAppOptions,
+  version: string,
+  access: ApiRequestAccess,
+): ApiContext {
   const factSelection = options.factSelection ?? {};
   const reviewers = (factSelection.editorialOverrides ?? [])
     .map((override) => override.reviewer)
     .filter((reviewer) => reviewer.trim() !== '');
   return {
-    queryModel: options.queryModel,
+    queryModel: options.queryModel.forSurface(access.surface),
     verticalId: options.verticalId,
     factSelection,
     reviewers,

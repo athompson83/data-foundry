@@ -154,7 +154,12 @@ describe('the manifest identifies the snapshot', () => {
       mode: 'allowlist',
       include: expect.arrayContaining(['refrigerant', 'seer2_rating']) as unknown,
     });
-    expect(policy.ordering.facts).toEqual(['entity_slug', 'entity_id', 'property']);
+    expect(policy.ordering.facts).toEqual([
+      'entity_type',
+      'entity_slug',
+      'property',
+      'entity_id',
+    ]);
   });
 });
 
@@ -303,8 +308,15 @@ describe('every published value can be explained (rule 10)', () => {
     expect(link?.artifact_retrieved_at).toMatch(/^\d{4}-\d{2}-\d{2}T/);
     expect(link?.locator_type).toBe('CSS_SELECTOR');
     expect(link?.locator_value).toContain('data-field=');
-    expect(link?.source_value.length).toBeGreaterThan(0);
     expect(link?.source_key).not.toBe('');
+  });
+
+  it('redacts publisher verbatim values when the bulk grants do not include quote rights', () => {
+    // The default fixture grants only the BULK_EXPORT requirements. Normalized
+    // redistribution permission must not silently authorize publisher text.
+    expect(result.evidence.every((row) => row.source_value === null)).toBe(true);
+    expect(jsonLines(EVIDENCE_JSONL).every((row) => row['source_value'] === null)).toBe(true);
+    expect(text(EVIDENCE_JSONL)).not.toContain(CSV_HOSTILE_VALUE);
   });
 
   it('does not publish the internal object-store layout of our artifacts', () => {

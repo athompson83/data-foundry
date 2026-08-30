@@ -13,22 +13,47 @@
  * remembered, and so "are we ready to publish commercially?" has a mechanical
  * answer instead of an optimistic one.
  *
- * It reads the same declarations the platform reads. It reaches no network and
- * asserts nothing about any real organisation — a source is classified real or
- * synthetic by its domain, not by its name.
+ * It reads the same declarations the platform reads and asks the canonical
+ * rights engine each exact surface bundle. Database access is optional and
+ * explicit; otherwise a validated offline snapshot may qualify results. With
+ * neither, all surface results are UNKNOWN.
  *
- *   pnpm sources:readiness            # every vertical
- *   pnpm sources:readiness hvac       # one vertical
- *   pnpm sources:readiness --json     # machine-readable
+ *   pnpm sources:readiness -- --as-of 2026-08-28T12:00:00.000Z
+ *   pnpm sources:readiness -- --as-of ... --database-env DATA_FOUNDRY_DATABASE_URL hvac
+ *   pnpm sources:readiness -- --as-of ... --rights-snapshot rights-snapshot.json --json hvac
  *
- * Exit code is 0 whether or not a vertical is ready: this reports a state, it
- * does not gate CI. `verticals:validate` is the gate.
+ * Exit code is 0 whether or not a valid report is ready. Missing clocks,
+ * malformed/tampered snapshots, unsafe credential arguments, and database
+ * failures are input/evidence errors and exit non-zero.
  */
-import { readFile, readdir } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { readFile, readdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { parse as parseYaml } from 'yaml';
+import { z } from 'zod';
 import { rightsReviewIsCurrent } from '@data-foundry/source-registry';
+import {
+  createPostgresDriver,
+  loadStoredRightsContext,
+  type SqlDriver,
+} from '@data-foundry/canonical-store';
+import {
+  authorizeSurface,
+  RIGHTS_ACQUISITION_ROUTES,
+  RightsDecisionCandidateSchema,
+  RightsDenyExceptionSchema,
+  RightsSnapshotSchema,
+  RightsSourceGuardSchema,
+  rightsRequirementsForSurface,
+  type RightsAcquisitionRoute,
+  type RightsChannel,
+  type RightsOperation,
+  type RightsSnapshot,
+  type RightsSourceGuard,
+  type RightsSurface,
+} from '@data-foundry/rights-engine';
 import { VERTICALS_DIR } from '../validators/validate-verticals.js';
+import { isMain } from '../lib/cli-entry.js';
 
 /**
  * Names reserved by RFC 2606 and RFC 6761 for documentation and testing. A
@@ -41,6 +66,463 @@ const RESERVED_TLDS = ['example', 'test', 'invalid', 'localhost'] as const;
 
 /** Reserved second-level names, which sit under ordinary top-level domains. */
 const RESERVED_NAMES = ['example.com', 'example.org', 'example.net'] as const;
+
+/** Revenue/publication surfaces that must be decided independently. */
+export const READINESS_SURFACES = [
+  'PUBLIC_WEB',
+  'SEARCH_INDEX',
+  'API_FREE',
+  'API_PAID',
+  'RAPIDAPI',
+  'MCP',
+  'BULK_EXPORT',
+] as const satisfies readonly RightsSurface[];
+
+export interface MissingSurfaceRequirement {
+  readonly id: string;
+  readonly operation: RightsOperation;
+  readonly channel: RightsChannel;
+  readonly reasonCode: string;
+}
+
+export interface SurfaceReadiness {
+  readonly status: 'READY' | 'NOT_READY' | 'UNKNOWN';
+  readonly missing: readonly MissingSurfaceRequirement[];
+  readonly blockingReasons?: readonly string[];
+}
+
+export type SourceSurfaceReadiness = Readonly<Record<(typeof READINESS_SURFACES)[number], SurfaceReadiness>>;
+
+function unknownSurfaceReadiness(): SourceSurfaceReadiness {
+  return Object.fromEntries(
+    READINESS_SURFACES.map((surface) => [
+      surface,
+      {
+        status: 'UNKNOWN' as const,
+        missing: rightsRequirementsForSurface(surface).map((entry) => ({
+          ...entry,
+          reasonCode: 'NO_EVIDENCE',
+        })),
+      },
+    ]),
+  ) as unknown as SourceSurfaceReadiness;
+}
+
+export interface ReadinessRightsContext {
+  readonly source: RightsSourceGuard;
+  readonly snapshot: RightsSnapshot;
+}
+
+export interface SourceRightsEvaluationInput {
+  readonly sourceKey: string;
+  readonly acquisitionRoute: RightsAcquisitionRoute | null;
+  readonly accountOrProductPlan: string | null;
+  readonly jurisdiction: string | null;
+  readonly asOf: string;
+  readonly context: ReadinessRightsContext | null;
+}
+
+/**
+ * Ask the canonical rights engine the same seven independent questions for one
+ * source-wide normalized-data contribution. A field-scoped grant cannot satisfy
+ * this deliberately conservative whole-source readiness probe.
+ */
+export function evaluateSourceSurfaceReadiness(
+  input: SourceRightsEvaluationInput,
+): SourceSurfaceReadiness {
+  if (input.context === null) return unknownSurfaceReadiness();
+  // Preserve the null check across the surface-map callback. TypeScript does
+  // not retain dotted-property narrowing when a closure can observe mutation.
+  const context = input.context;
+
+  return Object.fromEntries(
+    READINESS_SURFACES.map((surface) => {
+      const result = authorizeSurface(surface, [
+        {
+          contributionId: input.sourceKey,
+          request: {
+            source: context.source,
+            sourceStatusRequirement: 'ACTIVE',
+            acquisitionRoute: input.acquisitionRoute,
+            accountOrProductPlan: input.accountOrProductPlan,
+            jurisdiction: input.jurisdiction,
+            assetClass: 'DATA',
+            fieldKey: null,
+            fieldGroupIds: [],
+            outputClass: 'NORMALIZED_FACT',
+            asOf: input.asOf,
+            conditionReceipts: [],
+          },
+          snapshot: context.snapshot,
+        },
+      ]);
+      return [
+        surface,
+        {
+          status: result.permitted ? ('READY' as const) : ('NOT_READY' as const),
+          missing: result.decisions
+            .filter((entry) => !entry.decision.permitted)
+            .map((entry) => ({
+              id: entry.requirementId.slice(`${surface}:`.length),
+              operation: entry.operation,
+              channel: entry.channel,
+              reasonCode: entry.decision.reasonCode,
+            })),
+        },
+      ];
+    }),
+  ) as unknown as SourceSurfaceReadiness;
+}
+
+export const READINESS_SNAPSHOT_SCHEMA_VERSION = 1 as const;
+export const READINESS_SNAPSHOT_CANONICALIZATION = 'DATA_FOUNDRY_CODE_UNIT_JSON_V1' as const;
+
+const nonempty = z.string().trim().min(1);
+const canonicalUtcInstant = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/)
+  .refine((value) => {
+    const parsed = new Date(value);
+    return !Number.isNaN(parsed.valueOf()) && parsed.toISOString() === value;
+  }, 'must be a canonical UTC instant with millisecond precision');
+
+const sourcePublisherMappingSchema = z
+  .object({ sourceId: nonempty, publisherId: nonempty })
+  .strict();
+const fieldGroupMappingSchema = z
+  .object({ fieldGroupId: nonempty, fieldKeys: z.array(nonempty) })
+  .strict();
+
+const snapshotContextWireSchema = z
+  .object({
+    source: RightsSourceGuardSchema,
+    snapshot: z
+      .object({
+        candidates: z.array(RightsDecisionCandidateSchema),
+        denyExceptions: z.array(RightsDenyExceptionSchema),
+        sourcePublisherIds: z.array(sourcePublisherMappingSchema),
+        fieldGroupMembers: z.array(fieldGroupMappingSchema),
+      })
+      .strict(),
+  })
+  .strict();
+
+const snapshotSourceWireSchema = z
+  .object({
+    verticalSlug: nonempty,
+    sourceKey: nonempty,
+    domain: nonempty,
+    sourceType: nonempty,
+    acquisitionRoute: z.enum(RIGHTS_ACQUISITION_ROUTES).nullable(),
+    accountOrProductPlan: nonempty.nullable(),
+    jurisdiction: nonempty.nullable(),
+    context: snapshotContextWireSchema,
+  })
+  .strict();
+
+const snapshotPayloadSchema = z
+  .object({
+    schemaVersion: z.literal(READINESS_SNAPSHOT_SCHEMA_VERSION),
+    generatedAt: canonicalUtcInstant,
+    asOf: canonicalUtcInstant,
+    provenance: nonempty,
+    canonicalization: z.literal(READINESS_SNAPSHOT_CANONICALIZATION),
+    sources: z.array(snapshotSourceWireSchema),
+  })
+  .strict();
+
+export const RightsEvidenceSnapshotSchema = snapshotPayloadSchema
+  .extend({ canonicalDigest: z.string().regex(/^[0-9a-f]{64}$/) })
+  .strict();
+
+export function serializeRightsEvidenceSnapshotJsonSchema(): string {
+  const document = z.toJSONSchema(RightsEvidenceSnapshotSchema, {
+    target: 'draft-2020-12',
+  }) as Record<string, unknown>;
+  return `${JSON.stringify(
+    {
+      $schema: 'https://json-schema.org/draft/2020-12/schema',
+      $id: 'https://schemas.data-foundry.dev/source-readiness/snapshot-v1.schema.json',
+      title: 'Data Foundry rights-backed source-readiness snapshot v1',
+      description:
+        'Offline, as-of-qualified rights evidence. The canonical SHA-256 digest proves integrity, not authority or live-current status.',
+      ...document,
+    },
+    null,
+    2,
+  )}\n`;
+}
+
+type RightsEvidenceSnapshotWire = z.infer<typeof RightsEvidenceSnapshotSchema>;
+type RightsEvidenceSnapshotPayload = z.infer<typeof snapshotPayloadSchema>;
+
+export interface RightsEvidenceSnapshotSourceInput {
+  readonly verticalSlug: string;
+  readonly sourceKey: string;
+  readonly domain: string;
+  readonly sourceType: string;
+  readonly acquisitionRoute: RightsAcquisitionRoute | null;
+  readonly accountOrProductPlan: string | null;
+  readonly jurisdiction: string | null;
+  readonly context: ReadinessRightsContext;
+}
+
+export interface CreateRightsEvidenceSnapshotInput {
+  readonly generatedAt: string;
+  readonly asOf: string;
+  readonly provenance: string;
+  readonly sources: readonly RightsEvidenceSnapshotSourceInput[];
+}
+
+export interface ParsedRightsEvidenceSnapshot
+  extends Omit<RightsEvidenceSnapshotWire, 'sources'> {
+  readonly sources: readonly RightsEvidenceSnapshotSourceInput[];
+}
+
+/** Locale-independent ordering used in reports, artifacts, and digest inputs. */
+export function compareCodeUnits(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0;
+}
+
+function canonicalJsonValue(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(canonicalJsonValue);
+  if (value !== null && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>)
+        .sort(([left], [right]) => compareCodeUnits(left, right))
+        .map(([key, entry]) => [key, canonicalJsonValue(entry)]),
+    );
+  }
+  return value;
+}
+
+export function canonicalJson(value: unknown): string {
+  return JSON.stringify(canonicalJsonValue(value));
+}
+
+/** Database identity is the stable, unique order key for decision conditions. */
+function conditionCanonicalKey(condition: { readonly id: string }): string {
+  return condition.id;
+}
+
+function digestSnapshotPayload(payload: RightsEvidenceSnapshotPayload): string {
+  return createHash('sha256').update(canonicalJson(payload), 'utf8').digest('hex');
+}
+
+function contextToWire(context: ReadinessRightsContext): z.infer<typeof snapshotContextWireSchema> {
+  const source = RightsSourceGuardSchema.parse(context.source);
+  const snapshot = RightsSnapshotSchema.parse(context.snapshot);
+  return {
+    source,
+    snapshot: {
+      candidates: [...snapshot.candidates]
+        .map((candidate) => ({
+          ...candidate,
+          conditions: [...candidate.conditions].sort((left, right) =>
+            compareCodeUnits(conditionCanonicalKey(left), conditionCanonicalKey(right)),
+          ),
+        }))
+        .sort((left, right) =>
+          compareCodeUnits(
+            `${left.cell.id}\u0000${left.decision.id}`,
+            `${right.cell.id}\u0000${right.decision.id}`,
+          ),
+        ),
+      denyExceptions: [...snapshot.denyExceptions].sort((left, right) =>
+        compareCodeUnits(left.id, right.id),
+      ),
+      sourcePublisherIds: [...(snapshot.sourcePublisherIds ?? new Map()).entries()]
+        .sort(([left], [right]) => compareCodeUnits(left, right))
+        .map(([sourceId, publisherId]) => ({ sourceId, publisherId })),
+      fieldGroupMembers: [...(snapshot.fieldGroupMembers ?? new Map()).entries()]
+        .sort(([left], [right]) => compareCodeUnits(left, right))
+        .map(([fieldGroupId, fieldKeys]) => ({
+          fieldGroupId,
+          fieldKeys: [...fieldKeys].sort(compareCodeUnits),
+        })),
+    },
+  };
+}
+
+function contextFromWire(
+  context: z.infer<typeof snapshotContextWireSchema>,
+): ReadinessRightsContext {
+  return {
+    source: context.source,
+    snapshot: {
+      candidates: context.snapshot.candidates,
+      denyExceptions: context.snapshot.denyExceptions,
+      sourcePublisherIds: new Map(
+        context.snapshot.sourcePublisherIds.map(({ sourceId, publisherId }) => [
+          sourceId,
+          publisherId,
+        ]),
+      ),
+      fieldGroupMembers: new Map(
+        context.snapshot.fieldGroupMembers.map(({ fieldGroupId, fieldKeys }) => [
+          fieldGroupId,
+          fieldKeys,
+        ]),
+      ),
+    },
+  };
+}
+
+export function createRightsEvidenceSnapshot(
+  input: CreateRightsEvidenceSnapshotInput,
+): RightsEvidenceSnapshotWire {
+  const payload = snapshotPayloadSchema.parse({
+    schemaVersion: READINESS_SNAPSHOT_SCHEMA_VERSION,
+    generatedAt: input.generatedAt,
+    asOf: input.asOf,
+    provenance: input.provenance,
+    canonicalization: READINESS_SNAPSHOT_CANONICALIZATION,
+    sources: [...input.sources]
+      .sort((left, right) =>
+        compareCodeUnits(
+          `${left.verticalSlug}\u0000${left.sourceKey}`,
+          `${right.verticalSlug}\u0000${right.sourceKey}`,
+        ),
+      )
+      .map((source) => ({
+        verticalSlug: source.verticalSlug,
+        sourceKey: source.sourceKey,
+        domain: normalizeDomain(source.domain),
+        sourceType: source.sourceType,
+        acquisitionRoute: source.acquisitionRoute,
+        accountOrProductPlan: source.accountOrProductPlan,
+        jurisdiction: source.jurisdiction,
+        context: contextToWire(source.context),
+      })),
+  });
+  if (new Date(payload.generatedAt).valueOf() < new Date(payload.asOf).valueOf()) {
+    throw new Error('snapshot generatedAt cannot precede its asOf instant');
+  }
+  const duplicateKeys = payload.sources
+    .map((source) => `${source.verticalSlug}\u0000${source.sourceKey}`)
+    .filter((key, index, keys) => index > 0 && key === keys[index - 1]);
+  if (duplicateKeys.length > 0) throw new Error('snapshot source keys must be unique');
+  const wire = RightsEvidenceSnapshotSchema.parse({
+    ...payload,
+    canonicalDigest: digestSnapshotPayload(payload),
+  });
+  // Apply the same canonical-order and duplicate checks used at the trust
+  // boundary so the generator cannot emit an artifact its reader refuses.
+  parseRightsEvidenceSnapshot(wire, input.asOf);
+  return wire;
+}
+
+/**
+ * Validate a portable snapshot before it can influence any surface result.
+ * The SHA-256 digest proves byte-model integrity, not legal authority or
+ * freshness; callers retain the SNAPSHOT evidence label in all output.
+ */
+export function parseRightsEvidenceSnapshot(
+  value: unknown,
+  expectedAsOf: string,
+): ParsedRightsEvidenceSnapshot {
+  const parsed = RightsEvidenceSnapshotSchema.safeParse(value);
+  if (!parsed.success) {
+    throw new Error(`invalid rights evidence snapshot schema: ${z.prettifyError(parsed.error)}`);
+  }
+  const { canonicalDigest, ...payload } = parsed.data;
+  const expectedDigest = digestSnapshotPayload(payload);
+  if (canonicalDigest !== expectedDigest) {
+    throw new Error('rights evidence snapshot canonical digest does not match its payload');
+  }
+  if (parsed.data.asOf !== expectedAsOf) {
+    throw new Error(
+      `rights evidence snapshot as-of does not match the requested --as-of instant`,
+    );
+  }
+  if (new Date(parsed.data.generatedAt).valueOf() < new Date(parsed.data.asOf).valueOf()) {
+    throw new Error('rights evidence snapshot generatedAt cannot precede its asOf instant');
+  }
+  const requireStrictOrder = (values: readonly string[], label: string): void => {
+    for (let index = 1; index < values.length; index += 1) {
+      if (compareCodeUnits(values[index - 1]!, values[index]!) >= 0) {
+        throw new Error(
+          `rights evidence snapshot ${label} is not in canonical code-unit order or contains duplicates`,
+        );
+      }
+    }
+  };
+  requireStrictOrder(
+    parsed.data.sources.map((source) => `${source.verticalSlug}\u0000${source.sourceKey}`),
+    'sources',
+  );
+  for (const source of parsed.data.sources) {
+    requireStrictOrder(
+      source.context.snapshot.candidates.map(
+        (candidate) => `${candidate.cell.id}\u0000${candidate.decision.id}`,
+      ),
+      `${source.sourceKey} candidates`,
+    );
+    for (const candidate of source.context.snapshot.candidates) {
+      requireStrictOrder(
+        candidate.conditions.map(conditionCanonicalKey),
+        `${source.sourceKey}/${candidate.decision.id} conditions`,
+      );
+    }
+    requireStrictOrder(
+      source.context.snapshot.denyExceptions.map((exception) => exception.id),
+      `${source.sourceKey} deny exceptions`,
+    );
+    requireStrictOrder(
+      source.context.snapshot.sourcePublisherIds.map((mapping) => mapping.sourceId),
+      `${source.sourceKey} publisher mappings`,
+    );
+    requireStrictOrder(
+      source.context.snapshot.fieldGroupMembers.map((mapping) => mapping.fieldGroupId),
+      `${source.sourceKey} field groups`,
+    );
+    for (const group of source.context.snapshot.fieldGroupMembers) {
+      requireStrictOrder(group.fieldKeys, `${source.sourceKey}/${group.fieldGroupId} field keys`);
+    }
+  }
+  return {
+    ...parsed.data,
+    sources: parsed.data.sources.map((source) => ({
+      ...source,
+      context: contextFromWire(source.context),
+    })),
+  };
+}
+
+export function createSnapshotRightsEvidenceResolver(
+  snapshot: ParsedRightsEvidenceSnapshot,
+): RightsEvidenceResolver {
+  const sources = new Map(
+    snapshot.sources.map((source) => [`${source.verticalSlug}\u0000${source.sourceKey}`, source]),
+  );
+  return {
+    descriptor: {
+      kind: 'SNAPSHOT',
+      qualification: 'SNAPSHOT_BACKED',
+      schemaVersion: snapshot.schemaVersion,
+      generatedAt: snapshot.generatedAt,
+      asOf: snapshot.asOf,
+      provenance: snapshot.provenance,
+      canonicalDigest: snapshot.canonicalDigest,
+    },
+    async contextFor(verticalSlug, source) {
+      const stored = sources.get(`${verticalSlug}\u0000${source.key}`);
+      if (stored === undefined) return null;
+      const matches =
+        normalizeDomain(stored.domain) === source.domain &&
+        stored.sourceType === source.sourceType &&
+        stored.acquisitionRoute === source.acquisitionRoute &&
+        stored.accountOrProductPlan === source.accountOrProductPlan &&
+        stored.jurisdiction === source.jurisdiction;
+      if (!matches) {
+        throw new Error(
+          `rights evidence snapshot metadata does not match current source declaration ${verticalSlug}/${source.key}`,
+        );
+      }
+      return stored.context;
+    },
+  };
+}
 
 /**
  * One spelling per host.
@@ -70,6 +552,10 @@ export function isReservedDomain(domain: string): boolean {
 export interface SourceReadiness {
   readonly key: string;
   readonly domain: string;
+  readonly sourceType: string;
+  readonly acquisitionRoute: RightsAcquisitionRoute | null;
+  readonly accountOrProductPlan: string | null;
+  readonly jurisdiction: string | null;
   /** False when the domain is reserved — a synthetic fixture, not a publisher. */
   readonly real: boolean;
   readonly rightsClassification: string;
@@ -92,10 +578,14 @@ export interface SourceReadiness {
   readonly killSwitchEngaged: boolean;
   /** Whether `image_policy` exists to govern the images the rights block permits. */
   readonly imagePolicyDeclared: boolean;
+  /** Exact rights bundles. Legacy declaration booleans above are inventory metadata only. */
+  readonly surfaces: SourceSurfaceReadiness;
+  readonly lifecycleDecision: 'REGISTRY' | 'DEFERRED';
+  readonly governanceBlockers: readonly string[];
 }
 
 /** The conditions `DATA_RIGHTS.md` requires before a dataset is sold. */
-export interface CommercialGate {
+export interface LegacyCommercialInventory {
   readonly noUnreviewedSources: boolean;
   readonly everyPublishingSourcePermitsCommercialUse: boolean;
   readonly everyPublishingSourcePermitsRedistribution: boolean;
@@ -112,10 +602,138 @@ export interface VerticalReadiness {
   readonly syntheticSourceCount: number;
   /** Distinct publishers among REAL sources — the independence signal. */
   readonly realPublisherCount: number;
-  readonly commercialGate: CommercialGate;
-  /** True only when at least one real source has passed a full rights review. */
-  readonly hasRealRightsReviewedSource: boolean;
+  /** Historical declaration signals only; these never decide revenue readiness. */
+  readonly legacyCommercialInventory: LegacyCommercialInventory;
+  /** Historical declaration review signal only; canonical grants remain required. */
+  readonly legacyHasRealRightsReviewedSource: boolean;
   readonly blockers: readonly string[];
+  /** No declaration boolean is treated as rights evidence. */
+  readonly rightsEvidence: RightsEvidenceDescriptor;
+  readonly revenueReadiness: VerticalRevenueReadiness;
+  readonly ready: boolean;
+}
+
+export interface VerticalRevenueReadiness {
+  readonly scope: 'SOURCE_WIDE_DATA_NORMALIZED_FACT';
+  readonly status: 'READY' | 'NOT_READY' | 'UNKNOWN';
+  readonly surfaces: Readonly<
+    Record<(typeof READINESS_SURFACES)[number], 'READY' | 'NOT_READY' | 'UNKNOWN'>
+  >;
+}
+
+export function aggregateRevenueReadiness(
+  sources: readonly SourceReadiness[],
+): VerticalRevenueReadiness {
+  // Synthetic fixtures, inactive declarations, kill-switched sources and
+  // explicitly deferred review candidates are not revenue contributions. A
+  // missing DB row for any of those must not contaminate an otherwise ready
+  // real source. GREEN/AMBER is only an additional hard stop here; it never
+  // substitutes for the exact canonical grants evaluated below.
+  const candidates = sources.filter(
+    (source) =>
+      source.real &&
+      source.status === 'ACTIVE' &&
+      !source.killSwitchEngaged &&
+      source.lifecycleDecision === 'REGISTRY' &&
+      (source.rightsClassification === 'GREEN' || source.rightsClassification === 'AMBER'),
+  );
+  const surfaces = Object.fromEntries(
+    READINESS_SURFACES.map((surface) => {
+      const sourceStatuses = candidates.map((source) => source.surfaces[surface].status);
+      const status =
+        sourceStatuses.length === 0 || sourceStatuses.includes('UNKNOWN')
+          ? 'UNKNOWN'
+          : sourceStatuses.includes('NOT_READY')
+            ? 'NOT_READY'
+            : 'READY';
+      return [surface, status];
+    }),
+  ) as VerticalRevenueReadiness['surfaces'];
+  const statuses = READINESS_SURFACES.map((surface) => surfaces[surface]);
+  return {
+    scope: 'SOURCE_WIDE_DATA_NORMALIZED_FACT',
+    status: statuses.includes('UNKNOWN')
+      ? 'UNKNOWN'
+      : statuses.includes('NOT_READY')
+        ? 'NOT_READY'
+        : 'READY',
+    surfaces,
+  };
+}
+
+export type RightsEvidenceDescriptor =
+  | { readonly kind: 'NONE' }
+  | {
+      readonly kind: 'SNAPSHOT';
+      readonly qualification: 'SNAPSHOT_BACKED';
+      readonly schemaVersion: typeof READINESS_SNAPSHOT_SCHEMA_VERSION;
+      readonly generatedAt: string;
+      readonly asOf: string;
+      readonly provenance: string;
+      readonly canonicalDigest: string;
+    }
+  | {
+      readonly kind: 'LIVE_DATABASE';
+      readonly qualification: 'LIVE_AS_OF';
+      readonly credentialEnv: string;
+      readonly asOf: string;
+    };
+
+export interface RightsEvidenceResolver {
+  readonly descriptor: RightsEvidenceDescriptor;
+  contextFor(
+    verticalSlug: string,
+    source: SourceReadiness,
+  ): Promise<ReadinessRightsContext | null>;
+}
+
+export interface VerticalReadinessEvaluation {
+  readonly report: VerticalReadiness;
+  /** Exact immutable-in-practice contexts used to compute `report`. */
+  readonly snapshotSources: readonly RightsEvidenceSnapshotSourceInput[];
+}
+
+export function createLiveDatabaseRightsEvidenceResolver(
+  driver: SqlDriver,
+  credentialEnv: string,
+  asOf: string,
+): RightsEvidenceResolver {
+  return {
+    descriptor: {
+      kind: 'LIVE_DATABASE',
+      qualification: 'LIVE_AS_OF',
+      credentialEnv,
+      asOf,
+    },
+    async contextFor(verticalSlug, source) {
+      let rows: Array<Record<string, unknown>>;
+      try {
+        rows = await driver.query(
+          `SELECT source.id
+             FROM sources source
+             JOIN verticals vertical ON vertical.id = source.vertical_id
+            WHERE vertical.slug = $1
+              AND lower(source.domain) = lower($2)
+              AND source.source_type = $3
+            ORDER BY source.id`,
+          [verticalSlug, source.domain, source.sourceType],
+        );
+      } catch {
+        throw new Error(`live rights lookup failed through credential env ${credentialEnv}`);
+      }
+      if (rows.length === 0) return null;
+      if (rows.length !== 1 || typeof rows[0]?.['id'] !== 'string') {
+        throw new Error(
+          `live rights lookup was ambiguous for ${verticalSlug}/${source.key} through credential env ${credentialEnv}`,
+        );
+      }
+      try {
+        return await loadStoredRightsContext(driver, rows[0]['id'], asOf);
+      } catch {
+        throw new Error(`live rights context failed through credential env ${credentialEnv}`);
+      }
+    },
+  };
 }
 
 const bool = (value: unknown): boolean => value === true;
@@ -123,7 +741,18 @@ const text = (value: unknown): string => (typeof value === 'string' ? value : ''
 const nullableText = (value: unknown): string | null =>
   typeof value === 'string' && value.trim() !== '' ? value : null;
 
-function readSource(raw: Record<string, unknown>): SourceReadiness {
+const DEFERRED_GOVERNANCE_BLOCKERS = [
+  'PUBLISHER_MAPPING_MISSING',
+  'TERMS_EVIDENCE_MISSING',
+  'NAMED_REVIEWER_MISSING',
+  'RIGHTS_ACTIVATION_MISSING',
+  'OWNER_DECISION_DEFERRED',
+] as const;
+
+function readSource(
+  raw: Record<string, unknown>,
+  lifecycleDecision: SourceReadiness['lifecycleDecision'] = 'REGISTRY',
+): SourceReadiness {
   const rights = (raw['rights_policy'] ?? {}) as Record<string, unknown>;
   const attribution = (rights['attribution'] ?? {}) as Record<string, unknown>;
   const acquisition = (raw['acquisition_policy'] ?? {}) as Record<string, unknown>;
@@ -133,6 +762,10 @@ function readSource(raw: Record<string, unknown>): SourceReadiness {
   return {
     key: text(raw['key']),
     domain,
+    sourceType: text(raw['source_type']),
+    acquisitionRoute: nullableText(acquisition['method']) as RightsAcquisitionRoute | null,
+    accountOrProductPlan: nullableText(acquisition['account_or_product_plan']),
+    jurisdiction: nullableText(acquisition['jurisdiction']),
     // An absent domain is unknown, not reserved — `isReservedDomain('')` says so
     // correctly. But "not reserved, therefore real" then turned a missing field
     // into evidence that a real publisher exists. Real requires a domain.
@@ -154,6 +787,10 @@ function readSource(raw: Record<string, unknown>): SourceReadiness {
     killSwitchEngaged: bool(raw['kill_switch_engaged']),
     imagePolicyDeclared:
       typeof raw['image_policy'] === 'object' && raw['image_policy'] !== null,
+    surfaces: unknownSurfaceReadiness(),
+    lifecycleDecision,
+    governanceBlockers:
+      lifecycleDecision === 'DEFERRED' ? DEFERRED_GOVERNANCE_BLOCKERS : [],
   };
 }
 
@@ -180,8 +817,16 @@ export function assess(
   status: string,
   raws: readonly Record<string, unknown>[],
   asOf: string,
+  deferredSourceKeys: ReadonlySet<string> = new Set(),
 ) {
-  const sources = raws.map(readSource);
+  const sources = raws
+    .map((raw) =>
+      readSource(
+        raw,
+        deferredSourceKeys.has(text(raw['key'])) ? 'DEFERRED' : 'REGISTRY',
+      ),
+    )
+    .sort((left, right) => compareCodeUnits(left.key, right.key));
   const real = sources.filter((source) => source.real);
   const live = publishing(sources);
   // Everything switched on, whatever its classification. `publishing()` already
@@ -190,7 +835,7 @@ export function assess(
   // contain one.
   const enabled = sources.filter((source) => source.status === 'ACTIVE' && !source.killSwitchEngaged);
 
-  const commercialGate: CommercialGate = {
+  const legacyCommercialInventory: LegacyCommercialInventory = {
     noUnreviewedSources: enabled.every((source) => source.rightsClassification !== 'UNREVIEWED'),
     everyPublishingSourcePermitsCommercialUse: live.every((source) => source.commercialUseAllowed),
     everyPublishingSourcePermitsRedistribution: live.every((source) => source.redistributionAllowed),
@@ -230,7 +875,7 @@ export function assess(
       asOf,
     );
 
-  const hasRealRightsReviewedSource = real.some(
+  const legacyHasRealRightsReviewedSource = real.some(
     (source) =>
       reviewIsCurrent(source) &&
       source.rightsClassification !== 'UNREVIEWED' &&
@@ -244,7 +889,7 @@ export function assess(
         'terms written by someone else',
     );
   }
-  if (!hasRealRightsReviewedSource) {
+  if (!legacyHasRealRightsReviewedSource) {
     blockers.push(
       'no real source has a current, named rights review with an approved acquisition method',
     );
@@ -252,8 +897,8 @@ export function assess(
   // The headline verdict is computed from `blockers`. A failing publication
   // condition that never reached this list produced "READY" printed directly
   // above its own FAIL line — a report contradicting itself in six lines.
-  for (const [name, passed] of Object.entries(commercialGate)) {
-    if (!passed) blockers.push(`commercial publication gate fails: ${name}`);
+  for (const [name, passed] of Object.entries(legacyCommercialInventory)) {
+    if (!passed) blockers.push(`legacy source inventory signal fails: ${name}`);
   }
   // Every commercial condition passes vacuously when nothing is allowed to
   // publish: a lone reviewed RED source satisfies "someone looked at it" and is
@@ -280,7 +925,13 @@ export function assess(
   if (status !== 'DRAFT' && blockers.length > 0) {
     blockers.push(`vertical.yaml says status: ${status} while the conditions above are unmet`);
   }
+  for (const source of sources.filter(({ lifecycleDecision }) => lifecycleDecision === 'DEFERRED')) {
+    blockers.push(
+      `${source.key} remains DEFERRED by the recorded owner decision and cannot be revenue-ready`,
+    );
+  }
 
+  const revenueReadiness = aggregateRevenueReadiness(sources);
   return {
     slug,
     status,
@@ -288,17 +939,22 @@ export function assess(
     realSourceCount: real.length,
     syntheticSourceCount: sources.length - real.length,
     realPublisherCount: new Set(real.map((source) => source.domain)).size,
-    commercialGate,
-    hasRealRightsReviewedSource,
+    legacyCommercialInventory,
+    legacyHasRealRightsReviewedSource,
     blockers,
+    rightsEvidence: { kind: 'NONE' },
+    revenueReadiness,
+    ready: blockers.length === 0 && revenueReadiness.status === 'READY',
   } satisfies VerticalReadiness;
 }
 
-export async function readVertical(
+export async function readVerticalWithRightsEvidence(
   dir: string,
   slug: string,
   asOf: string,
-): Promise<VerticalReadiness> {
+  evidence?: RightsEvidenceResolver,
+  deferredRaws: readonly Record<string, unknown>[] = [],
+): Promise<VerticalReadinessEvaluation> {
   const config = parseYaml(await readFile(join(dir, 'vertical.yaml'), 'utf8')) as Record<
     string,
     unknown
@@ -311,13 +967,108 @@ export async function readVertical(
   for (const file of files.sort()) {
     raws.push(parseYaml(await readFile(join(sourcesDir, file), 'utf8')) as Record<string, unknown>);
   }
-  return assess(slug, text(config['status']) || 'UNKNOWN', raws, asOf);
+  raws.push(...deferredRaws);
+  const report = assess(
+    slug,
+    text(config['status']) || 'UNKNOWN',
+    raws,
+    asOf,
+    new Set(deferredRaws.map((raw) => text(raw['key']))),
+  );
+  if (evidence === undefined) return { report, snapshotSources: [] };
+  const sources: SourceReadiness[] = [];
+  const snapshotSources: RightsEvidenceSnapshotSourceInput[] = [];
+  for (const source of report.sources) {
+    const context = await evidence.contextFor(slug, source);
+    if (context !== null) {
+      snapshotSources.push({
+        verticalSlug: slug,
+        sourceKey: source.key,
+        domain: source.domain,
+        sourceType: source.sourceType,
+        acquisitionRoute: source.acquisitionRoute,
+        accountOrProductPlan: source.accountOrProductPlan,
+        jurisdiction: source.jurisdiction,
+        context,
+      });
+    }
+    const evaluated = evaluateSourceSurfaceReadiness({
+      sourceKey: source.key,
+      acquisitionRoute: source.acquisitionRoute,
+      accountOrProductPlan: source.accountOrProductPlan,
+      jurisdiction: source.jurisdiction,
+      asOf,
+      context,
+    });
+    const surfaces =
+      source.lifecycleDecision === 'DEFERRED' && context !== null
+        ? (Object.fromEntries(
+            READINESS_SURFACES.map((surface) => [
+              surface,
+              {
+                ...evaluated[surface],
+                status: 'NOT_READY' as const,
+                blockingReasons: ['OWNER_DECISION_DEFERRED'],
+              },
+            ]),
+          ) as unknown as SourceSurfaceReadiness)
+        : evaluated;
+    sources.push({
+      ...source,
+      surfaces,
+    });
+  }
+  const revenueReadiness = aggregateRevenueReadiness(sources);
+  return {
+    report: {
+      ...report,
+      sources,
+      rightsEvidence: evidence.descriptor,
+      revenueReadiness,
+      ready: report.blockers.length === 0 && revenueReadiness.status === 'READY',
+    },
+    snapshotSources,
+  };
 }
 
-function render(report: VerticalReadiness): string {
+export async function readVertical(
+  dir: string,
+  slug: string,
+  asOf: string,
+  evidence?: RightsEvidenceResolver,
+  deferredRaws: readonly Record<string, unknown>[] = [],
+): Promise<VerticalReadiness> {
+  return (
+    await readVerticalWithRightsEvidence(dir, slug, asOf, evidence, deferredRaws)
+  ).report;
+}
+
+export function renderReadinessReport(report: VerticalReadiness): string {
   const lines: string[] = [];
-  const verdict = report.blockers.length === 0 ? 'READY' : 'NOT READY';
-  lines.push(`${report.slug} — ${verdict} for real-source validation (status: ${report.status})`);
+  const overallStatus = report.ready
+    ? 'READY'
+    : report.blockers.length > 0 || report.revenueReadiness.status === 'NOT_READY'
+      ? 'NOT_READY'
+      : 'UNKNOWN';
+  lines.push(
+    `${report.slug} — ${overallStatus} overall` +
+      ` (seven-surface revenue readiness: ${report.revenueReadiness.status};` +
+      ` vertical status: ${report.status})`,
+  );
+  lines.push('  evaluation scope: source-wide DATA / NORMALIZED_FACT (field-scoped grants do not substitute)');
+  if (report.rightsEvidence.kind === 'NONE') {
+    lines.push('  rights evidence: NONE — all seven surface results are UNKNOWN');
+  } else if (report.rightsEvidence.kind === 'SNAPSHOT') {
+    lines.push(
+      `  rights evidence: SNAPSHOT_BACKED as of ${report.rightsEvidence.asOf}` +
+        ` — ${report.rightsEvidence.provenance}`,
+    );
+  } else {
+    lines.push(
+      `  rights evidence: LIVE_DATABASE as of ${report.rightsEvidence.asOf}` +
+        ` — credential env ${report.rightsEvidence.credentialEnv}`,
+    );
+  }
   lines.push(
     `  sources: ${report.realSourceCount} real / ${report.syntheticSourceCount} synthetic` +
       `, ${report.realPublisherCount} real publisher(s)`,
@@ -325,21 +1076,39 @@ function render(report: VerticalReadiness): string {
 
   for (const source of report.sources) {
     const kind = source.real ? 'real' : 'SYNTHETIC';
-    const permissions = [
-      source.commercialUseAllowed ? 'commercial' : 'no-commercial',
-      source.redistributionAllowed ? 'redistribute' : 'no-redistribute',
-      source.derivativeNormalizationAllowed ? 'derive' : 'no-derive',
-      source.imagesReusable ? 'images' : 'no-images',
+    const legacyInventory = [
+      source.commercialUseAllowed ? 'commercial-flag' : 'no-commercial-flag',
+      source.redistributionAllowed ? 'redistribution-flag' : 'no-redistribution-flag',
+      source.derivativeNormalizationAllowed ? 'derivative-flag' : 'no-derivative-flag',
+      source.imagesReusable ? 'images-flag' : 'no-images-flag',
     ].join(' · ');
     lines.push(
       `    ${source.key} [${kind}] ${source.rightsClassification}/${source.status}` +
-        ` — ${permissions}` +
+        ` — legacy inventory only: ${legacyInventory}` +
         (source.reviewedAt === null ? ' — NEVER REVIEWED' : ` — reviewed ${source.reviewedAt}`),
     );
+    if (source.governanceBlockers.length > 0) {
+      lines.push(
+        `      governance: ${source.lifecycleDecision} — ${source.governanceBlockers.join(', ')}`,
+      );
+    }
+    for (const surface of READINESS_SURFACES) {
+      const result = source.surfaces[surface];
+      const missing = result.missing
+        .map((entry) => `${entry.operation}/${entry.channel} (${entry.reasonCode})`)
+        .join(', ');
+      lines.push(
+        `      ${surface}: ${result.status}` +
+          (missing === '' ? '' : ` — missing ${missing}`) +
+          (result.blockingReasons === undefined
+            ? ''
+            : ` — blocked ${result.blockingReasons.join(', ')}`),
+      );
+    }
   }
 
-  lines.push('  commercial publication gate:');
-  for (const [name, passed] of Object.entries(report.commercialGate)) {
+  lines.push('  legacy declaration inventory (not rights evidence):');
+  for (const [name, passed] of Object.entries(report.legacyCommercialInventory)) {
     lines.push(`    ${passed ? 'pass' : 'FAIL'}  ${name}`);
   }
 
@@ -350,27 +1119,262 @@ function render(report: VerticalReadiness): string {
   return lines.join('\n');
 }
 
+interface CliArguments {
+  readonly asOf: string;
+  readonly asJson: boolean;
+  readonly rightsSnapshotPath: string | null;
+  readonly databaseEnv: string | null;
+  readonly includeSources: readonly string[];
+  readonly snapshotOut: string | null;
+  readonly snapshotProvenance: string | null;
+  readonly generatedAt: string | null;
+  readonly verticals: readonly string[];
+}
+
+const SELECTABLE_DEFERRED_SOURCES = Object.freeze({
+  'energy-star-heat-pumps': join(
+    VERTICALS_DIR,
+    '..',
+    'docs',
+    'sources',
+    'proposed',
+    'energy-star-heat-pumps.yaml',
+  ),
+});
+
+function parseCliArguments(args: readonly string[]): CliArguments {
+  let asOf: string | null = null;
+  let rightsSnapshotPath: string | null = null;
+  let databaseEnv: string | null = null;
+  let asJson = false;
+  let snapshotOut: string | null = null;
+  let snapshotProvenance: string | null = null;
+  let generatedAt: string | null = null;
+  const includeSources: string[] = [];
+  const verticals: string[] = [];
+  const takeValue = (index: number, option: string): string => {
+    const value = args[index + 1];
+    if (value === undefined || value.startsWith('--')) {
+      throw new Error(`${option} requires a value`);
+    }
+    return value;
+  };
+
+  for (let index = 0; index < args.length; index += 1) {
+    const argument = args[index]!;
+    // pnpm 9 passes the conventional script-argument separator through to the
+    // script. Accept exactly one leading separator so the documented command
+    // works without turning a later unknown `--` into a silently ignored typo.
+    if (index === 0 && argument === '--') continue;
+    if (argument === '--json') {
+      asJson = true;
+      continue;
+    }
+    if (argument === '--as-of') {
+      if (asOf !== null) throw new Error('--as-of may be supplied only once');
+      asOf = takeValue(index, argument);
+      index += 1;
+      continue;
+    }
+    if (argument === '--rights-snapshot') {
+      if (rightsSnapshotPath !== null) {
+        throw new Error('--rights-snapshot may be supplied only once');
+      }
+      rightsSnapshotPath = takeValue(index, argument);
+      index += 1;
+      continue;
+    }
+    if (argument === '--database-env') {
+      if (databaseEnv !== null) throw new Error('--database-env may be supplied only once');
+      databaseEnv = takeValue(index, argument);
+      index += 1;
+      continue;
+    }
+    if (argument === '--include-source') {
+      includeSources.push(takeValue(index, argument));
+      index += 1;
+      continue;
+    }
+    if (argument === '--snapshot-out') {
+      if (snapshotOut !== null) throw new Error('--snapshot-out may be supplied only once');
+      snapshotOut = takeValue(index, argument);
+      index += 1;
+      continue;
+    }
+    if (argument === '--snapshot-provenance') {
+      if (snapshotProvenance !== null) {
+        throw new Error('--snapshot-provenance may be supplied only once');
+      }
+      snapshotProvenance = takeValue(index, argument);
+      index += 1;
+      continue;
+    }
+    if (argument === '--generated-at') {
+      if (generatedAt !== null) throw new Error('--generated-at may be supplied only once');
+      generatedAt = takeValue(index, argument);
+      index += 1;
+      continue;
+    }
+    if (argument.startsWith('--')) throw new Error(`unknown source-readiness option: ${argument}`);
+    verticals.push(argument);
+  }
+
+  if (asOf === null) {
+    throw new Error('source readiness requires --as-of <canonical UTC instant>');
+  }
+  const parsedAsOf = new Date(asOf);
+  if (Number.isNaN(parsedAsOf.valueOf()) || parsedAsOf.toISOString() !== asOf) {
+    throw new Error('--as-of must be a canonical UTC instant such as 2026-08-28T19:00:00.000Z');
+  }
+  if (rightsSnapshotPath !== null && databaseEnv !== null) {
+    throw new Error('--rights-snapshot and --database-env are mutually exclusive');
+  }
+  const wantsSnapshotExport =
+    snapshotOut !== null || snapshotProvenance !== null || generatedAt !== null;
+  if (wantsSnapshotExport && databaseEnv === null) {
+    throw new Error('snapshot export requires --database-env live rights evidence');
+  }
+  if (
+    wantsSnapshotExport &&
+    (snapshotOut === null || snapshotProvenance === null || generatedAt === null)
+  ) {
+    throw new Error(
+      'snapshot export requires --snapshot-out, --snapshot-provenance, and --generated-at together',
+    );
+  }
+  if (generatedAt !== null) {
+    const parsedGeneratedAt = new Date(generatedAt);
+    if (
+      Number.isNaN(parsedGeneratedAt.valueOf()) ||
+      parsedGeneratedAt.toISOString() !== generatedAt
+    ) {
+      throw new Error('--generated-at must be a canonical UTC instant with millisecond precision');
+    }
+  }
+  return {
+    asOf,
+    asJson,
+    rightsSnapshotPath,
+    databaseEnv,
+    includeSources: [...new Set(includeSources)].sort(compareCodeUnits),
+    snapshotOut,
+    snapshotProvenance,
+    generatedAt,
+    verticals,
+  };
+}
+
 async function main(): Promise<void> {
-  const args = process.argv.slice(2);
-  const asJson = args.includes('--json');
-  const wanted = args.filter((arg) => !arg.startsWith('--'));
-
-  const entries = await readdir(VERTICALS_DIR, { withFileTypes: true });
-  const slugs = entries
-    .filter((entry) => entry.isDirectory() && !entry.name.startsWith('_'))
-    .map((entry) => entry.name)
-    .filter((slug) => wanted.length === 0 || wanted.includes(slug))
-    .sort();
-
-  // Read once, before any vertical is assessed. Reading it per vertical would
-  // let a run straddle a review's expiry and report two verticals against two
-  // different clocks.
-  const asOf = new Date().toISOString();
+  const options = parseCliArguments(process.argv.slice(2));
+  const deferredByVertical = new Map<string, Record<string, unknown>[]>();
+  for (const sourceKey of options.includeSources) {
+    const path = SELECTABLE_DEFERRED_SOURCES[
+      sourceKey as keyof typeof SELECTABLE_DEFERRED_SOURCES
+    ];
+    if (path === undefined) {
+      throw new Error(`unknown selectable deferred source: ${sourceKey}`);
+    }
+    const raw = parseYaml(await readFile(path, 'utf8')) as Record<string, unknown>;
+    if (
+      text(raw['key']) !== sourceKey ||
+      text(raw['status']) !== 'UNDER_REVIEW' ||
+      text(raw['rights_classification']) !== 'UNREVIEWED'
+    ) {
+      throw new Error(`deferred source declaration is no longer fail-closed: ${sourceKey}`);
+    }
+    const verticalSlug = text(raw['vertical_slug']);
+    const bucket = deferredByVertical.get(verticalSlug);
+    if (bucket === undefined) deferredByVertical.set(verticalSlug, [raw]);
+    else bucket.push(raw);
+  }
+  let evidence: RightsEvidenceResolver | undefined;
+  let liveDriver: SqlDriver | null = null;
+  if (options.rightsSnapshotPath !== null) {
+    let raw: unknown;
+    try {
+      raw = JSON.parse(await readFile(options.rightsSnapshotPath, 'utf8')) as unknown;
+    } catch (error) {
+      throw new Error(
+        `cannot read rights evidence snapshot ${options.rightsSnapshotPath}: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
+    }
+    evidence = createSnapshotRightsEvidenceResolver(
+      parseRightsEvidenceSnapshot(raw, options.asOf),
+    );
+  } else if (options.databaseEnv !== null) {
+    if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(options.databaseEnv)) {
+      throw new Error('--database-env must be an environment-variable name, never a credential value');
+    }
+    const connectionString = process.env[options.databaseEnv];
+    if (connectionString === undefined || connectionString.trim() === '') {
+      throw new Error(
+        `database credential environment variable ${options.databaseEnv} is not set`,
+      );
+    }
+    try {
+      liveDriver = await createPostgresDriver(connectionString);
+    } catch {
+      throw new Error(`cannot open live database through credential env ${options.databaseEnv}`);
+    }
+    evidence = createLiveDatabaseRightsEvidenceResolver(
+      liveDriver,
+      options.databaseEnv,
+      options.asOf,
+    );
+  }
 
   const reports: VerticalReadiness[] = [];
-  for (const slug of slugs) reports.push(await readVertical(join(VERTICALS_DIR, slug), slug, asOf));
+  const evaluatedSnapshotSources: RightsEvidenceSnapshotSourceInput[] = [];
+  try {
+    const entries = await readdir(VERTICALS_DIR, { withFileTypes: true });
+    const slugs = entries
+      .filter((entry) => entry.isDirectory() && !entry.name.startsWith('_'))
+      .map((entry) => entry.name)
+      .filter((slug) => options.verticals.length === 0 || options.verticals.includes(slug))
+      .sort(compareCodeUnits);
 
-  if (asJson) {
+    for (const slug of slugs) {
+      // Deferred candidates are read only when explicitly selected and never
+      // enter the runtime registry or acquisition path.
+      const evaluation = await readVerticalWithRightsEvidence(
+        join(VERTICALS_DIR, slug),
+        slug,
+        options.asOf,
+        evidence,
+        deferredByVertical.get(slug) ?? [],
+      );
+      reports.push(evaluation.report);
+      evaluatedSnapshotSources.push(...evaluation.snapshotSources);
+    }
+    if (
+      options.snapshotOut !== null &&
+      options.snapshotProvenance !== null &&
+      options.generatedAt !== null &&
+      evidence !== undefined
+    ) {
+      const snapshot = createRightsEvidenceSnapshot({
+        generatedAt: options.generatedAt,
+        asOf: options.asOf,
+        provenance: options.snapshotProvenance,
+        sources: evaluatedSnapshotSources,
+      });
+      await writeFile(options.snapshotOut, `${JSON.stringify(snapshot, null, 2)}\n`, 'utf8');
+    }
+  } finally {
+    if (liveDriver !== null) {
+      try {
+        await liveDriver.close();
+      } catch {
+        throw new Error(
+          `cannot close live database through credential env ${options.databaseEnv ?? 'UNKNOWN'}`,
+        );
+      }
+    }
+  }
+
+  if (options.asJson) {
     process.stdout.write(`${JSON.stringify(reports, null, 2)}\n`);
     return;
   }
@@ -379,9 +1383,9 @@ async function main(): Promise<void> {
     process.stdout.write('No verticals to report on.\n');
     return;
   }
-  process.stdout.write(`${reports.map(render).join('\n\n')}\n`);
+  process.stdout.write(`${reports.map(renderReadinessReport).join('\n\n')}\n`);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isMain(import.meta.url)) {
   await main();
 }

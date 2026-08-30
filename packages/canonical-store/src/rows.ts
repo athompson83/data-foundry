@@ -16,6 +16,7 @@ import {
   DatasetSnapshotSchema,
   FactVerificationSchema,
   EntityAliasSchema,
+  EntityAliasClaimSchema,
   EntityRedirectSchema,
   EntitySchema,
   FactEvidenceSchema,
@@ -30,6 +31,7 @@ import {
   type FactVerification,
   type Entity,
   type EntityAlias,
+  type EntityAliasClaim,
   type EntityRedirect,
   type Fact,
   type FactEvidence,
@@ -125,6 +127,7 @@ export function mapSource(row: SqlRow): Source {
     robots_policy: toJson(field(row, 'robots_policy')),
     refresh_cadence: field(row, 'refresh_cadence'),
     status: field(row, 'status'),
+    kill_switch_engaged: field(row, 'kill_switch_engaged') ?? null,
     created_at: toIso(field(row, 'created_at')),
     updated_at: toIso(field(row, 'updated_at')),
   });
@@ -145,6 +148,9 @@ export function mapSourceArtifact(row: SqlRow): SourceArtifact {
     policy_snapshot_id: field(row, 'policy_snapshot_id') ?? null,
     byte_size: byteSize === null || byteSize === undefined ? null : toNumber(byteSize),
     acquisition_provider: field(row, 'acquisition_provider'),
+    acquisition_route: field(row, 'acquisition_route') ?? null,
+    account_or_product_plan: field(row, 'account_or_product_plan') ?? null,
+    acquisition_jurisdiction: field(row, 'acquisition_jurisdiction') ?? null,
     created_at: toIso(field(row, 'created_at')),
   });
 }
@@ -156,12 +162,16 @@ export function mapSourceRecord(row: SqlRow): SourceRecord {
     source_id: field(row, 'source_id'),
     artifact_id: field(row, 'artifact_id'),
     source_record_key: field(row, 'source_record_key'),
+    source_stream: field(row, 'source_stream') ?? null,
     entity_type: field(row, 'entity_type'),
     raw_payload: toJson(field(row, 'raw_payload')),
     normalized_payload:
       normalized === null || normalized === undefined ? null : toJson(normalized),
     extraction_confidence: toNumber(field(row, 'extraction_confidence')),
     extractor_version: field(row, 'extractor_version'),
+    evidence_fingerprint: field(row, 'evidence_fingerprint'),
+    revision_state: field(row, 'revision_state'),
+    is_current: field(row, 'is_current'),
     created_at: toIso(field(row, 'created_at')),
     updated_at: toIso(field(row, 'updated_at')),
   });
@@ -198,6 +208,24 @@ export function mapEntityAlias(row: SqlRow): EntityAlias {
   });
 }
 
+export function mapEntityAliasClaim(row: SqlRow): EntityAliasClaim {
+  return EntityAliasClaimSchema.parse({
+    id: field(row, 'id'),
+    entity_alias_id: field(row, 'entity_alias_id'),
+    asserted_alias_value: field(row, 'asserted_alias_value'),
+    asserted_normalized_value: field(row, 'asserted_normalized_value'),
+    identity_confidence: toNumber(field(row, 'identity_confidence')),
+    claim_kind: field(row, 'claim_kind'),
+    source_id: field(row, 'source_id') ?? null,
+    source_record_id: field(row, 'source_record_id') ?? null,
+    authority_epoch: toNumber(field(row, 'authority_epoch')),
+    locator_type: field(row, 'locator_type') ?? null,
+    locator_value: field(row, 'locator_value') ?? null,
+    valid_to: toIsoOrNull(field(row, 'valid_to')),
+    created_at: toIso(field(row, 'created_at')),
+  });
+}
+
 export function mapEntityRedirect(row: SqlRow): EntityRedirect {
   return EntityRedirectSchema.parse({
     id: field(row, 'id'),
@@ -219,6 +247,7 @@ export function mapFact(row: SqlRow): Fact {
     property: field(row, 'property'),
     normalized_value: toJson(field(row, 'normalized_value')),
     value_type: field(row, 'value_type'),
+    output_kind: field(row, 'output_kind') ?? null,
     unit: field(row, 'unit') ?? null,
     valid_from: toIso(field(row, 'valid_from')),
     valid_to: toIsoOrNull(field(row, 'valid_to')),
@@ -322,7 +351,7 @@ export const ENTITY_COLUMNS =
   'first_seen_at, last_verified_at, created_at, updated_at';
 
 export const FACT_COLUMNS =
-  'id, entity_id, property, normalized_value, value_type, unit, valid_from, valid_to, ' +
+  'id, entity_id, property, normalized_value, value_type, output_kind, unit, valid_from, valid_to, ' +
   'status, confidence, supersedes_fact_id, recorded_at, created_at';
 
 export const FACT_EVIDENCE_COLUMNS =
@@ -341,17 +370,24 @@ export const ALIAS_COLUMNS =
   'id, entity_id, alias_type, alias_value, normalized_value, source_id, identity_confidence, ' +
   'valid_from, valid_to, created_at';
 
+export const ALIAS_CLAIM_COLUMNS =
+  'id, entity_alias_id, asserted_alias_value, asserted_normalized_value, identity_confidence, ' +
+  'claim_kind, source_id, source_record_id, authority_epoch, locator_type, locator_value, ' +
+  'valid_to, created_at';
+
 export const SOURCE_COLUMNS =
   'id, vertical_id, publisher, domain, source_type, authority_rank, rights_classification, ' +
-  'attribution_requirement, robots_policy, refresh_cadence, status, created_at, updated_at';
+  'attribution_requirement, robots_policy, refresh_cadence, status, kill_switch_engaged, ' +
+  'created_at, updated_at';
 
 export const ARTIFACT_COLUMNS =
   'id, source_id, url, retrieved_at, content_hash, mime_type, r2_uri, http_status, ' +
-  'extractor_version, policy_snapshot_id, byte_size, acquisition_provider, created_at';
+  'extractor_version, policy_snapshot_id, byte_size, acquisition_provider, acquisition_route, ' +
+  'account_or_product_plan, acquisition_jurisdiction, created_at';
 
 export const SOURCE_RECORD_COLUMNS =
-  'id, source_id, artifact_id, source_record_key, entity_type, raw_payload, ' +
-  'normalized_payload, extraction_confidence, extractor_version, created_at, updated_at';
+  'id, source_id, artifact_id, source_record_key, source_stream, entity_type, raw_payload, ' +
+  'normalized_payload, extraction_confidence, extractor_version, evidence_fingerprint, revision_state, is_current, created_at, updated_at';
 
 export const REDIRECT_COLUMNS =
   'id, vertical_id, from_entity_id, to_entity_id, from_slug, reason, judgment_id, active, created_at';

@@ -69,6 +69,10 @@ describe('toSourceInsert', () => {
     expect(row.rights_classification).toBe('GREEN');
     expect(row.authority_rank).toBe(95);
     expect(row.status).toBe('ACTIVE');
+    expect(row.kill_switch_engaged).toBe(false);
+    expect(toSourceInsert(compliantEntry({ kill_switch_engaged: true }), id).kill_switch_engaged).toBe(
+      true,
+    );
   });
 });
 

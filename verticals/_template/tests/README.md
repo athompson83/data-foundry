@@ -11,7 +11,7 @@ Per AGENTS.md "Testing requirements", a vertical's tests must preserve:
 | provenance coverage | every golden fact carries evidence |
 | source fixture extraction | fixtures parse and contain the declared fields |
 | entity-resolution golden tests | fixture identifiers normalize to the expected join keys |
-| API/MCP parity | `mcp.yaml` tools reference only declared entity types and properties |
+| API/MCP parity | `mcp.yaml` selects the exact six executable generic tools in stable order |
 | structured metadata validity | `seo.yaml` structured-data blocks are complete |
 | sitemap/indexability consistency | every indexable page class has a quality gate |
 | rights gates | every source passes the activation gate; `pnpm verticals:validate` |

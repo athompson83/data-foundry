@@ -25,6 +25,7 @@
     "@data-foundry/canonical-store": "workspace:*",
     "@data-foundry/provenance": "workspace:*",
     "@data-foundry/query-model": "workspace:*",
+    "@data-foundry/rights-engine": "workspace:*",
     "yaml": "^2.7.0"
   }
 }

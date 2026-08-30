@@ -77,10 +77,23 @@ export interface CandidateSourceInfo {
 }
 
 /** One evidence row with the source chain already resolved. */
+export type CandidateArtifactInfo = Pick<
+  SourceArtifact,
+  | 'id'
+  | 'url'
+  | 'retrieved_at'
+  | 'content_hash'
+  | 'policy_snapshot_id'
+  | 'acquisition_route'
+  | 'account_or_product_plan'
+  | 'acquisition_jurisdiction'
+>;
+
 export interface CandidateEvidence {
   readonly evidence: FactEvidence;
   readonly source: CandidateSourceInfo;
-  readonly artifact: Pick<SourceArtifact, 'id' | 'url' | 'retrieved_at' | 'content_hash'>;
+  /** Exact acquisition context; downstream rights evaluation must not reconstruct or infer it. */
+  readonly artifact: CandidateArtifactInfo;
 }
 
 /** A stored fact version plus everything that backs it. */
@@ -316,6 +329,10 @@ export const DEFAULT_AUTHORITATIVE_SOURCE_TYPES = [
   'REGULATORY',
   'STANDARDS_BODY',
   'CERTIFICATION_BODY',
+  // A regulator-hosted register of manufacturer filings: above a specification
+  // sheet because misstating one has legal consequence, below a certification
+  // because nobody independent measured it.
+  'REGULATORY_FILING',
   'MANUFACTURER',
 ] as const satisfies readonly SourceType[];
 
@@ -481,7 +498,12 @@ function usableEvidence(
   policy: FactSelectionPolicy,
 ): readonly CandidateEvidence[] {
   if (!policy.requirePublishableRights) return candidate.evidence;
-  return candidate.evidence.filter((item) => canPublish(item.source.rights_classification));
+  // Authorization is an AND across every contribution to this exact fact.
+  // Dropping one blocked evidence row and publishing the same combined claim
+  // would make the allowed neighbor launder the blocked source's contribution.
+  return candidate.evidence.every((item) => canPublish(item.source.rights_classification))
+    ? candidate.evidence
+    : [];
 }
 
 function sourcesOf(candidate: FactCandidate, policy: FactSelectionPolicy): CandidateSourceInfo[] {
@@ -696,7 +718,7 @@ export function selectCanonicalFact(
       excluded.push({
         fact_id: fact.id,
         reason: 'RIGHTS_BLOCKED',
-        detail: 'every backing source is RED or UNREVIEWED (AGENTS.md rule 1)',
+        detail: 'at least one backing source is RED or UNREVIEWED (AGENTS.md rule 1)',
       });
       continue;
     }

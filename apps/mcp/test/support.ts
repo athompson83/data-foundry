@@ -20,9 +20,11 @@
  *   * a two-hop relationship chain — so traversal depth is observable.
  */
 import {
+  addSyntheticEntityEvidence,
   claim,
   createQueryFixtures,
   relate,
+  seedSyntheticSurfaceRights,
   ts,
   type QueryFixtures,
 } from '../../../packages/query-model/test/support.js';
@@ -30,6 +32,7 @@ import { createMcpServer, type McpServer } from '../src/index.js';
 import type { FactSelectionPolicy } from '../src/query-layer.js';
 
 export {
+  addSyntheticEntityEvidence,
   claim,
   createQueryFixtures,
   relate,
@@ -82,6 +85,10 @@ export interface McpFixtures extends QueryFixtures {
 
 export async function createMcpFixtures(): Promise<McpFixtures> {
   const base = await createQueryFixtures();
+  await seedSyntheticSurfaceRights(base, ['MCP']);
+  for (const entity of [base.equipment, base.heatPump, base.motor, base.rival]) {
+    await addSyntheticEntityEvidence(base, entity);
+  }
 
   // Rule 1: a claim whose only backing source is UNREVIEWED. It is a real fact
   // row with real evidence — it fails on rights alone, which is the case that

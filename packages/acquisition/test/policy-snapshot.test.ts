@@ -20,6 +20,8 @@ describe('policy snapshot', () => {
     expect(snapshot.publishable).toBe(true);
     expect(snapshot.requires_legal_review).toBe(false);
     expect(snapshot.acquisition_method).toBe('DIRECT_HTTP');
+    expect(snapshot.account_or_product_plan).toBeNull();
+    expect(snapshot.acquisition_jurisdiction).toBeNull();
     expect(snapshot.acquisition_approved).toBe(true);
     expect(snapshot.retain_artifacts).toBe(true);
     expect(snapshot.robots_decision.allowed).toBe(true);
@@ -50,6 +52,23 @@ describe('policy snapshot', () => {
       snapshotFor({
         ...entry,
         robots_policy: { ...entry.robots_policy, crawl_delay_seconds: 10 },
+      }).id,
+    ).not.toBe(baseline);
+
+    const scoped = compliantEntry();
+    expect(
+      snapshotFor({
+        ...scoped,
+        acquisition_policy: {
+          ...scoped.acquisition_policy,
+          account_or_product_plan: 'partner-pro',
+        },
+      }).id,
+    ).not.toBe(baseline);
+    expect(
+      snapshotFor({
+        ...scoped,
+        acquisition_policy: { ...scoped.acquisition_policy, jurisdiction: 'US' },
       }).id,
     ).not.toBe(baseline);
   });

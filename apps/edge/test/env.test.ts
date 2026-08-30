@@ -11,7 +11,7 @@
  * package never reaches that fallback, and refuses instead.
  */
 import { describe, expect, it } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { EdgeConfigurationError, resolveEdgeConfig } from '../src/env.js';
@@ -22,16 +22,16 @@ const SRC = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'src');
 
 describe('a Worker with no database refuses to serve', () => {
   it('throws rather than returning a connectionless config', () => {
-    expect(() => resolveEdgeConfig({ VERTICAL_SLUG: 'hvac' })).toThrow(EdgeConfigurationError);
+    expect(() => resolveEdgeConfig({ DEPLOYMENT_ENVIRONMENT: 'development', VERTICAL_SLUG: 'hvac' })).toThrow(EdgeConfigurationError);
   });
 
   it('says what to do about it, because the operator is the only one who can', () => {
-    expect(() => resolveEdgeConfig({ VERTICAL_SLUG: 'hvac' })).toThrow(/HYPERDRIVE or set POSTGRES_URL/);
+    expect(() => resolveEdgeConfig({ DEPLOYMENT_ENVIRONMENT: 'development', VERTICAL_SLUG: 'hvac' })).toThrow(/HYPERDRIVE or set POSTGRES_URL/);
   });
 
   it('treats blank and whitespace as absent, not as a connection string', () => {
     for (const blank of ['', '   ', '\t']) {
-      expect(() => resolveEdgeConfig({ POSTGRES_URL: blank, VERTICAL_SLUG: 'hvac' })).toThrow(
+      expect(() => resolveEdgeConfig({ DEPLOYMENT_ENVIRONMENT: 'development', POSTGRES_URL: blank, VERTICAL_SLUG: 'hvac' })).toThrow(
         EdgeConfigurationError,
       );
     }
@@ -59,7 +59,12 @@ describe('a Worker with no database refuses to serve', () => {
       const attempt = getDeployment({
         // A port nothing listens on, on the loopback, so there is no DNS and no
         // network wait — the refusal is immediate and deterministic.
-        env: { POSTGRES_URL: 'postgres://u:p@127.0.0.1:1/df-default-path', VERTICAL_SLUG: 'hvac' },
+        env: {
+          DEPLOYMENT_ENVIRONMENT: 'development',
+          POSTGRES_URL: 'postgres://u:p@127.0.0.1:1/df-default-path',
+          VERTICAL_SLUG: 'hvac',
+          API_KEY_ENVIRONMENT: 'test',
+        },
         runtime: RUNTIMES['hvac'] as never,
       });
 
@@ -77,9 +82,25 @@ describe('a Worker with no database refuses to serve', () => {
    * a fast, legible failure the day somebody adds a new file to `src/` that
    * imports a PGlite factory directly, which is the likeliest way this would
    * actually regress.
+   *
+   * Neither this nor the behavioural test above can say whether PGlite's
+   * *bytes* actually ship in the built Worker — a source scan cannot see
+   * past a dynamic `import()`, and "never called" is a runtime fact, not a
+   * bundler one. `test/artifact.test.ts` is the one that builds the real
+   * entry point and checks the artifact.
    */
   it('does not name a PGlite factory in src/ either', () => {
-    const sources = ['env.ts', 'composition.ts', 'index.ts', 'adapter.ts'];
+    // Enumerated recursively, not listed. The first version named four files,
+    // and `test/bundle.test.ts` demonstrated the consequence: adding a fifth
+    // file that imports the PGlite factory left this test GREEN while the WASM
+    // database was in the deployed bundle. The second version enumerated the
+    // directory — and `readdirSync` is not recursive, so it had the same defect
+    // one level down. `src/` is flat today; a control that only holds while the
+    // tree stays flat is the same mistake wearing a different hat.
+    const sources = readdirSync(SRC, { recursive: true, encoding: 'utf8' }).filter((file) =>
+      file.endsWith('.ts'),
+    );
+    expect(sources.length).toBeGreaterThan(3);
     // Comments are stripped first. The doc comments here *name* the fallback in
     // order to explain why it is avoided, and a scan that could not tell prose
     // from code would force the explanation out of the file to stay green.
@@ -97,30 +118,169 @@ describe('a Worker with no database refuses to serve', () => {
 
 describe('one vertical per deployment', () => {
   it('refuses a deployment that does not name one', () => {
-    expect(() => resolveEdgeConfig({ POSTGRES_URL: 'postgres://x/y' })).toThrow(/VERTICAL_SLUG/);
+    expect(() => resolveEdgeConfig({ DEPLOYMENT_ENVIRONMENT: 'development', POSTGRES_URL: 'postgres://x/y' })).toThrow(/VERTICAL_SLUG/);
   });
 
   it('trims, so a stray newline in a dashboard variable is not a vertical name', () => {
     expect(() =>
-      resolveEdgeConfig({ POSTGRES_URL: 'postgres://x/y', VERTICAL_SLUG: '  \n ' }),
+      resolveEdgeConfig({ DEPLOYMENT_ENVIRONMENT: 'development', POSTGRES_URL: 'postgres://x/y', VERTICAL_SLUG: '  \n ' }),
     ).toThrow(/VERTICAL_SLUG/);
+  });
+});
+
+describe('one credential environment per deployment', () => {
+  it('refuses an absent or unknown API_KEY_ENVIRONMENT', () => {
+    const base = { DEPLOYMENT_ENVIRONMENT: 'development', POSTGRES_URL: 'postgres://x/y', VERTICAL_SLUG: 'hvac' };
+    expect(() => resolveEdgeConfig(base)).toThrow(/API_KEY_ENVIRONMENT/);
+    for (const value of ['', 'production', 'LIVE', ' live ', 'test\n']) {
+      expect(() => resolveEdgeConfig({ ...base, API_KEY_ENVIRONMENT: value })).toThrow(/live.*test/i);
+    }
+  });
+
+  it('accepts only an explicit live or test environment', () => {
+    for (const apiKeyEnvironment of ['live', 'test'] as const) {
+      expect(
+        resolveEdgeConfig({
+          DEPLOYMENT_ENVIRONMENT: 'development',
+          POSTGRES_URL: 'postgres://x/y',
+          VERTICAL_SLUG: 'hvac',
+          API_KEY_ENVIRONMENT: apiKeyEnvironment,
+        }).apiKeyEnvironment,
+      ).toBe(apiKeyEnvironment);
+    }
   });
 });
 
 describe('Hyperdrive outranks a direct connection string', () => {
   it('uses the binding when both are present', () => {
     const config = resolveEdgeConfig({
+      DEPLOYMENT_ENVIRONMENT: 'development',
       HYPERDRIVE: { connectionString: 'postgres://hyperdrive/db' },
       POSTGRES_URL: 'postgres://origin/db',
       VERTICAL_SLUG: 'hvac',
+      API_KEY_ENVIRONMENT: 'test',
     });
     // An operator who bound Hyperdrive did not mean "go around it to the origin".
     expect(config.connectionString).toBe('postgres://hyperdrive/db');
   });
 
   it('falls back to POSTGRES_URL when no binding exists, for `wrangler dev`', () => {
-    const config = resolveEdgeConfig({ POSTGRES_URL: 'postgres://local/db', VERTICAL_SLUG: 'hvac' });
+    const config = resolveEdgeConfig({
+      DEPLOYMENT_ENVIRONMENT: 'development',
+      POSTGRES_URL: 'postgres://local/db',
+      VERTICAL_SLUG: 'hvac',
+      API_KEY_ENVIRONMENT: 'test',
+    });
     expect(config.connectionString).toBe('postgres://local/db');
     expect(config.verticalSlug).toBe('hvac');
+  });
+});
+
+describe('production topology is explicit and fail closed', () => {
+  const queue = { send: async (): Promise<void> => undefined };
+
+  it.each([undefined, '', ' ', 'preview'])('refuses an absent, blank, or unknown deployment environment: %j', (value) => {
+    expect(() =>
+      resolveEdgeConfig({
+        DEPLOYMENT_ENVIRONMENT: value,
+        POSTGRES_URL: 'postgres://fixture/db',
+        VERTICAL_SLUG: 'hvac',
+        API_KEY_ENVIRONMENT: 'test',
+      }),
+    ).toThrow(/DEPLOYMENT_ENVIRONMENT/);
+  });
+
+  it('requires Hyperdrive instead of a direct origin connection', () => {
+    expect(() =>
+      resolveEdgeConfig({
+        DEPLOYMENT_ENVIRONMENT: 'production',
+        POSTGRES_URL: 'postgres://origin/db',
+        VERTICAL_SLUG: 'hvac',
+        API_KEY_ENVIRONMENT: 'live',
+        USAGE_EVENTS_QUEUE: queue,
+      }),
+    ).toThrow(/HYPERDRIVE/);
+  });
+
+  it('requires the asynchronous usage queue binding and live key namespace', () => {
+    const base = {
+      DEPLOYMENT_ENVIRONMENT: 'production',
+      HYPERDRIVE: { connectionString: 'postgres://hyperdrive/db' },
+      VERTICAL_SLUG: 'hvac',
+    } as const;
+    expect(() => resolveEdgeConfig({ ...base, API_KEY_ENVIRONMENT: 'live' })).toThrow(
+      /USAGE_EVENTS_QUEUE/,
+    );
+    expect(() =>
+      resolveEdgeConfig({ ...base, API_KEY_ENVIRONMENT: 'test', USAGE_EVENTS_QUEUE: queue }),
+    ).toThrow(/live/);
+  });
+
+  it('accepts the complete production binding shape', () => {
+    const config = resolveEdgeConfig({
+      DEPLOYMENT_ENVIRONMENT: 'production',
+      HYPERDRIVE: { connectionString: 'postgres://hyperdrive/db' },
+      VERTICAL_SLUG: 'hvac',
+      API_KEY_ENVIRONMENT: 'live',
+      USAGE_EVENTS_QUEUE: queue,
+    });
+    expect(config.deploymentEnvironment).toBe('production');
+  });
+
+  it.each([
+    'localhost',
+    'localhost.',
+    'LOCALHOST.',
+    'api.localhost.',
+    '127.0.0.1',
+    '[::1]',
+    '[0:0:0:0:0:0:0:1]',
+    '[::ffff:7f00:1]',
+    '0.0.0.0',
+    '[::]',
+  ])('refuses canonical loopback or unspecified RapidAPI hostname %s in production', (hostname) => {
+    expect(() =>
+      resolveEdgeConfig({
+        DEPLOYMENT_ENVIRONMENT: 'production',
+        HYPERDRIVE: { connectionString: 'postgres://hyperdrive/db' },
+        VERTICAL_SLUG: 'hvac',
+        API_KEY_ENVIRONMENT: 'live',
+        USAGE_EVENTS_QUEUE: queue,
+        RAPIDAPI_HOSTNAME: hostname,
+        RAPIDAPI_PROXY_SECRET: 'test-proxy-secret',
+        RAPIDAPI_API_KEY: 'test-api-key',
+      }),
+    ).toThrow(/loopback/i);
+  });
+
+  it.each([
+    'marketplace.invalid',
+    'marketplace.invalid.',
+    'marketplace.example',
+    'marketplace.test.',
+    'marketplace.example.com',
+    'marketplace.local',
+    'marketplace.onion',
+    'marketplace.home.arpa',
+    '8.8.8.8',
+    'marketplace.123',
+    'marketplace_datafoundry.io',
+    'data-foundry-edge.workers.dev',
+    'data-foundry-edge.workers.dev.',
+    'data-foundry-edge.pages.dev',
+    'data-foundry-edge.trycloudflare.com',
+  ])('refuses a reserved or provider-fallback RapidAPI hostname %s in production', (hostname) => {
+    expect(() =>
+      resolveEdgeConfig({
+        DEPLOYMENT_ENVIRONMENT: 'production',
+        HYPERDRIVE: { connectionString: 'postgres://hyperdrive/db' },
+        VERTICAL_SLUG: 'hvac',
+        API_KEY_ENVIRONMENT: 'live',
+        USAGE_EVENTS_QUEUE: queue,
+        RAPIDAPI_HOSTNAME: hostname,
+        RAPIDAPI_PROXY_SECRET: 'test-proxy-secret',
+        RAPIDAPI_API_KEY: 'test-api-key',
+      }),
+    ).toThrow(/production hostname/i);
   });
 });

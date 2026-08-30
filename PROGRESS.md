@@ -3,80 +3,197 @@
 ## Current State
 
 - Product: Data Foundry
-- Lifecycle stage: MVP implementation / pre-deployment
-- Control-graph node: `INSPECT -> IMPLEMENT_GOVERNANCE -> VERIFY -> PUBLISH_PR`
-- Current milestone: Integrate and deploy the first lawful, revenue-capable HVAC vertical
-- Branch: `codex/adopt-project-control-standard-20260826`
-- PR: Not created at the time of this closeout-file update
-- Preview: None verified
-- Production: Not deployed
-- Database target: Local PGlite/real-Postgres checks only; canonical hosted target not configured in repository evidence
+- Lifecycle stage: MVP integration / pre-deployment
+- Control-graph node: `REVIEW_REPAIR -> EXACT_SHA_VERIFY -> PROTECTED_PR -> MERGED_MAIN -> EXTERNAL_DEPLOY`
+- Current milestone: verify and merge the integrated, synthetic-data-capable
+  deployment candidate without implying that a real HVAC dataset is cleared
+- Branch: `codex/revenue-integration-20260826`
+- PR: [#19](https://github.com/athompson83/data-foundry/pull/19) is the integration
+  vehicle. Its live 40-character head, not a SHA embedded in this mutable file,
+  is the candidate authority; every candidate-affecting push requires fresh
+  local, hosted, review, and ruleset evidence.
+- Preview: none verified
+- Production: no deployment of this integration candidate is recorded or
+  verified; live Cloudflare account state was unavailable for inspection
+- Database target: repository migrations verified locally/disposably; no hosted
+  target or grant state was changed during this integration
 
-## Latest Session
+## Integrated Repository State
 
-### Objective
+- Corrected Option B is accepted and implemented. Exact effective rights-matrix
+  decisions authorize each operation/channel surface independently. Missing,
+  stale, automated-only, or otherwise ineffective permission refuses.
+- Legacy `GREEN`/`AMBER` classifications and permission booleans are inventory
+  metadata and additional hard stops only. Migrations created no `ALLOW`.
+- Historical queries select one exact immutable fact and recursive contribution
+  graph at `policy.at`, while source status, terms, and surface grants are
+  evaluated at the response/export `asOf`. A current successor is never
+  substituted for the selected historical fact.
+- REST and MCP await Cloudflare Queue acceptance before returning a metered
+  success. Missing/rejected enqueue returns an opaque retryable 503. Only the
+  later Postgres persistence remains asynchronous and idempotent.
+- Scheduled acquisition uses migrations 0017, 0019, and 0020 with immutable
+  versioned receipts and fenced recoverable execution leases. Pre-migration
+  terminal rows remain contract v1; every new or reclaimed claim is contract v2
+  and requires ordered `INITIAL`, `PRE_PROVIDER`, `PRE_TRANSPORT`, and
+  `PRE_PERSISTENCE` authorization within the current attempt before R2
+  persistence or `NOT_MODIFIED` freshness. Unexpected orchestration failures
+  that escape expected terminal handling release still-owned claims; expired
+  attempts rotate tokens on the same slot row. Only a winning claimant receives
+  the current fencing token; active/terminal duplicate observations and
+  diagnostic/freshness reads physically omit it. Direct and provider
+  transports enforce finite response, record, pagination, cursor, diagnostic,
+  and cumulative-artifact bounds without partial persistence.
+- Offline entity resolution uses one driver-managed transaction executor for
+  manufacturer, entity, alias, judgment, and evidence writes. A transactional
+  failure rolls the batch back. No usable strong identifier is instead a
+  fail-closed zero-claim result whose provenance revision can still finalize,
+  so a refresh does not leave the superseded record falsely current.
+- Re-ingestion now supersedes a logical source record's current immutable
+  revision rather than mutating or deleting provenance. Migrations `0021`–
+  `0023` preserve historic evidence, record a one-way supersession link, make
+  source-record lifecycle explicit (`PROVISIONAL` versus `FINALIZED`), and make
+  each entity/fact/relationship lineage cite its exact artifact. The persisted
+  `source-record-evidence@3` fingerprint covers the exact resolved entity and
+  manufacturer targets, accepted alias claims and locators, fact projections,
+  resolution audit, and relationship dispositions/endpoints/writer. An exact
+  replay does not churn `updated_at`; any evidence, target or mapping-semantic
+  change appends a successor instead of retaining stale evidence.
+- Migration `0023` adds append-only alias claims and authority epochs. It
+  deliberately creates no authority claim for a legacy alias. Resolution and
+  search read only claim-backed current aliases; entity and relationship
+  surfaces require current `FINALIZED` supporting evidence. A refresh without
+  a usable strong identifier still finalizes a zero-claim successor, withdraws
+  the prior source-only identity from customer surfaces, and creates no phantom
+  manufacturer while preserving immutable history.
+- Migration `0024` requires explicit source-stream membership and
+  `full_snapshot` versus `incremental` refresh semantics. Complete snapshots
+  retire omitted current records atomically with append-only artifact evidence;
+  incremental streams do not. Unknown legacy membership is revoked rather than
+  inferred, then restored only by a rights-admitted reingest.
+- Rights-backed readiness exists and requires canonical `--as-of` plus either a
+  named-environment live database or a schema/digest-validated qualified
+  snapshot. YAML/fixture metadata alone never proves a current grant.
+- RapidAPI is a thin authenticated proxy into the canonical edge Worker, with a
+  generated OpenAPI contract and disjoint `RAPIDAPI/RAPIDAPI` usage. Those rows
+  are excluded from direct invoices.
+- The fail-closed credential provisioner admits exactly `API_PAID/DIRECT`,
+  `RAPIDAPI/RAPIDAPI`, and `MCP/NONE` for one tenant and one vertical. File
+  delivery is POSIX-only, owner-only and outside the worktree; marketplace
+  delivery goes to the repository-pinned Wrangler entry point through the
+  validated edge manifest, a sanitized child environment, and an explicit empty
+  env file. Reserved and `workers.dev` marketplace hosts are refused. It creates
+  no rights grant, plan, invoice or source approval.
+- MCP is a deployable, one-vertical, custom-bearer MCP 2026-07-28 surface with
+  exact `MCP/NONE` analytics. It is not OAuth or anonymous; no deployment of
+  this integration candidate is verified.
+- The final Cloudflare topology is five Workers: edge, web, usage-consumer,
+  acquisition-worker, and mcp-worker. Deployment validation requires every
+  exact manifest to name the same canonical 32-hex `account_id`.
 
-Adopt the App Project Control Standard without duplicating detailed roadmaps or overstating work that exists only in open pull requests.
+## Source and Product Truth
 
-### Completed
+- HVAC remains `DRAFT`. All four registered sources are synthetic fixtures.
+- No real HVAC source has an effective reviewed publication/commercial bundle.
+- The proposed ENERGY STAR source is `DEFERRED`, `UNDER_REVIEW`, `UNREVIEWED`,
+  unapproved, outside the runtime registry, and has no grant. Do not sign,
+  promote, acquire, publish, contact, or initiate publisher outreach.
+- The only approved general product wording for regulatory-filing values is:
+  “Manufacturer-reported, as filed with US regulators”. Do not broadly call
+  filings certified, verified, approved, or regulator-determined unless exact
+  provenance genuinely supports that narrower statement.
 
-- Inspected `AGENTS.md`, README, package scripts, ADRs, owner-action runbooks, repository branches, open PRs, open issues, and the current `main` history.
-- Added the canonical `APP_PROJECT_CONTROL_STANDARD.md` supplied by the Product Owner.
-- Added an evidence-based executive `PROJECT_CHECKLIST.md` that links to existing detailed sources.
-- Added this concise current-state handoff.
-- Updated `AGENTS.md` with startup, fix-as-found, canonical-infrastructure, deployment-target, closeout, and owner-action rules.
-- Searched for generic Codex/Claude prompt templates; none exist in the repository, so none were deleted.
+## Deployment and Revenue State
 
-### Checklist Changes
+- The integrated implementation remains at the review/repair node while the
+  final documentation and code tree are being frozen. It is not a release
+  candidate until that exact tree passes fresh local, hosted, review, and
+  ruleset gates. Repository-ready does not mean deployed or commercially
+  publishable.
+- RapidAPI enrollment, proxy-secret configuration, plans, payout setup, live
+  route, and real subscriber proof remain external.
+- Cloudflare canonical account/zone/routes, Hyperdrive, production Postgres, R2,
+  Queue/DLQ, hostnames, protected values, and exact deployment IDs remain
+  external and unverified.
+- GitHub `main` is protected by active ruleset `21855694`; its two strict
+  required checks are bound to GitHub Actions. Private vulnerability reporting,
+  Dependabot vulnerability/security-update controls, secret scanning, and push
+  protection are enabled, and repository hooks are empty. Only the Vercel App's
+  sudo-gated repository selection remains an owner-only governance check; it
+  does not block protected merge or Cloudflare deployment.
+- The candidate upgrades the production PDF parser to `unpdf@1.8.1`, removing
+  the legacy `canvas` / `node-pre-gyp` / vulnerable `node-tar` install chain
+  behind all twelve Dependabot advisories discovered on the prior
+  default-branch lockfile. A parsed-lockfile regression and
+  `pnpm audit --prod --audit-level high` keep that dependency repair executable
+  rather than documentary.
+- Public production requires `PUBLIC_CACHE_MODE=no-store`; the runtime rejects
+  `cache` in production because request-time rights checks cannot revoke an
+  object already retained by a browser or intermediary. Shared caching is a
+  later engineering capability only after cache keys and invalidation follow
+  exact rights lifetimes. Provider purge and stale-object probes remain live
+  incident checks because the repository does not control every provider rule.
+- Public sitemap work is keyset-paged and subject to one validated raw-page
+  budget per request, shared across all verticals and segments for the global
+  index. Capacity exhaustion returns an opaque, non-cacheable retryable 503
+  without partial XML; malformed and configuration-impossible shard aliases do
+  no query work. A provider-level rate limit still requires live configuration
+  and verification.
 
-- Added 7 Foundation, 9 MVP, 4 Beta, and 6 Production items.
-- Recorded completed foundations separately from open-PR work.
-- Recorded three genuine owner-action boundaries and linked the existing runbooks.
+## Verification
 
-### Problems Found and Fixed
-
-- Governance was mission-focused but did not require sessions to reconcile or update an executive checklist and handoff. The new control files and `AGENTS.md` routing close that gap.
-- The repository had detailed operational documents but no single release rollup. `PROJECT_CHECKLIST.md` now summarizes without replacing them.
-- Repository documentation on `main` predates five open PRs. The checklist marks those capabilities `IN_PROGRESS`, not `DONE`, preventing branch work from being reported as shipped.
-
-### Verification
-
-- Documentation link and repository-policy checks: pending final local verification.
-- Exact-candidate Git/hosted checks: pending commit and push.
-
-### Deployment / Database Activity
-
-- No deployment, database migration, provider project creation, or production change was performed.
+- Focused test-first repair cycles cover post-transport rights revocation,
+  exact historical selection, recursive contributors, bulk refusal, pinned
+  reconciliation transactions and advisory locks, source-record currentness,
+  alias epochs/claims, identifier-less successors, bounded provider input,
+  Queue privacy/idempotency, bounded sitemap work, and credential-delivery
+  refusal/compensation paths, plus removal of the vulnerable transitive
+  `node-tar` chain. Those iteration results are diagnostic evidence, not
+  release certification while the candidate tree is still mutable.
+- The exact frozen candidate must freshly pass typecheck, the complete Vitest
+  suite, ordered/idempotent migrations, generated schema/OpenAPI/runtime drift
+  checks, vertical/acquisition checks, repository Cloudflare topology, all five
+  Worker artifact checks, and the disposable real-PostgreSQL migration,
+  reconciliation and concurrency gates. The resulting live 40-character PR
+  head and hosted required checks are the release authority; no intermediate
+  commit or historical test total is.
+- Repository topology centralizes production endpoint classification, rejects
+  loopback/unspecified endpoints and plaintext protected values, and keeps
+  deployment-only fields out of tracked templates. Deployment-mode validation
+  additionally requires five ignored exact manifests with one canonical
+  `account_id`. It is expected to refuse safely until those external manifests
+  and resources exist.
 
 ## Blockers
 
-- Rights model and partner-field ownership decisions block lawful real-source publication and paid API release.
-- Canonical Cloudflare account/zone/routes, queue/DLQ, Hyperdrive, and hosted Postgres connectivity are not evidenced as configured.
-- PRs #13–#17 remain open and draft; their work is not on `main`.
-
-## Risks
-
-- Open PRs overlap in schema, rights, auth/metering, and web documentation; merge order and rebasing must preserve exact-candidate evidence.
-- `main` is behind substantial verified branch work, so status claims must always distinguish merged from proposed behavior.
-- The repository still advertises a Vercel homepage even though ADR-0006 makes Cloudflare the deployment target; removal depends on verifying/disconnecting the legacy integration.
-- No real source has completed legal/rights approval, and no legal counsel review is recorded.
+- No exact deployment of this candidate or hosted database/Queue/R2 proof is
+  recorded. Live Cloudflare account state could not be inspected here.
+- Public sitemap rate limiting and its ordinary-crawler bypass policy have not
+  been configured or verified on the canonical Cloudflare account.
+- No real HVAC source has the required exact grants and human rights review.
+- RapidAPI and MCP have no live external-channel proof.
 
 ## Required User Actions
 
-See `PROJECT_CHECKLIST.md` items `UA-001` through `UA-003`. No routine coding or testing work is assigned to the Product Owner.
-
-## Recommended Next Steps
-
-1. Agent-owned: publish and merge this governance migration (`FOUNDATION-005`).
-2. Agent-owned: reconcile/rebase and merge compatible PRs in dependency order, beginning with #14, then #15; separately decide #13, #16, and #17 based on review evidence (`MVP-001`, `MVP-003`–`MVP-006`).
-3. Owner-owned: approve the rights model/partner-field decisions (`UA-001`, `MVP-001`).
-4. Agent-owned with owner-provided platform access: configure canonical Cloudflare/Postgres isolation, deploy Preview, and execute browser/API/queue/database E2E (`FOUNDATION-006`, `BETA-001`, `BETA-002`).
-5. Agent-owned: close verified findings, remove the obsolete Vercel path after provider confirmation, and clean only branches proven to have no unique work (`BETA-004`, `PROD-005`).
+See `PROJECT_CHECKLIST.md` `UA-001` through `UA-003`. ENERGY STAR remains
+deferred; it is not an action request in this work package.
 
 ## Production Impact
 
-None. Governance/documentation only; production is not deployed.
+Repository code, thirteen forward migrations (`0012` through `0024`), tests, generated artifacts, and control
+documents changed. This work performs no deployment, hosted migration, grant
+activation, source acquisition, publisher contact, or provider mutation.
 
 ## Previous Session Summary
 
-`main` at session start was `6db77e0388fb9bab4bd6ea79dada6f853a1809ac`, containing merged PRs #11 and #12. Five draft PRs (#13–#17) contained refresh policy, usage-schema/rights corrections, API auth/metering, a proposed rights-grant ADR, and the public web surface. No open standalone GitHub issues were found.
+The integrated branch combines usage accounting/auth, corrected Option B
+rights, public web, RapidAPI, scheduled acquisition/readiness, and MCP in
+dependency order through migration 0024. Final review repairs add a last
+practical pre-persistence rights checkpoint, exact historical authorization,
+one-client resolution transactions, `source-record-evidence@3`, claim-backed
+alias epochs/currentness, identifier-less successor handling, a fail-closed
+credential provisioner, bounded provider-controlled input and surface
+authorization, recoverable server-clock acquisition leases with
+non-owner capability redaction, request-bounded keyset sitemap enumeration,
+same-account deployment validation, and non-actionable HVAC source research
+consistent with the owner decisions.

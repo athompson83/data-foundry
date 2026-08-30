@@ -6,6 +6,7 @@ import {
   asNumber,
   asString,
   isRecord,
+  MAX_CONTROL_PLANE_JSON_RESPONSE_BYTES,
   normalizeHeaderRecord,
   readJson,
   requireFetch,
@@ -33,6 +34,11 @@ import { BaseAcquisitionProvider, type AcquisitionProviderDeps, type TransportCo
  */
 
 export type Crawl4AiFormat = 'html' | 'cleaned_html' | 'markdown' | 'extracted_content';
+
+export const CRAWL4AI_MAX_RESULTS = 1_000;
+export const CRAWL4AI_MAX_DIAGNOSTIC_BYTES = 256 * 1024;
+const CRAWL4AI_MAX_RESULT_URL_BYTES = 8 * 1024;
+const CRAWL4AI_MAX_ERROR_MESSAGE_BYTES = 1_024;
 
 export interface Crawl4AiAcquisitionProviderOptions {
   readonly deps: AcquisitionProviderDeps;
@@ -86,6 +92,18 @@ export class Crawl4AIAcquisitionProvider extends BaseAcquisitionProvider {
 
   protected async transport(context: TransportContext): Promise<ProviderTransportResult> {
     const diagnostics: string[] = [];
+    let diagnosticBytes = 0;
+    const addDiagnostic = (message: string): void => {
+      const messageBytes = encodedByteLength(message);
+      if (messageBytes > CRAWL4AI_MAX_DIAGNOSTIC_BYTES - diagnosticBytes) {
+        throw new ProviderTransportError(
+          this.id,
+          `crawl diagnostics exceeded the ${CRAWL4AI_MAX_DIAGNOSTIC_BYTES}-byte ceiling`,
+        );
+      }
+      diagnosticBytes += messageBytes;
+      diagnostics.push(message);
+    };
     const signal = timeoutSignal(context.request.timeoutMs ?? this.#timeoutMs);
 
     const response = await this.#fetch(`${this.#baseUrl}/crawl`, {
@@ -105,7 +123,11 @@ export class Crawl4AIAcquisitionProvider extends BaseAcquisitionProvider {
       ...(signal !== undefined ? { signal } : {}),
     });
 
-    const payload = await readJson(this.id, response);
+    const payload = await readJson(
+      this.id,
+      response,
+      MAX_CONTROL_PLANE_JSON_RESPONSE_BYTES,
+    );
 
     if (response.status < 200 || response.status >= 300) {
       throw new ProviderTransportError(
@@ -118,7 +140,12 @@ export class Crawl4AIAcquisitionProvider extends BaseAcquisitionProvider {
       throw new ProviderTransportError(this.id, '/crawl returned a non-object body', response.status);
     }
     if (payload['success'] === false) {
-      const detail = asString(payload['error_message']) ?? asString(payload['detail']) ?? 'no detail';
+      const detail = boundedProviderText(
+        this.id,
+        'crawl error message',
+        asString(payload['error_message']) ?? asString(payload['detail']) ?? 'no detail',
+        CRAWL4AI_MAX_ERROR_MESSAGE_BYTES,
+      );
       throw new ProviderTransportError(this.id, `/crawl reported failure: ${detail}`, response.status);
     }
 
@@ -130,20 +157,36 @@ export class Crawl4AIAcquisitionProvider extends BaseAcquisitionProvider {
         diagnostics: ['/crawl returned no results array; nothing acquired'],
       };
     }
+    if (results.length > CRAWL4AI_MAX_RESULTS) {
+      throw new ProviderTransportError(
+        this.id,
+        `/crawl exceeded the local result limit of ${CRAWL4AI_MAX_RESULTS}`,
+      );
+    }
 
     const resources: FetchedResource[] = [];
     let unchanged = 0;
 
     for (const raw of results) {
       if (!isRecord(raw)) {
-        diagnostics.push('skipped a crawl4ai result that was not an object');
+        addDiagnostic('skipped a crawl4ai result that was not an object');
         continue;
       }
-      const url = asString(raw['url']) ?? context.request.url;
+      const url = boundedProviderText(
+        this.id,
+        'crawl result URL',
+        asString(raw['url']) ?? context.request.url,
+        CRAWL4AI_MAX_RESULT_URL_BYTES,
+      );
 
       if (raw['success'] === false) {
-        const message = asString(raw['error_message']) ?? 'no detail';
-        diagnostics.push(`${url}: crawl4ai reported failure (${message}); nothing stored`);
+        const message = boundedProviderText(
+          this.id,
+          'crawl result error message',
+          asString(raw['error_message']) ?? 'no detail',
+          CRAWL4AI_MAX_ERROR_MESSAGE_BYTES,
+        );
+        addDiagnostic(`${url}: crawl4ai reported failure (${message}); nothing stored`);
         continue;
       }
 
@@ -159,13 +202,13 @@ export class Crawl4AIAcquisitionProvider extends BaseAcquisitionProvider {
         })
       ) {
         unchanged += 1;
-        diagnostics.push(`${url}: validators match the previous acquisition; nothing stored`);
+        addDiagnostic(`${url}: validators match the previous acquisition; nothing stored`);
         continue;
       }
 
       const payloadForRecord = readPayload(raw, this.#formats);
       if (payloadForRecord === null) {
-        diagnostics.push(`${url}: result carried none of the requested formats`);
+        addDiagnostic(`${url}: result carried none of the requested formats`);
         continue;
       }
 
@@ -185,6 +228,17 @@ export class Crawl4AIAcquisitionProvider extends BaseAcquisitionProvider {
       diagnostics,
     };
   }
+}
+
+function encodedByteLength(value: string): number {
+  return new TextEncoder().encode(value).byteLength;
+}
+
+function boundedProviderText(provider: string, label: string, value: string, maxBytes: number): string {
+  if (encodedByteLength(value) > maxBytes) {
+    throw new ProviderTransportError(provider, `${label} exceeded the ${maxBytes}-byte ceiling`);
+  }
+  return value;
 }
 
 interface Crawl4AiPayload {

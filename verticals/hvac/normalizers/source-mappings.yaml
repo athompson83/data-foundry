@@ -26,6 +26,9 @@ sources:
     locator_type: JSON_POINTER
     records:
       - stream: products
+        # This endpoint returns the complete current product catalog. Omission
+        # is meaningful only because completeness is declared explicitly.
+        refresh_mode: full_snapshot
         entity_type: equipment_model
         record_path: "/products"
         source_record_key: "/sku"
@@ -133,6 +136,8 @@ sources:
     requires_rendering: true
     records:
       - stream: product_cards
+        # The configured listing URL is the complete page, not a per-item event.
+        refresh_mode: full_snapshot
         entity_type: equipment_model
         record_path: ".product-card"
         source_record_key: "[data-item]"
@@ -206,6 +211,8 @@ sources:
     records:
 
       - stream: certifications
+        # Each quarterly export is the complete active certification directory.
+        refresh_mode: full_snapshot
         entity_type: certification
         source_record_key: "AHRI Certified Reference Number"
 
@@ -233,6 +240,8 @@ sources:
             map_with: ontology.refrigerant
 
       - stream: certified_models
+        # This stream is another projection of the same complete export.
+        refresh_mode: full_snapshot
         entity_type: equipment_model
         source_record_key: "Outdoor Unit Model Number"
 
@@ -305,6 +314,8 @@ sources:
       label_value_separator: horizontal_position
     records:
       - stream: spec_pages
+        # The acquired PDF is the complete configured specification document.
+        refresh_mode: full_snapshot
         entity_type: equipment_model
         source_record_key: page_heading
 

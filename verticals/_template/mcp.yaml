@@ -1,72 +1,33 @@
-# =============================================================================
-# mcp.yaml — the MCP tool surface for this vertical.
+# MCP publication declaration for one vertical.
 #
-# doc 10: "Keep tool count small and intent-oriented." Target 4-6 tools.
-#
-# Tools are INTENTS, not CRUD wrappers. `get_entity_by_id` is a database method
-# with a costume on; `find_replacement_model` is a question a technician
-# actually asks. If you can only describe a tool in terms of tables, it is the
-# wrong tool.
-#
-# doc 07: "MCP descriptions are agent SEO." The description is how a model
-# decides whether to call you, so it must state: the user intent served, the
-# identifiers accepted, what the output means, the citation behaviour, and the
-# limitations. All five. Every time.
-# =============================================================================
+# Keep these six tool names, titles, summaries, and their order identical to
+# apps/mcp/src/tools.ts. The MCP runtime compiler takes descriptions, input
+# schemas, error codes, evidence behavior, and rights enforcement from those
+# executable declarations. A vertical selects the shared tools; it does not
+# fork or reimplement them.
 
 server:
   name: REPLACE_ME
-  # Streamable HTTP; SSE is deprecated for new remote MCP connections (doc 10).
+  version: 0.1.0
   transport: streamable_http
   endpoint: /mcp
-  server_card: /.well-known/mcp.json
-  agent_card: /.well-known/agent.json
 
-# Output contract every tool inherits (doc 10 "Every high-value answer should
-# return"). Declared once so no tool can quietly omit its citations.
-response_contract:
-  include_canonical_ids: true
-  include_normalized_values: true
-  include_confidence: true
-  include_evidence_refs: true
-  include_freshness: true
-  include_canonical_url: true
-  # Do not return huge raw source blobs unless explicitly requested (doc 10).
-  include_raw_source: on_request_only
-  # AGENTS.md rule 2 surfaced at the interface: a value with no evidence is not
-  # returned as a fact.
-  suppress_facts_without_evidence: true
-  # Rule 1: sources that fail the publish gate never reach an MCP response.
-  exclude_unpublishable_sources: true
-
-tools: []
-
-# Example shape:
-#
-# tools:
-#   - name: find_replacement_model
-#     intent: replacement_lookup
-#     summary: What replaces this discontinued model?
-#     description: >-
-#       Find the current replacement for a discontinued or superseded product
-#       using a model number in any common formatting, a distributor SKU or a
-#       certification reference. Walks the full supersession chain to the newest
-#       active model and returns every hop, so a technician can see what changed
-#       and when. Returns canonical IDs, source citations for each hop and the
-#       date each supersession was recorded. Does not infer replacements from
-#       spec similarity — an edge exists only where a source asserted it.
-#     inputs:
-#       - name: model_number
-#         type: string
-#         required: true
-#         description: Model number in any formatting; normalized before lookup.
-#     returns:
-#       shape: replacement_chain
-#       fields: [canonical_id, model_number, status, hops, evidence, canonical_url]
-#     evidence: required
-#     errors:
-#       - code: MODEL_NOT_FOUND
-#         when: The identifier does not resolve to a known entity.
-#     limitations: >-
-#       State plainly what this tool cannot answer, so the model stops asking.
-#     examples: []
+tools:
+  - name: search_entities
+    title: Search the catalogue
+    summary: Find entities by identifier or description.
+  - name: get_entity
+    title: Resolve an identifier to a canonical entity
+    summary: What is this thing, and what do we publish about it?
+  - name: list_facts
+    title: Read the published fact sheet
+    summary: What do we publish about this entity, and how sure are we?
+  - name: compare_entities
+    title: Compare entities side by side
+    summary: How do these differ?
+  - name: traverse_relationships
+    title: Follow canonical relationships
+    summary: What is this connected to — and what replaces it?
+  - name: explain_fact
+    title: Show the evidence behind one value
+    summary: Why does the catalogue say this?
