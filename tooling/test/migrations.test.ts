@@ -38,7 +38,11 @@ const ROBOTS = JSON.stringify({
 });
 const ATTRIBUTION = JSON.stringify({ required: false, text: null, url: null });
 
-async function seed(target: MigrationDriver = driver, withAcquisitionScope = true): Promise<void> {
+async function seed(
+  target: MigrationDriver = driver,
+  withAcquisitionScope = true,
+  withSourceStream = true,
+): Promise<void> {
   await target.query(
     `INSERT INTO verticals (id, slug, name, schema_version, status, default_refresh_policy)
      VALUES ($1, 'hvac', 'HVAC', '1.0.0', 'ACTIVE', $2::jsonb)`,
@@ -67,9 +71,13 @@ async function seed(target: MigrationDriver = driver, withAcquisitionScope = tru
     [ARTIFACT, SOURCE, TS, 'a'.repeat(64)],
   );
   await target.query(
-    `INSERT INTO source_records (id, source_id, artifact_id, source_record_key, entity_type,
-                                 raw_payload, extraction_confidence, extractor_version)
-     VALUES ($1, $2, $3, 'AHRI-123', 'equipment', '{}'::jsonb, 0.95, 'html-1.0.0')`,
+    withSourceStream
+      ? `INSERT INTO source_records (id, source_id, artifact_id, source_record_key, source_stream, entity_type,
+                                     raw_payload, extraction_confidence, extractor_version)
+         VALUES ($1, $2, $3, 'AHRI-123', 'fixture_records', 'equipment', '{}'::jsonb, 0.95, 'html-1.0.0')`
+      : `INSERT INTO source_records (id, source_id, artifact_id, source_record_key, entity_type,
+                                     raw_payload, extraction_confidence, extractor_version)
+         VALUES ($1, $2, $3, 'AHRI-123', 'equipment', '{}'::jsonb, 0.95, 'html-1.0.0')`,
     [RECORD, SOURCE, ARTIFACT],
   );
   await target.query(
@@ -213,7 +221,7 @@ describe('migration runner', () => {
     const legacy = await createPGliteDriver();
     try {
       await applyMigrations(legacy, migrations.filter((migration) => migration.version < '0022'));
-      await seed(legacy);
+      await seed(legacy, true, false);
       await legacy.query(
         `INSERT INTO entity_evidence (entity_id, artifact_id, source_record_id, contribution_role,
                                       locator_type, locator_value, observed_at)
@@ -286,22 +294,39 @@ describe('migration runner', () => {
     }
   }, 120_000);
 
-  it('backfills only unambiguous curated alias claims and leaves legacy source aliases quarantined', async () => {
+  it('backfills no legacy alias authority, including aliases nulled by source deletion', async () => {
     const upgrade = await createPGliteDriver();
     try {
       await applyMigrations(upgrade, migrations.filter((migration) => migration.version < '0023'));
-      await seed(upgrade);
+      await seed(upgrade, true, false);
       const curatedAlias = '56565656-5656-4656-8656-565656565656';
       const legacySourceAlias = '57575757-5757-4757-8757-575757575757';
+      const deletedSourceAlias = '58585858-5858-4858-8858-585858585858';
+      const deletedSource = '59595959-5959-4959-8959-595959595959';
+      await upgrade.query(
+        `INSERT INTO sources (
+           id, vertical_id, publisher, domain, source_type, authority_rank,
+           rights_classification, attribution_requirement, robots_policy,
+           refresh_cadence, status, kill_switch_engaged
+         )
+         SELECT $1, vertical_id, 'Deleted legacy source', 'deleted-legacy.example',
+                source_type, authority_rank, rights_classification,
+                attribution_requirement, robots_policy, refresh_cadence,
+                'UNDER_REVIEW', kill_switch_engaged
+           FROM sources WHERE id = $2`,
+        [deletedSource, SOURCE],
+      );
       await upgrade.query(
         `INSERT INTO entity_aliases (
            id, entity_id, alias_type, alias_value, normalized_value, source_id,
            identity_confidence, valid_from, valid_to
          ) VALUES
            ($1, $3, 'former_name', 'Carrier Corp', 'carrier corp', NULL, 0.9, $4, NULL),
-           ($2, $3, 'model_number', '24ANB7', '24anb7', $5, 0.99, $4, NULL)`,
-        [curatedAlias, legacySourceAlias, ENTITY, TS, SOURCE],
+           ($2, $3, 'model_number', '24ANB7', '24anb7', $5, 0.99, $4, NULL),
+           ($6, $3, 'external_id', 'DELETED-SOURCE', 'deleted-source', $7, 0.8, $4, NULL)`,
+        [curatedAlias, legacySourceAlias, ENTITY, TS, SOURCE, deletedSourceAlias, deletedSource],
       );
+      await upgrade.query(`DELETE FROM sources WHERE id = $1`, [deletedSource]);
 
       const first = await applyMigrations(upgrade, migrations);
       expect(first.find((migration) => migration.version === '0023')?.skipped).toBe(false);
@@ -318,24 +343,235 @@ describe('migration runner', () => {
            FROM entity_alias_claims
           ORDER BY entity_alias_id`,
       );
-      expect(claims).toEqual([{
-        entity_alias_id: curatedAlias,
-        asserted_alias_value: 'Carrier Corp',
-        identity_confidence: 0.9,
-        claim_kind: 'CURATED',
-        source_record_id: null,
-      }]);
+      expect(claims).toEqual([]);
 
       const current = await upgrade.query<{ id: string }>(
         `SELECT id FROM current_entity_aliases ORDER BY id`,
       );
-      expect(current.map((alias) => alias.id)).toEqual([curatedAlias]);
+      expect(current.map((alias) => alias.id)).toEqual([]);
 
       const second = await applyMigrations(upgrade, migrations);
       expect(second.every((migration) => migration.skipped)).toBe(true);
-      expect(await upgrade.query(`SELECT id FROM entity_alias_claims`)).toHaveLength(1);
+      expect(await upgrade.query(`SELECT id FROM entity_alias_claims`)).toHaveLength(0);
     } finally {
       await upgrade.close();
+    }
+  }, 120_000);
+
+  it('revokes unproven legacy stream membership instead of inferring snapshot authority', async () => {
+    const upgrade = await createPGliteDriver();
+    try {
+      await applyMigrations(upgrade, migrations.filter((migration) => migration.version < '0024'));
+      await seed(upgrade, true, false);
+      expect(await upgrade.query<{ is_current: boolean; source_stream: string | null }>(
+        `SELECT is_current, NULL::text AS source_stream FROM source_records WHERE id = $1`,
+        [RECORD],
+      )).toEqual([{ is_current: true, source_stream: null }]);
+
+      await applyMigrations(upgrade, migrations);
+      expect(await upgrade.query<{ is_current: boolean; source_stream: string | null }>(
+        `SELECT is_current, source_stream FROM source_records WHERE id = $1`,
+        [RECORD],
+      )).toEqual([{ is_current: false, source_stream: null }]);
+      expect(await upgrade.query(`SELECT id FROM source_record_snapshot_retirements`)).toEqual([]);
+      expect(await upgrade.query(`SELECT id FROM source_stream_snapshot_acceptances`)).toEqual([]);
+      expect(await upgrade.query(`SELECT id FROM source_stream_snapshot_acceptance_artifacts`)).toEqual([]);
+      await expect(upgrade.query(
+        `INSERT INTO source_records (
+           source_id, artifact_id, source_record_key, entity_type,
+           raw_payload, extraction_confidence, extractor_version
+         ) VALUES ($1, $2, 'missing-stream', 'equipment', '{}'::jsonb, 1, 'test@1')`,
+        [SOURCE, ARTIFACT],
+      )).rejects.toThrow(/current_requires_stream|source_records_current_requires_stream/);
+    } finally {
+      await upgrade.close();
+    }
+  }, 120_000);
+
+  it('binds every omission artifact to one immutable accepted snapshot and effective time', async () => {
+    const snapshot = await createPGliteDriver();
+    try {
+      await applyMigrations(snapshot, migrations);
+      await seed(snapshot);
+      const acceptance = '88888888-8888-4888-8888-888888888888';
+      const artifactTwo = '66666666-6666-4666-8666-666666666666';
+      const artifactThree = '77777777-7777-4777-8777-777777777777';
+      const observedAt = '2026-08-30T00:00:00.000Z';
+      const artifactRows = `
+        INSERT INTO source_artifacts (
+          id, source_id, url, retrieved_at, content_hash, mime_type, r2_uri,
+          http_status, extractor_version, acquisition_provider, acquisition_route
+        ) VALUES
+          ('${artifactTwo}', '${SOURCE}', 'https://ratings-directory.example.org/two',
+           '${observedAt}', '${'b'.repeat(64)}', 'text/html', 'r2://raw/hvac/two.html',
+           200, 'html-1.0.0', 'http', 'DIRECT_HTTP'),
+          ('${artifactThree}', '${SOURCE}', 'https://ratings-directory.example.org/three',
+           '${observedAt}', '${'c'.repeat(64)}', 'text/html', 'r2://raw/hvac/three.html',
+           200, 'html-1.0.0', 'http', 'DIRECT_HTTP');`;
+      const acceptanceRows = `
+        INSERT INTO source_stream_snapshot_acceptances (
+          id, source_id, source_stream, observed_at, snapshot_digest,
+          artifact_set_digest, mapping_digest, record_set_digest, retrieval_count
+        ) VALUES (
+          '${acceptance}', '${SOURCE}', 'fixture_records', '${observedAt}',
+          '${'d'.repeat(64)}', '${'e'.repeat(64)}', '${'f'.repeat(64)}',
+          '${'1'.repeat(64)}', 3
+        );
+        INSERT INTO source_stream_snapshot_acceptance_artifacts (
+          acceptance_id, artifact_id, retrieval_key, retrieval_receipt_id
+        ) VALUES
+          ('${acceptance}', '${ARTIFACT}', 'retrieval/one', '${'2'.repeat(64)}'),
+          ('${acceptance}', '${artifactTwo}', 'retrieval/two', '${'3'.repeat(64)}'),
+          ('${acceptance}', '${artifactThree}', 'retrieval/three', '${'4'.repeat(64)}');`;
+
+      await expect(snapshot.exec(`
+        BEGIN;
+        ${artifactRows}
+        ${acceptanceRows}
+        UPDATE source_records SET is_current = FALSE WHERE id = '${RECORD}';
+        INSERT INTO source_record_snapshot_retirements
+          (source_record_id, snapshot_acceptance_id, artifact_id,
+           source_id, source_stream, retired_at)
+        VALUES
+          ('${RECORD}', '${acceptance}', '${ARTIFACT}', '${SOURCE}',
+           'fixture_records', '${observedAt}'),
+          ('${RECORD}', '${acceptance}', '${artifactTwo}', '${SOURCE}',
+           'fixture_records', '${observedAt}'),
+          ('${RECORD}', '${acceptance}', '${artifactThree}', '${SOURCE}',
+           'fixture_records', '2026-08-30T00:00:01.000Z');
+        COMMIT;
+      `)).rejects.toThrow(/one effective time|accepted snapshot/i);
+      await snapshot.exec('ROLLBACK');
+
+      await snapshot.exec(`
+        BEGIN;
+        ${artifactRows}
+        ${acceptanceRows}
+        UPDATE source_records SET is_current = FALSE WHERE id = '${RECORD}';
+        INSERT INTO source_record_snapshot_retirements
+          (source_record_id, snapshot_acceptance_id, artifact_id,
+           source_id, source_stream, retired_at)
+        VALUES
+          ('${RECORD}', '${acceptance}', '${ARTIFACT}', '${SOURCE}',
+           'fixture_records', '${observedAt}'),
+          ('${RECORD}', '${acceptance}', '${artifactTwo}', '${SOURCE}',
+           'fixture_records', '${observedAt}'),
+          ('${RECORD}', '${acceptance}', '${artifactThree}', '${SOURCE}',
+           'fixture_records', '${observedAt}');
+        COMMIT;
+      `);
+
+      expect(await snapshot.query<{ retired_at: string }>(
+        `SELECT DISTINCT retired_at FROM source_record_snapshot_retirements
+          WHERE source_record_id = $1`,
+        [RECORD],
+      )).toHaveLength(1);
+      await expect(snapshot.query(
+        `INSERT INTO source_stream_snapshot_acceptance_artifacts
+           (acceptance_id, artifact_id, retrieval_key, retrieval_receipt_id)
+         VALUES ($1, $2, 'retrieval/late', $3)`,
+        [acceptance, ARTIFACT, '5'.repeat(64)],
+      )).rejects.toThrow(/same-source artifact|snapshot acceptance evidence/i);
+    } finally {
+      await snapshot.close();
+    }
+  }, 120_000);
+
+  it('rejects a reconciliation timestamp before replacement artifact retrieval', async () => {
+    const reconciliation = await createPGliteDriver();
+    try {
+      await applyMigrations(reconciliation, migrations);
+      await seed(reconciliation);
+      const replacementArtifact = '66666666-6666-4666-8666-666666666666';
+      const replacementRecord = '77777777-7777-4777-8777-777777777777';
+      await reconciliation.query(
+        `INSERT INTO source_artifacts (
+           id, source_id, url, retrieved_at, content_hash, mime_type, r2_uri,
+           http_status, extractor_version, acquisition_provider, acquisition_route
+         ) VALUES ($1, $2, 'https://ratings-directory.example.org/replacement',
+                   '2026-08-30T00:00:00.000Z', $3, 'text/html',
+                   'r2://raw/hvac/replacement.html', 200, 'html-1.0.0',
+                   'http', 'DIRECT_HTTP')`,
+        [replacementArtifact, SOURCE, 'b'.repeat(64)],
+      );
+      await expect(reconciliation.exec(`
+        BEGIN;
+        UPDATE source_records SET is_current = FALSE WHERE id = '${RECORD}';
+        INSERT INTO source_records (
+          id, source_id, artifact_id, source_record_key, source_stream,
+          entity_type, raw_payload, extraction_confidence, extractor_version
+        ) VALUES (
+          '${replacementRecord}', '${SOURCE}', '${replacementArtifact}', 'AHRI-123',
+          'fixture_records', 'equipment', '{"replacement":true}'::jsonb, 0.95, 'html-1.0.0'
+        );
+        INSERT INTO source_record_reconciliations (
+          superseded_source_record_id, replacement_source_record_id, reconciled_at
+        ) VALUES (
+          '${RECORD}', '${replacementRecord}', '2026-08-29T23:59:59.000Z'
+        );
+        COMMIT;
+      `)).rejects.toThrow(/at or after artifact retrieval/i);
+      await reconciliation.exec('ROLLBACK');
+      expect(await reconciliation.query<{ is_current: boolean }>(
+        `SELECT is_current FROM source_records WHERE id = $1`,
+        [RECORD],
+      )).toEqual([{ is_current: true }]);
+    } finally {
+      await reconciliation.close();
+    }
+  }, 120_000);
+
+  it('makes replacement and complete-snapshot omission mutually exclusive', async () => {
+    const terminal = await createPGliteDriver();
+    try {
+      await applyMigrations(terminal, migrations);
+      await seed(terminal);
+      const artifact = '66666666-6666-4666-8666-666666666666';
+      const acceptance = '77777777-7777-4777-8777-777777777777';
+      const replacement = '88888888-8888-4888-8888-888888888888';
+      await expect(terminal.exec(`
+        BEGIN;
+        INSERT INTO source_artifacts (
+          id, source_id, url, retrieved_at, content_hash, mime_type, r2_uri,
+          http_status, extractor_version, acquisition_provider, acquisition_route
+        ) VALUES (
+          '${artifact}', '${SOURCE}', 'https://ratings-directory.example.org/terminal',
+          '2026-08-30T00:00:00.000Z', '${'b'.repeat(64)}', 'text/html',
+          'r2://raw/hvac/terminal.html', 200, 'html-1.0.0', 'http', 'DIRECT_HTTP'
+        );
+        INSERT INTO source_stream_snapshot_acceptances (
+          id, source_id, source_stream, observed_at, snapshot_digest,
+          artifact_set_digest, mapping_digest, record_set_digest, retrieval_count
+        ) VALUES (
+          '${acceptance}', '${SOURCE}', 'fixture_records', '2026-08-30T00:00:00.000Z',
+          '${'c'.repeat(64)}', '${'d'.repeat(64)}', '${'e'.repeat(64)}',
+          '${'f'.repeat(64)}', 1
+        );
+        INSERT INTO source_stream_snapshot_acceptance_artifacts
+          (acceptance_id, artifact_id, retrieval_key, retrieval_receipt_id)
+        VALUES ('${acceptance}', '${artifact}', 'retrieval/terminal', '${'1'.repeat(64)}');
+        UPDATE source_records SET is_current = FALSE WHERE id = '${RECORD}';
+        INSERT INTO source_record_snapshot_retirements
+          (source_record_id, snapshot_acceptance_id, artifact_id,
+           source_id, source_stream, retired_at)
+        VALUES (
+          '${RECORD}', '${acceptance}', '${artifact}', '${SOURCE}',
+          'fixture_records', '2026-08-30T00:00:00.000Z'
+        );
+        INSERT INTO source_records (
+          id, source_id, artifact_id, source_record_key, source_stream,
+          entity_type, raw_payload, extraction_confidence, extractor_version
+        ) VALUES (
+          '${replacement}', '${SOURCE}', '${artifact}', 'AHRI-123', 'fixture_records',
+          'equipment', '{"replacement":true}'::jsonb, 0.95, 'html-1.0.0'
+        );
+        INSERT INTO source_record_reconciliations
+          (superseded_source_record_id, replacement_source_record_id, reconciled_at)
+        VALUES ('${RECORD}', '${replacement}', '2026-08-30T00:00:00.000Z');
+        COMMIT;
+      `)).rejects.toThrow(/exclusively link|exactly one terminal mechanism/i);
+    } finally {
+      await terminal.close();
     }
   }, 120_000);
 
@@ -372,12 +608,18 @@ describe('storage-level invariants', () => {
   it('enforces uniqueness on a current (source_id, source_record_key) revision', async () => {
     await expect(
       driver.query(
-        `INSERT INTO source_records (source_id, artifact_id, source_record_key, entity_type,
+        `INSERT INTO source_records (source_id, artifact_id, source_record_key, source_stream, entity_type,
                                      raw_payload, extraction_confidence, extractor_version)
-         VALUES ($1, $2, 'AHRI-123', 'equipment', '{}'::jsonb, 0.9, 'html-1.0.0')`,
+         VALUES ($1, $2, 'AHRI-123', 'fixture_records', 'equipment', '{}'::jsonb, 0.9, 'html-1.0.0')`,
         [SOURCE, ARTIFACT],
       ),
     ).rejects.toThrow(/source_records_current_source_key_uniq/);
+  });
+
+  it('refuses to retire a current source-record revision without append-only lineage', async () => {
+    await expect(
+      driver.query(`UPDATE source_records SET is_current = FALSE WHERE id = $1`, [RECORD]),
+    ).rejects.toThrow(/requires exactly one terminal mechanism/i);
   });
 
   it('allows exactly one open ACTIVE version per (entity, property)', async () => {
@@ -733,7 +975,7 @@ describe('migration 0009 over pre-existing judgment history', () => {
     // Everything the judgment table needs, and nothing that knows about episodes.
     const before0009 = migrations.filter((migration) => migration.version < '0009');
     await applyMigrations(legacy, before0009);
-    await seed(legacy, false);
+    await seed(legacy, false, false);
 
     // Two MERGE judgments on one pair: approved, reversed, approved again. The
     // reversal in between is a NOT_MERGE, so all three share the pair and two

@@ -11,7 +11,12 @@ import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { identityConfidence } from '@data-foundry/canonical-schema';
 import { UnknownFieldError, lookupExactIdentifier } from '../src/index.js';
-import { createQueryFixtures, ts, type QueryFixtures } from './support.js';
+import {
+  createQueryFixtures,
+  retireSourceFixtureByCompleteSnapshot,
+  ts,
+  type QueryFixtures,
+} from './support.js';
 
 let fixtures: QueryFixtures;
 
@@ -88,6 +93,83 @@ describe('exact identifiers beat fuzzy ranking', () => {
       text: 'UNCLAIMED ZZYX',
     });
     expect(ranked.hits.map((hit) => hit.entity.id)).not.toContain(fixtures.equipment.id);
+  });
+
+  it('returns only the winning current claim spelling from exact search', async () => {
+    const current = await createQueryFixtures({ trigram: false });
+    try {
+      const manufacturer = current.sources.manufacturer;
+      const certifier = current.sources.certifier;
+      const filing = current.sources.filing;
+      const alias = await current.store.stageSourceAlias({
+        entity_id: current.equipment.id,
+        alias_type: 'external_id',
+        alias_value: 'Manufacturer search spelling',
+        normalized_value: 'search-switch',
+        source_id: manufacturer.source.id,
+        identity_confidence: identityConfidence(0.7),
+        valid_from: ts('2026-08-30T00:00:00Z'),
+        valid_to: null,
+      });
+      await current.store.recordSourceAliasClaim({
+        entity_alias_id: alias.id,
+        asserted_alias_value: 'Manufacturer search spelling',
+        asserted_normalized_value: 'search-switch',
+        identity_confidence: identityConfidence(0.7),
+        source_record_id: manufacturer.record.id,
+        locator_type: 'JSON_POINTER',
+        locator_value: '/manufacturer',
+      });
+      await current.store.stageSourceAlias({
+        entity_id: current.equipment.id,
+        alias_type: 'external_id',
+        alias_value: 'Certifier search spelling',
+        normalized_value: 'search-switch',
+        source_id: certifier.source.id,
+        identity_confidence: identityConfidence(0.95),
+        valid_from: ts('2026-08-30T00:00:00Z'),
+        valid_to: null,
+      });
+      await current.store.recordSourceAliasClaim({
+        entity_alias_id: alias.id,
+        asserted_alias_value: 'Certifier search spelling',
+        asserted_normalized_value: 'search-switch',
+        identity_confidence: identityConfidence(0.95),
+        source_record_id: certifier.record.id,
+        locator_type: 'TABLE_CELL',
+        locator_value: 'models!A2',
+      });
+      await current.store.stageSourceAlias({
+        entity_id: current.equipment.id,
+        alias_type: 'external_id',
+        alias_value: 'search-switch',
+        normalized_value: 'search-switch',
+        source_id: filing.source.id,
+        identity_confidence: identityConfidence(1),
+        valid_from: ts('2026-08-30T00:00:00Z'),
+        valid_to: null,
+      });
+
+      expect(await lookupExactIdentifier(current.driver, current.registry, {
+        vertical_id: current.vertical.id,
+        text: 'search-switch',
+      })).toContainEqual(expect.objectContaining({
+        entity: expect.objectContaining({ id: current.equipment.id }),
+        matched_on: 'Certifier search spelling',
+      }));
+
+      const retiredAt = ts('2026-08-30T12:00:00Z');
+      await retireSourceFixtureByCompleteSnapshot(current, 'certifier', retiredAt);
+      expect(await lookupExactIdentifier(current.driver, current.registry, {
+        vertical_id: current.vertical.id,
+        text: 'search-switch',
+      })).toContainEqual(expect.objectContaining({
+        entity: expect.objectContaining({ id: current.equipment.id }),
+        matched_on: 'Manufacturer search spelling',
+      }));
+    } finally {
+      await current.driver.close();
+    }
   });
 
   it('ranks exact slug and exact name matches ahead of ranked hits too', async () => {

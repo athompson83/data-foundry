@@ -17,6 +17,15 @@ const base: McpWorkerEnv = {
   PUBLIC_ORIGIN: 'https://data.example.test',
   USAGE_EVENTS_QUEUE: queue,
 };
+const productionBase: McpWorkerEnv = {
+  ...base,
+  DEPLOYMENT_ENVIRONMENT: 'production',
+  HYPERDRIVE: { connectionString: 'postgres://hyperdrive/db' },
+  API_KEY_ENVIRONMENT: 'live',
+  MCP_HOSTNAME: 'mcp.datafoundry.io',
+  MCP_ALLOWED_ORIGINS: 'https://app.datafoundry.io',
+  PUBLIC_ORIGIN: 'https://www.datafoundry.io',
+};
 
 describe('MCP Worker environment', () => {
   it.each([undefined, '', ' ', 'preview'])('refuses an absent, blank, or unknown deployment environment: %j', (value) => {
@@ -80,22 +89,11 @@ describe('MCP Worker environment', () => {
     ).toThrow(/live/);
 
     expect(() =>
-      resolveMcpWorkerConfig({
-        ...base,
-        DEPLOYMENT_ENVIRONMENT: 'production',
-        HYPERDRIVE: { connectionString: 'postgres://hyperdrive/db' },
-        API_KEY_ENVIRONMENT: 'live',
-        USAGE_EVENTS_QUEUE: undefined,
-      }),
+      resolveMcpWorkerConfig({ ...productionBase, USAGE_EVENTS_QUEUE: undefined }),
     ).toThrow(/USAGE_EVENTS_QUEUE/);
 
     expect(
-      resolveMcpWorkerConfig({
-        ...base,
-        DEPLOYMENT_ENVIRONMENT: 'production',
-        HYPERDRIVE: { connectionString: 'postgres://hyperdrive/db' },
-        API_KEY_ENVIRONMENT: 'live',
-      }).connectionString,
+      resolveMcpWorkerConfig(productionBase).connectionString,
     ).toBe('postgres://hyperdrive/db');
   });
 
@@ -117,13 +115,31 @@ describe('MCP Worker environment', () => {
     ['unspecified public origin', { PUBLIC_ORIGIN: 'https://0.0.0.0' }],
   ] as const)('refuses a loopback or unspecified production %s', (_label, override) => {
     expect(() =>
-      resolveMcpWorkerConfig({
-        ...base,
-        ...override,
-        DEPLOYMENT_ENVIRONMENT: 'production',
-        HYPERDRIVE: { connectionString: 'postgres://hyperdrive/db' },
-        API_KEY_ENVIRONMENT: 'live',
-      }),
+      resolveMcpWorkerConfig({ ...productionBase, ...override }),
     ).toThrow(/loopback/i);
+  });
+
+  it.each([
+    ['MCP hostname', { MCP_HOSTNAME: 'mcp.invalid.' }],
+    ['workers.dev MCP hostname', { MCP_HOSTNAME: 'data-foundry-mcp.workers.dev.' }],
+    ['pages.dev MCP hostname', { MCP_HOSTNAME: 'data-foundry-mcp.pages.dev' }],
+    ['trycloudflare MCP hostname', { MCP_HOSTNAME: 'data-foundry-mcp.trycloudflare.com' }],
+    ['documentation MCP hostname', { MCP_HOSTNAME: 'mcp.example.com' }],
+    ['local MCP hostname', { MCP_HOSTNAME: 'mcp.local' }],
+    ['onion MCP hostname', { MCP_HOSTNAME: 'mcp.onion' }],
+    ['home.arpa MCP hostname', { MCP_HOSTNAME: 'mcp.home.arpa' }],
+    ['public IP MCP hostname', { MCP_HOSTNAME: '8.8.8.8' }],
+    ['numeric final-label MCP hostname', { MCP_HOSTNAME: 'mcp.123' }],
+    ['invalid LDH MCP hostname', { MCP_HOSTNAME: 'mcp_datafoundry.io' }],
+    ['allowed origin', { MCP_ALLOWED_ORIGINS: 'https://client.example' }],
+    ['provider allowed origin', { MCP_ALLOWED_ORIGINS: 'https://client.pages.dev' }],
+    ['local allowed origin', { MCP_ALLOWED_ORIGINS: 'https://client.local' }],
+    ['public origin', { PUBLIC_ORIGIN: 'https://web.test.' }],
+    ['provider public origin', { PUBLIC_ORIGIN: 'https://web.trycloudflare.com' }],
+    ['documentation public origin', { PUBLIC_ORIGIN: 'https://web.example.org' }],
+  ] as const)('refuses a reserved production %s', (_label, override) => {
+    expect(() => resolveMcpWorkerConfig({ ...productionBase, ...override })).toThrow(
+      /production hostname/i,
+    );
   });
 });

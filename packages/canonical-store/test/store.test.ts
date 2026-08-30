@@ -150,9 +150,10 @@ describe('entities and aliases', () => {
 
     const aliases = await fixtures.store.listAliases(fixtures.entity.id);
     expect(aliases).toHaveLength(2);
-    // GREATEST keeps the strongest identity claim rather than the newest.
+    // Current presentation follows the winning active claim: source authority
+    // precedes confidence, matching the deterministic resolver display rule.
     expect(aliases.find((alias) => alias.alias_type === 'model_number')?.identity_confidence)
-      .toBeCloseTo(0.99);
+      .toBeCloseTo(0.9);
 
     const matches = await fixtures.store.lookupByAlias({
       vertical_id: fixtures.vertical.id,

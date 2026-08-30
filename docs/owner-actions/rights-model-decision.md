@@ -6,7 +6,8 @@ The owner accepted corrected Option B: an evidence-backed rights-grant matrix
 designed to support field and field-group scope without assuming that such
 rights exist. ADR-0010 is accepted and the repository implementation is present
 in `packages/rights-engine`, canonical storage, migrations 0014 and 0016, and
-the surface/acquisition gates.
+the surface/acquisition gates. Migration 0019 extends the same fail-closed
+decision contract to scheduled acquisition's final pre-persistence checkpoint.
 
 This is no longer a choice among Options A, B, and C. The remaining owner/legal
 work is to create exact source decisions supported by evidence. Engineering
@@ -39,6 +40,26 @@ inventory/risk metadata and additional hard stops only. They cannot activate a
 matrix decision. Migration 0014 manufactured no publisher mapping, terms
 version, evidence, rights cell, decision, or `ALLOW`; it recorded
 `REVIEW_REQUIRED` assessments only.
+
+Identity currentness is a separate prerequisite, not a substitute grant.
+Migration 0023 records append-only curated/source-record alias claims and
+authority epochs, exposes only claim-backed current aliases, and manufactures
+no claim from legacy alias metadata. A customer-visible entity needs current
+`FINALIZED` entity evidence. A relationship needs current `FINALIZED`
+relationship evidence and authorized endpoints. After those currentness gates,
+the rights resolver still ANDs the exact relevant contributions for the
+requested surface.
+
+The persisted `source-record-evidence@3` fingerprint binds those currentness
+decisions to exact resolution targets, alias claims/locators, facts, audit, and
+relationship dispositions/endpoints. An identifier-less refresh finalizes a
+zero-claim successor instead of leaving the prior revision current or creating
+new unsupported canonical authority.
+
+Likewise, `pnpm credentials:provision` creates access credentials only. Its
+closed provisionable pairs are `API_PAID/DIRECT`, `RAPIDAPI/RAPIDAPI`, and
+`MCP/NONE`; none creates a rights cell, source decision, terms evidence or
+publication permission.
 
 ## Required corrections implemented
 
@@ -98,5 +119,7 @@ evidence modes produce deterministic `UNKNOWN` surface results.
 
 The rights engine does not provide legal advice, decide a real source's rights,
 approve customer terms, authorize publication, set prices, or approve
-ENERGY STAR. It makes recorded decisions auditable and fail-closed; it cannot
-create permission that the owner or authorized reviewer has not supplied.
+ENERGY STAR. Neither alias currentness nor an issued customer credential changes
+that boundary. The engine makes recorded decisions auditable and fail-closed;
+it cannot create permission that the owner or authorized reviewer has not
+supplied.

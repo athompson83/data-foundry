@@ -72,7 +72,12 @@ export {
   type RouteMatch,
 } from './routes.js';
 
-export { buildOpenApiDocument, type OpenApiVerticalMetadata } from './openapi.js';
+export {
+  buildOpenApiDocument,
+  type BuildOpenApiDocumentOptions,
+  type OpenApiChannel,
+  type OpenApiVerticalMetadata,
+} from './openapi.js';
 
 export {
   comparisonWire,

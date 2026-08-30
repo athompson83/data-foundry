@@ -40,12 +40,13 @@ describe('public origin configuration', () => {
 });
 
 describe('production topology is explicit and fail closed', () => {
+  const productionOrigin = 'https://www.datafoundry.io';
   it.each([undefined, '', ' ', 'preview'])('refuses an absent, blank, or unknown deployment environment: %j', (value) => {
     expect(() =>
       resolveWebConfig({
         DEPLOYMENT_ENVIRONMENT: value,
         POSTGRES_URL: 'postgres://fixture/db',
-        PUBLIC_ORIGIN: 'https://data-foundry.example',
+        PUBLIC_ORIGIN: productionOrigin,
       }),
     ).toThrow(/DEPLOYMENT_ENVIRONMENT/);
   });
@@ -55,7 +56,7 @@ describe('production topology is explicit and fail closed', () => {
       resolveWebConfig({
         DEPLOYMENT_ENVIRONMENT: 'production',
         POSTGRES_URL: 'postgres://origin/db',
-        PUBLIC_ORIGIN: 'https://data-foundry.example',
+        PUBLIC_ORIGIN: productionOrigin,
       }),
     ).toThrow(/HYPERDRIVE/);
   });
@@ -64,7 +65,7 @@ describe('production topology is explicit and fail closed', () => {
     const config = resolveWebConfig({
       DEPLOYMENT_ENVIRONMENT: 'production',
       HYPERDRIVE: { connectionString: 'postgres://hyperdrive/db' },
-      PUBLIC_ORIGIN: 'https://data-foundry.example',
+      PUBLIC_ORIGIN: productionOrigin,
       PUBLIC_CACHE_MODE: 'no-store',
     });
 
@@ -98,7 +99,7 @@ describe('production topology is explicit and fail closed', () => {
       resolveWebConfig({
         DEPLOYMENT_ENVIRONMENT: 'production',
         HYPERDRIVE: { connectionString: 'postgres://hyperdrive/db' },
-        PUBLIC_ORIGIN: 'https://data-foundry.example',
+        PUBLIC_ORIGIN: productionOrigin,
       }),
     ).toThrow(/PUBLIC_CACHE_MODE/);
     expect(
@@ -115,8 +116,45 @@ describe('production topology is explicit and fail closed', () => {
       resolveWebConfig({
         DEPLOYMENT_ENVIRONMENT: 'preview',
         HYPERDRIVE: { connectionString: 'postgres://hyperdrive/db' },
-        PUBLIC_ORIGIN: 'https://data-foundry.example',
+        PUBLIC_ORIGIN: productionOrigin,
       }),
     ).toThrow(/development.*production/);
+  });
+
+  it.each([
+    'https://web.invalid',
+    'https://web.invalid.',
+    'https://web.example',
+    'https://web.test.',
+    'https://web.example.com',
+    'https://web.local',
+    'https://web.onion',
+    'https://web.home.arpa',
+    'https://8.8.8.8',
+    'https://web_datafoundry.io',
+    'https://data-foundry-web.workers.dev',
+    'https://data-foundry-web.workers.dev.',
+    'https://data-foundry-web.pages.dev',
+    'https://data-foundry-web.trycloudflare.com',
+  ])('refuses a reserved production public origin %s', (publicOrigin) => {
+    expect(() =>
+      resolveWebConfig({
+        DEPLOYMENT_ENVIRONMENT: 'production',
+        HYPERDRIVE: { connectionString: 'postgres://hyperdrive/db' },
+        PUBLIC_ORIGIN: publicOrigin,
+        PUBLIC_CACHE_MODE: 'no-store',
+      }),
+    ).toThrow(/production hostname/i);
+  });
+
+  it('refuses a numeric final-label production public origin even when URL parsing rejects it first', () => {
+    expect(() =>
+      resolveWebConfig({
+        DEPLOYMENT_ENVIRONMENT: 'production',
+        HYPERDRIVE: { connectionString: 'postgres://hyperdrive/db' },
+        PUBLIC_ORIGIN: 'https://web.123',
+        PUBLIC_CACHE_MODE: 'no-store',
+      }),
+    ).toThrow(WebConfigurationError);
   });
 });

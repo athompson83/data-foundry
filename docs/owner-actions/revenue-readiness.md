@@ -1,14 +1,14 @@
 # Owner actions — the revenue path, end to end
 
 **Status check first, because it matters for how to read this document:** the
-current integration candidate reconciles the usage-accounting corrections from
-PR #14, auth/queue metering from PR #15, the accepted and implemented ADR-0010
-rights matrix from PR #16, and the public multi-industry site from PR #17.
-It also contains the thin RapidAPI origin adapter and the deployable authenticated
-MCP Worker, plus Task 9's Cron/R2 acquisition Worker and rights-backed readiness
-command. Those capabilities are repository code, but the combined candidate is
+current integration candidate contains privacy-safe usage accounting,
+auth/Queue metering, the accepted ADR-0010 rights matrix, the public
+multi-industry site, the thin RapidAPI origin adapter, the deployable
+authenticated MCP Worker, and the Cron/R2 acquisition and rights-readiness
+paths. Those capabilities are repository code, but the combined candidate is
 not yet deployed and no real HVAC source has an effective reviewed
-publication/commercial bundle.
+publication/commercial bundle. Historical PR descriptions are not status
+authority; the live candidate tree and its final verification gates are.
 
 This document describes the end-to-end revenue path those changes enable and
 states plainly what is implemented, proposed, operational, legal or still a
@@ -78,9 +78,46 @@ usage event model.
   acceptance before returning metered success. A missing/rejected enqueue is an
   opaque retryable 503. Only the later idempotent Postgres persistence remains
   asynchronous and outside response latency/availability.
+- Source refreshes use immutable revisions and
+  `source-record-evidence@3`, whose fingerprint includes the exact resolved
+  entity/manufacturer targets, alias claims and locators, facts, resolution
+  audit, and relationship dispositions/endpoints. Migration 0023 derives
+  current aliases from append-only claims and authority epochs without
+  manufacturing authority for legacy aliases. An identifier-less refresh still
+  finalizes a zero-claim successor, so the old revision, identity and
+  relationships cannot remain commercially visible merely because their
+  historical rows are retained.
+- Migration 0024 distinguishes complete snapshots from incremental refreshes.
+  Only an explicit complete stream may retire an omitted record, and it records
+  exact artifact evidence; incremental absence carries no deletion authority.
+  Unknown legacy stream membership is withheld until a rights-admitted reingest.
 
 These are prerequisites for both direct and marketplace access even though a
 marketplace may be the system that actually charges a subscriber.
+
+### Credential provisioning is access control, not source clearance
+
+`pnpm credentials:provision` creates one fail-closed credential for one tenant
+and one vertical. It accepts exactly these access/billing pairs:
+
+- `API_PAID/DIRECT` for the direct paid API;
+- `RAPIDAPI/RAPIDAPI` for the marketplace origin; or
+- `MCP/NONE` for authenticated, analytics-only MCP access.
+
+No pair is inferred. The command does not mint `API_FREE/DIRECT`, create a
+subscription, set a price, or make a usage row invoiceable beyond its closed
+classification. Direct and MCP keys are delivered only to a new absolute
+owner-only file outside the worktree from a POSIX runtime; RapidAPI delivery is
+piped to the repository-pinned Wrangler entry point as the edge Worker's
+`RAPIDAPI_API_KEY`, with an explicit empty env file preventing implicit caller
+`.env` loading. Production marketplace hostnames must be canonical public DNS
+names, never reserved or `workers.dev`. Only a named legacy null/null row may be
+classified, using explicit `--classify-existing`.
+
+Most importantly, a key is not a grant. Provisioning creates no rights cell,
+terms evidence, source approval, legal conclusion or publication permission.
+The surface still fails closed unless every contribution resolves its exact
+ADR-0010 bundle.
 
 ### Marketplace strategy — RapidAPI first, not RapidAPI only
 
@@ -99,13 +136,13 @@ RapidAPI subscriber
         v
 RapidAPI gateway
         |
-        | hidden Data Foundry bearer key
-        | RapidAPI proxy-secret header
+        | marketplace proxy-secret proof
         v
 Cloudflare / apps/edge
         |
-        | authenticate normal Data Foundry key
-        | verify marketplace proxy secret
+        | verify exact marketplace hostname + proxy proof
+        | inject server-held RAPIDAPI_API_KEY
+        | authenticate RAPIDAPI/RAPIDAPI service tenant
         | resolve surface/use-case rights
         | record usage for analytics/reconciliation
         v
@@ -114,13 +151,16 @@ canonical QueryModel
 
 Implementation rules:
 
-1. **Reuse the existing API-key system.** Give RapidAPI a dedicated Data Foundry
-   service key/tenant or equivalent scoped credential. Do not create a second
-   credential architecture unless the existing model proves insufficient.
+1. **Reuse the existing API-key system.** Give the edge Worker a dedicated
+   `RAPIDAPI/RAPIDAPI` Data Foundry service key/tenant. Keep that key only as the
+   Worker's `RAPIDAPI_API_KEY` secret; RapidAPI and subscribers never receive it.
 2. **Verify the marketplace proxy secret.** A caller that bypasses RapidAPI must
    not be able to claim marketplace treatment merely by naming the channel.
-3. **Never expose the origin credential to subscribers.** The marketplace
-   injects it as a hidden header.
+   Give that channel its own hostname/route on the same edge Worker; keep the
+   direct API on a different hostname so classification remains unambiguous.
+3. **Never expose or forward the origin credential.** RapidAPI sends its own
+   proxy proof. On the exact configured marketplace hostname, the Worker ignores
+   caller `Authorization` and selects its server-held marketplace credential.
 4. **Record marketplace usage, but do not invoice it internally.** Marketplace
    usage events exist for operations, abuse analysis, reconciliation and unit
    economics; RapidAPI is the billing authority for those calls.
@@ -132,7 +172,10 @@ Implementation rules:
    permitted use-case context needed for rights enforcement.
 7. **Generate marketplace documentation from the canonical API contract.** The
    OpenAPI/listing description must be derived from the same route/filter
-   definitions the API actually serves and checked for drift in CI.
+   definitions the API actually serves and checked for drift in CI. The current
+   public artifact is `openapi/data-foundry-hvac-rapidapi-v1.openapi.json`; it
+   intentionally omits the private Data Foundry origin bearer while preserving
+   exact route and response-schema parity with the direct contract.
 
 ### Rights are the hard gate for marketplace publication
 
@@ -287,7 +330,9 @@ semantics established earlier:
    a neighboring or disjoint grant never qualifies it.
 5. **RapidAPI and MCP adapters — integrated.** RapidAPI stays a thin authenticated
    proxy over `apps/edge`; MCP stays a thin Streamable HTTP adapter over
-   `apps/mcp`. Both have independent closed billing/access classifications.
+   `apps/mcp`. Both have independent closed billing/access classifications;
+   the credential provisioner creates access only and cannot create a rights
+   grant.
 6. **Scheduled acquisition and readiness — integrated.** The hourly
    `apps/acquisition-worker` uses durable versioned run receipts, exact stored
    `ACQUIRE`/`STORE`/`CACHE` checks before transport and again at the
@@ -298,8 +343,9 @@ semantics established earlier:
    token only after expiry, and stale attempts cannot terminalize. The readiness
    command requires canonical `--as-of` and qualified DB/snapshot evidence.
 7. **Deploy the canonical Cloudflare stack.** Provision production Postgres,
-   Hyperdrive, all five Workers, R2, usage Queue/DLQ, routes and secrets; prove
-   health/readiness and perform live smoke tests.
+   Hyperdrive, all five Workers, R2, usage Queue/DLQ, routes and secrets. Every
+   exact production manifest must name the same canonical Cloudflare
+   `account_id`; prove health/readiness and perform live smoke tests.
 8. **Rights-clear the first real vertical.** Synthetic HVAC fixtures prove the
    machinery, not the commercial dataset. No marketplace listing goes live
    until the actual contributing sources are cleared for the listed use cases.

@@ -2,7 +2,11 @@ import { readFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parse } from 'smol-toml';
-import { isUnsafeProductionEndpointHostname } from '@data-foundry/canonical-schema';
+import {
+  canonicalizeEndpointHostname,
+  isUnsafeCanonicalProductionHostname,
+  parseCanonicalProductionWorkerRoute,
+} from '@data-foundry/canonical-schema';
 import { isMain } from '../lib/cli-entry.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -164,36 +168,59 @@ function checkRepositoryPolicy(label: string, config: TomlObject, errors: string
   }
 }
 
-function isExactProductionOrigin(value: unknown): boolean {
-  if (typeof value !== 'string' || value.trim() === '') return false;
+interface ExactProductionOrigin {
+  readonly hostname: string;
+  readonly origin: string;
+}
+
+function parseExactProductionOrigin(value: unknown): ExactProductionOrigin | null {
+  if (typeof value !== 'string' || value.trim() === '') return null;
   try {
     const parsed = new URL(value);
-    return parsed.protocol === 'https:' &&
-      parsed.username === '' &&
-      parsed.password === '' &&
-      parsed.pathname === '/' &&
-      parsed.search === '' &&
-      parsed.hash === '' &&
-      parsed.origin === value &&
-      !isUnsafeProductionEndpointHostname(parsed.hostname);
+    if (
+      parsed.protocol !== 'https:' ||
+      parsed.username !== '' ||
+      parsed.password !== '' ||
+      parsed.pathname !== '/' ||
+      parsed.search !== '' ||
+      parsed.hash !== '' ||
+      parsed.origin !== value ||
+      parsed.hostname !== canonicalizeEndpointHostname(parsed.hostname) ||
+      isUnsafeCanonicalProductionHostname(parsed.hostname)
+    ) {
+      return null;
+    }
+    return { hostname: parsed.hostname, origin: parsed.origin };
   } catch {
-    return false;
+    return null;
   }
 }
 
-function isExactProductionHostname(value: unknown): boolean {
-  if (typeof value !== 'string' || value.trim() === '') return false;
-  const hostname = value.trim().toLowerCase();
-  if (isUnsafeProductionEndpointHostname(hostname)) return false;
+function isExactProductionOrigin(value: unknown): boolean {
+  return parseExactProductionOrigin(value) !== null;
+}
+
+function parseExactProductionHostname(value: unknown): string | null {
+  if (typeof value !== 'string' || value.trim() === '') return null;
+  const hostname = value.trim();
+  if (
+    hostname !== value ||
+    hostname !== canonicalizeEndpointHostname(hostname) ||
+    isUnsafeCanonicalProductionHostname(hostname)
+  ) {
+    return null;
+  }
   try {
     const parsed = new URL(`https://${hostname}`);
-    return parsed.hostname.toLowerCase() === hostname &&
+    return parsed.hostname === hostname &&
       parsed.port === '' &&
       parsed.pathname === '/' &&
       parsed.search === '' &&
-      parsed.hash === '';
+      parsed.hash === ''
+      ? hostname
+      : null;
   } catch {
-    return false;
+    return null;
   }
 }
 
@@ -208,11 +235,8 @@ function routeValues(config: TomlObject): readonly string[] {
   return [config['route'], config['routes']].flatMap(visit);
 }
 
-function hasDeploymentHyperdrive(config: TomlObject): boolean {
-  return objects(config['hyperdrive']).some(
-    (binding) => binding['binding'] === 'HYPERDRIVE' &&
-      typeof binding['id'] === 'string' && binding['id'].trim() !== '',
-  );
+function isExactCloudflareId(value: unknown): value is string {
+  return typeof value === 'string' && /^[0-9a-f]{32}$/.test(value) && !/^0{32}$/.test(value);
 }
 
 function isPlaintextProtectedKey(key: string): boolean {
@@ -255,30 +279,55 @@ function checkDeploymentFieldLocations(label: string, config: TomlObject, errors
 
 function checkDeploymentWorker(label: string, config: TomlObject, errors: string[]): void {
   checkDeploymentFieldLocations(label, config, errors);
-  if (!hasDeploymentHyperdrive(config)) {
-    errors.push(`${label} deployment manifest must bind HYPERDRIVE with a non-empty id.`);
+  const bindings = objects(config['hyperdrive']);
+  if (
+    !bindings.some((binding) => binding['binding'] === 'HYPERDRIVE') ||
+    bindings.some((binding) => !isExactCloudflareId(binding['id']))
+  ) {
+    errors.push(
+      `${label} deployment manifest must bind HYPERDRIVE with a non-zero lowercase 32-hex id.`,
+    );
   }
   checkPlaintextProtectedVars(label, config, errors);
 }
 
 function deploymentAccountId(label: string, config: TomlObject, errors: string[]): string | null {
   const value = config['account_id'];
-  if (typeof value !== 'string' || !/^[0-9a-f]{32}$/i.test(value)) {
-    errors.push(`${label} deployment manifest must declare a 32-hex account_id.`);
+  if (!isExactCloudflareId(value)) {
+    errors.push(
+      `${label} deployment manifest must declare a non-zero lowercase 32-hex account_id.`,
+    );
     return null;
   }
-  return value.toLowerCase();
+  return value;
 }
 
 function checkDeploymentAccountIds(
   manifests: readonly (readonly [label: string, config: TomlObject])[],
   errors: string[],
-): void {
+): string | null {
   const accountIds = manifests
     .map(([label, config]) => deploymentAccountId(label, config, errors))
     .filter((value): value is string => value !== null);
   if (new Set(accountIds).size > 1) {
     errors.push('Cloudflare deployment manifests must target one canonical account_id.');
+  }
+  return accountIds.length === manifests.length && new Set(accountIds).size === 1
+    ? accountIds[0] ?? null
+    : null;
+}
+
+function checkAcquisitionProviderAccountId(
+  acquisition: TomlObject,
+  canonicalAccountId: string | null,
+  errors: string[],
+): void {
+  const providerAccountId = object(acquisition['vars'])['CLOUDFLARE_ACCOUNT_ID'];
+  if (providerAccountId === undefined) return;
+  if (!isExactCloudflareId(providerAccountId) || providerAccountId !== canonicalAccountId) {
+    errors.push(
+      'acquisition-worker CLOUDFLARE_ACCOUNT_ID must exactly match the canonical account_id as a non-zero lowercase 32-hex value.',
+    );
   }
 }
 
@@ -288,32 +337,59 @@ function checkDeploymentEndpoints(
   mcp: TomlObject,
   errors: string[],
 ): void {
+  const routeHosts = (config: TomlObject): ReadonlySet<string> =>
+    new Set(
+      routeValues(config)
+        .map((route) => parseCanonicalProductionWorkerRoute(route))
+        .filter((route) => route !== null)
+        .map((route) => route.hostname),
+    );
+  const edgeRouteHosts = routeHosts(edge);
+  const webRouteHosts = routeHosts(web);
+  const mcpRouteHosts = routeHosts(mcp);
   for (const [label, config] of [['edge', edge], ['web', web], ['mcp-worker', mcp]] as const) {
     const routes = routeValues(config);
-    if (routes.length === 0 || routes.some((route) => route.trim() === '' || /(?:^|\.)workers\.dev(?:\/|$)/i.test(route))) {
-      errors.push(`${label} deployment manifest must declare non-workers.dev route(s).`);
+    if (
+      routes.length === 0 ||
+      routes.some((route) => parseCanonicalProductionWorkerRoute(route) === null)
+    ) {
+      errors.push(`${label} deployment manifest must declare canonical production route(s) as lowercase public-host/* patterns.`);
     }
   }
 
   const edgeVars = object(edge['vars']);
-  if (edgeVars['RAPIDAPI_HOSTNAME'] !== undefined && !isExactProductionHostname(edgeVars['RAPIDAPI_HOSTNAME'])) {
+  const rapidApiHostname = parseExactProductionHostname(edgeVars['RAPIDAPI_HOSTNAME']);
+  if (edgeVars['RAPIDAPI_HOSTNAME'] !== undefined && rapidApiHostname === null) {
     errors.push('edge RAPIDAPI_HOSTNAME must be a non-loopback exact production hostname when configured.');
+  } else if (rapidApiHostname !== null && !edgeRouteHosts.has(rapidApiHostname)) {
+    errors.push('edge RAPIDAPI_HOSTNAME must match an edge canonical production route hostname.');
+  } else if (rapidApiHostname !== null && [...edgeRouteHosts].every((hostname) => hostname === rapidApiHostname)) {
+    errors.push('edge RAPIDAPI_HOSTNAME requires a distinct DIRECT API canonical edge route hostname.');
   }
 
   const webVars = object(web['vars']);
-  if (!isExactProductionOrigin(webVars['PUBLIC_ORIGIN'])) {
+  const webPublicOrigin = parseExactProductionOrigin(webVars['PUBLIC_ORIGIN']);
+  if (webPublicOrigin === null) {
     errors.push('web deployment manifest must provide a non-loopback exact HTTPS PUBLIC_ORIGIN.');
+  } else if (!webRouteHosts.has(webPublicOrigin.hostname)) {
+    errors.push('web PUBLIC_ORIGIN hostname must match a web canonical production route hostname.');
   }
   if (webVars['PUBLIC_CACHE_MODE'] !== 'cache' && webVars['PUBLIC_CACHE_MODE'] !== 'no-store') {
     errors.push('web deployment manifest must provide PUBLIC_CACHE_MODE as exactly cache or no-store.');
   }
 
   const mcpVars = object(mcp['vars']);
-  if (!isExactProductionHostname(mcpVars['MCP_HOSTNAME'])) {
+  const mcpHostname = parseExactProductionHostname(mcpVars['MCP_HOSTNAME']);
+  if (mcpHostname === null) {
     errors.push('mcp-worker deployment manifest must provide a non-loopback exact MCP_HOSTNAME.');
+  } else if (!mcpRouteHosts.has(mcpHostname)) {
+    errors.push('MCP_HOSTNAME must match an mcp-worker canonical production route hostname.');
   }
-  if (!isExactProductionOrigin(mcpVars['PUBLIC_ORIGIN'])) {
+  const mcpPublicOrigin = parseExactProductionOrigin(mcpVars['PUBLIC_ORIGIN']);
+  if (mcpPublicOrigin === null) {
     errors.push('mcp-worker deployment manifest must provide a non-loopback exact HTTPS PUBLIC_ORIGIN.');
+  } else if (webPublicOrigin !== null && mcpPublicOrigin.origin !== webPublicOrigin.origin) {
+    errors.push('mcp-worker PUBLIC_ORIGIN must equal the web PUBLIC_ORIGIN exactly.');
   }
   const allowed = mcpVars['MCP_ALLOWED_ORIGINS'];
   if (typeof allowed !== 'string' || allowed.split(',').map((entry) => entry.trim()).some((entry) => !isExactProductionOrigin(entry))) {
@@ -374,13 +450,14 @@ export async function validateCloudflareTopology(
     checkDeploymentWorker('web', web, errors);
     checkDeploymentWorker('acquisition-worker', acquisition, errors);
     checkDeploymentWorker('mcp-worker', mcp, errors);
-    checkDeploymentAccountIds([
+    const canonicalAccountId = checkDeploymentAccountIds([
       ['edge', edge],
       ['usage-consumer', consumer],
       ['web', web],
       ['acquisition-worker', acquisition],
       ['mcp-worker', mcp],
     ], errors);
+    checkAcquisitionProviderAccountId(acquisition, canonicalAccountId, errors);
     checkDeploymentEndpoints(edge, web, mcp, errors);
   }
 

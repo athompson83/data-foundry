@@ -116,10 +116,16 @@ export const EntityAliasClaimSchema = z.object({
   entity_alias_id: EntityAliasIdSchema,
   /** Exact source/editorial spelling asserted by this immutable claim. */
   asserted_alias_value: z.string().min(1).max(500),
+  /** Exact normalized identifier the assertion is bound to. */
+  asserted_normalized_value: z.string().min(1).max(500),
   /** Identity confidence asserted with this claim, not the mutable display-row maximum. */
   identity_confidence: IdentityConfidenceSchema,
   claim_kind: EntityAliasClaimKindSchema,
+  /** Source attribution selected with this claim; source-record claims derive it from the record. */
+  source_id: SourceIdSchema.nullable(),
   source_record_id: SourceRecordIdSchema.nullable(),
+  /** Global alias lifecycle generation; pre-retirement claims never cross a reopen boundary. */
+  authority_epoch: z.number().int().nonnegative(),
   locator_type: LocatorTypeSchema.nullable(),
   locator_value: z.string().max(2000).nullable(),
   /** Assertion snapshot; `entity_aliases.valid_to` is the global retirement/reopen gate. */
@@ -137,6 +143,7 @@ export const EntityAliasClaimSchema = z.object({
   }
   if (
     claim.source_record_id === null ||
+    claim.source_id === null ||
     claim.locator_type === null ||
     claim.locator_value === null ||
     claim.valid_to !== null

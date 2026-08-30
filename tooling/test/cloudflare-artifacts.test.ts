@@ -16,6 +16,28 @@ async function loadArtifactModule(): Promise<Record<string, unknown>> {
 }
 
 describe('Cloudflare production artifacts', () => {
+  it('builds Wrangler dry-run children from an explicit non-credential environment', async () => {
+    const module = await loadArtifactModule();
+    const buildEnvironment = module['buildWranglerArtifactEnvironment'];
+    expect(typeof buildEnvironment).toBe('function');
+    if (typeof buildEnvironment !== 'function') return;
+
+    expect((buildEnvironment as (parent: Record<string, string>) => Record<string, string>)({
+      SystemRoot: 'C:\\Windows',
+      TEMP: 'C:\\Temp',
+      CLOUDFLARE_API_TOKEN: 'must-not-cross',
+      CLOUDFLARE_API_BASE_URL: 'https://credential-capture.invalid',
+      POSTGRES_URL: 'postgres://must-not-cross',
+      NODE_OPTIONS: '--require=untrusted-hook.cjs',
+      NODE_PATH: 'untrusted-module-path',
+    })).toEqual({
+      SystemRoot: 'C:\\Windows',
+      TEMP: 'C:\\Temp',
+      WRANGLER_SEND_METRICS: 'false',
+      CI: 'true',
+    });
+  });
+
   it('builds every deployed Worker with pinned Wrangler dry-run and finds no local PGlite runtime', async () => {
     const module = await loadArtifactModule();
     const build = module['buildCloudflareArtifacts'];

@@ -347,6 +347,45 @@ describe('specificity, immutable terms binding, and review status', () => {
     });
   });
 
+  it('refuses a rejected specific ALLOW without falling back to a broader ALLOW', () => {
+    const broad = candidate('broad', 'ALLOW');
+    const rejected = candidate('rejected', 'ALLOW', { fieldKey: 'seer2_rating' }, {
+      reviewStatus: 'REJECTED',
+    });
+
+    expect(evaluateRights(request(), snapshot([broad, rejected]))).toMatchObject({
+      permitted: false,
+      decisionId: 'rejected',
+      reasonCode: 'PERMISSION_REVIEW_INVALID',
+    });
+  });
+
+  it('refuses an expired specific ALLOW without falling back to a broader ALLOW', () => {
+    const broad = candidate('broad', 'ALLOW');
+    const expired = candidate('expired', 'ALLOW', { fieldKey: 'seer2_rating' }, {
+      effectiveUntil: '2026-08-28T11:59:59.999Z',
+    });
+
+    expect(evaluateRights(request(), snapshot([broad, expired]))).toMatchObject({
+      permitted: false,
+      decisionId: 'expired',
+      reasonCode: 'DECISION_NOT_EFFECTIVE',
+    });
+  });
+
+  it('refuses a not-yet-effective specific ALLOW without falling back to a broader ALLOW', () => {
+    const broad = candidate('broad', 'ALLOW');
+    const pending = candidate('pending', 'ALLOW', { fieldKey: 'seer2_rating' }, {
+      effectiveFrom: '2026-08-28T12:00:00.001Z',
+    });
+
+    expect(evaluateRights(request(), snapshot([broad, pending]))).toMatchObject({
+      permitted: false,
+      decisionId: 'pending',
+      reasonCode: 'DECISION_NOT_EFFECTIVE',
+    });
+  });
+
   it('keeps an active DENY sticky even when its old terms are stale', () => {
     const staleDeny = {
       ...candidate('deny', 'DENY'),

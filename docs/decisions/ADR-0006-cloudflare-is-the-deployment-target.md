@@ -80,15 +80,17 @@ output non-deterministic and `--check` unrunnable.
 
 ## What this ADR does not decide
 
-**Vercel is still not adopted, and `vercel.json` stays for now.** ADR-0005 named
-disconnecting the Git integration as the complete fix and noted it needs a person
-in the Vercel dashboard. That has not happened, so deleting the file would let
-failing deployments resume. Deletion is tracked in `docs/owner-actions/`, not
-here.
+**Vercel is still not adopted, and `vercel.json` stays for now.** Current
+governance evidence shows no Data Foundry Vercel project or repository webhook.
+GitHub App installation `122728140` still requires an owner sudo/passkey check
+to prove its exact repository selection; deletion is tracked in
+`docs/owner-actions/`, not here.
 
-**Monetization is not a deployment decision.** Metered API access needs tenancy,
-keys and usage schema that `db/migrations` does not have. Pay per crawl is a
-zone-level Cloudflare setting, not code. Neither belongs in this ADR.
+**Monetization is not a deployment decision.** Tenancy, scoped keys, usage
+schema, async Queue metering, and channel-safe invoice projection now exist, but
+pricing, subscriptions, invoices, marketplace enrollment, and pay per crawl are
+separate commercial/provider decisions. Pay per crawl remains a zone-level
+Cloudflare setting, not code. None of those choices belongs in this ADR.
 
 ## Rejected alternatives
 

@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   AcquisitionProviderRegistry,
   FixtureAcquisitionProvider,
@@ -23,10 +23,11 @@ import {
   type ExtractionProviderRegistry,
   type ExtractionSchema,
 } from '@data-foundry/extraction';
-import { traverseRelationships } from '@data-foundry/query-model';
+import { createQueryModel, traverseRelationships } from '@data-foundry/query-model';
 import { migrate } from '../../../packages/canonical-store/test/support.js';
 import {
   buildFixtureManifest,
+  buildFieldMetadata,
   InMemoryArtifactStore,
   loadVerticalConfig,
   Pipeline,
@@ -36,12 +37,12 @@ import {
 
 let driver: SqlDriver;
 
-beforeAll(async () => {
+beforeEach(async () => {
   driver = await createPgliteDriver({ trigram: false });
   await migrate(driver);
 });
 
-afterAll(async () => {
+afterEach(async () => {
   await driver?.close();
 });
 
@@ -378,6 +379,418 @@ describe('real ingestion fact output lineage', () => {
     );
   });
 
+  it('retires records omitted by an explicit complete snapshot and preserves omission evidence', async () => {
+    await ensureIngestionRights();
+    const artifactStore = new InMemoryArtifactStore();
+    const retainedKey = 'ACS-SNAPSHOT-RETAINED-001';
+    const omittedKey = 'ACS-SNAPSHOT-OMITTED-001';
+    const first = await Pipeline.create({
+      driver,
+      verticalSlug: 'hvac',
+      artifactStore,
+      now: '2026-08-18T12:00:00.000Z' as never,
+      runId: 'full-snapshot-first',
+      fixtureOverrides: {
+        'acme-hvac-catalog': JSON.stringify({
+          products: [
+            catalogProduct(retainedKey, 'SNAPSHOTRETAINED001'),
+            catalogProduct(omittedKey, 'SNAPSHOTOMITTED001'),
+          ],
+        }),
+      },
+    });
+    expect((await first.runSource('acme-hvac-catalog')).error).toBeNull();
+    const omittedEntityId = await currentResolvedEntityId(omittedKey, 'equipment_model');
+    const [omittedRevision] = await currentSourceRecordRows(omittedKey);
+    if (omittedRevision === undefined) throw new Error('omitted snapshot revision missing');
+
+    const second = await Pipeline.create({
+      driver,
+      verticalSlug: 'hvac',
+      artifactStore,
+      now: '2026-08-19T12:00:00.000Z' as never,
+      runId: 'full-snapshot-second',
+      fixtureOverrides: {
+        'acme-hvac-catalog': JSON.stringify({
+          products: [catalogProduct(retainedKey, 'SNAPSHOTRETAINED001')],
+        }),
+      },
+    });
+    expect((await second.runSource('acme-hvac-catalog')).error).toBeNull();
+
+    expect(await currentSourceRecordRows(omittedKey)).toEqual([]);
+    expect(await driver.query(
+      `SELECT id FROM current_entity_aliases WHERE entity_id = $1`,
+      [omittedEntityId],
+    )).toEqual([]);
+    expect(await publicWebEntity(
+      second,
+      omittedEntityId,
+      '2026-08-19T12:00:00.000Z',
+    )).toBeNull();
+    const retirement = await driver.query<{
+      source_record_id: string;
+      source_stream: string;
+      artifact_count: number;
+    }>(
+      `SELECT retirement.source_record_id, retirement.source_stream,
+              COUNT(retirement.artifact_id)::int AS artifact_count
+         FROM source_record_snapshot_retirements retirement
+        WHERE retirement.source_record_id = $1
+        GROUP BY retirement.source_record_id, retirement.source_stream`,
+      [omittedRevision.id],
+    );
+    expect(retirement).toEqual([{
+      source_record_id: omittedRevision.id,
+      source_stream: 'products',
+      artifact_count: 1,
+    }]);
+  });
+
+  it('does not let a delayed older complete snapshot supersede newer stream membership', async () => {
+    await ensureIngestionRights();
+    const artifactStore = new InMemoryArtifactStore();
+    const retainedKey = 'ACS-SNAPSHOT-WATERMARK-RETAINED-001';
+    const removedKey = 'ACS-SNAPSHOT-WATERMARK-REMOVED-001';
+    const run = async (
+      now: string,
+      runId: string,
+      products: readonly Record<string, unknown>[],
+    ) => {
+      const pipeline = await Pipeline.create({
+        driver,
+        verticalSlug: 'hvac',
+        artifactStore,
+        now: now as never,
+        runId,
+        fixtureOverrides: {
+          'acme-hvac-catalog': JSON.stringify({ products }),
+        },
+      });
+      expect((await pipeline.runSource('acme-hvac-catalog')).error).toBeNull();
+    };
+
+    await run('2026-08-23T12:00:00.000Z', 'snapshot-watermark-baseline', [
+      catalogProduct(retainedKey, 'SNAPSHOTWATERMARKRETAINED001'),
+      catalogProduct(removedKey, 'SNAPSHOTWATERMARKREMOVED001'),
+    ]);
+    await run('2026-08-25T12:00:00.000Z', 'snapshot-watermark-newer', [
+      catalogProduct(retainedKey, 'SNAPSHOTWATERMARKRETAINED001'),
+    ]);
+    expect(await currentSourceRecordRows(removedKey)).toEqual([]);
+
+    await run('2026-08-24T12:00:00.000Z', 'snapshot-watermark-delayed-older', [
+      catalogProduct(retainedKey, 'SNAPSHOTWATERMARKRETAINED001'),
+      catalogProduct(removedKey, 'SNAPSHOTWATERMARKREMOVED001'),
+    ]);
+
+    expect(await currentSourceRecordRows(removedKey)).toEqual([]);
+    expect(await currentSourceRecordRows(removedKey, false)).toHaveLength(1);
+    expect(await driver.query(
+      `SELECT acceptance.id FROM source_stream_snapshot_acceptances acceptance
+        JOIN sources source ON source.id = acceptance.source_id
+       WHERE source.domain = 'catalog.acme-climate.example.com'
+         AND acceptance.source_stream = 'products'
+         AND acceptance.observed_at = '2026-08-24T12:00:00.000Z'`,
+    )).toEqual([]);
+  });
+
+  it('uses the snapshot digest as a deterministic equal-time acceptance tie-break', async () => {
+    await ensureIngestionRights();
+    const artifactStore = new InMemoryArtifactStore();
+    const firstKey = 'ACS-SNAPSHOT-TIE-FIRST-001';
+    const secondKey = 'ACS-SNAPSHOT-TIE-SECOND-001';
+    const candidates = [
+      { key: firstKey, model: 'SNAPSHOTTIEFIRST001' },
+      { key: secondKey, model: 'SNAPSHOTTIESECOND001' },
+    ] as const;
+    const run = async (now: string, runId: string, candidate: (typeof candidates)[number]) => {
+      const pipeline = await Pipeline.create({
+        driver,
+        verticalSlug: 'hvac',
+        artifactStore,
+        now: now as never,
+        runId,
+        fixtureOverrides: {
+          'acme-hvac-catalog': JSON.stringify({
+            products: [catalogProduct(candidate.key, candidate.model)],
+          }),
+        },
+      });
+      expect((await pipeline.runSource('acme-hvac-catalog')).error).toBeNull();
+    };
+    const digestAt = async (observedAt: string) => {
+      const [row] = await driver.query<{ snapshot_digest: string }>(
+        `SELECT acceptance.snapshot_digest
+           FROM source_stream_snapshot_acceptances acceptance
+           JOIN sources source ON source.id = acceptance.source_id
+          WHERE source.domain = 'catalog.acme-climate.example.com'
+            AND acceptance.source_stream = 'products'
+            AND acceptance.observed_at = $1
+          ORDER BY acceptance.snapshot_digest COLLATE "C" DESC
+          LIMIT 1`,
+        [observedAt],
+      );
+      if (row === undefined) throw new Error(`snapshot acceptance missing at ${observedAt}`);
+      return row.snapshot_digest;
+    };
+
+    await run('2026-08-26T12:00:00.000Z', 'snapshot-tie-fingerprint-first', candidates[0]);
+    const firstDigest = await digestAt('2026-08-26T12:00:00.000Z');
+    await run('2026-08-27T12:00:00.000Z', 'snapshot-tie-fingerprint-second', candidates[1]);
+    const secondDigest = await digestAt('2026-08-27T12:00:00.000Z');
+    expect(firstDigest).not.toBe(secondDigest);
+    const [low, high] = firstDigest < secondDigest
+      ? [candidates[0], candidates[1]]
+      : [candidates[1], candidates[0]];
+
+    await run('2026-08-28T12:00:00.000Z', 'snapshot-tie-high-first', high);
+    await run('2026-08-28T12:00:00.000Z', 'snapshot-tie-low-second', low);
+    expect(await currentSourceRecordRows(high.key)).toHaveLength(1);
+    expect(await currentSourceRecordRows(low.key)).toEqual([]);
+
+    await run('2026-08-29T12:00:00.000Z', 'snapshot-tie-low-first', low);
+    await run('2026-08-29T12:00:00.000Z', 'snapshot-tie-high-second', high);
+    expect(await currentSourceRecordRows(high.key)).toHaveLength(1);
+    expect(await currentSourceRecordRows(low.key)).toEqual([]);
+  });
+
+  it('ignores a stale full stream while still applying an incremental sibling stream', async () => {
+    await ensureIngestionRights();
+    const base = await loadVerticalConfig('hvac');
+    const mixed = {
+      ...base,
+      sourceMappings: structuredClone(base.sourceMappings),
+    } as VerticalConfig & { sourceMappings: any };
+    const mapping = mixed.sourceMappings.sources.find(
+      (candidate: any) => candidate.source_key === 'acme-hvac-catalog',
+    );
+    const incremental = structuredClone(mapping.records[0]);
+    incremental.stream = 'updates';
+    incremental.refresh_mode = 'incremental';
+    incremental.record_path = '/updates';
+    mapping.records.push(incremental);
+
+    const artifactStore = new InMemoryArtifactStore();
+    const retainedKey = 'ACS-MIXED-FULL-RETAINED-001';
+    const removedKey = 'ACS-MIXED-FULL-REMOVED-001';
+    const incrementalKey = 'ACS-MIXED-INCREMENTAL-001';
+    const run = async (
+      now: string,
+      runId: string,
+      products: readonly Record<string, unknown>[],
+      updateModel: string,
+    ) => {
+      const pipeline = await pipelineForConfig(
+        mixed,
+        artifactStore,
+        runId,
+        { 'acme-hvac-catalog': JSON.stringify({
+          products,
+          updates: [catalogProduct(incrementalKey, updateModel)],
+        }) },
+        undefined,
+        now,
+      );
+      expect((await pipeline.runSource('acme-hvac-catalog')).error).toBeNull();
+    };
+
+    await run('2026-09-01T12:00:00.000Z', 'mixed-stream-baseline', [
+      catalogProduct(retainedKey, 'MIXEDFULLRETAINED001'),
+      catalogProduct(removedKey, 'MIXEDFULLREMOVED001'),
+    ], 'MIXEDINCREMENTAL001');
+    await run('2026-09-03T12:00:00.000Z', 'mixed-stream-newer', [
+      catalogProduct(retainedKey, 'MIXEDFULLRETAINED001'),
+    ], 'MIXEDINCREMENTAL001');
+    expect(await currentSourceRecordRows(removedKey)).toEqual([]);
+    const [incrementalBeforeDelay] = await currentSourceRecordRows(incrementalKey);
+    if (incrementalBeforeDelay === undefined) throw new Error('incremental control record missing');
+
+    await run('2026-09-02T12:00:00.000Z', 'mixed-stream-delayed', [
+      catalogProduct(retainedKey, 'MIXEDFULLRETAINED001'),
+      catalogProduct(removedKey, 'MIXEDFULLREMOVED001'),
+    ], 'MIXEDINCREMENTAL002');
+
+    expect(await currentSourceRecordRows(removedKey)).toEqual([]);
+    const [incrementalAfterDelay] = await currentSourceRecordRows(incrementalKey);
+    expect(incrementalAfterDelay?.id).not.toBe(incrementalBeforeDelay.id);
+  });
+
+  it('does not treat a missing record selector as an authoritative empty snapshot', async () => {
+    await ensureIngestionRights();
+    const artifactStore = new InMemoryArtifactStore();
+    const firstKey = 'ACS-SNAPSHOT-SHAPE-A-001';
+    const secondKey = 'ACS-SNAPSHOT-SHAPE-B-001';
+    const first = await Pipeline.create({
+      driver,
+      verticalSlug: 'hvac',
+      artifactStore,
+      now: '2026-08-18T12:00:00.000Z' as never,
+      runId: 'full-snapshot-shape-first',
+      fixtureOverrides: {
+        'acme-hvac-catalog': JSON.stringify({ products: [
+          catalogProduct(firstKey, 'SNAPSHOTSHAPEA001'),
+          catalogProduct(secondKey, 'SNAPSHOTSHAPEB001'),
+        ] }),
+      },
+    });
+    expect((await first.runSource('acme-hvac-catalog')).error).toBeNull();
+
+    const malformed = await Pipeline.create({
+      driver,
+      verticalSlug: 'hvac',
+      artifactStore,
+      now: '2026-08-19T12:00:00.000Z' as never,
+      runId: 'full-snapshot-shape-malformed',
+      fixtureOverrides: { 'acme-hvac-catalog': JSON.stringify({ unexpected: [] }) },
+    });
+    const malformedResult = await malformed.runSource('acme-hvac-catalog');
+    expect(malformedResult.error).not.toBeNull();
+    expect(String(malformedResult.error))
+      .toMatch(/record selector.*not found|not found.*record selector/i);
+    expect(await currentSourceRecordRows(firstKey)).toHaveLength(1);
+    expect(await currentSourceRecordRows(secondKey)).toHaveLength(1);
+
+    const explicitEmpty = await Pipeline.create({
+      driver,
+      verticalSlug: 'hvac',
+      artifactStore,
+      now: '2026-08-20T12:00:00.000Z' as never,
+      runId: 'full-snapshot-shape-explicit-empty',
+      fixtureOverrides: { 'acme-hvac-catalog': JSON.stringify({ products: [] }) },
+    });
+    expect((await explicitEmpty.runSource('acme-hvac-catalog')).error).toBeNull();
+    expect(await currentSourceRecordRows(firstKey)).toEqual([]);
+    expect(await currentSourceRecordRows(secondKey)).toEqual([]);
+  });
+
+  it('does not let a partially rejected record set authorize snapshot omissions', async () => {
+    await ensureIngestionRights();
+    const artifactStore = new InMemoryArtifactStore();
+    const firstKey = 'ACS-SNAPSHOT-KEY-A-001';
+    const secondKey = 'ACS-SNAPSHOT-KEY-B-001';
+    const first = await Pipeline.create({
+      driver,
+      verticalSlug: 'hvac',
+      artifactStore,
+      now: '2026-08-21T12:00:00.000Z' as never,
+      runId: 'full-snapshot-key-first',
+      fixtureOverrides: { 'acme-hvac-catalog': JSON.stringify({ products: [
+        catalogProduct(firstKey, 'SNAPSHOTKEYA001'),
+        catalogProduct(secondKey, 'SNAPSHOTKEYB001'),
+      ] }) },
+    });
+    expect((await first.runSource('acme-hvac-catalog')).error).toBeNull();
+
+    const partial = await Pipeline.create({
+      driver,
+      verticalSlug: 'hvac',
+      artifactStore,
+      now: '2026-08-22T12:00:00.000Z' as never,
+      runId: 'full-snapshot-key-partial',
+      fixtureOverrides: { 'acme-hvac-catalog': JSON.stringify({ products: [
+        catalogProduct(firstKey, 'SNAPSHOTKEYA001'),
+        { unexpected: true },
+      ] }) },
+    });
+    const partialResult = await partial.runSource('acme-hvac-catalog');
+    expect(partialResult.error).not.toBeNull();
+    expect(String(partialResult.error)).toMatch(/record key.*incomplete|incomplete.*record key/i);
+    expect(await currentSourceRecordRows(firstKey)).toHaveLength(1);
+    expect(await currentSourceRecordRows(secondKey)).toHaveLength(1);
+  });
+
+  it('refuses a mapping stream rename while the old stream still owns current membership', async () => {
+    await ensureIngestionRights();
+    const base = await loadVerticalConfig('hvac');
+    const artifactStore = new InMemoryArtifactStore();
+    const firstKey = 'ACS-STREAM-RENAME-A-001';
+    const secondKey = 'ACS-STREAM-RENAME-B-001';
+    const first = await pipelineForConfig(
+      base,
+      artifactStore,
+      'stream-rename-first',
+      { 'acme-hvac-catalog': JSON.stringify({ products: [
+        catalogProduct(firstKey, 'STREAMRENAMEA001'),
+        catalogProduct(secondKey, 'STREAMRENAMEB001'),
+      ] }) },
+    );
+    expect((await first.runSource('acme-hvac-catalog')).error).toBeNull();
+
+    const renamed = {
+      ...base,
+      sourceMappings: structuredClone(base.sourceMappings),
+    } as VerticalConfig & { sourceMappings: any };
+    const mapping = renamed.sourceMappings.sources.find(
+      (candidate: any) => candidate.source_key === 'acme-hvac-catalog',
+    );
+    mapping.records[0].stream = 'products_v2';
+    const second = await pipelineForConfig(
+      renamed,
+      artifactStore,
+      'stream-rename-second',
+      { 'acme-hvac-catalog': JSON.stringify({
+        products: [catalogProduct(firstKey, 'STREAMRENAMEA001')],
+      }) },
+    );
+    const renamedResult = await second.runSource('acme-hvac-catalog');
+    expect(renamedResult.error).not.toBeNull();
+    expect(String(renamedResult.error)).toMatch(/stream.*transition|required.*stream/i);
+    expect(await driver.query<{ source_stream: string }>(
+      `SELECT source_stream FROM source_records
+        WHERE source_record_key IN ($1, $2) AND is_current
+        ORDER BY source_record_key`,
+      [firstKey, secondKey],
+    )).toEqual([{ source_stream: 'products' }, { source_stream: 'products' }]);
+  });
+
+  it('does not retire absent records from a stream declared incremental', async () => {
+    await ensureIngestionRights();
+    const base = await loadVerticalConfig('hvac');
+    const incremental = {
+      ...base,
+      sourceMappings: structuredClone(base.sourceMappings),
+    } as VerticalConfig & { sourceMappings: any };
+    const mapping = incremental.sourceMappings.sources.find(
+      (candidate: any) => candidate.source_key === 'acme-hvac-catalog',
+    );
+    mapping.records[0].refresh_mode = 'incremental';
+    const artifactStore = new InMemoryArtifactStore();
+    const retainedKey = 'ACS-INCREMENTAL-RETAINED-001';
+    const absentKey = 'ACS-INCREMENTAL-ABSENT-001';
+    const first = await pipelineForConfig(
+      incremental,
+      artifactStore,
+      'incremental-first',
+      {
+        'acme-hvac-catalog': JSON.stringify({ products: [
+          catalogProduct(retainedKey, 'INCREMENTALRETAINED001'),
+          catalogProduct(absentKey, 'INCREMENTALABSENT001'),
+        ] }),
+      },
+    );
+    expect((await first.runSource('acme-hvac-catalog')).error).toBeNull();
+    const [original] = await currentSourceRecordRows(absentKey);
+    if (original === undefined) throw new Error('incremental control record missing');
+
+    const second = await pipelineForConfig(
+      incremental,
+      artifactStore,
+      'incremental-second',
+      {
+        'acme-hvac-catalog': JSON.stringify({
+          products: [catalogProduct(retainedKey, 'INCREMENTALRETAINED001')],
+        }),
+      },
+    );
+    expect((await second.runSource('acme-hvac-catalog')).error).toBeNull();
+    expect(await currentSourceRecordRows(absentKey)).toEqual([original]);
+    expect(await driver.query(
+      `SELECT id FROM source_record_snapshot_retirements WHERE source_record_id = $1`,
+      [original.id],
+    )).toEqual([]);
+  });
+
   it('retires a removed source alias before it can resolve a later record', async () => {
     await ensureIngestionRights();
     const artifactStore = new InMemoryArtifactStore();
@@ -437,6 +850,13 @@ describe('real ingestion fact output lineage', () => {
       alias_type: 'model_number' as never,
       values: [model],
     })).toEqual([]);
+    const publicEntity = await publicWebEntity(
+      refresh,
+      originalEntityId,
+      '2026-08-16T12:00:00.000Z',
+    );
+    expect(publicEntity).not.toBeNull();
+    expect(publicEntity?.entity.canonical_name).not.toContain(model);
 
     const laterKey = 'ACS-ALIAS-CURRENCY-LATER-001';
     const later = await Pipeline.create({
@@ -548,6 +968,8 @@ describe('real ingestion fact output lineage', () => {
       artifactStore,
       'manufacturer-target-drift-second',
       { 'acme-hvac-catalog': fixtureBody },
+      undefined,
+      '2026-08-16T12:00:00.000Z',
     );
     expect((await second.runSource('acme-hvac-catalog')).error).toBeNull();
 
@@ -671,6 +1093,7 @@ describe('real ingestion fact output lineage', () => {
       source_id: anchor.source_id as never,
       artifact_id: anchor.artifact_id as never,
       source_record_key: `${sourceKey}:shared-contributor`,
+      source_stream: 'products' as never,
       entity_type: 'equipment_model' as never,
       raw_payload: { relationship: 'shared-current-contribution' },
       normalized_payload: null,
@@ -704,6 +1127,46 @@ describe('real ingestion fact output lineage', () => {
     );
   });
 
+  it('refuses an ambiguous relationship alias endpoint instead of choosing the oldest entity', async () => {
+    await ensureIngestionRights();
+    const endpointAlias = 'AMBIGUOUSRELATION001';
+    await seedCuratedEquipmentAlias({
+      aliasType: 'model_number',
+      aliasValue: endpointAlias,
+      slug: 'ambiguous-relationship-first',
+    });
+    await seedCuratedEquipmentAlias({
+      aliasType: 'model_number',
+      aliasValue: endpointAlias,
+      slug: 'ambiguous-relationship-second',
+    });
+    const sourceKey = 'ACS-AMBIGUOUS-RELATIONSHIP-001';
+    const pipeline = await Pipeline.create({
+      driver,
+      verticalSlug: 'hvac',
+      artifactStore: new InMemoryArtifactStore(),
+      now: '2026-08-16T12:00:00.000Z' as never,
+      runId: 'ambiguous-relationship-endpoint',
+      fixtureOverrides: {
+        'acme-hvac-catalog': JSON.stringify({
+          products: [{
+            ...catalogProduct(sourceKey, 'AMBIGUOUSRELATIONPRODUCT001'),
+            lifecycle: {
+              status: 'discontinued',
+              discontinued_on: '2026-08-01',
+              replaced_by: endpointAlias,
+            },
+          }],
+        }),
+      },
+    });
+
+    const result = await pipeline.runSource('acme-hvac-catalog');
+    expect(result.error).toBeNull();
+    expect(await currentRelationshipTargets(sourceKey, 'supersedes')).toEqual([]);
+    expect(result.diagnostics.join('\n')).toMatch(/ambiguous.*relationship|relationship.*ambiguous/i);
+  });
+
   it('reconciles an identifier-less refresh, retires its old source claims, and rolls back manufacturer creation', async () => {
     await ensureIngestionRights();
     const base = await loadVerticalConfig('hvac');
@@ -727,6 +1190,8 @@ describe('real ingestion fact output lineage', () => {
     );
     expect((await first.runSource('acme-hvac-catalog')).error).toBeNull();
     const originalEntityId = await currentResolvedEntityId(sourceKey, 'equipment_model');
+    const originalEntity = await first.store.getEntityById(originalEntityId as never);
+    if (originalEntity === null) throw new Error('original no-strong entity missing');
     const [originalRecord] = await currentSourceRecordRows(sourceKey);
     if (originalRecord === undefined) throw new Error('original no-strong source record missing');
 
@@ -750,6 +1215,8 @@ describe('real ingestion fact output lineage', () => {
       artifactStore,
       'no-strong-refresh-second',
       { 'acme-hvac-catalog': fixtureBody },
+      undefined,
+      '2026-08-16T12:00:00.000Z',
     );
     const result = await refresh.runSource('acme-hvac-catalog');
     expect(result.error).toBeNull();
@@ -783,6 +1250,26 @@ describe('real ingestion fact output lineage', () => {
         WHERE entity_id = $1 AND alias_type IN ('manufacturer_sku', 'model_number')`,
       [originalEntityId],
     )).toEqual([]);
+    expect(await publicWebEntity(
+      refresh,
+      originalEntityId,
+      '2026-08-15T12:00:00.000Z',
+    )).toBeNull();
+    expect(await refresh.store.getEntityById(originalEntityId as never)).toEqual(
+      expect.objectContaining({
+        id: originalEntityId,
+        canonical_slug: originalEntity.canonical_slug,
+      }),
+    );
+    expect(await driver.query<{ normalized_value: string }>(
+      `SELECT normalized_value FROM entity_aliases
+        WHERE entity_id = $1 AND alias_type IN ('manufacturer_sku', 'model_number')
+        ORDER BY normalized_value`,
+      [originalEntityId],
+    )).toEqual(expect.arrayContaining([
+      { normalized_value: model },
+      { normalized_value: sourceKey },
+    ]));
     expect(await driver.query(
       `SELECT id FROM entities
         WHERE entity_type = 'manufacturer' AND canonical_slug = 'refresh-phantom-manufacturer'`,
@@ -884,6 +1371,8 @@ describe('real ingestion fact output lineage', () => {
       artifactStore,
       'same-artifact-reextracted',
       { 'acme-hvac-catalog': fixtureBody },
+      undefined,
+      '2026-08-16T12:00:00.000Z',
     );
     expect((await second.runSource('acme-hvac-catalog')).error).toBeNull();
 
@@ -1098,6 +1587,7 @@ describe('real ingestion fact output lineage', () => {
         `evidence-fingerprint-${mutation}-replay`,
         overrides,
         relocatingExtraction(mutation),
+        '2026-08-16T12:00:00.000Z',
       );
       expect((await replay.runSource('acme-hvac-catalog')).error).toBeNull();
 
@@ -1294,9 +1784,10 @@ async function seedCuratedEquipmentAlias(input: {
   );
   await driver.query(
     `INSERT INTO entity_alias_claims
-       (entity_alias_id, asserted_alias_value, identity_confidence, claim_kind,
-        source_record_id, locator_type, locator_value, valid_to)
-     VALUES ($1, $2, 0.99, 'CURATED', NULL, NULL, NULL, NULL)`,
+       (entity_alias_id, asserted_alias_value, asserted_normalized_value,
+        identity_confidence, claim_kind, source_id, source_record_id, authority_epoch,
+        locator_type, locator_value, valid_to)
+     VALUES ($1, $2, $2, 0.99, 'CURATED', NULL, NULL, 0, NULL, NULL, NULL)`,
     [aliasId, input.aliasValue],
   );
   return { entityId, aliasId };
@@ -1304,7 +1795,9 @@ async function seedCuratedEquipmentAlias(input: {
 
 async function retireAlias(aliasId: string): Promise<void> {
   await driver.query(
-    `UPDATE entity_aliases SET valid_to = $2 WHERE id = $1`,
+    `UPDATE entity_aliases
+        SET valid_to = $2, authority_epoch = authority_epoch + 1
+      WHERE id = $1`,
     [aliasId, '2026-08-16T00:00:00.000Z'],
   );
 }
@@ -1492,13 +1985,14 @@ async function pipelineForConfig(
   runId: string,
   overrides?: Readonly<Record<string, string>>,
   extraction?: ExtractionProviderRegistry,
+  nowOverride?: string,
 ): Promise<Pipeline> {
   const { directory, bindings } = await buildFixtureManifest(
     config,
     overrides === undefined ? {} : { overrides },
   );
   const validatorCache = new InMemoryValidatorCache();
-  const now = '2026-08-15T12:00:00.000Z' as never;
+  const now = (nowOverride ?? '2026-08-15T12:00:00.000Z') as never;
   const clock = {
     now: () => Date.parse(now),
     nowIso: () => now,
@@ -1541,6 +2035,17 @@ async function pipelineForConfig(
     validatorCache,
     ...(extraction === undefined ? {} : { extraction }),
   });
+}
+
+async function publicWebEntity(
+  pipeline: Pipeline,
+  entityId: string,
+  asOf: string,
+) {
+  const config = await loadVerticalConfig('hvac');
+  return createQueryModel(pipeline.store, {
+    fields: buildFieldMetadata(config),
+  }).forSurface('PUBLIC_WEB', { asOf: asOf as never }).getEntity(entityId as never);
 }
 
 async function seedIngestionRights(sourceId: string): Promise<void> {
@@ -1614,5 +2119,26 @@ async function seedIngestionRights(sourceId: string): Promise<void> {
       [decisionId, effective],
     );
   }
+  const publicCellId = crypto.randomUUID();
+  const publicDecisionId = crypto.randomUUID();
+  await driver.query(
+    `INSERT INTO rights_cells
+       (id, source_id, acquisition_route, operation, channel, created_by)
+     VALUES ($1, $2, 'DIRECT_HTTP', 'DISPLAY_PUBLICLY', 'PUBLIC_WEBSITE', 'test-fixture')`,
+    [publicCellId, sourceId],
+  );
+  await driver.query(
+    `INSERT INTO rights_decisions
+       (id, cell_id, state, controlling_terms_version_id, evidence_artifact_id, clause_ref,
+        review_status, reviewer_type, reviewed_by, reviewed_at, effective_from, recheck_at,
+        rationale, created_by)
+     VALUES ($1, $2, 'ALLOW', $3, $4, 'synthetic fixture only', 'APPROVED', 'HUMAN',
+             'test-fixture', $5, $5, $6, 'explicit task 8 public fixture grant', 'test-fixture')`,
+    [publicDecisionId, publicCellId, termsVersionId, reviewEvidenceId, effective, recheck],
+  );
+  await driver.query(
+    `SELECT activate_rights_decision($1, 'HUMAN', 'test-fixture', 'task 8 fixture', $2)`,
+    [publicDecisionId, effective],
+  );
   await driver.exec('COMMIT');
 }

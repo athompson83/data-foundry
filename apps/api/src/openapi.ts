@@ -16,7 +16,13 @@ export interface OpenApiVerticalMetadata {
   readonly fields: readonly unknown[];
 }
 
-const SECURITY = [{ DataFoundryBearer: [] }] as const;
+export type OpenApiChannel = 'DIRECT' | 'RAPIDAPI';
+
+export interface BuildOpenApiDocumentOptions {
+  readonly channel?: OpenApiChannel;
+}
+
+const DIRECT_SECURITY = [{ DataFoundryBearer: [] }] as const;
 
 const QUERY_PARAMETER_SCHEMA: Readonly<Record<string, JsonObject>> = {
   q: { type: 'string', description: 'Text or exact identifier search.' },
@@ -179,6 +185,7 @@ function operationFor(
   route: Route,
   method: 'GET' | 'HEAD',
   fields: readonly FieldMetadata[],
+  channel: OpenApiChannel,
 ): JsonObject {
   return {
     operationId: method === 'GET' ? route.openapi.operationId : `${route.openapi.operationId}Head`,
@@ -186,7 +193,7 @@ function operationFor(
     ...(route.caveat === undefined ? {} : { description: route.caveat }),
     tags: [route.routeKey.split('.')[0] ?? 'api'],
     parameters: parametersFor(route, fields),
-    security: SECURITY,
+    ...(channel === 'DIRECT' ? { security: DIRECT_SECURITY } : {}),
     responses: responsesFor(route, method),
     'x-data-foundry-route-key': route.routeKey,
   };
@@ -206,9 +213,16 @@ function generatedComponentSchemas(): Readonly<Record<string, JsonObject>> {
   );
 }
 
-export function buildOpenApiDocument(vertical: OpenApiVerticalMetadata): JsonObject {
+export function buildOpenApiDocument(
+  vertical: OpenApiVerticalMetadata,
+  options: BuildOpenApiDocumentOptions = {},
+): JsonObject {
   const slug = vertical.slug.trim();
   if (slug === '') throw new Error('OpenAPI vertical slug must not be blank.');
+  const channel = options.channel ?? 'DIRECT';
+  if (channel !== 'DIRECT' && channel !== 'RAPIDAPI') {
+    throw new Error(`Unsupported OpenAPI channel: ${String(channel)}.`);
+  }
   const fields = vertical.fields.map((field) => FieldMetadataSchema.parse(field));
   const paths: Record<string, Record<string, JsonObject>> = {};
   const operationIds = new Set<string>();
@@ -219,7 +233,7 @@ export function buildOpenApiDocument(vertical: OpenApiVerticalMetadata): JsonObj
     if (paths[pathname] !== undefined) throw new Error(`duplicate documented API path: ${pathname}`);
     const operations: Record<string, JsonObject> = {};
     for (const method of READ_METHODS) {
-      const operation = operationFor(route, method, fields);
+      const operation = operationFor(route, method, fields, channel);
       const operationId = operation['operationId'];
       if (typeof operationId !== 'string' || operationIds.has(operationId)) {
         throw new Error(`duplicate OpenAPI operationId: ${String(operationId)}`);
@@ -237,19 +251,28 @@ export function buildOpenApiDocument(vertical: OpenApiVerticalMetadata): JsonObj
       title: 'Data Foundry API',
       version: '1.0.0',
       description:
-        'One read-only canonical API served directly and through a trusted RapidAPI marketplace origin.',
+        channel === 'DIRECT'
+          ? 'One read-only canonical API served directly and through a trusted RapidAPI marketplace origin.'
+          : 'The read-only canonical Data Foundry API exposed through the RapidAPI marketplace.',
     },
-    servers: [{ url: '/', description: 'The configured Data Foundry Cloudflare origin.' }],
+    servers: [{
+      url: '/',
+      description: channel === 'DIRECT'
+        ? 'The configured Data Foundry Cloudflare origin.'
+        : 'The marketplace endpoint configured for this listing.',
+    }],
     paths,
     components: {
-      securitySchemes: {
-        DataFoundryBearer: {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'Data Foundry API key',
-          description: 'Direct API requests use a tenant/vertical-scoped Data Foundry bearer key.',
-        },
-      },
+      securitySchemes: channel === 'DIRECT'
+        ? {
+            DataFoundryBearer: {
+              type: 'http',
+              scheme: 'bearer',
+              bearerFormat: 'Data Foundry API key',
+              description: 'Direct API requests use a tenant/vertical-scoped Data Foundry bearer key.',
+            },
+          }
+        : {},
       schemas: generatedComponentSchemas(),
     },
     'x-data-foundry-vertical': slug,

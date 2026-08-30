@@ -10,7 +10,7 @@ type OpenApiOperation = {
   readonly operationId: string;
   readonly parameters?: readonly { readonly name: string; readonly in: string; readonly required: boolean }[];
   readonly responses: Readonly<Record<string, unknown>>;
-  readonly security: readonly Readonly<Record<string, readonly string[]>>[];
+  readonly security?: readonly Readonly<Record<string, readonly string[]>>[];
 };
 
 type OpenApiDocument = {
@@ -56,14 +56,19 @@ const FILTER_FIELDS = [
 
 const OPENAPI_VERTICAL = { slug: 'hvac', fields: FILTER_FIELDS } as const;
 
-async function loadBuilder(): Promise<((vertical: typeof OPENAPI_VERTICAL) => OpenApiDocument) | null> {
+type OpenApiBuilder = (
+  vertical: typeof OPENAPI_VERTICAL,
+  options?: { readonly channel: 'DIRECT' | 'RAPIDAPI' },
+) => OpenApiDocument;
+
+async function loadBuilder(): Promise<OpenApiBuilder | null> {
   const module = await import('../src/openapi.js').catch(() => null);
   expect(module, 'apps/api must expose an OpenAPI projection of ROUTES').not.toBeNull();
   if (module === null) return null;
   const build = (module as Record<string, unknown>)['buildOpenApiDocument'];
   expect(typeof build).toBe('function');
   return typeof build === 'function'
-    ? (build as (vertical: typeof OPENAPI_VERTICAL) => OpenApiDocument)
+    ? (build as OpenApiBuilder)
     : null;
 }
 
@@ -144,6 +149,58 @@ describe('the generated OpenAPI document', () => {
     expect(serialized).not.toContain('X-RapidAPI-Proxy-Secret');
     expect(serialized).not.toContain('marketplace-proxy-secret-for-tests');
     expect(serialized).not.toMatch(/df_(live|test)_[A-Za-z0-9_-]{43}/);
+  });
+
+  it('does not publish an origin credential or proxy-verification mechanism to RapidAPI subscribers', async () => {
+    const build = await loadBuilder();
+    if (build === null) return;
+    const document = build(OPENAPI_VERTICAL, { channel: 'RAPIDAPI' });
+
+    expect(Object.keys(document.components.securitySchemes)).toEqual([]);
+    for (const operations of Object.values(document.paths)) {
+      for (const operation of Object.values(operations)) {
+        expect(operation.security).toBeUndefined();
+      }
+    }
+    const serialized = JSON.stringify(document);
+    expect(serialized).not.toContain('DataFoundryBearer');
+    expect(serialized).not.toMatch(/bearer/i);
+    expect(serialized).not.toMatch(/proxy.?secret/i);
+    expect(serialized).not.toMatch(/rapidapi_api_key/i);
+    expect(serialized).not.toMatch(/df_(live|test)_[A-Za-z0-9_-]{43}/);
+  });
+
+  it('keeps RapidAPI routes, operations, parameters, responses, and schemas equal to the direct contract', async () => {
+    const build = await loadBuilder();
+    if (build === null) return;
+    const direct = build(OPENAPI_VERTICAL, { channel: 'DIRECT' });
+    const marketplace = build(OPENAPI_VERTICAL, { channel: 'RAPIDAPI' });
+
+    const withoutSecurity = (
+      paths: OpenApiDocument['paths'],
+    ): Readonly<Record<string, Readonly<Record<string, Omit<OpenApiOperation, 'security'>>>>> =>
+      Object.fromEntries(Object.entries(paths).map(([path, operations]) => [
+        path,
+        Object.fromEntries(Object.entries(operations).map(([method, { security: _security, ...operation }]) => [
+          method,
+          operation,
+        ])),
+      ]));
+
+    expect(withoutSecurity(marketplace.paths)).toEqual(withoutSecurity(direct.paths));
+    expect(marketplace.components.schemas).toEqual(direct.components.schemas);
+    expect(Object.keys(marketplace.paths).sort()).toEqual(
+      [...new Set(documentedRoutes.map((route) => cleanPath(route.path)))].sort(),
+    );
+  });
+
+  it('refuses an unknown contract channel instead of projecting an unauthenticated direct spec', async () => {
+    const build = await loadBuilder();
+    if (build === null) return;
+
+    expect(() => build(OPENAPI_VERTICAL, {
+      channel: 'UNKNOWN' as 'DIRECT',
+    })).toThrow(/OpenAPI channel/i);
   });
 
   it('documents canonical redirects only on routes that can emit them', async () => {

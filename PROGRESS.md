@@ -45,29 +45,51 @@
   transports enforce finite response, record, pagination, cursor, diagnostic,
   and cumulative-artifact bounds without partial persistence.
 - Offline entity resolution uses one driver-managed transaction executor for
-  manufacturer, entity, alias, judgment, and evidence writes. Any failure or
-  unusable strong identifier rolls the record back.
+  manufacturer, entity, alias, judgment, and evidence writes. A transactional
+  failure rolls the batch back. No usable strong identifier is instead a
+  fail-closed zero-claim result whose provenance revision can still finalize,
+  so a refresh does not leave the superseded record falsely current.
 - Re-ingestion now supersedes a logical source record's current immutable
-  revision rather than mutating or deleting provenance. Migrations `0021` and
-  `0022` preserve historic evidence, record a one-way supersession link, make
+  revision rather than mutating or deleting provenance. Migrations `0021`–
+  `0023` preserve historic evidence, record a one-way supersession link, make
   source-record lifecycle explicit (`PROVISIONAL` versus `FINALIZED`), and make
-  each entity/fact/relationship lineage cite its exact current artifact.
-  Finalized no-op reuse additionally requires a persisted v2 fingerprint of
-  record/entity, validated-alias, fact, and relationship evidence inputs,
-  locators, values, and mapping semantics; an exact full-evidence replay does
-  not churn `updated_at`, while a same-artifact semantic change appends a new
-  immutable revision instead of retaining stale evidence.
+  each entity/fact/relationship lineage cite its exact artifact. The persisted
+  `source-record-evidence@3` fingerprint covers the exact resolved entity and
+  manufacturer targets, accepted alias claims and locators, fact projections,
+  resolution audit, and relationship dispositions/endpoints/writer. An exact
+  replay does not churn `updated_at`; any evidence, target or mapping-semantic
+  change appends a successor instead of retaining stale evidence.
+- Migration `0023` adds append-only alias claims and authority epochs. It
+  deliberately creates no authority claim for a legacy alias. Resolution and
+  search read only claim-backed current aliases; entity and relationship
+  surfaces require current `FINALIZED` supporting evidence. A refresh without
+  a usable strong identifier still finalizes a zero-claim successor, withdraws
+  the prior source-only identity from customer surfaces, and creates no phantom
+  manufacturer while preserving immutable history.
+- Migration `0024` requires explicit source-stream membership and
+  `full_snapshot` versus `incremental` refresh semantics. Complete snapshots
+  retire omitted current records atomically with append-only artifact evidence;
+  incremental streams do not. Unknown legacy membership is revoked rather than
+  inferred, then restored only by a rights-admitted reingest.
 - Rights-backed readiness exists and requires canonical `--as-of` plus either a
   named-environment live database or a schema/digest-validated qualified
   snapshot. YAML/fixture metadata alone never proves a current grant.
 - RapidAPI is a thin authenticated proxy into the canonical edge Worker, with a
   generated OpenAPI contract and disjoint `RAPIDAPI/RAPIDAPI` usage. Those rows
   are excluded from direct invoices.
+- The fail-closed credential provisioner admits exactly `API_PAID/DIRECT`,
+  `RAPIDAPI/RAPIDAPI`, and `MCP/NONE` for one tenant and one vertical. File
+  delivery is POSIX-only, owner-only and outside the worktree; marketplace
+  delivery goes to the repository-pinned Wrangler entry point through the
+  validated edge manifest, a sanitized child environment, and an explicit empty
+  env file. Reserved and `workers.dev` marketplace hosts are refused. It creates
+  no rights grant, plan, invoice or source approval.
 - MCP is a deployable, one-vertical, custom-bearer MCP 2026-07-28 surface with
   exact `MCP/NONE` analytics. It is not OAuth or anonymous; no deployment of
   this integration candidate is verified.
 - The final Cloudflare topology is five Workers: edge, web, usage-consumer,
-  acquisition-worker, and mcp-worker.
+  acquisition-worker, and mcp-worker. Deployment validation requires every
+  exact manifest to name the same canonical 32-hex `account_id`.
 
 ## Source and Product Truth
 
@@ -83,13 +105,14 @@
 
 ## Deployment and Revenue State
 
-- The integrated implementation has completed its focused repair verification;
-  it is not a release candidate until the final documentation tree passes fresh
-  exact-SHA local, hosted, review, and ruleset gates. Repository-ready does not
-  mean deployed or commercially publishable.
+- The integrated implementation remains at the review/repair node while the
+  final documentation and code tree are being frozen. It is not a release
+  candidate until that exact tree passes fresh local, hosted, review, and
+  ruleset gates. Repository-ready does not mean deployed or commercially
+  publishable.
 - RapidAPI enrollment, proxy-secret configuration, plans, payout setup, live
   route, and real subscriber proof remain external.
-- Cloudflare account/zone/routes, Hyperdrive, production Postgres, R2,
+- Cloudflare canonical account/zone/routes, Hyperdrive, production Postgres, R2,
   Queue/DLQ, hostnames, protected values, and exact deployment IDs remain
   external and unverified.
 - GitHub `main` is protected by active ruleset `21855694`; its two strict
@@ -112,40 +135,26 @@
 
 ## Verification
 
-- Implementation commit `a123179df3675980f65d8f92d8abe9777ab67dcc`
-  passed TypeScript typecheck, 171 Vitest files / 2,579 tests, 22
-  ordered/idempotent migrations over 42 tables, generated-schema/runtime
-  checks, repository Cloudflare topology, Worker artifact checks, and an
-  isolated PostgreSQL 16 source-record race regression. Later documentation or
-  code commits still require a fresh final run. Deployment-mode validation is
-  intentionally blocked until the five ignored exact-deployment manifests
-  exist; its missing-file output is secret-safe.
-- Subsequent focused test-first repair proved post-transport rights revocation,
-  exact historical selection, recursive historical contributors, bulk-export
-  refusal, one-client resolution transactions, bounded direct/provider
-  transports, no partial acquisition persistence, bounded surface-authorization
-  fan-out, keyset sitemap enumeration beyond 10,000 rows, an empty-parent
-  `noindex` control, server-clock same-row acquisition recovery with stale
-  fencing, non-owner claim-token isolation, request-wide sitemap capacity, and
-  canonical zero-work sitemap route refusal.
-- The Task 2 review-round provenance repair added a mandatory pinned transaction
-  executor and per-logical-record PostgreSQL advisory lock for reconciliation,
-  a fail-closed legacy evidence-provenance migration precondition, and a hosted
-  PostgreSQL concurrency regression. Repository topology now canonicalizes
-  loopback hosts, rejects mixed-case plaintext credential names and nested
-  deployment-only fields; ignored production manifests remain an operator gate.
-- The subsequent Task 2 round-two repair centralizes canonical endpoint-host
-  classification for Workers and topology validation, covering localhost
-  subdomains/trailing dots, 127/8, expanded/compressed IPv6 loopback,
-  IPv4-mapped IPv6 loopback, and unspecified production binds. Its expanded
-  evidence fingerprint covers every persisted entity, fact, and relationship
-  locator/value projection, with two-run same-artifact regressions and an exact
-  no-op replay control. Repository-mode nested `env.*.vars` also now applies
-  case-insensitive plaintext protected-key detection.
-- Final authority is the live frozen 40-character PR head and its complete
-  local/CI/review/ruleset gate set. Any candidate-affecting change invalidates
-  SHA-sensitive evidence; neither `a123179` nor the earlier rejected `1ca6f61`
-  is final release proof after a later commit.
+- Focused test-first repair cycles cover post-transport rights revocation,
+  exact historical selection, recursive contributors, bulk refusal, pinned
+  reconciliation transactions and advisory locks, source-record currentness,
+  alias epochs/claims, identifier-less successors, bounded provider input,
+  Queue privacy/idempotency, bounded sitemap work, and credential-delivery
+  refusal/compensation paths. Those iteration results are diagnostic evidence,
+  not release certification while the candidate tree is still mutable.
+- The exact frozen candidate must freshly pass typecheck, the complete Vitest
+  suite, ordered/idempotent migrations, generated schema/OpenAPI/runtime drift
+  checks, vertical/acquisition checks, repository Cloudflare topology, all five
+  Worker artifact checks, and the disposable real-PostgreSQL migration,
+  reconciliation and concurrency gates. The resulting live 40-character PR
+  head and hosted required checks are the release authority; no intermediate
+  commit or historical test total is.
+- Repository topology centralizes production endpoint classification, rejects
+  loopback/unspecified endpoints and plaintext protected values, and keeps
+  deployment-only fields out of tracked templates. Deployment-mode validation
+  additionally requires five ignored exact manifests with one canonical
+  `account_id`. It is expected to refuse safely until those external manifests
+  and resources exist.
 
 ## Blockers
 
@@ -163,7 +172,7 @@ deferred; it is not an action request in this work package.
 
 ## Production Impact
 
-Repository code, two forward migrations, tests, generated artifacts, and control
+Repository code, thirteen forward migrations (`0012` through `0024`), tests, generated artifacts, and control
 documents changed. This work performs no deployment, hosted migration, grant
 activation, source acquisition, publisher contact, or provider mutation.
 
@@ -171,9 +180,12 @@ activation, source acquisition, publisher contact, or provider mutation.
 
 The integrated branch combines usage accounting/auth, corrected Option B
 rights, public web, RapidAPI, scheduled acquisition/readiness, and MCP in
-dependency order through migration 0022. Final review repairs add a last
+dependency order through migration 0024. Final review repairs add a last
 practical pre-persistence rights checkpoint, exact historical authorization,
-one-client resolution transactions, bounded provider-controlled input and
-surface authorization, recoverable server-clock acquisition leases with
+one-client resolution transactions, `source-record-evidence@3`, claim-backed
+alias epochs/currentness, identifier-less successor handling, a fail-closed
+credential provisioner, bounded provider-controlled input and surface
+authorization, recoverable server-clock acquisition leases with
 non-owner capability redaction, request-bounded keyset sitemap enumeration,
-and non-actionable HVAC source research consistent with the owner decisions.
+same-account deployment validation, and non-actionable HVAC source research
+consistent with the owner decisions.

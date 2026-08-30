@@ -8,6 +8,9 @@ importers:
 
   .:
     devDependencies:
+      '@data-foundry/api-keys':
+        specifier: workspace:*
+        version: link:packages/api-keys
       '@data-foundry/canonical-schema':
         specifier: workspace:*
         version: link:packages/canonical-schema

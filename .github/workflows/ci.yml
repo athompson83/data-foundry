@@ -151,6 +151,12 @@ jobs:
           DATA_FOUNDRY_POSTGRES_CONCURRENCY_TEST: '1'
         run: pnpm source-records:postgres:check
 
+      - name: Credential provisioning concurrency regression
+        env:
+          POSTGRES_URL: postgres://postgres:postgres@localhost:5432/data_foundry
+          DATA_FOUNDRY_POSTGRES_CONCURRENCY_TEST: '1'
+        run: pnpm credentials:postgres:check
+
       - name: Scheduled acquisition concurrency and transaction controls
         env:
           POSTGRES_URL: postgres://postgres:postgres@localhost:5432/data_foundry

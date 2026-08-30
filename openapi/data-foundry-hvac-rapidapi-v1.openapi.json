@@ -4,12 +4,12 @@
   "info": {
     "title": "Data Foundry API",
     "version": "1.0.0",
-    "description": "One read-only canonical API served directly and through a trusted RapidAPI marketplace origin."
+    "description": "The read-only canonical Data Foundry API exposed through the RapidAPI marketplace."
   },
   "servers": [
     {
       "url": "/",
-      "description": "The configured Data Foundry Cloudflare origin."
+      "description": "The marketplace endpoint configured for this listing."
     }
   ],
   "paths": {
@@ -21,11 +21,6 @@
           "health"
         ],
         "parameters": [],
-        "security": [
-          {
-            "DataFoundryBearer": []
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful response.",
@@ -148,11 +143,6 @@
           "health"
         ],
         "parameters": [],
-        "security": [
-          {
-            "DataFoundryBearer": []
-          }
-        ],
         "responses": {
           "200": {
             "description": "Same status and headers as GET, with no response body."
@@ -286,11 +276,6 @@
               "type": "string",
               "description": "Vertical-defined entity type."
             }
-          }
-        ],
-        "security": [
-          {
-            "DataFoundryBearer": []
           }
         ],
         "responses": {
@@ -451,11 +436,6 @@
             }
           }
         ],
-        "security": [
-          {
-            "DataFoundryBearer": []
-          }
-        ],
         "responses": {
           "200": {
             "description": "Same status and headers as GET, with no response body."
@@ -592,11 +572,6 @@
               "type": "string",
               "format": "uuid"
             }
-          }
-        ],
-        "security": [
-          {
-            "DataFoundryBearer": []
           }
         ],
         "responses": {
@@ -747,11 +722,6 @@
               "type": "string",
               "format": "uuid"
             }
-          }
-        ],
-        "security": [
-          {
-            "DataFoundryBearer": []
           }
         ],
         "responses": {
@@ -931,11 +901,6 @@
               "maximum": 10000,
               "default": 0
             }
-          }
-        ],
-        "security": [
-          {
-            "DataFoundryBearer": []
           }
         ],
         "responses": {
@@ -1127,11 +1092,6 @@
               "maximum": 10000,
               "default": 0
             }
-          }
-        ],
-        "security": [
-          {
-            "DataFoundryBearer": []
           }
         ],
         "responses": {
@@ -1327,11 +1287,6 @@
               "maximum": 10000,
               "default": 0
             }
-          }
-        ],
-        "security": [
-          {
-            "DataFoundryBearer": []
           }
         ],
         "responses": {
@@ -1539,11 +1494,6 @@
               "maximum": 10000,
               "default": 0
             }
-          }
-        ],
-        "security": [
-          {
-            "DataFoundryBearer": []
           }
         ],
         "responses": {
@@ -2203,11 +2153,6 @@
             }
           }
         ],
-        "security": [
-          {
-            "DataFoundryBearer": []
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful response.",
@@ -2859,11 +2804,6 @@
             }
           }
         ],
-        "security": [
-          {
-            "DataFoundryBearer": []
-          }
-        ],
         "responses": {
           "200": {
             "description": "Same status and headers as GET, with no response body."
@@ -3008,11 +2948,6 @@
               "type": "string",
               "format": "date-time"
             }
-          }
-        ],
-        "security": [
-          {
-            "DataFoundryBearer": []
           }
         ],
         "responses": {
@@ -3166,11 +3101,6 @@
             }
           }
         ],
-        "security": [
-          {
-            "DataFoundryBearer": []
-          }
-        ],
         "responses": {
           "200": {
             "description": "Same status and headers as GET, with no response body."
@@ -3282,14 +3212,7 @@
     }
   },
   "components": {
-    "securitySchemes": {
-      "DataFoundryBearer": {
-        "type": "http",
-        "scheme": "bearer",
-        "bearerFormat": "Data Foundry API key",
-        "description": "Direct API requests use a tenant/vertical-scoped Data Foundry bearer key."
-      }
-    },
+    "securitySchemes": {},
     "schemas": {
       "ApiErrorEnvelope": {
         "type": "object",

@@ -625,10 +625,14 @@ const traverseRelationships = defineTool({
     'limit stopped the walk short. LIMITATIONS: an edge exists only where a source asserted it. ' +
     'Nothing here is inferred from similarity, so an entity with no asserted successor returns ' +
     'no successor rather than a plausible one. Depth is capped at four by design. IMPORTANT: this ' +
-    'is a view of the PUBLISHABLE graph, not the whole graph. An edge whose evidence comes only ' +
-    'from sources that fail the rights gate is withheld, and so is any neighbour reachable only ' +
-    'through one — silently, because saying how many were withheld for a given predicate would ' +
-    'republish the very claim the gate refused. So an absent edge means "not publishable or not ' +
+    'is a view of the PUBLISHABLE graph, not the whole graph. An edge is served only when both ' +
+    'endpoint identities retain current FINALIZED source-record support, at least one current ' +
+    'FINALIZED source-record assertion supports the edge, and every required provenance ' +
+    'contribution passes this surface\'s rights bundle. If any required provenance contribution ' +
+    'is refused, the whole edge and any neighbour reachable only through it are withheld; one ' +
+    'allowed contribution never launders a refused one. Refusals stay silent because saying how ' +
+    'many were withheld for a given predicate would republish the claim the gate refused. So an ' +
+    'absent edge means "not publishable or not ' +
     'asserted", never "asserted to be false". `withheldEdgeCount` reports a different and rarer ' +
     'case: edges nothing asserts at all, which should be 0 against a healthy database.',
   input: TraverseRelationshipsInput,

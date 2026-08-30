@@ -1,6 +1,7 @@
 # ADR-0003 — Query-time identifier equivalence must be compiled from the vertical's alias specification
 
-**Status:** Accepted (requirement recorded); implementation deferred
+**Status:** Accepted (interim HVAC repair implemented; configuration-derived
+equivalence remains a pre-second-vertical gate)
 **Date:** 2026-08-14
 **Relates to:** AGENTS.md rule 7 ("Exact identifiers beat semantic search"), rule 4 ("No vertical-specific forks of the app")
 
@@ -27,7 +28,7 @@ literally *named* `24acc6-36a003` was served at rank 1 flagged `exact: true`
 while the entity that actually owned the model number was demoted to the fuzzy
 tier.
 
-The existing 887-test suite did not catch this because `test/support.ts` seeded
+The test suite at the time did not catch this because `test/support.ts` seeded
 `normalized_value` in lower case. The fixtures agreed with the bug.
 
 ## Decision (implemented)
@@ -51,6 +52,13 @@ A vertical whose op chain does something else — title case, checksum stripping
 prefix normalization, locale-specific folding — will silently miss under the
 current implementation. Silently: the query returns zero rows rather than
 erroring, which is the worst failure mode for rule 7.
+
+Migration 0023 tightened the relation this future compiler must query. Exact
+lookup now reads `current_entity_aliases`, not raw alias history: an alias is
+current only when an open curated claim or a current `FINALIZED` source-record
+claim supports it in the alias's current authority epoch. Compiling more
+spellings must never bypass that relation, synthesize a claim for a legacy
+alias, or make a withdrawn/prior-epoch assertion discoverable again.
 
 ### Required future contract test
 
@@ -81,3 +89,6 @@ whose op chain the current implementation covers.
   scaffolding, expected to be deleted when the compiled normalizer lands.
 - Until then, adding a vertical is not purely a configuration change for
   identifier lookup — which is a known, recorded deviation from rule 4.
+- Alias-normalization parity and alias-authority currentness are independent:
+  the first decides which exact spelling to seek; the second decides whether
+  that normalized identity is presently supported at all.

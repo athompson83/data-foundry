@@ -321,6 +321,15 @@ describe('a relationship no publishable evidence backs', () => {
     const description = tool?.description ?? '';
     expect(description).toMatch(/publishable graph/i);
     expect(description).toMatch(/withheld/i);
+    expect(description, 'one allowed contribution must not launder refused provenance').toMatch(
+      /any required provenance contribution.*withheld|withheld.*any required provenance contribution/i,
+    );
+    expect(description, 'endpoint identity support must be current').toMatch(
+      /endpoint identit.*current FINALIZED/i,
+    );
+    expect(description, 'edge assertion support must independently be current').toMatch(
+      /current FINALIZED.*assertion/i,
+    );
     expect(description, 'and it must not read an absent edge as a denial').toMatch(
       /never "asserted to be false"|not "asserted to be false"/i,
     );

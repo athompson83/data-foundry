@@ -258,6 +258,8 @@ async function evidenceCounts(
        JOIN source_records sr ON sr.id = re.source_record_id
        JOIN sources s ON s.id = sr.source_id
       WHERE re.relationship_id IN (${placeholders})
+        AND sr.is_current
+        AND sr.revision_state = 'FINALIZED'
       GROUP BY re.relationship_id, s.rights_classification`,
     relationships.map((relationship) => relationship.id),
   );

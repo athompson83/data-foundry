@@ -10,6 +10,8 @@ const CONSUMER_CONFIG = join(REPO_ROOT, 'apps', 'usage-consumer', 'wrangler.toml
 const WEB_CONFIG = join(REPO_ROOT, 'apps', 'web', 'wrangler.toml');
 const ACQUISITION_CONFIG = join(REPO_ROOT, 'apps', 'acquisition-worker', 'wrangler.toml');
 const MCP_CONFIG = join(REPO_ROOT, 'apps', 'mcp-worker', 'wrangler.toml');
+const ACCOUNT_ID = '1234567890abcdef1234567890abcdef';
+const HYPERDRIVE_ID = 'abcdef1234567890abcdef1234567890';
 const temporaryDirectories: string[] = [];
 
 afterAll(async () => {
@@ -49,10 +51,9 @@ async function writeDeploymentManifests(directory: string): Promise<{
   readonly acquisitionConfigPath: string;
   readonly mcpConfigPath: string;
 }> {
-  const accountId = '00000000000000000000000000000000';
-  const binding = '\n[[hyperdrive]]\nbinding = "HYPERDRIVE"\nid = "00000000000000000000000000000000"\n';
+  const binding = `\n[[hyperdrive]]\nbinding = "HYPERDRIVE"\nid = "${HYPERDRIVE_ID}"\n`;
   const withAccountId = (manifest: string): string =>
-    manifest.replace(/^name\s*=\s*[^\n]+/m, (name) => `${name}\naccount_id = "${accountId}"`);
+    manifest.replace(/^name\s*=\s*[^\n]+/m, (name) => `${name}\naccount_id = "${ACCOUNT_ID}"`);
   const withTopLevelRoute = (manifest: string, route: string): string =>
     manifest.replace(/^name\s*=\s*[^\n]+/m, (name) => `${name}\nroute = "${route}"`);
   const edgeConfigPath = join(directory, 'edge.toml');
@@ -61,22 +62,25 @@ async function writeDeploymentManifests(directory: string): Promise<{
   const acquisitionConfigPath = join(directory, 'acquisition.toml');
   const mcpConfigPath = join(directory, 'mcp.toml');
   const edge = `${withAccountId(
-    withTopLevelRoute(await readFile(EDGE_CONFIG, 'utf8'), 'edge.example.invalid/*'),
+    withTopLevelRoute(await readFile(EDGE_CONFIG, 'utf8'), 'api.datafoundry.io/*'),
   )}${binding}`;
   const consumer = `${withAccountId(await readFile(CONSUMER_CONFIG, 'utf8'))}${binding}`;
   const web = `${withAccountId((await readFile(WEB_CONFIG, 'utf8')).replace(
     'DEPLOYMENT_ENVIRONMENT = "production"',
-    'DEPLOYMENT_ENVIRONMENT = "production"\nPUBLIC_ORIGIN = "https://web.example.invalid"',
+    'DEPLOYMENT_ENVIRONMENT = "production"\nPUBLIC_ORIGIN = "https://www.datafoundry.io"',
   ))}${binding}`;
   const acquisition = `${withAccountId(
-    await readFile(ACQUISITION_CONFIG, 'utf8'),
+    (await readFile(ACQUISITION_CONFIG, 'utf8')).replace(
+      'RAW_ARTIFACTS_BUCKET_NAME = "data-foundry-raw-artifacts"',
+      `RAW_ARTIFACTS_BUCKET_NAME = "data-foundry-raw-artifacts"\nCLOUDFLARE_ACCOUNT_ID = "${ACCOUNT_ID}"`,
+    ),
   )}${binding}`;
   const mcp = `${withAccountId((await readFile(MCP_CONFIG, 'utf8')).replace(
     'API_KEY_ENVIRONMENT = "live"',
-    'API_KEY_ENVIRONMENT = "live"\nMCP_HOSTNAME = "mcp.example.invalid"\nMCP_ALLOWED_ORIGINS = "https://client.example.invalid"\nPUBLIC_ORIGIN = "https://web.example.invalid"',
+    'API_KEY_ENVIRONMENT = "live"\nMCP_HOSTNAME = "mcp.datafoundry.io"\nMCP_ALLOWED_ORIGINS = "https://app.datafoundry.io"\nPUBLIC_ORIGIN = "https://www.datafoundry.io"',
   ))}${binding}`;
-  const webWithRoute = `${withTopLevelRoute(web, 'web.example.invalid/*')}`;
-  const mcpWithRoute = `${withTopLevelRoute(mcp, 'mcp.example.invalid/*')}`;
+  const webWithRoute = `${withTopLevelRoute(web, 'www.datafoundry.io/*')}`;
+  const mcpWithRoute = `${withTopLevelRoute(mcp, 'mcp.datafoundry.io/*')}`;
   await Promise.all([
     writeFile(edgeConfigPath, edge, 'utf8'),
     writeFile(consumerConfigPath, consumer, 'utf8'),
@@ -224,7 +228,7 @@ describe('the committed Cloudflare topology', () => {
     await writeFile(
       paths.consumerConfigPath,
       (await readFile(paths.consumerConfigPath, 'utf8')).replace(
-        'account_id = "00000000000000000000000000000000"\n',
+        `account_id = "${ACCOUNT_ID}"\n`,
         '',
       ),
       'utf8',
@@ -232,7 +236,7 @@ describe('the committed Cloudflare topology', () => {
     await writeFile(
       paths.webConfigPath,
       (await readFile(paths.webConfigPath, 'utf8')).replace(
-        'account_id = "00000000000000000000000000000000"',
+        `account_id = "${ACCOUNT_ID}"`,
         'account_id = "not-an-account-id"',
       ),
       'utf8',
@@ -240,7 +244,7 @@ describe('the committed Cloudflare topology', () => {
     await writeFile(
       paths.mcpConfigPath,
       (await readFile(paths.mcpConfigPath, 'utf8')).replace(
-        'account_id = "00000000000000000000000000000000"',
+        `account_id = "${ACCOUNT_ID}"`,
         'account_id = "11111111111111111111111111111111"',
       ),
       'utf8',
@@ -252,6 +256,46 @@ describe('the committed Cloudflare topology', () => {
     expect(errors.join('\n')).toMatch(/one canonical account_id/i);
     expect(errors.join('\n')).not.toContain('11111111111111111111111111111111');
     expect(errors.join('\n')).not.toContain('not-an-account-id');
+  });
+
+  it.each([
+    ['all-zero', '00000000000000000000000000000000'],
+    ['too-short', '1234567890abcdef1234567890abcde'],
+    ['uppercase', '1234567890ABCDEF1234567890ABCDEF'],
+  ])('rejects a %s deployment account id without exposing it', async (_label, accountId) => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-cloudflare-invalid-account-'));
+    temporaryDirectories.push(directory);
+    const paths = await writeDeploymentManifests(directory);
+    await writeFile(
+      paths.edgeConfigPath,
+      (await readFile(paths.edgeConfigPath, 'utf8')).replace(ACCOUNT_ID, accountId),
+      'utf8',
+    );
+
+    const errors = await validate({ mode: 'deployment', ...paths });
+    expect(errors.join('\n')).toMatch(/edge.*non-zero lowercase 32-hex account_id/i);
+    expect(errors.join('\n')).not.toContain(accountId);
+  });
+
+  it.each([
+    ['all-zero', '00000000000000000000000000000000'],
+    ['too-short', 'abcdef1234567890abcdef123456789'],
+    ['uppercase', 'ABCDEF1234567890ABCDEF1234567890'],
+  ])('rejects a %s Hyperdrive id without exposing it', async (_label, hyperdriveId) => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-cloudflare-invalid-hyperdrive-'));
+    temporaryDirectories.push(directory);
+    const paths = await writeDeploymentManifests(directory);
+    await writeFile(
+      paths.webConfigPath,
+      (await readFile(paths.webConfigPath, 'utf8')).replace(HYPERDRIVE_ID, hyperdriveId),
+      'utf8',
+    );
+
+    const errors = await validate({ mode: 'deployment', ...paths });
+    expect(errors.join('\n')).toMatch(/web.*HYPERDRIVE.*non-zero lowercase 32-hex id/i);
+    expect(errors.join('\n')).not.toContain(hyperdriveId);
   });
 
   it('rejects canonical loopback aliases in ignored deployment endpoints', async () => {
@@ -271,7 +315,7 @@ describe('the committed Cloudflare topology', () => {
       writeFile(
         paths.webConfigPath,
         (await readFile(paths.webConfigPath, 'utf8')).replace(
-          'https://web.example.invalid',
+          'https://www.datafoundry.io',
           'https://localhost.',
         ),
         'utf8',
@@ -279,9 +323,9 @@ describe('the committed Cloudflare topology', () => {
       writeFile(
         paths.mcpConfigPath,
         (await readFile(paths.mcpConfigPath, 'utf8'))
-          .replace('MCP_HOSTNAME = "mcp.example.invalid"', 'MCP_HOSTNAME = "localhost."')
-          .replace('https://client.example.invalid', 'https://localhost.')
-          .replace('https://web.example.invalid', 'https://localhost.'),
+          .replace('MCP_HOSTNAME = "mcp.datafoundry.io"', 'MCP_HOSTNAME = "localhost."')
+          .replace('https://app.datafoundry.io', 'https://localhost.')
+          .replace('https://www.datafoundry.io', 'https://localhost.'),
         'utf8',
       ),
     ]);
@@ -294,8 +338,181 @@ describe('the committed Cloudflare topology', () => {
   });
 
   it.each([
+    'marketplace.invalid',
+    'marketplace.invalid.',
+    'marketplace.example',
+    'marketplace.test.',
+    'data-foundry-edge.workers.dev',
+    'data-foundry-edge.workers.dev.',
+    'data-foundry-edge.pages.dev',
+    'data-foundry-edge.trycloudflare.com',
+    'marketplace.example.com',
+    'marketplace.local',
+    'marketplace.onion',
+    'marketplace.home.arpa',
+    '8.8.8.8',
+    'marketplace_datafoundry.io',
+  ])('rejects a reserved marketplace deployment hostname %s', async (hostname) => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-cloudflare-marketplace-host-'));
+    temporaryDirectories.push(directory);
+    const paths = await writeDeploymentManifests(directory);
+    await writeFile(
+      paths.edgeConfigPath,
+      (await readFile(paths.edgeConfigPath, 'utf8')).replace(
+        'VERTICAL_SLUG = "hvac"',
+        `VERTICAL_SLUG = "hvac"\nRAPIDAPI_HOSTNAME = "${hostname}"`,
+      ),
+      'utf8',
+    );
+
+    const errors = await validate({ mode: 'deployment', ...paths });
+    expect(errors.join('\n')).toMatch(/RAPIDAPI_HOSTNAME.*production hostname/i);
+  });
+
+  it.each([
+    'catalog.invalid/*',
+    'catalog.invalid./*',
+    'data-foundry-edge.workers.dev./*',
+    'localhost./*',
+    '*.datafoundry.io/*',
+    'API.datafoundry.io/*',
+    'https://api.datafoundry.io/*',
+    'api.datafoundry.io:443/*',
+    'api.datafoundry.io/path/*',
+    'api.datafoundry.io/*?preview=1',
+    'api_datafoundry.io/*',
+    'api.123/*',
+    '1.2.3.4.5/*',
+    'data-foundry-edge.pages.dev/*',
+    'data-foundry-edge.trycloudflare.com/*',
+  ])('rejects a non-canonical production route %s', async (route) => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-cloudflare-route-host-'));
+    temporaryDirectories.push(directory);
+    const paths = await writeDeploymentManifests(directory);
+    await writeFile(
+      paths.edgeConfigPath,
+      (await readFile(paths.edgeConfigPath, 'utf8')).replace('api.datafoundry.io/*', route),
+      'utf8',
+    );
+
+    const errors = await validate({ mode: 'deployment', ...paths });
+    expect(errors.join('\n')).toMatch(/edge.*canonical production route/i);
+  });
+
+  it('rejects endpoint hostnames that do not match their Worker routes or canonical web origin', async () => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-cloudflare-endpoint-drift-'));
+    temporaryDirectories.push(directory);
+    const paths = await writeDeploymentManifests(directory);
+    await Promise.all([
+      writeFile(
+        paths.edgeConfigPath,
+        (await readFile(paths.edgeConfigPath, 'utf8')).replace(
+          'VERTICAL_SLUG = "hvac"',
+          'VERTICAL_SLUG = "hvac"\nRAPIDAPI_HOSTNAME = "marketplace.datafoundry.io"',
+        ),
+        'utf8',
+      ),
+      writeFile(
+        paths.webConfigPath,
+        (await readFile(paths.webConfigPath, 'utf8')).replace(
+          'https://www.datafoundry.io',
+          'https://web.datafoundry.io',
+        ),
+        'utf8',
+      ),
+      writeFile(
+        paths.mcpConfigPath,
+        (await readFile(paths.mcpConfigPath, 'utf8'))
+          .replace('MCP_HOSTNAME = "mcp.datafoundry.io"', 'MCP_HOSTNAME = "agent.datafoundry.io"')
+          .replace('https://www.datafoundry.io', 'https://elsewhere.datafoundry.io'),
+        'utf8',
+      ),
+    ]);
+
+    const errors = await validate({ mode: 'deployment', ...paths });
+    expect(errors.join('\n')).toMatch(/RAPIDAPI_HOSTNAME.*edge.*route/i);
+    expect(errors.join('\n')).toMatch(/web PUBLIC_ORIGIN.*web.*route/i);
+    expect(errors.join('\n')).toMatch(/MCP_HOSTNAME.*mcp-worker.*route/i);
+    expect(errors.join('\n')).toMatch(/mcp-worker PUBLIC_ORIGIN.*web PUBLIC_ORIGIN/i);
+  });
+
+  it('requires a distinct direct API route when a dedicated RapidAPI hostname is configured', async () => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-cloudflare-direct-route-'));
+    temporaryDirectories.push(directory);
+    const paths = await writeDeploymentManifests(directory);
+    await writeFile(
+      paths.edgeConfigPath,
+      (await readFile(paths.edgeConfigPath, 'utf8'))
+        .replace('api.datafoundry.io/*', 'marketplace.datafoundry.io/*')
+        .replace(
+          'VERTICAL_SLUG = "hvac"',
+          'VERTICAL_SLUG = "hvac"\nRAPIDAPI_HOSTNAME = "marketplace.datafoundry.io"',
+        ),
+      'utf8',
+    );
+
+    const errors = await validate({ mode: 'deployment', ...paths });
+    expect(errors.join('\n')).toMatch(/RAPIDAPI_HOSTNAME.*distinct.*DIRECT.*route/i);
+  });
+
+  it('does not treat duplicate RapidAPI routes as a distinct direct API route', async () => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-cloudflare-duplicate-direct-route-'));
+    temporaryDirectories.push(directory);
+    const paths = await writeDeploymentManifests(directory);
+    await writeFile(
+      paths.edgeConfigPath,
+      (await readFile(paths.edgeConfigPath, 'utf8'))
+        .replace(
+          'route = "api.datafoundry.io/*"',
+          'routes = ["marketplace.datafoundry.io/*", "marketplace.datafoundry.io/*"]',
+        )
+        .replace(
+          'VERTICAL_SLUG = "hvac"',
+          'VERTICAL_SLUG = "hvac"\nRAPIDAPI_HOSTNAME = "marketplace.datafoundry.io"',
+        ),
+      'utf8',
+    );
+
+    const errors = await validate({ mode: 'deployment', ...paths });
+    expect(errors.join('\n')).toMatch(/RAPIDAPI_HOSTNAME.*distinct.*DIRECT.*route/i);
+  });
+
+  it.each([
+    ['malformed', 'not-an-account-id'],
+    ['all-zero', '00000000000000000000000000000000'],
+    ['different', 'fedcba0987654321fedcba0987654321'],
+  ])('rejects a %s acquisition provider account id', async (_label, accountId) => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-cloudflare-acquisition-account-'));
+    temporaryDirectories.push(directory);
+    const paths = await writeDeploymentManifests(directory);
+    await writeFile(
+      paths.acquisitionConfigPath,
+      (await readFile(paths.acquisitionConfigPath, 'utf8')).replace(
+        `CLOUDFLARE_ACCOUNT_ID = "${ACCOUNT_ID}"`,
+        `CLOUDFLARE_ACCOUNT_ID = "${accountId}"`,
+      ),
+      'utf8',
+    );
+
+    const errors = await validate({ mode: 'deployment', ...paths });
+    expect(errors.join('\n')).toMatch(/acquisition-worker CLOUDFLARE_ACCOUNT_ID.*canonical account_id/i);
+    expect(errors.join('\n')).not.toContain(accountId);
+  });
+
+  it.each([
     ['IPv4-mapped IPv6 loopback', '[::ffff:7f00:1]'],
     ['unspecified IPv6', '[::]'],
+    ['public IP literal', '8.8.8.8'],
+    ['invalid LDH name', 'bad_host.datafoundry.io'],
+    ['documentation name', 'service.example.com'],
+    ['local special-use name', 'service.local'],
+    ['provider fallback name', 'data-foundry-preview.pages.dev'],
   ])('rejects %s in every ignored deployment endpoint', async (_label, hostname) => {
     const validate = await loadValidator();
     const directory = await mkdtemp(join(tmpdir(), 'data-foundry-cloudflare-canonical-host-'));
@@ -313,7 +530,7 @@ describe('the committed Cloudflare topology', () => {
       writeFile(
         paths.webConfigPath,
         (await readFile(paths.webConfigPath, 'utf8')).replace(
-          'https://web.example.invalid',
+          'https://www.datafoundry.io',
           `https://${hostname}`,
         ),
         'utf8',
@@ -321,9 +538,9 @@ describe('the committed Cloudflare topology', () => {
       writeFile(
         paths.mcpConfigPath,
         (await readFile(paths.mcpConfigPath, 'utf8'))
-          .replace('MCP_HOSTNAME = "mcp.example.invalid"', `MCP_HOSTNAME = "${hostname}"`)
-          .replace('https://client.example.invalid', `https://${hostname}`)
-          .replace('https://web.example.invalid', `https://${hostname}`),
+          .replace('MCP_HOSTNAME = "mcp.datafoundry.io"', `MCP_HOSTNAME = "${hostname}"`)
+          .replace('https://app.datafoundry.io', `https://${hostname}`)
+          .replace('https://www.datafoundry.io', `https://${hostname}`),
         'utf8',
       ),
     ]);
@@ -379,8 +596,8 @@ describe('the committed Cloudflare topology', () => {
     await writeFile(
       paths.edgeConfigPath,
       (await readFile(paths.edgeConfigPath, 'utf8')).replace(
-        'binding = "HYPERDRIVE"\nid = "00000000000000000000000000000000"',
-        'binding = "HYPERDRIVE"\nid = "00000000000000000000000000000000"\nroute = "nested.example.invalid/*"',
+        `binding = "HYPERDRIVE"\nid = "${HYPERDRIVE_ID}"`,
+        `binding = "HYPERDRIVE"\nid = "${HYPERDRIVE_ID}"\nroute = "nested.example.invalid/*"`,
       ),
       'utf8',
     );

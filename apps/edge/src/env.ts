@@ -11,7 +11,10 @@
  */
 
 import type { KeyEnvironment } from '@data-foundry/api-keys';
-import { isUnsafeProductionEndpointHostname } from '@data-foundry/canonical-schema';
+import {
+  canonicalizeEndpointHostname,
+  isUnsafeCanonicalProductionHostname,
+} from '@data-foundry/canonical-schema';
 
 /** Cloudflare's Hyperdrive binding, narrowed to the one field we read. */
 export interface HyperdriveBinding {
@@ -99,7 +102,7 @@ function resolveRapidApiConfig(
     env.RAPIDAPI_API_KEY !== undefined;
   if (!anyConfigured) return null;
 
-  const hostname = (env.RAPIDAPI_HOSTNAME ?? '').trim().toLowerCase();
+  const hostname = canonicalizeEndpointHostname(env.RAPIDAPI_HOSTNAME ?? '');
   const proxySecret = env.RAPIDAPI_PROXY_SECRET ?? '';
   const apiKey = env.RAPIDAPI_API_KEY ?? '';
   if (hostname === '' || proxySecret === '' || apiKey === '') {
@@ -108,9 +111,9 @@ function resolveRapidApiConfig(
         'RAPIDAPI_PROXY_SECRET, and RAPIDAPI_API_KEY must be configured together.',
     );
   }
-  if (deploymentEnvironment === 'production' && isUnsafeProductionEndpointHostname(hostname)) {
+  if (deploymentEnvironment === 'production' && isUnsafeCanonicalProductionHostname(hostname)) {
     throw new EdgeConfigurationError(
-      'RAPIDAPI_HOSTNAME must not be a loopback or unspecified hostname in production.',
+      'RAPIDAPI_HOSTNAME must be a canonical production hostname; IP literals (including loopback and unspecified), special-use names, and provider fallback zones are refused.',
     );
   }
 

@@ -14,6 +14,7 @@ function recordInput(source: Fixtures['sources']['manufacturer']): SourceRecordI
     source_id: source.source.id,
     artifact_id: source.artifact.id,
     source_record_key: source.record.source_record_key,
+    source_stream: source.record.source_stream ?? 'fixture_records',
     entity_type: source.record.entity_type,
     raw_payload: source.record.raw_payload,
     normalized_payload: source.record.normalized_payload,
@@ -50,7 +51,12 @@ describe('source-record reconciliation', () => {
       [source.record.id],
     );
     const reconciled = await fixtures.driver.transaction((tx) =>
-      fixtures!.store.reconcileSourceRecord(input, tx, 'd'.repeat(64)),
+      fixtures!.store.reconcileSourceRecord(
+        input,
+        tx,
+        'd'.repeat(64),
+        '2026-08-30T00:00:00.000Z' as never,
+      ),
     );
     const [after] = await fixtures.driver.query<{
       id: string;
@@ -94,7 +100,7 @@ describe('source-record reconciliation', () => {
       fixtures!.store.reconcileSourceRecord({
         ...provisional,
         normalized_payload: { model: 'PROVISIONAL001' },
-      }, tx, 'a'.repeat(64)),
+      }, tx, 'a'.repeat(64), '2026-08-30T00:00:00.000Z' as never),
     );
     await fixtures.store.recordEntityEvidence({
       entity_id: fixtures.entity.id,
@@ -111,7 +117,7 @@ describe('source-record reconciliation', () => {
         raw_payload: { model: 'REEXTRACTED001' },
         normalized_payload: { model: 'REEXTRACTED001' },
         extractor_version: 'reconcile-test@2',
-      }, tx, 'b'.repeat(64)),
+      }, tx, 'b'.repeat(64), '2026-08-30T00:00:01.000Z' as never),
     );
     const revisions = await fixtures.driver.query<{
       id: string;
@@ -182,7 +188,12 @@ describe('source-record reconciliation', () => {
       observed_at: '2026-01-05T00:00:00.000Z' as never,
     });
     const replacement = await fixtures.driver.transaction((tx) =>
-      fixtures!.store.reconcileSourceRecord(input, tx, 'a'.repeat(64)),
+      fixtures!.store.reconcileSourceRecord(
+        input,
+        tx,
+        'a'.repeat(64),
+        '2026-08-30T00:00:00.000Z' as never,
+      ),
     );
     const revisions = await fixtures.driver.query<{
       id: string;

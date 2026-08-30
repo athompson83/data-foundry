@@ -220,6 +220,7 @@ export interface SourceAliasInsert extends Omit<EntityAliasInsert, 'source_id'> 
 export interface SourceAliasClaimInput {
   readonly entity_alias_id: EntityAliasId;
   readonly asserted_alias_value: string;
+  readonly asserted_normalized_value: string;
   readonly identity_confidence: EntityAlias['identity_confidence'];
   readonly source_record_id: SourceRecord['id'];
   readonly locator_type: LocatorType;
@@ -279,6 +280,7 @@ export interface CanonicalStore {
     input: SourceRecordInsert,
     transaction: SqlTransactionExecutor,
     evidenceFingerprint: string,
+    reconciledAt: IsoDateTime,
   ): Promise<SourceRecord>;
 
   /** Identity writes may join a caller-owned transaction through its pinned executor. */
@@ -328,6 +330,7 @@ export interface CanonicalStore {
   upsertRelationshipWithEvidence(
     draft: RelationshipClaimInput,
     evidence: NonEmptyArray<RelationshipEvidenceInput>,
+    executor?: SqlTransactionExecutor,
   ): Promise<RelationshipWriteResult>;
   listRelationships(
     entityId: EntityId,
@@ -360,8 +363,13 @@ export interface CanonicalStore {
     property: Identifier,
     at?: IsoDateTime,
   ): Promise<FactCandidate[]>;
-  /** One exact stored fact version and its evidence, independent of its current validity window. */
+  /** One exact stored fact version with immutable full-history evidence for recursive lineage. */
   loadFactCandidateById(id: FactId): Promise<FactCandidate | null>;
+  /** One exact stored fact version with only evidence authoritative at the requested instant. */
+  loadFactCandidateByIdAtAuthority(
+    id: FactId,
+    at: IsoDateTime,
+  ): Promise<FactCandidate | null>;
   /** Doc 04 fact selection for one property, with the rule that fired. */
   selectFact(
     entityId: EntityId,
@@ -572,15 +580,16 @@ class PostgresCanonicalStore implements CanonicalStore {
     evidenceFingerprint: string,
   ): Promise<SourceRecord> {
     const rows = await executor.query(
-      `INSERT INTO source_records (source_id, artifact_id, source_record_key, entity_type,
+      `INSERT INTO source_records (source_id, artifact_id, source_record_key, source_stream, entity_type,
                                    raw_payload, normalized_payload, extraction_confidence,
                                    extractor_version, evidence_fingerprint, revision_state)
-       VALUES ($1, $2, $3, $4, $5::jsonb, $6::jsonb, $7, $8, $9, $10)
+       VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7::jsonb, $8, $9, $10, $11)
        RETURNING ${SOURCE_RECORD_COLUMNS}`,
       [
         input.source_id,
         input.artifact_id,
         input.source_record_key,
+        input.source_stream,
         input.entity_type,
         json(input.raw_payload),
         input.normalized_payload === null ? null : json(input.normalized_payload),
@@ -595,16 +604,17 @@ class PostgresCanonicalStore implements CanonicalStore {
 
   async ensureSourceRecord(input: SourceRecordInsert): Promise<SourceRecord> {
     const inserted = await this.driver.query(
-      `INSERT INTO source_records (source_id, artifact_id, source_record_key, entity_type,
+      `INSERT INTO source_records (source_id, artifact_id, source_record_key, source_stream, entity_type,
                                    raw_payload, normalized_payload, extraction_confidence,
                                    extractor_version, evidence_fingerprint, revision_state)
-       VALUES ($1, $2, $3, $4, $5::jsonb, $6::jsonb, $7, $8, $9, 'PROVISIONAL')
+       VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7::jsonb, $8, $9, $10, 'PROVISIONAL')
        ON CONFLICT (source_id, source_record_key) WHERE is_current DO NOTHING
        RETURNING ${SOURCE_RECORD_COLUMNS}`,
       [
         input.source_id,
         input.artifact_id,
         input.source_record_key,
+        input.source_stream,
         input.entity_type,
         json(input.raw_payload),
         input.normalized_payload === null ? null : json(input.normalized_payload),
@@ -626,6 +636,7 @@ class PostgresCanonicalStore implements CanonicalStore {
     input: SourceRecordInsert,
     transaction: SqlTransactionExecutor,
     evidenceFingerprint: string,
+    reconciledAt: IsoDateTime,
   ): Promise<SourceRecord> {
     if (!/^[0-9a-f]{64}$/.test(evidenceFingerprint)) {
       throw new Error('evidenceFingerprint must be a lowercase SHA-256 digest.');
@@ -641,6 +652,7 @@ class PostgresCanonicalStore implements CanonicalStore {
       readonly id: string;
       readonly revision_state: 'PROVISIONAL' | 'FINALIZED';
       readonly artifact_matches: boolean;
+      readonly source_stream_matches: boolean;
       readonly entity_type_matches: boolean;
       readonly raw_payload_matches: boolean;
       readonly normalized_payload_matches: boolean;
@@ -651,12 +663,13 @@ class PostgresCanonicalStore implements CanonicalStore {
     const current = await transaction.query<CurrentRevisionRow>(
       `SELECT ${SOURCE_RECORD_COLUMNS},
               artifact_id = $3 AS artifact_matches,
-              entity_type = $4 AS entity_type_matches,
-              raw_payload = $5::jsonb AS raw_payload_matches,
-              normalized_payload IS NOT DISTINCT FROM $6::jsonb AS normalized_payload_matches,
-              extraction_confidence = $7 AS extraction_confidence_matches,
-              extractor_version = $8 AS extractor_version_matches,
-              evidence_fingerprint = $9 AS evidence_fingerprint_matches
+              source_stream = $4 AS source_stream_matches,
+              entity_type = $5 AS entity_type_matches,
+              raw_payload = $6::jsonb AS raw_payload_matches,
+              normalized_payload IS NOT DISTINCT FROM $7::jsonb AS normalized_payload_matches,
+              extraction_confidence = $8 AS extraction_confidence_matches,
+              extractor_version = $9 AS extractor_version_matches,
+              evidence_fingerprint = $10 AS evidence_fingerprint_matches
          FROM source_records
         WHERE source_id = $1 AND source_record_key = $2 AND is_current
         FOR UPDATE`,
@@ -664,6 +677,7 @@ class PostgresCanonicalStore implements CanonicalStore {
         input.source_id,
         input.source_record_key,
         input.artifact_id,
+        input.source_stream,
         input.entity_type,
         json(input.raw_payload),
         input.normalized_payload === null ? null : json(input.normalized_payload),
@@ -678,6 +692,7 @@ class PostgresCanonicalStore implements CanonicalStore {
     }
     const extractionMatches =
       existing.artifact_matches &&
+      existing.source_stream_matches &&
       existing.entity_type_matches &&
       existing.raw_payload_matches &&
       existing.extraction_confidence_matches &&
@@ -717,9 +732,9 @@ class PostgresCanonicalStore implements CanonicalStore {
     const replacement = await this.#insertSourceRecord(input, transaction, 'FINALIZED', evidenceFingerprint);
     await transaction.query(
       `INSERT INTO source_record_reconciliations
-         (superseded_source_record_id, replacement_source_record_id)
-       VALUES ($1, $2)`,
-      [existing.id, replacement.id],
+         (superseded_source_record_id, replacement_source_record_id, reconciled_at)
+       VALUES ($1, $2, $3)`,
+      [existing.id, replacement.id, reconciledAt],
     );
     return replacement;
   }
@@ -795,18 +810,57 @@ class PostgresCanonicalStore implements CanonicalStore {
   }
 
   async addAlias(input: EntityAliasInsert, executor?: SqlExecutor): Promise<EntityAlias> {
-    const write = async (writeExecutor: SqlExecutor): Promise<EntityAlias> => {
-      const alias = await this.#upsertAlias(input, writeExecutor, true);
-      await this.#recordCuratedAliasClaim(
-        alias.id,
+    const rows = await (executor ?? this.driver).query(
+      `WITH alias_write AS (
+         INSERT INTO entity_aliases (
+           entity_id, alias_type, alias_value, normalized_value, source_id,
+           identity_confidence, valid_from, valid_to
+         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+         ON CONFLICT (entity_id, alias_type, normalized_value) DO UPDATE
+           SET alias_value = EXCLUDED.alias_value,
+               identity_confidence = GREATEST(entity_aliases.identity_confidence,
+                                              EXCLUDED.identity_confidence),
+               valid_to = EXCLUDED.valid_to,
+               authority_epoch = CASE
+                 WHEN entity_aliases.valid_to IS DISTINCT FROM EXCLUDED.valid_to
+                   THEN entity_aliases.authority_epoch + 1
+                 ELSE entity_aliases.authority_epoch
+               END
+           WHERE entity_aliases.valid_to IS NULL
+              OR EXCLUDED.valid_to IS NOT NULL
+              OR entity_aliases.valid_from IS NOT DISTINCT FROM EXCLUDED.valid_from
+         RETURNING ${ALIAS_COLUMNS}, authority_epoch
+       ), claim_write AS (
+         INSERT INTO entity_alias_claims (
+           entity_alias_id, asserted_alias_value, asserted_normalized_value,
+           identity_confidence, claim_kind, source_id, source_record_id, authority_epoch,
+           locator_type, locator_value, valid_to
+         )
+         SELECT alias_write.id, $3, $4, $6, 'CURATED', $5, NULL,
+                alias_write.authority_epoch, NULL, NULL, $8
+           FROM alias_write
+         ON CONFLICT DO NOTHING
+         RETURNING entity_alias_id
+       )
+       SELECT ${ALIAS_COLUMNS} FROM alias_write`,
+      [
+        input.entity_id,
+        input.alias_type,
         input.alias_value,
+        input.normalized_value,
+        input.source_id,
         input.identity_confidence,
+        input.valid_from,
         input.valid_to,
-        writeExecutor,
+      ],
+    );
+    const row = rows[0];
+    if (row === undefined) {
+      throw new Error(
+        'cannot reopen an alias with a different validity start; the stored row cannot represent a second interval',
       );
-      return alias;
-    };
-    return executor === undefined ? this.driver.transaction(write) : write(executor);
+    }
+    return mapEntityAlias(row);
   }
 
   async stageSourceAlias(
@@ -827,6 +881,7 @@ class PostgresCanonicalStore implements CanonicalStore {
       input.locator_type,
       input.locator_value,
       input.asserted_alias_value,
+      input.asserted_normalized_value,
       input.identity_confidence,
     ];
     const select =
@@ -834,19 +889,29 @@ class PostgresCanonicalStore implements CanonicalStore {
          FROM entity_alias_claims
         WHERE claim_kind = 'SOURCE_RECORD'
           AND entity_alias_id = $1
+          AND authority_epoch = (
+              SELECT authority_epoch FROM entity_aliases WHERE id = $1
+          )
           AND source_record_id = $2
           AND locator_type = $3
           AND locator_value = $4
           AND asserted_alias_value = $5
-          AND identity_confidence = $6`;
+          AND asserted_normalized_value = $6
+          AND identity_confidence = $7`;
     const existing = await writeExecutor.query(select, params);
     if (existing[0] !== undefined) return mapEntityAliasClaim(existing[0]);
 
     const inserted = await writeExecutor.query(
       `INSERT INTO entity_alias_claims (
-         entity_alias_id, claim_kind, source_record_id, locator_type, locator_value,
-         asserted_alias_value, identity_confidence, valid_to
-       ) VALUES ($1, 'SOURCE_RECORD', $2, $3, $4, $5, $6, NULL)
+         entity_alias_id, claim_kind, source_id, source_record_id, authority_epoch,
+         locator_type, locator_value, asserted_alias_value, asserted_normalized_value,
+         identity_confidence, valid_to
+       )
+       SELECT alias_row.id, 'SOURCE_RECORD', source_record.source_id, source_record.id,
+              alias_row.authority_epoch, $3, $4, $5, $6, $7, NULL
+         FROM source_records source_record
+         JOIN entity_aliases alias_row ON alias_row.id = $1
+        WHERE source_record.id = $2
        ON CONFLICT DO NOTHING
        RETURNING ${ALIAS_CLAIM_COLUMNS}`,
       params,
@@ -885,43 +950,6 @@ class PostgresCanonicalStore implements CanonicalStore {
       ],
     );
     return mapEntityAlias(requireRow(rows, 'entity_aliases'));
-  }
-
-  async #recordCuratedAliasClaim(
-    aliasId: EntityAliasId,
-    assertedAliasValue: string,
-    identityConfidence: EntityAlias['identity_confidence'],
-    validTo: IsoDateTime | null,
-    executor: SqlExecutor,
-  ): Promise<EntityAliasClaim> {
-    const params: readonly SqlParam[] = [
-      aliasId,
-      assertedAliasValue,
-      identityConfidence,
-      validTo,
-    ];
-    const select =
-      `SELECT ${ALIAS_CLAIM_COLUMNS}
-         FROM entity_alias_claims
-        WHERE claim_kind = 'CURATED'
-          AND entity_alias_id = $1
-          AND asserted_alias_value = $2
-          AND identity_confidence = $3
-          AND valid_to IS NOT DISTINCT FROM $4`;
-    const existing = await executor.query(select, params);
-    if (existing[0] !== undefined) return mapEntityAliasClaim(existing[0]);
-
-    const inserted = await executor.query(
-      `INSERT INTO entity_alias_claims (
-         entity_alias_id, asserted_alias_value, identity_confidence, claim_kind,
-         source_record_id, locator_type, locator_value, valid_to
-       ) VALUES ($1, $2, $3, 'CURATED', NULL, NULL, NULL, $4)
-       ON CONFLICT DO NOTHING
-       RETURNING ${ALIAS_CLAIM_COLUMNS}`,
-      params,
-    );
-    if (inserted[0] !== undefined) return mapEntityAliasClaim(inserted[0]);
-    return mapEntityAliasClaim(requireRow(await executor.query(select, params), 'entity_alias_claims'));
   }
 
   async listAliases(entityId: EntityId, executor?: SqlExecutor): Promise<EntityAlias[]> {
@@ -1224,6 +1252,7 @@ class PostgresCanonicalStore implements CanonicalStore {
   async upsertRelationshipWithEvidence(
     draft: RelationshipClaimInput,
     evidence: NonEmptyArray<RelationshipEvidenceInput>,
+    executor?: SqlTransactionExecutor,
   ): Promise<RelationshipWriteResult> {
     if (evidence.length === 0) {
       throw new MissingEvidenceError(
@@ -1231,7 +1260,7 @@ class PostgresCanonicalStore implements CanonicalStore {
       );
     }
 
-    return this.driver.transaction(async (tx) => {
+    const write = async (tx: SqlExecutor): Promise<RelationshipWriteResult> => {
       const openRows = await tx.query(
         `SELECT ${RELATIONSHIP_COLUMNS} FROM relationships
           WHERE subject_entity_id = $1 AND predicate = $2 AND object_entity_id = $3
@@ -1318,7 +1347,8 @@ class PostgresCanonicalStore implements CanonicalStore {
         evidence: all.map(mapRelationshipEvidence),
         added_evidence: added,
       };
-    });
+    };
+    return executor === undefined ? this.driver.transaction(write) : write(executor);
   }
 
   async listRelationships(
@@ -1334,7 +1364,23 @@ class PostgresCanonicalStore implements CanonicalStore {
           ? 'object_entity_id = $1'
           : '(subject_entity_id = $1 OR object_entity_id = $1)';
     let sql = `SELECT ${RELATIONSHIP_COLUMNS} FROM relationships WHERE ${clause}
-                 AND status <> 'RETRACTED' AND valid_to IS NULL`;
+                 AND status <> 'RETRACTED' AND valid_to IS NULL
+                 AND (
+                   NOT EXISTS (
+                     SELECT 1
+                       FROM relationship_evidence any_evidence
+                      WHERE any_evidence.relationship_id = relationships.id
+                   )
+                   OR EXISTS (
+                     SELECT 1
+                       FROM relationship_evidence current_evidence
+                       JOIN source_records current_record
+                         ON current_record.id = current_evidence.source_record_id
+                      WHERE current_evidence.relationship_id = relationships.id
+                        AND current_record.is_current
+                        AND current_record.revision_state = 'FINALIZED'
+                   )
+                 )`;
     if (options.predicate !== undefined) {
       params.push(options.predicate);
       sql += ` AND predicate = $${params.length}`;
@@ -1564,6 +1610,7 @@ class PostgresCanonicalStore implements CanonicalStore {
       `SELECT ${FACT_COLUMNS} FROM facts
         WHERE entity_id = $1 AND property = $2
           AND valid_from <= $3 AND (valid_to IS NULL OR valid_to > $3)
+          AND recorded_at <= $3
           AND (
             (output_kind = 'NORMALIZED_FACT' AND NOT EXISTS (
               SELECT 1 FROM fact_dependencies fd WHERE fd.derived_fact_id = facts.id
@@ -1579,7 +1626,7 @@ class PostgresCanonicalStore implements CanonicalStore {
     const facts = factRows.map(mapFact);
     if (facts.length === 0) return [];
 
-    const evidenceByFact = await this.loadEvidenceChains(facts.map((fact) => fact.id));
+    const evidenceByFact = await this.loadEvidenceChains(facts.map((fact) => fact.id), at);
     return facts.map((fact) => ({
       fact,
       evidence: evidenceByFact.get(fact.id) ?? [],
@@ -1593,12 +1640,48 @@ class PostgresCanonicalStore implements CanonicalStore {
     return { fact, evidence: evidenceByFact.get(fact.id) ?? [] };
   }
 
+  async loadFactCandidateByIdAtAuthority(
+    id: FactId,
+    at: IsoDateTime,
+  ): Promise<FactCandidate | null> {
+    const fact = await this.getFactById(id);
+    if (fact === null) return null;
+    const evidenceByFact = await this.loadEvidenceChains([fact.id], at);
+    return { fact, evidence: evidenceByFact.get(fact.id) ?? [] };
+  }
+
   /** Evidence + source_record + artifact + source, for a set of facts. */
   private async loadEvidenceChains(
     factIds: readonly FactId[],
+    at?: IsoDateTime,
   ): Promise<Map<FactId, CandidateEvidence[]>> {
     const byFact = new Map<FactId, CandidateEvidence[]>();
     if (factIds.length === 0) return byFact;
+
+    const params: SqlParam[] = [...factIds];
+    let authorityAt = '';
+    if (at !== undefined) {
+      params.push(at);
+      const atParameter = `$${params.length}`;
+      authorityAt = `
+          AND fe.observed_at <= ${atParameter}
+          AND sr.revision_state = 'FINALIZED'
+          AND (
+            sr.is_current OR
+            EXISTS (
+              SELECT 1
+                FROM source_record_reconciliations reconciliation
+               WHERE reconciliation.superseded_source_record_id = sr.id
+                 AND reconciliation.reconciled_at > ${atParameter}
+            ) OR
+            EXISTS (
+              SELECT 1
+                FROM source_record_snapshot_retirements retirement
+               WHERE retirement.source_record_id = sr.id
+                 AND retirement.retired_at > ${atParameter}
+            )
+          )`;
+    }
 
     const rows = await this.driver.query(
       `SELECT ${prefix('fe', FACT_EVIDENCE_COLUMNS, 'fe_')},
@@ -1609,10 +1692,11 @@ class PostgresCanonicalStore implements CanonicalStore {
          FROM fact_evidence fe
          JOIN source_records sr ON sr.id = fe.source_record_id
          JOIN source_artifacts sa ON sa.id = fe.artifact_id
-         JOIN sources s ON s.id = sr.source_id
+        JOIN sources s ON s.id = sr.source_id
         WHERE fe.fact_id IN (${placeholders(factIds.length)})
+        ${authorityAt}
         ORDER BY fe.observed_at, fe.id`,
-      [...factIds],
+      params,
     );
 
     for (const row of rows) {

@@ -361,6 +361,15 @@ describe('the published contract for relationship traversal', () => {
     );
     expect(caveat, 'it must say the view is partial').toMatch(/withheld|withholds/i);
     expect(caveat, 'and name what the edge list actually is').toMatch(/publishable graph/i);
+    expect(caveat, 'one allowed contribution must not launder a refused neighbour').toMatch(
+      /any required provenance contribution.*withheld|withheld.*any required provenance contribution/i,
+    );
+    expect(caveat, 'endpoint identity support must be current').toMatch(
+      /endpoint identit.*current FINALIZED/i,
+    );
+    expect(caveat, 'edge assertion support must independently be current').toMatch(
+      /current FINALIZED.*assertion/i,
+    );
   });
 
   it('reports no unevidenced edges on a route that served real ones', async () => {

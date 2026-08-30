@@ -15,6 +15,11 @@ function normalizeHostname(value: string): string {
     .replace(/\.+$/, '');
 }
 
+/** Normalize case, brackets, and DNS root-dot spelling before policy checks. */
+export function canonicalizeEndpointHostname(value: string): string {
+  return normalizeHostname(value);
+}
+
 function parseIpv4(value: string): readonly number[] | null {
   const parts = value.split('.');
   if (parts.length !== 4) return null;
@@ -55,6 +60,39 @@ function parseIpv6(value: string): readonly number[] | null {
   if (halves.length === 1) return left.length === 8 ? left : null;
   const missing = 8 - left.length - right.length;
   return missing >= 1 ? [...left, ...Array<number>(missing).fill(0), ...right] : null;
+}
+
+function isIpLiteral(value: string): boolean {
+  if (parseIpv4(value) !== null || parseIpv6(value) !== null) return true;
+  try {
+    // URL also recognizes the legacy IPv4 literal spellings (for example
+    // 127.1 and 0x7f000001) that a Worker request URL would normalize to an
+    // address even though they do not look like a four-octet literal.
+    const parsed = normalizeHostname(new URL(`https://${value}`).hostname);
+    return parseIpv4(parsed) !== null || parseIpv6(parsed) !== null;
+  } catch {
+    return false;
+  }
+}
+
+function isValidLdhHostname(value: string): boolean {
+  if (value.length > 253) return false;
+  const labels = value.split('.');
+  const finalLabel = labels.at(-1) ?? '';
+  return (
+    labels.length >= 2 &&
+    /[a-z]/.test(finalLabel) &&
+    labels.every(
+      (label) =>
+        label.length >= 1 &&
+        label.length <= 63 &&
+        /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(label),
+    )
+  );
+}
+
+function isDomainOrSubdomain(value: string, suffix: string): boolean {
+  return value === suffix || value.endsWith(`.${suffix}`);
 }
 
 function classifyIpv4(octets: readonly number[]): EndpointHostnameKind {
@@ -99,4 +137,60 @@ export function isLoopbackEndpointHostname(value: string): boolean {
 /** Production endpoints must not name a loopback or unspecified bind address. */
 export function isUnsafeProductionEndpointHostname(value: string): boolean {
   return classifyEndpointHostname(value) !== 'public';
+}
+
+/**
+ * Production marketplace/origin hostnames must be public DNS names, not IP
+ * literals, special-use/documentation names, or provider fallback zones.
+ */
+export function isUnsafeCanonicalProductionHostname(value: string): boolean {
+  const hostname = normalizeHostname(value);
+  return (
+    hostname === '' ||
+    !hostname.includes('.') ||
+    hostname.includes('*') ||
+    !isValidLdhHostname(hostname) ||
+    isIpLiteral(hostname) ||
+    isUnsafeProductionEndpointHostname(hostname) ||
+    isDomainOrSubdomain(hostname, 'invalid') ||
+    isDomainOrSubdomain(hostname, 'example') ||
+    isDomainOrSubdomain(hostname, 'test') ||
+    isDomainOrSubdomain(hostname, 'example.com') ||
+    isDomainOrSubdomain(hostname, 'example.net') ||
+    isDomainOrSubdomain(hostname, 'example.org') ||
+    isDomainOrSubdomain(hostname, 'alt') ||
+    isDomainOrSubdomain(hostname, 'local') ||
+    isDomainOrSubdomain(hostname, 'onion') ||
+    isDomainOrSubdomain(hostname, 'home.arpa') ||
+    isDomainOrSubdomain(hostname, 'arpa') ||
+    isDomainOrSubdomain(hostname, 'workers.dev') ||
+    isDomainOrSubdomain(hostname, 'pages.dev') ||
+    isDomainOrSubdomain(hostname, 'trycloudflare.com')
+  );
+}
+
+export interface CanonicalProductionWorkerRoute {
+  readonly hostname: string;
+  readonly pattern: string;
+}
+
+/**
+ * Parse the one production Worker route shape supported by Data Foundry.
+ * Cloudflare accepts broader route syntax, but deployable manifests use an
+ * exact lowercase public DNS host followed by the full-host wildcard `/*`.
+ */
+export function parseCanonicalProductionWorkerRoute(
+  value: string,
+): CanonicalProductionWorkerRoute | null {
+  if (value !== value.trim() || !value.endsWith('/*')) return null;
+  const hostname = value.slice(0, -2);
+  if (
+    hostname === '' ||
+    hostname !== hostname.toLowerCase() ||
+    hostname !== canonicalizeEndpointHostname(hostname) ||
+    isUnsafeCanonicalProductionHostname(hostname)
+  ) {
+    return null;
+  }
+  return { hostname, pattern: value };
 }

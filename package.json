@@ -15,6 +15,7 @@
     "lint": "tsc -p tsconfig.json",
     "migrate": "tsx tooling/scripts/migrate.ts",
     "migrate:check": "tsx tooling/scripts/migrate.ts --check",
+    "credentials:provision": "tsx tooling/scripts/provision-api-credential.ts",
     "schemas:generate": "tsx tooling/scripts/generate-json-schemas.ts && pnpm run source-readiness:schema:generate",
     "schemas:check": "tsx tooling/scripts/generate-json-schemas.ts --check && pnpm run source-readiness:schema:check",
     "source-readiness:schema:generate": "tsx tooling/scripts/generate-source-readiness-schema.ts",
@@ -28,6 +29,7 @@
     "acquisition:check": "tsx tooling/scripts/compile-acquisition-runtime.ts --check",
     "acquisition:postgres:check": "tsx tooling/scripts/check-scheduled-acquisition-postgres.ts",
     "source-records:postgres:check": "tsx tooling/scripts/check-source-record-reconciliation-postgres.ts",
+    "credentials:postgres:check": "tsx tooling/scripts/check-credential-provisioning-postgres.ts",
     "mcp:compile": "tsx tooling/scripts/compile-mcp-runtime.ts",
     "mcp:compile:check": "tsx tooling/scripts/compile-mcp-runtime.ts --check",
     "cloudflare:topology:check": "tsx tooling/scripts/check-cloudflare-topology.ts",
@@ -38,6 +40,7 @@
     "sources:readiness": "tsx tooling/scripts/source-readiness.ts"
   },
   "devDependencies": {
+    "@data-foundry/api-keys": "workspace:*",
     "@data-foundry/canonical-schema": "workspace:*",
     "@data-foundry/canonical-store": "workspace:*",
     "@data-foundry/rights-engine": "workspace:*",

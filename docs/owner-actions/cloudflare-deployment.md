@@ -71,7 +71,15 @@ credential must not be committed.
 ### Checklist
 
 1. Provision the production Postgres database and require TLS.
-2. Apply the exact repository migrations to production once.
+2. Supply `POSTGRES_URL` only through the approved secret-bearing environment,
+   then apply the exact repository migrations twice from the frozen release SHA:
+   ```powershell
+   pnpm migrate
+   pnpm migrate
+   ```
+   The first run must apply every pending migration and the second must report
+   all 24 migrations already applied. Do not pass the connection string on argv
+   or archive it with the command receipt.
 3. Create a Hyperdrive configuration for the API Worker.
 4. Configure the usage-consumer Worker with its `HYPERDRIVE` binding.
 5. Configure the public Worker with `HYPERDRIVE` and the non-secret
@@ -98,6 +106,29 @@ remain `ACTIVE` until that lease expires, and a future-skewed legacy timestamp c
 extend the wait; retry after the recorded expiry rather than editing the row.
 This coordination is unnecessary for the first deployment, where all migrations
 are applied before any Worker or Cron is made live.
+
+Migration `0023` intentionally creates no claims for legacy aliases: neither a
+NULL `source_id` nor a historical source association proves current authority.
+For an upgrade from a deployment older than `0023`, disable acquisition and
+offline ingest, block the public/API/MCP publication routes, apply `0023`, and
+deploy the matching query and ingest bundles before reopening those routes.
+Re-ingest only rights-admitted sources so current finalized source records can
+assert new claims, and add a curated claim only through an explicit reviewed
+editorial action. Prove each enabled surface has the intended current identity
+coverage before restoring traffic. This may temporarily hide legacy entities;
+that fail-closed outage is preferable to manufacturing authority. On a first
+deployment, apply all 24 migrations before enabling any route or Cron, then
+ingest admitted sources with the matching bundle.
+
+Migration `0024` adds explicit source-stream membership and complete-snapshot
+retirement evidence. It intentionally marks every pre-`0024` record with unknown
+stream membership non-current instead of guessing which stream asserted it. On
+an upgrade, keep the same acquisition/ingest and publication block used for
+`0023`, apply through `0024`, deploy the matching compiler/ingest/query bundle,
+and re-ingest only rights-admitted sources. A stream may retire an omitted record
+only when its mapping explicitly says `refresh_mode: full_snapshot`; an
+`incremental` stream never treats absence as deletion. Verify the append-only
+retirement rows cite the exact same-source artifacts before restoring traffic.
 
 ### Verify
 
@@ -134,19 +165,27 @@ ENERGY STAR proposal must remain untouched.
 
 ---
 
-## 3. Disconnect the legacy Vercel Git integration
+## 3. Verify and remove only stale Data Foundry Vercel App access
 
-Carried over from ADR-0005 and still independent of Cloudflare adoption.
+There is no Data Foundry project in the connected Vercel team, no repository
+webhook, and recent commits have no Vercel status. GitHub App installation
+`122728140` still exists, but its exact repository selection is hidden behind an
+independent GitHub owner sudo/passkey ceremony. This hygiene item remains
+independent of Cloudflare adoption and does not block protected merge or deploy.
 
 ### Checklist
 
-Vercel dashboard → the project for this repository → Settings → Git →
-**Disconnect**.
+Open <https://github.com/settings/installations/122728140>, complete the GitHub
+owner sudo/passkey prompt, and inspect **Repository access**. If and only if
+`athompson83/data-foundry` is selected, remove that repository without changing
+access for other Vercel-managed repositories. Keep `vercel.json` until this
+selection check proves Data Foundry has no remaining App access.
 
 ### Verify
 
-A push creates no Vercel deployment/status. Only after that proof should
-`vercel.json` be removed and the old ADR amended.
+Record the repository-selection result without credentials. Delete
+`vercel.json` only in a separately reviewed cleanup after absence of App access
+is proved; the already-verified lack of a Vercel project alone is insufficient.
 
 ---
 
@@ -173,7 +212,7 @@ normal search crawlers remain able to index the public site.
 
 ---
 
-## 5. Metered API and MCP analytics — built, but not provisioned
+## 5. Metered API and MCP analytics — built, awaiting live provisioning
 
 The old statement that auth, tenancy and usage accounting were wholly absent is
 stale. The integration candidate contains corrected usage-accounting semantics,
@@ -185,9 +224,9 @@ Candidate implementation exists in migrations `0011`, `0012`, `0015`, and
 reaches a route, then publishes a usage event per successful request to a
 Cloudflare Queue that `apps/usage-consumer` persists idempotently. Exact-SHA
 verification and merge, plus live Queue, DLQ, and Hyperdrive proof, remain
-separate gates. Provisioning — item 6 below — and minting real API keys for real
-tenants remain operational actions (insert a row, hash and hand the secret to
-the customer once) rather than additional canonical API implementations.
+separate gates. `pnpm credentials:provision` now performs the tenant/key database
+transaction and one-time secret delivery; running it against the live database
+remains an operational action rather than another canonical API implementation.
 
 Deliberately still absent, and out of scope for this increment: pricing,
 plans, invoices, subscriptions, or any Stripe relationship. What exists
@@ -200,9 +239,47 @@ authenticated and recorded for analytics, while remaining ineligible for Data
 Foundry invoicing. These are custom high-entropy Data Foundry bearer keys, not
 standards-based MCP OAuth tokens; no authorization server has been selected.
 
-Nothing to do in a dashboard for *this* item beyond §6. Listed here so item 4
-is not mistaken for it: enrolling in pay per crawl does not produce a metered
-API, and a metered API does not enrol the zone.
+The command accepts a database connection only through `POSTGRES_URL`; inject it
+through the approved secret-bearing environment before running these commands.
+Never put the URL or a plaintext API key on argv. File delivery intentionally
+fails on native Windows because `chmod` is not an owner-only Windows ACL. Run
+direct/MCP file delivery from Linux or WSL on a POSIX filesystem, and select an
+absolute new path outside the git worktree. First validate, then provision a
+direct paid customer credential:
+
+Set the non-secret `CUSTOMER_SLUG`/`CUSTOMER_NAME` (or
+`MCP_CLIENT_SLUG`/`MCP_CLIENT_NAME`) variables to the reviewed customer identity
+before using the corresponding pair below.
+
+```bash
+pnpm credentials:provision -- --dry-run --environment live --tenant-slug "$CUSTOMER_SLUG" --tenant-name "$CUSTOMER_NAME" --vertical hvac --credential-label "production direct API" --access-tier API_PAID --billing-source DIRECT --output "/secure-delivery/${CUSTOMER_SLUG}-direct.json"
+pnpm credentials:provision -- --environment live --tenant-slug "$CUSTOMER_SLUG" --tenant-name "$CUSTOMER_NAME" --vertical hvac --credential-label "production direct API" --access-tier API_PAID --billing-source DIRECT --output "/secure-delivery/${CUSTOMER_SLUG}-direct.json"
+```
+
+The second command exclusively creates a mode-`0600` one-time credential file
+and refuses an existing path. It prints only the database credential id, display
+prefix, fingerprint, classification, and selected path. Deliver that file using
+the approved customer-secret channel; the database retains only the hash. After
+the customer confirms receipt through that channel, securely remove the local
+ mode-`0600` file and retain only its non-secret credential id/fingerprint receipt.
+If the process is interrupted after the file is created but before the database
+commit is confirmed, treat the file as an unconfirmed plaintext orphan: remove
+it securely, inspect/revoke any matching database credential by non-secret id,
+and retry with a new label. A completed-label replay never reconstructs a key.
+
+Provision an MCP client the same way, with the independent analytics-only pair:
+
+```bash
+pnpm credentials:provision -- --dry-run --environment live --tenant-slug "$MCP_CLIENT_SLUG" --tenant-name "$MCP_CLIENT_NAME" --vertical hvac --credential-label "production MCP" --access-tier MCP --billing-source NONE --output "/secure-delivery/${MCP_CLIENT_SLUG}-mcp.json"
+pnpm credentials:provision -- --environment live --tenant-slug "$MCP_CLIENT_SLUG" --tenant-name "$MCP_CLIENT_NAME" --vertical hvac --credential-label "production MCP" --access-tier MCP --billing-source NONE --output "/secure-delivery/${MCP_CLIENT_SLUG}-mcp.json"
+```
+
+Re-running an already completed tenant/vertical/label/classification is a no-op;
+it never re-mints or tries to reconstruct the plaintext. A quarantined legacy
+key may be classified only by adding its exact UUID as
+`--classify-existing <credential-uuid>` and omitting every delivery flag.
+Enrolling in pay per crawl does not produce a metered API, and a metered API
+does not enrol the zone.
 
 ---
 
@@ -219,9 +296,9 @@ item 1.
 1. Create the dead-letter queue first, since the main queue's config
    references it:
    ```
-   pnpm exec wrangler queues create data-foundry-usage-events-dlq
-   pnpm exec wrangler queues create data-foundry-usage-events
-   pnpm exec wrangler queues update data-foundry-usage-events --message-retention-period-secs 1209600
+   pnpm exec wrangler queues create data-foundry-usage-events-dlq --env-file tooling/wrangler-empty.env
+   pnpm exec wrangler queues create data-foundry-usage-events --env-file tooling/wrangler-empty.env
+   pnpm exec wrangler queues update data-foundry-usage-events --message-retention-period-secs 1209600 --env-file tooling/wrangler-empty.env
    ```
    Both names must match `apps/edge/wrangler.toml` and
    `apps/mcp-worker/wrangler.toml`'s `[[queues.producers]]` blocks and
@@ -248,8 +325,17 @@ item 1.
    Copy-Item apps/web/wrangler.toml apps/web/wrangler.production.toml
    ```
    Add the non-secret live binding/account/route/host values only to those five
-   ignored files. Set `PUBLIC_CACHE_MODE = "no-store"` in the web deployment
-   manifest initially. Before every `wrangler deploy --dry-run` or deploy, run:
+   ignored files. All five must name the same exact 32-hex `account_id`. Set
+   `PUBLIC_CACHE_MODE = "no-store"` in the web deployment manifest initially.
+    When the marketplace channel is enabled, add a second edge route for its
+    dedicated origin hostname and set `RAPIDAPI_HOSTNAME` to that exact host.
+    Keep the direct API on a different route so hostname-first classification
+    cannot reinterpret a direct request as marketplace traffic. Do not infer the
+    marketplace host from a request. The runtime and provisioner require a
+    canonical public DNS name and
+   reject loopback, unspecified, reserved (`.invalid`, `.example`, `.test`) and
+   `workers.dev` names, including terminal-root-dot spellings. Before every
+   `wrangler deploy --dry-run` or deploy, run:
    ```powershell
    pnpm cloudflare:deployment:check
    ```
@@ -261,30 +347,64 @@ item 1.
    duplicating it on the command line. From the repository root, dry-run and
    deploy the five exact manifests with the repository-pinned Wrangler:
    ```powershell
-   pnpm exec wrangler deploy --dry-run --config apps/edge/wrangler.production.toml
-   pnpm exec wrangler deploy --dry-run --config apps/web/wrangler.production.toml
-   pnpm exec wrangler deploy --dry-run --config apps/usage-consumer/wrangler.production.toml
-   pnpm exec wrangler deploy --dry-run --config apps/acquisition-worker/wrangler.production.toml
-   pnpm exec wrangler deploy --dry-run --config apps/mcp-worker/wrangler.production.toml
+   pnpm exec wrangler deploy --dry-run --config apps/edge/wrangler.production.toml --env-file tooling/wrangler-empty.env
+   pnpm exec wrangler deploy --dry-run --config apps/web/wrangler.production.toml --env-file tooling/wrangler-empty.env
+   pnpm exec wrangler deploy --dry-run --config apps/usage-consumer/wrangler.production.toml --env-file tooling/wrangler-empty.env
+   pnpm exec wrangler deploy --dry-run --config apps/acquisition-worker/wrangler.production.toml --env-file tooling/wrangler-empty.env
+   pnpm exec wrangler deploy --dry-run --config apps/mcp-worker/wrangler.production.toml --env-file tooling/wrangler-empty.env
 
-   pnpm exec wrangler deploy --config apps/edge/wrangler.production.toml
-   pnpm exec wrangler deploy --config apps/web/wrangler.production.toml
-   pnpm exec wrangler deploy --config apps/usage-consumer/wrangler.production.toml
-   pnpm exec wrangler deploy --config apps/acquisition-worker/wrangler.production.toml
-   pnpm exec wrangler deploy --config apps/mcp-worker/wrangler.production.toml
+   pnpm exec wrangler deploy --config apps/edge/wrangler.production.toml --env-file tooling/wrangler-empty.env
+   pnpm exec wrangler deploy --config apps/web/wrangler.production.toml --env-file tooling/wrangler-empty.env
+   pnpm exec wrangler deploy --config apps/usage-consumer/wrangler.production.toml --env-file tooling/wrangler-empty.env
+   pnpm exec wrangler deploy --config apps/acquisition-worker/wrangler.production.toml --env-file tooling/wrangler-empty.env
+   pnpm exec wrangler deploy --config apps/mcp-worker/wrangler.production.toml --env-file tooling/wrangler-empty.env
    ```
-   Before those commands, store protected values interactively without placing
-   their values in shell history or any manifest. Use the exact Worker manifest
-   that consumes each name, for example:
+   Before those commands, store independently supplied protected values
+   interactively without placing their values in shell history or any manifest.
+   Use the exact Worker manifest that consumes each name. The RapidAPI proxy
+   proof is externally supplied and remains an interactive secret:
    ```powershell
-   pnpm exec wrangler secret put RAPIDAPI_PROXY_SECRET --config apps/edge/wrangler.production.toml
-   pnpm exec wrangler secret put RAPIDAPI_API_KEY --config apps/edge/wrangler.production.toml
+   pnpm exec wrangler secret put RAPIDAPI_PROXY_SECRET --config apps/edge/wrangler.production.toml --env-file tooling/wrangler-empty.env
    ```
+   Create the dedicated marketplace tenant/key and pipe the newly minted
+   `RAPIDAPI_API_KEY` directly to that Worker without echoing it or placing it
+   on argv. `POSTGRES_URL` and authenticated Wrangler access must already be
+   present in the process environment. The selected manifest is accepted only
+   when it is the ignored `apps/edge/wrangler.production.toml`, retains the
+   production/live, no-preview, no-invocation-log markers, and has its active
+   exact nonzero 32-hex `account_id`, non-`workers.dev` production route, and
+   nonzero 32-hex `HYPERDRIVE` id. The manifest's `API_KEY_ENVIRONMENT` and
+   `VERTICAL_SLUG` must exactly match the requested credential scope. The
+   provisioner runs the repository-pinned Wrangler entry point with a sanitized
+   child environment and an explicit tracked empty env file, so caller-local
+   `.env` and `.env.local` files cannot repopulate stripped variables. These
+   values are validated but never printed:
+   ```powershell
+   pnpm credentials:provision -- --dry-run --environment live --tenant-slug rapidapi-hvac --tenant-name "RapidAPI HVAC marketplace" --vertical hvac --credential-label "production RapidAPI HVAC" --access-tier RAPIDAPI --billing-source RAPIDAPI --wrangler-secret RAPIDAPI_API_KEY --wrangler-config apps/edge/wrangler.production.toml
+   pnpm credentials:provision -- --environment live --tenant-slug rapidapi-hvac --tenant-name "RapidAPI HVAC marketplace" --vertical hvac --credential-label "production RapidAPI HVAC" --access-tier RAPIDAPI --billing-source RAPIDAPI --wrangler-secret RAPIDAPI_API_KEY --wrangler-config apps/edge/wrangler.production.toml
+   ```
+   The marketplace handoff is deliberately ordered across a non-atomic provider
+   boundary: the database transaction commits before Wrangler may replace an
+   existing Cloudflare value. If Wrangler does not confirm success, the new
+   database key is revoked. A process or network failure can be ambiguous after
+   the provider receives the value, so do not assume the previous Cloudflare
+   secret remains installed: verify the marketplace origin fails closed,
+   inspect the Worker secret's provider metadata without reading its value,
+   then provision a new label and replace the secret before restoring traffic.
+   If the process is lost before Wrangler runs, revoke the reported/orphan
+   database credential id and use a new label. A `CRITICAL` revocation error
+   must be resolved before retrying.
    Add acquisition-provider secrets only for an exact rights-admitted target:
    `CLOUDFLARE_API_TOKEN` for Browser Run and/or `CRAWL4AI_API_TOKEN` for
    Crawl4AI. `CLOUDFLARE_ACCOUNT_ID` is a non-secret manifest variable when
    Browser Run is enabled. The acquisition Worker's tracked hourly Cron and
    non-secret vertical/bucket names otherwise remain unchanged.
+   Set only the provider secrets the admitted runtime actually needs, using the
+   acquisition Worker manifest so their values remain off argv and out of TOML:
+   ```powershell
+   pnpm exec wrangler secret put CLOUDFLARE_API_TOKEN --config apps/acquisition-worker/wrangler.production.toml --env-file tooling/wrangler-empty.env
+   pnpm exec wrangler secret put CRAWL4AI_API_TOKEN --config apps/acquisition-worker/wrangler.production.toml --env-file tooling/wrangler-empty.env
+   ```
 
    From the repository root, verify all five tracked templates together:
    ```powershell
@@ -298,7 +418,8 @@ after Cloudflare Queues accepts its usage event, not after the consumer persists
 that event to Postgres. Within a few seconds, `select count(*) from api_usage_events` on
 the production database increases by one, and the row's `route_key` column
 holds a registered key (`entities.detail`) rather than any path, query, slug,
-or entity id. Confirm `pnpm exec wrangler queues info data-foundry-usage-events`
+or entity id. Confirm
+`pnpm exec wrangler queues info data-foundry-usage-events --env-file tooling/wrangler-empty.env`
 reports 1,209,600 seconds of retention. Killing the consumer Worker's database
 connectivity temporarily must not change the edge Worker's response time or
 status — that database-write decoupling is exercised (against PGlite, not this
@@ -333,10 +454,10 @@ RapidAPI subscriber
         v
 RapidAPI gateway
         |
-        | hidden Data Foundry bearer credential
-        | marketplace proxy-secret header
+        | marketplace proxy-secret proof only
         v
 Cloudflare API Worker
+        | injects server-held RAPIDAPI_API_KEY
         |
         v
 canonical query layer
@@ -345,17 +466,21 @@ canonical query layer
 ### Checklist
 
 1. Create a dedicated Data Foundry marketplace tenant/service credential using
-   the existing API-key system.
-2. Store that credential as a hidden marketplace header; never expose it in
-   public documentation or client-generated snippets.
-3. Store the RapidAPI proxy secret as a Cloudflare secret and verify it on the
-   marketplace path.
+   the existing API-key system and store it only as the edge Worker's
+   `RAPIDAPI_API_KEY` secret.
+2. Configure RapidAPI to send only its marketplace proxy proof. Do not store or
+   forward the Data Foundry bearer in RapidAPI, public documentation, or
+   client-generated snippets; marketplace-origin `Authorization` is ignored.
+3. Store the independently supplied RapidAPI proxy secret as the edge Worker's
+   `RAPIDAPI_PROXY_SECRET` and verify it on the marketplace hostname.
 4. Classify the request as marketplace-originated only after both marketplace
    and Data Foundry authentication checks pass.
 5. Record marketplace usage internally for reconciliation and unit economics,
    but do not feed those rows into future direct invoicing.
-6. Export/generate the marketplace OpenAPI definition from the canonical API
-   contract and add a drift check.
+6. Publish `openapi/data-foundry-hvac-rapidapi-v1.openapi.json`, generated from
+   the canonical API contract and drift-checked in CI. It deliberately omits
+   the private Data Foundry origin bearer; RapidAPI subscribers authenticate to
+   the marketplace, while only the Worker holds `RAPIDAPI_API_KEY`.
 7. Disable/minimize marketplace request/response logging beyond what is needed
    operationally, particularly for query parameters that may reveal customer
    research patterns.

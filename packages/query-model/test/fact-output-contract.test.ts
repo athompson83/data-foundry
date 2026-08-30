@@ -4,6 +4,7 @@ import {
   addSyntheticEntityEvidence,
   claim,
   createQueryFixtures,
+  retireSourceFixtureByCompleteSnapshot,
   seedSyntheticSurfaceRights,
   ts,
   type QueryFixtures,
@@ -139,9 +140,9 @@ describe('fact output contract at canonical query boundaries', () => {
 
   it('loads an exact historical recursive contributor while using current grants', async () => {
     fixtures = await createQueryFixtures({ trigram: false });
-    await seedSyntheticSurfaceRights(fixtures, ['PUBLIC_WEB'], ['manufacturer']);
+    await seedSyntheticSurfaceRights(fixtures, ['PUBLIC_WEB'], ['manufacturer', 'certifier']);
     await addSyntheticEntityEvidence(fixtures, fixtures.equipment);
-    const historicalInput = await claim(fixtures, 'manufacturer', {
+    const historicalInput = await claim(fixtures, 'certifier', {
       entity_id: fixtures.equipment.id,
       property: 'historical_recursive_input',
       value: 12,
@@ -179,6 +180,12 @@ describe('fact output contract at canonical query boundaries', () => {
       outputClass: 'DERIVED_METRIC',
       state: 'ALLOW',
     });
+    await seedScopedDeriveDecision(fixtures, {
+      sourceKey: 'certifier',
+      fieldKey: 'historical_recursive_output',
+      outputClass: 'DERIVED_METRIC',
+      state: 'ALLOW',
+    });
     await claim(fixtures, 'manufacturer', {
       entity_id: fixtures.equipment.id,
       property: 'historical_recursive_input',
@@ -187,14 +194,18 @@ describe('fact output contract at canonical query boundaries', () => {
       valid_from: '2026-07-01T00:00:00Z',
     });
 
+    const retiredAt = ts('2026-07-15T00:00:00Z');
+    await retireSourceFixtureByCompleteSnapshot(fixtures, 'certifier', retiredAt);
+
     const views = await fixtures.qm
       .forSurface('PUBLIC_WEB', { asOf: ts('2026-08-14T00:00:00Z') })
-      .canonicalFacts(fixtures.equipment.id, { at: ts('2026-06-01T00:00:00Z') });
+      .canonicalFacts(fixtures.equipment.id, { at: ts('2026-08-14T00:00:00Z') });
 
     expect(views).toContainEqual(expect.objectContaining({
       fact_id: output.fact.id,
       property: 'historical_recursive_output',
       value: 6,
+      sources: ['Acme Climate', 'Ratings Directory'],
     }));
   });
 

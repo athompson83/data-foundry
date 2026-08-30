@@ -280,6 +280,27 @@ const locatorFor = (evidence: CandidateEvidence): string =>
     ? 'whole document'
     : `${evidence.evidence.locator_type} ${evidence.evidence.locator_value}`;
 
+/**
+ * Direct evidence is rendered only when it was authoritative for this
+ * candidate's selection instant. Recursive dependency evidence remains
+ * immutable history: derived output authorization and attribution depend on
+ * the exact input fact versions recorded by fact_dependencies.
+ */
+const surfaceLineageForCandidate = (
+  candidate: FactCandidate,
+  lineage: readonly EvidenceChainLink[],
+): readonly EvidenceChainLink[] => {
+  const directEvidenceIds = new Set(
+    candidate.evidence.map((entry) => entry.evidence.id),
+  );
+  return lineage.filter(
+    (link) =>
+      !('fact_id' in link.evidence) ||
+      link.evidence.fact_id !== candidate.fact.id ||
+      directEvidenceIds.has(link.evidence.id),
+  );
+};
+
 const summarizeSurfaceClaim = (
   candidate: FactCandidate,
   selectedId: FactCandidate['fact']['id'] | null,
@@ -562,6 +583,17 @@ class SurfaceRightsAuthorizer {
   }
 
   async #authorizeEntity(entityId: EntityId): Promise<boolean> {
+    const identityAuthority = await this.#store.driver.query(
+      `SELECT 1
+         FROM entity_evidence evidence
+         JOIN source_records record ON record.id = evidence.source_record_id
+        WHERE evidence.entity_id = $1
+          AND record.is_current
+          AND record.revision_state = 'FINALIZED'
+        LIMIT 1`,
+      [entityId],
+    );
+    if (identityAuthority.length === 0) return false;
     const rows = await this.#store.driver.query<EntityEvidenceRow>(
       `SELECT ee.entity_id, ee.id AS evidence_id, sr.source_id,
               sa.acquisition_route, sa.account_or_product_plan,
@@ -730,6 +762,8 @@ class SurfaceRightsAuthorizer {
          JOIN source_records sr ON sr.id = re.source_record_id
          JOIN source_artifacts sa ON sa.id = re.artifact_id
         WHERE re.relationship_id = $1
+          AND sr.is_current
+          AND sr.revision_state = 'FINALIZED'
         ORDER BY re.id`,
       [relationship.id],
     );
@@ -780,19 +814,29 @@ class SurfaceRightsAuthorizer {
       `SELECT f.id
          FROM facts f
          JOIN entities e ON e.id = f.entity_id
-        WHERE e.vertical_id = $1
-          AND f.status <> 'RETRACTED'
-          AND f.valid_from <= $2
-          AND (f.valid_to IS NULL OR f.valid_to > $2)
+         WHERE e.vertical_id = $1
+           AND f.status <> 'RETRACTED'
+           AND f.valid_from <= $2
+           AND (f.valid_to IS NULL OR f.valid_to > $2)
+           AND f.recorded_at <= $2
         ORDER BY f.id`,
       [verticalId, this.#asOf],
     );
     const decisions = await this.#authorizationWorkers.map(
       rows,
-      async (row) => ({
-        id: row.id,
-        allowed: await this.authorizeFact(row.id),
-      }),
+      async (row) => {
+        const candidate = await this.#store.loadFactCandidateByIdAtAuthority(
+          row.id as FactId,
+          this.#asOf,
+        );
+        return {
+          id: row.id,
+          allowed:
+            candidate !== null &&
+            candidate.evidence.length > 0 &&
+            await this.authorizeFact(row.id),
+        };
+      },
     );
     return decisions.filter((entry) => entry.allowed).map((entry) => entry.id);
   }
@@ -881,7 +925,13 @@ export function createSurfaceQueryModel(
     const candidates = await store.loadFactCandidates(entityId, property, at);
     const authorized: FactCandidate[] = [];
     for (const candidate of candidates) {
-      if (await authorizer.authorizeFact(candidate.fact.id)) authorized.push(candidate);
+      // Candidate evidence is already restricted to source-record authority at
+      // the caller's selection instant. Never reload immutable history first:
+      // doing so would disclose a retired claim through explanations even
+      // when canonical selection correctly withheld its value.
+      if (candidate.evidence.length > 0 && await authorizer.authorizeFact(candidate.fact.id)) {
+        authorized.push(candidate);
+      }
     }
     return {
       selection: selectCanonicalFact(property, authorized, {
@@ -911,7 +961,7 @@ export function createSurfaceQueryModel(
     );
     const views: CanonicalFactView[] = [];
     for (const row of properties) {
-      const { selection } = await resolveAuthorizedSelection(
+      const { selection, candidates } = await resolveAuthorizedSelection(
         entityId,
         row.property as Identifier,
         { ...policy, at },
@@ -919,8 +969,12 @@ export function createSurfaceQueryModel(
       const view = canonicalFactView(selection);
       if (view !== null) {
         const lineage = view.fact_id === null ? null : await factLineage(store.driver, view.fact_id);
+        const selectedCandidate = candidates.find((candidate) => candidate.fact.id === view.fact_id);
+        const surfaceLineage = selectedCandidate === undefined
+          ? []
+          : surfaceLineageForCandidate(selectedCandidate, lineage?.chain ?? []);
         const publishers = new Set(view.sources);
-        for (const link of lineage?.chain ?? []) publishers.add(link.source.publisher);
+        for (const link of surfaceLineage) publishers.add(link.source.publisher);
         views.push({ ...view, sources: [...publishers].sort(compareCodeUnits) });
       }
     }
@@ -957,7 +1011,7 @@ export function createSurfaceQueryModel(
         candidate,
         selectedId,
         quoteDecisions[index] ?? false,
-        lineages[index]?.chain ?? [],
+        surfaceLineageForCandidate(candidate, lineages[index]?.chain ?? []),
       ),
     );
     return {

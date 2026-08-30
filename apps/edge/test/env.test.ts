@@ -252,4 +252,35 @@ describe('production topology is explicit and fail closed', () => {
       }),
     ).toThrow(/loopback/i);
   });
+
+  it.each([
+    'marketplace.invalid',
+    'marketplace.invalid.',
+    'marketplace.example',
+    'marketplace.test.',
+    'marketplace.example.com',
+    'marketplace.local',
+    'marketplace.onion',
+    'marketplace.home.arpa',
+    '8.8.8.8',
+    'marketplace.123',
+    'marketplace_datafoundry.io',
+    'data-foundry-edge.workers.dev',
+    'data-foundry-edge.workers.dev.',
+    'data-foundry-edge.pages.dev',
+    'data-foundry-edge.trycloudflare.com',
+  ])('refuses a reserved or provider-fallback RapidAPI hostname %s in production', (hostname) => {
+    expect(() =>
+      resolveEdgeConfig({
+        DEPLOYMENT_ENVIRONMENT: 'production',
+        HYPERDRIVE: { connectionString: 'postgres://hyperdrive/db' },
+        VERTICAL_SLUG: 'hvac',
+        API_KEY_ENVIRONMENT: 'live',
+        USAGE_EVENTS_QUEUE: queue,
+        RAPIDAPI_HOSTNAME: hostname,
+        RAPIDAPI_PROXY_SECRET: 'test-proxy-secret',
+        RAPIDAPI_API_KEY: 'test-api-key',
+      }),
+    ).toThrow(/production hostname/i);
+  });
 });

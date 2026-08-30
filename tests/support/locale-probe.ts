@@ -119,9 +119,9 @@ async function main(): Promise<void> {
     [RECORD_B, SOURCE_B, 'probe-b'],
   ] as const) {
     await driver.query(
-      `INSERT INTO source_records (id, source_id, artifact_id, source_record_key, entity_type,
+      `INSERT INTO source_records (id, source_id, artifact_id, source_record_key, source_stream, entity_type,
                                    raw_payload, extraction_confidence, extractor_version)
-       VALUES ($1, $2, $3, $4, 'equipment_model', '{}'::jsonb, 0.9, 'probe')`,
+       VALUES ($1, $2, $3, $4, 'products', 'equipment_model', '{}'::jsonb, 0.9, 'probe')`,
       [id, source, ARTIFACT, key],
     );
   }
@@ -148,6 +148,8 @@ async function main(): Promise<void> {
           aliasValue: spelling,
           normalizedValue: normalized,
           strong: true,
+          locatorType: 'JSON_POINTER' as never,
+          locatorValue: '/model_number',
         },
       ],
       manufacturer: null,

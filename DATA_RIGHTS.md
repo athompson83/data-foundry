@@ -64,6 +64,26 @@ received only a `REVIEW_REQUIRED` assessment. Rights are also an AND across
 every provenance contribution: one permissive source cannot launder a blocked
 contributor.
 
+Migration 0023 follows the same no-invention rule for identity authority. It
+created no `entity_alias_claims` row from a legacy alias or from
+`entity_aliases.source_id`; only an explicit curated assertion or a current
+`FINALIZED` source-record assertion can make an exact alias current. Authority
+epochs prevent an assertion from silently reactivating after an alias is
+retired and later reopened. An alias claim proves only who asserted an identity
+and from which current record. It is not a licence or a surface grant.
+
+Customer surfaces additionally require current `FINALIZED` entity evidence,
+and relationships require current `FINALIZED` relationship evidence plus
+authorized endpoints. Those currentness gates prevent withdrawn identities and
+edges from remaining visible, but they do not replace the rights matrix: every
+relevant contribution must still authorize the exact operation/channel bundle.
+
+Migration 0024 applies the same no-invention rule to record absence. A stream
+must explicitly declare `full_snapshot` before an omitted record can lose
+currentness; `incremental` absence does nothing. The retirement cites the exact
+same-source artifact set and does not create a rights decision. Unknown legacy
+stream membership is made non-current, never guessed from old payloads.
+
 A source's rights record is a statement about *that source*. It says nothing
 about any other source, and re-classifying one does not re-classify its
 neighbours.
@@ -104,6 +124,12 @@ platform is offered for sale or redistribution:
 Until all five hold, a vertical stays `status: DRAFT` and does not publish.
 `verticals/hvac` is `DRAFT` today for exactly this reason: zero real sources
 have an effective reviewed publication/commercial bundle.
+
+Provisioning an access credential does not change that result.
+`pnpm credentials:provision` admits only the closed access/billing pairs
+`API_PAID/DIRECT`, `RAPIDAPI/RAPIDAPI`, and `MCP/NONE`; it creates no rights
+cell, decision, terms evidence, source approval, customer licence or
+publication permission.
 
 ## If you use this code
 

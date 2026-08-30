@@ -1,7 +1,10 @@
 import { mkdir, readFile, readdir, unlink, writeFile } from 'node:fs/promises';
 import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildOpenApiDocument } from '../../apps/api/src/openapi.js';
+import {
+  buildOpenApiDocument,
+  type OpenApiChannel,
+} from '../../apps/api/src/openapi.js';
 import { BUNDLED_VERTICALS, RUNTIMES } from '../../apps/edge/generated/runtime-registry.js';
 import { isMain } from '../lib/cli-entry.js';
 
@@ -42,14 +45,17 @@ export function legacyOpenApiSlug(bundledVerticals: readonly string[]): string {
 function serializeOpenApiFor(
   slug: string,
   runtimes: Readonly<Record<string, OpenApiRuntime>>,
+  channel: OpenApiChannel,
 ): string {
   const runtime = runtimes[slug];
   if (runtime === undefined) throw new Error(`Missing compiled runtime for OpenAPI vertical "${slug}".`);
-  return `${JSON.stringify(buildOpenApiDocument({ slug, fields: runtime.fields }), null, 2)}\n`;
+  return `${JSON.stringify(buildOpenApiDocument({ slug, fields: runtime.fields }, { channel }), null, 2)}\n`;
 }
 
-export function openApiArtifactFilename(slug: string): string {
-  return `data-foundry-${slug}-v1.openapi.json`;
+export function openApiArtifactFilename(slug: string, channel: OpenApiChannel = 'DIRECT'): string {
+  return channel === 'DIRECT'
+    ? `data-foundry-${slug}-v1.openapi.json`
+    : `data-foundry-${slug}-rapidapi-v1.openapi.json`;
 }
 
 /**
@@ -60,18 +66,19 @@ export function openApiArtifactFilename(slug: string): string {
 export function serializeOpenApiArtifacts(
   bundledVerticals: readonly string[] = BUNDLED_VERTICALS,
   runtimes: Readonly<Record<string, OpenApiRuntime>> = RUNTIMES,
+  channel: OpenApiChannel = 'DIRECT',
 ): Readonly<Record<string, string>> {
   return Object.fromEntries(
     bundledSlugs(bundledVerticals).map((slug) => [
-      openApiArtifactFilename(slug),
-      serializeOpenApiFor(slug, runtimes),
+      openApiArtifactFilename(slug, channel),
+      serializeOpenApiFor(slug, runtimes, channel),
     ]),
   );
 }
 
 /** Backward-compatible content for consumers of the original single artifact path. */
 export function serializeOpenApi(): string {
-  return serializeOpenApiFor(legacyOpenApiSlug(BUNDLED_VERTICALS), RUNTIMES);
+  return serializeOpenApiFor(legacyOpenApiSlug(BUNDLED_VERTICALS), RUNTIMES, 'DIRECT');
 }
 
 async function readIfPresent(path: string): Promise<string | null> {
@@ -115,8 +122,11 @@ export async function run(check: boolean, options: GenerateOpenApiOptions = {}):
   }
 
   const outputDirectory = options.outputDirectory ?? OPENAPI_OUTPUT_DIRECTORY;
+  const directArtifacts = serializeOpenApiArtifacts();
+  const marketplaceArtifacts = serializeOpenApiArtifacts(BUNDLED_VERTICALS, RUNTIMES, 'RAPIDAPI');
   const artifacts = {
-    ...serializeOpenApiArtifacts(),
+    ...directArtifacts,
+    ...marketplaceArtifacts,
     // Preserve the original HVAC artifact path until downstream consumers have
     // moved to the per-vertical filename. Do not silently repoint that legacy
     // HVAC path when an alphabetically earlier vertical is bundled.
@@ -130,7 +140,7 @@ export async function run(check: boolean, options: GenerateOpenApiOptions = {}):
     content,
   }));
   const expectedPerVerticalNames = new Set(
-    Object.keys(serializeOpenApiArtifacts()),
+    [...Object.keys(directArtifacts), ...Object.keys(marketplaceArtifacts)],
   );
   const obsolete = (await ownedPerVerticalArtifactPaths(outputDirectory)).filter(
     (path) => !expectedPerVerticalNames.has(basename(path)),

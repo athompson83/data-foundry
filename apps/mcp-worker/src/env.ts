@@ -1,8 +1,9 @@
 /** Fail-closed deployment configuration for the remote MCP Worker. */
 import type { KeyEnvironment } from '@data-foundry/api-keys';
 import {
+  canonicalizeEndpointHostname,
   isLoopbackEndpointHostname,
-  isUnsafeProductionEndpointHostname,
+  isUnsafeCanonicalProductionHostname,
 } from '@data-foundry/canonical-schema';
 
 export interface HyperdriveBinding {
@@ -56,13 +57,13 @@ function deploymentEnvironment(value: string | undefined): DeploymentEnvironment
 }
 
 function exactHostname(value: string | undefined, deployment: DeploymentEnvironment): string {
-  const hostname = (value ?? '').trim().toLowerCase();
+  const hostname = canonicalizeEndpointHostname(value ?? '');
   if (hostname === '') {
     throw new McpWorkerConfigurationError('MCP_HOSTNAME is required.');
   }
-  if (deployment === 'production' && isUnsafeProductionEndpointHostname(hostname)) {
+  if (deployment === 'production' && isUnsafeCanonicalProductionHostname(hostname)) {
     throw new McpWorkerConfigurationError(
-      'MCP_HOSTNAME must not be a loopback or unspecified hostname in production.',
+      'MCP_HOSTNAME must be a canonical production hostname; IP literals (including loopback and unspecified), special-use names, and provider fallback zones are refused.',
     );
   }
   let parsed: URL;
@@ -107,8 +108,10 @@ function exactOrigin(value: string, label: string, deployment: DeploymentEnviron
       `${label} values must be origins only, without credentials, paths, queries, or fragments.`,
     );
   }
-  if (deployment === 'production' && (parsed.protocol !== 'https:' || isUnsafeProductionEndpointHostname(parsed.hostname))) {
-    throw new McpWorkerConfigurationError(`${label} must use HTTPS and a non-loopback, non-unspecified hostname in production.`);
+  if (deployment === 'production' && (parsed.protocol !== 'https:' || isUnsafeCanonicalProductionHostname(parsed.hostname))) {
+    throw new McpWorkerConfigurationError(
+      `${label} must use HTTPS and a canonical production hostname; IP literals (including loopback and unspecified), special-use names, and provider fallback zones are refused.`,
+    );
   }
   if (deployment === 'development' && parsed.protocol !== 'https:' && !isLoopbackEndpointHostname(parsed.hostname)) {
     throw new McpWorkerConfigurationError(`${label} must use HTTPS outside local development.`);

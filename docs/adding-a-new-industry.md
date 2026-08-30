@@ -48,6 +48,14 @@ Validate continuously:
 pnpm verticals:validate
 ```
 
+Identifier equivalence has one explicit pre-second-vertical gate. The current
+query helper covers HVAC's case-fold-and-strip-separators behavior, but is not
+yet compiled from an arbitrary vertical's alias-normalization operation chain.
+If the new industry's identifier rules differ from HVAC's, complete ADR-0003's
+configuration-derived read/write parity contract before bundling or publishing
+it. Do not add another query-layer guess or call the vertical configuration-only
+while that gate remains open.
+
 ## 2. Write `seo.yaml`
 
 This file makes the vertical's pages exist and controls when they are eligible
@@ -133,10 +141,13 @@ pnpm acquisition:check
 pnpm web:compile:check
 ```
 
-`pnpm openapi:generate` emits one canonical edge contract per edge bundle as
-`openapi/data-foundry-<slug>-v1.openapi.json` (and retains the existing HVAC
-path during migration). Run it whenever `BUNDLED_VERTICALS` changes; the CI
-drift check covers every generated contract.
+`pnpm openapi:generate` emits one canonical direct edge contract per edge bundle
+as `openapi/data-foundry-<slug>-v1.openapi.json` (and retains the existing HVAC
+path during migration). It also emits the public marketplace projection as
+`openapi/data-foundry-<slug>-rapidapi-v1.openapi.json`. Both projections come
+from the same route/schema source; the marketplace document deliberately omits
+the private Data Foundry origin bearer. Run the generator whenever
+`BUNDLED_VERTICALS` changes; the CI drift check covers every generated contract.
 
 ## 5. Ingest and verify
 
@@ -151,6 +162,37 @@ pnpm migrate:check
 Add a live quality-gate test for the vertical so indexability decisions are
 proved against real query-model behavior rather than copied assumptions.
 
+Also prove refresh currentness, not only first ingestion:
+
+1. An exact replay under `source-record-evidence@3` is a no-op.
+2. A changed resolved target, accepted alias/locator, fact projection,
+   resolution audit, or relationship disposition/endpoint/writer creates one
+   immutable successor revision.
+3. Removing a source assertion withdraws its source-only alias from
+   `current_entity_aliases` without deleting historical alias or claim rows.
+4. Retiring and reopening an alias advances its authority epoch; a prior-epoch
+   claim does not reactivate.
+5. A refresh with no usable strong identifier finalizes a zero-claim successor,
+   retires the prior record's current identity support, creates no phantom
+   manufacturer, and is withheld from customer surfaces unless some other
+   current `FINALIZED` evidence independently supports the entity.
+6. A relationship remains visible only while current `FINALIZED` relationship
+   evidence and both authorized endpoints support it; shared current evidence
+   may preserve an edge, while a withdrawn sole contribution may not.
+7. Every record stream declares exactly one `refresh_mode`: use
+   `full_snapshot` only when one successful acquired artifact set is genuinely
+   the complete membership of that stream; otherwise use `incremental`.
+8. Test `A+B -> A` for both modes. A full snapshot retires B with exact
+   same-source artifact evidence and removes its current surface authority; an
+   incremental refresh leaves B current. Never infer completeness from format,
+   cadence, or an empty response.
+
+Migration 0023 deliberately backfills no alias authority. Real legacy aliases
+must be reasserted by a current finalized source record or by an explicit
+curated action; never manufacture a claim merely to keep a lookup green.
+Migration 0024 likewise backfills no stream membership: reingest admitted
+legacy sources with an explicit mode rather than classifying old rows by guess.
+
 ## 6. Decide publication surfaces independently
 
 A vertical can be ready for one surface and not another.
@@ -160,8 +202,10 @@ A vertical can be ready for one surface and not another.
   sitemap inclusion additionally require `SEARCH_INDEX` to cover every exact
   fact, attribution and relationship rendered on that page; disjoint grants on
   different claims do not combine into permission.
-- **Direct REST API (`apps/edge`)** — receives its commercial vertical deployment
-  and Data Foundry authentication only when API-use rights pass.
+- **Direct REST API (`apps/edge`)** — receives its vertical deployment and Data
+  Foundry authentication only when the exact API-use rights pass. The current
+  commercial provisioner creates `API_PAID/DIRECT`; the runtime's separate
+  `API_FREE/DIRECT` classification is not implied by that key or its rights.
 - **MCP (`apps/mcp-worker`)** — gets its own one-vertical deployment and exact
   `MCP/NONE` credential only when the LLM/agent retrieval use case is cleared.
   Direct/RapidAPI credentials are not interchangeable with it. `NONE` means
@@ -178,6 +222,12 @@ A vertical can be ready for one surface and not another.
 Do not infer “paid gets everything the website gets.” The rights resolver, not
 pricing, decides which facts each surface may expose.
 
+Use `pnpm credentials:provision` for customer-surface credentials. Its closed
+provisioning vocabulary is exactly `API_PAID/DIRECT`,
+`RAPIDAPI/RAPIDAPI`, and `MCP/NONE`; it does not create a free/direct key or
+infer a billing source. Credential creation is access control only and creates
+no source approval, rights cell, commercial licence, plan or invoice.
+
 ## 7. Marketplace publication (RapidAPI initially)
 
 Marketplace publication is an optional distribution step after the canonical
@@ -191,10 +241,14 @@ For a marketplace-ready vertical:
    and sublicense decisions on the RapidAPI channel.
 2. Confirm every required attribution/condition can travel through API responses
    and marketplace documentation.
-3. Generate the marketplace OpenAPI/listing contract from the same canonical
-   route/filter definitions used by `apps/api`; add or run the drift check.
-4. Route the marketplace to the existing Cloudflare Worker using a hidden,
-   dedicated Data Foundry marketplace credential.
+3. Generate the public `openapi/data-foundry-<slug>-rapidapi-v1.openapi.json`
+   listing contract from the same canonical route/filter definitions used by
+   `apps/api`; run the drift check and confirm it does not disclose or require
+   the private origin bearer.
+4. Route a dedicated marketplace-origin hostname to the existing Cloudflare
+   Worker while retaining a separate direct-API hostname. Store the dedicated
+   `RAPIDAPI/RAPIDAPI` Data Foundry credential only as that Worker's
+   `RAPIDAPI_API_KEY`; neither RapidAPI nor subscribers receive or forward it.
 5. Require the marketplace proxy secret so callers cannot bypass the marketplace
    and self-assert a marketplace plan/channel.
 6. Record marketplace calls internally for operations and unit economics, but
@@ -233,6 +287,7 @@ cost.
 
 `docs/owner-actions/cloudflare-deployment.md` contains the production-resource
 checklist. A new vertical is not considered live because CI is green; verify the
+same canonical `account_id` across all five exact production manifests, the
 exact deployed SHA, production health/readiness, real database access, auth,
 rights behavior and usage-event persistence independently for web, direct REST,
 RapidAPI and MCP. Also prove an acquisition Cron claim, rights refusal, and one

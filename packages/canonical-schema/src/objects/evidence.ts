@@ -69,6 +69,8 @@ export const SourceRecordSchema = z.object({
   source_id: SourceIdSchema,
   artifact_id: SourceArtifactIdSchema,
   source_record_key: SourceRecordKeySchema,
+  /** Explicit mapping stream; null only on fail-closed historical revisions. */
+  source_stream: IdentifierSchema.nullable(),
   entity_type: IdentifierSchema,
   raw_payload: JsonObjectSchema,
   /** Populated by the normalization stage; null between EXTRACTED and NORMALIZED. */
@@ -88,10 +90,11 @@ export type SourceRecord = z.infer<typeof SourceRecordSchema>;
 
 export const SourceRecordInsertSchema = SourceRecordSchema.omit({
   id: true,
+  source_stream: true,
   evidence_fingerprint: true,
   revision_state: true,
   is_current: true,
   created_at: true,
   updated_at: true,
-});
+}).extend({ source_stream: IdentifierSchema });
 export type SourceRecordInsert = z.infer<typeof SourceRecordInsertSchema>;

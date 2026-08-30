@@ -1239,9 +1239,9 @@ describe.sequential('0014 authorization scope and provenance integrity', () => {
       );
       await driver.query(
         `INSERT INTO source_records
-           (id, source_id, artifact_id, source_record_key, entity_type, raw_payload,
+           (id, source_id, artifact_id, source_record_key, source_stream, entity_type, raw_payload,
             normalized_payload, extraction_confidence, extractor_version)
-         VALUES ($1, $2, $3, 'entity-record', 'equipment_model', '{}'::jsonb, '{}'::jsonb,
+         VALUES ($1, $2, $3, 'entity-record', 'rights_fixture', 'equipment_model', '{}'::jsonb, '{}'::jsonb,
                  1, 'rights-test-v1')`,
         [record, SOURCE, artifactA],
       );

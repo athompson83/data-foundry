@@ -221,6 +221,7 @@ export async function createFixtures(options: FixtureOptions = {}): Promise<Fixt
       source_id: source.id,
       artifact_id: artifact.id,
       source_record_key: `${spec.key}-24ANB7`,
+      source_stream: 'fixture_records',
       entity_type: 'equipment',
       raw_payload: { model: '24ANB7' },
       normalized_payload: null,

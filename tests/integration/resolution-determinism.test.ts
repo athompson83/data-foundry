@@ -106,9 +106,9 @@ beforeAll(async () => {
 
   const [record] = await factory.driver.query<{ id: string }>(
     `INSERT INTO source_records
-       (source_id, artifact_id, source_record_key, entity_type, raw_payload,
+       (source_id, artifact_id, source_record_key, source_stream, entity_type, raw_payload,
         normalized_payload, extraction_confidence, extractor_version)
-     VALUES ($1, $2, 'determinism-probe-0001', 'equipment_model', '{}'::jsonb,
+     VALUES ($1, $2, 'determinism-probe-0001', 'products', 'equipment_model', '{}'::jsonb,
              '{}'::jsonb, 0.9, 'test')
      RETURNING id`,
     [seed!.source_id, seed!.artifact_id],
@@ -122,12 +122,16 @@ beforeAll(async () => {
        VALUES ($1, $2, 'equipment_model', $3, $4, 'ACTIVE', 0.5, $5, $5, $5)`,
       [entity.id, vertical!.id, entity.model, entity.slug, entity.seenAt],
     );
-    await factory.driver.query(
-      `INSERT INTO entity_aliases (entity_id, alias_type, alias_value, normalized_value,
-                                   source_id, identity_confidence, valid_from)
-       VALUES ($1, 'model_number', $2, $2, $3, 0.99, $4)`,
-      [entity.id, entity.model, sourceId, entity.seenAt],
-    );
+    await factory.store.addAlias({
+      entity_id: entity.id as never,
+      alias_type: 'model_number',
+      alias_value: entity.model,
+      normalized_value: entity.model,
+      source_id: sourceId as never,
+      identity_confidence: 0.99 as never,
+      valid_from: entity.seenAt as never,
+      valid_to: null,
+    });
   }
 
   for (const entity of [OPPOSED.low, OPPOSED.high]) {
@@ -137,12 +141,16 @@ beforeAll(async () => {
        VALUES ($1, $2, 'equipment_model', $3, $4, 'ACTIVE', 0.5, $5, $5, $5)`,
       [entity.id, vertical!.id, entity.model, entity.slug, '2026-03-01T00:00:00.000Z'],
     );
-    await factory.driver.query(
-      `INSERT INTO entity_aliases (entity_id, alias_type, alias_value, normalized_value,
-                                   source_id, identity_confidence, valid_from)
-       VALUES ($1, 'model_number', $2, $2, $3, 0.99, $4)`,
-      [entity.id, entity.model, sourceId, '2026-03-01T00:00:00.000Z'],
-    );
+    await factory.store.addAlias({
+      entity_id: entity.id as never,
+      alias_type: 'model_number',
+      alias_value: entity.model,
+      normalized_value: entity.model,
+      source_id: sourceId as never,
+      identity_confidence: 0.99 as never,
+      valid_from: '2026-03-01T00:00:00.000Z' as never,
+      valid_to: null,
+    });
   }
 
   // `never_merge_across: [supersedes]` — an edge the vertical says identity
@@ -176,11 +184,13 @@ describe('#8 — a provisional attachment is chosen by age, not by random UUID',
   it('attaches the conflicted record to the longest-known entity', async () => {
     const resolved = await resolver.resolveRecord({
       entityType: 'equipment_model' as never,
-      aliases: [OLDER, NEWER].map((entity) => ({
+      aliases: [OLDER, NEWER].map((entity, index) => ({
         aliasType: 'model_number' as never,
         aliasValue: entity.model,
         normalizedValue: entity.model,
         strong: true,
+        locatorType: 'JSON_POINTER' as never,
+        locatorValue: `/identifiers/${index}`,
       })),
       manufacturer: null,
       sourceId: sourceId as never,

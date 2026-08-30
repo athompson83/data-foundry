@@ -61,6 +61,11 @@ asynchronous persistence, and strict quota; the test here is symmetric: a
 change that makes the free site slower to earn discovery traffic, or the paid
 API free to browse, has confused the split.
 
+The paid side's operator provisioner admits the exact commercial pair
+`API_PAID/DIRECT` (alongside the separate `RAPIDAPI/RAPIDAPI` and `MCP/NONE`
+channel pairs). A credential grants access to attempt the surface; it creates no
+source rights, pricing plan or invoice and cannot bypass ADR-0010.
+
 ### Why one Worker rather than N
 
 A vertical is added to `apps/web` by adding it to
@@ -84,6 +89,15 @@ against a signal computed from the same surface-bound query model the page
 reads. Evidence coverage and source counts are derived only from
 surface-authorized facts and customer-safe explanations; raw unrestricted
 provenance aggregates cannot leak neighboring denied claims into a gate.
+
+Current identity is also measured rather than inferred from historical rows.
+Entity discovery/search uses claim-backed `current_entity_aliases`, and a
+surface-visible entity needs current `FINALIZED` entity evidence. Relationship
+pages and projections require current `FINALIZED` relationship evidence plus
+authorized endpoint entities. Migration 0023 manufactures no authority for a
+legacy alias and uses authority epochs so retire/reopen cannot reactivate an old
+claim. A page therefore cannot survive solely on a withdrawn source revision,
+even when the immutable history remains available for audit.
 
 **A threshold this deployment cannot honestly measure fails closed, not
 open.** No traffic/analytics system exists in this repository, so
@@ -154,6 +168,13 @@ metered access) and an entry in `apps/web`'s compiled bundle — the two
 decisions are genuinely separate, which is the point: a vertical can be
 publicly discoverable before it is commercially available, or sold via the API
 before its public pages clear their quality gate.
+
+**Separate Workers still share one canonical Cloudflare account.** The five
+exact production manifests for edge, web, usage-consumer, acquisition-worker,
+and mcp-worker must name the same well-formed `account_id`. Separate deployment
+units are an isolation boundary, not permission to target unrelated accounts
+whose Queue, R2, Hyperdrive, route or secret state cannot form the canonical
+topology.
 
 **If this is revisited:** a vertical's public traffic outgrowing what one
 Worker should serve, or a genuine need to silo one industry's public site from

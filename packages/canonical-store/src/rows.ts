@@ -162,6 +162,7 @@ export function mapSourceRecord(row: SqlRow): SourceRecord {
     source_id: field(row, 'source_id'),
     artifact_id: field(row, 'artifact_id'),
     source_record_key: field(row, 'source_record_key'),
+    source_stream: field(row, 'source_stream') ?? null,
     entity_type: field(row, 'entity_type'),
     raw_payload: toJson(field(row, 'raw_payload')),
     normalized_payload:
@@ -212,9 +213,12 @@ export function mapEntityAliasClaim(row: SqlRow): EntityAliasClaim {
     id: field(row, 'id'),
     entity_alias_id: field(row, 'entity_alias_id'),
     asserted_alias_value: field(row, 'asserted_alias_value'),
+    asserted_normalized_value: field(row, 'asserted_normalized_value'),
     identity_confidence: toNumber(field(row, 'identity_confidence')),
     claim_kind: field(row, 'claim_kind'),
+    source_id: field(row, 'source_id') ?? null,
     source_record_id: field(row, 'source_record_id') ?? null,
+    authority_epoch: toNumber(field(row, 'authority_epoch')),
     locator_type: field(row, 'locator_type') ?? null,
     locator_value: field(row, 'locator_value') ?? null,
     valid_to: toIsoOrNull(field(row, 'valid_to')),
@@ -367,8 +371,9 @@ export const ALIAS_COLUMNS =
   'valid_from, valid_to, created_at';
 
 export const ALIAS_CLAIM_COLUMNS =
-  'id, entity_alias_id, asserted_alias_value, identity_confidence, claim_kind, source_record_id, ' +
-  'locator_type, locator_value, valid_to, created_at';
+  'id, entity_alias_id, asserted_alias_value, asserted_normalized_value, identity_confidence, ' +
+  'claim_kind, source_id, source_record_id, authority_epoch, locator_type, locator_value, ' +
+  'valid_to, created_at';
 
 export const SOURCE_COLUMNS =
   'id, vertical_id, publisher, domain, source_type, authority_rank, rights_classification, ' +
@@ -381,7 +386,7 @@ export const ARTIFACT_COLUMNS =
   'account_or_product_plan, acquisition_jurisdiction, created_at';
 
 export const SOURCE_RECORD_COLUMNS =
-  'id, source_id, artifact_id, source_record_key, entity_type, raw_payload, ' +
+  'id, source_id, artifact_id, source_record_key, source_stream, entity_type, raw_payload, ' +
   'normalized_payload, extraction_confidence, extractor_version, evidence_fingerprint, revision_state, is_current, created_at, updated_at';
 
 export const REDIRECT_COLUMNS =

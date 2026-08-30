@@ -315,6 +315,7 @@ export async function addSourceFixture(
     source_id: source.id,
     artifact_id: artifact.id,
     source_record_key: `${spec.key}-24ANB7`,
+    source_stream: 'fixture_records',
     entity_type: 'equipment',
     raw_payload: { model: '24ANB7' },
     normalized_payload: null,
@@ -322,6 +323,92 @@ export async function addSourceFixture(
     extractor_version: 'html-1.0.0',
   });
   return { source, artifact, record };
+}
+
+/**
+ * Retire one synthetic current record through an accepted complete-snapshot
+ * omission. Tests must build the same terminal lineage as production rather
+ * than disabling or bypassing the deferred currentness guards.
+ */
+export async function retireSourceFixtureByCompleteSnapshot(
+  fixtures: QueryFixtures,
+  sourceKey: SourceKey,
+  retiredAt: IsoDateTime,
+): Promise<void> {
+  const fixture = fixtures.sources[sourceKey];
+  const sourceStream = fixture.record.source_stream;
+  if (sourceStream === null) throw new Error('a current synthetic source record requires a stream');
+
+  const acceptanceId = crypto.randomUUID();
+  const digest = (): string => crypto.randomUUID().replaceAll('-', '').repeat(2);
+  const snapshotDigest = digest();
+  const terminalArtifact = await fixtures.store.recordSourceArtifact({
+    source_id: fixture.source.id,
+    url: `https://${fixture.source.domain}/snapshots/${acceptanceId}.json`,
+    retrieved_at: retiredAt,
+    content_hash: digest(),
+    mime_type: 'application/json',
+    r2_uri: `r2://test-snapshots/${fixture.source.id}/${acceptanceId}.json`,
+    http_status: 200,
+    extractor_version: 'snapshot-test-1.0.0',
+    policy_snapshot_id: fixture.artifact.policy_snapshot_id,
+    byte_size: 2,
+    acquisition_provider: fixture.artifact.acquisition_provider,
+    acquisition_route: fixture.artifact.acquisition_route,
+    account_or_product_plan: fixture.artifact.account_or_product_plan,
+    acquisition_jurisdiction: fixture.artifact.acquisition_jurisdiction,
+  });
+
+  await fixtures.driver.exec('BEGIN');
+  try {
+    await fixtures.driver.query(
+      `INSERT INTO source_stream_snapshot_acceptances
+         (id, source_id, source_stream, observed_at, snapshot_digest,
+          artifact_set_digest, mapping_digest, record_set_digest,
+          retrieval_count, accepted_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 1, $4)`,
+      [
+        acceptanceId,
+        fixture.source.id,
+        sourceStream,
+        retiredAt,
+        snapshotDigest,
+        digest(),
+        digest(),
+        digest(),
+      ],
+    );
+    await fixtures.driver.query(
+      `INSERT INTO source_stream_snapshot_acceptance_artifacts
+         (acceptance_id, artifact_id, retrieval_key, retrieval_receipt_id, created_at)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [acceptanceId, terminalArtifact.id, terminalArtifact.url, digest(), retiredAt],
+    );
+    await fixtures.driver.query(
+      `UPDATE source_records
+          SET is_current = FALSE, updated_at = $2
+        WHERE id = $1`,
+      [fixture.record.id, retiredAt],
+    );
+    await fixtures.driver.query(
+      `INSERT INTO source_record_snapshot_retirements
+         (source_record_id, snapshot_acceptance_id, artifact_id, source_id,
+          source_stream, retired_at, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $6)`,
+      [
+        fixture.record.id,
+        acceptanceId,
+        terminalArtifact.id,
+        fixture.source.id,
+        sourceStream,
+        retiredAt,
+      ],
+    );
+    await fixtures.driver.exec('COMMIT');
+  } catch (error) {
+    await fixtures.driver.exec('ROLLBACK');
+    throw error;
+  }
 }
 
 const SYNTHETIC_RIGHTS_EFFECTIVE = ts('2026-01-01T00:00:00Z');

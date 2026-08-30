@@ -74,8 +74,9 @@ export {
   type VerticalRunResult,
 } from './pipeline.js';
 export {
-  EntityResolver,
-  type AliasClaim,
+    EntityResolver,
+    type AliasClaim,
+    type LocatedAliasClaim,
   type ResolvedEntity,
   type ResolveRecordInput,
   type ResolverDeps,

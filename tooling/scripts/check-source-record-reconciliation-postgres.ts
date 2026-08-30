@@ -12,12 +12,17 @@ import {
   createCanonicalStore,
   createPostgresDriver,
   type SqlDriver,
+  type SqlTransactionExecutor,
 } from '@data-foundry/canonical-store';
 import {
   applyMigrations,
   loadMigrations,
   type MigrationDriver,
 } from './migrate.js';
+import {
+  EntityResolver,
+  loadVerticalConfig,
+} from '../../services/ingest-worker/src/index.js';
 import { isMain } from '../lib/cli-entry.js';
 
 const ATTRIBUTION = { required: false, text: null, url: null };
@@ -74,7 +79,76 @@ async function waitForAdvisoryLockWait(monitor: SqlDriver): Promise<void> {
     if (rows[0]?.waiting === true) return;
     await new Promise<void>((resume) => setTimeout(resume, 20));
   }
-  throw new Error('second reconciliation did not block on the PostgreSQL advisory transaction lock');
+  throw new Error('second operation did not block on the PostgreSQL advisory transaction lock');
+}
+
+interface SnapshotAcceptanceProbe {
+  readonly sourceId: string;
+  readonly stream: string;
+  readonly observedAt: string;
+  readonly snapshotDigest: string;
+  readonly artifactId: string;
+  readonly retrievalKey: string;
+  readonly retrievalReceiptId: string;
+}
+
+async function acceptSnapshotProbe(
+  driver: SqlDriver,
+  candidate: SnapshotAcceptanceProbe,
+  onAccepted: (
+    tx: SqlTransactionExecutor,
+    acceptanceId: string,
+  ) => Promise<void> = async () => undefined,
+): Promise<boolean> {
+  return driver.transaction(async (tx) => {
+    await tx.query(
+      `SELECT pg_advisory_xact_lock(hashtext('source-stream-refresh'), hashtext($1))`,
+      [JSON.stringify([candidate.sourceId, candidate.stream])],
+    );
+    const [latest] = await tx.query<{
+      candidate_is_newer: boolean;
+    }>(
+      `SELECT ($3::timestamptz > observed_at OR
+               ($3::timestamptz = observed_at AND
+                $4 COLLATE "C" > snapshot_digest COLLATE "C")) AS candidate_is_newer
+         FROM source_stream_snapshot_acceptances
+        WHERE source_id = $1 AND source_stream = $2
+        ORDER BY observed_at DESC, snapshot_digest COLLATE "C" DESC
+        LIMIT 1`,
+      [candidate.sourceId, candidate.stream, candidate.observedAt, candidate.snapshotDigest],
+    );
+    if (latest !== undefined && !latest.candidate_is_newer) return false;
+    const [acceptance] = await tx.query<{ id: string }>(
+      `INSERT INTO source_stream_snapshot_acceptances
+         (source_id, source_stream, observed_at, snapshot_digest,
+          artifact_set_digest, mapping_digest, record_set_digest, retrieval_count)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, 1)
+       RETURNING id`,
+      [
+        candidate.sourceId,
+        candidate.stream,
+        candidate.observedAt,
+        candidate.snapshotDigest,
+        'a'.repeat(64),
+        'b'.repeat(64),
+        'c'.repeat(64),
+      ],
+    );
+    if (acceptance === undefined) throw new Error('snapshot probe acceptance insert returned no row');
+    await tx.query(
+      `INSERT INTO source_stream_snapshot_acceptance_artifacts
+         (acceptance_id, artifact_id, retrieval_key, retrieval_receipt_id)
+       VALUES ($1, $2, $3, $4)`,
+      [
+        acceptance.id,
+        candidate.artifactId,
+        candidate.retrievalKey,
+        candidate.retrievalReceiptId,
+      ],
+    );
+    await onAccepted(tx, acceptance.id);
+    return true;
+  });
 }
 
 async function artifact(
@@ -159,6 +233,7 @@ export async function run(
       source_id: source.id,
       artifact_id: initialArtifact.id,
       source_record_key: key,
+      source_stream: 'postgres_records',
       entity_type: 'equipment_model',
       raw_payload: { model: 'INITIAL' },
       normalized_payload: { model: 'INITIAL' },
@@ -187,6 +262,7 @@ export async function run(
     await primary.recordSourceAliasClaim({
       entity_alias_id: trackedAlias.id,
       asserted_alias_value: `PG-ALIAS-${suffix}`,
+      asserted_normalized_value: `pg-alias-${suffix}`,
       identity_confidence: 1 as never,
       source_record_id: initial.id,
       locator_type: 'JSON_POINTER',
@@ -200,12 +276,13 @@ export async function run(
         source_id: source.id,
         artifact_id: firstArtifact.id,
         source_record_key: key,
+        source_stream: 'postgres_records',
         entity_type: 'equipment_model',
         raw_payload: { model: 'FIRST' },
         normalized_payload: { model: 'FIRST' },
         extraction_confidence: 1 as never,
         extractor_version: 'postgres-regression@1',
-      }, tx, '1'.repeat(64));
+      }, tx, '1'.repeat(64), '2026-08-30T00:00:00.000Z' as never);
       await first.recordEntityEvidence({
         entity_id: entity.id,
         artifact_id: firstArtifact.id,
@@ -218,6 +295,7 @@ export async function run(
       await first.recordSourceAliasClaim({
         entity_alias_id: trackedAlias.id,
         asserted_alias_value: `PG-ALIAS-${suffix}`,
+        asserted_normalized_value: `pg-alias-${suffix}`,
         identity_confidence: 1 as never,
         source_record_id: revision.id,
         locator_type: 'JSON_POINTER',
@@ -234,12 +312,13 @@ export async function run(
         source_id: source.id,
         artifact_id: secondArtifact.id,
         source_record_key: key,
+        source_stream: 'postgres_records',
         entity_type: 'equipment_model',
         raw_payload: { model: 'SECOND' },
         normalized_payload: { model: 'SECOND' },
         extraction_confidence: 1 as never,
         extractor_version: 'postgres-regression@1',
-      }, tx, '2'.repeat(64));
+      }, tx, '2'.repeat(64), '2026-08-30T00:00:00.000Z' as never);
       await second.recordEntityEvidence({
         entity_id: entity.id,
         artifact_id: secondArtifact.id,
@@ -252,6 +331,7 @@ export async function run(
       await second.recordSourceAliasClaim({
         entity_alias_id: trackedAlias.id,
         asserted_alias_value: `PG-ALIAS-${suffix}`,
+        asserted_normalized_value: `pg-alias-${suffix}`,
         identity_confidence: 1 as never,
         source_record_id: revision.id,
         locator_type: 'JSON_POINTER',
@@ -262,6 +342,138 @@ export async function run(
     await waitForAdvisoryLockWait(monitor);
     releaseFirst.resolve();
     const [firstRevision, secondRevision] = await Promise.all([firstTransaction, secondTransaction]);
+
+    // A newer complete snapshot that reaches the stream lock first must make a
+    // delayed older snapshot harmless. The rejected candidate's callback would
+    // reintroduce membership, so absence here proves the lock/classify boundary
+    // rather than merely proving the acceptance ledger order.
+    const snapshotKey = `snapshot-concurrent-${suffix}`;
+    const snapshotInitial = await primary.recordSourceRecord({
+      source_id: source.id,
+      artifact_id: initialArtifact.id,
+      source_record_key: snapshotKey,
+      source_stream: 'snapshot_concurrency',
+      entity_type: 'equipment_model',
+      raw_payload: { model: 'SNAPSHOT-INITIAL' },
+      normalized_payload: { model: 'SNAPSHOT-INITIAL' },
+      extraction_confidence: 1 as never,
+      extractor_version: 'postgres-regression@1',
+    });
+    const newerReady = deferred<void>();
+    const releaseNewer = deferred<void>();
+    const newerSnapshot = acceptSnapshotProbe(firstDriver, {
+      sourceId: source.id,
+      stream: 'snapshot_concurrency',
+      observedAt: '2026-09-02T00:00:00.000Z',
+      snapshotDigest: 'e'.repeat(64),
+      artifactId: secondArtifact.id,
+      retrievalKey: `snapshot/${suffix}/newer`,
+      retrievalReceiptId: 'e'.repeat(64),
+    }, async (tx, acceptanceId) => {
+      await tx.query(`UPDATE source_records SET is_current = FALSE WHERE id = $1`, [snapshotInitial.id]);
+      await tx.query(
+        `INSERT INTO source_record_snapshot_retirements
+           (source_record_id, snapshot_acceptance_id, artifact_id,
+            source_id, source_stream, retired_at)
+         VALUES ($1, $2, $3, $4, 'snapshot_concurrency', $5)`,
+        [
+          snapshotInitial.id,
+          acceptanceId,
+          secondArtifact.id,
+          source.id,
+          '2026-09-02T00:00:00.000Z',
+        ],
+      );
+      newerReady.resolve();
+      await releaseNewer.promise;
+    });
+    await newerReady.promise;
+    const delayedOlderSnapshot = acceptSnapshotProbe(secondDriver, {
+      sourceId: source.id,
+      stream: 'snapshot_concurrency',
+      observedAt: '2026-09-01T00:00:00.000Z',
+      snapshotDigest: 'f'.repeat(64),
+      artifactId: firstArtifact.id,
+      retrievalKey: `snapshot/${suffix}/delayed-older`,
+      retrievalReceiptId: 'f'.repeat(64),
+    }, async (tx) => {
+      await second.reconcileSourceRecord({
+        source_id: source.id,
+        artifact_id: firstArtifact.id,
+        source_record_key: snapshotKey,
+        source_stream: 'snapshot_concurrency',
+        entity_type: 'equipment_model',
+        raw_payload: { model: 'STALE-REINTRODUCTION' },
+        normalized_payload: { model: 'STALE-REINTRODUCTION' },
+        extraction_confidence: 1 as never,
+        extractor_version: 'postgres-regression@1',
+      }, tx, 'f'.repeat(64), '2026-09-01T00:00:00.000Z' as never);
+    });
+    await waitForAdvisoryLockWait(monitor);
+    releaseNewer.resolve();
+    assert.deepEqual(
+      await Promise.all([newerSnapshot, delayedOlderSnapshot]),
+      [true, false],
+      'newer snapshot must commit while the delayed older candidate is rejected',
+    );
+    assert.equal(
+      (await primaryDriver.query<{ count: number }>(
+        `SELECT count(*)::int AS count FROM source_records
+          WHERE source_id = $1 AND source_record_key = $2 AND is_current`,
+        [source.id, snapshotKey],
+      ))[0]?.count,
+      0,
+      'the delayed older snapshot must not reintroduce retired membership',
+    );
+
+    // Equal observation times converge on the greatest C-collated digest in
+    // both lock arrival orders.
+    for (const highArrivesFirst of [false, true]) {
+      const stream = highArrivesFirst ? 'snapshot_tie_high_first' : 'snapshot_tie_low_first';
+      const heldReady = deferred<void>();
+      const releaseHeld = deferred<void>();
+      const low = {
+        sourceId: source.id,
+        stream,
+        observedAt: '2026-09-03T00:00:00.000Z',
+        snapshotDigest: '1'.repeat(64),
+        artifactId: firstArtifact.id,
+        retrievalKey: `snapshot/${suffix}/${stream}/low`,
+        retrievalReceiptId: '1'.repeat(64),
+      };
+      const high = {
+        ...low,
+        snapshotDigest: 'f'.repeat(64),
+        artifactId: secondArtifact.id,
+        retrievalKey: `snapshot/${suffix}/${stream}/high`,
+        retrievalReceiptId: '2'.repeat(64),
+      };
+      const held = acceptSnapshotProbe(
+        firstDriver,
+        highArrivesFirst ? high : low,
+        async () => {
+          heldReady.resolve();
+          await releaseHeld.promise;
+        },
+      );
+      await heldReady.promise;
+      const waiter = acceptSnapshotProbe(secondDriver, highArrivesFirst ? low : high);
+      await waitForAdvisoryLockWait(monitor);
+      releaseHeld.resolve();
+      await Promise.all([held, waiter]);
+      const [latest] = await primaryDriver.query<{ snapshot_digest: string }>(
+        `SELECT snapshot_digest FROM source_stream_snapshot_acceptances
+          WHERE source_id = $1 AND source_stream = $2
+          ORDER BY observed_at DESC, snapshot_digest COLLATE "C" DESC
+          LIMIT 1`,
+        [source.id, stream],
+      );
+      assert.equal(
+        latest?.snapshot_digest,
+        high.snapshotDigest,
+        `equal-time ${stream} candidates must converge on the greatest digest`,
+      );
+    }
 
     // Two independent clients racing the same natural claim key must converge
     // on one immutable row rather than producing duplicates or rewriting it.
@@ -278,6 +490,7 @@ export async function run(
     const raceInput = {
       entity_alias_id: racedAlias.id,
       asserted_alias_value: `PG-RACED-${suffix}`,
+      asserted_normalized_value: `pg-raced-${suffix}`,
       identity_confidence: 1 as never,
       source_record_id: secondRevision.id,
       locator_type: 'JSON_POINTER' as const,
@@ -286,6 +499,109 @@ export async function run(
     const [firstClaim, secondClaim] = await Promise.all([
       first.recordSourceAliasClaim(raceInput),
       second.recordSourceAliasClaim(raceInput),
+    ]);
+
+    // A curated assertion is also a retried natural-key write. Both callers
+    // must observe the same alias even when one statement waits on the other's
+    // claim insertion; a statement-start snapshot must not turn that wait into
+    // a false "RETURNING produced no row" failure.
+    const curatedInput = {
+      entity_id: entity.id,
+      alias_type: 'external_id' as never,
+      alias_value: `PG-CURATED-${suffix}`,
+      normalized_value: `pg-curated-${suffix}`,
+      source_id: null,
+      identity_confidence: 1 as never,
+      valid_from: '2026-08-30T00:00:00.000Z' as never,
+      valid_to: null,
+    } as const;
+    const [firstCuratedAlias, secondCuratedAlias] = await Promise.all([
+      first.addAlias(curatedInput),
+      second.addAlias(curatedInput),
+    ]);
+
+    const resolverConfig = await loadVerticalConfig('hvac');
+    const resolverAlias = {
+      aliasType: 'model_number' as never,
+      aliasValue: `CONCURRENT-RESOLVER-${suffix}`,
+      normalizedValue: `CONCURRENT-RESOLVER-${suffix}`,
+      strong: true,
+      locatorType: 'JSON_POINTER' as never,
+      locatorValue: '/model',
+    } as const;
+    const primaryResolver = new EntityResolver({
+      store: primary,
+      config: resolverConfig,
+      verticalId: vertical.id,
+      now: '2026-08-30T00:00:00.000Z' as never,
+      authorityBySourceId: new Map(),
+    });
+    const occupiedSlug = primaryResolver.previewCanonicalSlug(
+      'equipment_model' as never,
+      [resolverAlias],
+      null,
+    );
+    await primary.upsertEntity({
+      vertical_id: vertical.id,
+      entity_type: 'equipment_model' as never,
+      canonical_name: `Historical slug owner ${suffix}`,
+      canonical_slug: occupiedSlug as never,
+      status: 'ACTIVE',
+      quality_score: 0.5 as never,
+      first_seen_at: '2026-08-01T00:00:00.000Z' as never,
+      last_verified_at: null,
+    });
+    const firstResolverRecord = await primary.recordSourceRecord({
+      source_id: source.id,
+      artifact_id: firstArtifact.id,
+      source_record_key: `resolver-race-a-${suffix}`,
+      source_stream: 'postgres_records',
+      entity_type: 'equipment_model',
+      raw_payload: { model: resolverAlias.aliasValue },
+      normalized_payload: { model: resolverAlias.normalizedValue },
+      extraction_confidence: 1 as never,
+      extractor_version: 'postgres-regression@1',
+    });
+    const secondResolverRecord = await primary.recordSourceRecord({
+      source_id: source.id,
+      artifact_id: secondArtifact.id,
+      source_record_key: `resolver-race-b-${suffix}`,
+      source_stream: 'postgres_records',
+      entity_type: 'equipment_model',
+      raw_payload: { model: resolverAlias.aliasValue },
+      normalized_payload: { model: resolverAlias.normalizedValue },
+      extraction_confidence: 1 as never,
+      extractor_version: 'postgres-regression@1',
+    });
+    const firstResolver = new EntityResolver({
+      store: first,
+      config: resolverConfig,
+      verticalId: vertical.id,
+      now: '2026-08-30T00:00:00.000Z' as never,
+      authorityBySourceId: new Map(),
+    });
+    const secondResolver = new EntityResolver({
+      store: second,
+      config: resolverConfig,
+      verticalId: vertical.id,
+      now: '2026-08-30T00:00:00.000Z' as never,
+      authorityBySourceId: new Map(),
+    });
+    const [firstResolved, secondResolved] = await Promise.all([
+      firstResolver.resolveRecord({
+        entityType: 'equipment_model' as never,
+        aliases: [resolverAlias],
+        manufacturer: null,
+        sourceId: source.id,
+        sourceRecordId: firstResolverRecord.id,
+      }),
+      secondResolver.resolveRecord({
+        entityType: 'equipment_model' as never,
+        aliases: [resolverAlias],
+        manufacturer: null,
+        sourceId: source.id,
+        sourceRecordId: secondResolverRecord.id,
+      }),
     ]);
 
     const revisions = await primaryDriver.query<{
@@ -336,6 +652,12 @@ export async function run(
       `SELECT id FROM current_entity_aliases WHERE id IN ($1, $2) ORDER BY id`,
       [trackedAlias.id, racedAlias.id],
     );
+    const curatedClaims = await primaryDriver.query<{ count: number }>(
+      `SELECT count(*)::int AS count
+         FROM entity_alias_claims
+        WHERE entity_alias_id = $1 AND claim_kind = 'CURATED'`,
+      [firstCuratedAlias.id],
+    );
 
     assert.equal(revisions.length, 3, 'two concurrent replacements must retain the initial and both immutable successors');
     assert.equal(revisions.filter((row) => row.is_current).length, 1, 'exactly one revision must remain current');
@@ -348,6 +670,17 @@ export async function run(
     assert.equal(evidence.length, 3, 'each immutable revision must retain its own evidence');
     assert.ok(evidence.every((row) => row.artifact_id === row.expected_artifact_id));
     assert.equal(firstClaim.id, secondClaim.id, 'concurrent retries must return one natural claim row');
+    assert.equal(
+      firstCuratedAlias.id,
+      secondCuratedAlias.id,
+      'concurrent curated retries must return one natural alias row',
+    );
+    assert.equal(curatedClaims[0]?.count, 1, 'concurrent curated retries must insert one claim');
+    assert.equal(
+      firstResolved.entity.id,
+      secondResolved.entity.id,
+      'concurrent exact resolver claims must converge behind a historical slug owner',
+    );
     assert.equal(
       aliasClaims.filter((claim) => claim.entity_alias_id === trackedAlias.id).length,
       3,
@@ -364,7 +697,7 @@ export async function run(
       'only claims backed by the surviving current source-record revision should keep aliases current',
     );
     process.stdout.write(
-      'OK: PostgreSQL serialized source-record revisions and alias claims, retained one current revision, and converged concurrent claim retries.\n',
+      'OK: PostgreSQL serialized source-record revisions and snapshot watermarks, rejected delayed membership, resolved equal-time inversions, and converged concurrent alias and resolver retries.\n',
     );
     return 0;
   } finally {

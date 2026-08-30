@@ -65,6 +65,7 @@ async function loadCandidateArtifact(scope: ScopeFixture): Promise<Record<string
     source_id: source.source.id,
     artifact_id: artifact.id,
     source_record_key: `scope-${scope.suffix}`,
+    source_stream: 'scope_records',
     entity_type: 'equipment',
     raw_payload: { scope: scope.suffix },
     normalized_payload: null,

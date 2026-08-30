@@ -80,6 +80,58 @@ describe('compiled extraction schemas', () => {
     }
   });
 
+  it('requires every stream to declare whether an artifact is complete or incremental', () => {
+    expect(plans.flatMap((plan) => plan.streams.map((stream) => stream.refreshMode)))
+      .toEqual(['FULL_SNAPSHOT', 'FULL_SNAPSHOT', 'FULL_SNAPSHOT', 'FULL_SNAPSHOT', 'FULL_SNAPSHOT']);
+
+    const missing = structuredClone(config) as VerticalConfig & { sourceMappings: any };
+    delete missing.sourceMappings.sources[0].records[0].refresh_mode;
+    expect(() => compileSourcePlans(missing)).toThrow(/refresh_mode.*required|required.*refresh_mode/i);
+
+    const invalid = structuredClone(config) as VerticalConfig & { sourceMappings: any };
+    invalid.sourceMappings.sources[0].records[0].refresh_mode = 'replace_everything';
+    expect(() => compileSourcePlans(invalid)).toThrow(/refresh_mode.*full_snapshot.*incremental/i);
+  });
+
+  it('requires one unique lowercase identifier for each source stream', () => {
+    for (const invalidName of ['', 'Products', 'product-events']) {
+      const invalid = {
+        ...config,
+        sourceMappings: structuredClone(config.sourceMappings),
+      } as VerticalConfig & { sourceMappings: any };
+      invalid.sourceMappings.sources[0].records[0].stream = invalidName;
+      expect(() => compileSourcePlans(invalid), invalidName).toThrow(/stream.*lowercase|stream.*identifier/i);
+    }
+
+    const duplicate = {
+      ...config,
+      sourceMappings: structuredClone(config.sourceMappings),
+    } as VerticalConfig & { sourceMappings: any };
+    duplicate.sourceMappings.sources[0].records.push(
+      structuredClone(duplicate.sourceMappings.sources[0].records[0]),
+    );
+    expect(() => compileSourcePlans(duplicate)).toThrow(/duplicate.*stream|stream.*duplicate/i);
+  });
+
+  it('requires one non-empty mapping entry per source key', () => {
+    const duplicate = {
+      ...config,
+      sourceMappings: structuredClone(config.sourceMappings),
+    } as VerticalConfig & { sourceMappings: any };
+    duplicate.sourceMappings.sources.push(
+      structuredClone(duplicate.sourceMappings.sources[0]),
+    );
+    duplicate.sourceMappings.sources.at(-1).records[0].stream = 'shadow_products';
+    expect(() => compileSourcePlans(duplicate)).toThrow(/duplicate.*source|source.*duplicate/i);
+
+    const empty = {
+      ...config,
+      sourceMappings: structuredClone(config.sourceMappings),
+    } as VerticalConfig & { sourceMappings: any };
+    empty.sourceMappings.sources[0].records = [];
+    expect(() => compileSourcePlans(empty)).toThrow(/source.*record stream|record stream.*source/i);
+  });
+
   it('yields two streams from one CSV row: the certification and the certified model', () => {
     const plan = planFor('ahri-directory-export');
     expect(plan.streams.map((stream) => stream.stream)).toEqual([
@@ -351,6 +403,7 @@ function derivedGraphConfig(): VerticalConfig & { typedValues: any; sourceMappin
           records: [
             {
               stream: 'products',
+              refresh_mode: 'full_snapshot',
               entity_type: 'equipment_model',
               record_path: '/products',
               source_record_key: '/model_number',

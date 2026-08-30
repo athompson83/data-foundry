@@ -1,6 +1,6 @@
 import {
   isLoopbackEndpointHostname,
-  isUnsafeProductionEndpointHostname,
+  isUnsafeCanonicalProductionHostname,
 } from '@data-foundry/canonical-schema';
 
 /**
@@ -111,8 +111,10 @@ export function resolveWebConfig(env: WebEnv): ResolvedWebConfig {
     );
   }
 
-  if (deploymentEnvironment === 'production' && (parsed.protocol !== 'https:' || isUnsafeProductionEndpointHostname(parsed.hostname))) {
-    throw new WebConfigurationError('PUBLIC_ORIGIN must use HTTPS and a non-loopback, non-unspecified hostname in production.');
+  if (deploymentEnvironment === 'production' && (parsed.protocol !== 'https:' || isUnsafeCanonicalProductionHostname(parsed.hostname))) {
+    throw new WebConfigurationError(
+      'PUBLIC_ORIGIN must use HTTPS and a canonical production hostname; IP literals (including loopback and unspecified), special-use names, and provider fallback zones are refused.',
+    );
   }
   if (deploymentEnvironment === 'development' && parsed.protocol !== 'https:' && !isLoopbackEndpointHostname(parsed.hostname)) {
     throw new WebConfigurationError('PUBLIC_ORIGIN must use HTTPS outside local development.');

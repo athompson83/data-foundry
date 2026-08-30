@@ -21,7 +21,20 @@ const execFileAsync = promisify(execFile);
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const REPO_ROOT = resolve(HERE, '..', '..');
 const WRANGLER_CLI = createRequire(import.meta.url).resolve('wrangler');
+const WRANGLER_EMPTY_ENV_FILE = join(REPO_ROOT, 'tooling', 'wrangler-empty.env');
 const DRY_RUN_HYPERDRIVE_ID = '00000000000000000000000000000000';
+const WRANGLER_OS_ENVIRONMENT_KEYS = [
+  'HOME',
+  'USERPROFILE',
+  'SystemRoot',
+  'SYSTEMROOT',
+  'WINDIR',
+  'TEMP',
+  'TMP',
+  'TMPDIR',
+  'LANG',
+  'LC_ALL',
+] as const;
 
 const SERVICES = [
   {
@@ -114,22 +127,16 @@ export async function scanCloudflareArtifacts(outputRoot: string): Promise<{
   return { files: files.length, bytes };
 }
 
-function credentialFreeEnvironment(): NodeJS.ProcessEnv {
+export function buildWranglerArtifactEnvironment(
+  parent: Readonly<Record<string, string | undefined>>,
+): NodeJS.ProcessEnv {
   const environment: NodeJS.ProcessEnv = {
-    ...process.env,
     WRANGLER_SEND_METRICS: 'false',
     CI: 'true',
   };
-  for (const name of [
-    'CLOUDFLARE_API_TOKEN',
-    'CLOUDFLARE_API_KEY',
-    'CLOUDFLARE_ACCOUNT_ID',
-    'CF_API_TOKEN',
-    'CF_API_KEY',
-    'CF_ACCOUNT_ID',
-    'WRANGLER_API_TOKEN',
-  ]) {
-    delete environment[name];
+  for (const name of WRANGLER_OS_ENVIRONMENT_KEYS) {
+    const value = parent[name];
+    if (value !== undefined && value !== '') environment[name] = value;
   }
   return environment;
 }
@@ -166,11 +173,16 @@ export async function buildCloudflareArtifacts(
           outdir,
           '--config',
           configPath,
+          '--env-file',
+          WRANGLER_EMPTY_ENV_FILE,
           '--experimental-provision=false',
         ],
         {
-          cwd: REPO_ROOT,
-          env: credentialFreeEnvironment(),
+          // The generated config directory contains no project .env/.dev.vars
+          // files. The explicit empty env file also disables Wrangler's
+          // default .env/.env.local search.
+          cwd: configRoot,
+          env: buildWranglerArtifactEnvironment(process.env),
           maxBuffer: 10 * 1024 * 1024,
         },
       );

@@ -77,6 +77,8 @@ export interface RelationshipPlan {
 export interface StreamPlan {
   readonly sourceKey: string;
   readonly stream: string;
+  /** Whether one successful artifact set is the complete membership of this stream. */
+  readonly refreshMode: 'FULL_SNAPSHOT' | 'INCREMENTAL';
   readonly entityType: Identifier;
   readonly schema: ExtractionSchema;
   readonly ruleSet: NormalizationRuleSet;
@@ -107,15 +109,43 @@ const escapeRegex = (raw: string): string => raw.replace(/[.*+?^${}()|[\]\\]/g, 
 /** Compile every source declared in `source-mappings.yaml`. */
 export function compileSourcePlans(config: VerticalConfig): SourcePlan[] {
   const sources: Yaml[] = config.sourceMappings?.sources ?? [];
-  return sources.map((source) => compileSourcePlan(config, source));
+  const plans = sources.map((source) => compileSourcePlan(config, source));
+  const seen = new Set<string>();
+  for (const plan of plans) {
+    if (seen.has(plan.sourceKey)) {
+      throw new MappingCompilationError(
+        'sources',
+        `duplicate source_key "${plan.sourceKey}"`,
+      );
+    }
+    seen.add(plan.sourceKey);
+  }
+  return plans;
 }
 
 export function compileSourcePlan(config: VerticalConfig, source: Yaml): SourcePlan {
   const sourceKey = String(source.source_key);
   const format = String(source.format);
-  const streams: StreamPlan[] = (source.records ?? []).map((record: Yaml, index: number) =>
+  const records: Yaml[] = source.records ?? [];
+  if (!Array.isArray(records) || records.length === 0) {
+    throw new MappingCompilationError(
+      `sources.${sourceKey}.records`,
+      'each mapped source requires at least one record stream',
+    );
+  }
+  const streams: StreamPlan[] = records.map((record: Yaml, index: number) =>
     compileStreamPlan(config, source, record, `sources.${sourceKey}.records[${index}]`),
   );
+  const seenStreams = new Set<string>();
+  for (const stream of streams) {
+    if (seenStreams.has(stream.stream)) {
+      throw new MappingCompilationError(
+        `sources.${sourceKey}.records`,
+        `duplicate stream identifier "${stream.stream}"`,
+      );
+    }
+    seenStreams.add(stream.stream);
+  }
   return { sourceKey, format, streams };
 }
 
@@ -168,7 +198,21 @@ function compileStreamPlan(
 ): StreamPlan {
   const sourceKey = String(source.source_key);
   const format = String(source.format);
-  const stream = String(record.stream);
+  const stream = asIdentifier(String(record.stream ?? ''), `${path}.stream`);
+  const declaredRefreshMode = record.refresh_mode;
+  if (declaredRefreshMode === undefined) {
+    throw new MappingCompilationError(
+      `${path}.refresh_mode`,
+      '`refresh_mode` is required; absence must never be interpreted as deletion',
+    );
+  }
+  const refreshMode = String(declaredRefreshMode).toLowerCase();
+  if (refreshMode !== 'full_snapshot' && refreshMode !== 'incremental') {
+    throw new MappingCompilationError(
+      `${path}.refresh_mode`,
+      '`refresh_mode` must be `full_snapshot` or `incremental`',
+    );
+  }
   const entityType = asIdentifier(String(record.entity_type), `${path}.entity_type`);
   const entityDef = config.entities[entityType];
   if (entityDef === undefined) {
@@ -455,6 +499,7 @@ function compileStreamPlan(
   return {
     sourceKey,
     stream,
+    refreshMode: refreshMode === 'full_snapshot' ? 'FULL_SNAPSHOT' : 'INCREMENTAL',
     entityType,
     schema,
     ruleSet,

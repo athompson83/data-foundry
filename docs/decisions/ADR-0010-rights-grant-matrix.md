@@ -11,7 +11,9 @@
 **Implemented by:** `packages/canonical-schema/src/rights.ts`,
 `packages/rights-engine/`, `packages/canonical-store/`,
 `packages/query-model/`, migrations `0014`, `0016`, and `0019`, and the
-scheduled-acquisition enforcement path
+scheduled-acquisition enforcement path. Migration `0023` and the query layer's
+current-identity gates provide a separate identity-currentness prerequisite;
+they do not create rights.
 
 > This is an engineering control architecture, not a legal review. It records
 > rights conclusions reached through the required review process; it does not
@@ -265,6 +267,26 @@ source status, terms, and grants at the response or export `asOf`. It never
 substitutes the currently valid fact; failure to authorize the exact historical
 provenance refuses the output.
 
+Identity and relationship currency are separate fail-closed prerequisites.
+Resolution and search consume `current_entity_aliases`, whose rows require an
+open curated claim or a claim from a current `FINALIZED` source-record revision
+in the alias's current authority epoch. Customer-facing entity authorization
+requires at least one current `FINALIZED` entity-evidence row before evaluating
+the retained entity contributions. Relationship authorization evaluates only
+current `FINALIZED` relationship contributions and also requires both endpoint
+entities to authorize. Historical rows remain auditable, but a withdrawn sole
+identity or edge cannot remain visible merely because its storage row survives.
+These gates prove current provenance support, not legal permission; the exact
+surface bundle still resolves across the applicable contributions.
+
+Source-record reconciliation persists `source-record-evidence@3`, covering the
+exact entity/manufacturer targets, accepted alias values and locators, fact
+projections, resolution audit, and relationship disposition/endpoints/writer.
+An exact replay remains a no-op; a semantic/evidence change creates an immutable
+successor. When a refresh has no usable strong identifier, it still finalizes a
+zero-claim successor and withdraws the prior source-only current support rather
+than leaving the old revision authoritative or creating a phantom entity.
+
 ## 9. Migration semantics
 
 Migration `0014_rights_grant_matrix.sql` creates no `ALLOW` from legacy
@@ -292,6 +314,15 @@ requires four ordered checkpoints: `INITIAL`, `PRE_PROVIDER`, `PRE_TRANSPORT`,
 and `PRE_PERSISTENCE`. The migration manufactures no fourth checkpoint for an
 existing run, and a refusal may end either contract at the checkpoint where the
 current rights resolver refuses.
+
+Forward migration `0023_entity_alias_claim_currentness.sql` adds immutable
+alias-claim history and an authority epoch advanced exactly once on each alias
+validity transition. A claim must cite the alias's current epoch; a source claim
+must cite a current `FINALIZED` source-record revision and derive its source
+identity from that record. The migration deliberately creates no claim from
+legacy `entity_aliases.source_id` or any other historical display field, so
+unknown old authority remains fail-closed. Retiring and reopening an alias
+cannot reactivate a prior-epoch assertion.
 
 This resolves RIGHTS-ADR-003 by preserving immutable versions while selecting
 one current activation, rather than combining mutable `superseded_by` fields
@@ -326,6 +357,14 @@ The implementation must continue to prove at least these cases:
 12. Historical selection loads the exact selected fact and every recursive
     contributor by immutable ID while current publication rights govern; a
     now-superseded fact is never silently replaced by its current successor.
+13. Legacy aliases receive no manufactured claim; withdrawn source-only aliases
+    leave the current lookup relation, and retire/reopen cannot reactivate an
+    older authority epoch.
+14. An entity or relationship without current `FINALIZED` supporting evidence
+    is withheld even though its immutable history remains stored.
+15. A refresh with no usable strong identifier finalizes a zero-claim successor,
+    creates no phantom canonical authority, and cannot leave the superseded
+    revision current by omission.
 
 ## 11. Owner decisions recorded with acceptance
 
@@ -354,5 +393,6 @@ enforcement, not a reason to infer paid rights from web rights.
 
 This ADR does not decide any real source's rights, replace counsel or owner
 review, approve the ENERGY STAR packet, authorize publisher contact, define
-plans or prices, or create invoices. It provides the auditable mechanism that
-keeps those decisions independent and fail-closed.
+plans or prices, create invoices, or make a provisioned API/MCP credential into
+a data grant. It provides the auditable mechanism that keeps those decisions
+independent and fail-closed.

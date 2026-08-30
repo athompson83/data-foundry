@@ -1258,7 +1258,7 @@
       "get": {
         "operationId": "listEntityRelationships",
         "summary": "Bounded graph traversal from this entity, breadth-first and cycle-guarded.",
-        "description": "This is a view of the publishable graph, not the whole graph. Rule 1 applies here as it does to facts: an edge whose every piece of evidence comes from a source that may not publish is withheld, and so is any neighbour reachable only through one. Those refusals are deliberately not counted in the response — a per-predicate count of them would let a caller reconstruct the withheld claim — so an absent edge means \"not publishable, or not asserted\", and never \"asserted to be false\". unevidencedEdgeCount reports a different case: edges nothing asserts at all.",
+        "description": "This is a view of the publishable graph, not the whole graph. An edge is served only when both endpoint identities retain current FINALIZED source-record support, at least one current FINALIZED source-record assertion supports the edge, and every required provenance contribution passes this surface's rights bundle. If any required provenance contribution is refused, the whole edge and any neighbour reachable only through it are withheld; one allowed contribution never launders a refused one. Those refusals are deliberately not counted in the response — a per-predicate count would let a caller reconstruct the withheld claim — so an absent edge means \"not publishable, or not asserted\", and never \"asserted to be false\". unevidencedEdgeCount reports a different case: edges nothing asserts at all.",
         "tags": [
           "entities"
         ],
@@ -1470,7 +1470,7 @@
       "head": {
         "operationId": "listEntityRelationshipsHead",
         "summary": "Bounded graph traversal from this entity, breadth-first and cycle-guarded.",
-        "description": "This is a view of the publishable graph, not the whole graph. Rule 1 applies here as it does to facts: an edge whose every piece of evidence comes from a source that may not publish is withheld, and so is any neighbour reachable only through one. Those refusals are deliberately not counted in the response — a per-predicate count of them would let a caller reconstruct the withheld claim — so an absent edge means \"not publishable, or not asserted\", and never \"asserted to be false\". unevidencedEdgeCount reports a different case: edges nothing asserts at all.",
+        "description": "This is a view of the publishable graph, not the whole graph. An edge is served only when both endpoint identities retain current FINALIZED source-record support, at least one current FINALIZED source-record assertion supports the edge, and every required provenance contribution passes this surface's rights bundle. If any required provenance contribution is refused, the whole edge and any neighbour reachable only through it are withheld; one allowed contribution never launders a refused one. Those refusals are deliberately not counted in the response — a per-predicate count would let a caller reconstruct the withheld claim — so an absent edge means \"not publishable, or not asserted\", and never \"asserted to be false\". unevidencedEdgeCount reports a different case: edges nothing asserts at all.",
         "tags": [
           "entities"
         ],

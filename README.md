@@ -67,6 +67,15 @@ currently validates controlled fixture declarations rather than a real
 publisher's terms. `verticals/hvac/README.md` records the Phase 2 exit condition
 that changes, and `docs/source-onboarding.md` is the procedure.
 
+Current identity is evidence-backed too. Migration 0023 keeps each staged alias
+identity as immutable history, records append-only curated or current-source-
+record claims in `entity_alias_claims`, and exposes only the claim-backed
+`current_entity_aliases` view to resolution and search. It deliberately creates
+no claim for a legacy alias: `entity_aliases.source_id` was display/provenance
+metadata and cannot be promoted into authority after the fact. Retiring or
+reopening an alias advances its authority epoch, so a claim from an older epoch
+cannot silently become current again.
+
 ```text
 packages/canonical-schema/   Core object model, confidence scores, job state machine, rights gate
 packages/rights-engine/      Fail-closed rights grants and surface-specific permission resolution
@@ -130,7 +139,7 @@ so they are documented here in more detail than the rest.
 The single source of truth for the core model (doc 04). Zod schemas plus inferred
 TypeScript types for every canonical object: `verticals`, `sources`,
 `source_artifacts`, `source_records`, `entities`, `entity_aliases`, `facts`,
-`fact_evidence`, `relationships`, `relationship_evidence`,
+`entity_alias_claims`, `fact_evidence`, `relationships`, `relationship_evidence`,
 `resolution_candidates`, `resolution_judgments`, `entity_redirects`,
 `dataset_snapshots`, `media_assets`, `ingestion_jobs`.
 
@@ -188,7 +197,36 @@ application discipline:
 | `fact_evidence` FKs `ON DELETE RESTRICT` | Evidence outlives convenience (rule 10) |
 | `media_assets_cache_requires_rights` | No caching imagery into R2 without cleared rights (rule 9) |
 | `source_records_current_source_key_uniq` | One current immutable revision per logical `(source_id, source_record_key)`; superseded revisions retain their evidence lineage |
+| `entity_alias_claims` append-only triggers | Alias authority cannot be rewritten or inferred from legacy display metadata; a claim must cite the alias's current authority epoch |
+| `current_entity_aliases` view | Resolution and search see only open curated claims or claims from a current `FINALIZED` source-record revision |
 | `ingestion_jobs_failed_shape` | `FAILED` jobs carry retry metadata; others do not |
+
+### Source-record and identity currentness
+
+Migrations 0021–0024 make refresh behavior explicit without deleting history.
+One logical source record has one current immutable revision; the old revision,
+its evidence and its alias claims remain auditable after supersession. The
+`source-record-evidence@3` fingerprint covers the exact resolved entity and
+manufacturer targets, accepted alias values and locators, fact projections,
+resolution audit, and relationship disposition/endpoints/writer. An exact
+replay is a no-op, while any target, evidence or mapping-semantic change creates
+a successor revision.
+
+A refresh with no usable strong identifier still finalizes a successor revision
+so the prior record does not remain falsely current, but it writes no canonical
+claims and creates no phantom manufacturer. Its old source-only alias claims
+therefore cease to be current. Stored entities and historical aliases remain
+for audit; a customer surface with no current `FINALIZED` entity-evidence
+support withholds that entity. Relationships likewise require current
+`FINALIZED` relationship evidence and surface-authorized endpoints, so a stale
+edge cannot survive solely because its historical row remains stored.
+
+Every mapping stream must also declare `refresh_mode: full_snapshot` or
+`incremental`. Only a successfully stored complete artifact set may retire an
+omitted record, and migration 0024 records the exact same-source artifact
+evidence for that retirement. Incremental absence has no deletion meaning.
+Legacy rows whose stream cannot be proven become non-current until a
+rights-admitted reingest; the migration never guesses membership.
 
 ### What this project owns in a database
 
@@ -245,14 +283,17 @@ MCP tool definitions, the Phase 2 Python/Splink work, and external dataset users
    and re-run as a clean no-op
 - `pnpm schemas:check` — generated JSON Schema exports and the readiness snapshot
   schema match their sources
-- `pnpm openapi:check` — generated direct/RapidAPI OpenAPI contracts match the
-  canonical REST route and access-channel contract
+- `pnpm openapi:check` — the legacy/direct contracts and the public
+  `openapi/data-foundry-hvac-rapidapi-v1.openapi.json` marketplace projection
+  match the same canonical REST route and schema source; the RapidAPI document
+  deliberately contains no private origin-bearer security scheme
 - `pnpm cloudflare:topology:check` — CI runs this repository-only check over all
   five tracked Worker templates, preserving the Queue, Cron, R2, Hyperdrive,
   route, and secret-free topology contract
 - `pnpm cloudflare:deployment:check` — an operator pre-deploy command that
   validates the five ignored exact-deployment manifests before a dry run or
-  deploy; CI intentionally has no such production manifests and does not run it
+  deploy, including one well-formed canonical `account_id` shared by all five;
+  CI intentionally has no such production manifests and does not run it
 - `pnpm verticals:validate` — vertical configs are well-formed and every source
    declaration carries complete rights metadata
 - `pnpm verticals:compile:check` — the edge runtime artifact matches the
@@ -266,9 +307,10 @@ MCP tool definitions, the Phase 2 Python/Splink work, and external dataset users
 - `pnpm cloudflare:artifacts:check` — all five Worker bundles build without
    credentials and contain no local PGlite/WASM runtime
 - A second job applies the identical migrations to a real `postgres:16` service,
-  then runs the concurrent source-record reconciliation regression, which keeps
-  portable SQL and advisory-lock provenance behavior honest rather than
-  aspirational
+  then runs source-record/snapshot reconciliation, credential-provisioning
+  concurrency, and scheduled-acquisition transaction/fencing controls, which
+  keep portable SQL, advisory-lock provenance, and idempotent operational writes
+  honest rather than aspirational
 
 ## Adding a real source
 
@@ -351,8 +393,25 @@ subscriptions. MCP events are explicitly `MCP/NONE`: useful for analytics, but
 never eligible for internal invoicing. RapidAPI events are likewise excluded
 from direct invoices because the marketplace is their billing authority.
 
-Deploying needs an account, Hyperdrive bindings, public hostnames/routes for the
-edge, web and MCP Workers, Queue delivery for the usage consumer, Cron for the
+`pnpm credentials:provision` is the fail-closed operator path for creating a
+one-vertical credential. It admits exactly `API_PAID/DIRECT`,
+`RAPIDAPI/RAPIDAPI`, or `MCP/NONE`; it does not infer a pair and does not mint a
+free/direct key. Direct and MCP plaintext keys may be delivered only to a new,
+absolute, owner-only (`0600`) file outside the worktree from a POSIX runtime.
+RapidAPI delivery is piped directly to Wrangler as `RAPIDAPI_API_KEY` using the
+validated edge production manifest only after the independently supplied
+Cloudflare account identity and an existing deployed Worker are proved. The
+database stores only a hash and
+non-secret metadata; the command refuses to overwrite an output and can
+classify a named legacy null/null row only through explicit
+`--classify-existing`. Creating a
+tenant or credential changes access control only: it creates no rights cell,
+grant, source approval, billing plan, invoice or legal permission.
+
+Deploying needs one canonical Cloudflare account named by the same exact
+`account_id` in all five ignored production manifests, Hyperdrive bindings,
+public hostnames/routes for the edge, web and MCP Workers, Queue delivery for
+the usage consumer, Cron for the
 acquisition Worker, and the usage-metering queues, none of which live in this
 repository —
 [docs/owner-actions/cloudflare-deployment.md](docs/owner-actions/cloudflare-deployment.md)
@@ -361,9 +420,10 @@ records what and why, including what pay per crawl actually is and is not, and
 lays out the free-web/paid-API revenue split end to end.
 
 `vercel.json` still disables Vercel Git deployments. It remains deploy
-suppression, not adoption: ADR-0005's fix — disconnecting the integration in the
-Vercel dashboard — has not been done, so deleting the file would let failing
-deployments resume.
+suppression, not adoption. The connected Vercel team has no Data Foundry project,
+but GitHub App installation `122728140` hides its exact repository selection
+behind an owner sudo/passkey prompt. Keep the file until that independent check
+proves the App no longer has Data Foundry repository access.
 
 ## Licensing and data rights
 
