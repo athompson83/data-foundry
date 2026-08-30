@@ -249,6 +249,43 @@ describe('migration runner', () => {
     }
   }, 120_000);
 
+  it('installs the 0022 source-record checks when unrelated tables use the same constraint names', async () => {
+    const shared = await createPGliteDriver();
+    try {
+      await applyMigrations(shared, migrations.filter((migration) => migration.version < '0022'));
+      await shared.query(
+        `CREATE TABLE unrelated_revision_state (
+           value TEXT CONSTRAINT source_records_revision_state_allowed CHECK (value <> '')
+         )`,
+      );
+      await shared.query(
+        `CREATE TABLE unrelated_evidence_fingerprint (
+           value TEXT CONSTRAINT source_records_evidence_fingerprint_sha256 CHECK (value <> '')
+         )`,
+      );
+
+      await applyMigrations(shared, migrations);
+
+      const constraints = await shared.query<{ conname: string }>(
+        `SELECT constraint_row.conname
+           FROM pg_constraint constraint_row
+          WHERE constraint_row.conrelid = 'public.source_records'::regclass
+            AND constraint_row.contype = 'c'
+            AND constraint_row.conname IN (
+              'source_records_revision_state_allowed',
+              'source_records_evidence_fingerprint_sha256'
+            )
+          ORDER BY constraint_row.conname`,
+      );
+      expect(constraints.map((constraint) => constraint.conname)).toEqual([
+        'source_records_evidence_fingerprint_sha256',
+        'source_records_revision_state_allowed',
+      ]);
+    } finally {
+      await shared.close();
+    }
+  }, 120_000);
+
   it('refuses to run when an applied migration has been edited', async () => {
     const tampered = migrations.map((migration, index) =>
       index === 0 ? { ...migration, checksum: 'f'.repeat(64) } : migration,

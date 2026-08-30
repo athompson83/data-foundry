@@ -147,8 +147,11 @@ export interface ExportEvidenceRow {
   readonly source_record_id: string;
   readonly locator_type: string;
   readonly locator_value: string;
-  /** The value exactly as the publisher wrote it, before normalization. */
-  readonly source_value: string;
+  /**
+   * Publisher verbatim text, when a future export contract independently
+   * authorizes quotation. Normalized bulk grants alone leave this null.
+   */
+  readonly source_value: string | null;
   readonly observed_at: string;
 }
 
@@ -203,7 +206,9 @@ export function exportEvidenceRow(
     source_record_id: link.source_record.id,
     locator_type: link.locator.type,
     locator_value: link.locator.value,
-    source_value: link.source_value,
+    // `BULK_EXPORT` authorizes normalized redistribution, not quotation. Keep
+    // the stable column in the evidence contract without leaking the excerpt.
+    source_value: null,
     observed_at: link.observed_at,
   };
 }
@@ -221,7 +226,7 @@ export function compareEvidenceRows(left: ExportEvidenceRow, right: ExportEviden
       left.artifact_retrieved_at,
       left.locator_type,
       left.locator_value,
-      left.source_value,
+      left.source_value ?? '',
       left.observed_at,
       left.entity_id,
       left.fact_id,
@@ -238,7 +243,7 @@ export function compareEvidenceRows(left: ExportEvidenceRow, right: ExportEviden
       right.artifact_retrieved_at,
       right.locator_type,
       right.locator_value,
-      right.source_value,
+      right.source_value ?? '',
       right.observed_at,
       right.entity_id,
       right.fact_id,

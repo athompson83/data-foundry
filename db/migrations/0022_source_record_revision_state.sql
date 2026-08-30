@@ -16,6 +16,8 @@ BEGIN
     IF NOT EXISTS (
         SELECT 1 FROM pg_constraint
          WHERE conname = 'source_records_revision_state_allowed'
+           AND conrelid = 'public.source_records'::regclass
+           AND contype = 'c'
     ) THEN
         ALTER TABLE source_records
             ADD CONSTRAINT source_records_revision_state_allowed
@@ -29,6 +31,8 @@ BEGIN
     IF NOT EXISTS (
         SELECT 1 FROM pg_constraint
          WHERE conname = 'source_records_evidence_fingerprint_sha256'
+           AND conrelid = 'public.source_records'::regclass
+           AND contype = 'c'
     ) THEN
         ALTER TABLE source_records
             ADD CONSTRAINT source_records_evidence_fingerprint_sha256
