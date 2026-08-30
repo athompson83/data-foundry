@@ -50,28 +50,32 @@ async function writeDeploymentManifests(directory: string): Promise<{
   readonly mcpConfigPath: string;
 }> {
   const binding = '\n[[hyperdrive]]\nbinding = "HYPERDRIVE"\nid = "00000000000000000000000000000000"\n';
+  const withTopLevelRoute = (manifest: string, route: string): string =>
+    manifest.replace(/^name\s*=\s*[^\n]+/m, (name) => `${name}\nroute = "${route}"`);
   const edgeConfigPath = join(directory, 'edge.toml');
   const consumerConfigPath = join(directory, 'consumer.toml');
   const webConfigPath = join(directory, 'web.toml');
   const acquisitionConfigPath = join(directory, 'acquisition.toml');
   const mcpConfigPath = join(directory, 'mcp.toml');
-  const edge = `${await readFile(EDGE_CONFIG, 'utf8')}${binding}\nroute = "edge.example.invalid/*"\n`;
+  const edge = `${withTopLevelRoute(await readFile(EDGE_CONFIG, 'utf8'), 'edge.example.invalid/*')}${binding}`;
   const consumer = `${await readFile(CONSUMER_CONFIG, 'utf8')}${binding}`;
   const web = `${(await readFile(WEB_CONFIG, 'utf8')).replace(
     'DEPLOYMENT_ENVIRONMENT = "production"',
     'DEPLOYMENT_ENVIRONMENT = "production"\nPUBLIC_ORIGIN = "https://web.example.invalid"',
-  )}${binding}\nroute = "web.example.invalid/*"\n`;
+  )}${binding}`;
   const acquisition = `${await readFile(ACQUISITION_CONFIG, 'utf8')}${binding}`;
   const mcp = `${(await readFile(MCP_CONFIG, 'utf8')).replace(
     'API_KEY_ENVIRONMENT = "live"',
     'API_KEY_ENVIRONMENT = "live"\nMCP_HOSTNAME = "mcp.example.invalid"\nMCP_ALLOWED_ORIGINS = "https://client.example.invalid"\nPUBLIC_ORIGIN = "https://web.example.invalid"',
-  )}${binding}\nroute = "mcp.example.invalid/*"\n`;
+  )}${binding}`;
+  const webWithRoute = `${withTopLevelRoute(web, 'web.example.invalid/*')}`;
+  const mcpWithRoute = `${withTopLevelRoute(mcp, 'mcp.example.invalid/*')}`;
   await Promise.all([
     writeFile(edgeConfigPath, edge, 'utf8'),
     writeFile(consumerConfigPath, consumer, 'utf8'),
-    writeFile(webConfigPath, web, 'utf8'),
+    writeFile(webConfigPath, webWithRoute, 'utf8'),
     writeFile(acquisitionConfigPath, acquisition, 'utf8'),
-    writeFile(mcpConfigPath, mcp, 'utf8'),
+    writeFile(mcpConfigPath, mcpWithRoute, 'utf8'),
   ]);
   return { edgeConfigPath, consumerConfigPath, webConfigPath, acquisitionConfigPath, mcpConfigPath };
 }
@@ -202,6 +206,83 @@ describe('the committed Cloudflare topology', () => {
     const paths = await writeDeploymentManifests(directory);
 
     expect(await validate({ mode: 'deployment', ...paths })).toEqual([]);
+  });
+
+  it('rejects canonical loopback aliases in ignored deployment endpoints', async () => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-cloudflare-loopback-alias-'));
+    temporaryDirectories.push(directory);
+    const paths = await writeDeploymentManifests(directory);
+    await Promise.all([
+      writeFile(
+        paths.edgeConfigPath,
+        (await readFile(paths.edgeConfigPath, 'utf8')).replace(
+          'VERTICAL_SLUG = "hvac"',
+          'VERTICAL_SLUG = "hvac"\nRAPIDAPI_HOSTNAME = "localhost."',
+        ),
+        'utf8',
+      ),
+      writeFile(
+        paths.webConfigPath,
+        (await readFile(paths.webConfigPath, 'utf8')).replace(
+          'https://web.example.invalid',
+          'https://localhost.',
+        ),
+        'utf8',
+      ),
+      writeFile(
+        paths.mcpConfigPath,
+        (await readFile(paths.mcpConfigPath, 'utf8'))
+          .replace('MCP_HOSTNAME = "mcp.example.invalid"', 'MCP_HOSTNAME = "localhost."')
+          .replace('https://client.example.invalid', 'https://localhost.')
+          .replace('https://web.example.invalid', 'https://localhost.'),
+        'utf8',
+      ),
+    ]);
+
+    const errors = await validate({ mode: 'deployment', ...paths });
+    expect(errors.join('\n')).toMatch(/RAPIDAPI_HOSTNAME.*non-loopback/i);
+    expect(errors.join('\n')).toMatch(/web.*non-loopback.*PUBLIC_ORIGIN/i);
+    expect(errors.join('\n')).toMatch(/non-loopback.*MCP_HOSTNAME/i);
+    expect(errors.join('\n')).toMatch(/non-loopback.*MCP_ALLOWED_ORIGINS/i);
+  });
+
+  it('rejects lower and mixed-case plaintext credentials but not a Hyperdrive id binding', async () => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-cloudflare-case-secret-'));
+    temporaryDirectories.push(directory);
+    const paths = await writeDeploymentManifests(directory);
+    await writeFile(
+      paths.edgeConfigPath,
+      (await readFile(paths.edgeConfigPath, 'utf8')).replace(
+        'VERTICAL_SLUG = "hvac"',
+        'VERTICAL_SLUG = "hvac"\nrapidApiToken = "fixture-value"\nprivateKey = "fixture-value"',
+      ),
+      'utf8',
+    );
+
+    const errors = await validate({ mode: 'deployment', ...paths });
+    expect(errors.join('\n')).toMatch(/rapidApiToken/);
+    expect(errors.join('\n')).toMatch(/privateKey/);
+    expect(errors.join('\n')).not.toMatch(/HYPERDRIVE.*protected/i);
+  });
+
+  it('rejects deployment-only topology fields nested under a Hyperdrive binding', async () => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-cloudflare-nested-route-'));
+    temporaryDirectories.push(directory);
+    const paths = await writeDeploymentManifests(directory);
+    await writeFile(
+      paths.edgeConfigPath,
+      (await readFile(paths.edgeConfigPath, 'utf8')).replace(
+        'id = "00000000000000000000000000000000"',
+        'id = "00000000000000000000000000000000"\nroute = "nested.example.invalid/*"',
+      ),
+      'utf8',
+    );
+
+    const errors = await validate({ mode: 'deployment', ...paths });
+    expect(errors.join('\n')).toMatch(/edge.*hyperdrive\[0\]\.route.*top-level/i);
   });
 
   it('fails deployment mode clearly when a conventional manifest is unreadable', async () => {

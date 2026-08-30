@@ -164,7 +164,12 @@ function checkRepositoryPolicy(label: string, config: TomlObject, errors: string
 }
 
 function isLoopbackHostname(value: string): boolean {
-  const hostname = value.toLowerCase().replace(/^\[/, '').replace(/\]$/, '');
+  const hostname = value
+    .trim()
+    .toLowerCase()
+    .replace(/^\[/, '')
+    .replace(/\]$/, '')
+    .replace(/\.+$/, '');
   if (hostname === 'localhost' || hostname === '::1') return true;
   const octets = hostname.split('.');
   return octets.length === 4 && octets.every((octet) => /^\d{1,3}$/.test(octet)) && octets[0] === '127';
@@ -205,43 +210,62 @@ function isExactProductionHostname(value: unknown): boolean {
 
 function routeValues(config: TomlObject): readonly string[] {
   const visit = (value: unknown): string[] => {
+    if (value === undefined || value === null) return [];
     if (typeof value === 'string') return [value];
     if (Array.isArray(value)) return value.flatMap(visit);
     const candidate = object(value);
     return [candidate['pattern'], candidate['route']].flatMap(visit);
   };
-  return [...valuesAtKey(config, 'route'), ...valuesAtKey(config, 'routes')].flatMap(visit);
+  return [config['route'], config['routes']].flatMap(visit);
 }
 
 function hasDeploymentHyperdrive(config: TomlObject): boolean {
-  return valuesAtKey(config, 'hyperdrive').flatMap(objects).some(
+  return objects(config['hyperdrive']).some(
     (binding) => binding['binding'] === 'HYPERDRIVE' &&
       typeof binding['id'] === 'string' && binding['id'].trim() !== '',
   );
 }
 
 function isPlaintextProtectedKey(key: string): boolean {
-  if (key === 'API_KEY_ENVIRONMENT') return false;
-  return key === 'POSTGRES_URL' ||
-    key === 'RAPIDAPI_PROXY_SECRET' ||
-    key === 'RAPIDAPI_API_KEY' ||
-    key === 'CLOUDFLARE_API_TOKEN' ||
-    key === 'CRAWL4AI_API_TOKEN' ||
-    /(?:PASSWORD|PASSWD|TOKEN|SECRET)$/.test(key) ||
-    /(?:API_KEY|API_SECRET)$/.test(key);
+  const normalized = key.toUpperCase();
+  if (normalized === 'API_KEY_ENVIRONMENT') return false;
+  return normalized === 'POSTGRES_URL' ||
+    normalized === 'RAPIDAPI_PROXY_SECRET' ||
+    normalized === 'RAPIDAPI_API_KEY' ||
+    normalized === 'CLOUDFLARE_API_TOKEN' ||
+    normalized === 'CRAWL4AI_API_TOKEN' ||
+    /(?:PASSWORD|PASSWD|TOKEN|SECRET)$/.test(normalized) ||
+    /(?:API_?KEY|API_?SECRET|PRIVATE_?KEY)$/.test(normalized);
 }
 
 function checkPlaintextProtectedVars(label: string, config: TomlObject, errors: string[]): void {
-  for (const vars of valuesAtKey(config, 'vars')) {
-    for (const key of keyNames(object(vars))) {
-      if (isPlaintextProtectedKey(key)) {
-        errors.push(`${label} commits plaintext protected variable ${key}; use provider secrets or bindings.`);
-      }
+  for (const key of keyNames(object(config['vars']))) {
+    if (isPlaintextProtectedKey(key)) {
+      errors.push(`${label} commits plaintext protected variable ${key}; use provider secrets or bindings.`);
+    }
+  }
+}
+
+const DEPLOYMENT_TOP_LEVEL_FIELDS = new Set([
+  'account_id',
+  'route',
+  'routes',
+  'vars',
+  'hyperdrive',
+]);
+
+function checkDeploymentFieldLocations(label: string, config: TomlObject, errors: string[]): void {
+  for (const path of collectKeyPaths(config, DEPLOYMENT_TOP_LEVEL_FIELDS)) {
+    if (!DEPLOYMENT_TOP_LEVEL_FIELDS.has(path)) {
+      errors.push(
+        `${label} deployment manifest places ${path} below the top level; deployment-only fields must be top-level.`,
+      );
     }
   }
 }
 
 function checkDeploymentWorker(label: string, config: TomlObject, errors: string[]): void {
+  checkDeploymentFieldLocations(label, config, errors);
   if (!hasDeploymentHyperdrive(config)) {
     errors.push(`${label} deployment manifest must bind HYPERDRIVE with a non-empty id.`);
   }

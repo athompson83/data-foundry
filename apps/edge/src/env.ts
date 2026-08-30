@@ -89,7 +89,12 @@ function resolveDeploymentEnvironment(value: string | undefined): DeploymentEnvi
 }
 
 function isLoopbackHostname(hostname: string): boolean {
-  const normalized = hostname.toLowerCase().replace(/^\[/, '').replace(/\]$/, '');
+  const normalized = hostname
+    .trim()
+    .toLowerCase()
+    .replace(/^\[/, '')
+    .replace(/\]$/, '')
+    .replace(/\.+$/, '');
   if (normalized === 'localhost' || normalized === '::1') return true;
   const octets = normalized.split('.');
   return octets.length === 4 && octets.every((octet) => /^\d{1,3}$/.test(octet)) && octets[0] === '127';

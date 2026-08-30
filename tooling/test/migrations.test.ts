@@ -209,6 +209,46 @@ describe('migration runner', () => {
     }
   }, 120_000);
 
+  it('stops 0022 when legacy mutable source records no longer match existing evidence', async () => {
+    const legacy = await createPGliteDriver();
+    try {
+      await applyMigrations(legacy, migrations.filter((migration) => migration.version < '0022'));
+      await seed(legacy);
+      await legacy.query(
+        `INSERT INTO entity_evidence (entity_id, artifact_id, source_record_id, contribution_role,
+                                      locator_type, locator_value, observed_at)
+         VALUES ($1, $2, $3, 'EXISTENCE', 'JSON_POINTER', '/products/0', $4)`,
+        [ENTITY, ARTIFACT, RECORD, TS],
+      );
+      await legacy.query(
+        `INSERT INTO source_artifacts (id, source_id, url, retrieved_at, content_hash, mime_type,
+                                       r2_uri, http_status, extractor_version, acquisition_provider,
+                                       acquisition_route)
+         VALUES ('66666666-6666-4666-8666-666666666666', $1,
+                 'https://ratings-directory.example.org/reprocessed', $2, $3, 'text/html',
+                 'r2://raw/hvac/ratings-directory/reprocessed.html', 200, 'html-2.0.0', 'http',
+                 'DIRECT_HTTP')`,
+        [SOURCE, TS, 'b'.repeat(64)],
+      );
+      // This was legal before revision-state hardening and is the exact
+      // historical condition 0022 must make an operator investigate.
+      await legacy.query(
+        `UPDATE source_records SET artifact_id = '66666666-6666-4666-8666-666666666666' WHERE id = $1`,
+        [RECORD],
+      );
+
+      await expect(applyMigrations(legacy, migrations)).rejects.toThrow(
+        /source-record evidence provenance mismatch exists/i,
+      );
+      const applied = await legacy.query<{ version: string }>(
+        `SELECT version FROM schema_migrations WHERE version = '0022'`,
+      );
+      expect(applied).toHaveLength(0);
+    } finally {
+      await legacy.close();
+    }
+  }, 120_000);
+
   it('refuses to run when an applied migration has been edited', async () => {
     const tampered = migrations.map((migration, index) =>
       index === 0 ? { ...migration, checksum: 'f'.repeat(64) } : migration,

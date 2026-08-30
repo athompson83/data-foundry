@@ -142,6 +142,15 @@ jobs:
           POSTGRES_URL: postgres://postgres:postgres@localhost:5432/data_foundry
         run: pnpm migrate
 
+      # This deliberately uses independent PostgreSQL connections and waits for
+      # the advisory transaction lock, so the reconciliation race cannot hide
+      # behind the single-connection PGlite scheduler.
+      - name: Source-record reconciliation concurrency regression
+        env:
+          POSTGRES_URL: postgres://postgres:postgres@localhost:5432/data_foundry
+          DATA_FOUNDRY_POSTGRES_CONCURRENCY_TEST: '1'
+        run: pnpm source-records:postgres:check
+
       - name: Scheduled acquisition concurrency and transaction controls
         env:
           POSTGRES_URL: postgres://postgres:postgres@localhost:5432/data_foundry

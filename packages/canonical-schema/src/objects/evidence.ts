@@ -75,6 +75,10 @@ export const SourceRecordSchema = z.object({
   normalized_payload: JsonObjectSchema.nullable(),
   extraction_confidence: ExtractionConfidenceSchema,
   extractor_version: ExtractorVersionSchema,
+  /** Hash of evidence-affecting validation/resolution semantics for no-op replays. */
+  evidence_fingerprint: z.string().regex(/^[0-9a-f]{64}$/),
+  /** Explicit lifecycle state; evidence may cite only a FINALIZED revision. */
+  revision_state: z.enum(['PROVISIONAL', 'FINALIZED']),
   /** One revision per logical source record is current and eligible for new lineage. */
   is_current: z.boolean(),
   created_at: IsoDateTimeSchema,
@@ -84,6 +88,8 @@ export type SourceRecord = z.infer<typeof SourceRecordSchema>;
 
 export const SourceRecordInsertSchema = SourceRecordSchema.omit({
   id: true,
+  evidence_fingerprint: true,
+  revision_state: true,
   is_current: true,
   created_at: true,
   updated_at: true,

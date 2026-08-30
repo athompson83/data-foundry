@@ -72,12 +72,13 @@ describe('production topology is explicit and fail closed', () => {
     expect(config.deploymentEnvironment).toBe('production');
   });
 
-  it('refuses a loopback production public origin', () => {
+  it.each(['https://localhost', 'https://localhost.'])('refuses canonical loopback production public origin %s', (publicOrigin) => {
     expect(() =>
       resolveWebConfig({
         DEPLOYMENT_ENVIRONMENT: 'production',
         HYPERDRIVE: { connectionString: 'postgres://hyperdrive/db' },
-        PUBLIC_ORIGIN: 'https://localhost',
+        PUBLIC_ORIGIN: publicOrigin,
+        PUBLIC_CACHE_MODE: 'no-store',
       }),
     ).toThrow(/loopback/i);
   });

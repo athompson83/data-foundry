@@ -12,6 +12,7 @@ import {
   type SqlExecutor,
   type SqlParam,
   type SqlRow,
+  type SqlTransactionExecutor,
 } from '@data-foundry/canonical-store';
 import { migrate } from '../../../packages/canonical-store/test/support.js';
 import {
@@ -367,6 +368,119 @@ describe('real ingestion fact output lineage', () => {
     );
   });
 
+  it('supersedes a finalized revision when identical bytes are re-extracted differently', async () => {
+    await ensureIngestionRights();
+    const base = await loadVerticalConfig('hvac');
+    const sourceKey = 'ACS-SAMEARTIFACT001';
+    const fixtureBody = JSON.stringify({
+      products: [{
+        ...catalogProduct(sourceKey, 'SAMEARTIFACT001'),
+        rejected_model: 'AB',
+      }],
+    });
+    const artifactStore = new InMemoryArtifactStore();
+    const first = await pipelineForConfig(
+      base,
+      artifactStore,
+      'same-artifact-first',
+      { 'acme-hvac-catalog': fixtureBody },
+    );
+    expect((await first.runSource('acme-hvac-catalog')).error).toBeNull();
+
+    const changedConfig: VerticalConfig = {
+      ...base,
+      sourceMappings: {
+        ...base.sourceMappings,
+        sources: base.sourceMappings.sources.map((source: Record<string, unknown>) =>
+          source['source_key'] !== 'acme-hvac-catalog'
+            ? source
+            : {
+              ...source,
+              records: (source['records'] as readonly Record<string, unknown>[]).map((record) => ({
+                ...record,
+                aliases: (record['aliases'] as readonly Record<string, unknown>[]).map((alias) =>
+                  alias['alias_type'] === 'model_number'
+                    ? { ...alias, path: '/rejected_model' }
+                    : alias,
+                ),
+              })),
+            },
+        ),
+      },
+    };
+    const second = await pipelineForConfig(
+      changedConfig,
+      artifactStore,
+      'same-artifact-reextracted',
+      { 'acme-hvac-catalog': fixtureBody },
+    );
+    expect((await second.runSource('acme-hvac-catalog')).error).toBeNull();
+
+    const revisions = await driver.query<{
+      id: string;
+      artifact_id: string;
+      is_current: boolean;
+      revision_state: string;
+    }>(
+      `SELECT id, artifact_id, is_current, revision_state
+         FROM source_records WHERE source_record_key = $1
+         ORDER BY created_at, id`,
+      [sourceKey],
+    );
+    const current = revisions.find((revision) => revision.is_current);
+    const evidence = await driver.query<{
+      source_record_id: string;
+      expected_artifact_id: string;
+      artifact_id: string;
+      contribution_role: string;
+      locator_value: string;
+    }>(
+      `SELECT source_record_id, expected_artifact_id, artifact_id, contribution_role, locator_value
+         FROM (
+           SELECT evidence.source_record_id, record.artifact_id AS expected_artifact_id,
+                  evidence.artifact_id, evidence.contribution_role, evidence.locator_value
+             FROM entity_evidence evidence
+             JOIN source_records record ON record.id = evidence.source_record_id
+            WHERE record.source_record_key = $1
+           UNION ALL
+           SELECT evidence.source_record_id, record.artifact_id AS expected_artifact_id,
+                  evidence.artifact_id, 'FACT', evidence.locator_value
+             FROM fact_evidence evidence
+             JOIN source_records record ON record.id = evidence.source_record_id
+            WHERE record.source_record_key = $1
+           UNION ALL
+           SELECT evidence.source_record_id, record.artifact_id AS expected_artifact_id,
+                  evidence.artifact_id, 'RELATIONSHIP', evidence.locator_value
+             FROM relationship_evidence evidence
+             JOIN source_records record ON record.id = evidence.source_record_id
+            WHERE record.source_record_key = $1
+         ) lineage
+         ORDER BY source_record_id, contribution_role, locator_value`,
+      [sourceKey],
+    );
+    const rejectedAliases = await driver.query(
+      `SELECT id FROM entity_aliases WHERE alias_type = 'model_number' AND normalized_value = 'AB'`,
+    );
+
+    expect(revisions).toHaveLength(2);
+    expect(revisions.filter((revision) => revision.is_current)).toEqual([
+      expect.objectContaining({ revision_state: 'FINALIZED' }),
+    ]);
+    expect(new Set(revisions.map((revision) => revision.artifact_id)).size).toBe(1);
+    expect(evidence.length).toBeGreaterThan(0);
+    expect(evidence.every((row) => row.artifact_id === row.expected_artifact_id)).toBe(true);
+    expect(
+      evidence.filter((row) => row.source_record_id === current?.id && row.contribution_role === 'ALIAS')
+        .map((row) => row.locator_value),
+    ).toContain('/products/0/sku');
+    expect(
+      evidence.some(
+        (row) => row.source_record_id === current?.id && row.locator_value === '/products/0/rejected_model',
+      ),
+    ).toBe(false);
+    expect(rejectedAliases).toEqual([]);
+  });
+
   it('rolls back source-record evidence replacement when the transaction cannot persist current lineage', async () => {
     await ensureIngestionRights();
     const artifactStore = new InMemoryArtifactStore();
@@ -524,20 +638,20 @@ function transactionAffinityGuard(
       }
       return delegate.query<R>(sql, params);
     },
-    async transaction<T>(fn: (tx: SqlExecutor) => Promise<T>): Promise<T> {
+    async transaction<T>(fn: (tx: SqlTransactionExecutor) => Promise<T>): Promise<T> {
       if (transactionActive) {
         throw new Error('nested transaction escaped the active transaction executor');
       }
       return delegate.transaction(async (delegateTx) => {
         transactionActive = true;
-        const tx: SqlExecutor = {
+        const tx = {
           async query<R extends SqlRow = SqlRow>(sql: string, params?: readonly SqlParam[]) {
             if (options.failTransactionSql?.test(sql) === true) {
               throw new Error('injected entity-evidence failure');
             }
             return delegateTx.query<R>(sql, params);
           },
-        };
+        } as SqlTransactionExecutor;
         try {
           return await fn(tx);
         } finally {

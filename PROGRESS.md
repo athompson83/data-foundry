@@ -46,10 +46,13 @@
   manufacturer, entity, alias, judgment, and evidence writes. Any failure or
   unusable strong identifier rolls the record back.
 - Re-ingestion now supersedes a logical source record's current immutable
-  revision rather than mutating or deleting provenance. Migration `0021`
-  preserves historic evidence, records the supersession link, and makes every
-  new current revision's entity/fact/relationship lineage cite its current
-  artifact.
+  revision rather than mutating or deleting provenance. Migrations `0021` and
+  `0022` preserve historic evidence, record a one-way supersession link, make
+  source-record lifecycle explicit (`PROVISIONAL` versus `FINALIZED`), and make
+  each entity/fact/relationship lineage cite its exact current artifact.
+  Finalized no-op reuse additionally requires a persisted fingerprint of the
+  validated evidence semantics; same-artifact semantic changes append a new
+  immutable revision instead of retaining stale evidence.
 - Rights-backed readiness exists and requires canonical `--as-of` plus either a
   named-environment live database or a schema/digest-validated qualified
   snapshot. YAML/fixture metadata alone never proves a current grant.
@@ -110,6 +113,12 @@
   `noindex` control, server-clock same-row acquisition recovery with stale
   fencing, non-owner claim-token isolation, request-wide sitemap capacity, and
   canonical zero-work sitemap route refusal.
+- The Task 2 review-round provenance repair added a mandatory pinned transaction
+  executor and per-logical-record PostgreSQL advisory lock for reconciliation,
+  a fail-closed legacy evidence-provenance migration precondition, and a hosted
+  PostgreSQL concurrency regression. Repository topology now canonicalizes
+  loopback hosts, rejects mixed-case plaintext credential names and nested
+  deployment-only fields; ignored production manifests remain an operator gate.
 - Final authority is the frozen 40-character PR head and its complete local/CI
   gate set. Any candidate-affecting change invalidates SHA-sensitive evidence;
   do not use the earlier rejected `1ca6f61` candidate as release proof.

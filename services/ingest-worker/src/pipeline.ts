@@ -109,6 +109,12 @@ import { buildFixtureManifest, type FixtureBinding } from './fixtures.js';
 import { IngestionJobStore } from './jobs.js';
 import { EntityResolver, type AliasClaim } from './resolution.js';
 
+// Bump this only when validation or resolution changes the meaning of a
+// persisted evidence chain. The fingerprint also contains the actual accepted
+// claims and locators, so a changed validation outcome cannot reuse an older
+// finalized source-record revision.
+const SOURCE_RECORD_EVIDENCE_SEMANTICS_VERSION = 'source-record-evidence@1';
+
 export interface PipelineOptions {
   readonly driver: SqlDriver;
   readonly config: VerticalConfig;
@@ -895,19 +901,6 @@ export class Pipeline {
     const raw = item.extracted.raw_payload;
     try {
       return await this.store.driver.transaction(async (tx) => {
-        const sourceRecord = await this.store.reconcileSourceRecord(
-          {
-            source_id: source.id,
-            artifact_id: item.artifact.id,
-            source_record_key: item.row.source_record_key,
-            entity_type: item.plan.entityType,
-            raw_payload: item.extracted.raw_payload,
-            normalized_payload: item.normalization.normalized_payload,
-            extraction_confidence: item.extracted.extraction_confidence,
-            extractor_version: item.extracted.extractor_version,
-          },
-          tx,
-        );
         // The manufacturer is resolved first: it is the scope a model number is
         // unique within, and the slug pattern needs it.
         let manufacturer: Entity | null = null;
@@ -962,6 +955,45 @@ export class Pipeline {
           );
           throw new UnresolvableRecordRollback();
         }
+
+        const evidenceFingerprint = sha256Hex(stableStringify({
+          semanticsVersion: SOURCE_RECORD_EVIDENCE_SEMANTICS_VERSION,
+          plan: {
+            entityType: item.plan.entityType,
+            schema: item.plan.schema,
+            ruleSet: item.plan.ruleSet,
+            aliases: item.plan.aliases,
+            relationships: item.plan.relationships,
+          },
+          validatedAliases: validatedAliases
+            .map(({ claim, locator }) => ({
+              aliasType: claim.aliasType,
+              aliasValue: claim.aliasValue,
+              normalizedValue: claim.normalizedValue,
+              strong: claim.strong,
+              locatorType: locator.type,
+              locatorValue: locator.value,
+            }))
+            .sort((left, right) => {
+              const leftKey = stableStringify(left);
+              const rightKey = stableStringify(right);
+              return leftKey < rightKey ? -1 : leftKey > rightKey ? 1 : 0;
+            }),
+        }));
+        const sourceRecord = await this.store.reconcileSourceRecord(
+          {
+            source_id: source.id,
+            artifact_id: item.artifact.id,
+            source_record_key: item.row.source_record_key,
+            entity_type: item.plan.entityType,
+            raw_payload: item.extracted.raw_payload,
+            normalized_payload: item.normalization.normalized_payload,
+            extraction_confidence: item.extracted.extraction_confidence,
+            extractor_version: item.extracted.extractor_version,
+          },
+          tx,
+          evidenceFingerprint,
+        );
 
         const resolved = await resolver.resolveRecord(
           {

@@ -227,7 +227,7 @@ describe('production topology is explicit and fail closed', () => {
     expect(config.deploymentEnvironment).toBe('production');
   });
 
-  it('refuses a loopback RapidAPI hostname in production', () => {
+  it.each(['localhost', 'localhost.', 'LOCALHOST.'])('refuses canonical loopback RapidAPI hostname %s in production', (hostname) => {
     expect(() =>
       resolveEdgeConfig({
         DEPLOYMENT_ENVIRONMENT: 'production',
@@ -235,7 +235,7 @@ describe('production topology is explicit and fail closed', () => {
         VERTICAL_SLUG: 'hvac',
         API_KEY_ENVIRONMENT: 'live',
         USAGE_EVENTS_QUEUE: queue,
-        RAPIDAPI_HOSTNAME: 'localhost',
+        RAPIDAPI_HOSTNAME: hostname,
         RAPIDAPI_PROXY_SECRET: 'test-proxy-secret',
         RAPIDAPI_API_KEY: 'test-api-key',
       }),

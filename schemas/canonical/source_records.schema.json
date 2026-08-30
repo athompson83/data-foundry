@@ -61,6 +61,17 @@
       "minLength": 1,
       "maxLength": 120
     },
+    "evidence_fingerprint": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "revision_state": {
+      "type": "string",
+      "enum": [
+        "PROVISIONAL",
+        "FINALIZED"
+      ]
+    },
     "is_current": {
       "type": "boolean"
     },
@@ -85,6 +96,8 @@
     "normalized_payload",
     "extraction_confidence",
     "extractor_version",
+    "evidence_fingerprint",
+    "revision_state",
     "is_current",
     "created_at",
     "updated_at"

@@ -166,6 +166,8 @@ export function mapSourceRecord(row: SqlRow): SourceRecord {
       normalized === null || normalized === undefined ? null : toJson(normalized),
     extraction_confidence: toNumber(field(row, 'extraction_confidence')),
     extractor_version: field(row, 'extractor_version'),
+    evidence_fingerprint: field(row, 'evidence_fingerprint'),
+    revision_state: field(row, 'revision_state'),
     is_current: field(row, 'is_current'),
     created_at: toIso(field(row, 'created_at')),
     updated_at: toIso(field(row, 'updated_at')),
@@ -359,7 +361,7 @@ export const ARTIFACT_COLUMNS =
 
 export const SOURCE_RECORD_COLUMNS =
   'id, source_id, artifact_id, source_record_key, entity_type, raw_payload, ' +
-  'normalized_payload, extraction_confidence, extractor_version, is_current, created_at, updated_at';
+  'normalized_payload, extraction_confidence, extractor_version, evidence_fingerprint, revision_state, is_current, created_at, updated_at';
 
 export const REDIRECT_COLUMNS =
   'id, vertical_id, from_entity_id, to_entity_id, from_slug, reason, judgment_id, active, created_at';

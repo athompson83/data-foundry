@@ -111,6 +111,7 @@ import {
   type SqlExecutor,
   type SqlParam,
   type SqlRow,
+  type SqlTransactionExecutor,
 } from './sql-driver.js';
 
 /** Compile-time proof that an evidence set is not empty. */
@@ -249,11 +250,16 @@ export interface CanonicalStore {
   getSourceById(id: SourceId): Promise<Source | null>;
 
   recordSourceArtifact(input: SourceArtifactInsert): Promise<SourceArtifact>;
+  /** Insert a finalized source-record revision. Existing current revisions are never updated. */
   recordSourceRecord(input: SourceRecordInsert): Promise<SourceRecord>;
   /** Create a record if absent, but leave its current payload/evidence untouched until reconciliation. */
   ensureSourceRecord(input: SourceRecordInsert): Promise<SourceRecord>;
-  /** Replace one source record and its dependent evidence atomically through a caller-owned transaction. */
-  reconcileSourceRecord(input: SourceRecordInsert, executor?: SqlExecutor): Promise<SourceRecord>;
+  /** Replace or finalize one source record through the caller's pinned transaction. */
+  reconcileSourceRecord(
+    input: SourceRecordInsert,
+    transaction: SqlTransactionExecutor,
+    evidenceFingerprint: string,
+  ): Promise<SourceRecord>;
 
   /** Identity writes may join a caller-owned transaction through its pinned executor. */
   upsertEntity(input: EntityInsert, executor?: SqlExecutor): Promise<Entity>;
@@ -343,6 +349,8 @@ export interface CanonicalStore {
 
 const nowIso = (): IsoDateTime => new Date().toISOString() as IsoDateTime;
 const json = (value: unknown): string => JSON.stringify(value ?? null);
+const DIRECT_RECORD_EVIDENCE_FINGERPRINT = 'd'.repeat(64);
+const PROVISIONAL_EVIDENCE_FINGERPRINT = 'f'.repeat(64);
 
 export function createCanonicalStore(driver: SqlDriver): CanonicalStore {
   return new PostgresCanonicalStore(driver);
@@ -525,19 +533,21 @@ class PostgresCanonicalStore implements CanonicalStore {
     return mapSourceArtifact(requireRow(rows, 'source_artifacts'));
   }
 
-  async recordSourceRecord(input: SourceRecordInsert, executor?: SqlExecutor): Promise<SourceRecord> {
-    const rows = await (executor ?? this.driver).query(
+  async recordSourceRecord(input: SourceRecordInsert): Promise<SourceRecord> {
+    return this.#insertSourceRecord(input, this.driver, 'FINALIZED', DIRECT_RECORD_EVIDENCE_FINGERPRINT);
+  }
+
+  async #insertSourceRecord(
+    input: SourceRecordInsert,
+    executor: SqlExecutor,
+    revisionState: 'PROVISIONAL' | 'FINALIZED',
+    evidenceFingerprint: string,
+  ): Promise<SourceRecord> {
+    const rows = await executor.query(
       `INSERT INTO source_records (source_id, artifact_id, source_record_key, entity_type,
                                    raw_payload, normalized_payload, extraction_confidence,
-                                   extractor_version)
-       VALUES ($1, $2, $3, $4, $5::jsonb, $6::jsonb, $7, $8)
-       ON CONFLICT (source_id, source_record_key) WHERE is_current DO UPDATE
-         SET artifact_id = EXCLUDED.artifact_id,
-             raw_payload = EXCLUDED.raw_payload,
-             normalized_payload = EXCLUDED.normalized_payload,
-             extraction_confidence = EXCLUDED.extraction_confidence,
-             extractor_version = EXCLUDED.extractor_version,
-             updated_at = now()
+                                   extractor_version, evidence_fingerprint, revision_state)
+       VALUES ($1, $2, $3, $4, $5::jsonb, $6::jsonb, $7, $8, $9, $10)
        RETURNING ${SOURCE_RECORD_COLUMNS}`,
       [
         input.source_id,
@@ -548,6 +558,8 @@ class PostgresCanonicalStore implements CanonicalStore {
         input.normalized_payload === null ? null : json(input.normalized_payload),
         input.extraction_confidence,
         input.extractor_version,
+        evidenceFingerprint,
+        revisionState,
       ],
     );
     return mapSourceRecord(requireRow(rows, 'source_records'));
@@ -557,8 +569,8 @@ class PostgresCanonicalStore implements CanonicalStore {
     const inserted = await this.driver.query(
       `INSERT INTO source_records (source_id, artifact_id, source_record_key, entity_type,
                                    raw_payload, normalized_payload, extraction_confidence,
-                                   extractor_version)
-       VALUES ($1, $2, $3, $4, $5::jsonb, $6::jsonb, $7, $8)
+                                   extractor_version, evidence_fingerprint, revision_state)
+       VALUES ($1, $2, $3, $4, $5::jsonb, $6::jsonb, $7, $8, $9, 'PROVISIONAL')
        ON CONFLICT (source_id, source_record_key) WHERE is_current DO NOTHING
        RETURNING ${SOURCE_RECORD_COLUMNS}`,
       [
@@ -570,6 +582,7 @@ class PostgresCanonicalStore implements CanonicalStore {
         input.normalized_payload === null ? null : json(input.normalized_payload),
         input.extraction_confidence,
         input.extractor_version,
+        PROVISIONAL_EVIDENCE_FINGERPRINT,
       ],
     );
     if (inserted[0] !== undefined) return mapSourceRecord(inserted[0]);
@@ -583,35 +596,104 @@ class PostgresCanonicalStore implements CanonicalStore {
 
   async reconcileSourceRecord(
     input: SourceRecordInsert,
-    executor?: SqlExecutor,
+    transaction: SqlTransactionExecutor,
+    evidenceFingerprint: string,
   ): Promise<SourceRecord> {
-    const driver = executor ?? this.driver;
-    const current = await driver.query<{ id: string; artifact_id: string }>(
-      `SELECT id, artifact_id FROM source_records
-        WHERE source_id = $1 AND source_record_key = $2 AND is_current
-        FOR UPDATE`,
+    if (!/^[0-9a-f]{64}$/.test(evidenceFingerprint)) {
+      throw new Error('evidenceFingerprint must be a lowercase SHA-256 digest.');
+    }
+    // Serialize the logical key for this whole caller-owned transaction. The
+    // first statement is deliberately the lock: a waiter must not inspect a
+    // pre-replacement current row and later conflict-update its successor.
+    await transaction.query(
+      `SELECT pg_advisory_xact_lock(hashtext($1), hashtext($2))`,
       [input.source_id, input.source_record_key],
     );
+    type CurrentRevisionRow = SqlRow & {
+      readonly id: string;
+      readonly revision_state: 'PROVISIONAL' | 'FINALIZED';
+      readonly artifact_matches: boolean;
+      readonly entity_type_matches: boolean;
+      readonly raw_payload_matches: boolean;
+      readonly normalized_payload_matches: boolean;
+      readonly extraction_confidence_matches: boolean;
+      readonly extractor_version_matches: boolean;
+      readonly evidence_fingerprint_matches: boolean;
+    };
+    const current = await transaction.query<CurrentRevisionRow>(
+      `SELECT ${SOURCE_RECORD_COLUMNS},
+              artifact_id = $3 AS artifact_matches,
+              entity_type = $4 AS entity_type_matches,
+              raw_payload = $5::jsonb AS raw_payload_matches,
+              normalized_payload IS NOT DISTINCT FROM $6::jsonb AS normalized_payload_matches,
+              extraction_confidence = $7 AS extraction_confidence_matches,
+              extractor_version = $8 AS extractor_version_matches,
+              evidence_fingerprint = $9 AS evidence_fingerprint_matches
+         FROM source_records
+        WHERE source_id = $1 AND source_record_key = $2 AND is_current
+        FOR UPDATE`,
+      [
+        input.source_id,
+        input.source_record_key,
+        input.artifact_id,
+        input.entity_type,
+        json(input.raw_payload),
+        input.normalized_payload === null ? null : json(input.normalized_payload),
+        input.extraction_confidence,
+        input.extractor_version,
+        evidenceFingerprint,
+      ],
+    );
     const existing = current[0];
-    if (existing !== undefined && existing.artifact_id !== input.artifact_id) {
-      // Evidence is append-only. Supersede the logical record's active
-      // revision, then write a fresh current revision whose evidence can only
-      // cite this acquisition's immutable artifact.
-      await driver.query(
+    if (existing === undefined) {
+      return this.#insertSourceRecord(input, transaction, 'FINALIZED', evidenceFingerprint);
+    }
+    const extractionMatches =
+      existing.artifact_matches &&
+      existing.entity_type_matches &&
+      existing.raw_payload_matches &&
+      existing.extraction_confidence_matches &&
+      existing.extractor_version_matches;
+    if (extractionMatches && existing.normalized_payload_matches && existing.evidence_fingerprint_matches) {
+      // A repeat with identical extraction and normalization is a true no-op,
+      // including updated_at. Replaying evidence stays harmlessly idempotent.
+      return mapSourceRecord(existing);
+    }
+    if (existing.revision_state === 'PROVISIONAL' && extractionMatches) {
+      // EXTRACTED creates the one explicitly provisional row. Its matching
+      // NORMALIZED completion may fill the payload in place before any evidence
+      // is legal; all other changes create a fresh immutable revision.
+      const finalized = await transaction.query(
+        `UPDATE source_records
+            SET normalized_payload = $2::jsonb, evidence_fingerprint = $3,
+                revision_state = 'FINALIZED', updated_at = now()
+          WHERE id = $1 AND revision_state = 'PROVISIONAL'
+          RETURNING ${SOURCE_RECORD_COLUMNS}`,
+        [
+          existing.id,
+          input.normalized_payload === null ? null : json(input.normalized_payload),
+          evidenceFingerprint,
+        ],
+      );
+      return mapSourceRecord(requireRow(finalized, 'source_records'));
+    }
+
+    // Evidence-bearing revisions are immutable. Retire the current revision,
+    // insert its successor, and record the one-way reconciliation edge inside
+    // the same pinned transaction.
+    await transaction.query(
         `UPDATE source_records SET is_current = FALSE, updated_at = now()
           WHERE id = $1 AND is_current`,
-        [existing.id],
-      );
-      const replacement = await this.recordSourceRecord(input, driver);
-      await driver.query(
-        `INSERT INTO source_record_reconciliations
-           (superseded_source_record_id, replacement_source_record_id)
-         VALUES ($1, $2)`,
-        [existing.id, replacement.id],
-      );
-      return replacement;
-    }
-    return this.recordSourceRecord(input, driver);
+      [existing.id],
+    );
+    const replacement = await this.#insertSourceRecord(input, transaction, 'FINALIZED', evidenceFingerprint);
+    await transaction.query(
+      `INSERT INTO source_record_reconciliations
+         (superseded_source_record_id, replacement_source_record_id)
+       VALUES ($1, $2)`,
+      [existing.id, replacement.id],
+    );
+    return replacement;
   }
 
   /* ---------------- entities & aliases ---------------- */

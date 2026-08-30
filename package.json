@@ -27,6 +27,7 @@
     "acquisition:compile": "tsx tooling/scripts/compile-acquisition-runtime.ts",
     "acquisition:check": "tsx tooling/scripts/compile-acquisition-runtime.ts --check",
     "acquisition:postgres:check": "tsx tooling/scripts/check-scheduled-acquisition-postgres.ts",
+    "source-records:postgres:check": "tsx tooling/scripts/check-source-record-reconciliation-postgres.ts",
     "mcp:compile": "tsx tooling/scripts/compile-mcp-runtime.ts",
     "mcp:compile:check": "tsx tooling/scripts/compile-mcp-runtime.ts --check",
     "cloudflare:topology:check": "tsx tooling/scripts/check-cloudflare-topology.ts",

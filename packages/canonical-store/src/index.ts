@@ -37,6 +37,7 @@ export {
   type PgliteDriverOptions,
   type SqlDriver,
   type SqlExecutor,
+  type SqlTransactionExecutor,
   type SqlParam,
   type SqlRow,
 } from './sql-driver.js';

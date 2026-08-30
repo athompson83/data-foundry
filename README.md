@@ -247,10 +247,12 @@ MCP tool definitions, the Phase 2 Python/Splink work, and external dataset users
   schema match their sources
 - `pnpm openapi:check` — generated direct/RapidAPI OpenAPI contracts match the
   canonical REST route and access-channel contract
-- `pnpm cloudflare:topology:check` — all five Worker manifests preserve the
-  Queue, Cron, R2, Hyperdrive, route, and secret-free topology contract
-- `pnpm cloudflare:deployment:check` — validates the five ignored exact-deployment
-  manifests before a dry run or deploy; it emits no deployment values on success
+- `pnpm cloudflare:topology:check` — CI runs this repository-only check over all
+  five tracked Worker templates, preserving the Queue, Cron, R2, Hyperdrive,
+  route, and secret-free topology contract
+- `pnpm cloudflare:deployment:check` — an operator pre-deploy command that
+  validates the five ignored exact-deployment manifests before a dry run or
+  deploy; CI intentionally has no such production manifests and does not run it
 - `pnpm verticals:validate` — vertical configs are well-formed and every source
    declaration carries complete rights metadata
 - `pnpm verticals:compile:check` — the edge runtime artifact matches the
@@ -264,7 +266,9 @@ MCP tool definitions, the Phase 2 Python/Splink work, and external dataset users
 - `pnpm cloudflare:artifacts:check` — all five Worker bundles build without
    credentials and contain no local PGlite/WASM runtime
 - A second job applies the identical migrations to a real `postgres:16` service,
-   which is what keeps "portable Postgres" honest rather than aspirational
+  then runs the concurrent source-record reconciliation regression, which keeps
+  portable SQL and advisory-lock provenance behavior honest rather than
+  aspirational
 
 ## Adding a real source
 

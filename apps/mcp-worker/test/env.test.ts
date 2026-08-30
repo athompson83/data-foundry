@@ -101,8 +101,11 @@ describe('MCP Worker environment', () => {
 
   it.each([
     ['MCP hostname', { MCP_HOSTNAME: 'localhost' }],
+    ['canonical MCP hostname', { MCP_HOSTNAME: 'localhost.' }],
     ['allowed origin', { MCP_ALLOWED_ORIGINS: 'https://127.0.0.1' }],
+    ['canonical allowed origin', { MCP_ALLOWED_ORIGINS: 'https://localhost.' }],
     ['public origin', { PUBLIC_ORIGIN: 'https://[::1]' }],
+    ['canonical public origin', { PUBLIC_ORIGIN: 'https://localhost.' }],
   ] as const)('refuses a loopback production %s', (_label, override) => {
     expect(() =>
       resolveMcpWorkerConfig({
