@@ -288,12 +288,19 @@ async function assertLeaseRecoveryAndFencing(
     retryAt: acquired.run.claimLeaseExpiresAt,
   });
   assert.equal(JSON.stringify(repeated).includes(acquired.run.claimToken), false);
-  const exposedUuidValues = Object.values(repeated.run).filter(
-    (value): value is string =>
-      typeof value === 'string' &&
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value),
-  );
-  assert.deepEqual(exposedUuidValues, [acquired.run.id]);
+  const recovered = await scheduler.get(repeated.run.id);
+  assert.ok(recovered);
+  assert.equal(Object.hasOwn(recovered, 'claimToken'), false);
+  assert.equal(JSON.stringify(recovered).includes(acquired.run.claimToken), false);
+  const exposedUuidValues = [
+    ...new Set(
+      JSON.stringify([repeated.run, recovered]).match(
+        /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/gi,
+      ) ?? [],
+    ),
+  ];
+  assert.ok(exposedUuidValues.includes(acquired.run.id));
+  assert.equal(exposedUuidValues.includes(acquired.run.claimToken), false);
   const attemptedAt = await observedDatabaseTime(driver);
   for (const exposedValue of exposedUuidValues) {
     await assert.rejects(
@@ -565,6 +572,10 @@ async function assertAtomicTerminalPersistence(
   });
   assert.equal(completed.status, 'SUCCEEDED');
   assert.equal(completed.artifactCount, 1);
+  const latest = await scheduler.latestSuccess(successfulRun);
+  assert.ok(latest);
+  assert.equal(Object.hasOwn(latest, 'claimToken'), false);
+  assert.equal(JSON.stringify(latest).includes(successfulRun.claimToken), false);
   assert.equal(
     await scheduler.latestSuccessAt(successfulRun),
     successfulFreshAt,

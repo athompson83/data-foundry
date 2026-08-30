@@ -163,6 +163,9 @@ export interface ScheduledAcquisitionRun {
   readonly rightsScopeDigest: string;
 }
 
+/** Diagnostic run state that cannot authorize mutation of the acquisition ledger. */
+export type ScheduledAcquisitionRunObservation = Omit<ScheduledAcquisitionRun, 'claimToken'>;
+
 export interface ScheduledAcquisitionClaim {
   readonly idempotencyKey: string;
   readonly verticalSlug: string;
@@ -276,8 +279,10 @@ export interface ScheduledAcquisitionStore {
   assertLease(runId: string, claimToken: string): Promise<void>;
   complete(input: ScheduledAcquisitionCompletion): Promise<ScheduledAcquisitionRun>;
   fail(input: ScheduledAcquisitionFailure): Promise<ScheduledAcquisitionRun>;
-  get(runId: string): Promise<ScheduledAcquisitionRun | null>;
-  latestSuccess(scope: ScheduledAcquisitionFreshnessScope): Promise<ScheduledAcquisitionRun | null>;
+  get(runId: string): Promise<ScheduledAcquisitionRunObservation | null>;
+  latestSuccess(
+    scope: ScheduledAcquisitionFreshnessScope,
+  ): Promise<ScheduledAcquisitionRunObservation | null>;
   latestSuccessAt(scope: ScheduledAcquisitionFreshnessScope): Promise<IsoDateTime | null>;
 }
 
@@ -834,6 +839,11 @@ function observeClaim(run: ScheduledAcquisitionRun): ScheduledAcquisitionClaimOb
   };
 }
 
+function observeRun(run: ScheduledAcquisitionRun): ScheduledAcquisitionRunObservation {
+  const { claimToken: _claimToken, ...observation } = run;
+  return observation;
+}
+
 async function persistArtifact(tx: SqlExecutor, input: SourceArtifactInsert): Promise<SourceArtifact> {
   const rows = await tx.query(
     `INSERT INTO source_artifacts (source_id, url, retrieved_at, content_hash, mime_type, r2_uri,
@@ -1248,12 +1258,14 @@ class PostgresScheduledAcquisitionStore implements ScheduledAcquisitionStore {
     });
   }
 
-  async get(runId: string): Promise<ScheduledAcquisitionRun | null> {
+  async get(runId: string): Promise<ScheduledAcquisitionRunObservation | null> {
     const rows = await this.driver.query(`SELECT ${RUN_COLUMNS} FROM scheduled_acquisition_runs WHERE id = $1`, [runId]);
-    return rows[0] === undefined ? null : mapRun(rows[0]);
+    return rows[0] === undefined ? null : observeRun(mapRun(rows[0]));
   }
 
-  async latestSuccess(scope: ScheduledAcquisitionFreshnessScope): Promise<ScheduledAcquisitionRun | null> {
+  async latestSuccess(
+    scope: ScheduledAcquisitionFreshnessScope,
+  ): Promise<ScheduledAcquisitionRunObservation | null> {
     const rows = await this.driver.query(
       `SELECT ${RUN_COLUMNS} FROM scheduled_acquisition_runs
         WHERE source_id = $1 AND target_id = $2 AND target_url = $3
@@ -1272,7 +1284,7 @@ class PostgresScheduledAcquisitionStore implements ScheduledAcquisitionStore {
         JSON.stringify(parseResultUrlPolicy(scope.resultUrlPolicy, scope.targetUrl)),
       ],
     );
-    return rows[0] === undefined ? null : mapRun(rows[0]);
+    return rows[0] === undefined ? null : observeRun(mapRun(rows[0]));
   }
 
   async latestSuccessAt(scope: ScheduledAcquisitionFreshnessScope): Promise<IsoDateTime | null> {

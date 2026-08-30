@@ -164,6 +164,7 @@ export {
   type ScheduledAcquisitionResultUrlPolicy,
   type ScheduledAcquisitionStatus,
   type ScheduledAcquisitionStore,
+  type ScheduledAcquisitionRunObservation,
   type ScheduledAcquisitionValidators,
   type ScheduledRightsDecisionReceipt,
   type ScheduledRightsOperation,

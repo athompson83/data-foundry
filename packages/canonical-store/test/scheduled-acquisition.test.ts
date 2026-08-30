@@ -319,6 +319,64 @@ describe('scheduled acquisition claims', () => {
     expect(JSON.stringify(terminal)).not.toContain(owner.run.claimToken);
   });
 
+  it('does not let an active non-winner recover the ownership capability through get', async () => {
+    const input = claim('2026-08-28T17:03:00.000Z', {
+      idempotencyKey: 'redacted-get-non-winner',
+      targetId: 'redacted-get-non-winner',
+    });
+    const owner = await scheduler.acquire(input);
+    if (owner.disposition !== 'ACQUIRED') throw new Error('fixture claim owner was not acquired');
+    const active = await scheduler.acquire(input);
+    if (active.disposition !== 'ACTIVE') throw new Error('fixture claim loser was not active');
+
+    const observed = await scheduler.get(active.run.id);
+    expect(observed).not.toBeNull();
+    expect(observed).not.toHaveProperty('claimToken');
+    expect(JSON.stringify(observed)).not.toContain(owner.run.claimToken);
+
+    const exposedUuidValues = [
+      ...new Set(
+        JSON.stringify(observed).match(
+          /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/gi,
+        ) ?? [],
+      ),
+    ];
+    expect(exposedUuidValues).toContain(owner.run.id);
+    expect(exposedUuidValues).not.toContain(owner.run.claimToken);
+    const attemptedAt = runAt(owner.run, 1_000);
+    for (const exposedValue of exposedUuidValues) {
+      await expect(scheduler.assertLease(owner.run.id, exposedValue)).rejects.toThrow(
+        /current unexpired claim owner/i,
+      );
+      await expect(scheduler.release({
+        runId: owner.run.id,
+        claimToken: exposedValue,
+        reason: 'UNEXPECTED_ERROR',
+      })).resolves.toBeNull();
+      await expect(scheduler.fail({
+        runId: owner.run.id,
+        claimToken: exposedValue,
+        status: 'FAILED',
+        outcome: null,
+        failureCode: 'INTERNAL_ERROR',
+        completedAt: attemptedAt,
+        rightsReceipt: [],
+      })).rejects.toThrow(/current unexpired claim owner/i);
+      await expect(scheduler.complete({
+        runId: owner.run.id,
+        claimToken: exposedValue,
+        outcome: 'NOT_MODIFIED',
+        completedAt: attemptedAt,
+        freshAt: attemptedAt,
+        provider: 'http',
+        validators: { etag: '"redacted-get-control"' },
+        rightsReceipt: [],
+        artifacts: [],
+      })).rejects.toThrow(/current unexpired claim owner/i);
+    }
+    await expect(scheduler.assertLease(owner.run.id, owner.run.claimToken)).resolves.toBeUndefined();
+  });
+
   it('fences an active claim, atomically reclaims it after expiry, and rejects the stale owner', async () => {
     const input = claim('2026-08-28T17:05:00.000Z', {
       idempotencyKey: 'lease-recovery',
@@ -814,6 +872,10 @@ describe('terminal outcomes and freshness', () => {
       expectedArtifactCount: 2,
       artifactCount: 2,
     });
+    const latest = await scheduler.latestSuccess(run!);
+    expect(latest).not.toBeNull();
+    expect(latest).not.toHaveProperty('claimToken');
+    expect(JSON.stringify(latest)).not.toContain(run!.claimToken);
     expect(await scheduler.latestSuccessAt(run!)).toBe(terminalTimes(run!).freshAt);
     expect(
       Number((await fixtures.driver.query<{ count: number }>(

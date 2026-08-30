@@ -23,6 +23,7 @@ import {
   type ScheduledAcquisitionFreshnessScope,
   type ScheduledAcquisitionProvider,
   type ScheduledAcquisitionRun,
+  type ScheduledAcquisitionRunObservation,
   type ScheduledAcquisitionValidators,
   type ScheduledRightsReceipt,
   type SqlDriver,
@@ -87,7 +88,7 @@ interface AdmittedClaim {
   readonly run: ScheduledAcquisitionRun;
   readonly capability: StoredAcquisitionCapability;
   readonly initialReceipt: ScheduledRightsReceipt;
-  readonly latest: ScheduledAcquisitionRun | null;
+  readonly latest: ScheduledAcquisitionRunObservation | null;
 }
 
 const asProvider = (id: string): ScheduledAcquisitionProvider | null =>
