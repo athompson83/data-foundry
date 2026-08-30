@@ -261,6 +261,27 @@ function checkDeploymentWorker(label: string, config: TomlObject, errors: string
   checkPlaintextProtectedVars(label, config, errors);
 }
 
+function deploymentAccountId(label: string, config: TomlObject, errors: string[]): string | null {
+  const value = config['account_id'];
+  if (typeof value !== 'string' || !/^[0-9a-f]{32}$/i.test(value)) {
+    errors.push(`${label} deployment manifest must declare a 32-hex account_id.`);
+    return null;
+  }
+  return value.toLowerCase();
+}
+
+function checkDeploymentAccountIds(
+  manifests: readonly (readonly [label: string, config: TomlObject])[],
+  errors: string[],
+): void {
+  const accountIds = manifests
+    .map(([label, config]) => deploymentAccountId(label, config, errors))
+    .filter((value): value is string => value !== null);
+  if (new Set(accountIds).size > 1) {
+    errors.push('Cloudflare deployment manifests must target one canonical account_id.');
+  }
+}
+
 function checkDeploymentEndpoints(
   edge: TomlObject,
   web: TomlObject,
@@ -353,6 +374,13 @@ export async function validateCloudflareTopology(
     checkDeploymentWorker('web', web, errors);
     checkDeploymentWorker('acquisition-worker', acquisition, errors);
     checkDeploymentWorker('mcp-worker', mcp, errors);
+    checkDeploymentAccountIds([
+      ['edge', edge],
+      ['usage-consumer', consumer],
+      ['web', web],
+      ['acquisition-worker', acquisition],
+      ['mcp-worker', mcp],
+    ], errors);
     checkDeploymentEndpoints(edge, web, mcp, errors);
   }
 

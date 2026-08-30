@@ -49,7 +49,10 @@ async function writeDeploymentManifests(directory: string): Promise<{
   readonly acquisitionConfigPath: string;
   readonly mcpConfigPath: string;
 }> {
+  const accountId = '00000000000000000000000000000000';
   const binding = '\n[[hyperdrive]]\nbinding = "HYPERDRIVE"\nid = "00000000000000000000000000000000"\n';
+  const withAccountId = (manifest: string): string =>
+    manifest.replace(/^name\s*=\s*[^\n]+/m, (name) => `${name}\naccount_id = "${accountId}"`);
   const withTopLevelRoute = (manifest: string, route: string): string =>
     manifest.replace(/^name\s*=\s*[^\n]+/m, (name) => `${name}\nroute = "${route}"`);
   const edgeConfigPath = join(directory, 'edge.toml');
@@ -57,17 +60,21 @@ async function writeDeploymentManifests(directory: string): Promise<{
   const webConfigPath = join(directory, 'web.toml');
   const acquisitionConfigPath = join(directory, 'acquisition.toml');
   const mcpConfigPath = join(directory, 'mcp.toml');
-  const edge = `${withTopLevelRoute(await readFile(EDGE_CONFIG, 'utf8'), 'edge.example.invalid/*')}${binding}`;
-  const consumer = `${await readFile(CONSUMER_CONFIG, 'utf8')}${binding}`;
-  const web = `${(await readFile(WEB_CONFIG, 'utf8')).replace(
+  const edge = `${withAccountId(
+    withTopLevelRoute(await readFile(EDGE_CONFIG, 'utf8'), 'edge.example.invalid/*'),
+  )}${binding}`;
+  const consumer = `${withAccountId(await readFile(CONSUMER_CONFIG, 'utf8'))}${binding}`;
+  const web = `${withAccountId((await readFile(WEB_CONFIG, 'utf8')).replace(
     'DEPLOYMENT_ENVIRONMENT = "production"',
     'DEPLOYMENT_ENVIRONMENT = "production"\nPUBLIC_ORIGIN = "https://web.example.invalid"',
+  ))}${binding}`;
+  const acquisition = `${withAccountId(
+    await readFile(ACQUISITION_CONFIG, 'utf8'),
   )}${binding}`;
-  const acquisition = `${await readFile(ACQUISITION_CONFIG, 'utf8')}${binding}`;
-  const mcp = `${(await readFile(MCP_CONFIG, 'utf8')).replace(
+  const mcp = `${withAccountId((await readFile(MCP_CONFIG, 'utf8')).replace(
     'API_KEY_ENVIRONMENT = "live"',
     'API_KEY_ENVIRONMENT = "live"\nMCP_HOSTNAME = "mcp.example.invalid"\nMCP_ALLOWED_ORIGINS = "https://client.example.invalid"\nPUBLIC_ORIGIN = "https://web.example.invalid"',
-  )}${binding}`;
+  ))}${binding}`;
   const webWithRoute = `${withTopLevelRoute(web, 'web.example.invalid/*')}`;
   const mcpWithRoute = `${withTopLevelRoute(mcp, 'mcp.example.invalid/*')}`;
   await Promise.all([
@@ -208,6 +215,45 @@ describe('the committed Cloudflare topology', () => {
     expect(await validate({ mode: 'deployment', ...paths })).toEqual([]);
   });
 
+  it('requires one well-formed canonical account id across every deployment manifest', async () => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-cloudflare-account-id-'));
+    temporaryDirectories.push(directory);
+    const paths = await writeDeploymentManifests(directory);
+
+    await writeFile(
+      paths.consumerConfigPath,
+      (await readFile(paths.consumerConfigPath, 'utf8')).replace(
+        'account_id = "00000000000000000000000000000000"\n',
+        '',
+      ),
+      'utf8',
+    );
+    await writeFile(
+      paths.webConfigPath,
+      (await readFile(paths.webConfigPath, 'utf8')).replace(
+        'account_id = "00000000000000000000000000000000"',
+        'account_id = "not-an-account-id"',
+      ),
+      'utf8',
+    );
+    await writeFile(
+      paths.mcpConfigPath,
+      (await readFile(paths.mcpConfigPath, 'utf8')).replace(
+        'account_id = "00000000000000000000000000000000"',
+        'account_id = "11111111111111111111111111111111"',
+      ),
+      'utf8',
+    );
+
+    const errors = await validate({ mode: 'deployment', ...paths });
+    expect(errors.join('\n')).toMatch(/usage-consumer.*32-hex account_id/i);
+    expect(errors.join('\n')).toMatch(/web.*32-hex account_id/i);
+    expect(errors.join('\n')).toMatch(/one canonical account_id/i);
+    expect(errors.join('\n')).not.toContain('11111111111111111111111111111111');
+    expect(errors.join('\n')).not.toContain('not-an-account-id');
+  });
+
   it('rejects canonical loopback aliases in ignored deployment endpoints', async () => {
     const validate = await loadValidator();
     const directory = await mkdtemp(join(tmpdir(), 'data-foundry-cloudflare-loopback-alias-'));
@@ -333,8 +379,8 @@ describe('the committed Cloudflare topology', () => {
     await writeFile(
       paths.edgeConfigPath,
       (await readFile(paths.edgeConfigPath, 'utf8')).replace(
-        'id = "00000000000000000000000000000000"',
-        'id = "00000000000000000000000000000000"\nroute = "nested.example.invalid/*"',
+        'binding = "HYPERDRIVE"\nid = "00000000000000000000000000000000"',
+        'binding = "HYPERDRIVE"\nid = "00000000000000000000000000000000"\nroute = "nested.example.invalid/*"',
       ),
       'utf8',
     );
