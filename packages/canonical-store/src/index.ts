@@ -44,6 +44,7 @@ export {
 
 export {
   ALIAS_COLUMNS,
+  ALIAS_CLAIM_COLUMNS,
   ARTIFACT_COLUMNS,
   ENTITY_COLUMNS,
   FACT_COLUMNS,
@@ -57,6 +58,7 @@ export {
   mapDatasetSnapshot,
   mapEntity,
   mapEntityAlias,
+  mapEntityAliasClaim,
   mapEntityRedirect,
   mapFact,
   mapFactEvidence,
@@ -126,6 +128,8 @@ export {
   type MergeEntitiesInput,
   type NonEmptyArray,
   type RedirectResolution,
+  type SourceAliasClaimInput,
+  type SourceAliasInsert,
   type RelationshipClaimInput,
   type RelationshipEvidenceInput,
   type RelationshipWriteOutcome,

@@ -319,6 +319,7 @@ export const EXPECTED_TABLES = [
   'source_record_reconciliations',
   'entities',
   'entity_aliases',
+  'entity_alias_claims',
   'entity_redirects',
   'facts',
   'fact_evidence',

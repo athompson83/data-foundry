@@ -286,6 +286,59 @@ describe('migration runner', () => {
     }
   }, 120_000);
 
+  it('backfills only unambiguous curated alias claims and leaves legacy source aliases quarantined', async () => {
+    const upgrade = await createPGliteDriver();
+    try {
+      await applyMigrations(upgrade, migrations.filter((migration) => migration.version < '0023'));
+      await seed(upgrade);
+      const curatedAlias = '56565656-5656-4656-8656-565656565656';
+      const legacySourceAlias = '57575757-5757-4757-8757-575757575757';
+      await upgrade.query(
+        `INSERT INTO entity_aliases (
+           id, entity_id, alias_type, alias_value, normalized_value, source_id,
+           identity_confidence, valid_from, valid_to
+         ) VALUES
+           ($1, $3, 'former_name', 'Carrier Corp', 'carrier corp', NULL, 0.9, $4, NULL),
+           ($2, $3, 'model_number', '24ANB7', '24anb7', $5, 0.99, $4, NULL)`,
+        [curatedAlias, legacySourceAlias, ENTITY, TS, SOURCE],
+      );
+
+      const first = await applyMigrations(upgrade, migrations);
+      expect(first.find((migration) => migration.version === '0023')?.skipped).toBe(false);
+
+      const claims = await upgrade.query<{
+        entity_alias_id: string;
+        asserted_alias_value: string;
+        identity_confidence: number;
+        claim_kind: string;
+        source_record_id: string | null;
+      }>(
+        `SELECT entity_alias_id, asserted_alias_value, identity_confidence,
+                claim_kind, source_record_id
+           FROM entity_alias_claims
+          ORDER BY entity_alias_id`,
+      );
+      expect(claims).toEqual([{
+        entity_alias_id: curatedAlias,
+        asserted_alias_value: 'Carrier Corp',
+        identity_confidence: 0.9,
+        claim_kind: 'CURATED',
+        source_record_id: null,
+      }]);
+
+      const current = await upgrade.query<{ id: string }>(
+        `SELECT id FROM current_entity_aliases ORDER BY id`,
+      );
+      expect(current.map((alias) => alias.id)).toEqual([curatedAlias]);
+
+      const second = await applyMigrations(upgrade, migrations);
+      expect(second.every((migration) => migration.skipped)).toBe(true);
+      expect(await upgrade.query(`SELECT id FROM entity_alias_claims`)).toHaveLength(1);
+    } finally {
+      await upgrade.close();
+    }
+  }, 120_000);
+
   it('refuses to run when an applied migration has been edited', async () => {
     const tampered = migrations.map((migration, index) =>
       index === 0 ? { ...migration, checksum: 'f'.repeat(64) } : migration,

@@ -16,6 +16,7 @@ import {
   DatasetSnapshotSchema,
   FactVerificationSchema,
   EntityAliasSchema,
+  EntityAliasClaimSchema,
   EntityRedirectSchema,
   EntitySchema,
   FactEvidenceSchema,
@@ -30,6 +31,7 @@ import {
   type FactVerification,
   type Entity,
   type EntityAlias,
+  type EntityAliasClaim,
   type EntityRedirect,
   type Fact,
   type FactEvidence,
@@ -205,6 +207,21 @@ export function mapEntityAlias(row: SqlRow): EntityAlias {
   });
 }
 
+export function mapEntityAliasClaim(row: SqlRow): EntityAliasClaim {
+  return EntityAliasClaimSchema.parse({
+    id: field(row, 'id'),
+    entity_alias_id: field(row, 'entity_alias_id'),
+    asserted_alias_value: field(row, 'asserted_alias_value'),
+    identity_confidence: toNumber(field(row, 'identity_confidence')),
+    claim_kind: field(row, 'claim_kind'),
+    source_record_id: field(row, 'source_record_id') ?? null,
+    locator_type: field(row, 'locator_type') ?? null,
+    locator_value: field(row, 'locator_value') ?? null,
+    valid_to: toIsoOrNull(field(row, 'valid_to')),
+    created_at: toIso(field(row, 'created_at')),
+  });
+}
+
 export function mapEntityRedirect(row: SqlRow): EntityRedirect {
   return EntityRedirectSchema.parse({
     id: field(row, 'id'),
@@ -348,6 +365,10 @@ export const RELATIONSHIP_EVIDENCE_COLUMNS =
 export const ALIAS_COLUMNS =
   'id, entity_id, alias_type, alias_value, normalized_value, source_id, identity_confidence, ' +
   'valid_from, valid_to, created_at';
+
+export const ALIAS_CLAIM_COLUMNS =
+  'id, entity_alias_id, asserted_alias_value, identity_confidence, claim_kind, source_record_id, ' +
+  'locator_type, locator_value, valid_to, created_at';
 
 export const SOURCE_COLUMNS =
   'id, vertical_id, publisher, domain, source_type, authority_rank, rights_classification, ' +

@@ -13,6 +13,10 @@
       "file": "entities.schema.json"
     },
     {
+      "name": "entity_alias_claims",
+      "file": "entity_alias_claims.schema.json"
+    },
+    {
       "name": "entity_aliases",
       "file": "entity_aliases.schema.json"
     },

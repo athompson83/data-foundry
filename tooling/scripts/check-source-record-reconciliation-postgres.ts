@@ -174,6 +174,24 @@ export async function run(
       locator_value: '/products/0',
       observed_at: '2026-08-30T00:00:00.000Z' as never,
     });
+    const trackedAlias = await primary.stageSourceAlias({
+      entity_id: entity.id,
+      alias_type: 'external_id' as never,
+      alias_value: `PG-ALIAS-${suffix}`,
+      normalized_value: `pg-alias-${suffix}`,
+      source_id: source.id,
+      identity_confidence: 1 as never,
+      valid_from: '2026-08-30T00:00:00.000Z' as never,
+      valid_to: null,
+    });
+    await primary.recordSourceAliasClaim({
+      entity_alias_id: trackedAlias.id,
+      asserted_alias_value: `PG-ALIAS-${suffix}`,
+      identity_confidence: 1 as never,
+      source_record_id: initial.id,
+      locator_type: 'JSON_POINTER',
+      locator_value: '/products/0/model',
+    });
 
     const firstReady = deferred<void>();
     const releaseFirst = deferred<void>();
@@ -196,6 +214,14 @@ export async function run(
         locator_type: 'JSON_POINTER',
         locator_value: '/products/0',
         observed_at: '2026-08-30T00:00:00.000Z' as never,
+      }, tx);
+      await first.recordSourceAliasClaim({
+        entity_alias_id: trackedAlias.id,
+        asserted_alias_value: `PG-ALIAS-${suffix}`,
+        identity_confidence: 1 as never,
+        source_record_id: revision.id,
+        locator_type: 'JSON_POINTER',
+        locator_value: '/products/0/model',
       }, tx);
       firstReady.resolve();
       await releaseFirst.promise;
@@ -223,11 +249,44 @@ export async function run(
         locator_value: '/products/0',
         observed_at: '2026-08-30T00:00:00.000Z' as never,
       }, tx);
+      await second.recordSourceAliasClaim({
+        entity_alias_id: trackedAlias.id,
+        asserted_alias_value: `PG-ALIAS-${suffix}`,
+        identity_confidence: 1 as never,
+        source_record_id: revision.id,
+        locator_type: 'JSON_POINTER',
+        locator_value: '/products/0/model',
+      }, tx);
       return revision;
     });
     await waitForAdvisoryLockWait(monitor);
     releaseFirst.resolve();
     const [firstRevision, secondRevision] = await Promise.all([firstTransaction, secondTransaction]);
+
+    // Two independent clients racing the same natural claim key must converge
+    // on one immutable row rather than producing duplicates or rewriting it.
+    const racedAlias = await primary.stageSourceAlias({
+      entity_id: entity.id,
+      alias_type: 'external_id' as never,
+      alias_value: `PG-RACED-${suffix}`,
+      normalized_value: `pg-raced-${suffix}`,
+      source_id: source.id,
+      identity_confidence: 1 as never,
+      valid_from: '2026-08-30T00:00:00.000Z' as never,
+      valid_to: null,
+    });
+    const raceInput = {
+      entity_alias_id: racedAlias.id,
+      asserted_alias_value: `PG-RACED-${suffix}`,
+      identity_confidence: 1 as never,
+      source_record_id: secondRevision.id,
+      locator_type: 'JSON_POINTER' as const,
+      locator_value: '/products/0/model',
+    };
+    const [firstClaim, secondClaim] = await Promise.all([
+      first.recordSourceAliasClaim(raceInput),
+      second.recordSourceAliasClaim(raceInput),
+    ]);
 
     const revisions = await primaryDriver.query<{
       id: string;
@@ -263,6 +322,20 @@ export async function run(
         WHERE record.source_id = $1 AND record.source_record_key = $2`,
       [source.id, key],
     );
+    const aliasClaims = await primaryDriver.query<{
+      entity_alias_id: string;
+      source_record_id: string;
+    }>(
+      `SELECT entity_alias_id, source_record_id
+         FROM entity_alias_claims
+        WHERE entity_alias_id IN ($1, $2)
+        ORDER BY entity_alias_id, created_at, id`,
+      [trackedAlias.id, racedAlias.id],
+    );
+    const currentAliases = await primaryDriver.query<{ id: string }>(
+      `SELECT id FROM current_entity_aliases WHERE id IN ($1, $2) ORDER BY id`,
+      [trackedAlias.id, racedAlias.id],
+    );
 
     assert.equal(revisions.length, 3, 'two concurrent replacements must retain the initial and both immutable successors');
     assert.equal(revisions.filter((row) => row.is_current).length, 1, 'exactly one revision must remain current');
@@ -274,8 +347,24 @@ export async function run(
     ]);
     assert.equal(evidence.length, 3, 'each immutable revision must retain its own evidence');
     assert.ok(evidence.every((row) => row.artifact_id === row.expected_artifact_id));
+    assert.equal(firstClaim.id, secondClaim.id, 'concurrent retries must return one natural claim row');
+    assert.equal(
+      aliasClaims.filter((claim) => claim.entity_alias_id === trackedAlias.id).length,
+      3,
+      'each immutable source-record revision must retain its own alias claim',
+    );
+    assert.equal(
+      aliasClaims.filter((claim) => claim.entity_alias_id === racedAlias.id).length,
+      1,
+      'the concurrent natural-key retry must insert exactly one claim',
+    );
+    assert.deepEqual(
+      currentAliases.map((alias) => alias.id).sort(),
+      [trackedAlias.id, racedAlias.id].sort(),
+      'only claims backed by the surviving current source-record revision should keep aliases current',
+    );
     process.stdout.write(
-      'OK: PostgreSQL serialized two source-record reconciliations and retained one current revision, a complete immutable chain, and artifact-consistent evidence.\n',
+      'OK: PostgreSQL serialized source-record revisions and alias claims, retained one current revision, and converged concurrent claim retries.\n',
     );
     return 0;
   } finally {

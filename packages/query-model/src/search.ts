@@ -5,7 +5,7 @@
  * AGENTS.md rule 7 and doc 02 both say the same thing: **exact identifiers must
  * always win over semantic/fuzzy similarity.** That is implemented here as
  * structure, not as scoring. Two queries run: a deterministic equality probe
- * against `entity_aliases`, `canonical_slug` and `canonical_name`, and a
+ * against `current_entity_aliases`, `canonical_slug` and `canonical_name`, and a
  * ranked text query. Exact hits are placed ahead of every ranked hit before any
  * comparison of scores happens, so a fuzzier candidate that ranks higher
  * textually still cannot displace an exact model-number match.
@@ -177,9 +177,8 @@ export async function lookupExactIdentifier(
     `SELECT ${qualifiedEntityColumns('e')}, m.tier AS tier, m.matched_on AS matched_on
        FROM (
          SELECT a.entity_id AS entity_id, 1 AS tier, a.alias_value AS matched_on
-           FROM entity_aliases a
-          WHERE a.valid_to IS NULL
-            AND (a.normalized_value IN (${aliasList}) OR a.alias_value IN (${aliasList}))
+           FROM current_entity_aliases a
+          WHERE (a.normalized_value IN (${aliasList}) OR a.alias_value IN (${aliasList}))
          UNION ALL
          SELECT es.id, 2, es.canonical_slug
            FROM entities es
@@ -232,9 +231,8 @@ function buildMatchesCte(
     `SELECT a.entity_id,
             ts_rank(to_tsvector('simple', a.alias_value), ${tsq()}) * 0.9,
             1
-       FROM entity_aliases a
-      WHERE a.valid_to IS NULL
-        AND to_tsvector('simple', a.alias_value) @@ ${tsq()}`,
+       FROM current_entity_aliases a
+      WHERE to_tsvector('simple', a.alias_value) @@ ${tsq()}`,
   );
 
   if (trigram) {
@@ -246,9 +244,8 @@ function buildMatchesCte(
     );
     arms.push(
       `SELECT a.entity_id, similarity(a.alias_value, ${params.add(text)}) * 0.7, 2
-         FROM entity_aliases a
-        WHERE a.valid_to IS NULL
-          AND similarity(a.alias_value, ${params.add(text)}) >= ${params.add(threshold)}::real`,
+         FROM current_entity_aliases a
+        WHERE similarity(a.alias_value, ${params.add(text)}) >= ${params.add(threshold)}::real`,
     );
   } else {
     // Portable fallback when pg_trgm is not installed. Coarser, but it keeps
@@ -259,8 +256,8 @@ function buildMatchesCte(
         WHERE lower(e.canonical_name) LIKE ${like} OR e.canonical_slug LIKE ${like}`,
     );
     arms.push(
-      `SELECT a.entity_id, 0.04, 3 FROM entity_aliases a
-        WHERE a.valid_to IS NULL AND lower(a.alias_value) LIKE ${like}`,
+      `SELECT a.entity_id, 0.04, 3 FROM current_entity_aliases a
+        WHERE lower(a.alias_value) LIKE ${like}`,
     );
   }
 

@@ -35,6 +35,8 @@ import {
   type FactVerificationInsert,
   type Entity,
   type EntityAlias,
+  type EntityAliasClaim,
+  type EntityAliasId,
   type EntityAliasInsert,
   type EntityId,
   type EntityInsert,
@@ -50,6 +52,7 @@ import {
   type FactVersionDraft,
   type Identifier,
   type IsoDateTime,
+  type LocatorType,
   type Relationship,
   type RelationshipConfidence,
   type RelationshipEvidence,
@@ -79,6 +82,7 @@ import {
 } from './fact-selection.js';
 import {
   ALIAS_COLUMNS,
+  ALIAS_CLAIM_COLUMNS,
   ARTIFACT_COLUMNS,
   ENTITY_COLUMNS,
   FACT_COLUMNS,
@@ -94,6 +98,7 @@ import {
   FACT_VERIFICATION_COLUMNS,
   mapEntity,
   mapEntityAlias,
+  mapEntityAliasClaim,
   mapEntityRedirect,
   mapFact,
   mapFactEvidence,
@@ -206,6 +211,21 @@ export interface AliasMatch {
   readonly alias: EntityAlias;
 }
 
+/** A source-described alias row. Staging neither activates nor reopens a retired alias. */
+export interface SourceAliasInsert extends Omit<EntityAliasInsert, 'source_id'> {
+  readonly source_id: SourceId;
+}
+
+/** Exact source-record provenance that activates one staged alias. */
+export interface SourceAliasClaimInput {
+  readonly entity_alias_id: EntityAliasId;
+  readonly asserted_alias_value: string;
+  readonly identity_confidence: EntityAlias['identity_confidence'];
+  readonly source_record_id: SourceRecord['id'];
+  readonly locator_type: LocatorType;
+  readonly locator_value: string;
+}
+
 export interface ListFactsOptions {
   readonly property?: Identifier;
   /** Point in time for the validity window. Default: now. */
@@ -272,7 +292,15 @@ export interface CanonicalStore {
     slug: Slug,
   ): Promise<Entity | null>;
 
+  /** Explicit curated assertion and the only API that may globally retire or reopen an alias. */
   addAlias(input: EntityAliasInsert, executor?: SqlExecutor): Promise<EntityAlias>;
+  /** Upsert the shared alias row without granting it current resolution authority. */
+  stageSourceAlias(input: SourceAliasInsert, executor?: SqlExecutor): Promise<EntityAlias>;
+  /** Append exact source-record authority for a staged alias. */
+  recordSourceAliasClaim(
+    input: SourceAliasClaimInput,
+    executor?: SqlExecutor,
+  ): Promise<EntityAliasClaim>;
   listAliases(entityId: EntityId, executor?: SqlExecutor): Promise<EntityAlias[]>;
   lookupByAlias(query: AliasLookupQuery, executor?: SqlExecutor): Promise<AliasMatch[]>;
 
@@ -767,7 +795,75 @@ class PostgresCanonicalStore implements CanonicalStore {
   }
 
   async addAlias(input: EntityAliasInsert, executor?: SqlExecutor): Promise<EntityAlias> {
-    const rows = await (executor ?? this.driver).query(
+    const write = async (writeExecutor: SqlExecutor): Promise<EntityAlias> => {
+      const alias = await this.#upsertAlias(input, writeExecutor, true);
+      await this.#recordCuratedAliasClaim(
+        alias.id,
+        input.alias_value,
+        input.identity_confidence,
+        input.valid_to,
+        writeExecutor,
+      );
+      return alias;
+    };
+    return executor === undefined ? this.driver.transaction(write) : write(executor);
+  }
+
+  async stageSourceAlias(
+    input: SourceAliasInsert,
+    executor?: SqlExecutor,
+  ): Promise<EntityAlias> {
+    return this.#upsertAlias(input, executor ?? this.driver, false);
+  }
+
+  async recordSourceAliasClaim(
+    input: SourceAliasClaimInput,
+    executor?: SqlExecutor,
+  ): Promise<EntityAliasClaim> {
+    const writeExecutor = executor ?? this.driver;
+    const params: readonly SqlParam[] = [
+      input.entity_alias_id,
+      input.source_record_id,
+      input.locator_type,
+      input.locator_value,
+      input.asserted_alias_value,
+      input.identity_confidence,
+    ];
+    const select =
+      `SELECT ${ALIAS_CLAIM_COLUMNS}
+         FROM entity_alias_claims
+        WHERE claim_kind = 'SOURCE_RECORD'
+          AND entity_alias_id = $1
+          AND source_record_id = $2
+          AND locator_type = $3
+          AND locator_value = $4
+          AND asserted_alias_value = $5
+          AND identity_confidence = $6`;
+    const existing = await writeExecutor.query(select, params);
+    if (existing[0] !== undefined) return mapEntityAliasClaim(existing[0]);
+
+    const inserted = await writeExecutor.query(
+      `INSERT INTO entity_alias_claims (
+         entity_alias_id, claim_kind, source_record_id, locator_type, locator_value,
+         asserted_alias_value, identity_confidence, valid_to
+       ) VALUES ($1, 'SOURCE_RECORD', $2, $3, $4, $5, $6, NULL)
+       ON CONFLICT DO NOTHING
+       RETURNING ${ALIAS_CLAIM_COLUMNS}`,
+      params,
+    );
+    if (inserted[0] !== undefined) return mapEntityAliasClaim(inserted[0]);
+    return mapEntityAliasClaim(requireRow(await writeExecutor.query(select, params), 'entity_alias_claims'));
+  }
+
+  async #upsertAlias(
+    input: EntityAliasInsert,
+    executor: SqlExecutor,
+    allowValidityChange: boolean,
+  ): Promise<EntityAlias> {
+    const validityAssignment = allowValidityChange
+      ? 'EXCLUDED.valid_to'
+      : 'entity_aliases.valid_to';
+    const rows = await executor.query(
       `INSERT INTO entity_aliases (entity_id, alias_type, alias_value, normalized_value, source_id,
                                    identity_confidence, valid_from, valid_to)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
@@ -775,7 +871,7 @@ class PostgresCanonicalStore implements CanonicalStore {
          SET alias_value = EXCLUDED.alias_value,
              identity_confidence = GREATEST(entity_aliases.identity_confidence,
                                             EXCLUDED.identity_confidence),
-             valid_to = EXCLUDED.valid_to
+             valid_to = ${validityAssignment}
        RETURNING ${ALIAS_COLUMNS}`,
       [
         input.entity_id,
@@ -791,6 +887,43 @@ class PostgresCanonicalStore implements CanonicalStore {
     return mapEntityAlias(requireRow(rows, 'entity_aliases'));
   }
 
+  async #recordCuratedAliasClaim(
+    aliasId: EntityAliasId,
+    assertedAliasValue: string,
+    identityConfidence: EntityAlias['identity_confidence'],
+    validTo: IsoDateTime | null,
+    executor: SqlExecutor,
+  ): Promise<EntityAliasClaim> {
+    const params: readonly SqlParam[] = [
+      aliasId,
+      assertedAliasValue,
+      identityConfidence,
+      validTo,
+    ];
+    const select =
+      `SELECT ${ALIAS_CLAIM_COLUMNS}
+         FROM entity_alias_claims
+        WHERE claim_kind = 'CURATED'
+          AND entity_alias_id = $1
+          AND asserted_alias_value = $2
+          AND identity_confidence = $3
+          AND valid_to IS NOT DISTINCT FROM $4`;
+    const existing = await executor.query(select, params);
+    if (existing[0] !== undefined) return mapEntityAliasClaim(existing[0]);
+
+    const inserted = await executor.query(
+      `INSERT INTO entity_alias_claims (
+         entity_alias_id, asserted_alias_value, identity_confidence, claim_kind,
+         source_record_id, locator_type, locator_value, valid_to
+       ) VALUES ($1, $2, $3, 'CURATED', NULL, NULL, NULL, $4)
+       ON CONFLICT DO NOTHING
+       RETURNING ${ALIAS_CLAIM_COLUMNS}`,
+      params,
+    );
+    if (inserted[0] !== undefined) return mapEntityAliasClaim(inserted[0]);
+    return mapEntityAliasClaim(requireRow(await executor.query(select, params), 'entity_alias_claims'));
+  }
+
   async listAliases(entityId: EntityId, executor?: SqlExecutor): Promise<EntityAlias[]> {
     const rows = await (executor ?? this.driver).query(
       // `COLLATE "C"` because this order is a decision, not a display: the
@@ -798,7 +931,7 @@ class PostgresCanonicalStore implements CanonicalStore {
       // canonical name. Left to the database's collation, the published name
       // would differ between a `C`-collated PGlite and an `en_US`-collated
       // hosted Postgres (#14).
-      `SELECT ${ALIAS_COLUMNS} FROM entity_aliases WHERE entity_id = $1
+      `SELECT ${ALIAS_COLUMNS} FROM current_entity_aliases WHERE entity_id = $1
         ORDER BY alias_type COLLATE "C", normalized_value COLLATE "C"`,
       [entityId],
     );
@@ -809,13 +942,13 @@ class PostgresCanonicalStore implements CanonicalStore {
     if (query.values.length === 0) return [];
     const params: SqlParam[] = [query.vertical_id, ...query.values];
     const valueList = placeholders(query.values.length, 1);
+    const aliasRelation = query.include_expired === true ? 'entity_aliases' : 'current_entity_aliases';
     let sql =
       `SELECT ${prefix('e', ENTITY_COLUMNS, 'e_')}, ${prefix('a', ALIAS_COLUMNS, 'a_')}
-         FROM entity_aliases a
+         FROM ${aliasRelation} a
          JOIN entities e ON e.id = a.entity_id
         WHERE e.vertical_id = $1
           AND (a.normalized_value IN (${valueList}) OR a.alias_value IN (${valueList}))`;
-    if (query.include_expired !== true) sql += ' AND a.valid_to IS NULL';
     if (query.alias_type !== undefined) {
       params.push(query.alias_type);
       sql += ` AND a.alias_type = $${params.length}`;

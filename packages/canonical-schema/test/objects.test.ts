@@ -16,6 +16,7 @@ describe('canonical object registry', () => {
         'dataset_snapshots',
         'entities',
         'entity_aliases',
+        'entity_alias_claims',
         'entity_redirects',
         'fact_evidence',
         'fact_verifications',

@@ -9,8 +9,9 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { identityConfidence } from '@data-foundry/canonical-schema';
 import { UnknownFieldError, lookupExactIdentifier } from '../src/index.js';
-import { createQueryFixtures, type QueryFixtures } from './support.js';
+import { createQueryFixtures, ts, type QueryFixtures } from './support.js';
 
 let fixtures: QueryFixtures;
 
@@ -62,6 +63,31 @@ describe('exact identifiers beat fuzzy ranking', () => {
       text: 'HK 32EA 001',
     });
     expect(collapsed.map((hit) => hit.entity.id)).toEqual([fixtures.motor.id]);
+  });
+
+  it('excludes an unclaimed source alias from exact, full-text, and fuzzy search', async () => {
+    await fixtures.store.stageSourceAlias({
+      entity_id: fixtures.equipment.id,
+      alias_type: 'external_id',
+      alias_value: 'UNCLAIMED-ZZYX-4471',
+      normalized_value: 'unclaimedzzyx4471',
+      source_id: fixtures.sources.manufacturer.source.id,
+      identity_confidence: identityConfidence(0.99),
+      valid_from: ts('2026-08-30T00:00:00Z'),
+      valid_to: null,
+    });
+
+    const exact = await lookupExactIdentifier(fixtures.driver, fixtures.registry, {
+      vertical_id: fixtures.vertical.id,
+      text: 'UNCLAIMED-ZZYX-4471',
+    });
+    expect(exact).toEqual([]);
+
+    const ranked = await fixtures.qm.search({
+      vertical_id: fixtures.vertical.id,
+      text: 'UNCLAIMED ZZYX',
+    });
+    expect(ranked.hits.map((hit) => hit.entity.id)).not.toContain(fixtures.equipment.id);
   });
 
   it('ranks exact slug and exact name matches ahead of ranked hits too', async () => {
