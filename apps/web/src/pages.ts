@@ -97,7 +97,7 @@ export async function renderParentIndex(deployment: RequestWebDeployment): Promi
   const eligibility = await mapWithConcurrency(
     verticals,
     DEFAULT_CONCURRENCY,
-    verticalPublicationEligibility,
+    (vertical) => verticalPublicationEligibility(vertical),
   );
   const published = verticals
     .map((vertical, index) => ({ vertical, eligibility: eligibility[index] }))

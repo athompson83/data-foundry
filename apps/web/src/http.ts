@@ -62,3 +62,15 @@ export function textResponse(
 export function notFound(html: string): WebResponse {
   return { status: 404, headers: headersFor('text/html; charset=utf-8', NO_STORE), body: html };
 }
+
+/** Opaque, retryable refusal for bounded public work that cannot complete. */
+export function serviceUnavailable(): WebResponse {
+  return {
+    status: 503,
+    headers: {
+      ...headersFor('text/plain; charset=utf-8', NO_STORE),
+      'retry-after': '30',
+    },
+    body: 'Service unavailable.\n',
+  };
+}

@@ -1,7 +1,12 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { entityQualityScore, type Entity } from '@data-foundry/canonical-schema';
 import type { SqlParam, SqlRow } from '@data-foundry/canonical-store';
-import { FieldMetadataRegistry, createQueryModel, type QueryModel } from '../src/index.js';
+import {
+  FieldMetadataRegistry,
+  createQueryModel,
+  type QueryModel,
+  type SurfaceQueryModel,
+} from '../src/index.js';
 import { claim, createFixtures, ts, type Fixtures } from '../../canonical-store/test/support.js';
 
 const AS_OF = ts('2026-08-15T12:00:00.000Z');
@@ -208,6 +213,35 @@ describe('surface-bound query model', () => {
     expect(second).toEqual({ entities: [], next_after_id: null });
   });
 
+  it('ends an exactly full raw entity page without requiring a phantom follow-up scan', async () => {
+    const seeded = await Promise.all(
+      Array.from({ length: 2 }, async (_, index) => {
+        const entity = await fixtures.store.upsertEntity({
+          vertical_id: fixtures.vertical.id,
+          entity_type: 'exact_page_probe',
+          canonical_name: `Exact Page Probe ${index}`,
+          canonical_slug: `exact-page-probe-${index}`,
+          status: 'ACTIVE',
+          quality_score: entityQualityScore(0.7),
+          first_seen_at: ts('2026-01-01T00:00:00Z'),
+          last_verified_at: null,
+        });
+        await addEntityEvidence(entity);
+        return entity;
+      }),
+    );
+
+    const web = queryModel.forSurface('PUBLIC_WEB', { asOf: AS_OF });
+    const page = await web.listEntities({
+      vertical_id: fixtures.vertical.id,
+      entity_type: 'exact_page_probe',
+      limit: seeded.length,
+    });
+
+    expect(page.entities).toHaveLength(2);
+    expect(page.next_after_id).toBeNull();
+  });
+
   it('constrains exact search and facets before values can become an oracle', async () => {
     const web = queryModel.forSurface('PUBLIC_WEB', { asOf: AS_OF });
     const search = await web.search({
@@ -295,6 +329,94 @@ describe('surface-bound query model', () => {
     // `pg` defaults to a ten-connection pool. Leave headroom for other requests
     // and for the two vertical enumeration queries that precede this work.
     expect(active.max).toBeLessThanOrEqual(8);
+  });
+
+  it('does not enqueue one pending authorization waiter for every catalog row', async () => {
+    for (let index = 0; index < 40; index += 1) {
+      const entity = await fixtures.store.upsertEntity({
+        vertical_id: fixtures.vertical.id,
+        entity_type: 'equipment',
+        canonical_name: `Authorization Queue Unit ${String(index).padStart(2, '0')}`,
+        canonical_slug: `authorization-queue-unit-${String(index).padStart(2, '0')}`,
+        status: 'ACTIVE',
+        quality_score: entityQualityScore(0.7),
+        first_seen_at: ts('2026-01-01T00:00:00Z'),
+        last_verified_at: null,
+      });
+      await addEntityEvidence(entity);
+      await claim(fixtures, 'manufacturer', {
+        entity_id: entity.id,
+        property: 'seer2_rating',
+        value: 30 + index,
+        value_type: 'number',
+      });
+    }
+
+    const originalQueryMethod = fixtures.driver.query;
+    const originalQuery = originalQueryMethod.bind(fixtures.driver);
+    let releaseAuthorizations!: () => void;
+    const held = new Promise<void>((resolve) => {
+      releaseAuthorizations = resolve;
+    });
+    let firstWaveReady!: () => void;
+    const firstWave = new Promise<void>((resolve) => {
+      firstWaveReady = resolve;
+    });
+    let heldAuthorizations = 0;
+    let catalogRowReads = 0;
+
+    fixtures.driver.query = (async <R extends SqlRow = SqlRow>(
+      sql: string,
+      params?: readonly SqlParam[],
+    ): Promise<R[]> => {
+      const isAuthorization =
+        sql.includes('FROM entity_evidence ee') ||
+        sql.includes('FROM facts WHERE id = $1');
+      if (isAuthorization) {
+        heldAuthorizations += 1;
+        if (heldAuthorizations === 8) firstWaveReady();
+        await held;
+      }
+
+      const rows = await originalQuery<R>(sql, params);
+      const isCatalog =
+        sql.includes('SELECT id FROM entities') ||
+        sql.includes('SELECT f.id');
+      if (!isCatalog) return rows;
+      return new Proxy(rows, {
+        get(target, property, receiver) {
+          if (typeof property === 'string' && /^(0|[1-9]\d*)$/.test(property)) {
+            catalogRowReads += 1;
+          }
+          return Reflect.get(target, property, receiver);
+        },
+      });
+    }) as typeof fixtures.driver.query;
+
+    let pending: ReturnType<SurfaceQueryModel['search']> | null = null;
+    try {
+      const web = queryModel.forSurface('PUBLIC_WEB', { asOf: AS_OF });
+      pending = web.search({
+        vertical_id: fixtures.vertical.id,
+        entity_type: 'equipment',
+        limit: 1,
+      });
+      await firstWave;
+
+      // Two catalog scans can each own a fixed set of workers, but rows beyond
+      // those workers must remain unread until capacity becomes available.
+      // A rows.map(...limiter.run()) implementation reads every row eagerly
+      // and creates one pending Promise waiter per denied or allowed row.
+      expect(catalogRowReads).toBeLessThanOrEqual(16);
+
+      releaseAuthorizations();
+      const result = await pending;
+      expect(result.hits).toHaveLength(1);
+    } finally {
+      releaseAuthorizations();
+      await pending?.catch(() => undefined);
+      fixtures.driver.query = originalQueryMethod;
+    }
   });
 
   it('selects and explains only over candidates authorized for this surface', async () => {

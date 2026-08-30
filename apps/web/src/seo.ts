@@ -89,6 +89,8 @@ export interface SeoConfig {
   readonly sitemaps: {
     readonly index: string;
     readonly max_urls_per_file: number;
+    /** Shared raw keyset-page ceiling for one sitemap request. */
+    readonly max_scan_pages_per_request: number;
     readonly include_only_indexable?: boolean;
     readonly segments: readonly SitemapSegment[];
   };

@@ -18,6 +18,7 @@ import {
   type QueryFixtures,
 } from '../../../packages/query-model/test/support.js';
 import { getDeployment, resetDeployments, type VerticalDeployment } from '../src/composition.js';
+import { createWebApp } from '../src/app.js';
 import { resolveContext } from '../src/config.js';
 import { sitemapIndexXml, sitemapSegmentXml } from '../src/sitemap.js';
 import { DEFAULT_CONCURRENCY } from '../src/concurrency.js';
@@ -273,6 +274,7 @@ function paginationVertical(
   count: number,
   maxUrlsPerFile: number,
   searchOptions: Parameters<typeof fakeSurfaceModel>[4] = {},
+  maxScanPagesPerRequest = 250,
 ) {
   const entities = Array.from({ length: count }, (_, index) => ({
     ...fixtures.equipment,
@@ -307,6 +309,7 @@ function paginationVertical(
       sitemaps: {
         ...RUNTIMES['hvac']!.seo.sitemaps,
         max_urls_per_file: maxUrlsPerFile,
+        max_scan_pages_per_request: maxScanPagesPerRequest,
         segments: [{ id: 'entities', path: '/sitemaps/entities-{n}.xml' }],
       },
     },
@@ -334,6 +337,182 @@ function paginationVertical(
 }
 
 describe('sitemap pagination and configured file limits', () => {
+  it('rejects the sitemap namespace root before eligibility query work', async () => {
+    const {
+      vertical,
+      publicCalls,
+      indexCalls,
+      publicListCalls,
+      indexListCalls,
+    } = paginationVertical(1, 2, { maxLimit: 1 }, 20);
+    const app = createWebApp({
+      deployment: {
+        publicOrigin: 'https://data-foundry.test',
+        verticals: new Map([['hvac', vertical]]),
+      },
+      now: () => new Date('2026-03-01T00:00:00Z'),
+    });
+
+    const response = await app({ method: 'GET', url: '/data/hvac/sitemaps' });
+
+    expect(response.status).toBe(404);
+    expect([
+      ...publicCalls,
+      ...indexCalls,
+      ...publicListCalls,
+      ...indexListCalls,
+    ]).toEqual([]);
+  });
+
+  it('rejects non-canonical shard decimals at the app route before query work', async () => {
+    const {
+      vertical,
+      publicCalls,
+      indexCalls,
+      publicListCalls,
+      indexListCalls,
+    } = paginationVertical(1, 2, { maxLimit: 1 }, 20);
+    const app = createWebApp({
+      deployment: {
+        publicOrigin: 'https://data-foundry.test',
+        verticals: new Map([['hvac', vertical]]),
+      },
+      now: () => new Date('2026-03-01T00:00:00Z'),
+    });
+    const invalidPaths = [
+      '/data/hvac/sitemaps/entities-01.xml',
+      '/data/hvac/sitemaps/entities-0.xml',
+      '/data/hvac/sitemaps/entities-9007199254740992.xml',
+      `/data/hvac/sitemaps/entities-${'9'.repeat(400)}.xml`,
+    ];
+
+    for (const url of invalidPaths) {
+      const response = await app({ method: 'GET', url });
+      expect(response.status, url).toBe(404);
+    }
+    expect([
+      ...publicCalls,
+      ...indexCalls,
+      ...publicListCalls,
+      ...indexListCalls,
+    ]).toEqual([]);
+
+    const canonical = await app({
+      method: 'GET',
+      url: '/data/hvac/sitemaps/entities-1.xml',
+    });
+    expect(canonical.status).toBe(200);
+    expect(canonical.body).toContain('pagination-model-0');
+    expect(publicListCalls.length).toBeGreaterThan(0);
+  });
+
+  it('refuses a configuration-impossible high shard before any query work starts', async () => {
+    const {
+      vertical,
+      publicCalls,
+      indexCalls,
+      publicListCalls,
+      indexListCalls,
+    } = paginationVertical(10, 2, { maxLimit: 1 }, 2);
+
+    const xml = await sitemapSegmentXml(
+      vertical,
+      'https://data-foundry.test',
+      'entities',
+      new Date('2026-03-01T00:00:00Z'),
+      300,
+    );
+
+    expect(xml).not.toContain('<url>');
+    expect([
+      ...publicCalls,
+      ...indexCalls,
+      ...publicListCalls,
+      ...indexListCalls,
+    ]).toEqual([]);
+  });
+
+  it('shares one deterministic raw-page budget across the whole sitemap-index request', async () => {
+    const first = paginationVertical(1, 2, {}, 3);
+    const second = paginationVertical(1, 2, {}, 3);
+    const staticRuntime = (
+      vertical: VerticalDeployment,
+      slug: string,
+      prefix: string,
+      maxScanPagesPerRequest: number,
+    ): VerticalDeployment => ({
+      ...vertical,
+      slug,
+      runtime: {
+        ...vertical.runtime,
+        vertical_slug: slug,
+        seo: {
+          ...vertical.runtime.seo,
+          url_prefix: prefix,
+          page_classes: [{
+            id: 'docs_api_mcp',
+            route_kind: 'static',
+            path: `${prefix}/docs`,
+            title: 'Docs',
+            structured_data: null,
+            sitemap: 'datasets',
+            indexable: true,
+            quality_gate: 'none',
+          }],
+          quality_gates: { none: {} },
+          sitemaps: {
+            ...vertical.runtime.seo.sitemaps,
+            max_scan_pages_per_request: maxScanPagesPerRequest,
+            segments: [{ id: 'datasets', path: '/sitemaps/datasets.xml' }],
+          },
+        },
+      },
+    });
+    const app = createWebApp({
+      deployment: {
+        publicOrigin: 'https://data-foundry.test',
+        verticals: new Map([
+          ['first', staticRuntime(first.vertical, 'first', '/data/first', 4)],
+          ['second', staticRuntime(second.vertical, 'second', '/data/second', 3)],
+        ]),
+      },
+      now: () => new Date('2026-03-01T00:00:00Z'),
+    });
+
+    const response = await app({ method: 'GET', url: '/sitemap-index.xml' });
+    const rawPageCalls = [
+      ...first.publicListCalls,
+      ...first.indexListCalls,
+      ...second.publicListCalls,
+      ...second.indexListCalls,
+    ];
+
+    expect(response.status).toBe(503);
+    expect(response.headers['cache-control']).toBe('no-store');
+    expect(response.headers['retry-after']).toBe('30');
+    expect(response.body).not.toContain('<?xml');
+    expect(response.body).not.toContain('/data/first');
+    expect(rawPageCalls).toHaveLength(3);
+  });
+
+  it('stops a valid shard as soon as its bounded location window is full', async () => {
+    const { vertical, publicListCalls } = paginationVertical(10, 2, { maxLimit: 1 }, 20);
+
+    const xml = await sitemapSegmentXml(
+      vertical,
+      'https://data-foundry.test',
+      'entities',
+      new Date('2026-03-01T00:00:00Z'),
+      2,
+    );
+
+    expect((xml.match(/<url>/g) ?? [])).toHaveLength(2);
+    expect(xml).toContain('pagination-model-2');
+    expect(xml).toContain('pagination-model-3');
+    expect(xml).not.toContain('pagination-model-4');
+    expect(publicListCalls).toHaveLength(4);
+  });
+
   it('continues after a raw scan page authorizes no entities but advances its cursor', async () => {
     const { vertical, entities, publicListCalls } = paginationVertical(3, 50_000, {
       emptyFirstListPage: true,

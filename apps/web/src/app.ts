@@ -11,6 +11,7 @@ import type { WebContext } from './config.js';
 import {
   htmlResponse,
   notFound,
+  serviceUnavailable,
   textResponse,
   xmlResponse,
   type WebHandler,
@@ -32,6 +33,7 @@ import { matchPageClass } from './router.js';
 import { robotsTxt } from './robots.js';
 import { sitemapIndexXml, sitemapSegmentXml } from './sitemap.js';
 import { verticalPublicationEligibility } from './publication.js';
+import { SitemapCapacityError } from './sitemap-capacity.js';
 
 const READ_METHODS = new Set(['GET', 'HEAD']);
 const PARSE_BASE = 'http://web.invalid';
@@ -49,7 +51,7 @@ function segmentRegex(pathTemplate: string): RegExp {
   const escape = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const parts = pathTemplate.split('{n}');
   if (parts.length !== 2) return new RegExp(`^${escape(pathTemplate)}$`);
-  return new RegExp(`^${escape(parts[0] ?? '')}(\\d+)${escape(parts[1] ?? '')}$`);
+  return new RegExp(`^${escape(parts[0] ?? '')}([1-9]\\d*)${escape(parts[1] ?? '')}$`);
 }
 
 interface SitemapSegmentMatch {
@@ -61,7 +63,14 @@ function segmentFor(vertical: VerticalDeployment, rest: string): SitemapSegmentM
   for (const segment of vertical.runtime.seo.sitemaps.segments) {
     const match = segmentRegex(segment.path).exec(rest);
     if (match === null) continue;
-    return { id: segment.id, shard: match[1] === undefined ? 1 : Number(match[1]) };
+    if (match[1] === undefined) return { id: segment.id, shard: 1 };
+    const shard = Number(match[1]);
+    if (
+      !Number.isSafeInteger(shard) ||
+      shard < 1 ||
+      String(shard) !== match[1]
+    ) return null;
+    return { id: segment.id, shard };
   }
   return null;
 }
@@ -85,6 +94,22 @@ async function dispatchVertical(
   const origin = context.deployment.publicOrigin;
   const prefix = vertical.runtime.seo.url_prefix;
   const rest = pathname.slice(prefix.length);
+
+  // The sitemap owns its validated request budget and can reject an impossible
+  // shard from configuration alone. Do not spend an eligibility query first.
+  if (rest === '/sitemaps' || rest.startsWith('/sitemaps/')) {
+    const segment = segmentFor(vertical, rest);
+    if (segment === null) return null;
+    const xml = await sitemapSegmentXml(
+      vertical,
+      origin,
+      segment.id,
+      context.now(),
+      segment.shard,
+    );
+    return { kind: 'xml', body: xml };
+  }
+
   const eligibility = await verticalPublicationEligibility(vertical);
   if (!eligibility.publicWeb) return null;
 
@@ -119,19 +144,6 @@ async function dispatchVertical(
         : { headers: { 'x-robots-tag': 'noindex, follow' } }),
     };
   }
-  if (rest.startsWith('/sitemaps/')) {
-    const segment = segmentFor(vertical, rest);
-    if (segment === null) return null;
-    const xml = await sitemapSegmentXml(
-      vertical,
-      origin,
-      segment.id,
-      context.now(),
-      segment.shard,
-    );
-    return { kind: 'xml', body: xml };
-  }
-
   const match = matchPageClass(vertical.runtime.seo, pathname);
   if (match === null) return null;
   const { pageClass, params } = match;
@@ -220,5 +232,12 @@ async function dispatch(context: WebContext, request: WebRequest): Promise<WebRe
 }
 
 export function createWebApp(context: WebContext): WebHandler {
-  return (request: WebRequest) => dispatch(context, request);
+  return async (request: WebRequest) => {
+    try {
+      return await dispatch(context, request);
+    } catch (error) {
+      if (error instanceof SitemapCapacityError) return serviceUnavailable();
+      throw error;
+    }
+  };
 }

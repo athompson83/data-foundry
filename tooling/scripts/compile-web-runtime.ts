@@ -28,6 +28,7 @@ import {
   loadVerticalConfig,
 } from '../../services/ingest-worker/src/index.js';
 import type { IsoDateTime } from '@data-foundry/canonical-schema';
+import { validatedSitemapScanPageBudget } from '../../apps/web/src/sitemap-capacity.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const REPO_ROOT = resolve(HERE, '..', '..');
@@ -63,6 +64,19 @@ export interface WebRuntime {
   readonly seo: unknown;
   /** Raw parsed `filters.yaml` — `indexable_combinations` and facet fields. */
   readonly filters: unknown;
+}
+
+export function validateWebSeoConfig(value: unknown): void {
+  const seo =
+    typeof value === 'object' && value !== null
+      ? value as Readonly<Record<string, unknown>>
+      : {};
+  const rawSitemaps = seo['sitemaps'];
+  const sitemaps =
+    typeof rawSitemaps === 'object' && rawSitemaps !== null
+      ? rawSitemaps as Readonly<Record<string, unknown>>
+      : {};
+  validatedSitemapScanPageBudget(sitemaps['max_scan_pages_per_request']);
 }
 
 function criticalPropertiesOf(entities: Readonly<Record<string, unknown>>): CriticalProperties {
@@ -103,6 +117,7 @@ export async function compileWebRuntime(slug: string): Promise<WebRuntime> {
 
   const seoPath = join(config.directory, 'seo.yaml');
   const seo = parseYaml(await readFile(seoPath, 'utf8'));
+  validateWebSeoConfig(seo);
 
   return {
     vertical_slug: slug,

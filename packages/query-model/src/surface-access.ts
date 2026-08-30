@@ -208,7 +208,7 @@ const boundedEntityScanLimit = (value: number | undefined): number => {
   return Math.max(1, Math.min(Math.trunc(value), SURFACE_ENTITY_SCAN_LIMIT));
 };
 
-class SurfaceAuthorizationLimiter {
+class SurfaceAuthorizationWorkerPool {
   readonly #limit: number;
   #active = 0;
   readonly #waiting: Array<() => void> = [];
@@ -236,13 +236,42 @@ class SurfaceAuthorizationLimiter {
     this.#active -= 1;
   }
 
-  async run<T>(operation: () => Promise<T>): Promise<T> {
+  async #run<T>(operation: () => Promise<T>): Promise<T> {
     await this.#acquire();
     try {
       return await operation();
     } finally {
       this.#release();
     }
+  }
+
+  /**
+   * Pull work lazily with a fixed worker set. Catalog size no longer controls
+   * how many pending promises this request retains while permits are occupied.
+   */
+  async map<T, R>(
+    items: readonly T[],
+    operation: (item: T, index: number) => Promise<R>,
+  ): Promise<R[]> {
+    const results: R[] = new Array(items.length);
+    let cursor = 0;
+
+    const worker = async (): Promise<void> => {
+      for (;;) {
+        const done = await this.#run(async () => {
+          const index = cursor;
+          cursor += 1;
+          if (index >= items.length) return true;
+          results[index] = await operation(items[index]!, index);
+          return false;
+        });
+        if (done) return;
+      }
+    };
+
+    const workerCount = Math.min(this.#limit, items.length);
+    await Promise.all(Array.from({ length: workerCount }, () => worker()));
+    return results;
   }
 }
 
@@ -392,7 +421,7 @@ class SurfaceRightsAuthorizer {
   readonly #relationshipResults = new Map<string, Promise<boolean>>();
   readonly #visibleEntities = new Map<string, Promise<readonly EntityId[]>>();
   readonly #visibleFacts = new Map<string, Promise<readonly string[]>>();
-  readonly #authorizationLimiter = new SurfaceAuthorizationLimiter(
+  readonly #authorizationWorkers = new SurfaceAuthorizationWorkerPool(
     SURFACE_AUTHORIZATION_CONCURRENCY,
   );
 
@@ -728,13 +757,12 @@ class SurfaceRightsAuthorizer {
         ORDER BY id`,
       [verticalId],
     );
-    const decisions = await Promise.all(
-      rows.map((row) =>
-        this.#authorizationLimiter.run(async () => ({
-          id: row.id as EntityId,
-          allowed: await this.authorizeEntity(row.id as EntityId),
-        })),
-      ),
+    const decisions = await this.#authorizationWorkers.map(
+      rows,
+      async (row) => ({
+        id: row.id as EntityId,
+        allowed: await this.authorizeEntity(row.id as EntityId),
+      }),
     );
     return decisions.filter((entry) => entry.allowed).map((entry) => entry.id);
   }
@@ -759,13 +787,12 @@ class SurfaceRightsAuthorizer {
         ORDER BY f.id`,
       [verticalId, this.#asOf],
     );
-    const decisions = await Promise.all(
-      rows.map((row) =>
-        this.#authorizationLimiter.run(async () => ({
-          id: row.id,
-          allowed: await this.authorizeFact(row.id),
-        })),
-      ),
+    const decisions = await this.#authorizationWorkers.map(
+      rows,
+      async (row) => ({
+        id: row.id,
+        allowed: await this.authorizeFact(row.id),
+      }),
     );
     return decisions.filter((entry) => entry.allowed).map((entry) => entry.id);
   }
@@ -791,21 +818,21 @@ class SurfaceRightsAuthorizer {
         query.entity_type ?? null,
         ...statuses,
         query.after_id ?? null,
-        limit,
+        limit + 1,
       ],
     );
-    const entities = rows.map(mapEntity);
-    const decisions = await Promise.all(
-      entities.map((entity) =>
-        this.#authorizationLimiter.run(async () => ({
-          entity,
-          allowed: await this.authorizeEntity(entity.id),
-        })),
-      ),
+    const pageRows = rows.slice(0, limit);
+    const entities = pageRows.map(mapEntity);
+    const decisions = await this.#authorizationWorkers.map(
+      entities,
+      async (entity) => ({
+        entity,
+        allowed: await this.authorizeEntity(entity.id),
+      }),
     );
     return {
       entities: decisions.filter((entry) => entry.allowed).map((entry) => entry.entity),
-      next_after_id: rows.length === limit ? (entities.at(-1)?.id ?? null) : null,
+      next_after_id: rows.length > limit ? (entities.at(-1)?.id ?? null) : null,
     };
   }
 }

@@ -285,6 +285,9 @@ on_gate_failure:
 sitemaps:
   index: /sitemap-index.xml
   max_urls_per_file: 45000
+  # 250 x the canonical 200-row keyset page is the absolute 50,000-candidate
+  # ceiling for one request, shared across the complete sitemap-index walk.
+  max_scan_pages_per_request: 250
   # Only canonical indexable URLs. A sitemap is a recommendation, and
   # recommending a page we have judged too thin to index is incoherent.
   include_only_indexable: true

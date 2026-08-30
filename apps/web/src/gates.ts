@@ -17,7 +17,7 @@
  * the page had not earned yet.
  */
 import type { CanonicalFactView, SurfaceQueryModel } from '@data-foundry/query-model';
-import type { EntityId, VerticalId } from '@data-foundry/canonical-schema';
+import type { Entity, EntityId, VerticalId } from '@data-foundry/canonical-schema';
 import type { QualityGate } from './seo.js';
 import { DEFAULT_CONCURRENCY, mapWithConcurrency } from './concurrency.js';
 
@@ -223,19 +223,31 @@ export async function computeVerticalDatasetSignals(
   verticalId: VerticalId,
 ): Promise<GateSignals & { readonly entities: number }> {
   const result = await queryModel.search({ vertical_id: verticalId, limit: MAX_VERTICAL_SCAN, offset: 0 });
+  return computeVerticalDatasetSignalsForEntities(queryModel, result.hits.map((hit) => hit.entity), result.total);
+}
+
+/**
+ * Same gate measurement over a caller-owned bounded/keyset scan. Sitemaps use
+ * this form so their request-wide raw-page budget governs catalog traversal.
+ */
+export async function computeVerticalDatasetSignalsForEntities(
+  queryModel: SurfaceQueryModel,
+  entities: readonly Entity[],
+  total: number,
+): Promise<GateSignals & { readonly entities: number }> {
   // Bounded rather than serial, for the same reason as sitemap.ts's
   // per-entity fan-out (see concurrency.ts): up to MAX_VERTICAL_SCAN
   // sequential canonicalFacts round trips is slow at scale, and unbounded
   // parallel fan-out risks the connection pool instead.
-  const scanned = result.hits.slice(0, MAX_VERTICAL_SCAN);
-  const factLists = await mapWithConcurrency(scanned, DEFAULT_CONCURRENCY, (hit) =>
-    queryModel.canonicalFacts(hit.entity.id),
+  const scanned = entities.slice(0, MAX_VERTICAL_SCAN);
+  const factLists = await mapWithConcurrency(scanned, DEFAULT_CONCURRENCY, (entity) =>
+    queryModel.canonicalFacts(entity.id),
   );
   const evidenceLists = await mapWithConcurrency(
     scanned,
     DEFAULT_CONCURRENCY,
-    (hit, index) =>
-      measureAuthorizedFactEvidence(queryModel, hit.entity.id, factLists[index] ?? [], {}),
+    (entity, index) =>
+      measureAuthorizedFactEvidence(queryModel, entity.id, factLists[index] ?? [], {}),
   );
   const sources = new Set<string>();
   let factTotal = 0;
@@ -246,7 +258,7 @@ export async function computeVerticalDatasetSignals(
     for (const source of evidence.sources) sources.add(source);
   }
   return {
-    entities: result.total,
+    entities: total,
     distinct_sources: sources.size,
     evidence_coverage: factTotal === 0 ? 1 : traceable / factTotal,
   };

@@ -89,6 +89,9 @@ on_gate_failure:
 sitemaps:
   index: /sitemap-index.xml
   max_urls_per_file: 45000
+  # One request-wide budget shared across all segments (and, for the global
+  # index, all bundled verticals). Absolute platform ceiling: 250 raw pages.
+  max_scan_pages_per_request: 250
   segments: []
 
 # --- Canonical/redirect policy ----------------------------------------------

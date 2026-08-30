@@ -58,6 +58,17 @@ to be indexed. `verticals/hvac/seo.yaml` is the worked example and
 without a floor can pass sparse stubs; a floor without coverage can pass pages
 padded with unimportant properties.
 
+Set `sitemaps.max_scan_pages_per_request` explicitly. It is the raw keyset-page
+budget for one sitemap request, not a target URL count: each page reads at most
+200 canonical entity candidates before rights and quality gates. The compiler
+accepts only positive integers through the absolute application ceiling of 250.
+Choose the lowest value that can completely enumerate the intended sitemap;
+capacity exhaustion returns a retryable `503` and never partial XML. The global
+sitemap index shares one budget across every bundled vertical and segment and
+uses the smallest declared value, so adding a vertical must account for the
+combined registry. Keep segment paths shardable with `{n}` whenever their
+bounded eligible URL set may exceed `max_urls_per_file`.
+
 Every page class must declare an explicit `route_kind`; an entity detail names
 `entity_type`, while a relationship page names `subject_entity_type`. Do not
 make dispatch depend on whether an unrelated optional field happens to exist.

@@ -28,6 +28,28 @@ async function temporaryDirectory(): Promise<string> {
 }
 
 describe('the generated web runtime registry', () => {
+  it('rejects missing, non-positive, and above-ceiling sitemap scan budgets', () => {
+    const validateWebSeoConfig = Reflect.get(compiler, 'validateWebSeoConfig');
+    expect(
+      validateWebSeoConfig,
+      'the web compiler must validate the bounded request-work contract before emission',
+    ).toBeTypeOf('function');
+    if (typeof validateWebSeoConfig !== 'function') return;
+
+    const seo = (value: unknown) => ({
+      sitemaps: {
+        max_scan_pages_per_request: value,
+      },
+    });
+    expect(() => validateWebSeoConfig(seo(250))).not.toThrow();
+    for (const value of [undefined, 0, 251, 1.5, Number.POSITIVE_INFINITY]) {
+      expect(
+        () => validateWebSeoConfig(seo(value)),
+        `budget ${String(value)} must fail closed`,
+      ).toThrow(/max_scan_pages_per_request/i);
+    }
+  });
+
   it('makes every bundled vertical a static import in the Worker bundle', async () => {
     const serializeRuntimeRegistry = Reflect.get(compiler, 'serializeRuntimeRegistry');
     expect(

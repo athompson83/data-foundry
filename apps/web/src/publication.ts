@@ -16,6 +16,11 @@ import type {
 } from '@data-foundry/query-model';
 import type { VerticalDeployment } from './composition.js';
 import { DEFAULT_CONCURRENCY, mapWithConcurrency } from './concurrency.js';
+import { scanSurfaceEntityPages } from './entity-scan.js';
+import {
+  SitemapScanBudget,
+  validatedSitemapScanPageBudget,
+} from './sitemap-capacity.js';
 
 const SEARCH_PAGE_SIZE = 200;
 
@@ -34,14 +39,21 @@ function surfaceModel(
 export async function verticalEligibleForSurface(
   vertical: VerticalDeployment,
   surface: WebPublicationSurface,
+  budget = new SitemapScanBudget(
+    validatedSitemapScanPageBudget(
+      vertical.runtime.seo.sitemaps.max_scan_pages_per_request,
+    ),
+  ),
 ): Promise<boolean> {
   if (vertical.runtime.vertical_status !== 'ACTIVE') return false;
-  const result = await surfaceModel(vertical, surface).search({
-    vertical_id: vertical.verticalId,
-    limit: 1,
-    offset: 0,
-  });
-  return result.total > 0 && result.hits.length > 0;
+  for await (const entities of scanSurfaceEntityPages(
+    surfaceModel(vertical, surface),
+    { vertical_id: vertical.verticalId },
+    budget,
+  )) {
+    if (entities.length > 0) return true;
+  }
+  return false;
 }
 
 export interface VerticalPublicationEligibility {
@@ -51,10 +63,15 @@ export interface VerticalPublicationEligibility {
 
 export async function verticalPublicationEligibility(
   vertical: VerticalDeployment,
+  budget = new SitemapScanBudget(
+    validatedSitemapScanPageBudget(
+      vertical.runtime.seo.sitemaps.max_scan_pages_per_request,
+    ),
+  ),
 ): Promise<VerticalPublicationEligibility> {
   const [publicWeb, searchIndex] = await Promise.all([
-    verticalEligibleForSurface(vertical, 'PUBLIC_WEB'),
-    verticalEligibleForSurface(vertical, 'SEARCH_INDEX'),
+    verticalEligibleForSurface(vertical, 'PUBLIC_WEB', budget),
+    verticalEligibleForSurface(vertical, 'SEARCH_INDEX', budget),
   ]);
   return { publicWeb, searchIndex };
 }

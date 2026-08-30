@@ -524,6 +524,7 @@
     "sitemaps": {
       "index": "/sitemap-index.xml",
       "max_urls_per_file": 45000,
+      "max_scan_pages_per_request": 250,
       "include_only_indexable": true,
       "segments": [
         {

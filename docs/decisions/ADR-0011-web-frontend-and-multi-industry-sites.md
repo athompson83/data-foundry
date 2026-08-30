@@ -104,10 +104,24 @@ assuming a URL space scoped to one vertical's own deployment. Served from the
 single multi-vertical `apps/web` origin, they are resolved relative to that
 vertical's `url_prefix` (`/data/hvac/sitemaps/entities-1.xml`), and the global
 `/sitemap-index.xml` lists every vertical's segments together. Generation
-paginates through the query layer in batches of at most 200, honors
+paginates through the query layer in raw batches of at most 200, honors
 `max_urls_per_file`, and advertises every resulting shard. A URL is eligible
 only when its identity/data independently clears both `PUBLIC_WEB` and
 `SEARCH_INDEX`; neither permission implies the other.
+
+Sitemap work is also fail-closed and request-bounded. Every vertical declares
+`sitemaps.max_scan_pages_per_request`; the compiler requires a positive integer
+no greater than the application ceiling of 250 raw pages (50,000 candidate
+rows). One `/sitemap-index.xml` request shares one budget across every vertical
+and segment, using the smallest declared budget in the bundled registry. Entity
+locations are consumed a keyset page at a time, including advancement through
+an all-denied page, and a shard stops as soon as its exact URL window is full.
+An attacker-selected shard above the configuration-derived maximum is refused
+before query work. If a complete index or requested shard cannot be produced
+inside the budget, the Worker discards all accumulated output and returns an
+opaque `503` with `no-store` and `Retry-After`; it never serves partial XML.
+Provider rate limiting remains a separate deployment control, not a substitute
+for this deterministic application bound.
 
 ### What is not built here
 

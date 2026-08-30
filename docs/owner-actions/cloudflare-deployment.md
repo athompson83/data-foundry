@@ -45,12 +45,19 @@ must remain outside source control.
    a second API implementation.
 8. Deploy the acquisition Worker with its hourly Cron trigger. It needs no
    public route and must not be bound to the usage Queue.
+9. Apply a provider-level rate limit to the public sitemap routes
+   (`/sitemap-index.xml` and each vertical's `/sitemaps/*`). The application
+   already enforces an independent fail-closed raw scan-page budget; the edge
+   rule limits repeated requests from one abusive source. Record the exact
+   Cloudflare rule, scope, threshold and bypass policy outside source control.
 
 ### Verify
 
 Dry-run deployment resolves the intended account/resources, and production DNS
 points only at the intended Workers. A deployment should be attributable to an
-exact repository SHA.
+exact repository SHA. Verify sitemap capacity failures return only an opaque
+`503` with `Cache-Control: no-store` and `Retry-After`, and verify the provider
+rate limit activates without blocking ordinary crawler fetches.
 
 ---
 
