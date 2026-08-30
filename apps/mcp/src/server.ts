@@ -20,7 +20,13 @@
  * should not have to know uuids at all.
  */
 import { McpToolError, internalError, unknownTool, type McpToolErrorCode } from './errors.js';
-import { ReviewerIdentityLeak, type FactSelectionPolicy, type QueryModel, type VerticalId } from './query-layer.js';
+import {
+  ReviewerIdentityLeak,
+  type FactSelectionPolicy,
+  type IsoDateTime,
+  type QueryModel,
+  type VerticalId,
+} from './query-layer.js';
 import { fail, succeed, type CallToolResult } from './results.js';
 import {
   canonicalUrlsUnder,
@@ -179,10 +185,10 @@ export function createMcpServer(options: McpServerOptions): McpServer {
         // restart. Freeze one rights-evaluation instant for the entire call;
         // individual query operations still open their own database snapshots,
         // but they cannot drift across an expiry boundary while one tool runs.
-        const rightsAsOf = new Date().toISOString();
+        const rightsAsOf = new Date().toISOString() as IsoDateTime;
         const context: ToolContext = {
           ...contextBase,
-          queryModel: options.queryModel.forSurface('MCP', { asOf: rightsAsOf as never }),
+          queryModel: options.queryModel.forSurface('MCP', { asOf: rightsAsOf }),
         };
         // `invoke` validates against the tool's declared input schema before
         // the handler runs; there is no path from here to a handler that

@@ -350,7 +350,7 @@ describe('surface-bound query model', () => {
     expect(search.facets[0]?.entity_count).toBe(0);
   });
 
-  it('bounds the combined entity and fact authorization fan-out for a small search page', async () => {
+  it('uses set-based catalog authorization instead of one evidence query per entity and fact', async () => {
     const seededEntities: Entity[] = [];
     for (let index = 0; index < 12; index += 1) {
       const entity = await fixtures.store.upsertEntity({
@@ -377,32 +377,33 @@ describe('surface-bound query model', () => {
     const originalQuery = originalQueryMethod.bind(fixtures.driver);
     const originalTransactionMethod = fixtures.driver.transaction;
     const originalTransaction = originalTransactionMethod.bind(fixtures.driver);
-    const active = { count: 0, max: 0 };
-    const started = { entity: 0, fact: 0 };
+    let perEntityEvidenceReads = 0;
+    let perFactReads = 0;
+    let snapshotReads = 0;
+    let entityBatchParameterCount: number | null = null;
+    let factBatchParameterCount: number | null = null;
+    let factBatchUsesAdditiveRows = false;
     const observedQuery = async <R extends SqlRow = SqlRow>(
       sql: string,
       params?: readonly SqlParam[],
       execute?: () => Promise<R[]>,
     ): Promise<R[]> => {
-      const kind = sql.includes('FROM entity_evidence ee')
-        ? 'entity'
-        : sql.includes('FROM facts WHERE id = $1')
-          ? 'fact'
-          : null;
-      if (kind === null) return execute?.() ?? originalQuery<R>(sql, params);
-
-      started[kind] += 1;
-      active.count += 1;
-      active.max = Math.max(active.max, active.count);
-      try {
-        // Hold the first query in each authorization long enough to expose how
-        // many row-level decisions the surface launches at once. This measures
-        // authorization work before the driver's own pool can hide the fan-out.
-        await new Promise((resolve) => setTimeout(resolve, 15));
-        return await (execute?.() ?? originalQuery<R>(sql, params));
-      } finally {
-        active.count -= 1;
+      snapshotReads += 1;
+      if (
+        sql.includes('WHERE evidence.entity_id = $1') ||
+        sql.includes('WHERE ee.entity_id = $1')
+      ) {
+        perEntityEvidenceReads += 1;
       }
+      if (sql.includes('FROM facts WHERE id = $1')) perFactReads += 1;
+      if (sql.includes('BOOL_OR(') && sql.includes('jsonb_array_elements_text($1::jsonb)')) {
+        entityBatchParameterCount = params?.length ?? 0;
+      }
+      if (sql.includes('authorization_rows AS (')) {
+        factBatchParameterCount = params?.length ?? 0;
+        factBatchUsesAdditiveRows = sql.match(/UNION ALL/g)?.length === 2;
+      }
+      return execute?.() ?? originalQuery<R>(sql, params);
     };
     fixtures.driver.query = (async <R extends SqlRow = SqlRow>(
       sql: string,
@@ -429,8 +430,8 @@ describe('surface-bound query model', () => {
         limit: 1,
       });
 
-      // Bounding work must not turn authorization into an early-exit page scan.
-      // The page is one row, while total still covers every authorized entity.
+      // Set-based reads must preserve the exact rights-safe total rather than
+      // turning authorization into an early-exit page scan.
       expect(result.hits).toHaveLength(1);
       expect(result.total).toBe(seededEntities.length + 1);
     } finally {
@@ -438,119 +439,15 @@ describe('surface-bound query model', () => {
       fixtures.driver.transaction = originalTransactionMethod;
     }
 
-    expect(started.entity).toBeGreaterThan(8);
-    expect(started.fact).toBeGreaterThan(8);
-    // `pg` defaults to a ten-connection pool. Leave headroom for other requests
-    // and for the two vertical enumeration queries that precede this work.
-    expect(active.max).toBeLessThanOrEqual(8);
-  });
-
-  it('does not enqueue one pending authorization waiter for every catalog row', async () => {
-    for (let index = 0; index < 40; index += 1) {
-      const entity = await fixtures.store.upsertEntity({
-        vertical_id: fixtures.vertical.id,
-        entity_type: 'equipment',
-        canonical_name: `Authorization Queue Unit ${String(index).padStart(2, '0')}`,
-        canonical_slug: `authorization-queue-unit-${String(index).padStart(2, '0')}`,
-        status: 'ACTIVE',
-        quality_score: entityQualityScore(0.7),
-        first_seen_at: ts('2026-01-01T00:00:00Z'),
-        last_verified_at: null,
-      });
-      await addEntityEvidence(entity);
-      await claim(fixtures, 'manufacturer', {
-        entity_id: entity.id,
-        property: 'seer2_rating',
-        value: 30 + index,
-        value_type: 'number',
-      });
-    }
-
-    const originalQueryMethod = fixtures.driver.query;
-    const originalQuery = originalQueryMethod.bind(fixtures.driver);
-    const originalTransactionMethod = fixtures.driver.transaction;
-    const originalTransaction = originalTransactionMethod.bind(fixtures.driver);
-    let releaseAuthorizations!: () => void;
-    const held = new Promise<void>((resolve) => {
-      releaseAuthorizations = resolve;
-    });
-    let firstWaveReady!: () => void;
-    const firstWave = new Promise<void>((resolve) => {
-      firstWaveReady = resolve;
-    });
-    let heldAuthorizations = 0;
-    let catalogRowReads = 0;
-
-    const observedQuery = async <R extends SqlRow = SqlRow>(
-      sql: string,
-      params?: readonly SqlParam[],
-      execute?: () => Promise<R[]>,
-    ): Promise<R[]> => {
-      const isAuthorization =
-        sql.includes('FROM entity_evidence ee') ||
-        sql.includes('FROM facts WHERE id = $1');
-      if (isAuthorization) {
-        heldAuthorizations += 1;
-        if (heldAuthorizations === 8) firstWaveReady();
-        await held;
-      }
-
-      const rows = await (execute?.() ?? originalQuery<R>(sql, params));
-      const isCatalog =
-        sql.includes('SELECT id FROM entities') ||
-        sql.includes('SELECT f.id');
-      if (!isCatalog) return rows;
-      return new Proxy(rows, {
-        get(target, property, receiver) {
-          if (typeof property === 'string' && /^(0|[1-9]\d*)$/.test(property)) {
-            catalogRowReads += 1;
-          }
-          return Reflect.get(target, property, receiver);
-        },
-      });
-    };
-    fixtures.driver.query = (async <R extends SqlRow = SqlRow>(
-      sql: string,
-      params?: readonly SqlParam[],
-    ): Promise<R[]> => observedQuery<R>(sql, params)) as typeof fixtures.driver.query;
-    fixtures.driver.transaction = (async <T>(
-      run: (tx: SqlTransactionExecutor) => Promise<T>,
-    ): Promise<T> => originalTransaction(async (transaction) => run({
-      query: async <R extends SqlRow = SqlRow>(
-        sql: string,
-        params?: readonly SqlParam[],
-      ): Promise<R[]> => observedQuery<R>(
-        sql,
-        params,
-        () => transaction.query<R>(sql, params),
-      ),
-    } as SqlTransactionExecutor))) as typeof fixtures.driver.transaction;
-
-    let pending: ReturnType<SurfaceQueryModel['search']> | null = null;
-    try {
-      const web = queryModel.forSurface('PUBLIC_WEB', { asOf: AS_OF });
-      pending = web.search({
-        vertical_id: fixtures.vertical.id,
-        entity_type: 'equipment',
-        limit: 1,
-      });
-      await firstWave;
-
-      // Two catalog scans can each own a fixed set of workers, but rows beyond
-      // those workers must remain unread until capacity becomes available.
-      // A rows.map(...limiter.run()) implementation reads every row eagerly
-      // and creates one pending Promise waiter per denied or allowed row.
-      expect(catalogRowReads).toBeLessThanOrEqual(16);
-
-      releaseAuthorizations();
-      const result = await pending;
-      expect(result.hits).toHaveLength(1);
-    } finally {
-      releaseAuthorizations();
-      await pending?.catch(() => undefined);
-      fixtures.driver.query = originalQueryMethod;
-      fixtures.driver.transaction = originalTransactionMethod;
-    }
+    expect(perEntityEvidenceReads).toBe(0);
+    expect(perFactReads).toBe(0);
+    expect(entityBatchParameterCount).toBe(1);
+    expect(factBatchParameterCount).toBe(1);
+    expect(factBatchUsesAdditiveRows).toBe(true);
+    // One source needs a fixed rights-context read set; the remaining budget
+    // covers the catalog, batched evidence, search, ranking, and facet queries.
+    // The former per-row implementation exceeds this bound with this fixture.
+    expect(snapshotReads).toBeLessThanOrEqual(40);
   });
 
   it('selects and explains only over candidates authorized for this surface', async () => {

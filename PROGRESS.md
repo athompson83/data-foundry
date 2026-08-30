@@ -4,15 +4,18 @@
 
 - Product: Data Foundry
 - Lifecycle stage: MVP integration / pre-deployment
-- Control-graph node: `MERGED_MAIN -> EXTERNAL_DEPLOY`
-- Current milestone: deploy and prove the protected-main,
-  synthetic-data-capable platform without implying that a real HVAC dataset is
-  cleared
+- Control-graph node: `MERGED_MAIN -> CLOSEOUT_REVIEW -> EXTERNAL_DEPLOY`
+- Current milestone: merge the closeout candidate, then deploy and prove the
+  protected-main, synthetic-data-capable platform without implying that a real
+  HVAC dataset is cleared
 - Release authority: the live 40-character `origin/main`. Integration PR
   [#19](https://github.com/athompson83/data-foundry/pull/19) is merged; PRs
   #13–#17 are closed as superseded after path, patch, ancestry, and behavioral
   reconciliation. Dependency follow-up PR #21 removes the remaining `esbuild`
-  advisory from the post-integration lockfile. Every later candidate-affecting
+  advisory from the post-integration lockfile. PR #22 is the open closeout
+  candidate for migration `0025`, exact alias evidence, and request-snapshot
+  repairs; those changes are not on protected `main` until that PR passes its
+  final review and hosted gates and merges. Every later candidate-affecting
   change still requires fresh exact-SHA local, hosted, review, and ruleset
   evidence.
 - Preview: none verified
@@ -21,7 +24,12 @@
 - Database target: repository migrations verified locally/disposably; no hosted
   target or grant state was changed during this integration
 
-## Integrated Repository State
+## Protected-Main and Closeout Candidate State
+
+The PR #19 integration and PR #21 dependency repair are on protected `main`.
+Unless a bullet below explicitly describes migration `0025`, exact alias
+evidence linkage, or fresh per-operation snapshots, it describes that merged
+baseline. Those named closeout changes remain candidate-only in PR #22.
 
 - Corrected Option B is accepted and implemented. Exact effective rights-matrix
   decisions authorize each operation/channel surface independently. Missing,
@@ -117,10 +125,12 @@
 
 ## Deployment and Revenue State
 
-- The integrated implementation is on protected `main`. Repository code,
-  migrations, generated artifacts, security review, and strict required checks
-  passed before merge. Repository-ready does not mean deployed or commercially
-  publishable; the live deployment and real-source gates remain independent.
+- The PR #19 integration and PR #21 dependency repair are on protected `main`.
+  PR #22 remains an open closeout candidate; its migration `0025`, exact alias
+  evidence linkage, and request-snapshot repairs must not be described as
+  protected-main capabilities before merge. Repository-ready does not mean
+  deployed or commercially publishable; the live deployment and real-source
+  gates remain independent.
 - RapidAPI enrollment, proxy-secret configuration, plans, payout setup, live
   route, and real subscriber proof remain external.
 - Cloudflare canonical account/zone/routes, Hyperdrive, production Postgres, R2,
@@ -161,14 +171,15 @@
   Queue privacy/idempotency, bounded sitemap work, and credential-delivery
   refusal/compensation paths, plus removal of the vulnerable transitive
   `node-tar` chain.
-- The closeout candidate passed the complete 177-file/2,860-test Vitest
-  suite, typecheck/build, ordered and idempotent migrations, generated
+- The pre-review PR #22 candidate passed the complete 177-file/2,860-test
+  Vitest suite, typecheck/build, ordered and idempotent migrations, generated
   schema/OpenAPI/runtime drift checks, vertical/acquisition checks, repository
   Cloudflare topology, all five Worker artifact checks, disposable PostgreSQL
   16 replay/reconciliation/concurrency gates, dependency audit, and a sealed
-  216-item security scan with no findings. Strict hosted checks passed on the
-  exact PR heads. Every later release SHA must rerun the applicable gates; an
-  intermediate commit or historical test total never certifies a changed tree.
+  9-item production-scope security scan with no findings. That evidence does
+  not certify a review-fix SHA or protected `main`: the final PR #22 head still
+  requires its applicable exact-SHA local, hosted, review, and ruleset gates
+  before merge.
 - Repository topology centralizes production endpoint classification, rejects
   loopback/unspecified endpoints and plaintext protected values, and keeps
   deployment-only fields out of tracked templates. Deployment-mode validation

@@ -19,7 +19,6 @@ import {
   type Entity,
   type EntityId,
   type EntityStatus,
-  type FactId,
   type Identifier,
   type IsoDateTime,
   type Relationship,
@@ -182,6 +181,29 @@ interface EntityEvidenceRow extends SqlRow {
   readonly acquisition_jurisdiction: string | null;
 }
 
+interface BatchedEntityEvidenceRow extends EntityEvidenceRow {
+  readonly identity_authority: boolean;
+}
+
+interface FactAuthorizationRow extends SqlRow {
+  readonly fact_id: string;
+  readonly property: string;
+  readonly output_kind: string | null;
+  readonly input_fact_id: string | null;
+  readonly evidence_id: string | null;
+  readonly source_id: string | null;
+  readonly acquisition_route: string | null;
+  readonly account_or_product_plan: string | null;
+  readonly acquisition_jurisdiction: string | null;
+}
+
+interface FactAuthorizationRecord {
+  readonly property: string;
+  readonly outputKind: string | null;
+  readonly dependencies: readonly string[];
+  readonly contributions: readonly ArtifactContribution[] | null;
+}
+
 const nowIso = (): IsoDateTime => new Date().toISOString() as IsoDateTime;
 
 /**
@@ -241,87 +263,12 @@ const SURFACE_CHANNEL = Object.freeze({
   MODEL_EVALUATION: 'MODEL_PIPELINE',
 } satisfies Record<RightsSurface, RightsChannel>);
 
-/**
- * A surface search enumerates every potentially visible entity and fact before
- * pagination so its rights-safe total remains exact. The two enumerations run
- * together, therefore their row-level authorization must share one budget: two
- * independent eight-worker maps would still spend sixteen connections from a
- * `pg` pool whose default maximum is ten.
- */
-const SURFACE_AUTHORIZATION_CONCURRENCY = 8;
 const SURFACE_ENTITY_SCAN_LIMIT = 200;
 
 const boundedEntityScanLimit = (value: number | undefined): number => {
   if (value === undefined || !Number.isFinite(value)) return SURFACE_ENTITY_SCAN_LIMIT;
   return Math.max(1, Math.min(Math.trunc(value), SURFACE_ENTITY_SCAN_LIMIT));
 };
-
-class SurfaceAuthorizationWorkerPool {
-  readonly #limit: number;
-  #active = 0;
-  readonly #waiting: Array<() => void> = [];
-
-  constructor(limit: number) {
-    this.#limit = limit;
-  }
-
-  async #acquire(): Promise<void> {
-    if (this.#active < this.#limit) {
-      this.#active += 1;
-      return;
-    }
-    // The releasing worker transfers its permit directly to this waiter, so
-    // a newly arriving operation cannot race between release and reacquire.
-    await new Promise<void>((resolve) => this.#waiting.push(resolve));
-  }
-
-  #release(): void {
-    const next = this.#waiting.shift();
-    if (next !== undefined) {
-      next();
-      return;
-    }
-    this.#active -= 1;
-  }
-
-  async #run<T>(operation: () => Promise<T>): Promise<T> {
-    await this.#acquire();
-    try {
-      return await operation();
-    } finally {
-      this.#release();
-    }
-  }
-
-  /**
-   * Pull work lazily with a fixed worker set. Catalog size no longer controls
-   * how many pending promises this request retains while permits are occupied.
-   */
-  async map<T, R>(
-    items: readonly T[],
-    operation: (item: T, index: number) => Promise<R>,
-  ): Promise<R[]> {
-    const results: R[] = new Array(items.length);
-    let cursor = 0;
-
-    const worker = async (): Promise<void> => {
-      for (;;) {
-        const done = await this.#run(async () => {
-          const index = cursor;
-          cursor += 1;
-          if (index >= items.length) return true;
-          results[index] = await operation(items[index]!, index);
-          return false;
-        });
-        if (done) return;
-      }
-    };
-
-    const workerCount = Math.min(this.#limit, items.length);
-    await Promise.all(Array.from({ length: workerCount }, () => worker()));
-    return results;
-  }
-}
 
 const locatorFor = (evidence: CandidateEvidence): string =>
   evidence.evidence.locator_type === 'WHOLE_DOCUMENT'
@@ -490,9 +437,6 @@ class SurfaceRightsAuthorizer {
   readonly #relationshipResults = new Map<string, Promise<boolean>>();
   readonly #visibleEntities = new Map<string, Promise<readonly EntityId[]>>();
   readonly #visibleFacts = new Map<string, Promise<readonly string[]>>();
-  readonly #authorizationWorkers = new SurfaceAuthorizationWorkerPool(
-    SURFACE_AUTHORIZATION_CONCURRENCY,
-  );
 
   constructor(
     store: CanonicalStore,
@@ -622,52 +566,262 @@ class SurfaceRightsAuthorizer {
     );
   }
 
+  async #authorizeEntities(entityIds: readonly EntityId[]): Promise<readonly boolean[]> {
+    const uniqueIds = [...new Set(entityIds)];
+    const missing = uniqueIds.filter((id) => !this.#entityResults.has(id));
+    if (missing.length > 0) {
+      const batch = this.#loadEntityAuthorizationDecisions(missing);
+      for (const id of missing) {
+        this.#entityResults.set(id, batch.then((decisions) => decisions.get(id) ?? false));
+      }
+    }
+    return Promise.all(
+      entityIds.map((id) => this.#entityResults.get(id) ?? Promise.resolve(false)),
+    );
+  }
+
+  /**
+   * Load identity authority and every provenance contribution for a candidate
+   * set in one statement. Rights evaluation remains in the pure engine, but a
+   * catalog scan no longer turns each row into two more SQL round trips on the
+   * request's pinned repeatable-read connection.
+   */
+  async #loadEntityAuthorizationDecisions(
+    entityIds: readonly EntityId[],
+  ): Promise<ReadonlyMap<EntityId, boolean>> {
+    const rows = await this.#store.driver.query<BatchedEntityEvidenceRow>(
+      `WITH requested(id) AS (
+         SELECT value::uuid
+           FROM jsonb_array_elements_text($1::jsonb) AS requested_id(value)
+       )
+       SELECT e.id AS entity_id,
+              BOOL_OR(COALESCE(sr.is_current AND sr.revision_state = 'FINALIZED', FALSE))
+                OVER (PARTITION BY e.id) AS identity_authority,
+              ee.id AS evidence_id, sr.source_id,
+              sa.acquisition_route, sa.account_or_product_plan,
+              sa.acquisition_jurisdiction
+         FROM requested
+         JOIN entities e ON e.id = requested.id
+         LEFT JOIN entity_evidence ee ON ee.entity_id = e.id
+         LEFT JOIN source_records sr ON sr.id = ee.source_record_id
+         LEFT JOIN source_artifacts sa ON sa.id = ee.artifact_id
+        ORDER BY e.id, ee.id`,
+      [JSON.stringify(entityIds)],
+    );
+
+    const grouped = new Map<
+      EntityId,
+      { identityAuthority: boolean; contributions: Array<ArtifactContribution | null> }
+    >();
+    for (const row of rows) {
+      const id = row.entity_id as EntityId;
+      const current = grouped.get(id) ?? {
+        identityAuthority: row.identity_authority === true,
+        contributions: [],
+      };
+      current.identityAuthority ||= row.identity_authority === true;
+      current.contributions.push(contributionFromEntityRow(row));
+      grouped.set(id, current);
+    }
+
+    const decisions = new Map<EntityId, boolean>();
+    // The snapshot uses one pinned connection. Evaluate candidates in order so
+    // a catalog with many distinct sources cannot enqueue an unbounded number
+    // of rights-context query chains on that connection.
+    for (const id of entityIds) {
+      const candidate = grouped.get(id);
+      if (
+        candidate === undefined ||
+        !candidate.identityAuthority ||
+        candidate.contributions.length === 0 ||
+        candidate.contributions.some((entry) => entry === null)
+      ) {
+        decisions.set(id, false);
+        continue;
+      }
+      decisions.set(
+        id,
+        await this.#authorizeContributions(
+          candidate.contributions as ArtifactContribution[],
+          null,
+          'METADATA',
+        ),
+      );
+    }
+    return decisions;
+  }
+
   authorizeEntity(entityId: EntityId): Promise<boolean> {
     const cached = this.#entityResults.get(entityId);
     if (cached !== undefined) return cached;
-    const result = this.#authorizeEntity(entityId);
+    const result = this.#authorizeEntities([entityId]).then((decisions) => decisions[0] ?? false);
     this.#entityResults.set(entityId, result);
     return result;
-  }
-
-  async #authorizeEntity(entityId: EntityId): Promise<boolean> {
-    const identityAuthority = await this.#store.driver.query(
-      `SELECT 1
-         FROM entity_evidence evidence
-         JOIN source_records record ON record.id = evidence.source_record_id
-        WHERE evidence.entity_id = $1
-          AND record.is_current
-          AND record.revision_state = 'FINALIZED'
-        LIMIT 1`,
-      [entityId],
-    );
-    if (identityAuthority.length === 0) return false;
-    const rows = await this.#store.driver.query<EntityEvidenceRow>(
-      `SELECT ee.entity_id, ee.id AS evidence_id, sr.source_id,
-              sa.acquisition_route, sa.account_or_product_plan,
-              sa.acquisition_jurisdiction
-         FROM entity_evidence ee
-         JOIN source_records sr ON sr.id = ee.source_record_id
-         JOIN source_artifacts sa ON sa.id = ee.artifact_id
-        WHERE ee.entity_id = $1
-        ORDER BY ee.id`,
-      [entityId],
-    );
-    const contributions = rows.map(contributionFromEntityRow);
-    if (contributions.some((entry) => entry === null)) return false;
-    return this.#authorizeContributions(
-      contributions as ArtifactContribution[],
-      null,
-      'METADATA',
-    );
   }
 
   authorizeFact(factId: string): Promise<boolean> {
     const cached = this.#factResults.get(factId);
     if (cached !== undefined) return cached;
-    const result = this.#authorizeFact(factId, new Set());
+    const result = this.#authorizeFacts([factId]).then((decisions) => decisions[0] ?? false);
     this.#factResults.set(factId, result);
     return result;
+  }
+
+  async #authorizeFacts(factIds: readonly string[]): Promise<readonly boolean[]> {
+    const uniqueIds = [...new Set(factIds)];
+    const missing = uniqueIds.filter((id) => !this.#factResults.has(id));
+    if (missing.length > 0) {
+      const decisions = this.#loadFactAuthorizationDecisions(missing);
+      for (const id of missing) {
+        this.#factResults.set(
+          id,
+          decisions.then((loaded) => loaded.get(id) ?? false),
+        );
+      }
+    }
+    return Promise.all(
+      factIds.map((id) => this.#factResults.get(id) ?? Promise.resolve(false)),
+    );
+  }
+
+  async #loadFactAuthorizationDecisions(
+    factIds: readonly string[],
+  ): Promise<ReadonlyMap<string, boolean>> {
+    const records = await this.#loadFactAuthorizationRecords(factIds);
+    const decisions = new Map<string, boolean>();
+    const tupleAuthorization = new Map<string, Promise<boolean>>();
+    const contributionClosures = new Map<
+      string,
+      readonly ArtifactContribution[] | null
+    >();
+    // Keep rights-context loading bounded on the snapshot's single connection.
+    // The recursive evidence/dependency SQL is already set-based; this loop is
+    // pure evaluation after at most one cached context load per source. Graph
+    // memoization keeps a shared dependency DAG proportional to its nodes and
+    // edges instead of the number of paths through it.
+    for (const id of factIds) {
+      decisions.set(
+        id,
+        await this.#authorizeFactFromRecords(
+          id,
+          records,
+          new Set(),
+          tupleAuthorization,
+          contributionClosures,
+        ),
+      );
+    }
+    return decisions;
+  }
+
+  /**
+   * Load each requested fact, its recursive dependency closure, and every
+   * immutable evidence contribution in one rowset. A derived fact can still
+   * fail closed at any node, but its authorization no longer performs a query
+   * for every fact and dependency in the graph.
+   */
+  async #loadFactAuthorizationRecords(
+    factIds: readonly string[],
+  ): Promise<ReadonlyMap<string, FactAuthorizationRecord>> {
+    const rows = await this.#store.driver.query<FactAuthorizationRow>(
+      `WITH RECURSIVE requested(id) AS (
+         SELECT value::uuid
+           FROM jsonb_array_elements_text($1::jsonb) AS requested_id(value)
+       ), fact_closure(id) AS (
+         SELECT id FROM requested
+         UNION
+         SELECT dependency.input_fact_id
+           FROM fact_dependencies dependency
+           JOIN fact_closure closure ON closure.id = dependency.derived_fact_id
+       ), authorization_rows AS (
+         -- One metadata row retains a fact even when it has no evidence or
+         -- dependency. Dependency and evidence rows stay additive instead of
+         -- multiplying each other for high-degree derived facts.
+         SELECT fact.id::text AS fact_id, fact.property, fact.output_kind,
+                NULL::text AS input_fact_id,
+                NULL::text AS evidence_id, NULL::text AS source_id,
+                NULL::text AS acquisition_route,
+                NULL::text AS account_or_product_plan,
+                NULL::text AS acquisition_jurisdiction
+           FROM fact_closure closure
+           JOIN facts fact ON fact.id = closure.id
+         UNION ALL
+         SELECT fact.id::text AS fact_id, fact.property, fact.output_kind,
+                dependency.input_fact_id::text AS input_fact_id,
+                NULL::text AS evidence_id, NULL::text AS source_id,
+                NULL::text AS acquisition_route,
+                NULL::text AS account_or_product_plan,
+                NULL::text AS acquisition_jurisdiction
+           FROM fact_closure closure
+           JOIN facts fact ON fact.id = closure.id
+           JOIN fact_dependencies dependency ON dependency.derived_fact_id = fact.id
+         UNION ALL
+         SELECT fact.id::text AS fact_id, fact.property, fact.output_kind,
+                NULL::text AS input_fact_id,
+                evidence.id::text AS evidence_id,
+                record.source_id::text AS source_id,
+                artifact.acquisition_route::text AS acquisition_route,
+                artifact.account_or_product_plan,
+                artifact.acquisition_jurisdiction
+           FROM fact_closure closure
+           JOIN facts fact ON fact.id = closure.id
+           JOIN fact_evidence evidence ON evidence.fact_id = fact.id
+           LEFT JOIN source_records record ON record.id = evidence.source_record_id
+           LEFT JOIN source_artifacts artifact ON artifact.id = evidence.artifact_id
+       )
+       SELECT fact_id, property, output_kind, input_fact_id, evidence_id,
+              source_id, acquisition_route, account_or_product_plan,
+              acquisition_jurisdiction
+         FROM authorization_rows
+        ORDER BY fact_id, input_fact_id, evidence_id`,
+      [JSON.stringify(factIds)],
+    );
+
+    const mutable = new Map<
+      string,
+      {
+        property: string;
+        outputKind: string | null;
+        dependencies: Set<string>;
+        contributions: Map<string, ArtifactContribution>;
+        invalidContribution: boolean;
+      }
+    >();
+    for (const row of rows) {
+      const current = mutable.get(row.fact_id) ?? {
+        property: row.property,
+        outputKind: row.output_kind,
+        dependencies: new Set<string>(),
+        contributions: new Map<string, ArtifactContribution>(),
+        invalidContribution: false,
+      };
+      if (row.input_fact_id !== null) current.dependencies.add(row.input_fact_id);
+      if (row.evidence_id !== null) {
+        const contribution = contributionFromEntityRow({
+          entity_id: row.fact_id,
+          evidence_id: row.evidence_id,
+          source_id: row.source_id,
+          acquisition_route: row.acquisition_route,
+          account_or_product_plan: row.account_or_product_plan,
+          acquisition_jurisdiction: row.acquisition_jurisdiction,
+        });
+        if (contribution === null) current.invalidContribution = true;
+        else current.contributions.set(contribution.contributionId, contribution);
+      }
+      mutable.set(row.fact_id, current);
+    }
+
+    return new Map([...mutable].map(([id, record]) => [
+      id,
+      {
+        property: record.property,
+        outputKind: record.outputKind,
+        dependencies: [...record.dependencies],
+        contributions: record.invalidContribution
+          ? null
+          : [...record.contributions.values()],
+      },
+    ]));
   }
 
   async authorizeCandidateExcerpt(candidate: FactCandidate): Promise<boolean> {
@@ -681,31 +835,54 @@ class SurfaceRightsAuthorizer {
     );
   }
 
-  async #authorizeFact(factId: string, ancestors: ReadonlySet<string>): Promise<boolean> {
+  async #authorizeFactFromRecords(
+    factId: string,
+    records: ReadonlyMap<string, FactAuthorizationRecord>,
+    ancestors: ReadonlySet<string>,
+    tupleAuthorization: Map<string, Promise<boolean>>,
+    contributionClosures: Map<string, readonly ArtifactContribution[] | null>,
+  ): Promise<boolean> {
     if (ancestors.has(factId)) return false;
-    const candidate = await this.#store.loadFactCandidateById(factId as FactId);
-    if (candidate === null || candidate.fact.output_kind === null || candidate.evidence.length === 0) {
+    const cached = tupleAuthorization.get(factId);
+    if (cached !== undefined) return cached;
+    const result = this.#authorizeFactFromRecordsUncached(
+      factId,
+      records,
+      ancestors,
+      tupleAuthorization,
+      contributionClosures,
+    );
+    tupleAuthorization.set(factId, result);
+    return result;
+  }
+
+  async #authorizeFactFromRecordsUncached(
+    factId: string,
+    records: ReadonlyMap<string, FactAuthorizationRecord>,
+    ancestors: ReadonlySet<string>,
+    tupleAuthorization: Map<string, Promise<boolean>>,
+    contributionClosures: Map<string, readonly ArtifactContribution[] | null>,
+  ): Promise<boolean> {
+    const record = records.get(factId);
+    if (
+      record === undefined ||
+      record.outputKind === null ||
+      record.contributions === null ||
+      record.contributions.length === 0
+    ) {
       return false;
     }
-    const { fact } = candidate;
-    const contributions = candidate.evidence.map(contributionFromEvidence);
-    if (contributions.some((entry) => entry === null)) return false;
-
-    const dependencyRows = await this.#store.driver.query<{ input_fact_id: string } & SqlRow>(
-      `SELECT input_fact_id
-         FROM fact_dependencies
-        WHERE derived_fact_id = $1
-        ORDER BY input_fact_id`,
-      [fact.id],
-    );
-    const derived = fact.output_kind === 'DERIVED_METRIC';
-    if ((derived && dependencyRows.length === 0) || (!derived && dependencyRows.length > 0)) {
+    const derived = record.outputKind === 'DERIVED_METRIC';
+    if (
+      (derived && record.dependencies.length === 0) ||
+      (!derived && record.dependencies.length > 0)
+    ) {
       return false;
     }
     if (
       !(await this.#authorizeContributions(
-        contributions as ArtifactContribution[],
-        fact.property,
+        record.contributions,
+        record.property,
         derived ? 'DERIVED_METRIC' : 'NORMALIZED_FACT',
       ))
     ) {
@@ -719,13 +896,18 @@ class SurfaceRightsAuthorizer {
     // behind it must authorize the target tuple. That includes both the
     // target fact's direct evidence and the complete recursive input closure.
     const derivationContributions = new Map<string, ArtifactContribution>(
-      (contributions as ArtifactContribution[]).map((contribution) => [
+      record.contributions.map((contribution) => [
         contribution.contributionId,
         contribution,
       ]),
     );
-    for (const row of dependencyRows) {
-      const subtree = await this.#collectFactContributions(row.input_fact_id, nextAncestors);
+    for (const dependencyId of record.dependencies) {
+      const subtree = this.#collectFactContributions(
+        dependencyId,
+        records,
+        nextAncestors,
+        contributionClosures,
+      );
       if (subtree === null) return false;
       for (const contribution of subtree) {
         derivationContributions.set(contribution.contributionId, contribution);
@@ -734,57 +916,109 @@ class SurfaceRightsAuthorizer {
     if (
       !(await this.#authorizeDerivationContribution(
         [...derivationContributions.values()],
-        fact.property,
+        record.property,
       ))
     ) {
       return false;
     }
     // DERIVE on the ultimate target is separate from whether each input may be
     // distributed on this surface under its own field/output tuple.
-    for (const row of dependencyRows) {
-      if (!(await this.#authorizeFact(row.input_fact_id, nextAncestors))) return false;
+    for (const dependencyId of record.dependencies) {
+      if (!(await this.#authorizeFactFromRecords(
+        dependencyId,
+        records,
+        nextAncestors,
+        tupleAuthorization,
+        contributionClosures,
+      ))) {
+        return false;
+      }
     }
     return true;
   }
 
-  async #collectFactContributions(
+  #collectFactContributions(
     factId: string,
+    records: ReadonlyMap<string, FactAuthorizationRecord>,
     ancestors: ReadonlySet<string>,
-  ): Promise<readonly ArtifactContribution[] | null> {
+    memo: Map<string, readonly ArtifactContribution[] | null>,
+  ): readonly ArtifactContribution[] | null {
     if (ancestors.has(factId)) return null;
-    const candidate = await this.#store.loadFactCandidateById(factId as FactId);
-    if (candidate === null || candidate.fact.output_kind === null || candidate.evidence.length === 0) {
-      return null;
-    }
-    const { fact } = candidate;
-    const direct = candidate.evidence.map(contributionFromEvidence);
-    if (direct.some((entry) => entry === null)) return null;
+    const cached = memo.get(factId);
+    if (cached !== undefined) return cached;
 
-    const dependencyRows = await this.#store.driver.query<{ input_fact_id: string } & SqlRow>(
-      `SELECT input_fact_id
-         FROM fact_dependencies
-        WHERE derived_fact_id = $1
-        ORDER BY input_fact_id`,
-      [fact.id],
-    );
-    const derived = fact.output_kind === 'DERIVED_METRIC';
-    if ((derived && dependencyRows.length === 0) || (!derived && dependencyRows.length > 0)) {
-      return null;
-    }
-    const contributions = new Map<string, ArtifactContribution>();
-    for (const contribution of direct as ArtifactContribution[]) {
-      contributions.set(contribution.contributionId, contribution);
-    }
-    const nextAncestors = new Set(ancestors);
-    nextAncestors.add(factId);
-    for (const row of dependencyRows) {
-      const nested = await this.#collectFactContributions(row.input_fact_id, nextAncestors);
-      if (nested === null) return null;
-      for (const contribution of nested) {
-        contributions.set(contribution.contributionId, contribution);
+    const visiting = new Set(ancestors);
+    const stack: Array<{ readonly id: string; readonly exit: boolean }> = [
+      { id: factId, exit: false },
+    ];
+
+    while (stack.length > 0) {
+      const frame = stack.pop();
+      if (frame === undefined) break;
+      if (memo.has(frame.id)) continue;
+      if (frame.exit) {
+        visiting.delete(frame.id);
+        const record = records.get(frame.id);
+        if (
+          record === undefined ||
+          record.contributions === null ||
+          record.contributions.length === 0
+        ) {
+          memo.set(frame.id, null);
+          continue;
+        }
+        const contributions = new Map<string, ArtifactContribution>();
+        for (const contribution of record.contributions) {
+          contributions.set(contribution.contributionId, contribution);
+        }
+        let valid = true;
+        for (const dependencyId of record.dependencies) {
+          const nested = memo.get(dependencyId);
+          if (nested === undefined || nested === null) {
+            valid = false;
+            break;
+          }
+          for (const contribution of nested) {
+            contributions.set(contribution.contributionId, contribution);
+          }
+        }
+        memo.set(frame.id, valid ? [...contributions.values()] : null);
+        continue;
+      }
+      if (visiting.has(frame.id)) {
+        for (const id of visiting) memo.set(id, null);
+        return null;
+      }
+
+      const record = records.get(frame.id);
+      if (
+        record === undefined ||
+        record.outputKind === null ||
+        record.contributions === null ||
+        record.contributions.length === 0
+      ) {
+        memo.set(frame.id, null);
+        continue;
+      }
+      const derived = record.outputKind === 'DERIVED_METRIC';
+      if (
+        (derived && record.dependencies.length === 0) ||
+        (!derived && record.dependencies.length > 0)
+      ) {
+        memo.set(frame.id, null);
+        continue;
+      }
+
+      visiting.add(frame.id);
+      stack.push({ id: frame.id, exit: true });
+      for (let index = record.dependencies.length - 1; index >= 0; index -= 1) {
+        const dependencyId = record.dependencies[index];
+        if (dependencyId !== undefined) {
+          stack.push({ id: dependencyId, exit: false });
+        }
       }
     }
-    return [...contributions.values()];
+    return memo.get(factId) ?? null;
   }
 
   authorizeRelationship(relationship: Relationship): Promise<boolean> {
@@ -839,14 +1073,9 @@ class SurfaceRightsAuthorizer {
         ORDER BY id`,
       [verticalId],
     );
-    const decisions = await this.#authorizationWorkers.map(
-      rows,
-      async (row) => ({
-        id: row.id as EntityId,
-        allowed: await this.authorizeEntity(row.id as EntityId),
-      }),
-    );
-    return decisions.filter((entry) => entry.allowed).map((entry) => entry.id);
+    const ids = rows.map((row) => row.id as EntityId);
+    const decisions = await this.#authorizeEntities(ids);
+    return ids.filter((_, index) => decisions[index] === true);
   }
 
   visibleFactIds(verticalId: VerticalId): Promise<readonly string[]> {
@@ -862,31 +1091,40 @@ class SurfaceRightsAuthorizer {
       `SELECT f.id
          FROM facts f
          JOIN entities e ON e.id = f.entity_id
-         WHERE e.vertical_id = $1
+        WHERE e.vertical_id = $1
            AND f.status <> 'RETRACTED'
-           AND f.valid_from <= $2
-           AND (f.valid_to IS NULL OR f.valid_to > $2)
-           AND f.recorded_at <= $2
+          AND f.valid_from <= $2
+          AND (f.valid_to IS NULL OR f.valid_to > $2)
+          AND f.recorded_at <= $2
+          AND EXISTS (
+            SELECT 1
+              FROM fact_evidence evidence
+              JOIN source_records record ON record.id = evidence.source_record_id
+             WHERE evidence.fact_id = f.id
+               AND evidence.observed_at <= $2
+               AND record.revision_state = 'FINALIZED'
+               AND (
+                 record.is_current OR
+                 EXISTS (
+                   SELECT 1
+                     FROM source_record_reconciliations reconciliation
+                    WHERE reconciliation.superseded_source_record_id = record.id
+                      AND reconciliation.reconciled_at > $2
+                 ) OR
+                 EXISTS (
+                   SELECT 1
+                     FROM source_record_snapshot_retirements retirement
+                    WHERE retirement.source_record_id = record.id
+                      AND retirement.retired_at > $2
+                 )
+               )
+          )
         ORDER BY f.id`,
       [verticalId, this.#asOf],
     );
-    const decisions = await this.#authorizationWorkers.map(
-      rows,
-      async (row) => {
-        const candidate = await this.#store.loadFactCandidateByIdAtAuthority(
-          row.id as FactId,
-          this.#asOf,
-        );
-        return {
-          id: row.id,
-          allowed:
-            candidate !== null &&
-            candidate.evidence.length > 0 &&
-            await this.authorizeFact(row.id),
-        };
-      },
-    );
-    return decisions.filter((entry) => entry.allowed).map((entry) => entry.id);
+    const ids = rows.map((row) => row.id);
+    const decisions = await this.#authorizeFacts(ids);
+    return ids.filter((_, index) => decisions[index] === true);
   }
 
   async listEntities(query: SurfaceEntityListQuery): Promise<SurfaceEntityListPage> {
@@ -915,15 +1153,9 @@ class SurfaceRightsAuthorizer {
     );
     const pageRows = rows.slice(0, limit);
     const entities = pageRows.map(mapEntity);
-    const decisions = await this.#authorizationWorkers.map(
-      entities,
-      async (entity) => ({
-        entity,
-        allowed: await this.authorizeEntity(entity.id),
-      }),
-    );
+    const decisions = await this.#authorizeEntities(entities.map((entity) => entity.id));
     return {
-      entities: decisions.filter((entry) => entry.allowed).map((entry) => entry.entity),
+      entities: entities.filter((_, index) => decisions[index] === true),
       next_after_id: rows.length > limit ? (entities.at(-1)?.id ?? null) : null,
     };
   }

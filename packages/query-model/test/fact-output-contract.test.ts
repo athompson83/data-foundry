@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { factConfidence, type Fact } from '@data-foundry/canonical-schema';
+import { FieldMetadataRegistry, createQueryModel } from '../src/index.js';
 import {
+  HVAC_FIELDS,
   addSyntheticEntityEvidence,
   claim,
   createQueryFixtures,
@@ -457,6 +459,82 @@ describe('fact output contract at canonical query boundaries', () => {
     expect(properties).not.toContain('cache_blocked_output');
   });
 
+  it('authorizes a layered shared dependency DAG by nodes instead of paths', async () => {
+    fixtures = await createQueryFixtures({ trigram: false });
+    await seedSyntheticSurfaceRights(fixtures, ['PUBLIC_WEB'], ['manufacturer']);
+    await addSyntheticEntityEvidence(fixtures, fixtures.equipment);
+    await seedScopedDeriveDecision(fixtures, {
+      // A source-wide DERIVE grant keeps the fixture focused on graph work;
+      // production still evaluates the exact target field/output tuple when a
+      // narrower cell exists.
+      fieldKey: null,
+      outputClass: 'DERIVED_METRIC',
+      state: 'ALLOW',
+    });
+
+    const root = await claim(fixtures, 'manufacturer', {
+      entity_id: fixtures.equipment.id,
+      property: 'dag_root',
+      value: 64,
+      value_type: 'number',
+    });
+    const terminalProperty = 'dag_terminal_metric';
+    let previous: readonly Fact[] = [root.fact];
+    for (let layer = 0; layer < 18; layer += 1) {
+      const next: Fact[] = [];
+      for (const side of ['left', 'right'] as const) {
+        next.push(await appendDerivedFromInputs(
+          fixtures,
+          previous,
+          layer === 17 && side === 'left'
+            ? terminalProperty
+            : `dag_${String(layer).padStart(2, '0')}_${side}`,
+        ));
+      }
+      previous = next;
+    }
+
+    // Without graph memoization this two-node-per-layer DAG expands to more
+    // than half a million authorization paths. The terminal-field filter and
+    // facet can succeed only when the shared DAG itself is authorized, so
+    // these assertions exercise both production paths rather than merely
+    // observing an independently authorized entity.
+    const queryModel = createQueryModel(fixtures.store, {
+      fields: new FieldMetadataRegistry([
+        ...HVAC_FIELDS,
+        {
+          field: terminalProperty,
+          value_type: 'number',
+          unit: null,
+          filter: { type: 'multi_select', facet_count: true },
+          sort: false,
+          search_boost: 0,
+          indexable: true,
+          label: 'DAG terminal metric',
+        },
+      ]),
+    });
+    const surface = queryModel
+      .forSurface('PUBLIC_WEB', { asOf: ts('2026-07-01T00:00:00Z') })
+    const result = await surface.search({
+      vertical_id: fixtures.vertical.id,
+      entity_type: 'equipment',
+      filters: [{ property: terminalProperty, op: 'in', values: [6] }],
+      limit: 1,
+    });
+    expect(result.hits[0]?.entity.id).toBe(fixtures.equipment.id);
+
+    const facets = await surface.facets({
+      vertical_id: fixtures.vertical.id,
+      entity_type: 'equipment',
+      properties: [terminalProperty],
+    });
+    expect(facets).toContainEqual(expect.objectContaining({
+      property: terminalProperty,
+      values: [{ value: '6', count: 1 }],
+    }));
+  }, 30_000);
+
   it('requires the direct output-only source to authorize the exact target through deny and revocation history', async () => {
     fixtures = await createQueryFixtures({ trigram: false });
     await seedSyntheticSurfaceRights(
@@ -636,6 +714,43 @@ async function appendDerivedOutput(
   return result.fact;
 }
 
+async function appendDerivedFromInputs(
+  current: QueryFixtures,
+  inputs: readonly Fact[],
+  property: string,
+): Promise<Fact> {
+  const source = current.sources.manufacturer;
+  const result = await current.store.appendDerivedFactWithEvidence(
+    {
+      entity_id: current.equipment.id,
+      property: property as never,
+      normalized_value: 6,
+      value_type: 'number',
+      unit: null,
+      valid_from: ts('2026-02-01T00:00:00Z'),
+      confidence: factConfidence(0.9),
+      recorded_at: ts('2026-02-01T00:00:00Z'),
+      status: 'ACTIVE',
+    },
+    [{
+      artifact_id: source.artifact.id,
+      source_record_id: source.record.id,
+      source_value: '6',
+      locator_type: 'WHOLE_DOCUMENT',
+      locator_value: '',
+      observed_at: source.artifact.retrieved_at,
+    }],
+    inputs.map((input, index) => ({
+      input_fact_id: input.id,
+      transformation_ref: `test.${property}.input-${index + 1}.v1`,
+    })) as [
+      { readonly input_fact_id: Fact['id']; readonly transformation_ref: string },
+      ...Array<{ readonly input_fact_id: Fact['id']; readonly transformation_ref: string }>,
+    ],
+  );
+  return result.fact;
+}
+
 async function appendDerivedFixture(
   current: QueryFixtures,
   inputProperty: string,
@@ -720,7 +835,7 @@ async function surfaceProperties(current: QueryFixtures, asOf: string): Promise<
 
 interface ScopedDecisionOptions {
   readonly sourceKey?: keyof QueryFixtures['sources'];
-  readonly fieldKey: string;
+  readonly fieldKey: string | null;
   readonly outputClass: 'NORMALIZED_FACT' | 'DERIVED_METRIC';
   readonly state: 'ALLOW' | 'DENY' | 'UNKNOWN';
   readonly cellId?: string;
