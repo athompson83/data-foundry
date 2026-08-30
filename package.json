@@ -48,7 +48,7 @@
     "@electric-sql/pglite": "^0.5.5",
     "@types/node": "^22.20.1",
     "@types/pg": "^8.15.5",
-    "esbuild": "^0.24.2",
+    "esbuild": "^0.28.1",
     "pdf-lib": "^1.17.1",
     "pg": "^8.23.0",
     "smol-toml": "1.8.0",
