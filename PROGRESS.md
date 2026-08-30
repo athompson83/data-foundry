@@ -121,11 +121,12 @@
   protection are enabled, and repository hooks are empty. Only the Vercel App's
   sudo-gated repository selection remains an owner-only governance check; it
   does not block protected merge or Cloudflare deployment.
-- Public production begins with `PUBLIC_CACHE_MODE=no-store`; `cache` is a
-  later operational choice only after live purge, provider cache-bypass, and
-  stale-object proof. A rights revocation switches to `no-store` and purges
-  already cached objects because disabling new caching does not remove retained
-  provider objects. The repository does not control every provider cache rule.
+- Public production requires `PUBLIC_CACHE_MODE=no-store`; the runtime rejects
+  `cache` in production because request-time rights checks cannot revoke an
+  object already retained by a browser or intermediary. Shared caching is a
+  later engineering capability only after cache keys and invalidation follow
+  exact rights lifetimes. Provider purge and stale-object probes remain live
+  incident checks because the repository does not control every provider rule.
 - Public sitemap work is keyset-paged and subject to one validated raw-page
   budget per request, shared across all verticals and segments for the global
   index. Capacity exhaustion returns an opaque, non-cacheable retryable 503

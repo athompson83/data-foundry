@@ -149,18 +149,17 @@ for this deterministic application bound.
 
 ## Consequences
 
-**The free site begins no-store; bounded public caching is an earned incident
-mode.** `PUBLIC_CACHE_MODE=no-store` is the tracked production setting, so every
-successful public response begins revocation-safe. Operators may switch it to
-`cache` (the existing one-hour fresh plus 86,400-second stale-while-revalidate
-policy) only after live purge, provider cache-bypass, and stale-object probes
-pass. A rights, terms, kill-switch, or publication revocation first switches the
-mode back to `no-store` and purges existing cached objects—stopping future cache
-writes cannot remove objects a provider already retains. Provider cache-rule
-ownership and purge execution remain deployment responsibilities outside this
-repository; application headers are not proof that every intermediary obeyed or
-purged them. The paid API remains `no-store` because per-customer responses and
-immediate revocation semantics are not compatible with shared caching.
+**The free production site is no-store until cache invalidation follows rights
+state.** `PUBLIC_CACHE_MODE=no-store` is the tracked and runtime-enforced
+production setting. Production rejects `cache`: an object retained under the
+existing one-hour fresh plus 86,400-second stale-while-revalidate policy could
+outlive a rights expiry or revocation without reaching the request-time query
+gate. Live purge, provider cache-bypass, and stale-object probes remain incident
+controls, not permission to enable the mode. Shared caching requires a later ADR
+and implementation that bind cache keys, retention, and invalidation to exact
+rights effective and expiry state. The paid API remains `no-store` because
+per-customer responses and immediate revocation semantics are not compatible
+with shared caching.
 
 **Adding an industry is additive to both Workers independently.** A second
 vertical needs its own `apps/edge` deployment (or none, if it is not yet sold

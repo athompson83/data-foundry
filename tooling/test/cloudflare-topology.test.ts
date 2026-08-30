@@ -219,6 +219,24 @@ describe('the committed Cloudflare topology', () => {
     expect(await validate({ mode: 'deployment', ...paths })).toEqual([]);
   });
 
+  it('rejects a production web manifest that enables shared caching', async () => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-cloudflare-web-cache-'));
+    temporaryDirectories.push(directory);
+    const paths = await writeDeploymentManifests(directory);
+    await writeFile(
+      paths.webConfigPath,
+      (await readFile(paths.webConfigPath, 'utf8')).replace(
+        'PUBLIC_CACHE_MODE = "no-store"',
+        'PUBLIC_CACHE_MODE = "cache"',
+      ),
+      'utf8',
+    );
+
+    const errors = await validate({ mode: 'deployment', ...paths });
+    expect(errors.join('\n')).toMatch(/PUBLIC_CACHE_MODE.*no-store/i);
+  });
+
   it('requires one well-formed canonical account id across every deployment manifest', async () => {
     const validate = await loadValidator();
     const directory = await mkdtemp(join(tmpdir(), 'data-foundry-cloudflare-account-id-'));

@@ -111,6 +111,17 @@ describe('production topology is explicit and fail closed', () => {
     ).toBe('cache');
   });
 
+  it('refuses shared caching in production until invalidation follows rights changes', () => {
+    expect(() =>
+      resolveWebConfig({
+        DEPLOYMENT_ENVIRONMENT: 'production',
+        HYPERDRIVE: { connectionString: 'postgres://hyperdrive/db' },
+        PUBLIC_ORIGIN: productionOrigin,
+        PUBLIC_CACHE_MODE: 'cache',
+      }),
+    ).toThrow(WebConfigurationError);
+  });
+
   it('refuses an unknown deployment environment', () => {
     expect(() =>
       resolveWebConfig({

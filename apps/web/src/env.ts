@@ -57,10 +57,16 @@ function resolveDeploymentEnvironment(value: string | undefined): DeploymentEnvi
 }
 
 function resolveCacheMode(value: string | undefined, deployment: DeploymentEnvironment): PublicCacheMode {
+  if (deployment === 'production') {
+    if (value === 'no-store') return value;
+    throw new WebConfigurationError(
+      'PUBLIC_CACHE_MODE must be exactly "no-store" in production until cache invalidation follows rights changes.',
+    );
+  }
   if (value === 'cache' || value === 'no-store') return value;
-  if (deployment === 'development' && (value === undefined || value.trim() === '')) return 'cache';
+  if (value === undefined || value.trim() === '') return 'cache';
   throw new WebConfigurationError(
-    'PUBLIC_CACHE_MODE must be exactly "cache" or "no-store" and is required in production.',
+    'PUBLIC_CACHE_MODE must be exactly "cache" or "no-store".',
   );
 }
 

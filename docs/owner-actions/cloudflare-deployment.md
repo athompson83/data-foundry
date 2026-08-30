@@ -326,7 +326,8 @@ item 1.
    ```
    Add the non-secret live binding/account/route/host values only to those five
    ignored files. All five must name the same exact 32-hex `account_id`. Set
-   `PUBLIC_CACHE_MODE = "no-store"` in the web deployment manifest initially.
+   `PUBLIC_CACHE_MODE = "no-store"` in the web deployment manifest. Production
+   rejects `cache` until rights-lifetime-aware invalidation exists.
     When the marketplace channel is enabled, add a second edge route for its
     dedicated origin hostname and set `RAPIDAPI_HOSTNAME` to that exact host.
     Keep the direct API on a different route so hostname-first classification
@@ -433,10 +434,12 @@ protocol-failure class, have `POST`, `rows_served = 0`, and `MCP/NONE`, with no
 tool name, arguments, JSON-RPC id, entity id, request target, or credential.
 Also prove the workers.dev and preview URLs refuse traffic, then send a
 non-secret URL canary and confirm no retained invocation log contains it.
-`PUBLIC_CACHE_MODE` begins as `no-store`. It may change to `cache` only after a
-live purge, provider cache-bypass check, and stale-object probes all pass; a
-rights revocation first switches back to `no-store` and purges existing cached
-objects because preventing new cache writes cannot remove older objects.
+`PUBLIC_CACHE_MODE` must remain `no-store`; production rejects `cache` because
+request-time rights checks cannot revoke an object already retained by a browser
+or shared intermediary. Exercise live purge, provider cache-bypass, and
+stale-object probes as incident controls, but do not treat those manual checks as
+authorization to enable shared caching. That requires a later implementation
+whose cache keys and invalidation follow each exact rights lifetime.
 
 ---
 
@@ -538,9 +541,9 @@ commercial gate.
 8. Measure demand/cost before expanding plans, verticals or building first-
    party billing.
 
-Public production starts in `PUBLIC_CACHE_MODE=no-store`. Switch to the bounded
-shared-cache policy only after live purge, provider cache-bypass, and stale-object
-probes have passed. For a rights revocation, switch back to `no-store` and purge
-existing cached objects: disabling future cache headers does not remove objects
-already retained by a provider. The repository controls response headers, not
-every provider cache rule or purge result.
+Public production requires `PUBLIC_CACHE_MODE=no-store`; the runtime rejects the
+shared-cache mode. Live purge, provider cache-bypass, and stale-object probes are
+still required incident controls because the repository controls response
+headers, not every provider cache rule or purge result. Enabling public caching
+requires a later reviewed implementation that binds cache retention and
+invalidation to exact rights effective and expiry state.

@@ -27,8 +27,8 @@ invocation_logs = false
 # the API and queue consumer. The web runtime reads this value and refuses a
 # production deployment that lacks the HYPERDRIVE binding.
 DEPLOYMENT_ENVIRONMENT = "production"
-# Public caching begins fail-safe until operators prove purge, provider bypass,
-# and stale-object controls against the live route.
+# Production is fail-closed at no-store until cache invalidation follows exact
+# rights lifetimes; purge and stale-object probes alone do not enable caching.
 PUBLIC_CACHE_MODE = "no-store"
 
 # No VERTICAL_SLUG here, unlike apps/edge: this is the ONE deployment that

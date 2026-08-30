@@ -374,8 +374,8 @@ function checkDeploymentEndpoints(
   } else if (!webRouteHosts.has(webPublicOrigin.hostname)) {
     errors.push('web PUBLIC_ORIGIN hostname must match a web canonical production route hostname.');
   }
-  if (webVars['PUBLIC_CACHE_MODE'] !== 'cache' && webVars['PUBLIC_CACHE_MODE'] !== 'no-store') {
-    errors.push('web deployment manifest must provide PUBLIC_CACHE_MODE as exactly cache or no-store.');
+  if (webVars['PUBLIC_CACHE_MODE'] !== 'no-store') {
+    errors.push('web deployment manifest must provide PUBLIC_CACHE_MODE as exactly no-store.');
   }
 
   const mcpVars = object(mcp['vars']);

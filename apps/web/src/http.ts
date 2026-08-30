@@ -22,10 +22,10 @@ export type WebHandler = (request: WebRequest) => Promise<WebResponse>;
 export type PublicCacheMode = 'cache' | 'no-store';
 
 /**
- * Public, cacheable content. Unlike `apps/api` (no-store: it is the metered,
- * per-customer surface), this is the free surface a crawler is meant to fetch
- * repeatedly — an hour of shared caching is real cost saved and no
- * correctness risk, because nothing here is personalized.
+ * Public content may be cached only when its caller has an invalidation model
+ * that follows exact rights lifetimes. Production currently enforces no-store;
+ * the bounded shared-cache policy remains available only to explicit local
+ * development contexts.
  */
 const PUBLIC_CACHE = 'public, max-age=3600, stale-while-revalidate=86400';
 const NO_STORE = 'no-store';
