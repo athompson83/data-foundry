@@ -61,7 +61,7 @@ jobs:
             esac
 
             case "$path" in
-              db/migrations/*|tooling/scripts/migrate.ts|packages/canonical-store/*|package.json|pnpm-lock.yaml|.github/workflows/ci.yml)
+              db/migrations/**|tooling/scripts/migrate.ts|tooling/scripts/check-source-record-reconciliation-postgres.ts|packages/canonical-store/**|services/ingest-worker/**|tooling/scripts/check-credential-provisioning-postgres.ts|tooling/scripts/provision-api-credential.ts|packages/api-keys/**|tooling/scripts/check-scheduled-acquisition-postgres.ts|packages/acquisition/**|apps/acquisition-worker/**|verticals/**|tooling/lib/cli-entry.ts|tests/support/acquisition-rights.ts|packages/canonical-schema/**|packages/normalization/**|packages/source-registry/**|packages/rights-engine/**|package.json|pnpm-lock.yaml|.github/workflows/ci.yml)
                 run_postgres=true
                 ;;
             esac
@@ -73,10 +73,17 @@ jobs:
   verify:
     name: typecheck • test • migrations • vertical config
     needs: scope
+    if: always() && (github.event_name != 'pull_request' || github.event.pull_request.draft == false)
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
     steps:
+      - name: Fail when scope selection fails
+        if: always() && needs.scope.result != 'success'
+        run: |
+          echo "Scope selection failed; required verification cannot be determined." >&2
+          exit 1
+
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
@@ -126,9 +133,11 @@ jobs:
         run: pnpm schemas:check
 
       - name: OpenAPI contract is current
+        if: needs.scope.outputs.run_verify == 'true'
         run: pnpm openapi:check
 
       - name: Cloudflare topology is internally consistent
+        if: needs.scope.outputs.run_verify == 'true'
         run: pnpm cloudflare:topology:check
 
       # 5. Vertical configuration. Validates every verticals/* declaration:
@@ -149,30 +158,34 @@ jobs:
         run: pnpm verticals:compile:check
 
       - name: Acquisition runtime artifacts are current
+        if: needs.scope.outputs.run_verify == 'true'
         run: pnpm acquisition:check
 
       # 7. MCP advertises the same six executable generic tools implemented by
       #    apps/mcp, plus compiled vertical query/server metadata. Drift would
       #    make the remote server advertise a contract it does not execute.
       - name: MCP runtime artifacts are current
+        if: needs.scope.outputs.run_verify == 'true'
         run: pnpm mcp:compile:check
 
       # 8. Same reasoning as step 6, for the web surface's own compiled
       #    artifact — it additionally bundles seo.yaml, which the edge runtime
       #    artifact does not carry.
       - name: Web runtime artifacts are current
+        if: needs.scope.outputs.run_verify == 'true'
         run: pnpm web:compile:check
 
       # 9. Build the exact Cloudflare bundles only after every generated input
       #    is known current, then reject any production artifact that carries
       #    the local PGlite/WASM runtime.
       - name: Cloudflare production artifacts are deployable and PGlite-free
+        if: needs.scope.outputs.run_verify == 'true'
         run: pnpm cloudflare:artifacts:check
 
   migrations-postgres:
     name: migrations on real Postgres
     needs: scope
-    if: needs.scope.outputs.run_postgres == 'true'
+    if: always() && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (needs.scope.result != 'success' || needs.scope.outputs.run_postgres == 'true')
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -191,6 +204,12 @@ jobs:
           --health-retries 5
 
     steps:
+      - name: Fail when scope selection fails
+        if: always() && needs.scope.result != 'success'
+        run: |
+          echo "Scope selection failed; real-Postgres requirements cannot be determined." >&2
+          exit 1
+
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
