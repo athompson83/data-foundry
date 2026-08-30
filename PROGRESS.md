@@ -4,16 +4,19 @@
 
 - Product: Data Foundry
 - Lifecycle stage: MVP integration / pre-deployment
-- Control-graph node: `REVIEW_REPAIR -> EXACT_SHA_VERIFY -> PROTECTED_PR -> MERGED_MAIN -> EXTERNAL_DEPLOY`
-- Current milestone: verify and merge the integrated, synthetic-data-capable
-  deployment candidate without implying that a real HVAC dataset is cleared
-- Branch: `codex/revenue-integration-20260826`
-- PR: [#19](https://github.com/athompson83/data-foundry/pull/19) is the integration
-  vehicle. Its live 40-character head, not a SHA embedded in this mutable file,
-  is the candidate authority; every candidate-affecting push requires fresh
-  local, hosted, review, and ruleset evidence.
+- Control-graph node: `MERGED_MAIN -> EXTERNAL_DEPLOY`
+- Current milestone: deploy and prove the protected-main,
+  synthetic-data-capable platform without implying that a real HVAC dataset is
+  cleared
+- Release authority: the live 40-character `origin/main`. Integration PR
+  [#19](https://github.com/athompson83/data-foundry/pull/19) is merged; PRs
+  #13–#17 are closed as superseded after path, patch, ancestry, and behavioral
+  reconciliation. Dependency follow-up PR #21 removes the remaining `esbuild`
+  advisory from the post-integration lockfile. Every later candidate-affecting
+  change still requires fresh exact-SHA local, hosted, review, and ruleset
+  evidence.
 - Preview: none verified
-- Production: no deployment of this integration candidate is recorded or
+- Production: no deployment of the integrated protected-main tree is recorded or
   verified; live Cloudflare account state was unavailable for inspection
 - Database target: repository migrations verified locally/disposably; no hosted
   target or grant state was changed during this integration
@@ -66,6 +69,15 @@
   a usable strong identifier still finalizes a zero-claim successor, withdraws
   the prior source-only identity from customer surfaces, and creates no phantom
   manufacturer while preserving immutable history.
+- Migration `0025` binds every source-record alias claim to its exact immutable
+  `ALIAS` entity-evidence row. A claim without that link—and every legacy row
+  for which the repository cannot prove the link—stays outside resolution and
+  search. The ingest pipeline records the claim and evidence in one pinned
+  transaction, so the alias's source is included in the surface-rights AND.
+- Every customer-facing query operation uses a fresh read-only repeatable
+  snapshot and request-local authorizer. Compound REST, MCP, public-web, search,
+  facet, relationship, and comparison flows cannot reuse authorization from an
+  older contribution set or observe a mid-operation alias commit.
 - Migration `0024` requires explicit source-stream membership and
   `full_snapshot` versus `incremental` refresh semantics. Complete snapshots
   retire omitted current records atomically with append-only artifact evidence;
@@ -85,8 +97,8 @@
   env file. Reserved and `workers.dev` marketplace hosts are refused. It creates
   no rights grant, plan, invoice or source approval.
 - MCP is a deployable, one-vertical, custom-bearer MCP 2026-07-28 surface with
-  exact `MCP/NONE` analytics. It is not OAuth or anonymous; no deployment of
-  this integration candidate is verified.
+  exact `MCP/NONE` analytics. It is not OAuth or anonymous; no live deployment
+  is verified.
 - The final Cloudflare topology is five Workers: edge, web, usage-consumer,
   acquisition-worker, and mcp-worker. Deployment validation requires every
   exact manifest to name the same canonical 32-hex `account_id`.
@@ -105,11 +117,10 @@
 
 ## Deployment and Revenue State
 
-- The integrated implementation remains at the review/repair node while the
-  final documentation and code tree are being frozen. It is not a release
-  candidate until that exact tree passes fresh local, hosted, review, and
-  ruleset gates. Repository-ready does not mean deployed or commercially
-  publishable.
+- The integrated implementation is on protected `main`. Repository code,
+  migrations, generated artifacts, security review, and strict required checks
+  passed before merge. Repository-ready does not mean deployed or commercially
+  publishable; the live deployment and real-source gates remain independent.
 - RapidAPI enrollment, proxy-secret configuration, plans, payout setup, live
   route, and real subscriber proof remain external.
 - Cloudflare canonical account/zone/routes, Hyperdrive, production Postgres, R2,
@@ -121,12 +132,13 @@
   protection are enabled, and repository hooks are empty. Only the Vercel App's
   sudo-gated repository selection remains an owner-only governance check; it
   does not block protected merge or Cloudflare deployment.
-- The candidate upgrades the production PDF parser to `unpdf@1.8.1`, removing
+- Protected `main` upgrades the production PDF parser to `unpdf@1.8.1`, removing
   the legacy `canvas` / `node-pre-gyp` / vulnerable `node-tar` install chain
   behind all twelve Dependabot advisories discovered on the prior
-  default-branch lockfile. A parsed-lockfile regression and
-  `pnpm audit --prod --audit-level high` keep that dependency repair executable
-  rather than documentary.
+  default-branch lockfile. The dependency follow-up also updates `esbuild`,
+  removing the remaining development-tool advisory. Parsed-lockfile regression
+  coverage and `pnpm audit --audit-level moderate` keep those dependency
+  repairs executable rather than documentary.
 - Public production requires `PUBLIC_CACHE_MODE=no-store`; the runtime rejects
   `cache` in production because request-time rights checks cannot revoke an
   object already retained by a browser or intermediary. Shared caching is a
@@ -148,15 +160,15 @@
   alias epochs/claims, identifier-less successors, bounded provider input,
   Queue privacy/idempotency, bounded sitemap work, and credential-delivery
   refusal/compensation paths, plus removal of the vulnerable transitive
-  `node-tar` chain. Those iteration results are diagnostic evidence, not
-  release certification while the candidate tree is still mutable.
-- The exact frozen candidate must freshly pass typecheck, the complete Vitest
-  suite, ordered/idempotent migrations, generated schema/OpenAPI/runtime drift
-  checks, vertical/acquisition checks, repository Cloudflare topology, all five
-  Worker artifact checks, and the disposable real-PostgreSQL migration,
-  reconciliation and concurrency gates. The resulting live 40-character PR
-  head and hosted required checks are the release authority; no intermediate
-  commit or historical test total is.
+  `node-tar` chain.
+- The closeout candidate passed the complete 177-file/2,860-test Vitest
+  suite, typecheck/build, ordered and idempotent migrations, generated
+  schema/OpenAPI/runtime drift checks, vertical/acquisition checks, repository
+  Cloudflare topology, all five Worker artifact checks, disposable PostgreSQL
+  16 replay/reconciliation/concurrency gates, dependency audit, and a sealed
+  216-item security scan with no findings. Strict hosted checks passed on the
+  exact PR heads. Every later release SHA must rerun the applicable gates; an
+  intermediate commit or historical test total never certifies a changed tree.
 - Repository topology centralizes production endpoint classification, rejects
   loopback/unspecified endpoints and plaintext protected values, and keeps
   deployment-only fields out of tracked templates. Deployment-mode validation
@@ -166,7 +178,7 @@
 
 ## Blockers
 
-- No exact deployment of this candidate or hosted database/Queue/R2 proof is
+- No exact deployment of protected `main` or hosted database/Queue/R2 proof is
   recorded. Live Cloudflare account state could not be inspected here.
 - Public sitemap rate limiting and its ordinary-crawler bypass policy have not
   been configured or verified on the canonical Cloudflare account.
@@ -175,12 +187,12 @@
 
 ## Required User Actions
 
-See `PROJECT_CHECKLIST.md` `UA-001` through `UA-003`. ENERGY STAR remains
+See `PROJECT_CHECKLIST.md` `UA-001` through `UA-004`. ENERGY STAR remains
 deferred; it is not an action request in this work package.
 
 ## Production Impact
 
-Repository code, thirteen forward migrations (`0012` through `0024`), tests, generated artifacts, and control
+Repository code, fourteen forward migrations (`0012` through `0025`), tests, generated artifacts, and control
 documents changed. This work performs no deployment, hosted migration, grant
 activation, source acquisition, publisher contact, or provider mutation.
 

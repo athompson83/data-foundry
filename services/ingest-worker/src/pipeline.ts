@@ -1716,7 +1716,7 @@ export class Pipeline {
 
         for (const alias of record.aliases) {
           const staged = await resolver.stageSourceAlias(alias, tx);
-          await this.store.recordSourceAliasClaim(
+          const aliasClaim = await this.store.recordSourceAliasClaim(
             {
               entity_alias_id: staged.id,
               asserted_alias_value: alias.aliasValue,
@@ -1733,6 +1733,7 @@ export class Pipeline {
               entity_id: alias.entity.id,
               artifact_id: item.artifact.id,
               source_record_id: sourceRecord.id,
+              entity_alias_claim_id: aliasClaim.id,
               contribution_role: 'ALIAS',
               locator_type: alias.locator.type,
               locator_value: alias.locator.value,

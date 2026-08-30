@@ -259,7 +259,7 @@ export async function run(
       valid_from: '2026-08-30T00:00:00.000Z' as never,
       valid_to: null,
     });
-    await primary.recordSourceAliasClaim({
+    const initialAliasClaim = await primary.recordSourceAliasClaim({
       entity_alias_id: trackedAlias.id,
       asserted_alias_value: `PG-ALIAS-${suffix}`,
       asserted_normalized_value: `pg-alias-${suffix}`,
@@ -267,6 +267,16 @@ export async function run(
       source_record_id: initial.id,
       locator_type: 'JSON_POINTER',
       locator_value: '/products/0/model',
+    });
+    await primary.recordEntityEvidence({
+      entity_id: entity.id,
+      artifact_id: initialArtifact.id,
+      source_record_id: initial.id,
+      entity_alias_claim_id: initialAliasClaim.id,
+      contribution_role: 'ALIAS',
+      locator_type: 'JSON_POINTER',
+      locator_value: '/products/0/model',
+      observed_at: '2026-08-30T00:00:00.000Z' as never,
     });
 
     const firstReady = deferred<void>();
@@ -292,7 +302,7 @@ export async function run(
         locator_value: '/products/0',
         observed_at: '2026-08-30T00:00:00.000Z' as never,
       }, tx);
-      await first.recordSourceAliasClaim({
+      const aliasClaim = await first.recordSourceAliasClaim({
         entity_alias_id: trackedAlias.id,
         asserted_alias_value: `PG-ALIAS-${suffix}`,
         asserted_normalized_value: `pg-alias-${suffix}`,
@@ -300,6 +310,16 @@ export async function run(
         source_record_id: revision.id,
         locator_type: 'JSON_POINTER',
         locator_value: '/products/0/model',
+      }, tx);
+      await first.recordEntityEvidence({
+        entity_id: entity.id,
+        artifact_id: firstArtifact.id,
+        source_record_id: revision.id,
+        entity_alias_claim_id: aliasClaim.id,
+        contribution_role: 'ALIAS',
+        locator_type: 'JSON_POINTER',
+        locator_value: '/products/0/model',
+        observed_at: '2026-08-30T00:00:00.000Z' as never,
       }, tx);
       firstReady.resolve();
       await releaseFirst.promise;
@@ -328,7 +348,7 @@ export async function run(
         locator_value: '/products/0',
         observed_at: '2026-08-30T00:00:00.000Z' as never,
       }, tx);
-      await second.recordSourceAliasClaim({
+      const aliasClaim = await second.recordSourceAliasClaim({
         entity_alias_id: trackedAlias.id,
         asserted_alias_value: `PG-ALIAS-${suffix}`,
         asserted_normalized_value: `pg-alias-${suffix}`,
@@ -336,6 +356,16 @@ export async function run(
         source_record_id: revision.id,
         locator_type: 'JSON_POINTER',
         locator_value: '/products/0/model',
+      }, tx);
+      await second.recordEntityEvidence({
+        entity_id: entity.id,
+        artifact_id: secondArtifact.id,
+        source_record_id: revision.id,
+        entity_alias_claim_id: aliasClaim.id,
+        contribution_role: 'ALIAS',
+        locator_type: 'JSON_POINTER',
+        locator_value: '/products/0/model',
+        observed_at: '2026-08-30T00:00:00.000Z' as never,
       }, tx);
       return revision;
     });
@@ -500,6 +530,16 @@ export async function run(
       first.recordSourceAliasClaim(raceInput),
       second.recordSourceAliasClaim(raceInput),
     ]);
+    await primary.recordEntityEvidence({
+      entity_id: entity.id,
+      artifact_id: secondArtifact.id,
+      source_record_id: secondRevision.id,
+      entity_alias_claim_id: firstClaim.id,
+      contribution_role: 'ALIAS',
+      locator_type: raceInput.locator_type,
+      locator_value: raceInput.locator_value,
+      observed_at: '2026-08-30T00:00:00.000Z' as never,
+    });
 
     // A curated assertion is also a retried natural-key write. Both callers
     // must observe the same alias even when one statement waits on the other's
@@ -633,9 +673,11 @@ export async function run(
       artifact_id: string;
     }>(
       `SELECT record.artifact_id AS expected_artifact_id, evidence.artifact_id
-         FROM entity_evidence evidence
+       FROM entity_evidence evidence
          JOIN source_records record ON record.id = evidence.source_record_id
-        WHERE record.source_id = $1 AND record.source_record_key = $2`,
+        WHERE record.source_id = $1
+          AND record.source_record_key = $2
+          AND evidence.contribution_role = 'EXISTENCE'`,
       [source.id, key],
     );
     const aliasClaims = await primaryDriver.query<{
@@ -694,7 +736,7 @@ export async function run(
     assert.deepEqual(
       currentAliases.map((alias) => alias.id).sort(),
       [trackedAlias.id, racedAlias.id].sort(),
-      'only claims backed by the surviving current source-record revision should keep aliases current',
+      'only exact evidence-linked claims backed by the surviving current source-record revision should keep aliases current',
     );
     process.stdout.write(
       'OK: PostgreSQL serialized source-record revisions and snapshot watermarks, rejected delayed membership, resolved equal-time inversions, and converged concurrent alias and resolver retries.\n',

@@ -20,6 +20,35 @@ import {
 
 let fixtures: QueryFixtures;
 
+async function recordSourceAliasClaimWithEvidence(
+  current: QueryFixtures,
+  input: Parameters<QueryFixtures['store']['recordSourceAliasClaim']>[0],
+) {
+  const claim = await current.store.recordSourceAliasClaim(input);
+  const [provenance] = await current.driver.query<{
+    entity_id: string;
+    artifact_id: string;
+  }>(
+    `SELECT alias_row.entity_id, source_record.artifact_id
+       FROM entity_aliases alias_row
+       JOIN source_records source_record ON source_record.id = $2
+      WHERE alias_row.id = $1`,
+    [input.entity_alias_id, input.source_record_id],
+  );
+  if (provenance === undefined) throw new Error('alias search provenance fixture missing');
+  await current.store.recordEntityEvidence({
+    entity_id: provenance.entity_id as never,
+    artifact_id: provenance.artifact_id as never,
+    source_record_id: input.source_record_id,
+    entity_alias_claim_id: claim.id,
+    contribution_role: 'ALIAS',
+    locator_type: input.locator_type,
+    locator_value: input.locator_value,
+    observed_at: ts('2026-08-30T00:00:00Z'),
+  });
+  return claim;
+}
+
 beforeAll(async () => {
   fixtures = await createQueryFixtures();
 });
@@ -111,7 +140,7 @@ describe('exact identifiers beat fuzzy ranking', () => {
         valid_from: ts('2026-08-30T00:00:00Z'),
         valid_to: null,
       });
-      await current.store.recordSourceAliasClaim({
+      await recordSourceAliasClaimWithEvidence(current, {
         entity_alias_id: alias.id,
         asserted_alias_value: 'Manufacturer search spelling',
         asserted_normalized_value: 'search-switch',
@@ -130,7 +159,7 @@ describe('exact identifiers beat fuzzy ranking', () => {
         valid_from: ts('2026-08-30T00:00:00Z'),
         valid_to: null,
       });
-      await current.store.recordSourceAliasClaim({
+      await recordSourceAliasClaimWithEvidence(current, {
         entity_alias_id: alias.id,
         asserted_alias_value: 'Certifier search spelling',
         asserted_normalized_value: 'search-switch',

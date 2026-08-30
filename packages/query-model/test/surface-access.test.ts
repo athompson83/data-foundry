@@ -1,6 +1,10 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { entityQualityScore, type Entity } from '@data-foundry/canonical-schema';
-import type { SqlParam, SqlRow } from '@data-foundry/canonical-store';
+import { entityQualityScore, identityConfidence, type Entity } from '@data-foundry/canonical-schema';
+import type {
+  SqlParam,
+  SqlRow,
+  SqlTransactionExecutor,
+} from '@data-foundry/canonical-store';
 import {
   FieldMetadataRegistry,
   createQueryModel,
@@ -171,6 +175,96 @@ describe('surface-bound query model', () => {
     }
   });
 
+  it('does not launder a denied source alias through an otherwise authorized entity', async () => {
+    const entity = await fixtures.store.upsertEntity({
+      vertical_id: fixtures.vertical.id,
+      entity_type: 'equipment',
+      canonical_name: 'Alias Rights Isolation Unit',
+      canonical_slug: 'alias-rights-isolation-unit',
+      status: 'ACTIVE',
+      quality_score: entityQualityScore(0.7),
+      first_seen_at: ts('2026-01-01T00:00:00Z'),
+      last_verified_at: null,
+    });
+    await addEntityEvidence(entity);
+    await claim(fixtures, 'manufacturer', {
+      entity_id: entity.id,
+      property: 'seer2_rating',
+      value: 18,
+      value_type: 'number',
+    });
+    await fixtures.store.upsertRelationshipWithEvidence(
+      {
+        vertical_id: fixtures.vertical.id,
+        subject_entity_id: entity.id,
+        predicate: 'related_to',
+        object_entity_id: fixtures.entity.id,
+        confidence: entity.quality_score as never,
+        valid_from: ts('2026-01-01T00:00:00Z'),
+        recorded_at: ts('2026-01-01T00:00:00Z'),
+        status: 'ACTIVE',
+      },
+      [{
+        artifact_id: fixtures.sources.manufacturer.artifact.id,
+        source_record_id: fixtures.sources.manufacturer.record.id,
+        source_value: 'Alias Rights Isolation Unit related to fixture entity',
+        locator_type: 'JSON_POINTER',
+        locator_value: '/relationships/0',
+        observed_at: fixtures.sources.manufacturer.artifact.retrieved_at,
+      }],
+    );
+
+    const deniedSource = fixtures.sources.certifier;
+    const alias = await fixtures.store.stageSourceAlias({
+      entity_id: entity.id,
+      alias_type: 'external_id',
+      alias_value: 'DENIED-ALIAS-ZZYX-9917',
+      normalized_value: 'deniedaliaszzyx9917',
+      source_id: deniedSource.source.id,
+      identity_confidence: identityConfidence(0.99),
+      valid_from: ts('2026-01-01T00:00:00Z'),
+      valid_to: null,
+    });
+    const aliasClaim = await fixtures.store.recordSourceAliasClaim({
+      entity_alias_id: alias.id,
+      asserted_alias_value: 'DENIED-ALIAS-ZZYX-9917',
+      asserted_normalized_value: 'deniedaliaszzyx9917',
+      identity_confidence: identityConfidence(0.99),
+      source_record_id: deniedSource.record.id,
+      locator_type: 'TABLE_CELL',
+      locator_value: 'aliases!A2',
+    });
+
+    const web = queryModel.forSurface('PUBLIC_WEB', { asOf: AS_OF });
+    expect((await web.getEntity(entity.id))?.entity.id).toBe(entity.id);
+    expect(await web.canonicalFacts(entity.id, { at: AS_OF })).toHaveLength(1);
+    expect((await web.relationships({ entity_id: entity.id })).edges).toHaveLength(1);
+    expect((await web.search({
+      vertical_id: fixtures.vertical.id,
+      text: 'DENIED-ALIAS-ZZYX-9917',
+    })).hits).toEqual([]);
+
+    await fixtures.store.recordEntityEvidence({
+      entity_id: entity.id,
+      artifact_id: deniedSource.artifact.id,
+      source_record_id: deniedSource.record.id,
+      entity_alias_claim_id: aliasClaim.id,
+      contribution_role: 'ALIAS',
+      locator_type: 'TABLE_CELL',
+      locator_value: 'aliases!A2',
+      observed_at: deniedSource.artifact.retrieved_at,
+    });
+
+    expect(await web.canonicalFacts(entity.id, { at: AS_OF })).toEqual([]);
+    expect((await web.relationships({ entity_id: entity.id })).edges).toEqual([]);
+    expect((await web.search({
+      vertical_id: fixtures.vertical.id,
+      text: 'DENIED-ALIAS-ZZYX-9917',
+    })).hits).toEqual([]);
+    const nextRequest = queryModel.forSurface('PUBLIC_WEB', { asOf: AS_OF });
+    expect(await nextRequest.getEntity(entity.id)).toBeNull();
+  });
+
   it('fails closed for an entity with no entity-level provenance', async () => {
     expect(await queryModel.getEntity(hiddenEntity.id)).not.toBeNull();
     const web = queryModel.forSurface('PUBLIC_WEB', { asOf: AS_OF });
@@ -281,18 +375,21 @@ describe('surface-bound query model', () => {
 
     const originalQueryMethod = fixtures.driver.query;
     const originalQuery = originalQueryMethod.bind(fixtures.driver);
+    const originalTransactionMethod = fixtures.driver.transaction;
+    const originalTransaction = originalTransactionMethod.bind(fixtures.driver);
     const active = { count: 0, max: 0 };
     const started = { entity: 0, fact: 0 };
-    fixtures.driver.query = (async <R extends SqlRow = SqlRow>(
+    const observedQuery = async <R extends SqlRow = SqlRow>(
       sql: string,
       params?: readonly SqlParam[],
+      execute?: () => Promise<R[]>,
     ): Promise<R[]> => {
       const kind = sql.includes('FROM entity_evidence ee')
         ? 'entity'
         : sql.includes('FROM facts WHERE id = $1')
           ? 'fact'
           : null;
-      if (kind === null) return originalQuery<R>(sql, params);
+      if (kind === null) return execute?.() ?? originalQuery<R>(sql, params);
 
       started[kind] += 1;
       active.count += 1;
@@ -302,11 +399,27 @@ describe('surface-bound query model', () => {
         // many row-level decisions the surface launches at once. This measures
         // authorization work before the driver's own pool can hide the fan-out.
         await new Promise((resolve) => setTimeout(resolve, 15));
-        return await originalQuery<R>(sql, params);
+        return await (execute?.() ?? originalQuery<R>(sql, params));
       } finally {
         active.count -= 1;
       }
-    }) as typeof fixtures.driver.query;
+    };
+    fixtures.driver.query = (async <R extends SqlRow = SqlRow>(
+      sql: string,
+      params?: readonly SqlParam[],
+    ): Promise<R[]> => observedQuery<R>(sql, params)) as typeof fixtures.driver.query;
+    fixtures.driver.transaction = (async <T>(
+      run: (tx: SqlTransactionExecutor) => Promise<T>,
+    ): Promise<T> => originalTransaction(async (transaction) => run({
+      query: async <R extends SqlRow = SqlRow>(
+        sql: string,
+        params?: readonly SqlParam[],
+      ): Promise<R[]> => observedQuery<R>(
+        sql,
+        params,
+        () => transaction.query<R>(sql, params),
+      ),
+    } as SqlTransactionExecutor))) as typeof fixtures.driver.transaction;
 
     try {
       const web = queryModel.forSurface('PUBLIC_WEB', { asOf: AS_OF });
@@ -322,6 +435,7 @@ describe('surface-bound query model', () => {
       expect(result.total).toBe(seededEntities.length + 1);
     } finally {
       fixtures.driver.query = originalQueryMethod;
+      fixtures.driver.transaction = originalTransactionMethod;
     }
 
     expect(started.entity).toBeGreaterThan(8);
@@ -354,6 +468,8 @@ describe('surface-bound query model', () => {
 
     const originalQueryMethod = fixtures.driver.query;
     const originalQuery = originalQueryMethod.bind(fixtures.driver);
+    const originalTransactionMethod = fixtures.driver.transaction;
+    const originalTransaction = originalTransactionMethod.bind(fixtures.driver);
     let releaseAuthorizations!: () => void;
     const held = new Promise<void>((resolve) => {
       releaseAuthorizations = resolve;
@@ -365,9 +481,10 @@ describe('surface-bound query model', () => {
     let heldAuthorizations = 0;
     let catalogRowReads = 0;
 
-    fixtures.driver.query = (async <R extends SqlRow = SqlRow>(
+    const observedQuery = async <R extends SqlRow = SqlRow>(
       sql: string,
       params?: readonly SqlParam[],
+      execute?: () => Promise<R[]>,
     ): Promise<R[]> => {
       const isAuthorization =
         sql.includes('FROM entity_evidence ee') ||
@@ -378,7 +495,7 @@ describe('surface-bound query model', () => {
         await held;
       }
 
-      const rows = await originalQuery<R>(sql, params);
+      const rows = await (execute?.() ?? originalQuery<R>(sql, params));
       const isCatalog =
         sql.includes('SELECT id FROM entities') ||
         sql.includes('SELECT f.id');
@@ -391,7 +508,23 @@ describe('surface-bound query model', () => {
           return Reflect.get(target, property, receiver);
         },
       });
-    }) as typeof fixtures.driver.query;
+    };
+    fixtures.driver.query = (async <R extends SqlRow = SqlRow>(
+      sql: string,
+      params?: readonly SqlParam[],
+    ): Promise<R[]> => observedQuery<R>(sql, params)) as typeof fixtures.driver.query;
+    fixtures.driver.transaction = (async <T>(
+      run: (tx: SqlTransactionExecutor) => Promise<T>,
+    ): Promise<T> => originalTransaction(async (transaction) => run({
+      query: async <R extends SqlRow = SqlRow>(
+        sql: string,
+        params?: readonly SqlParam[],
+      ): Promise<R[]> => observedQuery<R>(
+        sql,
+        params,
+        () => transaction.query<R>(sql, params),
+      ),
+    } as SqlTransactionExecutor))) as typeof fixtures.driver.transaction;
 
     let pending: ReturnType<SurfaceQueryModel['search']> | null = null;
     try {
@@ -416,6 +549,7 @@ describe('surface-bound query model', () => {
       releaseAuthorizations();
       await pending?.catch(() => undefined);
       fixtures.driver.query = originalQueryMethod;
+      fixtures.driver.transaction = originalTransactionMethod;
     }
   });
 

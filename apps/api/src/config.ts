@@ -15,7 +15,7 @@
  * the store package, so this file names nothing below the query layer at all.
  */
 import type { QueryModel, SurfaceQueryModel } from '@data-foundry/query-model';
-import type { VerticalId } from '@data-foundry/canonical-schema';
+import type { IsoDateTime, VerticalId } from '@data-foundry/canonical-schema';
 import type { RouteKey } from './routes.js';
 import type { ApiRequestAccess } from './http.js';
 
@@ -87,8 +87,9 @@ export function resolveContext(
   const reviewers = (factSelection.editorialOverrides ?? [])
     .map((override) => override.reviewer)
     .filter((reviewer) => reviewer.trim() !== '');
+  const rightsAsOf = new Date().toISOString() as IsoDateTime;
   return {
-    queryModel: options.queryModel.forSurface(access.surface),
+    queryModel: options.queryModel.forSurface(access.surface, { asOf: rightsAsOf }),
     verticalId: options.verticalId,
     factSelection,
     reviewers,

@@ -358,6 +358,66 @@ describe('migration runner', () => {
     }
   }, 120_000);
 
+  it('does not manufacture alias-claim evidence linkage during the 0025 upgrade', async () => {
+    const upgrade = await createPGliteDriver();
+    try {
+      await applyMigrations(upgrade, migrations.filter((migration) => migration.version < '0025'));
+      await seed(upgrade);
+      const alias = '60606060-6060-4060-8060-606060606060';
+      const claim = '61616161-6161-4161-8161-616161616161';
+      await upgrade.query(
+        `INSERT INTO entity_aliases (
+           id, entity_id, alias_type, alias_value, normalized_value, source_id,
+           identity_confidence, valid_from, valid_to
+         ) VALUES ($1, $2, 'model_number', 'LEGACY-CLAIM', 'legacy-claim', $3,
+                   0.9, $4, NULL)`,
+        [alias, ENTITY, SOURCE, TS],
+      );
+      await upgrade.query(
+        `INSERT INTO entity_alias_claims (
+           id, entity_alias_id, asserted_alias_value, asserted_normalized_value,
+           identity_confidence, claim_kind, source_id, source_record_id,
+           authority_epoch, locator_type, locator_value, valid_to
+         ) VALUES ($1, $2, 'LEGACY-CLAIM', 'legacy-claim', 0.9,
+                   'SOURCE_RECORD', $3, $4, 0, 'JSON_POINTER', '/model', NULL)`,
+        [claim, alias, SOURCE, RECORD],
+      );
+      await upgrade.query(
+        `INSERT INTO entity_evidence (
+           entity_id, artifact_id, source_record_id, contribution_role,
+           locator_type, locator_value, observed_at
+         ) VALUES ($1, $2, $3, 'ALIAS', 'JSON_POINTER', '/model', $4)`,
+        [ENTITY, ARTIFACT, RECORD, TS],
+      );
+      expect(await upgrade.query<{ id: string }>(
+        `SELECT id FROM current_entity_aliases WHERE id = $1`,
+        [alias],
+      )).toEqual([{ id: alias }]);
+
+      const applied = await applyMigrations(upgrade, migrations);
+      expect(applied.find((migration) => migration.version === '0025')?.skipped).toBe(false);
+      expect(await upgrade.query<{ id: string }>(
+        `SELECT id FROM current_entity_aliases WHERE id = $1`,
+        [alias],
+      )).toEqual([]);
+      expect(await upgrade.query<{ entity_alias_claim_id: string | null }>(
+        `SELECT entity_alias_claim_id FROM entity_evidence
+          WHERE entity_id = $1 AND contribution_role = 'ALIAS'`,
+        [ENTITY],
+      )).toEqual([{ entity_alias_claim_id: null }]);
+
+      await expect(upgrade.query(
+        `INSERT INTO entity_evidence (
+           entity_id, artifact_id, source_record_id, contribution_role,
+           locator_type, locator_value, observed_at
+         ) VALUES ($1, $2, $3, 'ALIAS', 'JSON_POINTER', '/other-model', $4)`,
+        [ENTITY, ARTIFACT, RECORD, TS],
+      )).rejects.toThrow(/entity_evidence_alias_claim_shape|alias claim/i);
+    } finally {
+      await upgrade.close();
+    }
+  }, 120_000);
+
   it('revokes unproven legacy stream membership instead of inferring snapshot authority', async () => {
     const upgrade = await createPGliteDriver();
     try {

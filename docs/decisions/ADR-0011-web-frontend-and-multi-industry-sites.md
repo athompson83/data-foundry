@@ -96,8 +96,10 @@ surface-visible entity needs current `FINALIZED` entity evidence. Relationship
 pages and projections require current `FINALIZED` relationship evidence plus
 authorized endpoint entities. Migration 0023 manufactures no authority for a
 legacy alias and uses authority epochs so retire/reopen cannot reactivate an old
-claim. A page therefore cannot survive solely on a withdrawn source revision,
-even when the immutable history remains available for audit.
+claim. Migration 0025 additionally withholds a source-record alias until its
+exact immutable evidence is linked and surface-authorized. A page therefore
+cannot survive solely on a withdrawn or claim-only source revision, even when
+the immutable history remains available for audit.
 
 **A threshold this deployment cannot honestly measure fails closed, not
 open.** No traffic/analytics system exists in this repository, so

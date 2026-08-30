@@ -176,10 +176,13 @@ export function createMcpServer(options: McpServerOptions): McpServer {
       try {
         // Bind at call time, not server construction time. A long-lived MCP
         // process must observe terms revocation/re-review expiry without a
-        // restart, and one call gets one immutable cached rights snapshot.
+        // restart. Freeze one rights-evaluation instant for the entire call;
+        // individual query operations still open their own database snapshots,
+        // but they cannot drift across an expiry boundary while one tool runs.
+        const rightsAsOf = new Date().toISOString();
         const context: ToolContext = {
           ...contextBase,
-          queryModel: options.queryModel.forSurface('MCP'),
+          queryModel: options.queryModel.forSurface('MCP', { asOf: rightsAsOf as never }),
         };
         // `invoke` validates against the tool's declared input schema before
         // the handler runs; there is no path from here to a handler that

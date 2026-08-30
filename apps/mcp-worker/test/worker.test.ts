@@ -588,7 +588,13 @@ describe('privacy-safe analytics handoff', () => {
         return await fixtures.driver.query<R>(sql, params);
       },
       exec: fixtures.driver.exec.bind(fixtures.driver),
-      transaction: fixtures.driver.transaction.bind(fixtures.driver),
+      // Surface reads now deliberately start at a repeatable-read transaction
+      // boundary. Fail that boundary itself so this regression continues to
+      // exercise the worker's opaque tool-error path without depending on one
+      // internal fact-query string.
+      transaction: async <T>(): Promise<T> => {
+        throw new Error(privateFailure);
+      },
       close: async () => undefined,
     };
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);

@@ -57,9 +57,10 @@ implements. A vertical is exposed only while it is `ACTIVE` and has an exact
 `noindex` and absent from sitemaps unless `SEARCH_INDEX` independently covers
 the exact rendered facts, attributions and relationships. The quality-gate evaluator
 (`apps/web/src/gates.ts`) decides indexability from authorized evidence rather
-than raw database aggregates or fiat. No production deployment of this
-integration candidate is recorded or verified. Live Cloudflare account state
-could not be inspected from the available environment, so exact deployment IDs
+than raw database aggregates or fiat. The integrated implementation is on
+protected `main`, but no production deployment is recorded or verified. Live
+Cloudflare account state could not be inspected from the available environment,
+so exact deployment IDs
 and runtime probes remain owner/platform evidence — see Deployment below.
 
 **Every source is synthetic.** The rights machinery genuinely runs, but it
@@ -74,7 +75,10 @@ record claims in `entity_alias_claims`, and exposes only the claim-backed
 no claim for a legacy alias: `entity_aliases.source_id` was display/provenance
 metadata and cannot be promoted into authority after the fact. Retiring or
 reopening an alias advances its authority epoch, so a claim from an older epoch
-cannot silently become current again.
+cannot silently become current again. Migration 0025 additionally requires an
+exact immutable `ALIAS` evidence row linked to each source-record claim before
+that alias enters the current view; claim-only and unlinked legacy rows remain
+hidden, and their sources cannot bypass a surface's rights evaluation.
 
 ```text
 packages/canonical-schema/   Core object model, confidence scores, job state machine, rights gate

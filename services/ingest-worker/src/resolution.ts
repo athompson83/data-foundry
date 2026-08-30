@@ -27,6 +27,7 @@ import {
   type IdentityConfidence,
   type IsoDateTime,
   type LocatorType,
+  type SourceArtifact,
   type SourceId,
   type SourceRecordId,
   type VerticalId,
@@ -395,6 +396,8 @@ export class EntityResolver {
           [key],
         );
       }
+      const evidenceContext = await this.#loadRecordAliasEvidenceContext(input, tx);
+      const stagedAliases = await this.#loadExactRecordClaimContinuity(input, tx);
       const plan = await this.planRecord(
         {
           entityType: input.entityType,
@@ -407,6 +410,7 @@ export class EntityResolver {
             aliases: input.aliases,
             manufacturerSlug: input.manufacturer?.canonical_slug ?? null,
           })),
+          stagedAliases,
         },
         tx,
       );
@@ -419,7 +423,7 @@ export class EntityResolver {
           sourceId: input.sourceId,
           identityConfidence: identityConfidence(alias.strong ? 0.99 : 0.6),
         }, tx);
-        await this.#deps.store.recordSourceAliasClaim({
+        const aliasClaim = await this.#deps.store.recordSourceAliasClaim({
           entity_alias_id: staged.id,
           asserted_alias_value: alias.aliasValue,
           asserted_normalized_value: alias.normalizedValue,
@@ -428,12 +432,127 @@ export class EntityResolver {
           locator_type: alias.locatorType,
           locator_value: alias.locatorValue,
         }, tx);
+        await this.#deps.store.recordEntityEvidence({
+          entity_id: plan.entity.id,
+          artifact_id: evidenceContext.artifactId,
+          source_record_id: input.sourceRecordId,
+          entity_alias_claim_id: aliasClaim.id,
+          contribution_role: 'ALIAS',
+          locator_type: alias.locatorType,
+          locator_value: alias.locatorValue,
+          observed_at: evidenceContext.observedAt,
+        }, tx);
       }
       const entity = await this.refreshPreferredName(plan.entity, input, tx);
       await this.persistResolution(plan, input.sourceRecordId, tx);
       return { entity, created: plan.created, matchedOn: plan.matchedOn };
     };
     return executor === undefined ? this.#deps.store.driver.transaction(write) : write(executor);
+  }
+
+  /**
+   * An exported resolver call is a complete identity write, not a claim-only
+   * staging shortcut. Derive immutable provenance from the exact finalized
+   * source record so claim and ALIAS evidence commit together.
+   */
+  async #loadRecordAliasEvidenceContext(
+    input: ResolveRecordInput,
+    executor: SqlExecutor,
+  ): Promise<{ readonly artifactId: SourceArtifact['id']; readonly observedAt: IsoDateTime }> {
+    const [row] = await executor.query<{
+      readonly artifact_id: string;
+      readonly retrieved_at: string | Date;
+    }>(
+      `SELECT source_record.artifact_id::text AS artifact_id,
+              artifact.retrieved_at
+         FROM source_records source_record
+         JOIN source_artifacts artifact ON artifact.id = source_record.artifact_id
+        WHERE source_record.id = $1
+          AND source_record.source_id = $2
+          AND source_record.is_current
+          AND source_record.revision_state = 'FINALIZED'`,
+      [input.sourceRecordId, input.sourceId],
+    );
+    if (row === undefined) {
+      throw new Error('resolveRecord requires a current finalized source record with an artifact');
+    }
+    const observedAt = new Date(row.retrieved_at).toISOString() as IsoDateTime;
+    return { artifactId: row.artifact_id as SourceArtifact['id'], observedAt };
+  }
+
+  /**
+   * Reuse only this exact source record's own unexpired claim while resolving
+   * an idempotent replay. Source claims without evidence deliberately stay out
+   * of `current_entity_aliases`; this private continuity read preserves the
+   * record's attachment without making that claim searchable or publishable.
+   */
+  async #loadExactRecordClaimContinuity(
+    input: ResolveRecordInput,
+    executor: SqlExecutor,
+  ): Promise<readonly StagedAliasMatch[]> {
+    const rows = await executor.query<{
+      readonly entity_id: string;
+      readonly alias_type: string;
+      readonly asserted_alias_value: string;
+      readonly asserted_normalized_value: string;
+      readonly locator_type: string;
+      readonly locator_value: string;
+    }>(
+      `SELECT alias_row.entity_id::text AS entity_id,
+              alias_row.alias_type,
+              alias_claim.asserted_alias_value,
+              alias_claim.asserted_normalized_value,
+              alias_claim.locator_type,
+              alias_claim.locator_value
+         FROM entity_alias_claims alias_claim
+         JOIN entity_aliases alias_row ON alias_row.id = alias_claim.entity_alias_id
+         JOIN source_records source_record ON source_record.id = alias_claim.source_record_id
+         JOIN entities entity ON entity.id = alias_row.entity_id
+        WHERE alias_claim.claim_kind = 'SOURCE_RECORD'
+          AND alias_claim.source_record_id = $1
+          AND source_record.source_id = $2
+          AND source_record.is_current
+          AND source_record.revision_state = 'FINALIZED'
+          AND entity.vertical_id = $3
+          AND entity.entity_type = $4
+          AND alias_claim.authority_epoch = alias_row.authority_epoch
+          AND alias_claim.asserted_normalized_value = alias_row.normalized_value
+          AND (alias_claim.valid_to IS NULL OR alias_claim.valid_to > $5)
+          AND alias_row.valid_from <= $5
+          AND (alias_row.valid_to IS NULL OR alias_row.valid_to > $5)
+        ORDER BY alias_row.entity_id::text COLLATE "C",
+                 alias_row.alias_type COLLATE "C",
+                 alias_claim.asserted_normalized_value COLLATE "C"`,
+      [
+        input.sourceRecordId,
+        input.sourceId,
+        this.#deps.verticalId,
+        input.entityType,
+        this.#deps.now,
+      ],
+    );
+
+    const matches: StagedAliasMatch[] = [];
+    for (const row of rows) {
+      const exactInput = input.aliases.some((alias) =>
+        alias.strong &&
+        alias.aliasType === row.alias_type &&
+        alias.aliasValue === row.asserted_alias_value &&
+        alias.normalizedValue === row.asserted_normalized_value &&
+        alias.locatorType === row.locator_type &&
+        alias.locatorValue === row.locator_value
+      );
+      if (!exactInput) continue;
+      const entity = await this.#deps.store.getEntityById(row.entity_id as EntityId, executor);
+      if (entity === null) continue;
+      matches.push({
+        entity,
+        aliasType: row.alias_type as Identifier,
+        aliasValue: row.asserted_alias_value,
+        normalizedValue: row.asserted_normalized_value,
+      });
+    }
+    return matches;
   }
 
   /** Resolve or create the target without writing aliases, evidence, or audit rows. */

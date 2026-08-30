@@ -4,11 +4,11 @@ Everything here either requires a person in a dashboard/billing relationship or
 coordinates repository work with Cloudflare resources that cannot be inferred
 from source code alone.
 
-The integration candidate contains the final five-Worker topology:
+Protected `main` contains the final five-Worker topology:
 `apps/edge`, `apps/web`, `apps/usage-consumer`,
 `apps/acquisition-worker`, and `apps/mcp-worker`. No production deployment of
-this integration candidate is recorded or verified. Live Cloudflare account
-state could not be inspected from the available environment; exact deployment
+the integrated protected-main tree is recorded or verified. Live Cloudflare
+account state could not be inspected from the available environment; exact deployment
 IDs and runtime probes remain owner/platform evidence. Repository state is not
 proof that Cloudflare resources or real-source rights have been provisioned.
 
@@ -35,7 +35,7 @@ must remain outside source control.
 2. Add the production domain as a Cloudflare zone and move its nameservers.
 3. Authenticate Wrangler against the intended account.
 4. Bind the API Worker to its production hostname/custom domain.
-5. Bind the reviewed public web candidate to its production hostname/custom
+5. Bind the reviewed public web Worker to its production hostname/custom
    domain and configure its exact HTTPS `PUBLIC_ORIGIN`.
 6. Bind each one-vertical MCP Worker to its exact production hostname and
    configure `MCP_HOSTNAME`, `MCP_ALLOWED_ORIGINS`, and the public site's
@@ -78,7 +78,7 @@ credential must not be committed.
    pnpm migrate
    ```
    The first run must apply every pending migration and the second must report
-   all 24 migrations already applied. Do not pass the connection string on argv
+   all 25 migrations already applied. Do not pass the connection string on argv
    or archive it with the command receipt.
 3. Create a Hyperdrive configuration for the API Worker.
 4. Configure the usage-consumer Worker with its `HYPERDRIVE` binding.
@@ -117,7 +117,7 @@ assert new claims, and add a curated claim only through an explicit reviewed
 editorial action. Prove each enabled surface has the intended current identity
 coverage before restoring traffic. This may temporarily hide legacy entities;
 that fail-closed outage is preferable to manufacturing authority. On a first
-deployment, apply all 24 migrations before enabling any route or Cron, then
+deployment, apply all 25 migrations before enabling any route or Cron, then
 ingest admitted sources with the matching bundle.
 
 Migration `0024` adds explicit source-stream membership and complete-snapshot
@@ -129,6 +129,15 @@ and re-ingest only rights-admitted sources. A stream may retire an omitted recor
 only when its mapping explicitly says `refresh_mode: full_snapshot`; an
 `incremental` stream never treats absence as deletion. Verify the append-only
 retirement rows cite the exact same-source artifacts before restoring traffic.
+
+Migration `0025` requires every source-record alias claim to bind its exact
+immutable `ALIAS` entity-evidence row. It deliberately does not infer that link
+for existing evidence by matching a locator. On an upgrade from an older
+deployment, keep acquisition/ingest and publication blocked through `0025`,
+deploy the matching ingest/query bundle, and reingest only rights-admitted
+sources. Prove exact identifier lookup and each enabled surface after reingest;
+an unlinked historical source alias staying hidden is the intended fail-closed
+result, not a reason to patch the row manually.
 
 ### Verify
 
@@ -215,17 +224,18 @@ normal search crawlers remain able to index the public site.
 ## 5. Metered API and MCP analytics — built, awaiting live provisioning
 
 The old statement that auth, tenancy and usage accounting were wholly absent is
-stale. The integration candidate contains corrected usage-accounting semantics,
+stale. Protected `main` contains corrected usage-accounting semantics,
 authentication and asynchronous usage persistence.
 
-Candidate implementation exists in migrations `0011`, `0012`, `0015`, and
+The merged implementation exists in migrations `0011`, `0012`, `0015`, and
 `0018`, `packages/usage-events`, `apps/edge`, and `apps/usage-consumer`.
 `apps/edge/src/auth.ts` authenticates and scope-checks every request before it
 reaches a route, then publishes a usage event per successful request to a
 Cloudflare Queue that `apps/usage-consumer` persists idempotently. Exact-SHA
-verification and merge, plus live Queue, DLQ, and Hyperdrive proof, remain
-separate gates. `pnpm credentials:provision` now performs the tenant/key database
-transaction and one-time secret delivery; running it against the live database
+repository verification and protected merge are complete; live Queue, DLQ, and
+Hyperdrive proof remains a separate deployment gate.
+`pnpm credentials:provision` now performs the tenant/key database transaction
+and one-time secret delivery; running it against the live database
 remains an operational action rather than another canonical API implementation.
 
 Deliberately still absent, and out of scope for this increment: pricing,
@@ -522,8 +532,9 @@ commercial gate.
 
 ## 9. Production launch order
 
-1. Review and land the already-reconciled rights, usage, auth/metering and web
-   integration as one exact candidate; do not merge the stale PR trees blindly.
+1. Freeze the live 40-character protected-main SHA and rerun its release gates;
+   the reconciled rights, usage, auth/metering, web, RapidAPI, acquisition, and
+   MCP implementation is already merged.
 2. Provision Cloudflare Postgres/Hyperdrive, all five Workers, R2, Queue/DLQ,
    routes and secrets.
 3. Deploy and prove exact-SHA health/readiness plus real queue behavior.

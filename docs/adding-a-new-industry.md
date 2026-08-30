@@ -192,6 +192,10 @@ must be reasserted by a current finalized source record or by an explicit
 curated action; never manufacture a claim merely to keep a lookup green.
 Migration 0024 likewise backfills no stream membership: reingest admitted
 legacy sources with an explicit mode rather than classifying old rows by guess.
+Migration 0025 also backfills no claim/evidence linkage: each source-record
+alias reaches resolution/search only when the ingest transaction records the
+exact claim and its exact `ALIAS` evidence together. Reingest admitted sources;
+never pair historical rows by locator guesswork.
 
 ## 6. Decide publication surfaces independently
 

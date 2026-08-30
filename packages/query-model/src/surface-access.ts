@@ -1,4 +1,5 @@
 import {
+  createCanonicalStore,
   ENTITY_COLUMNS,
   loadStoredRightsContext,
   mapEntity,
@@ -8,7 +9,10 @@ import {
   type FactCandidate,
   type FactSelection,
   type FactSelectionPolicyInput,
+  type SqlDriver,
+  type SqlParam,
   type SqlRow,
+  type SqlTransactionExecutor,
 } from '@data-foundry/canonical-store';
 import {
   compareCodeUnits,
@@ -179,6 +183,50 @@ interface EntityEvidenceRow extends SqlRow {
 }
 
 const nowIso = (): IsoDateTime => new Date().toISOString() as IsoDateTime;
+
+/**
+ * Bind canonical reads to the transaction connection that owns one immutable
+ * surface snapshot. Nested store transactions reuse that connection; DDL and
+ * connection ownership remain unavailable inside this read-only boundary.
+ */
+function snapshotDriver(
+  base: SqlDriver,
+  transaction: SqlTransactionExecutor,
+): SqlDriver {
+  return {
+    label: `${base.label} (surface snapshot)`,
+    dialect: base.dialect,
+    capabilityCacheKey: base.capabilityCacheKey ?? base,
+    async query<R extends SqlRow = SqlRow>(sql: string, params?: readonly SqlParam[]) {
+      return transaction.query<R>(sql, params);
+    },
+    async exec() {
+      throw new Error('surface snapshots do not execute DDL');
+    },
+    async transaction<T>(run: (tx: SqlTransactionExecutor) => Promise<T>): Promise<T> {
+      return run(transaction);
+    },
+    async close() {
+      // The outer request owns the real driver and transaction lifecycle.
+    },
+  };
+}
+
+/**
+ * Keep authorization and alias lookup on one PostgreSQL snapshot. Without
+ * this boundary, a newly committed denied-source alias could appear between
+ * the rights query and search SQL and disclose its association (CWE-367).
+ */
+function withSurfaceSnapshot<T>(
+  store: CanonicalStore,
+  run: (snapshotStore: CanonicalStore) => Promise<T>,
+): Promise<T> {
+  return store.driver.transaction(async (transaction) => {
+    await transaction.query('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY');
+    const driver = snapshotDriver(store.driver, transaction);
+    return run(createCanonicalStore(driver));
+  });
+}
 
 const SURFACE_CHANNEL = Object.freeze({
   PUBLIC_WEB: 'PUBLIC_WEBSITE',
@@ -894,7 +942,7 @@ const viewIsAuthorized = async (
   return true;
 };
 
-export function createSurfaceQueryModel(
+function createSurfaceQueryModelCore(
   store: CanonicalStore,
   fields: FieldMetadataRegistry,
   surface: RightsSurface,
@@ -1103,4 +1151,47 @@ export function createSurfaceQueryModel(
   };
 
   return surfaceModel;
+}
+
+/**
+ * Every externally visible query operation receives a fresh repeatable-read
+ * snapshot and a fresh request-local rights cache. Compound API, MCP and web
+ * flows may reuse this model safely: a later operation cannot reuse an
+ * authorization result computed before a newly committed contribution.
+ */
+export function createSurfaceQueryModel(
+  store: CanonicalStore,
+  fields: FieldMetadataRegistry,
+  surface: RightsSurface,
+  options: SurfaceAccessOptions = {},
+): SurfaceQueryModel {
+  const run = <T>(
+    operation: (snapshot: SurfaceQueryModel) => Promise<T>,
+  ): Promise<T> => withSurfaceSnapshot(
+    store,
+    async (snapshotStore) => operation(
+      createSurfaceQueryModelCore(snapshotStore, fields, surface, options),
+    ),
+  );
+
+  return {
+    fields,
+    surface,
+    getEntity: (id) => run((snapshot) => snapshot.getEntity(id)),
+    getEntityBySlug: (verticalId, entityType, slug) => run(
+      (snapshot) => snapshot.getEntityBySlug(verticalId, entityType, slug),
+    ),
+    lookupIdentifier: (lookup) => run((snapshot) => snapshot.lookupIdentifier(lookup)),
+    listEntities: (query) => run((snapshot) => snapshot.listEntities(query)),
+    search: (query) => run((snapshot) => snapshot.search(query)),
+    facets: (query) => run((snapshot) => snapshot.facets(query)),
+    canonicalFacts: (entityId, policy) => run(
+      (snapshot) => snapshot.canonicalFacts(entityId, policy),
+    ),
+    explainFact: (entityId, property, policy) => run(
+      (snapshot) => snapshot.explainFact(entityId, property, policy),
+    ),
+    relationships: (query) => run((snapshot) => snapshot.relationships(query)),
+    compare: (query) => run((snapshot) => snapshot.compare(query)),
+  };
 }

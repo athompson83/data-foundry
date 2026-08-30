@@ -1,14 +1,15 @@
 # Owner actions — the revenue path, end to end
 
-**Status check first, because it matters for how to read this document:** the
-current integration candidate contains privacy-safe usage accounting,
+**Status check first, because it matters for how to read this document:**
+protected `main` contains privacy-safe usage accounting,
 auth/Queue metering, the accepted ADR-0010 rights matrix, the public
 multi-industry site, the thin RapidAPI origin adapter, the deployable
 authenticated MCP Worker, and the Cron/R2 acquisition and rights-readiness
-paths. Those capabilities are repository code, but the combined candidate is
-not yet deployed and no real HVAC source has an effective reviewed
+paths. Those capabilities are merged repository code, but the platform is not
+yet deployed and no real HVAC source has an effective reviewed
 publication/commercial bundle. Historical PR descriptions are not status
-authority; the live candidate tree and its final verification gates are.
+authority; the live 40-character `origin/main` and its fresh verification gates
+are.
 
 This document describes the end-to-end revenue path those changes enable and
 states plainly what is implemented, proposed, operational, legal or still a
@@ -21,7 +22,7 @@ relationship or live deployment can be verified from repository code alone.
 |---|---|---|---|
 | 1 | **Public web / pay per crawl** | Discovery, SEO, ads/AI-crawler monetization | Rights-bound Worker implemented; deployment and Cloudflare enrollment remain |
 | 2A | **API marketplace (RapidAPI initially)** | Low-friction developer discovery, checkout, plans and marketplace billing | Thin origin adapter implemented; marketplace enrollment/listing and deployment remain |
-| 2B | **Direct Data Foundry API** | Higher-margin customers, larger volumes, negotiated terms | Auth/metering implemented; direct billing not built |
+| 2B | **Direct Data Foundry API** | Higher-margin customers, larger volumes, negotiated terms | Auth, metering, and invoice-eligible usage implemented; pricing, contracts, and collection remain business decisions |
 | 3 | **MCP / agent access** | Agent-native retrieval | Six-tool MCP contract and Cloudflare Streamable HTTP Worker implemented; deployment and commercial packaging remain |
 | 4 | **Bulk / enterprise data** | Dataset snapshots, custom enrichment, enterprise licensing | Export surface exists; commercial rights and contracts remain separate decisions |
 
@@ -37,7 +38,7 @@ public, discoverable asset a crawler or search engine reaches.
 
 Owner actions:
 
-1. Deploy the exact integrated candidate after its review gates pass, setting
+1. Deploy an exact protected-main SHA after its fresh release gates pass, setting
    `PUBLIC_ORIGIN` to the exact HTTPS origin and binding canonical Postgres.
 2. Keep normal search-engine crawlers allowed if organic search is part of the
    acquisition strategy.
@@ -87,6 +88,10 @@ usage event model.
   finalizes a zero-claim successor, so the old revision, identity and
   relationships cannot remain commercially visible merely because their
   historical rows are retained.
+- Migration 0025 admits a source-record alias to resolution/search only when
+  the exact append-only claim has an exact immutable `ALIAS` evidence link.
+  That contributing source therefore participates in the requested surface's
+  rights AND; claim-only or unlinked legacy spellings stay hidden.
 - Migration 0024 distinguishes complete snapshots from incremental refreshes.
   Only an explicit complete stream may retire an omitted record, and it records
   exact artifact evidence; incremental absence carries no deletion authority.

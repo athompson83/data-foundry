@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import type { SourceRecordInsert } from '@data-foundry/canonical-schema';
+import { identityConfidence, type SourceRecordInsert } from '@data-foundry/canonical-schema';
 import { createFixtures, type Fixtures } from './support.js';
 
 let fixtures: Fixtures | null = null;
@@ -178,10 +178,30 @@ describe('source-record reconciliation', () => {
     fixtures = await createFixtures({ trigram: false });
     const source = fixtures.sources.manufacturer;
     const input = recordInput(source);
+    const alias = await fixtures.store.stageSourceAlias({
+      entity_id: fixtures.entity.id,
+      alias_type: 'model_number',
+      alias_value: '24ANB7',
+      normalized_value: '24anb7',
+      source_id: source.source.id,
+      identity_confidence: identityConfidence(0.99),
+      valid_from: '2026-01-01T00:00:00.000Z' as never,
+      valid_to: null,
+    });
+    const aliasClaim = await fixtures.store.recordSourceAliasClaim({
+      entity_alias_id: alias.id,
+      asserted_alias_value: '24ANB7',
+      asserted_normalized_value: '24anb7',
+      identity_confidence: identityConfidence(0.99),
+      source_record_id: source.record.id,
+      locator_type: 'JSON_POINTER',
+      locator_value: '/products/0/model',
+    });
     await fixtures.store.recordEntityEvidence({
       entity_id: fixtures.entity.id,
       artifact_id: source.artifact.id,
       source_record_id: source.record.id,
+      entity_alias_claim_id: aliasClaim.id,
       contribution_role: 'ALIAS',
       locator_type: 'JSON_POINTER',
       locator_value: '/products/0/model',

@@ -72,6 +72,17 @@ epochs prevent an assertion from silently reactivating after an alias is
 retired and later reopened. An alias claim proves only who asserted an identity
 and from which current record. It is not a licence or a surface grant.
 
+Migration 0025 requires every source-record alias claim to bind its exact
+immutable `ALIAS` entity-evidence row before the claim can enter resolution or
+search. That evidence makes the alias's source part of the surface-rights AND;
+an otherwise authorized entity cannot launder a spelling from a denied source.
+The migration does not infer a link for historical rows, so legacy unlinked
+claims remain hidden until a rights-admitted reingest records exact provenance.
+Every customer-facing query operation also evaluates authorization and reads
+aliases, facts, and relationships inside one fresh read-only repeatable
+snapshot. A new contribution cannot commit between authorization and a later
+compound-route read and reuse a stale rights result.
+
 Customer surfaces additionally require current `FINALIZED` entity evidence,
 and relationships require current `FINALIZED` relationship evidence plus
 authorized endpoints. Those currentness gates prevent withdrawn identities and

@@ -36,6 +36,35 @@ async function supersedeSourceRecord(fixture: Fixtures, record: SourceRecord): P
   });
 }
 
+async function recordSourceAliasClaimWithEvidence(
+  fixture: Fixtures,
+  input: Parameters<Fixtures['store']['recordSourceAliasClaim']>[0],
+) {
+  const claim = await fixture.store.recordSourceAliasClaim(input);
+  const [provenance] = await fixture.driver.query<{
+    entity_id: string;
+    artifact_id: string;
+  }>(
+    `SELECT alias_row.entity_id, source_record.artifact_id
+       FROM entity_aliases alias_row
+       JOIN source_records source_record ON source_record.id = $2
+      WHERE alias_row.id = $1`,
+    [input.entity_alias_id, input.source_record_id],
+  );
+  if (provenance === undefined) throw new Error('alias claim provenance fixture missing');
+  await fixture.store.recordEntityEvidence({
+    entity_id: provenance.entity_id as never,
+    artifact_id: provenance.artifact_id as never,
+    source_record_id: input.source_record_id,
+    entity_alias_claim_id: claim.id,
+    contribution_role: 'ALIAS',
+    locator_type: input.locator_type,
+    locator_value: input.locator_value,
+    observed_at: ts('2026-08-30T00:00:00Z'),
+  });
+  return claim;
+}
+
 describe('alias claim currentness', () => {
   it('honors the complete half-open alias validity window', async () => {
     fixtures = await createFixtures({ trigram: false });
@@ -88,7 +117,7 @@ describe('alias claim currentness', () => {
       .not.toContain(alias.id);
   });
 
-  it('does not activate a staged source alias until a current finalized record claims it', async () => {
+  it('does not activate a staged source alias until its current finalized claim has matching evidence', async () => {
     fixtures = await createFixtures({ trigram: false });
     const record = fixtures.sources.manufacturer.record;
     const alias = await fixtures.store.stageSourceAlias(sourceAlias(fixtures, 'SOURCE-ONLY-1'));
@@ -115,6 +144,30 @@ describe('alias claim currentness', () => {
       locator_value: '/products/0/model',
     });
     expect(repeated.id).toBe(claim.id);
+    expect((await fixtures.store.listAliases(fixtures.entity.id)).map((item) => item.id))
+      .not.toContain(alias.id);
+
+    await expect(fixtures.store.recordEntityEvidence({
+      entity_id: fixtures.entity.id,
+      artifact_id: fixtures.sources.manufacturer.artifact.id,
+      source_record_id: record.id,
+      entity_alias_claim_id: claim.id,
+      contribution_role: 'ALIAS',
+      locator_type: 'JSON_POINTER',
+      locator_value: '/products/0/not-the-claim',
+      observed_at: ts('2026-08-30T00:00:00Z'),
+    })).rejects.toThrow(/exact source-record alias claim/i);
+
+    await fixtures.store.recordEntityEvidence({
+      entity_id: fixtures.entity.id,
+      artifact_id: fixtures.sources.manufacturer.artifact.id,
+      source_record_id: record.id,
+      entity_alias_claim_id: claim.id,
+      contribution_role: 'ALIAS',
+      locator_type: 'JSON_POINTER',
+      locator_value: '/products/0/model',
+      observed_at: ts('2026-08-30T00:00:00Z'),
+    });
 
     await fixtures.store.stageSourceAlias({
       ...sourceAlias(fixtures, 'SOURCE-ONLY-1'),
@@ -151,7 +204,7 @@ describe('alias claim currentness', () => {
     const alias = await fixtures.store.stageSourceAlias(
       sourceAlias(fixtures, 'SHARED-ALIAS', manufacturer.source.id),
     );
-    await fixtures.store.recordSourceAliasClaim({
+    await recordSourceAliasClaimWithEvidence(fixtures, {
       entity_alias_id: alias.id,
       asserted_alias_value: 'SHARED-ALIAS',
       asserted_normalized_value: 'shared-alias',
@@ -163,7 +216,7 @@ describe('alias claim currentness', () => {
     await fixtures.store.stageSourceAlias(
       sourceAlias(fixtures, 'SHARED-ALIAS', certifier.source.id),
     );
-    await fixtures.store.recordSourceAliasClaim({
+    await recordSourceAliasClaimWithEvidence(fixtures, {
       entity_alias_id: alias.id,
       asserted_alias_value: 'SHARED-ALIAS',
       asserted_normalized_value: 'shared-alias',
@@ -191,7 +244,7 @@ describe('alias claim currentness', () => {
     const record = fixtures.sources.manufacturer.record;
     const input = sourceAlias(fixtures, 'CURATED-SURVIVES');
     const alias = await fixtures.store.stageSourceAlias(input);
-    await fixtures.store.recordSourceAliasClaim({
+    await recordSourceAliasClaimWithEvidence(fixtures, {
       entity_alias_id: alias.id,
       asserted_alias_value: 'CURATED-SURVIVES',
       asserted_normalized_value: 'curated-survives',
@@ -256,7 +309,7 @@ describe('alias claim currentness', () => {
       valid_to: null,
     });
     expect(staged.valid_to).toBe(retiredAt);
-    await fixtures.store.recordSourceAliasClaim({
+    await recordSourceAliasClaimWithEvidence(fixtures, {
       entity_alias_id: alias.id,
       asserted_alias_value: 'Global Retirement (source rediscovery)',
       asserted_normalized_value: 'global-retirement',
@@ -431,7 +484,7 @@ describe('alias claim currentness', () => {
       normalized_value: 'presentation-switch',
       identity_confidence: identityConfidence(0.71),
     });
-    await fixtures.store.recordSourceAliasClaim({
+    await recordSourceAliasClaimWithEvidence(fixtures, {
       entity_alias_id: alias.id,
       asserted_alias_value: 'Manufacturer spelling',
       asserted_normalized_value: 'presentation-switch',
@@ -445,7 +498,7 @@ describe('alias claim currentness', () => {
       normalized_value: 'presentation-switch',
       identity_confidence: identityConfidence(0.98),
     });
-    await fixtures.store.recordSourceAliasClaim({
+    await recordSourceAliasClaimWithEvidence(fixtures, {
       entity_alias_id: alias.id,
       asserted_alias_value: 'Certifier spelling',
       asserted_normalized_value: 'presentation-switch',
@@ -491,7 +544,7 @@ describe('alias claim currentness', () => {
       ...sourceAlias(fixtures, 'abc-200', editorial.source.id),
       normalized_value: 'abc200',
     });
-    await fixtures.store.recordSourceAliasClaim({
+    await recordSourceAliasClaimWithEvidence(fixtures, {
       entity_alias_id: alias.id,
       asserted_alias_value: 'abc-200',
       asserted_normalized_value: 'abc200',
@@ -504,7 +557,7 @@ describe('alias claim currentness', () => {
       ...sourceAlias(fixtures, 'ABC-200', standards.source.id),
       normalized_value: 'abc200',
     });
-    await fixtures.store.recordSourceAliasClaim({
+    await recordSourceAliasClaimWithEvidence(fixtures, {
       entity_alias_id: alias.id,
       asserted_alias_value: 'ABC-200',
       asserted_normalized_value: 'abc200',
@@ -530,20 +583,24 @@ describe('alias claim currentness', () => {
       ...sourceAlias(fixtures, 'Same presentation', source.source.id),
       normalized_value: 'confidence-tie',
     });
-    await fixtures.driver.query(
-      `INSERT INTO entity_alias_claims (
-         id, entity_alias_id, asserted_alias_value, asserted_normalized_value,
-         identity_confidence, claim_kind, source_id, source_record_id, authority_epoch,
-         locator_type, locator_value, valid_to
-       ) VALUES
-         ('00000000-0000-4000-8000-000000000001', $1, 'Same presentation',
-          'confidence-tie', 0.4, 'SOURCE_RECORD', $2, $3, 0,
-          'JSON_POINTER', '/low', NULL),
-         ('ffffffff-ffff-4fff-bfff-fffffffffff0', $1, 'Same presentation',
-          'confidence-tie', 0.9, 'SOURCE_RECORD', $2, $3, 0,
-          'JSON_POINTER', '/high', NULL)`,
-      [alias.id, source.source.id, source.record.id],
-    );
+    await recordSourceAliasClaimWithEvidence(fixtures, {
+      entity_alias_id: alias.id,
+      asserted_alias_value: 'Same presentation',
+      asserted_normalized_value: 'confidence-tie',
+      identity_confidence: identityConfidence(0.4),
+      source_record_id: source.record.id,
+      locator_type: 'JSON_POINTER',
+      locator_value: '/low',
+    });
+    await recordSourceAliasClaimWithEvidence(fixtures, {
+      entity_alias_id: alias.id,
+      asserted_alias_value: 'Same presentation',
+      asserted_normalized_value: 'confidence-tie',
+      identity_confidence: identityConfidence(0.9),
+      source_record_id: source.record.id,
+      locator_type: 'JSON_POINTER',
+      locator_value: '/high',
+    });
 
     expect(await fixtures.store.listAliases(fixtures.entity.id)).toContainEqual(
       expect.objectContaining({
