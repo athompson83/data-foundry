@@ -120,7 +120,7 @@ ${items.length === 0 ? '<p>No industry is currently serving data from this deplo
     description:
       'A repeatable data foundry: evidence-backed, source-cited knowledge products, one dataset per industry.',
     canonicalUrl: `${deployment.publicOrigin}/`,
-    robots: published.every((entry) => entry.eligibility?.searchIndex === true)
+    robots: published.length > 0 && published.every((entry) => entry.eligibility?.searchIndex === true)
       ? 'index,follow'
       : 'noindex,follow',
     bodyHtml: body,

@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { entityQualityScore, type Entity } from '@data-foundry/canonical-schema';
+import type { SqlParam, SqlRow } from '@data-foundry/canonical-store';
 import { FieldMetadataRegistry, createQueryModel, type QueryModel } from '../src/index.js';
 import { claim, createFixtures, ts, type Fixtures } from '../../canonical-store/test/support.js';
 
@@ -171,6 +172,42 @@ describe('surface-bound query model', () => {
     expect(await web.getEntity(hiddenEntity.id)).toBeNull();
   });
 
+  it('keyset-scans bounded raw entity pages without exposing denied rows', async () => {
+    const seeded = await Promise.all(
+      Array.from({ length: 3 }, (_, index) =>
+        fixtures.store.upsertEntity({
+          vertical_id: fixtures.vertical.id,
+          entity_type: 'listing_probe',
+          canonical_name: `Surface Listing Probe ${index}`,
+          canonical_slug: `surface-listing-probe-${index}`,
+          status: 'ACTIVE',
+          quality_score: entityQualityScore(0.7),
+          first_seen_at: ts('2026-01-01T00:00:00Z'),
+          last_verified_at: null,
+        }),
+      ),
+    );
+    const ordered = seeded.toSorted((left, right) => left.id.localeCompare(right.id));
+    await addEntityEvidence(ordered[1]!);
+
+    const web = queryModel.forSurface('PUBLIC_WEB', { asOf: AS_OF });
+    const first = await web.listEntities({
+      vertical_id: fixtures.vertical.id,
+      entity_type: 'listing_probe',
+      limit: 2,
+    });
+    expect(first.entities.map((entity) => entity.id)).toEqual([ordered[1]!.id]);
+    expect(first.next_after_id).toBe(ordered[1]!.id);
+
+    const second = await web.listEntities({
+      vertical_id: fixtures.vertical.id,
+      entity_type: 'listing_probe',
+      limit: 2,
+      after_id: first.next_after_id!,
+    });
+    expect(second).toEqual({ entities: [], next_after_id: null });
+  });
+
   it('constrains exact search and facets before values can become an oracle', async () => {
     const web = queryModel.forSurface('PUBLIC_WEB', { asOf: AS_OF });
     const search = await web.search({
@@ -183,6 +220,81 @@ describe('surface-bound query model', () => {
     expect(search.hits).toEqual([]);
     expect(search.total).toBe(0);
     expect(search.facets[0]?.entity_count).toBe(0);
+  });
+
+  it('bounds the combined entity and fact authorization fan-out for a small search page', async () => {
+    const seededEntities: Entity[] = [];
+    for (let index = 0; index < 12; index += 1) {
+      const entity = await fixtures.store.upsertEntity({
+        vertical_id: fixtures.vertical.id,
+        entity_type: 'equipment',
+        canonical_name: `Authorization Fanout Unit ${String(index).padStart(2, '0')}`,
+        canonical_slug: `authorization-fanout-unit-${String(index).padStart(2, '0')}`,
+        status: 'ACTIVE',
+        quality_score: entityQualityScore(0.7),
+        first_seen_at: ts('2026-01-01T00:00:00Z'),
+        last_verified_at: null,
+      });
+      await addEntityEvidence(entity);
+      await claim(fixtures, 'manufacturer', {
+        entity_id: entity.id,
+        property: 'seer2_rating',
+        value: 14 + index,
+        value_type: 'number',
+      });
+      seededEntities.push(entity);
+    }
+
+    const originalQueryMethod = fixtures.driver.query;
+    const originalQuery = originalQueryMethod.bind(fixtures.driver);
+    const active = { count: 0, max: 0 };
+    const started = { entity: 0, fact: 0 };
+    fixtures.driver.query = (async <R extends SqlRow = SqlRow>(
+      sql: string,
+      params?: readonly SqlParam[],
+    ): Promise<R[]> => {
+      const kind = sql.includes('FROM entity_evidence ee')
+        ? 'entity'
+        : sql.includes('FROM facts WHERE id = $1')
+          ? 'fact'
+          : null;
+      if (kind === null) return originalQuery<R>(sql, params);
+
+      started[kind] += 1;
+      active.count += 1;
+      active.max = Math.max(active.max, active.count);
+      try {
+        // Hold the first query in each authorization long enough to expose how
+        // many row-level decisions the surface launches at once. This measures
+        // authorization work before the driver's own pool can hide the fan-out.
+        await new Promise((resolve) => setTimeout(resolve, 15));
+        return await originalQuery<R>(sql, params);
+      } finally {
+        active.count -= 1;
+      }
+    }) as typeof fixtures.driver.query;
+
+    try {
+      const web = queryModel.forSurface('PUBLIC_WEB', { asOf: AS_OF });
+      const result = await web.search({
+        vertical_id: fixtures.vertical.id,
+        entity_type: 'equipment',
+        limit: 1,
+      });
+
+      // Bounding work must not turn authorization into an early-exit page scan.
+      // The page is one row, while total still covers every authorized entity.
+      expect(result.hits).toHaveLength(1);
+      expect(result.total).toBe(seededEntities.length + 1);
+    } finally {
+      fixtures.driver.query = originalQueryMethod;
+    }
+
+    expect(started.entity).toBeGreaterThan(8);
+    expect(started.fact).toBeGreaterThan(8);
+    // `pg` defaults to a ten-connection pool. Leave headroom for other requests
+    // and for the two vertical enumeration queries that precede this work.
+    expect(active.max).toBeLessThanOrEqual(8);
   });
 
   it('selects and explains only over candidates authorized for this surface', async () => {

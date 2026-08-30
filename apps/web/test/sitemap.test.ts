@@ -28,6 +28,13 @@ import type {
   TraversalQuery,
 } from '@data-foundry/query-model';
 
+interface EntityListQuery {
+  readonly vertical_id: Entity['vertical_id'];
+  readonly entity_type?: Entity['entity_type'];
+  readonly limit?: number;
+  readonly after_id?: Entity['id'];
+}
+
 const ACTIVE_RUNTIMES = {
   hvac: { ...RUNTIMES['hvac']!, vertical_status: 'ACTIVE' },
 };
@@ -105,10 +112,11 @@ async function seedEquipmentModels(f: QueryFixtures, count: number, prefix: stri
 }
 
 describe('sitemapSegmentXml — per-entity fan-out performance', () => {
-  it('never re-fetches an entity search() already returned in full (no getEntity call)', async () => {
+  it('never re-fetches an entity listEntities() already returned in full (no getEntity call)', async () => {
     // RED under the pre-fix code: isIndexable used to call
-    // `queryModel.getEntity(entityId)` once per hit even though `search()`
-    // already returns the full entity (quality_score, updated_at included).
+    // `queryModel.getEntity(entityId)` once per hit even though
+    // `listEntities()` already returns the full entity (quality_score,
+    // updated_at included).
     await seedEquipmentModels(fixtures, 3, 'nolookup');
     const deployment = await getDeployment({
       env: { POSTGRES_URL: 'postgres://fixture/db', PUBLIC_ORIGIN: 'https://data-foundry.test' },
@@ -177,15 +185,46 @@ function fakeSurfaceModel(
   surface: 'PUBLIC_WEB' | 'SEARCH_INDEX',
   entities: readonly typeof fixtures.equipment[],
   searchCalls: SearchQuery[],
+  listCalls: EntityListQuery[],
   options: {
     readonly maxLimit?: number;
     readonly maxOffset?: number;
     readonly emptyWhenOffsetClamped?: boolean;
+    readonly stuckListCursor?: boolean;
+    readonly emptyFirstListPage?: boolean;
   } = {},
 ): SurfaceQueryModel {
   return {
     fields: fixtures.registry,
     surface,
+    listEntities: async (query: EntityListQuery) => {
+      listCalls.push(query);
+      const limit = Math.min(query.limit ?? 200, options.maxLimit ?? 200);
+      if (
+        options.emptyFirstListPage === true &&
+        query.after_id === undefined &&
+        entities.length > 0
+      ) {
+        return { entities: [], next_after_id: entities[0]!.id };
+      }
+      const eligible = entities
+        .filter(
+          (entity) =>
+            query.entity_type === undefined || entity.entity_type === query.entity_type,
+        )
+        .filter((entity) => query.after_id === undefined || entity.id > query.after_id)
+        .sort((left, right) => left.id.localeCompare(right.id));
+      const page = eligible.slice(0, limit);
+      const nextAfterId =
+        eligible.length > page.length && page.length > 0 ? page[page.length - 1]!.id : null;
+      return {
+        entities: page,
+        next_after_id:
+          options.stuckListCursor === true && query.after_id !== undefined && nextAfterId !== null
+            ? query.after_id
+            : nextAfterId,
+      };
+    },
     search: async (query: SearchQuery) => {
       searchCalls.push(query);
       const requestedOffset = query.offset ?? 0;
@@ -233,7 +272,7 @@ function fakeSurfaceModel(
 function paginationVertical(
   count: number,
   maxUrlsPerFile: number,
-  searchOptions: Parameters<typeof fakeSurfaceModel>[3] = {},
+  searchOptions: Parameters<typeof fakeSurfaceModel>[4] = {},
 ) {
   const entities = Array.from({ length: count }, (_, index) => ({
     ...fixtures.equipment,
@@ -244,6 +283,8 @@ function paginationVertical(
   }));
   const publicCalls: SearchQuery[] = [];
   const indexCalls: SearchQuery[] = [];
+  const publicListCalls: EntityListQuery[] = [];
+  const indexListCalls: EntityListQuery[] = [];
   const runtime = {
     ...RUNTIMES['hvac']!,
     vertical_status: 'ACTIVE',
@@ -274,15 +315,65 @@ function paginationVertical(
     slug: 'hvac',
     verticalId: fixtures.vertical.id,
     runtime,
-    publicQueryModel: fakeSurfaceModel('PUBLIC_WEB', entities, publicCalls, searchOptions),
-    searchIndexQueryModel: fakeSurfaceModel('SEARCH_INDEX', entities, indexCalls, searchOptions),
+    publicQueryModel: fakeSurfaceModel(
+      'PUBLIC_WEB',
+      entities,
+      publicCalls,
+      publicListCalls,
+      searchOptions,
+    ),
+    searchIndexQueryModel: fakeSurfaceModel(
+      'SEARCH_INDEX',
+      entities,
+      indexCalls,
+      indexListCalls,
+      searchOptions,
+    ),
   };
-  return { vertical, entities, publicCalls, indexCalls };
+  return { vertical, entities, publicCalls, indexCalls, publicListCalls, indexListCalls };
 }
 
 describe('sitemap pagination and configured file limits', () => {
+  it('continues after a raw scan page authorizes no entities but advances its cursor', async () => {
+    const { vertical, entities, publicListCalls } = paginationVertical(3, 50_000, {
+      emptyFirstListPage: true,
+    });
+
+    const xml = await sitemapSegmentXml(
+      vertical,
+      'https://data-foundry.test',
+      'entities',
+      new Date('2026-03-01T00:00:00Z'),
+    );
+
+    expect(xml).not.toContain('pagination-model-0');
+    expect(xml).toContain('pagination-model-2');
+    expect(publicListCalls.map((call) => call.after_id ?? null)).toEqual([
+      null,
+      entities[0]!.id,
+    ]);
+  });
+
+  it('uses surface-bound keyset pages past the public search offset ceiling', async () => {
+    const { vertical, publicCalls, publicListCalls } = paginationVertical(10_201, 50_000, {
+      maxOffset: 10_000,
+    });
+
+    const xml = await sitemapSegmentXml(
+      vertical,
+      'https://data-foundry.test',
+      'entities',
+      new Date('2026-03-01T00:00:00Z'),
+    );
+
+    expect(xml).toContain('pagination-model-10200');
+    expect(publicListCalls.some((call) => call.after_id !== undefined)).toBe(true);
+    expect(publicCalls.filter((call) => (call.limit ?? 20) > 1)).toEqual([]);
+    expect(publicCalls.every((call) => (call.offset ?? 0) === 0)).toBe(true);
+  });
+
   it('paginates in query-layer-sized batches instead of losing results after 200', async () => {
-    const { vertical, publicCalls } = paginationVertical(205, 45_000);
+    const { vertical, entities, publicCalls, publicListCalls } = paginationVertical(205, 45_000);
     const xml = await sitemapSegmentXml(
       vertical,
       'https://data-foundry.test',
@@ -291,10 +382,12 @@ describe('sitemap pagination and configured file limits', () => {
     );
 
     expect(xml).toContain('pagination-model-204');
-    expect(
-      publicCalls.filter((call) => (call.limit ?? 200) > 1).map((call) => call.offset),
-    ).toEqual([0, 200]);
-    expect(publicCalls.every((call) => (call.limit ?? 0) <= 200)).toBe(true);
+    expect(publicListCalls.map((call) => call.after_id ?? null)).toEqual([
+      null,
+      entities[199]!.id,
+    ]);
+    expect(publicListCalls.every((call) => (call.limit ?? 0) <= 200)).toBe(true);
+    expect(publicCalls.filter((call) => (call.limit ?? 20) > 1)).toEqual([]);
   });
 
   it('shards output and advertises every shard without exceeding max_urls_per_file', async () => {
@@ -317,11 +410,10 @@ describe('sitemap pagination and configured file limits', () => {
     expect(index).toContain('/sitemaps/entities-3.xml');
   });
 
-  it('fails closed instead of truncating or looping when the query cursor is clamped', async () => {
+  it('fails closed instead of truncating or looping when the keyset cursor repeats', async () => {
     const { vertical } = paginationVertical(5, 45_000, {
       maxLimit: 2,
-      maxOffset: 2,
-      emptyWhenOffsetClamped: true,
+      stuckListCursor: true,
     });
 
     await expect(
@@ -331,6 +423,6 @@ describe('sitemap pagination and configured file limits', () => {
         'entities',
         new Date('2026-03-01T00:00:00Z'),
       ),
-    ).rejects.toThrow(/pagination could not advance/i);
+    ).rejects.toThrow(/keyset pagination returned a non-advancing cursor/i);
   });
 });

@@ -123,6 +123,8 @@ export {
   type SurfaceClaimSummary,
   type SurfaceFactExplanation,
   type SurfaceAccessOptions,
+  type SurfaceEntityListPage,
+  type SurfaceEntityListQuery,
   type SurfaceQueryModel,
 } from './surface-access.js';
 export { RIGHTS_SURFACES, type RightsSurface } from '@data-foundry/rights-engine';

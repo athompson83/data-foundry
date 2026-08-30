@@ -1,5 +1,7 @@
 import {
+  ENTITY_COLUMNS,
   loadStoredRightsContext,
+  mapEntity,
   selectCanonicalFact,
   type CandidateEvidence,
   type CanonicalStore,
@@ -10,7 +12,9 @@ import {
 } from '@data-foundry/canonical-store';
 import {
   compareCodeUnits,
+  type Entity,
   type EntityId,
+  type EntityStatus,
   type FactId,
   type Identifier,
   type IsoDateTime,
@@ -57,6 +61,24 @@ export interface SurfaceAccessOptions {
 }
 
 /**
+ * One bounded raw-entity keyset scan. The continuation identifies the last
+ * raw row inspected, which may itself be denied for this surface. That keeps
+ * each call bounded even when an entire database page fails rights checks.
+ */
+export interface SurfaceEntityListQuery {
+  readonly vertical_id: VerticalId;
+  readonly entity_type?: Identifier;
+  readonly statuses?: readonly EntityStatus[];
+  readonly limit?: number;
+  readonly after_id?: EntityId;
+}
+
+export interface SurfaceEntityListPage {
+  readonly entities: readonly Entity[];
+  readonly next_after_id: EntityId | null;
+}
+
+/**
  * Customer-safe subset of the canonical query layer. Audit/history reads are
  * intentionally absent: a surface cannot ask for raw facts, internal
  * explanations, or unrestricted provenance coverage and then filter them
@@ -73,6 +95,7 @@ export interface SurfaceQueryModel {
     slug: Slug,
   ): Promise<EntityView | null>;
   lookupIdentifier(lookup: IdentifierLookup): ReturnType<typeof lookupByIdentifier>;
+  listEntities(query: SurfaceEntityListQuery): Promise<SurfaceEntityListPage>;
   search(query: SearchQuery): Promise<SearchResult>;
   facets(query: FacetQuery): Promise<FacetResult[]>;
   canonicalFacts(
@@ -169,6 +192,59 @@ const SURFACE_CHANNEL = Object.freeze({
   MODEL_TRAINING: 'MODEL_PIPELINE',
   MODEL_EVALUATION: 'MODEL_PIPELINE',
 } satisfies Record<RightsSurface, RightsChannel>);
+
+/**
+ * A surface search enumerates every potentially visible entity and fact before
+ * pagination so its rights-safe total remains exact. The two enumerations run
+ * together, therefore their row-level authorization must share one budget: two
+ * independent eight-worker maps would still spend sixteen connections from a
+ * `pg` pool whose default maximum is ten.
+ */
+const SURFACE_AUTHORIZATION_CONCURRENCY = 8;
+const SURFACE_ENTITY_SCAN_LIMIT = 200;
+
+const boundedEntityScanLimit = (value: number | undefined): number => {
+  if (value === undefined || !Number.isFinite(value)) return SURFACE_ENTITY_SCAN_LIMIT;
+  return Math.max(1, Math.min(Math.trunc(value), SURFACE_ENTITY_SCAN_LIMIT));
+};
+
+class SurfaceAuthorizationLimiter {
+  readonly #limit: number;
+  #active = 0;
+  readonly #waiting: Array<() => void> = [];
+
+  constructor(limit: number) {
+    this.#limit = limit;
+  }
+
+  async #acquire(): Promise<void> {
+    if (this.#active < this.#limit) {
+      this.#active += 1;
+      return;
+    }
+    // The releasing worker transfers its permit directly to this waiter, so
+    // a newly arriving operation cannot race between release and reacquire.
+    await new Promise<void>((resolve) => this.#waiting.push(resolve));
+  }
+
+  #release(): void {
+    const next = this.#waiting.shift();
+    if (next !== undefined) {
+      next();
+      return;
+    }
+    this.#active -= 1;
+  }
+
+  async run<T>(operation: () => Promise<T>): Promise<T> {
+    await this.#acquire();
+    try {
+      return await operation();
+    } finally {
+      this.#release();
+    }
+  }
+}
 
 const locatorFor = (evidence: CandidateEvidence): string =>
   evidence.evidence.locator_type === 'WHOLE_DOCUMENT'
@@ -316,6 +392,9 @@ class SurfaceRightsAuthorizer {
   readonly #relationshipResults = new Map<string, Promise<boolean>>();
   readonly #visibleEntities = new Map<string, Promise<readonly EntityId[]>>();
   readonly #visibleFacts = new Map<string, Promise<readonly string[]>>();
+  readonly #authorizationLimiter = new SurfaceAuthorizationLimiter(
+    SURFACE_AUTHORIZATION_CONCURRENCY,
+  );
 
   constructor(
     store: CanonicalStore,
@@ -650,7 +729,12 @@ class SurfaceRightsAuthorizer {
       [verticalId],
     );
     const decisions = await Promise.all(
-      rows.map(async (row) => ({ id: row.id as EntityId, allowed: await this.authorizeEntity(row.id as EntityId) })),
+      rows.map((row) =>
+        this.#authorizationLimiter.run(async () => ({
+          id: row.id as EntityId,
+          allowed: await this.authorizeEntity(row.id as EntityId),
+        })),
+      ),
     );
     return decisions.filter((entry) => entry.allowed).map((entry) => entry.id);
   }
@@ -676,9 +760,53 @@ class SurfaceRightsAuthorizer {
       [verticalId, this.#asOf],
     );
     const decisions = await Promise.all(
-      rows.map(async (row) => ({ id: row.id, allowed: await this.authorizeFact(row.id) })),
+      rows.map((row) =>
+        this.#authorizationLimiter.run(async () => ({
+          id: row.id,
+          allowed: await this.authorizeFact(row.id),
+        })),
+      ),
     );
     return decisions.filter((entry) => entry.allowed).map((entry) => entry.id);
+  }
+
+  async listEntities(query: SurfaceEntityListQuery): Promise<SurfaceEntityListPage> {
+    const statuses = query.statuses ?? (['ACTIVE'] as const);
+    if (statuses.length === 0) return { entities: [], next_after_id: null };
+    const limit = boundedEntityScanLimit(query.limit);
+    const statusPlaceholders = statuses.map((_, index) => `$${index + 3}`).join(', ');
+    const afterPlaceholder = `$${statuses.length + 3}`;
+    const limitPlaceholder = `$${statuses.length + 4}`;
+    const rows = await this.#store.driver.query(
+      `SELECT ${ENTITY_COLUMNS}
+         FROM entities
+        WHERE vertical_id = $1
+          AND ($2::text IS NULL OR entity_type = $2)
+          AND status IN (${statusPlaceholders})
+          AND (${afterPlaceholder}::uuid IS NULL OR id > ${afterPlaceholder}::uuid)
+        ORDER BY id
+        LIMIT ${limitPlaceholder}`,
+      [
+        query.vertical_id,
+        query.entity_type ?? null,
+        ...statuses,
+        query.after_id ?? null,
+        limit,
+      ],
+    );
+    const entities = rows.map(mapEntity);
+    const decisions = await Promise.all(
+      entities.map((entity) =>
+        this.#authorizationLimiter.run(async () => ({
+          entity,
+          allowed: await this.authorizeEntity(entity.id),
+        })),
+      ),
+    );
+    return {
+      entities: decisions.filter((entry) => entry.allowed).map((entry) => entry.entity),
+      next_after_id: rows.length === limit ? (entities.at(-1)?.id ?? null) : null,
+    };
   }
 }
 
@@ -845,6 +973,7 @@ export function createSurfaceQueryModel(
       }
       return { matches, entities };
     },
+    listEntities: (query) => authorizer.listEntities(query),
     search: async (query) => {
       const [entityIds, factIds] = await Promise.all([
         authorizer.visibleEntityIds(query.vertical_id),

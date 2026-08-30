@@ -16,7 +16,7 @@ import {
   verticalPublicationEligibility,
 } from './publication.js';
 
-/** The canonical query layer clamps searches to 200; never pretend a larger request bypasses it. */
+/** Keep one keyset page within the canonical query layer's bounded read size. */
 const SEARCH_PAGE_SIZE = 200;
 
 export class SitemapConfigurationError extends Error {
@@ -60,26 +60,29 @@ async function allVisibleEntities(
   entityType: string,
 ): Promise<readonly Entity[]> {
   const entities: Entity[] = [];
-  let offset = 0;
-  let total = Number.POSITIVE_INFINITY;
+  let afterId: Entity['id'] | undefined;
+  const seenCursors = new Set<Entity['id']>();
 
-  while (offset < total) {
-    const requestedOffset = offset;
-    const result = await model.search({
+  while (true) {
+    const result = await model.listEntities({
       vertical_id: vertical.verticalId,
       entity_type: entityType as never,
       limit: SEARCH_PAGE_SIZE,
-      offset: requestedOffset,
+      ...(afterId === undefined ? {} : { after_id: afterId }),
     });
-    if (result.offset !== requestedOffset) {
+
+    entities.push(...result.entities);
+    if (result.next_after_id === null) break;
+    if (
+      (afterId !== undefined && result.next_after_id <= afterId) ||
+      seenCursors.has(result.next_after_id)
+    ) {
       throw new SitemapConfigurationError(
-        `Sitemap pagination could not advance: requested offset ${requestedOffset}, but the query layer returned ${result.offset}.`,
+        'Sitemap keyset pagination returned a non-advancing cursor.',
       );
     }
-    entities.push(...result.hits.map((hit) => hit.entity));
-    total = result.total;
-    if (result.hits.length === 0) break;
-    offset += result.hits.length;
+    seenCursors.add(result.next_after_id);
+    afterId = result.next_after_id;
   }
   return entities;
 }

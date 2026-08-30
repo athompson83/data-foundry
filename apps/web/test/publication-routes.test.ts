@@ -37,6 +37,16 @@ async function withApp(
 }
 
 describe('surface-bound vertical publication eligibility', () => {
+  it('keeps the parent index out of search when no vertical is publicly published', async () => {
+    await withApp('DRAFT', ['PUBLIC_WEB', 'SEARCH_INDEX'], async (app) => {
+      const root = await app({ method: 'GET', url: '/' });
+
+      expect(root.status).toBe(200);
+      expect(root.body).toContain('No industry is currently serving data from this deployment.');
+      expect(root.body).toContain('name="robots" content="noindex,follow"');
+    });
+  });
+
   it('does not expose a DRAFT vertical even when synthetic PUBLIC_WEB and SEARCH_INDEX grants exist', async () => {
     await withApp('DRAFT', ['PUBLIC_WEB', 'SEARCH_INDEX'], async (app) => {
       const [root, landing, search, docs, llms, sitemap] = await Promise.all([
