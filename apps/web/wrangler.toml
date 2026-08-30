@@ -39,8 +39,8 @@ PUBLIC_CACHE_MODE = "no-store"
 
 # PUBLIC_ORIGIN is required at runtime and must be the exact HTTPS origin used
 # by this deployment. It is intentionally not guessed from request headers.
-# Configure the non-secret value in the deployed environment, for example:
-#   wrangler deploy --var PUBLIC_ORIGIN:https://data.example.com
+# Configure the non-secret value in the ignored `wrangler.production.toml`
+# deployment manifest; do not duplicate it as a command-line override.
 # Local development may use an explicit localhost HTTP origin in .dev.vars.
 
 # [[hyperdrive]]
