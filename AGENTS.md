@@ -93,6 +93,19 @@ Every change must preserve:
 - sitemap/indexability consistency;
 - rights gates.
 
+<!-- BEGIN ECONOMICAL CI -->
+## Economical CI (Codex and Claude)
+
+These rules apply equally to Codex, Claude, and any other coding agent:
+
+- Inspect the complete changed-file set before selecting tests. Run the narrowest relevant local checks first, and broaden only when shared code, schemas, migrations, security boundaries, or release behavior changed.
+- Record the exact local commands and results in the pull request. Do not push a speculative fix merely to use GitHub Actions as a debugger.
+- Do not manually rerun a failed Action until its complete failing job and step logs identify a root cause. Never create an empty commit to retrigger CI.
+- Classify failures as deterministic code/configuration, base drift/conflict, flaky/transient, dependency/service outage, secret/permission boundary, or obsolete workflow. A transient external failure may receive at most one targeted rerun when the evidence supports it.
+- Use a draft pull request while iterating when repeated pushes would otherwise run CI. Mark it ready only after relevant local checks pass.
+- GitHub Actions are the clean-environment and protected-gate proof. Preserve migration, rights, provenance, security, deployment, and release assurances when their inputs change; cost reduction must not weaken them.
+<!-- END ECONOMICAL CI -->
+
 ## Documentation
 
 Update relevant docs in the same PR as behavior changes. Keep architecture decisions in ADRs. Never leave important assumptions only in prompts or chat history.
