@@ -23,6 +23,7 @@ import {
   type ExtractionProviderRegistry,
   type ExtractionSchema,
 } from '@data-foundry/extraction';
+import { traverseRelationships } from '@data-foundry/query-model';
 import { migrate } from '../../../packages/canonical-store/test/support.js';
 import {
   buildFixtureManifest,
@@ -377,6 +378,467 @@ describe('real ingestion fact output lineage', () => {
     );
   });
 
+  it('retires a removed source alias before it can resolve a later record', async () => {
+    await ensureIngestionRights();
+    const artifactStore = new InMemoryArtifactStore();
+    const sourceKey = 'ACS-ALIAS-CURRENCY-001';
+    const model = 'ALIASCURRENCY001';
+    const first = await Pipeline.create({
+      driver,
+      verticalSlug: 'hvac',
+      artifactStore,
+      now: '2026-08-15T12:00:00.000Z' as never,
+      runId: 'alias-currency-valid',
+      fixtureOverrides: {
+        'acme-hvac-catalog': JSON.stringify({
+          products: [catalogProduct(sourceKey, model)],
+        }),
+      },
+    });
+    expect((await first.runSource('acme-hvac-catalog')).error).toBeNull();
+    const originalEntityId = await currentResolvedEntityId(sourceKey, 'equipment_model');
+
+    const refresh = await Pipeline.create({
+      driver,
+      verticalSlug: 'hvac',
+      artifactStore,
+      now: '2026-08-16T12:00:00.000Z' as never,
+      runId: 'alias-currency-invalid-refresh',
+      fixtureOverrides: {
+        'acme-hvac-catalog': JSON.stringify({
+          products: [catalogProduct(sourceKey, 'AB')],
+        }),
+      },
+    });
+    const refreshResult = await refresh.runSource('acme-hvac-catalog');
+    expect(refreshResult.error).toBeNull();
+
+    const [vertical] = await driver.query<{ id: string }>(
+      `SELECT id FROM verticals WHERE slug = 'hvac'`,
+    );
+    if (vertical === undefined) throw new Error('HVAC vertical missing');
+    const historical = await driver.query<{ id: string }>(
+      `SELECT id FROM entity_aliases
+        WHERE entity_id = $1 AND alias_type = 'model_number' AND normalized_value = $2`,
+      [originalEntityId, model],
+    );
+    const current = await driver.query<{ id: string }>(
+      `SELECT id FROM current_entity_aliases
+        WHERE entity_id = $1 AND alias_type = 'model_number' AND normalized_value = $2`,
+      [originalEntityId, model],
+    );
+    expect(historical).toHaveLength(1);
+    expect(current).toEqual([]);
+    expect((await refresh.store.listAliases(originalEntityId as never)).map((alias) => alias.normalized_value))
+      .not.toContain(model);
+    expect(await refresh.store.lookupByAlias({
+      vertical_id: vertical.id as never,
+      entity_type: 'equipment_model' as never,
+      alias_type: 'model_number' as never,
+      values: [model],
+    })).toEqual([]);
+
+    const laterKey = 'ACS-ALIAS-CURRENCY-LATER-001';
+    const later = await Pipeline.create({
+      driver,
+      verticalSlug: 'hvac',
+      artifactStore,
+      now: '2026-08-17T12:00:00.000Z' as never,
+      runId: 'alias-currency-later-record',
+      fixtureOverrides: {
+        'acme-hvac-catalog': JSON.stringify({
+          products: [catalogProduct(laterKey, model)],
+        }),
+      },
+    });
+    expect((await later.runSource('acme-hvac-catalog')).error).toBeNull();
+    expect(await currentResolvedEntityId(laterKey, 'equipment_model')).not.toBe(originalEntityId);
+  });
+
+  it('supersedes identical bytes when the resolved entity target changes, then keeps the new target replay a no-op', async () => {
+    await ensureIngestionRights();
+    const model = 'ENTITYTARGETDRIFT001';
+    const sourceKey = '--ENTITY-TARGET-DRIFT-001--';
+    const firstTarget = await seedCuratedEquipmentAlias({
+      aliasType: 'model_number',
+      aliasValue: model,
+      slug: 'entity-target-drift-first',
+    });
+    const artifactStore = new InMemoryArtifactStore();
+    const fixtureBody = JSON.stringify({
+      products: [catalogProduct(sourceKey, model)],
+    });
+    const first = await Pipeline.create({
+      driver,
+      verticalSlug: 'hvac',
+      artifactStore,
+      now: '2026-08-15T12:00:00.000Z' as never,
+      runId: 'entity-target-drift-first',
+      fixtureOverrides: { 'acme-hvac-catalog': fixtureBody },
+    });
+    expect((await first.runSource('acme-hvac-catalog')).error).toBeNull();
+    expect(await currentResolvedEntityId(sourceKey, 'equipment_model')).toBe(firstTarget.entityId);
+    const [firstRevision] = await currentSourceRecordRows(sourceKey);
+    if (firstRevision === undefined) throw new Error('first entity-target source record missing');
+
+    await retireAlias(firstTarget.aliasId);
+    const secondTarget = await seedCuratedEquipmentAlias({
+      aliasType: 'model_number',
+      aliasValue: model,
+      slug: 'entity-target-drift-second',
+    });
+    const second = await Pipeline.create({
+      driver,
+      verticalSlug: 'hvac',
+      artifactStore,
+      now: '2026-08-16T12:00:00.000Z' as never,
+      runId: 'entity-target-drift-second',
+      fixtureOverrides: { 'acme-hvac-catalog': fixtureBody },
+    });
+    expect((await second.runSource('acme-hvac-catalog')).error).toBeNull();
+
+    const afterDrift = await sourceRecordTargetSnapshot(sourceKey, 'equipment_model');
+    expect(afterDrift.revisions).toHaveLength(2);
+    expect(afterDrift.currentSourceRecordId).not.toBe(firstRevision.id);
+    expect(afterDrift.currentEntityIds).toEqual([secondTarget.entityId]);
+    expect(afterDrift.historicalTargets).toEqual([
+      { entity_id: firstTarget.entityId, is_current: false },
+      { entity_id: secondTarget.entityId, is_current: true },
+    ]);
+
+    const replay = await Pipeline.create({
+      driver,
+      verticalSlug: 'hvac',
+      artifactStore,
+      now: '2026-08-17T12:00:00.000Z' as never,
+      runId: 'entity-target-drift-exact-replay',
+      fixtureOverrides: { 'acme-hvac-catalog': fixtureBody },
+    });
+    expect((await replay.runSource('acme-hvac-catalog')).error).toBeNull();
+    expect(await sourceRecordTargetSnapshot(sourceKey, 'equipment_model')).toEqual(afterDrift);
+  });
+
+  it('supersedes identical bytes when publisher aliases resolve the manufacturer to a new target', async () => {
+    await ensureIngestionRights();
+    const base = await loadVerticalConfig('hvac');
+    const sourceKey = '--MANUFACTURER-TARGET-DRIFT-001--';
+    const fixtureBody = JSON.stringify({
+      products: [catalogProduct(sourceKey, 'MANUFACTURERTARGET001')],
+    });
+    const artifactStore = new InMemoryArtifactStore();
+    const first = await pipelineForConfig(
+      base,
+      artifactStore,
+      'manufacturer-target-drift-first',
+      { 'acme-hvac-catalog': fixtureBody },
+    );
+    expect((await first.runSource('acme-hvac-catalog')).error).toBeNull();
+    const firstManufacturerId = await currentResolvedEntityId(sourceKey, 'manufacturer');
+
+    const changedConfig: VerticalConfig = {
+      ...base,
+      publisherAliases: base.publisherAliases.map((publisher) =>
+        publisher.key === 'acme-climate-systems'
+          ? { ...publisher, canonicalName: 'Acme Target Drift Manufacturing' }
+          : publisher,
+      ),
+    };
+    const second = await pipelineForConfig(
+      changedConfig,
+      artifactStore,
+      'manufacturer-target-drift-second',
+      { 'acme-hvac-catalog': fixtureBody },
+    );
+    expect((await second.runSource('acme-hvac-catalog')).error).toBeNull();
+
+    const snapshot = await sourceRecordTargetSnapshot(sourceKey, 'manufacturer');
+    expect(snapshot.revisions).toHaveLength(2);
+    expect(snapshot.currentEntityIds).toHaveLength(1);
+    expect(snapshot.currentEntityIds[0]).not.toBe(firstManufacturerId);
+    expect(snapshot.historicalTargets).toEqual([
+      { entity_id: firstManufacturerId, is_current: false },
+      { entity_id: snapshot.currentEntityIds[0], is_current: true },
+    ]);
+  });
+
+  it('supersedes identical bytes when a relationship alias endpoint resolves to a new target', async () => {
+    await ensureIngestionRights();
+    const endpointAlias = 'RELATIONENDPOINT001';
+    const firstTarget = await seedCuratedEquipmentAlias({
+      aliasType: 'model_number',
+      aliasValue: endpointAlias,
+      slug: 'relationship-endpoint-first',
+    });
+    const sourceKey = 'ACS-RELATIONSHIP-TARGET-DRIFT-001';
+    const fixtureBody = JSON.stringify({
+      products: [{
+        ...catalogProduct(sourceKey, 'RELATIONSHIPDRIFT001'),
+        lifecycle: {
+          status: 'discontinued',
+          discontinued_on: '2026-08-01',
+          replaced_by: endpointAlias,
+        },
+      }],
+    });
+    const artifactStore = new InMemoryArtifactStore();
+    const first = await Pipeline.create({
+      driver,
+      verticalSlug: 'hvac',
+      artifactStore,
+      now: '2026-08-15T12:00:00.000Z' as never,
+      runId: 'relationship-target-drift-first',
+      fixtureOverrides: { 'acme-hvac-catalog': fixtureBody },
+    });
+    expect((await first.runSource('acme-hvac-catalog')).error).toBeNull();
+    expect(await currentRelationshipTargets(sourceKey, 'supersedes')).toEqual([firstTarget.entityId]);
+
+    await retireAlias(firstTarget.aliasId);
+    const secondTarget = await seedCuratedEquipmentAlias({
+      aliasType: 'model_number',
+      aliasValue: endpointAlias,
+      slug: 'relationship-endpoint-second',
+    });
+    const second = await Pipeline.create({
+      driver,
+      verticalSlug: 'hvac',
+      artifactStore,
+      now: '2026-08-16T12:00:00.000Z' as never,
+      runId: 'relationship-target-drift-second',
+      fixtureOverrides: { 'acme-hvac-catalog': fixtureBody },
+    });
+    expect((await second.runSource('acme-hvac-catalog')).error).toBeNull();
+
+    const revisions = await currentSourceRecordRows(sourceKey, false);
+    expect(revisions).toHaveLength(2);
+    expect(await currentRelationshipTargets(sourceKey, 'supersedes')).toEqual([secondTarget.entityId]);
+    const selfEntityId = await currentResolvedEntityId(sourceKey, 'equipment_model');
+    const history = await driver.query<{
+      id: string;
+      is_current: boolean;
+      status: string;
+      subject_entity_id: string;
+    }>(
+      `SELECT relationship.id, record.is_current, relationship.status, relationship.subject_entity_id
+         FROM relationship_evidence evidence
+         JOIN source_records record ON record.id = evidence.source_record_id
+         JOIN relationships relationship ON relationship.id = evidence.relationship_id
+        WHERE record.source_record_key = $1 AND relationship.predicate = 'supersedes'
+        ORDER BY record.is_current, relationship.subject_entity_id`,
+      [sourceKey],
+    );
+    expect(history).toEqual([
+      expect.objectContaining({
+        is_current: false,
+        status: 'ACTIVE',
+        subject_entity_id: firstTarget.entityId,
+      }),
+      expect.objectContaining({
+        is_current: true,
+        status: 'ACTIVE',
+        subject_entity_id: secondTarget.entityId,
+      }),
+    ]);
+
+    const oldRelationshipId = history[0]?.id;
+    const newRelationshipId = history[1]?.id;
+    if (oldRelationshipId === undefined || newRelationshipId === undefined) {
+      throw new Error('relationship drift history missing');
+    }
+    expect((await second.store.listRelationships(selfEntityId as never, {
+      predicate: 'supersedes' as never,
+    })).map((relationship) => relationship.id)).toEqual([newRelationshipId]);
+    expect((await traverseRelationships(second.store, {
+      entity_id: selfEntityId as never,
+      predicate: 'supersedes' as never,
+      require_publishable_rights: false,
+    })).edges.map((edge) => edge.relationship.id)).toEqual([newRelationshipId]);
+
+    // A second, still-current source-record contribution must be sufficient to
+    // keep the shared relationship visible after the original record expires.
+    const [anchor] = await driver.query<{
+      source_id: string;
+      artifact_id: string;
+      extraction_confidence: number;
+      extractor_version: string;
+    }>(
+      `SELECT source_id, artifact_id, extraction_confidence, extractor_version
+         FROM source_records
+        WHERE source_record_key = $1 AND is_current`,
+      [sourceKey],
+    );
+    if (anchor === undefined) throw new Error('relationship contribution anchor missing');
+    const sharedRecord = await second.store.recordSourceRecord({
+      source_id: anchor.source_id as never,
+      artifact_id: anchor.artifact_id as never,
+      source_record_key: `${sourceKey}:shared-contributor`,
+      entity_type: 'equipment_model' as never,
+      raw_payload: { relationship: 'shared-current-contribution' },
+      normalized_payload: null,
+      extraction_confidence: anchor.extraction_confidence as never,
+      extractor_version: anchor.extractor_version,
+    });
+    await driver.query(
+      `INSERT INTO relationship_evidence
+         (relationship_id, artifact_id, source_record_id, source_value,
+          locator_type, locator_value, observed_at)
+       VALUES ($1, $2, $3, $4, 'JSON_POINTER', '/shared_relationship', $5)`,
+      [
+        oldRelationshipId,
+        anchor.artifact_id,
+        sharedRecord.id,
+        endpointAlias,
+        '2026-08-16T12:00:00.000Z',
+      ],
+    );
+    expect((await second.store.listRelationships(selfEntityId as never, {
+      predicate: 'supersedes' as never,
+    })).map((relationship) => relationship.id).sort()).toEqual(
+      [newRelationshipId, oldRelationshipId].sort(),
+    );
+    expect((await traverseRelationships(second.store, {
+      entity_id: selfEntityId as never,
+      predicate: 'supersedes' as never,
+      require_publishable_rights: false,
+    })).edges.map((edge) => edge.relationship.id).sort()).toEqual(
+      [newRelationshipId, oldRelationshipId].sort(),
+    );
+  });
+
+  it('reconciles an identifier-less refresh, retires its old source claims, and rolls back manufacturer creation', async () => {
+    await ensureIngestionRights();
+    const base = await loadVerticalConfig('hvac');
+    const sourceKey = 'ACS-NO-STRONG-REFRESH-001';
+    const model = 'NOSTRONGREFRESH001';
+    const rawBrand = 'Refresh Phantom Manufacturer Input';
+    const fixtureBody = JSON.stringify({
+      products: [{
+        ...catalogProduct(sourceKey, model),
+        brand: rawBrand,
+        invalid_sku: '--',
+        invalid_model: 'AB',
+      }],
+    });
+    const artifactStore = new InMemoryArtifactStore();
+    const first = await pipelineForConfig(
+      base,
+      artifactStore,
+      'no-strong-refresh-first',
+      { 'acme-hvac-catalog': fixtureBody },
+    );
+    expect((await first.runSource('acme-hvac-catalog')).error).toBeNull();
+    const originalEntityId = await currentResolvedEntityId(sourceKey, 'equipment_model');
+    const [originalRecord] = await currentSourceRecordRows(sourceKey);
+    if (originalRecord === undefined) throw new Error('original no-strong source record missing');
+
+    const changedConfig: VerticalConfig = {
+      ...base,
+      publisherAliases: [
+        ...base.publisherAliases,
+        {
+          key: 'refresh-phantom-manufacturer',
+          canonicalName: 'Refresh Phantom Manufacturer',
+          aliases: [rawBrand],
+        },
+      ],
+      sourceMappings: remapCatalogAliases(base, {
+        manufacturer_sku: '/invalid_sku',
+        model_number: '/invalid_model',
+      }),
+    };
+    const refresh = await pipelineForConfig(
+      changedConfig,
+      artifactStore,
+      'no-strong-refresh-second',
+      { 'acme-hvac-catalog': fixtureBody },
+    );
+    const result = await refresh.runSource('acme-hvac-catalog');
+    expect(result.error).toBeNull();
+    expect(result.records).toBe(1);
+    expect(result.claims).toBe(0);
+
+    const revisions = await currentSourceRecordRows(sourceKey, false);
+    expect(revisions).toHaveLength(2);
+    expect(revisions.filter((record) => record.is_current)).toEqual([
+      expect.objectContaining({ revision_state: 'FINALIZED' }),
+    ]);
+    expect(revisions.find((record) => record.is_current)?.id).not.toBe(originalRecord.id);
+    const currentClaims = await driver.query<{ id: string }>(
+      `SELECT claim.id
+         FROM entity_alias_claims claim
+         JOIN source_records record ON record.id = claim.source_record_id
+        WHERE record.source_record_key = $1 AND record.is_current`,
+      [sourceKey],
+    );
+    const historicalClaims = await driver.query<{ id: string }>(
+      `SELECT claim.id
+         FROM entity_alias_claims claim
+         JOIN source_records record ON record.id = claim.source_record_id
+        WHERE record.source_record_key = $1`,
+      [sourceKey],
+    );
+    expect(currentClaims).toEqual([]);
+    expect(historicalClaims.length).toBeGreaterThanOrEqual(2);
+    expect(await driver.query(
+      `SELECT id FROM current_entity_aliases
+        WHERE entity_id = $1 AND alias_type IN ('manufacturer_sku', 'model_number')`,
+      [originalEntityId],
+    )).toEqual([]);
+    expect(await driver.query(
+      `SELECT id FROM entities
+        WHERE entity_type = 'manufacturer' AND canonical_slug = 'refresh-phantom-manufacturer'`,
+    )).toEqual([]);
+  });
+
+  it('rolls back a successor revision and its alias-currentness change when source claim persistence fails', async () => {
+    await ensureIngestionRights();
+    const artifactStore = new InMemoryArtifactStore();
+    const sourceKey = 'ACS-ALIAS-CLAIM-ROLLBACK-001';
+    const originalModel = 'ALIASCLAIMROLLBACK001';
+    const first = await Pipeline.create({
+      driver,
+      verticalSlug: 'hvac',
+      artifactStore,
+      now: '2026-08-15T12:00:00.000Z' as never,
+      runId: 'alias-claim-rollback-first',
+      fixtureOverrides: {
+        'acme-hvac-catalog': JSON.stringify({
+          products: [catalogProduct(sourceKey, originalModel)],
+        }),
+      },
+    });
+    expect((await first.runSource('acme-hvac-catalog')).error).toBeNull();
+    const [beforeRecord] = await currentSourceRecordRows(sourceKey);
+    if (beforeRecord === undefined) throw new Error('rollback baseline source record missing');
+    const beforeClaims = await currentSourceAliasClaimIds(sourceKey);
+    expect(beforeClaims.length).toBeGreaterThanOrEqual(2);
+
+    const failed = await Pipeline.create({
+      driver: transactionAffinityGuard(driver, {
+        failTransactionSql: /INSERT INTO entity_alias_claims/,
+      }),
+      verticalSlug: 'hvac',
+      artifactStore,
+      now: '2026-08-16T12:00:00.000Z' as never,
+      runId: 'alias-claim-rollback-second',
+      fixtureOverrides: {
+        'acme-hvac-catalog': JSON.stringify({
+          products: [catalogProduct(sourceKey, 'ALIASCLAIMROLLBACKNEW001')],
+        }),
+      },
+    });
+    expect((await failed.runSource('acme-hvac-catalog')).error).toContain('injected');
+
+    const records = await currentSourceRecordRows(sourceKey, false);
+    expect(records).toEqual([beforeRecord]);
+    expect(await currentSourceAliasClaimIds(sourceKey)).toEqual(beforeClaims);
+    expect(await driver.query<{ normalized_value: string }>(
+      `SELECT normalized_value FROM current_entity_aliases
+        WHERE normalized_value IN ($1, $2)
+        ORDER BY normalized_value`,
+      [originalModel, 'ALIASCLAIMROLLBACKNEW001'],
+    )).toEqual([{ normalized_value: originalModel }]);
+  });
+
   it('supersedes a finalized revision when identical bytes are re-extracted differently', async () => {
     await ensureIngestionRights();
     const base = await loadVerticalConfig('hvac');
@@ -728,6 +1190,177 @@ describe('real ingestion fact output lineage', () => {
     expect(after).toEqual([before]);
   });
 });
+
+async function currentResolvedEntityId(sourceRecordKey: string, entityType: string): Promise<string> {
+  const rows = await driver.query<{ entity_id: string }>(
+    `SELECT DISTINCT evidence.entity_id
+       FROM entity_evidence evidence
+       JOIN source_records record ON record.id = evidence.source_record_id
+       JOIN entities entity ON entity.id = evidence.entity_id
+      WHERE record.source_record_key = $1
+        AND record.is_current
+        AND entity.entity_type = $2
+        AND evidence.contribution_role = 'EXISTENCE'
+      ORDER BY evidence.entity_id`,
+    [sourceRecordKey, entityType],
+  );
+  if (rows.length !== 1 || rows[0] === undefined) {
+    throw new Error(
+      `expected one current ${entityType} target for ${sourceRecordKey}, found ${rows.length}`,
+    );
+  }
+  return rows[0].entity_id;
+}
+
+interface SourceRecordRevisionRow extends SqlRow {
+  readonly id: string;
+  readonly artifact_id: string;
+  readonly is_current: boolean;
+  readonly revision_state: string;
+}
+
+async function currentSourceRecordRows(
+  sourceRecordKey: string,
+  currentOnly = true,
+): Promise<SourceRecordRevisionRow[]> {
+  return driver.query<SourceRecordRevisionRow>(
+    `SELECT id, artifact_id, is_current, revision_state
+       FROM source_records
+      WHERE source_record_key = $1${currentOnly ? ' AND is_current' : ''}
+      ORDER BY created_at, id`,
+    [sourceRecordKey],
+  );
+}
+
+async function sourceRecordTargetSnapshot(
+  sourceRecordKey: string,
+  entityType: string,
+): Promise<{
+  readonly revisions: readonly SourceRecordRevisionRow[];
+  readonly currentSourceRecordId: string;
+  readonly currentEntityIds: readonly string[];
+  readonly historicalTargets: readonly { readonly entity_id: string; readonly is_current: boolean }[];
+}> {
+  const revisions = await currentSourceRecordRows(sourceRecordKey, false);
+  const current = revisions.filter((record) => record.is_current);
+  if (current.length !== 1 || current[0] === undefined) {
+    throw new Error(`expected one current source-record revision for ${sourceRecordKey}`);
+  }
+  const historicalTargets = await driver.query<{ entity_id: string; is_current: boolean }>(
+    `SELECT DISTINCT evidence.entity_id, record.is_current
+       FROM entity_evidence evidence
+       JOIN source_records record ON record.id = evidence.source_record_id
+       JOIN entities entity ON entity.id = evidence.entity_id
+      WHERE record.source_record_key = $1
+        AND entity.entity_type = $2
+        AND evidence.contribution_role = 'EXISTENCE'
+      ORDER BY record.is_current, evidence.entity_id`,
+    [sourceRecordKey, entityType],
+  );
+  return {
+    revisions,
+    currentSourceRecordId: current[0].id,
+    currentEntityIds: historicalTargets
+      .filter((target) => target.is_current)
+      .map((target) => target.entity_id),
+    historicalTargets,
+  };
+}
+
+async function seedCuratedEquipmentAlias(input: {
+  readonly aliasType: string;
+  readonly aliasValue: string;
+  readonly slug: string;
+}): Promise<{ readonly entityId: string; readonly aliasId: string }> {
+  const [vertical] = await driver.query<{ id: string }>(
+    `SELECT id FROM verticals WHERE slug = 'hvac'`,
+  );
+  if (vertical === undefined) throw new Error('HVAC vertical missing');
+  const entityId = crypto.randomUUID();
+  const aliasId = crypto.randomUUID();
+  await driver.query(
+    `INSERT INTO entities
+       (id, vertical_id, entity_type, canonical_name, canonical_slug, status,
+        quality_score, first_seen_at, last_verified_at)
+     VALUES ($1, $2, 'equipment_model', $3, $4, 'ACTIVE', 0.5, $5, $5)`,
+    [entityId, vertical.id, input.slug, input.slug, '2026-08-01T00:00:00.000Z'],
+  );
+  await driver.query(
+    `INSERT INTO entity_aliases
+       (id, entity_id, alias_type, alias_value, normalized_value, source_id,
+        identity_confidence, valid_from, valid_to)
+     VALUES ($1, $2, $3, $4, $4, NULL, 0.99, $5, NULL)`,
+    [aliasId, entityId, input.aliasType, input.aliasValue, '2026-08-01T00:00:00.000Z'],
+  );
+  await driver.query(
+    `INSERT INTO entity_alias_claims
+       (entity_alias_id, asserted_alias_value, identity_confidence, claim_kind,
+        source_record_id, locator_type, locator_value, valid_to)
+     VALUES ($1, $2, 0.99, 'CURATED', NULL, NULL, NULL, NULL)`,
+    [aliasId, input.aliasValue],
+  );
+  return { entityId, aliasId };
+}
+
+async function retireAlias(aliasId: string): Promise<void> {
+  await driver.query(
+    `UPDATE entity_aliases SET valid_to = $2 WHERE id = $1`,
+    [aliasId, '2026-08-16T00:00:00.000Z'],
+  );
+}
+
+async function currentRelationshipTargets(
+  sourceRecordKey: string,
+  predicate: string,
+): Promise<string[]> {
+  const rows = await driver.query<{ subject_entity_id: string }>(
+    `SELECT DISTINCT relationship.subject_entity_id
+       FROM relationship_evidence evidence
+       JOIN source_records record ON record.id = evidence.source_record_id
+       JOIN relationships relationship ON relationship.id = evidence.relationship_id
+      WHERE record.source_record_key = $1
+        AND record.is_current
+        AND relationship.predicate = $2
+      ORDER BY relationship.subject_entity_id`,
+    [sourceRecordKey, predicate],
+  );
+  return rows.map((row) => row.subject_entity_id);
+}
+
+async function currentSourceAliasClaimIds(sourceRecordKey: string): Promise<string[]> {
+  const rows = await driver.query<{ id: string }>(
+    `SELECT claim.id
+       FROM entity_alias_claims claim
+       JOIN source_records record ON record.id = claim.source_record_id
+      WHERE record.source_record_key = $1 AND record.is_current
+      ORDER BY claim.id`,
+    [sourceRecordKey],
+  );
+  return rows.map((row) => row.id);
+}
+
+function remapCatalogAliases(
+  config: VerticalConfig,
+  paths: Readonly<Record<string, string>>,
+): VerticalConfig['sourceMappings'] {
+  return {
+    ...config.sourceMappings,
+    sources: config.sourceMappings.sources.map((source: Record<string, unknown>) =>
+      source['source_key'] !== 'acme-hvac-catalog'
+        ? source
+        : {
+          ...source,
+          records: (source['records'] as readonly Record<string, unknown>[]).map((record) => ({
+            ...record,
+            aliases: (record['aliases'] as readonly Record<string, unknown>[]).map((alias) => ({
+              ...alias,
+              path: paths[String(alias['alias_type'])] ?? alias['path'],
+            })),
+          })),
+        },
+    ),
+  };
+}
 
 function catalogProduct(sku: string, model: string): Record<string, unknown> {
   return {
