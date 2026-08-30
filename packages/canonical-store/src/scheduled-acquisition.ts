@@ -182,10 +182,38 @@ export interface ScheduledAcquisitionClaim {
 
 export type ScheduledAcquisitionClaimDisposition = 'ACQUIRED' | 'ACTIVE' | 'TERMINAL';
 
-export interface ScheduledAcquisitionClaimResult {
-  readonly disposition: ScheduledAcquisitionClaimDisposition;
-  readonly run: ScheduledAcquisitionRun;
+interface ScheduledAcquisitionActiveClaimObservation {
+  readonly id: string;
+  readonly status: 'CLAIMED';
+  readonly claimAttempt: number;
+  readonly retryAt: IsoDateTime;
 }
+
+interface ScheduledAcquisitionTerminalClaimObservation {
+  readonly id: string;
+  readonly status: Exclude<ScheduledAcquisitionStatus, 'CLAIMED'>;
+  readonly claimAttempt: number;
+  readonly retryAt: null;
+}
+
+/** Non-owning claim visibility. This observation never carries a fencing token. */
+export type ScheduledAcquisitionClaimObservation =
+  | ScheduledAcquisitionActiveClaimObservation
+  | ScheduledAcquisitionTerminalClaimObservation;
+
+export type ScheduledAcquisitionClaimResult =
+  | {
+      readonly disposition: 'ACQUIRED';
+      readonly run: ScheduledAcquisitionRun;
+    }
+  | {
+      readonly disposition: 'ACTIVE';
+      readonly run: ScheduledAcquisitionActiveClaimObservation;
+    }
+  | {
+      readonly disposition: 'TERMINAL';
+      readonly run: ScheduledAcquisitionTerminalClaimObservation;
+    };
 
 export interface ScheduledAcquisitionClaimRelease {
   readonly runId: string;
@@ -789,6 +817,23 @@ function mapRun(row: SqlRow): ScheduledAcquisitionRun {
   };
 }
 
+function observeClaim(run: ScheduledAcquisitionRun): ScheduledAcquisitionClaimObservation {
+  if (run.status === 'CLAIMED') {
+    return {
+      id: run.id,
+      status: run.status,
+      claimAttempt: run.claimAttempt,
+      retryAt: run.claimLeaseExpiresAt,
+    };
+  }
+  return {
+    id: run.id,
+    status: run.status,
+    claimAttempt: run.claimAttempt,
+    retryAt: null,
+  };
+}
+
 async function persistArtifact(tx: SqlExecutor, input: SourceArtifactInsert): Promise<SourceArtifact> {
   const rows = await tx.query(
     `INSERT INTO source_artifacts (source_id, url, retrieved_at, content_hash, mime_type, r2_uri,
@@ -920,10 +965,10 @@ class PostgresScheduledAcquisitionStore implements ScheduledAcquisitionStore {
       ) {
         throw new Error('scheduled acquisition claim collision does not match its immutable scope');
       }
-      return {
-        disposition: run.status === 'CLAIMED' ? 'ACTIVE' : 'TERMINAL',
-        run,
-      };
+      const observation = observeClaim(run);
+      return observation.status === 'CLAIMED'
+        ? { disposition: 'ACTIVE', run: observation }
+        : { disposition: 'TERMINAL', run: observation };
     });
   }
 

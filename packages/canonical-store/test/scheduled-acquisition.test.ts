@@ -238,6 +238,87 @@ describe('scheduled acquisition claims', () => {
     expect(await countRows(fixtures.driver, 'scheduled_acquisition_runs')).toBe(1);
   });
 
+  it('redacts the current ownership capability from active and terminal non-winners', async () => {
+    const input = claim('2026-08-28T17:02:00.000Z', {
+      idempotencyKey: 'redacted-non-winner',
+      targetId: 'redacted-non-winner',
+    });
+    const owner = await scheduler.acquire(input);
+    if (owner.disposition !== 'ACQUIRED') throw new Error('fixture claim owner was not acquired');
+
+    const active = await scheduler.acquire(input);
+    if (active.disposition !== 'ACTIVE') throw new Error('fixture claim loser was not active');
+    expect(Object.keys(active.run).sort()).toEqual(['claimAttempt', 'id', 'retryAt', 'status']);
+    expect(active.run).toEqual({
+      id: owner.run.id,
+      status: 'CLAIMED',
+      claimAttempt: owner.run.claimAttempt,
+      retryAt: owner.run.claimLeaseExpiresAt,
+    });
+    expect(JSON.stringify(active)).not.toContain(owner.run.claimToken);
+
+    const exposedUuidValues = Object.values(active.run).filter(
+      (value): value is string =>
+        typeof value === 'string' &&
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value),
+    );
+    expect(exposedUuidValues).toEqual([owner.run.id]);
+    const attemptedAt = runAt(owner.run, 1_000);
+    for (const exposedValue of exposedUuidValues) {
+      await expect(scheduler.assertLease(owner.run.id, exposedValue)).rejects.toThrow(
+        /current unexpired claim owner/i,
+      );
+      await expect(scheduler.release({
+        runId: owner.run.id,
+        claimToken: exposedValue,
+        reason: 'UNEXPECTED_ERROR',
+      })).resolves.toBeNull();
+      await expect(scheduler.fail({
+        runId: owner.run.id,
+        claimToken: exposedValue,
+        status: 'FAILED',
+        outcome: null,
+        failureCode: 'INTERNAL_ERROR',
+        completedAt: attemptedAt,
+        rightsReceipt: [],
+      })).rejects.toThrow(/current unexpired claim owner/i);
+      await expect(scheduler.complete({
+        runId: owner.run.id,
+        claimToken: exposedValue,
+        outcome: 'NOT_MODIFIED',
+        completedAt: attemptedAt,
+        freshAt: attemptedAt,
+        provider: 'http',
+        validators: { etag: '"redaction-control"' },
+        rightsReceipt: [],
+        artifacts: [],
+      })).rejects.toThrow(/current unexpired claim owner/i);
+    }
+    await expect(scheduler.assertLease(owner.run.id, owner.run.claimToken)).resolves.toBeUndefined();
+
+    await scheduler.fail({
+      runId: owner.run.id,
+      claimToken: owner.run.claimToken,
+      status: 'FAILED',
+      outcome: null,
+      failureCode: 'INTERNAL_ERROR',
+      completedAt: attemptedAt,
+      rightsReceipt: [],
+    });
+    const terminal = await scheduler.acquire(input);
+    if (terminal.disposition !== 'TERMINAL') {
+      throw new Error('fixture terminal duplicate was not terminal');
+    }
+    expect(Object.keys(terminal.run).sort()).toEqual(['claimAttempt', 'id', 'retryAt', 'status']);
+    expect(terminal.run).toEqual({
+      id: owner.run.id,
+      status: 'FAILED',
+      claimAttempt: owner.run.claimAttempt,
+      retryAt: null,
+    });
+    expect(JSON.stringify(terminal)).not.toContain(owner.run.claimToken);
+  });
+
   it('fences an active claim, atomically reclaims it after expiry, and rejects the stale owner', async () => {
     const input = claim('2026-08-28T17:05:00.000Z', {
       idempotencyKey: 'lease-recovery',
@@ -245,6 +326,7 @@ describe('scheduled acquisition claims', () => {
     });
     const first = await scheduler.acquire(input);
     expect(first.disposition).toBe('ACQUIRED');
+    if (first.disposition !== 'ACQUIRED') throw new Error('initial lease claim was not acquired');
 
     const active = await scheduler.acquire(input);
     expect(active).toMatchObject({
@@ -259,8 +341,14 @@ describe('scheduled acquisition claims', () => {
     const repeated = await scheduler.acquire(input);
     expect(repeated).toMatchObject({
       disposition: 'ACTIVE',
-      run: { id: first.run.id, claimAttempt: 1, claimToken: first.run.claimToken },
+      run: {
+        id: first.run.id,
+        status: 'CLAIMED',
+        claimAttempt: 1,
+        retryAt: first.run.claimLeaseExpiresAt,
+      },
     });
+    expect(JSON.stringify(repeated)).not.toContain(first.run.claimToken);
 
     await expect(scheduler.release({
       runId: first.run.id,
@@ -273,6 +361,7 @@ describe('scheduled acquisition claims', () => {
       disposition: 'ACQUIRED',
       run: { id: first.run.id, claimAttempt: 2, status: 'CLAIMED' },
     });
+    if (reclaimed.disposition !== 'ACQUIRED') throw new Error('expired lease was not reclaimed');
     expect(reclaimed.run.claimToken).not.toBe(first.run.claimToken);
     expect(await fixtures.driver.query<{ count: number }>(
       `SELECT count(*)::INTEGER AS count

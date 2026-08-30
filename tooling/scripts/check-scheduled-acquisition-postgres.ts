@@ -280,9 +280,59 @@ async function assertLeaseRecoveryAndFencing(
 
   const repeated = await scheduler.acquire(input);
   assert.equal(repeated.disposition, 'ACTIVE');
-  assert.equal(repeated.run.id, acquired.run.id);
-  assert.equal(repeated.run.claimToken, acquired.run.claimToken);
-  assert.equal(repeated.run.claimAttempt, acquired.run.claimAttempt);
+  assert.deepEqual(Object.keys(repeated.run).sort(), ['claimAttempt', 'id', 'retryAt', 'status']);
+  assert.deepEqual(repeated.run, {
+    id: acquired.run.id,
+    status: 'CLAIMED',
+    claimAttempt: acquired.run.claimAttempt,
+    retryAt: acquired.run.claimLeaseExpiresAt,
+  });
+  assert.equal(JSON.stringify(repeated).includes(acquired.run.claimToken), false);
+  const exposedUuidValues = Object.values(repeated.run).filter(
+    (value): value is string =>
+      typeof value === 'string' &&
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value),
+  );
+  assert.deepEqual(exposedUuidValues, [acquired.run.id]);
+  const attemptedAt = await observedDatabaseTime(driver);
+  for (const exposedValue of exposedUuidValues) {
+    await assert.rejects(
+      scheduler.assertLease(acquired.run.id, exposedValue),
+      ScheduledAcquisitionClaimOwnershipError,
+    );
+    assert.equal(await scheduler.release({
+      runId: acquired.run.id,
+      claimToken: exposedValue,
+      reason: 'UNEXPECTED_ERROR',
+    }), null);
+    await assert.rejects(
+      scheduler.fail({
+        runId: acquired.run.id,
+        claimToken: exposedValue,
+        status: 'FAILED',
+        outcome: null,
+        failureCode: 'INTERNAL_ERROR',
+        completedAt: attemptedAt,
+        rightsReceipt: [],
+        provider: null,
+      }),
+      ScheduledAcquisitionClaimOwnershipError,
+    );
+    await assert.rejects(
+      scheduler.complete({
+        runId: acquired.run.id,
+        claimToken: exposedValue,
+        outcome: 'NOT_MODIFIED',
+        completedAt: attemptedAt,
+        freshAt: attemptedAt,
+        provider: 'http',
+        validators: { etag: '"redaction-control"' },
+        rightsReceipt: [],
+        artifacts: [],
+      }),
+      ScheduledAcquisitionClaimOwnershipError,
+    );
+  }
   await scheduler.assertLease(acquired.run.id, acquired.run.claimToken);
 
   const released = await scheduler.release({
@@ -370,6 +420,17 @@ async function assertLeaseRecoveryAndFencing(
   assert.equal(terminal.claimToken, reacquired.run.claimToken);
   assert.equal(terminal.claimAttempt, acquired.run.claimAttempt + 1);
 
+  const terminalObservation = await scheduler.acquire(input);
+  assert.equal(terminalObservation.disposition, 'TERMINAL');
+  assert.deepEqual(Object.keys(terminalObservation.run).sort(), ['claimAttempt', 'id', 'retryAt', 'status']);
+  assert.deepEqual(terminalObservation.run, {
+    id: terminal.id,
+    status: 'FAILED',
+    claimAttempt: terminal.claimAttempt,
+    retryAt: null,
+  });
+  assert.equal(JSON.stringify(terminalObservation).includes(terminal.claimToken), false);
+
   const concurrentInput = claimFor(
     `${suffix}-concurrent-reclaim`,
     source,
@@ -395,9 +456,13 @@ async function assertLeaseRecoveryAndFencing(
   assert.notEqual(winner.run.claimToken, concurrentInitial.run.claimToken);
   assert.equal(winner.run.claimAttempt, concurrentInitial.run.claimAttempt + 1);
   for (const observed of active) {
-    assert.equal(observed.run.id, winner.run.id);
-    assert.equal(observed.run.claimToken, winner.run.claimToken);
-    assert.equal(observed.run.claimAttempt, winner.run.claimAttempt);
+    assert.deepEqual(observed.run, {
+      id: winner.run.id,
+      status: 'CLAIMED',
+      claimAttempt: winner.run.claimAttempt,
+      retryAt: winner.run.claimLeaseExpiresAt,
+    });
+    assert.equal(JSON.stringify(observed).includes(winner.run.claimToken), false);
   }
   const winnerReceipt = await receiptsFor(driver, winner.run);
   const winnerTerminalAt = await observedDatabaseTime(driver);

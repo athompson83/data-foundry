@@ -147,6 +147,7 @@ export {
   type AcquisitionOutputClass,
   type ScheduledAcquisitionArtifactCompletion,
   type ScheduledAcquisitionClaim,
+  type ScheduledAcquisitionClaimObservation,
   ScheduledAcquisitionClaimOwnershipError,
   type ScheduledAcquisitionClaimDisposition,
   type ScheduledAcquisitionClaimRelease,
