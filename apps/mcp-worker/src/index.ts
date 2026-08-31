@@ -64,6 +64,58 @@ const protocolFailure = (status: number): Response =>
 const unavailable = (): Response =>
   rpcError(503, { code: -32003, message: 'Service unavailable.' }, { 'retry-after': '30' });
 
+/**
+ * A Streamable HTTP response can outlive the handler that created it. Keep a
+ * Hyperdrive Client alive for that one response only, then end it on EOF or
+ * cancellation so it can never cross into a later Worker invocation.
+ */
+async function closeWhenResponseFinishes(
+  response: Response,
+  close: () => Promise<void>,
+): Promise<Response> {
+  let closed = false;
+  const closeOnce = async (): Promise<void> => {
+    if (closed) return;
+    closed = true;
+    await close().catch(() => undefined);
+  };
+
+  if (response.body === null) {
+    await closeOnce();
+    return response;
+  }
+
+  const reader = response.body.getReader();
+  const body = new ReadableStream<Uint8Array>({
+    async pull(controller) {
+      try {
+        const chunk = await reader.read();
+        if (chunk.done) {
+          await closeOnce();
+          controller.close();
+          return;
+        }
+        controller.enqueue(chunk.value);
+      } catch (error) {
+        await closeOnce();
+        controller.error(error);
+      }
+    },
+    async cancel(reason) {
+      try {
+        await reader.cancel(reason);
+      } finally {
+        await closeOnce();
+      }
+    },
+  });
+  return new Response(body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers: response.headers,
+  });
+}
+
 const AUTHENTICATION_FAILURES = new Set<AuthFailure['reason']>([
   'MISSING_CREDENTIAL',
   'MALFORMED_CREDENTIAL',
@@ -159,6 +211,8 @@ export async function serveMcpRequest(
   options: McpServeOptions = {},
 ): Promise<Response> {
   const startedAt = Date.now();
+  let deployment: Awaited<ReturnType<typeof getMcpDeployment>> | undefined;
+  let closeDeferredToResponse = false;
   try {
     const config = resolveMcpWorkerConfig(env);
     if (!validHost(request, config.hostname) || !validOrigin(request, config.allowedOrigins)) {
@@ -174,7 +228,7 @@ export async function serveMcpRequest(
       return rpcError(404, { code: -32601, message: 'Not found.' });
     }
 
-    const deployment = await getMcpDeployment({
+    deployment = await getMcpDeployment({
       env,
       runtime,
       ...(options.openDriver === undefined ? {} : { openDriver: options.openDriver }),
@@ -228,9 +282,15 @@ export async function serveMcpRequest(
     }
 
     const response = await deployment.handler.fetch(request, { parsedBody: guarded.parsedBody });
-    if (guarded.notification) return response;
-    const routeKey = guarded.routeKey ?? 'mcp.protocol_failure';
-    return await meterResponse(response, env, mcpAuth, routeKey, startedAt);
+    const completed = guarded.notification
+      ? response
+      : await meterResponse(response, env, mcpAuth, guarded.routeKey ?? 'mcp.protocol_failure', startedAt);
+    if (env.HYPERDRIVE !== undefined) {
+      const responseWithDeferredClose = await closeWhenResponseFinishes(completed, deployment.close);
+      closeDeferredToResponse = true;
+      return responseWithDeferredClose;
+    }
+    return completed;
   } catch (error) {
     console.error(
       error instanceof McpWorkerConfigurationError
@@ -238,6 +298,14 @@ export async function serveMcpRequest(
         : '[mcp-worker] startup unavailable',
     );
     return unavailable();
+  } finally {
+    if (
+      env.HYPERDRIVE !== undefined &&
+      deployment !== undefined &&
+      !closeDeferredToResponse
+    ) {
+      await deployment.close().catch(() => undefined);
+    }
   }
 }
 

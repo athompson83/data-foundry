@@ -32,6 +32,41 @@ let fixtures: QueryFixtures;
 const openFixtureDriver = async () => fixtures.driver;
 const serveOptions: McpServeOptions = { openDriver: openFixtureDriver, runtime: fixtureRuntime };
 
+const HYPERDRIVE_HOSTNAME = 'mcp.aroqon.com';
+const HYPERDRIVE_ORIGIN = 'https://app.aroqon.com';
+
+function productionEnv(queue: QueueBinding) {
+  return {
+    DEPLOYMENT_ENVIRONMENT: 'production',
+    HYPERDRIVE: { connectionString: 'postgres://hyperdrive.fixture/data-foundry' },
+    VERTICAL_SLUG: 'hvac',
+    API_KEY_ENVIRONMENT: 'live',
+    MCP_HOSTNAME: HYPERDRIVE_HOSTNAME,
+    MCP_ALLOWED_ORIGINS: HYPERDRIVE_ORIGIN,
+    PUBLIC_ORIGIN: 'https://data.aroqon.com',
+    USAGE_EVENTS_QUEUE: queue,
+  } as const;
+}
+
+function productionRequest(secret: string | undefined): Request {
+  return mcpRequest(secret, modernBody('tools/list'), {
+    hostname: HYPERDRIVE_HOSTNAME,
+    origin: HYPERDRIVE_ORIGIN,
+    url: `https://${HYPERDRIVE_HOSTNAME}/mcp`,
+  });
+}
+
+function driverThatRecordsClose(onClose: () => void): SqlDriver {
+  return {
+    label: fixtures.driver.label,
+    dialect: fixtures.driver.dialect,
+    query: fixtures.driver.query.bind(fixtures.driver),
+    exec: fixtures.driver.exec.bind(fixtures.driver),
+    transaction: fixtures.driver.transaction.bind(fixtures.driver),
+    close: async () => { onClose(); },
+  };
+}
+
 type JsonRpcEnvelope = {
   readonly jsonrpc: '2.0';
   readonly id?: unknown;
@@ -268,7 +303,11 @@ describe('Streamable HTTP lifecycle and executable tool parity', () => {
   it('does not reopen the database driver for each request in one warm isolate', async () => {
     const key = await seedKey(fixtures, 'mcp-warm-isolate');
     const { queue } = recordingQueue();
-    const openDriver = vi.fn(openFixtureDriver);
+    const schemas: Array<string | undefined> = [];
+    const openDriver = vi.fn(async (_connectionString: string, options?: { readonly schema?: string }) => {
+      schemas.push(options?.schema);
+      return fixtures.driver;
+    });
     const options = { ...serveOptions, openDriver };
     for (let index = 0; index < 2; index += 1) {
       const response = await serveMcpRequest(
@@ -279,6 +318,75 @@ describe('Streamable HTTP lifecycle and executable tool parity', () => {
       expect(response.status).toBe(200);
     }
     expect(openDriver).toHaveBeenCalledTimes(1);
+    expect(schemas).toEqual([undefined]);
+  });
+});
+
+describe('Hyperdrive invocation lifecycle', () => {
+  it('opens a schema-bound client for every completed production invocation', async () => {
+    const key = await seedKey(fixtures, 'mcp-hyperdrive-eof', { environment: 'live' });
+    const { queue } = recordingQueue();
+    const opens: Array<{ readonly connectionString: string; readonly schema: string | undefined }> = [];
+    let closes = 0;
+    const openDriver = async (connectionString: string, options?: { readonly schema?: string }) => {
+      opens.push({ connectionString, schema: options?.schema });
+      return driverThatRecordsClose(() => { closes += 1; });
+    };
+    const env = productionEnv(queue);
+
+    for (let invocation = 0; invocation < 2; invocation += 1) {
+      const response = await serveMcpRequest(
+        productionRequest(key.secret),
+        env,
+        { runtime: fixtureRuntime, openDriver },
+      );
+      expect(response.status).toBe(200);
+      await response.text();
+    }
+
+    expect(opens).toEqual([
+      { connectionString: 'postgres://hyperdrive.fixture/data-foundry', schema: 'data_foundry' },
+      { connectionString: 'postgres://hyperdrive.fixture/data-foundry', schema: 'data_foundry' },
+    ]);
+    // `response.text()` is the response boundary: by the time it resolves,
+    // the invocation-owned Hyperdrive client must already be released.
+    expect(closes).toBe(2);
+  });
+
+  it('closes the Hyperdrive deployment when the response stream is cancelled before EOF', async () => {
+    const key = await seedKey(fixtures, 'mcp-hyperdrive-cancel', { environment: 'live' });
+    const { queue } = recordingQueue();
+    let closes = 0;
+    const response = await serveMcpRequest(
+      productionRequest(key.secret),
+      productionEnv(queue),
+      {
+        runtime: fixtureRuntime,
+        openDriver: async () => driverThatRecordsClose(() => { closes += 1; }),
+      },
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.body).not.toBeNull();
+    await response.body?.cancel('client disconnected');
+
+    expect(closes).toBe(1);
+  });
+
+  it('closes an opened Hyperdrive deployment on an authentication early return', async () => {
+    const { queue } = recordingQueue();
+    let closes = 0;
+    const response = await serveMcpRequest(
+      productionRequest(undefined),
+      productionEnv(queue),
+      {
+        runtime: fixtureRuntime,
+        openDriver: async () => driverThatRecordsClose(() => { closes += 1; }),
+      },
+    );
+
+    expect(response.status).toBe(401);
+    expect(closes).toBe(1);
   });
 });
 

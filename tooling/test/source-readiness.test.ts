@@ -27,6 +27,7 @@ import {
   isReservedDomain,
   parseRightsEvidenceSnapshot,
   readVertical as readVerticalAt,
+  renderReadinessReport,
   type RightsEvidenceResolver,
   type RightsEvidenceSnapshotSourceInput,
   type VerticalReadiness,
@@ -657,6 +658,7 @@ describe('rights evidence is explicit and fail-closed', () => {
         fixtures.driver,
         'DF_TEST_DATABASE_URL',
         NOW,
+        'data_foundry',
       );
       const context = await resolver.contextFor('hvac', declared!);
       expect(context?.source.id).toBe(fixtures.sources.manufacturer.source.id);
@@ -675,10 +677,42 @@ describe('rights evidence is explicit and fail-closed', () => {
         qualification: 'LIVE_AS_OF',
         credentialEnv: 'DF_TEST_DATABASE_URL',
         asOf: NOW,
+        schema: 'data_foundry',
       });
+
+      const report = {
+        ...assess('hvac', 'DRAFT', [source()]),
+        rightsEvidence: resolver.descriptor,
+      };
+      expect(renderReadinessReport(report)).toContain(
+        'LIVE_DATABASE as of 2026-08-21T00:00:00.000Z — schema data_foundry',
+      );
+      const [jsonReport] = JSON.parse(JSON.stringify([report])) as Array<{
+        rightsEvidence: { schema?: string };
+      }>;
+      expect(jsonReport?.rightsEvidence).toMatchObject({ schema: 'data_foundry' });
     } finally {
       await fixtures.driver.close();
     }
+  });
+
+  it('names the selected schema when a live rights lookup cannot acquire it', async () => {
+    const [declared] = assess('hvac', 'DRAFT', [source()]).sources;
+    const unavailableDriver = {
+      query: async () => {
+        throw new Error('relation does not exist');
+      },
+    } as unknown as Parameters<typeof createLiveDatabaseRightsEvidenceResolver>[0];
+    const resolver = createLiveDatabaseRightsEvidenceResolver(
+      unavailableDriver,
+      'DF_TEST_DATABASE_URL',
+      NOW,
+      'data_foundry',
+    );
+
+    await expect(resolver.contextFor('hvac', declared!)).rejects.toThrow(
+      /schema data_foundry through credential env DF_TEST_DATABASE_URL/i,
+    );
   });
 
   it('exports the exact context evaluated for each source without a second resolver lookup', async () => {
@@ -715,6 +749,7 @@ describe('rights evidence is explicit and fail-closed', () => {
         qualification: 'LIVE_AS_OF',
         credentialEnv: 'DF_TEST_DATABASE_URL',
         asOf: NOW,
+        schema: 'data_foundry',
       },
       async contextFor(verticalSlug, declaredSource) {
         const identity = `${verticalSlug}/${declaredSource.key}`;

@@ -89,6 +89,18 @@ describe('CI workflow policy', () => {
     }
   });
 
+  it('initializes the extensions namespace before private-schema Postgres migrations', () => {
+    const steps = workflow.jobs['migrations-postgres'].steps;
+    const initialize = steps.find(
+      (step) => step.name === 'Initialize extensions schema for private migration',
+    );
+    const apply = steps.find((step) => step.name === 'Apply migrations to Postgres');
+
+    expect(initialize?.run).toContain('CREATE SCHEMA IF NOT EXISTS extensions AUTHORIZATION postgres');
+    expect(initialize?.run).toContain('job.services.postgres.id');
+    expect(steps.indexOf(initialize as Step)).toBeLessThan(steps.indexOf(apply as Step));
+  });
+
   it('selects real Postgres for every gate input, including nested paths', () => {
     for (const pattern of [
       'db/migrations/**',

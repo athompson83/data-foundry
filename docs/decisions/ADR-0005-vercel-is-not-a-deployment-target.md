@@ -70,11 +70,14 @@ protected by ruleset `21855694`; its required checks are repository CI checks,
 not Vercel.
 
 **Disconnect the Git integration in the Vercel dashboard.** This was the more
-complete fix under the original evidence. Current governance evidence shows no
-Data Foundry Vercel project or repository webhook; the remaining uncertainty is
-whether GitHub App installation `122728140` still selects this repository. That
-selection requires an owner sudo/passkey check in GitHub. `vercel.json` can be
-deleted only after the check proves Data Foundry has no remaining App access.
+complete fix under the original evidence. A later [read-only provider
+reconciliation](../evidence/alpha-lab-provider-reconciliation-20260831.md)
+found a configured Vercel project with disconnected Git and a data hostname that
+returns 404; it is not a viable Data Foundry deployment or rollback path. The
+remaining uncertainty is whether the Vercel GitHub App still selects this
+repository. That selection requires an owner sudo/passkey check in GitHub.
+`vercel.json` can be deleted only after the check proves Data Foundry has no
+remaining App access.
 
 ## Consequences
 

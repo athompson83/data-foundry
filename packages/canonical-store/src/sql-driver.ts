@@ -63,6 +63,70 @@ export interface PgliteDriverOptions {
   readonly trigram?: boolean;
 }
 
+/** Connection-level controls for a real PostgreSQL pool. */
+export interface PostgresDriverOptions {
+  /**
+   * Bind every physical pool connection to this explicit schema at PostgreSQL
+   * startup. This is intentionally a startup setting, not a query-local SET:
+   * a pool can open a fresh connection for any later request. Omit this only
+   * for the historic unbound compatibility mode.
+   */
+  readonly schema?: string;
+}
+
+/** The only schema Data Foundry Workers may use in Alpha Lab production. */
+export const DATA_FOUNDRY_PRIVATE_SCHEMA = 'data_foundry';
+
+export interface PrivateSchemaSession extends SqlRow {
+  readonly current_schema: string | null;
+  readonly has_target_schema: boolean;
+  readonly has_catalog_schema: boolean;
+  readonly has_extensions_schema: boolean;
+  readonly has_public_schema: boolean;
+}
+
+function normalizePostgresSchemaName(value: string): string {
+  const schema = value.trim();
+  if (!/^[a-z][a-z0-9_]{0,62}$/.test(schema)) {
+    throw new Error('Postgres schema must be a lowercase PostgreSQL identifier.');
+  }
+  if (schema === 'pg_catalog' || schema === 'information_schema') {
+    throw new Error(`Postgres schema may not name the ${schema} system schema.`);
+  }
+  return schema;
+}
+
+/**
+ * libpq-compatible startup options for an explicitly bound Data Foundry session.
+ *
+ * `options` is sent when every physical PostgreSQL connection is created, so
+ * it cannot race a first application query on a fresh Pool client.
+ */
+export function postgresStartupOptionsForSchema(schema: string): string {
+  const normalized = normalizePostgresSchemaName(schema);
+  return `-csearch_path=${normalized},pg_catalog,extensions`;
+}
+
+/** Refuse a pool connection whose effective path could reach shared public data. */
+export function assertPrivateSchemaSession(
+  schema: string,
+  session: PrivateSchemaSession | undefined,
+): void {
+  const normalized = normalizePostgresSchemaName(schema);
+  if (
+    session === undefined ||
+    session.current_schema !== normalized ||
+    session.has_target_schema !== true ||
+    session.has_catalog_schema !== true ||
+    session.has_extensions_schema !== true ||
+    session.has_public_schema !== false
+  ) {
+    throw new Error(
+      `Postgres session is not isolated to ${normalized}; it must include pg_catalog and extensions and exclude public.`,
+    );
+  }
+}
+
 /**
  * PGlite driver — local dev, CI and every test in this repo.
  *
@@ -134,27 +198,362 @@ export async function createPgliteDriver(
   };
 }
 
+function hasCallerSuppliedStartupOptions(connectionString: string): boolean {
+  try {
+    return new URL(connectionString).searchParams.has('options');
+  } catch {
+    return false;
+  }
+}
+
+function resolvedPostgresSchema(
+  connectionString: string,
+  options: PostgresDriverOptions,
+): string | undefined {
+  const schema = options.schema === undefined
+    ? undefined
+    : normalizePostgresSchemaName(options.schema);
+  if (schema !== undefined && hasCallerSuppliedStartupOptions(connectionString)) {
+    throw new Error(
+      'A schema-bound Postgres driver refuses a connection string with startup options, because it could override the requested search path.',
+    );
+  }
+  return schema;
+}
+
+function postgresConnectionConfig(connectionString: string, schema: string | undefined) {
+  return schema === undefined
+    ? { connectionString }
+    : { connectionString, options: postgresStartupOptionsForSchema(schema) };
+}
+
+interface SessionQueryable {
+  query<R extends SqlRow = SqlRow>(sql: string): Promise<{ readonly rows: R[] }>;
+}
+
+function assertBoundSchemaSession(
+  schema: string,
+  session: PrivateSchemaSession | undefined,
+): void {
+  const normalized = normalizePostgresSchemaName(schema);
+  if (normalized !== 'public') {
+    assertPrivateSchemaSession(normalized, session);
+    return;
+  }
+  if (
+    session === undefined ||
+    session.current_schema !== normalized ||
+    session.has_target_schema !== true ||
+    session.has_catalog_schema !== true ||
+    session.has_extensions_schema !== true ||
+    session.has_public_schema !== true
+  ) {
+    throw new Error(
+      'Postgres session is not bound to public; it must include public, pg_catalog, and extensions.',
+    );
+  }
+}
+
+/** The minimal Client surface needed to pin and verify a Hyperdrive operation. */
+export interface PrivateSchemaTransactionClient extends SessionQueryable {
+  query<R extends SqlRow = SqlRow>(
+    sql: string,
+    params?: readonly SqlParam[],
+  ): Promise<{ readonly rows: R[] }>;
+}
+
+async function verifyBoundSchemaConnection(
+  client: SessionQueryable,
+  schema: string,
+): Promise<void> {
+  const result = await client.query<PrivateSchemaSession>(`
+    SELECT current_schema() AS current_schema,
+           current_schemas(true) @> ARRAY['${schema}']::name[] AS has_target_schema,
+           current_schemas(true) @> ARRAY['pg_catalog']::name[] AS has_catalog_schema,
+           current_schemas(true) @> ARRAY['extensions']::name[] AS has_extensions_schema,
+           current_schemas(true) @> ARRAY['public']::name[] AS has_public_schema
+  `);
+  assertBoundSchemaSession(schema, result.rows[0]);
+}
+
+/**
+ * Pin one schema-bound operation to an origin transaction. Hyperdrive can
+ * reuse a different origin connection for a later frontend query, so a
+ * connect-time check or ordinary session `SET` is not a durable boundary.
+ */
+async function withVerifiedSchemaTransaction<T>(
+  client: PrivateSchemaTransactionClient,
+  schema: string,
+  work: () => Promise<T>,
+): Promise<T> {
+  const normalized = normalizePostgresSchemaName(schema);
+  await client.query('BEGIN');
+  try {
+    await client.query(`SET LOCAL search_path TO "${normalized}", pg_catalog, extensions`);
+    await verifyBoundSchemaConnection(client, normalized);
+    const value = await work();
+    await client.query('COMMIT');
+    return value;
+  } catch (error) {
+    await client.query('ROLLBACK').catch(() => undefined);
+    throw error;
+  }
+}
+
+/** Pin a private Data Foundry operation to a verified transaction. */
+export async function withVerifiedPrivateSchemaTransaction<T>(
+  client: PrivateSchemaTransactionClient,
+  schema: string,
+  work: () => Promise<T>,
+): Promise<T> {
+  const normalized = normalizePostgresSchemaName(schema);
+  if (normalized === 'public') {
+    throw new Error('withVerifiedPrivateSchemaTransaction requires a non-public schema.');
+  }
+  return withVerifiedSchemaTransaction(client, normalized, work);
+}
+
+const TRUSTED_SURFACE_SNAPSHOT_SETUP =
+  'SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY';
+
+function isInitialTransactionSetup(sql: string): boolean {
+  // Do not accept a prefix, comments, a semicolon, or another transaction
+  // mode: node-postgres may execute a multi-statement string verbatim. The one
+  // static snapshot setup we support is safe before the verifier because it
+  // cannot read or alter application data.
+  return sql.trim().replace(/\s+/g, ' ').toUpperCase() === TRUSTED_SURFACE_SNAPSHOT_SETUP;
+}
+
+function looksLikeTransactionSetup(sql: string): boolean {
+  return /^\s*SET\s+(?:LOCAL\s+)?TRANSACTION\b/i.test(sql);
+}
+
+/**
+ * Run a caller-controlled transaction without allowing its initial
+ * `SET TRANSACTION ...` to be preceded by a verifier read. PostgreSQL requires
+ * isolation/read-only setup to occur before the transaction's first query;
+ * every later statement is still preceded by transaction-local schema setup
+ * and verification.
+ */
+async function withDeferredSchemaTransaction<T>(
+  client: PrivateSchemaTransactionClient,
+  schema: string,
+  run: (tx: SqlTransactionExecutor) => Promise<T>,
+): Promise<T> {
+  const normalized = normalizePostgresSchemaName(schema);
+  let schemaVerified = false;
+  const ensureBoundSchema = async (): Promise<void> => {
+    if (schemaVerified) return;
+    await client.query(`SET LOCAL search_path TO "${normalized}", pg_catalog, extensions`);
+    await verifyBoundSchemaConnection(client, normalized);
+    schemaVerified = true;
+  };
+  const executor = {
+    async query<R extends SqlRow = SqlRow>(sql: string, params?: readonly SqlParam[]) {
+      // The exact snapshot `SET TRANSACTION` cannot read application data and
+      // must be first. It is the sole statement allowed before the verifier so
+      // snapshot callers can request REPEATABLE READ / READ ONLY safely.
+      if (!schemaVerified && isInitialTransactionSetup(sql)) {
+        const result = await client.query(sql, params === undefined ? undefined : [...params]);
+        return result.rows as R[];
+      }
+      if (!schemaVerified && looksLikeTransactionSetup(sql)) {
+        throw new Error(
+          'A schema-bound Hyperdrive transaction permits only the exact trusted snapshot SET TRANSACTION setup before its schema verifier.',
+        );
+      }
+      await ensureBoundSchema();
+      const result = await client.query(sql, params === undefined ? undefined : [...params]);
+      return result.rows as R[];
+    },
+  } as SqlTransactionExecutor;
+
+  await client.query('BEGIN');
+  try {
+    const value = await run(executor);
+    await client.query('COMMIT');
+    return value;
+  } catch (error) {
+    await client.query('ROLLBACK').catch(() => undefined);
+    throw error;
+  }
+}
+
+/**
+ * Run a private Data Foundry transaction while allowing its trusted snapshot
+ * setup before the schema verifier.
+ */
+export async function withDeferredPrivateSchemaTransaction<T>(
+  client: PrivateSchemaTransactionClient,
+  schema: string,
+  run: (tx: SqlTransactionExecutor) => Promise<T>,
+): Promise<T> {
+  const normalized = normalizePostgresSchemaName(schema);
+  if (normalized === 'public') {
+    throw new Error('withDeferredPrivateSchemaTransaction requires a non-public schema.');
+  }
+  return withDeferredSchemaTransaction(client, normalized, run);
+}
+
+/** Serialize complete transactions on a single node-postgres Client. */
+export function createSerialExecutor(): <T>(work: () => Promise<T>) => Promise<T> {
+  let tail: Promise<void> = Promise.resolve();
+  return async <T>(work: () => Promise<T>): Promise<T> => {
+    let release: () => void = () => undefined;
+    const previous = tail;
+    tail = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    await previous;
+    try {
+      return await work();
+    } finally {
+      release();
+    }
+  };
+}
+
+/**
+ * One node-postgres Client for exactly one Cloudflare Worker invocation.
+ *
+ * Hyperdrive supplies the upstream database pool. Cloudflare explicitly
+ * forbids retaining a node-postgres Pool or Client across invocations because
+ * a socket created in one request cannot perform I/O for another. Callers must
+ * close this driver after their fetch, queue batch, or Cron delivery completes.
+ */
+export async function createHyperdriveDriver(
+  connectionString: string,
+  options: PostgresDriverOptions = {},
+): Promise<SqlDriver> {
+  const schema = resolvedPostgresSchema(connectionString, options);
+  const pg = await import('pg');
+  // Hyperdrive is a transaction pool, not a direct Postgres socket. Do not
+  // rely on a libpq startup option surviving a borrowed origin connection.
+  // `SET LOCAL` is installed and verified inside every operation below.
+  const client = new pg.default.Client({ connectionString });
+  const runSerial = createSerialExecutor();
+
+  try {
+    await client.connect();
+    // This proves the upstream role itself is safely configured before any
+    // application query. It is defense in depth; each operation repeats an
+    // explicit transaction-local path because Hyperdrive can reset sessions.
+    // An explicit public legacy binding is verified inside every operation;
+    // it must not require an Alpha Lab role default to be public.
+    if (schema !== undefined && schema !== 'public') {
+      await verifyBoundSchemaConnection(client, schema);
+    }
+  } catch (error) {
+    await client.end().catch(() => undefined);
+    throw error;
+  }
+
+  return {
+    label: `hyperdrive (${safeHost(connectionString)})`,
+    dialect: 'postgres',
+    async exec(sql) {
+      await runSerial(async () => {
+        if (schema === undefined) {
+          await client.query(sql);
+          return;
+        }
+        await withVerifiedSchemaTransaction(client, schema, async () => {
+          await client.query(sql);
+        });
+      });
+    },
+    async query<R extends SqlRow = SqlRow>(sql: string, params?: readonly SqlParam[]) {
+      return runSerial(async () => {
+        if (schema === undefined) {
+          const result = await client.query(sql, params === undefined ? undefined : [...params]);
+          return result.rows as R[];
+        }
+        return withVerifiedSchemaTransaction(client, schema, async () => {
+          const result = await client.query(sql, params === undefined ? undefined : [...params]);
+          return result.rows as R[];
+        });
+      });
+    },
+    async transaction<T>(fn: (tx: SqlTransactionExecutor) => Promise<T>): Promise<T> {
+      return runSerial(async () => {
+        if (schema !== undefined) {
+          return withDeferredSchemaTransaction(client, schema, fn);
+        }
+        try {
+          await client.query('BEGIN');
+          const executor = {
+            async query<R extends SqlRow = SqlRow>(sql: string, params?: readonly SqlParam[]) {
+              const result = await client.query(sql, params === undefined ? undefined : [...params]);
+              return result.rows as R[];
+            },
+          } as SqlTransactionExecutor;
+          const value = await fn(executor);
+          await client.query('COMMIT');
+          return value;
+        } catch (error) {
+          await client.query('ROLLBACK').catch(() => undefined);
+          throw error;
+        }
+      });
+    },
+    async close() {
+      await client.end();
+    },
+  };
+}
+
 /**
  * Real Postgres driver. `pg` is imported lazily so that Workers/edge bundles
  * that only ever use PGlite do not pull in a Node-only dependency.
  */
-export async function createPostgresDriver(connectionString: string): Promise<SqlDriver> {
+export async function createPostgresDriver(
+  connectionString: string,
+  options: PostgresDriverOptions = {},
+): Promise<SqlDriver> {
+  const schema = resolvedPostgresSchema(connectionString, options);
+
   const pg = await import('pg');
-  const pool = new pg.default.Pool({ connectionString });
+  const pool = new pg.default.Pool(postgresConnectionConfig(connectionString, schema));
   const host = safeHost(connectionString);
+  const verifiedClients = new WeakSet<object>();
+
+  const acquire = async () => {
+    const client = await pool.connect();
+    if (schema === undefined || verifiedClients.has(client)) return client;
+
+    try {
+      await verifyBoundSchemaConnection(client, schema);
+      verifiedClients.add(client);
+      return client;
+    } catch (error) {
+      // A connection that cannot prove its requested schema path is unsafe to reuse.
+      client.release(error instanceof Error ? error : new Error('schema binding verification failed'));
+      throw error;
+    }
+  };
 
   return {
     label: `postgres (${host})`,
     dialect: 'postgres',
     async exec(sql) {
-      await pool.query(sql);
+      const client = await acquire();
+      try {
+        await client.query(sql);
+      } finally {
+        client.release();
+      }
     },
     async query<R extends SqlRow = SqlRow>(sql: string, params?: readonly SqlParam[]) {
-      const result = await pool.query(sql, params === undefined ? undefined : [...params]);
-      return result.rows as R[];
+      const client = await acquire();
+      try {
+        const result = await client.query(sql, params === undefined ? undefined : [...params]);
+        return result.rows as R[];
+      } finally {
+        client.release();
+      }
     },
     async transaction<T>(fn: (tx: SqlTransactionExecutor) => Promise<T>): Promise<T> {
-      const client = await pool.connect();
+      const client = await acquire();
       try {
         await client.query('BEGIN');
         const executor = {

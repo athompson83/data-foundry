@@ -1,5 +1,11 @@
 import { R2ArtifactStore } from '@data-foundry/acquisition';
-import { createPostgresDriver, type SqlDriver } from '@data-foundry/canonical-store';
+import {
+  createHyperdriveDriver,
+  createPostgresDriver,
+  DATA_FOUNDRY_PRIVATE_SCHEMA,
+  type PostgresDriverOptions,
+  type SqlDriver,
+} from '@data-foundry/canonical-store';
 import { ACQUISITION_RUNTIMES } from '../generated/runtime-registry.js';
 import {
   resolveAcquisitionConfig,
@@ -25,22 +31,44 @@ export interface ScheduledEventLike {
 
 export interface ScheduledEventOptions {
   /** Test seam only; the production handler always opens Postgres over Hyperdrive. */
-  readonly openDriver?: (connectionString: string) => Promise<SqlDriver>;
+  readonly openDriver?: (
+    connectionString: string,
+    options?: PostgresDriverOptions,
+  ) => Promise<SqlDriver>;
 }
 
 const drivers = new Map<string, Promise<SqlDriver>>();
 
 async function driverFor(
   connectionString: string,
-  openDriver: (connectionString: string) => Promise<SqlDriver>,
+  deploymentEnvironment: 'development' | 'production',
+  usesHyperdrive: boolean,
+  openDriver: (
+    connectionString: string,
+    options?: PostgresDriverOptions,
+  ) => Promise<SqlDriver>,
 ): Promise<SqlDriver> {
-  const existing = drivers.get(connectionString);
+  if (usesHyperdrive) {
+    return openDriver(
+      connectionString,
+      deploymentEnvironment === 'production'
+        ? { schema: DATA_FOUNDRY_PRIVATE_SCHEMA }
+        : undefined,
+    );
+  }
+  const driverKey = `${deploymentEnvironment} ${connectionString}`;
+  const existing = drivers.get(driverKey);
   if (existing !== undefined) return existing;
-  const pending = openDriver(connectionString).catch((error: unknown) => {
-    drivers.delete(connectionString);
+  const pending = openDriver(
+    connectionString,
+    deploymentEnvironment === 'production'
+      ? { schema: DATA_FOUNDRY_PRIVATE_SCHEMA }
+      : undefined,
+  ).catch((error: unknown) => {
+    drivers.delete(driverKey);
     throw error;
   });
-  drivers.set(connectionString, pending);
+  drivers.set(driverKey, pending);
   return pending;
 }
 
@@ -62,18 +90,26 @@ export async function runScheduledEvent(
   }
   const driver = await driverFor(
     config.connectionString,
-    options.openDriver ?? createPostgresDriver,
+    config.deploymentEnvironment,
+    env.HYPERDRIVE !== undefined,
+    options.openDriver ?? (
+      env.HYPERDRIVE === undefined ? createPostgresDriver : createHyperdriveDriver
+    ),
   );
-  return runScheduledAcquisition({
-    driver,
-    runtime,
-    scheduledFor: new Date(event.scheduledTime).toISOString(),
-    artifactStore: new R2ArtifactStore({
-      bucket: config.bucketName,
-      client: createR2ObjectClient(config.bucket),
-    }),
-    env,
-  });
+  try {
+    return await runScheduledAcquisition({
+      driver,
+      runtime,
+      scheduledFor: new Date(event.scheduledTime).toISOString(),
+      artifactStore: new R2ArtifactStore({
+        bucket: config.bucketName,
+        client: createR2ObjectClient(config.bucket),
+      }),
+      env,
+    });
+  } finally {
+    if (env.HYPERDRIVE !== undefined) await driver.close().catch(() => undefined);
+  }
 }
 
 export default {
