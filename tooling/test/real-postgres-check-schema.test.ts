@@ -82,6 +82,46 @@ async function expectCheckToUseOneSchema(
   }
 }
 
+async function expectScheduledCheckToUseResolvedSchema(
+  schema: 'data_foundry' | 'public',
+): Promise<void> {
+  const resolveOperationalSchema = vi.fn(
+    (env: Readonly<Record<string, string | undefined>>) =>
+      env['DATA_FOUNDRY_SCHEMA'] ?? 'data_foundry',
+  );
+  const openApplicationDriver = vi.fn(async () => {
+    throw STOP_AFTER_APPLICATION_DRIVER_OPEN;
+  });
+  const env = {
+    POSTGRES_URL: CONNECTION_STRING,
+    ...(schema === 'public' ? { DATA_FOUNDRY_SCHEMA: 'public' } : {}),
+  };
+
+  vi.resetModules();
+  vi.doMock('../scripts/migrate.js', () => ({ resolveOperationalSchema }));
+  vi.doMock('../../packages/canonical-store/src/index.js', async (importOriginal) => ({
+    ...(await importOriginal()),
+    createPostgresDriver: openApplicationDriver,
+  }));
+  // The injected environment must remain the only configuration source.
+  // Otherwise the checker could silently bind to a host process's default schema.
+  vi.stubEnv('POSTGRES_URL', '');
+  vi.stubEnv('DATA_FOUNDRY_SCHEMA', '');
+
+  try {
+    const { run } = await import('../scripts/check-scheduled-acquisition-postgres.js');
+    await expect(run(env)).rejects.toThrow(STOP_AFTER_APPLICATION_DRIVER_OPEN);
+
+    expect(resolveOperationalSchema).toHaveBeenCalledWith(env);
+    expect(openApplicationDriver).toHaveBeenCalledWith(CONNECTION_STRING, { schema });
+  } finally {
+    vi.unstubAllEnvs();
+    vi.doUnmock('../scripts/migrate.js');
+    vi.doUnmock('../../packages/canonical-store/src/index.js');
+    vi.resetModules();
+  }
+}
+
 describe('real PostgreSQL check schema plumbing', () => {
   it.each(['data_foundry', 'public'] as const)(
     'uses one resolved %s schema for credential-check migration and application drivers',
@@ -100,6 +140,13 @@ describe('real PostgreSQL check schema plumbing', () => {
         () => import('../scripts/check-source-record-reconciliation-postgres.js'),
         schema,
       );
+    },
+  );
+
+  it.each(['data_foundry', 'public'] as const)(
+    'uses the resolved %s schema for the scheduled-acquisition application driver',
+    async (schema) => {
+      await expectScheduledCheckToUseResolvedSchema(schema);
     },
   );
 });

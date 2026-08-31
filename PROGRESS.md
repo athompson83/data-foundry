@@ -54,7 +54,7 @@
   records the read-only observations and excludes provider identifiers and
   credentials.
 - Fresh local evidence: `typecheck`; focused schema/Worker tests (78); the full
-  Vitest suite (189 files, 2,967 tests); migration, generated-schema/OpenAPI,
+  Vitest suite (189 files, 2,969 tests); migration, generated-schema/OpenAPI,
   topology, vertical/runtime, and all-five-Worker artifact checks all pass.
   Source readiness at `2026-08-31T20:22:08.032Z` is correctly `NOT_READY`:
   HVAC has zero real sources and no effective surface grants.
