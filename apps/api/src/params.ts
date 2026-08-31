@@ -198,18 +198,21 @@ export function parseFilters(params: URLSearchParams): FacetFilter[] {
   const ranges = new Map<Identifier, { min: number | null; max: number | null }>();
   const filters: FacetFilter[] = [];
   const seen = new Set<string>();
-  let filterParameterCount = 0;
+  let logicalFilterCount = 0;
+
+  const countLogicalFilter = (): void => {
+    logicalFilterCount += 1;
+    if (logicalFilterCount > MAX_FACET_FILTERS) {
+      throw ApiError.invalidParameter(
+        'filter',
+        `expected at most ${MAX_FACET_FILTERS} logical filters`,
+        String(logicalFilterCount),
+      );
+    }
+  };
 
   for (const [key, value] of params.entries()) {
     if (!key.startsWith('filter.')) continue;
-    filterParameterCount += 1;
-    if (filterParameterCount > MAX_FACET_FILTERS) {
-      throw ApiError.invalidParameter(
-        'filter',
-        `expected at most ${MAX_FACET_FILTERS} filter parameters`,
-        String(filterParameterCount),
-      );
-    }
     if (seen.has(key)) {
       throw ApiError.invalidParameter(key, 'expected each filter parameter at most once');
     }
@@ -232,8 +235,12 @@ export function parseFilters(params: URLSearchParams): FacetFilter[] {
       if (!Number.isFinite(bound)) {
         throw ApiError.invalidParameter(key, 'expected a number', value.slice(0, 40));
       }
-      const existing = ranges.get(property) ?? { min: null, max: null };
-      ranges.set(property, { ...existing, [suffix]: bound });
+      const existing = ranges.get(property);
+      if (existing === undefined) countLogicalFilter();
+      ranges.set(property, {
+        ...(existing ?? { min: null, max: null }),
+        [suffix]: bound,
+      });
       continue;
     }
 
@@ -257,6 +264,7 @@ export function parseFilters(params: URLSearchParams): FacetFilter[] {
           value.slice(0, 40),
         );
       }
+      countLogicalFilter();
       filters.push({ property, op: 'exists' });
       continue;
     }
@@ -276,6 +284,7 @@ export function parseFilters(params: URLSearchParams): FacetFilter[] {
         String(values.length),
       );
     }
+    countLogicalFilter();
     filters.push({ property, op: 'in', values });
   }
 

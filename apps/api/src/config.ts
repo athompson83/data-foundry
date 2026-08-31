@@ -64,9 +64,7 @@ export interface ApiAppOptions {
   readonly onError?: (error: unknown, context: ApiErrorContext) => void;
 }
 
-/** Everything a handler is allowed to see. Resolved once, at construction. */
-export interface ApiContext {
-  readonly queryModel: SurfaceQueryModel;
+interface ApiContextValues {
   readonly verticalId: VerticalId;
   readonly factSelection: ApiFactSelectionPolicy;
   /**
@@ -78,21 +76,51 @@ export interface ApiContext {
   readonly version: string;
 }
 
+/** Everything a matched route handler is allowed to see. */
+export interface ApiContext extends ApiContextValues {
+  readonly queryModel: SurfaceQueryModel;
+}
+
+/**
+ * Request metadata plus the only safe path into the query layer.
+ *
+ * The raw `QueryModel` and the opaque snapshot token stay captured here. A
+ * dispatcher can run one matched handler with a token-bound surface facade,
+ * but cannot leak either capability into routing or service-document paths.
+ */
+export interface ApiRequestContext extends ApiContextValues {
+  readonly withSurfaceSnapshot: <T>(
+    run: (context: ApiContext) => Promise<T>,
+  ) => Promise<T>;
+}
+
 export function resolveContext(
   options: ApiAppOptions,
   version: string,
   access: ApiRequestAccess,
-): ApiContext {
+): ApiRequestContext {
   const factSelection = options.factSelection ?? {};
   const reviewers = (factSelection.editorialOverrides ?? [])
     .map((override) => override.reviewer)
     .filter((reviewer) => reviewer.trim() !== '');
   const rightsAsOf = new Date().toISOString() as IsoDateTime;
-  return {
-    queryModel: options.queryModel.forSurface(access.surface, { asOf: rightsAsOf }),
+  const values: ApiContextValues = {
     verticalId: options.verticalId,
     factSelection,
     reviewers,
     version,
+  };
+  return {
+    ...values,
+    withSurfaceSnapshot: (run) => options.queryModel.withSurfaceSnapshot((snapshot) =>
+      run({
+        ...values,
+        queryModel: options.queryModel.forSurface(
+          access.surface,
+          { asOf: rightsAsOf },
+          snapshot,
+        ),
+      }),
+    ),
   };
 }

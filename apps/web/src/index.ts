@@ -8,7 +8,7 @@
  */
 import { toWebRequest, toFetchResponse } from './adapter.js';
 import { createWebApp } from './app.js';
-import { resolveContext } from './config.js';
+import { withResolvedContext } from './config.js';
 import { getDeployment } from './composition.js';
 import { WebConfigurationError, type WebEnv } from './env.js';
 import type { WebRuntime } from './seo.js';
@@ -18,6 +18,7 @@ export { toWebRequest, toFetchResponse } from './adapter.js';
 export { createWebApp } from './app.js';
 export {
   resolveContext,
+  withResolvedContext,
   type WebContext,
 } from './config.js';
 export {
@@ -56,9 +57,9 @@ export default {
         onWarning: (message) => console.warn(`[web] ${message}`),
       });
 
-      const context = resolveContext(deployment);
-      const app = createWebApp(context);
-      const response = await app(toWebRequest(request));
+      const response = await withResolvedContext(deployment, (context) =>
+        createWebApp(context)(toWebRequest(request)),
+      );
       return toFetchResponse(response, request.method);
     } catch (error) {
       if (error instanceof WebConfigurationError) {

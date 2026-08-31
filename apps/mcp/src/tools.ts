@@ -123,6 +123,10 @@ export interface ToolDefinition {
   /** The validator. Exposed so tests can prove the two are the same object. */
   readonly input: z.ZodType;
   readonly errors: readonly McpToolErrorCode[];
+  /** Validate once, before a database snapshot is opened, then bind a context. */
+  readonly prepare: (args: unknown) => (
+    context: ToolContext,
+  ) => Promise<Guarded<unknown>>;
   /** Validates, then runs. Unreachable without a successful parse. */
   readonly invoke: (context: ToolContext, args: unknown) => Promise<Guarded<unknown>>;
 }
@@ -143,6 +147,12 @@ function defineTool<S extends z.ZodType>(spec: {
   readonly errors: readonly McpToolErrorCode[];
   readonly handler: (context: ToolContext, args: z.infer<S>) => Promise<Guarded<unknown>>;
 }): ToolDefinition {
+  const prepare = (args: unknown): ((context: ToolContext) => Promise<Guarded<unknown>>) => {
+    const parsed = spec.input.safeParse(args ?? {});
+    if (!parsed.success) throw invalidArguments(spec.name, issuesOf(parsed.error));
+    return (context) => spec.handler(context, parsed.data as z.infer<S>);
+  };
+
   return {
     name: spec.name,
     title: spec.title,
@@ -151,11 +161,8 @@ function defineTool<S extends z.ZodType>(spec: {
     input: spec.input,
     inputSchema: publishInputSchema(spec.input),
     errors: spec.errors,
-    invoke: async (context, args) => {
-      const parsed = spec.input.safeParse(args ?? {});
-      if (!parsed.success) throw invalidArguments(spec.name, issuesOf(parsed.error));
-      return spec.handler(context, parsed.data as z.infer<S>);
-    },
+    prepare,
+    invoke: (context, args) => prepare(args)(context),
   };
 }
 
@@ -354,6 +361,7 @@ const getEntity = defineTool({
     'ENTITY_NOT_FOUND',
     'AMBIGUOUS_IDENTIFIER',
     'REVIEWER_IDENTITY_BLOCKED',
+    'SERVICE_UNAVAILABLE',
     'INTERNAL_ERROR',
   ],
   handler: async (context, args): Promise<Guarded<GetEntityResult>> => {
@@ -503,6 +511,7 @@ const listFacts = defineTool({
     'INVALID_ARGUMENTS',
     'ENTITY_NOT_FOUND',
     'REVIEWER_IDENTITY_BLOCKED',
+    'SERVICE_UNAVAILABLE',
     'INTERNAL_ERROR',
   ],
   handler: async (context, args): Promise<Guarded<ListFactsResult>> => {
@@ -556,6 +565,7 @@ const compareEntities = defineTool({
     'ENTITY_NOT_FOUND',
     'TOO_FEW_ENTITIES',
     'REVIEWER_IDENTITY_BLOCKED',
+    'SERVICE_UNAVAILABLE',
     'INTERNAL_ERROR',
   ],
   handler: async (context, args): Promise<Guarded<CompareEntitiesResult>> => {
@@ -636,7 +646,7 @@ const traverseRelationships = defineTool({
     'asserted", never "asserted to be false". `withheldEdgeCount` reports a different and rarer ' +
     'case: edges nothing asserts at all, which should be 0 against a healthy database.',
   input: TraverseRelationshipsInput,
-  errors: ['INVALID_ARGUMENTS', 'ENTITY_NOT_FOUND', 'INTERNAL_ERROR'],
+  errors: ['INVALID_ARGUMENTS', 'ENTITY_NOT_FOUND', 'SERVICE_UNAVAILABLE', 'INTERNAL_ERROR'],
   handler: async (context, args): Promise<Guarded<TraverseRelationshipsResult>> => {
     const view = await requireEntity(context, args.entity_id);
     const found = await context.queryModel.relationships({
@@ -679,6 +689,7 @@ const explainFact = defineTool({
     'PROPERTY_NOT_RECORDED',
     'REVIEWER_IDENTITY_BLOCKED',
     'UNPUBLISHABLE_SOURCE_BLOCKED',
+    'SERVICE_UNAVAILABLE',
     'INTERNAL_ERROR',
   ],
   handler: async (context, args): Promise<Guarded<ExplainFactResult>> => {

@@ -21,6 +21,7 @@ import {
 } from '@data-foundry/canonical-store';
 import {
   createQueryModel,
+  type SurfaceReadSnapshot,
   type SurfaceQueryModel,
 } from '@data-foundry/query-model';
 import type { IsoDateTime, VerticalId } from '@data-foundry/canonical-schema';
@@ -42,7 +43,10 @@ export interface CachedVerticalDeployment {
   readonly slug: string;
   readonly verticalId: VerticalId;
   /** The canonical graph stays captured here; callers receive only safe surfaces. */
-  readonly bindRequestSurfaces: (asOf: IsoDateTime) => {
+  readonly bindRequestSurfaces: (
+    asOf: IsoDateTime,
+    snapshot?: SurfaceReadSnapshot,
+  ) => {
     readonly publicQueryModel: SurfaceQueryModel;
     readonly searchIndexQueryModel: SurfaceQueryModel;
   };
@@ -54,6 +58,14 @@ export interface WebDeployment {
   readonly cacheMode: PublicCacheMode;
   /** Keyed by vertical slug. Only verticals present in BOTH the bundle and the database. */
   readonly verticals: ReadonlyMap<string, CachedVerticalDeployment>;
+  /**
+   * Materialize every vertical on one request-owned database snapshot. The
+   * opaque query-layer token never leaves this composition root.
+   */
+  readonly withRequestSnapshot: <T>(
+    asOf: IsoDateTime,
+    run: (deployment: RequestWebDeployment) => Promise<T>,
+  ) => Promise<T>;
   readonly close: () => Promise<void>;
 }
 
@@ -85,9 +97,9 @@ async function buildVertical(
   return {
     slug: runtime.vertical_slug,
     verticalId: vertical.id,
-    bindRequestSurfaces: (asOf) => ({
-      publicQueryModel: queryModel.forSurface('PUBLIC_WEB', { asOf }),
-      searchIndexQueryModel: queryModel.forSurface('SEARCH_INDEX', { asOf }),
+    bindRequestSurfaces: (asOf, snapshot) => ({
+      publicQueryModel: queryModel.forSurface('PUBLIC_WEB', { asOf }, snapshot),
+      searchIndexQueryModel: queryModel.forSurface('SEARCH_INDEX', { asOf }, snapshot),
     }),
     runtime,
   };
@@ -101,10 +113,11 @@ async function buildVertical(
 export function materializeRequestDeployment(
   deployment: WebDeployment,
   asOf: IsoDateTime,
+  snapshot?: SurfaceReadSnapshot,
 ): RequestWebDeployment {
   const verticals = new Map<string, VerticalDeployment>();
   for (const [slug, vertical] of deployment.verticals) {
-    const surfaces = vertical.bindRequestSurfaces(asOf);
+    const surfaces = vertical.bindRequestSurfaces(asOf, snapshot);
     verticals.set(slug, {
       slug: vertical.slug,
       verticalId: vertical.verticalId,
@@ -125,6 +138,7 @@ async function build(options: BuildOptions): Promise<WebDeployment> {
   // must give it back.
   try {
     const store = createCanonicalStore(driver);
+    const snapshotCoordinator = createQueryModel(store);
     const verticals = new Map<string, CachedVerticalDeployment>();
 
     for (const runtime of Object.values(options.runtimes)) {
@@ -139,12 +153,17 @@ async function build(options: BuildOptions): Promise<WebDeployment> {
       verticals.set(runtime.vertical_slug, deployed);
     }
 
-    return {
+    const deployment: WebDeployment = {
       publicOrigin: config.publicOrigin,
       cacheMode: config.cacheMode,
       verticals,
+      withRequestSnapshot: (asOf, run) =>
+        snapshotCoordinator.withSurfaceSnapshot((snapshot) =>
+          run(materializeRequestDeployment(deployment, asOf, snapshot)),
+        ),
       close: () => driver.close(),
     };
+    return deployment;
   } catch (error) {
     await driver.close().catch(() => undefined);
     throw error;

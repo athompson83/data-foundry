@@ -51,6 +51,7 @@ export {
   resolveContext,
   type ApiAppOptions,
   type ApiContext,
+  type ApiRequestContext,
   type ApiErrorContext,
   type ApiFactSelectionPolicy,
   type ApiRequestTelemetry,

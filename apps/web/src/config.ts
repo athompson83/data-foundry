@@ -4,7 +4,7 @@ import {
   type RequestWebDeployment,
   type WebDeployment,
 } from './composition.js';
-import type { PublicCacheMode } from './http.js';
+import type { PublicCacheMode, WebResponse } from './http.js';
 
 export interface WebContext {
   readonly deployment: RequestWebDeployment;
@@ -26,4 +26,26 @@ export function resolveContext(
     cacheMode: deployment.cacheMode,
     now: () => requestNow,
   };
+}
+
+/**
+ * Run one complete production request against one physical database snapshot.
+ * The callback's response-only contract prevents token-bound query models from
+ * being returned by this API; the query layer also deactivates them when the
+ * transaction scope closes.
+ */
+export function withResolvedContext(
+  deployment: WebDeployment,
+  run: (context: WebContext) => Promise<WebResponse>,
+  now: () => Date = () => new Date(),
+): Promise<WebResponse> {
+  const requestNow = now();
+  const asOf = requestNow.toISOString() as IsoDateTime;
+  return deployment.withRequestSnapshot(asOf, (requestDeployment) =>
+    run({
+      deployment: requestDeployment,
+      cacheMode: deployment.cacheMode,
+      now: () => requestNow,
+    }),
+  );
 }

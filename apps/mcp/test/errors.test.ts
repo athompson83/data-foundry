@@ -257,8 +257,8 @@ describe('an unmodelled failure below the dispatcher', () => {
     createMcpServer({
       queryModel: {
         ...fixtures.qm,
-        forSurface: (surface, options) => ({
-          ...fixtures.qm.forSurface(surface, options),
+        forSurface: (surface, options, snapshot) => ({
+          ...fixtures.qm.forSurface(surface, options, snapshot),
           search: fault,
         }),
       },
@@ -284,6 +284,11 @@ describe('an unmodelled failure below the dispatcher', () => {
       retryable: false,
       details: { tool: 'search_entities' },
     });
+    expect(error.message).toBe(
+      "This operation exceeds this deployment's safe authorization capacity. " +
+        'No partial result was returned.',
+    );
+    expect(error.message).not.toMatch(/catalogue|search|facet/i);
     expect(JSON.stringify(call.structuredContent)).not.toContain('50000');
     expect(JSON.stringify(call.structuredContent)).not.toContain('facts');
     expect(reported).toEqual([{

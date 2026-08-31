@@ -267,19 +267,29 @@ const nowIso = (): IsoDateTime => new Date().toISOString() as IsoDateTime;
 function snapshotDriver(
   base: SqlDriver,
   transaction: SqlTransactionExecutor,
+  assertActive: () => void,
 ): SqlDriver {
+  const query = async <R extends SqlRow = SqlRow>(
+    sql: string,
+    params?: readonly SqlParam[],
+  ): Promise<R[]> => {
+    assertActive();
+    return transaction.query<R>(sql, params);
+  };
+  const snapshotTransaction = { query } as SqlTransactionExecutor;
+
   return {
     label: `${base.label} (surface snapshot)`,
     dialect: base.dialect,
     capabilityCacheKey: base.capabilityCacheKey ?? base,
-    async query<R extends SqlRow = SqlRow>(sql: string, params?: readonly SqlParam[]) {
-      return transaction.query<R>(sql, params);
-    },
+    query,
     async exec() {
+      assertActive();
       throw new Error('surface snapshots do not execute DDL');
     },
     async transaction<T>(run: (tx: SqlTransactionExecutor) => Promise<T>): Promise<T> {
-      return run(transaction);
+      assertActive();
+      return run(snapshotTransaction);
     },
     async close() {
       // The outer request owns the real driver and transaction lifecycle.
@@ -292,14 +302,22 @@ function snapshotDriver(
  * this boundary, a newly committed denied-source alias could appear between
  * the rights query and search SQL and disclose its association (CWE-367).
  */
-function withSurfaceSnapshot<T>(
+export function withSurfaceStoreSnapshot<T>(
   store: CanonicalStore,
-  run: (snapshotStore: CanonicalStore) => Promise<T>,
+  run: (snapshotStore: CanonicalStore, assertActive: () => void) => Promise<T>,
 ): Promise<T> {
   return store.driver.transaction(async (transaction) => {
-    await transaction.query('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY');
-    const driver = snapshotDriver(store.driver, transaction);
-    return run(createCanonicalStore(driver));
+    let active = true;
+    const assertActive = (): void => {
+      if (!active) throw new Error('Surface read snapshot is no longer active.');
+    };
+    const driver = snapshotDriver(store.driver, transaction, assertActive);
+    try {
+      await driver.query('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY');
+      return await run(createCanonicalStore(driver), assertActive);
+    } finally {
+      active = false;
+    }
   });
 }
 
@@ -1634,6 +1652,45 @@ function createSurfaceQueryModelCore(
 }
 
 /**
+ * Build a surface facade on a snapshot store whose transaction lifecycle is
+ * owned by the canonical QueryModel. This is an internal package seam: the
+ * public package export map exposes only `.` and never exposes the store.
+ */
+export function createSurfaceQueryModelForSnapshot(
+  snapshotStore: CanonicalStore,
+  fields: FieldMetadataRegistry,
+  surface: RightsSurface,
+  options: SurfaceAccessOptions,
+  assertActive: () => void,
+): SurfaceQueryModel {
+  const model = createSurfaceQueryModelCore(snapshotStore, fields, surface, options);
+  const run = async <T>(operation: () => Promise<T>): Promise<T> => {
+    assertActive();
+    return operation();
+  };
+
+  return {
+    fields,
+    surface,
+    getEntity: (id) => run(() => model.getEntity(id)),
+    getEntityBySlug: (verticalId, entityType, slug) => run(
+      () => model.getEntityBySlug(verticalId, entityType, slug),
+    ),
+    lookupIdentifier: (lookup) => run(() => model.lookupIdentifier(lookup)),
+    listEntities: (query) => run(() => model.listEntities(query)),
+    entityTypeCounts: (verticalId) => run(() => model.entityTypeCounts(verticalId)),
+    search: (query) => run(() => model.search(query)),
+    facets: (query) => run(() => model.facets(query)),
+    canonicalFacts: (entityId, policy) => run(() => model.canonicalFacts(entityId, policy)),
+    explainFact: (entityId, property, policy) => run(
+      () => model.explainFact(entityId, property, policy),
+    ),
+    relationships: (query) => run(() => model.relationships(query)),
+    compare: (query) => run(() => model.compare(query)),
+  };
+}
+
+/**
  * Every externally visible query operation receives a fresh repeatable-read
  * snapshot and a fresh request-local rights cache. Compound API, MCP and web
  * flows may reuse this model safely: a later operation cannot reuse an
@@ -1647,7 +1704,7 @@ export function createSurfaceQueryModel(
 ): SurfaceQueryModel {
   const run = <T>(
     operation: (snapshot: SurfaceQueryModel) => Promise<T>,
-  ): Promise<T> => withSurfaceSnapshot(
+  ): Promise<T> => withSurfaceStoreSnapshot(
     store,
     async (snapshotStore) => operation(
       createSurfaceQueryModelCore(snapshotStore, fields, surface, options),

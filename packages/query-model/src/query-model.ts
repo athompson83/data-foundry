@@ -43,10 +43,31 @@ import { traverseRelationships, type RelationshipTraversal, type TraversalQuery 
 import { compareEntities, type CompareQuery, type EntityComparison } from './compare.js';
 import {
   createSurfaceQueryModel,
+  createSurfaceQueryModelForSnapshot,
+  withSurfaceStoreSnapshot,
   type SurfaceAccessOptions,
   type SurfaceQueryModel,
 } from './surface-access.js';
 import type { RightsSurface } from '@data-foundry/rights-engine';
+
+declare const surfaceReadSnapshotBrand: unique symbol;
+
+/**
+ * An opaque capability proving that a caller is inside one request-wide,
+ * read-only surface snapshot. Runtime state is held only in this module's
+ * WeakMap; the token carries no driver, store, or surface-selection API.
+ */
+export interface SurfaceReadSnapshot {
+  readonly [surfaceReadSnapshotBrand]: true;
+}
+
+interface SurfaceReadSnapshotState {
+  readonly ownerStore: CanonicalStore;
+  readonly snapshotStore: CanonicalStore;
+  readonly assertActive: () => void;
+}
+
+const surfaceReadSnapshots = new WeakMap<SurfaceReadSnapshot, SurfaceReadSnapshotState>();
 
 export interface QueryModelOptions {
   /**
@@ -78,8 +99,17 @@ export interface QueryModelOptions {
 export interface QueryModel {
   readonly fields: FieldMetadataRegistry;
 
+  /** Run all explicitly bound surface reads on one physical database snapshot. */
+  withSurfaceSnapshot<T>(
+    run: (snapshot: SurfaceReadSnapshot) => Promise<T>,
+  ): Promise<T>;
+
   /** Bind immutable, trusted per-request distribution rights to every read. */
-  forSurface(surface: RightsSurface, options?: SurfaceAccessOptions): SurfaceQueryModel;
+  forSurface(
+    surface: RightsSurface,
+    options?: SurfaceAccessOptions,
+    snapshot?: SurfaceReadSnapshot,
+  ): SurfaceQueryModel;
 
   getEntity(id: EntityId): Promise<EntityView | null>;
   getEntityBySlug(
@@ -125,8 +155,36 @@ export function createQueryModel(
   return {
     fields,
 
-    forSurface: (surface, accessOptions = {}) =>
-      createSurfaceQueryModel(store, fields, surface, accessOptions),
+    withSurfaceSnapshot: (run) => withSurfaceStoreSnapshot(store, async (
+      snapshotStore,
+      assertActive,
+    ) => {
+      const snapshot = Object.freeze({}) as SurfaceReadSnapshot;
+      surfaceReadSnapshots.set(snapshot, { ownerStore: store, snapshotStore, assertActive });
+      try {
+        return await run(snapshot);
+      } finally {
+        surfaceReadSnapshots.delete(snapshot);
+      }
+    }),
+
+    forSurface: (surface, accessOptions = {}, snapshot) => {
+      if (snapshot === undefined) {
+        return createSurfaceQueryModel(store, fields, surface, accessOptions);
+      }
+      const state = surfaceReadSnapshots.get(snapshot);
+      if (state === undefined || state.ownerStore !== store) {
+        throw new Error('Surface read snapshot is invalid for this QueryModel.');
+      }
+      state.assertActive();
+      return createSurfaceQueryModelForSnapshot(
+        state.snapshotStore,
+        fields,
+        surface,
+        accessOptions,
+        state.assertActive,
+      );
+    },
 
     getEntity: (id) => getEntityById(store, id),
     getEntityBySlug: (verticalId, entityType, slug) =>

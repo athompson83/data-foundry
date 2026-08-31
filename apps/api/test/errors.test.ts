@@ -63,8 +63,8 @@ describe('the error envelope', () => {
     const app = createApiApp({
       queryModel: {
         ...fixtures.qm,
-        forSurface: (surface, options) => ({
-          ...fixtures.qm.forSurface(surface, options),
+        forSurface: (surface, options, snapshot) => ({
+          ...fixtures.qm.forSurface(surface, options, snapshot),
           search: async () => {
             throw cause;
           },

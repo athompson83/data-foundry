@@ -117,6 +117,7 @@ export {
   createQueryModel,
   type QueryModel,
   type QueryModelOptions,
+  type SurfaceReadSnapshot,
 } from './query-model.js';
 
 export {
