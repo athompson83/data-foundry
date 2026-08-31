@@ -678,6 +678,8 @@ export type RightsEvidenceDescriptor =
       readonly qualification: 'LIVE_AS_OF';
       readonly credentialEnv: string;
       readonly asOf: string;
+      /** PostgreSQL schema explicitly bound for this live evidence run. */
+      readonly schema: string;
     };
 
 export interface RightsEvidenceResolver {
@@ -706,6 +708,7 @@ export function createLiveDatabaseRightsEvidenceResolver(
       qualification: 'LIVE_AS_OF',
       credentialEnv,
       asOf,
+      schema,
     },
     async contextFor(verticalSlug, source) {
       let rows: Array<Record<string, unknown>>;
@@ -1072,6 +1075,7 @@ export function renderReadinessReport(report: VerticalReadiness): string {
   } else {
     lines.push(
       `  rights evidence: LIVE_DATABASE as of ${report.rightsEvidence.asOf}` +
+        ` — schema ${report.rightsEvidence.schema}` +
         ` — credential env ${report.rightsEvidence.credentialEnv}`,
     );
   }

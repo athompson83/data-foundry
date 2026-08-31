@@ -27,6 +27,7 @@ import {
   isReservedDomain,
   parseRightsEvidenceSnapshot,
   readVertical as readVerticalAt,
+  renderReadinessReport,
   type RightsEvidenceResolver,
   type RightsEvidenceSnapshotSourceInput,
   type VerticalReadiness,
@@ -676,7 +677,20 @@ describe('rights evidence is explicit and fail-closed', () => {
         qualification: 'LIVE_AS_OF',
         credentialEnv: 'DF_TEST_DATABASE_URL',
         asOf: NOW,
+        schema: 'data_foundry',
       });
+
+      const report = {
+        ...assess('hvac', 'DRAFT', [source()]),
+        rightsEvidence: resolver.descriptor,
+      };
+      expect(renderReadinessReport(report)).toContain(
+        'LIVE_DATABASE as of 2026-08-21T00:00:00.000Z — schema data_foundry',
+      );
+      const [jsonReport] = JSON.parse(JSON.stringify([report])) as Array<{
+        rightsEvidence: { schema?: string };
+      }>;
+      expect(jsonReport?.rightsEvidence).toMatchObject({ schema: 'data_foundry' });
     } finally {
       await fixtures.driver.close();
     }
@@ -735,6 +749,7 @@ describe('rights evidence is explicit and fail-closed', () => {
         qualification: 'LIVE_AS_OF',
         credentialEnv: 'DF_TEST_DATABASE_URL',
         asOf: NOW,
+        schema: 'data_foundry',
       },
       async contextFor(verticalSlug, declaredSource) {
         const identity = `${verticalSlug}/${declaredSource.key}`;
