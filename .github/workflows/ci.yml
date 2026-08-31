@@ -226,6 +226,15 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
+      # Supabase exposes installed extensions through this namespace. The
+      # production migration guard requires it to exist before it writes the
+      # private Data Foundry schema, so make the disposable PostgreSQL service
+      # model that boundary instead of weakening the guard for CI.
+      - name: Initialize extensions schema for private migration
+        run: >-
+          docker exec "${{ job.services.postgres.id }}" psql -U postgres -d data_foundry
+          -v ON_ERROR_STOP=1 -c 'CREATE SCHEMA IF NOT EXISTS extensions AUTHORIZATION postgres'
+
       # The same SQL, unchanged, against a real Postgres. This is the check that
       # keeps "portable Postgres DDL" honest rather than aspirational.
       - name: Apply migrations to Postgres

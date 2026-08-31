@@ -37,6 +37,9 @@
 - Hardened migrations to preflight the private schema and `extensions` access,
   refuse legacy Data Foundry public installations, and retain an independent
   schema-scoped migration ledger.
+- Made the disposable real-Postgres CI service create the same `extensions`
+  namespace before private-schema migration, preserving the production guard
+  instead of weakening it for a generic PostgreSQL container.
 - Hardened Cloudflare Hyperdrive usage: each Worker invocation owns and closes a
   fresh client; every private-schema operation uses and verifies a transaction-
   local search path; snapshot setup is constrained and serialized so a pooled
