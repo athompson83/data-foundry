@@ -77,3 +77,46 @@ describe('dispatch paths with no matched data handler', () => {
     expect(transactions).not.toHaveBeenCalled();
   });
 });
+
+describe('matched requests rejected during route preparation', () => {
+  const invalidRequests = (): readonly { readonly name: string; readonly url: string }[] => [
+    {
+      name: 'entity id',
+      url: '/v1/entities/not-a-uuid',
+    },
+    {
+      name: 'filter',
+      url: '/v1/search?filter.seer2_rating.exists=false',
+    },
+    {
+      name: 'pagination',
+      url: '/v1/search?limit=0',
+    },
+    {
+      name: 'compare id list',
+      url: `/v1/compare?ids=${fixtures.equipment.id}`,
+    },
+    {
+      name: 'compare read instant',
+      url: `/v1/compare?ids=${fixtures.equipment.id},${fixtures.heatPump.id}&at=yesterday`,
+    },
+  ];
+
+  for (const name of [
+    'entity id',
+    'filter',
+    'pagination',
+    'compare id list',
+    'compare read instant',
+  ] as const) {
+    it(`rejects an invalid ${name} without opening a database transaction`, async () => {
+      const selected = invalidRequests().find((candidate) => candidate.name === name);
+      if (selected === undefined) throw new Error(`missing ${name} request fixture`);
+
+      const response = await call(fixtures.app, selected.url);
+
+      expect(response.status).toBe(400);
+      expect(transactions).not.toHaveBeenCalled();
+    });
+  }
+});

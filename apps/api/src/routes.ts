@@ -1,9 +1,10 @@
 /**
  * The route table and its handlers.
  *
- * Every handler is the same three steps: validate the request into the query
- * layer's own vocabulary, make ONE call (or a small composition of calls) into
- * `QueryModel`, project the answer through `wire.ts`. No handler filters,
+ * Every route has two explicit phases. `prepare` validates raw path and query
+ * input into the query layer's vocabulary before any database snapshot opens;
+ * its returned execution makes one call (or a small composition of calls) into
+ * `QueryModel` and projects the answer through `wire.ts`. No execution filters,
  * ranks, resolves, follows a redirect or decides what is publishable — all of
  * that already happened below, once, and re-deciding it here is how the API and
  * the web page start disagreeing (AGENTS.md rule 5).
@@ -64,7 +65,7 @@ import {
   wireJsonResponse,
   type OpenApiResponseSchemaName,
 } from './wire.js';
-import type { EntityId, Identifier } from '@data-foundry/canonical-schema';
+import type { EntityId, Identifier, IsoDateTime } from '@data-foundry/canonical-schema';
 import type { EntityView, FacetFilter } from '@data-foundry/query-model';
 
 /**
@@ -109,6 +110,9 @@ export interface RouteMatch {
   readonly params: ReadonlyMap<string, string>;
   readonly query: URLSearchParams;
 }
+
+/** A fully validated route invocation, waiting only for its bound query facade. */
+export type PreparedRouteExecution = (context: ApiContext) => Promise<ApiResponse>;
 
 /**
  * The closed vocabulary of meterable routes.
@@ -174,7 +178,12 @@ export interface Route {
     readonly requiredQueryParameters?: readonly string[];
     readonly mayRedirect?: boolean;
   };
-  readonly handler: (context: ApiContext, match: RouteMatch) => Promise<ApiResponse>;
+  /**
+   * Parse and validate every caller-controlled value without opening a
+   * database snapshot. The returned execution receives the one token-bound
+   * surface facade for this accepted request and never re-parses raw input.
+   */
+  readonly prepare: (match: RouteMatch) => PreparedRouteExecution;
 }
 
 function param(match: RouteMatch, name: string): string {
@@ -221,10 +230,9 @@ function redirectResponse(
 /** Fetch, 404 or hand back a redirect response. Every entity route starts here. */
 async function resolveEntity(
   context: ApiContext,
-  rawId: string,
+  id: EntityId,
   suffix: string,
 ): Promise<{ readonly view: EntityView } | { readonly redirect: ApiResponse }> {
-  const id = parseEntityId(rawId);
   const view = await context.queryModel.getEntity(id);
   if (view === null) throw ApiError.entityNotFound({ entityId: id });
   if (view.redirected_from !== null) {
@@ -235,172 +243,191 @@ async function resolveEntity(
   return { view };
 }
 
-/** The doc-04 policy for this request: the deployment's, plus an optional `at`. */
-function requestPolicy(context: ApiContext, query: URLSearchParams): ApiContext['factSelection'] {
-  const at = optionalInstant(query);
+/** Add one already-validated read instant to the deployment's doc-04 policy. */
+function requestPolicy(
+  context: ApiContext,
+  at: IsoDateTime | undefined,
+): ApiContext['factSelection'] {
   return at === undefined ? context.factSelection : { ...context.factSelection, at };
 }
 
-const health: Route['handler'] = async (context) => {
-  try {
-    // Liveness that actually touches the dependency. A health check that only
-    // proves the process is running reports "ok" through a database outage.
-    await context.queryModel.getEntity(parseEntityId(HEALTH_PROBE_ID));
-  } catch {
-    throw new ApiError('SERVICE_UNAVAILABLE', 'The canonical query layer is not reachable.');
-  }
-  return wireJsonResponse(
-    'HealthResponse',
-    200,
-    {
-      status: 'ok',
-      version: context.version,
-      verticalId: context.verticalId,
-      declaredFields: context.queryModel.fields.size,
-      checks: { queryLayer: 'ok' },
-    },
-    context.version,
-  );
+const prepareHealth: Route['prepare'] = () => {
+  const probeId = parseEntityId(HEALTH_PROBE_ID);
+  return async (context) => {
+    try {
+      // Liveness that actually touches the dependency. A health check that only
+      // proves the process is running reports "ok" through a database outage.
+      await context.queryModel.getEntity(probeId);
+    } catch {
+      throw new ApiError('SERVICE_UNAVAILABLE', 'The canonical query layer is not reachable.');
+    }
+    return wireJsonResponse(
+      'HealthResponse',
+      200,
+      {
+        status: 'ok',
+        version: context.version,
+        verticalId: context.verticalId,
+        declaredFields: context.queryModel.fields.size,
+        checks: { queryLayer: 'ok' },
+      },
+      context.version,
+    );
+  };
 };
 
-const getEntity: Route['handler'] = async (context, match) => {
-  const resolved = await resolveEntity(context, param(match, 'id'), '');
-  if ('redirect' in resolved) return resolved.redirect;
-  return wireJsonResponse(
-    'EntityResponse',
-    200,
-    { data: entityViewWire(resolved.view) },
-    context.version,
-  );
+const prepareGetEntity: Route['prepare'] = (match) => {
+  const id = parseEntityId(param(match, 'id'));
+  return async (context) => {
+    const resolved = await resolveEntity(context, id, '');
+    if ('redirect' in resolved) return resolved.redirect;
+    return wireJsonResponse(
+      'EntityResponse',
+      200,
+      { data: entityViewWire(resolved.view) },
+      context.version,
+    );
+  };
 };
 
-const getEntityBySlug: Route['handler'] = async (context, match) => {
+const prepareGetEntityBySlug: Route['prepare'] = (match) => {
   const slug = parseSlug(param(match, 'slug'));
   const entityType = requiredIdentifier(
     match.query,
     'type',
     'a slug is only unique within one entity type',
   );
-  const view = await context.queryModel.getEntityBySlug(context.verticalId, entityType, slug);
-  if (view === null) throw ApiError.entityNotFound({ slug, entityType });
-  if (view.redirected_from !== null) {
-    return redirectResponse(context, view, `/${context.version}/entities/${view.entity.id}`);
-  }
-  return wireJsonResponse('EntityResponse', 200, { data: entityViewWire(view) }, context.version);
+  return async (context) => {
+    const view = await context.queryModel.getEntityBySlug(context.verticalId, entityType, slug);
+    if (view === null) throw ApiError.entityNotFound({ slug, entityType });
+    if (view.redirected_from !== null) {
+      return redirectResponse(context, view, `/${context.version}/entities/${view.entity.id}`);
+    }
+    return wireJsonResponse('EntityResponse', 200, { data: entityViewWire(view) }, context.version);
+  };
 };
 
-const listFacts: Route['handler'] = async (context, match) => {
-  const resolved = await resolveEntity(context, param(match, 'id'), '/facts');
-  if ('redirect' in resolved) return resolved.redirect;
-
+const prepareListFacts: Route['prepare'] = (match) => {
+  const id = parseEntityId(param(match, 'id'));
   const property = optionalIdentifier(match.query, 'property');
-  const views = await context.queryModel.canonicalFacts(
-    resolved.view.entity.id,
-    requestPolicy(context, match.query),
-  );
+  const at = optionalInstant(match.query);
+  const pageRequest = parsePageRequest(match.query);
+  return async (context) => {
+    const resolved = await resolveEntity(context, id, '/facts');
+    if ('redirect' in resolved) return resolved.redirect;
 
-  const published = views.filter(
-    (view) => view.fact_id !== null && (property === undefined || view.property === property),
-  );
-  // Serialized in full BEFORE paging: a reviewer-identity leak on page 3 must
-  // fail the request, not wait for someone to page that far.
-  const facts = published.map((view) => factWire(view, context.reviewers));
-  const page = paginate(facts, parsePageRequest(match.query));
+    const views = await context.queryModel.canonicalFacts(
+      resolved.view.entity.id,
+      requestPolicy(context, at),
+    );
 
-  return wireJsonResponse(
-    'FactPageResponse',
-    200,
-    { entityId: resolved.view.entity.id, ...page },
-    context.version,
-  );
+    const published = views.filter(
+      (view) => view.fact_id !== null && (property === undefined || view.property === property),
+    );
+    // Serialized in full BEFORE paging: a reviewer-identity leak on page 3 must
+    // fail the request, not wait for someone to page that far.
+    const facts = published.map((view) => factWire(view, context.reviewers));
+    const page = paginate(facts, pageRequest);
+
+    return wireJsonResponse(
+      'FactPageResponse',
+      200,
+      { entityId: resolved.view.entity.id, ...page },
+      context.version,
+    );
+  };
 };
 
-const listRelationships: Route['handler'] = async (context, match) => {
-  const resolved = await resolveEntity(context, param(match, 'id'), '/relationships');
-  if ('redirect' in resolved) return resolved.redirect;
-
+const prepareListRelationships: Route['prepare'] = (match) => {
+  const id = parseEntityId(param(match, 'id'));
   const direction = parseEnum(match.query, 'direction', ['out', 'in', 'both'] as const, 'both');
   const depth = parseBoundedInt(match.query, 'depth', 1, 1, 4);
   const predicate = optionalIdentifier(match.query, 'predicate');
+  const pageRequest = parsePageRequest(match.query);
+  return async (context) => {
+    const resolved = await resolveEntity(context, id, '/relationships');
+    if ('redirect' in resolved) return resolved.redirect;
 
-  const traversal = await context.queryModel.relationships({
-    entity_id: resolved.view.entity.id,
-    direction,
-    depth,
-    limit: TRAVERSAL_BOUND,
-    ...(predicate === undefined ? {} : { predicate }),
-  });
+    const traversal = await context.queryModel.relationships({
+      entity_id: resolved.view.entity.id,
+      direction,
+      depth,
+      limit: TRAVERSAL_BOUND,
+      ...(predicate === undefined ? {} : { predicate }),
+    });
 
-  const page = paginate(traversal.edges.map(relationshipEdgeWire), parsePageRequest(match.query));
-  return wireJsonResponse(
-    'RelationshipPageResponse',
-    200,
-    {
-      entityId: resolved.view.entity.id,
-      traversal: {
-        depth: traversal.depth,
-        direction,
-        edgeBound: TRAVERSAL_BOUND,
-        /** True when the traversal stopped at its bound, so more edges exist. */
-        boundReached: traversal.truncated,
-        /**
-         * Edges the walk reached and would not serve because nothing asserts
-         * them at all. Rights refusals are NOT counted here: `predicate` and
-         * `direction` come from the query string, so a per-query count of them
-         * is a yes/no oracle about any triple a caller names. That was
-         * demonstrated against this route. The route's `caveat` states the
-         * incompleteness instead.
-         */
-        unevidencedEdgeCount: traversal.unevidenced_edge_count,
+    const page = paginate(traversal.edges.map(relationshipEdgeWire), pageRequest);
+    return wireJsonResponse(
+      'RelationshipPageResponse',
+      200,
+      {
+        entityId: resolved.view.entity.id,
+        traversal: {
+          depth: traversal.depth,
+          direction,
+          edgeBound: TRAVERSAL_BOUND,
+          /** True when the traversal stopped at its bound, so more edges exist. */
+          boundReached: traversal.truncated,
+          /**
+           * Edges the walk reached and would not serve because nothing asserts
+           * them at all. Rights refusals are NOT counted here: `predicate` and
+           * `direction` come from the query string, so a per-query count of them
+           * is a yes/no oracle about any triple a caller names. That was
+           * demonstrated against this route. The route's `caveat` states the
+           * incompleteness instead.
+           */
+          unevidencedEdgeCount: traversal.unevidenced_edge_count,
+        },
+        ...page,
       },
-      ...page,
-    },
-    context.version,
-  );
+      context.version,
+    );
+  };
 };
 
-const search: Route['handler'] = async (context, match) => {
+const prepareSearch: Route['prepare'] = (match) => {
   const text = (match.query.get('q') ?? '').trim();
   const entityType = optionalIdentifier(match.query, 'type');
   const filters: FacetFilter[] = parseFilters(match.query);
   const includeFacets = parseBoolean(match.query, 'facets', false);
   const request = parsePageRequest(match.query);
+  return async (context) => {
+    const result = await context.queryModel.search({
+      vertical_id: context.verticalId,
+      ...(text === '' ? {} : { text }),
+      ...(entityType === undefined ? {} : { entity_type: entityType }),
+      ...(filters.length === 0 ? {} : { filters }),
+      limit: request.limit,
+      offset: request.offset,
+      include_facets: includeFacets,
+    });
 
-  const result = await context.queryModel.search({
-    vertical_id: context.verticalId,
-    ...(text === '' ? {} : { text }),
-    ...(entityType === undefined ? {} : { entity_type: entityType }),
-    ...(filters.length === 0 ? {} : { filters }),
-    limit: request.limit,
-    offset: request.offset,
-    include_facets: includeFacets,
-  });
-
-  return wireJsonResponse(
-    'SearchResponse',
-    200,
-    {
-      data: result.hits.map(searchHitWire),
-      page: pageMeta(request, result.hits.length, result.total),
-      match: {
-        // Rule 7, observable: true means a deterministic identifier match led
-        // the result set ahead of everything text ranking preferred.
-        exactShortCircuit: result.exact_short_circuit,
-        exactCount: result.exact_count,
+    return wireJsonResponse(
+      'SearchResponse',
+      200,
+      {
+        data: result.hits.map(searchHitWire),
+        page: pageMeta(request, result.hits.length, result.total),
+        match: {
+          // Rule 7, observable: true means a deterministic identifier match led
+          // the result set ahead of everything text ranking preferred.
+          exactShortCircuit: result.exact_short_circuit,
+          exactCount: result.exact_count,
+        },
+        strategy: {
+          exactFirst: result.strategy.exact_first,
+          fullText: result.strategy.full_text,
+          trigram: result.strategy.trigram,
+          vector: result.strategy.vector,
+        },
+        facets: result.facets.map(facetWire),
       },
-      strategy: {
-        exactFirst: result.strategy.exact_first,
-        fullText: result.strategy.full_text,
-        trigram: result.strategy.trigram,
-        vector: result.strategy.vector,
-      },
-      facets: result.facets.map(facetWire),
-    },
-    context.version,
-  );
+      context.version,
+    );
+  };
 };
 
-const compare: Route['handler'] = async (context, match) => {
+const prepareCompare: Route['prepare'] = (match) => {
   const raw = parseList(match.query, 'ids');
   if (raw.length < MIN_COMPARE_ENTITIES || raw.length > MAX_COMPARE_ENTITIES) {
     throw ApiError.invalidParameter(
@@ -412,46 +439,49 @@ const compare: Route['handler'] = async (context, match) => {
   const properties = parseList(match.query, 'properties').map((value) =>
     parseIdentifier(value, 'properties'),
   );
+  const ids = raw.map((value) => parseEntityId(value, 'ids'));
+  const at = optionalInstant(match.query);
 
-  // Resolved one by one through the redirect-aware read rather than handed
-  // straight to `compare`, which looks ids up directly and would silently drop
-  // a merged-away entity from the table.
-  const unknown: string[] = [];
-  const redirects: { requestedId: string; canonicalEntityId: string }[] = [];
-  const canonical: EntityId[] = [];
-  for (const value of raw) {
-    const id = parseEntityId(value, 'ids');
-    const view = await context.queryModel.getEntity(id);
-    if (view === null) {
-      unknown.push(id);
-      continue;
+  return async (context) => {
+    // Resolved one by one through the redirect-aware read rather than handed
+    // straight to `compare`, which looks ids up directly and would silently drop
+    // a merged-away entity from the table.
+    const unknown: string[] = [];
+    const redirects: { requestedId: string; canonicalEntityId: string }[] = [];
+    const canonical: EntityId[] = [];
+    for (const id of ids) {
+      const view = await context.queryModel.getEntity(id);
+      if (view === null) {
+        unknown.push(id);
+        continue;
+      }
+      if (view.redirected_from !== null) {
+        redirects.push({ requestedId: id, canonicalEntityId: view.entity.id });
+      }
+      if (!canonical.includes(view.entity.id)) canonical.push(view.entity.id);
     }
-    if (view.redirected_from !== null) {
-      redirects.push({ requestedId: id, canonicalEntityId: view.entity.id });
+    if (unknown.length > 0) throw ApiError.entityNotFound({ unknownIds: unknown });
+    if (canonical.length < MIN_COMPARE_ENTITIES) {
+      throw ApiError.invalidParameter(
+        'ids',
+        'expected at least two distinct entities after following redirects',
+        String(canonical.length),
+      );
     }
-    if (!canonical.includes(view.entity.id)) canonical.push(view.entity.id);
-  }
-  if (unknown.length > 0) throw ApiError.entityNotFound({ unknownIds: unknown });
-  if (canonical.length < MIN_COMPARE_ENTITIES) {
-    throw ApiError.invalidParameter(
-      'ids',
-      'expected at least two distinct entities after following redirects',
-      String(canonical.length),
+
+    const comparison = await context.queryModel.compare({
+      entity_ids: canonical,
+      ...(properties.length === 0 ? {} : { properties: properties as readonly Identifier[] }),
+      policy: requestPolicy(context, at),
+    });
+
+    return wireJsonResponse(
+      'CompareResponse',
+      200,
+      { data: comparisonWire(comparison), redirects },
+      context.version,
     );
-  }
-
-  const comparison = await context.queryModel.compare({
-    entity_ids: canonical,
-    ...(properties.length === 0 ? {} : { properties: properties as readonly Identifier[] }),
-    policy: requestPolicy(context, match.query),
-  });
-
-  return wireJsonResponse(
-    'CompareResponse',
-    200,
-    { data: comparisonWire(comparison), redirects },
-    context.version,
-  );
+  };
 };
 
 export const ROUTES: readonly Route[] = [
@@ -461,7 +491,7 @@ export const ROUTES: readonly Route[] = [
     routeKey: 'health',
     summary: 'Liveness plus a real round trip through the canonical query layer.',
     openapi: { operationId: 'getHealth', responseSchema: 'HealthResponse' },
-    handler: health,
+    prepare: prepareHealth,
   },
   {
     pattern: ['entities', 'by-slug'],
@@ -469,7 +499,7 @@ export const ROUTES: readonly Route[] = [
     routeKey: 'entities.by_slug',
     summary: 'Reject a slug lookup with no slug, rather than reading "by-slug" as an id.',
     openapi: { operationId: 'getEntityBySlugMissing', responseSchema: 'EntityResponse' },
-    handler: async () => {
+    prepare: () => {
       throw ApiError.missingParameter('slug', 'the slug to look up follows /entities/by-slug/');
     },
   },
@@ -485,7 +515,7 @@ export const ROUTES: readonly Route[] = [
       requiredQueryParameters: ['type'],
       mayRedirect: true,
     },
-    handler: getEntityBySlug,
+    prepare: prepareGetEntityBySlug,
   },
   {
     pattern: ['entities', ':id'],
@@ -493,7 +523,7 @@ export const ROUTES: readonly Route[] = [
     routeKey: 'entities.detail',
     summary: 'Entity by id. A merged-away id answers 301 with its redirect chain, never 404.',
     openapi: { operationId: 'getEntity', responseSchema: 'EntityResponse', mayRedirect: true },
-    handler: getEntity,
+    prepare: prepareGetEntity,
   },
   {
     pattern: ['entities', ':id', 'facts'],
@@ -508,7 +538,7 @@ export const ROUTES: readonly Route[] = [
       responseSchema: 'FactPageResponse',
       mayRedirect: true,
     },
-    handler: listFacts,
+    prepare: prepareListFacts,
   },
   {
     pattern: ['entities', ':id', 'relationships'],
@@ -522,7 +552,7 @@ export const ROUTES: readonly Route[] = [
       responseSchema: 'RelationshipPageResponse',
       mayRedirect: true,
     },
-    handler: listRelationships,
+    prepare: prepareListRelationships,
   },
   {
     pattern: ['search'],
@@ -531,7 +561,7 @@ export const ROUTES: readonly Route[] = [
     summary:
       'Faceted search. Exact identifier matches lead the result set ahead of any text ranking (AGENTS.md rule 7).',
     openapi: { operationId: 'searchEntities', responseSchema: 'SearchResponse' },
-    handler: search,
+    prepare: prepareSearch,
   },
   {
     pattern: ['compare'],
@@ -545,7 +575,7 @@ export const ROUTES: readonly Route[] = [
       responseSchema: 'CompareResponse',
       requiredQueryParameters: ['ids'],
     },
-    handler: compare,
+    prepare: prepareCompare,
   },
 ];
 

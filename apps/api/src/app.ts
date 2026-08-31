@@ -152,13 +152,12 @@ async function dispatch(
   }
 
   report(route.routeKey);
+  const execute = route.prepare({
+    params: routeParams(route, rest),
+    query: url.searchParams,
+  });
   try {
-    return await context.withSurfaceSnapshot((handlerContext) =>
-      route.handler(handlerContext, {
-        params: routeParams(route, rest),
-        query: url.searchParams,
-      }),
-    );
+    return await context.withSurfaceSnapshot(execute);
   } catch (error) {
     // The request snapshot now opens outside the health handler. Preserve the
     // readiness contract when acquisition, a query, or transaction completion

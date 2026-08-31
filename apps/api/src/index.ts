@@ -71,6 +71,7 @@ export {
   type Route,
   type RouteKey,
   type RouteMatch,
+  type PreparedRouteExecution,
 } from './routes.js';
 
 export {
