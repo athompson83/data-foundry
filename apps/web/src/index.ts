@@ -7,10 +7,16 @@
  * industry site, not one Worker per industry.
  */
 import { toWebRequest, toFetchResponse } from './adapter.js';
-import { createWebApp } from './app.js';
+import {
+  createWebApp,
+  executePreparedWebRequest,
+  prepareWebRequest,
+  type WebRoutingDeployment,
+  type WebRoutingVertical,
+} from './app.js';
 import { withResolvedContext } from './config.js';
 import { getDeployment } from './composition.js';
-import { WebConfigurationError, type WebEnv } from './env.js';
+import { resolveWebConfig, WebConfigurationError, type WebEnv } from './env.js';
 import type { WebRuntime } from './seo.js';
 import { RUNTIMES as compiledRuntimes } from '../generated/runtime-registry.js';
 
@@ -35,6 +41,36 @@ export { WebConfigurationError, resolveWebConfig, type WebEnv } from './env.js';
 /** Every vertical this bundle carries, generated from the compiler's single bundle list. */
 export const RUNTIMES = compiledRuntimes as unknown as Readonly<Record<string, WebRuntime>>;
 
+type WebDeploymentLoader = typeof getDeployment;
+
+interface WebWorkerDependencies {
+  readonly loadDeployment?: WebDeploymentLoader;
+  /** Test seam; production always uses the generated compiled registry. */
+  readonly runtimes?: Readonly<Record<string, WebRuntime>>;
+}
+
+function routingVerticals(
+  runtimes: Readonly<Record<string, WebRuntime>>,
+): ReadonlyMap<string, WebRoutingVertical> {
+  return new Map(Object.values(runtimes).map((runtime) => [
+    runtime.vertical_slug,
+    { slug: runtime.vertical_slug, runtime },
+  ]));
+}
+
+/** Resolve only configuration and compiled metadata; this path never opens a driver. */
+function resolveRoutingDeployment(
+  env: WebEnv,
+  verticals: ReadonlyMap<string, WebRoutingVertical>,
+): WebRoutingDeployment {
+  const config = resolveWebConfig(env);
+  return {
+    publicOrigin: config.publicOrigin,
+    cacheMode: config.cacheMode,
+    verticals,
+  };
+}
+
 function unavailable(reason: string): Response {
   const body = '<!doctype html><title>Unavailable</title><h1>This deployment is not configured to serve requests.</h1>';
   return new Response(body, {
@@ -48,17 +84,31 @@ function unavailable(reason: string): Response {
   });
 }
 
-export default {
-  async fetch(request: Request, env: WebEnv): Promise<Response> {
+export function createWebFetchHandler(
+  dependencies: WebWorkerDependencies = {},
+): (request: Request, env: WebEnv) => Promise<Response> {
+  const loadDeployment = dependencies.loadDeployment ?? getDeployment;
+  const runtimes = dependencies.runtimes ?? RUNTIMES;
+  const verticals = routingVerticals(runtimes);
+
+  return async (request: Request, env: WebEnv): Promise<Response> => {
     try {
-      const deployment = await getDeployment({
+      const prepared = prepareWebRequest(
+        resolveRoutingDeployment(env, verticals),
+        toWebRequest(request),
+      );
+      if (prepared.kind === 'static') {
+        return toFetchResponse(prepared.response, request.method);
+      }
+
+      const deployment = await loadDeployment({
         env,
-        runtimes: RUNTIMES,
+        runtimes,
         onWarning: (message) => console.warn(`[web] ${message}`),
       });
 
       const response = await withResolvedContext(deployment, (context) =>
-        createWebApp(context)(toWebRequest(request)),
+        executePreparedWebRequest(prepared, context),
       );
       return toFetchResponse(response, request.method);
     } catch (error) {
@@ -69,5 +119,9 @@ export default {
       console.error('[web] startup', error);
       return unavailable('startup');
     }
-  },
+  };
+}
+
+export default {
+  fetch: createWebFetchHandler(),
 };

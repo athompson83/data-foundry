@@ -11,9 +11,7 @@
  * (pay per crawl is a Cloudflare zone setting, not something this file can
  * express — see item 4 there).
  */
-import type { RequestWebDeployment } from './composition.js';
-
-export function robotsTxt(deployment: RequestWebDeployment): string {
+export function robotsTxt(deployment: { readonly publicOrigin: string }): string {
   return `User-agent: *
 Allow: /
 
