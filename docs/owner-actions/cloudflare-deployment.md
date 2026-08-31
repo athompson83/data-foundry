@@ -6,9 +6,10 @@ from source code alone.
 
 Protected `main` contains the final five-Worker topology:
 `apps/edge`, `apps/web`, `apps/usage-consumer`,
-`apps/acquisition-worker`, and `apps/mcp-worker`. No production deployment of
-the integrated protected-main tree is recorded or verified. Live Cloudflare
-account state could not be inspected from the available environment; exact deployment
+`apps/acquisition-worker`, and `apps/mcp-worker`, including the PR #22 closeout
+merged as `9c917c0f708352dfb79861110023145eb23806e3`. No production
+deployment of the integrated protected-main tree is recorded or verified.
+Wrangler is unauthenticated in the verification environment; exact deployment
 IDs and runtime probes remain owner/platform evidence. Repository state is not
 proof that Cloudflare resources or real-source rights have been provisioned.
 
@@ -561,8 +562,9 @@ commercial gate.
 
 1. Freeze the live 40-character protected-main SHA and rerun its release gates;
    the reconciled rights, usage, auth/metering, web, RapidAPI, acquisition, and
-   MCP baseline is already merged, while the PR #22 closeout hardening must pass
-   and merge before its matching migration/query bundle can be deployed.
+   MCP baseline and PR #22 closeout hardening are merged through migration
+   `0026`. Do not reuse the pre-merge candidate evidence after a later main or
+   deployment change.
 2. Provision Cloudflare Postgres/Hyperdrive, all five Workers, R2, Queue/DLQ,
    routes and secrets.
 3. Deploy and prove exact-SHA health/readiness plus real queue behavior.

@@ -4,34 +4,34 @@
 
 - Product: Data Foundry
 - Lifecycle stage: MVP integration / pre-deployment
-- Control-graph node: `MERGED_MAIN -> CLOSEOUT_REVIEW -> EXTERNAL_DEPLOY`
-- Current milestone: merge the closeout candidate, then deploy and prove the
-  protected-main, synthetic-data-capable platform without implying that a real
-  HVAC dataset is cleared
+- Control-graph node: `MERGED_MAIN -> EXTERNAL_DEPLOY`
+- Current milestone: deploy and prove the protected-main,
+  synthetic-data-capable platform without implying that a real HVAC dataset is
+  cleared
 - Release authority: the live 40-character `origin/main`. Integration PR
   [#19](https://github.com/athompson83/data-foundry/pull/19) is merged; PRs
   #13–#17 are closed as superseded after path, patch, ancestry, and behavioral
   reconciliation. Dependency follow-up PR #21 removes the remaining `esbuild`
-  advisory from the post-integration lockfile. PR #22 is the open closeout
-  candidate for migrations `0025`–`0026`, exact alias evidence,
-  request-snapshot repairs, and bounded surface-catalog authorization; those
-  changes are not on protected `main` until that PR passes its
-  final review and hosted gates and merges. Every later candidate-affecting
-  change still requires fresh exact-SHA local, hosted, review, and ruleset
-  evidence.
+  advisory from the post-integration lockfile. PR #22 merged the closeout tree
+  as `9c917c0f708352dfb79861110023145eb23806e3`, including migrations
+  `0025`–`0026`, exact alias evidence, bounded surface-catalog authorization,
+  one request-wide query snapshot, and database-free request pre-routing.
+  Its exact head `501b33d08fafe5cdf1c9c0c9877f0b38b4b265c0` passed hosted run
+  `33352124668`, both automated reviews, and sealed security scan
+  `24b34cd2-2f8d-40ae-bfd2-f4460daa419f`. Every later
+  candidate-affecting change still requires fresh exact-SHA local, hosted,
+  review, and ruleset evidence.
 - Preview: none verified
 - Production: no deployment of the integrated protected-main tree is recorded or
-  verified; live Cloudflare account state was unavailable for inspection
+  verified; Wrangler was unauthenticated in the verification environment
 - Database target: repository migrations verified locally/disposably; no hosted
   target or grant state was changed during this integration
 
-## Protected-Main and Closeout Candidate State
+## Protected-Main Implementation State
 
-The PR #19 integration and PR #21 dependency repair are on protected `main`.
-Unless a bullet below explicitly describes migrations `0025`–`0026`, exact alias
-evidence linkage, fresh per-operation snapshots, or bounded catalog
-authorization, it describes that merged baseline. Those named closeout changes
-remain candidate-only in PR #22.
+PR #19, the PR #21 dependency repair, and the PR #22 closeout are on protected
+`main`. The bullets below describe that merged tree; repository-ready still does
+not mean deployed or commercially publishable.
 
 - Corrected Option B is accepted and implemented. Exact effective rights-matrix
   decisions authorize each operation/channel surface independently. Missing,
@@ -87,7 +87,10 @@ remain candidate-only in PR #22.
 - Every customer-facing query operation uses a fresh read-only repeatable
   snapshot and request-local authorizer. Compound REST, MCP, public-web, search,
   facet, relationship, and comparison flows cannot reuse authorization from an
-  older contribution set or observe a mid-operation alias commit.
+  older contribution set or observe a mid-operation alias commit. REST parses
+  all matched-route inputs before acquiring that snapshot; the web Worker
+  rejects methods, malformed targets, `robots.txt`, and unmatched paths before
+  loading the database-backed deployment.
 - Migration `0024` requires explicit source-stream membership and
   `full_snapshot` versus `incremental` refresh semantics. Complete snapshots
   retire omitted current records atomically with append-only artifact evidence;
@@ -127,13 +130,9 @@ remain candidate-only in PR #22.
 
 ## Deployment and Revenue State
 
-- The PR #19 integration and PR #21 dependency repair are on protected `main`.
-  PR #22 remains an open closeout candidate; its migrations `0025`–`0026`, exact
-  alias evidence linkage, request-snapshot repairs, and bounded catalog
-  authorization must not be described as
-  protected-main capabilities before merge. Repository-ready does not mean
-  deployed or commercially publishable; the live deployment and real-source
-  gates remain independent.
+- The PR #19 integration, PR #21 dependency repair, and PR #22 closeout are on
+  protected `main`. Repository-ready does not mean deployed or commercially
+  publishable; the live deployment and real-source gates remain independent.
 - RapidAPI enrollment, proxy-secret configuration, plans, payout setup, live
   route, and real subscriber proof remain external.
 - Cloudflare canonical account/zone/routes, Hyperdrive, production Postgres, R2,
@@ -174,18 +173,17 @@ remain candidate-only in PR #22.
   Queue privacy/idempotency, bounded sitemap work, and credential-delivery
   refusal/compensation paths, plus removal of the vulnerable transitive
   `node-tar` chain.
-- The current local PR #22 candidate passes the complete 178-file/2,881-test
-  Vitest suite, typecheck/build, all 26 ordered and idempotent migrations,
-  generated schema/OpenAPI/runtime drift checks, vertical/acquisition checks,
-  repository Cloudflare topology, all five Worker artifact checks, disposable
-  PostgreSQL 16 replay/reconciliation/concurrency gates, and the moderate-level
-  dependency audit. Adversarial PostgreSQL plans prove the migration-0026
-  evidence indexes stream at the refusal boundary without scanning unrelated
-  evidence or materializing the remaining dense edge set. A fresh security
-  re-review reports zero remaining findings after shortcut-chain, corrupt-cycle,
-  filter-amplification, and landing-aggregate repairs. This is worktree evidence,
-  not yet final pushed-SHA or protected-main evidence: commit, hosted, review,
-  ruleset, merge, and post-merge gates remain.
+- PR #22 exact head `501b33d08fafe5cdf1c9c0c9877f0b38b4b265c0`
+  passed the complete 183-file/2,926-test Vitest suite, typecheck/build, all 26
+  ordered and idempotent migrations, generated schema/OpenAPI/runtime drift
+  checks, vertical/acquisition checks, repository Cloudflare topology, all five
+  Worker artifact checks, disposable PostgreSQL 16
+  replay/reconciliation/concurrency gates, and the moderate-level dependency
+  audit. Hosted run `33352124668` passed the protected ruleset checks. Sealed
+  security scan `24b34cd2-2f8d-40ae-bfd2-f4460daa419f` closed 32/32
+  worklist rows across all 65 changed files and 10/10 surfaces with zero
+  findings, candidates, deferred items, or suppressions. PR #22 merged normally
+  as `9c917c0f708352dfb79861110023145eb23806e3`.
 - Repository topology centralizes production endpoint classification, rejects
   loopback/unspecified endpoints and plaintext protected values, and keeps
   deployment-only fields out of tracked templates. Deployment-mode validation
@@ -209,15 +207,16 @@ deferred; it is not an action request in this work package.
 
 ## Production Impact
 
-Repository code, fifteen forward migrations (`0012` through `0026`), tests, generated artifacts, and control
-documents changed. This work performs no deployment, hosted migration, grant
-activation, source acquisition, publisher contact, or provider mutation.
+Repository code, fifteen forward migrations (`0012` through `0026`), tests,
+generated artifacts, and control documents changed on protected `main`. This
+work performed no deployment, hosted migration, grant activation, source
+acquisition, publisher contact, or provider mutation.
 
 ## Previous Session Summary
 
-The integrated branch combines usage accounting/auth, corrected Option B
-rights, public web, RapidAPI, scheduled acquisition/readiness, and MCP in
-dependency order through migration 0024. Final review repairs add a last
+Protected `main` combines usage accounting/auth, corrected Option B rights,
+public web, RapidAPI, scheduled acquisition/readiness, and MCP in dependency
+order through migration `0026`. Final review repairs add a last
 practical pre-persistence rights checkpoint, exact historical authorization,
 one-client resolution transactions, `source-record-evidence@3`, claim-backed
 alias epochs/currentness, identifier-less successor handling, a fail-closed
