@@ -59,9 +59,11 @@ the exact rendered facts, attributions and relationships. The quality-gate evalu
 (`apps/web/src/gates.ts`) decides indexability from authorized evidence rather
 than raw database aggregates or fiat. The integrated implementation is on
 protected `main`, but no production deployment is recorded or verified. Live
-Cloudflare account state could not be inspected from the available environment,
-so exact deployment IDs
-and runtime probes remain owner/platform evidence — see Deployment below.
+Cloudflare and Vercel state was reconciled read-only on 2026-08-31: the zone is
+active/full, but no Data Foundry Cloudflare resources exist and the configured
+Vercel data hostname returns 404. Exact deployment IDs and runtime probes remain
+owner/platform evidence — see the [redacted reconciliation record](docs/evidence/alpha-lab-provider-reconciliation-20260831.md)
+and Deployment below.
 
 **Every source is synthetic.** The rights machinery genuinely runs, but it
 currently validates controlled fixture declarations rather than a real
@@ -430,10 +432,11 @@ records what and why, including what pay per crawl actually is and is not, and
 lays out the free-web/paid-API revenue split end to end.
 
 `vercel.json` still disables Vercel Git deployments. It remains deploy
-suppression, not adoption. The connected Vercel team has no Data Foundry project,
-but GitHub App installation `122728140` hides its exact repository selection
-behind an owner sudo/passkey prompt. Keep the file until that independent check
-proves the App no longer has Data Foundry repository access.
+suppression, not adoption. The configured Vercel project has disconnected Git
+and serves a 404 at the data hostname, so it is not a deployment or rollback
+path. A Vercel GitHub App repository-selection check remains behind an owner
+sudo/passkey prompt. Keep the file until that independent check proves the App
+no longer has Data Foundry repository access.
 
 ## Licensing and data rights
 

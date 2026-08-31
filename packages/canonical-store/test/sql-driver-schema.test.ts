@@ -19,7 +19,7 @@ afterAll(async () => {
   await driver?.close();
 });
 
-describe('private PostgreSQL schema sessions', () => {
+describe('PostgreSQL schema sessions', () => {
   it('uses a startup setting that keeps public out of every new pooled session', () => {
     expect(postgresStartupOptionsForSchema('data_foundry')).toBe(
       '-csearch_path=data_foundry,pg_catalog,extensions',
@@ -75,10 +75,65 @@ describe('private PostgreSQL schema sessions', () => {
     ).rejects.toThrow(/startup options/i);
   });
 
-  it.each([
-    ['direct Postgres pool', createPostgresDriver],
-    ['Hyperdrive client', createHyperdriveDriver],
-  ] as const)('preserves the deliberate legacy public mode for a %s', async (_label, openDriver) => {
+  it('binds an explicit public schema on a direct pool instead of inheriting its role search_path', async () => {
+    const configurations: unknown[] = [];
+    const queries: string[] = [];
+    let activeSchema = 'data_foundry';
+    const client = {
+      async query(sql: string) {
+        queries.push(sql);
+        if (sql.includes('current_schema()')) {
+          return {
+            rows: [{
+              current_schema: activeSchema,
+              has_target_schema: activeSchema === 'public',
+              has_catalog_schema: true,
+              has_extensions_schema: true,
+              has_public_schema: activeSchema === 'public',
+            }],
+          };
+        }
+        return { rows: [{ ok: true }] };
+      },
+      release() {},
+    };
+    class Pool {
+      constructor(configuration: unknown) {
+        configurations.push(configuration);
+        activeSchema =
+          (configuration as { readonly options?: string }).options ===
+          '-csearch_path=public,pg_catalog,extensions'
+            ? 'public'
+            : 'data_foundry';
+      }
+      async connect() {
+        return client;
+      }
+      async end() {}
+    }
+
+    vi.doMock('pg', () => ({ default: { Pool } }));
+    try {
+      const legacy = await createPostgresDriver('postgres://operator@db.invalid/data-foundry', {
+        schema: 'public',
+      });
+      await legacy.query('SELECT 1');
+      await legacy.close();
+
+      expect(configurations).toEqual([
+        {
+          connectionString: 'postgres://operator@db.invalid/data-foundry',
+          options: '-csearch_path=public,pg_catalog,extensions',
+        },
+      ]);
+      expect(queries).toEqual([expect.stringContaining('current_schema()'), 'SELECT 1']);
+    } finally {
+      vi.doUnmock('pg');
+      vi.resetModules();
+    }
+  });
+
+  it('leaves an omitted direct Postgres schema unbound for legacy callers', async () => {
     const configurations: unknown[] = [];
     const queries: string[] = [];
     const client = {
@@ -97,20 +152,57 @@ describe('private PostgreSQL schema sessions', () => {
       }
       async end() {}
     }
+
+    vi.doMock('pg', () => ({ default: { Pool } }));
+    try {
+      const legacy = await createPostgresDriver('postgres://operator@db.invalid/data-foundry');
+      await legacy.query('SELECT 1');
+      await legacy.close();
+
+      expect(configurations).toEqual([
+        { connectionString: 'postgres://operator@db.invalid/data-foundry' },
+      ]);
+      expect(queries).toEqual(['SELECT 1']);
+    } finally {
+      vi.doUnmock('pg');
+      vi.resetModules();
+    }
+  });
+
+  it('binds an explicit public schema inside Hyperdrive operations instead of inheriting its role path', async () => {
+    const configurations: unknown[] = [];
+    const queries: string[] = [];
+    let activeSchema = 'data_foundry';
     class Client {
       constructor(configuration: unknown) {
         configurations.push(configuration);
       }
       async connect() {}
       async query(sql: string) {
-        return client.query(sql);
+        queries.push(sql);
+        if (sql.startsWith('SET LOCAL search_path TO')) {
+          activeSchema = 'public';
+          return { rows: [] };
+        }
+        if (sql.includes('current_schema()')) {
+          return {
+            rows: [{
+              current_schema: activeSchema,
+              has_target_schema: activeSchema === 'public',
+              has_catalog_schema: true,
+              has_extensions_schema: true,
+              has_public_schema: activeSchema === 'public',
+            }],
+          };
+        }
+        return { rows: [{ ok: true }] };
       }
       async end() {}
     }
 
-    vi.doMock('pg', () => ({ default: { Pool, Client } }));
+    vi.doMock('pg', () => ({ default: { Client } }));
     try {
-      const legacy = await openDriver('postgres://operator@db.invalid/data-foundry', {
+      const legacy = await createHyperdriveDriver('postgres://operator@db.invalid/data-foundry', {
         schema: 'public',
       });
       await legacy.query('SELECT 1');
@@ -119,7 +211,13 @@ describe('private PostgreSQL schema sessions', () => {
       expect(configurations).toEqual([
         { connectionString: 'postgres://operator@db.invalid/data-foundry' },
       ]);
-      expect(queries).toEqual(['SELECT 1']);
+      expect(queries).toEqual([
+        'BEGIN',
+        'SET LOCAL search_path TO "public", pg_catalog, extensions',
+        expect.stringContaining('current_schema()'),
+        'SELECT 1',
+        'COMMIT',
+      ]);
     } finally {
       vi.doUnmock('pg');
       vi.resetModules();

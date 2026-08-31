@@ -657,6 +657,7 @@ describe('rights evidence is explicit and fail-closed', () => {
         fixtures.driver,
         'DF_TEST_DATABASE_URL',
         NOW,
+        'data_foundry',
       );
       const context = await resolver.contextFor('hvac', declared!);
       expect(context?.source.id).toBe(fixtures.sources.manufacturer.source.id);
@@ -679,6 +680,25 @@ describe('rights evidence is explicit and fail-closed', () => {
     } finally {
       await fixtures.driver.close();
     }
+  });
+
+  it('names the selected schema when a live rights lookup cannot acquire it', async () => {
+    const [declared] = assess('hvac', 'DRAFT', [source()]).sources;
+    const unavailableDriver = {
+      query: async () => {
+        throw new Error('relation does not exist');
+      },
+    } as unknown as Parameters<typeof createLiveDatabaseRightsEvidenceResolver>[0];
+    const resolver = createLiveDatabaseRightsEvidenceResolver(
+      unavailableDriver,
+      'DF_TEST_DATABASE_URL',
+      NOW,
+      'data_foundry',
+    );
+
+    await expect(resolver.contextFor('hvac', declared!)).rejects.toThrow(
+      /schema data_foundry through credential env DF_TEST_DATABASE_URL/i,
+    );
   });
 
   it('exports the exact context evaluated for each source without a second resolver lookup', async () => {

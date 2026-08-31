@@ -18,6 +18,7 @@ import {
   applyMigrations,
   createPostgresDriver as createMigrationPostgresDriver,
   loadMigrations,
+  resolveOperationalSchema,
 } from './migrate.js';
 import {
   EntityResolver,
@@ -174,20 +175,21 @@ export async function run(
   if (env['DATA_FOUNDRY_POSTGRES_CONCURRENCY_TEST'] !== '1') {
     throw new Error('Set DATA_FOUNDRY_POSTGRES_CONCURRENCY_TEST=1 for a dedicated synthetic test database.');
   }
+  const schema = resolveOperationalSchema(env);
 
   // The migration ledger transaction spans BEGIN, DDL, INSERT, and COMMIT.
   // Bootstrap with its dedicated single Client, never through an app pool.
-  const migrationDriver = await createMigrationPostgresDriver(connectionString);
+  const migrationDriver = await createMigrationPostgresDriver(connectionString, schema);
   try {
-    await applyMigrations(migrationDriver, await loadMigrations());
+    await applyMigrations(migrationDriver, await loadMigrations(), { schema });
   } finally {
     await migrationDriver.close();
   }
 
-  const primaryDriver = await createPostgresDriver(connectionString);
-  const firstDriver = await createPostgresDriver(connectionString);
-  const secondDriver = await createPostgresDriver(connectionString);
-  const monitor = await createPostgresDriver(connectionString);
+  const primaryDriver = await createPostgresDriver(connectionString, { schema });
+  const firstDriver = await createPostgresDriver(connectionString, { schema });
+  const secondDriver = await createPostgresDriver(connectionString, { schema });
+  const monitor = await createPostgresDriver(connectionString, { schema });
   try {
     const primary = createCanonicalStore(primaryDriver);
     const first = createCanonicalStore(firstDriver);

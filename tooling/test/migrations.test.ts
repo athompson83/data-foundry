@@ -16,6 +16,7 @@ import {
   normalizeSchemaName,
   resolveOperationalSchema,
   resolveSchema,
+  scopeMigrationSql,
   type Migration,
   type MigrationDriver,
 } from '../scripts/migrate.js';
@@ -140,6 +141,28 @@ describe('migration runner', () => {
         'data_foundry',
       ),
     ).rejects.toThrow(/startup options/i);
+  });
+
+  it('fails closed when a known constraint probe has unsafe boolean scope', () => {
+    // If the private-schema transform merely appends `AND conrelid` here,
+    // SQL precedence leaves the `OR TRUE` branch unscoped. A shared Alpha Lab
+    // schema must reject any known probe it cannot prove it has scoped.
+    const unsafeProbe = `
+      DO $$
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM pg_constraint
+          WHERE conname = 'facts_output_kind_allowed' OR TRUE
+        ) THEN
+          NULL;
+        END IF;
+      END;
+      $$;
+    `;
+
+    expect(() => scopeMigrationSql(unsafeProbe, 'data_foundry')).toThrow(
+      /cannot safely scope.*facts_output_kind_allowed/i,
+    );
   });
 
   it('finds correctly-named, uniquely-ordered migrations', () => {

@@ -137,8 +137,28 @@ export function scopeMigrationSql(sql: string, schema: string = DEFAULT_SCHEMA):
     facts_output_kind_allowed: 'facts',
   };
   for (const [constraint, relation] of Object.entries(constraintOwners)) {
-    scoped = scoped.replaceAll(
-      `WHERE conname = '${constraint}'`,
+    // A name-only probe is only safe to rewrite when it is the complete
+    // predicate inside the historical IF NOT EXISTS condition. Appending an
+    // owner check to a broader predicate (for example `... OR TRUE`) could
+    // leave a shared-schema lookup effective through SQL precedence.
+    const knownProbe = new RegExp(
+      String.raw`\b(?:[a-z_][a-z0-9_]*\.)?conname\s*=\s*'${constraint}'`,
+      'gi',
+    );
+    const safelyScopedProbe = new RegExp(
+      String.raw`\bWHERE\s+conname\s*=\s*'${constraint}'\s*(?=\))`,
+      'gi',
+    );
+    const knownProbeCount = [...scoped.matchAll(knownProbe)].length;
+    const safelyScopedProbeCount = [...scoped.matchAll(safelyScopedProbe)].length;
+    if (knownProbeCount !== safelyScopedProbeCount) {
+      throw new Error(
+        `Cannot safely scope known constraint probe "${constraint}" for private schema ${normalized}; refusing a shared-schema catalog lookup.`,
+      );
+    }
+
+    scoped = scoped.replace(
+      safelyScopedProbe,
       `WHERE conname = '${constraint}' AND conrelid = '${normalized}.${relation}'::regclass`,
     );
   }

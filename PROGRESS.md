@@ -50,8 +50,11 @@
   Hyperdrives, Queues, or R2 buckets exist. The current account is Workers Free;
   a fourteen-day Queue needs Workers Paid. The configured Vercel project has
   disconnected Git and no viable deployment, so it is not a rollback target.
+  The [redacted 2026-08-31 provider reconciliation](docs/evidence/alpha-lab-provider-reconciliation-20260831.md)
+  records the read-only observations and excludes provider identifiers and
+  credentials.
 - Fresh local evidence: `typecheck`; focused schema/Worker tests (78); the full
-  Vitest suite (187 files, 2,958 tests); migration, generated-schema/OpenAPI,
+  Vitest suite (189 files, 2,967 tests); migration, generated-schema/OpenAPI,
   topology, vertical/runtime, and all-five-Worker artifact checks all pass.
   Source readiness at `2026-08-31T20:22:08.032Z` is correctly `NOT_READY`:
   HVAC has zero real sources and no effective surface grants.

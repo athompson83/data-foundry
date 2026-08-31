@@ -698,6 +698,7 @@ export function createLiveDatabaseRightsEvidenceResolver(
   driver: SqlDriver,
   credentialEnv: string,
   asOf: string,
+  schema: string = 'public',
 ): RightsEvidenceResolver {
   return {
     descriptor: {
@@ -720,18 +721,22 @@ export function createLiveDatabaseRightsEvidenceResolver(
           [verticalSlug, source.domain, source.sourceType],
         );
       } catch {
-        throw new Error(`live rights lookup failed through credential env ${credentialEnv}`);
+        throw new Error(
+          `live rights lookup failed for schema ${schema} through credential env ${credentialEnv}`,
+        );
       }
       if (rows.length === 0) return null;
       if (rows.length !== 1 || typeof rows[0]?.['id'] !== 'string') {
         throw new Error(
-          `live rights lookup was ambiguous for ${verticalSlug}/${source.key} through credential env ${credentialEnv}`,
+          `live rights lookup was ambiguous for ${verticalSlug}/${source.key} in schema ${schema} through credential env ${credentialEnv}`,
         );
       }
       try {
         return await loadStoredRightsContext(driver, rows[0]['id'], asOf);
       } catch {
-        throw new Error(`live rights context failed through credential env ${credentialEnv}`);
+        throw new Error(
+          `live rights context failed for schema ${schema} through credential env ${credentialEnv}`,
+        );
       }
     },
   };
@@ -1326,6 +1331,7 @@ async function main(): Promise<void> {
       liveDriver,
       options.databaseEnv,
       options.asOf,
+      schema,
     );
   }
 

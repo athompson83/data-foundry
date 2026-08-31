@@ -66,9 +66,10 @@ export interface PgliteDriverOptions {
 /** Connection-level controls for a real PostgreSQL pool. */
 export interface PostgresDriverOptions {
   /**
-   * Bind every physical pool connection to this private schema at PostgreSQL
+   * Bind every physical pool connection to this explicit schema at PostgreSQL
    * startup. This is intentionally a startup setting, not a query-local SET:
-   * a pool can open a fresh connection for any later request.
+   * a pool can open a fresh connection for any later request. Omit this only
+   * for the historic unbound compatibility mode.
    */
   readonly schema?: string;
 }
@@ -96,7 +97,7 @@ function normalizePostgresSchemaName(value: string): string {
 }
 
 /**
- * libpq-compatible startup options for a private Data Foundry session.
+ * libpq-compatible startup options for an explicitly bound Data Foundry session.
  *
  * `options` is sent when every physical PostgreSQL connection is created, so
  * it cannot race a first application query on a fresh Pool client.
@@ -209,16 +210,12 @@ function resolvedPostgresSchema(
   connectionString: string,
   options: PostgresDriverOptions,
 ): string | undefined {
-  const candidate = options.schema === undefined
+  const schema = options.schema === undefined
     ? undefined
     : normalizePostgresSchemaName(options.schema);
-  // `public` is an explicit legacy compatibility selection, not a private
-  // binding. Preserve the historic unbound driver behavior for it; only a
-  // private schema gets startup options and an isolation verifier.
-  const schema = candidate === 'public' ? undefined : candidate;
   if (schema !== undefined && hasCallerSuppliedStartupOptions(connectionString)) {
     throw new Error(
-      'A schema-bound Postgres driver refuses a connection string with startup options, because it could override the private search path.',
+      'A schema-bound Postgres driver refuses a connection string with startup options, because it could override the requested search path.',
     );
   }
   return schema;
@@ -234,6 +231,29 @@ interface SessionQueryable {
   query<R extends SqlRow = SqlRow>(sql: string): Promise<{ readonly rows: R[] }>;
 }
 
+function assertBoundSchemaSession(
+  schema: string,
+  session: PrivateSchemaSession | undefined,
+): void {
+  const normalized = normalizePostgresSchemaName(schema);
+  if (normalized !== 'public') {
+    assertPrivateSchemaSession(normalized, session);
+    return;
+  }
+  if (
+    session === undefined ||
+    session.current_schema !== normalized ||
+    session.has_target_schema !== true ||
+    session.has_catalog_schema !== true ||
+    session.has_extensions_schema !== true ||
+    session.has_public_schema !== true
+  ) {
+    throw new Error(
+      'Postgres session is not bound to public; it must include public, pg_catalog, and extensions.',
+    );
+  }
+}
+
 /** The minimal Client surface needed to pin and verify a Hyperdrive operation. */
 export interface PrivateSchemaTransactionClient extends SessionQueryable {
   query<R extends SqlRow = SqlRow>(
@@ -242,7 +262,7 @@ export interface PrivateSchemaTransactionClient extends SessionQueryable {
   ): Promise<{ readonly rows: R[] }>;
 }
 
-async function verifyPrivateSchemaConnection(
+async function verifyBoundSchemaConnection(
   client: SessionQueryable,
   schema: string,
 ): Promise<void> {
@@ -253,16 +273,15 @@ async function verifyPrivateSchemaConnection(
            current_schemas(true) @> ARRAY['extensions']::name[] AS has_extensions_schema,
            current_schemas(true) @> ARRAY['public']::name[] AS has_public_schema
   `);
-  assertPrivateSchemaSession(schema, result.rows[0]);
+  assertBoundSchemaSession(schema, result.rows[0]);
 }
 
 /**
- * Pin one operation to an origin transaction and make its schema boundary
- * explicit. Hyperdrive can reuse a different origin connection for a later
- * frontend query, so a connect-time check or ordinary session `SET` is not a
- * durable security boundary.
+ * Pin one schema-bound operation to an origin transaction. Hyperdrive can
+ * reuse a different origin connection for a later frontend query, so a
+ * connect-time check or ordinary session `SET` is not a durable boundary.
  */
-export async function withVerifiedPrivateSchemaTransaction<T>(
+async function withVerifiedSchemaTransaction<T>(
   client: PrivateSchemaTransactionClient,
   schema: string,
   work: () => Promise<T>,
@@ -271,7 +290,7 @@ export async function withVerifiedPrivateSchemaTransaction<T>(
   await client.query('BEGIN');
   try {
     await client.query(`SET LOCAL search_path TO "${normalized}", pg_catalog, extensions`);
-    await verifyPrivateSchemaConnection(client, normalized);
+    await verifyBoundSchemaConnection(client, normalized);
     const value = await work();
     await client.query('COMMIT');
     return value;
@@ -279,6 +298,19 @@ export async function withVerifiedPrivateSchemaTransaction<T>(
     await client.query('ROLLBACK').catch(() => undefined);
     throw error;
   }
+}
+
+/** Pin a private Data Foundry operation to a verified transaction. */
+export async function withVerifiedPrivateSchemaTransaction<T>(
+  client: PrivateSchemaTransactionClient,
+  schema: string,
+  work: () => Promise<T>,
+): Promise<T> {
+  const normalized = normalizePostgresSchemaName(schema);
+  if (normalized === 'public') {
+    throw new Error('withVerifiedPrivateSchemaTransaction requires a non-public schema.');
+  }
+  return withVerifiedSchemaTransaction(client, normalized, work);
 }
 
 const TRUSTED_SURFACE_SNAPSHOT_SETUP =
@@ -303,17 +335,17 @@ function looksLikeTransactionSetup(sql: string): boolean {
  * every later statement is still preceded by transaction-local schema setup
  * and verification.
  */
-export async function withDeferredPrivateSchemaTransaction<T>(
+async function withDeferredSchemaTransaction<T>(
   client: PrivateSchemaTransactionClient,
   schema: string,
   run: (tx: SqlTransactionExecutor) => Promise<T>,
 ): Promise<T> {
   const normalized = normalizePostgresSchemaName(schema);
   let schemaVerified = false;
-  const ensurePrivateSchema = async (): Promise<void> => {
+  const ensureBoundSchema = async (): Promise<void> => {
     if (schemaVerified) return;
     await client.query(`SET LOCAL search_path TO "${normalized}", pg_catalog, extensions`);
-    await verifyPrivateSchemaConnection(client, normalized);
+    await verifyBoundSchemaConnection(client, normalized);
     schemaVerified = true;
   };
   const executor = {
@@ -330,7 +362,7 @@ export async function withDeferredPrivateSchemaTransaction<T>(
           'A schema-bound Hyperdrive transaction permits only the exact trusted snapshot SET TRANSACTION setup before its schema verifier.',
         );
       }
-      await ensurePrivateSchema();
+      await ensureBoundSchema();
       const result = await client.query(sql, params === undefined ? undefined : [...params]);
       return result.rows as R[];
     },
@@ -345,6 +377,22 @@ export async function withDeferredPrivateSchemaTransaction<T>(
     await client.query('ROLLBACK').catch(() => undefined);
     throw error;
   }
+}
+
+/**
+ * Run a private Data Foundry transaction while allowing its trusted snapshot
+ * setup before the schema verifier.
+ */
+export async function withDeferredPrivateSchemaTransaction<T>(
+  client: PrivateSchemaTransactionClient,
+  schema: string,
+  run: (tx: SqlTransactionExecutor) => Promise<T>,
+): Promise<T> {
+  const normalized = normalizePostgresSchemaName(schema);
+  if (normalized === 'public') {
+    throw new Error('withDeferredPrivateSchemaTransaction requires a non-public schema.');
+  }
+  return withDeferredSchemaTransaction(client, normalized, run);
 }
 
 /** Serialize complete transactions on a single node-postgres Client. */
@@ -390,7 +438,11 @@ export async function createHyperdriveDriver(
     // This proves the upstream role itself is safely configured before any
     // application query. It is defense in depth; each operation repeats an
     // explicit transaction-local path because Hyperdrive can reset sessions.
-    if (schema !== undefined) await verifyPrivateSchemaConnection(client, schema);
+    // An explicit public legacy binding is verified inside every operation;
+    // it must not require an Alpha Lab role default to be public.
+    if (schema !== undefined && schema !== 'public') {
+      await verifyBoundSchemaConnection(client, schema);
+    }
   } catch (error) {
     await client.end().catch(() => undefined);
     throw error;
@@ -405,7 +457,7 @@ export async function createHyperdriveDriver(
           await client.query(sql);
           return;
         }
-        await withVerifiedPrivateSchemaTransaction(client, schema, async () => {
+        await withVerifiedSchemaTransaction(client, schema, async () => {
           await client.query(sql);
         });
       });
@@ -416,7 +468,7 @@ export async function createHyperdriveDriver(
           const result = await client.query(sql, params === undefined ? undefined : [...params]);
           return result.rows as R[];
         }
-        return withVerifiedPrivateSchemaTransaction(client, schema, async () => {
+        return withVerifiedSchemaTransaction(client, schema, async () => {
           const result = await client.query(sql, params === undefined ? undefined : [...params]);
           return result.rows as R[];
         });
@@ -425,7 +477,7 @@ export async function createHyperdriveDriver(
     async transaction<T>(fn: (tx: SqlTransactionExecutor) => Promise<T>): Promise<T> {
       return runSerial(async () => {
         if (schema !== undefined) {
-          return withDeferredPrivateSchemaTransaction(client, schema, fn);
+          return withDeferredSchemaTransaction(client, schema, fn);
         }
         try {
           await client.query('BEGIN');
@@ -470,12 +522,12 @@ export async function createPostgresDriver(
     if (schema === undefined || verifiedClients.has(client)) return client;
 
     try {
-      await verifyPrivateSchemaConnection(client, schema);
+      await verifyBoundSchemaConnection(client, schema);
       verifiedClients.add(client);
       return client;
     } catch (error) {
-      // A connection that cannot prove its private path is unsafe to reuse.
-      client.release(error instanceof Error ? error : new Error('private schema verification failed'));
+      // A connection that cannot prove its requested schema path is unsafe to reuse.
+      client.release(error instanceof Error ? error : new Error('schema binding verification failed'));
       throw error;
     }
   };

@@ -286,8 +286,9 @@ export async function serveMcpRequest(
       ? response
       : await meterResponse(response, env, mcpAuth, guarded.routeKey ?? 'mcp.protocol_failure', startedAt);
     if (env.HYPERDRIVE !== undefined) {
+      const responseWithDeferredClose = await closeWhenResponseFinishes(completed, deployment.close);
       closeDeferredToResponse = true;
-      return await closeWhenResponseFinishes(completed, deployment.close);
+      return responseWithDeferredClose;
     }
     return completed;
   } catch (error) {

@@ -26,6 +26,7 @@ import {
   applyMigrations,
   createPostgresDriver as createMigrationPostgresDriver,
   loadMigrations,
+  resolveOperationalSchema,
 } from './migrate.js';
 import { isMain } from '../lib/cli-entry.js';
 
@@ -139,20 +140,21 @@ export async function run(
   if (env['DATA_FOUNDRY_POSTGRES_CONCURRENCY_TEST'] !== '1') {
     throw new Error('Set DATA_FOUNDRY_POSTGRES_CONCURRENCY_TEST=1 for a dedicated synthetic test database.');
   }
+  const schema = resolveOperationalSchema(env);
 
   // Migration must stay on one physical connection; the canonical app driver
   // intentionally uses a pool and is opened only after bootstrap completes.
-  const migrationDriver = await createMigrationPostgresDriver(connectionString);
+  const migrationDriver = await createMigrationPostgresDriver(connectionString, schema);
   try {
-    await applyMigrations(migrationDriver, await loadMigrations());
+    await applyMigrations(migrationDriver, await loadMigrations(), { schema });
   } finally {
     await migrationDriver.close();
   }
 
-  const primary = await createPostgresDriver(connectionString);
-  const firstConnection = await createPostgresDriver(connectionString);
-  const second = await createPostgresDriver(connectionString);
-  const monitor = await createPostgresDriver(connectionString);
+  const primary = await createPostgresDriver(connectionString, { schema });
+  const firstConnection = await createPostgresDriver(connectionString, { schema });
+  const second = await createPostgresDriver(connectionString, { schema });
+  const monitor = await createPostgresDriver(connectionString, { schema });
   const release = deferred();
   try {
     const suffix = crypto.randomUUID().replaceAll('-', '').slice(0, 12);

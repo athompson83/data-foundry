@@ -12,6 +12,9 @@ deployment of the integrated protected-main tree is recorded or verified.
 Wrangler is unauthenticated in the verification environment; exact deployment
 IDs and runtime probes remain owner/platform evidence. Repository state is not
 proof that Cloudflare resources or real-source rights have been provisioned.
+The [redacted 2026-08-31 provider reconciliation](../evidence/alpha-lab-provider-reconciliation-20260831.md)
+records the read-only Alpha Lab, Cloudflare, and Vercel observations behind this
+runbook; it is not deployment or runtime proof.
 
 The minimal owner/platform work is: choose the canonical account/zone and
 database; provision Hyperdrive, one raw-artifact R2 bucket, the usage Queue/DLQ,
@@ -43,7 +46,9 @@ must remain outside source control.
    reconciliation it has restored wildcard, apex, `www`, CAA, and
    `_domainconnect` records, but no Data Foundry Worker routes, Hyperdrives,
    Queues, or R2 bucket. Preserve unrelated DNS while provisioning; a wildcard
-   record is not evidence that Data Foundry is deployed.
+   record is not evidence that Data Foundry is deployed. See the
+   [redacted reconciliation record](../evidence/alpha-lab-provider-reconciliation-20260831.md)
+   for the bounded, read-only observation.
 2. Do not replace the canonical hostname first. Bind a separate
    `canary.aroqon.com` custom domain/route after the Workers and private schema
    are ready, then prove it before changing `data.aroqon.com`.
@@ -106,12 +111,34 @@ credential must not be committed.
    Hyperdrive configuration.
 2. Create a controlled-login migration role that owns only `data_foundry`, and
    separate least-privilege login roles for edge, web, MCP, usage consumer, and
-   acquisition. No runtime role may own objects, create in `public`, or inherit
-   broad roles. Give every role the **database default** search path
-   `data_foundry, pg_catalog, extensions`, grant only its required
-   `data_foundry` and `extensions` privileges, and revoke `public` access.
-   Keep the role passwords in the provider's normal secure credential flow;
-   never put them in the repository, a command line, or a deployment receipt.
+   acquisition. No runtime role may own objects, create in the shared `public`
+   schema, or inherit broad roles. Give every role the **database default**
+   search path `data_foundry, pg_catalog, extensions`, and grant only its
+   required `data_foundry` and `extensions` privileges.
+
+   Before granting any runtime privilege, connect as the controlled migration
+   role and remove the PostgreSQL **`PUBLIC` pseudo-role** from the private
+   **`data_foundry` schema** and its objects:
+
+   ```sql
+   -- `PUBLIC` is the built-in all-roles pseudo-role, not the `public` schema.
+   REVOKE ALL PRIVILEGES ON SCHEMA data_foundry FROM PUBLIC;
+   REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA data_foundry FROM PUBLIC;
+   REVOKE ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA data_foundry FROM PUBLIC;
+   REVOKE ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA data_foundry FROM PUBLIC;
+
+   -- Run as the migration role so future objects it creates stay private.
+   ALTER DEFAULT PRIVILEGES IN SCHEMA data_foundry REVOKE ALL PRIVILEGES ON TABLES FROM PUBLIC;
+   ALTER DEFAULT PRIVILEGES IN SCHEMA data_foundry REVOKE ALL PRIVILEGES ON SEQUENCES FROM PUBLIC;
+   ALTER DEFAULT PRIVILEGES IN SCHEMA data_foundry REVOKE ALL PRIVILEGES ON FUNCTIONS FROM PUBLIC;
+   ```
+
+   Do **not** run those statements against the shared `public` schema, drop
+   that schema, or alter its privileges: it belongs to the unrelated Alpha Lab
+   application. Grant required object privileges only to the separately named
+   Data Foundry roles; never to `PUBLIC`, `anon`, or `authenticated`. Keep role
+   passwords in the provider's normal secure credential flow; never put them in
+   the repository, a command line, or a deployment receipt.
 3. Supply the migration role's `POSTGRES_URL` only through the approved
    secret-bearing environment, then install the frozen repository migrations
    twice into the private schema:
@@ -222,12 +249,13 @@ behaviour rather than a fault to work around.
 Before accepting that health result as a database canary, inspect each upstream
 role through the approved operator path and confirm its database-level search
 path contains `data_foundry`, `pg_catalog`, and `extensions`, while excluding
-`public`. Then exercise repeated independent invocations of every Hyperdrive
-Worker role. Each must pass the runtime private-schema verifier and must not
-reuse a connection from a previous invocation. Run multiple independent queries
-and explicit transactions in each probe; a single successful request is not
-proof that a transaction-pooled origin will retain an application session
-setting.
+`public`. Also confirm that `data_foundry` has no `PUBLIC` grantee while the
+shared `public` schema's ACL was left untouched. Then exercise repeated
+independent invocations of every Hyperdrive Worker role. Each must pass the
+runtime private-schema verifier and must not reuse a connection from a previous
+invocation. Run multiple independent queries and explicit transactions in each
+probe; a single successful request is not proof that a transaction-pooled origin
+will retain an application session setting.
 
 Also verify that public pages query the same canonical data as REST/MCP and
 that the usage consumer can persist a test event idempotently. A one-vertical
