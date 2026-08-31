@@ -44,8 +44,11 @@ version, evidence, rights cell, decision, or `ALLOW`; it recorded
 Identity currentness is a separate prerequisite, not a substitute grant.
 Migration 0023 records append-only curated/source-record alias claims and
 authority epochs, exposes only claim-backed current aliases, and manufactures
-no claim from legacy alias metadata. A customer-visible entity needs current
-`FINALIZED` entity evidence. A relationship needs current `FINALIZED`
+no claim from legacy alias metadata. Migration 0025 additionally requires each
+source-record alias claim to bind its exact immutable `ALIAS` evidence before
+resolution or search can observe it; unlinked legacy rows remain hidden rather
+than being guessed. A customer-visible entity needs current `FINALIZED` entity
+evidence. A relationship needs current `FINALIZED`
 relationship evidence and authorized endpoints. After those currentness gates,
 the rights resolver still ANDs the exact relevant contributions for the
 requested surface.

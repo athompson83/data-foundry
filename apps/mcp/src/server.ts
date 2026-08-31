@@ -20,7 +20,14 @@
  * should not have to know uuids at all.
  */
 import { McpToolError, internalError, unknownTool, type McpToolErrorCode } from './errors.js';
-import { ReviewerIdentityLeak, type FactSelectionPolicy, type QueryModel, type VerticalId } from './query-layer.js';
+import {
+  ReviewerIdentityLeak,
+  SurfaceCatalogCapacityError,
+  type FactSelectionPolicy,
+  type IsoDateTime,
+  type QueryModel,
+  type VerticalId,
+} from './query-layer.js';
 import { fail, succeed, type CallToolResult } from './results.js';
 import {
   canonicalUrlsUnder,
@@ -105,6 +112,14 @@ export interface McpServer {
  * to `INTERNAL_ERROR`; the cause goes to the operator channel and nowhere else.
  */
 function normalize(tool: string, error: unknown): McpToolError {
+  if (error instanceof SurfaceCatalogCapacityError) {
+    return new McpToolError(
+      'SERVICE_UNAVAILABLE',
+      "This operation exceeds this deployment's safe authorization capacity. " +
+        'No partial result was returned.',
+      { tool },
+    );
+  }
   if (error instanceof ReviewerIdentityLeak) {
     return new McpToolError(
       'REVIEWER_IDENTITY_BLOCKED',
@@ -174,25 +189,34 @@ export function createMcpServer(options: McpServerOptions): McpServer {
       if (tool === undefined) return fail(null, unknownTool(name, TOOL_NAMES).toPayload());
 
       try {
+        // Invalid arguments are a caller refusal, not a catalogue read. Parse
+        // before opening the request snapshot so this path remains DB-free.
+        const invoke = tool.prepare(args);
+
         // Bind at call time, not server construction time. A long-lived MCP
         // process must observe terms revocation/re-review expiry without a
-        // restart, and one call gets one immutable cached rights snapshot.
-        const context: ToolContext = {
-          ...contextBase,
-          queryModel: options.queryModel.forSurface('MCP'),
-        };
-        // `invoke` validates against the tool's declared input schema before
-        // the handler runs; there is no path from here to a handler that
-        // skips it.
-        const guarded = await tool.invoke(context, args);
+        // restart. Freeze one rights-evaluation instant and one physical
+        // database snapshot for the entire validated call.
+        const rightsAsOf = new Date().toISOString() as IsoDateTime;
+        return await options.queryModel.withSurfaceSnapshot(async (snapshot) => {
+          const context: ToolContext = {
+            ...contextBase,
+            queryModel: options.queryModel.forSurface(
+              'MCP',
+              { asOf: rightsAsOf },
+              snapshot,
+            ),
+          };
+          const guarded = await invoke(context);
 
-        // Layer 2 of the reviewer control, applied centrally so a new tool
-        // cannot forget it. Runs on the finished payload, after the handler
-        // believed it was done.
-        assertPayloadCarriesNoReviewer(guarded.result, guarded.reviewerTokens);
-        assertPayloadCarriesNoWithheldSource(guarded.result, guarded.withheldSourceTokens);
+          // Layer 2 of both payload controls stays inside the same snapshot as
+          // the compound handler. A future guard that consults snapshot-derived
+          // metadata cannot accidentally observe a later database state.
+          assertPayloadCarriesNoReviewer(guarded.result, guarded.reviewerTokens);
+          assertPayloadCarriesNoWithheldSource(guarded.result, guarded.withheldSourceTokens);
 
-        return succeed(name, guarded.result);
+          return succeed(name, guarded.result);
+        });
       } catch (error: unknown) {
         // A modelled error is a decided answer: the handler already chose what
         // the caller is told, and there is nothing here an operator needs.

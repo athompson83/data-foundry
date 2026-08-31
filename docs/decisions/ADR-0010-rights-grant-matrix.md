@@ -13,7 +13,9 @@
 `packages/query-model/`, migrations `0014`, `0016`, and `0019`, and the
 scheduled-acquisition enforcement path. Migration `0023` and the query layer's
 current-identity gates provide a separate identity-currentness prerequisite;
-they do not create rights.
+migration `0025` binds a source alias claim to exact immutable evidence so its
+source participates in surface authorization. Neither migration creates
+rights.
 
 > This is an engineering control architecture, not a legal review. It records
 > rights conclusions reached through the required review process; it does not
@@ -324,6 +326,21 @@ legacy `entity_aliases.source_id` or any other historical display field, so
 unknown old authority remains fail-closed. Retiring and reopening an alias
 cannot reactivate a prior-epoch assertion.
 
+Forward migration `0025_alias_claim_evidence_gate.sql` requires each
+source-record alias claim to cite one exact immutable `ALIAS` entity-evidence
+row before it enters `current_entity_aliases`. The claim, entity, source-record,
+and locator must match. Existing unlinked rows are not backfilled or inferred;
+they remain historical-only until a rights-admitted reingest records an exact
+pair. This makes the alias's contributing source part of the ordinary
+surface-rights AND rather than allowing a claim-only spelling to ride on an
+independently authorized entity.
+
+Customer query operations execute authorization and projection inside one
+fresh `REPEATABLE READ`, read-only database snapshot. This makes the source AND
+atomic with identifier lookup, search, facts, relationships, comparison, and
+facets: a contribution committed mid-operation cannot enter the response after
+authorization evaluated an older contribution set.
+
 This resolves RIGHTS-ADR-003 by preserving immutable versions while selecting
 one current activation, rather than combining mutable `superseded_by` fields
 with a one-row-per-cell table.
@@ -365,6 +382,10 @@ The implementation must continue to prove at least these cases:
 15. A refresh with no usable strong identifier finalizes a zero-claim successor,
     creates no phantom canonical authority, and cannot leave the superseded
     revision current by omission.
+16. A source-record alias claim without exact linked `ALIAS` evidence is absent
+    from resolution and search; mismatched evidence is rejected, an ungranted
+    alias source blocks the entity on that surface, and migration creates no
+    legacy linkage by inference.
 
 ## 11. Owner decisions recorded with acceptance
 

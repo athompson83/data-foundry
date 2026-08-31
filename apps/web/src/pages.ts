@@ -140,17 +140,18 @@ export async function renderDatasetLanding(
   const pageClass = seo.page_classes.find((pc) => pc.id === 'dataset_landing') ?? null;
   const canonicalUrl = `${publicOrigin}${seo.url_prefix}`;
 
-  const byType = await Promise.all(
-    vertical.runtime.entity_types.map(async (entityType) => {
-      const result = await vertical.publicQueryModel.search({
-        vertical_id: vertical.verticalId as never,
-        entity_type: entityType as never,
-        limit: 1,
-      });
-      const meta = vertical.runtime.entity_type_meta[entityType];
-      return { entityType, count: result.total, label: meta?.label_plural ?? entityType };
-    }),
-  );
+  // One rights-bound aggregate replaces one full catalog authorization scan per
+  // entity type. A capacity refusal therefore starts only one bounded operation
+  // instead of leaving sibling Promise.all scans running after the first error.
+  const counts = await vertical.publicQueryModel.entityTypeCounts(vertical.verticalId);
+  const byType = vertical.runtime.entity_types.map((entityType) => {
+    const meta = vertical.runtime.entity_type_meta[entityType];
+    return {
+      entityType,
+      count: counts.get(entityType as never) ?? 0,
+      label: meta?.label_plural ?? entityType,
+    };
+  });
 
   const browseLinks = byType
     .map((t) => {

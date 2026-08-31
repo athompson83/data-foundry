@@ -36,6 +36,8 @@ export interface SqlDriver extends SqlExecutor {
   /** Human-readable identity for logs and test output. */
   readonly label: string;
   readonly dialect: 'pglite' | 'postgres';
+  /** Stable owner for connection-level capability probes across bound views. */
+  readonly capabilityCacheKey?: object;
   /** Multi-statement script execution (DDL, extension setup). */
   exec(sql: string): Promise<void>;
   /**
@@ -213,10 +215,11 @@ export function placeholders(count: number, offset = 0): string {
  * Cached per driver instance. Callers use it to choose a ranking expression,
  * never to decide whether exact matching happens.
  */
-const trigramCache = new WeakMap<SqlDriver, Promise<boolean>>();
+const trigramCache = new WeakMap<object, Promise<boolean>>();
 
 export function supportsTrigram(driver: SqlDriver): Promise<boolean> {
-  const cached = trigramCache.get(driver);
+  const cacheKey = driver.capabilityCacheKey ?? driver;
+  const cached = trigramCache.get(cacheKey);
   if (cached !== undefined) return cached;
   const probe = driver
     .query<{ present: boolean }>(
@@ -224,6 +227,6 @@ export function supportsTrigram(driver: SqlDriver): Promise<boolean> {
     )
     .then((rows) => rows[0]?.present === true)
     .catch(() => false);
-  trigramCache.set(driver, probe);
+  trigramCache.set(cacheKey, probe);
   return probe;
 }

@@ -148,16 +148,30 @@ export interface RelationshipEvidenceInput {
   readonly observed_at: IsoDateTime;
 }
 
-/** Exact provenance for a canonical entity or identity contribution. */
-export interface EntityEvidenceInput {
+/** Exact provenance shared by every canonical entity/identity contribution. */
+interface EntityEvidenceBaseInput {
   readonly entity_id: EntityId;
   readonly artifact_id: SourceArtifact['id'];
   readonly source_record_id: SourceRecord['id'];
-  readonly contribution_role: 'EXISTENCE' | 'CANONICAL_NAME' | 'CANONICAL_SLUG' | 'IDENTITY' | 'ALIAS';
   readonly locator_type: FactEvidence['locator_type'];
   readonly locator_value: string;
   readonly observed_at: IsoDateTime;
 }
+
+/**
+ * Source-derived aliases bind their exact append-only claim to evidence. Other
+ * entity roles must not borrow an alias claim as provenance.
+ */
+export type EntityEvidenceInput = EntityEvidenceBaseInput & (
+  | {
+      readonly contribution_role: 'ALIAS';
+      readonly entity_alias_claim_id: EntityAliasClaim['id'];
+    }
+  | {
+      readonly contribution_role: 'EXISTENCE' | 'CANONICAL_NAME' | 'CANONICAL_SLUG' | 'IDENTITY';
+      readonly entity_alias_claim_id?: null;
+    }
+);
 
 export interface RelationshipClaimInput {
   readonly vertical_id: VerticalId;
@@ -287,7 +301,7 @@ export interface CanonicalStore {
   upsertEntity(input: EntityInsert, executor?: SqlExecutor): Promise<Entity>;
   /** Entity identity is publishable only when its exact source contribution is recorded. */
   recordEntityEvidence(input: EntityEvidenceInput, executor?: SqlExecutor): Promise<void>;
-  getEntityById(id: EntityId): Promise<Entity | null>;
+  getEntityById(id: EntityId, executor?: SqlExecutor): Promise<Entity | null>;
   getEntityBySlug(
     verticalId: VerticalId,
     entityType: Identifier,
@@ -744,16 +758,15 @@ class PostgresCanonicalStore implements CanonicalStore {
   async recordEntityEvidence(input: EntityEvidenceInput, executor?: SqlExecutor): Promise<void> {
     await (executor ?? this.driver).query(
       `INSERT INTO entity_evidence
-         (entity_id, artifact_id, source_record_id, contribution_role,
-          locator_type, locator_value, observed_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
-       ON CONFLICT
-         (entity_id, source_record_id, contribution_role, locator_type, locator_value)
-       DO NOTHING`,
+         (entity_id, artifact_id, source_record_id, entity_alias_claim_id,
+          contribution_role, locator_type, locator_value, observed_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+       ON CONFLICT DO NOTHING`,
       [
         input.entity_id,
         input.artifact_id,
         input.source_record_id,
+        input.entity_alias_claim_id ?? null,
         input.contribution_role,
         input.locator_type,
         input.locator_value,
@@ -789,8 +802,11 @@ class PostgresCanonicalStore implements CanonicalStore {
     return mapEntity(requireRow(rows, 'entities'));
   }
 
-  async getEntityById(id: EntityId): Promise<Entity | null> {
-    const rows = await this.driver.query(`SELECT ${ENTITY_COLUMNS} FROM entities WHERE id = $1`, [id]);
+  async getEntityById(id: EntityId, executor?: SqlExecutor): Promise<Entity | null> {
+    const rows = await (executor ?? this.driver).query(
+      `SELECT ${ENTITY_COLUMNS} FROM entities WHERE id = $1`,
+      [id],
+    );
     const row = rows[0];
     return row === undefined ? null : mapEntity(row);
   }

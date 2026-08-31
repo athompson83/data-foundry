@@ -107,6 +107,66 @@ describe('fact source-record currency', () => {
     expect(authorityAt?.evidence).toEqual([]);
   });
 
+  it('does not launder a retired ungranted entity contribution through a current allowed source', async () => {
+    const current = await createQueryFixtures({ trigram: false });
+    try {
+      await seedSyntheticSurfaceRights(current, ['PUBLIC_WEB'], ['manufacturer']);
+      await addSyntheticEntityEvidence(current, current.equipment, 'manufacturer');
+
+      const before = current.qm.forSurface('PUBLIC_WEB', { asOf: AFTER_RETIREMENT });
+      expect(await before.getEntity(current.equipment.id)).not.toBeNull();
+
+      await addSyntheticEntityEvidence(current, current.equipment, 'certifier');
+
+      const whileDeniedContributionIsCurrent = current.qm.forSurface('PUBLIC_WEB', {
+        asOf: BEFORE_RETIREMENT,
+      });
+      expect(await whileDeniedContributionIsCurrent.getEntity(current.equipment.id)).toBeNull();
+
+      await retireSourceFixtureByCompleteSnapshot(current, 'certifier', RETIRED_AT);
+
+      const after = current.qm.forSurface('PUBLIC_WEB', { asOf: AFTER_RETIREMENT });
+      expect(await after.getEntity(current.equipment.id)).toBeNull();
+    } finally {
+      await current.driver.close();
+    }
+  });
+
+  it('does not launder a retired ungranted fact contribution through a current allowed source', async () => {
+    const current = await createQueryFixtures({ trigram: false });
+    try {
+      await seedSyntheticSurfaceRights(current, ['PUBLIC_WEB'], ['manufacturer']);
+      await addSyntheticEntityEvidence(current, current.equipment, 'manufacturer');
+
+      const allowedClaim = await claim(current, 'manufacturer', {
+        entity_id: current.equipment.id,
+        property: 'retained_contribution_control',
+        value: 'shared-canonical-value',
+        valid_from: '2026-08-01T00:00:00.000Z',
+        observed_at: '2026-08-01T00:00:00.000Z',
+      });
+      const retiredDeniedClaim = await claim(current, 'aggregator', {
+        entity_id: current.equipment.id,
+        property: 'retained_contribution_control',
+        value: 'shared-canonical-value',
+        valid_from: '2026-08-01T00:00:00.000Z',
+        observed_at: '2026-08-01T00:00:00.000Z',
+      });
+      expect(retiredDeniedClaim.fact.id).toBe(allowedClaim.fact.id);
+
+      await retireSourceFixtureByCompleteSnapshot(current, 'aggregator', RETIRED_AT);
+
+      const web = current.qm.forSurface('PUBLIC_WEB', { asOf: AFTER_RETIREMENT });
+      expect(await web.getEntity(current.equipment.id)).not.toBeNull();
+      expect(
+        (await web.canonicalFacts(current.equipment.id, { at: AFTER_RETIREMENT }))
+          .map((fact) => fact.fact_id),
+      ).not.toContain(allowedClaim.fact.id);
+    } finally {
+      await current.driver.close();
+    }
+  });
+
   it('does not select a fact before the platform recorded it, while preserving valid time', async () => {
     const current = await createQueryFixtures({ trigram: false });
     try {

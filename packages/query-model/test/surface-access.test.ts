@@ -1,6 +1,10 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { entityQualityScore, type Entity } from '@data-foundry/canonical-schema';
-import type { SqlParam, SqlRow } from '@data-foundry/canonical-store';
+import { entityQualityScore, identityConfidence, type Entity } from '@data-foundry/canonical-schema';
+import type {
+  SqlParam,
+  SqlRow,
+  SqlTransactionExecutor,
+} from '@data-foundry/canonical-store';
 import {
   FieldMetadataRegistry,
   createQueryModel,
@@ -171,6 +175,96 @@ describe('surface-bound query model', () => {
     }
   });
 
+  it('does not launder a denied source alias through an otherwise authorized entity', async () => {
+    const entity = await fixtures.store.upsertEntity({
+      vertical_id: fixtures.vertical.id,
+      entity_type: 'equipment',
+      canonical_name: 'Alias Rights Isolation Unit',
+      canonical_slug: 'alias-rights-isolation-unit',
+      status: 'ACTIVE',
+      quality_score: entityQualityScore(0.7),
+      first_seen_at: ts('2026-01-01T00:00:00Z'),
+      last_verified_at: null,
+    });
+    await addEntityEvidence(entity);
+    await claim(fixtures, 'manufacturer', {
+      entity_id: entity.id,
+      property: 'seer2_rating',
+      value: 18,
+      value_type: 'number',
+    });
+    await fixtures.store.upsertRelationshipWithEvidence(
+      {
+        vertical_id: fixtures.vertical.id,
+        subject_entity_id: entity.id,
+        predicate: 'related_to',
+        object_entity_id: fixtures.entity.id,
+        confidence: entity.quality_score as never,
+        valid_from: ts('2026-01-01T00:00:00Z'),
+        recorded_at: ts('2026-01-01T00:00:00Z'),
+        status: 'ACTIVE',
+      },
+      [{
+        artifact_id: fixtures.sources.manufacturer.artifact.id,
+        source_record_id: fixtures.sources.manufacturer.record.id,
+        source_value: 'Alias Rights Isolation Unit related to fixture entity',
+        locator_type: 'JSON_POINTER',
+        locator_value: '/relationships/0',
+        observed_at: fixtures.sources.manufacturer.artifact.retrieved_at,
+      }],
+    );
+
+    const deniedSource = fixtures.sources.certifier;
+    const alias = await fixtures.store.stageSourceAlias({
+      entity_id: entity.id,
+      alias_type: 'external_id',
+      alias_value: 'DENIED-ALIAS-ZZYX-9917',
+      normalized_value: 'deniedaliaszzyx9917',
+      source_id: deniedSource.source.id,
+      identity_confidence: identityConfidence(0.99),
+      valid_from: ts('2026-01-01T00:00:00Z'),
+      valid_to: null,
+    });
+    const aliasClaim = await fixtures.store.recordSourceAliasClaim({
+      entity_alias_id: alias.id,
+      asserted_alias_value: 'DENIED-ALIAS-ZZYX-9917',
+      asserted_normalized_value: 'deniedaliaszzyx9917',
+      identity_confidence: identityConfidence(0.99),
+      source_record_id: deniedSource.record.id,
+      locator_type: 'TABLE_CELL',
+      locator_value: 'aliases!A2',
+    });
+
+    const web = queryModel.forSurface('PUBLIC_WEB', { asOf: AS_OF });
+    expect((await web.getEntity(entity.id))?.entity.id).toBe(entity.id);
+    expect(await web.canonicalFacts(entity.id, { at: AS_OF })).toHaveLength(1);
+    expect((await web.relationships({ entity_id: entity.id })).edges).toHaveLength(1);
+    expect((await web.search({
+      vertical_id: fixtures.vertical.id,
+      text: 'DENIED-ALIAS-ZZYX-9917',
+    })).hits).toEqual([]);
+
+    await fixtures.store.recordEntityEvidence({
+      entity_id: entity.id,
+      artifact_id: deniedSource.artifact.id,
+      source_record_id: deniedSource.record.id,
+      entity_alias_claim_id: aliasClaim.id,
+      contribution_role: 'ALIAS',
+      locator_type: 'TABLE_CELL',
+      locator_value: 'aliases!A2',
+      observed_at: deniedSource.artifact.retrieved_at,
+    });
+
+    expect(await web.canonicalFacts(entity.id, { at: AS_OF })).toEqual([]);
+    expect((await web.relationships({ entity_id: entity.id })).edges).toEqual([]);
+    expect((await web.search({
+      vertical_id: fixtures.vertical.id,
+      text: 'DENIED-ALIAS-ZZYX-9917',
+    })).hits).toEqual([]);
+    const nextRequest = queryModel.forSurface('PUBLIC_WEB', { asOf: AS_OF });
+    expect(await nextRequest.getEntity(entity.id)).toBeNull();
+  });
+
   it('fails closed for an entity with no entity-level provenance', async () => {
     expect(await queryModel.getEntity(hiddenEntity.id)).not.toBeNull();
     const web = queryModel.forSurface('PUBLIC_WEB', { asOf: AS_OF });
@@ -256,7 +350,16 @@ describe('surface-bound query model', () => {
     expect(search.facets[0]?.entity_count).toBe(0);
   });
 
-  it('bounds the combined entity and fact authorization fan-out for a small search page', async () => {
+  it('aggregates entity-type counts after surface authorization in one operation', async () => {
+    const web = queryModel.forSurface('PUBLIC_WEB', { asOf: AS_OF });
+    const counts = await web.entityTypeCounts(fixtures.vertical.id);
+    const search = await web.search({ vertical_id: fixtures.vertical.id, limit: 1 });
+
+    expect(counts.get(fixtures.entity.entity_type)).toBe(1);
+    expect([...counts.values()].reduce((total, count) => total + count, 0)).toBe(search.total);
+  });
+
+  it('uses set-based catalog authorization instead of one evidence query per entity and fact', async () => {
     const seededEntities: Entity[] = [];
     for (let index = 0; index < 12; index += 1) {
       const entity = await fixtures.store.upsertEntity({
@@ -281,32 +384,50 @@ describe('surface-bound query model', () => {
 
     const originalQueryMethod = fixtures.driver.query;
     const originalQuery = originalQueryMethod.bind(fixtures.driver);
-    const active = { count: 0, max: 0 };
-    const started = { entity: 0, fact: 0 };
+    const originalTransactionMethod = fixtures.driver.transaction;
+    const originalTransaction = originalTransactionMethod.bind(fixtures.driver);
+    let perEntityEvidenceReads = 0;
+    let perFactReads = 0;
+    let snapshotReads = 0;
+    let entityBatchParameterCount: number | null = null;
+    let factFrontierParameterCount: number | null = null;
+    let factEvidenceParameterCount: number | null = null;
+    const observedQuery = async <R extends SqlRow = SqlRow>(
+      sql: string,
+      params?: readonly SqlParam[],
+      execute?: () => Promise<R[]>,
+    ): Promise<R[]> => {
+      snapshotReads += 1;
+      if (
+        sql.includes('WHERE evidence.entity_id = $1') ||
+        sql.includes('WHERE ee.entity_id = $1')
+      ) {
+        perEntityEvidenceReads += 1;
+      }
+      if (sql.includes('FROM facts WHERE id = $1')) perFactReads += 1;
+      if (sql.includes('FROM entity_evidence ee') && sql.includes('jsonb_array_elements_text($1::jsonb)')) {
+        entityBatchParameterCount = params?.length ?? 0;
+      }
+      if (sql.includes('dependency_frontier')) factFrontierParameterCount = params?.length ?? 0;
+      if (sql.includes('FROM fact_evidence fe')) factEvidenceParameterCount = params?.length ?? 0;
+      return execute?.() ?? originalQuery<R>(sql, params);
+    };
     fixtures.driver.query = (async <R extends SqlRow = SqlRow>(
       sql: string,
       params?: readonly SqlParam[],
-    ): Promise<R[]> => {
-      const kind = sql.includes('FROM entity_evidence ee')
-        ? 'entity'
-        : sql.includes('FROM facts WHERE id = $1')
-          ? 'fact'
-          : null;
-      if (kind === null) return originalQuery<R>(sql, params);
-
-      started[kind] += 1;
-      active.count += 1;
-      active.max = Math.max(active.max, active.count);
-      try {
-        // Hold the first query in each authorization long enough to expose how
-        // many row-level decisions the surface launches at once. This measures
-        // authorization work before the driver's own pool can hide the fan-out.
-        await new Promise((resolve) => setTimeout(resolve, 15));
-        return await originalQuery<R>(sql, params);
-      } finally {
-        active.count -= 1;
-      }
-    }) as typeof fixtures.driver.query;
+    ): Promise<R[]> => observedQuery<R>(sql, params)) as typeof fixtures.driver.query;
+    fixtures.driver.transaction = (async <T>(
+      run: (tx: SqlTransactionExecutor) => Promise<T>,
+    ): Promise<T> => originalTransaction(async (transaction) => run({
+      query: async <R extends SqlRow = SqlRow>(
+        sql: string,
+        params?: readonly SqlParam[],
+      ): Promise<R[]> => observedQuery<R>(
+        sql,
+        params,
+        () => transaction.query<R>(sql, params),
+      ),
+    } as SqlTransactionExecutor))) as typeof fixtures.driver.transaction;
 
     try {
       const web = queryModel.forSurface('PUBLIC_WEB', { asOf: AS_OF });
@@ -316,107 +437,25 @@ describe('surface-bound query model', () => {
         limit: 1,
       });
 
-      // Bounding work must not turn authorization into an early-exit page scan.
-      // The page is one row, while total still covers every authorized entity.
+      // Set-based reads must preserve the exact rights-safe total rather than
+      // turning authorization into an early-exit page scan.
       expect(result.hits).toHaveLength(1);
       expect(result.total).toBe(seededEntities.length + 1);
     } finally {
       fixtures.driver.query = originalQueryMethod;
+      fixtures.driver.transaction = originalTransactionMethod;
     }
 
-    expect(started.entity).toBeGreaterThan(8);
-    expect(started.fact).toBeGreaterThan(8);
-    // `pg` defaults to a ten-connection pool. Leave headroom for other requests
-    // and for the two vertical enumeration queries that precede this work.
-    expect(active.max).toBeLessThanOrEqual(8);
-  });
-
-  it('does not enqueue one pending authorization waiter for every catalog row', async () => {
-    for (let index = 0; index < 40; index += 1) {
-      const entity = await fixtures.store.upsertEntity({
-        vertical_id: fixtures.vertical.id,
-        entity_type: 'equipment',
-        canonical_name: `Authorization Queue Unit ${String(index).padStart(2, '0')}`,
-        canonical_slug: `authorization-queue-unit-${String(index).padStart(2, '0')}`,
-        status: 'ACTIVE',
-        quality_score: entityQualityScore(0.7),
-        first_seen_at: ts('2026-01-01T00:00:00Z'),
-        last_verified_at: null,
-      });
-      await addEntityEvidence(entity);
-      await claim(fixtures, 'manufacturer', {
-        entity_id: entity.id,
-        property: 'seer2_rating',
-        value: 30 + index,
-        value_type: 'number',
-      });
-    }
-
-    const originalQueryMethod = fixtures.driver.query;
-    const originalQuery = originalQueryMethod.bind(fixtures.driver);
-    let releaseAuthorizations!: () => void;
-    const held = new Promise<void>((resolve) => {
-      releaseAuthorizations = resolve;
-    });
-    let firstWaveReady!: () => void;
-    const firstWave = new Promise<void>((resolve) => {
-      firstWaveReady = resolve;
-    });
-    let heldAuthorizations = 0;
-    let catalogRowReads = 0;
-
-    fixtures.driver.query = (async <R extends SqlRow = SqlRow>(
-      sql: string,
-      params?: readonly SqlParam[],
-    ): Promise<R[]> => {
-      const isAuthorization =
-        sql.includes('FROM entity_evidence ee') ||
-        sql.includes('FROM facts WHERE id = $1');
-      if (isAuthorization) {
-        heldAuthorizations += 1;
-        if (heldAuthorizations === 8) firstWaveReady();
-        await held;
-      }
-
-      const rows = await originalQuery<R>(sql, params);
-      const isCatalog =
-        sql.includes('SELECT id FROM entities') ||
-        sql.includes('SELECT f.id');
-      if (!isCatalog) return rows;
-      return new Proxy(rows, {
-        get(target, property, receiver) {
-          if (typeof property === 'string' && /^(0|[1-9]\d*)$/.test(property)) {
-            catalogRowReads += 1;
-          }
-          return Reflect.get(target, property, receiver);
-        },
-      });
-    }) as typeof fixtures.driver.query;
-
-    let pending: ReturnType<SurfaceQueryModel['search']> | null = null;
-    try {
-      const web = queryModel.forSurface('PUBLIC_WEB', { asOf: AS_OF });
-      pending = web.search({
-        vertical_id: fixtures.vertical.id,
-        entity_type: 'equipment',
-        limit: 1,
-      });
-      await firstWave;
-
-      // Two catalog scans can each own a fixed set of workers, but rows beyond
-      // those workers must remain unread until capacity becomes available.
-      // A rows.map(...limiter.run()) implementation reads every row eagerly
-      // and creates one pending Promise waiter per denied or allowed row.
-      expect(catalogRowReads).toBeLessThanOrEqual(16);
-
-      releaseAuthorizations();
-      const result = await pending;
-      expect(result.hits).toHaveLength(1);
-    } finally {
-      releaseAuthorizations();
-      await pending?.catch(() => undefined);
-      fixtures.driver.query = originalQueryMethod;
-    }
+    expect(perEntityEvidenceReads).toBe(0);
+    expect(perFactReads).toBe(0);
+    // One JSON candidate set plus one deterministic authorization-row ceiling.
+    expect(entityBatchParameterCount).toBe(2);
+    expect(factFrontierParameterCount).toBe(2);
+    expect(factEvidenceParameterCount).toBe(2);
+    // One source needs a fixed rights-context read set; the remaining budget
+    // covers the catalog, batched evidence, search, ranking, and facet queries.
+    // The former per-row implementation exceeds this bound with this fixture.
+    expect(snapshotReads).toBeLessThanOrEqual(40);
   });
 
   it('selects and explains only over candidates authorized for this surface', async () => {

@@ -59,6 +59,10 @@ current only when an open curated claim or a current `FINALIZED` source-record
 claim supports it in the alias's current authority epoch. Compiling more
 spellings must never bypass that relation, synthesize a claim for a legacy
 alias, or make a withdrawn/prior-epoch assertion discoverable again.
+Migration 0025 further requires every source-record claim in that relation to
+bind its exact immutable `ALIAS` evidence, so query-time equivalence cannot
+launder an unsupported source spelling through an independently authorized
+entity.
 
 ### Required future contract test
 

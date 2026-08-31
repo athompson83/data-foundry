@@ -6,8 +6,10 @@
 import type { WebRequest, WebResponse } from './http.js';
 
 export function toWebRequest(request: Request): WebRequest {
-  const url = new URL(request.url);
-  return { method: request.method, url: `${url.pathname}${url.search}` };
+  // Parsing and route classification belong to app.ts. Passing the original
+  // target through avoids validating it once here and a second time there,
+  // and lets malformed inputs take the app's ordinary DB-free 404 path.
+  return { method: request.method, url: request.url };
 }
 
 export function toFetchResponse(response: WebResponse, method: string): Response {

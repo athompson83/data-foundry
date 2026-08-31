@@ -60,6 +60,10 @@ no value) asks for the property to be present.
   entity that has no such fact at all.
 * Which fields are filterable is the query layer's decision, not this surface's:
   an undeclared or non-filterable field is `422 UNPROCESSABLE_QUERY`.
+* One request may carry at most 10 distinct filter parameters and an `in` filter
+  may carry at most 100 comma-separated values. Duplicate parameters and either
+  overflow are `400 INVALID_PARAMETER`; the server never builds an unbounded
+  series of authorized-fact subqueries from caller input.
 
 ### Pagination
 
@@ -89,6 +93,17 @@ collapses to one opaque `INTERNAL_ERROR` and the real error goes to the
 `422 UNPROCESSABLE_QUERY` is specifically the query layer refusing a filter the
 request parsed correctly (an undeclared field, a range on a string field), as
 opposed to `400` for something this surface could not parse at all.
+
+Exhaustive surface search and facets refuse rather than truncate when a
+vertical exceeds the query layer's checked-in authorization ceilings: 10,000
+entity candidates, 50,000 current fact candidates, or 100,000 authorization
+evidence/dependency rows. Recursive derivation traversal also caps distinct
+nodes at 100,000, edges at 100,000, and actual dependency-path depth at 64; a
+shortcut edge cannot hide a longer chain. REST maps that typed refusal to an opaque
+`503 SERVICE_UNAVAILABLE`; the operator hook receives the exact resource and
+limit, while the customer receives no counts and no partial total or facets.
+Lowering the requested result-page limit cannot make a partial catalog total
+truthful, so this is deliberately not a `400` or `422`.
 
 ## The two guarantees worth stating
 

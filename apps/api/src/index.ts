@@ -51,6 +51,7 @@ export {
   resolveContext,
   type ApiAppOptions,
   type ApiContext,
+  type ApiRequestContext,
   type ApiErrorContext,
   type ApiFactSelectionPolicy,
   type ApiRequestTelemetry,
@@ -70,6 +71,7 @@ export {
   type Route,
   type RouteKey,
   type RouteMatch,
+  type PreparedRouteExecution,
 } from './routes.js';
 
 export {

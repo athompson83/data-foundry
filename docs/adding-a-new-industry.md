@@ -192,6 +192,10 @@ must be reasserted by a current finalized source record or by an explicit
 curated action; never manufacture a claim merely to keep a lookup green.
 Migration 0024 likewise backfills no stream membership: reingest admitted
 legacy sources with an explicit mode rather than classifying old rows by guess.
+Migration 0025 also backfills no claim/evidence linkage: each source-record
+alias reaches resolution/search only when the ingest transaction records the
+exact claim and its exact `ALIAS` evidence together. Reingest admitted sources;
+never pair historical rows by locator guesswork.
 
 ## 6. Decide publication surfaces independently
 
@@ -297,7 +301,16 @@ direct responses; Browser Run repeated-cursor, page, record, diagnostic, and
 cumulative-artifact refusals; and zero partial R2 writes. An MCP smoke test must
 cover initialize/discovery, tools/list,
 one authenticated tools/call, wrong-channel credentials, and a post-deploy
-rights-revocation negative.
+rights-revocation negative. Before launch, run the catalog-capacity probes from
+the Cloudflare deployment runbook after applying through migration `0026`:
+exact-bound catalogs must complete, while
+candidate or authorization-row overflow must fail closed on web, REST and MCP
+without partial totals, facets, HTML or tool results. A vertical expected to
+exceed those checked-in launch ceilings—including recursive fact graphs above
+100,000 nodes, 100,000 edges, or an actual dependency path deeper than 64—needs a measured database-native rights
+projection; do not raise the ceiling or page-limit before rights to make the
+check pass. Include a shortcut-chain negative in that probe, and verify the
+landing-page entity-type aggregate does not touch the fact catalog.
 
 ## What this checklist deliberately does not cover
 

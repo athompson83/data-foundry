@@ -9,7 +9,12 @@
  */
 import { ApiError, OPAQUE_INTERNAL_MESSAGE, toErrorBody } from './errors.js';
 import { baseHeaders, jsonResponse, requestId, type ApiHandler, type ApiRequest, type ApiResponse } from './http.js';
-import { resolveContext, type ApiAppOptions, type ApiContext, type ApiRequestTelemetry } from './config.js';
+import {
+  resolveContext,
+  type ApiAppOptions,
+  type ApiRequestContext,
+  type ApiRequestTelemetry,
+} from './config.js';
 import {
   ALLOW_HEADER,
   CONTRACT_ROUTE_KEY,
@@ -25,6 +30,7 @@ import {
 } from './routes.js';
 import {
   ReviewerIdentityLeak,
+  SurfaceCatalogCapacityError,
   UnknownFieldError,
 } from '@data-foundry/query-model';
 
@@ -59,6 +65,12 @@ function normalize(error: unknown): ApiError {
       { field: error.field },
     );
   }
+  if (error instanceof SurfaceCatalogCapacityError) {
+    return new ApiError(
+      'SERVICE_UNAVAILABLE',
+      'The query exceeds this deployment\'s safe authorization capacity.',
+    );
+  }
   if (error instanceof ReviewerIdentityLeak) {
     return new ApiError('INTERNAL_ERROR', 'The server refused to serialize this response.');
   }
@@ -66,7 +78,7 @@ function normalize(error: unknown): ApiError {
 }
 
 async function dispatch(
-  context: ApiContext,
+  context: ApiRequestContext,
   request: ApiRequest,
   report: (routeKey: RouteKey) => void,
 ): Promise<ApiResponse> {
@@ -140,10 +152,22 @@ async function dispatch(
   }
 
   report(route.routeKey);
-  return route.handler(context, {
+  const execute = route.prepare({
     params: routeParams(route, rest),
     query: url.searchParams,
   });
+  try {
+    return await context.withSurfaceSnapshot(execute);
+  } catch (error) {
+    // The request snapshot now opens outside the health handler. Preserve the
+    // readiness contract when acquisition, a query, or transaction completion
+    // fails: dependency unavailability is the health endpoint's modeled 503,
+    // even when the handler body could not start.
+    if (route.routeKey === 'health' && !(error instanceof ApiError)) {
+      throw new ApiError('SERVICE_UNAVAILABLE', 'The canonical query layer is not reachable.');
+    }
+    throw error;
+  }
 }
 
 export function createApiApp(options: ApiAppOptions): ApiHandler {

@@ -96,8 +96,10 @@ surface-visible entity needs current `FINALIZED` entity evidence. Relationship
 pages and projections require current `FINALIZED` relationship evidence plus
 authorized endpoint entities. Migration 0023 manufactures no authority for a
 legacy alias and uses authority epochs so retire/reopen cannot reactivate an old
-claim. A page therefore cannot survive solely on a withdrawn source revision,
-even when the immutable history remains available for audit.
+claim. Migration 0025 additionally withholds a source-record alias until its
+exact immutable evidence is linked and surface-authorized. A page therefore
+cannot survive solely on a withdrawn or claim-only source revision, even when
+the immutable history remains available for audit.
 
 **A threshold this deployment cannot honestly measure fails closed, not
 open.** No traffic/analytics system exists in this repository, so
@@ -136,6 +138,31 @@ inside the budget, the Worker discards all accumulated output and returns an
 opaque `503` with `no-store` and `Retry-After`; it never serves partial XML.
 Provider rate limiting remains a separate deployment control, not a substitute
 for this deterministic application bound.
+
+Ordinary search and facets have a separate fail-closed catalog boundary. Before
+either rights batch begins, the canonical surface layer preflights at most
+10,001 entity candidates and 50,001 current fact candidates; more than 10,000
+or 50,000 respectively refuses the whole operation. Entity evidence and the
+fact metadata/evidence rowset are capped at 100,000 rows plus one overflow
+sentinel. Recursive derivation traversal is an iterative, index-parameterized
+frontier with independent ceilings of 100,000 distinct nodes, 100,000 edges and
+an actual dependency-path depth of 64. Path depth is validated on the bounded
+graph separately from de-duplicated BFS discovery, so shortcut edges cannot hide
+a long chain and a corrupt cycle fails closed before contribution expansion. It
+does not ask PostgreSQL to compute an unbounded dense closure before checking the
+result size. Entity evidence, fact evidence, records and artifacts
+are likewise loaded through bounded LATERAL index probes. Authorized UUID sets
+then cross into search/facet SQL as one cached JSONB parameter per set, rather
+than one bind parameter per id. The dataset landing obtains all entity-type
+counts through one entity-only rights-bound aggregate instead of one full search
+per type or an unrelated fact-catalog authorization pass.
+Capacity exhaustion never changes the requested surface, never applies the
+caller's page limit ahead of rights, and never produces a partial total or facet:
+web and REST answer opaque `503`; deterministic web catalog refusal omits
+`Retry-After`, while MCP returns its declared non-retryable
+`SERVICE_UNAVAILABLE` tool error. Scaling beyond these launch ceilings requires
+a measured, database-native rights projection that preserves exact expiry and
+condition semantics; raising a constant is not a release shortcut.
 
 ### What is not built here
 

@@ -19,6 +19,8 @@
 
 export {
   FILTER_CONTROL_TYPES,
+  MAX_FACET_FILTERS,
+  MAX_FACET_FILTER_VALUES,
   FieldFilterSchema,
   FieldMetadataRegistry,
   FieldMetadataSchema,
@@ -115,14 +117,23 @@ export {
   createQueryModel,
   type QueryModel,
   type QueryModelOptions,
+  type SurfaceReadSnapshot,
 } from './query-model.js';
 
 export {
+  MAX_SURFACE_CATALOG_ENTITY_CANDIDATES,
+  MAX_SURFACE_CATALOG_FACT_CANDIDATES,
+  MAX_SURFACE_AUTHORIZATION_ROWS,
+  MAX_SURFACE_FACT_DEPENDENCY_NODES,
+  MAX_SURFACE_FACT_DEPENDENCY_EDGES,
+  MAX_SURFACE_FACT_DEPENDENCY_DEPTH,
+  SurfaceCatalogCapacityError,
   createSurfaceQueryModel,
   type SurfaceClaimAttribution,
   type SurfaceClaimSummary,
   type SurfaceFactExplanation,
   type SurfaceAccessOptions,
+  type SurfaceCatalogCapacityResource,
   type SurfaceEntityListPage,
   type SurfaceEntityListQuery,
   type SurfaceQueryModel,

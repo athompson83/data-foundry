@@ -8,6 +8,8 @@
  * tests pin.
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { SurfaceCatalogCapacityError } from '@data-foundry/query-model';
+import { createApiApp } from '../src/index.js';
 import { ApiError, API_ERROR_CODES, ERROR_STATUS, toErrorBody } from '../src/errors.js';
 import { call, createApiFixtures, dataOf, errorOf, type ApiFixtures } from './support.js';
 
@@ -55,6 +57,36 @@ const FAILURES: readonly { url: string; method?: string; status: number; code: s
 ];
 
 describe('the error envelope', () => {
+  it('maps a catalog-capacity refusal to an opaque 503 and preserves the operator cause', async () => {
+    const cause = new SurfaceCatalogCapacityError('entities', 10_000);
+    const logged: unknown[] = [];
+    const app = createApiApp({
+      queryModel: {
+        ...fixtures.qm,
+        forSurface: (surface, options, snapshot) => ({
+          ...fixtures.qm.forSurface(surface, options, snapshot),
+          search: async () => {
+            throw cause;
+          },
+        }),
+      },
+      verticalId: fixtures.vertical.id,
+      onError: (error) => logged.push(error),
+    });
+
+    const response = await call(app, '/v1/search?q=capacity');
+
+    expect(response.status).toBe(503);
+    expect(errorOf(response)).toEqual({
+      code: 'SERVICE_UNAVAILABLE',
+      status: 503,
+      message: "The query exceeds this deployment's safe authorization capacity.",
+    });
+    expect(JSON.stringify(response.body)).not.toContain('10000');
+    expect(JSON.stringify(response.body)).not.toContain('entities');
+    expect(logged).toEqual([cause]);
+  });
+
   it('validates the body through the shared wire schema before returning it', () => {
     const failure = new ApiError('ROUTE_NOT_FOUND', 'No route matches this request.');
     expect(() => toErrorBody(failure, 'x'.repeat(65))).toThrow();
@@ -341,5 +373,41 @@ describe('filters are honoured or refused, never silently altered', () => {
     expect(dataOf<{ entity: { id: string } }[]>(response)[0]?.entity.id).toBe(
       fixtures.heatPump.id,
     );
+  });
+
+  it('refuses filter fanout above the published request bounds', async () => {
+    const tooManyFilters = Array.from(
+      { length: 11 },
+      (_, index) => `filter.capacity_${index}.exists=true`,
+    ).join('&');
+    const filterResponse = await call(fixtures.app, `/v1/search?${tooManyFilters}`);
+
+    expect(filterResponse.status).toBe(400);
+    expect(errorOf(filterResponse)).toMatchObject({
+      code: 'INVALID_PARAMETER',
+      details: { parameter: 'filter' },
+    });
+
+    const duplicateResponse = await call(
+      fixtures.app,
+      '/v1/search?filter.seer2_rating.exists=true&filter.seer2_rating.exists=true',
+    );
+    expect(duplicateResponse.status).toBe(400);
+    expect(errorOf(duplicateResponse)).toMatchObject({
+      code: 'INVALID_PARAMETER',
+      details: { parameter: 'filter.seer2_rating.exists' },
+    });
+
+    const tooManyValues = Array.from({ length: 101 }, (_, index) => String(index)).join(',');
+    const valueResponse = await call(
+      fixtures.app,
+      `/v1/search?filter.seer2_rating=${tooManyValues}`,
+    );
+
+    expect(valueResponse.status).toBe(400);
+    expect(errorOf(valueResponse)).toMatchObject({
+      code: 'INVALID_PARAMETER',
+      details: { parameter: 'filter.seer2_rating' },
+    });
   });
 });

@@ -338,6 +338,7 @@
                     },
                     "values": {
                       "minItems": 1,
+                      "maxItems": 100,
                       "type": "array",
                       "items": {
                         "anyOf": [
@@ -456,6 +457,7 @@
       "error_codes": [
         "INVALID_ARGUMENTS",
         "UNKNOWN_FIELD",
+        "SERVICE_UNAVAILABLE",
         "INTERNAL_ERROR"
       ]
     },
@@ -498,6 +500,7 @@
         "ENTITY_NOT_FOUND",
         "AMBIGUOUS_IDENTIFIER",
         "REVIEWER_IDENTITY_BLOCKED",
+        "SERVICE_UNAVAILABLE",
         "INTERNAL_ERROR"
       ]
     },
@@ -543,6 +546,7 @@
         "INVALID_ARGUMENTS",
         "ENTITY_NOT_FOUND",
         "REVIEWER_IDENTITY_BLOCKED",
+        "SERVICE_UNAVAILABLE",
         "INTERNAL_ERROR"
       ]
     },
@@ -589,6 +593,7 @@
         "ENTITY_NOT_FOUND",
         "TOO_FEW_ENTITIES",
         "REVIEWER_IDENTITY_BLOCKED",
+        "SERVICE_UNAVAILABLE",
         "INTERNAL_ERROR"
       ]
     },
@@ -644,6 +649,7 @@
       "error_codes": [
         "INVALID_ARGUMENTS",
         "ENTITY_NOT_FOUND",
+        "SERVICE_UNAVAILABLE",
         "INTERNAL_ERROR"
       ]
     },
@@ -686,6 +692,7 @@
         "PROPERTY_NOT_RECORDED",
         "REVIEWER_IDENTITY_BLOCKED",
         "UNPUBLISHABLE_SOURCE_BLOCKED",
+        "SERVICE_UNAVAILABLE",
         "INTERNAL_ERROR"
       ]
     }

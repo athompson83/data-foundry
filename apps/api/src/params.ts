@@ -21,7 +21,11 @@ import {
   type IsoDateTime,
   type Slug,
 } from '@data-foundry/canonical-schema';
-import type { FacetFilter } from '@data-foundry/query-model';
+import {
+  MAX_FACET_FILTERS,
+  MAX_FACET_FILTER_VALUES,
+  type FacetFilter,
+} from '@data-foundry/query-model';
 import { ApiError } from './errors.js';
 
 /**
@@ -193,9 +197,26 @@ export function parseList(params: URLSearchParams, parameter: string): string[] 
 export function parseFilters(params: URLSearchParams): FacetFilter[] {
   const ranges = new Map<Identifier, { min: number | null; max: number | null }>();
   const filters: FacetFilter[] = [];
+  const seen = new Set<string>();
+  let logicalFilterCount = 0;
+
+  const countLogicalFilter = (): void => {
+    logicalFilterCount += 1;
+    if (logicalFilterCount > MAX_FACET_FILTERS) {
+      throw ApiError.invalidParameter(
+        'filter',
+        `expected at most ${MAX_FACET_FILTERS} logical filters`,
+        String(logicalFilterCount),
+      );
+    }
+  };
 
   for (const [key, value] of params.entries()) {
     if (!key.startsWith('filter.')) continue;
+    if (seen.has(key)) {
+      throw ApiError.invalidParameter(key, 'expected each filter parameter at most once');
+    }
+    seen.add(key);
     const rest = key.slice('filter.'.length);
     const dot = rest.lastIndexOf('.');
     const suffix = dot === -1 ? '' : rest.slice(dot + 1);
@@ -214,8 +235,12 @@ export function parseFilters(params: URLSearchParams): FacetFilter[] {
       if (!Number.isFinite(bound)) {
         throw ApiError.invalidParameter(key, 'expected a number', value.slice(0, 40));
       }
-      const existing = ranges.get(property) ?? { min: null, max: null };
-      ranges.set(property, { ...existing, [suffix]: bound });
+      const existing = ranges.get(property);
+      if (existing === undefined) countLogicalFilter();
+      ranges.set(property, {
+        ...(existing ?? { min: null, max: null }),
+        [suffix]: bound,
+      });
       continue;
     }
 
@@ -239,6 +264,7 @@ export function parseFilters(params: URLSearchParams): FacetFilter[] {
           value.slice(0, 40),
         );
       }
+      countLogicalFilter();
       filters.push({ property, op: 'exists' });
       continue;
     }
@@ -251,6 +277,14 @@ export function parseFilters(params: URLSearchParams): FacetFilter[] {
     if (values.length === 0) {
       throw ApiError.invalidParameter(key, 'expected at least one value', value.slice(0, 40));
     }
+    if (values.length > MAX_FACET_FILTER_VALUES) {
+      throw ApiError.invalidParameter(
+        key,
+        `expected at most ${MAX_FACET_FILTER_VALUES} comma-separated values`,
+        String(values.length),
+      );
+    }
+    countLogicalFilter();
     filters.push({ property, op: 'in', values });
   }
 

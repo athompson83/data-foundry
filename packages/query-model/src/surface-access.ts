@@ -1,4 +1,5 @@
 import {
+  createCanonicalStore,
   ENTITY_COLUMNS,
   loadStoredRightsContext,
   mapEntity,
@@ -8,14 +9,16 @@ import {
   type FactCandidate,
   type FactSelection,
   type FactSelectionPolicyInput,
+  type SqlDriver,
+  type SqlParam,
   type SqlRow,
+  type SqlTransactionExecutor,
 } from '@data-foundry/canonical-store';
 import {
   compareCodeUnits,
   type Entity,
   type EntityId,
   type EntityStatus,
-  type FactId,
   type Identifier,
   type IsoDateTime,
   type Relationship,
@@ -61,6 +64,40 @@ export interface SurfaceAccessOptions {
 }
 
 /**
+ * Exhaustive search/facet authorization is intentionally bounded until the
+ * rights decision set is projected into a database-native read model. Above
+ * these ceilings, returning a partial total would be dishonest, so the whole
+ * operation fails closed and the public adapters expose only an opaque refusal.
+ */
+export const MAX_SURFACE_CATALOG_ENTITY_CANDIDATES = 10_000;
+export const MAX_SURFACE_CATALOG_FACT_CANDIDATES = 50_000;
+export const MAX_SURFACE_AUTHORIZATION_ROWS = 100_000;
+export const MAX_SURFACE_FACT_DEPENDENCY_NODES = 100_000;
+export const MAX_SURFACE_FACT_DEPENDENCY_EDGES = 100_000;
+export const MAX_SURFACE_FACT_DEPENDENCY_DEPTH = 64;
+
+export type SurfaceCatalogCapacityResource =
+  | 'entities'
+  | 'facts'
+  | 'entity_authorization_rows'
+  | 'fact_authorization_rows'
+  | 'fact_dependency_nodes'
+  | 'fact_dependency_edges'
+  | 'fact_dependency_depth';
+
+export class SurfaceCatalogCapacityError extends Error {
+  override readonly name = 'SurfaceCatalogCapacityError';
+  readonly resource: SurfaceCatalogCapacityResource;
+  readonly limit: number;
+
+  constructor(resource: SurfaceCatalogCapacityResource, limit: number) {
+    super('Surface catalog authorization capacity was exhausted.');
+    this.resource = resource;
+    this.limit = limit;
+  }
+}
+
+/**
  * One bounded raw-entity keyset scan. The continuation identifies the last
  * raw row inspected, which may itself be denied for this surface. That keeps
  * each call bounded even when an entire database page fails rights checks.
@@ -96,6 +133,7 @@ export interface SurfaceQueryModel {
   ): Promise<EntityView | null>;
   lookupIdentifier(lookup: IdentifierLookup): ReturnType<typeof lookupByIdentifier>;
   listEntities(query: SurfaceEntityListQuery): Promise<SurfaceEntityListPage>;
+  entityTypeCounts(verticalId: VerticalId): Promise<ReadonlyMap<Identifier, number>>;
   search(query: SearchQuery): Promise<SearchResult>;
   facets(query: FacetQuery): Promise<FacetResult[]>;
   canonicalFacts(
@@ -178,7 +216,110 @@ interface EntityEvidenceRow extends SqlRow {
   readonly acquisition_jurisdiction: string | null;
 }
 
+interface BatchedEntityEvidenceRow extends EntityEvidenceRow {
+  readonly identity_authority: boolean;
+}
+
+interface FactMetadataRow extends SqlRow {
+  readonly fact_id: string;
+  readonly property: string;
+  readonly output_kind: string | null;
+}
+
+interface FactEvidenceAuthorizationRow extends SqlRow {
+  readonly fact_id: string;
+  readonly evidence_id: string | null;
+  readonly source_id: string | null;
+  readonly acquisition_route: string | null;
+  readonly account_or_product_plan: string | null;
+  readonly acquisition_jurisdiction: string | null;
+}
+
+interface FactDependencyEdgeRow extends SqlRow {
+  readonly derived_fact_id: string;
+  readonly input_fact_id: string;
+}
+
+interface FactDependencyGraph {
+  readonly ids: readonly string[];
+  readonly edges: readonly FactDependencyEdgeRow[];
+}
+
+interface FactAuthorizationRecord {
+  readonly property: string;
+  readonly outputKind: string | null;
+  readonly dependencies: readonly string[];
+  readonly contributions: readonly ArtifactContribution[] | null;
+}
+
+interface VisibleCatalogIds {
+  readonly entityIds: readonly EntityId[];
+  readonly factIds: readonly string[];
+}
+
 const nowIso = (): IsoDateTime => new Date().toISOString() as IsoDateTime;
+
+/**
+ * Bind canonical reads to the transaction connection that owns one immutable
+ * surface snapshot. Nested store transactions reuse that connection; DDL and
+ * connection ownership remain unavailable inside this read-only boundary.
+ */
+function snapshotDriver(
+  base: SqlDriver,
+  transaction: SqlTransactionExecutor,
+  assertActive: () => void,
+): SqlDriver {
+  const query = async <R extends SqlRow = SqlRow>(
+    sql: string,
+    params?: readonly SqlParam[],
+  ): Promise<R[]> => {
+    assertActive();
+    return transaction.query<R>(sql, params);
+  };
+  const snapshotTransaction = { query } as SqlTransactionExecutor;
+
+  return {
+    label: `${base.label} (surface snapshot)`,
+    dialect: base.dialect,
+    capabilityCacheKey: base.capabilityCacheKey ?? base,
+    query,
+    async exec() {
+      assertActive();
+      throw new Error('surface snapshots do not execute DDL');
+    },
+    async transaction<T>(run: (tx: SqlTransactionExecutor) => Promise<T>): Promise<T> {
+      assertActive();
+      return run(snapshotTransaction);
+    },
+    async close() {
+      // The outer request owns the real driver and transaction lifecycle.
+    },
+  };
+}
+
+/**
+ * Keep authorization and alias lookup on one PostgreSQL snapshot. Without
+ * this boundary, a newly committed denied-source alias could appear between
+ * the rights query and search SQL and disclose its association (CWE-367).
+ */
+export function withSurfaceStoreSnapshot<T>(
+  store: CanonicalStore,
+  run: (snapshotStore: CanonicalStore, assertActive: () => void) => Promise<T>,
+): Promise<T> {
+  return store.driver.transaction(async (transaction) => {
+    let active = true;
+    const assertActive = (): void => {
+      if (!active) throw new Error('Surface read snapshot is no longer active.');
+    };
+    const driver = snapshotDriver(store.driver, transaction, assertActive);
+    try {
+      await driver.query('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY');
+      return await run(createCanonicalStore(driver), assertActive);
+    } finally {
+      active = false;
+    }
+  });
+}
 
 const SURFACE_CHANNEL = Object.freeze({
   PUBLIC_WEB: 'PUBLIC_WEBSITE',
@@ -193,87 +334,12 @@ const SURFACE_CHANNEL = Object.freeze({
   MODEL_EVALUATION: 'MODEL_PIPELINE',
 } satisfies Record<RightsSurface, RightsChannel>);
 
-/**
- * A surface search enumerates every potentially visible entity and fact before
- * pagination so its rights-safe total remains exact. The two enumerations run
- * together, therefore their row-level authorization must share one budget: two
- * independent eight-worker maps would still spend sixteen connections from a
- * `pg` pool whose default maximum is ten.
- */
-const SURFACE_AUTHORIZATION_CONCURRENCY = 8;
 const SURFACE_ENTITY_SCAN_LIMIT = 200;
 
 const boundedEntityScanLimit = (value: number | undefined): number => {
   if (value === undefined || !Number.isFinite(value)) return SURFACE_ENTITY_SCAN_LIMIT;
   return Math.max(1, Math.min(Math.trunc(value), SURFACE_ENTITY_SCAN_LIMIT));
 };
-
-class SurfaceAuthorizationWorkerPool {
-  readonly #limit: number;
-  #active = 0;
-  readonly #waiting: Array<() => void> = [];
-
-  constructor(limit: number) {
-    this.#limit = limit;
-  }
-
-  async #acquire(): Promise<void> {
-    if (this.#active < this.#limit) {
-      this.#active += 1;
-      return;
-    }
-    // The releasing worker transfers its permit directly to this waiter, so
-    // a newly arriving operation cannot race between release and reacquire.
-    await new Promise<void>((resolve) => this.#waiting.push(resolve));
-  }
-
-  #release(): void {
-    const next = this.#waiting.shift();
-    if (next !== undefined) {
-      next();
-      return;
-    }
-    this.#active -= 1;
-  }
-
-  async #run<T>(operation: () => Promise<T>): Promise<T> {
-    await this.#acquire();
-    try {
-      return await operation();
-    } finally {
-      this.#release();
-    }
-  }
-
-  /**
-   * Pull work lazily with a fixed worker set. Catalog size no longer controls
-   * how many pending promises this request retains while permits are occupied.
-   */
-  async map<T, R>(
-    items: readonly T[],
-    operation: (item: T, index: number) => Promise<R>,
-  ): Promise<R[]> {
-    const results: R[] = new Array(items.length);
-    let cursor = 0;
-
-    const worker = async (): Promise<void> => {
-      for (;;) {
-        const done = await this.#run(async () => {
-          const index = cursor;
-          cursor += 1;
-          if (index >= items.length) return true;
-          results[index] = await operation(items[index]!, index);
-          return false;
-        });
-        if (done) return;
-      }
-    };
-
-    const workerCount = Math.min(this.#limit, items.length);
-    await Promise.all(Array.from({ length: workerCount }, () => worker()));
-    return results;
-  }
-}
 
 const locatorFor = (evidence: CandidateEvidence): string =>
   evidence.evidence.locator_type === 'WHOLE_DOCUMENT'
@@ -440,11 +506,8 @@ class SurfaceRightsAuthorizer {
   readonly #entityResults = new Map<string, Promise<boolean>>();
   readonly #factResults = new Map<string, Promise<boolean>>();
   readonly #relationshipResults = new Map<string, Promise<boolean>>();
-  readonly #visibleEntities = new Map<string, Promise<readonly EntityId[]>>();
-  readonly #visibleFacts = new Map<string, Promise<readonly string[]>>();
-  readonly #authorizationWorkers = new SurfaceAuthorizationWorkerPool(
-    SURFACE_AUTHORIZATION_CONCURRENCY,
-  );
+  readonly #visibleEntityCatalogs = new Map<string, Promise<readonly EntityId[]>>();
+  readonly #visibleCatalogs = new Map<string, Promise<VisibleCatalogIds>>();
 
   constructor(
     store: CanonicalStore,
@@ -574,52 +637,418 @@ class SurfaceRightsAuthorizer {
     );
   }
 
+  async #authorizeEntities(entityIds: readonly EntityId[]): Promise<readonly boolean[]> {
+    const uniqueIds = [...new Set(entityIds)];
+    const missing = uniqueIds.filter((id) => !this.#entityResults.has(id));
+    if (missing.length > 0) {
+      const batch = this.#loadEntityAuthorizationDecisions(missing);
+      for (const id of missing) {
+        this.#entityResults.set(id, batch.then((decisions) => decisions.get(id) ?? false));
+      }
+    }
+    return Promise.all(
+      entityIds.map((id) => this.#entityResults.get(id) ?? Promise.resolve(false)),
+    );
+  }
+
+  /**
+   * Load identity authority and every provenance contribution for a candidate
+   * set in one statement. Rights evaluation remains in the pure engine, but a
+   * catalog scan no longer turns each row into two more SQL round trips on the
+   * request's pinned repeatable-read connection.
+   */
+  async #loadEntityAuthorizationDecisions(
+    entityIds: readonly EntityId[],
+  ): Promise<ReadonlyMap<EntityId, boolean>> {
+    const rows = await this.#store.driver.query<BatchedEntityEvidenceRow>(
+      `WITH requested(id) AS (
+         SELECT value::uuid
+           FROM jsonb_array_elements_text($1::jsonb) AS requested_id(value)
+       )
+       SELECT e.id AS entity_id,
+               COALESCE(evidence.identity_authority, FALSE) AS identity_authority,
+               evidence.evidence_id, evidence.source_id,
+               evidence.acquisition_route, evidence.account_or_product_plan,
+               evidence.acquisition_jurisdiction
+         FROM requested
+         JOIN entities e ON e.id = requested.id
+         LEFT JOIN LATERAL (
+           SELECT ee.id::text AS evidence_id,
+                  record.source_id::text AS source_id,
+                  artifact.acquisition_route::text AS acquisition_route,
+                  artifact.account_or_product_plan,
+                  artifact.acquisition_jurisdiction,
+                  COALESCE(record.is_current AND record.revision_state = 'FINALIZED', FALSE)
+                    AS identity_authority
+             FROM entity_evidence ee
+             LEFT JOIN LATERAL (
+               SELECT sr.source_id, sr.is_current, sr.revision_state
+                 FROM source_records sr
+                WHERE sr.id = ee.source_record_id
+                LIMIT 1
+             ) record ON TRUE
+             LEFT JOIN LATERAL (
+               SELECT sa.acquisition_route, sa.account_or_product_plan,
+                      sa.acquisition_jurisdiction
+                 FROM source_artifacts sa
+                WHERE sa.id = ee.artifact_id
+                LIMIT 1
+            ) artifact ON TRUE
+            WHERE ee.entity_id = e.id
+            ORDER BY ee.id
+            LIMIT $2
+         ) evidence ON TRUE
+         LIMIT $2`,
+      [JSON.stringify(entityIds), MAX_SURFACE_AUTHORIZATION_ROWS + 1],
+    );
+    if (rows.length > MAX_SURFACE_AUTHORIZATION_ROWS) {
+      throw new SurfaceCatalogCapacityError(
+        'entity_authorization_rows',
+        MAX_SURFACE_AUTHORIZATION_ROWS,
+      );
+    }
+
+    const grouped = new Map<
+      EntityId,
+      { identityAuthority: boolean; contributions: Array<ArtifactContribution | null> }
+    >();
+    for (const row of rows) {
+      const id = row.entity_id as EntityId;
+      const current = grouped.get(id) ?? {
+        identityAuthority: row.identity_authority === true,
+        contributions: [],
+      };
+      current.identityAuthority ||= row.identity_authority === true;
+      current.contributions.push(contributionFromEntityRow(row));
+      grouped.set(id, current);
+    }
+
+    const decisions = new Map<EntityId, boolean>();
+    // The snapshot uses one pinned connection. Evaluate candidates in order so
+    // a catalog with many distinct sources cannot enqueue an unbounded number
+    // of rights-context query chains on that connection.
+    for (const id of entityIds) {
+      const candidate = grouped.get(id);
+      if (
+        candidate === undefined ||
+        !candidate.identityAuthority ||
+        candidate.contributions.length === 0 ||
+        candidate.contributions.some((entry) => entry === null)
+      ) {
+        decisions.set(id, false);
+        continue;
+      }
+      decisions.set(
+        id,
+        await this.#authorizeContributions(
+          candidate.contributions as ArtifactContribution[],
+          null,
+          'METADATA',
+        ),
+      );
+    }
+    return decisions;
+  }
+
   authorizeEntity(entityId: EntityId): Promise<boolean> {
     const cached = this.#entityResults.get(entityId);
     if (cached !== undefined) return cached;
-    const result = this.#authorizeEntity(entityId);
+    const result = this.#authorizeEntities([entityId]).then((decisions) => decisions[0] ?? false);
     this.#entityResults.set(entityId, result);
     return result;
-  }
-
-  async #authorizeEntity(entityId: EntityId): Promise<boolean> {
-    const identityAuthority = await this.#store.driver.query(
-      `SELECT 1
-         FROM entity_evidence evidence
-         JOIN source_records record ON record.id = evidence.source_record_id
-        WHERE evidence.entity_id = $1
-          AND record.is_current
-          AND record.revision_state = 'FINALIZED'
-        LIMIT 1`,
-      [entityId],
-    );
-    if (identityAuthority.length === 0) return false;
-    const rows = await this.#store.driver.query<EntityEvidenceRow>(
-      `SELECT ee.entity_id, ee.id AS evidence_id, sr.source_id,
-              sa.acquisition_route, sa.account_or_product_plan,
-              sa.acquisition_jurisdiction
-         FROM entity_evidence ee
-         JOIN source_records sr ON sr.id = ee.source_record_id
-         JOIN source_artifacts sa ON sa.id = ee.artifact_id
-        WHERE ee.entity_id = $1
-        ORDER BY ee.id`,
-      [entityId],
-    );
-    const contributions = rows.map(contributionFromEntityRow);
-    if (contributions.some((entry) => entry === null)) return false;
-    return this.#authorizeContributions(
-      contributions as ArtifactContribution[],
-      null,
-      'METADATA',
-    );
   }
 
   authorizeFact(factId: string): Promise<boolean> {
     const cached = this.#factResults.get(factId);
     if (cached !== undefined) return cached;
-    const result = this.#authorizeFact(factId, new Set());
+    const result = this.#authorizeFacts([factId]).then((decisions) => decisions[0] ?? false);
     this.#factResults.set(factId, result);
     return result;
+  }
+
+  async #authorizeFacts(factIds: readonly string[]): Promise<readonly boolean[]> {
+    const uniqueIds = [...new Set(factIds)];
+    const missing = uniqueIds.filter((id) => !this.#factResults.has(id));
+    if (missing.length > 0) {
+      const decisions = this.#loadFactAuthorizationDecisions(missing);
+      for (const id of missing) {
+        this.#factResults.set(
+          id,
+          decisions.then((loaded) => loaded.get(id) ?? false),
+        );
+      }
+    }
+    return Promise.all(
+      factIds.map((id) => this.#factResults.get(id) ?? Promise.resolve(false)),
+    );
+  }
+
+  async #loadFactAuthorizationDecisions(
+    factIds: readonly string[],
+  ): Promise<ReadonlyMap<string, boolean>> {
+    const records = await this.#loadFactAuthorizationRecords(factIds);
+    const decisions = new Map<string, boolean>();
+    const tupleAuthorization = new Map<string, Promise<boolean>>();
+    const contributionClosures = new Map<
+      string,
+      readonly ArtifactContribution[] | null
+    >();
+    // Keep rights-context loading bounded on the snapshot's single connection.
+    // The dependency frontier and evidence loaders have already enforced their
+    // node/edge/depth/row budgets; this loop is pure evaluation after at most one
+    // cached context load per source. Graph memoization keeps a shared DAG
+    // proportional to its nodes and edges instead of the number of paths.
+    for (const id of factIds) {
+      decisions.set(
+        id,
+        await this.#authorizeFactFromRecords(
+          id,
+          records,
+          new Set(),
+          tupleAuthorization,
+          contributionClosures,
+        ),
+      );
+    }
+    return decisions;
+  }
+
+  /**
+   * Expand the dependency DAG one frontier at a time. Each node is expanded at
+   * most once, every SQL read is an index-parameterized LATERAL probe, and the
+   * application owns explicit node, edge, and depth budgets. A dense DAG can no
+   * longer make PostgreSQL traverse an unbounded edge set merely to discover
+   * that the distinct-node count is small.
+   */
+  async #loadFactDependencyGraph(factIds: readonly string[]): Promise<FactDependencyGraph> {
+    const visited = new Set(factIds);
+    if (visited.size > MAX_SURFACE_FACT_DEPENDENCY_NODES) {
+      throw new SurfaceCatalogCapacityError(
+        'fact_dependency_nodes',
+        MAX_SURFACE_FACT_DEPENDENCY_NODES,
+      );
+    }
+    let frontier = [...visited];
+    const edges: FactDependencyEdgeRow[] = [];
+    let depth = 0;
+
+    while (frontier.length > 0) {
+      const remaining = MAX_SURFACE_FACT_DEPENDENCY_EDGES - edges.length;
+      const rows = await this.#store.driver.query<FactDependencyEdgeRow>(
+        `WITH dependency_frontier(id) AS (
+           SELECT value::uuid
+             FROM jsonb_array_elements_text($1::jsonb) AS frontier_id(value)
+         )
+         SELECT frontier.id::text AS derived_fact_id,
+                dependency.input_fact_id::text AS input_fact_id
+           FROM dependency_frontier frontier
+           CROSS JOIN LATERAL (
+             SELECT edge.input_fact_id
+             FROM fact_dependencies edge
+              WHERE edge.derived_fact_id = frontier.id
+              ORDER BY edge.input_fact_id
+              LIMIT $2
+           ) dependency
+          LIMIT $2`,
+        [JSON.stringify(frontier), remaining + 1],
+      );
+      if (rows.length > remaining) {
+        throw new SurfaceCatalogCapacityError(
+          'fact_dependency_edges',
+          MAX_SURFACE_FACT_DEPENDENCY_EDGES,
+        );
+      }
+      if (rows.length > 0 && depth >= MAX_SURFACE_FACT_DEPENDENCY_DEPTH) {
+        throw new SurfaceCatalogCapacityError(
+          'fact_dependency_depth',
+          MAX_SURFACE_FACT_DEPENDENCY_DEPTH,
+        );
+      }
+      edges.push(...rows);
+
+      const next: string[] = [];
+      for (const row of rows) {
+        if (visited.has(row.input_fact_id)) continue;
+        visited.add(row.input_fact_id);
+        if (visited.size > MAX_SURFACE_FACT_DEPENDENCY_NODES) {
+          throw new SurfaceCatalogCapacityError(
+            'fact_dependency_nodes',
+            MAX_SURFACE_FACT_DEPENDENCY_NODES,
+          );
+        }
+        next.push(row.input_fact_id);
+      }
+      frontier = next;
+      depth += 1;
+    }
+
+    // The frontier counter above bounds database round trips, but global
+    // discovery de-duplication makes it a shortest-path measure. Validate the
+    // actual dependency paths separately before contribution closure work: a
+    // root with shortcuts to every node must not hide a much longer chain.
+    // Advancing exact-length frontiers also rejects a corrupted cycle after a
+    // bounded number of in-memory steps instead of sending it into recursive
+    // authorization. Nodes and edges are already capped, so this is bounded by
+    // MAX_SURFACE_FACT_DEPENDENCY_DEPTH * (nodes + edges).
+    const dependencies = new Map<string, string[]>();
+    for (const edge of edges) {
+      const current = dependencies.get(edge.derived_fact_id) ?? [];
+      current.push(edge.input_fact_id);
+      dependencies.set(edge.derived_fact_id, current);
+    }
+    let pathFrontier = new Set(factIds);
+    let pathDepth = 0;
+    while (pathFrontier.size > 0) {
+      const next = new Set<string>();
+      for (const factId of pathFrontier) {
+        for (const inputFactId of dependencies.get(factId) ?? []) next.add(inputFactId);
+      }
+      if (next.size === 0) break;
+      pathDepth += 1;
+      if (pathDepth > MAX_SURFACE_FACT_DEPENDENCY_DEPTH) {
+        throw new SurfaceCatalogCapacityError(
+          'fact_dependency_depth',
+          MAX_SURFACE_FACT_DEPENDENCY_DEPTH,
+        );
+      }
+      pathFrontier = next;
+    }
+
+    return { ids: [...visited], edges };
+  }
+
+  /**
+   * Load bounded metadata and evidence for an already bounded dependency graph.
+   * LATERAL LIMIT barriers keep PostgreSQL on primary/foreign-key probes rather
+   * than hash-building entire facts, evidence, record, or artifact tables before
+   * the outer refusal boundary can fire.
+   */
+  async #loadFactAuthorizationRecords(
+    factIds: readonly string[],
+  ): Promise<ReadonlyMap<string, FactAuthorizationRecord>> {
+    const graph = await this.#loadFactDependencyGraph(factIds);
+    const metadata = await this.#store.driver.query<FactMetadataRow>(
+      `WITH requested_fact(id) AS (
+         SELECT value::uuid
+           FROM jsonb_array_elements_text($1::jsonb) AS requested_id(value)
+       )
+       SELECT fact.id::text AS fact_id, fact.property, fact.output_kind
+         FROM requested_fact requested
+         CROSS JOIN LATERAL (
+           SELECT stored.id, stored.property, stored.output_kind
+             FROM facts stored
+            WHERE stored.id = requested.id
+            LIMIT 1
+         ) fact
+        LIMIT $2`,
+      [JSON.stringify(graph.ids), MAX_SURFACE_FACT_DEPENDENCY_NODES + 1],
+    );
+    if (metadata.length > MAX_SURFACE_FACT_DEPENDENCY_NODES) {
+      throw new SurfaceCatalogCapacityError(
+        'fact_dependency_nodes',
+        MAX_SURFACE_FACT_DEPENDENCY_NODES,
+      );
+    }
+    const consumedRows = metadata.length + graph.edges.length;
+    if (consumedRows > MAX_SURFACE_AUTHORIZATION_ROWS) {
+      throw new SurfaceCatalogCapacityError(
+        'fact_authorization_rows',
+        MAX_SURFACE_AUTHORIZATION_ROWS,
+      );
+    }
+    const remainingRows = MAX_SURFACE_AUTHORIZATION_ROWS - consumedRows;
+    const evidenceRows = await this.#store.driver.query<FactEvidenceAuthorizationRow>(
+      `WITH requested_fact(id) AS (
+         SELECT value::uuid
+           FROM jsonb_array_elements_text($1::jsonb) AS requested_id(value)
+       )
+       SELECT requested.id::text AS fact_id,
+              evidence.evidence_id, evidence.source_id,
+              evidence.acquisition_route, evidence.account_or_product_plan,
+              evidence.acquisition_jurisdiction
+         FROM requested_fact requested
+         CROSS JOIN LATERAL (
+           SELECT fe.id::text AS evidence_id,
+                  record.source_id::text AS source_id,
+                  artifact.acquisition_route::text AS acquisition_route,
+                  artifact.account_or_product_plan,
+                  artifact.acquisition_jurisdiction
+             FROM fact_evidence fe
+             LEFT JOIN LATERAL (
+               SELECT sr.source_id
+                 FROM source_records sr
+                WHERE sr.id = fe.source_record_id
+                LIMIT 1
+             ) record ON TRUE
+             LEFT JOIN LATERAL (
+               SELECT sa.acquisition_route, sa.account_or_product_plan,
+                      sa.acquisition_jurisdiction
+                 FROM source_artifacts sa
+                WHERE sa.id = fe.artifact_id
+                LIMIT 1
+            ) artifact ON TRUE
+            WHERE fe.fact_id = requested.id
+            ORDER BY fe.id
+            LIMIT $2
+         ) evidence
+        LIMIT $2`,
+      [JSON.stringify(graph.ids), remainingRows + 1],
+    );
+    if (evidenceRows.length > remainingRows) {
+      throw new SurfaceCatalogCapacityError(
+        'fact_authorization_rows',
+        MAX_SURFACE_AUTHORIZATION_ROWS,
+      );
+    }
+
+    const mutable = new Map<
+      string,
+      {
+        property: string;
+        outputKind: string | null;
+        dependencies: Set<string>;
+        contributions: Map<string, ArtifactContribution>;
+        invalidContribution: boolean;
+      }
+    >();
+    for (const row of metadata) {
+      mutable.set(row.fact_id, {
+        property: row.property,
+        outputKind: row.output_kind,
+        dependencies: new Set<string>(),
+        contributions: new Map<string, ArtifactContribution>(),
+        invalidContribution: false,
+      });
+    }
+    for (const edge of graph.edges) {
+      mutable.get(edge.derived_fact_id)?.dependencies.add(edge.input_fact_id);
+    }
+    for (const row of evidenceRows) {
+      const current = mutable.get(row.fact_id);
+      if (current === undefined) continue;
+      const contribution = contributionFromEntityRow({
+        entity_id: row.fact_id,
+        evidence_id: row.evidence_id,
+        source_id: row.source_id,
+        acquisition_route: row.acquisition_route,
+        account_or_product_plan: row.account_or_product_plan,
+        acquisition_jurisdiction: row.acquisition_jurisdiction,
+      });
+      if (contribution === null) current.invalidContribution = true;
+      else current.contributions.set(contribution.contributionId, contribution);
+    }
+
+    return new Map([...mutable].map(([id, record]) => [
+      id,
+      {
+        property: record.property,
+        outputKind: record.outputKind,
+        dependencies: [...record.dependencies],
+        contributions: record.invalidContribution
+          ? null
+          : [...record.contributions.values()],
+      },
+    ]));
   }
 
   async authorizeCandidateExcerpt(candidate: FactCandidate): Promise<boolean> {
@@ -633,31 +1062,54 @@ class SurfaceRightsAuthorizer {
     );
   }
 
-  async #authorizeFact(factId: string, ancestors: ReadonlySet<string>): Promise<boolean> {
+  async #authorizeFactFromRecords(
+    factId: string,
+    records: ReadonlyMap<string, FactAuthorizationRecord>,
+    ancestors: ReadonlySet<string>,
+    tupleAuthorization: Map<string, Promise<boolean>>,
+    contributionClosures: Map<string, readonly ArtifactContribution[] | null>,
+  ): Promise<boolean> {
     if (ancestors.has(factId)) return false;
-    const candidate = await this.#store.loadFactCandidateById(factId as FactId);
-    if (candidate === null || candidate.fact.output_kind === null || candidate.evidence.length === 0) {
+    const cached = tupleAuthorization.get(factId);
+    if (cached !== undefined) return cached;
+    const result = this.#authorizeFactFromRecordsUncached(
+      factId,
+      records,
+      ancestors,
+      tupleAuthorization,
+      contributionClosures,
+    );
+    tupleAuthorization.set(factId, result);
+    return result;
+  }
+
+  async #authorizeFactFromRecordsUncached(
+    factId: string,
+    records: ReadonlyMap<string, FactAuthorizationRecord>,
+    ancestors: ReadonlySet<string>,
+    tupleAuthorization: Map<string, Promise<boolean>>,
+    contributionClosures: Map<string, readonly ArtifactContribution[] | null>,
+  ): Promise<boolean> {
+    const record = records.get(factId);
+    if (
+      record === undefined ||
+      record.outputKind === null ||
+      record.contributions === null ||
+      record.contributions.length === 0
+    ) {
       return false;
     }
-    const { fact } = candidate;
-    const contributions = candidate.evidence.map(contributionFromEvidence);
-    if (contributions.some((entry) => entry === null)) return false;
-
-    const dependencyRows = await this.#store.driver.query<{ input_fact_id: string } & SqlRow>(
-      `SELECT input_fact_id
-         FROM fact_dependencies
-        WHERE derived_fact_id = $1
-        ORDER BY input_fact_id`,
-      [fact.id],
-    );
-    const derived = fact.output_kind === 'DERIVED_METRIC';
-    if ((derived && dependencyRows.length === 0) || (!derived && dependencyRows.length > 0)) {
+    const derived = record.outputKind === 'DERIVED_METRIC';
+    if (
+      (derived && record.dependencies.length === 0) ||
+      (!derived && record.dependencies.length > 0)
+    ) {
       return false;
     }
     if (
       !(await this.#authorizeContributions(
-        contributions as ArtifactContribution[],
-        fact.property,
+        record.contributions,
+        record.property,
         derived ? 'DERIVED_METRIC' : 'NORMALIZED_FACT',
       ))
     ) {
@@ -671,13 +1123,18 @@ class SurfaceRightsAuthorizer {
     // behind it must authorize the target tuple. That includes both the
     // target fact's direct evidence and the complete recursive input closure.
     const derivationContributions = new Map<string, ArtifactContribution>(
-      (contributions as ArtifactContribution[]).map((contribution) => [
+      record.contributions.map((contribution) => [
         contribution.contributionId,
         contribution,
       ]),
     );
-    for (const row of dependencyRows) {
-      const subtree = await this.#collectFactContributions(row.input_fact_id, nextAncestors);
+    for (const dependencyId of record.dependencies) {
+      const subtree = this.#collectFactContributions(
+        dependencyId,
+        records,
+        nextAncestors,
+        contributionClosures,
+      );
       if (subtree === null) return false;
       for (const contribution of subtree) {
         derivationContributions.set(contribution.contributionId, contribution);
@@ -686,57 +1143,109 @@ class SurfaceRightsAuthorizer {
     if (
       !(await this.#authorizeDerivationContribution(
         [...derivationContributions.values()],
-        fact.property,
+        record.property,
       ))
     ) {
       return false;
     }
     // DERIVE on the ultimate target is separate from whether each input may be
     // distributed on this surface under its own field/output tuple.
-    for (const row of dependencyRows) {
-      if (!(await this.#authorizeFact(row.input_fact_id, nextAncestors))) return false;
+    for (const dependencyId of record.dependencies) {
+      if (!(await this.#authorizeFactFromRecords(
+        dependencyId,
+        records,
+        nextAncestors,
+        tupleAuthorization,
+        contributionClosures,
+      ))) {
+        return false;
+      }
     }
     return true;
   }
 
-  async #collectFactContributions(
+  #collectFactContributions(
     factId: string,
+    records: ReadonlyMap<string, FactAuthorizationRecord>,
     ancestors: ReadonlySet<string>,
-  ): Promise<readonly ArtifactContribution[] | null> {
+    memo: Map<string, readonly ArtifactContribution[] | null>,
+  ): readonly ArtifactContribution[] | null {
     if (ancestors.has(factId)) return null;
-    const candidate = await this.#store.loadFactCandidateById(factId as FactId);
-    if (candidate === null || candidate.fact.output_kind === null || candidate.evidence.length === 0) {
-      return null;
-    }
-    const { fact } = candidate;
-    const direct = candidate.evidence.map(contributionFromEvidence);
-    if (direct.some((entry) => entry === null)) return null;
+    const cached = memo.get(factId);
+    if (cached !== undefined) return cached;
 
-    const dependencyRows = await this.#store.driver.query<{ input_fact_id: string } & SqlRow>(
-      `SELECT input_fact_id
-         FROM fact_dependencies
-        WHERE derived_fact_id = $1
-        ORDER BY input_fact_id`,
-      [fact.id],
-    );
-    const derived = fact.output_kind === 'DERIVED_METRIC';
-    if ((derived && dependencyRows.length === 0) || (!derived && dependencyRows.length > 0)) {
-      return null;
-    }
-    const contributions = new Map<string, ArtifactContribution>();
-    for (const contribution of direct as ArtifactContribution[]) {
-      contributions.set(contribution.contributionId, contribution);
-    }
-    const nextAncestors = new Set(ancestors);
-    nextAncestors.add(factId);
-    for (const row of dependencyRows) {
-      const nested = await this.#collectFactContributions(row.input_fact_id, nextAncestors);
-      if (nested === null) return null;
-      for (const contribution of nested) {
-        contributions.set(contribution.contributionId, contribution);
+    const visiting = new Set(ancestors);
+    const stack: Array<{ readonly id: string; readonly exit: boolean }> = [
+      { id: factId, exit: false },
+    ];
+
+    while (stack.length > 0) {
+      const frame = stack.pop();
+      if (frame === undefined) break;
+      if (memo.has(frame.id)) continue;
+      if (frame.exit) {
+        visiting.delete(frame.id);
+        const record = records.get(frame.id);
+        if (
+          record === undefined ||
+          record.contributions === null ||
+          record.contributions.length === 0
+        ) {
+          memo.set(frame.id, null);
+          continue;
+        }
+        const contributions = new Map<string, ArtifactContribution>();
+        for (const contribution of record.contributions) {
+          contributions.set(contribution.contributionId, contribution);
+        }
+        let valid = true;
+        for (const dependencyId of record.dependencies) {
+          const nested = memo.get(dependencyId);
+          if (nested === undefined || nested === null) {
+            valid = false;
+            break;
+          }
+          for (const contribution of nested) {
+            contributions.set(contribution.contributionId, contribution);
+          }
+        }
+        memo.set(frame.id, valid ? [...contributions.values()] : null);
+        continue;
+      }
+      if (visiting.has(frame.id)) {
+        for (const id of visiting) memo.set(id, null);
+        return null;
+      }
+
+      const record = records.get(frame.id);
+      if (
+        record === undefined ||
+        record.outputKind === null ||
+        record.contributions === null ||
+        record.contributions.length === 0
+      ) {
+        memo.set(frame.id, null);
+        continue;
+      }
+      const derived = record.outputKind === 'DERIVED_METRIC';
+      if (
+        (derived && record.dependencies.length === 0) ||
+        (!derived && record.dependencies.length > 0)
+      ) {
+        memo.set(frame.id, null);
+        continue;
+      }
+
+      visiting.add(frame.id);
+      stack.push({ id: frame.id, exit: true });
+      for (let index = record.dependencies.length - 1; index >= 0; index -= 1) {
+        const dependencyId = record.dependencies[index];
+        if (dependencyId !== undefined) {
+          stack.push({ id: dependencyId, exit: false });
+        }
       }
     }
-    return [...contributions.values()];
+    return memo.get(factId) ?? null;
   }
 
   authorizeRelationship(relationship: Relationship): Promise<boolean> {
@@ -776,69 +1285,98 @@ class SurfaceRightsAuthorizer {
     );
   }
 
+  visibleCatalogIds(verticalId: VerticalId): Promise<VisibleCatalogIds> {
+    const cached = this.#visibleCatalogs.get(verticalId);
+    if (cached !== undefined) return cached;
+    const loaded = this.#loadVisibleCatalogIds(verticalId);
+    this.#visibleCatalogs.set(verticalId, loaded);
+    return loaded;
+  }
+
   visibleEntityIds(verticalId: VerticalId): Promise<readonly EntityId[]> {
-    const cached = this.#visibleEntities.get(verticalId);
+    const cached = this.#visibleEntityCatalogs.get(verticalId);
     if (cached !== undefined) return cached;
     const loaded = this.#loadVisibleEntityIds(verticalId);
-    this.#visibleEntities.set(verticalId, loaded);
+    this.#visibleEntityCatalogs.set(verticalId, loaded);
     return loaded;
   }
 
   async #loadVisibleEntityIds(verticalId: VerticalId): Promise<readonly EntityId[]> {
+    const candidates = await this.#loadVisibleEntityCandidates(verticalId);
+    const decisions = await this.#authorizeEntities(candidates);
+    return candidates.filter((_, index) => decisions[index] === true);
+  }
+
+  async #loadVisibleCatalogIds(verticalId: VerticalId): Promise<VisibleCatalogIds> {
+    // Preflight both bounded candidate scans before either rights batch starts.
+    // A vertical over either ceiling therefore cannot spend work authorizing a
+    // partial neighboring set, and no partial total or facet can escape.
+    const entityCandidates = await this.#loadVisibleEntityCandidates(verticalId);
+    const factCandidates = await this.#loadVisibleFactCandidates(verticalId);
+    const entityDecisions = await this.#authorizeEntities(entityCandidates);
+    const factDecisions = await this.#authorizeFacts(factCandidates);
+    return {
+      entityIds: entityCandidates.filter((_, index) => entityDecisions[index] === true),
+      factIds: factCandidates.filter((_, index) => factDecisions[index] === true),
+    };
+  }
+
+  async #loadVisibleEntityCandidates(verticalId: VerticalId): Promise<readonly EntityId[]> {
     const rows = await this.#store.driver.query<{ id: string } & SqlRow>(
       `SELECT id FROM entities
         WHERE vertical_id = $1 AND status <> 'RETIRED'
-        ORDER BY id`,
-      [verticalId],
+        LIMIT $2`,
+      [verticalId, MAX_SURFACE_CATALOG_ENTITY_CANDIDATES + 1],
     );
-    const decisions = await this.#authorizationWorkers.map(
-      rows,
-      async (row) => ({
-        id: row.id as EntityId,
-        allowed: await this.authorizeEntity(row.id as EntityId),
-      }),
-    );
-    return decisions.filter((entry) => entry.allowed).map((entry) => entry.id);
+    if (rows.length > MAX_SURFACE_CATALOG_ENTITY_CANDIDATES) {
+      throw new SurfaceCatalogCapacityError(
+        'entities',
+        MAX_SURFACE_CATALOG_ENTITY_CANDIDATES,
+      );
+    }
+    return rows.map((row) => row.id as EntityId);
   }
 
-  visibleFactIds(verticalId: VerticalId): Promise<readonly string[]> {
-    const cached = this.#visibleFacts.get(verticalId);
-    if (cached !== undefined) return cached;
-    const loaded = this.#loadVisibleFactIds(verticalId);
-    this.#visibleFacts.set(verticalId, loaded);
-    return loaded;
-  }
-
-  async #loadVisibleFactIds(verticalId: VerticalId): Promise<readonly string[]> {
+  async #loadVisibleFactCandidates(verticalId: VerticalId): Promise<readonly string[]> {
     const rows = await this.#store.driver.query<{ id: string } & SqlRow>(
       `SELECT f.id
          FROM facts f
          JOIN entities e ON e.id = f.entity_id
-         WHERE e.vertical_id = $1
+        WHERE e.vertical_id = $1
            AND f.status <> 'RETRACTED'
-           AND f.valid_from <= $2
-           AND (f.valid_to IS NULL OR f.valid_to > $2)
-           AND f.recorded_at <= $2
-        ORDER BY f.id`,
-      [verticalId, this.#asOf],
+          AND f.valid_from <= $2
+          AND (f.valid_to IS NULL OR f.valid_to > $2)
+          AND f.recorded_at <= $2
+          AND EXISTS (
+            SELECT 1
+              FROM fact_evidence evidence
+              JOIN source_records record ON record.id = evidence.source_record_id
+             WHERE evidence.fact_id = f.id
+               AND evidence.observed_at <= $2
+               AND record.revision_state = 'FINALIZED'
+               AND (
+                 record.is_current OR
+                 EXISTS (
+                   SELECT 1
+                     FROM source_record_reconciliations reconciliation
+                    WHERE reconciliation.superseded_source_record_id = record.id
+                      AND reconciliation.reconciled_at > $2
+                 ) OR
+                 EXISTS (
+                   SELECT 1
+                     FROM source_record_snapshot_retirements retirement
+                    WHERE retirement.source_record_id = record.id
+                      AND retirement.retired_at > $2
+                 )
+               )
+           )
+        LIMIT $3`,
+      [verticalId, this.#asOf, MAX_SURFACE_CATALOG_FACT_CANDIDATES + 1],
     );
-    const decisions = await this.#authorizationWorkers.map(
-      rows,
-      async (row) => {
-        const candidate = await this.#store.loadFactCandidateByIdAtAuthority(
-          row.id as FactId,
-          this.#asOf,
-        );
-        return {
-          id: row.id,
-          allowed:
-            candidate !== null &&
-            candidate.evidence.length > 0 &&
-            await this.authorizeFact(row.id),
-        };
-      },
-    );
-    return decisions.filter((entry) => entry.allowed).map((entry) => entry.id);
+    if (rows.length > MAX_SURFACE_CATALOG_FACT_CANDIDATES) {
+      throw new SurfaceCatalogCapacityError('facts', MAX_SURFACE_CATALOG_FACT_CANDIDATES);
+    }
+    return rows.map((row) => row.id);
   }
 
   async listEntities(query: SurfaceEntityListQuery): Promise<SurfaceEntityListPage> {
@@ -867,15 +1405,9 @@ class SurfaceRightsAuthorizer {
     );
     const pageRows = rows.slice(0, limit);
     const entities = pageRows.map(mapEntity);
-    const decisions = await this.#authorizationWorkers.map(
-      entities,
-      async (entity) => ({
-        entity,
-        allowed: await this.authorizeEntity(entity.id),
-      }),
-    );
+    const decisions = await this.#authorizeEntities(entities.map((entity) => entity.id));
     return {
-      entities: decisions.filter((entry) => entry.allowed).map((entry) => entry.entity),
+      entities: entities.filter((_, index) => decisions[index] === true),
       next_after_id: rows.length > limit ? (entities.at(-1)?.id ?? null) : null,
     };
   }
@@ -894,7 +1426,7 @@ const viewIsAuthorized = async (
   return true;
 };
 
-export function createSurfaceQueryModel(
+function createSurfaceQueryModelCore(
   store: CanonicalStore,
   fields: FieldMetadataRegistry,
   surface: RightsSurface,
@@ -1055,11 +1587,28 @@ export function createSurfaceQueryModel(
       return { matches, entities };
     },
     listEntities: (query) => authorizer.listEntities(query),
+    entityTypeCounts: async (verticalId) => {
+      const entityIds = await authorizer.visibleEntityIds(verticalId);
+      if (entityIds.length === 0) return new Map();
+      const rows = await store.driver.query<{
+        entity_type: string;
+        total: string;
+      } & SqlRow>(
+        `SELECT e.entity_type, count(*)::text AS total
+           FROM entities e
+          WHERE e.vertical_id = $1
+            AND e.status = 'ACTIVE'
+            AND e.id IN (
+              SELECT authorized_entity.value::uuid
+                FROM jsonb_array_elements_text($2::jsonb) AS authorized_entity(value)
+            )
+          GROUP BY e.entity_type`,
+        [verticalId, JSON.stringify(entityIds)],
+      );
+      return new Map(rows.map((row) => [row.entity_type as Identifier, Number(row.total)]));
+    },
     search: async (query) => {
-      const [entityIds, factIds] = await Promise.all([
-        authorizer.visibleEntityIds(query.vertical_id),
-        authorizer.visibleFactIds(query.vertical_id),
-      ]);
+      const { entityIds, factIds } = await authorizer.visibleCatalogIds(query.vertical_id);
       return searchEntities(store.driver, fields, {
         ...query,
         authorized_entity_ids: intersect(entityIds, query.authorized_entity_ids),
@@ -1067,10 +1616,7 @@ export function createSurfaceQueryModel(
       });
     },
     facets: async (query) => {
-      const [entityIds, factIds] = await Promise.all([
-        authorizer.visibleEntityIds(query.vertical_id),
-        authorizer.visibleFactIds(query.vertical_id),
-      ]);
+      const { entityIds, factIds } = await authorizer.visibleCatalogIds(query.vertical_id);
       return computeFacets(store.driver, fields, {
         ...query,
         entity_ids: intersect(entityIds, query.entity_ids),
@@ -1103,4 +1649,87 @@ export function createSurfaceQueryModel(
   };
 
   return surfaceModel;
+}
+
+/**
+ * Build a surface facade on a snapshot store whose transaction lifecycle is
+ * owned by the canonical QueryModel. This is an internal package seam: the
+ * public package export map exposes only `.` and never exposes the store.
+ */
+export function createSurfaceQueryModelForSnapshot(
+  snapshotStore: CanonicalStore,
+  fields: FieldMetadataRegistry,
+  surface: RightsSurface,
+  options: SurfaceAccessOptions,
+  assertActive: () => void,
+): SurfaceQueryModel {
+  const model = createSurfaceQueryModelCore(snapshotStore, fields, surface, options);
+  const run = async <T>(operation: () => Promise<T>): Promise<T> => {
+    assertActive();
+    return operation();
+  };
+
+  return {
+    fields,
+    surface,
+    getEntity: (id) => run(() => model.getEntity(id)),
+    getEntityBySlug: (verticalId, entityType, slug) => run(
+      () => model.getEntityBySlug(verticalId, entityType, slug),
+    ),
+    lookupIdentifier: (lookup) => run(() => model.lookupIdentifier(lookup)),
+    listEntities: (query) => run(() => model.listEntities(query)),
+    entityTypeCounts: (verticalId) => run(() => model.entityTypeCounts(verticalId)),
+    search: (query) => run(() => model.search(query)),
+    facets: (query) => run(() => model.facets(query)),
+    canonicalFacts: (entityId, policy) => run(() => model.canonicalFacts(entityId, policy)),
+    explainFact: (entityId, property, policy) => run(
+      () => model.explainFact(entityId, property, policy),
+    ),
+    relationships: (query) => run(() => model.relationships(query)),
+    compare: (query) => run(() => model.compare(query)),
+  };
+}
+
+/**
+ * Every externally visible query operation receives a fresh repeatable-read
+ * snapshot and a fresh request-local rights cache. Compound API, MCP and web
+ * flows may reuse this model safely: a later operation cannot reuse an
+ * authorization result computed before a newly committed contribution.
+ */
+export function createSurfaceQueryModel(
+  store: CanonicalStore,
+  fields: FieldMetadataRegistry,
+  surface: RightsSurface,
+  options: SurfaceAccessOptions = {},
+): SurfaceQueryModel {
+  const run = <T>(
+    operation: (snapshot: SurfaceQueryModel) => Promise<T>,
+  ): Promise<T> => withSurfaceStoreSnapshot(
+    store,
+    async (snapshotStore) => operation(
+      createSurfaceQueryModelCore(snapshotStore, fields, surface, options),
+    ),
+  );
+
+  return {
+    fields,
+    surface,
+    getEntity: (id) => run((snapshot) => snapshot.getEntity(id)),
+    getEntityBySlug: (verticalId, entityType, slug) => run(
+      (snapshot) => snapshot.getEntityBySlug(verticalId, entityType, slug),
+    ),
+    lookupIdentifier: (lookup) => run((snapshot) => snapshot.lookupIdentifier(lookup)),
+    listEntities: (query) => run((snapshot) => snapshot.listEntities(query)),
+    entityTypeCounts: (verticalId) => run((snapshot) => snapshot.entityTypeCounts(verticalId)),
+    search: (query) => run((snapshot) => snapshot.search(query)),
+    facets: (query) => run((snapshot) => snapshot.facets(query)),
+    canonicalFacts: (entityId, policy) => run(
+      (snapshot) => snapshot.canonicalFacts(entityId, policy),
+    ),
+    explainFact: (entityId, property, policy) => run(
+      (snapshot) => snapshot.explainFact(entityId, property, policy),
+    ),
+    relationships: (query) => run((snapshot) => snapshot.relationships(query)),
+    compare: (query) => run((snapshot) => snapshot.compare(query)),
+  };
 }

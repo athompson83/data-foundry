@@ -152,6 +152,11 @@ describe('conflicted resolution keeps its review flag and tells the truth', () =
     expect(second.entity.id).toBe(first.entity.id);
     expect(await factory.driver.query<{ count: number }>(
       `SELECT count(*)::int AS count
+         FROM current_entity_aliases
+        WHERE alias_type = 'model_number' AND normalized_value = 'RESOLVER-REPEAT-001'`,
+    )).toEqual([{ count: 1 }]);
+    expect(await factory.driver.query<{ count: number }>(
+      `SELECT count(*)::int AS count
          FROM entity_aliases
         WHERE alias_type = 'model_number' AND normalized_value = 'RESOLVER-REPEAT-001'`,
     )).toEqual([{ count: 1 }]);
