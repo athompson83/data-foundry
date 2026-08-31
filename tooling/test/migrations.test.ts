@@ -7,10 +7,15 @@ import {
   applyMigrations,
   assertLedgerIsOurs,
   ledgerMarker,
+  listSchemaTables,
   partitionOwnedTables,
   createPGliteDriver,
+  createPostgresDriver,
   listPublicTables,
   loadMigrations,
+  normalizeSchemaName,
+  resolveOperationalSchema,
+  resolveSchema,
   type Migration,
   type MigrationDriver,
 } from '../scripts/migrate.js';
@@ -109,6 +114,34 @@ afterAll(async () => {
 });
 
 describe('migration runner', () => {
+  it('refuses a blank explicit schema instead of silently falling back to public', () => {
+    expect(() => normalizeSchemaName('   ')).toThrow(/lowercase PostgreSQL identifier/i);
+    expect(() => resolveSchema(['--schema', ''], {})).toThrow(/lowercase PostgreSQL identifier/i);
+    // Package managers commonly preserve the equals form. Treating it as an
+    // unknown flag would silently use the public default — precisely the
+    // shared Alpha Lab schema this switch exists to protect.
+    expect(resolveSchema(['--schema=data_foundry'], {})).toBe('data_foundry');
+    expect(() => resolveSchema(['--schema='], {})).toThrow(/lowercase PostgreSQL identifier/i);
+    expect(() => resolveSchema(['--schema=data_foundry', '--schema', 'public'], {})).toThrow(
+      /only once/i,
+    );
+    expect(resolveSchema([], {})).toBe('public');
+    expect(resolveSchema([], {}, 'data_foundry')).toBe('data_foundry');
+    expect(resolveSchema([], { DATA_FOUNDRY_SCHEMA: 'public' })).toBe('public');
+    expect(resolveOperationalSchema({})).toBe('data_foundry');
+    expect(resolveOperationalSchema({ DATA_FOUNDRY_SCHEMA: 'public' })).toBe('public');
+    expect(() => normalizeSchemaName('another_private_schema')).toThrow(/data_foundry/i);
+  });
+
+  it('refuses private migration startup options that could override the schema path', async () => {
+    await expect(
+      createPostgresDriver(
+        'postgres://operator@db.invalid/data-foundry?options=-csearch_path%3Dpublic',
+        'data_foundry',
+      ),
+    ).rejects.toThrow(/startup options/i);
+  });
+
   it('finds correctly-named, uniquely-ordered migrations', () => {
     expect(migrations.length).toBeGreaterThan(0);
     const versions = migrations.map((migration) => migration.version);
@@ -134,6 +167,185 @@ describe('migration runner', () => {
     const second = await applyMigrations(driver, migrations);
     expect(second.every((result) => result.skipped)).toBe(true);
   });
+
+  it('keeps an explicitly isolated Data Foundry schema out of a shared public schema', async () => {
+    const isolated = await createPGliteDriver();
+    try {
+      // This stands in for Alpha Lab's unrelated Rise application. Removing the
+      // requested schema support would send Data Foundry's tables and ledger
+      // into this same public namespace.
+      await isolated.exec('CREATE TABLE public.rise_leads (id UUID PRIMARY KEY)');
+
+      await applyMigrations(isolated, migrations, { schema: 'data_foundry' });
+
+      const [currentSchema] = await isolated.query<{ schema: string }>(
+        'SELECT current_schema() AS schema',
+      );
+      expect(currentSchema?.schema).toBe('data_foundry');
+
+      // Supabase installs extensions in the `extensions` schema. Keep it in
+      // the path so runtime functions such as similarity() can resolve, while
+      // keeping Alpha Lab's public schema out of reach.
+      const [searchPath] = await isolated.query<{ configured_path: string }>(
+        "SELECT current_setting('search_path') AS configured_path",
+      );
+      expect(searchPath?.configured_path).toContain('extensions');
+      expect(searchPath?.configured_path).not.toMatch(/(^|,)\s*public\s*(,|$)/);
+
+      const dataFoundryTables = await isolated.query<{ table_name: string }>(
+        `SELECT table_name
+           FROM information_schema.tables
+          WHERE table_schema = 'data_foundry' AND table_type = 'BASE TABLE'
+          ORDER BY table_name`,
+      );
+      expect(dataFoundryTables.map((row) => row.table_name)).toEqual(
+        expect.arrayContaining([...EXPECTED_TABLES, LEDGER_TABLE]),
+      );
+
+      const publicTables = await listPublicTables(isolated);
+      expect(publicTables).toEqual(['rise_leads']);
+    } finally {
+      await isolated.close();
+    }
+  }, 120_000);
+
+  it('keeps a foreign public ledger untouched while proving the private ledger is its own and idempotent', async () => {
+    const isolated = await createPGliteDriver();
+    try {
+      // `schema_migrations` is conventional enough that an Alpha Lab product
+      // can own it. A private install must neither inspect nor adopt it.
+      await isolated.exec(`
+        CREATE TABLE public.schema_migrations (external_note TEXT NOT NULL);
+        INSERT INTO public.schema_migrations (external_note) VALUES ('rise owns this ledger');
+      `);
+
+      await applyMigrations(isolated, migrations, { schema: 'data_foundry' });
+
+      expect(await ledgerMarker(isolated, 'data_foundry')).toBe(LEDGER_MARKER);
+      expect(await ledgerMarker(isolated, 'public')).toBeNull();
+      expect(await listSchemaTables(isolated, 'public')).toEqual([LEDGER_TABLE]);
+      expect(await listSchemaTables(isolated, 'data_foundry')).toEqual(
+        expect.arrayContaining([...EXPECTED_TABLES, LEDGER_TABLE]),
+      );
+
+      const publicLedger = await isolated.query<{ external_note: string }>(
+        'SELECT external_note FROM public.schema_migrations',
+      );
+      expect(publicLedger).toEqual([{ external_note: 'rise owns this ledger' }]);
+
+      const second = await applyMigrations(isolated, migrations, { schema: 'data_foundry' });
+      expect(second).toHaveLength(migrations.length);
+      expect(second.every((result) => result.skipped)).toBe(true);
+    } finally {
+      await isolated.close();
+    }
+  }, 120_000);
+
+  it('allows an Alpha Lab public-name collision without adopting it as Data Foundry', async () => {
+    const isolated = await createPGliteDriver();
+    try {
+      // `sources` is a generic product name. Only the Data Foundry ledger
+      // marker proves ownership; a same-named Rise table must not block a
+      // private bootstrap or be read by it.
+      await isolated.exec('CREATE TABLE public.sources (id UUID PRIMARY KEY, owner TEXT NOT NULL)');
+
+      await applyMigrations(isolated, migrations, { schema: 'data_foundry' });
+
+      expect(await listSchemaTables(isolated, 'public')).toEqual(['sources']);
+      expect(await ledgerMarker(isolated, 'data_foundry')).toBe(LEDGER_MARKER);
+    } finally {
+      await isolated.close();
+    }
+  }, 120_000);
+
+  it('refuses a private bootstrap when a prior public Data Foundry installation exists', async () => {
+    const legacy = await createPGliteDriver();
+    try {
+      await applyMigrations(legacy, migrations);
+
+      await expect(
+        applyMigrations(legacy, migrations, { schema: 'data_foundry' }),
+      ).rejects.toThrow(/public Data Foundry installation/i);
+
+      expect(await listSchemaTables(legacy, 'data_foundry')).toEqual([]);
+    } finally {
+      await legacy.close();
+    }
+  }, 120_000);
+
+  it('records the schema-scoped migration bytes so a transform change cannot silently skip', async () => {
+    const isolated = await createPGliteDriver();
+    try {
+      const transformed = migrations.find((migration) => migration.version === '0022');
+      expect(transformed).toBeDefined();
+      await applyMigrations(isolated, migrations, { schema: 'data_foundry' });
+
+      // The historical source checksum is deliberately different from the
+      // private effective SQL checksum. Writing it back simulates an older or
+      // changed transform and must fail closed rather than skip migration 0022.
+      await isolated.query(
+        'UPDATE "data_foundry".schema_migrations SET checksum = $1 WHERE version = $2',
+        [transformed?.checksum ?? '', transformed?.version ?? ''],
+      );
+      await expect(
+        applyMigrations(isolated, migrations, { schema: 'data_foundry' }),
+      ).rejects.toThrow(/Migration 0022_source_record_revision_state\.sql has changed since it was applied/i);
+    } finally {
+      await isolated.close();
+    }
+  }, 120_000);
+
+  it('does not let an unrelated public constraint suppress a private-schema constraint', async () => {
+    const isolated = await createPGliteDriver();
+    try {
+      // Constraint names are not a database-wide ownership boundary. Cover
+      // every historical name-only probe: no Rise constraint may make 0014 or
+      // 0016 skip the constraint on its intended Data Foundry relation.
+      await isolated.exec(`
+        CREATE TABLE public.rise_constraint_names (
+          id INTEGER NOT NULL,
+          CONSTRAINT sources_rights_publisher_fk CHECK (id IS NOT NULL),
+          CONSTRAINT source_artifacts_acquisition_route_allowed CHECK (id IS NOT NULL),
+          CONSTRAINT source_artifacts_acquisition_plan_nonempty CHECK (id IS NOT NULL),
+          CONSTRAINT source_artifacts_acquisition_jurisdiction_nonempty CHECK (id IS NOT NULL),
+          CONSTRAINT source_artifacts_acquisition_route_required CHECK (id IS NOT NULL),
+          CONSTRAINT source_artifacts_policy_snapshot_fk CHECK (id IS NOT NULL),
+          CONSTRAINT facts_output_kind_allowed CHECK (id IS NOT NULL)
+        )
+      `);
+
+      await applyMigrations(isolated, migrations, { schema: 'data_foundry' });
+
+      const constraints = await isolated.query<{ relation_name: string; conname: string }>(
+        `SELECT relation.relname AS relation_name, c.conname
+           FROM pg_constraint c
+           JOIN pg_class relation ON relation.oid = c.conrelid
+           JOIN pg_namespace namespace ON namespace.oid = relation.relnamespace
+          WHERE namespace.nspname = 'data_foundry'
+            AND c.conname = ANY(ARRAY[
+              'sources_rights_publisher_fk',
+              'source_artifacts_acquisition_route_allowed',
+              'source_artifacts_acquisition_plan_nonempty',
+              'source_artifacts_acquisition_jurisdiction_nonempty',
+              'source_artifacts_acquisition_route_required',
+              'source_artifacts_policy_snapshot_fk',
+              'facts_output_kind_allowed'
+            ])
+          ORDER BY relation.relname, c.conname`,
+      );
+      expect(constraints).toEqual([
+        { relation_name: 'facts', conname: 'facts_output_kind_allowed' },
+        { relation_name: 'source_artifacts', conname: 'source_artifacts_acquisition_jurisdiction_nonempty' },
+        { relation_name: 'source_artifacts', conname: 'source_artifacts_acquisition_plan_nonempty' },
+        { relation_name: 'source_artifacts', conname: 'source_artifacts_acquisition_route_allowed' },
+        { relation_name: 'source_artifacts', conname: 'source_artifacts_acquisition_route_required' },
+        { relation_name: 'source_artifacts', conname: 'source_artifacts_policy_snapshot_fk' },
+        { relation_name: 'sources', conname: 'sources_rights_publisher_fk' },
+      ]);
+    } finally {
+      await isolated.close();
+    }
+  }, 120_000);
 
   it('stops 0012 with an operator-readable error when an existing key has no vertical', async () => {
     const upgrade = await createPGliteDriver();
@@ -640,6 +852,20 @@ describe('migration runner', () => {
       index === 0 ? { ...migration, checksum: 'f'.repeat(64) } : migration,
     );
     await expect(applyMigrations(driver, tampered)).rejects.toThrow(/has changed since it was applied/);
+  });
+
+  it('refuses a private bootstrap before writing when the required extensions schema is absent', async () => {
+    const isolated = await createPGliteDriver();
+    try {
+      await isolated.exec('DROP SCHEMA extensions');
+
+      await expect(
+        applyMigrations(isolated, migrations, { schema: 'data_foundry' }),
+      ).rejects.toThrow(/extensions.*before migration/i);
+      expect(await listSchemaTables(isolated, 'data_foundry')).toEqual([]);
+    } finally {
+      await isolated.close();
+    }
   });
 
   it('keeps the SQL tables and the Zod object registry in step', async () => {

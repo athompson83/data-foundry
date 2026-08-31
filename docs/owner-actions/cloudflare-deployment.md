@@ -20,6 +20,13 @@ then prove the exact deployed SHA, rights behavior, Queue persistence, Cron/R2
 acquisition, and emergency public-cache purge. RapidAPI and MCP live-channel
 proof are separate external gates.
 
+The production database is Alpha Lab's shared Supabase project
+`fgxinxaqkwoqyywdgobs`, not Valor. Data Foundry must be installed only in its
+private `data_foundry` schema. Do not create, migrate, grant on, or otherwise
+alter Alpha Lab's `public` schema: it already contains an unrelated Rise
+application. The Supabase Data API must not expose `data_foundry` and neither
+`anon` nor `authenticated` may receive grants on it.
+
 ---
 
 ## 1. Cloudflare account, zone and Worker routes
@@ -32,8 +39,14 @@ must remain outside source control.
 
 ### Checklist
 
-1. Create or choose the Cloudflare account.
-2. Add the production domain as a Cloudflare zone and move its nameservers.
+1. Use the active/full `aroqon.com` Cloudflare zone. At the 2026-08-31
+   reconciliation it has restored wildcard, apex, `www`, CAA, and
+   `_domainconnect` records, but no Data Foundry Worker routes, Hyperdrives,
+   Queues, or R2 bucket. Preserve unrelated DNS while provisioning; a wildcard
+   record is not evidence that Data Foundry is deployed.
+2. Do not replace the canonical hostname first. Bind a separate
+   `canary.aroqon.com` custom domain/route after the Workers and private schema
+   are ready, then prove it before changing `data.aroqon.com`.
 3. Authenticate Wrangler against the intended account.
 4. Bind the API Worker to its production hostname/custom domain.
 5. Bind the reviewed public web Worker to its production hostname/custom
@@ -85,29 +98,58 @@ credential must not be committed.
 
 ### Checklist
 
-1. Provision the production Postgres database and require TLS.
-2. Supply `POSTGRES_URL` only through the approved secret-bearing environment,
-   then apply the exact repository migrations twice from the frozen release SHA:
+1. Use Alpha Lab's Supabase project `fgxinxaqkwoqyywdgobs` and require TLS. For
+   Cloudflare Hyperdrive, use the Supabase **Direct** origin
+   `db.fgxinxaqkwoqyywdgobs.supabase.co:5432`, not Supavisor: Hyperdrive already
+   supplies the connection pool. First prove the account can reach that IPv6
+   Direct endpoint, or arrange Supabase IPv4 support before creating a live
+   Hyperdrive configuration.
+2. Create a controlled-login migration role that owns only `data_foundry`, and
+   separate least-privilege login roles for edge, web, MCP, usage consumer, and
+   acquisition. No runtime role may own objects, create in `public`, or inherit
+   broad roles. Give every role the **database default** search path
+   `data_foundry, pg_catalog, extensions`, grant only its required
+   `data_foundry` and `extensions` privileges, and revoke `public` access.
+   Keep the role passwords in the provider's normal secure credential flow;
+   never put them in the repository, a command line, or a deployment receipt.
+3. Supply the migration role's `POSTGRES_URL` only through the approved
+   secret-bearing environment, then install the frozen repository migrations
+   twice into the private schema:
    ```powershell
+   $env:DATA_FOUNDRY_SCHEMA = "data_foundry"
    pnpm migrate
    pnpm migrate
    ```
    The first run must apply every pending migration and the second must report
    every migration from the frozen release SHA already applied (currently 26,
-   through `0026`). Do not pass the connection string on argv
-   or archive it with the command receipt.
-3. Create a Hyperdrive configuration for the API Worker.
-4. Configure the usage-consumer Worker with its `HYPERDRIVE` binding.
-5. Configure the public Worker with `HYPERDRIVE` and the non-secret
+   through `0026`). Verify that the private schema, rather than `public`, owns
+   the ledger and every Data Foundry table. Do not pass the connection string
+   on argv or archive it with the command receipt.
+4. Create one Hyperdrive configuration per Worker role (`df-edge`, `df-web`,
+   `df-mcp`, `df-usage`, and `df-acquire`), with SQL query caching disabled.
+   A single shared configuration would make all Workers share one upstream
+   database credential and defeats least privilege. Configure conservative
+   origin connection limits only after the Direct-origin reachability test.
+   Hyperdrive pools in transaction mode and may reset session `SET` state or
+   select a different origin connection between queries. The role's database
+   default search path is the durable defense-in-depth boundary. The production
+   Workers additionally run each schema-bound database operation in a serialized
+   `BEGIN`/`SET LOCAL search_path`/verify/operation/`COMMIT` sequence, so the
+   actual query cannot follow a reset into `public`. They intentionally create
+   one Hyperdrive `pg.Client` per fetch, Queue batch, or Cron invocation and
+   close it when that invocation completes; do not add an isolate-global `Pool`
+   or cache a Hyperdrive client across invocations.
+5. Configure the usage-consumer Worker with its own `HYPERDRIVE` binding.
+6. Configure the public Worker with `HYPERDRIVE` and the non-secret
    `PUBLIC_ORIGIN=https://<public-host>` value. Missing or non-origin values
    fail closed; only explicit localhost HTTP is accepted for local development.
-6. Configure `apps/mcp-worker` with `HYPERDRIVE`, `VERTICAL_SLUG`, the live-key
+7. Configure `apps/mcp-worker` with `HYPERDRIVE`, `VERTICAL_SLUG`, the live-key
    namespace, exact MCP host/origin allowlist and `PUBLIC_ORIGIN`. It reuses the
    canonical database; it is not a second data backend.
-7. Configure `apps/acquisition-worker` with `HYPERDRIVE`, `VERTICAL_SLUG`, the
+8. Configure `apps/acquisition-worker` with `HYPERDRIVE`, `VERTICAL_SLUG`, the
    canonical `RAW_ARTIFACTS` R2 binding/name, and only the provider credentials
    needed by already admitted targets. No provider secret is a grant.
-8. Record the environment bindings outside the repository and make them
+9. Record the environment bindings outside the repository and make them
    reproducible through deployment configuration/secret management rather than
    manual memory.
 
@@ -177,6 +219,16 @@ Mint a one-vertical `df_live_*` key, then an authenticated
 never falls back to an empty in-memory database, so a 503 here is the intended
 behaviour rather than a fault to work around.
 
+Before accepting that health result as a database canary, inspect each upstream
+role through the approved operator path and confirm its database-level search
+path contains `data_foundry`, `pg_catalog`, and `extensions`, while excluding
+`public`. Then exercise repeated independent invocations of every Hyperdrive
+Worker role. Each must pass the runtime private-schema verifier and must not
+reuse a connection from a previous invocation. Run multiple independent queries
+and explicit transactions in each probe; a single successful request is not
+proof that a transaction-pooled origin will retain an application session
+setting.
+
 Also verify that public pages query the same canonical data as REST/MCP and
 that the usage consumer can persist a test event idempotently. A one-vertical
 `MCP/NONE` `df_live_*` key must complete current `server/discover`, `tools/list`
@@ -202,27 +254,36 @@ ENERGY STAR proposal must remain untouched.
 
 ---
 
-## 3. Verify and remove only stale Data Foundry Vercel App access
+## 3. Vercel review and reversible Cloudflare cutover
 
-There is no Data Foundry project in the connected Vercel team, no repository
-webhook, and recent commits have no Vercel status. GitHub App installation
-`122728140` still exists, but its exact repository selection is hidden behind an
-independent GitHub owner sudo/passkey ceremony. This hygiene item remains
-independent of Cloudflare adoption and does not block protected merge or deploy.
+Vercel has a `data-foundry` project (`prj_lU0xruXu9hA6A0UpZYeUZpxW3712`) and a
+Production-domain configuration for `data.aroqon.com`, but it is **not** a
+functional rollback: Git is disconnected, historical deployments fail because
+no `public` output directory is produced, and the live data hostname currently
+returns Vercel `404: NOT_FOUND`. The Cloudflare wildcard DNS record reaches
+that failed Vercel target. Do not cut traffic back to it as a recovery plan.
 
 ### Checklist
 
-Open <https://github.com/settings/installations/122728140>, complete the GitHub
-owner sudo/passkey prompt, and inspect **Repository access**. If and only if
-`athompson83/data-foundry` is selected, remove that repository without changing
-access for other Vercel-managed repositories. Keep `vercel.json` until this
-selection check proves Data Foundry has no remaining App access.
+1. Leave the current Vercel project available for forensic comparison, but do
+   not call it a rollback or reconnect Git merely to mask the failed deployment.
+2. Deploy the reviewed Cloudflare web Worker to `canary.aroqon.com` (or another
+   non-conflicting canary hostname), then prove public data, cache headers,
+   rights refusal, exact SHA, and repeated Hyperdrive schema isolation there
+   before changing the production hostname.
+3. Before moving `data.aroqon.com`, obtain a specific owner confirmation at the
+   point of action: it changes live traffic. Keep a verified Cloudflare canary
+   deployment ready as the actual rollback path.
+4. GitHub App installation `122728140` may require a GitHub owner passkey to
+   inspect repository access. Do not use or request a passkey. It is unrelated
+   to the Cloudflare deployment path.
 
 ### Verify
 
-Record the repository-selection result without credentials. Delete
-`vercel.json` only in a separately reviewed cleanup after absence of App access
-is proved; the already-verified lack of a Vercel project alone is insufficient.
+Record a successful Cloudflare canary and an exact deployment SHA before the
+domain move. After cutover, test the canonical domain from a normal browser and
+retain the successful canary deployment as the recovery target; Vercel's current
+404 deployment is not recovery evidence.
 
 ---
 
@@ -279,7 +340,9 @@ standards-based MCP OAuth tokens; no authorization server has been selected.
 
 The command accepts a database connection only through `POSTGRES_URL`; inject it
 through the approved secret-bearing environment before running these commands.
-Never put the URL or a plaintext API key on argv. File delivery intentionally
+For Alpha Lab it opens only Data Foundry's private `data_foundry` schema; it must
+not be pointed at a legacy/public installation. Never put the URL or a plaintext
+API key on argv. File delivery intentionally
 fails on native Windows because `chmod` is not an owner-only Windows ACL. Run
 direct/MCP file delivery from Linux or WSL on a POSIX filesystem, and select an
 absolute new path outside the git worktree. First validate, then provision a
@@ -325,9 +388,10 @@ does not enrol the zone.
 
 ### Why automation cannot
 
-Creating a Cloudflare Queue is an account-scoped action; this environment has
-no Cloudflare credentials to make the API call with, the same constraint as
-item 1.
+Creating a Cloudflare Queue changes account state. The reconciled account is on
+Workers Free, while this topology requires the Paid plan's configurable
+retention. Do not upgrade or create a production queue until the owner gives a
+specific confirmation for **Workers Paid at $5/month plus usage**.
 
 ### Checklist
 
@@ -344,10 +408,12 @@ item 1.
    block exactly — they are already committed there, since a queue name is
    not a credential. The 14-day retention update requires a paid/configurable
    Workers plan; Workers Free is fixed at 24 hours and is not an eligible
-   production accounting topology.
-2. Provision `apps/usage-consumer`'s own Hyperdrive binding (or point it at
-   the same Hyperdrive configuration `apps/edge` uses — both read and write
-   the same database) following item 2's steps.
+   production accounting topology. The current account is Free; the paid-plan
+   approval above is a prerequisite, not an implementation detail.
+2. Provision `apps/usage-consumer`'s own least-privilege Hyperdrive binding;
+   do not point it at `apps/edge`'s configuration. Each Worker role must use
+   its own upstream database credential and have Hyperdrive SQL caching
+   disabled, following item 2's steps.
 3. Keep every tracked `wrangler.toml` free of live account, route and Hyperdrive
    ids. For CLI deployment, copy each service manifest beside the original as
    `wrangler.production.toml`; the five conventional paths are already ignored
@@ -563,11 +629,15 @@ commercial gate.
 1. Freeze the live 40-character protected-main SHA and rerun its release gates;
    the reconciled rights, usage, auth/metering, web, RapidAPI, acquisition, and
    MCP baseline and PR #22 closeout hardening are merged through migration
-   `0026`. Do not reuse the pre-merge candidate evidence after a later main or
-   deployment change.
-2. Provision Cloudflare Postgres/Hyperdrive, all five Workers, R2, Queue/DLQ,
+   `0026`. Install it with `DATA_FOUNDRY_SCHEMA=data_foundry` in Alpha Lab, not
+   in `public`. Do not reuse the pre-merge candidate evidence after a later main
+   or deployment change.
+2. Provision the isolated Alpha Lab roles/schema and Cloudflare Hyperdrive, all
+   five Workers, R2, Queue/DLQ,
    routes and secrets.
-3. Deploy and prove exact-SHA health/readiness plus real queue behavior.
+3. Deploy a Cloudflare canary and prove exact-SHA health/readiness, repeated
+   Hyperdrive private-schema behavior, and real queue behavior before changing
+   `data.aroqon.com`. Do not treat Vercel's current 404 deployment as rollback.
 4. Rights-clear and ingest the first real commercial vertical.
 5. Mark a vertical `ACTIVE` only after its real-source review is complete, and
    enable public pages only for exact `PUBLIC_WEB` grants. A rendered page may

@@ -130,8 +130,14 @@ Working against a database:
 
 ```bash
 pnpm migrate                                  # apply to .data/pglite (local, persisted)
-POSTGRES_URL=postgres://... pnpm migrate      # apply to Supabase / real Postgres
+POSTGRES_URL=postgres://... pnpm migrate      # apply to Alpha Lab's private data_foundry schema
+DATA_FOUNDRY_SCHEMA=public POSTGRES_URL=postgres://... pnpm migrate # reviewed legacy public install only
 ```
+
+Real-database operations default to `data_foundry`; they never silently write
+to a shared `public` schema. `DATA_FOUNDRY_SCHEMA=public` is an explicit
+compatibility option for a reviewed legacy Data Foundry installation, not the
+Alpha Lab deployment.
 
 ## The two foundational contract packages
 

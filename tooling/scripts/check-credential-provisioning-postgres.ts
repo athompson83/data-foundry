@@ -22,7 +22,11 @@ import {
   type CredentialFileSystem,
   type CredentialProcessRunner,
 } from './provision-api-credential.js';
-import { applyMigrations, loadMigrations, type MigrationDriver } from './migrate.js';
+import {
+  applyMigrations,
+  createPostgresDriver as createMigrationPostgresDriver,
+  loadMigrations,
+} from './migrate.js';
 import { isMain } from '../lib/cli-entry.js';
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -38,16 +42,6 @@ function deferred(): Deferred {
     resume = resolvePromise;
   });
   return { promise, resolve: () => resume?.() };
-}
-
-function migrationDriver(driver: SqlDriver): MigrationDriver {
-  return {
-    label: driver.label,
-    exec: (sql) => driver.exec(sql),
-    query: async <T>(sql: string, params?: readonly unknown[]): Promise<T[]> =>
-      (await driver.query(sql, params as never)) as T[],
-    close: async () => undefined,
-  };
 }
 
 function pauseAfterTenantLock(
@@ -146,13 +140,21 @@ export async function run(
     throw new Error('Set DATA_FOUNDRY_POSTGRES_CONCURRENCY_TEST=1 for a dedicated synthetic test database.');
   }
 
+  // Migration must stay on one physical connection; the canonical app driver
+  // intentionally uses a pool and is opened only after bootstrap completes.
+  const migrationDriver = await createMigrationPostgresDriver(connectionString);
+  try {
+    await applyMigrations(migrationDriver, await loadMigrations());
+  } finally {
+    await migrationDriver.close();
+  }
+
   const primary = await createPostgresDriver(connectionString);
   const firstConnection = await createPostgresDriver(connectionString);
   const second = await createPostgresDriver(connectionString);
   const monitor = await createPostgresDriver(connectionString);
   const release = deferred();
   try {
-    await applyMigrations(migrationDriver(primary), await loadMigrations());
     const suffix = crypto.randomUUID().replaceAll('-', '').slice(0, 12);
     const verticalSlug = `credential-pg-${suffix}`;
     const tenantSlug = `credential-race-${suffix}`;

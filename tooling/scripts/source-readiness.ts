@@ -54,6 +54,7 @@ import {
 } from '@data-foundry/rights-engine';
 import { VERTICALS_DIR } from '../validators/validate-verticals.js';
 import { isMain } from '../lib/cli-entry.js';
+import { resolveOperationalSchema } from './migrate.js';
 
 /**
  * Names reserved by RFC 2606 and RFC 6761 for documentation and testing. A
@@ -1313,8 +1314,11 @@ async function main(): Promise<void> {
         `database credential environment variable ${options.databaseEnv} is not set`,
       );
     }
+    const schema = resolveOperationalSchema(process.env);
     try {
-      liveDriver = await createPostgresDriver(connectionString);
+      liveDriver = await createPostgresDriver(connectionString, {
+        schema,
+      });
     } catch {
       throw new Error(`cannot open live database through credential env ${options.databaseEnv}`);
     }

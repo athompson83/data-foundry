@@ -3,11 +3,11 @@
 ## Current State
 
 - Product: Data Foundry
-- Lifecycle stage: MVP integration / pre-deployment
-- Control-graph node: `MERGED_MAIN -> EXTERNAL_DEPLOY`
-- Current milestone: deploy and prove the protected-main,
-  synthetic-data-capable platform without implying that a real HVAC dataset is
-  cleared
+- Lifecycle stage: Alpha Lab isolation / protected-PR / pre-deployment
+- Control-graph node: `LOCAL_VERIFICATION -> PROTECTED_PR -> EXTERNAL_DEPLOY`
+- Current milestone: isolate Data Foundry safely inside Alpha Lab, land the
+  protected PR, and prove the first lawful Cloudflare canary without implying
+  that a real HVAC dataset is cleared
 - Release authority: the live 40-character `origin/main`. Integration PR
   [#19](https://github.com/athompson83/data-foundry/pull/19) is merged; PRs
   #13–#17 are closed as superseded after path, patch, ancestry, and behavioral
@@ -21,11 +21,39 @@
   `24b34cd2-2f8d-40ae-bfd2-f4460daa419f`. Every later
   candidate-affecting change still requires fresh exact-SHA local, hosted,
   review, and ruleset evidence.
+- Candidate branch: `codex/alpha-lab-schema-isolation-20260831`, based on
+  `origin/main` `0d79ae6f9a967d68162dc11747942d25fff89b85`; PR pending
 - Preview: none verified
-- Production: no deployment of the integrated protected-main tree is recorded or
-  verified; Wrangler was unauthenticated in the verification environment
-- Database target: repository migrations verified locally/disposably; no hosted
-  target or grant state was changed during this integration
+- Production: no Data Foundry Cloudflare deployment exists. The Aroqon zone is
+  active/full, but `data.aroqon.com` currently returns Vercel `404: NOT_FOUND`.
+- Database target: shared Alpha Lab Supabase project `fgxinxaqkwoqyywdgobs`.
+  No hosted schema, role, grant, or data was changed in this session.
+
+## Latest Session — Alpha Lab Isolation and Provider Reconciliation
+
+- Corrected the data boundary: Data Foundry is a private `data_foundry` schema
+  inside Alpha Lab, not part of Valor. Real-Postgres operational commands now
+  default to that private schema; legacy `public` use is explicit only.
+- Hardened migrations to preflight the private schema and `extensions` access,
+  refuse legacy Data Foundry public installations, and retain an independent
+  schema-scoped migration ledger.
+- Hardened Cloudflare Hyperdrive usage: each Worker invocation owns and closes a
+  fresh client; every private-schema operation uses and verifies a transaction-
+  local search path; snapshot setup is constrained and serialized so a pooled
+  transaction cannot inherit another Alpha Lab consumer's path.
+- Added regression coverage across the canonical store, migration runner,
+  ingest CLI, and all five Worker lifecycle roots.
+- Reconciled providers: `aroqon.com` is active/full but no Data Foundry Workers,
+  Hyperdrives, Queues, or R2 buckets exist. The current account is Workers Free;
+  a fourteen-day Queue needs Workers Paid. The configured Vercel project has
+  disconnected Git and no viable deployment, so it is not a rollback target.
+- Fresh local evidence: `typecheck`; focused schema/Worker tests (78); the full
+  Vitest suite (187 files, 2,958 tests); migration, generated-schema/OpenAPI,
+  topology, vertical/runtime, and all-five-Worker artifact checks all pass.
+  Source readiness at `2026-08-31T20:22:08.032Z` is correctly `NOT_READY`:
+  HVAC has zero real sources and no effective surface grants.
+- No Cloudflare, Vercel, Supabase, DNS, billing, source-rights, or production
+  data mutation was made.
 
 ## Protected-Main Implementation State
 
@@ -135,9 +163,14 @@ not mean deployed or commercially publishable.
   publishable; the live deployment and real-source gates remain independent.
 - RapidAPI enrollment, proxy-secret configuration, plans, payout setup, live
   route, and real subscriber proof remain external.
-- Cloudflare canonical account/zone/routes, Hyperdrive, production Postgres, R2,
-  Queue/DLQ, hostnames, protected values, and exact deployment IDs remain
-  external and unverified.
+- The Aroqon Cloudflare zone is active/full, but no Data Foundry Worker, route,
+  Hyperdrive, Queue/DLQ, or R2 bucket exists. The account is Workers Free; the
+  required fourteen-day Queue retention requires Workers Paid. The canary must
+  be a separate `canary.aroqon.com` hostname before any `data.aroqon.com`
+  cutover.
+- The configured Vercel project has disconnected Git. Its production domain
+  returns `404: NOT_FOUND` and historic deployments fail for a missing `public`
+  output directory; it is not a viable rollback path.
 - GitHub `main` is protected by active ruleset `21855694`; its two strict
   required checks are bound to GitHub Actions. Private vulnerability reporting,
   Dependabot vulnerability/security-update controls, secret scanning, and push
@@ -193,8 +226,11 @@ not mean deployed or commercially publishable.
 
 ## Blockers
 
-- No exact deployment of protected `main` or hosted database/Queue/R2 proof is
-  recorded. Live Cloudflare account state could not be inspected here.
+- No exact deployment of the candidate or hosted Alpha Lab private-schema,
+  Queue/DLQ, R2, or Hyperdrive proof is recorded.
+- The current public data hostname is a Vercel 404, not a Data Foundry runtime.
+- Workers Paid approval and secure database-role password entry are needed
+  before a retained-queue Cloudflare canary can be created.
 - Public sitemap rate limiting and its ordinary-crawler bypass policy have not
   been configured or verified on the canonical Cloudflare account.
 - No real HVAC source has the required exact grants and human rights review.
@@ -202,15 +238,18 @@ not mean deployed or commercially publishable.
 
 ## Required User Actions
 
-See `PROJECT_CHECKLIST.md` `UA-001` through `UA-004`. ENERGY STAR remains
-deferred; it is not an action request in this work package.
+See `PROJECT_CHECKLIST.md` `UA-001` through `UA-005`. The immediate external
+gates are rights review (`UA-001`), Workers Paid plus secure role entry
+(`UA-002`), and post-canary hostname confirmation (`UA-005`). ENERGY STAR
+remains deferred; it is not an action request in this work package.
 
 ## Production Impact
 
-Repository code, fifteen forward migrations (`0012` through `0026`), tests,
-generated artifacts, and control documents changed on protected `main`. This
-work performed no deployment, hosted migration, grant activation, source
-acquisition, publisher contact, or provider mutation.
+The pending Alpha Lab isolation branch changes runtime schema selection,
+Hyperdrive transaction isolation/lifecycle, migration safeguards, regression
+coverage, and deployment documentation. This session performed no deployment,
+hosted migration, grant activation, source acquisition, publisher contact, or
+provider mutation.
 
 ## Previous Session Summary
 

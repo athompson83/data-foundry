@@ -139,6 +139,43 @@ describe('composing a deployment', () => {
     expect(opened).toBe(1);
   });
 
+  it('binds each production Hyperdrive invocation to the private Alpha Lab schema', async () => {
+    const opened: Array<{ readonly connectionString: string; readonly schema: string | undefined }> = [];
+    const openDriver = async (connectionString: string, options?: { readonly schema?: string }) => {
+      opened.push({ connectionString, schema: options?.schema });
+      return fixtures.driver;
+    };
+    const env = {
+      DEPLOYMENT_ENVIRONMENT: 'production',
+      HYPERDRIVE: { connectionString: 'postgres://hyperdrive.fixture/data-foundry' },
+      VERTICAL_SLUG: 'hvac',
+      API_KEY_ENVIRONMENT: 'live',
+      USAGE_EVENTS_QUEUE: { send: async () => undefined },
+    } as const;
+
+    await getDeployment({ env, runtime, openDriver });
+    await getDeployment({ env, runtime, openDriver });
+
+    // A Worker invocation owns its Hyperdrive Client. Reusing either client
+    // would retain I/O across invocations, which Cloudflare forbids.
+    expect(opened).toEqual([
+      { connectionString: 'postgres://hyperdrive.fixture/data-foundry', schema: 'data_foundry' },
+      { connectionString: 'postgres://hyperdrive.fixture/data-foundry', schema: 'data_foundry' },
+    ]);
+  });
+
+  it('leaves the local direct-Postgres development driver unscoped', async () => {
+    let schema: string | undefined = 'not-called';
+    const openDriver = async (_connectionString: string, options?: { readonly schema?: string }) => {
+      schema = options?.schema;
+      return fixtures.driver;
+    };
+
+    await getDeployment({ env: envFor('hvac'), runtime, openDriver });
+
+    expect(schema).toBeUndefined();
+  });
+
   it('does not cache a failed build, so one cold-start outage cannot wedge the isolate', async () => {
     let attempts = 0;
     const flaky = async () => {

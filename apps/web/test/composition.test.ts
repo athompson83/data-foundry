@@ -116,6 +116,42 @@ describe('composing a deployment', () => {
     expect(opens).toBe(1);
   });
 
+  it('binds each production Hyperdrive invocation to the private Alpha Lab schema', async () => {
+    const opened: Array<{ readonly connectionString: string; readonly schema: string | undefined }> = [];
+    const openDriver = async (connectionString: string, options?: { readonly schema?: string }) => {
+      opened.push({ connectionString, schema: options?.schema });
+      return fixtures.driver;
+    };
+    const env = {
+      DEPLOYMENT_ENVIRONMENT: 'production',
+      HYPERDRIVE: { connectionString: 'postgres://hyperdrive.fixture/data-foundry' },
+      PUBLIC_ORIGIN: 'https://data.aroqon.com',
+      PUBLIC_CACHE_MODE: 'no-store',
+    } as const;
+
+    await getDeployment({ env, runtimes: RUNTIMES, openDriver });
+    await getDeployment({ env, runtimes: RUNTIMES, openDriver });
+
+    // The Cloudflare origin pool belongs to Hyperdrive, not the Worker
+    // isolate, so each fetch must build a fresh client-backed graph.
+    expect(opened).toEqual([
+      { connectionString: 'postgres://hyperdrive.fixture/data-foundry', schema: 'data_foundry' },
+      { connectionString: 'postgres://hyperdrive.fixture/data-foundry', schema: 'data_foundry' },
+    ]);
+  });
+
+  it('leaves the local direct-Postgres development driver unscoped', async () => {
+    let schema: string | undefined = 'not-called';
+    const openDriver = async (_connectionString: string, options?: { readonly schema?: string }) => {
+      schema = options?.schema;
+      return fixtures.driver;
+    };
+
+    await getDeployment({ env: envFor(), runtimes: RUNTIMES, openDriver });
+
+    expect(schema).toBeUndefined();
+  });
+
   it('does not reuse canonical URLs across two origins backed by the same database', async () => {
     let opens = 0;
     const countingDriver = async () => {

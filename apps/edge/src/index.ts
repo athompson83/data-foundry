@@ -253,6 +253,7 @@ export async function serveRequest(
   void ctx;
   const slug = (env.VERTICAL_SLUG ?? '').trim();
   const runtime = RUNTIMES[slug];
+  let deployment: Awaited<ReturnType<typeof getDeployment>> | undefined;
 
   try {
     if (runtime === undefined) {
@@ -266,7 +267,7 @@ export async function serveRequest(
     const channel = await resolveRequestChannel(request, config);
     if (!channel.ok) return authFailureResponse(request, channel);
 
-    const deployment = await getDeployment({
+    deployment = await getDeployment({
       env,
       runtime,
       ...(driverOverride === undefined ? {} : { openDriver: driverOverride }),
@@ -350,6 +351,12 @@ export async function serveRequest(
     // database is unreachable, most likely. Still not a request-level bug.
     console.error('[edge] startup', error);
     return unavailable('startup', request.method);
+  } finally {
+    // Hyperdrive owns the origin pool. The pg Client this invocation opens is
+    // request-owned and must not survive into a later Worker request.
+    if (env.HYPERDRIVE !== undefined && deployment !== undefined) {
+      await deployment.close().catch(() => undefined);
+    }
   }
 }
 

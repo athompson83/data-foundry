@@ -92,6 +92,7 @@ export function createWebFetchHandler(
   const verticals = routingVerticals(runtimes);
 
   return async (request: Request, env: WebEnv): Promise<Response> => {
+    let deployment: Awaited<ReturnType<typeof getDeployment>> | undefined;
     try {
       const prepared = prepareWebRequest(
         resolveRoutingDeployment(env, verticals),
@@ -101,7 +102,7 @@ export function createWebFetchHandler(
         return toFetchResponse(prepared.response, request.method);
       }
 
-      const deployment = await loadDeployment({
+      deployment = await loadDeployment({
         env,
         runtimes,
         onWarning: (message) => console.warn(`[web] ${message}`),
@@ -118,6 +119,12 @@ export function createWebFetchHandler(
       }
       console.error('[web] startup', error);
       return unavailable('startup');
+    } finally {
+      // Hyperdrive pools at the database side; this request's pg Client must
+      // end before the Worker handles another request.
+      if (env.HYPERDRIVE !== undefined && deployment !== undefined) {
+        await deployment.close().catch(() => undefined);
+      }
     }
   };
 }

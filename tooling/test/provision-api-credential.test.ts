@@ -1415,11 +1415,13 @@ describe('CLI environment and output safety', () => {
     const stdout: string[] = [];
     const fileSystem = new FakeFileSystem();
     let openedWith = '';
+    let openedOptions: unknown;
 
     const result = await runCredentialProvisioningCli(DIRECT_ARGS, {
       env: { POSTGRES_URL },
-      createDriver: async (connectionString) => {
+      createDriver: async (connectionString, options) => {
         openedWith = connectionString;
+        openedOptions = options;
         return driver;
       },
       mintApiKey: async () => minted(),
@@ -1431,6 +1433,7 @@ describe('CLI environment and output safety', () => {
     });
 
     expect(openedWith).toBe(POSTGRES_URL);
+    expect(openedOptions).toEqual({ schema: 'data_foundry' });
     expect(close).toHaveBeenCalledOnce();
     expect(result.credentialAction).toBe('CREATED');
     const output = stdout.join('');

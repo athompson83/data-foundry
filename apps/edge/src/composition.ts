@@ -14,7 +14,10 @@
  */
 import {
   createCanonicalStore,
+  createHyperdriveDriver,
   createPostgresDriver,
+  DATA_FOUNDRY_PRIVATE_SCHEMA,
+  type PostgresDriverOptions,
   type SqlDriver,
 } from '@data-foundry/canonical-store';
 import { createQueryModel } from '@data-foundry/query-model';
@@ -47,11 +50,9 @@ export interface EdgeDeployment {
 /**
  * One deployment per isolate, keyed by what would change it.
  *
- * A Worker isolate serves many requests. Opening a pool per request would spend
- * the connection budget Hyperdrive exists to conserve, so the graph is built
- * once and reused. The key is the connection string and vertical rather than a
- * bare singleton, so a test that builds two differently-configured deployments
- * gets two, instead of silently receiving the first one back.
+ * Local direct-Postgres development may cache a pool per isolate. Hyperdrive
+ * deployments deliberately do not: Cloudflare requires a fresh pg Client per
+ * Worker invocation and provides the upstream pool itself.
  */
 const deployments = new Map<string, Promise<EdgeDeployment>>();
 
@@ -59,7 +60,10 @@ export interface BuildOptions {
   readonly env: EdgeEnv;
   readonly runtime: VerticalRuntime;
   /** Swappable so tests can compose against PGlite without a network. */
-  readonly openDriver?: (connectionString: string) => Promise<SqlDriver>;
+  readonly openDriver?: (
+    connectionString: string,
+    options?: PostgresDriverOptions,
+  ) => Promise<SqlDriver>;
   readonly onError?: (error: unknown, context: { readonly path: string }) => void;
 }
 
@@ -73,8 +77,15 @@ async function build(options: BuildOptions): Promise<EdgeDeployment> {
     );
   }
 
-  const open = options.openDriver ?? createPostgresDriver;
-  const driver = await open(config.connectionString);
+  const open = options.openDriver ?? (
+    options.env.HYPERDRIVE === undefined ? createPostgresDriver : createHyperdriveDriver
+  );
+  const driver = await open(
+    config.connectionString,
+    config.deploymentEnvironment === 'production'
+      ? { schema: DATA_FOUNDRY_PRIVATE_SCHEMA }
+      : undefined,
+  );
 
   // Everything past this line owns an open pool, so every path out of it has to
   // give the pool back. Closing only on the branch that *returns* null was the
@@ -124,7 +135,11 @@ async function build(options: BuildOptions): Promise<EdgeDeployment> {
 
 export function getDeployment(options: BuildOptions): Promise<EdgeDeployment> {
   const config = resolveEdgeConfig(options.env);
-  const key = `${config.verticalSlug} ${config.connectionString}`;
+  // A Hyperdrive client is owned by one Worker invocation. Caching this graph
+  // would retain its I/O object across requests, which Cloudflare forbids.
+  if (options.env.HYPERDRIVE !== undefined) return build(options);
+
+  const key = `${config.deploymentEnvironment} ${config.verticalSlug} ${config.connectionString}`;
   const existing = deployments.get(key);
   if (existing !== undefined) return existing;
 

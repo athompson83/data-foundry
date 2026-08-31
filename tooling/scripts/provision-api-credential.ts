@@ -26,6 +26,7 @@ import {
 } from '@data-foundry/api-keys';
 import {
   createPostgresDriver,
+  type PostgresDriverOptions,
   type SqlDriver,
   type SqlTransactionExecutor,
 } from '@data-foundry/canonical-store';
@@ -36,6 +37,7 @@ import {
 } from '@data-foundry/canonical-schema';
 import { parse as parseToml } from 'smol-toml';
 import { isMain } from '../lib/cli-entry.js';
+import { resolveOperationalSchema } from './migrate.js';
 
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
@@ -1329,7 +1331,10 @@ export async function resolveWranglerCommand(
 
 export interface CredentialCliRuntime extends ProvisioningDependencies {
   readonly env: Readonly<Record<string, string | undefined>>;
-  readonly createDriver: (connectionString: string) => Promise<SqlDriver>;
+  readonly createDriver: (
+    connectionString: string,
+    options?: PostgresDriverOptions,
+  ) => Promise<SqlDriver>;
   readonly writeStdout: (text: string) => void;
 }
 
@@ -1343,12 +1348,22 @@ export async function runCredentialProvisioningCli(
   if (connectionString === undefined || connectionString.trim() === '') {
     throw new CredentialProvisioningError('POSTGRES_URL is required');
   }
+  let schema: string;
+  try {
+    schema = resolveOperationalSchema(runtime.env);
+  } catch (error) {
+    throw new CredentialProvisioningError(
+      error instanceof Error ? error.message : 'DATA_FOUNDRY_SCHEMA is invalid',
+    );
+  }
 
   const snapshotPath = await prepareWranglerAttempt(options, runtime);
   try {
     let driver: SqlDriver;
     try {
-      driver = await runtime.createDriver(connectionString);
+      driver = await runtime.createDriver(connectionString, {
+        schema,
+      });
     } catch {
       throw new CredentialProvisioningError('cannot connect using POSTGRES_URL');
     }

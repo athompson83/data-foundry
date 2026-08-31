@@ -11,7 +11,10 @@
  * into a reason to lose the rest of it.
  */
 import {
+  createHyperdriveDriver,
   createPostgresDriver,
+  DATA_FOUNDRY_PRIVATE_SCHEMA,
+  type PostgresDriverOptions,
   type SqlDriver,
 } from '@data-foundry/canonical-store';
 import { parseUsageEvent, persistUsageEvents, type UsageEvent } from '@data-foundry/usage-events';
@@ -36,13 +39,16 @@ export interface QueueMessageBatch<Body = unknown> {
   readonly messages: readonly QueueMessage<Body>[];
 }
 
-/** One pooled driver per connection string, shared across every batch this isolate consumes. */
+/** Direct local Postgres pools only; Hyperdrive drivers are invocation-owned. */
 const drivers = new Map<string, Promise<SqlDriver>>();
 
 export interface ConsumeOptions {
   readonly env: ConsumerEnv;
   /** Swappable so tests can compose against PGlite without a network. */
-  readonly openDriver?: (connectionString: string) => Promise<SqlDriver>;
+  readonly openDriver?: (
+    connectionString: string,
+    options?: PostgresDriverOptions,
+  ) => Promise<SqlDriver>;
   readonly onError?: (error: unknown, context: ConsumerErrorContext) => void;
 }
 
@@ -54,17 +60,34 @@ export interface ConsumerErrorContext {
 
 function getDriver(options: ConsumeOptions): Promise<SqlDriver> {
   const config = resolveConsumerConfig(options.env);
-  const existing = drivers.get(config.connectionString);
+  const open = options.openDriver ?? (
+    options.env.HYPERDRIVE === undefined ? createPostgresDriver : createHyperdriveDriver
+  );
+  if (options.env.HYPERDRIVE !== undefined) {
+    return open(
+      config.connectionString,
+      config.deploymentEnvironment === 'production'
+        ? { schema: DATA_FOUNDRY_PRIVATE_SCHEMA }
+        : undefined,
+    );
+  }
+
+  const driverKey = `${config.deploymentEnvironment} ${config.connectionString}`;
+  const existing = drivers.get(driverKey);
   if (existing !== undefined) return existing;
 
-  const open = options.openDriver ?? createPostgresDriver;
-  const pending = open(config.connectionString).catch((error: unknown) => {
+  const pending = open(
+    config.connectionString,
+    config.deploymentEnvironment === 'production'
+      ? { schema: DATA_FOUNDRY_PRIVATE_SCHEMA }
+      : undefined,
+  ).catch((error: unknown) => {
     // A failed open must not stay cached, or one transient outage at cold
     // start would wedge every future batch until the isolate recycles.
-    drivers.delete(config.connectionString);
+    drivers.delete(driverKey);
     throw error;
   });
-  drivers.set(config.connectionString, pending);
+  drivers.set(driverKey, pending);
   return pending;
 }
 
@@ -134,6 +157,7 @@ async function persistValidMessages(
  */
 export async function consumeBatch(batch: QueueMessageBatch, options: ConsumeOptions): Promise<void> {
   let driver: SqlDriver;
+  const closeAfterBatch = options.env.HYPERDRIVE !== undefined;
   try {
     driver = await getDriver(options);
   } catch (error) {
@@ -146,20 +170,24 @@ export async function consumeBatch(batch: QueueMessageBatch, options: ConsumeOpt
     throw error;
   }
 
-  const valid: ValidMessage[] = [];
-  for (const message of batch.messages) {
-    const event = parseUsageEvent(message.body);
-    if (event === null) {
-      options.onError?.(new Error('malformed usage event'), { stage: 'parse', messageId: message.id });
-      message.retry();
-      continue;
+  try {
+    const valid: ValidMessage[] = [];
+    for (const message of batch.messages) {
+      const event = parseUsageEvent(message.body);
+      if (event === null) {
+        options.onError?.(new Error('malformed usage event'), { stage: 'parse', messageId: message.id });
+        message.retry();
+        continue;
+      }
+      valid.push({ message, event });
     }
-    valid.push({ message, event });
+
+    if (valid.length === 0) return;
+
+    await persistValidMessages(driver, valid, options.onError);
+  } finally {
+    if (closeAfterBatch) await driver.close().catch(() => undefined);
   }
-
-  if (valid.length === 0) return;
-
-  await persistValidMessages(driver, valid, options.onError);
 }
 
 export default {

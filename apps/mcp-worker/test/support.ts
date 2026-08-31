@@ -37,6 +37,7 @@ export async function seedKey(
     readonly accessTier?: ApiAccessTier;
     readonly billingSource?: ApiBillingSource;
     readonly verticalId?: string;
+    readonly environment?: 'live' | 'test';
   } = {},
 ): Promise<SeededKey> {
   const [tenant] = await fixtures.driver.query<{ id: string }>(
@@ -46,7 +47,7 @@ export async function seedKey(
   );
   if (tenant === undefined) throw new Error('tenant insert returned no row');
 
-  const minted = await mintApiKey('test');
+  const minted = await mintApiKey(options.environment ?? 'test');
   const [key] = await fixtures.driver.query<{ id: string }>(
     `insert into api_keys
        (tenant_id, token_hash, token_prefix, label, vertical_id, access_tier, billing_source)
