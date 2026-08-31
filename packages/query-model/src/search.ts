@@ -26,7 +26,14 @@ import {
 import type { Entity, EntityStatus, Identifier, VerticalId } from '@data-foundry/canonical-schema';
 import { computeFacets, facetFilterPredicates } from './filters.js';
 import type { FacetFilter, FacetResult, FieldMetadataRegistry } from './field-metadata.js';
-import { CURRENT_FACT, Params, VALUE_TEXT, identifierCandidates, likePattern } from './sql.js';
+import {
+  CURRENT_FACT,
+  Params,
+  VALUE_TEXT,
+  identifierCandidates,
+  likePattern,
+  uuidJsonSetPredicate,
+} from './sql.js';
 
 export const SEARCH_MATCH_KINDS = [
   /** Equality on an alias/identifier. Always ranked first. */
@@ -132,7 +139,12 @@ function entityScope(
   const clauses = [`${alias}.vertical_id = ${params.add(query.vertical_id)}`];
   if (query.authorized_entity_ids !== undefined) {
     clauses.push(
-      `${alias}.id IN (${params.addAll([...query.authorized_entity_ids]).join(', ')})`,
+      uuidJsonSetPredicate(
+        `${alias}.id`,
+        query.authorized_entity_ids,
+        params,
+        'authorized_entity_id',
+      ),
     );
   }
   if (statuses.length > 0) {
@@ -269,7 +281,12 @@ function buildMatchesCte(
     const accessPredicate =
       authorizedFacts === undefined
         ? ''
-        : ` AND f.id IN (${params.addAll([...authorizedFacts]).join(', ')})`;
+        : ` AND ${uuidJsonSetPredicate(
+            'f.id',
+            authorizedFacts,
+            params,
+            'authorized_search_fact_id',
+          )}`;
     arms.push(
       `SELECT f.entity_id, ${params.add(String(field.search_boost * 0.6))}::real, 4
          FROM facts f

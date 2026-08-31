@@ -83,3 +83,12 @@ export function serviceUnavailable(): WebResponse {
     body: 'Service unavailable.\n',
   };
 }
+
+/** Opaque refusal for a deterministic bound that retrying cannot change. */
+export function capacityUnavailable(): WebResponse {
+  return {
+    status: 503,
+    headers: headersFor('text/plain; charset=utf-8', NO_STORE),
+    body: 'Service unavailable.\n',
+  };
+}

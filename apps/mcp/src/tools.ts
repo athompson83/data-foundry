@@ -287,7 +287,7 @@ const searchEntities = defineTool({
     'Filters are rejected, not ignored, when the field is not declared filterable for this ' +
     'vertical. Returns entities, never fact values: read those with get_entity or list_facts.',
   input: SearchEntitiesInput,
-  errors: ['INVALID_ARGUMENTS', 'UNKNOWN_FIELD', 'INTERNAL_ERROR'],
+  errors: ['INVALID_ARGUMENTS', 'UNKNOWN_FIELD', 'SERVICE_UNAVAILABLE', 'INTERNAL_ERROR'],
   handler: async (context, args): Promise<Guarded<SearchEntitiesResult>> => {
     const text = args.query?.trim() ?? '';
     const query: SearchQuery = {

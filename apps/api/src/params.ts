@@ -21,7 +21,11 @@ import {
   type IsoDateTime,
   type Slug,
 } from '@data-foundry/canonical-schema';
-import type { FacetFilter } from '@data-foundry/query-model';
+import {
+  MAX_FACET_FILTERS,
+  MAX_FACET_FILTER_VALUES,
+  type FacetFilter,
+} from '@data-foundry/query-model';
 import { ApiError } from './errors.js';
 
 /**
@@ -193,9 +197,23 @@ export function parseList(params: URLSearchParams, parameter: string): string[] 
 export function parseFilters(params: URLSearchParams): FacetFilter[] {
   const ranges = new Map<Identifier, { min: number | null; max: number | null }>();
   const filters: FacetFilter[] = [];
+  const seen = new Set<string>();
+  let filterParameterCount = 0;
 
   for (const [key, value] of params.entries()) {
     if (!key.startsWith('filter.')) continue;
+    filterParameterCount += 1;
+    if (filterParameterCount > MAX_FACET_FILTERS) {
+      throw ApiError.invalidParameter(
+        'filter',
+        `expected at most ${MAX_FACET_FILTERS} filter parameters`,
+        String(filterParameterCount),
+      );
+    }
+    if (seen.has(key)) {
+      throw ApiError.invalidParameter(key, 'expected each filter parameter at most once');
+    }
+    seen.add(key);
     const rest = key.slice('filter.'.length);
     const dot = rest.lastIndexOf('.');
     const suffix = dot === -1 ? '' : rest.slice(dot + 1);
@@ -250,6 +268,13 @@ export function parseFilters(params: URLSearchParams): FacetFilter[] {
       .filter((item) => item !== '');
     if (values.length === 0) {
       throw ApiError.invalidParameter(key, 'expected at least one value', value.slice(0, 40));
+    }
+    if (values.length > MAX_FACET_FILTER_VALUES) {
+      throw ApiError.invalidParameter(
+        key,
+        `expected at most ${MAX_FACET_FILTER_VALUES} comma-separated values`,
+        String(values.length),
+      );
     }
     filters.push({ property, op: 'in', values });
   }

@@ -350,6 +350,15 @@ describe('surface-bound query model', () => {
     expect(search.facets[0]?.entity_count).toBe(0);
   });
 
+  it('aggregates entity-type counts after surface authorization in one operation', async () => {
+    const web = queryModel.forSurface('PUBLIC_WEB', { asOf: AS_OF });
+    const counts = await web.entityTypeCounts(fixtures.vertical.id);
+    const search = await web.search({ vertical_id: fixtures.vertical.id, limit: 1 });
+
+    expect(counts.get(fixtures.entity.entity_type)).toBe(1);
+    expect([...counts.values()].reduce((total, count) => total + count, 0)).toBe(search.total);
+  });
+
   it('uses set-based catalog authorization instead of one evidence query per entity and fact', async () => {
     const seededEntities: Entity[] = [];
     for (let index = 0; index < 12; index += 1) {
@@ -381,8 +390,8 @@ describe('surface-bound query model', () => {
     let perFactReads = 0;
     let snapshotReads = 0;
     let entityBatchParameterCount: number | null = null;
-    let factBatchParameterCount: number | null = null;
-    let factBatchUsesAdditiveRows = false;
+    let factFrontierParameterCount: number | null = null;
+    let factEvidenceParameterCount: number | null = null;
     const observedQuery = async <R extends SqlRow = SqlRow>(
       sql: string,
       params?: readonly SqlParam[],
@@ -396,13 +405,11 @@ describe('surface-bound query model', () => {
         perEntityEvidenceReads += 1;
       }
       if (sql.includes('FROM facts WHERE id = $1')) perFactReads += 1;
-      if (sql.includes('BOOL_OR(') && sql.includes('jsonb_array_elements_text($1::jsonb)')) {
+      if (sql.includes('FROM entity_evidence ee') && sql.includes('jsonb_array_elements_text($1::jsonb)')) {
         entityBatchParameterCount = params?.length ?? 0;
       }
-      if (sql.includes('authorization_rows AS (')) {
-        factBatchParameterCount = params?.length ?? 0;
-        factBatchUsesAdditiveRows = sql.match(/UNION ALL/g)?.length === 2;
-      }
+      if (sql.includes('dependency_frontier')) factFrontierParameterCount = params?.length ?? 0;
+      if (sql.includes('FROM fact_evidence fe')) factEvidenceParameterCount = params?.length ?? 0;
       return execute?.() ?? originalQuery<R>(sql, params);
     };
     fixtures.driver.query = (async <R extends SqlRow = SqlRow>(
@@ -441,9 +448,10 @@ describe('surface-bound query model', () => {
 
     expect(perEntityEvidenceReads).toBe(0);
     expect(perFactReads).toBe(0);
-    expect(entityBatchParameterCount).toBe(1);
-    expect(factBatchParameterCount).toBe(1);
-    expect(factBatchUsesAdditiveRows).toBe(true);
+    // One JSON candidate set plus one deterministic authorization-row ceiling.
+    expect(entityBatchParameterCount).toBe(2);
+    expect(factFrontierParameterCount).toBe(2);
+    expect(factEvidenceParameterCount).toBe(2);
     // One source needs a fixed rights-context read set; the remaining budget
     // covers the catalog, batched evidence, search, ranking, and facet queries.
     // The former per-row implementation exceeds this bound with this fixture.

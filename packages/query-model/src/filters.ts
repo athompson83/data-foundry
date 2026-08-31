@@ -16,7 +16,13 @@ import {
   type FacetValueCount,
   type FieldMetadataRegistry,
 } from './field-metadata.js';
-import { CURRENT_FACT, NUMERIC_FACT_TYPES, Params, VALUE_TEXT } from './sql.js';
+import {
+  CURRENT_FACT,
+  NUMERIC_FACT_TYPES,
+  Params,
+  VALUE_TEXT,
+  uuidJsonSetPredicate,
+} from './sql.js';
 
 /**
  * `EXISTS (...)` predicate constraining `entityAlias` to entities holding a
@@ -41,7 +47,14 @@ export function facetFilterPredicate(
     CURRENT_FACT(alias),
   ];
   if (authorizedFactIds !== undefined) {
-    clauses.push(`${alias}.id IN (${params.addAll([...authorizedFactIds]).join(', ')})`);
+    clauses.push(
+      uuidJsonSetPredicate(
+        `${alias}.id`,
+        authorizedFactIds,
+        params,
+        `authorized_filter_fact_${index}`,
+      ),
+    );
   }
 
   switch (filter.op) {
@@ -134,13 +147,18 @@ export async function computeFacets(
   }
   if (query.entity_ids !== undefined) {
     if (query.entity_ids.length === 0) return emptyFacets(fields);
-    const list = params.addAll(query.entity_ids).join(', ');
-    scope.push(`e.id IN (${list})`);
+    scope.push(uuidJsonSetPredicate('e.id', query.entity_ids, params, 'authorized_facet_entity_id'));
   }
   if (query.authorized_fact_ids !== undefined) {
     if (query.authorized_fact_ids.length === 0) return emptyFacets(fields);
-    const list = params.addAll([...query.authorized_fact_ids]).join(', ');
-    scope.push(`f.id IN (${list})`);
+    scope.push(
+      uuidJsonSetPredicate(
+        'f.id',
+        query.authorized_fact_ids,
+        params,
+        'authorized_facet_fact_id',
+      ),
+    );
   }
   const propertyList = params.addAll(fields.map((field) => field.field)).join(', ');
   scope.push(`f.property IN (${propertyList})`);

@@ -17,6 +17,7 @@ import {
   type McpServerOptions,
 } from '../src/index.js';
 import { entityQualityScore, identityConfidence } from '@data-foundry/canonical-schema';
+import { SurfaceCatalogCapacityError } from '../src/query-layer.js';
 
 let fixtures: McpFixtures;
 
@@ -264,6 +265,35 @@ describe('an unmodelled failure below the dispatcher', () => {
       vertical: { id: fixtures.vertical.id, slug: 'hvac' },
       ...(onError === undefined ? {} : { onError }),
     });
+
+  it('returns a declared non-retryable unavailable error for a bounded catalog refusal', async () => {
+    const cause = new SurfaceCatalogCapacityError('facts', 50_000);
+    const reported: { error: unknown; context: unknown }[] = [];
+    const server = faulted(
+      () => {
+        throw cause;
+      },
+      (error, context) => reported.push({ error, context }),
+    );
+
+    const call = await server.callTool('search_entities', { query: 'anything' });
+    const error = errorOf(call);
+
+    expect(error).toMatchObject({
+      code: 'SERVICE_UNAVAILABLE',
+      retryable: false,
+      details: { tool: 'search_entities' },
+    });
+    expect(JSON.stringify(call.structuredContent)).not.toContain('50000');
+    expect(JSON.stringify(call.structuredContent)).not.toContain('facts');
+    expect(reported).toEqual([{
+      error: cause,
+      context: { tool: 'search_entities', code: 'SERVICE_UNAVAILABLE' },
+    }]);
+    expect(
+      server.listTools().find((tool) => tool.name === 'search_entities')?.errorCodes,
+    ).toContain('SERVICE_UNAVAILABLE');
+  });
 
   it('becomes a retryable code and never leaks the exception', async () => {
     const exploding = faulted(() => {

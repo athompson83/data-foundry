@@ -25,6 +25,7 @@ import {
 } from './routes.js';
 import {
   ReviewerIdentityLeak,
+  SurfaceCatalogCapacityError,
   UnknownFieldError,
 } from '@data-foundry/query-model';
 
@@ -57,6 +58,12 @@ function normalize(error: unknown): ApiError {
       'UNPROCESSABLE_QUERY',
       `Field "${error.field}" cannot be used as a filter or facet in this vertical.`,
       { field: error.field },
+    );
+  }
+  if (error instanceof SurfaceCatalogCapacityError) {
+    return new ApiError(
+      'SERVICE_UNAVAILABLE',
+      'The query exceeds this deployment\'s safe authorization capacity.',
     );
   }
   if (error instanceof ReviewerIdentityLeak) {

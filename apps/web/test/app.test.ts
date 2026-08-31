@@ -18,6 +18,7 @@ import {
   type QueryFixtures,
 } from '../../../packages/query-model/test/support.js';
 import { entityQualityScore, type Entity } from '@data-foundry/canonical-schema';
+import { SurfaceCatalogCapacityError } from '@data-foundry/query-model';
 import { toFetchResponse } from '../src/adapter.js';
 import { createWebApp } from '../src/app.js';
 import { resolveContext } from '../src/config.js';
@@ -285,6 +286,53 @@ describe('manual search', () => {
     const response = await app({ method: 'GET', url: '/data/hvac/search?q=acme' });
     expect(response.status).toBe(200);
     expect(response.body).toContain('name="robots" content="noindex,follow"');
+  });
+
+  it('returns an opaque non-retryable 503 instead of partial HTML on authorization capacity', async () => {
+    const deployment = await getDeployment({
+      env: {
+        DEPLOYMENT_ENVIRONMENT: 'development',
+        POSTGRES_URL: 'postgres://fixture/db',
+        PUBLIC_ORIGIN: 'https://data-foundry.test',
+        PUBLIC_CACHE_MODE: 'no-store',
+      } as never,
+      runtimes: { hvac: ACTIVE_RUNTIME },
+      openDriver: openFixtureDriver,
+    });
+    const context = resolveContext(deployment);
+    const vertical = context.deployment.verticals.get('hvac');
+    if (vertical === undefined) throw new Error('HVAC web fixture missing');
+    const app = createWebApp({
+      ...context,
+      deployment: {
+        ...context.deployment,
+        verticals: new Map([[
+          'hvac',
+          {
+            ...vertical,
+            publicQueryModel: {
+              ...vertical.publicQueryModel,
+              search: async () => {
+                throw new SurfaceCatalogCapacityError('entities', 10_000);
+              },
+            },
+          },
+        ]]),
+      },
+    });
+
+    const response = await app({ method: 'GET', url: '/data/hvac/search?q=capacity' });
+
+    expect(response).toMatchObject({
+      status: 503,
+      body: 'Service unavailable.\n',
+      headers: {
+        'cache-control': 'no-store',
+      },
+    });
+    expect(response.headers).not.toHaveProperty('retry-after');
+    expect(response.body).not.toContain('10000');
+    expect(response.body).not.toContain('entities');
   });
 });
 

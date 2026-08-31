@@ -22,6 +22,7 @@
 import { McpToolError, internalError, unknownTool, type McpToolErrorCode } from './errors.js';
 import {
   ReviewerIdentityLeak,
+  SurfaceCatalogCapacityError,
   type FactSelectionPolicy,
   type IsoDateTime,
   type QueryModel,
@@ -111,6 +112,14 @@ export interface McpServer {
  * to `INTERNAL_ERROR`; the cause goes to the operator channel and nowhere else.
  */
 function normalize(tool: string, error: unknown): McpToolError {
+  if (error instanceof SurfaceCatalogCapacityError) {
+    return new McpToolError(
+      'SERVICE_UNAVAILABLE',
+      'This catalogue is larger than the server can authorize safely in one complete search. ' +
+        'No partial result or facet count was returned.',
+      { tool },
+    );
+  }
   if (error instanceof ReviewerIdentityLeak) {
     return new McpToolError(
       'REVIEWER_IDENTITY_BLOCKED',

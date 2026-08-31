@@ -338,6 +338,7 @@
                     },
                     "values": {
                       "minItems": 1,
+                      "maxItems": 100,
                       "type": "array",
                       "items": {
                         "anyOf": [
@@ -456,6 +457,7 @@
       "error_codes": [
         "INVALID_ARGUMENTS",
         "UNKNOWN_FIELD",
+        "SERVICE_UNAVAILABLE",
         "INTERNAL_ERROR"
       ]
     },

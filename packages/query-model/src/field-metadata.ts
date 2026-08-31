@@ -39,6 +39,10 @@ export const FILTER_CONTROL_TYPES = [
 export const FilterControlTypeSchema = z.enum(FILTER_CONTROL_TYPES);
 export type FilterControlType = z.infer<typeof FilterControlTypeSchema>;
 
+/** Shared external-surface bounds for one metadata-driven search request. */
+export const MAX_FACET_FILTERS = 10;
+export const MAX_FACET_FILTER_VALUES = 100;
+
 export const FieldFilterSchema = z.object({
   type: FilterControlTypeSchema,
   /** Emit facet counts for this field on search responses. */

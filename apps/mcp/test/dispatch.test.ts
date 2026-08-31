@@ -123,6 +123,19 @@ describe('search_entities', () => {
     expect(page.offset).toBe(1);
     expect(page.hits).toHaveLength(1);
   });
+
+  it('rejects an in-filter whose value set exceeds the declared bound', async () => {
+    const call = await fixtures.server.callTool('search_entities', {
+      filters: [{
+        property: 'seer2_rating',
+        op: 'in',
+        values: Array.from({ length: 101 }, (_, index) => index),
+      }],
+    });
+
+    expect(call.isError).toBe(true);
+    expect(errorOf(call).code).toBe('INVALID_ARGUMENTS');
+  });
 });
 
 describe('get_entity', () => {

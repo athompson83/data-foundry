@@ -7,8 +7,10 @@
  * crawlable half of the revenue split, and the paid API is `apps/edge`).
  */
 import type { VerticalDeployment } from './composition.js';
+import { SurfaceCatalogCapacityError } from '@data-foundry/query-model';
 import type { WebContext } from './config.js';
 import {
+  capacityUnavailable,
   htmlResponse,
   notFound,
   serviceUnavailable,
@@ -238,6 +240,7 @@ export function createWebApp(context: WebContext): WebHandler {
       return await dispatch(context, request);
     } catch (error) {
       if (error instanceof SitemapCapacityError) return serviceUnavailable();
+      if (error instanceof SurfaceCatalogCapacityError) return capacityUnavailable();
       throw error;
     }
   };

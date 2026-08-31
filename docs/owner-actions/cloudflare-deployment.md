@@ -59,6 +59,20 @@ exact repository SHA. Verify sitemap capacity failures return only an opaque
 `503` with `Cache-Control: no-store` and `Retry-After`, and verify the provider
 rate limit activates without blocking ordinary crawler fetches.
 
+Also seed an isolated over-capacity catalog and prove the shared query layer
+refuses it before authorization row loading: public web and REST must return no
+partial body/count and only an opaque `503`; MCP must return declared,
+non-retryable `SERVICE_UNAVAILABLE` with no candidate count. Repeat at exactly
+10,000 entity candidates and exactly 50,000 fact candidates to prove the
+sentinel is not off by one. The checked-in 100,000-row authorization ceiling
+must likewise refuse entity/fact evidence fanout. Prove recursive dependency
+graphs refuse above 100,000 distinct nodes, 100,000 edges, or any dependency
+path deeper than 64, including a dense low-node/high-edge DAG and a long chain
+whose root also has shortcut edges to every descendant. Deterministic catalog refusal must omit
+`Retry-After`; only the separately budgeted sitemap response advertises a retry.
+Record Worker CPU/memory and Hyperdrive query timings from these isolated probes
+before any proposal to raise a ceiling.
+
 ---
 
 ## 2. Hyperdrive binding to Postgres
@@ -78,7 +92,8 @@ credential must not be committed.
    pnpm migrate
    ```
    The first run must apply every pending migration and the second must report
-   all 25 migrations already applied. Do not pass the connection string on argv
+   every migration from the frozen release SHA already applied (currently 26,
+   through `0026`). Do not pass the connection string on argv
    or archive it with the command receipt.
 3. Create a Hyperdrive configuration for the API Worker.
 4. Configure the usage-consumer Worker with its `HYPERDRIVE` binding.
@@ -117,7 +132,8 @@ assert new claims, and add a curated claim only through an explicit reviewed
 editorial action. Prove each enabled surface has the intended current identity
 coverage before restoring traffic. This may temporarily hide legacy entities;
 that fail-closed outage is preferable to manufacturing authority. On a first
-deployment, apply all 25 migrations before enabling any route or Cron, then
+deployment, apply every migration from the frozen release SHA (currently 26,
+through `0026`) before enabling any route or Cron, then
 ingest admitted sources with the matching bundle.
 
 Migration `0024` adds explicit source-stream membership and complete-snapshot
@@ -138,6 +154,17 @@ deploy the matching ingest/query bundle, and reingest only rights-admitted
 sources. Prove exact identifier lookup and each enabled surface after reingest;
 an unlinked historical source alias staying hidden is the intended fail-closed
 result, not a reason to patch the row manually.
+
+Migration `0026` adds the `(entity_id, id)` and `(fact_id, id)` evidence indexes
+required for bounded, ordered surface-authorization probes. Its index creation
+is intentionally ordinary rather than concurrent so the repository migration
+remains transactional. Before applying it to an existing production database,
+measure both tables on a production-like copy and schedule a write-safe window
+for the observed index-build duration; record the lock/duration evidence. Do not
+route production traffic to a new query bundle until `0026` is applied, and do
+not claim the checked-in authorization ceilings as production capacity until the
+isolated Worker/Hyperdrive probes above pass. The migration changes no grant,
+evidence, or authority state.
 
 ### Verify
 
@@ -534,7 +561,8 @@ commercial gate.
 
 1. Freeze the live 40-character protected-main SHA and rerun its release gates;
    the reconciled rights, usage, auth/metering, web, RapidAPI, acquisition, and
-   MCP implementation is already merged.
+   MCP baseline is already merged, while the PR #22 closeout hardening must pass
+   and merge before its matching migration/query bundle can be deployed.
 2. Provision Cloudflare Postgres/Hyperdrive, all five Workers, R2, Queue/DLQ,
    routes and secrets.
 3. Deploy and prove exact-SHA health/readiness plus real queue behavior.

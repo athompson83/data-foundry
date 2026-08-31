@@ -9,7 +9,10 @@ paths. Those capabilities are merged repository code, but the platform is not
 yet deployed and no real HVAC source has an effective reviewed
 publication/commercial bundle. Historical PR descriptions are not status
 authority; the live 40-character `origin/main` and its fresh verification gates
-are.
+  are. PR #22 remains the closeout candidate for exact alias-evidence linkage,
+  fresh request snapshots, and migration `0026`'s bounded authorization probes;
+  those hardenings are not protected-main capabilities until that candidate
+  passes and merges.
 
 This document describes the end-to-end revenue path those changes enable and
 states plainly what is implemented, proposed, operational, legal or still a
@@ -92,6 +95,20 @@ usage event model.
   the exact append-only claim has an exact immutable `ALIAS` evidence link.
   That contributing source therefore participates in the requested surface's
   rights AND; claim-only or unlinked legacy spellings stay hidden.
+- Candidate migration `0026` supplies the composite evidence indexes used by
+  the closeout query layer's bounded ordered probes. Canonical surface
+  search/facets bind authorized UUID sets through constant-size
+  JSONB parameters and preflight both entity and fact candidate ceilings before
+  either rights batch begins. Evidence/dependency rowsets have their own hard
+  ceiling, while the iterative derivation frontier independently caps nodes,
+  edges and actual dependency-path depth and uses bounded index probes instead
+  of a global recursive hash/sort. A shortcut edge cannot hide a longer chain,
+  and a corrupt cycle reaches the same bounded refusal before contribution
+  expansion. Public landing counts use one entity-only rights-bound aggregate;
+  they do not scan or authorize an unrelated fact graph. Overflow
+  refuses the entire result through the surface's opaque unavailable contract;
+  it never truncates rights-safe totals or facets, and deterministic public-web
+  capacity refusal does not invite automatic retry.
 - Migration 0024 distinguishes complete snapshots from incremental refreshes.
   Only an explicit complete stream may retire an omitted record, and it records
   exact artifact evidence; incremental absence carries no deletion authority.
