@@ -96,6 +96,19 @@ export interface RealIngestPostgresConnections {
 }
 
 /**
+ * The ingest executable participates in a real database mutation, so attest
+ * its checked-in source alongside the migration corpus and runner.
+ */
+export async function assertRealIngestSourceIdentity(
+  env: Readonly<Record<string, string | undefined>> = process.env,
+  sourceIdentityGuard: typeof assertRealPostgresSourceIdentity = assertRealPostgresSourceIdentity,
+): Promise<void> {
+  await sourceIdentityGuard(env, {
+    additionalSourcePaths: ['services/ingest-worker/src/cli.ts'],
+  });
+}
+
+/**
  * A live ingestion uses its runtime identity for application work and a
  * separate dedicated migration identity before it opens the pipeline driver.
  */
@@ -146,7 +159,7 @@ async function migrate(
  * BEGIN, DDL, ledger write, and COMMIT. Use the migrator's single Client here.
  */
 async function migrateRealPostgres(connectionString: string, schema: string): Promise<void> {
-  await assertRealPostgresSourceIdentity();
+  await assertRealIngestSourceIdentity();
   const driver = await createMigrationPostgresDriver(
     connectionString,
     schema,

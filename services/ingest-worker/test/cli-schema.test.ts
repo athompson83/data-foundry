@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  assertRealIngestSourceIdentity,
   resolveIngestRealPostgresConnections,
   resolveRealPostgresSchema,
 } from '../src/cli.js';
@@ -37,5 +38,26 @@ describe('real Postgres ingestion isolation', () => {
     expect(() => resolveIngestRealPostgresConnections({
       POSTGRES_URL: 'postgres://df_acquisition:fixture@db.invalid/data_foundry',
     })).toThrow(/DATA_FOUNDRY_MIGRATION_DATABASE_URL/i);
+  });
+
+  it('attests the ingest executable before a direct migration', async () => {
+    const calls: Array<{
+      readonly env: Readonly<Record<string, string | undefined>> | undefined;
+      readonly additionalSourcePaths: readonly string[] | undefined;
+    }> = [];
+
+    await assertRealIngestSourceIdentity(
+      { DATA_FOUNDRY_RELEASE_SHA: 'a'.repeat(40) },
+      async (env, options) => {
+        calls.push({ env, additionalSourcePaths: options?.additionalSourcePaths });
+      },
+    );
+
+    expect(calls).toEqual([
+      {
+        env: { DATA_FOUNDRY_RELEASE_SHA: 'a'.repeat(40) },
+        additionalSourcePaths: ['services/ingest-worker/src/cli.ts'],
+      },
+    ]);
   });
 });
