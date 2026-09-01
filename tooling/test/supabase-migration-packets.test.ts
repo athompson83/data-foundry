@@ -15,6 +15,7 @@ import {
 } from '../scripts/migrate.js';
 import {
   buildSupabaseMigrationPlan,
+  parseSupabaseMigrationCliArguments,
   RELEVANT_SOURCE_PATHS,
   renderSupabaseMigrationManifest,
   verifyGitSourceIdentity,
@@ -50,6 +51,18 @@ function build(
 }
 
 describe('Supabase connector migration packet export', () => {
+  it('accepts only the leading separator forwarded by the documented pnpm command', () => {
+    expect(parseSupabaseMigrationCliArguments(['--', '--release-sha', RELEASE_SHA])).toEqual({
+      releaseSha: RELEASE_SHA,
+      appliedLedgerPath: undefined,
+    });
+    expect(() =>
+      parseSupabaseMigrationCliArguments(['--release-sha', RELEASE_SHA, '--']),
+    ).toThrow(
+      /Unknown or incomplete argument: --/,
+    );
+  });
+
   it('binds export identity to Git HEAD and only the defined clean source inputs', async () => {
     const repository = await mkdtemp(join(tmpdir(), 'data-foundry-export-source-'));
     try {

@@ -1519,11 +1519,17 @@ function parseAppliedLedger(value: unknown): SupabaseAppliedMigration[] {
   });
 }
 
-async function main(argv: readonly string[] = process.argv.slice(2)): Promise<void> {
+export function parseSupabaseMigrationCliArguments(argv: readonly string[]): {
+  releaseSha: string;
+  appliedLedgerPath: string | undefined;
+} {
   let releaseSha: string | undefined;
   let appliedLedgerPath: string | undefined;
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index];
+    if (index === 0 && argument === '--') {
+      continue;
+    }
     if (argument === '--release-sha') {
       releaseSha = argv[index + 1];
       index += 1;
@@ -1537,7 +1543,11 @@ async function main(argv: readonly string[] = process.argv.slice(2)): Promise<vo
   if (releaseSha === undefined) {
     throw new Error('Usage: migrate:supabase:export -- --release-sha <40-char-sha> [--applied-ledger <json-file>]');
   }
+  return { releaseSha, appliedLedgerPath };
+}
 
+async function main(argv: readonly string[] = process.argv.slice(2)): Promise<void> {
+  const { releaseSha, appliedLedgerPath } = parseSupabaseMigrationCliArguments(argv);
   const appliedMigrations =
     appliedLedgerPath === undefined
       ? []
