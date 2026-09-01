@@ -40,7 +40,7 @@ describe('Cloudflare route-less private-canary artifacts', () => {
     });
   });
 
-  it('uses the five private-canary target manifests with synthetic Hyperdrive and keeps the harness unbound', async () => {
+  it('uses the five ordinary manifests plus five private-canary targets with synthetic Hyperdrive and keeps the harness unbound', async () => {
     const module = await loadArtifactModule();
     const render = module['renderDryRunConfig'];
     const repoRoot = module['REPO_ROOT'];
@@ -51,9 +51,24 @@ describe('Cloudflare route-less private-canary artifacts', () => {
     if (typeof render !== 'function' || typeof repoRoot !== 'string' || !Array.isArray(services)) return;
 
     const renderDryRunConfig = render as (source: string, mainPath: string, needsHyperdrive: boolean) => string;
-    const expectedTargetNames = ['edge', 'usage-consumer', 'web', 'acquisition-worker', 'mcp-worker'];
+    const expectedOrdinaryTargets = ['edge', 'usage-consumer', 'web', 'acquisition-worker', 'mcp-worker'];
+    const expectedOrdinaryArtifactNames = expectedOrdinaryTargets.map((name) => `ordinary-${name}`);
+    const expectedCanaryArtifactNames = expectedOrdinaryTargets.map((name) => `private-canary-${name}`);
 
-    expect(services.map((service) => service.name)).toEqual([...expectedTargetNames, 'private-canary']);
+    expect(services.map((service) => service.name)).toEqual([
+      ...expectedOrdinaryArtifactNames,
+      ...expectedCanaryArtifactNames,
+      'private-canary',
+    ]);
+    for (const [index, targetName] of expectedOrdinaryTargets.entries()) {
+      const ordinary = services[index];
+      const target = services[index + expectedOrdinaryTargets.length];
+      expect(ordinary.configPath).toBe(join(repoRoot, 'apps', targetName, 'wrangler.toml'));
+      expect(target.configPath).toBe(join(repoRoot, 'apps', targetName, 'wrangler.private-canary.toml'));
+      expect(ordinary.needsHyperdrive).toBe(true);
+      expect(target.needsHyperdrive).toBe(true);
+    }
+
     for (const service of services) {
       const source = await readFile(service.configPath, 'utf8');
       const rendered = renderDryRunConfig(source, service.mainPath, service.needsHyperdrive);
@@ -62,7 +77,6 @@ describe('Cloudflare route-less private-canary artifacts', () => {
         expect(service.needsHyperdrive).toBe(false);
         expect(rendered).not.toContain('hyperdrive');
       } else {
-        expect(service.configPath).toBe(join(repoRoot, 'apps', service.name, 'wrangler.private-canary.toml'));
         expect(service.needsHyperdrive).toBe(true);
         expect(rendered).toContain('binding = "HYPERDRIVE"');
       }
@@ -96,7 +110,7 @@ describe('Cloudflare route-less private-canary artifacts', () => {
     );
   });
 
-  it('reports six route-less private-canary artifacts as five reduced targets plus the harness', async () => {
+  it('reports ordinary and six route-less private-canary artifacts separately', async () => {
     const module = await loadArtifactModule();
     const formatSuccessMessage = module['formatCloudflareArtifactSuccessMessage'];
     expect(typeof formatSuccessMessage).toBe('function');
@@ -109,18 +123,31 @@ describe('Cloudflare route-less private-canary artifacts', () => {
         readonly files: number;
         readonly bytes: number;
       }) => string)({
-        services: ['edge', 'usage-consumer', 'web', 'acquisition-worker', 'mcp-worker', 'private-canary'],
+        services: [
+          'ordinary-edge',
+          'ordinary-usage-consumer',
+          'ordinary-web',
+          'ordinary-acquisition-worker',
+          'ordinary-mcp-worker',
+          'private-canary-edge',
+          'private-canary-usage-consumer',
+          'private-canary-web',
+          'private-canary-acquisition-worker',
+          'private-canary-mcp-worker',
+          'private-canary',
+        ],
         artifacts: [],
         files: 18,
         bytes: 123_456,
       }),
     ).toBe(
-      'OK: Wrangler dry-run built six route-less private-canary Worker artifacts ' +
-        '(five reduced target Workers plus the private-canary harness; 18 files, 123456 bytes) with no PGlite runtime.\n',
+      'OK: Wrangler dry-run built eleven Worker artifacts (five ordinary production Workers plus six route-less ' +
+        'private-canary artifacts: five reduced target Workers plus the private-canary harness; 18 files, 123456 bytes) ' +
+        'with no PGlite runtime.\n',
     );
   });
 
-  it('builds every route-less private-canary artifact with pinned Wrangler dry-run and finds no local PGlite runtime', async () => {
+  it('builds every ordinary and route-less private-canary artifact with pinned Wrangler dry-run and finds no local PGlite runtime', async () => {
     const module = await loadArtifactModule();
     const build = module['buildCloudflareArtifacts'];
     expect(typeof build).toBe('function');
@@ -142,11 +169,16 @@ describe('Cloudflare route-less private-canary artifacts', () => {
     )({ outputRoot });
 
     expect(result.services).toEqual([
-      'edge',
-      'usage-consumer',
-      'web',
-      'acquisition-worker',
-      'mcp-worker',
+      'ordinary-edge',
+      'ordinary-usage-consumer',
+      'ordinary-web',
+      'ordinary-acquisition-worker',
+      'ordinary-mcp-worker',
+      'private-canary-edge',
+      'private-canary-usage-consumer',
+      'private-canary-web',
+      'private-canary-acquisition-worker',
+      'private-canary-mcp-worker',
       'private-canary',
     ]);
     expect(result.artifacts.map(({ name }) => name)).toEqual(result.services);
@@ -155,7 +187,7 @@ describe('Cloudflare route-less private-canary artifacts', () => {
       expect(artifact.bytes).toBeGreaterThan(0);
       expect((await readdir(join(outputRoot, artifact.name))).length).toBeGreaterThan(0);
     }
-    expect(result.files).toBeGreaterThanOrEqual(6);
+    expect(result.files).toBeGreaterThanOrEqual(11);
     expect(result.bytes).toBeGreaterThan(100_000);
   }, 240_000);
 

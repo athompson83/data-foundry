@@ -181,10 +181,11 @@ jobs:
         if: needs.scope.outputs.run_verify == 'true'
         run: pnpm web:compile:check
 
-      # 9. Build the six route-less private-canary bundles — five reduced targets
-      #    plus the no-Hyperdrive harness — only after every generated input is
-      #    current, then reject any artifact that carries local PGlite/WASM.
-      - name: Cloudflare six route-less private-canary artifacts build and are PGlite-free
+      # 9. Build the ordinary five Worker bundles alongside the six route-less
+      #    private-canary bundles — five reduced targets plus the no-Hyperdrive
+      #    harness — only after every generated input is current, then reject
+      #    any artifact that carries local PGlite/WASM.
+      - name: Cloudflare ordinary and six route-less private-canary artifacts build and are PGlite-free
         if: needs.scope.outputs.run_verify == 'true'
         run: pnpm cloudflare:artifacts:check
 

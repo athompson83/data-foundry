@@ -93,10 +93,10 @@ describe('CI workflow policy', () => {
     }
   });
 
-  it('labels the artifact gate as the six route-less private-canary artifacts', () => {
+  it('labels the artifact gate as ordinary and six route-less private-canary artifacts', () => {
     const artifactGate = workflow.jobs.verify.steps.find((step) => step.run === 'pnpm cloudflare:artifacts:check');
     expect(artifactGate?.name).toBe(
-      'Cloudflare six route-less private-canary artifacts build and are PGlite-free',
+      'Cloudflare ordinary and six route-less private-canary artifacts build and are PGlite-free',
     );
   });
 

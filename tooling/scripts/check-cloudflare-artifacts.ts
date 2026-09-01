@@ -40,32 +40,65 @@ const WRANGLER_OS_ENVIRONMENT_KEYS = [
 ] as const;
 
 export const CLOUDFLARE_ARTIFACT_SERVICES = [
+  // Keep the ordinary production manifests bundleable too. The canary profiles
+  // are deliberately reduced, so passing their dry runs must not hide a
+  // Wrangler-level regression in an ordinary route, Cron, R2, or Queue Worker.
   {
-    name: 'edge',
+    name: 'ordinary-edge',
+    configPath: join(REPO_ROOT, 'apps', 'edge', 'wrangler.toml'),
+    mainPath: join(REPO_ROOT, 'apps', 'edge', 'src', 'index.ts'),
+    needsHyperdrive: true,
+  },
+  {
+    name: 'ordinary-usage-consumer',
+    configPath: join(REPO_ROOT, 'apps', 'usage-consumer', 'wrangler.toml'),
+    mainPath: join(REPO_ROOT, 'apps', 'usage-consumer', 'src', 'index.ts'),
+    needsHyperdrive: true,
+  },
+  {
+    name: 'ordinary-web',
+    configPath: join(REPO_ROOT, 'apps', 'web', 'wrangler.toml'),
+    mainPath: join(REPO_ROOT, 'apps', 'web', 'src', 'index.ts'),
+    needsHyperdrive: true,
+  },
+  {
+    name: 'ordinary-acquisition-worker',
+    configPath: join(REPO_ROOT, 'apps', 'acquisition-worker', 'wrangler.toml'),
+    mainPath: join(REPO_ROOT, 'apps', 'acquisition-worker', 'src', 'index.ts'),
+    needsHyperdrive: true,
+  },
+  {
+    name: 'ordinary-mcp-worker',
+    configPath: join(REPO_ROOT, 'apps', 'mcp-worker', 'wrangler.toml'),
+    mainPath: join(REPO_ROOT, 'apps', 'mcp-worker', 'src', 'index.ts'),
+    needsHyperdrive: true,
+  },
+  {
+    name: 'private-canary-edge',
     configPath: join(REPO_ROOT, 'apps', 'edge', 'wrangler.private-canary.toml'),
     mainPath: join(REPO_ROOT, 'apps', 'edge', 'src', 'index.ts'),
     needsHyperdrive: true,
   },
   {
-    name: 'usage-consumer',
+    name: 'private-canary-usage-consumer',
     configPath: join(REPO_ROOT, 'apps', 'usage-consumer', 'wrangler.private-canary.toml'),
     mainPath: join(REPO_ROOT, 'apps', 'usage-consumer', 'src', 'index.ts'),
     needsHyperdrive: true,
   },
   {
-    name: 'web',
+    name: 'private-canary-web',
     configPath: join(REPO_ROOT, 'apps', 'web', 'wrangler.private-canary.toml'),
     mainPath: join(REPO_ROOT, 'apps', 'web', 'src', 'index.ts'),
     needsHyperdrive: true,
   },
   {
-    name: 'acquisition-worker',
+    name: 'private-canary-acquisition-worker',
     configPath: join(REPO_ROOT, 'apps', 'acquisition-worker', 'wrangler.private-canary.toml'),
     mainPath: join(REPO_ROOT, 'apps', 'acquisition-worker', 'src', 'index.ts'),
     needsHyperdrive: true,
   },
   {
-    name: 'mcp-worker',
+    name: 'private-canary-mcp-worker',
     configPath: join(REPO_ROOT, 'apps', 'mcp-worker', 'wrangler.private-canary.toml'),
     mainPath: join(REPO_ROOT, 'apps', 'mcp-worker', 'src', 'index.ts'),
     needsHyperdrive: true,
@@ -101,8 +134,8 @@ export interface CloudflareArtifactServiceResult {
 
 export function formatCloudflareArtifactSuccessMessage(result: CloudflareArtifactResult): string {
   return (
-    'OK: Wrangler dry-run built six route-less private-canary Worker artifacts ' +
-    '(five reduced target Workers plus the private-canary harness; ' +
+    'OK: Wrangler dry-run built eleven Worker artifacts (five ordinary production Workers plus six route-less ' +
+    'private-canary artifacts: five reduced target Workers plus the private-canary harness; ' +
     `${result.files} files, ${result.bytes} bytes) with no PGlite runtime.\n`
   );
 }
