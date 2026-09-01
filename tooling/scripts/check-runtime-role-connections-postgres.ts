@@ -47,6 +47,7 @@ SELECT current_user = $1 AND session_user = $1 AS direct_login,
             ) = 1
        ) AS durable_search_path_is_exact,
        NOT EXISTS (SELECT 1 FROM effective_privilege_differences)
+       AND NOT EXISTS (SELECT 1 FROM external_direct_acl_differences)
        AND NOT EXISTS (SELECT 1 FROM public_private_acl_entries) AS privilege_matrix_is_exact`;
 
 export async function checkRuntimeRoleConnectionsPostgres(

@@ -6,6 +6,8 @@ import {
 export {
   API_KEY_AUTH_COLUMNS,
   API_TENANT_AUTH_COLUMNS,
+  buildRuntimeRoleExpectedExternalAclValuesSql,
+  buildRuntimeRoleExternalDirectAclSql,
   buildRuntimeRoleExpectedGrants,
   PRIVATE_FUNCTION_SIGNATURES,
   QUERY_CORE_RELATIONS,
@@ -179,6 +181,7 @@ SELECT current_user::text AS current_user,
        has_schema_privilege(current_user, 'data_foundry', 'USAGE') AS private_schema_usage,
        has_schema_privilege(current_user, 'data_foundry', 'CREATE') AS private_schema_create,
        NOT EXISTS (SELECT 1 FROM effective_privilege_differences)
+       AND NOT EXISTS (SELECT 1 FROM external_direct_acl_differences)
        AND NOT EXISTS (SELECT 1 FROM public_private_acl_entries) AS privilege_matrix_is_exact`;
 
 /**

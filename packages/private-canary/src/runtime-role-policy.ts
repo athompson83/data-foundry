@@ -190,6 +190,96 @@ function sqlLiteral(value: string): string {
 }
 
 /**
+ * The only direct runtime-role ACLs permitted outside the private schema.
+ * PostgreSQL grants inherited from PUBLIC are deliberately not represented:
+ * the deployment contract treats those separately from named role ACLs.
+ */
+export function buildRuntimeRoleExpectedExternalAclValuesSql(): string {
+  return RUNTIME_ROLES.flatMap((role) => [
+    `    ('schema', 'extensions', '', ${sqlLiteral(role)}, 'USAGE', false)`,
+    `    ('database', current_database()::text, '', ${sqlLiteral(role)}, 'CONNECT', false)`,
+  ]).join(',\n');
+}
+
+/**
+ * Inventory every named runtime-role ACL outside the private schema. The
+ * caller supplies the trusted SQL predicate for the joined `grantee` row so
+ * the migration verifier can inspect all runtime roles and a canary probe can
+ * inspect its one bound role with the same inventory.
+ */
+export function buildRuntimeRoleExternalDirectAclSql(schema: string, roleFilterSql: string): string {
+  const schemaLiteral = sqlLiteral(schema);
+  return `SELECT 'schema'::text AS scope, n.nspname::text AS object_name, ''::text AS column_name,
+           grantee.rolname::text AS role_name, acl.privilege_type::text AS privilege, acl.is_grantable
+      FROM pg_namespace n CROSS JOIN LATERAL aclexplode(n.nspacl) acl
+      JOIN pg_roles grantee ON grantee.oid = acl.grantee
+     WHERE n.nspname <> ${schemaLiteral} AND ${roleFilterSql}
+    UNION ALL
+    SELECT 'relation', n.nspname || '.' || c.relname, '', grantee.rolname::text, acl.privilege_type::text, acl.is_grantable
+      FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
+      CROSS JOIN LATERAL aclexplode(c.relacl) acl JOIN pg_roles grantee ON grantee.oid = acl.grantee
+     WHERE n.nspname <> ${schemaLiteral} AND c.relkind IN ('r','p','v','m','S','f') AND ${roleFilterSql}
+    UNION ALL
+    SELECT 'column', n.nspname || '.' || c.relname, a.attname::text, grantee.rolname::text, acl.privilege_type::text, acl.is_grantable
+      FROM pg_attribute a JOIN pg_class c ON c.oid = a.attrelid JOIN pg_namespace n ON n.oid = c.relnamespace
+      CROSS JOIN LATERAL aclexplode(a.attacl) acl JOIN pg_roles grantee ON grantee.oid = acl.grantee
+     WHERE n.nspname <> ${schemaLiteral} AND a.attnum > 0 AND NOT a.attisdropped AND ${roleFilterSql}
+    UNION ALL
+    SELECT 'function', n.nspname || '.' || p.proname || '(' || oidvectortypes(p.proargtypes) || ')', '',
+           grantee.rolname::text, acl.privilege_type::text, acl.is_grantable
+      FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
+      CROSS JOIN LATERAL aclexplode(p.proacl) acl JOIN pg_roles grantee ON grantee.oid = acl.grantee
+     WHERE n.nspname <> ${schemaLiteral} AND p.prokind IN ('f','p','a','w') AND ${roleFilterSql}
+    UNION ALL
+    SELECT 'type', n.nspname || '.' || t.typname, '', grantee.rolname::text, acl.privilege_type::text, acl.is_grantable
+      FROM pg_type t JOIN pg_namespace n ON n.oid = t.typnamespace
+      CROSS JOIN LATERAL aclexplode(t.typacl) acl JOIN pg_roles grantee ON grantee.oid = acl.grantee
+     WHERE n.nspname <> ${schemaLiteral} AND ${roleFilterSql}
+    UNION ALL
+    SELECT 'database', d.datname::text, '', grantee.rolname::text, acl.privilege_type::text, acl.is_grantable
+      FROM pg_database d CROSS JOIN LATERAL aclexplode(d.datacl) acl
+      JOIN pg_roles grantee ON grantee.oid = acl.grantee WHERE ${roleFilterSql}
+    UNION ALL
+    SELECT 'foreign_server', s.srvname::text, '', grantee.rolname::text,
+           acl.privilege_type::text, acl.is_grantable
+      FROM pg_foreign_server s CROSS JOIN LATERAL aclexplode(s.srvacl) acl
+      JOIN pg_roles grantee ON grantee.oid = acl.grantee WHERE ${roleFilterSql}
+    UNION ALL
+    SELECT 'foreign_data_wrapper', w.fdwname::text, '', grantee.rolname::text,
+           acl.privilege_type::text, acl.is_grantable
+      FROM pg_foreign_data_wrapper w CROSS JOIN LATERAL aclexplode(w.fdwacl) acl
+      JOIN pg_roles grantee ON grantee.oid = acl.grantee WHERE ${roleFilterSql}
+    UNION ALL
+    SELECT 'language', l.lanname::text, '', grantee.rolname::text,
+           acl.privilege_type::text, acl.is_grantable
+      FROM pg_language l CROSS JOIN LATERAL aclexplode(l.lanacl) acl
+      JOIN pg_roles grantee ON grantee.oid = acl.grantee WHERE ${roleFilterSql}
+    UNION ALL
+    SELECT 'tablespace', t.spcname::text, '', grantee.rolname::text,
+           acl.privilege_type::text, acl.is_grantable
+      FROM pg_tablespace t CROSS JOIN LATERAL aclexplode(t.spcacl) acl
+      JOIN pg_roles grantee ON grantee.oid = acl.grantee WHERE ${roleFilterSql}
+    UNION ALL
+    SELECT 'large_object', l.oid::text, '', grantee.rolname::text,
+           acl.privilege_type::text, acl.is_grantable
+      FROM pg_largeobject_metadata l CROSS JOIN LATERAL aclexplode(l.lomacl) acl
+      JOIN pg_roles grantee ON grantee.oid = acl.grantee WHERE ${roleFilterSql}
+    UNION ALL
+    SELECT 'parameter', p.parname::text, '', grantee.rolname::text,
+           acl.privilege_type::text, acl.is_grantable
+      FROM pg_parameter_acl p CROSS JOIN LATERAL aclexplode(p.paracl) acl
+      JOIN pg_roles grantee ON grantee.oid = acl.grantee WHERE ${roleFilterSql}
+    UNION ALL
+    SELECT 'default_acl', owner.rolname || ':' || COALESCE(n.nspname, '') || ':' || d.defaclobjtype::text,
+           '', grantee.rolname::text, acl.privilege_type::text, acl.is_grantable
+      FROM pg_default_acl d
+      JOIN pg_roles owner ON owner.oid = d.defaclrole
+      LEFT JOIN pg_namespace n ON n.oid = d.defaclnamespace
+      CROSS JOIN LATERAL aclexplode(d.defaclacl) acl
+      JOIN pg_roles grantee ON grantee.oid = acl.grantee WHERE ${roleFilterSql}`;
+}
+
+/**
  * Build CTEs that compare all effective relation, column, function, and schema
  * privileges (including grantability), while rejecting direct PUBLIC access in
  * the private schema, against the same inventory used to issue grants.
@@ -203,12 +293,19 @@ export function buildRuntimeRoleEffectivePrivilegeMatrixCtes(
       `    (${sqlLiteral(grant.scope)}, ${sqlLiteral(grant.objectName)}, ${sqlLiteral(grant.columnName)}, ${sqlLiteral(grant.role)}, ${sqlLiteral(grant.privilege)}, ${grant.isGrantable})`,
     )
     .join(',\n');
+  const externalExpectedValues = buildRuntimeRoleExpectedExternalAclValuesSql();
   const schemaLiteral = sqlLiteral(schema);
   return `expected_runtime_grants(scope, object_name, column_name, role_name, privilege, is_grantable) AS (VALUES
 ${expectedValues}
+), expected_external_runtime_acls(scope, object_name, column_name, role_name, privilege, is_grantable) AS (VALUES
+${externalExpectedValues}
 ), expected_role_grants(scope, object_name, column_name, privilege, is_grantable) AS (
   SELECT scope, object_name, column_name, privilege, is_grantable
     FROM expected_runtime_grants
+   WHERE role_name = ${roleReference}
+), expected_external_role_acls(scope, object_name, column_name, privilege, is_grantable) AS (
+  SELECT scope, object_name, column_name, privilege, is_grantable
+    FROM expected_external_runtime_acls
    WHERE role_name = ${roleReference}
 ), expected_effective_privileges(scope, object_name, column_name, privilege, is_grantable) AS (
   SELECT scope, object_name, column_name, privilege, is_grantable FROM expected_role_grants
@@ -282,6 +379,21 @@ ${expectedValues}
          COALESCE(expected.is_grantable, actual.is_grantable) AS is_grantable
     FROM expected_effective_privileges expected
     FULL OUTER JOIN actual_effective_privileges actual
+      USING (scope, object_name, column_name, privilege, is_grantable)
+   WHERE expected.scope IS NULL OR actual.scope IS NULL
+), actual_external_role_acls(scope, object_name, column_name, privilege, is_grantable) AS (
+  SELECT scope, object_name, column_name, privilege, is_grantable
+    FROM (
+${buildRuntimeRoleExternalDirectAclSql(schema, `grantee.rolname = ${roleReference}`)}
+    ) external_acl
+), external_direct_acl_differences AS (
+  SELECT COALESCE(expected.scope, actual.scope) AS scope,
+         COALESCE(expected.object_name, actual.object_name) AS object_name,
+         COALESCE(expected.column_name, actual.column_name) AS column_name,
+         COALESCE(expected.privilege, actual.privilege) AS privilege,
+         COALESCE(expected.is_grantable, actual.is_grantable) AS is_grantable
+    FROM expected_external_role_acls expected
+    FULL OUTER JOIN actual_external_role_acls actual
       USING (scope, object_name, column_name, privilege, is_grantable)
    WHERE expected.scope IS NULL OR actual.scope IS NULL
 ), public_private_acl_entries AS (

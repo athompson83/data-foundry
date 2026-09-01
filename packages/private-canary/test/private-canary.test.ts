@@ -83,10 +83,13 @@ describe('private canary DLQ envelope', () => {
 });
 
 describe('private canary target runtime binding', () => {
-  it('compares every effective private-schema privilege to the runtime grant matrix', () => {
+  it('compares private effective privileges and direct external ACLs to the runtime grant matrix', () => {
     expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('expected_runtime_grants');
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('expected_external_runtime_acls');
     expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('effective_privilege_differences');
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('external_direct_acl_differences');
     expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('FROM pg_class');
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('FROM pg_database');
     expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('FULL OUTER JOIN');
     expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).not.toContain('CASE $1');
   });

@@ -11,6 +11,7 @@ import {
   buildSupabaseMigrationPlan,
 } from '../scripts/export-supabase-migration-packets.js';
 import {
+  buildRuntimeRoleExpectedExternalAclValuesSql,
   buildRuntimeRoleExpectedGrants,
   PRIVATE_CANARY_RUNTIME_BINDING_SQL,
 } from '@data-foundry/private-canary';
@@ -115,6 +116,7 @@ describe('Supabase post-migration runtime grants', () => {
     expect(first.sql).toContain(
       "('database', current_database()::text, '', 'df_edge', 'CONNECT', false)",
     );
+    expect(first.verificationSql).toContain(buildRuntimeRoleExpectedExternalAclValuesSql());
     expect(first.verificationSql).toContain('public_schema_create_is_false');
     expect(first.verificationSql).toContain('unexpected_private_privilege_count');
     expect(first.verificationSql).toContain('public_fingerprint_input');
@@ -242,6 +244,80 @@ describe('Supabase post-migration runtime grants', () => {
         ['df_acquisition'],
       );
       expect(drift?.privilege_matrix_is_exact).toBe(false);
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it('rejects direct external database and schema capability drift in the runtime binding matrix', async () => {
+    const { database, plan } = await createMigratedDatabase();
+    const bindingIsExact = async () => {
+      const [binding] = await database.query<{ readonly privilege_matrix_is_exact: boolean }>(
+        PRIVATE_CANARY_RUNTIME_BINDING_SQL,
+        ['df_edge'],
+      );
+      return binding?.privilege_matrix_is_exact;
+    };
+    try {
+      await database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`);
+      expect(await bindingIsExact()).toBe(true);
+
+      await database.exec(`
+        DO $runtime_database_create_drift$
+        BEGIN
+          EXECUTE format('GRANT CREATE ON DATABASE %I TO %I', current_database(), 'df_edge');
+        END
+        $runtime_database_create_drift$;
+      `);
+      expect(await bindingIsExact()).toBe(false);
+      await database.exec(`
+        DO $runtime_database_create_restore$
+        BEGIN
+          EXECUTE format('REVOKE CREATE ON DATABASE %I FROM %I', current_database(), 'df_edge');
+        END
+        $runtime_database_create_restore$;
+      `);
+
+      await database.exec(`
+        DO $runtime_database_temporary_drift$
+        BEGIN
+          EXECUTE format('GRANT TEMPORARY ON DATABASE %I TO %I', current_database(), 'df_edge');
+        END
+        $runtime_database_temporary_drift$;
+      `);
+      expect(await bindingIsExact()).toBe(false);
+      await database.exec(`
+        DO $runtime_database_temporary_restore$
+        BEGIN
+          EXECUTE format('REVOKE TEMPORARY ON DATABASE %I FROM %I', current_database(), 'df_edge');
+        END
+        $runtime_database_temporary_restore$;
+      `);
+
+      await database.exec(`
+        DO $runtime_database_connect_option_drift$
+        BEGIN
+          EXECUTE format('REVOKE CONNECT ON DATABASE %I FROM %I', current_database(), 'df_edge');
+          EXECUTE format('GRANT CONNECT ON DATABASE %I TO %I WITH GRANT OPTION', current_database(), 'df_edge');
+        END
+        $runtime_database_connect_option_drift$;
+      `);
+      expect(await bindingIsExact()).toBe(false);
+      await database.exec(`
+        DO $runtime_database_connect_restore$
+        BEGIN
+          EXECUTE format('REVOKE CONNECT ON DATABASE %I FROM %I', current_database(), 'df_edge');
+          EXECUTE format('GRANT CONNECT ON DATABASE %I TO %I', current_database(), 'df_edge');
+        END
+        $runtime_database_connect_restore$;
+      `);
+
+      await grantConnectOnWrongDatabase(database);
+      expect(await bindingIsExact()).toBe(false);
+      await database.exec('REVOKE CONNECT ON DATABASE runtime_grant_wrong_target FROM df_edge');
+
+      await database.exec('GRANT CREATE ON SCHEMA extensions TO df_edge');
+      expect(await bindingIsExact()).toBe(false);
     } finally {
       await database.close();
     }
