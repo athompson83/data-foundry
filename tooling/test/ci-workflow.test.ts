@@ -115,7 +115,8 @@ describe('CI workflow policy', () => {
       'not-classified',
       'tls-directory',
       'certificate-generation',
-      'tls-key-permissions',
+      'tls-key-owner',
+      'tls-key-mode',
       'credential-generation',
       'docker-start',
       'readiness',
@@ -123,6 +124,8 @@ describe('CI workflow policy', () => {
     ]) {
       expect(start?.run).toContain(category);
     }
+    expect(start?.run).toContain("startup_stage='tls-key-owner'");
+    expect(start?.run).toContain("startup_stage='tls-key-mode'");
     expect(start?.run).toContain('docker logs "$container_name" 2>&1 | grep -Eqi');
     expect(bootstrap?.run).toContain('CREATE SCHEMA IF NOT EXISTS extensions AUTHORIZATION postgres');
     expect(bootstrap?.run).toContain('CREATE ROLE df_migration LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE');
