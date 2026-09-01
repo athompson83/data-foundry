@@ -1,5 +1,6 @@
 import pg from 'pg';
 import { directPostgresTlsConfig } from '@data-foundry/canonical-store';
+import { PRIVATE_CANARY_RUNTIME_PRIVILEGE_MATRIX_CTES } from '@data-foundry/private-canary';
 import { isMain } from '../lib/cli-entry.js';
 
 const ROLE_URLS = {
@@ -19,6 +20,7 @@ interface Connection {
 type ConnectionFactory = (connectionString: string, role: RuntimeRole) => Promise<Connection>;
 
 const PROBE_SQL = `
+WITH ${PRIVATE_CANARY_RUNTIME_PRIVILEGE_MATRIX_CTES}
 SELECT current_user = $1 AND session_user = $1 AS direct_login,
        EXISTS (
          SELECT 1 FROM pg_roles r WHERE r.rolname = $1 AND r.rolcanlogin
@@ -44,23 +46,7 @@ SELECT current_user = $1 AND session_user = $1 AS direct_login,
                WHERE item LIKE 'search_path=%'
             ) = 1
        ) AS durable_search_path_is_exact,
-       has_schema_privilege($1, 'data_foundry', 'USAGE')
-       AND NOT has_schema_privilege($1, 'data_foundry', 'CREATE')
-       AND CASE $1
-         WHEN 'df_edge' THEN has_table_privilege($1, 'data_foundry.verticals', 'SELECT')
-           AND has_column_privilege($1, 'data_foundry.api_keys', 'token_hash', 'SELECT')
-           AND NOT has_column_privilege($1, 'data_foundry.api_keys', 'created_at', 'SELECT')
-         WHEN 'df_web' THEN has_table_privilege($1, 'data_foundry.verticals', 'SELECT')
-           AND NOT has_any_column_privilege($1, 'data_foundry.api_keys', 'SELECT')
-         WHEN 'df_mcp' THEN has_table_privilege($1, 'data_foundry.verticals', 'SELECT')
-           AND has_column_privilege($1, 'data_foundry.api_keys', 'token_hash', 'SELECT')
-         WHEN 'df_usage' THEN has_column_privilege($1, 'data_foundry.api_usage_events', 'route_key', 'INSERT')
-           AND NOT has_table_privilege($1, 'data_foundry.api_usage_events', 'UPDATE')
-         WHEN 'df_acquisition' THEN has_table_privilege($1, 'data_foundry.sources', 'UPDATE')
-           AND NOT has_table_privilege($1, 'data_foundry.sources', 'DELETE')
-           AND has_function_privilege($1, 'data_foundry.scheduled_acquisition_validators_valid(jsonb)', 'EXECUTE')
-         ELSE false
-       END AS privilege_matrix_is_exact`;
+       NOT EXISTS (SELECT 1 FROM effective_privilege_differences) AS privilege_matrix_is_exact`;
 
 export async function checkRuntimeRoleConnectionsPostgres(
   env: Readonly<Record<string, string | undefined>> = process.env,

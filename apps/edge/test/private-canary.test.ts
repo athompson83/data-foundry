@@ -145,9 +145,9 @@ describe('edge private-canary readiness', () => {
       { openDriver: hyperdrive.openDriver },
     )).rejects.toThrow('Private canary probe failed.');
 
-    expect(hyperdrive.statements).toEqual([
-      expect.stringContaining("NOT has_column_privilege(current_user, 'data_foundry.api_keys', 'created_at', 'SELECT')"),
-    ]);
+    expect(hyperdrive.statements).toHaveLength(1);
+    expect(hyperdrive.statements[0]).toContain('effective_privilege_differences');
+    expect(hyperdrive.statements[0]).toContain('has_column_privilege');
     expect(sent).toEqual([]);
     expect(hyperdrive.closed()).toBe(true);
   });

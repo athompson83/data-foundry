@@ -12,6 +12,12 @@ import { readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
+import {
+  buildRuntimeRoleExpectedGrants,
+  PRIVATE_FUNCTION_SIGNATURES as RUNTIME_PRIVATE_FUNCTION_SIGNATURES,
+  RUNTIME_ROLES as RUNTIME_ROLE_NAMES,
+  type RuntimeRoleExpectedGrant,
+} from '@data-foundry/private-canary';
 import { isMain } from '../lib/cli-entry.js';
 import {
   DATA_FOUNDRY_PRIVATE_SCHEMA,
@@ -37,131 +43,13 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const REPOSITORY_ROOT = resolve(HERE, '..', '..');
 const execFileAsync = promisify(execFile);
 
-const RUNTIME_ROLES = ['df_edge', 'df_web', 'df_mcp', 'df_usage', 'df_acquisition'] as const;
-const QUERY_ROLES = ['df_edge', 'df_web', 'df_mcp'] as const;
-const QUERY_CORE_RELATIONS = [
-  'verticals',
-  'entities',
-  'current_entity_aliases',
-  'entity_redirects',
-  'facts',
-  'fact_evidence',
-  'relationships',
-  'relationship_evidence',
-  'fact_dependencies',
-  'sources',
-  'source_records',
-  'source_artifacts',
-  'source_record_reconciliations',
-  'source_record_snapshot_retirements',
-  'entity_evidence',
-  'rights_publishers',
-  'rights_decision_activation_events',
-  'rights_terms_activation_events',
-  'rights_cells',
-  'rights_decisions',
-  'rights_terms_versions',
-  'rights_terms_cells',
-  'rights_decision_conditions',
-  'rights_deny_exceptions',
-  'rights_field_group_members',
-] as const;
-const RIGHTS_CONTEXT_RELATIONS = QUERY_CORE_RELATIONS.filter((relation) =>
-  relation.startsWith('rights_'),
-);
-const API_KEY_AUTH_COLUMNS = [
-  'id',
-  'tenant_id',
-  'token_hash',
-  'token_prefix',
-  'vertical_id',
-  'access_tier',
-  'billing_source',
-  'revoked_at',
-  'expires_at',
-] as const;
-const API_TENANT_AUTH_COLUMNS = ['id', 'status'] as const;
-const USAGE_INSERT_COLUMNS = [
-  'id',
-  'tenant_id',
-  'api_key_id',
-  'vertical_id',
-  'occurred_at',
-  'route_key',
-  'method',
-  'status',
-  'rows_served',
-  'duration_ms',
-  'access_tier',
-  'billing_source',
-] as const;
-
-/** Final function identities after migrations 0001..0026, from pg_proc. */
-const PRIVATE_FUNCTION_SIGNATURES = [
-  'activate_rights_decision(uuid, text, text, text, timestamp with time zone)',
-  'activate_rights_terms(uuid, text, text, text, timestamp with time zone)',
-  'enforce_api_key_access_classification()',
-  'entity_alias_claims_reject_mutation()',
-  'entity_alias_claims_validate_insert()',
-  'entity_aliases_enforce_authority_epoch()',
-  'entity_evidence_validate_alias_claim()',
-  'entity_evidence_validate_provenance()',
-  'fact_dependencies_reject_cycle()',
-  'fact_dependencies_require_open_classification()',
-  'facts_reject_output_kind_mutation()',
-  'facts_validate_output_contract()',
-  'revoke_rights_terms(uuid, text, text, text, timestamp with time zone)',
-  'rights_cell_requires_decision()',
-  'rights_prepare_decision_activation()',
-  'rights_prepare_terms_activation()',
-  'rights_reject_history_mutation()',
-  'rights_reject_referenced_field_group_expansion()',
-  'rights_scope_is_strictly_narrower(uuid, uuid)',
-  'rights_terms_cover_cell(uuid, uuid)',
-  'rights_validate_cell_field_group()',
-  'rights_validate_condition_insert()',
-  'rights_validate_decision_insert()',
-  'rights_validate_deny_exception()',
-  'rights_validate_publisher_update()',
-  'rights_validate_source_publisher_mapping()',
-  'rights_validate_terms_version()',
-  'scheduled_acquisition_claim_lease_guard()',
-  'scheduled_acquisition_iso_utc_valid(text)',
-  'scheduled_acquisition_origin_valid(text)',
-  'scheduled_acquisition_receipt_contract_version_guard()',
-  'scheduled_acquisition_receipt_provenance_valid(jsonb, uuid, text, text, text, text, text, boolean, timestamp with time zone)',
-  'scheduled_acquisition_receipt_valid(jsonb)',
-  'scheduled_acquisition_receipt_valid_for(jsonb, text, text, timestamp with time zone, timestamp with time zone)',
-  'scheduled_acquisition_receipt_valid_for_contract(jsonb, text, text, timestamp with time zone, timestamp with time zone, smallint)',
-  'scheduled_acquisition_result_url_allowed(text, text, jsonb, text, text)',
-  'scheduled_acquisition_result_url_policy_valid(jsonb)',
-  'scheduled_acquisition_retrieval_receipt_id(uuid, text, text)',
-  'scheduled_acquisition_run_artifact_guard()',
-  'scheduled_acquisition_run_artifact_immutable()',
-  'scheduled_acquisition_run_insert_guard()',
-  'scheduled_acquisition_run_terminal_guard()',
-  'scheduled_acquisition_scope_digest(uuid, text, text, uuid, text, text, text, text, text, text, text, text, jsonb, timestamp with time zone, text)',
-  'scheduled_acquisition_scope_frame(text)',
-  'scheduled_acquisition_uuid_or_null_valid(jsonb)',
-  'scheduled_acquisition_validators_valid(jsonb)',
-  'source_artifacts_reject_scope_mutation()',
-  'source_record_evidence_validate_provenance()',
-  'source_record_reconciliations_reject_mutation()',
-  'source_record_reconciliations_validate_insert()',
-  'source_record_snapshot_retirements_reject_mutation()',
-  'source_record_snapshot_retirements_validate()',
-  'source_records_require_retirement_lineage()',
-  'source_records_validate_revision_update()',
-  'source_stream_snapshot_acceptance_artifacts_validate()',
-  'source_stream_snapshot_acceptances_require_artifacts()',
-  'source_stream_snapshot_evidence_reject_mutation()',
-] as const;
-
 /** Inputs whose committed bytes determine the exported migration packets. */
 export const RELEVANT_SOURCE_PATHS = [
   'db/migrations',
   'tooling/scripts/migrate.ts',
   'tooling/scripts/export-supabase-migration-packets.ts',
+  'packages/private-canary/src/index.ts',
+  'packages/private-canary/src/runtime-role-policy.ts',
 ] as const;
 
 export interface VerifiedSourceIdentity {
@@ -234,9 +122,9 @@ export interface SupabaseRuntimeGrantPayload {
   readonly providerMigrationName: string;
   readonly checksum: string;
   readonly applicationLedgerMutation: false;
-  readonly roles: typeof RUNTIME_ROLES;
+  readonly roles: typeof RUNTIME_ROLE_NAMES;
   readonly functionGrantPolicy: 'explicit-all-private-functions-to-acquisition-invoker';
-  readonly functionSignatures: typeof PRIVATE_FUNCTION_SIGNATURES;
+  readonly functionSignatures: typeof RUNTIME_PRIVATE_FUNCTION_SIGNATURES;
   readonly expectedGrants: readonly ExpectedRuntimeGrant[];
   readonly sql: string;
   readonly verificationSql: string;
@@ -775,18 +663,10 @@ ORDER BY version, status;
 `;
 }
 
-type GrantScope = 'schema' | 'relation' | 'column' | 'function';
-interface ExpectedRuntimeGrant {
-  readonly scope: GrantScope;
-  readonly objectName: string;
-  readonly columnName: string;
-  readonly role: (typeof RUNTIME_ROLES)[number];
-  readonly privilege: string;
-  readonly isGrantable: false;
-}
+type ExpectedRuntimeGrant = RuntimeRoleExpectedGrant;
 
 function runtimeRoleArraySql(): string {
-  return `ARRAY[${RUNTIME_ROLES.map(sqlLiteral).join(', ')}]::text[]`;
+  return `ARRAY[${RUNTIME_ROLE_NAMES.map(sqlLiteral).join(', ')}]::text[]`;
 }
 
 function expectedRelations(): Array<Readonly<{ name: string; kind: string }>> {
@@ -807,7 +687,7 @@ function expectedRelationValuesSql(): string {
 }
 
 function expectedFunctionValuesSql(): string {
-  return PRIVATE_FUNCTION_SIGNATURES.map((signature) => `    (${sqlLiteral(signature)})`).join(',\n');
+  return RUNTIME_PRIVATE_FUNCTION_SIGNATURES.map((signature) => `    (${sqlLiteral(signature)})`).join(',\n');
 }
 
 function aclInventorySql(schema: string, rolePredicate: string): string {
@@ -875,7 +755,7 @@ function baselinePrivateAclValuesSql(schema: string): string {
   return [
     `    ('schema', ${sqlLiteral(schema)}, '', 'df_migration', 'CREATE', false)`,
     `    ('schema', ${sqlLiteral(schema)}, '', 'df_migration', 'USAGE', false)`,
-    ...PRIVATE_FUNCTION_SIGNATURES.map(
+    ...RUNTIME_PRIVATE_FUNCTION_SIGNATURES.map(
       (signature) => `    ('function', ${sqlLiteral(signature)}, '', 'df_migration', 'EXECUTE', false)`,
     ),
   ].join(',\n');
@@ -954,7 +834,7 @@ function externalTargetAclSql(schema: string): string {
 }
 
 function expectedExternalAclValuesSql(): string {
-  return RUNTIME_ROLES.flatMap((role) => [
+  return RUNTIME_ROLE_NAMES.flatMap((role) => [
     `    ('schema', 'extensions', '', ${sqlLiteral(role)}, 'USAGE', false)`,
     `    ('database', current_database()::text, '', ${sqlLiteral(role)}, 'CONNECT', false)`,
   ]).join(',\n');
@@ -964,72 +844,48 @@ function buildGrantStatements(schema: string): {
   readonly sql: string;
   readonly expected: readonly ExpectedRuntimeGrant[];
 } {
+  const expected = buildRuntimeRoleExpectedGrants(schema);
   const statements: string[] = [];
-  const expected: ExpectedRuntimeGrant[] = [];
-  const addSchema = (role: ExpectedRuntimeGrant['role']) => {
-    statements.push(`GRANT USAGE ON SCHEMA ${quotedIdentifier(schema)} TO ${quotedIdentifier(role)};`);
-    expected.push({ scope: 'schema', objectName: schema, columnName: '', role, privilege: 'USAGE', isGrantable: false });
-  };
-  const addRelation = (
-    role: ExpectedRuntimeGrant['role'],
-    relation: string,
-    privileges: readonly string[],
-  ) => {
-    statements.push(
-      `GRANT ${privileges.join(', ')} ON TABLE ${qualified(schema, relation)} TO ${quotedIdentifier(role)};`,
-    );
-    for (const privilege of privileges) {
-      expected.push({ scope: 'relation', objectName: relation, columnName: '', role, privilege, isGrantable: false });
-    }
-  };
-  const addColumns = (
-    role: ExpectedRuntimeGrant['role'],
-    relation: string,
-    privilege: string,
-    columns: readonly string[],
-  ) => {
-    statements.push(
-      `GRANT ${privilege} (${columns.map(quotedIdentifier).join(', ')}) ON TABLE ${qualified(schema, relation)} TO ${quotedIdentifier(role)};`,
-    );
-    for (const columnName of columns) {
-      expected.push({ scope: 'column', objectName: relation, columnName, role, privilege, isGrantable: false });
-    }
-  };
+  const relationGroups = new Map<string, { readonly role: string; readonly relation: string; readonly privileges: string[] }>();
+  const columnGroups = new Map<string, { readonly role: string; readonly relation: string; readonly privilege: string; readonly columns: string[] }>();
 
-  for (const role of RUNTIME_ROLES) addSchema(role);
-  for (const role of QUERY_ROLES) {
-    for (const relation of QUERY_CORE_RELATIONS) addRelation(role, relation, ['SELECT']);
-  }
-  for (const role of ['df_edge', 'df_mcp'] as const) {
-    addColumns(role, 'api_keys', 'SELECT', API_KEY_AUTH_COLUMNS);
-    addColumns(role, 'api_tenants', 'SELECT', API_TENANT_AUTH_COLUMNS);
-  }
-  addColumns('df_usage', 'api_usage_events', 'INSERT', USAGE_INSERT_COLUMNS);
-  addColumns('df_usage', 'api_usage_events', 'SELECT', ['id']);
-  addColumns('df_usage', 'api_keys', 'SELECT', ['id', 'access_tier', 'billing_source']);
-
-  addRelation('df_acquisition', 'verticals', ['SELECT', 'INSERT']);
-  for (const relation of ['sources', 'source_artifacts', 'scheduled_acquisition_runs']) {
-    addRelation('df_acquisition', relation, ['SELECT', 'INSERT', 'UPDATE']);
-  }
-  for (const relation of ['acquisition_policy_snapshots', 'scheduled_acquisition_run_artifacts']) {
-    addRelation('df_acquisition', relation, ['SELECT', 'INSERT']);
-  }
-  for (const relation of RIGHTS_CONTEXT_RELATIONS) {
-    addRelation('df_acquisition', relation, ['SELECT']);
-  }
-  for (const signature of PRIVATE_FUNCTION_SIGNATURES) {
+  for (const grant of expected) {
+    if (grant.scope === 'schema') {
+      statements.push(`GRANT ${grant.privilege} ON SCHEMA ${quotedIdentifier(schema)} TO ${quotedIdentifier(grant.role)};`);
+      continue;
+    }
+    if (grant.scope === 'relation') {
+      const key = `${grant.role}:${grant.objectName}`;
+      const group = relationGroups.get(key) ?? { role: grant.role, relation: grant.objectName, privileges: [] };
+      group.privileges.push(grant.privilege);
+      relationGroups.set(key, group);
+      continue;
+    }
+    if (grant.scope === 'column') {
+      const key = `${grant.role}:${grant.objectName}:${grant.privilege}`;
+      const group = columnGroups.get(key) ?? {
+        role: grant.role,
+        relation: grant.objectName,
+        privilege: grant.privilege,
+        columns: [],
+      };
+      group.columns.push(grant.columnName);
+      columnGroups.set(key, group);
+      continue;
+    }
     statements.push(
-      `GRANT EXECUTE ON FUNCTION ${quotedIdentifier(schema)}.${signature} TO "df_acquisition";`,
+      `GRANT ${grant.privilege} ON FUNCTION ${quotedIdentifier(schema)}.${grant.objectName} TO ${quotedIdentifier(grant.role)};`,
     );
-    expected.push({
-      scope: 'function',
-      objectName: signature,
-      columnName: '',
-      role: 'df_acquisition',
-      privilege: 'EXECUTE',
-      isGrantable: false,
-    });
+  }
+  for (const group of relationGroups.values()) {
+    statements.push(
+      `GRANT ${group.privileges.join(', ')} ON TABLE ${qualified(schema, group.relation)} TO ${quotedIdentifier(group.role)};`,
+    );
+  }
+  for (const group of columnGroups.values()) {
+    statements.push(
+      `GRANT ${group.privilege} (${group.columns.map(quotedIdentifier).join(', ')}) ON TABLE ${qualified(schema, group.relation)} TO ${quotedIdentifier(group.role)};`,
+    );
   }
   return { sql: statements.join('\n'), expected };
 }
@@ -1141,7 +997,7 @@ SELECT (SELECT count(*)::int FROM relation_differences) AS relation_inventory_di
        (SELECT count(*)::int FROM (${publicPrivateAclRowsSql(schema)}) public_acl) AS forbidden_public_private_acl_count,
        NOT has_schema_privilege('public', 'public', 'CREATE') AS public_schema_create_is_false,
        (
-         SELECT count(*) = ${RUNTIME_ROLES.length}
+         SELECT count(*) = ${RUNTIME_ROLE_NAMES.length}
            FROM pg_roles r
           WHERE r.rolname = ANY(${runtimeRoleArraySql()})
             AND ${loginPredicate} AND NOT r.rolsuper AND NOT r.rolcreatedb
@@ -1221,7 +1077,7 @@ ${externalTargetAclSql(schema)}
   IF has_schema_privilege('public', 'public', 'CREATE') OR
      (SELECT count(*) FROM pg_roles r WHERE r.rolname = ANY(${runtimeRoleArraySql()})
        AND ${loginPredicate} AND NOT r.rolsuper AND NOT r.rolcreatedb AND NOT r.rolcreaterole
-       AND NOT r.rolreplication AND NOT r.rolbypassrls) <> ${RUNTIME_ROLES.length} OR
+       AND NOT r.rolreplication AND NOT r.rolbypassrls) <> ${RUNTIME_ROLE_NAMES.length} OR
      EXISTS (SELECT 1 FROM pg_auth_members m JOIN pg_roles r ON r.oid = m.member
               WHERE r.rolname = ANY(${runtimeRoleArraySql()})) OR
      EXISTS (SELECT 1 FROM pg_auth_members m JOIN pg_roles r ON r.oid = m.roleid
@@ -1328,7 +1184,7 @@ ${expectedFunctionValuesSql()}
    WHERE r.rolname = ANY(${runtimeRoleArraySql()})
      AND (r.rolcanlogin OR r.rolsuper OR r.rolcreatedb OR r.rolcreaterole OR r.rolreplication OR r.rolbypassrls);
   IF prerequisite_drift_count <> 0 OR
-     (SELECT count(*) FROM pg_roles r WHERE r.rolname = ANY(${runtimeRoleArraySql()})) <> ${RUNTIME_ROLES.length} OR
+     (SELECT count(*) FROM pg_roles r WHERE r.rolname = ANY(${runtimeRoleArraySql()})) <> ${RUNTIME_ROLE_NAMES.length} OR
      EXISTS (
        SELECT 1 FROM pg_auth_members membership
        JOIN pg_roles member_role ON member_role.oid = membership.member
@@ -1399,9 +1255,9 @@ RESET ROLE;
     providerMigrationName: `data_foundry_runtime_grants_${checksum.slice(0, 12)}`,
     checksum,
     applicationLedgerMutation: false,
-    roles: RUNTIME_ROLES,
+    roles: RUNTIME_ROLE_NAMES,
     functionGrantPolicy: 'explicit-all-private-functions-to-acquisition-invoker',
-    functionSignatures: PRIVATE_FUNCTION_SIGNATURES,
+    functionSignatures: RUNTIME_PRIVATE_FUNCTION_SIGNATURES,
     expectedGrants: grants.expected,
     sql,
     verificationSql: buildRuntimeGrantVerificationSql(schema, grants.expected, migrations),

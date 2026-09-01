@@ -34,7 +34,7 @@ export interface PrivateCanaryRoleBinding {
   readonly membershipIsEmpty?: boolean | undefined;
   readonly privateSchemaUsage?: boolean | undefined;
   readonly privateSchemaCreate?: boolean | undefined;
-  readonly roleCapabilityIsExact?: boolean | undefined;
+  readonly privilegeMatrixIsExact?: boolean | undefined;
   /** Simulates an over-granted edge login that can read api_keys.created_at. */
   readonly edgeApiKeysCreatedAtSelect?: boolean | undefined;
 }
@@ -78,7 +78,7 @@ export function recordingHyperdrive(
           membership_is_empty: options.roleBinding?.membershipIsEmpty ?? true,
           private_schema_usage: options.roleBinding?.privateSchemaUsage ?? true,
           private_schema_create: options.roleBinding?.privateSchemaCreate ?? false,
-          role_capability_is_exact: options.roleBinding?.roleCapabilityIsExact
+          privilege_matrix_is_exact: options.roleBinding?.privilegeMatrixIsExact
             ?? !(expectedRole === 'df_edge' && options.roleBinding?.edgeApiKeysCreatedAtSelect === true),
         } as unknown as R];
       }

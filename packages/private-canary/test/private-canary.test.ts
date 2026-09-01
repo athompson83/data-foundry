@@ -6,6 +6,7 @@ import {
   parsePrivateCanaryEnvelope,
   parsePrivateCanaryProbeResult,
   PRIVATE_CANARY_SERVICE_BINDING_MODE,
+  PRIVATE_CANARY_RUNTIME_BINDING_SQL,
   resolvePrivateCanaryConnectionString,
   toPrivateCanaryProbeInput,
 } from '../src/index.js';
@@ -82,6 +83,14 @@ describe('private canary DLQ envelope', () => {
 });
 
 describe('private canary target runtime binding', () => {
+  it('compares every effective private-schema privilege to the runtime grant matrix', () => {
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('expected_runtime_grants');
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('effective_privilege_differences');
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('FROM pg_class');
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('FULL OUTER JOIN');
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).not.toContain('CASE $1');
+  });
+
   it('requires each target to prove its exact current and session role plus narrow private-schema capability', async () => {
     const expectedRoles: Readonly<Record<PrivateCanaryWorker, string>> = {
       edge: 'df_edge',
@@ -102,7 +111,7 @@ describe('private canary target runtime binding', () => {
           membership_is_empty: true,
           private_schema_usage: true,
           private_schema_create: false,
-          role_capability_is_exact: true,
+          privilege_matrix_is_exact: true,
         }];
       })).resolves.toBeUndefined();
       expect(observedRoles).toEqual([role]);
@@ -117,7 +126,7 @@ describe('private canary target runtime binding', () => {
       membership_is_empty: true,
       private_schema_usage: true,
       private_schema_create: false,
-      role_capability_is_exact: true,
+      privilege_matrix_is_exact: true,
     }])).rejects.toThrow(/runtime binding/i);
     await expect(assertPrivateCanaryRuntimeBinding('edge', async () => [{
       current_user: 'df_edge',
@@ -126,7 +135,7 @@ describe('private canary target runtime binding', () => {
       membership_is_empty: true,
       private_schema_usage: false,
       private_schema_create: false,
-      role_capability_is_exact: true,
+      privilege_matrix_is_exact: true,
     }])).rejects.toThrow(/runtime binding/i);
   });
 
@@ -138,7 +147,7 @@ describe('private canary target runtime binding', () => {
       membership_is_empty: true,
       private_schema_usage: true,
       private_schema_create: false,
-      role_capability_is_exact: true,
+      privilege_matrix_is_exact: true,
     }])).rejects.toThrow(/runtime binding/i);
     await expect(assertPrivateCanaryRuntimeBinding('edge', async () => [{
       current_user: 'df_edge',
@@ -147,7 +156,7 @@ describe('private canary target runtime binding', () => {
       membership_is_empty: false,
       private_schema_usage: true,
       private_schema_create: false,
-      role_capability_is_exact: true,
+      privilege_matrix_is_exact: true,
     }])).rejects.toThrow(/runtime binding/i);
   });
 

@@ -89,7 +89,7 @@ describe('mcp-worker private-canary readiness', () => {
 
   it('rejects an incomplete runtime capability matrix before sending metering', async () => {
     const hyperdrive = recordingHyperdrive({
-      roleBinding: { roleCapabilityIsExact: false },
+      roleBinding: { privilegeMatrixIsExact: false },
     });
     const sent: unknown[] = [];
 

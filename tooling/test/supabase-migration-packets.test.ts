@@ -106,6 +106,16 @@ describe('Supabase connector migration packet export', () => {
       await expect(verifyGitSourceIdentity(headSha, repository)).rejects.toThrow(
         /relevant source inputs differ from Git HEAD[\s\S]*db\/migrations\/0001_fixture\.sql/i,
       );
+
+      await writeFile(join(repository, 'db/migrations/0001_fixture.sql'), 'SELECT 1;\n');
+      await mkdir(join(repository, 'packages/private-canary/src'), { recursive: true });
+      await writeFile(
+        join(repository, 'packages/private-canary/src/runtime-role-policy.ts'),
+        '// dirty runtime grant policy\n',
+      );
+      await expect(verifyGitSourceIdentity(headSha, repository)).rejects.toThrow(
+        /relevant source inputs differ from Git HEAD[\s\S]*packages\/private-canary\/src\/runtime-role-policy\.ts/i,
+      );
     } finally {
       await rm(repository, { recursive: true, force: true });
     }

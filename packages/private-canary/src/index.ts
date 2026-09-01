@@ -1,3 +1,25 @@
+import {
+  buildRuntimeRoleEffectivePrivilegeMatrixCtes,
+  type RuntimeRole,
+} from './runtime-role-policy.js';
+
+export {
+  API_KEY_AUTH_COLUMNS,
+  API_TENANT_AUTH_COLUMNS,
+  buildRuntimeRoleExpectedGrants,
+  PRIVATE_FUNCTION_SIGNATURES,
+  QUERY_CORE_RELATIONS,
+  QUERY_ROLES,
+  RIGHTS_CONTEXT_RELATIONS,
+  RUNTIME_ROLES,
+  USAGE_INSERT_COLUMNS,
+} from './runtime-role-policy.js';
+export type {
+  RuntimeGrantScope,
+  RuntimeRole,
+  RuntimeRoleExpectedGrant,
+} from './runtime-role-policy.js';
+
 /**
  * The one message shape deliberately sent through the dedicated private-canary
  * ingress so that the strict usage-event parser retries it and Cloudflare moves
@@ -109,7 +131,7 @@ export const PRIVATE_CANARY_WORKERS = [
 export type PrivateCanaryWorker = (typeof PRIVATE_CANARY_WORKERS)[number];
 export type PrivateCanaryMetering = 'QUEUED' | 'NOT_APPLICABLE';
 
-const PRIVATE_CANARY_RUNTIME_ROLE_BY_WORKER: Readonly<Record<PrivateCanaryWorker, string>> = {
+const PRIVATE_CANARY_RUNTIME_ROLE_BY_WORKER: Readonly<Record<PrivateCanaryWorker, RuntimeRole>> = {
   edge: 'df_edge',
   web: 'df_web',
   'usage-consumer': 'df_usage',
@@ -126,15 +148,21 @@ export interface PrivateCanaryRuntimeBinding {
   readonly membership_is_empty: unknown;
   readonly private_schema_usage: unknown;
   readonly private_schema_create: unknown;
-  readonly role_capability_is_exact: unknown;
+  readonly privilege_matrix_is_exact: unknown;
 }
+
+/** Reused by direct role probes so all runtime checks share one ACL policy. */
+export const PRIVATE_CANARY_RUNTIME_PRIVILEGE_MATRIX_CTES =
+  buildRuntimeRoleEffectivePrivilegeMatrixCtes();
 
 /**
  * A target proves the identity of its bound Hyperdrive before treating a
- * successful connection as readiness. The query contains no connection data,
- * source content, or row values; it returns only booleans and role identity.
+ * successful connection as readiness. The query contains no connection data or
+ * source rows; it returns only booleans, role identity, and an exact effective
+ * privilege-matrix result derived from the generated grant inventory.
  */
 export const PRIVATE_CANARY_RUNTIME_BINDING_SQL = `
+WITH ${PRIVATE_CANARY_RUNTIME_PRIVILEGE_MATRIX_CTES}
 SELECT current_user::text AS current_user,
        session_user::text AS session_user,
        EXISTS (
@@ -150,25 +178,12 @@ SELECT current_user::text AS current_user,
        ) AS membership_is_empty,
        has_schema_privilege(current_user, 'data_foundry', 'USAGE') AS private_schema_usage,
        has_schema_privilege(current_user, 'data_foundry', 'CREATE') AS private_schema_create,
-       CASE $1
-         WHEN 'df_edge' THEN has_table_privilege(current_user, 'data_foundry.verticals', 'SELECT')
-           AND has_column_privilege(current_user, 'data_foundry.api_keys', 'token_hash', 'SELECT')
-           AND NOT has_column_privilege(current_user, 'data_foundry.api_keys', 'created_at', 'SELECT')
-         WHEN 'df_web' THEN has_table_privilege(current_user, 'data_foundry.verticals', 'SELECT')
-           AND NOT has_any_column_privilege(current_user, 'data_foundry.api_keys', 'SELECT')
-         WHEN 'df_usage' THEN has_column_privilege(current_user, 'data_foundry.api_usage_events', 'route_key', 'INSERT')
-           AND NOT has_table_privilege(current_user, 'data_foundry.api_usage_events', 'UPDATE')
-         WHEN 'df_acquisition' THEN has_table_privilege(current_user, 'data_foundry.sources', 'UPDATE')
-           AND NOT has_table_privilege(current_user, 'data_foundry.sources', 'DELETE')
-           AND has_function_privilege(current_user, 'data_foundry.scheduled_acquisition_validators_valid(jsonb)', 'EXECUTE')
-         WHEN 'df_mcp' THEN has_table_privilege(current_user, 'data_foundry.verticals', 'SELECT')
-           AND has_column_privilege(current_user, 'data_foundry.api_keys', 'token_hash', 'SELECT')
-         ELSE false
-       END AS role_capability_is_exact`;
+       NOT EXISTS (SELECT 1 FROM effective_privilege_differences) AS privilege_matrix_is_exact`;
 
 /**
  * Refuse a target whose bound login, session login, or narrow private-schema
- * capability differs from its declared runtime role before it can emit READY.
+ * capability matrix differs from its declared runtime role before it can emit
+ * READY.
  */
 export async function assertPrivateCanaryRuntimeBinding(
   worker: PrivateCanaryWorker,
@@ -184,7 +199,7 @@ export async function assertPrivateCanaryRuntimeBinding(
     || binding.membership_is_empty !== true
     || binding.private_schema_usage !== true
     || binding.private_schema_create !== false
-    || binding.role_capability_is_exact !== true
+    || binding.privilege_matrix_is_exact !== true
   ) {
     throw new PrivateCanaryConfigurationError('Private canary runtime binding is invalid.');
   }

@@ -10,6 +10,10 @@ import {
   RELEVANT_SOURCE_PATHS,
   buildSupabaseMigrationPlan,
 } from '../scripts/export-supabase-migration-packets.js';
+import {
+  buildRuntimeRoleExpectedGrants,
+  PRIVATE_CANARY_RUNTIME_BINDING_SQL,
+} from '@data-foundry/private-canary';
 
 const RELEASE_SHA = '290df1342094433e92978ec97eb37cc02fc4eb50';
 const SOURCE_IDENTITY = {
@@ -99,6 +103,7 @@ describe('Supabase post-migration runtime grants', () => {
     );
     expect(first.functionSignatures).toHaveLength(57);
     expect(first.expectedGrants).toHaveLength(200);
+    expect(first.expectedGrants).toEqual(buildRuntimeRoleExpectedGrants('data_foundry'));
     for (const signature of first.functionSignatures) {
       expect(first.sql).toContain(
         `GRANT EXECUTE ON FUNCTION "data_foundry".${signature} TO "df_acquisition";`,
@@ -148,6 +153,63 @@ describe('Supabase post-migration runtime grants', () => {
         edge_schema_usage: true,
         edge_schema_create: false,
       });
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it('rejects every effective private-schema privilege not present in the generated runtime grant inventory', async () => {
+    const { database, plan } = await createMigratedDatabase();
+    try {
+      await database.exec(`
+        BEGIN;
+        ${plan.postMigrationGrants.sql}
+        COMMIT;
+        ALTER ROLE df_web LOGIN;
+      `);
+      const [baseline] = await database.query<{ readonly privilege_matrix_is_exact: boolean }>(
+        PRIVATE_CANARY_RUNTIME_BINDING_SQL,
+        ['df_web'],
+      );
+      expect(baseline?.privilege_matrix_is_exact).toBe(true);
+
+      await database.exec(`
+        GRANT SELECT ON data_foundry.api_keys TO df_web;
+        SET SESSION AUTHORIZATION df_web;
+      `);
+      const [observed] = await database.query<{
+        readonly current_user: string;
+        readonly sensitive_select_is_effective: boolean;
+      }>(`
+        SELECT current_user::text AS current_user,
+               has_table_privilege('df_web', 'data_foundry.api_keys', 'SELECT') AS sensitive_select_is_effective
+      `);
+      expect(observed).toEqual({ current_user: 'df_web', sensitive_select_is_effective: true });
+      const [drift] = await database.query<{ readonly privilege_matrix_is_exact: boolean }>(
+        PRIVATE_CANARY_RUNTIME_BINDING_SQL,
+        ['df_web'],
+      );
+      expect(drift?.privilege_matrix_is_exact).toBe(false);
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it('rejects grant-option drift even when the underlying private privilege is expected', async () => {
+    const { database, plan } = await createMigratedDatabase();
+    try {
+      await database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`);
+      await database.exec('GRANT SELECT ON data_foundry.verticals TO df_edge WITH GRANT OPTION');
+      const [grantOption] = await database.query<{ readonly select_with_grant_option: boolean }>(`
+        SELECT has_table_privilege('df_edge', 'data_foundry.verticals', 'SELECT WITH GRANT OPTION')
+          AS select_with_grant_option
+      `);
+      expect(grantOption?.select_with_grant_option).toBe(true);
+      const [drift] = await database.query<{ readonly privilege_matrix_is_exact: boolean }>(
+        PRIVATE_CANARY_RUNTIME_BINDING_SQL,
+        ['df_edge'],
+      );
+      expect(drift?.privilege_matrix_is_exact).toBe(false);
     } finally {
       await database.close();
     }
