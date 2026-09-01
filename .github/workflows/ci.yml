@@ -220,10 +220,11 @@ jobs:
         run: |
           set -euo pipefail
           container_name='data-foundry-postgres-tls'
+          startup_stage='not-classified'
           classify_startup_failure() {
             local startup_output="${1:-}"
             local container_state='not-created'
-            local category='not-classified'
+            local category="$startup_stage"
 
             if docker container inspect "$container_name" >/dev/null 2>&1; then
               container_state="$(docker container inspect --format '{{.State.Status}}' "$container_name" 2>/dev/null || true)"
@@ -245,8 +246,18 @@ jobs:
 
             printf 'data-foundry-ci-postgres-startup: state=%s category=%s\n' "$container_state" "$category"
           }
+          on_startup_error() {
+            local status=$?
+            trap - ERR
+            classify_startup_failure ''
+            exit "$status"
+          }
+          trap 'on_startup_error' ERR
+
+          startup_stage='tls-directory'
           tls_dir="$(mktemp -d "$RUNNER_TEMP/data-foundry-postgres-tls.XXXXXX")"
           chmod 755 "$tls_dir"
+          startup_stage='certificate-generation'
           openssl req -x509 -new -nodes -newkey rsa:2048 -days 1 \
             -keyout "$tls_dir/ca.key" \
             -out "$tls_dir/ca.crt" \
@@ -276,6 +287,7 @@ jobs:
             -out "$tls_dir/server.crt" \
             -extfile "$tls_dir/server.cnf" \
             -extensions req_ext >/dev/null 2>&1
+          startup_stage='tls-key-permissions'
           sudo chown 999:999 "$tls_dir/server.key"
           chmod 600 "$tls_dir/server.key"
           cat > "$tls_dir/pg_hba.conf" <<'EOF'
@@ -283,8 +295,10 @@ jobs:
           hostssl all             all             0.0.0.0/0               scram-sha-256
           hostnossl all          all             0.0.0.0/0               reject
           EOF
+          startup_stage='credential-generation'
           postgres_password="$(openssl rand -hex 24)"
           migration_password="$(openssl rand -hex 24)"
+          startup_stage='docker-start'
           startup_output=''
           if ! startup_output="$(docker run --detach --name "$container_name" \
             --env POSTGRES_PASSWORD="$postgres_password" \
@@ -301,6 +315,7 @@ jobs:
             classify_startup_failure "$startup_output"
             exit 1
           fi
+          startup_stage='readiness'
           ready='false'
           for attempt in $(seq 1 30); do
             if docker exec "$container_name" pg_isready -U postgres -d data_foundry >/dev/null 2>&1; then
@@ -313,6 +328,7 @@ jobs:
             classify_startup_failure "$startup_output"
             exit 1
           fi
+          startup_stage='environment-export'
           {
             printf 'NODE_EXTRA_CA_CERTS=%s\n' "$tls_dir/ca.crt"
             printf 'POSTGRES_URL=postgres://postgres:%s@localhost:5432/data_foundry\n' "$postgres_password"
@@ -320,6 +336,7 @@ jobs:
             printf 'DATA_FOUNDRY_RELEASE_SHA=%s\n' "$GITHUB_SHA"
             printf 'DATA_FOUNDRY_CI_MIGRATION_PASSWORD=%s\n' "$migration_password"
           } >> "$GITHUB_ENV"
+          trap - ERR
 
       # Supabase exposes installed extensions through this namespace. Model its
       # private ownership boundary: the direct migration login is a non-super

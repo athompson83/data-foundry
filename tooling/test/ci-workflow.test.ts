@@ -101,6 +101,8 @@ describe('CI workflow policy', () => {
     expect(start?.run).toContain('DATA_FOUNDRY_MIGRATION_DATABASE_URL');
     expect(start?.run).toContain('DATA_FOUNDRY_RELEASE_SHA');
     expect(start?.run).toContain('classify_startup_failure()');
+    expect(start?.run).toContain('on_startup_error()');
+    expect(start?.run).toContain("trap 'on_startup_error' ERR");
     expect(start?.run).toContain("data-foundry-ci-postgres-startup: state=%s category=%s\\n");
     expect(start?.run).toContain(
       "printf 'data-foundry-ci-postgres-startup: state=%s category=%s\\n' \"$container_state\" \"$category\"",
@@ -111,6 +113,13 @@ describe('CI workflow policy', () => {
       'image-pull',
       'tls-file-access',
       'not-classified',
+      'tls-directory',
+      'certificate-generation',
+      'tls-key-permissions',
+      'credential-generation',
+      'docker-start',
+      'readiness',
+      'environment-export',
     ]) {
       expect(start?.run).toContain(category);
     }
