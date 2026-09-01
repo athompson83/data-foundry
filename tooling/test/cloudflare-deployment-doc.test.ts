@@ -16,4 +16,11 @@ describe('the no-commit Cloudflare deployment check', () => {
     expect(RUNBOOK).toContain(`git diff --exit-code HEAD -- ${TRACKED_MANIFESTS}`);
     expect(RUNBOOK).not.toContain(`git diff --exit-code -- ${TRACKED_MANIFESTS}`);
   });
+
+  it('does not treat an ancestor runtime-fix commit as a deployable candidate', () => {
+    expect(RUNBOOK).toContain('**Contain first; no Worker release candidate is currently designated.**');
+    expect(RUNBOOK).toContain('Do not\n   select the ancestor from a checkout at the later head');
+    expect(RUNBOOK).toContain('all six Worker bundles');
+    expect(RUNBOOK).toContain('apps/private-canary');
+  });
 });

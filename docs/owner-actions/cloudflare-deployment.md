@@ -15,19 +15,27 @@ endpoint, preview URL, real-source record, or public endpoint variable.
 The only permitted initial deployment is a route-less, service-bound synthetic
 canary:
 
-1. The originally authorized candidate `504d91fd10afa91001abe02cf9aaa4c95034cfca`
+1. **Contain first; no Worker release candidate is currently designated.** The
+   originally authorized candidate `504d91fd10afa91001abe02cf9aaa4c95034cfca`
    was first superseded by runtime hardening in
-   `e60d664a998f3fa4051aa7fd0b7dc9dc99a83d85`. That intermediate candidate is
-   not deployable: its private canary could consume the shared usage DLQ without
-   a no-loss downstream path. Check out the current runtime candidate
-   `df4a66561eab2a5fdc4d93e3489f07ff82ccd382` (not a later documentation-only
-   commit), set `DATA_FOUNDRY_RELEASE_SHA` to that same SHA, and apply the 26
-   migration packets only through direct PostgreSQL TLS using
-   the approved secret interface. The direct URL must not have query parameters
-   that could override its TLS or host settings. The runner requires a clean
-   worktree and reads migration SQL from that exact Git object. Do not put the
-   migration URL on argv, in a manifest, or in a transcript. This workstream
-   does not authorize a Supabase connector alternative.
+   `e60d664a998f3fa4051aa7fd0b7dc9dc99a83d85`. The shared-DLQ repair is in
+   `df4a66561eab2a5fdc4d93e3489f07ff82ccd382`, while the integrated branch head
+   at reconciliation was `64bb05bdb2dc5877f526acf9e38c02146d2d5831`. Do not
+   select the ancestor from a checkout at the later head, and do not infer an
+   artifact identity from source-path equivalence. First complete the sanitized
+   provider credential/session containment action. Then record exactly one
+   release path: either make a clean checkout with `HEAD=df4a665...` and attest
+   all six Worker bundles from it, or validate all six Worker artifacts at the
+   complete integrated head and explicitly designate that exact SHA. The
+   current five-Worker artifact check omits `apps/private-canary`, so it cannot
+   yet satisfy the latter path by itself. Only after that designation, check out
+   the selected SHA, set `DATA_FOUNDRY_RELEASE_SHA` to the same SHA, and apply
+   the 26 migration packets through direct PostgreSQL TLS using the approved
+   secret interface. The direct URL must not have query parameters that could
+   override its TLS or host settings. The runner requires a clean worktree and
+   reads migration SQL from that exact Git object. Do not put the migration URL
+   on argv, in a manifest, or in a transcript. This workstream does not
+   authorize a Supabase connector alternative.
 2. Create five distinct least-privilege runtime identities/passwords through
    the approved secure interface, then create exactly five TLS Hyperdrives—one
    for each edge, web, usage-consumer, acquisition-worker, and MCP role. Never
@@ -68,20 +76,19 @@ canary:
    provider identifiers exist; its sanitized output must not be worked around by
    changing tracked files.
 5. Deploy the five route-less target profiles and then the route-less private
-   canary. The only permitted control path is:
+   canary. Verify each private queue separately; the explicit mapping is:
 
-   ```text
-   data-foundry-private-canary-events
-     -> usage-consumer (retry 3)
-     -> data-foundry-private-canary-dlq
-     -> private-canary (retry 3)
-     -> data-foundry-private-canary-quarantine
-   ```
+   | Queue | Allowed producer | Consumer | Retry policy | Failure destination / terminal state |
+   | --- | --- | --- | --- |
+   | `data-foundry-private-canary-events` | Authenticated synthetic fixture only; no public Worker producer | `data-foundry-usage-consumer` | 3 retries, batch size 1, timeout 1 second | Cloudflare moves an exhausted message to `data-foundry-private-canary-dlq` |
+   | `data-foundry-private-canary-dlq` | Cloudflare only, after the ingress consumer exhausts retries | `data-foundry-private-canary` | 3 retries, batch size 1, timeout 1 second | Cloudflare moves an exhausted control message to `data-foundry-private-canary-quarantine` |
+   | `data-foundry-private-canary-quarantine` | Cloudflare only, after the private-canary consumer exhausts retries | No consumer | None; retain as terminal synthetic failure evidence | Must be empty after a successful fixture cycle; investigate rather than purging on failure |
 
-   The ordinary path remains
-   `data-foundry-usage-events -> usage-consumer ->
-   data-foundry-usage-events-dlq`; the private canary must never consume that
-   shared DLQ, and no control envelope may be sent through either shared queue.
+   Preserve the ordinary queue mapping separately: `edge` and `mcp-worker` may
+   produce ordinary usage events to `data-foundry-usage-events`; only
+   `data-foundry-usage-consumer` consumes that queue (3 retries, then
+   `data-foundry-usage-events-dlq`). The private-canary Worker has no shared-DLQ
+   consumer and no control envelope may be sent through either shared queue.
    An authenticated operator may create a new synthetic fixture cycle, then
    send the generated non-secret envelope only to
    `data-foundry-private-canary-events`. It must never send a credential,
@@ -90,9 +97,10 @@ canary:
    the cycle-scoped receipt, database persistence, idempotency, retry/DLQ
    delivery, and an empty private quarantine after a successful cycle; never
    purge the shared usage DLQ. Record provider deployment evidence that binds
-   all five deployed Worker scripts/versions to the runtime SHA and read back
-   the three private queue retentions and exact consumer/DLQ edges; receipt
-   contents alone do not attest a deployed script SHA.
+   all six deployed Worker scripts/versions to the designated release SHA and
+   read back the three private queue retentions, producers, consumers, retry
+   counts, and dead-letter destinations; receipt contents alone do not attest a
+   deployed script SHA.
 
    ```powershell
    pnpm tsx tooling/scripts/private-canary-fixture.ts prepare --run-id <new-uuid>

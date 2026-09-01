@@ -14,18 +14,36 @@ state are deliberately omitted.
   `e60d664a998f3fa4051aa7fd0b7dc9dc99a83d85`, now superseded because its
   private canary could consume the shared usage DLQ without a no-loss
   downstream path.
-- Current runtime-code candidate:
-  `df4a66561eab2a5fdc4d93e3489f07ff82ccd382`.
+- Runtime-fix provenance commit:
+  `df4a66561eab2a5fdc4d93e3489f07ff82ccd382`. It repaired the shared-DLQ
+  loss path, but it is an ancestor of the integrated branch head and is not an
+  informally selectable deployment target.
+- Integrated branch head at this reconciliation:
+  `64bb05bdb2dc5877f526acf9e38c02146d2d5831`. It contains the later CI and
+  documentation follow-up commits.
+- **No Worker release candidate is currently designated.** Neither SHA may be
+  used for a migration, artifact build intended for deployment, or provider
+  deployment until the containment gate below is complete and one exact-SHA
+  release path is recorded.
 
 The original candidate was superseded by necessary runtime repairs: private
 fixture cycles, closed metering verification, TLS-only direct migration,
 immutable Git-object migration loading, exact private-canary deployment
-validation, and a TLS-only disposable CI database path. The current candidate
+validation, and a TLS-only disposable CI database path. The runtime-fix commit
 also isolates synthetic control traffic into a dedicated ingress, DLQ, and
-quarantine rather than consuming the shared usage DLQ. Later checklist and
-runbook edits must remain a separate documentation SHA; they cannot substitute
-for the runtime candidate. Any provider deployment must record each target
-Worker script/version and prove it corresponds to the runtime-code candidate.
+quarantine rather than consuming the shared usage DLQ.
+
+The required provenance gate is deliberately explicit. After the provider-side
+containment result is recorded, choose one of these paths before any migration
+or deployment: (a) make a clean checkout whose `HEAD` is `df4a665...`, build
+and attest all six Worker bundles from that checkout, then bind the provider
+versions to that SHA; or (b) validate the complete integrated head, including
+all six Worker artifacts, and explicitly designate that exact SHA as the
+release candidate. A source-path comparison or a later documentation commit is
+not an artifact attestation. The current five-Worker artifact check omits the
+private-canary Worker, so it is not sufficient for path (b) until that gap is
+closed. Any provider deployment must record each of the six target Worker
+scripts/versions and prove it corresponds to the designated release SHA.
 
 ## Cloudflare inventory
 
