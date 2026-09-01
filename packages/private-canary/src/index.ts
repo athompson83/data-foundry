@@ -1,8 +1,9 @@
 /**
- * The one message shape deliberately sent through the normal usage queue so
- * that its strict usage-event parser retries it and Cloudflare moves it to the
- * existing DLQ. It carries only deterministic synthetic identifiers: never a
- * credential, request target, source artifact, or source-derived content.
+ * The one message shape deliberately sent through the dedicated private-canary
+ * ingress so that the strict usage-event parser retries it and Cloudflare moves
+ * it to the dedicated private-canary DLQ. It carries only deterministic
+ * synthetic identifiers: never a credential, request target, source artifact,
+ * or source-derived content.
  */
 export const PRIVATE_CANARY_ENVELOPE_KIND = 'data-foundry.private-canary.v1';
 
@@ -88,7 +89,7 @@ export interface PrivateCanaryEnvelope {
   readonly mcp_event_id: string;
 }
 
-/** The only data a named target-entrypoint receives from the DLQ trigger. */
+/** The only data a named target-entrypoint receives from the canary DLQ trigger. */
 export interface PrivateCanaryProbeInput {
   readonly runId: string;
   readonly tenantId: string;

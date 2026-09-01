@@ -11,6 +11,12 @@ const WEB_CONFIG = join(REPO_ROOT, 'apps', 'web', 'wrangler.toml');
 const ACQUISITION_CONFIG = join(REPO_ROOT, 'apps', 'acquisition-worker', 'wrangler.toml');
 const MCP_CONFIG = join(REPO_ROOT, 'apps', 'mcp-worker', 'wrangler.toml');
 const PRIVATE_CANARY_CONFIG = join(REPO_ROOT, 'apps', 'private-canary', 'wrangler.toml');
+const CONSUMER_PRIVATE_CANARY_CONFIG = join(
+  REPO_ROOT,
+  'apps',
+  'usage-consumer',
+  'wrangler.private-canary.toml',
+);
 const ACCOUNT_ID = '1234567890abcdef1234567890abcdef';
 const PRIVATE_CANARY_ACCOUNT_ID = 'fedcba0987654321fedcba0987654321';
 const HYPERDRIVE_ID = 'abcdef1234567890abcdef1234567890';
@@ -162,7 +168,7 @@ ${extra}`;
     writeFile(consumerPrivateCanaryConfigPath, manifest(
       'data-foundry-usage-consumer',
       CONSUMER_HYPERDRIVE_ID,
-      '\n[[queues.consumers]]\nqueue = "data-foundry-usage-events"\nmax_batch_size = 100\nmax_batch_timeout = 5\nmax_retries = 3\ndead_letter_queue = "data-foundry-usage-events-dlq"\n',
+      '\n[[queues.consumers]]\nqueue = "data-foundry-usage-events"\nmax_batch_size = 100\nmax_batch_timeout = 5\nmax_retries = 3\ndead_letter_queue = "data-foundry-usage-events-dlq"\n\n[[queues.consumers]]\nqueue = "data-foundry-private-canary-events"\nmax_batch_size = 1\nmax_batch_timeout = 1\nmax_retries = 3\ndead_letter_queue = "data-foundry-private-canary-dlq"\n',
     ), 'utf8'),
     writeFile(webPrivateCanaryConfigPath, manifest('data-foundry-web', WEB_HYPERDRIVE_ID), 'utf8'),
     writeFile(acquisitionPrivateCanaryConfigPath, manifest('data-foundry-acquisition-worker', ACQUISITION_HYPERDRIVE_ID), 'utf8'),
@@ -187,9 +193,54 @@ describe('the committed Cloudflare topology', () => {
     expect(await validate()).toEqual([]);
   });
 
-  it('defines a route-less private canary which consumes only the existing DLQ through five named RPC bindings', async () => {
+  it('defines a route-less private canary which consumes only its dedicated DLQ through five named RPC bindings', async () => {
     const validate = await loadValidator();
     expect(await validate({ mode: 'private-canary' })).toEqual([]);
+  });
+
+  it('keeps private-canary control traffic out of the shared usage DLQ', async () => {
+    const [harness, consumer] = await Promise.all([
+      readFile(PRIVATE_CANARY_CONFIG, 'utf8'),
+      readFile(CONSUMER_PRIVATE_CANARY_CONFIG, 'utf8'),
+    ]);
+
+    expect(harness).toContain('queue = "data-foundry-private-canary-dlq"');
+    expect(harness).toContain('dead_letter_queue = "data-foundry-private-canary-quarantine"');
+    expect(harness).not.toContain('data-foundry-usage-events-dlq');
+    expect(consumer).toContain('queue = "data-foundry-private-canary-events"');
+    expect(consumer).toContain('dead_letter_queue = "data-foundry-private-canary-dlq"');
+  });
+
+  it('rejects any harness or target binding that maps canary control traffic onto a shared usage queue', async () => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-private-canary-queue-isolation-'));
+    temporaryDirectories.push(directory);
+    const privateCanaryConfigPath = join(directory, 'private-canary.toml');
+    await writeFile(
+      privateCanaryConfigPath,
+      (await readFile(PRIVATE_CANARY_CONFIG, 'utf8')).replace(
+        'queue = "data-foundry-private-canary-dlq"',
+        'queue = "data-foundry-usage-events-dlq"',
+      ),
+      'utf8',
+    );
+    const paths = await writePrivateCanaryTargetDeploymentManifests(directory);
+    await writeFile(
+      paths.consumerPrivateCanaryConfigPath,
+      (await readFile(paths.consumerPrivateCanaryConfigPath, 'utf8')).replace(
+        'queue = "data-foundry-private-canary-events"',
+        'queue = "data-foundry-usage-events"',
+      ),
+      'utf8',
+    );
+
+    const [harnessErrors, targetErrors] = await Promise.all([
+      validate({ mode: 'private-canary', privateCanaryConfigPath }),
+      validate({ mode: 'private-canary-target-deployment', ...paths }),
+    ]);
+
+    expect(harnessErrors.join('\n')).toMatch(/private-canary.*never.*data-foundry-usage-events-dlq/i);
+    expect(targetErrors.join('\n')).toMatch(/data-foundry-private-canary-events.*data-foundry-private-canary-dlq/i);
   });
 
   it('defines five route-less private-target templates with only their intended synthetic queue capabilities', async () => {
@@ -370,7 +421,7 @@ describe('the committed Cloudflare topology', () => {
         .replace(PRIVATE_CANARY_ACCOUNT_ID, invalidAccountId)
         .replace('workers_dev = false', 'workers_dev = true')
         .replace('preview_urls = false', 'preview_urls = true')
-        .replace('queue = "data-foundry-usage-events-dlq"', 'queue = "private-canary-extra-queue"') +
+        .replace('queue = "data-foundry-private-canary-dlq"', 'queue = "private-canary-extra-queue"') +
         '\nroute = "private-canary.example.invalid/*"\n' +
         '[[hyperdrive]]\nbinding = "HYPERDRIVE"\nid = "abcdef1234567890abcdef1234567890"\n' +
         '[[queues.producers]]\nbinding = "EXTRA_QUEUE"\nqueue = "private-canary-extra-queue"\n',
@@ -384,7 +435,7 @@ describe('the committed Cloudflare topology', () => {
     expect(errors.join('\n')).toMatch(/route-less/i);
     expect(errors.join('\n')).toMatch(/must not bind Hyperdrive/i);
     expect(errors.join('\n')).toMatch(/must not declare Queue producers/i);
-    expect(errors.join('\n')).toMatch(/data-foundry-usage-events-dlq/i);
+    expect(errors.join('\n')).toMatch(/data-foundry-private-canary-dlq/i);
     expect(errors.join('\n')).not.toContain(invalidAccountId);
   });
 
@@ -398,7 +449,7 @@ describe('the committed Cloudflare topology', () => {
       privateCanaryPath,
       privateCanary
         .replace('workers_dev = false', 'workers_dev = true')
-        .replace('queue = "data-foundry-usage-events-dlq"', 'queue = "private-canary-extra-queue"')
+        .replace('queue = "data-foundry-private-canary-dlq"', 'queue = "private-canary-extra-queue"')
         .replace(
           'entrypoint = "PrivateCanaryEntrypoint"',
           'entrypoint = "UnexpectedEntrypoint"',
@@ -414,7 +465,7 @@ describe('the committed Cloudflare topology', () => {
     expect(errors.join('\n')).toMatch(/route-less/i);
     expect(errors.join('\n')).toMatch(/must not bind Hyperdrive/i);
     expect(errors.join('\n')).toMatch(/must not declare Queue producers/i);
-    expect(errors.join('\n')).toMatch(/data-foundry-usage-events-dlq/i);
+    expect(errors.join('\n')).toMatch(/data-foundry-private-canary-dlq/i);
     expect(errors.join('\n')).toMatch(/PrivateCanaryEntrypoint/i);
   });
 

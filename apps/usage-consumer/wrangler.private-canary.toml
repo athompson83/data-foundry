@@ -1,7 +1,8 @@
 # Route-less target profile for the synthetic private canary. Copy this to the
 # ignored wrangler.private-canary.production.toml and inject only account_id
 # plus this Worker's role-specific Hyperdrive id. This preserves the ordinary
-# usage queue retry/DLQ path so the synthetic canary can exercise it.
+# usage queue retry/DLQ path and gives the synthetic canary its own isolated
+# ingress/DLQ pair, so it cannot consume an ordinary usage recovery message.
 name = "data-foundry-usage-consumer"
 main = "src/index.ts"
 compatibility_date = "2026-08-23"
@@ -29,3 +30,10 @@ max_batch_size = 100
 max_batch_timeout = 5
 max_retries = 3
 dead_letter_queue = "data-foundry-usage-events-dlq"
+
+[[queues.consumers]]
+queue = "data-foundry-private-canary-events"
+max_batch_size = 1
+max_batch_timeout = 1
+max_retries = 3
+dead_letter_queue = "data-foundry-private-canary-dlq"

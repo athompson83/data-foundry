@@ -1,10 +1,10 @@
 /**
  * Route-less private-canary Worker.
  *
- * The normal usage consumer retries the fixed synthetic envelope until it
- * arrives in the existing DLQ. This Worker consumes only that narrow shape,
- * invokes the five named service-entrypoint capabilities, and persists a
- * closed receipt. It deliberately has no `fetch` handler, secret, database,
+ * The usage consumer retries the fixed synthetic envelope until it arrives in
+ * the dedicated private-canary DLQ. This Worker consumes only that narrow
+ * shape, invokes the five named service-entrypoint capabilities, and persists
+ * a closed receipt. It deliberately has no `fetch` handler, secret, database,
  * Hyperdrive, source artifact, or public route.
  */
 import {
@@ -93,8 +93,8 @@ async function consumeMessage(
 ): Promise<void> {
   const envelope = parsePrivateCanaryEnvelope(message.body);
   if (envelope === null) {
-    // This DLQ must never become a discard path for a message this Worker did
-    // not understand. Do not log the body: it is not this Worker's data.
+    // The dedicated canary DLQ must retain an invalid control message through
+    // the configured private quarantine path. Do not log its body.
     message.retry();
     return;
   }

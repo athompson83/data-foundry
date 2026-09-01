@@ -111,6 +111,9 @@ export const MCP_DEPLOYMENT_CONFIG_PATH = join(REPO_ROOT, 'apps', 'mcp-worker', 
 
 const USAGE_QUEUE = 'data-foundry-usage-events';
 const USAGE_DLQ = 'data-foundry-usage-events-dlq';
+const PRIVATE_CANARY_QUEUE = 'data-foundry-private-canary-events';
+const PRIVATE_CANARY_DLQ = 'data-foundry-private-canary-dlq';
+const PRIVATE_CANARY_QUARANTINE = 'data-foundry-private-canary-quarantine';
 const PRIVATE_CANARY_RECEIPTS_BUCKET = 'data-foundry-private-canary-receipts';
 const PRIVATE_CANARY_ENTRYPOINT = 'PrivateCanaryEntrypoint';
 const PRIVATE_CANARY_SERVICES = [
@@ -293,9 +296,10 @@ function checkRepositoryPolicy(label: string, config: TomlObject, errors: string
 
 /**
  * The private canary is intentionally outside the five database-backed
- * runtime roles. It proves their service-bound capabilities after the normal
- * usage consumer has placed a fixed synthetic envelope on its existing DLQ;
- * it must therefore never acquire an HTTP route, Hyperdrive, or another Queue.
+ * runtime roles. It proves their service-bound capabilities after the usage
+ * consumer has placed a fixed synthetic envelope on a dedicated canary DLQ;
+ * it must therefore never acquire an HTTP route, Hyperdrive, or usage-DLQ
+ * capability.
  */
 function checkPrivateCanaryTopology(config: TomlObject, errors: string[]): void {
   for (const field of Object.keys(config)) {
@@ -334,17 +338,22 @@ function checkPrivateCanaryTopology(config: TomlObject, errors: string[]): void 
   }
   const consumers = objects(queues['consumers']);
   if (consumers.length !== 1) {
-    errors.push('private-canary must declare exactly one DLQ consumer.');
+    errors.push('private-canary must declare exactly one dedicated canary DLQ consumer.');
   }
   const consumer = consumers[0] ?? {};
-  if (consumer['queue'] !== USAGE_DLQ) {
-    errors.push(`private-canary must consume only ${USAGE_DLQ}.`);
+  if (consumer['queue'] !== PRIVATE_CANARY_DLQ) {
+    errors.push(`private-canary must consume only ${PRIVATE_CANARY_DLQ}, never ${USAGE_DLQ}.`);
   }
   if (consumer['max_batch_size'] !== 1 || consumer['max_batch_timeout'] !== 1) {
-    errors.push('private-canary DLQ consumer must process one message with a one-second batch timeout.');
+    errors.push('private-canary dedicated DLQ consumer must process one message with a one-second batch timeout.');
   }
-  if (consumer['dead_letter_queue'] !== undefined || consumer['max_retries'] !== undefined) {
-    errors.push('private-canary DLQ consumer must not create a second dead-letter path or retry cap.');
+  if (
+    consumer['max_retries'] !== 3 ||
+    consumer['dead_letter_queue'] !== PRIVATE_CANARY_QUARANTINE
+  ) {
+    errors.push(
+      `private-canary dedicated DLQ consumer must retry three times to ${PRIVATE_CANARY_QUARANTINE}.`,
+    );
   }
   if (Object.keys(queues).some((key) => key !== 'consumers')) {
     errors.push('private-canary must declare only its one DLQ consumer under queues.');
@@ -565,11 +574,11 @@ function checkPrivateCanaryTargetQueueTopology(
     errors.push('usage-consumer private-canary target must declare only its usage Queue consumer.');
   }
   const consumers = objects(queues['consumers']);
-  if (consumers.length !== 1) {
-    errors.push('usage-consumer private-canary target must declare exactly one usage Queue consumer.');
+  if (consumers.length !== 2) {
+    errors.push('usage-consumer private-canary target must declare exactly one usage and one canary Queue consumer.');
     return;
   }
-  const consumer = consumers[0] ?? {};
+  const consumer = consumers.find((candidate) => candidate['queue'] === USAGE_QUEUE) ?? {};
   if (
     consumer['queue'] !== USAGE_QUEUE ||
     consumer['max_batch_size'] !== 100 ||
@@ -579,6 +588,18 @@ function checkPrivateCanaryTargetQueueTopology(
   ) {
     errors.push(
       `usage-consumer private-canary target must preserve ${USAGE_QUEUE} retry and ${USAGE_DLQ} dead-letter topology.`,
+    );
+  }
+  const canaryConsumer = consumers.find((candidate) => candidate['queue'] === PRIVATE_CANARY_QUEUE) ?? {};
+  if (
+    canaryConsumer['queue'] !== PRIVATE_CANARY_QUEUE ||
+    canaryConsumer['max_batch_size'] !== 1 ||
+    canaryConsumer['max_batch_timeout'] !== 1 ||
+    canaryConsumer['max_retries'] !== 3 ||
+    canaryConsumer['dead_letter_queue'] !== PRIVATE_CANARY_DLQ
+  ) {
+    errors.push(
+      `usage-consumer private-canary target must route ${PRIVATE_CANARY_QUEUE} retries to ${PRIVATE_CANARY_DLQ}.`,
     );
   }
 }
