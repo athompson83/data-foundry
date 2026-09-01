@@ -6,6 +6,8 @@ export interface HyperdriveBinding {
 
 export interface AcquisitionWorkerEnv {
   readonly DEPLOYMENT_ENVIRONMENT?: string | undefined;
+  /** Enables only the route-less, service-bound synthetic readiness probe. */
+  readonly PRIVATE_CANARY_MODE?: string | undefined;
   readonly VERTICAL_SLUG?: string;
   readonly RAW_ARTIFACTS_BUCKET_NAME?: string;
   readonly HYPERDRIVE?: HyperdriveBinding;

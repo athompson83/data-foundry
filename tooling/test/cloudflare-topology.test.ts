@@ -10,7 +10,9 @@ const CONSUMER_CONFIG = join(REPO_ROOT, 'apps', 'usage-consumer', 'wrangler.toml
 const WEB_CONFIG = join(REPO_ROOT, 'apps', 'web', 'wrangler.toml');
 const ACQUISITION_CONFIG = join(REPO_ROOT, 'apps', 'acquisition-worker', 'wrangler.toml');
 const MCP_CONFIG = join(REPO_ROOT, 'apps', 'mcp-worker', 'wrangler.toml');
+const PRIVATE_CANARY_CONFIG = join(REPO_ROOT, 'apps', 'private-canary', 'wrangler.toml');
 const ACCOUNT_ID = '1234567890abcdef1234567890abcdef';
+const PRIVATE_CANARY_ACCOUNT_ID = 'fedcba0987654321fedcba0987654321';
 const HYPERDRIVE_ID = 'abcdef1234567890abcdef1234567890';
 const CONSUMER_HYPERDRIVE_ID = 'bcdef1234567890abcdef1234567890a';
 const WEB_HYPERDRIVE_ID = 'cdef1234567890abcdef1234567890ab';
@@ -24,12 +26,18 @@ afterAll(async () => {
 
 async function loadValidator(): Promise<(
   options?: {
-    readonly mode?: 'repository' | 'deployment';
+    readonly mode?: 'repository' | 'deployment' | 'private-canary' | 'private-canary-deployment' | 'private-canary-target' | 'private-canary-target-deployment';
     readonly edgeConfigPath?: string;
     readonly consumerConfigPath?: string;
     readonly webConfigPath?: string;
     readonly acquisitionConfigPath?: string;
     readonly mcpConfigPath?: string;
+    readonly privateCanaryConfigPath?: string;
+    readonly edgePrivateCanaryConfigPath?: string;
+    readonly consumerPrivateCanaryConfigPath?: string;
+    readonly webPrivateCanaryConfigPath?: string;
+    readonly acquisitionPrivateCanaryConfigPath?: string;
+    readonly mcpPrivateCanaryConfigPath?: string;
   },
 ) => Promise<readonly string[]>> {
   const module = await import('../scripts/check-cloudflare-topology.js').catch(() => null);
@@ -38,12 +46,18 @@ async function loadValidator(): Promise<(
   expect(typeof validate).toBe('function');
   return validate as (
     options?: {
-      readonly mode?: 'repository' | 'deployment';
+      readonly mode?: 'repository' | 'deployment' | 'private-canary' | 'private-canary-deployment' | 'private-canary-target' | 'private-canary-target-deployment';
       readonly edgeConfigPath?: string;
       readonly consumerConfigPath?: string;
       readonly webConfigPath?: string;
       readonly acquisitionConfigPath?: string;
       readonly mcpConfigPath?: string;
+      readonly privateCanaryConfigPath?: string;
+      readonly edgePrivateCanaryConfigPath?: string;
+      readonly consumerPrivateCanaryConfigPath?: string;
+      readonly webPrivateCanaryConfigPath?: string;
+      readonly acquisitionPrivateCanaryConfigPath?: string;
+      readonly mcpPrivateCanaryConfigPath?: string;
     },
   ) => Promise<readonly string[]>;
 }
@@ -95,10 +109,221 @@ async function writeDeploymentManifests(directory: string): Promise<{
   return { edgeConfigPath, consumerConfigPath, webConfigPath, acquisitionConfigPath, mcpConfigPath };
 }
 
+async function writePrivateCanaryDeploymentManifest(directory: string): Promise<string> {
+  const privateCanaryConfigPath = join(directory, 'private-canary.production.toml');
+  const manifest = (await readFile(PRIVATE_CANARY_CONFIG, 'utf8')).replace(
+    /^name\s*=\s*[^\n]+/m,
+    (name) => `${name}\naccount_id = "${PRIVATE_CANARY_ACCOUNT_ID}"`,
+  );
+  await writeFile(privateCanaryConfigPath, manifest, 'utf8');
+  return privateCanaryConfigPath;
+}
+
+async function writePrivateCanaryTargetDeploymentManifests(directory: string): Promise<{
+  readonly edgePrivateCanaryConfigPath: string;
+  readonly consumerPrivateCanaryConfigPath: string;
+  readonly webPrivateCanaryConfigPath: string;
+  readonly acquisitionPrivateCanaryConfigPath: string;
+  readonly mcpPrivateCanaryConfigPath: string;
+}> {
+  const manifest = (name: string, hyperdriveId: string, extra = ''): string => `name = "${name}"
+account_id = "${ACCOUNT_ID}"
+main = "src/index.ts"
+compatibility_date = "2026-08-28"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = false
+preview_urls = false
+
+[observability]
+enabled = true
+
+[observability.logs]
+invocation_logs = false
+
+[vars]
+DEPLOYMENT_ENVIRONMENT = "production"
+PRIVATE_CANARY_MODE = "service-binding"
+
+[[hyperdrive]]
+binding = "HYPERDRIVE"
+id = "${hyperdriveId}"
+${extra}`;
+  const edgePrivateCanaryConfigPath = join(directory, 'edge.private-canary.production.toml');
+  const consumerPrivateCanaryConfigPath = join(directory, 'consumer.private-canary.production.toml');
+  const webPrivateCanaryConfigPath = join(directory, 'web.private-canary.production.toml');
+  const acquisitionPrivateCanaryConfigPath = join(directory, 'acquisition.private-canary.production.toml');
+  const mcpPrivateCanaryConfigPath = join(directory, 'mcp.private-canary.production.toml');
+  await Promise.all([
+    writeFile(edgePrivateCanaryConfigPath, manifest(
+      'data-foundry-edge',
+      HYPERDRIVE_ID,
+      '\n[[queues.producers]]\nbinding = "USAGE_EVENTS_QUEUE"\nqueue = "data-foundry-usage-events"\n',
+    ), 'utf8'),
+    writeFile(consumerPrivateCanaryConfigPath, manifest(
+      'data-foundry-usage-consumer',
+      CONSUMER_HYPERDRIVE_ID,
+      '\n[[queues.consumers]]\nqueue = "data-foundry-usage-events"\nmax_batch_size = 100\nmax_batch_timeout = 5\nmax_retries = 3\ndead_letter_queue = "data-foundry-usage-events-dlq"\n',
+    ), 'utf8'),
+    writeFile(webPrivateCanaryConfigPath, manifest('data-foundry-web', WEB_HYPERDRIVE_ID), 'utf8'),
+    writeFile(acquisitionPrivateCanaryConfigPath, manifest('data-foundry-acquisition-worker', ACQUISITION_HYPERDRIVE_ID), 'utf8'),
+    writeFile(mcpPrivateCanaryConfigPath, manifest(
+      'data-foundry-mcp-hvac',
+      MCP_HYPERDRIVE_ID,
+      '\n[[queues.producers]]\nbinding = "USAGE_EVENTS_QUEUE"\nqueue = "data-foundry-usage-events"\n',
+    ), 'utf8'),
+  ]);
+  return {
+    edgePrivateCanaryConfigPath,
+    consumerPrivateCanaryConfigPath,
+    webPrivateCanaryConfigPath,
+    acquisitionPrivateCanaryConfigPath,
+    mcpPrivateCanaryConfigPath,
+  };
+}
+
 describe('the committed Cloudflare topology', () => {
   it('defines a production edge producer and idempotent consumer with one matching queue and DLQ', async () => {
     const validate = await loadValidator();
     expect(await validate()).toEqual([]);
+  });
+
+  it('defines a route-less private canary which consumes only the existing DLQ through five named RPC bindings', async () => {
+    const validate = await loadValidator();
+    expect(await validate({ mode: 'private-canary' })).toEqual([]);
+  });
+
+  it('defines five route-less private-target templates with only their intended synthetic queue capabilities', async () => {
+    const validate = await loadValidator();
+    expect(await validate({ mode: 'private-canary-target' })).toEqual([]);
+  });
+
+  it('validates an ignored private-canary deployment manifest with an account but no database or public surface', async () => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-private-canary-deployment-'));
+    temporaryDirectories.push(directory);
+    const privateCanaryConfigPath = await writePrivateCanaryDeploymentManifest(directory);
+
+    expect(await validate({
+      mode: 'private-canary-deployment',
+      privateCanaryConfigPath,
+    })).toEqual([]);
+  });
+
+  it('validates five ignored private-target manifests as distinct, route-less Hyperdrive capabilities', async () => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-private-canary-target-deployment-'));
+    temporaryDirectories.push(directory);
+    const paths = await writePrivateCanaryTargetDeploymentManifests(directory);
+
+    expect(await validate({
+      mode: 'private-canary-target-deployment',
+      ...paths,
+    })).toEqual([]);
+  });
+
+  it('rejects a private-target route, public endpoint configuration, missing service binding mode, and shared Hyperdrive', async () => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-private-canary-target-deployment-drift-'));
+    temporaryDirectories.push(directory);
+    const paths = await writePrivateCanaryTargetDeploymentManifests(directory);
+    await Promise.all([
+      writeFile(
+        paths.edgePrivateCanaryConfigPath,
+        `${await readFile(paths.edgePrivateCanaryConfigPath, 'utf8')}\nroute = "private.example.invalid/*"\n`,
+        'utf8',
+      ),
+      writeFile(
+        paths.webPrivateCanaryConfigPath,
+        `${await readFile(paths.webPrivateCanaryConfigPath, 'utf8')}\n[env.production.vars]\nPUBLIC_ORIGIN = "https://www.datafoundry.io"\n`,
+        'utf8',
+      ),
+      writeFile(
+        paths.mcpPrivateCanaryConfigPath,
+        (await readFile(paths.mcpPrivateCanaryConfigPath, 'utf8'))
+          .replace('PRIVATE_CANARY_MODE = "service-binding"', '')
+          .replace(MCP_HYPERDRIVE_ID, HYPERDRIVE_ID) +
+          '\n[env.production.vars]\nMCP_HOSTNAME = "mcp.datafoundry.io"\n',
+        'utf8',
+      ),
+    ]);
+
+    const errors = await validate({ mode: 'private-canary-target-deployment', ...paths });
+    expect(errors.join('\n')).toMatch(/edge.*route-less/i);
+    expect(errors.join('\n')).toMatch(/web.*PUBLIC_ORIGIN/i);
+    expect(errors.join('\n')).toMatch(/mcp-worker.*PRIVATE_CANARY_MODE/i);
+    expect(errors.join('\n')).toMatch(/mcp-worker.*MCP_HOSTNAME/i);
+    expect(errors.join('\n')).toMatch(/distinct Hyperdrive/i);
+  });
+
+  it('fails closed when the ignored private-canary deployment manifest is absent', async () => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-private-canary-deployment-missing-'));
+    temporaryDirectories.push(directory);
+
+    expect(await validate({
+      mode: 'private-canary-deployment',
+      privateCanaryConfigPath: join(directory, 'missing-private-canary.production.toml'),
+    })).toEqual(['private-canary manifest could not be read and parsed as TOML.']);
+  });
+
+  it('rejects account drift and every public or privileged production override without exposing the account value', async () => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-private-canary-deployment-drift-'));
+    temporaryDirectories.push(directory);
+    const privateCanaryConfigPath = await writePrivateCanaryDeploymentManifest(directory);
+    const invalidAccountId = 'not-a-private-canary-account-id';
+    await writeFile(
+      privateCanaryConfigPath,
+      (await readFile(privateCanaryConfigPath, 'utf8'))
+        .replace(PRIVATE_CANARY_ACCOUNT_ID, invalidAccountId)
+        .replace('workers_dev = false', 'workers_dev = true')
+        .replace('preview_urls = false', 'preview_urls = true')
+        .replace('queue = "data-foundry-usage-events-dlq"', 'queue = "private-canary-extra-queue"') +
+        '\nroute = "private-canary.example.invalid/*"\n' +
+        '[[hyperdrive]]\nbinding = "HYPERDRIVE"\nid = "abcdef1234567890abcdef1234567890"\n' +
+        '[[queues.producers]]\nbinding = "EXTRA_QUEUE"\nqueue = "private-canary-extra-queue"\n',
+      'utf8',
+    );
+
+    const errors = await validate({ mode: 'private-canary-deployment', privateCanaryConfigPath });
+    expect(errors.join('\n')).toMatch(/private-canary.*32-hex account_id/i);
+    expect(errors.join('\n')).toMatch(/workers[_\. ]dev/i);
+    expect(errors.join('\n')).toMatch(/preview/i);
+    expect(errors.join('\n')).toMatch(/route-less/i);
+    expect(errors.join('\n')).toMatch(/must not bind Hyperdrive/i);
+    expect(errors.join('\n')).toMatch(/must not declare Queue producers/i);
+    expect(errors.join('\n')).toMatch(/data-foundry-usage-events-dlq/i);
+    expect(errors.join('\n')).not.toContain(invalidAccountId);
+  });
+
+  it('rejects public reachability, Hyperdrive, an extra queue, and service-binding drift from the private canary', async () => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-private-canary-topology-'));
+    temporaryDirectories.push(directory);
+    const privateCanaryPath = join(directory, 'private-canary.toml');
+    const privateCanary = await readFile(PRIVATE_CANARY_CONFIG, 'utf8');
+    await writeFile(
+      privateCanaryPath,
+      privateCanary
+        .replace('workers_dev = false', 'workers_dev = true')
+        .replace('queue = "data-foundry-usage-events-dlq"', 'queue = "private-canary-extra-queue"')
+        .replace(
+          'entrypoint = "PrivateCanaryEntrypoint"',
+          'entrypoint = "UnexpectedEntrypoint"',
+        ) +
+        '\nroute = "private-canary.example.invalid/*"\n' +
+        '[[hyperdrive]]\nbinding = "HYPERDRIVE"\nid = "abcdef1234567890abcdef1234567890"\n' +
+        '[[queues.producers]]\nbinding = "EXTRA_QUEUE"\nqueue = "private-canary-extra-queue"\n',
+      'utf8',
+    );
+
+    const errors = await validate({ mode: 'private-canary', privateCanaryConfigPath: privateCanaryPath });
+    expect(errors.join('\n')).toMatch(/workers[_\. ]dev/i);
+    expect(errors.join('\n')).toMatch(/route-less/i);
+    expect(errors.join('\n')).toMatch(/must not bind Hyperdrive/i);
+    expect(errors.join('\n')).toMatch(/must not declare Queue producers/i);
+    expect(errors.join('\n')).toMatch(/data-foundry-usage-events-dlq/i);
+    expect(errors.join('\n')).toMatch(/PrivateCanaryEntrypoint/i);
   });
 
   it('detects cross-file queue drift and a missing DLQ', async () => {

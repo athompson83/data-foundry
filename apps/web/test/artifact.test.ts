@@ -30,6 +30,9 @@ describe('the built apps/web Worker never bundles PGlite', () => {
         format: 'esm',
         platform: 'node',
         target: 'es2022',
+        // Cloudflare resolves its runtime builtin when the Worker deploys;
+        // this Node-shaped artifact check must leave that specifier external.
+        external: ['cloudflare:*'],
         metafile: true,
         logLevel: 'silent',
       });

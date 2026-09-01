@@ -18,6 +18,8 @@ export interface HyperdriveBinding {
 export interface ConsumerEnv {
   /** Explicit deployment identity; absence is rejected. */
   readonly DEPLOYMENT_ENVIRONMENT?: string | undefined;
+  /** Enables only the route-less, service-bound synthetic readiness probe. */
+  readonly PRIVATE_CANARY_MODE?: string | undefined;
   /** Hyperdrive binding. Preferred over `POSTGRES_URL` for the same reason `apps/edge` prefers it. */
   readonly HYPERDRIVE?: HyperdriveBinding;
   /** Direct connection string. A fallback for `wrangler dev` against a local database. */

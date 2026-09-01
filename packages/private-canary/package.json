@@ -1,0 +1,16 @@
+{
+  "name": "@data-foundry/private-canary",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Strictly typed synthetic private-canary control and receipt contracts.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "types": "./src/index.ts",
+  "files": ["src"],
+  "scripts": {
+    "test": "vitest run --root .",
+    "typecheck": "tsc -p tsconfig.json"
+  }
+}

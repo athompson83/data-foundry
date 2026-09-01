@@ -27,6 +27,7 @@ import {
   type SurfaceReadSnapshot,
   type SurfaceQueryModel,
 } from '@data-foundry/query-model';
+import { resolvePrivateCanaryConnectionString } from '@data-foundry/private-canary';
 import type { IsoDateTime, VerticalId } from '@data-foundry/canonical-schema';
 import { resolveWebConfig, type WebEnv } from './env.js';
 import type { PublicCacheMode } from './http.js';
@@ -90,6 +91,33 @@ export interface BuildOptions {
     options?: PostgresDriverOptions,
   ) => Promise<SqlDriver>;
   readonly onWarning?: (message: string) => void;
+}
+
+/**
+ * A route-less, service-bound database check. Keeping this in the composition
+ * root preserves the Web surface boundary: page and RPC adapters never open a
+ * driver or issue SQL themselves.
+ */
+export interface PrivateCanaryDatabaseProbeOptions {
+  readonly env: WebEnv;
+  readonly openDriver?: (
+    connectionString: string,
+    options?: PostgresDriverOptions,
+  ) => Promise<SqlDriver>;
+}
+
+export async function probePrivateCanaryDatabase(
+  options: PrivateCanaryDatabaseProbeOptions,
+): Promise<void> {
+  const connectionString = resolvePrivateCanaryConnectionString(options.env);
+  const open = options.openDriver ?? createHyperdriveDriver;
+  const driver = await open(connectionString, { schema: DATA_FOUNDRY_PRIVATE_SCHEMA });
+  try {
+    const [row] = await driver.query<{ readonly ready: unknown }>('SELECT 1 AS ready');
+    if (row?.ready !== 1) throw new Error('Private canary database readiness failed.');
+  } finally {
+    await driver.close().catch(() => undefined);
+  }
 }
 
 async function buildVertical(

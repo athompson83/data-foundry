@@ -18,6 +18,7 @@
     "verticals/*/fixtures/**/*.ts",
     "tooling/**/*.ts",
     "tests/**/*.ts",
+    "types/**/*.d.ts",
     "vitest.config.ts",
     "vitest.workspace.ts"
   ],

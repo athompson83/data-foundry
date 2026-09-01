@@ -1,5 +1,11 @@
 /** Deployable Cloudflare Streamable HTTP adapter for the pure MCP contract. */
 import { authenticate, type AuthFailure } from '@data-foundry/access-auth';
+import { WorkerEntrypoint } from 'cloudflare:workers';
+import type {
+  PrivateCanaryProbe,
+  PrivateCanaryProbeInput,
+  PrivateCanaryProbeResult,
+} from '@data-foundry/private-canary';
 import { buildUsageEvent, type UsageEvent } from '@data-foundry/usage-events';
 import { validateHostHeader } from '@modelcontextprotocol/server';
 import {
@@ -13,6 +19,7 @@ import {
   resolveMcpWorkerConfig,
   type McpWorkerEnv,
 } from './env.js';
+import { probePrivateCanaryReadiness } from './private-canary.js';
 import { guardProtocolRequest, type McpRouteKey } from './protocol.js';
 import { MCP_RUNTIMES } from '../generated/runtime-registry.js';
 
@@ -34,6 +41,14 @@ export {
 } from './env.js';
 export { MAX_MCP_BODY_BYTES, MCP_PROTOCOL_VERSION, type McpRouteKey } from './protocol.js';
 export { BUNDLED_MCP_VERTICALS, MCP_RUNTIMES } from '../generated/runtime-registry.js';
+export { probePrivateCanaryReadiness, type PrivateCanaryProbeOptions } from './private-canary.js';
+
+/** Service-binding-only probe; it never opens the public MCP HTTP endpoint. */
+export class PrivateCanaryEntrypoint extends WorkerEntrypoint<McpWorkerEnv> implements PrivateCanaryProbe {
+  async probe(input: PrivateCanaryProbeInput): Promise<PrivateCanaryProbeResult> {
+    return probePrivateCanaryReadiness(input, this.env);
+  }
+}
 
 interface RpcError {
   readonly code: number;

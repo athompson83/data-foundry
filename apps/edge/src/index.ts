@@ -14,6 +14,12 @@ import {
   validateOpaqueEdgeErrorEnvelope,
   type ApiRequestTelemetry,
 } from '@data-foundry/api';
+import { WorkerEntrypoint } from 'cloudflare:workers';
+import type {
+  PrivateCanaryProbe,
+  PrivateCanaryProbeInput,
+  PrivateCanaryProbeResult,
+} from '@data-foundry/private-canary';
 import { buildUsageEvent, type UsageEvent } from '@data-foundry/usage-events';
 import { toApiRequest, toFetchResponse } from './adapter.js';
 import { authenticate, toAuthResponse, type AuthFailure } from './auth.js';
@@ -25,6 +31,7 @@ import {
   type DeploymentEnvironment,
   type ResolvedEdgeConfig,
 } from './env.js';
+import { probePrivateCanaryReadiness } from './private-canary.js';
 import { RUNTIMES } from '../generated/runtime-registry.js';
 
 export { toApiRequest, toFetchResponse } from './adapter.js';
@@ -53,6 +60,14 @@ export {
   type RapidApiConfig,
   type ResolvedEdgeConfig,
 } from './env.js';
+export { probePrivateCanaryReadiness, type PrivateCanaryProbeOptions } from './private-canary.js';
+
+/** Service-binding-only probe; no public route is added for the canary. */
+export class PrivateCanaryEntrypoint extends WorkerEntrypoint<EdgeEnv> implements PrivateCanaryProbe {
+  async probe(input: PrivateCanaryProbeInput): Promise<PrivateCanaryProbeResult> {
+    return probePrivateCanaryReadiness(input, this.env);
+  }
+}
 
 /**
  * Runtimes compiled into this bundle.

@@ -1,0 +1,24 @@
+# Route-less target profile for the synthetic private canary. Copy this to the
+# ignored wrangler.private-canary.production.toml and inject only account_id
+# plus this Worker's role-specific Hyperdrive id. Cron, R2, source settings,
+# and provider credentials are absent because the RPC probe never acquires data.
+name = "data-foundry-acquisition-worker"
+main = "src/index.ts"
+compatibility_date = "2026-08-28"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = false
+preview_urls = false
+
+[observability]
+enabled = true
+
+[observability.logs]
+invocation_logs = false
+
+[vars]
+DEPLOYMENT_ENVIRONMENT = "production"
+PRIVATE_CANARY_MODE = "service-binding"
+
+# [[hyperdrive]]
+# binding = "HYPERDRIVE"
+# id = "<acquisition-role-hyperdrive-id>"

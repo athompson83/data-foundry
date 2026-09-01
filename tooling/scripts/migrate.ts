@@ -3,7 +3,8 @@
  *
  * Applies `db/migrations/*.sql` in filename order against either:
  *   - PGlite (default) — local dev and CI, in-memory or persisted to `.data/pglite`;
- *   - real Postgres — when `POSTGRES_URL` is set (Supabase, RDS, a container).
+ *   - real Postgres — when `DATA_FOUNDRY_MIGRATION_DATABASE_URL` is supplied
+ *     through the approved secret interface (Supabase, RDS, a container).
  *
  * The SQL is identical in both cases. That is the point: if a migration only
  * applies to one of them, it is not portable Postgres and does not belong in
@@ -13,16 +14,82 @@
  *   pnpm migrate                     # apply to .data/pglite
  *   pnpm migrate --memory            # apply to a throwaway in-memory database
  *   pnpm migrate:check               # CI gate: apply to a fresh database, verify, discard
- *   POSTGRES_URL=... pnpm migrate    # apply to Alpha Lab's private data_foundry schema
- *   DATA_FOUNDRY_SCHEMA=public POSTGRES_URL=... pnpm migrate # reviewed legacy install only
+ *   # supply DATA_FOUNDRY_MIGRATION_DATABASE_URL securely, then pnpm migrate
+ *   # DATA_FOUNDRY_SCHEMA=public remains a reviewed legacy install opt-in
  */
 import { createHash } from 'node:crypto';
+import { execFile } from 'node:child_process';
 import { readFile, readdir } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { promisify } from 'node:util';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
+const REPOSITORY_ROOT = resolve(HERE, '..', '..');
+const execFileAsync = promisify(execFile);
 export const MIGRATIONS_DIR = resolve(HERE, '..', '..', 'db', 'migrations');
+/** The approved secret-bearing source for a direct real PostgreSQL migration. */
+export const DATA_FOUNDRY_MIGRATION_DATABASE_URL_ENV = 'DATA_FOUNDRY_MIGRATION_DATABASE_URL';
+const RELEASE_SHA = /^[0-9a-f]{40}$/;
+
+/** The executable inputs that must match the declared real-Postgres candidate. */
+export const REAL_POSTGRES_SOURCE_PATHS = [
+  'db/migrations',
+  'tooling/scripts/migrate.ts',
+] as const;
+
+export type GitRunner = (args: readonly string[]) => Promise<string>;
+
+const runGit: GitRunner = async (args) => {
+  const { stdout } = await execFileAsync('git', [...args], { encoding: 'utf8' });
+  return stdout;
+};
+
+/**
+ * Read the dedicated migration connection only. It deliberately does not
+ * inherit a generic application `POSTGRES_URL`.
+ */
+export function migrationDatabaseUrlFromEnv(
+  env: Readonly<Record<string, string | undefined>> = process.env,
+): string | undefined {
+  const candidate = env[DATA_FOUNDRY_MIGRATION_DATABASE_URL_ENV];
+  return candidate !== undefined && candidate.trim() !== '' ? candidate : undefined;
+}
+
+/**
+ * The direct migration CLI fails closed when a generic application connection
+ * is present but the narrow migration credential was not supplied. With neither
+ * variable, it retains the normal local/PGlite default.
+ */
+export function resolveDirectMigrationDatabaseUrl(
+  env: Readonly<Record<string, string | undefined>> = process.env,
+): string | undefined {
+  const migrationUrl = migrationDatabaseUrlFromEnv(env);
+  if (migrationUrl !== undefined) return migrationUrl;
+
+  const genericApplicationUrl = env['POSTGRES_URL'];
+  if (genericApplicationUrl !== undefined && genericApplicationUrl.trim() !== '') {
+    throw new Error(
+      `${DATA_FOUNDRY_MIGRATION_DATABASE_URL_ENV} is required for real PostgreSQL migrations; POSTGRES_URL is not accepted by this runner.`,
+    );
+  }
+  return undefined;
+}
+
+/**
+ * Keep the direct secret path from reflecting a provider/driver error that
+ * could contain connection context. Local credential-free runs retain useful
+ * diagnostics for ordinary development failures.
+ */
+export function migrationFailureMessage(
+  error: unknown,
+  env: Readonly<Record<string, string | undefined>> = process.env,
+): string {
+  if (migrationDatabaseUrlFromEnv(env) !== undefined) {
+    return 'Direct PostgreSQL migration failed.';
+  }
+  return error instanceof Error ? error.stack ?? error.message : String(error);
+}
 
 export interface Migration {
   /** Numeric prefix, e.g. `0004`. Ordering key and ledger primary key. */
@@ -36,6 +103,8 @@ export interface Migration {
 export const DEFAULT_SCHEMA = 'public';
 /** The sole supported private schema for the Alpha Lab Data Foundry deployment. */
 export const DATA_FOUNDRY_PRIVATE_SCHEMA = 'data_foundry';
+/** The only direct login allowed to create or migrate the private schema. */
+export const DATA_FOUNDRY_MIGRATION_ROLE = 'df_migration';
 
 /**
  * The application may share a physical database only through an explicitly
@@ -72,6 +141,53 @@ export function resolveOperationalSchema(
   env: Readonly<Record<string, string | undefined>> = process.env,
 ): string {
   return normalizeSchemaName(env['DATA_FOUNDRY_SCHEMA'] ?? DATA_FOUNDRY_PRIVATE_SCHEMA);
+}
+
+/**
+ * Bind a real database mutation to a reviewed, clean repository candidate.
+ * The value is non-secret and is intentionally required only for real
+ * PostgreSQL execution; local/PGlite paths remain dependency-free.
+ */
+export async function assertRealPostgresSourceIdentity(
+  env: Readonly<Record<string, string | undefined>> = process.env,
+  options: Readonly<{
+    repositoryRoot?: string | undefined;
+    runGit?: GitRunner | undefined;
+    /** Additional executable files for a narrow real-Postgres operation. */
+    additionalSourcePaths?: readonly string[] | undefined;
+  }> = {},
+): Promise<void> {
+  const releaseSha = env['DATA_FOUNDRY_RELEASE_SHA']?.trim();
+  if (releaseSha === undefined || !RELEASE_SHA.test(releaseSha)) {
+    throw new Error('DATA_FOUNDRY_RELEASE_SHA must be the lowercase 40-character reviewed Git SHA.');
+  }
+
+  const repositoryRoot = options.repositoryRoot ?? REPOSITORY_ROOT;
+  const git = options.runGit ?? runGit;
+  const headSha = (await git(['-C', repositoryRoot, 'rev-parse', '--verify', 'HEAD'])).trim();
+  if (headSha !== releaseSha) {
+    throw new Error(`DATA_FOUNDRY_RELEASE_SHA ${releaseSha} does not equal Git HEAD ${headSha}.`);
+  }
+
+  const additionalSourcePaths = options.additionalSourcePaths ?? [];
+  if (additionalSourcePaths.some((path) => !/^[a-zA-Z0-9_./-]+$/.test(path) || path.includes('..') || path.startsWith('/'))) {
+    throw new Error('Executable migration source paths must be repository-relative paths.');
+  }
+  const sourcePaths = [...new Set([...REAL_POSTGRES_SOURCE_PATHS, ...additionalSourcePaths])];
+  const relevantChanges = (
+    await git([
+      '-C',
+      repositoryRoot,
+      'status',
+      '--porcelain=v1',
+      '--untracked-files=all',
+      '--',
+      ...sourcePaths,
+    ])
+  ).trim();
+  if (relevantChanges !== '') {
+    throw new Error('Executable migration inputs differ from Git HEAD; commit or restore them before real PostgreSQL execution.');
+  }
 }
 
 function qualified(schema: string, relation: string): string {
@@ -185,6 +301,51 @@ export interface MigrationDriver {
 }
 
 /**
+ * A direct private-schema migration must authenticate as the narrow migration
+ * principal. A missing schema is valid only before its first bootstrap; any
+ * existing schema must already belong to that same principal.
+ */
+export async function assertPrivateMigrationRoleBinding(
+  driver: MigrationDriver,
+  options: Readonly<{ schema?: string | undefined; requireSchemaOwner?: boolean }> = {},
+): Promise<void> {
+  const schema = normalizeSchemaName(options.schema ?? DATA_FOUNDRY_PRIVATE_SCHEMA);
+  if (schema !== DATA_FOUNDRY_PRIVATE_SCHEMA) {
+    throw new Error('The private migration-role guard may be used only with the data_foundry schema.');
+  }
+
+  const [binding] = await driver.query<{ current_user: string; schema_owner: string | null }>(
+    `SELECT current_user AS current_user,
+            (
+              SELECT owner.rolname
+                FROM pg_namespace namespace
+                JOIN pg_roles owner ON owner.oid = namespace.nspowner
+               WHERE namespace.nspname = $1
+            ) AS schema_owner`,
+    [schema],
+  );
+
+  if (binding === undefined || binding.current_user !== DATA_FOUNDRY_MIGRATION_ROLE) {
+    throw new Error(
+      `Direct private-schema migrations must connect as ${DATA_FOUNDRY_MIGRATION_ROLE}; refusing before DDL.`,
+    );
+  }
+  if (
+    binding.schema_owner !== null &&
+    binding.schema_owner !== DATA_FOUNDRY_MIGRATION_ROLE
+  ) {
+    throw new Error(
+      `The ${schema} schema is owned by ${binding.schema_owner}, not ${DATA_FOUNDRY_MIGRATION_ROLE}; refusing before DDL.`,
+    );
+  }
+  if (options.requireSchemaOwner === true && binding.schema_owner !== DATA_FOUNDRY_MIGRATION_ROLE) {
+    throw new Error(
+      `The ${schema} schema must be owned by ${DATA_FOUNDRY_MIGRATION_ROLE} after bootstrap.`,
+    );
+  }
+}
+
+/**
  * Written onto the ledger when this runner creates it, so that ownership is
  * something the database records rather than something we infer from a name or
  * a set of column names. Versioned, because a marker that cannot be superseded
@@ -287,7 +448,7 @@ export async function assertLedgerIsOurs(
 
   throw new Error(
       `A table named "${normalized}.${LEDGER_TABLE}" already exists here and is not Data Foundry's ledger: ` +
-      `${reason}. Refusing to read or write it. Point POSTGRES_URL at a database of this ` +
+      `${reason}. Refusing to read or write it. Point the dedicated migration credential at a database of this ` +
       `project's own, or rename the existing table. If you know the table IS this project's ` +
       `— a ledger created before ownership was recorded — adopt it deliberately with: ` +
         `COMMENT ON TABLE ${normalized === DEFAULT_SCHEMA ? LEDGER_TABLE : qualified(normalized, LEDGER_TABLE)} IS '${LEDGER_MARKER}';`,
@@ -336,6 +497,23 @@ export interface AppliedMigration {
   readonly executionMs: number;
 }
 
+export interface ApplyMigrationsOptions {
+  readonly schema?: string | undefined;
+  /** Require the direct live migration role before private-schema DDL. */
+  readonly requirePrivateMigrationRole?: boolean | undefined;
+}
+
+/**
+ * Only direct, real private-schema execution may require the narrow migration
+ * principal. The legacy public path remains an explicit reviewed opt-in.
+ */
+export function realPostgresMigrationOptions(schema: string): ApplyMigrationsOptions {
+  const normalized = normalizeSchemaName(schema);
+  return normalized === DATA_FOUNDRY_PRIVATE_SCHEMA
+    ? { schema: normalized, requirePrivateMigrationRole: true }
+    : { schema: normalized };
+}
+
 const PRIVATE_SCHEMA_TRANSFORM_VERSION = 'data-foundry-private-schema-v1';
 
 /**
@@ -365,11 +543,21 @@ export function effectiveMigrationChecksum(
 export async function applyMigrations(
   driver: MigrationDriver,
   migrations: readonly Migration[],
-  options: Readonly<{ schema?: string | undefined }> = {},
+  options: Readonly<ApplyMigrationsOptions> = {},
 ): Promise<AppliedMigration[]> {
   const schema = normalizeSchemaName(options.schema);
+  const requirePrivateMigrationRole = options.requirePrivateMigrationRole === true;
+  if (requirePrivateMigrationRole && schema !== DATA_FOUNDRY_PRIVATE_SCHEMA) {
+    throw new Error('The direct private migration role is valid only for the data_foundry schema.');
+  }
+  if (requirePrivateMigrationRole) {
+    await assertPrivateMigrationRoleBinding(driver, { schema });
+  }
   await assertNoLegacyPublicDataFoundryInstall(driver, schema);
   await prepareSchema(driver, schema);
+  if (requirePrivateMigrationRole) {
+    await assertPrivateMigrationRoleBinding(driver, { schema, requireSchemaOwner: true });
+  }
   // Before anything is created or written, not after.
   await assertLedgerIsOurs(driver, schema);
   await driver.exec(ledgerDdl(schema));
@@ -470,7 +658,7 @@ export async function createPostgresDriver(
   const normalized = normalizeSchemaName(schema);
   if (normalized !== DEFAULT_SCHEMA && hasCallerSuppliedStartupOptions(connectionString)) {
     throw new Error(
-      'A private-schema migration refuses a POSTGRES_URL with startup options, because it could override the private search path.',
+      'A private-schema migration refuses a connection URL with startup options, because it could override the private search path.',
     );
   }
   const pg = await import('pg');
@@ -481,7 +669,9 @@ export async function createPostgresDriver(
   );
   await client.connect();
   return {
-    label: `postgres (${new URL(connectionString).host})`,
+    // A direct migration credential is secret-bearing. Do not derive, retain,
+    // or print a host component merely to decorate routine progress output.
+    label: 'postgres (direct TLS)',
     async exec(sql) {
       await client.query(sql);
     },
@@ -499,7 +689,8 @@ export async function createPostgresDriver(
  * The ownership manifest: every table Data Foundry creates, and the complete
  * set it is entitled to speak about.
  *
- * `POSTGRES_URL` points the migrator at whatever database an operator names,
+ * The dedicated migration credential points the migrator at whatever database
+ * an operator names,
  * and that database may belong to something else. Nothing here will modify a
  * table it did not create — no migration references one, and a test asserts
  * that none ever does — but a certification that counted the whole `public`
@@ -663,7 +854,7 @@ export function resolveSchema(
 async function main(argv: readonly string[]): Promise<number> {
   const check = argv.includes('--check');
   const memory = argv.includes('--memory') || check;
-  const postgresUrl = process.env['POSTGRES_URL'];
+  const postgresUrl = check || memory ? undefined : resolveDirectMigrationDatabaseUrl();
   const usesRealPostgres = postgresUrl !== undefined && postgresUrl !== '' && !check;
   // Keep local PGlite/public compatibility, but never let a real database
   // invocation fall through to a shared `public` schema.
@@ -672,6 +863,9 @@ async function main(argv: readonly string[]): Promise<number> {
     process.env,
     usesRealPostgres ? DATA_FOUNDRY_PRIVATE_SCHEMA : DEFAULT_SCHEMA,
   );
+  if (usesRealPostgres) {
+    await assertRealPostgresSourceIdentity();
+  }
 
   const migrations = await loadMigrations();
   const driver =
@@ -682,16 +876,9 @@ async function main(argv: readonly string[]): Promise<number> {
   try {
     console.log(`Applying ${migrations.length} migration(s) to ${driver.label}`);
 
-    // Ask this first: a colliding ledger makes the notice below wrong (it would
-    // count the foreign table as ours), and the operator needs the specific
-    // error, not a reassuring line followed by one.
-    await assertNoLegacyPublicDataFoundryInstall(driver, schema);
-    await prepareSchema(driver, schema);
-    await assertLedgerIsOurs(driver, schema);
-
-    // Say so before writing, not after. An operator pointing POSTGRES_URL at a
-    // database that already holds someone else's tables should see that we
-    // noticed, and that we are adding beside them rather than to them.
+    // Say so before writing, not after. An operator pointing the dedicated
+    // migration credential at a database that already holds someone else's
+    // tables should see that we noticed, and that we are adding beside them.
     const before = partitionOwnedTables(await listSchemaTables(driver, schema));
     if (before.unowned.length > 0) {
       console.log(
@@ -700,7 +887,10 @@ async function main(argv: readonly string[]): Promise<number> {
       );
     }
 
-    const results = await applyMigrations(driver, migrations, { schema });
+    const migrationOptions = usesRealPostgres
+      ? realPostgresMigrationOptions(schema)
+      : { schema };
+    const results = await applyMigrations(driver, migrations, migrationOptions);
     for (const result of results) {
       console.log(
         `  ${result.skipped ? 'skip ' : 'apply'} ${result.filename}` +
@@ -721,7 +911,7 @@ async function main(argv: readonly string[]): Promise<number> {
       }
 
       // Re-applying against the same database must be a clean no-op.
-      const second = await applyMigrations(driver, migrations, { schema });
+      const second = await applyMigrations(driver, migrations, migrationOptions);
       const reapplied = second.filter((result) => !result.skipped);
       if (reapplied.length > 0) {
         console.error(
@@ -749,7 +939,7 @@ if (invokedDirectly) {
       process.exitCode = code;
     })
     .catch((error: unknown) => {
-      console.error(error instanceof Error ? error.stack ?? error.message : String(error));
+      console.error(migrationFailureMessage(error));
       process.exitCode = 1;
     });
 }

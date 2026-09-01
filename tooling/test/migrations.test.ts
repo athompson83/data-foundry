@@ -115,6 +115,78 @@ afterAll(async () => {
 });
 
 describe('migration runner', () => {
+  describe('private real-Postgres migration role guard', () => {
+    function guardedDriver(currentUser: string, schemaOwner: string | null): {
+      readonly driver: MigrationDriver;
+      readonly executed: string[];
+    } {
+      const executed: string[] = [];
+      let createdPrivateSchema = false;
+      return {
+        executed,
+        driver: {
+          label: 'private migration role guard',
+          async exec(sql: string) {
+            executed.push(sql);
+            if (sql.includes('CREATE SCHEMA IF NOT EXISTS "data_foundry"')) {
+              createdPrivateSchema = true;
+            }
+          },
+          async query<T>(sql: string) {
+            if (sql.includes('current_user AS current_user') && sql.includes('schema_owner')) {
+              return [{
+                current_user: currentUser,
+                schema_owner: schemaOwner ?? (createdPrivateSchema ? 'df_migration' : null),
+              }] as T[];
+            }
+            if (sql.includes("nspname = 'extensions'")) {
+              return [{ available: true, usable: true }] as T[];
+            }
+            return [];
+          },
+          async close() {},
+        },
+      };
+    }
+
+    it('refuses a misbound private migration before any DDL', async () => {
+      const guarded = guardedDriver('postgres', null);
+
+      await expect(
+        applyMigrations(guarded.driver, [], {
+          schema: 'data_foundry',
+          requirePrivateMigrationRole: true,
+        }),
+      ).rejects.toThrow(/df_migration/i);
+
+      expect(guarded.executed).toEqual([]);
+    });
+
+    it('refuses an existing private schema owned by another role before any DDL', async () => {
+      const guarded = guardedDriver('df_migration', 'postgres');
+
+      await expect(
+        applyMigrations(guarded.driver, [], {
+          schema: 'data_foundry',
+          requirePrivateMigrationRole: true,
+        }),
+      ).rejects.toThrow(/owned.*df_migration/i);
+
+      expect(guarded.executed).toEqual([]);
+    });
+
+    it('permits a clean private bootstrap when the direct role is df_migration', async () => {
+      const guarded = guardedDriver('df_migration', null);
+
+      await expect(
+        applyMigrations(guarded.driver, [], {
+          schema: 'data_foundry',
+          requirePrivateMigrationRole: true,
+        }),
+      ).resolves.toEqual([]);
+    });
+  });
+
   it('refuses a blank explicit schema instead of silently falling back to public', () => {
     expect(() => normalizeSchemaName('   ')).toThrow(/lowercase PostgreSQL identifier/i);
     expect(() => resolveSchema(['--schema', ''], {})).toThrow(/lowercase PostgreSQL identifier/i);

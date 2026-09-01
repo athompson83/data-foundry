@@ -1,0 +1,62 @@
+# A service-bound, route-less synthetic canary. It receives a fixed envelope
+# only after the normal usage consumer has exhausted its retry policy and
+# Cloudflare has moved it to the existing DLQ. There is deliberately no public
+# route, workers.dev endpoint, preview URL, Hyperdrive, database credential,
+# source artifact bucket, or Queue producer.
+name = "data-foundry-private-canary"
+main = "src/index.ts"
+compatibility_date = "2026-08-28"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = false
+preview_urls = false
+
+[observability]
+enabled = true
+
+[observability.logs]
+invocation_logs = false
+
+[vars]
+DEPLOYMENT_ENVIRONMENT = "production"
+
+# The usage consumer owns retry-to-DLQ. This Worker must not add a third queue
+# or another dead-letter path: messages it does not recognize are retried and
+# never silently discarded.
+[[queues.consumers]]
+queue = "data-foundry-usage-events-dlq"
+max_batch_size = 1
+max_batch_timeout = 1
+
+# This dedicated private bucket holds only the closed receipt contract. It is
+# purposefully not the acquisition raw-artifact bucket.
+[[r2_buckets]]
+binding = "CANARY_RECEIPTS"
+bucket_name = "data-foundry-private-canary-receipts"
+
+# Named RPC bindings invoke capabilities, never public HTTP endpoints. The
+# targets expose only `PrivateCanaryEntrypoint.probe(input)` and return a
+# closed result vocabulary defined in @data-foundry/private-canary.
+[[services]]
+binding = "EDGE_CANARY"
+service = "data-foundry-edge"
+entrypoint = "PrivateCanaryEntrypoint"
+
+[[services]]
+binding = "WEB_CANARY"
+service = "data-foundry-web"
+entrypoint = "PrivateCanaryEntrypoint"
+
+[[services]]
+binding = "USAGE_CONSUMER_CANARY"
+service = "data-foundry-usage-consumer"
+entrypoint = "PrivateCanaryEntrypoint"
+
+[[services]]
+binding = "ACQUISITION_CANARY"
+service = "data-foundry-acquisition-worker"
+entrypoint = "PrivateCanaryEntrypoint"
+
+[[services]]
+binding = "MCP_CANARY"
+service = "data-foundry-mcp-hvac"
+entrypoint = "PrivateCanaryEntrypoint"
