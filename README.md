@@ -95,6 +95,7 @@ packages/query-model/        The single canonical query layer web, REST and MCP 
 packages/api-keys/           Minting and verifying API credentials. Web Crypto only
 packages/access-auth/        Shared DB bearer-key, tenant and one-vertical authorization
 packages/usage-events/       The usage-event contract shared by the edge producer and its queue consumer
+packages/private-canary/     Closed synthetic canary control, target-probe, and receipt contracts
 services/ingest-worker/      DISCOVERED -> PUBLISHED job runner wiring the stages together
 services/export-builder/     Bulk CSV and JSONL exports, rights-gated and reviewer-guarded
 apps/api/                    Read-only REST surface over the query layer
@@ -103,6 +104,7 @@ apps/mcp-worker/             Cloudflare Streamable HTTP adapter, MCP/NONE auth a
 apps/edge/                   Cloudflare Worker: composition root, auth, transport, no routing
 apps/acquisition-worker/     Cloudflare Cron Worker: rights-gated acquisition and immutable R2 evidence
 apps/usage-consumer/         Cloudflare Queue consumer: idempotent usage-event persistence
+apps/private-canary/         Route-less service-bound synthetic canary consumer of the dedicated private DLQ, never the shared usage DLQ
 apps/web/                    Cloudflare Worker: the free public site — parent index + one child site per industry
 verticals/hvac/              The first vertical: configuration, fixtures and golden records
 db/migrations/               Plain, portable Postgres DDL for every canonical table
@@ -132,14 +134,19 @@ Working against a database:
 
 ```bash
 pnpm migrate                                  # apply to .data/pglite (local, persisted)
-POSTGRES_URL=postgres://... pnpm migrate      # apply to Alpha Lab's private data_foundry schema
-DATA_FOUNDRY_SCHEMA=public POSTGRES_URL=postgres://... pnpm migrate # reviewed legacy public install only
+# Supply DATA_FOUNDRY_MIGRATION_DATABASE_URL securely, then run pnpm migrate
 ```
 
 Real-database operations default to `data_foundry`; they never silently write
-to a shared `public` schema. `DATA_FOUNDRY_SCHEMA=public` is an explicit
-compatibility option for a reviewed legacy Data Foundry installation, not the
-Alpha Lab deployment.
+to a shared `public` schema. Direct real-Postgres migration is restricted to
+the private `data_foundry` schema; it is not a legacy-public installation path.
+Before a direct migration, set the non-secret `DATA_FOUNDRY_RELEASE_SHA` to the
+exact 40-character checked-out release SHA. The runner refuses a generic
+`POSTGRES_URL` as a migration source, requires the dedicated migration
+credential through the approved secret interface, uses certificate-verified
+TLS, rejects connection-string query overrides, requires a clean worktree, and
+loads the migration corpus from the attested Git object rather than mutable
+files on disk.
 
 ## The two foundational contract packages
 
@@ -242,8 +249,9 @@ rights-admitted reingest; the migration never guesses membership.
 
 ### What this project owns in a database
 
-`POSTGRES_URL` points the migrator at whatever database you name, and that
-database may already belong to something else. `partitionOwnedTables` in
+The dedicated migration credential points the migrator at whatever database an
+operator names, and that database may already belong to something else.
+`partitionOwnedTables` in
 `tooling/scripts/migrate.ts` decides the ownership boundary. Its manifest is
 `EXPECTED_TABLES` — every table a migration creates — plus `schema_migrations`,
 the ledger the runner itself creates and writes a row to on every apply. Both
@@ -306,6 +314,12 @@ MCP tool definitions, the Phase 2 Python/Splink work, and external dataset users
   validates the five ignored exact-deployment manifests before a dry run or
   deploy, including one well-formed canonical `account_id` shared by all five;
   CI intentionally has no such production manifests and does not run it
+- `pnpm cloudflare:private-canary:full-deployment:check` — an operator-only,
+  fail-closed check for the six ignored route-less private-canary manifests;
+  it requires one account, five distinct role-specific Hyperdrives, a dedicated
+  private-canary ingress/DLQ/quarantine chain separate from ordinary usage,
+  no route or `workers.dev` exposure, and no extra service-binding environment
+  or local connection configuration
 - `pnpm verticals:validate` — vertical configs are well-formed and every source
    declaration carries complete rights metadata
 - `pnpm verticals:compile:check` — the edge runtime artifact matches the
@@ -422,10 +436,12 @@ grant, source approval, billing plan, invoice or legal permission.
 
 Deploying needs one canonical Cloudflare account named by the same exact
 `account_id` in all five ignored production manifests, Hyperdrive bindings,
-public hostnames/routes for the edge, web and MCP Workers, Queue delivery for
-the usage consumer, Cron for the
-acquisition Worker, and the usage-metering queues, none of which live in this
-repository —
+Queue delivery for the usage consumer, Cron for the acquisition Worker, and the
+usage-metering queues, none of which live in this repository. The current
+private-canary workstream adds no public hostname, Worker route, custom domain,
+or `workers.dev` endpoint; its private control queues are separate from shared
+usage metering and require provider-side binding evidence. Public routing is a separately authorized later
+production action —
 [docs/owner-actions/cloudflare-deployment.md](docs/owner-actions/cloudflare-deployment.md)
 records what and why, including what pay per crawl actually is and is not, and
 [docs/owner-actions/revenue-readiness.md](docs/owner-actions/revenue-readiness.md)
