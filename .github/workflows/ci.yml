@@ -290,7 +290,7 @@ jobs:
           startup_stage='tls-key-owner'
           sudo chown 999:999 "$tls_dir/server.key"
           startup_stage='tls-key-mode'
-          chmod 600 "$tls_dir/server.key"
+          sudo chmod 600 "$tls_dir/server.key"
           cat > "$tls_dir/pg_hba.conf" <<'EOF'
           local   all             all                                     trust
           hostssl all             all             0.0.0.0/0               scram-sha-256
