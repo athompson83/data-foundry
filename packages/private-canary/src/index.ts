@@ -178,7 +178,8 @@ SELECT current_user::text AS current_user,
        ) AS membership_is_empty,
        has_schema_privilege(current_user, 'data_foundry', 'USAGE') AS private_schema_usage,
        has_schema_privilege(current_user, 'data_foundry', 'CREATE') AS private_schema_create,
-       NOT EXISTS (SELECT 1 FROM effective_privilege_differences) AS privilege_matrix_is_exact`;
+       NOT EXISTS (SELECT 1 FROM effective_privilege_differences)
+       AND NOT EXISTS (SELECT 1 FROM public_private_acl_entries) AS privilege_matrix_is_exact`;
 
 /**
  * Refuse a target whose bound login, session login, or narrow private-schema

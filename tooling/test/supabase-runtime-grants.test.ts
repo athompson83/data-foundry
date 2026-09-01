@@ -215,6 +215,38 @@ describe('Supabase post-migration runtime grants', () => {
     }
   }, 120_000);
 
+  it('rejects PUBLIC-derived private-schema access even when role-effective usage remains expected', async () => {
+    const { database, plan } = await createMigratedDatabase();
+    try {
+      await database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`);
+      await database.exec('GRANT USAGE ON SCHEMA data_foundry TO PUBLIC');
+      const [drift] = await database.query<{ readonly privilege_matrix_is_exact: boolean }>(
+        PRIVATE_CANARY_RUNTIME_BINDING_SQL,
+        ['df_edge'],
+      );
+      expect(drift?.privilege_matrix_is_exact).toBe(false);
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it('rejects PUBLIC function access even when the acquisition role otherwise expects EXECUTE', async () => {
+    const { database, plan } = await createMigratedDatabase();
+    try {
+      await database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`);
+      await database.exec(
+        'GRANT EXECUTE ON FUNCTION data_foundry.scheduled_acquisition_validators_valid(jsonb) TO PUBLIC',
+      );
+      const [drift] = await database.query<{ readonly privilege_matrix_is_exact: boolean }>(
+        PRIVATE_CANARY_RUNTIME_BINDING_SQL,
+        ['df_acquisition'],
+      );
+      expect(drift?.privilege_matrix_is_exact).toBe(false);
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
   it('accepts exact non-grantable CONNECT for each runtime role on the current database', async () => {
     const { database, plan } = await createMigratedDatabase();
     try {

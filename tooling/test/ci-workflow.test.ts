@@ -35,6 +35,28 @@ const workflow = parseYaml(
 ) as Workflow;
 const scopeScript = workflow.jobs.scope.steps.find((step) => step.id === 'changes')?.run ?? '';
 
+function postgresScopePatterns(): readonly string[] {
+  const caseArms = [...scopeScript.matchAll(/case "\$path" in([\s\S]*?)\n\s+esac/g)];
+  const postgresArm = caseArms[1]?.[1];
+  const protectedPatterns = postgresArm?.match(/\s+([^\n]+)\)\n\s+run_postgres=true/m)?.[1];
+  if (protectedPatterns === undefined) throw new Error('CI scope selector has no real-Postgres branch.');
+  return protectedPatterns.split('|');
+}
+
+function shellGlobMatches(path: string, pattern: string): boolean {
+  const marker = '\u0000GLOBSTAR\u0000';
+  const escaped = pattern
+    .replaceAll('**', marker)
+    .replace(/[.+^${}()|[\]\\]/g, '\\$&')
+    .replaceAll('*', '[^/]*')
+    .replaceAll(marker, '.*');
+  return new RegExp(`^${escaped}$`).test(path);
+}
+
+function selectsRealPostgres(path: string): boolean {
+  return postgresScopePatterns().some((pattern) => shellGlobMatches(path, pattern));
+}
+
 describe('CI workflow policy', () => {
   it('keeps both protected jobs present and fail-closed when scope selection fails', () => {
     const verify = workflow.jobs.verify;
@@ -262,6 +284,7 @@ describe('CI workflow policy', () => {
       'tooling/scripts/migrate.ts',
       'tooling/scripts/export-supabase-migration-packets.ts',
       'tooling/scripts/check-runtime-role-connections-postgres.ts',
+      'packages/private-canary/**',
       'tooling/scripts/check-source-record-reconciliation-postgres.ts',
       'packages/canonical-store/**',
       'services/ingest-worker/**',
@@ -284,5 +307,11 @@ describe('CI workflow policy', () => {
     ]) {
       expect(scopeScript, pattern).toContain(pattern);
     }
+  });
+
+  it('selects real Postgres for a policy-only private-canary change and treats renames conservatively', () => {
+    expect(scopeScript).toContain('git diff --no-renames --name-only');
+    expect(selectsRealPostgres('packages/private-canary/src/runtime-role-policy.ts')).toBe(true);
+    expect(selectsRealPostgres('docs/owner-actions/cloudflare-deployment.md')).toBe(false);
   });
 });

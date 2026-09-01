@@ -66,11 +66,11 @@ jobs:
             esac
 
             case "$path" in
-              db/migrations/**|tooling/scripts/migrate.ts|tooling/scripts/export-supabase-migration-packets.ts|tooling/scripts/check-runtime-role-connections-postgres.ts|tooling/scripts/check-source-record-reconciliation-postgres.ts|packages/canonical-store/**|services/ingest-worker/**|tooling/scripts/check-credential-provisioning-postgres.ts|tooling/scripts/provision-api-credential.ts|packages/api-keys/**|tooling/scripts/check-scheduled-acquisition-postgres.ts|packages/acquisition/**|apps/acquisition-worker/**|verticals/**|tooling/lib/cli-entry.ts|tests/support/acquisition-rights.ts|packages/canonical-schema/**|packages/normalization/**|packages/source-registry/**|packages/rights-engine/**|package.json|pnpm-lock.yaml|.github/workflows/ci.yml)
+              db/migrations/**|tooling/scripts/migrate.ts|tooling/scripts/export-supabase-migration-packets.ts|tooling/scripts/check-runtime-role-connections-postgres.ts|packages/private-canary/**|tooling/scripts/check-source-record-reconciliation-postgres.ts|packages/canonical-store/**|services/ingest-worker/**|tooling/scripts/check-credential-provisioning-postgres.ts|tooling/scripts/provision-api-credential.ts|packages/api-keys/**|tooling/scripts/check-scheduled-acquisition-postgres.ts|packages/acquisition/**|apps/acquisition-worker/**|verticals/**|tooling/lib/cli-entry.ts|tests/support/acquisition-rights.ts|packages/canonical-schema/**|packages/normalization/**|packages/source-registry/**|packages/rights-engine/**|package.json|pnpm-lock.yaml|.github/workflows/ci.yml)
                 run_postgres=true
                 ;;
             esac
-          done < <(git diff --name-only "$BASE_SHA" HEAD)
+          done < <(git diff --no-renames --name-only "$BASE_SHA" HEAD)
 
           echo "run_verify=$run_verify" >> "$GITHUB_OUTPUT"
           echo "run_postgres=$run_postgres" >> "$GITHUB_OUTPUT"

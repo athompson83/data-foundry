@@ -191,8 +191,8 @@ function sqlLiteral(value: string): string {
 
 /**
  * Build CTEs that compare all effective relation, column, function, and schema
- * privileges (including grantability) in the private schema to the same
- * inventory used to issue grants.
+ * privileges (including grantability), while rejecting direct PUBLIC access in
+ * the private schema, against the same inventory used to issue grants.
  */
 export function buildRuntimeRoleEffectivePrivilegeMatrixCtes(
   schema = 'data_foundry',
@@ -284,5 +284,42 @@ ${expectedValues}
     FULL OUTER JOIN actual_effective_privileges actual
       USING (scope, object_name, column_name, privilege, is_grantable)
    WHERE expected.scope IS NULL OR actual.scope IS NULL
+), public_private_acl_entries AS (
+  SELECT 1 AS found
+    FROM pg_namespace namespace
+    CROSS JOIN LATERAL aclexplode(namespace.nspacl) acl
+   WHERE namespace.nspname = ${schemaLiteral} AND acl.grantee = 0
+  UNION ALL
+  SELECT 1
+    FROM pg_class relation
+    JOIN pg_namespace namespace ON namespace.oid = relation.relnamespace
+    CROSS JOIN LATERAL aclexplode(relation.relacl) acl
+   WHERE namespace.nspname = ${schemaLiteral}
+     AND relation.relkind IN ('r', 'p', 'v', 'm', 'S', 'f')
+     AND acl.grantee = 0
+  UNION ALL
+  SELECT 1
+    FROM pg_attribute attribute
+    JOIN pg_class relation ON relation.oid = attribute.attrelid
+    JOIN pg_namespace namespace ON namespace.oid = relation.relnamespace
+    CROSS JOIN LATERAL aclexplode(attribute.attacl) acl
+   WHERE namespace.nspname = ${schemaLiteral}
+     AND attribute.attnum > 0 AND NOT attribute.attisdropped
+     AND acl.grantee = 0
+  UNION ALL
+  SELECT 1
+    FROM pg_proc routine
+    JOIN pg_namespace namespace ON namespace.oid = routine.pronamespace
+    CROSS JOIN LATERAL aclexplode(routine.proacl) acl
+   WHERE namespace.nspname = ${schemaLiteral}
+     AND routine.prokind IN ('f', 'p', 'a', 'w')
+     AND acl.grantee = 0
+  UNION ALL
+  SELECT 1
+    FROM pg_proc routine
+    JOIN pg_namespace namespace ON namespace.oid = routine.pronamespace
+   WHERE namespace.nspname = ${schemaLiteral}
+     AND routine.prokind IN ('f', 'p', 'a', 'w')
+     AND routine.proacl IS NULL
 )`;
 }
