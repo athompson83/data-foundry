@@ -219,6 +219,32 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          container_name='data-foundry-postgres-tls'
+          classify_startup_failure() {
+            local startup_output="${1:-}"
+            local container_state='not-created'
+            local category='not-classified'
+
+            if docker container inspect "$container_name" >/dev/null 2>&1; then
+              container_state="$(docker container inspect --format '{{.State.Status}}' "$container_name" 2>/dev/null || true)"
+              case "$container_state" in
+                created|running|exited) ;;
+                *) container_state='not-created' ;;
+              esac
+            fi
+
+            if printf '%s' "$startup_output" | grep -Eqi 'Conflict.*container name|is already in use'; then
+              category='container-name-conflict'
+            elif printf '%s' "$startup_output" | grep -Eqi 'port is already allocated|address already in use'; then
+              category='port-conflict'
+            elif printf '%s' "$startup_output" | grep -Eqi 'pull access denied|failed to resolve reference|manifest unknown|unable to find image'; then
+              category='image-pull'
+            elif [ "$container_state" != 'not-created' ] && docker logs "$container_name" 2>&1 | grep -Eqi 'could not load (private key|server certificate)|permission denied.*(/tls|server\.(key|crt))|(/tls|server\.(key|crt)).*permission denied'; then
+              category='tls-file-access'
+            fi
+
+            printf 'data-foundry-ci-postgres-startup: state=%s category=%s\n' "$container_state" "$category"
+          }
           tls_dir="$(mktemp -d "$RUNNER_TEMP/data-foundry-postgres-tls.XXXXXX")"
           chmod 755 "$tls_dir"
           openssl req -x509 -new -nodes -newkey rsa:2048 -days 1 \
@@ -259,7 +285,8 @@ jobs:
           EOF
           postgres_password="$(openssl rand -hex 24)"
           migration_password="$(openssl rand -hex 24)"
-          docker run --detach --name data-foundry-postgres-tls \
+          startup_output=''
+          if ! startup_output="$(docker run --detach --name "$container_name" \
             --env POSTGRES_PASSWORD="$postgres_password" \
             --env POSTGRES_DB=data_foundry \
             --publish 5432:5432 \
@@ -270,14 +297,22 @@ jobs:
             -c ssl=on \
             -c ssl_cert_file=/tls/server.crt \
             -c ssl_key_file=/tls/server.key \
-            -c hba_file=/tls/pg_hba.conf >/dev/null
+            -c hba_file=/tls/pg_hba.conf 2>&1)"; then
+            classify_startup_failure "$startup_output"
+            exit 1
+          fi
+          ready='false'
           for attempt in $(seq 1 30); do
-            if docker exec data-foundry-postgres-tls pg_isready -U postgres -d data_foundry >/dev/null 2>&1; then
+            if docker exec "$container_name" pg_isready -U postgres -d data_foundry >/dev/null 2>&1; then
+              ready='true'
               break
             fi
             sleep 1
           done
-          docker exec data-foundry-postgres-tls pg_isready -U postgres -d data_foundry >/dev/null
+          if [ "$ready" != 'true' ]; then
+            classify_startup_failure "$startup_output"
+            exit 1
+          fi
           {
             printf 'NODE_EXTRA_CA_CERTS=%s\n' "$tls_dir/ca.crt"
             printf 'POSTGRES_URL=postgres://postgres:%s@localhost:5432/data_foundry\n' "$postgres_password"

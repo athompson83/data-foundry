@@ -100,6 +100,21 @@ describe('CI workflow policy', () => {
     expect(start?.run).toContain('NODE_EXTRA_CA_CERTS');
     expect(start?.run).toContain('DATA_FOUNDRY_MIGRATION_DATABASE_URL');
     expect(start?.run).toContain('DATA_FOUNDRY_RELEASE_SHA');
+    expect(start?.run).toContain('classify_startup_failure()');
+    expect(start?.run).toContain("data-foundry-ci-postgres-startup: state=%s category=%s\\n");
+    expect(start?.run).toContain(
+      "printf 'data-foundry-ci-postgres-startup: state=%s category=%s\\n' \"$container_state\" \"$category\"",
+    );
+    for (const category of [
+      'container-name-conflict',
+      'port-conflict',
+      'image-pull',
+      'tls-file-access',
+      'not-classified',
+    ]) {
+      expect(start?.run).toContain(category);
+    }
+    expect(start?.run).toContain('docker logs "$container_name" 2>&1 | grep -Eqi');
     expect(bootstrap?.run).toContain('CREATE SCHEMA IF NOT EXISTS extensions AUTHORIZATION postgres');
     expect(bootstrap?.run).toContain('CREATE ROLE df_migration LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE');
     expect(bootstrap?.run).toContain('CREATE SCHEMA IF NOT EXISTS data_foundry AUTHORIZATION df_migration');
