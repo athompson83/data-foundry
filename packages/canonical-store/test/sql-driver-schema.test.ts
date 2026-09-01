@@ -20,6 +20,24 @@ afterAll(async () => {
 });
 
 describe('PostgreSQL schema sessions', () => {
+  it('requires certificate-verified TLS for every direct PostgreSQL connection', async () => {
+    const module = (await import('../src/index.js')) as Record<string, unknown>;
+    const directPostgresTlsConfig = module['directPostgresTlsConfig'];
+    expect(directPostgresTlsConfig).toEqual(expect.any(Function));
+    if (typeof directPostgresTlsConfig !== 'function') return;
+
+    const url = 'postgres://operator@db.invalid/data-foundry';
+    expect(directPostgresTlsConfig(url)).toEqual({
+      connectionString: url,
+      ssl: { rejectUnauthorized: true },
+    });
+    expect(() => directPostgresTlsConfig(`${url}?sslmode=disable`)).toThrow(/TLS/i);
+    expect(() => directPostgresTlsConfig(`${url}?SSLMode=disable`)).toThrow(/TLS/i);
+    expect(() => directPostgresTlsConfig(`${url}?ssl=no-verify`)).toThrow(/TLS/i);
+    expect(() => directPostgresTlsConfig(`${url}?sslmode=verify-full`)).toThrow(/TLS/i);
+    expect(() => directPostgresTlsConfig(`${url}?host=%2Ftmp`)).toThrow(/TLS/i);
+  });
+
   it('uses a startup setting that keeps public out of every new pooled session', () => {
     expect(postgresStartupOptionsForSchema('data_foundry')).toBe(
       '-csearch_path=data_foundry,pg_catalog,extensions',
@@ -124,6 +142,7 @@ describe('PostgreSQL schema sessions', () => {
         {
           connectionString: 'postgres://operator@db.invalid/data-foundry',
           options: '-csearch_path=public,pg_catalog,extensions',
+          ssl: { rejectUnauthorized: true },
         },
       ]);
       expect(queries).toEqual([expect.stringContaining('current_schema()'), 'SELECT 1']);
@@ -160,7 +179,10 @@ describe('PostgreSQL schema sessions', () => {
       await legacy.close();
 
       expect(configurations).toEqual([
-        { connectionString: 'postgres://operator@db.invalid/data-foundry' },
+        {
+          connectionString: 'postgres://operator@db.invalid/data-foundry',
+          ssl: { rejectUnauthorized: true },
+        },
       ]);
       expect(queries).toEqual(['SELECT 1']);
     } finally {

@@ -26,6 +26,19 @@ type MigrationFailureMessage = (
   env: Readonly<Record<string, string | undefined>>,
 ) => string;
 
+type LoadMigrationsFromGit = (
+  releaseSha: string,
+  options: Readonly<{
+    repositoryRoot: string;
+    runGit: GitRunner;
+  }>,
+) => Promise<readonly {
+  readonly version: string;
+  readonly filename: string;
+  readonly sql: string;
+  readonly checksum: string;
+}[]>;
+
 async function sourceIdentityGuard(): Promise<AssertRealPostgresSourceIdentity> {
   const module = (await import('../scripts/migrate.js')) as Record<string, unknown>;
   const guard = module['assertRealPostgresSourceIdentity'];
@@ -52,6 +65,13 @@ async function failureMessage(): Promise<MigrationFailureMessage> {
   const formatter = module['migrationFailureMessage'];
   expect(formatter).toEqual(expect.any(Function));
   return formatter as MigrationFailureMessage;
+}
+
+async function gitMigrationLoader(): Promise<LoadMigrationsFromGit> {
+  const module = (await import('../scripts/migrate.js')) as Record<string, unknown>;
+  const loader = module['loadMigrationsFromGit'];
+  expect(loader).toEqual(expect.any(Function));
+  return loader as LoadMigrationsFromGit;
 }
 
 describe('real PostgreSQL migration source identity', () => {
@@ -103,9 +123,33 @@ describe('real PostgreSQL migration source identity', () => {
           return calls.length === 1 ? `${RELEASE_SHA}\n` : ' M db/migrations/0001_verticals_and_sources.sql\n';
         },
       }),
-    ).rejects.toThrow(/migration inputs differ from Git HEAD/i);
+    ).rejects.toThrow(/worktree.*clean/i);
 
     expect(calls).toHaveLength(2);
+  });
+
+  it('refuses a dirty transitive ingest dependency instead of attesting only a hand-picked path list', async () => {
+    const guard = await sourceIdentityGuard();
+    const calls: string[][] = [];
+
+    await expect(
+      guard({ DATA_FOUNDRY_RELEASE_SHA: RELEASE_SHA }, {
+        repositoryRoot: REPOSITORY_ROOT,
+        runGit: async (args) => {
+          calls.push([...args]);
+          if (calls.length === 1) return `${RELEASE_SHA}\n`;
+          return args.includes('--') ? '' : ' M services/ingest-worker/src/pipeline.ts\n';
+        },
+      }),
+    ).rejects.toThrow(/worktree.*clean/i);
+
+    expect(calls.at(-1)).toEqual([
+      '-C',
+      REPOSITORY_ROOT,
+      'status',
+      '--porcelain=v1',
+      '--untracked-files=all',
+    ]);
   });
 
   it('accepts an exact clean migration candidate', async () => {
@@ -130,14 +174,11 @@ describe('real PostgreSQL migration source identity', () => {
         'status',
         '--porcelain=v1',
         '--untracked-files=all',
-        '--',
-        'db/migrations',
-        'tooling/scripts/migrate.ts',
       ],
     ]);
   });
 
-  it('includes a narrow operation-specific executable in the clean-input attestation', async () => {
+  it('allows a narrow operation-specific declaration while attesting the entire worktree', async () => {
     const guard = await sourceIdentityGuard();
     const calls: string[][] = [];
 
@@ -158,10 +199,35 @@ describe('real PostgreSQL migration source identity', () => {
       'status',
       '--porcelain=v1',
       '--untracked-files=all',
-      '--',
-      'db/migrations',
-      'tooling/scripts/migrate.ts',
-      'tooling/scripts/private-canary-fixture.ts',
+    ]);
+  });
+
+  it('loads direct migration SQL from the attested Git object instead of mutable worktree files', async () => {
+    const loadFromGit = await gitMigrationLoader();
+    const calls: string[][] = [];
+    const mutatedWorktreeSql = 'DROP SCHEMA data_foundry CASCADE;';
+
+    const migrations = await loadFromGit(RELEASE_SHA, {
+      repositoryRoot: REPOSITORY_ROOT,
+      runGit: async (args) => {
+        calls.push([...args]);
+        if (args.includes('ls-tree')) return 'db/migrations/0001_attested.sql\n';
+        if (args.includes('show')) return 'CREATE TABLE attested_only (id integer primary key);\n';
+        throw new Error('unexpected Git call');
+      },
+    });
+
+    expect(migrations).toEqual([
+      expect.objectContaining({
+        version: '0001',
+        filename: '0001_attested.sql',
+        sql: 'CREATE TABLE attested_only (id integer primary key);\n',
+      }),
+    ]);
+    expect(migrations[0]?.sql).not.toBe(mutatedWorktreeSql);
+    expect(calls).toEqual([
+      ['-C', REPOSITORY_ROOT, 'ls-tree', '-r', '--name-only', RELEASE_SHA, '--', 'db/migrations'],
+      ['-C', REPOSITORY_ROOT, 'show', `${RELEASE_SHA}:db/migrations/0001_attested.sql`],
     ]);
   });
 

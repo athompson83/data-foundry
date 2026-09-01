@@ -78,8 +78,12 @@ async function collectProbes(
   return probes;
 }
 
-function receiptKey(runId: string): string {
-  return `runs/${runId}.json`;
+function receiptKey(runId: string, issuedAt: string): string {
+  // The parser accepts only a canonical UTC instant, so its numeric form is a
+  // safe, stable cycle component. A delayed prior DLQ delivery cannot replace
+  // a later cycle's receipt that reuses the operator correlation id.
+  const cycle = issuedAt.replaceAll(/[-:.TZ]/g, '');
+  return `runs/${runId}/${cycle}.json`;
 }
 
 async function consumeMessage(
@@ -103,12 +107,13 @@ async function consumeMessage(
     }
     const receipt = createPrivateCanaryReceipt({
       runId: envelope.run_id,
+      issuedAt: envelope.issued_at,
       completedAt: now().toISOString(),
       probes,
     });
-    // The deterministic key makes a delivery retry overwrite only the same
-    // safe receipt; it cannot accumulate source-derived artifacts.
-    await env.CANARY_RECEIPTS.put(receiptKey(envelope.run_id), JSON.stringify(receipt));
+    // The deterministic cycle key makes a delivery retry overwrite only the
+    // same safe receipt; it cannot replace another canary cycle's evidence.
+    await env.CANARY_RECEIPTS.put(receiptKey(envelope.run_id, envelope.issued_at), JSON.stringify(receipt));
     message.ack();
   } catch {
     // A service/R2 failure may carry provider or implementation detail in its

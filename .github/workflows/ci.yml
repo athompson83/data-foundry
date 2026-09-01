@@ -189,20 +189,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: data_foundry
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
       - name: Fail when scope selection fails
         if: always() && needs.scope.result != 'success'
@@ -226,25 +212,106 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
-      # Supabase exposes installed extensions through this namespace. The
-      # production migration guard requires it to exist before it writes the
-      # private Data Foundry schema, so make the disposable PostgreSQL service
-      # model that boundary instead of weakening the guard for CI.
-      - name: Initialize extensions schema for private migration
-        run: >-
-          docker exec "${{ job.services.postgres.id }}" psql -U postgres -d data_foundry
-          -v ON_ERROR_STOP=1 -c 'CREATE SCHEMA IF NOT EXISTS extensions AUTHORIZATION postgres'
+      # Keep the disposable Postgres proof structurally equivalent to the
+      # hosted direct path: a job-local CA, certificate-verified TLS, and an
+      # HBA that rejects non-TLS TCP. No plaintext fallback is added to source.
+      - name: Start disposable TLS PostgreSQL
+        shell: bash
+        run: |
+          set -euo pipefail
+          tls_dir="$(mktemp -d "$RUNNER_TEMP/data-foundry-postgres-tls.XXXXXX")"
+          chmod 755 "$tls_dir"
+          openssl req -x509 -new -nodes -newkey rsa:2048 -days 1 \
+            -keyout "$tls_dir/ca.key" \
+            -out "$tls_dir/ca.crt" \
+            -subj '/CN=data-foundry-ci-ca' >/dev/null 2>&1
+          cat > "$tls_dir/server.cnf" <<'EOF'
+          [req]
+          prompt = no
+          distinguished_name = dn
+          req_extensions = req_ext
+          [dn]
+          CN = localhost
+          [req_ext]
+          subjectAltName = @alt_names
+          [alt_names]
+          DNS.1 = localhost
+          IP.1 = 127.0.0.1
+          EOF
+          openssl req -new -nodes -newkey rsa:2048 \
+            -keyout "$tls_dir/server.key" \
+            -out "$tls_dir/server.csr" \
+            -config "$tls_dir/server.cnf" >/dev/null 2>&1
+          openssl x509 -req -days 1 -sha256 \
+            -in "$tls_dir/server.csr" \
+            -CA "$tls_dir/ca.crt" \
+            -CAkey "$tls_dir/ca.key" \
+            -CAcreateserial \
+            -out "$tls_dir/server.crt" \
+            -extfile "$tls_dir/server.cnf" \
+            -extensions req_ext >/dev/null 2>&1
+          sudo chown 999:999 "$tls_dir/server.key"
+          chmod 600 "$tls_dir/server.key"
+          cat > "$tls_dir/pg_hba.conf" <<'EOF'
+          local   all             all                                     trust
+          hostssl all             all             0.0.0.0/0               scram-sha-256
+          hostnossl all          all             0.0.0.0/0               reject
+          EOF
+          postgres_password="$(openssl rand -hex 24)"
+          migration_password="$(openssl rand -hex 24)"
+          docker run --detach --name data-foundry-postgres-tls \
+            --env POSTGRES_PASSWORD="$postgres_password" \
+            --env POSTGRES_DB=data_foundry \
+            --publish 5432:5432 \
+            --volume "$tls_dir/server.crt:/tls/server.crt:ro" \
+            --volume "$tls_dir/server.key:/tls/server.key:ro" \
+            --volume "$tls_dir/pg_hba.conf:/tls/pg_hba.conf:ro" \
+            postgres:16 \
+            -c ssl=on \
+            -c ssl_cert_file=/tls/server.crt \
+            -c ssl_key_file=/tls/server.key \
+            -c hba_file=/tls/pg_hba.conf >/dev/null
+          for attempt in $(seq 1 30); do
+            if docker exec data-foundry-postgres-tls pg_isready -U postgres -d data_foundry >/dev/null 2>&1; then
+              break
+            fi
+            sleep 1
+          done
+          docker exec data-foundry-postgres-tls pg_isready -U postgres -d data_foundry >/dev/null
+          {
+            printf 'NODE_EXTRA_CA_CERTS=%s\n' "$tls_dir/ca.crt"
+            printf 'POSTGRES_URL=postgres://postgres:%s@localhost:5432/data_foundry\n' "$postgres_password"
+            printf 'DATA_FOUNDRY_MIGRATION_DATABASE_URL=postgres://df_migration:%s@localhost:5432/data_foundry\n' "$migration_password"
+            printf 'DATA_FOUNDRY_RELEASE_SHA=%s\n' "$GITHUB_SHA"
+            printf 'DATA_FOUNDRY_CI_MIGRATION_PASSWORD=%s\n' "$migration_password"
+          } >> "$GITHUB_ENV"
+
+      # Supabase exposes installed extensions through this namespace. Model its
+      # private ownership boundary: the direct migration login is a non-super
+      # user and owns only the schema it will migrate.
+      - name: Bootstrap narrow private migration role
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            cat <<'SQL'
+          CREATE SCHEMA IF NOT EXISTS extensions AUTHORIZATION postgres;
+          SQL
+            printf "CREATE ROLE df_migration LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOREPLICATION NOBYPASSRLS PASSWORD '%s';\n" "$DATA_FOUNDRY_CI_MIGRATION_PASSWORD"
+            cat <<'SQL'
+          CREATE SCHEMA IF NOT EXISTS data_foundry AUTHORIZATION df_migration;
+          REVOKE ALL ON SCHEMA data_foundry FROM PUBLIC;
+          GRANT CONNECT, CREATE ON DATABASE data_foundry TO df_migration;
+          GRANT USAGE ON SCHEMA extensions TO df_migration;
+          SQL
+          } | docker exec --interactive data-foundry-postgres-tls psql -U postgres -d data_foundry -v ON_ERROR_STOP=1
 
       # The same SQL, unchanged, against a real Postgres. This is the check that
       # keeps "portable Postgres DDL" honest rather than aspirational.
       - name: Apply migrations to Postgres
-        env:
-          POSTGRES_URL: postgres://postgres:postgres@localhost:5432/data_foundry
         run: pnpm migrate
 
       - name: Re-apply must be a no-op
-        env:
-          POSTGRES_URL: postgres://postgres:postgres@localhost:5432/data_foundry
         run: pnpm migrate
 
       # This deliberately uses independent PostgreSQL connections and waits for
@@ -252,17 +319,13 @@ jobs:
       # behind the single-connection PGlite scheduler.
       - name: Source-record reconciliation concurrency regression
         env:
-          POSTGRES_URL: postgres://postgres:postgres@localhost:5432/data_foundry
           DATA_FOUNDRY_POSTGRES_CONCURRENCY_TEST: '1'
         run: pnpm source-records:postgres:check
 
       - name: Credential provisioning concurrency regression
         env:
-          POSTGRES_URL: postgres://postgres:postgres@localhost:5432/data_foundry
           DATA_FOUNDRY_POSTGRES_CONCURRENCY_TEST: '1'
         run: pnpm credentials:postgres:check
 
       - name: Scheduled acquisition concurrency and transaction controls
-        env:
-          POSTGRES_URL: postgres://postgres:postgres@localhost:5432/data_foundry
         run: pnpm acquisition:postgres:check

@@ -40,6 +40,7 @@
     "cloudflare:private-canary:deployment:check": "tsx tooling/scripts/check-cloudflare-topology.ts --mode private-canary-deployment",
     "cloudflare:private-canary:targets:check": "tsx tooling/scripts/check-cloudflare-topology.ts --mode private-canary-target",
     "cloudflare:private-canary:targets:deployment:check": "tsx tooling/scripts/check-cloudflare-topology.ts --mode private-canary-target-deployment",
+    "cloudflare:private-canary:full-deployment:check": "tsx tooling/scripts/check-cloudflare-topology.ts --mode private-canary-full-deployment",
     "cloudflare:artifacts:check": "tsx tooling/scripts/check-cloudflare-artifacts.ts",
     "web:compile": "tsx tooling/scripts/compile-web-runtime.ts",
     "web:compile:check": "tsx tooling/scripts/compile-web-runtime.ts --check",

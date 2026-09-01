@@ -106,10 +106,11 @@ describe('private-canary DLQ consumer', () => {
     expect(message.ack).toHaveBeenCalledOnce();
     expect(message.retry).not.toHaveBeenCalled();
     expect(receipts).toEqual([{
-      key: `runs/${envelope.run_id}.json`,
+      key: `runs/${envelope.run_id}/20260901120000000.json`,
       value: JSON.stringify({
         kind: 'data-foundry.private-canary-receipt.v1',
         run_id: envelope.run_id,
+        issued_at: envelope.issued_at,
         completed_at: '2026-09-01T12:01:00.000Z',
         probes: [
           probeResult('edge'),
@@ -154,7 +155,7 @@ describe('private-canary DLQ consumer', () => {
     expect(message.retry).toHaveBeenCalledOnce();
   });
 
-  it('uses the deterministic run receipt key on redelivery rather than creating an additional canary artifact', async () => {
+  it('uses the deterministic cycle receipt key on redelivery rather than creating an additional canary artifact', async () => {
     const first = queueMessage(envelope);
     const second = queueMessage(envelope);
     const { env, receipts } = canaryEnv();
@@ -165,7 +166,30 @@ describe('private-canary DLQ consumer', () => {
 
     expect(first.ack).toHaveBeenCalledOnce();
     expect(second.ack).toHaveBeenCalledOnce();
-    expect(new Set(receipts.map(({ key }) => key))).toEqual(new Set([`runs/${envelope.run_id}.json`]));
+    expect(new Set(receipts.map(({ key }) => key))).toEqual(
+      new Set([`runs/${envelope.run_id}/20260901120000000.json`]),
+    );
     expect(receipts.map(({ value }) => value)).toEqual([receipts[0]?.value, receipts[0]?.value]);
+  });
+
+  it('keeps receipts distinct when an operator deliberately reuses a run id for a later cycle', async () => {
+    const first = queueMessage(envelope);
+    const second = queueMessage({ ...envelope, issued_at: '2026-09-01T12:05:00.000Z' });
+    const { env, receipts } = canaryEnv();
+
+    await consumePrivateCanaryBatch({ messages: [first, second] }, env, {
+      now: () => new Date('2026-09-01T12:06:00.000Z'),
+    });
+
+    expect(first.ack).toHaveBeenCalledOnce();
+    expect(second.ack).toHaveBeenCalledOnce();
+    expect(new Set(receipts.map(({ key }) => key))).toEqual(new Set([
+      `runs/${envelope.run_id}/20260901120000000.json`,
+      `runs/${envelope.run_id}/20260901120500000.json`,
+    ]));
+    expect(receipts.map(({ value }) => JSON.parse(value))).toEqual([
+      expect.objectContaining({ issued_at: '2026-09-01T12:00:00.000Z' }),
+      expect.objectContaining({ issued_at: '2026-09-01T12:05:00.000Z' }),
+    ]);
   });
 });

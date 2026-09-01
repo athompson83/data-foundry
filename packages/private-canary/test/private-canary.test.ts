@@ -125,11 +125,13 @@ describe('private canary RPC receipts', () => {
     if (probe === null) throw new Error('the fixed edge probe result must parse');
     expect(createPrivateCanaryReceipt({
       runId: envelope.run_id,
+      issuedAt: envelope.issued_at,
       completedAt: '2026-09-01T12:01:00.000Z',
       probes,
     })).toEqual({
       kind: 'data-foundry.private-canary-receipt.v1',
       run_id: '11111111-1111-4111-8111-111111111111',
+      issued_at: '2026-09-01T12:00:00.000Z',
       completed_at: '2026-09-01T12:01:00.000Z',
       probes,
     });
@@ -151,19 +153,31 @@ describe('private canary RPC receipts', () => {
     expect(parsePrivateCanaryProbeResult({ ...edgeProbe, runId: nonV4RunId })).toBeNull();
     expect(() => createPrivateCanaryReceipt({
       runId: nonV4RunId,
+      issuedAt: envelope.issued_at,
       completedAt: '2026-09-01T12:01:00.000Z',
       probes: probes.map((probe) => ({ ...probe, runId: nonV4RunId })),
+    })).toThrow(TypeError);
+  });
+
+  it('refuses a noncanonical cycle timestamp before it can become durable canary evidence', () => {
+    expect(() => createPrivateCanaryReceipt({
+      runId: envelope.run_id,
+      issuedAt: '2026-09-01',
+      completedAt: '2026-09-01T12:01:00.000Z',
+      probes,
     })).toThrow(TypeError);
   });
 
   it('refuses an incomplete or mismatched probe set rather than recording partial canary success', () => {
     expect(() => createPrivateCanaryReceipt({
       runId: envelope.run_id,
+      issuedAt: envelope.issued_at,
       completedAt: '2026-09-01T12:01:00.000Z',
       probes: probes.slice(0, 4),
     })).toThrow(TypeError);
     expect(() => createPrivateCanaryReceipt({
       runId: envelope.run_id,
+      issuedAt: envelope.issued_at,
       completedAt: '2026-09-01T12:01:00.000Z',
       probes: [{ ...edgeProbe, runId: '88888888-8888-4888-8888-888888888888' }, ...probes.slice(1)],
     })).toThrow(TypeError);

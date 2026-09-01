@@ -23,6 +23,7 @@ import { readFile, readdir } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
+import { directPostgresTlsConfig } from '@data-foundry/canonical-store';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPOSITORY_ROOT = resolve(HERE, '..', '..');
@@ -31,12 +32,6 @@ export const MIGRATIONS_DIR = resolve(HERE, '..', '..', 'db', 'migrations');
 /** The approved secret-bearing source for a direct real PostgreSQL migration. */
 export const DATA_FOUNDRY_MIGRATION_DATABASE_URL_ENV = 'DATA_FOUNDRY_MIGRATION_DATABASE_URL';
 const RELEASE_SHA = /^[0-9a-f]{40}$/;
-
-/** The executable inputs that must match the declared real-Postgres candidate. */
-export const REAL_POSTGRES_SOURCE_PATHS = [
-  'db/migrations',
-  'tooling/scripts/migrate.ts',
-] as const;
 
 export type GitRunner = (args: readonly string[]) => Promise<string>;
 
@@ -144,6 +139,19 @@ export function resolveOperationalSchema(
 }
 
 /**
+ * This delivery path never mutates a shared schema. Legacy public-schema work
+ * remains a separately reviewed maintenance concern and cannot use the direct
+ * migration credential or private-canary execution flow.
+ */
+export function assertDirectPostgresPrivateSchema(schema: string): typeof DATA_FOUNDRY_PRIVATE_SCHEMA {
+  const normalized = normalizeSchemaName(schema);
+  if (normalized !== DATA_FOUNDRY_PRIVATE_SCHEMA) {
+    throw new Error('Direct PostgreSQL execution may target only the data_foundry schema.');
+  }
+  return DATA_FOUNDRY_PRIVATE_SCHEMA;
+}
+
+/**
  * Bind a real database mutation to a reviewed, clean repository candidate.
  * The value is non-secret and is intentionally required only for real
  * PostgreSQL execution; local/PGlite paths remain dependency-free.
@@ -153,7 +161,11 @@ export async function assertRealPostgresSourceIdentity(
   options: Readonly<{
     repositoryRoot?: string | undefined;
     runGit?: GitRunner | undefined;
-    /** Additional executable files for a narrow real-Postgres operation. */
+    /**
+     * Declares an operation-specific executable dependency for call-site
+     * clarity. Direct execution still attests the entire worktree so a
+     * transitive import cannot escape the frozen candidate check.
+     */
     additionalSourcePaths?: readonly string[] | undefined;
   }> = {},
 ): Promise<void> {
@@ -173,7 +185,6 @@ export async function assertRealPostgresSourceIdentity(
   if (additionalSourcePaths.some((path) => !/^[a-zA-Z0-9_./-]+$/.test(path) || path.includes('..') || path.startsWith('/'))) {
     throw new Error('Executable migration source paths must be repository-relative paths.');
   }
-  const sourcePaths = [...new Set([...REAL_POSTGRES_SOURCE_PATHS, ...additionalSourcePaths])];
   const relevantChanges = (
     await git([
       '-C',
@@ -181,12 +192,10 @@ export async function assertRealPostgresSourceIdentity(
       'status',
       '--porcelain=v1',
       '--untracked-files=all',
-      '--',
-      ...sourcePaths,
     ])
   ).trim();
   if (relevantChanges !== '') {
-    throw new Error('Executable migration inputs differ from Git HEAD; commit or restore them before real PostgreSQL execution.');
+    throw new Error('The direct PostgreSQL worktree must be clean before execution.');
   }
 }
 
@@ -457,35 +466,85 @@ export async function assertLedgerIsOurs(
 
 const MIGRATION_FILENAME = /^(\d{4})_[a-z0-9_]+\.sql$/;
 
+function migrationFromSql(filename: string, sql: string, seen: Set<string>): Migration {
+  const match = MIGRATION_FILENAME.exec(filename);
+  if (match === null) {
+    throw new Error(
+      `Migration "${filename}" does not match NNNN_snake_case_name.sql. Ordering must be unambiguous.`,
+    );
+  }
+  const version = match[1] as string;
+  if (seen.has(version)) {
+    throw new Error(`Duplicate migration version ${version} (${filename}).`);
+  }
+  seen.add(version);
+  return {
+    version,
+    filename,
+    sql,
+    checksum: createHash('sha256').update(sql, 'utf8').digest('hex'),
+  };
+}
+
 export async function loadMigrations(dir: string = MIGRATIONS_DIR): Promise<Migration[]> {
   const entries = (await readdir(dir)).filter((name) => name.endsWith('.sql')).sort();
   const migrations: Migration[] = [];
   const seen = new Set<string>();
 
   for (const filename of entries) {
-    const match = MIGRATION_FILENAME.exec(filename);
-    if (match === null) {
-      throw new Error(
-        `Migration "${filename}" does not match NNNN_snake_case_name.sql. Ordering must be unambiguous.`,
-      );
-    }
-    const version = match[1] as string;
-    if (seen.has(version)) {
-      throw new Error(`Duplicate migration version ${version} (${filename}).`);
-    }
-    seen.add(version);
-
     const sql = await readFile(join(dir, filename), 'utf8');
-    migrations.push({
-      version,
-      filename,
-      sql,
-      checksum: createHash('sha256').update(sql, 'utf8').digest('hex'),
-    });
+    migrations.push(migrationFromSql(filename, sql, seen));
   }
 
   if (migrations.length === 0) {
     throw new Error(`No migrations found in ${dir}`);
+  }
+  return migrations;
+}
+
+/**
+ * Read the real-migration corpus from the immutable reviewed Git object, not
+ * from worktree paths that could change after source identity was attested.
+ * The SHA is already required to equal HEAD by `assertRealPostgresSourceIdentity`;
+ * using the object directly closes the remaining read-after-check race.
+ */
+export async function loadMigrationsFromGit(
+  releaseSha: string,
+  options: Readonly<{
+    repositoryRoot?: string | undefined;
+    runGit?: GitRunner | undefined;
+  }> = {},
+): Promise<Migration[]> {
+  if (!RELEASE_SHA.test(releaseSha)) {
+    throw new Error('DATA_FOUNDRY_RELEASE_SHA must be the lowercase 40-character reviewed Git SHA.');
+  }
+  const repositoryRoot = options.repositoryRoot ?? REPOSITORY_ROOT;
+  const git = options.runGit ?? runGit;
+  const paths = (await git([
+    '-C',
+    repositoryRoot,
+    'ls-tree',
+    '-r',
+    '--name-only',
+    releaseSha,
+    '--',
+    'db/migrations',
+  ]))
+    .split(/\r?\n/u)
+    .filter((path) => path.endsWith('.sql'))
+    .sort();
+  const migrations: Migration[] = [];
+  const seen = new Set<string>();
+  for (const path of paths) {
+    if (!path.startsWith('db/migrations/') || path.slice('db/migrations/'.length).includes('/')) {
+      throw new Error('Attested migration tree contains an invalid migration path.');
+    }
+    const filename = path.slice('db/migrations/'.length);
+    const sql = await git(['-C', repositoryRoot, 'show', `${releaseSha}:${path}`]);
+    migrations.push(migrationFromSql(filename, sql, seen));
+  }
+  if (migrations.length === 0) {
+    throw new Error('No migrations found in the attested Git revision.');
   }
   return migrations;
 }
@@ -662,10 +721,11 @@ export async function createPostgresDriver(
     );
   }
   const pg = await import('pg');
+  const tls = directPostgresTlsConfig(connectionString);
   const client = new pg.default.Client(
     normalized === DEFAULT_SCHEMA
-      ? { connectionString }
-      : { connectionString, options: `-csearch_path=${normalized},pg_catalog,extensions` },
+      ? tls
+      : { ...tls, options: `-csearch_path=${normalized},pg_catalog,extensions` },
   );
   await client.connect();
   return {
@@ -858,16 +918,20 @@ async function main(argv: readonly string[]): Promise<number> {
   const usesRealPostgres = postgresUrl !== undefined && postgresUrl !== '' && !check;
   // Keep local PGlite/public compatibility, but never let a real database
   // invocation fall through to a shared `public` schema.
-  const schema = resolveSchema(
+  const requestedSchema = resolveSchema(
     argv,
     process.env,
     usesRealPostgres ? DATA_FOUNDRY_PRIVATE_SCHEMA : DEFAULT_SCHEMA,
   );
-  if (usesRealPostgres) {
-    await assertRealPostgresSourceIdentity();
-  }
-
-  const migrations = await loadMigrations();
+  const schema = usesRealPostgres
+    ? assertDirectPostgresPrivateSchema(requestedSchema)
+    : requestedSchema;
+  const migrations = usesRealPostgres
+    ? await (async () => {
+      await assertRealPostgresSourceIdentity();
+      return loadMigrationsFromGit(process.env['DATA_FOUNDRY_RELEASE_SHA']?.trim() ?? '');
+    })()
+    : await loadMigrations();
   const driver =
     usesRealPostgres
       ? await createPostgresDriver(postgresUrl, schema)

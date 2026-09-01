@@ -89,16 +89,24 @@ describe('CI workflow policy', () => {
     }
   });
 
-  it('initializes the extensions namespace before private-schema Postgres migrations', () => {
+  it('boots a disposable certificate-verified Postgres service and a narrow migration identity', () => {
     const steps = workflow.jobs['migrations-postgres'].steps;
-    const initialize = steps.find(
-      (step) => step.name === 'Initialize extensions schema for private migration',
-    );
+    const start = steps.find((step) => step.name === 'Start disposable TLS PostgreSQL');
+    const bootstrap = steps.find((step) => step.name === 'Bootstrap narrow private migration role');
     const apply = steps.find((step) => step.name === 'Apply migrations to Postgres');
 
-    expect(initialize?.run).toContain('CREATE SCHEMA IF NOT EXISTS extensions AUTHORIZATION postgres');
-    expect(initialize?.run).toContain('job.services.postgres.id');
-    expect(steps.indexOf(initialize as Step)).toBeLessThan(steps.indexOf(apply as Step));
+    expect(start?.run).toMatch(/hostssl\s+all\s+all\s+0\.0\.0\.0\/0\s+scram-sha-256/);
+    expect(start?.run).toMatch(/hostnossl\s+all\s+all\s+0\.0\.0\.0\/0\s+reject/);
+    expect(start?.run).toContain('NODE_EXTRA_CA_CERTS');
+    expect(start?.run).toContain('DATA_FOUNDRY_MIGRATION_DATABASE_URL');
+    expect(start?.run).toContain('DATA_FOUNDRY_RELEASE_SHA');
+    expect(bootstrap?.run).toContain('CREATE SCHEMA IF NOT EXISTS extensions AUTHORIZATION postgres');
+    expect(bootstrap?.run).toContain('CREATE ROLE df_migration LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE');
+    expect(bootstrap?.run).toContain('CREATE SCHEMA IF NOT EXISTS data_foundry AUTHORIZATION df_migration');
+    expect(bootstrap?.run).toContain('GRANT USAGE ON SCHEMA extensions TO df_migration');
+    expect(apply?.run).toBe('pnpm migrate');
+    expect(steps.indexOf(start as Step)).toBeLessThan(steps.indexOf(bootstrap as Step));
+    expect(steps.indexOf(bootstrap as Step)).toBeLessThan(steps.indexOf(apply as Step));
   });
 
   it('selects real Postgres for every gate input, including nested paths', () => {

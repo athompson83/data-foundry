@@ -23,9 +23,11 @@ import { provenanceCoverage } from '@data-foundry/provenance';
 import type { IsoDateTime } from '@data-foundry/canonical-schema';
 import {
   applyMigrations,
+  assertDirectPostgresPrivateSchema,
   assertRealPostgresSourceIdentity,
   createPostgresDriver as createMigrationPostgresDriver,
   loadMigrations,
+  loadMigrationsFromGit,
   migrationDatabaseUrlFromEnv,
   realPostgresMigrationOptions,
   resolveOperationalSchema,
@@ -159,13 +161,19 @@ async function migrate(
  * BEGIN, DDL, ledger write, and COMMIT. Use the migrator's single Client here.
  */
 async function migrateRealPostgres(connectionString: string, schema: string): Promise<void> {
+  const privateSchema = assertDirectPostgresPrivateSchema(schema);
   await assertRealIngestSourceIdentity();
   const driver = await createMigrationPostgresDriver(
     connectionString,
-    schema,
+    privateSchema,
   );
   try {
-    await applyMigrations(driver, await loadMigrations(), realPostgresMigrationOptions(schema));
+    const releaseSha = process.env['DATA_FOUNDRY_RELEASE_SHA']?.trim() ?? '';
+    await applyMigrations(
+      driver,
+      await loadMigrationsFromGit(releaseSha),
+      realPostgresMigrationOptions(privateSchema),
+    );
   } finally {
     await driver.close();
   }

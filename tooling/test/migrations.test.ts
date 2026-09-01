@@ -206,6 +206,16 @@ describe('migration runner', () => {
     expect(() => normalizeSchemaName('another_private_schema')).toThrow(/data_foundry/i);
   });
 
+  it('permits direct PostgreSQL mutation only in the private Data Foundry schema', async () => {
+    const module = (await import('../scripts/migrate.js')) as Record<string, unknown>;
+    const assertDirectPostgresPrivateSchema = module['assertDirectPostgresPrivateSchema'];
+    expect(assertDirectPostgresPrivateSchema).toEqual(expect.any(Function));
+    if (typeof assertDirectPostgresPrivateSchema !== 'function') return;
+
+    expect(assertDirectPostgresPrivateSchema('data_foundry')).toBe('data_foundry');
+    expect(() => assertDirectPostgresPrivateSchema('public')).toThrow(/data_foundry/i);
+  });
+
   it('refuses private migration startup options that could override the schema path', async () => {
     await expect(
       createPostgresDriver(

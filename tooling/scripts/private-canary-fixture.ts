@@ -37,6 +37,12 @@ type FixtureMode = 'prepare' | 'verify' | 'cleanup';
 export interface FixtureArgs {
   readonly mode: FixtureMode;
   readonly runId: string;
+  /**
+   * `prepare` mints a canonical cycle time when omitted. Verification and
+   * cleanup must receive the emitted value so they cannot certify an earlier
+   * run that reused the same operator correlation id.
+   */
+  readonly issuedAt: string | null;
 }
 
 /**
@@ -62,8 +68,23 @@ function canonicalRunId(value: string): string {
   return runId;
 }
 
-function deterministicUuid(runId: string, label: string): string {
-  const bytes = createHash('sha256').update(`data-foundry-private-canary:${runId}:${label}`).digest().subarray(0, 16);
+function canonicalIssuedAt(value: string): string {
+  const issuedAt = value.trim();
+  try {
+    if (new Date(issuedAt).toISOString() !== issuedAt) {
+      throw new Error('not canonical');
+    }
+  } catch {
+    throw new Error('Private canary fixture configuration is invalid.');
+  }
+  return issuedAt;
+}
+
+function deterministicUuid(runId: string, issuedAt: string, label: string): string {
+  const bytes = createHash('sha256')
+    .update(`data-foundry-private-canary:${runId}:${issuedAt}:${label}`)
+    .digest()
+    .subarray(0, 16);
   bytes[6] = ((bytes[6] ?? 0) & 0x0f) | 0x40;
   bytes[8] = ((bytes[8] ?? 0) & 0x3f) | 0x80;
   const hex = bytes.toString('hex');
@@ -71,12 +92,16 @@ function deterministicUuid(runId: string, label: string): string {
 }
 
 function fixtureSlug(fixture: PrivateCanaryFixture): string {
-  return `private-canary-${fixture.runId.replaceAll('-', '').slice(0, 20)}`;
+  const cycleDigest = createHash('sha256')
+    .update(`data-foundry-private-canary:${fixture.runId}:${fixture.issuedAt}`)
+    .digest('hex')
+    .slice(0, 20);
+  return `private-canary-${cycleDigest}`;
 }
 
 function syntheticHash(fixture: PrivateCanaryFixture, channel: 'edge' | 'mcp'): string {
   return createHash('sha256')
-    .update(`data-foundry-private-canary-noncredential:${fixture.runId}:${channel}`)
+    .update(`data-foundry-private-canary-noncredential:${fixture.runId}:${fixture.issuedAt}:${channel}`)
     .digest('hex');
 }
 
@@ -89,18 +114,16 @@ export function createPrivateCanaryFixture(
   issuedAt = new Date().toISOString(),
 ): PrivateCanaryFixture {
   const runId = canonicalRunId(inputRunId);
-  if (new Date(issuedAt).toISOString() !== issuedAt) {
-    throw new Error('Private canary fixture configuration is invalid.');
-  }
+  const canonicalCycleTime = canonicalIssuedAt(issuedAt);
   return {
     runId,
-    issuedAt,
-    tenantId: deterministicUuid(runId, 'tenant'),
-    verticalId: deterministicUuid(runId, 'vertical'),
-    edgeApiKeyId: deterministicUuid(runId, 'edge-api-key'),
-    mcpApiKeyId: deterministicUuid(runId, 'mcp-api-key'),
-    edgeEventId: deterministicUuid(runId, 'edge-event'),
-    mcpEventId: deterministicUuid(runId, 'mcp-event'),
+    issuedAt: canonicalCycleTime,
+    tenantId: deterministicUuid(runId, canonicalCycleTime, 'tenant'),
+    verticalId: deterministicUuid(runId, canonicalCycleTime, 'vertical'),
+    edgeApiKeyId: deterministicUuid(runId, canonicalCycleTime, 'edge-api-key'),
+    mcpApiKeyId: deterministicUuid(runId, canonicalCycleTime, 'mcp-api-key'),
+    edgeEventId: deterministicUuid(runId, canonicalCycleTime, 'edge-event'),
+    mcpEventId: deterministicUuid(runId, canonicalCycleTime, 'mcp-event'),
   };
 }
 
@@ -181,15 +204,50 @@ export async function preparePrivateCanaryFixture(
   });
 }
 
-/** Prove each duplicated Queue event materialized only once, without reading its payload. */
+/** Prove each duplicated Queue event materialized once with its exact closed canary classification. */
 export async function verifyPrivateCanaryFixture(
   driver: SqlDriver,
   fixture: PrivateCanaryFixture,
 ): Promise<Readonly<{ edgeEvent: 'PRESENT_ONCE'; mcpEvent: 'PRESENT_ONCE' }>> {
   await assertPreparedFixture(driver, fixture);
   const rows = await driver.query<{ id: string }>(
-    `SELECT id FROM ${relation('api_usage_events')} WHERE id = $1 OR id = $2`,
-    [fixture.edgeEventId, fixture.mcpEventId],
+    `SELECT id
+       FROM ${relation('api_usage_events')}
+      WHERE (
+        id = $1
+        AND tenant_id = $2
+        AND api_key_id = $3
+        AND vertical_id = $4
+        AND route_key = 'health'
+        AND method = 'GET'
+        AND status = 200
+        AND rows_served = 0
+        AND duration_ms = 0
+        AND access_tier = 'API_FREE'
+        AND billing_source = 'DIRECT'
+      ) OR (
+        id = $5
+        AND tenant_id = $6
+        AND api_key_id = $7
+        AND vertical_id = $8
+        AND route_key = 'mcp.tools_list'
+        AND method = 'POST'
+        AND status = 200
+        AND rows_served = 0
+        AND duration_ms = 0
+        AND access_tier = 'MCP'
+        AND billing_source = 'NONE'
+      )`,
+    [
+      fixture.edgeEventId,
+      fixture.tenantId,
+      fixture.edgeApiKeyId,
+      fixture.verticalId,
+      fixture.mcpEventId,
+      fixture.tenantId,
+      fixture.mcpApiKeyId,
+      fixture.verticalId,
+    ],
   );
   const ids = new Set(rows.map((row) => row.id));
   if (rows.length !== 2 || ids.size !== 2 || !ids.has(fixture.edgeEventId) || !ids.has(fixture.mcpEventId)) {
@@ -231,13 +289,24 @@ export function parseFixtureArgs(argv: readonly string[]): FixtureArgs {
     throw new Error('Private canary fixture configuration is invalid.');
   }
   let runId: string | undefined;
+  let issuedAt: string | undefined;
   for (let index = 0; index < rest.length; index += 1) {
-    if (rest[index] === '--run-id') runId = rest[index + 1];
+    const option = rest[index];
+    const value = rest[index + 1];
+    if (option === '--run-id' && runId === undefined) runId = value;
+    else if (option === '--issued-at' && issuedAt === undefined) issuedAt = value;
     else throw new Error('Private canary fixture configuration is invalid.');
     index += 1;
   }
   if (runId === undefined) throw new Error('Private canary fixture configuration is invalid.');
-  return { mode, runId: canonicalRunId(runId) };
+  if ((mode === 'verify' || mode === 'cleanup') && issuedAt === undefined) {
+    throw new Error('Private canary fixture configuration is invalid.');
+  }
+  return {
+    mode,
+    runId: canonicalRunId(runId),
+    issuedAt: issuedAt === undefined ? null : canonicalIssuedAt(issuedAt),
+  };
 }
 
 function envelope(fixture: PrivateCanaryFixture): Readonly<Record<string, string>> {
@@ -275,7 +344,7 @@ export async function run(
       schema: DATA_FOUNDRY_PRIVATE_SCHEMA,
       requireSchemaOwner: true,
     });
-    const fixture = createPrivateCanaryFixture(args.runId);
+    const fixture = createPrivateCanaryFixture(args.runId, args.issuedAt ?? undefined);
     if (args.mode === 'prepare') {
       await preparePrivateCanaryFixture(driver, fixture);
       process.stdout.write(`${JSON.stringify(envelope(fixture))}\n`);

@@ -26,7 +26,7 @@ afterAll(async () => {
 
 async function loadValidator(): Promise<(
   options?: {
-    readonly mode?: 'repository' | 'deployment' | 'private-canary' | 'private-canary-deployment' | 'private-canary-target' | 'private-canary-target-deployment';
+    readonly mode?: 'repository' | 'deployment' | 'private-canary' | 'private-canary-deployment' | 'private-canary-target' | 'private-canary-target-deployment' | 'private-canary-full-deployment';
     readonly edgeConfigPath?: string;
     readonly consumerConfigPath?: string;
     readonly webConfigPath?: string;
@@ -46,7 +46,7 @@ async function loadValidator(): Promise<(
   expect(typeof validate).toBe('function');
   return validate as (
     options?: {
-      readonly mode?: 'repository' | 'deployment' | 'private-canary' | 'private-canary-deployment' | 'private-canary-target' | 'private-canary-target-deployment';
+      readonly mode?: 'repository' | 'deployment' | 'private-canary' | 'private-canary-deployment' | 'private-canary-target' | 'private-canary-target-deployment' | 'private-canary-full-deployment';
       readonly edgeConfigPath?: string;
       readonly consumerConfigPath?: string;
       readonly webConfigPath?: string;
@@ -219,6 +219,98 @@ describe('the committed Cloudflare topology', () => {
       mode: 'private-canary-target-deployment',
       ...paths,
     })).toEqual([]);
+  });
+
+  it('fails closed when the private-canary harness and target manifests name different accounts', async () => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-private-canary-account-drift-'));
+    temporaryDirectories.push(directory);
+    const privateCanaryConfigPath = await writePrivateCanaryDeploymentManifest(directory);
+    const paths = await writePrivateCanaryTargetDeploymentManifests(directory);
+
+    const errors = await validate({
+      mode: 'private-canary-full-deployment',
+      privateCanaryConfigPath,
+      ...paths,
+    });
+
+    expect(errors.join('\n')).toMatch(/private-canary.*account_id.*target/i);
+    expect(errors.join('\n')).not.toContain(PRIVATE_CANARY_ACCOUNT_ID);
+  });
+
+  it('accepts one account across the route-less harness and all five route-less targets', async () => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-private-canary-full-deployment-'));
+    temporaryDirectories.push(directory);
+    const privateCanaryConfigPath = await writePrivateCanaryDeploymentManifest(directory);
+    await writeFile(
+      privateCanaryConfigPath,
+      (await readFile(privateCanaryConfigPath, 'utf8')).replace(PRIVATE_CANARY_ACCOUNT_ID, ACCOUNT_ID),
+      'utf8',
+    );
+    const paths = await writePrivateCanaryTargetDeploymentManifests(directory);
+
+    expect(await validate({
+      mode: 'private-canary-full-deployment',
+      privateCanaryConfigPath,
+      ...paths,
+    })).toEqual([]);
+  });
+
+  it('rejects a private-canary service binding scoped to an unreviewed Worker environment', async () => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-private-canary-service-environment-drift-'));
+    temporaryDirectories.push(directory);
+    const privateCanaryConfigPath = await writePrivateCanaryDeploymentManifest(directory);
+    await writeFile(
+      privateCanaryConfigPath,
+      (await readFile(privateCanaryConfigPath, 'utf8'))
+        .replace(PRIVATE_CANARY_ACCOUNT_ID, ACCOUNT_ID)
+        .replace(
+          'entrypoint = "PrivateCanaryEntrypoint"',
+          'entrypoint = "PrivateCanaryEntrypoint"\nenvironment = "staging"',
+        ),
+      'utf8',
+    );
+    const paths = await writePrivateCanaryTargetDeploymentManifests(directory);
+
+    const errors = await validate({
+      mode: 'private-canary-full-deployment',
+      privateCanaryConfigPath,
+      ...paths,
+    });
+
+    expect(errors.join('\n')).toMatch(/private-canary.*service.*environment/i);
+  });
+
+  it('rejects a direct connection field in a private-target Hyperdrive manifest', async () => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-private-canary-hyperdrive-secret-drift-'));
+    temporaryDirectories.push(directory);
+    const privateCanaryConfigPath = await writePrivateCanaryDeploymentManifest(directory);
+    await writeFile(
+      privateCanaryConfigPath,
+      (await readFile(privateCanaryConfigPath, 'utf8')).replace(PRIVATE_CANARY_ACCOUNT_ID, ACCOUNT_ID),
+      'utf8',
+    );
+    const paths = await writePrivateCanaryTargetDeploymentManifests(directory);
+    await writeFile(
+      paths.edgePrivateCanaryConfigPath,
+      (await readFile(paths.edgePrivateCanaryConfigPath, 'utf8')).replace(
+        `id = "${HYPERDRIVE_ID}"`,
+        `id = "${HYPERDRIVE_ID}"\nlocalConnectionString = "postgres://local.invalid/forbidden"`,
+      ),
+      'utf8',
+    );
+
+    const errors = await validate({
+      mode: 'private-canary-full-deployment',
+      privateCanaryConfigPath,
+      ...paths,
+    });
+
+    expect(errors.join('\n')).toMatch(/edge.*Hyperdrive.*binding.*id/i);
+    expect(errors.join('\n')).not.toMatch(/local\.invalid|postgres:/i);
   });
 
   it('rejects a private-target route, public endpoint configuration, missing service binding mode, and shared Hyperdrive', async () => {

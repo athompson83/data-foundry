@@ -78,7 +78,7 @@ const ENVELOPE_KEYS = [
 export interface PrivateCanaryEnvelope {
   readonly kind: typeof PRIVATE_CANARY_ENVELOPE_KIND;
   readonly run_id: string;
-  /** Canonical synthetic-fixture timestamp; never copied into a receipt. */
+  /** Canonical synthetic-fixture timestamp, retained as safe receipt provenance. */
   readonly issued_at: string;
   readonly tenant_id: string;
   readonly vertical_id: string;
@@ -128,6 +128,8 @@ export interface PrivateCanaryProbe {
 export interface PrivateCanaryReceipt {
   readonly kind: 'data-foundry.private-canary-receipt.v1';
   readonly run_id: string;
+  /** The emitted synthetic fixture cycle; it is safe correlation metadata. */
+  readonly issued_at: string;
   readonly completed_at: string;
   readonly probes: readonly PrivateCanaryProbeResult[];
 }
@@ -236,11 +238,16 @@ export function parsePrivateCanaryProbeResult(raw: unknown): PrivateCanaryProbeR
  */
 export function createPrivateCanaryReceipt(input: {
   readonly runId: string;
+  readonly issuedAt: string;
   readonly completedAt: string;
   readonly probes: readonly PrivateCanaryProbeResult[];
 }): PrivateCanaryReceipt {
-  if (!UUID_V4_RE.test(input.runId) || !isCanonicalIsoInstant(input.completedAt)) {
-    throw new TypeError('Private canary receipt requires a canonical run id and completion time.');
+  if (
+    !UUID_V4_RE.test(input.runId)
+    || !isCanonicalIsoInstant(input.issuedAt)
+    || !isCanonicalIsoInstant(input.completedAt)
+  ) {
+    throw new TypeError('Private canary receipt requires canonical run, cycle, and completion times.');
   }
   if (input.probes.length !== PRIVATE_CANARY_WORKERS.length) {
     throw new TypeError('Private canary receipt requires one result for every Worker.');
@@ -262,6 +269,7 @@ export function createPrivateCanaryReceipt(input: {
   return {
     kind: 'data-foundry.private-canary-receipt.v1',
     run_id: input.runId,
+    issued_at: input.issuedAt,
     completed_at: input.completedAt,
     probes,
   };

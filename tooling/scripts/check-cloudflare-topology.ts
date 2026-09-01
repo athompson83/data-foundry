@@ -164,7 +164,8 @@ export interface CloudflareTopologyOptions {
     | 'private-canary'
     | 'private-canary-deployment'
     | 'private-canary-target'
-    | 'private-canary-target-deployment';
+    | 'private-canary-target-deployment'
+    | 'private-canary-full-deployment';
   readonly edgeConfigPath?: string;
   readonly consumerConfigPath?: string;
   readonly webConfigPath?: string;
@@ -370,6 +371,9 @@ function checkPrivateCanaryTopology(config: TomlObject, errors: string[]): void 
       errors.push(`private-canary ${bindingName} must bind exactly to ${serviceName}.`);
       continue;
     }
+    if (Object.keys(binding).some((key) => key !== 'binding' && key !== 'service' && key !== 'entrypoint')) {
+      errors.push('private-canary service bindings must not select an unreviewed Worker environment or capability.');
+    }
     if (binding['entrypoint'] !== PRIVATE_CANARY_ENTRYPOINT) {
       errors.push(
         `private-canary ${bindingName} must target ${PRIVATE_CANARY_ENTRYPOINT}, not an HTTP service fetch handler.`,
@@ -383,6 +387,75 @@ interface PrivateCanaryTarget {
   readonly expectedName: string;
   readonly config: TomlObject;
   readonly queueTopology: 'producer' | 'consumer' | 'none';
+}
+
+async function loadPrivateCanaryTargets(
+  options: CloudflareTopologyOptions,
+  deployment: boolean,
+  errors: string[],
+): Promise<readonly PrivateCanaryTarget[]> {
+  return [
+    {
+      label: 'edge',
+      expectedName: 'data-foundry-edge',
+      config: await parseConfig(
+        options.edgePrivateCanaryConfigPath ?? (
+          deployment ? EDGE_PRIVATE_CANARY_DEPLOYMENT_CONFIG_PATH : EDGE_PRIVATE_CANARY_CONFIG_PATH
+        ),
+        'edge',
+        errors,
+      ),
+      queueTopology: 'producer',
+    },
+    {
+      label: 'usage-consumer',
+      expectedName: 'data-foundry-usage-consumer',
+      config: await parseConfig(
+        options.consumerPrivateCanaryConfigPath ?? (
+          deployment ? CONSUMER_PRIVATE_CANARY_DEPLOYMENT_CONFIG_PATH : CONSUMER_PRIVATE_CANARY_CONFIG_PATH
+        ),
+        'usage-consumer',
+        errors,
+      ),
+      queueTopology: 'consumer',
+    },
+    {
+      label: 'web',
+      expectedName: 'data-foundry-web',
+      config: await parseConfig(
+        options.webPrivateCanaryConfigPath ?? (
+          deployment ? WEB_PRIVATE_CANARY_DEPLOYMENT_CONFIG_PATH : WEB_PRIVATE_CANARY_CONFIG_PATH
+        ),
+        'web',
+        errors,
+      ),
+      queueTopology: 'none',
+    },
+    {
+      label: 'acquisition-worker',
+      expectedName: 'data-foundry-acquisition-worker',
+      config: await parseConfig(
+        options.acquisitionPrivateCanaryConfigPath ?? (
+          deployment ? ACQUISITION_PRIVATE_CANARY_DEPLOYMENT_CONFIG_PATH : ACQUISITION_PRIVATE_CANARY_CONFIG_PATH
+        ),
+        'acquisition-worker',
+        errors,
+      ),
+      queueTopology: 'none',
+    },
+    {
+      label: 'mcp-worker',
+      expectedName: 'data-foundry-mcp-hvac',
+      config: await parseConfig(
+        options.mcpPrivateCanaryConfigPath ?? (
+          deployment ? MCP_PRIVATE_CANARY_DEPLOYMENT_CONFIG_PATH : MCP_PRIVATE_CANARY_CONFIG_PATH
+        ),
+        'mcp-worker',
+        errors,
+      ),
+      queueTopology: 'producer',
+    },
+  ];
 }
 
 /**
@@ -622,10 +695,13 @@ function checkDeploymentFieldLocations(label: string, config: TomlObject, errors
 function checkDeploymentWorker(label: string, config: TomlObject, errors: string[]): void {
   checkDeploymentFieldLocations(label, config, errors);
   const bindings = objects(config['hyperdrive']);
-  const hyperdriveBindings = bindings.filter((binding) => binding['binding'] === 'HYPERDRIVE');
   if (
-    hyperdriveBindings.length !== 1 ||
-    bindings.some((binding) => !isExactCloudflareId(binding['id']))
+    bindings.length !== 1 ||
+    bindings.some((binding) =>
+      Object.keys(binding).length !== 2 ||
+      binding['binding'] !== 'HYPERDRIVE' ||
+      !isExactCloudflareId(binding['id']),
+    )
   ) {
     errors.push(
       `${label} deployment manifest must bind exactly one HYPERDRIVE binding with a non-zero lowercase 32-hex id.`,
@@ -766,78 +842,7 @@ export async function validateCloudflareTopology(
   const mode = options.mode ?? 'repository';
   if (mode === 'private-canary-target' || mode === 'private-canary-target-deployment') {
     const deployment = mode === 'private-canary-target-deployment';
-    const targets: readonly PrivateCanaryTarget[] = [
-      {
-        label: 'edge',
-        expectedName: 'data-foundry-edge',
-        config: await parseConfig(
-          options.edgePrivateCanaryConfigPath ?? (
-            deployment
-              ? EDGE_PRIVATE_CANARY_DEPLOYMENT_CONFIG_PATH
-              : EDGE_PRIVATE_CANARY_CONFIG_PATH
-          ),
-          'edge',
-          errors,
-        ),
-        queueTopology: 'producer',
-      },
-      {
-        label: 'usage-consumer',
-        expectedName: 'data-foundry-usage-consumer',
-        config: await parseConfig(
-          options.consumerPrivateCanaryConfigPath ?? (
-            deployment
-              ? CONSUMER_PRIVATE_CANARY_DEPLOYMENT_CONFIG_PATH
-              : CONSUMER_PRIVATE_CANARY_CONFIG_PATH
-          ),
-          'usage-consumer',
-          errors,
-        ),
-        queueTopology: 'consumer',
-      },
-      {
-        label: 'web',
-        expectedName: 'data-foundry-web',
-        config: await parseConfig(
-          options.webPrivateCanaryConfigPath ?? (
-            deployment
-              ? WEB_PRIVATE_CANARY_DEPLOYMENT_CONFIG_PATH
-              : WEB_PRIVATE_CANARY_CONFIG_PATH
-          ),
-          'web',
-          errors,
-        ),
-        queueTopology: 'none',
-      },
-      {
-        label: 'acquisition-worker',
-        expectedName: 'data-foundry-acquisition-worker',
-        config: await parseConfig(
-          options.acquisitionPrivateCanaryConfigPath ?? (
-            deployment
-              ? ACQUISITION_PRIVATE_CANARY_DEPLOYMENT_CONFIG_PATH
-              : ACQUISITION_PRIVATE_CANARY_CONFIG_PATH
-          ),
-          'acquisition-worker',
-          errors,
-        ),
-        queueTopology: 'none',
-      },
-      {
-        label: 'mcp-worker',
-        expectedName: 'data-foundry-mcp-hvac',
-        config: await parseConfig(
-          options.mcpPrivateCanaryConfigPath ?? (
-            deployment
-              ? MCP_PRIVATE_CANARY_DEPLOYMENT_CONFIG_PATH
-              : MCP_PRIVATE_CANARY_CONFIG_PATH
-          ),
-          'mcp-worker',
-          errors,
-        ),
-        queueTopology: 'producer',
-      },
-    ];
+    const targets = await loadPrivateCanaryTargets(options, deployment, errors);
     // A missing ignored production manifest is an owner-action boundary, not
     // an empty deployment. Report only the named missing files rather than a
     // cascade of topology failures derived from parsed `{}` values.
@@ -858,6 +863,39 @@ export async function validateCloudflareTopology(
       const manifests = targets.map(({ label, config }) => [label, config] as const);
       checkDeploymentAccountIds(manifests, errors);
       checkDistinctDeploymentHyperdriveIds(manifests, errors);
+    }
+    return errors;
+  }
+  if (mode === 'private-canary-full-deployment') {
+    const privateCanary = await parseConfig(
+      options.privateCanaryConfigPath ?? PRIVATE_CANARY_DEPLOYMENT_CONFIG_PATH,
+      'private-canary',
+      errors,
+    );
+    const targets = await loadPrivateCanaryTargets(options, true, errors);
+    if (errors.length > 0) return errors;
+
+    checkWorkerBase('private-canary', privateCanary, errors);
+    checkDeploymentFieldLocations('private-canary', privateCanary, errors);
+    const privateCanaryAccountId = deploymentAccountId('private-canary', privateCanary, errors);
+    checkPlaintextProtectedVars('private-canary', privateCanary, errors);
+    checkPrivateCanaryTopology(privateCanary, errors);
+
+    for (const target of targets) {
+      checkWorkerBase(target.label, target.config, errors);
+      checkDeploymentWorker(target.label, target.config, errors);
+      checkPrivateCanaryTargetTopology(target, errors);
+      checkPrivateCanaryTargetQueueTopology(target, errors);
+    }
+    const targetManifests = targets.map(({ label, config }) => [label, config] as const);
+    const targetAccountId = checkDeploymentAccountIds(targetManifests, errors);
+    checkDistinctDeploymentHyperdriveIds(targetManifests, errors);
+    if (
+      privateCanaryAccountId !== null &&
+      targetAccountId !== null &&
+      privateCanaryAccountId !== targetAccountId
+    ) {
+      errors.push('private-canary deployment account_id must match the five target manifests.');
     }
     return errors;
   }
@@ -1073,9 +1111,11 @@ export async function run(options: CloudflareTopologyOptions = {}): Promise<numb
           ? 'OK: Cloudflare private-canary deployment manifest is route-less and service-bound.\n'
           : options.mode === 'private-canary-target'
             ? 'OK: Cloudflare private-canary target templates are route-less and service-bound.\n'
-            : options.mode === 'private-canary-target-deployment'
-              ? 'OK: Cloudflare private-canary target deployment manifests are route-less and role-bound.\n'
-          : 'OK: Cloudflare repository templates are internally consistent.\n',
+          : options.mode === 'private-canary-target-deployment'
+            ? 'OK: Cloudflare private-canary target deployment manifests are route-less and role-bound.\n'
+            : options.mode === 'private-canary-full-deployment'
+              ? 'OK: Cloudflare private-canary harness and target manifests are account-bound, route-less, and role-bound.\n'
+            : 'OK: Cloudflare repository templates are internally consistent.\n',
   );
   return 0;
 }
@@ -1089,10 +1129,11 @@ if (isMain(import.meta.url)) {
     mode !== 'private-canary' &&
     mode !== 'private-canary-deployment' &&
     mode !== 'private-canary-target' &&
-    mode !== 'private-canary-target-deployment'
+    mode !== 'private-canary-target-deployment' &&
+    mode !== 'private-canary-full-deployment'
   ) {
     process.stderr.write(
-      'Usage: check-cloudflare-topology.ts [--mode repository|deployment|private-canary|private-canary-deployment|private-canary-target|private-canary-target-deployment]\n',
+      'Usage: check-cloudflare-topology.ts [--mode repository|deployment|private-canary|private-canary-deployment|private-canary-target|private-canary-target-deployment|private-canary-full-deployment]\n',
     );
     process.exitCode = 1;
   } else {

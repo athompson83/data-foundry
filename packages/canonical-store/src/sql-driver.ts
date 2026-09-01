@@ -206,6 +206,40 @@ function hasCallerSuppliedStartupOptions(connectionString: string): boolean {
   }
 }
 
+/**
+ * Direct database connections are used only by controlled Node-side tooling.
+ * Force certificate-verified TLS here instead of depending on a URL parameter
+ * or a process-wide PGSSLMODE default. Direct URLs have one canonical network
+ * endpoint and no query parameters: `pg` lets query fields override the host,
+ * port, or explicit SSL configuration, including with a Unix socket.
+ */
+export function directPostgresTlsConfig(connectionString: string): {
+  readonly connectionString: string;
+  readonly ssl: { readonly rejectUnauthorized: true };
+} {
+  let parsed: URL;
+  try {
+    parsed = new URL(connectionString);
+  } catch {
+    throw new Error('Direct PostgreSQL requires a valid TLS connection URL.');
+  }
+  if (parsed.protocol !== 'postgres:' && parsed.protocol !== 'postgresql:') {
+    throw new Error('Direct PostgreSQL requires a valid TLS connection URL.');
+  }
+
+  let hostname: string;
+  try {
+    hostname = decodeURIComponent(parsed.hostname);
+  } catch {
+    throw new Error('Direct PostgreSQL requires a valid TLS connection URL.');
+  }
+  if (hostname === '' || hostname.startsWith('/') || [...parsed.searchParams.keys()].length !== 0) {
+    throw new Error('Direct PostgreSQL TLS URLs may not include endpoint or TLS query overrides.');
+  }
+
+  return { connectionString, ssl: { rejectUnauthorized: true } };
+}
+
 function resolvedPostgresSchema(
   connectionString: string,
   options: PostgresDriverOptions,
@@ -222,9 +256,10 @@ function resolvedPostgresSchema(
 }
 
 function postgresConnectionConfig(connectionString: string, schema: string | undefined) {
+  const tls = directPostgresTlsConfig(connectionString);
   return schema === undefined
-    ? { connectionString }
-    : { connectionString, options: postgresStartupOptionsForSchema(schema) };
+    ? tls
+    : { ...tls, options: postgresStartupOptionsForSchema(schema) };
 }
 
 interface SessionQueryable {
