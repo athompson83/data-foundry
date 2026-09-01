@@ -280,12 +280,13 @@ function checkDeploymentFieldLocations(label: string, config: TomlObject, errors
 function checkDeploymentWorker(label: string, config: TomlObject, errors: string[]): void {
   checkDeploymentFieldLocations(label, config, errors);
   const bindings = objects(config['hyperdrive']);
+  const hyperdriveBindings = bindings.filter((binding) => binding['binding'] === 'HYPERDRIVE');
   if (
-    !bindings.some((binding) => binding['binding'] === 'HYPERDRIVE') ||
+    hyperdriveBindings.length !== 1 ||
     bindings.some((binding) => !isExactCloudflareId(binding['id']))
   ) {
     errors.push(
-      `${label} deployment manifest must bind HYPERDRIVE with a non-zero lowercase 32-hex id.`,
+      `${label} deployment manifest must bind exactly one HYPERDRIVE binding with a non-zero lowercase 32-hex id.`,
     );
   }
   checkPlaintextProtectedVars(label, config, errors);
@@ -315,6 +316,25 @@ function checkDeploymentAccountIds(
   return accountIds.length === manifests.length && new Set(accountIds).size === 1
     ? accountIds[0] ?? null
     : null;
+}
+
+function checkDistinctDeploymentHyperdriveIds(
+  manifests: readonly (readonly [label: string, config: TomlObject])[],
+  errors: string[],
+): void {
+  const hyperdriveIds = manifests.map(([, config]) => {
+    const bindings = objects(config['hyperdrive'])
+      .filter((binding) => binding['binding'] === 'HYPERDRIVE')
+      .map((binding) => binding['id'])
+      .filter(isExactCloudflareId);
+    return bindings.length === 1 ? bindings[0] ?? null : null;
+  });
+  if (
+    hyperdriveIds.every((id): id is string => id !== null) &&
+    new Set(hyperdriveIds).size !== manifests.length
+  ) {
+    errors.push('Deployment manifests must bind five distinct Hyperdrive configuration ids, one per Worker role.');
+  }
 }
 
 function checkAcquisitionProviderAccountId(
@@ -451,6 +471,13 @@ export async function validateCloudflareTopology(
     checkDeploymentWorker('acquisition-worker', acquisition, errors);
     checkDeploymentWorker('mcp-worker', mcp, errors);
     const canonicalAccountId = checkDeploymentAccountIds([
+      ['edge', edge],
+      ['usage-consumer', consumer],
+      ['web', web],
+      ['acquisition-worker', acquisition],
+      ['mcp-worker', mcp],
+    ], errors);
+    checkDistinctDeploymentHyperdriveIds([
       ['edge', edge],
       ['usage-consumer', consumer],
       ['web', web],

@@ -12,6 +12,10 @@ const ACQUISITION_CONFIG = join(REPO_ROOT, 'apps', 'acquisition-worker', 'wrangl
 const MCP_CONFIG = join(REPO_ROOT, 'apps', 'mcp-worker', 'wrangler.toml');
 const ACCOUNT_ID = '1234567890abcdef1234567890abcdef';
 const HYPERDRIVE_ID = 'abcdef1234567890abcdef1234567890';
+const CONSUMER_HYPERDRIVE_ID = 'bcdef1234567890abcdef1234567890a';
+const WEB_HYPERDRIVE_ID = 'cdef1234567890abcdef1234567890ab';
+const ACQUISITION_HYPERDRIVE_ID = 'def1234567890abcdef1234567890abc';
+const MCP_HYPERDRIVE_ID = 'ef1234567890abcdef1234567890abcd';
 const temporaryDirectories: string[] = [];
 
 afterAll(async () => {
@@ -51,7 +55,7 @@ async function writeDeploymentManifests(directory: string): Promise<{
   readonly acquisitionConfigPath: string;
   readonly mcpConfigPath: string;
 }> {
-  const binding = `\n[[hyperdrive]]\nbinding = "HYPERDRIVE"\nid = "${HYPERDRIVE_ID}"\n`;
+  const binding = (id: string): string => `\n[[hyperdrive]]\nbinding = "HYPERDRIVE"\nid = "${id}"\n`;
   const withAccountId = (manifest: string): string =>
     manifest.replace(/^name\s*=\s*[^\n]+/m, (name) => `${name}\naccount_id = "${ACCOUNT_ID}"`);
   const withTopLevelRoute = (manifest: string, route: string): string =>
@@ -63,22 +67,22 @@ async function writeDeploymentManifests(directory: string): Promise<{
   const mcpConfigPath = join(directory, 'mcp.toml');
   const edge = `${withAccountId(
     withTopLevelRoute(await readFile(EDGE_CONFIG, 'utf8'), 'api.datafoundry.io/*'),
-  )}${binding}`;
-  const consumer = `${withAccountId(await readFile(CONSUMER_CONFIG, 'utf8'))}${binding}`;
+  )}${binding(HYPERDRIVE_ID)}`;
+  const consumer = `${withAccountId(await readFile(CONSUMER_CONFIG, 'utf8'))}${binding(CONSUMER_HYPERDRIVE_ID)}`;
   const web = `${withAccountId((await readFile(WEB_CONFIG, 'utf8')).replace(
     'DEPLOYMENT_ENVIRONMENT = "production"',
     'DEPLOYMENT_ENVIRONMENT = "production"\nPUBLIC_ORIGIN = "https://www.datafoundry.io"',
-  ))}${binding}`;
+  ))}${binding(WEB_HYPERDRIVE_ID)}`;
   const acquisition = `${withAccountId(
     (await readFile(ACQUISITION_CONFIG, 'utf8')).replace(
       'RAW_ARTIFACTS_BUCKET_NAME = "data-foundry-raw-artifacts"',
       `RAW_ARTIFACTS_BUCKET_NAME = "data-foundry-raw-artifacts"\nCLOUDFLARE_ACCOUNT_ID = "${ACCOUNT_ID}"`,
     ),
-  )}${binding}`;
+  )}${binding(ACQUISITION_HYPERDRIVE_ID)}`;
   const mcp = `${withAccountId((await readFile(MCP_CONFIG, 'utf8')).replace(
     'API_KEY_ENVIRONMENT = "live"',
     'API_KEY_ENVIRONMENT = "live"\nMCP_HOSTNAME = "mcp.datafoundry.io"\nMCP_ALLOWED_ORIGINS = "https://app.datafoundry.io"\nPUBLIC_ORIGIN = "https://www.datafoundry.io"',
-  ))}${binding}`;
+  ))}${binding(MCP_HYPERDRIVE_ID)}`;
   const webWithRoute = `${withTopLevelRoute(web, 'www.datafoundry.io/*')}`;
   const mcpWithRoute = `${withTopLevelRoute(mcp, 'mcp.datafoundry.io/*')}`;
   await Promise.all([
@@ -219,6 +223,39 @@ describe('the committed Cloudflare topology', () => {
     expect(await validate({ mode: 'deployment', ...paths })).toEqual([]);
   });
 
+  it('rejects deployment manifests that reuse a Hyperdrive configuration across Worker roles', async () => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-cloudflare-duplicate-hyperdrive-'));
+    temporaryDirectories.push(directory);
+    const paths = await writeDeploymentManifests(directory);
+    await writeFile(
+      paths.webConfigPath,
+      (await readFile(paths.webConfigPath, 'utf8')).replace(WEB_HYPERDRIVE_ID, HYPERDRIVE_ID),
+      'utf8',
+    );
+
+    const errors = await validate({ mode: 'deployment', ...paths });
+
+    expect(errors.join('\n')).toMatch(/five distinct Hyperdrive configuration ids/i);
+    expect(errors.join('\n')).not.toContain(HYPERDRIVE_ID);
+  });
+
+  it('rejects a deployment Worker with two valid Hyperdrive bindings', async () => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-cloudflare-multiple-hyperdrives-'));
+    temporaryDirectories.push(directory);
+    const paths = await writeDeploymentManifests(directory);
+    await writeFile(
+      paths.edgeConfigPath,
+      `${await readFile(paths.edgeConfigPath, 'utf8')}\n[[hyperdrive]]\nbinding = "HYPERDRIVE"\nid = "${WEB_HYPERDRIVE_ID}"\n`,
+      'utf8',
+    );
+
+    const errors = await validate({ mode: 'deployment', ...paths });
+
+    expect(errors.join('\n')).toMatch(/edge.*exactly one HYPERDRIVE binding/i);
+  });
+
   it('rejects a production web manifest that enables shared caching', async () => {
     const validate = await loadValidator();
     const directory = await mkdtemp(join(tmpdir(), 'data-foundry-cloudflare-web-cache-'));
@@ -307,7 +344,7 @@ describe('the committed Cloudflare topology', () => {
     const paths = await writeDeploymentManifests(directory);
     await writeFile(
       paths.webConfigPath,
-      (await readFile(paths.webConfigPath, 'utf8')).replace(HYPERDRIVE_ID, hyperdriveId),
+      (await readFile(paths.webConfigPath, 'utf8')).replace(WEB_HYPERDRIVE_ID, hyperdriveId),
       'utf8',
     );
 

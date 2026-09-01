@@ -344,7 +344,7 @@ const PRIVATE_SCHEMA_TRANSFORM_VERSION = 'data-foundry-private-schema-v1';
  * a private deployment also fingerprints its schema-specific transform so a
  * later transform change fails closed instead of silently skipping old rows.
  */
-function effectiveMigrationChecksum(
+export function effectiveMigrationChecksum(
   migration: Migration,
   schema: string,
   effectiveSql: string,

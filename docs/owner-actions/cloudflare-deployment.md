@@ -152,6 +152,133 @@ credential must not be committed.
    through `0026`). Verify that the private schema, rather than `public`, owns
    the ledger and every Data Foundry table. Do not pass the connection string
    on argv or archive it with the command receipt.
+
+   If the approved operator path is Supabase's SQL/migration connector instead
+   of a direct Postgres connection, keep credentials out of this repository and
+   generate the offline connector manifest from the same frozen release:
+
+   ```powershell
+   pnpm migrate:supabase:export -- --release-sha <40-character-release-SHA>
+   ```
+
+   Export succeeds only when that SHA is the checkout's exact Git `HEAD` and
+   `db/migrations/`, `tooling/scripts/migrate.ts`, and the exporter itself are
+   byte-clean against `HEAD`. Unrelated working-tree files are not part of this
+   source identity. Commit the reviewed exporter and migration inputs before
+   generating an operator artifact; never export packets from an uncommitted
+   migration implementation.
+
+   The JSON manifest contains read-only `preflightSql`, a separately named
+   `bootstrapSql`, exact `verificationSql`, and one `packets[]` entry for each
+   pending application migration. It contains no database credential. The
+   provider operator must create `df_migration` through the provider's secure
+   administrative path first and authorize the connector principal to
+   `SET ROLE df_migration`; passwords and role-creation SQL are deliberately
+   not part of the manifest.
+
+   Run `preflightSql` read-only. Then submit `bootstrapSql` with
+   `bootstrapProviderMigrationName`, followed in array order by each packet's
+   `sql` and `providerMigrationName`. Do not submit the whole manifest as one
+   provider migration. Every packet uses `SET LOCAL ROLE`, a private
+   transaction-local search path, the repository runner's exact transformed
+   SQL/checksum, and the application-ledger insert in one script. Before DDL it
+   exclusively locks the app ledger and proves the entire live ledger exactly
+   equals that packet's expected repository prefix; any extra, unknown,
+   missing, duplicated, malformed, or mismatched row is a hard stop. It also
+   requires the canonical column types, `NOT NULL` attributes, defaults, and
+   exact primary key on `version`; it never repairs or marks a malformed table.
+   The bootstrap uses a
+   transaction-scoped advisory lock, creates and marks the ledger only inside
+   the confirmed-absent branch, and refuses a marked legacy Data Foundry install
+   in `public`, a foreign or malformed private ledger, a missing `extensions`
+   schema, and a target schema owned by another role. It never changes the
+   shared `public` schema.
+
+   For a resumed install, query only the marked application ledger and save the
+   result as a JSON array whose rows contain exactly `version`, `filename`, and
+   `checksum`, then regenerate with:
+
+   ```powershell
+   pnpm migrate:supabase:export -- --release-sha <40-character-release-SHA> --applied-ledger <ledger-rows.json>
+   ```
+
+   A mismatch, unknown version, duplicate, or non-contiguous applied prefix is
+   a hard stop. After the final packet, run `verificationSql`; it succeeds as a
+   proof only when the marked app ledger has that canonical schema and primary
+   key, its row count is exactly 26, and its discrepancy query returns zero
+   rows.
+
+   The manifest also contains exactly one provider-only
+   `postMigrationGrants` payload. Before submitting it, the secure operator
+   path must create `df_edge`, `df_web`, `df_mcp`, `df_usage`, and
+   `df_acquisition` as NOLOGIN, nonprivileged, non-member roles and remove
+   `PUBLIC` execute from every private function. The payload locks and validates
+   the full canonical ledger, exact relation/function inventories and ownership,
+   zero `SECURITY DEFINER` functions, private-schema/public-schema ACL
+   prerequisites, and the absence of any pre-existing target-role privilege;
+   it refuses drift instead of normalizing it. It then grants only the reviewed
+   table/column matrix and, because a narrower call dependency cannot be proved
+   statically, EXECUTE on the manifest's explicit 57-signature invoker-function
+   inventory to `df_acquisition` alone. It changes neither the application
+   ledger nor default privileges. Submit its `sql` using its deterministic
+   `providerMigrationName`, then require every count/boolean in its
+   `verificationSql` to be clean and compare `public_fingerprint_input` with
+   the operator-approved pre-deployment fingerprint.
+
+   ACL validation is exact, not limited to the five runtime roles. The
+   pre-grant private-schema baseline permits only the intrinsic owner ACLs on
+   `data_foundry` and its explicit 57-routine inventory; relation owner entries
+   that PostgreSQL materializes while granting another role are normalized as
+   intrinsic owner privileges. Any direct private grant to `PUBLIC`, a Supabase
+   API role, or an arbitrary observer is drift. For each runtime role, the only
+   direct privilege outside `data_foundry` is `USAGE` on `extensions`; direct
+   schema, database, relation, column, routine, type, foreign-server/FDW,
+   language, tablespace, large-object, parameter, or default privileges
+   elsewhere are drift. Grant-option state is part of the ACL identity and must
+   be false for every expected grant.
+   Inherited `PUBLIC` database `CONNECT`/`TEMP` are not treated as direct role
+   grants. Membership is forbidden in both directions: a runtime role cannot
+   inherit another role, and no principal may inherit a runtime role.
+
+   The NOLOGIN state is staging, not the Worker runtime state. After the grant
+   payload and its `verificationSql` pass, use the provider's secure credential
+   interface to assign a distinct password and enable LOGIN on those same five
+   `df_*` roles; do not create wrapper roles, memberships, or password-bearing
+   SQL artifacts. Then run `postCredentialVerificationSql` as the controlled
+   operator. It requires all five roles to be direct, nonprivileged LOGIN roles
+   while rechecking the exact ACL and membership invariants. Each Hyperdrive
+   origin must authenticate directly as its matching `df_*` role; Workers do
+   not issue `SET ROLE`.
+
+   On a dedicated verification database, prove the actual credential paths by
+   supplying the five role-specific connection URLs only through
+   `DATA_FOUNDRY_EDGE_POSTGRES_URL`, `DATA_FOUNDRY_WEB_POSTGRES_URL`,
+   `DATA_FOUNDRY_MCP_POSTGRES_URL`, `DATA_FOUNDRY_USAGE_POSTGRES_URL`, and
+   `DATA_FOUNDRY_ACQUISITION_POSTGRES_URL`, setting
+   `DATA_FOUNDRY_RUNTIME_ROLE_CONNECTION_TEST=1`, and running
+   `pnpm runtime-roles:postgres:check`. The check opens each role directly,
+   rejects connection URLs with startup `options` and any ambient `PGOPTIONS`,
+   verifies server-side session identity, requires the raw effective setting,
+   resolved schema order, and an exact
+   `pg_db_role_setting` created by `ALTER ROLE ... IN DATABASE ... SET
+   search_path TO data_foundry, pg_catalog, extensions`, and checks
+   representative positive/negative privileges. It never prints a connection
+   string.
+
+   This connector path depends on the provider operation executing each
+   submitted SQL script transactionally. The scripts intentionally omit
+   top-level `BEGIN`/`COMMIT` so the connector can own that transaction and its
+   own provider migration record. If that atomicity is not documented or
+   proven for the exact connector version, stop rather than assuming it. After
+   an interrupted call, inspect both Supabase's provider migration history and
+   `data_foundry.schema_migrations`; never bypass a disagreement by renaming
+   and retrying a packet.
+
+   The manifest records this boundary as
+   `transactionContract.liveUseAuthorized: false` and provider-ledger
+   atomicity `unverified`. Generation is preparation, not live-use approval;
+   that flag may change only after the exact connector's transaction and
+   provider-ledger behavior receives separate evidence and review.
 4. Create one Hyperdrive configuration per Worker role (`df-edge`, `df-web`,
    `df-mcp`, `df-usage`, and `df-acquire`), with SQL query caching disabled.
    A single shared configuration would make all Workers share one upstream

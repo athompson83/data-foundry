@@ -25,8 +25,9 @@ crons = ["0 * * * *"]
 binding = "RAW_ARTIFACTS"
 bucket_name = "data-foundry-raw-artifacts"
 
-# Create/reuse the canonical database Hyperdrive configuration, then put its
-# id in an ignored environment-specific Wrangler config or the dashboard.
+# Create a role-specific acquisition Hyperdrive configuration; it must not reuse
+# another Worker's credential. Put its id in an ignored environment-specific
+# Wrangler config or the dashboard.
 # [[hyperdrive]]
 # binding = "HYPERDRIVE"
 # id = "<hyperdrive-id>"
