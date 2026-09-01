@@ -370,6 +370,60 @@ describe('configuration', () => {
   });
 });
 
+describe('driver lifecycle', () => {
+  it('keeps local direct-Postgres batches on one unscoped pooled driver', async () => {
+    const schemas: Array<string | undefined> = [];
+    const openDriver = async (_connectionString: string, options?: { readonly schema?: string }) => {
+      schemas.push(options?.schema);
+      return driver;
+    };
+    const options = {
+      env: { DEPLOYMENT_ENVIRONMENT: 'development', POSTGRES_URL: 'postgres://fixture/direct' },
+      openDriver,
+    } as const;
+
+    await consumeBatch({ messages: [] }, options);
+    await consumeBatch({ messages: [] }, options);
+
+    expect(schemas).toEqual([undefined]);
+  });
+
+  it('opens and closes a private-schema Hyperdrive driver for every delivered batch', async () => {
+    const opens: Array<{ readonly connectionString: string; readonly schema: string | undefined }> = [];
+    let closes = 0;
+    const openDriver = async (
+      connectionString: string,
+      options?: { readonly schema?: string },
+    ): Promise<SqlDriver> => {
+      opens.push({ connectionString, schema: options?.schema });
+      return {
+        label: driver.label,
+        dialect: driver.dialect,
+        query: driver.query.bind(driver),
+        exec: driver.exec.bind(driver),
+        transaction: driver.transaction.bind(driver),
+        close: async () => { closes += 1; },
+      };
+    };
+    const options = {
+      env: {
+        DEPLOYMENT_ENVIRONMENT: 'production',
+        HYPERDRIVE: { connectionString: 'postgres://hyperdrive.fixture/data-foundry' },
+      },
+      openDriver,
+    } as const;
+
+    await consumeBatch({ messages: [] }, options);
+    await consumeBatch({ messages: [] }, options);
+
+    expect(opens).toEqual([
+      { connectionString: 'postgres://hyperdrive.fixture/data-foundry', schema: 'data_foundry' },
+      { connectionString: 'postgres://hyperdrive.fixture/data-foundry', schema: 'data_foundry' },
+    ]);
+    expect(closes).toBe(2);
+  });
+});
+
 describe('the deployed queue() handler logs operational failures', () => {
   it(
     'reports a configuration failure to Workers logs without being told to — the default export wires onError itself',

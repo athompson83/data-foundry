@@ -1,7 +1,10 @@
-/** Cloudflare composition root: one pooled database/query graph per isolate. */
+/** Cloudflare composition root. Hyperdrive graphs are always invocation-owned. */
 import {
   createCanonicalStore,
+  createHyperdriveDriver,
   createPostgresDriver,
+  DATA_FOUNDRY_PRIVATE_SCHEMA,
+  type PostgresDriverOptions,
   type SqlDriver,
 } from '@data-foundry/canonical-store';
 import { createQueryModel } from '@data-foundry/query-model';
@@ -47,7 +50,10 @@ export interface McpDeployment {
 export interface BuildMcpDeploymentOptions {
   readonly env: McpWorkerEnv;
   readonly runtime: McpWorkerRuntime;
-  readonly openDriver?: (connectionString: string) => Promise<SqlDriver>;
+  readonly openDriver?: (
+    connectionString: string,
+    options?: PostgresDriverOptions,
+  ) => Promise<SqlDriver>;
   /** Receives fixed classifications only; never request or exception material. */
   readonly onToolError?: (context: { readonly tool: string; readonly code: string }) => void;
   readonly onProtocolError?: () => void;
@@ -69,7 +75,15 @@ async function build(options: BuildMcpDeploymentOptions): Promise<McpDeployment>
     throw new McpWorkerConfigurationError('The compiled MCP canonical URL prefix is invalid.');
   }
 
-  const driver = await (options.openDriver ?? createPostgresDriver)(config.connectionString);
+  const open = options.openDriver ?? (
+    options.env.HYPERDRIVE === undefined ? createPostgresDriver : createHyperdriveDriver
+  );
+  const driver = await open(
+    config.connectionString,
+    config.deploymentEnvironment === 'production'
+      ? { schema: DATA_FOUNDRY_PRIVATE_SCHEMA }
+      : undefined,
+  );
   try {
     const store = createCanonicalStore(driver);
     const vertical = await store.getVerticalBySlug(config.verticalSlug as Slug);
@@ -94,8 +108,13 @@ async function build(options: BuildMcpDeploymentOptions): Promise<McpDeployment>
       driver,
       verticalId: vertical.id,
       close: async () => {
-        await handler.close();
-        await driver.close();
+        try {
+          await handler.close();
+        } finally {
+          // Hyperdrive clients are invocation-owned. SDK cleanup must not
+          // prevent the underlying database connection from being released.
+          await driver.close();
+        }
       },
     };
   } catch (error) {
@@ -106,7 +125,10 @@ async function build(options: BuildMcpDeploymentOptions): Promise<McpDeployment>
 
 export function getMcpDeployment(options: BuildMcpDeploymentOptions): Promise<McpDeployment> {
   const config = resolveMcpWorkerConfig(options.env);
+  if (options.env.HYPERDRIVE !== undefined) return build(options);
+
   const key = [
+    config.deploymentEnvironment,
     config.connectionString,
     config.verticalSlug,
     config.publicOrigin,

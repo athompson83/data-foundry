@@ -54,6 +54,7 @@ import {
 } from '@data-foundry/rights-engine';
 import { VERTICALS_DIR } from '../validators/validate-verticals.js';
 import { isMain } from '../lib/cli-entry.js';
+import { resolveOperationalSchema } from './migrate.js';
 
 /**
  * Names reserved by RFC 2606 and RFC 6761 for documentation and testing. A
@@ -677,6 +678,8 @@ export type RightsEvidenceDescriptor =
       readonly qualification: 'LIVE_AS_OF';
       readonly credentialEnv: string;
       readonly asOf: string;
+      /** PostgreSQL schema explicitly bound for this live evidence run. */
+      readonly schema: string;
     };
 
 export interface RightsEvidenceResolver {
@@ -697,6 +700,7 @@ export function createLiveDatabaseRightsEvidenceResolver(
   driver: SqlDriver,
   credentialEnv: string,
   asOf: string,
+  schema: string = 'public',
 ): RightsEvidenceResolver {
   return {
     descriptor: {
@@ -704,6 +708,7 @@ export function createLiveDatabaseRightsEvidenceResolver(
       qualification: 'LIVE_AS_OF',
       credentialEnv,
       asOf,
+      schema,
     },
     async contextFor(verticalSlug, source) {
       let rows: Array<Record<string, unknown>>;
@@ -719,18 +724,22 @@ export function createLiveDatabaseRightsEvidenceResolver(
           [verticalSlug, source.domain, source.sourceType],
         );
       } catch {
-        throw new Error(`live rights lookup failed through credential env ${credentialEnv}`);
+        throw new Error(
+          `live rights lookup failed for schema ${schema} through credential env ${credentialEnv}`,
+        );
       }
       if (rows.length === 0) return null;
       if (rows.length !== 1 || typeof rows[0]?.['id'] !== 'string') {
         throw new Error(
-          `live rights lookup was ambiguous for ${verticalSlug}/${source.key} through credential env ${credentialEnv}`,
+          `live rights lookup was ambiguous for ${verticalSlug}/${source.key} in schema ${schema} through credential env ${credentialEnv}`,
         );
       }
       try {
         return await loadStoredRightsContext(driver, rows[0]['id'], asOf);
       } catch {
-        throw new Error(`live rights context failed through credential env ${credentialEnv}`);
+        throw new Error(
+          `live rights context failed for schema ${schema} through credential env ${credentialEnv}`,
+        );
       }
     },
   };
@@ -1066,6 +1075,7 @@ export function renderReadinessReport(report: VerticalReadiness): string {
   } else {
     lines.push(
       `  rights evidence: LIVE_DATABASE as of ${report.rightsEvidence.asOf}` +
+        ` — schema ${report.rightsEvidence.schema}` +
         ` — credential env ${report.rightsEvidence.credentialEnv}`,
     );
   }
@@ -1313,8 +1323,11 @@ async function main(): Promise<void> {
         `database credential environment variable ${options.databaseEnv} is not set`,
       );
     }
+    const schema = resolveOperationalSchema(process.env);
     try {
-      liveDriver = await createPostgresDriver(connectionString);
+      liveDriver = await createPostgresDriver(connectionString, {
+        schema,
+      });
     } catch {
       throw new Error(`cannot open live database through credential env ${options.databaseEnv}`);
     }
@@ -1322,6 +1335,7 @@ async function main(): Promise<void> {
       liveDriver,
       options.databaseEnv,
       options.asOf,
+      schema,
     );
   }
 

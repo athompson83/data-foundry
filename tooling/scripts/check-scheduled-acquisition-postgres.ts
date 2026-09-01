@@ -18,6 +18,7 @@ import {
   recheckStoredAcquisition,
 } from '../../apps/acquisition-worker/src/admission.js';
 import { seedAcquisitionRightsScopes } from '../../tests/support/acquisition-rights.js';
+import { resolveOperationalSchema } from './migrate.js';
 import { isMain } from '../lib/cli-entry.js';
 
 const iso = (value: string): ScheduledAcquisitionRun['claimedAt'] =>
@@ -643,12 +644,15 @@ async function assertAtomicTerminalPersistence(
   assert.equal(storedLegacy?.freshAt, null);
 }
 
-export async function run(): Promise<number> {
-  const connectionString = process.env['POSTGRES_URL'];
+export async function run(
+  env: Readonly<Record<string, string | undefined>> = process.env,
+): Promise<number> {
+  const connectionString = env['POSTGRES_URL'];
   if (connectionString === undefined || connectionString.trim() === '') {
     throw new Error('POSTGRES_URL is required for the real PostgreSQL scheduled-acquisition check.');
   }
-  const driver = await createPostgresDriver(connectionString);
+  const schema = resolveOperationalSchema(env);
+  const driver = await createPostgresDriver(connectionString, { schema });
   try {
     const version = await driver.query<{ server_version: string }>(
       `SELECT current_setting('server_version') AS server_version`,

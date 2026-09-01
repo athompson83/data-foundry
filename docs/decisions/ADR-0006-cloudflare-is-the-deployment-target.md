@@ -80,11 +80,13 @@ output non-deterministic and `--check` unrunnable.
 
 ## What this ADR does not decide
 
-**Vercel is still not adopted, and `vercel.json` stays for now.** Current
-governance evidence shows no Data Foundry Vercel project or repository webhook.
-GitHub App installation `122728140` still requires an owner sudo/passkey check
-to prove its exact repository selection; deletion is tracked in
-`docs/owner-actions/`, not here.
+**Vercel is still not adopted, and `vercel.json` stays for now.** The
+[2026-08-31 read-only provider reconciliation](../evidence/alpha-lab-provider-reconciliation-20260831.md)
+found a configured Vercel project with disconnected Git and a data hostname
+that returns 404. That does not make it a deployment or rollback target. The
+Vercel GitHub App repository-selection check still requires an owner
+sudo/passkey confirmation; deletion is tracked in `docs/owner-actions/`, not
+here.
 
 **Monetization is not a deployment decision.** Tenancy, scoped keys, usage
 schema, async Queue metering, and channel-safe invoice projection now exist, but

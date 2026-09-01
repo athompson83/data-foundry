@@ -12,10 +12,21 @@
  */
 import { mkdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import { createDriverFromEnv, createPgliteDriver, type SqlDriver, type SqlParam } from '@data-foundry/canonical-store';
+import {
+  createPgliteDriver,
+  createPostgresDriver,
+  type SqlDriver,
+  type SqlParam,
+} from '@data-foundry/canonical-store';
 import { provenanceCoverage } from '@data-foundry/provenance';
 import type { IsoDateTime } from '@data-foundry/canonical-schema';
-import { applyMigrations, loadMigrations, type MigrationDriver } from '../../../tooling/scripts/migrate.js';
+import {
+  applyMigrations,
+  createPostgresDriver as createMigrationPostgresDriver,
+  loadMigrations,
+  resolveOperationalSchema,
+  type MigrationDriver,
+} from '../../../tooling/scripts/migrate.js';
 import { InMemoryArtifactStore } from './artifact-store.js';
 import { Pipeline } from './pipeline.js';
 
@@ -63,20 +74,30 @@ Usage: pnpm ingest --vertical <slug> [--source <key>] [--dry-run] [--memory]
 `;
 
 /**
- * PGlite in memory, PGlite on disk, or real Postgres — identical SQL either
- * way. PGlite's node filesystem adapter does not create parents, so the data
- * directory is prepared here rather than discovered missing three frames deep.
+ * PGlite in memory/on disk, or an explicitly selected real Data Foundry
+ * schema. Live operations default to Alpha Lab's private schema; a legacy
+ * public install requires an explicit DATA_FOUNDRY_SCHEMA=public opt-in.
  */
+export function resolveRealPostgresSchema(
+  env: Readonly<Record<string, string | undefined>> = process.env,
+): string {
+  return resolveOperationalSchema(env);
+}
+
 async function openDriver(args: CliArgs): Promise<SqlDriver> {
   if (args.memory) return createPgliteDriver();
   const url = process.env['POSTGRES_URL'];
-  if (url !== undefined && url !== '') return createDriverFromEnv();
+  if (url !== undefined && url !== '') {
+    return createPostgresDriver(url, { schema: resolveRealPostgresSchema() });
+  }
   const dataDir = resolve(process.cwd(), '.data', 'pglite');
   await mkdir(dataDir, { recursive: true });
   return createPgliteDriver({ dataDir });
 }
 
-async function migrate(driver: SqlDriver): Promise<void> {
+async function migrate(
+  driver: SqlDriver,
+): Promise<void> {
   const adapter: MigrationDriver = {
     label: driver.label,
     exec: (sql) => driver.exec(sql),
@@ -87,12 +108,40 @@ async function migrate(driver: SqlDriver): Promise<void> {
   await applyMigrations(adapter, await loadMigrations());
 }
 
+/**
+ * The canonical-store pg driver is a Pool, which is correct for application
+ * work but deliberately unsuitable for a migration transaction split across
+ * BEGIN, DDL, ledger write, and COMMIT. Use the migrator's single Client here.
+ */
+async function migrateRealPostgres(connectionString: string, schema: string): Promise<void> {
+  const driver = await createMigrationPostgresDriver(
+    connectionString,
+    schema,
+  );
+  try {
+    await applyMigrations(driver, await loadMigrations(), {
+      schema,
+    });
+  } finally {
+    await driver.close();
+  }
+}
+
 export async function main(argv: readonly string[] = process.argv.slice(2)): Promise<number> {
   const args = parseArgs(argv);
+  const usesRealPostgres = !args.memory && (process.env['POSTGRES_URL'] ?? '') !== '';
+  if (usesRealPostgres) {
+    const connectionString = process.env['POSTGRES_URL'];
+    if (connectionString === undefined || connectionString === '') {
+      throw new Error('POSTGRES_URL is required for real Postgres ingestion.');
+    }
+    await migrateRealPostgres(connectionString, resolveRealPostgresSchema());
+  }
+
   const driver = await openDriver(args);
 
   try {
-    await migrate(driver);
+    if (!usesRealPostgres) await migrate(driver);
 
     const now = new Date().toISOString() as IsoDateTime;
     const pipeline = await Pipeline.create({

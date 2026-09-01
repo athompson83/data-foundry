@@ -15,8 +15,11 @@
  */
 import {
   createCanonicalStore,
+  createHyperdriveDriver,
   createPostgresDriver,
+  DATA_FOUNDRY_PRIVATE_SCHEMA,
   type CanonicalStore,
+  type PostgresDriverOptions,
   type SqlDriver,
 } from '@data-foundry/canonical-store';
 import {
@@ -82,7 +85,10 @@ export interface BuildOptions {
   /** Every vertical this Worker's bundle carries, keyed by slug. */
   readonly runtimes: Readonly<Record<string, WebRuntime>>;
   /** Swappable so tests can compose against PGlite without a network. */
-  readonly openDriver?: (connectionString: string) => Promise<SqlDriver>;
+  readonly openDriver?: (
+    connectionString: string,
+    options?: PostgresDriverOptions,
+  ) => Promise<SqlDriver>;
   readonly onWarning?: (message: string) => void;
 }
 
@@ -130,8 +136,15 @@ export function materializeRequestDeployment(
 
 async function build(options: BuildOptions): Promise<WebDeployment> {
   const config = resolveWebConfig(options.env);
-  const open = options.openDriver ?? createPostgresDriver;
-  const driver = await open(config.connectionString);
+  const open = options.openDriver ?? (
+    options.env.HYPERDRIVE === undefined ? createPostgresDriver : createHyperdriveDriver
+  );
+  const driver = await open(
+    config.connectionString,
+    config.deploymentEnvironment === 'production'
+      ? { schema: DATA_FOUNDRY_PRIVATE_SCHEMA }
+      : undefined,
+  );
 
   // Same leak discipline as apps/edge/src/composition.ts: everything past this
   // line owns an open pool, so every path out — including the one that throws —
@@ -170,12 +183,19 @@ async function build(options: BuildOptions): Promise<WebDeployment> {
   }
 }
 
-/** One deployment per isolate, keyed by what would change it — same reasoning as `apps/edge`. */
+/** Local direct-Postgres deployments may cache their pool; Hyperdrive may not. */
 const deployments = new Map<string, Promise<WebDeployment>>();
 
 export function getDeployment(options: BuildOptions): Promise<WebDeployment> {
   const config = resolveWebConfig(options.env);
-  const key = JSON.stringify([config.connectionString, config.publicOrigin, config.cacheMode]);
+  if (options.env.HYPERDRIVE !== undefined) return build(options);
+
+  const key = JSON.stringify([
+    config.deploymentEnvironment,
+    config.connectionString,
+    config.publicOrigin,
+    config.cacheMode,
+  ]);
   const existing = deployments.get(key);
   if (existing !== undefined) return existing;
 
