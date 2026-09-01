@@ -108,9 +108,11 @@ No production deployment of this integration candidate is recorded or
 verified. Live Cloudflare account state could not be inspected from the
 available environment; exact deployment IDs and runtime probes remain
 owner/platform evidence. The five-Worker topology exists in this candidate as
-repository code and credential-free artifacts, and the HVAC vertical is
-`status: DRAFT` with synthetic fixture data. If that changes, this section
-changes with it.
+ordinary production manifests, while the route-less private-canary topology is
+six artifacts: five dedicated reduced targets plus the no-Hyperdrive harness.
+Both exist only as repository code and credential-free artifacts. The HVAC
+vertical is `status: DRAFT` with synthetic fixture data. If that changes, this
+section changes with it.
 
 ## What this policy is not
 
