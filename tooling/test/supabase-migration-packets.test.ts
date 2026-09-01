@@ -210,6 +210,7 @@ describe('Supabase connector migration packet export', () => {
     expect(plan.bootstrapSql).toContain('SET LOCAL ROLE "df_migration";');
     expect(plan.bootstrapSql).toContain('SELECT pg_advisory_xact_lock(');
     expect(plan.bootstrapSql).toContain('CREATE SCHEMA IF NOT EXISTS "data_foundry" AUTHORIZATION "df_migration";');
+    expect(plan.bootstrapSql).toContain('GRANT USAGE, CREATE ON SCHEMA "data_foundry" TO "df_migration";');
     expect(plan.bootstrapSql).toContain(
       'CREATE TABLE "data_foundry"."schema_migrations"',
     );

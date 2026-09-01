@@ -111,17 +111,26 @@ export const MCP_DEPLOYMENT_CONFIG_PATH = join(REPO_ROOT, 'apps', 'mcp-worker', 
 
 const USAGE_QUEUE = 'data-foundry-usage-events';
 const USAGE_DLQ = 'data-foundry-usage-events-dlq';
+const PRIVATE_CANARY_USAGE_QUEUE = 'data-foundry-private-canary-usage-events';
+const PRIVATE_CANARY_USAGE_DLQ = 'data-foundry-private-canary-usage-events-dlq';
 const PRIVATE_CANARY_QUEUE = 'data-foundry-private-canary-events';
 const PRIVATE_CANARY_DLQ = 'data-foundry-private-canary-dlq';
 const PRIVATE_CANARY_QUARANTINE = 'data-foundry-private-canary-quarantine';
 const PRIVATE_CANARY_RECEIPTS_BUCKET = 'data-foundry-private-canary-receipts';
 const PRIVATE_CANARY_ENTRYPOINT = 'PrivateCanaryEntrypoint';
+const PRIVATE_CANARY_TARGET_NAMES = {
+  edge: 'data-foundry-private-canary-edge',
+  web: 'data-foundry-private-canary-web',
+  'usage-consumer': 'data-foundry-private-canary-usage-consumer',
+  'acquisition-worker': 'data-foundry-private-canary-acquisition-worker',
+  'mcp-worker': 'data-foundry-private-canary-mcp-hvac',
+} as const;
 const PRIVATE_CANARY_SERVICES = [
-  ['EDGE_CANARY', 'data-foundry-edge'],
-  ['WEB_CANARY', 'data-foundry-web'],
-  ['USAGE_CONSUMER_CANARY', 'data-foundry-usage-consumer'],
-  ['ACQUISITION_CANARY', 'data-foundry-acquisition-worker'],
-  ['MCP_CANARY', 'data-foundry-mcp-hvac'],
+  ['EDGE_CANARY', PRIVATE_CANARY_TARGET_NAMES.edge],
+  ['WEB_CANARY', PRIVATE_CANARY_TARGET_NAMES.web],
+  ['USAGE_CONSUMER_CANARY', PRIVATE_CANARY_TARGET_NAMES['usage-consumer']],
+  ['ACQUISITION_CANARY', PRIVATE_CANARY_TARGET_NAMES['acquisition-worker']],
+  ['MCP_CANARY', PRIVATE_CANARY_TARGET_NAMES['mcp-worker']],
 ] as const;
 const PRIVATE_CANARY_ALLOWED_TOP_LEVEL_FIELDS = new Set([
   'name',
@@ -174,6 +183,12 @@ export interface CloudflareTopologyOptions {
   readonly webConfigPath?: string;
   readonly acquisitionConfigPath?: string;
   readonly mcpConfigPath?: string;
+  /** Test seam for the ignored ordinary deployment manifests used by full canary validation. */
+  readonly edgeDeploymentConfigPath?: string;
+  readonly consumerDeploymentConfigPath?: string;
+  readonly webDeploymentConfigPath?: string;
+  readonly acquisitionDeploymentConfigPath?: string;
+  readonly mcpDeploymentConfigPath?: string;
   readonly privateCanaryConfigPath?: string;
   readonly edgePrivateCanaryConfigPath?: string;
   readonly consumerPrivateCanaryConfigPath?: string;
@@ -398,6 +413,11 @@ interface PrivateCanaryTarget {
   readonly queueTopology: 'producer' | 'consumer' | 'none';
 }
 
+interface OrdinaryWorker {
+  readonly label: string;
+  readonly config: TomlObject;
+}
+
 async function loadPrivateCanaryTargets(
   options: CloudflareTopologyOptions,
   deployment: boolean,
@@ -406,7 +426,7 @@ async function loadPrivateCanaryTargets(
   return [
     {
       label: 'edge',
-      expectedName: 'data-foundry-edge',
+      expectedName: PRIVATE_CANARY_TARGET_NAMES.edge,
       config: await parseConfig(
         options.edgePrivateCanaryConfigPath ?? (
           deployment ? EDGE_PRIVATE_CANARY_DEPLOYMENT_CONFIG_PATH : EDGE_PRIVATE_CANARY_CONFIG_PATH
@@ -418,7 +438,7 @@ async function loadPrivateCanaryTargets(
     },
     {
       label: 'usage-consumer',
-      expectedName: 'data-foundry-usage-consumer',
+      expectedName: PRIVATE_CANARY_TARGET_NAMES['usage-consumer'],
       config: await parseConfig(
         options.consumerPrivateCanaryConfigPath ?? (
           deployment ? CONSUMER_PRIVATE_CANARY_DEPLOYMENT_CONFIG_PATH : CONSUMER_PRIVATE_CANARY_CONFIG_PATH
@@ -430,7 +450,7 @@ async function loadPrivateCanaryTargets(
     },
     {
       label: 'web',
-      expectedName: 'data-foundry-web',
+      expectedName: PRIVATE_CANARY_TARGET_NAMES.web,
       config: await parseConfig(
         options.webPrivateCanaryConfigPath ?? (
           deployment ? WEB_PRIVATE_CANARY_DEPLOYMENT_CONFIG_PATH : WEB_PRIVATE_CANARY_CONFIG_PATH
@@ -442,7 +462,7 @@ async function loadPrivateCanaryTargets(
     },
     {
       label: 'acquisition-worker',
-      expectedName: 'data-foundry-acquisition-worker',
+      expectedName: PRIVATE_CANARY_TARGET_NAMES['acquisition-worker'],
       config: await parseConfig(
         options.acquisitionPrivateCanaryConfigPath ?? (
           deployment ? ACQUISITION_PRIVATE_CANARY_DEPLOYMENT_CONFIG_PATH : ACQUISITION_PRIVATE_CANARY_CONFIG_PATH
@@ -454,7 +474,7 @@ async function loadPrivateCanaryTargets(
     },
     {
       label: 'mcp-worker',
-      expectedName: 'data-foundry-mcp-hvac',
+      expectedName: PRIVATE_CANARY_TARGET_NAMES['mcp-worker'],
       config: await parseConfig(
         options.mcpPrivateCanaryConfigPath ?? (
           deployment ? MCP_PRIVATE_CANARY_DEPLOYMENT_CONFIG_PATH : MCP_PRIVATE_CANARY_CONFIG_PATH
@@ -465,6 +485,111 @@ async function loadPrivateCanaryTargets(
       queueTopology: 'producer',
     },
   ];
+}
+
+async function loadOrdinaryWorkers(
+  options: CloudflareTopologyOptions,
+  errors: string[],
+  deployment = false,
+): Promise<readonly OrdinaryWorker[]> {
+  return [
+    {
+      label: 'edge',
+      config: await parseConfig(
+        deployment
+          ? options.edgeDeploymentConfigPath ?? EDGE_DEPLOYMENT_CONFIG_PATH
+          : options.edgeConfigPath ?? EDGE_CONFIG_PATH,
+        'edge',
+        errors,
+      ),
+    },
+    {
+      label: 'usage-consumer',
+      config: await parseConfig(
+        deployment
+          ? options.consumerDeploymentConfigPath ?? CONSUMER_DEPLOYMENT_CONFIG_PATH
+          : options.consumerConfigPath ?? CONSUMER_CONFIG_PATH,
+        'usage-consumer',
+        errors,
+      ),
+    },
+    {
+      label: 'web',
+      config: await parseConfig(
+        deployment
+          ? options.webDeploymentConfigPath ?? WEB_DEPLOYMENT_CONFIG_PATH
+          : options.webConfigPath ?? WEB_CONFIG_PATH,
+        'web',
+        errors,
+      ),
+    },
+    {
+      label: 'acquisition-worker',
+      config: await parseConfig(
+        deployment
+          ? options.acquisitionDeploymentConfigPath ?? ACQUISITION_DEPLOYMENT_CONFIG_PATH
+          : options.acquisitionConfigPath ?? ACQUISITION_CONFIG_PATH,
+        'acquisition-worker',
+        errors,
+      ),
+    },
+    {
+      label: 'mcp-worker',
+      config: await parseConfig(
+        deployment
+          ? options.mcpDeploymentConfigPath ?? MCP_DEPLOYMENT_CONFIG_PATH
+          : options.mcpConfigPath ?? MCP_CONFIG_PATH,
+        'mcp-worker',
+        errors,
+      ),
+    },
+  ];
+}
+
+function collectOrdinaryWorkerNames(
+  ordinaryWorkers: readonly OrdinaryWorker[],
+  errors: string[],
+): ReadonlySet<string> {
+  const ordinaryNames = new Set<string>();
+  for (const ordinaryWorker of ordinaryWorkers) {
+    const name = ordinaryWorker.config['name'];
+    if (typeof name !== 'string' || name.length === 0) {
+      errors.push(
+        `${ordinaryWorker.label} ordinary Worker manifest must declare a non-empty Worker name before private-canary identity isolation can be checked.`,
+      );
+      continue;
+    }
+    ordinaryNames.add(name);
+  }
+  return ordinaryNames;
+}
+
+function checkPrivateCanaryHarnessIdentityIsolation(
+  privateCanary: TomlObject,
+  ordinaryWorkerNames: ReadonlySet<string>,
+  errors: string[],
+): void {
+  if (
+    typeof privateCanary['name'] === 'string' &&
+    ordinaryWorkerNames.has(privateCanary['name'])
+  ) {
+    errors.push('private-canary harness must not reuse an ordinary Worker name.');
+  }
+}
+
+function checkPrivateCanaryTargetIdentityIsolation(
+  targets: readonly PrivateCanaryTarget[],
+  ordinaryWorkerNames: ReadonlySet<string>,
+  errors: string[],
+): void {
+  for (const target of targets) {
+    if (
+      typeof target.config['name'] === 'string' &&
+      ordinaryWorkerNames.has(target.config['name'])
+    ) {
+      errors.push(`${target.label} private-canary target must not reuse an ordinary Worker name.`);
+    }
+  }
 }
 
 /**
@@ -556,38 +681,38 @@ function checkPrivateCanaryTargetQueueTopology(
 
   if (target.queueTopology === 'producer') {
     if (Object.keys(queues).some((key) => key !== 'producers')) {
-      errors.push(`${target.label} private-canary target must declare only its usage Queue producer.`);
+      errors.push(`${target.label} private-canary target must declare only its dedicated canary metering Queue producer.`);
     }
     const producers = objects(queues['producers']);
     if (producers.length !== 1) {
-      errors.push(`${target.label} private-canary target must declare exactly one usage Queue producer.`);
+      errors.push(`${target.label} private-canary target must declare exactly one dedicated canary metering Queue producer.`);
       return;
     }
     const producer = producers[0] ?? {};
-    if (producer['binding'] !== 'USAGE_EVENTS_QUEUE' || producer['queue'] !== USAGE_QUEUE) {
-      errors.push(`${target.label} private-canary target must produce only to ${USAGE_QUEUE} as USAGE_EVENTS_QUEUE.`);
+    if (producer['binding'] !== 'USAGE_EVENTS_QUEUE' || producer['queue'] !== PRIVATE_CANARY_USAGE_QUEUE) {
+      errors.push(`${target.label} private-canary target must produce only to ${PRIVATE_CANARY_USAGE_QUEUE} as USAGE_EVENTS_QUEUE.`);
     }
     return;
   }
 
   if (Object.keys(queues).some((key) => key !== 'consumers')) {
-    errors.push('usage-consumer private-canary target must declare only its usage Queue consumer.');
+    errors.push('usage-consumer private-canary target must declare only its dedicated canary Queue consumers.');
   }
   const consumers = objects(queues['consumers']);
   if (consumers.length !== 2) {
-    errors.push('usage-consumer private-canary target must declare exactly one usage and one canary Queue consumer.');
+    errors.push('usage-consumer private-canary target must declare exactly one canary metering and one canary ingress Queue consumer.');
     return;
   }
-  const consumer = consumers.find((candidate) => candidate['queue'] === USAGE_QUEUE) ?? {};
+  const consumer = consumers.find((candidate) => candidate['queue'] === PRIVATE_CANARY_USAGE_QUEUE) ?? {};
   if (
-    consumer['queue'] !== USAGE_QUEUE ||
+    consumer['queue'] !== PRIVATE_CANARY_USAGE_QUEUE ||
     consumer['max_batch_size'] !== 100 ||
     consumer['max_batch_timeout'] !== 5 ||
     consumer['max_retries'] !== 3 ||
-    consumer['dead_letter_queue'] !== USAGE_DLQ
+    consumer['dead_letter_queue'] !== PRIVATE_CANARY_USAGE_DLQ
   ) {
     errors.push(
-      `usage-consumer private-canary target must preserve ${USAGE_QUEUE} retry and ${USAGE_DLQ} dead-letter topology.`,
+      `usage-consumer private-canary target must route ${PRIVATE_CANARY_USAGE_QUEUE} retries to ${PRIVATE_CANARY_USAGE_DLQ}.`,
     );
   }
   const canaryConsumer = consumers.find((candidate) => candidate['queue'] === PRIVATE_CANARY_QUEUE) ?? {};
@@ -864,10 +989,12 @@ export async function validateCloudflareTopology(
   if (mode === 'private-canary-target' || mode === 'private-canary-target-deployment') {
     const deployment = mode === 'private-canary-target-deployment';
     const targets = await loadPrivateCanaryTargets(options, deployment, errors);
+    const ordinaryWorkers = await loadOrdinaryWorkers(options, errors, deployment);
     // A missing ignored production manifest is an owner-action boundary, not
     // an empty deployment. Report only the named missing files rather than a
     // cascade of topology failures derived from parsed `{}` values.
     if (errors.length > 0) return errors;
+    const ordinaryWorkerNames = collectOrdinaryWorkerNames(ordinaryWorkers, errors);
 
     for (const target of targets) {
       checkWorkerBase(target.label, target.config, errors);
@@ -880,6 +1007,7 @@ export async function validateCloudflareTopology(
       checkPrivateCanaryTargetTopology(target, errors);
       checkPrivateCanaryTargetQueueTopology(target, errors);
     }
+    checkPrivateCanaryTargetIdentityIsolation(targets, ordinaryWorkerNames, errors);
     if (deployment) {
       const manifests = targets.map(({ label, config }) => [label, config] as const);
       checkDeploymentAccountIds(manifests, errors);
@@ -894,13 +1022,16 @@ export async function validateCloudflareTopology(
       errors,
     );
     const targets = await loadPrivateCanaryTargets(options, true, errors);
+    const ordinaryWorkers = await loadOrdinaryWorkers(options, errors, true);
     if (errors.length > 0) return errors;
+    const ordinaryWorkerNames = collectOrdinaryWorkerNames(ordinaryWorkers, errors);
 
     checkWorkerBase('private-canary', privateCanary, errors);
     checkDeploymentFieldLocations('private-canary', privateCanary, errors);
     const privateCanaryAccountId = deploymentAccountId('private-canary', privateCanary, errors);
     checkPlaintextProtectedVars('private-canary', privateCanary, errors);
     checkPrivateCanaryTopology(privateCanary, errors);
+    checkPrivateCanaryHarnessIdentityIsolation(privateCanary, ordinaryWorkerNames, errors);
 
     for (const target of targets) {
       checkWorkerBase(target.label, target.config, errors);
@@ -908,6 +1039,7 @@ export async function validateCloudflareTopology(
       checkPrivateCanaryTargetTopology(target, errors);
       checkPrivateCanaryTargetQueueTopology(target, errors);
     }
+    checkPrivateCanaryTargetIdentityIsolation(targets, ordinaryWorkerNames, errors);
     const targetManifests = targets.map(({ label, config }) => [label, config] as const);
     const targetAccountId = checkDeploymentAccountIds(targetManifests, errors);
     checkDistinctDeploymentHyperdriveIds(targetManifests, errors);
@@ -926,12 +1058,15 @@ export async function validateCloudflareTopology(
       'private-canary',
       errors,
     );
+    const ordinaryWorkers = await loadOrdinaryWorkers(options, errors, true);
     if (errors.length > 0) return errors;
+    const ordinaryWorkerNames = collectOrdinaryWorkerNames(ordinaryWorkers, errors);
     checkWorkerBase('private-canary', privateCanary, errors);
     checkDeploymentFieldLocations('private-canary', privateCanary, errors);
     deploymentAccountId('private-canary', privateCanary, errors);
     checkPlaintextProtectedVars('private-canary', privateCanary, errors);
     checkPrivateCanaryTopology(privateCanary, errors);
+    checkPrivateCanaryHarnessIdentityIsolation(privateCanary, ordinaryWorkerNames, errors);
     return errors;
   }
   if (mode === 'private-canary') {
@@ -940,10 +1075,13 @@ export async function validateCloudflareTopology(
       'private-canary',
       errors,
     );
+    const ordinaryWorkers = await loadOrdinaryWorkers(options, errors);
     if (errors.length > 0) return errors;
+    const ordinaryWorkerNames = collectOrdinaryWorkerNames(ordinaryWorkers, errors);
     checkWorkerBase('private-canary', privateCanary, errors);
     checkRepositoryPolicy('private-canary', privateCanary, errors);
     checkPrivateCanaryTopology(privateCanary, errors);
+    checkPrivateCanaryHarnessIdentityIsolation(privateCanary, ordinaryWorkerNames, errors);
     return errors;
   }
   const edge = await parseConfig(
@@ -980,6 +1118,9 @@ export async function validateCloudflareTopology(
       errors,
     )
     : null;
+  const privateCanaryTargets = mode === 'repository'
+    ? await loadPrivateCanaryTargets(options, false, errors)
+    : [];
   // A missing ignored deployment manifest is an owner-action boundary, not a
   // malformed empty Worker. Return only the actionable file errors rather than
   // a cascade of consequences from parsing `{}`.
@@ -1002,6 +1143,24 @@ export async function validateCloudflareTopology(
       checkRepositoryPolicy('private-canary', privateCanary, errors);
       checkPrivateCanaryTopology(privateCanary, errors);
     }
+    const ordinaryWorkers: readonly OrdinaryWorker[] = [
+      { label: 'edge', config: edge },
+      { label: 'usage-consumer', config: consumer },
+      { label: 'web', config: web },
+      { label: 'acquisition-worker', config: acquisition },
+      { label: 'mcp-worker', config: mcp },
+    ];
+    const ordinaryWorkerNames = collectOrdinaryWorkerNames(ordinaryWorkers, errors);
+    if (privateCanary !== null) {
+      checkPrivateCanaryHarnessIdentityIsolation(privateCanary, ordinaryWorkerNames, errors);
+    }
+    for (const target of privateCanaryTargets) {
+      checkWorkerBase(target.label, target.config, errors);
+      checkRepositoryPolicy(target.label, target.config, errors);
+      checkPrivateCanaryTargetTopology(target, errors);
+      checkPrivateCanaryTargetQueueTopology(target, errors);
+    }
+    checkPrivateCanaryTargetIdentityIsolation(privateCanaryTargets, ordinaryWorkerNames, errors);
   } else {
     checkDeploymentWorker('edge', edge, errors);
     checkDeploymentWorker('usage-consumer', consumer, errors);

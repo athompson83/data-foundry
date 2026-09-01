@@ -208,7 +208,20 @@ function qualified(schema: string, relation: string): string {
  * `public` is intentionally absent from a private deployment's search path:
  * an absent Data Foundry object must fail, never resolve to an Alpha Lab one.
  */
-export async function prepareSchema(driver: MigrationDriver, schema: string = DEFAULT_SCHEMA): Promise<void> {
+export interface PrepareSchemaOptions {
+  /**
+   * Direct private-role migrations run against a schema provisioned by the
+   * owner.  Suppress CREATE SCHEMA there so the narrow migration role never
+   * needs database-wide CREATE privilege.
+   */
+  readonly createPrivateSchema?: boolean | undefined;
+}
+
+export async function prepareSchema(
+  driver: MigrationDriver,
+  schema: string = DEFAULT_SCHEMA,
+  options: Readonly<PrepareSchemaOptions> = {},
+): Promise<void> {
   const normalized = normalizeSchemaName(schema);
   if (normalized !== DEFAULT_SCHEMA) {
     const [extensions] = await driver.query<{ available: boolean; usable: boolean }>(
@@ -226,7 +239,9 @@ export async function prepareSchema(driver: MigrationDriver, schema: string = DE
           'Create and authorize that schema before migration; refusing a path that would fail only at Worker startup.',
       );
     }
-    await driver.exec(`CREATE SCHEMA IF NOT EXISTS "${normalized}"`);
+    if (options.createPrivateSchema !== false) {
+      await driver.exec(`CREATE SCHEMA IF NOT EXISTS "${normalized}"`);
+    }
   }
   // Supabase keeps approved extensions in `extensions`; include it explicitly
   // so a private schema can resolve extension functions without falling back
@@ -311,8 +326,8 @@ export interface MigrationDriver {
 
 /**
  * A direct private-schema migration must authenticate as the narrow migration
- * principal. A missing schema is valid only before its first bootstrap; any
- * existing schema must already belong to that same principal.
+ * principal. Direct migrations require the pre-provisioned private schema to
+ * be owned by that principal before any DDL runs.
  */
 export async function assertPrivateMigrationRoleBinding(
   driver: MigrationDriver,
@@ -610,10 +625,10 @@ export async function applyMigrations(
     throw new Error('The direct private migration role is valid only for the data_foundry schema.');
   }
   if (requirePrivateMigrationRole) {
-    await assertPrivateMigrationRoleBinding(driver, { schema });
+    await assertPrivateMigrationRoleBinding(driver, { schema, requireSchemaOwner: true });
   }
   await assertNoLegacyPublicDataFoundryInstall(driver, schema);
-  await prepareSchema(driver, schema);
+  await prepareSchema(driver, schema, { createPrivateSchema: !requirePrivateMigrationRole });
   if (requirePrivateMigrationRole) {
     await assertPrivateMigrationRoleBinding(driver, { schema, requireSchemaOwner: true });
   }
@@ -699,27 +714,12 @@ export async function createPGliteDriver(dataDir?: string): Promise<MigrationDri
   };
 }
 
-function hasCallerSuppliedStartupOptions(connectionString: string): boolean {
-  try {
-    return [...new URL(connectionString).searchParams.keys()].some(
-      (key) => key.toLowerCase() === 'options',
-    );
-  } catch {
-    return false;
-  }
-}
-
 /** Real Postgres driver. `pg` is only imported when a connection string exists. */
 export async function createPostgresDriver(
   connectionString: string,
   schema: string = DEFAULT_SCHEMA,
 ): Promise<MigrationDriver> {
   const normalized = normalizeSchemaName(schema);
-  if (normalized !== DEFAULT_SCHEMA && hasCallerSuppliedStartupOptions(connectionString)) {
-    throw new Error(
-      'A private-schema migration refuses a connection URL with startup options, because it could override the private search path.',
-    );
-  }
   const pg = await import('pg');
   const tls = directPostgresTlsConfig(connectionString);
   const client = new pg.default.Client(

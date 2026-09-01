@@ -39,25 +39,25 @@ bucket_name = "data-foundry-private-canary-receipts"
 # closed result vocabulary defined in @data-foundry/private-canary.
 [[services]]
 binding = "EDGE_CANARY"
-service = "data-foundry-edge"
+service = "data-foundry-private-canary-edge"
 entrypoint = "PrivateCanaryEntrypoint"
 
 [[services]]
 binding = "WEB_CANARY"
-service = "data-foundry-web"
+service = "data-foundry-private-canary-web"
 entrypoint = "PrivateCanaryEntrypoint"
 
 [[services]]
 binding = "USAGE_CONSUMER_CANARY"
-service = "data-foundry-usage-consumer"
+service = "data-foundry-private-canary-usage-consumer"
 entrypoint = "PrivateCanaryEntrypoint"
 
 [[services]]
 binding = "ACQUISITION_CANARY"
-service = "data-foundry-acquisition-worker"
+service = "data-foundry-private-canary-acquisition-worker"
 entrypoint = "PrivateCanaryEntrypoint"
 
 [[services]]
 binding = "MCP_CANARY"
-service = "data-foundry-mcp-hvac"
+service = "data-foundry-private-canary-mcp-hvac"
 entrypoint = "PrivateCanaryEntrypoint"

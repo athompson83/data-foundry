@@ -47,6 +47,15 @@ async function createMigratedDatabase(): Promise<{
     GRANT USAGE ON SCHEMA extensions TO df_migration;
     ${RUNTIME_ROLES.map((role) => `CREATE ROLE ${role} NOLOGIN;`).join('\n    ')}
     ${RUNTIME_ROLES.map((role) => `GRANT USAGE ON SCHEMA extensions TO ${role};`).join('\n    ')}
+    DO $runtime_database_connect$
+    BEGIN
+      EXECUTE format('GRANT CONNECT ON DATABASE %I TO %I', current_database(), 'df_edge');
+      EXECUTE format('GRANT CONNECT ON DATABASE %I TO %I', current_database(), 'df_web');
+      EXECUTE format('GRANT CONNECT ON DATABASE %I TO %I', current_database(), 'df_mcp');
+      EXECUTE format('GRANT CONNECT ON DATABASE %I TO %I', current_database(), 'df_usage');
+      EXECUTE format('GRANT CONNECT ON DATABASE %I TO %I', current_database(), 'df_acquisition');
+    END
+    $runtime_database_connect$;
   `);
   const plan = build();
   await database.exec(`BEGIN;\n${plan.bootstrapSql}\nCOMMIT;`);
@@ -59,6 +68,11 @@ async function createMigratedDatabase(): Promise<{
     REVOKE EXECUTE ON ALL FUNCTIONS IN SCHEMA data_foundry FROM PUBLIC;
   `);
   return { database, plan };
+}
+
+async function grantConnectOnWrongDatabase(database: MigrationDriver): Promise<void> {
+  await database.exec('CREATE DATABASE runtime_grant_wrong_target');
+  await database.exec('GRANT CONNECT ON DATABASE runtime_grant_wrong_target TO df_edge');
 }
 
 describe('Supabase post-migration runtime grants', () => {
@@ -93,6 +107,9 @@ describe('Supabase post-migration runtime grants', () => {
     expect(first.sql).not.toMatch(/GRANT\s+ALL|ALL TABLES|ALTER DEFAULT PRIVILEGES/i);
     expect(first.sql).not.toMatch(/^\s*GRANT\s+[^;]*(?:DELETE|TRUNCATE|CREATE)/im);
     expect(first.sql).not.toContain('schema_migrations (version');
+    expect(first.sql).toContain(
+      "('database', current_database()::text, '', 'df_edge', 'CONNECT', false)",
+    );
     expect(first.verificationSql).toContain('public_schema_create_is_false');
     expect(first.verificationSql).toContain('unexpected_private_privilege_count');
     expect(first.verificationSql).toContain('public_fingerprint_input');
@@ -131,6 +148,126 @@ describe('Supabase post-migration runtime grants', () => {
         edge_schema_usage: true,
         edge_schema_create: false,
       });
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it('accepts exact non-grantable CONNECT for each runtime role on the current database', async () => {
+    const { database, plan } = await createMigratedDatabase();
+    try {
+      await database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`);
+      await database.exec(plan.postMigrationGrants.verificationSql);
+      const [checks] = await database.query<Record<string, boolean>>(`
+        SELECT has_database_privilege('df_edge', current_database(), 'CONNECT') AS edge_connect,
+               has_database_privilege('df_web', current_database(), 'CONNECT') AS web_connect,
+               has_database_privilege('df_mcp', current_database(), 'CONNECT') AS mcp_connect,
+               has_database_privilege('df_usage', current_database(), 'CONNECT') AS usage_connect,
+               has_database_privilege('df_acquisition', current_database(), 'CONNECT') AS acquisition_connect,
+               has_database_privilege('df_edge', current_database(), 'CREATE') AS edge_create
+      `);
+      expect(checks).toEqual({
+        edge_connect: true,
+        web_connect: true,
+        mcp_connect: true,
+        usage_connect: true,
+        acquisition_connect: true,
+        edge_create: false,
+      });
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it('refuses pre-existing runtime-role database CREATE before issuing grants', async () => {
+    const { database, plan } = await createMigratedDatabase();
+    try {
+      await database.exec(`
+        DO $unexpected_runtime_database_create$
+        BEGIN
+          EXECUTE format('GRANT CREATE ON DATABASE %I TO %I', current_database(), 'df_edge');
+        END
+        $unexpected_runtime_database_create$;
+      `);
+      await expect(
+        database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`),
+      ).rejects.toThrow(/unexpected direct object privilege outside data_foundry/i);
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it('refuses pre-existing runtime-role CONNECT WITH GRANT OPTION before issuing grants', async () => {
+    const { database, plan } = await createMigratedDatabase();
+    try {
+      await database.exec(`
+        DO $runtime_database_grant_option$
+        BEGIN
+          EXECUTE format('REVOKE CONNECT ON DATABASE %I FROM %I', current_database(), 'df_edge');
+          EXECUTE format('GRANT CONNECT ON DATABASE %I TO %I WITH GRANT OPTION', current_database(), 'df_edge');
+        END
+        $runtime_database_grant_option$;
+      `);
+      await expect(
+        database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`),
+      ).rejects.toThrow(/unexpected direct object privilege outside data_foundry/i);
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it('refuses a pre-existing runtime-role database ACL on a different database before issuing grants', async () => {
+    const { database, plan } = await createMigratedDatabase();
+    try {
+      await grantConnectOnWrongDatabase(database);
+      await expect(
+        database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`),
+      ).rejects.toThrow(/unexpected direct object privilege outside data_foundry/i);
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it('rejects a runtime-role database ACL on a different database during post-grant verification', async () => {
+    const { database, plan } = await createMigratedDatabase();
+    try {
+      await database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`);
+      await database.exec(plan.postMigrationGrants.verificationSql);
+      await grantConnectOnWrongDatabase(database);
+      await expect(database.exec(plan.postMigrationGrants.verificationSql)).rejects.toThrow(
+        /external direct ACL drift/i,
+      );
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it('rejects current-database CREATE and CONNECT WITH GRANT OPTION during post-grant verification', async () => {
+    const { database, plan } = await createMigratedDatabase();
+    try {
+      await database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`);
+      await database.exec(`
+        DO $unexpected_runtime_database_privilege$
+        BEGIN
+          EXECUTE format('GRANT CREATE ON DATABASE %I TO %I', current_database(), 'df_edge');
+        END
+        $unexpected_runtime_database_privilege$;
+      `);
+      await expect(database.exec(plan.postMigrationGrants.verificationSql)).rejects.toThrow(
+        /external direct ACL drift/i,
+      );
+      await database.exec(`
+        DO $runtime_database_grant_option$
+        BEGIN
+          EXECUTE format('REVOKE CREATE ON DATABASE %I FROM %I', current_database(), 'df_edge');
+          EXECUTE format('REVOKE CONNECT ON DATABASE %I FROM %I', current_database(), 'df_edge');
+          EXECUTE format('GRANT CONNECT ON DATABASE %I TO %I WITH GRANT OPTION', current_database(), 'df_edge');
+        END
+        $runtime_database_grant_option$;
+      `);
+      await expect(database.exec(plan.postMigrationGrants.verificationSql)).rejects.toThrow(
+        /external direct ACL drift/i,
+      );
     } finally {
       await database.close();
     }

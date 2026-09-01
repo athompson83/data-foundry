@@ -4,6 +4,7 @@ import type {
   PrivateCanaryProbeResult,
   PrivateCanaryWorker,
 } from '@data-foundry/private-canary';
+import { createPrivateCanaryFixtureEnvelope } from '@data-foundry/private-canary';
 import {
   consumePrivateCanaryBatch,
   type PrivateCanaryEnv,
@@ -15,12 +16,12 @@ const envelope = {
   kind: 'data-foundry.private-canary.v1',
   run_id: '11111111-1111-4111-8111-111111111111',
   issued_at: '2026-09-01T12:00:00.000Z',
-  tenant_id: '22222222-2222-4222-8222-222222222222',
-  vertical_id: '33333333-3333-4333-8333-333333333333',
-  edge_api_key_id: '44444444-4444-4444-8444-444444444444',
-  mcp_api_key_id: '55555555-5555-4555-8555-555555555555',
-  edge_event_id: '66666666-6666-4666-8666-666666666666',
-  mcp_event_id: '77777777-7777-4777-8777-777777777777',
+  tenant_id: 'd6508a79-7784-412c-8c75-88fc495fa5eb',
+  vertical_id: '2cb20ae4-7f1e-4b3b-ab91-834789b5c6ce',
+  edge_api_key_id: 'f5814ae3-3bf7-4336-968f-7e134bf5c41a',
+  mcp_api_key_id: 'b16db7f9-d10e-427d-8ba4-bbc1b3d09f80',
+  edge_event_id: '402f5082-db47-4ae5-819a-793085e6a38b',
+  mcp_event_id: '5dd72cfd-42f4-491a-9573-79bf0a3d64a9',
 } as const;
 
 const expectedInput: PrivateCanaryProbeInput = {
@@ -136,6 +137,21 @@ describe('private-canary DLQ consumer', () => {
     expect(message.retry).toHaveBeenCalledOnce();
   });
 
+  it('retries structurally valid but fixture-unbound identifiers before calling a target or writing a receipt', async () => {
+    const message = queueMessage({
+      ...envelope,
+      tenant_id: '88888888-8888-4888-8888-888888888888',
+    });
+    const { env, calls, receipts } = canaryEnv();
+
+    await consumePrivateCanaryBatch({ messages: [message] }, env);
+
+    expect(calls).toEqual([]);
+    expect(receipts).toEqual([]);
+    expect(message.ack).not.toHaveBeenCalled();
+    expect(message.retry).toHaveBeenCalledOnce();
+  });
+
   it('retries without a receipt when a named service returns invalid or swapped evidence', async () => {
     const message = queueMessage(envelope);
     const { env, receipts } = canaryEnv({
@@ -174,7 +190,10 @@ describe('private-canary DLQ consumer', () => {
 
   it('keeps receipts distinct when an operator deliberately reuses a run id for a later cycle', async () => {
     const first = queueMessage(envelope);
-    const second = queueMessage({ ...envelope, issued_at: '2026-09-01T12:05:00.000Z' });
+    const second = queueMessage(await createPrivateCanaryFixtureEnvelope(
+      envelope.run_id,
+      '2026-09-01T12:05:00.000Z',
+    ));
     const { env, receipts } = canaryEnv();
 
     await consumePrivateCanaryBatch({ messages: [first, second] }, env, {

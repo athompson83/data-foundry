@@ -27,7 +27,12 @@ import {
   type SurfaceReadSnapshot,
   type SurfaceQueryModel,
 } from '@data-foundry/query-model';
-import { resolvePrivateCanaryConnectionString } from '@data-foundry/private-canary';
+import {
+  assertPrivateCanaryRuntimeBinding,
+  PRIVATE_CANARY_RUNTIME_BINDING_SQL,
+  resolvePrivateCanaryConnectionString,
+} from '@data-foundry/private-canary';
+import type { PrivateCanaryRuntimeBinding } from '@data-foundry/private-canary';
 import type { IsoDateTime, VerticalId } from '@data-foundry/canonical-schema';
 import { resolveWebConfig, type WebEnv } from './env.js';
 import type { PublicCacheMode } from './http.js';
@@ -113,6 +118,9 @@ export async function probePrivateCanaryDatabase(
   const open = options.openDriver ?? createHyperdriveDriver;
   const driver = await open(connectionString, { schema: DATA_FOUNDRY_PRIVATE_SCHEMA });
   try {
+    await assertPrivateCanaryRuntimeBinding('web', (expectedRole) =>
+      driver.query<PrivateCanaryRuntimeBinding>(PRIVATE_CANARY_RUNTIME_BINDING_SQL, [expectedRole]),
+    );
     const [row] = await driver.query<{ readonly ready: unknown }>('SELECT 1 AS ready');
     if (row?.ready !== 1) throw new Error('Private canary database readiness failed.');
   } finally {

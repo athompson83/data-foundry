@@ -11,8 +11,13 @@ import {
 import type {
   PrivateCanaryProbeInput,
   PrivateCanaryProbeResult,
+  PrivateCanaryRuntimeBinding,
 } from '@data-foundry/private-canary';
-import { resolvePrivateCanaryConnectionString } from '@data-foundry/private-canary';
+import {
+  assertPrivateCanaryRuntimeBinding,
+  PRIVATE_CANARY_RUNTIME_BINDING_SQL,
+  resolvePrivateCanaryConnectionString,
+} from '@data-foundry/private-canary';
 import type { EdgeEnv } from './env.js';
 
 export interface PrivateCanaryProbeOptions {
@@ -61,6 +66,9 @@ export async function probePrivateCanaryReadiness(
     driver = await (options.openDriver ?? createHyperdriveDriver)(
       connectionString,
       { schema: DATA_FOUNDRY_PRIVATE_SCHEMA },
+    );
+    await assertPrivateCanaryRuntimeBinding('edge', (expectedRole) =>
+      driver!.query<PrivateCanaryRuntimeBinding>(PRIVATE_CANARY_RUNTIME_BINDING_SQL, [expectedRole]),
     );
     const [row] = await driver.query<{ readonly ready: unknown }>('SELECT 1 AS ready');
     if (row?.ready !== 1) failedProbe();

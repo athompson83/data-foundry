@@ -37,7 +37,10 @@ describe('usage-consumer private-canary readiness', () => {
       connectionString: 'postgres://hyperdrive.fixture/usage',
       options: { schema: 'data_foundry' },
     }]);
-    expect(hyperdrive.statements).toEqual(['SELECT 1 AS ready']);
+    expect(hyperdrive.statements).toEqual([
+      expect.stringContaining('current_user::text AS current_user'),
+      'SELECT 1 AS ready',
+    ]);
     expect(hyperdrive.closed()).toBe(true);
   });
 
@@ -53,6 +56,24 @@ describe('usage-consumer private-canary readiness', () => {
       },
       { openDriver: hyperdrive.openDriver },
     )).rejects.toThrow('Private canary probe failed.');
+    expect(hyperdrive.closed()).toBe(true);
+  });
+
+  it('rejects a runtime role without private-schema USAGE before reporting READY', async () => {
+    const hyperdrive = recordingHyperdrive({
+      roleBinding: { privateSchemaUsage: false },
+    });
+
+    await expect(probePrivateCanaryReadiness(
+      input,
+      {
+        DEPLOYMENT_ENVIRONMENT: 'production',
+        PRIVATE_CANARY_MODE: 'service-binding',
+        HYPERDRIVE: { connectionString: 'postgres://hyperdrive.fixture/usage' },
+      },
+      { openDriver: hyperdrive.openDriver },
+    )).rejects.toThrow('Private canary probe failed.');
+
     expect(hyperdrive.closed()).toBe(true);
   });
 

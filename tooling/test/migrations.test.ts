@@ -121,22 +121,18 @@ describe('migration runner', () => {
       readonly executed: string[];
     } {
       const executed: string[] = [];
-      let createdPrivateSchema = false;
       return {
         executed,
         driver: {
           label: 'private migration role guard',
           async exec(sql: string) {
             executed.push(sql);
-            if (sql.includes('CREATE SCHEMA IF NOT EXISTS "data_foundry"')) {
-              createdPrivateSchema = true;
-            }
           },
           async query<T>(sql: string) {
             if (sql.includes('current_user AS current_user') && sql.includes('schema_owner')) {
               return [{
                 current_user: currentUser,
-                schema_owner: schemaOwner ?? (createdPrivateSchema ? 'df_migration' : null),
+                schema_owner: schemaOwner,
               }] as T[];
             }
             if (sql.includes("nspname = 'extensions'")) {
@@ -175,8 +171,8 @@ describe('migration runner', () => {
       expect(guarded.executed).toEqual([]);
     });
 
-    it('permits a clean private bootstrap when the direct role is df_migration', async () => {
-      const guarded = guardedDriver('df_migration', null);
+    it('uses a pre-provisioned private schema without database-wide CREATE', async () => {
+      const guarded = guardedDriver('df_migration', 'df_migration');
 
       await expect(
         applyMigrations(guarded.driver, [], {
@@ -184,6 +180,21 @@ describe('migration runner', () => {
           requirePrivateMigrationRole: true,
         }),
       ).resolves.toEqual([]);
+
+      expect(guarded.executed).not.toContain('CREATE SCHEMA IF NOT EXISTS "data_foundry"');
+    });
+
+    it('refuses a missing direct private schema before any DDL', async () => {
+      const guarded = guardedDriver('df_migration', null);
+
+      await expect(
+        applyMigrations(guarded.driver, [], {
+          schema: 'data_foundry',
+          requirePrivateMigrationRole: true,
+        }),
+      ).rejects.toThrow(/must be owned.*df_migration/i);
+
+      expect(guarded.executed).toEqual([]);
     });
   });
 
@@ -216,13 +227,13 @@ describe('migration runner', () => {
     expect(() => assertDirectPostgresPrivateSchema('public')).toThrow(/data_foundry/i);
   });
 
-  it('refuses private migration startup options that could override the schema path', async () => {
+  it('uses the canonical TLS URL policy for private migration connections', async () => {
     await expect(
       createPostgresDriver(
         'postgres://operator@db.invalid/data-foundry?options=-csearch_path%3Dpublic',
         'data_foundry',
       ),
-    ).rejects.toThrow(/startup options/i);
+    ).rejects.toThrow(/TLS.*query|query.*TLS/i);
   });
 
   it('fails closed when a known constraint probe has unsafe boolean scope', () => {

@@ -11,6 +11,7 @@ import {
   type SqlParam,
   type SqlTransactionExecutor,
 } from '@data-foundry/canonical-store';
+import { createPrivateCanaryFixtureEnvelope } from '@data-foundry/private-canary';
 import {
   assertPrivateMigrationRoleBinding,
   assertRealPostgresSourceIdentity,
@@ -80,17 +81,6 @@ function canonicalIssuedAt(value: string): string {
   return issuedAt;
 }
 
-function deterministicUuid(runId: string, issuedAt: string, label: string): string {
-  const bytes = createHash('sha256')
-    .update(`data-foundry-private-canary:${runId}:${issuedAt}:${label}`)
-    .digest()
-    .subarray(0, 16);
-  bytes[6] = ((bytes[6] ?? 0) & 0x0f) | 0x40;
-  bytes[8] = ((bytes[8] ?? 0) & 0x3f) | 0x80;
-  const hex = bytes.toString('hex');
-  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
-}
-
 function fixtureSlug(fixture: PrivateCanaryFixture): string {
   const cycleDigest = createHash('sha256')
     .update(`data-foundry-private-canary:${fixture.runId}:${fixture.issuedAt}`)
@@ -109,21 +99,22 @@ function relation(name: string): string {
   return `"${DATA_FOUNDRY_PRIVATE_SCHEMA}"."${name}"`;
 }
 
-export function createPrivateCanaryFixture(
+export async function createPrivateCanaryFixture(
   inputRunId: string,
   issuedAt = new Date().toISOString(),
-): PrivateCanaryFixture {
+): Promise<PrivateCanaryFixture> {
   const runId = canonicalRunId(inputRunId);
   const canonicalCycleTime = canonicalIssuedAt(issuedAt);
+  const envelope = await createPrivateCanaryFixtureEnvelope(runId, canonicalCycleTime);
   return {
-    runId,
-    issuedAt: canonicalCycleTime,
-    tenantId: deterministicUuid(runId, canonicalCycleTime, 'tenant'),
-    verticalId: deterministicUuid(runId, canonicalCycleTime, 'vertical'),
-    edgeApiKeyId: deterministicUuid(runId, canonicalCycleTime, 'edge-api-key'),
-    mcpApiKeyId: deterministicUuid(runId, canonicalCycleTime, 'mcp-api-key'),
-    edgeEventId: deterministicUuid(runId, canonicalCycleTime, 'edge-event'),
-    mcpEventId: deterministicUuid(runId, canonicalCycleTime, 'mcp-event'),
+    runId: envelope.run_id,
+    issuedAt: envelope.issued_at,
+    tenantId: envelope.tenant_id,
+    verticalId: envelope.vertical_id,
+    edgeApiKeyId: envelope.edge_api_key_id,
+    mcpApiKeyId: envelope.mcp_api_key_id,
+    edgeEventId: envelope.edge_event_id,
+    mcpEventId: envelope.mcp_event_id,
   };
 }
 
@@ -344,7 +335,7 @@ export async function run(
       schema: DATA_FOUNDRY_PRIVATE_SCHEMA,
       requireSchemaOwner: true,
     });
-    const fixture = createPrivateCanaryFixture(args.runId, args.issuedAt ?? undefined);
+    const fixture = await createPrivateCanaryFixture(args.runId, args.issuedAt ?? undefined);
     if (args.mode === 'prepare') {
       await preparePrivateCanaryFixture(driver, fixture);
       process.stdout.write(`${JSON.stringify(envelope(fixture))}\n`);

@@ -17,6 +17,10 @@ env:
   # Fail fast on a corepack/pnpm mismatch rather than silently resolving a
   # different lockfile shape than the one that was committed.
   CI: 'true'
+  # Pull-request workflows normally expose github.sha as a synthetic merge
+  # ref. Every job instead operates on one explicit candidate: the PR head for
+  # pull requests and the pushed commit for protected-main verification.
+  DATA_FOUNDRY_CANDIDATE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
 
 jobs:
   scope:
@@ -33,6 +37,7 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
+          ref: ${{ env.DATA_FOUNDRY_CANDIDATE_SHA }}
 
       - name: Select checks from changed files
         id: changes
@@ -61,7 +66,7 @@ jobs:
             esac
 
             case "$path" in
-              db/migrations/**|tooling/scripts/migrate.ts|tooling/scripts/check-source-record-reconciliation-postgres.ts|packages/canonical-store/**|services/ingest-worker/**|tooling/scripts/check-credential-provisioning-postgres.ts|tooling/scripts/provision-api-credential.ts|packages/api-keys/**|tooling/scripts/check-scheduled-acquisition-postgres.ts|packages/acquisition/**|apps/acquisition-worker/**|verticals/**|tooling/lib/cli-entry.ts|tests/support/acquisition-rights.ts|packages/canonical-schema/**|packages/normalization/**|packages/source-registry/**|packages/rights-engine/**|package.json|pnpm-lock.yaml|.github/workflows/ci.yml)
+              db/migrations/**|tooling/scripts/migrate.ts|tooling/scripts/export-supabase-migration-packets.ts|tooling/scripts/check-runtime-role-connections-postgres.ts|tooling/scripts/check-source-record-reconciliation-postgres.ts|packages/canonical-store/**|services/ingest-worker/**|tooling/scripts/check-credential-provisioning-postgres.ts|tooling/scripts/provision-api-credential.ts|packages/api-keys/**|tooling/scripts/check-scheduled-acquisition-postgres.ts|packages/acquisition/**|apps/acquisition-worker/**|verticals/**|tooling/lib/cli-entry.ts|tests/support/acquisition-rights.ts|packages/canonical-schema/**|packages/normalization/**|packages/source-registry/**|packages/rights-engine/**|package.json|pnpm-lock.yaml|.github/workflows/ci.yml)
                 run_postgres=true
                 ;;
             esac
@@ -87,6 +92,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
+          ref: ${{ env.DATA_FOUNDRY_CANDIDATE_SHA }}
 
       - name: Enable corepack
         if: needs.scope.outputs.run_verify == 'true'
@@ -175,10 +181,10 @@ jobs:
         if: needs.scope.outputs.run_verify == 'true'
         run: pnpm web:compile:check
 
-      # 9. Build the exact Cloudflare bundles only after every generated input
-      #    is known current, then reject any production artifact that carries
-      #    the local PGlite/WASM runtime.
-      - name: Cloudflare production artifacts are deployable and PGlite-free
+      # 9. Build the six route-less private-canary bundles — five reduced targets
+      #    plus the no-Hyperdrive harness — only after every generated input is
+      #    current, then reject any artifact that carries local PGlite/WASM.
+      - name: Cloudflare six route-less private-canary artifacts build and are PGlite-free
         if: needs.scope.outputs.run_verify == 'true'
         run: pnpm cloudflare:artifacts:check
 
@@ -199,6 +205,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
+          ref: ${{ env.DATA_FOUNDRY_CANDIDATE_SHA }}
 
       - name: Enable corepack
         run: corepack enable
@@ -334,7 +341,7 @@ jobs:
             printf 'NODE_EXTRA_CA_CERTS=%s\n' "$tls_dir/ca.crt"
             printf 'POSTGRES_URL=postgres://postgres:%s@localhost:5432/data_foundry\n' "$postgres_password"
             printf 'DATA_FOUNDRY_MIGRATION_DATABASE_URL=postgres://df_migration:%s@localhost:5432/data_foundry\n' "$migration_password"
-            printf 'DATA_FOUNDRY_RELEASE_SHA=%s\n' "$GITHUB_SHA"
+            printf 'DATA_FOUNDRY_RELEASE_SHA=%s\n' "$DATA_FOUNDRY_CANDIDATE_SHA"
             printf 'DATA_FOUNDRY_CI_MIGRATION_PASSWORD=%s\n' "$migration_password"
           } >> "$GITHUB_ENV"
           trap - ERR
@@ -353,11 +360,60 @@ jobs:
             printf "CREATE ROLE df_migration LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOREPLICATION NOBYPASSRLS PASSWORD '%s';\n" "$DATA_FOUNDRY_CI_MIGRATION_PASSWORD"
             cat <<'SQL'
           CREATE SCHEMA IF NOT EXISTS data_foundry AUTHORIZATION df_migration;
-          REVOKE ALL ON SCHEMA data_foundry FROM PUBLIC;
-          GRANT CONNECT, CREATE ON DATABASE data_foundry TO df_migration;
+          -- Disposable CI parity with the runtime-grant precondition; this
+          -- ephemeral database has no unrelated application in public.
+          REVOKE CREATE ON SCHEMA public FROM PUBLIC;
+          REVOKE ALL PRIVILEGES ON SCHEMA data_foundry FROM PUBLIC;
+          REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA data_foundry FROM PUBLIC;
+          REVOKE ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA data_foundry FROM PUBLIC;
+          REVOKE ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA data_foundry FROM PUBLIC;
+          ALTER DEFAULT PRIVILEGES FOR ROLE df_migration IN SCHEMA data_foundry REVOKE ALL PRIVILEGES ON TABLES FROM PUBLIC;
+          ALTER DEFAULT PRIVILEGES FOR ROLE df_migration IN SCHEMA data_foundry REVOKE ALL PRIVILEGES ON SEQUENCES FROM PUBLIC;
+          ALTER DEFAULT PRIVILEGES FOR ROLE df_migration REVOKE EXECUTE ON FUNCTIONS FROM PUBLIC;
+          GRANT USAGE, CREATE ON SCHEMA data_foundry TO df_migration;
+          REVOKE CREATE ON DATABASE data_foundry FROM df_migration;
+          GRANT CONNECT ON DATABASE data_foundry TO df_migration;
           GRANT USAGE ON SCHEMA extensions TO df_migration;
           SQL
           } | docker exec --interactive data-foundry-postgres-tls psql -U postgres -d data_foundry -v ON_ERROR_STOP=1
+
+      - name: Verify raw private schema owner ACL baseline
+        shell: bash
+        run: |
+          set -euo pipefail
+          private_schema_acl_is_canonical="$(
+            docker exec --interactive data-foundry-postgres-tls psql -U postgres -d data_foundry \
+              -v ON_ERROR_STOP=1 -Atq <<'SQL'
+          WITH expected(role_name, privilege, is_grantable) AS (
+            VALUES
+              ('df_migration'::text, 'CREATE'::text, false),
+              ('df_migration'::text, 'USAGE'::text, false)
+          ), live(role_name, privilege, is_grantable) AS (
+            SELECT COALESCE(grantee.rolname, 'PUBLIC')::text,
+                   acl.privilege_type::text,
+                   acl.is_grantable
+              FROM pg_namespace n
+              CROSS JOIN LATERAL aclexplode(n.nspacl) acl
+              LEFT JOIN pg_roles grantee ON grantee.oid = acl.grantee
+             WHERE n.nspname = 'data_foundry'
+          ), differences AS (
+            (SELECT * FROM expected EXCEPT ALL SELECT * FROM live)
+            UNION ALL
+            (SELECT * FROM live EXCEPT ALL SELECT * FROM expected)
+          )
+          SELECT COALESCE((
+            SELECT nspacl IS NOT NULL
+               AND nspowner = 'df_migration'::regrole
+              FROM pg_namespace
+             WHERE nspname = 'data_foundry'
+          ), false)
+          AND NOT EXISTS (SELECT 1 FROM differences);
+          SQL
+          )"
+          if [[ "$private_schema_acl_is_canonical" != 't' ]]; then
+            printf '%s\n' 'Private migration schema ACL baseline is not canonical.' >&2
+            exit 1
+          fi
 
       # The same SQL, unchanged, against a real Postgres. This is the check that
       # keeps "portable Postgres DDL" honest rather than aspirational.
@@ -366,6 +422,140 @@ jobs:
 
       - name: Re-apply must be a no-op
         run: pnpm migrate
+
+      - name: Refuse database-wide migration CREATE
+        shell: bash
+        run: |
+          set -euo pipefail
+          effective_database_create="$(
+            docker exec --interactive data-foundry-postgres-tls psql -U postgres -d data_foundry \
+              -v ON_ERROR_STOP=1 -Atq \
+              -c "SELECT has_database_privilege('df_migration', current_database(), 'CREATE');"
+          )"
+          if [[ "$effective_database_create" != "f" ]]; then
+            printf '%s\n' 'df_migration retains effective CREATE on the current database.' >&2
+            exit 1
+          fi
+
+          probe_schema="data_foundry_ci_unrelated_probe_$(openssl rand -hex 12)"
+          if [[ ! "$probe_schema" =~ ^data_foundry_ci_unrelated_probe_[0-9a-f]{24}$ ]]; then
+            printf '%s\n' 'The unrelated-schema probe name was not safely generated.' >&2
+            exit 1
+          fi
+          if docker exec --interactive data-foundry-postgres-tls psql -U postgres -d data_foundry -v ON_ERROR_STOP=1 <<SQL
+          SET ROLE df_migration;
+          CREATE SCHEMA "$probe_schema";
+          SQL
+          then
+            docker exec data-foundry-postgres-tls psql -U postgres -d data_foundry \
+              -v ON_ERROR_STOP=1 -v probe_schema="$probe_schema" \
+              -c 'DROP SCHEMA IF EXISTS :"probe_schema";' >/dev/null
+            printf '%s\n' 'df_migration unexpectedly created an unrelated schema.' >&2
+            exit 1
+          fi
+
+      - name: Stage disposable runtime roles and apply exact grants
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          runtime_dir="$RUNNER_TEMP/data-foundry-postgres-runtime"
+          mkdir -p "$runtime_dir"
+          chmod 700 "$runtime_dir"
+          plan_path="$runtime_dir/migration-plan.json"
+          grant_sql_path="$runtime_dir/postMigrationGrants.sql"
+          grant_verification_path="$runtime_dir/postMigrationGrantsVerification.sql"
+          post_credential_verification_path="$runtime_dir/postCredentialVerification.sql"
+
+          {
+            printf '%s\n' \
+              'CREATE ROLE df_edge NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOREPLICATION NOBYPASSRLS;' \
+              'CREATE ROLE df_web NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOREPLICATION NOBYPASSRLS;' \
+              'CREATE ROLE df_mcp NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOREPLICATION NOBYPASSRLS;' \
+              'CREATE ROLE df_usage NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOREPLICATION NOBYPASSRLS;' \
+              'CREATE ROLE df_acquisition NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOREPLICATION NOBYPASSRLS;' \
+              'GRANT CONNECT ON DATABASE data_foundry TO df_edge;' \
+              'GRANT CONNECT ON DATABASE data_foundry TO df_web;' \
+              'GRANT CONNECT ON DATABASE data_foundry TO df_mcp;' \
+              'GRANT CONNECT ON DATABASE data_foundry TO df_usage;' \
+              'GRANT CONNECT ON DATABASE data_foundry TO df_acquisition;' \
+              'GRANT USAGE ON SCHEMA extensions TO df_edge;' \
+              'GRANT USAGE ON SCHEMA extensions TO df_web;' \
+              'GRANT USAGE ON SCHEMA extensions TO df_mcp;' \
+              'GRANT USAGE ON SCHEMA extensions TO df_usage;' \
+              'GRANT USAGE ON SCHEMA extensions TO df_acquisition;'
+          } | docker exec --interactive data-foundry-postgres-tls psql -U postgres -d data_foundry -v ON_ERROR_STOP=1
+
+          node_modules/.bin/tsx tooling/scripts/export-supabase-migration-packets.ts --release-sha "$DATA_FOUNDRY_CANDIDATE_SHA" > "$plan_path"
+          node --input-type=module - "$plan_path" "$grant_sql_path" "$grant_verification_path" "$post_credential_verification_path" <<'NODE'
+          import { readFile, writeFile } from 'node:fs/promises';
+
+          const [planPath, grantPath, verificationPath, postCredentialPath] = process.argv.slice(2);
+          const plan = JSON.parse(await readFile(planPath, 'utf8'));
+          const payload = plan.postMigrationGrants;
+          if (
+            typeof payload?.sql !== 'string' ||
+            typeof payload?.verificationSql !== 'string' ||
+            typeof payload?.postCredentialVerificationSql !== 'string'
+          ) {
+            throw new Error('The generated migration plan lacks a complete postMigrationGrants payload.');
+          }
+          await Promise.all([
+            writeFile(grantPath, payload.sql, { mode: 0o600 }),
+            writeFile(verificationPath, payload.verificationSql, { mode: 0o600 }),
+            writeFile(postCredentialPath, payload.postCredentialVerificationSql, { mode: 0o600 }),
+          ]);
+          NODE
+
+          docker exec --interactive data-foundry-postgres-tls psql -U postgres -d data_foundry \
+            -v ON_ERROR_STOP=1 --single-transaction < "$grant_sql_path"
+          docker exec --interactive data-foundry-postgres-tls psql -U postgres -d data_foundry \
+            -v ON_ERROR_STOP=1 < "$grant_verification_path"
+
+      - name: Activate disposable runtime roles with isolated credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          runtime_dir="$RUNNER_TEMP/data-foundry-postgres-runtime"
+          post_credential_verification_path="$runtime_dir/postCredentialVerification.sql"
+          if [[ ! -f "$post_credential_verification_path" ]]; then
+            printf '%s\n' 'The disposable runtime-role verification payload is missing.' >&2
+            exit 1
+          fi
+
+          df_edge_password="$(openssl rand -hex 24)"
+          df_web_password="$(openssl rand -hex 24)"
+          df_mcp_password="$(openssl rand -hex 24)"
+          df_usage_password="$(openssl rand -hex 24)"
+          df_acquisition_password="$(openssl rand -hex 24)"
+          {
+            printf "ALTER ROLE df_edge LOGIN PASSWORD '%s';\n" "$df_edge_password"
+            printf "ALTER ROLE df_web LOGIN PASSWORD '%s';\n" "$df_web_password"
+            printf "ALTER ROLE df_mcp LOGIN PASSWORD '%s';\n" "$df_mcp_password"
+            printf "ALTER ROLE df_usage LOGIN PASSWORD '%s';\n" "$df_usage_password"
+            printf "ALTER ROLE df_acquisition LOGIN PASSWORD '%s';\n" "$df_acquisition_password"
+            printf '%s\n' \
+              'ALTER ROLE df_edge IN DATABASE data_foundry SET search_path TO data_foundry, pg_catalog, extensions;' \
+              'ALTER ROLE df_web IN DATABASE data_foundry SET search_path TO data_foundry, pg_catalog, extensions;' \
+              'ALTER ROLE df_mcp IN DATABASE data_foundry SET search_path TO data_foundry, pg_catalog, extensions;' \
+              'ALTER ROLE df_usage IN DATABASE data_foundry SET search_path TO data_foundry, pg_catalog, extensions;' \
+              'ALTER ROLE df_acquisition IN DATABASE data_foundry SET search_path TO data_foundry, pg_catalog, extensions;'
+          } | docker exec --interactive data-foundry-postgres-tls psql -U postgres -d data_foundry -v ON_ERROR_STOP=1
+          docker exec --interactive data-foundry-postgres-tls psql -U postgres -d data_foundry \
+            -v ON_ERROR_STOP=1 < "$post_credential_verification_path"
+          {
+            printf 'DATA_FOUNDRY_EDGE_POSTGRES_URL=postgres://df_edge:%s@localhost:5432/data_foundry\n' "$df_edge_password"
+            printf 'DATA_FOUNDRY_WEB_POSTGRES_URL=postgres://df_web:%s@localhost:5432/data_foundry\n' "$df_web_password"
+            printf 'DATA_FOUNDRY_MCP_POSTGRES_URL=postgres://df_mcp:%s@localhost:5432/data_foundry\n' "$df_mcp_password"
+            printf 'DATA_FOUNDRY_USAGE_POSTGRES_URL=postgres://df_usage:%s@localhost:5432/data_foundry\n' "$df_usage_password"
+            printf 'DATA_FOUNDRY_ACQUISITION_POSTGRES_URL=postgres://df_acquisition:%s@localhost:5432/data_foundry\n' "$df_acquisition_password"
+          } >> "$GITHUB_ENV"
+
+      - name: Direct runtime-role TLS connection regression
+        env:
+          DATA_FOUNDRY_RUNTIME_ROLE_CONNECTION_TEST: '1'
+          PGOPTIONS: ''
+        run: pnpm runtime-roles:postgres:check
 
       # This deliberately uses independent PostgreSQL connections and waits for
       # the advisory transaction lock, so the reconciliation race cannot hide

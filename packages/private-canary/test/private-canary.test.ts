@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
+  assertPrivateCanaryRuntimeBinding,
+  createPrivateCanaryFixtureEnvelope,
   createPrivateCanaryReceipt,
   parsePrivateCanaryEnvelope,
   parsePrivateCanaryProbeResult,
@@ -7,54 +9,72 @@ import {
   resolvePrivateCanaryConnectionString,
   toPrivateCanaryProbeInput,
 } from '../src/index.js';
+import type { PrivateCanaryWorker } from '../src/index.js';
 
 const envelope = {
   kind: 'data-foundry.private-canary.v1',
   run_id: '11111111-1111-4111-8111-111111111111',
   issued_at: '2026-09-01T12:00:00.000Z',
-  tenant_id: '22222222-2222-4222-8222-222222222222',
-  vertical_id: '33333333-3333-4333-8333-333333333333',
-  edge_api_key_id: '44444444-4444-4444-8444-444444444444',
-  mcp_api_key_id: '55555555-5555-4555-8555-555555555555',
-  edge_event_id: '66666666-6666-4666-8666-666666666666',
-  mcp_event_id: '77777777-7777-4777-8777-777777777777',
+  tenant_id: 'd6508a79-7784-412c-8c75-88fc495fa5eb',
+  vertical_id: '2cb20ae4-7f1e-4b3b-ab91-834789b5c6ce',
+  edge_api_key_id: 'f5814ae3-3bf7-4336-968f-7e134bf5c41a',
+  mcp_api_key_id: 'b16db7f9-d10e-427d-8ba4-bbc1b3d09f80',
+  edge_event_id: '402f5082-db47-4ae5-819a-793085e6a38b',
+  mcp_event_id: '5dd72cfd-42f4-491a-9573-79bf0a3d64a9',
 } as const;
 
 describe('private canary DLQ envelope', () => {
-  it('accepts only fixed synthetic correlation fields and derives secret-free probe input', () => {
-    const parsed = parsePrivateCanaryEnvelope(JSON.parse(JSON.stringify(envelope)) as unknown);
+  it('accepts only fixed synthetic correlation fields and derives secret-free probe input', async () => {
+    expect(await createPrivateCanaryFixtureEnvelope(envelope.run_id, envelope.issued_at)).toEqual(envelope);
+    const parsed = await parsePrivateCanaryEnvelope(JSON.parse(JSON.stringify(envelope)) as unknown);
 
     expect(parsed).toEqual(envelope);
     if (parsed === null) throw new Error('the fixed private-canary envelope must parse');
     expect(toPrivateCanaryProbeInput(parsed)).toEqual({
       runId: '11111111-1111-4111-8111-111111111111',
-      tenantId: '22222222-2222-4222-8222-222222222222',
-      verticalId: '33333333-3333-4333-8333-333333333333',
-      edgeApiKeyId: '44444444-4444-4444-8444-444444444444',
-      mcpApiKeyId: '55555555-5555-4555-8555-555555555555',
-      edgeEventId: '66666666-6666-4666-8666-666666666666',
-      mcpEventId: '77777777-7777-4777-8777-777777777777',
+      tenantId: 'd6508a79-7784-412c-8c75-88fc495fa5eb',
+      verticalId: '2cb20ae4-7f1e-4b3b-ab91-834789b5c6ce',
+      edgeApiKeyId: 'f5814ae3-3bf7-4336-968f-7e134bf5c41a',
+      mcpApiKeyId: 'b16db7f9-d10e-427d-8ba4-bbc1b3d09f80',
+      edgeEventId: '402f5082-db47-4ae5-819a-793085e6a38b',
+      mcpEventId: '5dd72cfd-42f4-491a-9573-79bf0a3d64a9',
     });
   });
 
-  it('refuses an unknown field so credentials, source content, and URLs cannot ride the DLQ control path', () => {
-    for (const field of ['authorization', 'source_url', 'raw_content', 'token'] as const) {
-      expect(parsePrivateCanaryEnvelope({ ...envelope, [field]: 'must-not-be-accepted' }), field).toBeNull();
+  it('refuses each structurally valid identifier when it was not derived from the fixture cycle', async () => {
+    for (const identifier of [
+      'tenant_id',
+      'vertical_id',
+      'edge_api_key_id',
+      'mcp_api_key_id',
+      'edge_event_id',
+      'mcp_event_id',
+    ] as const) {
+      expect(await parsePrivateCanaryEnvelope({
+        ...envelope,
+        [identifier]: '88888888-8888-4888-8888-888888888888',
+      })).toBeNull();
     }
   });
 
-  it('requires a canonical fixture timestamp rather than accepting arbitrary control metadata', () => {
-    expect(parsePrivateCanaryEnvelope({ ...envelope, issued_at: '2026-09-01' })).toBeNull();
-    expect(parsePrivateCanaryEnvelope({ ...envelope, issued_at: 'not-a-time' })).toBeNull();
+  it('refuses an unknown field so credentials, source content, and URLs cannot ride the DLQ control path', async () => {
+    for (const field of ['authorization', 'source_url', 'raw_content', 'token'] as const) {
+      expect(await parsePrivateCanaryEnvelope({ ...envelope, [field]: 'must-not-be-accepted' }), field).toBeNull();
+    }
   });
 
-  it('refuses malformed deterministic correlation ids', () => {
-    expect(parsePrivateCanaryEnvelope({ ...envelope, run_id: 'not-a-uuid' })).toBeNull();
-    expect(parsePrivateCanaryEnvelope({ ...envelope, tenant_id: 'not-a-uuid' })).toBeNull();
+  it('requires a canonical fixture timestamp rather than accepting arbitrary control metadata', async () => {
+    expect(await parsePrivateCanaryEnvelope({ ...envelope, issued_at: '2026-09-01' })).toBeNull();
+    expect(await parsePrivateCanaryEnvelope({ ...envelope, issued_at: 'not-a-time' })).toBeNull();
   });
 
-  it('requires a UUID v4 run id while retaining generic UUID correlation identifiers', () => {
-    expect(parsePrivateCanaryEnvelope({
+  it('refuses malformed deterministic correlation ids', async () => {
+    expect(await parsePrivateCanaryEnvelope({ ...envelope, run_id: 'not-a-uuid' })).toBeNull();
+    expect(await parsePrivateCanaryEnvelope({ ...envelope, tenant_id: 'not-a-uuid' })).toBeNull();
+  });
+
+  it('requires a UUID v4 run id while retaining fixture-derived correlation identifiers', async () => {
+    expect(await parsePrivateCanaryEnvelope({
       ...envelope,
       run_id: '11111111-1111-1111-8111-111111111111',
     })).toBeNull();
@@ -62,6 +82,75 @@ describe('private canary DLQ envelope', () => {
 });
 
 describe('private canary target runtime binding', () => {
+  it('requires each target to prove its exact current and session role plus narrow private-schema capability', async () => {
+    const expectedRoles: Readonly<Record<PrivateCanaryWorker, string>> = {
+      edge: 'df_edge',
+      web: 'df_web',
+      'usage-consumer': 'df_usage',
+      'acquisition-worker': 'df_acquisition',
+      'mcp-worker': 'df_mcp',
+    };
+
+    for (const [worker, role] of Object.entries(expectedRoles) as [PrivateCanaryWorker, string][]) {
+      const observedRoles: string[] = [];
+      await expect(assertPrivateCanaryRuntimeBinding(worker, async (expectedRole) => {
+        observedRoles.push(expectedRole);
+        return [{
+          current_user: expectedRole,
+          session_user: expectedRole,
+          role_is_login_nonprivileged: true,
+          membership_is_empty: true,
+          private_schema_usage: true,
+          private_schema_create: false,
+          role_capability_is_exact: true,
+        }];
+      })).resolves.toBeUndefined();
+      expect(observedRoles).toEqual([role]);
+    }
+  });
+
+  it('rejects a mismatched role or private-schema privilege before a target can report READY', async () => {
+    await expect(assertPrivateCanaryRuntimeBinding('edge', async () => [{
+      current_user: 'df_web',
+      session_user: 'df_edge',
+      role_is_login_nonprivileged: true,
+      membership_is_empty: true,
+      private_schema_usage: true,
+      private_schema_create: false,
+      role_capability_is_exact: true,
+    }])).rejects.toThrow(/runtime binding/i);
+    await expect(assertPrivateCanaryRuntimeBinding('edge', async () => [{
+      current_user: 'df_edge',
+      session_user: 'df_edge',
+      role_is_login_nonprivileged: true,
+      membership_is_empty: true,
+      private_schema_usage: false,
+      private_schema_create: false,
+      role_capability_is_exact: true,
+    }])).rejects.toThrow(/runtime binding/i);
+  });
+
+  it('rejects an otherwise expected role when its login attributes or membership are unsafe', async () => {
+    await expect(assertPrivateCanaryRuntimeBinding('edge', async () => [{
+      current_user: 'df_edge',
+      session_user: 'df_edge',
+      role_is_login_nonprivileged: false,
+      membership_is_empty: true,
+      private_schema_usage: true,
+      private_schema_create: false,
+      role_capability_is_exact: true,
+    }])).rejects.toThrow(/runtime binding/i);
+    await expect(assertPrivateCanaryRuntimeBinding('edge', async () => [{
+      current_user: 'df_edge',
+      session_user: 'df_edge',
+      role_is_login_nonprivileged: true,
+      membership_is_empty: false,
+      private_schema_usage: true,
+      private_schema_create: false,
+      role_capability_is_exact: true,
+    }])).rejects.toThrow(/runtime binding/i);
+  });
+
   it('accepts only an explicitly service-bound production Hyperdrive', () => {
     expect(resolvePrivateCanaryConnectionString({
       DEPLOYMENT_ENVIRONMENT: 'production',

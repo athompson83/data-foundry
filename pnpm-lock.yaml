@@ -17,6 +17,9 @@ importers:
       '@data-foundry/canonical-store':
         specifier: workspace:*
         version: link:packages/canonical-store
+      '@data-foundry/private-canary':
+        specifier: workspace:*
+        version: link:packages/private-canary
       '@data-foundry/rights-engine':
         specifier: workspace:*
         version: link:packages/rights-engine

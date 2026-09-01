@@ -91,7 +91,7 @@ async function consumeMessage(
   env: PrivateCanaryEnv,
   now: () => Date,
 ): Promise<void> {
-  const envelope = parsePrivateCanaryEnvelope(message.body);
+  const envelope = await parsePrivateCanaryEnvelope(message.body);
   if (envelope === null) {
     // The dedicated canary DLQ must retain an invalid control message through
     // the configured private quarantine path. Do not log its body.

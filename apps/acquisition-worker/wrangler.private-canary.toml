@@ -2,7 +2,7 @@
 # ignored wrangler.private-canary.production.toml and inject only account_id
 # plus this Worker's role-specific Hyperdrive id. Cron, R2, source settings,
 # and provider credentials are absent because the RPC probe never acquires data.
-name = "data-foundry-acquisition-worker"
+name = "data-foundry-private-canary-acquisition-worker"
 main = "src/index.ts"
 compatibility_date = "2026-08-28"
 compatibility_flags = ["nodejs_compat"]

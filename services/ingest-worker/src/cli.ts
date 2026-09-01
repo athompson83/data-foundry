@@ -80,14 +80,14 @@ Usage: pnpm ingest --vertical <slug> [--source <key>] [--dry-run] [--memory]
 `;
 
 /**
- * PGlite in memory/on disk, or an explicitly selected real Data Foundry
- * schema. Live operations default to Alpha Lab's private schema; a legacy
- * public install requires an explicit DATA_FOUNDRY_SCHEMA=public opt-in.
+ * Live Postgres ingestion is restricted to Alpha Lab's private schema.
+ * Historical public installations require a separately reviewed migration
+ * plan; they are not selectable through the live ingestion environment.
  */
 export function resolveRealPostgresSchema(
   env: Readonly<Record<string, string | undefined>> = process.env,
 ): string {
-  return resolveOperationalSchema(env);
+  return assertDirectPostgresPrivateSchema(resolveOperationalSchema(env));
 }
 
 export interface RealIngestPostgresConnections {
@@ -131,11 +131,18 @@ export function resolveIngestRealPostgresConnections(
   return { applicationConnectionString, migrationConnectionString };
 }
 
-async function openDriver(args: CliArgs, realPostgresUrl?: string): Promise<SqlDriver> {
+async function openDriver(
+  args: CliArgs,
+  realPostgresUrl?: string,
+  realPostgresSchema?: string,
+): Promise<SqlDriver> {
   if (args.memory) return createPgliteDriver();
   const url = realPostgresUrl;
   if (url !== undefined && url !== '') {
-    return createPostgresDriver(url, { schema: resolveRealPostgresSchema() });
+    if (realPostgresSchema === undefined) {
+      throw new Error('A validated real Postgres schema is required before opening the ingestion driver.');
+    }
+    return createPostgresDriver(url, { schema: realPostgresSchema });
   }
   const dataDir = resolve(process.cwd(), '.data', 'pglite');
   await mkdir(dataDir, { recursive: true });
@@ -179,19 +186,43 @@ async function migrateRealPostgres(connectionString: string, schema: string): Pr
   }
 }
 
-export async function main(argv: readonly string[] = process.argv.slice(2)): Promise<number> {
+export interface IngestCliDependencies {
+  readonly env?: Readonly<Record<string, string | undefined>>;
+  readonly migrateRealPostgres?: (connectionString: string, schema: string) => Promise<void>;
+  readonly openDriver?: (
+    args: CliArgs,
+    realPostgresUrl?: string,
+    realPostgresSchema?: string,
+  ) => Promise<SqlDriver>;
+}
+
+export async function main(
+  argv: readonly string[] = process.argv.slice(2),
+  dependencies: IngestCliDependencies = {},
+): Promise<number> {
+  const env = dependencies.env ?? process.env;
   const args = parseArgs(argv);
   const realPostgresConnections = args.memory
     ? undefined
-    : resolveIngestRealPostgresConnections();
-  if (realPostgresConnections !== undefined) {
-    await migrateRealPostgres(
-      realPostgresConnections.migrationConnectionString,
-      resolveRealPostgresSchema(),
+    : resolveIngestRealPostgresConnections(env);
+  const realPostgres = realPostgresConnections === undefined
+    ? undefined
+    : {
+      connections: realPostgresConnections,
+      schema: resolveRealPostgresSchema(env),
+    };
+  if (realPostgres !== undefined) {
+    await (dependencies.migrateRealPostgres ?? migrateRealPostgres)(
+      realPostgres.connections.migrationConnectionString,
+      realPostgres.schema,
     );
   }
 
-  const driver = await openDriver(args, realPostgresConnections?.applicationConnectionString);
+  const driver = await (dependencies.openDriver ?? openDriver)(
+    args,
+    realPostgres?.connections.applicationConnectionString,
+    realPostgres?.schema,
+  );
 
   try {
     if (realPostgresConnections === undefined) await migrate(driver);

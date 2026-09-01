@@ -2,7 +2,7 @@
 # ignored wrangler.private-canary.production.toml and inject only account_id
 # plus this Worker's role-specific Hyperdrive id. PUBLIC_ORIGIN and cache
 # policy are intentionally absent because the RPC probe never renders a page.
-name = "data-foundry-web"
+name = "data-foundry-private-canary-web"
 main = "src/index.ts"
 compatibility_date = "2026-08-23"
 compatibility_flags = ["nodejs_compat"]

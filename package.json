@@ -50,6 +50,7 @@
     "@data-foundry/api-keys": "workspace:*",
     "@data-foundry/canonical-schema": "workspace:*",
     "@data-foundry/canonical-store": "workspace:*",
+    "@data-foundry/private-canary": "workspace:*",
     "@data-foundry/rights-engine": "workspace:*",
     "@data-foundry/source-registry": "workspace:*",
     "@electric-sql/pglite": "^0.5.5",

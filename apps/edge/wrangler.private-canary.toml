@@ -2,7 +2,7 @@
 # ignored wrangler.private-canary.production.toml and inject only account_id
 # plus this Worker's role-specific Hyperdrive id. Do not add a route, public
 # endpoint variables, workers.dev, or a direct database URL.
-name = "data-foundry-edge"
+name = "data-foundry-private-canary-edge"
 main = "src/index.ts"
 compatibility_date = "2026-08-23"
 compatibility_flags = ["nodejs_compat"]
@@ -25,4 +25,4 @@ PRIVATE_CANARY_MODE = "service-binding"
 
 [[queues.producers]]
 binding = "USAGE_EVENTS_QUEUE"
-queue = "data-foundry-usage-events"
+queue = "data-foundry-private-canary-usage-events"

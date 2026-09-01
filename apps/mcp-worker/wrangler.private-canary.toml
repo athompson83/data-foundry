@@ -2,7 +2,7 @@
 # ignored wrangler.private-canary.production.toml and inject only account_id
 # plus this Worker's role-specific Hyperdrive id. MCP host/origin policy is
 # intentionally absent because the probe is a named service binding, not HTTP.
-name = "data-foundry-mcp-hvac"
+name = "data-foundry-private-canary-mcp-hvac"
 main = "src/index.ts"
 compatibility_date = "2026-08-23"
 compatibility_flags = ["nodejs_compat"]
@@ -25,4 +25,4 @@ PRIVATE_CANARY_MODE = "service-binding"
 
 [[queues.producers]]
 binding = "USAGE_EVENTS_QUEUE"
-queue = "data-foundry-usage-events"
+queue = "data-foundry-private-canary-usage-events"

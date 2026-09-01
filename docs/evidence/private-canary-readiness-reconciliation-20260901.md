@@ -21,29 +21,42 @@ state are deliberately omitted.
 - Integrated branch head at this reconciliation:
   `64bb05bdb2dc5877f526acf9e38c02146d2d5831`. It contains the later CI and
   documentation follow-up commits.
-- **No Worker release candidate is currently designated.** Neither SHA may be
-  used for a migration, artifact build intended for deployment, or provider
-  deployment until the containment gate below is complete and one exact-SHA
-  release path is recorded.
+- Pre-repair PR #26 head:
+  `effa3ec82c96e8f68d21ddc4d2b32919497dbddb`, based on protected `main`
+  `290df1342094433e92978ec97eb37cc02fc4eb50`. CI run `33517988867` completed
+  successfully on that head, but its legacy artifact gate built only five
+  ordinary Worker manifests and omitted `apps/private-canary`.
+- **No Worker release candidate is currently designated.** Every SHA above is
+  historical provenance only. None may be used for a migration, artifact build
+  intended for deployment, or provider deployment until one final exact PR #26
+  SHA is repository-validated and the separate provider gates are complete.
 
 The original candidate was superseded by necessary runtime repairs: private
 fixture cycles, closed metering verification, TLS-only direct migration,
 immutable Git-object migration loading, exact private-canary deployment
 validation, and a TLS-only disposable CI database path. The runtime-fix commit
-also isolates synthetic control traffic into a dedicated ingress, DLQ, and
-quarantine rather than consuming the shared usage DLQ.
+also isolates synthetic metering into a dedicated Queue/DLQ pair and control
+traffic into a dedicated ingress/DLQ/quarantine chain rather than consuming the
+shared usage DLQ.
 
-The required provenance gate is deliberately explicit. After the provider-side
-containment result is recorded, choose one of these paths before any migration
-or deployment: (a) make a clean checkout whose `HEAD` is `df4a665...`, build
-and attest all six Worker bundles from that checkout, then bind the provider
-versions to that SHA; or (b) validate the complete integrated head, including
-all six Worker artifacts, and explicitly designate that exact SHA as the
-release candidate. A source-path comparison or a later documentation commit is
-not an artifact attestation. The current five-Worker artifact check omits the
-private-canary Worker, so it is not sufficient for path (b) until that gap is
-closed. Any provider deployment must record each of the six target Worker
-scripts/versions and prove it corresponds to the designated release SHA.
+The required provenance gate is deliberately explicit. Repository engineering
+continues while provider-side containment is pending, but no provider operation
+may begin until both gates are satisfied. The final PR #26 SHA must contain the
+runtime changes, tests, six-artifact gate, and aligned documentation. A clean
+checkout of that exact SHA must dry-run and scan all six route-less
+private-canary Worker artifacts: five reduced target Workers (each with a
+synthetic Hyperdrive configuration only for the credential-free build) plus the
+private-canary harness without Hyperdrive. Every generated artifact directory
+must be present and scanned; any target entrypoint or manifest that cannot
+bundle fails the gate closed. The historical five-Worker artifact check is
+insufficient and must not be cited as six-Worker provenance.
+
+That repository artifact attestation is not provider deployment evidence. Do
+not add a documentation-only follow-up commit after that verification. Instead,
+record the final SHA and its exact test evidence in the PR body, then obtain
+provider evidence mapping all six temporary Worker scripts/versions to the same
+SHA before any canary fixture. A source-path comparison, historical ancestor, or
+later documentation SHA is not an artifact attestation.
 
 ## Cloudflare inventory
 
@@ -83,17 +96,22 @@ migration.
 
 ## Consequences
 
-- The five runtime passwords, five Hyperdrives, R2 receipt bucket, target
-  Worker deployment manifests, and private Worker deployment remain
-  owner/provider-gated.
+- The five target runtime passwords, five role-specific Hyperdrives, R2 receipt
+  bucket, and six temporary Worker deployment manifests remain owner/provider-
+  gated. The five reduced targets need Hyperdrive; the private-canary harness
+  must remain without Hyperdrive.
 - The first canary must remain service-bound and route-less: no public DNS,
   Worker route, workers.dev endpoint, or real-source publication is authorized
   by this reconciliation.
 - The observed normal usage Queue/DLQ pair is a read-only baseline only; it is
-  neither private-canary ingress nor a private-canary consumer source. The
-  current candidate requires three additional, still-unprovisioned 14-day
-  queues: `data-foundry-private-canary-events`,
-  `data-foundry-private-canary-dlq`, and
+  neither private-canary ingress nor a private-canary consumer source. It stays
+  unchanged, and only the ordinary usage consumer may consume
+  `data-foundry-usage-events`. The private-canary path instead requires all five
+  additional, still-unprovisioned 14-day queues: synthetic metering uses
+  `data-foundry-private-canary-usage-events` ->
+  `data-foundry-private-canary-usage-events-dlq`; control uses
+  `data-foundry-private-canary-events` ->
+  `data-foundry-private-canary-dlq` ->
   `data-foundry-private-canary-quarantine`. Their retry, consumer, quarantine,
   database-persistence, and idempotency behavior remain unproven until the
   synthetic private canary is deployed and exercised.

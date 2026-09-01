@@ -43,7 +43,10 @@ describe('edge private-canary readiness', () => {
       connectionString: 'postgres://hyperdrive.fixture/edge',
       options: { schema: 'data_foundry' },
     }]);
-    expect(hyperdrive.statements).toEqual(['SELECT 1 AS ready']);
+    expect(hyperdrive.statements).toEqual([
+      expect.stringContaining('current_user::text AS current_user'),
+      'SELECT 1 AS ready',
+    ]);
     expect(hyperdrive.closed()).toBe(true);
     expect(sent).toHaveLength(2);
     expect(sent[1]).toEqual(sent[0]);
@@ -81,6 +84,72 @@ describe('edge private-canary readiness', () => {
       { openDriver: hyperdrive.openDriver },
     )).rejects.toThrow('Private canary probe failed.');
     expect(hyperdrive.opens).toEqual([]);
+  });
+
+  it('rejects a current role other than df_edge before sending metering', async () => {
+    const hyperdrive = recordingHyperdrive({
+      roleBinding: { currentUser: 'df_web' },
+    });
+    const sent: unknown[] = [];
+
+    await expect(probePrivateCanaryReadiness(
+      input,
+      {
+        DEPLOYMENT_ENVIRONMENT: 'production',
+        PRIVATE_CANARY_MODE: 'service-binding',
+        HYPERDRIVE: { connectionString: 'postgres://hyperdrive.fixture/edge' },
+        USAGE_EVENTS_QUEUE: { send: async (event: unknown) => { sent.push(event); } },
+      },
+      { openDriver: hyperdrive.openDriver },
+    )).rejects.toThrow('Private canary probe failed.');
+
+    expect(sent).toEqual([]);
+    expect(hyperdrive.closed()).toBe(true);
+  });
+
+  it('rejects a privileged df_edge login before sending metering', async () => {
+    const hyperdrive = recordingHyperdrive({
+      roleBinding: { roleIsLoginNonprivileged: false },
+    });
+    const sent: unknown[] = [];
+
+    await expect(probePrivateCanaryReadiness(
+      input,
+      {
+        DEPLOYMENT_ENVIRONMENT: 'production',
+        PRIVATE_CANARY_MODE: 'service-binding',
+        HYPERDRIVE: { connectionString: 'postgres://hyperdrive.fixture/edge' },
+        USAGE_EVENTS_QUEUE: { send: async (event: unknown) => { sent.push(event); } },
+      },
+      { openDriver: hyperdrive.openDriver },
+    )).rejects.toThrow('Private canary probe failed.');
+
+    expect(sent).toEqual([]);
+    expect(hyperdrive.closed()).toBe(true);
+  });
+
+  it('rejects an edge role that can read api_keys.created_at before readiness or metering', async () => {
+    const hyperdrive = recordingHyperdrive({
+      roleBinding: { edgeApiKeysCreatedAtSelect: true },
+    });
+    const sent: unknown[] = [];
+
+    await expect(probePrivateCanaryReadiness(
+      input,
+      {
+        DEPLOYMENT_ENVIRONMENT: 'production',
+        PRIVATE_CANARY_MODE: 'service-binding',
+        HYPERDRIVE: { connectionString: 'postgres://hyperdrive.fixture/edge' },
+        USAGE_EVENTS_QUEUE: { send: async (event: unknown) => { sent.push(event); } },
+      },
+      { openDriver: hyperdrive.openDriver },
+    )).rejects.toThrow('Private canary probe failed.');
+
+    expect(hyperdrive.statements).toEqual([
+      expect.stringContaining("NOT has_column_privilege(current_user, 'data_foundry.api_keys', 'created_at', 'SELECT')"),
+    ]);
+    expect(sent).toEqual([]);
+    expect(hyperdrive.closed()).toBe(true);
   });
 
   it('exports a named RPC entrypoint rather than adding a public fetch route', () => {

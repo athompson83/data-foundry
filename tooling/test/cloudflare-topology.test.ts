@@ -17,6 +17,8 @@ const CONSUMER_PRIVATE_CANARY_CONFIG = join(
   'usage-consumer',
   'wrangler.private-canary.toml',
 );
+const EDGE_PRIVATE_CANARY_CONFIG = join(REPO_ROOT, 'apps', 'edge', 'wrangler.private-canary.toml');
+const MCP_PRIVATE_CANARY_CONFIG = join(REPO_ROOT, 'apps', 'mcp-worker', 'wrangler.private-canary.toml');
 const ACCOUNT_ID = '1234567890abcdef1234567890abcdef';
 const PRIVATE_CANARY_ACCOUNT_ID = 'fedcba0987654321fedcba0987654321';
 const HYPERDRIVE_ID = 'abcdef1234567890abcdef1234567890';
@@ -38,6 +40,11 @@ async function loadValidator(): Promise<(
     readonly webConfigPath?: string;
     readonly acquisitionConfigPath?: string;
     readonly mcpConfigPath?: string;
+    readonly edgeDeploymentConfigPath?: string;
+    readonly consumerDeploymentConfigPath?: string;
+    readonly webDeploymentConfigPath?: string;
+    readonly acquisitionDeploymentConfigPath?: string;
+    readonly mcpDeploymentConfigPath?: string;
     readonly privateCanaryConfigPath?: string;
     readonly edgePrivateCanaryConfigPath?: string;
     readonly consumerPrivateCanaryConfigPath?: string;
@@ -58,6 +65,11 @@ async function loadValidator(): Promise<(
       readonly webConfigPath?: string;
       readonly acquisitionConfigPath?: string;
       readonly mcpConfigPath?: string;
+      readonly edgeDeploymentConfigPath?: string;
+      readonly consumerDeploymentConfigPath?: string;
+      readonly webDeploymentConfigPath?: string;
+      readonly acquisitionDeploymentConfigPath?: string;
+      readonly mcpDeploymentConfigPath?: string;
       readonly privateCanaryConfigPath?: string;
       readonly edgePrivateCanaryConfigPath?: string;
       readonly consumerPrivateCanaryConfigPath?: string;
@@ -115,6 +127,18 @@ async function writeDeploymentManifests(directory: string): Promise<{
   return { edgeConfigPath, consumerConfigPath, webConfigPath, acquisitionConfigPath, mcpConfigPath };
 }
 
+type DeploymentManifestPaths = Awaited<ReturnType<typeof writeDeploymentManifests>>;
+
+function ordinaryDeploymentConfigPaths(paths: DeploymentManifestPaths) {
+  return {
+    edgeDeploymentConfigPath: paths.edgeConfigPath,
+    consumerDeploymentConfigPath: paths.consumerConfigPath,
+    webDeploymentConfigPath: paths.webConfigPath,
+    acquisitionDeploymentConfigPath: paths.acquisitionConfigPath,
+    mcpDeploymentConfigPath: paths.mcpConfigPath,
+  };
+}
+
 async function writePrivateCanaryDeploymentManifest(directory: string): Promise<string> {
   const privateCanaryConfigPath = join(directory, 'private-canary.production.toml');
   const manifest = (await readFile(PRIVATE_CANARY_CONFIG, 'utf8')).replace(
@@ -161,21 +185,21 @@ ${extra}`;
   const mcpPrivateCanaryConfigPath = join(directory, 'mcp.private-canary.production.toml');
   await Promise.all([
     writeFile(edgePrivateCanaryConfigPath, manifest(
-      'data-foundry-edge',
+      'data-foundry-private-canary-edge',
       HYPERDRIVE_ID,
-      '\n[[queues.producers]]\nbinding = "USAGE_EVENTS_QUEUE"\nqueue = "data-foundry-usage-events"\n',
+      '\n[[queues.producers]]\nbinding = "USAGE_EVENTS_QUEUE"\nqueue = "data-foundry-private-canary-usage-events"\n',
     ), 'utf8'),
     writeFile(consumerPrivateCanaryConfigPath, manifest(
-      'data-foundry-usage-consumer',
+      'data-foundry-private-canary-usage-consumer',
       CONSUMER_HYPERDRIVE_ID,
-      '\n[[queues.consumers]]\nqueue = "data-foundry-usage-events"\nmax_batch_size = 100\nmax_batch_timeout = 5\nmax_retries = 3\ndead_letter_queue = "data-foundry-usage-events-dlq"\n\n[[queues.consumers]]\nqueue = "data-foundry-private-canary-events"\nmax_batch_size = 1\nmax_batch_timeout = 1\nmax_retries = 3\ndead_letter_queue = "data-foundry-private-canary-dlq"\n',
+      '\n[[queues.consumers]]\nqueue = "data-foundry-private-canary-usage-events"\nmax_batch_size = 100\nmax_batch_timeout = 5\nmax_retries = 3\ndead_letter_queue = "data-foundry-private-canary-usage-events-dlq"\n\n[[queues.consumers]]\nqueue = "data-foundry-private-canary-events"\nmax_batch_size = 1\nmax_batch_timeout = 1\nmax_retries = 3\ndead_letter_queue = "data-foundry-private-canary-dlq"\n',
     ), 'utf8'),
-    writeFile(webPrivateCanaryConfigPath, manifest('data-foundry-web', WEB_HYPERDRIVE_ID), 'utf8'),
-    writeFile(acquisitionPrivateCanaryConfigPath, manifest('data-foundry-acquisition-worker', ACQUISITION_HYPERDRIVE_ID), 'utf8'),
+    writeFile(webPrivateCanaryConfigPath, manifest('data-foundry-private-canary-web', WEB_HYPERDRIVE_ID), 'utf8'),
+    writeFile(acquisitionPrivateCanaryConfigPath, manifest('data-foundry-private-canary-acquisition-worker', ACQUISITION_HYPERDRIVE_ID), 'utf8'),
     writeFile(mcpPrivateCanaryConfigPath, manifest(
-      'data-foundry-mcp-hvac',
+      'data-foundry-private-canary-mcp-hvac',
       MCP_HYPERDRIVE_ID,
-      '\n[[queues.producers]]\nbinding = "USAGE_EVENTS_QUEUE"\nqueue = "data-foundry-usage-events"\n',
+      '\n[[queues.producers]]\nbinding = "USAGE_EVENTS_QUEUE"\nqueue = "data-foundry-private-canary-usage-events"\n',
     ), 'utf8'),
   ]);
   return {
@@ -198,6 +222,17 @@ describe('the committed Cloudflare topology', () => {
     expect(await validate({ mode: 'private-canary' })).toEqual([]);
   });
 
+  it('binds the private-canary harness only to dedicated reduced Worker identities', async () => {
+    const harness = await readFile(PRIVATE_CANARY_CONFIG, 'utf8');
+
+    expect(harness).toContain('service = "data-foundry-private-canary-edge"');
+    expect(harness).toContain('service = "data-foundry-private-canary-web"');
+    expect(harness).toContain('service = "data-foundry-private-canary-usage-consumer"');
+    expect(harness).toContain('service = "data-foundry-private-canary-acquisition-worker"');
+    expect(harness).toContain('service = "data-foundry-private-canary-mcp-hvac"');
+    expect(harness).not.toContain('service = "data-foundry-acquisition-worker"');
+  });
+
   it('keeps private-canary control traffic out of the shared usage DLQ', async () => {
     const [harness, consumer] = await Promise.all([
       readFile(PRIVATE_CANARY_CONFIG, 'utf8'),
@@ -209,6 +244,22 @@ describe('the committed Cloudflare topology', () => {
     expect(harness).not.toContain('data-foundry-usage-events-dlq');
     expect(consumer).toContain('queue = "data-foundry-private-canary-events"');
     expect(consumer).toContain('dead_letter_queue = "data-foundry-private-canary-dlq"');
+  });
+
+  it('keeps synthetic canary metering off the ordinary usage queue', async () => {
+    const [edge, consumer, mcp] = await Promise.all([
+      readFile(EDGE_PRIVATE_CANARY_CONFIG, 'utf8'),
+      readFile(CONSUMER_PRIVATE_CANARY_CONFIG, 'utf8'),
+      readFile(MCP_PRIVATE_CANARY_CONFIG, 'utf8'),
+    ]);
+
+    for (const manifest of [edge, consumer, mcp]) {
+      expect(manifest).not.toContain('data-foundry-usage-events');
+    }
+    expect(edge).toContain('queue = "data-foundry-private-canary-usage-events"');
+    expect(mcp).toContain('queue = "data-foundry-private-canary-usage-events"');
+    expect(consumer).toContain('queue = "data-foundry-private-canary-usage-events"');
+    expect(consumer).toContain('dead_letter_queue = "data-foundry-private-canary-usage-events-dlq"');
   });
 
   it('rejects any harness or target binding that maps canary control traffic onto a shared usage queue', async () => {
@@ -225,6 +276,7 @@ describe('the committed Cloudflare topology', () => {
       'utf8',
     );
     const paths = await writePrivateCanaryTargetDeploymentManifests(directory);
+    const ordinary = await writeDeploymentManifests(directory);
     await writeFile(
       paths.consumerPrivateCanaryConfigPath,
       (await readFile(paths.consumerPrivateCanaryConfigPath, 'utf8')).replace(
@@ -236,11 +288,39 @@ describe('the committed Cloudflare topology', () => {
 
     const [harnessErrors, targetErrors] = await Promise.all([
       validate({ mode: 'private-canary', privateCanaryConfigPath }),
-      validate({ mode: 'private-canary-target-deployment', ...paths }),
+      validate({
+        mode: 'private-canary-target-deployment',
+        ...paths,
+        ...ordinaryDeploymentConfigPaths(ordinary),
+      }),
     ]);
 
     expect(harnessErrors.join('\n')).toMatch(/private-canary.*never.*data-foundry-usage-events-dlq/i);
     expect(targetErrors.join('\n')).toMatch(/data-foundry-private-canary-events.*data-foundry-private-canary-dlq/i);
+  });
+
+  it('rejects a private-canary target that publishes synthetic metering to the ordinary usage queue', async () => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-private-canary-metering-isolation-'));
+    temporaryDirectories.push(directory);
+    const paths = await writePrivateCanaryTargetDeploymentManifests(directory);
+    const ordinary = await writeDeploymentManifests(directory);
+    await writeFile(
+      paths.edgePrivateCanaryConfigPath,
+      (await readFile(paths.edgePrivateCanaryConfigPath, 'utf8')).replace(
+        'queue = "data-foundry-private-canary-usage-events"',
+        'queue = "data-foundry-usage-events"',
+      ),
+      'utf8',
+    );
+
+    const errors = await validate({
+      mode: 'private-canary-target-deployment',
+      ...paths,
+      ...ordinaryDeploymentConfigPaths(ordinary),
+    });
+
+    expect(errors.join('\n')).toMatch(/edge private-canary target must produce only to data-foundry-private-canary-usage-events/i);
   });
 
   it('defines five route-less private-target templates with only their intended synthetic queue capabilities', async () => {
@@ -253,11 +333,45 @@ describe('the committed Cloudflare topology', () => {
     const directory = await mkdtemp(join(tmpdir(), 'data-foundry-private-canary-deployment-'));
     temporaryDirectories.push(directory);
     const privateCanaryConfigPath = await writePrivateCanaryDeploymentManifest(directory);
+    const ordinary = await writeDeploymentManifests(directory);
 
     expect(await validate({
       mode: 'private-canary-deployment',
       privateCanaryConfigPath,
+      edgeDeploymentConfigPath: ordinary.edgeConfigPath,
+      consumerDeploymentConfigPath: ordinary.consumerConfigPath,
+      webDeploymentConfigPath: ordinary.webConfigPath,
+      acquisitionDeploymentConfigPath: ordinary.acquisitionConfigPath,
+      mcpDeploymentConfigPath: ordinary.mcpConfigPath,
     })).toEqual([]);
+  });
+
+  it('rejects a private-canary deployment when an ignored ordinary manifest claims the harness identity', async () => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-private-canary-harness-deployment-name-collision-'));
+    temporaryDirectories.push(directory);
+    const privateCanaryConfigPath = await writePrivateCanaryDeploymentManifest(directory);
+    const ordinary = await writeDeploymentManifests(directory);
+    await writeFile(
+      ordinary.acquisitionConfigPath,
+      (await readFile(ordinary.acquisitionConfigPath, 'utf8')).replace(
+        'name = "data-foundry-acquisition-worker"',
+        'name = "data-foundry-private-canary"',
+      ),
+      'utf8',
+    );
+
+    const errors = await validate({
+      mode: 'private-canary-deployment',
+      privateCanaryConfigPath,
+      edgeDeploymentConfigPath: ordinary.edgeConfigPath,
+      consumerDeploymentConfigPath: ordinary.consumerConfigPath,
+      webDeploymentConfigPath: ordinary.webConfigPath,
+      acquisitionDeploymentConfigPath: ordinary.acquisitionConfigPath,
+      mcpDeploymentConfigPath: ordinary.mcpConfigPath,
+    });
+
+    expect(errors.join('\n')).toMatch(/private-canary harness must not reuse an ordinary Worker name/i);
   });
 
   it('validates five ignored private-target manifests as distinct, route-less Hyperdrive capabilities', async () => {
@@ -265,11 +379,129 @@ describe('the committed Cloudflare topology', () => {
     const directory = await mkdtemp(join(tmpdir(), 'data-foundry-private-canary-target-deployment-'));
     temporaryDirectories.push(directory);
     const paths = await writePrivateCanaryTargetDeploymentManifests(directory);
+    const ordinary = await writeDeploymentManifests(directory);
 
     expect(await validate({
       mode: 'private-canary-target-deployment',
       ...paths,
+      ...ordinaryDeploymentConfigPaths(ordinary),
     })).toEqual([]);
+  });
+
+  it('rejects a full deployment when an ignored ordinary manifest claims a dedicated canary identity', async () => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-private-canary-full-deployment-name-collision-'));
+    temporaryDirectories.push(directory);
+    const ordinary = await writeDeploymentManifests(directory);
+    const privateCanaryConfigPath = await writePrivateCanaryDeploymentManifest(directory);
+    const targets = await writePrivateCanaryTargetDeploymentManifests(directory);
+    await writeFile(
+      privateCanaryConfigPath,
+      (await readFile(privateCanaryConfigPath, 'utf8')).replace(
+        `account_id = "${PRIVATE_CANARY_ACCOUNT_ID}"`,
+        `account_id = "${ACCOUNT_ID}"`,
+      ),
+      'utf8',
+    );
+    await writeFile(
+      ordinary.acquisitionConfigPath,
+      (await readFile(ordinary.acquisitionConfigPath, 'utf8')).replace(
+        'name = "data-foundry-acquisition-worker"',
+        'name = "data-foundry-private-canary-acquisition-worker"',
+      ),
+      'utf8',
+    );
+
+    const errors = await validate({
+      mode: 'private-canary-full-deployment',
+      privateCanaryConfigPath,
+      ...targets,
+      edgeDeploymentConfigPath: ordinary.edgeConfigPath,
+      consumerDeploymentConfigPath: ordinary.consumerConfigPath,
+      webDeploymentConfigPath: ordinary.webConfigPath,
+      acquisitionDeploymentConfigPath: ordinary.acquisitionConfigPath,
+      mcpDeploymentConfigPath: ordinary.mcpConfigPath,
+    });
+
+    expect(errors.join('\n')).toMatch(/acquisition-worker private-canary target must not reuse an ordinary Worker name/i);
+  });
+
+  it('rejects a reduced target deployment manifest that reuses its ordinary Worker identity', async () => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-private-canary-target-name-collision-'));
+    temporaryDirectories.push(directory);
+    const paths = await writePrivateCanaryTargetDeploymentManifests(directory);
+    const ordinary = await writeDeploymentManifests(directory);
+    await writeFile(
+      paths.acquisitionPrivateCanaryConfigPath,
+      (await readFile(paths.acquisitionPrivateCanaryConfigPath, 'utf8')).replace(
+        'data-foundry-private-canary-acquisition-worker',
+        'data-foundry-acquisition-worker',
+      ),
+      'utf8',
+    );
+
+    const errors = await validate({
+      mode: 'private-canary-target-deployment',
+      ...paths,
+      ...ordinaryDeploymentConfigPaths(ordinary),
+    });
+
+    expect(errors.join('\n')).toMatch(/private-canary target.*must not reuse.*ordinary/i);
+  });
+
+  it('rejects a dedicated canary identity claimed by an ordinary manifest', async () => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-private-canary-ordinary-name-collision-'));
+    temporaryDirectories.push(directory);
+    const acquisitionConfigPath = join(directory, 'acquisition.toml');
+    await writeFile(
+      acquisitionConfigPath,
+      (await readFile(ACQUISITION_CONFIG, 'utf8')).replace(
+        'name = "data-foundry-acquisition-worker"',
+        'name = "data-foundry-private-canary-acquisition-worker"',
+      ),
+      'utf8',
+    );
+
+    const [targetErrors, repositoryErrors] = await Promise.all([
+      validate({ mode: 'private-canary-target', acquisitionConfigPath }),
+      validate({ acquisitionConfigPath }),
+    ]);
+
+    expect(targetErrors.join('\n')).toMatch(
+      /acquisition-worker private-canary target must not reuse an ordinary Worker name/i,
+    );
+    expect(repositoryErrors.join('\n')).toMatch(
+      /acquisition-worker private-canary target must not reuse an ordinary Worker name/i,
+    );
+  });
+
+  it('rejects the private-canary harness identity claimed by an ordinary manifest', async () => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-private-canary-harness-name-collision-'));
+    temporaryDirectories.push(directory);
+    const acquisitionConfigPath = join(directory, 'acquisition.toml');
+    await writeFile(
+      acquisitionConfigPath,
+      (await readFile(ACQUISITION_CONFIG, 'utf8')).replace(
+        'name = "data-foundry-acquisition-worker"',
+        'name = "data-foundry-private-canary"',
+      ),
+      'utf8',
+    );
+
+    const [harnessErrors, repositoryErrors] = await Promise.all([
+      validate({ mode: 'private-canary', acquisitionConfigPath }),
+      validate({ acquisitionConfigPath }),
+    ]);
+
+    expect(harnessErrors.join('\n')).toMatch(
+      /private-canary harness must not reuse an ordinary Worker name/i,
+    );
+    expect(repositoryErrors.join('\n')).toMatch(
+      /private-canary harness must not reuse an ordinary Worker name/i,
+    );
   });
 
   it('fails closed when the private-canary harness and target manifests name different accounts', async () => {
@@ -278,11 +510,13 @@ describe('the committed Cloudflare topology', () => {
     temporaryDirectories.push(directory);
     const privateCanaryConfigPath = await writePrivateCanaryDeploymentManifest(directory);
     const paths = await writePrivateCanaryTargetDeploymentManifests(directory);
+    const ordinary = await writeDeploymentManifests(directory);
 
     const errors = await validate({
       mode: 'private-canary-full-deployment',
       privateCanaryConfigPath,
       ...paths,
+      ...ordinaryDeploymentConfigPaths(ordinary),
     });
 
     expect(errors.join('\n')).toMatch(/private-canary.*account_id.*target/i);
@@ -300,11 +534,13 @@ describe('the committed Cloudflare topology', () => {
       'utf8',
     );
     const paths = await writePrivateCanaryTargetDeploymentManifests(directory);
+    const ordinary = await writeDeploymentManifests(directory);
 
     expect(await validate({
       mode: 'private-canary-full-deployment',
       privateCanaryConfigPath,
       ...paths,
+      ...ordinaryDeploymentConfigPaths(ordinary),
     })).toEqual([]);
   });
 
@@ -324,11 +560,13 @@ describe('the committed Cloudflare topology', () => {
       'utf8',
     );
     const paths = await writePrivateCanaryTargetDeploymentManifests(directory);
+    const ordinary = await writeDeploymentManifests(directory);
 
     const errors = await validate({
       mode: 'private-canary-full-deployment',
       privateCanaryConfigPath,
       ...paths,
+      ...ordinaryDeploymentConfigPaths(ordinary),
     });
 
     expect(errors.join('\n')).toMatch(/private-canary.*service.*environment/i);
@@ -345,6 +583,7 @@ describe('the committed Cloudflare topology', () => {
       'utf8',
     );
     const paths = await writePrivateCanaryTargetDeploymentManifests(directory);
+    const ordinary = await writeDeploymentManifests(directory);
     await writeFile(
       paths.edgePrivateCanaryConfigPath,
       (await readFile(paths.edgePrivateCanaryConfigPath, 'utf8')).replace(
@@ -358,6 +597,7 @@ describe('the committed Cloudflare topology', () => {
       mode: 'private-canary-full-deployment',
       privateCanaryConfigPath,
       ...paths,
+      ...ordinaryDeploymentConfigPaths(ordinary),
     });
 
     expect(errors.join('\n')).toMatch(/edge.*Hyperdrive.*binding.*id/i);
@@ -369,6 +609,7 @@ describe('the committed Cloudflare topology', () => {
     const directory = await mkdtemp(join(tmpdir(), 'data-foundry-private-canary-target-deployment-drift-'));
     temporaryDirectories.push(directory);
     const paths = await writePrivateCanaryTargetDeploymentManifests(directory);
+    const ordinary = await writeDeploymentManifests(directory);
     await Promise.all([
       writeFile(
         paths.edgePrivateCanaryConfigPath,
@@ -390,7 +631,11 @@ describe('the committed Cloudflare topology', () => {
       ),
     ]);
 
-    const errors = await validate({ mode: 'private-canary-target-deployment', ...paths });
+    const errors = await validate({
+      mode: 'private-canary-target-deployment',
+      ...paths,
+      ...ordinaryDeploymentConfigPaths(ordinary),
+    });
     expect(errors.join('\n')).toMatch(/edge.*route-less/i);
     expect(errors.join('\n')).toMatch(/web.*PUBLIC_ORIGIN/i);
     expect(errors.join('\n')).toMatch(/mcp-worker.*PRIVATE_CANARY_MODE/i);
@@ -402,10 +647,12 @@ describe('the committed Cloudflare topology', () => {
     const validate = await loadValidator();
     const directory = await mkdtemp(join(tmpdir(), 'data-foundry-private-canary-deployment-missing-'));
     temporaryDirectories.push(directory);
+    const ordinary = await writeDeploymentManifests(directory);
 
     expect(await validate({
       mode: 'private-canary-deployment',
       privateCanaryConfigPath: join(directory, 'missing-private-canary.production.toml'),
+      ...ordinaryDeploymentConfigPaths(ordinary),
     })).toEqual(['private-canary manifest could not be read and parsed as TOML.']);
   });
 
@@ -414,6 +661,7 @@ describe('the committed Cloudflare topology', () => {
     const directory = await mkdtemp(join(tmpdir(), 'data-foundry-private-canary-deployment-drift-'));
     temporaryDirectories.push(directory);
     const privateCanaryConfigPath = await writePrivateCanaryDeploymentManifest(directory);
+    const ordinary = await writeDeploymentManifests(directory);
     const invalidAccountId = 'not-a-private-canary-account-id';
     await writeFile(
       privateCanaryConfigPath,
@@ -428,7 +676,11 @@ describe('the committed Cloudflare topology', () => {
       'utf8',
     );
 
-    const errors = await validate({ mode: 'private-canary-deployment', privateCanaryConfigPath });
+    const errors = await validate({
+      mode: 'private-canary-deployment',
+      privateCanaryConfigPath,
+      ...ordinaryDeploymentConfigPaths(ordinary),
+    });
     expect(errors.join('\n')).toMatch(/private-canary.*32-hex account_id/i);
     expect(errors.join('\n')).toMatch(/workers[_\. ]dev/i);
     expect(errors.join('\n')).toMatch(/preview/i);

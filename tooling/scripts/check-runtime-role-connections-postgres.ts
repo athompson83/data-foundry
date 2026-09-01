@@ -1,4 +1,5 @@
 import pg from 'pg';
+import { directPostgresTlsConfig } from '@data-foundry/canonical-store';
 import { isMain } from '../lib/cli-entry.js';
 
 const ROLE_URLS = {
@@ -63,7 +64,8 @@ SELECT current_user = $1 AND session_user = $1 AS direct_login,
 
 export async function checkRuntimeRoleConnectionsPostgres(
   env: Readonly<Record<string, string | undefined>> = process.env,
-  connect: ConnectionFactory = async (connectionString) => new pg.Client({ connectionString }) as Connection,
+  connect: ConnectionFactory = async (connectionString) =>
+    new pg.Client(directPostgresTlsConfig(connectionString)) as Connection,
 ): Promise<void> {
   if (env['DATA_FOUNDRY_RUNTIME_ROLE_CONNECTION_TEST'] !== '1') {
     throw new Error('Set DATA_FOUNDRY_RUNTIME_ROLE_CONNECTION_TEST=1 for the dedicated real PostgreSQL check.');
@@ -71,20 +73,16 @@ export async function checkRuntimeRoleConnectionsPostgres(
   if ((env['PGOPTIONS'] ?? '').trim() !== '') {
     throw new Error('PGOPTIONS must be absent for the direct runtime-role connection check.');
   }
-  for (const [role, envName] of Object.entries(ROLE_URLS) as Array<[RuntimeRole, string]>) {
+  const roleConnections = (Object.entries(ROLE_URLS) as Array<[RuntimeRole, string]>).map(([role, envName]) => {
     const connectionString = env[envName];
     if (connectionString === undefined || connectionString.trim() === '') {
       throw new Error(`${envName} is required for the direct runtime-role connection check.`);
     }
-    let parsedConnection: URL;
-    try {
-      parsedConnection = new URL(connectionString);
-    } catch {
-      throw new Error(`${envName} must be a valid PostgreSQL connection URL.`);
-    }
-    if (parsedConnection.searchParams.has('options')) {
-      throw new Error(`${envName} must not contain startup options.`);
-    }
+    directPostgresTlsConfig(connectionString);
+    return { role, connectionString };
+  });
+
+  for (const { role, connectionString } of roleConnections) {
     const client = await connect(connectionString, role);
     try {
       await client.connect();

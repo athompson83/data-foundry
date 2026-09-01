@@ -23,7 +23,7 @@ describe('real PostgreSQL runtime-role connection check', () => {
     expect(opened.map((entry) => entry.split(':', 1)[0])).toEqual(roles);
   });
 
-  it('rejects a direct role whose durable database search path is not exact', async () => {
+  it('rejects a direct role whose effective session search path is not exact', async () => {
     const env: Record<string, string> = { DATA_FOUNDRY_RUNTIME_ROLE_CONNECTION_TEST: '1' };
     for (const role of roles) env[`DATA_FOUNDRY_${role.slice(3).toUpperCase()}_POSTGRES_URL`] = 'postgres://secret@db.invalid/data';
     await expect(
@@ -37,7 +37,7 @@ describe('real PostgreSQL runtime-role connection check', () => {
     ).rejects.toThrow(/runtime-role connection verification failed/i);
   });
 
-  it('rejects a missing or wrong durable per-role database search_path setting', async () => {
+  it('rejects a direct role whose durable database search path is not exact', async () => {
     const env: Record<string, string> = { DATA_FOUNDRY_RUNTIME_ROLE_CONNECTION_TEST: '1' };
     for (const role of roles) env[`DATA_FOUNDRY_${role.slice(3).toUpperCase()}_POSTGRES_URL`] = 'postgres://secret@db.invalid/data';
     await expect(
@@ -51,19 +51,59 @@ describe('real PostgreSQL runtime-role connection check', () => {
     ).rejects.toThrow(/runtime-role connection verification failed/i);
   });
 
-  it('rejects connection URL startup options before opening a socket', async () => {
+  it.each([
+    '?sslmode=disable',
+    '?SSLMode=disable',
+    '?ssl=no-verify',
+    '?sslmode=verify-full',
+    '?host=%2Ftmp',
+    '?options=-csearch_path%3Dpublic',
+  ])('rejects the direct URL override %s before opening a runtime-role credential', async (query) => {
     const env: Record<string, string> = { DATA_FOUNDRY_RUNTIME_ROLE_CONNECTION_TEST: '1' };
     for (const role of roles) env[`DATA_FOUNDRY_${role.slice(3).toUpperCase()}_POSTGRES_URL`] = 'postgres://secret@db.invalid/data';
-    env['DATA_FOUNDRY_EDGE_POSTGRES_URL'] =
-      'postgres://secret@db.invalid/data?options=-csearch_path%3Ddata_foundry';
-    let connected = false;
+    env['DATA_FOUNDRY_EDGE_POSTGRES_URL'] = `postgres://secret@db.invalid/data${query}`;
+    const attemptedRoles: string[] = [];
+
     await expect(
-      checkRuntimeRoleConnectionsPostgres(env, async () => {
-        connected = true;
+      checkRuntimeRoleConnectionsPostgres(env, async (_connectionString, role) => {
+        attemptedRoles.push(role);
         throw new Error('must not connect');
       }),
-    ).rejects.toThrow(/startup options/i);
-    expect(connected).toBe(false);
+    ).rejects.toThrow(/TLS.*query|query.*TLS/i);
+
+    expect(attemptedRoles).toEqual([]);
+  });
+
+  it('rejects a non-PostgreSQL role URL before opening a runtime-role credential', async () => {
+    const env: Record<string, string> = { DATA_FOUNDRY_RUNTIME_ROLE_CONNECTION_TEST: '1' };
+    for (const role of roles) env[`DATA_FOUNDRY_${role.slice(3).toUpperCase()}_POSTGRES_URL`] = 'postgres://secret@db.invalid/data';
+    env['DATA_FOUNDRY_EDGE_POSTGRES_URL'] = 'mysql://secret@db.invalid/data';
+    const attemptedRoles: string[] = [];
+
+    await expect(
+      checkRuntimeRoleConnectionsPostgres(env, async (_connectionString, role) => {
+        attemptedRoles.push(role);
+        throw new Error('must not connect');
+      }),
+    ).rejects.toThrow(/TLS/i);
+
+    expect(attemptedRoles).toEqual([]);
+  });
+
+  it('preflights every runtime-role URL before opening a credential for an earlier role', async () => {
+    const env: Record<string, string> = { DATA_FOUNDRY_RUNTIME_ROLE_CONNECTION_TEST: '1' };
+    for (const role of roles) env[`DATA_FOUNDRY_${role.slice(3).toUpperCase()}_POSTGRES_URL`] = 'postgres://secret@db.invalid/data';
+    env['DATA_FOUNDRY_WEB_POSTGRES_URL'] = 'postgres://secret@db.invalid/data?sslmode=disable';
+    const attemptedRoles: string[] = [];
+
+    await expect(
+      checkRuntimeRoleConnectionsPostgres(env, async (_connectionString, role) => {
+        attemptedRoles.push(role);
+        throw new Error('must not connect');
+      }),
+    ).rejects.toThrow(/TLS.*query|query.*TLS/i);
+
+    expect(attemptedRoles).toEqual([]);
   });
 
   it('rejects ambient PGOPTIONS before opening a socket', async () => {

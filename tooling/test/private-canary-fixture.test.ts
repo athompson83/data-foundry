@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createPgliteDriver, type SqlDriver, type SqlParam } from '@data-foundry/canonical-store';
+import { createPrivateCanaryFixtureEnvelope } from '@data-foundry/private-canary';
 import { applyMigrations, loadMigrations, type MigrationDriver } from '../scripts/migrate.js';
 import {
   cleanupPrivateCanaryFixture,
@@ -26,7 +27,7 @@ function migrationDriverView(sqlDriver: SqlDriver): MigrationDriver {
 }
 
 async function insertMeteredEvents(
-  fixture: ReturnType<typeof createPrivateCanaryFixture>,
+  fixture: Awaited<ReturnType<typeof createPrivateCanaryFixture>>,
   options: Readonly<{ edgeDurationMs?: number; edgeRoute?: string; mcpRoute?: string }> = {},
 ): Promise<void> {
   await driver.query(
@@ -76,7 +77,17 @@ afterAll(async () => {
 
 describe('private canary synthetic database fixture', () => {
   it('creates only deterministic synthetic rows, proves duplicate usage ids collapse, and cleans up without touching public', async () => {
-    const fixture = createPrivateCanaryFixture(RUN_ID, CYCLE_A);
+    const fixture = await createPrivateCanaryFixture(RUN_ID, CYCLE_A);
+    expect(await createPrivateCanaryFixtureEnvelope(RUN_ID, CYCLE_A)).toMatchObject({
+      run_id: fixture.runId,
+      issued_at: fixture.issuedAt,
+      tenant_id: fixture.tenantId,
+      vertical_id: fixture.verticalId,
+      edge_api_key_id: fixture.edgeApiKeyId,
+      mcp_api_key_id: fixture.mcpApiKeyId,
+      edge_event_id: fixture.edgeEventId,
+      mcp_event_id: fixture.mcpEventId,
+    });
 
     await preparePrivateCanaryFixture(driver, fixture);
     await preparePrivateCanaryFixture(driver, fixture);
@@ -101,8 +112,8 @@ describe('private canary synthetic database fixture', () => {
   });
 
   it('does not let an earlier cycle satisfy a later cycle that reuses the same run id', async () => {
-    const earlier = createPrivateCanaryFixture(RUN_ID, CYCLE_A);
-    const later = createPrivateCanaryFixture(RUN_ID, CYCLE_B);
+    const earlier = await createPrivateCanaryFixture(RUN_ID, CYCLE_A);
+    const later = await createPrivateCanaryFixture(RUN_ID, CYCLE_B);
 
     expect(later.edgeEventId).not.toBe(earlier.edgeEventId);
     expect(later.mcpEventId).not.toBe(earlier.mcpEventId);
@@ -129,7 +140,7 @@ describe('private canary synthetic database fixture', () => {
   });
 
   it('rejects a usage event whose closed metering fields do not match the issued cycle', async () => {
-    const fixture = createPrivateCanaryFixture(RUN_ID, CYCLE_B);
+    const fixture = await createPrivateCanaryFixture(RUN_ID, CYCLE_B);
     await preparePrivateCanaryFixture(driver, fixture);
     await insertMeteredEvents(fixture, { edgeDurationMs: 1 });
 

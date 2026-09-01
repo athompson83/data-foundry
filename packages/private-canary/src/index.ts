@@ -62,7 +62,6 @@ export function resolvePrivateCanaryConnectionString(
   return connectionString;
 }
 
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const UUID_V4_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const ENVELOPE_KEYS = [
   'kind',
@@ -110,6 +109,87 @@ export const PRIVATE_CANARY_WORKERS = [
 export type PrivateCanaryWorker = (typeof PRIVATE_CANARY_WORKERS)[number];
 export type PrivateCanaryMetering = 'QUEUED' | 'NOT_APPLICABLE';
 
+const PRIVATE_CANARY_RUNTIME_ROLE_BY_WORKER: Readonly<Record<PrivateCanaryWorker, string>> = {
+  edge: 'df_edge',
+  web: 'df_web',
+  'usage-consumer': 'df_usage',
+  'acquisition-worker': 'df_acquisition',
+  'mcp-worker': 'df_mcp',
+};
+
+/** The only non-sensitive identity and privilege facts a target probe retains. */
+export interface PrivateCanaryRuntimeBinding {
+  readonly [key: string]: unknown;
+  readonly current_user: unknown;
+  readonly session_user: unknown;
+  readonly role_is_login_nonprivileged: unknown;
+  readonly membership_is_empty: unknown;
+  readonly private_schema_usage: unknown;
+  readonly private_schema_create: unknown;
+  readonly role_capability_is_exact: unknown;
+}
+
+/**
+ * A target proves the identity of its bound Hyperdrive before treating a
+ * successful connection as readiness. The query contains no connection data,
+ * source content, or row values; it returns only booleans and role identity.
+ */
+export const PRIVATE_CANARY_RUNTIME_BINDING_SQL = `
+SELECT current_user::text AS current_user,
+       session_user::text AS session_user,
+       EXISTS (
+         SELECT 1 FROM pg_roles role
+          WHERE role.rolname = $1 AND role.rolcanlogin
+            AND NOT role.rolsuper AND NOT role.rolcreatedb AND NOT role.rolcreaterole
+            AND NOT role.rolreplication AND NOT role.rolbypassrls
+       ) AS role_is_login_nonprivileged,
+       NOT EXISTS (
+         SELECT 1 FROM pg_auth_members membership
+          WHERE membership.member = (SELECT oid FROM pg_roles WHERE rolname = $1)
+             OR membership.roleid = (SELECT oid FROM pg_roles WHERE rolname = $1)
+       ) AS membership_is_empty,
+       has_schema_privilege(current_user, 'data_foundry', 'USAGE') AS private_schema_usage,
+       has_schema_privilege(current_user, 'data_foundry', 'CREATE') AS private_schema_create,
+       CASE $1
+         WHEN 'df_edge' THEN has_table_privilege(current_user, 'data_foundry.verticals', 'SELECT')
+           AND has_column_privilege(current_user, 'data_foundry.api_keys', 'token_hash', 'SELECT')
+           AND NOT has_column_privilege(current_user, 'data_foundry.api_keys', 'created_at', 'SELECT')
+         WHEN 'df_web' THEN has_table_privilege(current_user, 'data_foundry.verticals', 'SELECT')
+           AND NOT has_any_column_privilege(current_user, 'data_foundry.api_keys', 'SELECT')
+         WHEN 'df_usage' THEN has_column_privilege(current_user, 'data_foundry.api_usage_events', 'route_key', 'INSERT')
+           AND NOT has_table_privilege(current_user, 'data_foundry.api_usage_events', 'UPDATE')
+         WHEN 'df_acquisition' THEN has_table_privilege(current_user, 'data_foundry.sources', 'UPDATE')
+           AND NOT has_table_privilege(current_user, 'data_foundry.sources', 'DELETE')
+           AND has_function_privilege(current_user, 'data_foundry.scheduled_acquisition_validators_valid(jsonb)', 'EXECUTE')
+         WHEN 'df_mcp' THEN has_table_privilege(current_user, 'data_foundry.verticals', 'SELECT')
+           AND has_column_privilege(current_user, 'data_foundry.api_keys', 'token_hash', 'SELECT')
+         ELSE false
+       END AS role_capability_is_exact`;
+
+/**
+ * Refuse a target whose bound login, session login, or narrow private-schema
+ * capability differs from its declared runtime role before it can emit READY.
+ */
+export async function assertPrivateCanaryRuntimeBinding(
+  worker: PrivateCanaryWorker,
+  readBinding: (expectedRole: string) => Promise<readonly PrivateCanaryRuntimeBinding[]>,
+): Promise<void> {
+  const expectedRole = PRIVATE_CANARY_RUNTIME_ROLE_BY_WORKER[worker];
+  const [binding] = await readBinding(expectedRole);
+  if (
+    binding === undefined
+    || binding.current_user !== expectedRole
+    || binding.session_user !== expectedRole
+    || binding.role_is_login_nonprivileged !== true
+    || binding.membership_is_empty !== true
+    || binding.private_schema_usage !== true
+    || binding.private_schema_create !== false
+    || binding.role_capability_is_exact !== true
+  ) {
+    throw new PrivateCanaryConfigurationError('Private canary runtime binding is invalid.');
+  }
+}
+
 /**
  * A named Worker RPC result. Its closed vocabulary intentionally leaves no
  * field for a connection string, exception, request, source record, or body.
@@ -148,6 +228,66 @@ function isCanonicalIsoInstant(value: unknown): value is string {
   }
 }
 
+function canonicalFixtureRunId(value: string): string {
+  const runId = value.trim().toLowerCase();
+  if (!UUID_V4_RE.test(runId)) {
+    throw new TypeError('Private canary fixture requires a canonical UUID v4 run id.');
+  }
+  return runId;
+}
+
+function canonicalFixtureIssuedAt(value: string): string {
+  const issuedAt = value.trim();
+  if (!isCanonicalIsoInstant(issuedAt)) {
+    throw new TypeError('Private canary fixture requires a canonical cycle timestamp.');
+  }
+  return issuedAt;
+}
+
+async function deterministicFixtureUuid(runId: string, issuedAt: string, label: string): Promise<string> {
+  const digest = await crypto.subtle.digest(
+    'SHA-256',
+    new TextEncoder().encode(`data-foundry-private-canary:${runId}:${issuedAt}:${label}`),
+  );
+  const bytes = new Uint8Array(digest).slice(0, 16);
+  bytes[6] = ((bytes[6] ?? 0) & 0x0f) | 0x40;
+  bytes[8] = ((bytes[8] ?? 0) & 0x3f) | 0x80;
+  const hex = Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+}
+
+/**
+ * Derive the only control envelope a private-canary fixture may emit. Web
+ * Crypto keeps this derivation identical in the fixture CLI and Cloudflare
+ * Worker runtime without importing a Node-only hashing API into a Worker.
+ */
+export async function createPrivateCanaryFixtureEnvelope(
+  inputRunId: string,
+  inputIssuedAt: string,
+): Promise<PrivateCanaryEnvelope> {
+  const runId = canonicalFixtureRunId(inputRunId);
+  const issuedAt = canonicalFixtureIssuedAt(inputIssuedAt);
+  const [tenantId, verticalId, edgeApiKeyId, mcpApiKeyId, edgeEventId, mcpEventId] = await Promise.all([
+    deterministicFixtureUuid(runId, issuedAt, 'tenant'),
+    deterministicFixtureUuid(runId, issuedAt, 'vertical'),
+    deterministicFixtureUuid(runId, issuedAt, 'edge-api-key'),
+    deterministicFixtureUuid(runId, issuedAt, 'mcp-api-key'),
+    deterministicFixtureUuid(runId, issuedAt, 'edge-event'),
+    deterministicFixtureUuid(runId, issuedAt, 'mcp-event'),
+  ]);
+  return {
+    kind: PRIVATE_CANARY_ENVELOPE_KIND,
+    run_id: runId,
+    issued_at: issuedAt,
+    tenant_id: tenantId,
+    vertical_id: verticalId,
+    edge_api_key_id: edgeApiKeyId,
+    mcp_api_key_id: mcpApiKeyId,
+    edge_event_id: edgeEventId,
+    mcp_event_id: mcpEventId,
+  };
+}
+
 function hasExactKeys(value: Record<string, unknown>): boolean {
   const actual = Object.keys(value).sort();
   const expected = [...ENVELOPE_KEYS].sort();
@@ -172,40 +312,31 @@ function expectedMetering(worker: PrivateCanaryWorker): PrivateCanaryMetering {
  * Parse a DLQ message fail-closed. Unknown fields are rejected so a future
  * caller cannot piggyback a secret, URL, source payload, or arbitrary command.
  */
-export function parsePrivateCanaryEnvelope(raw: unknown): PrivateCanaryEnvelope | null {
+export async function parsePrivateCanaryEnvelope(raw: unknown): Promise<PrivateCanaryEnvelope | null> {
   if (!isRecord(raw) || !hasExactKeys(raw)) return null;
   if (raw['kind'] !== PRIVATE_CANARY_ENVELOPE_KIND) {
     return null;
   }
 
-  if (typeof raw['run_id'] !== 'string' || !UUID_V4_RE.test(raw['run_id'])) {
+  if (typeof raw['run_id'] !== 'string' || typeof raw['issued_at'] !== 'string') {
     return null;
   }
 
-  const correlationIdentifiers = [
-    raw['tenant_id'],
-    raw['vertical_id'],
-    raw['edge_api_key_id'],
-    raw['mcp_api_key_id'],
-    raw['edge_event_id'],
-    raw['mcp_event_id'],
-  ];
-  if (correlationIdentifiers.some((identifier) => typeof identifier !== 'string' || !UUID_RE.test(identifier))) {
+  try {
+    const expected = await createPrivateCanaryFixtureEnvelope(raw['run_id'], raw['issued_at']);
+    return raw['tenant_id'] === expected.tenant_id
+      && raw['vertical_id'] === expected.vertical_id
+      && raw['edge_api_key_id'] === expected.edge_api_key_id
+      && raw['mcp_api_key_id'] === expected.mcp_api_key_id
+      && raw['edge_event_id'] === expected.edge_event_id
+      && raw['mcp_event_id'] === expected.mcp_event_id
+      && raw['run_id'] === expected.run_id
+      && raw['issued_at'] === expected.issued_at
+      ? expected
+      : null;
+  } catch {
     return null;
   }
-  if (!isCanonicalIsoInstant(raw['issued_at'])) return null;
-
-  return {
-    kind: PRIVATE_CANARY_ENVELOPE_KIND,
-    run_id: raw['run_id'] as string,
-    issued_at: raw['issued_at'] as string,
-    tenant_id: raw['tenant_id'] as string,
-    vertical_id: raw['vertical_id'] as string,
-    edge_api_key_id: raw['edge_api_key_id'] as string,
-    mcp_api_key_id: raw['mcp_api_key_id'] as string,
-    edge_event_id: raw['edge_event_id'] as string,
-    mcp_event_id: raw['mcp_event_id'] as string,
-  };
 }
 
 export function toPrivateCanaryProbeInput(envelope: PrivateCanaryEnvelope): PrivateCanaryProbeInput {

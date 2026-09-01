@@ -43,7 +43,10 @@ describe('mcp-worker private-canary readiness', () => {
       connectionString: 'postgres://hyperdrive.fixture/mcp',
       options: { schema: 'data_foundry' },
     }]);
-    expect(hyperdrive.statements).toEqual(['SELECT 1 AS ready']);
+    expect(hyperdrive.statements).toEqual([
+      expect.stringContaining('current_user::text AS current_user'),
+      'SELECT 1 AS ready',
+    ]);
     expect(hyperdrive.closed()).toBe(true);
     expect(sent).toHaveLength(2);
     expect(sent[1]).toEqual(sent[0]);
@@ -81,6 +84,48 @@ describe('mcp-worker private-canary readiness', () => {
       },
       { openDriver: hyperdrive.openDriver },
     )).rejects.toThrow('Private canary probe failed.');
+    expect(hyperdrive.closed()).toBe(true);
+  });
+
+  it('rejects an incomplete runtime capability matrix before sending metering', async () => {
+    const hyperdrive = recordingHyperdrive({
+      roleBinding: { roleCapabilityIsExact: false },
+    });
+    const sent: unknown[] = [];
+
+    await expect(probePrivateCanaryReadiness(
+      input,
+      {
+        DEPLOYMENT_ENVIRONMENT: 'production',
+        PRIVATE_CANARY_MODE: 'service-binding',
+        HYPERDRIVE: { connectionString: 'postgres://hyperdrive.fixture/mcp' },
+        USAGE_EVENTS_QUEUE: { send: async (event: unknown) => { sent.push(event); } },
+      },
+      { openDriver: hyperdrive.openDriver },
+    )).rejects.toThrow('Private canary probe failed.');
+
+    expect(sent).toEqual([]);
+    expect(hyperdrive.closed()).toBe(true);
+  });
+
+  it('rejects a df_mcp login with role membership before sending metering', async () => {
+    const hyperdrive = recordingHyperdrive({
+      roleBinding: { membershipIsEmpty: false },
+    });
+    const sent: unknown[] = [];
+
+    await expect(probePrivateCanaryReadiness(
+      input,
+      {
+        DEPLOYMENT_ENVIRONMENT: 'production',
+        PRIVATE_CANARY_MODE: 'service-binding',
+        HYPERDRIVE: { connectionString: 'postgres://hyperdrive.fixture/mcp' },
+        USAGE_EVENTS_QUEUE: { send: async (event: unknown) => { sent.push(event); } },
+      },
+      { openDriver: hyperdrive.openDriver },
+    )).rejects.toThrow('Private canary probe failed.');
+
+    expect(sent).toEqual([]);
     expect(hyperdrive.closed()).toBe(true);
   });
 

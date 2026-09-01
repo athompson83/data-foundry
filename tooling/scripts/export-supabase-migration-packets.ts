@@ -610,6 +610,7 @@ $data_foundry_bootstrap_preflight$;
 
 CREATE SCHEMA IF NOT EXISTS ${quotedIdentifier(schema)} AUTHORIZATION ${quotedIdentifier(migrationRole)};
 SET LOCAL ROLE ${quotedIdentifier(migrationRole)};
+GRANT USAGE, CREATE ON SCHEMA ${quotedIdentifier(schema)} TO ${quotedIdentifier(migrationRole)};
 SET LOCAL search_path TO ${quotedIdentifier(schema)}, pg_catalog, extensions;
 DO $data_foundry_ledger_bootstrap$
 DECLARE
@@ -953,9 +954,10 @@ function externalTargetAclSql(schema: string): string {
 }
 
 function expectedExternalAclValuesSql(): string {
-  return RUNTIME_ROLES.map(
-    (role) => `    ('schema', 'extensions', '', ${sqlLiteral(role)}, 'USAGE', false)`,
-  ).join(',\n');
+  return RUNTIME_ROLES.flatMap((role) => [
+    `    ('schema', 'extensions', '', ${sqlLiteral(role)}, 'USAGE', false)`,
+    `    ('database', current_database()::text, '', ${sqlLiteral(role)}, 'CONNECT', false)`,
+  ]).join(',\n');
 }
 
 function buildGrantStatements(schema: string): {
@@ -1383,7 +1385,7 @@ ${externalTargetAclSql(schema)}
   )
   SELECT count(*) INTO prerequisite_drift_count FROM differences;
   IF prerequisite_drift_count <> 0 THEN
-    RAISE EXCEPTION 'Runtime roles have an unexpected direct object privilege outside data_foundry; only extensions schema USAGE is allowed.';
+    RAISE EXCEPTION 'Runtime roles have an unexpected direct object privilege outside data_foundry; only extensions schema USAGE and current-database CONNECT are allowed.';
   END IF;
 END
 $data_foundry_runtime_grants$;
