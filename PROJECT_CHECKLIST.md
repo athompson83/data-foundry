@@ -5,7 +5,8 @@
 - Product: Data Foundry
 - Lifecycle stage: MVP implementation / pre-deployment
 - Current milestone: Integrate and deploy the first lawful, revenue-capable HVAC vertical
-- Current release target: five Cloudflare Workers (edge, web, usage-consumer, acquisition-worker, mcp-worker) plus bulk exports, backed by canonical Postgres and R2 evidence storage
+- Current release target: five Cloudflare Workers (edge, web, usage-consumer, acquisition-worker, mcp-worker), a route-less service-bound synthetic canary, and bulk exports, backed by canonical Postgres and R2 evidence storage
+- Current protected-PR state: PR #26 contains the private-canary and migration-packet implementation, rebased onto the 2026-09-02 hosted-schema record; its rebased exact SHA requires fresh repository and hosted CI before merge. No Worker release candidate is currently designated. The required source gate is six route-less private-canary Worker artifacts: five reduced targets and one harness. The provider gate requires five dedicated 14-day queues—`data-foundry-private-canary-usage-events`, `data-foundry-private-canary-usage-events-dlq`, `data-foundry-private-canary-events`, `data-foundry-private-canary-dlq`, and `data-foundry-private-canary-quarantine`—without repurposing the ordinary usage Queue/DLQ pair.
 - Last updated: 2026-09-02
 - Detailed sources: [`README.md`](README.md), [`docs/owner-actions/cloudflare-deployment.md`](docs/owner-actions/cloudflare-deployment.md), the [2026-08-31 redacted provider reconciliation](docs/evidence/alpha-lab-provider-reconciliation-20260831.md), the [2026-09-02 hosted migration and grant evidence](docs/evidence/alpha-lab-hosted-migration-20260902.md), [`docs/source-onboarding.md`](docs/source-onboarding.md), and the vertical documents under [`verticals/hvac/`](verticals/hvac/)
 

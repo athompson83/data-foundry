@@ -12,6 +12,15 @@ has passed and an owner separately authorizes public production. Do not create
 or change a public DNS record, Worker route, custom domain, workers.dev
 endpoint, preview URL, real-source record, or public endpoint variable.
 
+The private Alpha Lab schema is already staged: the 2026-09-02 hosted record
+proves the ledger, objects, ownership, and five `NOLOGIN` runtime-role grants.
+That historical application used the authenticated management SQL connector
+under the owner's preauthorization because direct TLS was unreachable from the
+automation environment. It is not a Worker deployment or a substitute for the
+remaining password, Hyperdrive, Queue, R2-binding, or route-less canary proof.
+For any later replay or recovery action, follow the direct-TLS procedure below
+unless a separately recorded owner-authorized exception is required.
+
 The only permitted initial deployment is a route-less, service-bound synthetic
 canary:
 
@@ -37,8 +46,8 @@ canary:
    This is repository provenance, not provider deployment evidence. Do not add a
    documentation-only follow-up commit after that verification.
 
-   A provider-side containment result is still required before a migration or
-   deployment. If sanitized evidence cannot identify the provider/item, record
+   A provider-side containment result is still required before a deployment or
+   any new credential-bearing migration/recovery action. If sanitized evidence cannot identify the provider/item, record
    `unable_to_target_from_sanitized_evidence`; do not guess, reopen prohibited
    browser state, or rotate unrelated credentials. After both containment and
    exact-SHA repository validation, check out the selected SHA, set
@@ -50,8 +59,8 @@ canary:
    in a transcript. Application migrations remain direct-TLS-only; the only
    permitted export is the credential-free exact-SHA `postMigrationGrants`
    payload. It is an input to the separately provider-authorized direct-TLS
-   procedure after direct migration and replay, not a connector alternative or
-   permission to execute provider activity during repository-only work.
+   procedure after direct migration and replay. It does not authorize provider
+   activity during repository-only work.
 2. Create five distinct least-privilege runtime identities/passwords through
    the approved secure interface, then create exactly five TLS Hyperdrives—one
    for each edge, web, usage-consumer, acquisition-worker, and MCP role. Never

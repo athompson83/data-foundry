@@ -78,6 +78,12 @@ was introduced.
 
 ## Hosted database inventory
 
+This section is a 2026-09-01 baseline only. It is superseded for database
+state by [the 2026-09-02 hosted migration and grant record](alpha-lab-hosted-migration-20260902.md),
+which proves the private schema, 26-ledger migration result, and staged
+`NOLOGIN` role grants. It remains relevant only for the earlier empty-schema
+baseline and the still-unproven route-less canary infrastructure.
+
 The scoped, read-only database check reported a pre-staged `data_foundry`
 schema owned by the migration principal, with:
 

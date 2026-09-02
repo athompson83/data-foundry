@@ -25,8 +25,18 @@
   `290df1342094433e92978ec97eb37cc02fc4eb50`; PR #24 (`/docs` page names the
   API contract) merged as `5dde773a4b64a8e004ca429706100399a678cf74`.
 - Candidate branch: PR #26 (route-less private synthetic canary plus the
-  Supabase migration-packet exporter) is open and under review; this branch
-  adds only evidence and handoff documentation on top of `5dde773`
+  Supabase migration-packet exporter) has been rebased onto the current
+  protected `main` after PR #27's hosted-schema record. Its refreshed head
+  must rerun repository and hosted CI evidence before it can be merged.
+- No Worker release candidate is currently designated.
+- The required source gate
+  is six route-less private-canary Worker artifacts: five reduced targets and
+  one harness. The canary path also requires the five dedicated 14-day queues
+  `data-foundry-private-canary-usage-events`,
+  `data-foundry-private-canary-usage-events-dlq`,
+  `data-foundry-private-canary-events`, `data-foundry-private-canary-dlq`, and
+  `data-foundry-private-canary-quarantine`; none may repurpose the ordinary
+  usage Queue/DLQ pair.
 - Preview: none verified
 - Production: no Data Foundry Cloudflare deployment exists. The Aroqon zone is
   active/full, but `data.aroqon.com` currently returns Vercel `404: NOT_FOUND`.
@@ -64,7 +74,9 @@
   are a repository follow-up (pin `search_path` in a new migration), not a
   hosted-only fix.
 - Merged PR #24 (`/docs` page names the API contract) as `5dde773`. PR #26 is
-  under review; its migration set is the one applied above.
+  under review; its migration set is the one applied above. Its canary and
+  exporter implementation was subsequently rebased to reconcile these status
+  records, so pre-rebase SHA-specific evidence remains historical only.
 - Data and revenue remain gated exactly as before: `hvac` is `DRAFT` with four
   synthetic fixture sources, ENERGY STAR is deferred and unreviewed, RapidAPI
   enrollment is owner-only (`UA-004`), and no Stripe product or listing exists.
