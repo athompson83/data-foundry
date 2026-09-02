@@ -34,12 +34,23 @@ tenant, or credential rows.
   packets as archival; this application proceeded under the owner's explicit
   `OWNER_PREAUTHORIZED` production-provisioning task and is recorded here so
   that the deviation is visible rather than implied.
-- **Atomicity proof:** before any migration ran, a multi-statement connector
-  call whose final statement deliberately failed was shown to roll back every
-  preceding DDL statement. Each packet therefore executed as one implicit
-  transaction: role switch, transaction-local search path, ledger lock, exact
-  ledger-prefix guard, migration SQL, ledger insert, and reset either all
-  committed or none did.
+- **Atomicity, as demonstrated rather than assumed:** each packet was
+  submitted as one multi-statement query with no explicit `BEGIN`/`COMMIT`.
+  PostgreSQL runs a multi-statement simple query as a single implicit
+  transaction unless the string itself contains transaction-control commands
+  (PostgreSQL protocol documentation, "Multiple Statements in a Simple
+  Query"). Two observations on this project confirm that this is what
+  happened here, independent of any client documentation:
+  1. Rollback probe, re-run at `2026-09-02T07:57:12Z` after the migration: a
+     call containing `SET LOCAL ROLE`, `CREATE TABLE`, `INSERT`, then
+     `SELECT 1/0` failed with `division by zero`, and the table does not exist
+     afterwards.
+  2. Ownership: all 46 tables are owned by the migration owner although the
+     connector's own login is the administrative role. `SET LOCAL ROLE` has no
+     effect outside a transaction block, so that ownership is only possible
+     if each packet's statements ran inside one transaction.
+  Not claimed: explicit transaction control, savepoints, or the behavior of
+  the provider's SQL endpoint for other clients or parameterized calls.
 - **Restricted source reference:** the authenticated Alpha Lab database audit
   view remains the owner-restricted source of record. Native connector responses
   are intentionally not committed; this file keeps only scoped, redacted
@@ -99,9 +110,18 @@ tenant, or credential rows.
 
 - `PROD-001` now has hosted schema, ledger, ownership, and grant evidence. It
   still lacks backup, restore-test, and recovery-point evidence.
-- `FOUNDATION-006` still lacks every Cloudflare-side element: no Data Foundry
-  Worker, Hyperdrive configuration (zero configurations observed at the same
-  time), exact production manifest, or deployment identifier exists.
+- `FOUNDATION-006` still lacks, specifically: any Data Foundry Worker (the
+  account's Worker list at `2026-09-02T00:59Z` shows only two unrelated
+  scripts), any Hyperdrive configuration (zero listed at `2026-09-02T07:56Z`),
+  the ignored exact production manifests, deployment identifiers, and live
+  Queue/R2 integration proof. Read-only R2 observation at
+  `2026-09-02T07:56Z`: one bucket, `data-foundry-raw-artifacts`, created
+  `2026-08-31T14:28:09Z`. Bucket existence is not a `RAW_ARTIFACTS` binding
+  and not a live write/read proof; both need a deployed Worker. The
+  2026-08-31 reconciliation recorded no bucket, which is consistent only if it
+  was taken before that creation time; this record supersedes it for R2.
+  Queue/DLQ state is not observable through this session's connector and is
+  not asserted here.
 - The next hosted step is owner-only: assign a password and `LOGIN` to each
   runtime role through the provider's secure credential flow, create one
   Hyperdrive per role with caching disabled against the Direct origin, then run

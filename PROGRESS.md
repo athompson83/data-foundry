@@ -41,8 +41,10 @@
 
 - Applied the exact `db/migrations/` set (tree shared by PR #26 head `93a668b`
   and `main` `5dde773`) to the Alpha Lab target through the exporter's attested
-  connector packets, one implicit transaction per packet, after proving that a
-  failing trailing statement rolls back the preceding DDL. Direct TLS Postgres
+  connector packets, each submitted as one multi-statement query that
+  PostgreSQL runs as a single implicit transaction; demonstrated by a rollback
+  probe and by every object being owned by the migration owner through
+  `SET LOCAL ROLE`, not assumed from client documentation. Direct TLS Postgres
   is unreachable from the automation container, so the connector path was used
   under the owner's explicit production-provisioning preauthorization and is
   recorded as a documented deviation from the runbook's direct-TLS preference.
