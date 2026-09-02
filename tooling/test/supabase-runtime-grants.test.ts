@@ -309,6 +309,29 @@ describe('Supabase post-migration runtime grants', () => {
     }
   }, 120_000);
 
+  it('refuses PUBLIC-derived current-database CREATE before issuing any runtime grants', async () => {
+    const { database, plan } = await createMigratedDatabase();
+    try {
+      await database.exec(`
+        DO $public_database_create$
+        BEGIN
+          EXECUTE format('GRANT CREATE ON DATABASE %I TO PUBLIC', current_database());
+        END
+        $public_database_create$;
+      `);
+      await expect(
+        database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`),
+      ).rejects.toThrow(/reachable external data\/custom-routine capability/i);
+      await database.exec('ROLLBACK').catch(() => undefined);
+      const [state] = await database.query<{ has_usage: boolean }>(
+        "SELECT has_schema_privilege('df_edge', 'data_foundry', 'USAGE') AS has_usage",
+      );
+      expect(state?.has_usage).toBe(false);
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
   it('reconciles the previously hosted broad acquisition UPDATE grants during 0027', async () => {
     const { database, plan } = await createMigratedDatabase();
     try {
@@ -589,6 +612,34 @@ describe('Supabase post-migration runtime grants', () => {
         ['df_edge'],
       );
       expect(drift?.privilege_matrix_is_exact).toBe(false);
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it('rejects PUBLIC-derived current-database CREATE in verification and runtime binding', async () => {
+    const { database, plan } = await createMigratedDatabase();
+    try {
+      await database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`);
+      await database.exec(`
+        DO $public_database_create$
+        BEGIN
+          EXECUTE format('GRANT CREATE ON DATABASE %I TO PUBLIC', current_database());
+        END
+        $public_database_create$;
+      `);
+      const [effectivePrivilege] = await database.query<{ database_create: boolean }>(`
+        SELECT has_database_privilege('df_edge', current_database(), 'CREATE') AS database_create
+      `);
+      expect(effectivePrivilege?.database_create).toBe(true);
+      const [binding] = await database.query<{ readonly privilege_matrix_is_exact: boolean }>(
+        PRIVATE_CANARY_RUNTIME_BINDING_SQL,
+        ['df_edge'],
+      );
+      expect(binding?.privilege_matrix_is_exact).toBe(false);
+      await expect(database.exec(plan.postMigrationGrants.verificationSql)).rejects.toThrow(
+        /reachable external data\/custom-routine capability/i,
+      );
     } finally {
       await database.close();
     }

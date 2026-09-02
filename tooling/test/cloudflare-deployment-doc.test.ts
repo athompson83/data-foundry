@@ -57,6 +57,7 @@ describe('the no-commit Cloudflare deployment check', () => {
     expect(RUNBOOK).toMatch(/non-grantable `USAGE` on\s+`extensions`/);
     expect(RUNBOOK).toMatch(/non-grantable `CONNECT` on exactly the current database/);
     expect(RUNBOOK).toMatch(/Inherited `PUBLIC` database `CONNECT`\/`TEMP`\s+remains distinct/);
+    expect(RUNBOOK).toMatch(/inherited `PUBLIC` database `CREATE` is forbidden/);
     expect(RUNBOOK).toMatch(/catalog-attested extension-member routines/);
     expect(RUNBOOK).toMatch(/provider extension-member objects/i);
     expect(RUNBOOK).toMatch(
@@ -90,6 +91,14 @@ describe('the no-commit Cloudflare deployment check', () => {
     );
     expect(RUNBOOK).not.toContain(
       'The Supabase\n   connector-export material below is an archival alternative only',
+    );
+  });
+
+  it('requires the entire non-ignored worktree to be clean for exact-SHA packet export', () => {
+    expect(RUNBOOK).toMatch(/entire non-ignored worktree is\s+clean against `HEAD`/);
+    expect(RUNBOOK).toMatch(/including\s+non-ignored\s+untracked files/);
+    expect(RUNBOOK).not.toContain(
+      'Unrelated working-tree files are not part of this source identity.',
     );
   });
 });

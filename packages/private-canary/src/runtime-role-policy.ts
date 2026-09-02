@@ -287,7 +287,9 @@ export function buildRuntimeRoleExternalDirectAclSql(schema: string, roleFilterS
  * and are intentionally ignored. Trigger and event-trigger functions are not
  * directly callable. Other routines and relation-like objects are ignored
  * only when PostgreSQL catalogs attest that the object is an extension member.
- * Schema CREATE is independently reachable and therefore always appears.
+ * Current-database CREATE and external-schema CREATE are independently
+ * reachable and therefore always appear. Database TEMP remains allowed: it
+ * cannot create a durable schema and is commonly inherited from PUBLIC.
  */
 export function buildRuntimeRoleReachableExternalCapabilitySql(
   schema: string,
@@ -297,7 +299,13 @@ export function buildRuntimeRoleReachableExternalCapabilitySql(
   const externalSchemaPredicate = `namespace.nspname <> ${schemaLiteral}
        AND namespace.nspname <> 'information_schema'
        AND namespace.nspname !~ '^pg_'`;
-  return `SELECT 'schema'::text AS scope, namespace.nspname::text AS object_name,
+  return `SELECT 'database'::text AS scope, current_database()::text AS object_name,
+           runtime_role.rolname::text AS role_name, 'CREATE'::text AS privilege
+      FROM pg_roles runtime_role
+     WHERE ${roleFilterSql}
+       AND has_database_privilege(runtime_role.rolname, current_database(), 'CREATE')
+    UNION ALL
+    SELECT 'schema'::text AS scope, namespace.nspname::text AS object_name,
            runtime_role.rolname::text AS role_name, 'CREATE'::text AS privilege
       FROM pg_roles runtime_role CROSS JOIN pg_namespace namespace
      WHERE ${roleFilterSql} AND ${externalSchemaPredicate}

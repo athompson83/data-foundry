@@ -383,12 +383,11 @@ credential must not be committed.
    migrate:supabase:export` includes the package-manager banner and does not
    produce a parseable manifest. The local artifact contains no database
    credential and does not execute SQL, authorize provider activity, or replace
-   direct TLS. Export succeeds only when that SHA is the checkout's exact Git `HEAD` and
-   `db/migrations/`, `tooling/scripts/migrate.ts`, and the exporter itself are
-   byte-clean against `HEAD`. Unrelated working-tree files are not part of this
-   source identity. Commit the reviewed exporter and migration inputs before
-   generating an operator artifact; never export packets from an uncommitted
-   migration implementation.
+   direct TLS. Export succeeds only when that SHA is the checkout's exact Git
+   `HEAD`. The entire non-ignored worktree is clean against `HEAD`, including
+   non-ignored untracked files. Commit or restore every non-ignored change
+   before generating an operator artifact; never export packets from an
+   uncommitted migration implementation.
 
    The manifest's `preflightSql`, `bootstrapSql`, `verificationSql`, and
    `packets[]` fields describe an archival connector path, not the current
@@ -445,8 +444,10 @@ credential must not be committed.
    language, tablespace, large-object, parameter, or default privileges
    elsewhere are drift. Grant-option state is part of the ACL identity and must
    be false for every expected grant. Inherited `PUBLIC` database `CONNECT`/`TEMP`
-   remains distinct from the required direct current-database `CONNECT` grant.
-   The direct data/custom-routine reachability check permits inert `PUBLIC`
+   remains distinct from the required direct current-database `CONNECT` grant;
+   inherited `PUBLIC` database `CREATE` is forbidden because it permits every
+   runtime role to create durable schemas. The
+   database/schema/data/custom-routine reachability check permits inert `PUBLIC`
    schema `USAGE` and type `USAGE`, because neither exposes table rows or
    executable code. Provider extension-member objects are trusted only when
    `pg_catalog.pg_depend` and `pg_catalog.pg_extension` attest them as

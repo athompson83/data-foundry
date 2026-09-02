@@ -304,6 +304,10 @@ not mean deployed or commercially publishable.
 
 ## Blockers
 
+- A provider-side containment result (`UA-006`) is required before any provider
+  deployment or new credential-bearing migration/recovery action. Use only the
+  affected provider's normal security/audit controls; do not reopen the prior
+  browser state, reveal the item, or rotate unrelated credentials.
 - Hosted Alpha Lab private-schema and grant proof is recorded; no Data Foundry
   Worker deployment, Hyperdrive, or live Queue/DLQ/R2 integration proof is.
 - The five runtime roles are staged `NOLOGIN` without passwords; every Worker
@@ -321,14 +325,13 @@ not mean deployed or commercially publishable.
 
 ## Required User Actions
 
-See `PROJECT_CHECKLIST.md` `UA-001` through `UA-005`. The immediate external
-gates are rights review (`UA-001`), secure role/Hyperdrive entry
-(`UA-002`), RapidAPI enrollment (`UA-004`), and separately authorized public
-hostname
-confirmation (`UA-005`). Filling the schema with real data depends entirely on
-`UA-001`: ENERGY STAR remains deferred and unreviewed, and its review packet's
-open `[REVIEWER]` questions are the owner's to answer; automation must not
-sign, acquire, publish, or contact the publisher.
+See `PROJECT_CHECKLIST.md` `UA-001` through `UA-006`. The immediate external
+gates are provider-side containment (`UA-006`), rights review (`UA-001`), secure
+role/Hyperdrive entry (`UA-002`), RapidAPI enrollment (`UA-004`), and separately
+authorized public hostname confirmation (`UA-005`). Filling the schema with
+real data depends entirely on `UA-001`: ENERGY STAR remains deferred and
+unreviewed, and its review packet's open `[REVIEWER]` questions are the owner's
+to answer; automation must not sign, acquire, publish, or contact the publisher.
 
 ## Production Impact
 

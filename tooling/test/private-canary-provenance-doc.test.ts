@@ -111,4 +111,11 @@ describe('private-canary provenance documentation', () => {
     }
     expect(CHECKLIST).not.toContain('Approve Cloudflare Workers Paid at $5/month plus usage');
   });
+
+  it('tracks provider-side sensitive-state containment as an explicit owner gate', () => {
+    expect(CHECKLIST).toMatch(/\| UA-006 \|[^\n]*provider[^\n]*containment/i);
+    expect(CHECKLIST).toContain('unable_to_target_from_sanitized_evidence');
+    expect(PROGRESS).toMatch(/provider-side containment[^\n]*`UA-006`/i);
+    expect(PROGRESS).toContain('`UA-001` through `UA-006`');
+  });
 });
