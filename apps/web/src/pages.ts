@@ -541,13 +541,17 @@ export function renderDocs(
 ): RenderedPage {
   const seo = vertical.runtime.seo;
   const canonicalUrl = `${publicOrigin}${seo.url_prefix}/docs`;
+  const slug = vertical.runtime.vertical_slug;
+  const openapiDirectUrl = `https://github.com/athompson83/data-foundry/blob/main/openapi/data-foundry-${slug}-v1.openapi.json`;
+  const openapiRapidApiUrl = `https://github.com/athompson83/data-foundry/blob/main/openapi/data-foundry-${slug}-rapidapi-v1.openapi.json`;
   const body = `
 <h1>${escapeHtml(vertical.runtime.vertical_name)} — API &amp; MCP access</h1>
 <p>This page is free and public. Programmatic access is metered and requires an API key — see <a href="https://github.com/athompson83/data-foundry/blob/main/DATA_RIGHTS.md">data rights and licensing</a> for what an export or API response does and does not license.</p>
 <h2>REST</h2>
-<p>Read-only, versioned at <code>/v1</code>. Full contract: <code>GET /v1</code> on your deployment's metered API host.</p>
+<p>Read-only, versioned at <code>/v1</code>, on your deployment's metered API host (not this site): <code>GET /v1/health</code>, <code>GET /v1/entities/{id}</code>, <code>GET /v1/entities/by-slug/{slug}</code>, <code>GET /v1/entities/{id}/facts</code>, <code>GET /v1/entities/{id}/relationships</code>, <code>GET /v1/search</code>, <code>GET /v1/compare</code>. Every request needs a bearer API key; provisioning is an owner action, not self-service on this page.</p>
+<p>Full machine-readable contract (paths, parameters, response schemas, error codes): <a href="${escapeHtml(openapiDirectUrl)}">OpenAPI spec</a>. The <a href="${escapeHtml(openapiRapidApiUrl)}">RapidAPI-marketplace projection</a> is the same routes, parameters, and response schemas with no bearer scheme published at all — a marketplace subscriber authenticates to RapidAPI itself, never to this API directly.</p>
 <h2>MCP</h2>
-<p>Tool contract over the same canonical query layer this site reads — see <code>apps/mcp</code> in the repository.</p>
+<p>Six tools over the same canonical query layer this site reads — <code>search_entities</code>, <code>get_entity</code>, <code>list_facts</code>, <code>compare_entities</code>, <code>traverse_relationships</code>, <code>explain_fact</code> — see <a href="https://github.com/athompson83/data-foundry/tree/main/apps/mcp">apps/mcp</a> in the repository for the full tool contract.</p>
 <h2>llms.txt</h2>
 <p><a href="${escapeHtml(`${seo.url_prefix}/llms.txt`)}">${escapeHtml(`${seo.url_prefix}/llms.txt`)}</a> — machine discovery for agents, including which prompts route to which tool.</p>`;
 
