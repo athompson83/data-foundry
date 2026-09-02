@@ -12,8 +12,10 @@ import {
   partitionOwnedTables,
   createPGliteDriver,
   createPostgresDriver,
+  directMigrationPostgresConfig,
   listPublicTables,
   loadMigrations,
+  migrationFailureMessage,
   normalizeSchemaName,
   resolveOperationalSchema,
   resolveSchema,
@@ -116,6 +118,45 @@ afterAll(async () => {
 });
 
 describe('migration runner', () => {
+  it('reports only an allowlisted guard category for direct migration failures', () => {
+    const env = {
+      DATA_FOUNDRY_MIGRATION_DATABASE_URL:
+        'postgres://df_migration:must-not-escape@example.invalid/data_foundry',
+    };
+
+    expect(migrationFailureMessage(
+      new Error(
+        'df_migration requires exactly one canonical current-database search_path setting and no role-global settings; refusing migration transaction.',
+      ),
+      env,
+    )).toBe('Direct PostgreSQL migration failed [migration-role-durable-settings].');
+    expect(migrationFailureMessage(
+      new Error(
+        'Direct private-schema migrations require safe df_migration default object ACLs throughout each migration transaction.',
+      ),
+      env,
+    )).toBe('Direct PostgreSQL migration failed [migration-role-default-acl].');
+    expect(migrationFailureMessage(
+      new Error(
+        'df_migration requires session_replication_role=origin and lo_compat_privileges=off; refusing migration transaction.',
+      ),
+      env,
+    )).toBe('Direct PostgreSQL migration failed [migration-session-state].');
+    expect(migrationFailureMessage(
+      new Error(
+        'Direct private-schema migrations require the exact search_path data_foundry, pg_catalog, extensions throughout each migration transaction.',
+      ),
+      env,
+    )).toBe('Direct PostgreSQL migration failed [migration-search-path].');
+
+    const unclassified = migrationFailureMessage(
+      new Error('driver failed for postgres://df_migration:must-not-escape@example.invalid/data_foundry'),
+      env,
+    );
+    expect(unclassified).toBe('Direct PostgreSQL migration failed.');
+    expect(unclassified).not.toContain('must-not-escape');
+  });
+
   describe('private real-Postgres migration role guard', () => {
     interface GuardBinding {
       readonly current_user: string;
@@ -508,6 +549,14 @@ describe('migration runner', () => {
         'data_foundry',
       ),
     ).rejects.toThrow(/TLS.*query|query.*TLS/i);
+  });
+
+  it('does not override the migration login durable search path at startup', () => {
+    const config = directMigrationPostgresConfig(
+      'postgres://df_migration:fixture-only@db.invalid/data_foundry',
+    );
+
+    expect(config).not.toHaveProperty('options');
   });
 
   it('fails closed when a known constraint probe has unsafe boolean scope', () => {

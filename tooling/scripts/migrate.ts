@@ -88,6 +88,64 @@ export function migrationFailureMessage(
   env: Readonly<Record<string, string | undefined>> = process.env,
 ): string {
   if (migrationDatabaseUrlFromEnv(env) !== undefined) {
+    const allowlistedCategories: readonly Readonly<{
+      pattern: RegExp;
+      category: string;
+    }>[] = [
+      {
+        pattern: /connect directly as session and current user df_migration/i,
+        category: 'migration-role-identity',
+      },
+      {
+        pattern: /must be a direct LOGIN, NOINHERIT, nonprivileged role with no outgoing memberships/i,
+        category: 'migration-role-posture',
+      },
+      {
+        pattern: /requires exactly one canonical current-database search_path setting/i,
+        category: 'migration-role-durable-settings',
+      },
+      {
+        pattern: /retain only its canonical external CONNECT and extensions USAGE boundary/i,
+        category: 'migration-role-external-capability',
+      },
+      {
+        pattern: /must not CREATE in the current database/i,
+        category: 'migration-role-database-create',
+      },
+      {
+        pattern: /must not CREATE in a non-target ordinary schema/i,
+        category: 'migration-role-external-schema-create',
+      },
+      {
+        pattern: /requires session_replication_role=origin and lo_compat_privileges=off/i,
+        category: 'migration-session-state',
+      },
+      {
+        pattern: /data_foundry schema (?:is owned by .+, not df_migration|must be owned by df_migration)/i,
+        category: 'migration-schema-owner',
+      },
+      {
+        pattern: /require safe df_migration default object ACLs/i,
+        category: 'migration-role-default-acl',
+      },
+      {
+        pattern: /require the exact search_path data_foundry, pg_catalog, extensions/i,
+        category: 'migration-search-path',
+      },
+      {
+        pattern: /not Data Foundry's ledger|ledger.*refusing/i,
+        category: 'migration-ledger',
+      },
+    ];
+    let candidate: unknown = error;
+    for (let depth = 0; depth < 8 && candidate instanceof Error; depth += 1) {
+      const message = candidate.message;
+      const match = allowlistedCategories.find(({ pattern }) => pattern.test(message));
+      if (match !== undefined) {
+        return `Direct PostgreSQL migration failed [${match.category}].`;
+      }
+      candidate = candidate.cause;
+    }
     return 'Direct PostgreSQL migration failed.';
   }
   return error instanceof Error ? error.stack ?? error.message : String(error);
@@ -870,19 +928,26 @@ export async function createPGliteDriver(dataDir?: string): Promise<MigrationDri
   };
 }
 
+/**
+ * Direct migrations must inherit the already-verified database-scoped role
+ * default. A client startup `options=-csearch_path=...` would override that
+ * durable setting and can also change the exact configured spelling checked by
+ * the guard, so the migration connection contributes TLS configuration only.
+ */
+export function directMigrationPostgresConfig(
+  connectionString: string,
+): ReturnType<typeof directPostgresTlsConfig> {
+  return directPostgresTlsConfig(connectionString);
+}
+
 /** Real Postgres driver. `pg` is only imported when a connection string exists. */
 export async function createPostgresDriver(
   connectionString: string,
   schema: string = DEFAULT_SCHEMA,
 ): Promise<MigrationDriver> {
-  const normalized = normalizeSchemaName(schema);
+  normalizeSchemaName(schema);
   const pg = await import('pg');
-  const tls = directPostgresTlsConfig(connectionString);
-  const client = new pg.default.Client(
-    normalized === DEFAULT_SCHEMA
-      ? tls
-      : { ...tls, options: `-csearch_path=${normalized},pg_catalog,extensions` },
-  );
+  const client = new pg.default.Client(directMigrationPostgresConfig(connectionString));
   await client.connect();
   return {
     // A direct migration credential is secret-bearing. Do not derive, retain,

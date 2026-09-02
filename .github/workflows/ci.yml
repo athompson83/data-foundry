@@ -307,6 +307,8 @@ jobs:
           startup_stage='credential-generation'
           postgres_password="$(openssl rand -hex 24)"
           migration_password="$(openssl rand -hex 24)"
+          printf '::add-mask::%s\n' "$postgres_password"
+          printf '::add-mask::%s\n' "$migration_password"
           startup_stage='docker-start'
           startup_output=''
           if ! startup_output="$(docker run --detach --name "$container_name" \
@@ -531,6 +533,11 @@ jobs:
           df_mcp_password="$(openssl rand -hex 24)"
           df_usage_password="$(openssl rand -hex 24)"
           df_acquisition_password="$(openssl rand -hex 24)"
+          printf '::add-mask::%s\n' "$df_edge_password"
+          printf '::add-mask::%s\n' "$df_web_password"
+          printf '::add-mask::%s\n' "$df_mcp_password"
+          printf '::add-mask::%s\n' "$df_usage_password"
+          printf '::add-mask::%s\n' "$df_acquisition_password"
           {
             printf "ALTER ROLE df_edge LOGIN PASSWORD '%s';\n" "$df_edge_password"
             printf "ALTER ROLE df_web LOGIN PASSWORD '%s';\n" "$df_web_password"
@@ -582,7 +589,7 @@ jobs:
           migration_external_capability_rejection_signature='ERROR:  Runtime grant verification failed: migration-role external capability is unsafe.'
           migration_durable_setting_rejection_signature='ERROR:  Runtime grant verification failed: migration-role durable settings are unsafe.'
           migration_session_rejection_signature='ERROR:  Runtime grant verification failed: migration session is unsafe.'
-          migration_rejection_signature='Direct PostgreSQL migration failed.'
+          migration_search_path_rejection_signature='Direct PostgreSQL migration failed [migration-search-path].'
           default_acl_rejection_signature='ERROR:  Runtime grant verification failed: migration-role default object ACLs are unsafe.'
 
           if [[ ! -f "$post_credential_verification_path" ]]; then
@@ -1197,7 +1204,7 @@ jobs:
           fi
           expect_runtime_role_rejection 'a noncanonical migration-role current-database setting' "$runtime_role_rejection_signature"
           expect_post_credential_rejection 'a noncanonical migration-role current-database setting' "$migration_durable_setting_rejection_signature"
-          expect_migration_rejection 'a migration-role current-database lo_compat_privileges override' "$migration_rejection_signature"
+          expect_migration_rejection 'a migration-role current-database lo_compat_privileges override' "$migration_search_path_rejection_signature"
           ledger_digest_after_rejection="$(capture_migration_ledger_digest)"
           if [[ "$ledger_digest_after_rejection" != "$ledger_digest_before_rejection" ]]; then
             printf '%s\n' 'The rejected direct migration changed the migration ledger.' >&2

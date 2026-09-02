@@ -3,6 +3,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { parse as parseYaml } from 'yaml';
+import { migrationFailureMessage } from '../scripts/migrate.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const RUN_VERIFY = "needs.scope.outputs.run_verify == 'true'";
@@ -10,6 +11,15 @@ const NON_DRAFT_EVENT = "(github.event_name != 'pull_request' || github.event.pu
 const SCOPE_FAILURE_GUARD = "always() && needs.scope.result != 'success'";
 const CANDIDATE_SHA_EXPRESSION = "${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}";
 const CANDIDATE_SHA_REFERENCE = '${{ env.DATA_FOUNDRY_CANDIDATE_SHA }}';
+const MIGRATION_SEARCH_PATH_REJECTION = migrationFailureMessage(
+  new Error(
+    'Direct private-schema migrations require the exact search_path data_foundry, pg_catalog, extensions throughout each migration transaction.',
+  ),
+  {
+    DATA_FOUNDRY_MIGRATION_DATABASE_URL:
+      'postgres://df_migration:fixture-only@db.invalid/data_foundry',
+  },
+);
 
 type Step = {
   id?: string;
@@ -135,6 +145,20 @@ describe('CI workflow policy', () => {
     expect(start?.run).toContain('NODE_EXTRA_CA_CERTS');
     expect(start?.run).toContain('DATA_FOUNDRY_MIGRATION_DATABASE_URL');
     expect(start?.run).toContain('DATA_FOUNDRY_RELEASE_SHA');
+    expect(start?.run).toContain(`printf '::add-mask::%s\\n' "$postgres_password"`);
+    expect(start?.run).toContain(`printf '::add-mask::%s\\n' "$migration_password"`);
+    expect(start?.run?.indexOf('postgres_password="$(openssl rand -hex 24)"')).toBeLessThan(
+      start?.run?.indexOf(`printf '::add-mask::%s\\n' "$postgres_password"`) ?? -1,
+    );
+    expect(start?.run?.indexOf(`printf '::add-mask::%s\\n' "$postgres_password"`)).toBeLessThan(
+      start?.run?.indexOf('--env POSTGRES_PASSWORD="$postgres_password"') ?? -1,
+    );
+    expect(start?.run?.indexOf('migration_password="$(openssl rand -hex 24)"')).toBeLessThan(
+      start?.run?.indexOf(`printf '::add-mask::%s\\n' "$migration_password"`) ?? -1,
+    );
+    expect(start?.run?.indexOf(`printf '::add-mask::%s\\n' "$migration_password"`)).toBeLessThan(
+      start?.run?.indexOf('DATA_FOUNDRY_MIGRATION_DATABASE_URL=postgres://df_migration:%s') ?? -1,
+    );
     expect(start?.run).toContain('classify_startup_failure()');
     expect(start?.run).toContain('on_startup_error()');
     expect(start?.run).toContain("trap 'on_startup_error' ERR");
@@ -260,6 +284,15 @@ describe('CI workflow policy', () => {
       expect(activateRuntimeRoles?.run).toMatch(new RegExp(`ALTER ROLE ${role} LOGIN PASSWORD`));
       expect(activateRuntimeRoles?.run).toMatch(
         new RegExp(`ALTER ROLE ${role} IN DATABASE data_foundry SET search_path TO data_foundry, pg_catalog, extensions;`),
+      );
+      expect(activateRuntimeRoles?.run).toContain(
+        `printf '::add-mask::%s\\n' "$${role}_password"`,
+      );
+      expect(activateRuntimeRoles?.run?.indexOf(`${role}_password="$(openssl rand -hex 24)"`)).toBeLessThan(
+        activateRuntimeRoles?.run?.indexOf(`printf '::add-mask::%s\\n' "$${role}_password"`) ?? -1,
+      );
+      expect(activateRuntimeRoles?.run?.indexOf(`printf '::add-mask::%s\\n' "$${role}_password"`)).toBeLessThan(
+        activateRuntimeRoles?.run?.indexOf(`printf "ALTER ROLE ${role} LOGIN PASSWORD`) ?? -1,
       );
     }
     expect(stageRuntimeRoles?.run).toContain(
@@ -465,6 +498,9 @@ describe('CI workflow policy', () => {
     expect(run).toContain(
       "migration_durable_setting_rejection_signature='ERROR:  Runtime grant verification failed: migration-role durable settings are unsafe.'",
     );
+    expect(run).toContain(
+      `migration_search_path_rejection_signature='${MIGRATION_SEARCH_PATH_REJECTION}'`,
+    );
     expect(run).toContain('docker exec data-foundry-postgres-tls psql -U df_migration -d data_foundry');
     expect(run).toContain(
       "expect_runtime_role_rejection 'a noncanonical migration-role current-database setting'",
@@ -472,7 +508,9 @@ describe('CI workflow policy', () => {
     expect(run).toContain(
       "expect_post_credential_rejection 'a noncanonical migration-role current-database setting'",
     );
-    expect(run).toContain("expect_migration_rejection 'a migration-role current-database lo_compat_privileges override'");
+    expect(run).toContain(
+      "expect_migration_rejection 'a migration-role current-database lo_compat_privileges override' \"$migration_search_path_rejection_signature\"",
+    );
     expect(run).toContain('if [[ "$ledger_digest_after_rejection" != "$ledger_digest_before_rejection" ]]');
     expect(run).toContain('if [[ "$ledger_digest_after_clean_migrate" != "$ledger_digest_before_rejection" ]]');
     expect(run).toContain(
