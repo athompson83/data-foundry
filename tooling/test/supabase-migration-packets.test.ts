@@ -51,6 +51,26 @@ function build(
   });
 }
 
+async function provisionSafeMigrationRole(database: MigrationDriver): Promise<void> {
+  await database.exec(`
+    CREATE ROLE df_migration LOGIN NOINHERIT NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS;
+    GRANT df_migration TO postgres;
+    ALTER DEFAULT PRIVILEGES FOR ROLE df_migration REVOKE EXECUTE ON FUNCTIONS FROM PUBLIC;
+    GRANT USAGE ON SCHEMA extensions TO df_migration;
+    REVOKE CREATE ON SCHEMA public FROM PUBLIC;
+    DO $migration_role_connect$
+    BEGIN
+      EXECUTE format('GRANT CONNECT ON DATABASE %I TO df_migration', current_database());
+    END
+    $migration_role_connect$;
+    DO $migration_role_setting$
+    BEGIN
+      EXECUTE format('ALTER ROLE df_migration IN DATABASE %I SET search_path TO data_foundry, pg_catalog, extensions', current_database());
+    END
+    $migration_role_setting$;
+  `);
+}
+
 async function createGitSourceFixture(repository: string, migrationCount = 1): Promise<string> {
   await mkdir(join(repository, 'db/migrations'), { recursive: true });
   for (let ordinal = 1; ordinal <= migrationCount; ordinal += 1) {
@@ -241,6 +261,19 @@ describe('Supabase connector migration packet export', () => {
     expect(plan.preflightSql).not.toMatch(/\b(?:CREATE|ALTER|DROP|GRANT|REVOKE|INSERT|UPDATE|DELETE)\b/i);
 
     expect(plan.bootstrapSql).toContain('SET LOCAL ROLE "df_migration";');
+    expect(plan.bootstrapSql).toContain('unsafe_migration_role_posture');
+    expect(plan.bootstrapSql).toContain('unsafe_migration_role_durable_settings');
+    expect(plan.bootstrapSql).toContain('unsafe_migration_session');
+    expect(plan.bootstrapSql).toContain('unsafe_migration_role_default_object_acl');
+    expect(plan.bootstrapSql.indexOf('unsafe_migration_role_posture')).toBeLessThan(
+      plan.bootstrapSql.indexOf('SET LOCAL ROLE "df_migration";'),
+    );
+    expect(plan.bootstrapSql.indexOf('unsafe_migration_session')).toBeLessThan(
+      plan.bootstrapSql.indexOf('CREATE SCHEMA IF NOT EXISTS "data_foundry"'),
+    );
+    expect(plan.bootstrapSql.indexOf('unsafe_migration_role_default_object_acl')).toBeLessThan(
+      plan.bootstrapSql.indexOf('CREATE TABLE "data_foundry"."schema_migrations"'),
+    );
     expect(plan.bootstrapSql).toContain('SELECT pg_advisory_xact_lock(');
     expect(plan.bootstrapSql).toContain('CREATE SCHEMA IF NOT EXISTS "data_foundry" AUTHORIZATION "df_migration";');
     expect(plan.bootstrapSql).toContain('GRANT USAGE, CREATE ON SCHEMA "data_foundry" TO "df_migration";');
@@ -274,6 +307,88 @@ describe('Supabase connector migration packet export', () => {
     expect(plan.verificationSql).toContain('duplicate_ordinal');
     expect(plan.verificationSql).toContain('unexpected_or_mismatched');
     expect(plan.verificationSql).toContain('missing');
+    expect(plan.verificationSql).toContain('unsafe_migration_role_posture');
+    expect(plan.verificationSql).toContain('unsafe_migration_role_durable_settings');
+    expect(plan.verificationSql).toContain('unsafe_migration_session');
+
+    const firstPacket = plan.packets[0]!;
+    const preRolePosture = firstPacket.sql.indexOf('unsafe_migration_role_posture');
+    const preRoleDurableSettings = firstPacket.sql.indexOf('unsafe_migration_role_durable_settings');
+    const preSessionSafety = firstPacket.sql.indexOf('unsafe_migration_session');
+    const preDefaultAcl = firstPacket.sql.indexOf('unsafe_migration_role_default_object_acl');
+    const setRole = firstPacket.sql.indexOf('SET LOCAL ROLE "df_migration";');
+    const setSearchPath = firstPacket.sql.indexOf(
+      'SET LOCAL search_path TO "data_foundry", pg_catalog, extensions;',
+    );
+    const exactSearchPathSetting =
+      "pg_catalog.current_setting('search_path'::pg_catalog.text) OPERATOR(pg_catalog.=) 'data_foundry, pg_catalog, extensions'::pg_catalog.text";
+    const exactSearchPathSchemas =
+      "pg_catalog.current_schemas(false) OPERATOR(pg_catalog.=) ARRAY['data_foundry', 'pg_catalog', 'extensions']::pg_catalog.name[]";
+    const preDdlSearchPathSafety = firstPacket.sql.indexOf(exactSearchPathSetting);
+    const activeRoleSetting =
+      "current_user::pg_catalog.text OPERATOR(pg_catalog.=) 'df_migration'::pg_catalog.text";
+    const preDdlActiveRole = firstPacket.sql.indexOf(activeRoleSetting);
+    const ledgerLock = firstPacket.sql.indexOf(
+      'LOCK TABLE "data_foundry"."schema_migrations" IN EXCLUSIVE MODE;',
+    );
+    const migrationSql = firstPacket.sql.indexOf(firstPacket.transformedSql);
+    const postMigrationActiveRole = firstPacket.sql.lastIndexOf(activeRoleSetting);
+    const postMigrationSearchPathSafety = firstPacket.sql.lastIndexOf(exactSearchPathSetting);
+    const postRoleDurableSettings = firstPacket.sql.lastIndexOf('unsafe_migration_role_durable_settings');
+    const postSessionSafety = firstPacket.sql.lastIndexOf('unsafe_migration_session');
+    const postDefaultAcl = firstPacket.sql.lastIndexOf('unsafe_migration_role_default_object_acl');
+    const ledgerInsert = firstPacket.sql.indexOf(
+      'INSERT INTO "data_foundry"."schema_migrations" (version, filename, checksum, execution_ms)',
+    );
+    expect(preRolePosture).toBeGreaterThan(-1);
+    expect(preRoleDurableSettings).toBeGreaterThan(-1);
+    expect(preSessionSafety).toBeGreaterThan(-1);
+    expect(preDefaultAcl).toBeGreaterThan(-1);
+    expect(preRolePosture).toBeLessThan(setRole);
+    expect(preRoleDurableSettings).toBeLessThan(setRole);
+    expect(preSessionSafety).toBeLessThan(setRole);
+    expect(preDefaultAcl).toBeLessThan(migrationSql);
+    expect(firstPacket.sql.slice(0, setSearchPath)).not.toContain(exactSearchPathSetting);
+    expect(firstPacket.sql.match(new RegExp(exactSearchPathSetting.replace(/[()[\]']/g, '\\$&'), 'g')))
+      .toHaveLength(2);
+    expect(firstPacket.sql.match(new RegExp(exactSearchPathSchemas.replace(/[()[\]']/g, '\\$&'), 'g')))
+      .toHaveLength(2);
+    expect(firstPacket.sql.match(
+      /IF EXISTS \(\s*SELECT 'noncanonical_migration_search_path'::pg_catalog\.text AS violation/g,
+    )).toHaveLength(2);
+    expect(firstPacket.sql.match(new RegExp(activeRoleSetting.replace(/[()[\]']/g, '\\$&'), 'g')))
+      .toHaveLength(2);
+    expect(preDdlActiveRole).toBeGreaterThan(setSearchPath);
+    expect(preDdlActiveRole).toBeLessThan(preDdlSearchPathSafety);
+    expect(preDdlSearchPathSafety).toBeGreaterThan(setSearchPath);
+    expect(preDdlSearchPathSafety).toBeLessThan(ledgerLock);
+    expect(postMigrationActiveRole).toBeGreaterThan(migrationSql);
+    expect(postMigrationActiveRole).toBeLessThan(postMigrationSearchPathSafety);
+    expect(postMigrationSearchPathSafety).toBeGreaterThan(migrationSql);
+    expect(postMigrationSearchPathSafety).toBeLessThan(postSessionSafety);
+    expect(postSessionSafety).toBeGreaterThan(migrationSql);
+    expect(postDefaultAcl).toBeGreaterThan(migrationSql);
+    expect(postRoleDurableSettings).toBeGreaterThan(migrationSql);
+    expect(postSessionSafety).toBeLessThan(ledgerInsert);
+    expect(postDefaultAcl).toBeLessThan(ledgerInsert);
+
+    expect(plan.postMigrationGrants.sql.indexOf('unsafe_migration_role_posture')).toBeLessThan(
+      plan.postMigrationGrants.sql.indexOf('SET LOCAL ROLE "df_migration";'),
+    );
+    expect(plan.postMigrationGrants.sql.indexOf('unsafe_migration_session')).toBeLessThan(
+      plan.postMigrationGrants.sql.indexOf('SET LOCAL ROLE "df_migration";'),
+    );
+    for (const verifier of [
+      plan.postMigrationGrants.verificationSql,
+      plan.postMigrationGrants.postCredentialVerificationSql,
+    ]) {
+      expect(verifier).toContain('unsafe_migration_role_posture');
+      expect(verifier).toContain('unsafe_migration_role_durable_settings');
+      expect(verifier).toContain('unsafe_migration_session');
+      expect(verifier).toContain('Runtime grant verification failed: migration-role posture is unsafe.');
+      expect(verifier).toContain('Runtime grant verification failed: migration-role durable settings are unsafe.');
+      expect(verifier).toContain('Runtime grant verification failed: migration session is unsafe.');
+    }
   });
 
   it('is byte-for-byte deterministic and never serializes credentials', () => {
@@ -354,11 +469,7 @@ describe('Supabase connector migration packet export', () => {
     let database: MigrationDriver | undefined;
     try {
       database = await createPGliteDriver();
-      await database.exec(`
-        CREATE ROLE df_migration NOLOGIN;
-        GRANT df_migration TO postgres;
-        GRANT USAGE ON SCHEMA extensions TO df_migration;
-      `);
+      await provisionSafeMigrationRole(database);
       const plan = build();
       await database.exec(`BEGIN;\n${plan.bootstrapSql}\nCOMMIT;`);
       await database.query(
@@ -392,11 +503,7 @@ describe('Supabase connector migration packet export', () => {
     let database: MigrationDriver | undefined;
     try {
       database = await createPGliteDriver();
-      await database.exec(`
-        CREATE ROLE df_migration NOLOGIN;
-        GRANT df_migration TO postgres;
-        GRANT USAGE ON SCHEMA extensions TO df_migration;
-      `);
+      await provisionSafeMigrationRole(database);
       const plan = build();
       await database.exec(`BEGIN;\n${plan.bootstrapSql}\nCOMMIT;`);
       await database.exec(`BEGIN;\n${plan.packets[0]!.sql}\nCOMMIT;`);
@@ -436,11 +543,7 @@ describe('Supabase connector migration packet export', () => {
     let database: MigrationDriver | undefined;
     try {
       database = await createPGliteDriver();
-      await database.exec(`
-        CREATE ROLE df_migration NOLOGIN;
-        GRANT df_migration TO postgres;
-        GRANT USAGE ON SCHEMA extensions TO df_migration;
-      `);
+      await provisionSafeMigrationRole(database);
       const plan = build();
       expect(plan.transactionContract).toEqual({
         packetTransaction: 'provider-managed-required',
@@ -477,11 +580,7 @@ describe('Supabase connector migration packet export', () => {
     let database: MigrationDriver | undefined;
     try {
       database = await createPGliteDriver();
-      await database.exec(`
-        CREATE ROLE df_migration NOLOGIN;
-        GRANT df_migration TO postgres;
-        GRANT USAGE ON SCHEMA extensions TO df_migration;
-      `);
+      await provisionSafeMigrationRole(database);
 
       const plan = build();
       await database.exec(`BEGIN;\n${plan.bootstrapSql}\nCOMMIT;`);
@@ -503,6 +602,243 @@ describe('Supabase connector migration packet export', () => {
       expect(publicTables).toEqual([]);
     } finally {
       await database?.close();
+    }
+  }, 120_000);
+
+  it.each([
+    ['NOLOGIN', 'ALTER ROLE df_migration NOLOGIN'],
+    ['INHERIT', 'ALTER ROLE df_migration INHERIT'],
+    ['SUPERUSER', 'ALTER ROLE df_migration SUPERUSER'],
+    ['CREATEDB', 'ALTER ROLE df_migration CREATEDB'],
+    ['CREATEROLE', 'ALTER ROLE df_migration CREATEROLE'],
+    ['REPLICATION', 'ALTER ROLE df_migration REPLICATION'],
+    ['BYPASSRLS', 'ALTER ROLE df_migration BYPASSRLS'],
+  ])('rejects an unsafe %s migration-role attribute before bootstrap DDL', async (_name, mutation) => {
+    const database = await createPGliteDriver();
+    try {
+      await provisionSafeMigrationRole(database);
+      await database.exec(`${mutation};`);
+      const plan = build();
+
+      await expect(database.exec(`BEGIN;\n${plan.bootstrapSql}\nCOMMIT;`)).rejects.toThrow(
+        /LOGIN, NOINHERIT, nonprivileged role with no outgoing memberships/i,
+      );
+      await database.exec('ROLLBACK').catch(() => undefined);
+      const [state] = await database.query<{ schema_exists: boolean }>(
+        "SELECT EXISTS (SELECT 1 FROM pg_namespace WHERE nspname = 'data_foundry') AS schema_exists",
+      );
+      expect(state?.schema_exists).toBe(false);
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it('allows incoming connector membership but rejects outgoing migration-role membership', async () => {
+    const database = await createPGliteDriver();
+    try {
+      await provisionSafeMigrationRole(database);
+      await database.exec('CREATE ROLE migration_parent NOLOGIN NOINHERIT');
+      const plan = build();
+
+      await expect(database.exec(`BEGIN;\n${plan.bootstrapSql}\nCOMMIT;`)).resolves.toBeUndefined();
+      await database.exec('GRANT migration_parent TO df_migration');
+      await expect(database.exec(`BEGIN;\n${plan.packets[0]!.sql}\nCOMMIT;`)).rejects.toThrow(
+        /LOGIN, NOINHERIT, nonprivileged role with no outgoing memberships/i,
+      );
+      await database.exec('ROLLBACK').catch(() => undefined);
+      const [state] = await database.query<{ ledger_count: number; first_table: string | null }>(
+        `SELECT (SELECT count(*)::int FROM data_foundry.schema_migrations) AS ledger_count,
+                to_regclass('data_foundry.verticals')::text AS first_table`,
+      );
+      expect(state).toEqual({ ledger_count: 0, first_table: null });
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it.each([
+    ['session_replication_role', 'SET session_replication_role TO replica', 'RESET session_replication_role'],
+    ['lo_compat_privileges', 'SET lo_compat_privileges TO on', 'RESET lo_compat_privileges'],
+  ])('rejects unsafe %s session state before bootstrap DDL', async (_name, mutation, reset) => {
+    const database = await createPGliteDriver();
+    try {
+      await provisionSafeMigrationRole(database);
+      await database.exec(`${mutation};`);
+      const plan = build();
+
+      await expect(database.exec(`BEGIN;\n${plan.bootstrapSql}\nCOMMIT;`)).rejects.toThrow(
+        /session_replication_role=origin and lo_compat_privileges=off/i,
+      );
+      await database.exec('ROLLBACK').catch(() => undefined);
+      await database.exec(reset);
+      const [state] = await database.query<{ schema_exists: boolean }>(
+        "SELECT EXISTS (SELECT 1 FROM pg_namespace WHERE nspname = 'data_foundry') AS schema_exists",
+      );
+      expect(state?.schema_exists).toBe(false);
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it('rejects unsafe default ACLs before bootstrap ledger DDL', async () => {
+    const database = await createPGliteDriver();
+    try {
+      await provisionSafeMigrationRole(database);
+      await database.exec(
+        'ALTER DEFAULT PRIVILEGES FOR ROLE df_migration GRANT EXECUTE ON FUNCTIONS TO PUBLIC',
+      );
+      const plan = build();
+
+      await expect(database.exec(`BEGIN;\n${plan.bootstrapSql}\nCOMMIT;`)).rejects.toThrow(
+        /safe df_migration default object ACLs/i,
+      );
+      await database.exec('ROLLBACK').catch(() => undefined);
+      const [state] = await database.query<{ schema_exists: boolean }>(
+        "SELECT EXISTS (SELECT 1 FROM pg_namespace WHERE nspname = 'data_foundry') AS schema_exists",
+      );
+      expect(state?.schema_exists).toBe(false);
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it.each([
+    [
+      'external direct ACL',
+      `CREATE TABLE public.migration_acl_escape (id integer);
+       GRANT SELECT ON public.migration_acl_escape TO df_migration;`,
+    ],
+    [
+      'external object ownership',
+      `CREATE TABLE public.migration_owner_escape (id integer);
+       ALTER TABLE public.migration_owner_escape OWNER TO df_migration;`,
+    ],
+    [
+      'external-schema default-ACL ownership',
+      `ALTER DEFAULT PRIVILEGES FOR ROLE df_migration IN SCHEMA public
+         GRANT SELECT ON TABLES TO df_migration;`,
+    ],
+    [
+      'shared database ownership',
+      'CREATE DATABASE migration_owned_database OWNER df_migration;',
+    ],
+  ])('rejects migration-role %s before bootstrap DDL', async (_name, mutation) => {
+    const database = await createPGliteDriver();
+    try {
+      await provisionSafeMigrationRole(database);
+      await database.exec(mutation);
+      const plan = build();
+
+      await expect(database.exec(`BEGIN;\n${plan.bootstrapSql}\nCOMMIT;`)).rejects.toThrow(
+        /confined df_migration external privilege and ownership boundary/i,
+      );
+      await database.exec('ROLLBACK').catch(() => undefined);
+      const [state] = await database.query<{ schema_exists: boolean }>(
+        "SELECT EXISTS (SELECT 1 FROM pg_namespace WHERE nspname = 'data_foundry') AS schema_exists",
+      );
+      expect(state?.schema_exists).toBe(false);
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it.each([
+    [
+      'session safety',
+      'RESET ROLE; SET LOCAL lo_compat_privileges TO on; SET LOCAL ROLE df_migration;',
+      /session_replication_role=origin and lo_compat_privileges=off/i,
+    ],
+    [
+      'default ACL safety',
+      'ALTER DEFAULT PRIVILEGES FOR ROLE df_migration GRANT SELECT ON TABLES TO PUBLIC;',
+      /safe df_migration default object ACLs/i,
+    ],
+    [
+      'external ownership safety',
+      `RESET ROLE;
+       CREATE SCHEMA migration_owner_escape AUTHORIZATION df_migration;
+       SET LOCAL ROLE df_migration;`,
+      /confined df_migration external privilege and ownership boundary/i,
+    ],
+    [
+      'target foreign-table ownership safety',
+      `RESET ROLE;
+       CREATE FOREIGN DATA WRAPPER packet_escape_wrapper NO HANDLER;
+       CREATE SERVER packet_escape_server FOREIGN DATA WRAPPER packet_escape_wrapper;
+       CREATE FOREIGN TABLE "data_foundry".packet_foreign_escape (id integer)
+         SERVER packet_escape_server;
+       ALTER FOREIGN TABLE "data_foundry".packet_foreign_escape OWNER TO df_migration;
+       SET LOCAL ROLE df_migration;`,
+      /confined df_migration external privilege and ownership boundary/i,
+    ],
+    [
+      'durable migration-role setting safety',
+      `RESET ROLE;
+       ALTER ROLE df_migration SET lo_compat_privileges TO on;
+       SET LOCAL ROLE df_migration;`,
+      /canonical df_migration durable settings/i,
+    ],
+    [
+      'active migration role safety',
+      'RESET ROLE;',
+      /current_user=df_migration/i,
+    ],
+  ])('rolls back packet DDL and omits its ledger stamp when migration SQL introduces %s drift', async (_name, driftSql, message) => {
+    const database = await createPGliteDriver();
+    try {
+      await provisionSafeMigrationRole(database);
+      const driftMigrations = migrations.map((migration, index) =>
+        index === 0 ? { ...migration, sql: `${migration.sql}\n${driftSql}\n` } : migration,
+      );
+      const plan = build({ migrations: driftMigrations });
+      await database.exec(`BEGIN;\n${plan.bootstrapSql}\nCOMMIT;`);
+
+      await expect(database.exec(`BEGIN;\n${plan.packets[0]!.sql}\nCOMMIT;`)).rejects.toThrow(message);
+      await database.exec('ROLLBACK').catch(() => undefined);
+      const [state] = await database.query<{ ledger_count: number; first_table: string | null }>(
+        `SELECT (SELECT count(*)::int FROM data_foundry.schema_migrations) AS ledger_count,
+                to_regclass('data_foundry.verticals')::text AS first_table`,
+      );
+      expect(state).toEqual({ ledger_count: 0, first_table: null });
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it.each([
+    ['transaction-local', 'SET LOCAL search_path TO public, pg_catalog, extensions;'],
+    ['session-level', 'SET search_path TO public, pg_catalog, extensions;'],
+  ])('rolls back packet DDL and its ledger stamp after %s search_path poisoning', async (_name, searchPathSql) => {
+    const database = await createPGliteDriver();
+    try {
+      await provisionSafeMigrationRole(database);
+      const poisonedMigrations = migrations.map((migration, index) =>
+        index === 0
+          ? {
+              ...migration,
+              sql: `${migration.sql}\nRESET ROLE;\n${searchPathSql}\nCREATE TABLE packet_search_path_escape (id integer);\nSET LOCAL ROLE df_migration;\n`,
+            }
+          : migration,
+      );
+      const plan = build({ migrations: poisonedMigrations });
+      await database.exec(`BEGIN;\n${plan.bootstrapSql}\nCOMMIT;`);
+
+      await expect(database.exec(`BEGIN;\n${plan.packets[0]!.sql}\nCOMMIT;`)).rejects.toThrow(
+        /exact search_path.*data_foundry, pg_catalog, extensions/i,
+      );
+      await database.exec('ROLLBACK').catch(() => undefined);
+      const [state] = await database.query<{
+        ledger_count: number;
+        first_table: string | null;
+        public_escape: string | null;
+      }>(
+        `SELECT (SELECT count(*)::int FROM data_foundry.schema_migrations) AS ledger_count,
+                to_regclass('data_foundry.verticals')::text AS first_table,
+                to_regclass('public.packet_search_path_escape')::text AS public_escape`,
+      );
+      expect(state).toEqual({ ledger_count: 0, first_table: null, public_escape: null });
+    } finally {
+      await database.close();
     }
   }, 120_000);
 

@@ -6,6 +6,7 @@ const roles = ['df_edge', 'df_web', 'df_mcp', 'df_usage', 'df_acquisition'] as c
 describe('real PostgreSQL runtime-role connection check', () => {
   it('opens one direct credential connection per LOGIN role and validates its server-side identity and grants', async () => {
     const opened: string[] = [];
+    const probes: string[] = [];
     const env: Record<string, string> = { DATA_FOUNDRY_RUNTIME_ROLE_CONNECTION_TEST: '1' };
     for (const role of roles) env[`DATA_FOUNDRY_${role.slice(3).toUpperCase()}_POSTGRES_URL`] = `postgres://${role}:secret@db.invalid/data`;
 
@@ -13,14 +14,49 @@ describe('real PostgreSQL runtime-role connection check', () => {
       opened.push(`${role}:${connectionString}`);
       return {
         async connect() {},
-        async query() {
-          return { rows: [{ direct_login: true, role_is_login_nonprivileged: true, membership_is_empty: true, search_path_is_exact: true, durable_search_path_is_exact: true, privilege_matrix_is_exact: true }] };
+        async query(sql) {
+          probes.push(sql);
+          return { rows: [{ direct_login: true, role_is_login_nonprivileged: true, membership_is_empty: true, search_path_is_exact: true, lo_compat_privileges_is_off: true, session_replication_role_is_origin: true, durable_search_path_is_exact: true, privilege_matrix_is_exact: true }] };
         },
         async end() {},
       };
     });
 
     expect(opened.map((entry) => entry.split(':', 1)[0])).toEqual(roles);
+    expect(probes).toHaveLength(roles.length);
+    expect(
+      probes.every((sql) =>
+        sql.includes(
+          'AND NOT EXISTS (SELECT 1 FROM unsafe_migration_role_default_object_acl)',
+        ),
+      ),
+    ).toBe(true);
+    expect(
+      probes.every((sql) =>
+        sql.includes('AND NOT EXISTS (SELECT 1 FROM unsafe_migration_role_posture)'),
+      ),
+    ).toBe(true);
+    expect(
+      probes.every((sql) =>
+        sql.includes('AND NOT EXISTS (SELECT 1 FROM unsafe_migration_role_durable_settings)'),
+      ),
+    ).toBe(true);
+    expect(
+      probes.every((sql) =>
+        sql.includes(
+          'AND NOT EXISTS (SELECT 1 FROM unsafe_migration_role_external_capability)',
+        ),
+      ),
+    ).toBe(true);
+    expect(probes.every((sql) => sql.includes('unsafe_runtime_role_durable_settings'))).toBe(true);
+    expect(probes.every((sql) => sql.includes('setting.setdatabase = 0'))).toBe(true);
+    expect(probes.every((sql) => sql.includes('CROSS JOIN pg_catalog.pg_database database'))).toBe(true);
+    expect(probes.every((sql) =>
+      sql.includes("pg_catalog.has_database_privilege(runtime_role.oid, database.oid, 'CONNECT')")
+    )).toBe(true);
+    expect(probes.every((sql) => sql.includes("current_setting('lo_compat_privileges') = 'off'"))).toBe(true);
+    expect(probes.every((sql) => sql.includes("current_setting('session_replication_role') = 'origin'"))).toBe(true);
+    expect(probes.every((sql) => sql.includes('NOT r.rolinherit'))).toBe(true);
   });
 
   it('rejects a direct role whose effective session search path is not exact', async () => {
@@ -30,7 +66,7 @@ describe('real PostgreSQL runtime-role connection check', () => {
       checkRuntimeRoleConnectionsPostgres(env, async () => ({
         async connect() {},
         async query() {
-          return { rows: [{ direct_login: true, role_is_login_nonprivileged: true, membership_is_empty: true, search_path_is_exact: false, durable_search_path_is_exact: true, privilege_matrix_is_exact: true }] };
+          return { rows: [{ direct_login: true, role_is_login_nonprivileged: true, membership_is_empty: true, search_path_is_exact: false, lo_compat_privileges_is_off: true, session_replication_role_is_origin: true, durable_search_path_is_exact: true, privilege_matrix_is_exact: true }] };
         },
         async end() {},
       })),
@@ -44,7 +80,34 @@ describe('real PostgreSQL runtime-role connection check', () => {
       checkRuntimeRoleConnectionsPostgres(env, async () => ({
         async connect() {},
         async query() {
-          return { rows: [{ direct_login: true, role_is_login_nonprivileged: true, membership_is_empty: true, search_path_is_exact: true, durable_search_path_is_exact: false, privilege_matrix_is_exact: true }] };
+          return { rows: [{ direct_login: true, role_is_login_nonprivileged: true, membership_is_empty: true, search_path_is_exact: true, lo_compat_privileges_is_off: true, session_replication_role_is_origin: true, durable_search_path_is_exact: false, privilege_matrix_is_exact: true }] };
+        },
+        async end() {},
+      })),
+    ).rejects.toThrow(/runtime-role connection verification failed/i);
+  });
+
+  it.each([
+    'lo_compat_privileges_is_off',
+    'session_replication_role_is_origin',
+  ] as const)('rejects a direct role whose live %s result is unsafe', async (field) => {
+    const env: Record<string, string> = { DATA_FOUNDRY_RUNTIME_ROLE_CONNECTION_TEST: '1' };
+    for (const role of roles) env[`DATA_FOUNDRY_${role.slice(3).toUpperCase()}_POSTGRES_URL`] = 'postgres://secret@db.invalid/data';
+    await expect(
+      checkRuntimeRoleConnectionsPostgres(env, async () => ({
+        async connect() {},
+        async query() {
+          return { rows: [{
+            direct_login: true,
+            role_is_login_nonprivileged: true,
+            membership_is_empty: true,
+            search_path_is_exact: true,
+            lo_compat_privileges_is_off: true,
+            session_replication_role_is_origin: true,
+            durable_search_path_is_exact: true,
+            privilege_matrix_is_exact: true,
+            [field]: false,
+          }] };
         },
         async end() {},
       })),

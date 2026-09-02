@@ -13,6 +13,7 @@ import {
 import {
   buildRuntimeRoleExpectedExternalAclValuesSql,
   buildRuntimeRoleExpectedGrants,
+  buildRuntimeRoleReachableExternalCapabilitySql,
   PRIVATE_CANARY_RUNTIME_BINDING_SQL,
 } from '@data-foundry/private-canary';
 import { createCanonicalStore, type SqlDriver } from '@data-foundry/canonical-store';
@@ -49,10 +50,12 @@ async function createMigratedDatabase(): Promise<{
 }> {
   const database = await createPGliteDriver();
   await database.exec(`
-    CREATE ROLE df_migration NOLOGIN;
+    CREATE ROLE df_migration LOGIN NOINHERIT NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS;
     GRANT df_migration TO postgres;
+    ALTER DEFAULT PRIVILEGES FOR ROLE df_migration REVOKE EXECUTE ON FUNCTIONS FROM PUBLIC;
     GRANT USAGE ON SCHEMA extensions TO df_migration;
-    ${RUNTIME_ROLES.map((role) => `CREATE ROLE ${role} NOLOGIN;`).join('\n    ')}
+    REVOKE CREATE ON SCHEMA public FROM PUBLIC;
+    ${RUNTIME_ROLES.map((role) => `CREATE ROLE ${role} NOLOGIN NOINHERIT;`).join('\n    ')}
     ${RUNTIME_ROLES.map((role) => `GRANT USAGE ON SCHEMA extensions TO ${role};`).join('\n    ')}
     DO $runtime_database_connect$
     BEGIN
@@ -61,8 +64,18 @@ async function createMigratedDatabase(): Promise<{
       EXECUTE format('GRANT CONNECT ON DATABASE %I TO %I', current_database(), 'df_mcp');
       EXECUTE format('GRANT CONNECT ON DATABASE %I TO %I', current_database(), 'df_usage');
       EXECUTE format('GRANT CONNECT ON DATABASE %I TO %I', current_database(), 'df_acquisition');
+      EXECUTE format('GRANT CONNECT ON DATABASE %I TO %I', current_database(), 'df_migration');
     END
     $runtime_database_connect$;
+    DO $runtime_database_settings$
+    BEGIN
+      EXECUTE format('ALTER ROLE df_migration IN DATABASE %I SET search_path TO data_foundry, pg_catalog, extensions', current_database());
+      ${RUNTIME_ROLES.map(
+        (role) =>
+          `EXECUTE format('ALTER ROLE ${role} IN DATABASE %I SET search_path TO data_foundry, pg_catalog, extensions', current_database());`,
+      ).join('\n      ')}
+    END
+    $runtime_database_settings$;
   `);
   const plan = build();
   await database.exec(`BEGIN;\n${plan.bootstrapSql}\nCOMMIT;`);
@@ -79,6 +92,7 @@ async function createMigratedDatabase(): Promise<{
 
 async function grantConnectOnWrongDatabase(database: MigrationDriver): Promise<void> {
   await database.exec('CREATE DATABASE runtime_grant_wrong_target');
+  await database.exec('REVOKE CONNECT ON DATABASE runtime_grant_wrong_target FROM PUBLIC');
   await database.exec('GRANT CONNECT ON DATABASE runtime_grant_wrong_target TO df_edge');
 }
 
@@ -134,6 +148,34 @@ describe('Supabase post-migration runtime grants', () => {
     expect(first.verificationSql).toContain('public_schema_create_is_false');
     expect(first.verificationSql).toContain('unexpected_private_privilege_count');
     expect(first.verificationSql).toContain('public_fingerprint_input');
+    expect(first.sql).toContain('has_parameter_privilege');
+    expect(first.sql).toContain("('SET'::text), ('ALTER SYSTEM'::text)");
+    expect(first.sql).toContain('pg_catalog.pg_largeobject_metadata');
+    expect(first.sql).toContain('pg_catalog.aclexplode(large_object.lomacl)');
+    expect(first.sql).toContain('large_object.lomowner = runtime_role.oid');
+    expect(first.sql).toContain('acl.grantee = 0');
+    expect(first.sql).toContain("('SELECT'::text), ('UPDATE'::text)");
+    expect(first.sql).toContain("current_setting('lo_compat_privileges') = 'on'");
+    expect(first.sql).not.toContain('has_largeobject_privilege');
+    expect(first.sql).toContain(
+      'default_acl_object_types(catalog_object_type, default_object_type)',
+    );
+    expect(first.sql).toContain(`('S'::"char", 's'::"char")`);
+    expect(first.sql).toContain(
+      'pg_catalog.acldefault(default_acl_type.default_object_type, migration_owner.oid)',
+    );
+    expect(first.sql).toContain("default_acl.defaclobjtype IN ('f', 'r', 'S')");
+    expect(first.sql).toContain("'non_owner_default_privilege'::text");
+    expect(first.sql).toContain('acl.grantee <> source.migration_owner_oid');
+    expect(first.sql).toContain('pg_catalog.pg_db_role_setting');
+    expect(first.sql).toContain('setting.setdatabase = 0');
+    expect(first.sql).toContain('setting.setdatabase IN (0, database.oid)');
+    expect(first.sql).toContain("setting.setconfig IS DISTINCT FROM ARRAY['search_path=data_foundry, pg_catalog, extensions']::text[]");
+    expect(first.sql).toContain("'lo_compat_privileges'");
+    expect(first.sql).toContain("'session_replication_role'");
+    expect(first.sql).toContain('r.rolinherit');
+    expect(first.verificationSql).toContain('WHERE false');
+    expect(first.postCredentialVerificationSql).toContain('WHERE true');
   });
 
   it('executes after all migrations and proves representative positive and negative privileges', async () => {
@@ -215,7 +257,7 @@ describe('Supabase post-migration runtime grants', () => {
       `);
       expect(relationAccess).toEqual({ schema_usage: true, relation_select: true });
       await expect(database.exec(plan.postMigrationGrants.verificationSql)).rejects.toThrow(
-        /reachable external data\/custom-routine capability/i,
+        /migration-role external capability/i,
       );
       const [relationBinding] = await database.query<{ readonly privilege_matrix_is_exact: boolean }>(
         PRIVATE_CANARY_RUNTIME_BINDING_SQL,
@@ -244,7 +286,7 @@ describe('Supabase post-migration runtime grants', () => {
         security_definer: true,
       });
       await expect(database.exec(plan.postMigrationGrants.verificationSql)).rejects.toThrow(
-        /reachable external data\/custom-routine capability/i,
+        /migration-role external capability/i,
       );
       const [functionBinding] = await database.query<{ readonly privilege_matrix_is_exact: boolean }>(
         PRIVATE_CANARY_RUNTIME_BINDING_SQL,
@@ -271,7 +313,7 @@ describe('Supabase post-migration runtime grants', () => {
         GRANT SELECT ON extensions.runtime_public_relation TO PUBLIC;
       `);
       await expect(database.exec(plan.postMigrationGrants.verificationSql)).rejects.toThrow(
-        /reachable external data\/custom-routine capability/i,
+        /migration-role external capability/i,
       );
 
       await database.exec('DROP TABLE extensions.runtime_public_relation');
@@ -282,12 +324,296 @@ describe('Supabase post-migration runtime grants', () => {
           RETURNS integer LANGUAGE sql AS 'SELECT 1';
       `);
       await expect(database.exec(plan.postMigrationGrants.verificationSql)).rejects.toThrow(
-        /reachable external data\/custom-routine capability/i,
+        /migration-role external capability/i,
       );
     } finally {
       await database.close();
     }
   }, 120_000);
+
+  it('rejects ownership of an extension member outside relation, routine, and type catalogs', async () => {
+    const { database, plan } = await createMigratedDatabase();
+    try {
+      await database.exec(`
+        CREATE TEXT SEARCH DICTIONARY extensions.runtime_owned_dictionary
+          (TEMPLATE = pg_catalog.simple);
+        ALTER TEXT SEARCH DICTIONARY extensions.runtime_owned_dictionary OWNER TO df_edge;
+        ALTER EXTENSION plpgsql ADD TEXT SEARCH DICTIONARY extensions.runtime_owned_dictionary;
+      `);
+
+      const [extensionMember] = await database.query<{
+        description: string;
+        owner_name: string;
+      }>(`
+        SELECT pg_catalog.pg_describe_object(member.classid, member.objid, member.objsubid)::text
+                 AS description,
+               pg_catalog.pg_get_userbyid(owner_dependency.refobjid)::text AS owner_name
+          FROM pg_catalog.pg_depend member
+          JOIN pg_catalog.pg_extension extension ON extension.oid = member.refobjid
+          JOIN pg_catalog.pg_shdepend owner_dependency
+            ON owner_dependency.dbid = (
+                 SELECT oid FROM pg_catalog.pg_database WHERE datname = current_database()
+               )
+           AND owner_dependency.classid = member.classid
+           AND owner_dependency.objid = member.objid
+           AND owner_dependency.objsubid = member.objsubid
+           AND owner_dependency.refclassid = 'pg_catalog.pg_authid'::pg_catalog.regclass
+           AND owner_dependency.deptype = 'o'
+         WHERE extension.extname = 'plpgsql'
+           AND member.objsubid = 0
+           AND member.refobjsubid = 0
+           AND member.deptype = 'e'
+           AND pg_catalog.pg_describe_object(member.classid, member.objid, member.objsubid)
+                 LIKE '%runtime_owned_dictionary%'
+      `);
+      expect(extensionMember).toEqual({
+        description: 'text search dictionary extensions.runtime_owned_dictionary',
+        owner_name: 'df_edge',
+      });
+      const migrationModeCapabilities = await database.query<{
+        scope: string;
+        object_name: string;
+        role_name: string;
+        privilege: string;
+      }>(
+        buildRuntimeRoleReachableExternalCapabilitySql(
+          'data_foundry',
+          "runtime_role.rolname = 'df_edge'",
+          false,
+        ),
+      );
+      expect(migrationModeCapabilities).toContainEqual({
+        scope: 'extension_member',
+        object_name: 'text search dictionary extensions.runtime_owned_dictionary',
+        role_name: 'df_edge',
+        privilege: 'OWNER',
+      });
+      expect(migrationModeCapabilities.some(({ scope }) => scope === 'owned_object')).toBe(false);
+
+      await expect(
+        database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`),
+      ).rejects.toThrow(/reachable external capability/i);
+      await database.exec('ROLLBACK').catch(() => undefined);
+      const [preGrantState] = await database.query<{ has_usage: boolean }>(
+        "SELECT has_schema_privilege('df_edge', 'data_foundry', 'USAGE') AS has_usage",
+      );
+      expect(preGrantState?.has_usage).toBe(false);
+
+      await database.exec(`
+        ALTER EXTENSION plpgsql DROP TEXT SEARCH DICTIONARY extensions.runtime_owned_dictionary;
+        ALTER TEXT SEARCH DICTIONARY extensions.runtime_owned_dictionary OWNER TO postgres;
+        DROP TEXT SEARCH DICTIONARY extensions.runtime_owned_dictionary;
+      `);
+      await database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`);
+      await database.exec(`
+        CREATE TEXT SEARCH DICTIONARY extensions.runtime_owned_dictionary
+          (TEMPLATE = pg_catalog.simple);
+        ALTER TEXT SEARCH DICTIONARY extensions.runtime_owned_dictionary OWNER TO df_edge;
+        ALTER EXTENSION plpgsql ADD TEXT SEARCH DICTIONARY extensions.runtime_owned_dictionary;
+      `);
+
+      await expect(database.exec(plan.postMigrationGrants.verificationSql)).rejects.toThrow(
+        /reachable external capability/i,
+      );
+      await database.exec(RUNTIME_ROLES.map((role) => `ALTER ROLE ${role} LOGIN;`).join('\n'));
+      await expect(
+        database.exec(plan.postMigrationGrants.postCredentialVerificationSql),
+      ).rejects.toThrow(/reachable external capability/i);
+      const [binding] = await database.query<{ readonly privilege_matrix_is_exact: boolean }>(
+        PRIVATE_CANARY_RUNTIME_BINDING_SQL,
+        ['df_edge'],
+      );
+      expect(binding?.privilege_matrix_is_exact).toBe(false);
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it.each([
+    {
+      name: 'non-extension text-search dictionary',
+      createSql: `
+        CREATE TEXT SEARCH DICTIONARY extensions.runtime_unmanaged_dictionary
+          (TEMPLATE = pg_catalog.simple);
+        ALTER TEXT SEARCH DICTIONARY extensions.runtime_unmanaged_dictionary OWNER TO df_edge;
+      `,
+      cleanupSql: [
+        `ALTER TEXT SEARCH DICTIONARY extensions.runtime_unmanaged_dictionary OWNER TO postgres;
+         DROP TEXT SEARCH DICTIONARY extensions.runtime_unmanaged_dictionary;`,
+      ],
+      postCreateSql: undefined,
+    },
+    {
+      name: 'foreign server',
+      createSql: `
+        CREATE FOREIGN DATA WRAPPER runtime_owner_test_fdw NO HANDLER;
+        CREATE SERVER runtime_owned_server FOREIGN DATA WRAPPER runtime_owner_test_fdw;
+        ALTER SERVER runtime_owned_server OWNER TO df_edge;
+      `,
+      cleanupSql: [
+        `ALTER SERVER runtime_owned_server OWNER TO postgres;
+         DROP SERVER runtime_owned_server;
+         DROP FOREIGN DATA WRAPPER runtime_owner_test_fdw;`,
+      ],
+      postCreateSql: undefined,
+    },
+    {
+      name: 'shared database object',
+      createSql: 'CREATE DATABASE runtime_owned_database OWNER df_edge;',
+      cleanupSql: [
+        'ALTER DATABASE runtime_owned_database OWNER TO postgres;',
+        'DROP DATABASE runtime_owned_database;',
+      ],
+      postCreateSql: `
+        REVOKE CONNECT ON DATABASE runtime_owned_database FROM PUBLIC;
+        REVOKE ALL PRIVILEGES ON DATABASE runtime_owned_database FROM df_edge;
+      `,
+    },
+  ])(
+    'rejects runtime ownership of a $name in every generated guard',
+    async ({ name, createSql, cleanupSql, postCreateSql }) => {
+      const { database, plan } = await createMigratedDatabase();
+      try {
+        await database.exec(createSql);
+        if (postCreateSql !== undefined) {
+          await database.exec(postCreateSql);
+        }
+        const [ownedObject] = await database.query<{ owned_count: number }>(`
+        SELECT count(*)::int AS owned_count
+          FROM pg_catalog.pg_shdepend ownership
+         WHERE ownership.refclassid = 'pg_catalog.pg_authid'::pg_catalog.regclass
+           AND ownership.refobjid = 'df_edge'::pg_catalog.regrole
+           AND ownership.deptype = 'o'
+           AND ownership.objsubid = 0
+        `);
+        expect(ownedObject?.owned_count).toBe(1);
+        if (name === 'shared database object') {
+          const [databaseIdentity] = await database.query<{
+            database_oid: number;
+            catalog_class_oid: number;
+          }>(`
+            SELECT database.oid::int AS database_oid,
+                   'pg_catalog.pg_database'::pg_catalog.regclass::oid::int AS catalog_class_oid
+              FROM pg_catalog.pg_database database
+             WHERE database.datname = 'runtime_owned_database'
+          `);
+          const reachableCapabilities = await database.query<{
+            scope: string;
+            object_name: string;
+            role_name: string;
+            privilege: string;
+          }>(
+            buildRuntimeRoleReachableExternalCapabilitySql(
+              'data_foundry',
+              "runtime_role.rolname = 'df_edge'",
+            ),
+          );
+          expect(reachableCapabilities).toContainEqual({
+            scope: 'owned_object',
+            object_name: `0:${databaseIdentity?.catalog_class_oid}:${databaseIdentity?.database_oid}:0`,
+            role_name: 'df_edge',
+            privilege: 'OWNER',
+          });
+        }
+
+        await expect(
+          database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`),
+        ).rejects.toThrow(/reachable external capability/i);
+        await database.exec('ROLLBACK').catch(() => undefined);
+        const [preGrantState] = await database.query<{ has_usage: boolean }>(
+          "SELECT has_schema_privilege('df_edge', 'data_foundry', 'USAGE') AS has_usage",
+        );
+        expect(preGrantState?.has_usage).toBe(false);
+
+        for (const cleanupStatement of cleanupSql) {
+          await database.exec(cleanupStatement);
+        }
+        await database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`);
+        await database.exec(createSql);
+        if (postCreateSql !== undefined) {
+          await database.exec(postCreateSql);
+        }
+
+        await expect(database.exec(plan.postMigrationGrants.verificationSql)).rejects.toThrow(
+          /reachable external capability/i,
+        );
+        await database.exec(RUNTIME_ROLES.map((role) => `ALTER ROLE ${role} LOGIN;`).join('\n'));
+        await expect(
+          database.exec(plan.postMigrationGrants.postCredentialVerificationSql),
+        ).rejects.toThrow(/reachable external capability/i);
+        const [binding] = await database.query<{ readonly privilege_matrix_is_exact: boolean }>(
+          PRIVATE_CANARY_RUNTIME_BINDING_SQL,
+          ['df_edge'],
+        );
+        expect(binding?.privilege_matrix_is_exact).toBe(false);
+      } finally {
+        await database.close();
+      }
+    },
+    120_000,
+  );
+
+  it.each(['verificationSql', 'postCredentialVerificationSql'] as const)(
+    'enforces migration posture, external confinement, and session safety in %s',
+    async (verifierName) => {
+      const { database, plan } = await createMigratedDatabase();
+      try {
+        await database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`);
+        if (verifierName === 'postCredentialVerificationSql') {
+          await database.exec(RUNTIME_ROLES.map((role) => `ALTER ROLE ${role} LOGIN;`).join('\n'));
+        }
+        const verifier = plan.postMigrationGrants[verifierName];
+        const scenarios = [
+          {
+            apply: 'ALTER ROLE df_migration INHERIT;',
+            revert: 'ALTER ROLE df_migration NOINHERIT;',
+            message: /migration-role posture is unsafe/i,
+          },
+          {
+            apply: 'ALTER ROLE df_migration SET lo_compat_privileges TO on;',
+            revert: 'ALTER ROLE df_migration RESET lo_compat_privileges;',
+            message: /migration-role durable settings are unsafe/i,
+          },
+          {
+            apply: `CREATE TABLE public.migration_external_probe (id integer);
+                    GRANT SELECT ON public.migration_external_probe TO df_migration;`,
+            revert: `REVOKE SELECT ON public.migration_external_probe FROM df_migration;
+                     DROP TABLE public.migration_external_probe;`,
+            message: /migration-role external capability is unsafe/i,
+          },
+          {
+            apply: `CREATE TABLE public.migration_owned_probe (id integer);
+                    ALTER TABLE public.migration_owned_probe OWNER TO df_migration;`,
+            revert: `ALTER TABLE public.migration_owned_probe OWNER TO postgres;
+                     DROP TABLE public.migration_owned_probe;`,
+            message: /migration-role external capability is unsafe/i,
+          },
+          {
+            apply: 'SET lo_compat_privileges TO on;',
+            revert: 'RESET lo_compat_privileges;',
+            message: /migration session is unsafe/i,
+          },
+        ] as const;
+
+        for (const scenario of scenarios) {
+          await database.exec(scenario.apply);
+          await expect(database.exec(verifier)).rejects.toThrow(scenario.message);
+          const [unsafeBinding] = await database.query<{
+            readonly privilege_matrix_is_exact: boolean;
+          }>(PRIVATE_CANARY_RUNTIME_BINDING_SQL, ['df_edge']);
+          expect(unsafeBinding?.privilege_matrix_is_exact).toBe(false);
+          await database.exec(scenario.revert);
+          const [restoredBinding] = await database.query<{
+            readonly privilege_matrix_is_exact: boolean;
+          }>(PRIVATE_CANARY_RUNTIME_BINDING_SQL, ['df_edge']);
+          expect(restoredBinding?.privilege_matrix_is_exact).toBe(true);
+        }
+      } finally {
+        await database.close();
+      }
+    },
+    120_000,
+  );
 
   it('refuses a reachable external relation before issuing any runtime grants', async () => {
     const { database, plan } = await createMigratedDatabase();
@@ -298,13 +624,160 @@ describe('Supabase post-migration runtime grants', () => {
       `);
       await expect(
         database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`),
-      ).rejects.toThrow(/reachable external data\/custom-routine capability/i);
+      ).rejects.toThrow(/confined df_migration external privilege and ownership boundary/i);
       await database.exec('ROLLBACK').catch(() => undefined);
       const [state] = await database.query<{ has_usage: boolean }>(
         "SELECT has_schema_privilege('df_edge', 'data_foundry', 'USAGE') AS has_usage",
       );
       expect(state?.has_usage).toBe(false);
     } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it('rejects migration-role durable-setting drift before grants and in live readiness', async () => {
+    const { database, plan } = await createMigratedDatabase();
+    try {
+      await database.exec('ALTER ROLE df_migration SET lo_compat_privileges TO on');
+      await expect(
+        database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`),
+      ).rejects.toThrow(/canonical df_migration durable settings/i);
+      await database.exec('ROLLBACK').catch(() => undefined);
+      const [preGrantState] = await database.query<{ has_usage: boolean }>(
+        "SELECT has_schema_privilege('df_edge', 'data_foundry', 'USAGE') AS has_usage",
+      );
+      expect(preGrantState?.has_usage).toBe(false);
+
+      const [unsafeBinding] = await database.query<{ readonly privilege_matrix_is_exact: boolean }>(
+        PRIVATE_CANARY_RUNTIME_BINDING_SQL,
+        ['df_edge'],
+      );
+      expect(unsafeBinding?.privilege_matrix_is_exact).toBe(false);
+
+      await database.exec('ALTER ROLE df_migration RESET lo_compat_privileges');
+      await database.exec(`
+        DO $migration_database_setting_drift$
+        BEGIN
+          EXECUTE format(
+            'ALTER ROLE df_migration IN DATABASE %I SET search_path TO public',
+            current_database()
+          );
+        END
+        $migration_database_setting_drift$;
+      `);
+      await expect(
+        database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`),
+      ).rejects.toThrow(/canonical df_migration durable settings/i);
+      await database.exec('ROLLBACK').catch(() => undefined);
+      const [noncanonicalBinding] = await database.query<{ readonly privilege_matrix_is_exact: boolean }>(
+        PRIVATE_CANARY_RUNTIME_BINDING_SQL,
+        ['df_edge'],
+      );
+      expect(noncanonicalBinding?.privilege_matrix_is_exact).toBe(false);
+      await database.exec(`
+        DO $migration_database_setting_restore$
+        BEGIN
+          EXECUTE format(
+            'ALTER ROLE df_migration IN DATABASE %I SET search_path TO data_foundry, pg_catalog, extensions',
+            current_database()
+          );
+        END
+        $migration_database_setting_restore$;
+      `);
+      await database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`);
+      await expect(database.exec(plan.postMigrationGrants.verificationSql)).resolves.toBeUndefined();
+      const [restoredBinding] = await database.query<{ readonly privilege_matrix_is_exact: boolean }>(
+        PRIVATE_CANARY_RUNTIME_BINDING_SQL,
+        ['df_edge'],
+      );
+      expect(restoredBinding?.privilege_matrix_is_exact).toBe(true);
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it('rejects PUBLIC-derived CREATE on every database before grants and in every verifier', async () => {
+    const { database, plan } = await createMigratedDatabase();
+    try {
+      await database.exec('CREATE DATABASE runtime_public_create_escape');
+      await database.exec('REVOKE CONNECT ON DATABASE runtime_public_create_escape FROM PUBLIC');
+      await database.exec('GRANT CREATE ON DATABASE runtime_public_create_escape TO PUBLIC');
+      const [effectivePrivilege] = await database.query<{
+        migration_connect: boolean;
+        migration_create: boolean;
+        runtime_connect: boolean;
+        runtime_create: boolean;
+      }>(`
+        SELECT has_database_privilege('df_migration', 'runtime_public_create_escape', 'CREATE') AS migration_create,
+               has_database_privilege('df_edge', 'runtime_public_create_escape', 'CREATE') AS runtime_create,
+               has_database_privilege('df_migration', 'runtime_public_create_escape', 'CONNECT') AS migration_connect,
+               has_database_privilege('df_edge', 'runtime_public_create_escape', 'CONNECT') AS runtime_connect
+      `);
+      expect(effectivePrivilege).toEqual({
+        migration_connect: false,
+        migration_create: true,
+        runtime_connect: false,
+        runtime_create: true,
+      });
+      await expect(
+        database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`),
+      ).rejects.toThrow(/confined df_migration external privilege and ownership boundary/i);
+      await database.exec('ROLLBACK').catch(() => undefined);
+
+      await database.exec('REVOKE CREATE ON DATABASE runtime_public_create_escape FROM PUBLIC');
+      await database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`);
+      await database.exec('GRANT CREATE ON DATABASE runtime_public_create_escape TO PUBLIC');
+      const [binding] = await database.query<{ readonly privilege_matrix_is_exact: boolean }>(
+        PRIVATE_CANARY_RUNTIME_BINDING_SQL,
+        ['df_edge'],
+      );
+      expect(binding?.privilege_matrix_is_exact).toBe(false);
+      await expect(database.exec(plan.postMigrationGrants.verificationSql)).rejects.toThrow(
+        /migration-role external capability/i,
+      );
+      await database.exec(RUNTIME_ROLES.map((role) => `ALTER ROLE ${role} LOGIN;`).join('\n'));
+      await expect(
+        database.exec(plan.postMigrationGrants.postCredentialVerificationSql),
+      ).rejects.toThrow(/migration-role external capability/i);
+    } finally {
+      await database.exec('REVOKE CREATE ON DATABASE runtime_public_create_escape FROM PUBLIC').catch(() => undefined);
+      await database.exec('DROP DATABASE runtime_public_create_escape').catch(() => undefined);
+      await database.close();
+    }
+  }, 120_000);
+
+  it('rejects PUBLIC-derived CONNECT to another live database before grants and in every verifier', async () => {
+    const { database, plan } = await createMigratedDatabase();
+    try {
+      await database.exec('CREATE DATABASE runtime_public_connect_escape');
+      const [effectivePrivilege] = await database.query<{ migration_connect: boolean; runtime_connect: boolean }>(`
+        SELECT has_database_privilege('df_migration', 'runtime_public_connect_escape', 'CONNECT') AS migration_connect,
+               has_database_privilege('df_edge', 'runtime_public_connect_escape', 'CONNECT') AS runtime_connect
+      `);
+      expect(effectivePrivilege).toEqual({ migration_connect: true, runtime_connect: true });
+      await expect(
+        database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`),
+      ).rejects.toThrow(/confined df_migration external privilege and ownership boundary/i);
+      await database.exec('ROLLBACK').catch(() => undefined);
+
+      await database.exec('REVOKE CONNECT ON DATABASE runtime_public_connect_escape FROM PUBLIC');
+      await database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`);
+      await database.exec('GRANT CONNECT ON DATABASE runtime_public_connect_escape TO PUBLIC');
+      const [binding] = await database.query<{ readonly privilege_matrix_is_exact: boolean }>(
+        PRIVATE_CANARY_RUNTIME_BINDING_SQL,
+        ['df_edge'],
+      );
+      expect(binding?.privilege_matrix_is_exact).toBe(false);
+      await expect(database.exec(plan.postMigrationGrants.verificationSql)).rejects.toThrow(
+        /migration-role external capability/i,
+      );
+      await database.exec(RUNTIME_ROLES.map((role) => `ALTER ROLE ${role} LOGIN;`).join('\n'));
+      await expect(
+        database.exec(plan.postMigrationGrants.postCredentialVerificationSql),
+      ).rejects.toThrow(/migration-role external capability/i);
+    } finally {
+      await database.exec('REVOKE CONNECT ON DATABASE runtime_public_connect_escape FROM PUBLIC').catch(() => undefined);
+      await database.exec('DROP DATABASE runtime_public_connect_escape').catch(() => undefined);
       await database.close();
     }
   }, 120_000);
@@ -321,7 +794,7 @@ describe('Supabase post-migration runtime grants', () => {
       `);
       await expect(
         database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`),
-      ).rejects.toThrow(/reachable external data\/custom-routine capability/i);
+      ).rejects.toThrow(/confined df_migration external privilege and ownership boundary/i);
       await database.exec('ROLLBACK').catch(() => undefined);
       const [state] = await database.query<{ has_usage: boolean }>(
         "SELECT has_schema_privilege('df_edge', 'data_foundry', 'USAGE') AS has_usage",
@@ -638,8 +1111,532 @@ describe('Supabase post-migration runtime grants', () => {
       );
       expect(binding?.privilege_matrix_is_exact).toBe(false);
       await expect(database.exec(plan.postMigrationGrants.verificationSql)).rejects.toThrow(
-        /reachable external data\/custom-routine capability/i,
+        /migration-role external capability/i,
       );
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it('rejects PUBLIC-derived parameter privileges before grants and in every runtime check', async () => {
+    const { database, plan } = await createMigratedDatabase();
+    try {
+      await database.exec('GRANT SET ON PARAMETER session_replication_role TO PUBLIC');
+      const [effectivePrivilege] = await database.query<{ parameter_set: boolean }>(`
+        SELECT has_parameter_privilege('df_edge', 'session_replication_role', 'SET') AS parameter_set
+      `);
+      expect(effectivePrivilege?.parameter_set).toBe(true);
+      await expect(
+        database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`),
+      ).rejects.toThrow(/confined df_migration external privilege and ownership boundary/i);
+      await database.exec('ROLLBACK').catch(() => undefined);
+      const [preGrantState] = await database.query<{ has_usage: boolean }>(
+        "SELECT has_schema_privilege('df_edge', 'data_foundry', 'USAGE') AS has_usage",
+      );
+      expect(preGrantState?.has_usage).toBe(false);
+
+      await database.exec('REVOKE SET ON PARAMETER session_replication_role FROM PUBLIC');
+      await database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`);
+      await database.exec('GRANT SET ON PARAMETER session_replication_role TO PUBLIC');
+      const [binding] = await database.query<{ readonly privilege_matrix_is_exact: boolean }>(
+        PRIVATE_CANARY_RUNTIME_BINDING_SQL,
+        ['df_edge'],
+      );
+      expect(binding?.privilege_matrix_is_exact).toBe(false);
+      await expect(database.exec(plan.postMigrationGrants.verificationSql)).rejects.toThrow(
+        /migration-role external capability/i,
+      );
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it('rejects PUBLIC-derived large-object privileges before grants and in every runtime check', async () => {
+    const { database, plan } = await createMigratedDatabase();
+    try {
+      await database.exec(`
+        SELECT lo_from_bytea(4242, decode('cafe', 'hex'));
+        GRANT SELECT, UPDATE ON LARGE OBJECT 4242 TO PUBLIC;
+        SET ROLE df_edge;
+      `);
+      const [readable] = await database.query<{ bytes: string }>(`
+        SELECT encode(lo_get(4242), 'hex') AS bytes
+      `);
+      expect(readable?.bytes).toBe('cafe');
+      await database.exec(`
+        SELECT lo_put(4242, 0, decode('beef', 'hex'));
+        RESET ROLE;
+      `);
+      await expect(
+        database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`),
+      ).rejects.toThrow(/confined df_migration external privilege and ownership boundary/i);
+      await database.exec('ROLLBACK').catch(() => undefined);
+      const [preGrantState] = await database.query<{ has_usage: boolean }>(
+        "SELECT has_schema_privilege('df_edge', 'data_foundry', 'USAGE') AS has_usage",
+      );
+      expect(preGrantState?.has_usage).toBe(false);
+
+      await database.exec('REVOKE SELECT, UPDATE ON LARGE OBJECT 4242 FROM PUBLIC');
+      await database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`);
+      await database.exec('GRANT SELECT, UPDATE ON LARGE OBJECT 4242 TO PUBLIC');
+      const [binding] = await database.query<{ readonly privilege_matrix_is_exact: boolean }>(
+        PRIVATE_CANARY_RUNTIME_BINDING_SQL,
+        ['df_edge'],
+      );
+      expect(binding?.privilege_matrix_is_exact).toBe(false);
+      await expect(database.exec(plan.postMigrationGrants.verificationSql)).rejects.toThrow(
+        /migration-role external capability/i,
+      );
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it('rejects runtime-role large-object ownership but permits an ungranted administrator object', async () => {
+    const first = await createMigratedDatabase();
+    try {
+      await first.database.exec("SELECT lo_from_bytea(4243, decode('cafe', 'hex'))");
+      await expect(
+        first.database.exec(`BEGIN;\n${first.plan.postMigrationGrants.sql}\nCOMMIT;`),
+      ).resolves.toBeUndefined();
+      await expect(
+        first.database.exec(first.plan.postMigrationGrants.verificationSql),
+      ).resolves.toBeUndefined();
+    } finally {
+      await first.database.close();
+    }
+
+    const second = await createMigratedDatabase();
+    try {
+      await second.database.exec(`
+        SET ROLE df_edge;
+        SELECT lo_from_bytea(4244, decode('cafe', 'hex'));
+        RESET ROLE;
+      `);
+      await expect(
+        second.database.exec(`BEGIN;\n${second.plan.postMigrationGrants.sql}\nCOMMIT;`),
+      ).rejects.toThrow(/reachable external capability/i);
+      await second.database.exec('ROLLBACK').catch(() => undefined);
+      const [preGrantState] = await second.database.query<{ has_usage: boolean }>(
+        "SELECT has_schema_privilege('df_edge', 'data_foundry', 'USAGE') AS has_usage",
+      );
+      expect(preGrantState?.has_usage).toBe(false);
+    } finally {
+      await second.database.close();
+    }
+  }, 120_000);
+
+  it('rejects the PostgreSQL large-object compatibility bypass', async () => {
+    const { database, plan } = await createMigratedDatabase();
+    try {
+      await database.exec("SET lo_compat_privileges = 'on'");
+      await expect(
+        database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`),
+      ).rejects.toThrow(/session_replication_role=origin and lo_compat_privileges=off/i);
+      await database.exec('ROLLBACK').catch(() => undefined);
+      const [preGrantState] = await database.query<{ has_usage: boolean }>(
+        "SELECT has_schema_privilege('df_edge', 'data_foundry', 'USAGE') AS has_usage",
+      );
+      expect(preGrantState?.has_usage).toBe(false);
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it('preserves NOLOGIN staging without durable rows but requires canonical rows for live verification', async () => {
+    const { database, plan } = await createMigratedDatabase();
+    try {
+      await database.exec(`
+        DO $reset_runtime_settings$
+        BEGIN
+          ${RUNTIME_ROLES.map(
+            (role) =>
+              `EXECUTE format('ALTER ROLE ${role} IN DATABASE %I RESET ALL', current_database());`,
+          ).join('\n          ')}
+        END
+        $reset_runtime_settings$;
+      `);
+      await expect(
+        database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`),
+      ).resolves.toBeUndefined();
+      await expect(database.exec(plan.postMigrationGrants.verificationSql)).resolves.toBeUndefined();
+
+      const [bindingWithoutDurableRows] = await database.query<{
+        readonly privilege_matrix_is_exact: boolean;
+      }>(PRIVATE_CANARY_RUNTIME_BINDING_SQL, ['df_edge']);
+      expect(bindingWithoutDurableRows?.privilege_matrix_is_exact).toBe(false);
+      await database.exec(RUNTIME_ROLES.map((role) => `ALTER ROLE ${role} LOGIN;`).join('\n'));
+      await expect(
+        database.exec(plan.postMigrationGrants.postCredentialVerificationSql),
+      ).rejects.toThrow(/runtime-role durable settings/i);
+
+      await database.exec(`
+        DO $restore_runtime_settings$
+        BEGIN
+          ${RUNTIME_ROLES.map(
+            (role) =>
+              `EXECUTE format('ALTER ROLE ${role} IN DATABASE %I SET search_path TO data_foundry, pg_catalog, extensions', current_database());`,
+          ).join('\n          ')}
+        END
+        $restore_runtime_settings$;
+      `);
+      await expect(
+        database.exec(plan.postMigrationGrants.postCredentialVerificationSql),
+      ).resolves.toBeUndefined();
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it.each([
+    {
+      name: 'lo_compat_privileges',
+      setClause: 'SET lo_compat_privileges TO on',
+      resetClause: 'RESET lo_compat_privileges',
+    },
+    {
+      name: 'session_replication_role',
+      setClause: 'SET session_replication_role TO replica',
+      resetClause: 'RESET session_replication_role',
+    },
+  ])('rejects a role-specific current-database $name override in every phase', async ({ setClause, resetClause }) => {
+    const { database, plan } = await createMigratedDatabase();
+    try {
+      await database.exec(`
+        DO $set_unsafe_role_setting$
+        BEGIN
+          EXECUTE format('ALTER ROLE df_edge IN DATABASE %I ${setClause}', current_database());
+        END
+        $set_unsafe_role_setting$;
+      `);
+      await expect(
+        database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`),
+      ).rejects.toThrow(/staged runtime-role durable settings/i);
+      await database.exec('ROLLBACK').catch(() => undefined);
+      const [preGrantState] = await database.query<{ has_usage: boolean }>(
+        "SELECT has_schema_privilege('df_edge', 'data_foundry', 'USAGE') AS has_usage",
+      );
+      expect(preGrantState?.has_usage).toBe(false);
+
+      await database.exec(`
+        DO $reset_unsafe_role_setting$
+        BEGIN
+          EXECUTE format('ALTER ROLE df_edge IN DATABASE %I ${resetClause}', current_database());
+        END
+        $reset_unsafe_role_setting$;
+      `);
+      await database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`);
+      await database.exec(`
+        DO $restore_unsafe_role_setting$
+        BEGIN
+          EXECUTE format('ALTER ROLE df_edge IN DATABASE %I ${setClause}', current_database());
+        END
+        $restore_unsafe_role_setting$;
+      `);
+      const [binding] = await database.query<{ readonly privilege_matrix_is_exact: boolean }>(
+        PRIVATE_CANARY_RUNTIME_BINDING_SQL,
+        ['df_edge'],
+      );
+      expect(binding?.privilege_matrix_is_exact).toBe(false);
+      await expect(database.exec(plan.postMigrationGrants.verificationSql)).rejects.toThrow(
+        /runtime-role durable settings/i,
+      );
+      await database.exec(RUNTIME_ROLES.map((role) => `ALTER ROLE ${role} LOGIN;`).join('\n'));
+      await expect(
+        database.exec(plan.postMigrationGrants.postCredentialVerificationSql),
+      ).rejects.toThrow(/runtime-role durable settings/i);
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it('rejects a dangerous ALTER ROLE ALL setting stored at database OID zero', async () => {
+    const { database, plan } = await createMigratedDatabase();
+    try {
+      await database.exec('ALTER ROLE ALL SET lo_compat_privileges TO on');
+      await expect(
+        database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`),
+      ).rejects.toThrow(/canonical df_migration durable settings/i);
+      await database.exec('ROLLBACK').catch(() => undefined);
+      const [preGrantState] = await database.query<{ has_usage: boolean }>(
+        "SELECT has_schema_privilege('df_edge', 'data_foundry', 'USAGE') AS has_usage",
+      );
+      expect(preGrantState?.has_usage).toBe(false);
+
+      await database.exec('ALTER ROLE ALL RESET lo_compat_privileges');
+      await database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`);
+      await database.exec('ALTER ROLE ALL SET lo_compat_privileges TO on');
+      const [binding] = await database.query<{ readonly privilege_matrix_is_exact: boolean }>(
+        PRIVATE_CANARY_RUNTIME_BINDING_SQL,
+        ['df_edge'],
+      );
+      expect(binding?.privilege_matrix_is_exact).toBe(false);
+      await expect(database.exec(plan.postMigrationGrants.verificationSql)).rejects.toThrow(
+        /migration-role durable settings/i,
+      );
+      await database.exec(RUNTIME_ROLES.map((role) => `ALTER ROLE ${role} LOGIN;`).join('\n'));
+      await expect(
+        database.exec(plan.postMigrationGrants.postCredentialVerificationSql),
+      ).rejects.toThrow(/migration-role durable settings/i);
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it('rejects every role-global runtime setting even when the value is otherwise inert', async () => {
+    const { database, plan } = await createMigratedDatabase();
+    try {
+      await database.exec("ALTER ROLE df_edge SET statement_timeout TO '5s'");
+      await expect(
+        database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`),
+      ).rejects.toThrow(/staged runtime-role durable settings/i);
+      await database.exec('ROLLBACK').catch(() => undefined);
+      const [preGrantState] = await database.query<{ has_usage: boolean }>(
+        "SELECT has_schema_privilege('df_edge', 'data_foundry', 'USAGE') AS has_usage",
+      );
+      expect(preGrantState?.has_usage).toBe(false);
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it('requires NOINHERIT in the installer, both generated verifiers, and private canary', async () => {
+    const { database, plan } = await createMigratedDatabase();
+    try {
+      await database.exec('ALTER ROLE df_edge INHERIT');
+      await expect(
+        database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`),
+      ).rejects.toThrow(/NOLOGIN, nonprivileged, non-member roles/i);
+      await database.exec('ROLLBACK').catch(() => undefined);
+      const [preGrantState] = await database.query<{ has_usage: boolean }>(
+        "SELECT has_schema_privilege('df_edge', 'data_foundry', 'USAGE') AS has_usage",
+      );
+      expect(preGrantState?.has_usage).toBe(false);
+
+      await database.exec('ALTER ROLE df_edge NOINHERIT');
+      await database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`);
+      await database.exec('ALTER ROLE df_edge INHERIT');
+      const [binding] = await database.query<{ readonly role_is_login_nonprivileged: boolean }>(
+        PRIVATE_CANARY_RUNTIME_BINDING_SQL,
+        ['df_edge'],
+      );
+      expect(binding?.role_is_login_nonprivileged).toBe(false);
+      await expect(database.exec(plan.postMigrationGrants.verificationSql)).rejects.toThrow(
+        /staged NOLOGIN roles/i,
+      );
+      await database.exec(RUNTIME_ROLES.map((role) => `ALTER ROLE ${role} LOGIN;`).join('\n'));
+      await expect(
+        database.exec(plan.postMigrationGrants.postCredentialVerificationSql),
+      ).rejects.toThrow(/direct LOGIN roles/i);
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it('refuses implicit or schema-added PUBLIC function defaults before issuing grants', async () => {
+    const { database, plan } = await createMigratedDatabase();
+    try {
+      await database.exec(
+        'ALTER DEFAULT PRIVILEGES FOR ROLE df_migration GRANT EXECUTE ON FUNCTIONS TO PUBLIC',
+      );
+      const [implicitDefault] = await database.query<{
+        global_row_count: number;
+        public_execute_is_effective: boolean;
+      }>(`
+        SELECT (
+                 SELECT count(*)::int
+                   FROM pg_default_acl
+                  WHERE defaclrole = 'df_migration'::regrole
+                    AND defaclnamespace = 0
+                    AND defaclobjtype = 'f'
+               ) AS global_row_count,
+               EXISTS (
+                 SELECT 1
+                   FROM pg_roles owner
+                   CROSS JOIN LATERAL pg_catalog.aclexplode(pg_catalog.acldefault('f', owner.oid)) acl
+                  WHERE owner.rolname = 'df_migration'
+                    AND acl.grantee = 0
+                    AND acl.privilege_type = 'EXECUTE'
+               ) AS public_execute_is_effective
+      `);
+      expect(implicitDefault).toEqual({
+        global_row_count: 0,
+        public_execute_is_effective: true,
+      });
+      await expect(
+        database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`),
+      ).rejects.toThrow(/default object ACL/i);
+      await database.exec('ROLLBACK').catch(() => undefined);
+      const [preGrantState] = await database.query<{ has_usage: boolean }>(
+        "SELECT has_schema_privilege('df_edge', 'data_foundry', 'USAGE') AS has_usage",
+      );
+      expect(preGrantState?.has_usage).toBe(false);
+
+      await database.exec(`
+        ALTER DEFAULT PRIVILEGES FOR ROLE df_migration REVOKE EXECUTE ON FUNCTIONS FROM PUBLIC;
+        ALTER DEFAULT PRIVILEGES FOR ROLE df_migration IN SCHEMA data_foundry
+          GRANT EXECUTE ON FUNCTIONS TO PUBLIC;
+      `);
+      await expect(
+        database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`),
+      ).rejects.toThrow(/default object ACL/i);
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it('rejects later PUBLIC function-default drift in both verifiers and runtime binding', async () => {
+    const { database, plan } = await createMigratedDatabase();
+    try {
+      await database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`);
+      await database.exec(
+        'ALTER DEFAULT PRIVILEGES FOR ROLE df_migration GRANT EXECUTE ON FUNCTIONS TO PUBLIC',
+      );
+      const [binding] = await database.query<{ readonly privilege_matrix_is_exact: boolean }>(
+        PRIVATE_CANARY_RUNTIME_BINDING_SQL,
+        ['df_edge'],
+      );
+      expect(binding?.privilege_matrix_is_exact).toBe(false);
+      await expect(database.exec(plan.postMigrationGrants.verificationSql)).rejects.toThrow(
+        /default object ACL/i,
+      );
+      await database.exec(RUNTIME_ROLES.map((role) => `ALTER ROLE ${role} LOGIN;`).join('\n'));
+      await expect(
+        database.exec(plan.postMigrationGrants.postCredentialVerificationSql),
+      ).rejects.toThrow(/default object ACL/i);
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it('rejects a named observer in migration-owner object defaults before grants and after drift', async () => {
+    const { database, plan } = await createMigratedDatabase();
+    try {
+      await database.exec(`
+        CREATE ROLE observer NOLOGIN;
+        ALTER DEFAULT PRIVILEGES FOR ROLE df_migration
+          GRANT SELECT ON TABLES TO observer;
+      `);
+      await expect(
+        database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`),
+      ).rejects.toThrow(/default object ACL/i);
+      await database.exec('ROLLBACK').catch(() => undefined);
+      const [preGrantState] = await database.query<{ has_usage: boolean }>(
+        "SELECT has_schema_privilege('df_edge', 'data_foundry', 'USAGE') AS has_usage",
+      );
+      expect(preGrantState?.has_usage).toBe(false);
+
+      await database.exec(`
+        ALTER DEFAULT PRIVILEGES FOR ROLE df_migration
+          REVOKE SELECT ON TABLES FROM observer;
+      `);
+      await database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`);
+      await database.exec(`
+        ALTER DEFAULT PRIVILEGES FOR ROLE df_migration IN SCHEMA data_foundry
+          GRANT EXECUTE ON FUNCTIONS TO observer;
+      `);
+      const [binding] = await database.query<{ readonly privilege_matrix_is_exact: boolean }>(
+        PRIVATE_CANARY_RUNTIME_BINDING_SQL,
+        ['df_edge'],
+      );
+      expect(binding?.privilege_matrix_is_exact).toBe(false);
+      await expect(database.exec(plan.postMigrationGrants.verificationSql)).rejects.toThrow(
+        /default object ACL/i,
+      );
+      await database.exec(RUNTIME_ROLES.map((role) => `ALTER ROLE ${role} LOGIN;`).join('\n'));
+      await expect(
+        database.exec(plan.postMigrationGrants.postCredentialVerificationSql),
+      ).rejects.toThrow(/default object ACL/i);
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it.each([
+    {
+      name: 'global table',
+      grantSql: 'ALTER DEFAULT PRIVILEGES FOR ROLE df_migration GRANT SELECT ON TABLES TO PUBLIC',
+      revokeSql: 'ALTER DEFAULT PRIVILEGES FOR ROLE df_migration REVOKE SELECT ON TABLES FROM PUBLIC',
+    },
+    {
+      name: 'schema table',
+      grantSql: `ALTER DEFAULT PRIVILEGES FOR ROLE df_migration IN SCHEMA data_foundry
+        GRANT INSERT ON TABLES TO PUBLIC`,
+      revokeSql: `ALTER DEFAULT PRIVILEGES FOR ROLE df_migration IN SCHEMA data_foundry
+        REVOKE INSERT ON TABLES FROM PUBLIC`,
+    },
+    {
+      name: 'global sequence',
+      grantSql: 'ALTER DEFAULT PRIVILEGES FOR ROLE df_migration GRANT USAGE ON SEQUENCES TO PUBLIC',
+      revokeSql: 'ALTER DEFAULT PRIVILEGES FOR ROLE df_migration REVOKE USAGE ON SEQUENCES FROM PUBLIC',
+    },
+    {
+      name: 'schema sequence',
+      grantSql: `ALTER DEFAULT PRIVILEGES FOR ROLE df_migration IN SCHEMA data_foundry
+        GRANT SELECT ON SEQUENCES TO PUBLIC`,
+      revokeSql: `ALTER DEFAULT PRIVILEGES FOR ROLE df_migration IN SCHEMA data_foundry
+        REVOKE SELECT ON SEQUENCES FROM PUBLIC`,
+    },
+  ])('rejects $name PUBLIC defaults before grants and after runtime drift', async ({ grantSql, revokeSql }) => {
+    const { database, plan } = await createMigratedDatabase();
+    try {
+      await database.exec(grantSql);
+      await expect(
+        database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`),
+      ).rejects.toThrow(/default object ACL/i);
+      await database.exec('ROLLBACK').catch(() => undefined);
+      const [preGrantState] = await database.query<{ has_usage: boolean }>(
+        "SELECT has_schema_privilege('df_edge', 'data_foundry', 'USAGE') AS has_usage",
+      );
+      expect(preGrantState?.has_usage).toBe(false);
+
+      await database.exec(revokeSql);
+      await database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`);
+      await database.exec(grantSql);
+      const [binding] = await database.query<{ readonly privilege_matrix_is_exact: boolean }>(
+        PRIVATE_CANARY_RUNTIME_BINDING_SQL,
+        ['df_edge'],
+      );
+      expect(binding?.privilege_matrix_is_exact).toBe(false);
+      await expect(database.exec(plan.postMigrationGrants.verificationSql)).rejects.toThrow(
+        /default object ACL/i,
+      );
+      await database.exec(RUNTIME_ROLES.map((role) => `ALTER ROLE ${role} LOGIN;`).join('\n'));
+      await expect(
+        database.exec(plan.postMigrationGrants.postCredentialVerificationSql),
+      ).rejects.toThrow(/default object ACL/i);
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it('keeps PUBLIC type defaults inert while enforcing object defaults that can expose runtime data or code', async () => {
+    const { database, plan } = await createMigratedDatabase();
+    try {
+      await database.exec(`
+        ALTER DEFAULT PRIVILEGES FOR ROLE df_migration IN SCHEMA data_foundry
+          GRANT USAGE ON TYPES TO PUBLIC;
+      `);
+      const [typeDefault] = await database.query<{ public_usage_is_effective: boolean }>(`
+        SELECT EXISTS (
+          SELECT 1
+            FROM pg_roles owner
+            CROSS JOIN LATERAL pg_catalog.aclexplode(pg_catalog.acldefault('T', owner.oid)) acl
+           WHERE owner.rolname = 'df_migration'
+             AND acl.grantee = 0
+             AND acl.privilege_type = 'USAGE'
+        ) AS public_usage_is_effective
+      `);
+      expect(typeDefault?.public_usage_is_effective).toBe(true);
+      await expect(
+        database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`),
+      ).resolves.toBeUndefined();
+      const [binding] = await database.query<{ readonly privilege_matrix_is_exact: boolean }>(
+        PRIVATE_CANARY_RUNTIME_BINDING_SQL,
+        ['df_edge'],
+      );
+      expect(binding?.privilege_matrix_is_exact).toBe(true);
+      await expect(database.exec(plan.postMigrationGrants.verificationSql)).resolves.toBeUndefined();
     } finally {
       await database.close();
     }
@@ -974,6 +1971,76 @@ describe('Supabase post-migration runtime grants', () => {
       await expect(
         database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`),
       ).rejects.toThrow(/outside data_foundry/i);
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it('rejects PUBLIC-inherited foreign-data-wrapper and server USAGE for migration and runtime roles', async () => {
+    const { database, plan } = await createMigratedDatabase();
+    const reachableFor = (role: string, rejectAllObjectOwnership = true) =>
+      database.query<{ scope: string; object_name: string; privilege: string }>(
+        buildRuntimeRoleReachableExternalCapabilitySql(
+          'data_foundry',
+          `runtime_role.rolname = '${role}'`,
+          rejectAllObjectOwnership,
+        ),
+      );
+    try {
+      await database.exec(`
+        CREATE FOREIGN DATA WRAPPER public_usage_wrapper NO HANDLER;
+        CREATE SERVER public_usage_server FOREIGN DATA WRAPPER public_usage_wrapper;
+        GRANT USAGE ON FOREIGN DATA WRAPPER public_usage_wrapper TO PUBLIC;
+        GRANT USAGE ON FOREIGN SERVER public_usage_server TO PUBLIC;
+      `);
+      const runtimeReachable = await reachableFor('df_edge');
+      const migrationReachable = await reachableFor('df_migration', false);
+      for (const [roleName, reachable] of [
+        ['df_edge', runtimeReachable],
+        ['df_migration', migrationReachable],
+      ] as const) {
+        expect(reachable).toEqual(expect.arrayContaining([
+          {
+            scope: 'foreign_data_wrapper',
+            object_name: 'public_usage_wrapper',
+            role_name: roleName,
+            privilege: 'USAGE',
+          },
+          {
+            scope: 'foreign_server',
+            object_name: 'public_usage_server',
+            role_name: roleName,
+            privilege: 'USAGE',
+          },
+        ]));
+      }
+
+      await expect(
+        database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`),
+      ).rejects.toThrow(/confined df_migration external privilege and ownership boundary/i);
+      await database.exec('ROLLBACK').catch(() => undefined);
+      const [preGrantState] = await database.query<{ has_usage: boolean }>(
+        "SELECT has_schema_privilege('df_edge', 'data_foundry', 'USAGE') AS has_usage",
+      );
+      expect(preGrantState?.has_usage).toBe(false);
+
+      await database.exec(`
+        REVOKE USAGE ON FOREIGN SERVER public_usage_server FROM PUBLIC;
+        REVOKE USAGE ON FOREIGN DATA WRAPPER public_usage_wrapper FROM PUBLIC;
+        BEGIN;
+        ${plan.postMigrationGrants.sql}
+        COMMIT;
+        GRANT USAGE ON FOREIGN DATA WRAPPER public_usage_wrapper TO PUBLIC;
+        GRANT USAGE ON FOREIGN SERVER public_usage_server TO PUBLIC;
+      `);
+      const [binding] = await database.query<{ readonly privilege_matrix_is_exact: boolean }>(
+        PRIVATE_CANARY_RUNTIME_BINDING_SQL,
+        ['df_edge'],
+      );
+      expect(binding?.privilege_matrix_is_exact).toBe(false);
+      await expect(database.exec(plan.postMigrationGrants.verificationSql)).rejects.toThrow(
+        /migration-role external capability/i,
+      );
     } finally {
       await database.close();
     }

@@ -17,6 +17,7 @@ type Step = {
   uses?: string;
   if?: string;
   run?: string;
+  shell?: string;
   env?: Record<string, string>;
   with?: Record<string, unknown>;
 };
@@ -30,9 +31,8 @@ type Workflow = {
   };
 };
 
-const workflow = parseYaml(
-  readFileSync(join(ROOT, '.github', 'workflows', 'ci.yml'), 'utf8'),
-) as Workflow;
+const workflowSource = readFileSync(join(ROOT, '.github', 'workflows', 'ci.yml'), 'utf8');
+const workflow = parseYaml(workflowSource) as Workflow;
 const scopeScript = workflow.jobs.scope.steps.find((step) => step.id === 'changes')?.run ?? '';
 
 function postgresScopePatterns(): readonly string[] {
@@ -188,6 +188,10 @@ describe('CI workflow policy', () => {
     expect(bootstrap?.run).toContain('REVOKE CREATE ON DATABASE data_foundry FROM df_migration;');
     expect(bootstrap?.run).not.toMatch(/GRANT\s+CONNECT\s*,\s*CREATE\s+ON\s+DATABASE\s+data_foundry\s+TO\s+df_migration/i);
     expect(bootstrap?.run).toContain('GRANT USAGE ON SCHEMA extensions TO df_migration');
+    expect(bootstrap?.run).toContain(
+      'ALTER ROLE df_migration IN DATABASE data_foundry SET search_path TO data_foundry, pg_catalog, extensions;',
+    );
+    expect(bootstrap?.run).toContain('REVOKE CONNECT ON DATABASE postgres FROM PUBLIC;');
     expect(privateSchemaAcl?.run).toContain('CROSS JOIN LATERAL aclexplode(n.nspacl) acl');
     expect(privateSchemaAcl?.run).toContain("n.nspname = 'data_foundry'");
     expect(privateSchemaAcl?.run).toContain("COALESCE(grantee.rolname, 'PUBLIC')::text");
@@ -276,6 +280,389 @@ describe('CI workflow policy', () => {
     expect(steps.indexOf(replay as Step)).toBeLessThan(steps.indexOf(stageRuntimeRoles as Step));
     expect(steps.indexOf(stageRuntimeRoles as Step)).toBeLessThan(steps.indexOf(activateRuntimeRoles as Step));
     expect(steps.indexOf(activateRuntimeRoles as Step)).toBeLessThan(steps.indexOf(runtimeRoleConnections as Step));
+  });
+
+  it('rejects effective PostgreSQL 16 privilege, durable-setting, ownership, and migration-posture drift', () => {
+    const steps = workflow.jobs['migrations-postgres'].steps;
+    const start = steps.find((step) => step.name === 'Start disposable TLS PostgreSQL');
+    const runtimeRoleConnections = steps.find((step) => step.name === 'Direct runtime-role TLS connection regression');
+    const negativeControls = steps.find(
+      (step) => step.name === 'Effective runtime and migration-role privilege negative controls',
+    );
+    const reconciliation = steps.find((step) => step.name === 'Source-record reconciliation concurrency regression');
+    const run = negativeControls?.run ?? '';
+    const expectOrderedAfter = (first: string, ...rest: readonly string[]): void => {
+      let cursor = run.indexOf(first);
+      let previous = first;
+      expect(cursor, `missing ordered workflow fragment: ${first}`).toBeGreaterThanOrEqual(0);
+      for (const fragment of rest) {
+        const next = run.indexOf(fragment, cursor + previous.length);
+        expect(next, `missing or out-of-order workflow fragment: ${fragment}`).toBeGreaterThan(cursor);
+        cursor = next;
+        previous = fragment;
+      }
+    };
+
+    expect(start?.run).toContain('postgres:16');
+    expect(negativeControls?.shell).toBe('bash');
+    expect(run).toContain('postCredentialVerification.sql');
+    expect(run).toContain('expect_runtime_role_rejection');
+    expect(run).toContain('expect_post_credential_rejection');
+    expect(run.match(/local expected_signature="\$2"/g)).toHaveLength(3);
+    expect(run.match(/grep -Fqx -- "\$expected_signature" "\$negative_control_capture"/g)).toHaveLength(3);
+    expect(run).toContain('local verification_prefix="${3-}"');
+    expect(run).toContain("printf '%s\\n' \"$verification_prefix\"");
+    expect(run).toContain('command cat -- "$post_credential_verification_path"');
+    expect(run).toContain('cleanup_privilege_negative_controls');
+    expect(run).toContain("trap 'on_privilege_negative_control_exit' EXIT");
+    expect(run).toMatch(
+      /cleanup_privilege_negative_controls\(\) \{[\s\S]*?REVOKE CREATE ON DATABASE data_foundry_cross_database_connect_probe FROM PUBLIC;[\s\S]*?REVOKE CONNECT ON DATABASE data_foundry_cross_database_connect_probe FROM PUBLIC;[\s\S]*?DROP DATABASE data_foundry_cross_database_connect_probe;[\s\S]*?return "\$cleanup_status"/,
+    );
+    expect(run).toContain(
+      'negative_control_capture="$(mktemp "$RUNNER_TEMP/data-foundry-privilege-negative-control.XXXXXX")"',
+    );
+    expect(run).toContain('chmod 600 "$negative_control_capture"');
+    expect(run).toContain('if ! rm -f -- "$negative_control_capture"; then');
+    expect(run).toMatch(
+      /if ! clear_negative_control_capture; then\s+cleanup_status=1\s+fi/,
+    );
+    expect(run).toContain('for cleanup_statement in "${cleanup_statements[@]}"; do');
+    expect(run).toContain('run_admin_sql -c "$cleanup_statement" >/dev/null 2>&1');
+    expect(run).toContain('pnpm runtime-roles:postgres:check >"$negative_control_capture" 2>&1');
+    expect(run).toContain(
+      'run_admin_sql < "$post_credential_verification_path" >"$negative_control_capture" 2>&1',
+    );
+    expect(run).toContain('failed with an unexpected signature');
+    expect(run).not.toMatch(/(?:cat|tee)\s+[^\n]*negative_control_capture/);
+    expect(run).toContain('GRANT SET ON PARAMETER session_replication_role TO PUBLIC;');
+    expect(run).toContain('REVOKE SET ON PARAMETER session_replication_role FROM PUBLIC;');
+    expect(run).toContain('pg_catalog.lo_from_bytea');
+    expect(run).toContain('GRANT SELECT, UPDATE ON LARGE OBJECT :large_object_oid TO PUBLIC;');
+    expect(run).toContain('pg_catalog.lo_get(:large_object_oid::oid)');
+    expect(run).toContain('pg_catalog.lo_put(:large_object_oid::oid');
+    expect(run).toContain('pg_catalog.lo_unlink(:large_object_oid::oid)');
+    expect(run).toContain('ALTER DATABASE data_foundry SET lo_compat_privileges TO on;');
+    expect(run).toContain('ALTER DATABASE data_foundry RESET lo_compat_privileges;');
+    expect(run).toContain("expect_runtime_role_rejection 'lo_compat_privileges enabled for new connections'");
+    expect(run).toContain(
+      'ALTER ROLE df_edge IN DATABASE data_foundry SET session_replication_role TO replica;',
+    );
+    expect(run).toContain(
+      'ALTER ROLE df_edge IN DATABASE data_foundry RESET session_replication_role;',
+    );
+    expect(run).toContain('ALTER ROLE ALL SET lo_compat_privileges TO on;');
+    expect(run).toContain('ALTER ROLE ALL RESET lo_compat_privileges;');
+    expect(run).toContain(
+      'CREATE TEXT SEARCH DICTIONARY extensions.data_foundry_runtime_owner_probe',
+    );
+    expect(run).toContain(
+      'ALTER EXTENSION plpgsql ADD TEXT SEARCH DICTIONARY extensions.data_foundry_runtime_owner_probe;',
+    );
+    expect(run).toContain(
+      'ALTER TEXT SEARCH DICTIONARY extensions.data_foundry_runtime_owner_probe OWNER TO df_edge;',
+    );
+    expect(run).toContain(
+      'ALTER TEXT SEARCH DICTIONARY extensions.data_foundry_runtime_owner_probe OWNER TO postgres;',
+    );
+    expect(run).toContain(
+      'ALTER EXTENSION plpgsql DROP TEXT SEARCH DICTIONARY extensions.data_foundry_runtime_owner_probe;',
+    );
+    expect(run).toContain(
+      'DROP TEXT SEARCH DICTIONARY extensions.data_foundry_runtime_owner_probe;',
+    );
+    expect(run).toContain(
+      'CREATE TEXT SEARCH DICTIONARY extensions.data_foundry_unmanaged_owner_probe',
+    );
+    expect(run).toContain(
+      'ALTER TEXT SEARCH DICTIONARY extensions.data_foundry_unmanaged_owner_probe OWNER TO df_edge;',
+    );
+    expect(run).toContain('unmanaged_dictionary_is_attested');
+    expect(run).toContain(
+      "ownership.classid = 'pg_catalog.pg_ts_dict'::pg_catalog.regclass",
+    );
+    expect(run).toContain(
+      "dependency.refclassid = 'pg_catalog.pg_extension'::pg_catalog.regclass",
+    );
+    expect(run).toContain(
+      'ALTER TEXT SEARCH DICTIONARY extensions.data_foundry_unmanaged_owner_probe OWNER TO postgres;',
+    );
+    expect(run).toContain(
+      'DROP TEXT SEARCH DICTIONARY extensions.data_foundry_unmanaged_owner_probe;',
+    );
+    expect(run).toContain('$data_foundry_unmanaged_owner_cleanup$');
+    expect(run).toContain(
+      "migration_external_capability_rejection_signature='ERROR:  Runtime grant verification failed: migration-role external capability is unsafe.'",
+    );
+    expect(run).toContain(
+      'CREATE FOREIGN DATA WRAPPER data_foundry_public_usage_probe_fdw NO HANDLER NO VALIDATOR;',
+    );
+    expect(run).toContain(
+      'CREATE SERVER data_foundry_public_usage_probe_server FOREIGN DATA WRAPPER data_foundry_public_usage_probe_fdw;',
+    );
+    expect(run).toContain(
+      'GRANT USAGE ON FOREIGN DATA WRAPPER data_foundry_public_usage_probe_fdw TO PUBLIC;',
+    );
+    expect(run).toContain(
+      'GRANT USAGE ON FOREIGN SERVER data_foundry_public_usage_probe_server TO PUBLIC;',
+    );
+    expect(run).toContain('public_foreign_usage_is_attested');
+    expect(run).toContain("pg_catalog.has_foreign_data_wrapper_privilege('df_migration'");
+    expect(run).toContain("pg_catalog.has_server_privilege('df_migration'");
+    expect(run).toContain("pg_catalog.has_foreign_data_wrapper_privilege('df_edge'");
+    expect(run).toContain("pg_catalog.has_server_privilege('df_edge'");
+    expect(run).toContain('$data_foundry_public_server_cleanup$');
+    expect(run).toContain('$data_foundry_public_fdw_cleanup$');
+    expect(run).toContain('CREATE DATABASE data_foundry_cross_database_connect_probe;');
+    expect(run).toContain(
+      'GRANT CREATE ON DATABASE data_foundry_cross_database_connect_probe TO PUBLIC;',
+    );
+    expect(run).toContain('cross_database_create_is_attested');
+    expect(run).toContain(
+      "pg_catalog.has_database_privilege('df_edge', database.oid, 'CREATE')",
+    );
+    expect(run).toContain(
+      "pg_catalog.has_database_privilege('df_migration', database.oid, 'CREATE')",
+    );
+    expect(run).toContain(
+      "AND NOT pg_catalog.has_database_privilege('df_edge', database.oid, 'CONNECT')",
+    );
+    expect(run).toContain(
+      "AND NOT pg_catalog.has_database_privilege('df_migration', database.oid, 'CONNECT')",
+    );
+    expect(run).toContain(
+      'REVOKE CREATE ON DATABASE data_foundry_cross_database_connect_probe FROM PUBLIC;',
+    );
+    expect(run).toContain(
+      'GRANT CONNECT ON DATABASE data_foundry_cross_database_connect_probe TO PUBLIC;',
+    );
+    expect(run).toContain('cross_database_connect_is_attested');
+    expect(run).toContain(
+      "pg_catalog.has_database_privilege('df_edge', database.oid, 'CONNECT')",
+    );
+    expect(run).toContain(
+      "pg_catalog.has_database_privilege('df_migration', database.oid, 'CONNECT')",
+    );
+    expect(run).toContain("database.datname = 'data_foundry_cross_database_connect_probe'");
+    expect(run).toContain(
+      'REVOKE CONNECT ON DATABASE data_foundry_cross_database_connect_probe FROM PUBLIC;',
+    );
+    expect(run).toContain('DROP DATABASE data_foundry_cross_database_connect_probe;');
+    expect(run).not.toMatch(/(?:DROP|REVOKE|GRANT)\s+(?:DATABASE|CONNECT ON DATABASE)\s+"?\$[A-Za-z_]/);
+    expect(run).toContain('ALTER ROLE df_migration INHERIT;');
+    expect(run).toContain('ALTER ROLE df_migration NOINHERIT;');
+    expect(run).toContain("'SET session_replication_role TO replica;'");
+    expect(run).toContain('capture_migration_ledger_digest');
+    expect(run).toContain(
+      'ALTER ROLE df_migration IN DATABASE data_foundry SET lo_compat_privileges TO on;',
+    );
+    expect(run).toContain(
+      'ALTER ROLE df_migration IN DATABASE data_foundry RESET ALL;',
+    );
+    expect(run).toContain("setting.setconfig = ARRAY['lo_compat_privileges=on']::text[]");
+    expect(run).toContain(
+      "setting.setconfig = ARRAY['search_path=data_foundry, pg_catalog, extensions']::text[]",
+    );
+    expect(run).toContain(
+      "migration_durable_setting_rejection_signature='ERROR:  Runtime grant verification failed: migration-role durable settings are unsafe.'",
+    );
+    expect(run).toContain('docker exec data-foundry-postgres-tls psql -U df_migration -d data_foundry');
+    expect(run).toContain(
+      "expect_runtime_role_rejection 'a noncanonical migration-role current-database setting'",
+    );
+    expect(run).toContain(
+      "expect_post_credential_rejection 'a noncanonical migration-role current-database setting'",
+    );
+    expect(run).toContain("expect_migration_rejection 'a migration-role current-database lo_compat_privileges override'");
+    expect(run).toContain('if [[ "$ledger_digest_after_rejection" != "$ledger_digest_before_rejection" ]]');
+    expect(run).toContain('if [[ "$ledger_digest_after_clean_migrate" != "$ledger_digest_before_rejection" ]]');
+    expect(run).toContain(
+      'ALTER DEFAULT PRIVILEGES FOR ROLE df_migration GRANT EXECUTE ON FUNCTIONS TO PUBLIC;',
+    );
+    expect(run).toContain(
+      'ALTER DEFAULT PRIVILEGES FOR ROLE df_migration REVOKE EXECUTE ON FUNCTIONS FROM PUBLIC;',
+    );
+    expect(run).toContain(
+      'ALTER DEFAULT PRIVILEGES FOR ROLE df_migration IN SCHEMA data_foundry GRANT EXECUTE ON FUNCTIONS TO PUBLIC;',
+    );
+    expect(run).toContain(
+      'ALTER DEFAULT PRIVILEGES FOR ROLE df_migration IN SCHEMA data_foundry REVOKE EXECUTE ON FUNCTIONS FROM PUBLIC;',
+    );
+    expect(run).toContain(
+      'ALTER DEFAULT PRIVILEGES FOR ROLE df_migration GRANT SELECT ON TABLES TO PUBLIC;',
+    );
+    expect(run).toContain(
+      'ALTER DEFAULT PRIVILEGES FOR ROLE df_migration REVOKE ALL PRIVILEGES ON TABLES FROM PUBLIC;',
+    );
+    expect(run).toContain(
+      'ALTER DEFAULT PRIVILEGES FOR ROLE df_migration IN SCHEMA data_foundry GRANT USAGE ON SEQUENCES TO PUBLIC;',
+    );
+    expect(run).toContain(
+      'ALTER DEFAULT PRIVILEGES FOR ROLE df_migration IN SCHEMA data_foundry REVOKE ALL PRIVILEGES ON SEQUENCES FROM PUBLIC;',
+    );
+    expectOrderedAfter(
+      'GRANT SET ON PARAMETER session_replication_role TO PUBLIC;',
+      "expect_runtime_role_rejection 'a PUBLIC parameter SET privilege'",
+      'REVOKE SET ON PARAMETER session_replication_role FROM PUBLIC;',
+      'pnpm runtime-roles:postgres:check',
+    );
+    expectOrderedAfter(
+      'GRANT SELECT, UPDATE ON LARGE OBJECT :large_object_oid TO PUBLIC;',
+      "expect_runtime_role_rejection 'PUBLIC large-object SELECT and UPDATE privileges'",
+      'REVOKE SELECT, UPDATE ON LARGE OBJECT :large_object_oid FROM PUBLIC;',
+      'pnpm runtime-roles:postgres:check',
+    );
+    expectOrderedAfter(
+      'ALTER DATABASE data_foundry SET lo_compat_privileges TO on;',
+      "expect_runtime_role_rejection 'lo_compat_privileges enabled for new connections'",
+      'ALTER DATABASE data_foundry RESET lo_compat_privileges;',
+      'pnpm runtime-roles:postgres:check',
+    );
+    expectOrderedAfter(
+      'ALTER ROLE df_edge IN DATABASE data_foundry SET session_replication_role TO replica;',
+      "expect_runtime_role_rejection 'a role-specific current-database session_replication_role override'",
+      "expect_post_credential_rejection 'a role-specific current-database session_replication_role override'",
+      'ALTER ROLE df_edge IN DATABASE data_foundry RESET session_replication_role;',
+      'pnpm runtime-roles:postgres:check',
+      'run_admin_sql < "$post_credential_verification_path"',
+    );
+    expectOrderedAfter(
+      'ALTER ROLE ALL SET lo_compat_privileges TO on;',
+      "expect_runtime_role_rejection 'an ALTER ROLE ALL lo_compat_privileges override'",
+      "expect_post_credential_rejection 'an ALTER ROLE ALL lo_compat_privileges override'",
+      'ALTER ROLE ALL RESET lo_compat_privileges;',
+      'pnpm runtime-roles:postgres:check',
+      'run_admin_sql < "$post_credential_verification_path"',
+    );
+    expectOrderedAfter(
+      'CREATE TEXT SEARCH DICTIONARY extensions.data_foundry_runtime_owner_probe',
+      'ALTER EXTENSION plpgsql ADD TEXT SEARCH DICTIONARY extensions.data_foundry_runtime_owner_probe;',
+      'ALTER TEXT SEARCH DICTIONARY extensions.data_foundry_runtime_owner_probe OWNER TO df_edge;',
+      "expect_runtime_role_rejection 'runtime ownership of a catalog-attested extension member'",
+      "expect_post_credential_rejection 'runtime ownership of a catalog-attested extension member'",
+      'ALTER TEXT SEARCH DICTIONARY extensions.data_foundry_runtime_owner_probe OWNER TO postgres;',
+      'ALTER EXTENSION plpgsql DROP TEXT SEARCH DICTIONARY extensions.data_foundry_runtime_owner_probe;',
+      'DROP TEXT SEARCH DICTIONARY extensions.data_foundry_runtime_owner_probe;',
+      'pnpm runtime-roles:postgres:check',
+      'run_admin_sql < "$post_credential_verification_path"',
+    );
+    expectOrderedAfter(
+      'CREATE TEXT SEARCH DICTIONARY extensions.data_foundry_unmanaged_owner_probe',
+      'ALTER TEXT SEARCH DICTIONARY extensions.data_foundry_unmanaged_owner_probe OWNER TO df_edge;',
+      'unmanaged_dictionary_is_attested="$(',
+      "ownership.deptype = 'o'",
+      'AND NOT EXISTS (',
+      "dependency.deptype = 'e'",
+      'if [[ "$unmanaged_dictionary_is_attested" != \'t\' ]]',
+      "expect_runtime_role_rejection 'runtime ownership of an unmanaged catalog object'",
+      "expect_post_credential_rejection 'runtime ownership of an unmanaged catalog object'",
+      'ALTER TEXT SEARCH DICTIONARY extensions.data_foundry_unmanaged_owner_probe OWNER TO postgres;',
+      'DROP TEXT SEARCH DICTIONARY extensions.data_foundry_unmanaged_owner_probe;',
+      'pnpm runtime-roles:postgres:check',
+      'run_admin_sql < "$post_credential_verification_path"',
+    );
+    expectOrderedAfter(
+      'CREATE FOREIGN DATA WRAPPER data_foundry_public_usage_probe_fdw NO HANDLER NO VALIDATOR;',
+      'CREATE SERVER data_foundry_public_usage_probe_server FOREIGN DATA WRAPPER data_foundry_public_usage_probe_fdw;',
+      'GRANT USAGE ON FOREIGN DATA WRAPPER data_foundry_public_usage_probe_fdw TO PUBLIC;',
+      'GRANT USAGE ON FOREIGN SERVER data_foundry_public_usage_probe_server TO PUBLIC;',
+      'public_foreign_usage_is_attested="$(',
+      'if [[ "$public_foreign_usage_is_attested" != \'t\' ]]',
+      "expect_runtime_role_rejection 'PUBLIC foreign-data wrapper and server USAGE'",
+      "expect_post_credential_rejection 'PUBLIC foreign-data wrapper and server USAGE'",
+      'REVOKE USAGE ON FOREIGN SERVER data_foundry_public_usage_probe_server FROM PUBLIC;',
+      'REVOKE USAGE ON FOREIGN DATA WRAPPER data_foundry_public_usage_probe_fdw FROM PUBLIC;',
+      'DROP SERVER data_foundry_public_usage_probe_server;',
+      'DROP FOREIGN DATA WRAPPER data_foundry_public_usage_probe_fdw;',
+      'pnpm runtime-roles:postgres:check',
+      'run_admin_sql < "$post_credential_verification_path"',
+    );
+    expectOrderedAfter(
+      'CREATE DATABASE data_foundry_cross_database_connect_probe;',
+      'REVOKE CONNECT ON DATABASE data_foundry_cross_database_connect_probe FROM PUBLIC;',
+      'GRANT CREATE ON DATABASE data_foundry_cross_database_connect_probe TO PUBLIC;',
+      'cross_database_create_is_attested="$(',
+      'if [[ "$cross_database_create_is_attested" != \'t\' ]]',
+      "expect_runtime_role_rejection 'PUBLIC CREATE on a non-target database'",
+      "expect_post_credential_rejection 'PUBLIC CREATE on a non-target database'",
+      'REVOKE CREATE ON DATABASE data_foundry_cross_database_connect_probe FROM PUBLIC;',
+      'pnpm runtime-roles:postgres:check',
+      'run_admin_sql < "$post_credential_verification_path"',
+    );
+    expectOrderedAfter(
+      'CREATE DATABASE data_foundry_cross_database_connect_probe;',
+      'GRANT CONNECT ON DATABASE data_foundry_cross_database_connect_probe TO PUBLIC;',
+      'cross_database_connect_is_attested="$(',
+      "AND pg_catalog.has_database_privilege('df_edge', database.oid, 'CONNECT')",
+      "AND pg_catalog.has_database_privilege('df_migration', database.oid, 'CONNECT')",
+      "AND NOT pg_catalog.has_database_privilege('df_edge', database.oid, 'CREATE')",
+      "AND NOT pg_catalog.has_database_privilege('df_migration', database.oid, 'CREATE')",
+      'if [[ "$cross_database_connect_is_attested" != \'t\' ]]',
+      "expect_runtime_role_rejection 'PUBLIC CONNECT on a non-target database'",
+      "expect_post_credential_rejection 'PUBLIC CONNECT on a non-target database'",
+      'REVOKE CONNECT ON DATABASE data_foundry_cross_database_connect_probe FROM PUBLIC;',
+      'DROP DATABASE data_foundry_cross_database_connect_probe;',
+      'pnpm runtime-roles:postgres:check',
+      'run_admin_sql < "$post_credential_verification_path"',
+    );
+    expectOrderedAfter(
+      'ALTER ROLE df_migration INHERIT;',
+      "expect_runtime_role_rejection 'an inheriting migration role'",
+      "expect_post_credential_rejection 'an inheriting migration role'",
+      'ALTER ROLE df_migration NOINHERIT;',
+      'pnpm runtime-roles:postgres:check',
+      'run_admin_sql < "$post_credential_verification_path"',
+    );
+    expectOrderedAfter(
+      "expect_post_credential_rejection 'a replica-mode migration verifier session'",
+      "'SET session_replication_role TO replica;'",
+      'run_admin_sql < "$post_credential_verification_path"',
+    );
+    expectOrderedAfter(
+      'ledger_digest_before_rejection="$(capture_migration_ledger_digest)"',
+      'ALTER ROLE df_migration IN DATABASE data_foundry RESET ALL;',
+      'ALTER ROLE df_migration IN DATABASE data_foundry SET lo_compat_privileges TO on;',
+      "expect_runtime_role_rejection 'a noncanonical migration-role current-database setting'",
+      "expect_post_credential_rejection 'a noncanonical migration-role current-database setting'",
+      "expect_migration_rejection 'a migration-role current-database lo_compat_privileges override'",
+      'ledger_digest_after_rejection="$(capture_migration_ledger_digest)"',
+      'if [[ "$ledger_digest_after_rejection" != "$ledger_digest_before_rejection" ]]',
+      'ALTER ROLE df_migration IN DATABASE data_foundry RESET ALL;',
+      'ALTER ROLE df_migration IN DATABASE data_foundry SET search_path TO data_foundry, pg_catalog, extensions;',
+      'migration_role_setting_is_canonical="$(',
+      'if [[ "$migration_role_setting_is_canonical" != \'t\' ]]',
+      'pnpm runtime-roles:postgres:check',
+      'run_admin_sql < "$post_credential_verification_path"',
+      'pnpm migrate',
+      'ledger_digest_after_clean_migrate="$(capture_migration_ledger_digest)"',
+      'if [[ "$ledger_digest_after_clean_migrate" != "$ledger_digest_before_rejection" ]]',
+    );
+    expectOrderedAfter(
+      'ALTER DEFAULT PRIVILEGES FOR ROLE df_migration GRANT EXECUTE ON FUNCTIONS TO PUBLIC;',
+      "expect_post_credential_rejection 'the implicit global PUBLIC function default'",
+      'ALTER DEFAULT PRIVILEGES FOR ROLE df_migration REVOKE EXECUTE ON FUNCTIONS FROM PUBLIC;',
+      'run_admin_sql < "$post_credential_verification_path"',
+    );
+    expectOrderedAfter(
+      'ALTER DEFAULT PRIVILEGES FOR ROLE df_migration IN SCHEMA data_foundry GRANT EXECUTE ON FUNCTIONS TO PUBLIC;',
+      "expect_post_credential_rejection 'a schema-specific PUBLIC function default'",
+      'ALTER DEFAULT PRIVILEGES FOR ROLE df_migration IN SCHEMA data_foundry REVOKE EXECUTE ON FUNCTIONS FROM PUBLIC;',
+      'run_admin_sql < "$post_credential_verification_path"',
+    );
+    expectOrderedAfter(
+      'ALTER DEFAULT PRIVILEGES FOR ROLE df_migration GRANT SELECT ON TABLES TO PUBLIC;',
+      "expect_post_credential_rejection 'a global PUBLIC table default'",
+      'ALTER DEFAULT PRIVILEGES FOR ROLE df_migration REVOKE ALL PRIVILEGES ON TABLES FROM PUBLIC;',
+      'run_admin_sql < "$post_credential_verification_path"',
+    );
+    expectOrderedAfter(
+      'ALTER DEFAULT PRIVILEGES FOR ROLE df_migration IN SCHEMA data_foundry GRANT USAGE ON SEQUENCES TO PUBLIC;',
+      "expect_post_credential_rejection 'a schema-specific PUBLIC sequence default'",
+      'ALTER DEFAULT PRIVILEGES FOR ROLE df_migration IN SCHEMA data_foundry REVOKE ALL PRIVILEGES ON SEQUENCES FROM PUBLIC;',
+      'run_admin_sql < "$post_credential_verification_path"',
+    );
+    expect(workflowSource).not.toContain('has_largeobject_privilege');
+    expect(steps.indexOf(runtimeRoleConnections as Step)).toBeLessThan(steps.indexOf(negativeControls as Step));
+    expect(steps.indexOf(negativeControls as Step)).toBeLessThan(steps.indexOf(reconciliation as Step));
   });
 
   it('selects real Postgres for every gate input, including nested paths', () => {

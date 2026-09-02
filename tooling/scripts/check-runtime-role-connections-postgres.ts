@@ -24,7 +24,7 @@ WITH ${PRIVATE_CANARY_RUNTIME_PRIVILEGE_MATRIX_CTES}
 SELECT current_user = $1 AND session_user = $1 AS direct_login,
        EXISTS (
          SELECT 1 FROM pg_roles r WHERE r.rolname = $1 AND r.rolcanlogin
-           AND NOT r.rolsuper AND NOT r.rolcreatedb AND NOT r.rolcreaterole
+           AND NOT r.rolinherit AND NOT r.rolsuper AND NOT r.rolcreatedb AND NOT r.rolcreaterole
            AND NOT r.rolreplication AND NOT r.rolbypassrls
        ) AS role_is_login_nonprivileged,
        NOT EXISTS (
@@ -35,20 +35,23 @@ SELECT current_user = $1 AND session_user = $1 AS direct_login,
        current_setting('search_path') = 'data_foundry, pg_catalog, extensions'
        AND current_schemas(false) = ARRAY['data_foundry', 'pg_catalog', 'extensions']::name[]
          AS search_path_is_exact,
+       current_setting('lo_compat_privileges') = 'off' AS lo_compat_privileges_is_off,
+       current_setting('session_replication_role') = 'origin' AS session_replication_role_is_origin,
        (
          SELECT count(*) = 1
            FROM pg_db_role_setting setting
           WHERE setting.setrole = (SELECT oid FROM pg_roles WHERE rolname = $1)
             AND setting.setdatabase = (SELECT oid FROM pg_database WHERE datname = current_database())
-            AND 'search_path=data_foundry, pg_catalog, extensions' = ANY(setting.setconfig)
-            AND (
-              SELECT count(*) FROM unnest(setting.setconfig) item
-               WHERE item LIKE 'search_path=%'
-            ) = 1
+            AND setting.setconfig = ARRAY['search_path=data_foundry, pg_catalog, extensions']::text[]
        ) AS durable_search_path_is_exact,
        NOT EXISTS (SELECT 1 FROM effective_privilege_differences)
        AND NOT EXISTS (SELECT 1 FROM external_direct_acl_differences)
        AND NOT EXISTS (SELECT 1 FROM external_reachable_capabilities)
+       AND NOT EXISTS (SELECT 1 FROM unsafe_migration_role_posture)
+       AND NOT EXISTS (SELECT 1 FROM unsafe_migration_role_durable_settings)
+       AND NOT EXISTS (SELECT 1 FROM unsafe_migration_role_external_capability)
+       AND NOT EXISTS (SELECT 1 FROM unsafe_migration_role_default_object_acl)
+       AND NOT EXISTS (SELECT 1 FROM unsafe_runtime_role_durable_settings)
        AND NOT EXISTS (SELECT 1 FROM public_private_acl_entries) AS privilege_matrix_is_exact`;
 
 export async function checkRuntimeRoleConnectionsPostgres(
@@ -82,6 +85,8 @@ export async function checkRuntimeRoleConnectionsPostgres(
         row['role_is_login_nonprivileged'] !== true ||
         row['membership_is_empty'] !== true ||
         row['search_path_is_exact'] !== true ||
+        row['lo_compat_privileges_is_off'] !== true ||
+        row['session_replication_role_is_origin'] !== true ||
         row['durable_search_path_is_exact'] !== true ||
         row['privilege_matrix_is_exact'] !== true
       ) {

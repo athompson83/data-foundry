@@ -13,10 +13,17 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import {
+  buildMigrationRoleUnsafeExternalCapabilitySql,
+  buildMigrationRoleUnsafeDefaultAclSql,
+  buildMigrationRoleUnsafeDurableSettingSql,
+  buildMigrationRoleUnsafePostureSql,
   buildRuntimeRoleExpectedExternalAclValuesSql,
   buildRuntimeRoleExternalDirectAclSql,
   buildRuntimeRoleReachableExternalCapabilitySql,
+  buildRuntimeRoleUnsafeDurableSettingSql,
   buildRuntimeRoleExpectedGrants,
+  buildUnsafeMigrationSearchPathSql,
+  buildUnsafeMigrationSessionSql,
   PRIVATE_FUNCTION_SIGNATURES as RUNTIME_PRIVATE_FUNCTION_SIGNATURES,
   RUNTIME_ROLES as RUNTIME_ROLE_NAMES,
   type RuntimeRoleExpectedGrant,
@@ -459,10 +466,95 @@ SELECT current_database() AS database_name,
 `;
 }
 
+function buildMigrationConfinementAssertionSql(
+  schema: string,
+  migrationRole: string,
+  tag: string,
+  verification = false,
+): string {
+  const postureError = verification
+    ? 'Runtime grant verification failed: migration-role posture is unsafe.'
+    : `Data Foundry requires ${migrationRole} to be a LOGIN, NOINHERIT, nonprivileged role with no outgoing memberships.`;
+  const sessionError = verification
+    ? 'Runtime grant verification failed: migration session is unsafe.'
+    : 'Data Foundry migration packet requires session_replication_role=origin and lo_compat_privileges=off.';
+  const durableSettingError = verification
+    ? 'Runtime grant verification failed: migration-role durable settings are unsafe.'
+    : `Data Foundry migration packet requires exact canonical ${migrationRole} durable settings.`;
+  const defaultAclError = verification
+    ? 'Runtime grant verification failed: migration-role default object ACLs are unsafe.'
+    : `Data Foundry migration packet requires safe ${migrationRole} default object ACLs.`;
+  const externalCapabilityError = verification
+    ? 'Runtime grant verification failed: migration-role external capability is unsafe.'
+    : `Data Foundry migration packet requires the confined ${migrationRole} external privilege and ownership boundary.`;
+  return `DO $${tag}$
+DECLARE
+  drift_count integer;
+BEGIN
+  SELECT count(*) INTO drift_count FROM (
+${buildMigrationRoleUnsafePostureSql(migrationRole)}
+  ) unsafe_migration_role_posture;
+  IF drift_count <> 0 THEN RAISE EXCEPTION ${sqlLiteral(postureError)}; END IF;
+
+  SELECT count(*) INTO drift_count FROM (
+${buildMigrationRoleUnsafeDurableSettingSql(schema, migrationRole)}
+  ) unsafe_migration_role_durable_settings;
+  IF drift_count <> 0 THEN RAISE EXCEPTION ${sqlLiteral(durableSettingError)}; END IF;
+
+  SELECT count(*) INTO drift_count FROM (
+${buildUnsafeMigrationSessionSql()}
+  ) unsafe_migration_session;
+  IF drift_count <> 0 THEN RAISE EXCEPTION ${sqlLiteral(sessionError)}; END IF;
+
+  SELECT count(*) INTO drift_count FROM (
+${buildMigrationRoleUnsafeDefaultAclSql(schema, migrationRole)}
+  ) unsafe_migration_role_default_object_acl;
+  IF drift_count <> 0 THEN RAISE EXCEPTION ${sqlLiteral(defaultAclError)}; END IF;
+
+  SELECT count(*) INTO drift_count FROM (
+${buildMigrationRoleUnsafeExternalCapabilitySql(schema, migrationRole)}
+  ) unsafe_migration_role_external_capability;
+  IF drift_count <> 0 THEN RAISE EXCEPTION ${sqlLiteral(externalCapabilityError)}; END IF;
+END
+$${tag}$;`;
+}
+
+function buildMigrationActiveRoleAssertionSql(
+  migrationRole: string,
+  tag: string,
+): string {
+  return `DO $${tag}$
+BEGIN
+  IF NOT (
+    current_user::pg_catalog.text OPERATOR(pg_catalog.=) ${sqlLiteral(migrationRole)}::pg_catalog.text
+  ) THEN
+    RAISE EXCEPTION ${sqlLiteral(`Data Foundry migration packet requires current_user=${migrationRole} after SET LOCAL ROLE and throughout migration SQL.`)};
+  END IF;
+END
+$${tag}$;`;
+}
+
+function buildMigrationSearchPathAssertionSql(
+  schema: string,
+  tag: string,
+): string {
+  return `DO $${tag}$
+BEGIN
+  IF EXISTS (
+${buildUnsafeMigrationSearchPathSql(schema)}
+  ) THEN
+    RAISE EXCEPTION 'Data Foundry migration packet requires the exact search_path data_foundry, pg_catalog, extensions.';
+  END IF;
+END
+$${tag}$;`;
+}
+
 function buildBootstrapSql(schema: string, migrationRole: string): string {
   const ledger = qualified(schema, LEDGER_TABLE);
   return `-- Serialize every Data Foundry bootstrap that uses this exporter.
 SELECT pg_advisory_xact_lock(168410838, 1935894387);
+
+${buildMigrationConfinementAssertionSql(schema, migrationRole, 'data_foundry_bootstrap_confinement')}
 
 DO $data_foundry_bootstrap_preflight$
 DECLARE
@@ -542,8 +634,13 @@ function buildPacketSql(
           )
           .join(',\n')}`;
 
-  return `SET LOCAL ROLE ${quotedIdentifier(migrationRole)};
+  return `${buildMigrationConfinementAssertionSql(schema, migrationRole, `data_foundry_packet_${migration.version}_pre`)}
+
+SET LOCAL ROLE ${quotedIdentifier(migrationRole)};
 SET LOCAL search_path TO ${quotedIdentifier(schema)}, pg_catalog, extensions;
+${buildMigrationActiveRoleAssertionSql(migrationRole, `data_foundry_packet_${migration.version}_active_role_pre_ddl`)}
+${buildMigrationSearchPathAssertionSql(schema, `data_foundry_packet_${migration.version}_search_path_pre_ddl`)}
+
 LOCK TABLE ${ledger} IN EXCLUSIVE MODE;
 DO $data_foundry_packet$
 DECLARE
@@ -576,6 +673,11 @@ END
 $data_foundry_packet$;
 
 ${transformedWithNewline}
+${buildMigrationActiveRoleAssertionSql(migrationRole, `data_foundry_packet_${migration.version}_active_role_post_migration`)}
+${buildMigrationSearchPathAssertionSql(schema, `data_foundry_packet_${migration.version}_search_path_post_migration`)}
+
+${buildMigrationConfinementAssertionSql(schema, migrationRole, `data_foundry_packet_${migration.version}_post`)}
+
 INSERT INTO ${ledger} (version, filename, checksum, execution_ms)
 VALUES (${sqlLiteral(migration.version)}, ${sqlLiteral(migration.filename)}, ${sqlLiteral(checksum)}, 0);
 RESET search_path;
@@ -591,7 +693,14 @@ function buildVerificationSql(schema: string, migrations: readonly EffectiveMigr
     )
     .join(',\n');
   const ledger = qualified(schema, LEDGER_TABLE);
-  return `WITH expected_columns(attname, data_type, is_not_null, default_expression) AS (
+  return `${buildMigrationConfinementAssertionSql(
+    schema,
+    REQUIRED_MIGRATION_ROLE,
+    'data_foundry_migration_verification_confinement',
+    true,
+  )}
+
+WITH expected_columns(attname, data_type, is_not_null, default_expression) AS (
   ${expectedLedgerColumnsSql()}
 ), live_columns AS (
   SELECT a.attname::text AS attname,
@@ -865,6 +974,7 @@ function buildRuntimeGrantVerificationSql(
   const loginFailure = loginState === 'LOGIN'
     ? 'Runtime grant verification failed: runtime roles are not direct LOGIN roles.'
     : 'Runtime grant verification failed: runtime roles are not staged NOLOGIN roles.';
+  const requireCanonicalCurrentDatabaseSetting = loginState === 'LOGIN';
   const ledger = qualified(schema, LEDGER_TABLE);
   const expectedLedgerRows = migrations
     .map(({ migration, checksum }) => `    (${sqlLiteral(migration.version)}, ${sqlLiteral(migration.filename)}, ${sqlLiteral(checksum)})`)
@@ -920,13 +1030,23 @@ SELECT (SELECT count(*)::int FROM relation_differences) AS relation_inventory_di
        (SELECT count(*)::int FROM live_functions
          WHERE proconfig IS DISTINCT FROM ARRAY[${expectedFunctionSearchPath}]::text[]
        ) AS function_search_path_difference_count,
+       (SELECT count(*)::int FROM (
+${buildMigrationRoleUnsafeDefaultAclSql(schema)}
+       ) unsafe_default_acl) AS unsafe_migration_role_default_object_acl_count,
+       (SELECT count(*)::int FROM (
+${buildRuntimeRoleUnsafeDurableSettingSql(
+    schema,
+    `runtime_role.rolname = ANY(${runtimeRoleArraySql()})`,
+    requireCanonicalCurrentDatabaseSetting,
+  )}
+       ) unsafe_durable_setting) AS unsafe_runtime_role_durable_setting_count,
        (SELECT count(*)::int FROM (${publicPrivateAclRowsSql(schema)}) public_acl) AS forbidden_public_private_acl_count,
        NOT has_schema_privilege('public', 'public', 'CREATE') AS public_schema_create_is_false,
        (
          SELECT count(*) = ${RUNTIME_ROLE_NAMES.length}
            FROM pg_roles r
           WHERE r.rolname = ANY(${runtimeRoleArraySql()})
-            AND ${loginPredicate} AND NOT r.rolsuper AND NOT r.rolcreatedb
+            AND ${loginPredicate} AND NOT r.rolinherit AND NOT r.rolsuper AND NOT r.rolcreatedb
             AND NOT r.rolcreaterole AND NOT r.rolreplication AND NOT r.rolbypassrls
        ) AS ${loginAlias};
 
@@ -980,6 +1100,20 @@ ${expectedFunctionValuesSql()}
   ) SELECT count(*) + (SELECT count(*) FROM live WHERE prosecdef) INTO drift_count FROM differences;
   IF drift_count <> 0 THEN RAISE EXCEPTION 'Runtime grant verification failed: routine inventory, SECURITY DEFINER, or function search path drift.'; END IF;
 
+  SELECT count(*) INTO drift_count FROM (
+${buildMigrationRoleUnsafeDefaultAclSql(schema)}
+  ) unsafe_default_acl;
+  IF drift_count <> 0 THEN RAISE EXCEPTION 'Runtime grant verification failed: migration-role default object ACLs are unsafe.'; END IF;
+
+  SELECT count(*) INTO drift_count FROM (
+${buildRuntimeRoleUnsafeDurableSettingSql(
+    schema,
+    `runtime_role.rolname = ANY(${runtimeRoleArraySql()})`,
+    requireCanonicalCurrentDatabaseSetting,
+  )}
+  ) unsafe_durable_setting;
+  IF drift_count <> 0 THEN RAISE EXCEPTION 'Runtime grant verification failed: runtime-role durable settings are unsafe.'; END IF;
+
   WITH expected(scope, object_name, column_name, role_name, privilege, is_grantable) AS (VALUES
 ${completeExpectedAcl}
   ), live AS (
@@ -1005,11 +1139,11 @@ ${buildRuntimeRoleExternalDirectAclSql(schema, targetPredicate)}
   SELECT count(*) INTO drift_count FROM (
 ${buildRuntimeRoleReachableExternalCapabilitySql(schema, `runtime_role.rolname = ANY(${runtimeRoleArraySql()})`)}
   ) reachable_external_capability;
-  IF drift_count <> 0 THEN RAISE EXCEPTION 'Runtime grant verification failed: reachable external data/custom-routine capability.'; END IF;
+  IF drift_count <> 0 THEN RAISE EXCEPTION 'Runtime grant verification failed: reachable external capability.'; END IF;
 
   IF has_schema_privilege('public', 'public', 'CREATE') OR
      (SELECT count(*) FROM pg_roles r WHERE r.rolname = ANY(${runtimeRoleArraySql()})
-       AND ${loginPredicate} AND NOT r.rolsuper AND NOT r.rolcreatedb AND NOT r.rolcreaterole
+       AND ${loginPredicate} AND NOT r.rolinherit AND NOT r.rolsuper AND NOT r.rolcreatedb AND NOT r.rolcreaterole
        AND NOT r.rolreplication AND NOT r.rolbypassrls) <> ${RUNTIME_ROLE_NAMES.length} OR
      EXISTS (SELECT 1 FROM pg_auth_members m JOIN pg_roles r ON r.oid = m.member
               WHERE r.rolname = ANY(${runtimeRoleArraySql()})) OR
@@ -1040,7 +1174,13 @@ function buildPostMigrationGrantPayload(
     "grantee.rolname = ANY(ARRAY['anon', 'authenticated', 'service_role']::text[])";
   const expectedFunctionSearchPath = sqlLiteral(`search_path=${schema}, pg_catalog, extensions`);
 
-  const sql = `SET LOCAL ROLE ${quotedIdentifier(migrationRole)};
+  const sql = `${buildMigrationConfinementAssertionSql(
+    schema,
+    migrationRole,
+    'data_foundry_runtime_grant_install_confinement',
+  )}
+
+SET LOCAL ROLE ${quotedIdentifier(migrationRole)};
 SET LOCAL search_path TO ${quotedIdentifier(schema)}, pg_catalog, extensions;
 LOCK TABLE ${ledger} IN EXCLUSIVE MODE;
 DO $data_foundry_runtime_grants$
@@ -1071,6 +1211,12 @@ ${expectedRows}
   IF (SELECT pg_get_userbyid(n.nspowner) FROM pg_namespace n WHERE n.nspname = ${sqlLiteral(schema)})
        IS DISTINCT FROM ${sqlLiteral(migrationRole)} THEN
     RAISE EXCEPTION 'Runtime grants require data_foundry schema ownership by df_migration.';
+  END IF;
+  SELECT count(*) INTO prerequisite_drift_count FROM (
+${buildMigrationRoleUnsafeDefaultAclSql(schema, migrationRole)}
+  ) unsafe_default_acl;
+  IF prerequisite_drift_count <> 0 THEN
+    RAISE EXCEPTION 'Runtime grants require safe migration-role default object ACLs.';
   END IF;
   WITH expected(relname, relkind) AS (VALUES
 ${expectedRelationValuesSql()}
@@ -1118,7 +1264,7 @@ ${expectedFunctionValuesSql()}
   SELECT count(*) INTO prerequisite_drift_count
     FROM pg_roles r
    WHERE r.rolname = ANY(${runtimeRoleArraySql()})
-     AND (r.rolcanlogin OR r.rolsuper OR r.rolcreatedb OR r.rolcreaterole OR r.rolreplication OR r.rolbypassrls);
+     AND (r.rolcanlogin OR r.rolinherit OR r.rolsuper OR r.rolcreatedb OR r.rolcreaterole OR r.rolreplication OR r.rolbypassrls);
   IF prerequisite_drift_count <> 0 OR
      (SELECT count(*) FROM pg_roles r WHERE r.rolname = ANY(${runtimeRoleArraySql()})) <> ${RUNTIME_ROLE_NAMES.length} OR
      EXISTS (
@@ -1131,6 +1277,16 @@ ${expectedFunctionValuesSql()}
        WHERE granted_role.rolname = ANY(${runtimeRoleArraySql()})
      ) THEN
     RAISE EXCEPTION 'Runtime roles must all exist as NOLOGIN, nonprivileged, non-member roles.';
+  END IF;
+  SELECT count(*) INTO prerequisite_drift_count FROM (
+${buildRuntimeRoleUnsafeDurableSettingSql(
+    schema,
+    `runtime_role.rolname = ANY(${runtimeRoleArraySql()})`,
+    false,
+  )}
+  ) unsafe_durable_setting;
+  IF prerequisite_drift_count <> 0 THEN
+    RAISE EXCEPTION 'Runtime grants require safe staged runtime-role durable settings.';
   END IF;
   IF has_schema_privilege('public', 'public', 'CREATE') THEN
     RAISE EXCEPTION 'PUBLIC CREATE on the shared public schema must already be false.';
@@ -1183,7 +1339,7 @@ ${buildRuntimeRoleExternalDirectAclSql(schema, targetPredicate)}
 ${buildRuntimeRoleReachableExternalCapabilitySql(schema, `runtime_role.rolname = ANY(${runtimeRoleArraySql()})`)}
   ) reachable_external_capability;
   IF prerequisite_drift_count <> 0 THEN
-    RAISE EXCEPTION 'Runtime roles have a reachable external data/custom-routine capability.';
+    RAISE EXCEPTION 'Runtime roles have a reachable external capability.';
   END IF;
 END
 $data_foundry_runtime_grants$;

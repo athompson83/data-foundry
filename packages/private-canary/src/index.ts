@@ -6,9 +6,14 @@ import {
 export {
   API_KEY_AUTH_COLUMNS,
   API_TENANT_AUTH_COLUMNS,
+  buildMigrationRoleUnsafeExternalCapabilitySql,
+  buildMigrationRoleUnsafeDefaultAclSql,
+  buildMigrationRoleUnsafeDurableSettingSql,
+  buildMigrationRoleUnsafePostureSql,
   buildRuntimeRoleExpectedExternalAclValuesSql,
   buildRuntimeRoleExternalDirectAclSql,
   buildRuntimeRoleReachableExternalCapabilitySql,
+  buildRuntimeRoleUnsafeDurableSettingSql,
   buildRuntimeRoleExpectedGrants,
   PRIVATE_FUNCTION_SIGNATURES,
   QUERY_CORE_RELATIONS,
@@ -16,6 +21,8 @@ export {
   RIGHTS_CONTEXT_RELATIONS,
   RUNTIME_ROLES,
   USAGE_INSERT_COLUMNS,
+  buildUnsafeMigrationSearchPathSql,
+  buildUnsafeMigrationSessionSql,
 } from './runtime-role-policy.js';
 export type {
   RuntimeGrantScope,
@@ -149,6 +156,9 @@ export interface PrivateCanaryRuntimeBinding {
   readonly session_user: unknown;
   readonly role_is_login_nonprivileged: unknown;
   readonly membership_is_empty: unknown;
+  readonly search_path_is_exact: unknown;
+  readonly lo_compat_privileges_is_off: unknown;
+  readonly session_replication_role_is_origin: unknown;
   readonly private_schema_usage: unknown;
   readonly private_schema_create: unknown;
   readonly privilege_matrix_is_exact: unknown;
@@ -171,7 +181,7 @@ SELECT current_user::text AS current_user,
        EXISTS (
          SELECT 1 FROM pg_roles role
           WHERE role.rolname = $1 AND role.rolcanlogin
-            AND NOT role.rolsuper AND NOT role.rolcreatedb AND NOT role.rolcreaterole
+            AND NOT role.rolinherit AND NOT role.rolsuper AND NOT role.rolcreatedb AND NOT role.rolcreaterole
             AND NOT role.rolreplication AND NOT role.rolbypassrls
        ) AS role_is_login_nonprivileged,
        NOT EXISTS (
@@ -179,11 +189,21 @@ SELECT current_user::text AS current_user,
           WHERE membership.member = (SELECT oid FROM pg_roles WHERE rolname = $1)
              OR membership.roleid = (SELECT oid FROM pg_roles WHERE rolname = $1)
        ) AS membership_is_empty,
+       current_setting('search_path') = 'data_foundry, pg_catalog, extensions'
+       AND current_schemas(false) = ARRAY['data_foundry', 'pg_catalog', 'extensions']::name[]
+         AS search_path_is_exact,
+       current_setting('lo_compat_privileges') = 'off' AS lo_compat_privileges_is_off,
+       current_setting('session_replication_role') = 'origin' AS session_replication_role_is_origin,
        has_schema_privilege(current_user, 'data_foundry', 'USAGE') AS private_schema_usage,
        has_schema_privilege(current_user, 'data_foundry', 'CREATE') AS private_schema_create,
        NOT EXISTS (SELECT 1 FROM effective_privilege_differences)
        AND NOT EXISTS (SELECT 1 FROM external_direct_acl_differences)
        AND NOT EXISTS (SELECT 1 FROM external_reachable_capabilities)
+        AND NOT EXISTS (SELECT 1 FROM unsafe_migration_role_posture)
+        AND NOT EXISTS (SELECT 1 FROM unsafe_migration_role_durable_settings)
+        AND NOT EXISTS (SELECT 1 FROM unsafe_migration_role_external_capability)
+       AND NOT EXISTS (SELECT 1 FROM unsafe_migration_role_default_object_acl)
+       AND NOT EXISTS (SELECT 1 FROM unsafe_runtime_role_durable_settings)
        AND NOT EXISTS (SELECT 1 FROM public_private_acl_entries) AS privilege_matrix_is_exact`;
 
 /**
@@ -203,6 +223,9 @@ export async function assertPrivateCanaryRuntimeBinding(
     || binding.session_user !== expectedRole
     || binding.role_is_login_nonprivileged !== true
     || binding.membership_is_empty !== true
+    || binding.search_path_is_exact !== true
+    || binding.lo_compat_privileges_is_off !== true
+    || binding.session_replication_role_is_origin !== true
     || binding.private_schema_usage !== true
     || binding.private_schema_create !== false
     || binding.privilege_matrix_is_exact !== true

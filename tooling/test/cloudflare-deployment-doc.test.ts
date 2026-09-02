@@ -56,15 +56,67 @@ describe('the no-commit Cloudflare deployment check', () => {
   it('permits only exact non-grantable external runtime-role ACLs', () => {
     expect(RUNBOOK).toMatch(/non-grantable `USAGE` on\s+`extensions`/);
     expect(RUNBOOK).toMatch(/non-grantable `CONNECT` on exactly the current database/);
-    expect(RUNBOOK).toMatch(/Inherited `PUBLIC` database `CONNECT`\/`TEMP`\s+remains distinct/);
+    expect(RUNBOOK).toMatch(
+      /Inherited `PUBLIC` database `CONNECT`\/`TEMP`\s+on the current database remains distinct/i,
+    );
     expect(RUNBOOK).toMatch(/inherited `PUBLIC` database `CREATE` is forbidden/);
-    expect(RUNBOOK).toMatch(/catalog-attested extension-member routines/);
+    expect(RUNBOOK).toMatch(/database `CREATE` is forbidden on every database/i);
+    expect(RUNBOOK).toMatch(/`CONNECT` to every other live non-template database is forbidden/i);
+    expect(RUNBOOK).toMatch(/Catalog-marked templates are an explicit\s+provider\/system boundary/i);
+    expect(RUNBOOK).toMatch(/exact whole-object extension membership/i);
+    expect(RUNBOOK).toMatch(/`objsubid` and `refobjsubid` are both zero/i);
+    expect(RUNBOOK).toMatch(/address-generic\s+`pg_catalog\.pg_shdepend` scan rejects every owner dependency/i);
+    expect(RUNBOOK).toMatch(/non-extension text-search dictionaries, foreign\s+servers, and shared database objects/i);
     expect(RUNBOOK).toMatch(/provider extension-member objects/i);
     expect(RUNBOOK).toMatch(
       /trigger and\s+event-trigger functions are outside this direct-call check/i,
     );
     expect(RUNBOOK).toMatch(/not the whole `extensions` namespace/);
     expect(RUNBOOK).toMatch(/unrelated public ACLs stay\s+untouched/);
+    expect(RUNBOOK).toMatch(/both `session_user`\s+and `current_user` equal to `df_migration`/i);
+    expect(RUNBOOK).toMatch(/`LOGIN`,\s+`NOINHERIT`, `NOSUPERUSER`, `NOCREATEDB`, `NOCREATEROLE`, `NOREPLICATION`/i);
+    expect(RUNBOOK).toMatch(/may not be a member of another role/i);
+    expect(RUNBOOK).toMatch(/session_replication_role=origin/i);
+    expect(RUNBOOK).toMatch(/incoming member of `df_migration` solely to run/i);
+    expect(RUNBOOK).toMatch(/exactly one current-database `pg_db_role_setting` row/i);
+    expect(RUNBOOK).toMatch(/no role-global setting row/i);
+    expect(RUNBOOK).toMatch(
+      /effective `SET` or `ALTER SYSTEM`\s+on\s+any ACL-governed parameter represented in `pg_parameter_acl`/i,
+    );
+    expect(RUNBOOK).toMatch(
+      /effective foreign-data-wrapper or foreign-server `USAGE`,\s+including through `PUBLIC`/i,
+    );
+    expect(RUNBOOK).toMatch(
+      /`df_migration` may not own a\s+foreign table even in `data_foundry`/i,
+    );
+    expect(RUNBOOK).toMatch(/large-object\s+ownership or effective `SELECT` or `UPDATE`\s+access/i);
+    expect(RUNBOOK).toMatch(/`lo_compat_privileges=on`/);
+    expect(RUNBOOK).toMatch(/defaults for future functions, tables, and sequences/i);
+    expect(RUNBOOK).toMatch(/both its global\s+default ACLs/i);
+    expect(RUNBOOK).toMatch(/hard-wired `PUBLIC EXECUTE`/i);
+    expect(RUNBOOK).toMatch(/schema-specific default ACLs/i);
+    expect(RUNBOOK).toMatch(
+      /global or\s+schema-specific default privilege for future functions, tables, or\s+sequences granted to `PUBLIC` or another non-owner role/i,
+    );
+    expect(RUNBOOK).toMatch(
+      /rechecks\s+the full migration-role posture, durable settings, external privilege and ownership\s+boundary, live session safety, and effective default ACLs before and after each\s+pending migration/i,
+    );
+    expect(RUNBOOK).toMatch(
+      /exact configured and resolved `search_path`\s+to be\s+`data_foundry, pg_catalog, extensions`/i,
+    );
+    expect(RUNBOOK).toMatch(/any drift is rolled back before its\s+ledger write/i);
+    expect(RUNBOOK).toMatch(
+      /reasserts `current_user=df_migration` after `SET LOCAL ROLE`\s+and after\s+each migration/i,
+    );
+    expect(RUNBOOK).toContain(
+      'ALTER DEFAULT PRIVILEGES REVOKE ALL PRIVILEGES ON TABLES FROM PUBLIC;',
+    );
+    expect(RUNBOOK).toContain(
+      'ALTER DEFAULT PRIVILEGES REVOKE ALL PRIVILEGES ON SEQUENCES FROM PUBLIC;',
+    );
+    expect(RUNBOOK).toContain(
+      'ALTER DEFAULT PRIVILEGES IN SCHEMA data_foundry REVOKE EXECUTE ON FUNCTIONS FROM PUBLIC;',
+    );
   });
 
   it('keeps application migrations direct-TLS-only while permitting the exact grant packet after provider authorization', () => {

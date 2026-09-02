@@ -44,7 +44,9 @@
 - Database target: shared Alpha Lab Supabase project `fgxinxaqkwoqyywdgobs`.
   The private `data_foundry` schema now carries all 26 ledgered migrations,
   migration-owner ownership, the `PUBLIC` revoke, and the historically verified
-  200-grant runtime matrix for five staged `NOLOGIN` roles. Repository migration
+  200-grant runtime matrix for five staged `NOLOGIN` roles. The same hosted
+  snapshot records `df_migration` as `NOLOGIN`; it is not yet the controlled
+  direct login required by the current migration runner. Repository migration
   `0027` pins all 57 function search paths and narrows acquisition access to the
   199-grant matrix; repository migration `0028` adds the four justified rights-
   path indexes. Both remain pending hosted authorization and application at a
@@ -52,7 +54,47 @@
   credential rows.
   See the [2026-09-02 hosted migration evidence](docs/evidence/alpha-lab-hosted-migration-20260902.md).
 
-## Latest Session — Hosted Private-Schema Migration and Grant Activation
+## Latest Session — PR #26 PostgreSQL Release-Boundary Reconciliation
+
+- Reconciled the three unresolved PR #26 review threads and then extended the
+  same shared PostgreSQL 16 policy across the direct migration runner,
+  connector packets, runtime-grant installer/verifiers, five direct role
+  probes, and every route-less private-canary target. The candidate rejects
+  unsafe role posture, memberships, role/database settings, effective
+  parameter and large-object privileges, FDW/server access, ownership, all-
+  database `CREATE`, and `CONNECT` to any other live non-template database.
+- Direct migrations now require `df_migration` to be a controlled direct
+  `LOGIN NOINHERIT` session/current user with exactly one current-database
+  durable `search_path=data_foundry, pg_catalog, extensions` row and no global
+  role settings. The configured and resolved live path is checked before the
+  first broader policy query and before/after every pending migration.
+- Generated provider packets recheck migration-role durable/default/external
+  state before and after each migration, prove `current_user=df_migration`
+  around migration SQL, and refuse quoted as well as unquoted shared-`public`
+  qualification. Drift rolls back before both the ledger insert and any later
+  migration. Exact reviewed Git migration bytes remain the trusted computing
+  base; these controls do not claim to sandbox a malicious provider admin.
+- Negative controls cover neighboring default permissions independently,
+  effective privileges inherited through `PUBLIC`, PostgreSQL 16 parameter and
+  large-object catalogs, exact extension membership, unmanaged and shared
+  object ownership, foreign tables, search-path poisoning, role escape, and
+  cross-database reachability. Tests directly assert the non-generic extension
+  and numeric shared-ownership branches so a broader rejection cannot mask
+  them. The disposable PostgreSQL CI job applies and cleans each mutation and
+  preserves only allowlisted error signatures in mode-`0600` captures.
+- Repository-only verification is green so far: the root combined focused run
+  passed 267/267 tests, the full migration runner passed 112/112, migration
+  packets passed 38/38, runtime grants passed 63/63, supporting suites passed
+  44/44, TypeScript compilation passed, and the generated CI Bash parses. A
+  fresh exact-head repository-wide run and protected checks/reviews remain
+  mandatory after the final commit; none of this is live provider evidence.
+- No provider, source, rights, billing, DNS, or deployment state changed. The
+  hosted target still needs `UA-006`, a secure `df_migration` credential and
+  canonical role setting, a read-only cross-database topology result, pending
+  migrations `0027`–`0028`, five runtime credentials/Hyperdrives, and the
+  private canary before any public deployment.
+
+## Previous Session — Hosted Private-Schema Migration and Grant Activation
 
 - Applied the exact `db/migrations/` set (tree shared by PR #26 head `93a668b`
   and `main` `5dde773`) to the Alpha Lab target through the exporter's attested
@@ -310,14 +352,21 @@ not mean deployed or commercially publishable.
   browser state, reveal the item, or rotate unrelated credentials.
 - Hosted Alpha Lab private-schema and grant proof is recorded; no Data Foundry
   Worker deployment, Hyperdrive, or live Queue/DLQ/R2 integration proof is.
-- The five runtime roles are staged `NOLOGIN` without passwords; every Worker
-  database binding waits on the owner's secure credential entry and the five
-  Hyperdrive configurations (`UA-002`).
+- `df_migration` and the five runtime roles are staged `NOLOGIN` without
+  passwords. Pending direct migrations wait on the controlled migration-login
+  credential and canonical database-scoped path; every Worker database binding
+  waits on its own secure credential and Hyperdrive (`UA-002`).
+- The current PostgreSQL policy refuses effective `CONNECT` to any other live
+  non-template database and `CREATE` on every database. No current hosted
+  inventory proves that cluster boundary yet; a non-empty result is an explicit
+  owner/provider topology blocker rather than a condition automation may
+  normalize on the shared project.
 - The current public data hostname is a Vercel 404, not a Data Foundry runtime.
-- Secure database-role password entry, five cache-disabled Hyperdrives, and
-  post-credential verification are needed before the route-less canary can run;
-  preserve and reverify the standard usage model and ordinary 14-day queues;
-  provision the absent raw-artifact and canary receipt buckets.
+- Secure migration/runtime database-role password entry, the pending exact-SHA
+  migrations, five cache-disabled Hyperdrives, and post-credential verification
+  are needed before the route-less canary can run; preserve and reverify the
+  standard usage model and ordinary 14-day queues; provision the absent raw-
+  artifact and canary receipt buckets.
 - Public sitemap rate limiting and its ordinary-crawler bypass policy have not
   been configured or verified on the canonical Cloudflare account.
 - No real HVAC source has the required exact grants and human rights review.
@@ -335,13 +384,14 @@ to answer; automation must not sign, acquire, publish, or contact the publisher.
 
 ## Production Impact
 
-The merged Alpha Lab isolation change (`290df13`) governs runtime schema selection,
-Hyperdrive transaction isolation/lifecycle, migration safeguards, regression
-coverage, and deployment documentation. This session performed the hosted
-private-schema migration and grant activation described above and merged
-PR #24. It performed no Worker deployment, credential creation, source
-acquisition, publisher contact, listing, or billing change, and it did not
-touch the shared `public` schema.
+The merged Alpha Lab isolation change (`290df13`) governs runtime schema
+selection and Hyperdrive transaction isolation/lifecycle. The current PR #26
+candidate tightens migration/runtime-role safeguards, regression coverage, and
+deployment documentation only; it made no hosted mutation. The preceding
+session performed the hosted private-schema migration and grant activation
+described above and merged PR #24. Neither session performed a Worker
+deployment, credential creation, source acquisition, publisher contact,
+listing, or billing change, and neither touched the shared `public` schema.
 
 ## Previous Session Summary
 

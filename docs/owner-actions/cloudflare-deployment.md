@@ -320,6 +320,28 @@ credential must not be committed.
    search path `data_foundry, pg_catalog, extensions`, and grant only its
    required `data_foundry` and `extensions` privileges.
 
+   The direct migration credential must authenticate with both `session_user`
+   and `current_user` equal to `df_migration`. Provision it as `LOGIN`,
+   `NOINHERIT`, `NOSUPERUSER`, `NOCREATEDB`, `NOCREATEROLE`, `NOREPLICATION`,
+   and `NOBYPASSRLS`; it may not be a member of another role, retain effective
+   database `CREATE`, or retain `CREATE` on any non-target ordinary schema. Its
+   live session must have `session_replication_role=origin` and
+   `lo_compat_privileges=off`. It must have exactly one current-database `pg_db_role_setting` row containing only
+   `search_path=data_foundry, pg_catalog, extensions`, and no role-global setting row.
+   Set that database-scoped default (substituting the exact target
+   database name), then reconnect before running verification because an
+   existing session does not acquire a new role default retroactively:
+
+   ```sql
+   ALTER ROLE df_migration IN DATABASE <database_name>
+     SET search_path = data_foundry, pg_catalog, extensions;
+   ```
+
+   An operator/connector may separately be an
+   incoming member of `df_migration` solely to run the reviewed runtime-grant
+   packet's `SET LOCAL ROLE`; that operator session is not an accepted direct
+   migration connection.
+
    Before granting any runtime privilege, connect as the controlled migration
    role and remove the PostgreSQL **`PUBLIC` pseudo-role** from the private
    **`data_foundry` schema** and its objects:
@@ -332,6 +354,8 @@ credential must not be committed.
    REVOKE ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA data_foundry FROM PUBLIC;
 
    -- Run as the migration role so future objects it creates stay private.
+   ALTER DEFAULT PRIVILEGES REVOKE ALL PRIVILEGES ON TABLES FROM PUBLIC;
+   ALTER DEFAULT PRIVILEGES REVOKE ALL PRIVILEGES ON SEQUENCES FROM PUBLIC;
    ALTER DEFAULT PRIVILEGES IN SCHEMA data_foundry REVOKE ALL PRIVILEGES ON TABLES FROM PUBLIC;
    ALTER DEFAULT PRIVILEGES IN SCHEMA data_foundry REVOKE ALL PRIVILEGES ON SEQUENCES FROM PUBLIC;
 
@@ -339,6 +363,7 @@ credential must not be committed.
    -- default grants EXECUTE to PUBLIC, so this must not be schema-qualified.
    -- df_migration is confined to data_foundry and may not create elsewhere.
    ALTER DEFAULT PRIVILEGES REVOKE EXECUTE ON FUNCTIONS FROM PUBLIC;
+   ALTER DEFAULT PRIVILEGES IN SCHEMA data_foundry REVOKE EXECUTE ON FUNCTIONS FROM PUBLIC;
    ```
 
    Do **not** run those statements against the shared `public` schema, drop
@@ -370,8 +395,20 @@ credential must not be committed.
    runner also requires that release SHA to equal Git `HEAD`, the entire
    worktree to be clean, a certificate-verified TLS connection with no
    query-string overrides, and migration SQL loaded from the attested Git
-   object. Do not pass the connection string on argv or archive it with the
-   command receipt.
+   object. It checks the migration owner's role posture, durable settings,
+   external privilege and ownership boundary, live session safety, and
+   effective default ACLs before any repository DDL. After preparing the
+   private namespace, it requires both
+   the exact configured and resolved `search_path` to be
+   `data_foundry, pg_catalog, extensions`. Inside each transaction it rechecks
+   the full migration-role posture, durable settings, external privilege and ownership
+   boundary, live session safety, and effective default ACLs before and after each
+   pending migration, with that exact configured-and-resolved
+   path probe first at both boundaries. Any drift is rolled back before its
+   ledger write. The archival
+   packet form also reasserts `current_user=df_migration` after `SET LOCAL ROLE`
+   and after each migration, before it may stamp the ledger. Do not pass the
+   connection string on argv or archive it with the command receipt.
 
    This private-canary workstream requires direct PostgreSQL TLS for every
    application migration. Application migrations remain direct-TLS-only; the
@@ -407,8 +444,10 @@ credential must not be committed.
    provider path must create `df_edge`, `df_web`, `df_mcp`, `df_usage`, and
    `df_acquisition` as NOLOGIN, nonprivileged, non-member roles with only
    direct, non-grantable `CONNECT` on the current database and `USAGE` on
-   `extensions`. Inherited `PUBLIC` database `CONNECT`/`TEMP` remains unchanged
-   and distinct from those required direct grants.
+   `extensions`. Inherited `PUBLIC` database `CONNECT`/`TEMP` on the current
+   database and catalog-marked templates remains unchanged and distinct from
+   those required direct grants. The verifier observes and blocks, rather than
+   mutating, inherited `CONNECT` to every other live non-template database.
    It must not grant database `CREATE`, grant options, a `public`-schema
    privilege, or any private Data Foundry object privilege at this staging step.
    Remove `PUBLIC` execute from every private function. The controlled direct-TLS
@@ -433,7 +472,16 @@ credential must not be committed.
    table/column matrix and, because a narrower call dependency cannot be proved
    statically, EXECUTE on the manifest's explicit 57-signature invoker-function
    inventory to `df_acquisition` alone. It changes neither the application
-   ledger nor default privileges. Require every count/boolean in its
+   ledger nor default privileges. The installer and both verifiers require the
+   migration login's exact current-database durable search-path row and reject
+   every role-global setting row. The guard computes `df_migration`'s effective
+   defaults for future functions, tables, and sequences from both its global
+   default ACLs and any schema-specific default ACLs for `data_foundry`. A
+   missing explicit safe global function override resolves to PostgreSQL's
+   hard-wired `PUBLIC EXECUTE` function default and fails. Any global or
+   schema-specific default privilege for future functions, tables, or
+   sequences granted to `PUBLIC` or another non-owner role also fails. Require
+   every count/boolean in its
    `verificationSql` to be clean and compare `public_fingerprint_input` with
    the operator-approved pre-deployment fingerprint before the secure LOGIN
    transition.
@@ -450,15 +498,41 @@ credential must not be committed.
    language, tablespace, large-object, parameter, or default privileges
    elsewhere are drift. Grant-option state is part of the ACL identity and must
    be false for every expected grant. Inherited `PUBLIC` database `CONNECT`/`TEMP`
-   remains distinct from the required direct current-database `CONNECT` grant;
+   on the current database remains distinct from the required direct
+   current-database `CONNECT` grant;
    inherited `PUBLIC` database `CREATE` is forbidden because it permits every
-   runtime role to create durable schemas. The
+   runtime role to create durable schemas. Database `CREATE` is forbidden on every database.
+   `CONNECT` to every other live non-template database is forbidden, including
+   access inherited through `PUBLIC`; only the current database is allowed
+   among live non-template databases. Catalog-marked templates are an explicit
+   provider/system boundary excluded from this cross-database connection scan.
+   Effective `SET` or `ALTER SYSTEM` on
+   any ACL-governed parameter represented in `pg_parameter_acl` is forbidden,
+   including access inherited through `PUBLIC` or another role. Large-object
+   ownership or effective `SELECT` or `UPDATE`
+   access through `PUBLIC` or role membership is also forbidden. The verifier
+   also forbids effective foreign-data-wrapper or foreign-server `USAGE`,
+   including through `PUBLIC` or another role, because either capability can
+   expose a new foreign-data execution path. `df_migration` may not own a
+   foreign table even in `data_foundry`; the target ownership allowance covers
+   canonical local relations only. The verifier
+   uses PostgreSQL 16's large-object metadata and ACL catalogs rather than a
+   later-version helper, and `lo_compat_privileges=on` is itself a failure
+   because it disables large-object ACL checks. The
    database/schema/data/custom-routine reachability check permits inert `PUBLIC`
    schema `USAGE` and type `USAGE`, because neither exposes table rows or
-   executable code. Provider extension-member objects are trusted only when
-   `pg_catalog.pg_depend` and `pg_catalog.pg_extension` attest them as
-   catalog-attested extension-member routines or relations; this exception is
-   catalog membership, not the whole `extensions` namespace. Trigger and
+   executable code. Provider extension-member objects are access-exempt from
+   the external relation/routine scan only when `pg_catalog.pg_depend` and
+   `pg_catalog.pg_extension` attest exact whole-object extension membership
+   (`objsubid` and `refobjsubid` are both zero). This exception is catalog
+   membership, not the whole `extensions` namespace. Independently, no runtime
+   role may own an extension or any whole object: an address-generic
+   `pg_catalog.pg_shdepend` scan rejects every owner dependency that resolves to
+   a runtime role, including non-extension text-search dictionaries, foreign
+   servers, and shared database objects. Numeric catalog addresses make that
+   ownership scan safe for objects in another database. Database `TEMP`
+   privilege may remain, but a live temporary object owned by a runtime role
+   still violates the strict no-ownership invariant. Trigger and
    event-trigger functions are outside this direct-call check because they
    cannot be invoked directly. This is an explicit provider-extension trust
    boundary, not a database-wide least-privilege claim: arbitrary public routines

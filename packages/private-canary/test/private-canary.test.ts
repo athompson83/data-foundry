@@ -7,6 +7,8 @@ import {
   parsePrivateCanaryProbeResult,
   PRIVATE_CANARY_SERVICE_BINDING_MODE,
   PRIVATE_CANARY_RUNTIME_BINDING_SQL,
+  buildMigrationRoleUnsafeDurableSettingSql,
+  buildUnsafeMigrationSearchPathSql,
   resolvePrivateCanaryConnectionString,
   toPrivateCanaryProbeInput,
 } from '../src/index.js';
@@ -83,6 +85,29 @@ describe('private canary DLQ envelope', () => {
 });
 
 describe('private canary target runtime binding', () => {
+  it('exports a schema-aware, fully catalog-qualified migration search-path probe', () => {
+    const sql = buildUnsafeMigrationSearchPathSql('data_foundry');
+
+    expect(sql).toContain(
+      "pg_catalog.current_setting('search_path'::pg_catalog.text)",
+    );
+    expect(sql).toContain('OPERATOR(pg_catalog.=)');
+    expect(sql).toContain(
+      "pg_catalog.current_schemas(false) OPERATOR(pg_catalog.=) ARRAY['data_foundry', 'pg_catalog', 'extensions']::pg_catalog.name[]",
+    );
+  });
+
+  it('exports an exact current-database durable-setting guard for the migration login', () => {
+    const sql = buildMigrationRoleUnsafeDurableSettingSql('data_foundry', 'df_migration');
+
+    expect(sql).toContain("runtime_role.rolname = 'df_migration'");
+    expect(sql).toContain('setting.setdatabase = 0');
+    expect(sql).toContain(
+      "setting.setconfig = ARRAY['search_path=data_foundry, pg_catalog, extensions']::text[]",
+    );
+    expect(sql).toContain('WHERE true');
+  });
+
   it('compares private effective privileges and direct external ACLs to the runtime grant matrix', () => {
     expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('expected_runtime_grants');
     expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('expected_external_runtime_acls');
@@ -91,21 +116,113 @@ describe('private canary target runtime binding', () => {
     expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('external_reachable_capabilities');
     expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('has_schema_privilege');
     expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('has_sequence_privilege');
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('has_parameter_privilege');
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain(
+      'pg_catalog.has_foreign_data_wrapper_privilege(',
+    );
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain(
+      'pg_catalog.has_server_privilege(',
+    );
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain("('SET'::text), ('ALTER SYSTEM'::text)");
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('pg_catalog.pg_largeobject_metadata');
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('pg_catalog.aclexplode(large_object.lomacl)');
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('large_object.lomowner = runtime_role.oid');
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('acl.grantee = 0');
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain("('SELECT'::text), ('UPDATE'::text)");
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain("current_setting('lo_compat_privileges') = 'on'");
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).not.toContain('has_largeobject_privilege');
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain(
+      "pg_catalog.pg_has_role(runtime_role.oid, installed_extension.extowner, 'MEMBER')",
+    );
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('CROSS JOIN pg_catalog.pg_depend extension_member');
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('JOIN pg_catalog.pg_shdepend ownership');
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain(
+      'ownership.classid = extension_member.classid',
+    );
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain(
+      'ownership.objsubid = extension_member.objsubid',
+    );
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain(
+      "ownership.refclassid = 'pg_catalog.pg_authid'::pg_catalog.regclass",
+    );
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain("ownership.deptype = 'o'");
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('extension_member.objsubid = 0');
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('extension_member.refobjsubid = 0');
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain("extension_member.deptype = 'e'");
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain(
+      "pg_catalog.pg_has_role(runtime_role.oid, ownership.refobjid, 'MEMBER')",
+    );
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('pg_catalog.pg_describe_object(');
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain("'OWNER'::text");
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain(
+      'CROSS JOIN pg_catalog.pg_shdepend owned_object',
+    );
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain(
+      "owned_object.dbid::text || ':' || owned_object.classid::text",
+    );
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('owned_object.objsubid = 0');
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain(
+      "pg_catalog.pg_has_role(runtime_role.oid, owned_object.refobjid, 'MEMBER')",
+    );
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('unsafe_migration_role_default_object_acl');
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('unsafe_migration_role_posture');
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('unsafe_migration_role_durable_settings');
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('unsafe_migration_role_external_capability');
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain("owned_relation.relkind <> 'f'");
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain(
+      'NOT EXISTS (SELECT 1 FROM unsafe_migration_role_posture)',
+    );
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain(
+      'NOT EXISTS (SELECT 1 FROM unsafe_migration_role_durable_settings)',
+    );
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain(
+      'NOT EXISTS (SELECT 1 FROM unsafe_migration_role_external_capability)',
+    );
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('unsafe_runtime_role_durable_settings');
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('pg_catalog.pg_db_role_setting');
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('setting.setdatabase = 0');
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain(
+      "setting.setconfig = ARRAY['search_path=data_foundry, pg_catalog, extensions']::text[]",
+    );
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain("current_setting('lo_compat_privileges') = 'off'");
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain("current_setting('session_replication_role') = 'origin'");
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('NOT role.rolinherit');
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain(
+      'default_acl_object_types(catalog_object_type, default_object_type)',
+    );
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain(
+      `('S'::"char", 's'::"char")`,
+    );
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain(
+      'pg_catalog.acldefault(default_acl_type.default_object_type, migration_owner.oid)',
+    );
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain("default_acl.defaclobjtype IN ('f', 'r', 'S')");
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain("'non_owner_default_privilege'::text");
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain(
+      'acl.grantee <> source.migration_owner_oid',
+    );
     expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).not.toContain('has_type_privilege');
     expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).not.toContain("namespace.nspname <> 'extensions'");
-    expect(
-      PRIVATE_CANARY_RUNTIME_BINDING_SQL.match(
-        /NOT EXISTS \(\s*SELECT 1\s+FROM pg_catalog\.pg_depend dependency\s+JOIN pg_catalog\.pg_extension installed_extension\s+ON installed_extension\.oid = dependency\.refobjid\s+WHERE dependency\.classid = 'pg_catalog\.pg_class'::pg_catalog\.regclass\s+AND dependency\.objid = relation\.oid\s+AND dependency\.refclassid = 'pg_catalog\.pg_extension'::pg_catalog\.regclass\s+AND dependency\.deptype = 'e'\s*\)/g,
-      ),
-    ).toHaveLength(3);
-    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toMatch(
-      /NOT EXISTS \(\s*SELECT 1\s+FROM pg_catalog\.pg_depend dependency\s+JOIN pg_catalog\.pg_extension installed_extension\s+ON installed_extension\.oid = dependency\.refobjid\s+WHERE dependency\.classid = 'pg_catalog\.pg_proc'::pg_catalog\.regclass\s+AND dependency\.objid = routine\.oid\s+AND dependency\.refclassid = 'pg_catalog\.pg_extension'::pg_catalog\.regclass\s+AND dependency\.deptype = 'e'\s*\)/,
-    );
+    // Four access-exemption branches are present in both the bound runtime-role
+    // scan and the independent migration-role confinement scan.
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL.match(/dependency\.objsubid = 0/g)).toHaveLength(8);
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL.match(/dependency\.refobjsubid = 0/g)).toHaveLength(8);
     expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain(
       "routine.prorettype NOT IN ('pg_catalog.trigger'::pg_catalog.regtype, 'pg_catalog.event_trigger'::pg_catalog.regtype)",
     );
     expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('FROM pg_class');
     expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('FROM pg_database');
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain(
+      'CROSS JOIN pg_catalog.pg_database database',
+    );
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain(
+      "pg_catalog.has_database_privilege(runtime_role.oid, database.oid, 'CREATE')",
+    );
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain(
+      "pg_catalog.has_database_privilege(runtime_role.oid, database.oid, 'CONNECT')",
+    );
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('database.datallowconn');
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('NOT database.datistemplate');
     expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('FULL OUTER JOIN');
     expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).not.toContain('CASE $1');
   });
@@ -128,6 +245,9 @@ describe('private canary target runtime binding', () => {
           session_user: expectedRole,
           role_is_login_nonprivileged: true,
           membership_is_empty: true,
+          search_path_is_exact: true,
+          lo_compat_privileges_is_off: true,
+          session_replication_role_is_origin: true,
           private_schema_usage: true,
           private_schema_create: false,
           privilege_matrix_is_exact: true,
@@ -143,6 +263,9 @@ describe('private canary target runtime binding', () => {
       session_user: 'df_edge',
       role_is_login_nonprivileged: true,
       membership_is_empty: true,
+      search_path_is_exact: true,
+      lo_compat_privileges_is_off: true,
+      session_replication_role_is_origin: true,
       private_schema_usage: true,
       private_schema_create: false,
       privilege_matrix_is_exact: true,
@@ -152,6 +275,9 @@ describe('private canary target runtime binding', () => {
       session_user: 'df_edge',
       role_is_login_nonprivileged: true,
       membership_is_empty: true,
+      search_path_is_exact: true,
+      lo_compat_privileges_is_off: true,
+      session_replication_role_is_origin: true,
       private_schema_usage: false,
       private_schema_create: false,
       privilege_matrix_is_exact: true,
@@ -164,6 +290,9 @@ describe('private canary target runtime binding', () => {
       session_user: 'df_edge',
       role_is_login_nonprivileged: false,
       membership_is_empty: true,
+      search_path_is_exact: true,
+      lo_compat_privileges_is_off: true,
+      session_replication_role_is_origin: true,
       private_schema_usage: true,
       private_schema_create: false,
       privilege_matrix_is_exact: true,
@@ -173,9 +302,32 @@ describe('private canary target runtime binding', () => {
       session_user: 'df_edge',
       role_is_login_nonprivileged: true,
       membership_is_empty: false,
+      search_path_is_exact: true,
+      lo_compat_privileges_is_off: true,
+      session_replication_role_is_origin: true,
       private_schema_usage: true,
       private_schema_create: false,
       privilege_matrix_is_exact: true,
+    }])).rejects.toThrow(/runtime binding/i);
+  });
+
+  it.each([
+    'search_path_is_exact',
+    'lo_compat_privileges_is_off',
+    'session_replication_role_is_origin',
+  ] as const)('rejects an unsafe live-session result in %s', async (field) => {
+    await expect(assertPrivateCanaryRuntimeBinding('edge', async () => [{
+      current_user: 'df_edge',
+      session_user: 'df_edge',
+      role_is_login_nonprivileged: true,
+      membership_is_empty: true,
+      search_path_is_exact: true,
+      lo_compat_privileges_is_off: true,
+      session_replication_role_is_origin: true,
+      private_schema_usage: true,
+      private_schema_create: false,
+      privilege_matrix_is_exact: true,
+      [field]: false,
     }])).rejects.toThrow(/runtime binding/i);
   });
 

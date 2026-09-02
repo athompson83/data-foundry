@@ -117,27 +117,82 @@ afterAll(async () => {
 
 describe('migration runner', () => {
   describe('private real-Postgres migration role guard', () => {
-    function guardedDriver(currentUser: string, schemaOwner: string | null): {
+    interface GuardBinding {
+      readonly current_user: string;
+      readonly session_user: string;
+      readonly schema_owner: string | null;
+      readonly role_posture_is_safe: boolean;
+      readonly durable_setting_is_safe: boolean;
+      readonly external_capability_is_safe: boolean;
+      readonly database_create_is_false: boolean;
+      readonly external_schema_create_is_false: boolean;
+      readonly session_replication_role_is_origin: boolean;
+      readonly lo_compat_privileges_is_off: boolean;
+    }
+
+    function guardedDriver(
+      currentUser: string,
+      schemaOwner: string | null,
+      unsafeDefaultAclResponses: readonly boolean[] = [],
+      bindingOverrides: Readonly<Partial<GuardBinding>> = {},
+      bindingOverrideResponses: readonly Readonly<Partial<GuardBinding>>[] = [],
+      canonicalSearchPathResponses: readonly boolean[] = [],
+    ): {
       readonly driver: MigrationDriver;
       readonly executed: string[];
+      readonly queried: string[];
     } {
       const executed: string[] = [];
+      const queried: string[] = [];
+      let defaultAclProbe = 0;
+      let bindingProbe = 0;
+      let searchPathProbe = 0;
       return {
         executed,
+        queried,
         driver: {
           label: 'private migration role guard',
           async exec(sql: string) {
             executed.push(sql);
           },
           async query<T>(sql: string) {
+            queried.push(sql);
             if (sql.includes('current_user AS current_user') && sql.includes('schema_owner')) {
+              const currentBindingOverrides =
+                bindingOverrideResponses[bindingProbe] ?? bindingOverrides;
+              bindingProbe += 1;
               return [{
                 current_user: currentUser,
+                session_user: currentUser,
                 schema_owner: schemaOwner,
+                role_posture_is_safe: true,
+                durable_setting_is_safe: true,
+                external_capability_is_safe: true,
+                database_create_is_false: true,
+                external_schema_create_is_false: true,
+                session_replication_role_is_origin: true,
+                lo_compat_privileges_is_off: true,
+                ...currentBindingOverrides,
               }] as T[];
+            }
+            if (sql.includes('search_path_is_canonical')) {
+              const searchPathIsCanonical =
+                canonicalSearchPathResponses[searchPathProbe] ?? true;
+              searchPathProbe += 1;
+              return [{ search_path_is_canonical: searchPathIsCanonical }] as T[];
             }
             if (sql.includes("nspname = 'extensions'")) {
               return [{ available: true, usable: true }] as T[];
+            }
+            if (
+              sql.includes('pg_catalog.pg_default_acl') &&
+              sql.includes('migration_owner.oid')
+            ) {
+              const unsafe = unsafeDefaultAclResponses[defaultAclProbe] ?? false;
+              defaultAclProbe += 1;
+              return (unsafe
+                ? [{ violation: 'non_owner_default_privilege' }]
+                : []) as T[];
             }
             return [];
           },
@@ -172,6 +227,60 @@ describe('migration runner', () => {
       expect(guarded.executed).toEqual([]);
     });
 
+    it.each([
+      {
+        name: 'session-role impersonation',
+        override: { session_user: 'postgres' },
+        message: /connect directly as session and current user df_migration/i,
+      },
+      {
+        name: 'privileged or inheriting role attributes',
+        override: { role_posture_is_safe: false },
+        message: /direct LOGIN, NOINHERIT, nonprivileged role with no outgoing memberships/i,
+      },
+      {
+        name: 'durable migration-role setting drift',
+        override: { durable_setting_is_safe: false },
+        message: /exactly one canonical current-database search_path setting.*no role-global settings/i,
+      },
+      {
+        name: 'external privilege or ownership drift',
+        override: { external_capability_is_safe: false },
+        message: /canonical external CONNECT and extensions USAGE boundary.*own objects only in data_foundry/i,
+      },
+      {
+        name: 'current-database CREATE',
+        override: { database_create_is_false: false },
+        message: /must not CREATE in the current database/i,
+      },
+      {
+        name: 'non-target schema CREATE',
+        override: { external_schema_create_is_false: false },
+        message: /must not CREATE in a non-target ordinary schema/i,
+      },
+      {
+        name: 'replication-role trigger bypass',
+        override: { session_replication_role_is_origin: false },
+        message: /session_replication_role=origin/i,
+      },
+      {
+        name: 'large-object compatibility bypass',
+        override: { lo_compat_privileges_is_off: false },
+        message: /lo_compat_privileges=off/i,
+      },
+    ])('refuses $name before any DDL', async ({ override, message }) => {
+      const guarded = guardedDriver('df_migration', 'df_migration', [], override);
+
+      await expect(
+        applyMigrations(guarded.driver, [], {
+          schema: 'data_foundry',
+          requirePrivateMigrationRole: true,
+        }),
+      ).rejects.toThrow(message);
+
+      expect(guarded.executed).toEqual([]);
+    });
+
     it('uses a pre-provisioned private schema without database-wide CREATE', async () => {
       const guarded = guardedDriver('df_migration', 'df_migration');
 
@@ -185,6 +294,18 @@ describe('migration runner', () => {
       expect(guarded.executed).not.toContain('CREATE SCHEMA IF NOT EXISTS "data_foundry"');
     });
 
+    it('checks the exact live search path before its first broader direct policy query', async () => {
+      const guarded = guardedDriver('df_migration', 'df_migration');
+
+      await applyMigrations(guarded.driver, [], {
+        schema: 'data_foundry',
+        requirePrivateMigrationRole: true,
+      });
+
+      expect(guarded.queried[0]).toContain('search_path_is_canonical');
+      expect(guarded.queried[1]).toContain('current_user AS current_user');
+    });
+
     it('refuses a missing direct private schema before any DDL', async () => {
       const guarded = guardedDriver('df_migration', null);
 
@@ -196,6 +317,158 @@ describe('migration runner', () => {
       ).rejects.toThrow(/must be owned.*df_migration/i);
 
       expect(guarded.executed).toEqual([]);
+    });
+
+    it('refuses unsafe migration-role default object ACLs before any DDL', async () => {
+      const guarded = guardedDriver('df_migration', 'df_migration', [true]);
+
+      await expect(
+        applyMigrations(guarded.driver, [], {
+          schema: 'data_foundry',
+          requirePrivateMigrationRole: true,
+        }),
+      ).rejects.toThrow(
+        'Direct private-schema migrations require safe df_migration default object ACLs throughout each migration transaction.',
+      );
+
+      expect(guarded.executed).toEqual([]);
+    });
+
+    it('rechecks migration-role default object ACLs inside each pending transaction', async () => {
+      const guarded = guardedDriver('df_migration', 'df_migration', [false, true]);
+      const migration: Migration = {
+        version: '9999',
+        filename: '9999_default_acl_probe.sql',
+        sql: 'CREATE TABLE migration_acl_probe (id integer);',
+        checksum: '0'.repeat(64),
+      };
+
+      await expect(
+        applyMigrations(guarded.driver, [migration], {
+          schema: 'data_foundry',
+          requirePrivateMigrationRole: true,
+        }),
+      ).rejects.toThrow(/safe df_migration default object ACLs throughout each migration transaction/i);
+
+      expect(guarded.executed).toContain('BEGIN');
+      expect(guarded.executed).toContain('ROLLBACK');
+      expect(guarded.executed).not.toContain('CREATE TABLE migration_acl_probe (id integer);');
+    });
+
+    it('rolls back a migration that introduces unsafe default object ACLs', async () => {
+      const guarded = guardedDriver('df_migration', 'df_migration', [false, false, true]);
+      const migration: Migration = {
+        version: '9999',
+        filename: '9999_introduce_default_acl_drift.sql',
+        sql: 'ALTER DEFAULT PRIVILEGES GRANT SELECT ON TABLES TO observer;',
+        checksum: '0'.repeat(64),
+      };
+
+      await expect(
+        applyMigrations(guarded.driver, [migration], {
+          schema: 'data_foundry',
+          requirePrivateMigrationRole: true,
+        }),
+      ).rejects.toThrow(/safe df_migration default object ACLs throughout each migration transaction/i);
+
+      expect(guarded.executed).toContain('BEGIN');
+      expect(guarded.executed).toContain(
+        'ALTER DEFAULT PRIVILEGES GRANT SELECT ON TABLES TO observer;',
+      );
+      expect(guarded.executed).toContain('ROLLBACK');
+      expect(guarded.executed).not.toContain('COMMIT');
+    });
+
+    it.each([
+      {
+        name: 'large-object compatibility bypass',
+        sql: 'SET lo_compat_privileges TO on;',
+        postMigrationBinding: { lo_compat_privileges_is_off: false },
+        message: /session_replication_role=origin and lo_compat_privileges=off.*refusing migration transaction/i,
+      },
+      {
+        name: 'external large-object ownership',
+        sql: 'SELECT lo_create(98765);',
+        postMigrationBinding: { external_capability_is_safe: false },
+        message: /canonical external CONNECT and extensions USAGE boundary.*own objects only in data_foundry.*refusing migration transaction/i,
+      },
+      {
+        name: 'durable migration-role setting drift',
+        sql: 'ALTER ROLE df_migration SET lo_compat_privileges TO on;',
+        postMigrationBinding: { durable_setting_is_safe: false },
+        message: /exactly one canonical current-database search_path setting.*no role-global settings.*refusing migration transaction/i,
+      },
+    ])('rolls back introduced $name before stamping the ledger', async ({
+      sql,
+      postMigrationBinding,
+      message,
+    }) => {
+      const guarded = guardedDriver(
+        'df_migration',
+        'df_migration',
+        [],
+        {},
+        [{}, {}, {}, postMigrationBinding],
+      );
+      const migration: Migration = {
+        version: '9999',
+        filename: '9999_introduce_confinement_drift.sql',
+        sql,
+        checksum: '0'.repeat(64),
+      };
+
+      await expect(
+        applyMigrations(guarded.driver, [migration], {
+          schema: 'data_foundry',
+          requirePrivateMigrationRole: true,
+        }),
+      ).rejects.toThrow(message);
+
+      expect(guarded.executed).toContain(sql);
+      expect(guarded.executed).toContain('ROLLBACK');
+      expect(guarded.executed).not.toContain('COMMIT');
+      expect(guarded.queried.some((query) => query.includes('INSERT INTO'))).toBe(false);
+    });
+
+    it.each([
+      'SET LOCAL search_path TO public, pg_catalog, extensions;',
+      'SET search_path TO public, pg_catalog, extensions;',
+    ])('rolls back %s drift before ledger stamping or a later migration', async (sql) => {
+      const guarded = guardedDriver(
+        'df_migration',
+        'df_migration',
+        [],
+        {},
+        [],
+        [true, true, true, false],
+      );
+      const pending: Migration[] = [
+        {
+          version: '9998',
+          filename: '9998_poison_search_path.sql',
+          sql,
+          checksum: '0'.repeat(64),
+        },
+        {
+          version: '9999',
+          filename: '9999_must_not_run.sql',
+          sql: "SELECT 'next-migration-must-not-run';",
+          checksum: '1'.repeat(64),
+        },
+      ];
+
+      await expect(
+        applyMigrations(guarded.driver, pending, {
+          schema: 'data_foundry',
+          requirePrivateMigrationRole: true,
+        }),
+      ).rejects.toThrow(/exact search_path.*data_foundry, pg_catalog, extensions/i);
+
+      expect(guarded.executed).toContain(sql);
+      expect(guarded.executed).toContain('ROLLBACK');
+      expect(guarded.executed).not.toContain('COMMIT');
+      expect(guarded.executed).not.toContain("SELECT 'next-migration-must-not-run';");
+      expect(guarded.queried.some((query) => query.includes('INSERT INTO'))).toBe(false);
     });
   });
 
@@ -257,6 +530,16 @@ describe('migration runner', () => {
     expect(() => scopeMigrationSql(unsafeProbe, 'data_foundry')).toThrow(
       /cannot safely scope.*facts_output_kind_allowed/i,
     );
+  });
+
+  it('rejects quoted exact public qualification while preserving reviewed regclass remapping', () => {
+    expect(() =>
+      scopeMigrationSql('CREATE TABLE "public".quoted_escape (id integer);', 'data_foundry'),
+    ).toThrow(/explicit public relation/i);
+
+    expect(
+      scopeMigrationSql("SELECT 'public.source_records'::regclass;", 'data_foundry'),
+    ).toBe("SELECT 'data_foundry.source_records'::regclass;");
   });
 
   it('finds correctly-named, uniquely-ordered migrations', () => {

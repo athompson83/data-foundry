@@ -24,6 +24,13 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import { directPostgresTlsConfig } from '@data-foundry/canonical-store';
+import {
+  buildMigrationRoleUnsafeExternalCapabilitySql,
+  buildMigrationRoleUnsafeDefaultAclSql,
+  buildMigrationRoleUnsafeDurableSettingSql,
+  buildMigrationRoleUnsafePostureSql,
+  buildUnsafeMigrationSearchPathSql,
+} from '../../packages/private-canary/src/runtime-role-policy.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPOSITORY_ROOT = resolve(HERE, '..', '..');
@@ -253,6 +260,9 @@ export async function prepareSchema(
  * Historical migrations are checksum-immutable. A small number use an
  * explicit public regclass only to scope a catalog probe; remap those probes
  * for a first private-schema install without editing the released SQL bytes.
+ * Exact reviewed migration bytes are the TCB. This transform and the general
+ * policy SQL are defense in depth, not a sandbox for malicious provider/admin
+ * SQL; broad catalog/operator qualification is outside this release.
  */
 export function scopeMigrationSql(sql: string, schema: string = DEFAULT_SCHEMA): string {
   const normalized = normalizeSchemaName(schema);
@@ -303,7 +313,7 @@ export function scopeMigrationSql(sql: string, schema: string = DEFAULT_SCHEMA):
     );
   }
 
-  if (/\bpublic\./i.test(scoped)) {
+  if (/\bpublic\s*\./i.test(scoped) || /"public"\s*\./.test(scoped)) {
     throw new Error(
       'A private-schema migration still contains an explicit public relation; refusing to risk a shared schema.',
     );
@@ -338,20 +348,91 @@ export async function assertPrivateMigrationRoleBinding(
     throw new Error('The private migration-role guard may be used only with the data_foundry schema.');
   }
 
-  const [binding] = await driver.query<{ current_user: string; schema_owner: string | null }>(
+  const [binding] = await driver.query<{
+    current_user: string;
+    session_user: string;
+    schema_owner: string | null;
+    role_posture_is_safe: boolean;
+    durable_setting_is_safe: boolean;
+    external_capability_is_safe: boolean;
+    database_create_is_false: boolean;
+    external_schema_create_is_false: boolean;
+    session_replication_role_is_origin: boolean;
+    lo_compat_privileges_is_off: boolean;
+  }>(
     `SELECT current_user AS current_user,
+            session_user AS session_user,
             (
               SELECT owner.rolname
                 FROM pg_namespace namespace
                 JOIN pg_roles owner ON owner.oid = namespace.nspowner
                WHERE namespace.nspname = $1
-            ) AS schema_owner`,
-    [schema],
+            ) AS schema_owner,
+            NOT EXISTS (
+${buildMigrationRoleUnsafePostureSql(DATA_FOUNDRY_MIGRATION_ROLE)}
+            ) AS role_posture_is_safe,
+            NOT EXISTS (
+${buildMigrationRoleUnsafeDurableSettingSql(schema, DATA_FOUNDRY_MIGRATION_ROLE)}
+            ) AS durable_setting_is_safe,
+            NOT EXISTS (
+${buildMigrationRoleUnsafeExternalCapabilitySql(schema, DATA_FOUNDRY_MIGRATION_ROLE)}
+            ) AS external_capability_is_safe,
+            NOT has_database_privilege($2, current_database(), 'CREATE') AS database_create_is_false,
+            NOT EXISTS (
+              SELECT 1
+                FROM pg_namespace namespace
+               WHERE namespace.nspname <> $1
+                 AND namespace.nspname <> 'information_schema'
+                 AND namespace.nspname !~ '^pg_'
+                 AND has_schema_privilege($2, namespace.oid, 'CREATE')
+            ) AS external_schema_create_is_false,
+            current_setting('session_replication_role') = 'origin'
+              AS session_replication_role_is_origin,
+            current_setting('lo_compat_privileges') = 'off'
+              AS lo_compat_privileges_is_off`,
+    [schema, DATA_FOUNDRY_MIGRATION_ROLE],
   );
 
-  if (binding === undefined || binding.current_user !== DATA_FOUNDRY_MIGRATION_ROLE) {
+  if (
+    binding === undefined
+    || binding.current_user !== DATA_FOUNDRY_MIGRATION_ROLE
+    || binding.session_user !== DATA_FOUNDRY_MIGRATION_ROLE
+  ) {
     throw new Error(
-      `Direct private-schema migrations must connect as ${DATA_FOUNDRY_MIGRATION_ROLE}; refusing before DDL.`,
+      `Direct private-schema migrations must connect directly as session and current user ${DATA_FOUNDRY_MIGRATION_ROLE}; refusing migration transaction.`,
+    );
+  }
+  if (binding.role_posture_is_safe !== true) {
+    throw new Error(
+      `${DATA_FOUNDRY_MIGRATION_ROLE} must be a direct LOGIN, NOINHERIT, nonprivileged role with no outgoing memberships; refusing migration transaction.`,
+    );
+  }
+  if (binding.durable_setting_is_safe !== true) {
+    throw new Error(
+      `${DATA_FOUNDRY_MIGRATION_ROLE} requires exactly one canonical current-database search_path setting and no role-global settings; refusing migration transaction.`,
+    );
+  }
+  if (binding.external_capability_is_safe !== true) {
+    throw new Error(
+      `${DATA_FOUNDRY_MIGRATION_ROLE} must retain only its canonical external CONNECT and extensions USAGE boundary and own objects only in data_foundry; refusing migration transaction.`,
+    );
+  }
+  if (binding.database_create_is_false !== true) {
+    throw new Error(
+      `${DATA_FOUNDRY_MIGRATION_ROLE} must not CREATE in the current database; refusing migration transaction.`,
+    );
+  }
+  if (binding.external_schema_create_is_false !== true) {
+    throw new Error(
+      `${DATA_FOUNDRY_MIGRATION_ROLE} must not CREATE in a non-target ordinary schema; refusing migration transaction.`,
+    );
+  }
+  if (
+    binding.session_replication_role_is_origin !== true
+    || binding.lo_compat_privileges_is_off !== true
+  ) {
+    throw new Error(
+      `${DATA_FOUNDRY_MIGRATION_ROLE} requires session_replication_role=origin and lo_compat_privileges=off; refusing migration transaction.`,
     );
   }
   if (
@@ -359,7 +440,7 @@ export async function assertPrivateMigrationRoleBinding(
     binding.schema_owner !== DATA_FOUNDRY_MIGRATION_ROLE
   ) {
     throw new Error(
-      `The ${schema} schema is owned by ${binding.schema_owner}, not ${DATA_FOUNDRY_MIGRATION_ROLE}; refusing before DDL.`,
+      `The ${schema} schema is owned by ${binding.schema_owner}, not ${DATA_FOUNDRY_MIGRATION_ROLE}; refusing migration transaction.`,
     );
   }
   if (options.requireSchemaOwner === true && binding.schema_owner !== DATA_FOUNDRY_MIGRATION_ROLE) {
@@ -367,6 +448,72 @@ export async function assertPrivateMigrationRoleBinding(
       `The ${schema} schema must be owned by ${DATA_FOUNDRY_MIGRATION_ROLE} after bootstrap.`,
     );
   }
+}
+
+/**
+ * PostgreSQL grants PUBLIC privileges on several newly created object types by
+ * default. Direct private-schema migrations may run only after the migration
+ * role's effective global and schema-local defaults have revoked every unsafe
+ * capability covered by the shared runtime-role policy.
+ */
+export async function assertMigrationRoleDefaultAclIsSafe(
+  driver: MigrationDriver,
+  schema: string = DATA_FOUNDRY_PRIVATE_SCHEMA,
+): Promise<void> {
+  const normalized = normalizeSchemaName(schema);
+  if (normalized !== DATA_FOUNDRY_PRIVATE_SCHEMA) {
+    throw new Error(
+      'The migration-role default object ACL guard may be used only with the data_foundry schema.',
+    );
+  }
+
+  const violations = await driver.query<{ violation: string }>(
+    buildMigrationRoleUnsafeDefaultAclSql(
+      normalized,
+      DATA_FOUNDRY_MIGRATION_ROLE,
+    ),
+  );
+  if (violations.length > 0) {
+    throw new Error(
+      'Direct private-schema migrations require safe df_migration default object ACLs throughout each migration transaction.',
+    );
+  }
+}
+
+/**
+ * Migration SQL may run only under the exact private namespace resolution
+ * installed by prepareSchema. This probe is deliberately separate from the
+ * operator preflight because an operator connection may start with any path.
+ */
+export async function assertPrivateMigrationSearchPathIsCanonical(
+  driver: MigrationDriver,
+  schema: string = DATA_FOUNDRY_PRIVATE_SCHEMA,
+): Promise<void> {
+  const normalized = normalizeSchemaName(schema);
+  if (normalized !== DATA_FOUNDRY_PRIVATE_SCHEMA) {
+    throw new Error(
+      'The migration search-path guard may be used only with the data_foundry schema.',
+    );
+  }
+  const [probe] = await driver.query<{ search_path_is_canonical: boolean }>(
+    `SELECT NOT EXISTS (
+${buildUnsafeMigrationSearchPathSql(normalized)}
+    ) AS search_path_is_canonical`,
+  );
+  if (probe?.search_path_is_canonical !== true) {
+    throw new Error(
+      'Direct private-schema migrations require the exact search_path data_foundry, pg_catalog, extensions throughout each migration transaction.',
+    );
+  }
+}
+
+async function assertPendingPrivateMigrationConfinement(
+  driver: MigrationDriver,
+  schema: string,
+): Promise<void> {
+  await assertPrivateMigrationSearchPathIsCanonical(driver, schema);
+  await assertPrivateMigrationRoleBinding(driver, { schema, requireSchemaOwner: true });
+  await assertMigrationRoleDefaultAclIsSafe(driver, schema);
 }
 
 /**
@@ -625,11 +772,14 @@ export async function applyMigrations(
     throw new Error('The direct private migration role is valid only for the data_foundry schema.');
   }
   if (requirePrivateMigrationRole) {
+    await assertPrivateMigrationSearchPathIsCanonical(driver, schema);
     await assertPrivateMigrationRoleBinding(driver, { schema, requireSchemaOwner: true });
+    await assertMigrationRoleDefaultAclIsSafe(driver, schema);
   }
   await assertNoLegacyPublicDataFoundryInstall(driver, schema);
   await prepareSchema(driver, schema, { createPrivateSchema: !requirePrivateMigrationRole });
   if (requirePrivateMigrationRole) {
+    await assertPrivateMigrationSearchPathIsCanonical(driver, schema);
     await assertPrivateMigrationRoleBinding(driver, { schema, requireSchemaOwner: true });
   }
   // Before anything is created or written, not after.
@@ -666,7 +816,13 @@ export async function applyMigrations(
     const startedAt = Date.now();
     await driver.exec('BEGIN');
     try {
+      if (requirePrivateMigrationRole) {
+        await assertPendingPrivateMigrationConfinement(driver, schema);
+      }
       await driver.exec(effectiveSql);
+      if (requirePrivateMigrationRole) {
+        await assertPendingPrivateMigrationConfinement(driver, schema);
+      }
       const executionMs = Date.now() - startedAt;
       await driver.query(
         `INSERT INTO ${qualified(schema, LEDGER_TABLE)} (version, filename, checksum, execution_ms) VALUES ($1, $2, $3, $4)`,

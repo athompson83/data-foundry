@@ -32,6 +32,9 @@ export interface PrivateCanaryRoleBinding {
   readonly sessionUser?: string | undefined;
   readonly roleIsLoginNonprivileged?: boolean | undefined;
   readonly membershipIsEmpty?: boolean | undefined;
+  readonly searchPathIsExact?: boolean | undefined;
+  readonly loCompatPrivilegesIsOff?: boolean | undefined;
+  readonly sessionReplicationRoleIsOrigin?: boolean | undefined;
   readonly privateSchemaUsage?: boolean | undefined;
   readonly privateSchemaCreate?: boolean | undefined;
   readonly privilegeMatrixIsExact?: boolean | undefined;
@@ -76,6 +79,10 @@ export function recordingHyperdrive(
           session_user: options.roleBinding?.sessionUser ?? expectedRole,
           role_is_login_nonprivileged: options.roleBinding?.roleIsLoginNonprivileged ?? true,
           membership_is_empty: options.roleBinding?.membershipIsEmpty ?? true,
+          search_path_is_exact: options.roleBinding?.searchPathIsExact ?? true,
+          lo_compat_privileges_is_off: options.roleBinding?.loCompatPrivilegesIsOff ?? true,
+          session_replication_role_is_origin:
+            options.roleBinding?.sessionReplicationRoleIsOrigin ?? true,
           private_schema_usage: options.roleBinding?.privateSchemaUsage ?? true,
           private_schema_create: options.roleBinding?.privateSchemaCreate ?? false,
           privilege_matrix_is_exact: options.roleBinding?.privilegeMatrixIsExact
