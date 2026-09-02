@@ -281,6 +281,114 @@ export function buildRuntimeRoleExternalDirectAclSql(schema: string, roleFilterS
 }
 
 /**
+ * Inventory direct data access, schema mutation, and custom-routine execution
+ * a runtime role can reach through an untrusted external schema. Inert schema
+ * USAGE and table-composite type USAGE expose neither rows nor executable code
+ * and are intentionally ignored. Trigger and event-trigger functions are not
+ * directly callable. Other routines and relation-like objects are ignored
+ * only when PostgreSQL catalogs attest that the object is an extension member.
+ * Schema CREATE is independently reachable and therefore always appears.
+ */
+export function buildRuntimeRoleReachableExternalCapabilitySql(
+  schema: string,
+  roleFilterSql: string,
+): string {
+  const schemaLiteral = sqlLiteral(schema);
+  const externalSchemaPredicate = `namespace.nspname <> ${schemaLiteral}
+       AND namespace.nspname <> 'information_schema'
+       AND namespace.nspname !~ '^pg_'`;
+  return `SELECT 'schema'::text AS scope, namespace.nspname::text AS object_name,
+           runtime_role.rolname::text AS role_name, 'CREATE'::text AS privilege
+      FROM pg_roles runtime_role CROSS JOIN pg_namespace namespace
+     WHERE ${roleFilterSql} AND ${externalSchemaPredicate}
+       AND has_schema_privilege(runtime_role.rolname, namespace.oid, 'CREATE')
+    UNION ALL
+    SELECT 'relation', namespace.nspname || '.' || relation.relname,
+           runtime_role.rolname::text, candidate.privilege::text
+      FROM pg_roles runtime_role CROSS JOIN pg_class relation
+      JOIN pg_namespace namespace ON namespace.oid = relation.relnamespace
+      CROSS JOIN (VALUES ('SELECT'::text), ('INSERT'::text), ('UPDATE'::text),
+                         ('DELETE'::text), ('TRUNCATE'::text), ('REFERENCES'::text),
+                         ('TRIGGER'::text)) AS candidate(privilege)
+     WHERE ${roleFilterSql} AND ${externalSchemaPredicate}
+       AND relation.relkind IN ('r', 'p', 'v', 'm', 'f')
+       AND has_schema_privilege(runtime_role.rolname, namespace.oid, 'USAGE')
+       AND has_table_privilege(runtime_role.rolname, relation.oid, candidate.privilege)
+       AND NOT EXISTS (
+         SELECT 1
+           FROM pg_catalog.pg_depend dependency
+           JOIN pg_catalog.pg_extension installed_extension
+             ON installed_extension.oid = dependency.refobjid
+          WHERE dependency.classid = 'pg_catalog.pg_class'::pg_catalog.regclass
+            AND dependency.objid = relation.oid
+            AND dependency.refclassid = 'pg_catalog.pg_extension'::pg_catalog.regclass
+            AND dependency.deptype = 'e'
+       )
+    UNION ALL
+    SELECT 'column', namespace.nspname || '.' || relation.relname,
+           runtime_role.rolname::text, candidate.privilege::text
+      FROM pg_roles runtime_role CROSS JOIN pg_class relation
+      JOIN pg_namespace namespace ON namespace.oid = relation.relnamespace
+      CROSS JOIN (VALUES ('SELECT'::text), ('INSERT'::text), ('UPDATE'::text),
+                         ('REFERENCES'::text)) AS candidate(privilege)
+     WHERE ${roleFilterSql} AND ${externalSchemaPredicate}
+       AND relation.relkind IN ('r', 'p', 'v', 'm', 'f')
+       AND has_schema_privilege(runtime_role.rolname, namespace.oid, 'USAGE')
+       AND has_any_column_privilege(runtime_role.rolname, relation.oid, candidate.privilege)
+       AND NOT EXISTS (
+         SELECT 1
+           FROM pg_catalog.pg_depend dependency
+           JOIN pg_catalog.pg_extension installed_extension
+             ON installed_extension.oid = dependency.refobjid
+          WHERE dependency.classid = 'pg_catalog.pg_class'::pg_catalog.regclass
+            AND dependency.objid = relation.oid
+            AND dependency.refclassid = 'pg_catalog.pg_extension'::pg_catalog.regclass
+            AND dependency.deptype = 'e'
+       )
+    UNION ALL
+    SELECT 'sequence', namespace.nspname || '.' || relation.relname,
+           runtime_role.rolname::text, candidate.privilege::text
+      FROM pg_roles runtime_role CROSS JOIN pg_class relation
+      JOIN pg_namespace namespace ON namespace.oid = relation.relnamespace
+      CROSS JOIN (VALUES ('SELECT'::text), ('USAGE'::text), ('UPDATE'::text)) AS candidate(privilege)
+     WHERE ${roleFilterSql} AND ${externalSchemaPredicate}
+       AND relation.relkind = 'S'
+       AND has_schema_privilege(runtime_role.rolname, namespace.oid, 'USAGE')
+       AND has_sequence_privilege(runtime_role.rolname, relation.oid, candidate.privilege)
+       AND NOT EXISTS (
+         SELECT 1
+           FROM pg_catalog.pg_depend dependency
+           JOIN pg_catalog.pg_extension installed_extension
+             ON installed_extension.oid = dependency.refobjid
+          WHERE dependency.classid = 'pg_catalog.pg_class'::pg_catalog.regclass
+            AND dependency.objid = relation.oid
+            AND dependency.refclassid = 'pg_catalog.pg_extension'::pg_catalog.regclass
+            AND dependency.deptype = 'e'
+       )
+    UNION ALL
+    SELECT 'function', namespace.nspname || '.' || routine.proname ||
+           '(' || oidvectortypes(routine.proargtypes) || ')',
+           runtime_role.rolname::text, 'EXECUTE'::text
+      FROM pg_roles runtime_role CROSS JOIN pg_proc routine
+      JOIN pg_namespace namespace ON namespace.oid = routine.pronamespace
+     WHERE ${roleFilterSql} AND ${externalSchemaPredicate}
+       AND routine.prokind IN ('f', 'p', 'a', 'w')
+       AND routine.prorettype NOT IN ('pg_catalog.trigger'::pg_catalog.regtype, 'pg_catalog.event_trigger'::pg_catalog.regtype)
+       AND has_schema_privilege(runtime_role.rolname, namespace.oid, 'USAGE')
+       AND has_function_privilege(runtime_role.rolname, routine.oid, 'EXECUTE')
+       AND NOT EXISTS (
+         SELECT 1
+           FROM pg_catalog.pg_depend dependency
+           JOIN pg_catalog.pg_extension installed_extension
+             ON installed_extension.oid = dependency.refobjid
+          WHERE dependency.classid = 'pg_catalog.pg_proc'::pg_catalog.regclass
+            AND dependency.objid = routine.oid
+            AND dependency.refclassid = 'pg_catalog.pg_extension'::pg_catalog.regclass
+            AND dependency.deptype = 'e'
+       )`;
+}
+
+/**
  * Build CTEs that compare all effective relation, column, function, and schema
  * privileges (including grantability), while rejecting direct PUBLIC access in
  * the private schema, against the same inventory used to issue grants.
@@ -397,6 +505,8 @@ ${buildRuntimeRoleExternalDirectAclSql(schema, `grantee.rolname = ${roleReferenc
     FULL OUTER JOIN actual_external_role_acls actual
       USING (scope, object_name, column_name, privilege, is_grantable)
    WHERE expected.scope IS NULL OR actual.scope IS NULL
+), external_reachable_capabilities AS (
+${buildRuntimeRoleReachableExternalCapabilitySql(schema, `runtime_role.rolname = ${roleReference}`)}
 ), public_private_acl_entries AS (
   SELECT 1 AS found
     FROM pg_namespace namespace

@@ -299,13 +299,7 @@ describe('migration runner', () => {
     expect(second.every((result) => result.skipped)).toBe(true);
   });
 
-  it('installs the four audited 0028 foreign-key indexes with exact definitions idempotently', async () => {
-    const migration = migrations.find(({ version }) => version === '0028');
-    expect(migration).toBeDefined();
-
-    await driver.exec(migration!.sql);
-    await driver.exec(migration!.sql);
-
+  it('installs the four audited 0028 foreign-key indexes with exact definitions', async () => {
     const indexes = await driver.query<{
       index_name: string;
       is_unique: boolean;
@@ -354,6 +348,27 @@ describe('migration runner', () => {
       },
     ]);
   });
+
+  it('refuses a pre-existing same-name wrong index before accepting migration 0028 in the ledger', async () => {
+    const collision = await createPGliteDriver();
+    try {
+      await applyMigrations(
+        collision,
+        migrations.filter(({ version }) => version < '0028'),
+      );
+      await collision.exec('CREATE INDEX rights_cells_source_idx ON rights_cells (id)');
+
+      await expect(applyMigrations(collision, migrations)).rejects.toThrow(
+        /rights_cells_source_idx|already exists/i,
+      );
+      const rows = await collision.query<{ version: string }>(
+        "SELECT version FROM schema_migrations WHERE version = '0028'",
+      );
+      expect(rows).toEqual([]);
+    } finally {
+      await collision.close();
+    }
+  }, 120_000);
 
   it('keeps an explicitly isolated Data Foundry schema out of a shared public schema', async () => {
     const isolated = await createPGliteDriver();

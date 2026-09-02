@@ -446,6 +446,17 @@ credential must not be committed.
    elsewhere are drift. Grant-option state is part of the ACL identity and must
    be false for every expected grant. Inherited `PUBLIC` database `CONNECT`/`TEMP`
    remains distinct from the required direct current-database `CONNECT` grant.
+   The direct data/custom-routine reachability check permits inert `PUBLIC`
+   schema `USAGE` and type `USAGE`, because neither exposes table rows or
+   executable code. Provider extension-member objects are trusted only when
+   `pg_catalog.pg_depend` and `pg_catalog.pg_extension` attest them as
+   catalog-attested extension-member routines or relations; this exception is
+   catalog membership, not the whole `extensions` namespace. Trigger and
+   event-trigger functions are outside this direct-call check because they
+   cannot be invoked directly. This is an explicit provider-extension trust
+   boundary, not a database-wide least-privilege claim: arbitrary public routines
+   (including `SECURITY DEFINER`) remain drift, and unrelated public ACLs stay
+   untouched rather than being normalized or revoked to make the check pass.
    Membership is forbidden in both directions: a runtime role cannot
    inherit another role, and no principal may inherit a runtime role.
 
@@ -578,7 +589,12 @@ Migration `0028` adds exactly four FK-advisor-justified rights paths: nullable
 source lookup for decision and terms cells, unique decision activation lookup,
 and terms-version activation lookup. The other 31 INFO notices are non-blocking;
 monitor them with post-traffic `EXPLAIN` and advisor evidence before considering
-any additional write-amplifying index.
+any additional write-amplifying index. Its ordinary `CREATE INDEX` statements
+remain transactional and intentionally fail on a same-name collision. Before a
+nonempty production upgrade, measure these four builds on a production-like copy
+and schedule a write-safe window for the observed lock duration; do not replace
+them with unchecked `IF NOT EXISTS` statements or silently adopt pre-existing
+indexes outside the migration ledger.
 
 ### Verify
 

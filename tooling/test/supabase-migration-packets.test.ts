@@ -1,7 +1,7 @@
 import { execFile } from 'node:child_process';
 import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { join } from 'node:path';
 import { promisify } from 'node:util';
 import { beforeAll, describe, expect, it } from 'vitest';
 import {
@@ -51,6 +51,28 @@ function build(
   });
 }
 
+async function createGitSourceFixture(repository: string, migrationCount = 1): Promise<string> {
+  await mkdir(join(repository, 'db/migrations'), { recursive: true });
+  for (let ordinal = 1; ordinal <= migrationCount; ordinal += 1) {
+    const version = String(ordinal).padStart(4, '0');
+    await writeFile(
+      join(repository, `db/migrations/${version}_fixture.sql`),
+      `SELECT 'committed-${version}';\n`,
+    );
+  }
+  await writeFile(join(repository, 'package.json'), '{"type":"module"}\n');
+  await writeFile(join(repository, 'pnpm-workspace.yaml'), "packages:\n  - 'packages/*'\n");
+  await writeFile(join(repository, 'pnpm-lock.yaml'), "lockfileVersion: '9.0'\n");
+  await writeFile(join(repository, 'tsconfig.json'), '{"compilerOptions":{}}\n');
+  await execFileAsync('git', ['init'], { cwd: repository });
+  await execFileAsync('git', ['config', 'user.email', 'test@example.invalid'], { cwd: repository });
+  await execFileAsync('git', ['config', 'user.name', 'Data Foundry Test'], { cwd: repository });
+  await execFileAsync('git', ['add', '.'], { cwd: repository });
+  await execFileAsync('git', ['commit', '-m', 'fixture'], { cwd: repository });
+  const { stdout } = await execFileAsync('git', ['rev-parse', 'HEAD'], { cwd: repository });
+  return stdout.trim();
+}
+
 describe('Supabase connector migration packet export', () => {
   it('accepts only the leading separator forwarded by the documented pnpm command', () => {
     expect(parseSupabaseMigrationCliArguments(['--', '--release-sha', RELEASE_SHA])).toEqual({
@@ -64,32 +86,12 @@ describe('Supabase connector migration packet export', () => {
     );
   });
 
-  it('binds export identity to Git HEAD and only the defined clean source inputs', async () => {
+  it('binds export identity to Git HEAD and the entire non-ignored clean worktree', async () => {
     const repository = await mkdtemp(join(tmpdir(), 'data-foundry-export-source-'));
     try {
-      for (const relativePath of RELEVANT_SOURCE_PATHS) {
-        const target = join(repository, relativePath);
-        if (relativePath === 'db/migrations') {
-          await mkdir(target, { recursive: true });
-          await writeFile(join(target, '0001_fixture.sql'), 'SELECT 1;\n');
-        } else {
-          await mkdir(dirname(target), { recursive: true });
-          await writeFile(target, `// ${relativePath}\n`);
-        }
-      }
-      await execFileAsync('git', ['init'], { cwd: repository });
-      await execFileAsync('git', ['config', 'user.email', 'test@example.invalid'], {
-        cwd: repository,
-      });
-      await execFileAsync('git', ['config', 'user.name', 'Data Foundry Test'], {
-        cwd: repository,
-      });
-      await execFileAsync('git', ['add', '.'], { cwd: repository });
-      await execFileAsync('git', ['commit', '-m', 'fixture'], { cwd: repository });
-      const { stdout } = await execFileAsync('git', ['rev-parse', 'HEAD'], { cwd: repository });
-      const headSha = stdout.trim();
+      const headSha = await createGitSourceFixture(repository);
+      expect(RELEVANT_SOURCE_PATHS).toEqual(['.']);
 
-      await writeFile(join(repository, 'unrelated-untracked.txt'), 'ignored by source binding\n');
       await expect(verifyGitSourceIdentity(headSha, repository)).resolves.toMatchObject({
         releaseSha: headSha,
         headSha,
@@ -100,22 +102,29 @@ describe('Supabase connector migration packet export', () => {
         /supplied release SHA.*Git HEAD/i,
       );
 
+      for (const [relativePath, dirtyBytes, cleanBytes] of [
+        ['package.json', '{"type":"commonjs"}\n', '{"type":"module"}\n'],
+        ['tsconfig.json', '{"compilerOptions":{"module":"commonjs"}}\n', '{"compilerOptions":{}}\n'],
+      ] as const) {
+        await writeFile(join(repository, relativePath), dirtyBytes);
+        await expect(verifyGitSourceIdentity(headSha, repository)).rejects.toThrow(
+          new RegExp(`relevant source inputs differ from Git HEAD[\\s\\S]*${relativePath.replace('.', '\\.')}`, 'i'),
+        );
+        await writeFile(join(repository, relativePath), cleanBytes);
+      }
+
+      await writeFile(join(repository, 'unrelated-untracked.txt'), 'must invalidate exact-SHA export\n');
+      await expect(verifyGitSourceIdentity(headSha, repository)).rejects.toThrow(
+        /relevant source inputs differ from Git HEAD[\s\S]*unrelated-untracked\.txt/i,
+      );
+      await rm(join(repository, 'unrelated-untracked.txt'));
+
       await writeFile(
         join(repository, 'db/migrations/0001_fixture.sql'),
         'SELECT 2;\n',
       );
       await expect(verifyGitSourceIdentity(headSha, repository)).rejects.toThrow(
         /relevant source inputs differ from Git HEAD[\s\S]*db\/migrations\/0001_fixture\.sql/i,
-      );
-
-      await writeFile(join(repository, 'db/migrations/0001_fixture.sql'), 'SELECT 1;\n');
-      await mkdir(join(repository, 'packages/private-canary/src'), { recursive: true });
-      await writeFile(
-        join(repository, 'packages/private-canary/src/runtime-role-policy.ts'),
-        '// dirty runtime grant policy\n',
-      );
-      await expect(verifyGitSourceIdentity(headSha, repository)).rejects.toThrow(
-        /relevant source inputs differ from Git HEAD[\s\S]*packages\/private-canary\/src\/runtime-role-policy\.ts/i,
       );
     } finally {
       await rm(repository, { recursive: true, force: true });
@@ -500,26 +509,7 @@ describe('Supabase connector migration packet export', () => {
   it('loads packet bytes from the immutable Git object after source identity verification', async () => {
     const repository = await mkdtemp(join(tmpdir(), 'data-foundry-export-race-'));
     try {
-      for (const relativePath of RELEVANT_SOURCE_PATHS) {
-        const target = join(repository, relativePath);
-        if (relativePath === 'db/migrations') {
-          await mkdir(target, { recursive: true });
-          for (let ordinal = 1; ordinal <= 28; ordinal += 1) {
-            const version = String(ordinal).padStart(4, '0');
-            await writeFile(join(target, `${version}_fixture.sql`), `SELECT 'committed-${version}';\n`);
-          }
-        } else {
-          await mkdir(dirname(target), { recursive: true });
-          await writeFile(target, `// ${relativePath}\n`);
-        }
-      }
-      await execFileAsync('git', ['init'], { cwd: repository });
-      await execFileAsync('git', ['config', 'user.email', 'test@example.invalid'], { cwd: repository });
-      await execFileAsync('git', ['config', 'user.name', 'Data Foundry Test'], { cwd: repository });
-      await execFileAsync('git', ['add', '.'], { cwd: repository });
-      await execFileAsync('git', ['commit', '-m', 'fixture'], { cwd: repository });
-      const { stdout } = await execFileAsync('git', ['rev-parse', 'HEAD'], { cwd: repository });
-      const releaseSha = stdout.trim();
+      const releaseSha = await createGitSourceFixture(repository, 28);
 
       const plan = await buildSupabaseMigrationPlanFromGit(
         { releaseSha, repositoryRoot: repository, appliedMigrations: [] },

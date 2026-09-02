@@ -15,11 +15,12 @@ import { promisify } from 'node:util';
 import {
   buildRuntimeRoleExpectedExternalAclValuesSql,
   buildRuntimeRoleExternalDirectAclSql,
+  buildRuntimeRoleReachableExternalCapabilitySql,
   buildRuntimeRoleExpectedGrants,
   PRIVATE_FUNCTION_SIGNATURES as RUNTIME_PRIVATE_FUNCTION_SIGNATURES,
   RUNTIME_ROLES as RUNTIME_ROLE_NAMES,
   type RuntimeRoleExpectedGrant,
-} from '@data-foundry/private-canary';
+} from '../../packages/private-canary/src/runtime-role-policy.js';
 import { isMain } from '../lib/cli-entry.js';
 import {
   DATA_FOUNDRY_PRIVATE_SCHEMA,
@@ -47,11 +48,7 @@ const execFileAsync = promisify(execFile);
 
 /** Inputs whose committed bytes determine the exported migration packets. */
 export const RELEVANT_SOURCE_PATHS = [
-  'db/migrations',
-  'tooling/scripts/migrate.ts',
-  'tooling/scripts/export-supabase-migration-packets.ts',
-  'packages/private-canary/src/index.ts',
-  'packages/private-canary/src/runtime-role-policy.ts',
+  '.',
 ] as const;
 
 export interface VerifiedSourceIdentity {
@@ -1005,6 +1002,11 @@ ${buildRuntimeRoleExternalDirectAclSql(schema, targetPredicate)}
   ) SELECT count(*) INTO drift_count FROM differences;
   IF drift_count <> 0 THEN RAISE EXCEPTION 'Runtime grant verification failed: external direct ACL drift.'; END IF;
 
+  SELECT count(*) INTO drift_count FROM (
+${buildRuntimeRoleReachableExternalCapabilitySql(schema, `runtime_role.rolname = ANY(${runtimeRoleArraySql()})`)}
+  ) reachable_external_capability;
+  IF drift_count <> 0 THEN RAISE EXCEPTION 'Runtime grant verification failed: reachable external data/custom-routine capability.'; END IF;
+
   IF has_schema_privilege('public', 'public', 'CREATE') OR
      (SELECT count(*) FROM pg_roles r WHERE r.rolname = ANY(${runtimeRoleArraySql()})
        AND ${loginPredicate} AND NOT r.rolsuper AND NOT r.rolcreatedb AND NOT r.rolcreaterole
@@ -1176,6 +1178,12 @@ ${buildRuntimeRoleExternalDirectAclSql(schema, targetPredicate)}
   SELECT count(*) INTO prerequisite_drift_count FROM differences;
   IF prerequisite_drift_count <> 0 THEN
     RAISE EXCEPTION 'Runtime roles have an unexpected direct object privilege outside data_foundry; only extensions schema USAGE and current-database CONNECT are allowed.';
+  END IF;
+  SELECT count(*) INTO prerequisite_drift_count FROM (
+${buildRuntimeRoleReachableExternalCapabilitySql(schema, `runtime_role.rolname = ANY(${runtimeRoleArraySql()})`)}
+  ) reachable_external_capability;
+  IF prerequisite_drift_count <> 0 THEN
+    RAISE EXCEPTION 'Runtime roles have a reachable external data/custom-routine capability.';
   END IF;
 END
 $data_foundry_runtime_grants$;

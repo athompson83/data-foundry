@@ -88,6 +88,22 @@ describe('private canary target runtime binding', () => {
     expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('expected_external_runtime_acls');
     expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('effective_privilege_differences');
     expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('external_direct_acl_differences');
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('external_reachable_capabilities');
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('has_schema_privilege');
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('has_sequence_privilege');
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).not.toContain('has_type_privilege');
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).not.toContain("namespace.nspname <> 'extensions'");
+    expect(
+      PRIVATE_CANARY_RUNTIME_BINDING_SQL.match(
+        /NOT EXISTS \(\s*SELECT 1\s+FROM pg_catalog\.pg_depend dependency\s+JOIN pg_catalog\.pg_extension installed_extension\s+ON installed_extension\.oid = dependency\.refobjid\s+WHERE dependency\.classid = 'pg_catalog\.pg_class'::pg_catalog\.regclass\s+AND dependency\.objid = relation\.oid\s+AND dependency\.refclassid = 'pg_catalog\.pg_extension'::pg_catalog\.regclass\s+AND dependency\.deptype = 'e'\s*\)/g,
+      ),
+    ).toHaveLength(3);
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toMatch(
+      /NOT EXISTS \(\s*SELECT 1\s+FROM pg_catalog\.pg_depend dependency\s+JOIN pg_catalog\.pg_extension installed_extension\s+ON installed_extension\.oid = dependency\.refobjid\s+WHERE dependency\.classid = 'pg_catalog\.pg_proc'::pg_catalog\.regclass\s+AND dependency\.objid = routine\.oid\s+AND dependency\.refclassid = 'pg_catalog\.pg_extension'::pg_catalog\.regclass\s+AND dependency\.deptype = 'e'\s*\)/,
+    );
+    expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain(
+      "routine.prorettype NOT IN ('pg_catalog.trigger'::pg_catalog.regtype, 'pg_catalog.event_trigger'::pg_catalog.regtype)",
+    );
     expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('FROM pg_class');
     expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('FROM pg_database');
     expect(PRIVATE_CANARY_RUNTIME_BINDING_SQL).toContain('FULL OUTER JOIN');

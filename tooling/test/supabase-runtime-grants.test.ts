@@ -178,6 +178,137 @@ describe('Supabase post-migration runtime grants', () => {
     }
   }, 120_000);
 
+  it('allows inert public types but refuses public data and custom SECURITY DEFINER reachability', async () => {
+    const { database, plan } = await createMigratedDatabase();
+    try {
+      await database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`);
+      await database.exec(`
+        CREATE SCHEMA runtime_inert;
+        REVOKE ALL ON SCHEMA runtime_inert FROM PUBLIC;
+        CREATE TABLE runtime_inert.publicly_granted_relation (id integer);
+        GRANT SELECT ON runtime_inert.publicly_granted_relation TO PUBLIC;
+        CREATE FUNCTION runtime_inert.publicly_executable_definer()
+          RETURNS integer LANGUAGE sql SECURITY DEFINER AS 'SELECT 1';
+      `);
+
+      await expect(database.exec(plan.postMigrationGrants.verificationSql)).resolves.toBeUndefined();
+      const [inertBinding] = await database.query<{ readonly privilege_matrix_is_exact: boolean }>(
+        PRIVATE_CANARY_RUNTIME_BINDING_SQL,
+        ['df_edge'],
+      );
+      expect(inertBinding?.privilege_matrix_is_exact).toBe(true);
+
+      await database.exec('CREATE TABLE public.runtime_public_relation (id integer)');
+      await expect(database.exec(plan.postMigrationGrants.verificationSql)).resolves.toBeUndefined();
+      const [inertPublicBinding] = await database.query<{
+        readonly privilege_matrix_is_exact: boolean;
+      }>(PRIVATE_CANARY_RUNTIME_BINDING_SQL, ['df_edge']);
+      expect(inertPublicBinding?.privilege_matrix_is_exact).toBe(true);
+
+      await database.exec('GRANT SELECT ON public.runtime_public_relation TO PUBLIC');
+      const [relationAccess] = await database.query<{
+        readonly schema_usage: boolean;
+        readonly relation_select: boolean;
+      }>(`
+        SELECT has_schema_privilege('df_edge', 'public', 'USAGE') AS schema_usage,
+               has_table_privilege('df_edge', 'public.runtime_public_relation', 'SELECT') AS relation_select
+      `);
+      expect(relationAccess).toEqual({ schema_usage: true, relation_select: true });
+      await expect(database.exec(plan.postMigrationGrants.verificationSql)).rejects.toThrow(
+        /reachable external data\/custom-routine capability/i,
+      );
+      const [relationBinding] = await database.query<{ readonly privilege_matrix_is_exact: boolean }>(
+        PRIVATE_CANARY_RUNTIME_BINDING_SQL,
+        ['df_edge'],
+      );
+      expect(relationBinding?.privilege_matrix_is_exact).toBe(false);
+
+      await database.exec(`
+        DROP TABLE public.runtime_public_relation;
+        CREATE FUNCTION public.runtime_public_definer()
+          RETURNS integer LANGUAGE sql SECURITY DEFINER AS 'SELECT 1';
+      `);
+      const [functionAccess] = await database.query<{
+        readonly schema_usage: boolean;
+        readonly function_execute: boolean;
+        readonly security_definer: boolean;
+      }>(`
+        SELECT has_schema_privilege('df_edge', 'public', 'USAGE') AS schema_usage,
+               has_function_privilege('df_edge', 'public.runtime_public_definer()', 'EXECUTE') AS function_execute,
+               (SELECT prosecdef FROM pg_proc WHERE oid = 'public.runtime_public_definer()'::regprocedure)
+                 AS security_definer
+      `);
+      expect(functionAccess).toEqual({
+        schema_usage: true,
+        function_execute: true,
+        security_definer: true,
+      });
+      await expect(database.exec(plan.postMigrationGrants.verificationSql)).rejects.toThrow(
+        /reachable external data\/custom-routine capability/i,
+      );
+      const [functionBinding] = await database.query<{ readonly privilege_matrix_is_exact: boolean }>(
+        PRIVATE_CANARY_RUNTIME_BINDING_SQL,
+        ['df_edge'],
+      );
+      expect(functionBinding?.privilege_matrix_is_exact).toBe(false);
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it('does not trust the extensions namespace for custom data or callable routines', async () => {
+    const { database, plan } = await createMigratedDatabase();
+    try {
+      await database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`);
+      await database.exec(`
+        CREATE FUNCTION extensions.runtime_trigger_helper()
+          RETURNS trigger LANGUAGE plpgsql AS 'BEGIN RETURN NEW; END';
+      `);
+      await expect(database.exec(plan.postMigrationGrants.verificationSql)).resolves.toBeUndefined();
+
+      await database.exec(`
+        CREATE TABLE extensions.runtime_public_relation (id integer);
+        GRANT SELECT ON extensions.runtime_public_relation TO PUBLIC;
+      `);
+      await expect(database.exec(plan.postMigrationGrants.verificationSql)).rejects.toThrow(
+        /reachable external data\/custom-routine capability/i,
+      );
+
+      await database.exec('DROP TABLE extensions.runtime_public_relation');
+      await expect(database.exec(plan.postMigrationGrants.verificationSql)).resolves.toBeUndefined();
+
+      await database.exec(`
+        CREATE FUNCTION extensions.runtime_custom_function()
+          RETURNS integer LANGUAGE sql AS 'SELECT 1';
+      `);
+      await expect(database.exec(plan.postMigrationGrants.verificationSql)).rejects.toThrow(
+        /reachable external data\/custom-routine capability/i,
+      );
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it('refuses a reachable external relation before issuing any runtime grants', async () => {
+    const { database, plan } = await createMigratedDatabase();
+    try {
+      await database.exec(`
+        CREATE TABLE public.pregrant_runtime_relation (id integer);
+        GRANT SELECT ON public.pregrant_runtime_relation TO PUBLIC;
+      `);
+      await expect(
+        database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`),
+      ).rejects.toThrow(/reachable external data\/custom-routine capability/i);
+      await database.exec('ROLLBACK').catch(() => undefined);
+      const [state] = await database.query<{ has_usage: boolean }>(
+        "SELECT has_schema_privilege('df_edge', 'data_foundry', 'USAGE') AS has_usage",
+      );
+      expect(state?.has_usage).toBe(false);
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
   it('reconciles the previously hosted broad acquisition UPDATE grants during 0027', async () => {
     const { database, plan } = await createMigratedDatabase();
     try {

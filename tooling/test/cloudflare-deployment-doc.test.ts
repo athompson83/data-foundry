@@ -57,6 +57,13 @@ describe('the no-commit Cloudflare deployment check', () => {
     expect(RUNBOOK).toMatch(/non-grantable `USAGE` on\s+`extensions`/);
     expect(RUNBOOK).toMatch(/non-grantable `CONNECT` on exactly the current database/);
     expect(RUNBOOK).toMatch(/Inherited `PUBLIC` database `CONNECT`\/`TEMP`\s+remains distinct/);
+    expect(RUNBOOK).toMatch(/catalog-attested extension-member routines/);
+    expect(RUNBOOK).toMatch(/provider extension-member objects/i);
+    expect(RUNBOOK).toMatch(
+      /trigger and\s+event-trigger functions are outside this direct-call check/i,
+    );
+    expect(RUNBOOK).toMatch(/not the whole `extensions` namespace/);
+    expect(RUNBOOK).toMatch(/unrelated public ACLs stay\s+untouched/);
   });
 
   it('keeps application migrations direct-TLS-only while permitting the exact grant packet after provider authorization', () => {
