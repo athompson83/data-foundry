@@ -3,11 +3,12 @@
 ## Current State
 
 - Product: Data Foundry
-- Lifecycle stage: Alpha Lab isolation / protected-PR / pre-deployment
+- Lifecycle stage: Alpha Lab schema staged / protected-PR / pre-deployment
 - Control-graph node: `LOCAL_VERIFICATION -> PROTECTED_PR -> EXTERNAL_DEPLOY`
-- Current milestone: isolate Data Foundry safely inside Alpha Lab, land the
-  protected PR, and prove the first lawful Cloudflare canary without implying
-  that a real HVAC dataset is cleared
+- Current milestone: bind the staged Alpha Lab schema to the five Workers
+  through owner-provisioned credentials and Hyperdrives, prove the first lawful
+  Cloudflare canary, and open the first rights-admitted source and revenue
+  channel without implying that a real HVAC dataset is cleared
 - Release authority: the live 40-character `origin/main`. Integration PR
   [#19](https://github.com/athompson83/data-foundry/pull/19) is merged; PRs
   #13–#17 are closed as superseded after path, patch, ancestry, and behavioral
@@ -20,16 +21,56 @@
   `33352124668`, both automated reviews, and sealed security scan
   `24b34cd2-2f8d-40ae-bfd2-f4460daa419f`. Every later
   candidate-affecting change still requires fresh exact-SHA local, hosted,
-  review, and ruleset evidence.
-- Candidate branch: `codex/alpha-lab-schema-isolation-20260831`, based on
-  `origin/main` `0d79ae6f9a967d68162dc11747942d25fff89b85`; PR pending
+  review, and ruleset evidence. The Alpha Lab isolation branch merged as
+  `290df1342094433e92978ec97eb37cc02fc4eb50`; PR #24 (`/docs` page names the
+  API contract) merged as `5dde773a4b64a8e004ca429706100399a678cf74`.
+- Candidate branch: PR #26 (route-less private synthetic canary plus the
+  Supabase migration-packet exporter) is open and under review; this branch
+  adds only evidence and handoff documentation on top of `5dde773`
 - Preview: none verified
 - Production: no Data Foundry Cloudflare deployment exists. The Aroqon zone is
   active/full, but `data.aroqon.com` currently returns Vercel `404: NOT_FOUND`.
 - Database target: shared Alpha Lab Supabase project `fgxinxaqkwoqyywdgobs`.
-  No hosted schema, role, grant, or data was changed in this session.
+  The private `data_foundry` schema now carries all 26 ledgered migrations,
+  migration-owner ownership, the `PUBLIC` revoke, and verified least-privilege
+  grants for the five runtime roles, which are staged `NOLOGIN` without
+  passwords. It holds no source, entity, fact, tenant, or credential rows.
+  See the [2026-09-02 hosted migration evidence](docs/evidence/alpha-lab-hosted-migration-20260902.md).
 
-## Latest Session — Alpha Lab Isolation and Provider Reconciliation
+## Latest Session — Hosted Private-Schema Migration and Grant Activation
+
+- Applied the exact `db/migrations/` set (tree shared by PR #26 head `93a668b`
+  and `main` `5dde773`) to the Alpha Lab target through the exporter's attested
+  connector packets, each submitted as one multi-statement query that
+  PostgreSQL runs as a single implicit transaction; demonstrated by a rollback
+  probe and by every object being owned by the migration owner through
+  `SET LOCAL ROLE`, not assumed from client documentation. Direct TLS Postgres
+  is unreachable from the automation container, so the connector path was used
+  under the owner's explicit production-provisioning preauthorization and is
+  recorded as a documented deviation from the runbook's direct-TLS preference.
+- Verified: ledger `0001`–`0026` with exporter-matching checksums, 46 tables,
+  3 views, 57 functions, every object owned by the migration owner, zero
+  `SECURITY DEFINER` functions, the `PUBLIC` pseudo-role removed from the
+  private schema and its objects, and the exporter's 200-grant runtime
+  verification block passing. The shared `public` schema ACL and table count
+  are unchanged.
+- Staged, not activated: the five runtime roles have database `CONNECT`,
+  schema `USAGE`, and object grants but no password and no `LOGIN`. Assigning
+  credentials and creating the five cache-disabled Hyperdrives is owner-only
+  (`UA-002`). Zero Hyperdrive configurations and no Data Foundry Worker exist.
+- Provider advisories after migration: the pre-existing `public.automation_runs`
+  RLS error belongs to the unrelated Alpha Lab application and was left for the
+  owner; 57 `function_search_path_mutable` warnings on `data_foundry` functions
+  are a repository follow-up (pin `search_path` in a new migration), not a
+  hosted-only fix.
+- Merged PR #24 (`/docs` page names the API contract) as `5dde773`. PR #26 is
+  under review; its migration set is the one applied above.
+- Data and revenue remain gated exactly as before: `hvac` is `DRAFT` with four
+  synthetic fixture sources, ENERGY STAR is deferred and unreviewed, RapidAPI
+  enrollment is owner-only (`UA-004`), and no Stripe product or listing exists.
+  No source acquisition, publisher contact, listing, or billing change was made.
+
+## Session 2026-08-31 — Alpha Lab Isolation and Provider Reconciliation
 
 - Corrected the data boundary: Data Foundry is a private `data_foundry` schema
   inside Alpha Lab, not part of Valor. Real-Postgres operational commands now
@@ -232,8 +273,11 @@ not mean deployed or commercially publishable.
 
 ## Blockers
 
-- No exact deployment of the candidate or hosted Alpha Lab private-schema,
-  Queue/DLQ, R2, or Hyperdrive proof is recorded.
+- Hosted Alpha Lab private-schema and grant proof is recorded; no Data Foundry
+  Worker deployment, Hyperdrive, or live Queue/DLQ/R2 integration proof is.
+- The five runtime roles are staged `NOLOGIN` without passwords; every Worker
+  database binding waits on the owner's secure credential entry and the five
+  Hyperdrive configurations (`UA-002`).
 - The current public data hostname is a Vercel 404, not a Data Foundry runtime.
 - Workers Paid approval and secure database-role password entry are needed
   before a retained-queue Cloudflare canary can be created.
@@ -246,16 +290,21 @@ not mean deployed or commercially publishable.
 
 See `PROJECT_CHECKLIST.md` `UA-001` through `UA-005`. The immediate external
 gates are rights review (`UA-001`), Workers Paid plus secure role entry
-(`UA-002`), and post-canary hostname confirmation (`UA-005`). ENERGY STAR
-remains deferred; it is not an action request in this work package.
+(`UA-002`), RapidAPI enrollment (`UA-004`), and post-canary hostname
+confirmation (`UA-005`). Filling the schema with real data depends entirely on
+`UA-001`: ENERGY STAR remains deferred and unreviewed, and its review packet's
+open `[REVIEWER]` questions are the owner's to answer; automation must not
+sign, acquire, publish, or contact the publisher.
 
 ## Production Impact
 
-The pending Alpha Lab isolation branch changes runtime schema selection,
+The merged Alpha Lab isolation change (`290df13`) governs runtime schema selection,
 Hyperdrive transaction isolation/lifecycle, migration safeguards, regression
-coverage, and deployment documentation. This session performed no deployment,
-hosted migration, grant activation, source acquisition, publisher contact, or
-provider mutation.
+coverage, and deployment documentation. This session performed the hosted
+private-schema migration and grant activation described above and merged
+PR #24. It performed no Worker deployment, credential creation, source
+acquisition, publisher contact, listing, or billing change, and it did not
+touch the shared `public` schema.
 
 ## Previous Session Summary
 
