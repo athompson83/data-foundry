@@ -95,7 +95,7 @@ function getDriver(options: ConsumeOptions): Promise<SqlDriver> {
     config.connectionString,
     config.deploymentEnvironment === 'production'
       ? { schema: DATA_FOUNDRY_PRIVATE_SCHEMA }
-      : undefined,
+      : { allowPlaintextLoopback: true },
   ).catch((error: unknown) => {
     // A failed open must not stay cached, or one transient outage at cold
     // start would wedge every future batch until the isolate recycles.

@@ -78,7 +78,7 @@ async function driverFor(
     connectionString,
     deploymentEnvironment === 'production'
       ? { schema: DATA_FOUNDRY_PRIVATE_SCHEMA }
-      : undefined,
+      : { allowPlaintextLoopback: true },
   ).catch((error: unknown) => {
     drivers.delete(driverKey);
     throw error;

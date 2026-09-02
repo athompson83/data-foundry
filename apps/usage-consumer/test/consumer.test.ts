@@ -371,10 +371,16 @@ describe('configuration', () => {
 });
 
 describe('driver lifecycle', () => {
-  it('keeps local direct-Postgres batches on one unscoped pooled driver', async () => {
-    const schemas: Array<string | undefined> = [];
-    const openDriver = async (_connectionString: string, options?: { readonly schema?: string }) => {
-      schemas.push(options?.schema);
+  it('keeps local direct-Postgres batches on one explicitly enabled plaintext loopback pool', async () => {
+    const driverOptions: Array<{
+      readonly schema?: string;
+      readonly allowPlaintextLoopback?: boolean;
+    } | undefined> = [];
+    const openDriver = async (
+      _connectionString: string,
+      options?: { readonly schema?: string; readonly allowPlaintextLoopback?: boolean },
+    ) => {
+      driverOptions.push(options);
       return driver;
     };
     const options = {
@@ -385,7 +391,7 @@ describe('driver lifecycle', () => {
     await consumeBatch({ messages: [] }, options);
     await consumeBatch({ messages: [] }, options);
 
-    expect(schemas).toEqual([undefined]);
+    expect(driverOptions).toEqual([{ allowPlaintextLoopback: true }]);
   });
 
   it('opens and closes a private-schema Hyperdrive driver for every delivered batch', async () => {

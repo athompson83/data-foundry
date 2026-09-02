@@ -376,8 +376,20 @@ credential must not be committed.
    through the approved secret-bearing environment. It is the sole accepted
    direct-Postgres migration credential; a generic `POSTGRES_URL` is not a
    substitute. Before mutation, use read-only SQL to verify the hosted ledger's
-   exact versions/checksums, ownership, staged roles, and ACL state. When the
-   existing ledger is the exact historical `0001`–`0026` prefix, set the
+   exact versions/checksums, ownership, staged roles, and ACL state. Before an
+   upgrade that includes `0028`, also require this identifier-free result to be
+   zero; duplicates are immutable rights history and must go to owner/legal
+   review rather than automated cleanup:
+   ```sql
+   SELECT count(*)::bigint AS duplicate_decision_groups
+     FROM (
+       SELECT decision_id
+         FROM data_foundry.rights_decision_activation_events
+        GROUP BY decision_id
+       HAVING count(*) > 1
+     ) AS duplicate_decisions;
+   ```
+   When the existing ledger is the exact historical `0001`–`0026` prefix, set the
    non-secret exact checked-out release SHA and run the frozen migration runner
    twice: the first invocation applies only pending `0027` and `0028`; the second
    proves the full `0001`–`0028` chain is already applied.
@@ -1115,13 +1127,22 @@ commercial gate.
 
 1. Freeze the live 40-character protected-main SHA and rerun its release gates;
    the reconciled rights, usage, auth/metering, web, RapidAPI, acquisition, and
-   MCP baseline and PR #22 closeout hardening are merged through migration
-   `0026`. Install it with `DATA_FOUNDRY_SCHEMA=data_foundry` in Alpha Lab, not
-   in `public`. Do not reuse the pre-merge candidate evidence after a later main
-   or deployment change.
-2. Provision the isolated Alpha Lab roles/schema, five least-privilege runtime
-   identities/Hyperdrives, R2, and the Queue/DLQ resources required by the
-   route-less temporary canary. Do not change ordinary production Worker
+   MCP baseline and PR #22 closeout hardening are complete through migration
+   `0028`. Install it with `DATA_FOUNDRY_SCHEMA=data_foundry` in Alpha Lab, not
+   in `public`. Before proceeding to step 2, reconcile the hosted `0001`–`0026`
+   ledger, apply only pending `0027` and `0028`, rerun the migration as a no-op,
+   and execute that exact SHA's exported read-only
+   `postMigrationGrants.verificationSql`. It must prove the full `0001`–`0028`
+   ledger, relation/routine inventory, ownership, ACL, and 57 function search
+   paths before any new credential, Hyperdrive, R2, or Queue provisioning. Do
+   not reuse the pre-merge candidate evidence after a later main or deployment
+   change.
+2. Activate the five existing staged `NOLOGIN` runtime roles with isolated
+   least-privilege login credentials, then execute that exact SHA's
+   `postMigrationGrants.postCredentialVerificationSql` and require it to pass.
+   Only then provision the five matching Hyperdrives, R2, and the Queue/DLQ
+   resources required by the route-less temporary canary. Do not recreate the
+   private schema or staged roles, and do not change ordinary production Worker
    configuration at this stage.
 3. Deploy and attest all six route-less private-canary Worker artifacts — five
    temporary reduced targets plus the no-Hyperdrive harness — then prove exact-SHA

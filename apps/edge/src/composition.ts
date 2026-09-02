@@ -84,7 +84,9 @@ async function build(options: BuildOptions): Promise<EdgeDeployment> {
     config.connectionString,
     config.deploymentEnvironment === 'production'
       ? { schema: DATA_FOUNDRY_PRIVATE_SCHEMA }
-      : undefined,
+      : options.env.HYPERDRIVE === undefined
+        ? { allowPlaintextLoopback: true }
+        : undefined,
   );
 
   // Everything past this line owns an open pool, so every path out of it has to

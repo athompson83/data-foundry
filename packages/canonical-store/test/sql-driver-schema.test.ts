@@ -1,6 +1,7 @@
 import { afterAll, describe, expect, it, vi } from 'vitest';
 import {
   assertPrivateSchemaSession,
+  createDriverFromEnv,
   createSerialExecutor,
   createHyperdriveDriver,
   createPgliteDriver,
@@ -20,7 +21,7 @@ afterAll(async () => {
 });
 
 describe('PostgreSQL schema sessions', () => {
-  it('requires certificate-verified TLS for every direct PostgreSQL connection', async () => {
+  it('builds a certificate-verified config for controlled direct PostgreSQL credentials', async () => {
     const module = (await import('../src/index.js')) as Record<string, unknown>;
     const directPostgresTlsConfig = module['directPostgresTlsConfig'];
     expect(directPostgresTlsConfig).toEqual(expect.any(Function));
@@ -31,11 +32,56 @@ describe('PostgreSQL schema sessions', () => {
       connectionString: url,
       ssl: { rejectUnauthorized: true },
     });
+    expect(directPostgresTlsConfig('postgres://operator@localhost/data-foundry')).toEqual({
+      connectionString: 'postgres://operator@localhost/data-foundry',
+      ssl: { rejectUnauthorized: true },
+    });
     expect(() => directPostgresTlsConfig(`${url}?sslmode=disable`)).toThrow(/TLS/i);
     expect(() => directPostgresTlsConfig(`${url}?SSLMode=disable`)).toThrow(/TLS/i);
     expect(() => directPostgresTlsConfig(`${url}?ssl=no-verify`)).toThrow(/TLS/i);
     expect(() => directPostgresTlsConfig(`${url}?sslmode=verify-full`)).toThrow(/TLS/i);
     expect(() => directPostgresTlsConfig(`${url}?host=%2Ftmp`)).toThrow(/TLS/i);
+  });
+
+  it.each([
+    'postgres://operator@localhost/data-foundry',
+    'postgres://operator@127.0.0.1/data-foundry',
+    'postgres://operator@[::1]/data-foundry',
+  ])('requires an explicit development opt-in for non-TLS local PostgreSQL at %s', async (connectionString) => {
+    const configurations: unknown[] = [];
+    const client = {
+      async query() {
+        return { rows: [{ ok: true }] };
+      },
+      release() {},
+    };
+    class Pool {
+      constructor(configuration: unknown) {
+        configurations.push(configuration);
+      }
+      async connect() {
+        return client;
+      }
+      async end() {}
+    }
+
+    vi.doMock('pg', () => ({ default: { Pool } }));
+    try {
+      const strict = await createPostgresDriver(connectionString);
+      await strict.query('SELECT 1');
+      await strict.close();
+      const local = await createDriverFromEnv({ POSTGRES_URL: connectionString });
+      await local.query('SELECT 1');
+      await local.close();
+
+      expect(configurations).toEqual([
+        { connectionString, ssl: { rejectUnauthorized: true } },
+        { connectionString, ssl: false },
+      ]);
+    } finally {
+      vi.doUnmock('pg');
+      vi.resetModules();
+    }
   });
 
   it('uses a startup setting that keeps public out of every new pooled session', () => {
@@ -152,7 +198,7 @@ describe('PostgreSQL schema sessions', () => {
     }
   });
 
-  it('leaves an omitted direct Postgres schema unbound for legacy callers', async () => {
+  it('never downgrades a non-loopback host when local plaintext is enabled', async () => {
     const configurations: unknown[] = [];
     const queries: string[] = [];
     const client = {
@@ -174,7 +220,9 @@ describe('PostgreSQL schema sessions', () => {
 
     vi.doMock('pg', () => ({ default: { Pool } }));
     try {
-      const legacy = await createPostgresDriver('postgres://operator@db.invalid/data-foundry');
+      const legacy = await createPostgresDriver('postgres://operator@db.invalid/data-foundry', {
+        allowPlaintextLoopback: true,
+      });
       await legacy.query('SELECT 1');
       await legacy.close();
 

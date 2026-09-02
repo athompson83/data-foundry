@@ -179,7 +179,9 @@ async function build(options: BuildOptions): Promise<WebDeployment> {
     config.connectionString,
     config.deploymentEnvironment === 'production'
       ? { schema: DATA_FOUNDRY_PRIVATE_SCHEMA }
-      : undefined,
+      : options.env.HYPERDRIVE === undefined
+        ? { allowPlaintextLoopback: true }
+        : undefined,
   );
 
   // Same leak discipline as apps/edge/src/composition.ts: everything past this

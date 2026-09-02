@@ -8,6 +8,7 @@ const RUNBOOK = readFileSync(
   join(ROOT, 'docs', 'owner-actions', 'cloudflare-deployment.md'),
   'utf8',
 );
+const PRODUCTION_LAUNCH_ORDER = RUNBOOK.split('## 9. Production launch order')[1] ?? '';
 const TRACKED_MANIFESTS =
   'apps/edge/wrangler.toml apps/web/wrangler.toml apps/usage-consumer/wrangler.toml apps/acquisition-worker/wrangler.toml apps/mcp-worker/wrangler.toml';
 
@@ -144,6 +145,10 @@ describe('the no-commit Cloudflare deployment check', () => {
     expect(RUNBOOK).not.toContain(
       'The Supabase\n   connector-export material below is an archival alternative only',
     );
+    expect(RUNBOOK).toMatch(
+      /SELECT count\(\*\)::bigint AS duplicate_decision_groups\s+FROM \(\s+SELECT decision_id\s+FROM data_foundry\.rights_decision_activation_events\s+GROUP BY decision_id\s+HAVING count\(\*\) > 1\s+\) AS duplicate_decisions;/,
+    );
+    expect(RUNBOOK).toMatch(/duplicates are immutable rights history and must go to owner\/legal\s+review rather than automated cleanup/);
   });
 
   it('requires the entire non-ignored worktree to be clean for exact-SHA packet export', () => {
@@ -152,5 +157,17 @@ describe('the no-commit Cloudflare deployment check', () => {
     expect(RUNBOOK).not.toContain(
       'Unrelated working-tree files are not part of this source identity.',
     );
+  });
+
+  it('requires the complete 0028 migration chain before new production credentials and resources', () => {
+    expect(PRODUCTION_LAUNCH_ORDER).toMatch(/baseline .* through migration\s+`0028`/s);
+    expect(PRODUCTION_LAUNCH_ORDER).toMatch(
+      /Before proceeding to step 2, .*apply only pending `0027` and `0028`.*no-op.*`postMigrationGrants\.verificationSql`.*full `0001`–`0028`\s+ledger, relation\/routine inventory, ownership, ACL, and 57 function search\s+paths before any new credential, Hyperdrive, R2, or Queue provisioning/s,
+    );
+    expect(PRODUCTION_LAUNCH_ORDER).toMatch(
+      /Activate the five existing staged `NOLOGIN` runtime roles with isolated\s+least-privilege login credentials, then execute that exact SHA's\s+`postMigrationGrants\.postCredentialVerificationSql` and require it to pass\.\s+Only then provision the five matching Hyperdrives, R2, and the Queue\/DLQ\s+resources/,
+    );
+    expect(PRODUCTION_LAUNCH_ORDER).not.toMatch(/Provision the isolated Alpha Lab roles\/schema/);
+    expect(PRODUCTION_LAUNCH_ORDER).not.toMatch(/merged through migration\s+`0026`/);
   });
 });

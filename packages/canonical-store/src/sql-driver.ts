@@ -14,6 +14,7 @@
  * transaction body — the mistake that would quietly let a fact commit without
  * its evidence.
  */
+import { isLoopbackEndpointHostname } from '@data-foundry/canonical-schema';
 import { DriverCapabilityError } from './errors.js';
 
 /** Values that may be bound to a `$n` placeholder. */
@@ -72,6 +73,12 @@ export interface PostgresDriverOptions {
    * for the historic unbound compatibility mode.
    */
   readonly schema?: string;
+  /**
+   * Permit plaintext only when the URL's canonical hostname is loopback.
+   * This is an explicit local-development escape hatch; omitted/false keeps
+   * certificate-verified TLS even on loopback, and remote hosts never downgrade.
+   */
+  readonly allowPlaintextLoopback?: boolean;
 }
 
 /** The only schema Data Foundry Workers may use in Alpha Lab production. */
@@ -207,11 +214,11 @@ function hasCallerSuppliedStartupOptions(connectionString: string): boolean {
 }
 
 /**
- * Direct database connections are used only by controlled Node-side tooling.
- * Force certificate-verified TLS here instead of depending on a URL parameter
- * or a process-wide PGSSLMODE default. Direct URLs have one canonical network
- * endpoint and no query parameters: `pg` lets query fields override the host,
- * port, or explicit SSL configuration, including with a Unix socket.
+ * Controlled direct database credentials use this exact certificate-verified
+ * configuration instead of depending on a URL parameter or process-wide
+ * PGSSLMODE default. Direct URLs have one canonical network endpoint and no
+ * query parameters: `pg` lets query fields override the host, port, or explicit
+ * SSL configuration, including with a Unix socket.
  */
 export function directPostgresTlsConfig(connectionString: string): {
   readonly connectionString: string;
@@ -255,11 +262,22 @@ function resolvedPostgresSchema(
   return schema;
 }
 
-function postgresConnectionConfig(connectionString: string, schema: string | undefined) {
+function postgresConnectionConfig(
+  connectionString: string,
+  schema: string | undefined,
+  allowPlaintextLoopback: boolean,
+) {
   const tls = directPostgresTlsConfig(connectionString);
+  // Worker composition permits POSTGRES_URL only for development. Keep the
+  // ordinary no-CA local server path, but never downgrade a non-loopback host;
+  // controlled migration/runtime-role callers use `tls` directly.
+  const network = allowPlaintextLoopback &&
+    isLoopbackEndpointHostname(new URL(connectionString).hostname)
+    ? { connectionString, ssl: false as const }
+    : tls;
   return schema === undefined
-    ? tls
-    : { ...tls, options: postgresStartupOptionsForSchema(schema) };
+    ? network
+    : { ...network, options: postgresStartupOptionsForSchema(schema) };
 }
 
 interface SessionQueryable {
@@ -548,7 +566,11 @@ export async function createPostgresDriver(
   const schema = resolvedPostgresSchema(connectionString, options);
 
   const pg = await import('pg');
-  const pool = new pg.default.Pool(postgresConnectionConfig(connectionString, schema));
+  const pool = new pg.default.Pool(postgresConnectionConfig(
+    connectionString,
+    schema,
+    options.allowPlaintextLoopback === true,
+  ));
   const host = safeHost(connectionString);
   const verifiedClients = new WeakSet<object>();
 
@@ -630,7 +652,7 @@ export async function createDriverFromEnv(
 ): Promise<SqlDriver> {
   const url = env['POSTGRES_URL'];
   if (url !== undefined && url !== '') {
-    return createPostgresDriver(url);
+    return createPostgresDriver(url, { allowPlaintextLoopback: true });
   }
   return createPgliteDriver();
 }

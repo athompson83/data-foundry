@@ -148,6 +148,12 @@ describe('migration runner', () => {
       ),
       env,
     )).toBe('Direct PostgreSQL migration failed [migration-search-path].');
+    expect(migrationFailureMessage(
+      new Error(
+        'Migration 0028_audited_foreign_key_indexes.sql failed: migration 0028 refuses duplicate rights decision activation history',
+      ),
+      env,
+    )).toBe('Direct PostgreSQL migration failed [migration-rights-history].');
 
     const unclassified = migrationFailureMessage(
       new Error('driver failed for postgres://df_migration:must-not-escape@example.invalid/data_foundry'),
@@ -699,6 +705,86 @@ describe('migration runner', () => {
       expect(rows).toEqual([]);
     } finally {
       await collision.close();
+    }
+  }, 120_000);
+
+  it('refuses duplicate immutable decision-activation history without retaining any 0028 index', async () => {
+    const duplicateHistory = await createPGliteDriver();
+    try {
+      await applyMigrations(
+        duplicateHistory,
+        migrations.filter(({ version }) => version < '0028'),
+      );
+      await seed(duplicateHistory);
+      await duplicateHistory.exec('BEGIN');
+      await duplicateHistory.query(`
+        INSERT INTO rights_cells (id, source_id, operation, channel, created_by)
+        VALUES ('20000000-0000-4000-8000-000000000001', $1,
+                'EVALUATE_MODELS', 'MODEL_PIPELINE', 'test-suite')
+      `, [SOURCE]);
+      await duplicateHistory.exec(`
+        INSERT INTO rights_decisions
+          (id, cell_id, state, review_status, reviewer_type, reviewed_by,
+           reviewed_at, effective_from, recheck_at, rationale, created_by)
+        VALUES
+          ('30000000-0000-4000-8000-000000000001',
+           '20000000-0000-4000-8000-000000000001',
+           'DENY', 'APPROVED', 'HUMAN', 'historical-reviewer',
+           '2026-08-14T00:00:00Z', '2026-08-14T00:00:00Z',
+           '2027-08-14T00:00:00Z', 'historical deny', 'test-suite');
+        SELECT activate_rights_decision(
+          '30000000-0000-4000-8000-000000000001',
+          'HUMAN', 'historical-reviewer', 'first activation', '2026-08-14T00:00:00Z'
+        );
+        COMMIT;
+      `);
+      await duplicateHistory.exec(
+        'ALTER TABLE rights_decision_activation_events DISABLE TRIGGER rights_decision_activation_prepare_insert',
+      );
+      try {
+        await duplicateHistory.exec(`
+          INSERT INTO rights_decision_activation_events
+            (id, cell_id, decision_id, sequence_no, actor_type, actor, reason, occurred_at)
+          VALUES
+            ('10000000-0000-4000-8000-000000000002',
+             '20000000-0000-4000-8000-000000000001',
+             '30000000-0000-4000-8000-000000000001',
+             2, 'HUMAN', 'historical-reviewer',
+             'duplicate historical activation', '2026-08-15T00:00:00Z')
+        `);
+      } finally {
+        await duplicateHistory.exec(
+          'ALTER TABLE rights_decision_activation_events ENABLE TRIGGER rights_decision_activation_prepare_insert',
+        );
+      }
+
+      await expect(applyMigrations(duplicateHistory, migrations)).rejects.toThrow(
+        /migration 0028 refuses duplicate rights decision activation history/i,
+      );
+      const ledgerRows = await duplicateHistory.query<{ version: string }>(
+        "SELECT version FROM schema_migrations WHERE version = '0028'",
+      );
+      expect(ledgerRows).toEqual([]);
+      const [history] = await duplicateHistory.query<{ count: number }>(`
+        SELECT count(*)::integer AS count
+          FROM rights_decision_activation_events
+         WHERE decision_id = '30000000-0000-4000-8000-000000000001'
+      `);
+      expect(history?.count).toBe(2);
+      const indexRows = await duplicateHistory.query<{ index_name: string }>(`
+        SELECT index_rel.relname::text AS index_name
+          FROM pg_index AS idx
+          JOIN pg_class AS index_rel ON index_rel.oid = idx.indexrelid
+         WHERE index_rel.relname = ANY(ARRAY[
+           'rights_cells_source_idx',
+           'rights_terms_cells_source_idx',
+           'rights_decision_activation_events_decision_idx',
+           'rights_terms_activation_events_version_idx'
+         ]::text[])
+      `);
+      expect(indexRows).toEqual([]);
+    } finally {
+      await duplicateHistory.close();
     }
   }, 120_000);
 

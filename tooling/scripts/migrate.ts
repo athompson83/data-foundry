@@ -15,7 +15,8 @@
  *   pnpm migrate --memory            # apply to a throwaway in-memory database
  *   pnpm migrate:check               # CI gate: apply to a fresh database, verify, discard
  *   # supply DATA_FOUNDRY_MIGRATION_DATABASE_URL securely, then pnpm migrate
- *   # DATA_FOUNDRY_SCHEMA=public remains a reviewed legacy install opt-in
+ *   # direct Postgres requires DATA_FOUNDRY_SCHEMA=data_foundry; a historical
+ *   # public installation requires a separately reviewed migration plan
  */
 import { createHash } from 'node:crypto';
 import { execFile } from 'node:child_process';
@@ -131,6 +132,10 @@ export function migrationFailureMessage(
       {
         pattern: /require the exact search_path data_foundry, pg_catalog, extensions/i,
         category: 'migration-search-path',
+      },
+      {
+        pattern: /migration 0028 refuses duplicate rights decision activation history/i,
+        category: 'migration-rights-history',
       },
       {
         pattern: /not Data Foundry's ledger|ledger.*refusing/i,
