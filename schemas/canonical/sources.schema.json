@@ -30,6 +30,7 @@
         "REGULATORY",
         "STANDARDS_BODY",
         "CERTIFICATION_BODY",
+        "REGULATORY_FILING",
         "MANUFACTURER",
         "DISTRIBUTOR",
         "TRADE_ASSOCIATION",
@@ -203,6 +204,16 @@
         "RETIRED"
       ]
     },
+    "kill_switch_engaged": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
     "created_at": {
       "type": "string",
       "format": "date-time",
@@ -226,6 +237,7 @@
     "robots_policy",
     "refresh_cadence",
     "status",
+    "kill_switch_engaged",
     "created_at",
     "updated_at"
   ],

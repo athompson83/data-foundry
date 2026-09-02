@@ -45,6 +45,15 @@ export interface CompareQuery {
   readonly policy?: Partial<FactSelectionPolicyInput>;
 }
 
+/** Internal seam used by a surface-bound QueryModel to preserve one comparison implementation. */
+export interface ComparisonAccess {
+  getEntity(id: EntityId): Promise<Entity | null>;
+  canonicalFacts(
+    entityId: EntityId,
+    policy?: Partial<FactSelectionPolicyInput>,
+  ): Promise<CanonicalFactView[]>;
+}
+
 const sameValue = (left: CanonicalValue | null, right: CanonicalValue | null): boolean => {
   if (left === null || right === null) return left === right;
   if (Array.isArray(left) || Array.isArray(right)) {
@@ -58,15 +67,19 @@ export async function compareEntities(
   store: CanonicalStore,
   registry: FieldMetadataRegistry,
   query: CompareQuery,
+  access: ComparisonAccess = {
+    getEntity: (id) => store.getEntityById(id),
+    canonicalFacts: (id, policy) => canonicalFacts(store, id, policy),
+  },
 ): Promise<EntityComparison> {
   const entities: Entity[] = [];
   const views = new Map<EntityId, Map<Identifier, CanonicalFactView>>();
 
   for (const entityId of query.entity_ids) {
-    const entity = await store.getEntityById(entityId);
+    const entity = await access.getEntity(entityId);
     if (entity === null) continue;
     entities.push(entity);
-    const facts = await canonicalFacts(store, entityId, query.policy ?? {});
+    const facts = await access.canonicalFacts(entityId, query.policy ?? {});
     views.set(entityId, new Map(facts.map((fact) => [fact.property, fact] as const)));
   }
 

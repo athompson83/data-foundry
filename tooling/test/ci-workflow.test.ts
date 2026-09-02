@@ -1,0 +1,131 @@
+import { readFileSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { describe, expect, it } from 'vitest';
+import { parse as parseYaml } from 'yaml';
+
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
+const RUN_VERIFY = "needs.scope.outputs.run_verify == 'true'";
+const NON_DRAFT_EVENT = "(github.event_name != 'pull_request' || github.event.pull_request.draft == false)";
+const SCOPE_FAILURE_GUARD = "always() && needs.scope.result != 'success'";
+
+type Step = {
+  id?: string;
+  name?: string;
+  uses?: string;
+  if?: string;
+  run?: string;
+  with?: Record<string, unknown>;
+};
+
+type Workflow = {
+  jobs: {
+    scope: { steps: Step[] };
+    verify: { if?: string; steps: Step[] };
+    'migrations-postgres': { if?: string; steps: Step[] };
+  };
+};
+
+const workflow = parseYaml(
+  readFileSync(join(ROOT, '.github', 'workflows', 'ci.yml'), 'utf8'),
+) as Workflow;
+const scopeScript = workflow.jobs.scope.steps.find((step) => step.id === 'changes')?.run ?? '';
+
+describe('CI workflow policy', () => {
+  it('keeps both protected jobs present and fail-closed when scope selection fails', () => {
+    const verify = workflow.jobs.verify;
+    const postgres = workflow.jobs['migrations-postgres'];
+
+    expect(verify.if).toBe(`always() && ${NON_DRAFT_EVENT}`);
+    expect(postgres.if).toBe(
+      `always() && ${NON_DRAFT_EVENT} && (needs.scope.result != 'success' || needs.scope.outputs.run_postgres == 'true')`,
+    );
+    for (const job of [verify, postgres]) {
+      expect(job.steps[0]).toMatchObject({
+        name: 'Fail when scope selection fails',
+        if: SCOPE_FAILURE_GUARD,
+        run: expect.stringContaining('exit 1'),
+      });
+    }
+  });
+
+  it('keeps documentation-only verification successful without installing dependencies', () => {
+    const steps = workflow.jobs.verify.steps;
+    const documentationOnly = steps.find((step) => step.name === 'Documentation-only change');
+    const dependencySteps = steps.filter(
+      (step) =>
+        step.name !== 'Fail when scope selection fails' &&
+        step.name !== 'Documentation-only change' &&
+        !step.uses?.startsWith('actions/checkout@'),
+    );
+
+    expect(documentationOnly).toMatchObject({
+      if: "needs.scope.outputs.run_verify != 'true'",
+      run: expect.stringContaining('No executable or workflow files changed'),
+    });
+    expect(dependencySteps.length).toBeGreaterThan(0);
+    for (const step of dependencySteps) {
+      expect(step.if, step.name ?? step.uses).toBe(RUN_VERIFY);
+    }
+  });
+
+  it('retains every verification command exactly once', () => {
+    const commands = workflow.jobs.verify.steps.flatMap((step) => (step.run ? [step.run] : []));
+    for (const command of [
+      'pnpm typecheck',
+      'pnpm test',
+      'pnpm migrate:check',
+      'pnpm schemas:check',
+      'pnpm openapi:check',
+      'pnpm cloudflare:topology:check',
+      'pnpm verticals:validate',
+      'pnpm verticals:compile:check',
+      'pnpm acquisition:check',
+      'pnpm mcp:compile:check',
+      'pnpm web:compile:check',
+      'pnpm cloudflare:artifacts:check',
+    ]) {
+      expect(commands.filter((candidate) => candidate === command), command).toHaveLength(1);
+    }
+  });
+
+  it('initializes the extensions namespace before private-schema Postgres migrations', () => {
+    const steps = workflow.jobs['migrations-postgres'].steps;
+    const initialize = steps.find(
+      (step) => step.name === 'Initialize extensions schema for private migration',
+    );
+    const apply = steps.find((step) => step.name === 'Apply migrations to Postgres');
+
+    expect(initialize?.run).toContain('CREATE SCHEMA IF NOT EXISTS extensions AUTHORIZATION postgres');
+    expect(initialize?.run).toContain('job.services.postgres.id');
+    expect(steps.indexOf(initialize as Step)).toBeLessThan(steps.indexOf(apply as Step));
+  });
+
+  it('selects real Postgres for every gate input, including nested paths', () => {
+    for (const pattern of [
+      'db/migrations/**',
+      'tooling/scripts/migrate.ts',
+      'tooling/scripts/check-source-record-reconciliation-postgres.ts',
+      'packages/canonical-store/**',
+      'services/ingest-worker/**',
+      'tooling/scripts/check-credential-provisioning-postgres.ts',
+      'tooling/scripts/provision-api-credential.ts',
+      'packages/api-keys/**',
+      'tooling/scripts/check-scheduled-acquisition-postgres.ts',
+      'packages/acquisition/**',
+      'apps/acquisition-worker/**',
+      'verticals/**',
+      'tooling/lib/cli-entry.ts',
+      'tests/support/acquisition-rights.ts',
+      'packages/canonical-schema/**',
+      'packages/normalization/**',
+      'packages/source-registry/**',
+      'packages/rights-engine/**',
+      'package.json',
+      'pnpm-lock.yaml',
+      '.github/workflows/ci.yml',
+    ]) {
+      expect(scopeScript, pattern).toContain(pattern);
+    }
+  });
+});

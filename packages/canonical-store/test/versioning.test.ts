@@ -7,7 +7,8 @@
  * with the first one closed — never an UPDATE of `normalized_value`.
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { currentFactVersion, factVersionChain } from '@data-foundry/canonical-schema';
+import { currentFactVersion, factConfidence, factVersionChain } from '@data-foundry/canonical-schema';
+import { FactDependencyError } from '../src/index.js';
 import { claim, countRows, createFixtures, ts, type Fixtures } from './support.js';
 
 let fixtures: Fixtures;
@@ -202,5 +203,106 @@ describe('idempotent re-ingestion', () => {
     expect(second.added_evidence).toEqual([]);
     expect(second.relationship.id).toBe(first.relationship.id);
     expect(await countRows(fixtures.driver, 'relationships')).toBe(1);
+  });
+});
+
+describe('derived fact dependency identity', () => {
+  const evidenceFor = (source: Fixtures['sources']['manufacturer'], property: string) => [
+    {
+      artifact_id: source.artifact.id,
+      source_record_id: source.record.id,
+      source_value: '6',
+      locator_type: 'CSS_SELECTOR' as const,
+      locator_value: `table.specs [data-field="${property}"]`,
+      observed_at: ts('2026-03-01T00:00:00Z'),
+    },
+  ] as const;
+
+  it('reuses an exact dependency set but appends the same value when the input identity changes', async () => {
+    const inputA = await claim(fixtures, 'manufacturer', {
+      property: 'derived_input_a',
+      value: 12,
+      value_type: 'number',
+      valid_from: '2026-03-01T00:00:00Z',
+    });
+    const inputB = await claim(fixtures, 'certifier', {
+      property: 'derived_input_b',
+      value: 18,
+      value_type: 'number',
+      valid_from: '2026-03-01T00:00:00Z',
+    });
+    const draft = {
+      entity_id: fixtures.entity.id,
+      property: 'derived_output',
+      normalized_value: 6,
+      value_type: 'number' as const,
+      unit: null,
+      valid_from: ts('2026-03-01T00:00:00Z'),
+      confidence: factConfidence(0.9),
+      recorded_at: ts('2026-03-01T00:00:00Z'),
+      status: 'ACTIVE' as const,
+    };
+    const first = await fixtures.store.appendDerivedFactWithEvidence(
+      draft,
+      evidenceFor(fixtures.sources.manufacturer, 'derived_output'),
+      [{ input_fact_id: inputA.fact.id, transformation_ref: 'derive.v1' }],
+    );
+    const exactReplay = await fixtures.store.appendDerivedFactWithEvidence(
+      draft,
+      evidenceFor(fixtures.sources.manufacturer, 'derived_output'),
+      [{ input_fact_id: inputA.fact.id, transformation_ref: 'derive.v1' }],
+    );
+    expect(exactReplay.outcome).toBe('UNCHANGED');
+    expect(exactReplay.fact.id).toBe(first.fact.id);
+
+    const changed = await fixtures.store.appendDerivedFactWithEvidence(
+      {
+        ...draft,
+        valid_from: ts('2026-04-01T00:00:00Z'),
+        recorded_at: ts('2026-04-01T00:00:00Z'),
+      },
+      evidenceFor(fixtures.sources.manufacturer, 'derived_output'),
+      [{ input_fact_id: inputB.fact.id, transformation_ref: 'derive.v1' }],
+    );
+    expect(changed.outcome).toBe('CREATED');
+    expect(changed.fact.id).not.toBe(first.fact.id);
+    expect(changed.superseded_fact_id).toBe(first.fact.id);
+    expect((await fixtures.store.getFactById(first.fact.id))?.status).toBe('SUPERSEDED');
+    expect(
+      await fixtures.driver.query(
+        `SELECT input_fact_id, transformation_ref FROM fact_dependencies
+          WHERE derived_fact_id = $1 ORDER BY input_fact_id::text COLLATE "C"`,
+        [changed.fact.id],
+      ),
+    ).toEqual([{ input_fact_id: inputB.fact.id, transformation_ref: 'derive.v1' }]);
+  });
+
+  it('rejects two dependency edges with the same input fact even when transforms differ', async () => {
+    const input = await claim(fixtures, 'manufacturer', {
+      property: 'duplicate_dependency_input',
+      value: 24,
+      value_type: 'number',
+      valid_from: '2026-05-01T00:00:00Z',
+    });
+    await expect(
+      fixtures.store.appendDerivedFactWithEvidence(
+        {
+          entity_id: fixtures.entity.id,
+          property: 'duplicate_dependency_output',
+          normalized_value: 2,
+          value_type: 'number',
+          unit: null,
+          valid_from: ts('2026-05-01T00:00:00Z'),
+          confidence: factConfidence(0.9),
+          recorded_at: ts('2026-05-01T00:00:00Z'),
+          status: 'ACTIVE',
+        },
+        evidenceFor(fixtures.sources.manufacturer, 'duplicate_dependency_output'),
+        [
+          { input_fact_id: input.fact.id, transformation_ref: 'derive.first' },
+          { input_fact_id: input.fact.id, transformation_ref: 'derive.second' },
+        ],
+      ),
+    ).rejects.toBeInstanceOf(FactDependencyError);
   });
 });

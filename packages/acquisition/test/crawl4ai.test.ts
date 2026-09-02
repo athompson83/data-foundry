@@ -13,6 +13,12 @@ import {
 } from './helpers.js';
 
 const BASE_URL = 'http://crawl4ai.internal:11235';
+const childRequest = () => makeRequest({
+  resultUrlPolicy: {
+    allowedOrigins: [new URL(TARGET_URL).origin],
+    allowedPathPrefixes: [new URL(TARGET_URL).pathname],
+  },
+});
 
 function crawl4aiEntry() {
   const entry = compliantEntry();
@@ -108,7 +114,7 @@ describe('Crawl4AI provider — result mapping', () => {
       fetch: api.fetch,
     });
 
-    const result = await provider.fetch(makeRequest());
+    const result = await provider.fetch(childRequest());
     expect(result.artifacts).toHaveLength(1);
     expect(result.artifacts[0]?.mime_type).toBe('text/html');
     expect(result.artifacts[0]?.acquisition_provider).toBe('crawl4ai');
@@ -126,7 +132,7 @@ describe('Crawl4AI provider — result mapping', () => {
       formats: ['html', 'markdown'],
     });
 
-    const result = await provider.fetch(makeRequest());
+    const result = await provider.fetch(childRequest());
     expect(result.artifacts[0]?.mime_type).toBe('text/markdown');
   });
 
@@ -145,7 +151,7 @@ describe('Crawl4AI provider — result mapping', () => {
       formats: ['markdown'],
     });
 
-    const result = await provider.fetch(makeRequest());
+    const result = await provider.fetch(childRequest());
     expect(result.artifacts).toHaveLength(1);
     expect(result.artifacts[0]?.byte_size).toBe(new TextEncoder().encode('# raw').byteLength);
   });
@@ -186,6 +192,62 @@ describe('Crawl4AI provider — result mapping', () => {
     });
 
     expect((await provider.fetch(makeRequest())).artifacts[0]?.http_status).toBe(203);
+  });
+
+  it('preflights a later malformed result before storing an earlier valid result', async () => {
+    const harness = makeHarness({ entry: crawl4aiEntry() });
+    const api = stubFetch(() =>
+      results({
+        success: true,
+        results: [
+          { url: TARGET_URL, html: BODY, status_code: 200 },
+          { url: TARGET_URL, html: '<p>invalid status</p>', status_code: -1 },
+        ],
+      }),
+    );
+    const provider = new Crawl4AIAcquisitionProvider({
+      deps: harness.deps,
+      baseUrl: BASE_URL,
+      fetch: api.fetch,
+    });
+
+    await expect(provider.fetch(makeRequest())).rejects.toThrow();
+    expect(harness.files.size).toBe(0);
+  });
+
+  it('refuses an oversized result collection before accumulating diagnostics', async () => {
+    const harness = makeHarness({ entry: crawl4aiEntry() });
+    const api = stubFetch(() =>
+      results({ success: true, results: Array.from({ length: 1_001 }, () => ({})) }),
+    );
+    const provider = new Crawl4AIAcquisitionProvider({
+      deps: harness.deps,
+      baseUrl: BASE_URL,
+      fetch: api.fetch,
+    });
+
+    await expect(provider.fetch(makeRequest())).rejects.toThrow(/result limit/i);
+    expect(harness.files.size).toBe(0);
+  });
+
+  it('caps cumulative diagnostics produced from a bounded control response', async () => {
+    const harness = makeHarness({ entry: crawl4aiEntry() });
+    const api = stubFetch(() =>
+      results({
+        success: true,
+        results: Array.from({ length: 40 }, (_, index) => ({
+          url: `${TARGET_URL}?diagnostic=${index}${'x'.repeat(7_800)}`,
+        })),
+      }),
+    );
+    const provider = new Crawl4AIAcquisitionProvider({
+      deps: harness.deps,
+      baseUrl: BASE_URL,
+      fetch: api.fetch,
+    });
+
+    await expect(provider.fetch(makeRequest())).rejects.toThrow(/diagnostics exceeded/i);
+    expect(harness.files.size).toBe(0);
   });
 });
 
@@ -248,7 +310,7 @@ describe('Crawl4AI provider — degrading cleanly', () => {
       fetch: api.fetch,
     });
 
-    const result = await provider.fetch(makeRequest());
+    const result = await provider.fetch(childRequest());
     expect(result.artifacts).toHaveLength(1);
     expect(result.diagnostics.join(' ')).toContain('timeout');
   });

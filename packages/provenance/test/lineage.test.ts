@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { factConfidence } from '@data-foundry/canonical-schema';
 import { citation, entityLineage, factLineage, relationshipLineage } from '../src/index.js';
 import { claim, createFixtures, ts, type Fixtures } from './support.js';
 
@@ -136,5 +137,123 @@ describe('field-level lineage', () => {
       '00000000-0000-4000-8000-00000000dead' as never,
     );
     expect(missing).toBeNull();
+  });
+
+  it('recursively carries dependency facts, transforms, and every dependency source', async () => {
+    const inputA = await claim(fixtures, 'manufacturer', {
+      property: 'lineage_input_a',
+      value: 12,
+      value_type: 'number',
+      valid_from: '2026-03-01T00:00:00Z',
+    });
+    const inputB = await claim(fixtures, 'certifier', {
+      property: 'lineage_input_b',
+      value: 18,
+      value_type: 'number',
+      valid_from: '2026-03-01T00:00:00Z',
+    });
+    const intermediateSource = fixtures.sources.aggregator;
+    const intermediate = await fixtures.store.appendDerivedFactWithEvidence(
+      {
+        entity_id: fixtures.entity.id,
+        property: 'lineage_intermediate',
+        normalized_value: 6,
+        value_type: 'number',
+        unit: null,
+        valid_from: ts('2026-03-01T00:00:00Z'),
+        confidence: factConfidence(0.9),
+        recorded_at: ts('2026-03-01T00:00:00Z'),
+        status: 'ACTIVE',
+      },
+      [{
+        artifact_id: intermediateSource.artifact.id,
+        source_record_id: intermediateSource.record.id,
+        source_value: '6',
+        locator_type: 'WHOLE_DOCUMENT',
+        locator_value: '',
+        observed_at: ts('2026-03-01T00:00:00Z'),
+      }],
+      [{ input_fact_id: inputA.fact.id, transformation_ref: 'lineage.divide.v1' }],
+    );
+    const outputSource = fixtures.sources.manufacturer;
+    const output = await fixtures.store.appendDerivedFactWithEvidence(
+      {
+        entity_id: fixtures.entity.id,
+        property: 'lineage_output',
+        normalized_value: 24,
+        value_type: 'number',
+        unit: null,
+        valid_from: ts('2026-03-01T00:00:00Z'),
+        confidence: factConfidence(0.9),
+        recorded_at: ts('2026-03-01T00:00:00Z'),
+        status: 'ACTIVE',
+      },
+      [{
+        artifact_id: outputSource.artifact.id,
+        source_record_id: outputSource.record.id,
+        source_value: '24',
+        locator_type: 'WHOLE_DOCUMENT',
+        locator_value: '',
+        observed_at: ts('2026-03-01T00:00:00Z'),
+      }],
+      [
+        { input_fact_id: intermediate.fact.id, transformation_ref: 'lineage.multiply.v1' },
+        { input_fact_id: inputB.fact.id, transformation_ref: 'lineage.add.v1' },
+      ],
+    );
+
+    const lineage = await factLineage(fixtures.driver, output.fact.id);
+    expect(lineage?.direct_chain).toHaveLength(1);
+    expect(lineage?.dependencies.map((dependency) => ({
+      input_fact_id: dependency.input_fact_id,
+      transformation_ref: dependency.transformation_ref,
+    }))).toEqual([
+      { input_fact_id: inputB.fact.id, transformation_ref: 'lineage.add.v1' },
+      { input_fact_id: intermediate.fact.id, transformation_ref: 'lineage.multiply.v1' },
+    ]);
+    expect(lineage?.dependencies.find(
+      (dependency) => dependency.input_fact_id === intermediate.fact.id,
+    )?.lineage?.dependencies[0]?.transformation_ref).toBe('lineage.divide.v1');
+    expect(new Set(lineage?.chain.map((link) => link.source.publisher))).toEqual(new Set([
+      'Acme Climate',
+      'Ratings Directory',
+      'SpecAggregator',
+    ]));
+    expect(lineage?.distinct_sources).toBe(3);
+    expect(lineage?.traceable).toBe(true);
+    expect(lineage?.cycle_detected).toBe(false);
+  });
+
+  it('terminates and marks a corrupted recursive dependency cycle', async () => {
+    const first = await claim(fixtures, 'manufacturer', {
+      property: 'cycle_lineage_first', value: 1, value_type: 'number',
+    });
+    const second = await claim(fixtures, 'certifier', {
+      property: 'cycle_lineage_second', value: 2, value_type: 'number',
+    });
+    await fixtures.driver.exec(
+      'ALTER TABLE fact_dependencies DISABLE TRIGGER fact_dependencies_reject_cycle_insert',
+    );
+    await fixtures.driver.exec(
+      'ALTER TABLE fact_dependencies DISABLE TRIGGER fact_dependencies_require_open_classification_insert',
+    );
+    try {
+      await fixtures.driver.query(
+        `INSERT INTO fact_dependencies (derived_fact_id, input_fact_id, transformation_ref)
+         VALUES ($1, $2, 'corrupt.forward'), ($2, $1, 'corrupt.backward')`,
+        [first.fact.id, second.fact.id],
+      );
+      const lineage = await factLineage(fixtures.driver, first.fact.id);
+      expect(lineage?.cycle_detected).toBe(true);
+      expect(lineage?.traceable).toBe(false);
+      expect(lineage?.dependencies[0]?.lineage?.dependencies[0]?.cycle_detected).toBe(true);
+    } finally {
+      await fixtures.driver.exec(
+        'ALTER TABLE fact_dependencies ENABLE TRIGGER fact_dependencies_require_open_classification_insert',
+      );
+      await fixtures.driver.exec(
+        'ALTER TABLE fact_dependencies ENABLE TRIGGER fact_dependencies_reject_cycle_insert',
+      );
+    }
   });
 });

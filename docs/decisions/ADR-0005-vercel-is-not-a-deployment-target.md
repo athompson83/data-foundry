@@ -64,21 +64,26 @@ that completely.
 requests. It works only for as long as someone keeps explaining, and it spends
 that explanation on every reader. A permanently red check is a broken window.
 
-**Remove it from required status checks.** There is nothing to remove: `main` is
-unprotected and the check is already informational.
+**Remove it from required status checks.** At decision time there was nothing to
+remove: `main` was unprotected and the check was informational. `main` is now
+protected by ruleset `21855694`; its required checks are repository CI checks,
+not Vercel.
 
-**Disconnect the Git integration in the Vercel dashboard.** This is the more
-complete fix and remains the right end state — it removes the integration rather
-than muting it. It needs a person in the Vercel dashboard (Settings → Git →
-Disconnect); it cannot be done from the repository, and the API credentials
-available to automation here cannot reach this project. Once it is done,
-`vercel.json` can be deleted and this ADR amended.
+**Disconnect the Git integration in the Vercel dashboard.** This was the more
+complete fix under the original evidence. A later [read-only provider
+reconciliation](../evidence/alpha-lab-provider-reconciliation-20260831.md)
+found a configured Vercel project with disconnected Git and a data hostname that
+returns 404; it is not a viable Data Foundry deployment or rollback path. The
+remaining uncertainty is whether the Vercel GitHub App still selects this
+repository. That selection requires an owner sudo/passkey check in GitHub.
+`vercel.json` can be deleted only after the check proves Data Foundry has no
+remaining App access.
 
 ## Consequences
 
 - Pushes stop creating Vercel deployments, so no `Vercel` status is posted.
 - Commit statuses are immutable per `(SHA, context)`, so the existing red
   statuses on already-pushed commits stay red. Only later commits are affected.
-- If a deployable surface is ever built here, this ADR must be revisited rather
-  than worked around: delete `vercel.json` and record the decision to adopt a
-  host, whichever host that turns out to be.
+- Deployable surfaces now exist on Cloudflare under ADR-0006. That adoption does
+  not make Vercel a target and does not by itself prove the legacy App lacks
+  repository access.

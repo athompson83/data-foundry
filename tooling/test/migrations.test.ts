@@ -7,10 +7,16 @@ import {
   applyMigrations,
   assertLedgerIsOurs,
   ledgerMarker,
+  listSchemaTables,
   partitionOwnedTables,
   createPGliteDriver,
+  createPostgresDriver,
   listPublicTables,
   loadMigrations,
+  normalizeSchemaName,
+  resolveOperationalSchema,
+  resolveSchema,
+  scopeMigrationSql,
   type Migration,
   type MigrationDriver,
 } from '../scripts/migrate.js';
@@ -38,7 +44,11 @@ const ROBOTS = JSON.stringify({
 });
 const ATTRIBUTION = JSON.stringify({ required: false, text: null, url: null });
 
-async function seed(target: MigrationDriver = driver): Promise<void> {
+async function seed(
+  target: MigrationDriver = driver,
+  withAcquisitionScope = true,
+  withSourceStream = true,
+): Promise<void> {
   await target.query(
     `INSERT INTO verticals (id, slug, name, schema_version, status, default_refresh_policy)
      VALUES ($1, 'hvac', 'HVAC', '1.0.0', 'ACTIVE', $2::jsonb)`,
@@ -53,16 +63,27 @@ async function seed(target: MigrationDriver = driver): Promise<void> {
     [SOURCE, VERTICAL, ATTRIBUTION, ROBOTS],
   );
   await target.query(
-    `INSERT INTO source_artifacts (id, source_id, url, retrieved_at, content_hash, mime_type,
-                                   r2_uri, http_status, extractor_version, acquisition_provider)
-     VALUES ($1, $2, 'https://ratings-directory.example.org/x', $3, $4, 'text/html',
-             'r2://raw/hvac/ratings-directory/x.html', 200, 'html-1.0.0', 'http')`,
+    withAcquisitionScope
+      ? `INSERT INTO source_artifacts (id, source_id, url, retrieved_at, content_hash, mime_type,
+                                      r2_uri, http_status, extractor_version, acquisition_provider,
+                                      acquisition_route)
+         VALUES ($1, $2, 'https://ratings-directory.example.org/x', $3, $4, 'text/html',
+                 'r2://raw/hvac/ratings-directory/x.html', 200, 'html-1.0.0', 'http',
+                 'DIRECT_HTTP')`
+      : `INSERT INTO source_artifacts (id, source_id, url, retrieved_at, content_hash, mime_type,
+                                      r2_uri, http_status, extractor_version, acquisition_provider)
+         VALUES ($1, $2, 'https://ratings-directory.example.org/x', $3, $4, 'text/html',
+                 'r2://raw/hvac/ratings-directory/x.html', 200, 'html-1.0.0', 'http')`,
     [ARTIFACT, SOURCE, TS, 'a'.repeat(64)],
   );
   await target.query(
-    `INSERT INTO source_records (id, source_id, artifact_id, source_record_key, entity_type,
-                                 raw_payload, extraction_confidence, extractor_version)
-     VALUES ($1, $2, $3, 'AHRI-123', 'equipment', '{}'::jsonb, 0.95, 'html-1.0.0')`,
+    withSourceStream
+      ? `INSERT INTO source_records (id, source_id, artifact_id, source_record_key, source_stream, entity_type,
+                                     raw_payload, extraction_confidence, extractor_version)
+         VALUES ($1, $2, $3, 'AHRI-123', 'fixture_records', 'equipment', '{}'::jsonb, 0.95, 'html-1.0.0')`
+      : `INSERT INTO source_records (id, source_id, artifact_id, source_record_key, entity_type,
+                                     raw_payload, extraction_confidence, extractor_version)
+         VALUES ($1, $2, $3, 'AHRI-123', 'equipment', '{}'::jsonb, 0.95, 'html-1.0.0')`,
     [RECORD, SOURCE, ARTIFACT],
   );
   await target.query(
@@ -75,9 +96,9 @@ async function seed(target: MigrationDriver = driver): Promise<void> {
 
 const insertFact = (validFrom: string, validTo: string | null, status: string, value: number) =>
   driver.query(
-    `INSERT INTO facts (entity_id, property, normalized_value, value_type, valid_from, valid_to,
-                        status, confidence, recorded_at)
-     VALUES ($1, 'seer2_rating', $2::jsonb, 'number', $3, $4, $5, 0.9, $6)
+    `INSERT INTO facts (entity_id, property, normalized_value, value_type, output_kind,
+                        valid_from, valid_to, status, confidence, recorded_at)
+     VALUES ($1, 'seer2_rating', $2::jsonb, 'number', 'NORMALIZED_FACT', $3, $4, $5, 0.9, $6)
      RETURNING id`,
     [ENTITY, JSON.stringify(value), validFrom, validTo, status, validFrom],
   );
@@ -94,6 +115,56 @@ afterAll(async () => {
 });
 
 describe('migration runner', () => {
+  it('refuses a blank explicit schema instead of silently falling back to public', () => {
+    expect(() => normalizeSchemaName('   ')).toThrow(/lowercase PostgreSQL identifier/i);
+    expect(() => resolveSchema(['--schema', ''], {})).toThrow(/lowercase PostgreSQL identifier/i);
+    // Package managers commonly preserve the equals form. Treating it as an
+    // unknown flag would silently use the public default — precisely the
+    // shared Alpha Lab schema this switch exists to protect.
+    expect(resolveSchema(['--schema=data_foundry'], {})).toBe('data_foundry');
+    expect(() => resolveSchema(['--schema='], {})).toThrow(/lowercase PostgreSQL identifier/i);
+    expect(() => resolveSchema(['--schema=data_foundry', '--schema', 'public'], {})).toThrow(
+      /only once/i,
+    );
+    expect(resolveSchema([], {})).toBe('public');
+    expect(resolveSchema([], {}, 'data_foundry')).toBe('data_foundry');
+    expect(resolveSchema([], { DATA_FOUNDRY_SCHEMA: 'public' })).toBe('public');
+    expect(resolveOperationalSchema({})).toBe('data_foundry');
+    expect(resolveOperationalSchema({ DATA_FOUNDRY_SCHEMA: 'public' })).toBe('public');
+    expect(() => normalizeSchemaName('another_private_schema')).toThrow(/data_foundry/i);
+  });
+
+  it('refuses private migration startup options that could override the schema path', async () => {
+    await expect(
+      createPostgresDriver(
+        'postgres://operator@db.invalid/data-foundry?options=-csearch_path%3Dpublic',
+        'data_foundry',
+      ),
+    ).rejects.toThrow(/startup options/i);
+  });
+
+  it('fails closed when a known constraint probe has unsafe boolean scope', () => {
+    // If the private-schema transform merely appends `AND conrelid` here,
+    // SQL precedence leaves the `OR TRUE` branch unscoped. A shared Alpha Lab
+    // schema must reject any known probe it cannot prove it has scoped.
+    const unsafeProbe = `
+      DO $$
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM pg_constraint
+          WHERE conname = 'facts_output_kind_allowed' OR TRUE
+        ) THEN
+          NULL;
+        END IF;
+      END;
+      $$;
+    `;
+
+    expect(() => scopeMigrationSql(unsafeProbe, 'data_foundry')).toThrow(
+      /cannot safely scope.*facts_output_kind_allowed/i,
+    );
+  });
+
   it('finds correctly-named, uniquely-ordered migrations', () => {
     expect(migrations.length).toBeGreaterThan(0);
     const versions = migrations.map((migration) => migration.version);
@@ -120,11 +191,704 @@ describe('migration runner', () => {
     expect(second.every((result) => result.skipped)).toBe(true);
   });
 
+  it('keeps an explicitly isolated Data Foundry schema out of a shared public schema', async () => {
+    const isolated = await createPGliteDriver();
+    try {
+      // This stands in for Alpha Lab's unrelated Rise application. Removing the
+      // requested schema support would send Data Foundry's tables and ledger
+      // into this same public namespace.
+      await isolated.exec('CREATE TABLE public.rise_leads (id UUID PRIMARY KEY)');
+
+      await applyMigrations(isolated, migrations, { schema: 'data_foundry' });
+
+      const [currentSchema] = await isolated.query<{ schema: string }>(
+        'SELECT current_schema() AS schema',
+      );
+      expect(currentSchema?.schema).toBe('data_foundry');
+
+      // Supabase installs extensions in the `extensions` schema. Keep it in
+      // the path so runtime functions such as similarity() can resolve, while
+      // keeping Alpha Lab's public schema out of reach.
+      const [searchPath] = await isolated.query<{ configured_path: string }>(
+        "SELECT current_setting('search_path') AS configured_path",
+      );
+      expect(searchPath?.configured_path).toContain('extensions');
+      expect(searchPath?.configured_path).not.toMatch(/(^|,)\s*public\s*(,|$)/);
+
+      const dataFoundryTables = await isolated.query<{ table_name: string }>(
+        `SELECT table_name
+           FROM information_schema.tables
+          WHERE table_schema = 'data_foundry' AND table_type = 'BASE TABLE'
+          ORDER BY table_name`,
+      );
+      expect(dataFoundryTables.map((row) => row.table_name)).toEqual(
+        expect.arrayContaining([...EXPECTED_TABLES, LEDGER_TABLE]),
+      );
+
+      const publicTables = await listPublicTables(isolated);
+      expect(publicTables).toEqual(['rise_leads']);
+    } finally {
+      await isolated.close();
+    }
+  }, 120_000);
+
+  it('keeps a foreign public ledger untouched while proving the private ledger is its own and idempotent', async () => {
+    const isolated = await createPGliteDriver();
+    try {
+      // `schema_migrations` is conventional enough that an Alpha Lab product
+      // can own it. A private install must neither inspect nor adopt it.
+      await isolated.exec(`
+        CREATE TABLE public.schema_migrations (external_note TEXT NOT NULL);
+        INSERT INTO public.schema_migrations (external_note) VALUES ('rise owns this ledger');
+      `);
+
+      await applyMigrations(isolated, migrations, { schema: 'data_foundry' });
+
+      expect(await ledgerMarker(isolated, 'data_foundry')).toBe(LEDGER_MARKER);
+      expect(await ledgerMarker(isolated, 'public')).toBeNull();
+      expect(await listSchemaTables(isolated, 'public')).toEqual([LEDGER_TABLE]);
+      expect(await listSchemaTables(isolated, 'data_foundry')).toEqual(
+        expect.arrayContaining([...EXPECTED_TABLES, LEDGER_TABLE]),
+      );
+
+      const publicLedger = await isolated.query<{ external_note: string }>(
+        'SELECT external_note FROM public.schema_migrations',
+      );
+      expect(publicLedger).toEqual([{ external_note: 'rise owns this ledger' }]);
+
+      const second = await applyMigrations(isolated, migrations, { schema: 'data_foundry' });
+      expect(second).toHaveLength(migrations.length);
+      expect(second.every((result) => result.skipped)).toBe(true);
+    } finally {
+      await isolated.close();
+    }
+  }, 120_000);
+
+  it('allows an Alpha Lab public-name collision without adopting it as Data Foundry', async () => {
+    const isolated = await createPGliteDriver();
+    try {
+      // `sources` is a generic product name. Only the Data Foundry ledger
+      // marker proves ownership; a same-named Rise table must not block a
+      // private bootstrap or be read by it.
+      await isolated.exec('CREATE TABLE public.sources (id UUID PRIMARY KEY, owner TEXT NOT NULL)');
+
+      await applyMigrations(isolated, migrations, { schema: 'data_foundry' });
+
+      expect(await listSchemaTables(isolated, 'public')).toEqual(['sources']);
+      expect(await ledgerMarker(isolated, 'data_foundry')).toBe(LEDGER_MARKER);
+    } finally {
+      await isolated.close();
+    }
+  }, 120_000);
+
+  it('refuses a private bootstrap when a prior public Data Foundry installation exists', async () => {
+    const legacy = await createPGliteDriver();
+    try {
+      await applyMigrations(legacy, migrations);
+
+      await expect(
+        applyMigrations(legacy, migrations, { schema: 'data_foundry' }),
+      ).rejects.toThrow(/public Data Foundry installation/i);
+
+      expect(await listSchemaTables(legacy, 'data_foundry')).toEqual([]);
+    } finally {
+      await legacy.close();
+    }
+  }, 120_000);
+
+  it('records the schema-scoped migration bytes so a transform change cannot silently skip', async () => {
+    const isolated = await createPGliteDriver();
+    try {
+      const transformed = migrations.find((migration) => migration.version === '0022');
+      expect(transformed).toBeDefined();
+      await applyMigrations(isolated, migrations, { schema: 'data_foundry' });
+
+      // The historical source checksum is deliberately different from the
+      // private effective SQL checksum. Writing it back simulates an older or
+      // changed transform and must fail closed rather than skip migration 0022.
+      await isolated.query(
+        'UPDATE "data_foundry".schema_migrations SET checksum = $1 WHERE version = $2',
+        [transformed?.checksum ?? '', transformed?.version ?? ''],
+      );
+      await expect(
+        applyMigrations(isolated, migrations, { schema: 'data_foundry' }),
+      ).rejects.toThrow(/Migration 0022_source_record_revision_state\.sql has changed since it was applied/i);
+    } finally {
+      await isolated.close();
+    }
+  }, 120_000);
+
+  it('does not let an unrelated public constraint suppress a private-schema constraint', async () => {
+    const isolated = await createPGliteDriver();
+    try {
+      // Constraint names are not a database-wide ownership boundary. Cover
+      // every historical name-only probe: no Rise constraint may make 0014 or
+      // 0016 skip the constraint on its intended Data Foundry relation.
+      await isolated.exec(`
+        CREATE TABLE public.rise_constraint_names (
+          id INTEGER NOT NULL,
+          CONSTRAINT sources_rights_publisher_fk CHECK (id IS NOT NULL),
+          CONSTRAINT source_artifacts_acquisition_route_allowed CHECK (id IS NOT NULL),
+          CONSTRAINT source_artifacts_acquisition_plan_nonempty CHECK (id IS NOT NULL),
+          CONSTRAINT source_artifacts_acquisition_jurisdiction_nonempty CHECK (id IS NOT NULL),
+          CONSTRAINT source_artifacts_acquisition_route_required CHECK (id IS NOT NULL),
+          CONSTRAINT source_artifacts_policy_snapshot_fk CHECK (id IS NOT NULL),
+          CONSTRAINT facts_output_kind_allowed CHECK (id IS NOT NULL)
+        )
+      `);
+
+      await applyMigrations(isolated, migrations, { schema: 'data_foundry' });
+
+      const constraints = await isolated.query<{ relation_name: string; conname: string }>(
+        `SELECT relation.relname AS relation_name, c.conname
+           FROM pg_constraint c
+           JOIN pg_class relation ON relation.oid = c.conrelid
+           JOIN pg_namespace namespace ON namespace.oid = relation.relnamespace
+          WHERE namespace.nspname = 'data_foundry'
+            AND c.conname = ANY(ARRAY[
+              'sources_rights_publisher_fk',
+              'source_artifacts_acquisition_route_allowed',
+              'source_artifacts_acquisition_plan_nonempty',
+              'source_artifacts_acquisition_jurisdiction_nonempty',
+              'source_artifacts_acquisition_route_required',
+              'source_artifacts_policy_snapshot_fk',
+              'facts_output_kind_allowed'
+            ])
+          ORDER BY relation.relname, c.conname`,
+      );
+      expect(constraints).toEqual([
+        { relation_name: 'facts', conname: 'facts_output_kind_allowed' },
+        { relation_name: 'source_artifacts', conname: 'source_artifacts_acquisition_jurisdiction_nonempty' },
+        { relation_name: 'source_artifacts', conname: 'source_artifacts_acquisition_plan_nonempty' },
+        { relation_name: 'source_artifacts', conname: 'source_artifacts_acquisition_route_allowed' },
+        { relation_name: 'source_artifacts', conname: 'source_artifacts_acquisition_route_required' },
+        { relation_name: 'source_artifacts', conname: 'source_artifacts_policy_snapshot_fk' },
+        { relation_name: 'sources', conname: 'sources_rights_publisher_fk' },
+      ]);
+    } finally {
+      await isolated.close();
+    }
+  }, 120_000);
+
+  it('stops 0012 with an operator-readable error when an existing key has no vertical', async () => {
+    const upgrade = await createPGliteDriver();
+    try {
+      await applyMigrations(
+        upgrade,
+        migrations.filter((migration) => migration.version < '0012'),
+      );
+      await upgrade.query(
+        `INSERT INTO api_tenants (id, slug, name)
+         VALUES ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'legacy-null-key', 'Legacy null key')`,
+      );
+      await upgrade.query(
+        `INSERT INTO api_keys (tenant_id, token_hash, token_prefix, label, vertical_id)
+         VALUES ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', $1, 'df_live_abcd', 'needs owner scope', NULL)`,
+        ['a'.repeat(64)],
+      );
+
+      await expect(applyMigrations(upgrade, migrations)).rejects.toThrow(
+        /0012 precondition failed: api_keys\.vertical_id contains 1 NULL row\(s\); assign every key to its intended vertical before retrying/i,
+      );
+
+      const applied = await upgrade.query<{ version: string }>(
+        `SELECT version FROM schema_migrations WHERE version = '0012'`,
+      );
+      expect(applied).toHaveLength(0);
+      const [column] = await upgrade.query<{ is_nullable: string }>(
+        `SELECT is_nullable FROM information_schema.columns
+          WHERE table_schema = 'public' AND table_name = 'api_keys' AND column_name = 'vertical_id'`,
+      );
+      expect(column?.is_nullable).toBe('YES');
+    } finally {
+      await upgrade.close();
+    }
+  }, 120_000);
+
+  it('stops 0012 before guessing attribution for an existing usage event', async () => {
+    const upgrade = await createPGliteDriver();
+    try {
+      await applyMigrations(
+        upgrade,
+        migrations.filter((migration) => migration.version < '0012'),
+      );
+      await upgrade.query(
+        `INSERT INTO verticals (id, slug, name, schema_version, status, default_refresh_policy)
+         VALUES ($1, 'legacy-metering', 'Legacy metering', '1.0.0', 'ACTIVE', $2::jsonb)`,
+        [VERTICAL, JSON.stringify({ cadence: 'WEEKLY', max_staleness_hours: 168, priority: 50 })],
+      );
+      await upgrade.query(
+        `INSERT INTO api_tenants (id, slug, name)
+         VALUES ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'legacy-usage', 'Legacy usage')`,
+      );
+      await upgrade.query(
+        `INSERT INTO api_keys (id, tenant_id, token_hash, token_prefix, label, vertical_id)
+         VALUES ('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+                 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', $1, 'df_live_abcd', 'scoped key', $2)`,
+        ['b'.repeat(64), VERTICAL],
+      );
+      await upgrade.query(
+        `INSERT INTO api_usage_events (tenant_id, api_key_id, route, method, status)
+         VALUES ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+                 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', '/v1/search', 'GET', 200)`,
+      );
+
+      await expect(applyMigrations(upgrade, migrations)).rejects.toThrow(
+        /0012 precondition failed: api_usage_events contains 1 existing row\(s\); route_key and vertical_id cannot be inferred safely/i,
+      );
+
+      const applied = await upgrade.query<{ version: string }>(
+        `SELECT version FROM schema_migrations WHERE version = '0012'`,
+      );
+      expect(applied).toHaveLength(0);
+      const columns = await upgrade.query<{ column_name: string }>(
+        `SELECT column_name FROM information_schema.columns
+          WHERE table_schema = 'public' AND table_name = 'api_usage_events'`,
+      );
+      expect(columns.map((column) => column.column_name)).toContain('route');
+      expect(columns.map((column) => column.column_name)).not.toContain('route_key');
+    } finally {
+      await upgrade.close();
+    }
+  }, 120_000);
+
+  it('stops 0022 when legacy mutable source records no longer match existing evidence', async () => {
+    const legacy = await createPGliteDriver();
+    try {
+      await applyMigrations(legacy, migrations.filter((migration) => migration.version < '0022'));
+      await seed(legacy, true, false);
+      await legacy.query(
+        `INSERT INTO entity_evidence (entity_id, artifact_id, source_record_id, contribution_role,
+                                      locator_type, locator_value, observed_at)
+         VALUES ($1, $2, $3, 'EXISTENCE', 'JSON_POINTER', '/products/0', $4)`,
+        [ENTITY, ARTIFACT, RECORD, TS],
+      );
+      await legacy.query(
+        `INSERT INTO source_artifacts (id, source_id, url, retrieved_at, content_hash, mime_type,
+                                       r2_uri, http_status, extractor_version, acquisition_provider,
+                                       acquisition_route)
+         VALUES ('66666666-6666-4666-8666-666666666666', $1,
+                 'https://ratings-directory.example.org/reprocessed', $2, $3, 'text/html',
+                 'r2://raw/hvac/ratings-directory/reprocessed.html', 200, 'html-2.0.0', 'http',
+                 'DIRECT_HTTP')`,
+        [SOURCE, TS, 'b'.repeat(64)],
+      );
+      // This was legal before revision-state hardening and is the exact
+      // historical condition 0022 must make an operator investigate.
+      await legacy.query(
+        `UPDATE source_records SET artifact_id = '66666666-6666-4666-8666-666666666666' WHERE id = $1`,
+        [RECORD],
+      );
+
+      await expect(applyMigrations(legacy, migrations)).rejects.toThrow(
+        /source-record evidence provenance mismatch exists/i,
+      );
+      const applied = await legacy.query<{ version: string }>(
+        `SELECT version FROM schema_migrations WHERE version = '0022'`,
+      );
+      expect(applied).toHaveLength(0);
+    } finally {
+      await legacy.close();
+    }
+  }, 120_000);
+
+  it('installs the 0022 source-record checks when unrelated tables use the same constraint names', async () => {
+    const shared = await createPGliteDriver();
+    try {
+      await applyMigrations(shared, migrations.filter((migration) => migration.version < '0022'));
+      await shared.query(
+        `CREATE TABLE unrelated_revision_state (
+           value TEXT CONSTRAINT source_records_revision_state_allowed CHECK (value <> '')
+         )`,
+      );
+      await shared.query(
+        `CREATE TABLE unrelated_evidence_fingerprint (
+           value TEXT CONSTRAINT source_records_evidence_fingerprint_sha256 CHECK (value <> '')
+         )`,
+      );
+
+      await applyMigrations(shared, migrations);
+
+      const constraints = await shared.query<{ conname: string }>(
+        `SELECT constraint_row.conname
+           FROM pg_constraint constraint_row
+          WHERE constraint_row.conrelid = 'public.source_records'::regclass
+            AND constraint_row.contype = 'c'
+            AND constraint_row.conname IN (
+              'source_records_revision_state_allowed',
+              'source_records_evidence_fingerprint_sha256'
+            )
+          ORDER BY constraint_row.conname`,
+      );
+      expect(constraints.map((constraint) => constraint.conname)).toEqual([
+        'source_records_evidence_fingerprint_sha256',
+        'source_records_revision_state_allowed',
+      ]);
+    } finally {
+      await shared.close();
+    }
+  }, 120_000);
+
+  it('backfills no legacy alias authority, including aliases nulled by source deletion', async () => {
+    const upgrade = await createPGliteDriver();
+    try {
+      await applyMigrations(upgrade, migrations.filter((migration) => migration.version < '0023'));
+      await seed(upgrade, true, false);
+      const curatedAlias = '56565656-5656-4656-8656-565656565656';
+      const legacySourceAlias = '57575757-5757-4757-8757-575757575757';
+      const deletedSourceAlias = '58585858-5858-4858-8858-585858585858';
+      const deletedSource = '59595959-5959-4959-8959-595959595959';
+      await upgrade.query(
+        `INSERT INTO sources (
+           id, vertical_id, publisher, domain, source_type, authority_rank,
+           rights_classification, attribution_requirement, robots_policy,
+           refresh_cadence, status, kill_switch_engaged
+         )
+         SELECT $1, vertical_id, 'Deleted legacy source', 'deleted-legacy.example',
+                source_type, authority_rank, rights_classification,
+                attribution_requirement, robots_policy, refresh_cadence,
+                'UNDER_REVIEW', kill_switch_engaged
+           FROM sources WHERE id = $2`,
+        [deletedSource, SOURCE],
+      );
+      await upgrade.query(
+        `INSERT INTO entity_aliases (
+           id, entity_id, alias_type, alias_value, normalized_value, source_id,
+           identity_confidence, valid_from, valid_to
+         ) VALUES
+           ($1, $3, 'former_name', 'Carrier Corp', 'carrier corp', NULL, 0.9, $4, NULL),
+           ($2, $3, 'model_number', '24ANB7', '24anb7', $5, 0.99, $4, NULL),
+           ($6, $3, 'external_id', 'DELETED-SOURCE', 'deleted-source', $7, 0.8, $4, NULL)`,
+        [curatedAlias, legacySourceAlias, ENTITY, TS, SOURCE, deletedSourceAlias, deletedSource],
+      );
+      await upgrade.query(`DELETE FROM sources WHERE id = $1`, [deletedSource]);
+
+      const first = await applyMigrations(upgrade, migrations);
+      expect(first.find((migration) => migration.version === '0023')?.skipped).toBe(false);
+
+      const claims = await upgrade.query<{
+        entity_alias_id: string;
+        asserted_alias_value: string;
+        identity_confidence: number;
+        claim_kind: string;
+        source_record_id: string | null;
+      }>(
+        `SELECT entity_alias_id, asserted_alias_value, identity_confidence,
+                claim_kind, source_record_id
+           FROM entity_alias_claims
+          ORDER BY entity_alias_id`,
+      );
+      expect(claims).toEqual([]);
+
+      const current = await upgrade.query<{ id: string }>(
+        `SELECT id FROM current_entity_aliases ORDER BY id`,
+      );
+      expect(current.map((alias) => alias.id)).toEqual([]);
+
+      const second = await applyMigrations(upgrade, migrations);
+      expect(second.every((migration) => migration.skipped)).toBe(true);
+      expect(await upgrade.query(`SELECT id FROM entity_alias_claims`)).toHaveLength(0);
+    } finally {
+      await upgrade.close();
+    }
+  }, 120_000);
+
+  it('does not manufacture alias-claim evidence linkage during the 0025 upgrade', async () => {
+    const upgrade = await createPGliteDriver();
+    try {
+      await applyMigrations(upgrade, migrations.filter((migration) => migration.version < '0025'));
+      await seed(upgrade);
+      const alias = '60606060-6060-4060-8060-606060606060';
+      const claim = '61616161-6161-4161-8161-616161616161';
+      await upgrade.query(
+        `INSERT INTO entity_aliases (
+           id, entity_id, alias_type, alias_value, normalized_value, source_id,
+           identity_confidence, valid_from, valid_to
+         ) VALUES ($1, $2, 'model_number', 'LEGACY-CLAIM', 'legacy-claim', $3,
+                   0.9, $4, NULL)`,
+        [alias, ENTITY, SOURCE, TS],
+      );
+      await upgrade.query(
+        `INSERT INTO entity_alias_claims (
+           id, entity_alias_id, asserted_alias_value, asserted_normalized_value,
+           identity_confidence, claim_kind, source_id, source_record_id,
+           authority_epoch, locator_type, locator_value, valid_to
+         ) VALUES ($1, $2, 'LEGACY-CLAIM', 'legacy-claim', 0.9,
+                   'SOURCE_RECORD', $3, $4, 0, 'JSON_POINTER', '/model', NULL)`,
+        [claim, alias, SOURCE, RECORD],
+      );
+      await upgrade.query(
+        `INSERT INTO entity_evidence (
+           entity_id, artifact_id, source_record_id, contribution_role,
+           locator_type, locator_value, observed_at
+         ) VALUES ($1, $2, $3, 'ALIAS', 'JSON_POINTER', '/model', $4)`,
+        [ENTITY, ARTIFACT, RECORD, TS],
+      );
+      expect(await upgrade.query<{ id: string }>(
+        `SELECT id FROM current_entity_aliases WHERE id = $1`,
+        [alias],
+      )).toEqual([{ id: alias }]);
+
+      const applied = await applyMigrations(upgrade, migrations);
+      expect(applied.find((migration) => migration.version === '0025')?.skipped).toBe(false);
+      expect(await upgrade.query<{ id: string }>(
+        `SELECT id FROM current_entity_aliases WHERE id = $1`,
+        [alias],
+      )).toEqual([]);
+      expect(await upgrade.query<{ entity_alias_claim_id: string | null }>(
+        `SELECT entity_alias_claim_id FROM entity_evidence
+          WHERE entity_id = $1 AND contribution_role = 'ALIAS'`,
+        [ENTITY],
+      )).toEqual([{ entity_alias_claim_id: null }]);
+
+      await expect(upgrade.query(
+        `INSERT INTO entity_evidence (
+           entity_id, artifact_id, source_record_id, contribution_role,
+           locator_type, locator_value, observed_at
+         ) VALUES ($1, $2, $3, 'ALIAS', 'JSON_POINTER', '/other-model', $4)`,
+        [ENTITY, ARTIFACT, RECORD, TS],
+      )).rejects.toThrow(/entity_evidence_alias_claim_shape|alias claim/i);
+    } finally {
+      await upgrade.close();
+    }
+  }, 120_000);
+
+  it('revokes unproven legacy stream membership instead of inferring snapshot authority', async () => {
+    const upgrade = await createPGliteDriver();
+    try {
+      await applyMigrations(upgrade, migrations.filter((migration) => migration.version < '0024'));
+      await seed(upgrade, true, false);
+      expect(await upgrade.query<{ is_current: boolean; source_stream: string | null }>(
+        `SELECT is_current, NULL::text AS source_stream FROM source_records WHERE id = $1`,
+        [RECORD],
+      )).toEqual([{ is_current: true, source_stream: null }]);
+
+      await applyMigrations(upgrade, migrations);
+      expect(await upgrade.query<{ is_current: boolean; source_stream: string | null }>(
+        `SELECT is_current, source_stream FROM source_records WHERE id = $1`,
+        [RECORD],
+      )).toEqual([{ is_current: false, source_stream: null }]);
+      expect(await upgrade.query(`SELECT id FROM source_record_snapshot_retirements`)).toEqual([]);
+      expect(await upgrade.query(`SELECT id FROM source_stream_snapshot_acceptances`)).toEqual([]);
+      expect(await upgrade.query(`SELECT id FROM source_stream_snapshot_acceptance_artifacts`)).toEqual([]);
+      await expect(upgrade.query(
+        `INSERT INTO source_records (
+           source_id, artifact_id, source_record_key, entity_type,
+           raw_payload, extraction_confidence, extractor_version
+         ) VALUES ($1, $2, 'missing-stream', 'equipment', '{}'::jsonb, 1, 'test@1')`,
+        [SOURCE, ARTIFACT],
+      )).rejects.toThrow(/current_requires_stream|source_records_current_requires_stream/);
+    } finally {
+      await upgrade.close();
+    }
+  }, 120_000);
+
+  it('binds every omission artifact to one immutable accepted snapshot and effective time', async () => {
+    const snapshot = await createPGliteDriver();
+    try {
+      await applyMigrations(snapshot, migrations);
+      await seed(snapshot);
+      const acceptance = '88888888-8888-4888-8888-888888888888';
+      const artifactTwo = '66666666-6666-4666-8666-666666666666';
+      const artifactThree = '77777777-7777-4777-8777-777777777777';
+      const observedAt = '2026-08-30T00:00:00.000Z';
+      const artifactRows = `
+        INSERT INTO source_artifacts (
+          id, source_id, url, retrieved_at, content_hash, mime_type, r2_uri,
+          http_status, extractor_version, acquisition_provider, acquisition_route
+        ) VALUES
+          ('${artifactTwo}', '${SOURCE}', 'https://ratings-directory.example.org/two',
+           '${observedAt}', '${'b'.repeat(64)}', 'text/html', 'r2://raw/hvac/two.html',
+           200, 'html-1.0.0', 'http', 'DIRECT_HTTP'),
+          ('${artifactThree}', '${SOURCE}', 'https://ratings-directory.example.org/three',
+           '${observedAt}', '${'c'.repeat(64)}', 'text/html', 'r2://raw/hvac/three.html',
+           200, 'html-1.0.0', 'http', 'DIRECT_HTTP');`;
+      const acceptanceRows = `
+        INSERT INTO source_stream_snapshot_acceptances (
+          id, source_id, source_stream, observed_at, snapshot_digest,
+          artifact_set_digest, mapping_digest, record_set_digest, retrieval_count
+        ) VALUES (
+          '${acceptance}', '${SOURCE}', 'fixture_records', '${observedAt}',
+          '${'d'.repeat(64)}', '${'e'.repeat(64)}', '${'f'.repeat(64)}',
+          '${'1'.repeat(64)}', 3
+        );
+        INSERT INTO source_stream_snapshot_acceptance_artifacts (
+          acceptance_id, artifact_id, retrieval_key, retrieval_receipt_id
+        ) VALUES
+          ('${acceptance}', '${ARTIFACT}', 'retrieval/one', '${'2'.repeat(64)}'),
+          ('${acceptance}', '${artifactTwo}', 'retrieval/two', '${'3'.repeat(64)}'),
+          ('${acceptance}', '${artifactThree}', 'retrieval/three', '${'4'.repeat(64)}');`;
+
+      await expect(snapshot.exec(`
+        BEGIN;
+        ${artifactRows}
+        ${acceptanceRows}
+        UPDATE source_records SET is_current = FALSE WHERE id = '${RECORD}';
+        INSERT INTO source_record_snapshot_retirements
+          (source_record_id, snapshot_acceptance_id, artifact_id,
+           source_id, source_stream, retired_at)
+        VALUES
+          ('${RECORD}', '${acceptance}', '${ARTIFACT}', '${SOURCE}',
+           'fixture_records', '${observedAt}'),
+          ('${RECORD}', '${acceptance}', '${artifactTwo}', '${SOURCE}',
+           'fixture_records', '${observedAt}'),
+          ('${RECORD}', '${acceptance}', '${artifactThree}', '${SOURCE}',
+           'fixture_records', '2026-08-30T00:00:01.000Z');
+        COMMIT;
+      `)).rejects.toThrow(/one effective time|accepted snapshot/i);
+      await snapshot.exec('ROLLBACK');
+
+      await snapshot.exec(`
+        BEGIN;
+        ${artifactRows}
+        ${acceptanceRows}
+        UPDATE source_records SET is_current = FALSE WHERE id = '${RECORD}';
+        INSERT INTO source_record_snapshot_retirements
+          (source_record_id, snapshot_acceptance_id, artifact_id,
+           source_id, source_stream, retired_at)
+        VALUES
+          ('${RECORD}', '${acceptance}', '${ARTIFACT}', '${SOURCE}',
+           'fixture_records', '${observedAt}'),
+          ('${RECORD}', '${acceptance}', '${artifactTwo}', '${SOURCE}',
+           'fixture_records', '${observedAt}'),
+          ('${RECORD}', '${acceptance}', '${artifactThree}', '${SOURCE}',
+           'fixture_records', '${observedAt}');
+        COMMIT;
+      `);
+
+      expect(await snapshot.query<{ retired_at: string }>(
+        `SELECT DISTINCT retired_at FROM source_record_snapshot_retirements
+          WHERE source_record_id = $1`,
+        [RECORD],
+      )).toHaveLength(1);
+      await expect(snapshot.query(
+        `INSERT INTO source_stream_snapshot_acceptance_artifacts
+           (acceptance_id, artifact_id, retrieval_key, retrieval_receipt_id)
+         VALUES ($1, $2, 'retrieval/late', $3)`,
+        [acceptance, ARTIFACT, '5'.repeat(64)],
+      )).rejects.toThrow(/same-source artifact|snapshot acceptance evidence/i);
+    } finally {
+      await snapshot.close();
+    }
+  }, 120_000);
+
+  it('rejects a reconciliation timestamp before replacement artifact retrieval', async () => {
+    const reconciliation = await createPGliteDriver();
+    try {
+      await applyMigrations(reconciliation, migrations);
+      await seed(reconciliation);
+      const replacementArtifact = '66666666-6666-4666-8666-666666666666';
+      const replacementRecord = '77777777-7777-4777-8777-777777777777';
+      await reconciliation.query(
+        `INSERT INTO source_artifacts (
+           id, source_id, url, retrieved_at, content_hash, mime_type, r2_uri,
+           http_status, extractor_version, acquisition_provider, acquisition_route
+         ) VALUES ($1, $2, 'https://ratings-directory.example.org/replacement',
+                   '2026-08-30T00:00:00.000Z', $3, 'text/html',
+                   'r2://raw/hvac/replacement.html', 200, 'html-1.0.0',
+                   'http', 'DIRECT_HTTP')`,
+        [replacementArtifact, SOURCE, 'b'.repeat(64)],
+      );
+      await expect(reconciliation.exec(`
+        BEGIN;
+        UPDATE source_records SET is_current = FALSE WHERE id = '${RECORD}';
+        INSERT INTO source_records (
+          id, source_id, artifact_id, source_record_key, source_stream,
+          entity_type, raw_payload, extraction_confidence, extractor_version
+        ) VALUES (
+          '${replacementRecord}', '${SOURCE}', '${replacementArtifact}', 'AHRI-123',
+          'fixture_records', 'equipment', '{"replacement":true}'::jsonb, 0.95, 'html-1.0.0'
+        );
+        INSERT INTO source_record_reconciliations (
+          superseded_source_record_id, replacement_source_record_id, reconciled_at
+        ) VALUES (
+          '${RECORD}', '${replacementRecord}', '2026-08-29T23:59:59.000Z'
+        );
+        COMMIT;
+      `)).rejects.toThrow(/at or after artifact retrieval/i);
+      await reconciliation.exec('ROLLBACK');
+      expect(await reconciliation.query<{ is_current: boolean }>(
+        `SELECT is_current FROM source_records WHERE id = $1`,
+        [RECORD],
+      )).toEqual([{ is_current: true }]);
+    } finally {
+      await reconciliation.close();
+    }
+  }, 120_000);
+
+  it('makes replacement and complete-snapshot omission mutually exclusive', async () => {
+    const terminal = await createPGliteDriver();
+    try {
+      await applyMigrations(terminal, migrations);
+      await seed(terminal);
+      const artifact = '66666666-6666-4666-8666-666666666666';
+      const acceptance = '77777777-7777-4777-8777-777777777777';
+      const replacement = '88888888-8888-4888-8888-888888888888';
+      await expect(terminal.exec(`
+        BEGIN;
+        INSERT INTO source_artifacts (
+          id, source_id, url, retrieved_at, content_hash, mime_type, r2_uri,
+          http_status, extractor_version, acquisition_provider, acquisition_route
+        ) VALUES (
+          '${artifact}', '${SOURCE}', 'https://ratings-directory.example.org/terminal',
+          '2026-08-30T00:00:00.000Z', '${'b'.repeat(64)}', 'text/html',
+          'r2://raw/hvac/terminal.html', 200, 'html-1.0.0', 'http', 'DIRECT_HTTP'
+        );
+        INSERT INTO source_stream_snapshot_acceptances (
+          id, source_id, source_stream, observed_at, snapshot_digest,
+          artifact_set_digest, mapping_digest, record_set_digest, retrieval_count
+        ) VALUES (
+          '${acceptance}', '${SOURCE}', 'fixture_records', '2026-08-30T00:00:00.000Z',
+          '${'c'.repeat(64)}', '${'d'.repeat(64)}', '${'e'.repeat(64)}',
+          '${'f'.repeat(64)}', 1
+        );
+        INSERT INTO source_stream_snapshot_acceptance_artifacts
+          (acceptance_id, artifact_id, retrieval_key, retrieval_receipt_id)
+        VALUES ('${acceptance}', '${artifact}', 'retrieval/terminal', '${'1'.repeat(64)}');
+        UPDATE source_records SET is_current = FALSE WHERE id = '${RECORD}';
+        INSERT INTO source_record_snapshot_retirements
+          (source_record_id, snapshot_acceptance_id, artifact_id,
+           source_id, source_stream, retired_at)
+        VALUES (
+          '${RECORD}', '${acceptance}', '${artifact}', '${SOURCE}',
+          'fixture_records', '2026-08-30T00:00:00.000Z'
+        );
+        INSERT INTO source_records (
+          id, source_id, artifact_id, source_record_key, source_stream,
+          entity_type, raw_payload, extraction_confidence, extractor_version
+        ) VALUES (
+          '${replacement}', '${SOURCE}', '${artifact}', 'AHRI-123', 'fixture_records',
+          'equipment', '{"replacement":true}'::jsonb, 0.95, 'html-1.0.0'
+        );
+        INSERT INTO source_record_reconciliations
+          (superseded_source_record_id, replacement_source_record_id, reconciled_at)
+        VALUES ('${RECORD}', '${replacement}', '2026-08-30T00:00:00.000Z');
+        COMMIT;
+      `)).rejects.toThrow(/exclusively link|exactly one terminal mechanism/i);
+    } finally {
+      await terminal.close();
+    }
+  }, 120_000);
+
   it('refuses to run when an applied migration has been edited', async () => {
     const tampered = migrations.map((migration, index) =>
       index === 0 ? { ...migration, checksum: 'f'.repeat(64) } : migration,
     );
     await expect(applyMigrations(driver, tampered)).rejects.toThrow(/has changed since it was applied/);
+  });
+
+  it('refuses a private bootstrap before writing when the required extensions schema is absent', async () => {
+    const isolated = await createPGliteDriver();
+    try {
+      await isolated.exec('DROP SCHEMA extensions');
+
+      await expect(
+        applyMigrations(isolated, migrations, { schema: 'data_foundry' }),
+      ).rejects.toThrow(/extensions.*before migration/i);
+      expect(await listSchemaTables(isolated, 'data_foundry')).toEqual([]);
+    } finally {
+      await isolated.close();
+    }
   });
 
   it('keeps the SQL tables and the Zod object registry in step', async () => {
@@ -150,15 +914,21 @@ describe('storage-level invariants', () => {
     ).rejects.toThrow(/sources_active_requires_rights/);
   });
 
-  it('enforces uniqueness on (source_id, source_record_key)', async () => {
+  it('enforces uniqueness on a current (source_id, source_record_key) revision', async () => {
     await expect(
       driver.query(
-        `INSERT INTO source_records (source_id, artifact_id, source_record_key, entity_type,
+        `INSERT INTO source_records (source_id, artifact_id, source_record_key, source_stream, entity_type,
                                      raw_payload, extraction_confidence, extractor_version)
-         VALUES ($1, $2, 'AHRI-123', 'equipment', '{}'::jsonb, 0.9, 'html-1.0.0')`,
+         VALUES ($1, $2, 'AHRI-123', 'fixture_records', 'equipment', '{}'::jsonb, 0.9, 'html-1.0.0')`,
         [SOURCE, ARTIFACT],
       ),
-    ).rejects.toThrow(/source_records_source_key_uniq/);
+    ).rejects.toThrow(/source_records_current_source_key_uniq/);
+  });
+
+  it('refuses to retire a current source-record revision without append-only lineage', async () => {
+    await expect(
+      driver.query(`UPDATE source_records SET is_current = FALSE WHERE id = $1`, [RECORD]),
+    ).rejects.toThrow(/requires exactly one terminal mechanism/i);
   });
 
   it('allows exactly one open ACTIVE version per (entity, property)', async () => {
@@ -315,9 +1085,10 @@ describe('storage-level invariants', () => {
     // A property of its own: sibling tests hold the only open ACTIVE version of
     // `seer2_rating` for this entity.
     const [fact] = await driver.query<{ id: string }>(
-      `INSERT INTO facts (entity_id, property, normalized_value, value_type, valid_from,
+      `INSERT INTO facts (entity_id, property, normalized_value, value_type, output_kind, valid_from,
                           status, confidence, recorded_at)
-       VALUES ($1, 'fk_probe_property', '14.5'::jsonb, 'number', $2, 'ACTIVE', 0.9, $2)
+       VALUES ($1, 'fk_probe_property', '14.5'::jsonb, 'number', 'NORMALIZED_FACT',
+               $2, 'ACTIVE', 0.9, $2)
        RETURNING id`,
       [ENTITY, '2026-03-01T00:00:00.000Z'],
     );
@@ -413,17 +1184,22 @@ describe('API tenancy invariants (0011)', () => {
       [TENANT_A, TENANT_B],
     );
     await driver.query(
-      `INSERT INTO api_keys (id, tenant_id, token_hash, token_prefix, label)
-       VALUES ($1, $2, $3, 'df_live_aaaa', 'primary') ON CONFLICT DO NOTHING`,
-      [KEY_A, TENANT_A, HASH_A],
+      `INSERT INTO api_keys
+         (id, tenant_id, vertical_id, token_hash, token_prefix, label,
+          access_tier, billing_source)
+       VALUES ($1, $2, $3, $4, 'df_live_aaaaaaaa', 'primary',
+               'API_PAID', 'DIRECT') ON CONFLICT DO NOTHING`,
+      [KEY_A, TENANT_A, VERTICAL, HASH_A],
     );
   }
 
-  const usage = (tenant: string, key: string, route = '/v1/entities/{id}', method = 'GET') =>
+  const usage = (tenant: string, key: string, routeKey = 'entities.detail', method = 'GET') =>
     driver.query(
-      `INSERT INTO api_usage_events (tenant_id, api_key_id, route, method, status)
-       VALUES ($1, $2, $3, $4, 200)`,
-      [tenant, key, route, method],
+      `INSERT INTO api_usage_events
+         (tenant_id, api_key_id, vertical_id, route_key, method, status,
+          access_tier, billing_source)
+       VALUES ($1, $2, $3, $4, $5, 200, 'API_PAID', 'DIRECT')`,
+      [tenant, key, VERTICAL, routeKey, method],
     );
 
   beforeAll(seedTenancy);
@@ -446,9 +1222,12 @@ describe('API tenancy invariants (0011)', () => {
   it('refuses a raw key stored where a hash belongs', async () => {
     await expect(
       driver.query(
-        `INSERT INTO api_keys (tenant_id, token_hash, token_prefix, label)
-         VALUES ($1, 'df_live_Ej8xQ2vN4kLpR7sT1uY6wA9bC3dE5fG8hJ0kL2mN4pQ', 'df_live_Ej8x', 'raw')`,
-        [TENANT_A],
+        `INSERT INTO api_keys
+           (tenant_id, vertical_id, token_hash, token_prefix, label,
+            access_tier, billing_source)
+         VALUES ($1, $2, 'df_live_Ej8xQ2vN4kLpR7sT1uY6wA9bC3dE5fG8hJ0kL2mN4pQ',
+                 'df_live_Ej8xQ2vN', 'raw', 'API_PAID', 'DIRECT')`,
+        [TENANT_A, VERTICAL],
       ),
     ).rejects.toThrow();
   });
@@ -456,9 +1235,12 @@ describe('API tenancy invariants (0011)', () => {
   it('refuses two keys with the same hash, so a lookup cannot be ambiguous', async () => {
     await expect(
       driver.query(
-        `INSERT INTO api_keys (tenant_id, token_hash, token_prefix, label)
-         VALUES ($1, $2, 'df_live_bbbb', 'duplicate')`,
-        [TENANT_B, HASH_A],
+        `INSERT INTO api_keys
+           (tenant_id, vertical_id, token_hash, token_prefix, label,
+            access_tier, billing_source)
+         VALUES ($1, $2, $3, 'df_live_bbbbbbbb', 'duplicate',
+                 'API_PAID', 'DIRECT')`,
+        [TENANT_B, VERTICAL, HASH_A],
       ),
     ).rejects.toThrow();
   });
@@ -471,30 +1253,22 @@ describe('API tenancy invariants (0011)', () => {
     await expect(driver.query(`DELETE FROM api_tenants WHERE id = $1`, [TENANT_A])).rejects.toThrow();
   });
 
-  it('keeps a request target out of the metering table', async () => {
-    // A query string is one leak shape...
-    await expect(usage(TENANT_A, KEY_A, '/v1/search?q=acme')).rejects.toThrow();
-    // ...an interpolated entity id is the other, and the likelier one, because
-    // `request.url` is closer to hand than the matched template.
-    await expect(
-      usage(TENANT_A, KEY_A, '/v1/entities/9f3c1e77-2b4a-4d6e-8f01-2a3b4c5d6e7f'),
-    ).rejects.toThrow();
-  });
-
-  it('accepts a template, which is what the column is for', async () => {
-    await expect(usage(TENANT_A, KEY_A, '/v1/entities/{id}/facts')).resolves.toBeDefined();
-  });
+  // The two route-shape guards 0011 carried are gone, along with the free-text
+  // column they guarded. Their replacement is the closed vocabulary asserted in
+  // the 0012 block below, which does not have to predict the shape of a leak.
 
   it('refuses a method this read-only API does not serve', async () => {
-    await expect(usage(TENANT_A, KEY_A, '/v1/search', 'POST')).rejects.toThrow();
+    await expect(usage(TENANT_A, KEY_A, 'search', 'POST')).rejects.toThrow();
   });
 
   it('refuses a status code outside the HTTP range', async () => {
     await expect(
       driver.query(
-        `INSERT INTO api_usage_events (tenant_id, api_key_id, route, method, status)
-         VALUES ($1, $2, '/v1/search', 'GET', 999)`,
-        [TENANT_A, KEY_A],
+        `INSERT INTO api_usage_events
+           (tenant_id, api_key_id, vertical_id, route_key, method, status,
+            access_tier, billing_source)
+         VALUES ($1, $2, $3, 'search', 'GET', 999, 'API_PAID', 'DIRECT')`,
+        [TENANT_A, KEY_A, VERTICAL],
       ),
     ).rejects.toThrow();
   });
@@ -510,7 +1284,7 @@ describe('migration 0009 over pre-existing judgment history', () => {
     // Everything the judgment table needs, and nothing that knows about episodes.
     const before0009 = migrations.filter((migration) => migration.version < '0009');
     await applyMigrations(legacy, before0009);
-    await seed(legacy);
+    await seed(legacy, false, false);
 
     // Two MERGE judgments on one pair: approved, reversed, approved again. The
     // reversal in between is a NOT_MERGE, so all three share the pair and two
@@ -896,4 +1670,344 @@ describe('the ledger proves its ownership rather than inferring it', () => {
       await marked.close();
     }
   }, 120_000);
+});
+
+/**
+ * Corrections to 0011, reproduced before they were made.
+ *
+ * 0011 reached `main` with four structural defects that review named and did not
+ * fix. Every test below failed against it — and the first draft of this block
+ * failed for the WRONG REASON, which is worse than not testing at all: an insert
+ * naming a column that does not exist throws `42703`, so a bare
+ * `rejects.toThrow()` went green against a schema with no control in it
+ * whatsoever. Six of these were vacuous before the codes were pinned.
+ *
+ * So each refusal names the SQLSTATE it expects. `23503` is a foreign key
+ * refusing an unregistered value; `23502` is NOT NULL. Neither is `42703`, and
+ * that difference is the entire point.
+ */
+describe('API usage accounting corrections (0012)', () => {
+  const TENANT = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+  const KEY = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc';
+  const OTHER_VERTICAL = 'dddddddd-dddd-4ddd-8ddd-dddddddddddd';
+  const OTHER_KEY = 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee';
+
+  /** SQLSTATE classes worth telling apart. */
+  const FOREIGN_KEY_VIOLATION = '23503';
+  const NOT_NULL_VIOLATION = '23502';
+  /**
+   * ON DELETE RESTRICT, which the two engines label differently.
+   *
+   * Measured, not assumed: real PostgreSQL 16.13 raises `23503`
+   * (foreign_key_violation) and words it "violates foreign key constraint".
+   * PGlite 0.5.5 raises `23001` (restrict_violation) and words it "violates
+   * RESTRICT setting of foreign key constraint" — the PostgreSQL 18 behaviour,
+   * because PGlite 0.5.x is built on a newer Postgres than the one CI deploys
+   * against.
+   *
+   * The first draft of this pinned `23001` alone. That is the code PGlite
+   * emits, and the suite only ever runs these against PGlite — so the
+   * assertion was green while being wrong for the database this schema is
+   * actually for. Review caught it.
+   *
+   * Both codes mean the same refusal, so both are accepted, and the pair is
+   * named here so the divergence is a recorded fact rather than a loose matcher.
+   */
+  const RESTRICT_VIOLATION = ['23503', '23001'];
+
+  /** A CHECK constraint refusing a value. */
+  const CHECK_VIOLATION = '23514';
+
+  /**
+   * Assert a statement is refused, and refused for the stated reason.
+   *
+   * The reason is the assertion. A missing column, a typo in a table name and a
+   * genuine constraint violation are all "it threw", and only one of them is
+   * evidence that a control exists.
+   */
+  async function refusedWith(
+    promise: Promise<unknown>,
+    sqlState: string | readonly string[],
+  ): Promise<void> {
+    const accepted = typeof sqlState === 'string' ? [sqlState] : [...sqlState];
+    const error = await promise.then(
+      () => null,
+      (caught: unknown) => caught,
+    );
+    if (error === null) {
+      throw new Error(`expected SQLSTATE ${accepted.join(' or ')}, but the statement succeeded`);
+    }
+    const code = (error as { code?: unknown }).code;
+    expect(
+      accepted,
+      `${String((error as Error).message)} (SQLSTATE ${String(code)})`,
+    ).toContain(code);
+  }
+
+  async function seedAccounting(): Promise<void> {
+    await driver.query(
+      `INSERT INTO verticals (id, slug, name, schema_version, status, default_refresh_policy)
+       VALUES ($1, 'solar', 'Solar', '1.0.0', 'ACTIVE', $2::jsonb) ON CONFLICT DO NOTHING`,
+      [
+        OTHER_VERTICAL,
+        JSON.stringify({ cadence: 'WEEKLY', max_staleness_hours: 168, priority: 50 }),
+      ],
+    );
+    await driver.query(
+      `INSERT INTO api_tenants (id, slug, name) VALUES ($1, 'tenant-metered', 'Metered')
+       ON CONFLICT DO NOTHING`,
+      [TENANT],
+    );
+    // One tenant, two keys, one per vertical: the shape a customer buying two
+    // industries actually has, and the shape the attribution tests need.
+    await driver.query(
+      `INSERT INTO api_keys
+         (id, tenant_id, vertical_id, token_hash, token_prefix, label,
+          access_tier, billing_source)
+       VALUES ($1, $2, $3, $4, 'df_live_aaaabbbb', 'hvac', 'API_PAID', 'DIRECT'),
+              ($5, $2, $6, $7, 'df_live_ccccdddd', 'solar', 'API_PAID', 'DIRECT')
+       ON CONFLICT DO NOTHING`,
+      [KEY, TENANT, VERTICAL, 'c'.repeat(64), OTHER_KEY, OTHER_VERTICAL, 'd'.repeat(64)],
+    );
+  }
+
+  beforeAll(seedAccounting);
+
+  const meter = (routeKey: string, vertical: string = VERTICAL, key: string = KEY) =>
+    driver.query(
+      `INSERT INTO api_usage_events
+         (tenant_id, api_key_id, vertical_id, route_key, method, status,
+          access_tier, billing_source)
+       VALUES ($1, $2, $3, $4, 'GET', 200, 'API_PAID', 'DIRECT')`,
+      [TENANT, key, vertical, routeKey],
+    );
+
+  /**
+   * ROUTE_PRIVACY_CONTROL.
+   *
+   * 0011 held a free-text `route` guarded by two regexes — no query string, no
+   * UUID — and called the result a template. Both are guesses about what a leak
+   * looks like, and its own comment admitted no CHECK can tell a literal path
+   * segment from a parameter. A closed vocabulary is not a guess: a value that
+   * is not a registered route key has nowhere to be stored.
+   */
+  describe('the route a usage row records comes from a closed vocabulary', () => {
+    it('accepts a key the application actually declares', async () => {
+      await expect(meter('entities.detail')).resolves.toBeDefined();
+    });
+
+    it('refuses the URL template the old column was designed to hold', async () => {
+      await refusedWith(meter('/v1/entities/{id}'), FOREIGN_KEY_VIOLATION);
+    });
+
+    it('refuses an identifier neither 0011 guard could see', async () => {
+      // No query string and no UUID, so both of 0011's CHECKs pass it — and it
+      // names precisely which company a paying customer looked up. This is the
+      // leak those regexes were meant to stop and structurally could not.
+      await refusedWith(meter('/v1/entities/by-slug/acme-climate'), FOREIGN_KEY_VIOLATION);
+    });
+
+    it('refuses a key that is plausible but not registered', async () => {
+      // "Looks like one of ours" is not membership. A metering writer allowed to
+      // invent keys has re-opened the free-text column this replaced.
+      await refusedWith(meter('entities.deleted'), FOREIGN_KEY_VIOLATION);
+    });
+
+    it('refuses to drop a route key that usage rows still reference', async () => {
+      await refusedWith(
+        driver.query(`DELETE FROM api_route_keys WHERE key = 'entities.detail'`),
+        RESTRICT_VIOLATION,
+      );
+    });
+  });
+
+  /**
+   * VERTICAL_ATTRIBUTION.
+   *
+   * The product duplicates across industries by configuration rather than by
+   * forking (AGENTS.md rule 4). Usage that cannot be split by vertical cannot
+   * answer the one question that decides whether a second vertical paid for
+   * itself.
+   */
+  describe('every usage row names the vertical it was served from', () => {
+    it('refuses a usage row with no vertical at all', async () => {
+      await refusedWith(
+        driver.query(
+          `INSERT INTO api_usage_events
+             (tenant_id, api_key_id, route_key, method, status,
+              access_tier, billing_source)
+           VALUES ($1, $2, 'search', 'GET', 200, 'API_PAID', 'DIRECT')`,
+          [TENANT, KEY],
+        ),
+        NOT_NULL_VIOLATION,
+      );
+    });
+
+    it('refuses a vertical the key that made the request cannot read', async () => {
+      // The twin of the cross-tenant defect review found in 0011: both foreign
+      // keys resolve on their own, and only comparing them catches a row that
+      // bills Solar for HVAC traffic.
+      await refusedWith(meter('search', OTHER_VERTICAL), FOREIGN_KEY_VIOLATION);
+    });
+
+    it('separates two verticals in the aggregate an invoice is built from', async () => {
+      await meter('search', VERTICAL, KEY);
+      await meter('search', OTHER_VERTICAL, OTHER_KEY);
+      const rows = await driver.query<{ vertical_id: string; n: string }>(
+        `SELECT vertical_id, count(*) AS n FROM api_usage_events
+          WHERE tenant_id = $1 AND route_key = 'search'
+          GROUP BY vertical_id ORDER BY vertical_id`,
+        [TENANT],
+      );
+      expect(rows).toHaveLength(2);
+      expect(rows.map((row) => Number(row.n))).toEqual([1, 1]);
+    });
+  });
+
+  /**
+   * RATE_LIMIT_PLATFORM_MISMATCH.
+   *
+   * A per-minute limit in a row is a number nothing can enforce. The database is
+   * not on the request path, and an edge that consulted it per request would
+   * become the bottleneck the limit exists to prevent. Storing it invites a
+   * reader to believe a limit is in force when nothing applies it.
+   */
+  it('carries no rate limit, which the database is in no position to enforce', async () => {
+    const columns = await driver.query<{ column_name: string }>(
+      `SELECT column_name FROM information_schema.columns
+        WHERE table_schema = 'public' AND table_name = 'api_keys'`,
+    );
+    expect(columns.map((column) => column.column_name)).not.toContain('rate_limit_per_minute');
+  });
+
+  /**
+   * The scope on a key is now total rather than optional.
+   *
+   * NULL meant "every vertical", and a NULL satisfies a composite foreign key
+   * vacuously — so the attribution constraint above would have been
+   * unenforceable for exactly the keys with the widest reach.
+   *
+   * ## This test is also the guard on a product decision
+   *
+   * NOT NULL here encodes **one key per vertical**, and that is deliberate
+   * rather than incidental. It matches the deployment model: `apps/edge/src/env.ts`
+   * refuses to start without a `VERTICAL_SLUG` because "a deployment serves
+   * exactly one vertical", so a key presented to a Worker can only ever exercise
+   * one vertical anyway. A customer buying two industries holds two keys.
+   *
+   * The decision it forecloses is multi-vertical customer keys — and the way
+   * that would be reintroduced is by quietly making this column nullable again,
+   * which would silently re-open the vacuous-composite-FK hole above. If
+   * multi-vertical access is ever required, the answer is a grant or junction
+   * table (`api_key_verticals`), decided by the owner and migrated explicitly.
+   * It is not a nullable column.
+   *
+   * So when this test fails, read it as "somebody is changing the entitlement
+   * model", not as "a constraint got in the way".
+   */
+  it('refuses a key that names no vertical', async () => {
+    await refusedWith(
+      driver.query(
+        `INSERT INTO api_keys
+           (tenant_id, token_hash, token_prefix, label, access_tier, billing_source)
+         VALUES ($1, $2, 'df_live_eeeeffff', 'unscoped', 'API_PAID', 'DIRECT')`,
+        [TENANT, 'e'.repeat(64)],
+      ),
+      NOT_NULL_VIOLATION,
+    );
+  });
+});
+
+/**
+ * The ownership partition, asserted in both directions.
+ *
+ * `creates every expected table` asserts only that everything named is present.
+ * Nothing asserted the converse — that every table the migrations create is
+ * named — so a migration adding a table and forgetting the manifest would have
+ * its tables silently classified as a stranger's by the one function whose whole
+ * job is telling ours from a stranger's. 0011 happened to update the manifest.
+ * Nothing made it.
+ */
+describe('the table manifest and the migrations agree', () => {
+  it('claims every table its own migrations create', async () => {
+    const partition = partitionOwnedTables(await listPublicTables(driver));
+    expect(partition.unowned).toEqual([]);
+  });
+
+  it('names no table the migrations do not create', async () => {
+    const partition = partitionOwnedTables(await listPublicTables(driver));
+    expect(partition.missing).toEqual([]);
+  });
+});
+
+/**
+ * The widened source_type vocabulary (0013).
+ *
+ * Asserted against the database rather than against the TypeScript enum,
+ * because the two are separate declarations of the same list and only one of
+ * them is what a row actually has to satisfy. A test that read `SOURCE_TYPES`
+ * would pass whether or not 0013 ever ran.
+ */
+describe('a regulator-hosted filing is a source type of its own (0013)', () => {
+  const insertSource = (type: string) =>
+    driver.query(
+      `INSERT INTO sources (vertical_id, publisher, domain, source_type, authority_rank,
+                            attribution_requirement, robots_policy, refresh_cadence, status)
+       VALUES ($1, 'probe', $2, $3, 50, $4::jsonb, $5::jsonb, 'WEEKLY', 'UNDER_REVIEW')`,
+      [VERTICAL, `${type.toLowerCase()}.example.com`, type, ATTRIBUTION, ROBOTS],
+    );
+
+  it('accepts REGULATORY_FILING', async () => {
+    await expect(insertSource('REGULATORY_FILING')).resolves.toBeDefined();
+  });
+
+  /**
+   * The negative control. Without it, a migration that dropped the CHECK
+   * entirely — rather than widening it — would pass the assertion above, and the
+   * column would silently accept anything at all.
+   *
+   * Pinned to `23514` (check_violation) rather than left as a bare
+   * `rejects.toThrow()`, for the reason the 0012 block exists: a rejection for
+   * an unrelated reason — a missing table, a typo in a column name — is also
+   * "it threw", and only one of those is evidence that the constraint is there.
+   * Measured on real PostgreSQL 16.13.
+   */
+  it('still refuses a type that is not in the vocabulary', async () => {
+    for (const bogus of ['GOVERNMENT', 'TOTALLY_MADE_UP']) {
+      const error = await insertSource(bogus).then(
+        () => null,
+        (caught: unknown) => caught,
+      );
+      expect(error, `${bogus} was accepted`).not.toBeNull();
+      expect(
+        (error as { code?: unknown }).code,
+        `${bogus}: ${String((error as Error).message)}`,
+      ).toBe('23514');
+    }
+  });
+
+  it('keeps accepting the types that were already valid', async () => {
+    await expect(insertSource('CERTIFICATION_BODY')).resolves.toBeDefined();
+    await expect(insertSource('MANUFACTURER')).resolves.toBeDefined();
+  });
+
+  /**
+   * The distinction the whole change exists for.
+   *
+   * `REGULATORY_FILING` must not be storable as, comparable to, or silently
+   * folded into `CERTIFICATION_BODY`. A government host is not a claim: DOE says
+   * of its own database that appearing in it "is not an indication that DOE has
+   * determined that the model is compliant".
+   */
+  it('does not collapse a filing into a certification', async () => {
+    const rows = await driver.query<{ source_type: string; n: string }>(
+      `SELECT source_type, count(*) AS n FROM sources
+        WHERE source_type IN ('REGULATORY_FILING', 'CERTIFICATION_BODY')
+        GROUP BY source_type ORDER BY source_type`,
+    );
+    expect(rows.map((row) => row.source_type)).toEqual([
+      'CERTIFICATION_BODY',
+      'REGULATORY_FILING',
+    ]);
+  });
 });

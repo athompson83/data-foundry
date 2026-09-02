@@ -10,12 +10,31 @@
  * with no database refuses to answer at all.
  */
 
+import type { KeyEnvironment } from '@data-foundry/api-keys';
+import {
+  canonicalizeEndpointHostname,
+  isUnsafeCanonicalProductionHostname,
+} from '@data-foundry/canonical-schema';
+
 /** Cloudflare's Hyperdrive binding, narrowed to the one field we read. */
 export interface HyperdriveBinding {
   readonly connectionString: string;
 }
 
+/**
+ * Cloudflare's Queue producer binding, narrowed to the one method a producer
+ * calls. Named locally rather than pulled from `@cloudflare/workers-types` —
+ * this repository types every Cloudflare binding it touches by the shape it
+ * reads, the same choice `HyperdriveBinding` already made, so a binding this
+ * Worker does not use cannot widen what it is trusted with.
+ */
+export interface QueueBinding<Message = unknown> {
+  send(message: Message): Promise<void>;
+}
+
 export interface EdgeEnv {
+  /** Explicit deployment identity; absence is rejected. */
+  readonly DEPLOYMENT_ENVIRONMENT?: string | undefined;
   /**
    * Hyperdrive binding. Preferred over `POSTGRES_URL`: it pools connections at
    * Cloudflare's edge, which is what makes Postgres viable from a Worker at all.
@@ -25,6 +44,21 @@ export interface EdgeEnv {
   readonly POSTGRES_URL?: string;
   /** Which vertical this deployment serves. One vertical per Worker. */
   readonly VERTICAL_SLUG?: string;
+  /** Which credential namespace this deployment accepts. Never inferred. */
+  readonly API_KEY_ENVIRONMENT?: string;
+  /** Hostname reserved for requests proxied by RapidAPI. No scheme or path. */
+  readonly RAPIDAPI_HOSTNAME?: string;
+  /** RapidAPI's origin-verification secret. Configure as a Worker secret. */
+  readonly RAPIDAPI_PROXY_SECRET?: string;
+  /** Server-held Data Foundry key issued as RAPIDAPI/RAPIDAPI for one vertical. */
+  readonly RAPIDAPI_API_KEY?: string;
+  /**
+   * Durable handoff for usage events. Optional in the type so local/test code
+   * can prove the missing-binding failure; production configuration requires
+   * it, and an authenticated GET/HEAD returns 503 unless `send` is accepted.
+   * Database persistence remains asynchronous in the queue consumer.
+   */
+  readonly USAGE_EVENTS_QUEUE?: QueueBinding;
 }
 
 export class EdgeConfigurationError extends Error {
@@ -37,6 +71,68 @@ export class EdgeConfigurationError extends Error {
 export interface ResolvedEdgeConfig {
   readonly connectionString: string;
   readonly verticalSlug: string;
+  readonly apiKeyEnvironment: KeyEnvironment;
+  readonly deploymentEnvironment: DeploymentEnvironment;
+  readonly rapidApi: RapidApiConfig | null;
+}
+
+export type DeploymentEnvironment = 'development' | 'production';
+
+export interface RapidApiConfig {
+  readonly hostname: string;
+  readonly proxySecret: string;
+  readonly apiKey: string;
+}
+
+function resolveDeploymentEnvironment(value: string | undefined): DeploymentEnvironment {
+  if (value === 'development') return 'development';
+  if (value === 'production') return 'production';
+  throw new EdgeConfigurationError(
+    'DEPLOYMENT_ENVIRONMENT must be exactly "development" or "production".',
+  );
+}
+
+function resolveRapidApiConfig(
+  env: EdgeEnv,
+  deploymentEnvironment: DeploymentEnvironment,
+): RapidApiConfig | null {
+  const anyConfigured =
+    env.RAPIDAPI_HOSTNAME !== undefined ||
+    env.RAPIDAPI_PROXY_SECRET !== undefined ||
+    env.RAPIDAPI_API_KEY !== undefined;
+  if (!anyConfigured) return null;
+
+  const hostname = canonicalizeEndpointHostname(env.RAPIDAPI_HOSTNAME ?? '');
+  const proxySecret = env.RAPIDAPI_PROXY_SECRET ?? '';
+  const apiKey = env.RAPIDAPI_API_KEY ?? '';
+  if (hostname === '' || proxySecret === '' || apiKey === '') {
+    throw new EdgeConfigurationError(
+      'RapidAPI configuration is incomplete. RAPIDAPI_HOSTNAME, ' +
+        'RAPIDAPI_PROXY_SECRET, and RAPIDAPI_API_KEY must be configured together.',
+    );
+  }
+  if (deploymentEnvironment === 'production' && isUnsafeCanonicalProductionHostname(hostname)) {
+    throw new EdgeConfigurationError(
+      'RAPIDAPI_HOSTNAME must be a canonical production hostname; IP literals (including loopback and unspecified), special-use names, and provider fallback zones are refused.',
+    );
+  }
+
+  let parsed: URL;
+  try {
+    parsed = new URL(`https://${hostname}`);
+  } catch {
+    throw new EdgeConfigurationError('RAPIDAPI_HOSTNAME must be a hostname without a scheme or path.');
+  }
+  if (
+    parsed.hostname.toLowerCase() !== hostname ||
+    parsed.port !== '' ||
+    parsed.pathname !== '/' ||
+    parsed.search !== '' ||
+    parsed.hash !== ''
+  ) {
+    throw new EdgeConfigurationError('RAPIDAPI_HOSTNAME must be a hostname without a scheme or path.');
+  }
+  return { hostname, proxySecret, apiKey };
 }
 
 /**
@@ -47,7 +143,15 @@ export interface ResolvedEdgeConfig {
  * they meant.
  */
 export function resolveEdgeConfig(env: EdgeEnv): ResolvedEdgeConfig {
-  const connectionString = env.HYPERDRIVE?.connectionString ?? env.POSTGRES_URL ?? '';
+  const deploymentEnvironment = resolveDeploymentEnvironment(env.DEPLOYMENT_ENVIRONMENT);
+  if (deploymentEnvironment === 'production' && env.HYPERDRIVE === undefined) {
+    throw new EdgeConfigurationError(
+      'Production requires the HYPERDRIVE binding; POSTGRES_URL is for local development only.',
+    );
+  }
+  const connectionString = deploymentEnvironment === 'production'
+    ? env.HYPERDRIVE?.connectionString ?? ''
+    : env.HYPERDRIVE?.connectionString ?? env.POSTGRES_URL ?? '';
   if (connectionString.trim() === '') {
     throw new EdgeConfigurationError(
       'No database is configured. Bind HYPERDRIVE or set POSTGRES_URL. ' +
@@ -63,5 +167,27 @@ export function resolveEdgeConfig(env: EdgeEnv): ResolvedEdgeConfig {
     );
   }
 
-  return { connectionString, verticalSlug };
+  const apiKeyEnvironment = env.API_KEY_ENVIRONMENT ?? '';
+  if (apiKeyEnvironment !== 'live' && apiKeyEnvironment !== 'test') {
+    throw new EdgeConfigurationError(
+      'API_KEY_ENVIRONMENT must be set explicitly to "live" or "test". ' +
+        'A deployment must never infer which credential namespace it accepts.',
+    );
+  }
+  if (deploymentEnvironment === 'production' && apiKeyEnvironment !== 'live') {
+    throw new EdgeConfigurationError('Production requires API_KEY_ENVIRONMENT="live".');
+  }
+  if (deploymentEnvironment === 'production' && env.USAGE_EVENTS_QUEUE === undefined) {
+    throw new EdgeConfigurationError(
+      'Production requires the USAGE_EVENTS_QUEUE binding for asynchronous metering.',
+    );
+  }
+
+  return {
+    connectionString,
+    verticalSlug,
+    apiKeyEnvironment,
+    deploymentEnvironment,
+    rapidApi: resolveRapidApiConfig(env, deploymentEnvironment),
+  };
 }

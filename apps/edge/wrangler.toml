@@ -13,22 +13,41 @@ main = "src/index.ts"
 # date must be 2024-09-23 or later for the flag to take effect.
 compatibility_date = "2026-08-23"
 compatibility_flags = ["nodejs_compat"]
+workers_dev = false
+preview_urls = false
 
 [observability]
 enabled = true
 
+[observability.logs]
+invocation_logs = false
+
 [vars]
+DEPLOYMENT_ENVIRONMENT = "production"
 # One vertical per deployment. The bundle carries the compiled runtimes by slug
 # (see src/index.ts RUNTIMES); this selects which one this Worker serves.
 VERTICAL_SLUG = "hvac"
+# Credential namespaces are enforced, not labels. Production accepts only
+# df_live_* keys; local/test deployments must override this to "test".
+API_KEY_ENVIRONMENT = "live"
 
 # Hyperdrive pools Postgres connections at the edge, which is what makes a
 # database-backed Worker viable at all. Create one with:
 #   wrangler hyperdrive create data-foundry --connection-string="postgres://..."
-# then paste the id below.
+# then place the id in an ignored `wrangler.production.toml` copy or the
+# Cloudflare dashboard. Never uncomment it with a live id in this tracked file.
 # [[hyperdrive]]
 # binding = "HYPERDRIVE"
 # id = "<hyperdrive-id>"
 
 # `wrangler dev` against a local database can use POSTGRES_URL instead. Put it in
 # .dev.vars (gitignored), never here: this file is committed.
+
+# Where a usage event goes after a request is served. The queue name itself is
+# not a credential — unlike the Hyperdrive id above, it is safe to commit — but
+# the queue has to exist in the account before this binding resolves:
+#   wrangler queues create data-foundry-usage-events
+# `apps/usage-consumer/wrangler.toml` is the consumer side of this same queue.
+[[queues.producers]]
+binding = "USAGE_EVENTS_QUEUE"
+queue = "data-foundry-usage-events"

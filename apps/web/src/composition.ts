@@ -15,27 +15,69 @@
  */
 import {
   createCanonicalStore,
+  createHyperdriveDriver,
   createPostgresDriver,
+  DATA_FOUNDRY_PRIVATE_SCHEMA,
   type CanonicalStore,
+  type PostgresDriverOptions,
   type SqlDriver,
 } from '@data-foundry/canonical-store';
-import { createQueryModel, type QueryModel } from '@data-foundry/query-model';
-import type { VerticalId } from '@data-foundry/canonical-schema';
+import {
+  createQueryModel,
+  type SurfaceReadSnapshot,
+  type SurfaceQueryModel,
+} from '@data-foundry/query-model';
+import type { IsoDateTime, VerticalId } from '@data-foundry/canonical-schema';
 import { resolveWebConfig, type WebEnv } from './env.js';
+import type { PublicCacheMode } from './http.js';
 import type { WebRuntime } from './seo.js';
 
 export interface VerticalDeployment {
   readonly slug: string;
   readonly verticalId: VerticalId;
-  readonly queryModel: QueryModel;
+  /** All human-visible reads are irreversibly bound to PUBLIC_WEB rights. */
+  readonly publicQueryModel: SurfaceQueryModel;
+  /** Sitemap eligibility is independently bound to SEARCH_INDEX rights. */
+  readonly searchIndexQueryModel: SurfaceQueryModel;
+  readonly runtime: WebRuntime;
+}
+
+export interface CachedVerticalDeployment {
+  readonly slug: string;
+  readonly verticalId: VerticalId;
+  /** The canonical graph stays captured here; callers receive only safe surfaces. */
+  readonly bindRequestSurfaces: (
+    asOf: IsoDateTime,
+    snapshot?: SurfaceReadSnapshot,
+  ) => {
+    readonly publicQueryModel: SurfaceQueryModel;
+    readonly searchIndexQueryModel: SurfaceQueryModel;
+  };
   readonly runtime: WebRuntime;
 }
 
 export interface WebDeployment {
   readonly publicOrigin: string;
+  readonly cacheMode: PublicCacheMode;
   /** Keyed by vertical slug. Only verticals present in BOTH the bundle and the database. */
-  readonly verticals: ReadonlyMap<string, VerticalDeployment>;
+  readonly verticals: ReadonlyMap<string, CachedVerticalDeployment>;
+  /**
+   * Materialize every vertical on one request-owned database snapshot. The
+   * opaque query-layer token never leaves this composition root.
+   */
+  readonly withRequestSnapshot: <T>(
+    asOf: IsoDateTime,
+    run: (deployment: RequestWebDeployment) => Promise<T>,
+  ) => Promise<T>;
   readonly close: () => Promise<void>;
+}
+
+export interface RequestWebDeployment {
+  readonly publicOrigin: string;
+  /** Optional only so narrow routing tests can supply a static deployment fixture. */
+  readonly cacheMode?: PublicCacheMode;
+  /** Fresh surface bindings, shared only within this one request. */
+  readonly verticals: ReadonlyMap<string, VerticalDeployment>;
 }
 
 export interface BuildOptions {
@@ -43,32 +85,74 @@ export interface BuildOptions {
   /** Every vertical this Worker's bundle carries, keyed by slug. */
   readonly runtimes: Readonly<Record<string, WebRuntime>>;
   /** Swappable so tests can compose against PGlite without a network. */
-  readonly openDriver?: (connectionString: string) => Promise<SqlDriver>;
+  readonly openDriver?: (
+    connectionString: string,
+    options?: PostgresDriverOptions,
+  ) => Promise<SqlDriver>;
   readonly onWarning?: (message: string) => void;
 }
 
 async function buildVertical(
   store: CanonicalStore,
   runtime: WebRuntime,
-): Promise<VerticalDeployment | null> {
+): Promise<CachedVerticalDeployment | null> {
   const vertical = await store.getVerticalBySlug(runtime.vertical_slug as never);
   if (vertical === null) return null;
 
   const queryModel = createQueryModel(store, { fields: runtime.fields as never });
-  return { slug: runtime.vertical_slug, verticalId: vertical.id, queryModel, runtime };
+  return {
+    slug: runtime.vertical_slug,
+    verticalId: vertical.id,
+    bindRequestSurfaces: (asOf, snapshot) => ({
+      publicQueryModel: queryModel.forSurface('PUBLIC_WEB', { asOf }, snapshot),
+      searchIndexQueryModel: queryModel.forSurface('SEARCH_INDEX', { asOf }, snapshot),
+    }),
+    runtime,
+  };
+}
+
+/**
+ * Bind one immutable rights snapshot for one web request. Both surface models
+ * receive the exact same instant while retaining their own request-local
+ * rights context/result memoization.
+ */
+export function materializeRequestDeployment(
+  deployment: WebDeployment,
+  asOf: IsoDateTime,
+  snapshot?: SurfaceReadSnapshot,
+): RequestWebDeployment {
+  const verticals = new Map<string, VerticalDeployment>();
+  for (const [slug, vertical] of deployment.verticals) {
+    const surfaces = vertical.bindRequestSurfaces(asOf, snapshot);
+    verticals.set(slug, {
+      slug: vertical.slug,
+      verticalId: vertical.verticalId,
+      ...surfaces,
+      runtime: vertical.runtime,
+    });
+  }
+  return { publicOrigin: deployment.publicOrigin, cacheMode: deployment.cacheMode, verticals };
 }
 
 async function build(options: BuildOptions): Promise<WebDeployment> {
   const config = resolveWebConfig(options.env);
-  const open = options.openDriver ?? createPostgresDriver;
-  const driver = await open(config.connectionString);
+  const open = options.openDriver ?? (
+    options.env.HYPERDRIVE === undefined ? createPostgresDriver : createHyperdriveDriver
+  );
+  const driver = await open(
+    config.connectionString,
+    config.deploymentEnvironment === 'production'
+      ? { schema: DATA_FOUNDRY_PRIVATE_SCHEMA }
+      : undefined,
+  );
 
   // Same leak discipline as apps/edge/src/composition.ts: everything past this
   // line owns an open pool, so every path out — including the one that throws —
   // must give it back.
   try {
     const store = createCanonicalStore(driver);
-    const verticals = new Map<string, VerticalDeployment>();
+    const snapshotCoordinator = createQueryModel(store);
+    const verticals = new Map<string, CachedVerticalDeployment>();
 
     for (const runtime of Object.values(options.runtimes)) {
       const deployed = await buildVertical(store, runtime);
@@ -82,19 +166,36 @@ async function build(options: BuildOptions): Promise<WebDeployment> {
       verticals.set(runtime.vertical_slug, deployed);
     }
 
-    return { publicOrigin: config.publicOrigin, verticals, close: () => driver.close() };
+    const deployment: WebDeployment = {
+      publicOrigin: config.publicOrigin,
+      cacheMode: config.cacheMode,
+      verticals,
+      withRequestSnapshot: (asOf, run) =>
+        snapshotCoordinator.withSurfaceSnapshot((snapshot) =>
+          run(materializeRequestDeployment(deployment, asOf, snapshot)),
+        ),
+      close: () => driver.close(),
+    };
+    return deployment;
   } catch (error) {
     await driver.close().catch(() => undefined);
     throw error;
   }
 }
 
-/** One deployment per isolate, keyed by what would change it — same reasoning as `apps/edge`. */
+/** Local direct-Postgres deployments may cache their pool; Hyperdrive may not. */
 const deployments = new Map<string, Promise<WebDeployment>>();
 
 export function getDeployment(options: BuildOptions): Promise<WebDeployment> {
   const config = resolveWebConfig(options.env);
-  const key = config.connectionString;
+  if (options.env.HYPERDRIVE !== undefined) return build(options);
+
+  const key = JSON.stringify([
+    config.deploymentEnvironment,
+    config.connectionString,
+    config.publicOrigin,
+    config.cacheMode,
+  ]);
   const existing = deployments.get(key);
   if (existing !== undefined) return existing;
 

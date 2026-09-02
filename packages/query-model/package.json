@@ -18,6 +18,7 @@
     "@data-foundry/canonical-schema": "workspace:*",
     "@data-foundry/canonical-store": "workspace:*",
     "@data-foundry/provenance": "workspace:*",
+    "@data-foundry/rights-engine": "workspace:*",
     "zod": "^4.4.3"
   }
 }

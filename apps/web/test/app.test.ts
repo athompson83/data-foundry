@@ -8,17 +8,98 @@
  * (entity_type `equipment`/`part`) are not.
  */
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
-import { createQueryFixtures, type QueryFixtures } from '../../../packages/query-model/test/support.js';
+import {
+  addSyntheticEntityEvidence,
+  claim,
+  createQueryFixtures,
+  relate,
+  seedSyntheticSurfaceRights,
+  ts,
+  type QueryFixtures,
+} from '../../../packages/query-model/test/support.js';
+import { entityQualityScore, type Entity } from '@data-foundry/canonical-schema';
+import { SurfaceCatalogCapacityError } from '@data-foundry/query-model';
+import { toFetchResponse } from '../src/adapter.js';
 import { createWebApp } from '../src/app.js';
 import { resolveContext } from '../src/config.js';
 import { getDeployment, resetDeployments } from '../src/composition.js';
 import { RUNTIMES } from '../src/index.js';
+import type { WebRuntime } from '../src/seo.js';
 
 let fixtures: QueryFixtures;
+let replacedModel: Entity;
+let replacementModel: Entity;
+let mergedLegacyModel: Entity;
+let publishedFactId: string;
 const openFixtureDriver = async () => fixtures.driver;
+const ACTIVE_RUNTIME: WebRuntime = {
+  ...RUNTIMES['hvac']!,
+  vertical_status: 'ACTIVE',
+};
 
 beforeAll(async () => {
   fixtures = await createQueryFixtures();
+  await seedSyntheticSurfaceRights(fixtures, ['PUBLIC_WEB', 'SEARCH_INDEX']);
+  for (const entity of [fixtures.equipment, fixtures.heatPump, fixtures.motor, fixtures.rival]) {
+    await addSyntheticEntityEvidence(fixtures, entity);
+  }
+  replacedModel = await fixtures.store.upsertEntity({
+    vertical_id: fixtures.vertical.id,
+    entity_type: 'equipment_model',
+    canonical_name: 'Synthetic Legacy Model',
+    canonical_slug: 'synthetic-legacy-model',
+    status: 'ACTIVE',
+    quality_score: entityQualityScore(0.8),
+    first_seen_at: ts('2026-01-01T00:00:00Z'),
+    last_verified_at: ts('2026-02-01T00:00:00Z'),
+  });
+  replacementModel = await fixtures.store.upsertEntity({
+    vertical_id: fixtures.vertical.id,
+    entity_type: 'equipment_model',
+    canonical_name: 'Synthetic Replacement Model',
+    canonical_slug: 'synthetic-replacement-model',
+    status: 'ACTIVE',
+    quality_score: entityQualityScore(0.8),
+    first_seen_at: ts('2026-01-01T00:00:00Z'),
+    last_verified_at: ts('2026-02-01T00:00:00Z'),
+  });
+  await addSyntheticEntityEvidence(fixtures, replacedModel);
+  await addSyntheticEntityEvidence(fixtures, replacementModel);
+  mergedLegacyModel = await fixtures.store.upsertEntity({
+    vertical_id: fixtures.vertical.id,
+    entity_type: 'equipment_model',
+    canonical_name: 'Synthetic Merged Legacy Model',
+    canonical_slug: 'synthetic-merged-legacy-model',
+    status: 'ACTIVE',
+    quality_score: entityQualityScore(0.8),
+    first_seen_at: ts('2026-01-01T00:00:00Z'),
+    last_verified_at: ts('2026-02-01T00:00:00Z'),
+  });
+  await addSyntheticEntityEvidence(fixtures, mergedLegacyModel);
+  await fixtures.store.mergeEntities({
+    from_entity_id: mergedLegacyModel.id,
+    to_entity_id: replacedModel.id,
+    reason: 'MERGE',
+    from_slug: mergedLegacyModel.canonical_slug,
+    judgment_id: null,
+  });
+  const publishedFact = await claim(fixtures, 'manufacturer', {
+    entity_id: replacedModel.id,
+    property: 'seer2_rating',
+    value: 18.5,
+    value_type: 'number',
+    source_value: 'SEER2 18.5',
+  });
+  publishedFactId = publishedFact.fact.id;
+  await claim(fixtures, 'blocked', {
+    entity_id: replacedModel.id,
+    property: 'seer2_rating',
+    value: 99.9,
+    value_type: 'number',
+    status: 'PROPOSED',
+    source_value: 'BLOCKED NEIGHBOR VALUE',
+  });
+  await relate(fixtures, replacementModel, 'supersedes', replacedModel);
 });
 
 afterAll(async () => {
@@ -29,10 +110,18 @@ afterEach(() => {
   resetDeployments();
 });
 
-async function appHandler() {
+async function appHandler(
+  runtime: WebRuntime = ACTIVE_RUNTIME,
+  cacheMode: 'cache' | 'no-store' = 'cache',
+) {
   const deployment = await getDeployment({
-    env: { POSTGRES_URL: 'postgres://fixture/db' },
-    runtimes: RUNTIMES,
+    env: {
+      DEPLOYMENT_ENVIRONMENT: 'development',
+      POSTGRES_URL: 'postgres://fixture/db',
+      PUBLIC_ORIGIN: 'https://data-foundry.test',
+      PUBLIC_CACHE_MODE: cacheMode,
+    } as never,
+    runtimes: { hvac: runtime },
     openDriver: openFixtureDriver,
   });
   return createWebApp(resolveContext(deployment));
@@ -55,6 +144,21 @@ describe('the parent site', () => {
 });
 
 describe('robots.txt and the sitemap index', () => {
+  it('returns no-store for successful HTML, text, and XML through the real app and Fetch adapter', async () => {
+    const app = await appHandler(ACTIVE_RUNTIME, 'no-store');
+    const responses = await Promise.all([
+      app({ method: 'GET', url: '/' }),
+      app({ method: 'GET', url: '/robots.txt' }),
+      app({ method: 'GET', url: '/sitemap-index.xml' }),
+    ]);
+
+    for (const response of responses) {
+      const fetchResponse = toFetchResponse(response, 'GET');
+      expect(fetchResponse.status).toBe(200);
+      expect(fetchResponse.headers.get('cache-control')).toBe('no-store');
+    }
+  });
+
   it('serves robots.txt pointing at one global sitemap index', async () => {
     const app = await appHandler();
     const response = await app({ method: 'GET', url: '/robots.txt' });
@@ -81,6 +185,91 @@ describe('the hvac dataset landing page', () => {
     expect(response.body).toContain('Equipment Models');
     expect(response.body).toContain('Manufacturers');
   });
+
+  it('suppresses Dataset JSON-LD until every declared required field is known', async () => {
+    const app = await appHandler();
+    const response = await app({ method: 'GET', url: '/data/hvac' });
+
+    expect(response.body).not.toContain('type="application/ld+json"');
+    expect(response.body).not.toContain('"@type":"Dataset"');
+  });
+});
+
+describe('relationship page dispatch', () => {
+  it('renders the explicit replacement route instead of treating it as static', async () => {
+    const app = await appHandler();
+    const response = await app({
+      method: 'GET',
+      url: `/data/hvac/equipment/${replacedModel.canonical_slug}/replacements`,
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toContain(replacementModel.canonical_name);
+    expect(response.body).toContain('What replaces');
+  });
+
+  it('redirects a merged relationship subject to the canonical relationship path and configured status', async () => {
+    const runtime: WebRuntime = {
+      ...ACTIVE_RUNTIME,
+      seo: {
+        ...ACTIVE_RUNTIME.seo,
+        canonical: { ...ACTIVE_RUNTIME.seo.canonical, redirect_status: 308 },
+      },
+    };
+    const app = await appHandler(runtime);
+    const response = await app({
+      method: 'GET',
+      url: `/data/hvac/equipment/${mergedLegacyModel.canonical_slug}/replacements`,
+    });
+
+    expect(response.status).toBe(308);
+    expect(response.headers['location']).toBe(
+      `/data/hvac/equipment/${replacedModel.canonical_slug}/replacements`,
+    );
+  });
+
+  it('renders the canonical relationship with a canonical tag when redirects are disabled', async () => {
+    const runtime: WebRuntime = {
+      ...ACTIVE_RUNTIME,
+      seo: {
+        ...ACTIVE_RUNTIME.seo,
+        canonical: { ...ACTIVE_RUNTIME.seo.canonical, redirect_on_merge: false },
+      },
+    };
+    const app = await appHandler(runtime);
+    const response = await app({
+      method: 'GET',
+      url: `/data/hvac/equipment/${mergedLegacyModel.canonical_slug}/replacements`,
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.headers['location']).toBeUndefined();
+    expect(response.body).toContain(
+      `href="https://data-foundry.test/data/hvac/equipment/${replacedModel.canonical_slug}/replacements"`,
+    );
+  });
+});
+
+describe('surface-safe inline evidence', () => {
+  it('explains each visible fact without leaking a neighboring blocked claim', async () => {
+    const app = await appHandler();
+    const response = await app({
+      method: 'GET',
+      url: `/data/hvac/equipment/${replacedModel.canonical_slug}`,
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toContain(publishedFactId);
+    expect(response.body).toContain('Selection:');
+    expect(response.body).toContain('Acme Climate');
+    expect(response.body).toContain('table.specs');
+    expect(response.body).toContain('catalog.acme-climate.example.com');
+    expect(response.body).not.toContain('BLOCKED NEIGHBOR VALUE');
+    expect(response.body).not.toContain('HVAC Forum');
+    expect(response.body).not.toContain('99.9');
+    expect(response.body).not.toContain('reviewed_by');
+    expect(response.body).not.toContain('withheld');
+  });
 });
 
 describe('manual search', () => {
@@ -97,6 +286,53 @@ describe('manual search', () => {
     const response = await app({ method: 'GET', url: '/data/hvac/search?q=acme' });
     expect(response.status).toBe(200);
     expect(response.body).toContain('name="robots" content="noindex,follow"');
+  });
+
+  it('returns an opaque non-retryable 503 instead of partial HTML on authorization capacity', async () => {
+    const deployment = await getDeployment({
+      env: {
+        DEPLOYMENT_ENVIRONMENT: 'development',
+        POSTGRES_URL: 'postgres://fixture/db',
+        PUBLIC_ORIGIN: 'https://data-foundry.test',
+        PUBLIC_CACHE_MODE: 'no-store',
+      } as never,
+      runtimes: { hvac: ACTIVE_RUNTIME },
+      openDriver: openFixtureDriver,
+    });
+    const context = resolveContext(deployment);
+    const vertical = context.deployment.verticals.get('hvac');
+    if (vertical === undefined) throw new Error('HVAC web fixture missing');
+    const app = createWebApp({
+      ...context,
+      deployment: {
+        ...context.deployment,
+        verticals: new Map([[
+          'hvac',
+          {
+            ...vertical,
+            publicQueryModel: {
+              ...vertical.publicQueryModel,
+              search: async () => {
+                throw new SurfaceCatalogCapacityError('entities', 10_000);
+              },
+            },
+          },
+        ]]),
+      },
+    });
+
+    const response = await app({ method: 'GET', url: '/data/hvac/search?q=capacity' });
+
+    expect(response).toMatchObject({
+      status: 503,
+      body: 'Service unavailable.\n',
+      headers: {
+        'cache-control': 'no-store',
+      },
+    });
+    expect(response.headers).not.toHaveProperty('retry-after');
+    expect(response.body).not.toContain('10000');
+    expect(response.body).not.toContain('entities');
   });
 });
 

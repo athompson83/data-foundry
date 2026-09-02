@@ -78,6 +78,7 @@ documentation:
 # Pointers to the rest of the declarative config. Kept explicit so a loader
 # never has to glob-and-guess.
 config:
+  acquisition: acquisition.yaml
   entities_dir: entities
   relationships: relationships.yaml
   filters: filters.yaml

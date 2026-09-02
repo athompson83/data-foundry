@@ -19,10 +19,16 @@
     "deploy": "wrangler deploy"
   },
   "dependencies": {
+    "@data-foundry/access-auth": "workspace:*",
     "@data-foundry/api": "workspace:*",
+    "@data-foundry/api-keys": "workspace:*",
     "@data-foundry/canonical-schema": "workspace:*",
     "@data-foundry/canonical-store": "workspace:*",
     "@data-foundry/query-model": "workspace:*",
+    "@data-foundry/usage-events": "workspace:*",
     "pg": "^8.23.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
   }
 }

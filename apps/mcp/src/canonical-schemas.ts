@@ -14,8 +14,8 @@
  * `pnpm schemas:check` fails CI when that export stops matching the Zod source
  * of truth.
  *
- * JSON is imported, not read from disk: the eventual deployment target is a
- * Cloudflare Worker (AGENTS.md), where a bundler inlines a static import and
+ * JSON is imported, not read from disk: `apps/mcp-worker` deploys this package
+ * to Cloudflare, where the bundler inlines a static import and
  * `node:fs` does not exist at request time.
  */
 import { z } from 'zod';

@@ -1,9 +1,9 @@
 /**
  * Bounded-concurrency fan-out for the per-entity I/O loops in `sitemap.ts`
  * and `gates.ts`'s vertical-wide dataset signal. A fully serial `for` loop
- * over up to `MAX_ENTITIES_PER_SEGMENT` (2000) or `MAX_VERTICAL_SCAN` (200)
+ * over paginated sitemap entities or `MAX_VERTICAL_SCAN` (200)
  * entities, each needing several sequential round trips through
- * `canonicalView`/`provenanceCoverage`, risks a single sitemap request
+ * surface-bound fact selection and evidence explanations, risks a sitemap request
  * taking far longer than a crawler or Worker request budget tolerates.
  * Unbounded `Promise.all` trades that for a different failure: thousands of
  * concurrent queries against a pool sized for `pg`'s default of 10 max

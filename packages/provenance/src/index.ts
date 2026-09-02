@@ -22,6 +22,7 @@ export {
   relationshipLineage,
   type EvidenceChainLink,
   type EvidenceLocator,
+  type FactDependencyLineage,
   type FactLineage,
   type RelationshipLineage,
 } from './lineage.js';

@@ -9,18 +9,46 @@
  * fixtures (four entities) genuinely fail — not a contrived double.
  */
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
-import { entityQualityScore } from '@data-foundry/canonical-schema';
-import { createQueryFixtures, ts, type QueryFixtures } from '../../../packages/query-model/test/support.js';
+import { entityQualityScore, type Entity } from '@data-foundry/canonical-schema';
+import {
+  addSyntheticEntityEvidence,
+  createQueryFixtures,
+  seedSyntheticSurfaceRights,
+  ts,
+  type QueryFixtures,
+} from '../../../packages/query-model/test/support.js';
 import { getDeployment, resetDeployments, type VerticalDeployment } from '../src/composition.js';
-import { sitemapSegmentXml } from '../src/sitemap.js';
+import { createWebApp } from '../src/app.js';
+import { resolveContext } from '../src/config.js';
+import { sitemapIndexXml, sitemapSegmentXml } from '../src/sitemap.js';
 import { DEFAULT_CONCURRENCY } from '../src/concurrency.js';
 import { RUNTIMES } from '../src/index.js';
+import type {
+  SearchQuery,
+  SurfaceQueryModel,
+  TraversalQuery,
+} from '@data-foundry/query-model';
+
+interface EntityListQuery {
+  readonly vertical_id: Entity['vertical_id'];
+  readonly entity_type?: Entity['entity_type'];
+  readonly limit?: number;
+  readonly after_id?: Entity['id'];
+}
+
+const ACTIVE_RUNTIMES = {
+  hvac: { ...RUNTIMES['hvac']!, vertical_status: 'ACTIVE' },
+};
 
 let fixtures: QueryFixtures;
 const openFixtureDriver = async () => fixtures.driver;
 
 beforeAll(async () => {
   fixtures = await createQueryFixtures();
+  await seedSyntheticSurfaceRights(fixtures, ['PUBLIC_WEB', 'SEARCH_INDEX']);
+  for (const entity of [fixtures.equipment, fixtures.heatPump, fixtures.motor, fixtures.rival]) {
+    await addSyntheticEntityEvidence(fixtures, entity);
+  }
 });
 
 afterAll(async () => {
@@ -37,26 +65,28 @@ describe('sitemapSegmentXml — dataset_landing is gate-checked, not assumed', (
     // seed four. This is the fixture set every other apps/web test already
     // uses, not one written to make this assertion pass.
     const deployment = await getDeployment({
-      env: { POSTGRES_URL: 'postgres://fixture/db' },
-      runtimes: RUNTIMES,
+      env: { DEPLOYMENT_ENVIRONMENT: 'development', POSTGRES_URL: 'postgres://fixture/db', PUBLIC_ORIGIN: 'https://data-foundry.test' },
+      runtimes: ACTIVE_RUNTIMES,
       openDriver: openFixtureDriver,
     });
-    const vertical = deployment.verticals.get('hvac')!;
+    const context = resolveContext(deployment);
+    const vertical = context.deployment.verticals.get('hvac')!;
 
-    const xml = await sitemapSegmentXml(vertical, deployment.publicOrigin, 'datasets', new Date());
-    expect(xml).not.toContain(`<loc>${deployment.publicOrigin}/data/hvac</loc>`);
+    const xml = await sitemapSegmentXml(vertical, context.deployment.publicOrigin, 'datasets', new Date());
+    expect(xml).not.toContain(`<loc>${context.deployment.publicOrigin}/data/hvac</loc>`);
   });
 
   it('still includes docs_api_mcp — its gate is `none`, unconditionally indexable', async () => {
     const deployment = await getDeployment({
-      env: { POSTGRES_URL: 'postgres://fixture/db' },
-      runtimes: RUNTIMES,
+      env: { DEPLOYMENT_ENVIRONMENT: 'development', POSTGRES_URL: 'postgres://fixture/db', PUBLIC_ORIGIN: 'https://data-foundry.test' },
+      runtimes: ACTIVE_RUNTIMES,
       openDriver: openFixtureDriver,
     });
-    const vertical = deployment.verticals.get('hvac')!;
+    const context = resolveContext(deployment);
+    const vertical = context.deployment.verticals.get('hvac')!;
 
-    const xml = await sitemapSegmentXml(vertical, deployment.publicOrigin, 'datasets', new Date());
-    expect(xml).toContain(`<loc>${deployment.publicOrigin}/data/hvac/docs</loc>`);
+    const xml = await sitemapSegmentXml(vertical, context.deployment.publicOrigin, 'datasets', new Date());
+    expect(xml).toContain(`<loc>${context.deployment.publicOrigin}/data/hvac/docs</loc>`);
   });
 });
 
@@ -78,36 +108,38 @@ async function seedEquipmentModels(f: QueryFixtures, count: number, prefix: stri
       quality_score: entityQualityScore(0.5),
       first_seen_at: ts('2026-01-01T00:00:00Z'),
       last_verified_at: null,
-    });
+    }).then((entity) => addSyntheticEntityEvidence(f, entity));
   }
 }
 
 describe('sitemapSegmentXml — per-entity fan-out performance', () => {
-  it('never re-fetches an entity search() already returned in full (no getEntity call)', async () => {
+  it('never re-fetches an entity listEntities() already returned in full (no getEntity call)', async () => {
     // RED under the pre-fix code: isIndexable used to call
-    // `queryModel.getEntity(entityId)` once per hit even though `search()`
-    // already returns the full entity (quality_score, updated_at included).
+    // `queryModel.getEntity(entityId)` once per hit even though
+    // `listEntities()` already returns the full entity (quality_score,
+    // updated_at included).
     await seedEquipmentModels(fixtures, 3, 'nolookup');
     const deployment = await getDeployment({
-      env: { POSTGRES_URL: 'postgres://fixture/db' },
-      runtimes: RUNTIMES,
+      env: { DEPLOYMENT_ENVIRONMENT: 'development', POSTGRES_URL: 'postgres://fixture/db', PUBLIC_ORIGIN: 'https://data-foundry.test' },
+      runtimes: ACTIVE_RUNTIMES,
       openDriver: openFixtureDriver,
     });
-    const vertical = deployment.verticals.get('hvac')!;
+    const context = resolveContext(deployment);
+    const vertical = context.deployment.verticals.get('hvac')!;
 
     let getEntityCalls = 0;
     const spied: VerticalDeployment = {
       ...vertical,
-      queryModel: {
-        ...vertical.queryModel,
+      publicQueryModel: {
+        ...vertical.publicQueryModel,
         getEntity: async (id) => {
           getEntityCalls += 1;
-          return vertical.queryModel.getEntity(id);
+          return vertical.publicQueryModel.getEntity(id);
         },
       },
     };
 
-    await sitemapSegmentXml(spied, deployment.publicOrigin, 'entities', new Date('2026-03-01T00:00:00Z'));
+    await sitemapSegmentXml(spied, context.deployment.publicOrigin, 'entities', new Date('2026-03-01T00:00:00Z'));
     expect(getEntityCalls).toBe(0);
   });
 
@@ -118,24 +150,25 @@ describe('sitemapSegmentXml — per-entity fan-out performance', () => {
     // nor unbounded.
     await seedEquipmentModels(fixtures, 5, 'concurrency');
     const deployment = await getDeployment({
-      env: { POSTGRES_URL: 'postgres://fixture/db' },
-      runtimes: RUNTIMES,
+      env: { DEPLOYMENT_ENVIRONMENT: 'development', POSTGRES_URL: 'postgres://fixture/db', PUBLIC_ORIGIN: 'https://data-foundry.test' },
+      runtimes: ACTIVE_RUNTIMES,
       openDriver: openFixtureDriver,
     });
-    const vertical = deployment.verticals.get('hvac')!;
+    const context = resolveContext(deployment);
+    const vertical = context.deployment.verticals.get('hvac')!;
 
     let active = 0;
     let maxActive = 0;
     const spied: VerticalDeployment = {
       ...vertical,
-      queryModel: {
-        ...vertical.queryModel,
+      publicQueryModel: {
+        ...vertical.publicQueryModel,
         canonicalFacts: async (entityId, policy) => {
           active += 1;
           maxActive = Math.max(maxActive, active);
           await new Promise((resolve) => setTimeout(resolve, 5));
           try {
-            return await vertical.queryModel.canonicalFacts(entityId, policy);
+            return await vertical.publicQueryModel.canonicalFacts(entityId, policy);
           } finally {
             active -= 1;
           }
@@ -143,8 +176,432 @@ describe('sitemapSegmentXml — per-entity fan-out performance', () => {
       },
     };
 
-    await sitemapSegmentXml(spied, deployment.publicOrigin, 'entities', new Date('2026-03-01T00:00:00Z'));
+    await sitemapSegmentXml(spied, context.deployment.publicOrigin, 'entities', new Date('2026-03-01T00:00:00Z'));
     expect(maxActive).toBeGreaterThan(1);
     expect(maxActive).toBeLessThanOrEqual(DEFAULT_CONCURRENCY);
+  });
+});
+
+function fakeSurfaceModel(
+  surface: 'PUBLIC_WEB' | 'SEARCH_INDEX',
+  entities: readonly typeof fixtures.equipment[],
+  searchCalls: SearchQuery[],
+  listCalls: EntityListQuery[],
+  options: {
+    readonly maxLimit?: number;
+    readonly maxOffset?: number;
+    readonly emptyWhenOffsetClamped?: boolean;
+    readonly stuckListCursor?: boolean;
+    readonly emptyFirstListPage?: boolean;
+  } = {},
+): SurfaceQueryModel {
+  return {
+    fields: fixtures.registry,
+    surface,
+    listEntities: async (query: EntityListQuery) => {
+      listCalls.push(query);
+      const limit = Math.min(query.limit ?? 200, options.maxLimit ?? 200);
+      if (
+        options.emptyFirstListPage === true &&
+        query.after_id === undefined &&
+        entities.length > 0
+      ) {
+        return { entities: [], next_after_id: entities[0]!.id };
+      }
+      const eligible = entities
+        .filter(
+          (entity) =>
+            query.entity_type === undefined || entity.entity_type === query.entity_type,
+        )
+        .filter((entity) => query.after_id === undefined || entity.id > query.after_id)
+        .sort((left, right) => left.id.localeCompare(right.id));
+      const page = eligible.slice(0, limit);
+      const nextAfterId =
+        eligible.length > page.length && page.length > 0 ? page[page.length - 1]!.id : null;
+      return {
+        entities: page,
+        next_after_id:
+          options.stuckListCursor === true && query.after_id !== undefined && nextAfterId !== null
+            ? query.after_id
+            : nextAfterId,
+      };
+    },
+    search: async (query: SearchQuery) => {
+      searchCalls.push(query);
+      const requestedOffset = query.offset ?? 0;
+      const offset = Math.min(requestedOffset, options.maxOffset ?? Number.MAX_SAFE_INTEGER);
+      const limit = Math.min(query.limit ?? 200, options.maxLimit ?? 200);
+      const hits =
+        options.emptyWhenOffsetClamped === true && offset !== requestedOffset
+          ? []
+          : entities.slice(offset, offset + limit).map((entity) => ({
+              entity,
+              match_kind: 'FILTER_ONLY' as const,
+              score: 0,
+              text_rank: 0,
+              exact: false,
+              matched_on: null,
+              explain: 'synthetic pagination hit',
+            }));
+      return {
+        hits,
+        total: entities.length,
+        limit,
+        offset,
+        exact_short_circuit: false,
+        exact_count: 0,
+        facets: [],
+        strategy: { exact_first: true, full_text: false, trigram: false, vector: false },
+      };
+    },
+    getEntity: async (id: Entity['id']) => {
+      const entity = entities.find((candidate) => candidate.id === id);
+      return entity === undefined ? null : { entity, redirected_from: null };
+    },
+    canonicalFacts: async () => [],
+    explainFact: async () => null,
+    relationships: async (query: TraversalQuery) => ({
+      root: query.entity_id,
+      edges: [],
+      depth: query.depth ?? 1,
+      truncated: false,
+      unevidenced_edge_count: 0,
+    }),
+  } as unknown as SurfaceQueryModel;
+}
+
+function paginationVertical(
+  count: number,
+  maxUrlsPerFile: number,
+  searchOptions: Parameters<typeof fakeSurfaceModel>[4] = {},
+  maxScanPagesPerRequest = 250,
+) {
+  const entities = Array.from({ length: count }, (_, index) => ({
+    ...fixtures.equipment,
+    id: `00000000-0000-4000-8000-${String(index).padStart(12, '0')}` as typeof fixtures.equipment.id,
+    entity_type: 'equipment_model' as typeof fixtures.equipment.entity_type,
+    canonical_name: `Pagination Model ${index}` as typeof fixtures.equipment.canonical_name,
+    canonical_slug: `pagination-model-${index}` as typeof fixtures.equipment.canonical_slug,
+  }));
+  const publicCalls: SearchQuery[] = [];
+  const indexCalls: SearchQuery[] = [];
+  const publicListCalls: EntityListQuery[] = [];
+  const indexListCalls: EntityListQuery[] = [];
+  const runtime = {
+    ...RUNTIMES['hvac']!,
+    vertical_status: 'ACTIVE',
+    seo: {
+      ...RUNTIMES['hvac']!.seo,
+      page_classes: [
+        {
+          id: 'equipment_model_detail',
+          route_kind: 'entity_detail' as const,
+          entity_type: 'equipment_model',
+          path: '/data/hvac/equipment/{canonical_slug}',
+          title: '{canonical_name}',
+          structured_data: null,
+          sitemap: 'entities',
+          indexable: 'conditional' as const,
+          quality_gate: 'none',
+        },
+      ],
+      quality_gates: { none: {} },
+      sitemaps: {
+        ...RUNTIMES['hvac']!.seo.sitemaps,
+        max_urls_per_file: maxUrlsPerFile,
+        max_scan_pages_per_request: maxScanPagesPerRequest,
+        segments: [{ id: 'entities', path: '/sitemaps/entities-{n}.xml' }],
+      },
+    },
+  };
+  const vertical: VerticalDeployment = {
+    slug: 'hvac',
+    verticalId: fixtures.vertical.id,
+    runtime,
+    publicQueryModel: fakeSurfaceModel(
+      'PUBLIC_WEB',
+      entities,
+      publicCalls,
+      publicListCalls,
+      searchOptions,
+    ),
+    searchIndexQueryModel: fakeSurfaceModel(
+      'SEARCH_INDEX',
+      entities,
+      indexCalls,
+      indexListCalls,
+      searchOptions,
+    ),
+  };
+  return { vertical, entities, publicCalls, indexCalls, publicListCalls, indexListCalls };
+}
+
+describe('sitemap pagination and configured file limits', () => {
+  it('rejects the sitemap namespace root before eligibility query work', async () => {
+    const {
+      vertical,
+      publicCalls,
+      indexCalls,
+      publicListCalls,
+      indexListCalls,
+    } = paginationVertical(1, 2, { maxLimit: 1 }, 20);
+    const app = createWebApp({
+      deployment: {
+        publicOrigin: 'https://data-foundry.test',
+        verticals: new Map([['hvac', vertical]]),
+      },
+      now: () => new Date('2026-03-01T00:00:00Z'),
+    });
+
+    const response = await app({ method: 'GET', url: '/data/hvac/sitemaps' });
+
+    expect(response.status).toBe(404);
+    expect([
+      ...publicCalls,
+      ...indexCalls,
+      ...publicListCalls,
+      ...indexListCalls,
+    ]).toEqual([]);
+  });
+
+  it('rejects non-canonical shard decimals at the app route before query work', async () => {
+    const {
+      vertical,
+      publicCalls,
+      indexCalls,
+      publicListCalls,
+      indexListCalls,
+    } = paginationVertical(1, 2, { maxLimit: 1 }, 20);
+    const app = createWebApp({
+      deployment: {
+        publicOrigin: 'https://data-foundry.test',
+        verticals: new Map([['hvac', vertical]]),
+      },
+      now: () => new Date('2026-03-01T00:00:00Z'),
+    });
+    const invalidPaths = [
+      '/data/hvac/sitemaps/entities-01.xml',
+      '/data/hvac/sitemaps/entities-0.xml',
+      '/data/hvac/sitemaps/entities-9007199254740992.xml',
+      `/data/hvac/sitemaps/entities-${'9'.repeat(400)}.xml`,
+    ];
+
+    for (const url of invalidPaths) {
+      const response = await app({ method: 'GET', url });
+      expect(response.status, url).toBe(404);
+    }
+    expect([
+      ...publicCalls,
+      ...indexCalls,
+      ...publicListCalls,
+      ...indexListCalls,
+    ]).toEqual([]);
+
+    const canonical = await app({
+      method: 'GET',
+      url: '/data/hvac/sitemaps/entities-1.xml',
+    });
+    expect(canonical.status).toBe(200);
+    expect(canonical.body).toContain('pagination-model-0');
+    expect(publicListCalls.length).toBeGreaterThan(0);
+  });
+
+  it('refuses a configuration-impossible high shard before any query work starts', async () => {
+    const {
+      vertical,
+      publicCalls,
+      indexCalls,
+      publicListCalls,
+      indexListCalls,
+    } = paginationVertical(10, 2, { maxLimit: 1 }, 2);
+
+    const xml = await sitemapSegmentXml(
+      vertical,
+      'https://data-foundry.test',
+      'entities',
+      new Date('2026-03-01T00:00:00Z'),
+      300,
+    );
+
+    expect(xml).not.toContain('<url>');
+    expect([
+      ...publicCalls,
+      ...indexCalls,
+      ...publicListCalls,
+      ...indexListCalls,
+    ]).toEqual([]);
+  });
+
+  it('shares one deterministic raw-page budget across the whole sitemap-index request', async () => {
+    const first = paginationVertical(1, 2, {}, 3);
+    const second = paginationVertical(1, 2, {}, 3);
+    const staticRuntime = (
+      vertical: VerticalDeployment,
+      slug: string,
+      prefix: string,
+      maxScanPagesPerRequest: number,
+    ): VerticalDeployment => ({
+      ...vertical,
+      slug,
+      runtime: {
+        ...vertical.runtime,
+        vertical_slug: slug,
+        seo: {
+          ...vertical.runtime.seo,
+          url_prefix: prefix,
+          page_classes: [{
+            id: 'docs_api_mcp',
+            route_kind: 'static',
+            path: `${prefix}/docs`,
+            title: 'Docs',
+            structured_data: null,
+            sitemap: 'datasets',
+            indexable: true,
+            quality_gate: 'none',
+          }],
+          quality_gates: { none: {} },
+          sitemaps: {
+            ...vertical.runtime.seo.sitemaps,
+            max_scan_pages_per_request: maxScanPagesPerRequest,
+            segments: [{ id: 'datasets', path: '/sitemaps/datasets.xml' }],
+          },
+        },
+      },
+    });
+    const app = createWebApp({
+      deployment: {
+        publicOrigin: 'https://data-foundry.test',
+        verticals: new Map([
+          ['first', staticRuntime(first.vertical, 'first', '/data/first', 4)],
+          ['second', staticRuntime(second.vertical, 'second', '/data/second', 3)],
+        ]),
+      },
+      now: () => new Date('2026-03-01T00:00:00Z'),
+    });
+
+    const response = await app({ method: 'GET', url: '/sitemap-index.xml' });
+    const rawPageCalls = [
+      ...first.publicListCalls,
+      ...first.indexListCalls,
+      ...second.publicListCalls,
+      ...second.indexListCalls,
+    ];
+
+    expect(response.status).toBe(503);
+    expect(response.headers['cache-control']).toBe('no-store');
+    expect(response.headers['retry-after']).toBe('30');
+    expect(response.body).not.toContain('<?xml');
+    expect(response.body).not.toContain('/data/first');
+    expect(rawPageCalls).toHaveLength(3);
+  });
+
+  it('stops a valid shard as soon as its bounded location window is full', async () => {
+    const { vertical, publicListCalls } = paginationVertical(10, 2, { maxLimit: 1 }, 20);
+
+    const xml = await sitemapSegmentXml(
+      vertical,
+      'https://data-foundry.test',
+      'entities',
+      new Date('2026-03-01T00:00:00Z'),
+      2,
+    );
+
+    expect((xml.match(/<url>/g) ?? [])).toHaveLength(2);
+    expect(xml).toContain('pagination-model-2');
+    expect(xml).toContain('pagination-model-3');
+    expect(xml).not.toContain('pagination-model-4');
+    expect(publicListCalls).toHaveLength(4);
+  });
+
+  it('continues after a raw scan page authorizes no entities but advances its cursor', async () => {
+    const { vertical, entities, publicListCalls } = paginationVertical(3, 50_000, {
+      emptyFirstListPage: true,
+    });
+
+    const xml = await sitemapSegmentXml(
+      vertical,
+      'https://data-foundry.test',
+      'entities',
+      new Date('2026-03-01T00:00:00Z'),
+    );
+
+    expect(xml).not.toContain('pagination-model-0');
+    expect(xml).toContain('pagination-model-2');
+    expect(publicListCalls.map((call) => call.after_id ?? null)).toEqual([
+      null,
+      entities[0]!.id,
+    ]);
+  });
+
+  it('uses surface-bound keyset pages past the public search offset ceiling', async () => {
+    const { vertical, publicCalls, publicListCalls } = paginationVertical(10_201, 50_000, {
+      maxOffset: 10_000,
+    });
+
+    const xml = await sitemapSegmentXml(
+      vertical,
+      'https://data-foundry.test',
+      'entities',
+      new Date('2026-03-01T00:00:00Z'),
+    );
+
+    expect(xml).toContain('pagination-model-10200');
+    expect(publicListCalls.some((call) => call.after_id !== undefined)).toBe(true);
+    expect(publicCalls.filter((call) => (call.limit ?? 20) > 1)).toEqual([]);
+    expect(publicCalls.every((call) => (call.offset ?? 0) === 0)).toBe(true);
+  });
+
+  it('paginates in query-layer-sized batches instead of losing results after 200', async () => {
+    const { vertical, entities, publicCalls, publicListCalls } = paginationVertical(205, 45_000);
+    const xml = await sitemapSegmentXml(
+      vertical,
+      'https://data-foundry.test',
+      'entities',
+      new Date('2026-03-01T00:00:00Z'),
+    );
+
+    expect(xml).toContain('pagination-model-204');
+    expect(publicListCalls.map((call) => call.after_id ?? null)).toEqual([
+      null,
+      entities[199]!.id,
+    ]);
+    expect(publicListCalls.every((call) => (call.limit ?? 0) <= 200)).toBe(true);
+    expect(publicCalls.filter((call) => (call.limit ?? 20) > 1)).toEqual([]);
+  });
+
+  it('shards output and advertises every shard without exceeding max_urls_per_file', async () => {
+    const { vertical } = paginationVertical(5, 2);
+    const now = new Date('2026-03-01T00:00:00Z');
+    const first = await sitemapSegmentXml(vertical, 'https://data-foundry.test', 'entities', now, 1);
+    const second = await sitemapSegmentXml(vertical, 'https://data-foundry.test', 'entities', now, 2);
+    const index = await sitemapIndexXml({
+      publicOrigin: 'https://data-foundry.test',
+      verticals: new Map([['hvac', vertical]]),
+    }, now);
+
+    expect((first.match(/<url>/g) ?? []).length).toBe(2);
+    expect((second.match(/<url>/g) ?? []).length).toBe(2);
+    expect(first).toContain('pagination-model-0');
+    expect(first).not.toContain('pagination-model-2');
+    expect(second).toContain('pagination-model-2');
+    expect(index).toContain('/sitemaps/entities-1.xml');
+    expect(index).toContain('/sitemaps/entities-2.xml');
+    expect(index).toContain('/sitemaps/entities-3.xml');
+  });
+
+  it('fails closed instead of truncating or looping when the keyset cursor repeats', async () => {
+    const { vertical } = paginationVertical(5, 45_000, {
+      maxLimit: 2,
+      stuckListCursor: true,
+    });
+
+    await expect(
+      sitemapSegmentXml(
+        vertical,
+        'https://data-foundry.test',
+        'entities',
+        new Date('2026-03-01T00:00:00Z'),
+      ),
+    ).rejects.toThrow(/keyset pagination returned a non-advancing cursor/i);
   });
 });

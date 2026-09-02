@@ -121,7 +121,7 @@ describe('no tool result carries the reviewer', () => {
     }
   });
 
-  it('drops the narrative line that named them and says a line was dropped', async () => {
+  it('builds the customer narrative without ever receiving the reviewer', async () => {
     const result = resultOf<ExplainFactResult>(
       await fixtures.server.callTool('explain_fact', {
         entity_id: fixtures.equipment.id,
@@ -129,9 +129,8 @@ describe('no tool result carries the reviewer', () => {
       }),
     );
     for (const line of result.narrative) expect(line.toLowerCase()).not.toContain(LOCAL_PART);
-    // Redaction is disclosed. A silently shorter explanation is a different
-    // explanation, and the reader should know something was withheld.
-    expect(result.narrative.some((line) => line.includes('internal reviewer'))).toBe(true);
+    expect(result.narrative.some((line) => line.includes('internal reviewer'))).toBe(false);
+    expect(result.narrative.some((line) => line.includes('Editorially corrected'))).toBe(true);
     // The rest of the trail is intact, not sacrificed to the redaction.
     expect(result.claims.length).toBeGreaterThan(0);
     expect(result.conflicts.length).toBeGreaterThan(0);

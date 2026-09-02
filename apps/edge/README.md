@@ -5,8 +5,9 @@ substance and no routing of its own.
 
 | file | what it is |
 |---|---|
-| `src/index.ts` | the `fetch` handler, and the 503 a misconfigured deployment returns |
+| `src/index.ts` | the `fetch` handler: authenticate, run the route, publish a usage event, answer — plus the 503 a misconfigured deployment returns |
 | `src/adapter.ts` | `Request` ↔ `ApiRequest`/`ApiResponse`. Translates, decides nothing |
+| `src/auth.ts` | the authentication and scope-enforcement pipeline; the one place this deployment reaches `api_keys`/`api_tenants` |
 | `src/composition.ts` | the composition root: driver → store → `QueryModel` → app |
 | `src/env.ts` | what a deployment is configured with, and what it refuses to start without |
 | `generated/*.runtime.json` | compiled vertical config. Generated — do not hand-edit |
@@ -79,14 +80,45 @@ Deployment needs an account id, a Hyperdrive binding and a route, none of which
 are in this repository. See
 [docs/owner-actions/cloudflare-deployment.md](../../docs/owner-actions/cloudflare-deployment.md).
 
+## Authentication and metering
+
+Every request is authenticated and scope-checked in `src/auth.ts` before
+`apps/api`'s handler ever runs — see `AGENTS.md` rule 5's reasoning for why
+that lookup belongs here and not in `apps/api`. A rejected key or a key
+scoped to a different vertical never reaches a route, and its failure
+response is uniform across every 401 reason and every 403 reason, so a
+client cannot use the response shape to probe which one applies.
+
+A successful GET/HEAD request is metered through an asynchronous consumer:
+`src/index.ts` builds
+a `UsageEvent` from `apps/api`'s `onRequest` telemetry. Telemetry carries only a
+registered route key such as `entities.detail`, never a path, query, slug, or
+entity identifier. The Worker awaits `USAGE_EVENTS_QUEUE.send` acceptance
+before returning success, which begins Cloudflare's at-least-once delivery.
+A missing or rejected queue handoff returns an opaque, retryable 503. The
+request never waits on the database write the queue's consumer
+(`apps/usage-consumer`) eventually makes — see that package for the
+idempotent-persistence half of this design, and migrations 0011–0012
+for the schema and the invariants it enforces (revocation is a timestamp,
+usage rows cannot cross the tenant boundary, no plaintext key is ever
+stored).
+
+Deliberately not built as part of this: pricing, plans, invoices,
+subscriptions, or a Durable Object. Metering here is measurement only; see
+`packages/usage-events` for the contract and `docs/owner-actions/cloudflare-deployment.md`
+for what an operator still has to provision (the queue itself and its
+dead-letter queue).
+
+`API_KEY_ENVIRONMENT` is required and exact. Production declares `live` in
+`wrangler.toml`; local/test deployments must explicitly override it to `test`.
+A `df_test_*` key is rejected by live before hashing or any database lookup.
+
 ## Deliberately absent
 
-* **No auth, no metering, no tenancy.** Unchanged from `apps/api`: there is no
-  account, API-key or tenant concept in `db/migrations` to back one. Metered
-  access is a schema change first and a Worker change second.
-* **No MCP handler yet.** `apps/mcp` exists and AGENTS.md names Cloudflare
-  Streamable HTTP as its target. It is a second entry point over the same
-  composition root, not a second composition root.
+* **No MCP handler in this Worker.** `apps/mcp-worker` is the separate
+  one-vertical Streamable HTTP composition root over `apps/mcp`. It uses an
+  exact `MCP/NONE` credential and shares canonical query behavior without
+  turning the REST Worker into a multi-protocol entry point.
 * **No caching.** `apps/api` sets `cache-control: no-store` and says why:
   correctness first, no shared caching until there is a documented invalidation
   story. Putting a cache in front of it here would be that decision made silently.

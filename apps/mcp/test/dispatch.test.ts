@@ -51,6 +51,10 @@ describe('the tool set', () => {
     for (const tool of tools) {
       expect(tool.inputSchema['type'], tool.name).toBe('object');
       expect(tool.errorCodes, tool.name).toContain('INVALID_ARGUMENTS');
+      // Every tool enters the surface-bound query model, whose bounded rights
+      // evaluation may refuse a catalogue that cannot be authorized safely.
+      // A client must be told this can happen before it chooses a tool.
+      expect(tool.errorCodes, tool.name).toContain('SERVICE_UNAVAILABLE');
       // Doc 07: a description that does not say what the tool cannot do gets
       // called for the wrong reason.
       expect(tool.description.toUpperCase(), tool.name).toContain('LIMITATIONS');
@@ -122,6 +126,19 @@ describe('search_entities', () => {
     expect(page.limit).toBe(1);
     expect(page.offset).toBe(1);
     expect(page.hits).toHaveLength(1);
+  });
+
+  it('rejects an in-filter whose value set exceeds the declared bound', async () => {
+    const call = await fixtures.server.callTool('search_entities', {
+      filters: [{
+        property: 'seer2_rating',
+        op: 'in',
+        values: Array.from({ length: 101 }, (_, index) => index),
+      }],
+    });
+
+    expect(call.isError).toBe(true);
+    expect(errorOf(call).code).toBe('INVALID_ARGUMENTS');
   });
 });
 

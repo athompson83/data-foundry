@@ -1,10 +1,12 @@
 import { z } from 'zod';
 import {
   AttributionRequirementSchema,
+  AcquisitionMethodSchema,
   IsoDateSchema,
   IsoDateTimeSchema,
   MediaDisplayModeSchema,
   RightsClassificationSchema,
+  type AcquisitionMethod,
 } from '@data-foundry/canonical-schema';
 
 /**
@@ -54,18 +56,11 @@ export const CodeVsDataLicenseSchema = z.object({
 });
 export type CodeVsDataLicense = z.infer<typeof CodeVsDataLicenseSchema>;
 
-export const ACQUISITION_METHODS = [
-  'DIRECT_HTTP',
-  'BROWSER_RUN',
-  'CRAWL4AI',
-  'VENDOR_API',
-  'SITEMAP',
-  'BULK_FILE',
-  'RSS',
-  'MANUAL_UPLOAD',
-] as const;
-export const AcquisitionMethodSchema = z.enum(ACQUISITION_METHODS);
-export type AcquisitionMethod = z.infer<typeof AcquisitionMethodSchema>;
+export {
+  ACQUISITION_METHODS,
+  AcquisitionMethodSchema,
+  type AcquisitionMethod,
+} from '@data-foundry/canonical-schema';
 
 /**
  * How we are allowed to obtain this source. The method is a policy decision,
@@ -74,6 +69,10 @@ export type AcquisitionMethod = z.infer<typeof AcquisitionMethodSchema>;
  */
 export const AcquisitionPolicySchema = z.object({
   method: AcquisitionMethodSchema,
+  /** Contract/account tier whose terms authorize this route, when one exists. */
+  account_or_product_plan: z.string().min(1).max(300).nullable(),
+  /** Jurisdiction whose acquisition terms were reviewed, when scope is jurisdictional. */
+  jurisdiction: z.string().min(1).max(120).nullable(),
   /** Signed off by a human as compatible with the source's terms. */
   approved: z.boolean(),
   approved_by: z.string().max(200).nullable(),

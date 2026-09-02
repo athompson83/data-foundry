@@ -16,6 +16,88 @@ afterAll(async () => {
 });
 
 describe('entities and aliases', () => {
+  it.each([
+    [null, false, false],
+    [null, true, true],
+    [false, false, false],
+    [false, true, true],
+    [true, false, true],
+    [true, true, true],
+  ] as const)(
+    'registers kill switch stored=%s bundled=%s to monotone %s',
+    async (stored, bundled, expected) => {
+      const source = fixtures.sources.manufacturer.source;
+      const input = {
+        vertical_id: source.vertical_id,
+        publisher: source.publisher,
+        domain: source.domain,
+        source_type: source.source_type,
+        authority_rank: source.authority_rank,
+        rights_classification: source.rights_classification,
+        attribution_requirement: source.attribution_requirement,
+        robots_policy: source.robots_policy,
+        refresh_cadence: source.refresh_cadence,
+        status: source.status,
+      } as const;
+
+      await fixtures.driver.query(
+        'UPDATE sources SET kill_switch_engaged = $2 WHERE id = $1',
+        [source.id, stored],
+      );
+      const synchronized = await fixtures.store.registerSource({
+        ...input,
+        kill_switch_engaged: bundled,
+      });
+      expect(synchronized.kill_switch_engaged).toBe(expected);
+    },
+  );
+
+  it('registers bundled metadata without overwriting stored vertical or source governance state', async () => {
+    const source = fixtures.sources.manufacturer.source;
+    const vertical = fixtures.vertical;
+    await fixtures.driver.query(
+      `UPDATE verticals SET status = 'DEPRECATED' WHERE id = $1`,
+      [vertical.id],
+    );
+    await fixtures.driver.query(
+      `UPDATE sources
+          SET status = 'PAUSED', rights_classification = 'RED', publisher = 'Database reviewer',
+              kill_switch_engaged = FALSE
+        WHERE id = $1`,
+      [source.id],
+    );
+
+    const registeredVertical = await fixtures.store.registerVertical({
+      slug: vertical.slug,
+      name: 'Bundled replacement name',
+      schema_version: vertical.schema_version,
+      status: 'ACTIVE',
+      default_refresh_policy: vertical.default_refresh_policy,
+    });
+    const registeredSource = await fixtures.store.registerSource({
+      vertical_id: vertical.id,
+      publisher: source.publisher,
+      domain: source.domain,
+      source_type: source.source_type,
+      authority_rank: source.authority_rank,
+      rights_classification: 'GREEN',
+      attribution_requirement: source.attribution_requirement,
+      robots_policy: source.robots_policy,
+      refresh_cadence: source.refresh_cadence,
+      status: 'ACTIVE',
+      kill_switch_engaged: false,
+    });
+
+    expect(registeredVertical.status).toBe('DEPRECATED');
+    expect(registeredVertical.name).toBe(vertical.name);
+    expect(registeredSource).toMatchObject({
+      status: 'PAUSED',
+      rights_classification: 'RED',
+      publisher: 'Database reviewer',
+      kill_switch_engaged: false,
+    });
+  });
+
   it('upserts an entity on (vertical, type, slug) without duplicating it', async () => {
     const again = await fixtures.store.upsertEntity({
       vertical_id: fixtures.vertical.id,
@@ -68,9 +150,10 @@ describe('entities and aliases', () => {
 
     const aliases = await fixtures.store.listAliases(fixtures.entity.id);
     expect(aliases).toHaveLength(2);
-    // GREATEST keeps the strongest identity claim rather than the newest.
+    // Current presentation follows the winning active claim: source authority
+    // precedes confidence, matching the deterministic resolver display rule.
     expect(aliases.find((alias) => alias.alias_type === 'model_number')?.identity_confidence)
-      .toBeCloseTo(0.99);
+      .toBeCloseTo(0.9);
 
     const matches = await fixtures.store.lookupByAlias({
       vertical_id: fixtures.vertical.id,
@@ -95,12 +178,45 @@ describe('entities and aliases', () => {
       policy_snapshot_id: null,
       byte_size: 4096,
       acquisition_provider: 'http',
+      acquisition_route: 'DIRECT_HTTP',
+      account_or_product_plan: null,
+      acquisition_jurisdiction: null,
     });
 
     expect(again.id).toBe(fixtures.sources.manufacturer.artifact.id);
+    expect(again.acquisition_route).toBe('DIRECT_HTTP');
+    expect(again.account_or_product_plan).toBeNull();
+    expect(again.acquisition_jurisdiction).toBeNull();
     // Immutable: re-fetching identical bytes did not rewrite retrieved_at.
     expect(again.retrieved_at).toBe(fixtures.sources.manufacturer.artifact.retrieved_at);
     expect(await countRows(fixtures.driver, 'source_artifacts')).toBe(before);
+  });
+
+  it('keeps identical bytes distinct when their acquisition rights scope differs', async () => {
+    const original = fixtures.sources.manufacturer.artifact;
+    const before = await countRows(fixtures.driver, 'source_artifacts');
+    const differentlyScoped = await fixtures.store.recordSourceArtifact({
+      source_id: fixtures.sources.manufacturer.source.id,
+      url: original.url,
+      retrieved_at: ts('2026-04-02T00:00:00Z'),
+      content_hash: original.content_hash,
+      mime_type: original.mime_type,
+      r2_uri: original.r2_uri,
+      http_status: 200,
+      extractor_version: 'browser-run@1.0.0',
+      policy_snapshot_id: null,
+      byte_size: original.byte_size,
+      acquisition_provider: 'browser-run',
+      acquisition_route: 'BROWSER_RUN',
+      account_or_product_plan: 'partner-pro',
+      acquisition_jurisdiction: 'US',
+    });
+
+    expect(differentlyScoped.id).not.toBe(original.id);
+    expect(differentlyScoped.acquisition_route).toBe('BROWSER_RUN');
+    expect(differentlyScoped.account_or_product_plan).toBe('partner-pro');
+    expect(differentlyScoped.acquisition_jurisdiction).toBe('US');
+    expect(await countRows(fixtures.driver, 'source_artifacts')).toBe(before + 1);
   });
 });
 

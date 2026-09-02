@@ -21,5 +21,8 @@
     "@data-foundry/provenance": "workspace:*",
     "@data-foundry/query-model": "workspace:*",
     "@data-foundry/source-registry": "workspace:*"
+  },
+  "devDependencies": {
+    "@data-foundry/rights-engine": "workspace:*"
   }
 }

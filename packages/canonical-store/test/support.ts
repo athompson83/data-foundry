@@ -75,6 +75,7 @@ export interface Fixtures {
 export type SourceKey =
   | 'manufacturer'
   | 'certifier'
+  | 'filing'
   | 'aggregator'
   | 'blocked'
   | 'editorial'
@@ -105,6 +106,14 @@ const SOURCE_SPECS: readonly SourceSpec[] = [
     domain: 'ratings-directory.example.org',
     source_type: 'CERTIFICATION_BODY',
     authority_rank: 95,
+    rights: 'GREEN',
+  },
+  {
+    key: 'filing',
+    publisher: 'Federal Equipment Register',
+    domain: 'filings.regulator.example.gov',
+    source_type: 'REGULATORY_FILING',
+    authority_rank: 80,
     rights: 'GREEN',
   },
   {
@@ -190,6 +199,7 @@ export async function createFixtures(options: FixtureOptions = {}): Promise<Fixt
       refresh_cadence: 'WEEKLY',
       // rule 1 at the storage layer: UNREVIEWED can never be ACTIVE.
       status: spec.rights === 'GREEN' ? 'ACTIVE' : 'UNDER_REVIEW',
+      kill_switch_engaged: false,
     });
     const artifact = await store.recordSourceArtifact({
       source_id: source.id,
@@ -203,11 +213,15 @@ export async function createFixtures(options: FixtureOptions = {}): Promise<Fixt
       policy_snapshot_id: null,
       byte_size: 4096,
       acquisition_provider: 'http',
+      acquisition_route: 'DIRECT_HTTP',
+      account_or_product_plan: null,
+      acquisition_jurisdiction: null,
     });
     const record = await store.recordSourceRecord({
       source_id: source.id,
       artifact_id: artifact.id,
       source_record_key: `${spec.key}-24ANB7`,
+      source_stream: 'fixture_records',
       entity_type: 'equipment',
       raw_payload: { model: '24ANB7' },
       normalized_payload: null,

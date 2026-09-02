@@ -10,7 +10,7 @@ import type {
   SourceRegistryLoader,
 } from '@data-foundry/source-registry';
 import { systemClock, type Clock } from '../clock.js';
-import { deterministicUuid } from '../hashing.js';
+import { deterministicUuid, sha256Hex } from '../hashing.js';
 import {
   conditionalHeaders,
   validatorsFromHeaders,
@@ -18,6 +18,7 @@ import {
   type ValidatorCache,
 } from '../policy/conditional.js';
 import type { PolicySnapshot, PolicySnapshotRecorder } from '../policy/policy-snapshot.js';
+import { classifyAcquisitionResult } from '../policy/result-policy.js';
 import {
   evaluateAcquisitionGate,
   requireAcquisitionAllowed,
@@ -29,6 +30,8 @@ import {
   type RateLimitPolicy,
 } from '../policy/rate-limit.js';
 import type { ArtifactStore, StoredArtifact } from '../storage/artifact-store.js';
+import { artifactContentKey, artifactRetrievalReceiptId } from '../storage/keys.js';
+import { ProviderTransportError } from '../errors.js';
 import type { AcquisitionProvider } from '../provider.js';
 import type {
   AcquisitionOutcome,
@@ -48,6 +51,18 @@ export interface AcquisitionProviderDeps {
   readonly registry: SourceRegistryLoader;
   readonly artifactStore: ArtifactStore;
   readonly policyRecorder: PolicySnapshotRecorder;
+  /**
+   * Trusted, fresh authorization check performed after politeness waiting and
+   * immediately before vendor transport. Production composition must reload
+   * stored rights here; an earlier admission is not reusable after a wait.
+   */
+  readonly beforeTransport: (input: PreTransportCheckInput) => Promise<void>;
+  /**
+   * Trusted, fresh authorization check performed after the complete transport
+   * result manifest is validated and immediately before persistence. This is
+   * also required before a NOT_MODIFIED result can publish freshness.
+   */
+  readonly beforePersistence: (input: PrePersistenceCheckInput) => Promise<void>;
   readonly rateLimiter?: RateLimiter | undefined;
   readonly validatorCache?: ValidatorCache | undefined;
   readonly clock?: Clock | undefined;
@@ -55,7 +70,20 @@ export interface AcquisitionProviderDeps {
   readonly userAgent?: string | undefined;
 }
 
+export interface PreTransportCheckInput {
+  readonly request: SourceRequest;
+  readonly entry: SourceRegistryEntry;
+  readonly asOf: string;
+}
+
+export interface PrePersistenceCheckInput {
+  readonly request: SourceRequest;
+  readonly entry: SourceRegistryEntry;
+  readonly asOf: string;
+}
+
 export const DEFAULT_USER_AGENT = 'DataFoundryBot/0.1 (+https://example.invalid/bot)';
+export const MAX_ACQUISITION_DIAGNOSTIC_BYTES = 256 * 1024;
 
 /**
  * What the vendor-specific half of a provider is handed.
@@ -177,7 +205,16 @@ export abstract class BaseAcquisitionProvider implements AcquisitionProvider {
     };
     const waitedMs = await this.#rateLimiter.acquire(entry.key, rateLimit);
 
-    // 5. The one vendor-specific step.
+    // 5. Rights or the operator kill switch may have changed while this run
+    //    waited for its politeness budget. Reload trusted state at the last
+    //    possible boundary; refusal here happens before any vendor transport.
+    await this.deps.beforeTransport({
+      request,
+      entry,
+      asOf: this.clock.nowIso(),
+    });
+
+    // 6. The one vendor-specific step.
     const transportResult = await this.transport({
       allowed,
       request,
@@ -189,9 +226,53 @@ export abstract class BaseAcquisitionProvider implements AcquisitionProvider {
     });
 
     const fetchedAt = this.clock.nowIso();
-    const diagnostics = [...transportResult.diagnostics];
+    const diagnostics: string[] = [];
+    const diagnosticEncoder = new TextEncoder();
+    let diagnosticBytes = 0;
+    let reservedDiagnosticBytes = 0;
+    const diagnosticByteLength = (message: string): number =>
+      diagnosticEncoder.encode(message).byteLength;
+    const assertDiagnosticBudget = (messageBytes: number): void => {
+      if (
+        messageBytes >
+        MAX_ACQUISITION_DIAGNOSTIC_BYTES - diagnosticBytes - reservedDiagnosticBytes
+      ) {
+        throw new ProviderTransportError(
+          this.id,
+          `acquisition diagnostics exceeded the ${MAX_ACQUISITION_DIAGNOSTIC_BYTES}-byte ceiling`,
+        );
+      }
+    };
+    const addDiagnostic = (message: string): void => {
+      const messageBytes = diagnosticByteLength(message);
+      assertDiagnosticBudget(messageBytes);
+      diagnosticBytes += messageBytes;
+      diagnostics.push(message);
+    };
+    const reserveDiagnostic = (message: string): void => {
+      const messageBytes = diagnosticByteLength(message);
+      assertDiagnosticBudget(messageBytes);
+      reservedDiagnosticBytes += messageBytes;
+    };
+    const releaseReservedDiagnostic = (message: string): void => {
+      reservedDiagnosticBytes -= diagnosticByteLength(message);
+    };
+    const consumeReservedDiagnostic = (message: string): void => {
+      const messageBytes = diagnosticByteLength(message);
+      reservedDiagnosticBytes -= messageBytes;
+      diagnosticBytes += messageBytes;
+      diagnostics.push(message);
+    };
+    for (const diagnostic of transportResult.diagnostics) addDiagnostic(diagnostic);
 
     if (transportResult.notModified) {
+      const validators = this.#validateDurableValidators(conditional ?? {});
+      addDiagnostic('not modified since the previous acquisition; no bytes stored');
+      await this.deps.beforePersistence({
+        request,
+        entry,
+        asOf: this.clock.nowIso(),
+      });
       return {
         provider: this.id,
         request,
@@ -199,30 +280,94 @@ export abstract class BaseAcquisitionProvider implements AcquisitionProvider {
         artifacts: [],
         stored: [],
         policySnapshot,
-        validators: conditional ?? {},
+        validators,
         fetchedAt,
         waitedMs,
-        diagnostics: [...diagnostics, 'not modified since the previous acquisition; no bytes stored'],
+        diagnostics,
       };
     }
 
     const artifacts: SourceArtifact[] = [];
     const stored: StoredArtifact[] = [];
+    const validatorsByResource = new Map<FetchedResource, ConditionalValidators>();
+    const reservedResourceDiagnostics: string[] = [];
+    // Preflight the complete result manifest before the first byte is written.
+    // A multi-resource provider returning one off-scope URL or one malformed
+    // canonical artifact/validator must leave R2 empty, not persist an allowed
+    // prefix and fail halfway through the response.
+    for (const resource of transportResult.resources) {
+      if (resource.httpStatus === 304) {
+        const diagnostic = `${resource.url}: 304 Not Modified; nothing stored`;
+        reserveDiagnostic(diagnostic);
+        reservedResourceDiagnostics.push(diagnostic);
+        continue;
+      }
+      if (resource.httpStatus >= 400) {
+        const diagnostic =
+          `${resource.url}: upstream returned ${resource.httpStatus}; not stored as evidence`;
+        reserveDiagnostic(diagnostic);
+        reservedResourceDiagnostics.push(diagnostic);
+        continue;
+      }
+      classifyAcquisitionResult({
+        targetUrl: request.url,
+        resultUrl: resource.url,
+        acquisitionRoute: entry.acquisition_policy.method,
+        policy: request.resultUrlPolicy,
+      });
+      const contentHash = sha256Hex(resource.body);
+      const key = artifactContentKey({
+        vertical: entry.vertical_slug,
+        source: entry.key,
+        contentHash,
+      });
+      this.#buildArtifact({
+        entry,
+        request,
+        resource,
+        fetchedAt,
+        policySnapshot,
+        contentHash,
+        r2Uri: this.deps.artifactStore.uriFor(key),
+        byteSize: resource.body.byteLength,
+        retrievedAt: fetchedAt,
+      });
+      validatorsByResource.set(
+        resource,
+        this.#validateDurableValidators(validatorsFromHeaders(resource.headers, contentHash)),
+      );
+      const diagnostic =
+        `${resource.url}: identical bytes already stored at ${key}; write skipped`;
+      reserveDiagnostic(diagnostic);
+      reservedResourceDiagnostics.push(diagnostic);
+    }
+    const hasPersistableResource = transportResult.resources.some(
+      (resource) => resource.httpStatus !== 304 && resource.httpStatus < 400,
+    );
+    if (hasPersistableResource) {
+      await this.deps.beforePersistence({
+        request,
+        entry,
+        asOf: this.clock.nowIso(),
+      });
+    }
     // A crawl-shaped provider returns many resources; the validators we replay next
     // run must be the ones belonging to the URL we asked for, not whichever page
     // happened to come last.
     let primaryValidators: ConditionalValidators | null = null;
     let firstValidators: ConditionalValidators | null = null;
 
-    for (const resource of transportResult.resources) {
+    for (const [resourceIndex, resource] of transportResult.resources.entries()) {
+      const reservedDiagnostic = reservedResourceDiagnostics[resourceIndex];
+      if (reservedDiagnostic === undefined) {
+        throw new Error('A resource bypassed complete diagnostic-manifest preflight.');
+      }
       if (resource.httpStatus === 304) {
-        diagnostics.push(`${resource.url}: 304 Not Modified; nothing stored`);
+        consumeReservedDiagnostic(reservedDiagnostic);
         continue;
       }
       if (resource.httpStatus >= 400) {
-        diagnostics.push(
-          `${resource.url}: upstream returned ${resource.httpStatus}; not stored as evidence`,
-        );
+        consumeReservedDiagnostic(reservedDiagnostic);
         continue;
       }
 
@@ -230,11 +375,14 @@ export abstract class BaseAcquisitionProvider implements AcquisitionProvider {
       stored.push(record.stored);
       artifacts.push(record.artifact);
       if (record.stored.deduplicated) {
-        diagnostics.push(
-          `${resource.url}: identical bytes already stored at ${record.stored.key}; write skipped`,
-        );
+        consumeReservedDiagnostic(reservedDiagnostic);
+      } else {
+        releaseReservedDiagnostic(reservedDiagnostic);
       }
-      const resourceValidators = validatorsFromHeaders(resource.headers, record.stored.contentHash);
+      const resourceValidators = validatorsByResource.get(resource);
+      if (resourceValidators === undefined) {
+        throw new Error('A persistable resource bypassed complete result-manifest preflight.');
+      }
       firstValidators ??= resourceValidators;
       if (resource.url === request.url) primaryValidators = resourceValidators;
     }
@@ -277,6 +425,15 @@ export abstract class BaseAcquisitionProvider implements AcquisitionProvider {
       vertical: entry.vertical_slug,
       source: entry.key,
       body: resource.body,
+      ...(request.retrievalScopeId === undefined
+        ? {}
+        : {
+            retrievalReceiptId: artifactRetrievalReceiptId(
+              request.retrievalScopeId,
+              resource.url,
+              this.id,
+            ),
+          }),
       metadata: {
         source_key: entry.key,
         vertical_slug: entry.vertical_slug,
@@ -286,36 +443,93 @@ export abstract class BaseAcquisitionProvider implements AcquisitionProvider {
         mime_type: resource.mimeType,
         policy_snapshot_id: policySnapshot.id,
         acquisition_provider: this.id,
+        acquisition_route: entry.acquisition_policy.method,
+        account_or_product_plan: entry.acquisition_policy.account_or_product_plan,
+        acquisition_jurisdiction: entry.acquisition_policy.jurisdiction,
         etag: etag ?? null,
         last_modified: lastModified ?? null,
       },
     });
 
+    return {
+      stored,
+      artifact: this.#buildArtifact({
+        entry,
+        request,
+        resource,
+        fetchedAt,
+        policySnapshot,
+        contentHash: stored.contentHash,
+        r2Uri: stored.uri,
+        byteSize: stored.byteSize,
+        retrievedAt: stored.metadata.retrieved_at,
+      }),
+    };
+  }
+
+  #buildArtifact(input: {
+    entry: SourceRegistryEntry;
+    request: SourceRequest;
+    resource: FetchedResource;
+    fetchedAt: string;
+    policySnapshot: PolicySnapshot;
+    contentHash: StoredArtifact['contentHash'];
+    r2Uri: StoredArtifact['uri'];
+    byteSize: number;
+    retrievedAt: string;
+  }): SourceArtifact {
+    const { entry, request, resource, fetchedAt, policySnapshot } = input;
     // Derived, not random: re-acquiring identical bytes must not mint a second
     // artifact identity for the same evidence.
-    const artifact = SourceArtifactSchema.parse({
+    return SourceArtifactSchema.parse({
       id: sourceArtifactId(
         deterministicUuid(
           'data-foundry:source-artifact',
           request.sourceId,
           resource.url,
-          stored.contentHash,
+          input.contentHash,
+          entry.acquisition_policy.method,
+          entry.acquisition_policy.account_or_product_plan ?? 'NO_ACCOUNT_OR_PRODUCT_PLAN',
+          entry.acquisition_policy.jurisdiction ?? 'NO_ACQUISITION_JURISDICTION',
         ),
       ),
       source_id: request.sourceId,
       url: resource.url,
-      retrieved_at: stored.metadata.retrieved_at,
-      content_hash: stored.contentHash,
+      retrieved_at: input.retrievedAt,
+      content_hash: input.contentHash,
       mime_type: resource.mimeType,
-      r2_uri: stored.uri,
+      r2_uri: input.r2Uri,
       http_status: resource.httpStatus,
       extractor_version: `${this.id}@${this.version}`,
       policy_snapshot_id: policySnapshot.id,
-      byte_size: stored.byteSize,
+      byte_size: input.byteSize,
       acquisition_provider: this.id,
+      acquisition_route: entry.acquisition_policy.method,
+      account_or_product_plan: entry.acquisition_policy.account_or_product_plan,
+      acquisition_jurisdiction: entry.acquisition_policy.jurisdiction,
       created_at: fetchedAt,
     });
+  }
 
-    return { stored, artifact };
+  #validateDurableValidators(validators: ConditionalValidators): ConditionalValidators {
+    if (
+      validators.etag !== undefined &&
+      (validators.etag.length < 1 || validators.etag.length > 1_024)
+    ) {
+      throw new ProviderTransportError(
+        this.id,
+        'response ETag must contain 1-1024 characters before it can become durable state',
+      );
+    }
+    if (
+      validators.lastModified !== undefined &&
+      (validators.lastModified.length < 1 || validators.lastModified.length > 128)
+    ) {
+      throw new ProviderTransportError(
+        this.id,
+        'response Last-Modified must contain 1-128 characters before it can become durable state',
+      );
+    }
+    return validators;
   }
 }

@@ -9,10 +9,14 @@ import type { ExtractedRecord } from './types.js';
  * stage's job, and an extractor that pre-populated it would have quietly crossed
  * an architecture boundary.
  */
-export const toSourceRecordInsert = (record: ExtractedRecord): SourceRecordInsert => ({
+export const toSourceRecordInsert = (
+  record: ExtractedRecord,
+  sourceStream: Identifier,
+): SourceRecordInsert => ({
   source_id: record.source_id,
   artifact_id: record.artifact_id,
   source_record_key: record.source_record_key,
+  source_stream: sourceStream,
   entity_type: record.entity_type,
   raw_payload: record.raw_payload,
   normalized_payload: null,

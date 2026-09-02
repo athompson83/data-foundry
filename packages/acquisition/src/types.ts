@@ -15,6 +15,11 @@ import type { StoredArtifact } from './storage/artifact-store.js';
 
 export type HttpMethod = 'GET' | 'HEAD' | 'POST';
 
+export interface AcquisitionResultUrlPolicy {
+  readonly allowedOrigins: readonly string[];
+  readonly allowedPathPrefixes: readonly string[];
+}
+
 /**
  * One unit of work handed to a provider.
  *
@@ -29,6 +34,14 @@ export interface SourceRequest {
   readonly sourceKey: string;
   readonly verticalSlug: string;
   readonly url: string;
+  /**
+   * Durable caller-owned retrieval scope (the scheduled run id in production).
+   * When present, every returned resource receives a receipt id bound to this
+   * scope, its result URL, and the selected provider.
+   */
+  readonly retrievalScopeId?: string | undefined;
+  /** Omit for exact-target-only; only browser/crawler routes may use children. */
+  readonly resultUrlPolicy?: AcquisitionResultUrlPolicy | undefined;
   readonly method?: HttpMethod | undefined;
   /** Extra request headers. Lowercased on the way out; never carries credentials by default. */
   readonly headers?: Readonly<Record<string, string>> | undefined;

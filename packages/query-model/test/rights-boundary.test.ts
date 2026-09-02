@@ -130,22 +130,22 @@ describe('relationship traversal — rule 1 (gap 1)', () => {
     expect(neighbours(traversal)).not.toContain(hiddenPart.canonical_slug);
   });
 
-  it('still returns a mixed-rights edge, counting only the rights-usable evidence', async () => {
+  it('refuses a mixed-rights edge because every contributing source must authorize it', async () => {
     const traversal = await fixtures.qm.relationships({
       entity_id: fixtures.equipment.id,
       predicate: 'has_part',
     });
 
     const edge = traversal.edges.find((row) => row.neighbor.id === mixedPart.id);
-    expect(edge, 'a clean source vouches for this edge, so it is publishable').toBeDefined();
-    // Two evidence rows are stored; one of them may not be shown or counted.
+    expect(edge, 'one blocked contribution refuses the combined relationship').toBeUndefined();
+    // Both evidence rows remain stored; refusal is non-destructive.
     const stored = await fixtures.driver.query<{ n: string }>(
-      `SELECT count(*)::text AS n FROM relationship_evidence
-        WHERE relationship_id = $1`,
-      [edge?.relationship.id ?? ''],
+      `SELECT count(*)::text AS n FROM relationship_evidence re
+        JOIN relationships r ON r.id = re.relationship_id
+        WHERE r.object_entity_id = $1`,
+      [mixedPart.id],
     );
     expect(Number(stored[0]?.n), 'both rows are stored').toBe(2);
-    expect(edge?.evidence_count, 'only the publishable row is counted').toBe(1);
 
     // Nothing anywhere in the served result may name the blocked publisher —
     // asserted over the whole payload so a future field cannot leak it back.
@@ -222,7 +222,7 @@ describe('relationship traversal — rule 1 (gap 1)', () => {
     // The first query really does hide something and the second really does
     // not, or this proves nothing.
     expect(neighbours(blockedOnly)).not.toContain(hiddenPart.canonical_slug);
-    expect(blockedOnly.edges.length, 'the blocked-edge query served real edges').toBe(2);
+    expect(blockedOnly.edges.length, 'the blocked-edge query served real edges').toBe(1);
     expect(untouched.edges, 'the control query has nothing to hide').toEqual([]);
 
     // Every scalar the traversal reports must be a property of what was
@@ -359,9 +359,9 @@ describe('relationship traversal — rule 1 (gap 1)', () => {
       entity_id: fixtures.equipment.id,
       predicate: 'has_part',
       direction: 'out',
-      limit: 2,
+      limit: 1,
     });
-    expect(exact.edges, 'exactly two publishable edges exist here').toHaveLength(2);
+    expect(exact.edges, 'exactly one publishable edge exists here').toHaveLength(1);
     expect(exact.truncated).toBe(false);
 
     const bounded = await fixtures.qm.relationships({
@@ -369,9 +369,10 @@ describe('relationship traversal — rule 1 (gap 1)', () => {
       predicate: 'has_part',
       direction: 'out',
       limit: 1,
+      require_publishable_rights: false,
     });
     expect(bounded.edges).toHaveLength(1);
-    expect(bounded.truncated, 'this one really did stop short').toBe(true);
+    expect(bounded.truncated, 'the unguarded control really did stop short').toBe(true);
   });
 
   it('does not reach a further node through an edge it may not serve', async () => {
@@ -398,13 +399,11 @@ describe('relationship traversal — rule 1 (gap 1)', () => {
 });
 
 describe('canonicalFacts — rule 1 in the publisher list (gap 2)', () => {
-  it('names only the publishable source behind a value backed by GREEN and UNREVIEWED', async () => {
+  it('withholds a fact backed by GREEN and UNREVIEWED because authorization is an AND', async () => {
     const rows = await fixtures.qm.canonicalFacts(mixedPart.id, { at: AT });
     const refrigerant = rows.find((row) => row.property === 'refrigerant');
 
-    expect(refrigerant?.value, 'the value itself is publishable').toBe('R-454B');
-    expect(refrigerant?.sources).toEqual(['Ratings Directory']);
-    expect(refrigerant?.sources).not.toContain(BLOCKED_PUBLISHER);
+    expect(refrigerant).toBeUndefined();
   });
 
   it('names both when requirePublishableRights is off', async () => {

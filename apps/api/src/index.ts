@@ -29,7 +29,10 @@ export {
   baseHeaders,
   jsonResponse,
   requestId,
+  API_REQUEST_SURFACES,
   type ApiHandler,
+  type ApiRequestAccess,
+  type ApiRequestSurface,
   type ApiRequest,
   type ApiResponse,
 } from './http.js';
@@ -48,20 +51,35 @@ export {
   resolveContext,
   type ApiAppOptions,
   type ApiContext,
+  type ApiRequestContext,
   type ApiErrorContext,
   type ApiFactSelectionPolicy,
+  type ApiRequestTelemetry,
 } from './config.js';
 
 export {
   CURRENT_VERSION,
+  CONTRACT_ROUTE_KEY,
+  ROUTE_KEYS,
   ROUTES,
+  SERVICE_ROUTE_KEY,
   SUPPORTED_VERSIONS,
+  UNMATCHED_ROUTE_KEY,
   contractDocument,
   matchRoute,
   routeParams,
   type Route,
+  type RouteKey,
   type RouteMatch,
+  type PreparedRouteExecution,
 } from './routes.js';
+
+export {
+  buildOpenApiDocument,
+  type BuildOpenApiDocumentOptions,
+  type OpenApiChannel,
+  type OpenApiVerticalMetadata,
+} from './openapi.js';
 
 export {
   comparisonWire,
@@ -72,6 +90,15 @@ export {
   redirectTraceWire,
   relationshipEdgeWire,
   searchHitWire,
+  parseWireResponse,
+  validateApiErrorEnvelope,
+  validateOpaqueEdgeErrorEnvelope,
+  wireJsonResponse,
+  WIRE_COMPONENT_SCHEMAS,
+  type OpenApiResponseSchemaName,
+  type WireComponentSchemaName,
+  type ApiErrorEnvelope,
+  type OpaqueEdgeErrorEnvelope,
   type ComparisonWire,
   type EntityWire,
   type FacetWire,

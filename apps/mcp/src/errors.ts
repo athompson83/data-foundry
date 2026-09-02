@@ -9,7 +9,7 @@
  *
  * `retryable` is the field an agent actually acts on: `false` means stop, look
  * at `details`, and change something. Every argument and lookup failure is
- * `false`; only `INTERNAL_ERROR` is `true`.
+ * `false`; only an unmodelled `INTERNAL_ERROR` is `true`.
  *
  * Nothing here echoes an exception's own message or stack. An upstream error
  * string is written for an operator reading a log, and forwarding it to a tool
@@ -43,6 +43,8 @@ export const MCP_TOOL_ERROR_CODES = [
    * withholding the answer is the correct outcome.
    */
   'UNPUBLISHABLE_SOURCE_BLOCKED',
+  /** A complete rights-safe catalog answer exceeds the checked-in work bound. */
+  'SERVICE_UNAVAILABLE',
   /** Anything unanticipated. The only retryable code. */
   'INTERNAL_ERROR',
 ] as const;

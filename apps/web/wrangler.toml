@@ -13,9 +13,23 @@ main = "src/index.ts"
 # sockets, and the driver needs Node built-ins to use them.
 compatibility_date = "2026-08-23"
 compatibility_flags = ["nodejs_compat"]
+workers_dev = false
+preview_urls = false
 
 [observability]
 enabled = true
+
+[observability.logs]
+invocation_logs = false
+
+[vars]
+# Keep the committed production template subject to the same topology checks as
+# the API and queue consumer. The web runtime reads this value and refuses a
+# production deployment that lacks the HYPERDRIVE binding.
+DEPLOYMENT_ENVIRONMENT = "production"
+# Production is fail-closed at no-store until cache invalidation follows exact
+# rights lifetimes; purge and stale-object probes alone do not enable caching.
+PUBLIC_CACHE_MODE = "no-store"
 
 # No VERTICAL_SLUG here, unlike apps/edge: this is the ONE deployment that
 # serves every vertical — the parent site and every child industry site are
@@ -23,9 +37,17 @@ enabled = true
 # is decided at build time by `pnpm web:compile`, not at deploy time by an env
 # var, because the bundle only carries what was compiled into it.
 
+# PUBLIC_ORIGIN is required at runtime and must be the exact HTTPS origin used
+# by this deployment. It is intentionally not guessed from request headers.
+# Configure the non-secret value in the ignored `wrangler.production.toml`
+# deployment manifest; do not duplicate it as a command-line override.
+# Local development may use an explicit localhost HTTP origin in .dev.vars.
+
 # [[hyperdrive]]
 # binding = "HYPERDRIVE"
 # id = "<hyperdrive-id>"
+# Supply the live id only through an ignored `wrangler.production.toml` copy or
+# the Cloudflare dashboard; keep this tracked placeholder unchanged.
 
 # `wrangler dev` against a local database can use POSTGRES_URL instead. Put it
 # in .dev.vars (gitignored), never here: this file is committed.

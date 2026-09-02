@@ -31,7 +31,7 @@ _template/
 ├── relationships.yaml       graph predicates and integrity rules
 ├── filters.yaml             filter metadata driving UI + API docs + SEO facets (doc 04)
 ├── seo.yaml                 indexability policy, canonical URLs, structured data, agent intents (doc 07)
-├── mcp.yaml                 4-6 intent-shaped MCP tools (doc 10)
+├── mcp.yaml                 Shared six-tool MCP selection and server identity
 ├── sources/                 one file per source, each with COMPLETE rights metadata (rule 1)
 ├── normalizers/             declarative rules, doc 06 layers 1-4 + source mappings + fact selection
 ├── fixtures/                source artifacts in native formats

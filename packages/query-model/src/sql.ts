@@ -12,6 +12,7 @@ import type { SqlParam } from '@data-foundry/canonical-store';
 
 export class Params {
   private readonly bound: SqlParam[] = [];
+  private readonly jsonArrays = new WeakMap<readonly string[], string>();
 
   /** Bind a value and get its placeholder. */
   add(value: SqlParam): string {
@@ -21,6 +22,15 @@ export class Params {
 
   addAll(values: readonly SqlParam[]): string[] {
     return values.map((value) => this.add(value));
+  }
+
+  /** Bind and serialize one immutable string array once within a statement. */
+  addJsonArray(values: readonly string[]): string {
+    const existing = this.jsonArrays.get(values);
+    if (existing !== undefined) return existing;
+    const placeholder = this.add(JSON.stringify(values));
+    this.jsonArrays.set(values, placeholder);
+    return placeholder;
   }
 
   get values(): SqlParam[] {
@@ -40,6 +50,24 @@ export const CURRENT_FACT = (alias: string): string =>
   `${alias}.valid_to IS NULL AND ${alias}.status <> 'RETRACTED'`;
 
 export const NUMERIC_FACT_TYPES = `('number', 'integer', 'quantity')`;
+
+/**
+ * Membership in a trusted UUID set carried as one JSON parameter. The SQL and
+ * bind count stay constant as the set grows; callers still impose their own
+ * deterministic candidate limits before constructing a surface-wide query.
+ */
+export function uuidJsonSetPredicate(
+  column: string,
+  values: readonly string[],
+  params: Params,
+  relationAlias: string,
+): string {
+  const payload = params.addJsonArray(values);
+  return `${column} IN (
+    SELECT ${relationAlias}.value::uuid
+      FROM jsonb_array_elements_text(${payload}::jsonb) AS ${relationAlias}(value)
+  )`;
+}
 
 /** Lowercase, alphanumeric-only. `24-ANB/7` → `24anb7`. */
 export function collapseIdentifier(value: string): string {

@@ -67,14 +67,16 @@ export {
 } from './jobs.js';
 export {
   Pipeline,
+  requireStoredAcquisitionTransportRights,
   type CreatePipelineOptions,
   type PipelineOptions,
   type SourceRunResult,
   type VerticalRunResult,
 } from './pipeline.js';
 export {
-  EntityResolver,
-  type AliasClaim,
+    EntityResolver,
+    type AliasClaim,
+    type LocatedAliasClaim,
   type ResolvedEntity,
   type ResolveRecordInput,
   type ResolverDeps,

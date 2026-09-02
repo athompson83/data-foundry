@@ -1,9 +1,10 @@
 /**
  * The route table and its handlers.
  *
- * Every handler is the same three steps: validate the request into the query
- * layer's own vocabulary, make ONE call (or a small composition of calls) into
- * `QueryModel`, project the answer through `wire.ts`. No handler filters,
+ * Every route has two explicit phases. `prepare` validates raw path and query
+ * input into the query layer's vocabulary before any database snapshot opens;
+ * its returned execution makes one call (or a small composition of calls) into
+ * `QueryModel` and projects the answer through `wire.ts`. No execution filters,
  * ranks, resolves, follows a redirect or decides what is publishable — all of
  * that already happened below, once, and re-deciding it here is how the API and
  * the web page start disagreeing (AGENTS.md rule 5).
@@ -32,7 +33,7 @@ import {
   ERROR_STATUS,
   type ApiErrorCode,
 } from './errors.js';
-import { jsonResponse, type ApiResponse } from './http.js';
+import type { ApiResponse } from './http.js';
 import {
   PAGE_BOUNDS,
   pageMeta,
@@ -61,8 +62,10 @@ import {
   redirectTraceWire,
   relationshipEdgeWire,
   searchHitWire,
+  wireJsonResponse,
+  type OpenApiResponseSchemaName,
 } from './wire.js';
-import type { EntityId, Identifier } from '@data-foundry/canonical-schema';
+import type { EntityId, Identifier, IsoDateTime } from '@data-foundry/canonical-schema';
 import type { EntityView, FacetFilter } from '@data-foundry/query-model';
 
 /**
@@ -108,15 +111,79 @@ export interface RouteMatch {
   readonly query: URLSearchParams;
 }
 
+/** A fully validated route invocation, waiting only for its bound query facade. */
+export type PreparedRouteExecution = (context: ApiContext) => Promise<ApiResponse>;
+
+/**
+ * The closed vocabulary of meterable routes.
+ *
+ * Metering records one of these and nothing else. It is not derived from
+ * `request.url`, it is not a template, and it is not free text: it is a property
+ * OF THE MATCHED ROUTE, so there is no code path by which a caller's URL becomes
+ * a stored value even in a writer that reaches for one.
+ *
+ * `db/migrations/0012_usage_accounting_corrections.sql` seeds `api_route_keys`
+ * with exactly this list, and a foreign key means an unregistered value has
+ * nowhere to be stored. `test/route-keys.test.ts` asserts the two lists are
+ * equal in BOTH directions, so a route added without a key — or a key added
+ * without a route — fails CI rather than failing at the moment a paying
+ * customer's request is metered.
+ *
+ * Three of these belong to no entry in `ROUTES` because the requests they
+ * describe never reach one: the service document at `/`, the contract document
+ * at `/v1`, and everything that matched nothing at all. That last one is the
+ * important one — a 404 still costs a request, and recording it as its URL is
+ * how the vocabulary would have been reopened.
+ */
+export const ROUTE_KEYS = [
+  'service',
+  'contract',
+  'health',
+  'entities.by_slug',
+  'entities.detail',
+  'entities.facts',
+  'entities.relationships',
+  'search',
+  'compare',
+  'unmatched',
+] as const;
+
+export type RouteKey = (typeof ROUTE_KEYS)[number];
+
+/** The service document, the contract document, and a request that matched no route. */
+export const SERVICE_ROUTE_KEY = 'service' satisfies RouteKey;
+export const CONTRACT_ROUTE_KEY = 'contract' satisfies RouteKey;
+export const UNMATCHED_ROUTE_KEY = 'unmatched' satisfies RouteKey;
+
 export interface Route {
   /** Path after the version segment, `:name` marking a parameter. */
   readonly pattern: readonly string[];
   /** Full documented path, version included. */
   readonly path: string;
+  /**
+   * What metering records for this route. Never the path, never the URL.
+   *
+   * Two patterns deliberately share `entities.by_slug`: the bare `by-slug` entry
+   * exists only to refuse a lookup with no slug, and an invoice does not need to
+   * tell a malformed request from a well-formed one.
+   */
+  readonly routeKey: RouteKey;
   readonly summary: string;
   /** A limitation a client must know about. Published in the contract document. */
   readonly caveat?: string;
-  readonly handler: (context: ApiContext, match: RouteMatch) => Promise<ApiResponse>;
+  /** Metadata projected into OpenAPI beside the existing human contract. */
+  readonly openapi: {
+    readonly operationId: string;
+    readonly responseSchema: OpenApiResponseSchemaName;
+    readonly requiredQueryParameters?: readonly string[];
+    readonly mayRedirect?: boolean;
+  };
+  /**
+   * Parse and validate every caller-controlled value without opening a
+   * database snapshot. The returned execution receives the one token-bound
+   * surface facade for this accepted request and never re-parses raw input.
+   */
+  readonly prepare: (match: RouteMatch) => PreparedRouteExecution;
 }
 
 function param(match: RouteMatch, name: string): string {
@@ -144,7 +211,8 @@ function redirectResponse(
 ): ApiResponse {
   const trace = view.redirected_from;
   if (trace === null) throw new ApiError('INTERNAL_ERROR', 'redirect without a trace');
-  return jsonResponse(
+  return wireJsonResponse(
+    'RedirectResponse',
     301,
     {
       redirect: {
@@ -162,10 +230,9 @@ function redirectResponse(
 /** Fetch, 404 or hand back a redirect response. Every entity route starts here. */
 async function resolveEntity(
   context: ApiContext,
-  rawId: string,
+  id: EntityId,
   suffix: string,
 ): Promise<{ readonly view: EntityView } | { readonly redirect: ApiResponse }> {
-  const id = parseEntityId(rawId);
   const view = await context.queryModel.getEntity(id);
   if (view === null) throw ApiError.entityNotFound({ entityId: id });
   if (view.redirected_from !== null) {
@@ -176,163 +243,191 @@ async function resolveEntity(
   return { view };
 }
 
-/** The doc-04 policy for this request: the deployment's, plus an optional `at`. */
-function requestPolicy(context: ApiContext, query: URLSearchParams): ApiContext['factSelection'] {
-  const at = optionalInstant(query);
+/** Add one already-validated read instant to the deployment's doc-04 policy. */
+function requestPolicy(
+  context: ApiContext,
+  at: IsoDateTime | undefined,
+): ApiContext['factSelection'] {
   return at === undefined ? context.factSelection : { ...context.factSelection, at };
 }
 
-const health: Route['handler'] = async (context) => {
-  try {
-    // Liveness that actually touches the dependency. A health check that only
-    // proves the process is running reports "ok" through a database outage.
-    await context.queryModel.getEntity(parseEntityId(HEALTH_PROBE_ID));
-  } catch {
-    throw new ApiError('SERVICE_UNAVAILABLE', 'The canonical query layer is not reachable.');
-  }
-  return jsonResponse(
-    200,
-    {
-      status: 'ok',
-      version: context.version,
-      verticalId: context.verticalId,
-      declaredFields: context.queryModel.fields.size,
-      checks: { queryLayer: 'ok' },
-    },
-    context.version,
-  );
+const prepareHealth: Route['prepare'] = () => {
+  const probeId = parseEntityId(HEALTH_PROBE_ID);
+  return async (context) => {
+    try {
+      // Liveness that actually touches the dependency. A health check that only
+      // proves the process is running reports "ok" through a database outage.
+      await context.queryModel.getEntity(probeId);
+    } catch {
+      throw new ApiError('SERVICE_UNAVAILABLE', 'The canonical query layer is not reachable.');
+    }
+    return wireJsonResponse(
+      'HealthResponse',
+      200,
+      {
+        status: 'ok',
+        version: context.version,
+        verticalId: context.verticalId,
+        declaredFields: context.queryModel.fields.size,
+        checks: { queryLayer: 'ok' },
+      },
+      context.version,
+    );
+  };
 };
 
-const getEntity: Route['handler'] = async (context, match) => {
-  const resolved = await resolveEntity(context, param(match, 'id'), '');
-  if ('redirect' in resolved) return resolved.redirect;
-  return jsonResponse(200, { data: entityViewWire(resolved.view) }, context.version);
+const prepareGetEntity: Route['prepare'] = (match) => {
+  const id = parseEntityId(param(match, 'id'));
+  return async (context) => {
+    const resolved = await resolveEntity(context, id, '');
+    if ('redirect' in resolved) return resolved.redirect;
+    return wireJsonResponse(
+      'EntityResponse',
+      200,
+      { data: entityViewWire(resolved.view) },
+      context.version,
+    );
+  };
 };
 
-const getEntityBySlug: Route['handler'] = async (context, match) => {
+const prepareGetEntityBySlug: Route['prepare'] = (match) => {
   const slug = parseSlug(param(match, 'slug'));
   const entityType = requiredIdentifier(
     match.query,
     'type',
     'a slug is only unique within one entity type',
   );
-  const view = await context.queryModel.getEntityBySlug(context.verticalId, entityType, slug);
-  if (view === null) throw ApiError.entityNotFound({ slug, entityType });
-  if (view.redirected_from !== null) {
-    return redirectResponse(context, view, `/${context.version}/entities/${view.entity.id}`);
-  }
-  return jsonResponse(200, { data: entityViewWire(view) }, context.version);
+  return async (context) => {
+    const view = await context.queryModel.getEntityBySlug(context.verticalId, entityType, slug);
+    if (view === null) throw ApiError.entityNotFound({ slug, entityType });
+    if (view.redirected_from !== null) {
+      return redirectResponse(context, view, `/${context.version}/entities/${view.entity.id}`);
+    }
+    return wireJsonResponse('EntityResponse', 200, { data: entityViewWire(view) }, context.version);
+  };
 };
 
-const listFacts: Route['handler'] = async (context, match) => {
-  const resolved = await resolveEntity(context, param(match, 'id'), '/facts');
-  if ('redirect' in resolved) return resolved.redirect;
-
+const prepareListFacts: Route['prepare'] = (match) => {
+  const id = parseEntityId(param(match, 'id'));
   const property = optionalIdentifier(match.query, 'property');
-  const views = await context.queryModel.canonicalFacts(
-    resolved.view.entity.id,
-    requestPolicy(context, match.query),
-  );
+  const at = optionalInstant(match.query);
+  const pageRequest = parsePageRequest(match.query);
+  return async (context) => {
+    const resolved = await resolveEntity(context, id, '/facts');
+    if ('redirect' in resolved) return resolved.redirect;
 
-  const published = views.filter(
-    (view) => view.fact_id !== null && (property === undefined || view.property === property),
-  );
-  // Serialized in full BEFORE paging: a reviewer-identity leak on page 3 must
-  // fail the request, not wait for someone to page that far.
-  const facts = published.map((view) => factWire(view, context.reviewers));
-  const page = paginate(facts, parsePageRequest(match.query));
+    const views = await context.queryModel.canonicalFacts(
+      resolved.view.entity.id,
+      requestPolicy(context, at),
+    );
 
-  return jsonResponse(
-    200,
-    { entityId: resolved.view.entity.id, ...page },
-    context.version,
-  );
+    const published = views.filter(
+      (view) => view.fact_id !== null && (property === undefined || view.property === property),
+    );
+    // Serialized in full BEFORE paging: a reviewer-identity leak on page 3 must
+    // fail the request, not wait for someone to page that far.
+    const facts = published.map((view) => factWire(view, context.reviewers));
+    const page = paginate(facts, pageRequest);
+
+    return wireJsonResponse(
+      'FactPageResponse',
+      200,
+      { entityId: resolved.view.entity.id, ...page },
+      context.version,
+    );
+  };
 };
 
-const listRelationships: Route['handler'] = async (context, match) => {
-  const resolved = await resolveEntity(context, param(match, 'id'), '/relationships');
-  if ('redirect' in resolved) return resolved.redirect;
-
+const prepareListRelationships: Route['prepare'] = (match) => {
+  const id = parseEntityId(param(match, 'id'));
   const direction = parseEnum(match.query, 'direction', ['out', 'in', 'both'] as const, 'both');
   const depth = parseBoundedInt(match.query, 'depth', 1, 1, 4);
   const predicate = optionalIdentifier(match.query, 'predicate');
+  const pageRequest = parsePageRequest(match.query);
+  return async (context) => {
+    const resolved = await resolveEntity(context, id, '/relationships');
+    if ('redirect' in resolved) return resolved.redirect;
 
-  const traversal = await context.queryModel.relationships({
-    entity_id: resolved.view.entity.id,
-    direction,
-    depth,
-    limit: TRAVERSAL_BOUND,
-    ...(predicate === undefined ? {} : { predicate }),
-  });
+    const traversal = await context.queryModel.relationships({
+      entity_id: resolved.view.entity.id,
+      direction,
+      depth,
+      limit: TRAVERSAL_BOUND,
+      ...(predicate === undefined ? {} : { predicate }),
+    });
 
-  const page = paginate(traversal.edges.map(relationshipEdgeWire), parsePageRequest(match.query));
-  return jsonResponse(
-    200,
-    {
-      entityId: resolved.view.entity.id,
-      traversal: {
-        depth: traversal.depth,
-        direction,
-        edgeBound: TRAVERSAL_BOUND,
-        /** True when the traversal stopped at its bound, so more edges exist. */
-        boundReached: traversal.truncated,
-        /**
-         * Edges the walk reached and would not serve because nothing asserts
-         * them at all. Rights refusals are NOT counted here: `predicate` and
-         * `direction` come from the query string, so a per-query count of them
-         * is a yes/no oracle about any triple a caller names. That was
-         * demonstrated against this route. The route's `caveat` states the
-         * incompleteness instead.
-         */
-        unevidencedEdgeCount: traversal.unevidenced_edge_count,
+    const page = paginate(traversal.edges.map(relationshipEdgeWire), pageRequest);
+    return wireJsonResponse(
+      'RelationshipPageResponse',
+      200,
+      {
+        entityId: resolved.view.entity.id,
+        traversal: {
+          depth: traversal.depth,
+          direction,
+          edgeBound: TRAVERSAL_BOUND,
+          /** True when the traversal stopped at its bound, so more edges exist. */
+          boundReached: traversal.truncated,
+          /**
+           * Edges the walk reached and would not serve because nothing asserts
+           * them at all. Rights refusals are NOT counted here: `predicate` and
+           * `direction` come from the query string, so a per-query count of them
+           * is a yes/no oracle about any triple a caller names. That was
+           * demonstrated against this route. The route's `caveat` states the
+           * incompleteness instead.
+           */
+          unevidencedEdgeCount: traversal.unevidenced_edge_count,
+        },
+        ...page,
       },
-      ...page,
-    },
-    context.version,
-  );
+      context.version,
+    );
+  };
 };
 
-const search: Route['handler'] = async (context, match) => {
+const prepareSearch: Route['prepare'] = (match) => {
   const text = (match.query.get('q') ?? '').trim();
   const entityType = optionalIdentifier(match.query, 'type');
   const filters: FacetFilter[] = parseFilters(match.query);
   const includeFacets = parseBoolean(match.query, 'facets', false);
   const request = parsePageRequest(match.query);
+  return async (context) => {
+    const result = await context.queryModel.search({
+      vertical_id: context.verticalId,
+      ...(text === '' ? {} : { text }),
+      ...(entityType === undefined ? {} : { entity_type: entityType }),
+      ...(filters.length === 0 ? {} : { filters }),
+      limit: request.limit,
+      offset: request.offset,
+      include_facets: includeFacets,
+    });
 
-  const result = await context.queryModel.search({
-    vertical_id: context.verticalId,
-    ...(text === '' ? {} : { text }),
-    ...(entityType === undefined ? {} : { entity_type: entityType }),
-    ...(filters.length === 0 ? {} : { filters }),
-    limit: request.limit,
-    offset: request.offset,
-    include_facets: includeFacets,
-  });
-
-  return jsonResponse(
-    200,
-    {
-      data: result.hits.map(searchHitWire),
-      page: pageMeta(request, result.hits.length, result.total),
-      match: {
-        // Rule 7, observable: true means a deterministic identifier match led
-        // the result set ahead of everything text ranking preferred.
-        exactShortCircuit: result.exact_short_circuit,
-        exactCount: result.exact_count,
+    return wireJsonResponse(
+      'SearchResponse',
+      200,
+      {
+        data: result.hits.map(searchHitWire),
+        page: pageMeta(request, result.hits.length, result.total),
+        match: {
+          // Rule 7, observable: true means a deterministic identifier match led
+          // the result set ahead of everything text ranking preferred.
+          exactShortCircuit: result.exact_short_circuit,
+          exactCount: result.exact_count,
+        },
+        strategy: {
+          exactFirst: result.strategy.exact_first,
+          fullText: result.strategy.full_text,
+          trigram: result.strategy.trigram,
+          vector: result.strategy.vector,
+        },
+        facets: result.facets.map(facetWire),
       },
-      strategy: {
-        exactFirst: result.strategy.exact_first,
-        fullText: result.strategy.full_text,
-        trigram: result.strategy.trigram,
-        vector: result.strategy.vector,
-      },
-      facets: result.facets.map(facetWire),
-    },
-    context.version,
-  );
+      context.version,
+    );
+  };
 };
 
-const compare: Route['handler'] = async (context, match) => {
+const prepareCompare: Route['prepare'] = (match) => {
   const raw = parseList(match.query, 'ids');
   if (raw.length < MIN_COMPARE_ENTITIES || raw.length > MAX_COMPARE_ENTITIES) {
     throw ApiError.invalidParameter(
@@ -344,106 +439,143 @@ const compare: Route['handler'] = async (context, match) => {
   const properties = parseList(match.query, 'properties').map((value) =>
     parseIdentifier(value, 'properties'),
   );
+  const ids = raw.map((value) => parseEntityId(value, 'ids'));
+  const at = optionalInstant(match.query);
 
-  // Resolved one by one through the redirect-aware read rather than handed
-  // straight to `compare`, which looks ids up directly and would silently drop
-  // a merged-away entity from the table.
-  const unknown: string[] = [];
-  const redirects: { requestedId: string; canonicalEntityId: string }[] = [];
-  const canonical: EntityId[] = [];
-  for (const value of raw) {
-    const id = parseEntityId(value, 'ids');
-    const view = await context.queryModel.getEntity(id);
-    if (view === null) {
-      unknown.push(id);
-      continue;
+  return async (context) => {
+    // Resolved one by one through the redirect-aware read rather than handed
+    // straight to `compare`, which looks ids up directly and would silently drop
+    // a merged-away entity from the table.
+    const unknown: string[] = [];
+    const redirects: { requestedId: string; canonicalEntityId: string }[] = [];
+    const canonical: EntityId[] = [];
+    for (const id of ids) {
+      const view = await context.queryModel.getEntity(id);
+      if (view === null) {
+        unknown.push(id);
+        continue;
+      }
+      if (view.redirected_from !== null) {
+        redirects.push({ requestedId: id, canonicalEntityId: view.entity.id });
+      }
+      if (!canonical.includes(view.entity.id)) canonical.push(view.entity.id);
     }
-    if (view.redirected_from !== null) {
-      redirects.push({ requestedId: id, canonicalEntityId: view.entity.id });
+    if (unknown.length > 0) throw ApiError.entityNotFound({ unknownIds: unknown });
+    if (canonical.length < MIN_COMPARE_ENTITIES) {
+      throw ApiError.invalidParameter(
+        'ids',
+        'expected at least two distinct entities after following redirects',
+        String(canonical.length),
+      );
     }
-    if (!canonical.includes(view.entity.id)) canonical.push(view.entity.id);
-  }
-  if (unknown.length > 0) throw ApiError.entityNotFound({ unknownIds: unknown });
-  if (canonical.length < MIN_COMPARE_ENTITIES) {
-    throw ApiError.invalidParameter(
-      'ids',
-      'expected at least two distinct entities after following redirects',
-      String(canonical.length),
+
+    const comparison = await context.queryModel.compare({
+      entity_ids: canonical,
+      ...(properties.length === 0 ? {} : { properties: properties as readonly Identifier[] }),
+      policy: requestPolicy(context, at),
+    });
+
+    return wireJsonResponse(
+      'CompareResponse',
+      200,
+      { data: comparisonWire(comparison), redirects },
+      context.version,
     );
-  }
-
-  const comparison = await context.queryModel.compare({
-    entity_ids: canonical,
-    ...(properties.length === 0 ? {} : { properties: properties as readonly Identifier[] }),
-    policy: requestPolicy(context, match.query),
-  });
-
-  return jsonResponse(
-    200,
-    { data: comparisonWire(comparison), redirects },
-    context.version,
-  );
+  };
 };
 
 export const ROUTES: readonly Route[] = [
   {
     pattern: ['health'],
     path: '/v1/health',
+    routeKey: 'health',
     summary: 'Liveness plus a real round trip through the canonical query layer.',
-    handler: health,
+    openapi: { operationId: 'getHealth', responseSchema: 'HealthResponse' },
+    prepare: prepareHealth,
   },
   {
     pattern: ['entities', 'by-slug'],
     path: '/v1/entities/by-slug/{slug}',
+    routeKey: 'entities.by_slug',
     summary: 'Reject a slug lookup with no slug, rather than reading "by-slug" as an id.',
-    handler: async () => {
+    openapi: { operationId: 'getEntityBySlugMissing', responseSchema: 'EntityResponse' },
+    prepare: () => {
       throw ApiError.missingParameter('slug', 'the slug to look up follows /entities/by-slug/');
     },
   },
   {
     pattern: ['entities', 'by-slug', ':slug'],
     path: '/v1/entities/by-slug/{slug}?type={entityType}',
+    routeKey: 'entities.by_slug',
     summary:
       'Entity by canonical slug. Honours retired slugs: a slug a merge took away answers 301 to the surviving entity.',
-    handler: getEntityBySlug,
+    openapi: {
+      operationId: 'getEntityBySlug',
+      responseSchema: 'EntityResponse',
+      requiredQueryParameters: ['type'],
+      mayRedirect: true,
+    },
+    prepare: prepareGetEntityBySlug,
   },
   {
     pattern: ['entities', ':id'],
     path: '/v1/entities/{id}',
+    routeKey: 'entities.detail',
     summary: 'Entity by id. A merged-away id answers 301 with its redirect chain, never 404.',
-    handler: getEntity,
+    openapi: { operationId: 'getEntity', responseSchema: 'EntityResponse', mayRedirect: true },
+    prepare: prepareGetEntity,
   },
   {
     pattern: ['entities', ':id', 'facts'],
     path: '/v1/entities/{id}/facts?property=&at=&limit=&offset=',
+    routeKey: 'entities.facts',
     summary:
       'The canonical view: one selected value per property, with the doc-04 rule that chose it and its correction state.',
     caveat:
       'Only properties with a published value appear. A property whose every claim is retracted, unevidenced or backed only by RED/UNREVIEWED sources is omitted entirely.',
-    handler: listFacts,
+    openapi: {
+      operationId: 'listEntityFacts',
+      responseSchema: 'FactPageResponse',
+      mayRedirect: true,
+    },
+    prepare: prepareListFacts,
   },
   {
     pattern: ['entities', ':id', 'relationships'],
     path: '/v1/entities/{id}/relationships?predicate=&direction=&depth=&limit=&offset=',
+    routeKey: 'entities.relationships',
     summary: 'Bounded graph traversal from this entity, breadth-first and cycle-guarded.',
     caveat:
-      'This is a view of the publishable graph, not the whole graph. Rule 1 applies here as it does to facts: an edge whose every piece of evidence comes from a source that may not publish is withheld, and so is any neighbour reachable only through one. Those refusals are deliberately not counted in the response — a per-predicate count of them would let a caller reconstruct the withheld claim — so an absent edge means "not publishable, or not asserted", and never "asserted to be false". unevidencedEdgeCount reports a different case: edges nothing asserts at all.',
-    handler: listRelationships,
+      'This is a view of the publishable graph, not the whole graph. An edge is served only when both endpoint identities retain current FINALIZED source-record support, at least one current FINALIZED source-record assertion supports the edge, and every required provenance contribution passes this surface\'s rights bundle. If any required provenance contribution is refused, the whole edge and any neighbour reachable only through it are withheld; one allowed contribution never launders a refused one. Those refusals are deliberately not counted in the response — a per-predicate count would let a caller reconstruct the withheld claim — so an absent edge means "not publishable, or not asserted", and never "asserted to be false". unevidencedEdgeCount reports a different case: edges nothing asserts at all.',
+    openapi: {
+      operationId: 'listEntityRelationships',
+      responseSchema: 'RelationshipPageResponse',
+      mayRedirect: true,
+    },
+    prepare: prepareListRelationships,
   },
   {
     pattern: ['search'],
     path: '/v1/search?q=&type=&filter.{field}=&facets=&limit=&offset=',
+    routeKey: 'search',
     summary:
       'Faceted search. Exact identifier matches lead the result set ahead of any text ranking (AGENTS.md rule 7).',
-    handler: search,
+    openapi: { operationId: 'searchEntities', responseSchema: 'SearchResponse' },
+    prepare: prepareSearch,
   },
   {
     pattern: ['compare'],
     path: '/v1/compare?ids=a,b&properties=&at=',
+    routeKey: 'compare',
     summary: 'Side-by-side canonical values for 2–8 entities, aligned on declared field order.',
     caveat:
       'Comparison cells carry the selecting rule and conflict state but not correction state; read /v1/entities/{id}/facts for the full trust surface.',
-    handler: compare,
+    openapi: {
+      operationId: 'compareEntities',
+      responseSchema: 'CompareResponse',
+      requiredQueryParameters: ['ids'],
+    },
+    prepare: prepareCompare,
   },
 ];
 

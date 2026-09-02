@@ -43,7 +43,7 @@ export class ExtractionProviderRegistry {
     });
   }
 
-  extract(artifact: ExtractionArtifact, schema: ExtractionSchema): Promise<ExtractedRecord[]> {
+  async extract(artifact: ExtractionArtifact, schema: ExtractionSchema): Promise<ExtractedRecord[]> {
     return this.resolve(schema).extract(artifact, schema);
   }
 }

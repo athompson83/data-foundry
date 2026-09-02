@@ -17,6 +17,7 @@ import {
   type McpServerOptions,
 } from '../src/index.js';
 import { entityQualityScore, identityConfidence } from '@data-foundry/canonical-schema';
+import { SurfaceCatalogCapacityError } from '../src/query-layer.js';
 
 let fixtures: McpFixtures;
 
@@ -254,10 +255,50 @@ describe('an unmodelled failure below the dispatcher', () => {
   /** The real query layer, with one method faulted. Nothing else is stubbed. */
   const faulted = (fault: () => never, onError?: McpServerOptions['onError']): McpServer =>
     createMcpServer({
-      queryModel: { ...fixtures.qm, search: fault },
+      queryModel: {
+        ...fixtures.qm,
+        forSurface: (surface, options, snapshot) => ({
+          ...fixtures.qm.forSurface(surface, options, snapshot),
+          search: fault,
+        }),
+      },
       vertical: { id: fixtures.vertical.id, slug: 'hvac' },
       ...(onError === undefined ? {} : { onError }),
     });
+
+  it('returns a declared non-retryable unavailable error for a bounded catalog refusal', async () => {
+    const cause = new SurfaceCatalogCapacityError('facts', 50_000);
+    const reported: { error: unknown; context: unknown }[] = [];
+    const server = faulted(
+      () => {
+        throw cause;
+      },
+      (error, context) => reported.push({ error, context }),
+    );
+
+    const call = await server.callTool('search_entities', { query: 'anything' });
+    const error = errorOf(call);
+
+    expect(error).toMatchObject({
+      code: 'SERVICE_UNAVAILABLE',
+      retryable: false,
+      details: { tool: 'search_entities' },
+    });
+    expect(error.message).toBe(
+      "This operation exceeds this deployment's safe authorization capacity. " +
+        'No partial result was returned.',
+    );
+    expect(error.message).not.toMatch(/catalogue|search|facet/i);
+    expect(JSON.stringify(call.structuredContent)).not.toContain('50000');
+    expect(JSON.stringify(call.structuredContent)).not.toContain('facts');
+    expect(reported).toEqual([{
+      error: cause,
+      context: { tool: 'search_entities', code: 'SERVICE_UNAVAILABLE' },
+    }]);
+    expect(
+      server.listTools().find((tool) => tool.name === 'search_entities')?.errorCodes,
+    ).toContain('SERVICE_UNAVAILABLE');
+  });
 
   it('becomes a retryable code and never leaks the exception', async () => {
     const exploding = faulted(() => {

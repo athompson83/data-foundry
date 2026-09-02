@@ -4,7 +4,7 @@ The first vertical and the Phase 1 proof that **a vertical is configuration and 
 
 Everything in this folder is YAML, JSON or Markdown except fixture/configuration support code. There is no vertical-specific application implementation, and that is intentional.
 
-> **Status: `DRAFT`.** All four current sources are **synthetic** fictional publishers on RFC 2606 reserved example domains. No real site is crawled. The source-rights machinery is exercised end to end, but commercial source-rights validation is not considered proven until real external sources have been reviewed and approved. See [`RIGHTS.md`](RIGHTS.md).
+> **Status: `DRAFT`.** All four current sources are **synthetic** fictional publishers on RFC 2606 reserved example domains. No real site is crawled. The source-rights machinery is exercised end to end, but no real HVAC source has an effective reviewed publication/commercial bundle. See [`RIGHTS.md`](RIGHTS.md).
 
 ## Why HVAC is useful as the factory proof
 
@@ -48,7 +48,7 @@ hvac/
 ├── relationships.yaml       manufactures · supersedes · certified_by · compatible_with
 ├── filters.yaml             schema-driven filter definitions and indexability hints
 ├── seo.yaml                 quality-gated indexability and agent intents
-├── mcp.yaml                 intent-shaped MCP tool declarations
+├── mcp.yaml                 shared six-tool MCP selection and server identity
 ├── sources/                 four synthetic source declarations with rights metadata
 ├── normalizers/             deterministic normalization and source mappings
 ├── fixtures/                native-format artifacts plus generated PDF fixture
@@ -94,6 +94,17 @@ npx tsx verticals/hvac/fixtures/generate-acme-spec-pdf.ts
 If the local Vitest CLI uses a different project selector after dependency upgrades, `pnpm test` remains the authoritative repository-level command.
 
 ## Honest limitations
+
+The registered `GREEN`/`AMBER` labels and legacy booleans describe synthetic
+fixtures and act only as inventory/additional hard stops. They do not create an
+ADR-0010 `ALLOW`. Real publication requires exact effective matrix decisions
+for every requested surface and every provenance contribution.
+
+For real regulatory-filing data, the general customer-facing wording is exactly
+“Manufacturer-reported, as filed with US regulators”. Do not reuse the fixture
+certification-directory language for a regulator-hosted filing or imply that a
+regulator certified, verified, approved, or determined a value without exact
+supporting provenance.
 
 - **Every source is synthetic.** The rights machinery genuinely runs; it currently validates controlled fixture declarations rather than contracts/terms for external publishers.
 - **`voltage` coverage is intentionally incomplete**, and it is a critical property, so some models do not clear the indexability gate. The intended fix is better source coverage, not lowering the quality threshold.

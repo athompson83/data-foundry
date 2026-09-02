@@ -8,9 +8,8 @@
  * input that needs a Zod boundary.
  */
 
-export interface PageClass {
+interface PageClassCommon {
   readonly id: string;
-  readonly entity_type?: string;
   readonly path: string;
   readonly title: string;
   readonly structured_data: string | null;
@@ -19,6 +18,23 @@ export interface PageClass {
   readonly quality_gate: string;
   readonly description?: string;
 }
+
+export type PageClass = PageClassCommon &
+  (
+    | { readonly route_kind: 'static' }
+    | { readonly route_kind: 'entity_detail'; readonly entity_type: string }
+    | {
+        readonly route_kind: 'relationship';
+        readonly subject_entity_type: string;
+      }
+    | { readonly route_kind: 'comparison' }
+    | { readonly route_kind: 'filtered_collection'; readonly entity_type: string }
+  );
+
+export type EntityDetailPageClass = PageClass & {
+  readonly route_kind: 'entity_detail';
+  readonly entity_type: string;
+};
 
 export interface QualityGate {
   readonly description?: string;
@@ -73,6 +89,8 @@ export interface SeoConfig {
   readonly sitemaps: {
     readonly index: string;
     readonly max_urls_per_file: number;
+    /** Shared raw keyset-page ceiling for one sitemap request. */
+    readonly max_scan_pages_per_request: number;
     readonly include_only_indexable?: boolean;
     readonly segments: readonly SitemapSegment[];
   };
@@ -129,8 +147,16 @@ export interface WebRuntime {
   readonly filters: FiltersConfig;
 }
 
-export function pageClassForEntityType(seo: SeoConfig, entityType: string): PageClass | null {
-  return seo.page_classes.find((pc) => pc.entity_type === entityType) ?? null;
+export function pageClassForEntityType(
+  seo: SeoConfig,
+  entityType: string,
+): EntityDetailPageClass | null {
+  return (
+    seo.page_classes.find(
+      (page): page is EntityDetailPageClass =>
+        page.route_kind === 'entity_detail' && page.entity_type === entityType,
+    ) ?? null
+  );
 }
 
 export function pageClassById(seo: SeoConfig, id: string): PageClass | null {

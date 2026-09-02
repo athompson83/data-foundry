@@ -7,9 +7,16 @@
  */
 import { describe, expect, it } from 'vitest';
 import {
+  API_ACCESS_CLASSIFICATIONS,
+  API_ACCESS_TIERS,
+  API_BILLING_SOURCES,
+  KEY_PREFIX,
   apiKeyPrefix,
   evaluateStoredKey,
   hashApiKey,
+  isApiAccessClassification,
+  isInternallyInvoiceEligible,
+  keyEnvironment,
   looksLikeApiKey,
   mintApiKey,
   readBearerToken,
@@ -18,13 +25,62 @@ import {
 
 const NOW = new Date('2026-08-23T12:00:00Z');
 
+const LIVE_SECRET = `df_live_${'A'.repeat(43)}`;
+const TEST_SECRET = `df_test_${'A'.repeat(43)}`;
+
 const stored = (overrides: Partial<StoredApiKey> = {}): StoredApiKey => ({
   id: 'key-1',
   tenant_id: 'tenant-1',
   token_hash: 'a'.repeat(64),
+  token_prefix: LIVE_SECRET.slice(0, 16),
   revoked_at: null,
   expires_at: null,
   ...overrides,
+});
+
+/** A live deployment being shown a live key: the ordinary case. */
+const onLive = { presented: LIVE_SECRET, environment: 'live' } as const;
+
+describe('API access and billing classification', () => {
+  it('exposes one closed vocabulary and only the four valid pairings', () => {
+    expect(API_ACCESS_TIERS).toEqual(['API_FREE', 'API_PAID', 'RAPIDAPI', 'MCP']);
+    expect(API_BILLING_SOURCES).toEqual(['DIRECT', 'RAPIDAPI', 'NONE']);
+    expect(API_ACCESS_CLASSIFICATIONS).toEqual([
+      { accessTier: 'API_FREE', billingSource: 'DIRECT' },
+      { accessTier: 'API_PAID', billingSource: 'DIRECT' },
+      { accessTier: 'RAPIDAPI', billingSource: 'RAPIDAPI' },
+      { accessTier: 'MCP', billingSource: 'NONE' },
+    ]);
+  });
+
+  it('rejects unknown, crossed, partial and missing classifications', () => {
+    for (const value of [
+      null,
+      {},
+      { accessTier: 'API_FREE' },
+      { billingSource: 'DIRECT' },
+      { accessTier: 'API_FREE', billingSource: 'RAPIDAPI' },
+      { accessTier: 'API_PAID', billingSource: 'RAPIDAPI' },
+      { accessTier: 'RAPIDAPI', billingSource: 'DIRECT' },
+      { accessTier: 'MCP', billingSource: 'DIRECT' },
+      { accessTier: 'MCP', billingSource: 'RAPIDAPI' },
+      { accessTier: 'API_PAID', billingSource: 'NONE' },
+      { accessTier: 'ENTERPRISE', billingSource: 'DIRECT' },
+    ]) {
+      expect(isApiAccessClassification(value), JSON.stringify(value)).toBe(false);
+    }
+  });
+
+  it('makes only direct paid usage internally invoice-eligible', () => {
+    expect(isInternallyInvoiceEligible({ accessTier: 'API_FREE', billingSource: 'DIRECT' })).toBe(false);
+    expect(isInternallyInvoiceEligible({ accessTier: 'API_PAID', billingSource: 'DIRECT' })).toBe(true);
+    expect(isInternallyInvoiceEligible({ accessTier: 'RAPIDAPI', billingSource: 'RAPIDAPI' })).toBe(false);
+    expect(isInternallyInvoiceEligible({ accessTier: 'MCP', billingSource: 'NONE' })).toBe(false);
+
+    // Fail closed even when an untyped database/message value reaches the helper.
+    expect(isInternallyInvoiceEligible({ accessTier: 'API_PAID', billingSource: 'RAPIDAPI' })).toBe(false);
+    expect(isInternallyInvoiceEligible(null)).toBe(false);
+  });
 });
 
 describe('minting', () => {
@@ -86,11 +142,49 @@ describe('what a row stores', () => {
 
   it('stores a prefix too short to reconstruct the key from', async () => {
     const minted = await mintApiKey();
-    // 12 characters, of which 8 are the fixed `df_live_`. Four secret
-    // characters is ~24 bits; the remaining ~232 are not stored anywhere.
-    expect(minted.tokenPrefix).toHaveLength(12);
+    expect(minted.tokenPrefix).toHaveLength(16);
     expect(minted.secret.startsWith(minted.tokenPrefix)).toBe(true);
     expect(minted.tokenPrefix.length).toBeLessThan(minted.secret.length / 3);
+  });
+
+  /**
+   * The prefix has two jobs that pull in opposite directions, and the old length
+   * was measured against only one of them.
+   *
+   * Twelve characters is eight fixed (`df_live_`) plus FOUR that vary — about 24
+   * bits of distinguishing power. A tenant with a few thousand keys expects
+   * collisions by the birthday bound, and a colliding prefix defeats the entire
+   * purpose of storing one: an operator revoking "the key starting df_live_a3Kq"
+   * cannot tell which of two keys that is, and support hands out the wrong
+   * answer at exactly the moment somebody is trying to contain a leak.
+   *
+   * Sixteen is eight varying characters, ~48 bits, collisions past ~24 million
+   * keys — while still disclosing so little that the secret is untouched.
+   */
+  it('keeps enough of the key to identify it and far too little to guess it', async () => {
+    const minted = await mintApiKey('live');
+    const fixed = `${KEY_PREFIX}_live_`.length;
+    const varying = minted.tokenPrefix.length - fixed;
+    expect(varying).toBe(8);
+
+    // Each base64url character is 6 bits of a 256-bit secret.
+    const undisclosedBits = 256 - varying * 6;
+    expect(undisclosedBits).toBeGreaterThan(200);
+  });
+
+  /**
+   * Measured rather than argued: 2,000 minted keys, no two sharing a prefix.
+   *
+   * At the old length this is a coin toss — ~24 bits gives a birthday collision
+   * around 5,000 keys, and this sample would fail intermittently, which is its
+   * own kind of evidence. At 48 bits it is not close.
+   */
+  it('does not collide across a realistic number of keys', async () => {
+    const prefixes = new Set<string>();
+    for (let index = 0; index < 2_000; index += 1) {
+      prefixes.add((await mintApiKey('live')).tokenPrefix);
+    }
+    expect(prefixes.size).toBe(2_000);
   });
 
   /**
@@ -108,6 +202,7 @@ describe('what a row stores', () => {
     expect(minted.tokenHash).toMatch(/^[0-9a-f]{64}$/);
     expect(minted.tokenPrefix.length).toBeGreaterThanOrEqual(4);
     expect(minted.tokenPrefix.length).toBeLessThanOrEqual(16);
+    expect(minted.tokenPrefix).toBe(minted.secret.slice(0, 16));
   });
 
   it('hashes deterministically, so verification is a lookup rather than a search', async () => {
@@ -180,30 +275,30 @@ describe('reading the credential off a request', () => {
 
 describe('whether a stored key may be used', () => {
   it('accepts a live key', () => {
-    expect(evaluateStoredKey(stored(), NOW)).toEqual({ ok: true, key: stored() });
+    expect(evaluateStoredKey(stored(), NOW, onLive)).toEqual({ ok: true, key: stored() });
   });
 
   it('rejects a key that is not there', () => {
-    expect(evaluateStoredKey(null, NOW)).toEqual({ ok: false, reason: 'UNKNOWN_KEY' });
+    expect(evaluateStoredKey(null, NOW, onLive)).toEqual({ ok: false, reason: 'UNKNOWN_KEY' });
   });
 
   it('rejects a revoked key', () => {
-    const verdict = evaluateStoredKey(stored({ revoked_at: '2026-08-01T00:00:00Z' }), NOW);
+    const verdict = evaluateStoredKey(stored({ revoked_at: '2026-08-01T00:00:00Z' }), NOW, onLive);
     expect(verdict).toEqual({ ok: false, reason: 'REVOKED' });
   });
 
   it('rejects an expired key', () => {
-    const verdict = evaluateStoredKey(stored({ expires_at: '2026-08-01T00:00:00Z' }), NOW);
+    const verdict = evaluateStoredKey(stored({ expires_at: '2026-08-01T00:00:00Z' }), NOW, onLive);
     expect(verdict).toEqual({ ok: false, reason: 'EXPIRED' });
   });
 
   it('treats the expiry instant itself as expired, not as the last usable moment', () => {
-    const verdict = evaluateStoredKey(stored({ expires_at: NOW.toISOString() }), NOW);
+    const verdict = evaluateStoredKey(stored({ expires_at: NOW.toISOString() }), NOW, onLive);
     expect(verdict).toEqual({ ok: false, reason: 'EXPIRED' });
   });
 
   it('accepts a key whose expiry is still ahead', () => {
-    const verdict = evaluateStoredKey(stored({ expires_at: '2027-01-01T00:00:00Z' }), NOW);
+    const verdict = evaluateStoredKey(stored({ expires_at: '2027-01-01T00:00:00Z' }), NOW, onLive);
     expect(verdict.ok).toBe(true);
   });
 
@@ -216,7 +311,90 @@ describe('whether a stored key may be used', () => {
     const verdict = evaluateStoredKey(
       stored({ revoked_at: '2026-08-01T00:00:00Z', expires_at: '2026-08-02T00:00:00Z' }),
       NOW,
+      onLive,
     );
     expect(verdict).toEqual({ ok: false, reason: 'REVOKED' });
+  });
+});
+
+/**
+ * KEY_ENVIRONMENT_ENFORCEMENT.
+ *
+ * The `df_live_` / `df_test_` segment has existed since the first version of
+ * this package, and nothing read it. It was documentation — a label so a human
+ * could tell a live key from a test one in a screenshot — and a label nothing
+ * enforces is a label that will eventually be wrong.
+ *
+ * The failure it permits is not exotic. A test key that works against the live
+ * deployment is a key someone will paste into a CI job, a shared notebook or a
+ * public repository under the reasonable belief that it reaches nothing real.
+ * The billing consequence runs the other way: live traffic recorded against a
+ * key the customer believed was free.
+ *
+ * The environment is checked against the CREDENTIAL AS PRESENTED, before the
+ * stored row matters at all, because it is a property of the request rather than
+ * of the database — and because a wrong-environment key should not cause a
+ * lookup whose timing says whether it exists.
+ */
+describe('a key from the wrong environment', () => {
+  it('refuses a test key on a live deployment', () => {
+    expect(evaluateStoredKey(stored(), NOW, { presented: TEST_SECRET, environment: 'live' })).toEqual(
+      { ok: false, reason: 'WRONG_ENVIRONMENT' },
+    );
+  });
+
+  it('refuses a live key on a test deployment', () => {
+    expect(
+      evaluateStoredKey(stored(), NOW, { presented: LIVE_SECRET, environment: 'test' }),
+    ).toEqual({ ok: false, reason: 'WRONG_ENVIRONMENT' });
+  });
+
+  it('accepts a test key on a test deployment', () => {
+    const row = stored({ token_prefix: TEST_SECRET.slice(0, 16) });
+    expect(evaluateStoredKey(row, NOW, { presented: TEST_SECRET, environment: 'test' })).toEqual({
+      ok: true,
+      key: row,
+    });
+  });
+
+  /**
+   * Decided before the row is consulted, so an attacker cannot use the response
+   * to learn whether a key from the other environment exists.
+   */
+  it('refuses before it looks at whether the key exists', () => {
+    expect(evaluateStoredKey(null, NOW, { presented: TEST_SECRET, environment: 'live' })).toEqual({
+      ok: false,
+      reason: 'WRONG_ENVIRONMENT',
+    });
+  });
+
+  /**
+   * The second check, and the one that catches a bug rather than an attacker: a
+   * lookup that returned a row minted in the other environment means the hash
+   * index matched something it should not have.
+   */
+  it('refuses a stored row whose own prefix disagrees with the deployment', () => {
+    const row = stored({ token_prefix: TEST_SECRET.slice(0, 16) });
+    expect(evaluateStoredKey(row, NOW, onLive)).toEqual({
+      ok: false,
+      reason: 'WRONG_ENVIRONMENT',
+    });
+  });
+
+  it('refuses a credential with no environment segment at all', () => {
+    expect(
+      evaluateStoredKey(stored(), NOW, { presented: 'not-a-key', environment: 'live' }),
+    ).toEqual({ ok: false, reason: 'WRONG_ENVIRONMENT' });
+  });
+
+  it('reads the environment off a credential, and nothing off a lookalike', () => {
+    expect(keyEnvironment(LIVE_SECRET)).toBe('live');
+    expect(keyEnvironment(TEST_SECRET)).toBe('test');
+    expect(keyEnvironment('df_prod_' + 'A'.repeat(43))).toBeNull();
+    expect(keyEnvironment('df_live_short')).toBeNull();
+    // The segment is read from a well-formed credential only. A string that
+    // merely starts with `df_live_` is not one, and treating it as one would
+    // make the environment check depend on a prefix match an attacker chooses.
+    expect(keyEnvironment('df_live_' + 'A'.repeat(44))).toBeNull();
   });
 });

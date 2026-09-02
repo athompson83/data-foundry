@@ -2,7 +2,12 @@ import type { z } from 'zod';
 import { VerticalSchema } from './objects/verticals.js';
 import { SourceSchema } from './objects/sources.js';
 import { SourceArtifactSchema, SourceRecordSchema } from './objects/evidence.js';
-import { EntityAliasSchema, EntityRedirectSchema, EntitySchema } from './objects/entities.js';
+import {
+  EntityAliasClaimSchema,
+  EntityAliasSchema,
+  EntityRedirectSchema,
+  EntitySchema,
+} from './objects/entities.js';
 import { FactEvidenceSchema, FactSchema } from './objects/facts.js';
 import { FactVerificationSchema } from './objects/verifications.js';
 import { RelationshipEvidenceSchema, RelationshipSchema } from './objects/relationships.js';
@@ -26,6 +31,7 @@ export const CANONICAL_OBJECT_SCHEMAS = {
   source_records: SourceRecordSchema,
   entities: EntitySchema,
   entity_aliases: EntityAliasSchema,
+  entity_alias_claims: EntityAliasClaimSchema,
   entity_redirects: EntityRedirectSchema,
   facts: FactSchema,
   fact_evidence: FactEvidenceSchema,

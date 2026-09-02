@@ -23,12 +23,38 @@ Fill in, in this order:
    drives web, REST/OpenAPI and SEO behavior.
 4. **`normalizers/*.yaml`** — extraction/normalization rules, controlled
    vocabularies and fact-selection policy.
+5. **`mcp.yaml`** — one server identity and the exact six generic executable
+   tools from `apps/mcp`. The names, titles and summaries must match; add
+   vertical behavior through fields/configuration, not domain-specific tools.
+6. **`acquisition.yaml`** — only enabled, reviewed source targets intended for
+   scheduled execution. A proposed/deferred source stays outside this file.
+   For `DIRECT_HTTP`, `VENDOR_API`, `SITEMAP`, `BULK_FILE`, and `RSS`, set the
+   required `max_direct_http_response_bytes` to the smallest documented positive
+   ceiling that fits the expected artifact, up to 16 MiB. The direct adapter
+   rejects a larger declared or streamed body and never silently truncates it.
+   Do not set that field for `BROWSER_RUN` or `CRAWL4AI`; their remote service
+   JSON is independently streamed under a fixed 4 MiB ceiling before parsing.
+   Browser Run additionally defaults its upstream and local crawl-record limit
+   to 100 (hard maximum 1,000), permits at most 100 paginated result responses,
+   refuses repeated cursors, and caps cumulative artifact bodies at 16 MiB.
+   Polling defaults to 60 attempts (hard maximum 600); job identifiers, cursors,
+   result metadata, and cumulative diagnostics also have finite local bounds.
+   A limit refusal fails the whole transport before artifact persistence; it
+   never returns or stores a partial crawl.
 
 Validate continuously:
 
 ```bash
 pnpm verticals:validate
 ```
+
+Identifier equivalence has one explicit pre-second-vertical gate. The current
+query helper covers HVAC's case-fold-and-strip-separators behavior, but is not
+yet compiled from an arbitrary vertical's alias-normalization operation chain.
+If the new industry's identifier rules differ from HVAC's, complete ADR-0003's
+configuration-derived read/write parity contract before bundling or publishing
+it. Do not add another query-layer guess or call the vertical configuration-only
+while that gate remains open.
 
 ## 2. Write `seo.yaml`
 
@@ -39,6 +65,21 @@ to be indexed. `verticals/hvac/seo.yaml` is the worked example and
 `min_critical_fact_coverage` and `min_total_facts` should both be set. Coverage
 without a floor can pass sparse stubs; a floor without coverage can pass pages
 padded with unimportant properties.
+
+Set `sitemaps.max_scan_pages_per_request` explicitly. It is the raw keyset-page
+budget for one sitemap request, not a target URL count: each page reads at most
+200 canonical entity candidates before rights and quality gates. The compiler
+accepts only positive integers through the absolute application ceiling of 250.
+Choose the lowest value that can completely enumerate the intended sitemap;
+capacity exhaustion returns a retryable `503` and never partial XML. The global
+sitemap index shares one budget across every bundled vertical and segment and
+uses the smallest declared value, so adding a vertical must account for the
+combined registry. Keep segment paths shardable with `{n}` whenever their
+bounded eligible URL set may exceed `max_urls_per_file`.
+
+Every page class must declare an explicit `route_kind`; an entity detail names
+`entity_type`, while a relationship page names `subject_entity_type`. Do not
+make dispatch depend on whether an unrelated optional field happens to exist.
 
 ## 3. Sources — proposed first, rights before publication
 
@@ -53,33 +94,60 @@ public comparison page and prohibited for paid API or marketplace access.
 Before activation, record/review the grants required by the surfaces this
 vertical will use, including as applicable:
 
-- public item/search/compare pages;
-- free API access;
-- paid API access;
-- MCP/LLM retrieval;
-- bulk export;
+- `PUBLIC_WEB` page display;
+- `SEARCH_INDEX` indexing (independent of public display);
+- `API_FREE` access;
+- `API_PAID` access;
+- `RAPIDAPI` marketplace access;
+- `MCP`/LLM retrieval;
+- `BULK_EXPORT`;
 - redistribution/sublicense.
 
-Unknown or absent permission remains refusal. `pnpm sources:readiness` should
-therefore be read as a rights/readiness signal, not as permission manufactured
-by a successful build.
+Unknown or absent permission remains refusal. Run
+`pnpm sources:readiness -- --as-of 2026-08-28T12:00:00.000Z <vertical-slug>`;
+without live DB or a validated snapshot, all seven surfaces report `UNKNOWN`.
+The command is a readiness signal, not permission manufactured by a successful
+build.
 
 ## 4. Compile the runtime artifacts
 
-Both Workers have no filesystem; they read committed runtime JSON:
+Workers have no runtime filesystem. The compilers emit committed runtime JSON,
+and the web compiler also emits a static TypeScript registry so every bundled
+vertical is visible to the Worker bundler:
 
 ```bash
 pnpm verticals:compile
+pnpm mcp:compile
+pnpm acquisition:compile
 pnpm web:compile
 ```
 
-Add the slug to the platform's explicit deployed/published vertical lists only
-when the intended surface is actually ready.
+Add the slug to `BUNDLED_VERTICALS` in `compile-vertical-runtime.ts` only when
+the vertical has an edge/API deployment, and to `BUNDLED_WEB_VERTICALS` in
+`compile-web-runtime.ts` only when the public Worker should carry it. Add it to
+`BUNDLED_MCP_VERTICALS` in `compile-mcp-runtime.ts` only when an MCP deployment
+is intended. Add scheduled targets through the acquisition compiler only when
+exact acquisition rights and source governance allow them. The lists are
+intentionally independent: an industry can be public without being sold by
+API/MCP, or sold by API before its public pages are eligible. Run the matching
+compiler(s). Bundling a runtime is not publication permission; database
+presence, exact surface grants and page-quality gates still decide what can be
+returned or indexed.
 
 ```bash
 pnpm verticals:compile:check
+pnpm mcp:compile:check
+pnpm acquisition:check
 pnpm web:compile:check
 ```
+
+`pnpm openapi:generate` emits one canonical direct edge contract per edge bundle
+as `openapi/data-foundry-<slug>-v1.openapi.json` (and retains the existing HVAC
+path during migration). It also emits the public marketplace projection as
+`openapi/data-foundry-<slug>-rapidapi-v1.openapi.json`. Both projections come
+from the same route/schema source; the marketplace document deliberately omits
+the private Data Foundry origin bearer. Run the generator whenever
+`BUNDLED_VERTICALS` changes; the CI drift check covers every generated contract.
 
 ## 5. Ingest and verify
 
@@ -94,19 +162,75 @@ pnpm migrate:check
 Add a live quality-gate test for the vertical so indexability decisions are
 proved against real query-model behavior rather than copied assumptions.
 
+Also prove refresh currentness, not only first ingestion:
+
+1. An exact replay under `source-record-evidence@3` is a no-op.
+2. A changed resolved target, accepted alias/locator, fact projection,
+   resolution audit, or relationship disposition/endpoint/writer creates one
+   immutable successor revision.
+3. Removing a source assertion withdraws its source-only alias from
+   `current_entity_aliases` without deleting historical alias or claim rows.
+4. Retiring and reopening an alias advances its authority epoch; a prior-epoch
+   claim does not reactivate.
+5. A refresh with no usable strong identifier finalizes a zero-claim successor,
+   retires the prior record's current identity support, creates no phantom
+   manufacturer, and is withheld from customer surfaces unless some other
+   current `FINALIZED` evidence independently supports the entity.
+6. A relationship remains visible only while current `FINALIZED` relationship
+   evidence and both authorized endpoints support it; shared current evidence
+   may preserve an edge, while a withdrawn sole contribution may not.
+7. Every record stream declares exactly one `refresh_mode`: use
+   `full_snapshot` only when one successful acquired artifact set is genuinely
+   the complete membership of that stream; otherwise use `incremental`.
+8. Test `A+B -> A` for both modes. A full snapshot retires B with exact
+   same-source artifact evidence and removes its current surface authority; an
+   incremental refresh leaves B current. Never infer completeness from format,
+   cadence, or an empty response.
+
+Migration 0023 deliberately backfills no alias authority. Real legacy aliases
+must be reasserted by a current finalized source record or by an explicit
+curated action; never manufacture a claim merely to keep a lookup green.
+Migration 0024 likewise backfills no stream membership: reingest admitted
+legacy sources with an explicit mode rather than classifying old rows by guess.
+Migration 0025 also backfills no claim/evidence linkage: each source-record
+alias reaches resolution/search only when the ingest transaction records the
+exact claim and its exact `ALIAS` evidence together. Reingest admitted sources;
+never pair historical rows by locator guesswork.
+
 ## 6. Decide publication surfaces independently
 
 A vertical can be ready for one surface and not another.
 
-- **Public web (`apps/web`)** — becomes part of the single multi-industry Worker
-  once its runtime is compiled, data exists and web-use rights pass.
-- **Direct REST API (`apps/edge`)** — receives its commercial vertical deployment
-  and Data Foundry authentication only when API-use rights pass.
-- **MCP** — may be enabled only when the LLM/agent retrieval use case is cleared.
+- **Public web (`apps/web`)** — the vertical must be `ACTIVE` and have exact
+  `PUBLIC_WEB`-eligible data before any child route is exposed. Indexing and
+  sitemap inclusion additionally require `SEARCH_INDEX` to cover every exact
+  fact, attribution and relationship rendered on that page; disjoint grants on
+  different claims do not combine into permission.
+- **Direct REST API (`apps/edge`)** — receives its vertical deployment and Data
+  Foundry authentication only when the exact API-use rights pass. The current
+  commercial provisioner creates `API_PAID/DIRECT`; the runtime's separate
+  `API_FREE/DIRECT` classification is not implied by that key or its rights.
+- **MCP (`apps/mcp-worker`)** — gets its own one-vertical deployment and exact
+  `MCP/NONE` credential only when the LLM/agent retrieval use case is cleared.
+  Direct/RapidAPI credentials are not interchangeable with it. `NONE` means
+  analytics-only billing authority, not anonymous access.
 - **Bulk export** — is independently gated by export/redistribution rights.
+- **Scheduled acquisition (`apps/acquisition-worker`)** — is independently
+  gated by exact stored `ACQUIRE`/`STORE`/`CACHE` decisions and uses Cron,
+  migrations `0017`, `0019`, and `0020`, immutable versioned receipts through
+  `PRE_PERSISTENCE`, fenced recoverable execution leases, bounded transports,
+  and immutable R2 evidence. Its source YAML and schedule never create
+  permission. A new vertical must prove that a caught same-slot retry reuses one
+  run row and that an expired owner cannot persist after token rotation.
 
 Do not infer “paid gets everything the website gets.” The rights resolver, not
 pricing, decides which facts each surface may expose.
+
+Use `pnpm credentials:provision` for customer-surface credentials. Its closed
+provisioning vocabulary is exactly `API_PAID/DIRECT`,
+`RAPIDAPI/RAPIDAPI`, and `MCP/NONE`; it does not create a free/direct key or
+infer a billing source. Credential creation is access control only and creates
+no source approval, rights cell, commercial licence, plan or invoice.
 
 ## 7. Marketplace publication (RapidAPI initially)
 
@@ -115,14 +239,20 @@ Cloudflare API exists. It does **not** create a new vertical implementation.
 
 For a marketplace-ready vertical:
 
-1. Confirm `API_FREE` and/or `API_PAID` rights for the exact marketplace plans
-   being offered, plus redistribution/sublicense treatment where applicable.
+1. Confirm the exact `RAPIDAPI` bundle for every contribution. Direct
+   `API_FREE` or `API_PAID` permission does not imply marketplace permission;
+   the marketplace bundle includes service, sale, normalized redistribution
+   and sublicense decisions on the RapidAPI channel.
 2. Confirm every required attribution/condition can travel through API responses
    and marketplace documentation.
-3. Generate the marketplace OpenAPI/listing contract from the same canonical
-   route/filter definitions used by `apps/api`; add or run the drift check.
-4. Route the marketplace to the existing Cloudflare Worker using a hidden,
-   dedicated Data Foundry marketplace credential.
+3. Generate the public `openapi/data-foundry-<slug>-rapidapi-v1.openapi.json`
+   listing contract from the same canonical route/filter definitions used by
+   `apps/api`; run the drift check and confirm it does not disclose or require
+   the private origin bearer.
+4. Route a dedicated marketplace-origin hostname to the existing Cloudflare
+   Worker while retaining a separate direct-API hostname. Store the dedicated
+   `RAPIDAPI/RAPIDAPI` Data Foundry credential only as that Worker's
+   `RAPIDAPI_API_KEY`; neither RapidAPI nor subscribers receive or forward it.
 5. Require the marketplace proxy secret so callers cannot bypass the marketplace
    and self-assert a marketplace plan/channel.
 6. Record marketplace calls internally for operations and unit economics, but
@@ -161,8 +291,26 @@ cost.
 
 `docs/owner-actions/cloudflare-deployment.md` contains the production-resource
 checklist. A new vertical is not considered live because CI is green; verify the
+same canonical `account_id` across all five exact production manifests, the
 exact deployed SHA, production health/readiness, real database access, auth,
-rights behavior and usage-event persistence.
+rights behavior and usage-event persistence independently for web, direct REST,
+RapidAPI and MCP. Also prove an acquisition Cron claim, rights refusal, and one
+authorized R2/Postgres result in an isolated provider environment. Acquisition
+proof must include post-transport revocation; oversized declared and chunked
+direct responses; Browser Run repeated-cursor, page, record, diagnostic, and
+cumulative-artifact refusals; and zero partial R2 writes. An MCP smoke test must
+cover initialize/discovery, tools/list,
+one authenticated tools/call, wrong-channel credentials, and a post-deploy
+rights-revocation negative. Before launch, run the catalog-capacity probes from
+the Cloudflare deployment runbook after applying through migration `0026`:
+exact-bound catalogs must complete, while
+candidate or authorization-row overflow must fail closed on web, REST and MCP
+without partial totals, facets, HTML or tool results. A vertical expected to
+exceed those checked-in launch ceilings—including recursive fact graphs above
+100,000 nodes, 100,000 edges, or an actual dependency path deeper than 64—needs a measured database-native rights
+projection; do not raise the ceiling or page-limit before rights to make the
+check pass. Include a shortcut-chain negative in that probe, and verify the
+landing-page entity-type aggregate does not touch the fact catalog.
 
 ## What this checklist deliberately does not cover
 

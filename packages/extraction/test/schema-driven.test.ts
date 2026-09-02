@@ -42,6 +42,7 @@ describe('schema-driven onboarding', () => {
       mime_type: 'text/csv',
       url: 'https://bryant.example/parts.psv',
       body: SECOND_SOURCE_CSV,
+      acquisition_route: 'BULK_FILE',
     });
 
     const records = await registry.extract(artifact, SECOND_SOURCE_SCHEMA);
@@ -60,6 +61,7 @@ describe('schema-driven onboarding', () => {
       mime_type: 'text/csv',
       url: 'https://acme-hvac.example/partial.csv',
       body,
+      acquisition_route: 'BULK_FILE',
     });
 
     const base = {
@@ -81,18 +83,17 @@ describe('schema-driven onboarding', () => {
     expect(kept).toHaveLength(2);
     expect(kept[1]?.source_record_key).toBe('keep.csv#1');
 
-    // `fail`: the keyless row is dropped rather than published under an ordinal
-    // that changes the next time the file is crawled.
-    const dropped = await registry.extract(
+    // `fail`: one keyless scope invalidates the whole extraction. Returning
+    // the valid neighbor alone would let a full snapshot reinterpret the bad
+    // row as an authoritative deletion.
+    await expect(registry.extract(
       artifact,
       parseExtractionSchema({
         ...base,
         schema_id: 'drop.csv',
         record_key: { fields: ['model_number'], fallback: 'fail' },
       }),
-    );
-    expect(dropped).toHaveLength(1);
-    expect(dropped[0]?.source_record_key).toBe('24ACC636A003');
+    )).rejects.toThrow(/record key.*incomplete|incomplete.*record key/i);
   });
 
   it('supports positional columns for headerless files', async () => {
@@ -113,6 +114,7 @@ describe('schema-driven onboarding', () => {
       mime_type: 'text/csv',
       url: 'https://legacy.example/dump.csv',
       body: '24ACC636A003,Infinity 16,36000\n',
+      acquisition_route: 'BULK_FILE',
     });
 
     const records = await createExtractionRegistry().extract(artifact, headerless);

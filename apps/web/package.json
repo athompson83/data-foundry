@@ -21,8 +21,10 @@
   "dependencies": {
     "@data-foundry/canonical-schema": "workspace:*",
     "@data-foundry/canonical-store": "workspace:*",
-    "@data-foundry/provenance": "workspace:*",
     "@data-foundry/query-model": "workspace:*",
     "pg": "^8.23.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
   }
 }

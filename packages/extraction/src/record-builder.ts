@@ -2,12 +2,13 @@ import type { Identifier, JsonObject, SourceArtifact } from '@data-foundry/canon
 import { computeExtractionConfidence } from './confidence.js';
 import type { EvidenceLocator } from './locator.js';
 import type { ExtractPattern, ExtractionSchema, FieldRule } from './schema.js';
-import type {
-  ExtractedRecord,
-  ExtractedValue,
-  ExtractionIssue,
-  ExtractionIssueCode,
-  ExtractionSignals,
+import {
+  ExtractionError,
+  type ExtractedRecord,
+  type ExtractedValue,
+  type ExtractionIssue,
+  type ExtractionIssueCode,
+  type ExtractionSignals,
 } from './types.js';
 
 /**
@@ -294,9 +295,9 @@ export const recordKeyFailed = (record: ExtractedRecord): boolean =>
  * Applies `record_key.fallback`.
  *
  * `ordinal` (the default) keeps the record with an `artifact#n` key and a
- * `RECORD_KEY_INCOMPLETE` issue — usable, and visibly imperfect. `fail` drops it
- * instead, for sources where a record without its business key would create a
- * duplicate on the next crawl (the ordinal is stable only while the artifact is).
+ * `RECORD_KEY_INCOMPLETE` issue — usable, and visibly imperfect. `fail` rejects
+ * the complete extraction result. Silently dropping only the malformed rows
+ * would let a partial full-snapshot extraction authorize omission retirements.
  *
  * Every provider routes its output through this so the option means the same
  * thing everywhere.
@@ -304,7 +305,14 @@ export const recordKeyFailed = (record: ExtractedRecord): boolean =>
 export const applyRecordKeyPolicy = (
   schema: ExtractionSchema,
   records: readonly ExtractedRecord[],
-): ExtractedRecord[] =>
-  (schema.record_key.fallback ?? 'ordinal') === 'fail'
-    ? records.filter((record) => !recordKeyFailed(record))
-    : [...records];
+): ExtractedRecord[] => {
+  if (
+    (schema.record_key.fallback ?? 'ordinal') === 'fail' &&
+    records.some((record) => recordKeyFailed(record))
+  ) {
+    throw new ExtractionError('record key is incomplete; the artifact extraction was rejected', {
+      schemaId: schema.schema_id,
+    });
+  }
+  return [...records];
+};

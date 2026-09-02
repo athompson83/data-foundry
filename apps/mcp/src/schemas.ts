@@ -23,6 +23,7 @@ import {
   IdentifierArg,
   TimestampArg,
 } from './canonical-schemas.js';
+import { MAX_FACET_FILTERS, MAX_FACET_FILTER_VALUES } from './query-layer.js';
 
 /** Facet filters, mirroring the query layer's `FacetFilter` union exactly. */
 const FilterArg = z.discriminatedUnion('op', [
@@ -32,6 +33,7 @@ const FilterArg = z.discriminatedUnion('op', [
     values: z
       .array(z.union([z.string(), z.number(), z.boolean()]))
       .min(1)
+      .max(MAX_FACET_FILTER_VALUES)
       .describe('Match any of these values.'),
   }),
   z.strictObject({
@@ -57,7 +59,7 @@ export const SearchEntitiesInput = z
     ),
     filters: z
       .array(FilterArg)
-      .max(10)
+      .max(MAX_FACET_FILTERS)
       .optional()
       .describe(
         'Field filters. A field the vertical does not declare as filterable is rejected ' +

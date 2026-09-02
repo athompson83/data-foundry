@@ -1,3 +1,8 @@
+import {
+  isLoopbackEndpointHostname,
+  isUnsafeCanonicalProductionHostname,
+} from '@data-foundry/canonical-schema';
+
 /**
  * What a deployed Worker is configured with, and what it refuses to start
  * without. Same fail-closed reasoning as `apps/edge/src/env.ts`: a Worker with
@@ -12,6 +17,8 @@ export interface HyperdriveBinding {
 }
 
 export interface WebEnv {
+  /** Explicit deployment identity; absence is rejected. */
+  readonly DEPLOYMENT_ENVIRONMENT?: string | undefined;
   readonly HYPERDRIVE?: HyperdriveBinding;
   readonly POSTGRES_URL?: string;
   /**
@@ -20,6 +27,8 @@ export interface WebEnv {
    * index and `<link rel="canonical">` — never to build a relative link.
    */
   readonly PUBLIC_ORIGIN?: string;
+  /** Explicit public-response caching posture; no-store is the revocation-safe incident mode. */
+  readonly PUBLIC_CACHE_MODE?: string;
 }
 
 export class WebConfigurationError extends Error {
@@ -32,12 +41,45 @@ export class WebConfigurationError extends Error {
 export interface ResolvedWebConfig {
   readonly connectionString: string;
   readonly publicOrigin: string;
+  readonly deploymentEnvironment: DeploymentEnvironment;
+  readonly cacheMode: PublicCacheMode;
 }
 
-const DEFAULT_ORIGIN = 'http://localhost';
+export type DeploymentEnvironment = 'development' | 'production';
+export type PublicCacheMode = 'cache' | 'no-store';
+
+function resolveDeploymentEnvironment(value: string | undefined): DeploymentEnvironment {
+  if (value === 'development') return 'development';
+  if (value === 'production') return 'production';
+  throw new WebConfigurationError(
+    'DEPLOYMENT_ENVIRONMENT must be exactly "development" or "production".',
+  );
+}
+
+function resolveCacheMode(value: string | undefined, deployment: DeploymentEnvironment): PublicCacheMode {
+  if (deployment === 'production') {
+    if (value === 'no-store') return value;
+    throw new WebConfigurationError(
+      'PUBLIC_CACHE_MODE must be exactly "no-store" in production until cache invalidation follows rights changes.',
+    );
+  }
+  if (value === 'cache' || value === 'no-store') return value;
+  if (value === undefined || value.trim() === '') return 'cache';
+  throw new WebConfigurationError(
+    'PUBLIC_CACHE_MODE must be exactly "cache" or "no-store".',
+  );
+}
 
 export function resolveWebConfig(env: WebEnv): ResolvedWebConfig {
-  const connectionString = env.HYPERDRIVE?.connectionString ?? env.POSTGRES_URL ?? '';
+  const deploymentEnvironment = resolveDeploymentEnvironment(env.DEPLOYMENT_ENVIRONMENT);
+  if (deploymentEnvironment === 'production' && env.HYPERDRIVE === undefined) {
+    throw new WebConfigurationError(
+      'Production requires the HYPERDRIVE binding; POSTGRES_URL is for local development only.',
+    );
+  }
+  const connectionString = deploymentEnvironment === 'production'
+    ? env.HYPERDRIVE?.connectionString ?? ''
+    : env.HYPERDRIVE?.connectionString ?? env.POSTGRES_URL ?? '';
   if (connectionString.trim() === '') {
     throw new WebConfigurationError(
       'No database is configured. Bind HYPERDRIVE or set POSTGRES_URL. ' +
@@ -45,13 +87,49 @@ export function resolveWebConfig(env: WebEnv): ResolvedWebConfig {
     );
   }
 
-  const publicOrigin = (env.PUBLIC_ORIGIN ?? '').trim() || DEFAULT_ORIGIN;
+  const publicOrigin = (env.PUBLIC_ORIGIN ?? '').trim();
+  if (publicOrigin === '') {
+    throw new WebConfigurationError(
+      'PUBLIC_ORIGIN is required. Configure the exact public origin used for canonical URLs.',
+    );
+  }
+
+  let parsed: URL;
   try {
-    // eslint-disable-next-line no-new -- validation only, the URL is discarded
-    new URL(publicOrigin);
+    parsed = new URL(publicOrigin);
   } catch {
     throw new WebConfigurationError(`PUBLIC_ORIGIN "${publicOrigin}" is not a valid absolute URL.`);
   }
 
-  return { connectionString, publicOrigin: publicOrigin.replace(/\/+$/, '') };
+  if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
+    throw new WebConfigurationError('PUBLIC_ORIGIN must use HTTPS (or HTTP for local development).');
+  }
+
+  if (
+    parsed.username !== '' ||
+    parsed.password !== '' ||
+    parsed.pathname !== '/' ||
+    parsed.search !== '' ||
+    parsed.hash !== ''
+  ) {
+    throw new WebConfigurationError(
+      'PUBLIC_ORIGIN must be an origin only, without credentials, a path, query, or fragment.',
+    );
+  }
+
+  if (deploymentEnvironment === 'production' && (parsed.protocol !== 'https:' || isUnsafeCanonicalProductionHostname(parsed.hostname))) {
+    throw new WebConfigurationError(
+      'PUBLIC_ORIGIN must use HTTPS and a canonical production hostname; IP literals (including loopback and unspecified), special-use names, and provider fallback zones are refused.',
+    );
+  }
+  if (deploymentEnvironment === 'development' && parsed.protocol !== 'https:' && !isLoopbackEndpointHostname(parsed.hostname)) {
+    throw new WebConfigurationError('PUBLIC_ORIGIN must use HTTPS outside local development.');
+  }
+
+  return {
+    connectionString,
+    publicOrigin: parsed.origin,
+    deploymentEnvironment,
+    cacheMode: resolveCacheMode(env.PUBLIC_CACHE_MODE, deploymentEnvironment),
+  };
 }

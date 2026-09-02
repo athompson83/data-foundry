@@ -11,16 +11,18 @@
 import {
   claim,
   createQueryFixtures,
+  addSyntheticEntityEvidence,
   relate,
+  seedSyntheticSurfaceRights,
   ts,
   type QueryFixtures,
 } from '../../../packages/query-model/test/support.js';
 import type { Entity } from '../../../packages/canonical-schema/src/index.js';
 import { createApiApp } from '../src/index.js';
-import type { ApiFactSelectionPolicy } from '../src/config.js';
+import type { ApiFactSelectionPolicy, ApiRequestTelemetry } from '../src/config.js';
 import type { ApiHandler, ApiRequest, ApiResponse } from '../src/http.js';
 
-export { claim, createQueryFixtures, relate, ts };
+export { addSyntheticEntityEvidence, claim, createQueryFixtures, relate, ts };
 export type { QueryFixtures };
 
 /**
@@ -60,6 +62,10 @@ export async function createApiFixtures(
   const base = await createQueryFixtures(
     options.trigram === undefined ? {} : { trigram: options.trigram },
   );
+  await seedSyntheticSurfaceRights(base, ['API_FREE']);
+  for (const entity of [base.equipment, base.heatPump, base.motor, base.rival]) {
+    await addSyntheticEntityEvidence(base, entity);
+  }
 
   // A claim nobody may publish: its only evidence comes from an UNREVIEWED
   // community source (AGENTS.md rule 1).
@@ -98,13 +104,21 @@ export async function createApiFixtures(
 export function call(
   app: ApiHandler,
   url: string,
-  init: { readonly method?: string; readonly headers?: ApiRequest['headers'] } = {},
+  init: {
+    readonly method?: string;
+    readonly headers?: ApiRequest['headers'];
+    readonly onRequest?: (info: ApiRequestTelemetry) => void;
+  } = {},
 ): Promise<ApiResponse> {
-  return app({
-    method: init.method ?? 'GET',
-    url,
-    ...(init.headers === undefined ? {} : { headers: init.headers }),
-  });
+  return app(
+    {
+      method: init.method ?? 'GET',
+      url,
+      ...(init.headers === undefined ? {} : { headers: init.headers }),
+    },
+    init.onRequest,
+    { surface: 'API_FREE' },
+  );
 }
 
 /** The error envelope, narrowed. Throws if the body is not one. */

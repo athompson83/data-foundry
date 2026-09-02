@@ -14,10 +14,12 @@ import {
   extractionConfidence,
   identityConfidence,
   type Entity,
+  type IsoDateTime,
   type RightsClassification,
   type SourceType,
 } from '@data-foundry/canonical-schema';
 import { FieldMetadataRegistry, createQueryModel, type QueryModel } from '../src/index.js';
+import { rightsRequirementsForSurface, type RightsSurface } from '@data-foundry/rights-engine';
 import {
   claim,
   createFixtures,
@@ -291,6 +293,7 @@ export async function addSourceFixture(
     // gate is written to avoid, and it would go on agreeing with itself after
     // the real rule changed.
     status: canPublish(spec.rights) ? 'ACTIVE' : 'UNDER_REVIEW',
+    kill_switch_engaged: false,
   });
   const artifact = await fixtures.store.recordSourceArtifact({
     source_id: source.id,
@@ -304,11 +307,15 @@ export async function addSourceFixture(
     policy_snapshot_id: null,
     byte_size: 4096,
     acquisition_provider: 'http',
+    acquisition_route: 'DIRECT_HTTP',
+    account_or_product_plan: null,
+    acquisition_jurisdiction: null,
   });
   const record = await fixtures.store.recordSourceRecord({
     source_id: source.id,
     artifact_id: artifact.id,
     source_record_key: `${spec.key}-24ANB7`,
+    source_stream: 'fixture_records',
     entity_type: 'equipment',
     raw_payload: { model: '24ANB7' },
     normalized_payload: null,
@@ -316,6 +323,261 @@ export async function addSourceFixture(
     extractor_version: 'html-1.0.0',
   });
   return { source, artifact, record };
+}
+
+/**
+ * Retire one synthetic current record through an accepted complete-snapshot
+ * omission. Tests must build the same terminal lineage as production rather
+ * than disabling or bypassing the deferred currentness guards.
+ */
+export async function retireSourceFixtureByCompleteSnapshot(
+  fixtures: QueryFixtures,
+  sourceKey: SourceKey,
+  retiredAt: IsoDateTime,
+): Promise<void> {
+  const fixture = fixtures.sources[sourceKey];
+  const sourceStream = fixture.record.source_stream;
+  if (sourceStream === null) throw new Error('a current synthetic source record requires a stream');
+
+  const acceptanceId = crypto.randomUUID();
+  const digest = (): string => crypto.randomUUID().replaceAll('-', '').repeat(2);
+  const snapshotDigest = digest();
+  const terminalArtifact = await fixtures.store.recordSourceArtifact({
+    source_id: fixture.source.id,
+    url: `https://${fixture.source.domain}/snapshots/${acceptanceId}.json`,
+    retrieved_at: retiredAt,
+    content_hash: digest(),
+    mime_type: 'application/json',
+    r2_uri: `r2://test-snapshots/${fixture.source.id}/${acceptanceId}.json`,
+    http_status: 200,
+    extractor_version: 'snapshot-test-1.0.0',
+    policy_snapshot_id: fixture.artifact.policy_snapshot_id,
+    byte_size: 2,
+    acquisition_provider: fixture.artifact.acquisition_provider,
+    acquisition_route: fixture.artifact.acquisition_route,
+    account_or_product_plan: fixture.artifact.account_or_product_plan,
+    acquisition_jurisdiction: fixture.artifact.acquisition_jurisdiction,
+  });
+
+  await fixtures.driver.exec('BEGIN');
+  try {
+    await fixtures.driver.query(
+      `INSERT INTO source_stream_snapshot_acceptances
+         (id, source_id, source_stream, observed_at, snapshot_digest,
+          artifact_set_digest, mapping_digest, record_set_digest,
+          retrieval_count, accepted_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 1, $4)`,
+      [
+        acceptanceId,
+        fixture.source.id,
+        sourceStream,
+        retiredAt,
+        snapshotDigest,
+        digest(),
+        digest(),
+        digest(),
+      ],
+    );
+    await fixtures.driver.query(
+      `INSERT INTO source_stream_snapshot_acceptance_artifacts
+         (acceptance_id, artifact_id, retrieval_key, retrieval_receipt_id, created_at)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [acceptanceId, terminalArtifact.id, terminalArtifact.url, digest(), retiredAt],
+    );
+    await fixtures.driver.query(
+      `UPDATE source_records
+          SET is_current = FALSE, updated_at = $2
+        WHERE id = $1`,
+      [fixture.record.id, retiredAt],
+    );
+    await fixtures.driver.query(
+      `INSERT INTO source_record_snapshot_retirements
+         (source_record_id, snapshot_acceptance_id, artifact_id, source_id,
+          source_stream, retired_at, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $6)`,
+      [
+        fixture.record.id,
+        acceptanceId,
+        terminalArtifact.id,
+        fixture.source.id,
+        sourceStream,
+        retiredAt,
+      ],
+    );
+    await fixtures.driver.exec('COMMIT');
+  } catch (error) {
+    await fixtures.driver.exec('ROLLBACK');
+    throw error;
+  }
+}
+
+const SYNTHETIC_RIGHTS_EFFECTIVE = ts('2026-01-01T00:00:00Z');
+const SYNTHETIC_RIGHTS_RECHECK = ts('2027-01-01T00:00:00Z');
+
+export interface SyntheticSurfaceRightsOptions {
+  readonly termsRecheckAt?: IsoDateTime;
+  readonly decisionRecheckAt?: IsoDateTime;
+  readonly decisionRecheckAtByRequirement?: Readonly<Record<string, IsoDateTime>>;
+}
+
+/**
+ * Explicit grants for synthetic test publishers. This is intentionally test
+ * data, never a migration/backfill: production legacy rows remain UNKNOWN.
+ */
+export async function seedSyntheticSurfaceRights(
+  fixtures: QueryFixtures,
+  surfaces: readonly RightsSurface[],
+  sourceKeys: readonly SourceKey[] = Object.keys(fixtures.sources) as SourceKey[],
+  options: SyntheticSurfaceRightsOptions = {},
+): Promise<void> {
+  const termsRecheckAt = options.termsRecheckAt ?? SYNTHETIC_RIGHTS_RECHECK;
+  const decisionRecheckAt = options.decisionRecheckAt ?? SYNTHETIC_RIGHTS_RECHECK;
+  const requirements = new Map(
+    [
+      ...surfaces.flatMap((surface) => rightsRequirementsForSurface(surface)),
+      ...(surfaces.includes('MCP')
+        ? [{ id: 'mcp-excerpt', operation: 'QUOTE_OR_EXCERPT', channel: 'MCP_AGENT' } as const]
+        : []),
+    ]
+      .map((entry) => [`${entry.operation}:${entry.channel}`, entry] as const),
+  );
+
+  let sourceIndex = 0;
+  for (const [sourceKey, fixture] of Object.entries(fixtures.sources)) {
+    if (!sourceKeys.includes(sourceKey as SourceKey)) continue;
+    if (!canPublish(fixture.source.rights_classification) || fixture.source.status !== 'ACTIVE') {
+      continue;
+    }
+    sourceIndex += 1;
+    const publisherId = crypto.randomUUID();
+    const termsEvidenceId = crypto.randomUUID();
+    const reviewEvidenceId = crypto.randomUUID();
+    const termsCellId = crypto.randomUUID();
+    const termsVersionId = crypto.randomUUID();
+    const termsHash = sourceIndex.toString(16).padStart(64, '0');
+    const reviewHash = (sourceIndex + 100).toString(16).padStart(64, '0');
+
+    await fixtures.driver.query(
+      `INSERT INTO rights_publishers (id, publisher_key, legal_name, status)
+       VALUES ($1, $2, $3, 'ACTIVE')`,
+      [
+        publisherId,
+        `synthetic-${sourceKey.replaceAll('_', '-')}`,
+        `${fixture.source.publisher} synthetic rights`,
+      ],
+    );
+    await fixtures.driver.query(
+      `INSERT INTO rights_evidence_artifacts
+         (id, kind, canonical_uri, storage_uri, content_sha256, mime_type,
+          captured_at, created_by)
+       VALUES ($1, 'TERMS', $3, $4, $5, 'text/plain', $7, 'test-fixture'),
+              ($2, 'REVIEW_MEMO', $6, $6, $8, 'text/plain', $7, 'test-fixture')`,
+      [
+        termsEvidenceId,
+        reviewEvidenceId,
+        `fixture://terms/${sourceKey}`,
+        `fixture://terms/${sourceKey}.txt`,
+        termsHash,
+        `fixture://review/${sourceKey}`,
+        SYNTHETIC_RIGHTS_EFFECTIVE,
+        reviewHash,
+      ],
+    );
+    await fixtures.driver.query(
+      `UPDATE sources
+          SET rights_publisher_id = $1,
+              rights_publisher_mapping_evidence_artifact_id = $3,
+              rights_publisher_mapping_reviewer_type = 'HUMAN',
+              rights_publisher_mapping_reviewed_by = 'test-fixture',
+              rights_publisher_mapping_reviewed_at = $4
+        WHERE id = $2`,
+      [publisherId, fixture.source.id, reviewEvidenceId, SYNTHETIC_RIGHTS_EFFECTIVE],
+    );
+    await fixtures.driver.query(
+      `INSERT INTO rights_terms_cells (id, source_id, acquisition_route, created_by)
+       VALUES ($1, $2, 'DIRECT_HTTP', 'test-fixture')`,
+      [termsCellId, fixture.source.id],
+    );
+    await fixtures.driver.query(
+      `INSERT INTO rights_terms_versions
+         (id, terms_cell_id, evidence_artifact_id, content_sha256, version_label,
+          effective_from, recheck_at, created_by)
+       VALUES ($1, $2, $3, $4, 'synthetic-v1', $5, $6, 'test-fixture')`,
+      [
+        termsVersionId,
+        termsCellId,
+        termsEvidenceId,
+        termsHash,
+        SYNTHETIC_RIGHTS_EFFECTIVE,
+        termsRecheckAt,
+      ],
+    );
+    await fixtures.driver.query(
+      `SELECT activate_rights_terms($1, 'HUMAN', 'test-fixture',
+                                    'synthetic fixture terms', $2)`,
+      [termsVersionId, SYNTHETIC_RIGHTS_EFFECTIVE],
+    );
+
+    await fixtures.driver.exec('BEGIN');
+    try {
+      for (const entry of requirements.values()) {
+        const cellId = crypto.randomUUID();
+        const decisionId = crypto.randomUUID();
+        const requirementKey = `${entry.operation}:${entry.channel}`;
+        const requirementRecheckAt =
+          options.decisionRecheckAtByRequirement?.[requirementKey] ?? decisionRecheckAt;
+        await fixtures.driver.query(
+          `INSERT INTO rights_cells
+             (id, source_id, acquisition_route, operation, channel, created_by)
+           VALUES ($1, $2, 'DIRECT_HTTP', $3, $4, 'test-fixture')`,
+          [cellId, fixture.source.id, entry.operation, entry.channel],
+        );
+        await fixtures.driver.query(
+          `INSERT INTO rights_decisions
+             (id, cell_id, state, controlling_terms_version_id, evidence_artifact_id,
+              clause_ref, review_status, reviewer_type, reviewed_by, reviewed_at,
+              effective_from, recheck_at, rationale, created_by)
+           VALUES ($1, $2, 'ALLOW', $3, $4, 'synthetic fixture only', 'APPROVED',
+                   'HUMAN', 'test-fixture', $5, $5, $6,
+                   'explicit synthetic surface grant', 'test-fixture')`,
+          [
+            decisionId,
+            cellId,
+            termsVersionId,
+            reviewEvidenceId,
+            SYNTHETIC_RIGHTS_EFFECTIVE,
+            requirementRecheckAt,
+          ],
+        );
+        await fixtures.driver.query(
+          `SELECT activate_rights_decision($1, 'HUMAN', 'test-fixture',
+                                           'activate synthetic grant', $2)`,
+          [decisionId, SYNTHETIC_RIGHTS_EFFECTIVE],
+        );
+      }
+      await fixtures.driver.exec('COMMIT');
+    } catch (error) {
+      await fixtures.driver.exec('ROLLBACK');
+      throw error;
+    }
+  }
+}
+
+/** Attach explicit synthetic identity provenance to an entity used by a surface test. */
+export async function addSyntheticEntityEvidence(
+  fixtures: QueryFixtures,
+  entity: Entity,
+  source: SourceKey = 'manufacturer',
+): Promise<void> {
+  const fixture = fixtures.sources[source];
+  await fixtures.driver.query(
+    `INSERT INTO entity_evidence
+       (entity_id, artifact_id, source_record_id, contribution_role,
+        locator_type, locator_value, observed_at)
+     VALUES ($1, $2, $3, 'EXISTENCE', 'WHOLE_DOCUMENT', '', $4)
+     ON CONFLICT DO NOTHING`,
+    [entity.id, fixture.artifact.id, fixture.record.id, fixture.artifact.retrieved_at],
+  );
 }
 
 /** 64 hex characters derived from a seed, matching the shared fixtures' shape. */

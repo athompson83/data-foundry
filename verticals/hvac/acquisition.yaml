@@ -1,0 +1,44 @@
+version: 2
+
+# Scheduled runtime targets. These are the four synthetic factory-proof sources
+# only. A real source proposal (including ENERGY STAR) must not enter this file
+# until its exact stored ACQUIRE/STORE/CACHE grants are reviewed and activated.
+targets:
+  - target_id: catalog-api
+    source_key: acme-hvac-catalog
+    target_url: https://catalog.acme-climate.example.com/api/v2/catalog
+    max_direct_http_response_bytes: 1048576
+    result_url_policy:
+      allowedOrigins: [https://catalog.acme-climate.example.com]
+      allowedPathPrefixes: [/api/v2/catalog]
+    asset_class: DATA
+    output_class: RAW_RECORD
+
+  - target_id: specification-sheet
+    source_key: acme-spec-sheets
+    target_url: https://docs.acme-climate.example.com/spec-sheets/acme-spec.pdf
+    max_direct_http_response_bytes: 8388608
+    result_url_policy:
+      allowedOrigins: [https://docs.acme-climate.example.com]
+      allowedPathPrefixes: [/spec-sheets/acme-spec.pdf]
+    asset_class: DOCUMENT
+    output_class: RAW_RECORD
+
+  - target_id: quarterly-export
+    source_key: ahri-directory-export
+    target_url: https://ratings-directory.example.org/exports/ahri-export.csv
+    max_direct_http_response_bytes: 16777216
+    result_url_policy:
+      allowedOrigins: [https://ratings-directory.example.org]
+      allowedPathPrefixes: [/exports/ahri-export.csv]
+    asset_class: DATA
+    output_class: RAW_RECORD
+
+  - target_id: rendered-listing
+    source_key: coolsupply-distributor
+    target_url: https://www.coolsupply.example.com/products/coolsupply-listing.html
+    result_url_policy:
+      allowedOrigins: [https://www.coolsupply.example.com]
+      allowedPathPrefixes: [/products/coolsupply-listing.html]
+    asset_class: DOCUMENT
+    output_class: RAW_RECORD

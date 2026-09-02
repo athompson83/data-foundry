@@ -2,11 +2,15 @@ name: CI
 
 on:
   push:
-    branches: ['**']
+    branches: [main]
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 env:
@@ -15,31 +19,102 @@ env:
   CI: 'true'
 
 jobs:
+  scope:
+    name: select required checks
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      run_verify: ${{ steps.changes.outputs.run_verify }}
+      run_postgres: ${{ steps.changes.outputs.run_postgres }}
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Select checks from changed files
+        id: changes
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+
+          if [[ "$GITHUB_EVENT_NAME" != "pull_request" ]]; then
+            echo "run_verify=true" >> "$GITHUB_OUTPUT"
+            echo "run_postgres=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          run_verify=false
+          run_postgres=false
+
+          while IFS= read -r path; do
+            case "$path" in
+              *.md|docs/*|LICENSE|.github/ISSUE_TEMPLATE/*|.github/PULL_REQUEST_TEMPLATE.md)
+                ;;
+              *)
+                run_verify=true
+                ;;
+            esac
+
+            case "$path" in
+              db/migrations/**|tooling/scripts/migrate.ts|tooling/scripts/check-source-record-reconciliation-postgres.ts|packages/canonical-store/**|services/ingest-worker/**|tooling/scripts/check-credential-provisioning-postgres.ts|tooling/scripts/provision-api-credential.ts|packages/api-keys/**|tooling/scripts/check-scheduled-acquisition-postgres.ts|packages/acquisition/**|apps/acquisition-worker/**|verticals/**|tooling/lib/cli-entry.ts|tests/support/acquisition-rights.ts|packages/canonical-schema/**|packages/normalization/**|packages/source-registry/**|packages/rights-engine/**|package.json|pnpm-lock.yaml|.github/workflows/ci.yml)
+                run_postgres=true
+                ;;
+            esac
+          done < <(git diff --name-only "$BASE_SHA" HEAD)
+
+          echo "run_verify=$run_verify" >> "$GITHUB_OUTPUT"
+          echo "run_postgres=$run_postgres" >> "$GITHUB_OUTPUT"
+
   verify:
     name: typecheck • test • migrations • vertical config
+    needs: scope
+    if: always() && (github.event_name != 'pull_request' || github.event.pull_request.draft == false)
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
     steps:
-      - uses: actions/checkout@v7
+      - name: Fail when scope selection fails
+        if: always() && needs.scope.result != 'success'
+        run: |
+          echo "Scope selection failed; required verification cannot be determined." >&2
+          exit 1
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
 
       - name: Enable corepack
+        if: needs.scope.outputs.run_verify == 'true'
         run: corepack enable
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        if: needs.scope.outputs.run_verify == 'true'
         with:
           node-version: 22
           cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install
+        if: needs.scope.outputs.run_verify == 'true'
         run: pnpm install --frozen-lockfile
+
+      - name: Documentation-only change
+        if: needs.scope.outputs.run_verify != 'true'
+        run: echo "No executable or workflow files changed; expensive checks are not required."
 
       # 1. Types. tsc --strict over every package, test and tooling script.
       - name: Typecheck
+        if: needs.scope.outputs.run_verify == 'true'
         run: pnpm typecheck
 
       # 2. Unit and contract tests, including the PGlite migration suite.
       - name: Test
+        if: needs.scope.outputs.run_verify == 'true'
         run: pnpm test
 
       # 3. Migration gate. Applies db/migrations in order against a fresh
@@ -47,19 +122,30 @@ jobs:
       #    re-run is a clean no-op. Catches ordering errors, non-portable SQL and
       #    non-idempotent DDL before they reach a hosted database.
       - name: Migration apply check
+        if: needs.scope.outputs.run_verify == 'true'
         run: pnpm migrate:check
 
       # 4. Generated JSON Schema exports must match the Zod source of truth.
       #    A stale export means external consumers are reading a model the
       #    platform no longer implements.
       - name: Canonical schema exports are current
+        if: needs.scope.outputs.run_verify == 'true'
         run: pnpm schemas:check
+
+      - name: OpenAPI contract is current
+        if: needs.scope.outputs.run_verify == 'true'
+        run: pnpm openapi:check
+
+      - name: Cloudflare topology is internally consistent
+        if: needs.scope.outputs.run_verify == 'true'
+        run: pnpm cloudflare:topology:check
 
       # 5. Vertical configuration. Validates every verticals/* declaration:
       #    required docs present, vertical.yaml well-formed, and every source
       #    carries complete rights metadata (AGENTS.md rule 1). No-ops cleanly
       #    while verticals/ does not yet exist.
       - name: Vertical config validation
+        if: needs.scope.outputs.run_verify == 'true'
         run: pnpm verticals:validate
 
       # 6. The edge runtime artifact must match the vertical config it was
@@ -68,16 +154,38 @@ jobs:
       #    filter and fact-selection policy the repository no longer declares —
       #    invisible at review time, because the YAML looks right.
       - name: Vertical runtime artifacts are current
+        if: needs.scope.outputs.run_verify == 'true'
         run: pnpm verticals:compile:check
 
-      # 7. Same reasoning as step 6, for the web surface's own compiled
+      - name: Acquisition runtime artifacts are current
+        if: needs.scope.outputs.run_verify == 'true'
+        run: pnpm acquisition:check
+
+      # 7. MCP advertises the same six executable generic tools implemented by
+      #    apps/mcp, plus compiled vertical query/server metadata. Drift would
+      #    make the remote server advertise a contract it does not execute.
+      - name: MCP runtime artifacts are current
+        if: needs.scope.outputs.run_verify == 'true'
+        run: pnpm mcp:compile:check
+
+      # 8. Same reasoning as step 6, for the web surface's own compiled
       #    artifact — it additionally bundles seo.yaml, which the edge runtime
       #    artifact does not carry.
       - name: Web runtime artifacts are current
+        if: needs.scope.outputs.run_verify == 'true'
         run: pnpm web:compile:check
+
+      # 9. Build the exact Cloudflare bundles only after every generated input
+      #    is known current, then reject any production artifact that carries
+      #    the local PGlite/WASM runtime.
+      - name: Cloudflare production artifacts are deployable and PGlite-free
+        if: needs.scope.outputs.run_verify == 'true'
+        run: pnpm cloudflare:artifacts:check
 
   migrations-postgres:
     name: migrations on real Postgres
+    needs: scope
+    if: always() && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (needs.scope.result != 'success' || needs.scope.outputs.run_postgres == 'true')
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -96,18 +204,36 @@ jobs:
           --health-retries 5
 
     steps:
-      - uses: actions/checkout@v7
+      - name: Fail when scope selection fails
+        if: always() && needs.scope.result != 'success'
+        run: |
+          echo "Scope selection failed; real-Postgres requirements cannot be determined." >&2
+          exit 1
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
 
       - name: Enable corepack
         run: corepack enable
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: 22
           cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install
         run: pnpm install --frozen-lockfile
+
+      # Supabase exposes installed extensions through this namespace. The
+      # production migration guard requires it to exist before it writes the
+      # private Data Foundry schema, so make the disposable PostgreSQL service
+      # model that boundary instead of weakening the guard for CI.
+      - name: Initialize extensions schema for private migration
+        run: >-
+          docker exec "${{ job.services.postgres.id }}" psql -U postgres -d data_foundry
+          -v ON_ERROR_STOP=1 -c 'CREATE SCHEMA IF NOT EXISTS extensions AUTHORIZATION postgres'
 
       # The same SQL, unchanged, against a real Postgres. This is the check that
       # keeps "portable Postgres DDL" honest rather than aspirational.
@@ -120,3 +246,23 @@ jobs:
         env:
           POSTGRES_URL: postgres://postgres:postgres@localhost:5432/data_foundry
         run: pnpm migrate
+
+      # This deliberately uses independent PostgreSQL connections and waits for
+      # the advisory transaction lock, so the reconciliation race cannot hide
+      # behind the single-connection PGlite scheduler.
+      - name: Source-record reconciliation concurrency regression
+        env:
+          POSTGRES_URL: postgres://postgres:postgres@localhost:5432/data_foundry
+          DATA_FOUNDRY_POSTGRES_CONCURRENCY_TEST: '1'
+        run: pnpm source-records:postgres:check
+
+      - name: Credential provisioning concurrency regression
+        env:
+          POSTGRES_URL: postgres://postgres:postgres@localhost:5432/data_foundry
+          DATA_FOUNDRY_POSTGRES_CONCURRENCY_TEST: '1'
+        run: pnpm credentials:postgres:check
+
+      - name: Scheduled acquisition concurrency and transaction controls
+        env:
+          POSTGRES_URL: postgres://postgres:postgres@localhost:5432/data_foundry
+        run: pnpm acquisition:postgres:check

@@ -1,0 +1,20 @@
+version: 2
+
+# Add only scheduled targets whose exact ACQUIRE, STORE and CACHE decisions are
+# reviewed and active. Keep this empty while the template source is proposed.
+# Every target served by DIRECT_HTTP, VENDOR_API, SITEMAP, BULK_FILE or RSS
+# requires max_direct_http_response_bytes: a positive ceiling no larger than
+# 16777216 (16 MiB). Browser Run and Crawl4AI use a separate fixed 4 MiB
+# control-plane JSON ceiling and must not declare the direct-HTTP field.
+targets: []
+
+# Example after source review:
+# - target_id: example-data
+#   source_key: example-source
+#   target_url: https://example.com/data.json
+#   max_direct_http_response_bytes: 1048576
+#   result_url_policy:
+#     allowedOrigins: [https://example.com]
+#     allowedPathPrefixes: [/data.json]
+#   asset_class: DATA
+#   output_class: RAW_RECORD

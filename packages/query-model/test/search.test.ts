@@ -9,10 +9,45 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { identityConfidence } from '@data-foundry/canonical-schema';
 import { UnknownFieldError, lookupExactIdentifier } from '../src/index.js';
-import { createQueryFixtures, type QueryFixtures } from './support.js';
+import {
+  createQueryFixtures,
+  retireSourceFixtureByCompleteSnapshot,
+  ts,
+  type QueryFixtures,
+} from './support.js';
 
 let fixtures: QueryFixtures;
+
+async function recordSourceAliasClaimWithEvidence(
+  current: QueryFixtures,
+  input: Parameters<QueryFixtures['store']['recordSourceAliasClaim']>[0],
+) {
+  const claim = await current.store.recordSourceAliasClaim(input);
+  const [provenance] = await current.driver.query<{
+    entity_id: string;
+    artifact_id: string;
+  }>(
+    `SELECT alias_row.entity_id, source_record.artifact_id
+       FROM entity_aliases alias_row
+       JOIN source_records source_record ON source_record.id = $2
+      WHERE alias_row.id = $1`,
+    [input.entity_alias_id, input.source_record_id],
+  );
+  if (provenance === undefined) throw new Error('alias search provenance fixture missing');
+  await current.store.recordEntityEvidence({
+    entity_id: provenance.entity_id as never,
+    artifact_id: provenance.artifact_id as never,
+    source_record_id: input.source_record_id,
+    entity_alias_claim_id: claim.id,
+    contribution_role: 'ALIAS',
+    locator_type: input.locator_type,
+    locator_value: input.locator_value,
+    observed_at: ts('2026-08-30T00:00:00Z'),
+  });
+  return claim;
+}
 
 beforeAll(async () => {
   fixtures = await createQueryFixtures();
@@ -62,6 +97,108 @@ describe('exact identifiers beat fuzzy ranking', () => {
       text: 'HK 32EA 001',
     });
     expect(collapsed.map((hit) => hit.entity.id)).toEqual([fixtures.motor.id]);
+  });
+
+  it('excludes an unclaimed source alias from exact, full-text, and fuzzy search', async () => {
+    await fixtures.store.stageSourceAlias({
+      entity_id: fixtures.equipment.id,
+      alias_type: 'external_id',
+      alias_value: 'UNCLAIMED-ZZYX-4471',
+      normalized_value: 'unclaimedzzyx4471',
+      source_id: fixtures.sources.manufacturer.source.id,
+      identity_confidence: identityConfidence(0.99),
+      valid_from: ts('2026-08-30T00:00:00Z'),
+      valid_to: null,
+    });
+
+    const exact = await lookupExactIdentifier(fixtures.driver, fixtures.registry, {
+      vertical_id: fixtures.vertical.id,
+      text: 'UNCLAIMED-ZZYX-4471',
+    });
+    expect(exact).toEqual([]);
+
+    const ranked = await fixtures.qm.search({
+      vertical_id: fixtures.vertical.id,
+      text: 'UNCLAIMED ZZYX',
+    });
+    expect(ranked.hits.map((hit) => hit.entity.id)).not.toContain(fixtures.equipment.id);
+  });
+
+  it('returns only the winning current claim spelling from exact search', async () => {
+    const current = await createQueryFixtures({ trigram: false });
+    try {
+      const manufacturer = current.sources.manufacturer;
+      const certifier = current.sources.certifier;
+      const filing = current.sources.filing;
+      const alias = await current.store.stageSourceAlias({
+        entity_id: current.equipment.id,
+        alias_type: 'external_id',
+        alias_value: 'Manufacturer search spelling',
+        normalized_value: 'search-switch',
+        source_id: manufacturer.source.id,
+        identity_confidence: identityConfidence(0.7),
+        valid_from: ts('2026-08-30T00:00:00Z'),
+        valid_to: null,
+      });
+      await recordSourceAliasClaimWithEvidence(current, {
+        entity_alias_id: alias.id,
+        asserted_alias_value: 'Manufacturer search spelling',
+        asserted_normalized_value: 'search-switch',
+        identity_confidence: identityConfidence(0.7),
+        source_record_id: manufacturer.record.id,
+        locator_type: 'JSON_POINTER',
+        locator_value: '/manufacturer',
+      });
+      await current.store.stageSourceAlias({
+        entity_id: current.equipment.id,
+        alias_type: 'external_id',
+        alias_value: 'Certifier search spelling',
+        normalized_value: 'search-switch',
+        source_id: certifier.source.id,
+        identity_confidence: identityConfidence(0.95),
+        valid_from: ts('2026-08-30T00:00:00Z'),
+        valid_to: null,
+      });
+      await recordSourceAliasClaimWithEvidence(current, {
+        entity_alias_id: alias.id,
+        asserted_alias_value: 'Certifier search spelling',
+        asserted_normalized_value: 'search-switch',
+        identity_confidence: identityConfidence(0.95),
+        source_record_id: certifier.record.id,
+        locator_type: 'TABLE_CELL',
+        locator_value: 'models!A2',
+      });
+      await current.store.stageSourceAlias({
+        entity_id: current.equipment.id,
+        alias_type: 'external_id',
+        alias_value: 'search-switch',
+        normalized_value: 'search-switch',
+        source_id: filing.source.id,
+        identity_confidence: identityConfidence(1),
+        valid_from: ts('2026-08-30T00:00:00Z'),
+        valid_to: null,
+      });
+
+      expect(await lookupExactIdentifier(current.driver, current.registry, {
+        vertical_id: current.vertical.id,
+        text: 'search-switch',
+      })).toContainEqual(expect.objectContaining({
+        entity: expect.objectContaining({ id: current.equipment.id }),
+        matched_on: 'Certifier search spelling',
+      }));
+
+      const retiredAt = ts('2026-08-30T12:00:00Z');
+      await retireSourceFixtureByCompleteSnapshot(current, 'certifier', retiredAt);
+      expect(await lookupExactIdentifier(current.driver, current.registry, {
+        vertical_id: current.vertical.id,
+        text: 'search-switch',
+      })).toContainEqual(expect.objectContaining({
+        entity: expect.objectContaining({ id: current.equipment.id }),
+        matched_on: 'Manufacturer search spelling',
+      }));
+    } finally {
+      await current.driver.close();
+    }
   });
 
   it('ranks exact slug and exact name matches ahead of ranked hits too', async () => {

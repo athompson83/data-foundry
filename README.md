@@ -22,12 +22,13 @@ with provenance, and publication into the query layer.
 `tests/e2e/factory-proof.test.ts` runs four sources through the worker and
 checks the canonical result against golden records.
 
-The last step — "web / API / MCP / exports generated" — is implemented for
-three of its four surfaces: `apps/api` (read-only REST), `apps/mcp` (the tool
-contract) and `services/export-builder` (CSV and JSONL bulk exports). All three
-read their facts through `packages/query-model` and serialize through the
-shared projection in `packages/query-model/src/serialization.ts`, so they
-cannot drift apart in what they consider true.
+The last step — "web / API / MCP / exports generated" — has code implementations
+for all four surfaces: `apps/web`, `apps/api`, `apps/mcp` plus its deployable
+`apps/mcp-worker` adapter, and `services/export-builder`. They read through
+`packages/query-model`; customer
+surfaces bind each request to an exact ADR-0010 rights surface, so public web,
+search indexing, direct API, RapidAPI, MCP and bulk permissions never imply one
+another.
 
 Rule 5 is enforced by a boundary test in each, and it is worth being exact
 about what each one proves. `apps/api` and `apps/mcp` import nothing beneath
@@ -45,23 +46,45 @@ its projection is checked against the shared mapper in its own
 
 Two limitations the package list does not show:
 
-**The fourth surface — human pages — now has a first implementation.**
+**The human-page surface has a first implementation.**
 `apps/web` is the free, public, multi-vertical site: a parent index of every
-industry plus a child site per industry, entity pages with cited evidence, and
-a plain `<form>` search UI with no client-side JavaScript required. See
+industry plus a child site per industry, entity pages with surface-safe cited
+evidence, and a plain `<form>` search UI with no client-side JavaScript required. See
 [ADR-0011](docs/decisions/ADR-0011-web-frontend-and-multi-industry-sites.md)
 for the parent/child architecture and the free-web/paid-API revenue split it
-implements, and the quality-gate evaluator (`apps/web/src/gates.ts`) that
-decides indexability from real signals rather than by fiat. Nothing here is
-deployed yet — see Deployment below.
+implements. A vertical is exposed only while it is `ACTIVE` and has an exact
+`PUBLIC_WEB`-authorized entity. A page may render public-only claims, but it is
+`noindex` and absent from sitemaps unless `SEARCH_INDEX` independently covers
+the exact rendered facts, attributions and relationships. The quality-gate evaluator
+(`apps/web/src/gates.ts`) decides indexability from authorized evidence rather
+than raw database aggregates or fiat. The integrated implementation is on
+protected `main`, but no production deployment is recorded or verified. Live
+Cloudflare and Vercel state was reconciled read-only on 2026-08-31: the zone is
+active/full, but no Data Foundry Cloudflare resources exist and the configured
+Vercel data hostname returns 404. Exact deployment IDs and runtime probes remain
+owner/platform evidence — see the [redacted reconciliation record](docs/evidence/alpha-lab-provider-reconciliation-20260831.md)
+and Deployment below.
 
 **Every source is synthetic.** The rights machinery genuinely runs, but it
 currently validates controlled fixture declarations rather than a real
 publisher's terms. `verticals/hvac/README.md` records the Phase 2 exit condition
 that changes, and `docs/source-onboarding.md` is the procedure.
 
+Current identity is evidence-backed too. Migration 0023 keeps each staged alias
+identity as immutable history, records append-only curated or current-source-
+record claims in `entity_alias_claims`, and exposes only the claim-backed
+`current_entity_aliases` view to resolution and search. It deliberately creates
+no claim for a legacy alias: `entity_aliases.source_id` was display/provenance
+metadata and cannot be promoted into authority after the fact. Retiring or
+reopening an alias advances its authority epoch, so a claim from an older epoch
+cannot silently become current again. Migration 0025 additionally requires an
+exact immutable `ALIAS` evidence row linked to each source-record claim before
+that alias enters the current view; claim-only and unlinked legacy rows remain
+hidden, and their sources cannot bypass a surface's rights evaluation.
+
 ```text
 packages/canonical-schema/   Core object model, confidence scores, job state machine, rights gate
+packages/rights-engine/      Fail-closed rights grants and surface-specific permission resolution
 packages/source-registry/    Source rights/health contracts + the publish gate
 packages/acquisition/        Provider adapters obtaining artifacts, behind the rights and politeness gate
 packages/extraction/         Artifacts into source-native records
@@ -70,11 +93,16 @@ packages/canonical-store/    Entities, facts, relationships and evidence over Po
 packages/provenance/         Field-level lineage, coverage reporting, the human-readable trust surface
 packages/query-model/        The single canonical query layer web, REST and MCP read through
 packages/api-keys/           Minting and verifying API credentials. Web Crypto only
+packages/access-auth/        Shared DB bearer-key, tenant and one-vertical authorization
+packages/usage-events/       The usage-event contract shared by the edge producer and its queue consumer
 services/ingest-worker/      DISCOVERED -> PUBLISHED job runner wiring the stages together
 services/export-builder/     Bulk CSV and JSONL exports, rights-gated and reviewer-guarded
 apps/api/                    Read-only REST surface over the query layer
 apps/mcp/                    MCP tool contract over the same query layer
-apps/edge/                   Cloudflare Worker: composition root and transport, no routing
+apps/mcp-worker/             Cloudflare Streamable HTTP adapter, MCP/NONE auth and analytics handoff
+apps/edge/                   Cloudflare Worker: composition root, auth, transport, no routing
+apps/acquisition-worker/     Cloudflare Cron Worker: rights-gated acquisition and immutable R2 evidence
+apps/usage-consumer/         Cloudflare Queue consumer: idempotent usage-event persistence
 apps/web/                    Cloudflare Worker: the free public site — parent index + one child site per industry
 verticals/hvac/              The first vertical: configuration, fixtures and golden records
 db/migrations/               Plain, portable Postgres DDL for every canonical table
@@ -95,6 +123,8 @@ pnpm install
 pnpm typecheck        # tsc --strict across every package, test and script
 pnpm test             # vitest: unit, contract and PGlite migration tests
 pnpm migrate:check    # apply migrations to a throwaway database and verify
+pnpm mcp:compile:check # verify executable MCP/runtime metadata parity
+pnpm web:compile:check # verify web runtime JSON and generated TS registry parity
 pnpm build            # regenerate JSON Schema exports, then typecheck
 ```
 
@@ -102,8 +132,14 @@ Working against a database:
 
 ```bash
 pnpm migrate                                  # apply to .data/pglite (local, persisted)
-POSTGRES_URL=postgres://... pnpm migrate      # apply to Supabase / real Postgres
+POSTGRES_URL=postgres://... pnpm migrate      # apply to Alpha Lab's private data_foundry schema
+DATA_FOUNDRY_SCHEMA=public POSTGRES_URL=postgres://... pnpm migrate # reviewed legacy public install only
 ```
+
+Real-database operations default to `data_foundry`; they never silently write
+to a shared `public` schema. `DATA_FOUNDRY_SCHEMA=public` is an explicit
+compatibility option for a reviewed legacy Data Foundry installation, not the
+Alpha Lab deployment.
 
 ## The two foundational contract packages
 
@@ -115,7 +151,7 @@ so they are documented here in more detail than the rest.
 The single source of truth for the core model (doc 04). Zod schemas plus inferred
 TypeScript types for every canonical object: `verticals`, `sources`,
 `source_artifacts`, `source_records`, `entities`, `entity_aliases`, `facts`,
-`fact_evidence`, `relationships`, `relationship_evidence`,
+`entity_alias_claims`, `fact_evidence`, `relationships`, `relationship_evidence`,
 `resolution_candidates`, `resolution_judgments`, `entity_redirects`,
 `dataset_snapshots`, `media_assets`, `ingestion_jobs`.
 
@@ -172,8 +208,37 @@ application discipline:
 | `facts_single_open_version_key` | At most one open `ACTIVE` version per `(entity, property)` |
 | `fact_evidence` FKs `ON DELETE RESTRICT` | Evidence outlives convenience (rule 10) |
 | `media_assets_cache_requires_rights` | No caching imagery into R2 without cleared rights (rule 9) |
-| `source_records_source_key_uniq` | One record per `(source_id, source_record_key)` |
+| `source_records_current_source_key_uniq` | One current immutable revision per logical `(source_id, source_record_key)`; superseded revisions retain their evidence lineage |
+| `entity_alias_claims` append-only triggers | Alias authority cannot be rewritten or inferred from legacy display metadata; a claim must cite the alias's current authority epoch |
+| `current_entity_aliases` view | Resolution and search see only open curated claims or claims from a current `FINALIZED` source-record revision |
 | `ingestion_jobs_failed_shape` | `FAILED` jobs carry retry metadata; others do not |
+
+### Source-record and identity currentness
+
+Migrations 0021–0024 make refresh behavior explicit without deleting history.
+One logical source record has one current immutable revision; the old revision,
+its evidence and its alias claims remain auditable after supersession. The
+`source-record-evidence@3` fingerprint covers the exact resolved entity and
+manufacturer targets, accepted alias values and locators, fact projections,
+resolution audit, and relationship disposition/endpoints/writer. An exact
+replay is a no-op, while any target, evidence or mapping-semantic change creates
+a successor revision.
+
+A refresh with no usable strong identifier still finalizes a successor revision
+so the prior record does not remain falsely current, but it writes no canonical
+claims and creates no phantom manufacturer. Its old source-only alias claims
+therefore cease to be current. Stored entities and historical aliases remain
+for audit; a customer surface with no current `FINALIZED` entity-evidence
+support withholds that entity. Relationships likewise require current
+`FINALIZED` relationship evidence and surface-authorized endpoints, so a stale
+edge cannot survive solely because its historical row remains stored.
+
+Every mapping stream must also declare `refresh_mode: full_snapshot` or
+`incremental`. Only a successfully stored complete artifact set may retire an
+omitted record, and migration 0024 records the exact same-source artifact
+evidence for that retirement. Incremental absence has no deletion meaning.
+Legacy rows whose stream cannot be proven become non-current until a
+rights-admitted reingest; the migration never guesses membership.
 
 ### What this project owns in a database
 
@@ -201,7 +266,7 @@ Anything else found in `public` is **out of scope** — reported by name so you
 can see it was noticed, and never counted as evidence about this schema:
 
 ```text
-OK: 19 Data Foundry tables, migrations are ordered and idempotent.
+OK: Data Foundry-owned tables are present; migrations are ordered and idempotent.
 ```
 
 Applying to a shared database names any unowned tables it finds *before* it
@@ -224,29 +289,52 @@ MCP tool definitions, the Phase 2 Python/Splink work, and external dataset users
 
 `.github/workflows/ci.yml` runs, on every push and pull request:
 
-1. `pnpm typecheck` — strict TypeScript over packages, tests and tooling
-2. `pnpm test` — unit, contract and PGlite migration suites
-3. `pnpm migrate:check` — migrations apply in order, create every expected table,
+- `pnpm typecheck` — strict TypeScript over packages, tests and tooling
+- `pnpm test` — unit, contract and PGlite migration suites
+- `pnpm migrate:check` — migrations apply in order, create every expected table,
    and re-run as a clean no-op
-4. `pnpm schemas:check` — generated JSON Schema exports match the Zod source
-5. `pnpm verticals:validate` — vertical configs are well-formed and every source
+- `pnpm schemas:check` — generated JSON Schema exports and the readiness snapshot
+  schema match their sources
+- `pnpm openapi:check` — the legacy/direct contracts and the public
+  `openapi/data-foundry-hvac-rapidapi-v1.openapi.json` marketplace projection
+  match the same canonical REST route and schema source; the RapidAPI document
+  deliberately contains no private origin-bearer security scheme
+- `pnpm cloudflare:topology:check` — CI runs this repository-only check over all
+  five tracked Worker templates, preserving the Queue, Cron, R2, Hyperdrive,
+  route, and secret-free topology contract
+- `pnpm cloudflare:deployment:check` — an operator pre-deploy command that
+  validates the five ignored exact-deployment manifests before a dry run or
+  deploy, including one well-formed canonical `account_id` shared by all five;
+  CI intentionally has no such production manifests and does not run it
+- `pnpm verticals:validate` — vertical configs are well-formed and every source
    declaration carries complete rights metadata
-6. `pnpm verticals:compile:check` — the edge runtime artifact matches the
+- `pnpm verticals:compile:check` — the edge runtime artifact matches the
    vertical config it was compiled from
-7. `pnpm web:compile:check` — the web surface's own compiled artifact (it
+- `pnpm acquisition:check` — the Cron/R2 acquisition runtime matches the
+  enabled source declarations and committed generated artifact
+- `pnpm mcp:compile:check` — the MCP Worker runtime advertises exactly the six
+   executable generic tools and current compiled vertical metadata
+- `pnpm web:compile:check` — the web surface's own compiled artifact (it
    additionally bundles `seo.yaml`, which the edge runtime artifact does not)
-8. A second job applies the identical migrations to a real `postgres:16` service,
-   which is what keeps "portable Postgres" honest rather than aspirational
+- `pnpm cloudflare:artifacts:check` — all five Worker bundles build without
+   credentials and contain no local PGlite/WASM runtime
+- A second job applies the identical migrations to a real `postgres:16` service,
+  then runs source-record/snapshot reconciliation, credential-provisioning
+  concurrency, and scheduled-acquisition transaction/fencing controls, which
+  keep portable SQL, advisory-lock provenance, and idempotent operational writes
+  honest rather than aspirational
 
 ## Adding a real source
 
 `docs/source-onboarding.md` is the procedure: what to decide before fetching a
 byte, what the declaration has to record, and what counts as proof afterwards.
-`pnpm sources:readiness` reports where a vertical actually stands against it.
+`pnpm sources:readiness -- --as-of 2026-08-28T12:00:00.000Z hvac` reports the
+seven-surface posture at an explicit instant. Without live DB or validated
+snapshot evidence, every surface is `UNKNOWN`; see the revenue-readiness runbook.
 
 ## Deployment
 
-Two Cloudflare Workers, per
+Five Cloudflare Workers, per
 [ADR-0006](docs/decisions/ADR-0006-cloudflare-is-the-deployment-target.md) and
 [ADR-0011](docs/decisions/ADR-0011-web-frontend-and-multi-industry-sites.md):
 
@@ -259,40 +347,96 @@ Two Cloudflare Workers, per
   industry, because that is the surface search engines and agents are meant to
   discover through, and siloing it per industry would fragment exactly the
   discoverability it exists for.
+- **`apps/usage-consumer`** — the queue consumer that persists metering events
+  idempotently after the edge Worker has accepted and handed them off.
+- **`apps/acquisition-worker`** — hourly Cron runner for configuration-compiled
+  source targets. It claims durable run state in Postgres, rechecks exact stored
+  `ACQUIRE`/`STORE`/`CACHE` permission before provider construction, before
+  transport, and again after transport immediately before persistence or
+  `NOT_MODIFIED` freshness. Each logical slot has one row and a server-timed
+  20-minute execution lease; recovery rotates an opaque fencing token so an
+  expired owner cannot persist or terminalize after a retry takes ownership.
+  Direct publisher responses and provider control-plane JSON are streamed under
+  finite byte ceilings before immutable raw evidence enters the canonical R2
+  bucket.
+- **`apps/mcp-worker`** — authenticated MCP 2026-07-28 Streamable HTTP. One
+  vertical per deployment, backed by the six generic tools in `apps/mcp` and
+  an exact `MCP/NONE` key that is distinct from direct and RapidAPI keys.
 
-Both are composition roots — the only packages in their surface permitted to
-reach below the query layer — plus a `fetch` adapter that translates and
-decides nothing.
+The edge, web and MCP Workers are read-surface composition roots; the acquisition
+Worker is the scheduled write-side composition root; the usage consumer owns
+only accepted-event persistence. Pure `apps/api` and `apps/mcp` contracts still
+cannot reach beneath the canonical query layer.
 
 ```bash
 pnpm verticals:compile        # emit apps/edge/generated/<slug>.runtime.json
 pnpm verticals:compile:check  # CI gate: fails when the artifact drifts
+pnpm mcp:compile              # emit apps/mcp-worker/generated/<slug>.runtime.json
+pnpm mcp:compile:check        # CI gate: executable tool/runtime metadata parity
+pnpm acquisition:compile      # emit apps/acquisition-worker/generated runtime
+pnpm acquisition:check        # CI gate: scheduled source/runtime parity
 pnpm web:compile              # emit apps/web/generated/<slug>.web-runtime.json + index.json
 pnpm web:compile:check        # CI gate: fails when the artifact drifts
 ```
 
-Neither Worker has a filesystem, so a vertical's filter metadata and
+No Worker has a filesystem, so a vertical's filter metadata and
 fact-selection policy — and, for `apps/web`, `seo.yaml` and the per-entity-type
 `critical` property list its quality gates run against — are compiled to a
-committed JSON artifact and bundled. Both Workers import their artifact, never
+committed JSON artifact and bundled. The API, MCP and web Workers import their artifact, never
 parse YAML, and refuse to serve a vertical their bundle does not carry rather
 than serving its data through another vertical's field metadata.
 
 A Worker with no database bound **refuses to serve** rather than falling back to
 an empty in-memory database, which is what `createDriverFromEnv` would otherwise
-do. A test reads the source to prove the fallback is never imported.
+do. A test reads the source to prove the fallback is never imported, and a
+second suite builds the actual artifact with `esbuild` and proves PGlite
+contributes zero bytes to it — a source scan cannot see past the dynamic
+`import()` `createPgliteDriver` uses, so the build itself is what has to answer.
 
-Deploying needs an account, a Hyperdrive binding and a route for each Worker,
-none of which live in this repository —
+Every REST or MCP request is authenticated and scope-checked through
+`packages/access-auth` before it reaches a route/tool, and accepted consumption
+is durably handed off before success: a usage event naming the matched route
+**template** — never the concrete target — must be accepted by Cloudflare Queue
+or the caller receives an opaque retryable 503. `apps/usage-consumer` persists
+the accepted event idempotently later; only that Postgres write stays off the
+response path. `db/migrations/0011_api_tenancy.sql` has the schema;
+this increment is measurement only — no pricing, plans, invoices or
+subscriptions. MCP events are explicitly `MCP/NONE`: useful for analytics, but
+never eligible for internal invoicing. RapidAPI events are likewise excluded
+from direct invoices because the marketplace is their billing authority.
+
+`pnpm credentials:provision` is the fail-closed operator path for creating a
+one-vertical credential. It admits exactly `API_PAID/DIRECT`,
+`RAPIDAPI/RAPIDAPI`, or `MCP/NONE`; it does not infer a pair and does not mint a
+free/direct key. Direct and MCP plaintext keys may be delivered only to a new,
+absolute, owner-only (`0600`) file outside the worktree from a POSIX runtime.
+RapidAPI delivery is piped directly to Wrangler as `RAPIDAPI_API_KEY` using the
+validated edge production manifest only after the independently supplied
+Cloudflare account identity and an existing deployed Worker are proved. The
+database stores only a hash and
+non-secret metadata; the command refuses to overwrite an output and can
+classify a named legacy null/null row only through explicit
+`--classify-existing`. Creating a
+tenant or credential changes access control only: it creates no rights cell,
+grant, source approval, billing plan, invoice or legal permission.
+
+Deploying needs one canonical Cloudflare account named by the same exact
+`account_id` in all five ignored production manifests, Hyperdrive bindings,
+public hostnames/routes for the edge, web and MCP Workers, Queue delivery for
+the usage consumer, Cron for the
+acquisition Worker, and the usage-metering queues, none of which live in this
+repository —
 [docs/owner-actions/cloudflare-deployment.md](docs/owner-actions/cloudflare-deployment.md)
 records what and why, including what pay per crawl actually is and is not, and
 [docs/owner-actions/revenue-readiness.md](docs/owner-actions/revenue-readiness.md)
 lays out the free-web/paid-API revenue split end to end.
 
 `vercel.json` still disables Vercel Git deployments. It remains deploy
-suppression, not adoption: ADR-0005's fix — disconnecting the integration in the
-Vercel dashboard — has not been done, so deleting the file would let failing
-deployments resume.
+suppression, not adoption. The configured Vercel project has disconnected Git
+and serves a 404 at the data hostname, so it is not a deployment or rollback
+path. A Vercel GitHub App repository-selection check remains behind an owner
+sudo/passkey prompt. Keep the file until that independent check proves the App
+no longer has Data Foundry repository access.
 
 ## Licensing and data rights
 

@@ -1,0 +1,32 @@
+{
+  "name": "@data-foundry/acquisition-worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Cloudflare Cron Worker for rights-gated, durable source acquisition.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "types": "./src/index.ts",
+  "files": [
+    "src",
+    "generated"
+  ],
+  "scripts": {
+    "test": "vitest run --root .",
+    "typecheck": "tsc -p tsconfig.json",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "@data-foundry/acquisition": "workspace:*",
+    "@data-foundry/canonical-schema": "workspace:*",
+    "@data-foundry/canonical-store": "workspace:*",
+    "@data-foundry/rights-engine": "workspace:*",
+    "@data-foundry/source-registry": "workspace:*",
+    "pg": "^8.23.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  }
+}

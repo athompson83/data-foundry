@@ -1,8 +1,26 @@
 import { describe, expect, it } from 'vitest';
 import { ProviderTransportError } from '../src/errors.js';
-import { headersToRecord, parseMimeType, requireFetch } from '../src/providers/http-client.js';
-import { HttpAcquisitionProvider } from '../src/providers/http.js';
-import { BODY, ETAG, TARGET_URL, makeHarness, makeRequest, makeResponse, stubFetch } from './helpers.js';
+import {
+  headersToRecord,
+  parseMimeType,
+  readJson,
+  requireFetch,
+} from '../src/providers/http-client.js';
+import {
+  HttpAcquisitionProvider,
+  MAX_HTTP_RESPONSE_BYTES,
+} from '../src/providers/http.js';
+import {
+  BODY,
+  ETAG,
+  TARGET_URL,
+  forbiddenFetch,
+  makeHarness,
+  makeRequest,
+  makeResponse,
+  makeStreamingResponse,
+  stubFetch,
+} from './helpers.js';
 
 describe('HTTP client helpers', () => {
   it('lowercases response header names', () => {
@@ -33,9 +51,103 @@ describe('HTTP client helpers', () => {
       runtime.fetch = original;
     }
   });
+
+  it('bounds declared control-plane JSON before reading and cancels the body', async () => {
+    const body = makeStreamingResponse({
+      headers: { 'content-length': '9' },
+      chunks: [new TextEncoder().encode('{"x":1}')],
+    });
+
+    await expect(readJson('browser-run', body.response, 8)).rejects.toBeInstanceOf(
+      ProviderTransportError,
+    );
+    expect(body.reads).toBe(0);
+    expect(body.cancellations).toBe(1);
+    expect(body.arrayBufferReads).toBe(0);
+  });
+
+  it('cancels chunked control-plane JSON on cumulative overflow', async () => {
+    const body = makeStreamingResponse({
+      chunks: [
+        new TextEncoder().encode('{"x":"'),
+        new TextEncoder().encode('abc'),
+        new TextEncoder().encode('"}'),
+        new TextEncoder().encode('not-read'),
+      ],
+    });
+
+    await expect(readJson('crawl4ai', body.response, 8)).rejects.toBeInstanceOf(
+      ProviderTransportError,
+    );
+    expect(body.reads).toBe(2);
+    expect(body.cancellations).toBe(1);
+    expect(body.arrayBufferReads).toBe(0);
+  });
 });
 
 describe('HTTP acquisition provider', () => {
+  it('refuses an invalid request ceiling before network transport', async () => {
+    const harness = makeHarness();
+    const net = forbiddenFetch();
+    const provider = new HttpAcquisitionProvider({ deps: harness.deps, fetch: net.fetch });
+
+    await expect(provider.fetch(makeRequest({ maxBytes: Number.NaN }))).rejects.toThrow(
+      /response byte ceiling/i,
+    );
+    expect(net.calls).toEqual([]);
+    expect(harness.files.size).toBe(0);
+  });
+
+  it('rechecks authorization immediately before transport', async () => {
+    const checks: string[] = [];
+    const harness = makeHarness({
+      beforeTransport: ({ request }) => {
+        checks.push(request.url);
+        return Promise.reject(new Error('stored rights changed before transport'));
+      },
+    });
+    const net = forbiddenFetch();
+    const provider = new HttpAcquisitionProvider({ deps: harness.deps, fetch: net.fetch });
+
+    await expect(provider.fetch(makeRequest())).rejects.toThrow(/stored rights changed/);
+    expect(checks).toEqual([TARGET_URL]);
+    expect(net.calls).toEqual([]);
+  });
+
+  it('rechecks authorization exactly once after transport and before artifact persistence', async () => {
+    let checks = 0;
+    const harness = makeHarness({
+      beforePersistence: () => {
+        checks += 1;
+        return Promise.reject(new Error('stored rights changed before persistence'));
+      },
+    });
+    const net = stubFetch(() => ({ status: 200, body: BODY }));
+    const provider = new HttpAcquisitionProvider({ deps: harness.deps, fetch: net.fetch });
+
+    await expect(provider.fetch(makeRequest())).rejects.toThrow(/changed before persistence/);
+    expect(net.calls).toHaveLength(1);
+    expect(checks).toBe(1);
+    expect(harness.files.size).toBe(0);
+  });
+
+  it('requires the pre-persistence checkpoint before returning NOT_MODIFIED', async () => {
+    let checks = 0;
+    const harness = makeHarness({
+      beforePersistence: () => {
+        checks += 1;
+        return Promise.reject(new Error('stored rights changed before freshness'));
+      },
+    });
+    const net = stubFetch(() => ({ status: 304, headers: { etag: ETAG } }));
+    const provider = new HttpAcquisitionProvider({ deps: harness.deps, fetch: net.fetch });
+
+    await expect(provider.fetch(makeRequest())).rejects.toThrow(/changed before freshness/);
+    expect(net.calls).toHaveLength(1);
+    expect(checks).toBe(1);
+    expect(harness.files.size).toBe(0);
+  });
+
   it('identifies the crawler on every request', async () => {
     const harness = makeHarness();
     const net = stubFetch(() => ({ status: 200, body: BODY }));
@@ -73,6 +185,32 @@ describe('HTTP acquisition provider', () => {
     expect(result.artifacts[0]?.byte_size).toBe(4);
   });
 
+  it('preflights canonical artifact metadata before writing any evidence bytes', async () => {
+    const harness = makeHarness();
+    const net = stubFetch(() => ({
+      status: 200,
+      headers: { 'content-type': `application/${'x'.repeat(256)}` },
+      body: BODY,
+    }));
+    const provider = new HttpAcquisitionProvider({ deps: harness.deps, fetch: net.fetch });
+
+    await expect(provider.fetch(makeRequest())).rejects.toThrow();
+    expect(harness.files.size).toBe(0);
+  });
+
+  it('preflights durable validator bounds before writing any evidence bytes', async () => {
+    const harness = makeHarness();
+    const net = stubFetch(() => ({
+      status: 200,
+      headers: { etag: `"${'x'.repeat(1_024)}"` },
+      body: BODY,
+    }));
+    const provider = new HttpAcquisitionProvider({ deps: harness.deps, fetch: net.fetch });
+
+    await expect(provider.fetch(makeRequest())).rejects.toThrow(/etag/i);
+    expect(harness.files.size).toBe(0);
+  });
+
   it('defaults an unlabelled response to application/octet-stream', async () => {
     const harness = makeHarness();
     const net = stubFetch(() => ({ status: 200, body: BODY }));
@@ -95,16 +233,116 @@ describe('HTTP acquisition provider', () => {
     expect(result.diagnostics.join(' ')).toContain('503');
   });
 
-  it('fails rather than silently truncating an oversized body', async () => {
+  it('refuses an oversized declared length before reading and cancels the body', async () => {
     const harness = makeHarness();
-    const net = stubFetch(() => ({ status: 200, body: BODY }));
+    const body = makeStreamingResponse({
+      headers: { 'content-length': '9' },
+      chunks: [new TextEncoder().encode('123456789')],
+    });
     const provider = new HttpAcquisitionProvider({
       deps: harness.deps,
-      fetch: net.fetch,
+      fetch: () => Promise.resolve(body.response),
       maxBytes: 8,
     });
 
     await expect(provider.fetch(makeRequest())).rejects.toBeInstanceOf(ProviderTransportError);
+    expect(body.reads).toBe(0);
+    expect(body.cancellations).toBe(1);
+    expect(body.arrayBufferReads).toBe(0);
+  });
+
+  it('preflights identical comma-combined Content-Length values conservatively', async () => {
+    const harness = makeHarness();
+    const body = makeStreamingResponse({
+      headers: { 'content-length': '9, 9' },
+      chunks: [new TextEncoder().encode('123456789')],
+    });
+    const provider = new HttpAcquisitionProvider({
+      deps: harness.deps,
+      fetch: () => Promise.resolve(body.response),
+      maxBytes: 8,
+    });
+
+    await expect(provider.fetch(makeRequest())).rejects.toBeInstanceOf(ProviderTransportError);
+    expect(body.reads).toBe(0);
+    expect(body.cancellations).toBe(1);
+  });
+
+  it('applies the finite default when no caller ceiling is provided', async () => {
+    const harness = makeHarness();
+    const body = makeStreamingResponse({
+      headers: { 'content-length': String(MAX_HTTP_RESPONSE_BYTES + 1) },
+      chunks: [new Uint8Array()],
+    });
+    const provider = new HttpAcquisitionProvider({
+      deps: harness.deps,
+      fetch: () => Promise.resolve(body.response),
+    });
+
+    await expect(provider.fetch(makeRequest())).rejects.toBeInstanceOf(ProviderTransportError);
+    expect(body.reads).toBe(0);
+    expect(body.cancellations).toBe(1);
+  });
+
+  it('refuses a positive declared length when Fetch exposes no response body', async () => {
+    const harness = makeHarness();
+    const response = {
+      ...makeResponse({ headers: { 'content-length': '4' }, body: '' }),
+      body: null,
+    };
+    const provider = new HttpAcquisitionProvider({
+      deps: harness.deps,
+      fetch: () => Promise.resolve(response),
+      maxBytes: 8,
+    });
+
+    await expect(provider.fetch(makeRequest())).rejects.toBeInstanceOf(ProviderTransportError);
+    expect(harness.files.size).toBe(0);
+  });
+
+  it('cancels a chunked response as soon as its cumulative bytes cross the ceiling', async () => {
+    const harness = makeHarness();
+    const body = makeStreamingResponse({
+      chunks: [
+        new Uint8Array([1, 2, 3, 4]),
+        new Uint8Array([5, 6, 7, 8]),
+        new Uint8Array([9, 10, 11, 12]),
+        new Uint8Array([13, 14, 15, 16]),
+      ],
+    });
+    const provider = new HttpAcquisitionProvider({
+      deps: harness.deps,
+      fetch: () => Promise.resolve(body.response),
+      maxBytes: 8,
+    });
+
+    await expect(provider.fetch(makeRequest())).rejects.toBeInstanceOf(ProviderTransportError);
+    expect(body.reads).toBe(3);
+    expect(body.cancellations).toBe(1);
+    expect(body.arrayBufferReads).toBe(0);
+    expect(harness.files.size).toBe(0);
+  });
+
+  it.each([
+    ['under', [new Uint8Array([1, 2, 3]), new Uint8Array([4, 5, 6, 7])]],
+    ['exactly at', [new Uint8Array([1, 2, 3, 4]), new Uint8Array([5, 6, 7, 8])]],
+  ] as const)('preserves a body %s the configured ceiling without truncation', async (_label, chunks) => {
+    const harness = makeHarness();
+    const body = makeStreamingResponse({ chunks });
+    const provider = new HttpAcquisitionProvider({
+      deps: harness.deps,
+      fetch: () => Promise.resolve(body.response),
+      maxBytes: 8,
+    });
+
+    const result = await provider.fetch(makeRequest());
+    const expectedBytes = chunks.reduce((total, chunk) => total + chunk.byteLength, 0);
+    expect(result.artifacts[0]?.byte_size).toBe(expectedBytes);
+    const stored = await harness.store.get(result.stored[0]!.key);
+    expect([...stored!.body]).toEqual(chunks.flatMap((chunk) => [...chunk]));
+    expect(body.reads).toBe(chunks.length);
+    expect(body.cancellations).toBe(0);
+    expect(body.arrayBufferReads).toBe(0);
   });
 
   it('lets a request override the provider-wide byte ceiling', async () => {
@@ -193,6 +431,25 @@ describe('a redirect is refused rather than followed', () => {
     expect(net.calls.length).toBe(1);
     expect(net.calls[0]?.url).toBe(TARGET_URL);
     expect(net.calls.some((call) => call.url.includes('carrier.com'))).toBe(false);
+  });
+
+  it('cancels an unread redirect body when refusing the ungated destination', async () => {
+    const body = makeStreamingResponse({
+      status: 302,
+      headers: { location: REDIRECT_TARGET },
+      chunks: [new TextEncoder().encode('redirect payload')],
+    });
+    const harness = makeHarness();
+    const provider = new HttpAcquisitionProvider({
+      deps: harness.deps,
+      fetch: () => Promise.resolve(body.response),
+    });
+
+    await expect(provider.fetch(makeRequest())).rejects.toMatchObject({
+      code: 'REDIRECT_NOT_GATED',
+    });
+    expect(body.reads).toBe(0);
+    expect(body.cancellations).toBe(1);
   });
 
   it('names the host it was asked to contact', async () => {

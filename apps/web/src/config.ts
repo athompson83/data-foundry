@@ -1,11 +1,51 @@
-import type { WebDeployment } from './composition.js';
+import type { IsoDateTime } from '@data-foundry/canonical-schema';
+import {
+  materializeRequestDeployment,
+  type RequestWebDeployment,
+  type WebDeployment,
+} from './composition.js';
+import type { PublicCacheMode, WebResponse } from './http.js';
 
 export interface WebContext {
-  readonly deployment: WebDeployment;
-  /** Injectable so gate evaluation (staleness) is deterministic in tests. */
+  readonly deployment: RequestWebDeployment;
+  /** Optional only for narrow route fixtures; deployed contexts always set it. */
+  readonly cacheMode?: PublicCacheMode;
+  /** Frozen once so rights, quality, and freshness share one request instant. */
   readonly now: () => Date;
 }
 
-export function resolveContext(deployment: WebDeployment, now: () => Date = () => new Date()): WebContext {
-  return { deployment, now };
+/** Freeze the clock and both distribution surfaces exactly once per request. */
+export function resolveContext(
+  deployment: WebDeployment,
+  now: () => Date = () => new Date(),
+): WebContext {
+  const requestNow = now();
+  const asOf = requestNow.toISOString() as IsoDateTime;
+  return {
+    deployment: materializeRequestDeployment(deployment, asOf),
+    cacheMode: deployment.cacheMode,
+    now: () => requestNow,
+  };
+}
+
+/**
+ * Run one complete production request against one physical database snapshot.
+ * The callback's response-only contract prevents token-bound query models from
+ * being returned by this API; the query layer also deactivates them when the
+ * transaction scope closes.
+ */
+export function withResolvedContext(
+  deployment: WebDeployment,
+  run: (context: WebContext) => Promise<WebResponse>,
+  now: () => Date = () => new Date(),
+): Promise<WebResponse> {
+  const requestNow = now();
+  const asOf = requestNow.toISOString() as IsoDateTime;
+  return deployment.withRequestSnapshot(asOf, (requestDeployment) =>
+    run({
+      deployment: requestDeployment,
+      cacheMode: deployment.cacheMode,
+      now: () => requestNow,
+    }),
+  );
 }

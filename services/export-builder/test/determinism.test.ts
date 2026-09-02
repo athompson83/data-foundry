@@ -156,17 +156,33 @@ describe('two independently built databases', () => {
 });
 
 describe('the ordering is explicit and total', () => {
-  it('sorts fact rows by (entity_slug, entity_id, property) and by nothing else', () => {
-    const keys = first.rows.map((row) => `${row.entity_slug} ${row.entity_id} ${row.property}`);
+  it('sorts fact rows semantic-first, with a minted id only as the final total-order tie-breaker', () => {
+    const keys = first.rows.map((row) =>
+      `${row.entity_type} ${row.entity_slug} ${row.property} ${row.entity_id}`,
+    );
     expect(keys).toEqual([...keys].sort());
     expect(new Set(keys).size).toBe(keys.length);
   });
 
-  it('sorts evidence rows by a key that is unique per row', () => {
+  it('sorts evidence rows semantic-first, with minted ids only as final total-order tie-breakers', () => {
     const keys = first.evidence.map((row) =>
-      [row.entity_slug, row.entity_id, row.property, row.fact_id, row.source_key, row.evidence_id].join(
-        ' ',
-      ),
+      [
+        row.entity_slug,
+        row.property,
+        row.source_key,
+        row.source_publisher,
+        row.source_domain,
+        row.artifact_content_hash,
+        row.artifact_url,
+        row.artifact_retrieved_at,
+        row.locator_type,
+        row.locator_value,
+        row.source_value,
+        row.observed_at,
+        row.entity_id,
+        row.fact_id,
+        row.evidence_id,
+      ].join(' '),
     );
     expect(keys).toEqual([...keys].sort());
     expect(new Set(keys).size).toBe(keys.length);
@@ -174,8 +190,24 @@ describe('the ordering is explicit and total', () => {
 
   it('declares that ordering in the manifest, so a consumer can re-derive it', () => {
     expect(first.manifest.selection_policy.ordering).toEqual({
-      facts: ['entity_slug', 'entity_id', 'property'],
-      evidence: ['entity_slug', 'entity_id', 'property', 'fact_id', 'source_key', 'evidence_id'],
+      facts: ['entity_type', 'entity_slug', 'property', 'entity_id'],
+      evidence: [
+        'entity_slug',
+        'property',
+        'source_key',
+        'source_publisher',
+        'source_domain',
+        'artifact_content_hash',
+        'artifact_url',
+        'artifact_retrieved_at',
+        'locator_type',
+        'locator_value',
+        'source_value',
+        'observed_at',
+        'entity_id',
+        'fact_id',
+        'evidence_id',
+      ],
     });
   });
 

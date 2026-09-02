@@ -31,3 +31,4 @@ export * from './scalars.js';
 export * from './vocabulary.js';
 export * from './rules.js';
 export * from './pipeline.js';
+export * from './derived-graph.js';

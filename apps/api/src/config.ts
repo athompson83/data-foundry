@@ -14,8 +14,10 @@
  * derived from `QueryModel`'s own signature rather than imported by name from
  * the store package, so this file names nothing below the query layer at all.
  */
-import type { QueryModel } from '@data-foundry/query-model';
-import type { VerticalId } from '@data-foundry/canonical-schema';
+import type { QueryModel, SurfaceQueryModel } from '@data-foundry/query-model';
+import type { IsoDateTime, VerticalId } from '@data-foundry/canonical-schema';
+import type { RouteKey } from './routes.js';
+import type { ApiRequestAccess } from './http.js';
 
 /** The fact-selection policy shape, taken from the query layer's signature. */
 export type ApiFactSelectionPolicy = NonNullable<Parameters<QueryModel['canonicalFacts']>[1]>;
@@ -24,6 +26,19 @@ export interface ApiErrorContext {
   readonly method: string;
   readonly path: string;
   readonly requestId?: string;
+}
+
+/**
+ * What happened, for whoever meters requests — never what was asked for.
+ *
+ * `routeKey` is a member of the closed accounting vocabulary declared in
+ * `routes.ts`. It contains no slash or interpolation slot, so no request path,
+ * query string, entity identifier, or response content can enter metering.
+ */
+export interface ApiRequestTelemetry {
+  readonly method: string;
+  readonly routeKey: RouteKey;
+  readonly status: number;
 }
 
 export interface ApiAppOptions {
@@ -49,9 +64,7 @@ export interface ApiAppOptions {
   readonly onError?: (error: unknown, context: ApiErrorContext) => void;
 }
 
-/** Everything a handler is allowed to see. Resolved once, at construction. */
-export interface ApiContext {
-  readonly queryModel: QueryModel;
+interface ApiContextValues {
   readonly verticalId: VerticalId;
   readonly factSelection: ApiFactSelectionPolicy;
   /**
@@ -63,16 +76,51 @@ export interface ApiContext {
   readonly version: string;
 }
 
-export function resolveContext(options: ApiAppOptions, version: string): ApiContext {
+/** Everything a matched route handler is allowed to see. */
+export interface ApiContext extends ApiContextValues {
+  readonly queryModel: SurfaceQueryModel;
+}
+
+/**
+ * Request metadata plus the only safe path into the query layer.
+ *
+ * The raw `QueryModel` and the opaque snapshot token stay captured here. A
+ * dispatcher can run one matched handler with a token-bound surface facade,
+ * but cannot leak either capability into routing or service-document paths.
+ */
+export interface ApiRequestContext extends ApiContextValues {
+  readonly withSurfaceSnapshot: <T>(
+    run: (context: ApiContext) => Promise<T>,
+  ) => Promise<T>;
+}
+
+export function resolveContext(
+  options: ApiAppOptions,
+  version: string,
+  access: ApiRequestAccess,
+): ApiRequestContext {
   const factSelection = options.factSelection ?? {};
   const reviewers = (factSelection.editorialOverrides ?? [])
     .map((override) => override.reviewer)
     .filter((reviewer) => reviewer.trim() !== '');
-  return {
-    queryModel: options.queryModel,
+  const rightsAsOf = new Date().toISOString() as IsoDateTime;
+  const values: ApiContextValues = {
     verticalId: options.verticalId,
     factSelection,
     reviewers,
     version,
+  };
+  return {
+    ...values,
+    withSurfaceSnapshot: (run) => options.queryModel.withSurfaceSnapshot((snapshot) =>
+      run({
+        ...values,
+        queryModel: options.queryModel.forSurface(
+          access.surface,
+          { asOf: rightsAsOf },
+          snapshot,
+        ),
+      }),
+    ),
   };
 }

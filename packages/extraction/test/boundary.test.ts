@@ -66,7 +66,7 @@ describe('architecture boundary', () => {
     const records = await new JsonExtractor().extract(jsonArtifact(), JSON_SCHEMA);
     const insert = toSourceRecordInsert(records[0] ?? (() => {
       throw new Error('expected a record');
-    })());
+    })(), 'products' as never);
 
     expect(Object.keys(insert).sort()).toEqual([
       'artifact_id',
@@ -77,6 +77,7 @@ describe('architecture boundary', () => {
       'raw_payload',
       'source_id',
       'source_record_key',
+      'source_stream',
     ]);
     // Normalization fills this in. Extraction pre-populating it would be the
     // boundary violation that is easiest to commit by accident.

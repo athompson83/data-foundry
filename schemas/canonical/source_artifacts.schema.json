@@ -75,6 +75,50 @@
       "minLength": 1,
       "maxLength": 120
     },
+    "acquisition_route": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "DIRECT_HTTP",
+            "BROWSER_RUN",
+            "CRAWL4AI",
+            "VENDOR_API",
+            "SITEMAP",
+            "BULK_FILE",
+            "RSS",
+            "MANUAL_UPLOAD"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "account_or_product_plan": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "acquisition_jurisdiction": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
     "created_at": {
       "type": "string",
       "format": "date-time",
@@ -94,6 +138,9 @@
     "policy_snapshot_id",
     "byte_size",
     "acquisition_provider",
+    "acquisition_route",
+    "account_or_product_plan",
+    "acquisition_jurisdiction",
     "created_at"
   ],
   "additionalProperties": false

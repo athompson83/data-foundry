@@ -42,19 +42,22 @@
 import {
   AcquisitionProviderRegistry,
   FixtureAcquisitionProvider,
-  InMemoryPolicySnapshotRecorder,
   InMemoryValidatorCache,
+  SqlPolicySnapshotRecorder,
   sha256Hex,
   stableStringify,
   unlimitedRateLimiter,
   type ArtifactStore,
   type Clock,
+  type StoredArtifact,
   type ValidatorCache,
 } from '@data-foundry/acquisition';
 import { explainFact, verifyFact } from '@data-foundry/provenance';
 import {
   JOB_PIPELINE_ORDER,
+  compareCodeUnits,
   factConfidence,
+  identityConfidence,
   relationshipConfidence,
   type Entity,
   type EntityId,
@@ -70,10 +73,15 @@ import {
 } from '@data-foundry/canonical-schema';
 import {
   createCanonicalStore,
+  loadStoredRightsContext,
   type CanonicalStore,
   type FactEvidenceInput,
   type FactSelectionPolicyInput,
+  type RelationshipClaimInput,
+  type RelationshipEvidenceInput,
   type SqlDriver,
+  type SqlExecutor,
+  type SqlTransactionExecutor,
 } from '@data-foundry/canonical-store';
 import {
   createExtractionRegistry,
@@ -81,20 +89,45 @@ import {
   type ExtractionProviderRegistry,
   type ExtractionSchema,
 } from '@data-foundry/extraction';
-import { normalizeRecord, type NormalizationResult } from '@data-foundry/normalization';
 import {
-  evaluateSourcePublishGate,
+  DerivedCandidateGraphError,
+  normalizeRecord,
+  orderCanonicalCandidatesByDerivation,
+  type NormalizationResult,
+} from '@data-foundry/normalization';
+import {
   toSourceInsert,
   type SourceRegistryEntry,
 } from '@data-foundry/source-registry';
 import { RightsViolationError } from '@data-foundry/canonical-schema';
+import {
+  evaluateRights,
+  type RightsAssetClass,
+  type RightsEvaluation,
+  type RightsOperation,
+  type RightsOutputClass,
+} from '@data-foundry/rights-engine';
 import { compileSourcePlans, type RelationshipPlan, type SourcePlan, type StreamPlan } from './compile.js';
 import { loadVerticalConfig, type LoadVerticalOptions, type VerticalConfig } from './config.js';
 import { IngestError, PipelineConfigurationError } from './errors.js';
 import { buildFactSelectionPolicy } from './fact-policy.js';
 import { buildFixtureManifest, type FixtureBinding } from './fixtures.js';
 import { IngestionJobStore } from './jobs.js';
-import { EntityResolver, type AliasClaim } from './resolution.js';
+import {
+  EntityResolver,
+  type AliasLockIdentity,
+  type AliasClaim,
+  type ResolvedEntityPlan,
+  type SourceAliasDraft,
+  type StagedAliasMatch,
+} from './resolution.js';
+
+// Bump this only when validation or resolution changes the meaning of a
+// persisted evidence chain. The fingerprint also contains the actual accepted
+// claims and locators, so a changed validation outcome cannot reuse an older
+// finalized source-record revision.
+const SOURCE_RECORD_EVIDENCE_SEMANTICS_VERSION = 'source-record-evidence@3';
+const FULL_SNAPSHOT_ACCEPTANCE_SEMANTICS_VERSION = 'full-snapshot-acceptance@1';
 
 export interface PipelineOptions {
   readonly driver: SqlDriver;
@@ -134,13 +167,203 @@ export interface VerticalRunResult {
   readonly diagnostics: readonly string[];
 }
 
-/** An extracted record, its persisted row and its normalization output. */
+/**
+ * Fresh offline-ingest acquisition guard. The provider calls it before
+ * transport and again immediately before persistence. It deliberately reloads
+ * the database instead of consulting Pipeline's per-run cache because a kill
+ * switch or rights activation can change during either wait.
+ */
+export async function requireStoredAcquisitionTransportRights(input: {
+  readonly driver: SqlDriver;
+  readonly sourceId: string;
+  readonly entry: SourceRegistryEntry;
+  readonly asOf: string;
+}): Promise<void> {
+  const context = await loadStoredRightsContext(input.driver, input.sourceId, input.asOf);
+  const refused: string[] = [];
+  for (const operation of ['ACQUIRE', 'STORE', 'CACHE'] as const) {
+    const decision =
+      context === null
+        ? null
+        : evaluateRights(
+            {
+              source: context.source,
+              sourceStatusRequirement: 'APPROVED_OR_ACTIVE',
+              acquisitionRoute: input.entry.acquisition_policy.method,
+              accountOrProductPlan: input.entry.acquisition_policy.account_or_product_plan,
+              jurisdiction: input.entry.acquisition_policy.jurisdiction,
+              assetClass: 'DOCUMENT',
+              fieldKey: null,
+              fieldGroupIds: [],
+              outputClass: 'RAW_RECORD',
+              operation,
+              channel: 'INTERNAL_PROCESSING',
+              asOf: input.asOf,
+              conditionReceipts: [],
+            },
+            context.snapshot,
+          );
+    if (decision?.permitted !== true) {
+      refused.push(`${operation}=${decision?.reasonCode ?? 'NO_GRANT'}`);
+    }
+  }
+  if (refused.length > 0) {
+    throw new RightsViolationError(
+      'UNREVIEWED',
+      `source "${input.entry.key}" transport`,
+      `STORED_RIGHTS_REFUSED: ${refused.join(', ')}`,
+    );
+  }
+}
+
+/** An extracted record and its normalization output, before any canonical write. */
 interface NormalizedRecord {
   readonly plan: StreamPlan;
   readonly extracted: ExtractedRecord;
   readonly artifact: SourceArtifact;
-  readonly row: SourceRecord;
   readonly normalization: NormalizationResult;
+}
+
+interface AcquiredArtifact {
+  readonly artifact: SourceArtifact;
+  readonly stored: StoredArtifact;
+  readonly body: Uint8Array;
+}
+
+interface SnapshotCandidate {
+  readonly stream: string;
+  readonly observedAt: IsoDateTime;
+  readonly snapshotDigest: string;
+  readonly artifactSetDigest: string;
+  readonly mappingDigest: string;
+  readonly recordSetDigest: string;
+}
+
+interface AcceptedSnapshot extends SnapshotCandidate {
+  readonly acceptanceId: string;
+}
+
+const digestSortedProjection = (values: readonly unknown[]): string => {
+  const serialized = values.map((value) => stableStringify(value)).sort(compareCodeUnits);
+  return sha256Hex(stableStringify(serialized));
+};
+
+const snapshotArtifactIdentity = ({ stored }: AcquiredArtifact): Readonly<Record<string, unknown>> => ({
+  // StoredArtifact.metadata describes this retrieval. The canonical artifact
+  // row deliberately preserves the first retrieval when bytes deduplicate and
+  // therefore cannot supply the current snapshot's URL/scope identity.
+  url: stored.metadata.url,
+  contentHash: stored.contentHash,
+  acquisitionProvider: stored.metadata.acquisition_provider,
+  acquisitionRoute: stored.metadata.acquisition_route,
+  accountOrProductPlan: stored.metadata.account_or_product_plan,
+  acquisitionJurisdiction: stored.metadata.acquisition_jurisdiction,
+});
+
+const buildSnapshotCandidates = (
+  streams: readonly StreamPlan[],
+  items: readonly NormalizedRecord[],
+  artifacts: readonly AcquiredArtifact[],
+  observedAt: IsoDateTime,
+): readonly SnapshotCandidate[] => {
+  const artifactSetDigest = digestSortedProjection(artifacts.map(snapshotArtifactIdentity));
+  return streams
+    .filter(({ refreshMode }) => refreshMode === 'FULL_SNAPSHOT')
+    .map((stream): SnapshotCandidate => {
+      const mappingDigest = sha256Hex(stableStringify({
+        version: FULL_SNAPSHOT_ACCEPTANCE_SEMANTICS_VERSION,
+        sourceKey: stream.sourceKey,
+        stream: stream.stream,
+        refreshMode: stream.refreshMode,
+        entityType: stream.entityType,
+        schema: stream.schema,
+        ruleSet: stream.ruleSet,
+        aliases: stream.aliases,
+        relationships: stream.relationships,
+        skipLinesMatching: stream.skipLinesMatching,
+      }));
+      const recordSetDigest = digestSortedProjection(
+        items
+          .filter(({ plan }) => plan.stream === stream.stream)
+          .map(({ extracted, artifact }) => ({
+            sourceRecordKey: extracted.source_record_key,
+            artifactContentHash: artifact.content_hash,
+            rawPayload: extracted.raw_payload,
+            values: extracted.values,
+            locator: extracted.locator,
+            extractionConfidence: extracted.extraction_confidence,
+            extractorVersion: extracted.extractor_version,
+          })),
+      );
+      const snapshotDigest = sha256Hex(stableStringify({
+        version: FULL_SNAPSHOT_ACCEPTANCE_SEMANTICS_VERSION,
+        sourceStream: stream.stream,
+        artifactSetDigest,
+        mappingDigest,
+        recordSetDigest,
+      }));
+      return {
+        stream: stream.stream,
+        observedAt,
+        snapshotDigest,
+        artifactSetDigest,
+        mappingDigest,
+        recordSetDigest,
+      };
+    })
+    .sort((left, right) => compareCodeUnits(left.stream, right.stream));
+};
+
+interface ValidatedAlias {
+  readonly claim: AliasClaim;
+  readonly locator: ExtractedRecord['locator'];
+}
+
+interface PreparedRecord {
+  readonly item: NormalizedRecord;
+  readonly validatedAliases: readonly ValidatedAlias[];
+  readonly manufacturerObservation: {
+    readonly value: string;
+    readonly locator: ExtractedRecord['locator'];
+  } | null;
+  readonly manufacturerAliasIdentities: readonly AliasLockIdentity[];
+  readonly canonicalSlugLockIdentity: string | null;
+}
+
+interface PlannedSourceAlias extends SourceAliasDraft {
+  readonly locator: ExtractedRecord['locator'];
+}
+
+type RelationshipDisposition =
+  | 'PERSIST'
+  | 'RIGHTS_WITHHELD'
+  | 'NULL_SKIPPED'
+  | 'AMBIGUOUS_SUBJECT'
+  | 'AMBIGUOUS_OBJECT'
+  | 'UNRESOLVED_SUBJECT'
+  | 'UNRESOLVED_OBJECT'
+  | 'SELF_EDGE_SKIPPED';
+
+interface PlannedRelationship {
+  readonly plan: RelationshipPlan;
+  readonly disposition: RelationshipDisposition;
+  readonly subject: EntityId | null;
+  readonly object: EntityId | null;
+  readonly subjectLookup: string | null;
+  readonly objectLookup: string | null;
+  readonly writer: {
+    readonly draft: RelationshipClaimInput;
+    readonly evidence: Omit<RelationshipEvidenceInput, 'source_record_id'>;
+  } | null;
+}
+
+interface PlannedRecordResolution {
+  readonly prepared: PreparedRecord;
+  readonly resolution: ResolvedEntityPlan | null;
+  readonly entity: Entity | null;
+  readonly manufacturer: Entity | null;
+  readonly aliases: readonly PlannedSourceAlias[];
+  readonly relationships: readonly PlannedRelationship[];
 }
 
 /** One resolved source record, carried from the RESOLVED stage into PUBLISHED. */
@@ -154,6 +377,128 @@ interface ResolvedRecordContext {
   readonly manufacturer: Entity | null;
 }
 
+interface InternalRightsIntent {
+  readonly operation: Extract<RightsOperation, 'ACQUIRE' | 'STORE' | 'CACHE' | 'NORMALIZE' | 'DERIVE'>;
+  readonly assetClass: RightsAssetClass;
+  readonly outputClass: RightsOutputClass;
+  readonly fieldKey: string | null;
+}
+
+function sortedEvidenceProjection<T>(items: readonly T[]): readonly T[] {
+  return [...items].sort((left, right) => {
+    const leftKey = stableStringify(left);
+    const rightKey = stableStringify(right);
+    return leftKey < rightKey ? -1 : leftKey > rightKey ? 1 : 0;
+  });
+}
+
+/**
+ * The exact source-side evidence fields that `#buildEdge` later persists. Keep
+ * this pure so the fingerprint and writer cannot drift apart as mappings grow.
+ */
+function relationshipEvidenceInput(
+  extracted: ExtractedRecord,
+  plan: RelationshipPlan,
+): {
+  readonly sourceValue: string;
+  readonly locatorType: FactEvidenceInput['locator_type'];
+  readonly locatorValue: string;
+} {
+  const evidenceEndpoint = plan.subject.kind === 'self' ? plan.object : plan.subject;
+  let sourceValue = '';
+  let locatorType: FactEvidenceInput['locator_type'] = extracted.locator.type;
+  let locatorValue = extracted.locator.value;
+  if (evidenceEndpoint.kind === 'publisher' && evidenceEndpoint.literal !== null) {
+    sourceValue = evidenceEndpoint.literal;
+  } else if (evidenceEndpoint.kind !== 'self') {
+    const field = evidenceEndpoint.field;
+    const value = field === null ? null : extracted.values.find((item) => item.field === field);
+    if (value?.raw != null) {
+      sourceValue = value.raw;
+      locatorType = value.locator.type;
+      locatorValue = value.locator.value;
+    }
+  }
+  return {
+    sourceValue: sourceValue === '' ? extracted.source_record_key : sourceValue,
+    locatorType,
+    locatorValue,
+  };
+}
+
+/**
+ * Fingerprint every input that can appear in persisted entity, fact, or
+ * relationship evidence. A matching artifact/payload is insufficient: an
+ * extractor or mapper may move a locator or change the value/edge semantics
+ * without changing either artifact bytes or the normalized record payload.
+ */
+function sourceRecordEvidenceFingerprint(planned: PlannedRecordResolution): string {
+  const { item, validatedAliases } = planned.prepared;
+  return sha256Hex(stableStringify({
+    semanticsVersion: SOURCE_RECORD_EVIDENCE_SEMANTICS_VERSION,
+    entity: {
+      entityType: item.plan.entityType,
+      resolutionOutcome: planned.resolution === null ? 'NO_USABLE_STRONG_IDENTIFIER' : 'RESOLVED',
+      resolvedEntityId: planned.entity?.id ?? null,
+      manufacturerId: planned.manufacturer?.id ?? null,
+      recordLocator: {
+        locatorType: item.extracted.locator.type,
+        locatorValue: item.extracted.locator.value,
+      },
+      validatedAliases: sortedEvidenceProjection(validatedAliases.map(({ claim, locator }) => ({
+        aliasType: claim.aliasType,
+        aliasValue: claim.aliasValue,
+        normalizedValue: claim.normalizedValue,
+        strong: claim.strong,
+        locatorType: locator.type,
+        locatorValue: locator.value,
+      }))),
+      persistedAliasClaims: sortedEvidenceProjection(planned.aliases.map((alias) => ({
+        entityId: alias.entity.id,
+        entityType: alias.entity.entity_type,
+        aliasType: alias.aliasType,
+        aliasValue: alias.aliasValue,
+        normalizedValue: alias.normalizedValue,
+        identityConfidence: alias.identityConfidence,
+        locatorType: alias.locator.type,
+        locatorValue: alias.locator.value,
+      }))),
+      audit: planned.resolution?.audit ?? null,
+    },
+    facts: sortedEvidenceProjection(item.normalization.candidates.map((candidate) => ({
+      property: candidate.property,
+      normalizedValue: candidate.normalized_value,
+      valueType: candidate.value_type,
+      outputKind: candidate.output_kind,
+      derivedFromProperty: candidate.derived_from_property ?? null,
+      transformationRef: candidate.transformation_ref ?? null,
+      unit: candidate.unit,
+      confidence: candidate.confidence,
+      extractionConfidence: candidate.extraction_confidence,
+      sourceField: candidate.source_field,
+      sourceValue: candidate.source_value,
+      sourceUnit: candidate.source_unit,
+      transforms: candidate.transforms,
+      locatorType: candidate.locator.type,
+      locatorValue: candidate.locator.value,
+    }))),
+    relationships: sortedEvidenceProjection(planned.relationships.map((relationship) => ({
+      disposition: relationship.disposition,
+      subjectEntityId: relationship.subject,
+      objectEntityId: relationship.object,
+      subjectLookup: relationship.subjectLookup,
+      objectLookup: relationship.objectLookup,
+      plan: relationship.plan,
+      writer: relationship.writer,
+    }))),
+    mapping: {
+      schema: item.plan.schema,
+      ruleSet: item.plan.ruleSet,
+      aliases: item.plan.aliases,
+    },
+  }));
+}
+
 export class Pipeline {
   readonly store: CanonicalStore;
   readonly config: VerticalConfig;
@@ -164,6 +509,7 @@ export class Pipeline {
   readonly #plans: ReadonlyMap<string, SourcePlan>;
   readonly #fixtures: ReadonlyMap<string, FixtureBinding>;
   readonly #diagnostics: string[] = [];
+  readonly #rightsContexts = new Map<string, ReturnType<typeof loadStoredRightsContext>>();
 
   #vertical: Vertical | null = null;
   readonly #sources = new Map<string, Source>();
@@ -204,13 +550,27 @@ export class Pipeline {
       deps: {
         registry: config.registry,
         artifactStore: options.artifactStore,
-        policyRecorder: new InMemoryPolicySnapshotRecorder(),
+        policyRecorder: new SqlPolicySnapshotRecorder(options.driver),
         validatorCache,
         clock,
         // Politeness is a property of the live adapters; sleeping through a
         // 3-second crawl delay per fixture would make the offline factory
         // useless in CI without proving anything.
         rateLimiter: unlimitedRateLimiter,
+        beforeTransport: ({ request, entry, asOf }) =>
+          requireStoredAcquisitionTransportRights({
+            driver: options.driver,
+            sourceId: request.sourceId,
+            entry,
+            asOf,
+          }),
+        beforePersistence: ({ request, entry, asOf }) =>
+          requireStoredAcquisitionTransportRights({
+            driver: options.driver,
+            sourceId: request.sourceId,
+            entry,
+            asOf,
+          }),
       },
       directory,
       manifest: { version: 1, entries: bindings.map((binding) => binding.entry) },
@@ -361,17 +721,41 @@ export class Pipeline {
       await advanceTo('FETCH_QUEUED', 'rights record present; queued');
 
       // ---- FETCHED --------------------------------------------------------
+      const plan = this.#plans.get(sourceKey);
+      if (plan === undefined) {
+        throw new PipelineConfigurationError(
+          `source "${sourceKey}" has a rights record but no mapping in source-mappings.yaml`,
+        );
+      }
+      const undeclaredStreams = await this.#undeclaredCurrentStreams(
+        source.id,
+        plan.streams.map(({ stream }) => stream),
+        this.store.driver,
+      );
+      if (undeclaredStreams.length > 0) {
+        throw new PipelineConfigurationError(
+          `SOURCE_STREAM_TRANSITION_REQUIRED: source "${sourceKey}" still has current ` +
+            `FINALIZED membership in undeclared stream(s): ${undeclaredStreams.join(', ')}. ` +
+            'Stream identifiers are immutable while membership is current.',
+        );
+      }
+      await this.#requireInternalRights(source, entry, 'APPROVED_OR_ACTIVE', [
+        { operation: 'ACQUIRE', assetClass: 'DOCUMENT', outputClass: 'RAW_RECORD', fieldKey: null },
+        { operation: 'STORE', assetClass: 'DOCUMENT', outputClass: 'RAW_RECORD', fieldKey: null },
+        { operation: 'CACHE', assetClass: 'DOCUMENT', outputClass: 'RAW_RECORD', fieldKey: null },
+      ]);
       const provider = this.#options.providers.forEntry(entry);
       const acquisition = await provider.fetch({
         sourceId: source.id,
         sourceKey,
         verticalSlug: this.config.slug,
         url,
+        retrievalScopeId: job.id,
       });
       outcome = acquisition.outcome;
       diagnostics.push(...acquisition.diagnostics);
 
-      const acquired: { artifact: SourceArtifact; body: Uint8Array }[] = [];
+      const acquired: AcquiredArtifact[] = [];
       for (const [index, artifact] of acquisition.artifacts.entries()) {
         const stored = acquisition.stored[index];
         const row = await this.store.recordSourceArtifact({
@@ -386,9 +770,18 @@ export class Pipeline {
           policy_snapshot_id: artifact.policy_snapshot_id,
           byte_size: artifact.byte_size,
           acquisition_provider: artifact.acquisition_provider,
+          acquisition_route: artifact.acquisition_route,
+          account_or_product_plan: artifact.account_or_product_plan,
+          acquisition_jurisdiction: artifact.acquisition_jurisdiction,
         });
-        const body =
-          stored === undefined ? null : await this.#options.artifactStore.get(stored.key);
+        if (stored === undefined) {
+          throw new IngestError(
+            'ARTIFACT_RECEIPT_MISSING',
+            `artifact ${row.id} has no matching durable storage receipt`,
+            'TRANSIENT',
+          );
+        }
+        const body = await this.#options.artifactStore.get(stored.key);
         if (body === null) {
           throw new IngestError(
             'ARTIFACT_BODY_MISSING',
@@ -396,19 +789,43 @@ export class Pipeline {
             'TRANSIENT',
           );
         }
-        acquired.push({ artifact: row, body: new Uint8Array(body.body) });
+        acquired.push({ artifact: row, stored, body: new Uint8Array(body.body) });
         await this.jobs.setArtifact(job.id, row.id);
       }
       artifactCount = acquired.length;
       await advanceTo('FETCHED', `${acquired.length} artifact(s) stored`);
 
-      // ---- EXTRACTED ------------------------------------------------------
-      const plan = this.#plans.get(sourceKey);
-      if (plan === undefined) {
-        throw new PipelineConfigurationError(
-          `source "${sourceKey}" has a rights record but no mapping in source-mappings.yaml`,
-        );
+      // A validator-confirmed 304 is evidence that the previously accepted
+      // bytes are unchanged, not a new complete snapshot and never an empty
+      // one. Advance the durable job without opening the canonical write
+      // transaction or minting a watermark. `EMPTY` deliberately does not use
+      // this path: absence without an artifact cannot authorize membership.
+      if (acquisition.outcome === 'NOT_MODIFIED') {
+        await advanceTo('EXTRACTED', 'not modified; prior extraction remains authoritative');
+        await advanceTo('NORMALIZED', 'not modified; prior normalization remains authoritative');
+        await this.#requireInternalRights(source, entry, 'ACTIVE', [
+          { operation: 'DERIVE', assetClass: 'DATA', outputClass: 'METADATA', fieldKey: null },
+        ]);
+        await advanceTo('RESOLUTION_PENDING', 'not modified; no resolution write queued');
+        await advanceTo('RESOLVED', 'not modified; prior resolution remains authoritative');
+        await advanceTo('VALIDATED', 'internal rights matrix passed');
+        job = await this.jobs.advance(job, 'PUBLISHED', now, 'not modified; no canonical writes');
+        return {
+          sourceKey,
+          jobId: job.id,
+          finalState: job.status.state,
+          outcome,
+          artifacts: 0,
+          records: 0,
+          claims: 0,
+          relationships: 0,
+          normalizationFailures: 0,
+          diagnostics,
+          error: null,
+        };
       }
+
+      // ---- EXTRACTED ------------------------------------------------------
       for (const stream of plan.streams) diagnostics.push(...stream.diagnostics);
 
       const extracted: { plan: StreamPlan; record: ExtractedRecord; artifact: SourceArtifact }[] = [];
@@ -421,91 +838,115 @@ export class Pipeline {
       }
       recordCount = extracted.length;
 
-      const persisted: { plan: StreamPlan; extracted: ExtractedRecord; artifact: SourceArtifact; row: SourceRecord }[] =
-        [];
-      for (const item of extracted) {
-        const row = await this.store.recordSourceRecord({
-          source_id: source.id,
-          artifact_id: item.artifact.id,
-          source_record_key: item.record.source_record_key,
-          entity_type: item.plan.entityType,
-          raw_payload: item.record.raw_payload,
-          // Filled by the next stage. An extractor that pre-populated it would
-          // have quietly crossed an architecture boundary.
-          normalized_payload: null,
-          extraction_confidence: item.record.extraction_confidence,
-          extractor_version: item.record.extractor_version,
-        });
-        persisted.push({ plan: item.plan, extracted: item.record, artifact: item.artifact, row });
-        await this.jobs.setSourceRecord(job.id, row.id);
-      }
-      await advanceTo('EXTRACTED', `${persisted.length} source record(s)`);
+      // Extraction creates no canonical source-record authority. Full-snapshot
+      // acceptance must win the stream lock first, otherwise a delayed stale
+      // snapshot could leave behind a current PROVISIONAL row even when all of
+      // its membership changes were later refused.
+      await advanceTo('EXTRACTED', `${extracted.length} source record(s)`);
 
       // ---- NORMALIZED -----------------------------------------------------
       const normalized: NormalizedRecord[] = [];
-      for (const item of persisted) {
+      for (const item of extracted) {
+        const permittedProperties = [];
+        for (const rule of item.plan.ruleSet.properties) {
+          const normalize = await this.#internalRightsDecision(source, entry, 'ACTIVE', {
+            operation: 'NORMALIZE',
+            assetClass: 'DATA',
+            outputClass: rule.output_kind ?? 'NORMALIZED_FACT',
+            fieldKey: rule.property,
+          });
+          const derive = await this.#internalRightsDecision(source, entry, 'ACTIVE', {
+            operation: 'DERIVE',
+            assetClass: 'DATA',
+            outputClass: rule.output_kind ?? 'NORMALIZED_FACT',
+            fieldKey: rule.property,
+          });
+          if (normalize.permitted && derive.permitted) {
+            permittedProperties.push(rule);
+          } else {
+            diagnostics.push(
+              `${sourceKey}/${item.record.source_record_key}: field ${rule.property} withheld by ` +
+                `rights matrix (NORMALIZE=${normalize.reasonCode}, DERIVE=${derive.reasonCode})`,
+            );
+          }
+        }
+        const permittedIdentifiers = [];
+        for (const rule of item.plan.ruleSet.identifiers) {
+          const normalize = await this.#internalRightsDecision(source, entry, 'ACTIVE', {
+            operation: 'NORMALIZE',
+            assetClass: 'DATA',
+            outputClass: 'METADATA',
+            fieldKey: rule.alias_type,
+          });
+          const derive = await this.#internalRightsDecision(source, entry, 'ACTIVE', {
+            operation: 'DERIVE',
+            assetClass: 'DATA',
+            outputClass: 'METADATA',
+            fieldKey: rule.alias_type,
+          });
+          if (normalize.permitted && derive.permitted) {
+            permittedIdentifiers.push(rule);
+          } else {
+            diagnostics.push(
+              `${sourceKey}/${item.record.source_record_key}: identifier ${rule.alias_type} withheld by ` +
+                `rights matrix (NORMALIZE=${normalize.reasonCode}, DERIVE=${derive.reasonCode})`,
+            );
+          }
+        }
         const normalization = normalizeRecord(
           {
-            source_record_key: item.row.source_record_key,
+            source_record_key: item.record.source_record_key,
             entity_type: item.plan.entityType,
-            values: item.extracted.values,
-            extraction_confidence: item.extracted.extraction_confidence,
+            values: item.record.values,
+            extraction_confidence: item.record.extraction_confidence,
             artifact_id: item.artifact.id,
           },
-          item.plan.ruleSet,
+          {
+            ...item.plan.ruleSet,
+            properties: permittedProperties,
+            identifiers: permittedIdentifiers,
+          },
         );
         normalizationFailures += normalization.failures.length;
         for (const failure of normalization.failures) {
           diagnostics.push(
-            `${sourceKey}/${item.row.source_record_key}: ${failure.reason} — ${failure.message}`,
+            `${sourceKey}/${item.record.source_record_key}: ${failure.reason} — ${failure.message}`,
           );
         }
-        await this.store.recordSourceRecord({
-          source_id: source.id,
-          artifact_id: item.artifact.id,
-          source_record_key: item.row.source_record_key,
-          entity_type: item.plan.entityType,
-          raw_payload: item.extracted.raw_payload,
-          normalized_payload: normalization.normalized_payload,
-          extraction_confidence: item.extracted.extraction_confidence,
-          extractor_version: item.extracted.extractor_version,
+        normalized.push({
+          plan: item.plan,
+          extracted: item.record,
+          artifact: item.artifact,
+          normalization,
         });
-        normalized.push({ ...item, normalization });
       }
       await advanceTo('NORMALIZED', `${normalized.length} record(s) normalized`);
 
-      // ---- publish gate, BEFORE any canonical write -----------------------
-      // Rule 1. This used to run after RESOLVED, which meant `#resolveRecord`
-      // had already committed entities, aliases and MERGE judgments by the time
-      // a RightsViolationError was thrown — and those writes stood, because
-      // nothing wrapped them. `canonical_name` and `canonical_slug` ARE
-      // derivative normalization of the source's data, so a source whose gate
-      // message is literally "canonical facts cannot be built from it" was
-      // nonetheless producing live, queryable canonical entities. No read path
-      // filters entities by source rights, so they were served.
-      //
-      // Fetching and publishing are already separate gates; resolution belongs
-      // on the publish side of the line. The VALIDATED transition stays where
-      // it was so the job state machine order is unchanged.
-      const gate = evaluateSourcePublishGate(entry, now);
-      for (const warning of gate.warnings) {
-        diagnostics.push(`${sourceKey}: ${warning.code}: ${warning.message}`);
-      }
-      if (!gate.allowed) {
-        throw new RightsViolationError(
-          entry.rights_classification,
-          `source "${sourceKey}"`,
-          gate.blockers.map((blocker) => `${blocker.code}: ${blocker.message}`).join(' | '),
-        );
-      }
+      // Canonical identity is itself a derived output. The legacy source-wide
+      // publication booleans no longer decide this boundary: the accepted
+      // matrix does, with absence of a DERIVE grant treated as refusal.
+      await this.#requireInternalRights(source, entry, 'ACTIVE', [
+        { operation: 'DERIVE', assetClass: 'DATA', outputClass: 'METADATA', fieldKey: null },
+      ]);
 
       // ---- RESOLUTION_PENDING → RESOLVED ----------------------------------
       await advanceTo('RESOLUTION_PENDING', 'deterministic resolution queued');
       const resolver = await this.#ensureResolver();
-      const resolved: ResolvedRecordContext[] = [];
-      for (const item of normalized) {
-        const context = await this.#resolveRecord(resolver, source, item);
-        if (context !== null) resolved.push(context);
+      const batch = await this.#resolveBatch(
+        resolver,
+        source,
+        entry,
+        vertical.id,
+        normalized,
+        plan.streams,
+        acquired,
+        acquisition.fetchedAt as IsoDateTime,
+        diagnostics,
+      );
+      const resolved = batch.resolved;
+      relationshipCount = batch.relationshipCount;
+      for (const sourceRecord of batch.sourceRecords) {
+        await this.jobs.setSourceRecord(job.id, sourceRecord.id);
       }
       await advanceTo('RESOLVED', `${resolved.length} record(s) resolved`);
 
@@ -513,14 +954,13 @@ export class Pipeline {
       // The gate itself ran before resolution (above); this records that the
       // record set passed it. A source that may be *fetched* is not
       // automatically a source that may be *published*.
-      await advanceTo('VALIDATED', 'publish gate passed');
+      await advanceTo('VALIDATED', 'internal rights matrix passed');
 
       // ---- PUBLISHED ------------------------------------------------------
       if (this.#options.dryRun === true) {
         diagnostics.push('dry run: no canonical claims were written');
       } else {
         claimCount = await this.#writeClaims(resolved, source);
-        relationshipCount = await this.#writeRelationships(resolved, source, vertical.id, diagnostics);
       }
       job = await this.jobs.advance(
         job,
@@ -599,29 +1039,48 @@ export class Pipeline {
       // evidence chain.
       const evidence = winner.evidence[0];
       if (evidence === undefined) continue;
-      const result = await this.store.appendFactWithEvidence(
+      const draft = {
+        entity_id: entityId,
+        property,
+        normalized_value: winner.fact.normalized_value,
+        value_type: winner.fact.value_type,
+        unit: winner.fact.unit,
+        valid_from: now,
+        confidence: winner.fact.confidence,
+        recorded_at: now,
+        status: 'ACTIVE' as const,
+      };
+      const evidenceInput = [
         {
-          entity_id: entityId,
-          property,
-          normalized_value: winner.fact.normalized_value,
-          value_type: winner.fact.value_type,
-          unit: winner.fact.unit,
-          valid_from: now,
-          confidence: winner.fact.confidence,
-          recorded_at: now,
-          status: 'ACTIVE',
+          artifact_id: evidence.evidence.artifact_id,
+          source_record_id: evidence.evidence.source_record_id,
+          source_value: evidence.evidence.source_value,
+          locator_type: evidence.evidence.locator_type,
+          locator_value: evidence.evidence.locator_value,
+          observed_at: evidence.evidence.observed_at,
         },
-        [
-          {
-            artifact_id: evidence.evidence.artifact_id,
-            source_record_id: evidence.evidence.source_record_id,
-            source_value: evidence.evidence.source_value,
-            locator_type: evidence.evidence.locator_type,
-            locator_value: evidence.evidence.locator_value,
-            observed_at: evidence.evidence.observed_at,
-          },
-        ],
+      ] as const;
+      const dependencies = await this.store.driver.query<{
+        input_fact_id: string;
+        transformation_ref: string;
+      }>(
+        `SELECT input_fact_id, transformation_ref FROM fact_dependencies
+          WHERE derived_fact_id = $1 ORDER BY input_fact_id, transformation_ref`,
+        [winner.fact.id],
       );
+      const result = winner.fact.output_kind === 'DERIVED_METRIC'
+        ? await this.store.appendDerivedFactWithEvidence(
+            draft,
+            evidenceInput,
+            dependencies.map((dependency) => ({
+              input_fact_id: dependency.input_fact_id as never,
+              transformation_ref: dependency.transformation_ref,
+            })) as never,
+          )
+        : await this.store.appendFactWithEvidence(
+            draft,
+            evidenceInput,
+          );
       if (result.outcome !== 'UNCHANGED') promoted += 1;
     }
 
@@ -741,85 +1200,772 @@ export class Pipeline {
     };
   }
 
-  async #resolveRecord(
+  async #resolveBatch(
+    resolver: EntityResolver,
+    source: Source,
+    entry: SourceRegistryEntry,
+    verticalId: VerticalId,
+    items: readonly NormalizedRecord[],
+    streams: readonly StreamPlan[],
+    snapshotArtifacts: readonly AcquiredArtifact[],
+    snapshotObservedAt: IsoDateTime,
+    diagnostics: string[],
+  ): Promise<{
+    readonly resolved: readonly ResolvedRecordContext[];
+    readonly sourceRecords: readonly SourceRecord[];
+    readonly relationshipCount: number;
+  }> {
+    const prepared = items.map((item): PreparedRecord => {
+      const validatedAliases = this.#validatedAliases(resolver, source, item);
+      const manufacturerObservation = this.#manufacturerObservation(item);
+      const hasStrongAlias = validatedAliases.some(({ claim }) => claim.strong);
+      return {
+        item,
+        validatedAliases,
+        manufacturerObservation,
+        manufacturerAliasIdentities:
+          !hasStrongAlias || manufacturerObservation === null
+            ? []
+            : resolver.previewManufacturerAliasIdentities(
+                manufacturerObservation.value,
+                validatedAliases.map(({ claim }) => claim),
+              ),
+        canonicalSlugLockIdentity: !hasStrongAlias
+          ? null
+          : resolver.previewCanonicalSlug(
+              item.plan.entityType,
+              validatedAliases.map(({ claim }) => claim),
+              manufacturerObservation?.value ?? null,
+            ),
+      };
+    });
+    const incomingLogicalKeys = prepared.map(({ item }) => item.extracted.source_record_key);
+    const uniqueIncomingLogicalKeys = new Set(incomingLogicalKeys);
+    if (uniqueIncomingLogicalKeys.size !== prepared.length) {
+      throw new IngestError(
+        'DUPLICATE_SOURCE_RECORD_KEY',
+        'one source batch contains duplicate logical source-record keys',
+        'DATA',
+      );
+    }
+    const snapshotCandidates = buildSnapshotCandidates(
+      streams,
+      items,
+      snapshotArtifacts,
+      snapshotObservedAt,
+    );
+    const fullSnapshotStreams = snapshotCandidates.map(({ stream }) => stream);
+    if (fullSnapshotStreams.length > 0 && snapshotArtifacts.length === 0) {
+      throw new IngestError(
+        'FULL_SNAPSHOT_EVIDENCE_MISSING',
+        'a complete stream cannot retire membership without at least one stored artifact',
+        'DATA',
+      );
+    }
+    if (
+      fullSnapshotStreams.length > 0 &&
+      snapshotArtifacts.some(({ stored }) => stored.retrievalReceiptId === null)
+    ) {
+      throw new IngestError(
+        'FULL_SNAPSHOT_RETRIEVAL_RECEIPT_MISSING',
+        'a complete stream cannot change membership without a run-scoped retrieval receipt',
+        'DATA',
+      );
+    }
+    const snapshotPreview = await this.#currentSnapshotRecords(
+      source.id,
+      fullSnapshotStreams,
+      this.store.driver,
+    );
+    const logicalKeys = [...new Set([
+      ...incomingLogicalKeys,
+      ...snapshotPreview.map(({ source_record_key }) => source_record_key),
+    ])]
+      .sort(compareCodeUnits);
+
+    const rights = new Map<RelationshipPlan, RightsEvaluation>();
+    for (const { item } of prepared) {
+      for (const plan of item.plan.relationships) {
+        rights.set(
+          plan,
+          await this.#internalRightsDecision(source, entry, 'ACTIVE', {
+            operation: 'DERIVE',
+            assetClass: 'DATA',
+            outputClass: 'METADATA',
+            fieldKey: plan.predicate,
+          }),
+        );
+      }
+    }
+
+    // Preview the outgoing identities before opening the write transaction so
+    // the transaction can acquire the complete alias-lock set before any read
+    // or mutation. The logical-record locks serialize a competing refresh; a
+    // post-lock reload below refuses a stale preview instead of writing under
+    // an incomplete lock set.
+    const outgoingPreview = await this.#outgoingAliasClaims(
+      source.id,
+      logicalKeys,
+      this.store.driver,
+    );
+    const aliasLockKeys = new Set<string>();
+    for (const claim of outgoingPreview) {
+      aliasLockKeys.add(stableStringify([
+        claim.entity_type,
+        claim.alias_type,
+        claim.normalized_value,
+      ]));
+    }
+    for (const preparedRecord of prepared) {
+      const { item, validatedAliases } = preparedRecord;
+      for (const { claim } of validatedAliases) {
+        aliasLockKeys.add(stableStringify([
+          item.plan.entityType,
+          claim.aliasType,
+          claim.normalizedValue,
+        ]));
+      }
+      for (const identity of preparedRecord.manufacturerAliasIdentities) {
+        aliasLockKeys.add(stableStringify([
+          identity.entityType,
+          identity.aliasType,
+          identity.normalizedValue,
+        ]));
+      }
+      if (preparedRecord.canonicalSlugLockIdentity !== null) {
+        aliasLockKeys.add(stableStringify([
+          'canonical-slug',
+          verticalId,
+          item.plan.entityType,
+          preparedRecord.canonicalSlugLockIdentity,
+        ]));
+      }
+      for (const plan of item.plan.relationships) {
+        for (const endpoint of [plan.subject, plan.object]) {
+          if (endpoint.kind !== 'alias') continue;
+          const value = stringOrNull(item.extracted.raw_payload[endpoint.field]);
+          if (value === null) continue;
+          aliasLockKeys.add(stableStringify([
+            endpoint.entityType,
+            endpoint.aliasType,
+            resolver.normalizer.normalize(endpoint.aliasType, value),
+          ]));
+        }
+      }
+    }
+
+    return this.store.driver.transaction(async (tx) => {
+      // A source-wide set lock prevents a mapping rename/removal from racing a
+      // refresh that still owns the prior stream. Stream identifiers are
+      // durable membership keys, not presentation labels.
+      await tx.query(
+        `SELECT pg_advisory_xact_lock(hashtext('source-stream-set'), hashtext($1))`,
+        [source.id],
+      );
+      const undeclaredStreams = await this.#undeclaredCurrentStreams(
+        source.id,
+        streams.map(({ stream }) => stream),
+        tx,
+      );
+      if (undeclaredStreams.length > 0) {
+        throw new IngestError(
+          'SOURCE_STREAM_TRANSITION_REQUIRED',
+          `current FINALIZED membership exists in undeclared stream(s): ${undeclaredStreams.join(', ')}`,
+          'DATA',
+        );
+      }
+      // Every ingest run takes the source stream locks first. A complete
+      // snapshot can then treat omission as evidence without racing another
+      // full or incremental update of the same stream.
+      for (const stream of streams.map(({ stream }) => stream).sort(compareCodeUnits)) {
+        await tx.query(
+          `SELECT pg_advisory_xact_lock(hashtext('source-stream-refresh'), hashtext($1))`,
+          [stableStringify([source.id, stream])],
+        );
+      }
+      const snapshotCurrentAll = await this.#currentSnapshotRecords(source.id, fullSnapshotStreams, tx);
+      const unheldSnapshotKeys = snapshotCurrentAll.filter(
+        ({ source_record_key }) => !logicalKeys.includes(source_record_key),
+      );
+      if (unheldSnapshotKeys.length > 0) {
+        throw new IngestError(
+          'SNAPSHOT_LOCK_SET_CHANGED',
+          'complete-stream membership changed while the replacement batch was waiting for locks',
+          'TRANSIENT',
+        );
+      }
+
+      // The stream advisory lock makes this comparison and append one atomic
+      // acceptance decision. Postgres performs both parts of the total order:
+      // provider observation time first, lowercase SHA-256 digest under C
+      // collation second. A rejected candidate causes no canonical writes.
+      const acceptedSnapshots = new Map<string, AcceptedSnapshot>();
+      for (const candidate of snapshotCandidates) {
+        const [latest] = await tx.query<{
+          id: string;
+          observed_at: string;
+          snapshot_digest: string;
+          candidate_is_newer: boolean;
+          candidate_is_replay: boolean;
+        }>(
+          `SELECT id, observed_at, snapshot_digest,
+                  ($3::timestamptz > observed_at OR
+                   ($3::timestamptz = observed_at AND
+                    $4 COLLATE "C" > snapshot_digest COLLATE "C")) AS candidate_is_newer,
+                  ($3::timestamptz = observed_at AND
+                   $4 COLLATE "C" = snapshot_digest COLLATE "C") AS candidate_is_replay
+             FROM source_stream_snapshot_acceptances
+            WHERE source_id = $1 AND source_stream = $2
+            ORDER BY observed_at DESC, snapshot_digest COLLATE "C" DESC
+            LIMIT 1`,
+          [source.id, candidate.stream, candidate.observedAt, candidate.snapshotDigest],
+        );
+        if (latest !== undefined && !latest.candidate_is_newer) {
+          diagnostics.push(
+            latest.candidate_is_replay
+              ? `${source.domain}/${candidate.stream}: complete snapshot replay ignored`
+              : `${source.domain}/${candidate.stream}: stale complete snapshot ignored ` +
+                `(observed ${candidate.observedAt}; current ${String(latest.observed_at)})`,
+          );
+          continue;
+        }
+        const [acceptance] = await tx.query<{ id: string }>(
+          `INSERT INTO source_stream_snapshot_acceptances
+             (source_id, source_stream, observed_at, snapshot_digest,
+              artifact_set_digest, mapping_digest, record_set_digest, retrieval_count)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+           RETURNING id`,
+          [
+            source.id,
+            candidate.stream,
+            candidate.observedAt,
+            candidate.snapshotDigest,
+            candidate.artifactSetDigest,
+            candidate.mappingDigest,
+            candidate.recordSetDigest,
+            snapshotArtifacts.length,
+          ],
+        );
+        if (acceptance === undefined) throw new Error('snapshot acceptance insert returned no row');
+        for (const acquired of [...snapshotArtifacts].sort((left, right) =>
+          compareCodeUnits(
+            stableStringify(snapshotArtifactIdentity(left)),
+            stableStringify(snapshotArtifactIdentity(right)),
+          ) || compareCodeUnits(left.artifact.id, right.artifact.id))) {
+          if (acquired.stored.retrievalReceiptId === null) {
+            throw new Error('validated snapshot retrieval receipt unexpectedly missing');
+          }
+          await tx.query(
+            `INSERT INTO source_stream_snapshot_acceptance_artifacts
+               (acceptance_id, artifact_id, retrieval_key, retrieval_receipt_id)
+             VALUES ($1, $2, $3, $4)`,
+            [
+              acceptance.id,
+              acquired.artifact.id,
+              acquired.stored.retrievalKey,
+              acquired.stored.retrievalReceiptId,
+            ],
+          );
+        }
+        acceptedSnapshots.set(candidate.stream, { ...candidate, acceptanceId: acceptance.id });
+      }
+
+      const activePrepared = prepared.filter(
+        ({ item }) => item.plan.refreshMode === 'INCREMENTAL' || acceptedSnapshots.has(item.plan.stream),
+      );
+      const snapshotCurrent = snapshotCurrentAll.filter(({ source_stream }) =>
+        acceptedSnapshots.has(source_stream));
+      const activeLogicalKeys = [...new Set([
+        ...activePrepared.map(({ item }) => item.extracted.source_record_key),
+        ...snapshotCurrent.map(({ source_record_key }) => source_record_key),
+      ])].sort(compareCodeUnits);
+
+      // Every competing refresh of the same logical records follows this exact
+      // lock order after the enclosing stream locks.
+      for (const key of logicalKeys) {
+        await tx.query(`SELECT pg_advisory_xact_lock(hashtext($1), hashtext($2))`, [source.id, key]);
+      }
+      for (const key of [...aliasLockKeys].sort(compareCodeUnits)) {
+        await tx.query(
+          `SELECT pg_advisory_xact_lock(hashtext('entity-alias-resolution'), hashtext($1))`,
+          [key],
+        );
+      }
+
+      const outgoing = await this.#outgoingAliasClaims(source.id, activeLogicalKeys, tx);
+      const unheldOutgoing = outgoing.filter((claim) => !aliasLockKeys.has(stableStringify([
+        claim.entity_type,
+        claim.alias_type,
+        claim.normalized_value,
+      ])));
+      if (unheldOutgoing.length > 0) {
+        throw new IngestError(
+          'ALIAS_LOCK_SET_CHANGED',
+          'current source alias ownership changed while the replacement batch was waiting for locks',
+          'TRANSIENT',
+        );
+      }
+      const maskedAliasIds = new Set(
+        outgoing.filter((claim) => !claim.independent_current).map((claim) => claim.alias_id),
+      );
+
+      const stagedAliases: StagedAliasMatch[] = [];
+      const identityPlans: PlannedRecordResolution[] = [];
+      for (const preparedRecord of activePrepared) {
+        const { item, validatedAliases } = preparedRecord;
+        const aliases = validatedAliases.map(({ claim }) => claim);
+        if (aliases.every((alias) => !alias.strong)) {
+          diagnostics.push(
+            `${source.domain}/${item.extracted.source_record_key}: no usable strong identifier; record not resolved`,
+          );
+          identityPlans.push({
+            prepared: preparedRecord,
+            resolution: null,
+            entity: null,
+            manufacturer: null,
+            aliases: [],
+            relationships: [],
+          });
+          continue;
+        }
+
+        const manufacturerObservation = preparedRecord.manufacturerObservation;
+        const manufacturerPlan = manufacturerObservation === null
+          ? null
+          : await resolver.planManufacturer(manufacturerObservation.value, source.id, tx);
+        const manufacturer = manufacturerPlan?.entity ?? null;
+        const continuityAliasIds = new Set(
+          outgoing
+            .filter(
+              (claim) =>
+                claim.source_record_key === item.extracted.source_record_key &&
+                validatedAliases.some(
+                  ({ claim: incoming }) =>
+                    incoming.aliasType === claim.alias_type &&
+                    incoming.normalizedValue === claim.normalized_value,
+                ),
+            )
+            .map((claim) => claim.alias_id),
+        );
+        const resolution = await resolver.planRecord(
+          {
+            entityType: item.plan.entityType,
+            aliases,
+            manufacturer,
+            sourceId: source.id,
+            sourceRecordKey: item.extracted.source_record_key,
+            resolutionDiscriminator: sha256Hex(stableStringify({
+              sourceDomain: source.domain,
+              sourceRecordKey: item.extracted.source_record_key,
+              artifactContentHash: item.artifact.content_hash,
+              entityType: item.plan.entityType,
+              aliases,
+              manufacturerSlug: manufacturer?.canonical_slug ?? null,
+            })),
+            stagedAliases,
+            maskedAliasIds,
+            continuityAliasIds,
+          },
+          tx,
+        );
+
+        const plannedAliases: PlannedSourceAlias[] = validatedAliases.map(({ claim, locator }) => ({
+          entity: resolution.entity,
+          aliasType: claim.aliasType,
+          aliasValue: claim.aliasValue,
+          normalizedValue: claim.normalizedValue,
+          sourceId: source.id,
+          identityConfidence: identityConfidence(claim.strong ? 0.99 : 0.6),
+          locator,
+        }));
+        if (manufacturerPlan !== null && manufacturerObservation !== null) {
+          for (const alias of manufacturerPlan.aliases) {
+            plannedAliases.push({ ...alias, locator: manufacturerObservation.locator });
+          }
+          for (const { claim, locator } of validatedAliases) {
+            const prefix = resolver.planScopedIdentifierPrefix(
+              manufacturerPlan.entity,
+              claim.aliasType,
+              claim.aliasValue,
+              source.id,
+            );
+            if (prefix !== null) plannedAliases.push({ ...prefix, locator });
+          }
+        }
+        for (const alias of plannedAliases) {
+          stagedAliases.push({
+            entity: alias.entity,
+            aliasType: alias.aliasType,
+            aliasValue: alias.aliasValue,
+            normalizedValue: alias.normalizedValue,
+          });
+        }
+        identityPlans.push({
+          prepared: preparedRecord,
+          resolution,
+          entity: resolution.entity,
+          manufacturer,
+          aliases: plannedAliases,
+          relationships: [],
+        });
+      }
+
+      const planned: PlannedRecordResolution[] = [];
+      for (const identity of identityPlans) {
+        const relationships: PlannedRelationship[] = [];
+        for (const plan of identity.prepared.item.plan.relationships) {
+          relationships.push(
+            await this.#planRelationship(
+              identity,
+              plan,
+              rights.get(plan),
+              stagedAliases,
+              maskedAliasIds,
+              source,
+              verticalId,
+              tx,
+              diagnostics,
+            ),
+          );
+        }
+        planned.push({ ...identity, relationships });
+      }
+
+      const finalRecords = new Map<string, SourceRecord>();
+      for (const record of planned) {
+        const { item } = record.prepared;
+        const sourceRecord = await this.store.reconcileSourceRecord(
+          {
+            source_id: source.id,
+            artifact_id: item.artifact.id,
+            source_record_key: item.extracted.source_record_key,
+            source_stream: item.plan.stream,
+            entity_type: item.plan.entityType,
+            raw_payload: item.extracted.raw_payload,
+            normalized_payload: item.normalization.normalized_payload,
+            extraction_confidence: item.extracted.extraction_confidence,
+            extractor_version: item.extracted.extractor_version,
+          },
+          tx,
+          sourceRecordEvidenceFingerprint(record),
+          snapshotObservedAt,
+        );
+        finalRecords.set(item.extracted.source_record_key, sourceRecord);
+      }
+
+      const incomingMemberships = new Set(
+        activePrepared.map(({ item }) =>
+          stableStringify([item.plan.stream, item.extracted.source_record_key])),
+      );
+      const omitted = snapshotCurrent.filter(
+        ({ source_stream, source_record_key }) =>
+          !incomingMemberships.has(stableStringify([source_stream, source_record_key])),
+      );
+      const artifacts = [...new Map(
+        snapshotArtifacts.map((artifact) => [artifact.artifact.id, artifact] as const),
+      ).values()].sort((left, right) => compareCodeUnits(left.artifact.id, right.artifact.id));
+      for (const record of omitted) {
+        const acceptance = acceptedSnapshots.get(record.source_stream);
+        if (acceptance === undefined) {
+          throw new Error('accepted snapshot missing for omission target');
+        }
+        const retired = await tx.query<{ id: string }>(
+          `UPDATE source_records
+              SET is_current = FALSE, updated_at = now()
+            WHERE id = $1 AND is_current
+            RETURNING id`,
+          [record.id],
+        );
+        if (retired[0] === undefined) {
+          throw new IngestError(
+            'SNAPSHOT_RECORD_CHANGED',
+            'a complete-stream omission target changed after membership was locked',
+            'TRANSIENT',
+          );
+        }
+        for (const artifact of artifacts) {
+          await tx.query(
+            `INSERT INTO source_record_snapshot_retirements
+               (source_record_id, snapshot_acceptance_id, artifact_id,
+                source_id, source_stream, retired_at)
+             VALUES ($1, $2, $3, $4, $5, $6)
+             ON CONFLICT (source_record_id, artifact_id) DO NOTHING`,
+            [
+              record.id,
+              acceptance.acceptanceId,
+              artifact.artifact.id,
+              source.id,
+              record.source_stream,
+              acceptance.observedAt,
+            ],
+          );
+        }
+      }
+      if (omitted.length > 0) {
+        diagnostics.push(`${omitted.length} source record(s) retired by complete snapshot omission`);
+      }
+
+      const resolved: ResolvedRecordContext[] = [];
+      const refreshedEntityIds = new Set<EntityId>();
+      let relationshipCount = 0;
+      for (const record of planned) {
+        const { item } = record.prepared;
+        const sourceRecord = finalRecords.get(item.extracted.source_record_key);
+        if (sourceRecord === undefined) throw new Error('reconciled source record missing');
+        if (record.resolution === null || record.entity === null) continue;
+
+        for (const alias of record.aliases) {
+          const staged = await resolver.stageSourceAlias(alias, tx);
+          const aliasClaim = await this.store.recordSourceAliasClaim(
+            {
+              entity_alias_id: staged.id,
+              asserted_alias_value: alias.aliasValue,
+              asserted_normalized_value: alias.normalizedValue,
+              identity_confidence: alias.identityConfidence,
+              source_record_id: sourceRecord.id,
+              locator_type: alias.locator.type,
+              locator_value: alias.locator.value,
+            },
+            tx,
+          );
+          await this.store.recordEntityEvidence(
+            {
+              entity_id: alias.entity.id,
+              artifact_id: item.artifact.id,
+              source_record_id: sourceRecord.id,
+              entity_alias_claim_id: aliasClaim.id,
+              contribution_role: 'ALIAS',
+              locator_type: alias.locator.type,
+              locator_value: alias.locator.value,
+              observed_at: item.artifact.retrieved_at,
+            },
+            tx,
+          );
+        }
+        await this.store.recordEntityEvidence(
+          {
+            entity_id: record.entity.id,
+            artifact_id: item.artifact.id,
+            source_record_id: sourceRecord.id,
+            contribution_role: 'EXISTENCE',
+            locator_type: item.extracted.locator.type,
+            locator_value: item.extracted.locator.value,
+            observed_at: item.artifact.retrieved_at,
+          },
+          tx,
+        );
+        if (record.manufacturer !== null) {
+          await this.store.recordEntityEvidence(
+            {
+              entity_id: record.manufacturer.id,
+              artifact_id: item.artifact.id,
+              source_record_id: sourceRecord.id,
+              contribution_role: 'EXISTENCE',
+              locator_type: item.extracted.locator.type,
+              locator_value: item.extracted.locator.value,
+              observed_at: item.artifact.retrieved_at,
+            },
+            tx,
+          );
+        }
+        await resolver.persistResolution(record.resolution, sourceRecord.id, tx);
+
+        if (this.#options.dryRun !== true) {
+          for (const relationship of record.relationships) {
+            if (relationship.writer === null) continue;
+            await this.store.upsertRelationshipWithEvidence(
+              relationship.writer.draft,
+              [{ ...relationship.writer.evidence, source_record_id: sourceRecord.id }],
+              tx,
+            );
+            relationshipCount += 1;
+          }
+        }
+
+        const entity = await resolver.refreshPreferredName(
+          record.entity,
+          {
+            entityType: item.plan.entityType,
+            aliases: record.prepared.validatedAliases.map(({ claim }) => claim),
+            manufacturer: record.manufacturer,
+          },
+          tx,
+        );
+        refreshedEntityIds.add(entity.id);
+        resolved.push({
+          plan: item.plan,
+          extracted: item.extracted,
+          sourceRecord,
+          normalization: item.normalization,
+          artifact: item.artifact,
+          entity,
+          manufacturer: record.manufacturer,
+        });
+      }
+      const withdrawnEntityIds = [...new Set(outgoing.map((claim) => claim.entity_id as EntityId))]
+        .sort(compareCodeUnits);
+      for (const entityId of withdrawnEntityIds) {
+        if (refreshedEntityIds.has(entityId)) continue;
+        await resolver.refreshStoredPreferredName(entityId, tx);
+      }
+      return {
+        resolved,
+        sourceRecords: [...finalRecords.values()],
+        relationshipCount,
+      };
+    });
+  }
+
+  async #currentSnapshotRecords(
+    sourceId: Source['id'],
+    streams: readonly string[],
+    executor: SqlExecutor,
+  ): Promise<readonly {
+    readonly id: string;
+    readonly source_record_key: string;
+    readonly source_stream: string;
+  }[]> {
+    if (streams.length === 0) return [];
+    const streamPlaceholders = streams.map((_, index) => `$${index + 2}`).join(', ');
+    return executor.query(
+      `SELECT id::text, source_record_key, source_stream
+         FROM source_records
+        WHERE source_id = $1
+          AND source_stream IN (${streamPlaceholders})
+          AND is_current
+        ORDER BY source_stream, source_record_key, id`,
+      [sourceId, ...streams],
+    );
+  }
+
+  async #undeclaredCurrentStreams(
+    sourceId: Source['id'],
+    declaredStreams: readonly string[],
+    executor: SqlExecutor,
+  ): Promise<readonly string[]> {
+    const rows = await executor.query<{ source_stream: string }>(
+      `SELECT DISTINCT source_stream
+         FROM source_records
+        WHERE source_id = $1
+          AND is_current
+          AND revision_state = 'FINALIZED'
+          AND source_stream IS NOT NULL
+        ORDER BY source_stream`,
+      [sourceId],
+    );
+    const declared = new Set(declaredStreams);
+    return rows
+      .map(({ source_stream }) => source_stream)
+      .filter((stream) => !declared.has(stream));
+  }
+
+  #validatedAliases(
     resolver: EntityResolver,
     source: Source,
     item: NormalizedRecord,
-  ): Promise<ResolvedRecordContext | null> {
-    const raw = item.extracted.raw_payload;
-
-    // The manufacturer is resolved first: it is the scope a model number is
-    // unique within, and the slug pattern needs it.
-    let manufacturer: Entity | null = null;
-    for (const relationship of item.plan.relationships) {
-      for (const endpoint of [relationship.subject, relationship.object]) {
-        if (endpoint.kind !== 'publisher') continue;
-        const value =
-          endpoint.literal ??
-          (endpoint.field === null ? null : stringOrNull(raw[endpoint.field]));
-        if (value === null) continue;
-        manufacturer = await resolver.resolveManufacturer(value, source.id);
-        break;
-      }
-      if (manufacturer !== null) break;
-    }
-
-    const aliases: AliasClaim[] = [];
+  ): readonly ValidatedAlias[] {
+    const validated: ValidatedAlias[] = [];
     for (const identifier of item.normalization.identifiers) {
       const plan = item.plan.aliases.find((alias) => alias.aliasType === identifier.alias_type);
       const normalizedValue = resolver.normalizer.normalize(identifier.alias_type, identifier.alias_value);
       const invalid = resolver.normalizer.validate(identifier.alias_type, normalizedValue);
       if (invalid !== null) {
-        // Quarantine, never write. A garbage join key silently creates a
-        // duplicate entity, which is far more expensive than a rejected value.
         this.#diagnostics.push(
-          `${source.domain}/${item.row.source_record_key}: alias ${identifier.alias_type} quarantined — ${invalid}`,
+          `${source.domain}/${item.extracted.source_record_key}: alias ${identifier.alias_type} quarantined — ${invalid}`,
         );
         continue;
       }
-      aliases.push({
-        aliasType: identifier.alias_type,
-        aliasValue: identifier.alias_value,
-        normalizedValue,
-        strong: plan?.strong ?? false,
+      validated.push({
+        claim: {
+          aliasType: identifier.alias_type,
+          aliasValue: identifier.alias_value,
+          normalizedValue,
+          strong: plan?.strong ?? false,
+        },
+        locator: identifier.locator,
       });
     }
+    return validated;
+  }
 
-    if (aliases.every((alias) => !alias.strong)) {
-      this.#diagnostics.push(
-        `${source.domain}/${item.row.source_record_key}: no usable strong identifier; record not resolved`,
-      );
-      return null;
-    }
-
-    const resolved = await resolver.resolveRecord({
-      entityType: item.plan.entityType,
-      aliases,
-      manufacturer,
-      sourceId: source.id,
-      sourceRecordId: item.row.id,
-    });
-
-    if (manufacturer !== null) {
-      for (const alias of aliases) {
-        await resolver.recordScopedIdentifierPrefix(
-          manufacturer,
-          alias.aliasType,
-          alias.aliasValue,
-          source.id,
-        );
+  #manufacturerObservation(item: NormalizedRecord): {
+    readonly value: string;
+    readonly locator: ExtractedRecord['locator'];
+  } | null {
+    for (const relationship of item.plan.relationships) {
+      for (const endpoint of [relationship.subject, relationship.object]) {
+        if (endpoint.kind !== 'publisher') continue;
+        if (endpoint.literal !== null) {
+          return { value: endpoint.literal, locator: item.extracted.locator };
+        }
+        if (endpoint.field === null) continue;
+        const value = stringOrNull(item.extracted.raw_payload[endpoint.field]);
+        if (value === null) continue;
+        const extracted = item.extracted.values.find((candidate) => candidate.field === endpoint.field);
+        return { value, locator: extracted?.locator ?? item.extracted.locator };
       }
     }
+    return null;
+  }
 
-    return {
-      plan: item.plan,
-      extracted: item.extracted,
-      sourceRecord: item.row,
-      normalization: item.normalization,
-      artifact: item.artifact,
-      entity: resolved.entity,
-      manufacturer,
-    };
+  async #outgoingAliasClaims(
+    sourceId: Source['id'],
+    logicalKeys: readonly string[],
+    tx: SqlExecutor,
+  ): Promise<readonly {
+    readonly alias_id: string;
+    readonly entity_id: string;
+    readonly source_record_key: string;
+    readonly entity_type: string;
+    readonly alias_type: string;
+    readonly normalized_value: string;
+    readonly independent_current: boolean;
+  }[]> {
+    if (logicalKeys.length === 0) return [];
+    const keyPlaceholders = logicalKeys.map((_, index) => `$${index + 2}`).join(', ');
+    return tx.query(
+      `SELECT DISTINCT alias_row.id::text AS alias_id,
+              alias_row.entity_id::text AS entity_id,
+              source_record.source_record_key,
+              entity.entity_type,
+              alias_row.alias_type,
+              alias_row.normalized_value,
+              EXISTS (
+                SELECT 1
+                  FROM entity_alias_claims independent_claim
+                  LEFT JOIN source_records independent_record
+                    ON independent_record.id = independent_claim.source_record_id
+                 WHERE independent_claim.entity_alias_id = alias_row.id
+                   AND independent_claim.authority_epoch = alias_row.authority_epoch
+                   AND independent_claim.asserted_normalized_value = alias_row.normalized_value
+                   AND (
+                     (independent_claim.claim_kind = 'CURATED' AND independent_claim.valid_to IS NULL)
+                     OR
+                     (independent_claim.claim_kind = 'SOURCE_RECORD'
+                       AND independent_record.is_current
+                       AND independent_record.revision_state = 'FINALIZED'
+                       AND NOT (
+                         independent_record.source_id = $1
+                         AND independent_record.source_record_key IN (${keyPlaceholders})
+                       ))
+                   )
+              ) AS independent_current
+         FROM entity_alias_claims alias_claim
+         JOIN source_records source_record ON source_record.id = alias_claim.source_record_id
+         JOIN entity_aliases alias_row ON alias_row.id = alias_claim.entity_alias_id
+         JOIN entities entity ON entity.id = alias_row.entity_id
+        WHERE alias_claim.claim_kind = 'SOURCE_RECORD'
+          AND alias_claim.authority_epoch = alias_row.authority_epoch
+          AND alias_claim.asserted_normalized_value = alias_row.normalized_value
+          AND alias_claim.valid_to IS NULL
+          AND source_record.source_id = $1
+          AND source_record.source_record_key IN (${keyPlaceholders})
+          AND source_record.is_current
+          AND source_record.revision_state = 'FINALIZED'
+          AND alias_row.valid_to IS NULL
+        ORDER BY source_record.source_record_key, alias_row.alias_type, alias_row.normalized_value`,
+      [sourceId, ...logicalKeys],
+    );
   }
 
   /**
@@ -833,7 +1979,17 @@ export class Pipeline {
   async #writeClaims(resolved: readonly ResolvedRecordContext[], source: Source): Promise<number> {
     let written = 0;
     for (const context of resolved) {
-      for (const candidate of context.normalization.candidates) {
+      const factsByProperty = new Map<string, Awaited<ReturnType<CanonicalStore['appendFactWithEvidence']>>['fact']>();
+      let candidates;
+      try {
+        candidates = orderCanonicalCandidatesByDerivation(context.normalization.candidates);
+      } catch (error) {
+        if (error instanceof DerivedCandidateGraphError) {
+          throw new IngestError('DERIVED_GRAPH_INVALID', error.message, 'DATA', { cause: error });
+        }
+        throw error;
+      }
+      for (const candidate of candidates) {
         const evidence: FactEvidenceInput = {
           artifact_id: context.artifact.id,
           source_record_id: context.sourceRecord.id,
@@ -844,8 +2000,7 @@ export class Pipeline {
           // the wall clock, so a re-run produces byte-identical evidence.
           observed_at: context.artifact.retrieved_at,
         };
-        await this.store.appendFactWithEvidence(
-          {
+        const draft = {
             entity_id: context.entity.id,
             property: candidate.property,
             normalized_value: candidate.normalized_value,
@@ -857,142 +2012,210 @@ export class Pipeline {
             ),
             recorded_at: context.artifact.retrieved_at,
             status: 'PROPOSED',
-          },
-          [evidence],
-        );
+          } as const;
+        const result = candidate.output_kind === 'DERIVED_METRIC'
+          ? await this.store.appendDerivedFactWithEvidence(
+              draft,
+              [evidence],
+              [
+                {
+                  input_fact_id:
+                    factsByProperty.get(candidate.derived_from_property ?? '')?.id ??
+                    (() => {
+                      throw new IngestError(
+                        'DERIVED_INPUT_MISSING',
+                        `derived property ${candidate.property} has no stored input ` +
+                          `${candidate.derived_from_property ?? '(undeclared)'}`,
+                        'DATA',
+                      );
+                    })(),
+                  transformation_ref: candidate.transformation_ref ?? '',
+                },
+              ],
+            )
+          : await this.store.appendFactWithEvidence(draft, [evidence]);
+        factsByProperty.set(candidate.property, result.fact);
         written += 1;
       }
     }
     return written;
   }
 
-  async #writeRelationships(
-    resolved: readonly ResolvedRecordContext[],
+  async #planRelationship(
+    context: PlannedRecordResolution,
+    plan: RelationshipPlan,
+    decision: RightsEvaluation | undefined,
+    stagedAliases: readonly StagedAliasMatch[],
+    maskedAliasIds: ReadonlySet<string>,
     source: Source,
     verticalId: VerticalId,
+    tx: SqlTransactionExecutor,
     diagnostics: string[],
-  ): Promise<number> {
-    let written = 0;
-    for (const context of resolved) {
-      for (const plan of context.plan.relationships) {
-        const edge = await this.#buildEdge(context, plan, diagnostics);
-        if (edge === null) continue;
-        await this.store.upsertRelationshipWithEvidence(
-          {
-            vertical_id: verticalId,
-            subject_entity_id: edge.subject,
-            predicate: plan.predicate,
-            object_entity_id: edge.object,
-            confidence: relationshipConfidence(claimConfidence(source.authority_rank, undefined)),
-            valid_from: edge.validFrom,
-            recorded_at: context.artifact.retrieved_at,
-            status: 'ACTIVE',
-          },
-          [
-            {
-              artifact_id: context.artifact.id,
-              source_record_id: context.sourceRecord.id,
-              source_value: edge.sourceValue,
-              locator_type: edge.locatorType,
-              locator_value: edge.locatorValue,
-              observed_at: context.artifact.retrieved_at,
-            },
-          ],
-        );
-        written += 1;
-      }
+  ): Promise<PlannedRelationship> {
+    const item = context.prepared.item;
+    const raw = item.extracted.raw_payload;
+    if (decision?.permitted !== true) {
+      diagnostics.push(
+        `${source.domain}/${item.extracted.source_record_key}: relationship ${plan.predicate} ` +
+          `withheld by rights matrix (${decision?.reasonCode ?? 'NO_GRANT'})`,
+      );
+      return {
+        plan,
+        disposition: 'RIGHTS_WITHHELD',
+        subject: null,
+        object: null,
+        subjectLookup: null,
+        objectLookup: null,
+        writer: null,
+      };
     }
-    return written;
-  }
-
-  async #buildEdge(
-    context: ResolvedRecordContext,
-    plan: RelationshipPlan,
-    diagnostics: string[],
-  ): Promise<{
-    readonly subject: EntityId;
-    readonly object: EntityId;
-    readonly validFrom: IsoDateTime;
-    readonly sourceValue: string;
-    readonly locatorType: FactEvidenceInput['locator_type'];
-    readonly locatorValue: string;
-  } | null> {
-    const raw = context.extracted.raw_payload;
 
     const resolveEndpoint = async (
       endpoint: RelationshipPlan['subject'],
       side: 'subject' | 'object',
-    ): Promise<EntityId | null> => {
-      if (endpoint.kind === 'self') return context.entity.id;
+    ): Promise<{
+      readonly id: EntityId | null;
+      readonly lookup: string | null;
+      readonly ambiguous: boolean;
+    }> => {
+      if (endpoint.kind === 'self') {
+        return { id: context.entity?.id ?? null, lookup: null, ambiguous: false };
+      }
       if (endpoint.kind === 'publisher') {
         if (context.manufacturer === null) {
           diagnostics.push(
-            `${context.sourceRecord.source_record_key}: ${plan.predicate} ${side} publisher unresolved; edge skipped`,
+            `${item.extracted.source_record_key}: ${plan.predicate} ${side} publisher unresolved; edge skipped`,
           );
-          return null;
+          return { id: null, lookup: null, ambiguous: false };
         }
-        return context.manufacturer.id;
+        return { id: context.manufacturer.id, lookup: null, ambiguous: false };
       }
       const value = stringOrNull(raw[endpoint.field]);
-      if (value === null) return null;
+      if (value === null) return { id: null, lookup: null, ambiguous: false };
       const normalized = (await this.#ensureResolver()).normalizer.normalize(
         endpoint.aliasType,
         value,
       );
-      const matches = await this.store.lookupByAlias({
-        vertical_id: context.entity.vertical_id,
+      const stored = await this.store.lookupByAlias({
+        vertical_id: verticalId,
         values: [normalized],
         alias_type: endpoint.aliasType,
         entity_type: endpoint.entityType,
-      });
-      const match = matches.find((candidate) => candidate.alias.normalized_value === normalized);
+      }, tx);
+      const candidates = new Map<EntityId, Entity>();
+      for (const match of stored) {
+        if (
+          match.alias.normalized_value === normalized &&
+          !maskedAliasIds.has(match.alias.id)
+        ) {
+          candidates.set(match.entity.id, match.entity);
+        }
+      }
+      for (const staged of stagedAliases) {
+        if (
+          staged.entity.entity_type === endpoint.entityType &&
+          staged.aliasType === endpoint.aliasType &&
+          staged.normalizedValue === normalized
+        ) {
+          candidates.set(staged.entity.id, staged.entity);
+        }
+      }
+      if (candidates.size > 1) {
+        diagnostics.push(
+          `${item.extracted.source_record_key}: ${plan.predicate} ${side} "${value}" is ambiguous ` +
+            `across ${candidates.size} exact ${endpoint.entityType} identities; edge skipped`,
+        );
+        return { id: null, lookup: normalized, ambiguous: true };
+      }
+      const match = [...candidates.values()].sort((left, right) => {
+        const byFirstSeen = Date.parse(left.first_seen_at) - Date.parse(right.first_seen_at);
+        if (byFirstSeen !== 0) return byFirstSeen;
+        const byCreated = Date.parse(left.created_at) - Date.parse(right.created_at);
+        if (byCreated !== 0) return byCreated;
+        return compareCodeUnits(left.canonical_slug, right.canonical_slug);
+      })[0];
       if (match === undefined) {
         // Never fabricate the other end of an edge. An unresolvable reference
         // is reported and dropped.
         diagnostics.push(
-          `${context.sourceRecord.source_record_key}: ${plan.predicate} ${side} "${value}" ` +
+          `${item.extracted.source_record_key}: ${plan.predicate} ${side} "${value}" ` +
             `resolves to no ${endpoint.entityType}; edge skipped`,
         );
-        return null;
+        return { id: null, lookup: normalized, ambiguous: false };
       }
-      return match.entity.id;
+      return { id: match.id, lookup: normalized, ambiguous: false };
     };
 
-    // The evidence for an edge is the endpoint the source actually wrote down;
-    // the other end is the record itself.
-    const evidenceEndpoint = plan.subject.kind === 'self' ? plan.object : plan.subject;
-    let sourceValue = '';
-    let locatorType: FactEvidenceInput['locator_type'] = context.extracted.locator.type;
-    let locatorValue = context.extracted.locator.value;
-    if (evidenceEndpoint.kind === 'publisher' && evidenceEndpoint.literal !== null) {
-      sourceValue = evidenceEndpoint.literal;
-    } else if (evidenceEndpoint.kind !== 'self') {
-      const field = evidenceEndpoint.field;
-      const value =
-        field === null ? null : context.extracted.values.find((item) => item.field === field);
-      if (value?.raw != null) {
-        sourceValue = value.raw;
-        locatorType = value.locator.type;
-        locatorValue = value.locator.value;
-      }
-    }
+    const evidence = relationshipEvidenceInput(item.extracted, plan);
 
     if (plan.skipWhenNull === 'subject' && plan.subject.kind === 'alias') {
-      if (stringOrNull(raw[plan.subject.field]) === null) return null;
+      if (stringOrNull(raw[plan.subject.field]) === null) {
+        return {
+          plan,
+          disposition: 'NULL_SKIPPED',
+          subject: null,
+          object: null,
+          subjectLookup: null,
+          objectLookup: null,
+          writer: null,
+        };
+      }
     }
     if (plan.skipWhenNull === 'object' && plan.object.kind === 'alias') {
-      if (stringOrNull(raw[plan.object.field]) === null) return null;
+      if (stringOrNull(raw[plan.object.field]) === null) {
+        return {
+          plan,
+          disposition: 'NULL_SKIPPED',
+          subject: null,
+          object: null,
+          subjectLookup: null,
+          objectLookup: null,
+          writer: null,
+        };
+      }
     }
 
     const subject = await resolveEndpoint(plan.subject, 'subject');
     const object = await resolveEndpoint(plan.object, 'object');
-    if (subject === null || object === null || subject === object) return null;
+    if (subject.id === null) {
+      return {
+        plan,
+        disposition: subject.ambiguous ? 'AMBIGUOUS_SUBJECT' : 'UNRESOLVED_SUBJECT',
+        subject: null,
+        object: object.id,
+        subjectLookup: subject.lookup,
+        objectLookup: object.lookup,
+        writer: null,
+      };
+    }
+    if (object.id === null) {
+      return {
+        plan,
+        disposition: object.ambiguous ? 'AMBIGUOUS_OBJECT' : 'UNRESOLVED_OBJECT',
+        subject: subject.id,
+        object: null,
+        subjectLookup: subject.lookup,
+        objectLookup: object.lookup,
+        writer: null,
+      };
+    }
+    if (subject.id === object.id) {
+      return {
+        plan,
+        disposition: 'SELF_EDGE_SKIPPED',
+        subject: subject.id,
+        object: object.id,
+        subjectLookup: subject.lookup,
+        objectLookup: object.lookup,
+        writer: null,
+      };
+    }
 
     const declaredValidFrom =
       plan.validFromField === null ? null : stringOrNull(raw[plan.validFromField]);
     const validFrom =
       declaredValidFrom === null
-        ? context.artifact.retrieved_at
+        ? item.artifact.retrieved_at
         : (new Date(
             /^\d{4}-\d{2}-\d{2}$/.test(declaredValidFrom)
               ? `${declaredValidFrom}T00:00:00Z`
@@ -1000,16 +2223,120 @@ export class Pipeline {
           ).toISOString() as IsoDateTime);
 
     return {
-      subject,
-      object,
-      validFrom,
-      sourceValue: sourceValue === '' ? context.sourceRecord.source_record_key : sourceValue,
-      locatorType,
-      locatorValue,
+      plan,
+      disposition: 'PERSIST',
+      subject: subject.id,
+      object: object.id,
+      subjectLookup: subject.lookup,
+      objectLookup: object.lookup,
+      writer: {
+        draft: {
+          vertical_id: verticalId,
+          subject_entity_id: subject.id,
+          predicate: plan.predicate,
+          object_entity_id: object.id,
+          confidence: relationshipConfidence(claimConfidence(source.authority_rank, undefined)),
+          valid_from: validFrom,
+          recorded_at: item.artifact.retrieved_at,
+          status: 'ACTIVE',
+        },
+        evidence: {
+          artifact_id: item.artifact.id,
+          source_value: evidence.sourceValue,
+          locator_type: evidence.locatorType,
+          locator_value: evidence.locatorValue,
+          observed_at: item.artifact.retrieved_at,
+        },
+      },
     };
   }
 
   /* ---------------- lazily-created singletons ---------------- */
+
+  async #storedRights(source: Source): ReturnType<typeof loadStoredRightsContext> {
+    const cached = this.#rightsContexts.get(source.id);
+    if (cached !== undefined) return cached;
+    const loaded = loadStoredRightsContext(this.store.driver, source.id, this.#options.now);
+    this.#rightsContexts.set(source.id, loaded);
+    return loaded;
+  }
+
+  async #internalRightsDecision(
+    source: Source,
+    entry: SourceRegistryEntry,
+    sourceStatusRequirement: 'ACTIVE' | 'APPROVED_OR_ACTIVE',
+    intent: InternalRightsIntent,
+  ): Promise<RightsEvaluation> {
+    const context = await this.#storedRights(source);
+    if (context === null) {
+      return {
+        permitted: false,
+        state: 'UNKNOWN',
+        reasonCode: 'NO_GRANT',
+        cellId: null,
+        decisionId: null,
+        blockingDecisionIds: [],
+        exceptionIds: [],
+        unmetConditions: [],
+        obligations: [],
+        termsVersionId: null,
+        evaluatedAt: this.#options.now,
+      };
+    }
+    const fieldGroupIds =
+      intent.fieldKey === null
+        ? []
+        : [...(context.snapshot.fieldGroupMembers ?? new Map())]
+            .filter(([, members]) => members.includes(intent.fieldKey as string))
+            .map(([groupId]) => groupId);
+    return evaluateRights(
+      {
+        source: context.source,
+        sourceStatusRequirement,
+        acquisitionRoute: entry.acquisition_policy.method,
+        accountOrProductPlan: entry.acquisition_policy.account_or_product_plan,
+        jurisdiction: entry.acquisition_policy.jurisdiction,
+        assetClass: intent.assetClass,
+        fieldKey: intent.fieldKey,
+        fieldGroupIds,
+        outputClass: intent.outputClass,
+        operation: intent.operation,
+        channel: 'INTERNAL_PROCESSING',
+        asOf: this.#options.now,
+        conditionReceipts: [],
+      },
+      context.snapshot,
+    );
+  }
+
+  async #requireInternalRights(
+    source: Source,
+    entry: SourceRegistryEntry,
+    sourceStatusRequirement: 'ACTIVE' | 'APPROVED_OR_ACTIVE',
+    intents: readonly InternalRightsIntent[],
+  ): Promise<void> {
+    const refused: string[] = [];
+    for (const intent of intents) {
+      const decision = await this.#internalRightsDecision(
+        source,
+        entry,
+        sourceStatusRequirement,
+        intent,
+      );
+      if (!decision.permitted) {
+        refused.push(
+          `${intent.operation}/${intent.outputClass}/${intent.fieldKey ?? '*'}=${decision.reasonCode}`,
+        );
+      }
+    }
+    if (refused.length > 0) {
+      throw new RightsViolationError(
+        entry.rights_classification,
+        `source "${entry.key}"`,
+        `RIGHTS_MATRIX_REFUSED: ${refused.join(' | ')}`,
+      );
+    }
+  }
 
   async #ensureVertical(): Promise<Vertical> {
     if (this.#vertical !== null) return this.#vertical;

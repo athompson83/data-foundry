@@ -5,7 +5,7 @@
  * AGENTS.md rule 7 and doc 02 both say the same thing: **exact identifiers must
  * always win over semantic/fuzzy similarity.** That is implemented here as
  * structure, not as scoring. Two queries run: a deterministic equality probe
- * against `entity_aliases`, `canonical_slug` and `canonical_name`, and a
+ * against `current_entity_aliases`, `canonical_slug` and `canonical_name`, and a
  * ranked text query. Exact hits are placed ahead of every ranked hit before any
  * comparison of scores happens, so a fuzzier candidate that ranks higher
  * textually still cannot displace an exact model-number match.
@@ -26,7 +26,14 @@ import {
 import type { Entity, EntityStatus, Identifier, VerticalId } from '@data-foundry/canonical-schema';
 import { computeFacets, facetFilterPredicates } from './filters.js';
 import type { FacetFilter, FacetResult, FieldMetadataRegistry } from './field-metadata.js';
-import { CURRENT_FACT, Params, VALUE_TEXT, identifierCandidates, likePattern } from './sql.js';
+import {
+  CURRENT_FACT,
+  Params,
+  VALUE_TEXT,
+  identifierCandidates,
+  likePattern,
+  uuidJsonSetPredicate,
+} from './sql.js';
 
 export const SEARCH_MATCH_KINDS = [
   /** Equality on an alias/identifier. Always ranked first. */
@@ -54,6 +61,14 @@ export interface SearchQuery {
   readonly include_facets?: boolean;
   /** Minimum trigram similarity, when pg_trgm is available. */
   readonly fuzzy_threshold?: number;
+  /**
+   * Trusted query-layer restriction used by a surface-bound QueryModel. These
+   * ids are never accepted from an HTTP query. An empty list means no entity
+   * is visible; omission is the internal/unbound behavior.
+   */
+  readonly authorized_entity_ids?: readonly Entity['id'][];
+  /** Current facts whose evidence passed the same surface rights evaluation. */
+  readonly authorized_fact_ids?: readonly string[];
 }
 
 export interface SearchHit {
@@ -117,15 +132,36 @@ function entityScope(
   params: Params,
   alias = 'e',
 ): string {
+  if (query.authorized_entity_ids !== undefined && query.authorized_entity_ids.length === 0) {
+    return 'FALSE';
+  }
   const statuses = query.statuses ?? DEFAULT_STATUSES;
   const clauses = [`${alias}.vertical_id = ${params.add(query.vertical_id)}`];
+  if (query.authorized_entity_ids !== undefined) {
+    clauses.push(
+      uuidJsonSetPredicate(
+        `${alias}.id`,
+        query.authorized_entity_ids,
+        params,
+        'authorized_entity_id',
+      ),
+    );
+  }
   if (statuses.length > 0) {
     clauses.push(`${alias}.status IN (${params.addAll([...statuses]).join(', ')})`);
   }
   if (query.entity_type !== undefined) {
     clauses.push(`${alias}.entity_type = ${params.add(query.entity_type)}`);
   }
-  clauses.push(...facetFilterPredicates(query.filters ?? [], registry, alias, params));
+  clauses.push(
+    ...facetFilterPredicates(
+      query.filters ?? [],
+      registry,
+      alias,
+      params,
+      query.authorized_fact_ids,
+    ),
+  );
   return clauses.join(' AND ');
 }
 
@@ -153,9 +189,8 @@ export async function lookupExactIdentifier(
     `SELECT ${qualifiedEntityColumns('e')}, m.tier AS tier, m.matched_on AS matched_on
        FROM (
          SELECT a.entity_id AS entity_id, 1 AS tier, a.alias_value AS matched_on
-           FROM entity_aliases a
-          WHERE a.valid_to IS NULL
-            AND (a.normalized_value IN (${aliasList}) OR a.alias_value IN (${aliasList}))
+           FROM current_entity_aliases a
+          WHERE (a.normalized_value IN (${aliasList}) OR a.alias_value IN (${aliasList}))
          UNION ALL
          SELECT es.id, 2, es.canonical_slug
            FROM entities es
@@ -208,9 +243,8 @@ function buildMatchesCte(
     `SELECT a.entity_id,
             ts_rank(to_tsvector('simple', a.alias_value), ${tsq()}) * 0.9,
             1
-       FROM entity_aliases a
-      WHERE a.valid_to IS NULL
-        AND to_tsvector('simple', a.alias_value) @@ ${tsq()}`,
+       FROM current_entity_aliases a
+      WHERE to_tsvector('simple', a.alias_value) @@ ${tsq()}`,
   );
 
   if (trigram) {
@@ -222,9 +256,8 @@ function buildMatchesCte(
     );
     arms.push(
       `SELECT a.entity_id, similarity(a.alias_value, ${params.add(text)}) * 0.7, 2
-         FROM entity_aliases a
-        WHERE a.valid_to IS NULL
-          AND similarity(a.alias_value, ${params.add(text)}) >= ${params.add(threshold)}::real`,
+         FROM current_entity_aliases a
+        WHERE similarity(a.alias_value, ${params.add(text)}) >= ${params.add(threshold)}::real`,
     );
   } else {
     // Portable fallback when pg_trgm is not installed. Coarser, but it keeps
@@ -235,19 +268,31 @@ function buildMatchesCte(
         WHERE lower(e.canonical_name) LIKE ${like} OR e.canonical_slug LIKE ${like}`,
     );
     arms.push(
-      `SELECT a.entity_id, 0.04, 3 FROM entity_aliases a
-        WHERE a.valid_to IS NULL AND lower(a.alias_value) LIKE ${like}`,
+      `SELECT a.entity_id, 0.04, 3 FROM current_entity_aliases a
+        WHERE lower(a.alias_value) LIKE ${like}`,
     );
   }
 
   // Doc 04 "search_boost": a field's declared weight is what makes its values
   // searchable, not a hard-coded list of interesting columns.
   for (const field of registry.boosted()) {
+    const authorizedFacts = query.authorized_fact_ids;
+    if (authorizedFacts !== undefined && authorizedFacts.length === 0) continue;
+    const accessPredicate =
+      authorizedFacts === undefined
+        ? ''
+        : ` AND ${uuidJsonSetPredicate(
+            'f.id',
+            authorizedFacts,
+            params,
+            'authorized_search_fact_id',
+          )}`;
     arms.push(
       `SELECT f.entity_id, ${params.add(String(field.search_boost * 0.6))}::real, 4
          FROM facts f
         WHERE f.property = ${params.add(field.field)}
           AND ${CURRENT_FACT('f')}
+          ${accessPredicate}
           AND lower(${VALUE_TEXT('f')}) LIKE ${params.add(likePattern(text))}`,
     );
   }
@@ -384,6 +429,12 @@ export async function searchEntities(
       ? await computeFacets(driver, registry, {
           vertical_id: query.vertical_id,
           ...(query.entity_type === undefined ? {} : { entity_type: query.entity_type }),
+          ...(query.authorized_entity_ids === undefined
+            ? {}
+            : { entity_ids: query.authorized_entity_ids }),
+          ...(query.authorized_fact_ids === undefined
+            ? {}
+            : { authorized_fact_ids: query.authorized_fact_ids }),
         })
       : [];
 

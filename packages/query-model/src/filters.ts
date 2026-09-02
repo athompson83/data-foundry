@@ -16,7 +16,13 @@ import {
   type FacetValueCount,
   type FieldMetadataRegistry,
 } from './field-metadata.js';
-import { CURRENT_FACT, NUMERIC_FACT_TYPES, Params, VALUE_TEXT } from './sql.js';
+import {
+  CURRENT_FACT,
+  NUMERIC_FACT_TYPES,
+  Params,
+  VALUE_TEXT,
+  uuidJsonSetPredicate,
+} from './sql.js';
 
 /**
  * `EXISTS (...)` predicate constraining `entityAlias` to entities holding a
@@ -29,8 +35,10 @@ export function facetFilterPredicate(
   entityAlias: string,
   params: Params,
   index: number,
+  authorizedFactIds?: readonly string[],
 ): string {
   const metadata = registry.require(filter.property);
+  if (authorizedFactIds !== undefined && authorizedFactIds.length === 0) return 'FALSE';
   const alias = `ff${index}`;
   const numeric = isNumericValueType(metadata.value_type);
   const clauses = [
@@ -38,6 +46,16 @@ export function facetFilterPredicate(
     `${alias}.property = ${params.add(filter.property)}`,
     CURRENT_FACT(alias),
   ];
+  if (authorizedFactIds !== undefined) {
+    clauses.push(
+      uuidJsonSetPredicate(
+        `${alias}.id`,
+        authorizedFactIds,
+        params,
+        `authorized_filter_fact_${index}`,
+      ),
+    );
+  }
 
   switch (filter.op) {
     case 'exists':
@@ -85,9 +103,10 @@ export function facetFilterPredicates(
   registry: FieldMetadataRegistry,
   entityAlias: string,
   params: Params,
+  authorizedFactIds?: readonly string[],
 ): string[] {
   return filters.map((filter, index) =>
-    facetFilterPredicate(filter, registry, entityAlias, params, index),
+    facetFilterPredicate(filter, registry, entityAlias, params, index, authorizedFactIds),
   );
 }
 
@@ -98,6 +117,8 @@ export interface FacetQuery {
   readonly entity_ids?: readonly string[];
   /** Subset of facetable fields to compute. Defaults to all of them. */
   readonly properties?: readonly Identifier[];
+  /** Trusted surface-rights restriction; omission is internal/unbound use. */
+  readonly authorized_fact_ids?: readonly string[];
 }
 
 /**
@@ -126,8 +147,18 @@ export async function computeFacets(
   }
   if (query.entity_ids !== undefined) {
     if (query.entity_ids.length === 0) return emptyFacets(fields);
-    const list = params.addAll(query.entity_ids).join(', ');
-    scope.push(`e.id IN (${list})`);
+    scope.push(uuidJsonSetPredicate('e.id', query.entity_ids, params, 'authorized_facet_entity_id'));
+  }
+  if (query.authorized_fact_ids !== undefined) {
+    if (query.authorized_fact_ids.length === 0) return emptyFacets(fields);
+    scope.push(
+      uuidJsonSetPredicate(
+        'f.id',
+        query.authorized_fact_ids,
+        params,
+        'authorized_facet_fact_id',
+      ),
+    );
   }
   const propertyList = params.addAll(fields.map((field) => field.field)).join(', ');
   scope.push(`f.property IN (${propertyList})`);
