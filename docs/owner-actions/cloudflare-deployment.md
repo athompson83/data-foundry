@@ -53,11 +53,17 @@ canary:
    documentation-only follow-up commit after that verification.
 
    A provider-side containment result is still required before a deployment or
-   any new credential-bearing migration/recovery action. If sanitized evidence cannot identify the provider/item, record
-   `unable_to_target_from_sanitized_evidence`; do not guess, reopen prohibited
-   browser state, or rotate unrelated credentials. After both containment and
-   exact-SHA repository validation, check out the selected SHA and begin with a
-   read-only direct-TLS check of the hosted ledger versions/checksums, object
+   any new credential-bearing migration/recovery action. If sanitized evidence
+   cannot identify the provider/item, record it; recording
+   `unable_to_target_from_sanitized_evidence` is not a successful containment
+   result and does not authorize provider activity. Obtain and
+   record a security-owner disposition before any provider action; continue only
+   if that disposition explicitly clears the provider gate. Do not guess, reopen
+   prohibited browser state, or rotate unrelated credentials. After successful
+   containment and an affirmative, recorded security-owner disposition
+   explicitly clearing the provider gate, and after exact-SHA repository
+   validation, check out the selected SHA and begin with a read-only direct-TLS
+   check of the hosted ledger versions/checksums, object
    ownership, role state, and direct ACLs. If and only if that proves the exact
    historical `0001`–`0026` state, set `DATA_FOUNDRY_RELEASE_SHA` to the same SHA
    and apply only the pending migrations (`0027` and `0028`) through direct PostgreSQL TLS

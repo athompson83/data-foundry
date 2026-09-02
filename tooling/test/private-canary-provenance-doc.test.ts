@@ -117,5 +117,17 @@ describe('private-canary provenance documentation', () => {
     expect(CHECKLIST).toContain('unable_to_target_from_sanitized_evidence');
     expect(PROGRESS).toMatch(/provider-side containment[^\n]*`UA-006`/i);
     expect(PROGRESS).toContain('`UA-001` through `UA-006`');
+    expect(RUNBOOK).toMatch(
+      /`unable_to_target_from_sanitized_evidence`[^.]*is not a successful\s+containment\s+result/i,
+    );
+    expect(RUNBOOK).toMatch(
+      /security-owner disposition[^.]*before any provider action/i,
+    );
+    expect(RUNBOOK).toMatch(
+      /successful\s+containment\s+and\s+an affirmative,\s+recorded security-owner disposition[^.]*clearing the provider gate/i,
+    );
+    expect(RUNBOOK).not.toMatch(
+      /successful\s+containment\s+or\s+an affirmative security-owner disposition/i,
+    );
   });
 });
