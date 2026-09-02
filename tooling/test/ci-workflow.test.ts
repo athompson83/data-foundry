@@ -566,7 +566,7 @@ describe('CI workflow policy', () => {
     expectOrderedAfter(
       'ALTER ROLE ALL SET lo_compat_privileges TO on;',
       "expect_runtime_role_rejection 'an ALTER ROLE ALL lo_compat_privileges override'",
-      "expect_post_credential_rejection 'an ALTER ROLE ALL lo_compat_privileges override'",
+      "expect_post_credential_rejection 'an ALTER ROLE ALL lo_compat_privileges override' \"$migration_durable_setting_rejection_signature\"",
       'ALTER ROLE ALL RESET lo_compat_privileges;',
       'pnpm runtime-roles:postgres:check',
       'run_admin_sql < "$post_credential_verification_path"',

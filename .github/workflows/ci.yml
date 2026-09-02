@@ -1130,7 +1130,7 @@ jobs:
           ALTER ROLE ALL SET lo_compat_privileges TO on;
           SQL
           expect_runtime_role_rejection 'an ALTER ROLE ALL lo_compat_privileges override' "$runtime_role_rejection_signature"
-          expect_post_credential_rejection 'an ALTER ROLE ALL lo_compat_privileges override' "$durable_setting_rejection_signature"
+          expect_post_credential_rejection 'an ALTER ROLE ALL lo_compat_privileges override' "$migration_durable_setting_rejection_signature"
           run_admin_sql >/dev/null <<'SQL'
           ALTER ROLE ALL RESET lo_compat_privileges;
           SQL
