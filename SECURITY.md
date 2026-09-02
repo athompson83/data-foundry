@@ -105,8 +105,12 @@ branch is the only supported thing to run.
 | any tag or fork | ❌ |
 
 No production deployment of this integration candidate is recorded or
-verified. Live Cloudflare account state could not be inspected from the
-available environment; exact deployment IDs and runtime probes remain
+verified. Dated, redacted 2026-09-01/09-02 evidence records a scoped read-only
+Cloudflare inventory: the active/full zone, standard usage model, and ordinary
+14-day Queue/DLQ pair were observed, while no Data Foundry Worker, route,
+Hyperdrive, or R2 bucket was observed. This authoritative 14:46Z refresh
+supersedes an earlier same-day raw-bucket observation. Those inventory facts are not live binding,
+receipt, or runtime proof; exact deployment IDs and runtime probes remain
 owner/platform evidence. The five-Worker topology exists in this candidate as
 ordinary production manifests, while the route-less private-canary topology is
 six artifacts: five dedicated reduced targets plus the no-Hyperdrive harness.

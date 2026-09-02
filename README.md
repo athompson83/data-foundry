@@ -58,10 +58,13 @@ implements. A vertical is exposed only while it is `ACTIVE` and has an exact
 the exact rendered facts, attributions and relationships. The quality-gate evaluator
 (`apps/web/src/gates.ts`) decides indexability from authorized evidence rather
 than raw database aggregates or fiat. The integrated implementation is on
-protected `main`, but no production deployment is recorded or verified. Live
-Cloudflare and Vercel state was reconciled read-only on 2026-08-31: the zone is
-active/full, but no Data Foundry Cloudflare resources exist and the configured
-Vercel data hostname returns 404. Exact deployment IDs and runtime probes remain
+protected `main`, but no production deployment is recorded or verified. The
+2026-08-31 no-resource observation is historical: the authoritative
+2026-09-02T14:46Z refresh shows the zone active/full, the standard usage model,
+and exactly the ordinary 14-day Queue/DLQ pair, but zero Data Foundry Workers,
+routes, Hyperdrives, or R2 buckets. It supersedes an earlier same-day raw-bucket
+observation. The configured Vercel data hostname
+returns 404. Exact deployment IDs and runtime probes remain
 owner/platform evidence — see the [redacted reconciliation record](docs/evidence/alpha-lab-provider-reconciliation-20260831.md)
 and Deployment below.
 
@@ -418,13 +421,22 @@ unchanged ordinary `data-foundry-usage-events` and
 `data-foundry-usage-events-dlq` pair; only the ordinary usage consumer consumes
 the ordinary usage queue.
 
-**No Worker release candidate is currently designated.** The historical
+The latest dated provider inventory distinguishes resources from live wiring:
+there is no Data Foundry Worker, Worker route, Hyperdrive configuration, or R2
+bucket. Only the ordinary 14-day Queue/DLQ pair exists; it proves neither a
+Worker binding nor a deployed runtime. Both the raw-artifact and private-canary
+receipt buckets still require provisioning.
+
+**Repository state alone designates no Worker release candidate.** The historical
 `df4a665`, `64bb05b`, and `effa3ec` revisions are provenance only. Before any
-provider action, one final PR #26 SHA must contain the runtime changes, six
-artifact gate, tests, and aligned documentation, then pass exact-head validation.
-That repository attestation still does not authorize a deployment, hosted
-migration, or provider mutation; do not add a documentation-only follow-up
-commit after that verification.
+provider action, the exact merged/reviewed SHA must contain the runtime changes,
+six-artifact gate, tests, and aligned documentation, then pass exact-head
+validation. Repository migrations `0027`–`0028` extend the historical hosted
+`0001`–`0026` chain and remain pending hosted authorization/application; the dated hosted record still
+truthfully reports 26 applied migrations and 57 search-path warnings. That
+repository attestation does not authorize a deployment, hosted migration, or
+provider mutation; do not add a documentation-only follow-up commit after that
+verification.
 
 ```bash
 pnpm verticals:compile        # emit apps/edge/generated/<slug>.runtime.json

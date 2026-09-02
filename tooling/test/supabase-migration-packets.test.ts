@@ -14,6 +14,7 @@ import {
   type MigrationDriver,
 } from '../scripts/migrate.js';
 import {
+  buildSupabaseMigrationPlanFromGit,
   buildSupabaseMigrationPlan,
   parseSupabaseMigrationCliArguments,
   RELEVANT_SOURCE_PATHS,
@@ -138,10 +139,10 @@ describe('Supabase connector migration packet export', () => {
     ).toThrow(/verified source identity.*release SHA.*HEAD/i);
   });
 
-  it('requires the independently pinned contiguous 0001 through 0026 repository chain', () => {
+  it('requires the independently pinned contiguous 0001 through 0028 repository chain', () => {
     expect(() =>
       build({ migrations: migrations.filter(({ version }) => version !== '0002') }),
-    ).toThrow(/expected 26 contiguous migrations.*missing.*0002/i);
+    ).toThrow(/expected 28 contiguous migrations.*missing.*0002/i);
   });
   it('uses the private-schema transform checksum as the application ledger authority', () => {
     const plan = build();
@@ -150,14 +151,27 @@ describe('Supabase connector migration packet export', () => {
     expect(plan.releaseSha).toBe(RELEASE_SHA);
     expect(plan.schema).toBe(DATA_FOUNDRY_PRIVATE_SCHEMA);
     expect(plan.migrationRole).toBe('df_migration');
-    expect(plan.repositoryMigrationCount).toBe(26);
-    expect(plan.pendingMigrationCount).toBe(26);
+    expect(plan.repositoryMigrationCount).toBe(28);
+    expect(plan.pendingMigrationCount).toBe(28);
     expect(plan.packets[0]).toMatchObject({
       version: '0001',
       filename: '0001_verticals_and_sources.sql',
       checksum: FIRST_PRIVATE_CHECKSUM,
       providerMigrationName: `data_foundry_0001_${FIRST_PRIVATE_CHECKSUM.slice(0, 12)}`,
     });
+  });
+
+  it('exports only 0027 and 0028 for the exact hosted 0001 through 0026 ledger prefix', () => {
+    const fullPlan = build();
+    const appliedMigrations = fullPlan.packets.slice(0, 26).map(
+      ({ version, filename, checksum }) => ({ version, filename, checksum }),
+    );
+
+    const upgradePlan = build({ appliedMigrations });
+
+    expect(upgradePlan.appliedMigrationCount).toBe(26);
+    expect(upgradePlan.pendingMigrationCount).toBe(2);
+    expect(upgradePlan.packets.map(({ version }) => version)).toEqual(['0027', '0028']);
   });
 
   it('emits one transaction-scoped packet per pending app migration and preserves exact transformed SQL', () => {
@@ -175,7 +189,7 @@ describe('Supabase connector migration packet export', () => {
 
     expect(migration).toBeDefined();
     expect(packet).toBeDefined();
-    expect(plan.pendingMigrationCount).toBe(25);
+    expect(plan.pendingMigrationCount).toBe(27);
     expect(plan.packets[0]?.version).toBe('0002');
     expect(packet?.transformedSql).toBe(
       scopeMigrationSql(migration!.sql, DATA_FOUNDRY_PRIVATE_SCHEMA),
@@ -243,7 +257,7 @@ describe('Supabase connector migration packet export', () => {
     expect(plan.bootstrapSql).toMatch(/RESET search_path;\s*RESET ROLE;\s*$/);
 
     expect(plan.verificationSql).toContain("('0001', '0001_verticals_and_sources.sql'");
-    expect(plan.verificationSql).toContain("('0026', '0026_surface_authorization_streaming_indexes.sql'");
+    expect(plan.verificationSql).toContain("('0028', '0028_audited_foreign_key_indexes.sql'");
     expect(plan.verificationSql).toContain(LEDGER_MARKER);
     expect(plan.verificationSql).toContain('canonical_columns_match');
     expect(plan.verificationSql).toContain('primary_key_on_version');
@@ -474,12 +488,57 @@ describe('Supabase connector migration packet export', () => {
            FROM information_schema.tables
           WHERE table_schema = 'public' AND table_type = 'BASE TABLE'`,
       );
-      expect(rows).toHaveLength(26);
+      expect(rows).toHaveLength(28);
       expect(rows[0]).toEqual({ version: '0001', checksum: FIRST_PRIVATE_CHECKSUM });
-      expect(rows.at(-1)?.version).toBe('0026');
+      expect(rows.at(-1)?.version).toBe('0028');
       expect(publicTables).toEqual([]);
     } finally {
       await database?.close();
     }
   }, 120_000);
+
+  it('loads packet bytes from the immutable Git object after source identity verification', async () => {
+    const repository = await mkdtemp(join(tmpdir(), 'data-foundry-export-race-'));
+    try {
+      for (const relativePath of RELEVANT_SOURCE_PATHS) {
+        const target = join(repository, relativePath);
+        if (relativePath === 'db/migrations') {
+          await mkdir(target, { recursive: true });
+          for (let ordinal = 1; ordinal <= 28; ordinal += 1) {
+            const version = String(ordinal).padStart(4, '0');
+            await writeFile(join(target, `${version}_fixture.sql`), `SELECT 'committed-${version}';\n`);
+          }
+        } else {
+          await mkdir(dirname(target), { recursive: true });
+          await writeFile(target, `// ${relativePath}\n`);
+        }
+      }
+      await execFileAsync('git', ['init'], { cwd: repository });
+      await execFileAsync('git', ['config', 'user.email', 'test@example.invalid'], { cwd: repository });
+      await execFileAsync('git', ['config', 'user.name', 'Data Foundry Test'], { cwd: repository });
+      await execFileAsync('git', ['add', '.'], { cwd: repository });
+      await execFileAsync('git', ['commit', '-m', 'fixture'], { cwd: repository });
+      const { stdout } = await execFileAsync('git', ['rev-parse', 'HEAD'], { cwd: repository });
+      const releaseSha = stdout.trim();
+
+      const plan = await buildSupabaseMigrationPlanFromGit(
+        { releaseSha, repositoryRoot: repository, appliedMigrations: [] },
+        {
+          verifySourceIdentity: async (sha, root) => {
+            const identity = await verifyGitSourceIdentity(sha, root);
+            await writeFile(
+              join(repository, 'db/migrations/0028_fixture.sql'),
+              "SELECT 'mutated-worktree';\n",
+            );
+            return identity;
+          },
+        },
+      );
+
+      expect(plan.packets.at(-1)?.transformedSql).toContain("SELECT 'committed-0028'");
+      expect(plan.packets.at(-1)?.transformedSql).not.toContain('mutated-worktree');
+    } finally {
+      await rm(repository, { recursive: true, force: true });
+    }
+  });
 });

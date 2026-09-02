@@ -19,7 +19,7 @@ describe('the no-commit Cloudflare deployment check', () => {
 
   it('does not treat a historical runtime-fix or pre-repair head as a deployable candidate', () => {
     expect(RUNBOOK).toMatch(
-      /Containment is a provider-side gate; repository remediation continues\s+in\s+parallel\. No Worker release candidate is currently designated\./,
+      /Containment is a provider-side gate; repository remediation continues\s+in\s+parallel\. Repository state alone designates no Worker release candidate\./,
     );
     expect(RUNBOOK).toContain('`effa3ec82c96e8f68d21ddc4d2b32919497dbddb`');
     expect(RUNBOOK).toMatch(/all six\s+route-less private-canary Worker artifacts/);
@@ -73,7 +73,10 @@ describe('the no-commit Cloudflare deployment check', () => {
       /NOLOGIN, nonprivileged, non-member roles with only\s+direct, non-grantable `CONNECT` on the current database and `USAGE` on\s+`extensions`/,
     );
     expect(RUNBOOK).toMatch(
-      /apply `sql`\s+in one direct-TLS transaction before running `verificationSql`\. Never submit\s+the packet to a provider connector or provider migration record/,
+      /On a fresh\s+unprovisioned installation, apply `sql` in one direct-TLS transaction before\s+running `verificationSql`/,
+    );
+    expect(RUNBOOK).toMatch(
+      /On the hosted exact-legacy upgrade, migration\s+`0027` itself converts only the attested 200-grant acquisition shape to the\s+exact 199-grant shape; `0028` then adds only the four audited rights-path\s+indexes\. Do not reapply the grant installer/,
     );
     expect(RUNBOOK).toMatch(
       /`transactionContract\.liveUseAuthorized: false` and\s+provider-ledger atomicity `unverified` apply only to its archival connector\s+packets/,

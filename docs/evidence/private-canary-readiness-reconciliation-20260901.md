@@ -26,10 +26,11 @@ state are deliberately omitted.
   `290df1342094433e92978ec97eb37cc02fc4eb50`. CI run `33517988867` completed
   successfully on that head, but its legacy artifact gate built only five
   ordinary Worker manifests and omitted `apps/private-canary`.
-- **No Worker release candidate is currently designated.** Every SHA above is
+- **Repository state alone designates no Worker release candidate.** Every SHA above is
   historical provenance only. None may be used for a migration, artifact build
-  intended for deployment, or provider deployment until one final exact PR #26
-  SHA is repository-validated and the separate provider gates are complete.
+  intended for deployment, or provider deployment until a reviewed exact
+  release SHA is repository-validated and the separate provider gates are
+  complete.
 
 The original candidate was superseded by necessary runtime repairs: private
 fixture cycles, closed metering verification, TLS-only direct migration,
@@ -41,8 +42,9 @@ shared usage DLQ.
 
 The required provenance gate is deliberately explicit. Repository engineering
 continues while provider-side containment is pending, but no provider operation
-may begin until both gates are satisfied. The final PR #26 SHA must contain the
-runtime changes, tests, six-artifact gate, and aligned documentation. A clean
+may begin until both gates are satisfied. The exact release SHA selected for
+provider work must contain the runtime changes, tests, six-artifact gate, and
+aligned documentation. A clean
 checkout of that exact SHA must dry-run and scan all six route-less
 private-canary Worker artifacts: five reduced target Workers (each with a
 synthetic Hyperdrive configuration only for the credential-free build) plus the
@@ -53,7 +55,8 @@ insufficient and must not be cited as six-Worker provenance.
 
 That repository artifact attestation is not provider deployment evidence. Do
 not add a documentation-only follow-up commit after that verification. Instead,
-record the final SHA and its exact test evidence in the PR body, then obtain
+record the selected SHA and its exact test evidence in the durable release/PR
+record, then obtain
 provider evidence mapping all six temporary Worker scripts/versions to the same
 SHA before any canary fixture. A source-path comparison, historical ancestor, or
 later documentation SHA is not an artifact attestation.
@@ -66,7 +69,12 @@ The scoped account/zone inventory reported:
 - no Data Foundry Hyperdrive configuration;
 - no Data Foundry Worker route;
 - no exact Data Foundry hostname DNS record;
-- no Data Foundry R2 bucket;
+- no Data Foundry R2 bucket was visible in this 2026-09-01 snapshot. An earlier
+  2026-09-02 observation listed `data-foundry-raw-artifacts`, but the later
+  authoritative 2026-09-02T14:46Z API refresh found zero R2 buckets and
+  supersedes that same-day observation. The raw-artifact bucket is currently
+  absent; even when present it is not the private-canary receipt bucket or
+  Worker/R2 binding proof;
 - `data-foundry-usage-events` and
   `data-foundry-usage-events-dlq`, each with 1,209,600 seconds (14 days)
   retention and zero configured consumers.
@@ -75,6 +83,11 @@ The fresh session made no Cloudflare mutation. Read-only inventory can prove
 the current absence/presence above, but cannot by itself attribute the two
 preexisting Queue objects to an earlier session. No public DNS or Worker route
 was introduced.
+
+The authoritative 2026-09-02T14:46Z API refresh keeps the ordinary two-queue,
+14-day, zero-consumer observation current and records the standard usage model,
+zero Data Foundry Workers, zero Hyperdrives, zero R2 buckets, and no Data
+Foundry hostname record or Worker route. It names no unrelated Worker scripts.
 
 ## Hosted database inventory
 

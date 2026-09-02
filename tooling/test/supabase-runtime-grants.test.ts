@@ -15,6 +15,8 @@ import {
   buildRuntimeRoleExpectedGrants,
   PRIVATE_CANARY_RUNTIME_BINDING_SQL,
 } from '@data-foundry/private-canary';
+import { createCanonicalStore, type SqlDriver } from '@data-foundry/canonical-store';
+import type { IsoDateTime } from '@data-foundry/canonical-schema';
 
 const RELEASE_SHA = '290df1342094433e92978ec97eb37cc02fc4eb50';
 const SOURCE_IDENTITY = {
@@ -102,8 +104,20 @@ describe('Supabase post-migration runtime grants', () => {
     expect(first.sql).toContain(
       'GRANT SELECT, INSERT, UPDATE ON TABLE "data_foundry"."scheduled_acquisition_runs" TO "df_acquisition";',
     );
+    expect(first.sql).toContain(
+      'GRANT SELECT, INSERT ON TABLE "data_foundry"."sources" TO "df_acquisition";',
+    );
+    expect(first.sql).toContain(
+      'GRANT UPDATE ("kill_switch_engaged") ON TABLE "data_foundry"."sources" TO "df_acquisition";',
+    );
+    expect(first.sql).toContain(
+      'GRANT SELECT, INSERT ON TABLE "data_foundry"."source_artifacts" TO "df_acquisition";',
+    );
+    expect(first.sql).not.toMatch(
+      /GRANT[^;]*UPDATE ON TABLE "data_foundry"\."(?:sources|source_artifacts)"/,
+    );
     expect(first.functionSignatures).toHaveLength(57);
-    expect(first.expectedGrants).toHaveLength(200);
+    expect(first.expectedGrants).toHaveLength(199);
     expect(first.expectedGrants).toEqual(buildRuntimeRoleExpectedGrants('data_foundry'));
     for (const signature of first.functionSignatures) {
       expect(first.sql).toContain(
@@ -134,7 +148,9 @@ describe('Supabase post-migration runtime grants', () => {
                has_any_column_privilege('df_web', 'data_foundry.api_keys', 'SELECT') AS web_auth_select,
                has_column_privilege('df_usage', 'data_foundry.api_usage_events', 'route_key', 'INSERT') AS usage_insert,
                has_table_privilege('df_usage', 'data_foundry.api_usage_events', 'UPDATE') AS usage_update,
-               has_table_privilege('df_acquisition', 'data_foundry.sources', 'UPDATE') AS acquisition_update,
+               has_table_privilege('df_acquisition', 'data_foundry.sources', 'UPDATE') AS acquisition_relation_update,
+               has_column_privilege('df_acquisition', 'data_foundry.sources', 'kill_switch_engaged', 'UPDATE') AS acquisition_kill_switch_update,
+               has_table_privilege('df_acquisition', 'data_foundry.source_artifacts', 'UPDATE') AS acquisition_artifact_update,
                has_table_privilege('df_acquisition', 'data_foundry.sources', 'DELETE') AS acquisition_delete,
                has_function_privilege('df_acquisition', 'data_foundry.scheduled_acquisition_validators_valid(jsonb)', 'EXECUTE') AS acquisition_execute,
                has_function_privilege('df_edge', 'data_foundry.scheduled_acquisition_validators_valid(jsonb)', 'EXECUTE') AS edge_execute,
@@ -148,7 +164,9 @@ describe('Supabase post-migration runtime grants', () => {
         web_auth_select: false,
         usage_insert: true,
         usage_update: false,
-        acquisition_update: true,
+        acquisition_relation_update: false,
+        acquisition_kill_switch_update: true,
+        acquisition_artifact_update: false,
         acquisition_delete: false,
         acquisition_execute: true,
         edge_execute: false,
@@ -156,6 +174,219 @@ describe('Supabase post-migration runtime grants', () => {
         edge_schema_create: false,
       });
     } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it('reconciles the previously hosted broad acquisition UPDATE grants during 0027', async () => {
+    const { database, plan } = await createMigratedDatabase();
+    try {
+      await database.exec(`
+        BEGIN;
+        ${plan.postMigrationGrants.sql}
+        COMMIT;
+        REVOKE UPDATE (kill_switch_engaged) ON data_foundry.sources FROM df_acquisition;
+        GRANT UPDATE ON data_foundry.sources TO df_acquisition;
+        GRANT UPDATE ON data_foundry.source_artifacts TO df_acquisition;
+      `);
+      const [before] = await database.query<Record<string, boolean>>(`
+        SELECT has_table_privilege('df_acquisition', 'data_foundry.sources', 'UPDATE') AS sources_update,
+               has_table_privilege('df_acquisition', 'data_foundry.source_artifacts', 'UPDATE') AS artifacts_update
+      `);
+      expect(before).toEqual({ sources_update: true, artifacts_update: true });
+
+      const migration = plan.packets.find((packet) => packet.version === '0027');
+      expect(migration).toBeDefined();
+      await database.exec(`
+        BEGIN;
+        SET LOCAL ROLE df_migration;
+        SET LOCAL search_path TO data_foundry, pg_catalog, extensions;
+        ${migration!.transformedSql}
+        COMMIT;
+      `);
+
+      await database.exec(plan.postMigrationGrants.verificationSql);
+      const [after] = await database.query<Record<string, boolean>>(`
+        SELECT has_table_privilege('df_acquisition', 'data_foundry.sources', 'UPDATE') AS sources_update,
+               has_column_privilege('df_acquisition', 'data_foundry.sources', 'kill_switch_engaged', 'UPDATE') AS kill_switch_update,
+               has_table_privilege('df_acquisition', 'data_foundry.source_artifacts', 'UPDATE') AS artifacts_update
+      `);
+      expect(after).toEqual({
+        sources_update: false,
+        kill_switch_update: true,
+        artifacts_update: false,
+      });
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it.each([
+    {
+      name: 'partial legacy relation grant',
+      sql: `REVOKE UPDATE (kill_switch_engaged) ON data_foundry.sources FROM df_acquisition;
+            GRANT UPDATE ON data_foundry.sources TO df_acquisition;`,
+    },
+    {
+      name: 'extra source column grant',
+      sql: 'GRANT UPDATE (status) ON data_foundry.sources TO df_acquisition;',
+    },
+  ])('refuses $name before changing acquisition ACLs', async ({ sql }) => {
+    const { database, plan } = await createMigratedDatabase();
+    try {
+      await database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;\n${sql}`);
+      const migration = plan.packets.find((packet) => packet.version === '0027');
+      await expect(database.exec(`
+        BEGIN;
+        SET LOCAL ROLE df_migration;
+        SET LOCAL search_path TO data_foundry, pg_catalog, extensions;
+        ${migration!.transformedSql}
+        COMMIT;
+      `)).rejects.toThrow(/unexpected acquisition UPDATE ACL/i);
+      await database.exec('ROLLBACK').catch(() => undefined);
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it('verifies every private function has the exact pinned runtime search path', async () => {
+    const { database, plan } = await createMigratedDatabase();
+    try {
+      await database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`);
+      await database.exec(plan.postMigrationGrants.verificationSql);
+      await database.exec(`
+        ALTER FUNCTION data_foundry.scheduled_acquisition_validators_valid(jsonb)
+        SET search_path TO public
+      `);
+      await expect(database.exec(plan.postMigrationGrants.verificationSql)).rejects.toThrow(
+        /function search path/i,
+      );
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it('refuses function search-path drift before granting any runtime privilege', async () => {
+    const { database, plan } = await createMigratedDatabase();
+    try {
+      await database.exec(`
+        ALTER FUNCTION data_foundry.scheduled_acquisition_validators_valid(jsonb)
+        SET search_path TO public
+      `);
+      await expect(database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`)).rejects.toThrow(
+        /function search path/i,
+      );
+      await database.exec('ROLLBACK').catch(() => undefined);
+      const [privileges] = await database.query<{
+        readonly schema_usage: boolean;
+        readonly verticals_select: boolean;
+      }>(`
+        SELECT has_schema_privilege('df_acquisition', 'data_foundry', 'USAGE') AS schema_usage,
+               has_table_privilege('df_acquisition', 'data_foundry.verticals', 'SELECT') AS verticals_select
+      `);
+      expect(privileges).toEqual({ schema_usage: false, verticals_select: false });
+    } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it('enforces acquisition-role source and artifact boundaries while preserving normal persistence', async () => {
+    const { database, plan } = await createMigratedDatabase();
+    try {
+      await database.exec(`
+        BEGIN;
+        ${plan.postMigrationGrants.sql}
+        COMMIT;
+        ALTER ROLE df_acquisition LOGIN;
+        SET SESSION AUTHORIZATION df_acquisition;
+        SET search_path TO data_foundry, pg_catalog, extensions;
+      `);
+      const store = createCanonicalStore(database as unknown as SqlDriver);
+      const vertical = await store.registerVertical({
+        slug: 'runtime-acquisition',
+        name: 'Runtime acquisition',
+        schema_version: '1.0.0',
+        status: 'ACTIVE',
+        default_refresh_policy: { cadence: 'DAILY', max_staleness_hours: 24, priority: 50 },
+      });
+      const sourceInput = {
+        vertical_id: vertical.id,
+        publisher: 'Runtime fixture',
+        domain: 'runtime-acquisition.example',
+        source_type: 'OTHER' as const,
+        authority_rank: 50,
+        rights_classification: 'GREEN' as const,
+        attribution_requirement: { required: false, text: null, url: null },
+        robots_policy: {
+          respect_robots: true,
+          user_agent: 'data-foundry-bot',
+          crawl_delay_seconds: 1,
+          disallowed_paths: [],
+          allowed_paths: [],
+          robots_url: null,
+          snapshot_hash: null,
+          snapshot_at: null,
+        },
+        refresh_cadence: 'DAILY' as const,
+        status: 'ACTIVE' as const,
+      };
+      const source = await store.registerSource({ ...sourceInput, kill_switch_engaged: false });
+
+      for (const statement of [
+        `UPDATE sources SET rights_classification = 'RED' WHERE id = '${source.id}'`,
+        `UPDATE sources SET status = 'PAUSED' WHERE id = '${source.id}'`,
+        `UPDATE sources SET robots_policy = '{}'::jsonb WHERE id = '${source.id}'`,
+      ]) {
+        await expect(database.exec(statement)).rejects.toThrow(/permission denied/i);
+      }
+
+      await database.exec(`UPDATE sources SET kill_switch_engaged = TRUE WHERE id = '${source.id}'`);
+      const [afterEngage] = await database.query<{ updated_at: string }>(
+        `SELECT updated_at::text FROM sources WHERE id = '${source.id}'`,
+      );
+      expect(Date.parse(afterEngage!.updated_at)).toBeGreaterThan(Date.parse(source.updated_at));
+      await expect(
+        database.exec(`UPDATE sources SET kill_switch_engaged = FALSE WHERE id = '${source.id}'`),
+      ).rejects.toThrow(/kill switch/i);
+      const engaged = await store.registerSource({ ...sourceInput, kill_switch_engaged: true });
+      expect(engaged.kill_switch_engaged).toBe(true);
+      expect(Date.parse(engaged.updated_at)).toBe(Date.parse(afterEngage!.updated_at));
+
+      const artifactInput = {
+        source_id: source.id,
+        url: 'https://runtime-acquisition.example/artifact',
+        retrieved_at: '2026-09-02T12:00:00.000Z' as IsoDateTime,
+        content_hash: 'a'.repeat(64),
+        mime_type: 'application/json',
+        r2_uri: 'r2://data-foundry-raw-artifacts/runtime-acquisition/a.json',
+        http_status: 200,
+        extractor_version: 'runtime-test@1.0.0',
+        policy_snapshot_id: null,
+        byte_size: 128,
+        acquisition_provider: 'http',
+        acquisition_route: 'DIRECT_HTTP' as const,
+        account_or_product_plan: null,
+        acquisition_jurisdiction: null,
+      };
+      const artifact = await store.recordSourceArtifact(artifactInput);
+      expect((await store.recordSourceArtifact(artifactInput)).id).toBe(artifact.id);
+      for (const statement of [
+        `UPDATE source_artifacts SET http_status = 204 WHERE id = '${artifact.id}'`,
+        `UPDATE source_artifacts SET r2_uri = 'r2://tampered' WHERE id = '${artifact.id}'`,
+      ]) {
+        await expect(database.exec(statement)).rejects.toThrow(/permission denied/i);
+      }
+      await database.exec(`
+        SET SESSION AUTHORIZATION df_migration;
+        SET search_path TO data_foundry, pg_catalog, extensions;
+      `);
+      await database.exec(`UPDATE data_foundry.sources SET kill_switch_engaged = FALSE WHERE id = '${source.id}'`);
+      const [ownerCleared] = await database.query<{ kill_switch_engaged: boolean }>(
+        `SELECT kill_switch_engaged FROM data_foundry.sources WHERE id = '${source.id}'`,
+      );
+      expect(ownerCleared?.kill_switch_engaged).toBe(false);
+    } finally {
+      await database.exec('RESET SESSION AUTHORIZATION').catch(() => undefined);
       await database.close();
     }
   }, 120_000);

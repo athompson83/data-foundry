@@ -24,11 +24,12 @@
   review, and ruleset evidence. The Alpha Lab isolation branch merged as
   `290df1342094433e92978ec97eb37cc02fc4eb50`; PR #24 (`/docs` page names the
   API contract) merged as `5dde773a4b64a8e004ca429706100399a678cf74`.
-- Candidate branch: PR #26 (route-less private synthetic canary plus the
-  Supabase migration-packet exporter) has been rebased onto the current
-  protected `main` after PR #27's hosted-schema record. Its refreshed head
-  must rerun repository and hosted CI evidence before it can be merged.
-- No Worker release candidate is currently designated.
+- PR #26 policy: any exact head for the route-less private synthetic canary and
+  migration-packet exporter may merge normally only after fresh exact-head
+  checks/reviews satisfy the active `main` ruleset. Merge does not authorize a
+  hosted migration or deployment; those retain their separate credential and
+  exact-SHA gates.
+- Repository state alone designates no Worker release candidate.
 - The required source gate
   is six route-less private-canary Worker artifacts: five reduced targets and
   one harness. The canary path also requires the five dedicated 14-day queues
@@ -42,9 +43,13 @@
   active/full, but `data.aroqon.com` currently returns Vercel `404: NOT_FOUND`.
 - Database target: shared Alpha Lab Supabase project `fgxinxaqkwoqyywdgobs`.
   The private `data_foundry` schema now carries all 26 ledgered migrations,
-  migration-owner ownership, the `PUBLIC` revoke, and verified least-privilege
-  grants for the five runtime roles, which are staged `NOLOGIN` without
-  passwords. It holds no source, entity, fact, tenant, or credential rows.
+  migration-owner ownership, the `PUBLIC` revoke, and the historically verified
+  200-grant runtime matrix for five staged `NOLOGIN` roles. Repository migration
+  `0027` pins all 57 function search paths and narrows acquisition access to the
+  199-grant matrix; repository migration `0028` adds the four justified rights-
+  path indexes. Both remain pending hosted authorization and application at a
+  newly reviewed exact SHA. It holds no source, entity, fact, tenant, or
+  credential rows.
   See the [2026-09-02 hosted migration evidence](docs/evidence/alpha-lab-hosted-migration-20260902.md).
 
 ## Latest Session — Hosted Private-Schema Migration and Grant Activation
@@ -71,18 +76,26 @@
 - Provider advisories after migration: the pre-existing `public.automation_runs`
   RLS error belongs to the unrelated Alpha Lab application and was left for the
   owner; 57 `function_search_path_mutable` warnings on `data_foundry` functions
-  are a repository follow-up (pin `search_path` in a new migration), not a
-  hosted-only fix.
-- Merged PR #24 (`/docs` page names the API contract) as `5dde773`. PR #26 is
-  under review; its migration set is the one applied above. Its canary and
-  exporter implementation was subsequently rebased to reconcile these status
-  records, so pre-rebase SHA-specific evidence remains historical only.
+  were observed. Repository migration `0027` implements the forward fix, but it
+  has not been applied or reverified on the hosted target; no warning closure is
+  claimed.
+- Latest redacted Cloudflare evidence at 2026-09-02T14:46Z records the standard
+  usage model and the ordinary usage Queue/DLQ pair at 14-day retention, with
+  zero Data Foundry Workers, Hyperdrives, R2 buckets, hostname record, or route.
+  The earlier same-day raw-bucket observation is historical and superseded.
+- The FK-advisor review justifies exactly four rights-path indexes in repository
+  migration `0028`. The other 31 INFO notices are non-blocking and deferred to
+  post-traffic `EXPLAIN`/advisor monitoring rather than speculative indexes.
+- Merged PR #24 (`/docs` page names the API contract) as `5dde773`. The hosted
+  `0001`–`0026` application predates repository migrations `0027`–`0028`; any
+  pre-continuation SHA-specific canary or exporter evidence remains historical
+  only and cannot authorize the pending hosted work.
 - Data and revenue remain gated exactly as before: `hvac` is `DRAFT` with four
   synthetic fixture sources, ENERGY STAR is deferred and unreviewed, RapidAPI
   enrollment is owner-only (`UA-004`), and no Stripe product or listing exists.
   No source acquisition, publisher contact, listing, or billing change was made.
 
-## Session 2026-08-31 — Alpha Lab Isolation and Provider Reconciliation
+## Session 2026-08-31 — Alpha Lab Isolation and Provider Reconciliation (historical, superseded where noted)
 
 - Corrected the data boundary: Data Foundry is a private `data_foundry` schema
   inside Alpha Lab, not part of Valor. Real-Postgres operational commands now
@@ -99,9 +112,14 @@
   transaction cannot inherit another Alpha Lab consumer's path.
 - Added regression coverage across the canonical store, migration runner,
   ingest CLI, and all five Worker lifecycle roots.
-- Reconciled providers: `aroqon.com` is active/full but no Data Foundry Workers,
-  Hyperdrives, Queues, or R2 buckets exist. The current account is Workers Free;
-  a fourteen-day Queue needs Workers Paid. The configured Vercel project has
+- Historical observation: `aroqon.com` was active/full with no Data Foundry
+  Workers, Hyperdrives, Queues, or R2 buckets, and the account appeared Workers
+  Free. The Queue/R2/plan assertions are superseded by the 2026-09-01/09-02
+  redacted evidence: the account uses the standard usage model and the ordinary
+  14-day Queue/DLQ pair exists. The 2026-09-02T14:46Z refresh found zero Data
+  Foundry Workers, Hyperdrives, or R2 buckets and supersedes an earlier same-day
+  raw-bucket observation. No Worker, route, Hyperdrive, or live binding proof
+  exists. The configured Vercel project has
   disconnected Git and no viable deployment, so it is not a rollback target.
   The [redacted 2026-08-31 provider reconciliation](docs/evidence/alpha-lab-provider-reconciliation-20260831.md)
   records the read-only observations and excludes provider identifiers and
@@ -222,11 +240,12 @@ not mean deployed or commercially publishable.
   publishable; the live deployment and real-source gates remain independent.
 - RapidAPI enrollment, proxy-secret configuration, plans, payout setup, live
   route, and real subscriber proof remain external.
-- The Aroqon Cloudflare zone is active/full, but no Data Foundry Worker, route,
-  Hyperdrive, Queue/DLQ, or R2 bucket exists. The account is Workers Free; the
-  required fourteen-day Queue retention requires Workers Paid. The canary must
-  be a separate `canary.aroqon.com` hostname before any `data.aroqon.com`
-  cutover.
+- The Aroqon Cloudflare zone is active/full. Latest redacted evidence shows the
+  standard usage model and exactly the ordinary 14-day Queue/DLQ pair, with no
+  Data Foundry Worker, route, Hyperdrive, or R2 bucket. The next deployment
+  proof is the
+  route-less, service-bound private canary; any public canary or
+  `data.aroqon.com` cutover requires separate later authorization.
 - The configured Vercel project has disconnected Git. Its production domain
   returns `404: NOT_FOUND` and historic deployments fail for a missing `public`
   output directory; it is not a viable rollback path.
@@ -291,8 +310,10 @@ not mean deployed or commercially publishable.
   database binding waits on the owner's secure credential entry and the five
   Hyperdrive configurations (`UA-002`).
 - The current public data hostname is a Vercel 404, not a Data Foundry runtime.
-- Workers Paid approval and secure database-role password entry are needed
-  before a retained-queue Cloudflare canary can be created.
+- Secure database-role password entry, five cache-disabled Hyperdrives, and
+  post-credential verification are needed before the route-less canary can run;
+  preserve and reverify the standard usage model and ordinary 14-day queues;
+  provision the absent raw-artifact and canary receipt buckets.
 - Public sitemap rate limiting and its ordinary-crawler bypass policy have not
   been configured or verified on the canonical Cloudflare account.
 - No real HVAC source has the required exact grants and human rights review.
@@ -301,8 +322,9 @@ not mean deployed or commercially publishable.
 ## Required User Actions
 
 See `PROJECT_CHECKLIST.md` `UA-001` through `UA-005`. The immediate external
-gates are rights review (`UA-001`), Workers Paid plus secure role entry
-(`UA-002`), RapidAPI enrollment (`UA-004`), and post-canary hostname
+gates are rights review (`UA-001`), secure role/Hyperdrive entry
+(`UA-002`), RapidAPI enrollment (`UA-004`), and separately authorized public
+hostname
 confirmation (`UA-005`). Filling the schema with real data depends entirely on
 `UA-001`: ENERGY STAR remains deferred and unreviewed, and its review packet's
 open `[REVIEWER]` questions are the owner's to answer; automation must not
@@ -322,7 +344,10 @@ touch the shared `public` schema.
 
 Protected `main` combines usage accounting/auth, corrected Option B rights,
 public web, RapidAPI, scheduled acquisition/readiness, and MCP in dependency
-order through migration `0026`. Final review repairs add a last
+order through migration `0026`. The PR #26 owner continuation adds forward-only
+migrations `0027`–`0028` and final runtime least-privilege/export hardening; they remain
+repository-only pending exact-SHA hosted authorization. Earlier
+review repairs add a last
 practical pre-persistence rights checkpoint, exact historical authorization,
 one-client resolution transactions, `source-record-evidence@3`, claim-backed
 alias epochs/currentness, identifier-less successor handling, a fail-closed

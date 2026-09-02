@@ -197,7 +197,7 @@ export async function runScheduledAcquisition(
     default_refresh_policy: input.runtime.default_refresh_policy,
   });
 
-  // Monotone synchronization lives in canonical-store.upsertSource: explicit
+  // Monotone synchronization lives in canonical-store.registerSource: explicit
   // bundled TRUE can engage a stop; neither bundled value may clear stored TRUE.
   const sourceIds = new Map<string, ScheduledAcquisitionRun['sourceId']>();
   for (const entry of sources) {

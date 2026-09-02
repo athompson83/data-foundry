@@ -27,7 +27,7 @@ import {
   LEDGER_MARKER,
   LEDGER_TABLE,
   effectiveMigrationChecksum,
-  loadMigrations,
+  loadMigrationsFromGit,
   scopeMigrationSql,
   type Migration,
 } from './migrate.js';
@@ -39,8 +39,8 @@ const RELEASE_SHA = /^[0-9a-f]{40}$/;
 const VERSION = /^\d{4}$/;
 const MIGRATION_FILENAME = /^(\d{4})_[a-z0-9_]+\.sql$/;
 const SHA256 = /^[0-9a-f]{64}$/;
-const EXPECTED_REPOSITORY_MIGRATION_COUNT = 26;
-const EXPECTED_TERMINAL_VERSION = '0026';
+const EXPECTED_REPOSITORY_MIGRATION_COUNT = 28;
+const EXPECTED_TERMINAL_VERSION = '0028';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPOSITORY_ROOT = resolve(HERE, '..', '..');
 const execFileAsync = promisify(execFile);
@@ -873,6 +873,7 @@ function buildRuntimeGrantVerificationSql(
     .map(({ migration, checksum }) => `    (${sqlLiteral(migration.version)}, ${sqlLiteral(migration.filename)}, ${sqlLiteral(checksum)})`)
     .join(',\n');
   const completeExpectedAcl = `${baselinePrivateAclValuesSql(schema)},\n${expectedGrantValuesSql(expected)}`;
+  const expectedFunctionSearchPath = sqlLiteral(`search_path=${schema}, pg_catalog, extensions`);
   return `${buildVerificationSql(schema, migrations)}
 
 WITH expected(scope, object_name, column_name, role_name, privilege, is_grantable) AS (VALUES
@@ -905,7 +906,8 @@ ${expectedFunctionValuesSql()}
 ), live_functions AS (
   SELECT (p.proname || '(' || oidvectortypes(p.proargtypes) || ')')::text AS signature,
          pg_get_userbyid(p.proowner)::text AS owner_name,
-         p.prosecdef
+         p.prosecdef,
+         p.proconfig
     FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
    WHERE n.nspname = ${sqlLiteral(schema)} AND p.prokind IN ('f', 'p', 'a', 'w')
 ), function_differences AS (
@@ -913,10 +915,14 @@ ${expectedFunctionValuesSql()}
     FROM expected_functions FULL OUTER JOIN live_functions USING (signature)
    WHERE expected_functions.signature IS NULL OR live_functions.signature IS NULL
       OR live_functions.owner_name IS DISTINCT FROM 'df_migration'
+      OR live_functions.proconfig IS DISTINCT FROM ARRAY[${expectedFunctionSearchPath}]::text[]
 )
 SELECT (SELECT count(*)::int FROM relation_differences) AS relation_inventory_difference_count,
        (SELECT count(*)::int FROM function_differences) AS function_inventory_difference_count,
        (SELECT count(*)::int FROM live_functions WHERE prosecdef) AS security_definer_count,
+       (SELECT count(*)::int FROM live_functions
+         WHERE proconfig IS DISTINCT FROM ARRAY[${expectedFunctionSearchPath}]::text[]
+       ) AS function_search_path_difference_count,
        (SELECT count(*)::int FROM (${publicPrivateAclRowsSql(schema)}) public_acl) AS forbidden_public_private_acl_count,
        NOT has_schema_privilege('public', 'public', 'CREATE') AS public_schema_create_is_false,
        (
@@ -966,14 +972,16 @@ ${expectedRelationValuesSql()}
 ${expectedFunctionValuesSql()}
   ), live AS (
     SELECT (p.proname || '(' || oidvectortypes(p.proargtypes) || ')')::text AS signature,
-           pg_get_userbyid(p.proowner)::text AS owner_name, p.prosecdef
+           pg_get_userbyid(p.proowner)::text AS owner_name, p.prosecdef, p.proconfig
       FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
      WHERE n.nspname = ${sqlLiteral(schema)} AND p.prokind IN ('f','p','a','w')
   ), differences AS (
     SELECT expected.signature FROM expected FULL OUTER JOIN live USING (signature)
-     WHERE expected.signature IS NULL OR live.signature IS NULL OR live.owner_name IS DISTINCT FROM 'df_migration'
+     WHERE expected.signature IS NULL OR live.signature IS NULL
+        OR live.owner_name IS DISTINCT FROM 'df_migration'
+        OR live.proconfig IS DISTINCT FROM ARRAY[${expectedFunctionSearchPath}]::text[]
   ) SELECT count(*) + (SELECT count(*) FROM live WHERE prosecdef) INTO drift_count FROM differences;
-  IF drift_count <> 0 THEN RAISE EXCEPTION 'Runtime grant verification failed: routine inventory or SECURITY DEFINER drift.'; END IF;
+  IF drift_count <> 0 THEN RAISE EXCEPTION 'Runtime grant verification failed: routine inventory, SECURITY DEFINER, or function search path drift.'; END IF;
 
   WITH expected(scope, object_name, column_name, role_name, privilege, is_grantable) AS (VALUES
 ${completeExpectedAcl}
@@ -1028,6 +1036,7 @@ function buildPostMigrationGrantPayload(
   const targetPredicate = `grantee.rolname = ANY(${runtimeRoleArraySql()})`;
   const forbiddenNamedPredicate =
     "grantee.rolname = ANY(ARRAY['anon', 'authenticated', 'service_role']::text[])";
+  const expectedFunctionSearchPath = sqlLiteral(`search_path=${schema}, pg_catalog, extensions`);
 
   const sql = `SET LOCAL ROLE ${quotedIdentifier(migrationRole)};
 SET LOCAL search_path TO ${quotedIdentifier(schema)}, pg_catalog, extensions;
@@ -1054,7 +1063,7 @@ ${expectedRows}
   SELECT count(*) + ABS((SELECT count(*) FROM ${ledger}) - ${migrations.length})
     INTO prerequisite_drift_count FROM differences;
   IF prerequisite_drift_count <> 0 THEN
-    RAISE EXCEPTION 'Runtime grants require the canonical full application ledger 0001 through 0026.';
+    RAISE EXCEPTION 'Runtime grants require the canonical full application ledger 0001 through 0028.';
   END IF;
 
   IF (SELECT pg_get_userbyid(n.nspowner) FROM pg_namespace n WHERE n.nspname = ${sqlLiteral(schema)})
@@ -1082,7 +1091,8 @@ ${expectedRelationValuesSql()}
 ${expectedFunctionValuesSql()}
   ), live AS (
     SELECT (p.proname || '(' || oidvectortypes(p.proargtypes) || ')')::text AS signature,
-           pg_get_userbyid(p.proowner)::text AS owner_name
+           pg_get_userbyid(p.proowner)::text AS owner_name,
+           p.proconfig
       FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
      WHERE n.nspname = ${sqlLiteral(schema)} AND p.prokind IN ('f', 'p', 'a', 'w')
   ), differences AS (
@@ -1090,10 +1100,11 @@ ${expectedFunctionValuesSql()}
       FROM expected FULL OUTER JOIN live USING (signature)
      WHERE expected.signature IS NULL OR live.signature IS NULL
         OR live.owner_name IS DISTINCT FROM ${sqlLiteral(migrationRole)}
+        OR live.proconfig IS DISTINCT FROM ARRAY[${expectedFunctionSearchPath}]::text[]
   )
   SELECT count(*) INTO prerequisite_drift_count FROM differences;
   IF prerequisite_drift_count <> 0 THEN
-    RAISE EXCEPTION 'Runtime grants require the exact explicit private function inventory owned by df_migration.';
+    RAISE EXCEPTION 'Runtime grants require the exact private function inventory, ownership, and function search path.';
   END IF;
   IF EXISTS (
     SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
@@ -1327,17 +1338,48 @@ export function parseSupabaseMigrationCliArguments(argv: readonly string[]): {
   return { releaseSha, appliedLedgerPath };
 }
 
+export interface BuildSupabaseMigrationPlanFromGitOptions {
+  readonly releaseSha: string;
+  readonly repositoryRoot?: string | undefined;
+  readonly appliedMigrations: readonly SupabaseAppliedMigration[];
+}
+
+export interface SupabaseMigrationGitDependencies {
+  readonly verifySourceIdentity?: typeof verifyGitSourceIdentity;
+  readonly loadGitMigrations?: typeof loadMigrationsFromGit;
+}
+
+/**
+ * Bind both identity verification and migration bytes to one immutable Git
+ * object. Dependency injection keeps the check/load boundary directly
+ * regression-testable without weakening the CLI's offline contract.
+ */
+export async function buildSupabaseMigrationPlanFromGit(
+  options: Readonly<BuildSupabaseMigrationPlanFromGitOptions>,
+  dependencies: Readonly<SupabaseMigrationGitDependencies> = {},
+): Promise<SupabaseMigrationPlan> {
+  const repositoryRoot = options.repositoryRoot ?? REPOSITORY_ROOT;
+  const verifySourceIdentity = dependencies.verifySourceIdentity ?? verifyGitSourceIdentity;
+  const loadGitMigrations = dependencies.loadGitMigrations ?? loadMigrationsFromGit;
+  const sourceIdentity = await verifySourceIdentity(options.releaseSha, repositoryRoot);
+  const migrations = await loadGitMigrations(options.releaseSha, { repositoryRoot });
+  return buildSupabaseMigrationPlan({
+    sourceIdentity,
+    schema: DATA_FOUNDRY_PRIVATE_SCHEMA,
+    migrationRole: REQUIRED_MIGRATION_ROLE,
+    migrations,
+    appliedMigrations: options.appliedMigrations,
+  });
+}
+
 async function main(argv: readonly string[] = process.argv.slice(2)): Promise<void> {
   const { releaseSha, appliedLedgerPath } = parseSupabaseMigrationCliArguments(argv);
   const appliedMigrations =
     appliedLedgerPath === undefined
       ? []
       : parseAppliedLedger(JSON.parse(await readFile(resolve(appliedLedgerPath), 'utf8')));
-  const plan = buildSupabaseMigrationPlan({
-    sourceIdentity: await verifyGitSourceIdentity(releaseSha),
-    schema: DATA_FOUNDRY_PRIVATE_SCHEMA,
-    migrationRole: REQUIRED_MIGRATION_ROLE,
-    migrations: await loadMigrations(),
+  const plan = await buildSupabaseMigrationPlanFromGit({
+    releaseSha,
     appliedMigrations,
   });
   process.stdout.write(renderSupabaseMigrationManifest(plan));

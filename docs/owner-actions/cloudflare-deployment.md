@@ -13,7 +13,11 @@ or change a public DNS record, Worker route, custom domain, workers.dev
 endpoint, preview URL, real-source record, or public endpoint variable.
 
 The private Alpha Lab schema is already staged: the 2026-09-02 hosted record
-proves the ledger, objects, ownership, and five `NOLOGIN` runtime-role grants.
+proves 26 ledgered migrations, objects, ownership, and the then-current 200
+grants for five `NOLOGIN` runtime roles. It also records 57 function-search-path
+warnings. Repository migration `0027` closes those issues locally and `0028`
+adds the four justified rights-path indexes; both remain pending hosted
+authorization and application, so no hosted warning closure is claimed.
 That historical application used the authenticated management SQL connector
 under the owner's preauthorization because direct TLS was unreachable from the
 automation environment. It is not a Worker deployment or a substitute for the
@@ -25,7 +29,7 @@ The only permitted initial deployment is a route-less, service-bound synthetic
 canary:
 
 1. **Containment is a provider-side gate; repository remediation continues in
-   parallel. No Worker release candidate is currently designated.** The
+   parallel. Repository state alone designates no Worker release candidate.** The
    originally authorized candidate `504d91fd10afa91001abe02cf9aaa4c95034cfca`
    was superseded by runtime hardening in
    `e60d664a998f3fa4051aa7fd0b7dc9dc99a83d85`. The shared-DLQ repair
@@ -35,8 +39,10 @@ canary:
    Never select one from a later checkout or infer artifact identity from
    source-path equivalence.
 
-   The one final PR #26 SHA must contain its runtime code, tests, six-artifact
-   gate, and aligned documentation. Before any provider action, a clean checkout
+   Any PR #26 head may merge normally after fresh exact-head checks/reviews meet
+   the active `main` ruleset. Before any provider action, its merged/reviewed SHA
+   must contain the runtime code, tests, six-artifact gate, and aligned
+   documentation, and a clean checkout
    of that exact SHA must run `pnpm cloudflare:artifacts:check`, which dry-runs
    and scans all six route-less private-canary Worker artifacts: five reduced
    target Workers plus the private-canary harness (without Hyperdrive). The
@@ -50,23 +56,28 @@ canary:
    any new credential-bearing migration/recovery action. If sanitized evidence cannot identify the provider/item, record
    `unable_to_target_from_sanitized_evidence`; do not guess, reopen prohibited
    browser state, or rotate unrelated credentials. After both containment and
-   exact-SHA repository validation, check out the selected SHA, set
-   `DATA_FOUNDRY_RELEASE_SHA` to the same SHA, and apply the 26 migration packets
-   through direct PostgreSQL TLS using the approved secret interface. The direct
+   exact-SHA repository validation, check out the selected SHA and begin with a
+   read-only direct-TLS check of the hosted ledger versions/checksums, object
+   ownership, role state, and direct ACLs. If and only if that proves the exact
+   historical `0001`–`0026` state, set `DATA_FOUNDRY_RELEASE_SHA` to the same SHA
+   and apply only the pending migrations (`0027` and `0028`) through direct PostgreSQL TLS
+   using the approved secret interface. Do not replay the 26 already-ledgered
+   migrations. The direct
    URL must not have query parameters that could override its TLS or host
    settings. The runner requires a clean worktree and reads migration SQL from
    that exact Git object. Do not put the migration URL on argv, in a manifest, or
    in a transcript. Application migrations remain direct-TLS-only; the only
    permitted export is the credential-free exact-SHA `postMigrationGrants`
    payload. It is an input to the separately provider-authorized direct-TLS
-   procedure after direct migration and replay. It does not authorize provider
+   procedure after the pending direct migration. It does not authorize provider
    activity during repository-only work.
 2. Create five distinct least-privilege runtime identities/passwords through
    the approved secure interface, then create exactly five TLS Hyperdrives—one
    for each edge, web, usage-consumer, acquisition-worker, and MCP role. Never
    bind the migration principal to a Worker. Read back the hosted ledger,
-   private schema, five roles, 57 expected function signatures, and 200 exact
-   grants before creating any Hyperdrive.
+   private schema, five roles, 57 expected function signatures with exact
+   `data_foundry, pg_catalog, extensions` function paths, and 199 exact grants
+   before creating any Hyperdrive.
 3. Preserve the existing `data-foundry-usage-events` and
    `data-foundry-usage-events-dlq` queues unchanged at 1,209,600 seconds
    (14 days). Only the ordinary `data-foundry-usage-consumer` consumes
@@ -225,10 +236,14 @@ must remain outside source control.
 
 ### Checklist
 
-1. Use the active/full `aroqon.com` Cloudflare zone. At the 2026-08-31
-   reconciliation it has restored wildcard, apex, `www`, CAA, and
-   `_domainconnect` records, but no Data Foundry Worker routes, Hyperdrives,
-   Queues, or R2 bucket. Preserve unrelated DNS while provisioning; a wildcard
+1. Use the active/full `aroqon.com` Cloudflare zone. The authoritative
+   2026-09-02T14:46Z refresh observed the standard usage model and exactly the
+   ordinary 14-day Queue/DLQ pair, but zero Data Foundry Workers, Hyperdrives,
+   R2 buckets, hostname records, or Worker routes. It supersedes the 2026-08-31
+   no-Queue baseline and an earlier same-day raw-bucket observation. Provision
+   the absent `data-foundry-raw-artifacts` bucket before ordinary acquisition
+   and a separate private-canary receipt bucket for the synthetic proof.
+   Preserve unrelated DNS while provisioning; a wildcard
    record is not evidence that Data Foundry is deployed. See the
    [redacted reconciliation record](../evidence/alpha-lab-provider-reconciliation-20260831.md)
    for the bounded, read-only observation.
@@ -329,17 +344,22 @@ credential must not be committed.
 3. Supply the migration role's `DATA_FOUNDRY_MIGRATION_DATABASE_URL` only
    through the approved secret-bearing environment. It is the sole accepted
    direct-Postgres migration credential; a generic `POSTGRES_URL` is not a
-   substitute. Set the non-secret exact checked-out release SHA, then install
-   the frozen repository migrations twice into the private schema:
+   substitute. Before mutation, use read-only SQL to verify the hosted ledger's
+   exact versions/checksums, ownership, staged roles, and ACL state. When the
+   existing ledger is the exact historical `0001`–`0026` prefix, set the
+   non-secret exact checked-out release SHA and run the frozen migration runner
+   twice: the first invocation applies only pending `0027` and `0028`; the second
+   proves the full `0001`–`0028` chain is already applied.
    ```powershell
    $env:DATA_FOUNDRY_SCHEMA = "data_foundry"
    $env:DATA_FOUNDRY_RELEASE_SHA = "<40-character-reviewed-Git-SHA>"
    pnpm migrate
    pnpm migrate
    ```
-   The first run must apply every pending migration and the second must report
-   every migration from the frozen release SHA already applied (currently 26,
-   through `0026`). Verify that the private schema, rather than `public`, owns
+   Do not replay or resubmit the 26 already-ledgered migrations. Future upgrades
+   follow the same rule: verify the exact ledger prefix read-only, then let the
+   runner apply only pending migrations from the immutable Git object. Verify
+   that the private schema, rather than `public`, owns
    the ledger and every Data Foundry table. For direct Postgres execution the
    runner also requires that release SHA to equal Git `HEAD`, the entire
    worktree to be clean, a certificate-verified TLS connection with no
@@ -351,7 +371,7 @@ credential must not be committed.
    application migration. Application migrations remain direct-TLS-only; the
    only permitted export is the credential-free exact-SHA
    `postMigrationGrants` payload. After the containment and provider gates
-   authorize the procedure, after the direct migration/replay above succeeds,
+   authorize the procedure, after the pending direct migration above succeeds,
    and before any runtime password exists, generate that payload with the
    checked-out exact SHA:
 
@@ -387,15 +407,22 @@ credential must not be committed.
    It must not grant database `CREATE`, grant options, a `public`-schema
    privilege, or any private Data Foundry object privilege at this staging step.
    Remove `PUBLIC` execute from every private function. The controlled direct-TLS
-   migration operator must be authorized to `SET ROLE df_migration`, extract
+   migration operator must be authorized to `SET ROLE df_migration` and extract
    only `postMigrationGrants.sql`, its `verificationSql`, and its
-   `postCredentialVerificationSql` into protected local files, and apply `sql`
-   in one direct-TLS transaction before running `verificationSql`. Never submit
+   `postCredentialVerificationSql` into protected local files. On a fresh
+   unprovisioned installation, apply `sql` in one direct-TLS transaction before
+   running `verificationSql`. On the hosted exact-legacy upgrade, migration
+   `0027` itself converts only the attested 200-grant acquisition shape to the
+   exact 199-grant shape; `0028` then adds only the four audited rights-path
+   indexes. Do not reapply the grant installer, which correctly
+   refuses pre-existing runtime ACLs. Run `verificationSql` directly after
+   `0027` and `0028`. Never submit
    the packet to a provider connector or provider migration record, and never
    use a password-bearing runtime connection for this step. The payload locks and
    validates
    the full canonical ledger, exact relation/function inventories and ownership,
-   zero `SECURITY DEFINER` functions, private-schema/public-schema ACL
+   every one of the 57 exact function search paths, zero `SECURITY DEFINER`
+   functions, private-schema/public-schema ACL
    prerequisites, and the absence of any pre-existing target-role privilege;
    it refuses drift instead of normalizing it. It then grants only the reviewed
    table/column matrix and, because a narrower call dependency cannot be proved
@@ -504,8 +531,8 @@ assert new claims, and add a curated claim only through an explicit reviewed
 editorial action. Prove each enabled surface has the intended current identity
 coverage before restoring traffic. This may temporarily hide legacy entities;
 that fail-closed outage is preferable to manufacturing authority. On a first
-deployment, apply every migration from the frozen release SHA (currently 26,
-through `0026`) before enabling any route or Cron, then
+deployment, apply every migration from the frozen release SHA (currently 28,
+through `0028`) before enabling any route or Cron, then
 ingest admitted sources with the matching bundle.
 
 Migration `0024` adds explicit source-stream membership and complete-snapshot
@@ -537,6 +564,21 @@ route production traffic to a new query bundle until `0026` is applied, and do
 not claim the checked-in authorization ceilings as production capacity until the
 isolated Worker/Hyperdrive probes above pass. The migration changes no grant,
 evidence, or authority state.
+
+Migration `0027` pins all 57 existing private functions to the exact trusted
+search path, makes artifact evidence fully immutable, and narrows the
+acquisition role's UPDATE surface. On an existing hosted `0001`–`0026` install,
+verify the ledger/checksums and direct ACLs read-only first, then apply only
+`0027`. Its ACL reconciliation accepts only the exact legacy, exact new, or
+unprovisioned shape and refuses mixed/extra drift before mutation. Run the
+exporter's read-only runtime `verificationSql` afterward; hosted success and
+warning closure cannot be claimed until that exact-SHA check passes.
+
+Migration `0028` adds exactly four FK-advisor-justified rights paths: nullable
+source lookup for decision and terms cells, unique decision activation lookup,
+and terms-version activation lookup. The other 31 INFO notices are non-blocking;
+monitor them with post-traffic `EXPLAIN` and advisor evidence before considering
+any additional write-amplifying index.
 
 ### Verify
 
@@ -720,9 +762,10 @@ does not enrol the zone.
 ### Why automation cannot
 
 Creating or reconfiguring a Cloudflare Queue changes account state. The
-2026-09-01 read-only reconciliation found the ordinary usage Queue and DLQ
-already present with 14-day retention and zero consumers; Workers Paid is
-active. Do not recreate, repurpose, or change retention on either shared queue.
+authoritative 2026-09-02T14:46Z refresh found the ordinary usage Queue and DLQ
+already present with 14-day retention and zero consumers under the standard
+usage model. Preserve and reverify that plan/retention state; do not recreate,
+repurpose, or change retention on either shared queue.
 The current private-canary path requires five new, dedicated 14-day canary
 queues: a synthetic-metering Queue/DLQ pair and a control ingress/DLQ/quarantine
 chain. Attaching consumers remains part of the route-less synthetic-canary

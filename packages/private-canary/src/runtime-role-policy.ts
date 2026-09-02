@@ -64,7 +64,7 @@ export const USAGE_INSERT_COLUMNS = [
   'billing_source',
 ] as const;
 
-/** Final function identities after migrations 0001..0026, from pg_proc. */
+/** Final function identities after migrations 0001..0028, from pg_proc. */
 export const PRIVATE_FUNCTION_SIGNATURES = [
   'activate_rights_decision(uuid, text, text, text, timestamp with time zone)',
   'activate_rights_terms(uuid, text, text, text, timestamp with time zone)',
@@ -165,9 +165,10 @@ export function buildRuntimeRoleExpectedGrants(schema = 'data_foundry'): readonl
   addColumns('df_usage', 'api_keys', 'SELECT', ['id', 'access_tier', 'billing_source']);
 
   addRelation('df_acquisition', 'verticals', ['SELECT', 'INSERT']);
-  for (const relation of ['sources', 'source_artifacts', 'scheduled_acquisition_runs']) {
-    addRelation('df_acquisition', relation, ['SELECT', 'INSERT', 'UPDATE']);
-  }
+  addRelation('df_acquisition', 'sources', ['SELECT', 'INSERT']);
+  addColumns('df_acquisition', 'sources', 'UPDATE', ['kill_switch_engaged']);
+  addRelation('df_acquisition', 'source_artifacts', ['SELECT', 'INSERT']);
+  addRelation('df_acquisition', 'scheduled_acquisition_runs', ['SELECT', 'INSERT', 'UPDATE']);
   for (const relation of ['acquisition_policy_snapshots', 'scheduled_acquisition_run_artifacts']) {
     addRelation('df_acquisition', relation, ['SELECT', 'INSERT']);
   }

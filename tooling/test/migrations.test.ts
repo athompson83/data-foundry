@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { CANONICAL_OBJECT_SCHEMAS } from '@data-foundry/canonical-schema';
+import { PRIVATE_FUNCTION_SIGNATURES } from '@data-foundry/private-canary';
 import {
   EXPECTED_TABLES,
   LEDGER_MARKER,
@@ -279,9 +280,79 @@ describe('migration runner', () => {
     expect(rows.map((row) => row.version)).toEqual(migrations.map((m) => m.version));
   });
 
+  it('pins every public-schema function to the prepared migration search path', async () => {
+    const rows = await driver.query<{ signature: string; search_path: string | null }>(`
+      SELECT p.proname || '(' || pg_catalog.oidvectortypes(p.proargtypes) || ')' AS signature,
+             (SELECT setting FROM unnest(p.proconfig) setting WHERE setting LIKE 'search_path=%') AS search_path
+        FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
+       WHERE n.nspname = 'public'
+       ORDER BY signature
+    `);
+    expect(rows.map((row) => row.signature).sort()).toEqual([...PRIVATE_FUNCTION_SIGNATURES].sort());
+    expect(new Set(rows.map((row) => row.search_path))).toEqual(
+      new Set(['search_path=public, pg_catalog, extensions']),
+    );
+  });
+
   it('is idempotent — a second run applies nothing', async () => {
     const second = await applyMigrations(driver, migrations);
     expect(second.every((result) => result.skipped)).toBe(true);
+  });
+
+  it('installs the four audited 0028 foreign-key indexes with exact definitions idempotently', async () => {
+    const migration = migrations.find(({ version }) => version === '0028');
+    expect(migration).toBeDefined();
+
+    await driver.exec(migration!.sql);
+    await driver.exec(migration!.sql);
+
+    const indexes = await driver.query<{
+      index_name: string;
+      is_unique: boolean;
+      predicate: string | null;
+      definition: string;
+    }>(`
+      SELECT index_rel.relname::text AS index_name,
+             idx.indisunique AS is_unique,
+             pg_get_expr(idx.indpred, idx.indrelid)::text AS predicate,
+             pg_get_indexdef(idx.indexrelid)::text AS definition
+        FROM pg_index AS idx
+        JOIN pg_class AS index_rel ON index_rel.oid = idx.indexrelid
+       WHERE index_rel.relname = ANY(ARRAY[
+         'rights_cells_source_idx',
+         'rights_terms_cells_source_idx',
+         'rights_decision_activation_events_decision_idx',
+         'rights_terms_activation_events_version_idx'
+       ]::text[])
+       ORDER BY index_rel.relname
+    `);
+
+    expect(indexes).toEqual([
+      {
+        index_name: 'rights_cells_source_idx',
+        is_unique: false,
+        predicate: '(source_id IS NOT NULL)',
+        definition: expect.stringMatching(/ON public\.rights_cells USING btree \(source_id\) WHERE \(source_id IS NOT NULL\)$/),
+      },
+      {
+        index_name: 'rights_decision_activation_events_decision_idx',
+        is_unique: true,
+        predicate: null,
+        definition: expect.stringMatching(/UNIQUE INDEX .* ON public\.rights_decision_activation_events USING btree \(decision_id\)$/),
+      },
+      {
+        index_name: 'rights_terms_activation_events_version_idx',
+        is_unique: false,
+        predicate: null,
+        definition: expect.stringMatching(/ON public\.rights_terms_activation_events USING btree \(terms_version_id\)$/),
+      },
+      {
+        index_name: 'rights_terms_cells_source_idx',
+        is_unique: false,
+        predicate: '(source_id IS NOT NULL)',
+        definition: expect.stringMatching(/ON public\.rights_terms_cells USING btree \(source_id\) WHERE \(source_id IS NOT NULL\)$/),
+      },
+    ]);
   });
 
   it('keeps an explicitly isolated Data Foundry schema out of a shared public schema', async () => {
@@ -307,6 +378,16 @@ describe('migration runner', () => {
       );
       expect(searchPath?.configured_path).toContain('extensions');
       expect(searchPath?.configured_path).not.toMatch(/(^|,)\s*public\s*(,|$)/);
+
+      const functionPaths = await isolated.query<{ search_path: string | null }>(`
+        SELECT (SELECT setting FROM unnest(p.proconfig) setting WHERE setting LIKE 'search_path=%') AS search_path
+          FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
+         WHERE n.nspname = 'data_foundry'
+      `);
+      expect(functionPaths).toHaveLength(PRIVATE_FUNCTION_SIGNATURES.length);
+      expect(new Set(functionPaths.map((row) => row.search_path))).toEqual(
+        new Set(['search_path=data_foundry, pg_catalog, extensions']),
+      );
 
       const dataFoundryTables = await isolated.query<{ table_name: string }>(
         `SELECT table_name

@@ -331,7 +331,11 @@ identities, never ordinary Worker configuration.
 - Modify: `docs/superpowers/plans/2026-09-01-private-canary-convergence.md`
 
 **Interfaces:**
-- Produces: one truth: PR #26's exact final head is repository-validated only after all six artifact checks pass; no SHA is provider-authorized or deployable.
+- Produces: one truth: the historical repository-only candidate was committed,
+  pushed, and CI-verified, but this owner continuation adds final repository
+  security hardening before a new exact SHA is frozen. No SHA is thereby
+  provider-authorized or deployable, and migrations `0027`–`0028` have no
+  hosted-success evidence yet.
 
 - [x] **Step 1: Write/update targeted documentation tests first**
 
@@ -345,17 +349,27 @@ Update the checklist/progress/readme/runbook/reconciliation evidence to call `64
 
 Run: `node_modules\\.bin\\vitest.cmd run tooling/test/readme-inventory.test.ts tooling/test/cloudflare-deployment-doc.test.ts`
 
-- [ ] **Step 4: Run all local repository gates after the final combined commit**
+- [x] **Step 4: Historical candidate completed repository-only verification**
 
-Run, from a clean worktree, the focused suites, typecheck, full Vitest suite, migration replay, disposable PostgreSQL gate where local prerequisites permit, `pnpm cloudflare:topology:check`, `pnpm cloudflare:private-canary:check`, `pnpm cloudflare:private-canary:targets:check`, and `pnpm cloudflare:artifacts:check`. Record any provider-contact prohibition or unavailable local prerequisite as a non-pass boundary, not as success.
+The historical candidate ending at `faabae7` was committed, pushed, and
+CI-verified as repository-only evidence. It was not provider authorization,
+deployment proof, or hosted migration-`0027`/`0028` proof.
 
-- [ ] **Step 5: Commit one final coherent candidate**
+- [ ] **Step 5: Complete the owner continuation's final repository hardening**
 
-```powershell
-git add -A
-git commit -m "fix: converge six-worker private-canary gates"
-```
+Add forward-only migration `0027`, exact runtime ACL/search-path verification,
+acquisition least privilege, immutable artifact conflict reads, and immutable-
+Git-object packet export. Add `0028` with only the four FK-advisor-justified
+rights-path indexes and defer the remaining 31 INFO notices to post-traffic
+`EXPLAIN`/advisor monitoring. Reconcile the existing plan/checklist/progress/runbook
+without manufacturing hosted evidence, then create one coherent local commit.
 
-- [ ] **Step 6: Push, update PR #26 body, and resolve only verified threads**
+- [ ] **Step 6: Freeze and reverify a new exact SHA**
 
-Push the exact final SHA, update the PR body to remove the `df4a665` runtime-candidate designation, state that the current SHA is repository-validated only when its six-Worker attestation passes, and resolve the valid fixed review threads only after reading their final source/test evidence. Do not merge or deploy.
+Push the new exact SHA and rerun repository/CI checks, reviews, and six-artifact
+evidence. When those fresh exact-head results satisfy the active `main` ruleset,
+complete the normal PR #26 merge authorized by this owner continuation. The
+merge does not authorize applying `0027`/`0028`, deploying, or creating public
+exposure; hosted migration and deployment remain behind their separate exact-
+SHA credential/provider gates, and no warning closure may be claimed from
+repository results.

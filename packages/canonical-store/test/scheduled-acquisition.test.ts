@@ -2,6 +2,11 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { SourceArtifactInsert } from '@data-foundry/canonical-schema';
 import {
   createScheduledAcquisitionStore,
+  type SqlDriver,
+  type SqlExecutor,
+  type SqlParam,
+  type SqlRow,
+  type SqlTransactionExecutor,
   type ScheduledAcquisitionRun,
   type ScheduledAcquisitionStore,
   type ScheduledRightsReceipt,
@@ -1111,6 +1116,58 @@ describe('terminal outcomes and freshness', () => {
         new RegExp(`\\.${retrieval.retrieval_receipt_id}\\.json$`),
       );
     }
+  });
+
+  it('deduplicates scheduled artifacts without requiring source_artifacts UPDATE', async () => {
+    const value = {
+      ...artifact('d'),
+      content_hash: '0123456789abcdef'.repeat(4),
+    };
+    const existing = await fixtures.store.recordSourceArtifact(value);
+    const rejectArtifactUpdate = async <T extends SqlRow>(
+      executor: SqlExecutor,
+      sql: string,
+      params?: readonly SqlParam[],
+    ): Promise<T[]> => {
+      if (/INSERT INTO source_artifacts[\s\S]*DO UPDATE/i.test(sql)) {
+        throw new Error('source_artifacts UPDATE is forbidden to the acquisition role');
+      }
+      return executor.query<T>(sql, params);
+    };
+    const guardedDriver: SqlDriver = {
+      label: fixtures.driver.label,
+      dialect: fixtures.driver.dialect,
+      exec: (sql) => fixtures.driver.exec(sql),
+      query: <R extends SqlRow = SqlRow>(sql: string, params?: readonly SqlParam[]) =>
+        rejectArtifactUpdate<R>(fixtures.driver, sql, params),
+      transaction: (operation) => fixtures.driver.transaction((tx) => operation({
+        query: <R extends SqlRow = SqlRow>(sql: string, params?: readonly SqlParam[]) =>
+          rejectArtifactUpdate<R>(tx, sql, params),
+      } as SqlTransactionExecutor)),
+      close: async () => undefined,
+    };
+    const guardedScheduler = createScheduledAcquisitionStore(guardedDriver);
+    const run = await guardedScheduler.claim(claim('2026-08-28T19:49:00.000Z', {
+      targetId: 'no-artifact-update',
+    }));
+
+    const completed = await guardedScheduler.complete({
+      runId: run!.id,
+      claimToken: run!.claimToken,
+      outcome: 'FETCHED',
+      ...terminalTimes(run!),
+      provider: 'http',
+      validators: {},
+      rightsReceipt: rightsReceipt(run!),
+      artifacts: [scheduledArtifact(run!, value)],
+    });
+
+    expect(completed.artifactCount).toBe(1);
+    const links = await fixtures.driver.query<{ artifact_id: string }>(
+      'SELECT artifact_id FROM scheduled_acquisition_run_artifacts WHERE run_id = $1',
+      [run!.id],
+    );
+    expect(links).toEqual([{ artifact_id: existing.id }]);
   });
 
   it('rejects a legacy day/content retrieval key that is not bound to this exact fetch', async () => {

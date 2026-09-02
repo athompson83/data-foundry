@@ -11,11 +11,14 @@ const CHECKLIST = read('PROJECT_CHECKLIST.md');
 const PROGRESS = read('PROGRESS.md');
 const RUNBOOK = read('docs', 'owner-actions', 'cloudflare-deployment.md');
 const RECONCILIATION = read('docs', 'evidence', 'private-canary-readiness-reconciliation-20260901.md');
+const REVENUE = read('docs', 'owner-actions', 'revenue-readiness.md');
+const INDUSTRY = read('docs', 'adding-a-new-industry.md');
+const SECURITY = read('SECURITY.md');
 
 describe('private-canary provenance documentation', () => {
-  it('keeps every current record at no designated Worker release candidate', () => {
+  it('keeps every current record from designating a Worker candidate from repository state', () => {
     for (const [name, text] of Object.entries({ README, CHECKLIST, PROGRESS, RUNBOOK, RECONCILIATION })) {
-      expect(text, name).toContain('No Worker release candidate is currently designated.');
+      expect(text, name).toContain('Repository state alone designates no Worker release candidate.');
     }
   });
 
@@ -79,5 +82,33 @@ describe('private-canary provenance documentation', () => {
     const prohibition = /Do\s+not add a\s+documentation-only follow-up commit after that verification\./;
     expect(RUNBOOK).toMatch(prohibition);
     expect(RECONCILIATION).toMatch(prohibition);
+  });
+
+  it('keeps hosted history separate from the pending 0027 and 0028 repairs', () => {
+    for (const [name, text] of Object.entries({ README, CHECKLIST, PROGRESS, RUNBOOK })) {
+      expect(text, name).toMatch(/0027/);
+      expect(text, name).toMatch(/0028/);
+      expect(text, name).toMatch(/pending hosted|pending.*hosted/i);
+      expect(text, name).toMatch(/57 .*warnings|57 .*search path/i);
+    }
+    expect(RUNBOOK).toMatch(/apply only the pending migrations \(`0027` and `0028`\)/);
+    expect(RUNBOOK).toMatch(/Do not replay the 26 already-ledgered\s+migrations\./);
+    expect(RUNBOOK).toMatch(/other 31 INFO notices are non-blocking/);
+  });
+
+  it('requires route-less proof before separately authorized public exposure', () => {
+    expect(CHECKLIST).toMatch(/route-less, service-bound private canary/);
+    expect(CHECKLIST).not.toContain('prove the replacement on `canary.aroqon.com` first');
+    expect(REVENUE).toContain('Prove the route-less private canary.');
+    expect(INDUSTRY).toMatch(/route-less,\s+service-bound private-canary prerequisite/);
+  });
+
+  it('records the authoritative zero-R2 refresh without reviving the stale bucket claim', () => {
+    for (const [name, text] of Object.entries({ README, CHECKLIST, PROGRESS, SECURITY })) {
+      expect(text, name).toMatch(/14-day|14 days/);
+      expect(text, name).toMatch(/(?:zero|no)[\s\S]{0,120}R2/i);
+      expect(text, name).toMatch(/standard usage model/);
+    }
+    expect(CHECKLIST).not.toContain('Approve Cloudflare Workers Paid at $5/month plus usage');
   });
 });

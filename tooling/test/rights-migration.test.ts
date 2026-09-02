@@ -1196,26 +1196,24 @@ describe.sequential('0014 authorization scope and provenance integrity', () => {
     expect(errorCode(mutationError)).toBe('55000');
   });
 
-  it('does not permit mutation of an artifact acquisition scope', async () => {
+  it('does not permit any actual mutation of immutable artifact evidence', async () => {
     const artifact = '73500000-0000-4000-8000-000000000001';
-    await driver.exec('BEGIN');
-    try {
-      await insertArtifact(
-        driver,
-        artifact,
-        'https://rights-fixture.example/scope-a.json',
-        '5'.repeat(64),
-      );
-      const mutationError = await captureError(
-        driver.query(
-          `UPDATE source_artifacts SET acquisition_route = 'VENDOR_API' WHERE id = $1`,
-          [artifact],
-        ),
-      );
-      expect(errorCode(mutationError)).toBe('55000');
-    } finally {
-      await driver.exec('ROLLBACK');
-    }
+    await insertArtifact(
+      driver,
+      artifact,
+      'https://rights-fixture.example/scope-a.json',
+      '5'.repeat(64),
+    );
+    const scopeMutationError = await rollbackProbe(
+      `UPDATE source_artifacts SET acquisition_route = 'VENDOR_API' WHERE id = $1`,
+      [artifact],
+    );
+    expect(errorCode(scopeMutationError)).toBe('55000');
+    const evidenceMutationError = await rollbackProbe(
+      `UPDATE source_artifacts SET http_status = 204 WHERE id = $1`,
+      [artifact],
+    );
+    expect(errorCode(evidenceMutationError)).toBe('55000');
   });
 
   it('rejects entity evidence whose artifact is not the source record artifact', async () => {
