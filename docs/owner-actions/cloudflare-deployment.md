@@ -1163,13 +1163,17 @@ commercial gate.
 1. Freeze the live 40-character protected-main SHA and rerun its release gates;
    the reconciled rights, usage, auth/metering, web, RapidAPI, acquisition, and
    MCP baseline and PR #22 closeout hardening are complete through migration
-   `0028`. Install it with `DATA_FOUNDRY_SCHEMA=data_foundry` in Alpha Lab, not
-   in `public`. Before proceeding to step 2, reconcile the hosted `0001`–`0026`
-   ledger, apply only pending `0027` and `0028`, rerun the migration as a no-op,
-   and execute that exact SHA's exported read-only
+   `0028`. That repository baseline authorizes no Alpha Lab mutation. Before
+   proceeding to step 2 and only after `UA-006`, securely activate only the
+   staged `df_migration` role as the controlled login with its exact
+   database-scoped path, verify the cluster boundary, reconcile the hosted
+   `0001`–`0026` ledger, then use `DATA_FOUNDRY_SCHEMA=data_foundry` to apply only
+   pending `0027` and `0028` in Alpha Lab's private `data_foundry` schema, never
+   in `public`; rerun the migration as a no-op and execute that exact SHA's
+   exported read-only
    `postMigrationGrants.verificationSql`. It must prove the full `0001`–`0028`
    ledger, relation/routine inventory, ownership, ACL, and 57 function search
-   paths before any new credential, Hyperdrive, R2, or Queue provisioning. Do
+   paths before any runtime credential, Hyperdrive, R2, or Queue provisioning. Do
    not reuse the pre-merge candidate evidence after a later main or deployment
    change.
 2. Activate the five existing staged `NOLOGIN` runtime roles with isolated

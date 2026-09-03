@@ -209,10 +209,17 @@ describe('the no-commit Cloudflare deployment check', () => {
       /Do not assign any runtime password or\s+enable runtime `LOGIN` until step 3's pending migrations and\s+`postMigrationGrants\.verificationSql` have passed/,
     );
     expect(HYPERDRIVE_SECTION).not.toContain('separate least-privilege login roles');
+    expect(PRODUCTION_LAUNCH_ORDER).toContain(
+      'That repository baseline authorizes no Alpha Lab mutation.',
+    );
+    const beforeProductionAuthorization =
+      PRODUCTION_LAUNCH_ORDER.split('only after `UA-006`')[0] ?? '';
+    expect(beforeProductionAuthorization).not.toContain('Install it');
     expect(PRODUCTION_LAUNCH_ORDER).toMatch(/baseline .* through migration\s+`0028`/s);
     expect(PRODUCTION_LAUNCH_ORDER).toMatch(
-      /Before proceeding to step 2, .*apply only pending `0027` and `0028`.*no-op.*`postMigrationGrants\.verificationSql`.*full `0001`–`0028`\s+ledger, relation\/routine inventory, ownership, ACL, and 57 function search\s+paths before any new credential, Hyperdrive, R2, or Queue provisioning/s,
+      /Before\s+proceeding to step 2 and only after `UA-006`, securely activate only the\s+staged `df_migration` role as the controlled login with its exact\s+database-scoped path, verify the cluster boundary, reconcile the hosted\s+`0001`–`0026` ledger, then use `DATA_FOUNDRY_SCHEMA=data_foundry` to apply only\s+pending `0027` and `0028` in Alpha Lab's private `data_foundry` schema, never\s+in `public`; rerun the migration as a no-op.*`postMigrationGrants\.verificationSql`.*full `0001`–`0028`\s+ledger, relation\/routine inventory, ownership, ACL, and 57 function search\s+paths before any runtime credential, Hyperdrive, R2, or Queue provisioning/s,
     );
+    expect(PRODUCTION_LAUNCH_ORDER).not.toContain('before any new credential');
     expect(PRODUCTION_LAUNCH_ORDER).toMatch(
       /Activate the five existing staged `NOLOGIN` runtime roles with isolated\s+least-privilege login credentials, then execute that exact SHA's\s+`postMigrationGrants\.postCredentialVerificationSql` and require it to pass\.\s+Then run `pnpm runtime-roles:postgres:check` through all five direct\s+credential paths and require all five role checks to pass\. Only then\s+provision the five matching cache-disabled Hyperdrives, R2, and the Queue\/DLQ\s+resources/,
     );
