@@ -3,8 +3,8 @@
 ## Current State
 
 - Product: Data Foundry
-- Lifecycle stage: Alpha Lab schema staged / protected-PR / pre-deployment
-- Control-graph node: `LOCAL_VERIFICATION -> PROTECTED_PR -> EXTERNAL_DEPLOY`
+- Lifecycle stage: Alpha Lab schema staged / protected main / pre-deployment
+- Control-graph node: `PROTECTED_MAIN -> EXTERNAL_DEPLOY`
 - Current milestone: bind the staged Alpha Lab schema to the five Workers
   through owner-provisioned credentials and Hyperdrives, prove the first lawful
   Cloudflare canary, and open the first rights-admitted source and revenue
@@ -19,16 +19,18 @@
   one request-wide query snapshot, and database-free request pre-routing.
   Its exact head `501b33d08fafe5cdf1c9c0c9877f0b38b4b265c0` passed hosted run
   `33352124668`, both automated reviews, and sealed security scan
-  `24b34cd2-2f8d-40ae-bfd2-f4460daa419f`. Every later
-  candidate-affecting change still requires fresh exact-SHA local, hosted,
-  review, and ruleset evidence. The Alpha Lab isolation branch merged as
+  `24b34cd2-2f8d-40ae-bfd2-f4460daa419f`. Every later commit, including
+  documentation-only, creates a new repository SHA and requires fresh exact-SHA
+  local, hosted-CI, review, and ruleset evidence before it can be designated for
+  provider action. The Alpha Lab isolation branch merged as
   `290df1342094433e92978ec97eb37cc02fc4eb50`; PR #24 (`/docs` page names the
   API contract) merged as `5dde773a4b64a8e004ca429706100399a678cf74`.
-- PR #26 policy: any exact head for the route-less private synthetic canary and
-  migration-packet exporter may merge normally only after fresh exact-head
-  checks/reviews satisfy the active `main` ruleset. Merge does not authorize a
-  hosted migration or deployment; those retain their separate credential and
-  exact-SHA gates.
+  PR #26 then merged normally as
+  `02e90d70d0000d21c7f9b070b4e1b2e1d5dd7493` from reviewed head
+  `8a43b7f7600fef10c1b26f0281a4c087f8610373` after both required
+  checks, both automated reviews, and all review threads were clean. That merge
+  does not authorize a hosted migration or deployment; those retain separate
+  containment, credential, exact-SHA, and provider gates.
 - Repository state alone designates no Worker release candidate.
 - The required source gate
   is six route-less private-canary Worker artifacts: five reduced targets and
@@ -54,13 +56,13 @@
   credential rows.
   See the [2026-09-02 hosted migration evidence](docs/evidence/alpha-lab-hosted-migration-20260902.md).
 
-## Latest Session — PR #26 PostgreSQL Release-Boundary Reconciliation
+## Latest Session — Protected-Main PR #26 Release-Boundary Merge
 
-- Reconciled the three unresolved PR #26 review threads and then extended the
+- Reconciled every PR #26 review thread and extended the
   same shared PostgreSQL 16 policy across the direct migration runner,
   connector packets, runtime-grant installer/verifiers, five direct role
-  probes, and every route-less private-canary target. The candidate rejects
-  unsafe role posture, memberships, role/database settings, effective
+  probes, and every route-less private-canary target. The merged implementation
+  rejects unsafe role posture, memberships, role/database settings, effective
   parameter and large-object privileges, FDW/server access, ownership, all-
   database `CREATE`, and `CONNECT` to any other live non-template database.
 - Direct migrations now require `df_migration` to be a controlled direct
@@ -82,16 +84,24 @@
   and numeric shared-ownership branches so a broader rejection cannot mask
   them. The disposable PostgreSQL CI job applies and cleans each mutation and
   preserves only allowlisted error signatures in mode-`0600` captures.
-- Repository-only verification is green so far: the root combined focused run
-  passed 267/267 tests, the full migration runner passed 112/112, migration
-  packets passed 38/38, runtime grants passed 63/63, supporting suites passed
-  44/44, TypeScript compilation passed, and the generated CI Bash parses. A
-  fresh exact-head repository-wide run and protected checks/reviews remain
-  mandatory after the final commit; none of this is live provider evidence.
+- Repository-only verification is green. Exact PR head
+  `8a43b7f7600fef10c1b26f0281a4c087f8610373` passed
+  protected run `33697035331`, including disposable TLS PostgreSQL 16, and
+  both automated reviews found no remaining issue. A clean checkout of merge
+  commit `02e90d70d0000d21c7f9b070b4e1b2e1d5dd7493` passed TypeScript, 202
+  files / 3,244 tests, 28 ordered idempotent migrations, generated
+  schema/OpenAPI/runtime checks, topology, and eleven PGlite-free Worker
+  artifacts. Protected-main push run `33698213600` also passed both required
+  jobs. None of this is live provider evidence.
 - No provider, source, rights, billing, DNS, or deployment state changed. The
-  hosted target still needs `UA-006`, a secure `df_migration` credential and
-  canonical role setting, a read-only cross-database topology result, pending
-  migrations `0027`–`0028`, five runtime credentials/Hyperdrives, and the
+  hosted target still needs `UA-006`, a secure `df_migration` credential with
+  the exact current-database `data_foundry, pg_catalog, extensions` search path,
+  a read-only cross-database topology result, pending
+  migrations `0027`–`0028`, `postMigrationGrants.verificationSql`, five distinct
+  runtime-role credentials with that same exact current-database search path,
+  `postMigrationGrants.postCredentialVerificationSql`, a successful five-path
+  `pnpm runtime-roles:postgres:check`, five cache-disabled Hyperdrives, five
+  separate 14-day private-canary queues, both required R2 buckets, and the
   private canary before any public deployment.
 
 ## Previous Session — Hosted Private-Schema Migration and Grant Activation
@@ -362,11 +372,18 @@ not mean deployed or commercially publishable.
   owner/provider topology blocker rather than a condition automation may
   normalize on the shared project.
 - The current public data hostname is a Vercel 404, not a Data Foundry runtime.
-- Secure migration/runtime database-role password entry, the pending exact-SHA
-  migrations, five cache-disabled Hyperdrives, and post-credential verification
-  are needed before the route-less canary can run; preserve and reverify the
-  standard usage model and ordinary 14-day queues; provision the absent raw-
-  artifact and canary receipt buckets.
+- Secure `df_migration` credential entry with the exact current-database
+  `data_foundry, pg_catalog, extensions` search path, the pending exact-SHA
+  migrations, `postMigrationGrants.verificationSql`, then secure activation of
+  all five runtime-role credentials, each distinct and using that same exact
+  current-database search path,
+  `postMigrationGrants.postCredentialVerificationSql`, a successful five-path
+  `pnpm runtime-roles:postgres:check`, five cache-disabled Hyperdrives, five
+  separate private-canary queues with 14-day retention, and the absent
+  raw-artifact and canary receipt buckets are needed in that order before the
+  route-less canary can run. Preserve and reverify the standard usage model and
+  ordinary 14-day Queue/DLQ pair; never reuse that ordinary pair for any
+  private-canary path.
 - Public sitemap rate limiting and its ordinary-crawler bypass policy have not
   been configured or verified on the canonical Cloudflare account.
 - No real HVAC source has the required exact grants and human rights review.
@@ -385,9 +402,9 @@ to answer; automation must not sign, acquire, publish, or contact the publisher.
 ## Production Impact
 
 The merged Alpha Lab isolation change (`290df13`) governs runtime schema
-selection and Hyperdrive transaction isolation/lifecycle. The current PR #26
-candidate tightens migration/runtime-role safeguards, regression coverage, and
-deployment documentation only; it made no hosted mutation. The preceding
+selection and Hyperdrive transaction isolation/lifecycle. Merged PR #26
+tightens migration/runtime-role safeguards, regression coverage, and deployment
+documentation only; it made no hosted mutation. The preceding
 session performed the hosted private-schema migration and grant activation
 described above and merged PR #24. Neither session performed a Worker
 deployment, credential creation, source acquisition, publisher contact,
@@ -396,10 +413,10 @@ listing, or billing change, and neither touched the shared `public` schema.
 ## Previous Session Summary
 
 Protected `main` combines usage accounting/auth, corrected Option B rights,
-public web, RapidAPI, scheduled acquisition/readiness, and MCP in dependency
-order through migration `0026`. The PR #26 owner continuation adds forward-only
-migrations `0027`–`0028` and final runtime least-privilege/export hardening; they remain
-repository-only pending exact-SHA hosted authorization. Earlier
+public web, RapidAPI, scheduled acquisition/readiness, MCP, the private-canary
+topology, and final runtime least-privilege/export hardening in dependency order
+through migration `0028`. Hosted migrations `0027`–`0028` remain pending
+separate exact-SHA authorization and application. Earlier
 review repairs add a last
 practical pre-persistence rights checkpoint, exact historical authorization,
 one-client resolution transactions, `source-record-evidence@3`, claim-backed

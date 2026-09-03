@@ -39,18 +39,22 @@ canary:
    Never select one from a later checkout or infer artifact identity from
    source-path equivalence.
 
-   Any PR #26 head may merge normally after fresh exact-head checks/reviews meet
-   the active `main` ruleset. Before any provider action, its merged/reviewed SHA
-   must contain the runtime code, tests, six-artifact gate, and aligned
-   documentation, and a clean checkout
-   of that exact SHA must run `pnpm cloudflare:artifacts:check`, which dry-runs
+   PR #26 merged normally into protected `main` as
+   `02e90d70d0000d21c7f9b070b4e1b2e1d5dd7493` from reviewed head
+   `8a43b7f7600fef10c1b26f0281a4c087f8610373`. That proves repository
+   convergence only; it does not designate a Worker release candidate or
+   authorize provider activity. Before any provider action, freeze the then-live
+   40-character `origin/main` SHA and verify that it contains the runtime code,
+   tests, six-artifact gate, and aligned documentation. A clean checkout of that
+   exact SHA must run `pnpm cloudflare:artifacts:check`, which dry-runs
    and scans all six route-less private-canary Worker artifacts: five reduced
    target Workers plus the private-canary harness (without Hyperdrive). The
    target profiles receive only synthetic Hyperdrive configuration for the
    credential-free artifact build; the harness receives none. A missing target
    entrypoint, manifest, or generated artifact directory fails the gate closed.
-   This is repository provenance, not provider deployment evidence. Do not add a
-   documentation-only follow-up commit after that verification.
+   This is repository provenance, not provider deployment evidence. Any later
+   commit, including documentation-only, creates a new release SHA and requires
+   fresh exact-SHA checks before designation or deployment.
 
    A provider-side containment result is still required before a deployment or
    any new credential-bearing migration/recovery action. If sanitized evidence
@@ -75,15 +79,27 @@ canary:
    in a transcript. Application migrations remain direct-TLS-only; the only
    permitted export is the credential-free exact-SHA `postMigrationGrants`
    payload. It is an input to the separately provider-authorized direct-TLS
-   procedure after the pending direct migration. It does not authorize provider
-   activity during repository-only work.
-2. Create five distinct least-privilege runtime identities/passwords through
-   the approved secure interface, then create exactly five TLS Hyperdrives—one
-   for each edge, web, usage-consumer, acquisition-worker, and MCP role. Never
-   bind the migration principal to a Worker. Read back the hosted ledger,
+   procedure after the pending direct migration. Through that authorized
+   direct-TLS operator, execute the exact payload's `verificationSql` and
+   require it to pass while all five runtime roles remain staged `NOLOGIN` and
+   passwordless. Only after that result may step 2 activate a runtime role. The
+   payload does not authorize provider activity during repository-only work.
+2. After migration verification, activate the five existing staged runtime
+   roles with distinct least-privilege passwords through the approved secure
+   interface. Run that exact SHA's
+   `postMigrationGrants.postCredentialVerificationSql` and require it to pass.
+   Following Section 2's secret-safe direct-TLS procedure, run
+   `pnpm runtime-roles:postgres:check` through all five direct runtime-role
+   credential paths and require all five role checks to pass; only then create
+   exactly five cache-disabled TLS Hyperdrives—one for each edge, web,
+   usage-consumer, acquisition-worker, and MCP role. Never bind the migration
+   principal to a Worker. The SQL verifier must read back the hosted ledger,
    private schema, five roles, 57 expected function signatures with exact
-   `data_foundry, pg_catalog, extensions` function paths, and 199 exact grants
-   before creating any Hyperdrive.
+   `data_foundry, pg_catalog, extensions` function paths, and 199 exact grants.
+   The direct credential probe independently verifies each server-side login
+   identity, nonprivileged role posture, empty membership, exact live and durable
+   search paths, safe session settings, and effective-privilege boundaries.
+   Both must pass before any Hyperdrive is created.
 3. Preserve the existing `data-foundry-usage-events` and
    `data-foundry-usage-events-dlq` queues unchanged at 1,209,600 seconds
    (14 days). Only the ordinary `data-foundry-usage-consumer` consumes
@@ -199,29 +215,42 @@ The conventional `wrangler.production.toml` procedure and all public
 hostname/cutover steps below are later-production controls. They are not an
 alternative canary route for this workstream.
 
-Protected `main` contains the ordinary five-Worker production topology:
+Protected `main` contains the ordinary five-Worker production topology and
+repository migrations through `0028`:
 `apps/edge`, `apps/web`, `apps/usage-consumer`,
 `apps/acquisition-worker`, and `apps/mcp-worker`, including the PR #22 closeout
-merged as `9c917c0f708352dfb79861110023145eb23806e3`. No production
+merged as `9c917c0f708352dfb79861110023145eb23806e3` and the PR #26
+release-boundary work merged as
+`02e90d70d0000d21c7f9b070b4e1b2e1d5dd7493`. No production
 deployment of the integrated protected-main tree is recorded or verified. It is
 separate from the temporary six-artifact private-canary topology above: five
 reduced dedicated targets plus the no-Hyperdrive harness.
-Wrangler is unauthenticated in the verification environment; exact deployment
-IDs and runtime probes remain owner/platform evidence. Repository state is not
-proof that Cloudflare resources or real-source rights have been provisioned.
+Wrangler authentication is available in the current verification environment,
+but provider-side containment `UA-006` explicitly blocks using it for mutation
+or deployment. Authentication is not authorization: exact deployment IDs and
+runtime probes remain owner/platform evidence, and repository state is not proof
+that Cloudflare resources or real-source rights have been provisioned.
 The [redacted 2026-08-31 provider reconciliation](../evidence/alpha-lab-provider-reconciliation-20260831.md)
 records the read-only Alpha Lab, Cloudflare, and Vercel observations behind this
 runbook; it is not deployment or runtime proof.
 
-The minimal owner/platform work is: choose the canonical account/zone and
-database; provision Hyperdrive, one raw-artifact R2 bucket, the preserved
-ordinary usage Queue/DLQ, all five dedicated temporary canary queues (the
-synthetic-metering Queue/DLQ pair and control ingress/DLQ/quarantine chain), and
-first the six temporary private-canary Workers, then only later the five ordinary
-production Workers; set protected values without exposing them; then prove the
-exact deployed SHA, rights behavior, Queue persistence, Cron/R2 acquisition,
-and emergency public-cache purge. RapidAPI and MCP live-channel proof are
-separate external gates.
+The minimal owner/platform work is: clear `UA-006`, confirm the canonical
+account/zone and staged Alpha Lab database, securely activate only the controlled
+`df_migration` credential and exact database-scoped path, apply the pending
+exact-SHA database procedure and require `postMigrationGrants.verificationSql`
+to pass; only then
+activate the five staged runtime roles with distinct credentials and the exact
+database-scoped path, require both
+`postMigrationGrants.postCredentialVerificationSql` and the five direct
+`pnpm runtime-roles:postgres:check` credential probes to pass, and provision the
+five matching cache-disabled Hyperdrives. Then provision one raw-artifact R2
+bucket, preserve the ordinary usage Queue/DLQ, create all five dedicated
+temporary canary queues (the synthetic-metering Queue/DLQ pair and control
+ingress/DLQ/quarantine chain), and deploy first the six temporary private-canary
+Workers, then only later the five ordinary production Workers. Set protected
+values without exposing them; then prove the exact deployed SHA, rights
+behavior, Queue persistence, Cron/R2 acquisition, and emergency public-cache
+purge. RapidAPI and MCP live-channel proof are separate external gates.
 
 The production database is Alpha Lab's shared Supabase project
 `fgxinxaqkwoqyywdgobs`, not Valor. Data Foundry must be installed only in its
@@ -313,12 +342,20 @@ credential must not be committed.
    supplies the connection pool. First prove the account can reach that IPv6
    Direct endpoint, or arrange Supabase IPv4 support before creating a live
    Hyperdrive configuration.
-2. Create a controlled-login migration role that owns only `data_foundry`, and
-   separate least-privilege login roles for edge, web, MCP, usage consumer, and
-   acquisition. No runtime role may own objects, create in the shared `public`
-   schema, or inherit broad roles. Give every role the **database default**
-   search path `data_foundry, pg_catalog, extensions`, and grant only its
-   required `data_foundry` and `extensions` privileges.
+2. Through the secure provider flow, activate only the existing staged
+   `df_migration` role as the controlled migration login; it owns only
+   `data_foundry`. On a fresh installation, create it with that same boundary.
+   Keep the five existing edge, web, MCP, usage-consumer, and acquisition roles
+   staged as separate `NOLOGIN`, passwordless, least-privilege roles. On a fresh
+   installation, create those runtime roles in that same staged state. No
+   runtime role may own objects, create in the shared `public` schema, or
+   inherit broad roles. Give every role the exact
+   **database-scoped default** search path
+   `data_foundry, pg_catalog, extensions`. Do not assign any runtime password or
+   enable runtime `LOGIN` until step 3's pending migrations and
+   `postMigrationGrants.verificationSql` have passed. Follow step 3's distinct
+   fresh-install and exact-legacy grant paths; do not manually invent or
+   normalize runtime object grants.
 
    The direct migration credential must authenticate with both `session_user`
    and `current_user` equal to `df_migration`. Provision it as `LOGIN`,
@@ -563,7 +600,8 @@ credential must not be committed.
    origin must authenticate directly as its matching `df_*` role; Workers do
    not issue `SET ROLE`.
 
-   On a dedicated verification database, prove the actual credential paths by
+   On the deployment target after all five credentials are activated, prove the
+   actual credential paths by
    supplying the five role-specific connection URLs only through
    `DATA_FOUNDRY_EDGE_POSTGRES_URL`, `DATA_FOUNDRY_WEB_POSTGRES_URL`,
    `DATA_FOUNDRY_MCP_POSTGRES_URL`, `DATA_FOUNDRY_USAGE_POSTGRES_URL`, and
@@ -1128,22 +1166,28 @@ commercial gate.
 1. Freeze the live 40-character protected-main SHA and rerun its release gates;
    the reconciled rights, usage, auth/metering, web, RapidAPI, acquisition, and
    MCP baseline and PR #22 closeout hardening are complete through migration
-   `0028`. Install it with `DATA_FOUNDRY_SCHEMA=data_foundry` in Alpha Lab, not
-   in `public`. Before proceeding to step 2, reconcile the hosted `0001`–`0026`
-   ledger, apply only pending `0027` and `0028`, rerun the migration as a no-op,
-   and execute that exact SHA's exported read-only
+   `0028`. That repository baseline authorizes no Alpha Lab mutation. Before
+   proceeding to step 2 and only after `UA-006`, securely activate only the
+   staged `df_migration` role as the controlled login with its exact
+   database-scoped path, verify the cluster boundary, reconcile the hosted
+   `0001`–`0026` ledger, then use `DATA_FOUNDRY_SCHEMA=data_foundry` to apply only
+   pending `0027` and `0028` in Alpha Lab's private `data_foundry` schema, never
+   in `public`; rerun the migration as a no-op and execute that exact SHA's
+   exported read-only
    `postMigrationGrants.verificationSql`. It must prove the full `0001`–`0028`
    ledger, relation/routine inventory, ownership, ACL, and 57 function search
-   paths before any new credential, Hyperdrive, R2, or Queue provisioning. Do
+   paths before any runtime credential, Hyperdrive, R2, or Queue provisioning. Do
    not reuse the pre-merge candidate evidence after a later main or deployment
    change.
 2. Activate the five existing staged `NOLOGIN` runtime roles with isolated
    least-privilege login credentials, then execute that exact SHA's
    `postMigrationGrants.postCredentialVerificationSql` and require it to pass.
-   Only then provision the five matching Hyperdrives, R2, and the Queue/DLQ
-   resources required by the route-less temporary canary. Do not recreate the
-   private schema or staged roles, and do not change ordinary production Worker
-   configuration at this stage.
+   Then run `pnpm runtime-roles:postgres:check` through all five direct
+   credential paths and require all five role checks to pass. Only then
+   provision the five matching cache-disabled Hyperdrives, R2, and the Queue/DLQ
+   resources required by the route-less temporary canary. Do not
+   recreate the private schema or staged roles, and do not change ordinary
+   production Worker configuration at this stage.
 3. Deploy and attest all six route-less private-canary Worker artifacts — five
    temporary reduced targets plus the no-Hyperdrive harness — then prove exact-SHA
    health/readiness, repeated Hyperdrive private-schema behavior, and real queue
