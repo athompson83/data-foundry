@@ -84,18 +84,22 @@
   and numeric shared-ownership branches so a broader rejection cannot mask
   them. The disposable PostgreSQL CI job applies and cleans each mutation and
   preserves only allowlisted error signatures in mode-`0600` captures.
-- Repository-only verification is green. Exact PR head `8a43b7f` passed
+- Repository-only verification is green. Exact PR head
+  `8a43b7f7600fef10c1b26f0281a4c087f8610373` passed
   protected run `33697035331`, including disposable TLS PostgreSQL 16, and
   both automated reviews found no remaining issue. A clean checkout of merge
-  commit `02e90d7` passed TypeScript, 202 files / 3,244 tests, 28 ordered
-  idempotent migrations, generated schema/OpenAPI/runtime checks, topology, and
-  eleven PGlite-free Worker artifacts. Protected-main push run `33698213600`
-  also passed both required jobs. None of this is live provider evidence.
+  commit `02e90d70d0000d21c7f9b070b4e1b2e1d5dd7493` passed TypeScript, 202
+  files / 3,244 tests, 28 ordered idempotent migrations, generated
+  schema/OpenAPI/runtime checks, topology, and eleven PGlite-free Worker
+  artifacts. Protected-main push run `33698213600` also passed both required
+  jobs. None of this is live provider evidence.
 - No provider, source, rights, billing, DNS, or deployment state changed. The
   hosted target still needs `UA-006`, a secure `df_migration` credential and
   canonical role setting, a read-only cross-database topology result, pending
-  migrations `0027`–`0028`, five runtime credentials/Hyperdrives, and the
-  private canary before any public deployment.
+  migrations `0027`–`0028`, `postMigrationGrants.verificationSql`, five runtime
+  credentials, `postMigrationGrants.postCredentialVerificationSql`, a
+  successful five-path `pnpm runtime-roles:postgres:check`, five cache-disabled
+  Hyperdrives, and the private canary before any public deployment.
 
 ## Previous Session — Hosted Private-Schema Migration and Grant Activation
 
@@ -365,11 +369,14 @@ not mean deployed or commercially publishable.
   owner/provider topology blocker rather than a condition automation may
   normalize on the shared project.
 - The current public data hostname is a Vercel 404, not a Data Foundry runtime.
-- Secure migration/runtime database-role password entry, the pending exact-SHA
-  migrations, five cache-disabled Hyperdrives, and post-credential verification
-  are needed before the route-less canary can run; preserve and reverify the
-  standard usage model and ordinary 14-day queues; provision the absent raw-
-  artifact and canary receipt buckets.
+- Secure `df_migration` credential entry, the pending exact-SHA migrations,
+  `postMigrationGrants.verificationSql`, then secure activation of all five
+  runtime-role credentials, `postMigrationGrants.postCredentialVerificationSql`,
+  a successful five-path `pnpm runtime-roles:postgres:check`, and five
+  cache-disabled Hyperdrives are needed in that order before the route-less
+  canary can run;
+  preserve and reverify the standard usage model and ordinary 14-day queues;
+  provision the absent raw-artifact and canary receipt buckets.
 - Public sitemap rate limiting and its ordinary-crawler bypass policy have not
   been configured or verified on the canonical Cloudflare account.
 - No real HVAC source has the required exact grants and human rights review.

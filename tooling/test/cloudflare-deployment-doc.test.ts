@@ -14,6 +14,8 @@ const RUNBOOK = readFileSync(
 const PRODUCTION_LAUNCH_ORDER = RUNBOOK.split('## 9. Production launch order')[1] ?? '';
 const TRACKED_MANIFESTS =
   'apps/edge/wrangler.toml apps/web/wrangler.toml apps/usage-consumer/wrangler.toml apps/acquisition-worker/wrangler.toml apps/mcp-worker/wrangler.toml';
+const PR_26_HEAD = '8a43b7f7600fef10c1b26f0281a4c087f8610373';
+const PR_26_MERGE = '02e90d70d0000d21c7f9b070b4e1b2e1d5dd7493';
 
 describe('the no-commit Cloudflare deployment check', () => {
   it('compares tracked manifests to HEAD so staged environment ids cannot pass', () => {
@@ -29,6 +31,11 @@ describe('the no-commit Cloudflare deployment check', () => {
     expect(RUNBOOK).toMatch(
       /PR #26 merged normally into protected `main` as\s+`02e90d70d0000d21c7f9b070b4e1b2e1d5dd7493` from reviewed head\s+`8a43b7f7600fef10c1b26f0281a4c087f8610373`/,
     );
+    for (const document of [RUNBOOK, PROGRESS, CHECKLIST]) {
+      expect(document).toContain(`\`${PR_26_HEAD}\``);
+      expect(document).toContain(`\`${PR_26_MERGE}\``);
+      expect(document).not.toMatch(/`8a43b7f`|`02e90d7`/);
+    }
     expect(RUNBOOK).toMatch(/all six\s+route-less private-canary Worker artifacts/);
     const laterCommitGate =
       /Any later\s+commit, including documentation-only, creates a\s+new release SHA and requires\s+fresh exact-SHA checks/;
@@ -191,7 +198,7 @@ describe('the no-commit Cloudflare deployment check', () => {
       /Before proceeding to step 2, .*apply only pending `0027` and `0028`.*no-op.*`postMigrationGrants\.verificationSql`.*full `0001`–`0028`\s+ledger, relation\/routine inventory, ownership, ACL, and 57 function search\s+paths before any new credential, Hyperdrive, R2, or Queue provisioning/s,
     );
     expect(PRODUCTION_LAUNCH_ORDER).toMatch(
-      /Activate the five existing staged `NOLOGIN` runtime roles with isolated\s+least-privilege login credentials, then execute that exact SHA's\s+`postMigrationGrants\.postCredentialVerificationSql` and require it to pass\.\s+Only then provision the five matching cache-disabled Hyperdrives, R2, and the\s+Queue\/DLQ\s+resources/,
+      /Activate the five existing staged `NOLOGIN` runtime roles with isolated\s+least-privilege login credentials, then execute that exact SHA's\s+`postMigrationGrants\.postCredentialVerificationSql` and require it to pass\.\s+Then run `pnpm runtime-roles:postgres:check` through all five direct\s+credential paths and require all five role checks to pass\. Only then\s+provision the five matching cache-disabled Hyperdrives, R2, and the Queue\/DLQ\s+resources/,
     );
     expect(PRODUCTION_LAUNCH_ORDER).not.toMatch(/Provision the isolated Alpha Lab roles\/schema/);
     expect(PRODUCTION_LAUNCH_ORDER).not.toMatch(/merged through migration\s+`0026`/);
@@ -200,12 +207,26 @@ describe('the no-commit Cloudflare deployment check', () => {
   it('keeps both owner-checklist verifiers in the canonical credential sequence', () => {
     const ua002 = CHECKLIST.split(/\r?\n/).find((line) => line.startsWith('| UA-002 |')) ?? '';
     expect(ua002).toMatch(
-      /apply only pending migrations.*run the exact `postMigrationGrants\.verificationSql` and require it to pass.*activate all five staged runtime roles.*run the exact `postMigrationGrants\.postCredentialVerificationSql` and require it to pass.*only then create the five matching cache-disabled Hyperdrives/i,
+      /apply only pending migrations.*run the exact `postMigrationGrants\.verificationSql` and require it to pass.*activate all five staged runtime roles.*run the exact `postMigrationGrants\.postCredentialVerificationSql` and require it to pass.*run `pnpm runtime-roles:postgres:check` through all five direct credential paths and require all five role checks to pass.*only then create the five matching cache-disabled Hyperdrives/i,
     );
     expect(ua002).not.toMatch(/activate all five staged runtime roles.*before .*verificationSql/i);
     expect(ua002).not.toMatch(/create .*Hyperdrives.*before .*post-credential/i);
     expect(RUNBOOK).toMatch(
-      /only then create exactly five cache-disabled TLS Hyperdrives—one for each\s+edge, web, usage-consumer, acquisition-worker, and MCP role/,
+      /run\s+`pnpm runtime-roles:postgres:check` through all five direct runtime-role\s+credential paths and require all five role checks to pass; only then create\s+exactly five cache-disabled TLS Hyperdrives—one for each edge, web,\s+usage-consumer, acquisition-worker, and MCP role/,
+    );
+    expect(RUNBOOK).toMatch(
+      /The SQL verifier must read back the hosted ledger,\s+private schema, five roles, 57 expected function signatures with exact\s+`data_foundry, pg_catalog, extensions` function paths, and 199 exact grants\./,
+    );
+    expect(RUNBOOK).toMatch(
+      /The direct credential probe independently verifies each server-side login\s+identity, nonprivileged role posture, empty membership, exact live and durable\s+search paths, safe session settings, and effective-privilege boundaries\.\s+Both must pass before any Hyperdrive is created\./,
+    );
+    const currentState = PROGRESS.split('## Previous Session')[0] ?? '';
+    expect(currentState).toMatch(
+      /pending\s+migrations `0027`–`0028`, `postMigrationGrants\.verificationSql`, five runtime\s+credentials, `postMigrationGrants\.postCredentialVerificationSql`, a\s+successful five-path `pnpm runtime-roles:postgres:check`, five cache-disabled\s+Hyperdrives, and the private canary/,
+    );
+    const blockers = PROGRESS.split('## Blockers')[1] ?? '';
+    expect(blockers).toMatch(
+      /- Secure `df_migration` credential entry, the pending exact-SHA migrations,\s+`postMigrationGrants\.verificationSql`, then secure activation of all five\s+runtime-role credentials, `postMigrationGrants\.postCredentialVerificationSql`,\s+a successful five-path `pnpm runtime-roles:postgres:check`, and five\s+cache-disabled Hyperdrives are needed in that order before the route-less\s+canary can run/,
     );
   });
 });
