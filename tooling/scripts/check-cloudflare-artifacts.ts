@@ -15,7 +15,10 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import { parse, stringify } from 'smol-toml';
 import { isMain } from '../lib/cli-entry.js';
-import { validateCloudflareTopology } from './check-cloudflare-topology.js';
+import {
+  type CloudflareTopologyOptions,
+  validateCloudflareTopology,
+} from './check-cloudflare-topology.js';
 
 const execFileAsync = promisify(execFile);
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -36,31 +39,75 @@ const WRANGLER_OS_ENVIRONMENT_KEYS = [
   'LC_ALL',
 ] as const;
 
-const SERVICES = [
+export const CLOUDFLARE_ARTIFACT_SERVICES = [
+  // Keep the ordinary production manifests bundleable too. The canary profiles
+  // are deliberately reduced, so passing their dry runs must not hide a
+  // Wrangler-level regression in an ordinary route, Cron, R2, or Queue Worker.
   {
-    name: 'edge',
+    name: 'ordinary-edge',
     configPath: join(REPO_ROOT, 'apps', 'edge', 'wrangler.toml'),
     mainPath: join(REPO_ROOT, 'apps', 'edge', 'src', 'index.ts'),
+    needsHyperdrive: true,
   },
   {
-    name: 'usage-consumer',
+    name: 'ordinary-usage-consumer',
     configPath: join(REPO_ROOT, 'apps', 'usage-consumer', 'wrangler.toml'),
     mainPath: join(REPO_ROOT, 'apps', 'usage-consumer', 'src', 'index.ts'),
+    needsHyperdrive: true,
   },
   {
-    name: 'web',
+    name: 'ordinary-web',
     configPath: join(REPO_ROOT, 'apps', 'web', 'wrangler.toml'),
     mainPath: join(REPO_ROOT, 'apps', 'web', 'src', 'index.ts'),
+    needsHyperdrive: true,
   },
   {
-    name: 'acquisition-worker',
+    name: 'ordinary-acquisition-worker',
     configPath: join(REPO_ROOT, 'apps', 'acquisition-worker', 'wrangler.toml'),
     mainPath: join(REPO_ROOT, 'apps', 'acquisition-worker', 'src', 'index.ts'),
+    needsHyperdrive: true,
   },
   {
-    name: 'mcp-worker',
+    name: 'ordinary-mcp-worker',
     configPath: join(REPO_ROOT, 'apps', 'mcp-worker', 'wrangler.toml'),
     mainPath: join(REPO_ROOT, 'apps', 'mcp-worker', 'src', 'index.ts'),
+    needsHyperdrive: true,
+  },
+  {
+    name: 'private-canary-edge',
+    configPath: join(REPO_ROOT, 'apps', 'edge', 'wrangler.private-canary.toml'),
+    mainPath: join(REPO_ROOT, 'apps', 'edge', 'src', 'index.ts'),
+    needsHyperdrive: true,
+  },
+  {
+    name: 'private-canary-usage-consumer',
+    configPath: join(REPO_ROOT, 'apps', 'usage-consumer', 'wrangler.private-canary.toml'),
+    mainPath: join(REPO_ROOT, 'apps', 'usage-consumer', 'src', 'index.ts'),
+    needsHyperdrive: true,
+  },
+  {
+    name: 'private-canary-web',
+    configPath: join(REPO_ROOT, 'apps', 'web', 'wrangler.private-canary.toml'),
+    mainPath: join(REPO_ROOT, 'apps', 'web', 'src', 'index.ts'),
+    needsHyperdrive: true,
+  },
+  {
+    name: 'private-canary-acquisition-worker',
+    configPath: join(REPO_ROOT, 'apps', 'acquisition-worker', 'wrangler.private-canary.toml'),
+    mainPath: join(REPO_ROOT, 'apps', 'acquisition-worker', 'src', 'index.ts'),
+    needsHyperdrive: true,
+  },
+  {
+    name: 'private-canary-mcp-worker',
+    configPath: join(REPO_ROOT, 'apps', 'mcp-worker', 'wrangler.private-canary.toml'),
+    mainPath: join(REPO_ROOT, 'apps', 'mcp-worker', 'src', 'index.ts'),
+    needsHyperdrive: true,
+  },
+  {
+    name: 'private-canary',
+    configPath: join(REPO_ROOT, 'apps', 'private-canary', 'wrangler.toml'),
+    mainPath: join(REPO_ROOT, 'apps', 'private-canary', 'src', 'index.ts'),
+    needsHyperdrive: false,
   },
 ] as const;
 
@@ -70,16 +117,35 @@ export interface CloudflareArtifactOptions {
   readonly outputRoot?: string;
 }
 
+export type CloudflareArtifactTopologyOptions = Omit<CloudflareTopologyOptions, 'mode'>;
+
 export interface CloudflareArtifactResult {
   readonly services: readonly string[];
+  readonly artifacts: readonly CloudflareArtifactServiceResult[];
   readonly files: number;
   readonly bytes: number;
 }
 
-function renderDryRunConfig(source: string, mainPath: string): string {
+export interface CloudflareArtifactServiceResult {
+  readonly name: string;
+  readonly files: number;
+  readonly bytes: number;
+}
+
+export function formatCloudflareArtifactSuccessMessage(result: CloudflareArtifactResult): string {
+  return (
+    'OK: Wrangler dry-run built eleven Worker artifacts (five ordinary production Workers plus six route-less ' +
+    'private-canary artifacts: five reduced target Workers plus the private-canary harness; ' +
+    `${result.files} files, ${result.bytes} bytes) with no PGlite runtime.\n`
+  );
+}
+
+export function renderDryRunConfig(source: string, mainPath: string, needsHyperdrive: boolean): string {
   const config = parse(source) as TomlObject;
   config['main'] = mainPath.replaceAll('\\', '/');
-  config['hyperdrive'] = [{ binding: 'HYPERDRIVE', id: DRY_RUN_HYPERDRIVE_ID }];
+  if (needsHyperdrive) {
+    config['hyperdrive'] = [{ binding: 'HYPERDRIVE', id: DRY_RUN_HYPERDRIVE_ID }];
+  }
   return stringify(config);
 }
 
@@ -141,10 +207,20 @@ export function buildWranglerArtifactEnvironment(
   return environment;
 }
 
+export async function validateCloudflareArtifactTopology(
+  options: CloudflareArtifactTopologyOptions = {},
+): Promise<readonly string[]> {
+  const [repositoryErrors, targetErrors] = await Promise.all([
+    validateCloudflareTopology(options),
+    validateCloudflareTopology({ ...options, mode: 'private-canary-target' }),
+  ]);
+  return [...repositoryErrors, ...targetErrors];
+}
+
 export async function buildCloudflareArtifacts(
   options: CloudflareArtifactOptions = {},
 ): Promise<CloudflareArtifactResult> {
-  const topologyErrors = await validateCloudflareTopology();
+  const topologyErrors = await validateCloudflareArtifactTopology();
   if (topologyErrors.length > 0) {
     throw new Error(`Cloudflare topology must pass before bundling:\n${topologyErrors.join('\n')}`);
   }
@@ -154,13 +230,17 @@ export async function buildCloudflareArtifacts(
   const configRoot = await mkdtemp(join(tmpdir(), 'data-foundry-wrangler-config-'));
   try {
     await mkdir(outputRoot, { recursive: true });
-    for (const service of SERVICES) {
+    for (const service of CLOUDFLARE_ARTIFACT_SERVICES) {
       const configPath = join(configRoot, `${service.name}.toml`);
       const outdir = join(outputRoot, service.name);
       await mkdir(outdir, { recursive: true });
       await writeFile(
         configPath,
-        renderDryRunConfig(await readFile(service.configPath, 'utf8'), service.mainPath),
+        renderDryRunConfig(
+          await readFile(service.configPath, 'utf8'),
+          service.mainPath,
+          service.needsHyperdrive,
+        ),
         'utf8',
       );
       await execFileAsync(
@@ -187,8 +267,23 @@ export async function buildCloudflareArtifacts(
         },
       );
     }
-    const scanned = await scanCloudflareArtifacts(outputRoot);
-    return { services: SERVICES.map(({ name }) => name), ...scanned };
+    const artifacts: CloudflareArtifactServiceResult[] = [];
+    for (const service of CLOUDFLARE_ARTIFACT_SERVICES) {
+      const scanned = await scanCloudflareArtifacts(join(outputRoot, service.name));
+      if (scanned.files === 0) {
+        throw new Error(`Wrangler dry-run produced no artifact files for ${service.name}.`);
+      }
+      artifacts.push({
+        name: service.name,
+        ...scanned,
+      });
+    }
+    return {
+      services: CLOUDFLARE_ARTIFACT_SERVICES.map(({ name }) => name),
+      artifacts,
+      files: artifacts.reduce((total, artifact) => total + artifact.files, 0),
+      bytes: artifacts.reduce((total, artifact) => total + artifact.bytes, 0),
+    };
   } finally {
     await rm(configRoot, { recursive: true, force: true });
     if (ownsOutput) await rm(outputRoot, { recursive: true, force: true });
@@ -197,10 +292,7 @@ export async function buildCloudflareArtifacts(
 
 export async function run(): Promise<number> {
   const result = await buildCloudflareArtifacts();
-  process.stdout.write(
-    `OK: Wrangler dry-run built ${result.services.length} production Worker artifacts ` +
-      `(${result.files} files, ${result.bytes} bytes) with no PGlite runtime.\n`,
-  );
+  process.stdout.write(formatCloudflareArtifactSuccessMessage(result));
   return 0;
 }
 

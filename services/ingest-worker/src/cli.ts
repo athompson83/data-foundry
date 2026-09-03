@@ -8,7 +8,8 @@
  * code as a live crawl, so "it works in CI" means something.
  *
  * Storage defaults to PGlite under `.data/pglite`, or real Postgres when
- * `POSTGRES_URL` is set. Identical SQL either way.
+ * `POSTGRES_URL` is set. A real migration uses the separate approved
+ * `DATA_FOUNDRY_MIGRATION_DATABASE_URL` credential. Identical SQL either way.
  */
 import { mkdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
@@ -22,8 +23,13 @@ import { provenanceCoverage } from '@data-foundry/provenance';
 import type { IsoDateTime } from '@data-foundry/canonical-schema';
 import {
   applyMigrations,
+  assertDirectPostgresPrivateSchema,
+  assertRealPostgresSourceIdentity,
   createPostgresDriver as createMigrationPostgresDriver,
   loadMigrations,
+  loadMigrationsFromGit,
+  migrationDatabaseUrlFromEnv,
+  realPostgresMigrationOptions,
   resolveOperationalSchema,
   type MigrationDriver,
 } from '../../../tooling/scripts/migrate.js';
@@ -74,21 +80,69 @@ Usage: pnpm ingest --vertical <slug> [--source <key>] [--dry-run] [--memory]
 `;
 
 /**
- * PGlite in memory/on disk, or an explicitly selected real Data Foundry
- * schema. Live operations default to Alpha Lab's private schema; a legacy
- * public install requires an explicit DATA_FOUNDRY_SCHEMA=public opt-in.
+ * Live Postgres ingestion is restricted to Alpha Lab's private schema.
+ * Historical public installations require a separately reviewed migration
+ * plan; they are not selectable through the live ingestion environment.
  */
 export function resolveRealPostgresSchema(
   env: Readonly<Record<string, string | undefined>> = process.env,
 ): string {
-  return resolveOperationalSchema(env);
+  return assertDirectPostgresPrivateSchema(resolveOperationalSchema(env));
 }
 
-async function openDriver(args: CliArgs): Promise<SqlDriver> {
+export interface RealIngestPostgresConnections {
+  /** Least-privilege runtime connection used by the ingest pipeline. */
+  readonly applicationConnectionString: string;
+  /** Narrow credential used only by the single-client migration runner. */
+  readonly migrationConnectionString: string;
+}
+
+/**
+ * The ingest executable participates in a real database mutation, so attest
+ * its checked-in source alongside the migration corpus and runner.
+ */
+export async function assertRealIngestSourceIdentity(
+  env: Readonly<Record<string, string | undefined>> = process.env,
+  sourceIdentityGuard: typeof assertRealPostgresSourceIdentity = assertRealPostgresSourceIdentity,
+): Promise<void> {
+  await sourceIdentityGuard(env, {
+    additionalSourcePaths: ['services/ingest-worker/src/cli.ts'],
+  });
+}
+
+/**
+ * A live ingestion uses its runtime identity for application work and a
+ * separate dedicated migration identity before it opens the pipeline driver.
+ */
+export function resolveIngestRealPostgresConnections(
+  env: Readonly<Record<string, string | undefined>> = process.env,
+): RealIngestPostgresConnections | undefined {
+  const applicationConnectionString = env['POSTGRES_URL'];
+  if (applicationConnectionString === undefined || applicationConnectionString.trim() === '') {
+    return undefined;
+  }
+
+  const migrationConnectionString = migrationDatabaseUrlFromEnv(env);
+  if (migrationConnectionString === undefined) {
+    throw new Error(
+      'DATA_FOUNDRY_MIGRATION_DATABASE_URL is required before real Postgres ingestion can run migrations.',
+    );
+  }
+  return { applicationConnectionString, migrationConnectionString };
+}
+
+async function openDriver(
+  args: CliArgs,
+  realPostgresUrl?: string,
+  realPostgresSchema?: string,
+): Promise<SqlDriver> {
   if (args.memory) return createPgliteDriver();
-  const url = process.env['POSTGRES_URL'];
+  const url = realPostgresUrl;
   if (url !== undefined && url !== '') {
-    return createPostgresDriver(url, { schema: resolveRealPostgresSchema() });
+    if (realPostgresSchema === undefined) {
+      throw new Error('A validated real Postgres schema is required before opening the ingestion driver.');
+    }
+    return createPostgresDriver(url, { schema: realPostgresSchema });
   }
   const dataDir = resolve(process.cwd(), '.data', 'pglite');
   await mkdir(dataDir, { recursive: true });
@@ -114,34 +168,64 @@ async function migrate(
  * BEGIN, DDL, ledger write, and COMMIT. Use the migrator's single Client here.
  */
 async function migrateRealPostgres(connectionString: string, schema: string): Promise<void> {
+  const privateSchema = assertDirectPostgresPrivateSchema(schema);
+  await assertRealIngestSourceIdentity();
   const driver = await createMigrationPostgresDriver(
     connectionString,
-    schema,
+    privateSchema,
   );
   try {
-    await applyMigrations(driver, await loadMigrations(), {
-      schema,
-    });
+    const releaseSha = process.env['DATA_FOUNDRY_RELEASE_SHA']?.trim() ?? '';
+    await applyMigrations(
+      driver,
+      await loadMigrationsFromGit(releaseSha),
+      realPostgresMigrationOptions(privateSchema),
+    );
   } finally {
     await driver.close();
   }
 }
 
-export async function main(argv: readonly string[] = process.argv.slice(2)): Promise<number> {
+export interface IngestCliDependencies {
+  readonly env?: Readonly<Record<string, string | undefined>>;
+  readonly migrateRealPostgres?: (connectionString: string, schema: string) => Promise<void>;
+  readonly openDriver?: (
+    args: CliArgs,
+    realPostgresUrl?: string,
+    realPostgresSchema?: string,
+  ) => Promise<SqlDriver>;
+}
+
+export async function main(
+  argv: readonly string[] = process.argv.slice(2),
+  dependencies: IngestCliDependencies = {},
+): Promise<number> {
+  const env = dependencies.env ?? process.env;
   const args = parseArgs(argv);
-  const usesRealPostgres = !args.memory && (process.env['POSTGRES_URL'] ?? '') !== '';
-  if (usesRealPostgres) {
-    const connectionString = process.env['POSTGRES_URL'];
-    if (connectionString === undefined || connectionString === '') {
-      throw new Error('POSTGRES_URL is required for real Postgres ingestion.');
-    }
-    await migrateRealPostgres(connectionString, resolveRealPostgresSchema());
+  const realPostgresConnections = args.memory
+    ? undefined
+    : resolveIngestRealPostgresConnections(env);
+  const realPostgres = realPostgresConnections === undefined
+    ? undefined
+    : {
+      connections: realPostgresConnections,
+      schema: resolveRealPostgresSchema(env),
+    };
+  if (realPostgres !== undefined) {
+    await (dependencies.migrateRealPostgres ?? migrateRealPostgres)(
+      realPostgres.connections.migrationConnectionString,
+      realPostgres.schema,
+    );
   }
 
-  const driver = await openDriver(args);
+  const driver = await (dependencies.openDriver ?? openDriver)(
+    args,
+    realPostgres?.connections.applicationConnectionString,
+    realPostgres?.schema,
+  );
 
   try {
-    if (!usesRealPostgres) await migrate(driver);
+    if (realPostgresConnections === undefined) await migrate(driver);
 
     const now = new Date().toISOString() as IsoDateTime;
     const pipeline = await Pipeline.create({
@@ -206,9 +290,15 @@ if (invokedDirectly) {
       process.exitCode = code;
     })
     .catch((error: unknown) => {
-      process.stderr.write(
-        `${error instanceof Error ? (error.stack ?? error.message) : String(error)}\n`,
-      );
+      if (migrationDatabaseUrlFromEnv() !== undefined) {
+        // A real ingest first consumes the dedicated migration credential;
+        // avoid reflecting any driver/provider context into a terminal.
+        process.stderr.write('Real PostgreSQL ingestion failed.\n');
+      } else {
+        process.stderr.write(
+          `${error instanceof Error ? (error.stack ?? error.message) : String(error)}\n`,
+        );
+      }
       process.exitCode = 1;
     });
 }

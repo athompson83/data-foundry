@@ -1,0 +1,63 @@
+# A service-bound, route-less synthetic canary. It receives a fixed envelope
+# only after the usage consumer has exhausted its retry policy on the dedicated
+# private-canary ingress. It never consumes the shared usage DLQ. There is
+# deliberately no public route, workers.dev endpoint, preview URL, Hyperdrive,
+# database credential, source artifact bucket, or Queue producer.
+name = "data-foundry-private-canary"
+main = "src/index.ts"
+compatibility_date = "2026-08-28"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = false
+preview_urls = false
+
+[observability]
+enabled = true
+
+[observability.logs]
+invocation_logs = false
+
+[vars]
+DEPLOYMENT_ENVIRONMENT = "production"
+
+# This Worker consumes only the dedicated canary DLQ. Failed or unrecognized
+# control messages go to a private quarantine queue instead of being discarded.
+[[queues.consumers]]
+queue = "data-foundry-private-canary-dlq"
+max_batch_size = 1
+max_batch_timeout = 1
+max_retries = 3
+dead_letter_queue = "data-foundry-private-canary-quarantine"
+
+# This dedicated private bucket holds only the closed receipt contract. It is
+# purposefully not the acquisition raw-artifact bucket.
+[[r2_buckets]]
+binding = "CANARY_RECEIPTS"
+bucket_name = "data-foundry-private-canary-receipts"
+
+# Named RPC bindings invoke capabilities, never public HTTP endpoints. The
+# targets expose only `PrivateCanaryEntrypoint.probe(input)` and return a
+# closed result vocabulary defined in @data-foundry/private-canary.
+[[services]]
+binding = "EDGE_CANARY"
+service = "data-foundry-private-canary-edge"
+entrypoint = "PrivateCanaryEntrypoint"
+
+[[services]]
+binding = "WEB_CANARY"
+service = "data-foundry-private-canary-web"
+entrypoint = "PrivateCanaryEntrypoint"
+
+[[services]]
+binding = "USAGE_CONSUMER_CANARY"
+service = "data-foundry-private-canary-usage-consumer"
+entrypoint = "PrivateCanaryEntrypoint"
+
+[[services]]
+binding = "ACQUISITION_CANARY"
+service = "data-foundry-private-canary-acquisition-worker"
+entrypoint = "PrivateCanaryEntrypoint"
+
+[[services]]
+binding = "MCP_CANARY"
+service = "data-foundry-private-canary-mcp-hvac"
+entrypoint = "PrivateCanaryEntrypoint"

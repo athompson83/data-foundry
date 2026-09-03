@@ -6,11 +6,18 @@ import {
   type PostgresDriverOptions,
   type SqlDriver,
 } from '@data-foundry/canonical-store';
+import { WorkerEntrypoint } from 'cloudflare:workers';
+import type {
+  PrivateCanaryProbe,
+  PrivateCanaryProbeInput,
+  PrivateCanaryProbeResult,
+} from '@data-foundry/private-canary';
 import { ACQUISITION_RUNTIMES } from '../generated/runtime-registry.js';
 import {
   resolveAcquisitionConfig,
   type AcquisitionWorkerEnv,
 } from './env.js';
+import { probePrivateCanaryReadiness } from './private-canary.js';
 import { createR2ObjectClient } from './r2.js';
 import { runScheduledAcquisition, type ScheduledAcquisitionResult } from './runner.js';
 
@@ -22,6 +29,14 @@ export {
   type ResolvedAcquisitionConfig,
 } from './env.js';
 export { runScheduledAcquisition, type ScheduledAcquisitionResult } from './runner.js';
+export { probePrivateCanaryReadiness, type PrivateCanaryProbeOptions } from './private-canary.js';
+
+/** Service-binding-only probe; it never evaluates or acquires a source. */
+export class PrivateCanaryEntrypoint extends WorkerEntrypoint<AcquisitionWorkerEnv> implements PrivateCanaryProbe {
+  async probe(input: PrivateCanaryProbeInput): Promise<PrivateCanaryProbeResult> {
+    return probePrivateCanaryReadiness(input, this.env);
+  }
+}
 
 export interface ScheduledEventLike {
   /** Cloudflare's scheduled epoch milliseconds. */
@@ -63,7 +78,7 @@ async function driverFor(
     connectionString,
     deploymentEnvironment === 'production'
       ? { schema: DATA_FOUNDRY_PRIVATE_SCHEMA }
-      : undefined,
+      : { allowPlaintextLoopback: true },
   ).catch((error: unknown) => {
     drivers.delete(driverKey);
     throw error;

@@ -58,7 +58,13 @@ function importsOf(text: string): string[] {
 const ALLOWED_WORKSPACE_IMPORTS = new Set([
   '@data-foundry/query-model',
   '@data-foundry/canonical-schema',
+  // An opaque, data-only service-binding RPC contract. It owns no storage,
+  // query, ingestion, or provenance capability.
+  '@data-foundry/private-canary',
 ]);
+
+/** Cloudflare's WorkerEntrypoint base class is a platform runtime primitive. */
+const ALLOWED_RUNTIME_IMPORTS = new Set(['cloudflare:workers']);
 
 /** Generated data-only module; its JSON-only build graph is verified by tooling tests. */
 const ALLOWED_GENERATED_IMPORTS = new Set(['../generated/runtime-registry.js']);
@@ -91,7 +97,8 @@ describe('what apps/web is allowed to import outside its composition root (AGENT
           specifier.startsWith('./') ||
           specifier.startsWith('node:') ||
           specifier.endsWith('.json') ||
-          ALLOWED_GENERATED_IMPORTS.has(specifier);
+          ALLOWED_GENERATED_IMPORTS.has(specifier) ||
+          ALLOWED_RUNTIME_IMPORTS.has(specifier);
         if (local || ALLOWED_WORKSPACE_IMPORTS.has(specifier)) continue;
         violations.push(`${file.name} → ${specifier}`);
       }

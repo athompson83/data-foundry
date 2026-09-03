@@ -82,7 +82,9 @@ async function build(options: BuildMcpDeploymentOptions): Promise<McpDeployment>
     config.connectionString,
     config.deploymentEnvironment === 'production'
       ? { schema: DATA_FOUNDRY_PRIVATE_SCHEMA }
-      : undefined,
+      : options.env.HYPERDRIVE === undefined
+        ? { allowPlaintextLoopback: true }
+        : undefined,
   );
   try {
     const store = createCanonicalStore(driver);

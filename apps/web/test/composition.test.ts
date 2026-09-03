@@ -140,16 +140,19 @@ describe('composing a deployment', () => {
     ]);
   });
 
-  it('leaves the local direct-Postgres development driver unscoped', async () => {
-    let schema: string | undefined = 'not-called';
-    const openDriver = async (_connectionString: string, options?: { readonly schema?: string }) => {
-      schema = options?.schema;
+  it('leaves local direct Postgres unscoped and explicitly permits loopback plaintext', async () => {
+    let driverOptions: { readonly schema?: string; readonly allowPlaintextLoopback?: boolean } | undefined;
+    const openDriver = async (
+      _connectionString: string,
+      options?: { readonly schema?: string; readonly allowPlaintextLoopback?: boolean },
+    ) => {
+      driverOptions = options;
       return fixtures.driver;
     };
 
     await getDeployment({ env: envFor(), runtimes: RUNTIMES, openDriver });
 
-    expect(schema).toBeUndefined();
+    expect(driverOptions).toEqual({ allowPlaintextLoopback: true });
   });
 
   it('does not reuse canonical URLs across two origins backed by the same database', async () => {

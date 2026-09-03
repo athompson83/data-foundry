@@ -42,8 +42,8 @@ max_retries = 3
 dead_letter_queue = "data-foundry-usage-events-dlq"
 
 # Hyperdrive pools Postgres connections at the edge, exactly as in
-# apps/edge/wrangler.toml. Create one (or reuse the same Hyperdrive
-# configuration apps/edge uses — both read/write the same database) with:
+# apps/edge/wrangler.toml. Create a role-specific configuration for this
+# consumer; it must not reuse the edge Worker's Hyperdrive credential:
 #   wrangler hyperdrive create data-foundry --connection-string="postgres://..."
 # then place the id in an ignored `wrangler.production.toml` copy or the
 # Cloudflare dashboard. Never uncomment it with a live id in this tracked file.

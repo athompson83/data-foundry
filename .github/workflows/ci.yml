@@ -17,6 +17,10 @@ env:
   # Fail fast on a corepack/pnpm mismatch rather than silently resolving a
   # different lockfile shape than the one that was committed.
   CI: 'true'
+  # Pull-request workflows normally expose github.sha as a synthetic merge
+  # ref. Every job instead operates on one explicit candidate: the PR head for
+  # pull requests and the pushed commit for protected-main verification.
+  DATA_FOUNDRY_CANDIDATE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
 
 jobs:
   scope:
@@ -33,6 +37,7 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
+          ref: ${{ env.DATA_FOUNDRY_CANDIDATE_SHA }}
 
       - name: Select checks from changed files
         id: changes
@@ -61,11 +66,11 @@ jobs:
             esac
 
             case "$path" in
-              db/migrations/**|tooling/scripts/migrate.ts|tooling/scripts/check-source-record-reconciliation-postgres.ts|packages/canonical-store/**|services/ingest-worker/**|tooling/scripts/check-credential-provisioning-postgres.ts|tooling/scripts/provision-api-credential.ts|packages/api-keys/**|tooling/scripts/check-scheduled-acquisition-postgres.ts|packages/acquisition/**|apps/acquisition-worker/**|verticals/**|tooling/lib/cli-entry.ts|tests/support/acquisition-rights.ts|packages/canonical-schema/**|packages/normalization/**|packages/source-registry/**|packages/rights-engine/**|package.json|pnpm-lock.yaml|.github/workflows/ci.yml)
+              db/migrations/**|tooling/scripts/migrate.ts|tooling/scripts/export-supabase-migration-packets.ts|tooling/scripts/check-runtime-role-connections-postgres.ts|packages/private-canary/**|tooling/scripts/check-source-record-reconciliation-postgres.ts|packages/canonical-store/**|services/ingest-worker/**|tooling/scripts/check-credential-provisioning-postgres.ts|tooling/scripts/provision-api-credential.ts|packages/api-keys/**|tooling/scripts/check-scheduled-acquisition-postgres.ts|packages/acquisition/**|apps/acquisition-worker/**|verticals/**|tooling/lib/cli-entry.ts|tests/support/acquisition-rights.ts|packages/canonical-schema/**|packages/normalization/**|packages/source-registry/**|packages/rights-engine/**|package.json|pnpm-lock.yaml|.github/workflows/ci.yml)
                 run_postgres=true
                 ;;
             esac
-          done < <(git diff --name-only "$BASE_SHA" HEAD)
+          done < <(git diff --no-renames --name-only "$BASE_SHA" HEAD)
 
           echo "run_verify=$run_verify" >> "$GITHUB_OUTPUT"
           echo "run_postgres=$run_postgres" >> "$GITHUB_OUTPUT"
@@ -87,6 +92,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
+          ref: ${{ env.DATA_FOUNDRY_CANDIDATE_SHA }}
 
       - name: Enable corepack
         if: needs.scope.outputs.run_verify == 'true'
@@ -175,10 +181,11 @@ jobs:
         if: needs.scope.outputs.run_verify == 'true'
         run: pnpm web:compile:check
 
-      # 9. Build the exact Cloudflare bundles only after every generated input
-      #    is known current, then reject any production artifact that carries
-      #    the local PGlite/WASM runtime.
-      - name: Cloudflare production artifacts are deployable and PGlite-free
+      # 9. Build the ordinary five Worker bundles alongside the six route-less
+      #    private-canary bundles — five reduced targets plus the no-Hyperdrive
+      #    harness — only after every generated input is current, then reject
+      #    any artifact that carries local PGlite/WASM.
+      - name: Cloudflare ordinary and six route-less private-canary artifacts build and are PGlite-free
         if: needs.scope.outputs.run_verify == 'true'
         run: pnpm cloudflare:artifacts:check
 
@@ -188,20 +195,6 @@ jobs:
     if: always() && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (needs.scope.result != 'success' || needs.scope.outputs.run_postgres == 'true')
     runs-on: ubuntu-latest
     timeout-minutes: 15
-
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: data_foundry
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
 
     steps:
       - name: Fail when scope selection fails
@@ -213,6 +206,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
+          ref: ${{ env.DATA_FOUNDRY_CANDIDATE_SHA }}
 
       - name: Enable corepack
         run: corepack enable
@@ -226,43 +220,1092 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
-      # Supabase exposes installed extensions through this namespace. The
-      # production migration guard requires it to exist before it writes the
-      # private Data Foundry schema, so make the disposable PostgreSQL service
-      # model that boundary instead of weakening the guard for CI.
-      - name: Initialize extensions schema for private migration
-        run: >-
-          docker exec "${{ job.services.postgres.id }}" psql -U postgres -d data_foundry
-          -v ON_ERROR_STOP=1 -c 'CREATE SCHEMA IF NOT EXISTS extensions AUTHORIZATION postgres'
+      # Keep the disposable Postgres proof structurally equivalent to the
+      # hosted direct path: a job-local CA, certificate-verified TLS, and an
+      # HBA that rejects non-TLS TCP. No plaintext fallback is added to source.
+      - name: Start disposable TLS PostgreSQL
+        shell: bash
+        run: |
+          set -euo pipefail
+          container_name='data-foundry-postgres-tls'
+          startup_stage='not-classified'
+          classify_startup_failure() {
+            local startup_output="${1:-}"
+            local container_state='not-created'
+            local category="$startup_stage"
+
+            if docker container inspect "$container_name" >/dev/null 2>&1; then
+              container_state="$(docker container inspect --format '{{.State.Status}}' "$container_name" 2>/dev/null || true)"
+              case "$container_state" in
+                created|running|exited) ;;
+                *) container_state='not-created' ;;
+              esac
+            fi
+
+            if printf '%s' "$startup_output" | grep -Eqi 'Conflict.*container name|is already in use'; then
+              category='container-name-conflict'
+            elif printf '%s' "$startup_output" | grep -Eqi 'port is already allocated|address already in use'; then
+              category='port-conflict'
+            elif printf '%s' "$startup_output" | grep -Eqi 'pull access denied|failed to resolve reference|manifest unknown|unable to find image'; then
+              category='image-pull'
+            elif [ "$container_state" != 'not-created' ] && docker logs "$container_name" 2>&1 | grep -Eqi 'could not load (private key|server certificate)|permission denied.*(/tls|server\.(key|crt))|(/tls|server\.(key|crt)).*permission denied'; then
+              category='tls-file-access'
+            fi
+
+            printf 'data-foundry-ci-postgres-startup: state=%s category=%s\n' "$container_state" "$category"
+          }
+          on_startup_error() {
+            local status=$?
+            trap - ERR
+            classify_startup_failure ''
+            exit "$status"
+          }
+          trap 'on_startup_error' ERR
+
+          startup_stage='tls-directory'
+          tls_dir="$(mktemp -d "$RUNNER_TEMP/data-foundry-postgres-tls.XXXXXX")"
+          chmod 755 "$tls_dir"
+          startup_stage='certificate-generation'
+          openssl req -x509 -new -nodes -newkey rsa:2048 -days 1 \
+            -keyout "$tls_dir/ca.key" \
+            -out "$tls_dir/ca.crt" \
+            -subj '/CN=data-foundry-ci-ca' >/dev/null 2>&1
+          cat > "$tls_dir/server.cnf" <<'EOF'
+          [req]
+          prompt = no
+          distinguished_name = dn
+          req_extensions = req_ext
+          [dn]
+          CN = localhost
+          [req_ext]
+          subjectAltName = @alt_names
+          [alt_names]
+          DNS.1 = localhost
+          IP.1 = 127.0.0.1
+          EOF
+          openssl req -new -nodes -newkey rsa:2048 \
+            -keyout "$tls_dir/server.key" \
+            -out "$tls_dir/server.csr" \
+            -config "$tls_dir/server.cnf" >/dev/null 2>&1
+          openssl x509 -req -days 1 -sha256 \
+            -in "$tls_dir/server.csr" \
+            -CA "$tls_dir/ca.crt" \
+            -CAkey "$tls_dir/ca.key" \
+            -CAcreateserial \
+            -out "$tls_dir/server.crt" \
+            -extfile "$tls_dir/server.cnf" \
+            -extensions req_ext >/dev/null 2>&1
+          startup_stage='tls-key-owner'
+          sudo chown 999:999 "$tls_dir/server.key"
+          startup_stage='tls-key-mode'
+          sudo chmod 600 "$tls_dir/server.key"
+          cat > "$tls_dir/pg_hba.conf" <<'EOF'
+          local   all             all                                     trust
+          hostssl all             all             0.0.0.0/0               scram-sha-256
+          hostnossl all          all             0.0.0.0/0               reject
+          EOF
+          startup_stage='credential-generation'
+          postgres_password="$(openssl rand -hex 24)"
+          migration_password="$(openssl rand -hex 24)"
+          printf '::add-mask::%s\n' "$postgres_password"
+          printf '::add-mask::%s\n' "$migration_password"
+          startup_stage='docker-start'
+          startup_output=''
+          if ! startup_output="$(docker run --detach --name "$container_name" \
+            --env POSTGRES_PASSWORD="$postgres_password" \
+            --env POSTGRES_DB=data_foundry \
+            --publish 5432:5432 \
+            --volume "$tls_dir/server.crt:/tls/server.crt:ro" \
+            --volume "$tls_dir/server.key:/tls/server.key:ro" \
+            --volume "$tls_dir/pg_hba.conf:/tls/pg_hba.conf:ro" \
+            postgres:16 \
+            -c ssl=on \
+            -c ssl_cert_file=/tls/server.crt \
+            -c ssl_key_file=/tls/server.key \
+            -c hba_file=/tls/pg_hba.conf 2>&1)"; then
+            classify_startup_failure "$startup_output"
+            exit 1
+          fi
+          startup_stage='readiness'
+          ready='false'
+          for attempt in $(seq 1 30); do
+            if docker exec "$container_name" pg_isready -U postgres -d data_foundry >/dev/null 2>&1; then
+              ready='true'
+              break
+            fi
+            sleep 1
+          done
+          if [ "$ready" != 'true' ]; then
+            classify_startup_failure "$startup_output"
+            exit 1
+          fi
+          startup_stage='environment-export'
+          {
+            printf 'NODE_EXTRA_CA_CERTS=%s\n' "$tls_dir/ca.crt"
+            printf 'POSTGRES_URL=postgres://postgres:%s@localhost:5432/data_foundry\n' "$postgres_password"
+            printf 'DATA_FOUNDRY_MIGRATION_DATABASE_URL=postgres://df_migration:%s@localhost:5432/data_foundry\n' "$migration_password"
+            printf 'DATA_FOUNDRY_RELEASE_SHA=%s\n' "$DATA_FOUNDRY_CANDIDATE_SHA"
+            printf 'DATA_FOUNDRY_CI_MIGRATION_PASSWORD=%s\n' "$migration_password"
+          } >> "$GITHUB_ENV"
+          trap - ERR
+
+      # Supabase exposes installed extensions through this namespace. Model its
+      # private ownership boundary: the direct migration login is a non-super
+      # user and owns only the schema it will migrate.
+      - name: Bootstrap narrow private migration role
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            cat <<'SQL'
+          CREATE SCHEMA IF NOT EXISTS extensions AUTHORIZATION postgres;
+          SQL
+            printf "CREATE ROLE df_migration LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOREPLICATION NOBYPASSRLS PASSWORD '%s';\n" "$DATA_FOUNDRY_CI_MIGRATION_PASSWORD"
+            cat <<'SQL'
+          CREATE SCHEMA IF NOT EXISTS data_foundry AUTHORIZATION df_migration;
+          ALTER ROLE df_migration IN DATABASE data_foundry SET search_path TO data_foundry, pg_catalog, extensions;
+          -- Disposable CI parity with the runtime-grant precondition; this
+          -- ephemeral database has no unrelated application in public.
+          REVOKE CREATE ON SCHEMA public FROM PUBLIC;
+          REVOKE ALL PRIVILEGES ON SCHEMA data_foundry FROM PUBLIC;
+          REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA data_foundry FROM PUBLIC;
+          REVOKE ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA data_foundry FROM PUBLIC;
+          REVOKE ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA data_foundry FROM PUBLIC;
+          ALTER DEFAULT PRIVILEGES FOR ROLE df_migration IN SCHEMA data_foundry REVOKE ALL PRIVILEGES ON TABLES FROM PUBLIC;
+          ALTER DEFAULT PRIVILEGES FOR ROLE df_migration IN SCHEMA data_foundry REVOKE ALL PRIVILEGES ON SEQUENCES FROM PUBLIC;
+          ALTER DEFAULT PRIVILEGES FOR ROLE df_migration REVOKE EXECUTE ON FUNCTIONS FROM PUBLIC;
+          GRANT USAGE, CREATE ON SCHEMA data_foundry TO df_migration;
+          REVOKE CREATE ON DATABASE data_foundry FROM df_migration;
+          GRANT CONNECT ON DATABASE data_foundry TO df_migration;
+          GRANT USAGE ON SCHEMA extensions TO df_migration;
+          REVOKE CONNECT ON DATABASE postgres FROM PUBLIC;
+          SQL
+          } | docker exec --interactive data-foundry-postgres-tls psql -U postgres -d data_foundry -v ON_ERROR_STOP=1
+
+      - name: Verify raw private schema owner ACL baseline
+        shell: bash
+        run: |
+          set -euo pipefail
+          private_schema_acl_is_canonical="$(
+            docker exec --interactive data-foundry-postgres-tls psql -U postgres -d data_foundry \
+              -v ON_ERROR_STOP=1 -Atq <<'SQL'
+          WITH expected(role_name, privilege, is_grantable) AS (
+            VALUES
+              ('df_migration'::text, 'CREATE'::text, false),
+              ('df_migration'::text, 'USAGE'::text, false)
+          ), live(role_name, privilege, is_grantable) AS (
+            SELECT COALESCE(grantee.rolname, 'PUBLIC')::text,
+                   acl.privilege_type::text,
+                   acl.is_grantable
+              FROM pg_namespace n
+              CROSS JOIN LATERAL aclexplode(n.nspacl) acl
+              LEFT JOIN pg_roles grantee ON grantee.oid = acl.grantee
+             WHERE n.nspname = 'data_foundry'
+          ), differences AS (
+            (SELECT * FROM expected EXCEPT ALL SELECT * FROM live)
+            UNION ALL
+            (SELECT * FROM live EXCEPT ALL SELECT * FROM expected)
+          )
+          SELECT COALESCE((
+            SELECT nspacl IS NOT NULL
+               AND nspowner = 'df_migration'::regrole
+              FROM pg_namespace
+             WHERE nspname = 'data_foundry'
+          ), false)
+          AND NOT EXISTS (SELECT 1 FROM differences);
+          SQL
+          )"
+          if [[ "$private_schema_acl_is_canonical" != 't' ]]; then
+            printf '%s\n' 'Private migration schema ACL baseline is not canonical.' >&2
+            exit 1
+          fi
 
       # The same SQL, unchanged, against a real Postgres. This is the check that
       # keeps "portable Postgres DDL" honest rather than aspirational.
       - name: Apply migrations to Postgres
-        env:
-          POSTGRES_URL: postgres://postgres:postgres@localhost:5432/data_foundry
         run: pnpm migrate
 
       - name: Re-apply must be a no-op
-        env:
-          POSTGRES_URL: postgres://postgres:postgres@localhost:5432/data_foundry
         run: pnpm migrate
+
+      - name: Refuse database-wide migration CREATE
+        shell: bash
+        run: |
+          set -euo pipefail
+          effective_database_create="$(
+            docker exec --interactive data-foundry-postgres-tls psql -U postgres -d data_foundry \
+              -v ON_ERROR_STOP=1 -Atq \
+              -c "SELECT has_database_privilege('df_migration', current_database(), 'CREATE');"
+          )"
+          if [[ "$effective_database_create" != "f" ]]; then
+            printf '%s\n' 'df_migration retains effective CREATE on the current database.' >&2
+            exit 1
+          fi
+
+          probe_schema="data_foundry_ci_unrelated_probe_$(openssl rand -hex 12)"
+          if [[ ! "$probe_schema" =~ ^data_foundry_ci_unrelated_probe_[0-9a-f]{24}$ ]]; then
+            printf '%s\n' 'The unrelated-schema probe name was not safely generated.' >&2
+            exit 1
+          fi
+          if docker exec --interactive data-foundry-postgres-tls psql -U postgres -d data_foundry -v ON_ERROR_STOP=1 <<SQL
+          SET ROLE df_migration;
+          CREATE SCHEMA "$probe_schema";
+          SQL
+          then
+            docker exec data-foundry-postgres-tls psql -U postgres -d data_foundry \
+              -v ON_ERROR_STOP=1 -v probe_schema="$probe_schema" \
+              -c 'DROP SCHEMA IF EXISTS :"probe_schema";' >/dev/null
+            printf '%s\n' 'df_migration unexpectedly created an unrelated schema.' >&2
+            exit 1
+          fi
+
+      - name: Stage disposable runtime roles and apply exact grants
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          runtime_dir="$RUNNER_TEMP/data-foundry-postgres-runtime"
+          mkdir -p "$runtime_dir"
+          chmod 700 "$runtime_dir"
+          plan_path="$runtime_dir/migration-plan.json"
+          grant_sql_path="$runtime_dir/postMigrationGrants.sql"
+          grant_verification_path="$runtime_dir/postMigrationGrantsVerification.sql"
+          post_credential_verification_path="$runtime_dir/postCredentialVerification.sql"
+
+          {
+            printf '%s\n' \
+              'CREATE ROLE df_edge NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOREPLICATION NOBYPASSRLS;' \
+              'CREATE ROLE df_web NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOREPLICATION NOBYPASSRLS;' \
+              'CREATE ROLE df_mcp NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOREPLICATION NOBYPASSRLS;' \
+              'CREATE ROLE df_usage NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOREPLICATION NOBYPASSRLS;' \
+              'CREATE ROLE df_acquisition NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOREPLICATION NOBYPASSRLS;' \
+              'GRANT CONNECT ON DATABASE data_foundry TO df_edge;' \
+              'GRANT CONNECT ON DATABASE data_foundry TO df_web;' \
+              'GRANT CONNECT ON DATABASE data_foundry TO df_mcp;' \
+              'GRANT CONNECT ON DATABASE data_foundry TO df_usage;' \
+              'GRANT CONNECT ON DATABASE data_foundry TO df_acquisition;' \
+              'GRANT USAGE ON SCHEMA extensions TO df_edge;' \
+              'GRANT USAGE ON SCHEMA extensions TO df_web;' \
+              'GRANT USAGE ON SCHEMA extensions TO df_mcp;' \
+              'GRANT USAGE ON SCHEMA extensions TO df_usage;' \
+              'GRANT USAGE ON SCHEMA extensions TO df_acquisition;'
+          } | docker exec --interactive data-foundry-postgres-tls psql -U postgres -d data_foundry -v ON_ERROR_STOP=1
+
+          node_modules/.bin/tsx tooling/scripts/export-supabase-migration-packets.ts --release-sha "$DATA_FOUNDRY_CANDIDATE_SHA" > "$plan_path"
+          node --input-type=module - "$plan_path" "$grant_sql_path" "$grant_verification_path" "$post_credential_verification_path" <<'NODE'
+          import { readFile, writeFile } from 'node:fs/promises';
+
+          const [planPath, grantPath, verificationPath, postCredentialPath] = process.argv.slice(2);
+          const plan = JSON.parse(await readFile(planPath, 'utf8'));
+          const payload = plan.postMigrationGrants;
+          if (
+            typeof payload?.sql !== 'string' ||
+            typeof payload?.verificationSql !== 'string' ||
+            typeof payload?.postCredentialVerificationSql !== 'string'
+          ) {
+            throw new Error('The generated migration plan lacks a complete postMigrationGrants payload.');
+          }
+          await Promise.all([
+            writeFile(grantPath, payload.sql, { mode: 0o600 }),
+            writeFile(verificationPath, payload.verificationSql, { mode: 0o600 }),
+            writeFile(postCredentialPath, payload.postCredentialVerificationSql, { mode: 0o600 }),
+          ]);
+          NODE
+
+          docker exec --interactive data-foundry-postgres-tls psql -U postgres -d data_foundry \
+            -v ON_ERROR_STOP=1 --single-transaction < "$grant_sql_path"
+          docker exec --interactive data-foundry-postgres-tls psql -U postgres -d data_foundry \
+            -v ON_ERROR_STOP=1 < "$grant_verification_path"
+
+      - name: Activate disposable runtime roles with isolated credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          runtime_dir="$RUNNER_TEMP/data-foundry-postgres-runtime"
+          post_credential_verification_path="$runtime_dir/postCredentialVerification.sql"
+          if [[ ! -f "$post_credential_verification_path" ]]; then
+            printf '%s\n' 'The disposable runtime-role verification payload is missing.' >&2
+            exit 1
+          fi
+
+          df_edge_password="$(openssl rand -hex 24)"
+          df_web_password="$(openssl rand -hex 24)"
+          df_mcp_password="$(openssl rand -hex 24)"
+          df_usage_password="$(openssl rand -hex 24)"
+          df_acquisition_password="$(openssl rand -hex 24)"
+          printf '::add-mask::%s\n' "$df_edge_password"
+          printf '::add-mask::%s\n' "$df_web_password"
+          printf '::add-mask::%s\n' "$df_mcp_password"
+          printf '::add-mask::%s\n' "$df_usage_password"
+          printf '::add-mask::%s\n' "$df_acquisition_password"
+          {
+            printf "ALTER ROLE df_edge LOGIN PASSWORD '%s';\n" "$df_edge_password"
+            printf "ALTER ROLE df_web LOGIN PASSWORD '%s';\n" "$df_web_password"
+            printf "ALTER ROLE df_mcp LOGIN PASSWORD '%s';\n" "$df_mcp_password"
+            printf "ALTER ROLE df_usage LOGIN PASSWORD '%s';\n" "$df_usage_password"
+            printf "ALTER ROLE df_acquisition LOGIN PASSWORD '%s';\n" "$df_acquisition_password"
+            printf '%s\n' \
+              'ALTER ROLE df_edge IN DATABASE data_foundry SET search_path TO data_foundry, pg_catalog, extensions;' \
+              'ALTER ROLE df_web IN DATABASE data_foundry SET search_path TO data_foundry, pg_catalog, extensions;' \
+              'ALTER ROLE df_mcp IN DATABASE data_foundry SET search_path TO data_foundry, pg_catalog, extensions;' \
+              'ALTER ROLE df_usage IN DATABASE data_foundry SET search_path TO data_foundry, pg_catalog, extensions;' \
+              'ALTER ROLE df_acquisition IN DATABASE data_foundry SET search_path TO data_foundry, pg_catalog, extensions;'
+          } | docker exec --interactive data-foundry-postgres-tls psql -U postgres -d data_foundry -v ON_ERROR_STOP=1
+          docker exec --interactive data-foundry-postgres-tls psql -U postgres -d data_foundry \
+            -v ON_ERROR_STOP=1 < "$post_credential_verification_path"
+          {
+            printf 'DATA_FOUNDRY_EDGE_POSTGRES_URL=postgres://df_edge:%s@localhost:5432/data_foundry\n' "$df_edge_password"
+            printf 'DATA_FOUNDRY_WEB_POSTGRES_URL=postgres://df_web:%s@localhost:5432/data_foundry\n' "$df_web_password"
+            printf 'DATA_FOUNDRY_MCP_POSTGRES_URL=postgres://df_mcp:%s@localhost:5432/data_foundry\n' "$df_mcp_password"
+            printf 'DATA_FOUNDRY_USAGE_POSTGRES_URL=postgres://df_usage:%s@localhost:5432/data_foundry\n' "$df_usage_password"
+            printf 'DATA_FOUNDRY_ACQUISITION_POSTGRES_URL=postgres://df_acquisition:%s@localhost:5432/data_foundry\n' "$df_acquisition_password"
+          } >> "$GITHUB_ENV"
+
+      - name: Direct runtime-role TLS connection regression
+        env:
+          DATA_FOUNDRY_RUNTIME_ROLE_CONNECTION_TEST: '1'
+          PGOPTIONS: ''
+        run: pnpm runtime-roles:postgres:check
+
+      # Use only PostgreSQL 16's parameter and large-object ACL catalogs. Mutate
+      # one disposable database at a time, prove the generated guards reject
+      # the effective privilege, remove it, and prove the clean state again.
+      - name: Effective runtime and migration-role privilege negative controls
+        shell: bash
+        env:
+          DATA_FOUNDRY_RUNTIME_ROLE_CONNECTION_TEST: '1'
+          PGOPTIONS: ''
+        run: |
+          set -euo pipefail
+          umask 077
+          runtime_dir="$RUNNER_TEMP/data-foundry-postgres-runtime"
+          post_credential_verification_path="$runtime_dir/postCredentialVerification.sql"
+          large_object_oid=''
+          negative_control_capture=''
+          runtime_role_rejection_signature='Runtime-role PostgreSQL check failed: Direct runtime-role connection verification failed for df_edge.'
+          durable_setting_rejection_signature='ERROR:  Runtime grant verification failed: runtime-role durable settings are unsafe.'
+          reachable_capability_rejection_signature='ERROR:  Runtime grant verification failed: reachable external capability.'
+          migration_posture_rejection_signature='ERROR:  Runtime grant verification failed: migration-role posture is unsafe.'
+          migration_external_capability_rejection_signature='ERROR:  Runtime grant verification failed: migration-role external capability is unsafe.'
+          migration_durable_setting_rejection_signature='ERROR:  Runtime grant verification failed: migration-role durable settings are unsafe.'
+          migration_session_rejection_signature='ERROR:  Runtime grant verification failed: migration session is unsafe.'
+          migration_search_path_rejection_signature='Direct PostgreSQL migration failed [migration-search-path].'
+          default_acl_rejection_signature='ERROR:  Runtime grant verification failed: migration-role default object ACLs are unsafe.'
+
+          if [[ ! -f "$post_credential_verification_path" ]]; then
+            printf '%s\n' 'The disposable post-credential verifier is missing.' >&2
+            exit 1
+          fi
+
+          run_admin_sql() {
+            docker exec --interactive data-foundry-postgres-tls \
+              psql -U postgres -d data_foundry -v ON_ERROR_STOP=1 "$@"
+          }
+          clear_negative_control_capture() {
+            if [[ -n "$negative_control_capture" ]] && [[ -f "$negative_control_capture" ]]; then
+              if ! rm -f -- "$negative_control_capture"; then
+                return 1
+              fi
+            fi
+            negative_control_capture=''
+          }
+          create_negative_control_capture() {
+            clear_negative_control_capture
+            negative_control_capture="$(mktemp "$RUNNER_TEMP/data-foundry-privilege-negative-control.XXXXXX")"
+            chmod 600 "$negative_control_capture"
+          }
+          expect_runtime_role_rejection() {
+            local control_name="$1"
+            local expected_signature="$2"
+            local command_status=0
+            create_negative_control_capture
+            pnpm runtime-roles:postgres:check >"$negative_control_capture" 2>&1 || command_status=$?
+            if (( command_status == 0 )); then
+              clear_negative_control_capture
+              printf 'Runtime-role verification accepted %s.\n' "$control_name" >&2
+              return 1
+            fi
+            if ! grep -Fqx -- "$expected_signature" "$negative_control_capture"; then
+              clear_negative_control_capture
+              printf 'Runtime-role verification failed with an unexpected signature for %s.\n' "$control_name" >&2
+              return 1
+            fi
+            clear_negative_control_capture
+          }
+          expect_post_credential_rejection() {
+            local control_name="$1"
+            local expected_signature="$2"
+            local verification_prefix="${3-}"
+            local command_status=0
+            create_negative_control_capture
+            if [[ -n "$verification_prefix" ]]; then
+              {
+                printf '%s\n' "$verification_prefix"
+                command cat -- "$post_credential_verification_path"
+              } | run_admin_sql >"$negative_control_capture" 2>&1 || command_status=$?
+            else
+              run_admin_sql < "$post_credential_verification_path" >"$negative_control_capture" 2>&1 || command_status=$?
+            fi
+            if (( command_status == 0 )); then
+              clear_negative_control_capture
+              printf 'Post-credential verification accepted %s.\n' "$control_name" >&2
+              return 1
+            fi
+            if ! grep -Fqx -- "$expected_signature" "$negative_control_capture"; then
+              clear_negative_control_capture
+              printf 'Post-credential verification failed with an unexpected signature for %s.\n' "$control_name" >&2
+              return 1
+            fi
+            clear_negative_control_capture
+          }
+          expect_migration_rejection() {
+            local control_name="$1"
+            local expected_signature="$2"
+            local command_status=0
+            create_negative_control_capture
+            pnpm migrate >"$negative_control_capture" 2>&1 || command_status=$?
+            if (( command_status == 0 )); then
+              clear_negative_control_capture
+              printf 'Direct migration accepted %s.\n' "$control_name" >&2
+              return 1
+            fi
+            if ! grep -Fqx -- "$expected_signature" "$negative_control_capture"; then
+              clear_negative_control_capture
+              printf 'Direct migration failed with an unexpected signature for %s.\n' "$control_name" >&2
+              return 1
+            fi
+            clear_negative_control_capture
+          }
+          capture_migration_ledger_digest() {
+            run_admin_sql -Atq <<'SQL'
+          SELECT pg_catalog.md5(
+                   COALESCE(
+                     pg_catalog.jsonb_agg(
+                       pg_catalog.jsonb_build_array(
+                         ledger.version,
+                         ledger.filename,
+                         ledger.checksum,
+                         ledger.applied_at,
+                         ledger.execution_ms
+                       ) ORDER BY ledger.version
+                     ),
+                     '[]'::pg_catalog.jsonb
+                   )::text
+                 )
+            FROM data_foundry.schema_migrations ledger;
+          SQL
+          }
+          cleanup_privilege_negative_controls() {
+            local cleanup_status=0
+            local cleanup_statement
+            local probe_database_exists=''
+            local -a cleanup_statements=(
+              'REVOKE SET ON PARAMETER session_replication_role FROM PUBLIC;'
+              'ALTER DATABASE data_foundry RESET lo_compat_privileges;'
+              'ALTER ROLE df_edge IN DATABASE data_foundry RESET session_replication_role;'
+              'ALTER ROLE ALL RESET lo_compat_privileges;'
+              'ALTER ROLE df_migration IN DATABASE data_foundry RESET ALL;'
+              'ALTER ROLE df_migration IN DATABASE data_foundry SET search_path TO data_foundry, pg_catalog, extensions;'
+              'ALTER ROLE df_migration NOINHERIT;'
+              'ALTER DEFAULT PRIVILEGES FOR ROLE df_migration REVOKE ALL PRIVILEGES ON TABLES FROM PUBLIC;'
+              'ALTER DEFAULT PRIVILEGES FOR ROLE df_migration IN SCHEMA data_foundry REVOKE ALL PRIVILEGES ON SEQUENCES FROM PUBLIC;'
+              'ALTER DEFAULT PRIVILEGES FOR ROLE df_migration REVOKE EXECUTE ON FUNCTIONS FROM PUBLIC;'
+              'ALTER DEFAULT PRIVILEGES FOR ROLE df_migration IN SCHEMA data_foundry REVOKE EXECUTE ON FUNCTIONS FROM PUBLIC;'
+            )
+            if ! clear_negative_control_capture; then
+              cleanup_status=1
+            fi
+            for cleanup_statement in "${cleanup_statements[@]}"; do
+              if ! run_admin_sql -c "$cleanup_statement" >/dev/null 2>&1; then
+                cleanup_status=1
+              fi
+            done
+            if probe_database_exists="$(
+              run_admin_sql -Atq -c "SELECT EXISTS (SELECT 1 FROM pg_catalog.pg_database WHERE datname = 'data_foundry_cross_database_connect_probe');" 2>/dev/null
+            )"; then
+              if [[ "$probe_database_exists" == 't' ]]; then
+                if ! run_admin_sql -c 'REVOKE CREATE ON DATABASE data_foundry_cross_database_connect_probe FROM PUBLIC;' >/dev/null 2>&1; then
+                  cleanup_status=1
+                fi
+                if ! run_admin_sql -c 'REVOKE CONNECT ON DATABASE data_foundry_cross_database_connect_probe FROM PUBLIC;' >/dev/null 2>&1; then
+                  cleanup_status=1
+                fi
+                if ! run_admin_sql -c 'DROP DATABASE data_foundry_cross_database_connect_probe;' >/dev/null 2>&1; then
+                  cleanup_status=1
+                fi
+              fi
+            else
+              cleanup_status=1
+            fi
+            if ! run_admin_sql >/dev/null 2>&1 <<'SQL'
+          DO $data_foundry_extension_owner_cleanup$
+          DECLARE
+            dictionary_oid oid;
+          BEGIN
+            SELECT dictionary.oid
+              INTO dictionary_oid
+              FROM pg_catalog.pg_ts_dict dictionary
+              JOIN pg_catalog.pg_namespace namespace ON namespace.oid = dictionary.dictnamespace
+             WHERE namespace.nspname = 'extensions'
+               AND dictionary.dictname = 'data_foundry_runtime_owner_probe';
+            IF dictionary_oid IS NOT NULL THEN
+              EXECUTE 'ALTER TEXT SEARCH DICTIONARY extensions.data_foundry_runtime_owner_probe OWNER TO postgres';
+              IF EXISTS (
+                SELECT 1
+                  FROM pg_catalog.pg_depend dependency
+                 WHERE dependency.classid = 'pg_catalog.pg_ts_dict'::pg_catalog.regclass
+                   AND dependency.objid = dictionary_oid
+                   AND dependency.objsubid = 0
+                   AND dependency.refclassid = 'pg_catalog.pg_extension'::pg_catalog.regclass
+                   AND dependency.refobjid = (
+                     SELECT installed_extension.oid
+                       FROM pg_catalog.pg_extension installed_extension
+                      WHERE installed_extension.extname = 'plpgsql'
+                   )
+                   AND dependency.refobjsubid = 0
+                   AND dependency.deptype = 'e'
+              ) THEN
+                EXECUTE 'ALTER EXTENSION plpgsql DROP TEXT SEARCH DICTIONARY extensions.data_foundry_runtime_owner_probe';
+              END IF;
+              EXECUTE 'DROP TEXT SEARCH DICTIONARY extensions.data_foundry_runtime_owner_probe';
+            END IF;
+          END
+          $data_foundry_extension_owner_cleanup$;
+          SQL
+            then
+              cleanup_status=1
+            fi
+            if ! run_admin_sql >/dev/null 2>&1 <<'SQL'
+          DO $data_foundry_unmanaged_owner_cleanup$
+          DECLARE
+            dictionary_oid oid;
+            member_extension text;
+          BEGIN
+            SELECT dictionary.oid
+              INTO dictionary_oid
+              FROM pg_catalog.pg_ts_dict dictionary
+              JOIN pg_catalog.pg_namespace namespace ON namespace.oid = dictionary.dictnamespace
+             WHERE namespace.nspname = 'extensions'
+               AND dictionary.dictname = 'data_foundry_unmanaged_owner_probe';
+            IF dictionary_oid IS NOT NULL THEN
+              EXECUTE 'ALTER TEXT SEARCH DICTIONARY extensions.data_foundry_unmanaged_owner_probe OWNER TO postgres';
+              FOR member_extension IN
+                SELECT installed_extension.extname
+                  FROM pg_catalog.pg_depend dependency
+                  JOIN pg_catalog.pg_extension installed_extension
+                    ON installed_extension.oid = dependency.refobjid
+                 WHERE dependency.classid = 'pg_catalog.pg_ts_dict'::pg_catalog.regclass
+                   AND dependency.objid = dictionary_oid
+                   AND dependency.objsubid = 0
+                   AND dependency.refclassid = 'pg_catalog.pg_extension'::pg_catalog.regclass
+                   AND dependency.refobjsubid = 0
+                   AND dependency.deptype = 'e'
+              LOOP
+                EXECUTE pg_catalog.format(
+                  'ALTER EXTENSION %I DROP TEXT SEARCH DICTIONARY extensions.data_foundry_unmanaged_owner_probe',
+                  member_extension
+                );
+              END LOOP;
+              EXECUTE 'DROP TEXT SEARCH DICTIONARY extensions.data_foundry_unmanaged_owner_probe';
+            END IF;
+          END
+          $data_foundry_unmanaged_owner_cleanup$;
+          SQL
+            then
+              cleanup_status=1
+            fi
+            if ! run_admin_sql >/dev/null 2>&1 <<'SQL'
+          DO $data_foundry_public_server_cleanup$
+          BEGIN
+            IF EXISTS (
+              SELECT 1
+                FROM pg_catalog.pg_foreign_server server
+               WHERE server.srvname = 'data_foundry_public_usage_probe_server'
+            ) THEN
+              REVOKE USAGE ON FOREIGN SERVER data_foundry_public_usage_probe_server FROM PUBLIC;
+              DROP SERVER data_foundry_public_usage_probe_server;
+            END IF;
+          END
+          $data_foundry_public_server_cleanup$;
+          SQL
+            then
+              cleanup_status=1
+            fi
+            if ! run_admin_sql >/dev/null 2>&1 <<'SQL'
+          DO $data_foundry_public_fdw_cleanup$
+          BEGIN
+            IF EXISTS (
+              SELECT 1
+                FROM pg_catalog.pg_foreign_data_wrapper wrapper
+               WHERE wrapper.fdwname = 'data_foundry_public_usage_probe_fdw'
+            ) THEN
+              REVOKE USAGE ON FOREIGN DATA WRAPPER data_foundry_public_usage_probe_fdw FROM PUBLIC;
+              DROP FOREIGN DATA WRAPPER data_foundry_public_usage_probe_fdw CASCADE;
+            END IF;
+          END
+          $data_foundry_public_fdw_cleanup$;
+          SQL
+            then
+              cleanup_status=1
+            fi
+            if [[ "$large_object_oid" =~ ^[0-9]+$ ]] && [[ "$large_object_oid" != '0' ]]; then
+              if ! run_admin_sql -v large_object_oid="$large_object_oid" >/dev/null 2>&1 <<'SQL'
+          SELECT pg_catalog.lo_unlink(:large_object_oid::oid)
+           WHERE EXISTS (
+             SELECT 1
+               FROM pg_catalog.pg_largeobject_metadata
+              WHERE oid = :large_object_oid::oid
+           );
+          SQL
+              then
+                cleanup_status=1
+              fi
+            fi
+            return "$cleanup_status"
+          }
+          on_privilege_negative_control_exit() {
+            local original_status=$?
+            local cleanup_status=0
+            trap - EXIT
+            cleanup_privilege_negative_controls || cleanup_status=$?
+            if (( original_status != 0 )); then
+              exit "$original_status"
+            fi
+            exit "$cleanup_status"
+          }
+          trap 'on_privilege_negative_control_exit' EXIT
+
+          run_admin_sql >/dev/null <<'SQL'
+          GRANT SET ON PARAMETER session_replication_role TO PUBLIC;
+          SQL
+          expect_runtime_role_rejection 'a PUBLIC parameter SET privilege' "$runtime_role_rejection_signature"
+          run_admin_sql >/dev/null <<'SQL'
+          REVOKE SET ON PARAMETER session_replication_role FROM PUBLIC;
+          SQL
+          pnpm runtime-roles:postgres:check
+
+          large_object_oid="$(
+            run_admin_sql -Atq -c "SELECT pg_catalog.lo_from_bytea(0, pg_catalog.decode('00', 'hex'));"
+          )"
+          if [[ ! "$large_object_oid" =~ ^[0-9]+$ ]] || [[ "$large_object_oid" == '0' ]]; then
+            printf '%s\n' 'The large-object negative control did not return a valid OID.' >&2
+            exit 1
+          fi
+          run_admin_sql -v large_object_oid="$large_object_oid" >/dev/null <<'SQL'
+          GRANT SELECT, UPDATE ON LARGE OBJECT :large_object_oid TO PUBLIC;
+          SET ROLE df_edge;
+          SELECT pg_catalog.lo_get(:large_object_oid::oid);
+          SELECT pg_catalog.lo_put(:large_object_oid::oid, 0, pg_catalog.decode('01', 'hex'));
+          RESET ROLE;
+          SQL
+          expect_runtime_role_rejection 'PUBLIC large-object SELECT and UPDATE privileges' "$runtime_role_rejection_signature"
+          run_admin_sql -v large_object_oid="$large_object_oid" >/dev/null <<'SQL'
+          REVOKE SELECT, UPDATE ON LARGE OBJECT :large_object_oid FROM PUBLIC;
+          SQL
+          pnpm runtime-roles:postgres:check
+
+          run_admin_sql >/dev/null <<'SQL'
+          ALTER DATABASE data_foundry SET lo_compat_privileges TO on;
+          SQL
+          run_admin_sql -v large_object_oid="$large_object_oid" >/dev/null <<'SQL'
+          SET ROLE df_edge;
+          SELECT pg_catalog.lo_get(:large_object_oid::oid);
+          RESET ROLE;
+          SQL
+          expect_runtime_role_rejection 'lo_compat_privileges enabled for new connections' "$runtime_role_rejection_signature"
+          run_admin_sql >/dev/null <<'SQL'
+          ALTER DATABASE data_foundry RESET lo_compat_privileges;
+          SQL
+          pnpm runtime-roles:postgres:check
+
+          run_admin_sql >/dev/null <<'SQL'
+          ALTER ROLE df_edge IN DATABASE data_foundry SET session_replication_role TO replica;
+          SQL
+          expect_runtime_role_rejection 'a role-specific current-database session_replication_role override' "$runtime_role_rejection_signature"
+          expect_post_credential_rejection 'a role-specific current-database session_replication_role override' "$durable_setting_rejection_signature"
+          run_admin_sql >/dev/null <<'SQL'
+          ALTER ROLE df_edge IN DATABASE data_foundry RESET session_replication_role;
+          SQL
+          pnpm runtime-roles:postgres:check
+          run_admin_sql < "$post_credential_verification_path"
+
+          run_admin_sql >/dev/null <<'SQL'
+          CREATE FOREIGN DATA WRAPPER data_foundry_public_usage_probe_fdw NO HANDLER NO VALIDATOR;
+          CREATE SERVER data_foundry_public_usage_probe_server FOREIGN DATA WRAPPER data_foundry_public_usage_probe_fdw;
+          GRANT USAGE ON FOREIGN DATA WRAPPER data_foundry_public_usage_probe_fdw TO PUBLIC;
+          GRANT USAGE ON FOREIGN SERVER data_foundry_public_usage_probe_server TO PUBLIC;
+          SQL
+          public_foreign_usage_is_attested="$(
+            run_admin_sql -Atq <<'SQL'
+          WITH expected(scope, object_name, privilege, is_grantable) AS (
+            VALUES
+              ('foreign_data_wrapper'::text, 'data_foundry_public_usage_probe_fdw'::text, 'USAGE'::text, false),
+              ('foreign_server'::text, 'data_foundry_public_usage_probe_server'::text, 'USAGE'::text, false)
+          ), actual AS (
+            SELECT 'foreign_data_wrapper'::text,
+                   wrapper.fdwname::text,
+                   acl.privilege_type::text,
+                   acl.is_grantable
+              FROM pg_catalog.pg_foreign_data_wrapper wrapper
+              CROSS JOIN LATERAL pg_catalog.aclexplode(wrapper.fdwacl) acl
+             WHERE wrapper.fdwname = 'data_foundry_public_usage_probe_fdw'
+               AND acl.grantee = 0
+            UNION ALL
+            SELECT 'foreign_server'::text,
+                   server.srvname::text,
+                   acl.privilege_type::text,
+                   acl.is_grantable
+              FROM pg_catalog.pg_foreign_server server
+              CROSS JOIN LATERAL pg_catalog.aclexplode(server.srvacl) acl
+             WHERE server.srvname = 'data_foundry_public_usage_probe_server'
+               AND acl.grantee = 0
+          ), differences AS (
+            (SELECT * FROM expected EXCEPT ALL SELECT * FROM actual)
+            UNION ALL
+            (SELECT * FROM actual EXCEPT ALL SELECT * FROM expected)
+          )
+          SELECT NOT EXISTS (SELECT 1 FROM differences)
+             AND pg_catalog.has_foreign_data_wrapper_privilege('df_migration', 'data_foundry_public_usage_probe_fdw', 'USAGE')
+             AND pg_catalog.has_server_privilege('df_migration', 'data_foundry_public_usage_probe_server', 'USAGE')
+             AND pg_catalog.has_foreign_data_wrapper_privilege('df_edge', 'data_foundry_public_usage_probe_fdw', 'USAGE')
+             AND pg_catalog.has_server_privilege('df_edge', 'data_foundry_public_usage_probe_server', 'USAGE');
+          SQL
+          )"
+          if [[ "$public_foreign_usage_is_attested" != 't' ]]; then
+            printf '%s\n' 'The PUBLIC foreign-data privilege negative control was not installed exactly.' >&2
+            exit 1
+          fi
+          expect_runtime_role_rejection 'PUBLIC foreign-data wrapper and server USAGE' "$runtime_role_rejection_signature"
+          expect_post_credential_rejection 'PUBLIC foreign-data wrapper and server USAGE' "$migration_external_capability_rejection_signature"
+          run_admin_sql >/dev/null <<'SQL'
+          REVOKE USAGE ON FOREIGN SERVER data_foundry_public_usage_probe_server FROM PUBLIC;
+          REVOKE USAGE ON FOREIGN DATA WRAPPER data_foundry_public_usage_probe_fdw FROM PUBLIC;
+          DROP SERVER data_foundry_public_usage_probe_server;
+          DROP FOREIGN DATA WRAPPER data_foundry_public_usage_probe_fdw;
+          SQL
+          pnpm runtime-roles:postgres:check
+          run_admin_sql < "$post_credential_verification_path"
+
+          run_admin_sql >/dev/null <<'SQL'
+          CREATE DATABASE data_foundry_cross_database_connect_probe;
+          REVOKE CONNECT ON DATABASE data_foundry_cross_database_connect_probe FROM PUBLIC;
+          GRANT CREATE ON DATABASE data_foundry_cross_database_connect_probe TO PUBLIC;
+          SQL
+          cross_database_create_is_attested="$(
+            run_admin_sql -Atq <<'SQL'
+          WITH probe_database AS (
+            SELECT database.oid, database.datacl, database.datdba, database.datistemplate
+              FROM pg_catalog.pg_database database
+             WHERE database.datname = 'data_foundry_cross_database_connect_probe'
+          )
+          SELECT NOT database.datistemplate
+             AND database.datdba = 'postgres'::pg_catalog.regrole
+             AND (
+               SELECT count(*) = 1
+                 FROM pg_catalog.aclexplode(database.datacl) acl
+                WHERE acl.grantee = 0
+                  AND acl.privilege_type = 'CREATE'
+                  AND NOT acl.is_grantable
+             )
+             AND pg_catalog.has_database_privilege('df_edge', database.oid, 'CREATE')
+             AND pg_catalog.has_database_privilege('df_migration', database.oid, 'CREATE')
+             AND NOT pg_catalog.has_database_privilege('df_edge', database.oid, 'CONNECT')
+             AND NOT pg_catalog.has_database_privilege('df_migration', database.oid, 'CONNECT')
+            FROM probe_database database;
+          SQL
+          )"
+          if [[ "$cross_database_create_is_attested" != 't' ]]; then
+            printf '%s\n' 'The cross-database PUBLIC CREATE negative control was not installed exactly.' >&2
+            exit 1
+          fi
+          expect_runtime_role_rejection 'PUBLIC CREATE on a non-target database' "$runtime_role_rejection_signature"
+          expect_post_credential_rejection 'PUBLIC CREATE on a non-target database' "$migration_external_capability_rejection_signature"
+          run_admin_sql >/dev/null <<'SQL'
+          REVOKE CREATE ON DATABASE data_foundry_cross_database_connect_probe FROM PUBLIC;
+          SQL
+          pnpm runtime-roles:postgres:check
+          run_admin_sql < "$post_credential_verification_path"
+
+          run_admin_sql >/dev/null <<'SQL'
+          GRANT CONNECT ON DATABASE data_foundry_cross_database_connect_probe TO PUBLIC;
+          SQL
+          cross_database_connect_is_attested="$(
+            run_admin_sql -Atq <<'SQL'
+          WITH probe_database AS (
+            SELECT database.oid, database.datacl, database.datdba, database.datistemplate
+              FROM pg_catalog.pg_database database
+             WHERE database.datname = 'data_foundry_cross_database_connect_probe'
+          )
+          SELECT NOT database.datistemplate
+             AND database.datdba = 'postgres'::pg_catalog.regrole
+             AND (
+               SELECT count(*) = 1
+                 FROM pg_catalog.aclexplode(database.datacl) acl
+                WHERE acl.grantee = 0
+                  AND acl.privilege_type = 'CONNECT'
+                  AND NOT acl.is_grantable
+             )
+             AND pg_catalog.has_database_privilege('df_edge', database.oid, 'CONNECT')
+             AND pg_catalog.has_database_privilege('df_migration', database.oid, 'CONNECT')
+             AND NOT pg_catalog.has_database_privilege('df_edge', database.oid, 'CREATE')
+             AND NOT pg_catalog.has_database_privilege('df_migration', database.oid, 'CREATE')
+            FROM probe_database database;
+          SQL
+          )"
+          if [[ "$cross_database_connect_is_attested" != 't' ]]; then
+            printf '%s\n' 'The cross-database PUBLIC CONNECT negative control was not installed exactly.' >&2
+            exit 1
+          fi
+          expect_runtime_role_rejection 'PUBLIC CONNECT on a non-target database' "$runtime_role_rejection_signature"
+          expect_post_credential_rejection 'PUBLIC CONNECT on a non-target database' "$migration_external_capability_rejection_signature"
+          run_admin_sql >/dev/null <<'SQL'
+          REVOKE CONNECT ON DATABASE data_foundry_cross_database_connect_probe FROM PUBLIC;
+          DROP DATABASE data_foundry_cross_database_connect_probe;
+          SQL
+          pnpm runtime-roles:postgres:check
+          run_admin_sql < "$post_credential_verification_path"
+
+          run_admin_sql >/dev/null <<'SQL'
+          CREATE TEXT SEARCH DICTIONARY extensions.data_foundry_unmanaged_owner_probe (
+            TEMPLATE = pg_catalog.simple
+          );
+          ALTER TEXT SEARCH DICTIONARY extensions.data_foundry_unmanaged_owner_probe OWNER TO df_edge;
+          SQL
+          unmanaged_dictionary_is_attested="$(
+            run_admin_sql -Atq <<'SQL'
+          WITH dictionary AS (
+            SELECT dictionary.oid
+              FROM pg_catalog.pg_ts_dict dictionary
+              JOIN pg_catalog.pg_namespace namespace ON namespace.oid = dictionary.dictnamespace
+             WHERE namespace.nspname = 'extensions'
+               AND dictionary.dictname = 'data_foundry_unmanaged_owner_probe'
+          ), current_database_identity AS (
+            SELECT database.oid
+              FROM pg_catalog.pg_database database
+             WHERE database.datname = pg_catalog.current_database()
+          ), runtime_role AS (
+            SELECT role.oid
+              FROM pg_catalog.pg_roles role
+             WHERE role.rolname = 'df_edge'
+          )
+          SELECT (SELECT count(*) = 1 FROM dictionary)
+             AND EXISTS (
+               SELECT 1
+                 FROM dictionary, current_database_identity database, runtime_role, pg_catalog.pg_shdepend ownership
+                WHERE ownership.dbid = database.oid
+                  AND ownership.classid = 'pg_catalog.pg_ts_dict'::pg_catalog.regclass
+                  AND ownership.objid = dictionary.oid
+                  AND ownership.objsubid = 0
+                  AND ownership.refclassid = 'pg_catalog.pg_authid'::pg_catalog.regclass
+                  AND ownership.refobjid = runtime_role.oid
+                  AND ownership.deptype = 'o'
+             )
+             AND NOT EXISTS (
+               SELECT 1
+                 FROM dictionary
+                 JOIN pg_catalog.pg_depend dependency
+                   ON dependency.classid = 'pg_catalog.pg_ts_dict'::pg_catalog.regclass
+                  AND dependency.objid = dictionary.oid
+                  AND dependency.objsubid = 0
+                WHERE dependency.refclassid = 'pg_catalog.pg_extension'::pg_catalog.regclass
+                  AND dependency.refobjsubid = 0
+                  AND dependency.deptype = 'e'
+             );
+          SQL
+          )"
+          if [[ "$unmanaged_dictionary_is_attested" != 't' ]]; then
+            printf '%s\n' 'The unmanaged runtime-owned dictionary was not catalog-attested exactly.' >&2
+            exit 1
+          fi
+          expect_runtime_role_rejection 'runtime ownership of an unmanaged catalog object' "$runtime_role_rejection_signature"
+          expect_post_credential_rejection 'runtime ownership of an unmanaged catalog object' "$reachable_capability_rejection_signature"
+          run_admin_sql >/dev/null <<'SQL'
+          ALTER TEXT SEARCH DICTIONARY extensions.data_foundry_unmanaged_owner_probe OWNER TO postgres;
+          DROP TEXT SEARCH DICTIONARY extensions.data_foundry_unmanaged_owner_probe;
+          SQL
+          pnpm runtime-roles:postgres:check
+          run_admin_sql < "$post_credential_verification_path"
+
+          run_admin_sql >/dev/null <<'SQL'
+          ALTER ROLE ALL SET lo_compat_privileges TO on;
+          SQL
+          expect_runtime_role_rejection 'an ALTER ROLE ALL lo_compat_privileges override' "$runtime_role_rejection_signature"
+          expect_post_credential_rejection 'an ALTER ROLE ALL lo_compat_privileges override' "$migration_durable_setting_rejection_signature"
+          run_admin_sql >/dev/null <<'SQL'
+          ALTER ROLE ALL RESET lo_compat_privileges;
+          SQL
+          pnpm runtime-roles:postgres:check
+          run_admin_sql < "$post_credential_verification_path"
+
+          run_admin_sql >/dev/null <<'SQL'
+          CREATE TEXT SEARCH DICTIONARY extensions.data_foundry_runtime_owner_probe (
+            TEMPLATE = pg_catalog.simple
+          );
+          ALTER EXTENSION plpgsql ADD TEXT SEARCH DICTIONARY extensions.data_foundry_runtime_owner_probe;
+          ALTER TEXT SEARCH DICTIONARY extensions.data_foundry_runtime_owner_probe OWNER TO df_edge;
+          SQL
+          expect_runtime_role_rejection 'runtime ownership of a catalog-attested extension member' "$runtime_role_rejection_signature"
+          expect_post_credential_rejection 'runtime ownership of a catalog-attested extension member' "$reachable_capability_rejection_signature"
+          run_admin_sql >/dev/null <<'SQL'
+          ALTER TEXT SEARCH DICTIONARY extensions.data_foundry_runtime_owner_probe OWNER TO postgres;
+          ALTER EXTENSION plpgsql DROP TEXT SEARCH DICTIONARY extensions.data_foundry_runtime_owner_probe;
+          DROP TEXT SEARCH DICTIONARY extensions.data_foundry_runtime_owner_probe;
+          SQL
+          pnpm runtime-roles:postgres:check
+          run_admin_sql < "$post_credential_verification_path"
+
+          run_admin_sql >/dev/null <<'SQL'
+          ALTER ROLE df_migration INHERIT;
+          SQL
+          expect_runtime_role_rejection 'an inheriting migration role' "$runtime_role_rejection_signature"
+          expect_post_credential_rejection 'an inheriting migration role' "$migration_posture_rejection_signature"
+          run_admin_sql >/dev/null <<'SQL'
+          ALTER ROLE df_migration NOINHERIT;
+          SQL
+          pnpm runtime-roles:postgres:check
+          run_admin_sql < "$post_credential_verification_path"
+
+          expect_post_credential_rejection 'a replica-mode migration verifier session' "$migration_session_rejection_signature" 'SET session_replication_role TO replica;'
+          run_admin_sql < "$post_credential_verification_path"
+
+          ledger_digest_before_rejection="$(capture_migration_ledger_digest)"
+          if [[ ! "$ledger_digest_before_rejection" =~ ^[0-9a-f]{32}$ ]]; then
+            printf '%s\n' 'The pre-rejection migration ledger digest is invalid.' >&2
+            exit 1
+          fi
+          run_admin_sql >/dev/null <<'SQL'
+          ALTER ROLE df_migration IN DATABASE data_foundry RESET ALL;
+          ALTER ROLE df_migration IN DATABASE data_foundry SET lo_compat_privileges TO on;
+          SQL
+          migration_role_setting_is_exact="$(
+            run_admin_sql -Atq <<'SQL'
+          SELECT count(*) = 1
+             AND bool_and(setting.setconfig = ARRAY['lo_compat_privileges=on']::text[])
+            FROM pg_catalog.pg_db_role_setting setting
+           WHERE setting.setrole = 'df_migration'::pg_catalog.regrole
+             AND setting.setdatabase = (
+               SELECT database.oid
+                 FROM pg_catalog.pg_database database
+                WHERE database.datname = pg_catalog.current_database()
+             );
+          SQL
+          )"
+          if [[ "$migration_role_setting_is_exact" != 't' ]]; then
+            printf '%s\n' 'The migration-role durable-setting negative control was not installed exactly.' >&2
+            exit 1
+          fi
+          effective_migration_lo_compat="$(
+            docker exec data-foundry-postgres-tls psql -U df_migration -d data_foundry \
+              -v ON_ERROR_STOP=1 -Atq -c "SELECT pg_catalog.current_setting('lo_compat_privileges');"
+          )"
+          if [[ "$effective_migration_lo_compat" != 'on' ]]; then
+            printf '%s\n' 'A fresh migration-role login did not inherit the durable-setting negative control.' >&2
+            exit 1
+          fi
+          expect_runtime_role_rejection 'a noncanonical migration-role current-database setting' "$runtime_role_rejection_signature"
+          expect_post_credential_rejection 'a noncanonical migration-role current-database setting' "$migration_durable_setting_rejection_signature"
+          expect_migration_rejection 'a migration-role current-database lo_compat_privileges override' "$migration_search_path_rejection_signature"
+          ledger_digest_after_rejection="$(capture_migration_ledger_digest)"
+          if [[ "$ledger_digest_after_rejection" != "$ledger_digest_before_rejection" ]]; then
+            printf '%s\n' 'The rejected direct migration changed the migration ledger.' >&2
+            exit 1
+          fi
+          run_admin_sql >/dev/null <<'SQL'
+          ALTER ROLE df_migration IN DATABASE data_foundry RESET ALL;
+          ALTER ROLE df_migration IN DATABASE data_foundry SET search_path TO data_foundry, pg_catalog, extensions;
+          SQL
+          migration_role_setting_is_canonical="$(
+            run_admin_sql -Atq <<'SQL'
+          SELECT count(*) = 1
+             AND bool_and(
+               setting.setconfig = ARRAY['search_path=data_foundry, pg_catalog, extensions']::text[]
+             )
+            FROM pg_catalog.pg_db_role_setting setting
+           WHERE setting.setrole = 'df_migration'::pg_catalog.regrole
+             AND setting.setdatabase = (
+               SELECT database.oid
+                 FROM pg_catalog.pg_database database
+                WHERE database.datname = pg_catalog.current_database()
+             );
+          SQL
+          )"
+          if [[ "$migration_role_setting_is_canonical" != 't' ]]; then
+            printf '%s\n' 'The canonical migration-role durable setting was not restored exactly.' >&2
+            exit 1
+          fi
+          effective_migration_session_is_canonical="$(
+            docker exec data-foundry-postgres-tls psql -U df_migration -d data_foundry \
+              -v ON_ERROR_STOP=1 -Atq -c "SELECT pg_catalog.current_setting('search_path') = 'data_foundry, pg_catalog, extensions' AND pg_catalog.current_schemas(false) = ARRAY['data_foundry', 'pg_catalog', 'extensions']::name[] AND pg_catalog.current_setting('lo_compat_privileges') = 'off';"
+          )"
+          if [[ "$effective_migration_session_is_canonical" != 't' ]]; then
+            printf '%s\n' 'A fresh migration-role login did not inherit the canonical durable setting.' >&2
+            exit 1
+          fi
+          pnpm runtime-roles:postgres:check
+          run_admin_sql < "$post_credential_verification_path"
+          pnpm migrate
+          ledger_digest_after_clean_migrate="$(capture_migration_ledger_digest)"
+          if [[ "$ledger_digest_after_clean_migrate" != "$ledger_digest_before_rejection" ]]; then
+            printf '%s\n' 'The clean no-op migration changed the migration ledger.' >&2
+            exit 1
+          fi
+
+          # GRANT restores PostgreSQL's implicit PUBLIC function default and
+          # removes the explicit global safe override; absence must fail closed.
+          run_admin_sql >/dev/null <<'SQL'
+          ALTER DEFAULT PRIVILEGES FOR ROLE df_migration GRANT EXECUTE ON FUNCTIONS TO PUBLIC;
+          SQL
+          expect_post_credential_rejection 'the implicit global PUBLIC function default' "$default_acl_rejection_signature"
+          run_admin_sql >/dev/null <<'SQL'
+          ALTER DEFAULT PRIVILEGES FOR ROLE df_migration REVOKE EXECUTE ON FUNCTIONS FROM PUBLIC;
+          SQL
+          run_admin_sql < "$post_credential_verification_path"
+
+          run_admin_sql >/dev/null <<'SQL'
+          ALTER DEFAULT PRIVILEGES FOR ROLE df_migration IN SCHEMA data_foundry GRANT EXECUTE ON FUNCTIONS TO PUBLIC;
+          SQL
+          expect_post_credential_rejection 'a schema-specific PUBLIC function default' "$default_acl_rejection_signature"
+          run_admin_sql >/dev/null <<'SQL'
+          ALTER DEFAULT PRIVILEGES FOR ROLE df_migration IN SCHEMA data_foundry REVOKE EXECUTE ON FUNCTIONS FROM PUBLIC;
+          SQL
+          run_admin_sql < "$post_credential_verification_path"
+
+          run_admin_sql >/dev/null <<'SQL'
+          ALTER DEFAULT PRIVILEGES FOR ROLE df_migration GRANT SELECT ON TABLES TO PUBLIC;
+          SQL
+          expect_post_credential_rejection 'a global PUBLIC table default' "$default_acl_rejection_signature"
+          run_admin_sql >/dev/null <<'SQL'
+          ALTER DEFAULT PRIVILEGES FOR ROLE df_migration REVOKE ALL PRIVILEGES ON TABLES FROM PUBLIC;
+          SQL
+          run_admin_sql < "$post_credential_verification_path"
+
+          run_admin_sql >/dev/null <<'SQL'
+          ALTER DEFAULT PRIVILEGES FOR ROLE df_migration IN SCHEMA data_foundry GRANT USAGE ON SEQUENCES TO PUBLIC;
+          SQL
+          expect_post_credential_rejection 'a schema-specific PUBLIC sequence default' "$default_acl_rejection_signature"
+          run_admin_sql >/dev/null <<'SQL'
+          ALTER DEFAULT PRIVILEGES FOR ROLE df_migration IN SCHEMA data_foundry REVOKE ALL PRIVILEGES ON SEQUENCES FROM PUBLIC;
+          SQL
+          run_admin_sql < "$post_credential_verification_path"
+
+          cleanup_privilege_negative_controls
+          large_object_oid=''
+          trap - EXIT
+          pnpm runtime-roles:postgres:check
+          run_admin_sql < "$post_credential_verification_path"
 
       # This deliberately uses independent PostgreSQL connections and waits for
       # the advisory transaction lock, so the reconciliation race cannot hide
       # behind the single-connection PGlite scheduler.
       - name: Source-record reconciliation concurrency regression
         env:
-          POSTGRES_URL: postgres://postgres:postgres@localhost:5432/data_foundry
           DATA_FOUNDRY_POSTGRES_CONCURRENCY_TEST: '1'
         run: pnpm source-records:postgres:check
 
       - name: Credential provisioning concurrency regression
         env:
-          POSTGRES_URL: postgres://postgres:postgres@localhost:5432/data_foundry
           DATA_FOUNDRY_POSTGRES_CONCURRENCY_TEST: '1'
         run: pnpm credentials:postgres:check
 
       - name: Scheduled acquisition concurrency and transaction controls
-        env:
-          POSTGRES_URL: postgres://postgres:postgres@localhost:5432/data_foundry
         run: pnpm acquisition:postgres:check

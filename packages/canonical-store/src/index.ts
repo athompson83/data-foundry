@@ -34,6 +34,7 @@ export {
   createPgliteDriver,
   createPostgresDriver,
   createSerialExecutor,
+  directPostgresTlsConfig,
   assertPrivateSchemaSession,
   DATA_FOUNDRY_PRIVATE_SCHEMA,
   placeholders,

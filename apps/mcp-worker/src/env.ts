@@ -16,6 +16,8 @@ export interface QueueBinding<Message = unknown> {
 
 export interface McpWorkerEnv {
   readonly DEPLOYMENT_ENVIRONMENT?: string | undefined;
+  /** Enables only the route-less, service-bound synthetic readiness probe. */
+  readonly PRIVATE_CANARY_MODE?: string | undefined;
   readonly HYPERDRIVE?: HyperdriveBinding | undefined;
   readonly POSTGRES_URL?: string | undefined;
   readonly VERTICAL_SLUG?: string | undefined;

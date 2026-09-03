@@ -364,25 +364,31 @@ semantics established earlier:
    terminal handling release still-owned claims; crash recovery rotates the
    token only after expiry, and stale attempts cannot terminalize. The readiness
    command requires canonical `--as-of` and qualified DB/snapshot evidence.
-7. **Deploy the canonical Cloudflare stack.** Provision production Postgres,
+7. **Prove the route-less private canary.** Before any ordinary public
+   deployment exists, deploy only the six temporary service-bound canary
+   Workers and exercise their database, Queue, R2, API, web, and MCP probes
+   without a public hostname, route, custom domain, or `workers.dev` endpoint.
+8. **Separately authorize and deploy the canonical public Cloudflare stack.**
+   Only after the route-less proof passes may the owner authorize production
+   Postgres,
    Hyperdrive, all five Workers, R2, usage Queue/DLQ, routes and secrets. Every
    exact production manifest must name the same canonical Cloudflare
    `account_id`; prove health/readiness and perform live smoke tests.
-8. **Rights-clear the first real vertical.** Synthetic HVAC fixtures prove the
+9. **Rights-clear the first real vertical.** Synthetic HVAC fixtures prove the
    machinery, not the commercial dataset. No marketplace listing goes live
    until the actual contributing sources are cleared for the listed use cases.
-9. **Create the first RapidAPI listing.** Start with one vertical, a deliberately
+10. **Create the first RapidAPI listing.** Start with one vertical, a deliberately
    small free allowance and paid tiers sized from observed Cloudflare/database
    cost and expected value. Verify the marketplace's current fee and payout
    terms at launch rather than hard-coding an old percentage into architecture.
-10. **Package and expose MCP only for cleared data.** Issue a dedicated MCP key,
+11. **Package and expose MCP only for cleared data.** Issue a dedicated MCP key,
    verify current/legacy-handshake behavior and revocation on the deployed
    hostname, and keep its analytics outside internal invoices.
-11. **Measure before expanding.** Track signups, activation, paid conversion,
+12. **Measure before expanding.** Track signups, activation, paid conversion,
    requests per account, costly endpoints, support load, churn and gross margin.
    Publish additional marketplace verticals only when their source rights and
    data quality are ready.
-12. **Add first-party billing when justified by evidence.** Preserve the direct
+13. **Add first-party billing when justified by evidence.** Preserve the direct
     API route from day one so successful customers can later move to a higher-
     margin channel without changing the underlying product.
 

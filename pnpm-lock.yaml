@@ -17,6 +17,9 @@ importers:
       '@data-foundry/canonical-store':
         specifier: workspace:*
         version: link:packages/canonical-store
+      '@data-foundry/private-canary':
+        specifier: workspace:*
+        version: link:packages/private-canary
       '@data-foundry/rights-engine':
         specifier: workspace:*
         version: link:packages/rights-engine
@@ -74,6 +77,9 @@ importers:
       '@data-foundry/canonical-store':
         specifier: workspace:*
         version: link:../../packages/canonical-store
+      '@data-foundry/private-canary':
+        specifier: workspace:*
+        version: link:../../packages/private-canary
       '@data-foundry/rights-engine':
         specifier: workspace:*
         version: link:../../packages/rights-engine
@@ -114,6 +120,9 @@ importers:
       '@data-foundry/canonical-store':
         specifier: workspace:*
         version: link:../../packages/canonical-store
+      '@data-foundry/private-canary':
+        specifier: workspace:*
+        version: link:../../packages/private-canary
       '@data-foundry/query-model':
         specifier: workspace:*
         version: link:../../packages/query-model
@@ -154,6 +163,9 @@ importers:
       '@data-foundry/mcp':
         specifier: workspace:*
         version: link:../mcp
+      '@data-foundry/private-canary':
+        specifier: workspace:*
+        version: link:../../packages/private-canary
       '@data-foundry/query-model':
         specifier: workspace:*
         version: link:../../packages/query-model
@@ -174,11 +186,20 @@ importers:
         specifier: 0.28.2
         version: 0.28.2
 
+  apps/private-canary:
+    dependencies:
+      '@data-foundry/private-canary':
+        specifier: workspace:*
+        version: link:../../packages/private-canary
+
   apps/usage-consumer:
     dependencies:
       '@data-foundry/canonical-store':
         specifier: workspace:*
         version: link:../../packages/canonical-store
+      '@data-foundry/private-canary':
+        specifier: workspace:*
+        version: link:../../packages/private-canary
       '@data-foundry/usage-events':
         specifier: workspace:*
         version: link:../../packages/usage-events
@@ -194,6 +215,9 @@ importers:
       '@data-foundry/canonical-store':
         specifier: workspace:*
         version: link:../../packages/canonical-store
+      '@data-foundry/private-canary':
+        specifier: workspace:*
+        version: link:../../packages/private-canary
       '@data-foundry/query-model':
         specifier: workspace:*
         version: link:../../packages/query-model
@@ -270,6 +294,8 @@ importers:
       '@data-foundry/canonical-schema':
         specifier: workspace:*
         version: link:../canonical-schema
+
+  packages/private-canary: {}
 
   packages/provenance:
     dependencies:

@@ -845,7 +845,13 @@ function observeRun(run: ScheduledAcquisitionRun): ScheduledAcquisitionRunObserv
 }
 
 async function persistArtifact(tx: SqlExecutor, input: SourceArtifactInsert): Promise<SourceArtifact> {
-  const rows = await tx.query(
+  const parameters = [
+    input.source_id, input.url, input.retrieved_at, input.content_hash, input.mime_type,
+    input.r2_uri, input.http_status, input.extractor_version, input.policy_snapshot_id,
+    input.byte_size, input.acquisition_provider, input.acquisition_route,
+    input.account_or_product_plan, input.acquisition_jurisdiction,
+  ] as const;
+  const inserted = await tx.query(
     `INSERT INTO source_artifacts (source_id, url, retrieved_at, content_hash, mime_type, r2_uri,
                                    http_status, extractor_version, policy_snapshot_id, byte_size,
                                    acquisition_provider, acquisition_route,
@@ -853,18 +859,32 @@ async function persistArtifact(tx: SqlExecutor, input: SourceArtifactInsert): Pr
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
      ON CONFLICT (source_id, url, content_hash, acquisition_route,
                   account_or_product_plan, acquisition_jurisdiction)
-     DO UPDATE SET source_id = source_artifacts.source_id
+     DO NOTHING
      RETURNING ${ARTIFACT_COLUMNS}`,
-    [
-      input.source_id, input.url, input.retrieved_at, input.content_hash, input.mime_type,
-      input.r2_uri, input.http_status, input.extractor_version, input.policy_snapshot_id,
-      input.byte_size, input.acquisition_provider, input.acquisition_route,
-      input.account_or_product_plan, input.acquisition_jurisdiction,
-    ],
+    parameters,
   );
-  const row = rows[0];
-  if (row === undefined) throw new Error('source artifact persistence returned no row');
-  return mapSourceArtifact(row);
+  const insertedRow = inserted[0];
+  if (insertedRow !== undefined) return mapSourceArtifact(insertedRow);
+  const conflictIdentity = [
+    input.source_id,
+    input.url,
+    input.content_hash,
+    input.acquisition_route,
+    input.account_or_product_plan,
+    input.acquisition_jurisdiction,
+  ] as const;
+  const existing = await tx.query(
+    `SELECT ${ARTIFACT_COLUMNS}
+       FROM source_artifacts
+      WHERE source_id = $1 AND url = $2 AND content_hash = $3
+        AND acquisition_route = $4
+        AND account_or_product_plan IS NOT DISTINCT FROM $5
+        AND acquisition_jurisdiction IS NOT DISTINCT FROM $6`,
+    conflictIdentity,
+  );
+  const existingRow = existing[0];
+  if (existingRow === undefined) throw new Error('source artifact persistence returned no row');
+  return mapSourceArtifact(existingRow);
 }
 
 class PostgresScheduledAcquisitionStore implements ScheduledAcquisitionStore {

@@ -17,10 +17,25 @@ import {
   type PostgresDriverOptions,
   type SqlDriver,
 } from '@data-foundry/canonical-store';
+import { WorkerEntrypoint } from 'cloudflare:workers';
+import type {
+  PrivateCanaryProbe,
+  PrivateCanaryProbeInput,
+  PrivateCanaryProbeResult,
+} from '@data-foundry/private-canary';
 import { parseUsageEvent, persistUsageEvents, type UsageEvent } from '@data-foundry/usage-events';
 import { resolveConsumerConfig, type ConsumerEnv } from './env.js';
+import { probePrivateCanaryReadiness } from './private-canary.js';
 
 export { ConsumerConfigurationError, resolveConsumerConfig, type ConsumerEnv, type HyperdriveBinding } from './env.js';
+export { probePrivateCanaryReadiness, type PrivateCanaryProbeOptions } from './private-canary.js';
+
+/** Service-binding-only probe; it never consumes a public request or message. */
+export class PrivateCanaryEntrypoint extends WorkerEntrypoint<ConsumerEnv> implements PrivateCanaryProbe {
+  async probe(input: PrivateCanaryProbeInput): Promise<PrivateCanaryProbeResult> {
+    return probePrivateCanaryReadiness(input, this.env);
+  }
+}
 
 /**
  * Cloudflare's Queue message, narrowed to what a consumer reads and calls.
@@ -80,7 +95,7 @@ function getDriver(options: ConsumeOptions): Promise<SqlDriver> {
     config.connectionString,
     config.deploymentEnvironment === 'production'
       ? { schema: DATA_FOUNDRY_PRIVATE_SCHEMA }
-      : undefined,
+      : { allowPlaintextLoopback: true },
   ).catch((error: unknown) => {
     // A failed open must not stay cached, or one transient outage at cold
     // start would wedge every future batch until the isolate recycles.

@@ -303,9 +303,15 @@ describe('Streamable HTTP lifecycle and executable tool parity', () => {
   it('does not reopen the database driver for each request in one warm isolate', async () => {
     const key = await seedKey(fixtures, 'mcp-warm-isolate');
     const { queue } = recordingQueue();
-    const schemas: Array<string | undefined> = [];
-    const openDriver = vi.fn(async (_connectionString: string, options?: { readonly schema?: string }) => {
-      schemas.push(options?.schema);
+    const driverOptions: Array<{
+      readonly schema?: string;
+      readonly allowPlaintextLoopback?: boolean;
+    } | undefined> = [];
+    const openDriver = vi.fn(async (
+      _connectionString: string,
+      options?: { readonly schema?: string; readonly allowPlaintextLoopback?: boolean },
+    ) => {
+      driverOptions.push(options);
       return fixtures.driver;
     });
     const options = { ...serveOptions, openDriver };
@@ -318,7 +324,7 @@ describe('Streamable HTTP lifecycle and executable tool parity', () => {
       expect(response.status).toBe(200);
     }
     expect(openDriver).toHaveBeenCalledTimes(1);
-    expect(schemas).toEqual([undefined]);
+    expect(driverOptions).toEqual([{ allowPlaintextLoopback: true }]);
   });
 });
 

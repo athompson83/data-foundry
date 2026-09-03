@@ -58,10 +58,13 @@ implements. A vertical is exposed only while it is `ACTIVE` and has an exact
 the exact rendered facts, attributions and relationships. The quality-gate evaluator
 (`apps/web/src/gates.ts`) decides indexability from authorized evidence rather
 than raw database aggregates or fiat. The integrated implementation is on
-protected `main`, but no production deployment is recorded or verified. Live
-Cloudflare and Vercel state was reconciled read-only on 2026-08-31: the zone is
-active/full, but no Data Foundry Cloudflare resources exist and the configured
-Vercel data hostname returns 404. Exact deployment IDs and runtime probes remain
+protected `main`, but no production deployment is recorded or verified. The
+2026-08-31 no-resource observation is historical: the authoritative
+2026-09-02T14:46Z refresh shows the zone active/full, the standard usage model,
+and exactly the ordinary 14-day Queue/DLQ pair, but zero Data Foundry Workers,
+routes, Hyperdrives, or R2 buckets. It supersedes an earlier same-day raw-bucket
+observation. The configured Vercel data hostname
+returns 404. Exact deployment IDs and runtime probes remain
 owner/platform evidence — see the [redacted reconciliation record](docs/evidence/alpha-lab-provider-reconciliation-20260831.md)
 and Deployment below.
 
@@ -95,6 +98,7 @@ packages/query-model/        The single canonical query layer web, REST and MCP 
 packages/api-keys/           Minting and verifying API credentials. Web Crypto only
 packages/access-auth/        Shared DB bearer-key, tenant and one-vertical authorization
 packages/usage-events/       The usage-event contract shared by the edge producer and its queue consumer
+packages/private-canary/     Closed synthetic canary control, target-probe, and receipt contracts
 services/ingest-worker/      DISCOVERED -> PUBLISHED job runner wiring the stages together
 services/export-builder/     Bulk CSV and JSONL exports, rights-gated and reviewer-guarded
 apps/api/                    Read-only REST surface over the query layer
@@ -103,6 +107,7 @@ apps/mcp-worker/             Cloudflare Streamable HTTP adapter, MCP/NONE auth a
 apps/edge/                   Cloudflare Worker: composition root, auth, transport, no routing
 apps/acquisition-worker/     Cloudflare Cron Worker: rights-gated acquisition and immutable R2 evidence
 apps/usage-consumer/         Cloudflare Queue consumer: idempotent usage-event persistence
+apps/private-canary/         Route-less service-bound synthetic canary consumer of the dedicated private DLQ, never the shared usage DLQ
 apps/web/                    Cloudflare Worker: the free public site — parent index + one child site per industry
 verticals/hvac/              The first vertical: configuration, fixtures and golden records
 db/migrations/               Plain, portable Postgres DDL for every canonical table
@@ -132,14 +137,22 @@ Working against a database:
 
 ```bash
 pnpm migrate                                  # apply to .data/pglite (local, persisted)
-POSTGRES_URL=postgres://... pnpm migrate      # apply to Alpha Lab's private data_foundry schema
-DATA_FOUNDRY_SCHEMA=public POSTGRES_URL=postgres://... pnpm migrate # reviewed legacy public install only
+# Supply DATA_FOUNDRY_MIGRATION_DATABASE_URL securely, then run pnpm migrate
 ```
 
 Real-database operations default to `data_foundry`; they never silently write
-to a shared `public` schema. `DATA_FOUNDRY_SCHEMA=public` is an explicit
-compatibility option for a reviewed legacy Data Foundry installation, not the
-Alpha Lab deployment.
+to a shared `public` schema. Direct real-Postgres migration and live ingestion
+are restricted to the private `data_foundry` schema. `DATA_FOUNDRY_SCHEMA=public`
+fails before source attestation, migration, or application-driver setup; a
+historical public installation requires a separately reviewed migration plan,
+not a live runtime switch.
+Before a direct migration, set the non-secret `DATA_FOUNDRY_RELEASE_SHA` to the
+exact 40-character checked-out release SHA. The runner refuses a generic
+`POSTGRES_URL` as a migration source, requires the dedicated migration
+credential through the approved secret interface, uses certificate-verified
+TLS, rejects connection-string query overrides, requires a clean worktree, and
+loads the migration corpus from the attested Git object rather than mutable
+files on disk.
 
 ## The two foundational contract packages
 
@@ -242,8 +255,9 @@ rights-admitted reingest; the migration never guesses membership.
 
 ### What this project owns in a database
 
-`POSTGRES_URL` points the migrator at whatever database you name, and that
-database may already belong to something else. `partitionOwnedTables` in
+The dedicated migration credential points the migrator at whatever database an
+operator names, and that database may already belong to something else.
+`partitionOwnedTables` in
 `tooling/scripts/migrate.ts` decides the ownership boundary. Its manifest is
 `EXPECTED_TABLES` — every table a migration creates — plus `schema_migrations`,
 the ledger the runner itself creates and writes a row to on every apply. Both
@@ -299,13 +313,25 @@ MCP tool definitions, the Phase 2 Python/Splink work, and external dataset users
   `openapi/data-foundry-hvac-rapidapi-v1.openapi.json` marketplace projection
   match the same canonical REST route and schema source; the RapidAPI document
   deliberately contains no private origin-bearer security scheme
-- `pnpm cloudflare:topology:check` — CI runs this repository-only check over all
-  five tracked Worker templates, preserving the Queue, Cron, R2, Hyperdrive,
-  route, and secret-free topology contract
+- `pnpm cloudflare:topology:check` — CI runs this repository-only check over the
+  five ordinary Worker templates and the six route-less private-canary templates,
+  preserving the Queue, Cron, R2, Hyperdrive, route, identity-isolation, and
+  secret-free topology contracts
 - `pnpm cloudflare:deployment:check` — an operator pre-deploy command that
   validates the five ignored exact-deployment manifests before a dry run or
   deploy, including one well-formed canonical `account_id` shared by all five;
   CI intentionally has no such production manifests and does not run it
+- `pnpm cloudflare:private-canary:full-deployment:check` — an operator-only,
+   fail-closed check for the six ignored route-less private-canary manifests;
+   it requires one account, five distinct role-specific Hyperdrives for the
+   reduced target Workers, and the `apps/private-canary` harness without
+   Hyperdrive; it also requires a dedicated private-canary
+   synthetic-metering Queue/DLQ pair and control ingress/DLQ/quarantine chain
+   separate from ordinary usage, no route or `workers.dev` exposure, and no
+   extra service-binding environment or local connection configuration. The
+   three deployment-mode canary checks also load the five ignored ordinary
+   deployment manifests as name-collision controls; those ordinary manifests
+   are not canary deployment inputs.
 - `pnpm verticals:validate` — vertical configs are well-formed and every source
    declaration carries complete rights metadata
 - `pnpm verticals:compile:check` — the edge runtime artifact matches the
@@ -316,8 +342,12 @@ MCP tool definitions, the Phase 2 Python/Splink work, and external dataset users
    executable generic tools and current compiled vertical metadata
 - `pnpm web:compile:check` — the web surface's own compiled artifact (it
    additionally bundles `seo.yaml`, which the edge runtime artifact does not)
-- `pnpm cloudflare:artifacts:check` — all five Worker bundles build without
-   credentials and contain no local PGlite/WASM runtime
+- `pnpm cloudflare:artifacts:check` — dry-runs and individually scans all six
+   route-less private-canary Worker artifacts: five reduced target Workers
+   (with synthetic Hyperdrive only for the credential-free dry run) plus the
+   private-canary harness (without Hyperdrive). It fails closed if any entrypoint
+   or manifest cannot bundle, and is repository provenance rather than provider
+   deployment evidence.
 - A second job applies the identical migrations to a real `postgres:16` service,
   then runs source-record/snapshot reconciliation, credential-provisioning
   concurrency, and scheduled-acquisition transaction/fencing controls, which
@@ -334,7 +364,7 @@ snapshot evidence, every surface is `UNKNOWN`; see the revenue-readiness runbook
 
 ## Deployment
 
-Five Cloudflare Workers, per
+The ordinary production topology has five Cloudflare Workers, per
 [ADR-0006](docs/decisions/ADR-0006-cloudflare-is-the-deployment-target.md) and
 [ADR-0011](docs/decisions/ADR-0011-web-frontend-and-multi-industry-sites.md):
 
@@ -367,6 +397,46 @@ The edge, web and MCP Workers are read-surface composition roots; the acquisitio
 Worker is the scheduled write-side composition root; the usage consumer owns
 only accepted-event persistence. Pure `apps/api` and `apps/mcp` contracts still
 cannot reach beneath the canonical query layer.
+
+The temporary private-canary topology is deliberately different from the
+ordinary production topology. Its repository artifact gate builds six route-less
+private-canary Worker artifacts: five reduced target Workers —
+`data-foundry-private-canary-edge`, `data-foundry-private-canary-web`,
+`data-foundry-private-canary-usage-consumer`,
+`data-foundry-private-canary-acquisition-worker`, and
+`data-foundry-private-canary-mcp-hvac` — plus the
+`data-foundry-private-canary` harness. The five targets receive one
+role-specific Hyperdrive each only in their deployment manifests; the harness
+has no Hyperdrive and service-binds only to those dedicated target names. The
+reduced profiles must never reuse ordinary Worker names, because a deploy could
+otherwise replace ordinary Cron, R2, Queue, or future configuration.
+
+The temporary path uses five dedicated queues, all with 14-day retention:
+synthetic metering flows from `data-foundry-private-canary-usage-events` to
+`data-foundry-private-canary-usage-events-dlq`, while control flows from
+`data-foundry-private-canary-events` to
+`data-foundry-private-canary-dlq` and then
+`data-foundry-private-canary-quarantine`. Those queues are distinct from the
+unchanged ordinary `data-foundry-usage-events` and
+`data-foundry-usage-events-dlq` pair; only the ordinary usage consumer consumes
+the ordinary usage queue.
+
+The latest dated provider inventory distinguishes resources from live wiring:
+there is no Data Foundry Worker, Worker route, Hyperdrive configuration, or R2
+bucket. Only the ordinary 14-day Queue/DLQ pair exists; it proves neither a
+Worker binding nor a deployed runtime. Both the raw-artifact and private-canary
+receipt buckets still require provisioning.
+
+**Repository state alone designates no Worker release candidate.** The historical
+`df4a665`, `64bb05b`, and `effa3ec` revisions are provenance only. Before any
+provider action, the exact merged/reviewed SHA must contain the runtime changes,
+six-artifact gate, tests, and aligned documentation, then pass exact-head
+validation. Repository migrations `0027`–`0028` extend the historical hosted
+`0001`–`0026` chain and remain pending hosted authorization/application; the dated hosted record still
+truthfully reports 26 applied migrations and 57 search-path warnings. That
+repository attestation does not authorize a deployment, hosted migration, or
+provider mutation; do not add a documentation-only follow-up commit after that
+verification.
 
 ```bash
 pnpm verticals:compile        # emit apps/edge/generated/<slug>.runtime.json
@@ -420,12 +490,15 @@ classify a named legacy null/null row only through explicit
 tenant or credential changes access control only: it creates no rights cell,
 grant, source approval, billing plan, invoice or legal permission.
 
-Deploying needs one canonical Cloudflare account named by the same exact
-`account_id` in all five ignored production manifests, Hyperdrive bindings,
-public hostnames/routes for the edge, web and MCP Workers, Queue delivery for
-the usage consumer, Cron for the
+The later ordinary production deployment needs one canonical Cloudflare account
+named by the same exact `account_id` in all five ignored production manifests,
+Hyperdrive bindings, Queue delivery for the usage consumer, Cron for the
 acquisition Worker, and the usage-metering queues, none of which live in this
-repository —
+repository. It is separate from the temporary six-artifact private-canary path.
+That current workstream adds no public hostname, Worker route, custom domain, or
+`workers.dev` endpoint; its private control queues are separate from shared
+usage metering and require provider-side binding evidence. Public routing is a
+separately authorized later production action —
 [docs/owner-actions/cloudflare-deployment.md](docs/owner-actions/cloudflare-deployment.md)
 records what and why, including what pay per crawl actually is and is not, and
 [docs/owner-actions/revenue-readiness.md](docs/owner-actions/revenue-readiness.md)

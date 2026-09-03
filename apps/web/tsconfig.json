@@ -8,6 +8,7 @@
     "src/**/*.ts",
     "generated/**/*.ts",
     "test/**/*.ts",
-    "vitest.config.ts"
+    "vitest.config.ts",
+    "../../types/**/*.d.ts"
   ]
 }

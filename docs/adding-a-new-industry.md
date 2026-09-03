@@ -290,7 +290,10 @@ cost.
 ## 9. Deployment verification
 
 `docs/owner-actions/cloudflare-deployment.md` contains the production-resource
-checklist. A new vertical is not considered live because CI is green; verify the
+checklist. When no ordinary deployment exists yet, its route-less,
+service-bound private-canary prerequisite must pass before any separately
+authorized public canary or production route is created. A new vertical is not
+considered live because CI is green; verify the
 same canonical `account_id` across all five exact production manifests, the
 exact deployed SHA, production health/readiness, real database access, auth,
 rights behavior and usage-event persistence independently for web, direct REST,
@@ -302,7 +305,7 @@ cumulative-artifact refusals; and zero partial R2 writes. An MCP smoke test must
 cover initialize/discovery, tools/list,
 one authenticated tools/call, wrong-channel credentials, and a post-deploy
 rights-revocation negative. Before launch, run the catalog-capacity probes from
-the Cloudflare deployment runbook after applying through migration `0026`:
+the Cloudflare deployment runbook after applying through migration `0028`:
 exact-bound catalogs must complete, while
 candidate or authorization-row overflow must fail closed on web, REST and MCP
 without partial totals, facets, HTML or tool results. A vertical expected to

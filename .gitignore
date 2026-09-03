@@ -10,6 +10,7 @@ dist/
 coverage/
 *.tsbuildinfo
 apps/*/wrangler.production.toml
+apps/*/wrangler.private-canary.production.toml
 .DS_Store
 
 # Private product/business strategy — the 20-document foundation pack.

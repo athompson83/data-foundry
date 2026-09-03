@@ -19,6 +19,7 @@
     "@data-foundry/canonical-schema": "workspace:*",
     "@data-foundry/canonical-store": "workspace:*",
     "@data-foundry/mcp": "workspace:*",
+    "@data-foundry/private-canary": "workspace:*",
     "@data-foundry/query-model": "workspace:*",
     "@data-foundry/usage-events": "workspace:*",
     "@modelcontextprotocol/server": "2.0.0",
