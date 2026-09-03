@@ -85,10 +85,10 @@ canary:
    roles with distinct least-privilege passwords through the approved secure
    interface. Run that exact SHA's
    `postMigrationGrants.postCredentialVerificationSql` and require it to pass;
-   only then create exactly five TLS Hyperdrives—one for each edge, web,
-   usage-consumer, acquisition-worker, and MCP role. Never bind the migration
-   principal to a Worker. The verifier must read back the hosted ledger, private
-   schema, five roles, 57 expected function signatures with exact
+   only then create exactly five cache-disabled TLS Hyperdrives—one for each
+   edge, web, usage-consumer, acquisition-worker, and MCP role. Never bind the
+   migration principal to a Worker. The verifier must read back the hosted
+   ledger, private schema, five roles, 57 expected function signatures with exact
    `data_foundry, pg_catalog, extensions` function paths, and 199 exact grants
    before any Hyperdrive is created.
 3. Preserve the existing `data-foundry-usage-events` and
@@ -1153,10 +1153,10 @@ commercial gate.
 2. Activate the five existing staged `NOLOGIN` runtime roles with isolated
    least-privilege login credentials, then execute that exact SHA's
    `postMigrationGrants.postCredentialVerificationSql` and require it to pass.
-   Only then provision the five matching Hyperdrives, R2, and the Queue/DLQ
-   resources required by the route-less temporary canary. Do not recreate the
-   private schema or staged roles, and do not change ordinary production Worker
-   configuration at this stage.
+   Only then provision the five matching cache-disabled Hyperdrives, R2, and the
+   Queue/DLQ resources required by the route-less temporary canary. Do not
+   recreate the private schema or staged roles, and do not change ordinary
+   production Worker configuration at this stage.
 3. Deploy and attest all six route-less private-canary Worker artifacts — five
    temporary reduced targets plus the no-Hyperdrive harness — then prove exact-SHA
    health/readiness, repeated Hyperdrive private-schema behavior, and real queue

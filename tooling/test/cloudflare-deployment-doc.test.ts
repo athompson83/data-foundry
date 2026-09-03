@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest';
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const README = readFileSync(join(ROOT, 'README.md'), 'utf8');
 const CHECKLIST = readFileSync(join(ROOT, 'PROJECT_CHECKLIST.md'), 'utf8');
+const PROGRESS = readFileSync(join(ROOT, 'PROGRESS.md'), 'utf8');
 const RUNBOOK = readFileSync(
   join(ROOT, 'docs', 'owner-actions', 'cloudflare-deployment.md'),
   'utf8',
@@ -33,6 +34,10 @@ describe('the no-commit Cloudflare deployment check', () => {
       /Any later\s+commit, including documentation-only, creates a\s+new release SHA and requires\s+fresh exact-SHA checks/;
     expect(RUNBOOK).toMatch(laterCommitGate);
     expect(README).toMatch(laterCommitGate);
+    expect(PROGRESS).toMatch(
+      /Every later commit, including\s+documentation-only, creates a new repository SHA and requires fresh exact-SHA\s+local, hosted-CI, review, and ruleset evidence/,
+    );
+    expect(PROGRESS).not.toContain('candidate-affecting change');
     expect(RUNBOOK).not.toContain('Any PR #26 head may merge normally');
     expect(RUNBOOK).not.toContain(
       'Do not add a\n   documentation-only follow-up commit after that verification.',
@@ -186,7 +191,7 @@ describe('the no-commit Cloudflare deployment check', () => {
       /Before proceeding to step 2, .*apply only pending `0027` and `0028`.*no-op.*`postMigrationGrants\.verificationSql`.*full `0001`–`0028`\s+ledger, relation\/routine inventory, ownership, ACL, and 57 function search\s+paths before any new credential, Hyperdrive, R2, or Queue provisioning/s,
     );
     expect(PRODUCTION_LAUNCH_ORDER).toMatch(
-      /Activate the five existing staged `NOLOGIN` runtime roles with isolated\s+least-privilege login credentials, then execute that exact SHA's\s+`postMigrationGrants\.postCredentialVerificationSql` and require it to pass\.\s+Only then provision the five matching Hyperdrives, R2, and the Queue\/DLQ\s+resources/,
+      /Activate the five existing staged `NOLOGIN` runtime roles with isolated\s+least-privilege login credentials, then execute that exact SHA's\s+`postMigrationGrants\.postCredentialVerificationSql` and require it to pass\.\s+Only then provision the five matching cache-disabled Hyperdrives, R2, and the\s+Queue\/DLQ\s+resources/,
     );
     expect(PRODUCTION_LAUNCH_ORDER).not.toMatch(/Provision the isolated Alpha Lab roles\/schema/);
     expect(PRODUCTION_LAUNCH_ORDER).not.toMatch(/merged through migration\s+`0026`/);
@@ -199,5 +204,8 @@ describe('the no-commit Cloudflare deployment check', () => {
     );
     expect(ua002).not.toMatch(/activate all five staged runtime roles.*before .*verificationSql/i);
     expect(ua002).not.toMatch(/create .*Hyperdrives.*before .*post-credential/i);
+    expect(RUNBOOK).toMatch(
+      /only then create exactly five cache-disabled TLS Hyperdrives—one for each\s+edge, web, usage-consumer, acquisition-worker, and MCP role/,
+    );
   });
 });

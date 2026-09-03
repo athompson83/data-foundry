@@ -19,9 +19,10 @@
   one request-wide query snapshot, and database-free request pre-routing.
   Its exact head `501b33d08fafe5cdf1c9c0c9877f0b38b4b265c0` passed hosted run
   `33352124668`, both automated reviews, and sealed security scan
-  `24b34cd2-2f8d-40ae-bfd2-f4460daa419f`. Every later
-  candidate-affecting change still requires fresh exact-SHA local, hosted,
-  review, and ruleset evidence. The Alpha Lab isolation branch merged as
+  `24b34cd2-2f8d-40ae-bfd2-f4460daa419f`. Every later commit, including
+  documentation-only, creates a new repository SHA and requires fresh exact-SHA
+  local, hosted-CI, review, and ruleset evidence before it can be designated for
+  provider action. The Alpha Lab isolation branch merged as
   `290df1342094433e92978ec97eb37cc02fc4eb50`; PR #24 (`/docs` page names the
   API contract) merged as `5dde773a4b64a8e004ca429706100399a678cf74`.
   PR #26 then merged normally as
