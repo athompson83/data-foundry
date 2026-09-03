@@ -78,10 +78,13 @@ describe('private-canary provenance documentation', () => {
     }
   });
 
-  it('records that the final candidate cannot be followed by a documentation-only commit', () => {
-    const prohibition = /Do\s+not add a\s+documentation-only follow-up commit after that verification\./;
-    expect(RUNBOOK).toMatch(prohibition);
-    expect(RECONCILIATION).toMatch(prohibition);
+  it('requires any later commit to receive fresh exact-SHA verification', () => {
+    expect(RUNBOOK).toMatch(
+      /Any later\s+commit, including documentation-only, creates a new release SHA and requires\s+fresh exact-SHA checks/,
+    );
+    expect(RECONCILIATION).toMatch(
+      /Do\s+not add a\s+documentation-only follow-up commit after that verification\./,
+    );
   });
 
   it('keeps hosted history separate from the pending 0027 and 0028 repairs', () => {

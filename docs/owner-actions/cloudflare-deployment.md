@@ -39,18 +39,22 @@ canary:
    Never select one from a later checkout or infer artifact identity from
    source-path equivalence.
 
-   Any PR #26 head may merge normally after fresh exact-head checks/reviews meet
-   the active `main` ruleset. Before any provider action, its merged/reviewed SHA
-   must contain the runtime code, tests, six-artifact gate, and aligned
-   documentation, and a clean checkout
-   of that exact SHA must run `pnpm cloudflare:artifacts:check`, which dry-runs
+   PR #26 merged normally into protected `main` as
+   `02e90d70d0000d21c7f9b070b4e1b2e1d5dd7493` from reviewed head
+   `8a43b7f7600fef10c1b26f0281a4c087f8610373`. That proves repository
+   convergence only; it does not designate a Worker release candidate or
+   authorize provider activity. Before any provider action, freeze the then-live
+   40-character `origin/main` SHA and verify that it contains the runtime code,
+   tests, six-artifact gate, and aligned documentation. A clean checkout of that
+   exact SHA must run `pnpm cloudflare:artifacts:check`, which dry-runs
    and scans all six route-less private-canary Worker artifacts: five reduced
    target Workers plus the private-canary harness (without Hyperdrive). The
    target profiles receive only synthetic Hyperdrive configuration for the
    credential-free artifact build; the harness receives none. A missing target
    entrypoint, manifest, or generated artifact directory fails the gate closed.
-   This is repository provenance, not provider deployment evidence. Do not add a
-   documentation-only follow-up commit after that verification.
+   This is repository provenance, not provider deployment evidence. Any later
+   commit, including documentation-only, creates a new release SHA and requires
+   fresh exact-SHA checks before designation or deployment.
 
    A provider-side containment result is still required before a deployment or
    any new credential-bearing migration/recovery action. If sanitized evidence
@@ -77,13 +81,16 @@ canary:
    payload. It is an input to the separately provider-authorized direct-TLS
    procedure after the pending direct migration. It does not authorize provider
    activity during repository-only work.
-2. Create five distinct least-privilege runtime identities/passwords through
-   the approved secure interface, then create exactly five TLS Hyperdrives—one
-   for each edge, web, usage-consumer, acquisition-worker, and MCP role. Never
-   bind the migration principal to a Worker. Read back the hosted ledger,
-   private schema, five roles, 57 expected function signatures with exact
+2. After migration verification, activate the five existing staged runtime
+   roles with distinct least-privilege passwords through the approved secure
+   interface. Run that exact SHA's
+   `postMigrationGrants.postCredentialVerificationSql` and require it to pass;
+   only then create exactly five TLS Hyperdrives—one for each edge, web,
+   usage-consumer, acquisition-worker, and MCP role. Never bind the migration
+   principal to a Worker. The verifier must read back the hosted ledger, private
+   schema, five roles, 57 expected function signatures with exact
    `data_foundry, pg_catalog, extensions` function paths, and 199 exact grants
-   before creating any Hyperdrive.
+   before any Hyperdrive is created.
 3. Preserve the existing `data-foundry-usage-events` and
    `data-foundry-usage-events-dlq` queues unchanged at 1,209,600 seconds
    (14 days). Only the ordinary `data-foundry-usage-consumer` consumes
@@ -199,22 +206,28 @@ The conventional `wrangler.production.toml` procedure and all public
 hostname/cutover steps below are later-production controls. They are not an
 alternative canary route for this workstream.
 
-Protected `main` contains the ordinary five-Worker production topology:
+Protected `main` contains the ordinary five-Worker production topology and
+repository migrations through `0028`:
 `apps/edge`, `apps/web`, `apps/usage-consumer`,
 `apps/acquisition-worker`, and `apps/mcp-worker`, including the PR #22 closeout
-merged as `9c917c0f708352dfb79861110023145eb23806e3`. No production
+merged as `9c917c0f708352dfb79861110023145eb23806e3` and the PR #26
+release-boundary work merged as
+`02e90d70d0000d21c7f9b070b4e1b2e1d5dd7493`. No production
 deployment of the integrated protected-main tree is recorded or verified. It is
 separate from the temporary six-artifact private-canary topology above: five
 reduced dedicated targets plus the no-Hyperdrive harness.
-Wrangler is unauthenticated in the verification environment; exact deployment
-IDs and runtime probes remain owner/platform evidence. Repository state is not
-proof that Cloudflare resources or real-source rights have been provisioned.
+Wrangler authentication is available in the current verification environment,
+but provider-side containment `UA-006` explicitly blocks using it for mutation
+or deployment. Authentication is not authorization: exact deployment IDs and
+runtime probes remain owner/platform evidence, and repository state is not proof
+that Cloudflare resources or real-source rights have been provisioned.
 The [redacted 2026-08-31 provider reconciliation](../evidence/alpha-lab-provider-reconciliation-20260831.md)
 records the read-only Alpha Lab, Cloudflare, and Vercel observations behind this
 runbook; it is not deployment or runtime proof.
 
-The minimal owner/platform work is: choose the canonical account/zone and
-database; provision Hyperdrive, one raw-artifact R2 bucket, the preserved
+The minimal owner/platform work is: clear `UA-006`, confirm the canonical
+account/zone and staged Alpha Lab database, apply the pending exact-SHA database
+procedure, then provision Hyperdrive, one raw-artifact R2 bucket, the preserved
 ordinary usage Queue/DLQ, all five dedicated temporary canary queues (the
 synthetic-metering Queue/DLQ pair and control ingress/DLQ/quarantine chain), and
 first the six temporary private-canary Workers, then only later the five ordinary

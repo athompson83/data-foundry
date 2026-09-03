@@ -435,8 +435,9 @@ validation. Repository migrations `0027`–`0028` extend the historical hosted
 `0001`–`0026` chain and remain pending hosted authorization/application; the dated hosted record still
 truthfully reports 26 applied migrations and 57 search-path warnings. That
 repository attestation does not authorize a deployment, hosted migration, or
-provider mutation; do not add a documentation-only follow-up commit after that
-verification.
+provider mutation. Any later commit, including documentation-only, creates a
+new release SHA and requires fresh exact-SHA checks before designation or
+provider action.
 
 ```bash
 pnpm verticals:compile        # emit apps/edge/generated/<slug>.runtime.json

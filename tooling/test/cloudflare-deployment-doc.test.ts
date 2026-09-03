@@ -4,6 +4,8 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
+const README = readFileSync(join(ROOT, 'README.md'), 'utf8');
+const CHECKLIST = readFileSync(join(ROOT, 'PROJECT_CHECKLIST.md'), 'utf8');
 const RUNBOOK = readFileSync(
   join(ROOT, 'docs', 'owner-actions', 'cloudflare-deployment.md'),
   'utf8',
@@ -18,14 +20,33 @@ describe('the no-commit Cloudflare deployment check', () => {
     expect(RUNBOOK).not.toContain(`git diff --exit-code -- ${TRACKED_MANIFESTS}`);
   });
 
-  it('does not treat a historical runtime-fix or pre-repair head as a deployable candidate', () => {
+  it('records the protected PR merge without treating any repository SHA as deployed', () => {
     expect(RUNBOOK).toMatch(
       /Containment is a provider-side gate; repository remediation continues\s+in\s+parallel\. Repository state alone designates no Worker release candidate\./,
     );
     expect(RUNBOOK).toContain('`effa3ec82c96e8f68d21ddc4d2b32919497dbddb`');
+    expect(RUNBOOK).toMatch(
+      /PR #26 merged normally into protected `main` as\s+`02e90d70d0000d21c7f9b070b4e1b2e1d5dd7493` from reviewed head\s+`8a43b7f7600fef10c1b26f0281a4c087f8610373`/,
+    );
     expect(RUNBOOK).toMatch(/all six\s+route-less private-canary Worker artifacts/);
-    expect(RUNBOOK).toContain('Do not add a\n   documentation-only follow-up commit after that verification.');
+    const laterCommitGate =
+      /Any later\s+commit, including documentation-only, creates a\s+new release SHA and requires\s+fresh exact-SHA checks/;
+    expect(RUNBOOK).toMatch(laterCommitGate);
+    expect(README).toMatch(laterCommitGate);
+    expect(RUNBOOK).not.toContain('Any PR #26 head may merge normally');
+    expect(RUNBOOK).not.toContain(
+      'Do not add a\n   documentation-only follow-up commit after that verification.',
+    );
+    expect(README).not.toMatch(/do not add a documentation-only follow-up commit/i);
     expect(RUNBOOK).not.toContain('either make a clean checkout with `HEAD=df4a665...`');
+  });
+
+  it('does not mistake available Wrangler authentication for provider authorization', () => {
+    expect(RUNBOOK).toMatch(
+      /Wrangler authentication is available in the current verification environment,\s+but provider-side containment `UA-006` explicitly blocks using it for mutation\s+or deployment\./,
+    );
+    expect(RUNBOOK).toContain('Authentication is not authorization');
+    expect(RUNBOOK).not.toContain('Wrangler is unauthenticated in the verification environment');
   });
 
   it('keeps reduced target creation, cleanup, and rollback isolated from ordinary Workers', () => {
@@ -169,5 +190,14 @@ describe('the no-commit Cloudflare deployment check', () => {
     );
     expect(PRODUCTION_LAUNCH_ORDER).not.toMatch(/Provision the isolated Alpha Lab roles\/schema/);
     expect(PRODUCTION_LAUNCH_ORDER).not.toMatch(/merged through migration\s+`0026`/);
+  });
+
+  it('keeps both owner-checklist verifiers in the canonical credential sequence', () => {
+    const ua002 = CHECKLIST.split(/\r?\n/).find((line) => line.startsWith('| UA-002 |')) ?? '';
+    expect(ua002).toMatch(
+      /apply only pending migrations.*run the exact `postMigrationGrants\.verificationSql` and require it to pass.*activate all five staged runtime roles.*run the exact `postMigrationGrants\.postCredentialVerificationSql` and require it to pass.*only then create the five matching cache-disabled Hyperdrives/i,
+    );
+    expect(ua002).not.toMatch(/activate all five staged runtime roles.*before .*verificationSql/i);
+    expect(ua002).not.toMatch(/create .*Hyperdrives.*before .*post-credential/i);
   });
 });
