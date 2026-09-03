@@ -94,12 +94,15 @@
   artifacts. Protected-main push run `33698213600` also passed both required
   jobs. None of this is live provider evidence.
 - No provider, source, rights, billing, DNS, or deployment state changed. The
-  hosted target still needs `UA-006`, a secure `df_migration` credential and
-  canonical role setting, a read-only cross-database topology result, pending
-  migrations `0027`–`0028`, `postMigrationGrants.verificationSql`, five runtime
-  credentials, `postMigrationGrants.postCredentialVerificationSql`, a
-  successful five-path `pnpm runtime-roles:postgres:check`, five cache-disabled
-  Hyperdrives, and the private canary before any public deployment.
+  hosted target still needs `UA-006`, a secure `df_migration` credential with
+  the exact current-database `data_foundry, pg_catalog, extensions` search path,
+  a read-only cross-database topology result, pending
+  migrations `0027`–`0028`, `postMigrationGrants.verificationSql`, five distinct
+  runtime-role credentials with that same exact current-database search path,
+  `postMigrationGrants.postCredentialVerificationSql`, a successful five-path
+  `pnpm runtime-roles:postgres:check`, five cache-disabled Hyperdrives, five
+  separate 14-day private-canary queues, both required R2 buckets, and the
+  private canary before any public deployment.
 
 ## Previous Session — Hosted Private-Schema Migration and Grant Activation
 
@@ -369,14 +372,18 @@ not mean deployed or commercially publishable.
   owner/provider topology blocker rather than a condition automation may
   normalize on the shared project.
 - The current public data hostname is a Vercel 404, not a Data Foundry runtime.
-- Secure `df_migration` credential entry, the pending exact-SHA migrations,
-  `postMigrationGrants.verificationSql`, then secure activation of all five
-  runtime-role credentials, `postMigrationGrants.postCredentialVerificationSql`,
-  a successful five-path `pnpm runtime-roles:postgres:check`, and five
-  cache-disabled Hyperdrives are needed in that order before the route-less
-  canary can run;
-  preserve and reverify the standard usage model and ordinary 14-day queues;
-  provision the absent raw-artifact and canary receipt buckets.
+- Secure `df_migration` credential entry with the exact current-database
+  `data_foundry, pg_catalog, extensions` search path, the pending exact-SHA
+  migrations, `postMigrationGrants.verificationSql`, then secure activation of
+  all five runtime-role credentials, each distinct and using that same exact
+  current-database search path,
+  `postMigrationGrants.postCredentialVerificationSql`, a successful five-path
+  `pnpm runtime-roles:postgres:check`, five cache-disabled Hyperdrives, five
+  separate private-canary queues with 14-day retention, and the absent
+  raw-artifact and canary receipt buckets are needed in that order before the
+  route-less canary can run. Preserve and reverify the standard usage model and
+  ordinary 14-day Queue/DLQ pair; never reuse that ordinary pair for any
+  private-canary path.
 - Public sitemap rate limiting and its ordinary-crawler bypass policy have not
   been configured or verified on the canonical Cloudflare account.
 - No real HVAC source has the required exact grants and human rights review.

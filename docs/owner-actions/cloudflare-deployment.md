@@ -232,15 +232,22 @@ records the read-only Alpha Lab, Cloudflare, and Vercel observations behind this
 runbook; it is not deployment or runtime proof.
 
 The minimal owner/platform work is: clear `UA-006`, confirm the canonical
-account/zone and staged Alpha Lab database, apply the pending exact-SHA database
-procedure, then provision Hyperdrive, one raw-artifact R2 bucket, the preserved
-ordinary usage Queue/DLQ, all five dedicated temporary canary queues (the
-synthetic-metering Queue/DLQ pair and control ingress/DLQ/quarantine chain), and
-first the six temporary private-canary Workers, then only later the five ordinary
-production Workers; set protected values without exposing them; then prove the
-exact deployed SHA, rights behavior, Queue persistence, Cron/R2 acquisition,
-and emergency public-cache purge. RapidAPI and MCP live-channel proof are
-separate external gates.
+account/zone and staged Alpha Lab database, securely activate only the controlled
+`df_migration` credential and exact database-scoped path, apply the pending
+exact-SHA database procedure and require `postMigrationGrants.verificationSql`
+to pass; only then
+activate the five staged runtime roles with distinct credentials and the exact
+database-scoped path, require both
+`postMigrationGrants.postCredentialVerificationSql` and the five direct
+`pnpm runtime-roles:postgres:check` credential probes to pass, and provision the
+five matching cache-disabled Hyperdrives. Then provision one raw-artifact R2
+bucket, preserve the ordinary usage Queue/DLQ, create all five dedicated
+temporary canary queues (the synthetic-metering Queue/DLQ pair and control
+ingress/DLQ/quarantine chain), and deploy first the six temporary private-canary
+Workers, then only later the five ordinary production Workers. Set protected
+values without exposing them; then prove the exact deployed SHA, rights
+behavior, Queue persistence, Cron/R2 acquisition, and emergency public-cache
+purge. RapidAPI and MCP live-channel proof are separate external gates.
 
 The production database is Alpha Lab's shared Supabase project
 `fgxinxaqkwoqyywdgobs`, not Valor. Data Foundry must be installed only in its
@@ -332,12 +339,20 @@ credential must not be committed.
    supplies the connection pool. First prove the account can reach that IPv6
    Direct endpoint, or arrange Supabase IPv4 support before creating a live
    Hyperdrive configuration.
-2. Create a controlled-login migration role that owns only `data_foundry`, and
-   separate least-privilege login roles for edge, web, MCP, usage consumer, and
-   acquisition. No runtime role may own objects, create in the shared `public`
-   schema, or inherit broad roles. Give every role the **database default**
-   search path `data_foundry, pg_catalog, extensions`, and grant only its
-   required `data_foundry` and `extensions` privileges.
+2. Through the secure provider flow, activate only the existing staged
+   `df_migration` role as the controlled migration login; it owns only
+   `data_foundry`. On a fresh installation, create it with that same boundary.
+   Keep the five existing edge, web, MCP, usage-consumer, and acquisition roles
+   staged as separate `NOLOGIN`, passwordless, least-privilege roles. On a fresh
+   installation, create those runtime roles in that same staged state. No
+   runtime role may own objects, create in the shared `public` schema, or
+   inherit broad roles. Give every role the exact
+   **database-scoped default** search path
+   `data_foundry, pg_catalog, extensions`. Do not assign any runtime password or
+   enable runtime `LOGIN` until step 3's pending migrations and
+   `postMigrationGrants.verificationSql` have passed. Follow step 3's distinct
+   fresh-install and exact-legacy grant paths; do not manually invent or
+   normalize runtime object grants.
 
    The direct migration credential must authenticate with both `session_user`
    and `current_user` equal to `df_migration`. Provision it as `LOGIN`,

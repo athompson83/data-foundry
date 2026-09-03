@@ -12,6 +12,9 @@ const RUNBOOK = readFileSync(
   'utf8',
 );
 const PRODUCTION_LAUNCH_ORDER = RUNBOOK.split('## 9. Production launch order')[1] ?? '';
+const CURRENT_WORKSTREAM = RUNBOOK.split('## 1. Cloudflare account')[0] ?? '';
+const HYPERDRIVE_SECTION =
+  RUNBOOK.split('## 2. Hyperdrive binding to Postgres')[1]?.split('## 3. Vercel review')[0] ?? '';
 const TRACKED_MANIFESTS =
   'apps/edge/wrangler.toml apps/web/wrangler.toml apps/usage-consumer/wrangler.toml apps/acquisition-worker/wrangler.toml apps/mcp-worker/wrangler.toml';
 const PR_26_HEAD = '8a43b7f7600fef10c1b26f0281a4c087f8610373';
@@ -193,6 +196,19 @@ describe('the no-commit Cloudflare deployment check', () => {
   });
 
   it('requires the complete 0028 migration chain before new production credentials and resources', () => {
+    expect(CURRENT_WORKSTREAM).toMatch(
+      /securely activate only the controlled\s+`df_migration` credential and exact database-scoped path, apply the pending\s+exact-SHA database procedure and require `postMigrationGrants\.verificationSql`\s+to pass; only then\s+activate the five staged runtime roles with distinct credentials and the exact\s+database-scoped path, require both\s+`postMigrationGrants\.postCredentialVerificationSql` and the five direct\s+`pnpm runtime-roles:postgres:check` credential probes to pass, and provision the\s+five matching cache-disabled Hyperdrives/,
+    );
+    expect(HYPERDRIVE_SECTION).toMatch(
+      /activate only the existing staged\s+`df_migration` role as the controlled migration login; it owns only\s+`data_foundry`/,
+    );
+    expect(HYPERDRIVE_SECTION).toMatch(
+      /Keep the five existing edge, web, MCP, usage-consumer, and acquisition roles\s+staged as separate `NOLOGIN`, passwordless, least-privilege roles/,
+    );
+    expect(HYPERDRIVE_SECTION).toMatch(
+      /Do not assign any runtime password or\s+enable runtime `LOGIN` until step 3's pending migrations and\s+`postMigrationGrants\.verificationSql` have passed/,
+    );
+    expect(HYPERDRIVE_SECTION).not.toContain('separate least-privilege login roles');
     expect(PRODUCTION_LAUNCH_ORDER).toMatch(/baseline .* through migration\s+`0028`/s);
     expect(PRODUCTION_LAUNCH_ORDER).toMatch(
       /Before proceeding to step 2, .*apply only pending `0027` and `0028`.*no-op.*`postMigrationGrants\.verificationSql`.*full `0001`–`0028`\s+ledger, relation\/routine inventory, ownership, ACL, and 57 function search\s+paths before any new credential, Hyperdrive, R2, or Queue provisioning/s,
@@ -222,11 +238,14 @@ describe('the no-commit Cloudflare deployment check', () => {
     );
     const currentState = PROGRESS.split('## Previous Session')[0] ?? '';
     expect(currentState).toMatch(
-      /pending\s+migrations `0027`–`0028`, `postMigrationGrants\.verificationSql`, five runtime\s+credentials, `postMigrationGrants\.postCredentialVerificationSql`, a\s+successful five-path `pnpm runtime-roles:postgres:check`, five cache-disabled\s+Hyperdrives, and the private canary/,
+      /a secure `df_migration` credential with\s+the exact current-database `data_foundry, pg_catalog, extensions` search path,\s+a read-only cross-database topology result, pending\s+migrations `0027`–`0028`, `postMigrationGrants\.verificationSql`, five distinct\s+runtime-role credentials with that same exact current-database search path,\s+`postMigrationGrants\.postCredentialVerificationSql`, a successful five-path\s+`pnpm runtime-roles:postgres:check`, five cache-disabled Hyperdrives, five\s+separate 14-day private-canary queues, both required R2 buckets, and the\s+private canary/,
     );
     const blockers = PROGRESS.split('## Blockers')[1] ?? '';
     expect(blockers).toMatch(
-      /- Secure `df_migration` credential entry, the pending exact-SHA migrations,\s+`postMigrationGrants\.verificationSql`, then secure activation of all five\s+runtime-role credentials, `postMigrationGrants\.postCredentialVerificationSql`,\s+a successful five-path `pnpm runtime-roles:postgres:check`, and five\s+cache-disabled Hyperdrives are needed in that order before the route-less\s+canary can run/,
+      /- Secure `df_migration` credential entry with the exact current-database\s+`data_foundry, pg_catalog, extensions` search path, the pending exact-SHA\s+migrations, `postMigrationGrants\.verificationSql`, then secure activation of\s+all five runtime-role credentials, each distinct and using that same exact\s+current-database search path/,
+    );
+    expect(blockers).toMatch(
+      /runtime-role credentials, each distinct and using that same exact\s+current-database search path,\s+`postMigrationGrants\.postCredentialVerificationSql`, a successful five-path\s+`pnpm runtime-roles:postgres:check`, five cache-disabled Hyperdrives, five\s+separate private-canary queues with 14-day retention, and the absent\s+raw-artifact and canary receipt buckets are needed in that order before the\s+route-less canary can run\. Preserve and reverify the standard usage model and\s+ordinary 14-day Queue\/DLQ pair; never reuse that ordinary pair for any\s+private-canary path/,
     );
   });
 });
