@@ -79,8 +79,11 @@ canary:
    in a transcript. Application migrations remain direct-TLS-only; the only
    permitted export is the credential-free exact-SHA `postMigrationGrants`
    payload. It is an input to the separately provider-authorized direct-TLS
-   procedure after the pending direct migration. It does not authorize provider
-   activity during repository-only work.
+   procedure after the pending direct migration. Through that authorized
+   direct-TLS operator, execute the exact payload's `verificationSql` and
+   require it to pass while all five runtime roles remain staged `NOLOGIN` and
+   passwordless. Only after that result may step 2 activate a runtime role. The
+   payload does not authorize provider activity during repository-only work.
 2. After migration verification, activate the five existing staged runtime
    roles with distinct least-privilege passwords through the approved secure
    interface. Run that exact SHA's

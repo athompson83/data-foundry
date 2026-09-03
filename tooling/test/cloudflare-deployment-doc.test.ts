@@ -237,6 +237,9 @@ describe('the no-commit Cloudflare deployment check', () => {
     expect(RUNBOOK).toMatch(
       /run\s+`pnpm runtime-roles:postgres:check` through all five direct runtime-role\s+credential paths and require all five role checks to pass; only then create\s+exactly five cache-disabled TLS Hyperdrives—one for each edge, web,\s+usage-consumer, acquisition-worker, and MCP role/,
     );
+    expect(CURRENT_WORKSTREAM).toMatch(
+      /Through that authorized\s+direct-TLS operator, execute the exact payload's `verificationSql` and\s+require it to pass while all five runtime roles remain staged `NOLOGIN` and\s+passwordless\. Only after that result may step 2 activate a runtime role/,
+    );
     expect(RUNBOOK).toMatch(
       /The SQL verifier must read back the hosted ledger,\s+private schema, five roles, 57 expected function signatures with exact\s+`data_foundry, pg_catalog, extensions` function paths, and 199 exact grants\./,
     );
