@@ -316,17 +316,20 @@ describe('surface-safe inline evidence', () => {
 });
 
 describe('manual search', () => {
-  it('renders the bare search form as indexable', async () => {
+  it.each(['/hvac/search', '/hvac/search?q=', '/hvac/search?page=1', '/hvac/search?q=&page=1'])('keeps dynamic results and facets noindex at %s', async (url) => {
     const app = await appHandler();
-    const response = await app({ method: 'GET', url: '/hvac/search' });
+    const response = await app({ method: 'GET', url });
     expect(response.status).toBe(200);
     expect(response.body).toContain('<form class="search"');
-    expect(response.body).toContain('name="robots" content="index,follow"');
+    expect(response.body).toContain('Filter specifications');
+    expect(response.body).toContain('<ul class="results">');
+    expect(response.body).toContain('Synthetic Legacy Model');
+    expect(response.body).toContain('name="robots" content="noindex,follow"');
   });
 
-  it('marks a parametrized query noindex — it is a generated, combinatorial view', async () => {
+  it.each(['/hvac/search?q=acme', '/hvac/search?page=2', '/hvac/search?type=equipment_model'])('keeps a query, paginated or typed result view noindex at %s', async (url) => {
     const app = await appHandler();
-    const response = await app({ method: 'GET', url: '/hvac/search?q=acme' });
+    const response = await app({ method: 'GET', url });
     expect(response.status).toBe(200);
     expect(response.body).toContain('name="robots" content="noindex,follow"');
   });

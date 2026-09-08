@@ -79,6 +79,12 @@ provider deployment.
 
 ## Compatibility
 
+Source-scoped lookup tests membership in every effective current alias claim,
+not the source selected for the alias's display spelling. Migration 0032 appends
+that source-membership projection to `current_entity_aliases`; query runtimes
+keep their existing view-only privileges. Superseded source records, withdrawn
+claims and prior authority epochs do not contribute to the projection.
+
 HVAC's declared alias operations are unchanged; persisted authoritative alias
 keys require no migration for this interpreter move. Compiled ingestion plans
 now include the alias specification, and intermediate normalized payloads use

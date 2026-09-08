@@ -196,7 +196,7 @@ describe('the no-commit Cloudflare deployment check', () => {
   });
 
   it('requires the full candidate migration chain and explicit legacy-grant upgrade before runtime credentials', () => {
-    expect(CURRENT_WORKSTREAM).toContain('currently `0031`');
+    expect(CURRENT_WORKSTREAM).toContain('currently `0032`');
     expect(HYPERDRIVE_SECTION).toContain('postMigrationGrants.upgradeFrom0028Sql');
     expect(HYPERDRIVE_SECTION).toContain('frozen 199-grant');
     expect(HYPERDRIVE_SECTION).toContain('Unknown ACL drift');

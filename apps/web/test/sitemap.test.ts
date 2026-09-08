@@ -60,6 +60,26 @@ afterEach(() => {
 });
 
 describe('sitemapSegmentXml — dataset_landing is gate-checked, not assumed', () => {
+  it('omits the dynamic search route from the generated sitemap index and every segment', async () => {
+    const deployment = await getDeployment({
+      env: { DEPLOYMENT_ENVIRONMENT: 'development', POSTGRES_URL: 'postgres://fixture/db', PUBLIC_ORIGIN: 'https://data-foundry.test' },
+      runtimes: ACTIVE_RUNTIMES,
+      openDriver: openFixtureDriver,
+    });
+    const app = createWebApp(resolveContext(deployment));
+    const index = await app({ method: 'GET', url: '/sitemap-index.xml' });
+    expect(index.status).toBe(200);
+    expect(index.body).not.toContain('/hvac/search');
+    const locations = [...index.body.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]!);
+    expect(locations.length).toBeGreaterThan(0);
+    const segments = await Promise.all(locations.map((url) => app({ method: 'GET', url })));
+    for (const segment of segments) {
+      expect(segment.status).toBe(200);
+      expect(segment.body).not.toContain('/hvac/search');
+    }
+    expect(segments.some((segment) => segment.body.includes('/hvac/docs</loc>'))).toBe(true);
+  });
+
   it('excludes the dataset landing page when the real dataset gate is not met', async () => {
     // hvac's compiled seo.yaml requires min_entities: 25; the shared fixtures
     // seed four. This is the fixture set every other apps/web test already

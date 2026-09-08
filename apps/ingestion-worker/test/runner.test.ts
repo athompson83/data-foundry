@@ -95,7 +95,106 @@ async function unchanged(): Promise<string> {
   return delivery!.id;
 }
 
+async function independentRecord() {
+  const [source] = await factory.driver.query<{ id: string }>("SELECT id FROM sources WHERE domain='www.coolsupply.example.com'");
+  if (!source) throw new Error('missing independent synthetic source');
+  const artifact = await factory.store.recordSourceArtifact({
+    source_id: source.id as never, url: 'https://www.coolsupply.example.com/synthetic-independent.json',
+    retrieved_at: '2026-07-01T00:00:00.000Z' as never, content_hash: 'a'.repeat(64) as never,
+    mime_type: 'application/json', r2_uri: 'r2://test-raw/synthetic-independent' as never,
+    http_status: 200, extractor_version: 'synthetic-independent@1', policy_snapshot_id: null,
+    byte_size: 2, acquisition_provider: 'fixture', acquisition_route: 'BROWSER_RUN',
+    account_or_product_plan: null, acquisition_jurisdiction: null,
+  });
+  const record = await factory.store.recordSourceRecord({
+    source_id: artifact.source_id as never, artifact_id: artifact.id as never,
+    source_record_key: `independent-${crypto.randomUUID()}` as never, source_stream: 'independent_stream',
+    entity_type: 'equipment_model' as never, raw_payload: {}, normalized_payload: {},
+    extraction_confidence: 1 as never, extractor_version: 'synthetic-independent@1',
+  });
+  return { artifact, record };
+}
+
+async function seedCataloguePairs(count: number, sourceRecordId?: string): Promise<string> {
+  const { artifact, record } = await independentRecord();
+  const evidenceArtifact = sourceRecordId === undefined ? artifact : (await factory.driver.query<{ id: string; retrieved_at: string }>(
+    `SELECT artifact.id,artifact.retrieved_at FROM source_artifacts artifact JOIN source_records record ON record.artifact_id=artifact.id
+      WHERE record.id=$1`, [sourceRecordId]))[0]!;
+  const [entity] = await factory.driver.query<{ id: string }>(`INSERT INTO entities
+    (vertical_id,entity_type,canonical_name,canonical_slug,status,first_seen_at)
+    SELECT id,'equipment_model','Unrelated catalogue','unrelated-catalogue','ACTIVE','2026-07-01' FROM verticals
+    WHERE slug='hvac' RETURNING id`);
+  if (!entity) throw new Error('missing unrelated entity');
+  await factory.driver.query(`WITH inserted AS (
+    INSERT INTO facts (entity_id,property,normalized_value,value_type,status,confidence,valid_from,recorded_at,output_kind)
+    SELECT $1,'unrelated_' || n,to_jsonb(n),'integer','ACTIVE',1,'2026-07-01','2026-07-01','NORMALIZED_FACT'
+      FROM generate_series(1,$2::integer) n RETURNING id,property
+    ) INSERT INTO fact_evidence (fact_id,artifact_id,source_record_id,source_value,locator_type,locator_value,observed_at)
+      SELECT id,$3,$4,property,'JSON_POINTER','/' || property,$5 FROM inserted`,
+    [entity.id,count,evidenceArtifact.id,sourceRecordId ?? record.id,evidenceArtifact.retrieved_at]);
+  return entity.id;
+}
+
 describe('durable artifact-first ingestion', () => {
+  it('publishes and verifies a small delivery despite over 10000 unrelated vertical pairs', async () => {
+    const base = JSON.parse(await readFile(`${REPO_ROOT}/verticals/hvac/fixtures/acme-catalog.json`, 'utf8')) as { products: Record<string, unknown>[] };
+    expect(await process(await acquire(JSON.stringify({ products: [base.products[0]] })))).toBe('PUBLISHED');
+    const unrelatedId = await seedCataloguePairs(10_001);
+    const id = await acquire(JSON.stringify({ products: [{ ...base.products[0], net_weight_lb: 181 }] }), new Date(Date.now() + 40 * 86_400_000).toISOString());
+    const errors: unknown[] = [];
+    const result = await process(id, { onError: error => errors.push(error) });
+    expect(errors).toEqual([]);
+    expect(result).toBe('PUBLISHED');
+    expect(await factory.driver.query(`SELECT selected_value FROM fact_verifications WHERE property='weight_lb' ORDER BY evaluated_at DESC LIMIT 1`))
+      .toEqual([{ selected_value: 181 }]);
+    expect(await factory.driver.query('SELECT id FROM fact_verifications WHERE entity_id=$1', [unrelatedId])).toEqual([]);
+    expect((await factory.driver.query('SELECT count(*)::integer AS n FROM facts WHERE entity_id=$1 AND status=\'ACTIVE\'', [unrelatedId]))[0])
+      .toEqual({ n: 10_001 });
+    expect(await process(await unchanged())).toBe('PUBLISHED');
+  });
+
+  it('still refuses excessive affected pairs and rolls back the complete snapshot and publication', async () => {
+    const base = JSON.parse(await readFile(`${REPO_ROOT}/verticals/hvac/fixtures/acme-catalog.json`, 'utf8')) as { products: Record<string, unknown>[] };
+    expect(await process(await acquire(JSON.stringify({ products: [base.products[0]] })))).toBe('PUBLISHED');
+    const [previous] = await factory.driver.query<{ id: string }>('SELECT id FROM source_records WHERE source_record_key=$1 AND is_current', [String(base.products[0]!['sku'])]);
+    if (!previous) throw new Error('missing initial source revision');
+    await seedCataloguePairs(10_001, previous.id);
+    const id = await acquire(JSON.stringify({ products: [{ ...base.products[0], net_weight_lb: 181 }] }), new Date(Date.now() + 40 * 86_400_000).toISOString());
+    expect(await process(id)).toBe('TERMINAL');
+    expect(await factory.driver.query('SELECT id FROM source_records WHERE source_record_key=$1 AND is_current', [String(base.products[0]!['sku'])]))
+      .toEqual([previous]);
+    expect(await factory.driver.query('SELECT id FROM source_stream_snapshot_acceptances')).toHaveLength(1);
+    expect((await factory.driver.query('SELECT status,published_at FROM ingestion_deliveries WHERE id=$1', [id]))[0])
+      .toEqual({ status: 'REFUSED', published_at: null });
+    expect(await factory.driver.query(`SELECT normalized_value FROM facts WHERE property='weight_lb' AND status='ACTIVE' AND valid_to IS NULL`))
+      .toEqual([{ normalized_value: 178 }]);
+  });
+
+  it.each(['omission', 'field removal'] as const)('reselects and verifies a fallback affected by snapshot %s', async mode => {
+    const base = JSON.parse(await readFile(`${REPO_ROOT}/verticals/hvac/fixtures/acme-catalog.json`, 'utf8')) as { products: Record<string, unknown>[] };
+    const products = base.products.slice(0,2);
+    expect(await process(await acquire(JSON.stringify({ products })))).toBe('PUBLISHED');
+    const [previous] = await factory.driver.query<{ entity_id: string }>(`SELECT fact.entity_id FROM facts fact
+      JOIN fact_evidence evidence ON evidence.fact_id=fact.id JOIN source_records record ON record.id=evidence.source_record_id
+      WHERE record.source_record_key=$1 AND fact.property='weight_lb' AND fact.status='ACTIVE'`, [String(products[0]!['sku'])]);
+    if (!previous) throw new Error('missing old weight');
+    const { artifact, record } = await independentRecord();
+    await factory.store.appendFactWithEvidence({ entity_id: previous.entity_id as never, property: 'weight_lb' as never,
+      normalized_value: 999, value_type: 'number', unit: 'lb', status: 'PROPOSED', confidence: 0.9 as never,
+      valid_from: '2026-07-01T00:00:00.000Z' as never, recorded_at: '2026-07-01T00:00:00.000Z' as never },
+    [{ artifact_id: artifact.id as never, source_record_id: record.id, source_value: '999',
+      locator_type: 'JSON_POINTER', locator_value: '/fallback/weight', observed_at: artifact.retrieved_at as never }]);
+    if (mode === 'omission') products.shift();
+    else delete products[0]!['net_weight_lb'];
+    expect(await process(await acquire(JSON.stringify({ products }), new Date(Date.now() + 40 * 86_400_000).toISOString()))).toBe('PUBLISHED');
+    expect(await factory.driver.query(`SELECT normalized_value FROM facts
+      WHERE entity_id=$1 AND property='weight_lb' AND status='ACTIVE' AND valid_to IS NULL`, [previous.entity_id]))
+      .toEqual([{ normalized_value: 999 }]);
+    expect(await factory.driver.query(`SELECT selected_value FROM fact_verifications
+      WHERE entity_id=$1 AND property='weight_lb' ORDER BY evaluated_at DESC LIMIT 1`, [previous.entity_id]))
+      .toEqual([{ selected_value: 999 }]);
+  });
+
   it('publishes the fictional CSV rating fixture with exact table-cell provenance', async () => {
     await seedExactAcquisitionRights(2);
     const id=await acquire(undefined,undefined,{targetIndex:2});

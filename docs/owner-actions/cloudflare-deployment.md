@@ -17,7 +17,7 @@ proves 26 ledgered migrations, objects, ownership, and the then-current 200
 grants for five `NOLOGIN` runtime roles. It also records 57 function-search-path
 warnings. Repository migration `0027` closes those issues locally and `0028`
 adds the four justified rights-path indexes. The 2026-09-08 candidate also adds
-ingestion/operator/alert migrations through `0031`; all remain pending hosted
+ingestion/operator/alert and current-alias projection migrations through `0032`; all remain pending hosted
 authorization and application, so no hosted warning closure is claimed.
 That historical application used the authenticated management SQL connector
 under the owner's preauthorization because direct TLS was unreachable from the
@@ -98,7 +98,7 @@ canary:
    check of the hosted ledger versions/checksums, object
    ownership, role state, and direct ACLs. If and only if that proves the exact
    historical `0001`–`0026` state, set `DATA_FOUNDRY_RELEASE_SHA` to the same SHA
-   and apply only the pending migrations (`0027` through the selected candidate's latest migration, currently `0031`) through direct PostgreSQL TLS
+   and apply only the pending migrations (`0027` through the selected candidate's latest migration, currently `0032`) through direct PostgreSQL TLS
    using the approved secret interface. Do not replay the 26 already-ledgered
    migrations. The direct
    URL must not have query parameters that could override its TLS or host
@@ -463,7 +463,7 @@ credential must not be committed.
    ```
    When the existing ledger is the exact historical `0001`–`0026` prefix, set the
    non-secret exact checked-out release SHA and run the frozen migration runner
-   twice: the first invocation applies only pending `0027` through the selected candidate's latest migration (currently `0031`); the second
+   twice: the first invocation applies only pending `0027` through the selected candidate's latest migration (currently `0032`); the second
    proves the full candidate migration chain is already applied.
    ```powershell
    $env:DATA_FOUNDRY_SCHEMA = "data_foundry"
@@ -1212,13 +1212,13 @@ commercial gate.
 ## 9. Production launch order
 
 1. Freeze the live 40-character protected-main SHA and rerun its release gates;
-   use the candidate's complete migration chain, currently through `0031`,
+   use the candidate's complete migration chain, currently through `0032`,
    and the generated current role inventory. That repository baseline authorizes no Alpha Lab mutation. Before
    proceeding to step 2 and only after `UA-006`, securely activate only the
    staged `df_migration` role as the controlled login with its exact
    database-scoped path, verify the cluster boundary, reconcile the hosted
    `0001`–`0026` ledger, then use `DATA_FOUNDRY_SCHEMA=data_foundry` to apply only
-   pending `0027` through the selected candidate's latest migration (currently `0031`) in Alpha Lab's private `data_foundry` schema, never
+   pending `0027` through the selected candidate's latest migration (currently `0032`) in Alpha Lab's private `data_foundry` schema, never
    in `public`; rerun the migration as a no-op. Preserve the five existing staged
    identities and stage `df_ingestion` as the sixth passwordless `NOLOGIN` role.
    Apply that exact SHA's additive `postMigrationGrants.upgradeFrom0028Sql`
@@ -1271,7 +1271,7 @@ invalidation to exact rights effective and expiry state.
 
 This is a second phase on the **same** temporary `data-foundry-private-canary-ingestion-worker` identity. The six ordinary plus seven receipt-phase artifacts remain thirteen core configurations. `wrangler.synthetic-ingestion.toml` is an explicitly separate **fourteenth configuration**, built by `pnpm cloudflare:synthetic-ingestion:artifacts:check`. Its queue-only entrypoint has no HTTP, Cron, producer, email, receipt writer or external acquisition path. It does not dispatch the ordinary outbox. Successful local builds and fixture tests do not prove this phase on Cloudflare.
 
-1. Finish and retain the source-free seven-Worker receipt-v2 proof first, then suspend the harness for the entire ingestion phase. Use the exact candidate's complete 31-migration ledger, current grant inventory and verified `df_ingestion` Hyperdrive. The ordinary ingestion Worker remains undeployed while synthetic deliveries are pending; otherwise its dispatcher can publish them to the ordinary queue.
+1. Finish and retain the source-free seven-Worker receipt-v2 proof first, then suspend the harness for the entire ingestion phase. Use the exact candidate's complete 32-migration ledger, current grant inventory and verified `df_ingestion` Hyperdrive. The ordinary ingestion Worker remains undeployed while synthetic deliveries are pending; otherwise its dispatcher can publish them to the ordinary queue.
 2. Run `pnpm cloudflare:synthetic-ingestion:check -- --manifest` for a closed, hash-checked manifest of exactly `acme-hvac-catalog` JSON and the fictional `ahri-directory-export` CSV. This prints only repository fixture paths, source keys, sizes, hashes and canonical object keys. It performs no provider or database writes. These are synthetic controls and confer no permission for the real AHRI directory.
 3. After explicit provider authorization, stage only these exact bytes in private `data-foundry-private-ingestion-artifacts`. Create isolated `data-foundry-private-ingestion` and `data-foundry-private-ingestion-dlq` queues with 14-day retention; neither may share the ordinary ingestion/usage queues or receipt-phase queues/bucket. Keep raw-object metadata consistent with the ordinary R2 artifact contract. Do not substitute uploaded user content, real-source bytes or arbitrary artifact keys.
 4. Stage synthetic rights, acquisition observations, immutable artifact links and corresponding ingestion outbox records through the existing guarded database operations. Each delivery must reference exactly one successful `FETCHED` artifact matching the manifest, the current ingestion runtime digest and the fictional source. Keep fixture rights limited to internal processing. Record these staged delivery IDs and expected entity/fact/evidence counts for review. This staging is a separate authorized database operation; the manifest command does not perform it.

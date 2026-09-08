@@ -48,8 +48,8 @@ const RELEASE_SHA = /^[0-9a-f]{40}$/;
 const VERSION = /^\d{4}$/;
 const MIGRATION_FILENAME = /^(\d{4})_[a-z0-9_]+\.sql$/;
 const SHA256 = /^[0-9a-f]{64}$/;
-const EXPECTED_REPOSITORY_MIGRATION_COUNT = 31;
-const EXPECTED_TERMINAL_VERSION = '0031';
+const EXPECTED_REPOSITORY_MIGRATION_COUNT = 32;
+const EXPECTED_TERMINAL_VERSION = '0032';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPOSITORY_ROOT = resolve(HERE, '..', '..');
 const execFileAsync = promisify(execFile);
@@ -1211,7 +1211,7 @@ ${expectedRows}
   SELECT count(*) + ABS((SELECT count(*) FROM ${ledger}) - ${migrations.length})
     INTO prerequisite_drift_count FROM differences;
   IF prerequisite_drift_count <> 0 THEN
-    RAISE EXCEPTION 'Runtime grants require the canonical full application ledger 0001 through 0031.';
+    RAISE EXCEPTION 'Runtime grants require the canonical full application ledger 0001 through 0032.';
   END IF;
 
   IF (SELECT pg_get_userbyid(n.nspowner) FROM pg_namespace n WHERE n.nspname = ${sqlLiteral(schema)})

@@ -237,7 +237,7 @@ export async function processIngestionDelivery(input: ProcessDeliveryInput): Pro
       };
       const pipeline = new ArtifactPipeline({ driver: pinned, config, providers: new AcquisitionProviderRegistry(),
         artifactStore, fixtures: [], now: at, runId: claim.id, maxRecords: INGESTION_LIMITS.maxRecords,
-        maxPromotions: 10_000, promoteBeforePublished: true, persistedGovernanceOnly: true,
+        maxPromotions: 10_000, promotionScope: 'AFFECTED_RECORDS', promoteBeforePublished: true, persistedGovernanceOnly: true,
         processingRuntimeDigest: claim.runtimeDigest, verifiedAt: run.freshAt! });
       const result = await pipeline.runArtifacts(run.sourceKey, { targetUrl: run.targetUrl,
         fetchedAt: run.freshAt!, artifacts });

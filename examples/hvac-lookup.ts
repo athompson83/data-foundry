@@ -12,21 +12,21 @@ class LookupError extends Error {}
 export async function lookupEquipment(model: string, env: NodeJS.ProcessEnv = process.env) {
   if (!model.trim() || model.length > 512) throw new LookupError('Provide a model number up to 512 characters.');
   let base: URL;
-  try { base = new URL(env.DATA_FOUNDRY_API_BASE_URL ?? ''); } catch { throw new LookupError('Configure the verified API origin in DATA_FOUNDRY_API_BASE_URL.'); }
+  try { base = new URL(env['DATA_FOUNDRY_API_BASE_URL'] ?? ''); } catch { throw new LookupError('Configure the verified API origin in DATA_FOUNDRY_API_BASE_URL.'); }
   const local = base.protocol === 'http:' && ['127.0.0.1', 'localhost'].includes(base.hostname);
   if ((!local && base.protocol !== 'https:') || base.username || base.password || base.search || base.hash || !['', '/'].includes(base.pathname)) throw new LookupError('Use an HTTPS API origin without credentials, a path, or query parameters.');
-  const mode = env.DATA_FOUNDRY_AUTH_MODE ?? 'direct';
+  const mode = env['DATA_FOUNDRY_AUTH_MODE'] ?? 'direct';
   const headers: Record<string, string> = { accept: 'application/json' };
   let key: string;
   if (mode === 'rapidapi') {
-    key = env.RAPIDAPI_KEY ?? '';
-    if (base.hostname !== env.RAPIDAPI_HOST || !base.hostname.endsWith('.p.rapidapi.com')) throw new LookupError('RapidAPI host must match the verified marketplace origin.');
+    key = env['RAPIDAPI_KEY'] ?? '';
+    if (base.hostname !== env['RAPIDAPI_HOST'] || !base.hostname.endsWith('.p.rapidapi.com')) throw new LookupError('RapidAPI host must match the verified marketplace origin.');
     headers['x-rapidapi-key'] = key;
     headers['x-rapidapi-host'] = base.hostname;
   } else if (mode === 'direct') {
     if (base.hostname.endsWith('.p.rapidapi.com')) throw new LookupError('Use rapidapi authentication for a marketplace host.');
-    key = env.DATA_FOUNDRY_API_KEY ?? '';
-    headers.authorization = `Bearer ${key}`;
+    key = env['DATA_FOUNDRY_API_KEY'] ?? '';
+    headers['authorization'] = `Bearer ${key}`;
   } else throw new LookupError('Choose direct or rapidapi authentication.');
   if (!key || /[\r\n]/.test(key)) throw new LookupError('Configure the key for the selected authentication mode.');
 
@@ -67,7 +67,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   try {
     const result = await lookupEquipment(process.argv[2] ?? '');
     let output = JSON.stringify(result, null, 2);
-    for (const key of [process.env.DATA_FOUNDRY_API_KEY, process.env.RAPIDAPI_KEY]) if (key) output = output.replaceAll(key, '[redacted]');
+    for (const key of [process.env['DATA_FOUNDRY_API_KEY'], process.env['RAPIDAPI_KEY']]) if (key) output = output.replaceAll(key, '[redacted]');
     process.stdout.write(`${output}\n`);
   } catch (error) {
     process.stderr.write(`${error instanceof LookupError ? error.message : 'Lookup could not complete. Check the verified origin and service availability.'}\n`);

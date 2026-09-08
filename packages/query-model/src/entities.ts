@@ -125,9 +125,9 @@ export async function lookupByIdentifier(
     values,
     ...(lookup.alias_type === undefined ? {} : { alias_type: lookup.alias_type }),
     ...(lookup.entity_type === undefined ? {} : { entity_type: lookup.entity_type }),
+    ...(lookup.source_id === undefined ? {} : { source_id: lookup.source_id }),
   });
   const matches = found.filter((match) =>
-    (lookup.source_id === undefined || match.alias.source_id === lookup.source_id) &&
     (probes === null || probes.some((probe) => probe.alias_type === match.alias.alias_type &&
       probe.normalized_value === match.alias.normalized_value &&
       (probe.applies_to.length === 0 || probe.applies_to.includes(match.entity.entity_type)))));

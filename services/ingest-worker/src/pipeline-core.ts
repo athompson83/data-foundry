@@ -145,6 +145,8 @@ export interface PipelineOptions {
   /** Production reads governance records; compiling YAML never changes stored approval. */
   readonly persistedGovernanceOnly?: boolean;
   readonly maxPromotions?: number;
+  /** A production delivery only revisits claims whose source-record authority it changes. */
+  readonly promotionScope?: 'VERTICAL' | 'AFFECTED_RECORDS';
   readonly processingRuntimeDigest?: string;
   readonly verifiedAt?: IsoDateTime;
 }
@@ -523,6 +525,7 @@ export class ArtifactPipeline {
   readonly #diagnostics: string[] = [];
   readonly #rightsContexts = new Map<string, ReturnType<typeof loadStoredRightsContext>>();
   readonly #admittedIntents = new Map<string, { source: Source; entry: SourceRegistryEntry; requirement: 'ACTIVE' | 'APPROVED_OR_ACTIVE'; intent: InternalRightsIntent }>();
+  readonly #affectedSourceRecordIds = new Set<string>();
   #rightsAsOf: string | null = null;
 
   #vertical: Vertical | null = null;
@@ -920,6 +923,7 @@ export class ArtifactPipeline {
         diagnostics,
       );
       const resolved = batch.resolved;
+      for (const id of batch.affectedSourceRecordIds) this.#affectedSourceRecordIds.add(id);
       relationshipCount = batch.relationshipCount;
       for (const sourceRecord of batch.sourceRecords) {
         await this.jobs.setSourceRecord(job.id, sourceRecord.id);
@@ -985,22 +989,15 @@ export class ArtifactPipeline {
    * Run the doc-04 cascade over every property that has more than one standing
    * claim and promote the winner to ACTIVE.
    *
-   * This is deliberately a separate pass over the whole vertical rather than
-   * something each source does as it lands. Promoting inside a source's own run
-   * would let ingestion order decide the canonical value, and would close a
-   * rival claim that a later, more authoritative source is about to contradict.
+   * Offline vertical runs use the whole vertical. Production deliveries restrict
+   * the pass to affected source-record claims, including retired revisions and
+   * dependent derived facts. Selection still considers every standing rival for
+   * each affected property, so source ordering cannot decide the winner.
    */
   async promoteCanonicalView(): Promise<number> {
     const policy = this.factSelectionPolicy;
     const now = this.#options.now;
-    const rows = await this.store.driver.query<{ entity_id: string; property: string }>(
-      `SELECT DISTINCT f.entity_id, f.property
-         FROM facts f
-         JOIN entities e ON e.id = f.entity_id
-        WHERE e.vertical_id = $1 AND f.valid_to IS NULL AND f.status <> 'RETRACTED'
-        ORDER BY f.entity_id, f.property LIMIT $2`,
-      [(await this.#ensureVertical()).id, (this.#options.maxPromotions ?? 100_000) + 1],
-    );
+    const rows = await this.#promotionPairs(false);
     if (rows.length > (this.#options.maxPromotions ?? 100_000)) throw new PipelineConfigurationError('INGESTION_PROMOTION_LIMIT');
 
     let promoted = 0;
@@ -1066,6 +1063,40 @@ export class ArtifactPipeline {
     return promoted;
   }
 
+  async #promotionPairs(activeOnly: boolean): Promise<{ entity_id: string; property: string }[]> {
+    const verticalId = (await this.#ensureVertical()).id;
+    const limit = (this.#options.maxPromotions ?? 100_000) + 1;
+    const status = activeOnly ? "f.status = 'ACTIVE'" : "f.status <> 'RETRACTED'";
+    if (this.#options.promotionScope !== 'AFFECTED_RECORDS') {
+      return this.store.driver.query(
+        `SELECT DISTINCT f.entity_id, f.property FROM facts f JOIN entities e ON e.id = f.entity_id
+          WHERE e.vertical_id = $1 AND f.valid_to IS NULL AND ${status}
+          ORDER BY f.entity_id, f.property LIMIT $2`, [verticalId, limit],
+      );
+    }
+    if (this.#affectedSourceRecordIds.size === 0) return [];
+    // Seed from immutable evidence rather than current authority: replaced and
+    // omitted records are precisely the ones that must cause reselection. UNION
+    // also terminates a malformed dependency cycle without repeatedly expanding it.
+    return this.store.driver.query(
+      `WITH RECURSIVE affected_facts(id) AS (
+         SELECT evidence.fact_id FROM fact_evidence evidence
+          WHERE evidence.source_record_id IN (SELECT value::uuid FROM jsonb_array_elements_text($2::jsonb))
+         UNION
+         SELECT dependency.derived_fact_id FROM fact_dependencies dependency
+           JOIN affected_facts input ON input.id = dependency.input_fact_id
+       ), affected_pairs AS (
+         SELECT DISTINCT f.entity_id, f.property FROM affected_facts affected JOIN facts f ON f.id = affected.id
+       )
+       SELECT DISTINCT f.entity_id, f.property FROM affected_pairs affected
+         JOIN facts f ON f.entity_id = affected.entity_id AND f.property = affected.property
+         JOIN entities e ON e.id = f.entity_id
+        WHERE e.vertical_id = $1 AND f.valid_to IS NULL AND ${status}
+        ORDER BY f.entity_id, f.property LIMIT $3`,
+      [verticalId, JSON.stringify([...this.#affectedSourceRecordIds].sort(compareCodeUnits)), limit],
+    );
+  }
+
   /**
    * Record the "Source verified" verdict for every published property.
    *
@@ -1087,14 +1118,7 @@ export class ArtifactPipeline {
   async recordVerificationVerdicts(): Promise<number> {
     const policy = this.factSelectionPolicy;
     const evaluatedAt = this.#options.now;
-    const rows = await this.store.driver.query<{ entity_id: string; property: string }>(
-      `SELECT DISTINCT f.entity_id, f.property
-         FROM facts f
-         JOIN entities e ON e.id = f.entity_id
-        WHERE e.vertical_id = $1 AND f.valid_to IS NULL AND f.status = 'ACTIVE'
-        ORDER BY f.entity_id, f.property LIMIT $2`,
-      [(await this.#ensureVertical()).id, (this.#options.maxPromotions ?? 100_000) + 1],
-    );
+    const rows = await this.#promotionPairs(true);
     if (rows.length > (this.#options.maxPromotions ?? 100_000)) throw new PipelineConfigurationError('INGESTION_VERIFICATION_LIMIT');
 
     let recorded = 0;
@@ -1192,6 +1216,7 @@ export class ArtifactPipeline {
   ): Promise<{
     readonly resolved: readonly ResolvedRecordContext[];
     readonly sourceRecords: readonly SourceRecord[];
+    readonly affectedSourceRecordIds: readonly string[];
     readonly relationshipCount: number;
   }> {
     const prepared = items.map((item): PreparedRecord => {
@@ -1485,6 +1510,13 @@ export class ArtifactPipeline {
       }
 
       const outgoing = await this.#outgoingAliasClaims(source.id, activeLogicalKeys, tx);
+      const priorRecords = this.#options.promotionScope === 'AFFECTED_RECORDS'
+        ? await tx.query<{ id: string }>(
+            `SELECT id FROM source_records WHERE source_id = $1 AND is_current
+              AND source_record_key IN (SELECT value FROM jsonb_array_elements_text($2::jsonb))`,
+            [source.id, JSON.stringify(activeLogicalKeys)],
+          )
+        : [];
       const unheldOutgoing = outgoing.filter((claim) => !aliasLockKeys.has(stableStringify([
         claim.entity_type,
         claim.alias_type,
@@ -1803,6 +1835,7 @@ export class ArtifactPipeline {
       return {
         resolved,
         sourceRecords: [...finalRecords.values()],
+        affectedSourceRecordIds: [...new Set([...priorRecords.map(record => record.id), ...[...finalRecords.values()].map(record => record.id)])],
         relationshipCount,
       };
     });

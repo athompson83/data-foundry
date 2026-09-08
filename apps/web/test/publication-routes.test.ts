@@ -103,7 +103,7 @@ describe('surface-bound vertical publication eligibility', () => {
     });
   });
 
-  it('indexes discovery pages only when the ACTIVE vertical independently has both grants', async () => {
+  it('indexes static discovery with both grants while dynamic search stays noindex', async () => {
     await withApp('ACTIVE', ['PUBLIC_WEB', 'SEARCH_INDEX'], async (app) => {
       const [search, docs, llms, sitemapIndex, datasetSitemap] = await Promise.all([
         app({ method: 'GET', url: '/hvac/search' }),
@@ -113,7 +113,7 @@ describe('surface-bound vertical publication eligibility', () => {
         app({ method: 'GET', url: '/hvac/sitemaps/datasets.xml' }),
       ]);
 
-      expect(search.body).toContain('name="robots" content="index,follow"');
+      expect(search.body).toContain('name="robots" content="noindex,follow"');
       expect(docs.body).toContain('name="robots" content="index,follow"');
       expect(llms.headers['x-robots-tag']).toBeUndefined();
       expect(sitemapIndex.body).toContain('/hvac/sitemaps/');

@@ -64,8 +64,11 @@ manifest and current normalization/derivation rights admit it. Immutable facts,
 artifacts, and provider observation dates are not rewritten.
 
 The first runtime is deliberately bounded: at most 16 artifacts, 1 MiB per
-artifact, 4 MiB total, 1,000 extracted records, and 10,000 fact promotion or
-verification candidates. It processes one bounded manifest per transaction;
+artifact, 4 MiB total, 1,000 extracted records, and 10,000 affected entity/property
+pairs per delivery, including retired revisions and dependent derived facts.
+Unrelated catalog rows do not consume that budget. These limits apply together:
+a dense 1,000-record feed can still exceed the affected-pair limit and be refused.
+It processes one bounded manifest per transaction;
 record-level streaming across larger datasets is not implemented. Exceeding a
 limit refuses the delivery before accepting a partial source snapshot. JSON and
 Each supported source has exactly one acquisition target. The compiler refuses

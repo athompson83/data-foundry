@@ -1,7 +1,7 @@
 {
   "version": 1,
   "vertical_slug": "hvac",
-  "implementation_digest": "97491a2091600ed8c16a233d3a6a2edb00a0d32d1e11cec83e0dfdfd339b6823",
+  "implementation_digest": "7035a2c72b077e595b2786f9f818b73735c6d08809d19efcdc7f795823491151",
   "implementation_inputs": [
     "apps/ingestion-worker/package.json",
     "apps/ingestion-worker/src/runner.ts",
@@ -36,6 +36,7 @@
     "db/migrations/0029_ingestion_delivery.sql",
     "db/migrations/0030_operator_actions.sql",
     "db/migrations/0031_operation_alerts.sql",
+    "db/migrations/0032_current_alias_source_projection.sql",
     "packages/acquisition/package.json",
     "packages/acquisition/src/clock.ts",
     "packages/acquisition/src/errors.ts",
@@ -2877,5 +2878,5 @@
       }
     }
   },
-  "runtime_digest": "82299b3f20ac23f8eaa23e6eab116c3b9e930887b4c0810e798b14ca9cf71fed"
+  "runtime_digest": "a9ebd94e913d3caba61e4eddc512cfc29c5005cdc57902651bd1d9613f7e7845"
 }

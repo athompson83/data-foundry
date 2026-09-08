@@ -31,7 +31,7 @@ Approved plan: ../superpowers/plans/2026-09-08-recurring-revenue-platform.md
 - Closed production telemetry; operator recovery, key revocation and account
   closure; UUID-normalized idempotency and immutable audit including TRUNCATE;
   durable operational incidents and fixed-recipient email, disabled by default.
-- Six runtime roles, 59 functions, 286 grants, 31 migrations; thirteen core
+- Six runtime roles, 59 functions, 286 grants, 32 migrations; thirteen core
   artifacts plus a separate isolated synthetic ingestion profile. Existing
   receipt-only canary capabilities remain restricted.
 - README PR29 presentation incorporated; original operational text preserved at
@@ -105,3 +105,30 @@ first marketplace channel, per the accepted plan.
 Repository and local fixtures do not prove current provider resources, real-source
 permissions, deployed refresh, marketplace billing or revenue. The historical
 Alpha Lab/provider evidence is not presented as a fresh observation.
+
+## PR30 follow-up verification
+
+The first hosted run34240733749 at854683c984508e1728dd5256839127b1128d9e10
+passed real PostgreSQL and failed the ordinary job because the tracked TypeScript
+example was absent from tsconfig. The follow-up includes and typechecks that
+example. Migration0032 preserves view grants while projecting all current alias
+source claims. Production promotion considers only affected entity/property
+pairs, including omitted records, removed fields and dependent facts; the10,000
+pair limit remains per delivery. Search pages are noindex and absent from sitemaps.
+
+- Full follow-up run: 3,447 passed, one failed,220 files,324.25 seconds. The single
+  failure expected0031 in the now0032 deployment runbook. After that assertion
+  repair, the documentation and typecheck coverage suites passed26/26. No second
+  full run is claimed.
+- All14 type/schema/runtime/topology checks passed; all13 core builds and the
+  separate synthetic ingestion profile passed.
+- Source membership, unrelated-catalog scaling, omission/field fallback and
+  search-page regressions are included in that full run.
+- The older31-migration native evidence above remains historical. Exact Git
+  packet and hosted evidence for the follow-up belong to PR30's immutable head.
+
+PR30 remains held: delayed304 baseline selection (comment3959304808) is unresolved.
+OpenAI blocked the delegated validation request. That review path was stopped
+without a reworded or alternative-tool retry; review of854683c is incomplete and
+cannot certify the follow-up. No provider change, public release or paid customer
+is represented by this repository evidence.

@@ -579,7 +579,7 @@ export async function renderSearch(
   vertical: VerticalDeployment,
   publicOrigin: string,
   query: { readonly q?: string; readonly type?: string; readonly params?: URLSearchParams },
-  searchIndexEligible: boolean,
+  _searchIndexEligible: boolean,
 ): Promise<RenderedPage> {
   const seo = vertical.runtime.seo;
   const params = query.params ?? new URLSearchParams({ ...(query.q ? { q: query.q } : {}), ...(query.type ? { type: query.type } : {}) });
@@ -645,10 +645,10 @@ export async function renderSearch(
     title: hasQuery ? `Search results — ${vertical.runtime.vertical_name}` : `Search ${vertical.runtime.vertical_name}`,
     description: `Search evidence-backed ${vertical.runtime.vertical_name} data.`,
     canonicalUrl,
-    // A parametrized result view is a generated, combinatorial page — the same
-    // reasoning `seo.yaml` applies to `filtered_collection`. The bare form
-    // (no query) is the indexable wayfinding hub; a specific query is not.
-    robots: hasQuery ? 'noindex,follow' : robotsFor(seo, searchIndexEligible),
+    // Every search view renders dynamic results and facets, including the bare
+    // route. Keep browse pages out of indexing until their exact rendered
+    // content has an independent indexing proof.
+    robots: 'noindex,follow',
     bodyHtml: body,
     breadcrumbs: [
       { label: 'Data Foundry', href: '/' },

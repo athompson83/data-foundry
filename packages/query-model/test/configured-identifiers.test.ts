@@ -85,6 +85,43 @@ describe('declared identifier lookup', () => {
     expect((await qm.facets({ vertical_id: fixtures.vertical.id })).find((facet) => facet.property === 'specimen_material')?.values).toEqual([{ value: 'copper', count: 1 }]);
     expect((await qm.relationships({ entity_id: ownerId as never, predicate: 'tested_by' })).edges.map((edge) => edge.neighbor.id)).toEqual([laboratoryId]);
   });
+  it('finds every current source behind a shared alias, independent of its display representative', async () => {
+    const value = 'SHARED22';
+    const scopedOwner = await fixtures.store.upsertEntity({ ...fixtures.entity, vertical_id: fixtures.vertical.id, entity_type: 'specimen', canonical_name: 'Shared source specimen', canonical_slug: 'shared-source-specimen' });
+    const alias = await fixtures.store.stageSourceAlias({
+      entity_id: scopedOwner.id, alias_type: 'accession', alias_value: value,
+      normalized_value: value, source_id: fixtures.sources.manufacturer.source.id,
+      identity_confidence: identityConfidence(0.96), valid_from: ts('2026-01-01'), valid_to: null,
+    });
+    for (const source of [fixtures.sources.manufacturer, fixtures.sources.certifier]) {
+      const sourceClaim = await fixtures.store.recordSourceAliasClaim({
+        entity_alias_id: alias.id, asserted_alias_value: value, asserted_normalized_value: value,
+        identity_confidence: identityConfidence(0.96), source_record_id: source.record.id,
+        locator_type: 'JSON_POINTER', locator_value: '/accession',
+      });
+      await fixtures.store.recordEntityEvidence({
+        entity_id: scopedOwner.id, artifact_id: source.artifact.id,
+        source_record_id: source.record.id, entity_alias_claim_id: sourceClaim.id,
+        contribution_role: 'ALIAS', locator_type: 'JSON_POINTER', locator_value: '/accession',
+        observed_at: ts('2026-01-01'),
+      });
+    }
+    const lookup = { vertical_id: fixtures.vertical.id, alias_type: 'accession', value: `LAB:${value}` };
+    for (const source of [fixtures.sources.manufacturer, fixtures.sources.certifier]) {
+      expect((await qm.lookupIdentifier({ ...lookup, source_id: source.source.id })).entities.map((view) => view.entity.id)).toEqual([scopedOwner.id]);
+    }
+    const record = fixtures.sources.certifier.record;
+    await fixtures.driver.transaction((tx) => fixtures.store.reconcileSourceRecord({
+      source_id: record.source_id, artifact_id: record.artifact_id,
+      source_record_key: record.source_record_key, source_stream: record.source_stream ?? 'fixture_records',
+      entity_type: record.entity_type, raw_payload: { ...record.raw_payload, revision: 'replacement' },
+      normalized_payload: record.normalized_payload, extraction_confidence: record.extraction_confidence,
+      extractor_version: record.extractor_version,
+    }, tx, 'e'.repeat(64), ts('2026-08-30')));
+    expect((await qm.lookupIdentifier({ ...lookup, source_id: record.source_id })).entities).toEqual([]);
+    expect((await qm.lookupIdentifier({ ...lookup, source_id: fixtures.sources.manufacturer.source.id })).entities.map((view) => view.entity.id)).toEqual([scopedOwner.id]);
+    await fixtures.store.addAlias({ ...alias, valid_to: ts('2026-08-31') });
+  });
   it('preserves compiled identifiers in authorized and shared-snapshot surface reads', async () => {
     await seedSyntheticSurfaceRights(fixtures, ['PUBLIC_WEB', 'API_PAID', 'RAPIDAPI', 'MCP'], ['manufacturer']);
     for (const channel of ['PUBLIC_WEB', 'API_PAID', 'RAPIDAPI', 'MCP'] as const) {
