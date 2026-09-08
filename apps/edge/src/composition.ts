@@ -1,3 +1,4 @@
+import type { AliasNormalizationSpec } from '@data-foundry/canonical-schema';
 /**
  * The composition root. The one place allowed to reach below the query layer.
  *
@@ -21,13 +22,14 @@ import {
   type SqlDriver,
 } from '@data-foundry/canonical-store';
 import { createQueryModel } from '@data-foundry/query-model';
-import { createApiApp, type ApiHandler } from '@data-foundry/api';
+import { createApiApp, type ApiErrorContext, type ApiHandler } from '@data-foundry/api';
 import type { Slug, VerticalId } from '@data-foundry/canonical-schema';
 import { EdgeConfigurationError, resolveEdgeConfig, type EdgeEnv } from './env.js';
 
 export interface VerticalRuntime {
   readonly vertical_slug: string;
   readonly fields: readonly unknown[];
+  readonly identifier_normalization: AliasNormalizationSpec;
   readonly fact_selection: Readonly<Record<string, unknown>>;
 }
 
@@ -64,7 +66,7 @@ export interface BuildOptions {
     connectionString: string,
     options?: PostgresDriverOptions,
   ) => Promise<SqlDriver>;
-  readonly onError?: (error: unknown, context: { readonly path: string }) => void;
+  readonly onError?: (error: unknown, context: ApiErrorContext) => void;
 }
 
 async function build(options: BuildOptions): Promise<EdgeDeployment> {
@@ -105,7 +107,7 @@ async function build(options: BuildOptions): Promise<EdgeDeployment> {
       );
     }
 
-    const queryModel = createQueryModel(store, { fields: options.runtime.fields as never });
+    const queryModel = createQueryModel(store, { fields: options.runtime.fields as never, identifier_normalization: options.runtime.identifier_normalization });
 
     const app = createApiApp({
       queryModel,
@@ -117,7 +119,7 @@ async function build(options: BuildOptions): Promise<EdgeDeployment> {
       ...(options.onError === undefined
         ? {}
         : {
-            onError: (error: unknown, context: { readonly path: string }) => {
+            onError: (error: unknown, context: ApiErrorContext) => {
               options.onError?.(error, context);
             },
           }),

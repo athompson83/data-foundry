@@ -58,6 +58,11 @@ service = "data-foundry-private-canary-acquisition-worker"
 entrypoint = "PrivateCanaryEntrypoint"
 
 [[services]]
+binding = "INGESTION_CANARY"
+service = "data-foundry-private-canary-ingestion-worker"
+entrypoint = "PrivateCanaryEntrypoint"
+
+[[services]]
 binding = "MCP_CANARY"
 service = "data-foundry-private-canary-mcp-hvac"
 entrypoint = "PrivateCanaryEntrypoint"

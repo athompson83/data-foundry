@@ -17,24 +17,42 @@ const SECURITY = read('SECURITY.md');
 
 describe('private-canary provenance documentation', () => {
   it('keeps every current record from designating a Worker candidate from repository state', () => {
-    for (const [name, text] of Object.entries({ README, CHECKLIST, PROGRESS, RUNBOOK, RECONCILIATION })) {
+    for (const [name, text] of Object.entries({ README, PROGRESS, RUNBOOK, RECONCILIATION })) {
       expect(text, name).toContain('Repository state alone designates no Worker release candidate.');
     }
   });
 
-  it('describes the artifact gate as six route-less artifacts with five targets and one harness', () => {
-    for (const [name, text] of Object.entries({ README, CHECKLIST, PROGRESS, RUNBOOK, RECONCILIATION })) {
-      expect(text, name).toMatch(/six\s+route-less\s+private-canary\s+Worker\s+artifacts/);
-    }
-    expect(README).toContain('five reduced target Workers');
-    expect(RUNBOOK).toContain('private-canary harness (without Hyperdrive)');
-    expect(RECONCILIATION).toContain('historical five-Worker artifact check');
+  it('keeps the concise checklist linked to deployment assurances without recertifying history', () => {
+    expect(CHECKLIST).toContain('docs/owner-actions/cloudflare-deployment.md');
+    expect(CHECKLIST).toContain('Historical PR #26 and hosted September 2 evidence do not certify this expanded topology.');
+    expect(CHECKLIST).toContain('remain separate from source/provider/revenue proof');
   });
 
-  it('distinguishes the ordinary five-Worker topology from the six temporary canary templates', () => {
-    expect(README).toContain(
-      'five ordinary Worker templates and the six route-less private-canary templates',
-    );
+  it('keeps current security and revenue topology counts aligned while retaining historical inventory', () => {
+    expect(SECURITY).toMatch(/six ordinary Worker\s+manifests and seven route-less private-canary artifacts/);
+    expect(SECURITY).toContain('thirteen core artifacts');
+    expect(SECURITY).toContain('fourteenth synthetic ingestion profile');
+    expect(REVENUE).toContain('seven temporary service-bound canary');
+    expect(REVENUE).toContain('all six ordinary Workers');
+    expect(REVENUE).toContain('restore the reduced ingestion profile');
+  });
+
+  it('keeps the current seven-artifact canary separate from historical six-artifact evidence', () => {
+    for (const [name, text] of Object.entries({ README, RUNBOOK })) {
+      expect(text, name).toMatch(/seven\s+route-less\s+private-canary\s+Worker\s+artifacts/);
+    }
+    expect(RUNBOOK).toContain('six reduced');
+    expect(RUNBOOK).toContain('private-canary harness (without Hyperdrive)');
+    expect(RECONCILIATION).toContain('historical five-Worker artifact check');
+    expect(RECONCILIATION).toMatch(/six\s+route-less\s+private-canary\s+Worker\s+artifacts/);
+    expect(RUNBOOK).toContain('data-foundry.private-canary-receipt.v2');
+    expect(RUNBOOK).toContain('It does not prove artifact');
+  });
+
+  it('distinguishes six ordinary templates and six reduced targets plus the harness', () => {
+    expect(RUNBOOK).toContain('six ordinary Workers');
+    expect(RUNBOOK).toContain('thirteen build');
+    expect(RUNBOOK).toContain('df_ingestion');
   });
 
   it('records all five dedicated 14-day canary queues without repurposing the ordinary pair', () => {
@@ -46,7 +64,7 @@ describe('private-canary provenance documentation', () => {
       'data-foundry-private-canary-quarantine',
     ];
 
-    for (const [name, text] of Object.entries({ README, CHECKLIST, PROGRESS, RUNBOOK, RECONCILIATION })) {
+    for (const [name, text] of Object.entries({ README, PROGRESS, RUNBOOK, RECONCILIATION })) {
       for (const queue of dedicatedQueues) {
         expect(text, `${name} should name ${queue}`).toContain(queue);
       }
@@ -60,10 +78,10 @@ describe('private-canary provenance documentation', () => {
   });
 
   it('uses ignored ordinary deployment manifests only as private-canary collision controls', () => {
-    expect(RUNBOOK).toContain('five ignored ordinary deployment manifests as collision controls');
+    expect(RUNBOOK).toContain('six ignored ordinary deployment manifests as collision controls');
     expect(RUNBOOK).toContain('They are not deployment inputs for this canary phase');
-    expect(RUNBOOK).toContain('all five ignored ordinary `wrangler.production.toml` manifests');
-    expect(RUNBOOK).toContain('six ignored canary/harness manifests');
+    expect(RUNBOOK).toContain('all six ignored ordinary `wrangler.production.toml` manifests');
+    expect(RUNBOOK).toContain('seven ignored canary/harness manifests');
     for (const command of [
       'pnpm cloudflare:private-canary:deployment:check',
       'pnpm cloudflare:private-canary:targets:deployment:check',
@@ -71,7 +89,7 @@ describe('private-canary provenance documentation', () => {
     ]) {
       expect(RUNBOOK).toContain(command);
     }
-    for (const app of ['edge', 'web', 'usage-consumer', 'acquisition-worker', 'mcp-worker']) {
+    for (const app of ['edge', 'web', 'usage-consumer', 'acquisition-worker', 'ingestion-worker', 'mcp-worker']) {
       expect(RUNBOOK).toContain(
         `Copy-Item apps/${app}/wrangler.toml apps/${app}/wrangler.production.toml`,
       );
@@ -90,11 +108,12 @@ describe('private-canary provenance documentation', () => {
   it('keeps hosted history separate from the pending 0027 and 0028 repairs', () => {
     for (const [name, text] of Object.entries({ README, CHECKLIST, PROGRESS, RUNBOOK })) {
       expect(text, name).toMatch(/0027/);
-      expect(text, name).toMatch(/0028/);
+      expect(text, name).toMatch(/0028|0027[^\n]*(?:through|–)[^\n]*003[0123]/);
       expect(text, name).toMatch(/pending hosted|pending.*hosted/i);
-      expect(text, name).toMatch(/57 .*warnings|57 .*search path/i);
+      expect(text, name).toMatch(/57[\s\S]{0,80}(?:warnings|search.path)/i);
     }
-    expect(RUNBOOK).toMatch(/apply only the pending migrations \(`0027` and `0028`\)/);
+    expect(RUNBOOK).toContain("apply only the pending migrations (`0027` through the selected candidate's latest migration, currently `0033`)");
+    expect(RUNBOOK).toContain('postMigrationGrants.upgradeFrom0028Sql');
     expect(RUNBOOK).toMatch(/Do not replay the 26 already-ledgered\s+migrations\./);
     expect(RUNBOOK).toMatch(/other 31 INFO notices are non-blocking/);
   });

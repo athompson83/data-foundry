@@ -55,7 +55,10 @@ export class JsonExtractor implements ExtractionProvider {
       });
     }
 
-    const scopes = resolveRecordScopes(document, schema);
+    const scopes = resolveRecordScopes(document, schema, artifact.maxRecords);
+    if (artifact.maxRecords !== undefined && scopes.length > artifact.maxRecords) {
+      throw new ExtractionError('INGESTION_RECORD_LIMIT');
+    }
     const records = scopes.map((scope, ordinal) =>
       buildRecord({
         schema,
@@ -77,7 +80,7 @@ interface JsonScope {
   readonly pointer: string;
 }
 
-function resolveRecordScopes(document: unknown, schema: ExtractionSchema): JsonScope[] {
+function resolveRecordScopes(document: unknown, schema: ExtractionSchema, maxRecords?: number): JsonScope[] {
   const selector = schema.record;
   if (selector.kind === 'whole_document') {
     return [{ node: document, pointer: '' }];
@@ -96,6 +99,7 @@ function resolveRecordScopes(document: unknown, schema: ExtractionSchema): JsonS
     );
   }
   if (Array.isArray(resolved.value)) {
+    if (maxRecords !== undefined && resolved.value.length > maxRecords) throw new ExtractionError('INGESTION_RECORD_LIMIT');
     return resolved.value.map((node, index) => ({
       node,
       pointer: joinJsonPointer(selector.pointer, index),

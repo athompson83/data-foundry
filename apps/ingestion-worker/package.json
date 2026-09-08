@@ -1,0 +1,19 @@
+{
+  "name": "@data-foundry/ingestion-worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Fenced artifact-first Cloudflare ingestion and durable outbox recovery.",
+  "exports": { ".": "./src/index.ts" },
+  "types": "./src/index.ts",
+  "scripts": { "test": "vitest run --root .", "typecheck": "tsc -p tsconfig.json", "dev": "wrangler dev", "deploy": "wrangler deploy" },
+  "dependencies": {
+    "@data-foundry/acquisition": "workspace:*",
+    "@data-foundry/canonical-schema": "workspace:*",
+    "@data-foundry/canonical-store": "workspace:*",
+    "@data-foundry/ingest-worker": "workspace:*",
+    "@data-foundry/private-canary": "workspace:*",
+    "@data-foundry/rights-engine": "workspace:*",
+    "pg": "^8.23.0"
+  }
+}

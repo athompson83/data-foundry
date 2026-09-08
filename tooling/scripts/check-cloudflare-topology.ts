@@ -25,6 +25,12 @@ export const ACQUISITION_CONFIG_PATH = join(
   'acquisition-worker',
   'wrangler.toml',
 );
+export const INGESTION_CONFIG_PATH = join(
+  REPO_ROOT,
+  'apps',
+  'ingestion-worker',
+  'wrangler.toml',
+);
 export const MCP_CONFIG_PATH = join(REPO_ROOT, 'apps', 'mcp-worker', 'wrangler.toml');
 export const PRIVATE_CANARY_CONFIG_PATH = join(REPO_ROOT, 'apps', 'private-canary', 'wrangler.toml');
 export const PRIVATE_CANARY_DEPLOYMENT_CONFIG_PATH = join(
@@ -57,6 +63,12 @@ export const ACQUISITION_PRIVATE_CANARY_CONFIG_PATH = join(
   'acquisition-worker',
   'wrangler.private-canary.toml',
 );
+export const INGESTION_PRIVATE_CANARY_CONFIG_PATH = join(
+  REPO_ROOT,
+  'apps',
+  'ingestion-worker',
+  'wrangler.private-canary.toml',
+);
 export const MCP_PRIVATE_CANARY_CONFIG_PATH = join(
   REPO_ROOT,
   'apps',
@@ -87,6 +99,12 @@ export const ACQUISITION_PRIVATE_CANARY_DEPLOYMENT_CONFIG_PATH = join(
   'acquisition-worker',
   'wrangler.private-canary.production.toml',
 );
+export const INGESTION_PRIVATE_CANARY_DEPLOYMENT_CONFIG_PATH = join(
+  REPO_ROOT,
+  'apps',
+  'ingestion-worker',
+  'wrangler.private-canary.production.toml',
+);
 export const MCP_PRIVATE_CANARY_DEPLOYMENT_CONFIG_PATH = join(
   REPO_ROOT,
   'apps',
@@ -107,10 +125,18 @@ export const ACQUISITION_DEPLOYMENT_CONFIG_PATH = join(
   'acquisition-worker',
   'wrangler.production.toml',
 );
+export const INGESTION_DEPLOYMENT_CONFIG_PATH = join(
+  REPO_ROOT,
+  'apps',
+  'ingestion-worker',
+  'wrangler.production.toml',
+);
 export const MCP_DEPLOYMENT_CONFIG_PATH = join(REPO_ROOT, 'apps', 'mcp-worker', 'wrangler.production.toml');
 
 const USAGE_QUEUE = 'data-foundry-usage-events';
 const USAGE_DLQ = 'data-foundry-usage-events-dlq';
+const INGESTION_QUEUE = 'data-foundry-ingestion';
+const INGESTION_DLQ = 'data-foundry-ingestion-dlq';
 const PRIVATE_CANARY_USAGE_QUEUE = 'data-foundry-private-canary-usage-events';
 const PRIVATE_CANARY_USAGE_DLQ = 'data-foundry-private-canary-usage-events-dlq';
 const PRIVATE_CANARY_QUEUE = 'data-foundry-private-canary-events';
@@ -123,6 +149,7 @@ const PRIVATE_CANARY_TARGET_NAMES = {
   web: 'data-foundry-private-canary-web',
   'usage-consumer': 'data-foundry-private-canary-usage-consumer',
   'acquisition-worker': 'data-foundry-private-canary-acquisition-worker',
+  'ingestion-worker': 'data-foundry-private-canary-ingestion-worker',
   'mcp-worker': 'data-foundry-private-canary-mcp-hvac',
 } as const;
 const PRIVATE_CANARY_SERVICES = [
@@ -130,6 +157,7 @@ const PRIVATE_CANARY_SERVICES = [
   ['WEB_CANARY', PRIVATE_CANARY_TARGET_NAMES.web],
   ['USAGE_CONSUMER_CANARY', PRIVATE_CANARY_TARGET_NAMES['usage-consumer']],
   ['ACQUISITION_CANARY', PRIVATE_CANARY_TARGET_NAMES['acquisition-worker']],
+  ['INGESTION_CANARY', PRIVATE_CANARY_TARGET_NAMES['ingestion-worker']],
   ['MCP_CANARY', PRIVATE_CANARY_TARGET_NAMES['mcp-worker']],
 ] as const;
 const PRIVATE_CANARY_ALLOWED_TOP_LEVEL_FIELDS = new Set([
@@ -182,18 +210,21 @@ export interface CloudflareTopologyOptions {
   readonly consumerConfigPath?: string;
   readonly webConfigPath?: string;
   readonly acquisitionConfigPath?: string;
+  readonly ingestionConfigPath?: string;
   readonly mcpConfigPath?: string;
   /** Test seam for the ignored ordinary deployment manifests used by full canary validation. */
   readonly edgeDeploymentConfigPath?: string;
   readonly consumerDeploymentConfigPath?: string;
   readonly webDeploymentConfigPath?: string;
   readonly acquisitionDeploymentConfigPath?: string;
+  readonly ingestionDeploymentConfigPath?: string;
   readonly mcpDeploymentConfigPath?: string;
   readonly privateCanaryConfigPath?: string;
   readonly edgePrivateCanaryConfigPath?: string;
   readonly consumerPrivateCanaryConfigPath?: string;
   readonly webPrivateCanaryConfigPath?: string;
   readonly acquisitionPrivateCanaryConfigPath?: string;
+  readonly ingestionPrivateCanaryConfigPath?: string;
   readonly mcpPrivateCanaryConfigPath?: string;
 }
 
@@ -310,7 +341,7 @@ function checkRepositoryPolicy(label: string, config: TomlObject, errors: string
 }
 
 /**
- * The private canary is intentionally outside the five database-backed
+ * The private canary is intentionally outside the six database-backed
  * runtime roles. It proves their service-bound capabilities after the usage
  * consumer has placed a fixed synthetic envelope on a dedicated canary DLQ;
  * it must therefore never acquire an HTTP route, Hyperdrive, or usage-DLQ
@@ -332,7 +363,7 @@ function checkPrivateCanaryTopology(config: TomlObject, errors: string[]): void 
     errors.push('private-canary must remain route-less; service bindings and Queues are its only invocation paths.');
   }
   if (valuesAtKey(config, 'hyperdrive').length !== 0) {
-    errors.push('private-canary must not bind Hyperdrive; only the five runtime Workers have role-specific database identities.');
+    errors.push('private-canary must not bind Hyperdrive; only the six runtime Workers have role-specific database identities.');
   }
   if (config['triggers'] !== undefined) {
     errors.push('private-canary must not declare Cron or other scheduled triggers.');
@@ -387,7 +418,7 @@ function checkPrivateCanaryTopology(config: TomlObject, errors: string[]): void 
 
   const services = objects(config['services']);
   if (services.length !== PRIVATE_CANARY_SERVICES.length) {
-    errors.push('private-canary must declare exactly five named RPC service bindings.');
+    errors.push('private-canary must declare exactly six named RPC service bindings.');
   }
   for (const [bindingName, serviceName] of PRIVATE_CANARY_SERVICES) {
     const binding = services.find((candidate) => candidate['binding'] === bindingName);
@@ -473,6 +504,18 @@ async function loadPrivateCanaryTargets(
       queueTopology: 'none',
     },
     {
+      label: 'ingestion-worker',
+      expectedName: PRIVATE_CANARY_TARGET_NAMES['ingestion-worker'],
+      config: await parseConfig(
+        options.ingestionPrivateCanaryConfigPath ?? (
+          deployment ? INGESTION_PRIVATE_CANARY_DEPLOYMENT_CONFIG_PATH : INGESTION_PRIVATE_CANARY_CONFIG_PATH
+        ),
+        'ingestion-worker',
+        errors,
+      ),
+      queueTopology: 'none',
+    },
+    {
       label: 'mcp-worker',
       expectedName: PRIVATE_CANARY_TARGET_NAMES['mcp-worker'],
       config: await parseConfig(
@@ -530,6 +573,16 @@ async function loadOrdinaryWorkers(
           ? options.acquisitionDeploymentConfigPath ?? ACQUISITION_DEPLOYMENT_CONFIG_PATH
           : options.acquisitionConfigPath ?? ACQUISITION_CONFIG_PATH,
         'acquisition-worker',
+        errors,
+      ),
+    },
+    {
+      label: 'ingestion-worker',
+      config: await parseConfig(
+        deployment
+          ? options.ingestionDeploymentConfigPath ?? INGESTION_DEPLOYMENT_CONFIG_PATH
+          : options.ingestionConfigPath ?? INGESTION_CONFIG_PATH,
+        'ingestion-worker',
         errors,
       ),
     },
@@ -593,7 +646,7 @@ function checkPrivateCanaryTargetIdentityIsolation(
 }
 
 /**
- * The five database-role Workers use a deliberately different manifest while
+ * The six database-role Workers use a deliberately different manifest while
  * the synthetic canary is running. The template must have no public transport
  * capability; only the harness's named RPC binding may call its entrypoint.
  */
@@ -897,7 +950,7 @@ function checkDistinctDeploymentHyperdriveIds(
     hyperdriveIds.every((id): id is string => id !== null) &&
     new Set(hyperdriveIds).size !== manifests.length
   ) {
-    errors.push('Deployment manifests must bind five distinct Hyperdrive configuration ids, one per Worker role.');
+    errors.push('Deployment manifests must bind six distinct Hyperdrive configuration ids, one per Worker role.');
   }
 }
 
@@ -1048,7 +1101,7 @@ export async function validateCloudflareTopology(
       targetAccountId !== null &&
       privateCanaryAccountId !== targetAccountId
     ) {
-      errors.push('private-canary deployment account_id must match the five target manifests.');
+      errors.push('private-canary deployment account_id must match the six target manifests.');
     }
     return errors;
   }
@@ -1106,6 +1159,12 @@ export async function validateCloudflareTopology(
     'acquisition-worker',
     errors,
   );
+  const ingestion = await parseConfig(
+    options.ingestionConfigPath ??
+      (mode === 'deployment' ? INGESTION_DEPLOYMENT_CONFIG_PATH : INGESTION_CONFIG_PATH),
+    'ingestion-worker',
+    errors,
+  );
   const mcp = await parseConfig(
     options.mcpConfigPath ?? (mode === 'deployment' ? MCP_DEPLOYMENT_CONFIG_PATH : MCP_CONFIG_PATH),
     'mcp-worker',
@@ -1129,15 +1188,17 @@ export async function validateCloudflareTopology(
   checkWorkerBase('usage-consumer', consumer, errors);
   checkWorkerBase('web', web, errors);
   checkWorkerBase('acquisition-worker', acquisition, errors);
+  checkWorkerBase('ingestion-worker', ingestion, errors);
   checkWorkerBase('mcp-worker', mcp, errors);
   if (mode === 'repository') {
     checkRepositoryPolicy('edge', edge, errors);
     checkRepositoryPolicy('usage-consumer', consumer, errors);
     checkRepositoryPolicy('web', web, errors);
     checkRepositoryPolicy('acquisition-worker', acquisition, errors);
+    checkRepositoryPolicy('ingestion-worker', ingestion, errors);
     checkRepositoryPolicy('mcp-worker', mcp, errors);
-    // This sixth Worker is intentionally not included in deployment mode's
-    // five-Hyperdrive assertion: it holds no database identity at all.
+    // This seventh Worker is intentionally not included in deployment mode's
+    // six-Hyperdrive assertion: it holds no database identity at all.
     if (privateCanary !== null) {
       checkWorkerBase('private-canary', privateCanary, errors);
       checkRepositoryPolicy('private-canary', privateCanary, errors);
@@ -1148,6 +1209,7 @@ export async function validateCloudflareTopology(
       { label: 'usage-consumer', config: consumer },
       { label: 'web', config: web },
       { label: 'acquisition-worker', config: acquisition },
+      { label: 'ingestion-worker', config: ingestion },
       { label: 'mcp-worker', config: mcp },
     ];
     const ordinaryWorkerNames = collectOrdinaryWorkerNames(ordinaryWorkers, errors);
@@ -1166,12 +1228,14 @@ export async function validateCloudflareTopology(
     checkDeploymentWorker('usage-consumer', consumer, errors);
     checkDeploymentWorker('web', web, errors);
     checkDeploymentWorker('acquisition-worker', acquisition, errors);
+    checkDeploymentWorker('ingestion-worker', ingestion, errors);
     checkDeploymentWorker('mcp-worker', mcp, errors);
     const canonicalAccountId = checkDeploymentAccountIds([
       ['edge', edge],
       ['usage-consumer', consumer],
       ['web', web],
       ['acquisition-worker', acquisition],
+      ['ingestion-worker', ingestion],
       ['mcp-worker', mcp],
     ], errors);
     checkDistinctDeploymentHyperdriveIds([
@@ -1179,6 +1243,7 @@ export async function validateCloudflareTopology(
       ['usage-consumer', consumer],
       ['web', web],
       ['acquisition-worker', acquisition],
+      ['ingestion-worker', ingestion],
       ['mcp-worker', mcp],
     ], errors);
     checkAcquisitionProviderAccountId(acquisition, canonicalAccountId, errors);
@@ -1269,11 +1334,80 @@ export async function validateCloudflareTopology(
   ) {
     errors.push('acquisition-worker must bind RAW_ARTIFACTS to data-foundry-raw-artifacts.');
   }
-  if (valuesAtKey(acquisition, 'queues').length !== 0) {
-    errors.push('acquisition-worker must not declare a usage Queue producer or consumer.');
-  }
+  checkIngestionProducer('acquisition-worker', acquisition, false, errors);
+  checkOrdinaryIngestion(ingestion, errors);
 
   return errors;
+}
+
+function checkIngestionProducer(label: string, config: TomlObject, allowConsumer: boolean, errors: string[]): void {
+  const queues = object(config['queues']);
+  const allowedKeys = allowConsumer ? ['producers', 'consumers'] : ['producers'];
+  const producers = objects(queues['producers']);
+  if (
+    Object.keys(queues).some((key) => !allowedKeys.includes(key)) ||
+    producers.length !== 1 ||
+    producers[0]?.['binding'] !== 'INGESTION_QUEUE' ||
+    producers[0]?.['queue'] !== INGESTION_QUEUE ||
+    Object.keys(producers[0] ?? {}).some((key) => !['binding', 'queue'].includes(key))
+  ) {
+    errors.push(`${label} must declare only its INGESTION_QUEUE producer to ${INGESTION_QUEUE}${allowConsumer ? ' and dedicated consumer' : '; no usage Queue or consumer'}.`);
+  }
+}
+
+export function checkIngestionAlertBinding(config: TomlObject): string[] {
+  const vars = object(config['vars']);
+  const email = objects(config['send_email']);
+  if (vars['OPS_ALERTS_ENABLED'] === 'false') {
+    return email.length === 0 && config['send_email'] === undefined && vars['OPS_ALERT_FROM'] === undefined && vars['OPS_ALERT_TO'] === undefined
+      ? [] : ['Disabled ingestion alerts must omit email binding and addresses.'];
+  }
+  const isAddress = (value: unknown): value is string => typeof value === 'string' && value.length <= 254
+    && /^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)+$/.test(value)
+    && value.slice(0, value.indexOf('@')).length <= 64 && !value.startsWith('.') && !value.includes('..') && !value.includes('.@')
+    && value.slice(value.indexOf('@') + 1).split('.').every(label => label.length <= 63);
+  const from = vars['OPS_ALERT_FROM']; const to = vars['OPS_ALERT_TO'];
+  const binding = email[0];
+  if (vars['OPS_ALERTS_ENABLED'] !== 'true' || !isAddress(from) || !isAddress(to) ||
+      email.length !== 1 || !binding || Object.keys(binding).sort().join(',') !== 'allowed_sender_addresses,destination_address,name' ||
+      binding['name'] !== 'OPS_EMAIL' || binding['destination_address'] !== to ||
+      !Array.isArray(binding['allowed_sender_addresses']) || binding['allowed_sender_addresses'].length !== 1 || binding['allowed_sender_addresses'][0] !== from) {
+    return ['Ingestion alerts require an explicit flag and one OPS_EMAIL binding restricted to the exact single sender and verified destination.'];
+  }
+  return [];
+}
+
+function checkOrdinaryIngestion(config: TomlObject, errors: string[]): void {
+  errors.push(...checkIngestionAlertBinding(config));
+  checkIngestionProducer('ingestion-worker', config, true, errors);
+  if (collectKeyPaths(config, new Set(['route', 'routes'])).length !== 0) {
+    errors.push('ingestion-worker must remain route-less.');
+  }
+  const vars = object(config['vars']);
+  if (vars['VERTICAL_SLUG'] !== 'hvac' || vars['RAW_ARTIFACTS_BUCKET_NAME'] !== 'data-foundry-raw-artifacts') {
+    errors.push('ingestion-worker must select the hvac runtime and canonical raw-artifact bucket.');
+  }
+  const buckets = objects(config['r2_buckets']);
+  if (buckets.length !== 1 || buckets[0]?.['binding'] !== 'RAW_ARTIFACTS' || buckets[0]?.['bucket_name'] !== 'data-foundry-raw-artifacts') {
+    errors.push('ingestion-worker must bind RAW_ARTIFACTS to data-foundry-raw-artifacts.');
+  }
+  const crons = object(config['triggers'])['crons'];
+  if (!Array.isArray(crons) || crons.length !== 1 || crons[0] !== '*/5 * * * *') {
+    errors.push('ingestion-worker must dispatch durable pending deliveries every five minutes.');
+  }
+  if (object(config['limits'])['cpu_ms'] !== 30_000) {
+    errors.push('ingestion-worker must retain its bounded 30000ms CPU limit.');
+  }
+  const consumers = objects(object(config['queues'])['consumers']);
+  const consumer = consumers[0] ?? {};
+  const expected = {
+    queue: INGESTION_QUEUE, max_batch_size: 1, max_batch_timeout: 5,
+    max_retries: 5, max_concurrency: 1, dead_letter_queue: INGESTION_DLQ,
+  };
+  if (consumers.length !== 1 || Object.keys(consumer).length !== Object.keys(expected).length ||
+      Object.entries(expected).some(([key, value]) => consumer[key] !== value)) {
+    errors.push('ingestion-worker must consume only its dedicated ingestion Queue with batch size 1, concurrency 1, five retries and dedicated DLQ.');
+  }
 }
 
 export async function run(options: CloudflareTopologyOptions = {}): Promise<number> {

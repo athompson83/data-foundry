@@ -23,6 +23,7 @@
  */
 import {
   toMcpFact,
+  toFactEvidenceSource,
   type CanonicalFactView,
   type ClaimSummary,
   type CustomerFactExplanation,
@@ -424,7 +425,9 @@ export interface ClaimSourceView {
   /** The value exactly as the source wrote it, before normalization. */
   readonly sourceValue: string | null;
   readonly locator: string;
-  readonly artifactUrl: string;
+  readonly artifactUrl: string | null;
+  readonly artifactId?: string;
+  readonly artifactContentHash?: string;
   readonly retrievedAt: string;
   readonly observedAt: string;
 }
@@ -623,17 +626,7 @@ export function customerExplanation(source: CustomerFactExplanation): ExplainFac
       status: claim.status,
       confidence: claim.confidence,
       selected: claim.selected,
-      sources: claim.attributions.map((attribution) => ({
-        publisher: attribution.publisher,
-        domain: attribution.domain,
-        sourceType: attribution.source_type,
-        authorityRank: attribution.authority_rank,
-        sourceValue: attribution.source_value,
-        locator: attribution.locator,
-        artifactUrl: attribution.artifact_url,
-        retrievedAt: attribution.retrieved_at,
-        observedAt: attribution.observed_at,
-      })),
+      sources: claim.attributions.map(toFactEvidenceSource),
       withheldSourceCount: 0,
     })),
     conflicts: source.conflicts.map((conflict) => ({

@@ -29,6 +29,7 @@ import {
   type RuntimeRoleExpectedGrant,
 } from '../../packages/private-canary/src/runtime-role-policy.js';
 import { isMain } from '../lib/cli-entry.js';
+import { LEGACY_RUNTIME_GRANTS_0028 } from '../fixtures/runtime-grants-0028.js';
 import {
   DATA_FOUNDRY_PRIVATE_SCHEMA,
   EXPECTED_TABLES,
@@ -47,8 +48,8 @@ const RELEASE_SHA = /^[0-9a-f]{40}$/;
 const VERSION = /^\d{4}$/;
 const MIGRATION_FILENAME = /^(\d{4})_[a-z0-9_]+\.sql$/;
 const SHA256 = /^[0-9a-f]{64}$/;
-const EXPECTED_REPOSITORY_MIGRATION_COUNT = 28;
-const EXPECTED_TERMINAL_VERSION = '0028';
+const EXPECTED_REPOSITORY_MIGRATION_COUNT = 33;
+const EXPECTED_TERMINAL_VERSION = '0033';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPOSITORY_ROOT = resolve(HERE, '..', '..');
 const execFileAsync = promisify(execFile);
@@ -135,6 +136,9 @@ export interface SupabaseRuntimeGrantPayload {
   readonly sql: string;
   readonly verificationSql: string;
   readonly postCredentialVerificationSql: string;
+  /** Additive transition from the frozen five-role 0028 ACLs; drift refuses. */
+  readonly upgradeFrom0028Sql: string;
+  readonly upgradeFrom0028Checksum: string;
 }
 
 export interface SupabaseMigrationPlan {
@@ -907,8 +911,10 @@ function buildGrantStatements(schema: string): {
     );
   }
   for (const group of relationGroups.values()) {
+    const kind = expectedRelations().find(relation => relation.name === group.relation)?.kind;
+    if (kind === undefined) throw new Error('Runtime grant references an undeclared relation.');
     statements.push(
-      `GRANT ${group.privileges.join(', ')} ON TABLE ${qualified(schema, group.relation)} TO ${quotedIdentifier(group.role)};`,
+      `GRANT ${group.privileges.join(', ')} ON ${kind === 'S' ? 'SEQUENCE' : 'TABLE'} ${qualified(schema, group.relation)} TO ${quotedIdentifier(group.role)};`,
     );
   }
   for (const group of columnGroups.values()) {
@@ -1174,7 +1180,7 @@ function buildPostMigrationGrantPayload(
     "grantee.rolname = ANY(ARRAY['anon', 'authenticated', 'service_role']::text[])";
   const expectedFunctionSearchPath = sqlLiteral(`search_path=${schema}, pg_catalog, extensions`);
 
-  const sql = `${buildMigrationConfinementAssertionSql(
+  const renderGrantSql = (baseline: readonly ExpectedRuntimeGrant[]) => `${buildMigrationConfinementAssertionSql(
     schema,
     migrationRole,
     'data_foundry_runtime_grant_install_confinement',
@@ -1205,7 +1211,7 @@ ${expectedRows}
   SELECT count(*) + ABS((SELECT count(*) FROM ${ledger}) - ${migrations.length})
     INTO prerequisite_drift_count FROM differences;
   IF prerequisite_drift_count <> 0 THEN
-    RAISE EXCEPTION 'Runtime grants require the canonical full application ledger 0001 through 0028.';
+    RAISE EXCEPTION 'Runtime grants require the canonical full application ledger 0001 through 0033.';
   END IF;
 
   IF (SELECT pg_get_userbyid(n.nspowner) FROM pg_namespace n WHERE n.nspname = ${sqlLiteral(schema)})
@@ -1306,11 +1312,11 @@ ${aclInventorySql(schema, forbiddenNamedPredicate)}
   SELECT count(*) INTO existing_privilege_count FROM (
 ${aclInventorySql(schema, targetPredicate)}
   ) existing_target_acl;
-  IF existing_privilege_count <> 0 THEN
+  IF existing_privilege_count <> ${baseline.length} THEN
     RAISE EXCEPTION 'Target runtime roles have unexpected existing private privileges; refusing to normalize them.';
   END IF;
   WITH expected(scope, object_name, column_name, role_name, privilege, is_grantable) AS (VALUES
-${baselinePrivateAclValuesSql(schema)}
+${baselinePrivateAclValuesSql(schema)}${baseline.length === 0 ? '' : `,\n${expectedGrantValuesSql(baseline)}`}
   ), live AS (
 ${completePrivateDirectAclSql(schema)}
   ), differences AS (
@@ -1348,6 +1354,13 @@ ${grants.sql}
 RESET search_path;
 RESET ROLE;
 `;
+  // The original installer remains deliberately empty-baseline-only. A distinct
+  // upgrade accepts exactly the legacy ACL set after all current migrations;
+  // it never normalizes an unexpected grant, changes a role or edits a ledger.
+  const sql = renderGrantSql([]);
+  const upgradeFrom0028Sql = renderGrantSql(LEGACY_RUNTIME_GRANTS_0028) +
+    buildRuntimeGrantVerificationSql(schema, grants.expected, migrations);
+  const upgradeFrom0028Checksum = createHash('sha256').update(upgradeFrom0028Sql, 'utf8').digest('hex');
   const checksum = createHash('sha256').update(sql, 'utf8').digest('hex');
   return {
     providerMigrationName: `data_foundry_runtime_grants_${checksum.slice(0, 12)}`,
@@ -1358,6 +1371,8 @@ RESET ROLE;
     functionSignatures: RUNTIME_PRIVATE_FUNCTION_SIGNATURES,
     expectedGrants: grants.expected,
     sql,
+    upgradeFrom0028Sql,
+    upgradeFrom0028Checksum,
     verificationSql: buildRuntimeGrantVerificationSql(schema, grants.expected, migrations),
     postCredentialVerificationSql: buildRuntimeGrantVerificationSql(
       schema,

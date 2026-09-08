@@ -37,10 +37,10 @@ import type {
   TransformSpec,
   VocabularyDefinition,
 } from '@data-foundry/normalization';
-import { parseNormalizationRuleSet } from '@data-foundry/normalization';
+import { compileAliasNormalization, parseNormalizationRuleSet } from '@data-foundry/normalization';
 import type { FactValueType, Identifier } from '@data-foundry/canonical-schema';
 import { MappingCompilationError } from './errors.js';
-import { primaryAliasType, type VerticalConfig } from './config.js';
+import { primaryAliasType, type VerticalConfig } from './config-core.js';
 
 /** YAML arrives untyped; every reader below narrows what it needs and fails by path. */
 type Yaml = any;
@@ -298,7 +298,9 @@ function compileStreamPlan(
     const aliasType = asIdentifier(String(alias.alias_type), `${aliasPath}.alias_type`);
     const field = locateFor(alias, `alias_${aliasType}`, aliasPath);
     aliases.push({ aliasType, field, strong: alias.strong === true });
-    identifierRules.push({ alias_type: aliasType, source_field: field });
+    const normalization = compileAliasNormalization(config).rules.find((rule) => rule.alias_type === aliasType);
+    if (normalization === undefined) throw new MappingCompilationError(aliasPath, `alias type "${aliasType}" has no normalization declaration`);
+    identifierRules.push({ alias_type: aliasType, source_field: field, normalization });
   }
 
   // ---- properties ----------------------------------------------------------

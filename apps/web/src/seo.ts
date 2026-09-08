@@ -1,3 +1,5 @@
+import type { ProductOffer } from './product.js';
+import type { AliasNormalizationSpec } from '@data-foundry/canonical-schema';
 /**
  * Typed access to the compiled `seo.yaml` (doc 07) carried in a `WebRuntime`
  * artifact. `tooling/scripts/compile-web-runtime.ts` produces the artifact;
@@ -83,6 +85,7 @@ export interface StructuredDataSpec {
 
 export interface SeoConfig {
   readonly url_prefix: string;
+  readonly legacy_url_prefixes?: readonly string[];
   readonly page_classes: readonly PageClass[];
   readonly quality_gates: Readonly<Record<string, QualityGate>>;
   readonly on_gate_failure: OnGateFailure;
@@ -135,12 +138,14 @@ export interface EntityTypeMeta {
 
 export interface WebRuntime {
   readonly vertical_slug: string;
+  readonly product?: ProductOffer;
   readonly vertical_name: string;
   readonly vertical_status: string;
   readonly entity_types: readonly string[];
   readonly entity_type_meta: Readonly<Record<string, EntityTypeMeta>>;
   readonly relationship_predicates: readonly string[];
   readonly fields: readonly unknown[];
+  readonly identifier_normalization: AliasNormalizationSpec;
   readonly fact_selection: Readonly<Record<string, unknown>>;
   readonly critical_properties: Readonly<Record<string, readonly string[]>>;
   readonly seo: SeoConfig;

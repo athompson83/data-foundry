@@ -21,6 +21,7 @@ import {
   type RefreshCandidate,
 } from '../src/policy/refresh-schedule.js';
 import { compliantEntry } from './helpers.js';
+import { SourceRegistryEntrySchema } from '@data-foundry/source-registry';
 
 const NOW = '2026-08-14T00:00:00.000Z';
 const FUTURE_SCHEDULE_INSTANT = '2026-09-14T00:00:00.000Z';
@@ -116,6 +117,25 @@ const keys = (candidates: readonly RefreshCandidate[], policy: RefreshPolicy = P
   );
 
 describe('a cadence that is not a clock is never scheduled', () => {
+  it('uses a reviewed source interval without changing the default cadence of other sources', () => {
+    const choices = plan([
+      candidate('twice-daily', 'DAILY', hoursAgo(12), { refresh_interval_hours: 12 }),
+      candidate('default-daily', 'DAILY', hoursAgo(12)),
+      candidate('not-due', 'DAILY', hoursAgo(11), { refresh_interval_hours: 12 }),
+    ]);
+    expect(choices.find(({ sourceKey }) => sourceKey === 'twice-daily')?.due).toBe(true);
+    expect(choices.find(({ sourceKey }) => sourceKey === 'default-daily')?.due).toBe(false);
+    expect(choices.find(({ sourceKey }) => sourceKey === 'not-due')?.due).toBe(false);
+  });
+
+  it.each([0, -1, 1.5, 8761, Infinity])('rejects the unbounded or invalid source interval %s', (interval) => {
+    expect(SourceRegistryEntrySchema.safeParse({ ...compliantEntry(), refresh_interval_hours: interval }).success).toBe(false);
+  });
+
+  it('does not turn a manual source into a scheduled source through its interval', () => {
+    expect(plan([candidate('manual', 'MANUAL', null, { refresh_interval_hours: 12 })])[0]?.due).toBe(false);
+  });
+
   it.each(['MANUAL', 'EVENT_DRIVEN'] as const)('never schedules %s, however old', (cadence) => {
     // Ten years stale. Still not due: these cadences do not mean "rarely",
     // they mean a clock is not what decides.

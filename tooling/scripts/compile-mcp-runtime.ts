@@ -1,3 +1,4 @@
+import type { AliasNormalizationSpec } from '@data-foundry/canonical-schema';
 /**
  * Compile one vertical's query configuration and MCP declaration into the
  * static artifact a Cloudflare Worker can bundle. `verticals/<slug>/mcp.yaml`
@@ -33,6 +34,7 @@ export interface McpWorkerRuntime {
   /** Public-web path prefix used as the base for canonical entity URLs. */
   readonly canonical_url_prefix: string;
   readonly fields: readonly unknown[];
+  readonly identifier_normalization: AliasNormalizationSpec;
   readonly fact_selection: Readonly<Record<string, unknown>>;
   readonly server: {
     readonly name: string;

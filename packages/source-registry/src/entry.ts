@@ -47,6 +47,8 @@ export const SourceRegistryEntrySchema = z.object({
   authority_rank: z.number().int().min(0).max(100),
   status: SourceStatusSchema,
   refresh_cadence: RefreshCadenceSchema,
+  /** Explicit reviewed clock interval; absent preserves the named cadence. */
+  refresh_interval_hours: z.number().int().min(1).max(8760).optional(),
 
   rights_classification: RightsClassificationSchema,
   attribution_requirement: AttributionRequirementSchema,

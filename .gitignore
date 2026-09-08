@@ -49,3 +49,6 @@ docs/verticals/**
 !docs/verticals/**/QUALITY_METHODOLOGY.md
 # An explicit public subtree, for anything that does not fit the names above.
 !docs/verticals/public/**
+
+# Private second-phase deployment metadata stays local.
+apps/*/wrangler.synthetic-ingestion.production.toml

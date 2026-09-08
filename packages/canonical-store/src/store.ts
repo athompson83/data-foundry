@@ -216,6 +216,8 @@ export interface AliasLookupQuery {
   readonly values: readonly string[];
   readonly alias_type?: Identifier;
   readonly entity_type?: Identifier;
+  /** Match any current claim from this source, not just the display representative. */
+  readonly source_id?: SourceId;
   /** Include aliases whose validity has been closed. Default false. */
   readonly include_expired?: boolean;
 }
@@ -1013,6 +1015,14 @@ class PostgresCanonicalStore implements CanonicalStore {
     if (query.entity_type !== undefined) {
       params.push(query.entity_type);
       sql += ` AND e.entity_type = $${params.length}`;
+    }
+    if (query.source_id !== undefined) {
+      params.push(query.source_id);
+      sql += ` AND EXISTS (
+        SELECT 1 FROM current_entity_aliases scoped_alias
+        WHERE scoped_alias.id = a.id
+          AND $${params.length}::uuid = ANY(scoped_alias.current_source_ids)
+      )`;
     }
     sql += ' ORDER BY a.identity_confidence DESC, e.canonical_slug';
     const rows = await (executor ?? this.driver).query(sql, params);

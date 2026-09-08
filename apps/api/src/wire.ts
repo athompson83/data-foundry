@@ -21,6 +21,7 @@ import {
   type RedirectTrace,
   type RelationshipEdge,
   type RestFact,
+  type SelectedFactEvidence,
   runtimeSchema as z,
   type RuntimeSchemaOutput,
   type SearchHit,
@@ -64,6 +65,16 @@ export const RedirectTraceWireSchema = z.strictObject({
 });
 export type RedirectTraceWire = RuntimeSchemaOutput<typeof RedirectTraceWireSchema>;
 
+export const SelectedFactEvidenceSchema = z.strictObject({
+  selectedFactId: uuid,
+  sources: z.array(z.strictObject({
+    publisher: z.string(), domain: z.string(), sourceType: z.string(),
+    authorityRank: z.number(), sourceValue: nullableString, locator: z.string(),
+    artifactId: uuid, artifactContentHash: z.string().regex(/^[a-f0-9]{64}$/),
+    artifactUrl: z.string().url().nullable(), retrievedAt: instant, observedAt: instant,
+  })).min(1),
+});
+
 export const FactWireSchema = z.strictObject({
   property: z.string(),
   value: z.any(),
@@ -79,6 +90,7 @@ export const FactWireSchema = z.strictObject({
   editorialCorrectionReason: nullableString,
   selectionWarnings: z.array(z.string()),
   verified: z.boolean().optional(),
+  evidence: SelectedFactEvidenceSchema.optional(),
 });
 
 export const SearchHitWireSchema = z.strictObject({
@@ -338,8 +350,8 @@ export function redirectTraceWire(trace: RedirectTrace): RedirectTraceWire {
 }
 
 /** The shared query-layer fact mapper, followed only by validation/privacy gates. */
-export function factWire(view: CanonicalFactView, reviewers: readonly string[]): RestFact {
-  const wire = toRestFact(view);
+export function factWire(view: CanonicalFactView, reviewers: readonly string[], evidence?: SelectedFactEvidence): RestFact {
+  const wire = toRestFact(view, evidence === undefined ? {} : { evidence });
   FactWireSchema.parse(wire);
   assertNoReviewerIdentity(wire, reviewers);
   return wire;

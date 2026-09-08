@@ -205,16 +205,16 @@ export async function consumeBatch(batch: QueueMessageBatch, options: ConsumeOpt
   }
 }
 
+export function logConsumerError(_error: unknown, context: ConsumerErrorContext): void {
+  // Driver errors can carry row values or SQL even when the hook's context is
+  // safe. Production telemetry selects only the closed stage vocabulary.
+  console.error('[usage-consumer] operation failed', { stage: context.stage, code: 'USAGE_CONSUMER_FAILURE' });
+}
+
 export default {
   queue: (batch: QueueMessageBatch, env: ConsumerEnv): Promise<void> =>
     consumeBatch(batch, {
       env,
-      // Workers logs. `onError` never receives a message's raw body — the
-      // callsites above pass only the queue's own message id and, at most,
-      // the stage that failed — so this can log freely without becoming a
-      // second place a plaintext key or a raw request target could leak.
-      onError: (error, context) => {
-        console.error(`[usage-consumer] ${context.stage}`, { messageId: context.messageId, error });
-      },
+      onError: logConsumerError,
     }),
 };

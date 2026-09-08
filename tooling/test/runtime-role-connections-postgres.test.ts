@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { checkRuntimeRoleConnectionsPostgres } from '../scripts/check-runtime-role-connections-postgres.js';
 
-const roles = ['df_edge', 'df_web', 'df_mcp', 'df_usage', 'df_acquisition'] as const;
+const roles = ['df_edge', 'df_web', 'df_mcp', 'df_usage', 'df_acquisition', 'df_ingestion'] as const;
 
 describe('real PostgreSQL runtime-role connection check', () => {
   it('opens one direct credential connection per LOGIN role and validates its server-side identity and grants', async () => {

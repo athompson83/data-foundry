@@ -1,4 +1,5 @@
 import type { FactOutputKind, FactValueType, Identifier } from '@data-foundry/canonical-schema';
+import { AliasNormalizationRuleSchema, type AliasNormalizationRule } from '@data-foundry/canonical-schema';
 import type { IdentifierNormalizationOptions } from './identifier.js';
 import type { DateFormat } from './scalars.js';
 import type { CaseMode } from './text.js';
@@ -84,6 +85,8 @@ export interface IdentifierRule {
   readonly required?: boolean;
   /** Overrides the built-in profile for this alias type. */
   readonly options?: IdentifierNormalizationOptions;
+  /** Compiled vertical operation chain, shared with resolution and read surfaces. */
+  readonly normalization?: AliasNormalizationRule;
 }
 
 export interface NormalizationRuleSet {
@@ -244,6 +247,7 @@ export function parseNormalizationRuleSet(
     seenProperties.add(property);
     requireIdentifier(rule['source_field'], `${rulePath}.source_field`);
 
+
     const outputKind = rule['output_kind'] ?? 'NORMALIZED_FACT';
     if (outputKind !== 'NORMALIZED_FACT' && outputKind !== 'DERIVED_METRIC') {
       throw new NormalizationRuleSetError(
@@ -348,6 +352,15 @@ export function parseNormalizationRuleSet(
     if (!isRecord(rule)) throw new NormalizationRuleSetError('must be an object', rulePath);
     requireIdentifier(rule['alias_type'], `${rulePath}.alias_type`);
     requireIdentifier(rule['source_field'], `${rulePath}.source_field`);
+    if (rule['normalization'] !== undefined) {
+      const parsed = AliasNormalizationRuleSchema.safeParse(rule['normalization']);
+      if (!parsed.success || parsed.data.alias_type !== rule['alias_type']) {
+        throw new NormalizationRuleSetError('invalid or mismatched alias normalization specification', `${rulePath}.normalization`);
+      }
+      if (rule['options'] !== undefined) {
+        throw new NormalizationRuleSetError('declare normalization or legacy options, never both', rulePath);
+      }
+    }
   });
 
   return { ...input, properties: orderedProperties } as unknown as NormalizationRuleSet;

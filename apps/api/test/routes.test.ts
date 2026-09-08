@@ -8,7 +8,7 @@
  * exclusions, rule 7's ordering) or a contract break (page arithmetic).
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { runtimeSchema as z } from '@data-foundry/query-model';
+import { runtimeSchema as z, selectedFactEvidence, toFactEvidenceSource } from '@data-foundry/query-model';
 import {
   EXTRA_PROPERTIES,
   RIGHTS_BLOCKED_PROPERTY,
@@ -144,6 +144,41 @@ describe('GET /v1/entities/{id}/facts', () => {
     expect(seer2).toHaveProperty('editoriallyCorrected', false);
     expect(seer2).toHaveProperty('editorialCorrectionReason', null);
     expect(seer2).toHaveProperty('selectionWarnings');
+  });
+
+  it('includes only the selected claim\'s surface-authorized artifact evidence', async () => {
+    const response = await call(fixtures.app, `/v1/entities/${fixtures.equipment.id}/facts?property=seer2_rating`);
+    expect(response.status).toBe(200);
+    const fact = dataOf<RestFact[]>(response)[0]!;
+    expect(fact.evidence?.selectedFactId).toBe(fact.factId);
+    expect(fact.evidence?.sources).toEqual([expect.objectContaining({
+      publisher: 'Acme Climate',
+      artifactId: expect.any(String),
+      artifactContentHash: expect.stringMatching(/^[a-f0-9]{64}$/),
+      artifactUrl: expect.stringMatching(/^https:/),
+      locator: expect.any(String),
+      retrievedAt: expect.any(String),
+      observedAt: expect.any(String),
+      sourceValue: null,
+    })]);
+    expect(JSON.stringify(fact.evidence)).not.toContain('r2_uri');
+    expect(JSON.stringify(fact.evidence)).not.toContain('blocked');
+  });
+
+  it('refuses mismatched selections and intersects the already-authorized source set', async () => {
+    const surface = fixtures.qm.forSurface('API_FREE');
+    const view = (await surface.canonicalFacts(fixtures.equipment.id)).find((fact) => fact.property === 'seer2_rating')!;
+    const explanation = (await surface.explainFact(fixtures.equipment.id, view.property))!;
+    expect(selectedFactEvidence(view, { ...explanation, property: 'wrong_property' as never })).toBeUndefined();
+    expect(selectedFactEvidence(view, { ...explanation, selected: { ...explanation.selected!, fact_id: fixtures.heatPump.id as never } })).toBeUndefined();
+    const additional = { ...explanation.selected!.attributions[0]!, publisher: 'Unselected neighbor', domain: 'neighbor.invalid' };
+    const expanded = { ...explanation, selected: { ...explanation.selected!, attributions: [...explanation.selected!.attributions, additional] } };
+    expect(selectedFactEvidence(view, expanded)?.sources.map((source) => source.publisher)).toEqual(view.sources);
+    for (const artifact_url of ['https://user:secret@source.example/file', 'https://source.example/file?token=credential', 'https://source.example/file?X-Amz-Signature=credential', 'https://source.example/file#credential', 'javascript:alert(1)']) {
+      const safe = toFactEvidenceSource({ ...explanation.selected!.attributions[0]!, artifact_url });
+      expect(safe.artifactUrl).toBeNull();
+      expect(safe.artifactContentHash).toMatch(/^[a-f0-9]{64}$/);
+    }
   });
 
   it('filters to one property without changing the wire shape', async () => {

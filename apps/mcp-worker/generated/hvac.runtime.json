@@ -3,6 +3,7 @@
   "fields": [
     {
       "field": "product_type",
+      "label": "Equipment category",
       "value_type": "string",
       "unit": null,
       "filter": {
@@ -15,6 +16,7 @@
     },
     {
       "field": "nominal_tonnage",
+      "label": "Nominal tonnage",
       "value_type": "number",
       "unit": "ton",
       "filter": {
@@ -27,6 +29,7 @@
     },
     {
       "field": "cooling_capacity_btu",
+      "label": "Cooling capacity",
       "value_type": "number",
       "unit": "BTU/h",
       "filter": {
@@ -39,6 +42,7 @@
     },
     {
       "field": "seer2",
+      "label": "SEER2",
       "value_type": "number",
       "unit": null,
       "filter": {
@@ -51,6 +55,7 @@
     },
     {
       "field": "eer2",
+      "label": "EER2",
       "value_type": "number",
       "unit": null,
       "filter": {
@@ -63,6 +68,7 @@
     },
     {
       "field": "hspf2",
+      "label": "HSPF2",
       "value_type": "number",
       "unit": null,
       "filter": {
@@ -75,6 +81,7 @@
     },
     {
       "field": "refrigerant",
+      "label": "Refrigerant",
       "value_type": "string",
       "unit": null,
       "filter": {
@@ -87,6 +94,7 @@
     },
     {
       "field": "voltage",
+      "label": "Voltage",
       "value_type": "number",
       "unit": "V",
       "filter": {
@@ -99,6 +107,7 @@
     },
     {
       "field": "phase",
+      "label": "Electrical phase",
       "value_type": "number",
       "unit": null,
       "filter": {
@@ -111,6 +120,7 @@
     },
     {
       "field": "stage_count",
+      "label": "Compressor stages",
       "value_type": "number",
       "unit": null,
       "filter": {
@@ -123,6 +133,7 @@
     },
     {
       "field": "sound_level_db",
+      "label": "Sound level",
       "value_type": "number",
       "unit": "dB",
       "filter": {
@@ -135,6 +146,7 @@
     },
     {
       "field": "weight_lb",
+      "label": "Weight",
       "value_type": "number",
       "unit": "lb",
       "filter": {
@@ -147,6 +159,7 @@
     },
     {
       "field": "manufacturer",
+      "label": "Manufacturer",
       "value_type": "string",
       "unit": null,
       "filter": {
@@ -158,6 +171,336 @@
       "indexable": true
     }
   ],
+  "identifier_normalization": {
+    "version": 1,
+    "rules": [
+      {
+        "alias_type": "model_number",
+        "applies_to": [
+          "equipment_model"
+        ],
+        "scoped_to": null,
+        "strong": true,
+        "ops": [
+          {
+            "op": "uppercase"
+          },
+          {
+            "op": "strip_characters",
+            "characters": "-_. /\\"
+          },
+          {
+            "op": "strip_whitespace"
+          }
+        ],
+        "validate": {
+          "min_length": 6,
+          "max_length": 32,
+          "pattern": "^[A-Z0-9]+$"
+        }
+      },
+      {
+        "alias_type": "ahri_ref",
+        "applies_to": [
+          "equipment_model",
+          "certification"
+        ],
+        "scoped_to": null,
+        "strong": true,
+        "ops": [
+          {
+            "op": "uppercase"
+          },
+          {
+            "op": "strip_prefix",
+            "prefixes": [
+              "AHRI",
+              "AHRI-",
+              "AHRI "
+            ]
+          },
+          {
+            "op": "strip_characters",
+            "characters": "-_. /"
+          },
+          {
+            "op": "strip_whitespace"
+          }
+        ],
+        "validate": {
+          "min_length": 6,
+          "max_length": 16,
+          "pattern": "^[0-9]+$"
+        }
+      },
+      {
+        "alias_type": "manufacturer_sku",
+        "applies_to": [
+          "equipment_model"
+        ],
+        "scoped_to": "manufacturer",
+        "strong": true,
+        "ops": [
+          {
+            "op": "uppercase"
+          },
+          {
+            "op": "collapse_whitespace"
+          },
+          {
+            "op": "strip_whitespace"
+          }
+        ],
+        "validate": {
+          "min_length": 3,
+          "max_length": 64,
+          "pattern": "^[A-Z0-9][A-Z0-9-]*$"
+        }
+      },
+      {
+        "alias_type": "upc",
+        "applies_to": [
+          "equipment_model"
+        ],
+        "scoped_to": null,
+        "strong": true,
+        "ops": [
+          {
+            "op": "strip_non_digits"
+          },
+          {
+            "op": "left_pad",
+            "length": 12,
+            "character": "0"
+          }
+        ],
+        "validate": {
+          "min_length": 12,
+          "max_length": 14,
+          "pattern": "^[0-9]{12,14}$",
+          "checksum": "upc_mod10"
+        }
+      },
+      {
+        "alias_type": "series_name",
+        "applies_to": [
+          "equipment_model"
+        ],
+        "scoped_to": null,
+        "strong": false,
+        "ops": [
+          {
+            "op": "collapse_whitespace"
+          },
+          {
+            "op": "strip_whitespace"
+          },
+          {
+            "op": "title_case"
+          }
+        ],
+        "validate": {
+          "min_length": 2,
+          "max_length": 120
+        }
+      },
+      {
+        "alias_type": "name",
+        "applies_to": [],
+        "scoped_to": null,
+        "strong": false,
+        "ops": [
+          {
+            "op": "collapse_whitespace"
+          },
+          {
+            "op": "uppercase"
+          }
+        ],
+        "validate": null
+      },
+      {
+        "alias_type": "legal_name",
+        "applies_to": [],
+        "scoped_to": null,
+        "strong": false,
+        "ops": [
+          {
+            "op": "collapse_whitespace"
+          },
+          {
+            "op": "uppercase"
+          }
+        ],
+        "validate": null
+      },
+      {
+        "alias_type": "dba",
+        "applies_to": [],
+        "scoped_to": null,
+        "strong": false,
+        "ops": [
+          {
+            "op": "collapse_whitespace"
+          },
+          {
+            "op": "uppercase"
+          }
+        ],
+        "validate": null
+      },
+      {
+        "alias_type": "abbreviation",
+        "applies_to": [],
+        "scoped_to": null,
+        "strong": false,
+        "ops": [
+          {
+            "op": "collapse_whitespace"
+          },
+          {
+            "op": "uppercase"
+          }
+        ],
+        "validate": null
+      },
+      {
+        "alias_type": "former_name",
+        "applies_to": [],
+        "scoped_to": null,
+        "strong": false,
+        "ops": [
+          {
+            "op": "collapse_whitespace"
+          },
+          {
+            "op": "uppercase"
+          }
+        ],
+        "validate": null
+      },
+      {
+        "alias_type": "misspelling",
+        "applies_to": [],
+        "scoped_to": null,
+        "strong": false,
+        "ops": [
+          {
+            "op": "collapse_whitespace"
+          },
+          {
+            "op": "uppercase"
+          }
+        ],
+        "validate": null
+      },
+      {
+        "alias_type": "part_number",
+        "applies_to": [],
+        "scoped_to": null,
+        "strong": false,
+        "ops": [
+          {
+            "op": "collapse_whitespace"
+          },
+          {
+            "op": "uppercase"
+          }
+        ],
+        "validate": null
+      },
+      {
+        "alias_type": "sku",
+        "applies_to": [],
+        "scoped_to": null,
+        "strong": false,
+        "ops": [
+          {
+            "op": "collapse_whitespace"
+          },
+          {
+            "op": "uppercase"
+          }
+        ],
+        "validate": null
+      },
+      {
+        "alias_type": "mpn",
+        "applies_to": [],
+        "scoped_to": null,
+        "strong": false,
+        "ops": [
+          {
+            "op": "collapse_whitespace"
+          },
+          {
+            "op": "uppercase"
+          }
+        ],
+        "validate": null
+      },
+      {
+        "alias_type": "gtin",
+        "applies_to": [],
+        "scoped_to": null,
+        "strong": false,
+        "ops": [
+          {
+            "op": "collapse_whitespace"
+          },
+          {
+            "op": "uppercase"
+          }
+        ],
+        "validate": null
+      },
+      {
+        "alias_type": "domain",
+        "applies_to": [],
+        "scoped_to": null,
+        "strong": false,
+        "ops": [
+          {
+            "op": "collapse_whitespace"
+          },
+          {
+            "op": "uppercase"
+          }
+        ],
+        "validate": null
+      },
+      {
+        "alias_type": "url",
+        "applies_to": [],
+        "scoped_to": null,
+        "strong": false,
+        "ops": [
+          {
+            "op": "collapse_whitespace"
+          },
+          {
+            "op": "uppercase"
+          }
+        ],
+        "validate": null
+      },
+      {
+        "alias_type": "external_id",
+        "applies_to": [],
+        "scoped_to": null,
+        "strong": false,
+        "ops": [
+          {
+            "op": "collapse_whitespace"
+          },
+          {
+            "op": "uppercase"
+          }
+        ],
+        "validate": null
+      }
+    ]
+  },
   "fact_selection": {
     "requirePublishableRights": true,
     "authoritativeSourceTypes": [
@@ -286,7 +629,7 @@
       }
     ]
   },
-  "canonical_url_prefix": "/data/hvac",
+  "canonical_url_prefix": "/hvac",
   "server": {
     "name": "data-foundry-hvac",
     "version": "0.1.0",

@@ -51,29 +51,29 @@ describe('surface-bound vertical publication eligibility', () => {
     await withApp('DRAFT', ['PUBLIC_WEB', 'SEARCH_INDEX'], async (app) => {
       const [root, landing, search, docs, llms, sitemap] = await Promise.all([
         app({ method: 'GET', url: '/' }),
-        app({ method: 'GET', url: '/data/hvac' }),
-        app({ method: 'GET', url: '/data/hvac/search' }),
-        app({ method: 'GET', url: '/data/hvac/docs' }),
-        app({ method: 'GET', url: '/data/hvac/llms.txt' }),
+        app({ method: 'GET', url: '/hvac' }),
+        app({ method: 'GET', url: '/hvac/search' }),
+        app({ method: 'GET', url: '/hvac/docs' }),
+        app({ method: 'GET', url: '/hvac/llms.txt' }),
         app({ method: 'GET', url: '/sitemap-index.xml' }),
       ]);
 
-      expect(root.body).not.toContain('/data/hvac');
+      expect(root.body).not.toContain('/hvac');
       expect(landing.status).toBe(404);
       expect(search.status).toBe(404);
       expect(docs.status).toBe(404);
       expect(llms.status).toBe(404);
-      expect(sitemap.body).not.toContain('/data/hvac/');
+      expect(sitemap.body).not.toContain('/hvac/');
     });
   });
 
   it('does not treat paid API, MCP, or bulk grants as PUBLIC_WEB publication eligibility', async () => {
     await withApp('ACTIVE', ['API_PAID', 'MCP', 'BULK_EXPORT'], async (app) => {
       const root = await app({ method: 'GET', url: '/' });
-      const docs = await app({ method: 'GET', url: '/data/hvac/docs' });
-      const llms = await app({ method: 'GET', url: '/data/hvac/llms.txt' });
+      const docs = await app({ method: 'GET', url: '/hvac/docs' });
+      const llms = await app({ method: 'GET', url: '/hvac/llms.txt' });
 
-      expect(root.body).not.toContain('/data/hvac');
+      expect(root.body).not.toContain('/hvac');
       expect(docs.status).toBe(404);
       expect(llms.status).toBe(404);
     });
@@ -83,14 +83,14 @@ describe('surface-bound vertical publication eligibility', () => {
     await withApp('ACTIVE', ['PUBLIC_WEB'], async (app) => {
       const [root, search, docs, llms, sitemapIndex, datasetSitemap] = await Promise.all([
         app({ method: 'GET', url: '/' }),
-        app({ method: 'GET', url: '/data/hvac/search' }),
-        app({ method: 'GET', url: '/data/hvac/docs' }),
-        app({ method: 'GET', url: '/data/hvac/llms.txt' }),
+        app({ method: 'GET', url: '/hvac/search' }),
+        app({ method: 'GET', url: '/hvac/docs' }),
+        app({ method: 'GET', url: '/hvac/llms.txt' }),
         app({ method: 'GET', url: '/sitemap-index.xml' }),
-        app({ method: 'GET', url: '/data/hvac/sitemaps/datasets.xml' }),
+        app({ method: 'GET', url: '/hvac/sitemaps/datasets.xml' }),
       ]);
 
-      expect(root.body).toContain('/data/hvac');
+      expect(root.body).toContain('/hvac');
       expect(root.body).toContain('name="robots" content="noindex,follow"');
       expect(search.status).toBe(200);
       expect(search.body).toContain('name="robots" content="noindex,follow"');
@@ -98,26 +98,26 @@ describe('surface-bound vertical publication eligibility', () => {
       expect(docs.body).toContain('name="robots" content="noindex,follow"');
       expect(llms.status).toBe(200);
       expect(llms.headers['x-robots-tag']).toBe('noindex, follow');
-      expect(sitemapIndex.body).not.toContain('/data/hvac/');
-      expect(datasetSitemap.body).not.toContain('/data/hvac/docs');
+      expect(sitemapIndex.body).not.toContain('/hvac/');
+      expect(datasetSitemap.body).not.toContain('/hvac/docs');
     });
   });
 
-  it('indexes discovery pages only when the ACTIVE vertical independently has both grants', async () => {
+  it('indexes static discovery with both grants while dynamic search stays noindex', async () => {
     await withApp('ACTIVE', ['PUBLIC_WEB', 'SEARCH_INDEX'], async (app) => {
       const [search, docs, llms, sitemapIndex, datasetSitemap] = await Promise.all([
-        app({ method: 'GET', url: '/data/hvac/search' }),
-        app({ method: 'GET', url: '/data/hvac/docs' }),
-        app({ method: 'GET', url: '/data/hvac/llms.txt' }),
+        app({ method: 'GET', url: '/hvac/search' }),
+        app({ method: 'GET', url: '/hvac/docs' }),
+        app({ method: 'GET', url: '/hvac/llms.txt' }),
         app({ method: 'GET', url: '/sitemap-index.xml' }),
-        app({ method: 'GET', url: '/data/hvac/sitemaps/datasets.xml' }),
+        app({ method: 'GET', url: '/hvac/sitemaps/datasets.xml' }),
       ]);
 
-      expect(search.body).toContain('name="robots" content="index,follow"');
+      expect(search.body).toContain('name="robots" content="noindex,follow"');
       expect(docs.body).toContain('name="robots" content="index,follow"');
       expect(llms.headers['x-robots-tag']).toBeUndefined();
-      expect(sitemapIndex.body).toContain('/data/hvac/sitemaps/');
-      expect(datasetSitemap.body).toContain('/data/hvac/docs');
+      expect(sitemapIndex.body).toContain('/hvac/sitemaps/');
+      expect(datasetSitemap.body).toContain('/hvac/docs');
     });
   });
 });

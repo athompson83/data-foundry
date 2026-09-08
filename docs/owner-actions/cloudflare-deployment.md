@@ -4,7 +4,7 @@ Everything here either requires a person in a dashboard/billing relationship or
 coordinates repository work with Cloudflare resources that cannot be inferred
 from source code alone.
 
-## 2026-09-01 private-canary control (current workstream)
+## 2026-09-08 private-canary control (current workstream)
 
 This workstream is **not** a public deployment or hostname cutover. It
 overrides any later-public-route instruction below until the synthetic canary
@@ -16,7 +16,8 @@ The private Alpha Lab schema is already staged: the 2026-09-02 hosted record
 proves 26 ledgered migrations, objects, ownership, and the then-current 200
 grants for five `NOLOGIN` runtime roles. It also records 57 function-search-path
 warnings. Repository migration `0027` closes those issues locally and `0028`
-adds the four justified rights-path indexes; both remain pending hosted
+adds the four justified rights-path indexes. The 2026-09-08 candidate also adds
+ingestion/operator/alert, current-alias projection, and delayed-304 claim-boundary migrations through `0033`; all remain pending hosted
 authorization and application, so no hosted warning closure is claimed.
 That historical application used the authenticated management SQL connector
 under the owner's preauthorization because direct TLS was unreachable from the
@@ -24,6 +25,33 @@ automation environment. It is not a Worker deployment or a substitute for the
 remaining password, Hyperdrive, Queue, R2-binding, or route-less canary proof.
 For any later replay or recovery action, follow the direct-TLS procedure below
 unless a separately recorded owner-authorized exception is required.
+
+
+The 2026-09-08 repository topology has **six ordinary Workers**, **six reduced
+private-canary targets**, and **one credential-free harness**: thirteen build
+artifacts in total. The six runtime identities are `df_edge`, `df_web`, `df_mcp`,
+`df_usage`, `df_acquisition`, and `df_ingestion`. Current receipts use
+`data-foundry.private-canary-receipt.v2` and require all six probes; the synthetic
+Queue envelope remains v1. An old five-probe receipt is historical evidence.
+
+The reduced ingestion target checks its database role only. It has no raw R2
+binding, ingestion Queue, or Cron. This source-free baseline uses the existing
+five dedicated canary queues and receipt bucket. It does not prove artifact
+processing. A separate authorized synthetic artifact-to-canonical Cloudflare
+phase needs its own ingestion Queue/DLQ and synthetic artifact bucket, retained
+receipts, and exact-script evidence. The disposable
+`pnpm ingestion:postgres:check` uses fictional JSON, actual restricted-role SQL,
+provenance and mutation-denial checks; it does not attest Cloudflare R2/Queue or
+Hyperdrive behavior.
+
+The ordinary ingestion manifest uses its own `HYPERDRIVE`, reads
+`data-foundry-raw-artifacts`, consumes `data-foundry-ingestion` with batch size 1,
+concurrency 1 and five retries to `data-foundry-ingestion-dlq`, and runs outbox
+recovery every five minutes with a 30,000ms CPU limit. Acquisition publishes
+only opaque delivery identifiers to that Queue. Ingestion accepts bounded
+JSON/CSV only: at most 16 artifacts, 1MiB per artifact, 4MiB per delivery, 1,000
+records, and 32KiB retrieval receipts. HTML/PDF and larger inputs require a
+separately measured adapter; no real source is enabled by this infrastructure.
 
 The only permitted initial deployment is a route-less, service-bound synthetic
 canary:
@@ -45,9 +73,9 @@ canary:
    convergence only; it does not designate a Worker release candidate or
    authorize provider activity. Before any provider action, freeze the then-live
    40-character `origin/main` SHA and verify that it contains the runtime code,
-   tests, six-artifact gate, and aligned documentation. A clean checkout of that
+   tests, thirteen-artifact gate, and aligned documentation. A clean checkout of that
    exact SHA must run `pnpm cloudflare:artifacts:check`, which dry-runs
-   and scans all six route-less private-canary Worker artifacts: five reduced
+   and scans all seven route-less private-canary Worker artifacts: six reduced
    target Workers plus the private-canary harness (without Hyperdrive). The
    target profiles receive only synthetic Hyperdrive configuration for the
    credential-free artifact build; the harness receives none. A missing target
@@ -70,7 +98,7 @@ canary:
    check of the hosted ledger versions/checksums, object
    ownership, role state, and direct ACLs. If and only if that proves the exact
    historical `0001`–`0026` state, set `DATA_FOUNDRY_RELEASE_SHA` to the same SHA
-   and apply only the pending migrations (`0027` and `0028`) through direct PostgreSQL TLS
+   and apply only the pending migrations (`0027` through the selected candidate's latest migration, currently `0033`) through direct PostgreSQL TLS
    using the approved secret interface. Do not replay the 26 already-ledgered
    migrations. The direct
    URL must not have query parameters that could override its TLS or host
@@ -80,22 +108,24 @@ canary:
    permitted export is the credential-free exact-SHA `postMigrationGrants`
    payload. It is an input to the separately provider-authorized direct-TLS
    procedure after the pending direct migration. Through that authorized
-   direct-TLS operator, execute the exact payload's `verificationSql` and
-   require it to pass while all five runtime roles remain staged `NOLOGIN` and
+   direct-TLS operator, preserve the five existing staged identities and stage
+   `df_ingestion` as the sixth passwordless `NOLOGIN` role before either grant
+   verification or upgrade. On the exact legacy grant posture, first run the additive
+   `postMigrationGrants.upgradeFrom0028Sql` transaction as described in Section 2;
+   then require verification to pass while all six runtime roles remain staged `NOLOGIN` and
    passwordless. Only after that result may step 2 activate a runtime role. The
    payload does not authorize provider activity during repository-only work.
-2. After migration verification, activate the five existing staged runtime
-   roles with distinct least-privilege passwords through the approved secure
+2. After migration and grant verification, activate the six staged runtime roles with distinct least-privilege passwords through the approved secure
    interface. Run that exact SHA's
    `postMigrationGrants.postCredentialVerificationSql` and require it to pass.
    Following Section 2's secret-safe direct-TLS procedure, run
-   `pnpm runtime-roles:postgres:check` through all five direct runtime-role
-   credential paths and require all five role checks to pass; only then create
-   exactly five cache-disabled TLS Hyperdrives—one for each edge, web,
-   usage-consumer, acquisition-worker, and MCP role. Never bind the migration
+   `pnpm runtime-roles:postgres:check` through all six direct runtime-role
+   credential paths and require all six role checks to pass; only then create
+   exactly six cache-disabled TLS Hyperdrives—one for each edge, web,
+   usage-consumer, acquisition-worker, ingestion-worker, and MCP role. Never bind the migration
    principal to a Worker. The SQL verifier must read back the hosted ledger,
-   private schema, five roles, 57 expected function signatures with exact
-   `data_foundry, pg_catalog, extensions` function paths, and 199 exact grants.
+   private schema, six roles, and the exact generated function and grant inventories,
+   including every `data_foundry, pg_catalog, extensions` function search path.
    The direct credential probe independently verifies each server-side login
    identity, nonprivileged role posture, empty membership, exact live and durable
    search paths, safe session settings, and effective-privilege boundaries.
@@ -112,14 +142,15 @@ canary:
    `data-foundry-private-canary-dlq` ->
    `data-foundry-private-canary-quarantine`. Do not rely on a provider-created
    default DLQ retention. Then create the dedicated private-canary receipt
-   bucket, copy the six tracked route-less templates to their ignored deployment
-   manifests, and copy the five ordinary templates to ignored collision-control
+   bucket, copy the seven tracked route-less templates to their ignored deployment
+   manifests, and copy the six ordinary templates to ignored collision-control
    manifests:
    ```powershell
    Copy-Item apps/edge/wrangler.private-canary.toml apps/edge/wrangler.private-canary.production.toml
    Copy-Item apps/web/wrangler.private-canary.toml apps/web/wrangler.private-canary.production.toml
    Copy-Item apps/usage-consumer/wrangler.private-canary.toml apps/usage-consumer/wrangler.private-canary.production.toml
    Copy-Item apps/acquisition-worker/wrangler.private-canary.toml apps/acquisition-worker/wrangler.private-canary.production.toml
+   Copy-Item apps/ingestion-worker/wrangler.private-canary.toml apps/ingestion-worker/wrangler.private-canary.production.toml
    Copy-Item apps/mcp-worker/wrangler.private-canary.toml apps/mcp-worker/wrangler.private-canary.production.toml
    Copy-Item apps/private-canary/wrangler.toml apps/private-canary/wrangler.production.toml
 
@@ -127,24 +158,26 @@ canary:
    Copy-Item apps/web/wrangler.toml apps/web/wrangler.production.toml
    Copy-Item apps/usage-consumer/wrangler.toml apps/usage-consumer/wrangler.production.toml
    Copy-Item apps/acquisition-worker/wrangler.toml apps/acquisition-worker/wrangler.production.toml
+   Copy-Item apps/ingestion-worker/wrangler.toml apps/ingestion-worker/wrangler.production.toml
    Copy-Item apps/mcp-worker/wrangler.toml apps/mcp-worker/wrangler.production.toml
    ```
-   Add the same non-secret account id to all six temporary canary/harness
+   Add the same non-secret account id to all seven temporary canary/harness
    manifests, and add one role-specific Hyperdrive object with exactly `binding`
-   and `id` to each of the five target manifests only. All five target manifests
-   must name the same account and five distinct Hyperdrives. The private-canary
+   and `id` to each of the six target manifests only. All six target manifests
+   must name the same account and six distinct Hyperdrives. The private-canary
    manifest has no Hyperdrive or Queue producer. The deployment-mode canary checks load the
-   five ignored ordinary deployment manifests as collision controls. They are not deployment inputs for this canary phase; do not add provider bindings to or
+   six ignored ordinary deployment manifests as collision controls. They are not deployment inputs for this canary phase; do not add provider bindings to or
    deploy those ordinary manifests while the route-less canary is running. Do
    not add a service-binding environment selector, a local connection string, a
    public route, hostname, R2 raw-artifact binding, Cron, `POSTGRES_URL`, or
-   protected value to the six temporary manifests.
+   protected value to the seven temporary manifests.
 
-   The five reduced profiles create temporary dedicated Worker identities:
+   The six reduced profiles create temporary dedicated Worker identities:
    `data-foundry-private-canary-edge`,
    `data-foundry-private-canary-web`,
    `data-foundry-private-canary-usage-consumer`,
-   `data-foundry-private-canary-acquisition-worker`, and
+   `data-foundry-private-canary-acquisition-worker`,
+   `data-foundry-private-canary-ingestion-worker`, and
    `data-foundry-private-canary-mcp-hvac`. The private-canary harness binds
    only to those identities. Never deploy a reduced profile under an ordinary
    Worker name: it can replace that Worker's Cron, R2, Queue, or future ordinary
@@ -159,10 +192,10 @@ canary:
    The tracked `private-canary:targets:check` remains available without ignored
    deployment files. Each deployment-mode check (`private-canary-deployment`,
    `private-canary-target-deployment`, and `private-canary-full-deployment`)
-   fails closed until all five ignored ordinary `wrangler.production.toml`
-   manifests and the six ignored canary/harness manifests exist. Its sanitized
+   fails closed until all six ignored ordinary `wrangler.production.toml`
+   manifests and the seven ignored canary/harness manifests exist. Its sanitized
    output must not be worked around by changing tracked files.
-5. Deploy the five route-less target profiles as the temporary dedicated Worker
+5. Deploy the six route-less target profiles as the temporary dedicated Worker
    identities and then deploy the route-less private canary harness. Verify each
    private queue separately; the explicit mapping is:
 
@@ -190,7 +223,7 @@ canary:
    purge the shared usage DLQ. Before invoking a target, the harness recomputes
    all six fixture identifiers from the canonical run/cycle and retries any
    altered but structurally valid envelope without writing a receipt. Record
-   provider deployment evidence that binds all six deployed Worker
+   provider deployment evidence that binds all seven deployed Worker
    scripts/versions to the designated release SHA and
    read back all five private queue retentions, producers, consumers, retry
    counts, and dead-letter destinations; receipt contents alone do not attest a
@@ -215,7 +248,7 @@ The conventional `wrangler.production.toml` procedure and all public
 hostname/cutover steps below are later-production controls. They are not an
 alternative canary route for this workstream.
 
-Protected `main` contains the ordinary five-Worker production topology and
+Historical repository snapshot (2026-09-03): protected `main` contained the ordinary five-Worker production topology and
 repository migrations through `0028`:
 `apps/edge`, `apps/web`, `apps/usage-consumer`,
 `apps/acquisition-worker`, and `apps/mcp-worker`, including the PR #22 closeout
@@ -223,8 +256,9 @@ merged as `9c917c0f708352dfb79861110023145eb23806e3` and the PR #26
 release-boundary work merged as
 `02e90d70d0000d21c7f9b070b4e1b2e1d5dd7493`. No production
 deployment of the integrated protected-main tree is recorded or verified. It is
-separate from the temporary six-artifact private-canary topology above: five
+separate from the temporary six-artifact private-canary topology at that time: five
 reduced dedicated targets plus the no-Hyperdrive harness.
+
 Wrangler authentication is available in the current verification environment,
 but provider-side containment `UA-006` explicitly blocks using it for mutation
 or deployment. Authentication is not authorization: exact deployment IDs and
@@ -239,15 +273,15 @@ account/zone and staged Alpha Lab database, securely activate only the controlle
 `df_migration` credential and exact database-scoped path, apply the pending
 exact-SHA database procedure and require `postMigrationGrants.verificationSql`
 to pass; only then
-activate the five staged runtime roles with distinct credentials and the exact
+preserve the staged roles, add `df_ingestion`, and activate all six runtime roles with distinct credentials and the exact
 database-scoped path, require both
-`postMigrationGrants.postCredentialVerificationSql` and the five direct
+`postMigrationGrants.postCredentialVerificationSql` and the six direct
 `pnpm runtime-roles:postgres:check` credential probes to pass, and provision the
-five matching cache-disabled Hyperdrives. Then provision one raw-artifact R2
+six matching cache-disabled Hyperdrives. Then provision one raw-artifact R2
 bucket, preserve the ordinary usage Queue/DLQ, create all five dedicated
 temporary canary queues (the synthetic-metering Queue/DLQ pair and control
-ingress/DLQ/quarantine chain), and deploy first the six temporary private-canary
-Workers, then only later the five ordinary production Workers. Set protected
+ingress/DLQ/quarantine chain), and deploy first the seven temporary private-canary
+Workers, then only later the six ordinary production Workers. Set protected
 values without exposing them; then prove the exact deployed SHA, rights
 behavior, Queue persistence, Cron/R2 acquisition, and emergency public-cache
 purge. RapidAPI and MCP live-channel proof are separate external gates.
@@ -345,7 +379,8 @@ credential must not be committed.
 2. Through the secure provider flow, activate only the existing staged
    `df_migration` role as the controlled migration login; it owns only
    `data_foundry`. On a fresh installation, create it with that same boundary.
-   Keep the five existing edge, web, MCP, usage-consumer, and acquisition roles
+   Keep the five existing edge, web, MCP, usage-consumer, and acquisition roles;
+   stage a sixth `df_ingestion` identity with the same nonprivileged posture. Keep all six
    staged as separate `NOLOGIN`, passwordless, least-privilege roles. On a fresh
    installation, create those runtime roles in that same staged state. No
    runtime role may own objects, create in the shared `public` schema, or
@@ -428,8 +463,8 @@ credential must not be committed.
    ```
    When the existing ledger is the exact historical `0001`–`0026` prefix, set the
    non-secret exact checked-out release SHA and run the frozen migration runner
-   twice: the first invocation applies only pending `0027` and `0028`; the second
-   proves the full `0001`–`0028` chain is already applied.
+   twice: the first invocation applies only pending `0027` through the selected candidate's latest migration (currently `0033`); the second
+   proves the full candidate migration chain is already applied.
    ```powershell
    $env:DATA_FOUNDRY_SCHEMA = "data_foundry"
    $env:DATA_FOUNDRY_RELEASE_SHA = "<40-character-reviewed-Git-SHA>"
@@ -491,7 +526,7 @@ credential must not be committed.
    The one permitted direct-TLS runtime-grant packet is
    `postMigrationGrants`. Before exporting and using it, the secure
    provider path must create `df_edge`, `df_web`, `df_mcp`, `df_usage`, and
-   `df_acquisition` as NOLOGIN, nonprivileged, non-member roles with only
+   `df_acquisition`, and `df_ingestion` as NOLOGIN, nonprivileged, non-member roles with only
    direct, non-grantable `CONNECT` on the current database and `USAGE` on
    `extensions`. Inherited `PUBLIC` database `CONNECT`/`TEMP` on the current
    database and catalog-marked templates remains unchanged and distinct from
@@ -507,20 +542,29 @@ credential must not be committed.
    running `verificationSql`. On the hosted exact-legacy upgrade, migration
    `0027` itself converts only the attested 200-grant acquisition shape to the
    exact 199-grant shape; `0028` then adds only the four audited rights-path
-   indexes. Do not reapply the grant installer, which correctly
-   refuses pre-existing runtime ACLs. Run `verificationSql` directly after
-   `0027` and `0028`. Never submit
+   indexes. For this upgrade, stage the sixth identity as `NOLOGIN`, apply the
+   entire pending candidate migration chain, and run the exact generated
+   `postMigrationGrants.upgradeFrom0028Sql`. It requires the frozen 199-grant
+   baseline and current full ledger, adds only the reviewed capabilities, and
+   checks its current postcondition in the same transaction. Unknown ACL drift
+   must fail; do not normalize or revoke unrelated grants. Do not reapply the
+   fresh-install grant installer, which refuses pre-existing runtime ACLs.
+   Require `verificationSql` to pass after the explicit upgrade. Never submit
    the packet to a provider connector or provider migration record, and never
    use a password-bearing runtime connection for this step. The payload locks and
    validates
    the full canonical ledger, exact relation/function inventories and ownership,
-   every one of the 57 exact function search paths, zero `SECURITY DEFINER`
+   every generated exact function search path, zero `SECURITY DEFINER`
    functions, private-schema/public-schema ACL
-   prerequisites, and the absence of any pre-existing target-role privilege;
+   prerequisites, and the selected installer's exact initial ACL state (empty
+   for a new installation, frozen legacy inventory for the additive upgrade);
    it refuses drift instead of normalizing it. It then grants only the reviewed
-   table/column matrix and, because a narrower call dependency cannot be proved
-   statically, EXECUTE on the manifest's explicit 57-signature invoker-function
-   inventory to `df_acquisition` alone. It changes neither the application
+   table/column matrix, `USAGE` only on `ingestion_job_transitions_id_seq`, and
+   the lock prerequisites `UPDATE(id)` on snapshot acceptances and `UPDATE` on
+   fact dependencies. Their immutable-history triggers must reject actual and
+   no-op mutations; DELETE/TRUNCATE stay denied. Because a narrower call dependency cannot be proved
+   statically, EXECUTE on the manifest's explicit invoker-function
+   inventory to `df_acquisition` alone. Ingestion receives only its explicit relation and column capabilities; PostgreSQL trigger execution does not require granting it direct function EXECUTE. It changes neither the application
    ledger nor default privileges. The installer and both verifiers require the
    migration login's exact current-database durable search-path row and reject
    every role-global setting row. The guard computes `df_migration`'s effective
@@ -535,9 +579,9 @@ credential must not be committed.
    the operator-approved pre-deployment fingerprint before the secure LOGIN
    transition.
 
-   ACL validation is exact, not limited to the five runtime roles. The
+   ACL validation is exact, not limited to the six runtime roles. The
    pre-grant private-schema baseline permits only the intrinsic owner ACLs on
-   `data_foundry` and its explicit 57-routine inventory; relation owner entries
+   `data_foundry` and its explicit generated routine inventory; relation owner entries
    that PostgreSQL materializes while granting another role are normalized as
    intrinsic owner privileges. Any direct private grant to `PUBLIC`, a Supabase
    API role, or an arbitrary observer is drift. For each runtime role, the only
@@ -592,20 +636,21 @@ credential must not be committed.
 
    The NOLOGIN state is staging, not the Worker runtime state. After the grant
    payload and its `verificationSql` pass, use the provider's secure credential
-   interface to assign a distinct password and enable LOGIN on those same five
+   interface to assign a distinct password and enable LOGIN on those six
    `df_*` roles; do not create wrapper roles, memberships, or password-bearing
    SQL artifacts. Then run `postCredentialVerificationSql` as the controlled
-   operator. It requires all five roles to be direct, nonprivileged LOGIN roles
+   operator. It requires all six roles to be direct, nonprivileged LOGIN roles
    while rechecking the exact ACL and membership invariants. Each Hyperdrive
    origin must authenticate directly as its matching `df_*` role; Workers do
    not issue `SET ROLE`.
 
-   On the deployment target after all five credentials are activated, prove the
+   On the deployment target after all six credentials are activated, prove the
    actual credential paths by
-   supplying the five role-specific connection URLs only through
+   supplying the six role-specific connection URLs only through
    `DATA_FOUNDRY_EDGE_POSTGRES_URL`, `DATA_FOUNDRY_WEB_POSTGRES_URL`,
    `DATA_FOUNDRY_MCP_POSTGRES_URL`, `DATA_FOUNDRY_USAGE_POSTGRES_URL`, and
-   `DATA_FOUNDRY_ACQUISITION_POSTGRES_URL`, setting
+   `DATA_FOUNDRY_ACQUISITION_POSTGRES_URL`, and
+   `DATA_FOUNDRY_INGESTION_POSTGRES_URL`, setting
    `DATA_FOUNDRY_RUNTIME_ROLE_CONNECTION_TEST=1`, and running
    `pnpm runtime-roles:postgres:check`. The check opens each role directly,
    rejects connection URLs with startup `options` and any ambient `PGOPTIONS`,
@@ -624,7 +669,7 @@ credential must not be committed.
    established, stop rather than substituting a connector or retrying by
    renaming a packet.
 4. Create one Hyperdrive configuration per Worker role (`df-edge`, `df-web`,
-   `df-mcp`, `df-usage`, and `df-acquire`), with SQL query caching disabled.
+   `df-mcp`, `df-usage`, `df-acquire`, and `df-ingestion`), with SQL query caching disabled.
    A single shared configuration would make all Workers share one upstream
    database credential and defeats least privilege. Configure conservative
    origin connection limits only after the Direct-origin reachability test.
@@ -948,11 +993,11 @@ deployment and needs the exact provider evidence described above.
    disabled, following section 2's steps.
 4. Keep every tracked `wrangler.toml` free of live account, route and Hyperdrive
    ids. The conventional `wrangler.production.toml` path below is a later public
-   production procedure. The current route-less canary must instead use the six
-   ignored private-canary manifests: five reduced target Workers and the
+   production procedure. The current route-less canary must instead use the seven
+   ignored private-canary manifests: six reduced target Workers and the
    no-Hyperdrive harness, with the exact field restrictions in the 2026-09-01
    control at the top of this document. Its three deployment-mode checks also
-   require all five ignored ordinary `wrangler.production.toml` manifests as
+   require all six ignored ordinary `wrangler.production.toml` manifests as
    collision controls; those ordinary manifests are not deployed in the canary
    phase. Protected values remain provider bindings, never manifest text or
    command output.
@@ -963,10 +1008,11 @@ deployment and needs the exact provider evidence described above.
    Copy-Item apps/mcp-worker/wrangler.toml apps/mcp-worker/wrangler.production.toml
    Copy-Item apps/usage-consumer/wrangler.toml apps/usage-consumer/wrangler.production.toml
    Copy-Item apps/acquisition-worker/wrangler.toml apps/acquisition-worker/wrangler.production.toml
+   Copy-Item apps/ingestion-worker/wrangler.toml apps/ingestion-worker/wrangler.production.toml
    Copy-Item apps/web/wrangler.toml apps/web/wrangler.production.toml
    ```
-   Add the non-secret live binding/account/route/host values only to those five
-   ignored files. All five must name the same exact 32-hex `account_id`. Set
+   Add the non-secret live binding/account/route/host values only to those six
+   ignored files. All six must name the same exact 32-hex `account_id`. Set
    `PUBLIC_CACHE_MODE = "no-store"` in the web deployment manifest. Production
    rejects `cache` until rights-lifetime-aware invalidation exists.
     When the marketplace channel is enabled, add a second edge route for its
@@ -987,18 +1033,20 @@ deployment and needs the exact provider evidence described above.
    ignores staged edits and could falsely pass after a live id was staged. Keep
    every non-secret live value in the matching ignored manifest rather than
    duplicating it on the command line. From the repository root, dry-run and
-   deploy the five exact manifests with the repository-pinned Wrangler:
+   deploy the six exact manifests with the repository-pinned Wrangler:
    ```powershell
    pnpm exec wrangler deploy --dry-run --config apps/edge/wrangler.production.toml --env-file tooling/wrangler-empty.env
    pnpm exec wrangler deploy --dry-run --config apps/web/wrangler.production.toml --env-file tooling/wrangler-empty.env
    pnpm exec wrangler deploy --dry-run --config apps/usage-consumer/wrangler.production.toml --env-file tooling/wrangler-empty.env
    pnpm exec wrangler deploy --dry-run --config apps/acquisition-worker/wrangler.production.toml --env-file tooling/wrangler-empty.env
+   pnpm exec wrangler deploy --dry-run --config apps/ingestion-worker/wrangler.production.toml --env-file tooling/wrangler-empty.env
    pnpm exec wrangler deploy --dry-run --config apps/mcp-worker/wrangler.production.toml --env-file tooling/wrangler-empty.env
 
    pnpm exec wrangler deploy --config apps/edge/wrangler.production.toml --env-file tooling/wrangler-empty.env
    pnpm exec wrangler deploy --config apps/web/wrangler.production.toml --env-file tooling/wrangler-empty.env
    pnpm exec wrangler deploy --config apps/usage-consumer/wrangler.production.toml --env-file tooling/wrangler-empty.env
    pnpm exec wrangler deploy --config apps/acquisition-worker/wrangler.production.toml --env-file tooling/wrangler-empty.env
+   pnpm exec wrangler deploy --config apps/ingestion-worker/wrangler.production.toml --env-file tooling/wrangler-empty.env
    pnpm exec wrangler deploy --config apps/mcp-worker/wrangler.production.toml --env-file tooling/wrangler-empty.env
    ```
    Before those commands, store independently supplied protected values
@@ -1048,9 +1096,9 @@ deployment and needs the exact provider evidence described above.
    pnpm exec wrangler secret put CRAWL4AI_API_TOKEN --config apps/acquisition-worker/wrangler.production.toml --env-file tooling/wrangler-empty.env
    ```
 
-   From the repository root, verify all five tracked templates together:
+   From the repository root, verify all six tracked templates together:
    ```powershell
-   git diff --exit-code HEAD -- apps/edge/wrangler.toml apps/web/wrangler.toml apps/usage-consumer/wrangler.toml apps/acquisition-worker/wrangler.toml apps/mcp-worker/wrangler.toml
+   git diff --exit-code HEAD -- apps/edge/wrangler.toml apps/web/wrangler.toml apps/usage-consumer/wrangler.toml apps/acquisition-worker/wrangler.toml apps/ingestion-worker/wrangler.toml apps/mcp-worker/wrangler.toml
    ```
 
 ### Verify
@@ -1164,37 +1212,38 @@ commercial gate.
 ## 9. Production launch order
 
 1. Freeze the live 40-character protected-main SHA and rerun its release gates;
-   the reconciled rights, usage, auth/metering, web, RapidAPI, acquisition, and
-   MCP baseline and PR #22 closeout hardening are complete through migration
-   `0028`. That repository baseline authorizes no Alpha Lab mutation. Before
+   use the candidate's complete migration chain, currently through `0033`,
+   and the generated current role inventory. That repository baseline authorizes no Alpha Lab mutation. Before
    proceeding to step 2 and only after `UA-006`, securely activate only the
    staged `df_migration` role as the controlled login with its exact
    database-scoped path, verify the cluster boundary, reconcile the hosted
    `0001`–`0026` ledger, then use `DATA_FOUNDRY_SCHEMA=data_foundry` to apply only
-   pending `0027` and `0028` in Alpha Lab's private `data_foundry` schema, never
-   in `public`; rerun the migration as a no-op and execute that exact SHA's
-   exported read-only
-   `postMigrationGrants.verificationSql`. It must prove the full `0001`–`0028`
-   ledger, relation/routine inventory, ownership, ACL, and 57 function search
+pending `0027` through the selected candidate's latest migration (currently `0033`) in Alpha Lab's private `data_foundry` schema, never
+   in `public`; rerun the migration as a no-op. Preserve the five existing staged
+   identities and stage `df_ingestion` as the sixth passwordless `NOLOGIN` role.
+   Apply that exact SHA's additive `postMigrationGrants.upgradeFrom0028Sql`
+   against the required frozen legacy baseline, then run the exported read-only
+   `postMigrationGrants.verificationSql`. It must prove the full candidate
+   ledger, relation/routine inventory, ownership, ACL, and the exact generated function search
    paths before any runtime credential, Hyperdrive, R2, or Queue provisioning. Do
    not reuse the pre-merge candidate evidence after a later main or deployment
    change.
-2. Activate the five existing staged `NOLOGIN` runtime roles with isolated
+2. Activate the six verified staged `NOLOGIN` runtime roles with isolated
    least-privilege login credentials, then execute that exact SHA's
    `postMigrationGrants.postCredentialVerificationSql` and require it to pass.
-   Then run `pnpm runtime-roles:postgres:check` through all five direct
-   credential paths and require all five role checks to pass. Only then
-   provision the five matching cache-disabled Hyperdrives, R2, and the Queue/DLQ
+   Then run `pnpm runtime-roles:postgres:check` through all six direct
+   credential paths and require all six role checks to pass. Only then
+   provision the six matching cache-disabled Hyperdrives, R2, and the Queue/DLQ
    resources required by the route-less temporary canary. Do not
    recreate the private schema or staged roles, and do not change ordinary
    production Worker configuration at this stage.
-3. Deploy and attest all six route-less private-canary Worker artifacts — five
+3. Deploy and attest all seven route-less private-canary Worker artifacts — six
    temporary reduced targets plus the no-Hyperdrive harness — then prove exact-SHA
    health/readiness, repeated Hyperdrive private-schema behavior, and real queue
    behavior before changing `data.aroqon.com`. Do not treat Vercel's current 404
    deployment as rollback.
 4. Only after that private-canary proof and separate public authorization, deploy
-   the five ordinary production Workers with their ordinary Cron/R2/Queue/route
+   the six ordinary production Workers with their ordinary Cron/R2/Queue/route
    configuration.
 5. Rights-clear and ingest the first real commercial vertical.
 6. Mark a vertical `ACTIVE` only after its real-source review is complete, and
@@ -1216,3 +1265,18 @@ still required incident controls because the repository controls response
 headers, not every provider cache rule or purge result. Enabling public caching
 requires a later reviewed implementation that binds cache retention and
 invalidation to exact rights effective and expiry state.
+
+
+## Separate fixed-fixture ingestion phase
+
+This is a second phase on the **same** temporary `data-foundry-private-canary-ingestion-worker` identity. The six ordinary plus seven receipt-phase artifacts remain thirteen core configurations. `wrangler.synthetic-ingestion.toml` is an explicitly separate **fourteenth configuration**, built by `pnpm cloudflare:synthetic-ingestion:artifacts:check`. Its queue-only entrypoint has no HTTP, Cron, producer, email, receipt writer or external acquisition path. It does not dispatch the ordinary outbox. Successful local builds and fixture tests do not prove this phase on Cloudflare.
+
+1. Finish and retain the source-free seven-Worker receipt-v2 proof first, then suspend the harness for the entire ingestion phase. Use the exact candidate's complete 32-migration ledger, current grant inventory and verified `df_ingestion` Hyperdrive. The ordinary ingestion Worker remains undeployed while synthetic deliveries are pending; otherwise its dispatcher can publish them to the ordinary queue.
+2. Run `pnpm cloudflare:synthetic-ingestion:check -- --manifest` for a closed, hash-checked manifest of exactly `acme-hvac-catalog` JSON and the fictional `ahri-directory-export` CSV. This prints only repository fixture paths, source keys, sizes, hashes and canonical object keys. It performs no provider or database writes. These are synthetic controls and confer no permission for the real AHRI directory.
+3. After explicit provider authorization, stage only these exact bytes in private `data-foundry-private-ingestion-artifacts`. Create isolated `data-foundry-private-ingestion` and `data-foundry-private-ingestion-dlq` queues with 14-day retention; neither may share the ordinary ingestion/usage queues or receipt-phase queues/bucket. Keep raw-object metadata consistent with the ordinary R2 artifact contract. Do not substitute uploaded user content, real-source bytes or arbitrary artifact keys.
+4. Stage synthetic rights, acquisition observations, immutable artifact links and corresponding ingestion outbox records through the existing guarded database operations. Each delivery must reference exactly one successful `FETCHED` artifact matching the manifest, the current ingestion runtime digest and the fictional source. Keep fixture rights limited to internal processing. Record these staged delivery IDs and expected entity/fact/evidence counts for review. This staging is a separate authorized database operation; the manifest command does not perform it.
+5. Copy `apps/ingestion-worker/wrangler.synthetic-ingestion.toml` to ignored `apps/ingestion-worker/wrangler.synthetic-ingestion.production.toml`; add only the account ID and the already-verified `df_ingestion` Hyperdrive ID. Run `pnpm cloudflare:synthetic-ingestion:check -- --deployment` and its separate artifact check, then inspect the exact deployment diff. The validator rejects extra bindings/environment overrides, the account and Hyperdrive must exactly match the already-reviewed reduced ingestion profile, and all thirteen actual ignored ordinary/reduced/harness deployment manifests must be present and pass their complete topology checks. The account must match every control manifest; resources are compared against these actual deployment controls. Provisioning and deployment remain owner-authorized provider actions.
+6. Deploy this profile to the temporary ingestion identity and enqueue only `{ "version": 1, "deliveryId": "<staged UUID>" }` to the private ingestion queue. Prove real JSON and CSV processing, entity/fact/evidence persistence, duplicate delivery acknowledgement, bounded failure-to-DLQ behavior and rights/hash refusals. Read only closed aggregate metadata into the evidence receipt. Do not claim hosted ingestion success from the ordinary readiness probe or the local PostgreSQL control.
+7. Drain or quarantine the synthetic queue and account for every staged delivery before ending this phase. Restore the exact reduced `wrangler.private-canary.production.toml` on the same identity, verify the synthetic R2 and Queue consumer bindings are gone, then rerun the receipt harness. Do not run that harness against the synthetic profile, which intentionally has no readiness RPC entrypoint. Remove temporary synthetic resources only after retained evidence and explicit cleanup authorization. Keep production deployment blocked until the ordinary host, rights, billing and paid-delivery gates also pass.
+
+Ordinary operator alerts default to `OPS_ALERTS_ENABLED = "false"`. Enabling requires one `OPS_EMAIL` binding restricted by `destination_address = OPS_ALERT_TO` and exactly `allowed_sender_addresses = [OPS_ALERT_FROM]`, with single valid addresses. The owner must first verify the destination and onboard the sender with Cloudflare; then prove actual provider acceptance and alert deduplication. No email binding or addresses are needed for either private canary phase, and local tests never send mail.

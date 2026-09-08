@@ -10,6 +10,18 @@ afterAll(async () => {
 });
 
 describe('the edge vertical runtime compiler', () => {
+  it('ships the ingestion alias rules unchanged to every read surface', async () => {
+    const { compileVerticalRuntime } = await import('../scripts/compile-vertical-runtime.js');
+    const { compileWebRuntime } = await import('../scripts/compile-web-runtime.js');
+    const { compileMcpRuntime } = await import('../scripts/compile-mcp-runtime.js');
+    const runtimes = await Promise.all([compileVerticalRuntime('hvac'), compileWebRuntime('hvac'), compileMcpRuntime('hvac')]);
+    for (const runtime of runtimes) {
+      const spec = (runtime as unknown as { identifier_normalization: {rules: {alias_type: string; ops: unknown[]}[]} }).identifier_normalization;
+      expect(spec?.rules.find((rule) => rule.alias_type === 'ahri_ref')?.ops).toContainEqual({ op: 'strip_prefix', prefixes: ['AHRI', 'AHRI-', 'AHRI '] });
+    }
+    expect((runtimes[1] as any).identifier_normalization).toEqual((runtimes[0] as any).identifier_normalization);
+    expect((runtimes[2] as any).identifier_normalization).toEqual((runtimes[0] as any).identifier_normalization);
+  });
   it('generates the JSON artifacts and typed registry from one bundled-vertical list', async () => {
     const module = await import('../scripts/compile-vertical-runtime.js');
     const bundled = (module as Record<string, unknown>)['BUNDLED_VERTICALS'];

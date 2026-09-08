@@ -3,7 +3,7 @@
  *
  * The usage consumer retries the fixed synthetic envelope until it arrives in
  * the dedicated private-canary DLQ. This Worker consumes only that narrow
- * shape, invokes the five named service-entrypoint capabilities, and persists
+ * shape, invokes the six named service-entrypoint capabilities, and persists
  * a closed receipt. It deliberately has no `fetch` handler, secret, database,
  * Hyperdrive, source artifact, or public route.
  */
@@ -43,6 +43,7 @@ export interface PrivateCanaryEnv {
   readonly WEB_CANARY: PrivateCanaryProbe;
   readonly USAGE_CONSUMER_CANARY: PrivateCanaryProbe;
   readonly ACQUISITION_CANARY: PrivateCanaryProbe;
+  readonly INGESTION_CANARY: PrivateCanaryProbe;
   readonly MCP_CANARY: PrivateCanaryProbe;
   readonly CANARY_RECEIPTS: PrivateCanaryReceiptBucket;
 }
@@ -54,12 +55,13 @@ export interface PrivateCanaryConsumeOptions {
 
 const TARGETS: readonly (readonly [PrivateCanaryWorker, keyof Pick<
   PrivateCanaryEnv,
-  'EDGE_CANARY' | 'WEB_CANARY' | 'USAGE_CONSUMER_CANARY' | 'ACQUISITION_CANARY' | 'MCP_CANARY'
+  'EDGE_CANARY' | 'WEB_CANARY' | 'USAGE_CONSUMER_CANARY' | 'ACQUISITION_CANARY' | 'INGESTION_CANARY' | 'MCP_CANARY'
 >])[] = [
   ['edge', 'EDGE_CANARY'],
   ['web', 'WEB_CANARY'],
   ['usage-consumer', 'USAGE_CONSUMER_CANARY'],
   ['acquisition-worker', 'ACQUISITION_CANARY'],
+  ['ingestion-worker', 'INGESTION_CANARY'],
   ['mcp-worker', 'MCP_CANARY'],
 ];
 

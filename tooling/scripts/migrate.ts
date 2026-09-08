@@ -1037,6 +1037,11 @@ export const EXPECTED_TABLES = [
   'fact_dependencies',
   'scheduled_acquisition_runs',
   'scheduled_acquisition_run_artifacts',
+  'ingestion_deliveries',
+  'ingestion_delivery_parts',
+  'operator_actions',
+  'operation_incidents',
+  'operation_alert_deliveries',
 ] as const;
 
 /** Owned tables present, unowned tables found beside them, and owned tables missing. */

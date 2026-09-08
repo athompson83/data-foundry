@@ -117,6 +117,7 @@ describe('CI workflow policy', () => {
       'pnpm verticals:validate',
       'pnpm verticals:compile:check',
       'pnpm acquisition:check',
+      'pnpm ingestion:check',
       'pnpm mcp:compile:check',
       'pnpm web:compile:check',
       'pnpm cloudflare:artifacts:check',
@@ -125,10 +126,10 @@ describe('CI workflow policy', () => {
     }
   });
 
-  it('labels the artifact gate as ordinary and six route-less private-canary artifacts', () => {
+  it('labels the artifact gate as ordinary and seven route-less private-canary artifacts', () => {
     const artifactGate = workflow.jobs.verify.steps.find((step) => step.run === 'pnpm cloudflare:artifacts:check');
     expect(artifactGate?.name).toBe(
-      'Cloudflare ordinary and six route-less private-canary artifacts build and are PGlite-free',
+      'Cloudflare ordinary and seven route-less private-canary artifacts build and are PGlite-free',
     );
   });
 
@@ -270,14 +271,14 @@ describe('CI workflow policy', () => {
     expect(stageRuntimeRoles?.run).not.toContain('$GITHUB_SHA');
   });
 
-  it('proves five direct least-privilege runtime roles against the disposable TLS Postgres service', () => {
+  it('proves six direct least-privilege runtime roles against the disposable TLS Postgres service', () => {
     const steps = workflow.jobs['migrations-postgres'].steps;
     const replay = steps.find((step) => step.name === 'Re-apply must be a no-op');
     const stageRuntimeRoles = steps.find((step) => step.name === 'Stage disposable runtime roles and apply exact grants');
     const activateRuntimeRoles = steps.find((step) => step.name === 'Activate disposable runtime roles with isolated credentials');
     const runtimeRoleConnections = steps.find((step) => step.name === 'Direct runtime-role TLS connection regression');
 
-    for (const role of ['df_edge', 'df_web', 'df_mcp', 'df_usage', 'df_acquisition']) {
+    for (const role of ['df_edge', 'df_web', 'df_mcp', 'df_usage', 'df_acquisition', 'df_ingestion']) {
       expect(stageRuntimeRoles?.run).toMatch(new RegExp(`CREATE ROLE ${role} NOLOGIN`));
       expect(stageRuntimeRoles?.run).toMatch(new RegExp(`GRANT CONNECT ON DATABASE data_foundry TO ${role};`));
       expect(stageRuntimeRoles?.run).toMatch(new RegExp(`GRANT USAGE ON SCHEMA extensions TO ${role};`));
@@ -303,6 +304,7 @@ describe('CI workflow policy', () => {
     expect(activateRuntimeRoles?.run).toContain('postCredentialVerification.sql');
     expect(activateRuntimeRoles?.run).toContain('DATA_FOUNDRY_EDGE_POSTGRES_URL=postgres://df_edge:');
     expect(activateRuntimeRoles?.run).toContain('DATA_FOUNDRY_ACQUISITION_POSTGRES_URL=postgres://df_acquisition:');
+    expect(activateRuntimeRoles?.run).toContain('DATA_FOUNDRY_INGESTION_POSTGRES_URL=postgres://df_ingestion:');
     expect(runtimeRoleConnections).toMatchObject({
       env: {
         DATA_FOUNDRY_RUNTIME_ROLE_CONNECTION_TEST: '1',
@@ -739,4 +741,15 @@ describe('CI workflow policy', () => {
     expect(selectsRealPostgres('packages/private-canary/src/runtime-role-policy.ts')).toBe(true);
     expect(selectsRealPostgres('docs/owner-actions/cloudflare-deployment.md')).toBe(false);
   });
+});
+
+
+it('requires the actual ingestion role pipeline with TLS and a changed-file trigger', async () => {
+  const source = readFileSync(join(ROOT, '.github/workflows/ci.yml'), 'utf8');
+  expect(source).toContain('tooling/scripts/check-ingestion-postgres.ts|');
+  expect(source).toContain('run: pnpm ingestion:postgres:check');
+  expect(source).toContain('run: pnpm cloudflare:synthetic-ingestion:artifacts:check');
+  expect(source).toContain("DATA_FOUNDRY_INGESTION_POSTGRES_TEST: '1'");
+  expect(source).toContain('DATA_FOUNDRY_INGESTION_CONTROL_POSTGRES_URL: ${{ env.POSTGRES_URL }}');
+  expect(source).not.toContain('DATA_FOUNDRY_INGESTION_PLAINTEXT_LOOPBACK:');
 });

@@ -9,6 +9,7 @@ const EDGE_CONFIG = join(REPO_ROOT, 'apps', 'edge', 'wrangler.toml');
 const CONSUMER_CONFIG = join(REPO_ROOT, 'apps', 'usage-consumer', 'wrangler.toml');
 const WEB_CONFIG = join(REPO_ROOT, 'apps', 'web', 'wrangler.toml');
 const ACQUISITION_CONFIG = join(REPO_ROOT, 'apps', 'acquisition-worker', 'wrangler.toml');
+const INGESTION_CONFIG = join(REPO_ROOT, 'apps', 'ingestion-worker', 'wrangler.toml');
 const MCP_CONFIG = join(REPO_ROOT, 'apps', 'mcp-worker', 'wrangler.toml');
 const PRIVATE_CANARY_CONFIG = join(REPO_ROOT, 'apps', 'private-canary', 'wrangler.toml');
 const CONSUMER_PRIVATE_CANARY_CONFIG = join(
@@ -25,6 +26,7 @@ const HYPERDRIVE_ID = 'abcdef1234567890abcdef1234567890';
 const CONSUMER_HYPERDRIVE_ID = 'bcdef1234567890abcdef1234567890a';
 const WEB_HYPERDRIVE_ID = 'cdef1234567890abcdef1234567890ab';
 const ACQUISITION_HYPERDRIVE_ID = 'def1234567890abcdef1234567890abc';
+const INGESTION_HYPERDRIVE_ID = 'f1234567890abcdef1234567890abcde';
 const MCP_HYPERDRIVE_ID = 'ef1234567890abcdef1234567890abcd';
 const temporaryDirectories: string[] = [];
 
@@ -39,17 +41,20 @@ async function loadValidator(): Promise<(
     readonly consumerConfigPath?: string;
     readonly webConfigPath?: string;
     readonly acquisitionConfigPath?: string;
+    readonly ingestionConfigPath?: string;
     readonly mcpConfigPath?: string;
     readonly edgeDeploymentConfigPath?: string;
     readonly consumerDeploymentConfigPath?: string;
     readonly webDeploymentConfigPath?: string;
     readonly acquisitionDeploymentConfigPath?: string;
+    readonly ingestionDeploymentConfigPath?: string;
     readonly mcpDeploymentConfigPath?: string;
     readonly privateCanaryConfigPath?: string;
     readonly edgePrivateCanaryConfigPath?: string;
     readonly consumerPrivateCanaryConfigPath?: string;
     readonly webPrivateCanaryConfigPath?: string;
     readonly acquisitionPrivateCanaryConfigPath?: string;
+    readonly ingestionPrivateCanaryConfigPath?: string;
     readonly mcpPrivateCanaryConfigPath?: string;
   },
 ) => Promise<readonly string[]>> {
@@ -64,17 +69,20 @@ async function loadValidator(): Promise<(
       readonly consumerConfigPath?: string;
       readonly webConfigPath?: string;
       readonly acquisitionConfigPath?: string;
+      readonly ingestionConfigPath?: string;
       readonly mcpConfigPath?: string;
       readonly edgeDeploymentConfigPath?: string;
       readonly consumerDeploymentConfigPath?: string;
       readonly webDeploymentConfigPath?: string;
       readonly acquisitionDeploymentConfigPath?: string;
+      readonly ingestionDeploymentConfigPath?: string;
       readonly mcpDeploymentConfigPath?: string;
       readonly privateCanaryConfigPath?: string;
       readonly edgePrivateCanaryConfigPath?: string;
       readonly consumerPrivateCanaryConfigPath?: string;
       readonly webPrivateCanaryConfigPath?: string;
       readonly acquisitionPrivateCanaryConfigPath?: string;
+      readonly ingestionPrivateCanaryConfigPath?: string;
       readonly mcpPrivateCanaryConfigPath?: string;
     },
   ) => Promise<readonly string[]>;
@@ -85,6 +93,7 @@ async function writeDeploymentManifests(directory: string): Promise<{
   readonly consumerConfigPath: string;
   readonly webConfigPath: string;
   readonly acquisitionConfigPath: string;
+  readonly ingestionConfigPath: string;
   readonly mcpConfigPath: string;
 }> {
   const binding = (id: string): string => `\n[[hyperdrive]]\nbinding = "HYPERDRIVE"\nid = "${id}"\n`;
@@ -96,6 +105,7 @@ async function writeDeploymentManifests(directory: string): Promise<{
   const consumerConfigPath = join(directory, 'consumer.toml');
   const webConfigPath = join(directory, 'web.toml');
   const acquisitionConfigPath = join(directory, 'acquisition.toml');
+  const ingestionConfigPath = join(directory, 'ingestion.toml');
   const mcpConfigPath = join(directory, 'mcp.toml');
   const edge = `${withAccountId(
     withTopLevelRoute(await readFile(EDGE_CONFIG, 'utf8'), 'api.datafoundry.io/*'),
@@ -111,6 +121,7 @@ async function writeDeploymentManifests(directory: string): Promise<{
       `RAW_ARTIFACTS_BUCKET_NAME = "data-foundry-raw-artifacts"\nCLOUDFLARE_ACCOUNT_ID = "${ACCOUNT_ID}"`,
     ),
   )}${binding(ACQUISITION_HYPERDRIVE_ID)}`;
+  const ingestion = `${withAccountId(await readFile(INGESTION_CONFIG, 'utf8'))}${binding(INGESTION_HYPERDRIVE_ID)}`;
   const mcp = `${withAccountId((await readFile(MCP_CONFIG, 'utf8')).replace(
     'API_KEY_ENVIRONMENT = "live"',
     'API_KEY_ENVIRONMENT = "live"\nMCP_HOSTNAME = "mcp.datafoundry.io"\nMCP_ALLOWED_ORIGINS = "https://app.datafoundry.io"\nPUBLIC_ORIGIN = "https://www.datafoundry.io"',
@@ -122,9 +133,10 @@ async function writeDeploymentManifests(directory: string): Promise<{
     writeFile(consumerConfigPath, consumer, 'utf8'),
     writeFile(webConfigPath, webWithRoute, 'utf8'),
     writeFile(acquisitionConfigPath, acquisition, 'utf8'),
+    writeFile(ingestionConfigPath, ingestion, 'utf8'),
     writeFile(mcpConfigPath, mcpWithRoute, 'utf8'),
   ]);
-  return { edgeConfigPath, consumerConfigPath, webConfigPath, acquisitionConfigPath, mcpConfigPath };
+  return { edgeConfigPath, consumerConfigPath, webConfigPath, acquisitionConfigPath, ingestionConfigPath, mcpConfigPath };
 }
 
 type DeploymentManifestPaths = Awaited<ReturnType<typeof writeDeploymentManifests>>;
@@ -135,6 +147,7 @@ function ordinaryDeploymentConfigPaths(paths: DeploymentManifestPaths) {
     consumerDeploymentConfigPath: paths.consumerConfigPath,
     webDeploymentConfigPath: paths.webConfigPath,
     acquisitionDeploymentConfigPath: paths.acquisitionConfigPath,
+    ingestionDeploymentConfigPath: paths.ingestionConfigPath,
     mcpDeploymentConfigPath: paths.mcpConfigPath,
   };
 }
@@ -154,6 +167,7 @@ async function writePrivateCanaryTargetDeploymentManifests(directory: string): P
   readonly consumerPrivateCanaryConfigPath: string;
   readonly webPrivateCanaryConfigPath: string;
   readonly acquisitionPrivateCanaryConfigPath: string;
+  readonly ingestionPrivateCanaryConfigPath: string;
   readonly mcpPrivateCanaryConfigPath: string;
 }> {
   const manifest = (name: string, hyperdriveId: string, extra = ''): string => `name = "${name}"
@@ -182,6 +196,7 @@ ${extra}`;
   const consumerPrivateCanaryConfigPath = join(directory, 'consumer.private-canary.production.toml');
   const webPrivateCanaryConfigPath = join(directory, 'web.private-canary.production.toml');
   const acquisitionPrivateCanaryConfigPath = join(directory, 'acquisition.private-canary.production.toml');
+  const ingestionPrivateCanaryConfigPath = join(directory, 'ingestion.private-canary.production.toml');
   const mcpPrivateCanaryConfigPath = join(directory, 'mcp.private-canary.production.toml');
   await Promise.all([
     writeFile(edgePrivateCanaryConfigPath, manifest(
@@ -196,6 +211,7 @@ ${extra}`;
     ), 'utf8'),
     writeFile(webPrivateCanaryConfigPath, manifest('data-foundry-private-canary-web', WEB_HYPERDRIVE_ID), 'utf8'),
     writeFile(acquisitionPrivateCanaryConfigPath, manifest('data-foundry-private-canary-acquisition-worker', ACQUISITION_HYPERDRIVE_ID), 'utf8'),
+    writeFile(ingestionPrivateCanaryConfigPath, manifest('data-foundry-private-canary-ingestion-worker', INGESTION_HYPERDRIVE_ID), 'utf8'),
     writeFile(mcpPrivateCanaryConfigPath, manifest(
       'data-foundry-private-canary-mcp-hvac',
       MCP_HYPERDRIVE_ID,
@@ -207,6 +223,7 @@ ${extra}`;
     consumerPrivateCanaryConfigPath,
     webPrivateCanaryConfigPath,
     acquisitionPrivateCanaryConfigPath,
+    ingestionPrivateCanaryConfigPath,
     mcpPrivateCanaryConfigPath,
   };
 }
@@ -217,9 +234,56 @@ describe('the committed Cloudflare topology', () => {
     expect(await validate()).toEqual([]);
   });
 
-  it('defines a route-less private canary which consumes only its dedicated DLQ through five named RPC bindings', async () => {
+  it('defines a route-less private canary which consumes only its dedicated DLQ through six named RPC bindings', async () => {
     const validate = await loadValidator();
     expect(await validate({ mode: 'private-canary' })).toEqual([]);
+  });
+
+  it.each([
+    ['usage queue', 'queue = "data-foundry-ingestion"', 'queue = "data-foundry-usage-events"', /dedicated ingestion Queue|INGESTION_QUEUE/],
+    ['shared DLQ', 'dead_letter_queue = "data-foundry-ingestion-dlq"', 'dead_letter_queue = "data-foundry-usage-events-dlq"', /dedicated DLQ/],
+    ['unbounded batch', 'max_batch_size = 1', 'max_batch_size = 100', /batch size 1/],
+    ['parallel consumers', 'max_concurrency = 1', 'max_concurrency = 10', /concurrency 1/],
+    ['CPU increase', 'cpu_ms = 30000', 'cpu_ms = 300000', /CPU limit/],
+    ['missing recovery', 'crons = ["*/5 * * * *"]', 'crons = []', /pending deliveries/],
+  ])('rejects ingestion %s without weakening its dedicated recovery boundary', async (_label, before, after, expected) => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-ingestion-topology-'));
+    temporaryDirectories.push(directory);
+    const ingestionConfigPath = join(directory, 'ingestion.toml');
+    await writeFile(ingestionConfigPath, (await readFile(INGESTION_CONFIG, 'utf8')).replace(before, after));
+    expect((await validate({ ingestionConfigPath })).join('\n')).toMatch(expected);
+  });
+
+  it('rejects acquisition claiming an ingestion consumer capability', async () => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-acquisition-consumer-'));
+    temporaryDirectories.push(directory);
+    const acquisitionConfigPath = join(directory, 'acquisition.toml');
+    await writeFile(acquisitionConfigPath, `${await readFile(ACQUISITION_CONFIG, 'utf8')}\n[[queues.consumers]]\nqueue = "data-foundry-ingestion"\n`);
+    expect((await validate({ acquisitionConfigPath })).join('\n')).toMatch(/no usage Queue or consumer/);
+  });
+
+  it.each([
+    ['artifact bucket', '\n[[r2_buckets]]\nbinding = "RAW_ARTIFACTS"\nbucket_name = "data-foundry-raw-artifacts"\n', /R2/],
+    ['ingestion queue', '\n[[queues.consumers]]\nqueue = "data-foundry-ingestion"\n', /Queue|queue/],
+    ['recovery trigger', '\n[triggers]\ncrons = ["*/5 * * * *"]\n', /Cron|triggers/],
+  ])('refuses %s capabilities in the source-free ingestion canary', async (_label, addition, expected) => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-ingestion-canary-'));
+    temporaryDirectories.push(directory);
+    const ingestionPrivateCanaryConfigPath = join(directory, 'ingestion.private-canary.toml');
+    await writeFile(ingestionPrivateCanaryConfigPath, `${await readFile(join(REPO_ROOT, 'apps', 'ingestion-worker', 'wrangler.private-canary.toml'), 'utf8')}${addition}`);
+    expect((await validate({ mode: 'private-canary-target', ingestionPrivateCanaryConfigPath })).join('\n')).toMatch(expected);
+  });
+
+  it('requires a sixth distinct database identity for ingestion', async () => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-ingestion-role-'));
+    temporaryDirectories.push(directory);
+    const paths = await writeDeploymentManifests(directory);
+    await writeFile(paths.ingestionConfigPath, (await readFile(paths.ingestionConfigPath, 'utf8')).replace(INGESTION_HYPERDRIVE_ID, ACQUISITION_HYPERDRIVE_ID));
+    expect((await validate({ mode: 'deployment', ...paths })).join('\n')).toMatch(/six distinct Hyperdrive/);
   });
 
   it('binds the private-canary harness only to dedicated reduced Worker identities', async () => {
@@ -323,7 +387,7 @@ describe('the committed Cloudflare topology', () => {
     expect(errors.join('\n')).toMatch(/edge private-canary target must produce only to data-foundry-private-canary-usage-events/i);
   });
 
-  it('defines five route-less private-target templates with only their intended synthetic queue capabilities', async () => {
+  it('defines six route-less private-target templates with only their intended synthetic queue capabilities', async () => {
     const validate = await loadValidator();
     expect(await validate({ mode: 'private-canary-target' })).toEqual([]);
   });
@@ -342,6 +406,7 @@ describe('the committed Cloudflare topology', () => {
       consumerDeploymentConfigPath: ordinary.consumerConfigPath,
       webDeploymentConfigPath: ordinary.webConfigPath,
       acquisitionDeploymentConfigPath: ordinary.acquisitionConfigPath,
+      ingestionDeploymentConfigPath: ordinary.ingestionConfigPath,
       mcpDeploymentConfigPath: ordinary.mcpConfigPath,
     })).toEqual([]);
   });
@@ -368,13 +433,14 @@ describe('the committed Cloudflare topology', () => {
       consumerDeploymentConfigPath: ordinary.consumerConfigPath,
       webDeploymentConfigPath: ordinary.webConfigPath,
       acquisitionDeploymentConfigPath: ordinary.acquisitionConfigPath,
+      ingestionDeploymentConfigPath: ordinary.ingestionConfigPath,
       mcpDeploymentConfigPath: ordinary.mcpConfigPath,
     });
 
     expect(errors.join('\n')).toMatch(/private-canary harness must not reuse an ordinary Worker name/i);
   });
 
-  it('validates five ignored private-target manifests as distinct, route-less Hyperdrive capabilities', async () => {
+  it('validates six ignored private-target manifests as distinct, route-less Hyperdrive capabilities', async () => {
     const validate = await loadValidator();
     const directory = await mkdtemp(join(tmpdir(), 'data-foundry-private-canary-target-deployment-'));
     temporaryDirectories.push(directory);
@@ -420,6 +486,7 @@ describe('the committed Cloudflare topology', () => {
       consumerDeploymentConfigPath: ordinary.consumerConfigPath,
       webDeploymentConfigPath: ordinary.webConfigPath,
       acquisitionDeploymentConfigPath: ordinary.acquisitionConfigPath,
+      ingestionDeploymentConfigPath: ordinary.ingestionConfigPath,
       mcpDeploymentConfigPath: ordinary.mcpConfigPath,
     });
 
@@ -523,7 +590,7 @@ describe('the committed Cloudflare topology', () => {
     expect(errors.join('\n')).not.toContain(PRIVATE_CANARY_ACCOUNT_ID);
   });
 
-  it('accepts one account across the route-less harness and all five route-less targets', async () => {
+  it('accepts one account across the route-less harness and all six route-less targets', async () => {
     const validate = await loadValidator();
     const directory = await mkdtemp(join(tmpdir(), 'data-foundry-private-canary-full-deployment-'));
     temporaryDirectories.push(directory);
@@ -856,7 +923,7 @@ describe('the committed Cloudflare topology', () => {
 
     const errors = await validate({ mode: 'deployment', ...paths });
 
-    expect(errors.join('\n')).toMatch(/five distinct Hyperdrive configuration ids/i);
+    expect(errors.join('\n')).toMatch(/six distinct Hyperdrive configuration ids/i);
     expect(errors.join('\n')).not.toContain(HYPERDRIVE_ID);
   });
 
@@ -1327,7 +1394,7 @@ describe('the committed Cloudflare topology', () => {
     const errors = await validate({ acquisitionConfigPath: acquisitionPath });
     expect(errors.join('\n')).toMatch(/hourly/i);
     expect(errors.join('\n')).toMatch(/RAW_ARTIFACTS/);
-    expect(errors.join('\n')).toMatch(/must not declare.*Queue/i);
+    expect(errors.join('\n')).toMatch(/INGESTION_QUEUE.*no usage Queue or consumer/i);
   });
 
   it('rejects acquisition provider identity and credentials committed as plaintext vars', async () => {
@@ -1368,5 +1435,30 @@ describe('the committed Cloudflare topology', () => {
     const errors = await validate({ mcpConfigPath: mcpPath });
     expect(errors.join('\n')).toMatch(/mcp.*live/i);
     expect(errors.join('\n')).toMatch(/mcp.*data-foundry-usage-events/i);
+  });
+});
+
+
+describe('bounded ingestion operator email binding', () => {
+  const enabled = { vars: { OPS_ALERTS_ENABLED: 'true', OPS_ALERT_FROM: 'ops@example.com', OPS_ALERT_TO: 'owner@example.com' },
+    send_email: [{ name: 'OPS_EMAIL', destination_address: 'owner@example.com', allowed_sender_addresses: ['ops@example.com'] }] };
+  it('keeps default disabled and only accepts fixed sender and recipient when enabled', async () => {
+    const { checkIngestionAlertBinding } = await import('../scripts/check-cloudflare-topology.js');
+    expect(checkIngestionAlertBinding({ vars: { OPS_ALERTS_ENABLED: 'false' } })).toEqual([]);
+    expect(checkIngestionAlertBinding(enabled)).toEqual([]);
+  });
+  it.each([
+    {}, { vars: { OPS_ALERTS_ENABLED: 'maybe' } },
+    { ...enabled, send_email: [{ name: 'OPS_EMAIL' }] },
+    { ...enabled, send_email: [{ ...enabled.send_email[0], destination_address: 'another@example.com' }] },
+    { ...enabled, send_email: [{ ...enabled.send_email[0], allowed_sender_addresses: ['ops@example.com', 'another@example.com'] }] },
+    { ...enabled, send_email: [{ ...enabled.send_email[0], allowed_destination_addresses: ['another@example.com'] }] },
+    { ...enabled, vars: { ...enabled.vars, OPS_ALERT_FROM: 'Name <ops@example.com>' } },
+    { ...enabled, vars: { ...enabled.vars, OPS_ALERT_TO: 'owner@example.com,another@example.com' } },
+    { ...enabled, vars: { ...enabled.vars, OPS_ALERT_TO: 'owner@example.com\r\nBcc:another@example.com' } },
+    { ...enabled, vars: { ...enabled.vars, OPS_ALERTS_ENABLED: 'false' } },
+  ])('refuses broad, malformed or dormant email capability %#', async config => {
+    const { checkIngestionAlertBinding } = await import('../scripts/check-cloudflare-topology.js');
+    expect(checkIngestionAlertBinding(config)).not.toEqual([]);
   });
 });

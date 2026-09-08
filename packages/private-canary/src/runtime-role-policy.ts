@@ -3,7 +3,7 @@
  * private-canary/direct-role effective-privilege probe. It is intentionally
  * data-only so it can be bundled into Workers without a Node runtime.
  */
-export const RUNTIME_ROLES = ['df_edge', 'df_web', 'df_mcp', 'df_usage', 'df_acquisition'] as const;
+export const RUNTIME_ROLES = ['df_edge', 'df_web', 'df_mcp', 'df_usage', 'df_acquisition', 'df_ingestion'] as const;
 export type RuntimeRole = (typeof RUNTIME_ROLES)[number];
 
 export const QUERY_ROLES = ['df_edge', 'df_web', 'df_mcp'] as const;
@@ -64,7 +64,7 @@ export const USAGE_INSERT_COLUMNS = [
   'billing_source',
 ] as const;
 
-/** Final function identities after migrations 0001..0028, from pg_proc. */
+/** Final function identities after migrations 0001..0031; verified against pg_proc. */
 export const PRIVATE_FUNCTION_SIGNATURES = [
   'activate_rights_decision(uuid, text, text, text, timestamp with time zone)',
   'activate_rights_terms(uuid, text, text, text, timestamp with time zone)',
@@ -78,6 +78,8 @@ export const PRIVATE_FUNCTION_SIGNATURES = [
   'fact_dependencies_require_open_classification()',
   'facts_reject_output_kind_mutation()',
   'facts_validate_output_contract()',
+  'guard_ingestion_delivery_identity()',
+  'operator_actions_reject_mutation()',
   'revoke_rights_terms(uuid, text, text, text, timestamp with time zone)',
   'rights_cell_requires_decision()',
   'rights_prepare_decision_activation()',
@@ -173,6 +175,47 @@ export function buildRuntimeRoleExpectedGrants(schema = 'data_foundry'): readonl
     addRelation('df_acquisition', relation, ['SELECT', 'INSERT']);
   }
   for (const relation of RIGHTS_CONTEXT_RELATIONS) addRelation('df_acquisition', relation, ['SELECT']);
+  // Acquisition may create opaque work and record Queue acceptance. It cannot
+  // claim, complete, verify or publish work, or alter its immutable identity.
+  addRelation('df_acquisition', 'ingestion_deliveries', ['SELECT']);
+  addColumns('df_acquisition', 'ingestion_deliveries', 'INSERT', [
+    'acquisition_run_id', 'artifact_run_id', 'runtime_digest', 'work_kind',
+  ]);
+  addColumns('df_acquisition', 'ingestion_deliveries', 'UPDATE', ['dispatched_at', 'dispatch_attempt']);
+
+  // The isolated ingestion identity reads governance and existing immutable
+  // artifacts, but cannot onboard a source, activate rights, mutate raw evidence,
+  // issue credentials, bill customers, merge entities or execute DDL.
+  for (const relation of QUERY_CORE_RELATIONS) addRelation('df_ingestion', relation, ['SELECT']);
+  for (const relation of ['scheduled_acquisition_runs', 'scheduled_acquisition_run_artifacts']) {
+    addRelation('df_ingestion', relation, ['SELECT']);
+  }
+  for (const relation of ['entities', 'source_records', 'facts', 'relationships']) {
+    addRelation('df_ingestion', relation, ['INSERT', 'UPDATE']);
+  }
+  for (const relation of ['entity_aliases', 'resolution_candidates', 'resolution_judgments', 'ingestion_jobs', 'ingestion_deliveries']) {
+    addRelation('df_ingestion', relation, ['SELECT', 'INSERT', 'UPDATE']);
+  }
+  for (const relation of ['fact_evidence', 'relationship_evidence', 'fact_dependencies', 'entity_evidence', 'source_record_reconciliations', 'source_record_snapshot_retirements']) {
+    addRelation('df_ingestion', relation, ['INSERT']);
+  }
+  for (const relation of ['entity_alias_claims', 'fact_verifications', 'ingestion_job_transitions', 'source_stream_snapshot_acceptances', 'source_stream_snapshot_acceptance_artifacts', 'ingestion_delivery_parts']) {
+    addRelation('df_ingestion', relation, ['SELECT', 'INSERT']);
+  }
+  // PostgreSQL calls nextval for the append-only transition ledger. Sequences
+  // are relations in both ACL inventories; USAGE permits nextval, not setval.
+  addRelation('df_ingestion', 'ingestion_job_transitions_id_seq', ['USAGE']);
+  // The immutable snapshot-artifact trigger locks its parent FOR UPDATE.
+  // PostgreSQL requires an UPDATE column privilege for that lock; the existing
+  // append-only trigger still rejects every attempted parent-row mutation.
+  addColumns('df_ingestion', 'source_stream_snapshot_acceptances', 'UPDATE', ['id']);
+  // The existing cycle trigger serializes inserts with SHARE ROW EXCLUSIVE.
+  // That lock requires table UPDATE. Preserve its concurrency semantics; the
+  // statement-level immutable-history trigger rejects UPDATE/DELETE/TRUNCATE.
+  addRelation('df_ingestion', 'fact_dependencies', ['UPDATE']);
+  for (const relation of ['operation_incidents', 'operation_alert_deliveries']) {
+    addRelation('df_ingestion', relation, ['SELECT', 'INSERT', 'UPDATE']);
+  }
   for (const signature of PRIVATE_FUNCTION_SIGNATURES) {
     expected.push({
       scope: 'function',

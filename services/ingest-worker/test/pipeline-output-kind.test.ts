@@ -287,7 +287,7 @@ describe('real ingestion fact output lineage', () => {
     expect(result.error).toBeNull();
     expect(result.records).toBe(1);
     expect(
-      pipeline.diagnostics.some((entry) => entry.includes('alias model_number quarantined')),
+      result.diagnostics.some((entry) => entry.includes('IDENTIFIER_VALIDATION_FAILED') && entry.includes('model_number')),
     ).toBe(true);
     const rejectedAliases = await driver.query(
       `SELECT entity_id FROM entity_aliases

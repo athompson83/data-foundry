@@ -233,6 +233,7 @@ describe('private canary target runtime binding', () => {
       web: 'df_web',
       'usage-consumer': 'df_usage',
       'acquisition-worker': 'df_acquisition',
+      'ingestion-worker': 'df_ingestion',
       'mcp-worker': 'df_mcp',
     };
 
@@ -380,6 +381,12 @@ describe('private canary RPC receipts', () => {
       metering: 'NOT_APPLICABLE',
     },
     {
+      worker: 'ingestion-worker',
+      runId: envelope.run_id,
+      readiness: 'READY',
+      metering: 'NOT_APPLICABLE',
+    },
+    {
       worker: 'mcp-worker',
       runId: envelope.run_id,
       readiness: 'READY',
@@ -398,12 +405,21 @@ describe('private canary RPC receipts', () => {
       completedAt: '2026-09-01T12:01:00.000Z',
       probes,
     })).toEqual({
-      kind: 'data-foundry.private-canary-receipt.v1',
+      kind: 'data-foundry.private-canary-receipt.v2',
       run_id: '11111111-1111-4111-8111-111111111111',
       issued_at: '2026-09-01T12:00:00.000Z',
       completed_at: '2026-09-01T12:01:00.000Z',
       probes,
     });
+  });
+
+  it('does not accept a former five-target result set as a six-target receipt', () => {
+    expect(() => createPrivateCanaryReceipt({
+      runId: envelope.run_id,
+      issuedAt: envelope.issued_at,
+      completedAt: '2026-09-01T12:01:00.000Z',
+      probes: probes.filter((probe) => probe.worker !== 'ingestion-worker'),
+    })).toThrow();
   });
 
   it('refuses arbitrary diagnostic content from an RPC result before it can reach R2', () => {

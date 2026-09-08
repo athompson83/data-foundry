@@ -31,7 +31,7 @@ const TEST_RUNTIME: WebRuntime = {
         id: 'equipment_detail',
         route_kind: 'entity_detail',
         entity_type: 'equipment',
-        path: '/data/hvac/equipment/{canonical_slug}',
+        path: '/hvac/equipment/{canonical_slug}',
         title: '{canonical_name}',
         structured_data: null,
         sitemap: 'entities',
@@ -61,7 +61,7 @@ interface DatabaseFreeCase {
 const DATABASE_FREE_CASES: readonly DatabaseFreeCase[] = [
   {
     name: 'a rejected write method',
-    request: () => new Request(`${ORIGIN}/data/hvac`, { method: 'POST' }),
+    request: () => new Request(`${ORIGIN}/hvac`, { method: 'POST' }),
     status: 405,
   },
   {
@@ -82,7 +82,7 @@ const DATABASE_FREE_CASES: readonly DatabaseFreeCase[] = [
   },
   {
     name: 'an unmatched path inside a vertical',
-    request: () => new Request(`${ORIGIN}/data/hvac/not-a-route`),
+    request: () => new Request(`${ORIGIN}/hvac/not-a-route`),
     status: 404,
   },
 ];
@@ -148,7 +148,7 @@ describe('one physical read snapshot per production web request', () => {
 
   it('serves an entity detail with compound PUBLIC_WEB and SEARCH_INDEX reads in one transaction', async () => {
     const response = await worker.fetch(
-      new Request(`${ORIGIN}/data/hvac/equipment/${fixtures.equipment.canonical_slug}`),
+      new Request(`${ORIGIN}/hvac/equipment/${fixtures.equipment.canonical_slug}`),
       ENV,
     );
 
@@ -159,7 +159,7 @@ describe('one physical read snapshot per production web request', () => {
 
   it('serves a sitemap request in one transaction', async () => {
     const response = await worker.fetch(
-      new Request(`${ORIGIN}/data/hvac/sitemaps/entities-1.xml`),
+      new Request(`${ORIGIN}/hvac/sitemaps/entities-1.xml`),
       ENV,
     );
 
@@ -170,7 +170,7 @@ describe('one physical read snapshot per production web request', () => {
 
   it('rejects a write method without opening a database transaction', async () => {
     const response = await worker.fetch(
-      new Request(`${ORIGIN}/data/hvac`, { method: 'POST' }),
+      new Request(`${ORIGIN}/hvac`, { method: 'POST' }),
       ENV,
     );
 
@@ -211,7 +211,7 @@ describe('one physical read snapshot per production web request', () => {
 
   it('rejects an unmatched path inside a vertical without opening a database transaction', async () => {
     const response = await worker.fetch(
-      new Request(`${ORIGIN}/data/hvac/not-a-route`),
+      new Request(`${ORIGIN}/hvac/not-a-route`),
       ENV,
     );
 

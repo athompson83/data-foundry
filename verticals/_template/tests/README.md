@@ -37,3 +37,13 @@ Until then, run them directly:
 ```bash
 npx vitest run --root verticals/<slug>
 ```
+
+## Platform integration proof
+
+Keep these vertical config checks self-contained. Add a separate platform
+contract test that normalizes actual source identifier spellings through the
+compiled ingestion rule, then looks them up through the compiled read runtime.
+Cover alias-type and source scope, meaningful separators, NFKC/whitespace,
+withdrawn claims, and rights denial. The test-only laboratory fixture under
+`packages/query-model/test/fixtures` demonstrates a second schema without
+changing shared query code or admitting that fixture to production bundles.
