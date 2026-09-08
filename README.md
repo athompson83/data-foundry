@@ -22,6 +22,19 @@ The ingestion half of the north-star workflow is implemented and tested end to e
 
 `apps/api` and `apps/mcp` import nothing beneath `packages/query-model`. `services/export-builder` deliberately reaches `packages/canonical-store` to record the applied selection policy and write snapshot metadata. `tests/contract/surface-parity.test.ts` holds REST and MCP to the same answer over one query model and one policy. **The export builder is not in that test**; its projection is checked through its own boundary tests.
 
+## Product surfaces
+
+| Surface | Customer purpose |
+| --- | --- |
+| Public web | Evidence-backed catalog and documentation pages |
+| REST API | Versioned equipment lookup and specification enrichment |
+| MCP | Agent retrieval over the governed canonical query layer |
+| Bulk exports | Reproducible, rights-gated snapshots with manifests |
+
+All four surfaces use the same canonical query layer. Availability on a surface
+depends on its independent rights decision; implementation and fixture coverage
+do not establish a live data product.
+
 ## Independent rights surfaces
 
 These are entitlements, not presentation labels. Each is evaluated independently against every provenance contribution.
