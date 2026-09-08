@@ -1461,6 +1461,40 @@ describe('terminal outcomes and freshness', () => {
     expect((await scheduler.get(run!.id))?.freshAt).toBeNull();
   });
 
+  it('rejects a raw NOT_MODIFIED terminal update that would reuse an overlapping future FETCHED run', async () => {
+    const delayed = await scheduler.claim(claim('2026-08-28T20:14:30.000Z', {
+      targetId: 'overlapping-not-modified-raw',
+    }));
+    const future = await scheduler.claim(claim('2026-08-28T20:14:31.000Z', {
+      targetId: 'overlapping-not-modified-raw',
+    }));
+    await scheduler.complete({
+      runId: future!.id,
+      claimToken: future!.claimToken,
+      outcome: 'FETCHED',
+      ...terminalTimes(future!),
+      provider: 'http',
+      validators: { etag: '"v2"' },
+      rightsReceipt: rightsReceipt(future!),
+      artifacts: [scheduledArtifact(future!, artifact('f'))],
+    });
+
+    await expect(fixtures.driver.query(
+      `UPDATE scheduled_acquisition_runs
+          SET status = 'SUCCEEDED', outcome = 'NOT_MODIFIED',
+              completed_at = $2, fresh_at = $2, provider = 'http',
+              validators = $3::jsonb, rights_receipt = $4::jsonb
+        WHERE id = $1`,
+      [
+        delayed!.id,
+        runAt(delayed!, 60_000),
+        JSON.stringify({ etag: '"v1"' }),
+        JSON.stringify(rightsReceipt(delayed!)),
+      ],
+    )).rejects.toThrow(/prior artifact-backed fetched success/i);
+    expect(await scheduler.get(delayed!.id)).toMatchObject({ status: 'CLAIMED', freshAt: null });
+  });
+
   it.each([
     ['unknown validator key', 'unsafe-validator', '2026-08-28T20:20:00.000Z', 'validator'],
     ['empty successful receipt', 'empty-receipt', '2026-08-28T20:21:00.000Z', 'empty-receipt'],

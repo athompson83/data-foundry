@@ -108,11 +108,11 @@ describe('private-canary provenance documentation', () => {
   it('keeps hosted history separate from the pending 0027 and 0028 repairs', () => {
     for (const [name, text] of Object.entries({ README, CHECKLIST, PROGRESS, RUNBOOK })) {
       expect(text, name).toMatch(/0027/);
-      expect(text, name).toMatch(/0028|0027[^\n]*(?:through|–)[^\n]*003[012]/);
+      expect(text, name).toMatch(/0028|0027[^\n]*(?:through|–)[^\n]*003[0123]/);
       expect(text, name).toMatch(/pending hosted|pending.*hosted/i);
       expect(text, name).toMatch(/57[\s\S]{0,80}(?:warnings|search.path)/i);
     }
-    expect(RUNBOOK).toContain("apply only the pending migrations (`0027` through the selected candidate's latest migration, currently `0032`)");
+    expect(RUNBOOK).toContain("apply only the pending migrations (`0027` through the selected candidate's latest migration, currently `0033`)");
     expect(RUNBOOK).toContain('postMigrationGrants.upgradeFrom0028Sql');
     expect(RUNBOOK).toMatch(/Do not replay the 26 already-ledgered\s+migrations\./);
     expect(RUNBOOK).toMatch(/other 31 INFO notices are non-blocking/);

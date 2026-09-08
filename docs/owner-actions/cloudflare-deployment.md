@@ -17,7 +17,7 @@ proves 26 ledgered migrations, objects, ownership, and the then-current 200
 grants for five `NOLOGIN` runtime roles. It also records 57 function-search-path
 warnings. Repository migration `0027` closes those issues locally and `0028`
 adds the four justified rights-path indexes. The 2026-09-08 candidate also adds
-ingestion/operator/alert and current-alias projection migrations through `0032`; all remain pending hosted
+ingestion/operator/alert, current-alias projection, and delayed-304 claim-boundary migrations through `0033`; all remain pending hosted
 authorization and application, so no hosted warning closure is claimed.
 That historical application used the authenticated management SQL connector
 under the owner's preauthorization because direct TLS was unreachable from the
@@ -98,7 +98,7 @@ canary:
    check of the hosted ledger versions/checksums, object
    ownership, role state, and direct ACLs. If and only if that proves the exact
    historical `0001`–`0026` state, set `DATA_FOUNDRY_RELEASE_SHA` to the same SHA
-   and apply only the pending migrations (`0027` through the selected candidate's latest migration, currently `0032`) through direct PostgreSQL TLS
+   and apply only the pending migrations (`0027` through the selected candidate's latest migration, currently `0033`) through direct PostgreSQL TLS
    using the approved secret interface. Do not replay the 26 already-ledgered
    migrations. The direct
    URL must not have query parameters that could override its TLS or host
@@ -463,7 +463,7 @@ credential must not be committed.
    ```
    When the existing ledger is the exact historical `0001`–`0026` prefix, set the
    non-secret exact checked-out release SHA and run the frozen migration runner
-   twice: the first invocation applies only pending `0027` through the selected candidate's latest migration (currently `0032`); the second
+   twice: the first invocation applies only pending `0027` through the selected candidate's latest migration (currently `0033`); the second
    proves the full candidate migration chain is already applied.
    ```powershell
    $env:DATA_FOUNDRY_SCHEMA = "data_foundry"
@@ -1212,13 +1212,13 @@ commercial gate.
 ## 9. Production launch order
 
 1. Freeze the live 40-character protected-main SHA and rerun its release gates;
-   use the candidate's complete migration chain, currently through `0032`,
+   use the candidate's complete migration chain, currently through `0033`,
    and the generated current role inventory. That repository baseline authorizes no Alpha Lab mutation. Before
    proceeding to step 2 and only after `UA-006`, securely activate only the
    staged `df_migration` role as the controlled login with its exact
    database-scoped path, verify the cluster boundary, reconcile the hosted
    `0001`–`0026` ledger, then use `DATA_FOUNDRY_SCHEMA=data_foundry` to apply only
-   pending `0027` through the selected candidate's latest migration (currently `0032`) in Alpha Lab's private `data_foundry` schema, never
+pending `0027` through the selected candidate's latest migration (currently `0033`) in Alpha Lab's private `data_foundry` schema, never
    in `public`; rerun the migration as a no-op. Preserve the five existing staged
    identities and stage `df_ingestion` as the sixth passwordless `NOLOGIN` role.
    Apply that exact SHA's additive `postMigrationGrants.upgradeFrom0028Sql`

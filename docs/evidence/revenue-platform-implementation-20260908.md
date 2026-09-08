@@ -31,7 +31,7 @@ Approved plan: ../superpowers/plans/2026-09-08-recurring-revenue-platform.md
 - Closed production telemetry; operator recovery, key revocation and account
   closure; UUID-normalized idempotency and immutable audit including TRUNCATE;
   durable operational incidents and fixed-recipient email, disabled by default.
-- Six runtime roles, 59 functions, 286 grants, 32 migrations; thirteen core
+- Six runtime roles, 59 functions, 286 grants, 33 migrations; thirteen core
   artifacts plus a separate isolated synthetic ingestion profile. Existing
   receipt-only canary capabilities remain restricted.
 - README PR29 presentation incorporated; original operational text preserved at
@@ -129,11 +129,12 @@ pair limit remains per delivery. Search pages are noindex and absent from sitema
 
 PR30's delayed304 finding (comment3959304808) is repaired in the subsequent
 candidate: a NOT_MODIFIED run may select only an exact-scope FETCHED run whose
-completion and freshness both precede the 304 claim. A regression claims the304,
-then completes an overlapping matching FETCHED run, and proves that the304 is
-refused rather than borrowing that future artifact. Focused canonical-store105/105,
-acquisition-worker17/17 and typecheck passed; the sequential full suite passed
-3,449/3,449 in220 files in299.79 seconds, followed by all14 configuration checks
-and all14 Worker build profiles. The next committed SHA requires fresh protected
-checks before merging. No provider change, public release or paid customer is
-represented by this repository evidence.
+completion and freshness both precede the304 claim. Migration0033 reasserts the
+same fence in the database terminal guard and pins its function search path.
+Regressions cover both the scheduler completion path and a raw terminal update
+after an overlapping matching FETCHED run. Focused acquisition, migration,
+packet and runtime-grant controls passed; the final sequential suite passed
+3,450/3,450 in220 files in397.90 seconds, followed by all14 configuration checks
+and all14 Worker build profiles. The committed migration candidate requires fresh
+protected checks before merging. No provider change, public release or paid
+customer is represented by this repository evidence.

@@ -168,10 +168,10 @@ describe('Supabase connector migration packet export', () => {
     ).toThrow(/verified source identity.*release SHA.*HEAD/i);
   });
 
-  it('requires the independently pinned contiguous 0001 through 0032 repository chain', () => {
+  it('requires the independently pinned contiguous 0001 through 0033 repository chain', () => {
     expect(() =>
       build({ migrations: migrations.filter(({ version }) => version !== '0002') }),
-    ).toThrow(/expected 32 contiguous migrations.*missing.*0002/i);
+    ).toThrow(/expected 33 contiguous migrations.*missing.*0002/i);
   });
   it('uses the private-schema transform checksum as the application ledger authority', () => {
     const plan = build();
@@ -180,8 +180,8 @@ describe('Supabase connector migration packet export', () => {
     expect(plan.releaseSha).toBe(RELEASE_SHA);
     expect(plan.schema).toBe(DATA_FOUNDRY_PRIVATE_SCHEMA);
     expect(plan.migrationRole).toBe('df_migration');
-    expect(plan.repositoryMigrationCount).toBe(32);
-    expect(plan.pendingMigrationCount).toBe(32);
+    expect(plan.repositoryMigrationCount).toBe(33);
+    expect(plan.pendingMigrationCount).toBe(33);
     expect(plan.postMigrationGrants.sql).toContain('GRANT USAGE ON SEQUENCE "data_foundry"."ingestion_job_transitions_id_seq" TO "df_ingestion";');
     expect(plan.postMigrationGrants.sql).not.toContain('ON TABLE "data_foundry"."ingestion_job_transitions_id_seq"');
     expect(plan.packets[0]).toMatchObject({
@@ -192,7 +192,7 @@ describe('Supabase connector migration packet export', () => {
     });
   });
 
-  it('exports only 0027 through 0032 for the exact hosted 0001 through 0026 ledger prefix', () => {
+  it('exports only 0027 through 0033 for the exact hosted 0001 through 0026 ledger prefix', () => {
     const fullPlan = build();
     const appliedMigrations = fullPlan.packets.slice(0, 26).map(
       ({ version, filename, checksum }) => ({ version, filename, checksum }),
@@ -201,8 +201,8 @@ describe('Supabase connector migration packet export', () => {
     const upgradePlan = build({ appliedMigrations });
 
     expect(upgradePlan.appliedMigrationCount).toBe(26);
-    expect(upgradePlan.pendingMigrationCount).toBe(6);
-    expect(upgradePlan.packets.map(({ version }) => version)).toEqual(['0027', '0028', '0029', '0030', '0031', '0032']);
+    expect(upgradePlan.pendingMigrationCount).toBe(7);
+    expect(upgradePlan.packets.map(({ version }) => version)).toEqual(['0027', '0028', '0029', '0030', '0031', '0032', '0033']);
   });
 
   it('emits one transaction-scoped packet per pending app migration and preserves exact transformed SQL', () => {
@@ -220,7 +220,7 @@ describe('Supabase connector migration packet export', () => {
 
     expect(migration).toBeDefined();
     expect(packet).toBeDefined();
-    expect(plan.pendingMigrationCount).toBe(31);
+    expect(plan.pendingMigrationCount).toBe(32);
     expect(plan.packets[0]?.version).toBe('0002');
     expect(packet?.transformedSql).toBe(
       scopeMigrationSql(migration!.sql, DATA_FOUNDRY_PRIVATE_SCHEMA),
@@ -598,9 +598,9 @@ describe('Supabase connector migration packet export', () => {
            FROM information_schema.tables
           WHERE table_schema = 'public' AND table_type = 'BASE TABLE'`,
       );
-      expect(rows).toHaveLength(32);
+      expect(rows).toHaveLength(33);
       expect(rows[0]).toEqual({ version: '0001', checksum: FIRST_PRIVATE_CHECKSUM });
-      expect(rows.at(-1)?.version).toBe('0032');
+      expect(rows.at(-1)?.version).toBe('0033');
       expect(publicTables).toEqual([]);
     } finally {
       await database?.close();
@@ -847,7 +847,7 @@ describe('Supabase connector migration packet export', () => {
   it('loads packet bytes from the immutable Git object after source identity verification', async () => {
     const repository = await mkdtemp(join(tmpdir(), 'data-foundry-export-race-'));
     try {
-      const releaseSha = await createGitSourceFixture(repository, 32);
+      const releaseSha = await createGitSourceFixture(repository, 33);
 
       const plan = await buildSupabaseMigrationPlanFromGit(
         { releaseSha, repositoryRoot: repository, appliedMigrations: [] },
@@ -855,7 +855,7 @@ describe('Supabase connector migration packet export', () => {
           verifySourceIdentity: async (sha, root) => {
             const identity = await verifyGitSourceIdentity(sha, root);
             await writeFile(
-              join(repository, 'db/migrations/0032_fixture.sql'),
+              join(repository, 'db/migrations/0033_fixture.sql'),
               "SELECT 'mutated-worktree';\n",
             );
             return identity;
@@ -863,7 +863,7 @@ describe('Supabase connector migration packet export', () => {
         },
       );
 
-      expect(plan.packets.at(-1)?.transformedSql).toContain("SELECT 'committed-0032'");
+      expect(plan.packets.at(-1)?.transformedSql).toContain("SELECT 'committed-0033'");
       expect(plan.packets.at(-1)?.transformedSql).not.toContain('mutated-worktree');
     } finally {
       await rm(repository, { recursive: true, force: true });
