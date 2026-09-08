@@ -1299,7 +1299,27 @@ describe('terminal outcomes and freshness', () => {
   });
 
   it('treats NOT_MODIFIED as successful freshness without inventing artifacts', async () => {
-    const run = await scheduler.claim(claim('2026-08-28T20:00:00.000Z'));
+    const baseline = await scheduler.claim(claim('2026-08-28T19:59:00.000Z', {
+      targetId: 'not-modified-baseline',
+    }));
+    const baselineReceipt = rightsReceipt(baseline!).map((entry) => ({
+      ...entry,
+      evaluatedAt: baseline!.claimLeaseAcquiredAt,
+    }));
+    await scheduler.complete({
+      runId: baseline!.id,
+      claimToken: baseline!.claimToken,
+      outcome: 'FETCHED',
+      completedAt: baseline!.claimLeaseAcquiredAt,
+      freshAt: baseline!.claimLeaseAcquiredAt,
+      provider: 'http',
+      validators: { etag: '"v1"' },
+      rightsReceipt: baselineReceipt,
+      artifacts: [scheduledArtifact(baseline!, artifact('0'))],
+    });
+    const run = await scheduler.claim(claim('2026-08-28T20:00:00.000Z', {
+      targetId: 'not-modified-baseline',
+    }));
     const completed = await scheduler.complete({
       runId: run!.id,
       claimToken: run!.claimToken,
@@ -1332,6 +1352,37 @@ describe('terminal outcomes and freshness', () => {
       }),
     ).rejects.toThrow(/prior artifact-backed fetched success/i);
     expect((await scheduler.get(run!.id))?.freshAt).toBeNull();
+  });
+
+  it('does not reuse a FETCHED run that completed after an overlapping NOT_MODIFIED claim', async () => {
+    const delayed = await scheduler.claim(claim('2026-08-28T20:11:30.000Z', {
+      targetId: 'overlapping-not-modified',
+    }));
+    const future = await scheduler.claim(claim('2026-08-28T20:11:31.000Z', {
+      targetId: 'overlapping-not-modified',
+    }));
+    await scheduler.complete({
+      runId: future!.id,
+      claimToken: future!.claimToken,
+      outcome: 'FETCHED',
+      ...terminalTimes(future!),
+      provider: 'http',
+      validators: { etag: '"v2"' },
+      rightsReceipt: rightsReceipt(future!),
+      artifacts: [scheduledArtifact(future!, artifact('e'))],
+    });
+
+    await expect(scheduler.complete({
+      runId: delayed!.id,
+      claimToken: delayed!.claimToken,
+      outcome: 'NOT_MODIFIED',
+      ...terminalTimes(delayed!),
+      provider: 'http',
+      validators: { etag: '"v1"' },
+      rightsReceipt: rightsReceipt(delayed!),
+      artifacts: [],
+    })).rejects.toThrow(/prior artifact-backed fetched success/i);
+    expect(await scheduler.get(delayed!.id)).toMatchObject({ status: 'CLAIMED', freshAt: null });
   });
 
   it('does not reuse FETCHED history from a neighboring acquisition scope for NOT_MODIFIED', async () => {

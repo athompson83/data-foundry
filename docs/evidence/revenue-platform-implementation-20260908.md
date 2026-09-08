@@ -127,8 +127,13 @@ pair limit remains per delivery. Search pages are noindex and absent from sitema
 - The older31-migration native evidence above remains historical. Exact Git
   packet and hosted evidence for the follow-up belong to PR30's immutable head.
 
-PR30 remains held: delayed304 baseline selection (comment3959304808) is unresolved.
-OpenAI blocked the delegated validation request. That review path was stopped
-without a reworded or alternative-tool retry; review of854683c is incomplete and
-cannot certify the follow-up. No provider change, public release or paid customer
-is represented by this repository evidence.
+PR30's delayed304 finding (comment3959304808) is repaired in the subsequent
+candidate: a NOT_MODIFIED run may select only an exact-scope FETCHED run whose
+completion and freshness both precede the 304 claim. A regression claims the304,
+then completes an overlapping matching FETCHED run, and proves that the304 is
+refused rather than borrowing that future artifact. Focused canonical-store105/105,
+acquisition-worker17/17 and typecheck passed; the sequential full suite passed
+3,449/3,449 in220 files in299.79 seconds, followed by all14 configuration checks
+and all14 Worker build profiles. The next committed SHA requires fresh protected
+checks before merging. No provider change, public release or paid customer is
+represented by this repository evidence.

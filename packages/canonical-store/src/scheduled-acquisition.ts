@@ -1118,6 +1118,8 @@ class PostgresScheduledAcquisitionStore implements ScheduledAcquisitionStore {
               AND prior.result_url_policy = $11::jsonb
               AND prior.status = 'SUCCEEDED'
               AND prior.outcome = 'FETCHED'
+              AND prior.completed_at <= $12::timestamptz
+              AND prior.fresh_at <= $12::timestamptz
               AND prior.artifact_count > 0
               AND EXISTS (
                 SELECT 1 FROM scheduled_acquisition_run_artifacts link WHERE link.run_id = prior.id
@@ -1127,6 +1129,7 @@ class PostgresScheduledAcquisitionStore implements ScheduledAcquisitionStore {
             run.id, run.sourceId, run.targetId, run.targetUrl, run.acquisitionRoute,
             run.accountOrProductPlan, run.jurisdiction, run.assetClass, run.outputClass,
             run.runtimeDigest, JSON.stringify(run.resultUrlPolicy),
+            run.claimLeaseAcquiredAt,
           ],
         );
         if (prior.length === 0) {
