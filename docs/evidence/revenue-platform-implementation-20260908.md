@@ -125,7 +125,8 @@ pair limit remains per delivery. Search pages are noindex and absent from sitema
 - Source membership, unrelated-catalog scaling, omission/field fallback and
   search-page regressions are included in that full run.
 - The older31-migration native evidence above remains historical. Exact Git
-  packet and hosted evidence for the follow-up belong to PR30's immutable head.
+  packet evidence and hosted run34254514199 belong to PR30's immutable repaired
+  head `2ba6ad8b4833253f1ba782071b7b2cdaf63d70ac`.
 
 PR30's delayed304 finding (comment3959304808) is repaired in the subsequent
 candidate: a NOT_MODIFIED run may select only an exact-scope FETCHED run whose
@@ -135,6 +136,7 @@ Regressions cover both the scheduler completion path and a raw terminal update
 after an overlapping matching FETCHED run. Focused acquisition, migration,
 packet and runtime-grant controls passed; the final sequential suite passed
 3,450/3,450 in220 files in397.90 seconds, followed by all14 configuration checks
-and all14 Worker build profiles. The committed migration candidate requires fresh
-protected checks before merging. No provider change, public release or paid
-customer is represented by this repository evidence.
+and all14 Worker build profiles. Hosted run34254514199 passed the full protected
+job in13m50s and real PostgreSQL in1m14s; PR30 merged as
+`eed284599ab9a2bf1892039705eb294a0e99fbd1`. No provider change, public release
+or paid customer is represented by this repository evidence.
