@@ -1,6 +1,28 @@
 # Progress
 
-## Current State
+## Current session — 2026-09-08 revenue platform implementation
+
+- Objective: implement the accepted HVAC-first RapidAPI launch plan, reusable across industries with regular refresh and a $300/month operating ceiling.
+- Baseline: live main 0ae6c7aeb2dee70ce380663cb438d5e1d047b634, README-only PR29 and zero open issues. Work is isolated on codex/revenue-platform-20260908. Four pre-existing original-checkout changes were preserved and integrated in this worktree; no original checkout was reset.
+- Current release shape: six ordinary Workers and database roles, six reduced capability targets plus credential-free harness (thirteen core bundles), and one separately built synthetic ingestion phase using isolated Queue/DLQ/artifact storage. Migrations extend through0031; 59 private functions,51 tables and286 exact runtime grants. The historical hosted inventory remains26 migrations/five staged roles/200 grants; it was not re-certified or changed.
+- Pipeline: acquisition completion inserts an immutable processing identity transactionally; opaque UUID messages, independent five-minute outbox recovery, database-clock leases/fences, bounded verified JSON/CSV artifacts, atomic canonical promotion, retained revisions and 304 verification. Source permissions are checked during processing and delivery. The production path imports no fixture filesystem or PDF graph.
+- Operations: 1–8760-hour optional source interval (12 hours only where reviewed terms permit); separate acquisition/verification/publication observations; closed production telemetry; immutable operator action history, replay/backfill/pause/resume/retraction/revocation/account closure; durable incident and failure/recovery email states. Alerts default off; unknown sends never automatically repeat.
+- Foundation/customer work: one compiled identifier contract for ingestion and exact lookup, synthetic second-industry proof, /hvac canonical pages and old-path redirects, useful filters/pagination, honest coverage/pricing, fail-closed listing/approved-policy/contact configuration, TypeScript/Python examples and rights-filtered selected-fact evidence. Unreviewed query-bearing evidence URLs are omitted while artifact identities/hashes remain.
+- Source/commercial work: fresh source documentation assessment, bounded initial data dictionary, pricing/cost envelopes, three-partner trial criteria, unsent outreach copy and reviewable customer policy drafts. No source was approved/acquired, no agreement accepted, no marketplace billing/listing configured and no customer contacted.
+- Native local evidence: all31 migrations apply; exact legacy199-to286 grant upgrade and complete postcondition verifier pass, including same-count ACL drift refusal and unchanged ledger. Restricted df_ingestion publishes61 synthetic facts with61 evidence rows, ignores duplicates and rejects ten mutation/capability probes, including function execution after PUBLIC access is revoked. These are disposable local controls, not hosted/TLS/Hyperdrive/backup evidence.
+- Verification records: docs/evidence/revenue-platform-implementation-20260908.md, docs/evidence/identifier-and-buyer-verification-20260908.md and docs/evidence/ingestion-postgres-control-20260908.md. Candidate-wide checks and exact-head hosted CI/reviews belong to the implementation PR evidence; a later SHA requires fresh applicable verification before release designation.
+- Material repairs found in review: missing real-role sequence/lock privileges, absent legacy ACL upgrade, operator UUID-case idempotency and audit TRUNCATE bypass, query-bearing evidence URL leakage, malformed UTF-8 acceptance and unqualified multi-target source ordering.
+- Production impact: none. No provider, credential, DNS, real-source, billing or outreach mutation occurred. Existing containment/credential/source/marketplace/public-cutover gates remain; approved retention and verified alert/support contact are now explicitly UA-007.
+- Next dependency order: finish exact-candidate protected integration; owner containment (UA-006) and source/policy decisions (UA-001/007); agent-run recovery/provider staging after secure activation (UA-002); private capability and synthetic ingestion proof; owner marketplace agreements/payouts (UA-004), live subscription/limits/cancellation; action-time public cutover (UA-005). First actual external payment plus useful access, scheduled real refresh/recovery and budget evidence remain the revenue milestone.
+- Source qualification limits:16 artifacts,1 MiB each,4 MiB total,1,000 records,10,000 promotion candidates and one acquisition target per source. Larger complete snapshots, target partitions, HTML/PDF runtime qualification, approved-policy erasure, independent provider outage/spend alerts and later paid channels are not claimed complete.
+
+## Prior-session record
+
+Everything below is preserved historical context. Its five-Worker topology and
+earlier SHA/provider observations do not override the current six-role plan,
+current checklist or fresh primary evidence.
+
+## Historical state through the prior session
 
 - Product: Data Foundry
 - Lifecycle stage: Alpha Lab schema staged / protected main / pre-deployment
@@ -55,6 +77,23 @@
   newly reviewed exact SHA. It holds no source, entity, fact, tenant, or
   credential rows.
   See the [2026-09-02 hosted migration evidence](docs/evidence/alpha-lab-hosted-migration-20260902.md).
+
+## Latest Session — Local Clone, Windows Test Repair, and E2E
+
+- Populated the previously empty local checkout from `origin/main` at merge
+  commit `0ae6c7a` on branch `local-test`; installed the pinned pnpm lockfile
+  dependencies with `pnpm install --frozen-lockfile`.
+- Fixed the Windows-only architecture-boundary test failure caused by using a
+  URL pathname without decoding `%20` in a workspace path. Both boundary
+  suites now use Node `fileURLToPath`.
+- Focused verification passed: 2 files / 10 tests. The local factory E2E proof
+  passed: 1 file / 34 tests. The repeated full local suite passed: 202 files /
+  3,246 tests. `pnpm build` passed schema generation and TypeScript typecheck.
+- No hosted CI, provider, database, deployment, rights, billing, DNS, or
+  source state changed. This local branch is not a release candidate.
+- Repeat validation on 2026-09-03 reproduced no failures: focused boundary
+  tests 10/10, factory E2E 34/34, full suite 3,246/3,246, and build/typecheck
+  passed again.
 
 ## Latest Session — Protected-Main PR #26 Release-Boundary Merge
 

@@ -78,3 +78,27 @@ it:
 - No indexable page class exists without a quality gate.
 - `DATA_DICTIONARY.md` documents every property with type, unit and source
   coverage.
+
+- Identifier fixtures prove read/write equivalence from the declared operation
+  chain, including Unicode and prefix rules, and prove distinct structural
+  codes stay distinct. Shared query code must not add industry-specific cases.
+- Ingestion, edge, web and MCP compiled artifacts carry the same identifier
+  specification. Bundle admission and real source activation require separate
+  review; a synthetic portability fixture grants neither.
+
+## Optional buyer offer
+
+`product.yaml` supplies buyer-facing title, audience, lookup entity type, coverage,
+limitations, proposed plans and an optional RapidAPI listing URL. The lookup type
+must exist in the entity schema. Leave the listing null and availability prelaunch
+until an actual listing and operating policies are approved. The compiler validates
+HTTPS RapidAPI listing shape; a syntactically valid URL is not proof of a live listing.
+No offer field bypasses vertical publication, source rights or indexability gates.
+Set `seo.url_prefix` to the canonical industry path, and use `legacy_url_prefixes`
+for permanent redirects from previous paths. Compile web and MCP artifacts together.
+
+Optional `terms_policy` and `privacy_policy` each require `{ approved: true,
+url: https://... }`; `support_contact` requires `{ approved: true, email: ... }`.
+Omit them until authorized documents and a monitored contact exist. Availability
+`available` requires all three plus the listing. Approval here is an explicit
+reviewed declaration, not a claim the compiler has independently reviewed law.

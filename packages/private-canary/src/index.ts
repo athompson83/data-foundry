@@ -136,6 +136,7 @@ export const PRIVATE_CANARY_WORKERS = [
   'web',
   'usage-consumer',
   'acquisition-worker',
+  'ingestion-worker',
   'mcp-worker',
 ] as const;
 export type PrivateCanaryWorker = (typeof PRIVATE_CANARY_WORKERS)[number];
@@ -146,6 +147,7 @@ const PRIVATE_CANARY_RUNTIME_ROLE_BY_WORKER: Readonly<Record<PrivateCanaryWorker
   web: 'df_web',
   'usage-consumer': 'df_usage',
   'acquisition-worker': 'df_acquisition',
+  'ingestion-worker': 'df_ingestion',
   'mcp-worker': 'df_mcp',
 };
 
@@ -251,7 +253,7 @@ export interface PrivateCanaryProbe {
 }
 
 export interface PrivateCanaryReceipt {
-  readonly kind: 'data-foundry.private-canary-receipt.v1';
+  readonly kind: 'data-foundry.private-canary-receipt.v2';
   readonly run_id: string;
   /** The emitted synthetic fixture cycle; it is safe correlation metadata. */
   readonly issued_at: string;
@@ -443,7 +445,7 @@ export function createPrivateCanaryReceipt(input: {
   });
 
   return {
-    kind: 'data-foundry.private-canary-receipt.v1',
+    kind: 'data-foundry.private-canary-receipt.v2',
     run_id: input.runId,
     issued_at: input.issuedAt,
     completed_at: input.completedAt,

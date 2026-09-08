@@ -16,7 +16,7 @@ const CURRENT_WORKSTREAM = RUNBOOK.split('## 1. Cloudflare account')[0] ?? '';
 const HYPERDRIVE_SECTION =
   RUNBOOK.split('## 2. Hyperdrive binding to Postgres')[1]?.split('## 3. Vercel review')[0] ?? '';
 const TRACKED_MANIFESTS =
-  'apps/edge/wrangler.toml apps/web/wrangler.toml apps/usage-consumer/wrangler.toml apps/acquisition-worker/wrangler.toml apps/mcp-worker/wrangler.toml';
+  'apps/edge/wrangler.toml apps/web/wrangler.toml apps/usage-consumer/wrangler.toml apps/acquisition-worker/wrangler.toml apps/ingestion-worker/wrangler.toml apps/mcp-worker/wrangler.toml';
 const PR_26_HEAD = '8a43b7f7600fef10c1b26f0281a4c087f8610373';
 const PR_26_MERGE = '02e90d70d0000d21c7f9b070b4e1b2e1d5dd7493';
 
@@ -39,7 +39,7 @@ describe('the no-commit Cloudflare deployment check', () => {
       expect(document).toContain(`\`${PR_26_MERGE}\``);
       expect(document).not.toMatch(/`8a43b7f`|`02e90d7`/);
     }
-    expect(RUNBOOK).toMatch(/all six\s+route-less private-canary Worker artifacts/);
+    expect(RUNBOOK).toMatch(/all seven\s+route-less private-canary Worker artifacts/);
     const laterCommitGate =
       /Any later\s+commit, including documentation-only, creates a\s+new release SHA and requires\s+fresh exact-SHA checks/;
     expect(RUNBOOK).toMatch(laterCommitGate);
@@ -173,7 +173,7 @@ describe('the no-commit Cloudflare deployment check', () => {
       /On a fresh\s+unprovisioned installation, apply `sql` in one direct-TLS transaction before\s+running `verificationSql`/,
     );
     expect(RUNBOOK).toMatch(
-      /On the hosted exact-legacy upgrade, migration\s+`0027` itself converts only the attested 200-grant acquisition shape to the\s+exact 199-grant shape; `0028` then adds only the four audited rights-path\s+indexes\. Do not reapply the grant installer/,
+      /On the hosted exact-legacy upgrade, migration\s+`0027` itself converts only the attested 200-grant acquisition shape to the\s+exact 199-grant shape; `0028` then adds only the four audited rights-path\s+indexes\./,
     );
     expect(RUNBOOK).toMatch(
       /`transactionContract\.liveUseAuthorized: false` and\s+provider-ledger atomicity `unverified` apply only to its archival connector\s+packets/,
@@ -195,67 +195,48 @@ describe('the no-commit Cloudflare deployment check', () => {
     );
   });
 
-  it('requires the complete 0028 migration chain before new production credentials and resources', () => {
-    expect(CURRENT_WORKSTREAM).toMatch(
-      /securely activate only the controlled\s+`df_migration` credential and exact database-scoped path, apply the pending\s+exact-SHA database procedure and require `postMigrationGrants\.verificationSql`\s+to pass; only then\s+activate the five staged runtime roles with distinct credentials and the exact\s+database-scoped path, require both\s+`postMigrationGrants\.postCredentialVerificationSql` and the five direct\s+`pnpm runtime-roles:postgres:check` credential probes to pass, and provision the\s+five matching cache-disabled Hyperdrives/,
-    );
-    expect(HYPERDRIVE_SECTION).toMatch(
-      /activate only the existing staged\s+`df_migration` role as the controlled migration login; it owns only\s+`data_foundry`/,
-    );
-    expect(HYPERDRIVE_SECTION).toMatch(
-      /Keep the five existing edge, web, MCP, usage-consumer, and acquisition roles\s+staged as separate `NOLOGIN`, passwordless, least-privilege roles/,
-    );
-    expect(HYPERDRIVE_SECTION).toMatch(
-      /Do not assign any runtime password or\s+enable runtime `LOGIN` until step 3's pending migrations and\s+`postMigrationGrants\.verificationSql` have passed/,
-    );
-    expect(HYPERDRIVE_SECTION).not.toContain('separate least-privilege login roles');
-    expect(PRODUCTION_LAUNCH_ORDER).toContain(
-      'That repository baseline authorizes no Alpha Lab mutation.',
-    );
-    const beforeProductionAuthorization =
-      PRODUCTION_LAUNCH_ORDER.split('only after `UA-006`')[0] ?? '';
-    expect(beforeProductionAuthorization).not.toContain('Install it');
-    expect(PRODUCTION_LAUNCH_ORDER).toMatch(/baseline .* through migration\s+`0028`/s);
-    expect(PRODUCTION_LAUNCH_ORDER).toMatch(
-      /Before\s+proceeding to step 2 and only after `UA-006`, securely activate only the\s+staged `df_migration` role as the controlled login with its exact\s+database-scoped path, verify the cluster boundary, reconcile the hosted\s+`0001`–`0026` ledger, then use `DATA_FOUNDRY_SCHEMA=data_foundry` to apply only\s+pending `0027` and `0028` in Alpha Lab's private `data_foundry` schema, never\s+in `public`; rerun the migration as a no-op.*`postMigrationGrants\.verificationSql`.*full `0001`–`0028`\s+ledger, relation\/routine inventory, ownership, ACL, and 57 function search\s+paths before any runtime credential, Hyperdrive, R2, or Queue provisioning/s,
-    );
-    expect(PRODUCTION_LAUNCH_ORDER).not.toContain('before any new credential');
-    expect(PRODUCTION_LAUNCH_ORDER).toMatch(
-      /Activate the five existing staged `NOLOGIN` runtime roles with isolated\s+least-privilege login credentials, then execute that exact SHA's\s+`postMigrationGrants\.postCredentialVerificationSql` and require it to pass\.\s+Then run `pnpm runtime-roles:postgres:check` through all five direct\s+credential paths and require all five role checks to pass\. Only then\s+provision the five matching cache-disabled Hyperdrives, R2, and the Queue\/DLQ\s+resources/,
-    );
-    expect(PRODUCTION_LAUNCH_ORDER).not.toMatch(/Provision the isolated Alpha Lab roles\/schema/);
-    expect(PRODUCTION_LAUNCH_ORDER).not.toMatch(/merged through migration\s+`0026`/);
+  it('requires the full candidate migration chain and explicit legacy-grant upgrade before runtime credentials', () => {
+    expect(CURRENT_WORKSTREAM).toContain('currently `0031`');
+    expect(HYPERDRIVE_SECTION).toContain('postMigrationGrants.upgradeFrom0028Sql');
+    expect(HYPERDRIVE_SECTION).toContain('frozen 199-grant');
+    expect(HYPERDRIVE_SECTION).toContain('Unknown ACL drift');
+    expect(HYPERDRIVE_SECTION).toMatch(/Do not assign any runtime password or\s+enable runtime `LOGIN` until/);
+    expect(PRODUCTION_LAUNCH_ORDER).toContain('That repository baseline authorizes no Alpha Lab mutation.');
+    expect(PRODUCTION_LAUNCH_ORDER).toContain('only after `UA-006`');
+    expect(PRODUCTION_LAUNCH_ORDER).toContain('`0001`–`0026` ledger');
+    expect(PRODUCTION_LAUNCH_ORDER).toMatch(/never\s+in `public`/);
+    expect(PRODUCTION_LAUNCH_ORDER).toContain('rerun the migration as a no-op');
+    expect(PRODUCTION_LAUNCH_ORDER).toContain('`postMigrationGrants.verificationSql`');
+    expect(PRODUCTION_LAUNCH_ORDER).toContain('`postMigrationGrants.postCredentialVerificationSql`');
+    expect(PRODUCTION_LAUNCH_ORDER).toMatch(/through all six direct\s+credential paths and require all six role checks to pass/);
+    expect(PRODUCTION_LAUNCH_ORDER).toContain('six matching cache-disabled Hyperdrives');
+    expect(PRODUCTION_LAUNCH_ORDER).toContain('seven route-less private-canary Worker artifacts');
   });
 
-  it('keeps both owner-checklist verifiers in the canonical credential sequence', () => {
+  it('keeps the owner-facing credential and deployment sequence explicit', () => {
     const ua002 = CHECKLIST.split(/\r?\n/).find((line) => line.startsWith('| UA-002 |')) ?? '';
-    expect(ua002).toMatch(
-      /apply only pending migrations.*run the exact `postMigrationGrants\.verificationSql` and require it to pass.*activate all five staged runtime roles.*run the exact `postMigrationGrants\.postCredentialVerificationSql` and require it to pass.*run `pnpm runtime-roles:postgres:check` through all five direct credential paths and require all five role checks to pass.*only then create the five matching cache-disabled Hyperdrives/i,
-    );
-    expect(ua002).not.toMatch(/activate all five staged runtime roles.*before .*verificationSql/i);
-    expect(ua002).not.toMatch(/create .*Hyperdrives.*before .*post-credential/i);
-    expect(RUNBOOK).toMatch(
-      /run\s+`pnpm runtime-roles:postgres:check` through all five direct runtime-role\s+credential paths and require all five role checks to pass; only then create\s+exactly five cache-disabled TLS Hyperdrives—one for each edge, web,\s+usage-consumer, acquisition-worker, and MCP role/,
-    );
-    expect(CURRENT_WORKSTREAM).toMatch(
-      /Through that authorized\s+direct-TLS operator, execute the exact payload's `verificationSql` and\s+require it to pass while all five runtime roles remain staged `NOLOGIN` and\s+passwordless\. Only after that result may step 2 activate a runtime role/,
-    );
-    expect(RUNBOOK).toMatch(
-      /The SQL verifier must read back the hosted ledger,\s+private schema, five roles, 57 expected function signatures with exact\s+`data_foundry, pg_catalog, extensions` function paths, and 199 exact grants\./,
-    );
-    expect(RUNBOOK).toMatch(
-      /The direct credential probe independently verifies each server-side login\s+identity, nonprivileged role posture, empty membership, exact live and durable\s+search paths, safe session settings, and effective-privilege boundaries\.\s+Both must pass before any Hyperdrive is created\./,
-    );
-    const currentState = PROGRESS.split('## Previous Session')[0] ?? '';
-    expect(currentState).toMatch(
-      /a secure `df_migration` credential with\s+the exact current-database `data_foundry, pg_catalog, extensions` search path,\s+a read-only cross-database topology result, pending\s+migrations `0027`–`0028`, `postMigrationGrants\.verificationSql`, five distinct\s+runtime-role credentials with that same exact current-database search path,\s+`postMigrationGrants\.postCredentialVerificationSql`, a successful five-path\s+`pnpm runtime-roles:postgres:check`, five cache-disabled Hyperdrives, five\s+separate 14-day private-canary queues, both required R2 buckets, and the\s+private canary/,
-    );
-    const blockers = PROGRESS.split('## Blockers')[1] ?? '';
-    expect(blockers).toMatch(
-      /- Secure `df_migration` credential entry with the exact current-database\s+`data_foundry, pg_catalog, extensions` search path, the pending exact-SHA\s+migrations, `postMigrationGrants\.verificationSql`, then secure activation of\s+all five runtime-role credentials, each distinct and using that same exact\s+current-database search path/,
-    );
-    expect(blockers).toMatch(
-      /runtime-role credentials, each distinct and using that same exact\s+current-database search path,\s+`postMigrationGrants\.postCredentialVerificationSql`, a successful five-path\s+`pnpm runtime-roles:postgres:check`, five cache-disabled Hyperdrives, five\s+separate private-canary queues with 14-day retention, and the absent\s+raw-artifact and canary receipt buckets are needed in that order before the\s+route-less canary can run\. Preserve and reverify the standard usage model and\s+ordinary 14-day Queue\/DLQ pair; never reuse that ordinary pair for any\s+private-canary path/,
-    );
+    for (const document of [CURRENT_WORKSTREAM]) {
+      expect(document).toContain('postMigrationGrants.verificationSql');
+      expect(document).toContain('postMigrationGrants.postCredentialVerificationSql');
+      expect(document).toContain('pnpm runtime-roles:postgres:check');
+    }
+    expect(ua002).toContain('upgradeFrom0028Sql/verificationSql before runtime LOGIN');
+    expect(ua002).toContain('postCredentialVerificationSql and all six direct runtime probes before Hyperdrives');
+    expect(CURRENT_WORKSTREAM).toMatch(/all six runtime roles remain staged `NOLOGIN` and\s+passwordless/);
+    expect(CURRENT_WORKSTREAM).toMatch(/Both must pass before any Hyperdrive is created/);
+    expect(CURRENT_WORKSTREAM).toContain('six roles');
+    expect(CURRENT_WORKSTREAM).toContain('exact generated function and grant inventories');
+    expect(PROGRESS).toContain('postMigrationGrants.verificationSql');
+    expect(PROGRESS).toContain('postMigrationGrants.postCredentialVerificationSql');
+    expect(PROGRESS).toContain('pnpm runtime-roles:postgres:check');
   });
+});
+
+
+it('keeps the extra synthetic phase separate, fixed, isolated and reversible', () => {
+  for (const assurance of ['fourteenth configuration', 'same', 'suspend the harness', 'ordinary ingestion Worker remains undeployed',
+    'data-foundry-private-ingestion-artifacts', 'exactly one successful `FETCHED` artifact', 'Restore the exact reduced',
+    'verify the synthetic R2 and Queue consumer bindings are gone', 'OPS_ALERTS_ENABLED = "false"', 'allowed_sender_addresses = [OPS_ALERT_FROM]']) {
+    expect(RUNBOOK).toContain(assurance);
+  }
 });

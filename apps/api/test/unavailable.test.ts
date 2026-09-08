@@ -9,7 +9,8 @@
  *     why the check makes a real round trip rather than returning a literal.
  *   * Every other route treats it as an unanticipated failure and collapses to
  *     an opaque 500. The driver's own error text names files, drivers and SQL
- *     state; a customer gets none of it and an operator gets all of it.
+ *     state; production responses and telemetry retain none of those details.
+ *     An optional in-process diagnostic hook can inspect the original error.
  *
  * The suite closes the real driver rather than stubbing one, so the error under
  * test is the error production would raise.
@@ -64,13 +65,13 @@ describe('a query layer that cannot answer', () => {
     }
   });
 
-  it('hands the operator channel the real error, with the path that failed', async () => {
+  it('hands the in-process diagnostic hook the error with a closed route key', async () => {
     fixtures.logged.length = 0;
     await call(fixtures.app, `/v1/entities/${fixtures.equipment.id}`, {
       headers: { 'x-request-id': 'probe-1' },
     });
     expect(fixtures.logged).toHaveLength(1);
-    expect(fixtures.logged[0]?.path).toBe(`/v1/entities/${fixtures.equipment.id}`);
+    expect(fixtures.logged[0]?.path).toBe('entities.detail');
     expect(fixtures.logged[0]?.error).toBeInstanceOf(Error);
   });
 

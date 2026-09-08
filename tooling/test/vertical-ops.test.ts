@@ -102,7 +102,7 @@ describe('an op the platform does not implement is rejected', () => {
     expect(problem?.message).toContain('identifier_rules[0].ops[1].op');
     expect(problem?.message).toContain('"strip_contorl_characters"');
     // An operator should be able to fix a typo without reading source.
-    expect(problem?.message).toContain('did you mean "strip_characters"?');
+    expect(problem?.message).toContain('did you mean "strip_format_characters"?');
     expect(problem?.message).toContain('services/ingest-worker/src/identifiers.ts');
   });
 
@@ -185,7 +185,7 @@ describe('supporting machinery', () => {
   });
 
   it('suggests nearest names deterministically, and suggests nothing for a wild one', () => {
-    expect(nearestOps('strip_contorl_characters', IDENTIFIER_OPS)).toEqual(['strip_characters']);
+    expect(nearestOps('strip_contorl_characters', IDENTIFIER_OPS)).toEqual(['strip_format_characters']);
     expect(nearestOps('uppercse', IDENTIFIER_OPS)).toEqual(['uppercase']);
     expect(nearestOps('zzzzzzzzzzzzzzzzzzzzzzzz', IDENTIFIER_OPS)).toEqual([]);
   });

@@ -15,6 +15,7 @@
     "test": "vitest run --root ."
   },
   "dependencies": {
+    "@data-foundry/normalization": "workspace:*",
     "@data-foundry/canonical-schema": "workspace:*",
     "@data-foundry/canonical-store": "workspace:*",
     "@data-foundry/provenance": "workspace:*",

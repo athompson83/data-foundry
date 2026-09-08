@@ -129,10 +129,10 @@ export function createWebFetchHandler(
       return toFetchResponse(response, request.method);
     } catch (error) {
       if (error instanceof WebConfigurationError) {
-        console.error('[web] configuration', error);
+        console.error('[web] configuration', { code: 'CONFIGURATION_UNAVAILABLE' });
         return unavailable('configuration');
       }
-      console.error('[web] startup', error);
+      console.error('[web] startup', { code: 'STARTUP_UNAVAILABLE' });
       return unavailable('startup');
     } finally {
       // Hyperdrive pools at the database side; this request's pg Client must

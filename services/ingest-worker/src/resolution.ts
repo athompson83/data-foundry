@@ -40,7 +40,7 @@ import type {
   SqlParam,
   SqlTransactionExecutor,
 } from '@data-foundry/canonical-store';
-import { primaryAliasType, resolvePublisher, type VerticalConfig } from './config.js';
+import { primaryAliasType, resolvePublisher, type VerticalConfig } from './config-core.js';
 import { AliasNormalizer, slugify } from './identifiers.js';
 
 export interface AliasClaim {
@@ -136,6 +136,8 @@ export interface ResolvedEntity {
 }
 
 export interface ResolverDeps {
+  /** Actual source validation time; processing/replay does not make evidence newer. */
+  readonly verifiedAt?: IsoDateTime;
   readonly store: CanonicalStore;
   readonly config: VerticalConfig;
   readonly verticalId: VerticalId;
@@ -201,7 +203,7 @@ export class EntityResolver {
         status: 'ACTIVE',
         quality_score: entityQualityScore(0.5),
         first_seen_at: this.#deps.now,
-        last_verified_at: this.#deps.now,
+        last_verified_at: this.#deps.verifiedAt ?? this.#deps.now,
       },
       executor,
     );
@@ -688,7 +690,7 @@ export class EntityResolver {
           // value rather than inventing one it has no signal for.
           quality_score: entityQualityScore(0.5),
           first_seen_at: this.#deps.now,
-          last_verified_at: this.#deps.now,
+          last_verified_at: this.#deps.verifiedAt ?? this.#deps.now,
         },
         executor,
       );
@@ -706,7 +708,7 @@ export class EntityResolver {
           status: existing.entity.status,
           quality_score: existing.entity.quality_score,
           first_seen_at: existing.entity.first_seen_at,
-          last_verified_at: this.#deps.now,
+          last_verified_at: this.#deps.verifiedAt ?? this.#deps.now,
         },
         executor,
       );
@@ -867,7 +869,7 @@ export class EntityResolver {
         status: entity.status,
         quality_score: entity.quality_score,
         first_seen_at: entity.first_seen_at,
-        last_verified_at: this.#deps.now,
+        last_verified_at: this.#deps.verifiedAt ?? this.#deps.now,
       },
       executor,
     );

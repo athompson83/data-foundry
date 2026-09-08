@@ -67,6 +67,7 @@ export interface ScheduledAcquisitionResult {
 }
 
 export interface RunScheduledAcquisitionInput {
+  readonly ingestionRuntimeDigest?: string;
   readonly driver: SqlDriver;
   readonly runtime: AcquisitionRuntime;
   readonly scheduledFor: string;
@@ -570,6 +571,7 @@ async function executeClaim(
       Math.max(Date.parse(item.run.claimLeaseAcquiredAt), Date.parse(result.fetchedAt)),
     )).toISOString() as ScheduledAcquisitionRun['claimedAt'];
     await store.complete({
+      ...(input.ingestionRuntimeDigest === undefined ? {} : { ingestionRuntimeDigest: input.ingestionRuntimeDigest }),
       runId: item.run.id,
       claimToken: item.run.claimToken,
       outcome: result.outcome,

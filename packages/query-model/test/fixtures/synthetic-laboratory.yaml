@@ -1,0 +1,29 @@
+# Test-only vertical declaration. No sources, acquisition, or publication bundle.
+slug: synthetic-laboratory
+entity_types: [specimen, laboratory]
+relationship_predicates: [tested_by]
+fields:
+  - field: specimen_material
+    value_type: string
+    filter: {type: multi_select, facet_count: true}
+identifier_normalization:
+  version: 1
+  rules:
+    - alias_type: accession
+      applies_to: [specimen]
+      scoped_to: source
+      strong: true
+      ops:
+        - {op: unicode_normalize}
+        - {op: strip_format_characters}
+        - {op: uppercase}
+        - {op: collapse_whitespace}
+        - {op: strip_prefix, prefixes: ['LAB:']}
+        - {op: strip_characters, characters: '- / '}
+      validate: {min_length: 4, max_length: 16, pattern: '^[A-Z0-9]+$'}
+    - alias_type: structural_code
+      applies_to: [specimen]
+      scoped_to: null
+      strong: true
+      ops: [{op: uppercase}, {op: strip_whitespace}]
+      validate: null

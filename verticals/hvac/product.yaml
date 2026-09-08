@@ -1,0 +1,18 @@
+lookup_entity_type: equipment_model
+title: HVAC Equipment Specifications & Evidence API
+audience: Built for equipment catalogues and HVAC software teams.
+summary: Match a model identifier, enrich it with supported specifications, and inspect the evidence behind each value.
+availability: prelaunch
+listing_url: null
+coverage: Real-source coverage is pending source approval and live verification. The visible catalogue reports only data this surface is permitted to show.
+limitations:
+  - Coverage varies by manufacturer, model, geography and source. An absent value means unavailable, not zero.
+  - Confirm the exact equipment configuration. Basic models and individual variants can differ.
+  - Ratings from different test standards are not interchangeable. Preserve units and rating context.
+  - This API does not provide installation sizing, code compliance, replacement compatibility or independent equipment certification.
+  - Check verification dates and source evidence. No commercial freshness guarantee is offered during validation.
+plans:
+  - {name: Evaluate, monthly_usd: 0, included_requests: 100}
+  - {name: Developer, monthly_usd: 49, included_requests: 5000}
+  - {name: Growth, monthly_usd: 149, included_requests: 25000}
+  - {name: Scale, monthly_usd: 299, included_requests: 75000}

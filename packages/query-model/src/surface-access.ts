@@ -1,3 +1,5 @@
+import { publicArtifactUrl } from './public-evidence-url.js';
+import type { AliasNormalizationSpec } from '@data-foundry/canonical-schema';
 import {
   createCanonicalStore,
   ENTITY_COLUMNS,
@@ -158,7 +160,9 @@ export interface SurfaceClaimAttribution {
   /** Exact source text is independently gated by QUOTE_OR_EXCERPT. */
   readonly source_value: string | null;
   readonly locator: string;
-  readonly artifact_url: string;
+  readonly artifact_url: string | null;
+  readonly artifact_id: string;
+  readonly artifact_content_hash: string;
   readonly retrieved_at: IsoDateTime;
   readonly observed_at: IsoDateTime;
 }
@@ -393,7 +397,9 @@ const summarizeSurfaceClaim = (
       link.locator.type === 'WHOLE_DOCUMENT'
         ? 'whole document'
         : `${link.locator.type} ${link.locator.value}`,
-    artifact_url: link.artifact.url,
+    artifact_url: publicArtifactUrl(link.artifact.url),
+    artifact_id: link.artifact.id,
+    artifact_content_hash: link.artifact.content_hash,
     retrieved_at: link.retrieved_at,
     observed_at: link.observed_at,
   })),
@@ -419,7 +425,7 @@ const narrateSurfaceSelection = (
       lines.push(
         `${source.publisher} (${source.domain}, ${source.source_type}, authority ` +
           `${source.authority_rank}) supports "${renderValue(claim.value, claim.unit)}" for ` +
-          `${selection.property} at ${source.locator} in ${source.artifact_url}.` +
+          `${selection.property} at ${source.locator}${source.artifact_url === null ? '' : ` in ${source.artifact_url}`}.` +
           excerpt,
       );
     }
@@ -1431,6 +1437,7 @@ function createSurfaceQueryModelCore(
   fields: FieldMetadataRegistry,
   surface: RightsSurface,
   options: SurfaceAccessOptions = {},
+  identifierNormalization?: AliasNormalizationSpec,
 ): SurfaceQueryModel {
   const authorizer = new SurfaceRightsAuthorizer(store, surface, options);
 
@@ -1575,7 +1582,7 @@ function createSurfaceQueryModelCore(
     getEntity: getAuthorizedEntity,
     getEntityBySlug: getAuthorizedEntityBySlug,
     lookupIdentifier: async (lookup) => {
-      const result = await lookupByIdentifier(store, lookup);
+      const result = await lookupByIdentifier(store, lookup, identifierNormalization);
       const matches = [];
       for (const match of result.matches) {
         if (await authorizer.authorizeEntity(match.entity.id)) matches.push(match);
@@ -1613,7 +1620,7 @@ function createSurfaceQueryModelCore(
         ...query,
         authorized_entity_ids: intersect(entityIds, query.authorized_entity_ids),
         authorized_fact_ids: intersect(factIds, query.authorized_fact_ids),
-      });
+      }, identifierNormalization);
     },
     facets: async (query) => {
       const { entityIds, factIds } = await authorizer.visibleCatalogIds(query.vertical_id);
@@ -1662,8 +1669,9 @@ export function createSurfaceQueryModelForSnapshot(
   surface: RightsSurface,
   options: SurfaceAccessOptions,
   assertActive: () => void,
+  identifierNormalization?: AliasNormalizationSpec,
 ): SurfaceQueryModel {
-  const model = createSurfaceQueryModelCore(snapshotStore, fields, surface, options);
+  const model = createSurfaceQueryModelCore(snapshotStore, fields, surface, options, identifierNormalization);
   const run = async <T>(operation: () => Promise<T>): Promise<T> => {
     assertActive();
     return operation();
@@ -1701,13 +1709,14 @@ export function createSurfaceQueryModel(
   fields: FieldMetadataRegistry,
   surface: RightsSurface,
   options: SurfaceAccessOptions = {},
+  identifierNormalization?: AliasNormalizationSpec,
 ): SurfaceQueryModel {
   const run = <T>(
     operation: (snapshot: SurfaceQueryModel) => Promise<T>,
   ): Promise<T> => withSurfaceStoreSnapshot(
     store,
     async (snapshotStore) => operation(
-      createSurfaceQueryModelCore(snapshotStore, fields, surface, options),
+      createSurfaceQueryModelCore(snapshotStore, fields, surface, options, identifierNormalization),
     ),
   );
 

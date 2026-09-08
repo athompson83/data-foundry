@@ -9,6 +9,7 @@ const ROLE_URLS = {
   df_mcp: 'DATA_FOUNDRY_MCP_POSTGRES_URL',
   df_usage: 'DATA_FOUNDRY_USAGE_POSTGRES_URL',
   df_acquisition: 'DATA_FOUNDRY_ACQUISITION_POSTGRES_URL',
+  df_ingestion: 'DATA_FOUNDRY_INGESTION_POSTGRES_URL',
 } as const;
 
 type RuntimeRole = keyof typeof ROLE_URLS;
@@ -100,7 +101,7 @@ export async function checkRuntimeRoleConnectionsPostgres(
 
 if (isMain(import.meta.url)) {
   checkRuntimeRoleConnectionsPostgres().then(
-    () => process.stdout.write('OK: 5 direct LOGIN runtime-role PostgreSQL connections are least-privileged.\n'),
+    () => process.stdout.write('OK: 6 direct LOGIN runtime-role PostgreSQL connections are least-privileged.\n'),
     (error: unknown) => {
       process.stderr.write(`Runtime-role PostgreSQL check failed: ${error instanceof Error ? error.message : String(error)}\n`);
       process.exitCode = 1;

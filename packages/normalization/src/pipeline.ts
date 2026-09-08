@@ -6,7 +6,8 @@ import {
   type NormalizationFailure,
   type Normalized,
 } from './failures.js';
-import { normalizeIdentifierForAlias } from './identifier.js';
+import { normalizeIdentifierForAlias, type NormalizedIdentifier } from './identifier.js';
+import { AliasNormalizer } from './alias-normalization.js';
 import {
   ruleSetAppliesTo,
   type IdentifierRule,
@@ -712,7 +713,15 @@ function normalizeIdentifierRule(
     };
   }
 
-  const normalized = normalizeIdentifierForAlias(rule.alias_type, source.raw, rule.options);
+  const normalized = rule.normalization === undefined
+    ? normalizeIdentifierForAlias(rule.alias_type, source.raw, rule.options)
+    : ((): Normalized<NormalizedIdentifier> => {
+      const normalizer = new AliasNormalizer({ version: 1, rules: [rule.normalization] });
+      const value = normalizer.normalize(rule.alias_type, source.raw);
+      if (value === '') return fail('IDENTIFIER_EMPTY_AFTER_NORMALIZATION', 'Declared identifier operations produced an empty key');
+      const invalid = normalizer.validate(rule.alias_type, value);
+      return invalid === null ? ok({ display: source.raw, normalized: value, empty: false }) : fail('IDENTIFIER_VALIDATION_FAILED', invalid);
+    })();
   if (!normalized.ok) {
     return {
       candidate: null,

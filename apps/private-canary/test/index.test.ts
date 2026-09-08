@@ -71,6 +71,7 @@ function canaryEnv(overrides: Partial<PrivateCanaryEnv> = {}): {
       WEB_CANARY: binding('web'),
       USAGE_CONSUMER_CANARY: binding('usage-consumer'),
       ACQUISITION_CANARY: binding('acquisition-worker'),
+      INGESTION_CANARY: binding('ingestion-worker'),
       MCP_CANARY: binding('mcp-worker'),
       CANARY_RECEIPTS: {
         put: async (key: string, value: string): Promise<void> => {
@@ -102,6 +103,7 @@ describe('private-canary DLQ consumer', () => {
       { worker: 'web', input: expectedInput },
       { worker: 'usage-consumer', input: expectedInput },
       { worker: 'acquisition-worker', input: expectedInput },
+      { worker: 'ingestion-worker', input: expectedInput },
       { worker: 'mcp-worker', input: expectedInput },
     ]);
     expect(message.ack).toHaveBeenCalledOnce();
@@ -109,7 +111,7 @@ describe('private-canary DLQ consumer', () => {
     expect(receipts).toEqual([{
       key: `runs/${envelope.run_id}/20260901120000000.json`,
       value: JSON.stringify({
-        kind: 'data-foundry.private-canary-receipt.v1',
+        kind: 'data-foundry.private-canary-receipt.v2',
         run_id: envelope.run_id,
         issued_at: envelope.issued_at,
         completed_at: '2026-09-01T12:01:00.000Z',
@@ -118,6 +120,7 @@ describe('private-canary DLQ consumer', () => {
           probeResult('web'),
           probeResult('usage-consumer'),
           probeResult('acquisition-worker'),
+          probeResult('ingestion-worker'),
           probeResult('mcp-worker'),
         ],
       }),

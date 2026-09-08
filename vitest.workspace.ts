@@ -29,6 +29,7 @@ export const projects = [
   'apps/private-canary',
   'apps/usage-consumer',
   'apps/acquisition-worker',
+  'apps/ingestion-worker',
   'apps/web',
   'verticals/hvac',
   'tooling',

@@ -127,13 +127,56 @@ async function appHandler(
   return createWebApp(resolveContext(deployment));
 }
 
+describe('buyer journey and canonical industry URLs', () => {
+  it('redirects the old industry path permanently while preserving the query', async () => {
+    const app = await appHandler();
+    const response = await app({ method: 'GET', url: '/data/hvac/search?q=model%201&type=equipment_model' });
+    expect(response.status).toBe(308);
+    expect(response.headers['location']).toBe('/hvac/search?q=model%201&type=equipment_model');
+    expect(response.headers['cache-control']).toBe('no-store');
+  });
+  it('explains the equipment offer and marks pricing as a proposal without a fabricated listing', async () => {
+    const app = await appHandler();
+    const landing = await app({ method: 'GET', url: '/hvac' });
+    expect(landing.status).toBe(200);
+    expect(landing.body).toContain('HVAC Equipment Specifications &amp; Evidence API');
+    expect(landing.body).toContain('/hvac/pricing');
+    const pricing = await app({ method: 'GET', url: '/hvac/pricing' });
+    expect(pricing.status).toBe(200);
+    expect(pricing.body).toContain('Proposed plans');
+    expect(pricing.body).toContain('$49');
+    expect(pricing.body).not.toMatch(/href="https:\/\/rapidapi.com\//);
+    for (const route of ['terms', 'privacy', 'support']) {
+      const response = await app({ method: 'GET', url: `/hvac/${route}` });
+      expect(response.status).toBe(200);
+      expect(response.body).toContain('Pending approval');
+      expect(response.body).toContain('noindex,follow');
+    }
+  });
+  it('applies declared public filters and retains them when paging', async () => {
+    await claim(fixtures, 'manufacturer', { entity_id: replacedModel.id, property: 'refrigerant', value: 'R-32' });
+    const app = await appHandler();
+    const response = await app({ method: 'GET', url: '/hvac/search?type=equipment_model&filter.refrigerant=R-32' });
+    expect(response.status).toBe(200);
+    expect(response.body).toContain('Synthetic Legacy Model');
+    expect(response.body).not.toContain('Synthetic Replacement Model');
+    expect(response.body).toContain('name="filter.refrigerant"');
+    expect(response.body).toContain('noindex,follow');
+    const second = await app({ method: 'GET', url: '/hvac/search?type=equipment_model&filter.refrigerant=R-32&page=2' });
+    expect(second.body).toContain('rel="prev"');
+    expect(second.body).toContain('filter.refrigerant=R-32');
+    expect((await app({ method: 'GET', url: '/hvac/search?filter.unknown=anything' })).status).toBe(400);
+    expect((await app({ method: 'GET', url: '/hvac/search?page=100000' })).status).toBe(400);
+  });
+});
+
 describe('the parent site', () => {
   it('lists every composed vertical', async () => {
     const app = await appHandler();
     const response = await app({ method: 'GET', url: '/' });
     expect(response.status).toBe(200);
     expect(response.body).toContain('HVAC Equipment');
-    expect(response.body).toContain('/data/hvac');
+    expect(response.body).toContain('/hvac');
   });
 
   it('is indexable — this is the discovery hub, not a generated page', async () => {
@@ -173,14 +216,14 @@ describe('robots.txt and the sitemap index', () => {
     expect(response.status).toBe(200);
     expect(response.headers['content-type']).toContain('application/xml');
     expect(response.body).toContain('<sitemapindex');
-    expect(response.body).toContain('/data/hvac/sitemaps/');
+    expect(response.body).toContain('/hvac/sitemaps/');
   });
 });
 
 describe('the hvac dataset landing page', () => {
   it('renders 200 with links to every declared entity type', async () => {
     const app = await appHandler();
-    const response = await app({ method: 'GET', url: '/data/hvac' });
+    const response = await app({ method: 'GET', url: '/hvac' });
     expect(response.status).toBe(200);
     expect(response.body).toContain('Equipment Models');
     expect(response.body).toContain('Manufacturers');
@@ -188,7 +231,7 @@ describe('the hvac dataset landing page', () => {
 
   it('suppresses Dataset JSON-LD until every declared required field is known', async () => {
     const app = await appHandler();
-    const response = await app({ method: 'GET', url: '/data/hvac' });
+    const response = await app({ method: 'GET', url: '/hvac' });
 
     expect(response.body).not.toContain('type="application/ld+json"');
     expect(response.body).not.toContain('"@type":"Dataset"');
@@ -200,7 +243,7 @@ describe('relationship page dispatch', () => {
     const app = await appHandler();
     const response = await app({
       method: 'GET',
-      url: `/data/hvac/equipment/${replacedModel.canonical_slug}/replacements`,
+      url: `/hvac/equipment/${replacedModel.canonical_slug}/replacements`,
     });
 
     expect(response.status).toBe(200);
@@ -219,12 +262,12 @@ describe('relationship page dispatch', () => {
     const app = await appHandler(runtime);
     const response = await app({
       method: 'GET',
-      url: `/data/hvac/equipment/${mergedLegacyModel.canonical_slug}/replacements`,
+      url: `/hvac/equipment/${mergedLegacyModel.canonical_slug}/replacements`,
     });
 
     expect(response.status).toBe(308);
     expect(response.headers['location']).toBe(
-      `/data/hvac/equipment/${replacedModel.canonical_slug}/replacements`,
+      `/hvac/equipment/${replacedModel.canonical_slug}/replacements`,
     );
   });
 
@@ -239,13 +282,13 @@ describe('relationship page dispatch', () => {
     const app = await appHandler(runtime);
     const response = await app({
       method: 'GET',
-      url: `/data/hvac/equipment/${mergedLegacyModel.canonical_slug}/replacements`,
+      url: `/hvac/equipment/${mergedLegacyModel.canonical_slug}/replacements`,
     });
 
     expect(response.status).toBe(200);
     expect(response.headers['location']).toBeUndefined();
     expect(response.body).toContain(
-      `href="https://data-foundry.test/data/hvac/equipment/${replacedModel.canonical_slug}/replacements"`,
+      `href="https://data-foundry.test/hvac/equipment/${replacedModel.canonical_slug}/replacements"`,
     );
   });
 });
@@ -255,7 +298,7 @@ describe('surface-safe inline evidence', () => {
     const app = await appHandler();
     const response = await app({
       method: 'GET',
-      url: `/data/hvac/equipment/${replacedModel.canonical_slug}`,
+      url: `/hvac/equipment/${replacedModel.canonical_slug}`,
     });
 
     expect(response.status).toBe(200);
@@ -275,7 +318,7 @@ describe('surface-safe inline evidence', () => {
 describe('manual search', () => {
   it('renders the bare search form as indexable', async () => {
     const app = await appHandler();
-    const response = await app({ method: 'GET', url: '/data/hvac/search' });
+    const response = await app({ method: 'GET', url: '/hvac/search' });
     expect(response.status).toBe(200);
     expect(response.body).toContain('<form class="search"');
     expect(response.body).toContain('name="robots" content="index,follow"');
@@ -283,7 +326,7 @@ describe('manual search', () => {
 
   it('marks a parametrized query noindex — it is a generated, combinatorial view', async () => {
     const app = await appHandler();
-    const response = await app({ method: 'GET', url: '/data/hvac/search?q=acme' });
+    const response = await app({ method: 'GET', url: '/hvac/search?q=acme' });
     expect(response.status).toBe(200);
     expect(response.body).toContain('name="robots" content="noindex,follow"');
   });
@@ -321,7 +364,7 @@ describe('manual search', () => {
       },
     });
 
-    const response = await app({ method: 'GET', url: '/data/hvac/search?q=capacity' });
+    const response = await app({ method: 'GET', url: '/hvac/search?q=capacity' });
 
     expect(response).toMatchObject({
       status: 503,
@@ -339,7 +382,7 @@ describe('manual search', () => {
 describe('the docs page', () => {
   it('renders and links to llms.txt', async () => {
     const app = await appHandler();
-    const response = await app({ method: 'GET', url: '/data/hvac/docs' });
+    const response = await app({ method: 'GET', url: '/hvac/docs' });
     expect(response.status).toBe(200);
     expect(response.body).toContain('llms.txt');
   });
@@ -348,7 +391,7 @@ describe('the docs page', () => {
 describe('llms.txt', () => {
   it('is plain text and names the vertical', async () => {
     const app = await appHandler();
-    const response = await app({ method: 'GET', url: '/data/hvac/llms.txt' });
+    const response = await app({ method: 'GET', url: '/hvac/llms.txt' });
     expect(response.status).toBe(200);
     expect(response.headers['content-type']).toContain('text/plain');
     expect(response.body).toContain('HVAC Equipment');
@@ -364,13 +407,13 @@ describe('unmatched requests', () => {
 
   it('answers 404 for a path inside a real vertical that matches no page class', async () => {
     const app = await appHandler();
-    const response = await app({ method: 'GET', url: '/data/hvac/this-is-not-a-route' });
+    const response = await app({ method: 'GET', url: '/hvac/this-is-not-a-route' });
     expect(response.status).toBe(404);
   });
 
   it('answers 404 for an entity slug that does not exist', async () => {
     const app = await appHandler();
-    const response = await app({ method: 'GET', url: '/data/hvac/equipment/does-not-exist' });
+    const response = await app({ method: 'GET', url: '/hvac/equipment/does-not-exist' });
     expect(response.status).toBe(404);
   });
 

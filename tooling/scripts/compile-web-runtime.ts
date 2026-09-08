@@ -1,3 +1,6 @@
+import { ProductOfferSchema, type ProductOffer } from '../../apps/web/src/product.js';
+import { compileAliasNormalization } from '../../packages/normalization/src/alias-normalization.js';
+import type { AliasNormalizationSpec } from '@data-foundry/canonical-schema';
 /**
  * Compile a vertical's read-side AND publish-side configuration into a bundled
  * JSON artifact for `apps/web`.
@@ -52,12 +55,14 @@ export interface EntityTypeMeta {
 
 export interface WebRuntime {
   readonly vertical_slug: string;
+  readonly product?: ProductOffer;
   readonly vertical_name: string;
   readonly vertical_status: string;
   readonly entity_types: readonly string[];
   readonly entity_type_meta: EntityTypeMeta;
   readonly relationship_predicates: readonly string[];
   readonly fields: readonly unknown[];
+  readonly identifier_normalization: AliasNormalizationSpec;
   readonly fact_selection: Readonly<Record<string, unknown>>;
   readonly critical_properties: CriticalProperties;
   /** Raw parsed `seo.yaml`. Untyped here deliberately — `apps/web/src/seo.ts` owns the shape. */
@@ -118,15 +123,24 @@ export async function compileWebRuntime(slug: string): Promise<WebRuntime> {
   const seoPath = join(config.directory, 'seo.yaml');
   const seo = parseYaml(await readFile(seoPath, 'utf8'));
   validateWebSeoConfig(seo);
+  const legacy = seo.legacy_url_prefixes;
+  if (legacy !== undefined && (!Array.isArray(legacy) || legacy.some((prefix: unknown) => typeof prefix !== 'string' || !/^\/[a-z0-9-]+(?:\/[a-z0-9-]+)*$/.test(prefix) || prefix === seo.url_prefix))) throw new Error('Invalid legacy URL prefix');
+  let product: ProductOffer | undefined;
+  try { product = ProductOfferSchema.parse(parseYaml(await readFile(join(config.directory, 'product.yaml'), 'utf8'))); }
+  catch (error) { if (!(error instanceof Error && 'code' in error && error.code === 'ENOENT')) throw error; }
+
+  if (product !== undefined && !config.entityTypes.includes(product.lookup_entity_type)) throw new Error('Product lookup entity type must be declared');
 
   return {
     vertical_slug: slug,
+    ...(product === undefined ? {} : { product }),
     vertical_name: config.name,
     vertical_status: config.status,
     entity_types: config.entityTypes,
     entity_type_meta: entityTypeMetaOf(config.entities),
     relationship_predicates: config.relationshipPredicates,
     fields: buildFieldMetadata(config),
+    identifier_normalization: compileAliasNormalization(config),
     fact_selection: factSelection,
     critical_properties: criticalPropertiesOf(config.entities),
     seo,

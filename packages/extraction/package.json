@@ -5,7 +5,8 @@
   "type": "module",
   "description": "Extraction providers: turn artifacts into source-native structured records.",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./runtime": "./src/runtime.ts"
   },
   "types": "./src/index.ts",
   "files": [

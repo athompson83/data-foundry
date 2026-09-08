@@ -1,6 +1,7 @@
 import { R2ArtifactStore } from '@data-foundry/acquisition';
 import {
   createHyperdriveDriver,
+  createIngestionDeliveryStore,
   createPostgresDriver,
   DATA_FOUNDRY_PRIVATE_SCHEMA,
   type PostgresDriverOptions,
@@ -13,6 +14,7 @@ import type {
   PrivateCanaryProbeResult,
 } from '@data-foundry/private-canary';
 import { ACQUISITION_RUNTIMES } from '../generated/runtime-registry.js';
+import { INGESTION_RUNTIMES } from '../../ingestion-worker/generated/runtime-registry.js';
 import {
   resolveAcquisitionConfig,
   type AcquisitionWorkerEnv,
@@ -112,9 +114,14 @@ export async function runScheduledEvent(
     ),
   );
   try {
-    return await runScheduledAcquisition({
+    const ingestionRuntime = INGESTION_RUNTIMES[config.verticalSlug];
+    if (ingestionRuntime === undefined || ingestionRuntime.acquisition_runtime_digest !== runtime.runtime_digest) {
+      throw new Error('INGESTION_ACQUISITION_RUNTIME_MISMATCH');
+    }
+    const result = await runScheduledAcquisition({
       driver,
       runtime,
+      ingestionRuntimeDigest: ingestionRuntime.runtime_digest,
       scheduledFor: new Date(event.scheduledTime).toISOString(),
       artifactStore: new R2ArtifactStore({
         bucket: config.bucketName,
@@ -122,6 +129,8 @@ export async function runScheduledEvent(
       }),
       env,
     });
+    if (env.INGESTION_QUEUE !== undefined) await createIngestionDeliveryStore(driver).dispatch(env.INGESTION_QUEUE);
+    return result;
   } finally {
     if (env.HYPERDRIVE !== undefined) await driver.close().catch(() => undefined);
   }
@@ -129,6 +138,15 @@ export async function runScheduledEvent(
 
 export default {
   async scheduled(event: ScheduledEventLike, env: AcquisitionWorkerEnv): Promise<void> {
-    await runScheduledEvent(event, env);
+    try {
+      const result = await runScheduledEvent(event, env);
+      const failed = result.executions.filter(execution => execution.disposition === 'FAILED').length;
+      if (failed > 0) console.error('[acquisition-worker] acquisition failures', { code: 'ACQUISITION_TARGET_FAILED', count: failed });
+    } catch {
+      console.error('[acquisition-worker] cycle unavailable', { code: 'ACQUISITION_CYCLE_FAILED' });
+      // Cloudflare must see an unsuccessful invocation, without a provider/SQL
+      // exception whose message or cause could include protected context.
+      throw new Error('ACQUISITION_CYCLE_FAILED');
+    }
   },
 };

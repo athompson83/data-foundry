@@ -33,6 +33,8 @@ export type ExtractionFormat = (typeof EXTRACTION_FORMATS)[number];
 export interface ExtractionArtifact {
   readonly artifact: SourceArtifact;
   readonly body: string | Uint8Array;
+  /** Caller-enforced bounded processing contract; reject overflow before building records. */
+  readonly maxRecords?: number;
 }
 
 export const artifactText = (artifact: ExtractionArtifact): string =>

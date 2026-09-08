@@ -1,3 +1,6 @@
+import { selectedFactEvidence } from '@data-foundry/query-model';
+import { parseSearchForm, SEARCH_PAGE_SIZE, SearchInputError } from './search-form.js';
+import { coverageContent, offerIntro, productNavigation } from './product.js';
 /**
  * Page renderers. Each one: read through a surface-bound query model (rule 5), build the
  * body HTML, measure its own real word count, evaluate the doc-07 quality
@@ -109,16 +112,16 @@ export async function renderParentIndex(deployment: RequestWebDeployment): Promi
     });
 
   const body = `
-<h1>Data Foundry</h1>
-<p>Evidence-backed data, by industry. Every published value cites the source it came from and the rule that selected it — see <a href="https://github.com/athompson83/data-foundry/blob/main/DATA_RIGHTS.md">licensing and data rights</a> for what that does and does not license.</p>
+<h1>Industry data you can trace to its source</h1>
+<p>Look up a product, enrich your catalogue with supported specifications, and keep the evidence behind each value. Every published value cites the source it came from and the rule that selected it — see <a href="https://github.com/athompson83/data-foundry/blob/main/DATA_RIGHTS.md">licensing and data rights</a> for what that does and does not license.</p>
 <h2>Industries</h2>
 ${items.length === 0 ? '<p>No industry is currently serving data from this deployment.</p>' : renderList(items)}
-<p>Adding an industry is a configuration change, not a fork — see <a href="https://github.com/athompson83/data-foundry/blob/main/docs/adding-a-new-industry.md">adding a new industry</a>.</p>`;
+<h2>Build on evidence</h2><p>Browse the available catalogue, confirm identifiers and coverage, then integrate through the API or MCP. Each industry guide explains its fields, limitations and access options. Missing data stays explicit so your application can handle it honestly.</p>`;
 
   return layout({
     title: 'Data Foundry — evidence-backed industry data',
     description:
-      'A repeatable data foundry: evidence-backed, source-cited knowledge products, one dataset per industry.',
+      'Look up industry products, enrich specifications and inspect source evidence through human pages, API and MCP.',
     canonicalUrl: `${deployment.publicOrigin}/`,
     robots: published.length > 0 && published.every((entry) => entry.eligibility?.searchIndex === true)
       ? 'index,follow'
@@ -184,12 +187,12 @@ export async function renderDatasetLanding(
   const passed = failures.length === 0;
 
   const body = `
-<h1>${escapeHtml(vertical.runtime.vertical_name)}</h1>
-<p>${escapeHtml(vertical.runtime.vertical_status)} vertical. Browse by type, or <a href="${escapeHtml(`${seo.url_prefix}/search`)}">search all ${escapeHtml(vertical.runtime.vertical_name)} data</a>.</p>
+${vertical.runtime.product === undefined ? `<h1>${escapeHtml(vertical.runtime.vertical_name)}</h1>` : offerIntro(vertical.runtime.product, seo.url_prefix)}
+<p>Browse the permitted catalogue, or search a model identifier. Exact matches lead the results; confirm the manufacturer and model variant before using specifications.</p>
 ${coverageNotice(seo, !passed)}
-<h2>Browse</h2>
+<h2>Browse the catalogue</h2>
 <ul>${browseLinks}</ul>
-<p><a href="${escapeHtml(`${seo.url_prefix}/docs`)}">API &amp; MCP access</a> for programmatic and agent queries.</p>`;
+<p><a href="${escapeHtml(`${seo.url_prefix}/docs`)}">API &amp; MCP access</a> for programmatic and agent queries.</p>${vertical.runtime.product === undefined ? '' : coverageContent(vertical.runtime.product)}`;
 
   const html = layout({
     title: pageClass?.title ?? vertical.runtime.vertical_name,
@@ -234,24 +237,22 @@ async function factsTable(
       const value = f.value === null ? '—' : String(f.value);
       const conflict = f.unresolved_conflict ? ' <span title="disputed value">⚠</span>' : '';
       const explanation = explanations[index];
-      const selected =
-        explanation?.selected?.fact_id === f.fact_id ? explanation.selected : null;
-      const attributions = selected?.attributions ?? [];
+      const attributions = selectedFactEvidence(f, explanation ?? null)?.sources ?? [];
       const evidenceItems = attributions
         .map((attribution) => {
-          const href = safeEvidenceHref(attribution.artifact_url);
+          const href = attribution.artifactUrl === null ? null : safeEvidenceHref(attribution.artifactUrl);
           const artifact =
             href === null
               ? ''
               : ` — <a href="${escapeAttr(href)}" rel="nofollow noreferrer">source artifact</a>`;
-          return `<li>${escapeHtml(attribution.publisher)} (${escapeHtml(attribution.domain)}, ${escapeHtml(attribution.source_type)}) — ${escapeHtml(attribution.locator)}${artifact}</li>`;
+          return `<li>${escapeHtml(attribution.publisher)} (${escapeHtml(attribution.domain)}, ${escapeHtml(attribution.sourceType)}) — ${escapeHtml(attribution.locator)}${artifact}<dl class="artifact-reference"><dt>Immutable artifact</dt><dd>${escapeHtml(attribution.artifactId)}</dd><dt>SHA-256</dt><dd>${escapeHtml(attribution.artifactContentHash)}</dd><dt>Retrieved / observed</dt><dd>${escapeHtml(attribution.retrievedAt)} / ${escapeHtml(attribution.observedAt)}</dd></dl></li>`;
         })
         .join('');
       const evidence = `<details class="evidence"><summary>Fact ${escapeHtml(String(f.fact_id))}</summary><p>Selection: ${escapeHtml(explanation?.reason ?? f.reason)}</p>${evidenceItems === '' ? '<p>No surface-authorized attribution is available.</p>' : `<ul>${evidenceItems}</ul>`}</details>`;
       return `<tr><th scope="row">${escapeHtml(f.property)}${critical}</th><td>${escapeHtml(value)}${f.unit ? ` ${escapeHtml(f.unit)}` : ''}${conflict}</td><td>${evidence}</td></tr>`;
     })
     .join('');
-  return `<table><thead><tr><th>Property</th><th>Value</th><th>Source(s)</th></tr></thead><tbody>${rows}</tbody></table>
+  return `<table class="fact-table"><thead><tr><th>Property</th><th>Value</th><th>Source(s)</th></tr></thead><tbody>${rows}</tbody></table>
 <p class="evidence">* critical property, required for this page to be indexable.</p>`;
 }
 
@@ -545,11 +546,15 @@ export function renderDocs(
   const openapiDirectUrl = `https://github.com/athompson83/data-foundry/blob/main/openapi/data-foundry-${slug}-v1.openapi.json`;
   const openapiRapidApiUrl = `https://github.com/athompson83/data-foundry/blob/main/openapi/data-foundry-${slug}-rapidapi-v1.openapi.json`;
   const body = `
-<h1>${escapeHtml(vertical.runtime.vertical_name)} — API &amp; MCP access</h1>
+${vertical.runtime.product === undefined ? '' : productNavigation(seo.url_prefix)}<h1>${escapeHtml(vertical.runtime.vertical_name)} — API &amp; MCP access</h1>
 <p>This page is free and public. Programmatic access is metered and requires an API key — see <a href="https://github.com/athompson83/data-foundry/blob/main/DATA_RIGHTS.md">data rights and licensing</a> for what an export or API response does and does not license.</p>
 <h2>REST</h2>
-<p>Read-only, versioned at <code>/v1</code>, on your deployment's metered API host (not this site): <code>GET /v1/health</code>, <code>GET /v1/entities/{id}</code>, <code>GET /v1/entities/by-slug/{slug}</code>, <code>GET /v1/entities/{id}/facts</code>, <code>GET /v1/entities/{id}/relationships</code>, <code>GET /v1/search</code>, <code>GET /v1/compare</code>. Every request needs a bearer API key; provisioning is an owner action, not self-service on this page.</p>
+<p>Read-only, versioned at <code>/v1</code>, on your deployment's metered API host (not this site): <code>GET /v1/health</code>, <code>GET /v1/entities/{id}</code>, <code>GET /v1/entities/by-slug/{slug}</code>, <code>GET /v1/entities/{id}/facts</code>, <code>GET /v1/entities/{id}/relationships</code>, <code>GET /v1/search</code>, <code>GET /v1/compare</code>. Direct API requests use a bearer key. Marketplace requests use the key and host supplied by your RapidAPI subscription; never send a marketplace key to a direct API origin.</p>
 <p>Full machine-readable contract (paths, parameters, response schemas, error codes): <a href="${escapeHtml(openapiDirectUrl)}">OpenAPI spec</a>. The <a href="${escapeHtml(openapiRapidApiUrl)}">RapidAPI-marketplace projection</a> is the same routes, parameters, and response schemas with no bearer scheme published at all — a marketplace subscriber authenticates to RapidAPI itself, never to this API directly.</p>
+<h2>First useful request</h2>
+<ol><li>Search <code>GET /v1/search?q=YOUR_MODEL&amp;type=${escapeHtml(vertical.runtime.product?.lookup_entity_type ?? vertical.runtime.entity_types[0] ?? "entity")}</code>. Inspect <code>data[].matchKind</code> and confirm the entity; text similarity alone is not an identifier match.</li><li>Read <code>GET /v1/entities/{id}/facts</code> for specifications, units, conflict state, source names and selection provenance. The additive <code>evidence</code> object supplies the selected fact ID, immutable artifact ID/hash, source URL, locator and observation timestamps. Exact source text is null unless quoting is permitted; the same authorized evidence is available through MCP <code>explain_fact</code>.</li><li>Follow the response pagination metadata for additional facts. Keep evidence with the values you consume.</li></ol>
+<p>Executable <a href="https://github.com/athompson83/data-foundry/blob/main/examples/hvac-lookup.ts">TypeScript</a> and <a href="https://github.com/athompson83/data-foundry/blob/main/examples/hvac_lookup.py">Python</a> examples use environment variables for keys and never print credentials. Configure the verified API host from your access provider; this website is not the API origin.</p>
+<h2>Responses to handle</h2><p>Zero matches means unavailable; multiple exact matches require scope confirmation. Missing facts are omitted. A 401/403 response indicates authentication or access refusal, 429 means a request or quota limit, and 503 means the service could not safely complete the request. Keep the response request ID for support and respect Retry-After. Never retry a subscription or credential error as though it were missing data.</p>
 <h2>MCP</h2>
 <p>Six tools over the same canonical query layer this site reads — <code>search_entities</code>, <code>get_entity</code>, <code>list_facts</code>, <code>compare_entities</code>, <code>traverse_relationships</code>, <code>explain_fact</code> — see <a href="https://github.com/athompson83/data-foundry/tree/main/apps/mcp">apps/mcp</a> in the repository for the full tool contract.</p>
 <h2>llms.txt</h2>
@@ -573,17 +578,32 @@ export function renderDocs(
 export async function renderSearch(
   vertical: VerticalDeployment,
   publicOrigin: string,
-  query: { readonly q?: string; readonly type?: string },
+  query: { readonly q?: string; readonly type?: string; readonly params?: URLSearchParams },
   searchIndexEligible: boolean,
 ): Promise<RenderedPage> {
   const seo = vertical.runtime.seo;
-  const hasQuery = (query.q !== undefined && query.q.trim() !== '') || query.type !== undefined;
+  const params = query.params ?? new URLSearchParams({ ...(query.q ? { q: query.q } : {}), ...(query.type ? { type: query.type } : {}) });
+  let parsed: ReturnType<typeof parseSearchForm>;
+  try { parsed = parseSearchForm(params, vertical.publicQueryModel.fields, vertical.runtime.entity_types); }
+  catch (error) {
+    if (!(error instanceof SearchInputError)) throw error;
+    return { status: 400, html: layout({ title: 'Check your search', description: 'Correct the search filters.', canonicalUrl: `${publicOrigin}${seo.url_prefix}/search`, robots: 'noindex,follow', bodyHtml: `<h1>Check your search</h1><p>${escapeHtml(error.message)}</p><p><a href="${escapeAttr(seo.url_prefix)}/search">Start a new search</a></p>` }) };
+  }
+  const hasQuery = parsed.q !== '' || parsed.type !== '' || parsed.filters.length > 0 || parsed.page > 1;
+  const facets = await vertical.publicQueryModel.facets({ vertical_id: vertical.verticalId, ...(parsed.type === '' ? {} : { entity_type: parsed.type }) });
+  const filterControls = vertical.publicQueryModel.fields.all().filter((field) => field.filter != null && field.filter.type !== 'none').map((field) => {
+    const label = escapeHtml(field.label ?? field.field);
+    if (field.filter?.type === 'range') return `<fieldset><legend>${label}${field.unit ? ` (${escapeHtml(field.unit)})` : ''}</legend><label>Minimum <input type="number" step="any" name="min.${escapeAttr(field.field)}" value="${escapeAttr(params.get(`min.${field.field}`) ?? '')}"></label><label>Maximum <input type="number" step="any" name="max.${escapeAttr(field.field)}" value="${escapeAttr(params.get(`max.${field.field}`) ?? '')}"></label></fieldset>`;
+    const name = `filter.${field.field}`;
+    const choices = facets.find((facet) => facet.property === field.field)?.values ?? [];
+    return `<label>${label}<select name="${escapeAttr(name)}"><option value="">Any</option>${choices.map((choice) => `<option value="${escapeAttr(choice.value)}"${params.getAll(name).includes(choice.value) ? ' selected' : ''}>${escapeHtml(choice.value)} (${choice.count})</option>`).join('')}</select></label>`;
+  }).join('');
   const canonicalUrl = `${publicOrigin}${seo.url_prefix}/search`;
 
   const typeOptions = vertical.runtime.entity_types
     .map((t) => {
       const meta = vertical.runtime.entity_type_meta[t];
-      const selected = query.type === t ? ' selected' : '';
+      const selected = parsed.type === t ? ' selected' : '';
       return `<option value="${escapeHtml(t)}"${selected}>${escapeHtml(meta?.label_plural ?? t)}</option>`;
     })
     .join('');
@@ -591,30 +611,35 @@ export async function renderSearch(
   const form = `
 <form class="search" method="get" action="${escapeHtml(`${seo.url_prefix}/search`)}">
 <label for="q">Search ${escapeHtml(vertical.runtime.vertical_name)}</label><br>
-<input type="search" id="q" name="q" value="${escapeHtml(query.q ?? '')}" placeholder="model number, manufacturer, certification…">
-<select name="type"><option value="">All types</option>${typeOptions}</select>
+<input type="search" id="q" name="q" value="${escapeHtml(parsed.q)}" placeholder="model number, manufacturer, certification…">
+<label>Entity type<select name="type"><option value="">All types</option>${typeOptions}</select></label><details class="filters"${parsed.filters.length > 0 ? ' open' : ''}><summary>Filter specifications</summary><div class="filter-grid">${filterControls}</div></details>
 <button type="submit">Search</button>
 </form>`;
 
   let resultsHtml = '';
-  if (hasQuery) {
+  {
     const result = await vertical.publicQueryModel.search({
       vertical_id: vertical.verticalId as never,
-      ...(query.q ? { text: query.q } : {}),
-      ...(query.type ? { entity_type: query.type as never } : {}),
-      limit: 50,
+      ...(parsed.q ? { text: parsed.q } : {}),
+      ...(parsed.type ? { entity_type: parsed.type } : {}),
+      filters: parsed.filters,
+      limit: SEARCH_PAGE_SIZE,
+      offset: (parsed.page - 1) * SEARCH_PAGE_SIZE,
     });
     const rows = result.hits
       .map((hit) => {
         const href = entityHref(vertical, hit.entity);
         const link = href === null ? escapeHtml(hit.entity.canonical_name) : `<a href="${escapeHtml(href)}">${escapeHtml(hit.entity.canonical_name)}</a>`;
-        return `<li>${link} <span class="evidence">(${escapeHtml(hit.entity.entity_type)})</span></li>`;
+        return `<li class="result">${link} <span class="evidence">(${escapeHtml(hit.entity.entity_type)})${hit.match_kind === 'EXACT_IDENTIFIER' ? ' · Exact identifier match' : ''}</span></li>`;
       })
       .join('');
-    resultsHtml = `<h2>${result.total} result${result.total === 1 ? '' : 's'}</h2>${result.hits.length === 0 ? '<p>No matches.</p>' : `<ul>${rows}</ul>`}`;
+    const pageHref = (page: number) => { const next = new URLSearchParams(params); next.set('page', String(page)); return `${seo.url_prefix}/search?${next}`; };
+    const previous = parsed.page > 1 ? `<a rel="prev" href="${escapeAttr(pageHref(parsed.page - 1))}">Previous page</a>` : '';
+    const next = parsed.page < 201 && parsed.page * SEARCH_PAGE_SIZE < result.total ? `<a rel="next" href="${escapeAttr(pageHref(parsed.page + 1))}">Next page</a>` : '';
+    resultsHtml = `<h2>${result.total} result${result.total === 1 ? '' : 's'}</h2>${result.hits.length === 0 ? '<p>No matches on this page. Check the model, remove a filter, or return to the previous page. Missing coverage is not a negative equipment rating.</p>' : `<ul class="results">${rows}</ul>`}<nav class="pagination" aria-label="Search pages">${previous}<span>Page ${parsed.page}</span>${next}</nav>`;
   }
 
-  const body = `<h1>Search ${escapeHtml(vertical.runtime.vertical_name)}</h1>${form}${resultsHtml}`;
+  const body = `${vertical.runtime.product === undefined ? '' : productNavigation(seo.url_prefix)}<h1>Search ${escapeHtml(vertical.runtime.vertical_name)}</h1>${form}${resultsHtml}`;
 
   const html = layout({
     title: hasQuery ? `Search results — ${vertical.runtime.vertical_name}` : `Search ${vertical.runtime.vertical_name}`,

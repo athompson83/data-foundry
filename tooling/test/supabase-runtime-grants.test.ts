@@ -18,6 +18,7 @@ import {
 } from '@data-foundry/private-canary';
 import { createCanonicalStore, type SqlDriver } from '@data-foundry/canonical-store';
 import type { IsoDateTime } from '@data-foundry/canonical-schema';
+import { LEGACY_RUNTIME_GRANTS_0028 } from '../fixtures/runtime-grants-0028.js';
 
 const RELEASE_SHA = '290df1342094433e92978ec97eb37cc02fc4eb50';
 const SOURCE_IDENTITY = {
@@ -26,7 +27,7 @@ const SOURCE_IDENTITY = {
   relevantInputsClean: true,
   relevantPaths: RELEVANT_SOURCE_PATHS,
 } as const;
-const RUNTIME_ROLES = ['df_edge', 'df_web', 'df_mcp', 'df_usage', 'df_acquisition'] as const;
+const RUNTIME_ROLES = ['df_edge', 'df_web', 'df_mcp', 'df_usage', 'df_acquisition', 'df_ingestion'] as const;
 
 let migrations: Migration[];
 
@@ -64,6 +65,7 @@ async function createMigratedDatabase(): Promise<{
       EXECUTE format('GRANT CONNECT ON DATABASE %I TO %I', current_database(), 'df_mcp');
       EXECUTE format('GRANT CONNECT ON DATABASE %I TO %I', current_database(), 'df_usage');
       EXECUTE format('GRANT CONNECT ON DATABASE %I TO %I', current_database(), 'df_acquisition');
+      EXECUTE format('GRANT CONNECT ON DATABASE %I TO %I', current_database(), 'df_ingestion');
       EXECUTE format('GRANT CONNECT ON DATABASE %I TO %I', current_database(), 'df_migration');
     END
     $runtime_database_connect$;
@@ -96,7 +98,58 @@ async function grantConnectOnWrongDatabase(database: MigrationDriver): Promise<v
   await database.exec('GRANT CONNECT ON DATABASE runtime_grant_wrong_target TO df_edge');
 }
 
+async function seedLegacyGrants(database: MigrationDriver): Promise<void> {
+  expect(LEGACY_RUNTIME_GRANTS_0028).toHaveLength(199);
+  for (const grant of LEGACY_RUNTIME_GRANTS_0028) {
+    const object = grant.scope === 'schema' ? `SCHEMA ${grant.objectName}` :
+      grant.scope === 'function' ? `FUNCTION data_foundry.${grant.objectName}` :
+      `TABLE data_foundry.${grant.objectName}`;
+    const columns = grant.scope === 'column' ? ` (${grant.columnName})` : '';
+    await database.exec(`SET ROLE df_migration; GRANT ${grant.privilege}${columns} ON ${object} TO ${grant.role}; RESET ROLE;`);
+  }
+}
+
 describe('Supabase post-migration runtime grants', () => {
+  it('upgrades exactly the frozen five-role ACL baseline to six staged roles without ledger mutation', async () => {
+    const { database, plan } = await createMigratedDatabase();
+    try {
+      await seedLegacyGrants(database);
+      const ledger = await database.query('SELECT * FROM data_foundry.schema_migrations ORDER BY version');
+      const upgrade = plan.postMigrationGrants.upgradeFrom0028Sql;
+      expect(upgrade).not.toMatch(/^\s*(?:REVOKE|ALTER ROLE|CREATE ROLE|DELETE|UPDATE)\b/im);
+      expect(plan.postMigrationGrants.upgradeFrom0028Checksum).toBe(createHash('sha256').update(upgrade).digest('hex'));
+      await database.exec(`BEGIN;\n${upgrade}\nCOMMIT;`);
+      await expect(database.exec(plan.postMigrationGrants.verificationSql)).resolves.toBeUndefined();
+      expect(await database.query('SELECT * FROM data_foundry.schema_migrations ORDER BY version')).toEqual(ledger);
+      const [permissions] = await database.query(`SELECT
+        has_table_privilege('df_ingestion','data_foundry.facts','INSERT') AS ingestion_publish,
+        has_table_privilege('df_acquisition','data_foundry.facts','INSERT') AS acquisition_publish`);
+      expect(permissions).toEqual({ ingestion_publish: true, acquisition_publish: false });
+      // A completed upgrade is verified, not silently normalized or reapplied.
+      await expect(database.exec(`BEGIN;\n${upgrade}\nCOMMIT;`)).rejects.toThrow(/unexpected existing private privileges/i);
+      await database.exec('ROLLBACK');
+    } finally { await database.close(); }
+  }, 120_000);
+
+  it('refuses same-count legacy ACL substitution and extra new-role privileges atomically', async () => {
+    const { database, plan } = await createMigratedDatabase();
+    try {
+      await seedLegacyGrants(database);
+      for (const drift of [
+        'REVOKE SELECT ON data_foundry.verticals FROM df_edge; GRANT UPDATE ON data_foundry.entities TO df_edge;',
+        'GRANT SELECT ON data_foundry.verticals TO df_ingestion;',
+        'ALTER ROLE df_web LOGIN;',
+      ]) {
+        await database.exec(`BEGIN; ${drift} SAVEPOINT before_upgrade;`);
+        await expect(database.exec(plan.postMigrationGrants.upgradeFrom0028Sql)).rejects.toThrow(/baseline|unexpected existing|NOLOGIN/i);
+        await database.exec('ROLLBACK TO SAVEPOINT before_upgrade; RESET ROLE; RESET search_path;');
+        const [state] = await database.query("SELECT has_table_privilege('df_ingestion','data_foundry.facts','INSERT') AS published");
+        expect(state).toEqual({ published: false });
+        await database.exec('ROLLBACK');
+      }
+    } finally { await database.close(); }
+  }, 120_000);
+
   it('emits one deterministic, provider-only payload with exact narrow grants', () => {
     const first = build().postMigrationGrants;
     const second = build().postMigrationGrants;
@@ -130,8 +183,8 @@ describe('Supabase post-migration runtime grants', () => {
     expect(first.sql).not.toMatch(
       /GRANT[^;]*UPDATE ON TABLE "data_foundry"\."(?:sources|source_artifacts)"/,
     );
-    expect(first.functionSignatures).toHaveLength(57);
-    expect(first.expectedGrants).toHaveLength(199);
+    expect(first.functionSignatures).toHaveLength(59);
+    expect(first.expectedGrants).toHaveLength(286);
     expect(first.expectedGrants).toEqual(buildRuntimeRoleExpectedGrants('data_foundry'));
     for (const signature of first.functionSignatures) {
       expect(first.sql).toContain(

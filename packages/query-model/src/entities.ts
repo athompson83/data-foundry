@@ -19,8 +19,11 @@ import type {
   Identifier,
   Slug,
   VerticalId,
+  SourceId,
+  AliasNormalizationSpec,
 } from '@data-foundry/canonical-schema';
 import { identifierCandidates } from './sql.js';
+import { declaredIdentifierCandidates } from './identifier-rules.js';
 
 export interface RedirectTrace {
   readonly from_entity_id: EntityId | null;
@@ -95,6 +98,7 @@ export interface IdentifierLookup {
   readonly value: string;
   readonly alias_type?: Identifier;
   readonly entity_type?: Identifier;
+  readonly source_id?: SourceId;
 }
 
 /**
@@ -105,6 +109,7 @@ export interface IdentifierLookup {
 export async function lookupByIdentifier(
   store: CanonicalStore,
   lookup: IdentifierLookup,
+  specification?: AliasNormalizationSpec,
 ): Promise<{ matches: readonly AliasMatch[]; entities: readonly EntityView[] }> {
   const raw = lookup.value.trim();
   if (raw === '') return { matches: [], entities: [] };
@@ -113,13 +118,19 @@ export async function lookupByIdentifier(
   // probe only {raw, lower, upper}, which never strips separators — so a
   // stored `24ACC636A003` was unreachable from `24acc6-36a003`, and this
   // function disagreed with `lookupExactIdentifier` about what "exact" means.
-  const values = identifierCandidates(raw);
-  const matches = await store.lookupByAlias({
+  const probes = specification === undefined ? null : declaredIdentifierCandidates(lookup.value, specification, lookup.alias_type, lookup.entity_type);
+  const values = probes === null ? identifierCandidates(raw) : [...new Set(probes.map((probe) => probe.normalized_value))];
+  const found = await store.lookupByAlias({
     vertical_id: lookup.vertical_id,
     values,
     ...(lookup.alias_type === undefined ? {} : { alias_type: lookup.alias_type }),
     ...(lookup.entity_type === undefined ? {} : { entity_type: lookup.entity_type }),
   });
+  const matches = found.filter((match) =>
+    (lookup.source_id === undefined || match.alias.source_id === lookup.source_id) &&
+    (probes === null || probes.some((probe) => probe.alias_type === match.alias.alias_type &&
+      probe.normalized_value === match.alias.normalized_value &&
+      (probe.applies_to.length === 0 || probe.applies_to.includes(match.entity.entity_type)))));
 
   const entities: EntityView[] = [];
   const seen = new Set<string>();

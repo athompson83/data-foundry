@@ -445,8 +445,8 @@ describe('the deployed queue() handler logs operational failures', () => {
       await expect(consumerWorker.queue(batchOf([m]), {})).rejects.toThrow(ConsumerConfigurationError);
 
       expect(errorSpy).toHaveBeenCalledWith(
-        '[usage-consumer] configuration',
-        expect.objectContaining({ error: expect.any(ConsumerConfigurationError) }),
+        '[usage-consumer] operation failed',
+        { stage: 'configuration', code: 'USAGE_CONSUMER_FAILURE' },
       );
       // Never the message body — nothing here should have a chance to leak
       // a plaintext key or a raw request target, and this proves the log

@@ -425,7 +425,7 @@ export interface SyntheticSurfaceRightsOptions {
  * data, never a migration/backfill: production legacy rows remain UNKNOWN.
  */
 export async function seedSyntheticSurfaceRights(
-  fixtures: QueryFixtures,
+  fixtures: Fixtures,
   surfaces: readonly RightsSurface[],
   sourceKeys: readonly SourceKey[] = Object.keys(fixtures.sources) as SourceKey[],
   options: SyntheticSurfaceRightsOptions = {},
@@ -565,7 +565,7 @@ export async function seedSyntheticSurfaceRights(
 
 /** Attach explicit synthetic identity provenance to an entity used by a surface test. */
 export async function addSyntheticEntityEvidence(
-  fixtures: QueryFixtures,
+  fixtures: Fixtures,
   entity: Entity,
   source: SourceKey = 'manufacturer',
 ): Promise<void> {

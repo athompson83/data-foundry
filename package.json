@@ -8,6 +8,7 @@
     "node": ">=22"
   },
   "scripts": {
+    "ops": "tsx tooling/scripts/operations.ts",
     "build": "corepack pnpm run schemas:generate && corepack pnpm run typecheck",
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run",
@@ -27,6 +28,9 @@
     "verticals:validate": "tsx tooling/validators/validate-verticals.ts",
     "verticals:compile": "tsx tooling/scripts/compile-vertical-runtime.ts",
     "verticals:compile:check": "tsx tooling/scripts/compile-vertical-runtime.ts --check",
+    "ingestion:compile": "tsx tooling/scripts/compile-ingestion-runtime.ts",
+    "ingestion:check": "tsx tooling/scripts/compile-ingestion-runtime.ts --check",
+    "ingestion:postgres:check": "tsx tooling/scripts/check-ingestion-postgres.ts",
     "acquisition:compile": "tsx tooling/scripts/compile-acquisition-runtime.ts",
     "acquisition:check": "tsx tooling/scripts/compile-acquisition-runtime.ts --check",
     "acquisition:postgres:check": "tsx tooling/scripts/check-scheduled-acquisition-postgres.ts",
@@ -44,7 +48,9 @@
     "cloudflare:artifacts:check": "tsx tooling/scripts/check-cloudflare-artifacts.ts",
     "web:compile": "tsx tooling/scripts/compile-web-runtime.ts",
     "web:compile:check": "tsx tooling/scripts/compile-web-runtime.ts --check",
-    "sources:readiness": "tsx tooling/scripts/source-readiness.ts"
+    "sources:readiness": "tsx tooling/scripts/source-readiness.ts",
+    "cloudflare:synthetic-ingestion:check": "tsx tooling/scripts/check-synthetic-ingestion.ts",
+    "cloudflare:synthetic-ingestion:artifacts:check": "tsx tooling/scripts/check-cloudflare-artifacts.ts --synthetic-only"
   },
   "devDependencies": {
     "@data-foundry/api-keys": "workspace:*",

@@ -5,7 +5,7 @@ import type {
   RightsSnapshot,
   RightsSourceGuard,
 } from '@data-foundry/rights-engine';
-import type { SqlDriver, SqlRow } from './sql-driver.js';
+import type { SqlExecutor, SqlRow } from './sql-driver.js';
 import { toIso, toIsoOrNull, toJson, toNumber, toText, toTextOrNull } from './rows.js';
 
 export interface StoredRightsContext {
@@ -94,7 +94,7 @@ const candidateFromRow = (
  * or activation events remain missing and the pure resolver refuses them.
  */
 export async function loadStoredRightsContext(
-  driver: SqlDriver,
+  driver: SqlExecutor,
   sourceId: string,
   asOf: string,
 ): Promise<StoredRightsContext | null> {

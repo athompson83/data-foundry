@@ -135,7 +135,7 @@ async function buildVertical(
   const vertical = await store.getVerticalBySlug(runtime.vertical_slug as never);
   if (vertical === null) return null;
 
-  const queryModel = createQueryModel(store, { fields: runtime.fields as never });
+  const queryModel = createQueryModel(store, { fields: runtime.fields as never, identifier_normalization: runtime.identifier_normalization });
   return {
     slug: runtime.vertical_slug,
     verticalId: vertical.id,

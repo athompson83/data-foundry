@@ -14,6 +14,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import { parse, stringify } from 'smol-toml';
+import { validateSyntheticIngestion, SYNTHETIC_CONFIG_PATH } from './check-synthetic-ingestion.js';
 import { isMain } from '../lib/cli-entry.js';
 import {
   type CloudflareTopologyOptions,
@@ -68,6 +69,12 @@ export const CLOUDFLARE_ARTIFACT_SERVICES = [
     needsHyperdrive: true,
   },
   {
+    name: 'ordinary-ingestion-worker',
+    configPath: join(REPO_ROOT, 'apps', 'ingestion-worker', 'wrangler.toml'),
+    mainPath: join(REPO_ROOT, 'apps', 'ingestion-worker', 'src', 'index.ts'),
+    needsHyperdrive: true,
+  },
+  {
     name: 'ordinary-mcp-worker',
     configPath: join(REPO_ROOT, 'apps', 'mcp-worker', 'wrangler.toml'),
     mainPath: join(REPO_ROOT, 'apps', 'mcp-worker', 'src', 'index.ts'),
@@ -98,6 +105,12 @@ export const CLOUDFLARE_ARTIFACT_SERVICES = [
     needsHyperdrive: true,
   },
   {
+    name: 'private-canary-ingestion-worker',
+    configPath: join(REPO_ROOT, 'apps', 'ingestion-worker', 'wrangler.private-canary.toml'),
+    mainPath: join(REPO_ROOT, 'apps', 'ingestion-worker', 'src', 'index.ts'),
+    needsHyperdrive: true,
+  },
+  {
     name: 'private-canary-mcp-worker',
     configPath: join(REPO_ROOT, 'apps', 'mcp-worker', 'wrangler.private-canary.toml'),
     mainPath: join(REPO_ROOT, 'apps', 'mcp-worker', 'src', 'index.ts'),
@@ -111,10 +124,14 @@ export const CLOUDFLARE_ARTIFACT_SERVICES = [
   },
 ] as const;
 
+export const SYNTHETIC_ARTIFACT_SERVICE = { name: 'synthetic-ingestion-worker', configPath: SYNTHETIC_CONFIG_PATH,
+  mainPath: join(REPO_ROOT, 'apps/ingestion-worker/src/synthetic-ingestion.ts'), needsHyperdrive: true } as const;
+
 type TomlObject = Record<string, unknown>;
 
 export interface CloudflareArtifactOptions {
   readonly outputRoot?: string;
+  readonly syntheticOnly?: boolean;
 }
 
 export type CloudflareArtifactTopologyOptions = Omit<CloudflareTopologyOptions, 'mode'>;
@@ -134,8 +151,8 @@ export interface CloudflareArtifactServiceResult {
 
 export function formatCloudflareArtifactSuccessMessage(result: CloudflareArtifactResult): string {
   return (
-    'OK: Wrangler dry-run built eleven Worker artifacts (five ordinary production Workers plus six route-less ' +
-    'private-canary artifacts: five reduced target Workers plus the private-canary harness; ' +
+    'OK: Wrangler dry-run built thirteen Worker artifacts (six ordinary production Workers plus seven route-less ' +
+    'private-canary artifacts: six reduced target Workers plus the private-canary harness; ' +
     `${result.files} files, ${result.bytes} bytes) with no PGlite runtime.\n`
   );
 }
@@ -162,7 +179,10 @@ async function filesUnder(directory: string): Promise<string[]> {
   return files.sort();
 }
 
-export async function scanCloudflareArtifacts(outputRoot: string): Promise<{
+export async function scanCloudflareArtifacts(
+  outputRoot: string,
+  options: { readonly boundedIngestion?: boolean } = {},
+): Promise<{
   readonly files: number;
   readonly bytes: number;
 }> {
@@ -188,6 +208,15 @@ export async function scanCloudflareArtifacts(outputRoot: string): Promise<{
     const leak = prohibited.find((pattern) => pattern.test(code));
     if (leak !== undefined) {
       throw new Error(`Cloudflare artifact contains prohibited PGlite/WebAssembly runtime code (${leak}).`);
+    }
+    // pg retains its own Node-compatible `fs` support. The production parser
+    // must not import our fixture filesystem or the unbounded PDF runtime.
+    if (options.boundedIngestion === true && [
+      /(?:node:)?fs\/promises/,
+      /\b(?:PdfExtractor|createPdfExtractor|loadVerticalConfig)\b/,
+      /\b(?:unpdf|pdfjs-dist)\b/,
+    ].some((pattern) => pattern.test(code))) {
+      throw new Error('Bounded ingestion artifact contains a fixture filesystem loader or unsupported PDF runtime.');
     }
   }
   return { files: files.length, bytes };
@@ -220,17 +249,20 @@ export async function validateCloudflareArtifactTopology(
 export async function buildCloudflareArtifacts(
   options: CloudflareArtifactOptions = {},
 ): Promise<CloudflareArtifactResult> {
-  const topologyErrors = await validateCloudflareArtifactTopology();
+  const topologyErrors = options.syntheticOnly ? await validateSyntheticIngestion() : await validateCloudflareArtifactTopology();
+  const services = options.syntheticOnly ? [SYNTHETIC_ARTIFACT_SERVICE] : CLOUDFLARE_ARTIFACT_SERVICES;
   if (topologyErrors.length > 0) {
     throw new Error(`Cloudflare topology must pass before bundling:\n${topologyErrors.join('\n')}`);
   }
 
   const ownsOutput = options.outputRoot === undefined;
-  const outputRoot = options.outputRoot ?? await mkdtemp(join(tmpdir(), 'data-foundry-wrangler-output-'));
+  const outputRoot = options.outputRoot === undefined
+    ? await mkdtemp(join(tmpdir(), 'data-foundry-wrangler-output-'))
+    : resolve(options.outputRoot);
   const configRoot = await mkdtemp(join(tmpdir(), 'data-foundry-wrangler-config-'));
   try {
     await mkdir(outputRoot, { recursive: true });
-    for (const service of CLOUDFLARE_ARTIFACT_SERVICES) {
+    for (const service of services) {
       const configPath = join(configRoot, `${service.name}.toml`);
       const outdir = join(outputRoot, service.name);
       await mkdir(outdir, { recursive: true });
@@ -268,8 +300,10 @@ export async function buildCloudflareArtifacts(
       );
     }
     const artifacts: CloudflareArtifactServiceResult[] = [];
-    for (const service of CLOUDFLARE_ARTIFACT_SERVICES) {
-      const scanned = await scanCloudflareArtifacts(join(outputRoot, service.name));
+    for (const service of services) {
+      const scanned = await scanCloudflareArtifacts(join(outputRoot, service.name), {
+        boundedIngestion: service.name.endsWith('-ingestion-worker'),
+      });
       if (scanned.files === 0) {
         throw new Error(`Wrangler dry-run produced no artifact files for ${service.name}.`);
       }
@@ -279,7 +313,7 @@ export async function buildCloudflareArtifacts(
       });
     }
     return {
-      services: CLOUDFLARE_ARTIFACT_SERVICES.map(({ name }) => name),
+      services: services.map(({ name }) => name),
       artifacts,
       files: artifacts.reduce((total, artifact) => total + artifact.files, 0),
       bytes: artifacts.reduce((total, artifact) => total + artifact.bytes, 0),
@@ -291,8 +325,9 @@ export async function buildCloudflareArtifacts(
 }
 
 export async function run(): Promise<number> {
-  const result = await buildCloudflareArtifacts();
-  process.stdout.write(formatCloudflareArtifactSuccessMessage(result));
+  const syntheticOnly = process.argv.includes('--synthetic-only');
+  const result = await buildCloudflareArtifacts({ syntheticOnly });
+  process.stdout.write(syntheticOnly ? 'OK: built the separate synthetic ingestion profile (fourteenth configuration, additional to thirteen core artifacts).\n' : formatCloudflareArtifactSuccessMessage(result));
   return 0;
 }
 

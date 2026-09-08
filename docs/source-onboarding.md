@@ -1,5 +1,18 @@
 # Onboarding a real source
 
+Follow the [data adapter contracts](data-adapter-contracts.md) when admitting a
+format or source stream. Production qualification is separate from a local
+fixture extractor being available.
+
+For a clock-driven source whose reviewed access terms permit it, set
+`refresh_interval_hours: 12` in its source declaration to request two conditional
+checks per day. The optional interval is an integer from 1 through 8760 hours;
+omission retains the named `refresh_cadence`. `MANUAL` and `EVENT_DRIVEN` remain
+unscheduled even when an interval is present. An interval changes scheduling,
+never rights, publication status, provider politeness, or evidence requirements.
+The initial publication target is two hours after detecting a valid change;
+upstream publisher update frequency must be stated separately.
+
 Phase 1 proved the factory runs. It ran on four sources we invented, on domains
 reserved so they resolve to nobody. Every rights check passed because we wrote
 the terms being checked.

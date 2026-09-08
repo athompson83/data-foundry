@@ -25,7 +25,7 @@ const TEST_RUNTIME: WebRuntime = {
         id: 'equipment_detail',
         route_kind: 'entity_detail',
         entity_type: 'equipment',
-        path: '/data/hvac/equipment/{canonical_slug}',
+        path: '/hvac/equipment/{canonical_slug}',
         title: '{canonical_name}',
         structured_data: null,
         sitemap: 'entities',
@@ -74,7 +74,7 @@ describe('independent public and index rights', () => {
       const vertical = context.deployment.verticals.get('hvac')!;
       const response = await createWebApp(context)({
         method: 'GET',
-        url: `/data/hvac/equipment/${fixtures.equipment.canonical_slug}`,
+        url: `/hvac/equipment/${fixtures.equipment.canonical_slug}`,
       });
       const xml = await sitemapSegmentXml(vertical, ORIGIN, 'entities', new Date());
 
@@ -96,7 +96,7 @@ describe('independent public and index rights', () => {
       const vertical = context.deployment.verticals.get('hvac')!;
       const response = await createWebApp(context)({
         method: 'GET',
-        url: `/data/hvac/equipment/${fixtures.equipment.canonical_slug}`,
+        url: `/hvac/equipment/${fixtures.equipment.canonical_slug}`,
       });
       const xml = await sitemapSegmentXml(vertical, ORIGIN, 'entities', new Date());
 
@@ -112,7 +112,7 @@ describe('independent public and index rights', () => {
       const vertical = context.deployment.verticals.get('hvac')!;
       const response = await createWebApp(context)({
         method: 'GET',
-        url: `/data/hvac/equipment/${fixtures.equipment.canonical_slug}`,
+        url: `/hvac/equipment/${fixtures.equipment.canonical_slug}`,
       });
       const xml = await sitemapSegmentXml(vertical, ORIGIN, 'entities', new Date());
 
@@ -128,7 +128,7 @@ describe('independent public and index rights', () => {
       const vertical = context.deployment.verticals.get('hvac')!;
       const response = await createWebApp(context)({
         method: 'GET',
-        url: `/data/hvac/equipment/${fixtures.equipment.canonical_slug}`,
+        url: `/hvac/equipment/${fixtures.equipment.canonical_slug}`,
       });
       const xml = await sitemapSegmentXml(vertical, ORIGIN, 'entities', new Date());
 
@@ -159,7 +159,7 @@ describe('independent public and index rights', () => {
       const vertical = context.deployment.verticals.get('hvac')!;
       const response = await createWebApp(context)({
         method: 'GET',
-        url: `/data/hvac/equipment/${fixtures.equipment.canonical_slug}`,
+        url: `/hvac/equipment/${fixtures.equipment.canonical_slug}`,
       });
       const xml = await sitemapSegmentXml(vertical, ORIGIN, 'entities', new Date());
 

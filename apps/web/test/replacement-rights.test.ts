@@ -30,7 +30,7 @@ const REPLACEMENT_RUNTIME: WebRuntime = {
         id: 'equipment_model_detail',
         route_kind: 'entity_detail',
         entity_type: 'equipment_model',
-        path: '/data/hvac/equipment/{canonical_slug}',
+        path: '/hvac/equipment/{canonical_slug}',
         title: '{canonical_name}',
         structured_data: null,
         sitemap: 'entities',
@@ -41,7 +41,7 @@ const REPLACEMENT_RUNTIME: WebRuntime = {
         id: 'replacement_relationship',
         route_kind: 'relationship',
         subject_entity_type: 'equipment_model',
-        path: '/data/hvac/equipment/{canonical_slug}/replacements',
+        path: '/hvac/equipment/{canonical_slug}/replacements',
         title: 'What replaces {canonical_name}',
         structured_data: null,
         sitemap: 'relationships',
@@ -99,7 +99,7 @@ async function responseFor(
     });
     return await createWebApp(resolveContext(deployment))({
       method: 'GET',
-      url: `/data/hvac/equipment/${legacy.canonical_slug}/replacements`,
+      url: `/hvac/equipment/${legacy.canonical_slug}/replacements`,
     });
   } finally {
     await fixtures.driver.close();

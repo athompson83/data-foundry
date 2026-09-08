@@ -66,7 +66,7 @@ jobs:
             esac
 
             case "$path" in
-              db/migrations/**|tooling/scripts/migrate.ts|tooling/scripts/export-supabase-migration-packets.ts|tooling/scripts/check-runtime-role-connections-postgres.ts|packages/private-canary/**|tooling/scripts/check-source-record-reconciliation-postgres.ts|packages/canonical-store/**|services/ingest-worker/**|tooling/scripts/check-credential-provisioning-postgres.ts|tooling/scripts/provision-api-credential.ts|packages/api-keys/**|tooling/scripts/check-scheduled-acquisition-postgres.ts|packages/acquisition/**|apps/acquisition-worker/**|verticals/**|tooling/lib/cli-entry.ts|tests/support/acquisition-rights.ts|packages/canonical-schema/**|packages/normalization/**|packages/source-registry/**|packages/rights-engine/**|package.json|pnpm-lock.yaml|.github/workflows/ci.yml)
+              db/migrations/**|tooling/scripts/migrate.ts|tooling/scripts/export-supabase-migration-packets.ts|tooling/scripts/check-runtime-role-connections-postgres.ts|tooling/scripts/check-ingestion-postgres.ts|packages/private-canary/**|tooling/scripts/check-source-record-reconciliation-postgres.ts|packages/canonical-store/**|services/ingest-worker/**|tooling/scripts/check-credential-provisioning-postgres.ts|tooling/scripts/provision-api-credential.ts|packages/api-keys/**|tooling/scripts/check-scheduled-acquisition-postgres.ts|packages/acquisition/**|apps/acquisition-worker/**|apps/ingestion-worker/**|verticals/**|tooling/lib/cli-entry.ts|tests/support/acquisition-rights.ts|packages/canonical-schema/**|packages/normalization/**|packages/source-registry/**|packages/rights-engine/**|package.json|pnpm-lock.yaml|.github/workflows/ci.yml)
                 run_postgres=true
                 ;;
             esac
@@ -167,6 +167,10 @@ jobs:
         if: needs.scope.outputs.run_verify == 'true'
         run: pnpm acquisition:check
 
+      - name: Ingestion runtime matches the schema and normalizer definitions
+        if: needs.scope.outputs.run_verify == 'true'
+        run: pnpm ingestion:check
+
       # 7. MCP advertises the same six executable generic tools implemented by
       #    apps/mcp, plus compiled vertical query/server metadata. Drift would
       #    make the remote server advertise a contract it does not execute.
@@ -181,13 +185,17 @@ jobs:
         if: needs.scope.outputs.run_verify == 'true'
         run: pnpm web:compile:check
 
-      # 9. Build the ordinary five Worker bundles alongside the six route-less
-      #    private-canary bundles — five reduced targets plus the no-Hyperdrive
+      # 9. Build the ordinary six Worker bundles alongside the seven route-less
+      #    private-canary bundles — six reduced targets plus the no-Hyperdrive
       #    harness — only after every generated input is current, then reject
       #    any artifact that carries local PGlite/WASM.
-      - name: Cloudflare ordinary and six route-less private-canary artifacts build and are PGlite-free
+      - name: Cloudflare ordinary and seven route-less private-canary artifacts build and are PGlite-free
         if: needs.scope.outputs.run_verify == 'true'
         run: pnpm cloudflare:artifacts:check
+
+      - name: Separate fourteenth synthetic ingestion configuration builds
+        if: needs.scope.outputs.run_verify == 'true'
+        run: pnpm cloudflare:synthetic-ingestion:artifacts:check
 
   migrations-postgres:
     name: migrations on real Postgres
@@ -479,16 +487,19 @@ jobs:
               'CREATE ROLE df_mcp NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOREPLICATION NOBYPASSRLS;' \
               'CREATE ROLE df_usage NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOREPLICATION NOBYPASSRLS;' \
               'CREATE ROLE df_acquisition NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOREPLICATION NOBYPASSRLS;' \
+              'CREATE ROLE df_ingestion NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOREPLICATION NOBYPASSRLS;' \
               'GRANT CONNECT ON DATABASE data_foundry TO df_edge;' \
               'GRANT CONNECT ON DATABASE data_foundry TO df_web;' \
               'GRANT CONNECT ON DATABASE data_foundry TO df_mcp;' \
               'GRANT CONNECT ON DATABASE data_foundry TO df_usage;' \
               'GRANT CONNECT ON DATABASE data_foundry TO df_acquisition;' \
+              'GRANT CONNECT ON DATABASE data_foundry TO df_ingestion;' \
               'GRANT USAGE ON SCHEMA extensions TO df_edge;' \
               'GRANT USAGE ON SCHEMA extensions TO df_web;' \
               'GRANT USAGE ON SCHEMA extensions TO df_mcp;' \
               'GRANT USAGE ON SCHEMA extensions TO df_usage;' \
-              'GRANT USAGE ON SCHEMA extensions TO df_acquisition;'
+              'GRANT USAGE ON SCHEMA extensions TO df_acquisition;' \
+              'GRANT USAGE ON SCHEMA extensions TO df_ingestion;'
           } | docker exec --interactive data-foundry-postgres-tls psql -U postgres -d data_foundry -v ON_ERROR_STOP=1
 
           node_modules/.bin/tsx tooling/scripts/export-supabase-migration-packets.ts --release-sha "$DATA_FOUNDRY_CANDIDATE_SHA" > "$plan_path"
@@ -533,23 +544,27 @@ jobs:
           df_mcp_password="$(openssl rand -hex 24)"
           df_usage_password="$(openssl rand -hex 24)"
           df_acquisition_password="$(openssl rand -hex 24)"
+          df_ingestion_password="$(openssl rand -hex 24)"
           printf '::add-mask::%s\n' "$df_edge_password"
           printf '::add-mask::%s\n' "$df_web_password"
           printf '::add-mask::%s\n' "$df_mcp_password"
           printf '::add-mask::%s\n' "$df_usage_password"
           printf '::add-mask::%s\n' "$df_acquisition_password"
+          printf '::add-mask::%s\n' "$df_ingestion_password"
           {
             printf "ALTER ROLE df_edge LOGIN PASSWORD '%s';\n" "$df_edge_password"
             printf "ALTER ROLE df_web LOGIN PASSWORD '%s';\n" "$df_web_password"
             printf "ALTER ROLE df_mcp LOGIN PASSWORD '%s';\n" "$df_mcp_password"
             printf "ALTER ROLE df_usage LOGIN PASSWORD '%s';\n" "$df_usage_password"
             printf "ALTER ROLE df_acquisition LOGIN PASSWORD '%s';\n" "$df_acquisition_password"
+            printf "ALTER ROLE df_ingestion LOGIN PASSWORD '%s';\n" "$df_ingestion_password"
             printf '%s\n' \
               'ALTER ROLE df_edge IN DATABASE data_foundry SET search_path TO data_foundry, pg_catalog, extensions;' \
               'ALTER ROLE df_web IN DATABASE data_foundry SET search_path TO data_foundry, pg_catalog, extensions;' \
               'ALTER ROLE df_mcp IN DATABASE data_foundry SET search_path TO data_foundry, pg_catalog, extensions;' \
               'ALTER ROLE df_usage IN DATABASE data_foundry SET search_path TO data_foundry, pg_catalog, extensions;' \
-              'ALTER ROLE df_acquisition IN DATABASE data_foundry SET search_path TO data_foundry, pg_catalog, extensions;'
+              'ALTER ROLE df_acquisition IN DATABASE data_foundry SET search_path TO data_foundry, pg_catalog, extensions;' \
+              'ALTER ROLE df_ingestion IN DATABASE data_foundry SET search_path TO data_foundry, pg_catalog, extensions;'
           } | docker exec --interactive data-foundry-postgres-tls psql -U postgres -d data_foundry -v ON_ERROR_STOP=1
           docker exec --interactive data-foundry-postgres-tls psql -U postgres -d data_foundry \
             -v ON_ERROR_STOP=1 < "$post_credential_verification_path"
@@ -559,6 +574,7 @@ jobs:
             printf 'DATA_FOUNDRY_MCP_POSTGRES_URL=postgres://df_mcp:%s@localhost:5432/data_foundry\n' "$df_mcp_password"
             printf 'DATA_FOUNDRY_USAGE_POSTGRES_URL=postgres://df_usage:%s@localhost:5432/data_foundry\n' "$df_usage_password"
             printf 'DATA_FOUNDRY_ACQUISITION_POSTGRES_URL=postgres://df_acquisition:%s@localhost:5432/data_foundry\n' "$df_acquisition_password"
+            printf 'DATA_FOUNDRY_INGESTION_POSTGRES_URL=postgres://df_ingestion:%s@localhost:5432/data_foundry\n' "$df_ingestion_password"
           } >> "$GITHUB_ENV"
 
       - name: Direct runtime-role TLS connection regression
@@ -566,6 +582,13 @@ jobs:
           DATA_FOUNDRY_RUNTIME_ROLE_CONNECTION_TEST: '1'
           PGOPTIONS: ''
         run: pnpm runtime-roles:postgres:check
+
+      - name: Real ingestion role publish and immutable-history regression
+        env:
+          DATA_FOUNDRY_INGESTION_POSTGRES_TEST: '1'
+          DATA_FOUNDRY_INGESTION_CONTROL_POSTGRES_URL: ${{ env.POSTGRES_URL }}
+          PGOPTIONS: ''
+        run: pnpm ingestion:postgres:check
 
       # Use only PostgreSQL 16's parameter and large-object ACL catalogs. Mutate
       # one disposable database at a time, prove the generated guards reject

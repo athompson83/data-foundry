@@ -253,7 +253,8 @@ describe('ADR-0004 — one fact serializer, shared', () => {
     const wire = sourceFiles().find((file) => file.name === 'wire.ts');
     const body = wire?.text.slice(wire.text.indexOf('export function factWire')) ?? '';
     const implementation = body.slice(0, body.indexOf('\n}'));
-    expect(implementation).toContain('toRestFact(view)');
+    expect(implementation).toMatch(/const wire = toRestFact\(view(?:,|\))/);
+    expect(implementation).toContain('return wire;');
     expect(implementation).toContain('assertNoReviewerIdentity');
     expect(implementation).not.toContain('...');
   });

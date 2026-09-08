@@ -33,7 +33,7 @@ const TEST_RUNTIME: WebRuntime = {
         id: 'equipment_detail',
         route_kind: 'entity_detail',
         entity_type: 'equipment',
-        path: '/data/hvac/equipment/{canonical_slug}',
+        path: '/hvac/equipment/{canonical_slug}',
         title: '{canonical_name}',
         structured_data: null,
         sitemap: 'entities',
@@ -123,8 +123,8 @@ async function createHarness(
 }
 
 const entityUrl = (): string =>
-  `/data/hvac/equipment/${fixtures!.equipment.canonical_slug}`;
-const sitemapUrl = '/data/hvac/sitemaps/entities-1.xml';
+  `/hvac/equipment/${fixtures!.equipment.canonical_slug}`;
+const sitemapUrl = '/hvac/sitemaps/entities-1.xml';
 
 async function expectInitiallyPublished(app: WebHandler): Promise<void> {
   const page = await app({ method: 'GET', url: entityUrl() });

@@ -57,6 +57,27 @@ const FAILURES: readonly { url: string; method?: string; status: number; code: s
 ];
 
 describe('the error envelope', () => {
+  it('reports a closed route and error code when a concrete entity query fails', async () => {
+    const privateId = '33333333-3333-4333-8333-333333333333';
+    const contexts: unknown[] = [];
+    const app = createApiApp({
+      queryModel: {
+        ...fixtures.qm,
+        forSurface: (surface, options, snapshot) => ({
+          ...fixtures.qm.forSurface(surface, options, snapshot),
+          getEntity: async () => { throw new Error(`sensitive database detail ${privateId}`); },
+        }),
+      },
+      verticalId: fixtures.vertical.id,
+      onError: (_error, context) => contexts.push(context),
+    });
+    const response = await call(app, `/v1/entities/${privateId}?private=query-content`);
+    expect(response.status).toBe(500);
+    expect(contexts).toEqual([{ method: 'GET', path: 'entities.detail', routeKey: 'entities.detail', code: 'INTERNAL_ERROR' }]);
+    expect(JSON.stringify(contexts)).not.toContain(privateId);
+    expect(JSON.stringify(contexts)).not.toContain('query-content');
+  });
+
   it('maps a catalog-capacity refusal to an opaque 503 and preserves the operator cause', async () => {
     const cause = new SurfaceCatalogCapacityError('entities', 10_000);
     const logged: unknown[] = [];

@@ -15,6 +15,7 @@ import {
 import { ARTIFACT_COLUMNS, mapSourceArtifact, toIso, toIsoOrNull, toJson, toNumber } from './rows.js';
 import type { SqlDriver, SqlExecutor, SqlRow } from './sql-driver.js';
 
+import { enqueueIngestionDelivery } from './ingestion-delivery.js';
 export type ScheduledAcquisitionStatus = 'CLAIMED' | 'SUCCEEDED' | 'SKIPPED' | 'REFUSED' | 'FAILED';
 export type ScheduledAcquisitionOutcome = 'FETCHED' | 'NOT_MODIFIED' | 'EMPTY';
 export type AcquisitionAssetClass = RightsAssetClass;
@@ -225,6 +226,8 @@ export interface ScheduledAcquisitionClaimRelease {
 }
 
 export interface ScheduledAcquisitionCompletion {
+  /** Compiled processing contract; legacy callers retain their acquisition runtime identity. */
+  readonly ingestionRuntimeDigest?: string;
   readonly runId: string;
   readonly claimToken: string;
   readonly outcome: Extract<ScheduledAcquisitionOutcome, 'FETCHED' | 'NOT_MODIFIED'>;
@@ -1097,9 +1100,10 @@ class PostgresScheduledAcquisitionStore implements ScheduledAcquisitionStore {
         contractVersion: run.rightsReceiptContractVersion,
       });
 
+      let artifactRunId = run.id;
       if (input.outcome === 'NOT_MODIFIED') {
         const prior = await tx.query(
-          `SELECT 1
+          `SELECT prior.id
              FROM scheduled_acquisition_runs prior
             WHERE prior.id <> $1
               AND prior.source_id = $2
@@ -1118,7 +1122,7 @@ class PostgresScheduledAcquisitionStore implements ScheduledAcquisitionStore {
               AND EXISTS (
                 SELECT 1 FROM scheduled_acquisition_run_artifacts link WHERE link.run_id = prior.id
               )
-            LIMIT 1`,
+            ORDER BY prior.completed_at DESC, prior.id DESC LIMIT 1`,
           [
             run.id, run.sourceId, run.targetId, run.targetUrl, run.acquisitionRoute,
             run.accountOrProductPlan, run.jurisdiction, run.assetClass, run.outputClass,
@@ -1130,6 +1134,7 @@ class PostgresScheduledAcquisitionStore implements ScheduledAcquisitionStore {
             'NOT_MODIFIED requires a prior artifact-backed FETCHED success for the exact scope and runtime',
           );
         }
+        artifactRunId = String(prior[0]!['id']);
       }
 
       for (const [ordinal, result] of input.artifacts.entries()) {
@@ -1196,6 +1201,12 @@ class PostgresScheduledAcquisitionStore implements ScheduledAcquisitionStore {
       );
       const row = rows[0];
       if (row === undefined) throw new Error(`scheduled acquisition run ${input.runId} did not complete`);
+      await enqueueIngestionDelivery(tx, {
+        acquisitionRunId: run.id,
+        artifactRunId,
+        runtimeDigest: input.ingestionRuntimeDigest ?? run.runtimeDigest,
+        workKind: input.outcome === 'FETCHED' ? 'PROCESS_ARTIFACTS' : 'VERIFY_UNCHANGED',
+      });
       return mapRun(row);
     });
   }

@@ -1,6 +1,6 @@
 import { mkdtemp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterAll, describe, expect, it } from 'vitest';
 
@@ -40,7 +40,7 @@ describe('Cloudflare route-less private-canary artifacts', () => {
     });
   });
 
-  it('uses the five ordinary manifests plus five private-canary targets with synthetic Hyperdrive and keeps the harness unbound', async () => {
+  it('uses the six ordinary manifests plus six private-canary targets with synthetic Hyperdrive and keeps the harness unbound', async () => {
     const module = await loadArtifactModule();
     const render = module['renderDryRunConfig'];
     const repoRoot = module['REPO_ROOT'];
@@ -51,7 +51,7 @@ describe('Cloudflare route-less private-canary artifacts', () => {
     if (typeof render !== 'function' || typeof repoRoot !== 'string' || !Array.isArray(services)) return;
 
     const renderDryRunConfig = render as (source: string, mainPath: string, needsHyperdrive: boolean) => string;
-    const expectedOrdinaryTargets = ['edge', 'usage-consumer', 'web', 'acquisition-worker', 'mcp-worker'];
+    const expectedOrdinaryTargets = ['edge', 'usage-consumer', 'web', 'acquisition-worker', 'ingestion-worker', 'mcp-worker'];
     const expectedOrdinaryArtifactNames = expectedOrdinaryTargets.map((name) => `ordinary-${name}`);
     const expectedCanaryArtifactNames = expectedOrdinaryTargets.map((name) => `private-canary-${name}`);
 
@@ -110,7 +110,7 @@ describe('Cloudflare route-less private-canary artifacts', () => {
     );
   });
 
-  it('reports ordinary and six route-less private-canary artifacts separately', async () => {
+  it('reports ordinary and seven route-less private-canary artifacts separately', async () => {
     const module = await loadArtifactModule();
     const formatSuccessMessage = module['formatCloudflareArtifactSuccessMessage'];
     expect(typeof formatSuccessMessage).toBe('function');
@@ -128,11 +128,13 @@ describe('Cloudflare route-less private-canary artifacts', () => {
           'ordinary-usage-consumer',
           'ordinary-web',
           'ordinary-acquisition-worker',
+          'ordinary-ingestion-worker',
           'ordinary-mcp-worker',
           'private-canary-edge',
           'private-canary-usage-consumer',
           'private-canary-web',
           'private-canary-acquisition-worker',
+          'private-canary-ingestion-worker',
           'private-canary-mcp-worker',
           'private-canary',
         ],
@@ -141,8 +143,8 @@ describe('Cloudflare route-less private-canary artifacts', () => {
         bytes: 123_456,
       }),
     ).toBe(
-      'OK: Wrangler dry-run built eleven Worker artifacts (five ordinary production Workers plus six route-less ' +
-        'private-canary artifacts: five reduced target Workers plus the private-canary harness; 18 files, 123456 bytes) ' +
+      'OK: Wrangler dry-run built thirteen Worker artifacts (six ordinary production Workers plus seven route-less ' +
+        'private-canary artifacts: six reduced target Workers plus the private-canary harness; 18 files, 123456 bytes) ' +
         'with no PGlite runtime.\n',
     );
   });
@@ -166,18 +168,20 @@ describe('Cloudflare route-less private-canary artifacts', () => {
           readonly bytes: number;
         }[];
       }>
-    )({ outputRoot });
+    )({ outputRoot: relative(process.cwd(), outputRoot) });
 
     expect(result.services).toEqual([
       'ordinary-edge',
       'ordinary-usage-consumer',
       'ordinary-web',
       'ordinary-acquisition-worker',
+      'ordinary-ingestion-worker',
       'ordinary-mcp-worker',
       'private-canary-edge',
       'private-canary-usage-consumer',
       'private-canary-web',
       'private-canary-acquisition-worker',
+      'private-canary-ingestion-worker',
       'private-canary-mcp-worker',
       'private-canary',
     ]);
@@ -187,7 +191,7 @@ describe('Cloudflare route-less private-canary artifacts', () => {
       expect(artifact.bytes).toBeGreaterThan(0);
       expect((await readdir(join(outputRoot, artifact.name))).length).toBeGreaterThan(0);
     }
-    expect(result.files).toBeGreaterThanOrEqual(11);
+    expect(result.files).toBeGreaterThanOrEqual(13);
     expect(result.bytes).toBeGreaterThan(100_000);
   }, 240_000);
 
@@ -210,6 +214,21 @@ describe('Cloudflare route-less private-canary artifacts', () => {
     await expect((scan as (root: string) => Promise<unknown>)(outputRoot)).rejects.toThrow(
       /PGlite|WebAssembly/,
     );
+  });
+
+  it.each([
+    'import { readFile } from "node:fs/promises";',
+    'class PdfExtractor {}',
+    'import { extractText } from "unpdf";',
+  ])('rejects fixture and PDF imports from bounded ingestion: %s', async (code) => {
+    const module = await loadArtifactModule();
+    const scan = module['scanCloudflareArtifacts'] as (
+      root: string, options: { readonly boundedIngestion: boolean },
+    ) => Promise<unknown>;
+    const outputRoot = await mkdtemp(join(tmpdir(), 'data-foundry-ingestion-import-'));
+    temporaryDirectories.push(outputRoot);
+    await writeFile(join(outputRoot, 'index.js'), code);
+    await expect(scan(outputRoot, { boundedIngestion: true })).rejects.toThrow(/filesystem loader|PDF runtime/);
   });
 
   it('does not mistake a URL string for a line comment before a prohibited signature', async () => {

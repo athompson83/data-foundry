@@ -137,6 +137,30 @@ importers:
         specifier: 0.28.2
         version: 0.28.2
 
+  apps/ingestion-worker:
+    dependencies:
+      '@data-foundry/acquisition':
+        specifier: workspace:*
+        version: link:../../packages/acquisition
+      '@data-foundry/canonical-schema':
+        specifier: workspace:*
+        version: link:../../packages/canonical-schema
+      '@data-foundry/canonical-store':
+        specifier: workspace:*
+        version: link:../../packages/canonical-store
+      '@data-foundry/ingest-worker':
+        specifier: workspace:*
+        version: link:../../services/ingest-worker
+      '@data-foundry/private-canary':
+        specifier: workspace:*
+        version: link:../../packages/private-canary
+      '@data-foundry/rights-engine':
+        specifier: workspace:*
+        version: link:../../packages/rights-engine
+      pg:
+        specifier: ^8.23.0
+        version: 8.23.0
+
   apps/mcp:
     dependencies:
       '@data-foundry/query-model':
@@ -314,6 +338,9 @@ importers:
       '@data-foundry/canonical-store':
         specifier: workspace:*
         version: link:../canonical-store
+      '@data-foundry/normalization':
+        specifier: workspace:*
+        version: link:../normalization
       '@data-foundry/provenance':
         specifier: workspace:*
         version: link:../provenance

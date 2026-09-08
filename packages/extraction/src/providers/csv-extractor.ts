@@ -67,6 +67,7 @@ export class CsvExtractor implements ExtractionProvider {
         trim: options.trim ?? false,
         bom: true,
         info: true,
+        ...(artifact.maxRecords === undefined ? {} : { to: artifact.maxRecords + 1 }),
       }) as ParsedRow[];
     } catch (error) {
       throw new ExtractionError('artifact body is not parseable as delimited text', {
@@ -76,6 +77,9 @@ export class CsvExtractor implements ExtractionProvider {
       });
     }
 
+    if (artifact.maxRecords !== undefined && rows.length > artifact.maxRecords) {
+      throw new ExtractionError('INGESTION_RECORD_LIMIT');
+    }
     const records = rows.map((row, ordinal) => {
       const line = typeof row.info.lines === 'number' ? row.info.lines : ordinal + 1;
       // `info.columns` is a descriptor array when a header is in play and a
