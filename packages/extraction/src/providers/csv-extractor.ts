@@ -68,7 +68,9 @@ export class CsvExtractor implements ExtractionProvider {
         bom: true,
         info: true,
         ...(artifact.maxRecords === undefined ? {} : { to: artifact.maxRecords + 1 }),
-      }) as ParsedRow[];
+      // csv-parse v7 does not expose an overload for info:true with columns:false,
+      // although that runtime mode returns the same { record, info } shape.
+      }) as unknown as ParsedRow[];
     } catch (error) {
       throw new ExtractionError('artifact body is not parseable as delimited text', {
         artifactId: artifact.artifact.id,
