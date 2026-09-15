@@ -55,20 +55,29 @@ export class CsvExtractor implements ExtractionProvider {
     const options = selector.kind === 'csv_rows' ? selector : { kind: 'csv_rows' as const };
     const header = options.header ?? true;
 
+    const columns = header === true ? true : header === false ? false : [...header];
+    const parseOptions = {
+      delimiter: options.delimiter ?? ',',
+      skip_empty_lines: options.skip_empty_lines ?? true,
+      from_line: options.from_line ?? 1,
+      quote: options.quote ?? '"',
+      escape: options.escape ?? '"',
+      trim: options.trim ?? false,
+      bom: true,
+      info: true,
+      ...(artifact.maxRecords === undefined ? {} : { to: artifact.maxRecords + 1 }),
+    };
+
     let rows: ParsedRow[];
     try {
-      rows = parse(artifactText(artifact), {
-        columns: header === true ? true : header === false ? false : [...header],
-        delimiter: options.delimiter ?? ',',
-        skip_empty_lines: options.skip_empty_lines ?? true,
-        from_line: options.from_line ?? 1,
-        quote: options.quote ?? '"',
-        escape: options.escape ?? '"',
-        trim: options.trim ?? false,
-        bom: true,
-        info: true,
-        ...(artifact.maxRecords === undefined ? {} : { to: artifact.maxRecords + 1 }),
-      }) as ParsedRow[];
+      rows =
+        columns === false
+          ? // `csv-parse` types `info: true` only on its columns-enabled overload, so
+            // positional parsing declares `string[][]`. The runtime still returns the
+            // same `{ record, info }` envelope, which the headerless extraction tests
+            // exercise end to end rather than leaving this cast unchecked.
+            (parse(artifactText(artifact), { ...parseOptions, columns }) as unknown as ParsedRow[])
+          : parse<ParsedRow>(artifactText(artifact), { ...parseOptions, columns });
     } catch (error) {
       throw new ExtractionError('artifact body is not parseable as delimited text', {
         artifactId: artifact.artifact.id,
@@ -107,8 +116,8 @@ interface ParsedRow {
   readonly record: Record<string, string> | readonly string[];
   readonly info: {
     readonly lines?: number;
-    /** Descriptors when `columns` is on; a column *count* when the file is positional. */
-    readonly columns?: ReadonlyArray<{ readonly name: string }> | number;
+    /** Descriptors when `columns` is on; `false` or a column *count* when positional. */
+    readonly columns?: ReadonlyArray<{ readonly name: string }> | number | false;
   };
 }
 
