@@ -31,6 +31,7 @@ export {
   identifierCandidates,
   reviewerIdentityTokens,
   toMcpFact,
+  toFactEvidenceSource,
   CORRECTION_FIELDS_JSON_SCHEMA,
   ReviewerIdentityLeak,
   SEARCH_MATCH_KINDS,

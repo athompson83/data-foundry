@@ -1,3 +1,4 @@
+import { publicArtifactUrl } from './public-evidence-url.js';
 /**
  * Wire projection for `CanonicalFactView`.
  *
@@ -29,6 +30,7 @@
 
 import type { SelectionWarning } from '@data-foundry/canonical-store';
 import type { CanonicalFactView } from './facts.js';
+import type { SurfaceClaimAttribution, SurfaceFactExplanation } from './surface-access.js';
 
 /** The three trust fields, in wire (camelCase) form. Shared by every surface. */
 export interface WireCorrectionFields {
@@ -40,6 +42,57 @@ export interface WireCorrectionFields {
    * render nothing for it and continue.
    */
   readonly selectionWarnings: readonly SelectionWarning[];
+}
+
+/** Immutable artifact reference and locator, already filtered by the bound surface. */
+export interface FactEvidenceSource {
+  readonly publisher: string;
+  readonly domain: string;
+  readonly sourceType: string;
+  readonly authorityRank: number;
+  readonly sourceValue: string | null;
+  readonly locator: string;
+  readonly artifactId: string;
+  readonly artifactContentHash: string;
+  readonly artifactUrl: string | null;
+  readonly retrievedAt: string;
+  readonly observedAt: string;
+}
+export interface SelectedFactEvidence {
+  readonly selectedFactId: string;
+  readonly sources: readonly FactEvidenceSource[];
+}
+
+export function toFactEvidenceSource(attribution: SurfaceClaimAttribution): FactEvidenceSource {
+  return {
+    publisher: attribution.publisher,
+    domain: attribution.domain,
+    sourceType: attribution.source_type,
+    authorityRank: attribution.authority_rank,
+    sourceValue: attribution.source_value,
+    locator: attribution.locator,
+    artifactId: attribution.artifact_id,
+    artifactContentHash: attribution.artifact_content_hash,
+    artifactUrl: publicArtifactUrl(attribution.artifact_url),
+    retrievedAt: attribution.retrieved_at,
+    observedAt: attribution.observed_at,
+  };
+}
+
+/** Never attach a different selection or a neighboring claim's attribution. */
+export function selectedFactEvidence(
+  view: CanonicalFactView,
+  explanation: SurfaceFactExplanation | null,
+): SelectedFactEvidence | undefined {
+  if (view.fact_id === null || explanation?.selected?.fact_id !== view.fact_id ||
+      explanation.property !== view.property) return undefined;
+  const sources = explanation.selected.attributions
+    .filter((source) => view.sources.includes(source.publisher))
+    .map(toFactEvidenceSource);
+  return sources.length === 0 ? undefined : {
+    selectedFactId: view.fact_id,
+    sources,
+  };
 }
 
 export interface RestFact extends WireCorrectionFields {
@@ -55,6 +108,8 @@ export interface RestFact extends WireCorrectionFields {
   readonly unresolvedConflict: boolean;
   /** Source-verified badge state. Supplied by the caller from the provenance policy. */
   readonly verified?: boolean;
+  /** Additive selected-claim evidence; exact source text requires its own grant. */
+  readonly evidence?: SelectedFactEvidence;
 }
 
 /** One flat row for CSV / JSONL / Parquet. Scalars only — no nested objects. */
@@ -88,7 +143,7 @@ export function correctionFields(view: CanonicalFactView): WireCorrectionFields 
 
 export function toRestFact(
   view: CanonicalFactView,
-  options: { readonly verified?: boolean } = {},
+  options: { readonly verified?: boolean; readonly evidence?: SelectedFactEvidence } = {},
 ): RestFact {
   return {
     property: view.property,
@@ -103,6 +158,7 @@ export function toRestFact(
     unresolvedConflict: view.unresolved_conflict,
     ...correctionFields(view),
     ...(options.verified === undefined ? {} : { verified: options.verified }),
+    ...(options.evidence === undefined ? {} : { evidence: options.evidence }),
   };
 }
 
@@ -113,7 +169,7 @@ export function toRestFact(
  */
 export function toMcpFact(
   view: CanonicalFactView,
-  options: { readonly verified?: boolean } = {},
+  options: { readonly verified?: boolean; readonly evidence?: SelectedFactEvidence } = {},
 ): RestFact {
   return toRestFact(view, options);
 }

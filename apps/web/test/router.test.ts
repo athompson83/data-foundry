@@ -13,19 +13,19 @@ const seo = runtime.seo;
 
 describe('matchPageClass against the compiled hvac runtime', () => {
   it('matches the dataset landing page with no params', () => {
-    const match = matchPageClass(seo, '/data/hvac');
+    const match = matchPageClass(seo, '/hvac');
     expect(match?.pageClass.id).toBe('dataset_landing');
     expect(match?.params).toEqual({});
   });
 
   it('matches an equipment model detail page and captures the slug', () => {
-    const match = matchPageClass(seo, '/data/hvac/equipment/acme-24acc636a003');
+    const match = matchPageClass(seo, '/hvac/equipment/acme-24acc636a003');
     expect(match?.pageClass.id).toBe('equipment_model_detail');
     expect(match?.params['canonical_slug']).toBe('acme-24acc636a003');
   });
 
   it('matches the replacement page and NOT the entity detail page for the same slug', () => {
-    const match = matchPageClass(seo, '/data/hvac/equipment/acme-24acb636a003/replacements');
+    const match = matchPageClass(seo, '/hvac/equipment/acme-24acb636a003/replacements');
     expect(match?.pageClass.id).toBe('replacement_relationship');
     expect(match?.pageClass.route_kind).toBe('relationship');
     expect(
@@ -36,23 +36,23 @@ describe('matchPageClass against the compiled hvac runtime', () => {
   });
 
   it('matches a manufacturer detail page', () => {
-    const match = matchPageClass(seo, '/data/hvac/manufacturers/acme');
+    const match = matchPageClass(seo, '/hvac/manufacturers/acme');
     expect(match?.pageClass.id).toBe('manufacturer_detail');
   });
 
   it('matches a certification detail page', () => {
-    const match = matchPageClass(seo, '/data/hvac/certifications/ahri-123456');
+    const match = matchPageClass(seo, '/hvac/certifications/ahri-123456');
     expect(match?.pageClass.id).toBe('certification_detail');
   });
 
   it('matches the static docs page with no captured params', () => {
-    const match = matchPageClass(seo, '/data/hvac/docs');
+    const match = matchPageClass(seo, '/hvac/docs');
     expect(match?.pageClass.id).toBe('docs_api_mcp');
     expect(match?.params).toEqual({});
   });
 
   it('matches nothing for an unrelated path', () => {
-    expect(matchPageClass(seo, '/data/hvac/nonsense/path')).toBeNull();
+    expect(matchPageClass(seo, '/hvac/nonsense/path')).toBeNull();
   });
 
   it('returns null rather than throwing on a malformed percent-escape in a captured segment', () => {
@@ -60,15 +60,15 @@ describe('matchPageClass against the compiled hvac runtime', () => {
     // which propagated past every route handler into index.ts's outer catch
     // and turned a client's malformed request into a 503 "misconfigured
     // deployment" response instead of an ordinary 404.
-    expect(() => matchPageClass(seo, '/data/hvac/equipment/%ZZ')).not.toThrow();
-    expect(matchPageClass(seo, '/data/hvac/equipment/%ZZ')).toBeNull();
-    expect(matchPageClass(seo, '/data/hvac/equipment/acme-24acc636a003%')).toBeNull();
+    expect(() => matchPageClass(seo, '/hvac/equipment/%ZZ')).not.toThrow();
+    expect(matchPageClass(seo, '/hvac/equipment/%ZZ')).toBeNull();
+    expect(matchPageClass(seo, '/hvac/equipment/acme-24acc636a003%')).toBeNull();
   });
 
   it('does not match a slug containing a slash as a single segment', () => {
     // {canonical_slug} is `[^/]+` deliberately — a value containing "/" would
     // otherwise let one path segment masquerade as two, which is exactly the
     // ambiguity a route pattern exists to rule out.
-    expect(matchPageClass(seo, '/data/hvac/equipment/a/b')).toBeNull();
+    expect(matchPageClass(seo, '/hvac/equipment/a/b')).toBeNull();
   });
 });

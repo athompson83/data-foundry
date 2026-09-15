@@ -52,6 +52,34 @@ describe('entities and aliases', () => {
     },
   );
 
+  it('lets the source trigger timestamp an ordinary caller kill-switch transition', async () => {
+    const source = fixtures.sources.manufacturer.source;
+    const oldTimestamp = '2020-01-01T00:00:00.000Z';
+    await fixtures.driver.query(
+      `UPDATE sources
+          SET kill_switch_engaged = FALSE, updated_at = $2
+        WHERE id = $1`,
+      [source.id, oldTimestamp],
+    );
+
+    const synchronized = await fixtures.store.registerSource({
+      vertical_id: source.vertical_id,
+      publisher: source.publisher,
+      domain: source.domain,
+      source_type: source.source_type,
+      authority_rank: source.authority_rank,
+      rights_classification: source.rights_classification,
+      attribution_requirement: source.attribution_requirement,
+      robots_policy: source.robots_policy,
+      refresh_cadence: source.refresh_cadence,
+      status: source.status,
+      kill_switch_engaged: true,
+    });
+
+    expect(synchronized.kill_switch_engaged).toBe(true);
+    expect(Date.parse(synchronized.updated_at)).toBeGreaterThan(Date.parse(oldTimestamp));
+  });
+
   it('registers bundled metadata without overwriting stored vertical or source governance state', async () => {
     const source = fixtures.sources.manufacturer.source;
     const vertical = fixtures.vertical;

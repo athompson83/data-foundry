@@ -16,14 +16,15 @@
 # measurement source yet. The fixture arithmetic is not a publication claim.
 # =============================================================================
 
-url_prefix: /data/hvac
+url_prefix: /hvac
+legacy_url_prefixes: [/data/hvac]
 
 # --- Page classes -----------------------------------------------------------
 page_classes:
 
   - id: dataset_landing
     route_kind: static
-    path: "/data/hvac"
+    path: "/hvac"
     title: "HVAC Equipment Data"
     structured_data: Dataset
     sitemap: datasets
@@ -36,7 +37,7 @@ page_classes:
   - id: equipment_model_detail
     route_kind: entity_detail
     entity_type: equipment_model
-    path: "/data/hvac/equipment/{canonical_slug}"
+    path: "/hvac/equipment/{canonical_slug}"
     title: "{canonical_name}"
     structured_data: null
     sitemap: entities
@@ -50,7 +51,7 @@ page_classes:
   - id: manufacturer_detail
     route_kind: entity_detail
     entity_type: manufacturer
-    path: "/data/hvac/manufacturers/{canonical_slug}"
+    path: "/hvac/manufacturers/{canonical_slug}"
     title: "{canonical_name} HVAC Equipment"
     structured_data: null
     sitemap: manufacturers
@@ -60,7 +61,7 @@ page_classes:
   - id: certification_detail
     route_kind: entity_detail
     entity_type: certification
-    path: "/data/hvac/certifications/{canonical_slug}"
+    path: "/hvac/certifications/{canonical_slug}"
     title: "AHRI {ahri_ref}"
     structured_data: null
     sitemap: entities
@@ -70,7 +71,7 @@ page_classes:
   - id: replacement_relationship
     route_kind: relationship
     subject_entity_type: equipment_model
-    path: "/data/hvac/equipment/{canonical_slug}/replacements"
+    path: "/hvac/equipment/{canonical_slug}/replacements"
     title: "What replaces {canonical_name}"
     structured_data: null
     sitemap: relationships
@@ -83,7 +84,7 @@ page_classes:
 
   - id: comparison
     route_kind: comparison
-    path: "/data/hvac/compare/{slug_a}-vs-{slug_b}"
+    path: "/hvac/compare/{slug_a}-vs-{slug_b}"
     title: "{name_a} vs {name_b}"
     structured_data: null
     sitemap: null
@@ -98,7 +99,7 @@ page_classes:
   - id: filtered_collection
     route_kind: filtered_collection
     entity_type: equipment_model
-    path: "/data/hvac/equipment/{facet_path}"
+    path: "/hvac/equipment/{facet_path}"
     title: "{facet_description}"
     structured_data: null
     sitemap: entities
@@ -111,7 +112,7 @@ page_classes:
 
   - id: docs_api_mcp
     route_kind: static
-    path: "/data/hvac/docs"
+    path: "/hvac/docs"
     title: "HVAC Data API and MCP"
     structured_data: null
     sitemap: datasets
@@ -345,8 +346,8 @@ images:
 
 # --- LLM discovery (doc 07 layer 2) -----------------------------------------
 llm_discovery:
-  llms_txt: /data/hvac/llms.txt
-  llms_full_txt: /data/hvac/llms-full.txt
+  llms_txt: /hvac/llms.txt
+  llms_full_txt: /hvac/llms-full.txt
   markdown_representation: true
   accept_text_markdown: true
   include:

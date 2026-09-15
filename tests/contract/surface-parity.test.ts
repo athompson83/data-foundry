@@ -360,3 +360,24 @@ describe('REST and MCP publish the same facts', () => {
     ).toBe(true);
   });
 });
+
+
+describe('selected artifact evidence across REST and MCP', () => {
+  it('shares artifact identity, hash, locator and timestamps while preserving separate quote rights', async () => {
+    const facts = await restRaw();
+    const rest = facts.find((fact) => fact['property'] === CORRECTED_PROPERTY)!;
+    const evidence = rest['evidence'] as { selectedFactId: string; sources: Array<Record<string, unknown>> };
+    expect(evidence.selectedFactId).toBe(rest['factId']);
+    expect(evidence.sources.length).toBeGreaterThan(0);
+    const reply = await fixtures.server.callTool('explain_fact', { entity_id: fixtures.equipment.id, property: CORRECTED_PROPERTY, as_of: AT });
+    expect(reply.isError).toBe(false);
+    const result = (reply.structuredContent as { result: { claims: Array<{ selected: boolean; sources: Array<Record<string, unknown>> }> } }).result;
+    const selected = result.claims.find((claim) => claim.selected)!;
+    const withoutQuote = (sources: Array<Record<string, unknown>>) => sources.map(({ sourceValue: _quote, ...source }) => source);
+    expect(withoutQuote(evidence.sources)).toEqual(withoutQuote(selected.sources));
+    expect(evidence.sources.every((source) => source['sourceValue'] === null)).toBe(true);
+    expect(selected.sources.some((source) => source['sourceValue'] !== null)).toBe(true);
+    expect(JSON.stringify(evidence)).not.toContain(REVIEWER);
+    expect(JSON.stringify(evidence)).not.toContain('r2_uri');
+  });
+});

@@ -1,3 +1,5 @@
+import { compileAliasNormalization } from '../../packages/normalization/src/alias-normalization.js';
+import type { AliasNormalizationSpec } from '@data-foundry/canonical-schema';
 /**
  * Compile a vertical's read-side configuration into a bundled JSON artifact.
  *
@@ -47,6 +49,7 @@ const SENTINEL_AT = '1970-01-01T00:00:00.000Z' as IsoDateTime;
 export interface VerticalRuntime {
   readonly vertical_slug: string;
   readonly fields: readonly unknown[];
+  readonly identifier_normalization: AliasNormalizationSpec;
   /** The doc-04 policy without `at`; the caller supplies that per request. */
   readonly fact_selection: Readonly<Record<string, unknown>>;
 }
@@ -68,6 +71,7 @@ export async function compileVerticalRuntime(slug: string): Promise<VerticalRunt
   return {
     vertical_slug: slug,
     fields: buildFieldMetadata(config),
+    identifier_normalization: compileAliasNormalization(config),
     fact_selection: factSelection,
   };
 }

@@ -28,6 +28,8 @@ async function bundleEntry(entry: string): Promise<{ text: string; metafile: Met
     format: 'esm',
     platform: 'node',
     target: 'es2022',
+    // Preserve Cloudflare's Worker runtime builtin for Wrangler to resolve.
+    external: ['cloudflare:*'],
     metafile: true,
     logLevel: 'silent',
   });

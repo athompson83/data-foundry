@@ -1,3 +1,4 @@
+import { renderProductPage } from './product.js';
 /**
  * Dispatch: URL in, `WebResponse` out — same discipline as `apps/api/src/app.ts`.
  *
@@ -108,8 +109,9 @@ type PageClassMatch = NonNullable<ReturnType<typeof matchPageClass>>;
 type PreparedVerticalRoute =
   | { readonly kind: 'sitemap'; readonly segment: SitemapSegmentMatch }
   | { readonly kind: 'landing' }
-  | { readonly kind: 'search'; readonly q: string | null; readonly entityType: string | null }
+  | { readonly kind: 'search'; readonly q: string | null; readonly entityType: string | null; readonly params: URLSearchParams }
   | { readonly kind: 'docs' }
+  | { readonly kind: 'product'; readonly page: 'pricing' | 'terms' | 'privacy' | 'support' }
   | { readonly kind: 'llms' }
   | {
       readonly kind: 'entity';
@@ -133,9 +135,10 @@ function prepareVerticalRoute(
   }
   if (rest === '' || rest === '/') return { kind: 'landing' };
   if (rest === '/search') {
-    return { kind: 'search', q: query.get('q'), entityType: query.get('type') };
+    return { kind: 'search', q: query.get('q'), entityType: query.get('type'), params: query };
   }
   if (rest === '/docs') return { kind: 'docs' };
+  if (vertical.runtime.product !== undefined && (rest === '/pricing' || rest === '/terms' || rest === '/privacy' || rest === '/support')) return { kind: 'product', page: rest.slice(1) as 'pricing' | 'terms' | 'privacy' | 'support' };
   if (rest === '/llms.txt' || rest === '/llms-full.txt') return { kind: 'llms' };
 
   const match = matchPageClass(vertical.runtime.seo, pathname);
@@ -189,11 +192,16 @@ async function executeVerticalRoute(
       vertical,
       origin,
       {
+        params: route.params,
         ...(route.q === null ? {} : { q: route.q }),
         ...(route.entityType === null ? {} : { type: route.entityType }),
       },
       eligibility.searchIndex,
     );
+    return { kind: 'html', status: page.status, body: page.html };
+  }
+  if (route.kind === 'product') {
+    const page = renderProductPage(vertical.runtime.product!, vertical.runtime.seo.url_prefix, origin, route.page);
     return { kind: 'html', status: page.status, body: page.html };
   }
   if (route.kind === 'docs') {
@@ -294,6 +302,13 @@ export function prepareWebRequest(
     return staticResponse(notFound(notFoundHtml()));
   }
   const pathname = url.pathname;
+  for (const vertical of deployment.verticals.values()) {
+    for (const legacy of vertical.runtime.seo.legacy_url_prefixes ?? []) {
+      if (pathname === legacy || pathname.startsWith(`${legacy}/`)) {
+        return staticResponse(resultResponse({ kind: 'redirect', status: 308, location: `${vertical.runtime.seo.url_prefix}${pathname.slice(legacy.length)}${url.search}` }, cacheMode));
+      }
+    }
+  }
 
   if (pathname === '/') {
     return canonicalResponse(async (context) =>

@@ -336,7 +336,11 @@ the MCP rights bundle, customer terms/packaging, and a live client smoke test.
 ## Required execution order
 
 The next work should proceed in this order because later steps depend on the
-semantics established earlier:
+semantics established earlier. The approved 2026-09-08 candidate expands the
+runtime to six ordinary Workers and six reduced targets plus the receipt
+harness (thirteen core artifacts), with a separately built fourteenth synthetic
+ingestion profile. This candidate expansion still requires protected integration
+and fresh provider proof; the dated inventory above remains historical:
 
 1. **Rights model — integrated.** ADR-0010 is accepted and implemented with
    sparse, fail-closed, surface-specific grants; no migration manufactured an
@@ -364,25 +368,37 @@ semantics established earlier:
    terminal handling release still-owned claims; crash recovery rotates the
    token only after expiry, and stale attempts cannot terminalize. The readiness
    command requires canonical `--as-of` and qualified DB/snapshot evidence.
-7. **Deploy the canonical Cloudflare stack.** Provision production Postgres,
-   Hyperdrive, all five Workers, R2, usage Queue/DLQ, routes and secrets. Every
+7. **Prove the route-less private canary.** Before any ordinary public
+   deployment exists, deploy only the seven temporary service-bound canary
+   Workers (six reduced targets plus the credential-free harness) and exercise
+   their database, Queue, receipt R2, API, web, and MCP probes
+   without a public hostname, route, custom domain, or `workers.dev` endpoint.
+   Then run the separate fixed-fixture ingestion phase on its isolated Queue/DLQ
+   and artifact bucket; restore the reduced ingestion profile before rerunning
+   the receipt harness. Follow the exact staging, binding and restoration gates
+   in [the deployment runbook](cloudflare-deployment.md).
+8. **Separately authorize and deploy the canonical public Cloudflare stack.**
+   Only after the route-less proof passes may the owner authorize production
+   Postgres,
+   six distinct runtime Hyperdrives, all six ordinary Workers, R2, the separate
+   usage and ingestion Queue/DLQ pairs, routes and secrets. Every
    exact production manifest must name the same canonical Cloudflare
    `account_id`; prove health/readiness and perform live smoke tests.
-8. **Rights-clear the first real vertical.** Synthetic HVAC fixtures prove the
+9. **Rights-clear the first real vertical.** Synthetic HVAC fixtures prove the
    machinery, not the commercial dataset. No marketplace listing goes live
    until the actual contributing sources are cleared for the listed use cases.
-9. **Create the first RapidAPI listing.** Start with one vertical, a deliberately
+10. **Create the first RapidAPI listing.** Start with one vertical, a deliberately
    small free allowance and paid tiers sized from observed Cloudflare/database
    cost and expected value. Verify the marketplace's current fee and payout
    terms at launch rather than hard-coding an old percentage into architecture.
-10. **Package and expose MCP only for cleared data.** Issue a dedicated MCP key,
+11. **Package and expose MCP only for cleared data.** Issue a dedicated MCP key,
    verify current/legacy-handshake behavior and revocation on the deployed
    hostname, and keep its analytics outside internal invoices.
-11. **Measure before expanding.** Track signups, activation, paid conversion,
+12. **Measure before expanding.** Track signups, activation, paid conversion,
    requests per account, costly endpoints, support load, churn and gross margin.
    Publish additional marketplace verticals only when their source rights and
    data quality are ready.
-12. **Add first-party billing when justified by evidence.** Preserve the direct
+13. **Add first-party billing when justified by evidence.** Preserve the direct
     API route from day one so successful customers can later move to a higher-
     margin channel without changing the underlying product.
 

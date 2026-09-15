@@ -17,7 +17,7 @@ import {
   type ProvenanceCoverageOptions,
   type ProvenanceCoverageReport,
 } from '@data-foundry/provenance';
-import type { EntityId, Identifier, Slug, VerticalId } from '@data-foundry/canonical-schema';
+import type { AliasNormalizationSpec, EntityId, Identifier, Slug, VerticalId } from '@data-foundry/canonical-schema';
 import {
   FieldMetadataRegistry,
   type FacetResult,
@@ -70,6 +70,7 @@ interface SurfaceReadSnapshotState {
 const surfaceReadSnapshots = new WeakMap<SurfaceReadSnapshot, SurfaceReadSnapshotState>();
 
 export interface QueryModelOptions {
+  readonly identifier_normalization?: AliasNormalizationSpec;
   /**
    * Field metadata for the vertical(s) this instance serves. Facets, filters,
    * sorting and search boosts are derived from it; an empty registry simply
@@ -170,7 +171,7 @@ export function createQueryModel(
 
     forSurface: (surface, accessOptions = {}, snapshot) => {
       if (snapshot === undefined) {
-        return createSurfaceQueryModel(store, fields, surface, accessOptions);
+        return createSurfaceQueryModel(store, fields, surface, accessOptions, options.identifier_normalization);
       }
       const state = surfaceReadSnapshots.get(snapshot);
       if (state === undefined || state.ownerStore !== store) {
@@ -183,15 +184,16 @@ export function createQueryModel(
         surface,
         accessOptions,
         state.assertActive,
+        options.identifier_normalization,
       );
     },
 
     getEntity: (id) => getEntityById(store, id),
     getEntityBySlug: (verticalId, entityType, slug) =>
       getEntityBySlug(store, verticalId, entityType, slug),
-    lookupIdentifier: (lookup) => lookupByIdentifier(store, lookup),
+    lookupIdentifier: (lookup) => lookupByIdentifier(store, lookup, options.identifier_normalization),
 
-    search: (query) => searchEntities(store.driver, fields, query),
+    search: (query) => searchEntities(store.driver, fields, query, options.identifier_normalization),
     facets: (query) => computeFacets(store.driver, fields, query),
 
     facts: (query) => listFactsWithEvidence(store, query),

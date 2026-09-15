@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "sideEffects": false,
   "description": "Acquisition providers: obtains bytes/artifacts from sources. Knows nothing about canonical entities.",
   "exports": {
     ".": "./src/index.ts"

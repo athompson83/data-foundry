@@ -3,8 +3,8 @@
 # `account_id`, the Hyperdrive `id` and the route are deployment facts, not
 # repository facts — see `apps/edge/wrangler.toml` for why they are left unset.
 # `docs/owner-actions/cloudflare-deployment.md` records what an operator has to
-# supply; this Worker needs the same Hyperdrive binding `apps/edge` does and
-# may point at the same one, since both read the same database.
+# supply; this Worker needs its own role-specific Hyperdrive binding even though
+# it reads the same canonical database as `apps/edge`.
 
 name = "data-foundry-web"
 main = "src/index.ts"

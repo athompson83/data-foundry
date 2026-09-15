@@ -216,6 +216,8 @@ export interface AliasLookupQuery {
   readonly values: readonly string[];
   readonly alias_type?: Identifier;
   readonly entity_type?: Identifier;
+  /** Match any current claim from this source, not just the display representative. */
+  readonly source_id?: SourceId;
   /** Include aliases whose validity has been closed. Default false. */
   readonly include_expired?: boolean;
 }
@@ -513,13 +515,7 @@ class PostgresCanonicalStore implements CanonicalStore {
                             refresh_cadence, status, kill_switch_engaged)
        VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8::jsonb, $9, $10, $11)
        ON CONFLICT (vertical_id, domain, source_type) DO UPDATE
-         SET updated_at = CASE
-               WHEN sources.kill_switch_engaged IS DISTINCT FROM
-                    (COALESCE(sources.kill_switch_engaged, FALSE) OR EXCLUDED.kill_switch_engaged)
-                 THEN now()
-               ELSE sources.updated_at
-             END,
-             -- The registry may engage an operational stop, and migration-0016
+         SET -- The registry may engage an operational stop, and migration-0016
              -- NULL is synchronized explicitly. It may never clear stored TRUE.
              kill_switch_engaged = COALESCE(sources.kill_switch_engaged, FALSE)
                                    OR EXCLUDED.kill_switch_engaged
@@ -550,10 +546,25 @@ class PostgresCanonicalStore implements CanonicalStore {
   /* ---------------- raw evidence ---------------- */
 
   async recordSourceArtifact(input: SourceArtifactInsert): Promise<SourceArtifact> {
-    // Artifacts are immutable (rule 10): identical bytes from the same URL are
-    // the same artifact. The no-op DO UPDATE exists only so the existing row is
-    // RETURNING-able; nothing about the artifact is rewritten.
-    const rows = await this.driver.query(
+    // Artifacts are immutable (rule 10): identical bytes from the same URL and
+    // acquisition scope are the same artifact, without requiring UPDATE.
+    const parameters = [
+      input.source_id,
+      input.url,
+      input.retrieved_at,
+      input.content_hash,
+      input.mime_type,
+      input.r2_uri,
+      input.http_status,
+      input.extractor_version,
+      input.policy_snapshot_id,
+      input.byte_size,
+      input.acquisition_provider,
+      input.acquisition_route,
+      input.account_or_product_plan,
+      input.acquisition_jurisdiction,
+    ] as const;
+    const inserted = await this.driver.query(
       `INSERT INTO source_artifacts (source_id, url, retrieved_at, content_hash, mime_type, r2_uri,
                                      http_status, extractor_version, policy_snapshot_id, byte_size,
                                      acquisition_provider, acquisition_route,
@@ -561,26 +572,30 @@ class PostgresCanonicalStore implements CanonicalStore {
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
        ON CONFLICT (source_id, url, content_hash, acquisition_route,
                     account_or_product_plan, acquisition_jurisdiction)
-       DO UPDATE SET source_id = source_artifacts.source_id
+       DO NOTHING
        RETURNING ${ARTIFACT_COLUMNS}`,
-      [
-        input.source_id,
-        input.url,
-        input.retrieved_at,
-        input.content_hash,
-        input.mime_type,
-        input.r2_uri,
-        input.http_status,
-        input.extractor_version,
-        input.policy_snapshot_id,
-        input.byte_size,
-        input.acquisition_provider,
-        input.acquisition_route,
-        input.account_or_product_plan,
-        input.acquisition_jurisdiction,
-      ],
+      parameters,
     );
-    return mapSourceArtifact(requireRow(rows, 'source_artifacts'));
+    const insertedRow = inserted[0];
+    if (insertedRow !== undefined) return mapSourceArtifact(insertedRow);
+    const conflictIdentity = [
+      input.source_id,
+      input.url,
+      input.content_hash,
+      input.acquisition_route,
+      input.account_or_product_plan,
+      input.acquisition_jurisdiction,
+    ] as const;
+    const existing = await this.driver.query(
+      `SELECT ${ARTIFACT_COLUMNS}
+         FROM source_artifacts
+        WHERE source_id = $1 AND url = $2 AND content_hash = $3
+          AND acquisition_route = $4
+          AND account_or_product_plan IS NOT DISTINCT FROM $5
+          AND acquisition_jurisdiction IS NOT DISTINCT FROM $6`,
+      conflictIdentity,
+    );
+    return mapSourceArtifact(requireRow(existing, 'source_artifacts'));
   }
 
   async recordSourceRecord(input: SourceRecordInsert): Promise<SourceRecord> {
@@ -1000,6 +1015,14 @@ class PostgresCanonicalStore implements CanonicalStore {
     if (query.entity_type !== undefined) {
       params.push(query.entity_type);
       sql += ` AND e.entity_type = $${params.length}`;
+    }
+    if (query.source_id !== undefined) {
+      params.push(query.source_id);
+      sql += ` AND EXISTS (
+        SELECT 1 FROM current_entity_aliases scoped_alias
+        WHERE scoped_alias.id = a.id
+          AND $${params.length}::uuid = ANY(scoped_alias.current_source_ids)
+      )`;
     }
     sql += ' ORDER BY a.identity_confidence DESC, e.canonical_slug';
     const rows = await (executor ?? this.driver).query(sql, params);

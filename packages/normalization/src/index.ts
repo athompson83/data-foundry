@@ -27,6 +27,7 @@ export * from './failures.js';
 export * from './text.js';
 export * from './units.js';
 export * from './identifier.js';
+export * from './alias-normalization.js';
 export * from './scalars.js';
 export * from './vocabulary.js';
 export * from './rules.js';

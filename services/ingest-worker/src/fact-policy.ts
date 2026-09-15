@@ -25,7 +25,7 @@ import { canPublish, prohibitedSourceFor } from '@data-foundry/source-registry';
 import { ACQUIRABLE_STATUSES } from '@data-foundry/acquisition';
 import type { Identifier, IsoDateTime, SourceType } from '@data-foundry/canonical-schema';
 import type { SourceRegistryEntry } from '@data-foundry/source-registry';
-import type { VerticalConfig } from './config.js';
+import type { VerticalConfig } from './config-core.js';
 import { PipelineConfigurationError } from './errors.js';
 import { reviewerIdentityTokens } from '@data-foundry/query-model';
 
@@ -317,6 +317,7 @@ export function buildFieldMetadata(config: VerticalConfig): Yaml[] {
   const defaults: Yaml = config.filters?.defaults ?? {};
   return (config.filters?.fields ?? []).map((field: Yaml) => ({
     field: String(field.field),
+    label: String(field.label ?? field.field),
     value_type: String(field.value_type),
     unit: field.unit === undefined || field.unit === null ? null : String(field.unit),
     filter:

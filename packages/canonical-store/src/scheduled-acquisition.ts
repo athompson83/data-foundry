@@ -15,6 +15,7 @@ import {
 import { ARTIFACT_COLUMNS, mapSourceArtifact, toIso, toIsoOrNull, toJson, toNumber } from './rows.js';
 import type { SqlDriver, SqlExecutor, SqlRow } from './sql-driver.js';
 
+import { enqueueIngestionDelivery } from './ingestion-delivery.js';
 export type ScheduledAcquisitionStatus = 'CLAIMED' | 'SUCCEEDED' | 'SKIPPED' | 'REFUSED' | 'FAILED';
 export type ScheduledAcquisitionOutcome = 'FETCHED' | 'NOT_MODIFIED' | 'EMPTY';
 export type AcquisitionAssetClass = RightsAssetClass;
@@ -225,6 +226,8 @@ export interface ScheduledAcquisitionClaimRelease {
 }
 
 export interface ScheduledAcquisitionCompletion {
+  /** Compiled processing contract; legacy callers retain their acquisition runtime identity. */
+  readonly ingestionRuntimeDigest?: string;
   readonly runId: string;
   readonly claimToken: string;
   readonly outcome: Extract<ScheduledAcquisitionOutcome, 'FETCHED' | 'NOT_MODIFIED'>;
@@ -845,7 +848,13 @@ function observeRun(run: ScheduledAcquisitionRun): ScheduledAcquisitionRunObserv
 }
 
 async function persistArtifact(tx: SqlExecutor, input: SourceArtifactInsert): Promise<SourceArtifact> {
-  const rows = await tx.query(
+  const parameters = [
+    input.source_id, input.url, input.retrieved_at, input.content_hash, input.mime_type,
+    input.r2_uri, input.http_status, input.extractor_version, input.policy_snapshot_id,
+    input.byte_size, input.acquisition_provider, input.acquisition_route,
+    input.account_or_product_plan, input.acquisition_jurisdiction,
+  ] as const;
+  const inserted = await tx.query(
     `INSERT INTO source_artifacts (source_id, url, retrieved_at, content_hash, mime_type, r2_uri,
                                    http_status, extractor_version, policy_snapshot_id, byte_size,
                                    acquisition_provider, acquisition_route,
@@ -853,18 +862,32 @@ async function persistArtifact(tx: SqlExecutor, input: SourceArtifactInsert): Pr
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
      ON CONFLICT (source_id, url, content_hash, acquisition_route,
                   account_or_product_plan, acquisition_jurisdiction)
-     DO UPDATE SET source_id = source_artifacts.source_id
+     DO NOTHING
      RETURNING ${ARTIFACT_COLUMNS}`,
-    [
-      input.source_id, input.url, input.retrieved_at, input.content_hash, input.mime_type,
-      input.r2_uri, input.http_status, input.extractor_version, input.policy_snapshot_id,
-      input.byte_size, input.acquisition_provider, input.acquisition_route,
-      input.account_or_product_plan, input.acquisition_jurisdiction,
-    ],
+    parameters,
   );
-  const row = rows[0];
-  if (row === undefined) throw new Error('source artifact persistence returned no row');
-  return mapSourceArtifact(row);
+  const insertedRow = inserted[0];
+  if (insertedRow !== undefined) return mapSourceArtifact(insertedRow);
+  const conflictIdentity = [
+    input.source_id,
+    input.url,
+    input.content_hash,
+    input.acquisition_route,
+    input.account_or_product_plan,
+    input.acquisition_jurisdiction,
+  ] as const;
+  const existing = await tx.query(
+    `SELECT ${ARTIFACT_COLUMNS}
+       FROM source_artifacts
+      WHERE source_id = $1 AND url = $2 AND content_hash = $3
+        AND acquisition_route = $4
+        AND account_or_product_plan IS NOT DISTINCT FROM $5
+        AND acquisition_jurisdiction IS NOT DISTINCT FROM $6`,
+    conflictIdentity,
+  );
+  const existingRow = existing[0];
+  if (existingRow === undefined) throw new Error('source artifact persistence returned no row');
+  return mapSourceArtifact(existingRow);
 }
 
 class PostgresScheduledAcquisitionStore implements ScheduledAcquisitionStore {
@@ -1077,9 +1100,10 @@ class PostgresScheduledAcquisitionStore implements ScheduledAcquisitionStore {
         contractVersion: run.rightsReceiptContractVersion,
       });
 
+      let artifactRunId = run.id;
       if (input.outcome === 'NOT_MODIFIED') {
         const prior = await tx.query(
-          `SELECT 1
+          `SELECT prior.id
              FROM scheduled_acquisition_runs prior
             WHERE prior.id <> $1
               AND prior.source_id = $2
@@ -1094,15 +1118,18 @@ class PostgresScheduledAcquisitionStore implements ScheduledAcquisitionStore {
               AND prior.result_url_policy = $11::jsonb
               AND prior.status = 'SUCCEEDED'
               AND prior.outcome = 'FETCHED'
+              AND prior.completed_at <= $12::timestamptz
+              AND prior.fresh_at <= $12::timestamptz
               AND prior.artifact_count > 0
               AND EXISTS (
                 SELECT 1 FROM scheduled_acquisition_run_artifacts link WHERE link.run_id = prior.id
               )
-            LIMIT 1`,
+            ORDER BY prior.completed_at DESC, prior.id DESC LIMIT 1`,
           [
             run.id, run.sourceId, run.targetId, run.targetUrl, run.acquisitionRoute,
             run.accountOrProductPlan, run.jurisdiction, run.assetClass, run.outputClass,
             run.runtimeDigest, JSON.stringify(run.resultUrlPolicy),
+            run.claimLeaseAcquiredAt,
           ],
         );
         if (prior.length === 0) {
@@ -1110,6 +1137,7 @@ class PostgresScheduledAcquisitionStore implements ScheduledAcquisitionStore {
             'NOT_MODIFIED requires a prior artifact-backed FETCHED success for the exact scope and runtime',
           );
         }
+        artifactRunId = String(prior[0]!['id']);
       }
 
       for (const [ordinal, result] of input.artifacts.entries()) {
@@ -1176,6 +1204,12 @@ class PostgresScheduledAcquisitionStore implements ScheduledAcquisitionStore {
       );
       const row = rows[0];
       if (row === undefined) throw new Error(`scheduled acquisition run ${input.runId} did not complete`);
+      await enqueueIngestionDelivery(tx, {
+        acquisitionRunId: run.id,
+        artifactRunId,
+        runtimeDigest: input.ingestionRuntimeDigest ?? run.runtimeDigest,
+        workKind: input.outcome === 'FETCHED' ? 'PROCESS_ARTIFACTS' : 'VERIFY_UNCHANGED',
+      });
       return mapRun(row);
     });
   }

@@ -7,6 +7,12 @@
  * industry site, not one Worker per industry.
  */
 import { toWebRequest, toFetchResponse } from './adapter.js';
+import { WorkerEntrypoint } from 'cloudflare:workers';
+import type {
+  PrivateCanaryProbe,
+  PrivateCanaryProbeInput,
+  PrivateCanaryProbeResult,
+} from '@data-foundry/private-canary';
 import {
   createWebApp,
   executePreparedWebRequest,
@@ -17,6 +23,7 @@ import {
 import { withResolvedContext } from './config.js';
 import { getDeployment } from './composition.js';
 import { resolveWebConfig, WebConfigurationError, type WebEnv } from './env.js';
+import { probePrivateCanaryReadiness } from './private-canary.js';
 import type { WebRuntime } from './seo.js';
 import { RUNTIMES as compiledRuntimes } from '../generated/runtime-registry.js';
 
@@ -37,6 +44,14 @@ export {
   type WebDeployment,
 } from './composition.js';
 export { WebConfigurationError, resolveWebConfig, type WebEnv } from './env.js';
+export { probePrivateCanaryReadiness, type PrivateCanaryProbeOptions } from './private-canary.js';
+
+/** Service-binding-only probe; no public page route is added for the canary. */
+export class PrivateCanaryEntrypoint extends WorkerEntrypoint<WebEnv> implements PrivateCanaryProbe {
+  async probe(input: PrivateCanaryProbeInput): Promise<PrivateCanaryProbeResult> {
+    return probePrivateCanaryReadiness(input, this.env);
+  }
+}
 
 /** Every vertical this bundle carries, generated from the compiler's single bundle list. */
 export const RUNTIMES = compiledRuntimes as unknown as Readonly<Record<string, WebRuntime>>;
@@ -114,10 +129,10 @@ export function createWebFetchHandler(
       return toFetchResponse(response, request.method);
     } catch (error) {
       if (error instanceof WebConfigurationError) {
-        console.error('[web] configuration', error);
+        console.error('[web] configuration', { code: 'CONFIGURATION_UNAVAILABLE' });
         return unavailable('configuration');
       }
-      console.error('[web] startup', error);
+      console.error('[web] startup', { code: 'STARTUP_UNAVAILABLE' });
       return unavailable('startup');
     } finally {
       // Hyperdrive pools at the database side; this request's pg Client must

@@ -1,3 +1,4 @@
+import type { AliasNormalizationSpec } from '@data-foundry/canonical-schema';
 /** Cloudflare composition root. Hyperdrive graphs are always invocation-owned. */
 import {
   createCanonicalStore,
@@ -30,6 +31,7 @@ export interface McpWorkerRuntime {
   readonly vertical_slug: string;
   readonly canonical_url_prefix: string;
   readonly fields: readonly unknown[];
+  readonly identifier_normalization: AliasNormalizationSpec;
   readonly fact_selection: Readonly<Record<string, unknown>>;
   readonly server: {
     readonly name: string;
@@ -82,7 +84,9 @@ async function build(options: BuildMcpDeploymentOptions): Promise<McpDeployment>
     config.connectionString,
     config.deploymentEnvironment === 'production'
       ? { schema: DATA_FOUNDRY_PRIVATE_SCHEMA }
-      : undefined,
+      : options.env.HYPERDRIVE === undefined
+        ? { allowPlaintextLoopback: true }
+        : undefined,
   );
   try {
     const store = createCanonicalStore(driver);
@@ -92,7 +96,7 @@ async function build(options: BuildMcpDeploymentOptions): Promise<McpDeployment>
         `Configured vertical ${config.verticalSlug} is absent from the canonical database.`,
       );
     }
-    const queryModel = createQueryModel(store, { fields: options.runtime.fields as never });
+    const queryModel = createQueryModel(store, { fields: options.runtime.fields as never, identifier_normalization: options.runtime.identifier_normalization });
     const handler = createSdkHandler({
       runtime: options.runtime,
       queryModel,

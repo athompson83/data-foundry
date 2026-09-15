@@ -105,12 +105,22 @@ branch is the only supported thing to run.
 | any tag or fork | ❌ |
 
 No production deployment of this integration candidate is recorded or
-verified. Live Cloudflare account state could not be inspected from the
-available environment; exact deployment IDs and runtime probes remain
-owner/platform evidence. The five-Worker topology exists in this candidate as
-repository code and credential-free artifacts, and the HVAC vertical is
-`status: DRAFT` with synthetic fixture data. If that changes, this section
-changes with it.
+verified. Dated, redacted 2026-09-01/09-02 evidence records a scoped read-only
+Cloudflare inventory: the active/full zone, standard usage model, and ordinary
+14-day Queue/DLQ pair were observed, while no Data Foundry Worker, route,
+Hyperdrive, or R2 bucket was observed. This authoritative 14:46Z refresh
+supersedes an earlier same-day raw-bucket observation. Those inventory facts are not live binding,
+receipt, or runtime proof; exact deployment IDs and runtime probes remain
+owner/platform evidence. The current candidate has six ordinary Worker
+manifests and seven route-less private-canary artifacts: six dedicated reduced
+targets plus the no-Hyperdrive harness, for thirteen core artifacts. A separate
+fourteenth synthetic ingestion profile uses the same temporary ingestion
+identity in a distinct phase with isolated Queue/DLQ and fixed-fixture artifact
+storage; it must restore the reduced profile before the receipt harness runs
+again. These remain repository code and credential-free artifacts, not deployed
+capability or real-source processing proof. The HVAC
+vertical is `status: DRAFT` with synthetic fixture data. If that changes, this
+section changes with it.
 
 ## What this policy is not
 

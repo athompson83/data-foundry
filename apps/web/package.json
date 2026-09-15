@@ -21,6 +21,7 @@
   "dependencies": {
     "@data-foundry/canonical-schema": "workspace:*",
     "@data-foundry/canonical-store": "workspace:*",
+    "@data-foundry/private-canary": "workspace:*",
     "@data-foundry/query-model": "workspace:*",
     "pg": "^8.23.0"
   },

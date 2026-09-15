@@ -318,7 +318,7 @@ function decide(candidate: RefreshCandidate, input: RefreshScheduleInput): Refre
   // Within tolerance, a future timestamp is ordinary clock skew: the source was
   // just acquired. Clamp so it reads as an age of zero rather than a negative.
   const age = Math.max(0, elapsed);
-  const interval = CADENCE_HOURS[entry.refresh_cadence] as number;
+  const interval = entry.refresh_interval_hours ?? (CADENCE_HOURS[entry.refresh_cadence] as number);
   const stale = age >= input.policy.max_staleness_hours;
 
   if (age < interval && !stale) {

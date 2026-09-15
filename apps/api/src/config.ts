@@ -18,13 +18,17 @@ import type { QueryModel, SurfaceQueryModel } from '@data-foundry/query-model';
 import type { IsoDateTime, VerticalId } from '@data-foundry/canonical-schema';
 import type { RouteKey } from './routes.js';
 import type { ApiRequestAccess } from './http.js';
+import type { ApiErrorCode } from './errors.js';
 
 /** The fact-selection policy shape, taken from the query layer's signature. */
 export type ApiFactSelectionPolicy = NonNullable<Parameters<QueryModel['canonicalFacts']>[1]>;
 
 export interface ApiErrorContext {
   readonly method: string;
-  readonly path: string;
+  /** Legacy property name; contains only the closed route key, never a URL. */
+  readonly path: RouteKey;
+  readonly routeKey: RouteKey;
+  readonly code: ApiErrorCode;
   readonly requestId?: string;
 }
 
@@ -57,9 +61,8 @@ export interface ApiAppOptions {
    */
   readonly factSelection?: ApiFactSelectionPolicy;
   /**
-   * Where the real error goes. Response bodies carry an opaque code; operators
-   * need the cause, and this is the only channel that gets it. Defaults to
-   * doing nothing so tests stay silent.
+   * In-process diagnostic hook. Production loggers must select only routeKey
+   * and code: throwable contents and client-supplied IDs are not telemetry.
    */
   readonly onError?: (error: unknown, context: ApiErrorContext) => void;
 }

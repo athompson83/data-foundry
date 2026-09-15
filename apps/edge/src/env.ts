@@ -35,6 +35,8 @@ export interface QueueBinding<Message = unknown> {
 export interface EdgeEnv {
   /** Explicit deployment identity; absence is rejected. */
   readonly DEPLOYMENT_ENVIRONMENT?: string | undefined;
+  /** Enables only the route-less, service-bound synthetic readiness probe. */
+  readonly PRIVATE_CANARY_MODE?: string | undefined;
   /**
    * Hyperdrive binding. Preferred over `POSTGRES_URL`: it pools connections at
    * Cloudflare's edge, which is what makes Postgres viable from a Worker at all.

@@ -67,6 +67,7 @@ export interface ScheduledAcquisitionResult {
 }
 
 export interface RunScheduledAcquisitionInput {
+  readonly ingestionRuntimeDigest?: string;
   readonly driver: SqlDriver;
   readonly runtime: AcquisitionRuntime;
   readonly scheduledFor: string;
@@ -197,7 +198,7 @@ export async function runScheduledAcquisition(
     default_refresh_policy: input.runtime.default_refresh_policy,
   });
 
-  // Monotone synchronization lives in canonical-store.upsertSource: explicit
+  // Monotone synchronization lives in canonical-store.registerSource: explicit
   // bundled TRUE can engage a stop; neither bundled value may clear stored TRUE.
   const sourceIds = new Map<string, ScheduledAcquisitionRun['sourceId']>();
   for (const entry of sources) {
@@ -570,6 +571,7 @@ async function executeClaim(
       Math.max(Date.parse(item.run.claimLeaseAcquiredAt), Date.parse(result.fetchedAt)),
     )).toISOString() as ScheduledAcquisitionRun['claimedAt'];
     await store.complete({
+      ...(input.ingestionRuntimeDigest === undefined ? {} : { ingestionRuntimeDigest: input.ingestionRuntimeDigest }),
       runId: item.run.id,
       claimToken: item.run.claimToken,
       outcome: result.outcome,

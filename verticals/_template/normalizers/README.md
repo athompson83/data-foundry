@@ -71,3 +71,20 @@ Adding a source should touch exactly one file: `source-mappings.yaml`. If it
 forces a change to layers 1–4, the new source has introduced genuinely new
 domain vocabulary — which is a canonical-model change and belongs in
 `CHANGELOG.md` with a `schema_version` bump.
+
+## Identifier read/write parity
+
+Declare each identifier's operations in `03-domain-normalization.yaml` and its
+entity applicability and identity scope in `vertical.yaml`. The platform
+compiles one `AliasNormalizationSpec` into ingestion, edge, web and MCP
+runtimes. Record normalization, resolution and exact queries execute the same
+shared interpreter. Preserve structural separators when they distinguish keys;
+`strip_prefix` follows the configured prefix order. NFKC is always applied;
+format-character or punctuation cleanup requires the corresponding explicit
+operation. Never normalize the display `alias_value` in place.
+
+After an identifier change, run `pnpm verticals:compile`, `pnpm web:compile`,
+and `pnpm mcp:compile`, verify each corresponding `:check` command, and rerun
+source/golden parity tests. Changing operations changes join keys and ingestion
+plan identity; review schema version, changelog and stored-key reprocessing.
+See `docs/decisions/ADR-0003-query-time-identifier-equivalence.md`.

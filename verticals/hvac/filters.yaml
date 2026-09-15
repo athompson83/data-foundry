@@ -24,6 +24,7 @@ defaults:
 fields:
 
   - field: product_type
+    label: Equipment category
     entity_type: equipment_model
     value_type: string
     unit: null
@@ -43,6 +44,7 @@ fields:
       ("3 ton heat pump"). Low cardinality, high demand, no duplication risk.
 
   - field: nominal_tonnage
+    label: Nominal tonnage
     entity_type: equipment_model
     value_type: number
     unit: ton
@@ -66,6 +68,7 @@ fields:
       though they are the same filter.
 
   - field: cooling_capacity_btu
+    label: Cooling capacity
     entity_type: equipment_model
     value_type: number
     unit: BTU/h
@@ -91,6 +94,7 @@ fields:
     rationale: Essential for engineering-precise API queries; redundant for SEO.
 
   - field: seer2
+    label: SEER2
     entity_type: equipment_model
     value_type: number
     unit: null
@@ -115,6 +119,7 @@ fields:
       because most individual bucket/type combinations are thin.
 
   - field: eer2
+    label: EER2
     entity_type: equipment_model
     value_type: number
     unit: null
@@ -129,6 +134,7 @@ fields:
       reason: Specialist filter with negligible search demand. UI and API only.
 
   - field: hspf2
+    label: HSPF2
     entity_type: equipment_model
     value_type: number
     unit: null
@@ -148,6 +154,7 @@ fields:
       reason: Specialist filter, and only applicable to a subset of the catalogue.
 
   - field: refrigerant
+    label: Refrigerant
     entity_type: equipment_model
     value_type: string
     unit: null
@@ -169,6 +176,7 @@ fields:
       a system change.
 
   - field: voltage
+    label: Voltage
     entity_type: equipment_model
     value_type: number
     unit: V
@@ -186,6 +194,7 @@ fields:
         equipment"; they look for a 3-ton condenser that happens to be 208V.
 
   - field: phase
+    label: Electrical phase
     entity_type: equipment_model
     value_type: number
     unit: null
@@ -201,6 +210,7 @@ fields:
       reason: Two values, both low-intent. Qualifier only.
 
   - field: stage_count
+    label: Compressor stages
     entity_type: equipment_model
     value_type: number
     unit: null
@@ -216,6 +226,7 @@ fields:
       reason: Low cardinality and low standalone demand.
 
   - field: sound_level_db
+    label: Sound level
     entity_type: equipment_model
     value_type: number
     unit: dB
@@ -238,6 +249,7 @@ fields:
         exceeds 80%.
 
   - field: weight_lb
+    label: Weight
     entity_type: equipment_model
     value_type: number
     unit: lb
@@ -252,6 +264,7 @@ fields:
       reason: Logistics detail. Sortable and queryable; never a landing page.
 
   - field: manufacturer
+    label: Manufacturer
     entity_type: equipment_model
     value_type: string
     unit: null

@@ -27,6 +27,7 @@ export {
   MissingEvidenceError,
   NotFoundError,
 } from './errors.js';
+export * from './ingestion-delivery.js';
 
 export {
   createDriverFromEnv,
@@ -34,6 +35,7 @@ export {
   createPgliteDriver,
   createPostgresDriver,
   createSerialExecutor,
+  directPostgresTlsConfig,
   assertPrivateSchemaSession,
   DATA_FOUNDRY_PRIVATE_SCHEMA,
   placeholders,
@@ -188,3 +190,5 @@ export {
   type ScheduledRightsReceiptContractVersion,
   type ScheduledRightsReceiptStage,
 } from './scheduled-acquisition.js';
+export { OperationAlertStore, OPERATION_ALERT_CODES, readOperationHealth,
+  type OperationAlertCode, type OperationAlertCounts, type OperationAlertClaim, type OperationAlertOutcome } from './operation-alerts.js';

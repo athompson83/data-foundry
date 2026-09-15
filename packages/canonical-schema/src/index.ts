@@ -33,3 +33,4 @@ export * from './objects/media.js';
 export * from './objects/ingestion-jobs.js';
 
 export { CANONICAL_OBJECT_SCHEMAS, type CanonicalObjectName } from './registry.js';
+export * from './identifier-normalization.js';

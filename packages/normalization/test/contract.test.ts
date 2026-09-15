@@ -1,5 +1,6 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
   extractionConfidence,
   sourceArtifactId,
@@ -124,7 +125,7 @@ describe('extraction output is a valid normalization input', () => {
  * storage or entity resolution, and it must not do I/O.
  */
 describe('architecture boundary', () => {
-  const sourceDir = new URL('../src/', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1');
+  const sourceDir = fileURLToPath(new URL('../src/', import.meta.url));
 
   const sourceFiles = (): string[] =>
     readdirSync(sourceDir, { withFileTypes: true, recursive: true })

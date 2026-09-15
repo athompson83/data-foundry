@@ -1,0 +1,2883 @@
+{
+  "version": 1,
+  "vertical_slug": "hvac",
+  "implementation_digest": "5f9a558cc4f2da39d5940f927f0e8e33c1fb99bc2950c8bfda6e8c8b65ff2a90",
+  "implementation_inputs": [
+    "apps/ingestion-worker/package.json",
+    "apps/ingestion-worker/src/runner.ts",
+    "db/migrations/0001_verticals_and_sources.sql",
+    "db/migrations/0002_evidence.sql",
+    "db/migrations/0003_entities.sql",
+    "db/migrations/0004_facts.sql",
+    "db/migrations/0005_relationships.sql",
+    "db/migrations/0006_resolution.sql",
+    "db/migrations/0007_snapshots_and_media.sql",
+    "db/migrations/0008_ingestion_jobs.sql",
+    "db/migrations/0009_resolution_judgment_episodes.sql",
+    "db/migrations/0010_fact_verifications.sql",
+    "db/migrations/0011_api_tenancy.sql",
+    "db/migrations/0012_usage_accounting_corrections.sql",
+    "db/migrations/0013_regulatory_filing_source_type.sql",
+    "db/migrations/0014_rights_grant_matrix.sql",
+    "db/migrations/0015_api_access_channels.sql",
+    "db/migrations/0016_core_rights_hardening.sql",
+    "db/migrations/0017_scheduled_acquisition_runs.sql",
+    "db/migrations/0018_mcp_access_channel.sql",
+    "db/migrations/0019_scheduled_acquisition_pre_persistence.sql",
+    "db/migrations/0020_scheduled_acquisition_claim_leases.sql",
+    "db/migrations/0021_source_record_evidence_reconciliation.sql",
+    "db/migrations/0022_source_record_revision_state.sql",
+    "db/migrations/0023_entity_alias_claim_currentness.sql",
+    "db/migrations/0024_source_record_snapshot_membership.sql",
+    "db/migrations/0025_alias_claim_evidence_gate.sql",
+    "db/migrations/0026_surface_authorization_streaming_indexes.sql",
+    "db/migrations/0027_runtime_security_hardening.sql",
+    "db/migrations/0028_audited_foreign_key_indexes.sql",
+    "db/migrations/0029_ingestion_delivery.sql",
+    "db/migrations/0030_operator_actions.sql",
+    "db/migrations/0031_operation_alerts.sql",
+    "db/migrations/0032_current_alias_source_projection.sql",
+    "db/migrations/0033_not_modified_claim_boundary.sql",
+    "packages/acquisition/package.json",
+    "packages/acquisition/src/clock.ts",
+    "packages/acquisition/src/errors.ts",
+    "packages/acquisition/src/hashing.ts",
+    "packages/acquisition/src/index.ts",
+    "packages/acquisition/src/policy/conditional.ts",
+    "packages/acquisition/src/policy/gate-types.ts",
+    "packages/acquisition/src/policy/policy-snapshot.ts",
+    "packages/acquisition/src/policy/rate-limit.ts",
+    "packages/acquisition/src/policy/refresh-schedule.ts",
+    "packages/acquisition/src/policy/result-policy.ts",
+    "packages/acquisition/src/policy/rights-gate.ts",
+    "packages/acquisition/src/policy/robots.ts",
+    "packages/acquisition/src/provider.ts",
+    "packages/acquisition/src/providers/base.ts",
+    "packages/acquisition/src/providers/browser-run.ts",
+    "packages/acquisition/src/providers/crawl4ai.ts",
+    "packages/acquisition/src/providers/http-client.ts",
+    "packages/acquisition/src/providers/http.ts",
+    "packages/acquisition/src/runtime.ts",
+    "packages/acquisition/src/storage/artifact-store.ts",
+    "packages/acquisition/src/storage/keys.ts",
+    "packages/acquisition/src/storage/orphans.ts",
+    "packages/acquisition/src/storage/r2-artifact-store.ts",
+    "packages/acquisition/src/types.ts",
+    "packages/canonical-schema/package.json",
+    "packages/canonical-schema/src/confidence.ts",
+    "packages/canonical-schema/src/fact-versioning.ts",
+    "packages/canonical-schema/src/hostnames.ts",
+    "packages/canonical-schema/src/identifier-normalization.ts",
+    "packages/canonical-schema/src/ids.ts",
+    "packages/canonical-schema/src/index.ts",
+    "packages/canonical-schema/src/job-state.ts",
+    "packages/canonical-schema/src/objects/entities.ts",
+    "packages/canonical-schema/src/objects/evidence.ts",
+    "packages/canonical-schema/src/objects/facts.ts",
+    "packages/canonical-schema/src/objects/ingestion-jobs.ts",
+    "packages/canonical-schema/src/objects/media.ts",
+    "packages/canonical-schema/src/objects/relationships.ts",
+    "packages/canonical-schema/src/objects/resolution.ts",
+    "packages/canonical-schema/src/objects/snapshots.ts",
+    "packages/canonical-schema/src/objects/sources.ts",
+    "packages/canonical-schema/src/objects/verifications.ts",
+    "packages/canonical-schema/src/objects/verticals.ts",
+    "packages/canonical-schema/src/ordering.ts",
+    "packages/canonical-schema/src/primitives.ts",
+    "packages/canonical-schema/src/registry.ts",
+    "packages/canonical-schema/src/rights.ts",
+    "packages/canonical-store/package.json",
+    "packages/canonical-store/src/errors.ts",
+    "packages/canonical-store/src/fact-selection.ts",
+    "packages/canonical-store/src/index.ts",
+    "packages/canonical-store/src/ingestion-delivery.ts",
+    "packages/canonical-store/src/operation-alerts.ts",
+    "packages/canonical-store/src/rights-store.ts",
+    "packages/canonical-store/src/rows.ts",
+    "packages/canonical-store/src/scheduled-acquisition.ts",
+    "packages/canonical-store/src/sql-driver.ts",
+    "packages/canonical-store/src/store.ts",
+    "packages/extraction/package.json",
+    "packages/extraction/src/confidence.ts",
+    "packages/extraction/src/index.ts",
+    "packages/extraction/src/locator.ts",
+    "packages/extraction/src/providers/csv-extractor.ts",
+    "packages/extraction/src/providers/json-extractor.ts",
+    "packages/extraction/src/record-builder.ts",
+    "packages/extraction/src/registry-core.ts",
+    "packages/extraction/src/runtime.ts",
+    "packages/extraction/src/schema.ts",
+    "packages/extraction/src/source-record.ts",
+    "packages/extraction/src/types.ts",
+    "packages/normalization/package.json",
+    "packages/normalization/src/alias-normalization.ts",
+    "packages/normalization/src/derived-graph.ts",
+    "packages/normalization/src/failures.ts",
+    "packages/normalization/src/identifier.ts",
+    "packages/normalization/src/index.ts",
+    "packages/normalization/src/pipeline.ts",
+    "packages/normalization/src/rules.ts",
+    "packages/normalization/src/scalars.ts",
+    "packages/normalization/src/text.ts",
+    "packages/normalization/src/types.ts",
+    "packages/normalization/src/units.ts",
+    "packages/normalization/src/vocabulary.ts",
+    "packages/provenance/package.json",
+    "packages/provenance/src/coverage.ts",
+    "packages/provenance/src/explain.ts",
+    "packages/provenance/src/index.ts",
+    "packages/provenance/src/lineage.ts",
+    "packages/provenance/src/verification-policy.ts",
+    "packages/query-model/package.json",
+    "packages/query-model/src/compare.ts",
+    "packages/query-model/src/entities.ts",
+    "packages/query-model/src/facts.ts",
+    "packages/query-model/src/field-metadata.ts",
+    "packages/query-model/src/filters.ts",
+    "packages/query-model/src/identifier-rules.ts",
+    "packages/query-model/src/index.ts",
+    "packages/query-model/src/public-evidence-url.ts",
+    "packages/query-model/src/query-model.ts",
+    "packages/query-model/src/relationships.ts",
+    "packages/query-model/src/runtime-schema.ts",
+    "packages/query-model/src/search.ts",
+    "packages/query-model/src/serialization.ts",
+    "packages/query-model/src/sql.ts",
+    "packages/query-model/src/surface-access.ts",
+    "packages/rights-engine/package.json",
+    "packages/rights-engine/src/index.ts",
+    "packages/rights-engine/src/resolver.ts",
+    "packages/rights-engine/src/schemas.ts",
+    "packages/rights-engine/src/surfaces.ts",
+    "packages/rights-engine/src/types.ts",
+    "packages/source-registry/package.json",
+    "packages/source-registry/src/entry.ts",
+    "packages/source-registry/src/index.ts",
+    "packages/source-registry/src/loader.ts",
+    "packages/source-registry/src/prohibited-sources.ts",
+    "packages/source-registry/src/publish-gate.ts",
+    "packages/source-registry/src/rights-policy.ts",
+    "pnpm-lock.yaml",
+    "services/ingest-worker/package.json",
+    "services/ingest-worker/src/compile.ts",
+    "services/ingest-worker/src/config-core.ts",
+    "services/ingest-worker/src/config.ts",
+    "services/ingest-worker/src/errors.ts",
+    "services/ingest-worker/src/fact-policy.ts",
+    "services/ingest-worker/src/identifiers.ts",
+    "services/ingest-worker/src/jobs.ts",
+    "services/ingest-worker/src/pipeline-core.ts",
+    "services/ingest-worker/src/resolution.ts",
+    "services/ingest-worker/src/runtime.ts",
+    "tooling/lib/ingestion-implementation.ts",
+    "tooling/scripts/compile-acquisition-runtime.ts",
+    "tooling/scripts/compile-ingestion-runtime.ts",
+    "tsconfig.base.json"
+  ],
+  "acquisition_runtime_digest": "fde03f7946e98804c5040a2645f2833245454ff6a9ec550aa1f34f27650ccf12",
+  "supported_source_keys": [
+    "acme-hvac-catalog",
+    "ahri-directory-export"
+  ],
+  "source_targets": [
+    {
+      "source_key": "acme-hvac-catalog",
+      "target_id": "catalog-api"
+    },
+    {
+      "source_key": "ahri-directory-export",
+      "target_id": "quarterly-export"
+    }
+  ],
+  "unsupported_sources": [
+    {
+      "source_key": "coolsupply-distributor",
+      "formats": [
+        "html"
+      ],
+      "reason": "UNSUPPORTED_FORMAT"
+    },
+    {
+      "source_key": "acme-spec-sheets",
+      "formats": [
+        "pdf"
+      ],
+      "reason": "UNSUPPORTED_FORMAT"
+    }
+  ],
+  "limits": {
+    "maxArtifacts": 16,
+    "maxArtifactBytes": 1048576,
+    "maxTotalBytes": 4194304,
+    "maxRecords": 1000,
+    "maxReceiptBytes": 32768
+  },
+  "config": {
+    "slug": "hvac",
+    "name": "HVAC Equipment",
+    "schemaVersion": "0.1.0",
+    "status": "DRAFT",
+    "defaultRefreshPolicy": {
+      "cadence": "MONTHLY",
+      "max_staleness_hours": 720,
+      "priority": 60
+    },
+    "entityTypes": [
+      "manufacturer",
+      "equipment_model",
+      "certification"
+    ],
+    "relationshipPredicates": [
+      "manufactures",
+      "supersedes",
+      "certified_by",
+      "compatible_with"
+    ],
+    "aliasTypes": [
+      {
+        "type": "model_number",
+        "applies_to": [
+          "equipment_model"
+        ],
+        "strong": true,
+        "scoped_to": null
+      },
+      {
+        "type": "ahri_ref",
+        "applies_to": [
+          "equipment_model",
+          "certification"
+        ],
+        "strong": true,
+        "scoped_to": null
+      },
+      {
+        "type": "manufacturer_sku",
+        "applies_to": [
+          "equipment_model"
+        ],
+        "strong": true,
+        "scoped_to": "manufacturer"
+      },
+      {
+        "type": "upc",
+        "applies_to": [
+          "equipment_model"
+        ],
+        "strong": true,
+        "scoped_to": null
+      },
+      {
+        "type": "series_name",
+        "applies_to": [
+          "equipment_model"
+        ],
+        "strong": false,
+        "scoped_to": null
+      }
+    ],
+    "entityResolution": {
+      "auto_merge_threshold": 0.95,
+      "candidate_floor": 0.55,
+      "hard_conflict_properties": [
+        "cooling_capacity_btu",
+        "refrigerant",
+        "product_type",
+        "voltage"
+      ],
+      "blocking_keys": [
+        "normalized_manufacturer",
+        "model_number_prefix_6",
+        "product_type_and_capacity_band"
+      ],
+      "llm_adjudication": {
+        "enabled": true,
+        "allowed_decisions": [
+          "same",
+          "different",
+          "uncertain"
+        ],
+        "may_execute_merge": false,
+        "requires_structured_rationale": true,
+        "only_after_deterministic_failure": true
+      },
+      "never_merge_across": [
+        "supersedes"
+      ]
+    },
+    "entities": {
+      "manufacturer": {
+        "entity_type": "manufacturer",
+        "label": {
+          "singular": "Manufacturer",
+          "plural": "Manufacturers"
+        },
+        "description": "A company that manufactures HVAC equipment, used as the identity scope for model numbers and SKUs and as the subject of `manufactures` relationships.",
+        "canonical_slug": {
+          "pattern": "{canonical_name}",
+          "case": "lower",
+          "separator": "-"
+        },
+        "identity": {
+          "strong_aliases": [
+            "legal_name"
+          ],
+          "weak_aliases": [
+            "name",
+            "abbreviation",
+            "dba",
+            "former_name"
+          ],
+          "composite_keys": []
+        },
+        "properties": [
+          {
+            "name": "product_type",
+            "value_type": "string",
+            "unit": null,
+            "critical": false,
+            "description": "Equipment categories this manufacturer is observed to produce. Derived from the `manufactures` edges rather than asserted by any source, so it is always consistent with the catalogue actually held.",
+            "derived": true,
+            "expected_sources": []
+          }
+        ],
+        "quality_rules": [
+          {
+            "id": "manufacturer_has_models",
+            "rule": "required_edge",
+            "predicate": "manufactures",
+            "direction": "outbound",
+            "min_count": 1,
+            "description": "A manufacturer with no models is an extraction artifact — usually a brand string that should have been an alias of an existing manufacturer.",
+            "severity": "warning"
+          },
+          {
+            "id": "canonical_name_not_abbreviation",
+            "rule": "regex",
+            "property": "canonical_name",
+            "pattern": "^.{3,}$",
+            "description": "Guards against an abbreviation (\"ACS\") winning canonical-name selection over the full legal name.",
+            "severity": "warning"
+          }
+        ]
+      },
+      "equipment_model": {
+        "entity_type": "equipment_model",
+        "label": {
+          "singular": "Equipment Model",
+          "plural": "Equipment Models"
+        },
+        "description": "A specific HVAC equipment model as manufactured and sold, identified by its outdoor-unit model number and certified performance ratings.",
+        "canonical_slug": {
+          "pattern": "{manufacturer_slug}-{model_number}",
+          "case": "lower",
+          "separator": "-"
+        },
+        "identity": {
+          "strong_aliases": [
+            "ahri_ref",
+            "upc",
+            "model_number"
+          ],
+          "weak_aliases": [
+            "series_name"
+          ],
+          "composite_keys": [
+            [
+              "manufacturer_slug",
+              "model_number"
+            ],
+            [
+              "manufacturer_slug",
+              "cooling_capacity_btu",
+              "seer2",
+              "refrigerant"
+            ]
+          ]
+        },
+        "properties": [
+          {
+            "name": "product_type",
+            "value_type": "string",
+            "unit": null,
+            "critical": true,
+            "description": "Controlled equipment category. Mapped from source wording by normalizers/04-ontology-mapping.yaml; source wording is retained.",
+            "enum": [
+              "air_conditioner",
+              "heat_pump",
+              "gas_furnace",
+              "air_handler",
+              "packaged_unit"
+            ],
+            "expected_sources": [
+              "acme-hvac-catalog",
+              "coolsupply-distributor",
+              "ahri-directory-export",
+              "acme-spec-sheets"
+            ]
+          },
+          {
+            "name": "cooling_capacity_btu",
+            "value_type": "number",
+            "unit": "BTU/h",
+            "critical": true,
+            "description": "Nominal cooling capacity in BTU per hour. Directly published by the manufacturer feed and the ratings directory; DERIVED from tonnage where a source publishes only tons (12000 BTU/h = 1 ton, exact by definition).",
+            "expected_sources": [
+              "acme-hvac-catalog",
+              "ahri-directory-export",
+              "acme-spec-sheets"
+            ]
+          },
+          {
+            "name": "nominal_tonnage",
+            "value_type": "number",
+            "unit": "ton",
+            "critical": true,
+            "description": "Nominal cooling capacity in refrigeration tons. The unit the trade actually speaks in. Directly published by distributor listings and spec sheets; DERIVED from BTU/h elsewhere.",
+            "expected_sources": [
+              "coolsupply-distributor",
+              "acme-spec-sheets"
+            ]
+          },
+          {
+            "name": "seer2",
+            "value_type": "number",
+            "unit": null,
+            "critical": true,
+            "description": "Seasonal Energy Efficiency Ratio 2. Dimensionless. The single most contested property in this vertical: manufacturer marketing figures and certified directory ratings routinely disagree, and the directory wins (see normalizers/fact-selection.yaml).",
+            "expected_sources": [
+              "acme-hvac-catalog",
+              "coolsupply-distributor",
+              "ahri-directory-export"
+            ]
+          },
+          {
+            "name": "eer2",
+            "value_type": "number",
+            "unit": null,
+            "critical": false,
+            "description": "Energy Efficiency Ratio 2, at rated conditions. Dimensionless.",
+            "expected_sources": [
+              "acme-hvac-catalog",
+              "ahri-directory-export"
+            ]
+          },
+          {
+            "name": "hspf2",
+            "value_type": "number",
+            "unit": null,
+            "critical": false,
+            "description": "Heating Seasonal Performance Factor 2. Heat pumps only — absent on cooling-only equipment, which is correct absence, not missing data.",
+            "applies_when": {
+              "property": "product_type",
+              "in": [
+                "heat_pump"
+              ]
+            },
+            "expected_sources": [
+              "acme-hvac-catalog",
+              "ahri-directory-export"
+            ]
+          },
+          {
+            "name": "refrigerant",
+            "value_type": "string",
+            "unit": null,
+            "critical": true,
+            "description": "Refrigerant designation, normalized to ASHRAE hyphenated form (`R-410A`). Commercially critical: the A2L transition means refrigerant type decides whether a replacement is a drop-in or a system change.",
+            "enum": [
+              "R-410A",
+              "R-454B",
+              "R-32",
+              "R-22"
+            ],
+            "expected_sources": [
+              "acme-hvac-catalog",
+              "coolsupply-distributor",
+              "ahri-directory-export",
+              "acme-spec-sheets"
+            ]
+          },
+          {
+            "name": "voltage",
+            "value_type": "number",
+            "unit": "V",
+            "critical": true,
+            "description": "Nominal supply voltage. Normalized from notations like \"208/230-1-60\".",
+            "expected_sources": [
+              "acme-hvac-catalog",
+              "acme-spec-sheets"
+            ]
+          },
+          {
+            "name": "phase",
+            "value_type": "number",
+            "unit": null,
+            "critical": false,
+            "description": "Supply phase count (1 or 3). Parsed from the same notation as voltage.",
+            "expected_sources": [
+              "acme-hvac-catalog",
+              "acme-spec-sheets"
+            ]
+          },
+          {
+            "name": "stage_count",
+            "value_type": "number",
+            "unit": null,
+            "critical": false,
+            "description": "Number of compressor capacity stages.",
+            "expected_sources": [
+              "acme-hvac-catalog",
+              "acme-spec-sheets"
+            ]
+          },
+          {
+            "name": "sound_level_db",
+            "value_type": "number",
+            "unit": "dB",
+            "critical": false,
+            "description": "Rated sound level. Published on spec sheets and repeated — often inaccurately — by distributors. A standing source of conflict.",
+            "expected_sources": [
+              "acme-spec-sheets",
+              "coolsupply-distributor"
+            ]
+          },
+          {
+            "name": "weight_lb",
+            "value_type": "number",
+            "unit": "lb",
+            "critical": false,
+            "description": "Net operating weight of the outdoor unit.",
+            "expected_sources": [
+              "acme-hvac-catalog",
+              "acme-spec-sheets"
+            ]
+          }
+        ],
+        "quality_rules": [
+          {
+            "id": "capacity_tonnage_consistency",
+            "rule": "cross_property",
+            "description": "12000 BTU/h = 1 ton, exact by definition. If a source's BTU figure and a different source's tonnage figure disagree by more than half a percent, one of them is describing a different unit and both are suspect.",
+            "expression": "cooling_capacity_btu == nominal_tonnage * 12000",
+            "properties": [
+              "cooling_capacity_btu",
+              "nominal_tonnage"
+            ],
+            "tolerance": 0.005,
+            "severity": "error"
+          },
+          {
+            "id": "capacity_in_range",
+            "rule": "range",
+            "property": "cooling_capacity_btu",
+            "min": 6000,
+            "max": 300000,
+            "severity": "error"
+          },
+          {
+            "id": "tonnage_in_range",
+            "rule": "range",
+            "property": "nominal_tonnage",
+            "min": 0.5,
+            "max": 25,
+            "severity": "error"
+          },
+          {
+            "id": "seer2_in_range",
+            "rule": "range",
+            "property": "seer2",
+            "min": 8,
+            "max": 30,
+            "severity": "error"
+          },
+          {
+            "id": "eer2_in_range",
+            "rule": "range",
+            "property": "eer2",
+            "min": 6,
+            "max": 20,
+            "severity": "error"
+          },
+          {
+            "id": "hspf2_in_range",
+            "rule": "range",
+            "property": "hspf2",
+            "min": 5,
+            "max": 14,
+            "severity": "error"
+          },
+          {
+            "id": "seer2_exceeds_eer2",
+            "rule": "cross_property",
+            "description": "SEER2 is a seasonal average and EER2 a peak-condition rating, so SEER2 above EER2 is expected. The reverse almost always means the two columns were swapped during extraction.",
+            "expression": "seer2 > eer2",
+            "properties": [
+              "seer2",
+              "eer2"
+            ],
+            "severity": "warning"
+          },
+          {
+            "id": "hspf2_only_on_heat_pumps",
+            "rule": "conditional_presence",
+            "property": "hspf2",
+            "required_when": {
+              "property": "product_type",
+              "in": [
+                "heat_pump"
+              ]
+            },
+            "forbidden_when": {
+              "property": "product_type",
+              "in": [
+                "air_conditioner",
+                "gas_furnace",
+                "air_handler"
+              ]
+            },
+            "severity": "error"
+          },
+          {
+            "id": "model_number_format",
+            "rule": "regex",
+            "property": "model_number",
+            "applies_to_alias": true,
+            "pattern": "^[A-Z0-9]{6,32}$",
+            "description": "Applied to the NORMALIZED alias value, not the source spelling.",
+            "severity": "error"
+          },
+          {
+            "id": "phase_is_one_or_three",
+            "rule": "enum",
+            "property": "phase",
+            "values": [
+              1,
+              3
+            ],
+            "severity": "error"
+          },
+          {
+            "id": "sound_level_plausible",
+            "rule": "range",
+            "property": "sound_level_db",
+            "min": 40,
+            "max": 95,
+            "severity": "warning"
+          }
+        ]
+      },
+      "certification": {
+        "entity_type": "certification",
+        "label": {
+          "singular": "Certification",
+          "plural": "Certifications"
+        },
+        "description": "A certified equipment ratings record published by a ratings directory, carrying the rated performance values and the certification's validity window.",
+        "canonical_slug": {
+          "pattern": "{ahri_ref}",
+          "case": "lower",
+          "separator": "-"
+        },
+        "identity": {
+          "strong_aliases": [
+            "ahri_ref"
+          ],
+          "weak_aliases": [],
+          "composite_keys": []
+        },
+        "properties": [
+          {
+            "name": "product_type",
+            "value_type": "string",
+            "unit": null,
+            "critical": true,
+            "description": "Equipment category as classified by the certifying body.",
+            "enum": [
+              "air_conditioner",
+              "heat_pump",
+              "gas_furnace",
+              "air_handler",
+              "packaged_unit"
+            ],
+            "expected_sources": [
+              "ahri-directory-export"
+            ]
+          },
+          {
+            "name": "cooling_capacity_btu",
+            "value_type": "number",
+            "unit": "BTU/h",
+            "critical": true,
+            "description": "Certified cooling capacity, as rated.",
+            "expected_sources": [
+              "ahri-directory-export"
+            ]
+          },
+          {
+            "name": "seer2",
+            "value_type": "number",
+            "unit": null,
+            "critical": true,
+            "description": "Certified SEER2. This is the authoritative value for the linked equipment model — see normalizers/fact-selection.yaml `authoritative_by_property`.",
+            "expected_sources": [
+              "ahri-directory-export"
+            ]
+          },
+          {
+            "name": "eer2",
+            "value_type": "number",
+            "unit": null,
+            "critical": false,
+            "description": "Certified EER2.",
+            "expected_sources": [
+              "ahri-directory-export"
+            ]
+          },
+          {
+            "name": "hspf2",
+            "value_type": "number",
+            "unit": null,
+            "critical": false,
+            "description": "Certified HSPF2. Heat pumps only.",
+            "applies_when": {
+              "property": "product_type",
+              "in": [
+                "heat_pump"
+              ]
+            },
+            "expected_sources": [
+              "ahri-directory-export"
+            ]
+          },
+          {
+            "name": "refrigerant",
+            "value_type": "string",
+            "unit": null,
+            "critical": false,
+            "description": "Refrigerant as recorded on the certification.",
+            "enum": [
+              "R-410A",
+              "R-454B",
+              "R-32",
+              "R-22"
+            ],
+            "expected_sources": [
+              "ahri-directory-export"
+            ]
+          }
+        ],
+        "quality_rules": [
+          {
+            "id": "certification_links_to_a_model",
+            "rule": "required_edge",
+            "predicate": "certified_by",
+            "direction": "inbound",
+            "min_count": 1,
+            "description": "A certification nobody points at is an orphan — either the model number failed to resolve, or the directory carries a product we do not hold. Both are worth seeing.",
+            "severity": "warning"
+          },
+          {
+            "id": "certified_seer2_in_range",
+            "rule": "range",
+            "property": "seer2",
+            "min": 8,
+            "max": 30,
+            "severity": "error"
+          },
+          {
+            "id": "certified_capacity_in_range",
+            "rule": "range",
+            "property": "cooling_capacity_btu",
+            "min": 6000,
+            "max": 300000,
+            "severity": "error"
+          }
+        ]
+      }
+    },
+    "sources": [
+      {
+        "key": "acme-hvac-catalog",
+        "vertical_slug": "hvac",
+        "publisher": "Acme Climate Systems (SYNTHETIC — fictional publisher)",
+        "domain": "catalog.acme-climate.example.com",
+        "source_type": "MANUFACTURER",
+        "authority_rank": 85,
+        "status": "ACTIVE",
+        "refresh_cadence": "DAILY",
+        "rights_classification": "GREEN",
+        "attribution_requirement": {
+          "required": false,
+          "text": null,
+          "url": null
+        },
+        "robots_policy": {
+          "respect_robots": true,
+          "user_agent": "DataFoundryBot",
+          "crawl_delay_seconds": null,
+          "disallowed_paths": [
+            "/internal/",
+            "/pricing/"
+          ],
+          "allowed_paths": [
+            "/api/v2/catalog"
+          ],
+          "robots_url": "https://catalog.acme-climate.example.com/robots.txt",
+          "snapshot_hash": "3f2a9c1e7b4d8056a1c3e5f70928bd4c6e1a8f30b7d2c94e5061a3f7c8b2d9e0",
+          "snapshot_at": "2026-07-02T09:14:00Z"
+        },
+        "rights_policy": {
+          "publisher_legal_entity": "Acme Climate Systems (fictional entity; synthetic test data)",
+          "terms_url": "https://catalog.acme-climate.example.com/terms",
+          "license_id": "CC-BY-4.0",
+          "license_text_ref": null,
+          "api_terms_url": "https://catalog.acme-climate.example.com/api-terms",
+          "commercial_use_allowed": true,
+          "redistribution_allowed": true,
+          "derivative_normalization_allowed": true,
+          "attribution": {
+            "required": false,
+            "text": null,
+            "url": null
+          },
+          "images_reusable": false,
+          "personal_data_present": false,
+          "geographic_notes": "Not applicable. Synthetic fixture data authored by the Data Foundry team for pipeline testing; no jurisdiction-specific database right or contractual term attaches to it.",
+          "reviewed_at": "2026-07-02T10:00:00Z",
+          "reviewed_by": "Data Foundry platform team",
+          "next_review_at": "2027-07-02"
+        },
+        "acquisition_policy": {
+          "method": "DIRECT_HTTP",
+          "account_or_product_plan": null,
+          "jurisdiction": null,
+          "approved": true,
+          "approved_by": "Data Foundry platform team",
+          "approved_at": "2026-07-02T10:00:00Z",
+          "max_requests_per_minute": 60,
+          "notes": "Plain HTTPS GET against a documented JSON endpoint. No rendering, no session, no authentication. In the fixture harness this reads fixtures/acme-catalog.json from disk and makes no network call at all."
+        },
+        "image_policy": {
+          "images_reusable": false,
+          "cache_to_r2_permitted": false,
+          "default_display_modes": [],
+          "image_attribution": {
+            "required": false,
+            "text": null,
+            "url": null
+          }
+        },
+        "provenance_retention": {
+          "retain_artifacts": true,
+          "retention_days": null,
+          "legal_hold": false
+        },
+        "license_split": {
+          "code_license_id": null,
+          "data_license_id": "CC-BY-4.0",
+          "notes": "No code is vendored from this source; the licence applies to the feed content only."
+        },
+        "kill_switch_engaged": false,
+        "notes": "The manufacturer feed. Uniquely provides: manufacturer SKU, series name, electrical characteristics (voltage/phase), compressor stage count, and the lifecycle block carrying `replaced_by` — the only source that asserts supersession, and therefore the only source that can answer this vertical's highest-value question. Omits sound level, UPC and certification references entirely. Publishes SEER2 as a marketing figure, which is why fact-selection.yaml prefers the certification directory for that property."
+      },
+      {
+        "key": "acme-spec-sheets",
+        "vertical_slug": "hvac",
+        "publisher": "Acme Climate Systems (SYNTHETIC — fictional publisher)",
+        "domain": "docs.acme-climate.example.com",
+        "source_type": "MANUFACTURER",
+        "authority_rank": 90,
+        "status": "ACTIVE",
+        "refresh_cadence": "QUARTERLY",
+        "rights_classification": "GREEN",
+        "attribution_requirement": {
+          "required": false,
+          "text": null,
+          "url": null
+        },
+        "robots_policy": {
+          "respect_robots": true,
+          "user_agent": "DataFoundryBot",
+          "crawl_delay_seconds": 2,
+          "disallowed_paths": [
+            "/drafts/",
+            "/internal/"
+          ],
+          "allowed_paths": [
+            "/spec-sheets/"
+          ],
+          "robots_url": "https://docs.acme-climate.example.com/robots.txt",
+          "snapshot_hash": "ba0d472f19e8c536a7b13f6048d2ce915a03b7e6c81d4f29307a6be5d1c4082f",
+          "snapshot_at": "2026-07-02T09:31:00Z"
+        },
+        "rights_policy": {
+          "publisher_legal_entity": "Acme Climate Systems (fictional entity; synthetic test data)",
+          "terms_url": "https://docs.acme-climate.example.com/terms",
+          "license_id": "CC-BY-4.0",
+          "license_text_ref": null,
+          "api_terms_url": null,
+          "commercial_use_allowed": true,
+          "redistribution_allowed": true,
+          "derivative_normalization_allowed": true,
+          "attribution": {
+            "required": false,
+            "text": null,
+            "url": null
+          },
+          "images_reusable": true,
+          "personal_data_present": false,
+          "geographic_notes": "Not applicable. Synthetic fixture data authored by the Data Foundry team.",
+          "reviewed_at": "2026-07-02T10:00:00Z",
+          "reviewed_by": "Data Foundry platform team",
+          "next_review_at": "2027-07-02"
+        },
+        "acquisition_policy": {
+          "method": "DIRECT_HTTP",
+          "account_or_product_plan": null,
+          "jurisdiction": null,
+          "approved": true,
+          "approved_by": "Data Foundry platform team",
+          "approved_at": "2026-07-02T10:00:00Z",
+          "max_requests_per_minute": 20,
+          "notes": "Direct HTTPS GET of individual PDF documents linked from model pages. Text-layer extraction only; the fixture PDF is generated with a real text layer so extraction is genuinely exercised rather than stubbed. No OCR path is approved — a scanned spec sheet would be a different acquisition decision with different accuracy characteristics, and would need its own review."
+        },
+        "image_policy": {
+          "images_reusable": true,
+          "cache_to_r2_permitted": true,
+          "default_display_modes": [
+            "THUMBNAIL",
+            "INLINE"
+          ],
+          "image_attribution": {
+            "required": true,
+            "text": "Dimensional drawings © Acme Climate Systems (synthetic test source).",
+            "url": "https://docs.acme-climate.example.com/"
+          }
+        },
+        "provenance_retention": {
+          "retain_artifacts": true,
+          "retention_days": null,
+          "legal_hold": false
+        },
+        "license_split": {
+          "code_license_id": null,
+          "data_license_id": "CC-BY-4.0",
+          "notes": "Document content is licensed; the fixture PDF itself is generated by our own committed script under the repository's own terms."
+        },
+        "kill_switch_engaged": false,
+        "notes": "Engineering spec sheets for the current Acme line (24ACC636A003, 24ACC648A003, 24ACC660A003). Uniquely provides sound level and net weight, and is the only source publishing nominal tonnage and BTU/h side by side — which makes it the reference for validating the 12000 BTU/h = 1 ton conversion rather than trusting it. Covers only three current models: no discontinued units, no other manufacturers, no UPC, no certification reference. Disagrees with coolsupply-distributor on sound level for 24ACC648A003 (72 dB published vs 69 dB listed) and wins on authority, 90 to 45."
+      },
+      {
+        "key": "ahri-directory-export",
+        "vertical_slug": "hvac",
+        "publisher": "Federated HVAC Ratings Council (SYNTHETIC — fictional certification body)",
+        "domain": "ratings-directory.example.org",
+        "source_type": "CERTIFICATION_BODY",
+        "authority_rank": 95,
+        "status": "ACTIVE",
+        "refresh_cadence": "QUARTERLY",
+        "rights_classification": "GREEN",
+        "attribution_requirement": {
+          "required": true,
+          "text": "Certified ratings data from the Federated HVAC Ratings Council directory (synthetic test source).",
+          "url": "https://ratings-directory.example.org/"
+        },
+        "robots_policy": {
+          "respect_robots": true,
+          "user_agent": "DataFoundryBot",
+          "crawl_delay_seconds": null,
+          "disallowed_paths": [],
+          "allowed_paths": [
+            "/exports/"
+          ],
+          "robots_url": "https://ratings-directory.example.org/robots.txt",
+          "snapshot_hash": "51e8a3c7d09b426f8a17c5e304db29f6710c8ba5e42d19f7038c6ea5b91d472f",
+          "snapshot_at": "2026-07-02T09:26:00Z"
+        },
+        "rights_policy": {
+          "publisher_legal_entity": "Federated HVAC Ratings Council (fictional entity; synthetic test data)",
+          "terms_url": "https://ratings-directory.example.org/terms",
+          "license_id": "CC-BY-4.0",
+          "license_text_ref": null,
+          "api_terms_url": null,
+          "commercial_use_allowed": true,
+          "redistribution_allowed": true,
+          "derivative_normalization_allowed": true,
+          "attribution": {
+            "required": true,
+            "text": "Certified ratings data from the Federated HVAC Ratings Council directory (synthetic test source).",
+            "url": "https://ratings-directory.example.org/"
+          },
+          "images_reusable": false,
+          "personal_data_present": false,
+          "geographic_notes": "Not applicable. Synthetic fixture data authored by the Data Foundry team. Recorded because a real ratings directory would carry directory-specific redistribution terms that would need reading before any of this were true.",
+          "reviewed_at": "2026-07-02T10:00:00Z",
+          "reviewed_by": "Data Foundry platform team",
+          "next_review_at": "2027-07-02"
+        },
+        "acquisition_policy": {
+          "method": "BULK_FILE",
+          "account_or_product_plan": null,
+          "jurisdiction": null,
+          "approved": true,
+          "approved_by": "Data Foundry platform team",
+          "approved_at": "2026-07-02T10:00:00Z",
+          "max_requests_per_minute": 5,
+          "notes": "Single direct HTTPS GET of a complete CSV export, no browser and no per-record fetching. Preferring the published bulk file over crawling the directory's search UI is both cheaper and the behaviour the publisher intends. In the fixture harness this reads fixtures/ahri-export.csv from disk."
+        },
+        "image_policy": {
+          "images_reusable": false,
+          "cache_to_r2_permitted": false,
+          "default_display_modes": [],
+          "image_attribution": {
+            "required": false,
+            "text": null,
+            "url": null
+          }
+        },
+        "provenance_retention": {
+          "retain_artifacts": true,
+          "retention_days": null,
+          "legal_hold": false
+        },
+        "license_split": {
+          "code_license_id": null,
+          "data_license_id": "CC-BY-4.0",
+          "notes": "Data licence only; no code is vendored from this source."
+        },
+        "kill_switch_engaged": false,
+        "notes": "The authority for certified performance and the only source spanning all three manufacturers, which makes it the backbone of cross-manufacturer comparison. Uniquely provides the certification reference (`ahri_ref`) and the certified SEER2/EER2/HSPF2 values. Omits electrical data, sound level, weight and UPC entirely. Formats model numbers inconsistently BY MANUFACTURER — spaces for Acme (`24ACC6 36A003`), plain for Northwind, hyphenated for Borealis — which is realistic and is the main workout for identifier normalization. Drops discontinued models from each export, so the gen-1 and gen-2 Acme units in the supersession chain appear in no certification record at all."
+      },
+      {
+        "key": "coolsupply-distributor",
+        "vertical_slug": "hvac",
+        "publisher": "CoolSupply Wholesale (SYNTHETIC — fictional publisher)",
+        "domain": "www.coolsupply.example.com",
+        "source_type": "DISTRIBUTOR",
+        "authority_rank": 45,
+        "status": "ACTIVE",
+        "refresh_cadence": "WEEKLY",
+        "rights_classification": "AMBER",
+        "attribution_requirement": {
+          "required": true,
+          "text": "Listing data courtesy of CoolSupply Wholesale (synthetic test source).",
+          "url": "https://www.coolsupply.example.com/"
+        },
+        "robots_policy": {
+          "respect_robots": true,
+          "user_agent": "DataFoundryBot",
+          "crawl_delay_seconds": 3,
+          "disallowed_paths": [
+            "/cart/",
+            "/account/",
+            "/search",
+            "/checkout/"
+          ],
+          "allowed_paths": [
+            "/products/"
+          ],
+          "robots_url": "https://www.coolsupply.example.com/robots.txt",
+          "snapshot_hash": "8c47b1d0e93f6a25c7104b8ef2d63a915e0c7b48a2f19d63c85074eb3d1a6f92",
+          "snapshot_at": "2026-07-02T09:20:00Z"
+        },
+        "rights_policy": {
+          "publisher_legal_entity": "CoolSupply Wholesale (fictional entity; synthetic test data)",
+          "terms_url": "https://www.coolsupply.example.com/terms-of-use",
+          "license_id": null,
+          "license_text_ref": "fixtures/coolsupply-listing.html",
+          "api_terms_url": null,
+          "commercial_use_allowed": true,
+          "redistribution_allowed": true,
+          "derivative_normalization_allowed": true,
+          "attribution": {
+            "required": true,
+            "text": "Listing data courtesy of CoolSupply Wholesale (synthetic test source).",
+            "url": "https://www.coolsupply.example.com/"
+          },
+          "images_reusable": false,
+          "personal_data_present": false,
+          "geographic_notes": "Not applicable. Synthetic fixture data authored by the Data Foundry team. Noted here because a real distributor catalogue in the EU/UK would raise a sui generis database right question that this synthetic stand-in does not.",
+          "reviewed_at": "2026-07-02T10:00:00Z",
+          "reviewed_by": "Data Foundry platform team",
+          "next_review_at": "2027-01-31"
+        },
+        "acquisition_policy": {
+          "method": "BROWSER_RUN",
+          "account_or_product_plan": null,
+          "jurisdiction": null,
+          "approved": true,
+          "approved_by": "Data Foundry platform team",
+          "approved_at": "2026-07-02T10:00:00Z",
+          "max_requests_per_minute": 15,
+          "notes": "Requires a rendering acquisition adapter (Cloudflare Browser Run or Crawl4AI — swappable, per AGENTS.md rule 6; the registry declares the permitted METHOD, never the vendor). Approval covers rendering public product pages only: no cart, account or search paths, matching the robots snapshot above. Rendering permission is a rights decision, not a technical one — \"we could render it\" is not \"we may render it\"."
+        },
+        "image_policy": {
+          "images_reusable": false,
+          "cache_to_r2_permitted": false,
+          "default_display_modes": [],
+          "image_attribution": {
+            "required": false,
+            "text": null,
+            "url": null
+          }
+        },
+        "provenance_retention": {
+          "retain_artifacts": true,
+          "retention_days": 730,
+          "legal_hold": false
+        },
+        "license_split": {
+          "code_license_id": null,
+          "data_license_id": null,
+          "notes": "No licence is offered by the publisher. Facts are used under the AMBER classification pending business review; the page markup itself is not republished."
+        },
+        "kill_switch_engaged": false,
+        "notes": "The only source of UPCs, and a useful independent corroborator on capacity and refrigerant. Everything it publishes should be treated as re-keyed rather than authoritative: it lists capacity in tons (\"3 Ton\"), lowercases and hyphenates model numbers (`24acc6-36a003`), omits EER2/HSPF2/phase/stage count/weight, and disagrees with the manufacturer's own spec sheet on sound level for 24ACC648A003 (69 dB listed vs 72 dB published). That conflict is intentional and is what exercises authority-weighted fact selection. Its own item numbers (`CS-######`) are deliberately NOT ingested — they are source-scoped inventory codes with no cross-source meaning."
+      }
+    ],
+    "sourceMappings": {
+      "sources": [
+        {
+          "source_key": "acme-hvac-catalog",
+          "format": "json",
+          "locator_type": "JSON_POINTER",
+          "records": [
+            {
+              "stream": "products",
+              "refresh_mode": "full_snapshot",
+              "entity_type": "equipment_model",
+              "record_path": "/products",
+              "source_record_key": "/sku",
+              "aliases": [
+                {
+                  "alias_type": "manufacturer_sku",
+                  "path": "/sku",
+                  "strong": true
+                },
+                {
+                  "alias_type": "model_number",
+                  "path": "/model",
+                  "strong": true
+                },
+                {
+                  "alias_type": "series_name",
+                  "path": "/series",
+                  "strong": false
+                }
+              ],
+              "properties": [
+                {
+                  "property": "product_type",
+                  "path": "/category",
+                  "map_with": "ontology.product_type"
+                },
+                {
+                  "property": "cooling_capacity_btu",
+                  "path": "/cooling_capacity_btuh",
+                  "source_unit": "BTU/h"
+                },
+                {
+                  "property": "seer2",
+                  "path": "/efficiency/seer2"
+                },
+                {
+                  "property": "eer2",
+                  "path": "/efficiency/eer2"
+                },
+                {
+                  "property": "hspf2",
+                  "path": "/efficiency/hspf2",
+                  "optional": true
+                },
+                {
+                  "property": "refrigerant",
+                  "path": "/refrigerant",
+                  "map_with": "ontology.refrigerant"
+                },
+                {
+                  "property": "voltage",
+                  "path": "/electrical",
+                  "extract_with": "notation.electrical_notation",
+                  "emits": "voltage"
+                },
+                {
+                  "property": "phase",
+                  "path": "/electrical",
+                  "extract_with": "notation.electrical_notation",
+                  "emits": "phase"
+                },
+                {
+                  "property": "stage_count",
+                  "path": "/compressor_stages"
+                },
+                {
+                  "property": "weight_lb",
+                  "path": "/net_weight_lb",
+                  "source_unit": "lb"
+                }
+              ],
+              "relationships": [
+                {
+                  "predicate": "manufactures",
+                  "subject_from": "/brand",
+                  "subject_type": "manufacturer",
+                  "subject_resolve_with": "publisher_aliases",
+                  "object_from": "/model",
+                  "object_type": "equipment_model"
+                },
+                {
+                  "predicate": "supersedes",
+                  "subject_from": "/lifecycle/replaced_by",
+                  "subject_type": "equipment_model",
+                  "object_from": "/model",
+                  "object_type": "equipment_model",
+                  "skip_when_null": "subject",
+                  "description": "The only supersession assertion in the entire source set. No other source publishes replacement data, which is precisely why this vertical is worth building."
+                }
+              ],
+              "excluded_fields": [
+                {
+                  "path": "/list_price_usd",
+                  "reason": "Pricing is volatile, source-specific and commercially sensitive. It is not a durable product fact and republishing it raises rights questions the fact model does not answer."
+                },
+                {
+                  "path": "/image_url",
+                  "reason": "AGENTS.md rule 9. Recorded as a media_asset with its URL and rights status; NOT cached to R2, because this source's image_policy sets images_reusable false."
+                },
+                {
+                  "path": "/lifecycle/status",
+                  "reason": "No canonical property exists for lifecycle state in the agreed vocabulary, and the graph already encodes it: a model with an inbound `supersedes` edge is superseded. Adding a `lifecycle_status` property would duplicate that as a denormalized fact that can drift out of agreement with the edge. See CHANGELOG.md \"Proposed vocabulary additions\"."
+                },
+                {
+                  "path": "/lifecycle/discontinued_on",
+                  "reason": "Same. The date belongs on the `supersedes` edge as its `valid_from`, where it is already carried, rather than as a property of the model."
+                },
+                {
+                  "path": "/feed",
+                  "reason": "Feed-level metadata; recorded on the artifact, not as entity facts."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "source_key": "coolsupply-distributor",
+          "format": "html",
+          "locator_type": "CSS_SELECTOR",
+          "requires_rendering": true,
+          "records": [
+            {
+              "stream": "product_cards",
+              "refresh_mode": "full_snapshot",
+              "entity_type": "equipment_model",
+              "record_path": ".product-card",
+              "source_record_key": "[data-item]",
+              "aliases": [
+                {
+                  "alias_type": "model_number",
+                  "path": ".spec-mfr-part",
+                  "strong": true
+                },
+                {
+                  "alias_type": "upc",
+                  "path": ".spec-upc",
+                  "strong": true
+                }
+              ],
+              "properties": [
+                {
+                  "property": "product_type",
+                  "path": ".product-title",
+                  "extract": "regex",
+                  "pattern": "(Condenser|Heat Pump|Air Conditioner)",
+                  "map_with": "ontology.product_type"
+                },
+                {
+                  "property": "nominal_tonnage",
+                  "path": ".spec-capacity",
+                  "extract_with": "notation.capacity_with_unit_suffix",
+                  "source_unit": "ton"
+                },
+                {
+                  "property": "seer2",
+                  "path": ".spec-seer2"
+                },
+                {
+                  "property": "refrigerant",
+                  "path": ".spec-refrigerant",
+                  "map_with": "ontology.refrigerant"
+                },
+                {
+                  "property": "sound_level_db",
+                  "path": ".spec-sound",
+                  "extract_with": "notation.measurement_with_unit_suffix",
+                  "source_unit": "dB"
+                }
+              ],
+              "relationships": [
+                {
+                  "predicate": "manufactures",
+                  "subject_from": ".spec-brand",
+                  "subject_type": "manufacturer",
+                  "subject_resolve_with": "publisher_aliases",
+                  "object_from": ".spec-mfr-part",
+                  "object_type": "equipment_model"
+                }
+              ],
+              "excluded_fields": [
+                {
+                  "path": ".spec-item-no",
+                  "reason": "The distributor's own inventory code (`CS-######`). Source-scoped with no cross-source meaning — it is NOT a manufacturer SKU and recording it as one would attach a distributor's numbering to the manufacturer's identity."
+                },
+                {
+                  "path": ".spec-price",
+                  "reason": "Pricing. See acme-hvac-catalog."
+                },
+                {
+                  "path": "script",
+                  "reason": "Hydration payload; not source content."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "source_key": "ahri-directory-export",
+          "format": "csv",
+          "locator_type": "TABLE_CELL",
+          "parsing": {
+            "delimiter": ",",
+            "header_row": true,
+            "skip_lines_matching": "^#",
+            "encoding": "utf-8"
+          },
+          "records": [
+            {
+              "stream": "certifications",
+              "refresh_mode": "full_snapshot",
+              "entity_type": "certification",
+              "source_record_key": "AHRI Certified Reference Number",
+              "aliases": [
+                {
+                  "alias_type": "ahri_ref",
+                  "path": "AHRI Certified Reference Number",
+                  "strong": true
+                }
+              ],
+              "properties": [
+                {
+                  "property": "product_type",
+                  "path": "Equipment Type",
+                  "map_with": "ontology.product_type"
+                },
+                {
+                  "property": "cooling_capacity_btu",
+                  "path": "Cooling Capacity (BTUh)",
+                  "source_unit": "BTU/h"
+                },
+                {
+                  "property": "seer2",
+                  "path": "SEER2"
+                },
+                {
+                  "property": "eer2",
+                  "path": "EER2"
+                },
+                {
+                  "property": "hspf2",
+                  "path": "HSPF2",
+                  "optional": true
+                },
+                {
+                  "property": "refrigerant",
+                  "path": "Refrigerant",
+                  "map_with": "ontology.refrigerant"
+                }
+              ]
+            },
+            {
+              "stream": "certified_models",
+              "refresh_mode": "full_snapshot",
+              "entity_type": "equipment_model",
+              "source_record_key": "Outdoor Unit Model Number",
+              "aliases": [
+                {
+                  "alias_type": "model_number",
+                  "path": "Outdoor Unit Model Number",
+                  "strong": true
+                },
+                {
+                  "alias_type": "ahri_ref",
+                  "path": "AHRI Certified Reference Number",
+                  "strong": true
+                }
+              ],
+              "properties": [
+                {
+                  "property": "product_type",
+                  "path": "Equipment Type",
+                  "map_with": "ontology.product_type"
+                },
+                {
+                  "property": "cooling_capacity_btu",
+                  "path": "Cooling Capacity (BTUh)",
+                  "source_unit": "BTU/h"
+                },
+                {
+                  "property": "seer2",
+                  "path": "SEER2"
+                },
+                {
+                  "property": "eer2",
+                  "path": "EER2"
+                },
+                {
+                  "property": "hspf2",
+                  "path": "HSPF2",
+                  "optional": true
+                },
+                {
+                  "property": "refrigerant",
+                  "path": "Refrigerant",
+                  "map_with": "ontology.refrigerant"
+                }
+              ],
+              "relationships": [
+                {
+                  "predicate": "manufactures",
+                  "subject_from": "Manufacturer",
+                  "subject_type": "manufacturer",
+                  "subject_resolve_with": "publisher_aliases",
+                  "object_from": "Outdoor Unit Model Number",
+                  "object_type": "equipment_model"
+                },
+                {
+                  "predicate": "certified_by",
+                  "subject_from": "Outdoor Unit Model Number",
+                  "subject_type": "equipment_model",
+                  "object_from": "AHRI Certified Reference Number",
+                  "object_type": "certification",
+                  "valid_from": "Effective Date"
+                }
+              ]
+            }
+          ],
+          "excluded_fields": [
+            {
+              "path": "Brand",
+              "reason": "A marketing brand under the same manufacturer. Resolved as a manufacturer alias rather than stored as a fact; treating it as a separate value would split one company into two entities."
+            },
+            {
+              "path": "Certification Status",
+              "reason": "Every row in the export is Active — discontinued models are dropped from each quarterly file. A single-valued column cannot discriminate anything, and the absence of a model from a later export is the real signal. Recorded on the artifact instead."
+            }
+          ]
+        },
+        {
+          "source_key": "acme-spec-sheets",
+          "format": "pdf",
+          "locator_type": "PAGE",
+          "parsing": {
+            "mode": "text_layer",
+            "record_per": "page",
+            "extract": "label_value",
+            "label_value_separator": "horizontal_position"
+          },
+          "records": [
+            {
+              "stream": "spec_pages",
+              "refresh_mode": "full_snapshot",
+              "entity_type": "equipment_model",
+              "source_record_key": "page_heading",
+              "aliases": [
+                {
+                  "alias_type": "model_number",
+                  "path": "page_heading",
+                  "extract": "regex",
+                  "pattern": "^([A-Z0-9]{6,32})$",
+                  "strong": true
+                },
+                {
+                  "alias_type": "series_name",
+                  "path": "page_subheading",
+                  "extract": "regex",
+                  "pattern": "^(.+?)\\s+—\\s+",
+                  "strong": false
+                }
+              ],
+              "properties": [
+                {
+                  "property": "product_type",
+                  "path": "page_subheading",
+                  "extract": "regex",
+                  "pattern": "—\\s+(.+)$",
+                  "map_with": "ontology.product_type"
+                },
+                {
+                  "property": "nominal_tonnage",
+                  "label": "Nominal Capacity",
+                  "extract_with": "notation.capacity_with_unit_suffix",
+                  "source_unit": "ton"
+                },
+                {
+                  "property": "cooling_capacity_btu",
+                  "label": "Cooling Capacity",
+                  "extract_with": "notation.capacity_with_unit_suffix",
+                  "source_unit": "BTU/h",
+                  "description": "This source publishes tonnage AND BTU/h on the same page, which is what lets `capacity_tonnage_consistency` validate the 12000 BTU/h = 1 ton conversion against published data instead of trusting it."
+                },
+                {
+                  "property": "refrigerant",
+                  "label": "Refrigerant",
+                  "map_with": "ontology.refrigerant"
+                },
+                {
+                  "property": "voltage",
+                  "label": "Electrical (V-Ph-Hz)",
+                  "extract_with": "notation.electrical_notation",
+                  "emits": "voltage"
+                },
+                {
+                  "property": "phase",
+                  "label": "Electrical (V-Ph-Hz)",
+                  "extract_with": "notation.electrical_notation",
+                  "emits": "phase"
+                },
+                {
+                  "property": "stage_count",
+                  "label": "Compressor Stages"
+                },
+                {
+                  "property": "sound_level_db",
+                  "label": "Sound Level",
+                  "extract_with": "notation.measurement_with_unit_suffix",
+                  "source_unit": "dB"
+                },
+                {
+                  "property": "weight_lb",
+                  "label": "Net Weight",
+                  "extract_with": "notation.measurement_with_unit_suffix",
+                  "source_unit": "lb"
+                }
+              ],
+              "relationships": [
+                {
+                  "predicate": "manufactures",
+                  "subject_literal": "Acme Climate Systems",
+                  "subject_type": "manufacturer",
+                  "subject_resolve_with": "publisher_aliases",
+                  "object_from": "page_heading",
+                  "object_type": "equipment_model",
+                  "description": "The publisher is the manufacturer, so the subject is a literal rather than an extracted field. Declared explicitly so the edge still carries evidence (the document itself) rather than being inferred silently."
+                }
+              ],
+              "excluded_fields": [
+                {
+                  "path": "footer_disclaimer",
+                  "reason": "Boilerplate, present on every page; not a product fact."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "factSelection": {
+      "strategy": [
+        "editorial_override",
+        "authoritative_source",
+        "field_reliability",
+        "corroboration",
+        "recency",
+        "consistency_check"
+      ],
+      "authoritative_by_property": {
+        "seer2": {
+          "prefer_source_types": [
+            "CERTIFICATION_BODY",
+            "STANDARDS_BODY",
+            "REGULATORY_FILING"
+          ],
+          "rationale": "Certification and standards sources can report comparable test-procedure measurements. A regulatory filing is instead a manufacturer-reported value held by a regulator; it is not certification. All listed types enter the authority membership set, with conflicts resolved by source-specific field reliability or authority rank. Manufacturer marketing pages are excluded."
+        },
+        "eer2": {
+          "prefer_source_types": [
+            "CERTIFICATION_BODY",
+            "STANDARDS_BODY",
+            "REGULATORY_FILING"
+          ],
+          "rationale": "Same test-procedure argument as seer2, and the same filing caveat."
+        },
+        "hspf2": {
+          "prefer_source_types": [
+            "CERTIFICATION_BODY",
+            "STANDARDS_BODY",
+            "REGULATORY_FILING"
+          ],
+          "rationale": "Same test-procedure argument as seer2, and the same filing caveat."
+        },
+        "cooling_capacity_btu": {
+          "prefer_source_types": [
+            "CERTIFICATION_BODY",
+            "REGULATORY_FILING",
+            "MANUFACTURER"
+          ],
+          "rationale": "Certification, filing and manufacturer sources can each provide a primary capacity claim. They are equal at criterion 1; source-specific reliability or authority rank resolves any disagreement. Distributors are excluded: their capacity is usually inferred from the model number."
+        },
+        "sound_level_db": {
+          "prefer_source_types": [
+            "MANUFACTURER"
+          ],
+          "rationale": "No certification body in scope rates sound. The manufacturer's published spec sheet is the only primary measurement; everything else is a copy of it, and copies acquire errors."
+        },
+        "weight_lb": {
+          "prefer_source_types": [
+            "MANUFACTURER"
+          ],
+          "rationale": "Physical property, measured by whoever builds it."
+        },
+        "voltage": {
+          "prefer_source_types": [
+            "MANUFACTURER"
+          ],
+          "rationale": "Electrical characteristics come from the nameplate."
+        },
+        "phase": {
+          "prefer_source_types": [
+            "MANUFACTURER"
+          ],
+          "rationale": "Electrical characteristics come from the nameplate."
+        },
+        "stage_count": {
+          "prefer_source_types": [
+            "MANUFACTURER"
+          ],
+          "rationale": "A design characteristic, known only to the manufacturer."
+        },
+        "refrigerant": {
+          "prefer_source_types": [
+            "MANUFACTURER",
+            "CERTIFICATION_BODY",
+            "REGULATORY_FILING"
+          ],
+          "rationale": "All listed source types can provide a primary refrigerant claim and rarely disagree. Where they do, it usually signals a mid-production refrigerant change and should be escalated rather than silently resolved — see `escalate_on_conflict` below."
+        },
+        "product_type": {
+          "prefer_source_types": [
+            "CERTIFICATION_BODY",
+            "REGULATORY_FILING",
+            "MANUFACTURER"
+          ],
+          "rationale": "Each listed source can supply a primary product classification. They are equal at criterion 1; source-specific reliability or authority rank resolves taxonomy disagreements across publishers."
+        },
+        "nominal_tonnage": {
+          "prefer_source_types": [
+            "MANUFACTURER",
+            "CERTIFICATION_BODY",
+            "REGULATORY_FILING"
+          ],
+          "prefer_direct_over_derived": true,
+          "rationale": "Tonnage and capacity are the same measurement in different units, so the authoritative source is whoever published the capacity. The one real rule is that a stated value beats a computed one."
+        }
+      },
+      "field_reliability": {
+        "coolsupply-distributor": {
+          "upc": {
+            "reliability": 0.95,
+            "note": "The only source of UPCs, and barcodes are transcribed from the carton rather than re-keyed from a spec table. Checksum-validated on ingest."
+          },
+          "sound_level_db": {
+            "reliability": 0.3,
+            "note": "Demonstrably unreliable — the 69 dB listing for 24ACC648A003 contradicts the manufacturer's published 72 dB. Kept as a corroborating signal only."
+          },
+          "seer2": {
+            "reliability": 0.45,
+            "note": "Repeats manufacturer marketing figures rather than certified ratings."
+          }
+        },
+        "acme-hvac-catalog": {
+          "seer2": {
+            "reliability": 0.6,
+            "note": "Nominal/marketing figure. Reliable as a statement of what the manufacturer claims; not as a statement of certified performance."
+          },
+          "supersedes": {
+            "reliability": 1,
+            "note": "A manufacturer is the only possible authority on its own product line."
+          }
+        },
+        "acme-spec-sheets": {
+          "sound_level_db": {
+            "reliability": 0.95,
+            "note": "Primary published measurement."
+          }
+        }
+      },
+      "recency": {
+        "applies_within_authority_band": 10,
+        "prefer": "newest_observed_at"
+      },
+      "corroboration": {
+        "bonus_per_agreeing_source": 0.05,
+        "max_bonus": 0.15,
+        "affects_selection": false,
+        "independent_source_groups": [
+          [
+            "acme-hvac-catalog",
+            "acme-spec-sheets"
+          ],
+          [
+            "coolsupply-distributor"
+          ],
+          [
+            "ahri-directory-export"
+          ]
+        ],
+        "non_independent_pairs": [
+          {
+            "sources": [
+              "acme-hvac-catalog",
+              "coolsupply-distributor"
+            ],
+            "reason": "The distributor's spec table is transcribed from the manufacturer's published data. Their agreement on seer2 = 14.5 in Conflict A is one claim counted twice, not two independent confirmations."
+          }
+        ]
+      },
+      "consistency_checks": [
+        {
+          "id": "capacity_matches_tonnage",
+          "properties": [
+            "cooling_capacity_btu",
+            "nominal_tonnage"
+          ],
+          "expression": "cooling_capacity_btu == nominal_tonnage * 12000",
+          "tolerance": 0.005,
+          "on_failure": "demote_lower_authority_claim"
+        },
+        {
+          "id": "seer2_above_eer2",
+          "properties": [
+            "seer2",
+            "eer2"
+          ],
+          "expression": "seer2 > eer2",
+          "on_failure": "flag_for_review"
+        },
+        {
+          "id": "certified_capacity_matches_model",
+          "description": "A certification whose capacity disagrees with the model's means the model number resolved to the wrong entity. Never resolve this by picking a value — break the join and escalate.",
+          "properties": [
+            "cooling_capacity_btu"
+          ],
+          "across": "certified_by",
+          "tolerance": 0.02,
+          "on_failure": "escalate"
+        }
+      ],
+      "editorial_override": {
+        "enabled": true,
+        "requires_reason": true,
+        "requires_reviewer": true,
+        "note": "An override is a fact with its own evidence — a named human and a written reason — not a magic value. An entry missing either is ignored entirely; it does not quietly demote itself to a tiebreaker. Two entries competing for one property cancel out and the ordinary criteria decide instead.",
+        "overrides": []
+      },
+      "conflict_policy": {
+        "retain_losing_claims": true,
+        "losing_status": "SUPERSEDED",
+        "unresolved_status": "DISPUTED",
+        "numeric_tolerance": 0.02,
+        "disputed_blocks_indexing": true,
+        "surface_conflicts_in_api": true,
+        "surface_conflicts_in_mcp": true,
+        "escalate_on_conflict": [
+          "refrigerant",
+          "product_type"
+        ],
+        "record_selection_reason": true
+      }
+    },
+    "typedValues": {
+      "layer": "typed_values",
+      "number_parsing": {
+        "decimal_separator": ".",
+        "thousands_separators": [
+          ",",
+          " "
+        ],
+        "strip_trailing_units": true,
+        "reject_on_ambiguity": true
+      },
+      "datetime_parsing": {
+        "output_date_format": "iso8601_date",
+        "output_datetime_format": "iso8601_utc",
+        "retain_source_timezone": true,
+        "accepted_formats": [
+          "YYYY-MM-DD",
+          "MM/DD/YYYY"
+        ]
+      },
+      "boolean_parsing": {
+        "true_tokens": [
+          "true",
+          "yes",
+          "y",
+          "1"
+        ],
+        "false_tokens": [
+          "false",
+          "no",
+          "n",
+          "0"
+        ],
+        "case_sensitive": false
+      },
+      "unit_conversions": [
+        {
+          "canonical_unit": "BTU/h",
+          "aliases": [
+            "btuh",
+            "btu/h",
+            "btu/hr",
+            "btu_h",
+            "BTUh",
+            "BTU/hr",
+            "Btuh"
+          ],
+          "convert_from": [
+            {
+              "unit": "ton",
+              "aliases": [
+                "tons",
+                "tonnage",
+                "TR",
+                "ton of refrigeration"
+              ],
+              "factor": 12000,
+              "exact": true,
+              "note": "Exact by definition: one refrigeration ton is 12000 BTU/h. Not an approximation and not rounded — an inexact factor here would make the capacity/tonnage consistency check fail on correct data."
+            },
+            {
+              "unit": "kW",
+              "aliases": [
+                "kilowatt",
+                "kilowatts"
+              ],
+              "factor": 3412.142,
+              "exact": false,
+              "note": "Approximate. No current source publishes kW; declared for completeness."
+            }
+          ]
+        },
+        {
+          "canonical_unit": "ton",
+          "aliases": [
+            "tons",
+            "tonnage",
+            "TR"
+          ],
+          "convert_from": [
+            {
+              "unit": "BTU/h",
+              "aliases": [
+                "btuh",
+                "btu/h",
+                "btu/hr",
+                "BTUh"
+              ],
+              "factor": 0.000083333333333,
+              "exact": true,
+              "note": "The exact reciprocal of 12000. Implementations should divide by 12000 rather than multiply by this decimal, which is written out only so the declaration is self-describing."
+            }
+          ]
+        },
+        {
+          "canonical_unit": "lb",
+          "aliases": [
+            "lbs",
+            "pound",
+            "pounds"
+          ],
+          "convert_from": [
+            {
+              "unit": "kg",
+              "aliases": [
+                "kilogram",
+                "kilograms"
+              ],
+              "factor": 2.20462262,
+              "exact": false
+            }
+          ]
+        },
+        {
+          "canonical_unit": "V",
+          "aliases": [
+            "volt",
+            "volts",
+            "vac"
+          ],
+          "convert_from": []
+        },
+        {
+          "canonical_unit": "dB",
+          "aliases": [
+            "db",
+            "dba",
+            "dB(A)",
+            "decibel",
+            "decibels"
+          ],
+          "convert_from": [],
+          "note": "dB and dB(A) are treated as the same canonical unit here because every source in this vertical publishes A-weighted sound ratings while labelling them inconsistently. If a source ever publishes unweighted dB this collapse becomes wrong and must be split."
+        }
+      ],
+      "derived_properties": [
+        {
+          "property": "nominal_tonnage",
+          "from": "cooling_capacity_btu",
+          "op": "divide",
+          "operand": 12000,
+          "round_to": 2,
+          "only_if_absent": true,
+          "evidence": "derived",
+          "description": "Fills tonnage for acme-hvac-catalog and ahri-directory-export, which publish BTU/h only."
+        },
+        {
+          "property": "cooling_capacity_btu",
+          "from": "nominal_tonnage",
+          "op": "multiply",
+          "operand": 12000,
+          "round_to": 0,
+          "only_if_absent": true,
+          "evidence": "derived",
+          "description": "Fills BTU/h for coolsupply-distributor, which publishes \"3 Ton\" and nothing else."
+        }
+      ],
+      "range_policy": {
+        "voltage": {
+          "strategy": "take_lower",
+          "retain_full_range_as_source_value": true
+        }
+      }
+    },
+    "domainNormalization": {
+      "layer": "domain_normalization",
+      "identifier_rules": [
+        {
+          "alias_type": "model_number",
+          "strong": true,
+          "retain_source_form": true,
+          "description": "Uppercase and strip every separator. Deliberately aggressive: no source in this vertical uses separators meaningfully, so discarding them costs nothing and collapses all four observed spellings onto one key.",
+          "ops": [
+            {
+              "op": "uppercase"
+            },
+            {
+              "op": "strip_characters",
+              "characters": "-_. /\\"
+            },
+            {
+              "op": "strip_whitespace"
+            }
+          ],
+          "validate": {
+            "min_length": 6,
+            "max_length": 32,
+            "pattern": "^[A-Z0-9]+$",
+            "on_failure": "quarantine"
+          }
+        },
+        {
+          "alias_type": "ahri_ref",
+          "strong": true,
+          "retain_source_form": true,
+          "description": "Certification reference. Sources write it bare (`20134501`) or prefixed (`AHRI 20134501`, `AHRI-20134501`); the digits are the identity.",
+          "ops": [
+            {
+              "op": "uppercase"
+            },
+            {
+              "op": "strip_prefix",
+              "prefixes": [
+                "AHRI",
+                "AHRI-",
+                "AHRI "
+              ]
+            },
+            {
+              "op": "strip_characters",
+              "characters": "-_. /"
+            },
+            {
+              "op": "strip_whitespace"
+            }
+          ],
+          "validate": {
+            "min_length": 6,
+            "max_length": 16,
+            "pattern": "^[0-9]+$",
+            "on_failure": "quarantine"
+          }
+        },
+        {
+          "alias_type": "manufacturer_sku",
+          "strong": true,
+          "scoped_to": "manufacturer",
+          "retain_source_form": true,
+          "description": "Manufacturer ordering SKU. Hyphens are RETAINED here, unlike model numbers: `ACS-24ACC636A003` is a structured code whose prefix identifies the manufacturer, and flattening it would discard that.",
+          "ops": [
+            {
+              "op": "uppercase"
+            },
+            {
+              "op": "collapse_whitespace"
+            },
+            {
+              "op": "strip_whitespace"
+            }
+          ],
+          "validate": {
+            "min_length": 3,
+            "max_length": 64,
+            "pattern": "^[A-Z0-9][A-Z0-9-]*$",
+            "on_failure": "quarantine"
+          }
+        },
+        {
+          "alias_type": "upc",
+          "strong": true,
+          "retain_source_form": true,
+          "description": "Retail barcode, digits only, left-padded to 12. Supplied exclusively by coolsupply-distributor — a low-authority source holding a high-precision identifier, which is a good argument for keeping low-authority sources.",
+          "ops": [
+            {
+              "op": "strip_non_digits"
+            },
+            {
+              "op": "left_pad",
+              "length": 12,
+              "character": "0"
+            }
+          ],
+          "validate": {
+            "min_length": 12,
+            "max_length": 14,
+            "pattern": "^[0-9]{12,14}$",
+            "checksum": "upc_mod10",
+            "on_failure": "quarantine"
+          }
+        },
+        {
+          "alias_type": "series_name",
+          "strong": false,
+          "retain_source_form": true,
+          "description": "Marketing series. Narrows candidates; never asserts identity.",
+          "ops": [
+            {
+              "op": "collapse_whitespace"
+            },
+            {
+              "op": "strip_whitespace"
+            },
+            {
+              "op": "title_case"
+            }
+          ],
+          "validate": {
+            "min_length": 2,
+            "max_length": 120,
+            "on_failure": "keep_unvalidated"
+          }
+        }
+      ],
+      "publisher_aliases": {
+        "acme-climate-systems": {
+          "canonical_name": "Acme Climate Systems",
+          "aliases": [
+            "Acme Climate Systems",
+            "Acme",
+            "ACME",
+            "ACS"
+          ],
+          "match": "case_insensitive_exact"
+        },
+        "northwind-air-systems": {
+          "canonical_name": "Northwind Air Systems",
+          "aliases": [
+            "Northwind Air Systems",
+            "Northwind",
+            "NAS"
+          ],
+          "match": "case_insensitive_exact"
+        },
+        "borealis-thermal-works": {
+          "canonical_name": "Borealis Thermal Works",
+          "aliases": [
+            "Borealis Thermal Works",
+            "Borealis",
+            "BTW"
+          ],
+          "match": "case_insensitive_exact"
+        }
+      },
+      "unknown_publisher_policy": "quarantine",
+      "notation_rules": [
+        {
+          "id": "electrical_notation",
+          "description": "\"208/230-1-60\" is voltage-range / phase / frequency. Splits into two canonical properties; frequency is deliberately not modelled (see `excluded` below) because every unit in scope is 60 Hz and a property with one value cannot filter anything.",
+          "applies_to_source_field": "electrical",
+          "pattern": "^(?<v_low>\\d{2,3})(?:/(?<v_high>\\d{2,3}))?-(?<phase>\\d)-(?<hz>\\d{2})$",
+          "emits": [
+            {
+              "property": "voltage",
+              "from": "v_low",
+              "value_type": "number",
+              "unit": "V"
+            },
+            {
+              "property": "phase",
+              "from": "phase",
+              "value_type": "number",
+              "unit": null
+            }
+          ],
+          "excluded": [
+            {
+              "capture": "hz",
+              "reason": "Frequency is 60 Hz for every unit in scope. Modelling it would add a fact to every entity that no query could ever discriminate on."
+            },
+            {
+              "capture": "v_high",
+              "reason": "Retained in fact_evidence.source_value as part of the full original notation, so the dual rating is recoverable without being a second fact."
+            }
+          ],
+          "on_no_match": "quarantine"
+        },
+        {
+          "id": "capacity_with_unit_suffix",
+          "description": "\"3 Ton\", \"36,000 BTU/h\", \"4.0 Tons\" — a number and its unit in one cell. The unit decides which canonical property receives the value; the other is then filled by the derived_properties rules in Layer 2.",
+          "pattern": "^(?<value>[0-9][0-9,.]*)\\s*(?<unit>[A-Za-z/()]+)$",
+          "routes": [
+            {
+              "when_unit_matches": [
+                "ton",
+                "tons",
+                "tonnage"
+              ],
+              "property": "nominal_tonnage"
+            },
+            {
+              "when_unit_matches": [
+                "btu/h",
+                "btuh",
+                "btu/hr",
+                "btuh"
+              ],
+              "property": "cooling_capacity_btu"
+            }
+          ],
+          "on_no_match": "quarantine"
+        },
+        {
+          "id": "measurement_with_unit_suffix",
+          "description": "\"72 dB\", \"187 lb\" — strip the suffix, keep the unit for validation.",
+          "pattern": "^(?<value>[0-9][0-9,.]*)\\s*(?<unit>[A-Za-z()]+)$",
+          "routes": [
+            {
+              "when_unit_matches": [
+                "db",
+                "dba",
+                "db(a)"
+              ],
+              "property": "sound_level_db"
+            },
+            {
+              "when_unit_matches": [
+                "lb",
+                "lbs",
+                "pound",
+                "pounds"
+              ],
+              "property": "weight_lb"
+            }
+          ],
+          "on_no_match": "quarantine"
+        }
+      ]
+    },
+    "ontology": {
+      "layer": "ontology_mapping",
+      "unmapped_term_policy": "quarantine",
+      "controlled_vocabularies": [
+        {
+          "property": "product_type",
+          "description": "Equipment category. Sources describe the same box as a \"Condenser\", an \"Air Conditioner\" and a \"Split System Air Conditioner\" — one canonical term, because a filter with three synonymous options is a broken filter.",
+          "terms": [
+            {
+              "canonical": "air_conditioner",
+              "label": "Air Conditioner",
+              "match": "case_insensitive_exact",
+              "synonyms": [
+                "Air Conditioner",
+                "Air Conditioning",
+                "Split System Air Conditioner",
+                "Split System AC",
+                "Condenser",
+                "Condensing Unit",
+                "AC",
+                "A/C"
+              ]
+            },
+            {
+              "canonical": "heat_pump",
+              "label": "Heat Pump",
+              "match": "case_insensitive_exact",
+              "synonyms": [
+                "Heat Pump",
+                "Split System Heat Pump",
+                "Heat Pump Condenser",
+                "HP"
+              ]
+            },
+            {
+              "canonical": "gas_furnace",
+              "label": "Gas Furnace",
+              "match": "case_insensitive_exact",
+              "synonyms": [
+                "Gas Furnace",
+                "Furnace",
+                "Gas Fired Furnace"
+              ]
+            },
+            {
+              "canonical": "air_handler",
+              "label": "Air Handler",
+              "match": "case_insensitive_exact",
+              "synonyms": [
+                "Air Handler",
+                "Air Handling Unit",
+                "AHU",
+                "Fan Coil"
+              ]
+            },
+            {
+              "canonical": "packaged_unit",
+              "label": "Packaged Unit",
+              "match": "case_insensitive_exact",
+              "synonyms": [
+                "Packaged Unit",
+                "Package Unit",
+                "Rooftop Unit",
+                "RTU"
+              ]
+            }
+          ],
+          "excluded": [
+            {
+              "term": "Mini Split",
+              "reason": "Ductless systems are a genuinely different product class with different identity and compatibility rules. Mapping them onto air_conditioner would put incomparable equipment in the same filter. They need their own canonical term when the vertical expands, and that is a schema_version bump, not a synonym."
+            }
+          ]
+        },
+        {
+          "property": "refrigerant",
+          "description": "Normalized to ASHRAE hyphenated form. Commercially load-bearing: the A2L transition means refrigerant type decides whether a replacement is a drop-in or a system change, so `R410A` and `R-410A` colliding as separate filter values would break the single most important compatibility question in the vertical.",
+          "terms": [
+            {
+              "canonical": "R-410A",
+              "label": "R-410A",
+              "match": "case_insensitive_exact",
+              "synonyms": [
+                "R410A",
+                "R-410A",
+                "410A",
+                "R 410A",
+                "Puron"
+              ]
+            },
+            {
+              "canonical": "R-454B",
+              "label": "R-454B",
+              "match": "case_insensitive_exact",
+              "synonyms": [
+                "R454B",
+                "R-454B",
+                "454B",
+                "R 454B"
+              ]
+            },
+            {
+              "canonical": "R-32",
+              "label": "R-32",
+              "match": "case_insensitive_exact",
+              "synonyms": [
+                "R32",
+                "R-32",
+                "32"
+              ]
+            },
+            {
+              "canonical": "R-22",
+              "label": "R-22",
+              "match": "case_insensitive_exact",
+              "synonyms": [
+                "R22",
+                "R-22",
+                "22",
+                "Freon"
+              ]
+            }
+          ],
+          "excluded": [
+            {
+              "term": "Refrigerant",
+              "reason": "A category label, not a designation. Extraction artifact."
+            }
+          ]
+        }
+      ],
+      "source_wording": {
+        "retain_in_evidence": true,
+        "include_in_search_index": true,
+        "display_as_canonical": false
+      }
+    },
+    "filters": {
+      "defaults": {
+        "robots": "noindex,follow",
+        "facet_count": true,
+        "sort": false,
+        "search_boost": 0,
+        "indexable": false
+      },
+      "fields": [
+        {
+          "field": "product_type",
+          "label": "Equipment category",
+          "entity_type": "equipment_model",
+          "value_type": "string",
+          "unit": null,
+          "filter": {
+            "type": "multi_select",
+            "facet_count": true,
+            "options": [
+              "air_conditioner",
+              "heat_pump",
+              "gas_furnace",
+              "air_handler",
+              "packaged_unit"
+            ]
+          },
+          "sort": false,
+          "search_boost": 0.6,
+          "indexable": true,
+          "seo": {
+            "indexable": true,
+            "min_results": 10,
+            "demand_threshold": 0.7
+          },
+          "rationale": "The primary category split, and a genuine search intent in its own right (\"3 ton heat pump\"). Low cardinality, high demand, no duplication risk."
+        },
+        {
+          "field": "nominal_tonnage",
+          "label": "Nominal tonnage",
+          "entity_type": "equipment_model",
+          "value_type": "number",
+          "unit": "ton",
+          "filter": {
+            "type": "multi_select",
+            "facet_count": true,
+            "options": [
+              1.5,
+              2,
+              2.5,
+              3,
+              3.5,
+              4,
+              5
+            ]
+          },
+          "sort": true,
+          "search_boost": 0.8,
+          "indexable": true,
+          "seo": {
+            "indexable": true,
+            "min_results": 10,
+            "demand_threshold": 0.8
+          },
+          "rationale": "The unit the trade actually searches in. \"3 ton air conditioner\" is a high-intent commercial query; \"36000 BTU air conditioner\" is not, even though they are the same filter."
+        },
+        {
+          "field": "cooling_capacity_btu",
+          "label": "Cooling capacity",
+          "entity_type": "equipment_model",
+          "value_type": "number",
+          "unit": "BTU/h",
+          "filter": {
+            "type": "range",
+            "facet_count": true,
+            "buckets": [
+              {
+                "label": "Under 24,000 BTU/h",
+                "lt": 24000
+              },
+              {
+                "label": "24,000-35,999 BTU/h",
+                "gte": 24000,
+                "lt": 36000
+              },
+              {
+                "label": "36,000-47,999 BTU/h",
+                "gte": 36000,
+                "lt": 48000
+              },
+              {
+                "label": "48,000-59,999 BTU/h",
+                "gte": 48000,
+                "lt": 60000
+              },
+              {
+                "label": "60,000 BTU/h and above",
+                "gte": 60000
+              }
+            ]
+          },
+          "sort": true,
+          "search_boost": 0.4,
+          "indexable": false,
+          "seo": {
+            "indexable": false,
+            "reason": "Filtering on BTU/h returns the SAME set as filtering on tonnage — they are one measurement in two units. Indexing both would create a near-duplicate page for every capacity. The tonnage facet is indexable; this one is UI and API only."
+          },
+          "rationale": "Essential for engineering-precise API queries; redundant for SEO."
+        },
+        {
+          "field": "seer2",
+          "label": "SEER2",
+          "entity_type": "equipment_model",
+          "value_type": "number",
+          "unit": null,
+          "filter": {
+            "type": "range",
+            "facet_count": true,
+            "buckets": [
+              {
+                "label": "13.4-13.9",
+                "gte": 13.4,
+                "lt": 14
+              },
+              {
+                "label": "14.0-14.9",
+                "gte": 14,
+                "lt": 15
+              },
+              {
+                "label": "15.0-15.9",
+                "gte": 15,
+                "lt": 16
+              },
+              {
+                "label": "16.0 and above",
+                "gte": 16
+              }
+            ]
+          },
+          "sort": true,
+          "search_boost": 0.5,
+          "indexable": true,
+          "seo": {
+            "indexable": "conditional",
+            "min_results": 10,
+            "demand_threshold": 0.5
+          },
+          "rationale": "Efficiency minimums are set by regional code, so \"14.3 SEER2 or higher\" is a real compliance question with real money attached. Conditional because most individual bucket/type combinations are thin."
+        },
+        {
+          "field": "eer2",
+          "label": "EER2",
+          "entity_type": "equipment_model",
+          "value_type": "number",
+          "unit": null,
+          "filter": {
+            "type": "range",
+            "facet_count": true
+          },
+          "sort": true,
+          "search_boost": 0.2,
+          "indexable": false,
+          "seo": {
+            "indexable": false,
+            "reason": "Specialist filter with negligible search demand. UI and API only."
+          }
+        },
+        {
+          "field": "hspf2",
+          "label": "HSPF2",
+          "entity_type": "equipment_model",
+          "value_type": "number",
+          "unit": null,
+          "filter": {
+            "type": "range",
+            "facet_count": true,
+            "visible_when": {
+              "property": "product_type",
+              "in": [
+                "heat_pump"
+              ]
+            }
+          },
+          "sort": true,
+          "search_boost": 0.2,
+          "indexable": false,
+          "seo": {
+            "indexable": false,
+            "reason": "Specialist filter, and only applicable to a subset of the catalogue."
+          }
+        },
+        {
+          "field": "refrigerant",
+          "label": "Refrigerant",
+          "entity_type": "equipment_model",
+          "value_type": "string",
+          "unit": null,
+          "filter": {
+            "type": "multi_select",
+            "facet_count": true,
+            "options": [
+              "R-410A",
+              "R-454B",
+              "R-32",
+              "R-22"
+            ]
+          },
+          "sort": false,
+          "search_boost": 0.7,
+          "indexable": true,
+          "seo": {
+            "indexable": true,
+            "min_results": 10,
+            "demand_threshold": 0.9
+          },
+          "rationale": "The highest-demand facet in the vertical right now. The A2L transition means \"R-454B air conditioner\" is a live purchasing question for every contractor, and the answer decides whether a replacement is a drop-in or a system change."
+        },
+        {
+          "field": "voltage",
+          "label": "Voltage",
+          "entity_type": "equipment_model",
+          "value_type": "number",
+          "unit": "V",
+          "filter": {
+            "type": "multi_select",
+            "facet_count": true,
+            "options": [
+              115,
+              208,
+              230,
+              460
+            ]
+          },
+          "sort": false,
+          "search_boost": 0.3,
+          "indexable": false,
+          "seo": {
+            "indexable": false,
+            "reason": "A qualifier on another search, not a search. Nobody looks for \"208 volt equipment\"; they look for a 3-ton condenser that happens to be 208V."
+          }
+        },
+        {
+          "field": "phase",
+          "label": "Electrical phase",
+          "entity_type": "equipment_model",
+          "value_type": "number",
+          "unit": null,
+          "filter": {
+            "type": "single_select",
+            "facet_count": true,
+            "options": [
+              1,
+              3
+            ]
+          },
+          "sort": false,
+          "search_boost": 0.2,
+          "indexable": false,
+          "seo": {
+            "indexable": false,
+            "reason": "Two values, both low-intent. Qualifier only."
+          }
+        },
+        {
+          "field": "stage_count",
+          "label": "Compressor stages",
+          "entity_type": "equipment_model",
+          "value_type": "number",
+          "unit": null,
+          "filter": {
+            "type": "single_select",
+            "facet_count": true,
+            "options": [
+              1,
+              2
+            ]
+          },
+          "sort": false,
+          "search_boost": 0.3,
+          "indexable": false,
+          "seo": {
+            "indexable": false,
+            "reason": "Low cardinality and low standalone demand."
+          }
+        },
+        {
+          "field": "sound_level_db",
+          "label": "Sound level",
+          "entity_type": "equipment_model",
+          "value_type": "number",
+          "unit": "dB",
+          "filter": {
+            "type": "range",
+            "facet_count": true,
+            "buckets": [
+              {
+                "label": "Under 70 dB",
+                "lt": 70
+              },
+              {
+                "label": "70-74 dB",
+                "gte": 70,
+                "lt": 75
+              },
+              {
+                "label": "75 dB and above",
+                "gte": 75
+              }
+            ]
+          },
+          "sort": true,
+          "search_boost": 0.3,
+          "indexable": false,
+          "seo": {
+            "indexable": false,
+            "reason": "Coverage is thin (only two sources publish it) and the distributor's values are unreliable. A facet that silently drops most of the catalogue teaches users the data is incomplete. Revisit when coverage exceeds 80%."
+          }
+        },
+        {
+          "field": "weight_lb",
+          "label": "Weight",
+          "entity_type": "equipment_model",
+          "value_type": "number",
+          "unit": "lb",
+          "filter": {
+            "type": "range",
+            "facet_count": false
+          },
+          "sort": true,
+          "search_boost": 0.1,
+          "indexable": false,
+          "seo": {
+            "indexable": false,
+            "reason": "Logistics detail. Sortable and queryable; never a landing page."
+          }
+        },
+        {
+          "field": "manufacturer",
+          "label": "Manufacturer",
+          "entity_type": "equipment_model",
+          "value_type": "string",
+          "unit": null,
+          "filter": {
+            "type": "multi_select",
+            "facet_count": true
+          },
+          "sort": false,
+          "search_boost": 0.9,
+          "indexable": true,
+          "seo": {
+            "indexable": true,
+            "min_results": 5,
+            "demand_threshold": 0.9
+          },
+          "rationale": "Brand plus category is the highest-intent pattern in the vertical. The lower min_results reflects that a manufacturer page is legitimate even with a small catalogue — it is a real entity, not a generated combination."
+        }
+      ],
+      "indexable_combinations": [
+        {
+          "id": "type_by_tonnage",
+          "fields": [
+            "product_type",
+            "nominal_tonnage"
+          ],
+          "max_depth": 2,
+          "min_results": 10,
+          "rationale": "\"3 ton heat pump\" is how contractors and homeowners actually search, and it is the single most common query pattern in the vertical."
+        },
+        {
+          "id": "type_by_refrigerant",
+          "fields": [
+            "product_type",
+            "refrigerant"
+          ],
+          "max_depth": 2,
+          "min_results": 10,
+          "rationale": "\"R-454B air conditioner\" is a live compliance and compatibility question during the A2L transition, with a clear commercial decision behind it."
+        },
+        {
+          "id": "manufacturer_by_type",
+          "fields": [
+            "manufacturer",
+            "product_type"
+          ],
+          "max_depth": 2,
+          "min_results": 5,
+          "rationale": "Brand-plus-category navigation. Distinct intent, distinct content, and a genuine entry point rather than a generated permutation."
+        },
+        {
+          "id": "type_by_tonnage_by_refrigerant",
+          "fields": [
+            "product_type",
+            "nominal_tonnage",
+            "refrigerant"
+          ],
+          "max_depth": 3,
+          "min_results": 20,
+          "rationale": "The one three-field combination that earns a page: a contractor replacing a specific unit under the new refrigerant rules needs exactly this intersection. The raised min_results is what keeps it from becoming a permutation generator."
+        }
+      ],
+      "denied_combinations": [
+        {
+          "fields": [
+            "cooling_capacity_btu",
+            "nominal_tonnage"
+          ],
+          "reason": "The same measurement in two units. Every such page is a duplicate of a tonnage page by construction."
+        },
+        {
+          "fields": [
+            "voltage",
+            "phase"
+          ],
+          "reason": "Qualifiers, not intents. Would generate a page for every electrical configuration with no distinct user behind any of them."
+        },
+        {
+          "fields": [
+            "seer2",
+            "eer2"
+          ],
+          "reason": "Strongly correlated ratings. Combining them produces near-identical result sets across adjacent buckets."
+        },
+        {
+          "fields": [
+            "sound_level_db",
+            "weight_lb"
+          ],
+          "reason": "Two thin-coverage properties. Their intersection is a page about almost nothing, backed by data we mostly do not have."
+        },
+        {
+          "pattern": "any_combination_of_four_or_more",
+          "reason": "A hard ceiling. Beyond three facets the result sets are individually tiny and collectively near-duplicate — the exact failure mode rule 8 exists to prevent. Deeper filtering stays fully available in the UI and the API; it simply never becomes an indexable URL."
+        }
+      ]
+    },
+    "publisherAliases": [
+      {
+        "key": "acme-climate-systems",
+        "canonicalName": "Acme Climate Systems",
+        "aliases": [
+          "Acme Climate Systems",
+          "Acme",
+          "ACME",
+          "ACS"
+        ]
+      },
+      {
+        "key": "northwind-air-systems",
+        "canonicalName": "Northwind Air Systems",
+        "aliases": [
+          "Northwind Air Systems",
+          "Northwind",
+          "NAS"
+        ]
+      },
+      {
+        "key": "borealis-thermal-works",
+        "canonicalName": "Borealis Thermal Works",
+        "aliases": [
+          "Borealis Thermal Works",
+          "Borealis",
+          "BTW"
+        ]
+      }
+    ],
+    "vocabularies": {
+      "product_type": {
+        "id": "product_type",
+        "terms": {
+          "air_conditioner": [
+            "Air Conditioner",
+            "Air Conditioning",
+            "Split System Air Conditioner",
+            "Split System AC",
+            "Condenser",
+            "Condensing Unit",
+            "AC",
+            "A/C"
+          ],
+          "heat_pump": [
+            "Heat Pump",
+            "Split System Heat Pump",
+            "Heat Pump Condenser",
+            "HP"
+          ],
+          "gas_furnace": [
+            "Gas Furnace",
+            "Furnace",
+            "Gas Fired Furnace"
+          ],
+          "air_handler": [
+            "Air Handler",
+            "Air Handling Unit",
+            "AHU",
+            "Fan Coil"
+          ],
+          "packaged_unit": [
+            "Packaged Unit",
+            "Package Unit",
+            "Rooftop Unit",
+            "RTU"
+          ]
+        },
+        "allow_unmapped": false
+      },
+      "refrigerant": {
+        "id": "refrigerant",
+        "terms": {
+          "R-410A": [
+            "R410A",
+            "R-410A",
+            "410A",
+            "R 410A",
+            "Puron"
+          ],
+          "R-454B": [
+            "R454B",
+            "R-454B",
+            "454B",
+            "R 454B"
+          ],
+          "R-32": [
+            "R32",
+            "R-32",
+            "32"
+          ],
+          "R-22": [
+            "R22",
+            "R-22",
+            "22",
+            "Freon"
+          ]
+        },
+        "allow_unmapped": false
+      }
+    }
+  },
+  "runtime_digest": "53c4009d2ec43d5c3ebae72d1b895fc14a248ee3bd3a77e49e8d5ce44a52b6a5"
+}

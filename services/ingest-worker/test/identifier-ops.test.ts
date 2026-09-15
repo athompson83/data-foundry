@@ -64,6 +64,8 @@ const SEMANTICS: Record<
   IdentifierOp,
   { readonly declared: Record<string, unknown>; readonly input: string; readonly expected: string }
 > = {
+  strip_format_characters: { declared: {}, input: 'ab\u00ad-12\u200b', expected: 'ab-12' },
+  normalize_punctuation: { declared: {}, input: 'AB\u201112', expected: 'AB-12' },
   uppercase: { declared: {}, input: 'hk-32ea', expected: 'HK-32EA' },
   lowercase: { declared: {}, input: 'HK-32EA', expected: 'hk-32ea' },
   // First character up, the rest down, per whitespace-separated part.
@@ -124,7 +126,7 @@ describe('the exported identifier vocabulary is the dispatch, not a copy of it',
 
     expect(() => runOp({ op: 'strip_contorl_characters' })).toThrow(PipelineConfigurationError);
     expect(() => runOp({ op: 'strip_contorl_characters' })).toThrow(
-      'identifier op "strip_contorl_characters" is declared by the vertical but not implemented by the ingest worker',
+      'Invalid declared identifier normalization configuration',
     );
   });
 
@@ -157,6 +159,7 @@ describe('the exported identifier vocabulary is the dispatch, not a copy of it',
     'strip_prefix',
     'left_pad',
     'unicode_normalize',
+    'strip_format_characters',
     // value transform kinds — a different stage, and none may dispatch here
     'trim',
     'unicode_nfkc',

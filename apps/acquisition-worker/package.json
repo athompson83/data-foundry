@@ -22,6 +22,7 @@
     "@data-foundry/acquisition": "workspace:*",
     "@data-foundry/canonical-schema": "workspace:*",
     "@data-foundry/canonical-store": "workspace:*",
+    "@data-foundry/private-canary": "workspace:*",
     "@data-foundry/rights-engine": "workspace:*",
     "@data-foundry/source-registry": "workspace:*",
     "pg": "^8.23.0"

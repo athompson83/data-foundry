@@ -1,3 +1,4 @@
+import { selectedFactEvidence } from '@data-foundry/query-model';
 /**
  * The route table and its handlers.
  *
@@ -316,9 +317,10 @@ const prepareListFacts: Route['prepare'] = (match) => {
     const resolved = await resolveEntity(context, id, '/facts');
     if ('redirect' in resolved) return resolved.redirect;
 
+    const policy = requestPolicy(context, at ?? context.factSelection.at ?? new Date().toISOString() as IsoDateTime);
     const views = await context.queryModel.canonicalFacts(
       resolved.view.entity.id,
-      requestPolicy(context, at),
+      policy,
     );
 
     const published = views.filter(
@@ -328,11 +330,21 @@ const prepareListFacts: Route['prepare'] = (match) => {
     // fail the request, not wait for someone to page that far.
     const facts = published.map((view) => factWire(view, context.reviewers));
     const page = paginate(facts, pageRequest);
+    // Detail reads share this request's rights/data snapshot and selection policy.
+    // Only the requested page is expanded; canonical privacy validation above stays global.
+    const withEvidence = [];
+    for (const fact of page.data) {
+      const view = published.find((candidate) => candidate.fact_id === fact.factId)!;
+      const explanation = await context.queryModel.explainFact(
+        resolved.view.entity.id, view.property, policy,
+      );
+      withEvidence.push(factWire(view, context.reviewers, selectedFactEvidence(view, explanation)));
+    }
 
     return wireJsonResponse(
       'FactPageResponse',
       200,
-      { entityId: resolved.view.entity.id, ...page },
+      { entityId: resolved.view.entity.id, ...page, data: withEvidence },
       context.version,
     );
   };

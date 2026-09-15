@@ -60,6 +60,26 @@ afterEach(() => {
 });
 
 describe('sitemapSegmentXml — dataset_landing is gate-checked, not assumed', () => {
+  it('omits the dynamic search route from the generated sitemap index and every segment', async () => {
+    const deployment = await getDeployment({
+      env: { DEPLOYMENT_ENVIRONMENT: 'development', POSTGRES_URL: 'postgres://fixture/db', PUBLIC_ORIGIN: 'https://data-foundry.test' },
+      runtimes: ACTIVE_RUNTIMES,
+      openDriver: openFixtureDriver,
+    });
+    const app = createWebApp(resolveContext(deployment));
+    const index = await app({ method: 'GET', url: '/sitemap-index.xml' });
+    expect(index.status).toBe(200);
+    expect(index.body).not.toContain('/hvac/search');
+    const locations = [...index.body.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]!);
+    expect(locations.length).toBeGreaterThan(0);
+    const segments = await Promise.all(locations.map((url) => app({ method: 'GET', url })));
+    for (const segment of segments) {
+      expect(segment.status).toBe(200);
+      expect(segment.body).not.toContain('/hvac/search');
+    }
+    expect(segments.some((segment) => segment.body.includes('/hvac/docs</loc>'))).toBe(true);
+  });
+
   it('excludes the dataset landing page when the real dataset gate is not met', async () => {
     // hvac's compiled seo.yaml requires min_entities: 25; the shared fixtures
     // seed four. This is the fixture set every other apps/web test already
@@ -73,7 +93,7 @@ describe('sitemapSegmentXml — dataset_landing is gate-checked, not assumed', (
     const vertical = context.deployment.verticals.get('hvac')!;
 
     const xml = await sitemapSegmentXml(vertical, context.deployment.publicOrigin, 'datasets', new Date());
-    expect(xml).not.toContain(`<loc>${context.deployment.publicOrigin}/data/hvac</loc>`);
+    expect(xml).not.toContain(`<loc>${context.deployment.publicOrigin}/hvac</loc>`);
   });
 
   it('still includes docs_api_mcp — its gate is `none`, unconditionally indexable', async () => {
@@ -86,7 +106,7 @@ describe('sitemapSegmentXml — dataset_landing is gate-checked, not assumed', (
     const vertical = context.deployment.verticals.get('hvac')!;
 
     const xml = await sitemapSegmentXml(vertical, context.deployment.publicOrigin, 'datasets', new Date());
-    expect(xml).toContain(`<loc>${context.deployment.publicOrigin}/data/hvac/docs</loc>`);
+    expect(xml).toContain(`<loc>${context.deployment.publicOrigin}/hvac/docs</loc>`);
   });
 });
 
@@ -297,7 +317,7 @@ function paginationVertical(
           id: 'equipment_model_detail',
           route_kind: 'entity_detail' as const,
           entity_type: 'equipment_model',
-          path: '/data/hvac/equipment/{canonical_slug}',
+          path: '/hvac/equipment/{canonical_slug}',
           title: '{canonical_name}',
           structured_data: null,
           sitemap: 'entities',
@@ -353,7 +373,7 @@ describe('sitemap pagination and configured file limits', () => {
       now: () => new Date('2026-03-01T00:00:00Z'),
     });
 
-    const response = await app({ method: 'GET', url: '/data/hvac/sitemaps' });
+    const response = await app({ method: 'GET', url: '/hvac/sitemaps' });
 
     expect(response.status).toBe(404);
     expect([
@@ -380,10 +400,10 @@ describe('sitemap pagination and configured file limits', () => {
       now: () => new Date('2026-03-01T00:00:00Z'),
     });
     const invalidPaths = [
-      '/data/hvac/sitemaps/entities-01.xml',
-      '/data/hvac/sitemaps/entities-0.xml',
-      '/data/hvac/sitemaps/entities-9007199254740992.xml',
-      `/data/hvac/sitemaps/entities-${'9'.repeat(400)}.xml`,
+      '/hvac/sitemaps/entities-01.xml',
+      '/hvac/sitemaps/entities-0.xml',
+      '/hvac/sitemaps/entities-9007199254740992.xml',
+      `/hvac/sitemaps/entities-${'9'.repeat(400)}.xml`,
     ];
 
     for (const url of invalidPaths) {
@@ -399,7 +419,7 @@ describe('sitemap pagination and configured file limits', () => {
 
     const canonical = await app({
       method: 'GET',
-      url: '/data/hvac/sitemaps/entities-1.xml',
+      url: '/hvac/sitemaps/entities-1.xml',
     });
     expect(canonical.status).toBe(200);
     expect(canonical.body).toContain('pagination-model-0');

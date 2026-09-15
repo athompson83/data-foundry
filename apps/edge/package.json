@@ -24,6 +24,7 @@
     "@data-foundry/api-keys": "workspace:*",
     "@data-foundry/canonical-schema": "workspace:*",
     "@data-foundry/canonical-store": "workspace:*",
+    "@data-foundry/private-canary": "workspace:*",
     "@data-foundry/query-model": "workspace:*",
     "@data-foundry/usage-events": "workspace:*",
     "pg": "^8.23.0"

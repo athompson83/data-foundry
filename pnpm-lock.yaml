@@ -17,6 +17,9 @@ importers:
       '@data-foundry/canonical-store':
         specifier: workspace:*
         version: link:packages/canonical-store
+      '@data-foundry/private-canary':
+        specifier: workspace:*
+        version: link:packages/private-canary
       '@data-foundry/rights-engine':
         specifier: workspace:*
         version: link:packages/rights-engine
@@ -74,6 +77,9 @@ importers:
       '@data-foundry/canonical-store':
         specifier: workspace:*
         version: link:../../packages/canonical-store
+      '@data-foundry/private-canary':
+        specifier: workspace:*
+        version: link:../../packages/private-canary
       '@data-foundry/rights-engine':
         specifier: workspace:*
         version: link:../../packages/rights-engine
@@ -114,6 +120,9 @@ importers:
       '@data-foundry/canonical-store':
         specifier: workspace:*
         version: link:../../packages/canonical-store
+      '@data-foundry/private-canary':
+        specifier: workspace:*
+        version: link:../../packages/private-canary
       '@data-foundry/query-model':
         specifier: workspace:*
         version: link:../../packages/query-model
@@ -127,6 +136,30 @@ importers:
       esbuild:
         specifier: 0.28.2
         version: 0.28.2
+
+  apps/ingestion-worker:
+    dependencies:
+      '@data-foundry/acquisition':
+        specifier: workspace:*
+        version: link:../../packages/acquisition
+      '@data-foundry/canonical-schema':
+        specifier: workspace:*
+        version: link:../../packages/canonical-schema
+      '@data-foundry/canonical-store':
+        specifier: workspace:*
+        version: link:../../packages/canonical-store
+      '@data-foundry/ingest-worker':
+        specifier: workspace:*
+        version: link:../../services/ingest-worker
+      '@data-foundry/private-canary':
+        specifier: workspace:*
+        version: link:../../packages/private-canary
+      '@data-foundry/rights-engine':
+        specifier: workspace:*
+        version: link:../../packages/rights-engine
+      pg:
+        specifier: ^8.23.0
+        version: 8.23.0
 
   apps/mcp:
     dependencies:
@@ -154,6 +187,9 @@ importers:
       '@data-foundry/mcp':
         specifier: workspace:*
         version: link:../mcp
+      '@data-foundry/private-canary':
+        specifier: workspace:*
+        version: link:../../packages/private-canary
       '@data-foundry/query-model':
         specifier: workspace:*
         version: link:../../packages/query-model
@@ -174,11 +210,20 @@ importers:
         specifier: 0.28.2
         version: 0.28.2
 
+  apps/private-canary:
+    dependencies:
+      '@data-foundry/private-canary':
+        specifier: workspace:*
+        version: link:../../packages/private-canary
+
   apps/usage-consumer:
     dependencies:
       '@data-foundry/canonical-store':
         specifier: workspace:*
         version: link:../../packages/canonical-store
+      '@data-foundry/private-canary':
+        specifier: workspace:*
+        version: link:../../packages/private-canary
       '@data-foundry/usage-events':
         specifier: workspace:*
         version: link:../../packages/usage-events
@@ -194,6 +239,9 @@ importers:
       '@data-foundry/canonical-store':
         specifier: workspace:*
         version: link:../../packages/canonical-store
+      '@data-foundry/private-canary':
+        specifier: workspace:*
+        version: link:../../packages/private-canary
       '@data-foundry/query-model':
         specifier: workspace:*
         version: link:../../packages/query-model
@@ -271,6 +319,8 @@ importers:
         specifier: workspace:*
         version: link:../canonical-schema
 
+  packages/private-canary: {}
+
   packages/provenance:
     dependencies:
       '@data-foundry/canonical-schema':
@@ -288,6 +338,9 @@ importers:
       '@data-foundry/canonical-store':
         specifier: workspace:*
         version: link:../canonical-store
+      '@data-foundry/normalization':
+        specifier: workspace:*
+        version: link:../normalization
       '@data-foundry/provenance':
         specifier: workspace:*
         version: link:../provenance

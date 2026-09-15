@@ -43,6 +43,7 @@ export const NORMALIZATION_FAILURE_REASONS = [
   'VALUE_OUT_OF_RANGE',
   /** An identifier normalised away to nothing (`"-"`, `"N/A"`, punctuation only). */
   'IDENTIFIER_EMPTY_AFTER_NORMALIZATION',
+  'IDENTIFIER_VALIDATION_FAILED',
 ] as const;
 export type NormalizationFailureReason = (typeof NORMALIZATION_FAILURE_REASONS)[number];
 

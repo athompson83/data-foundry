@@ -23,7 +23,8 @@ import {
   supportsTrigram,
   type SqlDriver,
 } from '@data-foundry/canonical-store';
-import type { Entity, EntityStatus, Identifier, VerticalId } from '@data-foundry/canonical-schema';
+import type { AliasNormalizationSpec, Entity, EntityStatus, Identifier, VerticalId } from '@data-foundry/canonical-schema';
+import { declaredIdentifierCandidates } from './identifier-rules.js';
 import { computeFacets, facetFilterPredicates } from './filters.js';
 import type { FacetFilter, FacetResult, FieldMetadataRegistry } from './field-metadata.js';
 import {
@@ -173,6 +174,7 @@ export async function lookupExactIdentifier(
   driver: SqlDriver,
   registry: FieldMetadataRegistry,
   query: SearchQuery,
+  specification?: AliasNormalizationSpec,
 ): Promise<{ entity: Entity; kind: SearchMatchKind; matched_on: string }[]> {
   const raw = query.text?.trim() ?? '';
   if (raw === '') return [];
@@ -180,7 +182,15 @@ export async function lookupExactIdentifier(
   if (candidates.length === 0) return [];
 
   const params = new Params();
-  const aliasList = params.addAll(candidates).join(', ');
+  const aliasPredicate = specification === undefined
+    ? (() => { const list = params.addAll(candidates).join(', '); return `(a.normalized_value IN (${list}) OR a.alias_value IN (${list}))`; })()
+    : (() => {
+      const probes = declaredIdentifierCandidates(query.text ?? '', specification, undefined, query.entity_type);
+      return probes.length === 0 ? 'FALSE' : probes.map((probe) => {
+        const scope = probe.applies_to.length === 0 ? '' : ` AND ae.entity_type IN (${params.addAll(probe.applies_to).join(', ')})`;
+        return `(a.alias_type = ${params.add(probe.alias_type)} AND a.normalized_value = ${params.add(probe.normalized_value)}${scope})`;
+      }).join(' OR ');
+    })();
   const slugList = params.addAll(candidates).join(', ');
   const nameList = params.addAll(candidates.map((candidate) => candidate.toLowerCase())).join(', ');
   const scope = entityScope(query, registry, params);
@@ -190,7 +200,8 @@ export async function lookupExactIdentifier(
        FROM (
          SELECT a.entity_id AS entity_id, 1 AS tier, a.alias_value AS matched_on
            FROM current_entity_aliases a
-          WHERE (a.normalized_value IN (${aliasList}) OR a.alias_value IN (${aliasList}))
+           JOIN entities ae ON ae.id = a.entity_id
+          WHERE (${aliasPredicate})
          UNION ALL
          SELECT es.id, 2, es.canonical_slug
            FROM entities es
@@ -311,13 +322,14 @@ export async function searchEntities(
   driver: SqlDriver,
   registry: FieldMetadataRegistry,
   query: SearchQuery,
+  specification?: AliasNormalizationSpec,
 ): Promise<SearchResult> {
   const limit = clampInt(query.limit, 20, 200) || 20;
   const offset = clampInt(query.offset, 0, 10_000);
   const text = query.text?.trim() ?? '';
   const trigram = text === '' ? false : await supportsTrigram(driver);
 
-  const exact = await lookupExactIdentifier(driver, registry, query);
+  const exact = await lookupExactIdentifier(driver, registry, query, specification);
   const exactIds = new Set(exact.map((hit) => hit.entity.id));
 
   let ranked: { entity: Entity; score: number; kind: SearchMatchKind }[] = [];

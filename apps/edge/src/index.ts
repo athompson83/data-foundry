@@ -14,6 +14,12 @@ import {
   validateOpaqueEdgeErrorEnvelope,
   type ApiRequestTelemetry,
 } from '@data-foundry/api';
+import { WorkerEntrypoint } from 'cloudflare:workers';
+import type {
+  PrivateCanaryProbe,
+  PrivateCanaryProbeInput,
+  PrivateCanaryProbeResult,
+} from '@data-foundry/private-canary';
 import { buildUsageEvent, type UsageEvent } from '@data-foundry/usage-events';
 import { toApiRequest, toFetchResponse } from './adapter.js';
 import { authenticate, toAuthResponse, type AuthFailure } from './auth.js';
@@ -25,6 +31,7 @@ import {
   type DeploymentEnvironment,
   type ResolvedEdgeConfig,
 } from './env.js';
+import { probePrivateCanaryReadiness } from './private-canary.js';
 import { RUNTIMES } from '../generated/runtime-registry.js';
 
 export { toApiRequest, toFetchResponse } from './adapter.js';
@@ -53,6 +60,14 @@ export {
   type RapidApiConfig,
   type ResolvedEdgeConfig,
 } from './env.js';
+export { probePrivateCanaryReadiness, type PrivateCanaryProbeOptions } from './private-canary.js';
+
+/** Service-binding-only probe; no public route is added for the canary. */
+export class PrivateCanaryEntrypoint extends WorkerEntrypoint<EdgeEnv> implements PrivateCanaryProbe {
+  async probe(input: PrivateCanaryProbeInput): Promise<PrivateCanaryProbeResult> {
+    return probePrivateCanaryReadiness(input, this.env);
+  }
+}
 
 /**
  * Runtimes compiled into this bundle.
@@ -271,10 +286,10 @@ export async function serveRequest(
       env,
       runtime,
       ...(driverOverride === undefined ? {} : { openDriver: driverOverride }),
-      onError: (error, context) => {
-        // Workers logs. Response bodies carry an opaque code; this is the only
-        // channel that gets the cause.
-        console.error(`[edge] ${context.path}`, error);
+      onError: (_error, context) => {
+        // Exceptions can carry SQL, concrete targets or provider credentials.
+        // Keep only server-owned members of closed vocabularies.
+        console.error('[edge] request failed', { routeKey: context.routeKey, code: context.code });
       },
     });
     // Authenticate, resolve tenant, enforce scope — all of it before a
@@ -330,12 +345,11 @@ export async function serveRequest(
           durationMs,
         });
         await publishUsageEvent(env, event);
-      } catch (error) {
-        // Log only the closed event/route identifiers and the platform error;
-        // never the request target, query, body, credential, or response.
+      } catch {
+        // A platform exception can contain request material; omit it entirely.
         console.error('[edge] usage event publish failed', {
           ...(event === undefined ? {} : { eventId: event.id, routeKey: event.route_key }),
-          error,
+          code: 'QUEUE_UNAVAILABLE',
         });
         return unavailable('metering', request.method);
       }
@@ -344,12 +358,12 @@ export async function serveRequest(
     return toFetchResponse(response, request.method);
   } catch (error) {
     if (error instanceof EdgeConfigurationError) {
-      console.error('[edge] configuration', error);
+      console.error('[edge] configuration', { code: 'CONFIGURATION_UNAVAILABLE' });
       return unavailable('configuration', request.method);
     }
     // Anything else at this level is the composition root failing - the
     // database is unreachable, most likely. Still not a request-level bug.
-    console.error('[edge] startup', error);
+    console.error('[edge] startup', { code: 'STARTUP_UNAVAILABLE' });
     return unavailable('startup', request.method);
   } finally {
     // Hyperdrive owns the origin pool. The pg Client this invocation opens is

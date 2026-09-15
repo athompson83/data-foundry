@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@data-foundry/canonical-store": "workspace:*",
+    "@data-foundry/private-canary": "workspace:*",
     "@data-foundry/usage-events": "workspace:*",
     "pg": "^8.23.0"
   }

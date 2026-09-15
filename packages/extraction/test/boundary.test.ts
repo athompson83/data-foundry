@@ -1,5 +1,6 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import {
   CsvExtractor,
@@ -19,7 +20,7 @@ import { JSON_SCHEMA, jsonArtifact } from './fixtures.js';
  * canonical storage. A comment saying so is a wish; a failing test is a rule.
  */
 describe('architecture boundary', () => {
-  const sourceDir = new URL('../src/', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1');
+  const sourceDir = fileURLToPath(new URL('../src/', import.meta.url));
 
   const sourceFiles = (): string[] =>
     readdirSync(sourceDir, { withFileTypes: true, recursive: true })

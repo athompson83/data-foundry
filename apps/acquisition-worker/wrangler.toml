@@ -25,11 +25,16 @@ crons = ["0 * * * *"]
 binding = "RAW_ARTIFACTS"
 bucket_name = "data-foundry-raw-artifacts"
 
-# Create/reuse the canonical database Hyperdrive configuration, then put its
-# id in an ignored environment-specific Wrangler config or the dashboard.
+# Create a role-specific acquisition Hyperdrive configuration; it must not reuse
+# another Worker's credential. Put its id in an ignored environment-specific
+# Wrangler config or the dashboard.
 # [[hyperdrive]]
 # binding = "HYPERDRIVE"
 # id = "<hyperdrive-id>"
 
-# No Queue binding belongs here. This Worker writes acquisition run/artifact
-# transactions synchronously; usage metering is a different topology.
+# Acquisition publishes opaque durable ingestion delivery identifiers only.
+# The separate ingestion Worker owns consumption and recovery.
+
+[[queues.producers]]
+binding = "INGESTION_QUEUE"
+queue = "data-foundry-ingestion"

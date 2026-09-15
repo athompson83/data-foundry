@@ -203,15 +203,11 @@ export function createApiApp(options: ApiAppOptions): ApiHandler {
       // Operators get the cause; customers get the code. This is the only
       // place the original throwable is handed anywhere.
       if (failure.status >= 500) {
-        let path = request.url;
-        try {
-          path = new URL(request.url, PARSE_BASE).pathname;
-        } catch {
-          path = '<unparseable>';
-        }
         options.onError?.(error, {
           method: request.method,
-          path,
+          path: matchedRouteKey,
+          routeKey: matchedRouteKey,
+          code: failure.code,
           ...(id === undefined ? {} : { requestId: id }),
         });
       }

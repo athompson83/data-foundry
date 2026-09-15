@@ -81,10 +81,16 @@ afterAll(async () => {
 });
 
 describe('scheduled-acquisition driver lifecycle', () => {
-  it('keeps development direct Postgres unscoped and cached within the isolate', async () => {
-    const schemas: Array<string | undefined> = [];
-    const openDriver = async (_connectionString: string, options?: { readonly schema?: string }) => {
-      schemas.push(options?.schema);
+  it('keeps development direct Postgres on one explicitly enabled plaintext loopback pool', async () => {
+    const driverOptions: Array<{
+      readonly schema?: string;
+      readonly allowPlaintextLoopback?: boolean;
+    } | undefined> = [];
+    const openDriver = async (
+      _connectionString: string,
+      options?: { readonly schema?: string; readonly allowPlaintextLoopback?: boolean },
+    ) => {
+      driverOptions.push(options);
       return rejectingDriver(() => undefined);
     };
 
@@ -95,7 +101,7 @@ describe('scheduled-acquisition driver lifecycle', () => {
       'deliberate scheduled-acquisition database failure',
     );
 
-    expect(schemas).toEqual([undefined]);
+    expect(driverOptions).toEqual([{ allowPlaintextLoopback: true }]);
   });
 
   it('opens and closes a private-schema Hyperdrive driver for every Cron delivery', async () => {

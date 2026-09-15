@@ -41,6 +41,9 @@ async function bundleEntry(entry: string): Promise<{ text: string; metafile: Met
     // concern, not esbuild's, and do not change what gets tree-shaken here.
     platform: 'node',
     target: 'es2022',
+    // This is a Cloudflare runtime builtin, not an npm dependency. Preserve
+    // it exactly as Wrangler will resolve it instead of asking Node/esbuild to.
+    external: ['cloudflare:*'],
     metafile: true,
     logLevel: 'silent',
   });

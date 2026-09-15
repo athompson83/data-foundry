@@ -371,10 +371,16 @@ describe('configuration', () => {
 });
 
 describe('driver lifecycle', () => {
-  it('keeps local direct-Postgres batches on one unscoped pooled driver', async () => {
-    const schemas: Array<string | undefined> = [];
-    const openDriver = async (_connectionString: string, options?: { readonly schema?: string }) => {
-      schemas.push(options?.schema);
+  it('keeps local direct-Postgres batches on one explicitly enabled plaintext loopback pool', async () => {
+    const driverOptions: Array<{
+      readonly schema?: string;
+      readonly allowPlaintextLoopback?: boolean;
+    } | undefined> = [];
+    const openDriver = async (
+      _connectionString: string,
+      options?: { readonly schema?: string; readonly allowPlaintextLoopback?: boolean },
+    ) => {
+      driverOptions.push(options);
       return driver;
     };
     const options = {
@@ -385,7 +391,7 @@ describe('driver lifecycle', () => {
     await consumeBatch({ messages: [] }, options);
     await consumeBatch({ messages: [] }, options);
 
-    expect(schemas).toEqual([undefined]);
+    expect(driverOptions).toEqual([{ allowPlaintextLoopback: true }]);
   });
 
   it('opens and closes a private-schema Hyperdrive driver for every delivered batch', async () => {
@@ -439,8 +445,8 @@ describe('the deployed queue() handler logs operational failures', () => {
       await expect(consumerWorker.queue(batchOf([m]), {})).rejects.toThrow(ConsumerConfigurationError);
 
       expect(errorSpy).toHaveBeenCalledWith(
-        '[usage-consumer] configuration',
-        expect.objectContaining({ error: expect.any(ConsumerConfigurationError) }),
+        '[usage-consumer] operation failed',
+        { stage: 'configuration', code: 'USAGE_CONSUMER_FAILURE' },
       );
       // Never the message body — nothing here should have a chance to leak
       // a plaintext key or a raw request target, and this proves the log

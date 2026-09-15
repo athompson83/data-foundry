@@ -1,10 +1,36 @@
 # Progress
 
-## Current State
+## Current session — 2026-09-08 revenue platform implementation
+
+- Objective: implement the accepted HVAC-first RapidAPI launch plan, reusable across industries with regular refresh and a $300/month operating ceiling.
+- Baseline: live main 0ae6c7aeb2dee70ce380663cb438d5e1d047b634, README-only PR29 and zero open issues. Work is isolated on codex/revenue-platform-20260908. Four pre-existing original-checkout changes were preserved and integrated in this worktree; no original checkout was reset.
+- Current release shape: six ordinary Workers and database roles, six reduced capability targets plus credential-free harness (thirteen core bundles), and one separately built synthetic ingestion phase using isolated Queue/DLQ/artifact storage. Migrations extend through0033; 59 private functions,51 tables and286 exact runtime grants. The historical hosted inventory remains26 migrations/five staged roles/200 grants; it was not re-certified or changed.
+- Pipeline: acquisition completion inserts an immutable processing identity transactionally; opaque UUID messages, independent five-minute outbox recovery, database-clock leases/fences, bounded verified JSON/CSV artifacts, atomic canonical promotion, retained revisions and 304 verification. A NOT_MODIFIED run may reuse only a matching FETCHED run whose completion and freshness both precede its own claim, preventing overlapping work from borrowing a future artifact. Source permissions are checked during processing and delivery. The production path imports no fixture filesystem or PDF graph.
+- Operations: 1–8760-hour optional source interval (12 hours only where reviewed terms permit); separate acquisition/verification/publication observations; closed production telemetry; immutable operator action history, replay/backfill/pause/resume/retraction/revocation/account closure; durable incident and failure/recovery email states. Alerts default off; unknown sends never automatically repeat.
+- Foundation/customer work: one compiled identifier contract for ingestion and exact lookup, synthetic second-industry proof, /hvac canonical pages and old-path redirects, useful filters/pagination, honest coverage/pricing, fail-closed listing/approved-policy/contact configuration, TypeScript/Python examples and rights-filtered selected-fact evidence. Unreviewed query-bearing evidence URLs are omitted while artifact identities/hashes remain.
+- Source/commercial work: fresh source documentation assessment, bounded initial data dictionary, pricing/cost envelopes, three-partner trial criteria, unsent outreach copy and reviewable customer policy drafts. No source was approved/acquired, no agreement accepted, no marketplace billing/listing configured and no customer contacted.
+- Prior native local evidence (before migration0032): all31 migrations apply; exact legacy199-to286 grant upgrade and complete postcondition verifier pass, including same-count ACL drift refusal and unchanged ledger. Restricted df_ingestion publishes61 synthetic facts with61 evidence rows, ignores duplicates and rejects ten mutation/capability probes, including function execution after PUBLIC access is revoked. These are disposable local controls, not hosted/TLS/Hyperdrive/backup evidence.
+- Verification records: docs/evidence/revenue-platform-implementation-20260908.md, docs/evidence/identifier-and-buyer-verification-20260908.md and docs/evidence/ingestion-postgres-control-20260908.md. Candidate-wide checks and exact-head hosted CI/reviews belong to the implementation PR evidence; a later SHA requires fresh applicable verification before release designation.
+- Material repairs found in review: missing real-role sequence/lock privileges, absent legacy ACL upgrade, operator UUID-case idempotency and audit TRUNCATE bypass, query-bearing evidence URL leakage, malformed UTF-8 acceptance and unqualified multi-target source ordering.
+- Production impact: none. No provider, credential, DNS, real-source, billing or outreach mutation occurred. Existing containment/credential/source/marketplace/public-cutover gates remain; approved retention and verified alert/support contact are now explicitly UA-007.
+- Next dependency order: owner containment (UA-006) and source/policy decisions (UA-001/007); agent-run recovery/provider staging after secure activation (UA-002); private capability and synthetic ingestion proof; owner marketplace agreements/payouts (UA-004), live subscription/limits/cancellation; action-time public cutover (UA-005). First actual external payment plus useful access, scheduled real refresh/recovery and budget evidence remain the revenue milestone.
+- Source qualification limits:16 artifacts,1 MiB each,4 MiB total,1,000 records,10,000 affected entity/property pairs per delivery (including retirements and dependent facts) and one acquisition target per source. Larger complete snapshots, target partitions, HTML/PDF runtime qualification, approved-policy erasure, independent provider outage/spend alerts and later paid channels are not claimed complete.
+
+- Follow-up integration: PR #30 merged as `eed284599ab9a2bf1892039705eb294a0e99fbd1` after hosted run34254514199 passed both required jobs for `2ba6ad8b4833253f1ba782071b7b2cdaf63d70ac`. PR #29 then reconciled the README presentation onto that operational baseline and merged as `1fb406c8f91540bde1beb5b678e6953365de4768`. Migration0032 exposes all current alias source memberships through the existing view without granting raw-history access. Production promotion scopes its work to affected entity/property pairs; a small update beside10,001 unrelated entries passes. Search pages are always noindex and remain outside sitemaps.
+- Follow-up checks: the final sequential suite passed3,450/3,450 in220 files (397.90 seconds); all14 type/schema/runtime/topology checks and all14 build profiles passed. Hosted run34254514199 passed its full job in13m50s and its real-PostgreSQL job in1m14s. The README reconciliation's documentation-scoped protected run34256317967 passed; its real-PostgreSQL job was correctly skipped.
+- Delayed304 repair: PR30 comment3959304808 is covered at both completion boundaries. The test first claims the304, then completes a matching FETCHED run; the304 is refused because that artifact became available after the claim boundary. A separate raw terminal-update regression proves the database guard also refuses the same bypass. Migration0033 reasserts that fence in the terminal guard and pins its function search path. Focused acquisition, migration, packet and runtime-grant controls passed; the final sequential suite passed3,450/3,450 in220 files (397.90 seconds), followed by all14 configuration checks and all14 build profiles. The exact candidate's protected checks passed before merge. No deployment or revenue claim is made.
+- UA-006 disposition: the Product Owner affirmatively cleared provider containment on 2026-09-08. This record is sanitized: it stores no item, credential, identifier, browser state, or security detail. Frozen `origin/main` was `bc6d8f060153853d8c8d79087775fec99c1805a1`; its local sequential suite passed3,450/3,450 in220 files (1,402.43 seconds), private-canary/synthetic-ingestion topology gates passed, and thirteen core plus the separate synthetic-ingestion artifact builds passed. Its credential-free migration packet reports33 migrations and six runtime roles. The worktree contains no direct-TLS migration/runtime credential. On 2026-09-09 Wrangler authenticated and a read-only Cloudflare inventory confirmed only the preserved ordinary usage Queue/DLQ pair and raw-artifact bucket, with no Hyperdrives; direct-TLS inspection, migrations, grant upgrade, credential activation, new queues/buckets, and the route-less canary remain precisely blocked at UA-002's owner-controlled secure-entry interface. No provider mutation occurred.
+## Prior-session record
+
+Everything below is preserved historical context. Its five-Worker topology and
+earlier SHA/provider observations do not override the current six-role plan,
+current checklist or fresh primary evidence.
+
+## Historical state through the prior session
 
 - Product: Data Foundry
-- Lifecycle stage: Alpha Lab schema staged / protected-PR / pre-deployment
-- Control-graph node: `LOCAL_VERIFICATION -> PROTECTED_PR -> EXTERNAL_DEPLOY`
+- Lifecycle stage: Alpha Lab schema staged / protected main / pre-deployment
+- Control-graph node: `PROTECTED_MAIN -> EXTERNAL_DEPLOY`
 - Current milestone: bind the staged Alpha Lab schema to the five Workers
   through owner-provisioned credentials and Hyperdrives, prove the first lawful
   Cloudflare canary, and open the first rights-admitted source and revenue
@@ -19,25 +45,109 @@
   one request-wide query snapshot, and database-free request pre-routing.
   Its exact head `501b33d08fafe5cdf1c9c0c9877f0b38b4b265c0` passed hosted run
   `33352124668`, both automated reviews, and sealed security scan
-  `24b34cd2-2f8d-40ae-bfd2-f4460daa419f`. Every later
-  candidate-affecting change still requires fresh exact-SHA local, hosted,
-  review, and ruleset evidence. The Alpha Lab isolation branch merged as
+  `24b34cd2-2f8d-40ae-bfd2-f4460daa419f`. Every later commit, including
+  documentation-only, creates a new repository SHA and requires fresh exact-SHA
+  local, hosted-CI, review, and ruleset evidence before it can be designated for
+  provider action. The Alpha Lab isolation branch merged as
   `290df1342094433e92978ec97eb37cc02fc4eb50`; PR #24 (`/docs` page names the
   API contract) merged as `5dde773a4b64a8e004ca429706100399a678cf74`.
-- Candidate branch: PR #26 (route-less private synthetic canary plus the
-  Supabase migration-packet exporter) is open and under review; this branch
-  adds only evidence and handoff documentation on top of `5dde773`
+  PR #26 then merged normally as
+  `02e90d70d0000d21c7f9b070b4e1b2e1d5dd7493` from reviewed head
+  `8a43b7f7600fef10c1b26f0281a4c087f8610373` after both required
+  checks, both automated reviews, and all review threads were clean. That merge
+  does not authorize a hosted migration or deployment; those retain separate
+  containment, credential, exact-SHA, and provider gates.
+- Repository state alone designates no Worker release candidate.
+- The required source gate
+  is six route-less private-canary Worker artifacts: five reduced targets and
+  one harness. The canary path also requires the five dedicated 14-day queues
+  `data-foundry-private-canary-usage-events`,
+  `data-foundry-private-canary-usage-events-dlq`,
+  `data-foundry-private-canary-events`, `data-foundry-private-canary-dlq`, and
+  `data-foundry-private-canary-quarantine`; none may repurpose the ordinary
+  usage Queue/DLQ pair.
 - Preview: none verified
 - Production: no Data Foundry Cloudflare deployment exists. The Aroqon zone is
   active/full, but `data.aroqon.com` currently returns Vercel `404: NOT_FOUND`.
 - Database target: shared Alpha Lab Supabase project `fgxinxaqkwoqyywdgobs`.
   The private `data_foundry` schema now carries all 26 ledgered migrations,
-  migration-owner ownership, the `PUBLIC` revoke, and verified least-privilege
-  grants for the five runtime roles, which are staged `NOLOGIN` without
-  passwords. It holds no source, entity, fact, tenant, or credential rows.
+  migration-owner ownership, the `PUBLIC` revoke, and the historically verified
+  200-grant runtime matrix for five staged `NOLOGIN` roles. The same hosted
+  snapshot records `df_migration` as `NOLOGIN`; it is not yet the controlled
+  direct login required by the current migration runner. Repository migration
+  `0027` pins all 57 function search paths and narrows acquisition access to the
+  199-grant matrix; repository migration `0028` adds the four justified rights-
+  path indexes. Both remain pending hosted authorization and application at a
+  newly reviewed exact SHA. It holds no source, entity, fact, tenant, or
+  credential rows.
   See the [2026-09-02 hosted migration evidence](docs/evidence/alpha-lab-hosted-migration-20260902.md).
 
-## Latest Session — Hosted Private-Schema Migration and Grant Activation
+## Latest Session — Local Clone, Windows Test Repair, and E2E
+
+- Populated the previously empty local checkout from `origin/main` at merge
+  commit `0ae6c7a` on branch `local-test`; installed the pinned pnpm lockfile
+  dependencies with `pnpm install --frozen-lockfile`.
+- Fixed the Windows-only architecture-boundary test failure caused by using a
+  URL pathname without decoding `%20` in a workspace path. Both boundary
+  suites now use Node `fileURLToPath`.
+- Focused verification passed: 2 files / 10 tests. The local factory E2E proof
+  passed: 1 file / 34 tests. The repeated full local suite passed: 202 files /
+  3,246 tests. `pnpm build` passed schema generation and TypeScript typecheck.
+- No hosted CI, provider, database, deployment, rights, billing, DNS, or
+  source state changed. This local branch is not a release candidate.
+- Repeat validation on 2026-09-03 reproduced no failures: focused boundary
+  tests 10/10, factory E2E 34/34, full suite 3,246/3,246, and build/typecheck
+  passed again.
+
+## Latest Session — Protected-Main PR #26 Release-Boundary Merge
+
+- Reconciled every PR #26 review thread and extended the
+  same shared PostgreSQL 16 policy across the direct migration runner,
+  connector packets, runtime-grant installer/verifiers, five direct role
+  probes, and every route-less private-canary target. The merged implementation
+  rejects unsafe role posture, memberships, role/database settings, effective
+  parameter and large-object privileges, FDW/server access, ownership, all-
+  database `CREATE`, and `CONNECT` to any other live non-template database.
+- Direct migrations now require `df_migration` to be a controlled direct
+  `LOGIN NOINHERIT` session/current user with exactly one current-database
+  durable `search_path=data_foundry, pg_catalog, extensions` row and no global
+  role settings. The configured and resolved live path is checked before the
+  first broader policy query and before/after every pending migration.
+- Generated provider packets recheck migration-role durable/default/external
+  state before and after each migration, prove `current_user=df_migration`
+  around migration SQL, and refuse quoted as well as unquoted shared-`public`
+  qualification. Drift rolls back before both the ledger insert and any later
+  migration. Exact reviewed Git migration bytes remain the trusted computing
+  base; these controls do not claim to sandbox a malicious provider admin.
+- Negative controls cover neighboring default permissions independently,
+  effective privileges inherited through `PUBLIC`, PostgreSQL 16 parameter and
+  large-object catalogs, exact extension membership, unmanaged and shared
+  object ownership, foreign tables, search-path poisoning, role escape, and
+  cross-database reachability. Tests directly assert the non-generic extension
+  and numeric shared-ownership branches so a broader rejection cannot mask
+  them. The disposable PostgreSQL CI job applies and cleans each mutation and
+  preserves only allowlisted error signatures in mode-`0600` captures.
+- Repository-only verification is green. Exact PR head
+  `8a43b7f7600fef10c1b26f0281a4c087f8610373` passed
+  protected run `33697035331`, including disposable TLS PostgreSQL 16, and
+  both automated reviews found no remaining issue. A clean checkout of merge
+  commit `02e90d70d0000d21c7f9b070b4e1b2e1d5dd7493` passed TypeScript, 202
+  files / 3,244 tests, 28 ordered idempotent migrations, generated
+  schema/OpenAPI/runtime checks, topology, and eleven PGlite-free Worker
+  artifacts. Protected-main push run `33698213600` also passed both required
+  jobs. None of this is live provider evidence.
+- No provider, source, rights, billing, DNS, or deployment state changed. The
+  hosted target still needs `UA-006`, a secure `df_migration` credential with
+  the exact current-database `data_foundry, pg_catalog, extensions` search path,
+  a read-only cross-database topology result, pending
+  migrations `0027`–`0028`, `postMigrationGrants.verificationSql`, five distinct
+  runtime-role credentials with that same exact current-database search path,
+  `postMigrationGrants.postCredentialVerificationSql`, a successful five-path
+  `pnpm runtime-roles:postgres:check`, five cache-disabled Hyperdrives, five
+  separate 14-day private-canary queues, both required R2 buckets, and the
+  private canary before any public deployment.
+
+## Previous Session — Hosted Private-Schema Migration and Grant Activation
 
 - Applied the exact `db/migrations/` set (tree shared by PR #26 head `93a668b`
   and `main` `5dde773`) to the Alpha Lab target through the exporter's attested
@@ -61,16 +171,26 @@
 - Provider advisories after migration: the pre-existing `public.automation_runs`
   RLS error belongs to the unrelated Alpha Lab application and was left for the
   owner; 57 `function_search_path_mutable` warnings on `data_foundry` functions
-  are a repository follow-up (pin `search_path` in a new migration), not a
-  hosted-only fix.
-- Merged PR #24 (`/docs` page names the API contract) as `5dde773`. PR #26 is
-  under review; its migration set is the one applied above.
+  were observed. Repository migration `0027` implements the forward fix, but it
+  has not been applied or reverified on the hosted target; no warning closure is
+  claimed.
+- Latest redacted Cloudflare evidence at 2026-09-02T14:46Z records the standard
+  usage model and the ordinary usage Queue/DLQ pair at 14-day retention, with
+  zero Data Foundry Workers, Hyperdrives, R2 buckets, hostname record, or route.
+  The earlier same-day raw-bucket observation is historical and superseded.
+- The FK-advisor review justifies exactly four rights-path indexes in repository
+  migration `0028`. The other 31 INFO notices are non-blocking and deferred to
+  post-traffic `EXPLAIN`/advisor monitoring rather than speculative indexes.
+- Merged PR #24 (`/docs` page names the API contract) as `5dde773`. The hosted
+  `0001`–`0026` application predates repository migrations `0027`–`0028`; any
+  pre-continuation SHA-specific canary or exporter evidence remains historical
+  only and cannot authorize the pending hosted work.
 - Data and revenue remain gated exactly as before: `hvac` is `DRAFT` with four
   synthetic fixture sources, ENERGY STAR is deferred and unreviewed, RapidAPI
   enrollment is owner-only (`UA-004`), and no Stripe product or listing exists.
   No source acquisition, publisher contact, listing, or billing change was made.
 
-## Session 2026-08-31 — Alpha Lab Isolation and Provider Reconciliation
+## Session 2026-08-31 — Alpha Lab Isolation and Provider Reconciliation (historical, superseded where noted)
 
 - Corrected the data boundary: Data Foundry is a private `data_foundry` schema
   inside Alpha Lab, not part of Valor. Real-Postgres operational commands now
@@ -87,9 +207,14 @@
   transaction cannot inherit another Alpha Lab consumer's path.
 - Added regression coverage across the canonical store, migration runner,
   ingest CLI, and all five Worker lifecycle roots.
-- Reconciled providers: `aroqon.com` is active/full but no Data Foundry Workers,
-  Hyperdrives, Queues, or R2 buckets exist. The current account is Workers Free;
-  a fourteen-day Queue needs Workers Paid. The configured Vercel project has
+- Historical observation: `aroqon.com` was active/full with no Data Foundry
+  Workers, Hyperdrives, Queues, or R2 buckets, and the account appeared Workers
+  Free. The Queue/R2/plan assertions are superseded by the 2026-09-01/09-02
+  redacted evidence: the account uses the standard usage model and the ordinary
+  14-day Queue/DLQ pair exists. The 2026-09-02T14:46Z refresh found zero Data
+  Foundry Workers, Hyperdrives, or R2 buckets and supersedes an earlier same-day
+  raw-bucket observation. No Worker, route, Hyperdrive, or live binding proof
+  exists. The configured Vercel project has
   disconnected Git and no viable deployment, so it is not a rollback target.
   The [redacted 2026-08-31 provider reconciliation](docs/evidence/alpha-lab-provider-reconciliation-20260831.md)
   records the read-only observations and excludes provider identifiers and
@@ -210,11 +335,12 @@ not mean deployed or commercially publishable.
   publishable; the live deployment and real-source gates remain independent.
 - RapidAPI enrollment, proxy-secret configuration, plans, payout setup, live
   route, and real subscriber proof remain external.
-- The Aroqon Cloudflare zone is active/full, but no Data Foundry Worker, route,
-  Hyperdrive, Queue/DLQ, or R2 bucket exists. The account is Workers Free; the
-  required fourteen-day Queue retention requires Workers Paid. The canary must
-  be a separate `canary.aroqon.com` hostname before any `data.aroqon.com`
-  cutover.
+- The Aroqon Cloudflare zone is active/full. Latest redacted evidence shows the
+  standard usage model and exactly the ordinary 14-day Queue/DLQ pair, with no
+  Data Foundry Worker, route, Hyperdrive, or R2 bucket. The next deployment
+  proof is the
+  route-less, service-bound private canary; any public canary or
+  `data.aroqon.com` cutover requires separate later authorization.
 - The configured Vercel project has disconnected Git. Its production domain
   returns `404: NOT_FOUND` and historic deployments fail for a missing `public`
   output directory; it is not a viable rollback path.
@@ -273,14 +399,34 @@ not mean deployed or commercially publishable.
 
 ## Blockers
 
+- A provider-side containment result (`UA-006`) is required before any provider
+  deployment or new credential-bearing migration/recovery action. Use only the
+  affected provider's normal security/audit controls; do not reopen the prior
+  browser state, reveal the item, or rotate unrelated credentials.
 - Hosted Alpha Lab private-schema and grant proof is recorded; no Data Foundry
   Worker deployment, Hyperdrive, or live Queue/DLQ/R2 integration proof is.
-- The five runtime roles are staged `NOLOGIN` without passwords; every Worker
-  database binding waits on the owner's secure credential entry and the five
-  Hyperdrive configurations (`UA-002`).
+- `df_migration` and the five runtime roles are staged `NOLOGIN` without
+  passwords. Pending direct migrations wait on the controlled migration-login
+  credential and canonical database-scoped path; every Worker database binding
+  waits on its own secure credential and Hyperdrive (`UA-002`).
+- The current PostgreSQL policy refuses effective `CONNECT` to any other live
+  non-template database and `CREATE` on every database. No current hosted
+  inventory proves that cluster boundary yet; a non-empty result is an explicit
+  owner/provider topology blocker rather than a condition automation may
+  normalize on the shared project.
 - The current public data hostname is a Vercel 404, not a Data Foundry runtime.
-- Workers Paid approval and secure database-role password entry are needed
-  before a retained-queue Cloudflare canary can be created.
+- Secure `df_migration` credential entry with the exact current-database
+  `data_foundry, pg_catalog, extensions` search path, the pending exact-SHA
+  migrations, `postMigrationGrants.verificationSql`, then secure activation of
+  all five runtime-role credentials, each distinct and using that same exact
+  current-database search path,
+  `postMigrationGrants.postCredentialVerificationSql`, a successful five-path
+  `pnpm runtime-roles:postgres:check`, five cache-disabled Hyperdrives, five
+  separate private-canary queues with 14-day retention, and the absent
+  raw-artifact and canary receipt buckets are needed in that order before the
+  route-less canary can run. Preserve and reverify the standard usage model and
+  ordinary 14-day Queue/DLQ pair; never reuse that ordinary pair for any
+  private-canary path.
 - Public sitemap rate limiting and its ordinary-crawler bypass policy have not
   been configured or verified on the canonical Cloudflare account.
 - No real HVAC source has the required exact grants and human rights review.
@@ -288,29 +434,33 @@ not mean deployed or commercially publishable.
 
 ## Required User Actions
 
-See `PROJECT_CHECKLIST.md` `UA-001` through `UA-005`. The immediate external
-gates are rights review (`UA-001`), Workers Paid plus secure role entry
-(`UA-002`), RapidAPI enrollment (`UA-004`), and post-canary hostname
-confirmation (`UA-005`). Filling the schema with real data depends entirely on
-`UA-001`: ENERGY STAR remains deferred and unreviewed, and its review packet's
-open `[REVIEWER]` questions are the owner's to answer; automation must not
-sign, acquire, publish, or contact the publisher.
+See `PROJECT_CHECKLIST.md` `UA-001` through `UA-006`. The immediate external
+gates are provider-side containment (`UA-006`), rights review (`UA-001`), secure
+role/Hyperdrive entry (`UA-002`), RapidAPI enrollment (`UA-004`), and separately
+authorized public hostname confirmation (`UA-005`). Filling the schema with
+real data depends entirely on `UA-001`: ENERGY STAR remains deferred and
+unreviewed, and its review packet's open `[REVIEWER]` questions are the owner's
+to answer; automation must not sign, acquire, publish, or contact the publisher.
 
 ## Production Impact
 
-The merged Alpha Lab isolation change (`290df13`) governs runtime schema selection,
-Hyperdrive transaction isolation/lifecycle, migration safeguards, regression
-coverage, and deployment documentation. This session performed the hosted
-private-schema migration and grant activation described above and merged
-PR #24. It performed no Worker deployment, credential creation, source
-acquisition, publisher contact, listing, or billing change, and it did not
-touch the shared `public` schema.
+The merged Alpha Lab isolation change (`290df13`) governs runtime schema
+selection and Hyperdrive transaction isolation/lifecycle. Merged PR #26
+tightens migration/runtime-role safeguards, regression coverage, and deployment
+documentation only; it made no hosted mutation. The preceding
+session performed the hosted private-schema migration and grant activation
+described above and merged PR #24. Neither session performed a Worker
+deployment, credential creation, source acquisition, publisher contact,
+listing, or billing change, and neither touched the shared `public` schema.
 
 ## Previous Session Summary
 
 Protected `main` combines usage accounting/auth, corrected Option B rights,
-public web, RapidAPI, scheduled acquisition/readiness, and MCP in dependency
-order through migration `0026`. Final review repairs add a last
+public web, RapidAPI, scheduled acquisition/readiness, MCP, the private-canary
+topology, and final runtime least-privilege/export hardening in dependency order
+through migration `0028`. Hosted migrations `0027`–`0028` remain pending
+separate exact-SHA authorization and application. Earlier
+review repairs add a last
 practical pre-persistence rights checkpoint, exact historical authorization,
 one-client resolution transactions, `source-record-evidence@3`, claim-backed
 alias epochs/currentness, identifier-less successor handling, a fail-closed

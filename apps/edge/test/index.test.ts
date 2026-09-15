@@ -304,7 +304,7 @@ describe('durable metering acceptance is an availability gate', () => {
     expectOpaqueEdgeError(body);
     expect(errorSpy).toHaveBeenCalledWith(
       '[edge] usage event publish failed',
-      expect.objectContaining({ error: expect.any(Error) }),
+      expect.objectContaining({ code: 'QUEUE_UNAVAILABLE' }),
     );
   });
 
@@ -313,7 +313,9 @@ describe('durable metering acceptance is an availability gate', () => {
     const privateQuery = 'queue-failure-private-query';
     const failingQueue: QueueBinding = {
       send: async () => {
-        throw new Error('queue unavailable');
+        throw Object.assign(new Error(`queue unavailable ${key.secret} ${privateQuery}`), {
+          detail: `${fixtures.equipment.id} ${privateQuery} ${key.secret}`,
+        });
       },
     };
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -337,7 +339,7 @@ describe('durable metering acceptance is an availability gate', () => {
       {
         eventId: expect.any(String),
         routeKey: 'entities.detail',
-        error: expect.any(Error),
+        code: 'QUEUE_UNAVAILABLE',
       },
     );
     const logs = JSON.stringify(errorSpy.mock.calls);
