@@ -23,9 +23,9 @@ relationship or live deployment can be verified from repository code alone.
 
 | | Channel | Role | Status |
 |---|---|---|---|
-| 1 | **Public web / pay per crawl** | Discovery, SEO, ads/AI-crawler monetization | Rights-bound Worker implemented; deployment and Cloudflare enrollment remain |
-| 2A | **API marketplace (RapidAPI initially)** | Low-friction developer discovery, checkout, plans and marketplace billing | Thin origin adapter implemented; marketplace enrollment/listing and deployment remain |
-| 2B | **Direct Data Foundry API** | Higher-margin customers, larger volumes, negotiated terms | Auth, metering, and invoice-eligible usage implemented; pricing, contracts, and collection remain business decisions |
+| 1 | **Public web / pay per crawl** | Discovery, SEO, ads/AI-crawler monetization | Rights-bound Worker implemented; deployment remains. Pay per crawl verified 2026-09-16 as **closed beta** — admission is the channel's external dependency, and no paid-crawler tier exists in the access model |
+| 2A | **API marketplace (RapidAPI initially)** | One low-friction developer discovery, checkout and billing channel — not the business | Thin origin adapter implemented; marketplace enrollment/listing and deployment remain |
+| 2B | **Direct Data Foundry API** | Higher-margin customers, larger volumes, negotiated terms. **Shortest supported path to a paid machine request** — no third-party enrollment or beta admission | Auth, metering, and invoice-eligible usage implemented; pricing, contracts, and collection remain business decisions |
 | 3 | **MCP / agent access** | Agent-native retrieval | Six-tool MCP contract and Cloudflare Streamable HTTP Worker implemented; deployment and commercial packaging remain |
 | 4 | **Bulk / enterprise data** | Dataset snapshots, custom enrichment, enterprise licensing | Export surface exists; commercial rights and contracts remain separate decisions |
 
@@ -35,17 +35,42 @@ presentation, but may not independently re-decide facts.
 
 ## Channel 1 — public web and pay per crawl
 
-Per `docs/owner-actions/cloudflare-deployment.md` item 4, pay per crawl is a
-Cloudflare zone setting rather than Worker billing code. `apps/web` is the
-public, discoverable asset a crawler or search engine reaches.
+`apps/web` is the public, discoverable asset a crawler or search engine
+reaches. Pay per crawl is primarily a Cloudflare zone capability, but since
+2026-06-16 the price may also be set dynamically from the origin, so it is no
+longer purely a zone setting with no Worker involvement.
+
+Verified 2026-09-16 from Cloudflare's documentation — see
+[the channel capability record](../evidence/machine-access-channel-capability-20260916.md)
+for the full reading and its sources:
+
+- Pay per crawl is in **closed beta**. There is no self-serve enablement;
+  admission is by signup form or an Enterprise account executive. "If available"
+  therefore has a definite answer today: not without being admitted.
+- A crawler is identified by **Web Bot Auth request signatures** and
+  verified-bots registration. A `User-Agent` never identifies a payer.
+- The flow is `HTTP 402` carrying `crawler-price`, a retry carrying
+  `crawler-exact-price` or `crawler-max-price`, and a charged 2xx carrying
+  `crawler-charged`. Cloudflare is Merchant of Record: it aggregates billing
+  events, charges the crawler and distributes earnings to the publisher.
+- **WAF and Bot Management block rules take precedence over the charge
+  feature.** A crawler refused before the charging flow earns nothing, so any
+  configuration must be verified against that precedence, not assumed.
+- There is no paid-crawler access tier, rights surface or billing source in the
+  application model. Charging at the edge today happens above Data Foundry's own
+  entitlement and metering; expressing it in the model is an architectural
+  decision, not a routine change.
 
 Owner actions:
 
 1. Deploy an exact protected-main SHA after its fresh release gates pass, setting
    `PUBLIC_ORIGIN` to the exact HTTPS origin and binding canonical Postgres.
 2. Keep normal search-engine crawlers allowed if organic search is part of the
-   acquisition strategy.
-3. Enroll the zone in pay per crawl if available and economically sensible.
+   acquisition strategy. Treat training permission as a separate decision from
+   search discovery and from paid retrieval.
+3. Request admission to the pay per crawl beta if crawler revenue is wanted;
+   this is the channel's one external dependency and it does not block any
+   other channel.
 4. Treat ads, affiliate/lead-generation and crawler revenue as optional revenue
    on top of the primary discovery function of the public site.
 
