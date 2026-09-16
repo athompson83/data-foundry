@@ -90,9 +90,11 @@ interface FakeState {
   readonly sessionUser?: string;
   readonly transactionReadOnly?: string;
   readonly inRecovery?: boolean;
-  readonly durableViolations?: ReadonlyArray<{ violation: string; role_name: string; setting_item: string }>;
+  readonly prerequisiteViolations?: ReadonlyArray<{ probe: string; detail: string }>;
   readonly missingRoles?: readonly string[];
   readonly migrationRoleCanLogin?: boolean;
+  readonly outgoingMemberships?: Readonly<Record<string, number>>;
+  readonly incomingMembers?: Readonly<Record<string, number>>;
   readonly ledgerMarker?: string | null;
   readonly ledger?: readonly Migration[];
   readonly ledgerChecksumOverride?: Readonly<Record<string, string>>;
@@ -126,8 +128,8 @@ function fakeDriver(state: FakeState = {}): Fake {
           },
         ] as T[];
       }
-      if (sql.includes('role_global_setting')) {
-        return (state.durableViolations ?? []) as unknown as T[];
+      if (sql.includes('AS probe')) {
+        return (state.prerequisiteViolations ?? []) as unknown as T[];
       }
       if (sql.includes('obj_description')) {
         const marker = state.ledgerMarker === undefined
@@ -135,7 +137,7 @@ function fakeDriver(state: FakeState = {}): Fake {
           : state.ledgerMarker;
         return [{ marker }] as T[];
       }
-      if (sql.includes('membership_count')) {
+      if (sql.includes('outgoing_memberships')) {
         const requested = (params?.[0] ?? []) as readonly string[];
         const missing = new Set(state.missingRoles ?? []);
         return requested
@@ -149,7 +151,8 @@ function fakeDriver(state: FakeState = {}): Fake {
             rolcreaterole: false,
             rolreplication: false,
             rolbypassrls: false,
-            membership_count: 0,
+            outgoing_memberships: state.outgoingMemberships?.[name] ?? 0,
+            incoming_members: state.incomingMembers?.[name] ?? 0,
           })) as T[];
       }
       if (sql.includes('schema_migrations ORDER BY version')) {
@@ -208,17 +211,42 @@ describe('preflightUa002', () => {
     await expect(preflightUa002(driver, packet(), ALL_MIGRATIONS, STUB_GRANTS)).resolves.toEqual([]);
   });
 
-  it('reports every durable-setting violation the grant packet would raise on', async () => {
+  it('reports every grant prerequisite the install would raise on, not just durable settings', async () => {
     const { driver } = fakeDriver({
-      durableViolations: [
-        { violation: 'role_global_setting', role_name: 'df_migration', setting_item: 'search_path=data_foundry' },
-        { violation: 'missing_current_database_role_setting', role_name: 'df_edge', setting_item: '' },
+      prerequisiteViolations: [
+        { probe: 'migration-role-durable-settings', detail: '{"violation": "role_global_setting"}' },
+        { probe: 'migration-role-default-acl', detail: '{"violation": "unsafe_default_acl"}' },
+        { probe: 'runtime-role-external-acl', detail: '{"scope": "schema", "object_name": "public"}' },
       ],
     });
     const findings = await preflightUa002(driver, packet(), ALL_MIGRATIONS, STUB_GRANTS);
-    expect(findings.filter((finding) => finding.check === 'durable-settings')).toHaveLength(2);
-    expect(findings[0]?.detail).toContain('df_migration: role_global_setting');
-    expect(findings[1]?.detail).toContain('df_edge: missing_current_database_role_setting');
+    const prerequisites = findings.filter((finding) => finding.check === 'grant-prerequisites');
+    expect(prerequisites).toHaveLength(3);
+    expect(prerequisites[0]?.detail).toContain('migration-role-durable-settings');
+    // The whole point of the fix: an ACL or capability invariant is caught here
+    // rather than after the migrations have already committed.
+    expect(prerequisites[2]?.detail).toContain('runtime-role-external-acl');
+  });
+
+  it('flags an outgoing membership on the migration role, while allowing incoming members', async () => {
+    const outgoing = await preflightUa002(
+      fakeDriver({ outgoingMemberships: { df_migration: 1 } }).driver,
+      packet(),
+      ALL_MIGRATIONS,
+      STUB_GRANTS,
+    );
+    expect(outgoing.find((finding) => finding.check === 'roles')?.detail).toContain(
+      'outgoing memberships',
+    );
+    // `postgres` being a member of df_migration is how a provider session
+    // assumes it, and must not be reported as drift.
+    const incoming = await preflightUa002(
+      fakeDriver({ incomingMembers: { df_migration: 1 } }).driver,
+      packet(),
+      ALL_MIGRATIONS,
+      STUB_GRANTS,
+    );
+    expect(incoming).toEqual([]);
   });
 
   it('rejects a SET ROLE session instead of a direct migration login', async () => {
@@ -349,7 +377,7 @@ describe('preflightUa002', () => {
 describe('runUa002Operator', () => {
   it('mutates nothing when preflight finds a blocker', async () => {
     const { driver, executed } = fakeDriver({
-      durableViolations: [{ violation: 'role_global_setting', role_name: 'df_migration', setting_item: 'x' }],
+      prerequisiteViolations: [{ probe: 'migration-role-durable-settings', detail: '{"violation": "x"}' }],
     });
     const report = await runUa002Operator(driver, packet(), ALL_MIGRATIONS, {
       apply: true,

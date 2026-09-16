@@ -44,14 +44,11 @@ import {
   type MigrationDriver,
 } from './migrate.js';
 import {
+  buildGrantPrerequisiteProbeSql,
   buildRuntimeGrantPayloadForRelease,
   type SupabaseRuntimeGrantPayload,
 } from './export-supabase-migration-packets.js';
-import {
-  buildMigrationRoleUnsafeDurableSettingSql,
-  buildRuntimeRoleUnsafeDurableSettingSql,
-  RUNTIME_ROLES,
-} from '../../packages/private-canary/src/runtime-role-policy.js';
+import { RUNTIME_ROLES } from '../../packages/private-canary/src/runtime-role-policy.js';
 import { isMain } from '../lib/cli-entry.js';
 
 const PACKET_FORMAT = 'data-foundry-supabase-migration-plan/v1';
@@ -196,10 +193,9 @@ interface IdentityRow {
   readonly in_recovery: boolean;
 }
 
-interface DurableSettingRow {
-  readonly violation: string;
-  readonly role_name: string;
-  readonly setting_item: string;
+interface PrerequisiteRow {
+  readonly probe: string;
+  readonly detail: string;
 }
 
 interface RoleRow {
@@ -211,7 +207,8 @@ interface RoleRow {
   readonly rolcreaterole: boolean;
   readonly rolreplication: boolean;
   readonly rolbypassrls: boolean;
-  readonly membership_count: number;
+  readonly outgoing_memberships: number;
+  readonly incoming_members: number;
 }
 
 interface LedgerRow {
@@ -228,27 +225,25 @@ const IDENTITY_SQL = `SELECT current_user::text AS current_user_name,
 const ROLE_SQL = `SELECT r.rolname::text AS rolname,
        r.rolcanlogin, r.rolinherit, r.rolsuper, r.rolcreatedb,
        r.rolcreaterole, r.rolreplication, r.rolbypassrls,
-       (SELECT count(*) FROM pg_auth_members m WHERE m.member = r.oid OR m.roleid = r.oid)::int
-         AS membership_count
+       (SELECT count(*) FROM pg_auth_members m WHERE m.member = r.oid)::int
+         AS outgoing_memberships,
+       (SELECT count(*) FROM pg_auth_members m WHERE m.roleid = r.oid)::int
+         AS incoming_members
   FROM pg_catalog.pg_roles r
  WHERE r.rolname = ANY($1::text[])`;
 
 /**
- * Both durable-setting policies in one read, labelled by source so the operator
- * can see whether the migration identity, the runtime identities, or both are
- * the problem. This is the exact SQL the grant packet raises on — deliberately
- * the same builders rather than a paraphrase, because a preflight that checks
- * something subtly different is worse than no preflight.
+ * Every prerequisite the grant install asserts, asked before the first mutation.
+ *
+ * This is deliberately the exporter's own probe rather than a local paraphrase:
+ * a preflight that checks something subtly different from what the install
+ * raises on is worse than no preflight, because it buys false confidence.
  */
-export function durableSettingProbeSql(schema: string = DATA_FOUNDRY_PRIVATE_SCHEMA): string {
-  const roleArray = `ARRAY[${RUNTIME_ROLES.map((role) => `'${role}'`).join(', ')}]::text[]`;
-  return `SELECT * FROM (
-${buildMigrationRoleUnsafeDurableSettingSql(schema, DATA_FOUNDRY_MIGRATION_ROLE)}
-) migration_role_durable_settings
-UNION ALL
-SELECT * FROM (
-${buildRuntimeRoleUnsafeDurableSettingSql(schema, `runtime_role.rolname = ANY(${roleArray})`, true)}
-) runtime_role_durable_settings`;
+export function grantPrerequisiteProbeSql(
+  schema: string = DATA_FOUNDRY_PRIVATE_SCHEMA,
+  migrationRole: string = DATA_FOUNDRY_MIGRATION_ROLE,
+): string {
+  return buildGrantPrerequisiteProbeSql(schema, migrationRole);
 }
 
 function ledgerSql(schema: string): string {
@@ -344,14 +339,16 @@ export async function preflightUa002(
     }
   }
 
-  const durable = await driver.query<DurableSettingRow>(durableSettingProbeSql(schema));
-  for (const row of durable) {
-    findings.push({
-      check: 'durable-settings',
-      detail:
-        `${row.role_name}: ${row.violation}` +
-        (row.setting_item === '' ? '' : ` (${row.setting_item})`),
-    });
+  // Everything the grant upgrade would raise on — durable settings, migration
+  // posture and session, default ACLs, external capability, runtime-role
+  // external ACLs and forbidden PUBLIC/named grants. Checking only durable
+  // settings here left every other invariant to fail *after* the migrations
+  // committed, which is the half-done state this operator exists to prevent.
+  const prerequisites = await driver.query<PrerequisiteRow>(
+    grantPrerequisiteProbeSql(schema, packet.migrationRole),
+  );
+  for (const row of prerequisites) {
+    findings.push({ check: 'grant-prerequisites', detail: `${row.probe}: ${row.detail}` });
   }
 
   const expectedRoles = [packet.migrationRole, ...RUNTIME_ROLES];
@@ -374,8 +371,19 @@ export async function preflightUa002(
     if (role.rolinherit) {
       findings.push({ check: 'roles', detail: `${name} must be NOINHERIT.` });
     }
-    if (role.membership_count !== 0 && name !== packet.migrationRole) {
-      findings.push({ check: 'roles', detail: `${name} must have no role memberships.` });
+    // Outgoing membership is prohibited for every role, the migration identity
+    // included — inheriting someone else's privileges is exactly what NOINHERIT
+    // and an empty membership set are there to prevent. Incoming members are a
+    // different question: the migration role legitimately has them, which is how
+    // a provider session assumes it.
+    if (role.outgoing_memberships !== 0) {
+      findings.push({
+        check: 'roles',
+        detail: `${name} is a member of another role; it must have no outgoing memberships.`,
+      });
+    }
+    if (role.incoming_members !== 0 && name !== packet.migrationRole) {
+      findings.push({ check: 'roles', detail: `${name} must have no incoming role members.` });
     }
     // Only the migration identity logs in during this run. A runtime role that
     // can already log in has a credential nobody recorded.

@@ -1392,6 +1392,83 @@ function repositoryDigest(migrations: readonly EffectiveMigration[]): string {
 }
 
 /**
+ * The grant install's prerequisites, as a read-only probe instead of a raise.
+ *
+ * `upgradeFrom0028Sql` asserts a set of invariants before it grants anything and
+ * `RAISE`s on the first one that fails. That is correct for the install and
+ * useless for an operator, because by then the migrations have already
+ * committed: the rollback unwinds the grants and cannot unwind the ledger. The
+ * direct-TLS operator needs the same questions asked *before* the first
+ * mutation, which means the same SQL fragments, not a paraphrase of them.
+ *
+ * Each row is one violation, labelled with the probe that produced it and
+ * carrying that probe's own columns as JSON so the operator sees what differs
+ * rather than only that something did.
+ *
+ * Two of the install's prerequisites are deliberately absent. The
+ * existing-privilege count and the complete private direct-ACL baseline both
+ * describe the object set *after* the pending migrations create their tables,
+ * so checking them beforehand would report drift that is merely the future. They
+ * remain the one class that can still fail once migrations are committed.
+ */
+export function buildGrantPrerequisiteProbeSql(
+  schema: string = DATA_FOUNDRY_PRIVATE_SCHEMA,
+  migrationRole: string = REQUIRED_MIGRATION_ROLE,
+): string {
+  validateTarget(schema, migrationRole);
+  const targetPredicate = `grantee.rolname = ANY(${runtimeRoleArraySql()})`;
+  const forbiddenNamedPredicate =
+    "grantee.rolname = ANY(ARRAY['anon', 'authenticated', 'service_role']::text[])";
+  const runtimeRolePredicate = `runtime_role.rolname = ANY(${runtimeRoleArraySql()})`;
+  const probe = (name: string, sql: string): string =>
+    `SELECT ${sqlLiteral(name)}::text AS probe, (pg_catalog.to_jsonb(violation.*))::text AS detail
+   FROM (\n${sql}\n) violation`;
+
+  return [
+    probe('migration-role-posture', buildMigrationRoleUnsafePostureSql(migrationRole)),
+    probe(
+      'migration-role-durable-settings',
+      buildMigrationRoleUnsafeDurableSettingSql(schema, migrationRole),
+    ),
+    probe('migration-session', buildUnsafeMigrationSessionSql()),
+    probe(
+      'migration-role-default-acl',
+      buildMigrationRoleUnsafeDefaultAclSql(schema, migrationRole),
+    ),
+    probe(
+      'migration-role-external-capability',
+      buildMigrationRoleUnsafeExternalCapabilitySql(schema, migrationRole),
+    ),
+    probe(
+      'runtime-role-durable-settings',
+      buildRuntimeRoleUnsafeDurableSettingSql(schema, runtimeRolePredicate, true),
+    ),
+    probe('forbidden-public-private-acl', publicPrivateAclRowsSql(schema)),
+    probe('forbidden-named-private-acl', aclInventorySql(schema, forbiddenNamedPredicate)),
+    probe(
+      'runtime-role-external-acl',
+      `WITH expected(scope, object_name, column_name, role_name, privilege, is_grantable) AS (VALUES
+${buildRuntimeRoleExpectedExternalAclValuesSql()}
+  ), live AS (
+${buildRuntimeRoleExternalDirectAclSql(schema, targetPredicate)}
+  )
+  SELECT COALESCE(expected.scope, 'unexpected')::text AS scope,
+         COALESCE(expected.object_name, live.object_name)::text AS object_name,
+         COALESCE(expected.role_name, live.role_name)::text AS role_name,
+         COALESCE(expected.privilege, live.privilege)::text AS privilege,
+         (expected.scope IS NULL)::boolean AS present_but_unexpected
+    FROM expected FULL OUTER JOIN live
+   USING (scope, object_name, column_name, role_name, privilege, is_grantable)
+   WHERE expected.scope IS NULL OR live.scope IS NULL`,
+    ),
+    probe(
+      'runtime-role-external-capability',
+      buildRuntimeRoleReachableExternalCapabilitySql(schema, runtimeRolePredicate),
+    ),
+  ].join('\nUNION ALL\n');
+}
+
+/**
  * Rebuild the runtime-grant payload for a release's migrations, independently of
  * any manifest that claims to describe it.
  *

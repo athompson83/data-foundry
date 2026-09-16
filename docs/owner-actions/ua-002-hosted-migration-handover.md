@@ -213,9 +213,13 @@ non-ignored worktree is clean, including untracked files.
    ```
 
    This is read-only and mutates nothing. It checks, in one pass: the session is
-   a direct `df_migration` login and is writable and not a standby; the durable
-   settings of all seven roles satisfy the exact policy the grant packet raises
-   on; every role exists in the reviewed shape; the ledger carries this
+   a direct `df_migration` login and is writable and not a standby; **every
+   prerequisite the grant install asserts** — migration-role posture and session,
+   default object ACLs, external capability, durable settings for all seven
+   roles, runtime-role external ACLs, and forbidden `PUBLIC`/`anon`/
+   `authenticated`/`service_role` grants on the private schema — using the
+   exporter's own SQL rather than a paraphrase; every role exists in the reviewed
+   shape with no outgoing memberships; the ledger carries this
    project's marker and is where the packet expects; no packet would replay an
    applied migration; **the ledger and the packet together account for every
    migration at the release**, so nothing gets applied unlisted; every checksum —
@@ -233,6 +237,16 @@ non-ignored worktree is clean, including untracked files.
    Because the rebuild uses this checkout's code, the operator also requires
    `DATA_FOUNDRY_RELEASE_SHA` to equal the packet's release, `HEAD` to equal
    that SHA, and the worktree to be clean including untracked files.
+
+   **One residual, stated rather than hidden.** Two of the install's
+   prerequisites — the existing-privilege count and the complete private
+   direct-ACL baseline — describe the object set *after* the pending migrations
+   create their tables, so they cannot be checked beforehand without reporting
+   drift that is merely the future. They remain the one class that can still fail
+   once migrations are committed. If that happens, the migrations are applied and
+   the grants are not: re-run the preflight, repair what it names, and re-run
+   `--apply`, which skips the already-ledgered migrations and retries the grant
+   upgrade.
 
    It prints every blocker at once rather than stopping at the first, because
    the repairs need a privileged provider session anyway and you want one trip,
