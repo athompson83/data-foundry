@@ -18,14 +18,34 @@ from an automated environment.
 
 | Candidate | Host | Automated GET | Note |
 | --- | --- | --- | --- |
-| DOE CCMS | `www.regulations.doe.gov` | **200** | Reachable with a plain descriptive user agent |
+| DOE CCMS | `www.regulations.doe.gov` | **200 only with a browser user agent** | See the correction below |
 | Australian Energy Rating | `www.energyrating.gov.au` | **403** | Refused with the same client; could not be qualified from here |
 | data.gov.au CKAN search | `data.gov.au` | 404 on the tried path | Endpoint shape unconfirmed; not pursued further |
 
 A first pass using a different fetcher returned 403 for the DOE host too. That
-was the fetcher's own user agent being refused, not the publisher refusing
-automated access — worth recording because it nearly produced the wrong
-conclusion. **A single 403 is not evidence of a publisher policy.**
+was read at the time as the fetcher's own user agent being refused rather than
+the publisher refusing automated access. **A single 403 is not evidence of a
+publisher policy** — that methodological point stands, but the specific
+conclusion drawn from it was wrong, and is corrected immediately below.
+
+### Correction, measured later the same day
+
+The DOE host was re-probed with four clients against the same URL:
+
+| Client user agent | Result |
+| --- | --- |
+| `curl/8.5.0` | **403** |
+| `Mozilla/5.0` | **403** |
+| `data-foundry-research` | **403** |
+| Full Chrome desktop UA string | **200** |
+
+A descriptive agent token does not work. Only a complete browser user agent is
+served. The earlier cell claiming "reachable with a plain descriptive user
+agent" was not reproducible and should not be relied on.
+
+This is a materially different finding from "the fetcher was at fault", and it
+is dealt with as a decision rather than an engineering detail under
+[access-method acceptability](#access-method-acceptability-and-durability).
 
 The Australian register could not be qualified from this environment. That is
 an environment-and-publisher observation, not a finding that automated access
@@ -129,6 +149,72 @@ machinery to honour and none of which may be softened in customer-facing copy:
 `robots.txt` is neither a licence nor permission to redistribute. It answers the
 packet's "robots/rate-limit requirements" cell and nothing else.
 
+## Query surface, confirmed from the shipped bundle
+
+Read 2026-09-16 from `/certification-data/ccms-min/main.js?v=20260915022737`:
+
+- Every query is a `POST` to `<solrUrl>select` with `wt=json`.
+- The parameters in use are `q`, `fq`, `fl`, `start`, `rows` and `sort`, plus
+  facet requests. Filtering, projection, paging, ordering and exact counts are
+  therefore all available — the slice model this product needs is supported.
+- The equipment-class facet is **`Product_Group_s`**; the application bootstraps
+  its class list with `q=Product_Group_s:*`. Other observed fields follow the
+  same Solr dynamic-field convention (`Cost_Category_s`, and a bare `oop`).
+- CSV export is confirmed client-side: the bundle loads `papaparse` and builds
+  the download from result rows. There is no separately published bulk file.
+
+**`solrUrl` is still not resolvable from published assets.** The bundle contains
+only AjaxSolr's library default, `http://localhost:8983/solr/`; the real value is
+supplied at runtime and is not in the HTML, the bundle, or a fetched config. The
+review packet's "exact endpoint/resource IDs" cell therefore **still cannot be
+filled from public evidence**, which is the same gap 8 September recorded, now
+with the reason rather than the symptom.
+
+## Access-method acceptability and durability
+
+Three observations combine into one decision the reviewer has to make, and it is
+not an engineering detail:
+
+1. **The edge serves only browser user agents.** An acquisition pipeline would
+   have to present itself as a desktop browser to retrieve anything at all.
+2. **The endpoint is internal and unnamed.** It is not a documented API; it is
+   the private backend of a search page, discovered by reading the page's own
+   JavaScript.
+3. **It is unversioned and changes.** The bundle is cache-busted with a
+   timestamp — `20260915022737`, the day before this reading. Field names,
+   parameters and the endpoint itself can move without notice or deprecation.
+
+What this is **not**: `robots.txt` does not disallow `/certification-data/`, the
+records are public, and nothing observed states a prohibition on automated
+access. This is not a finding that retrieval is forbidden.
+
+What it **is**: a paid product would rest on an undocumented internal endpoint,
+reached by misrepresenting the client, with no stability contract, carrying
+records whose accuracy the publisher disclaims and which it says have "no legal
+significance". Each of those is survivable alone. Together they describe a
+supply chain that can break silently between two-week refresh cycles and that
+the publisher never agreed to serve.
+
+The honest options, for the reviewer rather than for engineering:
+
+- **Ask DOE.** The help-and-contact page exists. A short request for the
+  supported way to obtain these records in bulk converts every one of the three
+  observations above into either a documented path or a clear answer. This
+  costs a letter and is the only option that removes the durability risk rather
+  than accepting it.
+- **Proceed on the public endpoint with the risk recorded**, a descriptive user
+  agent that identifies the operator, low request volume, and an explicit
+  expectation that the pipeline may break without warning. Note that a
+  descriptive agent currently receives 403, so this option as stated may not
+  retrieve anything — which is itself the answer to whether the publisher wants
+  automated clients.
+- **Do not build on it.** Treat CCMS as corroboration for a source that does
+  publish a supported interface, rather than as the primary supply.
+
+Engineering's recommendation is the first: **ask before building.** The cost is
+days; the alternative is a revenue-bearing pipeline whose upstream never agreed
+to be one.
+
 ## What is still the reviewer's to decide
 
 Engineering has taken this as far as public evidence allows. The remaining
@@ -150,15 +236,26 @@ public URL, a government host, a permissive `robots.txt` or an open endpoint:
    statement?
 5. **Review expiry.** Who is the named reviewer, with what authority, and when
    is the decision revisited?
+6. **Access method.** Is presenting a browser user agent to an undocumented
+   internal endpoint an acceptable way to supply a paid product, or must a
+   supported path be requested from DOE first? See
+   [access-method acceptability](#access-method-acceptability-and-durability).
 
 ## Recommendation
 
 Advance DOE CCMS as the first-source candidate and let the Australian register
 lapse to "unqualified — unreachable" rather than carrying it as an equal option
-it is not. DOE CCMS is reachable, structured, filterable, and its scope and
-provenance semantics are documented plainly enough to build honest product copy
-around. Its limitations are real but they are *describable*, which is what the
+it is not. DOE CCMS is structured, filterable, and its scope and provenance
+semantics are documented plainly enough to build honest product copy around. Its
+limitations are real but they are *describable*, which is what the
 rights-and-evidence model needs.
+
+Advance it, however, **with the access question answered first**. The later
+measurements in this document weakened the "reachable" claim specifically: it is
+reachable by a browser, not by a declared automated client, over an endpoint the
+publisher has not published. Sending DOE a short request for a supported bulk
+path is the cheapest way to convert that from a standing risk into a fact, and it
+can run in parallel with the rights decision rather than after it.
 
 Nothing here approves it. Acquisition stays blocked until a named reviewer
 records the decision under `UA-001`.
