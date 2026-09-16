@@ -1391,6 +1391,229 @@ function repositoryDigest(migrations: readonly EffectiveMigration[]): string {
   return hash.digest('hex');
 }
 
+const REPLACED_FUNCTION = /CREATE\s+OR\s+REPLACE\s+FUNCTION\s+([a-z_][a-z0-9_]*)\s*\(/giu;
+const SECURITY_DEFINER = /\bSECURITY\s+DEFINER\b/iu;
+
+/**
+ * Function names a pending migration replaces with a definition that carries no
+ * security clause, and is therefore reset to the default `SECURITY INVOKER`.
+ *
+ * Deliberately conservative: a migration mentioning `SECURITY DEFINER` anywhere
+ * exempts nothing, because the cost of wrongly exempting a privilege-escalating
+ * function is higher than the cost of one extra repair cycle.
+ */
+export function functionsReplacedWithoutSecurityDefiner(
+  pendingMigrations: readonly Migration[],
+): string[] {
+  const names = new Set<string>();
+  for (const migration of pendingMigrations) {
+    if (SECURITY_DEFINER.test(migration.sql)) continue;
+    for (const match of migration.sql.matchAll(REPLACED_FUNCTION)) {
+      const name = match[1];
+      if (name !== undefined) names.add(name);
+    }
+  }
+  return [...names].sort();
+}
+
+/**
+ * The grant install's prerequisites, as a read-only probe instead of a raise.
+ *
+ * `upgradeFrom0028Sql` asserts a set of invariants before it grants anything and
+ * `RAISE`s on the first one that fails. That is correct for the install and
+ * useless for an operator, because by then the migrations have already
+ * committed: the rollback unwinds the grants and cannot unwind the ledger. The
+ * direct-TLS operator needs the same questions asked *before* the first
+ * mutation, which means the same SQL fragments, not a paraphrase of them.
+ *
+ * Each row is one violation, labelled with the probe that produced it and
+ * carrying that probe's own columns as JSON so the operator sees what differs
+ * rather than only that something did.
+ *
+ * Two of the install's prerequisites are deliberately absent. The
+ * existing-privilege count and the complete private direct-ACL baseline both
+ * describe the object set *after* the pending migrations create their tables,
+ * so checking them beforehand would report drift that is merely the future. They
+ * remain the one class that can still fail once migrations are committed.
+ */
+export function buildGrantPrerequisiteProbeSql(
+  schema: string = DATA_FOUNDRY_PRIVATE_SCHEMA,
+  migrationRole: string = REQUIRED_MIGRATION_ROLE,
+  pendingMigrations: readonly Migration[] = [],
+): string {
+  validateTarget(schema, migrationRole);
+  const securityDefinerExemptions = functionsReplacedWithoutSecurityDefiner(pendingMigrations);
+  const targetPredicate = `grantee.rolname = ANY(${runtimeRoleArraySql()})`;
+  const forbiddenNamedPredicate =
+    "grantee.rolname = ANY(ARRAY['anon', 'authenticated', 'service_role']::text[])";
+  const runtimeRolePredicate = `runtime_role.rolname = ANY(${runtimeRoleArraySql()})`;
+  const probe = (name: string, sql: string): string =>
+    `SELECT ${sqlLiteral(name)}::text AS probe, (pg_catalog.to_jsonb(violation.*))::text AS detail
+   FROM (\n${sql}\n) violation`;
+
+  return [
+    probe('migration-role-posture', buildMigrationRoleUnsafePostureSql(migrationRole)),
+    probe(
+      'migration-role-durable-settings',
+      buildMigrationRoleUnsafeDurableSettingSql(schema, migrationRole),
+    ),
+    probe('migration-session', buildUnsafeMigrationSessionSql()),
+    probe(
+      'migration-role-default-acl',
+      buildMigrationRoleUnsafeDefaultAclSql(schema, migrationRole),
+    ),
+    probe(
+      'migration-role-external-capability',
+      buildMigrationRoleUnsafeExternalCapabilitySql(schema, migrationRole),
+    ),
+    probe(
+      'runtime-role-durable-settings',
+      buildRuntimeRoleUnsafeDurableSettingSql(schema, runtimeRolePredicate, true),
+    ),
+    probe('forbidden-public-private-acl', publicPrivateAclRowsSql(schema)),
+    probe('forbidden-named-private-acl', aclInventorySql(schema, forbiddenNamedPredicate)),
+    probe(
+      'runtime-role-external-acl',
+      `WITH expected(scope, object_name, column_name, role_name, privilege, is_grantable) AS (VALUES
+${buildRuntimeRoleExpectedExternalAclValuesSql()}
+  ), live AS (
+${buildRuntimeRoleExternalDirectAclSql(schema, targetPredicate)}
+  )
+  SELECT COALESCE(expected.scope, 'unexpected')::text AS scope,
+         COALESCE(expected.object_name, live.object_name)::text AS object_name,
+         COALESCE(expected.role_name, live.role_name)::text AS role_name,
+         COALESCE(expected.privilege, live.privilege)::text AS privilege,
+         (expected.scope IS NULL)::boolean AS present_but_unexpected
+    FROM expected FULL OUTER JOIN live
+   USING (scope, object_name, column_name, role_name, privilege, is_grantable)
+   WHERE expected.scope IS NULL OR live.scope IS NULL`,
+    ),
+    probe(
+      'runtime-role-external-capability',
+      buildRuntimeRoleReachableExternalCapabilitySql(schema, runtimeRolePredicate),
+    ),
+    // Object-inventory drift, asked in the only direction that is answerable
+    // before the pending migrations run. "Expected but absent" is meaningless
+    // here — `0027`–`0033` have not created their relations yet — but "present
+    // and unexpected" is drift now and stays drift afterwards, and the install
+    // rejects it either way. An extra table someone left in the schema would
+    // otherwise sail through preflight and fail the grant upgrade.
+    probe(
+      'unexpected-relation',
+      `WITH expected(relname, relkind) AS (VALUES
+${expectedRelationValuesSql()}
+  )
+  SELECT live.relname::text AS relname, live.relkind::text AS relkind,
+         pg_catalog.pg_get_userbyid(live.relowner)::text AS owner_name
+    FROM pg_catalog.pg_class live
+    JOIN pg_catalog.pg_namespace ns ON ns.oid = live.relnamespace
+   WHERE ns.nspname = ${sqlLiteral(schema)}
+     AND live.relkind IN ('r', 'p', 'v', 'm', 'S', 'f')
+     AND NOT EXISTS (
+       SELECT 1 FROM expected
+        WHERE expected.relname = live.relname::text
+          AND expected.relkind = live.relkind::text
+     )`,
+    ),
+    // `applyMigrations` calls `assertPrivateMigrationRoleBinding` with
+    // `requireSchemaOwner: true`, and the schema's own owner lives in
+    // `pg_namespace`, not in the relation and function owners checked below. A
+    // drifted namespace owner with intact object owners would otherwise pass
+    // preflight and be refused moments later.
+    probe(
+      'schema-ownership',
+      `SELECT ns.nspname::text AS schema_name,
+         pg_catalog.pg_get_userbyid(ns.nspowner)::text AS owner_name
+    FROM pg_catalog.pg_namespace ns
+   WHERE ns.nspname = ${sqlLiteral(schema)}
+     AND pg_catalog.pg_get_userbyid(ns.nspowner)::text
+           IS DISTINCT FROM ${sqlLiteral(migrationRole)}`,
+    ),
+    probe(
+      'relation-ownership',
+      `SELECT live.relname::text AS relname,
+         pg_catalog.pg_get_userbyid(live.relowner)::text AS owner_name
+    FROM pg_catalog.pg_class live
+    JOIN pg_catalog.pg_namespace ns ON ns.oid = live.relnamespace
+   WHERE ns.nspname = ${sqlLiteral(schema)}
+     AND live.relkind IN ('r', 'p', 'v', 'm', 'S', 'f')
+     AND pg_catalog.pg_get_userbyid(live.relowner)::text
+           IS DISTINCT FROM ${sqlLiteral(migrationRole)}`,
+    ),
+    probe(
+      'unexpected-function',
+      `WITH expected(signature) AS (VALUES
+${expectedFunctionValuesSql()}
+  )
+  SELECT (p.proname || '(' || pg_catalog.oidvectortypes(p.proargtypes) || ')')::text AS signature
+    FROM pg_catalog.pg_proc p
+    JOIN pg_catalog.pg_namespace ns ON ns.oid = p.pronamespace
+   WHERE ns.nspname = ${sqlLiteral(schema)}
+     AND p.prokind IN ('f', 'p', 'a', 'w')
+     AND NOT EXISTS (
+       SELECT 1 FROM expected
+        WHERE expected.signature
+                = (p.proname || '(' || pg_catalog.oidvectortypes(p.proargtypes) || ')')::text
+     )`,
+    ),
+    // Ownership and SECURITY DEFINER only. The canonical function search path is
+    // deliberately NOT checked here: migration `0027` is what sets `proconfig`
+    // on the existing functions, so on any pre-`0027` database every function
+    // legitimately has a null one. Measured against the hosted project on
+    // 2026-09-16, including it would have produced 57 false blockers and stopped
+    // a run that should proceed. It belongs with the post-migration residuals.
+    //
+    // SECURITY DEFINER is exempted for exactly the functions a pending migration
+    // replaces with a definition carrying no security clause, which resets them
+    // to the default INVOKER. Blocking on those would be the same false
+    // prerequisite as the search path: a repair the pending migrations perform
+    // anyway. The exemption is by function name, so an overload of an exempted
+    // name would also be skipped here — the post-migration verification still
+    // requires zero SECURITY DEFINER before the run reports success, so that
+    // narrows to the documented residual rather than escaping entirely.
+    probe(
+      'function-posture',
+      `SELECT (p.proname || '(' || pg_catalog.oidvectortypes(p.proargtypes) || ')')::text AS signature,
+         pg_catalog.pg_get_userbyid(p.proowner)::text AS owner_name,
+         p.prosecdef AS security_definer
+    FROM pg_catalog.pg_proc p
+    JOIN pg_catalog.pg_namespace ns ON ns.oid = p.pronamespace
+   WHERE ns.nspname = ${sqlLiteral(schema)}
+     AND p.prokind IN ('f', 'p', 'a', 'w')
+     AND (
+       (p.prosecdef${
+         securityDefinerExemptions.length === 0
+           ? ''
+           : ` AND p.proname::text <> ALL(ARRAY[${securityDefinerExemptions
+               .map(sqlLiteral)
+               .join(', ')}]::text[])`
+       })
+       OR pg_catalog.pg_get_userbyid(p.proowner)::text IS DISTINCT FROM ${sqlLiteral(migrationRole)}
+     )`,
+    ),
+  ].join('\nUNION ALL\n');
+}
+
+/**
+ * Rebuild the runtime-grant payload for a release's migrations, independently of
+ * any manifest that claims to describe it.
+ *
+ * An exported manifest is an operator artifact that travels between machines as
+ * a JSON file, and its `upgradeFrom0028Sql` and `verificationSql` are executed
+ * as the schema owner. A checksum stored beside the SQL it hashes proves
+ * nothing against an edit, so the direct-TLS operator derives both from the
+ * reviewed release instead of trusting the file, and runs what it derived.
+ */
+export function buildRuntimeGrantPayloadForRelease(
+  migrations: readonly Migration[],
+  schema: string = DATA_FOUNDRY_PRIVATE_SCHEMA,
+  migrationRole: string = REQUIRED_MIGRATION_ROLE,
+): SupabaseRuntimeGrantPayload {
+  validateTarget(schema, migrationRole);
+  validateRepositoryMigrations(migrations);
+  return buildPostMigrationGrantPayload(schema, migrationRole, effectiveMigrations(migrations));
+}
+
 export function buildSupabaseMigrationPlan(
   options: Readonly<BuildSupabaseMigrationPlanOptions>,
 ): SupabaseMigrationPlan {

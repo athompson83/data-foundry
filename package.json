@@ -17,6 +17,7 @@
     "migrate": "tsx tooling/scripts/migrate.ts",
     "migrate:check": "tsx tooling/scripts/migrate.ts --check",
     "migrate:supabase:export": "tsx tooling/scripts/export-supabase-migration-packets.ts",
+    "ua002:operator": "tsx tooling/scripts/ua002-direct-tls-operator.ts",
     "runtime-roles:postgres:check": "tsx tooling/scripts/check-runtime-role-connections-postgres.ts",
     "credentials:provision": "tsx tooling/scripts/provision-api-credential.ts",
     "schemas:generate": "tsx tooling/scripts/generate-json-schemas.ts && corepack pnpm run source-readiness:schema:generate",

@@ -1,6 +1,12 @@
 # Owner action — UA-002 hosted migration handover
 
-Prepared 2026-09-16 against release `eb7e998e6d4a574fa735d8ff54014cde18c25e27`.
+Prepared 2026-09-16. The checksums below were first computed against
+`eb7e998e6d4a574fa735d8ff54014cde18c25e27` and re-verified against merged `main`
+`0026b14b7ef0156519305fec756fae8fa083b169`: 7 matched, 0 mismatched, because
+`db/migrations/` did not change between them. They stay valid for any release SHA
+whose `db/migrations/` tree is identical — and the operator refuses the run rather
+than assuming that, by recomputing every checksum from the Git objects at whatever
+SHA the manifest names.
 
 ## Why this document exists
 
@@ -31,7 +37,9 @@ that can be executed by someone who has a write path.
   `upgradeFrom0028Sql` which refuses to run against anything but the frozen
   199-grant legacy shape.
 
-Expected checksums, for comparison against whatever you regenerate:
+Expected checksums, for comparison against whatever you regenerate. The preflight
+checks these for you; the table is here so a human can spot-check without running
+anything:
 
 | Artefact | Checksum |
 | --- | --- |
@@ -47,7 +55,8 @@ Expected checksums, for comparison against whatever you regenerate:
 | `repositoryDigest` | `8097711644f0b4ecdd91c21b2ba512b29bd4451597af4946f4bee6bf81871d8d` |
 
 If a regenerated manifest disagrees with any row above, **stop** — that means
-the release SHA or the worktree is not what this handover assumed.
+the release SHA or the worktree is not what this handover assumed. The preflight
+treats the same disagreement as a blocker and mutates nothing.
 
 ## The two ways forward
 
@@ -110,6 +119,25 @@ the job, and the job has a documented narrow path.
 Measured read-only against the hosted project on 2026-09-16. Each of these
 blocks the run, and none of them can be done by `df_migration`.
 
+**They are three findings but one action.**
+[`ua-002-provider-staging.sql`](ua-002-provider-staging.sql) does all three in a
+single privileged session: it creates `df_ingestion` in the shape its five
+siblings already have, repairs the durable settings on all seven roles, and marks
+`df_migration` as `LOGIN`. It is idempotent, it is a single `DO` block so a
+partial failure rolls back, it refuses to report success on a state the release
+would reject, and it touches no application data, no other schema and no other
+role.
+
+It deliberately does **not** set the migration password. That value comes from
+the provider's secure credential path and must never be pasted into a chat, a
+file, a shell history or a log.
+
+Validated against real PostgreSQL before publication: starting from the exact
+measured drift (six role-global settings, `df_ingestion` absent, `df_migration`
+`NOLOGIN`), it produced zero role-global settings, seven canonical
+current-database rows, the correct `df_ingestion` shape and a `LOGIN` migration
+role — and a second run changed nothing.
+
 ### 1. `df_migration` cannot log in
 
 `rolcanlogin` is `false`. The release's own posture check treats that as the
@@ -162,45 +190,128 @@ this staging step — the grant upgrade adds its capabilities afterwards.
 
 ## Execution sequence
 
-Run from a clean checkout of exactly `eb7e998e6d4a574fa735d8ff54014cde18c25e27`.
-The export refuses to run unless that SHA is `HEAD` and the non-ignored worktree
-is clean.
+Run from a clean checkout of the release you intend to deploy — merged `main`,
+at or after `0026b14`. The export refuses to run unless that SHA is `HEAD` and the
+non-ignored worktree is clean, including untracked files.
 
 1. **Regenerate the manifest** using the runbook's direct invocation:
 
    ```
-   node_modules/.bin/tsx tooling/scripts/export-supabase-migration-packets.ts --release-sha eb7e998e6d4a574fa735d8ff54014cde18c25e27 > <non-secret-local-packet-path>
+   node_modules/.bin/tsx tooling/scripts/export-supabase-migration-packets.ts --release-sha <release-sha> > <non-secret-local-packet-path>
    ```
 
    Confirm `pendingMigrationCount: 7`, `repositoryDigest` and every checksum
    against the table above before anything is applied.
 
-2. **Verify preconditions** with `preflightSql` and confirm the ledger is still
-   at `0026`. If it is not, stop and re-derive: this handover's baseline no
-   longer holds.
+2. **Run [`ua-002-provider-staging.sql`](ua-002-provider-staging.sql) once**, in
+   a privileged provider session, and set the migration password through the
+   provider's secure credential path.
 
-3. **Confirm the prerequisites above are done** — migration login active, all
-   six roles' durable settings repaired, `df_ingestion` staged. These are
-   provider-path steps with a privileged identity, completed *before* the
-   direct-TLS session opens; the migration role can verify them but cannot
-   perform them.
+   This comes before the preflight, not after it, for a blunt reason: on the
+   recorded baseline `df_migration` is `NOLOGIN` and has no password, so the
+   preflight cannot open a connection at all until this step has run. The
+   preflight is how you *verify* staging, not how you discover it — the three
+   prerequisites are already measured and recorded above.
 
-4. **Apply `0027` through `0033` in order**, each in its own transaction as
-   `df_migration`, each writing its ledger row in that same transaction. If any
-   packet fails, verify the rollback left the ledger and the object inventory
-   untouched **before** continuing — a partial application is the one outcome
-   this design is built to make impossible, and it should be proven rather than
-   assumed.
+   The migration role cannot perform any of this itself: it is `NOCREATEROLE`
+   and can alter only its own settings.
 
-5. **Apply `postMigrationGrants.upgradeFrom0028Sql`** — not the fresh-install
-   `sql`, which refuses pre-existing runtime ACLs. It requires the frozen
-   199-grant baseline and the full current ledger, adds only reviewed
-   capabilities, and checks its postcondition in the same transaction. Unknown
-   ACL drift must fail; do not normalize or revoke unrelated grants.
+3. **Run the preflight.** Export the connection string into the environment —
+   never onto a command line, into a file, or into a log — and run:
 
-6. **Require `postMigrationGrants.verificationSql` to pass** after the upgrade.
-   Expect 33 applied migrations, six roles, 59 function signatures and 286
-   grants.
+   ```
+   export DATA_FOUNDRY_RELEASE_SHA=<release-sha>
+   export DATA_FOUNDRY_MIGRATION_DATABASE_URL='...'   # from the secret store, not typed
+   pnpm ua002:operator -- --packet <non-secret-local-packet-path>
+   ```
+
+   This is read-only and mutates nothing. It checks, in one pass: the session is
+   a direct `df_migration` login and is writable and not a standby; **every
+   prerequisite the grant install asserts** — migration-role posture and session,
+   default object ACLs, external capability, durable settings for all seven
+   roles, runtime-role external ACLs, and forbidden `PUBLIC`/`anon`/
+   `authenticated`/`service_role` grants on the private schema, plus any relation
+   or function already present that the release does not expect, the schema's own
+   owner and any object not owned by the migration role, and any
+   `SECURITY DEFINER` function — using the exporter's own SQL rather than a
+   paraphrase; every role exists in the reviewed shape with no outgoing
+   memberships; the ledger carries this
+   project's marker and is where the packet expects; no packet would replay an
+   applied migration; **the ledger and the packet together account for every
+   migration at the release**, so nothing gets applied unlisted; every checksum —
+   pending *and* already applied — recomputes from the Git objects, with applied
+   filenames compared too because the grant upgrade's ledger comparison includes
+   them; and the grant payload the manifest carries matches one **rebuilt from
+   the release**.
+
+   That last check matters more than it sounds. The manifest's
+   `upgradeFrom0028Sql` and `verificationSql` are executed as the schema owner,
+   and its checksum is stored beside the SQL it hashes, so it proves nothing
+   against an edit. The operator therefore rebuilds the payload from the release
+   and **runs what it rebuilt**, treating the file as a declaration to verify
+   rather than as the thing to execute. A substituted verifier cannot report
+   success on an unverified database.
+
+   Because the rebuild uses this checkout's code, the operator also requires
+   `DATA_FOUNDRY_RELEASE_SHA` to equal the packet's release, `HEAD` to equal
+   that SHA, and the worktree to be clean including untracked files.
+
+   **One residual, stated rather than hidden.** Two of the install's
+   prerequisites — the existing-privilege count and the complete private
+   direct-ACL baseline — describe the object set *after* the pending migrations
+   create their tables, so they cannot be checked beforehand without reporting
+   drift that is merely the future. Object *inventory* is checked in the one
+   direction that is answerable now: "present but unexpected" is drift today and
+   stays drift afterwards, so it is a blocker; "expected but absent" is simply a
+   migration that has not run yet, so it is not.
+
+   Function search paths are a third such case. Migration `0027` is what sets
+   `proconfig` on the existing functions, so on the current hosted database all
+   57 legitimately have none — checking that here would have produced 57 false
+   blockers against a run that should proceed. Ownership is always checked.
+   `SECURITY DEFINER` is checked too, except on the functions a pending migration
+   replaces with a definition carrying no security clause, which resets them to
+   the default `INVOKER` — for the current pending set that is five names,
+   including `source_record_snapshot_retirements_validate` and
+   `scheduled_acquisition_run_terminal_guard`. A migration that mentions
+   `SECURITY DEFINER` anywhere exempts nothing, because wrongly exempting a
+   privilege-escalating function costs more than one extra repair cycle. They remain the one class that can still fail
+   once migrations are committed. If that happens, the migrations are applied and
+   the grants are not: re-run the preflight, repair what it names, and re-run
+   `--apply`, which skips the already-ledgered migrations and retries the grant
+   upgrade.
+
+   It prints every blocker at once rather than stopping at the first, because
+   the repairs need a privileged provider session anyway and you want one trip,
+   not three. **Exit status 2 means blockers were found and nothing was
+   touched.**
+
+4. **If the preflight reports blockers, repair them and run it again.** Exit
+   status 2 means nothing was touched. Most repairs belong to the same
+   privileged provider session as step 2.
+
+5. **Apply, once the preflight is clean**, with the same command and one more
+   flag:
+
+   ```
+   pnpm ua002:operator -- --packet <non-secret-local-packet-path> --apply
+   ```
+
+   It re-runs the whole preflight first — a clean report from ten minutes ago is
+   not a precondition — and then, in order: applies `0027` through `0033`, each
+   in its own transaction as `df_migration` with its ledger row written in that
+   same transaction and already-applied versions skipped rather than replayed;
+   applies `postMigrationGrants.upgradeFrom0028Sql` in a single transaction
+   (**not** the fresh-install `sql`, which refuses pre-existing runtime ACLs);
+   and runs `postMigrationGrants.verificationSql`.
+
+   If the grant upgrade fails, the runner rolls back and then *proves* the
+   session recovered before reporting, rather than assuming PostgreSQL did it —
+   a session left in a failed transaction silently swallows everything after.
+   Unknown ACL drift must fail; do not normalize or revoke unrelated grants.
+
+6. **Expect, at the end:** 33 applied migrations, six roles, 59 function
+   signatures and 286 grants.
 
 ## Where this stops
 
