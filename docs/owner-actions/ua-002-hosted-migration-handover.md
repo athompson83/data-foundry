@@ -9,6 +9,12 @@ exported manifest byte for byte across `upgradeFrom0028Sql`,
 `upgradeFrom0028Checksum` and `verificationSql`, so the operator's own integrity
 check passes against a manifest generated from it.
 
+Re-verified after `#43` merged: regenerating at `main`
+`5e263fc9326962de4e009b9047e5af1a04053df5` reproduces all ten rows of the table
+below unchanged, because that merge touched documentation only. Either SHA is
+usable for this run. Any *further* commit needs its own regeneration — see the
+next paragraph for why the migration tree alone does not settle it.
+
 Only the migration-derived values survive a change of release: the seven
 migration checksums and `repositoryDigest` are computed from `db/migrations/`
 alone, so an identical migration tree reproduces them at any SHA. The grant
@@ -266,6 +272,19 @@ puts the connection string in the process list, where any other user on the host
 can read it. Prefer a `.pgpass` entry, a libpq service file, or `PGPASSWORD` with
 the other connection parameters, so the secret never becomes an argument. The
 operator itself never takes one.
+
+**If a step fails with only `Direct PostgreSQL migration failed.`** — no
+category, no detail — that is deliberate, not a bug. Once
+`DATA_FOUNDRY_MIGRATION_DATABASE_URL` is set in the environment,
+`migrationFailureMessage` redacts every error that does not match its
+allowlist of safe categories, because a raw driver error can carry the
+connection string. Measured on the merged release: the same run with the
+variable unset prints the full message and stack. So to diagnose an opaque
+failure, unset the credential and re-run the step that failed. Packet
+parsing, the release-SHA guard and the clean-checkout identity guard all run
+before the driver is created, so those three reproduce with no database at
+all; the checksum and preflight probes need the connection, so for those
+read the categories the allowlist does emit.
 
 Expect from the export: `repositoryMigrationCount: 33`, `appliedMigrationCount: 26`,
 `pendingMigrationCount: 7`, `repositoryDigest`
