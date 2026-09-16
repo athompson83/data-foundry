@@ -346,11 +346,28 @@ jobs:
             exit 1
           fi
           startup_stage='readiness'
+          # Probe over TCP, not the Unix socket. The official Postgres image
+          # runs a temporary server for initdb with listen_addresses='' and
+          # then shuts it down to restart for real. A socket probe succeeds
+          # against that temporary server, so the loop can declare readiness
+          # during the init phase and the next step then fails with
+          # "the database system is shutting down". TCP is not served by the
+          # init server, so it cannot produce that false positive.
+          #
+          # Requiring two consecutive successes closes the remaining window:
+          # a single success could still land in the instant before a
+          # shutdown that has been signalled but not yet applied.
           ready='false'
-          for attempt in $(seq 1 30); do
-            if docker exec "$container_name" pg_isready -U postgres -d data_foundry >/dev/null 2>&1; then
-              ready='true'
-              break
+          consecutive=0
+          for attempt in $(seq 1 60); do
+            if docker exec "$container_name" pg_isready -h 127.0.0.1 -p 5432 -U postgres -d data_foundry >/dev/null 2>&1; then
+              consecutive=$((consecutive + 1))
+              if [ "$consecutive" -ge 2 ]; then
+                ready='true'
+                break
+              fi
+            else
+              consecutive=0
             fi
             sleep 1
           done
