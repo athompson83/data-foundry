@@ -1,125 +1,52 @@
-# AGENTS.md — Data Foundry
+# Data Foundry — shared agent entry point
 
-## Session control
+## Authority and discovery
 
-This repository adopts [`APP_PROJECT_CONTROL_STANDARD.md`](APP_PROJECT_CONTROL_STANDARD.md) as the standing delivery authority until the Product Owner explicitly declares Data Foundry shipped and live or changes that authority.
+- `APP_PROJECT_CONTROL_STANDARD.md` remains canonical standing delivery authority. Read it, this file, `PROJECT_CHECKLIST.md`, and the current `PROGRESS.md` handoff; reconcile claims against GitHub, Cloudflare/runtime, and the actual database target.
+- The prior detailed guidance is preserved unchanged in `docs/agents/operating-reference-2026-09-10.md`. Applicable rules remain binding; paths inside that reference are repository-root-relative. Load relevant sections and directory-scoped instructions on demand.
+- Use existing plans and ADRs for product requirements, architecture, and release authority. Do not create another constitution, parallel roadmap, or generic SaaS scaffold.
+- Work on one valuable end-to-end milestone with explicit non-goals. Repair relevant blockers/invariant violations; record unrelated cleanup without silently enlarging the release.
 
-At the start of every material coding session, read this file, `APP_PROJECT_CONTROL_STANDARD.md`, `PROJECT_CHECKLIST.md`, and `PROGRESS.md`; then reconcile them against Git, relevant pull requests and issues, Cloudflare/runtime state, and the database target. Primary repository and runtime evidence overrides stale handoff text.
+## Product and architecture boundaries
 
-During authorized work, act and continue through safe recovery paths: fix relevant actionable defects as found, add regression coverage when meaningful, prefer deterministic local repair loops before hosted CI, verify deployed behavior rather than treating green code checks as runtime proof, remove code only after proving it stale, close resolved findings, and clean merged branches only after confirming they contain no unique work.
+- Convert lawfully acquired artifacts into canonical, evidence-backed vertical knowledge products served through human pages, API, MCP, and bulk exports.
+- Preserve the sequence: approved source → artifact → extraction → normalization → entity resolution → validation → provenance → canonical query layer → consumer surfaces.
+- Deployment remains Cloudflare under ADR-0006. General Vercel authority does not change that architecture. Reuse canonical Cloudflare/Postgres infrastructure and appropriate isolated targets.
+- Acquisition, extraction, normalization, resolution, canonical storage, and query are separate layers; web/API/MCP are interfaces, not competing business-logic owners.
+- Preserve TypeScript/Python responsibilities, Postgres canonical storage, R2 artifacts, Parquet/JSONL exports, and the established remote MCP transport.
+- No source without rights metadata; unreviewed/RED sources cannot publish. No published critical fact without source lineage. Retain raw evidence needed to explain or reprocess facts.
+- Entity merges must be auditable and reversible; never silently let an LLM merge identities. Exact identifiers take precedence over semantic similarity.
+- Verticals are schema/configuration, not separate app forks. Each needs schemas, predicates, normalization, source registry, filters, indexability, MCP intents, quality rules, golden fixtures, and rights notes.
+- Acquisition providers remain replaceable adapters. Preserve image rights, quality/demand-gated indexability, and one canonical query layer for web/API/MCP parity.
+- Do not add Kubernetes, dedicated graph/search infrastructure, arbitrary customer ETL, a generalized workflow builder, many MCP tools, or per-vertical repos without measured need.
 
-Use the existing canonical Cloudflare and Postgres/Supabase infrastructure with native branch, preview, or local isolation. Do not create duplicate Vercel, Cloudflare, or Supabase projects when existing project isolation can safely satisfy the task. Data Foundry's deployment target remains Cloudflare under ADR-0006; the general Vercel authority in the control standard does not override that repository-specific architecture decision.
+## Reproducible work and executable evidence
 
-Before ending a material session, update `PROJECT_CHECKLIST.md` and `PROGRESS.md` once near closeout, update affected roadmap or release documents, resolve completed issues/review findings, record verification evidence, and provide the owner-facing report required by the control standard. Do not turn routine engineering work into owner action.
+- The manifest specifies `pnpm@9.15.4` and Node `>=22`. Use `corepack pnpm install --frozen-lockfile`; reconcile the actual Node pin across local, CI, and hosting rather than inventing one from the range.
+- Existing commands include `corepack pnpm run build`, `typecheck`, `test`, `schemas:check`, `openapi:check`, `verticals:validate`, and `cloudflare:topology:check`.
+- `lint` currently runs the same TypeScript check as `typecheck`; do not count identical work as two independent assurances.
+- Select relevant ingestion/acquisition/source-record/credential PostgreSQL checks from the manifest for affected paths. Confirm the target is disposable or explicitly authorized before any database operation; `migrate` is a mutation, not a harmless verification alias.
+- Preserve schema compatibility, source extraction fixtures, entity-resolution goldens, provenance, rights, metadata/indexability, and API/MCP parity tests.
+- Ordinary tests use synthetic data and disposable services without Production credentials, acquisition charges, or paid-provider calls. Keep authorized live checks and source-rights decisions separate.
+- Prove a complete approved-source-to-query/export path, including denied publication for unapproved sources and evidence/freshness handling. An adapter, compiled profile, or passing unit test alone does not prove live ingestion or publishability.
+- Never add placeholder setup/doctor/smoke scripts, suppress failures, or silently skip required work. When changing verification, demonstrate that a deliberate failure is detected.
+- Document variable names, consuming component, environment, public/server-only classification, and validation method—not secret values.
 
-## Mission
+## Economical CI and platform controls
 
-Build a repeatable AI-native data foundry that converts messy, lawfully acquired source data into canonical, evidence-backed vertical knowledge products available through human pages, API, MCP and bulk exports.
+- Run focused local checks before coherent pushes; broaden for shared schemas/contracts, security, migrations, dependencies, toolchain, workflow, or agent-policy changes.
+- Diagnose complete failing logs before reruns. No speculative pushes or empty commits; allow at most one evidence-supported transient retry.
+- Ordinary prose-only routing needs an explicit allowlist. Agent/release policy and executable documentation are not automatically harmless Markdown.
+- Preserve required workflows and gates. When changing routing, test selection and an always-evaluated final gate that rejects failed, cancelled, or missing required work.
+- Avoid duplicate push/PR work, unnecessary matrices/artifacts, and unrelated database/deployment jobs. Cancel superseded PR validation, not blindly deployments or migrations.
+- Preserve least privilege, immutable action references, untrusted/privileged separation, rights/provenance/migration/security gates, and canonical project ownership.
+- A merge can trigger deployment. Check actual branch rules, deployment triggers, environment scopes, target identifiers, release authority, and recovery readiness before merging; repository text is not platform enforcement.
 
-## North-star workflow
+## Compact memory and handoff
 
-```text
-Source approved
-→ artifact acquired
-→ record extracted
-→ values normalized
-→ entity resolved
-→ facts/relationships validated
-→ provenance attached
-→ published to canonical query layer
-→ web/API/MCP/exports generated
-```
+- Track implemented, wired, locally verified, hosted verified, and released separately. Record exact SHA, commands/results, environment, and evidence; distinguish fixtures from real provider/database/runtime results.
+- Keep `PROJECT_CHECKLIST.md` evidence-linked and `PROGRESS.md` a concise current handoff. Archive history without deleting evidence or overwriting existing launch blockers.
+- Follow the canonical closeout report: actual work and verification, unresolved blockers, genuine owner-only actions, and next smallest task. Do not mark source rights, provider activation, marketplace setup, or release gates complete from documentation changes.
+- Use existing skills selectively, one implementer and a separate review pass by default, with isolated databases/ports/credentials for parallel work. Confirm guidance loading and real command discovery in fresh Codex/Claude sessions.
 
-## Non-negotiable rules
-
-1. **No source without rights metadata.** Unreviewed/RED sources must not publish.
-2. **No published fact without evidence.** Critical facts require traceable source lineage.
-3. **No silent LLM entity merges.** AI may recommend bounded decisions; merges must be auditable and reversible.
-4. **No vertical-specific forks of the app.** Add fields, filters and page behavior through vertical schemas/configuration.
-5. **One source of truth.** Web/API/MCP must read from the same canonical query layer.
-6. **Keep acquisition providers swappable.** Cloudflare Browser Run and Crawl4AI are adapters, not domain logic.
-7. **Exact identifiers beat semantic search.** Never replace deterministic matching with vector similarity.
-8. **Do not create thin SEO pages.** Indexability is quality/demand gated.
-9. **Respect image rights.** Do not cache/republish images unless rights policy permits it.
-10. **Preserve raw evidence.** Do not discard artifacts required to explain or reprocess canonical facts.
-
-## Architecture boundaries
-
-- Acquisition gets artifacts.
-- Extraction creates source-native records.
-- Normalization creates typed canonical candidates.
-- Entity resolution links identities.
-- Canonical storage maintains entities/facts/relationships/evidence.
-- Query layer serves consumers.
-- Web/API/MCP are interfaces, not business-logic owners.
-
-Avoid imports that cross these boundaries in the wrong direction.
-
-## Implementation preferences
-
-- TypeScript for web/API/MCP/Cloudflare services.
-- Python where mature extraction/data/record-linkage tooling is strongest.
-- Postgres for operational canonical storage.
-- R2 for raw artifacts and exports.
-- Parquet for analytical/bulk output.
-- JSONL for AI-friendly bulk output.
-- Cloudflare Streamable HTTP for new remote MCP deployment.
-
-## Vertical requirements
-
-A vertical must define:
-
-- entity schemas;
-- relationship predicates;
-- normalization rules;
-- source registry entries;
-- filter metadata;
-- SEO/indexability policy;
-- MCP intents/tools;
-- quality rules;
-- fixtures/golden records;
-- rights notes.
-
-## Testing requirements
-
-Every change must preserve:
-
-- schema compatibility or explicit migration;
-- provenance coverage;
-- source fixture extraction;
-- entity-resolution golden tests;
-- API/MCP parity;
-- structured metadata validity;
-- sitemap/indexability consistency;
-- rights gates.
-
-<!-- BEGIN ECONOMICAL CI -->
-## Economical CI (Codex and Claude)
-
-These rules apply equally to Codex, Claude, and any other coding agent:
-
-- Inspect the complete changed-file set before selecting tests. Run the narrowest relevant local checks first, and broaden only when shared code, schemas, migrations, security boundaries, or release behavior changed.
-- Record the exact local commands and results in the pull request. Do not push a speculative fix merely to use GitHub Actions as a debugger.
-- Do not manually rerun a failed Action until its complete failing job and step logs identify a root cause. Never create an empty commit to retrigger CI.
-- Classify failures as deterministic code/configuration, base drift/conflict, flaky/transient, dependency/service outage, secret/permission boundary, or obsolete workflow. A transient external failure may receive at most one targeted rerun when the evidence supports it.
-- Use a draft pull request while iterating when repeated pushes would otherwise run CI. Mark it ready only after relevant local checks pass.
-- GitHub Actions are the clean-environment and protected-gate proof. Preserve migration, rights, provenance, security, deployment, and release assurances when their inputs change; cost reduction must not weaken them.
-<!-- END ECONOMICAL CI -->
-
-## Documentation
-
-Update relevant docs in the same PR as behavior changes. Keep architecture decisions in ADRs. Never leave important assumptions only in prompts or chat history.
-
-## Scope control
-
-For MVP, do not introduce:
-
-- Kubernetes;
-- a dedicated graph DB;
-- a dedicated search cluster;
-- dozens of MCP tools;
-- a generalized workflow builder;
-- separate repos/apps per vertical;
-- arbitrary customer ETL;
-
-unless measured requirements prove the existing architecture insufficient.
+Policy-only adoption evidence: `docs/agent-foundation-review.md`.
