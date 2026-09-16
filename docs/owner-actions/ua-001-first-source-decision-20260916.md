@@ -186,6 +186,44 @@ from data.gov presence, a government host, public accessibility, a permissive
 `robots.txt`, or the existence of an API endpoint — none of which establish
 permission to redistribute commercially.
 
+## What the answer unlocks, measured
+
+The paid path is not waiting on engineering. `pnpm sources:readiness` on the
+merged release reports the vertical `NOT_READY` for exactly one reason, and
+names the blocking conditions itself:
+
+```
+hvac — NOT_READY overall (seven-surface revenue readiness: UNKNOWN)
+  rights evidence: NONE — all seven surface results are UNKNOWN
+  sources: 0 real / 4 synthetic, 0 real publisher(s)
+  blocking real-source validation:
+    - every source is synthetic: the rights machinery has been exercised,
+      but never against terms written by someone else
+    - no real source has a current, named rights review with an approved
+      acquisition method
+```
+
+For a paid direct API, the tool names the three cells that must be granted, and
+`API_PAID` is an AND-bundle so all three are required:
+
+| Operation | Channel |
+| --- | --- |
+| `SERVE_API_ACCESS` | `DIRECT_CUSTOMER_API` |
+| `SELL_API_ACCESS` | `DIRECT_CUSTOMER_API` |
+| `REDISTRIBUTE_NORMALIZED` | `DIRECT_CUSTOMER_API` |
+
+Everything behind those cells is built and passing: the `api-keys` and
+`usage-events` packages are green on the merged release (3 files, 61 tests),
+including the PGlite-backed invoice aggregation, and the six legacy declaration
+inventory checks pass. The machinery refuses to serve without evidence, which is
+the correct behaviour and is why no amount of further engineering moves this.
+
+So the paid-API track and this sheet are the same decision wearing two hats.
+Answering the rights question for one candidate is what turns
+`sources: 0 real / 4 synthetic` into a real publisher and lets the first paid
+request happen. The pricing and invoicing sheet remains separately open, but it
+gates the price, not the possibility.
+
 ## If you want to move fastest
 
 Two questions, either of which unblocks a first source:
