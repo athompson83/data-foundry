@@ -7,6 +7,38 @@ named reviewer can answer once rather than in fragments.
 Technical qualification is finished and lives in
 [the source qualification record](../sources/hvac-first-source-qualification-20260916.md).
 
+## Read this first — a second candidate appeared on 2026-09-16
+
+This sheet was written for DOE CCMS. A qualification check the same day found a
+**documented, publisher-supported alternative** that does not have CCMS's
+access-method problem:
+[ENERGY STAR certified products](../sources/energy-star-certified-products-qualification-20260916.md),
+published by the EPA on a Socrata instance with CSV and JSON distributions,
+`robots.txt` permitting `/api/` and `/resource/`, and 31 HVAC-relevant datasets
+that serve HTTP 200 to a plain descriptive user agent. No impersonation, no
+undocumented endpoint.
+
+The same check settled an open question here: **CCMS has no data.gov catalogue
+entry.** All 112 sitemap shards were enumerated — 559,455 URLs — and no CCMS
+dataset exists among them.
+
+What this changes, and what it does not:
+
+- **It does not make this sheet obsolete.** ENERGY STAR is a *voluntary*
+  label and therefore a higher-efficiency **subset**; CCMS is the *mandatory*
+  compliance database for regulated equipment. They are different populations,
+  not competing copies of one.
+- **It does not transfer any rights answer.** ENERGY STAR carries no `licenseId`
+  and an empty `license` object, and "ENERGY STAR" is a registered certification
+  mark with its own usage rules. It needs its **own** rights determination, not
+  an inherited one.
+- **It does change the recommended order of activation**, on acquisition-method
+  grounds alone: ENERGY STAR can be fetched lawfully and stably today, and CCMS
+  cannot be, pending your method decision.
+
+If you want to answer only one thing right now, the highest-value answer is
+whether to open a rights determination for ENERGY STAR in parallel with this one.
+
 ## Two approvals, not one
 
 This sheet asks for **rights**. It does not and cannot grant an **acquisition

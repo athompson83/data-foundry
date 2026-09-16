@@ -18,13 +18,17 @@ Three measured facts, from
    day before it was read, so field names, parameters and the endpoint can move
    without notice.
 
-A fourth observation, added 2026-09-16: an attempt to find a documented CCMS
-distribution on data.gov could not reach the catalogue API at all.
-`catalog.data.gov` serves its root normally, but every `/api/3/action/*` call
-returned `{"detail":{},"message":"Not Found"}` — not CKAN's own error envelope, so
-that API has moved or changed. **This neither confirms nor rules out a documented
-distribution**; it only means the cheapest way to check was unavailable, which
-makes asking DOE directly more attractive rather than less.
+A fourth observation, resolved 2026-09-16: **CCMS has no data.gov catalogue
+entry.** The catalogue's API is unusable — `/api/3/action/*`, `/api/action/*`,
+`/api/1/*` and `/api/` all return `{"detail":{},"message":"Not Found"}` with a
+non-CKAN envelope, and its `robots.txt` still carries literal placeholder text —
+but the sitemap it advertises does work, and all 112 shards were enumerated:
+559,455 URLs, no CCMS dataset among them.
+
+That is a real negative rather than a failed check. It does **not** rule out an
+extract offered by some other route, which is precisely what question 1 below
+asks. It does mean the cheapest self-service answer has been exhausted, so a
+direct question is now the only way to settle it.
 
 A letter converts all of this from standing risk into a fact. The alternative is a
 revenue-bearing pipeline resting on an interface the publisher never agreed to
