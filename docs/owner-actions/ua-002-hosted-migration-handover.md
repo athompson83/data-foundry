@@ -9,9 +9,17 @@ exported manifest byte for byte across `upgradeFrom0028Sql`,
 `upgradeFrom0028Checksum` and `verificationSql`, so the operator's own integrity
 check passes against a manifest generated from it.
 
-They stay valid for any later release whose `db/migrations/` tree is identical —
-and the operator refuses the run rather than assuming that, by recomputing every
-checksum from the Git objects at whatever SHA the manifest names.
+Only the migration-derived values survive a change of release: the seven
+migration checksums and `repositoryDigest` are computed from `db/migrations/`
+alone, so an identical migration tree reproduces them at any SHA. The grant
+values — `postMigrationGrants`, `upgradeFrom0028Sql` and the SQL they hash — are
+not: they are built from `packages/private-canary/src/runtime-role-policy.ts`
+(all 59 function signatures are embedded in the upgrade SQL),
+`tooling/fixtures/runtime-grants-0028.ts` (the 199-entry legacy baseline the
+upgrade diffs against) and the exporter's own emission order, none of which live
+under `db/migrations/`. Regenerate them at this exact SHA. The operator relies on
+neither claim: it recomputes every checksum from the Git objects at whatever SHA
+the manifest names.
 
 ## Why this document exists
 
@@ -59,9 +67,12 @@ anything:
 | `upgradeFrom0028Sql` | `d73fe6718648ff459cb416d2b665496f841c4a430bc06647c6c55013dd04dd65` |
 | `repositoryDigest` | `8097711644f0b4ecdd91c21b2ba512b29bd4451597af4946f4bee6bf81871d8d` |
 
-If a regenerated manifest disagrees with any row above, **stop** — that means
-the release SHA or the worktree is not what this handover assumed. The preflight
-treats the same disagreement as a blocker and mutates nothing.
+If a manifest regenerated at `2063ea8d72247a9b2643e1c690e37ab55ab14252`
+disagrees with any row above, **stop** — that means the worktree is not what
+this handover assumed. A manifest generated at a later SHA may legitimately
+differ in the two grant rows without any migration having changed; that is a
+different release, and it needs its own checksum table rather than this one.
+The preflight treats the same disagreement as a blocker and mutates nothing.
 
 ## The two ways forward
 
