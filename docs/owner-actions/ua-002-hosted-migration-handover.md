@@ -119,6 +119,25 @@ the job, and the job has a documented narrow path.
 Measured read-only against the hosted project on 2026-09-16. Each of these
 blocks the run, and none of them can be done by `df_migration`.
 
+**They are three findings but one action.**
+[`ua-002-provider-staging.sql`](ua-002-provider-staging.sql) does all three in a
+single privileged session: it creates `df_ingestion` in the shape its five
+siblings already have, repairs the durable settings on all seven roles, and marks
+`df_migration` as `LOGIN`. It is idempotent, it is a single `DO` block so a
+partial failure rolls back, it refuses to report success on a state the release
+would reject, and it touches no application data, no other schema and no other
+role.
+
+It deliberately does **not** set the migration password. That value comes from
+the provider's secure credential path and must never be pasted into a chat, a
+file, a shell history or a log.
+
+Validated against real PostgreSQL before publication: starting from the exact
+measured drift (six role-global settings, `df_ingestion` absent, `df_migration`
+`NOLOGIN`), it produced zero role-global settings, seven canonical
+current-database rows, the correct `df_ingestion` shape and a `LOGIN` migration
+role — and a second run changed nothing.
+
 ### 1. `df_migration` cannot log in
 
 `rolcanlogin` is `false`. The release's own posture check treats that as the
@@ -205,11 +224,11 @@ non-ignored worktree is clean, including untracked files.
    not three. **Exit status 2 means blockers were found and nothing was
    touched.**
 
-3. **Confirm the prerequisites above are done** — migration login active, all
-   six roles' durable settings repaired, `df_ingestion` staged. These are
-   provider-path steps with a privileged identity, completed *before* the
-   direct-TLS session opens; the migration role can verify them but cannot
-   perform them.
+3. **Run [`ua-002-provider-staging.sql`](ua-002-provider-staging.sql) once**, in
+   a privileged provider session, and set the migration password through the
+   provider's secure credential path. This happens *before* the direct-TLS
+   session opens; the migration role can verify the result but cannot produce
+   it. Step 2's preflight is how you confirm it worked.
 
 4. **Apply, once the preflight is clean**, with the same command and one more
    flag:
