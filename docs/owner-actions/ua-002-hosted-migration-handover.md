@@ -307,15 +307,34 @@ operator itself never takes one.
 **If a step fails with only `Direct PostgreSQL migration failed.`** — no
 category, no detail — that is deliberate, not a bug. Once
 `DATA_FOUNDRY_MIGRATION_DATABASE_URL` is set in the environment,
-`migrationFailureMessage` redacts every error that does not match its
+`migrationFailureMessage` redacts every *thrown* error that does not match its
 allowlist of safe categories, because a raw driver error can carry the
-connection string. Measured on the merged release: the same run with the
-variable unset prints the full message and stack. So to diagnose an opaque
-failure, unset the credential and re-run the step that failed. Packet
-parsing, the release-SHA guard and the clean-checkout identity guard all run
-before the driver is created, so those three reproduce with no database at
-all; the checksum and preflight probes need the connection, so for those
-read the categories the allowlist does emit.
+connection string. Diagnose it in this order, and note that only the third step
+involves unsetting anything:
+
+1. **Look for a `[category]` suffix.** `Direct PostgreSQL migration failed
+   [migration-role-posture].` is the allowlist working: it names the class of
+   failure without echoing anything sensitive. Most known migration-time
+   conditions land here.
+2. **Check whether it was a preflight blocker at all.** It probably was not.
+   Preflight findings are *returned*, not thrown — they print as
+   `BLOCK <check>: <detail>` and exit 2 with `N blocker(s). Nothing was
+   mutated.` The redactor never touches them, so every preflight condition is
+   already fully legible. A bare sentence means something threw instead.
+3. **Only for the three pre-driver guards, re-run with the credential unset.**
+   Packet parsing, the release-SHA guard and the clean-checkout identity guard
+   all run before `createPostgresDriver`, so they reproduce with no database at
+   all and print in full. **This does not work for anything later.** `main`
+   resolves the credential before creating the driver, so unsetting it turns a
+   connection, authentication, TLS or SQL failure into the unrelated
+   `DATA_FOUNDRY_MIGRATION_DATABASE_URL is required` error and tells you
+   nothing about the real one.
+4. **For a post-credential failure, reproduce the connection by itself.** Open
+   a plain `psql` session using the same `.pgpass` entry or libpq service file —
+   never as an argument — and let libpq report its own authentication, TLS or
+   network error directly. That path does not pass through the redactor, and it
+   separates "cannot connect" from "connected, then failed", which is the
+   distinction the opaque sentence hides.
 
 Expect from the export: `repositoryMigrationCount: 33`, `appliedMigrationCount: 26`,
 `pendingMigrationCount: 7`, `repositoryDigest`
