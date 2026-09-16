@@ -157,6 +157,40 @@ owner preauthorization recorded in the runbook. No such authorization covers
 substituting. The work therefore stops here and is reported as an owner action
 rather than worked around.
 
+## Direct paid path — what is verified and what is still missing
+
+Verified by running the release's own tests on 2026-09-16 (61 passing across
+`api-keys` and `usage-events`, including the PGlite-backed invoice aggregation):
+
+- Scoped credentials carry an access tier and billing source, and the
+  classification rules are enforced rather than advisory.
+- `aggregateDirectInvoiceEligibleUsage` is the canonical projection of
+  invoiceable usage, with a closed `API_PAID`/`DIRECT` predicate. Marketplace
+  events stay in `api_usage_events` for analytics and reconciliation but are
+  *structurally* absent from the invoice projection, so the same request cannot
+  be billed through two channels.
+- `pnpm credentials:provision` issues a credential for one tenant, one vertical
+  and one tier, and can place the secret directly into Wrangler rather than
+  printing it.
+
+So the entitlement and metering half of a paid machine request is built and
+tested. What remains is not engineering:
+
+| Still required | Kind | Owner |
+| --- | --- | --- |
+| A deployed edge Worker bound to the canonical database | infrastructure | `UA-002` |
+| A rights-approved real source to serve | legal | `UA-001` |
+| A published price and unit (per request, per row, per month) | business decision | owner |
+| An invoicing and collection mechanism | business decision | owner — the repository deliberately has no billing integration |
+| Customer-facing terms, retention schedule and support contact | legal/operational | `UA-007` |
+
+The acceptance test this path needs — discover the catalogue, authenticate with
+a scoped key, retrieve evidence-backed rows, observe the usage row, reconcile it
+against an invoice projection — cannot be written against a live target yet
+because nothing is deployed. Its inputs are settled: the journey is exactly the
+one the merged tests already exercise in pieces, so it becomes an integration
+test the moment a deployed origin and one approved source exist.
+
 ## Consequences
 
 - The shortest verified path to a paid machine request is the direct
