@@ -1,22 +1,25 @@
 # PR #47 — local verification record
 
-Recorded 2026-09-16, before the single verification push, as the PR direction
-requires. Every command below was executed in this environment; every result is
-its actual output, including the two failures.
+Recorded 2026-09-16, as the PR direction requires. Every command below was
+executed in this environment; every result is its actual output, including the
+failures.
 
-## Why this record exists rather than a CI link
+## Why this record exists rather than only a CI link
 
-**CI does not run on this pull request while it is a draft.** All three jobs in
-`.github/workflows/ci.yml` are gated on
-`github.event.pull_request.draft == false`, so the run created for `e177e2d`
+While the pull request was a draft, **CI did not run on it at all.** All three
+jobs in `.github/workflows/ci.yml` are gated on
+`github.event.pull_request.draft == false`, so the runs created for `e177e2d`
 ([35156997717](https://github.com/athompson83/data-foundry/actions/runs/35156997717))
-reported **all three jobs `skipped`** — including `select required checks`,
-which has no other condition.
+and `8820914` ([35158953798](https://github.com/athompson83/data-foundry/actions/runs/35158953798))
+each reported **all three jobs `skipped`** — including `select required checks`,
+which has no other condition. For that window this record was the only
+verification signal available, which is why the whole `verify` job is reproduced
+below rather than a subset.
 
-The PR was converted to draft by its author, so it is not mine to mark ready.
-That makes this local record the only pre-merge verification signal available
-for the changes after `e031e4b`, which is why the whole `verify` job is
-reproduced below rather than a subset.
+The PR has since been marked ready for review under explicit owner
+authorization, and CI runs on it normally again. The record stays because it
+covers things CI does not: the pre-fix regression proofs, the live-libpq
+reproduction, and the checks the workflow does not run.
 
 ## Hosted state of the exact-head run, inspected
 
@@ -40,7 +43,9 @@ and be inspected. It has now finished and is inspected, above.
 
 ## What the repair changed
 
-Two review findings, both verified against primary evidence before any edit:
+Three review findings, each verified against primary evidence before any edit.
+All three were in the same operator-facing block, and each was a way for a
+documented procedure to fail while looking correct:
 
 1. **P1 — invalid Supavisor login.** `.pgpass` and the connection URL hard-coded
    a bare `df_migration`, while `docs/evidence/ua002-execution-environment-20260916.md:165-166`
@@ -49,6 +54,9 @@ Two review findings, both verified against primary evidence before any edit:
 2. **P2 — invalid `.pgpass` encoding.** `:` is the field separator and `\` the
    escape character in `.pgpass`; a valid password containing either was written
    as structure rather than data.
+3. **P2 — append instead of replace.** libpq uses the first matching line, so a
+   stale entry from an earlier password beat the correct one appended below it.
+   Reproduced against a live cluster; see the section below.
 
 The database-side identity assertion is unchanged: the runner still requires
 `session_user` and `current_user` to both be `df_migration` and refuses the run
@@ -61,7 +69,7 @@ one operator document.
 Prose assertions alone would let the snippet drift from what it claims, so both
 new files **execute** the artifact under test.
 
-`tooling/test/ua002-credential-placement-doc.test.ts` (11 tests) extracts the
+`tooling/test/ua002-credential-placement-doc.test.ts` (13 tests) extracts the
 documented `.pgpass` block from the handover and runs it verbatim under `bash`
 with a throwaway `HOME`, then parses the result back with libpq's own rule
 (unescaped `:` separates, `\` escapes the next character). Passwords used are
@@ -79,12 +87,58 @@ that passes on the broken version proves nothing:**
 | Test file | Against | Result |
 | --- | --- | --- |
 | `ua002-credential-placement-doc.test.ts` | doc at `e031e4b` (pre-fix) | **9 of 11 failed** |
-| `ua002-credential-placement-doc.test.ts` | doc at HEAD | 11 passed |
+| `ua002-credential-placement-doc.test.ts` | doc at HEAD | 13 passed |
+| `ua002-credential-placement-doc.test.ts` | doc at `8820914` (append-only) | **2 of 13 failed** |
 | `ci-postgres-readiness.test.ts` | `ci.yml` at `0620672` (socket probe) | **4 of 5 failed** |
 | `ci-postgres-readiness.test.ts` | `ci.yml` at HEAD | 5 passed |
 
 The tests that pass on both are the ones that were already true before the fix
 (the block exists; the URL carried no password; the step fails closed).
+
+## Third finding: the `.pgpass` write replaced an entry, it did not append
+
+Raised on `8820914` and **reproduced against real libpq before any edit**, not
+reasoned about from documentation.
+
+A throwaway PostgreSQL 16 cluster with `scram-sha-256` password authentication
+was started on port 5433, and `psql` was pointed at it through a `.pgpass` whose
+contents were varied:
+
+| `.pgpass` contents | Result |
+| --- | --- |
+| correct entry only | **connects** |
+| stale entry first, correct entry second | **`password authentication failed`** |
+| correct entry first, stale entry second | **connects** |
+
+The middle row is exactly what the append-only procedure produced after a
+password rotation: the operator follows the documented steps, gets a correct
+entry appended below a stale one, libpq takes the first match, and the error
+blames the credential rather than the file.
+
+The block now drops any existing entry for the same host, port, database and
+login with `awk`, writes through a temporary file in the same directory, and
+`mv`s it into place. **Verified end-to-end against the same live cluster**, with
+a stale entry and an unrelated credential both seeded first:
+
+```
+.pgpass BEFORE
+  127.0.0.1:5433:postgres:pgowner:STALE-old-password
+  other.host:5432:otherdb:otheruser:keep-me
+
+.pgpass AFTER running the documented block
+  other.host:5432:otherdb:otheruser:keep-me
+  127.0.0.1:5433:postgres:pgowner:correct-horse
+  mode 600, no temporary file left behind
+
+psql using it -> pgowner
+```
+
+The stale entry is gone, the unrelated credential survives, and the connection
+actually authenticates. The cluster was destroyed afterwards; it held nothing
+but the fictional password above.
+
+Two tests were added for it, and the stale-entry one fails against the
+append-only block at `8820914`.
 
 ## The TCP readiness repair, verified locally
 
@@ -106,6 +160,15 @@ rather than proceeding.
 ## Exact commands and results
 
 ### Full `verify`-job parity — every step, in workflow order
+
+Run on `8820914`. The commit that followed changes only this record, `PROGRESS.md`,
+one operator document and one tooling test file, so the narrowest relevant checks
+were re-run for it rather than the whole job again (AGENTS.md: *"Run the narrowest
+relevant local checks first, and broaden only when shared code, schemas,
+migrations, security boundaries, or release behavior changed."*). On that head:
+`pnpm typecheck` PASS, `pnpm vitest run tooling/test` PASS at **40 files / 758
+tests**, markdown link check 114 links with the same 6 pre-existing breakages and
+no new ones.
 
 ```
 pnpm typecheck                                      PASS

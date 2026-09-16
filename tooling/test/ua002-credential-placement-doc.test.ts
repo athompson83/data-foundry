@@ -16,7 +16,7 @@
  * contain the metacharacters.
  */
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync, statSync } from 'node:fs';
+import { mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -64,19 +64,40 @@ function parsePgpassLine(line: string): string[] {
   return fields;
 }
 
-/** Runs the documented block verbatim with a throwaway HOME and a piped password. */
-function runDocumentedBlock(password: string): { line: string; mode: string } {
+interface BlockResult {
+  /** The line the block wrote for this host/port/database/login. */
+  readonly line: string;
+  /** Every line in the resulting file, in order. */
+  readonly lines: readonly string[];
+  readonly mode: string;
+  /** Anything left beside `.pgpass` — an interrupted write would show up here. */
+  readonly strayFiles: readonly string[];
+}
+
+/**
+ * Runs the documented block verbatim with a throwaway HOME and a piped password.
+ * `existing` seeds `.pgpass` first, so the replace-vs-append behaviour is
+ * observable rather than assumed.
+ */
+function runDocumentedBlock(password: string, existing: readonly string[] = []): BlockResult {
   const home = mkdtempSync(join(tmpdir(), 'ua002-pgpass-'));
   try {
+    const path = join(home, '.pgpass');
+    if (existing.length > 0) {
+      writeFileSync(path, `${existing.join('\n')}\n`, { mode: 0o600 });
+    }
     execFileSync('bash', ['-c', PGPASS_BLOCK], {
       env: { HOME: home, PATH: process.env['PATH'] ?? '/usr/bin:/bin' },
       input: `${password}\n`,
       stdio: ['pipe', 'pipe', 'pipe'],
     });
-    const path = join(home, '.pgpass');
+    const lines = readFileSync(path, 'utf8').replace(/\n$/u, '').split('\n');
+    const ours = lines.filter((entry) => entry.startsWith('<host>:5432:<database>:<login-name>:'));
     return {
-      line: readFileSync(path, 'utf8').replace(/\n$/u, ''),
+      line: ours[0] ?? '',
+      lines,
       mode: (statSync(path).mode & 0o777).toString(8),
+      strayFiles: readdirSync(home).filter((name) => name !== '.pgpass'),
     };
   } finally {
     rmSync(home, { recursive: true, force: true });
@@ -111,8 +132,39 @@ describe('the documented .pgpass block encodes the password rather than mangling
     expect(line).not.toContain('\\');
   });
 
-  it('writes the file only the owner can read', () => {
-    expect(runDocumentedBlock('ordinary-Passw0rd').mode).toBe('600');
+  it('writes the file only the owner can read and leaves no partial file behind', () => {
+    const result = runDocumentedBlock('ordinary-Passw0rd');
+    expect(result.mode).toBe('600');
+    expect(result.strayFiles, 'an interrupted write must not leave a temp file').toEqual([]);
+  });
+
+  it('replaces a stale entry for the same four fields rather than appending past it', () => {
+    // libpq uses the FIRST matching line and stops looking, so an entry left
+    // over from an earlier password would win over one appended below it.
+    // Verified against PostgreSQL 16 with scram-sha-256: stale-first fails to
+    // authenticate, correct-alone and correct-first succeed.
+    const result = runDocumentedBlock('rotated-Passw0rd', [
+      '<host>:5432:<database>:<login-name>:STALE-old-password',
+    ]);
+    const matching = result.lines.filter((entry) =>
+      entry.startsWith('<host>:5432:<database>:<login-name>:'),
+    );
+    expect(matching, `expected exactly one matching entry, got: ${result.lines.join(' | ')}`)
+      .toHaveLength(1);
+    expect(parsePgpassLine(matching[0] ?? '')[4]).toBe('rotated-Passw0rd');
+    expect(result.lines.join('\n')).not.toContain('STALE-old-password');
+  });
+
+  it('keeps entries for other hosts, ports, databases and logins', () => {
+    const untouched = [
+      'other.host:5432:otherdb:otheruser:keep-me',
+      '<host>:5432:<database>:different-login:keep-me-too',
+      '<host>:6543:<database>:<login-name>:different-port-keep',
+    ];
+    const result = runDocumentedBlock('ordinary-Passw0rd', untouched);
+    for (const entry of untouched) {
+      expect(result.lines, `clobbered an unrelated credential: ${entry}`).toContain(entry);
+    }
   });
 
   it('never makes the password a command-line argument or a history entry', () => {
@@ -125,9 +177,12 @@ describe('the documented .pgpass block encodes the password rather than mangling
 });
 
 describe('the documented connection login is operator-supplied, not a bare role name', () => {
-  it('uses the same placeholder in the .pgpass user field and in the URL', () => {
-    expect(PGPASS_BLOCK).toContain("'<login-name>'");
-    expect(PGPASS_BLOCK).toContain('postgresql://<login-name>@<host>:5432/<database>');
+  it('takes the login for the .pgpass user field and the URL from one variable', () => {
+    expect(PGPASS_BLOCK).toContain("login='<login-name>'");
+    expect(PGPASS_BLOCK).toContain('postgresql://$login@$host:$port/$database');
+    // Executing it is what proves the two actually agree.
+    const { line } = runDocumentedBlock('ordinary-Passw0rd');
+    expect(parsePgpassLine(line)[3]).toBe('<login-name>');
   });
 
   it('does not hard-code a bare df_migration as the thing that authenticates', () => {

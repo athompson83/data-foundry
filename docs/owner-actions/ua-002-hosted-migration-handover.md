@@ -153,22 +153,40 @@ pooler login ever did present a different role to PostgreSQL the run would fail
 closed rather than migrate under the wrong identity. That assertion is the
 check — do not treat this paragraph as one.
 
-Then place the credential, substituting that login name in **both** places:
+Then place the credential. Fill the four values in once at the top; the login
+name reaches both the `.pgpass` entry and the URL from the same variable, so
+they cannot drift apart:
 
 ```
 umask 077
+host='<host>'; port=5432; database='<database>'; login='<login-name>'
 IFS= read -rs -p 'migration password: ' df_pw; echo
-printf '%s:%s:%s:%s:%s\n' \
-  '<host>' 5432 '<database>' '<login-name>' \
-  "$(printf '%s' "$df_pw" | sed -e 's/[\\:]/\\&/g')" >> ~/.pgpass
+touch ~/.pgpass
+tmp="$(mktemp ~/.pgpass.XXXXXX)"
+awk -v p="$host:$port:$database:$login:" 'index($0, p) != 1' ~/.pgpass > "$tmp"
+printf '%s:%s:%s:%s:%s\n' "$host" "$port" "$database" "$login" \
+  "$(printf '%s' "$df_pw" | sed -e 's/[\\:]/\\&/g')" >> "$tmp"
 unset df_pw
-chmod 600 ~/.pgpass
-export DATA_FOUNDRY_MIGRATION_DATABASE_URL='postgresql://<login-name>@<host>:5432/<database>'
+chmod 600 "$tmp"
+mv "$tmp" ~/.pgpass
+export DATA_FOUNDRY_MIGRATION_DATABASE_URL="postgresql://$login@$host:$port/$database"
 ```
 
 The URL carries **no password** — libpq reads it from `.pgpass` by matching the
 host, port, database and user, so the `.pgpass` user field must be the same
-login name the URL carries, character for character.
+login name the URL carries, character for character. Taking both from `$login`
+is what guarantees that.
+
+**Why this replaces the matching entry instead of appending.** libpq uses the
+**first** line that matches host, port, database and user and stops looking, so
+an entry left over from an earlier password wins over a correct one appended
+below it. The operator then gets a bare *"password authentication failed"* that
+points at the credential rather than at the file. Measured 2026-09-16 against
+PostgreSQL 16 with `scram-sha-256`: stale line first and correct line second
+fails to authenticate; the correct line alone, or first, connects. The `awk`
+drops any existing entry for the same four fields, and the write lands through a
+temporary file in the same directory so an interrupted run cannot leave a
+half-written `.pgpass` behind.
 
 **The `sed` is not decoration.** In `.pgpass`, `:` is the field separator and
 `\` is the escape character, so a password containing either must have it
