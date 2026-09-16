@@ -9,6 +9,15 @@ exported manifest byte for byte across `upgradeFrom0028Sql`,
 `upgradeFrom0028Checksum` and `verificationSql`, so the operator's own integrity
 check passes against a manifest generated from it.
 
+Re-verified after `#43` merged: regenerating at `main`
+`5e263fc9326962de4e009b9047e5af1a04053df5` reproduces all ten rows of the table
+below unchanged, because that merge touched documentation only. Either SHA is
+usable for this run. The same sequence was then run once more against the
+**real hosted ledger** read out of `data_foundry.schema_migrations` rather than a
+reconstruction — 26 rows, 0 differing from what this release computes for the
+same files — giving 33 / 26 / 7 and all ten checksums again. Any *further* commit needs its own regeneration — see the
+next paragraph for why the migration tree alone does not settle it.
+
 Only the migration-derived values survive a change of release: the seven
 migration checksums and `repositoryDigest` are computed from `db/migrations/`
 alone, so an identical migration tree reproduces them at any SHA. The grant
@@ -73,6 +82,34 @@ this handover assumed. A manifest generated at a later SHA may legitimately
 differ in the two grant rows without any migration having changed; that is a
 different release, and it needs its own checksum table rather than this one.
 The preflight treats the same disagreement as a blocker and mutates nothing.
+
+## The single thing still missing — 2026-09-16
+
+Everything in this document is prepared and re-verified. One capability is
+absent, and it is not code, a checksum or a decision:
+
+> **A host with PostgreSQL egress to the project origin, running this release,
+> with the `df_migration` password available to libpq without appearing in a
+> command line.**
+
+Any ordinary developer machine with internet access and the password satisfies
+it. It needs Node 22+, `pnpm`, a clean checkout at the release, and either an
+IPv6 route to `db.fgxinxaqkwoqyywdgobs.supabase.co` or the IPv4 Supavisor pooler
+**in session mode (port 5432)** — transaction mode on 6543 will not work,
+because the runner asserts `session_replication_role = origin` and
+`lo_compat_privileges = off` and transaction pooling does not preserve session
+state.
+
+Every alternative available to the agent environment was checked and ruled out
+by measurement rather than assumption — only one execution environment exists
+and it is the restricted one; the origin is IPv6-only against a container with
+no IPv6 stack; raw TCP is refused at the sandbox policy layer; the management
+connector is still read-only and stays that way; and binding the migration
+principal to a Worker is forbidden. The measurements are in
+[the 2026-09-16 execution-environment record](../evidence/ua002-execution-environment-20260916.md),
+which also confirms the hosted baseline is undrifted, the 26 applied ledger rows
+are byte-identical to this release, and the full export sequence reproduces
+33 / 26 / 7 with all ten checksums from the real hosted ledger.
 
 ## The two ways forward
 
@@ -266,6 +303,38 @@ puts the connection string in the process list, where any other user on the host
 can read it. Prefer a `.pgpass` entry, a libpq service file, or `PGPASSWORD` with
 the other connection parameters, so the secret never becomes an argument. The
 operator itself never takes one.
+
+**If a step fails with only `Direct PostgreSQL migration failed.`** — no
+category, no detail — that is deliberate, not a bug. Once
+`DATA_FOUNDRY_MIGRATION_DATABASE_URL` is set in the environment,
+`migrationFailureMessage` redacts every *thrown* error that does not match its
+allowlist of safe categories, because a raw driver error can carry the
+connection string. Diagnose it in this order, and note that only the third step
+involves unsetting anything:
+
+1. **Look for a `[category]` suffix.** `Direct PostgreSQL migration failed
+   [migration-role-posture].` is the allowlist working: it names the class of
+   failure without echoing anything sensitive. Most known migration-time
+   conditions land here.
+2. **Check whether it was a preflight blocker at all.** It probably was not.
+   Preflight findings are *returned*, not thrown — they print as
+   `BLOCK <check>: <detail>` and exit 2 with `N blocker(s). Nothing was
+   mutated.` The redactor never touches them, so every preflight condition is
+   already fully legible. A bare sentence means something threw instead.
+3. **Only for the three pre-driver guards, re-run with the credential unset.**
+   Packet parsing, the release-SHA guard and the clean-checkout identity guard
+   all run before `createPostgresDriver`, so they reproduce with no database at
+   all and print in full. **This does not work for anything later.** `main`
+   resolves the credential before creating the driver, so unsetting it turns a
+   connection, authentication, TLS or SQL failure into the unrelated
+   `DATA_FOUNDRY_MIGRATION_DATABASE_URL is required` error and tells you
+   nothing about the real one.
+4. **For a post-credential failure, reproduce the connection by itself.** Open
+   a plain `psql` session using the same `.pgpass` entry or libpq service file —
+   never as an argument — and let libpq report its own authentication, TLS or
+   network error directly. That path does not pass through the redactor, and it
+   separates "cannot connect" from "connected, then failed", which is the
+   distinction the opaque sentence hides.
 
 Expect from the export: `repositoryMigrationCount: 33`, `appliedMigrationCount: 26`,
 `pendingMigrationCount: 7`, `repositoryDigest`
