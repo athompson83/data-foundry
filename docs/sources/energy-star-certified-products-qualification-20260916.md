@@ -1,10 +1,21 @@
 # ENERGY STAR certified products — source qualification, 2026-09-16
 
 A documented, publisher-supported alternative to the undocumented DOE CCMS Solr
-endpoint, found while checking whether CCMS has a data.gov catalogue entry.
+endpoint, re-measured while checking whether CCMS has a data.gov catalogue entry.
 
-Nothing here is activated. This record exists so the owner can compare two
-candidates on evidence rather than on which one was found first.
+> **Correction.** An earlier draft of this record presented ENERGY STAR as newly
+> discovered. It was not. The repository has carried it as a proposed source,
+> deferred because *"partner-submitted field rights remain unknown"*, with a
+> detailed review packet at
+> [`energy-star-air-source-heat-pumps-review-packet.md`](energy-star-air-source-heat-pumps-review-packet.md).
+> What is new here is the measured access posture and one piece of rights
+> evidence. See
+> [the 2026-09-16 first-source decision sheet](../owner-actions/ua-001-first-source-decision-20260916.md)
+> for the three-way comparison and the one open legal question.
+
+Nothing here is activated. This record holds the ENERGY STAR measurements; the
+three-way comparison and the recommendation live in the decision sheet linked
+above.
 
 ## How this was found, and the CCMS negative that came with it
 
@@ -128,10 +139,23 @@ product-positioning decision, not a technical one, and it belongs to the owner.
 
 ## Rights — open, and not to be assumed
 
-The dataset metadata carries **no `licenseId` and an empty `license` object**.
-`attribution` is "U.S. Environmental Protection Agency" and `attributionLink` is
-null. So the rights position is *not* established by the API, and the following
-must not be treated as settled:
+**Superseded 2026-09-16, later the same day.** The top-level `licenseId` is
+`None` and `license` is empty — but that is incomplete. Each dataset's federal
+Common Core metadata **affirmatively attaches** a licence, identically on all six
+datasets checked:
+
+```
+"Common Core": {
+  "License":   "https://edg.epa.gov/EPA_Data_License.html",
+  "Publisher": "U.S. Environmental Protection Agency",
+  "Contact Email": "certification@energystar.gov"
+}
+```
+
+That is stronger than "rights unstated". It still does not settle the matter,
+because the licence is scoped to *"data produced by the U.S EPA"* while most
+fields are partner- or certification-body-submitted. The following must not be
+treated as settled:
 
 1. Works of the U.S. federal government are generally not subject to domestic
    copyright, but that is a general principle, not a licence grant read off this
