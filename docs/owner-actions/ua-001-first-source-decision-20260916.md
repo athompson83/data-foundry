@@ -29,15 +29,17 @@ blocking question was already correctly identified.
 | --- | --- | --- | --- |
 | **Publisher** | US DOE | US EPA | Australian Government DCCEEW |
 | **Supported access path** | **None found.** Undocumented Solr endpoint behind a browser-only edge | SODA API on Socrata: JSON/CSV/XML, `$select`/`$where`/`$limit` | CKAN API on `data.gov.au` + dated CSV downloads |
-| **Serves an honest agent?** | **No — 403, including `robots.txt` itself** | **Yes — 200** on `/api/` and `/resource/` | **Yes — 200** on API and resource downloads |
+| **Reachable by an honest agent?** | **No — 403, including `robots.txt` itself** | **Yes — 200** on `/api/` and `/resource/` | **Yes — 200** on API and resource downloads |
+| **Permitted by `robots.txt`?** | **Unknowable** — the policy file itself is 403 | **Yes** — only `/browse?*` variants disallowed | **No — `User-agent: * / Disallow: /`, the entire host** |
 | **Licence** | None locatable | EPA Standard Open Data License, **attached per-dataset** in federal Common Core metadata | **CC-BY 3.0 AU**, explicit `license_url` |
 | **Commercial redistribution** | Unknown | **Unresolved** — see §"The one question" | **Permitted with attribution** |
 | **Population** | Mandatory US compliance certification | **Voluntary** label — a higher-efficiency subset | Mandatory AU/NZ registration, labelled **and** non-labelled |
 | **Market** | US | US | **AU / NZ** |
-| **Refresh cadence** | Unknown | `rowsUpdatedAt` = today | Refreshed today; filenames datestamped `ac_2026_09_16.csv` |
+| **Refresh cadence** | Unknown | **Unknown** — `rowsUpdatedAt` was today, which is one observation | **Unknown** — dated files seen 2026-08-23 and 2026-09-16; two observations establish no frequency |
 | **Field origin documented?** | No | Partly — column labels name partner and CB origin | **Yes — DOCX data dictionaries per category** |
 | **Bulk export** | None | Socrata CSV export | Direct CSV, 5.96 MB for air conditioners alone |
 | **Technical stability** | Cache-busted bundle, re-versioned without notice | Stable asset IDs; portal root 301s but asset URLs persist | Stable CKAN IDs; **but see the platform-replacement risk** |
+| **Ingestion compatibility** | US DOE metrics, matches the dictionary | US DOE metrics (`seer2`, `eer2`, `hspf2`), matches the dictionary | **Mismatch** — AS/NZS star ratings and kW, different test procedures, not convertible |
 
 ## DOE CCMS — the access question is now worse, not merely unresolved
 
@@ -70,13 +72,21 @@ exists, and the owner has already refused it for production. The
 [prepared inquiry](../sources/doe-ccms-access-inquiry-draft.md) remains the only
 route to a supported path, and it remains unsent pending your authorization.
 
-## ENERGY STAR — the prior blocker is narrower than recorded
+## ENERGY STAR — the blocker is exactly where the packet left it
 
-**New evidence that changes the earlier assessment.** The review packet recorded
-the rights position as effectively unstated: top-level `licenseId` is `None` and
-`license` is empty. That is true but incomplete. Each dataset's **federal Common
-Core metadata affirmatively attaches a licence**, and it is systematic — checked
-on six datasets, identical every time:
+**Correction — this is not new evidence, and it does not narrow the blocker.**
+An earlier draft of this sheet presented the licence attachment as a new finding
+that materially narrowed the question. That was wrong, and a reviewer caught it.
+The review packet **already records** `Licence pointer:
+https://edg.epa.gov/EPA_Data_License.html` as **[VERIFIED]** (§1), already
+reproduces the licence text verbatim (§3), and already analyses the exact
+EPA-produced-versus-partner-submitted scope problem (§4). Nothing measured this
+session moved the legal question.
+
+What this session actually added is narrower and worth having, but it is
+freshness rather than substance: the licence pointer is attached per-dataset in
+federal Common Core metadata and is **systematic across six datasets** rather
+than recorded for one, and the licence text is **unchanged as of today**:
 
 ```
 "Common Core": {
@@ -87,11 +97,8 @@ on six datasets, identical every time:
 }
 ```
 
-So EPA *has* declared terms for these compilations, through the standard federal
-mechanism. That is stronger than "no licence stated".
-
-**Why it still does not close the question.** The licence text, re-verified
-verbatim today and unchanged, is scoped by its own wording:
+**Why the question is exactly as open as the packet already said.** The licence
+text is scoped by its own wording:
 
 > "Unless otherwise specified, all data **produced by the U.S EPA** is by default
 > in the public domain and is not subject to domestic copyright protection under
@@ -110,16 +117,18 @@ copyrightable in US law; what thin copyright a compilation attracts lives in
 selection and arrangement, which here are EPA's and fall under §105. **That is a
 legal judgement, not an engineering finding, and I am not making it.**
 
-**Answer to the question you asked:** current documentation **narrows** the issue
-substantially but does **not** resolve it. Human legal review is still required —
-on a much smaller question than before.
+**Answer to the question you asked:** current documentation does **not** resolve
+it, and — contrary to what I first reported — does not narrow it either. The
+review packet had already identified the scope problem correctly and nothing
+found today changes its terms. Human legal review is required, on the question
+the packet already framed.
 
 Unchanged and still open: **"ENERGY STAR" is a registered certification mark**
 whose use EPA conditions on an active Partnership Agreement, which we do not
 have. And `ahri_reference_number` remains unresolved, with a standing prohibition
 on using it to reach the AHRI directory (refused in code).
 
-## AU Energy Rating — the best rights posture, the wrong market
+## AU Energy Rating — the best licence, but no approved way to take it
 
 Measured today on `data.gov.au` (CKAN API at `/data/api/3/...`; the bare
 `/api/3/...` path 404s):
@@ -141,35 +150,80 @@ Measured today on `data.gov.au` (CKAN API at `/data/api/3/...`; the bare
 - **Documented semantics**: DOCX data dictionaries per category — better field
   provenance than either US source.
 
-**Two caveats.** The market is AU/NZ, not US, which is a product-positioning
-question rather than a technical one. And a repository note dated 2026-09-08
-records an announced registration-system closure 28 September – 5 October 2026
-with a replacement platform on 6 October; **I could not re-verify that today**
-because `energyrating.gov.au` does not serve this environment, so treat it as
-recorded-but-unconfirmed and material to timing.
+### The blocker I initially missed — `robots.txt` prohibits the whole host
+
+An earlier draft of this sheet said AU needed "only an attribution decision and
+a check on the platform-replacement timing". **That was wrong.** I fetched
+`data.gov.au/robots.txt`, recorded that it returned `200`, and never read it.
+Its contents, re-read today and matching what this repository recorded on
+2026-08-23:
+
+```
+User-agent: *
+Disallow: /
+```
+
+The entire host, every path, every agent — including the CSV downloads above.
+This platform sets `robots_policy.respect_robots: true`, so **a permissive
+licence and a total crawl prohibition produce no approved automated acquisition
+path.** `energyrating.gov.au`, the publisher's own portal, does not serve this
+environment either, so there is no second door.
+
+This is precisely the error this sheet warns about elsewhere: I let a successful
+HTTP retrieval stand in for permission. The licence answers *may we use it*;
+`robots.txt` answers *may we take it*; here they disagree, and the disagreement
+was already on record in
+[the source landscape](../sources/hvac-source-landscape-2026-08.md) before I
+started.
+
+**Route to yes:** written permission from DCCEEW for automated retrieval, or a
+publisher-provided path outside `data.gov.au`. Until one exists, AU is not a
+fallback that can be selected — it is a candidate needing an acquisition
+approval of its own.
+
+### Two further caveats
+
+**Field coverage does not map.** The dataset carries AS/NZS star ratings and
+kilowatt capacities; the HVAC dictionary is built on US DOE metrics (`seer2`,
+`eer2`, `hspf2`, BTU/h, nominal tonnage). Those are **different test procedures,
+not different units**, so converting between them would invent facts the source
+does not contain.
+
+**Platform timing.** A repository note dated 2026-09-08 records an announced
+registration-system closure 28 September – 5 October 2026 with a replacement
+platform on 6 October; **I could not re-verify that today** because
+`energyrating.gov.au` does not serve this environment, so treat it as
+recorded-but-unconfirmed.
 
 ## Recommendation
 
-**ENERGY STAR, for the US slice, conditional on one legal answer** — with AU
-Energy Rating as a strong second whose rights are *already* clear.
+**No candidate is selectable today.** An earlier draft of this sheet recommended
+ENERGY STAR conditional on counsel, with AU as a fallback "whose rights are
+already clear". Both halves were overstated and are withdrawn — the reasoning is
+in the two correction blocks above.
 
-The evidence materially supports this ordering:
+What the evidence does support is an ordering by **acquisition method**, which is
+the gate that actually differs between them:
 
-1. **CCMS is not selectable.** Not on rights — on access. There is no lawful
-   route we can establish without impersonation, and the publisher will not even
-   serve its access policy to an honest client.
-2. **ENERGY STAR is the only candidate that is both US-market and lawfully
-   fetchable today.** Its acquisition method is documented, robots-permitted and
-   stable, and its licence is affirmatively attached by the publisher.
-3. **AU Energy Rating has the strongest rights position of the three** and the
-   richest fields, and would be the recommendation outright if AU/NZ coverage
-   sells. If the answer on ENERGY STAR comes back unfavourable, this is the
-   fallback that does not require a legal judgement call.
+1. **ENERGY STAR is the only candidate with a lawful, policy-compliant
+   acquisition path today.** Documented SODA API, `robots.txt` permitting
+   `/api/` and `/resource/`, serves an honest agent, stable asset IDs, and field
+   metrics that match the dictionary. Its blocker is purely the rights question —
+   which is exactly as open as the review packet already recorded, no wider and
+   no narrower.
+2. **AU Energy Rating has the strongest licence and no way to act on it.**
+   CC-BY 3.0 AU genuinely permits commercial redistribution with attribution, but
+   `Disallow: /` plus `respect_robots: true` means there is no approved automated
+   path, and the AS/NZS metrics do not map to the dictionary. It needs written
+   DCCEEW permission before it is a candidate at all.
+3. **DOE CCMS has neither.** No readable access policy, no documented export, no
+   catalogue entry.
 
-Do not activate anything on this recommendation. It orders the candidates; it
-does not approve one.
+So ENERGY STAR is where a *yes* would go furthest — but a recommendation to
+select it would be a legal judgement I am not entitled to make, and this session
+produced no evidence that makes that judgement easier than it was yesterday.
 
-## The one question preventing unconditional selection
+## The one question preventing selection
 
 > **Does the EPA Standard Open Data License — as affirmatively attached to each
 > ENERGY STAR dataset in its federal Common Core metadata — extend to partner-
@@ -180,8 +234,8 @@ does not approve one.
 > use of the ENERGY STAR certification mark**, given that mark use is
 > conditioned on a Partnership Agreement we do not hold?
 
-Both are answerable by counsel from the evidence in this sheet and the review
-packet. Neither is answerable by engineering, and neither should be inferred
+Both are answerable by counsel from the evidence in the review packet — which
+already contained what is needed. Nothing in this sheet adds to it. Neither is answerable by engineering, and neither should be inferred
 from data.gov presence, a government host, public accessibility, a permissive
 `robots.txt`, or the existence of an API endpoint — none of which establish
 permission to redistribute commercially.
@@ -218,20 +272,41 @@ including the PGlite-backed invoice aggregation, and the six legacy declaration
 inventory checks pass. The machinery refuses to serve without evidence, which is
 the correct behaviour and is why no amount of further engineering moves this.
 
-So the paid-API track and this sheet are the same decision wearing two hats.
-Answering the rights question for one candidate is what turns
-`sources: 0 real / 4 synthetic` into a real publisher and lets the first paid
-request happen. The pricing and invoicing sheet remains separately open, but it
-gates the price, not the possibility.
+**What the answer does and does not do.** It unblocks **real-source onboarding**
+— it does not by itself make a paid request possible, and an earlier draft of
+this section said otherwise. A favourable answer leaves `sources: 0 real`
+unchanged until several further steps happen, none of which counsel can do:
+
+- The ENERGY STAR declaration is still an **unloaded draft** under `docs/`,
+  deliberately outside the registry loader's path, at `UNDER_REVIEW` /
+  `UNREVIEWED`. Promoting and configuring it is a separate act.
+- Three API cells are not the whole grant. `RIGHTS_OPERATIONS` also contains
+  **`ACQUIRE`, `STORE`, `NORMALIZE` and `DERIVE`** — four acquisition and
+  internal-processing operations that must be granted before anything can be
+  fetched or canonicalised at all.
+- Data then has to be actually acquired, normalised and evidence-backed.
+- **UA-002 is independently blocked** — the hosted schema cannot be caught up
+  from this environment — and the deployment and commercial-activation work
+  tracked under UA-007 is blocked separately again.
+
+So the readiness excerpt diagnoses *why there is no rights-reviewed real source
+today*. It does not certify that everything downstream is ready. The pricing and
+invoicing sheet remains separately open, and it gates the price rather than the
+possibility.
 
 ## If you want to move fastest
 
-Two questions, either of which unblocks a first source:
+Three asks, in descending order of how much they unblock:
 
-1. **To counsel**, the question above. Unblocks ENERGY STAR for the US market.
-2. **To yourself**, a product question: *would a first paying customer buy AU/NZ
-   equipment data?* If yes, AU Energy Rating needs no legal judgement call — only
-   an attribution decision and a check on the platform-replacement timing.
+1. **To counsel** — the ENERGY STAR question above. It is the only path where a
+   single answer converts a candidate into a selectable source, because the
+   acquisition side is already clean.
+2. **To DCCEEW** — written permission for automated retrieval, which would make
+   AU selectable on acquisition. Note this needs a *product* answer first
+   (would a first customer buy AU/NZ data?) and a *schema* answer second (the
+   AS/NZS metrics do not map), so it is further from revenue than it looks.
+3. **To DOE** — authorize the prepared inquiry. A supported CCMS extract would
+   complement whichever choice you make rather than replace it.
 
-Authorizing the DOE inquiry remains worthwhile regardless. If DOE offers a
-supported CCMS extract, it complements rather than replaces either choice.
+Only the first is a single question with a single answer. The other two each
+open further work.

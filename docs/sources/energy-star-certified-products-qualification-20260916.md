@@ -100,11 +100,16 @@ reverse. The access method question that blocks CCMS does not arise.
   with 48 columns. Whatever happened to the air-conditioner data, it is not
   available at these identifiers today, and any plan that assumes AC coverage
   from this source is wrong until that is explained.
-- *Air-Source Heat Pumps* and *Heat Pumps* report **identical** row counts and
-  identical update timestamps, but have **different column counts** (48 vs 50).
-  That is consistent with overlapping views of one population, but it is not
-  proof, so they must not simply be added. The distinct record count is **not
-  established** and must be measured before any coverage claim is made.
+- *Air-Source Heat Pumps* and *Heat Pumps* must not be added: they are **one
+  population, not two**. This was already settled in the repository —
+  [the review packet §1a](energy-star-air-source-heat-pumps-review-packet.md)
+  records as **[VERIFIED]** that `w7cv-9xjt` is a Socrata **derived filter view**
+  whose `modifyingViewUid` is `83eb-xbyy` and whose filter is currently empty
+  (`query: {}`), so it returns exactly the parent's rows. The identical counts and
+  timestamps measured today are that relationship showing through, and the
+  differing column counts are the view's projection. The packet also flags the
+  structural risk: a view that narrows nothing cannot be relied on to keep
+  narrowing.
 
 ## Field shape
 
@@ -139,10 +144,11 @@ product-positioning decision, not a technical one, and it belongs to the owner.
 
 ## Rights — open, and not to be assumed
 
-**Superseded 2026-09-16, later the same day.** The top-level `licenseId` is
-`None` and `license` is empty — but that is incomplete. Each dataset's federal
-Common Core metadata **affirmatively attaches** a licence, identically on all six
-datasets checked:
+**Not new, and corrected later the same day.** The review packet already records
+this licence pointer as **[VERIFIED]** and already analyses the scope problem
+below. What today's measurement adds is only that the pointer is carried
+per-dataset in federal Common Core metadata and is systematic across all six
+datasets checked — freshness, not a change in terms:
 
 ```
 "Common Core": {
