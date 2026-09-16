@@ -132,18 +132,56 @@ transaction mode on 6543 does not preserve the `session_replication_role` and
 
 **2. Place the credential without it ever becoming an argument.**
 
+**First settle the login name, because it is not always `df_migration`.** Which
+route step 1 selected decides it:
+
+| Route from step 1 | Login name to use |
+| --- | --- |
+| Direct IPv6 origin, `db.<project-ref>.supabase.co` | bare `df_migration` |
+| IPv4 Supavisor pooler, session mode 5432 | **project-qualified**, not bare |
+
+Supavisor routes on a qualified login rather than on the hostname, so a bare
+`df_migration` fails authentication there before any of this project's logic
+runs. Read the exact form from the project's connect dialog at the time — it is
+`<role>` and the project reference joined, but confirm the separator and
+ordering against the dialog rather than assuming them from this document.
+
+This changes only how the *pooler* identifies the tenant. The database-side
+identity is unaffected: the runner asserts that `session_user` and
+`current_user` are both `df_migration` and refuses the run otherwise, so if a
+pooler login ever did present a different role to PostgreSQL the run would fail
+closed rather than migrate under the wrong identity. That assertion is the
+check — do not treat this paragraph as one.
+
+Then place the credential, substituting that login name in **both** places:
+
 ```
 umask 077
-printf '%s:%s:%s:%s:%s\n' <host> 5432 <database> df_migration '<password>' >> ~/.pgpass
+IFS= read -rs -p 'migration password: ' df_pw; echo
+printf '%s:%s:%s:%s:%s\n' \
+  '<host>' 5432 '<database>' '<login-name>' \
+  "$(printf '%s' "$df_pw" | sed -e 's/[\\:]/\\&/g')" >> ~/.pgpass
+unset df_pw
 chmod 600 ~/.pgpass
-export DATA_FOUNDRY_MIGRATION_DATABASE_URL='postgresql://df_migration@<host>:5432/<database>'
+export DATA_FOUNDRY_MIGRATION_DATABASE_URL='postgresql://<login-name>@<host>:5432/<database>'
 ```
 
 The URL carries **no password** — libpq reads it from `.pgpass` by matching the
-host, port, database and user. Type the `printf` with a leading space if your
-shell is configured to skip such lines from history, or paste it into an editor
-instead. Do not pass the password with `-W`, in `psql "postgres://…:pw@…"`, or
-in any command-line argument: those land in the process list and in history.
+host, port, database and user, so the `.pgpass` user field must be the same
+login name the URL carries, character for character.
+
+**The `sed` is not decoration.** In `.pgpass`, `:` is the field separator and
+`\` is the escape character, so a password containing either must have it
+backslash-escaped or libpq parses the line into the wrong fields and
+authentication fails with no indication why. That substitution escapes both and
+leaves every other password unchanged.
+
+`read -rs` keeps the password off the command line and out of shell history:
+it is typed at a prompt, held in a shell variable that `printf` (a builtin)
+consumes without spawning a process, and unset immediately. `sed` receives it on
+stdin, never as an argument. Do not pass the password with `-W`, in
+`psql "postgres://…:pw@…"`, or in any command-line argument: those land in the
+process list and in history.
 
 The runner also rejects a URL carrying `sslmode` or any other TLS or endpoint
 query override — it configures TLS itself and verifies the certificate. Measured
