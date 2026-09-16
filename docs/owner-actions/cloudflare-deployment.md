@@ -852,20 +852,48 @@ retain the successful canary deployment as the recovery target; Vercel's current
 
 ---
 
-## 4. Pay per crawl — enrollment, not implementation
+## 4. Pay per crawl — provider enrollment, with an origin pricing option
 
-Pay per crawl is a Cloudflare zone capability, not a Worker billing subsystem.
-The repository's role is to provide a public site worth crawling; Cloudflare
-controls enrollment, charging and payout mechanics.
+Cloudflare controls admission, charging and payout. The repository's first role
+is to provide a public site worth crawling. Since 2026-06-16, however, the price
+may also be set dynamically from the origin — a `crawler-price` response header
+or a Worker — so this is no longer purely a zone setting with no code
+involvement.
+
+Verified 2026-09-16 against Cloudflare's documentation; the exact pages are
+linked from
+[the channel capability record](../evidence/machine-access-channel-capability-20260916.md):
+
+- Pay per crawl is in **closed beta**. There is no self-serve enablement;
+  admission is by signup form or an Enterprise account executive (`UA-008`).
+- A crawler is identified by **Web Bot Auth request signatures** plus
+  verified-bots registration. A `User-Agent` never identifies a payer.
+- The flow is `HTTP 402` carrying `crawler-price`, a retry carrying
+  `crawler-exact-price` or `crawler-max-price`, and a charged 2xx carrying
+  `crawler-charged`. Cloudflare is Merchant of Record, aggregates billing
+  events, charges the crawler and distributes earnings.
+- **WAF and Bot Management block rules take precedence over the charge
+  feature.** A crawler refused ahead of the charging flow earns nothing, so
+  verify that precedence rather than assuming a configured price is reachable.
+- There is no paid-crawler access tier, rights surface or billing source in the
+  application model, so charging at the edge sits above Data Foundry's own
+  entitlement and metering. Pricing per path from the origin would let the
+  rights-gated Worker decide whether a price is offered at all; adopting that
+  is an architectural decision, not a routine configuration change.
 
 ### Checklist
 
-1. Enroll the zone if the feature is available.
+1. Request beta admission (`UA-008`) if crawler revenue is wanted, or record a
+   deliberate decision not to pursue it. This blocks no other channel.
 2. Keep normal search-engine crawlers allowed if organic search is a required
-   acquisition channel.
-3. Configure AI-crawler charging separately from search-engine crawling.
+   acquisition channel. Treat training permission as a separate decision from
+   search discovery and from paid retrieval.
+3. Configure AI-crawler charging separately from search-engine crawling, and
+   confirm no WAF or Bot Management rule blocks the crawlers being charged.
 4. Connect the payout account required by Cloudflare.
-5. Measure the effect on crawl volume and organic discovery before treating
+5. Decide explicitly between static zone pricing and origin/Worker pricing
+   before enabling; the release currently implements neither.
+6. Measure the effect on crawl volume and organic discovery before treating
    crawler revenue as primary.
 
 ### Verify

@@ -7,9 +7,11 @@
  * that obeys `robots.txt` would never even fetch the page whose meta tag was
  * the actual, gate-computed decision. This file's only job is pointing at the
  * sitemap index and naming the AI-crawler split
- * `docs/owner-actions/cloudflare-deployment.md` records as an owner action
- * (pay per crawl is a Cloudflare zone setting, not something this file can
- * express — see item 4 there).
+ * `docs/owner-actions/cloudflare-deployment.md` records as an owner action.
+ * Pay per crawl is not something this file can express: charging is negotiated
+ * over `crawler-price`/`crawler-charged` headers against a Web Bot Auth
+ * identity, and `robots.txt` is neither a payment nor an access control — see
+ * item 4 there.
  */
 export function robotsTxt(deployment: { readonly publicOrigin: string }): string {
   return `User-agent: *

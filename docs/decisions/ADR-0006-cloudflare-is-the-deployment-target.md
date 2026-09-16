@@ -91,8 +91,17 @@ here.
 **Monetization is not a deployment decision.** Tenancy, scoped keys, usage
 schema, async Queue metering, and channel-safe invoice projection now exist, but
 pricing, subscriptions, invoices, marketplace enrollment, and pay per crawl are
-separate commercial/provider decisions. Pay per crawl remains a zone-level
-Cloudflare setting, not code. None of those choices belongs in this ADR.
+separate commercial/provider decisions. None of those choices belongs in this
+ADR.
+
+> **Amended 2026-09-16.** This ADR originally recorded that pay per crawl is a
+> zone-level Cloudflare setting and not code. That is no longer accurate:
+> Cloudflare added origin/Worker dynamic pricing on 2026-06-16, so a price may
+> be set from a `crawler-price` response header. The decision this ADR makes —
+> that monetization is not a deployment decision — stands; only the parenthetical
+> claim about pay per crawl being code-free is superseded. See
+> `docs/owner-actions/cloudflare-deployment.md` item 4 and
+> `docs/evidence/machine-access-channel-capability-20260916.md`.
 
 ## Rejected alternatives
 
