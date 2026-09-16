@@ -534,4 +534,31 @@ describe('buildGrantPrerequisiteProbeSql against real PostgreSQL', () => {
       await driver.close();
     }
   });
+
+  it('does not flag a pre-0027 function merely for having no search path set', async () => {
+    const driver = await createPGliteDriver();
+    try {
+      await driver.exec('CREATE SCHEMA IF NOT EXISTS extensions');
+      await driver.exec('CREATE ROLE df_migration NOLOGIN NOINHERIT');
+      await driver.exec('CREATE SCHEMA IF NOT EXISTS data_foundry AUTHORIZATION df_migration');
+      // Migration 0027 is what sets `proconfig`. Before it runs, every existing
+      // function legitimately has none — on the hosted database that was all 57
+      // of them. Blocking on that would stop a run that should proceed.
+      await driver.exec(
+        `CREATE FUNCTION data_foundry.rights_terms_cover_cell(uuid, uuid) RETURNS boolean
+           LANGUAGE sql AS $fn$ SELECT true $fn$`,
+      );
+      await driver.exec('ALTER FUNCTION data_foundry.rights_terms_cover_cell(uuid, uuid) OWNER TO df_migration');
+
+      const rows = await driver.query<{ probe: string; detail: string }>(
+        buildGrantPrerequisiteProbeSql(),
+      );
+      const posture = rows.filter((row) => row.probe === 'function-posture');
+      expect(posture).toEqual([]);
+      // It is a real signature from the release, so it is not "unexpected" either.
+      expect(rows.filter((row) => row.probe === 'unexpected-function')).toEqual([]);
+    } finally {
+      await driver.close();
+    }
+  });
 });

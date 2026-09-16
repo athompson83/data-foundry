@@ -1515,12 +1515,17 @@ ${expectedFunctionValuesSql()}
                 = (p.proname || '(' || pg_catalog.oidvectortypes(p.proargtypes) || ')')::text
      )`,
     ),
+    // Ownership and SECURITY DEFINER only. The canonical function search path is
+    // deliberately NOT checked here: migration `0027` is what sets `proconfig`
+    // on the existing functions, so on any pre-`0027` database every function
+    // legitimately has a null one. Measured against the hosted project on
+    // 2026-09-16, including it would have produced 57 false blockers and stopped
+    // a run that should proceed. It belongs with the post-migration residuals.
     probe(
       'function-posture',
       `SELECT (p.proname || '(' || pg_catalog.oidvectortypes(p.proargtypes) || ')')::text AS signature,
          pg_catalog.pg_get_userbyid(p.proowner)::text AS owner_name,
-         p.prosecdef AS security_definer,
-         COALESCE(pg_catalog.array_to_string(p.proconfig, ','), '<null>')::text AS function_config
+         p.prosecdef AS security_definer
     FROM pg_catalog.pg_proc p
     JOIN pg_catalog.pg_namespace ns ON ns.oid = p.pronamespace
    WHERE ns.nspname = ${sqlLiteral(schema)}
@@ -1528,7 +1533,6 @@ ${expectedFunctionValuesSql()}
      AND (
        p.prosecdef
        OR pg_catalog.pg_get_userbyid(p.proowner)::text IS DISTINCT FROM ${sqlLiteral(migrationRole)}
-       OR p.proconfig IS DISTINCT FROM ARRAY[${sqlLiteral(`search_path=${schema}, pg_catalog, extensions`)}]::text[]
      )`,
     ),
   ].join('\nUNION ALL\n');

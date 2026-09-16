@@ -232,9 +232,8 @@ non-ignored worktree is clean, including untracked files.
    roles, runtime-role external ACLs, and forbidden `PUBLIC`/`anon`/
    `authenticated`/`service_role` grants on the private schema, plus any relation
    or function already present that the release does not expect, any object not
-   owned by the migration role, any `SECURITY DEFINER` function and any
-   non-canonical function search path — using the exporter's own SQL rather than
-   a paraphrase; every role exists in the reviewed shape with no outgoing
+   owned by the migration role, and any `SECURITY DEFINER` function — using the
+   exporter's own SQL rather than a paraphrase; every role exists in the reviewed shape with no outgoing
    memberships; the ledger carries this
    project's marker and is where the packet expects; no packet would replay an
    applied migration; **the ledger and the packet together account for every
@@ -263,7 +262,13 @@ non-ignored worktree is clean, including untracked files.
    drift that is merely the future. Object *inventory* is checked in the one
    direction that is answerable now: "present but unexpected" is drift today and
    stays drift afterwards, so it is a blocker; "expected but absent" is simply a
-   migration that has not run yet, so it is not. They remain the one class that can still fail
+   migration that has not run yet, so it is not.
+
+   Function search paths are a third such case. Migration `0027` is what sets
+   `proconfig` on the existing functions, so on the current hosted database all
+   57 legitimately have none — checking that here would have produced 57 false
+   blockers against a run that should proceed. Ownership and `SECURITY DEFINER`
+   are checked, because `0027` changes neither. They remain the one class that can still fail
    once migrations are committed. If that happens, the migrations are applied and
    the grants are not: re-run the preflight, repair what it names, and re-run
    `--apply`, which skips the already-ledgered migrations and retries the grant
