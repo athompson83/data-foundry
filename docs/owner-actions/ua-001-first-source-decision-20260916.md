@@ -5,9 +5,11 @@ earlier research. **Nothing here activates anything.** No source is acquired,
 published, promoted or contacted, and no rights cell is filled by engineering.
 
 This sheet supersedes the candidate comparison in the earlier CCMS sheet. That
-sheet's *structure* — seven operation/channel cells, exact fields,
-transformations, retention, refresh, downstream permissions — still applies to
-whichever candidate you select.
+sheet's *structure* — exact fields, transformations, retention, refresh,
+downstream permissions — still applies to whichever candidate you select. Its
+**cell count does not**: a paid direct API needs **at least eight** rights
+cells, not the seven that sheet names. See "What the rights answer unlocks"
+below.
 
 ## Correction to what I told you earlier today
 
@@ -19,9 +21,11 @@ remain unknown."* There is a detailed review packet at
 and a draft declaration at `docs/sources/proposed/energy-star-heat-pumps.yaml`
 held at `UNDER_REVIEW` / `UNREVIEWED`.
 
-What *is* new is the measured access posture, and one piece of rights evidence
-that materially changes the prior assessment. The candidate is not new and the
-blocking question was already correctly identified.
+What *is* new is the measured access posture. **No new rights evidence was
+found**, and nothing measured this session narrowed the legal question — an
+earlier revision of this sheet claimed otherwise and that claim is withdrawn
+below. The candidate is not new and the blocking question was already correctly
+identified.
 
 ## The comparison
 
@@ -58,8 +62,11 @@ crawling is permitted would have to be obtained by doing the very thing whose
 permissibility is in question.
 
 Separately, the supported-export question is now answered in the negative for
-the cheapest route: **CCMS has no data.gov catalogue entry.** All 112 sitemap
-shards were enumerated — 559,455 URLs — and no CCMS dataset appears. The
+the cheapest route: **no CCMS dataset appears in data.gov's advertised
+sitemap.** All 112 shards were enumerated — 559,455 URLs — and none matches.
+Stated precisely, because the catalogue's own API and search are broken and the
+site appears mid-rebuild: this establishes *absence from the sitemap*, **not**
+absence of a catalogue record. It does not close the route. The
 catalogue's own API is unusable (every route returns a non-CKAN
 `{"detail":{},"message":"Not Found"}`; its `robots.txt` still carries literal
 `# TODO` placeholder text), so the sitemap was the only remaining self-service
@@ -205,8 +212,8 @@ in the two correction blocks above.
 What the evidence does support is an ordering by **acquisition method**, which is
 the gate that actually differs between them:
 
-1. **ENERGY STAR is the only candidate with a lawful, policy-compliant
-   acquisition path today.** Documented SODA API, `robots.txt` permitting
+1. **ENERGY STAR is the only candidate whose acquisition path is even
+   plausibly clearable today — it is not yet cleared.** Documented SODA API, `robots.txt` permitting
    `/api/` and `/resource/`, serves an honest agent, stable asset IDs, and field
    metrics that match the dictionary.
 
@@ -313,9 +320,10 @@ possibility.
 
 Three asks, in descending order of how much they unblock:
 
-1. **To counsel** — the ENERGY STAR question above. It is the only path where a
-   single answer converts a candidate into a selectable source, because the
-   acquisition side is already clean.
+1. **To counsel** — the ENERGY STAR question above. It is the furthest-reaching
+   single answer, but it does **not** on its own make the source selectable:
+   the acquisition-method authorisation is a separate, still-open approval, and
+   the review packet records the SODA method as *proposed, not authorised*.
 2. **To DCCEEW** — written permission for automated retrieval, which would make
    AU selectable on acquisition. Note this needs a *product* answer first
    (would a first customer buy AU/NZ data?) and a *schema* answer second (the

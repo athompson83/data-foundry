@@ -8,8 +8,8 @@ endpoint, re-measured while checking whether CCMS has a data.gov catalogue entry
 > deferred because *"partner-submitted field rights remain unknown"*, with a
 > detailed review packet at
 > [`energy-star-air-source-heat-pumps-review-packet.md`](energy-star-air-source-heat-pumps-review-packet.md).
-> What is new here is the measured access posture and one piece of rights
-> evidence. See
+> What is new here is the measured access posture only — **no new rights
+> evidence was found**, and nothing here narrows the legal question. See
 > [the 2026-09-16 first-source decision sheet](../owner-actions/ua-001-first-source-decision-20260916.md)
 > for the three-way comparison and the one open legal question.
 
@@ -34,12 +34,15 @@ It is now answered, and the answer is a clean negative:
 - The HTML search drops its query and redirects to the catalogue root, so it
   cannot be used to search either.
 - The one route `robots.txt` does advertise — the sitemap — works. **All 112
-  shards were enumerated: 559,455 URLs.** No DOE CCMS dataset exists in it. The
-  only `ccms` match is an unrelated workers-compensation case-management system.
+  shards were enumerated: 559,455 URLs.** No DOE CCMS dataset appears in them.
+  The only `ccms` match is an unrelated workers-compensation case-management
+  system.
 
-So CCMS has no data.gov catalogue entry. That does not mean DOE publishes no
-extract by another route, so it strengthens the case for sending the inquiry
-rather than replacing it.
+So no CCMS dataset appears in the advertised sitemap. Because the catalogue's
+own API and search are broken and it appears mid-rebuild, that is **absence from
+the sitemap, not proof that no catalogue record exists** — and it certainly does
+not mean DOE publishes no extract by another route. It strengthens the case for
+sending the inquiry rather than replacing it.
 
 The same enumeration surfaced something more useful.
 
@@ -60,10 +63,14 @@ problem, measured today with a descriptive, honest agent
 | Dataset metadata (`/api/views/<id>`) | 200, JSON |
 | Row query (`/resource/<id>.json`) | 200, JSON |
 | Documented distributions | CSV export, JSON and XML query endpoints, column metadata — all linked from the data.gov entry |
-| Freshness | `rowsUpdatedAt` corresponds to 2026-09-16, the day of measurement |
+| Freshness | `rowsUpdatedAt` corresponds to 2026-09-16, the day of measurement — **one observation, so cadence is unknown** |
 
 No impersonation, no undocumented endpoint, no cache-busted front-end bundle to
-reverse. The access method question that blocks CCMS does not arise.
+reverse. **This is not an authorised acquisition method.** The review packet §2
+records the SODA route as *proposed, not authorised*, with terms, rate limits and
+redistribution constraints `[UNVERIFIED]`, and states the rule directly: *robots
+not disallowing a route is not a grant*. What can be said is narrower — the
+specific obstacle that blocks CCMS (a browser-only edge) does not arise here.
 
 ## Coverage — stated carefully, because the naive number is wrong
 
@@ -174,15 +181,18 @@ treated as settled:
 3. Any accuracy or legal-significance disclaimers the programme requires must be
    identified and carried through, as with CCMS.
 
-The access-method objection is resolved. **The rights question is not**, and it
-needs its own cell in the decision sheet rather than inheriting CCMS's.
+Neither question is resolved. The **rights** question needs its own
+determination rather than inheriting CCMS's, and the **acquisition method**
+remains *proposed, not authorised* per review packet §2. Two approvals, not
+one.
 
 ## Recommendation
 
 Treat ENERGY STAR as the **leading candidate for first activation**, ahead of
-CCMS, on one ground only: its acquisition method is documented, robots-permitted
-and stable, so it does not require the undocumented browser-dependent endpoint
-the owner has already refused for production.
+CCMS, on one ground only: its access route is documented and stable and does not
+require the undocumented browser-dependent endpoint the owner has refused for
+production. That is an argument about which candidate is worth pursuing — **not**
+a finding that its acquisition method is approved, which it is not.
 
 Do not activate it yet. Three things are needed first, in this order:
 
