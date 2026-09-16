@@ -17,9 +17,11 @@ import {
   type MigrationDriver,
 } from '../scripts/migrate.js';
 import {
+  buildGrantPrerequisiteProbeSql,
   buildRuntimeGrantPayloadForRelease,
   type SupabaseRuntimeGrantPayload,
 } from '../scripts/export-supabase-migration-packets.js';
+import { createPGliteDriver } from '../scripts/migrate.js';
 
 const RELEASE_SHA = 'a'.repeat(40);
 const SCHEMA = DATA_FOUNDRY_PRIVATE_SCHEMA;
@@ -98,6 +100,7 @@ interface FakeState {
   readonly ledgerMarker?: string | null;
   readonly ledger?: readonly Migration[];
   readonly ledgerChecksumOverride?: Readonly<Record<string, string>>;
+  readonly ledgerFilenameOverride?: Readonly<Record<string, string>>;
 }
 
 interface Fake {
@@ -158,7 +161,7 @@ function fakeDriver(state: FakeState = {}): Fake {
       if (sql.includes('schema_migrations ORDER BY version')) {
         return ledger.map((entry) => ({
           version: entry.version,
-          filename: entry.filename,
+          filename: state.ledgerFilenameOverride?.[entry.version] ?? entry.filename,
           checksum: state.ledgerChecksumOverride?.[entry.version] ?? expectedChecksum(entry),
         })) as T[];
       }
@@ -367,6 +370,18 @@ describe('preflightUa002', () => {
     expect(findings.find((finding) => finding.check === 'grant-payload')?.detail).toContain('df_edge');
   });
 
+  it('catches an applied ledger row whose filename drifted from the release', async () => {
+    const { driver } = fakeDriver({
+      ledgerFilenameOverride: { '0001': '0001_renamed.sql' },
+    });
+    const findings = await preflightUa002(driver, packet(), ALL_MIGRATIONS, STUB_GRANTS);
+    const drift = findings.find((finding) => finding.check === 'checksums');
+    expect(drift?.detail).toContain('0001_renamed.sql');
+    // The grant upgrade compares the ledger on filename too, so an intact
+    // checksum is not enough to let this through.
+    expect(drift?.detail).toContain('filename');
+  });
+
   it('catches an applied migration that changed since it was applied', async () => {
     const { driver } = fakeDriver({ ledgerChecksumOverride: { '0001': 'e'.repeat(64) } });
     const findings = await preflightUa002(driver, packet(), ALL_MIGRATIONS, STUB_GRANTS);
@@ -484,5 +499,39 @@ describe('buildRuntimeGrantPayloadForRelease', () => {
   it('refuses a partial migration set rather than deriving a payload for it', async () => {
     const migrations = await loadMigrations();
     expect(() => buildRuntimeGrantPayloadForRelease(migrations.slice(0, 10))).toThrow(/contiguous/u);
+  });
+});
+
+describe('buildGrantPrerequisiteProbeSql against real PostgreSQL', () => {
+  it('catches pre-existing object drift the grant install would reject after migrations', async () => {
+    const driver = await createPGliteDriver();
+    try {
+      await driver.exec('CREATE SCHEMA IF NOT EXISTS extensions');
+      await driver.exec('CREATE SCHEMA IF NOT EXISTS data_foundry');
+      // Exactly the case that motivated this probe: an object already sitting in
+      // the schema, which survives the pending migrations and is then rejected
+      // as noncanonical — after the ledger has been caught up.
+      await driver.exec('CREATE TABLE data_foundry.someone_elses_table (id text primary key)');
+      await driver.exec(
+        'CREATE FUNCTION data_foundry.rogue_fn() RETURNS int LANGUAGE sql SECURITY DEFINER AS $rogue$ SELECT 1 $rogue$',
+      );
+
+      const rows = await driver.query<{ probe: string; detail: string }>(
+        buildGrantPrerequisiteProbeSql(),
+      );
+      const probes = new Set(rows.map((row) => row.probe));
+      expect(probes).toContain('unexpected-relation');
+      expect(probes).toContain('relation-ownership');
+      expect(probes).toContain('unexpected-function');
+      expect(probes).toContain('function-posture');
+
+      const relation = rows.find((row) => row.probe === 'unexpected-relation');
+      expect(relation?.detail).toContain('someone_elses_table');
+      const posture = rows.find((row) => row.probe === 'function-posture');
+      expect(posture?.detail).toContain('rogue_fn()');
+      expect(posture?.detail).toContain('"security_definer": true');
+    } finally {
+      await driver.close();
+    }
   });
 });

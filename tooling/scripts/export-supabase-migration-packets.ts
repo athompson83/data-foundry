@@ -1465,6 +1465,72 @@ ${buildRuntimeRoleExternalDirectAclSql(schema, targetPredicate)}
       'runtime-role-external-capability',
       buildRuntimeRoleReachableExternalCapabilitySql(schema, runtimeRolePredicate),
     ),
+    // Object-inventory drift, asked in the only direction that is answerable
+    // before the pending migrations run. "Expected but absent" is meaningless
+    // here — `0027`–`0033` have not created their relations yet — but "present
+    // and unexpected" is drift now and stays drift afterwards, and the install
+    // rejects it either way. An extra table someone left in the schema would
+    // otherwise sail through preflight and fail the grant upgrade.
+    probe(
+      'unexpected-relation',
+      `WITH expected(relname, relkind) AS (VALUES
+${expectedRelationValuesSql()}
+  )
+  SELECT live.relname::text AS relname, live.relkind::text AS relkind,
+         pg_catalog.pg_get_userbyid(live.relowner)::text AS owner_name
+    FROM pg_catalog.pg_class live
+    JOIN pg_catalog.pg_namespace ns ON ns.oid = live.relnamespace
+   WHERE ns.nspname = ${sqlLiteral(schema)}
+     AND live.relkind IN ('r', 'p', 'v', 'm', 'S', 'f')
+     AND NOT EXISTS (
+       SELECT 1 FROM expected
+        WHERE expected.relname = live.relname::text
+          AND expected.relkind = live.relkind::text
+     )`,
+    ),
+    probe(
+      'relation-ownership',
+      `SELECT live.relname::text AS relname,
+         pg_catalog.pg_get_userbyid(live.relowner)::text AS owner_name
+    FROM pg_catalog.pg_class live
+    JOIN pg_catalog.pg_namespace ns ON ns.oid = live.relnamespace
+   WHERE ns.nspname = ${sqlLiteral(schema)}
+     AND live.relkind IN ('r', 'p', 'v', 'm', 'S', 'f')
+     AND pg_catalog.pg_get_userbyid(live.relowner)::text
+           IS DISTINCT FROM ${sqlLiteral(migrationRole)}`,
+    ),
+    probe(
+      'unexpected-function',
+      `WITH expected(signature) AS (VALUES
+${expectedFunctionValuesSql()}
+  )
+  SELECT (p.proname || '(' || pg_catalog.oidvectortypes(p.proargtypes) || ')')::text AS signature
+    FROM pg_catalog.pg_proc p
+    JOIN pg_catalog.pg_namespace ns ON ns.oid = p.pronamespace
+   WHERE ns.nspname = ${sqlLiteral(schema)}
+     AND p.prokind IN ('f', 'p', 'a', 'w')
+     AND NOT EXISTS (
+       SELECT 1 FROM expected
+        WHERE expected.signature
+                = (p.proname || '(' || pg_catalog.oidvectortypes(p.proargtypes) || ')')::text
+     )`,
+    ),
+    probe(
+      'function-posture',
+      `SELECT (p.proname || '(' || pg_catalog.oidvectortypes(p.proargtypes) || ')')::text AS signature,
+         pg_catalog.pg_get_userbyid(p.proowner)::text AS owner_name,
+         p.prosecdef AS security_definer,
+         COALESCE(pg_catalog.array_to_string(p.proconfig, ','), '<null>')::text AS function_config
+    FROM pg_catalog.pg_proc p
+    JOIN pg_catalog.pg_namespace ns ON ns.oid = p.pronamespace
+   WHERE ns.nspname = ${sqlLiteral(schema)}
+     AND p.prokind IN ('f', 'p', 'a', 'w')
+     AND (
+       p.prosecdef
+       OR pg_catalog.pg_get_userbyid(p.proowner)::text IS DISTINCT FROM ${sqlLiteral(migrationRole)}
+       OR p.proconfig IS DISTINCT FROM ARRAY[${sqlLiteral(`search_path=${schema}, pg_catalog, extensions`)}]::text[]
+     )`,
+    ),
   ].join('\nUNION ALL\n');
 }
 

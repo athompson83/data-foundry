@@ -492,6 +492,17 @@ export async function preflightUa002(
       });
       continue;
     }
+    // The grant upgrade's canonical ledger comparison is on (version, filename,
+    // checksum), so a drifted filename with an intact checksum fails there —
+    // after the migrations have committed — unless it is caught here.
+    if (applied.filename !== migration.filename) {
+      findings.push({
+        check: 'checksums',
+        detail:
+          `Applied ${applied.version} is recorded as ${applied.filename} but the release calls it ` +
+          `${migration.filename}. The grant upgrade compares the ledger on filename too.`,
+      });
+    }
     const effective = effectiveMigrationChecksum(
       migration,
       schema,

@@ -203,7 +203,20 @@ non-ignored worktree is clean, including untracked files.
    Confirm `pendingMigrationCount: 7`, `repositoryDigest` and every checksum
    against the table above before anything is applied.
 
-2. **Run the preflight.** Export the connection string into the environment —
+2. **Run [`ua-002-provider-staging.sql`](ua-002-provider-staging.sql) once**, in
+   a privileged provider session, and set the migration password through the
+   provider's secure credential path.
+
+   This comes before the preflight, not after it, for a blunt reason: on the
+   recorded baseline `df_migration` is `NOLOGIN` and has no password, so the
+   preflight cannot open a connection at all until this step has run. The
+   preflight is how you *verify* staging, not how you discover it — the three
+   prerequisites are already measured and recorded above.
+
+   The migration role cannot perform any of this itself: it is `NOCREATEROLE`
+   and can alter only its own settings.
+
+3. **Run the preflight.** Export the connection string into the environment —
    never onto a command line, into a file, or into a log — and run:
 
    ```
@@ -217,14 +230,19 @@ non-ignored worktree is clean, including untracked files.
    prerequisite the grant install asserts** — migration-role posture and session,
    default object ACLs, external capability, durable settings for all seven
    roles, runtime-role external ACLs, and forbidden `PUBLIC`/`anon`/
-   `authenticated`/`service_role` grants on the private schema — using the
-   exporter's own SQL rather than a paraphrase; every role exists in the reviewed
-   shape with no outgoing memberships; the ledger carries this
+   `authenticated`/`service_role` grants on the private schema, plus any relation
+   or function already present that the release does not expect, any object not
+   owned by the migration role, any `SECURITY DEFINER` function and any
+   non-canonical function search path — using the exporter's own SQL rather than
+   a paraphrase; every role exists in the reviewed shape with no outgoing
+   memberships; the ledger carries this
    project's marker and is where the packet expects; no packet would replay an
    applied migration; **the ledger and the packet together account for every
    migration at the release**, so nothing gets applied unlisted; every checksum —
-   pending *and* already applied — recomputes from the Git objects; and the
-   grant payload the manifest carries matches one **rebuilt from the release**.
+   pending *and* already applied — recomputes from the Git objects, with applied
+   filenames compared too because the grant upgrade's ledger comparison includes
+   them; and the grant payload the manifest carries matches one **rebuilt from
+   the release**.
 
    That last check matters more than it sounds. The manifest's
    `upgradeFrom0028Sql` and `verificationSql` are executed as the schema owner,
@@ -242,7 +260,10 @@ non-ignored worktree is clean, including untracked files.
    prerequisites — the existing-privilege count and the complete private
    direct-ACL baseline — describe the object set *after* the pending migrations
    create their tables, so they cannot be checked beforehand without reporting
-   drift that is merely the future. They remain the one class that can still fail
+   drift that is merely the future. Object *inventory* is checked in the one
+   direction that is answerable now: "present but unexpected" is drift today and
+   stays drift afterwards, so it is a blocker; "expected but absent" is simply a
+   migration that has not run yet, so it is not. They remain the one class that can still fail
    once migrations are committed. If that happens, the migrations are applied and
    the grants are not: re-run the preflight, repair what it names, and re-run
    `--apply`, which skips the already-ledgered migrations and retries the grant
@@ -253,13 +274,11 @@ non-ignored worktree is clean, including untracked files.
    not three. **Exit status 2 means blockers were found and nothing was
    touched.**
 
-3. **Run [`ua-002-provider-staging.sql`](ua-002-provider-staging.sql) once**, in
-   a privileged provider session, and set the migration password through the
-   provider's secure credential path. This happens *before* the direct-TLS
-   session opens; the migration role can verify the result but cannot produce
-   it. Step 2's preflight is how you confirm it worked.
+4. **If the preflight reports blockers, repair them and run it again.** Exit
+   status 2 means nothing was touched. Most repairs belong to the same
+   privileged provider session as step 2.
 
-4. **Apply, once the preflight is clean**, with the same command and one more
+5. **Apply, once the preflight is clean**, with the same command and one more
    flag:
 
    ```
@@ -279,7 +298,7 @@ non-ignored worktree is clean, including untracked files.
    a session left in a failed transaction silently swallows everything after.
    Unknown ACL drift must fail; do not normalize or revoke unrelated grants.
 
-5. **Expect, at the end:** 33 applied migrations, six roles, 59 function
+6. **Expect, at the end:** 33 applied migrations, six roles, 59 function
    signatures and 286 grants.
 
 ## Where this stops
