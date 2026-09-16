@@ -1,12 +1,17 @@
 # Owner action — UA-002 hosted migration handover
 
-Prepared 2026-09-16. The checksums below were first computed against
-`eb7e998e6d4a574fa735d8ff54014cde18c25e27` and re-verified against merged `main`
-`0026b14b7ef0156519305fec756fae8fa083b169`: 7 matched, 0 mismatched, because
-`db/migrations/` did not change between them. They stay valid for any release SHA
-whose `db/migrations/` tree is identical — and the operator refuses the run rather
-than assuming that, by recomputing every checksum from the Git objects at whatever
-SHA the manifest names.
+Prepared 2026-09-16 and **bound to merged `main` `2063ea8d72247a9b2643e1c690e37ab55ab14252`**, which carries the
+operator this document tells you to run.
+
+The checksums below were re-verified against that SHA on 2026-09-16: 7 matched, 0
+mismatched. The grant payload rebuilt from that release also reproduces the
+exported manifest byte for byte across `upgradeFrom0028Sql`,
+`upgradeFrom0028Checksum` and `verificationSql`, so the operator's own integrity
+check passes against a manifest generated from it.
+
+They stay valid for any later release whose `db/migrations/` tree is identical —
+and the operator refuses the run rather than assuming that, by recomputing every
+checksum from the Git objects at whatever SHA the manifest names.
 
 ## Why this document exists
 
@@ -190,14 +195,45 @@ this staging step — the grant upgrade adds its capabilities afterwards.
 
 ## Execution sequence
 
-Run from a clean checkout of the release you intend to deploy — merged `main`,
-at or after `0026b14`. The export refuses to run unless that SHA is `HEAD` and the
-non-ignored worktree is clean, including untracked files.
+Run from a clean checkout of merged `main` `2063ea8d72247a9b2643e1c690e37ab55ab14252` — the release this document
+is bound to. The export refuses to run unless that SHA is `HEAD` and the
+non-ignored worktree is clean, including untracked files, and the operator refuses
+unless `DATA_FOUNDRY_RELEASE_SHA` names the same SHA.
+
+The whole procedure, with the values already filled in:
+
+```bash
+# On a machine with PostgreSQL egress to the Alpha Lab project.
+git fetch origin main && git checkout 2063ea8d72247a9b2643e1c690e37ab55ab14252
+git status --porcelain --untracked-files=all    # must print nothing
+pnpm install --frozen-lockfile
+
+export DATA_FOUNDRY_RELEASE_SHA=2063ea8d72247a9b2643e1c690e37ab55ab14252
+node_modules/.bin/tsx tooling/scripts/export-supabase-migration-packets.ts \
+  --release-sha "$DATA_FOUNDRY_RELEASE_SHA" > ./ua002-packet.json
+
+# 1. Provider staging, in a privileged session (see step 2 below), then the
+#    migration password through the provider's secure credential path.
+
+# 2. Read-only readiness report. Exit 2 means blockers, nothing touched.
+export DATA_FOUNDRY_MIGRATION_DATABASE_URL='...'   # from the secret store, never typed
+pnpm ua002:operator -- --packet ./ua002-packet.json
+
+# 3. Only once step 2 is clean:
+pnpm ua002:operator -- --packet ./ua002-packet.json --apply
+```
+
+Expect from the export: `repositoryMigrationCount: 33`, `appliedMigrationCount: 26`,
+`pendingMigrationCount: 7`, `repositoryDigest`
+`8097711644f0b4ecdd91c21b2ba512b29bd4451597af4946f4bee6bf81871d8d`, six grant
+roles, 59 function signatures, 286 expected grants, and `upgradeFrom0028Checksum`
+`d73fe6718648ff459cb416d2b665496f841c4a430bc06647c6c55013dd04dd65`. All of those
+were observed from this SHA.
 
 1. **Regenerate the manifest** using the runbook's direct invocation:
 
    ```
-   node_modules/.bin/tsx tooling/scripts/export-supabase-migration-packets.ts --release-sha <release-sha> > <non-secret-local-packet-path>
+   node_modules/.bin/tsx tooling/scripts/export-supabase-migration-packets.ts --release-sha 2063ea8d72247a9b2643e1c690e37ab55ab14252 > <non-secret-local-packet-path>
    ```
 
    Confirm `pendingMigrationCount: 7`, `repositoryDigest` and every checksum
@@ -220,7 +256,7 @@ non-ignored worktree is clean, including untracked files.
    never onto a command line, into a file, or into a log — and run:
 
    ```
-   export DATA_FOUNDRY_RELEASE_SHA=<release-sha>
+   export DATA_FOUNDRY_RELEASE_SHA=2063ea8d72247a9b2643e1c690e37ab55ab14252
    export DATA_FOUNDRY_MIGRATION_DATABASE_URL='...'   # from the secret store, not typed
    pnpm ua002:operator -- --packet <non-secret-local-packet-path>
    ```

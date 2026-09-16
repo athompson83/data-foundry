@@ -18,7 +18,15 @@ Three measured facts, from
    day before it was read, so field names, parameters and the endpoint can move
    without notice.
 
-A letter converts all three from standing risk into a fact. The alternative is a
+A fourth observation, added 2026-09-16: an attempt to find a documented CCMS
+distribution on data.gov could not reach the catalogue API at all.
+`catalog.data.gov` serves its root normally, but every `/api/3/action/*` call
+returned `{"detail":{},"message":"Not Found"}` — not CKAN's own error envelope, so
+that API has moved or changed. **This neither confirms nor rules out a documented
+distribution**; it only means the cheapest way to check was unavailable, which
+makes asking DOE directly more attractive rather than less.
+
+A letter converts all of this from standing risk into a fact. The alternative is a
 revenue-bearing pipeline resting on an interface the publisher never agreed to
 serve, which can break silently between two-week refresh cycles.
 
@@ -43,7 +51,9 @@ named.
 > interface. Three questions:
 >
 > 1. Is there a documented bulk download, export mechanism or API for the
->    certification data — or a supported way to request periodic extracts?
+>    certification data — or a supported way to request periodic extracts? We
+>    looked for a data.gov catalogue entry and could not reach that API, so we may
+>    simply have missed it.
 > 2. If not, is automated querying of the public interface acceptable to you, and
 >    at what request rate? We would identify ourselves with a descriptive user
 >    agent and honour any limits you set.
