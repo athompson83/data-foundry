@@ -12,7 +12,10 @@ check passes against a manifest generated from it.
 Re-verified after `#43` merged: regenerating at `main`
 `5e263fc9326962de4e009b9047e5af1a04053df5` reproduces all ten rows of the table
 below unchanged, because that merge touched documentation only. Either SHA is
-usable for this run. Any *further* commit needs its own regeneration — see the
+usable for this run. The same sequence was then run once more against the
+**real hosted ledger** read out of `data_foundry.schema_migrations` rather than a
+reconstruction — 26 rows, 0 differing from what this release computes for the
+same files — giving 33 / 26 / 7 and all ten checksums again. Any *further* commit needs its own regeneration — see the
 next paragraph for why the migration tree alone does not settle it.
 
 Only the migration-derived values survive a change of release: the seven
