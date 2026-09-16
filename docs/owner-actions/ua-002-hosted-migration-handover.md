@@ -1,12 +1,25 @@
 # Owner action — UA-002 hosted migration handover
 
-Prepared 2026-09-16. The checksums below were first computed against
-`eb7e998e6d4a574fa735d8ff54014cde18c25e27` and re-verified against merged `main`
-`0026b14b7ef0156519305fec756fae8fa083b169`: 7 matched, 0 mismatched, because
-`db/migrations/` did not change between them. They stay valid for any release SHA
-whose `db/migrations/` tree is identical — and the operator refuses the run rather
-than assuming that, by recomputing every checksum from the Git objects at whatever
-SHA the manifest names.
+Prepared 2026-09-16 and **bound to merged `main` `2063ea8d72247a9b2643e1c690e37ab55ab14252`**, which carries the
+operator this document tells you to run.
+
+The checksums below were re-verified against that SHA on 2026-09-16: 7 matched, 0
+mismatched. The grant payload rebuilt from that release also reproduces the
+exported manifest byte for byte across `upgradeFrom0028Sql`,
+`upgradeFrom0028Checksum` and `verificationSql`, so the operator's own integrity
+check passes against a manifest generated from it.
+
+Only the migration-derived values survive a change of release: the seven
+migration checksums and `repositoryDigest` are computed from `db/migrations/`
+alone, so an identical migration tree reproduces them at any SHA. The grant
+values — `postMigrationGrants`, `upgradeFrom0028Sql` and the SQL they hash — are
+not: they are built from `packages/private-canary/src/runtime-role-policy.ts`
+(all 59 function signatures are embedded in the upgrade SQL),
+`tooling/fixtures/runtime-grants-0028.ts` (the 199-entry legacy baseline the
+upgrade diffs against) and the exporter's own emission order, none of which live
+under `db/migrations/`. Regenerate them at this exact SHA. The operator relies on
+neither claim: it recomputes every checksum from the Git objects at whatever SHA
+the manifest names.
 
 ## Why this document exists
 
@@ -54,9 +67,12 @@ anything:
 | `upgradeFrom0028Sql` | `d73fe6718648ff459cb416d2b665496f841c4a430bc06647c6c55013dd04dd65` |
 | `repositoryDigest` | `8097711644f0b4ecdd91c21b2ba512b29bd4451597af4946f4bee6bf81871d8d` |
 
-If a regenerated manifest disagrees with any row above, **stop** — that means
-the release SHA or the worktree is not what this handover assumed. The preflight
-treats the same disagreement as a blocker and mutates nothing.
+If a manifest regenerated at `2063ea8d72247a9b2643e1c690e37ab55ab14252`
+disagrees with any row above, **stop** — that means the worktree is not what
+this handover assumed. A manifest generated at a later SHA may legitimately
+differ in the two grant rows without any migration having changed; that is a
+different release, and it needs its own checksum table rather than this one.
+The preflight treats the same disagreement as a blocker and mutates nothing.
 
 ## The two ways forward
 
@@ -190,14 +206,79 @@ this staging step — the grant upgrade adds its capabilities afterwards.
 
 ## Execution sequence
 
-Run from a clean checkout of the release you intend to deploy — merged `main`,
-at or after `0026b14`. The export refuses to run unless that SHA is `HEAD` and the
-non-ignored worktree is clean, including untracked files.
+Run from a clean checkout of merged `main` `2063ea8d72247a9b2643e1c690e37ab55ab14252` — the release this document
+is bound to. The export refuses to run unless that SHA is `HEAD` and the
+non-ignored worktree is clean, including untracked files, and the operator refuses
+unless `DATA_FOUNDRY_RELEASE_SHA` names the same SHA.
 
-1. **Regenerate the manifest** using the runbook's direct invocation:
+The whole procedure, with the values already filled in:
+
+**Two things this command block gets wrong if you improvise them**, both of which
+make the run impossible rather than merely awkward:
+
+- The manifest and the ledger snapshot must live **outside the checkout**. The
+  exporter and the operator each require the whole non-ignored worktree to be
+  clean *including untracked files*, and neither `ua002-packet.json` nor
+  `applied-ledger.json` is ignored — writing them into the repository makes the
+  very command that creates them fail its own source-identity check.
+- The export needs **`--applied-ledger`**. Without it the exporter defaults the
+  applied set to empty and emits 33 pending / 0 applied, and the operator then
+  reports a ledger-count mismatch and flags all 26 applied migrations as replays.
+
+```bash
+# On a machine with PostgreSQL egress to the Alpha Lab project.
+export UA002_DIR="$(mktemp -d)"          # outside the checkout, on purpose
+git fetch origin main && git checkout 2063ea8d72247a9b2643e1c690e37ab55ab14252
+git status --porcelain --untracked-files=all    # must print nothing
+pnpm install --frozen-lockfile
+export DATA_FOUNDRY_RELEASE_SHA=2063ea8d72247a9b2643e1c690e37ab55ab14252
+
+# 1. Provider staging, in one privileged session — see step 2 of the numbered
+#    procedure below — then the migration password through the provider's secure
+#    credential path. Nothing after this point works until that is done.
+
+# 2. Snapshot the hosted ledger. Run this SQL through whatever psql invocation
+#    your secret handling allows; see the credential note below.
+#      SELECT coalesce(
+#               json_agg(json_build_object(
+#                 'version', version, 'filename', filename, 'checksum', checksum
+#               ) ORDER BY version),
+#               '[]'::json)
+#        FROM data_foundry.schema_migrations;
+#    Write the single JSON array it returns to "$UA002_DIR/applied-ledger.json".
+#    Expect 26 rows, 0001 through 0026.
+
+# 3. Export the manifest against that ledger.
+node_modules/.bin/tsx tooling/scripts/export-supabase-migration-packets.ts \
+  --release-sha "$DATA_FOUNDRY_RELEASE_SHA" \
+  --applied-ledger "$UA002_DIR/applied-ledger.json" > "$UA002_DIR/ua002-packet.json"
+
+# 4. Read-only readiness report. Exit 2 means blockers, nothing touched.
+export DATA_FOUNDRY_MIGRATION_DATABASE_URL='...'   # from the secret store, never typed
+pnpm ua002:operator -- --packet "$UA002_DIR/ua002-packet.json"
+
+# 5. Only once step 4 is clean:
+pnpm ua002:operator -- --packet "$UA002_DIR/ua002-packet.json" --apply
+```
+
+**Credential note for step 2.** `psql "$DATA_FOUNDRY_MIGRATION_DATABASE_URL"`
+puts the connection string in the process list, where any other user on the host
+can read it. Prefer a `.pgpass` entry, a libpq service file, or `PGPASSWORD` with
+the other connection parameters, so the secret never becomes an argument. The
+operator itself never takes one.
+
+Expect from the export: `repositoryMigrationCount: 33`, `appliedMigrationCount: 26`,
+`pendingMigrationCount: 7`, `repositoryDigest`
+`8097711644f0b4ecdd91c21b2ba512b29bd4451597af4946f4bee6bf81871d8d`, six grant
+roles, 59 function signatures, 286 expected grants, and `upgradeFrom0028Checksum`
+`d73fe6718648ff459cb416d2b665496f841c4a430bc06647c6c55013dd04dd65`. All of those
+were observed from this SHA.
+
+1. **Regenerate the manifest** using the runbook's direct invocation, with the
+   ledger snapshot and an output path outside the checkout:
 
    ```
-   node_modules/.bin/tsx tooling/scripts/export-supabase-migration-packets.ts --release-sha <release-sha> > <non-secret-local-packet-path>
+   node_modules/.bin/tsx tooling/scripts/export-supabase-migration-packets.ts --release-sha 2063ea8d72247a9b2643e1c690e37ab55ab14252 --applied-ledger <ledger-snapshot-path> > <non-secret-path-outside-the-repo>
    ```
 
    Confirm `pendingMigrationCount: 7`, `repositoryDigest` and every checksum
@@ -220,7 +301,7 @@ non-ignored worktree is clean, including untracked files.
    never onto a command line, into a file, or into a log — and run:
 
    ```
-   export DATA_FOUNDRY_RELEASE_SHA=<release-sha>
+   export DATA_FOUNDRY_RELEASE_SHA=2063ea8d72247a9b2643e1c690e37ab55ab14252
    export DATA_FOUNDRY_MIGRATION_DATABASE_URL='...'   # from the secret store, not typed
    pnpm ua002:operator -- --packet <non-secret-local-packet-path>
    ```
