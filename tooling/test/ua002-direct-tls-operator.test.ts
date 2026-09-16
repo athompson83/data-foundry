@@ -10,11 +10,16 @@ import {
 import {
   DATA_FOUNDRY_PRIVATE_SCHEMA,
   effectiveMigrationChecksum,
+  loadMigrations,
   scopeMigrationSql,
   type AppliedMigration,
   type Migration,
   type MigrationDriver,
 } from '../scripts/migrate.js';
+import {
+  buildRuntimeGrantPayloadForRelease,
+  type SupabaseRuntimeGrantPayload,
+} from '../scripts/export-supabase-migration-packets.js';
 
 const RELEASE_SHA = 'a'.repeat(40);
 const SCHEMA = DATA_FOUNDRY_PRIVATE_SCHEMA;
@@ -38,6 +43,26 @@ const APPLIED = [migration('0001', 'alpha'), migration('0002', 'beta')];
 const PENDING = [migration('0003', 'gamma'), migration('0004', 'delta')];
 const ALL_MIGRATIONS = [...APPLIED, ...PENDING];
 
+/**
+ * The real builder insists on the full contiguous release set, so the unit
+ * tests inject a small stand-in through the same seam production leaves unset.
+ * One test below exercises the real builder against the real migrations.
+ */
+const STUB_GRANTS = {
+  providerMigrationName: 'data_foundry_runtime_grants_stub',
+  checksum: 'a'.repeat(64),
+  applicationLedgerMutation: false,
+  roles: [...RUNTIME_ROLES],
+  functionGrantPolicy: 'explicit-all-private-functions-to-acquisition-invoker',
+  functionSignatures: [],
+  expectedGrants: [],
+  sql: 'DO $$ BEGIN END $$;',
+  upgradeFrom0028Sql: 'DO $$ BEGIN END $$;',
+  upgradeFrom0028Checksum: 'd'.repeat(64),
+  verificationSql: 'DO $$ BEGIN /* verify */ END $$;',
+  postCredentialVerificationSql: 'DO $$ BEGIN END $$;',
+} as unknown as SupabaseRuntimeGrantPayload;
+
 function packet(overrides: Partial<OperatorPacket> = {}): OperatorPacket {
   return {
     releaseSha: RELEASE_SHA,
@@ -51,10 +76,10 @@ function packet(overrides: Partial<OperatorPacket> = {}): OperatorPacket {
       checksum: expectedChecksum(entry),
     })),
     postMigrationGrants: {
-      upgradeFrom0028Sql: 'DO $$ BEGIN END $$;',
-      upgradeFrom0028Checksum: 'd'.repeat(64),
-      verificationSql: 'DO $$ BEGIN END $$;',
-      roles: [...RUNTIME_ROLES],
+      upgradeFrom0028Sql: STUB_GRANTS.upgradeFrom0028Sql,
+      upgradeFrom0028Checksum: STUB_GRANTS.upgradeFrom0028Checksum,
+      verificationSql: STUB_GRANTS.verificationSql,
+      roles: [...STUB_GRANTS.roles],
     },
     ...overrides,
   };
@@ -180,7 +205,7 @@ describe('parseOperatorPacket', () => {
 describe('preflightUa002', () => {
   it('passes on a database that is ready', async () => {
     const { driver } = fakeDriver();
-    await expect(preflightUa002(driver, packet(), ALL_MIGRATIONS)).resolves.toEqual([]);
+    await expect(preflightUa002(driver, packet(), ALL_MIGRATIONS, STUB_GRANTS)).resolves.toEqual([]);
   });
 
   it('reports every durable-setting violation the grant packet would raise on', async () => {
@@ -190,7 +215,7 @@ describe('preflightUa002', () => {
         { violation: 'missing_current_database_role_setting', role_name: 'df_edge', setting_item: '' },
       ],
     });
-    const findings = await preflightUa002(driver, packet(), ALL_MIGRATIONS);
+    const findings = await preflightUa002(driver, packet(), ALL_MIGRATIONS, STUB_GRANTS);
     expect(findings.filter((finding) => finding.check === 'durable-settings')).toHaveLength(2);
     expect(findings[0]?.detail).toContain('df_migration: role_global_setting');
     expect(findings[1]?.detail).toContain('df_edge: missing_current_database_role_setting');
@@ -198,20 +223,20 @@ describe('preflightUa002', () => {
 
   it('rejects a SET ROLE session instead of a direct migration login', async () => {
     const { driver } = fakeDriver({ sessionUser: 'postgres' });
-    const findings = await preflightUa002(driver, packet(), ALL_MIGRATIONS);
+    const findings = await preflightUa002(driver, packet(), ALL_MIGRATIONS, STUB_GRANTS);
     expect(findings.some((finding) => finding.check === 'identity')).toBe(true);
     expect(findings.find((finding) => finding.check === 'identity')?.detail).toContain('SET ROLE');
   });
 
   it('reports a read-only session rather than discovering it mid-migration', async () => {
     const { driver } = fakeDriver({ transactionReadOnly: 'on' });
-    const findings = await preflightUa002(driver, packet(), ALL_MIGRATIONS);
+    const findings = await preflightUa002(driver, packet(), ALL_MIGRATIONS, STUB_GRANTS);
     expect(findings.some((finding) => finding.check === 'session-writable')).toBe(true);
   });
 
   it('names the absent role and why the migration identity cannot create it', async () => {
     const { driver } = fakeDriver({ missingRoles: ['df_ingestion'] });
-    const findings = await preflightUa002(driver, packet(), ALL_MIGRATIONS);
+    const findings = await preflightUa002(driver, packet(), ALL_MIGRATIONS, STUB_GRANTS);
     const missing = findings.find((finding) => finding.detail.startsWith('df_ingestion'));
     expect(missing?.check).toBe('roles');
     expect(missing?.detail).toContain('NOCREATEROLE');
@@ -219,19 +244,19 @@ describe('preflightUa002', () => {
 
   it('reports a NOLOGIN migration role as the credential step it is', async () => {
     const { driver } = fakeDriver({ migrationRoleCanLogin: false });
-    const findings = await preflightUa002(driver, packet(), ALL_MIGRATIONS);
+    const findings = await preflightUa002(driver, packet(), ALL_MIGRATIONS, STUB_GRANTS);
     expect(findings.find((finding) => finding.check === 'roles')?.detail).toContain('NOLOGIN');
   });
 
   it('refuses a ledger this project did not create', async () => {
     const { driver } = fakeDriver({ ledgerMarker: null });
-    const findings = await preflightUa002(driver, packet(), ALL_MIGRATIONS);
+    const findings = await preflightUa002(driver, packet(), ALL_MIGRATIONS, STUB_GRANTS);
     expect(findings.find((finding) => finding.check === 'ledger')?.detail).toContain('not the ledger');
   });
 
   it('refuses to replay a migration the ledger already holds', async () => {
     const { driver } = fakeDriver({ ledger: [...APPLIED, PENDING[0] as Migration] });
-    const findings = await preflightUa002(driver, packet(), ALL_MIGRATIONS);
+    const findings = await preflightUa002(driver, packet(), ALL_MIGRATIONS, STUB_GRANTS);
     expect(findings.some((finding) => finding.detail.includes('would replay it'))).toBe(true);
   });
 
@@ -244,13 +269,79 @@ describe('preflightUa002', () => {
         checksum: index === 0 ? 'f'.repeat(64) : expectedChecksum(entry),
       })),
     });
-    const findings = await preflightUa002(driver, tampered, ALL_MIGRATIONS);
+    const findings = await preflightUa002(driver, tampered, ALL_MIGRATIONS, STUB_GRANTS);
     expect(findings.find((finding) => finding.check === 'checksums')?.detail).toContain('0003_gamma.sql');
+  });
+
+  it('refuses a packet that omits an unapplied release migration', async () => {
+    const { driver } = fakeDriver();
+    // The packet names only 0003, but 0004 is unapplied at the release — and
+    // `applyMigrations` would apply it anyway, unlisted.
+    const partial = packet({
+      pendingMigrationCount: 1,
+      packets: [
+        {
+          version: '0003',
+          filename: '0003_gamma.sql',
+          checksum: expectedChecksum(PENDING[0] as Migration),
+        },
+      ],
+    });
+    const findings = await preflightUa002(driver, partial, ALL_MIGRATIONS, STUB_GRANTS);
+    const coverage = findings.find((finding) => finding.check === 'coverage');
+    expect(coverage?.detail).toContain('0004_delta.sql');
+    expect(coverage?.detail).toContain('would apply it anyway');
+  });
+
+  it('refuses grant SQL that does not match the payload derived from the release', async () => {
+    const { driver } = fakeDriver();
+    const tampered = packet({
+      postMigrationGrants: {
+        upgradeFrom0028Sql: 'GRANT ALL ON ALL TABLES IN SCHEMA data_foundry TO PUBLIC;',
+        upgradeFrom0028Checksum: STUB_GRANTS.upgradeFrom0028Checksum,
+        verificationSql: STUB_GRANTS.verificationSql,
+        roles: [...STUB_GRANTS.roles],
+      },
+    });
+    const findings = await preflightUa002(driver, tampered, ALL_MIGRATIONS, STUB_GRANTS);
+    expect(findings.find((finding) => finding.check === 'grant-payload')?.detail).toContain(
+      'upgradeFrom0028Sql',
+    );
+  });
+
+  it('refuses a substituted verifier that would report success on an unverified database', async () => {
+    const { driver } = fakeDriver();
+    const tampered = packet({
+      postMigrationGrants: {
+        upgradeFrom0028Sql: STUB_GRANTS.upgradeFrom0028Sql,
+        upgradeFrom0028Checksum: STUB_GRANTS.upgradeFrom0028Checksum,
+        verificationSql: 'SELECT 1;',
+        roles: [...STUB_GRANTS.roles],
+      },
+    });
+    const findings = await preflightUa002(driver, tampered, ALL_MIGRATIONS, STUB_GRANTS);
+    expect(findings.find((finding) => finding.check === 'grant-payload')?.detail).toContain(
+      'substituted verifier',
+    );
+  });
+
+  it('refuses a manifest that declares the wrong runtime roles', async () => {
+    const { driver } = fakeDriver();
+    const tampered = packet({
+      postMigrationGrants: {
+        upgradeFrom0028Sql: STUB_GRANTS.upgradeFrom0028Sql,
+        upgradeFrom0028Checksum: STUB_GRANTS.upgradeFrom0028Checksum,
+        verificationSql: STUB_GRANTS.verificationSql,
+        roles: ['df_edge'],
+      },
+    });
+    const findings = await preflightUa002(driver, tampered, ALL_MIGRATIONS, STUB_GRANTS);
+    expect(findings.find((finding) => finding.check === 'grant-payload')?.detail).toContain('df_edge');
   });
 
   it('catches an applied migration that changed since it was applied', async () => {
     const { driver } = fakeDriver({ ledgerChecksumOverride: { '0001': 'e'.repeat(64) } });
-    const findings = await preflightUa002(driver, packet(), ALL_MIGRATIONS);
+    const findings = await preflightUa002(driver, packet(), ALL_MIGRATIONS, STUB_GRANTS);
     expect(findings.find((finding) => finding.check === 'checksums')?.detail).toContain('no longer matches');
   });
 });
@@ -262,6 +353,7 @@ describe('runUa002Operator', () => {
     });
     const report = await runUa002Operator(driver, packet(), ALL_MIGRATIONS, {
       apply: true,
+      releaseGrants: STUB_GRANTS,
       applyMigrationsImpl: async () => {
         throw new Error('migrations must not run behind a blocker');
       },
@@ -275,6 +367,7 @@ describe('runUa002Operator', () => {
   it('mutates nothing on a clean database without --apply', async () => {
     const { driver, executed } = fakeDriver();
     const report = await runUa002Operator(driver, packet(), ALL_MIGRATIONS, {
+      releaseGrants: STUB_GRANTS,
       applyMigrationsImpl: async () => {
         throw new Error('migrations must not run without --apply');
       },
@@ -294,12 +387,18 @@ describe('runUa002Operator', () => {
     }));
     const report = await runUa002Operator(driver, packet(), ALL_MIGRATIONS, {
       apply: true,
+      releaseGrants: STUB_GRANTS,
       applyMigrationsImpl: async () => applied,
     });
     expect(report.applied).toEqual(applied);
     expect(report.grantsApplied).toBe(true);
     expect(report.verified).toBe(true);
-    expect(executed).toEqual(['BEGIN', 'DO $$ BEGIN END $$;', 'COMMIT', 'DO $$ BEGIN END $$;']);
+    expect(executed).toEqual([
+      'BEGIN',
+      STUB_GRANTS.upgradeFrom0028Sql,
+      'COMMIT',
+      STUB_GRANTS.verificationSql,
+    ]);
   });
 });
 
@@ -337,5 +436,25 @@ describe('applyGrantUpgrade', () => {
     await expect(applyGrantUpgrade(driver, 'DO $$ BEGIN RAISE EXCEPTION $$;')).rejects.toThrow(
       /NOT confirmed rolled back/u,
     );
+  });
+});
+
+describe('buildRuntimeGrantPayloadForRelease', () => {
+  it('derives a payload from the real migration set, independently of any manifest', async () => {
+    const migrations = await loadMigrations();
+    const payload = buildRuntimeGrantPayloadForRelease(migrations);
+    expect(payload.roles).toEqual(RUNTIME_ROLES);
+    expect(payload.upgradeFrom0028Sql.length).toBeGreaterThan(0);
+    expect(payload.upgradeFrom0028Checksum).toMatch(/^[0-9a-f]{64}$/u);
+    // Deterministic: the same release must produce the same bytes, or checking a
+    // manifest against it would be meaningless.
+    const again = buildRuntimeGrantPayloadForRelease(migrations);
+    expect(again.upgradeFrom0028Sql).toBe(payload.upgradeFrom0028Sql);
+    expect(again.verificationSql).toBe(payload.verificationSql);
+  });
+
+  it('refuses a partial migration set rather than deriving a payload for it', async () => {
+    const migrations = await loadMigrations();
+    expect(() => buildRuntimeGrantPayloadForRelease(migrations.slice(0, 10))).toThrow(/contiguous/u);
   });
 });

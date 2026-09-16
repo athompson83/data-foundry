@@ -207,6 +207,7 @@ non-ignored worktree is clean, including untracked files.
    never onto a command line, into a file, or into a log — and run:
 
    ```
+   export DATA_FOUNDRY_RELEASE_SHA=<release-sha>
    export DATA_FOUNDRY_MIGRATION_DATABASE_URL='...'   # from the secret store, not typed
    pnpm ua002:operator -- --packet <non-secret-local-packet-path>
    ```
@@ -216,8 +217,22 @@ non-ignored worktree is clean, including untracked files.
    settings of all seven roles satisfy the exact policy the grant packet raises
    on; every role exists in the reviewed shape; the ledger carries this
    project's marker and is where the packet expects; no packet would replay an
-   applied migration; and every checksum — pending *and* already applied —
-   recomputes from the Git objects at the release SHA.
+   applied migration; **the ledger and the packet together account for every
+   migration at the release**, so nothing gets applied unlisted; every checksum —
+   pending *and* already applied — recomputes from the Git objects; and the
+   grant payload the manifest carries matches one **rebuilt from the release**.
+
+   That last check matters more than it sounds. The manifest's
+   `upgradeFrom0028Sql` and `verificationSql` are executed as the schema owner,
+   and its checksum is stored beside the SQL it hashes, so it proves nothing
+   against an edit. The operator therefore rebuilds the payload from the release
+   and **runs what it rebuilt**, treating the file as a declaration to verify
+   rather than as the thing to execute. A substituted verifier cannot report
+   success on an unverified database.
+
+   Because the rebuild uses this checkout's code, the operator also requires
+   `DATA_FOUNDRY_RELEASE_SHA` to equal the packet's release, `HEAD` to equal
+   that SHA, and the worktree to be clean including untracked files.
 
    It prints every blocker at once rather than stopping at the first, because
    the repairs need a privileged provider session anyway and you want one trip,

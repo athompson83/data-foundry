@@ -1391,6 +1391,26 @@ function repositoryDigest(migrations: readonly EffectiveMigration[]): string {
   return hash.digest('hex');
 }
 
+/**
+ * Rebuild the runtime-grant payload for a release's migrations, independently of
+ * any manifest that claims to describe it.
+ *
+ * An exported manifest is an operator artifact that travels between machines as
+ * a JSON file, and its `upgradeFrom0028Sql` and `verificationSql` are executed
+ * as the schema owner. A checksum stored beside the SQL it hashes proves
+ * nothing against an edit, so the direct-TLS operator derives both from the
+ * reviewed release instead of trusting the file, and runs what it derived.
+ */
+export function buildRuntimeGrantPayloadForRelease(
+  migrations: readonly Migration[],
+  schema: string = DATA_FOUNDRY_PRIVATE_SCHEMA,
+  migrationRole: string = REQUIRED_MIGRATION_ROLE,
+): SupabaseRuntimeGrantPayload {
+  validateTarget(schema, migrationRole);
+  validateRepositoryMigrations(migrations);
+  return buildPostMigrationGrantPayload(schema, migrationRole, effectiveMigrations(migrations));
+}
+
 export function buildSupabaseMigrationPlan(
   options: Readonly<BuildSupabaseMigrationPlanOptions>,
 ): SupabaseMigrationPlan {

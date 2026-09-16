@@ -26,6 +26,7 @@
 import { readFile } from 'node:fs/promises';
 import {
   applyMigrations,
+  assertRealPostgresSourceIdentity,
   createPostgresDriver,
   DATA_FOUNDRY_MIGRATION_ROLE,
   DATA_FOUNDRY_PRIVATE_SCHEMA,
@@ -42,6 +43,10 @@ import {
   type Migration,
   type MigrationDriver,
 } from './migrate.js';
+import {
+  buildRuntimeGrantPayloadForRelease,
+  type SupabaseRuntimeGrantPayload,
+} from './export-supabase-migration-packets.js';
 import {
   buildMigrationRoleUnsafeDurableSettingSql,
   buildRuntimeRoleUnsafeDurableSettingSql,
@@ -264,9 +269,47 @@ export async function preflightUa002(
   driver: MigrationDriver,
   packet: OperatorPacket,
   migrations: readonly Migration[],
+  releaseGrants: SupabaseRuntimeGrantPayload = buildRuntimeGrantPayloadForRelease(migrations),
 ): Promise<OperatorFinding[]> {
   const findings: OperatorFinding[] = [];
   const schema = packet.schema;
+
+  // The manifest's grant SQL is executed as the schema owner, and its checksum
+  // is stored beside the SQL it hashes — which proves nothing against an edit.
+  // So the payload is rebuilt from the release and the manifest is checked
+  // against it. `runUa002Operator` then executes the rebuilt one, not the file's.
+  if (packet.postMigrationGrants.upgradeFrom0028Sql !== releaseGrants.upgradeFrom0028Sql) {
+    findings.push({
+      check: 'grant-payload',
+      detail: 'upgradeFrom0028Sql does not match the payload derived from the release.',
+    });
+  }
+  if (packet.postMigrationGrants.upgradeFrom0028Checksum !== releaseGrants.upgradeFrom0028Checksum) {
+    findings.push({
+      check: 'grant-payload',
+      detail:
+        `upgradeFrom0028Checksum is ${packet.postMigrationGrants.upgradeFrom0028Checksum.slice(0, 12)}; ` +
+        `the release derives ${releaseGrants.upgradeFrom0028Checksum.slice(0, 12)}.`,
+    });
+  }
+  if (packet.postMigrationGrants.verificationSql !== releaseGrants.verificationSql) {
+    findings.push({
+      check: 'grant-payload',
+      detail:
+        'verificationSql does not match the payload derived from the release. A substituted ' +
+        'verifier would report success on an unverified database.',
+    });
+  }
+  const expectedGrantRoles = [...releaseGrants.roles].sort();
+  const declaredGrantRoles = [...packet.postMigrationGrants.roles].sort();
+  if (expectedGrantRoles.join(',') !== declaredGrantRoles.join(',')) {
+    findings.push({
+      check: 'grant-payload',
+      detail:
+        `The manifest declares roles ${declaredGrantRoles.join(', ')}; ` +
+        `the release expects ${expectedGrantRoles.join(', ')}.`,
+    });
+  }
 
   const [identity] = await driver.query<IdentityRow>(IDENTITY_SQL);
   if (identity === undefined) {
@@ -380,6 +423,24 @@ export async function preflightUa002(
     }
   }
 
+  // The packet lists what to apply, but `applyMigrations` applies everything the
+  // ledger is missing. A packet that omits a release migration would therefore
+  // apply it anyway — unlisted, unchecked against any declared checksum — and
+  // then run a grant plan derived for a different schema state. The ledger and
+  // the packet have to partition the release exactly, not merely agree on the
+  // subset the packet happens to name.
+  const packetVersions = new Set(packet.packets.map((entry) => entry.version));
+  for (const migration of migrations) {
+    if (!appliedVersions.has(migration.version) && !packetVersions.has(migration.version)) {
+      findings.push({
+        check: 'coverage',
+        detail:
+          `${migration.filename} is unapplied at release ${packet.releaseSha} but the packet does ` +
+          'not list it. The run would apply it anyway. Re-derive the packet against this ledger.',
+      });
+    }
+  }
+
   // The checksums the packet claims, recomputed from the Git objects rather
   // than trusted because the exporter and the operator can be different people
   // on different machines.
@@ -479,6 +540,12 @@ export interface RunOperatorOptions {
    * runtime-role check takes `connect`. Production always uses the real runner.
    */
   readonly applyMigrationsImpl?: typeof applyMigrations | undefined;
+  /**
+   * Same seam. Production leaves this unset so the payload is always rebuilt
+   * from the release; tests supply a small one rather than the real 33-migration
+   * set the release builder insists on.
+   */
+  readonly releaseGrants?: SupabaseRuntimeGrantPayload | undefined;
 }
 
 export async function runUa002Operator(
@@ -488,7 +555,12 @@ export async function runUa002Operator(
   options: Readonly<RunOperatorOptions> = {},
 ): Promise<OperatorReport> {
   const log = options.log ?? (() => undefined);
-  const findings = await preflightUa002(driver, packet, migrations);
+  // Derived once, checked against the manifest in preflight, and executed below.
+  // The manifest is a declaration to verify, never the thing that runs.
+  const releaseGrants =
+    options.releaseGrants ??
+    buildRuntimeGrantPayloadForRelease(migrations, packet.schema, packet.migrationRole);
+  const findings = await preflightUa002(driver, packet, migrations, releaseGrants);
   if (findings.length > 0) {
     for (const finding of findings) log(`  BLOCK ${finding.check}: ${finding.detail}`);
     return { findings, applied: [], grantsApplied: false, verified: false };
@@ -504,10 +576,10 @@ export async function runUa002Operator(
     log(`  ${result.skipped ? 'skip ' : 'apply'} ${result.filename}`);
   }
 
-  await applyGrantUpgrade(driver, packet.postMigrationGrants.upgradeFrom0028Sql);
-  log(`  apply runtime-grant upgrade (${packet.postMigrationGrants.roles.length} roles)`);
+  await applyGrantUpgrade(driver, releaseGrants.upgradeFrom0028Sql);
+  log(`  apply runtime-grant upgrade (${releaseGrants.roles.length} roles, derived from the release)`);
 
-  await driver.exec(packet.postMigrationGrants.verificationSql);
+  await driver.exec(releaseGrants.verificationSql);
   log('  OK    postcondition verification');
 
   return { findings, applied, grantsApplied: true, verified: true };
@@ -531,6 +603,20 @@ function packetPathFrom(argv: readonly string[]): string {
 async function main(argv: readonly string[]): Promise<number> {
   const packet = await readOperatorPacket(packetPathFrom(argv));
   const apply = argv.includes('--apply');
+
+  // The grant payload is rebuilt from this checkout's code rather than read from
+  // the manifest, so the checkout has to *be* the release it claims: exact HEAD,
+  // clean worktree, untracked files included. Regenerating from some other
+  // revision would be a verification that verifies nothing.
+  const declaredSha = process.env['DATA_FOUNDRY_RELEASE_SHA']?.trim();
+  if (declaredSha !== packet.releaseSha) {
+    fail(
+      `Check out release ${packet.releaseSha} and set DATA_FOUNDRY_RELEASE_SHA to it; ` +
+        `the environment ${declaredSha === undefined || declaredSha === '' ? 'does not set it' : `declares ${declaredSha}`}.`,
+    );
+  }
+  await assertRealPostgresSourceIdentity();
+
   const connectionString = resolveDirectMigrationDatabaseUrl();
   if (connectionString === undefined) {
     fail('DATA_FOUNDRY_MIGRATION_DATABASE_URL is required; this runner never takes a credential as an argument.');
