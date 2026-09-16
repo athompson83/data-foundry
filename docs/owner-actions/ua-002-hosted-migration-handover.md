@@ -80,6 +80,34 @@ differ in the two grant rows without any migration having changed; that is a
 different release, and it needs its own checksum table rather than this one.
 The preflight treats the same disagreement as a blocker and mutates nothing.
 
+## The single thing still missing — 2026-09-16
+
+Everything in this document is prepared and re-verified. One capability is
+absent, and it is not code, a checksum or a decision:
+
+> **A host with PostgreSQL egress to the project origin, running this release,
+> with the `df_migration` password available to libpq without appearing in a
+> command line.**
+
+Any ordinary developer machine with internet access and the password satisfies
+it. It needs Node 22+, `pnpm`, a clean checkout at the release, and either an
+IPv6 route to `db.fgxinxaqkwoqyywdgobs.supabase.co` or the IPv4 Supavisor pooler
+**in session mode (port 5432)** — transaction mode on 6543 will not work,
+because the runner asserts `session_replication_role = origin` and
+`lo_compat_privileges = off` and transaction pooling does not preserve session
+state.
+
+Every alternative available to the agent environment was checked and ruled out
+by measurement rather than assumption — only one execution environment exists
+and it is the restricted one; the origin is IPv6-only against a container with
+no IPv6 stack; raw TCP is refused at the sandbox policy layer; the management
+connector is still read-only and stays that way; and binding the migration
+principal to a Worker is forbidden. The measurements are in
+[the 2026-09-16 execution-environment record](../evidence/ua002-execution-environment-20260916.md),
+which also confirms the hosted baseline is undrifted, the 26 applied ledger rows
+are byte-identical to this release, and the full export sequence reproduces
+33 / 26 / 7 with all ten checksums from the real hosted ledger.
+
 ## The two ways forward
 
 ### Option 1 — direct-TLS operator run (recommended)
