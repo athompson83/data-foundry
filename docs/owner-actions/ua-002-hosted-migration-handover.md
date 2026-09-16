@@ -1,6 +1,12 @@
 # Owner action — UA-002 hosted migration handover
 
-Prepared 2026-09-16 against release `eb7e998e6d4a574fa735d8ff54014cde18c25e27`.
+Prepared 2026-09-16. The checksums below were first computed against
+`eb7e998e6d4a574fa735d8ff54014cde18c25e27` and re-verified against merged `main`
+`0026b14b7ef0156519305fec756fae8fa083b169`: 7 matched, 0 mismatched, because
+`db/migrations/` did not change between them. They stay valid for any release SHA
+whose `db/migrations/` tree is identical — and the operator refuses the run rather
+than assuming that, by recomputing every checksum from the Git objects at whatever
+SHA the manifest names.
 
 ## Why this document exists
 
@@ -31,7 +37,9 @@ that can be executed by someone who has a write path.
   `upgradeFrom0028Sql` which refuses to run against anything but the frozen
   199-grant legacy shape.
 
-Expected checksums, for comparison against whatever you regenerate:
+Expected checksums, for comparison against whatever you regenerate. The preflight
+checks these for you; the table is here so a human can spot-check without running
+anything:
 
 | Artefact | Checksum |
 | --- | --- |
@@ -47,7 +55,8 @@ Expected checksums, for comparison against whatever you regenerate:
 | `repositoryDigest` | `8097711644f0b4ecdd91c21b2ba512b29bd4451597af4946f4bee6bf81871d8d` |
 
 If a regenerated manifest disagrees with any row above, **stop** — that means
-the release SHA or the worktree is not what this handover assumed.
+the release SHA or the worktree is not what this handover assumed. The preflight
+treats the same disagreement as a blocker and mutates nothing.
 
 ## The two ways forward
 
@@ -162,22 +171,39 @@ this staging step — the grant upgrade adds its capabilities afterwards.
 
 ## Execution sequence
 
-Run from a clean checkout of exactly `eb7e998e6d4a574fa735d8ff54014cde18c25e27`.
-The export refuses to run unless that SHA is `HEAD` and the non-ignored worktree
-is clean.
+Run from a clean checkout of the release you intend to deploy — merged `main`,
+at or after `0026b14`. The export refuses to run unless that SHA is `HEAD` and the
+non-ignored worktree is clean, including untracked files.
 
 1. **Regenerate the manifest** using the runbook's direct invocation:
 
    ```
-   node_modules/.bin/tsx tooling/scripts/export-supabase-migration-packets.ts --release-sha eb7e998e6d4a574fa735d8ff54014cde18c25e27 > <non-secret-local-packet-path>
+   node_modules/.bin/tsx tooling/scripts/export-supabase-migration-packets.ts --release-sha <release-sha> > <non-secret-local-packet-path>
    ```
 
    Confirm `pendingMigrationCount: 7`, `repositoryDigest` and every checksum
    against the table above before anything is applied.
 
-2. **Verify preconditions** with `preflightSql` and confirm the ledger is still
-   at `0026`. If it is not, stop and re-derive: this handover's baseline no
-   longer holds.
+2. **Run the preflight.** Export the connection string into the environment —
+   never onto a command line, into a file, or into a log — and run:
+
+   ```
+   export DATA_FOUNDRY_MIGRATION_DATABASE_URL='...'   # from the secret store, not typed
+   pnpm ua002:operator -- --packet <non-secret-local-packet-path>
+   ```
+
+   This is read-only and mutates nothing. It checks, in one pass: the session is
+   a direct `df_migration` login and is writable and not a standby; the durable
+   settings of all seven roles satisfy the exact policy the grant packet raises
+   on; every role exists in the reviewed shape; the ledger carries this
+   project's marker and is where the packet expects; no packet would replay an
+   applied migration; and every checksum — pending *and* already applied —
+   recomputes from the Git objects at the release SHA.
+
+   It prints every blocker at once rather than stopping at the first, because
+   the repairs need a privileged provider session anyway and you want one trip,
+   not three. **Exit status 2 means blockers were found and nothing was
+   touched.**
 
 3. **Confirm the prerequisites above are done** — migration login active, all
    six roles' durable settings repaired, `df_ingestion` staged. These are
@@ -185,22 +211,28 @@ is clean.
    direct-TLS session opens; the migration role can verify them but cannot
    perform them.
 
-4. **Apply `0027` through `0033` in order**, each in its own transaction as
-   `df_migration`, each writing its ledger row in that same transaction. If any
-   packet fails, verify the rollback left the ledger and the object inventory
-   untouched **before** continuing — a partial application is the one outcome
-   this design is built to make impossible, and it should be proven rather than
-   assumed.
+4. **Apply, once the preflight is clean**, with the same command and one more
+   flag:
 
-5. **Apply `postMigrationGrants.upgradeFrom0028Sql`** — not the fresh-install
-   `sql`, which refuses pre-existing runtime ACLs. It requires the frozen
-   199-grant baseline and the full current ledger, adds only reviewed
-   capabilities, and checks its postcondition in the same transaction. Unknown
-   ACL drift must fail; do not normalize or revoke unrelated grants.
+   ```
+   pnpm ua002:operator -- --packet <non-secret-local-packet-path> --apply
+   ```
 
-6. **Require `postMigrationGrants.verificationSql` to pass** after the upgrade.
-   Expect 33 applied migrations, six roles, 59 function signatures and 286
-   grants.
+   It re-runs the whole preflight first — a clean report from ten minutes ago is
+   not a precondition — and then, in order: applies `0027` through `0033`, each
+   in its own transaction as `df_migration` with its ledger row written in that
+   same transaction and already-applied versions skipped rather than replayed;
+   applies `postMigrationGrants.upgradeFrom0028Sql` in a single transaction
+   (**not** the fresh-install `sql`, which refuses pre-existing runtime ACLs);
+   and runs `postMigrationGrants.verificationSql`.
+
+   If the grant upgrade fails, the runner rolls back and then *proves* the
+   session recovered before reporting, rather than assuming PostgreSQL did it —
+   a session left in a failed transaction silently swallows everything after.
+   Unknown ACL drift must fail; do not normalize or revoke unrelated grants.
+
+5. **Expect, at the end:** 33 applied migrations, six roles, 59 function
+   signatures and 286 grants.
 
 ## Where this stops
 

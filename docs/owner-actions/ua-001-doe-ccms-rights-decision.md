@@ -6,8 +6,25 @@ named reviewer can answer once rather than in fragments.
 
 Technical qualification is finished and lives in
 [the source qualification record](../sources/hvac-first-source-qualification-20260916.md).
-Read its **access-method acceptability** section before signing: it raises a
-question that may change the answer to this whole sheet.
+
+## Two approvals, not one
+
+This sheet asks for **rights**. It does not and cannot grant an **acquisition
+method**, and the two must not be collapsed:
+
+| | Question | Answered by |
+| --- | --- | --- |
+| **Rights** | May we redistribute these values to paying subscribers, on which surfaces? | This sheet |
+| **Acquisition method** | May we obtain them *this way* — a browser user agent against an undocumented internal endpoint? | [The access-method section](../sources/hvac-first-source-qualification-20260916.md#access-method-acceptability-and-durability), and [the prepared DOE inquiry](../sources/doe-ccms-access-inquiry-draft.md) |
+
+**Standing constraint until the second is answered:** the undocumented,
+browser-user-agent-dependent endpoint is **not** to be used in production. That
+holds even if every rights cell below comes back `ALLOW`. A rights approval is
+not a method approval.
+
+Government hosting, a permissive `robots.txt`, public availability and a
+successful HTTP retrieval establish **none** of this — not the rights, and not
+permission to use that endpoint commercially.
 
 ## The minimum that earns revenue
 
@@ -79,6 +96,72 @@ Approving a filtered source needs either a query-filter field on
 `SourceRegistryEntry` or the filter declared inside the target URL. That is a
 small contained change, but it is a change, and it should be decided here rather
 than discovered during ingestion.
+
+## Exact fields
+
+Rights are per field and per field group, not per source. List only the fields
+that will actually be published; anything unlisted stays unpublished. Field
+names follow the Solr dynamic-field convention observed in the shipped bundle
+(`Product_Group_s`, `Cost_Category_s`), and the full list can only be enumerated
+once the access-method question is answered.
+
+| Source field | Published as | Surfaces (from the tables above) | Decision |
+| --- | --- | --- | --- |
+| | | | |
+| | | | |
+
+## Transformations
+
+What we are permitted to *do* to a value is a separate question from what we may
+publish. `NORMALIZE` covers unit conversion, canonical naming and structural
+reshaping; `DERIVE` covers any computed metric, which is a new artefact rather
+than a republished fact.
+
+| Transformation | Applied? | Permitted? | Note |
+| --- | --- | --- | --- |
+| Unit normalization | | | |
+| Manufacturer/brand name canonicalization | | | Identity currentness is a separate gate from rights |
+| Model-number parsing into components | | | |
+| Derived efficiency metrics | | | Needs `DERIVE`, and a defined metric, before it is in scope |
+
+## Retention
+
+| Question | Value |
+| --- | --- |
+| Retention of acquired raw artifacts | |
+| Retention of published normalized facts | |
+| Retention after a subscriber terminates | |
+| Retention after the **source** terminates or revokes | |
+
+That last row is the operation `RETAIN_AFTER_TERMINATION` and it is its own
+decision. Defaulting it to "keep" is the kind of choice that is cheap to make
+and expensive to unwind.
+
+## Refresh
+
+Upstream is approximately two-weekly; manufacturers may submit daily. Conditional
+-GET support on the endpoint is unconfirmed.
+
+| Question | Value |
+| --- | --- |
+| Check cadence | |
+| Permitted to re-acquire on that cadence? | |
+| Freshness presented to customers | Must be the **upstream** cadence, never the pipeline's detection-to-publication target |
+
+## Downstream channel permissions
+
+Beyond the surfaces already tabled, state explicitly whether a paying subscriber
+may pass the data on:
+
+| Question | Decision |
+| --- | --- |
+| May a subscriber redistribute what they receive? | |
+| May a subscriber use it to train or evaluate models? | |
+| May we deliver to named partners on a subscriber's behalf? | |
+| Do we offer any sublicence at all? | |
+
+`SUBLICENSE_ACCESS` is required for the RapidAPI bundle specifically, so a "no"
+here is also a decision not to list on that marketplace.
 
 ## Mandatory customer-facing wording
 
