@@ -111,6 +111,49 @@ which also confirms the hosted baseline is undrifted, the 26 applied ledger rows
 are byte-identical to this release, and the full export sequence reproduces
 33 / 26 / 7 with all ten checksums from the real hosted ledger.
 
+## Determining whether your machine can run this — two commands
+
+Run these on the machine you would use. Neither needs a credential, so neither
+can leak one, and together they answer which of the two blockers you have.
+
+**1. Can it reach the origin at all?**
+
+```
+getent ahosts db.fgxinxaqkwoqyywdgobs.supabase.co
+nc -vz -w 8 db.fgxinxaqkwoqyywdgobs.supabase.co 5432
+```
+
+The origin is **IPv6-only** — it publishes an `AAAA` record and no `A` record.
+If `getent` shows only an IPv6 address and `nc` reports success, you have direct
+egress and need only the credential. If `nc` fails or your network has no IPv6,
+use the IPv4 Supavisor pooler in **session mode (port 5432)** instead —
+transaction mode on 6543 does not preserve the `session_replication_role` and
+`lo_compat_privileges` this runner asserts.
+
+**2. Place the credential without it ever becoming an argument.**
+
+```
+umask 077
+printf '%s:%s:%s:%s:%s\n' <host> 5432 <database> df_migration '<password>' >> ~/.pgpass
+chmod 600 ~/.pgpass
+export DATA_FOUNDRY_MIGRATION_DATABASE_URL='postgresql://df_migration@<host>:5432/<database>'
+```
+
+The URL carries **no password** — libpq reads it from `.pgpass` by matching the
+host, port, database and user. Type the `printf` with a leading space if your
+shell is configured to skip such lines from history, or paste it into an editor
+instead. Do not pass the password with `-W`, in `psql "postgres://…:pw@…"`, or
+in any command-line argument: those land in the process list and in history.
+
+The runner also rejects a URL carrying `sslmode` or any other TLS or endpoint
+query override — it configures TLS itself and verifies the certificate. Measured
+2026-09-16: supplying `?sslmode=require` fails with *"Direct PostgreSQL TLS URLs
+may not include endpoint or TLS query overrides."*
+
+**This environment has neither.** Re-measured 2026-09-16: the origin resolves
+IPv6-only and this container has zero IPv6 addresses, so the failure is
+structural rather than configuration.
+
 ## The two ways forward
 
 ### Option 1 — direct-TLS operator run (recommended)
