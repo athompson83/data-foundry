@@ -36,9 +36,13 @@ Read 2026-09-16T16:16:23Z against project `fgxinxaqkwoqyywdgobs`, schema
 | `public` schema | untouched, 7 tables | untouched, 7 tables |
 | Non-zero row counts | `api_route_keys`, `schema_migrations` | `api_route_keys: 14`, `schema_migrations: 26` |
 
-**There is no drift.** The database is exactly where the review left it. That
-matters for the handover: the prepared artefacts are valid against this state
-and do not need to be re-derived.
+**No drift on any of those eleven properties.** The database is where the review
+left it, so the prepared artefacts are valid against this state and do not need
+to be re-derived.
+
+That claim is bounded by what the table measures. A later probe the same day
+covered a property this list does not — durable role settings — and **did** find
+drift. See [the durable-settings drift](#4-drift-found-later-the-same-day-durable-role-settings).
 
 ## 2. Migration artefacts — regenerated and independently verified
 
@@ -114,6 +118,38 @@ combines with `project_ref=<id>`, which "scope[s] to a specific project
 (disables account tools)". The observed identity and posture are exactly what
 that parameter produces.
 
+## 4. Drift found later the same day: durable role settings
+
+While preparing the direct-TLS operator procedure, the release's own policy SQL
+(`buildMigrationRoleUnsafeDurableSettingSql` and its runtime-role sibling) was
+run read-only against the hosted project. It returned **twelve violations**:
+
+| Violation | Count | Roles |
+| --- | --- | --- |
+| `role_global_setting` | 6 | `df_migration`, `df_edge`, `df_web`, `df_mcp`, `df_usage`, `df_acquisition` |
+| `missing_current_database_role_setting` | 6 | the same six |
+
+Confirmed directly against `pg_db_role_setting`: each role has exactly one row
+with `setdatabase = 0` carrying
+`search_path=data_foundry, pg_catalog, extensions`, and no row scoped to the
+current database. The release requires the opposite — no all-databases row, and
+exactly one current-database row with that canonical value — because a
+role-global setting follows the role into every other database on the instance.
+
+**Why this matters more than it looks.** That SQL is embedded in the grant
+packet under `IF drift_count <> 0 THEN RAISE EXCEPTION`. The migration runner's
+own per-transaction guards check the *session* `search_path`, the role binding
+and the default ACL — not durable settings — so a direct-TLS run against the
+current hosted state would very likely apply `0027`–`0033`, write seven ledger
+rows, and only then fail at the grant upgrade. Half-done is the one outcome this
+design exists to prevent, which is why the operator sequence checks durable
+settings *before* the first mutation rather than discovering them at grant time.
+
+**Who can repair it.** Not `df_migration`: it is `NOCREATEROLE` and not a
+superuser, so it can alter only its own settings, not the other five roles'.
+This is provider-path work with a privileged identity, alongside the
+`df_ingestion` staging the runbook already assigns there.
+
 ## Why this was not worked around
 
 Because it is a safety control that someone deliberately turned on, and the
@@ -130,6 +166,8 @@ in [the handover](../owner-actions/ua-002-hosted-migration-handover.md).
 ## What must not be concluded from this record
 
 - Not that the migrations are risky or wrong. They are unapplied, not rejected.
-- Not that the hosted database is broken. It is healthy and undrifted.
+- Not that the hosted database is broken. It is healthy, and undrifted on every
+  property in section 1 — but see section 4 for a real drift in role settings
+  that must be repaired before the migration run.
 - Not that runtime credentials or Hyperdrives moved. They did not, and database
   progress would not have implied they had.

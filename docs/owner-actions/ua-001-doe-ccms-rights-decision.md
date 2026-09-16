@@ -12,19 +12,26 @@ question that may change the answer to this whole sheet.
 ## The minimum that earns revenue
 
 The resolver requires an exact effective decision per operation *and* channel.
-Six cells are enough for a paid direct API. Everything else can stay `UNKNOWN`
-and the product still works — an empty match refuses, which is the correct
-default, not a gap to be filled for completeness.
+**Seven cells are required** for a paid direct API — no fewer. Everything else
+can stay `UNKNOWN` and the product still works, because an empty match refuses,
+which is the correct default rather than a gap to be filled for completeness.
+
+Seven and not six: `API_PAID` in `packages/rights-engine/src/surfaces.ts` is an
+AND-bundle of three `DIRECT_CUSTOMER_API` requirements — `SERVE_API_ACCESS`,
+`SELL_API_ACCESS` **and** `REDISTRIBUTE_NORMALIZED` — and that third one is
+unconditional. It does not depend on how the response is characterised, so a
+decision that returns only the first six fails closed on every normalized API
+request.
 
 | # | Operation | Channel | Needed for first revenue | Decision | Conditions |
 | --- | --- | --- | --- | --- | --- |
-| 1 | `ACQUIRE` | `INTERNAL_PROCESSING` | yes | | |
-| 2 | `STORE` | `INTERNAL_PROCESSING` | yes | | |
-| 3 | `CACHE` | `INTERNAL_PROCESSING` | yes | | |
-| 4 | `NORMALIZE` | `INTERNAL_PROCESSING` | yes | | |
-| 5 | `SERVE_API_ACCESS` | `DIRECT_CUSTOMER_API` | yes | | |
-| 6 | `SELL_API_ACCESS` | `DIRECT_CUSTOMER_API` | **yes — this is the revenue cell** | | |
-| 7 | `REDISTRIBUTE_NORMALIZED` | `DIRECT_CUSTOMER_API` | yes, if customers receive field values rather than counts | | |
+| 1 | `ACQUIRE` | `INTERNAL_PROCESSING` | required | | |
+| 2 | `STORE` | `INTERNAL_PROCESSING` | required | | |
+| 3 | `CACHE` | `INTERNAL_PROCESSING` | required | | |
+| 4 | `NORMALIZE` | `INTERNAL_PROCESSING` | required | | |
+| 5 | `SERVE_API_ACCESS` | `DIRECT_CUSTOMER_API` | required | | |
+| 6 | `SELL_API_ACCESS` | `DIRECT_CUSTOMER_API` | **required — this is the revenue cell** | | |
+| 7 | `REDISTRIBUTE_NORMALIZED` | `DIRECT_CUSTOMER_API` | **required — not conditional** | | |
 
 Decide each as `ALLOW`, `DENY`, `CONDITIONAL` or leave blank for `UNKNOWN`.
 A `DENY` is sticky and only a narrower, independently evidenced exception clears

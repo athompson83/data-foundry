@@ -60,13 +60,29 @@ not the current procedure", and "the direct-TLS runner owns all application
 migration and replay work". The connector exception existed only because this
 environment cannot open port 5432/6543.
 
-It needs an operator machine with ordinary PostgreSQL egress and the existing
-migration credential — nothing new to provision.
+It needs an operator machine with ordinary PostgreSQL egress, plus two things
+that do **not** exist yet on the hosted project. See
+[the prerequisites](#prerequisites-that-are-not-yet-satisfied) — they are not
+optional, and the run fails without them.
 
-**Why it is the contained option:** authority stays scoped to `df_migration`
-via `SET ROLE`, every statement lands inside `data_foundry`, the exact-baseline
-upgrade refuses unexpected ACL drift instead of normalizing it, and no other
-application on the project gains a write path for even a moment.
+**How the identity actually works — this matters and is easy to get wrong.**
+The direct runner does not use `SET ROLE`. `tooling/scripts/migrate.ts` asserts
+that the connection's `session_user` *and* `current_user` are both
+`df_migration`, so the operator connects **as that role**, reading the
+connection string only from `DATA_FOUNDRY_MIGRATION_DATABASE_URL`. A broader
+operator credential is rejected by the runner, not merely discouraged.
+
+That has a consequence: `df_migration` is `NOCREATEROLE` and not a superuser, so
+it **cannot create `df_ingestion`** and cannot alter any other role's settings.
+Role creation and role-settings repair belong to the secure provider path, as
+the runbook already says. They are separate steps with a separate identity, and
+this document treats them that way.
+
+**Why it is still the contained option:** the migration identity is a single
+narrow role that owns only `data_foundry` objects, every statement lands inside
+that schema, the exact-baseline upgrade refuses unexpected ACL drift instead of
+normalizing it, and no other application on the project gains a write path for
+even a moment.
 
 ### Option 2 — re-enable connector write mode
 
@@ -89,6 +105,61 @@ moment the run completes.
 **Recommendation: Option 1.** Option 2's blast radius is disproportionate to
 the job, and the job has a documented narrow path.
 
+## Prerequisites that are not yet satisfied
+
+Measured read-only against the hosted project on 2026-09-16. Each of these
+blocks the run, and none of them can be done by `df_migration`.
+
+### 1. `df_migration` cannot log in
+
+`rolcanlogin` is `false`. The release's own posture check treats that as the
+violation `migration_role_is_not_login`, and the direct runner cannot connect at
+all. The owner must activate the migration credential through the provider's
+secure path — this is the long-standing `UA-002` credential step, not a new ask.
+
+### 2. All six `df_*` roles carry the wrong kind of durable setting
+
+This is **new drift**, found by running the release's own policy SQL read-only
+against the hosted database. It is not cosmetic: the packet raises on it.
+
+Every one of the six roles — `df_migration`, `df_edge`, `df_web`, `df_mcp`,
+`df_usage`, `df_acquisition` — has a **role-global** (`setdatabase = 0`)
+`search_path=data_foundry, pg_catalog, extensions` setting, and **none** has the
+per-current-database row the release requires. That is twelve violations:
+
+| Violation | Count | Roles |
+| --- | --- | --- |
+| `role_global_setting` | 6 | all six |
+| `missing_current_database_role_setting` | 6 | all six |
+
+The release forbids the all-databases form precisely because it follows the role
+into every other database on the instance. `buildMigrationRoleUnsafeDurableSettingSql`
+is embedded in the grant packet, which does
+`IF drift_count <> 0 THEN RAISE EXCEPTION`, so the run would **apply migrations
+0027–0033 successfully and then fail at the grant upgrade** — the worst possible
+ordering. The operator sequence below therefore checks this *before* the first
+mutation.
+
+The repair, for each of the six roles, run by the provider path (a privileged
+role — `df_migration` cannot alter other roles):
+
+```sql
+ALTER ROLE <role> RESET search_path;
+ALTER ROLE <role> IN DATABASE <current-database>
+  SET search_path = data_foundry, pg_catalog, extensions;
+```
+
+### 3. `df_ingestion` does not exist
+
+It must be created by the provider path as a `NOLOGIN`, `NOINHERIT`,
+non-privileged, non-member role, matching the five existing siblings exactly:
+no superuser, `NOCREATEDB`, `NOCREATEROLE`, `NOREPLICATION`, `NOBYPASSRLS`,
+connection limit `-1`, no valid-until, with only direct non-grantable `CONNECT`
+on the current database and `USAGE` on `extensions`, plus the same
+per-current-database `search_path` row described above. No database `CREATE`, no
+grant options, no `public`-schema privilege and no private object privilege at
+this staging step — the grant upgrade adds its capabilities afterwards.
+
 ## Execution sequence
 
 Run from a clean checkout of exactly `eb7e998e6d4a574fa735d8ff54014cde18c25e27`.
@@ -108,10 +179,11 @@ is clean.
    at `0026`. If it is not, stop and re-derive: this handover's baseline no
    longer holds.
 
-3. **Stage `df_ingestion`** as a `NOLOGIN`, non-privileged, non-member role
-   with only direct, non-grantable `CONNECT` on the current database and
-   `USAGE` on `extensions`. No database `CREATE`, no grant options, no
-   `public`-schema privilege, no private object privilege at this step.
+3. **Confirm the prerequisites above are done** — migration login active, all
+   six roles' durable settings repaired, `df_ingestion` staged. These are
+   provider-path steps with a privileged identity, completed *before* the
+   direct-TLS session opens; the migration role can verify them but cannot
+   perform them.
 
 4. **Apply `0027` through `0033` in order**, each in its own transaction as
    `df_migration`, each writing its ledger row in that same transaction. If any
@@ -138,7 +210,11 @@ described as a deployment. Still outstanding afterwards, in order:
 - Runtime-role credentials created through the provider's secure path — six
   distinct values, never entered into chat, a repository file, or a log.
 - `postCredentialVerificationSql` plus the six direct runtime probes.
-- Five cache-disabled Hyperdrives, bound only after those probes pass.
+- **Six** cache-disabled Hyperdrives, bound only after those probes pass — one
+  per database-backed Worker (edge, web, usage-consumer, acquisition-worker,
+  ingestion-worker, mcp-worker). `check-cloudflare-topology.ts` states that
+  only those six runtime Workers have role-specific database identities, and
+  the private-canary must bind none.
 - The route-less private canary and the recovery exercise.
 
 **Do not infer any of these from migration success.** They are independent, and
