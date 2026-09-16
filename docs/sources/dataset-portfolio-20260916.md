@@ -15,6 +15,14 @@ so the labels are strict:
   knowledge. **Not evidence.** Must be measured before it can be relied on.
 - **[UNVERIFIED]** — not checked at all.
 
+**Scope of the labels, stated honestly:** labels are applied to *factual* claims
+— reachability, licence text, robots policy, volumes, formats. **Judgement calls
+are not measurements**: demand estimates, competitive intensity, monetization
+routes and the finalist ranking itself are reasoned opinion. Where such a claim
+could be mistaken for evidence it is marked `[INFERRED — not measured here]`, but
+the ranking as a whole is a recommendation, not a finding. An earlier revision
+of this document claimed every claim was labelled; that was not true.
+
 **A `200` is not permission. A permissive `robots.txt` is not a grant.** Every
 rights posture below is a research note, not a clearance.
 
@@ -155,7 +163,7 @@ raw feed.
 - **Sources** NVD CVE, CPE, OSV, npm/PyPI metadata
 - **Access** NVD 200, no robots file **[MEASURED]**; others **[UNVERIFIED]**
 - **Rights** NIST public domain **[INFERRED]**
-- **Normalization value** CPE-to-package matching is the known pain point; agents currently reimplement it
+- **Normalization value** CPE-to-package matching is widely reported as a pain point **[INFERRED — not measured here]**
 - **Agent queries** "Does this lockfile contain a known-exploited CVE?"; "which advisories changed this week for my dependency set"
 - **Competitors** Very high — Snyk, GitHub Advisory, Socket **[INFERRED]**
 - **Verdict** Strong demand, crowded. Only worth it if the linkage is materially better
@@ -165,20 +173,20 @@ raw feed.
 - **Access** CT.gov 200 **but `robots.txt` disallows `/api/`** **[MEASURED]** — a gate to resolve, exactly like AU
 - **Rights** **[UNVERIFIED]**; Crossref licences vary per work **[MEASURED]**
 - **Volume** Crossref 186.7 M works **[MEASURED]**
-- **Normalization value** Linking trials to resulting publications is genuinely unsolved
+- **Normalization value** Linking trials to resulting publications is widely treated as an open problem **[INFERRED — not measured here]**
 - **Verdict** High value, but the robots gate must be cleared first — do not repeat the AU mistake
 
 ### F5 — US Healthcare Provider Identity
 - **Sources** NPPES NPI, CMS quality, state licensure
 - **Access** NPPES 200 **[MEASURED]**
 - **Rights** **[UNVERIFIED]**
-- **Normalization value** NPI-to-practice-to-quality joins; addresses are notoriously dirty
+- **Normalization value** NPI-to-practice-to-quality joins; address quality is commonly reported as poor **[INFERRED — not measured here]**
 - **Competitors** Several commercial providers **[INFERRED]**
 
 ### F6 — Drug Identifier Spine
 - **Sources** openFDA NDC, RxNorm, DailyMed
 - **Access** `drug/ndc`, `device/recall`, `food/enforcement` all **200** **[MEASURED]**; responses carry a `meta.disclaimer` that travels with the data, as EPA's does
-- **Normalization value** NDC ↔ RxCUI ↔ UNII ↔ SPL reconciliation is a classic agent tax
+- **Normalization value** NDC ↔ RxCUI ↔ UNII ↔ SPL reconciliation is widely described as costly **[INFERRED — not measured here]**
 - **Rights** **[UNVERIFIED]**
 
 ### F7 — Food Product and Nutrition
@@ -189,13 +197,13 @@ raw feed.
 ### F8 — Public Transit Feeds
 - **Sources** Mobility Database (GTFS registry), agency feeds
 - **Access** 302 **[MEASURED]** — needs a proper follow
-- **Normalization value** Hundreds of agency feeds, per-agency quirks, no single schema-validated source
+- **Normalization value** Many agency feeds with per-agency quirks and no single schema-validated source **[INFERRED — not measured here]**
 - **Rights** Per-feed, highly variable **[UNVERIFIED]** — likely the hardest part
 
 ### F9 — SEC Company Facts (XBRL)
 - **Sources** `data.sec.gov` company facts / submissions
 - **Access** 200 on `data.sec.gov`; **403 on `www.sec.gov`** without a declared UA **[MEASURED]**
-- **Normalization value** XBRL tag variance across filers is real normalization work
+- **Normalization value** XBRL tag variance across filers **[INFERRED — not measured here]**
 - **Rights** US federal **[INFERRED]**; SEC publishes access rules that must be honoured **[UNVERIFIED]**
 
 ### F10 — Regulated Facility Compliance
@@ -204,9 +212,18 @@ raw feed.
 
 ## Which could onboard quickly after the first pipeline proves out
 
-**F1**, **F2** and **F9** — all JSON over HTTPS, stable identifiers, no
-authentication needed for the measured endpoints, and no per-record licence
-variance. They exercise the factory rather than the architecture.
+**F2** and **F9** — JSON over HTTPS, stable identifiers, no authentication on the
+measured endpoints, no per-record licence variance. These exercise the factory
+rather than the architecture.
+
+**F1 does not qualify as configuration-only, and an earlier revision of this
+document wrongly said it did.** Its EPA fuel-economy input is **XML**
+**[MEASURED]**, and `packages/extraction/src/schema.ts:202` accepts only
+`json|csv|html|pdf` — the ingest compiler rejects anything else. So F1 needs
+either a supported JSON/CSV distribution of the EPA data (not yet looked for) or
+a **new XML extraction capability**, which is architecture work, not
+configuration. Its NHTSA half is JSON and would onboard cleanly; the join that
+makes it valuable is the part that does not.
 
 **F4**, **F7** and **F8** each need a rights or policy decision *before* any
 engineering, and should not be scheduled as if they were configuration work.

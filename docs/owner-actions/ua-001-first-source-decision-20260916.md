@@ -231,8 +231,9 @@ the gate that actually differs between them:
    `Disallow: /` plus `respect_robots: true` means there is no approved automated
    path, and the AS/NZS metrics do not map to the dictionary. It needs written
    DCCEEW permission before it is a candidate at all.
-3. **DOE CCMS has neither.** No readable access policy, no documented export, no
-   catalogue entry.
+3. **DOE CCMS has neither.** No readable access policy, and no documented export
+   found — its absence from data.gov's advertised sitemap is inconclusive rather
+   than a confirmed negative, so a supported route may still exist.
 
 So ENERGY STAR is where a *yes* would go furthest — but a recommendation to
 select it would be a legal judgement I am not entitled to make, and this session

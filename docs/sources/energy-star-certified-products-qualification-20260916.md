@@ -194,8 +194,12 @@ require the undocumented browser-dependent endpoint the owner has refused for
 production. That is an argument about which candidate is worth pursuing — **not**
 a finding that its acquisition method is approved, which it is not.
 
-Do not activate it yet. Three things are needed first, in this order:
+Do not activate it yet. **Four** things are needed first, in this order:
 
+0. **Acquisition-method authorisation.** Review packet §2 records the SODA route
+   as *proposed, not authorised*, with terms, rate limits and redistribution
+   constraints `[UNVERIFIED]`. This is a separate approval from the rights
+   determination below and neither substitutes for the other.
 1. **Rights determination** on the two questions above — federal-work status for
    the compilation, and certification-mark usage.
 2. **Coverage measurement** — the distinct record count, and an explanation for

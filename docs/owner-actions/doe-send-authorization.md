@@ -40,10 +40,12 @@ The inquiry itself is complete and needs no drafting work:
 
 It asks three questions — is there a documented bulk download, export or API; if
 not, is automated querying of the public interface acceptable and at what rate;
-and what attribution or disclaimer requirements apply. It already records the
-measured negative that CCMS has **no data.gov catalogue entry** (all 112 sitemap
-shards, 559,455 URLs), so the first question is asked from evidence rather than
-from not having looked.
+and what attribution or disclaimer requirements apply. It already records that **no CCMS dataset
+appears in data.gov's advertised sitemap** (all 112 shards, 559,455 URLs). That
+is absence from the sitemap, not proof no catalogue record exists — the
+catalogue's API and search are broken and it appears mid-rebuild — so the first
+question is asked from evidence rather than from not having looked, and remains
+genuinely open.
 
 ## The single authorization
 
