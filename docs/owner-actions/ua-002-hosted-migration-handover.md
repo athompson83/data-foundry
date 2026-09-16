@@ -231,9 +231,10 @@ non-ignored worktree is clean, including untracked files.
    default object ACLs, external capability, durable settings for all seven
    roles, runtime-role external ACLs, and forbidden `PUBLIC`/`anon`/
    `authenticated`/`service_role` grants on the private schema, plus any relation
-   or function already present that the release does not expect, any object not
-   owned by the migration role, and any `SECURITY DEFINER` function — using the
-   exporter's own SQL rather than a paraphrase; every role exists in the reviewed shape with no outgoing
+   or function already present that the release does not expect, the schema's own
+   owner and any object not owned by the migration role, and any
+   `SECURITY DEFINER` function — using the exporter's own SQL rather than a
+   paraphrase; every role exists in the reviewed shape with no outgoing
    memberships; the ledger carries this
    project's marker and is where the packet expects; no packet would replay an
    applied migration; **the ledger and the packet together account for every

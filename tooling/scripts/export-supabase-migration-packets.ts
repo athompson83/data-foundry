@@ -1488,6 +1488,20 @@ ${expectedRelationValuesSql()}
           AND expected.relkind = live.relkind::text
      )`,
     ),
+    // `applyMigrations` calls `assertPrivateMigrationRoleBinding` with
+    // `requireSchemaOwner: true`, and the schema's own owner lives in
+    // `pg_namespace`, not in the relation and function owners checked below. A
+    // drifted namespace owner with intact object owners would otherwise pass
+    // preflight and be refused moments later.
+    probe(
+      'schema-ownership',
+      `SELECT ns.nspname::text AS schema_name,
+         pg_catalog.pg_get_userbyid(ns.nspowner)::text AS owner_name
+    FROM pg_catalog.pg_namespace ns
+   WHERE ns.nspname = ${sqlLiteral(schema)}
+     AND pg_catalog.pg_get_userbyid(ns.nspowner)::text
+           IS DISTINCT FROM ${sqlLiteral(migrationRole)}`,
+    ),
     probe(
       'relation-ownership',
       `SELECT live.relname::text AS relname,

@@ -520,6 +520,9 @@ describe('buildGrantPrerequisiteProbeSql against real PostgreSQL', () => {
         buildGrantPrerequisiteProbeSql(),
       );
       const probes = new Set(rows.map((row) => row.probe));
+      // The schema here is owned by the default role rather than df_migration,
+      // which `applyMigrations` refuses via requireSchemaOwner.
+      expect(probes).toContain('schema-ownership');
       expect(probes).toContain('unexpected-relation');
       expect(probes).toContain('relation-ownership');
       expect(probes).toContain('unexpected-function');
@@ -557,6 +560,8 @@ describe('buildGrantPrerequisiteProbeSql against real PostgreSQL', () => {
       expect(posture).toEqual([]);
       // It is a real signature from the release, so it is not "unexpected" either.
       expect(rows.filter((row) => row.probe === 'unexpected-function')).toEqual([]);
+      // The schema is owned by the migration role here, so that probe is clean.
+      expect(rows.filter((row) => row.probe === 'schema-ownership')).toEqual([]);
     } finally {
       await driver.close();
     }
