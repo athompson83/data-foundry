@@ -1391,6 +1391,31 @@ function repositoryDigest(migrations: readonly EffectiveMigration[]): string {
   return hash.digest('hex');
 }
 
+const REPLACED_FUNCTION = /CREATE\s+OR\s+REPLACE\s+FUNCTION\s+([a-z_][a-z0-9_]*)\s*\(/giu;
+const SECURITY_DEFINER = /\bSECURITY\s+DEFINER\b/iu;
+
+/**
+ * Function names a pending migration replaces with a definition that carries no
+ * security clause, and is therefore reset to the default `SECURITY INVOKER`.
+ *
+ * Deliberately conservative: a migration mentioning `SECURITY DEFINER` anywhere
+ * exempts nothing, because the cost of wrongly exempting a privilege-escalating
+ * function is higher than the cost of one extra repair cycle.
+ */
+export function functionsReplacedWithoutSecurityDefiner(
+  pendingMigrations: readonly Migration[],
+): string[] {
+  const names = new Set<string>();
+  for (const migration of pendingMigrations) {
+    if (SECURITY_DEFINER.test(migration.sql)) continue;
+    for (const match of migration.sql.matchAll(REPLACED_FUNCTION)) {
+      const name = match[1];
+      if (name !== undefined) names.add(name);
+    }
+  }
+  return [...names].sort();
+}
+
 /**
  * The grant install's prerequisites, as a read-only probe instead of a raise.
  *
@@ -1414,8 +1439,10 @@ function repositoryDigest(migrations: readonly EffectiveMigration[]): string {
 export function buildGrantPrerequisiteProbeSql(
   schema: string = DATA_FOUNDRY_PRIVATE_SCHEMA,
   migrationRole: string = REQUIRED_MIGRATION_ROLE,
+  pendingMigrations: readonly Migration[] = [],
 ): string {
   validateTarget(schema, migrationRole);
+  const securityDefinerExemptions = functionsReplacedWithoutSecurityDefiner(pendingMigrations);
   const targetPredicate = `grantee.rolname = ANY(${runtimeRoleArraySql()})`;
   const forbiddenNamedPredicate =
     "grantee.rolname = ANY(ARRAY['anon', 'authenticated', 'service_role']::text[])";
@@ -1535,6 +1562,15 @@ ${expectedFunctionValuesSql()}
     // legitimately has a null one. Measured against the hosted project on
     // 2026-09-16, including it would have produced 57 false blockers and stopped
     // a run that should proceed. It belongs with the post-migration residuals.
+    //
+    // SECURITY DEFINER is exempted for exactly the functions a pending migration
+    // replaces with a definition carrying no security clause, which resets them
+    // to the default INVOKER. Blocking on those would be the same false
+    // prerequisite as the search path: a repair the pending migrations perform
+    // anyway. The exemption is by function name, so an overload of an exempted
+    // name would also be skipped here — the post-migration verification still
+    // requires zero SECURITY DEFINER before the run reports success, so that
+    // narrows to the documented residual rather than escaping entirely.
     probe(
       'function-posture',
       `SELECT (p.proname || '(' || pg_catalog.oidvectortypes(p.proargtypes) || ')')::text AS signature,
@@ -1545,7 +1581,13 @@ ${expectedFunctionValuesSql()}
    WHERE ns.nspname = ${sqlLiteral(schema)}
      AND p.prokind IN ('f', 'p', 'a', 'w')
      AND (
-       p.prosecdef
+       (p.prosecdef${
+         securityDefinerExemptions.length === 0
+           ? ''
+           : ` AND p.proname::text <> ALL(ARRAY[${securityDefinerExemptions
+               .map(sqlLiteral)
+               .join(', ')}]::text[])`
+       })
        OR pg_catalog.pg_get_userbyid(p.proowner)::text IS DISTINCT FROM ${sqlLiteral(migrationRole)}
      )`,
     ),

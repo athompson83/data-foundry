@@ -242,8 +242,9 @@ const ROLE_SQL = `SELECT r.rolname::text AS rolname,
 export function grantPrerequisiteProbeSql(
   schema: string = DATA_FOUNDRY_PRIVATE_SCHEMA,
   migrationRole: string = DATA_FOUNDRY_MIGRATION_ROLE,
+  pendingMigrations: readonly Migration[] = [],
 ): string {
-  return buildGrantPrerequisiteProbeSql(schema, migrationRole);
+  return buildGrantPrerequisiteProbeSql(schema, migrationRole, pendingMigrations);
 }
 
 function ledgerSql(schema: string): string {
@@ -344,8 +345,16 @@ export async function preflightUa002(
   // external ACLs and forbidden PUBLIC/named grants. Checking only durable
   // settings here left every other invariant to fail *after* the migrations
   // committed, which is the half-done state this operator exists to prevent.
+  // The pending migrations are handed in so a SECURITY DEFINER function that one
+  // of them replaces with an INVOKER definition is not reported as a blocker the
+  // run itself would have repaired.
+  const pendingVersions = new Set(packet.packets.map((entry) => entry.version));
   const prerequisites = await driver.query<PrerequisiteRow>(
-    grantPrerequisiteProbeSql(schema, packet.migrationRole),
+    grantPrerequisiteProbeSql(
+      schema,
+      packet.migrationRole,
+      migrations.filter((migration) => pendingVersions.has(migration.version)),
+    ),
   );
   for (const row of prerequisites) {
     findings.push({ check: 'grant-prerequisites', detail: `${row.probe}: ${row.detail}` });

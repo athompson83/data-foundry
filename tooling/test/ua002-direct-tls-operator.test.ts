@@ -19,6 +19,7 @@ import {
 import {
   buildGrantPrerequisiteProbeSql,
   buildRuntimeGrantPayloadForRelease,
+  functionsReplacedWithoutSecurityDefiner,
   type SupabaseRuntimeGrantPayload,
 } from '../scripts/export-supabase-migration-packets.js';
 import { createPGliteDriver } from '../scripts/migrate.js';
@@ -562,6 +563,65 @@ describe('buildGrantPrerequisiteProbeSql against real PostgreSQL', () => {
       expect(rows.filter((row) => row.probe === 'unexpected-function')).toEqual([]);
       // The schema is owned by the migration role here, so that probe is clean.
       expect(rows.filter((row) => row.probe === 'schema-ownership')).toEqual([]);
+    } finally {
+      await driver.close();
+    }
+  });
+});
+
+describe('functionsReplacedWithoutSecurityDefiner', () => {
+  const replacing = (sql: string): Migration => ({
+    version: '0029', filename: '0029_x.sql', sql, checksum: 'a'.repeat(64),
+  });
+
+  it('collects functions a pending migration resets to the default INVOKER', () => {
+    expect(
+      functionsReplacedWithoutSecurityDefiner([
+        replacing('CREATE OR REPLACE FUNCTION source_record_snapshot_retirements_validate()\nRETURNS trigger AS $$ BEGIN RETURN NEW; END $$ LANGUAGE plpgsql;'),
+      ]),
+    ).toEqual(['source_record_snapshot_retirements_validate']);
+  });
+
+  it('exempts nothing from a migration that mentions SECURITY DEFINER at all', () => {
+    // Conservative on purpose: wrongly exempting a privilege-escalating function
+    // costs more than one extra repair cycle.
+    expect(
+      functionsReplacedWithoutSecurityDefiner([
+        replacing('CREATE OR REPLACE FUNCTION a() RETURNS int AS $$ SELECT 1 $$ LANGUAGE sql;\nCREATE FUNCTION b() RETURNS int SECURITY DEFINER AS $$ SELECT 1 $$ LANGUAGE sql;'),
+      ]),
+    ).toEqual([]);
+  });
+
+  it('exempts nothing when no migration is pending', () => {
+    expect(functionsReplacedWithoutSecurityDefiner([])).toEqual([]);
+  });
+
+  it('does not block a SECURITY DEFINER function a pending migration replaces', async () => {
+    const driver = await createPGliteDriver();
+    try {
+      await driver.exec('CREATE SCHEMA IF NOT EXISTS extensions');
+      await driver.exec('CREATE ROLE df_migration NOLOGIN NOINHERIT');
+      await driver.exec('CREATE SCHEMA IF NOT EXISTS data_foundry AUTHORIZATION df_migration');
+      await driver.exec(
+        `CREATE FUNCTION data_foundry.source_record_snapshot_retirements_validate() RETURNS int
+           LANGUAGE sql SECURITY DEFINER AS $fn$ SELECT 1 $fn$`,
+      );
+      await driver.exec(
+        'ALTER FUNCTION data_foundry.source_record_snapshot_retirements_validate() OWNER TO df_migration',
+      );
+      const pending = [
+        replacing('CREATE OR REPLACE FUNCTION source_record_snapshot_retirements_validate() RETURNS int LANGUAGE sql AS $fn$ SELECT 1 $fn$;'),
+      ];
+
+      const blocked = await driver.query<{ probe: string; detail: string }>(
+        buildGrantPrerequisiteProbeSql('data_foundry', 'df_migration', []),
+      );
+      expect(blocked.filter((r) => r.probe === 'function-posture')).toHaveLength(1);
+
+      const exempted = await driver.query<{ probe: string; detail: string }>(
+        buildGrantPrerequisiteProbeSql('data_foundry', 'df_migration', pending),
+      );
+      expect(exempted.filter((r) => r.probe === 'function-posture')).toEqual([]);
     } finally {
       await driver.close();
     }

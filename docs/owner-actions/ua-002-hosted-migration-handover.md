@@ -268,8 +268,14 @@ non-ignored worktree is clean, including untracked files.
    Function search paths are a third such case. Migration `0027` is what sets
    `proconfig` on the existing functions, so on the current hosted database all
    57 legitimately have none — checking that here would have produced 57 false
-   blockers against a run that should proceed. Ownership and `SECURITY DEFINER`
-   are checked, because `0027` changes neither. They remain the one class that can still fail
+   blockers against a run that should proceed. Ownership is always checked.
+   `SECURITY DEFINER` is checked too, except on the functions a pending migration
+   replaces with a definition carrying no security clause, which resets them to
+   the default `INVOKER` — for the current pending set that is five names,
+   including `source_record_snapshot_retirements_validate` and
+   `scheduled_acquisition_run_terminal_guard`. A migration that mentions
+   `SECURITY DEFINER` anywhere exempts nothing, because wrongly exempting a
+   privilege-escalating function costs more than one extra repair cycle. They remain the one class that can still fail
    once migrations are committed. If that happens, the migrations are applied and
    the grants are not: re-run the preflight, repair what it names, and re-run
    `--apply`, which skips the already-ledgered migrations and retries the grant
