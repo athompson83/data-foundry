@@ -208,9 +208,17 @@ the gate that actually differs between them:
 1. **ENERGY STAR is the only candidate with a lawful, policy-compliant
    acquisition path today.** Documented SODA API, `robots.txt` permitting
    `/api/` and `/resource/`, serves an honest agent, stable asset IDs, and field
-   metrics that match the dictionary. Its blocker is purely the rights question —
-   which is exactly as open as the review packet already recorded, no wider and
-   no narrower.
+   metrics that match the dictionary.
+
+   **But "lawful-looking" is not "authorised", and this needs saying plainly
+   because I got it wrong twice already in this document.** The review packet
+   §2 marks the SODA method *proposed, not authorised*, and states the rule
+   directly: **"Robots not disallowing a route is not a grant."** Its terms,
+   licence scope, rate limits and redistribution constraints are recorded
+   **[UNVERIFIED]** (§7a). So ENERGY STAR needs **two** approvals, not one — the
+   rights question below **and** an acquisition-method authorisation. A
+   favourable answer to the first does not make the source selectable on its
+   own.
 2. **AU Energy Rating has the strongest licence and no way to act on it.**
    CC-BY 3.0 AU genuinely permits commercial redistribution with attribution, but
    `Disallow: /` plus `respect_robots: true` means there is no approved automated
@@ -240,11 +248,15 @@ from data.gov presence, a government host, public accessibility, a permissive
 `robots.txt`, or the existence of an API endpoint — none of which establish
 permission to redistribute commercially.
 
-## What the answer unlocks, measured
+## What the rights answer unlocks — source onboarding, not the paid path
 
-The paid path is not waiting on engineering. `pnpm sources:readiness` on the
-merged release reports the vertical `NOT_READY` for exactly one reason, and
-names the blocking conditions itself:
+**Source onboarding is what a rights answer unblocks. The paid path is not.**
+An earlier revision of this section opened by saying the paid path was "not
+waiting on engineering", which contradicted the correction at the end of the
+same section. The correction is right and the opening was wrong.
+
+`pnpm sources:readiness` on the merged release reports the vertical `NOT_READY`,
+and names the blocking conditions itself:
 
 ```
 hvac — NOT_READY overall (seven-surface revenue readiness: UNKNOWN)
@@ -280,10 +292,13 @@ unchanged until several further steps happen, none of which counsel can do:
 - The ENERGY STAR declaration is still an **unloaded draft** under `docs/`,
   deliberately outside the registry loader's path, at `UNDER_REVIEW` /
   `UNREVIEWED`. Promoting and configuring it is a separate act.
-- Three API cells are not the whole grant. `RIGHTS_OPERATIONS` also contains
-  **`ACQUIRE`, `STORE`, `NORMALIZE` and `DERIVE`** — four acquisition and
-  internal-processing operations that must be granted before anything can be
-  fetched or canonicalised at all.
+- Three API cells are not the whole grant, and an earlier revision of this
+  section undercounted the rest. `docs/source-onboarding.md` Stage 2 requires
+  effective **`ACQUIRE`, `STORE` and `CACHE`** decisions *before transport*, and
+  the ingest pipeline separately requires **`NORMALIZE`** and **`DERIVE`**. That
+  is **five** internal cells, so the minimum for a paid direct API is **at least
+  eight**, not seven. Leaving `CACHE` unrecorded fails the very first fetch
+  closed.
 - Data then has to be actually acquired, normalised and evidence-backed.
 - **UA-002 is independently blocked** — the hosted schema cannot be caught up
   from this environment — and the deployment and commercial-activation work
