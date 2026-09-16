@@ -1,10 +1,21 @@
 # ENERGY STAR certified products — source qualification, 2026-09-16
 
 A documented, publisher-supported alternative to the undocumented DOE CCMS Solr
-endpoint, found while checking whether CCMS has a data.gov catalogue entry.
+endpoint, re-measured while checking whether CCMS has a data.gov catalogue entry.
 
-Nothing here is activated. This record exists so the owner can compare two
-candidates on evidence rather than on which one was found first.
+> **Correction.** An earlier draft of this record presented ENERGY STAR as newly
+> discovered. It was not. The repository has carried it as a proposed source,
+> deferred because *"partner-submitted field rights remain unknown"*, with a
+> detailed review packet at
+> [`energy-star-air-source-heat-pumps-review-packet.md`](energy-star-air-source-heat-pumps-review-packet.md).
+> What is new here is the measured access posture only — **no new rights
+> evidence was found**, and nothing here narrows the legal question. See
+> [the 2026-09-16 first-source decision sheet](../owner-actions/ua-001-first-source-decision-20260916.md)
+> for the three-way comparison and the one open legal question.
+
+Nothing here is activated. This record holds the ENERGY STAR measurements; the
+three-way comparison and the recommendation live in the decision sheet linked
+above.
 
 ## How this was found, and the CCMS negative that came with it
 
@@ -23,12 +34,15 @@ It is now answered, and the answer is a clean negative:
 - The HTML search drops its query and redirects to the catalogue root, so it
   cannot be used to search either.
 - The one route `robots.txt` does advertise — the sitemap — works. **All 112
-  shards were enumerated: 559,455 URLs.** No DOE CCMS dataset exists in it. The
-  only `ccms` match is an unrelated workers-compensation case-management system.
+  shards were enumerated: 559,455 URLs.** No DOE CCMS dataset appears in them.
+  The only `ccms` match is an unrelated workers-compensation case-management
+  system.
 
-So CCMS has no data.gov catalogue entry. That does not mean DOE publishes no
-extract by another route, so it strengthens the case for sending the inquiry
-rather than replacing it.
+So no CCMS dataset appears in the advertised sitemap. Because the catalogue's
+own API and search are broken and it appears mid-rebuild, that is **absence from
+the sitemap, not proof that no catalogue record exists** — and it certainly does
+not mean DOE publishes no extract by another route. It strengthens the case for
+sending the inquiry rather than replacing it.
 
 The same enumeration surfaced something more useful.
 
@@ -49,10 +63,14 @@ problem, measured today with a descriptive, honest agent
 | Dataset metadata (`/api/views/<id>`) | 200, JSON |
 | Row query (`/resource/<id>.json`) | 200, JSON |
 | Documented distributions | CSV export, JSON and XML query endpoints, column metadata — all linked from the data.gov entry |
-| Freshness | `rowsUpdatedAt` corresponds to 2026-09-16, the day of measurement |
+| Freshness | `rowsUpdatedAt` corresponds to 2026-09-16, the day of measurement — **one observation, so cadence is unknown** |
 
 No impersonation, no undocumented endpoint, no cache-busted front-end bundle to
-reverse. The access method question that blocks CCMS does not arise.
+reverse. **This is not an authorised acquisition method.** The review packet §2
+records the SODA route as *proposed, not authorised*, with terms, rate limits and
+redistribution constraints `[UNVERIFIED]`, and states the rule directly: *robots
+not disallowing a route is not a grant*. What can be said is narrower — the
+specific obstacle that blocks CCMS (a browser-only edge) does not arise here.
 
 ## Coverage — stated carefully, because the naive number is wrong
 
@@ -89,11 +107,16 @@ reverse. The access method question that blocks CCMS does not arise.
   with 48 columns. Whatever happened to the air-conditioner data, it is not
   available at these identifiers today, and any plan that assumes AC coverage
   from this source is wrong until that is explained.
-- *Air-Source Heat Pumps* and *Heat Pumps* report **identical** row counts and
-  identical update timestamps, but have **different column counts** (48 vs 50).
-  That is consistent with overlapping views of one population, but it is not
-  proof, so they must not simply be added. The distinct record count is **not
-  established** and must be measured before any coverage claim is made.
+- *Air-Source Heat Pumps* and *Heat Pumps* must not be added: they are **one
+  population, not two**. This was already settled in the repository —
+  [the review packet §1a](energy-star-air-source-heat-pumps-review-packet.md)
+  records as **[VERIFIED]** that `w7cv-9xjt` is a Socrata **derived filter view**
+  whose `modifyingViewUid` is `83eb-xbyy` and whose filter is currently empty
+  (`query: {}`), so it returns exactly the parent's rows. The identical counts and
+  timestamps measured today are that relationship showing through, and the
+  differing column counts are the view's projection. The packet also flags the
+  structural risk: a view that narrows nothing cannot be relied on to keep
+  narrowing.
 
 ## Field shape
 
@@ -128,10 +151,24 @@ product-positioning decision, not a technical one, and it belongs to the owner.
 
 ## Rights — open, and not to be assumed
 
-The dataset metadata carries **no `licenseId` and an empty `license` object**.
-`attribution` is "U.S. Environmental Protection Agency" and `attributionLink` is
-null. So the rights position is *not* established by the API, and the following
-must not be treated as settled:
+**Not new, and corrected later the same day.** The review packet already records
+this licence pointer as **[VERIFIED]** and already analyses the scope problem
+below. What today's measurement adds is only that the pointer is carried
+per-dataset in federal Common Core metadata and is systematic across all six
+datasets checked — freshness, not a change in terms:
+
+```
+"Common Core": {
+  "License":   "https://edg.epa.gov/EPA_Data_License.html",
+  "Publisher": "U.S. Environmental Protection Agency",
+  "Contact Email": "certification@energystar.gov"
+}
+```
+
+That is stronger than "rights unstated". It still does not settle the matter,
+because the licence is scoped to *"data produced by the U.S EPA"* while most
+fields are partner- or certification-body-submitted. The following must not be
+treated as settled:
 
 1. Works of the U.S. federal government are generally not subject to domestic
    copyright, but that is a general principle, not a licence grant read off this
@@ -144,18 +181,25 @@ must not be treated as settled:
 3. Any accuracy or legal-significance disclaimers the programme requires must be
    identified and carried through, as with CCMS.
 
-The access-method objection is resolved. **The rights question is not**, and it
-needs its own cell in the decision sheet rather than inheriting CCMS's.
+Neither question is resolved. The **rights** question needs its own
+determination rather than inheriting CCMS's, and the **acquisition method**
+remains *proposed, not authorised* per review packet §2. Two approvals, not
+one.
 
 ## Recommendation
 
 Treat ENERGY STAR as the **leading candidate for first activation**, ahead of
-CCMS, on one ground only: its acquisition method is documented, robots-permitted
-and stable, so it does not require the undocumented browser-dependent endpoint
-the owner has already refused for production.
+CCMS, on one ground only: its access route is documented and stable and does not
+require the undocumented browser-dependent endpoint the owner has refused for
+production. That is an argument about which candidate is worth pursuing — **not**
+a finding that its acquisition method is approved, which it is not.
 
-Do not activate it yet. Three things are needed first, in this order:
+Do not activate it yet. **Four** things are needed first, in this order:
 
+0. **Acquisition-method authorisation.** Review packet §2 records the SODA route
+   as *proposed, not authorised*, with terms, rate limits and redistribution
+   constraints `[UNVERIFIED]`. This is a separate approval from the rights
+   determination below and neither substitutes for the other.
 1. **Rights determination** on the two questions above — federal-work status for
    the compilation, and certification-mark usage.
 2. **Coverage measurement** — the distinct record count, and an explanation for
