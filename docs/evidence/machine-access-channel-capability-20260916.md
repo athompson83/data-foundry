@@ -100,9 +100,20 @@ Read 2026-09-16 from Cloudflare's official documentation (pages last updated
   no Worker involvement: origin-priced crawling would let the existing
   rights-gated Worker decide, per path, whether a price is offered at all.
 
-Sources, read 2026-09-16: Cloudflare AI Crawl Control documentation for
-Pay Per Crawl (overview, "What is pay per crawl?", site-owner and AI-owner
-guides, crawl-pages header reference, changelog).
+Sources, read 2026-09-16 (exact pages, so each claim can be rechecked as
+Cloudflare's documentation evolves):
+
+- Closed-beta status, 402/200 flow, Merchant of Record, WAF/Bot Management
+  precedence — <https://developers.cloudflare.com/ai-crawl-control/features/pay-per-crawl/what-is-pay-per-crawl/>
+- Web Bot Auth identity and verified-bots registration —
+  <https://developers.cloudflare.com/ai-crawl-control/features/pay-per-crawl/use-pay-per-crawl-as-ai-owner/verify-ai-crawler/>
+- `crawler-price`, `crawler-exact-price`, `crawler-max-price`, `crawler-charged`
+  header contract — <https://developers.cloudflare.com/ai-crawl-control/features/pay-per-crawl/use-pay-per-crawl-as-ai-owner/crawl-pages/>
+- Site-owner setup surface (enable, price, select crawlers, payouts) —
+  <https://developers.cloudflare.com/ai-crawl-control/features/pay-per-crawl/use-pay-per-crawl-as-site-owner/>
+- Origin/Worker dynamic pricing and URI-pattern disable, changelog entry dated
+  2026-06-16 — <https://developers.cloudflare.com/ai-crawl-control/changelog/>
+- Beta admission route — <https://www.cloudflare.com/paypercrawl-signup/>
 
 ## Live hosted database state (2026-09-16T13:42Z)
 
