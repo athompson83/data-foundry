@@ -39,17 +39,34 @@ export function readStages(env: Readonly<Record<string, string | undefined>>): E
     ['runtime-role-direct-tls', 'STEP_RUNTIME_TLS'],
     ['ingestion-publish-e2e', 'STEP_INGESTION'],
     ['privilege-negative-controls', 'STEP_NEGATIVE'],
+    ['source-record-reconciliation', 'STEP_RECONCILIATION'],
+    ['credential-provisioning', 'STEP_CREDENTIALS'],
+    ['scheduled-acquisition-controls', 'STEP_ACQUISITION'],
   ];
   return map.map(([stage, key]) => ({ stage, outcome: env[key] ?? 'not-run' }));
 }
 
 /**
- * Every stage must independently read `success`. `skipped` is not a pass: a
- * stage that did not run has not proven anything, and treating it as a pass is
- * exactly the inference this evidence exists to prevent.
+ * Every stage must independently read `success`, and every pinned fixture must
+ * verify. `skipped` is not a pass: a stage that did not run has not proven
+ * anything, and treating it as a pass is exactly the inference this evidence
+ * exists to prevent.
+ *
+ * Fixture verification is part of the verdict rather than decoration. A
+ * document that reports `pass` while also reporting that its own pinned
+ * fixture is unreadable or has drifted would contradict itself, and an
+ * external verifier has no way to know which half to believe. This matters
+ * most for a fixture no stage happens to read, where nothing else would catch
+ * the drift.
  */
-export function overallOutcome(stages: readonly EvidenceStage[]): 'pass' | 'fail' {
-  return stages.every((entry) => entry.outcome === 'success') ? 'pass' : 'fail';
+export function overallOutcome(
+  stages: readonly EvidenceStage[],
+  fixtures: readonly FixtureEvidence[] = [],
+): 'pass' | 'fail' {
+  const stagesPassed = stages.every((entry) => entry.outcome === 'success');
+  const fixturesVerified =
+    fixtures.length > 0 && fixtures.every((entry) => entry.pinnedDigestMatches === true);
+  return stagesPassed && fixturesVerified ? 'pass' : 'fail';
 }
 
 export interface FixtureEvidence {
@@ -88,6 +105,7 @@ export async function buildEvidence(
   env: Readonly<Record<string, string | undefined>> = process.env,
 ): Promise<Record<string, unknown>> {
   const stages = readStages(env);
+  const fixtures = await fixtureEvidence();
   return {
     kind: 'disposable-postgres-e2e-integration-proof',
     notAProofOf: [
@@ -103,9 +121,9 @@ export async function buildEvidence(
       env['GITHUB_SERVER_URL'] !== undefined && env['GITHUB_REPOSITORY'] !== undefined
         ? `${env['GITHUB_SERVER_URL']}/${env['GITHUB_REPOSITORY']}/actions/runs/${env['GITHUB_RUN_ID'] ?? ''}`
         : 'local',
-    syntheticFixtures: await fixtureEvidence(),
+    syntheticFixtures: fixtures,
     stages,
-    overall: overallOutcome(stages),
+    overall: overallOutcome(stages, fixtures),
   };
 }
 

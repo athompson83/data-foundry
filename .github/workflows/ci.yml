@@ -1338,16 +1338,19 @@ jobs:
       # the advisory transaction lock, so the reconciliation race cannot hide
       # behind the single-connection PGlite scheduler.
       - name: Source-record reconciliation concurrency regression
+        id: reconciliation
         env:
           DATA_FOUNDRY_POSTGRES_CONCURRENCY_TEST: '1'
         run: pnpm source-records:postgres:check
 
       - name: Credential provisioning concurrency regression
+        id: credentials
         env:
           DATA_FOUNDRY_POSTGRES_CONCURRENCY_TEST: '1'
         run: pnpm credentials:postgres:check
 
       - name: Scheduled acquisition concurrency and transaction controls
+        id: acquisition-controls
         run: pnpm acquisition:postgres:check
 
       # Sanitized external-verification evidence. This runs even when an
@@ -1366,4 +1369,7 @@ jobs:
           STEP_RUNTIME_TLS: ${{ steps.runtime-tls.outcome }}
           STEP_INGESTION: ${{ steps.ingestion-e2e.outcome }}
           STEP_NEGATIVE: ${{ steps.negative-controls.outcome }}
+          STEP_RECONCILIATION: ${{ steps.reconciliation.outcome }}
+          STEP_CREDENTIALS: ${{ steps.credentials.outcome }}
+          STEP_ACQUISITION: ${{ steps.acquisition-controls.outcome }}
         run: pnpm exec tsx tooling/scripts/verification-evidence.ts
