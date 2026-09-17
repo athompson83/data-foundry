@@ -424,13 +424,18 @@ export UA002_DIR="$(mktemp -d)"          # outside the checkout, on purpose
 cp tooling/scripts/ua002-migration-pgpassfile.sh "$UA002_DIR/"
 printf '%s  %s\n' 'b9e374c7358db81a6495b70c03c38308a4bc3fb7824e9490741ef7740ec5c1d0' \
   "$UA002_DIR/ua002-migration-pgpassfile.sh" > "$UA002_DIR/helper.sha256"
-shasum -a 256 -c "$UA002_DIR/helper.sha256"    # must print OK
 
-# 1. Clear anything an earlier attempt left behind, then place the credential.
+# 1. Clear anything an earlier attempt left behind, then place the credential --
+#    but only if the digest matched. The `&&` is load-bearing: this block has no
+#    `set -e` (it is pasted into your shell, where that would be hostile), so a
+#    check that merely PRINTS a failure would let the next line run the
+#    unverified helper and hand it the password.
 unset PGPASSFILE DATA_FOUNDRY_MIGRATION_DATABASE_URL
-"$UA002_DIR/ua002-migration-pgpassfile.sh" \
-  --host '<host>' --port 5432 --database '<database>' --login '<login-name>'
+shasum -a 256 -c "$UA002_DIR/helper.sha256" \
+  && "$UA002_DIR/ua002-migration-pgpassfile.sh" \
+       --host '<host>' --port 5432 --database '<database>' --login '<login-name>'
 #    Then run the two exports it printed. Both survive the checkout below.
+#    If the digest did not match, nothing above ran: stop and find out why.
 
 git fetch origin main && git checkout 2063ea8d72247a9b2643e1c690e37ab55ab14252
 git status --porcelain --untracked-files=all    # must print nothing
@@ -439,8 +444,10 @@ export DATA_FOUNDRY_RELEASE_SHA=2063ea8d72247a9b2643e1c690e37ab55ab14252
 
 # 2. The helper is gone from the tree now; the preserved copy is not. Confirm it
 #    is the same file, then confirm the environment before anything connects.
-shasum -a 256 -c "$UA002_DIR/helper.sha256"
-"$UA002_DIR/ua002-migration-pgpassfile.sh" --check
+#    Chained for the same reason: a failed digest must not reach --check, and a
+#    failed --check must not reach the migration.
+shasum -a 256 -c "$UA002_DIR/helper.sha256" \
+  && "$UA002_DIR/ua002-migration-pgpassfile.sh" --check
 
 # 1. Provider staging, in one privileged session — see step 2 of the numbered
 #    procedure below — then the migration password through the provider's secure
@@ -549,8 +556,8 @@ were observed from this SHA.
    # step and are already set. Re-exporting a secret-bearing URL here would undo
    # that and put the password back into the environment by hand. This stops the
    # procedure rather than letting it run on settings from an earlier attempt:
-   "$UA002_DIR/ua002-migration-pgpassfile.sh" --check
-   pnpm ua002:operator -- --packet <non-secret-local-packet-path>
+   "$UA002_DIR/ua002-migration-pgpassfile.sh" --check \
+     && pnpm ua002:operator -- --packet <non-secret-local-packet-path>
    ```
 
    This is read-only and mutates nothing. It checks, in one pass: the session is

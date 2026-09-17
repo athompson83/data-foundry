@@ -119,6 +119,22 @@ describe('the execution sequence can actually be followed', () => {
     );
   });
 
+  it('chains each guard to what it guards, so a failure stops the procedure', () => {
+    // The block is pasted into the operator's shell, so it cannot use `set -e`
+    // without being hostile. That makes every check advisory unless it is
+    // chained: a bare `shasum -c` that prints FAILED still lets the next line
+    // run the unverified helper and hand it the password.
+    expect(
+      SEQUENCE,
+      'the digest check must gate the helper invocation',
+    ).toMatch(/shasum -a 256 -c "\$UA002_DIR\/helper\.sha256" \\\n\s+&& "\$UA002_DIR\/ua002-migration-pgpassfile\.sh"/u);
+    // Both call sites, not just the first.
+    const chained = [...SEQUENCE.matchAll(/shasum -a 256 -c[^\n]*\\\n\s+&&/gu)];
+    expect(chained.length, 'every digest check must be chained').toBe(2);
+    // And --check must gate the migration itself.
+    expect(HANDOVER).toMatch(/--check \\\n\s+&& pnpm ua002:operator/u);
+  });
+
   it('keeps the migration release pinned to the same SHA', () => {
     expect(SEQUENCE).toContain('git checkout 2063ea8d72247a9b2643e1c690e37ab55ab14252');
     expect(SEQUENCE).toContain('export DATA_FOUNDRY_RELEASE_SHA=2063ea8d72247a9b2643e1c690e37ab55ab14252');

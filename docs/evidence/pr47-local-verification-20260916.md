@@ -674,6 +674,39 @@ fix introduced it, and the mechanism — treating a deliberate non-zero exit as 
 inability to run — was something I should have caught when I wrote the
 `exit 0 / exit 1` contract in the first place.
 
+## Fifteenth round: a gate that reported instead of stopping
+
+The digest gate I added the round before was **advisory**. The procedure block
+has no `set -e` — deliberately, because it is pasted into the operator's shell
+where that would be hostile — so `shasum -a 256 -c` printing `FAILED` did not
+stop anything. The next line ran the unverified helper and handed it the
+password. The gate existed and did nothing.
+
+This is the same shape as several earlier findings and it is mine: a check that
+reports rather than enforces. Adding the published digest was the right idea and
+I stopped one line short of making it real.
+
+Each guard is now chained to the thing it guards, which enforces without
+`set -e`:
+
+```bash
+shasum -a 256 -c "$UA002_DIR/helper.sha256" \
+  && "$UA002_DIR/ua002-migration-pgpassfile.sh" \
+       --host '<host>' --port 5432 --database '<database>' --login '<login-name>'
+```
+
+and likewise after the checkout, and for `--check` gating `pnpm ua002:operator`.
+Verified with a deliberately wrong digest:
+
+```
+…/ua002-migration-pgpassfile.sh: FAILED
+shasum: WARNING: 1 computed checksum did NOT match
+helper ran? 0
+```
+
+The helper never runs, so it never sees a password. A test asserts both digest
+checks and the `--check` are chained; it fails against `070cd70`.
+
 **A note on the check that caught my own error here.** My first attempt added a
 second `env:` block to a step that already had one. `python3 -c "import yaml"`
 accepted the duplicate key and reported the file as valid; the repository's own
