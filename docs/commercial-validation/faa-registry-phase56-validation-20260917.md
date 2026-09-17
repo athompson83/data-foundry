@@ -378,9 +378,24 @@ stop, not a narrow miss.
 
 No source activated. No production endpoint built — path C was measured against a local
 SQLite file. Nothing deployed. No outbound sales, no customer contacted, no revenue. No
-owner-PII product design: the loader provably has no owner column. PR #51 remains a
-**draft** and is not marked ready by this work. The FAA archive was downloaded once for
-measurement and is not retained in the repository.
+owner-PII product design: the loader provably has no owner column. This validation did
+not mark PR #51 ready; the owner authorised that separately, once it had concluded.
+The FAA archive was downloaded once for measurement and is not retained in the
+repository.
+
+## Review coverage on the merged head
+
+Recorded so absence is not mistaken for review: **neither automated reviewer ran.**
+`chatgpt-codex-connector` reported "You have reached your Codex usage limits for code
+reviews." CodeRabbit posted `Review skipped: manual review required for this OSS
+repository` — it does not review repositories with fewer than 10 stars. Both are
+`success` states and neither blocks the merge, but neither is an independent review of
+this record.
+
+Repository CI on the merged head classified the diff **documentation-only** (the scope
+job's `*.md|docs/*` selector), so the executable checks were correctly not required.
+They were instead run locally against the same tree: `pnpm typecheck` clean, `pnpm lint`
+clean, and `pnpm test` **226 files / 3,583 tests passed**.
 
 ## Reproduction
 
