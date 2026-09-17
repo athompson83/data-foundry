@@ -128,9 +128,17 @@ describe('the execution sequence can actually be followed', () => {
       SEQUENCE,
       'the digest check must gate the helper invocation',
     ).toMatch(/shasum -a 256 -c "\$UA002_DIR\/helper\.sha256" \\\n\s+&& "\$UA002_DIR\/ua002-migration-pgpassfile\.sh"/u);
-    // Both call sites, not just the first.
-    const chained = [...SEQUENCE.matchAll(/shasum -a 256 -c[^\n]*\\\n\s+&&/gu)];
-    expect(chained.length, 'every digest check must be chained').toBe(2);
+    // Every digest check, not a fixed number of them: hard-coding the count is
+    // the same assert-the-case mistake, one layer up.
+    const checks = [...HANDOVER.matchAll(/shasum -a 256 -c "\$UA002_DIR\/helper\.sha256"/gu)];
+    const chained = [
+      ...HANDOVER.matchAll(/shasum -a 256 -c "\$UA002_DIR\/helper\.sha256" \\\n\s+&&/gu),
+    ];
+    expect(checks.length, 'the procedure must verify the digest').toBeGreaterThan(0);
+    expect(
+      chained.length,
+      `every digest check must be chained; found ${checks.length} checks and ${chained.length} chained`,
+    ).toBe(checks.length);
     // And every operator invocation must be gated, not just the ones that
     // happened to be noticed. Chaining one call site and leaving another
     // unchained further down the same block is how this defect recurred.
@@ -140,6 +148,32 @@ describe('the execution sequence can actually be followed', () => {
     expect(
       gated.length,
       `every "pnpm ua002:operator" must be chained to --check; found ${invocations.length} invocations and ${gated.length} gated`,
+    ).toBe(invocations.length);
+  });
+
+  it('gates every helper invocation with a digest check at the point of use', () => {
+    // A `set -e`-free pasted block cannot gate "the remainder of the
+    // procedure": an earlier failure only skips what is chained to it. Steps
+    // with manual actions sit between the checks, so the only thing that binds
+    // is re-verifying immediately before each use -- which also covers a copy
+    // modified after an earlier check.
+    const invocations = [
+      ...HANDOVER.matchAll(/"\$UA002_DIR\/ua002-migration-pgpassfile\.sh"/gu),
+    ].filter((match) => {
+      // The line that writes the digest file names the helper as an argument
+      // rather than running it.
+      const line = HANDOVER.slice(HANDOVER.lastIndexOf('\n', match.index) + 1);
+      return !line.startsWith('  "$UA002_DIR/ua002-migration-pgpassfile.sh" > ');
+    });
+    const gated = [
+      ...HANDOVER.matchAll(
+        /shasum -a 256 -c "\$UA002_DIR\/helper\.sha256" \\\n\s+&& "\$UA002_DIR\/ua002-migration-pgpassfile\.sh"/gu,
+      ),
+    ];
+    expect(invocations.length, 'the procedure must invoke the helper').toBeGreaterThan(0);
+    expect(
+      gated.length,
+      `every helper invocation must be digest-gated at the point of use; found ${invocations.length} invocations and ${gated.length} gated`,
     ).toBe(invocations.length);
   });
 

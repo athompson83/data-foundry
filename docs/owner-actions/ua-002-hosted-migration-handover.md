@@ -471,17 +471,20 @@ node_modules/.bin/tsx tooling/scripts/export-supabase-migration-packets.ts \
 #    DATA_FOUNDRY_MIGRATION_DATABASE_URL is already exported from step 2 and
 #    carries no password. Do NOT re-export a secret-bearing URL here: that would
 #    put the credential back on a command line and bypass PGPASSFILE.
-#    --check is repeated and CHAINED here rather than relied on from step 3:
-#    steps 4 to 6 sit in between, and a rejected environment -- a missing
-#    PGPASSFILE next to a stale password-bearing URL -- could otherwise still
-#    authenticate and carry the run into the operator.
-"$UA002_DIR/ua002-migration-pgpassfile.sh" --check \
+#    The digest and --check are BOTH repeated here rather than relied on from
+#    step 3. Steps 4 to 6 sit in between, and this block has no `set -e`, so an
+#    earlier failure cannot gate what follows it -- only a chain that reaches
+#    the invocation itself can. Re-verifying at the point of use also covers a
+#    copy modified after step 3.
+shasum -a 256 -c "$UA002_DIR/helper.sha256" \
+  && "$UA002_DIR/ua002-migration-pgpassfile.sh" --check \
   && pnpm ua002:operator -- --packet "$UA002_DIR/ua002-packet.json"
 
 # 8. Only once step 7 is clean. Chained for the same reason: --apply is the one
-#    step that writes, so it is the last place to accept an unchecked
-#    environment.
-"$UA002_DIR/ua002-migration-pgpassfile.sh" --check \
+#    step that writes, so it is the last place to accept an unchecked helper or
+#    an unchecked environment.
+shasum -a 256 -c "$UA002_DIR/helper.sha256" \
+  && "$UA002_DIR/ua002-migration-pgpassfile.sh" --check \
   && pnpm ua002:operator -- --packet "$UA002_DIR/ua002-packet.json" --apply
 ```
 
@@ -562,7 +565,8 @@ were observed from this SHA.
    # step and are already set. Re-exporting a secret-bearing URL here would undo
    # that and put the password back into the environment by hand. This stops the
    # procedure rather than letting it run on settings from an earlier attempt:
-   "$UA002_DIR/ua002-migration-pgpassfile.sh" --check \
+   shasum -a 256 -c "$UA002_DIR/helper.sha256" \
+     && "$UA002_DIR/ua002-migration-pgpassfile.sh" --check \
      && pnpm ua002:operator -- --packet <non-secret-local-packet-path>
    ```
 
@@ -635,7 +639,8 @@ were observed from this SHA.
    flag — gated the same way, because this is the step that writes:
 
    ```
-   "$UA002_DIR/ua002-migration-pgpassfile.sh" --check \
+   shasum -a 256 -c "$UA002_DIR/helper.sha256" \
+     && "$UA002_DIR/ua002-migration-pgpassfile.sh" --check \
      && pnpm ua002:operator -- --packet <non-secret-local-packet-path> --apply
    ```
 

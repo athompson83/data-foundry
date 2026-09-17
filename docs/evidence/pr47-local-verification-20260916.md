@@ -741,6 +741,39 @@ consecutive.
 
 Both tests fail against `505a15f`.
 
+## Seventeenth round: what a pasted block can and cannot enforce
+
+The second digest check gated only the `--check` chained to it. Steps 4 to 6
+followed regardless, and steps 7 and 8 invoked the same preserved helper again
+without re-verifying it. A copy modified after step 3 would be trusted by every
+later use.
+
+The reviewer's framing — "gate the entire remainder of the procedure" — is the
+part worth sitting with, because **a pasted block cannot do that.** There is no
+`set -e` (deliberately: it is the operator's interactive shell), and steps 4 to 6
+include a privileged provider action and a manual SQL snapshot that cannot be
+chained to anything. An earlier check can only ever gate what is chained to it.
+
+So the fix is not a longer chain. It is to re-verify **at each point of use**:
+every invocation of the helper is now immediately preceded by a chained
+`shasum -a 256 -c`. That gates every actual use, and additionally covers the case
+an unbroken chain would not — a copy modified *after* an earlier successful
+check.
+
+Six invocations, six gates. Two of them were gated before this round.
+
+### The test I had written was the same mistake one layer up
+
+The class assertion added last round said *"exactly 2 chained digest checks"*. A
+hard-coded count is assert-the-case in test form: it passed while four
+invocations went ungated, and then failed on the fix for being the wrong number
+rather than for anything real. It now counts every `shasum -a 256 -c` in the
+document and requires all of them to be chained, and separately requires every
+helper invocation to be digest-gated.
+
+This is the fifth appearance of the pattern and the second time my own guard
+against it was written in the form it was guarding against.
+
 **A note on the check that caught my own error here.** My first attempt added a
 second `env:` block to a step that already had one. `python3 -c "import yaml"`
 accepted the duplicate key and reported the file as valid; the repository's own
