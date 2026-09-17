@@ -75,6 +75,8 @@ interface RunOptions {
   readonly env?: Readonly<Record<string, string>>;
   /** Replace commands with arbitrary stub bodies, for failures a flat stub cannot express. */
   readonly stubScripts?: Readonly<Record<string, string>>;
+  /** Create `$HOME/shared` with this mode and point `--file` inside it. */
+  readonly parentMode?: number;
 }
 
 function run(password: string | null, options: RunOptions = {}): RunResult {
@@ -97,6 +99,15 @@ function run(password: string | null, options: RunOptions = {}): RunResult {
     writeFileSync(join(home, '.data-foundry', 'ua002.pgpass'), `${options.seedTarget}\n`, {
       mode: 0o600,
     });
+  }
+
+  const parentArgs: string[] = [];
+  if (options.parentMode !== undefined) {
+    const shared = join(home, 'shared');
+    mkdirSync(shared);
+    // mkdir applies the ambient umask, so set the mode we actually want to test.
+    chmodSync(shared, options.parentMode);
+    parentArgs.push('--file', join(shared, 'ua002.pgpass'));
   }
 
   let path = process.env['PATH'] ?? '/usr/bin:/bin';
@@ -135,6 +146,7 @@ function run(password: string | null, options: RunOptions = {}): RunResult {
     '--login',
     '<login-name>',
     ...(options.args ?? []),
+    ...parentArgs,
   ];
 
   const command =
@@ -899,6 +911,83 @@ describe('a failed cleanup is a security outcome, not a silent one', () => {
       expect(result.stdout).not.toContain('SECRET-PASSWORD');
       expect(result.stderr).not.toContain('SECRET-PASSWORD');
       expect(stagedFiles(result.home), 'no temporary file may survive a success').toEqual([]);
+    } finally {
+      cleanup(result);
+    }
+  });
+});
+
+describe('a parent directory other local users can write to is refused', () => {
+  // `mktemp` creates the staged file safely -- O_EXCL, an unpredictable name --
+  // but the redirection that writes the password resolves that name a SECOND
+  // time. In a directory another local user can write to, that user can unlink
+  // the entry and leave a symlink of their own in its place between the two
+  // steps. The password line is then written through the link, `mv` installs
+  // the link as the target, and the helper prints "Wrote" and exits 0, so
+  // nothing in the run says the credential went somewhere else.
+  //
+  // Shell redirection cannot be made race-safe against that, and the helper
+  // must not tighten a directory it did not create (the test above pins that).
+  // So it refuses: where only the owner can write, no other user can create,
+  // unlink or rename an entry and the race has no second player.
+  const sharedPath = (home: string): string => join(home, 'shared');
+
+  it('refuses a world-writable parent and stages nothing inside it', () => {
+    const result = run('SECRET-PASSWORD', { parentMode: 0o777 });
+    try {
+      expect(result.status, 'a world-writable parent must fail closed').not.toBe(0);
+      expect(result.stderr).toContain('can be written by other users');
+      expect(result.stderr).toContain(sharedPath(result.home));
+      expect(result.stdout).not.toContain('export PGPASSFILE=');
+      expect(
+        readdirSync(sharedPath(result.home)),
+        'a refused directory must not be left holding staged secret material',
+      ).toEqual([]);
+      expect(result.stderr).not.toContain('SECRET-PASSWORD');
+    } finally {
+      cleanup(result);
+    }
+  });
+
+  it('refuses a group-writable parent', () => {
+    // Group-writable is the likelier real case: a shared project directory
+    // whose group contains people who are not the operator.
+    const result = run('SECRET-PASSWORD', { parentMode: 0o770 });
+    try {
+      expect(result.status, 'a group-writable parent must fail closed').not.toBe(0);
+      expect(result.stderr).toContain('can be written by other users');
+      expect(readdirSync(sharedPath(result.home))).toEqual([]);
+    } finally {
+      cleanup(result);
+    }
+  });
+
+  it('still writes into a parent only its owner can write to', () => {
+    const result = run('SECRET-PASSWORD', { parentMode: 0o700 });
+    try {
+      expect(result.status).toBe(0);
+      const written = join(sharedPath(result.home), 'ua002.pgpass');
+      const line = readFileSync(written, 'utf8').replace(/\n$/u, '');
+      expect(parsePgpassLine(line)[4]).toBe('SECRET-PASSWORD');
+      expect((statSync(written).mode & 0o777).toString(8)).toBe('600');
+      expect(
+        (statSync(sharedPath(result.home)).mode & 0o777).toString(8),
+        'an accepted directory must still not be modified',
+      ).toBe('700');
+    } finally {
+      cleanup(result);
+    }
+  });
+
+  it('refuses when the parent permissions could not be read at all', () => {
+    // The defect this whole file keeps finding is a check that computes the
+    // right answer and then does not bind. A mode the run could not read is
+    // UNKNOWN, which is not the same as acceptable, so it must stop the run.
+    const result = run('SECRET-PASSWORD', { parentMode: 0o700, breaks: ['ls'] });
+    try {
+      expect(result.status, 'an unreadable mode must fail closed').not.toBe(0);
+      expect(result.stderr).toContain('permissions are unknown');
+      expect(readdirSync(sharedPath(result.home))).toEqual([]);
     } finally {
       cleanup(result);
     }

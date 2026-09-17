@@ -1422,11 +1422,20 @@ jobs:
             # It ran and recorded a failing verdict. That is the evidence.
             exit 1
           fi
-          # Nothing was written, so the emitter could not run at all: the
-          # checkout or install did not complete. The obligation to report a
-          # failed verification still stands -- silence would look identical to
-          # "no run happened". This fallback uses only the shell, carries no
-          # step outcomes because no step ran, and can only ever say `fail`.
+          # Nothing was written, so the emitter produced no verdict. WHY it
+          # produced none is not known here: a failed checkout or install looks
+          # exactly like an import-time error inside the emitter itself, and
+          # that one happens after every stage has already run and recorded an
+          # outcome. Naming a cause would assert something this step cannot
+          # observe, so it reports the failure and stops there.
+          #
+          # The step outcomes are a different matter. They are already in this
+          # step's environment, put there by the workflow, and publishing `[]`
+          # next to them discarded evidence that was in hand. They are carried
+          # through -- each sanitized to the fixed vocabulary below, so a value
+          # that is not a GitHub step outcome can never be echoed.
+          #
+          # This fallback uses only the shell and can only ever say `fail`.
           correlation="$(printf '%s' "${CORRELATION_ID:-}" | tr -cd 'A-Za-z0-9._-' | cut -c1-64)"
           [ -n "$correlation" ] || correlation='sanitized'
           {
@@ -1440,10 +1449,46 @@ jobs:
             printf '  "gitSha": "%s",\n' "${DATA_FOUNDRY_CANDIDATE_SHA:-unknown}"
             printf '  "runUrl": "%s/%s/actions/runs/%s",\n' \
               "${GITHUB_SERVER_URL:-}" "${GITHUB_REPOSITORY:-}" "${GITHUB_RUN_ID:-}"
-            printf '  "stages": [],\n'
+            # Same stage names and the same `not-run` wording as the emitter,
+            # so the two documents can be compared field for field.
+            printf '  "stages": [\n'
+            first='true'
+            for pair in \
+              "disposable-tls-postgres:${STEP_TLS:-}" \
+              "apply-migrations:${STEP_MIGRATE:-}" \
+              "reapply-is-noop:${STEP_REAPPLY:-}" \
+              "stage-roles-and-grants:${STEP_GRANTS:-}" \
+              "runtime-role-direct-tls:${STEP_RUNTIME_TLS:-}" \
+              "ingestion-publish-e2e:${STEP_INGESTION:-}" \
+              "privilege-negative-controls:${STEP_NEGATIVE:-}" \
+              "source-record-reconciliation:${STEP_RECONCILIATION:-}" \
+              "credential-provisioning:${STEP_CREDENTIALS:-}" \
+              "scheduled-acquisition-controls:${STEP_ACQUISITION:-}"
+            do
+              stage_name="${pair%%:*}"
+              stage_outcome="${pair#*:}"
+              case "$stage_outcome" in
+                success|failure|cancelled|skipped) : ;;
+                # A step that never ran leaves the expression empty. Not a pass.
+                '') stage_outcome='not-run' ;;
+                # Anything else is not a step outcome at all. Say it was not
+                # recognised rather than echo whatever arrived.
+                *) stage_outcome='unrecognized' ;;
+              esac
+              # Spelled out rather than `A && B || C`: that chain runs C when
+              # B fails too, and a chain exactly like it already hid a patch
+              # that never applied.
+              if [ "$first" = 'true' ]; then
+                first='false'
+              else
+                printf ',\n'
+              fi
+              printf '    { "stage": "%s", "outcome": "%s" }' "$stage_name" "$stage_outcome"
+            done
+            printf '\n  ],\n'
             printf '  "syntheticFixtures": [],\n'
             printf '  "overall": "fail",\n'
-            printf '  "reason": "the evidence emitter could not run; checkout or install did not complete, so no stage was verified"\n'
+            printf '  "reason": "%s"\n' 'the evidence emitter produced no verdict and this step cannot observe why; the stage outcomes above are the ones the workflow recorded, and no fixture digest was verified'
             printf '}\n```\n\n'
           } >> "$GITHUB_STEP_SUMMARY"
           exit 1

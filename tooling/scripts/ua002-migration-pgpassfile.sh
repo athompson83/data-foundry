@@ -248,6 +248,47 @@ else
   chmod 700 -- "$directory" 2>/dev/null || true
 fi
 
+# Refuse a directory other local users can write to.
+#
+# mktemp creates the staged file safely -- O_EXCL, a name nobody can predict --
+# but the redirection that writes the password resolves that name a SECOND
+# time. Between the two, a user with write access to this directory can unlink
+# the entry and leave a symlink of their own in its place; the password line is
+# then written through the link, `mv` installs the link as $target, and the
+# helper prints "Wrote" and exits 0. Nothing about the run says the credential
+# went somewhere the operator did not choose.
+#
+# Shell redirection cannot be made race-safe against that. Tightening the
+# directory instead is not available either: a --file target may live in a
+# directory someone else owns and shares, and revoking other people's access to
+# unrelated contents is the defect an earlier round already fixed. So this
+# refuses. Where only the owner can write, no other user can create, unlink or
+# rename an entry and the race has no second player.
+#
+# The default path is unaffected: ~/.data-foundry is created 0700 above, and an
+# existing one is typically 0700 or 0755 -- neither is group- or world-writable.
+# This check runs on BOTH branches, so it also binds the chmod above, whose
+# failure is otherwise swallowed.
+directory_listing="$(ls -ldL -- "$directory" 2>/dev/null)" || directory_listing=''
+directory_mode="${directory_listing%% *}"
+# A mode this run could not read is UNKNOWN, which is not the same as
+# acceptable. An `ls` that failed, a reshaped line, anything unexpected: all of
+# them leave a string that is not `d` followed by nine permission characters,
+# and every one of them has to stop the run rather than fall through it. The
+# recurring defect in this helper is a check that computes the right answer and
+# then does not bind, so the shape is validated before it is read.
+case "$directory_mode" in
+  d?????????*) : ;;
+  *) die "could not read the permissions of $directory; refusing to stage a password file where the permissions are unknown" ;;
+esac
+# Position 6 is group-write and position 9 is other-write, the same reading the
+# --check branch above does with `cut -c5-10`.
+case "$directory_mode" in
+  ?????w*|????????w*)
+    die "$directory can be written by other users (mode $directory_mode); another local user could replace the staged password file before it is written, so the password could land somewhere this helper does not control. Point --file at a directory only you can write to, or remove group and world write access from $directory"
+    ;;
+esac
+
 # Read before touching anything, so a cancelled prompt changes nothing at all.
 if [ -t 0 ]; then
   IFS= read -rs -p 'migration password: ' password || die 'no password was read; nothing was written'
