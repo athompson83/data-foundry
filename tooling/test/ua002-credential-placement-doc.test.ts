@@ -24,7 +24,16 @@
  * under test.
  */
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import {
+  chmodSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -90,6 +99,7 @@ interface BlockResult {
 function runDocumentedBlock(
   password: string | null,
   existing: readonly string[] = [],
+  options: { readonly breakAwk?: boolean } = {},
 ): BlockResult {
   const home = mkdtempSync(join(tmpdir(), 'ua002-pgpass-'));
   try {
@@ -97,9 +107,19 @@ function runDocumentedBlock(
     if (existing.length > 0) {
       writeFileSync(path, `${existing.join('\n')}\n`, { mode: 0o600 });
     }
+    // The tests run as root, where an unreadable file is still readable, so a
+    // failing `awk` stands in for "the existing file could not be filtered".
+    let binPath = process.env['PATH'] ?? '/usr/bin:/bin';
+    if (options.breakAwk === true) {
+      const stub = join(home, 'bin');
+      mkdirSync(stub);
+      writeFileSync(join(stub, 'awk'), '#!/bin/bash\necho "awk: cannot open" >&2\nexit 2\n');
+      chmodSync(join(stub, 'awk'), 0o755);
+      binPath = `${stub}:${binPath}`;
+    }
     // `null` closes stdin immediately, which is what a cancelled prompt looks like.
     execFileSync('bash', ['-c', PGPASS_BLOCK], {
-      env: { HOME: home, PATH: process.env['PATH'] ?? '/usr/bin:/bin' },
+      env: { HOME: home, PATH: binPath },
       input: password === null ? '' : `${password}\n`,
       stdio: ['pipe', 'pipe', 'pipe'],
     });
@@ -109,7 +129,7 @@ function runDocumentedBlock(
       line: ours[0] ?? '',
       lines,
       mode: (statSync(path).mode & 0o777).toString(8),
-      strayFiles: readdirSync(home).filter((name) => name !== '.pgpass'),
+      strayFiles: readdirSync(home).filter((name) => name !== '.pgpass' && name !== 'bin'),
     };
   } finally {
     rmSync(home, { recursive: true, force: true });
@@ -214,6 +234,19 @@ describe('the documented .pgpass block encodes the password rather than mangling
   it('requires the read to succeed and be non-empty before writing anything', () => {
     expect(PGPASS_BLOCK).toMatch(/if IFS= read -rs[^\n]*&& \[ -n "\$df_pw" \]; then/u);
     expect(PGPASS_BLOCK).toContain('left unchanged');
+  });
+
+  it('leaves .pgpass untouched when the existing file cannot be filtered', () => {
+    // Reproduced for real with a writable-but-unreadable .pgpass: `awk` failed,
+    // the block printed "~/.pgpass updated", exited 0, and both unrelated
+    // credentials were gone.
+    const others = [
+      'other.host:5432:otherdb:otheruser:UNRELATED-CREDENTIAL-1',
+      'third.host:5432:db3:user3:UNRELATED-CREDENTIAL-2',
+    ];
+    const result = runDocumentedBlock('newpassword', others, { breakAwk: true });
+    expect(result.lines, 'a failed rewrite must not delete unrelated credentials').toEqual(others);
+    expect(result.strayFiles, 'the temp file must be removed on failure').toEqual([]);
   });
 
   it('never makes the password a command-line argument or a history entry', () => {

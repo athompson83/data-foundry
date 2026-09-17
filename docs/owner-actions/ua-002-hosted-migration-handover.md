@@ -164,15 +164,18 @@ if IFS= read -rs -p 'migration password: ' df_pw && [ -n "$df_pw" ]; then
   echo
   touch ~/.pgpass
   tmp="$(mktemp ~/.pgpass.XXXXXX)"
-  {
-    printf '%s:%s:%s:%s:%s\n' "$host" "$port" "$database" "$login" \
-      "$(printf '%s' "$df_pw" | sed -e 's/[\\:]/\\&/g')"
-    awk -v p="$host:$port:$database:$login:" 'index($0, p) != 1' ~/.pgpass
-  } > "$tmp"
-  chmod 600 "$tmp"
-  mv "$tmp" ~/.pgpass
-  export DATA_FOUNDRY_MIGRATION_DATABASE_URL="postgresql://$login@$host:$port/$database"
-  echo "~/.pgpass updated for $login at $host:$port/$database"
+  if {
+       printf '%s:%s:%s:%s:%s\n' "$host" "$port" "$database" "$login" \
+         "$(printf '%s' "$df_pw" | sed -e 's/[\\:]/\\&/g')" &&
+       awk -v p="$host:$port:$database:$login:" 'index($0, p) != 1' ~/.pgpass
+     } > "$tmp" && chmod 600 "$tmp" && mv "$tmp" ~/.pgpass
+  then
+    export DATA_FOUNDRY_MIGRATION_DATABASE_URL="postgresql://$login@$host:$port/$database"
+    echo "~/.pgpass updated for $login at $host:$port/$database"
+  else
+    rm -f "$tmp"
+    echo '~/.pgpass left unchanged: could not rewrite it.' >&2
+  fi
 else
   echo >&2
   echo '~/.pgpass left unchanged: no password was read.' >&2
@@ -211,8 +214,14 @@ and the block replaced a working credential with an empty-password entry **and
 exited 0**. The `if` now requires `read` to succeed *and* yield something
 non-empty before anything is written, and says so when it declines.
 
-The write still lands through a temporary file in the same directory, so an
-interrupted run cannot leave a half-written `.pgpass` behind.
+*Rewriting the file must succeed before it is installed.* The write lands
+through a temporary file in the same directory, so an interrupted run cannot
+leave a half-written `.pgpass` behind — but a temporary file is only a safeguard
+if nothing installs it after the rewrite failed. Measured on the earlier form
+with a writable-but-unreadable `.pgpass`: `awk` reported *"Permission denied"*,
+the block printed *"~/.pgpass updated"*, exited 0, and both unrelated
+credentials were gone. `chmod` and `mv` are now chained onto the rewrite
+succeeding, and the temporary file is removed when it does not.
 
 **The `sed` is not decoration.** In `.pgpass`, `:` is the field separator and
 `\` is the escape character, so a password containing either must have it

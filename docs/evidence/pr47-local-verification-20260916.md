@@ -62,6 +62,9 @@ documented procedure to fail while looking correct:
 5. **P2 — a cancelled prompt was destructive.** With stdin at EOF the password
    was empty, the block replaced a working credential with an empty-password
    entry, and it exited 0.
+6. **P2 — a failed rewrite was still installed.** With a writable-but-unreadable
+   `.pgpass`, `awk` failed, `mv` installed a file containing only the new entry,
+   every unrelated credential was destroyed, and the block reported success.
 
 All three of the later findings were reproduced against a live cluster before
 any edit; see the sections below.
@@ -77,7 +80,7 @@ one operator document.
 Prose assertions alone would let the snippet drift from what it claims, so both
 new files **execute** the artifact under test.
 
-`tooling/test/ua002-credential-placement-doc.test.ts` (18 tests) extracts the
+`tooling/test/ua002-credential-placement-doc.test.ts` (19 tests) extracts the
 documented `.pgpass` block from the handover and runs it verbatim under `bash`
 with a throwaway `HOME`, then parses the result back with libpq's own rule
 (unescaped `:` separates, `\` escapes the next character). Passwords used are
@@ -95,9 +98,10 @@ that passes on the broken version proves nothing:**
 | Test file | Against | Result |
 | --- | --- | --- |
 | `ua002-credential-placement-doc.test.ts` | doc at `e031e4b` (pre-fix) | **9 of 11 failed** |
-| `ua002-credential-placement-doc.test.ts` | doc at HEAD | 18 passed |
+| `ua002-credential-placement-doc.test.ts` | doc at HEAD | 19 passed |
 | `ua002-credential-placement-doc.test.ts` | doc at `8820914` (append-only) | **2 of 13 failed** |
 | `ua002-credential-placement-doc.test.ts` | doc at `3b46ced` (exact-match, unguarded) | **4 of 18 failed** |
+| `ua002-credential-placement-doc.test.ts` | doc at `29f142c` (ungated write) | **1 of 19 failed** |
 | `ci-postgres-readiness.test.ts` | `ci.yml` at `0620672` (socket probe) | **4 of 5 failed** |
 | `ci-postgres-readiness.test.ts` | `ci.yml` at HEAD | 5 passed |
 
@@ -194,6 +198,53 @@ fifth — that a wildcard is preserved — passes on both, because the earlier
 exact-prefix filter also left wildcards alone.
 
 The cluster was destroyed afterwards. It held nothing but fictional passwords.
+
+## Sixth finding: a failed rewrite was installed anyway
+
+Raised on `29f142c`, reproduced before any edit. No database needed — the
+failure is in the file handling.
+
+A `.pgpass` holding two unrelated credentials was made writable but not readable
+(mode 200) and the block run as a non-root user:
+
+```
+BEFORE  other.host:5432:otherdb:otheruser:UNRELATED-CREDENTIAL-1
+        third.host:5432:db3:user3:UNRELATED-CREDENTIAL-2
+
+awk: cannot open "…/.pgpass" (Permission denied)
+~/.pgpass updated for <login-name> at <host>:5432/<database>
+exit: 0
+
+AFTER   <host>:5432:<database>:<login-name>:newpassword
+```
+
+Both unrelated credentials destroyed, and the block said it had succeeded. The
+temporary file protected against a *partial* write but nothing checked whether
+the rewrite had worked before installing it.
+
+`chmod` and `mv` are now chained onto the rewrite succeeding, and the temporary
+file is removed when it fails. Verified: with the same unreadable file the block
+declines, says *"~/.pgpass left unchanged: could not rewrite it."*, both
+credentials survive and no temporary file is left; the ordinary path still
+writes the new entry first, keeps the unrelated entry, and lands at mode 600.
+
+The test stands in for the permission denial with a failing `awk`, because the
+suite runs as root and root can read a mode-200 file. It fails against `29f142c`.
+
+## A pattern worth stating rather than burying
+
+Six findings, four review rounds, one shell snippet — and **CI was green for
+every one of them**. The checks that gate this repository do not reach a
+procedure written in prose, which is why these tests execute the block instead
+of asserting its text.
+
+Each finding was real and each fix was verified, but the shape of the artifact is
+the problem: a pasteable shell block that mutates a credential file has many
+failure modes and no natural place to handle them. The structural answer is to
+extract it into a tested script that the document references, with
+`set -euo pipefail` and real error paths. That is not done here — it is a larger
+change than these findings call for and would widen a pull request already under
+review — and it is recorded as the owner's call.
 
 ## The TCP readiness repair, verified locally
 
