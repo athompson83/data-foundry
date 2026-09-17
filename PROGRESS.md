@@ -1,6 +1,99 @@
 # Progress
 
-## Current session — 2026-09-16 disposable-Postgres verification evidence, levels 2+ unproven
+## Current session — 2026-09-17 closeout: two PRs merged, hosted catch-up ready, commercial validation not started
+
+**Merged implementation, hosted verification and commercial validation are three
+separate tracks. Only the first advanced.**
+
+### Merged implementation
+
+- **PR #46 merged as `41dd2ec`.** The multi-dataset machine-data direction is
+  standing repository authority, with ADR-0012 recording capability-based
+  canonical hostnames while **preserving ADR-0011's implemented per-vertical
+  edge isolation**. The two Codex P2 findings were answered and resolved: the
+  delivered plan tasks are ticked, and Task 3 states why executive-state
+  reconciliation was deferred to this closeout rather than raced from a branch
+  that could not see both PRs.
+- **PR #47 merged as `8a9542d`.** Both recorded parent-directory residuals in
+  the UA-002 credential helper are closed, and both were reproduced against
+  `44cec28` first. Ownership: a root run staged a credential into a 0755
+  directory owned by another user at exit 0, and that user then unlinked it and
+  substituted a symlink. Ancestors: a swapped symlink component put the password
+  line **in the attacker's directory at exit 0** — the residual had recorded this
+  as "not demonstrated", and it is demonstrated now. A defect the fix itself
+  introduced (`--file .../` has no basename, producing a `mv` into a directory
+  that BSD `mv` would accept) was found by re-reading the diff and rejected
+  outright. Eight tests, 45 → 53; six fail against `44cec28`, two are controls.
+  Local parity 15/15 with identical before/after tree fingerprints; exact-head
+  CI green on `a3eb1bc`.
+
+### Hosted verification — READY_FOR_SCOPED_EXECUTION, not done
+
+Read-only reconciliation of `fgxinxaqkwoqyywdgobs` on 2026-09-17, plus a local
+PostgreSQL 15 compatibility proof. Full packet:
+[`docs/evidence/ua002-hosted-catchup-decision-20260917.md`](docs/evidence/ua002-hosted-catchup-decision-20260917.md).
+
+- **PostgreSQL 15 needs no upgrade.** CI only ever proved 16. Against a real
+  PostgreSQL 15.19 cluster with certificate-verified TLS, run from a clean
+  detached checkout at release `2063ea8`, all 33 migrations applied, re-apply was
+  a clean no-op, and the result was 51 tables / 3 views / 59 functions,
+  `security_definer=0`, `functions_with_proconfig=59`.
+- **The ledger agrees exactly: 33 / 26 / 7, 0 differing.** A raw-file SHA-256
+  comparison reports all 26 rows differing and is **wrong** — this install uses
+  the private schema, so the ledger stores the effective transformed checksum.
+  Anyone re-checking must use the release's own `effectiveMigrationChecksum`.
+- **Release pin not moved.** `PROGRESS` previously said UA-002 was "rebound to
+  `1a37241`"; that described re-verification, not a change of pin. Migrations,
+  runner, exporter and canonical store are byte-identical at `2063ea8` and
+  current `main`, so `2063ea8` stands and its published checksums stay valid.
+- **The 57 mutable search paths are what migration `0027` repairs**, not a
+  blocker. A preflight comparing them before the catch-up would raise 57 false
+  blockers and make the catch-up impossible to start.
+- **Disabled RLS on private `data_foundry` tables is not public exposure.** The
+  schema grants USAGE to the six `df_*` roles only; `anon`, `authenticated` and
+  `service_role` have none. Supabase's own linter agrees — one ERROR finding,
+  and it is not a Data Foundry table.
+- **`public.automation_runs` is another workload's table** (ESO/ZOLL EMS
+  automation): 5 rows, all from 2025-02-16, zero triggers, FKs, views or
+  referencing functions, `anon` holding full CRUD with RLS off. Smallest
+  containment proposed, deliberately not executed — the shared `public` schema
+  is out of scope and the table belongs to its own owner.
+- **Cloudflare state is UNKNOWN.** No connector, no credential, `wrangler
+  whoami` unauthenticated. Historical inventories are not restated as current.
+- **The one blocker is a `df_migration` LOGIN credential plus a PostgreSQL route
+  to the origin.** All six `df_*` roles are NOLOGIN today. That is an owner
+  action, not engineering.
+
+### Commercial validation — CONTINUE_TARGETED_VALIDATION
+
+Full decision:
+[`docs/commercial-validation/first-paid-slice-decision-20260917.md`](docs/commercial-validation/first-paid-slice-decision-20260917.md).
+
+- **Zero independent buyer interviews.** Every threshold on PR #49's scorecard
+  reads 0. Interview #0 was the owner's own organisation and is correctly
+  excluded; the two figures it produced — "a few hours a month" of burden, and
+  single-state operation — both cut against the hypothesis.
+- **Zero real sources.** All four HVAC sources are declared
+  `SYNTHETIC — fictional publisher`. UA-001's blocker is a counsel question, not
+  an engineering one.
+- **One slice proposed, held weakly:** US Vehicle Intelligence (VIN → open
+  recalls). Its differentiation was re-measured today — `HONDA`/`CR-V` (vPIC,
+  JSON), `HONDA`/`ACCORD` (recalls, JSON), `Acura`/`Aston Martin` (EPA, **XML**)
+  — three naming conventions and two formats across two agencies. It has no
+  buyer and no rights determination, and the portfolio's own rule stands: every
+  candidate is a research note.
+- **Next action is not engineering**: run PR #49's existing instrument for 5–8
+  independent conversations, and obtain one commercial-redistribution rights
+  determination for the NHTSA endpoints in parallel.
+
+### What is not true
+
+No hosted migration was applied. No credential was created, requested, used or
+rotated. No role was activated, no provider state changed, no deployment, no DNS
+change, no public route, and no payment of any kind. The PostgreSQL 15 result is
+a **local compatibility proof**, not hosted certification.
+
+## Earlier — 2026-09-16 disposable-Postgres verification evidence, levels 2+ unproven
 
 **Highest level proven: Level 1 (externally inspectable disposable-Postgres E2E integration proof). Next unproven: Level 2, hosted database reconciliation — blocked on PostgreSQL egress plus the `df_migration` credential.**
 
