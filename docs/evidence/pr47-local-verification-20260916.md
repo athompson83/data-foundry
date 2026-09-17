@@ -246,6 +246,74 @@ extract it into a tested script that the document references, with
 change than these findings call for and would widen a pull request already under
 review — and it is recorded as the owner's call.
 
+## Resolution: a dedicated password file, verified against the real runner
+
+Six findings on one inline shell block, four review rounds, CI green throughout.
+Each was real and each fix was verified, but they share one cause: the procedure
+mutated `~/.pgpass`, a file the operator owns and other tools use. Ordering
+rules, wildcard precedence, metacharacters, cancelled input and failed rewrites
+are all consequences of editing someone else's file in place.
+
+The block is replaced by `tooling/scripts/ua002-migration-pgpassfile.sh`, which
+writes **one file this project owns** and never reads, rewrites or removes
+`~/.pgpass`. The class is gone by construction rather than case by case.
+
+### Alternate-file support was confirmed through the real runner first
+
+This design is only valid if the migration runner honours a password file at
+all, so that was measured before adopting it — not inferred. `tooling/scripts/migrate.ts`
+connects with `pg`, whose client consults `pgpass` only when the connection
+carries no password, and `directPostgresTlsConfig` sets none.
+
+A throwaway PostgreSQL 16 cluster with `scram-sha-256` and certificate-verified
+TLS was started, and `createPostgresDriver` itself was called against it:
+
+| Case | Result |
+| --- | --- |
+| `~/.pgpass` holds the password, URL carries none | **connects** |
+| no password file at all (control) | fails — `client password must be a string` |
+| `PGPASSFILE` names an alternate file | **connects** |
+| `PGPASSFILE` correct while `~/.pgpass` holds a **wrong** password | **connects** |
+
+The control rules out a false positive, and the last row proves the alternate
+file is genuinely the one consulted rather than coincidentally agreeing with
+`~/.pgpass`.
+
+### The helper, end-to-end against the same cluster
+
+Run with a decoy `~/.pgpass` containing a deliberately wrong password:
+
+```
+helper printed:
+  export PGPASSFILE='…/.data-foundry/ua002.pgpass'
+  export DATA_FOUNDRY_MIGRATION_DATABASE_URL='postgresql://pgowner@127.0.0.1:5435/postgres'
+
+connect through the real runner -> CONNECTED as pgowner
+decoy ~/.pgpass afterwards      -> byte-identical
+secret in the helper's stdout   -> none
+```
+
+The cluster was destroyed afterwards and held nothing but fictional passwords.
+
+### Acceptance conditions, and where each is pinned
+
+`tooling/test/ua002-migration-pgpassfile.test.ts` (14 tests), no database needed:
+
+| Condition | How it is covered |
+| --- | --- |
+| Cancelled or empty input performs no update | EOF and empty-string cases; existing file byte-identical |
+| File operation failures prevent success reporting | `mktemp`, `chmod`, `mv` each stubbed to fail: non-zero, no `export` printed, existing file intact |
+| Unrelated credentials unchanged | `~/.pgpass` seeded and asserted byte-identical; structurally never opened |
+| Temporary material cleaned up | Directory listing asserted to hold only the target, on success and on each failure |
+| Secrets absent from arguments, history, logs | `--password` refused outright; password read from a prompt; stdout and stderr asserted not to contain it |
+| Non-zero status without killing the operator's shell | Separate process; exit status asserted greater than zero |
+| Existing authentication, identity and TLS checks intact | The runner is untouched; the handover still names the `session_user`/`current_user` assertion as the check |
+
+`tooling/test/ua002-credential-placement-doc.test.ts` (7 tests) now asserts only
+that the document points at the helper and does not reintroduce a second,
+untested procedure — including a guard that no snippet writing to `~/.pgpass`
+reappears.
+
 ## The TCP readiness repair, verified locally
 
 The loop was extracted from the workflow and driven with a stubbed `docker`
@@ -347,3 +415,26 @@ separate one-file change whenever wanted.
   that job has not re-run because the PR is a draft.
 - **Not a deployed-runtime proof.** Unchanged from the PR's own statement: no
   Cloudflare Worker, Queue, R2 or hosted database is exercised by any of this.
+
+## Correction: branch-candidate evidence already exists
+
+I previously said the sanitized verification evidence was waiting on the merge,
+because `workflow_dispatch` only resolves against a workflow file on the default
+branch. That conflated the **trigger** with the **artifact**. The evidence step
+runs in the real-Postgres job on every run, including pull-request runs, so
+passing evidence already existed on the branch.
+
+Read back from
+[run 35165734258, job 105026309326](https://github.com/athompson83/data-foundry/actions/runs/35165734258/job/105026309326),
+emitted 2026-09-17T00:15:48Z for `29f142c`:
+
+- `kind: disposable-postgres-e2e-integration-proof`, `overall: "pass"`
+- all **ten** stages `success`, individually listed
+- both pinned fixtures `pinnedDigestMatches: true`
+  (`acme-catalog.json`, `ahri-export.csv`)
+- `gitSha` pinned to the exact head
+
+**What it is:** branch-candidate disposable-PostgreSQL integration evidence.
+**What it is not:** completed full CI for that head, review approval, a merge, a
+`workflow_dispatch` run, or anything hosted. Only the dispatch trigger needs
+`main`; the artifact never did.

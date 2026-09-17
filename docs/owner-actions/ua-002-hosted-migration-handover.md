@@ -153,88 +153,59 @@ pooler login ever did present a different role to PostgreSQL the run would fail
 closed rather than migrate under the wrong identity. That assertion is the
 check — do not treat this paragraph as one.
 
-Then place the credential. Fill the four values in once at the top; the login
-name reaches both the `.pgpass` entry and the URL from the same variable, so
-they cannot drift apart:
+Then place the credential with the repository's helper. It writes a dedicated
+password file for this migration and **never reads, rewrites or removes your
+`~/.pgpass`**:
 
 ```
-umask 077
-host='<host>'; port=5432; database='<database>'; login='<login-name>'
-if IFS= read -rs -p 'migration password: ' df_pw && [ -n "$df_pw" ]; then
-  echo
-  touch ~/.pgpass
-  tmp="$(mktemp ~/.pgpass.XXXXXX)"
-  if {
-       printf '%s:%s:%s:%s:%s\n' "$host" "$port" "$database" "$login" \
-         "$(printf '%s' "$df_pw" | sed -e 's/[\\:]/\\&/g')" &&
-       awk -v p="$host:$port:$database:$login:" 'index($0, p) != 1' ~/.pgpass
-     } > "$tmp" && chmod 600 "$tmp" && mv "$tmp" ~/.pgpass
-  then
-    export DATA_FOUNDRY_MIGRATION_DATABASE_URL="postgresql://$login@$host:$port/$database"
-    echo "~/.pgpass updated for $login at $host:$port/$database"
-  else
-    rm -f "$tmp"
-    echo '~/.pgpass left unchanged: could not rewrite it.' >&2
-  fi
-else
-  echo >&2
-  echo '~/.pgpass left unchanged: no password was read.' >&2
-fi
-unset df_pw
+tooling/scripts/ua002-migration-pgpassfile.sh \
+  --host '<host>' --port 5432 --database '<database>' --login '<login-name>'
 ```
 
-The URL carries **no password** — libpq reads it from `.pgpass` by matching the
-host, port, database and user, so the `.pgpass` user field must be the same
-login name the URL carries, character for character. Taking both from `$login`
-is what guarantees that.
+It prompts for the password, so the password never becomes a command-line
+argument, an environment variable, or a shell-history entry — and it refuses a
+`--password` argument outright. On success it prints the two lines to run in the
+shell that performs the migration:
 
-**Why the new entry goes first, and why the block can decline to write.** Both
-are answers to ways this quietly did the wrong thing, each measured against
-PostgreSQL 16 with `scram-sha-256` rather than reasoned from the documentation.
+```
+export PGPASSFILE='<the path it reports>'
+export DATA_FOUNDRY_MIGRATION_DATABASE_URL='postgresql://<login-name>@<host>:5432/<database>'
+```
 
-*libpq uses the first line that matches host, port, database and user, and stops
-looking.* An entry left over from an earlier password therefore beats a correct
-one written below it, and the operator gets a bare *"password authentication
-failed"* pointing at the credential rather than at the file. Measured: stale line
-first and correct line second fails; the correct line alone, or first, connects.
+The URL carries **no password**. libpq reads it from the file named by
+`PGPASSFILE`, matching host, port, database and user, so the login you pass the
+helper is the one that must appear in the URL — which is why the helper prints
+both rather than leaving you to keep them in step.
 
-*Any of those four fields may be `*`, and a wildcard counts as a match.*
-Measured: `*:*:*:<login>:…` alone authenticates, and a stale `*:*:*:<login>:…`
-placed first beats an exact entry below it. So removing the exact duplicate is
-not enough — the new entry is written **first**, ahead of everything retained,
-and that is what makes it win. The `awk` then drops only an entry whose first
-four fields match *literally*, so repeated rotations do not accumulate. A
-wildcard entry is deliberately **kept**: it may be serving the operator's other
-hosts, and removing it would break connections this procedure has no business
-touching.
+**Why a dedicated file rather than editing `~/.pgpass`.** The earlier procedure
+edited the operator's own password file, and review found six separate ways that
+went quietly wrong: libpq takes the *first* matching line, so a stale entry from
+an earlier password beat the new one; a stale `*` wildcard beat it for the same
+reason; `:` and `\` in a password corrupted the field structure; a cancelled
+prompt installed an empty password over a working one; and a failed rewrite was
+installed anyway, destroying unrelated credentials while reporting success. All
+six come from mutating a shared file that belongs to someone else. Writing one
+file this project owns removes the whole class rather than handling each case,
+and leaves every credential you already had exactly as it was.
 
-*A cancelled prompt must not count as a password.* Measured on the earlier
-unguarded form: with stdin at EOF, `read` returned nonzero, `df_pw` was empty,
-and the block replaced a working credential with an empty-password entry **and
-exited 0**. The `if` now requires `read` to succeed *and* yield something
-non-empty before anything is written, and says so when it declines.
+**This was confirmed against the real runner, not assumed.** `tooling/scripts/migrate.ts`
+connects with `pg`, which consults the password file only when the connection
+carries no password — and `directPostgresTlsConfig` sets none. Measured
+2026-09-17 against PostgreSQL 16 with `scram-sha-256` and certificate-verified
+TLS, calling `createPostgresDriver` itself: with `PGPASSFILE` pointing at the
+helper's file the driver connects, and it still connects when `~/.pgpass`
+contains a *wrong* password — proving the dedicated file is genuinely the one
+being used. With no password file at all the same call fails, so those were not
+false positives.
 
-*Rewriting the file must succeed before it is installed.* The write lands
-through a temporary file in the same directory, so an interrupted run cannot
-leave a half-written `.pgpass` behind — but a temporary file is only a safeguard
-if nothing installs it after the rewrite failed. Measured on the earlier form
-with a writable-but-unreadable `.pgpass`: `awk` reported *"Permission denied"*,
-the block printed *"~/.pgpass updated"*, exited 0, and both unrelated
-credentials were gone. `chmod` and `mv` are now chained onto the rewrite
-succeeding, and the temporary file is removed when it does not.
+If a file operation fails at any point the helper exits non-zero, prints why,
+leaves any existing file untouched, and removes its temporary file — which also
+holds the password — on failure and on interruption alike. Because it is a
+separate process, that failure cannot terminate your interactive shell.
 
-**The `sed` is not decoration.** In `.pgpass`, `:` is the field separator and
-`\` is the escape character, so a password containing either must have it
-backslash-escaped or libpq parses the line into the wrong fields and
-authentication fails with no indication why. That substitution escapes both and
-leaves every other password unchanged.
-
-`read -rs` keeps the password off the command line and out of shell history:
-it is typed at a prompt, held in a shell variable that `printf` (a builtin)
-consumes without spawning a process, and unset immediately. `sed` receives it on
-stdin, never as an argument. Do not pass the password with `-W`, in
+Whatever route you take, do not pass the password with `-W`, in
 `psql "postgres://…:pw@…"`, or in any command-line argument: those land in the
-process list and in history.
+process list and in shell history. The helper exists so you never have to.
 
 The runner also rejects a URL carrying `sslmode` or any other TLS or endpoint
 query override — it configures TLS itself and verifies the certificate. Measured
@@ -434,9 +405,8 @@ pnpm ua002:operator -- --packet "$UA002_DIR/ua002-packet.json" --apply
 
 **Credential note for step 2.** `psql "$DATA_FOUNDRY_MIGRATION_DATABASE_URL"`
 puts the connection string in the process list, where any other user on the host
-can read it. Prefer a `.pgpass` entry, a libpq service file, or `PGPASSWORD` with
-the other connection parameters, so the secret never becomes an argument. The
-operator itself never takes one.
+can read it. Use the `PGPASSFILE` the helper wrote, or a libpq service file, so
+the secret never becomes an argument. The operator itself never takes one.
 
 **If a step fails with only `Direct PostgreSQL migration failed.`** — no
 category, no detail — that is deliberate, not a bug. Once
@@ -464,7 +434,7 @@ involves unsetting anything:
    `DATA_FOUNDRY_MIGRATION_DATABASE_URL is required` error and tells you
    nothing about the real one.
 4. **For a post-credential failure, reproduce the connection by itself.** Open
-   a plain `psql` session using the same `.pgpass` entry or libpq service file —
+   a plain `psql` session with the same `PGPASSFILE` or libpq service file —
    never as an argument — and let libpq report its own authentication, TLS or
    network error directly. That path does not pass through the redactor, and it
    separates "cannot connect" from "connected, then failed", which is the
