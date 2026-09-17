@@ -161,6 +161,33 @@ else
 fi
 [ -n "$password" ] || die 'the password was empty; nothing was written'
 
+# Escape every field BEFORE anything is created, and make each failure bind.
+#
+# `printf '%s' "$(escape_field "$x")"` reports the status of printf, never of
+# the substitution, so `set -e` cannot see a sed that failed -- and the pipeline
+# status that `pipefail` computes is discarded with the subshell. A sed that
+# cannot run therefore produced `::::` and a "Wrote ..." message at exit 0, and
+# a sed that failed for the password alone produced a file with an EMPTY
+# password: the precise thing this helper exists to make impossible, arriving
+# through a different door. An assignment is the form that binds, because its
+# status IS the substitution's.
+escape_or_die() {
+  # $1 names the field, for a message that says which one went wrong.
+  local escaped
+  escaped="$(escape_field "$2")" || die "could not escape the $1 for the password file"
+  # sed can also exit 0 having written nothing -- a truncated write, a closed
+  # pipe. Every input here is already known non-empty and escaping only ever
+  # adds characters, so an empty result is a failure whatever the status said.
+  [ -n "$escaped" ] || die "escaping the $1 produced nothing; nothing was written"
+  printf '%s' "$escaped"
+}
+
+escaped_host="$(escape_or_die 'host' "$host")" || exit 1
+escaped_port="$(escape_or_die 'port' "$port")" || exit 1
+escaped_database="$(escape_or_die 'database' "$database")" || exit 1
+escaped_login="$(escape_or_die 'login' "$login")" || exit 1
+escaped_password="$(escape_or_die 'password' "$password")" || exit 1
+
 temporary=''
 # Where the run got to, so an interrupt can report what actually happened rather
 # than assuming. A signal is serviced between commands, so it can land after the
@@ -216,14 +243,14 @@ stage='staged'
 chmod 600 -- "$temporary" || die 'could not restrict the temporary file'
 
 printf '%s:%s:%s:%s:%s\n' \
-  "$(escape_field "$host")" \
-  "$(escape_field "$port")" \
-  "$(escape_field "$database")" \
-  "$(escape_field "$login")" \
-  "$(escape_field "$password")" > "$temporary" ||
+  "$escaped_host" \
+  "$escaped_port" \
+  "$escaped_database" \
+  "$escaped_login" \
+  "$escaped_password" > "$temporary" ||
   die 'could not write the password file'
 
-unset password
+unset password escaped_password
 
 # Only now does anything become visible under the real name. A failure above
 # leaves the existing file, if any, exactly as it was.

@@ -73,6 +73,8 @@ interface RunOptions {
   readonly targetIsSymlinkToDirectory?: boolean;
   /** Extra environment for the child. */
   readonly env?: Readonly<Record<string, string>>;
+  /** Replace commands with arbitrary stub bodies, for failures a flat stub cannot express. */
+  readonly stubScripts?: Readonly<Record<string, string>>;
 }
 
 function run(password: string | null, options: RunOptions = {}): RunResult {
@@ -99,9 +101,14 @@ function run(password: string | null, options: RunOptions = {}): RunResult {
 
   let path = process.env['PATH'] ?? '/usr/bin:/bin';
   const stubbed = [...(options.breaks ?? [])];
-  if (stubbed.length > 0 || options.interruptDuring !== undefined) {
+  const stubScripts = Object.entries(options.stubScripts ?? {});
+  if (stubbed.length > 0 || stubScripts.length > 0 || options.interruptDuring !== undefined) {
     const stubs = join(home, 'stubs');
     mkdirSync(stubs);
+    for (const [command, body] of stubScripts) {
+      writeFileSync(join(stubs, command), body);
+      chmodSync(join(stubs, command), 0o755);
+    }
     for (const command of stubbed) {
       writeFileSync(join(stubs, command), `#!/bin/bash\necho "${command}: injected failure" >&2\nexit 7\n`);
       chmodSync(join(stubs, command), 0o755);
@@ -639,6 +646,100 @@ describe('a failed file operation never reports success', () => {
     const result = run(null);
     try {
       expect(result.status).toBeGreaterThan(0);
+    } finally {
+      cleanup(result);
+    }
+  });
+});
+
+describe('a failure while escaping a field cannot install a corrupted file', () => {
+  // `printf '%s' "$(escape_field "$x")"` reports the status of printf, never of
+  // the command substitution, so `set -e` could not see a failing `sed` and the
+  // pipeline status `pipefail` computed was discarded with the subshell. Both
+  // shapes below were reproduced against the helper at b9ec9b9, installing a
+  // file and exiting 0.
+  const REAL_SED = '#!/bin/bash\nfor candidate in /usr/bin/sed /bin/sed; do\n  [ -x "$candidate" ] && exec "$candidate" "$@"\ndone\nexit 127\n';
+
+  it('installs nothing when escaping fails for every field', () => {
+    // Observed before the fix: a file containing `::::` — five empty fields —
+    // with a "Wrote ..." message and exit 0.
+    const result = run('SECRET-PASSWORD', { breaks: ['sed'], seedPgpass: true });
+    try {
+      expect(result.status, 'a failed escape must not report success').not.toBe(0);
+      expect(existsSync(targetPath(result.home)), 'no file may be installed').toBe(false);
+      expect(result.stdout).not.toContain('export PGPASSFILE=');
+      expect(result.stderr).toMatch(/could not escape the host/u);
+      // And the operator's own file is still untouched, as always.
+      expect(readFileSync(join(result.home, '.pgpass'), 'utf8')).toBe(`${DECOY}\n`);
+    } finally {
+      cleanup(result);
+    }
+  });
+
+  it('installs nothing when escaping fails for the password alone', () => {
+    // The dangerous shape, and worse than a file of empty fields: the first
+    // four fields escape normally and only the password comes back empty, so
+    // the installed line matched the real host and login with an EMPTY
+    // password. That is the defect this helper exists to make impossible,
+    // arriving through a different door. Observed before the fix as
+    // `<host>:5432:<database>:<login-name>:` at exit 0.
+    const countingSed = [
+      '#!/bin/bash',
+      'counter="$(dirname "$0")/sed.count"',
+      'n=$(cat "$counter" 2>/dev/null || echo 0)',
+      'n=$((n + 1))',
+      'printf "%s" "$n" > "$counter"',
+      // Fields are escaped left to right: host, port, database, login, password.
+      'if [ "$n" -ge 5 ]; then',
+      '  echo "sed: injected failure on field $n" >&2',
+      '  exit 4',
+      'fi',
+      'for candidate in /usr/bin/sed /bin/sed; do',
+      '  [ -x "$candidate" ] && exec "$candidate" "$@"',
+      'done',
+      'exit 127',
+      '',
+    ].join('\n');
+    const result = run('SECRET-PASSWORD', {
+      stubScripts: { sed: countingSed },
+      seedTarget: 'kept:5432:kept:kept:KEEP-ME',
+    });
+    try {
+      expect(result.status, 'a failed escape must not report success').not.toBe(0);
+      expect(result.stderr).toMatch(/could not escape the password/u);
+      expect(result.stdout).not.toContain('export PGPASSFILE=');
+      // An existing credential survives, and nothing empty replaced it.
+      expect(readFileSync(targetPath(result.home), 'utf8')).toBe('kept:5432:kept:kept:KEEP-ME\n');
+    } finally {
+      cleanup(result);
+    }
+  });
+
+  it('names which field failed, so the message is actionable', () => {
+    const result = run('SECRET-PASSWORD', { breaks: ['sed'] });
+    try {
+      expect(result.stderr).toMatch(/could not escape the (host|port|database|login|password)/u);
+      // And still says what it always says about stale exports.
+      expect(result.stderr).toContain('may be stale');
+    } finally {
+      cleanup(result);
+    }
+  });
+
+  it('still escapes correctly when sed works, so the guard did not replace the behaviour', () => {
+    // The control: the stub above is a real `sed` until it decides to fail, and
+    // this asserts the ordinary path through the same harness is unchanged.
+    const result = run('pa:ss\\wo:rd', { stubScripts: { sed: REAL_SED } });
+    try {
+      expect(result.status).toBe(0);
+      const line = readFileSync(targetPath(result.home), 'utf8').replace(/\n$/u, '');
+      expect(parsePgpassLine(line)).toEqual([
+        '<host>',
+        '5432',
+        '<database>',
+        '<login-name>',
+        'pa:ss\\wo:rd',
+      ]);
     } finally {
       cleanup(result);
     }

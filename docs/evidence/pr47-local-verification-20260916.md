@@ -780,6 +780,65 @@ accepted the duplicate key and reported the file as valid; the repository's own
 test, which uses the stricter `yaml` package, rejected it. The looser parser I
 reached for would have let a broken workflow through.
 
+## Eighteenth round: a failure that could not reach `set -e`
+
+A P2 on the helper, and the first finding in this PR that is about the shell
+rather than about the procedure. `escape_field` is a pipeline inside a command
+substitution:
+
+```bash
+printf '%s:%s:%s:%s:%s\n' "$(escape_field "$host")" ... > "$temporary"
+```
+
+`printf` reports its own status, never the substitution's, so `set -e` never saw
+a `sed` that failed — and the pipeline status `pipefail` computed was discarded
+with the subshell that computed it. Reproduced against `b9ec9b9` with a `sed`
+stub that exits 4:
+
+| `sed` behaviour | installed file | exit |
+| --- | --- | --- |
+| fails for every field | `::::` | **0** |
+| fails for the password only | `<host>:5432:<database>:<login-name>:` | **0** |
+| works (control) | `<host>:5432:<database>:<login-name>:pa\:ss\\wo\:rd` | 0 |
+
+Both failures also printed `Wrote …` and the two `export` lines, and `--check`
+then **accepted** the corrupted file, because it validates the file's type and
+permissions rather than its contents.
+
+The second row is worse than the reported one. Four fields escape normally and
+only the password comes back empty, so the line matches the real host and login
+with an **empty password** — the precise defect this helper was built to make
+impossible, arriving through a different door. It is the same shape as every
+other finding in this PR: something computes a wrong answer and nothing binds
+on it.
+
+The fix is an assignment, because an assignment's status *is* the substitution's:
+
+```bash
+escaped_host="$(escape_or_die 'host' "$host")" || exit 1
+```
+
+Each field is escaped into a checked variable **before `mktemp` runs**, so a
+failure changes nothing at all rather than being cleaned up afterwards, and the
+message names the field. `escape_or_die` also rejects an empty result on a
+zero status, because a `sed` that exits 0 having written nothing — a truncated
+write, a closed pipe — would otherwise pass: every input is already known
+non-empty and escaping only ever adds characters.
+
+After the fix, both failing rows become exit 1 with no file installed and an
+existing credential left intact; the control still produces
+`pa\:ss\\wo\:rd`, so the guard did not replace the behaviour it guards.
+
+Three of the four new tests fail against `b9ec9b9`. The fourth is the control
+and passes on both — it is there to pin the ordinary path through the same
+stubbed harness, not to count as coverage.
+
+**A measurement error of my own, recorded because it nearly stood.** My first
+check of the fix read `${PIPESTATUS[0]}` from `printf … | helper | tail`, which
+is the status of the `printf` feeding stdin, not of the helper. It reported
+`exit=0` for a run that had correctly failed. Re-measured by running the helper
+with stdin redirected from a file and reading `$?` directly.
+
 ## The TCP readiness repair, verified locally
 
 The loop was extracted from the workflow and driven with a stubbed `docker`
