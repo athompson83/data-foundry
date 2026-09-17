@@ -707,6 +707,40 @@ helper ran? 0
 The helper never runs, so it never sees a password. A test asserts both digest
 checks and the `--check` are chained; it fails against `070cd70`.
 
+## Sixteenth round: the same gap one step further down, and what finally caught it
+
+The chaining I added last round stopped after `--check`. Several steps later in
+the same block, `pnpm ua002:operator` ran unchained — so a rejected environment
+(a missing `PGPASSFILE` beside a stale password-bearing URL, which can still
+authenticate) printed its rejection and carried on into the preflight and
+`--apply`. I had chained one call site and left the next.
+
+That is the fourth appearance of one pattern on this pull request: **a check that
+computes the right answer and does not bind.** The evidence artifact reporting
+`pass` on a failed run; the self-generated digest that verified nothing; the
+digest gate that printed and continued; and now a gate chained at one site and
+not the next.
+
+So the fix was not to chain that one call site. It was to write the assertion
+against the *class*:
+
+```ts
+const invocations = [...HANDOVER.matchAll(/pnpm ua002:operator/gu)];
+const gated = [...HANDOVER.matchAll(/--check \\\n\s+&& pnpm ua002:operator/gu)];
+expect(gated.length).toBe(invocations.length);
+```
+
+**That test immediately failed on my own fix** — 4 invocations, 3 gated. It found
+a fourth call site in the numbered procedure that I had not noticed and that the
+review had not mentioned. Chaining by hand would have shipped it.
+
+Also corrected: inserting the credential steps had left two `# 1.` and two `# 2.`
+in the same block, which makes "only once step 4 is clean" ambiguous about which
+step 4. The block is renumbered 1–8 and a test asserts the numbers are unique and
+consecutive.
+
+Both tests fail against `505a15f`.
+
 **A note on the check that caught my own error here.** My first attempt added a
 second `env:` block to a step that already had one. `python3 -c "import yaml"`
 accepted the duplicate key and reported the file as valid; the repository's own

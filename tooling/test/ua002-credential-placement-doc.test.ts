@@ -131,8 +131,26 @@ describe('the execution sequence can actually be followed', () => {
     // Both call sites, not just the first.
     const chained = [...SEQUENCE.matchAll(/shasum -a 256 -c[^\n]*\\\n\s+&&/gu)];
     expect(chained.length, 'every digest check must be chained').toBe(2);
-    // And --check must gate the migration itself.
-    expect(HANDOVER).toMatch(/--check \\\n\s+&& pnpm ua002:operator/u);
+    // And every operator invocation must be gated, not just the ones that
+    // happened to be noticed. Chaining one call site and leaving another
+    // unchained further down the same block is how this defect recurred.
+    const invocations = [...HANDOVER.matchAll(/pnpm ua002:operator/gu)];
+    expect(invocations.length, 'the procedure must still invoke the operator').toBeGreaterThan(0);
+    const gated = [...HANDOVER.matchAll(/--check \\\n\s+&& pnpm ua002:operator/gu)];
+    expect(
+      gated.length,
+      `every "pnpm ua002:operator" must be chained to --check; found ${invocations.length} invocations and ${gated.length} gated`,
+    ).toBe(invocations.length);
+  });
+
+  it('numbers the procedure steps once each, in order', () => {
+    // Inserting the credential steps left two "# 1." and two "# 2." in one
+    // block, which makes "only once step 4 is clean" ambiguous.
+    const numbers = [...SEQUENCE.matchAll(/^# (\d+)\./gmu)].map((m) => Number(m[1]));
+    expect(numbers.length).toBeGreaterThan(3);
+    expect(numbers, 'steps must be consecutive and unique').toEqual(
+      numbers.map((_, index) => index + 1),
+    );
   });
 
   it('keeps the migration release pinned to the same SHA', () => {

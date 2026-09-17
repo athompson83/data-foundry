@@ -419,13 +419,13 @@ cannot drift from the helper it describes.
 # On a machine with PostgreSQL egress to the Alpha Lab project.
 export UA002_DIR="$(mktemp -d)"          # outside the checkout, on purpose
 
-# 0. Preserve the helper from THIS checkout and verify it against the published
+# 1. Preserve the helper from THIS checkout and verify it against the published
 #    digest above BEFORE it is ever run. Stop if this does not match.
 cp tooling/scripts/ua002-migration-pgpassfile.sh "$UA002_DIR/"
 printf '%s  %s\n' 'b9e374c7358db81a6495b70c03c38308a4bc3fb7824e9490741ef7740ec5c1d0' \
   "$UA002_DIR/ua002-migration-pgpassfile.sh" > "$UA002_DIR/helper.sha256"
 
-# 1. Clear anything an earlier attempt left behind, then place the credential --
+# 2. Clear anything an earlier attempt left behind, then place the credential --
 #    but only if the digest matched. The `&&` is load-bearing: this block has no
 #    `set -e` (it is pasted into your shell, where that would be hostile), so a
 #    check that merely PRINTS a failure would let the next line run the
@@ -442,18 +442,16 @@ git status --porcelain --untracked-files=all    # must print nothing
 pnpm install --frozen-lockfile
 export DATA_FOUNDRY_RELEASE_SHA=2063ea8d72247a9b2643e1c690e37ab55ab14252
 
-# 2. The helper is gone from the tree now; the preserved copy is not. Confirm it
-#    is the same file, then confirm the environment before anything connects.
-#    Chained for the same reason: a failed digest must not reach --check, and a
-#    failed --check must not reach the migration.
+# 3. The helper is gone from the tree now; the preserved copy is not. Confirm it
+#    is the same file, and confirm the environment, before anything connects.
 shasum -a 256 -c "$UA002_DIR/helper.sha256" \
   && "$UA002_DIR/ua002-migration-pgpassfile.sh" --check
 
-# 1. Provider staging, in one privileged session — see step 2 of the numbered
-#    procedure below — then the migration password through the provider's secure
+# 4. Provider staging, in one privileged session -- see the numbered procedure
+#    below -- then the migration password through the provider's secure
 #    credential path. Nothing after this point works until that is done.
 
-# 2. Snapshot the hosted ledger. Run this SQL through whatever psql invocation
+# 5. Snapshot the hosted ledger. Run this SQL through whatever psql invocation
 #    your secret handling allows; see the credential note below.
 #      SELECT coalesce(
 #               json_agg(json_build_object(
@@ -464,19 +462,27 @@ shasum -a 256 -c "$UA002_DIR/helper.sha256" \
 #    Write the single JSON array it returns to "$UA002_DIR/applied-ledger.json".
 #    Expect 26 rows, 0001 through 0026.
 
-# 3. Export the manifest against that ledger.
+# 6. Export the manifest against that ledger.
 node_modules/.bin/tsx tooling/scripts/export-supabase-migration-packets.ts \
   --release-sha "$DATA_FOUNDRY_RELEASE_SHA" \
   --applied-ledger "$UA002_DIR/applied-ledger.json" > "$UA002_DIR/ua002-packet.json"
 
-# 4. Read-only readiness report. Exit 2 means blockers, nothing touched.
-#    DATA_FOUNDRY_MIGRATION_DATABASE_URL is already exported from step 0 and
-#    carries no password. Do NOT re-export a secret-bearing URL here: that
-#    would put the credential back on a command line and bypass PGPASSFILE.
-pnpm ua002:operator -- --packet "$UA002_DIR/ua002-packet.json"
+# 7. Read-only readiness report. Exit 2 means blockers, nothing touched.
+#    DATA_FOUNDRY_MIGRATION_DATABASE_URL is already exported from step 2 and
+#    carries no password. Do NOT re-export a secret-bearing URL here: that would
+#    put the credential back on a command line and bypass PGPASSFILE.
+#    --check is repeated and CHAINED here rather than relied on from step 3:
+#    steps 4 to 6 sit in between, and a rejected environment -- a missing
+#    PGPASSFILE next to a stale password-bearing URL -- could otherwise still
+#    authenticate and carry the run into the operator.
+"$UA002_DIR/ua002-migration-pgpassfile.sh" --check \
+  && pnpm ua002:operator -- --packet "$UA002_DIR/ua002-packet.json"
 
-# 5. Only once step 4 is clean:
-pnpm ua002:operator -- --packet "$UA002_DIR/ua002-packet.json" --apply
+# 8. Only once step 7 is clean. Chained for the same reason: --apply is the one
+#    step that writes, so it is the last place to accept an unchecked
+#    environment.
+"$UA002_DIR/ua002-migration-pgpassfile.sh" --check \
+  && pnpm ua002:operator -- --packet "$UA002_DIR/ua002-packet.json" --apply
 ```
 
 **Credential note for step 2.** `psql "$DATA_FOUNDRY_MIGRATION_DATABASE_URL"`
@@ -626,10 +632,11 @@ were observed from this SHA.
    privileged provider session as step 2.
 
 5. **Apply, once the preflight is clean**, with the same command and one more
-   flag:
+   flag — gated the same way, because this is the step that writes:
 
    ```
-   pnpm ua002:operator -- --packet <non-secret-local-packet-path> --apply
+   "$UA002_DIR/ua002-migration-pgpassfile.sh" --check \
+     && pnpm ua002:operator -- --packet <non-secret-local-packet-path> --apply
    ```
 
    It re-runs the whole preflight first — a clean report from ten minutes ago is
