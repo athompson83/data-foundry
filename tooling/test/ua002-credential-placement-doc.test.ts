@@ -12,6 +12,7 @@
  * this project rather than about the file format: which name authenticates, and
  * which identity the runner insists on.
  */
+import { createHash } from 'node:crypto';
 import { accessSync, constants, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -76,8 +77,16 @@ describe('the execution sequence can actually be followed', () => {
     expect(copyAt, 'the helper must be copied out of the checkout').toBeGreaterThan(-1);
     expect(digestAt, 'its digest must be recorded').toBeGreaterThan(-1);
     expect(copyAt, 'the copy must precede the checkout').toBeLessThan(checkoutAt);
-    // And re-verified plus checked after the checkout, when the tree no longer has it.
-    expect(SEQUENCE.indexOf('shasum -a 256 -c')).toBeGreaterThan(checkoutAt);
+    // Verified twice against the published digest: once before the helper is
+    // ever run, and again after the checkout, when the tree no longer has it.
+    expect(
+      SEQUENCE.indexOf('shasum -a 256 -c'),
+      'the copy must be verified before it is run',
+    ).toBeLessThan(checkoutAt);
+    expect(
+      SEQUENCE.lastIndexOf('shasum -a 256 -c'),
+      'and re-verified after the checkout',
+    ).toBeGreaterThan(checkoutAt);
     expect(SEQUENCE.indexOf('--check')).toBeGreaterThan(checkoutAt);
   });
 
@@ -89,6 +98,25 @@ describe('the execution sequence can actually be followed', () => {
     expect(section).not.toMatch(/^Run from a clean checkout of merged/mu);
     expect(section).toMatch(/\*\*The migration steps\*\* run from a clean checkout/u);
     expect(section).toMatch(/credential step runs before that, and not from there/u);
+  });
+
+  it('publishes the helper\u2019s real digest, so provenance is checkable', () => {
+    // A digest the operator generates from their own tree proves only that the
+    // copy did not change afterwards. This one is reviewed and published, and
+    // this assertion stops it drifting from the file it describes.
+    const actual = createHash('sha256')
+      .update(readFileSync(join(ROOT, HELPER_PATH)))
+      .digest('hex');
+    expect(
+      HANDOVER,
+      `the handover must publish the helper digest ${actual}`,
+    ).toContain(actual);
+    // And the sequence must compare against it rather than a self-made one.
+    expect(SEQUENCE).toContain(actual);
+    expect(SEQUENCE).toContain('shasum -a 256 -c');
+    expect(SEQUENCE, 'must not hash whatever is on disk and trust that').not.toMatch(
+      /shasum -a 256 "\$UA002_DIR[^\n]*\| tee/u,
+    );
   });
 
   it('keeps the migration release pinned to the same SHA', () => {

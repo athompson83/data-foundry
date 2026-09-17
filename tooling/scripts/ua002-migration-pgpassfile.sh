@@ -140,8 +140,17 @@ escape_field() {
 }
 
 directory="$(dirname -- "$target")"
-mkdir -p -- "$directory" || die "could not create $directory"
-chmod 700 -- "$directory" 2>/dev/null || true
+# Only restrict a directory this run creates. A --file target may point into a
+# directory someone else owns and shares, and tightening it here would revoke
+# other people's access to unrelated contents -- including on a run that then
+# declines to write anything. The password file itself is created 0600, so a
+# permissive directory does not expose its contents.
+if [ -d "$directory" ]; then
+  :
+else
+  mkdir -p -- "$directory" || die "could not create $directory"
+  chmod 700 -- "$directory" 2>/dev/null || true
+fi
 
 # Read before touching anything, so a cancelled prompt changes nothing at all.
 if [ -t 0 ]; then

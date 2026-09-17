@@ -552,6 +552,45 @@ describe('a failed file operation never reports success', () => {
     }
   });
 
+  it('never changes the mode of a directory it did not create', () => {
+    // A --file target may live in a directory someone else owns and shares.
+    // Tightening it -- especially on a run that then writes nothing -- revokes
+    // other people's access to unrelated contents.
+    const outer = mkdtempSync(join(tmpdir(), 'ua002-shared-'));
+    const shared = join(outer, 'shared');
+    mkdirSync(shared);
+    chmodSync(shared, 0o755);
+    const target = join(shared, 'ua002.pgpass');
+    const invoke = (input: string): number => {
+      try {
+        execFileSync('bash', [HELPER, '--host', 'h', '--database', 'd', '--login', 'l', '--file', target], {
+          env: { HOME: outer, PATH: process.env['PATH'] ?? '/usr/bin:/bin' },
+          input,
+          stdio: ['pipe', 'pipe', 'pipe'],
+        });
+        return 0;
+      } catch (error) {
+        return (error as { status?: number }).status ?? -1;
+      }
+    };
+    try {
+      expect(invoke(''), 'a cancelled run must fail').not.toBe(0);
+      expect(
+        (statSync(shared).mode & 0o777).toString(8),
+        'a cancelled run changed a shared directory',
+      ).toBe('755');
+      expect(invoke('pw\n')).toBe(0);
+      expect(
+        (statSync(shared).mode & 0o777).toString(8),
+        'a successful run changed a shared directory',
+      ).toBe('755');
+      // The file itself still carries the protection that matters.
+      expect((statSync(target).mode & 0o777).toString(8)).toBe('600');
+    } finally {
+      rmSync(outer, { recursive: true, force: true });
+    }
+  });
+
   it('refuses a target that is a symlink to a directory', () => {
     const result = run('SECRET-PASSWORD', { targetIsSymlinkToDirectory: true });
     try {

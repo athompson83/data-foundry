@@ -400,13 +400,31 @@ revision is whatever contains this document, which is immutable and reviewed;
 no branch name is followed and no commit refers to itself. Record its digest
 and re-check it after the checkout, so you are running the file you inspected:
 
+**Check the helper against the digest published here, not one you generate.**
+A digest you compute from your own working tree proves only that the copy did
+not change afterwards; it says nothing about whether the file was the reviewed
+one. If that checkout were dirty or on an unreviewed revision, a modified helper
+would capture the migration password and still pass every self-generated check.
+The expected SHA-256 of `tooling/scripts/ua002-migration-pgpassfile.sh` at this
+revision is:
+
+```
+b9e374c7358db81a6495b70c03c38308a4bc3fb7824e9490741ef7740ec5c1d0
+```
+
+A repository test asserts that value equals the file's actual digest, so it
+cannot drift from the helper it describes.
+
 ```bash
 # On a machine with PostgreSQL egress to the Alpha Lab project.
 export UA002_DIR="$(mktemp -d)"          # outside the checkout, on purpose
 
-# 0. Preserve the helper from THIS checkout, then note its digest.
+# 0. Preserve the helper from THIS checkout and verify it against the published
+#    digest above BEFORE it is ever run. Stop if this does not match.
 cp tooling/scripts/ua002-migration-pgpassfile.sh "$UA002_DIR/"
-shasum -a 256 "$UA002_DIR/ua002-migration-pgpassfile.sh" | tee "$UA002_DIR/helper.sha256"
+printf '%s  %s\n' 'b9e374c7358db81a6495b70c03c38308a4bc3fb7824e9490741ef7740ec5c1d0' \
+  "$UA002_DIR/ua002-migration-pgpassfile.sh" > "$UA002_DIR/helper.sha256"
+shasum -a 256 -c "$UA002_DIR/helper.sha256"    # must print OK
 
 # 1. Clear anything an earlier attempt left behind, then place the credential.
 unset PGPASSFILE DATA_FOUNDRY_MIGRATION_DATABASE_URL

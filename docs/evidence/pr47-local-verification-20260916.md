@@ -566,6 +566,42 @@ replaced. Verify with --check.
 
 Both tests fail against `488ba12`.
 
+## Twelfth round: provenance, and a permission change on someone else's directory
+
+**A digest you generate yourself proves integrity, not authenticity.** The
+sequence hashed whatever helper bytes were on disk and compared the copy against
+that later, so `shasum -c` only showed the copy had not changed. If the starting
+checkout were dirty or on an unreviewed revision, a modified helper would capture
+the migration password and pass every documented check — and the clean-worktree
+assertion happens *after* the release checkout, so it never covers the revision
+the helper came from. No expected digest appeared anywhere in the procedure.
+
+The handover now **publishes the reviewed SHA-256** of the helper, and the
+sequence compares against that published value before the helper is ever run,
+then re-verifies after the checkout. A test asserts the published digest equals
+the file's real digest, so the two cannot drift apart, and that the sequence no
+longer hashes-then-trusts its own copy.
+
+**The helper changed the mode of a directory it did not create.** `chmod 700` ran
+unconditionally before the password was even read, so a `--file` target inside a
+shared directory had other users' access revoked — including on a cancelled run
+that wrote nothing, contradicting the documented no-change-on-failure behaviour.
+Measured:
+
+```
+before: 755
+exit:   1        (cancelled prompt)
+after:  700      <- unchanged would be 755
+```
+
+Now only a directory this run creates is restricted. An existing one is left
+exactly as found, which is safe because the password file itself is created 0600
+and directory permissions do not govern reading a file's contents. Measured
+after the fix: 755 before, 755 after a cancelled run, 755 after a successful run,
+with the file at 600; and the default `~/.data-foundry` is still created at 700.
+
+Three tests cover these and fail against `d20e15f`.
+
 ## The TCP readiness repair, verified locally
 
 The loop was extracted from the workflow and driven with a stubbed `docker`
