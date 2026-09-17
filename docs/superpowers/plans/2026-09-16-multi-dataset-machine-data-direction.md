@@ -30,11 +30,11 @@
 - Consumes: approved design spec.
 - Produces: startup-visible standing rules for Claude, Codex, and other agents.
 
-- [ ] Add a concise Product and commercial direction section immediately after Mission.
-- [ ] State the multi-dataset machine-data business model, HVAC/reference-vertical role, dataset-level launch rule, portfolio expansion rule, and capability-hostname rule.
-- [ ] Extend scope control to reject per-industry infrastructure forks absent measured need.
-- [ ] Preserve all existing rights, provenance, architecture, CI, and deployment rules.
-- [ ] Search the resulting file for contradictory HVAC-only or marketplace-only standing language.
+- [x] Add a concise Product and commercial direction section immediately after Mission.
+- [x] State the multi-dataset machine-data business model, HVAC/reference-vertical role, dataset-level launch rule, portfolio expansion rule, and capability-hostname rule.
+- [x] Extend scope control to reject per-industry infrastructure forks absent measured need.
+- [x] Preserve all existing rights, provenance, architecture, CI, and deployment rules.
+- [x] Search the resulting file for contradictory HVAC-only or marketplace-only standing language.
 
 ### Task 2: Amend the active revenue plan
 
@@ -45,11 +45,11 @@
 - Consumes: approved design spec and existing historical plan.
 - Produces: a dated amendment that preserves completed work while superseding obsolete HVAC/RapidAPI-only and per-industry-hostname assumptions.
 
-- [ ] Add a dated Product Owner amendment near the top instead of rewriting the original plan as if the new direction existed on September 8.
-- [ ] Clarify that the first useful rights-approved dataset may monetize through any verified paid machine-access path and that later datasets expand across industries.
-- [ ] Replace the active hostname guidance with capability-based hostnames while retaining old hostnames as historical/proposed values only.
-- [ ] State that provider-specific marketplace adapters converge on the canonical query layer and do not define the platform's canonical hostname architecture.
-- [ ] Preserve source-specific rights and public-cutover gates.
+- [x] Add a dated Product Owner amendment near the top instead of rewriting the original plan as if the new direction existed on September 8.
+- [x] Clarify that the first useful rights-approved dataset may monetize through any verified paid machine-access path and that later datasets expand across industries.
+- [x] Replace the active hostname guidance with capability-based hostnames while retaining old hostnames as historical/proposed values only.
+- [x] State that provider-specific marketplace adapters converge on the canonical query layer and do not define the platform's canonical hostname architecture.
+- [x] Preserve source-specific rights and public-cutover gates.
 
 ### Task 3: Align executive state after concurrent PR reconciliation
 
@@ -60,6 +60,8 @@
 **Interfaces:**
 - Consumes: merged state of concurrent UA-001 work plus Tasks 1-2.
 - Produces: executive/current-state language that does not regress to HVAC-completion as the business milestone.
+
+**Status:** the only outstanding task. It is deliberately not done in this PR: the control standard reconciles `PROJECT_CHECKLIST.md` and `PROGRESS.md` once at session closeout, and doing it here would race the concurrent UA-001 source-decision work whose merged evidence this task consumes.
 
 - [ ] Refresh `main` and reconcile any concurrent source-decision PR before editing these files.
 - [ ] Change project objective/current milestone language to distinguish the first HVAC/reference proof from the standing multi-dataset platform objective.
@@ -77,8 +79,8 @@
 - Consumes: Tasks 1-3.
 - Produces: a coherent active documentation set and reviewable PR.
 
-- [ ] Search for `hvac-api.aroqon.com`, `hvac-marketplace.aroqon.com`, `hvac-mcp.aroqon.com`, `RapidAPI`, `first marketplace`, `first lawful, revenue-capable HVAC vertical`, and equivalent active assumptions.
-- [ ] Classify every hit as active canonical guidance, implementation/test fixture, or historical evidence before changing it.
-- [ ] Amend active guidance that conflicts with the approved design; leave historical evidence intact and clearly superseded where needed.
-- [ ] Run the narrowest applicable documentation/governance checks locally or through the repository's existing CI selection.
+- [x] Search for `hvac-api.aroqon.com`, `hvac-marketplace.aroqon.com`, `hvac-mcp.aroqon.com`, `RapidAPI`, `first marketplace`, `first lawful, revenue-capable HVAC vertical`, and equivalent active assumptions.
+- [x] Classify every hit as active canonical guidance, implementation/test fixture, or historical evidence before changing it.
+- [x] Amend active guidance that conflicts with the approved design; leave historical evidence intact and clearly superseded where needed.
+- [x] Run the narrowest applicable documentation/governance checks locally or through the repository's existing CI selection.
 - [ ] Open a draft PR, request review on the final exact head, address findings, and merge only when exact-head required checks/review are green and clean.
