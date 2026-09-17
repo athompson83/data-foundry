@@ -188,13 +188,23 @@ If that framing will not sell, this candidate is wrong for us.
 **Product.** Normalized company fundamentals from XBRL with stable identifiers
 and point-in-time history. **Demand: MEASURED** — `sec-api.io` charges
 **$49/mo** (personal) and **$199/mo** (business) to wrap free public-domain SEC
-data, which is this whole thesis in one data point. **Friction: MEASURED** —
-`data.sec.gov` returned **HTTP 403** to this environment even with a declared
-User-Agent; SEC blocks datacenter traffic, so "just call it yourself" fails for
-exactly the cloud developers who would buy. Rights are clean (public domain,
-declared-UA and rate-limit conditions). **Failure mode:** the most crowded
-category here, and our access is subject to the same SEC throttling — compliant
-fetching is both the moat and the risk.
+data, which is this whole thesis in one data point.
+
+> **Correction (2026-09-17).** An earlier revision of this document claimed
+> `data.sec.gov` returns **403** to this environment and that "SEC blocks
+> datacenter traffic". **That was wrong**, and it was my measurement error: the
+> 403 came from the *format* of my User-Agent, not from the network. Retested
+> reproducibly — a UA containing a parenthetical URL returns 403 (2/2), no UA
+> returns 403, and a plain `DataFoundryResearch/1.0` returns **200** (2/2). SEC
+> is reachable. The real friction is size and semantics, measured below, and it
+> is a stronger argument than the one it replaces.
+
+**Friction: MEASURED** — one company's `companyfacts` is **3,789,099 bytes**
+carrying **505 distinct concepts**, of which **8 contain "Revenue"**. An agent
+answering "what was revenue" must download 3.8 MB and then choose among
+ambiguous concept names — a token cost and a hallucination surface at once.
+Rights are clean (public domain; declared-UA and rate-limit conditions apply).
+**Failure mode:** the most crowded category here.
 
 ## F3 — FAA aircraft registry API
 
