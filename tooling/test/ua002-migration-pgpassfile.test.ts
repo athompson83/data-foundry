@@ -9,13 +9,28 @@
  * Every one of them came from mutating a shared file owned by someone else.
  *
  * The helper writes one file this project owns and never reads or rewrites
- * `~/.pgpass`, so the class is gone by construction. These tests pin that
- * property and the failure handling, with fictional credentials and no database
- * — the alternate-file path was separately confirmed against the real migration
- * runner, which is recorded in the verification record rather than re-run here.
+ * `~/.pgpass`, so that class is gone by construction. Later rounds found defects
+ * the redesign did not prevent — an interrupt installing a world-readable file,
+ * a directory destination reported as success, exports that broke on a quoted
+ * path — and those are pinned here too.
+ *
+ * Fictional credentials only, and no database: the alternate-file path and the
+ * complete documented sequence were confirmed separately against the real
+ * migration driver over verified TLS, recorded in the verification record.
  */
 import { execFileSync } from 'node:child_process';
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import {
+  chmodSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  symlinkSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -52,6 +67,10 @@ interface RunOptions {
   readonly targetIsDirectory?: boolean;
   /** Use a HOME containing a single quote. */
   readonly awkwardHome?: boolean;
+  /** Put the target behind a symlink pointing at a directory. */
+  readonly targetIsSymlinkToDirectory?: boolean;
+  /** Extra environment for the child. */
+  readonly env?: Readonly<Record<string, string>>;
 }
 
 function run(password: string | null, options: RunOptions = {}): RunResult {
@@ -60,6 +79,11 @@ function run(password: string | null, options: RunOptions = {}): RunResult {
   );
   if (options.targetIsDirectory === true) {
     mkdirSync(join(home, '.data-foundry', 'ua002.pgpass'), { recursive: true });
+  }
+  if (options.targetIsSymlinkToDirectory === true) {
+    mkdirSync(join(home, '.data-foundry'), { recursive: true });
+    mkdirSync(join(home, 'elsewhere'), { recursive: true });
+    symlinkSync(join(home, 'elsewhere'), join(home, '.data-foundry', 'ua002.pgpass'));
   }
   if (options.seedPgpass === true) {
     writeFileSync(join(home, '.pgpass'), `${DECOY}\n`, { mode: 0o600 });
@@ -109,7 +133,7 @@ function run(password: string | null, options: RunOptions = {}): RunResult {
 
   try {
     const stdout = execFileSync('bash', command, {
-      env: { HOME: home, PATH: path },
+      env: { HOME: home, PATH: path, ...(options.env ?? {}) },
       input: password === null ? '' : `${password}\n`,
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
@@ -210,6 +234,153 @@ describe('the helper writes a file this project owns', () => {
       expect(lines).toHaveLength(1);
       expect(parsePgpassLine(lines[0] ?? '')[4]).toBe('rotated-Passw0rd');
       expect(readdirSync(join(result.home, '.data-foundry'))).toEqual(['ua002.pgpass']);
+    } finally {
+      cleanup(result);
+    }
+  });
+});
+
+describe('the emitted exports are safe to run verbatim', () => {
+  /** Runs the emitted assignments in a fresh shell and reads the values back. */
+  function evaluate(
+    stdout: string,
+    home: string,
+    cwd?: string,
+  ): { pgpassfile: string; url: string } {
+    const out = execFileSync(
+      'bash',
+      ['-c', `${stdout}\nprintf '%s\\n%s' "$PGPASSFILE" "$DATA_FOUNDRY_MIGRATION_DATABASE_URL"`],
+      {
+        encoding: 'utf8',
+        env: { PATH: process.env['PATH'] ?? '/usr/bin:/bin', HOME: home },
+        ...(cwd === undefined ? {} : { cwd }),
+      },
+    ).split('\n');
+    return { pgpassfile: out[0] ?? '', url: out[1] ?? '' };
+  }
+
+  it('preserves a path containing spaces exactly', () => {
+    const outer = mkdtempSync(join(tmpdir(), 'ua002-space-'));
+    const home = join(outer, 'a directory with spaces');
+    mkdirSync(home);
+    try {
+      const stdout = execFileSync(
+        'bash',
+        [HELPER, '--host', 'h', '--database', 'd', '--login', 'l'],
+        { env: { HOME: home, PATH: process.env['PATH'] ?? '/usr/bin:/bin' }, input: 'pw\n', encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] },
+      );
+      expect(evaluate(stdout, home).pgpassfile).toBe(join(home, '.data-foundry', 'ua002.pgpass'));
+    } finally {
+      rmSync(outer, { recursive: true, force: true });
+    }
+  });
+
+  it('preserves a path containing a single quote exactly', () => {
+    const result = run('ordinary-Passw0rd', { awkwardHome: true });
+    try {
+      expect(result.home).toContain("'");
+      expect(evaluate(result.stdout, result.home).pgpassfile).toBe(targetPath(result.home));
+    } finally {
+      cleanup(result);
+    }
+  });
+
+  it('does not execute a command hidden in the path', () => {
+    const outer = mkdtempSync(join(tmpdir(), 'ua002-inject-'));
+    // The directory name cannot contain a slash, so the injected command writes
+    // a relative marker and the evaluating shell runs with `outer` as its cwd.
+    const marker = join(outer, 'EXECUTED');
+    const home = join(outer, 'x$(touch EXECUTED)y');
+    mkdirSync(home);
+    try {
+      const stdout = execFileSync(
+        'bash',
+        [HELPER, '--host', 'h', '--database', 'd', '--login', 'l'],
+        { env: { HOME: home, PATH: process.env['PATH'] ?? '/usr/bin:/bin' }, input: 'pw\n', encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] },
+      );
+      const evaluated = evaluate(stdout, home, outer);
+      expect(existsSync(marker), 'the emitted export executed a command from the path').toBe(false);
+      expect(evaluated.pgpassfile).toBe(join(home, '.data-foundry', 'ua002.pgpass'));
+    } finally {
+      rmSync(outer, { recursive: true, force: true });
+    }
+  });
+});
+
+describe('--check stops a procedure running on stale or unsafe settings', () => {
+  const okUrl = 'postgresql://<login-name>@<host>:5432/<database>';
+
+  function check(env: Readonly<Record<string, string>>, home: string): { status: number; stderr: string } {
+    try {
+      execFileSync('bash', [HELPER, '--check'], {
+        env: { HOME: home, PATH: process.env['PATH'] ?? '/usr/bin:/bin', ...env },
+        encoding: 'utf8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+      });
+      return { status: 0, stderr: '' };
+    } catch (error) {
+      const failure = error as { status?: number; stderr?: string };
+      return { status: failure.status ?? -1, stderr: failure.stderr ?? '' };
+    }
+  }
+
+  it('passes once the credential step has run', () => {
+    const result = run('ordinary-Passw0rd');
+    try {
+      const outcome = check(
+        { PGPASSFILE: targetPath(result.home), DATA_FOUNDRY_MIGRATION_DATABASE_URL: okUrl },
+        result.home,
+      );
+      expect(outcome.status).toBe(0);
+    } finally {
+      cleanup(result);
+    }
+  });
+
+  it('refuses when either variable is unset', () => {
+    const result = run('ordinary-Passw0rd');
+    try {
+      expect(check({ DATA_FOUNDRY_MIGRATION_DATABASE_URL: okUrl }, result.home).status).not.toBe(0);
+      expect(check({ PGPASSFILE: targetPath(result.home) }, result.home).status).not.toBe(0);
+    } finally {
+      cleanup(result);
+    }
+  });
+
+  it('refuses a URL that carries a password', () => {
+    const result = run('ordinary-Passw0rd');
+    try {
+      const outcome = check(
+        {
+          PGPASSFILE: targetPath(result.home),
+          DATA_FOUNDRY_MIGRATION_DATABASE_URL: 'postgresql://user:SECRET@host:5432/db',
+        },
+        result.home,
+      );
+      expect(outcome.status).not.toBe(0);
+      expect(outcome.stderr).toContain('carries a password');
+    } finally {
+      cleanup(result);
+    }
+  });
+
+  it('refuses a password file others can read, or one that is not a file', () => {
+    const result = run('ordinary-Passw0rd');
+    try {
+      chmodSync(targetPath(result.home), 0o644);
+      const loose = check(
+        { PGPASSFILE: targetPath(result.home), DATA_FOUNDRY_MIGRATION_DATABASE_URL: okUrl },
+        result.home,
+      );
+      expect(loose.status).not.toBe(0);
+      expect(loose.stderr).toContain('readable by others');
+
+      const directory = check(
+        { PGPASSFILE: join(result.home, '.data-foundry'), DATA_FOUNDRY_MIGRATION_DATABASE_URL: okUrl },
+        result.home,
+      );
+      expect(directory.status).not.toBe(0);
+      expect(directory.stderr).toContain('not a regular file');
     } finally {
       cleanup(result);
     }
@@ -349,6 +520,18 @@ describe('a failed file operation never reports success', () => {
       expect(result.status).not.toBe(0);
       expect(result.stdout).not.toContain('export PGPASSFILE=');
       expect(readdirSync(join(result.home, '.data-foundry', 'ua002.pgpass'))).toEqual([]);
+    } finally {
+      cleanup(result);
+    }
+  });
+
+  it('refuses a target that is a symlink to a directory', () => {
+    const result = run('SECRET-PASSWORD', { targetIsSymlinkToDirectory: true });
+    try {
+      expect(result.status).not.toBe(0);
+      expect(result.stderr).toContain('symlink to a directory');
+      expect(result.stdout).not.toContain('export PGPASSFILE=');
+      expect(readdirSync(join(result.home, 'elsewhere'))).toEqual([]);
     } finally {
       cleanup(result);
     }

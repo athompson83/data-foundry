@@ -67,6 +67,31 @@ describe('the execution sequence can actually be followed', () => {
     expect(helperAt, 'credential placement must come before the checkout').toBeLessThan(checkoutAt);
   });
 
+  it('preserves the helper out of the checkout, with a digest, before switching revisions', () => {
+    // The helper is absent at the pinned release, and the release must not move:
+    // changing it would invalidate every release-dependent packet and checksum.
+    const copyAt = SEQUENCE.indexOf(`cp ${HELPER_PATH}`);
+    const digestAt = SEQUENCE.indexOf('helper.sha256');
+    const checkoutAt = SEQUENCE.indexOf('git checkout');
+    expect(copyAt, 'the helper must be copied out of the checkout').toBeGreaterThan(-1);
+    expect(digestAt, 'its digest must be recorded').toBeGreaterThan(-1);
+    expect(copyAt, 'the copy must precede the checkout').toBeLessThan(checkoutAt);
+    // And re-verified plus checked after the checkout, when the tree no longer has it.
+    expect(SEQUENCE.indexOf('shasum -a 256 -c')).toBeGreaterThan(checkoutAt);
+    expect(SEQUENCE.indexOf('--check')).toBeGreaterThan(checkoutAt);
+  });
+
+  it('keeps the migration release pinned to the same SHA', () => {
+    expect(SEQUENCE).toContain('git checkout 2063ea8d72247a9b2643e1c690e37ab55ab14252');
+    expect(SEQUENCE).toContain('export DATA_FOUNDRY_RELEASE_SHA=2063ea8d72247a9b2643e1c690e37ab55ab14252');
+  });
+
+  it('follows no moving branch reference for the helper', () => {
+    // `git fetch origin main` stays, because the checkout that follows pins a
+    // SHA. What must not appear is the helper being taken from a branch.
+    expect(SEQUENCE).not.toMatch(/checkout\s+(origin\/)?main[^\S\n]*$/mu);
+  });
+
   it('clears stale exports before it starts', () => {
     expect(SEQUENCE).toContain('unset PGPASSFILE DATA_FOUNDRY_MIGRATION_DATABASE_URL');
   });

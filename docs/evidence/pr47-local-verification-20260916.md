@@ -452,6 +452,78 @@ not portable. After the fix: exit 1, nothing written inside.
 
 All five tests added for this round fail against `ab12e4c`.
 
+## Tenth round: pinning the helper, and proving the whole path end to end
+
+### How the release and the helper are pinned
+
+The migration release stays at `2063ea8`. Moving it was the other option and was
+rejected: that SHA is woven through this document's packet exports, checksums and
+grant values, and changing it would require regenerating and re-verifying all of
+them for a reason that has nothing to do with migrations.
+
+The helper instead travels with **this document**. The sequence copies it out of
+the checkout the operator is reading from — an immutable reviewed revision,
+named by no branch and by no commit that refers to itself — records its SHA-256,
+and re-verifies that digest after the release is checked out, when the tree no
+longer contains the file:
+
+```bash
+cp tooling/scripts/ua002-migration-pgpassfile.sh "$UA002_DIR/"
+shasum -a 256 "$UA002_DIR/ua002-migration-pgpassfile.sh" | tee "$UA002_DIR/helper.sha256"
+…
+git checkout 2063ea8d72247a9b2643e1c690e37ab55ab14252
+shasum -a 256 -c "$UA002_DIR/helper.sha256"
+"$UA002_DIR/ua002-migration-pgpassfile.sh" --check
+```
+
+### The complete documented path, exercised
+
+Run in an isolated checkout against disposable PostgreSQL 16 with
+`scram-sha-256` and certificate-verified TLS, through **`createPostgresDriver`
+itself**. The release checkout was simulated by deleting the helper from the tree
+at the point the real `git checkout` would remove it, and a decoy `~/.pgpass`
+holding a different credential was present throughout:
+
+```
+step 0: helper preserved, digest 479856ec86c95450b1af1541…
+step 1: export PGPASSFILE=…/.data-foundry/ua002.pgpass
+        export DATA_FOUNDRY_MIGRATION_DATABASE_URL=postgresql://pgowner@127.0.0.1:5436/postgres
+simulate checkout: helper files left in tree: 0
+step 2: shasum -c -> OK
+        --check   -> environment is ready
+real migration driver -> CONNECTED as pgowner
+decoy ~/.pgpass -> byte-identical
+```
+
+So the instructions can be followed as written, and the credential they produce
+authenticates through the code the operator will actually run. Nothing hosted was
+touched; the cluster was destroyed and held only fictional passwords.
+
+### `--check`, so missing settings stop the procedure
+
+`--check` verifies `PGPASSFILE` and `DATA_FOUNDRY_MIGRATION_DATABASE_URL` are
+set, that the password file exists, is a regular file and is owner-only, and
+that the URL carries no password. It exits non-zero on each, so a chained
+procedure stops instead of reusing settings from an earlier attempt. It is
+invoked after the checkout and again before the preflight.
+
+### Destination and quoting hardening
+
+Directories were already rejected; symlinks pointing at directories are now
+rejected with their own message, `mv -T` is used where supported (probed, since
+BSD `mv` has no equivalent), and the destination is re-checked immediately
+before the move because the first check and the move are not atomic.
+
+The emitted exports were tested by evaluating them in a separate shell with a
+path containing spaces, a path containing a single quote, and a path containing
+`$(touch EXECUTED)`. Values come back exactly, and the marker file is never
+created — no command from the path is executed.
+
+Five of the tests added this round fail against `9deefb1`. Two pass against both:
+the space and quote cases, because `printf %q` landed in the previous round. One
+more passes there only because `--check` was an unknown argument at that
+revision and the helper died on it — a coincidental pass, not coverage.
+
 ## The TCP readiness repair, verified locally
 
 The loop was extracted from the workflow and driven with a stubbed `docker`

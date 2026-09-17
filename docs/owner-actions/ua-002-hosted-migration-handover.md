@@ -378,22 +378,30 @@ make the run impossible rather than merely awkward:
   applied set to empty and emits 33 pending / 0 applied, and the operator then
   reports a ledger-count mismatch and flags all 26 applied migrations as replays.
 
-**Order matters here.** `ua002-migration-pgpassfile.sh` is added by the change
-that introduced this section and is **not present at `2063ea8`** — checking that
-release out first and then reaching for the helper fails with *"No such file or
-directory"*. The password file it writes lives outside the checkout and does not
-depend on which revision is checked out, so place the credential first. (When
-this document is rebound to a release that contains the helper, the ordering
-stops mattering; until then it does.)
+**The helper is newer than the migration release, and that is deliberate.**
+`ua002-migration-pgpassfile.sh` ships with *this document*, not with
+`2063ea8` — `git cat-file -e 2063ea8:tooling/scripts/ua002-migration-pgpassfile.sh`
+reports it is absent there. The migration release is not moved to accommodate
+it: changing that SHA would invalidate every release-dependent packet, checksum
+and grant value in this document.
+
+Instead the helper is **copied out of the checkout you are reading this from,
+before the release is checked out**, so it remains available afterwards. That
+revision is whatever contains this document, which is immutable and reviewed;
+no branch name is followed and no commit refers to itself. Record its digest
+and re-check it after the checkout, so you are running the file you inspected:
 
 ```bash
 # On a machine with PostgreSQL egress to the Alpha Lab project.
 export UA002_DIR="$(mktemp -d)"          # outside the checkout, on purpose
 
-# 0. Clear anything an earlier attempt left behind, then place the credential
-#    from a checkout that HAS the helper — see the credential section above.
+# 0. Preserve the helper from THIS checkout, then note its digest.
+cp tooling/scripts/ua002-migration-pgpassfile.sh "$UA002_DIR/"
+shasum -a 256 "$UA002_DIR/ua002-migration-pgpassfile.sh" | tee "$UA002_DIR/helper.sha256"
+
+# 1. Clear anything an earlier attempt left behind, then place the credential.
 unset PGPASSFILE DATA_FOUNDRY_MIGRATION_DATABASE_URL
-tooling/scripts/ua002-migration-pgpassfile.sh \
+"$UA002_DIR/ua002-migration-pgpassfile.sh" \
   --host '<host>' --port 5432 --database '<database>' --login '<login-name>'
 #    Then run the two exports it printed. Both survive the checkout below.
 
@@ -401,6 +409,11 @@ git fetch origin main && git checkout 2063ea8d72247a9b2643e1c690e37ab55ab14252
 git status --porcelain --untracked-files=all    # must print nothing
 pnpm install --frozen-lockfile
 export DATA_FOUNDRY_RELEASE_SHA=2063ea8d72247a9b2643e1c690e37ab55ab14252
+
+# 2. The helper is gone from the tree now; the preserved copy is not. Confirm it
+#    is the same file, then confirm the environment before anything connects.
+shasum -a 256 -c "$UA002_DIR/helper.sha256"
+"$UA002_DIR/ua002-migration-pgpassfile.sh" --check
 
 # 1. Provider staging, in one privileged session — see step 2 of the numbered
 #    procedure below — then the migration password through the provider's secure
@@ -507,7 +520,9 @@ were observed from this SHA.
    export DATA_FOUNDRY_RELEASE_SHA=2063ea8d72247a9b2643e1c690e37ab55ab14252
    # PGPASSFILE and DATA_FOUNDRY_MIGRATION_DATABASE_URL come from the credential
    # step and are already set. Re-exporting a secret-bearing URL here would undo
-   # that and put the password back into the environment by hand.
+   # that and put the password back into the environment by hand. This stops the
+   # procedure rather than letting it run on settings from an earlier attempt:
+   "$UA002_DIR/ua002-migration-pgpassfile.sh" --check
    pnpm ua002:operator -- --packet <non-secret-local-packet-path>
    ```
 
