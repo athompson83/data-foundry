@@ -788,3 +788,119 @@ describe('a failure while escaping a field cannot install a corrupted file', () 
     }
   });
 });
+
+describe('a failed cleanup is a security outcome, not a silent one', () => {
+  // The staged temporary file holds the complete password line. `cleanup` ran
+  // `rm -f` and then `return 0` unconditionally, so a removal that FAILED could
+  // not affect the outcome: the helper printed "nothing was installed" and
+  // exited 1 while the credential sat on disk at a path it never named.
+  //
+  // Reproduced against e9f2735 as an unprivileged user with a stubbed `mv` that
+  // made the directory mode 0500 before failing. That real-permission run is in
+  // the verification record; root bypasses the directory check, so it cannot be
+  // the harness here. Stubbing `rm` reproduces the same compound failure
+  // deterministically for any user, which is what these assertions need: the
+  // property under test is how the helper responds when removal fails and the
+  // secret-bearing file remains.
+  const REMAINS = /\.ua002\.pgpass\./u;
+
+  function stagedFiles(home: string): string[] {
+    return readdirSync(join(home, '.data-foundry')).filter((name) => REMAINS.test(name));
+  }
+
+  it('does not claim nothing was installed when the credential may remain', () => {
+    const result = run('SECRET-PASSWORD', { breaks: ['mv', 'rm'] });
+    try {
+      expect(result.status, 'the run must still fail').not.toBe(0);
+      // The file really is still there — this is not a hypothetical.
+      expect(stagedFiles(result.home).length, 'the staged file must survive for this test to mean anything').toBe(1);
+      expect(
+        result.stderr,
+        'claiming nothing was installed hides a credential that is still on disk',
+      ).not.toMatch(/nothing was installed/u);
+    } finally {
+      cleanup(result);
+    }
+  });
+
+  it('says the secret may remain and names the file, without printing it', () => {
+    const result = run('SECRET-PASSWORD', { breaks: ['mv', 'rm'] });
+    try {
+      const [staged] = stagedFiles(result.home);
+      expect(staged).toBeDefined();
+      expect(result.stderr).toMatch(/may still exist|may remain/iu);
+      expect(result.stderr, 'the operator cannot remediate a path they are not given').toContain(
+        join(result.home, '.data-foundry', staged as string),
+      );
+      // Naming the file must not mean printing what is in it.
+      expect(result.stderr).not.toContain('SECRET-PASSWORD');
+      expect(result.stdout).not.toContain('SECRET-PASSWORD');
+    } finally {
+      cleanup(result);
+    }
+  });
+
+  it('leaves no password bytes in a staged file it could not remove', () => {
+    // Reporting the leak honestly is not enough on its own. Truncating needs
+    // write permission on the FILE (owned here, 0600); unlinking needs it on the
+    // DIRECTORY, which is what fails in this case -- so the secret can be
+    // destroyed even when the file cannot be. This asserts the bytes, not the
+    // wording.
+    const result = run('SECRET-PASSWORD', { breaks: ['mv', 'rm'] });
+    try {
+      const staged = stagedFiles(result.home);
+      expect(staged.length, 'the file must survive for this test to mean anything').toBe(1);
+      const residualPath = join(result.home, '.data-foundry', staged[0] as string);
+      const bytes = readFileSync(residualPath);
+      expect(bytes.length, 'a file that could not be removed must at least be empty').toBe(0);
+      expect(bytes.toString('utf8')).not.toContain('SECRET-PASSWORD');
+      // And the operator is told which of the two situations they are in.
+      expect(result.stderr).toMatch(/no password bytes remain/u);
+      expect(result.stderr).not.toMatch(/treat that password as exposed/u);
+    } finally {
+      cleanup(result);
+    }
+  });
+
+  it('still reports cleanly when the operation fails but cleanup succeeds', () => {
+    // The ordinary failure path must not become alarming: only a cleanup that
+    // could not be established may warn about a residual secret.
+    const result = run('SECRET-PASSWORD', { breaks: ['mv'] });
+    try {
+      expect(result.status).not.toBe(0);
+      expect(stagedFiles(result.home), 'nothing may be left behind here').toEqual([]);
+      expect(result.stderr).toContain('nothing was installed');
+      expect(result.stderr).not.toMatch(/may still exist|may remain/iu);
+      expect(result.stderr).not.toContain('SECRET-PASSWORD');
+    } finally {
+      cleanup(result);
+    }
+  });
+
+  it('warns about a residual secret when interrupted and cleanup fails', () => {
+    // A signal must not be a way around the same guarantee.
+    const result = run('SECRET-PASSWORD', { interruptDuring: 'chmod', breaks: ['rm'] });
+    try {
+      expect(result.status, 'an interrupted run must still fail').not.toBe(0);
+      if (stagedFiles(result.home).length > 0) {
+        expect(result.stderr).toMatch(/may still exist|may remain/iu);
+        expect(result.stderr).not.toMatch(/nothing was installed/u);
+      }
+      expect(result.stderr).not.toContain('SECRET-PASSWORD');
+    } finally {
+      cleanup(result);
+    }
+  });
+
+  it('never puts the password in output on the ordinary success path', () => {
+    const result = run('SECRET-PASSWORD');
+    try {
+      expect(result.status).toBe(0);
+      expect(result.stdout).not.toContain('SECRET-PASSWORD');
+      expect(result.stderr).not.toContain('SECRET-PASSWORD');
+      expect(stagedFiles(result.home), 'no temporary file may survive a success').toEqual([]);
+    } finally {
+      cleanup(result);
+    }
+  });
+});

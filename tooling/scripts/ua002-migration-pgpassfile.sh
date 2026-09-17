@@ -50,22 +50,97 @@ readonly PROGRAM="${0##*/}"
 
 die() {
   printf '%s: %s\n' "$PROGRAM" "$1" >&2
-  # This shell may still carry values exported by an earlier attempt, and the
-  # next migration command would use them without saying so. Naming them is the
-  # difference between a failure that stops and a failure that quietly proceeds
-  # against stale settings.
+
+  # Remove the staged credential BEFORE summarising, because the summary's
+  # wording depends on whether that succeeded: a run that cannot establish the
+  # secret is gone must not print a line that reads as an all-clear.
+  cleanup_and_report
+
+  # The lead-in has three cases.
   #
-  # The lead-in depends on the mode. "Nothing was installed" is true of a failed
-  # write, but in --check mode nothing was being installed in the first place --
-  # and --check runs AFTER the credential is in place, where that sentence would
-  # read as though the credential step had just failed.
+  #   --check      nothing was being installed in the first place, and --check
+  #                runs AFTER the credential is in place, so "nothing was
+  #                installed" would read as though the credential step failed.
+  #   residual     the target was not installed, but the staged copy of the
+  #                password could not be shown to be gone. Never an all-clear.
+  #   otherwise    nothing was installed and nothing was left behind.
+  #
+  # The trailing sentence is common to all three: this shell may still carry
+  # values exported by an earlier attempt, and the next migration command would
+  # use them without saying so. Naming them is the difference between a failure
+  # that stops and a failure that quietly proceeds against stale settings.
   if [ "${mode:-write}" = 'check' ]; then
     printf '%s: the environment was rejected; the migration must not be run against it.' "$PROGRAM" >&2
+  elif [ "${residual:-false}" = 'true' ]; then
+    printf '%s: %s was not installed, but secret-bearing temporary material may remain (see above).' \
+      "$PROGRAM" "${target:-the password file}" >&2
   else
     printf '%s: nothing was installed.' "$PROGRAM" >&2
   fi
   printf ' If PGPASSFILE, DATA_FOUNDRY_MIGRATION_DATABASE_URL or PGPASSWORD were exported earlier in this shell they are still set and may be stale; unset all three before running the migration.\n' >&2
   exit 1
+}
+
+# Cleanup is a security outcome, so it gets a status and a voice.
+#
+# The predecessor ran `rm -f` and then `return 0` unconditionally, so a removal
+# that failed could not affect anything: the helper reported "nothing was
+# installed" while a mode-0600 file holding the complete password line stayed on
+# disk at a path it never named. `rm -f` suppresses "no such file", which is
+# wanted, but it does not suppress EACCES -- and neither did anything else read
+# its status.
+#
+# `residual` is true only when the file is still THERE after the attempt, so a
+# removal that raced with something else deleting it is not reported as a leak.
+cleanup() {
+  [ -n "${temporary:-}" ] || return 0
+
+  # Destroy the SECRET before trying to destroy the FILE.
+  #
+  # Truncating needs write permission on the file, which this run owns at 0600.
+  # Unlinking needs write permission on the containing DIRECTORY -- which is
+  # precisely what is missing in the case this guards. So emptying first turns
+  # "the password is still on disk" into "an empty file is still on disk" even
+  # when the removal cannot succeed. Reporting the leak accurately is not enough
+  # on its own: the bytes have to go.
+  #
+  # Only truncate something that already exists; `: >` on a path whose file is
+  # already gone would CREATE one, and a later failed `rm` would then report a
+  # residual file this function had conjured.
+  if [ -e "$temporary" ]; then
+    : > "$temporary" 2>/dev/null || true
+  fi
+
+  rm -f -- "$temporary" 2>/dev/null || true
+  if [ -e "$temporary" ]; then
+    residual='true'
+    # `-s` is true only for a file of non-zero size, so this is set only when the
+    # truncation ALSO failed and the password may still be readable.
+    if [ -s "$temporary" ]; then
+      residual_bytes='true'
+    fi
+    return 1
+  fi
+  temporary=''
+  return 0
+}
+
+# Says it once, however many paths lead here.
+cleanup_and_report() {
+  cleanup || true
+  if [ "${residual:-false}" = 'true' ] && [ "${residual_reported:-false}" != 'true' ]; then
+    residual_reported='true'
+    printf '%s: WARNING: the temporary password file MAY STILL EXIST: %s\n' \
+      "$PROGRAM" "${temporary:-unknown}" >&2
+    if [ "${residual_bytes:-false}" = 'true' ]; then
+      printf '%s: it holds the migration password in clear text and could not be emptied. Delete it yourself before continuing, and treat that password as exposed.\n' \
+        "$PROGRAM" >&2
+    else
+      printf '%s: it was emptied first, so no password bytes remain in it, but it could not be removed. Delete it yourself when you can.\n' \
+        "$PROGRAM" >&2
+    fi
+  fi
+  return 0
 }
 
 usage() {
@@ -214,10 +289,12 @@ temporary=''
 # than assuming. A signal is serviced between commands, so it can land after the
 # rename has already committed.
 stage='start'
-cleanup() {
-  [ -n "$temporary" ] && rm -f -- "$temporary"
-  return 0
-}
+# Set by cleanup() when the staged credential could not be shown to be gone.
+residual='false'
+# True only when the staged file survived AND could not be emptied, which is the
+# difference between an empty file left behind and a credential left behind.
+residual_bytes='false'
+residual_reported='false'
 
 # A signal handler that only cleans up and returns is worse than none: the shell
 # resumes the script afterwards, the redirection below recreates the file that
@@ -233,8 +310,13 @@ on_signal() {
       ;;
     staged)
       if [ -n "$temporary" ] && [ -e "$temporary" ]; then
-        cleanup
-        printf '%s: interrupted; nothing was installed.\n' "$PROGRAM" >&2
+        cleanup_and_report
+        if [ "$residual" = 'true' ]; then
+          printf '%s: interrupted; %s was not installed, but secret-bearing temporary material may remain (see above).\n' \
+            "$PROGRAM" "$target" >&2
+        else
+          printf '%s: interrupted; nothing was installed.\n' "$PROGRAM" >&2
+        fi
       else
         # The temporary file is gone but the run never reached the point after
         # the rename, so the rename may or may not have committed. Say so
@@ -245,13 +327,18 @@ on_signal() {
       fi
       ;;
     *)
-      cleanup
-      printf '%s: interrupted; nothing was installed.\n' "$PROGRAM" >&2
+      cleanup_and_report
+      if [ "$residual" = 'true' ]; then
+        printf '%s: interrupted; nothing was installed, but secret-bearing temporary material may remain (see above).\n' \
+          "$PROGRAM" >&2
+      else
+        printf '%s: interrupted; nothing was installed.\n' "$PROGRAM" >&2
+      fi
       ;;
   esac
   exit "$1"
 }
-trap cleanup EXIT
+trap cleanup_and_report EXIT
 trap 'on_signal 130' INT
 trap 'on_signal 143' TERM
 

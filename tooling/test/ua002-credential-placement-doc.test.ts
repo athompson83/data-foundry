@@ -48,6 +48,19 @@ describe('the handover points at the tested helper', () => {
     expect(SECTION).not.toMatch(/touch\s+~\/\.pgpass/u);
   });
 
+  it('documents the residual-secret warning using the string the helper emits', () => {
+    // The document promised the temporary file is removed "on failure and on
+    // interruption alike", which was false when removal itself failed. Bind the
+    // documented warning to the literal in the script so the guarantee and the
+    // behaviour cannot drift apart again: this asserts the doc against the
+    // CODE, not against prose.
+    const helper = readFileSync(join(ROOT, HELPER_PATH), 'utf8');
+    const marker = 'WARNING: the temporary password file MAY STILL EXIST';
+    expect(helper, 'the helper must warn when it cannot remove the staged secret').toContain(marker);
+    expect(HANDOVER, 'the handover must document that warning verbatim').toContain(marker);
+    expect(HANDOVER).toMatch(/holds the migration password in\s+clear text/u);
+  });
+
   it('states that the helper leaves an existing ~/.pgpass alone', () => {
     expect(SECTION).toMatch(/never reads, rewrites or removes your\s+`~\/\.pgpass`/u);
   });

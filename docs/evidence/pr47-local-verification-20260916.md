@@ -996,6 +996,131 @@ relative to the file (`../decisions/…`, `../owner-actions/…`). **Not applied
 here** — it would widen a PR that is under review for something else. It is a
 separate one-file change whenever wanted.
 
+## Twentieth round: cleanup as a security outcome
+
+The final review on `e9f2735` found the staged credential could survive a failed
+cleanup. `cleanup()` was:
+
+```bash
+cleanup() {
+  [ -n "$temporary" ] && rm -f -- "$temporary"
+  return 0
+}
+```
+
+`rm -f` suppresses "no such file", which is wanted, but it does not suppress
+`EACCES` — and the `return 0` meant nothing read the status anyway. So a removal
+that *failed* could not affect the outcome.
+
+Reproduced against `e9f2735` as an **unprivileged user**, with a stubbed `mv`
+that sets the directory to mode `0500` and then fails:
+
+```
+exit=1
+  helper.sh: could not install .../ua002.pgpass
+  helper.sh: nothing was installed. ...
+  rm: cannot remove '.../.ua002.pgpass.xUmzY4': Permission denied
+left on disk:
+  .ua002.pgpass.xUmzY4  mode=600
+  db.example.invalid:5432:postgres:example.login:REAL-LOOKING-BUT-FICTIONAL-PASSWORD
+```
+
+**My first attempt failed to reproduce it and I nearly reported it unfounded.**
+I ran as `root`, which bypasses the directory permission check, so `rm`
+succeeded and the directory came back empty. Root is the wrong harness for a
+permission defect.
+
+### The fix: destroy the secret, then the file
+
+Reporting the leak honestly is necessary and **not sufficient** — the owner's
+instruction was explicit that changing the wording enough to make the existing
+behaviour look acceptable is not the fix. So `cleanup()` now **empties the file
+before trying to unlink it**:
+
+```bash
+if [ -e "$temporary" ]; then
+  : > "$temporary" 2>/dev/null || true
+fi
+rm -f -- "$temporary" 2>/dev/null || true
+```
+
+Truncating needs write permission on the **file**, which this run owns at `0600`.
+Unlinking needs write permission on the **directory**, which is precisely what is
+missing in the case this guards. The two permissions are different, so the secret
+can be destroyed even when the file cannot be.
+
+`cleanup()` then returns a status and sets `residual` when the file is still
+there *after* the attempt — checking presence rather than trusting `rm`'s exit
+code, so a removal that raced with something else deleting the file is not
+reported as a leak. `cleanup_and_report` prints, once, the path and the fact
+that it holds the password in clear text, and every summary line that could have
+read as an all-clear is now conditional on `residual`.
+
+The same semantics apply on ordinary failure, `INT`, `TERM` and `EXIT`. The
+non-`staged` signal branch is not dead code: a signal can land between `mktemp`
+succeeding and `stage='staged'`, so a temporary file can exist while the stage
+still reads `start`.
+
+`residual_bytes` separates the two outcomes, so the operator is told which one
+they are in rather than getting one message that covers both:
+
+- emptied but not removed → *"no password bytes remain in it"*
+- neither → *"could not be emptied … treat that password as exposed"*
+
+Re-run of the same unprivileged reproduction after the fix:
+
+```
+exit=1
+  helper.sh: could not install .../ua002.pgpass
+  helper.sh: WARNING: the temporary password file MAY STILL EXIST: .../.ua002.pgpass.gKL2qp
+  helper.sh: it was emptied first, so no password bytes remain in it, but it
+             could not be removed. Delete it yourself when you can.
+  helper.sh: .../ua002.pgpass was not installed, but secret-bearing temporary
+             material may remain (see above). ...
+
+residual: .ua002.pgpass.gKL2qp   bytes=0   mode=600
+occurrences of the password on disk and in output: 0
+```
+
+The file that survives is now **zero bytes**. That is the difference between an
+empty file left behind and a credential left behind.
+
+### Two mistakes of mine in this round
+
+**I claimed a patch had applied when the output never said so.** The command was
+`… | grep -c "[v]itest" && python3 - <<'PY'`; the grep found nothing, which is
+exit status 1, so the `&&` short-circuited and **python never ran**. The
+`bash -n` that followed on its own line then validated the *unpatched* file and
+printed `syntax OK`, which I read as confirmation. The regression test caught it
+one step later — `expected 52 to be +0` — which is exactly what a test asserting
+bytes rather than wording is for. Every patch step since prints an explicit
+`PATCH-APPLIED` marker and greps for the change.
+
+**I started the parity run twice on a tree that then changed.** Once after a
+comment tidy, once after this truncation work. Both runs were killed rather than
+reported. Parity means parity with what ships.
+
+### Why the regression test stubs `rm` rather than dropping privileges
+
+The property under test is how the helper responds when removal fails and the
+secret-bearing file remains. Dropping privileges needs `su`, which needs root —
+and CI runs as an unprivileged `runner`, so a privilege-dropping test would pass
+vacuously there. Stubbing `rm` reproduces the same compound failure
+deterministically for any user, which is the same harness this suite already
+uses for `mktemp`, `chmod` and `mv`. The real-permission run above is the
+faithfulness check, and it is recorded here rather than automated.
+
+Four new assertions fail against `e9f2735`; two are controls that pass on both —
+the ordinary-failure-with-successful-cleanup path, and the success path carrying
+no password in its output.
+
+### One process note
+
+I started the parity run, then tidied a comment block in the helper, which
+changed its bytes and therefore its published digest. That made the in-flight
+run a run of a tree that no longer existed, so it was killed and restarted after
+the tree was final. Parity means parity with what ships.
+
 ## Consolidated parity run before the single push
 
 Run on the working tree that became the consolidated commit, after the owner's

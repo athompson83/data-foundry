@@ -200,8 +200,30 @@ false positives.
 
 If a file operation fails at any point the helper exits non-zero, prints why,
 leaves any existing file untouched, and removes its temporary file — which also
-holds the password — on failure and on interruption alike. Because it is a
-separate process, that failure cannot terminate your interactive shell.
+holds the password — on failure and on interruption alike.
+
+Cleanup **empties that file before it tries to delete it.** Emptying needs write
+permission on the file, which the helper owns at `0600`; deleting needs write
+permission on the directory, which is exactly what is missing in the case this
+guards. So a removal that cannot succeed still destroys the password.
+
+If the file survives, the helper says so rather than reporting an all-clear: it
+prints `WARNING: the temporary password file MAY STILL EXIST` followed by the
+full path, and does **not** print its usual "nothing was installed" line. It then
+tells you which of two situations you are in:
+
+- **`it was emptied first, so no password bytes remain in it`** — an empty file
+  is left behind. Delete it when convenient; your credential was not exposed.
+- **`it holds the migration password in clear text and could not be emptied`** —
+  both the delete and the truncate failed. Delete the named file before
+  continuing and **treat that password as exposed.**
+
+Reaching either needs a compound failure — the install fails *and* the directory
+is no longer writable — but the file is your credential, so the helper destroys
+what it can and refuses to guess about the rest.
+
+Because it is a separate process, that failure cannot terminate your
+interactive shell.
 
 **Clear the three variables before you start**, so a failed run cannot be
 followed by a migration that silently uses settings from an earlier attempt:
@@ -417,7 +439,7 @@ The expected SHA-256 of `tooling/scripts/ua002-migration-pgpassfile.sh` at this
 revision is:
 
 ```
-dae4eb722077407caf39e13c93afa3f23fc6bffaad4cd52d661783ecced3a3dd
+270c73a17279d37a08798976848c81eaf4e0d8c0daa66d2f1dd09bdd3d27406f
 ```
 
 A repository test asserts that value equals the file's actual digest, so it
@@ -430,7 +452,7 @@ export UA002_DIR="$(mktemp -d)"          # outside the checkout, on purpose
 # 1. Preserve the helper from THIS checkout and verify it against the published
 #    digest above BEFORE it is ever run. Stop if this does not match.
 cp tooling/scripts/ua002-migration-pgpassfile.sh "$UA002_DIR/"
-printf '%s  %s\n' 'dae4eb722077407caf39e13c93afa3f23fc6bffaad4cd52d661783ecced3a3dd' \
+printf '%s  %s\n' '270c73a17279d37a08798976848c81eaf4e0d8c0daa66d2f1dd09bdd3d27406f' \
   "$UA002_DIR/ua002-migration-pgpassfile.sh" > "$UA002_DIR/helper.sha256"
 
 # 2. Clear anything an earlier attempt left behind, then place the credential --
