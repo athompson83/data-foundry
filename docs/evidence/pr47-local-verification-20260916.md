@@ -876,9 +876,9 @@ separate one-file change whenever wanted.
 
 - **Nothing hosted.** No hosted migration was applied, no credential was
   created, requested or used, and no provider state was changed.
-- **No real-Postgres job locally.** `migrations on real Postgres` is green on
-  `e031e4b` in CI; the commits after it change only documentation and tests, but
-  that job has not re-run because the PR is a draft.
+- **No real-Postgres job locally.** That job runs in CI, not here. It is green
+  on every head of this PR that CI has reached, most recently `c721444` — see
+  the readback below.
 - **Not a deployed-runtime proof.** Unchanged from the PR's own statement: no
   Cloudflare Worker, Queue, R2 or hosted database is exercised by any of this.
 
@@ -904,3 +904,36 @@ emitted 2026-09-17T00:15:48Z for `29f142c`:
 **What it is not:** completed full CI for that head, review approval, a merge, a
 `workflow_dispatch` run, or anything hosted. Only the dispatch trigger needs
 `main`; the artifact never did.
+
+### Read back again at `c721444`
+
+The same artifact, from
+[run 35176901239, job 105060509627](https://github.com/athompson83/data-foundry/actions/runs/35176901239/job/105060509627),
+emitted 2026-09-17T03:07:31Z — twenty-one steps, all `success`:
+
+```
+"kind": "disposable-postgres-e2e-integration-proof"
+"gitSha": "c721444d305e73b0a9561a8a142d8a879ad4ff51"
+"correlationId": "ci"
+syntheticFixtures  acme-catalog.json  4597 bytes  pinnedDigestMatches: true
+                   ahri-export.csv    1868 bytes  pinnedDigestMatches: true
+stages             disposable-tls-postgres        success
+                   apply-migrations               success
+                   reapply-is-noop                success
+                   stage-roles-and-grants         success
+                   runtime-role-direct-tls        success
+                   ingestion-publish-e2e          success
+                   privilege-negative-controls    success
+                   source-record-reconciliation   success
+                   credential-provisioning        success
+                   scheduled-acquisition-controls success
+"overall": "pass"
+```
+
+Every connection string in that job's environment block is rendered
+`***localhost:5432/data_foundry`, and the emitted document carries no password,
+host secret or token — which is the property its tests assert against planted
+values, observed here on a real run rather than only in the test.
+
+So no `workflow_dispatch` is required to produce this evidence, and reproducing
+it by dispatch would add nothing that this run does not already show.
