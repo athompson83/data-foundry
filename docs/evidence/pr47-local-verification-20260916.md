@@ -1242,3 +1242,245 @@ values, observed here on a real run rather than only in the test.
 
 So no `workflow_dispatch` is required to produce this evidence, and reproducing
 it by dispatch would add nothing that this run does not already show.
+
+## Twenty-second round: the two recorded residuals, closed
+
+The previous round recorded two residuals in the parent-directory check and
+explicitly did not fix them, because the authorization for that pass did not
+cover further changes. This round closes both. They are restated here as they
+were written, so what follows can be read against the claim it answers:
+
+> 1. **Ownership is not checked**, only the group- and other-write bits. A
+>    `0755` directory owned by another user is accepted, and that user can still
+>    unlink a file staged there by a run with write access it does not own — in
+>    practice a root-run staging. Confirmed by measurement.
+> 2. **Only the immediate parent is checked, not the ancestor chain.** A
+>    world-writable, non-sticky ancestor would allow the parent directory itself
+>    to be substituted. Not demonstrated; recorded as scope rather than as a
+>    confirmed attack.
+
+### Residual 1, reproduced against `44cec28` and then through to its consequence
+
+A staging directory at mode `0755` owned by uid 65534, with the helper run as
+root — write access it does not own, which is the shape the residual names:
+
+```
+### staging directory: drwxr-xr-x 2 65534 65534 4096 /tmp/resid1/shared
+### running as uid 0
+
+--- PRE-FIX 44cec28 ---
+Wrote /tmp/resid1/shared/ua002.pgpass for <login> at <host>:5432/<db>
+export PGPASSFILE=/tmp/resid1/shared/ua002.pgpass
+status=0
+contents of the other user's directory:
+-rw------- 1 0 0 44 ua002.pgpass
+```
+
+The residual said the directory's owner "can still unlink a file staged there".
+That was asserted rather than shown, so it was shown — acting as uid 65534, who
+owns neither the file nor the run:
+
+```
+unlinked the root-owned credential: OK
+installed a symlink in its place: OK
+
+the path PGPASSFILE was told to use now resolves to:
+lrwxrwxrwx 1 65534 65534 ua002.pgpass -> /tmp/resid1/attacker-target
+```
+
+Mode `0600` and root ownership protect the file's *contents*. Neither protects
+its *name*, which belongs to whoever owns the directory. The same run against
+the fixed helper:
+
+```
+--- FIXED ---
+/tmp/resid1/shared is owned by uid 65534, not by uid 0 which is running this;
+its owner could replace the staged password file before it is written.
+Point --file at a directory you own
+nothing was installed.
+status=1
+contents of the other user's directory:
+total 0
+```
+
+### Residual 2 was worse than recorded, and an ancestor check alone does not close it
+
+The residual called ancestor substitution "not demonstrated". It is
+demonstrated below — and the first attempt at a fix showed the recorded framing
+was also incomplete.
+
+Checking the ancestors of the **resolved** directory does not bind the path the
+helper actually writes through, because those are two different paths whenever
+the name contains a symlink. `--file /tmp/shared/link/ua002.pgpass`, where
+`/tmp/shared` is world-writable and `link` points at a directory of the
+operator's own, passes an ancestor check completely honestly: the resolved chain
+really is safe. Then `mktemp` and `mv` resolve `link` a second time, and another
+local user swaps it in between.
+
+Reproduced deterministically by performing the swap from a `mktemp` stub, which
+is the same technique the interrupt tests use — it places the swap inside the
+window instead of racing for it. Against `44cec28` the password line landed in
+the attacker's directory with the helper exiting 0:
+
+```
+× stages through the chain it checked, not through a symlink that can be swapped
+  → the password must not follow a symlink swapped after the checks:
+    expected [ 'ua002.pgpass' ] to deeply equal []
+```
+
+This is the same defect the whole file keeps producing, arriving by way of the
+path rather than the shell: a check that computes the right answer about one
+directory while the write goes to another.
+
+### What the fix does
+
+Three parts, all before the password is read:
+
+1. **The staging directory must be owned by the effective uid.** Refusing is
+   available here where tightening the mode is not — an earlier round fixed the
+   defect of modifying a directory the run did not create, and a refusal leaves
+   a shared directory exactly as it was.
+2. **Every ancestor must be owned by uid 0 or the effective uid, and must not be
+   group- or other-writable unless it is sticky.** Sticky is not a convenience
+   exemption: in a sticky directory only an entry's owner, the directory's owner
+   and root may rename or unlink it, and the entry in question is the next
+   component down, which the same loop has already established is owned by root
+   or by this run. `/tmp` is `1777`, and refusing it would refuse every
+   supported run whose `HOME` lives there, including the test suite itself.
+   The staging directory keeps the stricter rule with no sticky exemption,
+   because a new entry is *created* there rather than merely reached.
+3. **Staging and installation both go through the resolved path**, every
+   component of which the walk above accounted for. Messages keep naming the
+   path the operator typed, which is what they can act on; `PGPASSFILE` names
+   the resolved one, which is where the file physically is.
+
+Ownership is read from `ls -ldn` as a **numeric** id — a name is a lookup that
+can fail or collide — and parsed with `read` rather than an unquoted expansion,
+so a directory name containing a glob character cannot reshape the line being
+parsed. A listing that could not be obtained, or whose fields are not a
+directory mode followed by numeric link and owner counts, is unknown, and
+unknown fails closed exactly as the mode check has always done.
+
+### One defect introduced by this fix, found by re-reading the diff
+
+Rebinding `target` onto the resolved directory takes its basename, and
+`--file .../` has none. An existing directory is already refused further up by
+the `-d` test, but a path ending in `/` that does **not** exist is not: `dirname`
+strips the slash, the checks pass against the real parent, and the rebinding
+produced `mv "$temporary" "/parent/"`. GNU `mv -T` refuses that, which is the
+only reason it was visible at all; BSD `mv` has no `-T`, and there it would have
+installed the password under the temporary file's random name and reported
+success — the same defect an earlier round fixed for directory targets, reopened
+by my own change on the platform that does not refuse.
+
+An empty basename is now rejected outright, before the password is read. Against
+`44cec28` the new test fails on the message, because the pre-fix helper reaches
+`mv` and fails there instead:
+
+```
+× refuses a --file that ends in a slash and so names no file
+  → expected 'mv: cannot move \'/tmp/ua002-staging-…' to contain '--file must name a file'
+```
+
+### The coverage, and what it does against the pre-fix revision
+
+Eight tests added, `tooling/test/ua002-migration-pgpassfile.test.ts` 45 → 53.
+Run against `44cec28`:
+
+```
+× refuses a staging directory owned by another user, before reading the password
+× refuses a world-writable non-sticky ancestor, before reading the password
+× refuses a group-writable non-sticky ancestor
+✓ still writes below a world-writable ancestor that is sticky, because /tmp is one
+✓ accepts a root-owned ancestor, which is what every supported path has
+× stages through the chain it checked, not through a symlink that can be swapped
+× refuses a --file that ends in a slash and so names no file
+× refuses an ancestor whose permissions could not be read
+
+Tests  6 failed | 2 passed | 45 skipped (53)
+```
+
+Six fail on the affected revision. The two that pass are controls, stated as
+already-true rather than counted as coverage: they exist to pin that the rule
+does not over-refuse the paths every real run uses.
+
+The ownership test is constructed from whichever side the run can actually
+reach, so it is measured rather than skipped in both environments: as root by
+giving the directory away, and unprivileged by staging into one already owned
+by root. CI runs unprivileged and takes the second.
+
+### Refused *before* the password is read, measured rather than assumed
+
+Each refusal test drains whatever is left on stdin after the helper exits. bash
+reads a pipe one byte at a time precisely so that what it did not consume is
+still there, which makes the ordering observable. The same run by hand, as uid
+65534, staging into `/`:
+
+```
+--- helper-prefix (44cec28) ---
+mktemp: failed to create file via template '//.ua002.pgpass.XXXXXX': Permission denied
+could not create a temporary file in /
+STATUS=1
+--- stdin remaining ---
+                                  <- empty: the password was taken first
+
+--- helper-fixed ---
+/ is owned by uid 0, not by uid 65534 which is running this; ...
+STATUS=1
+--- stdin remaining ---
+SECRET-PASSWORD                   <- never read
+```
+
+Both exit non-zero, so a status check alone would have called the pre-fix
+behaviour correct. It is not: it read the operator's password and only then
+failed for an unrelated reason.
+
+### The supported path still works
+
+The documented default path — no `--file` — executed end to end as uid 65534,
+with a fictional password:
+
+```
+Wrote /tmp/supported/.data-foundry/ua002.pgpass for <login-name> at <host>:5432/<database>
+export PGPASSFILE=/tmp/supported/.data-foundry/ua002.pgpass
+install status=0
+--check: environment is ready (PGPASSWORD unset, PGPASSFILE present and owner-only, URL carries no password)
+check status=0
+drwx------ 2 nobody nogroup /tmp/supported/.data-foundry
+-rw------- 1 nobody nogroup /tmp/supported/.data-foundry/ua002.pgpass
+```
+
+The whole file, run as an unprivileged user rather than as root, because CI runs
+unprivileged and root would not exercise the branch CI takes:
+
+```
+setpriv --reuid=65534 --regid=65534 --clear-groups  npx vitest run \
+  tooling/test/ua002-migration-pgpassfile.test.ts
+  ✓ 53 tests passed
+```
+
+And the full tooling suite as root: **41 files, 825 tests, all passing.**
+
+### The published digest moved, because the helper did
+
+`tooling/scripts/ua002-migration-pgpassfile.sh` is now:
+
+```
+1faa2ccdb3bffcbb7b8bb0f06b456a0737774b0e34412d782298185f05c65079
+```
+
+`docs/owner-actions/ua-002-hosted-migration-handover.md` publishes that value at
+both use sites, and `ua002-credential-placement-doc.test.ts` asserts it equals
+the file's real digest, so the two cannot drift. The pinned migration release
+`2063ea8` is unchanged; nothing about the operator sequence moved.
+
+### What this round does not verify
+
+- **Nothing hosted.** No migration applied, no credential created, requested,
+  used or rotated, no role activated, no provider state changed, no deployment,
+  no DNS change.
+- **No real second account was created.** Every unprivileged measurement uses
+  existing uid 65534 via `setpriv`, and every password is fictional.
+- **Not an atomicity claim.** The fix prevents the substitution rather than
+  making the stage-then-rename atomic, which a shell cannot do. It removes the
+  second player instead of winning the race against them.

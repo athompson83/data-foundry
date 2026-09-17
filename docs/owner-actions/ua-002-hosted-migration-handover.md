@@ -439,7 +439,7 @@ The expected SHA-256 of `tooling/scripts/ua002-migration-pgpassfile.sh` at this
 revision is:
 
 ```
-05ee4b929d89c14a9395998d94b01efb05d98a0531f57b09b8ede61f593fe614
+1faa2ccdb3bffcbb7b8bb0f06b456a0737774b0e34412d782298185f05c65079
 ```
 
 A repository test asserts that value equals the file's actual digest, so it
@@ -452,7 +452,7 @@ export UA002_DIR="$(mktemp -d)"          # outside the checkout, on purpose
 # 1. Preserve the helper from THIS checkout and verify it against the published
 #    digest above BEFORE it is ever run. Stop if this does not match.
 cp tooling/scripts/ua002-migration-pgpassfile.sh "$UA002_DIR/"
-printf '%s  %s\n' '05ee4b929d89c14a9395998d94b01efb05d98a0531f57b09b8ede61f593fe614' \
+printf '%s  %s\n' '1faa2ccdb3bffcbb7b8bb0f06b456a0737774b0e34412d782298185f05c65079' \
   "$UA002_DIR/ua002-migration-pgpassfile.sh" > "$UA002_DIR/helper.sha256"
 
 # 2. Clear anything an earlier attempt left behind, then place the credential --

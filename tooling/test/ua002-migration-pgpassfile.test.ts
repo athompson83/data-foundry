@@ -21,11 +21,13 @@
 import { execFileSync } from 'node:child_process';
 import {
   chmodSync,
+  chownSync,
   existsSync,
   mkdirSync,
   mkdtempSync,
   readdirSync,
   readFileSync,
+  realpathSync,
   rmSync,
   statSync,
   symlinkSync,
@@ -991,5 +993,327 @@ describe('a parent directory other local users can write to is refused', () => {
     } finally {
       cleanup(result);
     }
+  });
+});
+
+/**
+ * The two residuals the previous round recorded rather than fixed.
+ *
+ * The mode check above establishes that no other user can WRITE in the staging
+ * directory. Neither residual is about writing:
+ *
+ *   1. Ownership was never read. A directory owned by another user at mode
+ *      0755 passed every check, and its owner may unlink entries inside it
+ *      whoever created them — so a run with write access it does not own, in
+ *      practice a root run staging into a user-owned directory, still loses
+ *      the race the mode check exists to win.
+ *   2. Only the immediate parent was read. A directory is reached THROUGH its
+ *      ancestors, and a world-writable non-sticky ancestor lets another user
+ *      rename the staging directory aside and leave their own 0700 directory
+ *      in its place — which then passes every check, for them.
+ *
+ * Both are ordering claims as much as refusal claims: a refusal that happens
+ * after the prompt has been answered has already taken the operator's
+ * password. So each test below drains whatever is left on stdin and asserts
+ * the password line is still sitting there unread.
+ */
+describe('a staging directory another user owns, or could substitute, is refused', () => {
+  /** Not a real account here; any uid that is not this run's own will do. */
+  const OTHER_UID = 65534;
+
+  interface StageResult {
+    readonly status: number;
+    readonly stdout: string;
+    readonly stderr: string;
+    /** True when the password line was STILL on stdin when the helper exited. */
+    readonly passwordUnread: boolean;
+  }
+
+  /**
+   * Runs the helper, then drains the rest of stdin through `cat`.
+   *
+   * bash reads a pipe one byte at a time precisely so that what it did not
+   * consume is still available to the next command, which makes the order of a
+   * refusal against the prompt observable rather than assumed. The password
+   * reappearing in the drained output means the helper never reached the
+   * prompt; the helper itself never prints it, which the tests above pin.
+   */
+  function stage(
+    home: string,
+    file: string,
+    options: { readonly stubScripts?: Readonly<Record<string, string>> } = {},
+  ): StageResult {
+    let path = process.env['PATH'] ?? '/usr/bin:/bin';
+    const stubScripts = Object.entries(options.stubScripts ?? {});
+    if (stubScripts.length > 0) {
+      const stubs = join(home, 'stubs');
+      mkdirSync(stubs, { recursive: true });
+      for (const [command, body] of stubScripts) {
+        writeFileSync(join(stubs, command), body);
+        chmodSync(join(stubs, command), 0o755);
+      }
+      path = `${stubs}:${path}`;
+    }
+
+    const wrapper = [
+      '-c',
+      '"$1" --host "<host>" --database "<database>" --login "<login-name>" --file "$2"; status=$?; cat; exit "$status"',
+      'stdin-witness',
+      HELPER,
+      file,
+    ];
+
+    const finish = (status: number, stdout: string, stderr: string): StageResult => ({
+      status,
+      stdout,
+      stderr,
+      passwordUnread: stdout.includes('SECRET-PASSWORD'),
+    });
+
+    try {
+      const stdout = execFileSync('bash', wrapper, {
+        env: { HOME: home, PATH: path },
+        input: 'SECRET-PASSWORD\n',
+        encoding: 'utf8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+      });
+      return finish(0, stdout, '');
+    } catch (error) {
+      const failure = error as { status?: number; stdout?: string; stderr?: string };
+      return finish(failure.status ?? -1, failure.stdout ?? '', failure.stderr ?? '');
+    }
+  }
+
+  /** `outer/inner`, with `inner` at 0700 so only the ancestor is in question. */
+  function chain(home: string, outerMode: number): { outer: string; inner: string; file: string } {
+    const outer = join(home, 'outer');
+    const inner = join(outer, 'inner');
+    mkdirSync(inner, { recursive: true });
+    chmodSync(inner, 0o700);
+    chmodSync(outer, outerMode);
+    return { outer, inner, file: join(inner, 'ua002.pgpass') };
+  }
+
+  function withHome(body: (home: string) => void): void {
+    // Resolved, so the paths these tests assert on are the same strings the
+    // helper reports: it inspects the physical directory, and a symlinked
+    // temporary directory would otherwise make the two disagree.
+    const home = realpathSync(mkdtempSync(join(tmpdir(), 'ua002-staging-')));
+    try {
+      body(home);
+    } finally {
+      rmSync(home, { recursive: true, force: true });
+    }
+  }
+
+  it('refuses a staging directory owned by another user, before reading the password', () => {
+    withHome((home) => {
+      // Constructed from whichever side this run can actually reach, so the
+      // refusal is measured rather than assumed in both environments: as root
+      // by giving the directory away, and unprivileged by staging into one
+      // already owned by root. CI runs unprivileged and takes the second.
+      let file: string;
+      let owner: number;
+      // Optional in Node's types because Windows has no uid. This file runs
+      // bash either way, so a missing one takes the unprivileged branch.
+      const uid = process.getuid?.() ?? -1;
+      if (uid === 0) {
+        const shared = join(home, 'shared');
+        mkdirSync(shared);
+        chmodSync(shared, 0o755);
+        chownSync(shared, OTHER_UID, OTHER_UID);
+        file = join(shared, 'ua002.pgpass');
+        owner = OTHER_UID;
+      } else {
+        // 0755 and root-owned: every mode check passes, and this run provably
+        // does not own it. Nothing is created, so nothing is left behind.
+        file = '/ua002.pgpass';
+        owner = 0;
+      }
+
+      const result = stage(home, file);
+      expect(result.status, 'a staging directory owned by another user must fail closed').not.toBe(
+        0,
+      );
+      expect(result.stderr).toContain(`is owned by uid ${owner}`);
+      expect(
+        result.passwordUnread,
+        'the directory must be refused before the password is read',
+      ).toBe(true);
+      expect(existsSync(file), 'nothing may be staged in a refused directory').toBe(false);
+      expect(result.stdout).not.toContain('export PGPASSFILE=');
+    });
+  });
+
+  it('refuses a world-writable non-sticky ancestor, before reading the password', () => {
+    withHome((home) => {
+      // The staging directory itself is 0700 and owned by this run, so every
+      // check that existed before this round passes. What does not is the
+      // directory above it.
+      const { outer, inner, file } = chain(home, 0o777);
+      const result = stage(home, file);
+      expect(result.status, 'a substitutable ancestor must fail closed').not.toBe(0);
+      expect(result.stderr).toContain(`${outer}, an ancestor of ${inner}`);
+      expect(result.stderr).toContain('is not sticky');
+      expect(
+        result.passwordUnread,
+        'the ancestor must be refused before the password is read',
+      ).toBe(true);
+      expect(readdirSync(inner), 'nothing may be staged below a refused ancestor').toEqual([]);
+    });
+  });
+
+  it('refuses a group-writable non-sticky ancestor', () => {
+    withHome((home) => {
+      // The likelier real shape: a shared project directory whose group holds
+      // people who are not the operator.
+      const { outer, inner, file } = chain(home, 0o770);
+      const result = stage(home, file);
+      expect(result.status).not.toBe(0);
+      expect(result.stderr).toContain(`${outer}, an ancestor of ${inner}`);
+      expect(result.passwordUnread).toBe(true);
+      expect(readdirSync(inner)).toEqual([]);
+    });
+  });
+
+  it('still writes below a world-writable ancestor that is sticky, because /tmp is one', () => {
+    withHome((home) => {
+      // Sticky is not an exemption granted to be convenient. In a sticky
+      // directory only an entry's owner, the directory's owner and root may
+      // rename or unlink it, and the entry here is the staging directory,
+      // which the check above has already established this run owns. Refusing
+      // it anyway would refuse /tmp, and with it every supported run whose
+      // HOME lives there — including this test suite.
+      const { inner, file } = chain(home, 0o1777);
+      const result = stage(home, file);
+      expect(result.status, 'a sticky ancestor is not substitutable and must be accepted').toBe(0);
+      expect(result.passwordUnread, 'the supported path must still read the password').toBe(false);
+      const line = readFileSync(file, 'utf8').replace(/\n$/u, '');
+      expect(parsePgpassLine(line)[4]).toBe('SECRET-PASSWORD');
+      expect((statSync(file).mode & 0o777).toString(8)).toBe('600');
+      expect(
+        (statSync(inner).mode & 0o777).toString(8),
+        'an accepted directory must still not be modified',
+      ).toBe('700');
+    });
+  });
+
+  it('accepts a root-owned ancestor, which is what every supported path has', () => {
+    withHome((home) => {
+      // The other half of the ownership rule. Root is trusted because a
+      // hostile root needs none of this, and refusing it would refuse `/`,
+      // `/home` and `/tmp` — every real chain. Asserted here rather than
+      // inferred from the tests that happen to pass.
+      const { outer, file } = chain(home, 0o755);
+      expect(statSync('/').uid, '/ is expected to be root-owned').toBe(0);
+      expect(statSync(tmpdir()).uid, 'the temporary directory is expected to be root-owned').toBe(0);
+      const result = stage(home, file);
+      expect(result.status, 'a chain of root-owned ancestors must be accepted').toBe(0);
+      expect(readFileSync(file, 'utf8')).toContain('SECRET-PASSWORD');
+      expect(
+        (statSync(outer).mode & 0o777).toString(8),
+        'an accepted ancestor must not be modified',
+      ).toBe('755');
+    });
+  });
+
+  it('stages through the chain it checked, not through a symlink that can be swapped', () => {
+    withHome((home) => {
+      // The residual recorded ancestor substitution as scope rather than as a
+      // confirmed attack. This is the confirmed version, and it survives an
+      // ancestor check on its own: the chain that gets CHECKED is the resolved
+      // one — safe, 0700, owned by this run — while the chain that gets
+      // WRITTEN is the name the operator typed, which still runs through a
+      // world-writable directory. Nothing in the resolved chain is wrong; the
+      // two are simply not the same path, and only one of them was verified.
+      //
+      // The swap is done from a `mktemp` stub rather than a second process, so
+      // it lands in the window deterministically instead of being raced for.
+      // That is the same technique the interrupt tests above use.
+      const safe = join(home, 'safe');
+      const attacker = join(home, 'attacker');
+      const shared = join(home, 'shared');
+      for (const [directory, mode] of [
+        [safe, 0o700],
+        [attacker, 0o777],
+        [shared, 0o777],
+      ] as const) {
+        mkdirSync(directory);
+        chmodSync(directory, mode);
+      }
+      symlinkSync(safe, join(shared, 'link'));
+      const file = join(shared, 'link', 'ua002.pgpass');
+
+      const result = stage(home, file, {
+        stubScripts: {
+          mktemp: `#!/bin/bash\nln -sfn '${attacker}' '${join(shared, 'link')}'\nexec /bin/mktemp "$@"\n`,
+        },
+      });
+
+      expect(result.status, 'the resolved chain is safe, so the run must succeed').toBe(0);
+      expect(
+        readdirSync(attacker),
+        'the password must not follow a symlink swapped after the checks',
+      ).toEqual([]);
+      const written = join(safe, 'ua002.pgpass');
+      expect(existsSync(written), 'the password belongs in the directory that was checked').toBe(
+        true,
+      );
+      expect(parsePgpassLine(readFileSync(written, 'utf8').replace(/\n$/u, ''))[4]).toBe(
+        'SECRET-PASSWORD',
+      );
+      // The operator is told where the file physically is, so PGPASSFILE names
+      // the checked path too rather than re-entering through the same symlink.
+      expect(result.stdout).toContain(`export PGPASSFILE=${written}`);
+    });
+  });
+
+  it('refuses a --file that ends in a slash and so names no file', () => {
+    withHome((home) => {
+      // An EXISTING directory is already caught further up by the `-d` test.
+      // This is the case that is not: a path ending in `/` that does not
+      // exist, where `dirname` strips the slash and the basename is empty.
+      // The rebinding onto the resolved path would otherwise have produced a
+      // `mv` into a directory — GNU `mv -T` refuses that, BSD `mv` installs
+      // the password under the temporary file's random name and reports
+      // success.
+      const result = stage(home, `${join(home, 'nowhere')}/`);
+      expect(result.status, 'a path naming no file must fail closed').not.toBe(0);
+      expect(result.stderr).toContain('--file must name a file');
+      expect(result.passwordUnread, 'it must be refused before the password is read').toBe(true);
+      expect(
+        readdirSync(home).filter((entry) => entry.startsWith('.ua002')),
+        'nothing may be staged for a rejected target',
+      ).toEqual([]);
+    });
+  });
+
+  it('refuses an ancestor whose permissions could not be read', () => {
+    withHome((home) => {
+      // An unreadable ancestor is UNKNOWN, and unknown is not acceptable —
+      // the same rule the immediate parent has always been held to. The stub
+      // fails for one path only, because breaking `ls` outright would stop
+      // the run at the staging directory and never reach this branch.
+      const { outer, inner, file } = chain(home, 0o755);
+      const result = stage(home, file, {
+        stubScripts: {
+          ls: [
+            '#!/bin/bash',
+            'for argument in "$@"; do',
+            `  if [ "$argument" = '${outer}' ]; then`,
+            '    echo "ls: injected failure" >&2',
+            '    exit 7',
+            '  fi',
+            'done',
+            'exec /bin/ls "$@"',
+            '',
+          ].join('\n'),
+        },
+      });
+      expect(result.status, 'an unreadable ancestor must fail closed').not.toBe(0);
+      expect(result.stderr).toContain(`could not read the permissions of ${outer}`);
+      expect(result.passwordUnread).toBe(true);
+      expect(readdirSync(inner)).toEqual([]);
+    });
   });
 });

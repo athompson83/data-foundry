@@ -269,18 +269,76 @@ fi
 # existing one is typically 0700 or 0755 -- neither is group- or world-writable.
 # This check runs on BOTH branches, so it also binds the chmod above, whose
 # failure is otherwise swallowed.
-directory_listing="$(ls -ldL -- "$directory" 2>/dev/null)" || directory_listing=''
-directory_mode="${directory_listing%% *}"
-# A mode this run could not read is UNKNOWN, which is not the same as
-# acceptable. An `ls` that failed, a reshaped line, anything unexpected: all of
-# them leave a string that is not `d` followed by nine permission characters,
-# and every one of them has to stop the run rather than fall through it. The
-# recurring defect in this helper is a check that computes the right answer and
-# then does not bind, so the shape is validated before it is read.
-case "$directory_mode" in
-  d?????????*) : ;;
-  *) die "could not read the permissions of $directory; refusing to stage a password file where the permissions are unknown" ;;
+#
+# The checks below run against the PHYSICAL directory, not the name the
+# operator typed: a name can traverse symlinks, and inspecting the name while
+# staging into what it points at would be checking a different directory from
+# the one the password lands in. Messages keep naming `$directory`, because
+# that is the path the operator can act on.
+physical_directory="$(cd -P -- "$directory" 2>/dev/null && pwd -P)" ||
+  die "could not resolve $directory; refusing to stage a password file in a directory this run cannot inspect"
+[ -n "$physical_directory" ] ||
+  die "could not resolve $directory; refusing to stage a password file in a directory this run cannot inspect"
+
+# Who this run actually is, for the ownership checks. Bash computes EUID
+# itself, so unlike `id -u` there is no child process to fail and no status to
+# go unread -- but it is still validated rather than trusted, because an
+# ownership comparison against an empty string would silently match nothing
+# and, read the other way, could match everything.
+effective_uid="${EUID-}"
+case "$effective_uid" in
+  ''|*[!0-9]*) die 'could not determine the effective user id; refusing to stage a password file' ;;
 esac
+
+# Mode and numeric owner of one directory, or a non-zero status.
+#
+# Numeric, because a name is a lookup that can fail, collide, or differ
+# between the passwd database and the comparison this makes.
+#
+# Nothing here is read until its shape is proven. A listing this run could not
+# obtain, or one whose fields are not a directory mode followed by numeric link
+# and owner counts, is UNKNOWN -- and unknown is not acceptable. That is the
+# same rule the mode check below has always applied, extended to the owner,
+# because a check that computes the right answer and then does not bind is the
+# defect this helper keeps producing.
+inspected_mode=''
+inspected_owner=''
+inspect_directory() {
+  inspected_mode=''
+  inspected_owner=''
+  local listing mode links owner
+  listing="$(ls -ldn -- "$1" 2>/dev/null)" || return 1
+  # `read` splits on IFS, which is the field split `ls` intends, and unlike an
+  # unquoted expansion it does no pathname expansion -- so a directory whose
+  # name contains a glob character cannot reshape the line being parsed. It
+  # takes the first line, so extra output cannot smuggle a second answer past
+  # the checks below.
+  read -r mode links owner _ <<<"$listing" || return 1
+  case "$mode" in
+    d?????????*) : ;;
+    *) return 1 ;;
+  esac
+  # The link count and the numeric owner must EACH be a number. Checked
+  # separately rather than concatenated: `2` and an empty owner concatenate to
+  # `2`, which is all digits, so a short line would have passed a joint check
+  # and left the owner empty -- failing closed further down, but reporting
+  # `owned by uid ` with nothing in it.
+  case "$links" in
+    ''|*[!0-9]*) return 1 ;;
+  esac
+  case "$owner" in
+    ''|*[!0-9]*) return 1 ;;
+  esac
+  inspected_mode="$mode"
+  inspected_owner="$owner"
+  return 0
+}
+
+inspect_directory "$physical_directory" ||
+  die "could not read the permissions of $directory; refusing to stage a password file where the permissions are unknown"
+directory_mode="$inspected_mode"
+directory_owner="$inspected_owner"
+
 # Position 6 is group-write and position 9 is other-write, the same reading the
 # --check branch above does with `cut -c5-10`.
 case "$directory_mode" in
@@ -288,6 +346,99 @@ case "$directory_mode" in
     die "$directory can be written by other users (mode $directory_mode); another local user could replace the staged password file before it is written, so the password could land somewhere this helper does not control. Point --file at a directory only you can write to, or remove group and world write access from $directory"
     ;;
 esac
+
+# Refuse a staging directory this run does not OWN.
+#
+# The mode check above reads the group- and other-write bits, which is not the
+# same as establishing that only this run can write here. A directory owned by
+# another user at mode 0755 passes it, and that owner can still unlink an entry
+# staged inside — ownership of the directory carries the right to remove its
+# contents regardless of who created them. The case that matters in practice is
+# a root run staging into a user-owned directory: root has write access it does
+# not own, the mode looks unremarkable, and the directory's owner wins the same
+# race the mode check exists to prevent.
+#
+# An owner check is available here in a way that tightening the mode is not: it
+# refuses rather than modifies, so a directory someone else owns and shares is
+# left exactly as it was.
+[ "$directory_owner" = "$effective_uid" ] ||
+  die "$directory is owned by uid $directory_owner, not by uid $effective_uid which is running this; its owner could replace the staged password file before it is written. Point --file at a directory you own"
+
+# Walk the ancestors, so the staging directory cannot be SUBSTITUTED.
+#
+# Every check so far describes the staging directory itself. None of them says
+# anything about how that directory is reached. If an ancestor is writable by
+# another user, that user can rename the staging directory aside and put their
+# own in its place — owned by them, mode 0700, passing the owner check for
+# THEIR uid but not ours — or, where the run creates it, win the directory
+# outright. The password then lands in a directory the operator never chose,
+# and the run reports success.
+#
+# Two conditions make an ancestor safe, and both are required:
+#
+#   owner    uid 0 or this run's own uid. Root is trusted because a hostile
+#            root needs none of this; any other user is a second player.
+#   writers  no group- or other-write bit, OR the sticky bit. Sticky is not a
+#            relaxation: in a sticky directory only an entry's owner, the
+#            directory's owner and root may rename or unlink it, and the entry
+#            in question is the next component down, which this same loop has
+#            already established is owned by root or by us. /tmp is 1777 and
+#            has to keep working; a world-writable ancestor WITHOUT the sticky
+#            bit is the case that does not.
+#
+# The staging directory itself is held to the stricter rule above, without the
+# sticky exemption, because a new entry is CREATED there rather than merely
+# reached.
+ancestor="$physical_directory"
+while [ "$ancestor" != '/' ]; do
+  ancestor="${ancestor%/*}"
+  [ -n "$ancestor" ] || ancestor='/'
+
+  inspect_directory "$ancestor" ||
+    die "could not read the permissions of $ancestor, an ancestor of $directory; refusing to stage a password file below a directory whose permissions are unknown"
+
+  [ "$inspected_owner" = '0' ] || [ "$inspected_owner" = "$effective_uid" ] ||
+    die "$ancestor, an ancestor of $directory, is owned by uid $inspected_owner; its owner could replace $directory with a directory of their own before the password is written. Point --file below a directory you own"
+
+  case "$inspected_mode" in
+    ?????w*|????????w*)
+      case "$inspected_mode" in
+        # Position 10 carries the sticky bit as `t` or `T`.
+        ?????????[tT]*) : ;;
+        *)
+          die "$ancestor, an ancestor of $directory, can be written by other users (mode $inspected_mode) and is not sticky, so another local user could replace $directory itself before the password is written. Point --file below a directory only you can write to"
+          ;;
+      esac
+      ;;
+  esac
+done
+
+# Write through the chain that was actually checked.
+#
+# Everything above inspects the PHYSICAL directory; everything below would
+# otherwise have gone on using the name the operator typed, and the two are
+# only the same until a symlink in that name is swapped. `--file
+# /tmp/shared/link/ua002.pgpass`, where `/tmp/shared` is world-writable and
+# `link` points at a directory of the operator's own, passes every check above
+# -- the resolved chain really is safe -- and then `mktemp` and `mv` resolve
+# `link` again, so another local user can point it somewhere else in between
+# and take the password. Checking one directory and writing to another is the
+# same defect as a check that does not bind, arriving by way of the path.
+#
+# So the staged file and the installed file both go through the resolved path,
+# every component of which the loop above has just accounted for. The basename
+# is kept as given; it is the last component and is never resolved as a
+# directory. Messages keep using `$directory`, which is what the operator
+# typed and can act on.
+staging_directory="$physical_directory"
+target_name="${target##*/}"
+# A `--file` ending in `/` names no file. Before this rebinding it produced a
+# `mv` into a directory, which GNU `mv -T` refuses and BSD `mv` does not --
+# installing the password under the temporary file's random name. Rejected
+# outright, the same way a directory target already is.
+[ -n "$target_name" ] ||
+  die "--file must name a file, not a directory path ending in '/': $target"
+target="$staging_directory/$target_name"
 
 # Read before touching anything, so a cancelled prompt changes nothing at all.
 if [ -t 0 ]; then
@@ -383,7 +534,7 @@ trap cleanup_and_report EXIT
 trap 'on_signal 130' INT
 trap 'on_signal 143' TERM
 
-temporary="$(mktemp -- "$directory/.ua002.pgpass.XXXXXX")" ||
+temporary="$(mktemp -- "$staging_directory/.ua002.pgpass.XXXXXX")" ||
   die "could not create a temporary file in $directory"
 stage='staged'
 
