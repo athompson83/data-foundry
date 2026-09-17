@@ -48,10 +48,19 @@ interface RunOptions {
   readonly umask?: string;
   /** Deliver SIGINT to the script from inside this stubbed command. */
   readonly interruptDuring?: string;
+  /** Create the target path as a directory before running. */
+  readonly targetIsDirectory?: boolean;
+  /** Use a HOME containing a single quote. */
+  readonly awkwardHome?: boolean;
 }
 
 function run(password: string | null, options: RunOptions = {}): RunResult {
-  const home = mkdtempSync(join(tmpdir(), 'ua002-helper-'));
+  const home = mkdtempSync(
+    join(tmpdir(), options.awkwardHome === true ? "o'connor-" : 'ua002-helper-'),
+  );
+  if (options.targetIsDirectory === true) {
+    mkdirSync(join(home, '.data-foundry', 'ua002.pgpass'), { recursive: true });
+  }
   if (options.seedPgpass === true) {
     writeFileSync(join(home, '.pgpass'), `${DECOY}\n`, { mode: 0o600 });
   }
@@ -178,8 +187,17 @@ describe('the helper writes a file this project owns', () => {
       expect(result.stdout).toContain('export DATA_FOUNDRY_MIGRATION_DATABASE_URL=');
       expect(result.stdout).not.toContain('ordinary-Passw0rd');
       expect(result.stderr).not.toContain('ordinary-Passw0rd');
-      // The URL must carry no password; libpq reads it from the file.
-      expect(result.stdout).toContain("'postgresql://<login-name>@<host>:5432/<database>'");
+      // The exports are shell-escaped, so assert what they evaluate to rather
+      // than how they are spelled. The URL must carry no password; libpq reads
+      // it from the file.
+      const evaluated = execFileSync(
+        'bash',
+        ['-c', `${result.stdout}\nprintf '%s\\n%s' "$PGPASSFILE" "$DATA_FOUNDRY_MIGRATION_DATABASE_URL"`],
+        { encoding: 'utf8' },
+      ).split('\n');
+      expect(evaluated[0]).toBe(targetPath(result.home));
+      expect(evaluated[1]).toBe('postgresql://<login-name>@<host>:5432/<database>');
+      expect(evaluated[1]).not.toContain('ordinary-Passw0rd');
     } finally {
       cleanup(result);
     }
@@ -317,6 +335,35 @@ describe('a failed file operation never reports success', () => {
     try {
       expect((statSync(targetPath(result.home)).mode & 0o777).toString(8)).toBe('600');
       expect((statSync(join(result.home, '.data-foundry')).mode & 0o777).toString(8)).toBe('700');
+    } finally {
+      cleanup(result);
+    }
+  });
+
+  it('refuses a target that already exists as a directory', () => {
+    // `mv source directory` moves the source INTO it and succeeds, which left
+    // PGPASSFILE pointing at a directory with the password in a random file
+    // inside — reported as success.
+    const result = run('SECRET-PASSWORD', { targetIsDirectory: true });
+    try {
+      expect(result.status).not.toBe(0);
+      expect(result.stdout).not.toContain('export PGPASSFILE=');
+      expect(readdirSync(join(result.home, '.data-foundry', 'ua002.pgpass'))).toEqual([]);
+    } finally {
+      cleanup(result);
+    }
+  });
+
+  it('emits exports that parse even when the path contains a quote', () => {
+    // The operator runs this output verbatim. A HOME like /home/o'connor
+    // produced an unterminated quoted assignment.
+    const result = run('ordinary-Passw0rd', { awkwardHome: true });
+    try {
+      expect(result.status).toBe(0);
+      expect(result.home).toContain("'");
+      expect(() =>
+        execFileSync('bash', ['-n'], { input: result.stdout, stdio: ['pipe', 'pipe', 'pipe'] }),
+      ).not.toThrow();
     } finally {
       cleanup(result);
     }

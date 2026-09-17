@@ -400,6 +400,58 @@ umask-independence test passes against both, because `mktemp` and the explicit
 ever reached the ambient umask, and saying so is more useful than counting it as
 new coverage.
 
+## Ninth round: four findings, one of them procedural rather than mechanical
+
+All four raised against `ab12e4c` and all four reproduced before any edit.
+
+**P1 — the helper does not exist at the release the procedure checks out.** The
+execution sequence ran `git checkout 2063ea8…` and then reached for the helper.
+Verified directly:
+
+```
+$ git cat-file -e 2063ea8:tooling/scripts/ua002-migration-pgpassfile.sh
+fatal: path '…' exists on disk, but not in '2063ea8'
+```
+
+So the documented command would have failed with *"No such file or directory"*
+at exactly the point the credential had to be placed. This is the first finding
+in this series about the **procedure as a whole** rather than about the
+credential mechanism, and no amount of testing the helper in isolation would
+have caught it.
+
+The password file lives outside the checkout and does not depend on the revision
+checked out, so the credential step now comes **first**, with the reason stated.
+A test asserts the ordering by index rather than by prose, and will keep holding
+when the document is rebound to a release that does contain the helper.
+
+**P2 — later blocks overwrote the password-free URL.** Two blocks re-exported
+`DATA_FOUNDRY_MIGRATION_DATABASE_URL='...'` "from the secret store", which would
+have replaced the helper's password-free URL with a secret-bearing one and
+bypassed `PGPASSFILE` entirely — undoing the whole point of the redesign further
+down the same document. Both now say the value is already set and must not be
+re-exported. A test forbids the placeholder returning.
+
+**P2 — the emitted exports broke on a quoted path.** The operator is told to run
+them verbatim, and a `HOME` such as `/home/o'connor` produced
+`export PGPASSFILE='/tmp/o'connor-…'` — an unterminated string. Now emitted with
+`printf %q`. The test asserts what the exports *evaluate* to rather than how they
+are spelled, which is the property that actually matters.
+
+**P2 — a directory target succeeded.** `mv source directory` moves the source
+*into* it and returns 0, so with the target already a directory the helper
+reported success while `PGPASSFILE` pointed at a directory and the password sat
+in a randomly named file inside:
+
+```
+exit: 0
+files inside the directory: 1  ->  h:5432:d:l:SECRET
+```
+
+Directory targets are now rejected outright — `mv -T` would also cover it but is
+not portable. After the fix: exit 1, nothing written inside.
+
+All five tests added for this round fail against `ab12e4c`.
+
 ## The TCP readiness repair, verified locally
 
 The loop was extracted from the workflow and driven with a stubbed `docker`

@@ -378,9 +378,25 @@ make the run impossible rather than merely awkward:
   applied set to empty and emits 33 pending / 0 applied, and the operator then
   reports a ledger-count mismatch and flags all 26 applied migrations as replays.
 
+**Order matters here.** `ua002-migration-pgpassfile.sh` is added by the change
+that introduced this section and is **not present at `2063ea8`** — checking that
+release out first and then reaching for the helper fails with *"No such file or
+directory"*. The password file it writes lives outside the checkout and does not
+depend on which revision is checked out, so place the credential first. (When
+this document is rebound to a release that contains the helper, the ordering
+stops mattering; until then it does.)
+
 ```bash
 # On a machine with PostgreSQL egress to the Alpha Lab project.
 export UA002_DIR="$(mktemp -d)"          # outside the checkout, on purpose
+
+# 0. Clear anything an earlier attempt left behind, then place the credential
+#    from a checkout that HAS the helper — see the credential section above.
+unset PGPASSFILE DATA_FOUNDRY_MIGRATION_DATABASE_URL
+tooling/scripts/ua002-migration-pgpassfile.sh \
+  --host '<host>' --port 5432 --database '<database>' --login '<login-name>'
+#    Then run the two exports it printed. Both survive the checkout below.
+
 git fetch origin main && git checkout 2063ea8d72247a9b2643e1c690e37ab55ab14252
 git status --porcelain --untracked-files=all    # must print nothing
 pnpm install --frozen-lockfile
@@ -407,7 +423,9 @@ node_modules/.bin/tsx tooling/scripts/export-supabase-migration-packets.ts \
   --applied-ledger "$UA002_DIR/applied-ledger.json" > "$UA002_DIR/ua002-packet.json"
 
 # 4. Read-only readiness report. Exit 2 means blockers, nothing touched.
-export DATA_FOUNDRY_MIGRATION_DATABASE_URL='...'   # from the secret store, never typed
+#    DATA_FOUNDRY_MIGRATION_DATABASE_URL is already exported from step 0 and
+#    carries no password. Do NOT re-export a secret-bearing URL here: that
+#    would put the credential back on a command line and bypass PGPASSFILE.
 pnpm ua002:operator -- --packet "$UA002_DIR/ua002-packet.json"
 
 # 5. Only once step 4 is clean:
@@ -481,12 +499,15 @@ were observed from this SHA.
    The migration role cannot perform any of this itself: it is `NOCREATEROLE`
    and can alter only its own settings.
 
-3. **Run the preflight.** Export the connection string into the environment —
-   never onto a command line, into a file, or into a log — and run:
+3. **Run the preflight.** The connection string is already in the environment
+   from the credential step, and carries no password — never put one onto a
+   command line, into a file, or into a log. Run:
 
    ```
    export DATA_FOUNDRY_RELEASE_SHA=2063ea8d72247a9b2643e1c690e37ab55ab14252
-   export DATA_FOUNDRY_MIGRATION_DATABASE_URL='...'   # from the secret store, not typed
+   # PGPASSFILE and DATA_FOUNDRY_MIGRATION_DATABASE_URL come from the credential
+   # step and are already set. Re-exporting a secret-bearing URL here would undo
+   # that and put the password back into the environment by hand.
    pnpm ua002:operator -- --packet <non-secret-local-packet-path>
    ```
 

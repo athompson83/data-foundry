@@ -52,6 +52,32 @@ describe('the handover points at the tested helper', () => {
   });
 });
 
+describe('the execution sequence can actually be followed', () => {
+  const SEQUENCE = HANDOVER.split('```bash')[1]?.split('```')[0] ?? '';
+
+  it('places the credential before checking out a release that lacks the helper', () => {
+    // The helper is newer than the pinned release, so a checkout-first order
+    // fails with "No such file or directory" exactly when the credential is
+    // needed. Verified with `git cat-file -e 2063ea8:<helper>`.
+    expect(SEQUENCE).not.toBe('');
+    const helperAt = SEQUENCE.indexOf(HELPER_PATH);
+    const checkoutAt = SEQUENCE.indexOf('git checkout');
+    expect(helperAt, 'the sequence must invoke the helper').toBeGreaterThan(-1);
+    expect(checkoutAt, 'the sequence must still pin the release').toBeGreaterThan(-1);
+    expect(helperAt, 'credential placement must come before the checkout').toBeLessThan(checkoutAt);
+  });
+
+  it('clears stale exports before it starts', () => {
+    expect(SEQUENCE).toContain('unset PGPASSFILE DATA_FOUNDRY_MIGRATION_DATABASE_URL');
+  });
+
+  it('never re-exports a placeholder connection string over the helper\u2019s', () => {
+    // These overwrote the password-free URL with a secret-bearing placeholder,
+    // silently bypassing PGPASSFILE.
+    expect(HANDOVER).not.toContain("export DATA_FOUNDRY_MIGRATION_DATABASE_URL='...'");
+  });
+});
+
 describe('the project-specific facts survive the rewrite', () => {
   it('still distinguishes the pooler login from the bare role', () => {
     expect(SECTION).toMatch(/project-qualified/u);

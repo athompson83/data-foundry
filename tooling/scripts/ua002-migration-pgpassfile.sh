@@ -83,6 +83,13 @@ if [ -z "$target" ]; then
   target="${HOME:?HOME is not set}/.data-foundry/ua002.pgpass"
 fi
 
+# `mv source directory` moves the source INTO the directory and succeeds, which
+# would leave PGPASSFILE pointing at a directory while the password sat in a
+# randomly named file inside it — reported as success. `-T` would cover this but
+# is not portable, so reject it outright.
+[ -d "$target" ] && die "$target is a directory, not a password file"
+
+
 # `:` separates fields in a password file and `\` escapes; a value containing
 # either must be escaped or libpq reads the line as a different shape.
 escape_field() {
@@ -149,6 +156,8 @@ printf 'Wrote %s for %s at %s:%s/%s\n' "$target" "$login" "$host" "$port" "$data
 printf '\n' >&2
 printf 'Then, in the shell that runs the migration:\n' >&2
 printf '\n' >&2
-printf "export PGPASSFILE='%s'\n" "$target"
-printf "export DATA_FOUNDRY_MIGRATION_DATABASE_URL='postgresql://%s@%s:%s/%s'\n" \
-  "$login" "$host" "$port" "$database"
+# The operator is told to run these verbatim, so they must survive a value that
+# contains a quote — a HOME like /home/o'connor produced an unterminated string.
+printf 'export PGPASSFILE=%q\n' "$target"
+printf 'export DATA_FOUNDRY_MIGRATION_DATABASE_URL=%q\n' \
+  "postgresql://$login@$host:$port/$database"
