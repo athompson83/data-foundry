@@ -352,6 +352,54 @@ The first six findings were all consequences of mutating `~/.pgpass`, and the
 redesign made them impossible. This one is about a different thing, and no
 amount of care inside the helper would have reached it.
 
+## Eighth finding, P1: an interrupted run installed a world-readable password file
+
+Raised against `417ed14`, on the helper itself rather than on the document. It
+is the most serious defect found in this pull request, and the redesign
+introduced it.
+
+`trap cleanup EXIT INT TERM` ran a handler that removed the temporary file and
+**returned**. A handler that returns does not end the script: the shell resumes
+where it left off. So a `SIGINT` arriving after `mktemp` produced this sequence —
+handler deletes the temporary file, script carries on, the redirection
+*recreates* it under the ambient umask, and `mv` installs it.
+
+Reproduced deterministically by stubbing `chmod` to signal the script and then
+succeed, under the common `umask 022`:
+
+```
+script exit: 0
+INSTALLED FILE MODE: 644
+contents: h:5432:d:l:SECRET-PASSWORD
+-rw-r--r--
+```
+
+A **world-readable file containing the migration password**, installed while the
+script reported success. A handler that cleans up and returns is worse than no
+handler at all.
+
+Two changes. The signal handlers now clean up, clear the `EXIT` trap and exit
+(130 for `INT`, 143 for `TERM`), while `EXIT` keeps the ordinary cleanup for
+every other way out. And `umask 077` is set at the top, so no path that creates
+the file — including one that recreates it — can depend on the caller's umask.
+
+Same reproduction after the fix:
+
+```
+script exit: 130
+no file installed
+leftovers: (none)
+```
+
+and an ordinary run under `umask 022` still lands at mode 600 in a 700
+directory.
+
+Two tests cover it. The interruption test fails against `417ed14`. The
+umask-independence test passes against both, because `mktemp` and the explicit
+`chmod` already produced 600 on the *ordinary* path — only the interrupted path
+ever reached the ambient umask, and saying so is more useful than counting it as
+new coverage.
+
 ## The TCP readiness repair, verified locally
 
 The loop was extracted from the workflow and driven with a stubbed `docker`

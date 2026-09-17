@@ -44,6 +44,10 @@ interface RunOptions {
   readonly seedPgpass?: boolean;
   /** Seed an existing target file, to exercise rotation. */
   readonly seedTarget?: string;
+  /** Run under this umask, to prove the mode never depends on the ambient one. */
+  readonly umask?: string;
+  /** Deliver SIGINT to the script from inside this stubbed command. */
+  readonly interruptDuring?: string;
 }
 
 function run(password: string | null, options: RunOptions = {}): RunResult {
@@ -59,12 +63,22 @@ function run(password: string | null, options: RunOptions = {}): RunResult {
   }
 
   let path = process.env['PATH'] ?? '/usr/bin:/bin';
-  if (options.breaks !== undefined && options.breaks.length > 0) {
+  const stubbed = [...(options.breaks ?? [])];
+  if (stubbed.length > 0 || options.interruptDuring !== undefined) {
     const stubs = join(home, 'stubs');
     mkdirSync(stubs);
-    for (const command of options.breaks) {
+    for (const command of stubbed) {
       writeFileSync(join(stubs, command), `#!/bin/bash\necho "${command}: injected failure" >&2\nexit 7\n`);
       chmodSync(join(stubs, command), 0o755);
+    }
+    if (options.interruptDuring !== undefined) {
+      // Succeeds, but signals the script first — so the handler runs at a point
+      // where the script would otherwise carry on.
+      writeFileSync(
+        join(stubs, options.interruptDuring),
+        '#!/bin/bash\nkill -INT "$PPID" 2>/dev/null\nexit 0\n',
+      );
+      chmodSync(join(stubs, options.interruptDuring), 0o755);
     }
     path = `${stubs}:${path}`;
   }
@@ -79,8 +93,13 @@ function run(password: string | null, options: RunOptions = {}): RunResult {
     ...(options.args ?? []),
   ];
 
+  const command =
+    options.umask === undefined
+      ? [HELPER, ...args]
+      : ['-c', `umask ${options.umask}; exec "$0" "$@"`, HELPER, ...args];
+
   try {
-    const stdout = execFileSync('bash', [HELPER, ...args], {
+    const stdout = execFileSync('bash', command, {
       env: { HOME: home, PATH: path },
       input: password === null ? '' : `${password}\n`,
       encoding: 'utf8',
@@ -277,6 +296,31 @@ describe('a failed file operation never reports success', () => {
       }
     });
   }
+
+  it('does not install a world-readable file when interrupted mid-run', () => {
+    // A handler that cleans up and returns is worse than none: the shell
+    // resumes, the redirection recreates the deleted file under the ambient
+    // umask, and `mv` installs it. Reproduced before the fix at mode 0644
+    // containing the password, with the script exiting 0.
+    const result = run('SECRET-PASSWORD', { interruptDuring: 'chmod', umask: '022' });
+    try {
+      expect(result.status, 'an interrupted run must not report success').not.toBe(0);
+      expect(existsSync(targetPath(result.home)), 'no file may be installed').toBe(false);
+      expect(readdirSync(join(result.home, '.data-foundry'))).toEqual([]);
+    } finally {
+      cleanup(result);
+    }
+  });
+
+  it('restricts the file regardless of the ambient umask', () => {
+    const result = run('ordinary-Passw0rd', { umask: '022' });
+    try {
+      expect((statSync(targetPath(result.home)).mode & 0o777).toString(8)).toBe('600');
+      expect((statSync(join(result.home, '.data-foundry')).mode & 0o777).toString(8)).toBe('700');
+    } finally {
+      cleanup(result);
+    }
+  });
 
   it('names the variables an earlier attempt may have left set', () => {
     // The helper is a separate process and cannot unset the caller's

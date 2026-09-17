@@ -30,6 +30,11 @@
 # else.
 set -euo pipefail
 
+# Defence in depth for the password file. Every path that creates it also sets
+# its mode explicitly, but a redirection that recreates a file inherits the
+# ambient umask instead, and the ambient umask is commonly 022.
+umask 077
+
 readonly PROGRAM="${0##*/}"
 
 die() {
@@ -102,9 +107,21 @@ cleanup() {
   [ -n "$temporary" ] && rm -f -- "$temporary"
   return 0
 }
-# Covers failure and interruption alike: the temporary file holds the password,
-# so it must not survive either.
-trap cleanup EXIT INT TERM
+
+# A signal handler that only cleans up and returns is worse than none: the shell
+# resumes the script afterwards, the redirection below recreates the file that
+# was just deleted, and the run continues to install it and report success. So
+# the signal handlers clean up and then leave, while EXIT keeps the ordinary
+# cleanup for every other way out.
+on_signal() {
+  cleanup
+  trap - EXIT
+  printf '%s: interrupted; nothing was installed.\n' "$PROGRAM" >&2
+  exit "$1"
+}
+trap cleanup EXIT
+trap 'on_signal 130' INT
+trap 'on_signal 143' TERM
 
 temporary="$(mktemp -- "$directory/.ua002.pgpass.XXXXXX")" ||
   die "could not create a temporary file in $directory"
