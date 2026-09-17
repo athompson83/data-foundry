@@ -314,6 +314,44 @@ that the document points at the helper and does not reintroduce a second,
 untested procedure — including a guard that no snippet writing to `~/.pgpass`
 reappears.
 
+## Seventh finding: the caller's environment, which owning the file does not fix
+
+Raised against `46abc2f`, after `417ed14` had already replaced that block. It
+splits into two halves that land differently, which is worth separating rather
+than answering as one.
+
+**The status half was already resolved structurally.** The block the finding
+targets no longer exists — `unset df_pw` and the `awk` filter both appear zero
+times in the document at `417ed14`. The helper exits non-zero on every failure
+path, measured on the current head:
+
+```
+mktemp fails -> exit 1, no `export` on stdout
+chmod  fails -> exit 1, no `export` on stdout
+mv     fails -> exit 1, no `export` on stdout
+cancelled    -> exit 1
+```
+
+Being a separate process is what makes that possible without `errexit`
+terminating an interactive shell — the objection that stood twice against the
+inline form.
+
+**The stale-environment half survived the redesign, and is the first finding on
+this procedure that did.** The helper prints exports for the operator to run, so
+a failure prints none — but `PGPASSFILE` or `DATA_FOUNDRY_MIGRATION_DATABASE_URL`
+exported by an *earlier* attempt stays live in that shell, and the next
+migration command would use it silently. Owning the password file does nothing
+about the caller's environment.
+
+The helper now names both variables on every failure path, and the handover
+tells the operator to clear them before starting, stating plainly that the
+helper cannot do it for them. A test asserts the warning on a cancelled prompt
+and on an `mv` failure.
+
+The first six findings were all consequences of mutating `~/.pgpass`, and the
+redesign made them impossible. This one is about a different thing, and no
+amount of care inside the helper would have reached it.
+
 ## The TCP readiness repair, verified locally
 
 The loop was extracted from the workflow and driven with a stubbed `docker`

@@ -278,6 +278,21 @@ describe('a failed file operation never reports success', () => {
     });
   }
 
+  it('names the variables an earlier attempt may have left set', () => {
+    // The helper is a separate process and cannot unset the caller's
+    // environment, so a failure that says nothing would let the next migration
+    // command run against settings from an earlier attempt.
+    for (const result of [run(null), run('ordinary-Passw0rd', { breaks: ['mv'] })]) {
+      try {
+        expect(result.stderr).toContain('PGPASSFILE');
+        expect(result.stderr).toContain('DATA_FOUNDRY_MIGRATION_DATABASE_URL');
+        expect(result.stderr).toContain('may be stale');
+      } finally {
+        cleanup(result);
+      }
+    }
+  });
+
   it('returns a nonzero status rather than terminating the calling shell', () => {
     // The helper is a separate process, so `exit` cannot reach the operator's
     // interactive shell. This asserts the status is observable to a caller.

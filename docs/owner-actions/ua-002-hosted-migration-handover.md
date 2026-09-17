@@ -203,6 +203,17 @@ leaves any existing file untouched, and removes its temporary file — which als
 holds the password — on failure and on interruption alike. Because it is a
 separate process, that failure cannot terminate your interactive shell.
 
+**Clear the two variables before you start**, so a failed run cannot be followed
+by a migration that silently uses settings from an earlier attempt:
+
+```
+unset PGPASSFILE DATA_FOUNDRY_MIGRATION_DATABASE_URL
+```
+
+The helper cannot do this for you — it is a separate process and cannot change
+your shell's environment — so on any failure it says so explicitly rather than
+leaving you to notice.
+
 Whatever route you take, do not pass the password with `-W`, in
 `psql "postgres://…:pw@…"`, or in any command-line argument: those land in the
 process list and in shell history. The helper exists so you never have to.

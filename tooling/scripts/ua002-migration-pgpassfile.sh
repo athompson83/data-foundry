@@ -34,6 +34,12 @@ readonly PROGRAM="${0##*/}"
 
 die() {
   printf '%s: %s\n' "$PROGRAM" "$1" >&2
+  # Nothing was installed, but this shell may still carry values exported by an
+  # earlier attempt, and the next migration command would use them without
+  # saying so. Naming them is the difference between a failure that stops and a
+  # failure that quietly proceeds against stale settings.
+  printf '%s: nothing was installed. If PGPASSFILE or DATA_FOUNDRY_MIGRATION_DATABASE_URL were exported earlier in this shell they are still set and may be stale; unset both before running the migration.\n' \
+    "$PROGRAM" >&2
   exit 1
 }
 
