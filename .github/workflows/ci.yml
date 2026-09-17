@@ -1402,14 +1402,31 @@ jobs:
           STEP_ACQUISITION: ${{ steps.acquisition-controls.outcome }}
         run: |
           set -uo pipefail
+          # The emitter exits 1 on a `fail` verdict by design, so a non-zero
+          # exit does NOT mean it could not run. Measure whether it actually
+          # wrote: an emitter that produced a verdict has already reported the
+          # truth, and appending a second block would replace an accurate cause
+          # with a false one for every ordinary test failure.
+          before=0
+          if [ -f "$GITHUB_STEP_SUMMARY" ]; then
+            before="$(wc -c < "$GITHUB_STEP_SUMMARY")"
+          fi
           if pnpm exec tsx tooling/scripts/verification-evidence.ts; then
             exit 0
           fi
-          # The emitter needs a successful checkout and install. If either
-          # failed, the obligation to report a failed verification still
-          # stands -- silence would look identical to "no run happened".
-          # This fallback uses only the shell, carries no step outcomes
-          # because no step ran, and can only ever say `fail`.
+          after=0
+          if [ -f "$GITHUB_STEP_SUMMARY" ]; then
+            after="$(wc -c < "$GITHUB_STEP_SUMMARY")"
+          fi
+          if [ "$after" -gt "$before" ]; then
+            # It ran and recorded a failing verdict. That is the evidence.
+            exit 1
+          fi
+          # Nothing was written, so the emitter could not run at all: the
+          # checkout or install did not complete. The obligation to report a
+          # failed verification still stands -- silence would look identical to
+          # "no run happened". This fallback uses only the shell, carries no
+          # step outcomes because no step ran, and can only ever say `fail`.
           correlation="$(printf '%s' "${CORRELATION_ID:-}" | tr -cd 'A-Za-z0-9._-' | cut -c1-64)"
           [ -n "$correlation" ] || correlation='sanitized'
           {

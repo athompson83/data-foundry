@@ -779,6 +779,19 @@ describe('a failed verification still reports', () => {
     expect(evidenceStep?.if).toBe('always()');
   });
 
+  it('does not overwrite a verdict the emitter already wrote', () => {
+    // The emitter exits 1 on a `fail` verdict by design, so a non-zero exit
+    // does not mean it could not run. Keying the fallback on the exit status
+    // alone appended a second block claiming checkout/install failed, with
+    // empty stages, for every ordinary test failure -- replacing an accurate
+    // cause with a false one.
+    const run = evidenceStep?.run ?? '';
+    expect(run, 'it must measure whether the emitter wrote anything').toContain(
+      'wc -c < "$GITHUB_STEP_SUMMARY"',
+    );
+    expect(run).toMatch(/if \[ "\$after" -gt "\$before" \]; then\s+#[^\n]*\n\s+exit 1/u);
+  });
+
   it('falls back to a shell-only emitter when the toolchain is unavailable', () => {
     // `pnpm exec tsx` needs a successful checkout and install. If either fails,
     // the emitter cannot run and silence would look identical to "no run

@@ -644,6 +644,36 @@ fallback that could report success would be worse than no fallback.
 
 Both tests fail against `f3e987d`.
 
+### And the fallback promptly broke the case it was not for
+
+The next round found that my own fallback regressed the ordinary path.
+`verification-evidence.ts` **exits 1 on a `fail` verdict by design** — I built
+that deliberately, several rounds earlier, so a failed verification fails the
+step. My fallback keyed on the exit status alone, so a legitimate stage failure
+produced the detailed `overall: "fail"` block *and then* a second block claiming
+checkout or install had failed, with empty `stages`. A consumer reading the last
+block would get a false cause for every ordinary test failure. Reproduced:
+
+```
+STEP_MIGRATE=failure  ->  blocks in summary: 2
+                          last block reason: "the evidence emitter could not run…"
+                          last block stages: []
+```
+
+The step now measures whether the emitter *wrote* anything, rather than trusting
+its exit status, and only falls back when nothing was written:
+
+| Case | Blocks | Exit | Fallback used |
+| --- | --- | --- | --- |
+| a stage failed | 1 | 1 | no — the emitter's own verdict stands |
+| emitter could not run | 1 | 1 | yes |
+| everything passed | 1 | 0 | no |
+
+This one is worth naming as mine rather than as a finding: the previous round's
+fix introduced it, and the mechanism — treating a deliberate non-zero exit as an
+inability to run — was something I should have caught when I wrote the
+`exit 0 / exit 1` contract in the first place.
+
 **A note on the check that caught my own error here.** My first attempt added a
 second `env:` block to a step that already had one. `python3 -c "import yaml"`
 accepted the duplicate key and reported the file as valid; the repository's own
