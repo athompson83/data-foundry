@@ -1,19 +1,27 @@
 /**
  * Regression coverage for the UA-002 credential-placement guidance.
  *
- * Two review findings on this section were operator-path defects that no test
- * could have caught, because the guidance is prose and a shell snippet rather
- * than code: the connection login hard-coded a bare `df_migration`, which the
- * repository's own execution-environment record says will not authenticate
- * through the Supavisor pooler the same section recommends as the IPv4
- * fallback; and the password was written into `.pgpass` without escaping the
- * `:` and `\` that are metacharacters there.
+ * Five review findings on this section were operator-path defects that no text
+ * assertion could have caught, because the guidance is prose and a shell
+ * snippet rather than code. In order:
  *
- * Asserting the prose alone would let the snippet drift from what it claims, so
- * the escaping tests **execute the documented block verbatim** against a
- * throwaway HOME and parse the result back with libpq's own rule. Nothing here
- * touches a real credential: the passwords are fictional strings chosen to
- * contain the metacharacters.
+ * 1. The connection login hard-coded a bare `df_migration`, which the
+ *    repository's own execution-environment record says will not authenticate
+ *    through the Supavisor pooler the same section recommends as the fallback.
+ * 2. The password was written without escaping the `:` and `\` that are
+ *    `.pgpass` metacharacters.
+ * 3. The write appended, and libpq uses the first matching line, so a stale
+ *    entry from an earlier password won.
+ * 4. Any of the first four fields may be `*`, so dropping only the exact
+ *    duplicate still left a stale wildcard ahead of the new entry.
+ * 5. A cancelled prompt replaced a working credential with an empty password
+ *    and exited 0.
+ *
+ * Asserting the prose would let the snippet drift from what it claims, so these
+ * tests **execute the documented block verbatim** against a throwaway HOME and
+ * parse the result back with libpq's own rule. Nothing here touches a real
+ * credential: every password is a fictional string chosen for the property
+ * under test.
  */
 import { execFileSync } from 'node:child_process';
 import { mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
@@ -79,16 +87,20 @@ interface BlockResult {
  * `existing` seeds `.pgpass` first, so the replace-vs-append behaviour is
  * observable rather than assumed.
  */
-function runDocumentedBlock(password: string, existing: readonly string[] = []): BlockResult {
+function runDocumentedBlock(
+  password: string | null,
+  existing: readonly string[] = [],
+): BlockResult {
   const home = mkdtempSync(join(tmpdir(), 'ua002-pgpass-'));
   try {
     const path = join(home, '.pgpass');
     if (existing.length > 0) {
       writeFileSync(path, `${existing.join('\n')}\n`, { mode: 0o600 });
     }
+    // `null` closes stdin immediately, which is what a cancelled prompt looks like.
     execFileSync('bash', ['-c', PGPASS_BLOCK], {
       env: { HOME: home, PATH: process.env['PATH'] ?? '/usr/bin:/bin' },
-      input: `${password}\n`,
+      input: password === null ? '' : `${password}\n`,
       stdio: ['pipe', 'pipe', 'pipe'],
     });
     const lines = readFileSync(path, 'utf8').replace(/\n$/u, '').split('\n');
@@ -165,6 +177,43 @@ describe('the documented .pgpass block encodes the password rather than mangling
     for (const entry of untouched) {
       expect(result.lines, `clobbered an unrelated credential: ${entry}`).toContain(entry);
     }
+  });
+
+  it('writes the new entry first, so no earlier line can win', () => {
+    // libpq stops at the first match, and any of the first four fields may be
+    // `*`. Verified against PostgreSQL 16 with scram-sha-256: a stale
+    // `*:*:*:login:OLD` placed first beats an exact entry below it.
+    const result = runDocumentedBlock('rotated-Passw0rd', [
+      '*:*:*:<login-name>:STALE-wildcard-password',
+    ]);
+    expect(result.lines[0], `new entry must be first, got: ${result.lines.join(' | ')}`).toBe(
+      '<host>:5432:<database>:<login-name>:rotated-Passw0rd',
+    );
+  });
+
+  it('keeps a wildcard entry rather than clobbering credentials it does not own', () => {
+    // A `*` entry may be serving the operator's other hosts. Ordering already
+    // neutralises it here, so removing it would be an overcorrection.
+    const wildcard = '*:*:*:<login-name>:STALE-wildcard-password';
+    const result = runDocumentedBlock('rotated-Passw0rd', [wildcard]);
+    expect(result.lines).toContain(wildcard);
+  });
+
+  it('leaves .pgpass untouched when the prompt is cancelled', () => {
+    // Measured on the unguarded form: stdin at EOF left `df_pw` empty and the
+    // block replaced a working credential with an empty password, exiting 0.
+    const working = ['<host>:5432:<database>:<login-name>:THE-OPERATORS-REAL-PASSWORD'];
+    expect(runDocumentedBlock(null, working).lines).toEqual(working);
+  });
+
+  it('leaves .pgpass untouched when an empty password is entered', () => {
+    const working = ['<host>:5432:<database>:<login-name>:THE-OPERATORS-REAL-PASSWORD'];
+    expect(runDocumentedBlock('', working).lines).toEqual(working);
+  });
+
+  it('requires the read to succeed and be non-empty before writing anything', () => {
+    expect(PGPASS_BLOCK).toMatch(/if IFS= read -rs[^\n]*&& \[ -n "\$df_pw" \]; then/u);
+    expect(PGPASS_BLOCK).toContain('left unchanged');
   });
 
   it('never makes the password a command-line argument or a history entry', () => {

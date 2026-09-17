@@ -160,16 +160,24 @@ they cannot drift apart:
 ```
 umask 077
 host='<host>'; port=5432; database='<database>'; login='<login-name>'
-IFS= read -rs -p 'migration password: ' df_pw; echo
-touch ~/.pgpass
-tmp="$(mktemp ~/.pgpass.XXXXXX)"
-awk -v p="$host:$port:$database:$login:" 'index($0, p) != 1' ~/.pgpass > "$tmp"
-printf '%s:%s:%s:%s:%s\n' "$host" "$port" "$database" "$login" \
-  "$(printf '%s' "$df_pw" | sed -e 's/[\\:]/\\&/g')" >> "$tmp"
+if IFS= read -rs -p 'migration password: ' df_pw && [ -n "$df_pw" ]; then
+  echo
+  touch ~/.pgpass
+  tmp="$(mktemp ~/.pgpass.XXXXXX)"
+  {
+    printf '%s:%s:%s:%s:%s\n' "$host" "$port" "$database" "$login" \
+      "$(printf '%s' "$df_pw" | sed -e 's/[\\:]/\\&/g')"
+    awk -v p="$host:$port:$database:$login:" 'index($0, p) != 1' ~/.pgpass
+  } > "$tmp"
+  chmod 600 "$tmp"
+  mv "$tmp" ~/.pgpass
+  export DATA_FOUNDRY_MIGRATION_DATABASE_URL="postgresql://$login@$host:$port/$database"
+  echo "~/.pgpass updated for $login at $host:$port/$database"
+else
+  echo >&2
+  echo '~/.pgpass left unchanged: no password was read.' >&2
+fi
 unset df_pw
-chmod 600 "$tmp"
-mv "$tmp" ~/.pgpass
-export DATA_FOUNDRY_MIGRATION_DATABASE_URL="postgresql://$login@$host:$port/$database"
 ```
 
 The URL carries **no password** — libpq reads it from `.pgpass` by matching the
@@ -177,16 +185,34 @@ host, port, database and user, so the `.pgpass` user field must be the same
 login name the URL carries, character for character. Taking both from `$login`
 is what guarantees that.
 
-**Why this replaces the matching entry instead of appending.** libpq uses the
-**first** line that matches host, port, database and user and stops looking, so
-an entry left over from an earlier password wins over a correct one appended
-below it. The operator then gets a bare *"password authentication failed"* that
-points at the credential rather than at the file. Measured 2026-09-16 against
-PostgreSQL 16 with `scram-sha-256`: stale line first and correct line second
-fails to authenticate; the correct line alone, or first, connects. The `awk`
-drops any existing entry for the same four fields, and the write lands through a
-temporary file in the same directory so an interrupted run cannot leave a
-half-written `.pgpass` behind.
+**Why the new entry goes first, and why the block can decline to write.** Both
+are answers to ways this quietly did the wrong thing, each measured against
+PostgreSQL 16 with `scram-sha-256` rather than reasoned from the documentation.
+
+*libpq uses the first line that matches host, port, database and user, and stops
+looking.* An entry left over from an earlier password therefore beats a correct
+one written below it, and the operator gets a bare *"password authentication
+failed"* pointing at the credential rather than at the file. Measured: stale line
+first and correct line second fails; the correct line alone, or first, connects.
+
+*Any of those four fields may be `*`, and a wildcard counts as a match.*
+Measured: `*:*:*:<login>:…` alone authenticates, and a stale `*:*:*:<login>:…`
+placed first beats an exact entry below it. So removing the exact duplicate is
+not enough — the new entry is written **first**, ahead of everything retained,
+and that is what makes it win. The `awk` then drops only an entry whose first
+four fields match *literally*, so repeated rotations do not accumulate. A
+wildcard entry is deliberately **kept**: it may be serving the operator's other
+hosts, and removing it would break connections this procedure has no business
+touching.
+
+*A cancelled prompt must not count as a password.* Measured on the earlier
+unguarded form: with stdin at EOF, `read` returned nonzero, `df_pw` was empty,
+and the block replaced a working credential with an empty-password entry **and
+exited 0**. The `if` now requires `read` to succeed *and* yield something
+non-empty before anything is written, and says so when it declines.
+
+The write still lands through a temporary file in the same directory, so an
+interrupted run cannot leave a half-written `.pgpass` behind.
 
 **The `sed` is not decoration.** In `.pgpass`, `:` is the field separator and
 `\` is the escape character, so a password containing either must have it

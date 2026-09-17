@@ -56,7 +56,15 @@ documented procedure to fail while looking correct:
    as structure rather than data.
 3. **P2 — append instead of replace.** libpq uses the first matching line, so a
    stale entry from an earlier password beat the correct one appended below it.
-   Reproduced against a live cluster; see the section below.
+4. **P2 — exact-match filter missed wildcards.** Any of the first four fields may
+   be `*`, so a stale `*:*:*:<login>:…` survived the filter and, being earlier in
+   the file, still won.
+5. **P2 — a cancelled prompt was destructive.** With stdin at EOF the password
+   was empty, the block replaced a working credential with an empty-password
+   entry, and it exited 0.
+
+All three of the later findings were reproduced against a live cluster before
+any edit; see the sections below.
 
 The database-side identity assertion is unchanged: the runner still requires
 `session_user` and `current_user` to both be `df_migration` and refuses the run
@@ -69,7 +77,7 @@ one operator document.
 Prose assertions alone would let the snippet drift from what it claims, so both
 new files **execute** the artifact under test.
 
-`tooling/test/ua002-credential-placement-doc.test.ts` (13 tests) extracts the
+`tooling/test/ua002-credential-placement-doc.test.ts` (18 tests) extracts the
 documented `.pgpass` block from the handover and runs it verbatim under `bash`
 with a throwaway `HOME`, then parses the result back with libpq's own rule
 (unescaped `:` separates, `\` escapes the next character). Passwords used are
@@ -87,8 +95,9 @@ that passes on the broken version proves nothing:**
 | Test file | Against | Result |
 | --- | --- | --- |
 | `ua002-credential-placement-doc.test.ts` | doc at `e031e4b` (pre-fix) | **9 of 11 failed** |
-| `ua002-credential-placement-doc.test.ts` | doc at HEAD | 13 passed |
+| `ua002-credential-placement-doc.test.ts` | doc at HEAD | 18 passed |
 | `ua002-credential-placement-doc.test.ts` | doc at `8820914` (append-only) | **2 of 13 failed** |
+| `ua002-credential-placement-doc.test.ts` | doc at `3b46ced` (exact-match, unguarded) | **4 of 18 failed** |
 | `ci-postgres-readiness.test.ts` | `ci.yml` at `0620672` (socket probe) | **4 of 5 failed** |
 | `ci-postgres-readiness.test.ts` | `ci.yml` at HEAD | 5 passed |
 
@@ -139,6 +148,52 @@ but the fictional password above.
 
 Two tests were added for it, and the stale-entry one fails against the
 append-only block at `8820914`.
+
+## Fourth and fifth findings: wildcards, and the cancelled prompt
+
+Both raised on `3b46ced`, both reproduced against a live PostgreSQL 16 cluster
+with `scram-sha-256` before any edit.
+
+**Wildcards.** libpq allows `*` in any of the first four fields, and a wildcard
+counts as a match:
+
+| `.pgpass` contents | Result |
+| --- | --- |
+| `*:*:*:pgowner:correct-horse` alone | **connects** |
+| `127.0.0.1:5434:*:pgowner:correct-horse` alone | **connects** |
+| stale `*:*:*:pgowner:OLD` first, exact entry second | **`password authentication failed`** |
+| exact entry first, stale `*:*:*:pgowner:OLD` second | **connects** |
+
+So dropping only the *exact* duplicate was not enough. The fix is ordering: the
+new entry is written **first**, ahead of everything retained, which the last row
+shows is sufficient. The wildcard is deliberately **kept** — it may be serving
+the operator's other hosts, and deleting it would break connections this
+procedure has no business touching. That was the obvious way to overcorrect.
+
+**The cancelled prompt.** Running the `3b46ced` block with stdin at EOF against a
+`.pgpass` holding a working credential:
+
+```
+BEFORE  <host>:5432:<database>:<login-name>:THE-OPERATORS-REAL-PASSWORD
+block exit: 0
+AFTER   <host>:5432:<database>:<login-name>:
+```
+
+Worse than the finding described: it destroyed a working credential, wrote an
+empty password, and **reported success**. The block now requires `read` to
+succeed and yield something non-empty before writing anything, and says when it
+declines.
+
+**Both fixes verified end-to-end on the same cluster.** With a stale wildcard and
+an unrelated credential seeded, the new entry lands first, both existing lines
+survive, and `psql` authenticates. With stdin at EOF, `.pgpass` is byte-identical
+afterwards and the original credential still authenticates.
+
+Four of the five tests added for these fail against the block at `3b46ced`. The
+fifth — that a wildcard is preserved — passes on both, because the earlier
+exact-prefix filter also left wildcards alone.
+
+The cluster was destroyed afterwards. It held nothing but fictional passwords.
 
 ## The TCP readiness repair, verified locally
 
