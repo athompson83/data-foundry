@@ -1,4 +1,6 @@
-import { readFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
@@ -752,4 +754,181 @@ it('requires the actual ingestion role pipeline with TLS and a changed-file trig
   expect(source).toContain("DATA_FOUNDRY_INGESTION_POSTGRES_TEST: '1'");
   expect(source).toContain('DATA_FOUNDRY_INGESTION_CONTROL_POSTGRES_URL: ${{ env.POSTGRES_URL }}');
   expect(source).not.toContain('DATA_FOUNDRY_INGESTION_PLAINTEXT_LOOPBACK:');
+});
+
+describe('verification runs are not cancelled by unrelated activity', () => {
+  it('keys concurrency on the event, and gives each dispatch its own group', () => {
+    const group = String((workflow as { concurrency?: { group?: string } }).concurrency?.group ?? '')
+      .split(/\s+/u)
+      .join(' ');
+    // Keying only on the ref put a manual verification and a `main` push in the
+    // same group, so with cancel-in-progress either could kill the other, and a
+    // second verification request would kill the first.
+    expect(group).toContain('github.event_name');
+    expect(group).toContain("github.event_name == 'workflow_dispatch' && github.run_id");
+    expect(group).not.toBe('${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}');
+    // Superseding a pull-request push is still the desired behaviour.
+    expect(group).toContain('github.event.pull_request.number');
+  });
+});
+
+describe('a failed verification still reports', () => {
+  const evidenceStep = Object.values(workflow.jobs)
+    .flatMap((job) => job.steps ?? [])
+    .find((step) => (step.run ?? '').includes('verification-evidence.ts'));
+
+  it('runs even when earlier steps failed', () => {
+    expect(evidenceStep?.if).toBe('always()');
+  });
+
+  it('does not overwrite a verdict the emitter already wrote', () => {
+    // The emitter exits 1 on a `fail` verdict by design, so a non-zero exit
+    // does not mean it could not run. Keying the fallback on the exit status
+    // alone appended a second block claiming checkout/install failed, with
+    // empty stages, for every ordinary test failure -- replacing an accurate
+    // cause with a false one.
+    const run = evidenceStep?.run ?? '';
+    expect(run, 'it must measure whether the emitter wrote anything').toContain(
+      'wc -c < "$GITHUB_STEP_SUMMARY"',
+    );
+    expect(run).toMatch(/if \[ "\$after" -gt "\$before" \]; then\s+#[^\n]*\n\s+exit 1/u);
+  });
+
+  it('falls back to a shell-only emitter when the toolchain is unavailable', () => {
+    // `pnpm exec tsx` needs a successful checkout and install. If either fails,
+    // the emitter cannot run and silence would look identical to "no run
+    // happened", despite the guarantee that a failed verification is reported.
+    const run = evidenceStep?.run ?? '';
+    expect(run).toContain('pnpm exec tsx tooling/scripts/verification-evidence.ts');
+    expect(run, 'a fallback must append to the step summary').toContain('GITHUB_STEP_SUMMARY');
+    expect(run, 'the fallback must sanitize the correlation id').toContain(
+      "tr -cd 'A-Za-z0-9._-'",
+    );
+    // It can only ever report failure: no stage ran, so nothing is proven.
+    expect(run).toContain('"overall": "fail"');
+    expect(run).not.toContain('"overall": "pass"');
+    expect(run.trimEnd().endsWith('exit 1'), 'the fallback must fail the step').toBe(true);
+  });
+});
+
+describe('the shell fallback reports what is known and invents nothing', () => {
+  // The fallback fires when the emitter wrote nothing. The previous version
+  // concluded from that alone that "checkout or install did not complete" and
+  // published `"stages": []`. An import-time error inside the emitter -- after
+  // checkout and install both succeeded, and after all ten PostgreSQL stages
+  // had already run and recorded their outcomes -- produces exactly the same
+  // condition. The evidence then stated a cause that was not known to be true
+  // and discarded outcomes that were sitting in the step environment.
+  const evidenceStep = Object.values(workflow.jobs)
+    .flatMap((job) => job.steps ?? [])
+    .find((step) => (step.run ?? '').includes('verification-evidence.ts'));
+
+  interface FallbackResult {
+    readonly status: number;
+    readonly summary: string;
+  }
+
+  /**
+   * Run the real step body with an emitter that cannot start and writes
+   * nothing, which is the only condition the fallback may fire on.
+   *
+   * GitHub runs a `run:` block without an explicit `shell:` under `bash -e`,
+   * so the test does too: a block that behaves differently under `-e` is not
+   * the block CI executes.
+   */
+  function runFallback(env: Readonly<Record<string, string>>): FallbackResult {
+    const directory = mkdtempSync(join(tmpdir(), 'ci-evidence-fallback-'));
+    try {
+      const stubs = join(directory, 'stubs');
+      mkdirSync(stubs);
+      writeFileSync(join(stubs, 'pnpm'), '#!/bin/bash\necho "pnpm: not installed" >&2\nexit 1\n');
+      chmodSync(join(stubs, 'pnpm'), 0o755);
+      const summary = join(directory, 'summary.md');
+      writeFileSync(summary, '');
+      let status = 0;
+      try {
+        execFileSync('bash', ['-e', '-c', evidenceStep?.run ?? ''], {
+          cwd: ROOT,
+          env: {
+            PATH: `${stubs}:${process.env['PATH'] ?? '/usr/bin:/bin'}`,
+            GITHUB_STEP_SUMMARY: summary,
+            ...env,
+          },
+          stdio: ['pipe', 'pipe', 'pipe'],
+        });
+      } catch (error) {
+        status = (error as { status?: number }).status ?? -1;
+      }
+      return { status, summary: readFileSync(summary, 'utf8') };
+    } finally {
+      rmSync(directory, { recursive: true, force: true });
+    }
+  }
+
+  function parseEvidence(summary: string): Record<string, unknown> {
+    const fenced = /```json\n([\s\S]*?)\n```/u.exec(summary);
+    expect(fenced, 'the fallback must publish a fenced JSON document').not.toBeNull();
+    return JSON.parse(fenced?.[1] ?? '{}') as Record<string, unknown>;
+  }
+
+  function outcomes(evidence: Record<string, unknown>): Record<string, string> {
+    const stages = (evidence['stages'] ?? []) as readonly { stage: string; outcome: string }[];
+    return Object.fromEntries(stages.map((entry) => [entry.stage, entry.outcome]));
+  }
+
+  it('keeps the stage outcomes the workflow already recorded', () => {
+    const result = runFallback({
+      CORRELATION_ID: 'ci',
+      DATA_FOUNDRY_CANDIDATE_SHA: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+      STEP_TLS: 'success',
+      STEP_MIGRATE: 'success',
+      STEP_REAPPLY: 'success',
+      STEP_GRANTS: 'success',
+      STEP_RUNTIME_TLS: 'success',
+      STEP_INGESTION: 'failure',
+      STEP_NEGATIVE: 'success',
+      STEP_RECONCILIATION: 'success',
+      STEP_CREDENTIALS: 'success',
+      STEP_ACQUISITION: 'skipped',
+    });
+    expect(result.status, 'the fallback must fail the step').toBe(1);
+    const evidence = parseEvidence(result.summary);
+    const recorded = outcomes(evidence);
+    // These outcomes were available in the step environment the whole time.
+    // Publishing `[]` next to them was the defect.
+    expect(recorded['disposable-tls-postgres']).toBe('success');
+    expect(recorded['ingestion-publish-e2e']).toBe('failure');
+    expect(recorded['scheduled-acquisition-controls']).toBe('skipped');
+    expect(Object.keys(recorded)).toHaveLength(10);
+    expect(evidence['overall'], 'the fallback can only ever report failure').toBe('fail');
+  });
+
+  it('does not state a cause it does not know', () => {
+    const result = runFallback({ STEP_TLS: 'success' });
+    expect(result.status).toBe(1);
+    const reason = String(parseEvidence(result.summary)['reason'] ?? '');
+    expect(reason.length, 'the fallback must still say why the document is thin').toBeGreaterThan(0);
+    // An emitter that throws on import leaves checkout and install untouched.
+    expect(reason).not.toMatch(/checkout/iu);
+    expect(reason).not.toMatch(/install/iu);
+    expect(reason).not.toMatch(/no stage was verified/iu);
+  });
+
+  it('marks a stage that genuinely did not run as not-run, matching the emitter', () => {
+    const result = runFallback({});
+    expect(result.status).toBe(1);
+    const recorded = outcomes(parseEvidence(result.summary));
+    expect(Object.keys(recorded)).toHaveLength(10);
+    expect(new Set(Object.values(recorded))).toEqual(new Set(['not-run']));
+  });
+
+  it('never echoes a step outcome it does not recognise', () => {
+    // The step passes these through from workflow expressions. The fallback
+    // must publish a value from a fixed vocabulary, never whatever arrived.
+    const result = runFallback({ STEP_TLS: 'postgres://df_migration:PW@db.invalid/x' });
+    expect(result.status).toBe(1);
+    expect(result.summary).not.toContain('df_migration');
+    expect(result.summary).not.toContain('db.invalid');
+    expect(outcomes(parseEvidence(result.summary))['disposable-tls-postgres']).toBe('unrecognized');
+  });
 });

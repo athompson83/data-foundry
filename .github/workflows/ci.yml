@@ -5,12 +5,33 @@ on:
     branches: [main]
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
+  # Manual external-verification run. The correlation id is a non-secret label
+  # so an external verifier can tie a request to a specific run; it is echoed
+  # into the sanitized evidence block and nowhere else.
+  workflow_dispatch:
+    inputs:
+      correlation_id:
+        description: 'Non-secret verification correlation id (letters, digits, dot, dash, underscore)'
+        required: false
+        default: 'manual'
+        type: string
 
 permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  # Superseding a pull-request push or a `main` push is the point of
+  # cancel-in-progress. A manual verification run is not superseded by anything:
+  # it answers one external request, is identified by its correlation id, and
+  # must be allowed to finish. Keying only on the ref put dispatches and pushes
+  # to `main` in the same group, so either could cancel the other, and a second
+  # verification request would kill the first.
+  group: >-
+    ${{ github.workflow }}-${{ github.event_name }}-${{
+      github.event_name == 'workflow_dispatch' && github.run_id
+      || github.event.pull_request.number
+      || github.ref
+    }}
   cancel-in-progress: true
 
 env:
@@ -232,6 +253,7 @@ jobs:
       # hosted direct path: a job-local CA, certificate-verified TLS, and an
       # HBA that rejects non-TLS TCP. No plaintext fallback is added to source.
       - name: Start disposable TLS PostgreSQL
+        id: tls-postgres
         shell: bash
         run: |
           set -euo pipefail
@@ -335,11 +357,28 @@ jobs:
             exit 1
           fi
           startup_stage='readiness'
+          # Probe over TCP, not the Unix socket. The official Postgres image
+          # runs a temporary server for initdb with listen_addresses='' and
+          # then shuts it down to restart for real. A socket probe succeeds
+          # against that temporary server, so the loop can declare readiness
+          # during the init phase and the next step then fails with
+          # "the database system is shutting down". TCP is not served by the
+          # init server, so it cannot produce that false positive.
+          #
+          # Requiring two consecutive successes closes the remaining window:
+          # a single success could still land in the instant before a
+          # shutdown that has been signalled but not yet applied.
           ready='false'
-          for attempt in $(seq 1 30); do
-            if docker exec "$container_name" pg_isready -U postgres -d data_foundry >/dev/null 2>&1; then
-              ready='true'
-              break
+          consecutive=0
+          for attempt in $(seq 1 60); do
+            if docker exec "$container_name" pg_isready -h 127.0.0.1 -p 5432 -U postgres -d data_foundry >/dev/null 2>&1; then
+              consecutive=$((consecutive + 1))
+              if [ "$consecutive" -ge 2 ]; then
+                ready='true'
+                break
+              fi
+            else
+              consecutive=0
             fi
             sleep 1
           done
@@ -431,9 +470,11 @@ jobs:
       # The same SQL, unchanged, against a real Postgres. This is the check that
       # keeps "portable Postgres DDL" honest rather than aspirational.
       - name: Apply migrations to Postgres
+        id: apply-migrations
         run: pnpm migrate
 
       - name: Re-apply must be a no-op
+        id: reapply-noop
         run: pnpm migrate
 
       - name: Refuse database-wide migration CREATE
@@ -468,6 +509,7 @@ jobs:
           fi
 
       - name: Stage disposable runtime roles and apply exact grants
+        id: stage-grants
         shell: bash
         run: |
           set -euo pipefail
@@ -578,12 +620,14 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: Direct runtime-role TLS connection regression
+        id: runtime-tls
         env:
           DATA_FOUNDRY_RUNTIME_ROLE_CONNECTION_TEST: '1'
           PGOPTIONS: ''
         run: pnpm runtime-roles:postgres:check
 
       - name: Real ingestion role publish and immutable-history regression
+        id: ingestion-e2e
         env:
           DATA_FOUNDRY_INGESTION_POSTGRES_TEST: '1'
           DATA_FOUNDRY_INGESTION_CONTROL_POSTGRES_URL: ${{ env.POSTGRES_URL }}
@@ -594,6 +638,7 @@ jobs:
       # one disposable database at a time, prove the generated guards reject
       # the effective privilege, remove it, and prove the clean state again.
       - name: Effective runtime and migration-role privilege negative controls
+        id: negative-controls
         shell: bash
         env:
           DATA_FOUNDRY_RUNTIME_ROLE_CONNECTION_TEST: '1'
@@ -1321,14 +1366,129 @@ jobs:
       # the advisory transaction lock, so the reconciliation race cannot hide
       # behind the single-connection PGlite scheduler.
       - name: Source-record reconciliation concurrency regression
+        id: reconciliation
         env:
           DATA_FOUNDRY_POSTGRES_CONCURRENCY_TEST: '1'
         run: pnpm source-records:postgres:check
 
       - name: Credential provisioning concurrency regression
+        id: credentials
         env:
           DATA_FOUNDRY_POSTGRES_CONCURRENCY_TEST: '1'
         run: pnpm credentials:postgres:check
 
       - name: Scheduled acquisition concurrency and transaction controls
+        id: acquisition-controls
         run: pnpm acquisition:postgres:check
+
+      # Sanitized external-verification evidence. This runs even when an
+      # earlier step failed, so a failed verification is still reported rather
+      # than silently absent. It reads only step outcomes, the candidate SHA
+      # and the pinned fixture digests -- never an environment value, a
+      # connection string, a password or a provider account identifier.
+      - name: Publish sanitized verification evidence
+        if: always()
+        env:
+          CORRELATION_ID: ${{ inputs.correlation_id || 'ci' }}
+          STEP_TLS: ${{ steps.tls-postgres.outcome }}
+          STEP_MIGRATE: ${{ steps.apply-migrations.outcome }}
+          STEP_REAPPLY: ${{ steps.reapply-noop.outcome }}
+          STEP_GRANTS: ${{ steps.stage-grants.outcome }}
+          STEP_RUNTIME_TLS: ${{ steps.runtime-tls.outcome }}
+          STEP_INGESTION: ${{ steps.ingestion-e2e.outcome }}
+          STEP_NEGATIVE: ${{ steps.negative-controls.outcome }}
+          STEP_RECONCILIATION: ${{ steps.reconciliation.outcome }}
+          STEP_CREDENTIALS: ${{ steps.credentials.outcome }}
+          STEP_ACQUISITION: ${{ steps.acquisition-controls.outcome }}
+        run: |
+          set -uo pipefail
+          # The emitter exits 1 on a `fail` verdict by design, so a non-zero
+          # exit does NOT mean it could not run. Measure whether it actually
+          # wrote: an emitter that produced a verdict has already reported the
+          # truth, and appending a second block would replace an accurate cause
+          # with a false one for every ordinary test failure.
+          before=0
+          if [ -f "$GITHUB_STEP_SUMMARY" ]; then
+            before="$(wc -c < "$GITHUB_STEP_SUMMARY")"
+          fi
+          if pnpm exec tsx tooling/scripts/verification-evidence.ts; then
+            exit 0
+          fi
+          after=0
+          if [ -f "$GITHUB_STEP_SUMMARY" ]; then
+            after="$(wc -c < "$GITHUB_STEP_SUMMARY")"
+          fi
+          if [ "$after" -gt "$before" ]; then
+            # It ran and recorded a failing verdict. That is the evidence.
+            exit 1
+          fi
+          # Nothing was written, so the emitter produced no verdict. WHY it
+          # produced none is not known here: a failed checkout or install looks
+          # exactly like an import-time error inside the emitter itself, and
+          # that one happens after every stage has already run and recorded an
+          # outcome. Naming a cause would assert something this step cannot
+          # observe, so it reports the failure and stops there.
+          #
+          # The step outcomes are a different matter. They are already in this
+          # step's environment, put there by the workflow, and publishing `[]`
+          # next to them discarded evidence that was in hand. They are carried
+          # through -- each sanitized to the fixed vocabulary below, so a value
+          # that is not a GitHub step outcome can never be echoed.
+          #
+          # This fallback uses only the shell and can only ever say `fail`.
+          correlation="$(printf '%s' "${CORRELATION_ID:-}" | tr -cd 'A-Za-z0-9._-' | cut -c1-64)"
+          [ -n "$correlation" ] || correlation='sanitized'
+          {
+            printf '## Data Foundry verification evidence\n\n'
+            printf '**Disposable-PostgreSQL end-to-end integration proof.**\n'
+            printf 'This is **not** hosted-production and **not** a Cloudflare deployed-runtime proof.\n\n'
+            printf '```json\n{\n'
+            printf '  "kind": "disposable-postgres-e2e-integration-proof",\n'
+            printf '  "notAProofOf": ["hosted-production-database", "cloudflare-deployed-runtime", "real-queue-delivery", "real-r2-persistence", "rest-or-mcp-surface-readback"],\n'
+            printf '  "correlationId": "%s",\n' "$correlation"
+            printf '  "gitSha": "%s",\n' "${DATA_FOUNDRY_CANDIDATE_SHA:-unknown}"
+            printf '  "runUrl": "%s/%s/actions/runs/%s",\n' \
+              "${GITHUB_SERVER_URL:-}" "${GITHUB_REPOSITORY:-}" "${GITHUB_RUN_ID:-}"
+            # Same stage names and the same `not-run` wording as the emitter,
+            # so the two documents can be compared field for field.
+            printf '  "stages": [\n'
+            first='true'
+            for pair in \
+              "disposable-tls-postgres:${STEP_TLS:-}" \
+              "apply-migrations:${STEP_MIGRATE:-}" \
+              "reapply-is-noop:${STEP_REAPPLY:-}" \
+              "stage-roles-and-grants:${STEP_GRANTS:-}" \
+              "runtime-role-direct-tls:${STEP_RUNTIME_TLS:-}" \
+              "ingestion-publish-e2e:${STEP_INGESTION:-}" \
+              "privilege-negative-controls:${STEP_NEGATIVE:-}" \
+              "source-record-reconciliation:${STEP_RECONCILIATION:-}" \
+              "credential-provisioning:${STEP_CREDENTIALS:-}" \
+              "scheduled-acquisition-controls:${STEP_ACQUISITION:-}"
+            do
+              stage_name="${pair%%:*}"
+              stage_outcome="${pair#*:}"
+              case "$stage_outcome" in
+                success|failure|cancelled|skipped) : ;;
+                # A step that never ran leaves the expression empty. Not a pass.
+                '') stage_outcome='not-run' ;;
+                # Anything else is not a step outcome at all. Say it was not
+                # recognised rather than echo whatever arrived.
+                *) stage_outcome='unrecognized' ;;
+              esac
+              # Spelled out rather than `A && B || C`: that chain runs C when
+              # B fails too, and a chain exactly like it already hid a patch
+              # that never applied.
+              if [ "$first" = 'true' ]; then
+                first='false'
+              else
+                printf ',\n'
+              fi
+              printf '    { "stage": "%s", "outcome": "%s" }' "$stage_name" "$stage_outcome"
+            done
+            printf '\n  ],\n'
+            printf '  "syntheticFixtures": [],\n'
+            printf '  "overall": "fail",\n'
+            printf '  "reason": "%s"\n' 'the evidence emitter produced no verdict and this step cannot observe why; the stage outcomes above are the ones the workflow recorded, and no fixture digest was verified'
+            printf '}\n```\n\n'
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit 1

@@ -111,6 +111,152 @@ which also confirms the hosted baseline is undrifted, the 26 applied ledger rows
 are byte-identical to this release, and the full export sequence reproduces
 33 / 26 / 7 with all ten checksums from the real hosted ledger.
 
+## Determining whether your machine can run this — two commands
+
+Run these on the machine you would use. Neither needs a credential, so neither
+can leak one, and together they answer which of the two blockers you have.
+
+**1. Can it reach the origin at all?**
+
+```
+getent ahosts db.fgxinxaqkwoqyywdgobs.supabase.co
+nc -vz -w 8 db.fgxinxaqkwoqyywdgobs.supabase.co 5432
+```
+
+The origin is **IPv6-only** — it publishes an `AAAA` record and no `A` record.
+If `getent` shows only an IPv6 address and `nc` reports success, you have direct
+egress and need only the credential. If `nc` fails or your network has no IPv6,
+use the IPv4 Supavisor pooler in **session mode (port 5432)** instead —
+transaction mode on 6543 does not preserve the `session_replication_role` and
+`lo_compat_privileges` this runner asserts.
+
+**2. Place the credential without it ever becoming an argument.**
+
+**First settle the login name, because it is not always `df_migration`.** Which
+route step 1 selected decides it:
+
+| Route from step 1 | Login name to use |
+| --- | --- |
+| Direct IPv6 origin, `db.<project-ref>.supabase.co` | bare `df_migration` |
+| IPv4 Supavisor pooler, session mode 5432 | **project-qualified**, not bare |
+
+Supavisor routes on a qualified login rather than on the hostname, so a bare
+`df_migration` fails authentication there before any of this project's logic
+runs. Read the exact form from the project's connect dialog at the time — it is
+`<role>` and the project reference joined, but confirm the separator and
+ordering against the dialog rather than assuming them from this document.
+
+This changes only how the *pooler* identifies the tenant. The database-side
+identity is unaffected: the runner asserts that `session_user` and
+`current_user` are both `df_migration` and refuses the run otherwise, so if a
+pooler login ever did present a different role to PostgreSQL the run would fail
+closed rather than migrate under the wrong identity. That assertion is the
+check — do not treat this paragraph as one.
+
+Then place the credential with the repository's helper. It writes a dedicated
+password file for this migration and **never reads, rewrites or removes your
+`~/.pgpass`**:
+
+```
+tooling/scripts/ua002-migration-pgpassfile.sh \
+  --host '<host>' --port 5432 --database '<database>' --login '<login-name>'
+```
+
+It prompts for the password, so the password never becomes a command-line
+argument, an environment variable, or a shell-history entry — and it refuses a
+`--password` argument outright. On success it prints the two lines to run in the
+shell that performs the migration:
+
+```
+export PGPASSFILE='<the path it reports>'
+export DATA_FOUNDRY_MIGRATION_DATABASE_URL='postgresql://<login-name>@<host>:5432/<database>'
+```
+
+The URL carries **no password**. libpq reads it from the file named by
+`PGPASSFILE`, matching host, port, database and user, so the login you pass the
+helper is the one that must appear in the URL — which is why the helper prints
+both rather than leaving you to keep them in step.
+
+**Why a dedicated file rather than editing `~/.pgpass`.** The earlier procedure
+edited the operator's own password file, and review found six separate ways that
+went quietly wrong: libpq takes the *first* matching line, so a stale entry from
+an earlier password beat the new one; a stale `*` wildcard beat it for the same
+reason; `:` and `\` in a password corrupted the field structure; a cancelled
+prompt installed an empty password over a working one; and a failed rewrite was
+installed anyway, destroying unrelated credentials while reporting success. All
+six come from mutating a shared file that belongs to someone else. Writing one
+file this project owns removes the whole class rather than handling each case,
+and leaves every credential you already had exactly as it was.
+
+**This was confirmed against the real runner, not assumed.** `tooling/scripts/migrate.ts`
+connects with `pg`, which consults the password file only when the connection
+carries no password — and `directPostgresTlsConfig` sets none. Measured
+2026-09-17 against PostgreSQL 16 with `scram-sha-256` and certificate-verified
+TLS, calling `createPostgresDriver` itself: with `PGPASSFILE` pointing at the
+helper's file the driver connects, and it still connects when `~/.pgpass`
+contains a *wrong* password — proving the dedicated file is genuinely the one
+being used. With no password file at all the same call fails, so those were not
+false positives.
+
+If a file operation fails at any point the helper exits non-zero, prints why,
+leaves any existing file untouched, and removes its temporary file — which also
+holds the password — on failure and on interruption alike.
+
+Cleanup **empties that file before it tries to delete it.** Emptying needs write
+permission on the file, which the helper owns at `0600`; deleting needs write
+permission on the directory, which is exactly what is missing in the case this
+guards. So a removal that cannot succeed still destroys the password.
+
+If the file survives, the helper says so rather than reporting an all-clear: it
+prints `WARNING: the temporary password file MAY STILL EXIST` followed by the
+full path, and does **not** print its usual "nothing was installed" line. It then
+tells you which of two situations you are in:
+
+- **`it was emptied first, so no password bytes remain in it`** — an empty file
+  is left behind. Delete it when convenient; your credential was not exposed.
+- **`it holds the migration password in clear text and could not be emptied`** —
+  both the delete and the truncate failed. Delete the named file before
+  continuing and **treat that password as exposed.**
+
+Reaching either needs a compound failure — the install fails *and* the directory
+is no longer writable — but the file is your credential, so the helper destroys
+what it can and refuses to guess about the rest.
+
+Because it is a separate process, that failure cannot terminate your
+interactive shell.
+
+**Clear the three variables before you start**, so a failed run cannot be
+followed by a migration that silently uses settings from an earlier attempt:
+
+```
+unset PGPASSFILE DATA_FOUNDRY_MIGRATION_DATABASE_URL PGPASSWORD
+```
+
+`PGPASSWORD` matters most of the three, and differently: it does not compete
+with the password file, it **overrides** it. The driver reads `PGPASSWORD` into
+the connection password and consults the password file only when that is still
+empty. Measured against a live TLS PostgreSQL 16 with `scram-sha-256` — a
+*correct* password file plus a stale `PGPASSWORD` fails to authenticate, and a
+stale `PGPASSWORD` that happens to be valid would authenticate with a credential
+this procedure never placed. `--check` refuses to pass while it is set.
+
+The helper cannot do this for you — it is a separate process and cannot change
+your shell's environment — so on any failure it says so explicitly rather than
+leaving you to notice.
+
+Whatever route you take, do not pass the password with `-W`, in
+`psql "postgres://…:pw@…"`, or in any command-line argument: those land in the
+process list and in shell history. The helper exists so you never have to.
+
+The runner also rejects a URL carrying `sslmode` or any other TLS or endpoint
+query override — it configures TLS itself and verifies the certificate. Measured
+2026-09-16: supplying `?sslmode=require` fails with *"Direct PostgreSQL TLS URLs
+may not include endpoint or TLS query overrides."*
+
+**This environment has neither.** Re-measured 2026-09-16: the origin resolves
+IPv6-only and this container has zero IPv6 addresses, so the failure is
+structural rather than configuration.
+
 ## The two ways forward
 
 ### Option 1 — direct-TLS operator run (recommended)
@@ -243,10 +389,19 @@ this staging step — the grant upgrade adds its capabilities afterwards.
 
 ## Execution sequence
 
-Run from a clean checkout of merged `main` `2063ea8d72247a9b2643e1c690e37ab55ab14252` — the release this document
-is bound to. The export refuses to run unless that SHA is `HEAD` and the
-non-ignored worktree is clean, including untracked files, and the operator refuses
-unless `DATA_FOUNDRY_RELEASE_SHA` names the same SHA.
+**The migration steps** run from a clean checkout of merged `main`
+`2063ea8d72247a9b2643e1c690e37ab55ab14252` — the release this document is bound
+to. The export refuses to run unless that SHA is `HEAD` and the non-ignored
+worktree is clean, including untracked files, and the operator refuses unless
+`DATA_FOUNDRY_RELEASE_SHA` names the same SHA.
+
+**The credential step runs before that, and not from there.** The helper is
+absent at `2063ea8`, so starting there and then reaching for it fails — including
+the `cp` that preserves it. Begin in the checkout you are reading this document
+from, which is the revision that carries the helper; copy it out and place the
+credential; only then check out the release. The block below is in that order,
+and the release SHA is unchanged: moving it to carry the helper would invalidate
+every release-dependent packet, checksum and grant value here.
 
 The whole procedure, with the values already filled in:
 
@@ -262,19 +417,71 @@ make the run impossible rather than merely awkward:
   applied set to empty and emits 33 pending / 0 applied, and the operator then
   reports a ledger-count mismatch and flags all 26 applied migrations as replays.
 
+**The helper is newer than the migration release, and that is deliberate.**
+`ua002-migration-pgpassfile.sh` ships with *this document*, not with
+`2063ea8` — `git cat-file -e 2063ea8:tooling/scripts/ua002-migration-pgpassfile.sh`
+reports it is absent there. The migration release is not moved to accommodate
+it: changing that SHA would invalidate every release-dependent packet, checksum
+and grant value in this document.
+
+Instead the helper is **copied out of the checkout you are reading this from,
+before the release is checked out**, so it remains available afterwards. That
+revision is whatever contains this document, which is immutable and reviewed;
+no branch name is followed and no commit refers to itself. Record its digest
+and re-check it after the checkout, so you are running the file you inspected:
+
+**Check the helper against the digest published here, not one you generate.**
+A digest you compute from your own working tree proves only that the copy did
+not change afterwards; it says nothing about whether the file was the reviewed
+one. If that checkout were dirty or on an unreviewed revision, a modified helper
+would capture the migration password and still pass every self-generated check.
+The expected SHA-256 of `tooling/scripts/ua002-migration-pgpassfile.sh` at this
+revision is:
+
+```
+1faa2ccdb3bffcbb7b8bb0f06b456a0737774b0e34412d782298185f05c65079
+```
+
+A repository test asserts that value equals the file's actual digest, so it
+cannot drift from the helper it describes.
+
 ```bash
 # On a machine with PostgreSQL egress to the Alpha Lab project.
 export UA002_DIR="$(mktemp -d)"          # outside the checkout, on purpose
+
+# 1. Preserve the helper from THIS checkout and verify it against the published
+#    digest above BEFORE it is ever run. Stop if this does not match.
+cp tooling/scripts/ua002-migration-pgpassfile.sh "$UA002_DIR/"
+printf '%s  %s\n' '1faa2ccdb3bffcbb7b8bb0f06b456a0737774b0e34412d782298185f05c65079' \
+  "$UA002_DIR/ua002-migration-pgpassfile.sh" > "$UA002_DIR/helper.sha256"
+
+# 2. Clear anything an earlier attempt left behind, then place the credential --
+#    but only if the digest matched. The `&&` is load-bearing: this block has no
+#    `set -e` (it is pasted into your shell, where that would be hostile), so a
+#    check that merely PRINTS a failure would let the next line run the
+#    unverified helper and hand it the password.
+unset PGPASSFILE DATA_FOUNDRY_MIGRATION_DATABASE_URL PGPASSWORD
+shasum -a 256 -c "$UA002_DIR/helper.sha256" \
+  && "$UA002_DIR/ua002-migration-pgpassfile.sh" \
+       --host '<host>' --port 5432 --database '<database>' --login '<login-name>'
+#    Then run the two exports it printed. Both survive the checkout below.
+#    If the digest did not match, nothing above ran: stop and find out why.
+
 git fetch origin main && git checkout 2063ea8d72247a9b2643e1c690e37ab55ab14252
 git status --porcelain --untracked-files=all    # must print nothing
 pnpm install --frozen-lockfile
 export DATA_FOUNDRY_RELEASE_SHA=2063ea8d72247a9b2643e1c690e37ab55ab14252
 
-# 1. Provider staging, in one privileged session — see step 2 of the numbered
-#    procedure below — then the migration password through the provider's secure
+# 3. The helper is gone from the tree now; the preserved copy is not. Confirm it
+#    is the same file, and confirm the environment, before anything connects.
+shasum -a 256 -c "$UA002_DIR/helper.sha256" \
+  && "$UA002_DIR/ua002-migration-pgpassfile.sh" --check
+
+# 4. Provider staging, in one privileged session -- see the numbered procedure
+#    below -- then the migration password through the provider's secure
 #    credential path. Nothing after this point works until that is done.
 
-# 2. Snapshot the hosted ledger. Run this SQL through whatever psql invocation
+# 5. Snapshot the hosted ledger. Run this SQL through whatever psql invocation
 #    your secret handling allows; see the credential note below.
 #      SELECT coalesce(
 #               json_agg(json_build_object(
@@ -285,24 +492,36 @@ export DATA_FOUNDRY_RELEASE_SHA=2063ea8d72247a9b2643e1c690e37ab55ab14252
 #    Write the single JSON array it returns to "$UA002_DIR/applied-ledger.json".
 #    Expect 26 rows, 0001 through 0026.
 
-# 3. Export the manifest against that ledger.
+# 6. Export the manifest against that ledger.
 node_modules/.bin/tsx tooling/scripts/export-supabase-migration-packets.ts \
   --release-sha "$DATA_FOUNDRY_RELEASE_SHA" \
   --applied-ledger "$UA002_DIR/applied-ledger.json" > "$UA002_DIR/ua002-packet.json"
 
-# 4. Read-only readiness report. Exit 2 means blockers, nothing touched.
-export DATA_FOUNDRY_MIGRATION_DATABASE_URL='...'   # from the secret store, never typed
-pnpm ua002:operator -- --packet "$UA002_DIR/ua002-packet.json"
+# 7. Read-only readiness report. Exit 2 means blockers, nothing touched.
+#    DATA_FOUNDRY_MIGRATION_DATABASE_URL is already exported from step 2 and
+#    carries no password. Do NOT re-export a secret-bearing URL here: that would
+#    put the credential back on a command line and bypass PGPASSFILE.
+#    The digest and --check are BOTH repeated here rather than relied on from
+#    step 3. Steps 4 to 6 sit in between, and this block has no `set -e`, so an
+#    earlier failure cannot gate what follows it -- only a chain that reaches
+#    the invocation itself can. Re-verifying at the point of use also covers a
+#    copy modified after step 3.
+shasum -a 256 -c "$UA002_DIR/helper.sha256" \
+  && "$UA002_DIR/ua002-migration-pgpassfile.sh" --check \
+  && pnpm ua002:operator -- --packet "$UA002_DIR/ua002-packet.json"
 
-# 5. Only once step 4 is clean:
-pnpm ua002:operator -- --packet "$UA002_DIR/ua002-packet.json" --apply
+# 8. Only once step 7 is clean. Chained for the same reason: --apply is the one
+#    step that writes, so it is the last place to accept an unchecked helper or
+#    an unchecked environment.
+shasum -a 256 -c "$UA002_DIR/helper.sha256" \
+  && "$UA002_DIR/ua002-migration-pgpassfile.sh" --check \
+  && pnpm ua002:operator -- --packet "$UA002_DIR/ua002-packet.json" --apply
 ```
 
 **Credential note for step 2.** `psql "$DATA_FOUNDRY_MIGRATION_DATABASE_URL"`
 puts the connection string in the process list, where any other user on the host
-can read it. Prefer a `.pgpass` entry, a libpq service file, or `PGPASSWORD` with
-the other connection parameters, so the secret never becomes an argument. The
-operator itself never takes one.
+can read it. Use the `PGPASSFILE` the helper wrote, or a libpq service file, so
+the secret never becomes an argument. The operator itself never takes one.
 
 **If a step fails with only `Direct PostgreSQL migration failed.`** — no
 category, no detail — that is deliberate, not a bug. Once
@@ -330,7 +549,7 @@ involves unsetting anything:
    `DATA_FOUNDRY_MIGRATION_DATABASE_URL is required` error and tells you
    nothing about the real one.
 4. **For a post-credential failure, reproduce the connection by itself.** Open
-   a plain `psql` session using the same `.pgpass` entry or libpq service file —
+   a plain `psql` session with the same `PGPASSFILE` or libpq service file —
    never as an argument — and let libpq report its own authentication, TLS or
    network error directly. That path does not pass through the redactor, and it
    separates "cannot connect" from "connected, then failed", which is the
@@ -366,13 +585,19 @@ were observed from this SHA.
    The migration role cannot perform any of this itself: it is `NOCREATEROLE`
    and can alter only its own settings.
 
-3. **Run the preflight.** Export the connection string into the environment —
-   never onto a command line, into a file, or into a log — and run:
+3. **Run the preflight.** The connection string is already in the environment
+   from the credential step, and carries no password — never put one onto a
+   command line, into a file, or into a log. Run:
 
    ```
    export DATA_FOUNDRY_RELEASE_SHA=2063ea8d72247a9b2643e1c690e37ab55ab14252
-   export DATA_FOUNDRY_MIGRATION_DATABASE_URL='...'   # from the secret store, not typed
-   pnpm ua002:operator -- --packet <non-secret-local-packet-path>
+   # PGPASSFILE and DATA_FOUNDRY_MIGRATION_DATABASE_URL come from the credential
+   # step and are already set. Re-exporting a secret-bearing URL here would undo
+   # that and put the password back into the environment by hand. This stops the
+   # procedure rather than letting it run on settings from an earlier attempt:
+   shasum -a 256 -c "$UA002_DIR/helper.sha256" \
+     && "$UA002_DIR/ua002-migration-pgpassfile.sh" --check \
+     && pnpm ua002:operator -- --packet <non-secret-local-packet-path>
    ```
 
    This is read-only and mutates nothing. It checks, in one pass: the session is
@@ -441,10 +666,12 @@ were observed from this SHA.
    privileged provider session as step 2.
 
 5. **Apply, once the preflight is clean**, with the same command and one more
-   flag:
+   flag — gated the same way, because this is the step that writes:
 
    ```
-   pnpm ua002:operator -- --packet <non-secret-local-packet-path> --apply
+   shasum -a 256 -c "$UA002_DIR/helper.sha256" \
+     && "$UA002_DIR/ua002-migration-pgpassfile.sh" --check \
+     && pnpm ua002:operator -- --packet <non-secret-local-packet-path> --apply
    ```
 
    It re-runs the whole preflight first — a clean report from ten minutes ago is

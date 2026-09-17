@@ -1,0 +1,1486 @@
+# PR #47 — local verification record
+
+Recorded 2026-09-16, as the PR direction requires. Every command below was
+executed in this environment; every result is its actual output, including the
+failures.
+
+## Why this record exists rather than only a CI link
+
+While the pull request was a draft, **CI did not run on it at all.** All three
+jobs in `.github/workflows/ci.yml` are gated on
+`github.event.pull_request.draft == false`, so the runs created for `e177e2d`
+([35156997717](https://github.com/athompson83/data-foundry/actions/runs/35156997717))
+and `8820914` ([35158953798](https://github.com/athompson83/data-foundry/actions/runs/35158953798))
+each reported **all three jobs `skipped`** — including `select required checks`,
+which has no other condition. For that window this record was the only
+verification signal available, which is why the whole `verify` job is reproduced
+below rather than a subset.
+
+The PR has since been marked ready for review under explicit owner
+authorization, and CI runs on it normally again. The record stays because it
+covers things CI does not: the pre-fix regression proofs, the live-libpq
+reproduction, and the checks the workflow does not run.
+
+## Hosted state of the exact-head run, inspected
+
+[Run 35156090216](https://github.com/athompson83/data-foundry/actions/runs/35156090216)
+on exact head `e031e4b`:
+
+| Job | Conclusion | Completed |
+| --- | --- | --- |
+| select required checks | **success** | 22:10:49Z |
+| migrations on real Postgres | **success** | 22:12:07Z |
+| typecheck • test • migrations • vertical config | **success** | 22:24:19Z |
+
+**The run object's own conclusion is `cancelled`, not `success`** — it was
+superseded after all three jobs had already completed. The job conclusions are
+the substance; the run-level `cancelled` reflects supersession, not a failure.
+
+That supersession was my error: I pushed `e177e2d` at 22:18Z while the third
+job was still running, having read a monitor event for the Postgres job as the
+whole run finishing. The direction was to wait for the exact-head run to finish
+and be inspected. It has now finished and is inspected, above.
+
+## What the repair changed
+
+Three review findings, each verified against primary evidence before any edit.
+All three were in the same operator-facing block, and each was a way for a
+documented procedure to fail while looking correct:
+
+1. **P1 — invalid Supavisor login.** `.pgpass` and the connection URL hard-coded
+   a bare `df_migration`, while `docs/evidence/ua002-execution-environment-20260916.md:165-166`
+   already recorded that the pooler's role name is project-qualified. The IPv4
+   fallback the same section recommends would have failed authentication.
+2. **P2 — invalid `.pgpass` encoding.** `:` is the field separator and `\` the
+   escape character in `.pgpass`; a valid password containing either was written
+   as structure rather than data.
+3. **P2 — append instead of replace.** libpq uses the first matching line, so a
+   stale entry from an earlier password beat the correct one appended below it.
+4. **P2 — exact-match filter missed wildcards.** Any of the first four fields may
+   be `*`, so a stale `*:*:*:<login>:…` survived the filter and, being earlier in
+   the file, still won.
+5. **P2 — a cancelled prompt was destructive.** With stdin at EOF the password
+   was empty, the block replaced a working credential with an empty-password
+   entry, and it exited 0.
+6. **P2 — a failed rewrite was still installed.** With a writable-but-unreadable
+   `.pgpass`, `awk` failed, `mv` installed a file containing only the new entry,
+   every unrelated credential was destroyed, and the block reported success.
+
+All three of the later findings were reproduced against a live cluster before
+any edit; see the sections below.
+
+The database-side identity assertion is unchanged: the runner still requires
+`session_user` and `current_user` to both be `df_migration` and refuses the run
+otherwise. Certificate verification, the no-password-in-URL property, and every
+existing migration and grant gate are untouched — the diff adds tests and edits
+one operator document.
+
+## Regression coverage added
+
+Prose assertions alone would let the snippet drift from what it claims, so both
+new files **execute** the artifact under test.
+
+`tooling/test/ua002-credential-placement-doc.test.ts` (19 tests) extracts the
+documented `.pgpass` block from the handover and runs it verbatim under `bash`
+with a throwaway `HOME`, then parses the result back with libpq's own rule
+(unescaped `:` separates, `\` escapes the next character). Passwords used are
+fictional strings chosen to contain the metacharacters — `pa:ss\wo:rd` and
+`:\:\` — and no real credential is referenced.
+
+`tooling/test/ci-postgres-readiness.test.ts` (5 tests) extracts the readiness
+loop from the workflow and drives it against a stubbed probe replaying the
+observed race: one success from the temporary `initdb` server, then that server
+going away, then the real server. No container, no database, no network.
+
+**Both were checked against the pre-fix revisions, because a regression test
+that passes on the broken version proves nothing:**
+
+| Test file | Against | Result |
+| --- | --- | --- |
+| `ua002-credential-placement-doc.test.ts` | doc at `e031e4b` (pre-fix) | **9 of 11 failed** |
+| `ua002-credential-placement-doc.test.ts` | doc at HEAD | 19 passed |
+| `ua002-credential-placement-doc.test.ts` | doc at `8820914` (append-only) | **2 of 13 failed** |
+| `ua002-credential-placement-doc.test.ts` | doc at `3b46ced` (exact-match, unguarded) | **4 of 18 failed** |
+| `ua002-credential-placement-doc.test.ts` | doc at `29f142c` (ungated write) | **1 of 19 failed** |
+| `ci-postgres-readiness.test.ts` | `ci.yml` at `0620672` (socket probe) | **4 of 5 failed** |
+| `ci-postgres-readiness.test.ts` | `ci.yml` at HEAD | 5 passed |
+
+The tests that pass on both are the ones that were already true before the fix
+(the block exists; the URL carried no password; the step fails closed).
+
+## Third finding: the `.pgpass` write replaced an entry, it did not append
+
+Raised on `8820914` and **reproduced against real libpq before any edit**, not
+reasoned about from documentation.
+
+A throwaway PostgreSQL 16 cluster with `scram-sha-256` password authentication
+was started on port 5433, and `psql` was pointed at it through a `.pgpass` whose
+contents were varied:
+
+| `.pgpass` contents | Result |
+| --- | --- |
+| correct entry only | **connects** |
+| stale entry first, correct entry second | **`password authentication failed`** |
+| correct entry first, stale entry second | **connects** |
+
+The middle row is exactly what the append-only procedure produced after a
+password rotation: the operator follows the documented steps, gets a correct
+entry appended below a stale one, libpq takes the first match, and the error
+blames the credential rather than the file.
+
+The block now drops any existing entry for the same host, port, database and
+login with `awk`, writes through a temporary file in the same directory, and
+`mv`s it into place. **Verified end-to-end against the same live cluster**, with
+a stale entry and an unrelated credential both seeded first:
+
+```
+.pgpass BEFORE
+  127.0.0.1:5433:postgres:pgowner:STALE-old-password
+  other.host:5432:otherdb:otheruser:keep-me
+
+.pgpass AFTER running the documented block
+  other.host:5432:otherdb:otheruser:keep-me
+  127.0.0.1:5433:postgres:pgowner:correct-horse
+  mode 600, no temporary file left behind
+
+psql using it -> pgowner
+```
+
+The stale entry is gone, the unrelated credential survives, and the connection
+actually authenticates. The cluster was destroyed afterwards; it held nothing
+but the fictional password above.
+
+Two tests were added for it, and the stale-entry one fails against the
+append-only block at `8820914`.
+
+## Fourth and fifth findings: wildcards, and the cancelled prompt
+
+Both raised on `3b46ced`, both reproduced against a live PostgreSQL 16 cluster
+with `scram-sha-256` before any edit.
+
+**Wildcards.** libpq allows `*` in any of the first four fields, and a wildcard
+counts as a match:
+
+| `.pgpass` contents | Result |
+| --- | --- |
+| `*:*:*:pgowner:correct-horse` alone | **connects** |
+| `127.0.0.1:5434:*:pgowner:correct-horse` alone | **connects** |
+| stale `*:*:*:pgowner:OLD` first, exact entry second | **`password authentication failed`** |
+| exact entry first, stale `*:*:*:pgowner:OLD` second | **connects** |
+
+So dropping only the *exact* duplicate was not enough. The fix is ordering: the
+new entry is written **first**, ahead of everything retained, which the last row
+shows is sufficient. The wildcard is deliberately **kept** — it may be serving
+the operator's other hosts, and deleting it would break connections this
+procedure has no business touching. That was the obvious way to overcorrect.
+
+**The cancelled prompt.** Running the `3b46ced` block with stdin at EOF against a
+`.pgpass` holding a working credential:
+
+```
+BEFORE  <host>:5432:<database>:<login-name>:THE-OPERATORS-REAL-PASSWORD
+block exit: 0
+AFTER   <host>:5432:<database>:<login-name>:
+```
+
+Worse than the finding described: it destroyed a working credential, wrote an
+empty password, and **reported success**. The block now requires `read` to
+succeed and yield something non-empty before writing anything, and says when it
+declines.
+
+**Both fixes verified end-to-end on the same cluster.** With a stale wildcard and
+an unrelated credential seeded, the new entry lands first, both existing lines
+survive, and `psql` authenticates. With stdin at EOF, `.pgpass` is byte-identical
+afterwards and the original credential still authenticates.
+
+Four of the five tests added for these fail against the block at `3b46ced`. The
+fifth — that a wildcard is preserved — passes on both, because the earlier
+exact-prefix filter also left wildcards alone.
+
+The cluster was destroyed afterwards. It held nothing but fictional passwords.
+
+## Sixth finding: a failed rewrite was installed anyway
+
+Raised on `29f142c`, reproduced before any edit. No database needed — the
+failure is in the file handling.
+
+A `.pgpass` holding two unrelated credentials was made writable but not readable
+(mode 200) and the block run as a non-root user:
+
+```
+BEFORE  other.host:5432:otherdb:otheruser:UNRELATED-CREDENTIAL-1
+        third.host:5432:db3:user3:UNRELATED-CREDENTIAL-2
+
+awk: cannot open "…/.pgpass" (Permission denied)
+~/.pgpass updated for <login-name> at <host>:5432/<database>
+exit: 0
+
+AFTER   <host>:5432:<database>:<login-name>:newpassword
+```
+
+Both unrelated credentials destroyed, and the block said it had succeeded. The
+temporary file protected against a *partial* write but nothing checked whether
+the rewrite had worked before installing it.
+
+`chmod` and `mv` are now chained onto the rewrite succeeding, and the temporary
+file is removed when it fails. Verified: with the same unreadable file the block
+declines, says *"~/.pgpass left unchanged: could not rewrite it."*, both
+credentials survive and no temporary file is left; the ordinary path still
+writes the new entry first, keeps the unrelated entry, and lands at mode 600.
+
+The test stands in for the permission denial with a failing `awk`, because the
+suite runs as root and root can read a mode-200 file. It fails against `29f142c`.
+
+## A pattern worth stating rather than burying
+
+Six findings, four review rounds, one shell snippet — and **CI was green for
+every one of them**. The checks that gate this repository do not reach a
+procedure written in prose, which is why these tests execute the block instead
+of asserting its text.
+
+Each finding was real and each fix was verified, but the shape of the artifact is
+the problem: a pasteable shell block that mutates a credential file has many
+failure modes and no natural place to handle them. The structural answer is to
+extract it into a tested script that the document references, with
+`set -euo pipefail` and real error paths. That is not done here — it is a larger
+change than these findings call for and would widen a pull request already under
+review — and it is recorded as the owner's call.
+
+## Resolution: a dedicated password file, verified against the real runner
+
+Six findings on one inline shell block, four review rounds, CI green throughout.
+Each was real and each fix was verified, but they share one cause: the procedure
+mutated `~/.pgpass`, a file the operator owns and other tools use. Ordering
+rules, wildcard precedence, metacharacters, cancelled input and failed rewrites
+are all consequences of editing someone else's file in place.
+
+The block is replaced by `tooling/scripts/ua002-migration-pgpassfile.sh`, which
+writes **one file this project owns** and never reads, rewrites or removes
+`~/.pgpass`. The class is gone by construction rather than case by case.
+
+### Alternate-file support was confirmed through the real runner first
+
+This design is only valid if the migration runner honours a password file at
+all, so that was measured before adopting it — not inferred. `tooling/scripts/migrate.ts`
+connects with `pg`, whose client consults `pgpass` only when the connection
+carries no password, and `directPostgresTlsConfig` sets none.
+
+A throwaway PostgreSQL 16 cluster with `scram-sha-256` and certificate-verified
+TLS was started, and `createPostgresDriver` itself was called against it:
+
+| Case | Result |
+| --- | --- |
+| `~/.pgpass` holds the password, URL carries none | **connects** |
+| no password file at all (control) | fails — `client password must be a string` |
+| `PGPASSFILE` names an alternate file | **connects** |
+| `PGPASSFILE` correct while `~/.pgpass` holds a **wrong** password | **connects** |
+
+The control rules out a false positive, and the last row proves the alternate
+file is genuinely the one consulted rather than coincidentally agreeing with
+`~/.pgpass`.
+
+### The helper, end-to-end against the same cluster
+
+Run with a decoy `~/.pgpass` containing a deliberately wrong password:
+
+```
+helper printed:
+  export PGPASSFILE='…/.data-foundry/ua002.pgpass'
+  export DATA_FOUNDRY_MIGRATION_DATABASE_URL='postgresql://pgowner@127.0.0.1:5435/postgres'
+
+connect through the real runner -> CONNECTED as pgowner
+decoy ~/.pgpass afterwards      -> byte-identical
+secret in the helper's stdout   -> none
+```
+
+The cluster was destroyed afterwards and held nothing but fictional passwords.
+
+### Acceptance conditions, and where each is pinned
+
+`tooling/test/ua002-migration-pgpassfile.test.ts` (14 tests), no database needed:
+
+| Condition | How it is covered |
+| --- | --- |
+| Cancelled or empty input performs no update | EOF and empty-string cases; existing file byte-identical |
+| File operation failures prevent success reporting | `mktemp`, `chmod`, `mv` each stubbed to fail: non-zero, no `export` printed, existing file intact |
+| Unrelated credentials unchanged | `~/.pgpass` seeded and asserted byte-identical; structurally never opened |
+| Temporary material cleaned up | Directory listing asserted to hold only the target, on success and on each failure |
+| Secrets absent from arguments, history, logs | `--password` refused outright; password read from a prompt; stdout and stderr asserted not to contain it |
+| Non-zero status without killing the operator's shell | Separate process; exit status asserted greater than zero |
+| Existing authentication, identity and TLS checks intact | The runner is untouched; the handover still names the `session_user`/`current_user` assertion as the check |
+
+`tooling/test/ua002-credential-placement-doc.test.ts` (7 tests) now asserts only
+that the document points at the helper and does not reintroduce a second,
+untested procedure — including a guard that no snippet writing to `~/.pgpass`
+reappears.
+
+## Seventh finding: the caller's environment, which owning the file does not fix
+
+Raised against `46abc2f`, after `417ed14` had already replaced that block. It
+splits into two halves that land differently, which is worth separating rather
+than answering as one.
+
+**The status half was already resolved structurally.** The block the finding
+targets no longer exists — `unset df_pw` and the `awk` filter both appear zero
+times in the document at `417ed14`. The helper exits non-zero on every failure
+path, measured on the current head:
+
+```
+mktemp fails -> exit 1, no `export` on stdout
+chmod  fails -> exit 1, no `export` on stdout
+mv     fails -> exit 1, no `export` on stdout
+cancelled    -> exit 1
+```
+
+Being a separate process is what makes that possible without `errexit`
+terminating an interactive shell — the objection that stood twice against the
+inline form.
+
+**The stale-environment half survived the redesign, and is the first finding on
+this procedure that did.** The helper prints exports for the operator to run, so
+a failure prints none — but `PGPASSFILE` or `DATA_FOUNDRY_MIGRATION_DATABASE_URL`
+exported by an *earlier* attempt stays live in that shell, and the next
+migration command would use it silently. Owning the password file does nothing
+about the caller's environment.
+
+The helper now names both variables on every failure path, and the handover
+tells the operator to clear them before starting, stating plainly that the
+helper cannot do it for them. A test asserts the warning on a cancelled prompt
+and on an `mv` failure.
+
+The first six findings were all consequences of mutating `~/.pgpass`, and the
+redesign made them impossible. This one is about a different thing, and no
+amount of care inside the helper would have reached it.
+
+## Eighth finding, P1: an interrupted run installed a world-readable password file
+
+Raised against `417ed14`, on the helper itself rather than on the document. It
+is the most serious defect found in this pull request, and the redesign
+introduced it.
+
+`trap cleanup EXIT INT TERM` ran a handler that removed the temporary file and
+**returned**. A handler that returns does not end the script: the shell resumes
+where it left off. So a `SIGINT` arriving after `mktemp` produced this sequence —
+handler deletes the temporary file, script carries on, the redirection
+*recreates* it under the ambient umask, and `mv` installs it.
+
+Reproduced deterministically by stubbing `chmod` to signal the script and then
+succeed, under the common `umask 022`:
+
+```
+script exit: 0
+INSTALLED FILE MODE: 644
+contents: h:5432:d:l:SECRET-PASSWORD
+-rw-r--r--
+```
+
+A **world-readable file containing the migration password**, installed while the
+script reported success. A handler that cleans up and returns is worse than no
+handler at all.
+
+Two changes. The signal handlers now clean up, clear the `EXIT` trap and exit
+(130 for `INT`, 143 for `TERM`), while `EXIT` keeps the ordinary cleanup for
+every other way out. And `umask 077` is set at the top, so no path that creates
+the file — including one that recreates it — can depend on the caller's umask.
+
+Same reproduction after the fix:
+
+```
+script exit: 130
+no file installed
+leftovers: (none)
+```
+
+and an ordinary run under `umask 022` still lands at mode 600 in a 700
+directory.
+
+Two tests cover it. The interruption test fails against `417ed14`. The
+umask-independence test passes against both, because `mktemp` and the explicit
+`chmod` already produced 600 on the *ordinary* path — only the interrupted path
+ever reached the ambient umask, and saying so is more useful than counting it as
+new coverage.
+
+## Ninth round: four findings, one of them procedural rather than mechanical
+
+All four raised against `ab12e4c` and all four reproduced before any edit.
+
+**P1 — the helper does not exist at the release the procedure checks out.** The
+execution sequence ran `git checkout 2063ea8…` and then reached for the helper.
+Verified directly:
+
+```
+$ git cat-file -e 2063ea8:tooling/scripts/ua002-migration-pgpassfile.sh
+fatal: path '…' exists on disk, but not in '2063ea8'
+```
+
+So the documented command would have failed with *"No such file or directory"*
+at exactly the point the credential had to be placed. This is the first finding
+in this series about the **procedure as a whole** rather than about the
+credential mechanism, and no amount of testing the helper in isolation would
+have caught it.
+
+The password file lives outside the checkout and does not depend on the revision
+checked out, so the credential step now comes **first**, with the reason stated.
+A test asserts the ordering by index rather than by prose, and will keep holding
+when the document is rebound to a release that does contain the helper.
+
+**P2 — later blocks overwrote the password-free URL.** Two blocks re-exported
+`DATA_FOUNDRY_MIGRATION_DATABASE_URL='...'` "from the secret store", which would
+have replaced the helper's password-free URL with a secret-bearing one and
+bypassed `PGPASSFILE` entirely — undoing the whole point of the redesign further
+down the same document. Both now say the value is already set and must not be
+re-exported. A test forbids the placeholder returning.
+
+**P2 — the emitted exports broke on a quoted path.** The operator is told to run
+them verbatim, and a `HOME` such as `/home/o'connor` produced
+`export PGPASSFILE='/tmp/o'connor-…'` — an unterminated string. Now emitted with
+`printf %q`. The test asserts what the exports *evaluate* to rather than how they
+are spelled, which is the property that actually matters.
+
+**P2 — a directory target succeeded.** `mv source directory` moves the source
+*into* it and returns 0, so with the target already a directory the helper
+reported success while `PGPASSFILE` pointed at a directory and the password sat
+in a randomly named file inside:
+
+```
+exit: 0
+files inside the directory: 1  ->  h:5432:d:l:SECRET
+```
+
+Directory targets are now rejected outright — `mv -T` would also cover it but is
+not portable. After the fix: exit 1, nothing written inside.
+
+All five tests added for this round fail against `ab12e4c`.
+
+## Tenth round: pinning the helper, and proving the whole path end to end
+
+### How the release and the helper are pinned
+
+The migration release stays at `2063ea8`. Moving it was the other option and was
+rejected: that SHA is woven through this document's packet exports, checksums and
+grant values, and changing it would require regenerating and re-verifying all of
+them for a reason that has nothing to do with migrations.
+
+The helper instead travels with **this document**. The sequence copies it out of
+the checkout the operator is reading from — an immutable reviewed revision,
+named by no branch and by no commit that refers to itself — records its SHA-256,
+and re-verifies that digest after the release is checked out, when the tree no
+longer contains the file:
+
+```bash
+cp tooling/scripts/ua002-migration-pgpassfile.sh "$UA002_DIR/"
+shasum -a 256 "$UA002_DIR/ua002-migration-pgpassfile.sh" | tee "$UA002_DIR/helper.sha256"
+…
+git checkout 2063ea8d72247a9b2643e1c690e37ab55ab14252
+shasum -a 256 -c "$UA002_DIR/helper.sha256"
+"$UA002_DIR/ua002-migration-pgpassfile.sh" --check
+```
+
+### The complete documented path, exercised
+
+Run in an isolated checkout against disposable PostgreSQL 16 with
+`scram-sha-256` and certificate-verified TLS, through **`createPostgresDriver`
+itself**. The release checkout was simulated by deleting the helper from the tree
+at the point the real `git checkout` would remove it, and a decoy `~/.pgpass`
+holding a different credential was present throughout:
+
+```
+step 0: helper preserved, digest 479856ec86c95450b1af1541…
+step 1: export PGPASSFILE=…/.data-foundry/ua002.pgpass
+        export DATA_FOUNDRY_MIGRATION_DATABASE_URL=postgresql://pgowner@127.0.0.1:5436/postgres
+simulate checkout: helper files left in tree: 0
+step 2: shasum -c -> OK
+        --check   -> environment is ready
+real migration driver -> CONNECTED as pgowner
+decoy ~/.pgpass -> byte-identical
+```
+
+So the instructions can be followed as written, and the credential they produce
+authenticates through the code the operator will actually run. Nothing hosted was
+touched; the cluster was destroyed and held only fictional passwords.
+
+### `--check`, so missing settings stop the procedure
+
+`--check` verifies `PGPASSFILE` and `DATA_FOUNDRY_MIGRATION_DATABASE_URL` are
+set, that the password file exists, is a regular file and is owner-only, and
+that the URL carries no password. It exits non-zero on each, so a chained
+procedure stops instead of reusing settings from an earlier attempt. It is
+invoked after the checkout and again before the preflight.
+
+### Destination and quoting hardening
+
+Directories were already rejected; symlinks pointing at directories are now
+rejected with their own message, `mv -T` is used where supported (probed, since
+BSD `mv` has no equivalent), and the destination is re-checked immediately
+before the move because the first check and the move are not atomic.
+
+The emitted exports were tested by evaluating them in a separate shell with a
+path containing spaces, a path containing a single quote, and a path containing
+`$(touch EXECUTED)`. Values come back exactly, and the marker file is never
+created — no command from the path is executed.
+
+Five of the tests added this round fail against `9deefb1`. Two pass against both:
+the space and quote cases, because `printf %q` landed in the previous round. One
+more passes there only because `--check` was an unknown argument at that
+revision and the helper died on it — a coincidental pass, not coverage.
+
+## Eleventh round: the starting instruction, and a signal after the rename
+
+**The reorder was not enough, and the reviewer was specific about why.** Moving
+the credential step above the in-block `git checkout` did not help, because the
+section still *opened* with "Run from a clean checkout of merged `main`
+`2063ea8…`". A fresh operator following that starts at a revision without the
+helper, so even the `cp` that preserves it fails. The sequence never obtained
+the helper before invoking it.
+
+Fixed by splitting the instruction rather than the release: the **migration
+steps** run from the `2063ea8` checkout, and the **credential step runs before
+that, from the checkout the operator is reading the document in** — which is the
+revision carrying the helper. The release SHA is untouched. A test asserts the
+old sentence is gone and the split is present.
+
+**A signal arriving after the rename committed reported the opposite of what
+happened.** Bash services traps between commands, so `SIGINT` can land after `mv`
+has already replaced the file. Reproduced with an `mv` wrapper that performs the
+real rename, signals its parent, then exits:
+
+```
+ua002-migration-pgpassfile.sh: interrupted; nothing was installed.
+exit: 130
+BUT the target EXISTS: h:5432:d:l:NEW-PASSWORD
+```
+
+The credential *had* been rotated and the operator was told it had not — the
+more damaging of the two possible wrong answers, because it invites a retry
+against a file that already changed.
+
+The helper now tracks how far the run got. After the rename it reports that the
+file was replaced; if the temporary file is gone but the run had not yet passed
+the rename, it says the outcome is uncertain and to verify with `--check`,
+rather than guessing:
+
+```
+interrupted during the final rename; …/ua002.pgpass may or may not have been
+replaced. Verify with --check.
+```
+
+Both tests fail against `488ba12`.
+
+## Twelfth round: provenance, and a permission change on someone else's directory
+
+**A digest you generate yourself proves integrity, not authenticity.** The
+sequence hashed whatever helper bytes were on disk and compared the copy against
+that later, so `shasum -c` only showed the copy had not changed. If the starting
+checkout were dirty or on an unreviewed revision, a modified helper would capture
+the migration password and pass every documented check — and the clean-worktree
+assertion happens *after* the release checkout, so it never covers the revision
+the helper came from. No expected digest appeared anywhere in the procedure.
+
+The handover now **publishes the reviewed SHA-256** of the helper, and the
+sequence compares against that published value before the helper is ever run,
+then re-verifies after the checkout. A test asserts the published digest equals
+the file's real digest, so the two cannot drift apart, and that the sequence no
+longer hashes-then-trusts its own copy.
+
+**The helper changed the mode of a directory it did not create.** `chmod 700` ran
+unconditionally before the password was even read, so a `--file` target inside a
+shared directory had other users' access revoked — including on a cancelled run
+that wrote nothing, contradicting the documented no-change-on-failure behaviour.
+Measured:
+
+```
+before: 755
+exit:   1        (cancelled prompt)
+after:  700      <- unchanged would be 755
+```
+
+Now only a directory this run creates is restricted. An existing one is left
+exactly as found, which is safe because the password file itself is created 0600
+and directory permissions do not govern reading a file's contents. Measured
+after the fix: 755 before, 755 after a cancelled run, 755 after a successful run,
+with the file at 600; and the default `~/.data-foundry` is still created at 700.
+
+Three tests cover these and fail against `d20e15f`.
+
+## Thirteenth round: the verification workflow itself
+
+Both findings are about `ci.yml` rather than the credential path, and both are
+real.
+
+**A manual verification could be cancelled by an ordinary push.** The
+concurrency key was `${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}`
+with `cancel-in-progress: true`. A `workflow_dispatch` on `main` has no pull
+request number, so it fell back to `refs/heads/main` — the same group a `push`
+to `main` uses. Either could cancel the other, and a second verification request
+would kill the first. For a feature whose entire purpose is answering one
+external request with one citable run, that is a direct defeat.
+
+The key now carries the event name, and a dispatch is keyed on its own run id,
+so it is neither cancelled nor cancelling. Superseding a pull-request push and a
+`main` push still works, which is what `cancel-in-progress` is for.
+
+**An early failure produced no evidence at all.** The emitter runs
+`pnpm exec tsx tooling/scripts/verification-evidence.ts`, which needs a
+successful checkout *and* install. With `if: always()` the step is still
+scheduled when those fail, but it then fails immediately and appends nothing —
+so the workflow's stated guarantee that a failed verification is reported did
+not hold for the failures most likely to occur on a clean runner. Confirmed:
+running the emitter without `node_modules` gives `ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL`.
+
+There is now a shell-only fallback that runs when the emitter cannot. It was
+exercised directly with a hostile correlation id and a planted secret in the
+environment:
+
+```
+correlationId  "../../etc/passwd; rm -rf /"  ->  "....etcpasswdrm-rf"
+overall        "fail"
+planted secret present in output?  no
+step exit      1
+```
+
+It carries the same `kind` and `notAProofOf` fields, reports empty `stages` and
+`syntheticFixtures` because nothing ran, and **can only ever say `fail`** — a
+fallback that could report success would be worse than no fallback.
+
+Both tests fail against `f3e987d`.
+
+### And the fallback promptly broke the case it was not for
+
+The next round found that my own fallback regressed the ordinary path.
+`verification-evidence.ts` **exits 1 on a `fail` verdict by design** — I built
+that deliberately, several rounds earlier, so a failed verification fails the
+step. My fallback keyed on the exit status alone, so a legitimate stage failure
+produced the detailed `overall: "fail"` block *and then* a second block claiming
+checkout or install had failed, with empty `stages`. A consumer reading the last
+block would get a false cause for every ordinary test failure. Reproduced:
+
+```
+STEP_MIGRATE=failure  ->  blocks in summary: 2
+                          last block reason: "the evidence emitter could not run…"
+                          last block stages: []
+```
+
+The step now measures whether the emitter *wrote* anything, rather than trusting
+its exit status, and only falls back when nothing was written:
+
+| Case | Blocks | Exit | Fallback used |
+| --- | --- | --- | --- |
+| a stage failed | 1 | 1 | no — the emitter's own verdict stands |
+| emitter could not run | 1 | 1 | yes |
+| everything passed | 1 | 0 | no |
+
+This one is worth naming as mine rather than as a finding: the previous round's
+fix introduced it, and the mechanism — treating a deliberate non-zero exit as an
+inability to run — was something I should have caught when I wrote the
+`exit 0 / exit 1` contract in the first place.
+
+## Fifteenth round: a gate that reported instead of stopping
+
+The digest gate I added the round before was **advisory**. The procedure block
+has no `set -e` — deliberately, because it is pasted into the operator's shell
+where that would be hostile — so `shasum -a 256 -c` printing `FAILED` did not
+stop anything. The next line ran the unverified helper and handed it the
+password. The gate existed and did nothing.
+
+This is the same shape as several earlier findings and it is mine: a check that
+reports rather than enforces. Adding the published digest was the right idea and
+I stopped one line short of making it real.
+
+Each guard is now chained to the thing it guards, which enforces without
+`set -e`:
+
+```bash
+shasum -a 256 -c "$UA002_DIR/helper.sha256" \
+  && "$UA002_DIR/ua002-migration-pgpassfile.sh" \
+       --host '<host>' --port 5432 --database '<database>' --login '<login-name>'
+```
+
+and likewise after the checkout, and for `--check` gating `pnpm ua002:operator`.
+Verified with a deliberately wrong digest:
+
+```
+…/ua002-migration-pgpassfile.sh: FAILED
+shasum: WARNING: 1 computed checksum did NOT match
+helper ran? 0
+```
+
+The helper never runs, so it never sees a password. A test asserts both digest
+checks and the `--check` are chained; it fails against `070cd70`.
+
+## Sixteenth round: the same gap one step further down, and what finally caught it
+
+The chaining I added last round stopped after `--check`. Several steps later in
+the same block, `pnpm ua002:operator` ran unchained — so a rejected environment
+(a missing `PGPASSFILE` beside a stale password-bearing URL, which can still
+authenticate) printed its rejection and carried on into the preflight and
+`--apply`. I had chained one call site and left the next.
+
+That is the fourth appearance of one pattern on this pull request: **a check that
+computes the right answer and does not bind.** The evidence artifact reporting
+`pass` on a failed run; the self-generated digest that verified nothing; the
+digest gate that printed and continued; and now a gate chained at one site and
+not the next.
+
+So the fix was not to chain that one call site. It was to write the assertion
+against the *class*:
+
+```ts
+const invocations = [...HANDOVER.matchAll(/pnpm ua002:operator/gu)];
+const gated = [...HANDOVER.matchAll(/--check \\\n\s+&& pnpm ua002:operator/gu)];
+expect(gated.length).toBe(invocations.length);
+```
+
+**That test immediately failed on my own fix** — 4 invocations, 3 gated. It found
+a fourth call site in the numbered procedure that I had not noticed and that the
+review had not mentioned. Chaining by hand would have shipped it.
+
+Also corrected: inserting the credential steps had left two `# 1.` and two `# 2.`
+in the same block, which makes "only once step 4 is clean" ambiguous about which
+step 4. The block is renumbered 1–8 and a test asserts the numbers are unique and
+consecutive.
+
+Both tests fail against `505a15f`.
+
+## Seventeenth round: what a pasted block can and cannot enforce
+
+The second digest check gated only the `--check` chained to it. Steps 4 to 6
+followed regardless, and steps 7 and 8 invoked the same preserved helper again
+without re-verifying it. A copy modified after step 3 would be trusted by every
+later use.
+
+The reviewer's framing — "gate the entire remainder of the procedure" — is the
+part worth sitting with, because **a pasted block cannot do that.** There is no
+`set -e` (deliberately: it is the operator's interactive shell), and steps 4 to 6
+include a privileged provider action and a manual SQL snapshot that cannot be
+chained to anything. An earlier check can only ever gate what is chained to it.
+
+So the fix is not a longer chain. It is to re-verify **at each point of use**:
+every invocation of the helper is now immediately preceded by a chained
+`shasum -a 256 -c`. That gates every actual use, and additionally covers the case
+an unbroken chain would not — a copy modified *after* an earlier successful
+check.
+
+Six invocations, six gates. Two of them were gated before this round.
+
+### The test I had written was the same mistake one layer up
+
+The class assertion added last round said *"exactly 2 chained digest checks"*. A
+hard-coded count is assert-the-case in test form: it passed while four
+invocations went ungated, and then failed on the fix for being the wrong number
+rather than for anything real. It now counts every `shasum -a 256 -c` in the
+document and requires all of them to be chained, and separately requires every
+helper invocation to be digest-gated.
+
+This is the fifth appearance of the pattern and the second time my own guard
+against it was written in the form it was guarding against.
+
+**A note on the check that caught my own error here.** My first attempt added a
+second `env:` block to a step that already had one. `python3 -c "import yaml"`
+accepted the duplicate key and reported the file as valid; the repository's own
+test, which uses the stricter `yaml` package, rejected it. The looser parser I
+reached for would have let a broken workflow through.
+
+## Eighteenth round: a failure that could not reach `set -e`
+
+A P2 on the helper, and the first finding in this PR that is about the shell
+rather than about the procedure. `escape_field` is a pipeline inside a command
+substitution:
+
+```bash
+printf '%s:%s:%s:%s:%s\n' "$(escape_field "$host")" ... > "$temporary"
+```
+
+`printf` reports its own status, never the substitution's, so `set -e` never saw
+a `sed` that failed — and the pipeline status `pipefail` computed was discarded
+with the subshell that computed it. Reproduced against `b9ec9b9` with a `sed`
+stub that exits 4:
+
+| `sed` behaviour | installed file | exit |
+| --- | --- | --- |
+| fails for every field | `::::` | **0** |
+| fails for the password only | `<host>:5432:<database>:<login-name>:` | **0** |
+| works (control) | `<host>:5432:<database>:<login-name>:pa\:ss\\wo\:rd` | 0 |
+
+Both failures also printed `Wrote …` and the two `export` lines, and `--check`
+then **accepted** the corrupted file, because it validates the file's type and
+permissions rather than its contents.
+
+The second row is worse than the reported one. Four fields escape normally and
+only the password comes back empty, so the line matches the real host and login
+with an **empty password** — the precise defect this helper was built to make
+impossible, arriving through a different door. It is the same shape as every
+other finding in this PR: something computes a wrong answer and nothing binds
+on it.
+
+The fix is an assignment, because an assignment's status *is* the substitution's:
+
+```bash
+escaped_host="$(escape_or_die 'host' "$host")" || exit 1
+```
+
+Each field is escaped into a checked variable **before `mktemp` runs**, so a
+failure changes nothing at all rather than being cleaned up afterwards, and the
+message names the field. `escape_or_die` also rejects an empty result on a
+zero status, because a `sed` that exits 0 having written nothing — a truncated
+write, a closed pipe — would otherwise pass: every input is already known
+non-empty and escaping only ever adds characters.
+
+After the fix, both failing rows become exit 1 with no file installed and an
+existing credential left intact; the control still produces
+`pa\:ss\\wo\:rd`, so the guard did not replace the behaviour it guards.
+
+Three of the four new tests fail against `b9ec9b9`. The fourth is the control
+and passes on both — it is there to pin the ordinary path through the same
+stubbed harness, not to count as coverage.
+
+**A measurement error of my own, recorded because it nearly stood.** My first
+check of the fix read `${PIPESTATUS[0]}` from `printf … | helper | tail`, which
+is the status of the `printf` feeding stdin, not of the helper. It reported
+`exit=0` for a run that had correctly failed. Re-measured by running the helper
+with stdin redirected from a file and reading `$?` directly.
+
+## Nineteenth round: the variable that wins
+
+A P2, and the first finding in this PR about a source of credentials the
+procedure never mentioned. `PGPASSWORD` does not compete with `PGPASSFILE` — it
+**overrides** it.
+
+Confirmed in `pg@8.23.0`'s own source before testing anything:
+`connection-parameters.js` resolves `val('password', config)`, which falls back
+to `process.env['PGPASSWORD']`, and `client.js` reaches
+`require('pgpass')` only in the `else` branch where `this.password === null`.
+
+Then at runtime, with the exact config the migration driver builds:
+
+```
+no PGPASSWORD       : client.password = null              -> pgpass CONSULTED
+PGPASSWORD exported : client.password = "STALE-ENV-SECRET" -> pgpass SKIPPED
+```
+
+And then behaviourally, through `createPostgresDriver` itself against a
+disposable TLS PostgreSQL 16 with `scram-sha-256`:
+
+| `PGPASSFILE` | `PGPASSWORD` | result |
+| --- | --- | --- |
+| correct | unset | CONNECTED as `testlogin` |
+| correct | **wrong** | **FAILED — `password authentication failed`** |
+| correct | correct | CONNECTED as `testlogin` |
+| unset | unset | FAILED — `client password must be a string` |
+
+Row two is the finding: a **correct** password file, placed by this procedure,
+ignored. The symmetrical case is worse and not directly observable here — a
+stale `PGPASSWORD` that happens to be valid authenticates with a credential this
+procedure never placed and the operator may not remember setting.
+
+The handover now clears `PGPASSWORD` alongside the other two, and `--check`
+refuses while it is set — **first**, before the other checks, because every one
+of them would otherwise be reporting on a file the driver is not going to read.
+An exported-but-empty `PGPASSWORD` still passes: `pg` treats it as absent, and
+refusing it would block a shell that had merely cleared it.
+
+### A wording defect found while reading the output
+
+`--check` failures ended with *"nothing was installed"*, inherited from the
+write path. `--check` runs at steps 3, 7 and 8 — after the credential is in
+place — so that sentence reads as though the credential step had just failed.
+The lead-in is now mode-aware: *"the environment was rejected; the migration
+must not be run against it."*
+
+### Recorded, not acted on
+
+`pg@8.23.0` emits `pgpass support is deprecated and will be removed in pg@9.0`
+on every connection that uses it. The whole `PGPASSFILE` design rests on that
+support. It is not a blocker today and upgrading `pg` is outside this PR, but
+whoever moves to `pg@9` will need the documented alternative — an async
+`password` function on the client — or this procedure stops working.
+
+Two of the three new assertions fail against `7b3bb0b`. The third — an empty
+`PGPASSWORD` still passing — is a control that passes on both.
+
+**A second measurement error of the same kind as the last round.** Twice I read
+`$?` after piping the helper's output through `head`/`tail` and got the pipe's
+status rather than the helper's, reporting `exit=0` for runs that had correctly
+failed. Both times re-measured with the helper's stdout redirected instead of
+piped. Worth naming because it is the same defect I keep finding in the code:
+reading a status that belongs to something else.
+
+## The TCP readiness repair, verified locally
+
+The loop was extracted from the workflow and driven with a stubbed `docker`
+replaying fixed probe outcomes (`y` = probe succeeds) and a stubbed `sleep`:
+
+| Probe sequence | Meaning | Result |
+| --- | --- | --- |
+| `y n n y y…` | init server answers once, shuts down, real server starts | `ready=true` after **5 probes** |
+| `y y y…` | healthy from the start | `ready=true` after 2 probes |
+| `y n y n…` | flickering, never two in a row | `ready=false` after 60 probes |
+| `n n n…` | never ready | `ready=false` after 60 probes |
+
+The first row is the repair working: the predecessor declared readiness on the
+first success, at probe 1, and the next step then failed with *"the database
+system is shutting down"*. Rows three and four confirm it still fails closed
+rather than proceeding.
+
+## Exact commands and results
+
+### Full `verify`-job parity — every step, in workflow order
+
+Run on `8820914`. The commit that followed changes only this record, `PROGRESS.md`,
+one operator document and one tooling test file, so the narrowest relevant checks
+were re-run for it rather than the whole job again (AGENTS.md: *"Run the narrowest
+relevant local checks first, and broaden only when shared code, schemas,
+migrations, security boundaries, or release behavior changed."*). On that head:
+`pnpm typecheck` PASS, `pnpm vitest run tooling/test` PASS at **40 files / 758
+tests**, markdown link check 114 links with the same 6 pre-existing breakages and
+no new ones.
+
+```
+pnpm typecheck                                      PASS
+pnpm test                                           PASS   224 files, 3510 tests
+pnpm migrate:check                                  PASS
+pnpm schemas:check                                  PASS
+pnpm openapi:check                                  PASS
+pnpm cloudflare:topology:check                      PASS
+pnpm verticals:validate                             PASS
+pnpm verticals:compile:check                        PASS
+pnpm acquisition:check                              PASS
+pnpm ingestion:check                                PASS
+pnpm mcp:compile:check                              PASS
+pnpm web:compile:check                              PASS
+pnpm cloudflare:artifacts:check                     PASS
+pnpm cloudflare:synthetic-ingestion:artifacts:check PASS
+```
+
+`pnpm lint` also passes. The 3510 total includes the 16 tests added here.
+
+### Workflow YAML validation
+
+```
+.github/workflows/ci.yml   parsed OK — 3 jobs, 42 steps
+```
+
+### Shell syntax check of every workflow `run:` block
+
+Each `run:` block was extracted, GitHub `${{ … }}` expressions substituted, and
+checked with `bash -n`:
+
+```
+shell run-blocks syntax-checked: 37, failures: 0
+```
+
+### Markdown relative-link check
+
+All 113 relative links across every tracked `.md` file were resolved against the
+filesystem.
+
+```
+relative markdown links checked: 113
+broken: 6
+```
+
+**All six are pre-existing and outside this PR's scope.** They are in
+`docs/reference/platform-reference-20260903.md`, which this PR does not touch,
+and all six are the same mistake — repository-root paths written inside a file
+in `docs/reference/`, so they resolve to `docs/reference/docs/…`:
+
+```
+docs/decisions/ADR-0011-web-frontend-and-multi-industry-sites.md   (×2)
+docs/decisions/ADR-0006-cloudflare-is-the-deployment-target.md
+docs/evidence/alpha-lab-provider-reconciliation-20260831.md
+docs/owner-actions/cloudflare-deployment.md
+docs/owner-actions/revenue-readiness.md
+```
+
+Every target exists at the repository root, so the fix is to make each link
+relative to the file (`../decisions/…`, `../owner-actions/…`). **Not applied
+here** — it would widen a PR that is under review for something else. It is a
+separate one-file change whenever wanted.
+
+## Twentieth round: cleanup as a security outcome
+
+The final review on `e9f2735` found the staged credential could survive a failed
+cleanup. `cleanup()` was:
+
+```bash
+cleanup() {
+  [ -n "$temporary" ] && rm -f -- "$temporary"
+  return 0
+}
+```
+
+`rm -f` suppresses "no such file", which is wanted, but it does not suppress
+`EACCES` — and the `return 0` meant nothing read the status anyway. So a removal
+that *failed* could not affect the outcome.
+
+Reproduced against `e9f2735` as an **unprivileged user**, with a stubbed `mv`
+that sets the directory to mode `0500` and then fails:
+
+```
+exit=1
+  helper.sh: could not install .../ua002.pgpass
+  helper.sh: nothing was installed. ...
+  rm: cannot remove '.../.ua002.pgpass.xUmzY4': Permission denied
+left on disk:
+  .ua002.pgpass.xUmzY4  mode=600
+  db.example.invalid:5432:postgres:example.login:REAL-LOOKING-BUT-FICTIONAL-PASSWORD
+```
+
+**My first attempt failed to reproduce it and I nearly reported it unfounded.**
+I ran as `root`, which bypasses the directory permission check, so `rm`
+succeeded and the directory came back empty. Root is the wrong harness for a
+permission defect.
+
+### The fix: destroy the secret, then the file
+
+Reporting the leak honestly is necessary and **not sufficient** — the owner's
+instruction was explicit that changing the wording enough to make the existing
+behaviour look acceptable is not the fix. So `cleanup()` now **empties the file
+before trying to unlink it**:
+
+```bash
+if [ -e "$temporary" ]; then
+  : > "$temporary" 2>/dev/null || true
+fi
+rm -f -- "$temporary" 2>/dev/null || true
+```
+
+Truncating needs write permission on the **file**, which this run owns at `0600`.
+Unlinking needs write permission on the **directory**, which is precisely what is
+missing in the case this guards. The two permissions are different, so the secret
+can be destroyed even when the file cannot be.
+
+`cleanup()` then returns a status and sets `residual` when the file is still
+there *after* the attempt — checking presence rather than trusting `rm`'s exit
+code, so a removal that raced with something else deleting the file is not
+reported as a leak. `cleanup_and_report` prints, once, the path and the fact
+that it holds the password in clear text, and every summary line that could have
+read as an all-clear is now conditional on `residual`.
+
+The same semantics apply on ordinary failure, `INT`, `TERM` and `EXIT`. The
+non-`staged` signal branch is not dead code: a signal can land between `mktemp`
+succeeding and `stage='staged'`, so a temporary file can exist while the stage
+still reads `start`.
+
+`residual_bytes` separates the two outcomes, so the operator is told which one
+they are in rather than getting one message that covers both:
+
+- emptied but not removed → *"no password bytes remain in it"*
+- neither → *"could not be emptied … treat that password as exposed"*
+
+Re-run of the same unprivileged reproduction after the fix:
+
+```
+exit=1
+  helper.sh: could not install .../ua002.pgpass
+  helper.sh: WARNING: the temporary password file MAY STILL EXIST: .../.ua002.pgpass.gKL2qp
+  helper.sh: it was emptied first, so no password bytes remain in it, but it
+             could not be removed. Delete it yourself when you can.
+  helper.sh: .../ua002.pgpass was not installed, but secret-bearing temporary
+             material may remain (see above). ...
+
+residual: .ua002.pgpass.gKL2qp   bytes=0   mode=600
+occurrences of the password on disk and in output: 0
+```
+
+The file that survives is now **zero bytes**. That is the difference between an
+empty file left behind and a credential left behind.
+
+### Two mistakes of mine in this round
+
+**I claimed a patch had applied when the output never said so.** The command was
+`… | grep -c "[v]itest" && python3 - <<'PY'`; the grep found nothing, which is
+exit status 1, so the `&&` short-circuited and **python never ran**. The
+`bash -n` that followed on its own line then validated the *unpatched* file and
+printed `syntax OK`, which I read as confirmation. The regression test caught it
+one step later — `expected 52 to be +0` — which is exactly what a test asserting
+bytes rather than wording is for. Every patch step since prints an explicit
+`PATCH-APPLIED` marker and greps for the change.
+
+**I started the parity run twice on a tree that then changed.** Once after a
+comment tidy, once after this truncation work. Both runs were killed rather than
+reported. Parity means parity with what ships.
+
+### Why the regression test stubs `rm` rather than dropping privileges
+
+The property under test is how the helper responds when removal fails and the
+secret-bearing file remains. Dropping privileges needs `su`, which needs root —
+and CI runs as an unprivileged `runner`, so a privilege-dropping test would pass
+vacuously there. Stubbing `rm` reproduces the same compound failure
+deterministically for any user, which is the same harness this suite already
+uses for `mktemp`, `chmod` and `mv`. The real-permission run above is the
+faithfulness check, and it is recorded here rather than automated.
+
+Four new assertions fail against `e9f2735`; two are controls that pass on both —
+the ordinary-failure-with-successful-cleanup path, and the success path carrying
+no password in its output.
+
+### One process note
+
+I started the parity run, then tidied a comment block in the helper, which
+changed its bytes and therefore its published digest. That made the in-flight
+run a run of a tree that no longer existed, so it was killed and restarted after
+the tree was final. Parity means parity with what ships.
+
+## Consolidated parity run before the single push
+
+Run on the working tree that became the consolidated commit, after the owner's
+instruction to run the full recorded local parity once and make at most one
+push. Every command in workflow order, plus `lint`:
+
+```
+pnpm typecheck                                       PASS
+pnpm test                                            PASS   225 files, 3556 tests
+pnpm migrate:check                                   PASS
+pnpm schemas:check                                   PASS
+pnpm openapi:check                                   PASS
+pnpm cloudflare:topology:check                       PASS
+pnpm verticals:validate                              PASS
+pnpm verticals:compile:check                         PASS
+pnpm acquisition:check                               PASS
+pnpm ingestion:check                                 PASS
+pnpm mcp:compile:check                               PASS
+pnpm web:compile:check                               PASS
+pnpm cloudflare:artifacts:check                      PASS
+pnpm cloudflare:synthetic-ingestion:artifacts:check  PASS
+pnpm lint                                            PASS
+```
+
+Workflow YAML, parsed with the repository's own strict `yaml` package rather
+than a looser one:
+
+```
+ci.yml parsed OK — 3 jobs, 42 steps
+```
+
+Every `run:` block extracted, `${{ … }}` substituted, `bash -n`:
+
+```
+shell run-blocks syntax-checked: 37, failures: 0
+```
+
+Relative markdown links across every tracked `.md`:
+
+```
+relative markdown links checked: 114
+broken: 6
+```
+
+The same six, all in `docs/reference/platform-reference-20260903.md`, which this
+PR does not touch. No new breakage.
+
+### What a push cannot verify while this PR is a draft
+
+Every job in this workflow is gated on `github.event.pull_request.draft ==
+false`. The consolidated push therefore produces an **all-skipped** event rather
+than a run, so there is no exact-head CI evidence for it to inspect. The two
+requirements — keep the PR a draft, and inspect the exact-head run — cannot both
+be satisfied. This record states which one held: the PR stayed a draft, and the
+local parity above is what stands in for the run.
+
+## What this does not verify
+
+- **Nothing hosted.** No hosted migration was applied, no credential was
+  created, requested or used, and no provider state was changed.
+- **No real-Postgres job locally.** That job runs in CI, not here. It is green
+  on every head of this PR that CI has reached, most recently `c721444` — see
+  the readback below.
+- **Not a deployed-runtime proof.** Unchanged from the PR's own statement: no
+  Cloudflare Worker, Queue, R2 or hosted database is exercised by any of this.
+
+## Correction: branch-candidate evidence already exists
+
+I previously said the sanitized verification evidence was waiting on the merge,
+because `workflow_dispatch` only resolves against a workflow file on the default
+branch. That conflated the **trigger** with the **artifact**. The evidence step
+runs in the real-Postgres job on every run, including pull-request runs, so
+passing evidence already existed on the branch.
+
+Read back from
+[run 35165734258, job 105026309326](https://github.com/athompson83/data-foundry/actions/runs/35165734258/job/105026309326),
+emitted 2026-09-17T00:15:48Z for `29f142c`:
+
+- `kind: disposable-postgres-e2e-integration-proof`, `overall: "pass"`
+- all **ten** stages `success`, individually listed
+- both pinned fixtures `pinnedDigestMatches: true`
+  (`acme-catalog.json`, `ahri-export.csv`)
+- `gitSha` pinned to the exact head
+
+**What it is:** branch-candidate disposable-PostgreSQL integration evidence.
+**What it is not:** completed full CI for that head, review approval, a merge, a
+`workflow_dispatch` run, or anything hosted. Only the dispatch trigger needs
+`main`; the artifact never did.
+
+### Read back again at `c721444`
+
+The same artifact, from
+[run 35176901239, job 105060509627](https://github.com/athompson83/data-foundry/actions/runs/35176901239/job/105060509627),
+emitted 2026-09-17T03:07:31Z — twenty-one steps, all `success`:
+
+```
+"kind": "disposable-postgres-e2e-integration-proof"
+"gitSha": "c721444d305e73b0a9561a8a142d8a879ad4ff51"
+"correlationId": "ci"
+syntheticFixtures  acme-catalog.json  4597 bytes  pinnedDigestMatches: true
+                   ahri-export.csv    1868 bytes  pinnedDigestMatches: true
+stages             disposable-tls-postgres        success
+                   apply-migrations               success
+                   reapply-is-noop                success
+                   stage-roles-and-grants         success
+                   runtime-role-direct-tls        success
+                   ingestion-publish-e2e          success
+                   privilege-negative-controls    success
+                   source-record-reconciliation   success
+                   credential-provisioning        success
+                   scheduled-acquisition-controls success
+"overall": "pass"
+```
+
+Every connection string in that job's environment block is rendered
+`***localhost:5432/data_foundry`, and the emitted document carries no password,
+host secret or token — which is the property its tests assert against planted
+values, observed here on a real run rather than only in the test.
+
+So no `workflow_dispatch` is required to produce this evidence, and reproducing
+it by dispatch would add nothing that this run does not already show.
+
+## Twenty-second round: the two recorded residuals, closed
+
+The previous round recorded two residuals in the parent-directory check and
+explicitly did not fix them, because the authorization for that pass did not
+cover further changes. This round closes both. They are restated here as they
+were written, so what follows can be read against the claim it answers:
+
+> 1. **Ownership is not checked**, only the group- and other-write bits. A
+>    `0755` directory owned by another user is accepted, and that user can still
+>    unlink a file staged there by a run with write access it does not own — in
+>    practice a root-run staging. Confirmed by measurement.
+> 2. **Only the immediate parent is checked, not the ancestor chain.** A
+>    world-writable, non-sticky ancestor would allow the parent directory itself
+>    to be substituted. Not demonstrated; recorded as scope rather than as a
+>    confirmed attack.
+
+### Residual 1, reproduced against `44cec28` and then through to its consequence
+
+A staging directory at mode `0755` owned by uid 65534, with the helper run as
+root — write access it does not own, which is the shape the residual names:
+
+```
+### staging directory: drwxr-xr-x 2 65534 65534 4096 /tmp/resid1/shared
+### running as uid 0
+
+--- PRE-FIX 44cec28 ---
+Wrote /tmp/resid1/shared/ua002.pgpass for <login> at <host>:5432/<db>
+export PGPASSFILE=/tmp/resid1/shared/ua002.pgpass
+status=0
+contents of the other user's directory:
+-rw------- 1 0 0 44 ua002.pgpass
+```
+
+The residual said the directory's owner "can still unlink a file staged there".
+That was asserted rather than shown, so it was shown — acting as uid 65534, who
+owns neither the file nor the run:
+
+```
+unlinked the root-owned credential: OK
+installed a symlink in its place: OK
+
+the path PGPASSFILE was told to use now resolves to:
+lrwxrwxrwx 1 65534 65534 ua002.pgpass -> /tmp/resid1/attacker-target
+```
+
+Mode `0600` and root ownership protect the file's *contents*. Neither protects
+its *name*, which belongs to whoever owns the directory. The same run against
+the fixed helper:
+
+```
+--- FIXED ---
+/tmp/resid1/shared is owned by uid 65534, not by uid 0 which is running this;
+its owner could replace the staged password file before it is written.
+Point --file at a directory you own
+nothing was installed.
+status=1
+contents of the other user's directory:
+total 0
+```
+
+### Residual 2 was worse than recorded, and an ancestor check alone does not close it
+
+The residual called ancestor substitution "not demonstrated". It is
+demonstrated below — and the first attempt at a fix showed the recorded framing
+was also incomplete.
+
+Checking the ancestors of the **resolved** directory does not bind the path the
+helper actually writes through, because those are two different paths whenever
+the name contains a symlink. `--file /tmp/shared/link/ua002.pgpass`, where
+`/tmp/shared` is world-writable and `link` points at a directory of the
+operator's own, passes an ancestor check completely honestly: the resolved chain
+really is safe. Then `mktemp` and `mv` resolve `link` a second time, and another
+local user swaps it in between.
+
+Reproduced deterministically by performing the swap from a `mktemp` stub, which
+is the same technique the interrupt tests use — it places the swap inside the
+window instead of racing for it. Against `44cec28` the password line landed in
+the attacker's directory with the helper exiting 0:
+
+```
+× stages through the chain it checked, not through a symlink that can be swapped
+  → the password must not follow a symlink swapped after the checks:
+    expected [ 'ua002.pgpass' ] to deeply equal []
+```
+
+This is the same defect the whole file keeps producing, arriving by way of the
+path rather than the shell: a check that computes the right answer about one
+directory while the write goes to another.
+
+### What the fix does
+
+Three parts, all before the password is read:
+
+1. **The staging directory must be owned by the effective uid.** Refusing is
+   available here where tightening the mode is not — an earlier round fixed the
+   defect of modifying a directory the run did not create, and a refusal leaves
+   a shared directory exactly as it was.
+2. **Every ancestor must be owned by uid 0 or the effective uid, and must not be
+   group- or other-writable unless it is sticky.** Sticky is not a convenience
+   exemption: in a sticky directory only an entry's owner, the directory's owner
+   and root may rename or unlink it, and the entry in question is the next
+   component down, which the same loop has already established is owned by root
+   or by this run. `/tmp` is `1777`, and refusing it would refuse every
+   supported run whose `HOME` lives there, including the test suite itself.
+   The staging directory keeps the stricter rule with no sticky exemption,
+   because a new entry is *created* there rather than merely reached.
+3. **Staging and installation both go through the resolved path**, every
+   component of which the walk above accounted for. Messages keep naming the
+   path the operator typed, which is what they can act on; `PGPASSFILE` names
+   the resolved one, which is where the file physically is.
+
+Ownership is read from `ls -ldn` as a **numeric** id — a name is a lookup that
+can fail or collide — and parsed with `read` rather than an unquoted expansion,
+so a directory name containing a glob character cannot reshape the line being
+parsed. A listing that could not be obtained, or whose fields are not a
+directory mode followed by numeric link and owner counts, is unknown, and
+unknown fails closed exactly as the mode check has always done.
+
+### One defect introduced by this fix, found by re-reading the diff
+
+Rebinding `target` onto the resolved directory takes its basename, and
+`--file .../` has none. An existing directory is already refused further up by
+the `-d` test, but a path ending in `/` that does **not** exist is not: `dirname`
+strips the slash, the checks pass against the real parent, and the rebinding
+produced `mv "$temporary" "/parent/"`. GNU `mv -T` refuses that, which is the
+only reason it was visible at all; BSD `mv` has no `-T`, and there it would have
+installed the password under the temporary file's random name and reported
+success — the same defect an earlier round fixed for directory targets, reopened
+by my own change on the platform that does not refuse.
+
+An empty basename is now rejected outright, before the password is read. Against
+`44cec28` the new test fails on the message, because the pre-fix helper reaches
+`mv` and fails there instead:
+
+```
+× refuses a --file that ends in a slash and so names no file
+  → expected 'mv: cannot move \'/tmp/ua002-staging-…' to contain '--file must name a file'
+```
+
+### The coverage, and what it does against the pre-fix revision
+
+Eight tests added, `tooling/test/ua002-migration-pgpassfile.test.ts` 45 → 53.
+Run against `44cec28`:
+
+```
+× refuses a staging directory owned by another user, before reading the password
+× refuses a world-writable non-sticky ancestor, before reading the password
+× refuses a group-writable non-sticky ancestor
+✓ still writes below a world-writable ancestor that is sticky, because /tmp is one
+✓ accepts a root-owned ancestor, which is what every supported path has
+× stages through the chain it checked, not through a symlink that can be swapped
+× refuses a --file that ends in a slash and so names no file
+× refuses an ancestor whose permissions could not be read
+
+Tests  6 failed | 2 passed | 45 skipped (53)
+```
+
+Six fail on the affected revision. The two that pass are controls, stated as
+already-true rather than counted as coverage: they exist to pin that the rule
+does not over-refuse the paths every real run uses.
+
+The ownership test is constructed from whichever side the run can actually
+reach, so it is measured rather than skipped in both environments: as root by
+giving the directory away, and unprivileged by staging into one already owned
+by root. CI runs unprivileged and takes the second.
+
+### Refused *before* the password is read, measured rather than assumed
+
+Each refusal test drains whatever is left on stdin after the helper exits. bash
+reads a pipe one byte at a time precisely so that what it did not consume is
+still there, which makes the ordering observable. The same run by hand, as uid
+65534, staging into `/`:
+
+```
+--- helper-prefix (44cec28) ---
+mktemp: failed to create file via template '//.ua002.pgpass.XXXXXX': Permission denied
+could not create a temporary file in /
+STATUS=1
+--- stdin remaining ---
+                                  <- empty: the password was taken first
+
+--- helper-fixed ---
+/ is owned by uid 0, not by uid 65534 which is running this; ...
+STATUS=1
+--- stdin remaining ---
+SECRET-PASSWORD                   <- never read
+```
+
+Both exit non-zero, so a status check alone would have called the pre-fix
+behaviour correct. It is not: it read the operator's password and only then
+failed for an unrelated reason.
+
+### The supported path still works
+
+The documented default path — no `--file` — executed end to end as uid 65534,
+with a fictional password:
+
+```
+Wrote /tmp/supported/.data-foundry/ua002.pgpass for <login-name> at <host>:5432/<database>
+export PGPASSFILE=/tmp/supported/.data-foundry/ua002.pgpass
+install status=0
+--check: environment is ready (PGPASSWORD unset, PGPASSFILE present and owner-only, URL carries no password)
+check status=0
+drwx------ 2 nobody nogroup /tmp/supported/.data-foundry
+-rw------- 1 nobody nogroup /tmp/supported/.data-foundry/ua002.pgpass
+```
+
+The whole file, run as an unprivileged user rather than as root, because CI runs
+unprivileged and root would not exercise the branch CI takes:
+
+```
+setpriv --reuid=65534 --regid=65534 --clear-groups  npx vitest run \
+  tooling/test/ua002-migration-pgpassfile.test.ts
+  ✓ 53 tests passed
+```
+
+And the full tooling suite as root: **41 files, 825 tests, all passing.**
+
+### The published digest moved, because the helper did
+
+`tooling/scripts/ua002-migration-pgpassfile.sh` is now:
+
+```
+1faa2ccdb3bffcbb7b8bb0f06b456a0737774b0e34412d782298185f05c65079
+```
+
+`docs/owner-actions/ua-002-hosted-migration-handover.md` publishes that value at
+both use sites, and `ua002-credential-placement-doc.test.ts` asserts it equals
+the file's real digest, so the two cannot drift. The pinned migration release
+`2063ea8` is unchanged; nothing about the operator sequence moved.
+
+### What this round does not verify
+
+- **Nothing hosted.** No migration applied, no credential created, requested,
+  used or rotated, no role activated, no provider state changed, no deployment,
+  no DNS change.
+- **No real second account was created.** Every unprivileged measurement uses
+  existing uid 65534 via `setpriv`, and every password is fictional.
+- **Not an atomicity claim.** The fix prevents the substitution rather than
+  making the stage-then-rename atomic, which a shell cannot do. It removes the
+  second player instead of winning the race against them.
