@@ -74,7 +74,14 @@ useful elsewhere.
 
 ---
 
-# SEC agent-native financial facts — promoted
+# SEC agent-native financial facts — promoted, then failed its own gate
+
+> **Superseded 2026-09-17** by
+> [`sec-canonical-facts-validation-20260917.md`](sec-canonical-facts-validation-20260917.md).
+> The promotion below was measured on one company. Across 28 companies the
+> canonicalisation premise fails: coexisting revenue concepts disagree on value
+> **69.2%** of the time, by as much as $39B for one company-year, so collapsing
+> them is an accounting judgment rather than a normalisation. **NO_GO.**
 
 Measured against the real `companyfacts` for Apple (CIK 0000320193),
 **3,789,099 bytes**, on 2026-09-17.
