@@ -198,8 +198,19 @@ describe('the execution sequence can actually be followed', () => {
     expect(SEQUENCE).not.toMatch(/checkout\s+(origin\/)?main[^\S\n]*$/mu);
   });
 
-  it('clears stale exports before it starts', () => {
-    expect(SEQUENCE).toContain('unset PGPASSFILE DATA_FOUNDRY_MIGRATION_DATABASE_URL');
+  it('clears stale exports before it starts, PGPASSWORD included', () => {
+    // PGPASSWORD is not a competing source but an overriding one: `pg` reads it
+    // into the connection password and consults the password file only when
+    // that is still null. Measured against a live TLS PostgreSQL 16 with
+    // scram-sha-256 -- a CORRECT password file plus a stale PGPASSWORD fails to
+    // authenticate. Every `unset` in the document must therefore name it, not
+    // just the first one anyone happened to fix.
+    const unsets = [...HANDOVER.matchAll(/^\s*unset PGPASSFILE[^\n]*/gmu)].map((m) => m[0]);
+    expect(unsets.length, 'the document must clear stale settings').toBeGreaterThan(0);
+    for (const line of unsets) {
+      expect(line, `this unset does not clear PGPASSWORD: ${line.trim()}`).toContain('PGPASSWORD');
+      expect(line).toContain('DATA_FOUNDRY_MIGRATION_DATABASE_URL');
+    }
   });
 
   it('never re-exports a placeholder connection string over the helper\u2019s', () => {

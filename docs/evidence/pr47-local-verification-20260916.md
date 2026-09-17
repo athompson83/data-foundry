@@ -839,6 +839,71 @@ is the status of the `printf` feeding stdin, not of the helper. It reported
 `exit=0` for a run that had correctly failed. Re-measured by running the helper
 with stdin redirected from a file and reading `$?` directly.
 
+## Nineteenth round: the variable that wins
+
+A P2, and the first finding in this PR about a source of credentials the
+procedure never mentioned. `PGPASSWORD` does not compete with `PGPASSFILE` — it
+**overrides** it.
+
+Confirmed in `pg@8.23.0`'s own source before testing anything:
+`connection-parameters.js` resolves `val('password', config)`, which falls back
+to `process.env['PGPASSWORD']`, and `client.js` reaches
+`require('pgpass')` only in the `else` branch where `this.password === null`.
+
+Then at runtime, with the exact config the migration driver builds:
+
+```
+no PGPASSWORD       : client.password = null              -> pgpass CONSULTED
+PGPASSWORD exported : client.password = "STALE-ENV-SECRET" -> pgpass SKIPPED
+```
+
+And then behaviourally, through `createPostgresDriver` itself against a
+disposable TLS PostgreSQL 16 with `scram-sha-256`:
+
+| `PGPASSFILE` | `PGPASSWORD` | result |
+| --- | --- | --- |
+| correct | unset | CONNECTED as `testlogin` |
+| correct | **wrong** | **FAILED — `password authentication failed`** |
+| correct | correct | CONNECTED as `testlogin` |
+| unset | unset | FAILED — `client password must be a string` |
+
+Row two is the finding: a **correct** password file, placed by this procedure,
+ignored. The symmetrical case is worse and not directly observable here — a
+stale `PGPASSWORD` that happens to be valid authenticates with a credential this
+procedure never placed and the operator may not remember setting.
+
+The handover now clears `PGPASSWORD` alongside the other two, and `--check`
+refuses while it is set — **first**, before the other checks, because every one
+of them would otherwise be reporting on a file the driver is not going to read.
+An exported-but-empty `PGPASSWORD` still passes: `pg` treats it as absent, and
+refusing it would block a shell that had merely cleared it.
+
+### A wording defect found while reading the output
+
+`--check` failures ended with *"nothing was installed"*, inherited from the
+write path. `--check` runs at steps 3, 7 and 8 — after the credential is in
+place — so that sentence reads as though the credential step had just failed.
+The lead-in is now mode-aware: *"the environment was rejected; the migration
+must not be run against it."*
+
+### Recorded, not acted on
+
+`pg@8.23.0` emits `pgpass support is deprecated and will be removed in pg@9.0`
+on every connection that uses it. The whole `PGPASSFILE` design rests on that
+support. It is not a blocker today and upgrading `pg` is outside this PR, but
+whoever moves to `pg@9` will need the documented alternative — an async
+`password` function on the client — or this procedure stops working.
+
+Two of the three new assertions fail against `7b3bb0b`. The third — an empty
+`PGPASSWORD` still passing — is a control that passes on both.
+
+**A second measurement error of the same kind as the last round.** Twice I read
+`$?` after piping the helper's output through `head`/`tail` and got the pipe's
+status rather than the helper's, reporting `exit=0` for runs that had correctly
+failed. Both times re-measured with the helper's stdout redirected instead of
+piped. Worth naming because it is the same defect I keep finding in the code:
+reading a status that belongs to something else.
+
 ## The TCP readiness repair, verified locally
 
 The loop was extracted from the workflow and driven with a stubbed `docker`
@@ -930,6 +995,62 @@ Every target exists at the repository root, so the fix is to make each link
 relative to the file (`../decisions/…`, `../owner-actions/…`). **Not applied
 here** — it would widen a PR that is under review for something else. It is a
 separate one-file change whenever wanted.
+
+## Consolidated parity run before the single push
+
+Run on the working tree that became the consolidated commit, after the owner's
+instruction to run the full recorded local parity once and make at most one
+push. Every command in workflow order, plus `lint`:
+
+```
+pnpm typecheck                                       PASS
+pnpm test                                            PASS   225 files, 3556 tests
+pnpm migrate:check                                   PASS
+pnpm schemas:check                                   PASS
+pnpm openapi:check                                   PASS
+pnpm cloudflare:topology:check                       PASS
+pnpm verticals:validate                              PASS
+pnpm verticals:compile:check                         PASS
+pnpm acquisition:check                               PASS
+pnpm ingestion:check                                 PASS
+pnpm mcp:compile:check                               PASS
+pnpm web:compile:check                               PASS
+pnpm cloudflare:artifacts:check                      PASS
+pnpm cloudflare:synthetic-ingestion:artifacts:check  PASS
+pnpm lint                                            PASS
+```
+
+Workflow YAML, parsed with the repository's own strict `yaml` package rather
+than a looser one:
+
+```
+ci.yml parsed OK — 3 jobs, 42 steps
+```
+
+Every `run:` block extracted, `${{ … }}` substituted, `bash -n`:
+
+```
+shell run-blocks syntax-checked: 37, failures: 0
+```
+
+Relative markdown links across every tracked `.md`:
+
+```
+relative markdown links checked: 114
+broken: 6
+```
+
+The same six, all in `docs/reference/platform-reference-20260903.md`, which this
+PR does not touch. No new breakage.
+
+### What a push cannot verify while this PR is a draft
+
+Every job in this workflow is gated on `github.event.pull_request.draft ==
+false`. The consolidated push therefore produces an **all-skipped** event rather
+than a run, so there is no exact-head CI evidence for it to inspect. The two
+requirements — keep the PR a draft, and inspect the exact-head run — cannot both
+be satisfied. This record states which one held: the PR stayed a draft, and the
+local parity above is what stands in for the run.
 
 ## What this does not verify
 

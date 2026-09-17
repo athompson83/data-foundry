@@ -25,10 +25,14 @@
 #   ua002-migration-pgpassfile.sh --check
 #
 # --check verifies the environment the migration will actually run under:
-# PGPASSFILE and DATA_FOUNDRY_MIGRATION_DATABASE_URL set, the password file
-# present, a regular file and owner-only, and the URL carrying no password. It
-# exits non-zero on any of those, so a procedure that chains it stops instead of
-# silently reusing settings left over from an earlier attempt.
+# PGPASSWORD unset, PGPASSFILE and DATA_FOUNDRY_MIGRATION_DATABASE_URL set, the
+# password file present, a regular file and owner-only, and the URL carrying no
+# password. It exits non-zero on any of those, so a procedure that chains it
+# stops instead of silently reusing settings left over from an earlier attempt.
+#
+# PGPASSWORD is checked first because it OVERRIDES the password file rather than
+# merely competing with it, so every other check would be reporting on a file
+# the driver is not going to read.
 #
 # The login is the name that AUTHENTICATES, which is not always the database
 # role: a Supavisor pooler expects a project-qualified login. The runner
@@ -46,12 +50,21 @@ readonly PROGRAM="${0##*/}"
 
 die() {
   printf '%s: %s\n' "$PROGRAM" "$1" >&2
-  # Nothing was installed, but this shell may still carry values exported by an
-  # earlier attempt, and the next migration command would use them without
-  # saying so. Naming them is the difference between a failure that stops and a
-  # failure that quietly proceeds against stale settings.
-  printf '%s: nothing was installed. If PGPASSFILE or DATA_FOUNDRY_MIGRATION_DATABASE_URL were exported earlier in this shell they are still set and may be stale; unset both before running the migration.\n' \
-    "$PROGRAM" >&2
+  # This shell may still carry values exported by an earlier attempt, and the
+  # next migration command would use them without saying so. Naming them is the
+  # difference between a failure that stops and a failure that quietly proceeds
+  # against stale settings.
+  #
+  # The lead-in depends on the mode. "Nothing was installed" is true of a failed
+  # write, but in --check mode nothing was being installed in the first place --
+  # and --check runs AFTER the credential is in place, where that sentence would
+  # read as though the credential step had just failed.
+  if [ "${mode:-write}" = 'check' ]; then
+    printf '%s: the environment was rejected; the migration must not be run against it.' "$PROGRAM" >&2
+  else
+    printf '%s: nothing was installed.' "$PROGRAM" >&2
+  fi
+  printf ' If PGPASSFILE, DATA_FOUNDRY_MIGRATION_DATABASE_URL or PGPASSWORD were exported earlier in this shell they are still set and may be stale; unset all three before running the migration.\n' >&2
   exit 1
 }
 
@@ -82,6 +95,14 @@ while [ "$#" -gt 0 ]; do
 done
 
 if [ "$mode" = 'check' ]; then
+  # PGPASSWORD wins over PGPASSFILE: pg reads it into the connection password,
+  # and only consults pgpass when that password is still null. Measured against
+  # a live TLS PostgreSQL 16 with scram-sha-256 -- a CORRECT password file plus
+  # a stale PGPASSWORD fails to authenticate. So a leftover PGPASSWORD makes
+  # this whole procedure advisory, and the gate has to reject it rather than
+  # report on a file the driver will not read.
+  [ -z "${PGPASSWORD:-}" ] ||
+    die 'PGPASSWORD is set; it overrides PGPASSFILE and the migration would authenticate with it instead. Run: unset PGPASSWORD'
   [ -n "${PGPASSFILE:-}" ] ||
     die 'PGPASSFILE is not set; run the credential step and the exports it printed'
   [ -n "${DATA_FOUNDRY_MIGRATION_DATABASE_URL:-}" ] ||
@@ -96,7 +117,7 @@ if [ "$mode" = 'check' ]; then
   case "$userinfo" in
     *:*) die 'DATA_FOUNDRY_MIGRATION_DATABASE_URL carries a password; it must read the password from PGPASSFILE' ;;
   esac
-  printf '%s: environment is ready (PGPASSFILE present and owner-only, URL carries no password)\n' \
+  printf '%s: environment is ready (PGPASSWORD unset, PGPASSFILE present and owner-only, URL carries no password)\n' \
     "$PROGRAM" >&2
   exit 0
 fi

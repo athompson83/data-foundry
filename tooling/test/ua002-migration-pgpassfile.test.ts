@@ -348,6 +348,49 @@ describe('--check stops a procedure running on stale or unsafe settings', () => 
     }
   });
 
+  it('refuses while PGPASSWORD is set, because it overrides the password file', () => {
+    // Not a competing source -- an overriding one. `pg` reads PGPASSWORD into
+    // the connection password and consults pgpass only when that is still null,
+    // so every other check here would be reporting on a file the driver never
+    // reads. Measured against a live TLS PostgreSQL 16 with scram-sha-256: a
+    // CORRECT password file plus a stale PGPASSWORD fails to authenticate.
+    const result = run('ordinary-Passw0rd');
+    try {
+      const outcome = check(
+        {
+          PGPASSFILE: targetPath(result.home),
+          DATA_FOUNDRY_MIGRATION_DATABASE_URL: okUrl,
+          PGPASSWORD: 'STALE-ENV-SECRET',
+        },
+        result.home,
+      );
+      expect(outcome.status, 'a set PGPASSWORD must fail the gate').not.toBe(0);
+      expect(outcome.stderr).toContain('PGPASSWORD');
+      expect(outcome.stderr).toContain('unset PGPASSWORD');
+    } finally {
+      cleanup(result);
+    }
+  });
+
+  it('still passes when PGPASSWORD is present but empty', () => {
+    // An exported-but-empty PGPASSWORD is not a credential, and `pg` treats it
+    // as absent. Refusing it would block a shell that had merely cleared it.
+    const result = run('ordinary-Passw0rd');
+    try {
+      const outcome = check(
+        {
+          PGPASSFILE: targetPath(result.home),
+          DATA_FOUNDRY_MIGRATION_DATABASE_URL: okUrl,
+          PGPASSWORD: '',
+        },
+        result.home,
+      );
+      expect(outcome.status).toBe(0);
+    } finally {
+      cleanup(result);
+    }
+  });
+
   it('refuses when either variable is unset', () => {
     const result = run('ordinary-Passw0rd');
     try {

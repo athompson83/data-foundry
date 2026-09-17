@@ -203,12 +203,20 @@ leaves any existing file untouched, and removes its temporary file — which als
 holds the password — on failure and on interruption alike. Because it is a
 separate process, that failure cannot terminate your interactive shell.
 
-**Clear the two variables before you start**, so a failed run cannot be followed
-by a migration that silently uses settings from an earlier attempt:
+**Clear the three variables before you start**, so a failed run cannot be
+followed by a migration that silently uses settings from an earlier attempt:
 
 ```
-unset PGPASSFILE DATA_FOUNDRY_MIGRATION_DATABASE_URL
+unset PGPASSFILE DATA_FOUNDRY_MIGRATION_DATABASE_URL PGPASSWORD
 ```
+
+`PGPASSWORD` matters most of the three, and differently: it does not compete
+with the password file, it **overrides** it. The driver reads `PGPASSWORD` into
+the connection password and consults the password file only when that is still
+empty. Measured against a live TLS PostgreSQL 16 with `scram-sha-256` — a
+*correct* password file plus a stale `PGPASSWORD` fails to authenticate, and a
+stale `PGPASSWORD` that happens to be valid would authenticate with a credential
+this procedure never placed. `--check` refuses to pass while it is set.
 
 The helper cannot do this for you — it is a separate process and cannot change
 your shell's environment — so on any failure it says so explicitly rather than
@@ -409,7 +417,7 @@ The expected SHA-256 of `tooling/scripts/ua002-migration-pgpassfile.sh` at this
 revision is:
 
 ```
-10efec389d965badd5cb735928066e81846502ccac275b5e08d6397cc8030ff4
+dae4eb722077407caf39e13c93afa3f23fc6bffaad4cd52d661783ecced3a3dd
 ```
 
 A repository test asserts that value equals the file's actual digest, so it
@@ -422,7 +430,7 @@ export UA002_DIR="$(mktemp -d)"          # outside the checkout, on purpose
 # 1. Preserve the helper from THIS checkout and verify it against the published
 #    digest above BEFORE it is ever run. Stop if this does not match.
 cp tooling/scripts/ua002-migration-pgpassfile.sh "$UA002_DIR/"
-printf '%s  %s\n' '10efec389d965badd5cb735928066e81846502ccac275b5e08d6397cc8030ff4' \
+printf '%s  %s\n' 'dae4eb722077407caf39e13c93afa3f23fc6bffaad4cd52d661783ecced3a3dd' \
   "$UA002_DIR/ua002-migration-pgpassfile.sh" > "$UA002_DIR/helper.sha256"
 
 # 2. Clear anything an earlier attempt left behind, then place the credential --
@@ -430,7 +438,7 @@ printf '%s  %s\n' '10efec389d965badd5cb735928066e81846502ccac275b5e08d6397cc8030
 #    `set -e` (it is pasted into your shell, where that would be hostile), so a
 #    check that merely PRINTS a failure would let the next line run the
 #    unverified helper and hand it the password.
-unset PGPASSFILE DATA_FOUNDRY_MIGRATION_DATABASE_URL
+unset PGPASSFILE DATA_FOUNDRY_MIGRATION_DATABASE_URL PGPASSWORD
 shasum -a 256 -c "$UA002_DIR/helper.sha256" \
   && "$UA002_DIR/ua002-migration-pgpassfile.sh" \
        --host '<host>' --port 5432 --database '<database>' --login '<login-name>'
