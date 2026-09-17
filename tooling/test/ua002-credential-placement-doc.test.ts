@@ -81,6 +81,16 @@ describe('the execution sequence can actually be followed', () => {
     expect(SEQUENCE.indexOf('--check')).toBeGreaterThan(checkoutAt);
   });
 
+  it('does not tell the operator to start where the helper is absent', () => {
+    // The section opened with "Run from a clean checkout of <release>", which
+    // put a fresh operator at a revision without the helper — so even the `cp`
+    // that preserves it would fail.
+    const section = HANDOVER.split('## Execution sequence')[1]?.split('\n## ')[0] ?? '';
+    expect(section).not.toMatch(/^Run from a clean checkout of merged/mu);
+    expect(section).toMatch(/\*\*The migration steps\*\* run from a clean checkout/u);
+    expect(section).toMatch(/credential step runs before that, and not from there/u);
+  });
+
   it('keeps the migration release pinned to the same SHA', () => {
     expect(SEQUENCE).toContain('git checkout 2063ea8d72247a9b2643e1c690e37ab55ab14252');
     expect(SEQUENCE).toContain('export DATA_FOUNDRY_RELEASE_SHA=2063ea8d72247a9b2643e1c690e37ab55ab14252');

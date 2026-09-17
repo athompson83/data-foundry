@@ -359,10 +359,19 @@ this staging step — the grant upgrade adds its capabilities afterwards.
 
 ## Execution sequence
 
-Run from a clean checkout of merged `main` `2063ea8d72247a9b2643e1c690e37ab55ab14252` — the release this document
-is bound to. The export refuses to run unless that SHA is `HEAD` and the
-non-ignored worktree is clean, including untracked files, and the operator refuses
-unless `DATA_FOUNDRY_RELEASE_SHA` names the same SHA.
+**The migration steps** run from a clean checkout of merged `main`
+`2063ea8d72247a9b2643e1c690e37ab55ab14252` — the release this document is bound
+to. The export refuses to run unless that SHA is `HEAD` and the non-ignored
+worktree is clean, including untracked files, and the operator refuses unless
+`DATA_FOUNDRY_RELEASE_SHA` names the same SHA.
+
+**The credential step runs before that, and not from there.** The helper is
+absent at `2063ea8`, so starting there and then reaching for it fails — including
+the `cp` that preserves it. Begin in the checkout you are reading this document
+from, which is the revision that carries the helper; copy it out and place the
+credential; only then check out the release. The block below is in that order,
+and the release SHA is unchanged: moving it to carry the helper would invalidate
+every release-dependent packet, checksum and grant value here.
 
 The whole procedure, with the values already filled in:
 

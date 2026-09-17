@@ -63,6 +63,8 @@ interface RunOptions {
   readonly umask?: string;
   /** Deliver SIGINT to the script from inside this stubbed command. */
   readonly interruptDuring?: string;
+  /** Let the stubbed command do its real work first, then signal. */
+  readonly interruptAfterRealWork?: boolean;
   /** Create the target path as a directory before running. */
   readonly targetIsDirectory?: boolean;
   /** Use a HOME containing a single quote. */
@@ -109,7 +111,9 @@ function run(password: string | null, options: RunOptions = {}): RunResult {
       // where the script would otherwise carry on.
       writeFileSync(
         join(stubs, options.interruptDuring),
-        '#!/bin/bash\nkill -INT "$PPID" 2>/dev/null\nexit 0\n',
+        options.interruptAfterRealWork === true
+          ? `#!/bin/bash\n/bin/${options.interruptDuring} "$@"\nkill -INT "$PPID" 2>/dev/null\nexit 0\n`
+          : '#!/bin/bash\nkill -INT "$PPID" 2>/dev/null\nexit 0\n',
       );
       chmodSync(join(stubs, options.interruptDuring), 0o755);
     }
@@ -520,6 +524,29 @@ describe('a failed file operation never reports success', () => {
       expect(result.status).not.toBe(0);
       expect(result.stdout).not.toContain('export PGPASSFILE=');
       expect(readdirSync(join(result.home, '.data-foundry', 'ua002.pgpass'))).toEqual([]);
+    } finally {
+      cleanup(result);
+    }
+  });
+
+  it('does not claim nothing was installed when the rename already committed', () => {
+    // A signal is serviced between commands, so it can land after `mv` has
+    // completed. Reported "nothing was installed" over a replaced credential,
+    // which is the more damaging of the two possible wrong answers.
+    const result = run('NEW-PASSWORD', {
+      interruptDuring: 'mv',
+      interruptAfterRealWork: true,
+      seedTarget: 'old:5432:old:old:OLD-PASSWORD',
+    });
+    try {
+      expect(result.status, 'an interrupted run must still fail').not.toBe(0);
+      expect(result.stderr).not.toContain('nothing was installed');
+      expect(result.stderr).toContain('may or may not have been replaced');
+      expect(result.stderr).toContain('--check');
+      // The rename did commit, so the file must hold the new password. Read it
+      // directly: a failed run does not populate `lines`.
+      const installed = readFileSync(targetPath(result.home), 'utf8').replace(/\n$/u, '');
+      expect(parsePgpassLine(installed)[4]).toBe('NEW-PASSWORD');
     } finally {
       cleanup(result);
     }

@@ -153,6 +153,10 @@ fi
 [ -n "$password" ] || die 'the password was empty; nothing was written'
 
 temporary=''
+# Where the run got to, so an interrupt can report what actually happened rather
+# than assuming. A signal is serviced between commands, so it can land after the
+# rename has already committed.
+stage='start'
 cleanup() {
   [ -n "$temporary" ] && rm -f -- "$temporary"
   return 0
@@ -164,9 +168,30 @@ cleanup() {
 # the signal handlers clean up and then leave, while EXIT keeps the ordinary
 # cleanup for every other way out.
 on_signal() {
-  cleanup
   trap - EXIT
-  printf '%s: interrupted; nothing was installed.\n' "$PROGRAM" >&2
+  case "$stage" in
+    installed)
+      printf '%s: interrupted, but %s was already replaced. Verify with --check.\n' \
+        "$PROGRAM" "$target" >&2
+      ;;
+    staged)
+      if [ -n "$temporary" ] && [ -e "$temporary" ]; then
+        cleanup
+        printf '%s: interrupted; nothing was installed.\n' "$PROGRAM" >&2
+      else
+        # The temporary file is gone but the run never reached the point after
+        # the rename, so the rename may or may not have committed. Say so
+        # rather than guess: claiming "nothing was installed" over a replaced
+        # credential is the more damaging of the two errors.
+        printf '%s: interrupted during the final rename; %s may or may not have been replaced. Verify with --check.\n' \
+          "$PROGRAM" "$target" >&2
+      fi
+      ;;
+    *)
+      cleanup
+      printf '%s: interrupted; nothing was installed.\n' "$PROGRAM" >&2
+      ;;
+  esac
   exit "$1"
 }
 trap cleanup EXIT
@@ -175,6 +200,7 @@ trap 'on_signal 143' TERM
 
 temporary="$(mktemp -- "$directory/.ua002.pgpass.XXXXXX")" ||
   die "could not create a temporary file in $directory"
+stage='staged'
 
 # Permissions first: the file must never be readable by anyone else, not even
 # for the instant between writing and chmod.
@@ -199,6 +225,7 @@ if [ "$mv_no_target_directory" = 'true' ]; then
 else
   mv -- "$temporary" "$target" || die "could not install $target"
 fi
+stage='installed'
 temporary=''
 
 printf 'Wrote %s for %s at %s:%s/%s\n' "$target" "$login" "$host" "$port" "$database" >&2

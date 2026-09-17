@@ -524,6 +524,48 @@ the space and quote cases, because `printf %q` landed in the previous round. One
 more passes there only because `--check` was an unknown argument at that
 revision and the helper died on it — a coincidental pass, not coverage.
 
+## Eleventh round: the starting instruction, and a signal after the rename
+
+**The reorder was not enough, and the reviewer was specific about why.** Moving
+the credential step above the in-block `git checkout` did not help, because the
+section still *opened* with "Run from a clean checkout of merged `main`
+`2063ea8…`". A fresh operator following that starts at a revision without the
+helper, so even the `cp` that preserves it fails. The sequence never obtained
+the helper before invoking it.
+
+Fixed by splitting the instruction rather than the release: the **migration
+steps** run from the `2063ea8` checkout, and the **credential step runs before
+that, from the checkout the operator is reading the document in** — which is the
+revision carrying the helper. The release SHA is untouched. A test asserts the
+old sentence is gone and the split is present.
+
+**A signal arriving after the rename committed reported the opposite of what
+happened.** Bash services traps between commands, so `SIGINT` can land after `mv`
+has already replaced the file. Reproduced with an `mv` wrapper that performs the
+real rename, signals its parent, then exits:
+
+```
+ua002-migration-pgpassfile.sh: interrupted; nothing was installed.
+exit: 130
+BUT the target EXISTS: h:5432:d:l:NEW-PASSWORD
+```
+
+The credential *had* been rotated and the operator was told it had not — the
+more damaging of the two possible wrong answers, because it invites a retry
+against a file that already changed.
+
+The helper now tracks how far the run got. After the rename it reports that the
+file was replaced; if the temporary file is gone but the run had not yet passed
+the rename, it says the outcome is uncertain and to verify with `--check`,
+rather than guessing:
+
+```
+interrupted during the final rename; …/ua002.pgpass may or may not have been
+replaced. Verify with --check.
+```
+
+Both tests fail against `488ba12`.
+
 ## The TCP readiness repair, verified locally
 
 The loop was extracted from the workflow and driven with a stubbed `docker`
