@@ -14,7 +14,23 @@ Before ending a material session, update `PROJECT_CHECKLIST.md` and `PROGRESS.md
 
 ## Mission
 
-Build a repeatable AI-native data foundry that converts messy, lawfully acquired source data into canonical, evidence-backed vertical knowledge products available through human pages, API, MCP and bulk exports.
+Build a repeatable AI-native data foundry that converts messy, lawfully acquired source data into clean, current, canonical, evidence-backed machine-data products available through human pages, API, MCP, governed crawler access and bulk exports.
+
+## Product and commercial direction
+
+This is standing Product Owner direction. The detailed approved design is [`docs/superpowers/specs/2026-09-16-multi-dataset-machine-data-direction-design.md`](docs/superpowers/specs/2026-09-16-multi-dataset-machine-data-direction-design.md), and the hostname/infrastructure boundary is recorded in [`ADR-0012`](docs/decisions/ADR-0012-machine-data-portfolio-and-capability-hostnames.md).
+
+- **Data Foundry is a multi-dataset, multi-industry machine-data platform.** HVAC is the reference vertical and first factory proof, not the product identity and not a requirement to finish an entire industry before revenue.
+- **The primary expansion unit is a useful dataset/data product.** Launch a narrow dataset when its stated machine use case, rights, acquisition, quality, freshness and operational gates are satisfied; do not wait for comprehensive vertical coverage or an arbitrary record count.
+- **Machine consumption is the commercial center.** Direct paid API access, data/API exchanges, MCP/agent access, bulk delivery and supported paid-crawler arrangements are channels over the same canonical truth. No marketplace, provider beta or single industry gates every other viable paid channel.
+- **Build a portfolio after the first production proof.** Source discovery should span unrelated domains and prioritize evidence of machine/developer demand, clear commercial redistribution rights, supported acquisition, authoritative provenance, stable identifiers, recurring updates, normalization/linkage value and poor existing machine access.
+- **Make later datasets cheaper to onboard.** Compatible dataset #2, #3, #10 and beyond should increasingly be configuration, mapping and validation work rather than new application architecture. Generalize from repeated real requirements, not speculative abstractions.
+- **Measure commercial usefulness, not database size.** Track useful machine queries, truthful use-case coverage, provenance, freshness, external consumption, paid conversion, retention and contribution economics. Raw record count alone is not a launch criterion.
+- **Use capability-based canonical hostnames.** Public/crawler discovery is `data.aroqon.com`; API delivery is `api.data.aroqon.com`; MCP/agent access is `mcp.data.aroqon.com`. Put verticals/datasets in paths, schemas, rights scopes, entitlements and configuration rather than multiplying canonical public hostnames. Preserve ADR-0011's currently implemented per-vertical edge isolation until a separately reviewed change proves a safer/better backing topology; canonical routing does not require an immediate Worker consolidation. Prefer `data.aroqon.com/docs` for documentation; create a separate docs or bulk hostname only for a demonstrated operational need.
+- **Do not create DNS merely to reserve names.** These are subdomains of the existing `aroqon.com` zone. Inspect Cloudflare DNS, Worker routes and Custom Domains before provider mutation, and preserve the existing private-canary/public-cutover gates.
+- **One truth does not mean one permission.** Public web/indexing, free API, paid API, marketplace, MCP/agent, bulk/export and crawler delivery/payment remain independently rights- and entitlement-gated. Crawler/payment settings never expand upstream source rights.
+
+Do not silently regress this direction to an HVAC-only product, a RapidAPI-only business, or a requirement for a new canonical public hostname per vertical. Historical documents may retain superseded assumptions as history; active guidance must identify the current direction explicitly.
 
 ## North-star workflow
 
@@ -120,6 +136,7 @@ For MVP, do not introduce:
 - dozens of MCP tools;
 - a generalized workflow builder;
 - separate repos/apps per vertical;
+- new per-vertical public hostname families or duplicate infrastructure merely because a dataset belongs to a different industry; preserve existing reviewed isolation until a measured change justifies migration;
 - arbitrary customer ETL;
 
 unless measured requirements prove the existing architecture insufficient.

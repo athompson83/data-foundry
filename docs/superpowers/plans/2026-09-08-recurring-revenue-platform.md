@@ -3,14 +3,66 @@
 Status: Owner-approved implementation plan, 2026-09-08. This document records the
 accepted product and technical decisions; the executive checklist records proof.
 
+## Product Owner amendment — 2026-09-16
+
+The original HVAC-first/RapidAPI-first plan below remains the historical implementation
+basis for work already completed, but the Product Owner has broadened the standing
+commercial direction. This amendment supersedes the original plan where they conflict;
+see the approved design at
+[`docs/superpowers/specs/2026-09-16-multi-dataset-machine-data-direction-design.md`](../specs/2026-09-16-multi-dataset-machine-data-direction-design.md).
+
+- Data Foundry is a **multi-dataset, multi-industry machine-data platform**. HVAC is
+  the reference vertical and first factory proof, not the platform's product identity.
+- The monetizable expansion unit is a useful, rights-approved **dataset/data product**.
+  Do not wait for comprehensive HVAC coverage, a complete industry, or an arbitrary
+  record count before a truthful narrow dataset can launch.
+- The first paid release may use **any verified paid machine-access path** supported by
+  the release. Direct `API_PAID`/`DIRECT`, API/data exchanges, MCP/agent access, bulk,
+  and supported paid-crawler arrangements are channels over the same canonical truth;
+  RapidAPI and provider beta programs do not gate every other channel.
+- After the first production source proves the factory, source discovery expands across
+  unrelated domains. Prefer evidence of machine/developer demand, explicit commercial
+  redistribution rights, supported acquisition, authoritative provenance, stable
+  identifiers, recurring updates, normalization/linkage value and poor existing machine
+  access. Every source still passes its own rights, acquisition, quality, cost and
+  operational gates.
+- Compatible later datasets should increasingly be configuration/mapping/validation
+  work rather than new application architecture. Generalize only from repeated real
+  onboarding requirements.
+- Commercial progress is measured by useful machine queries, truthful use-case coverage,
+  provenance, freshness, external consumption, paid conversion, retention and
+  contribution economics—not raw record count alone.
+- Capability-based hostnames are canonical: `data.aroqon.com` for public/catalog/search
+  and permitted crawler discovery, `api.data.aroqon.com` for API delivery, and
+  `mcp.data.aroqon.com/mcp` for MCP/agent access. Verticals/datasets belong in paths,
+  schemas, rights scopes, entitlements and configuration rather than long-term
+  per-industry API/MCP infrastructure.
+- Prefer `data.aroqon.com/docs` for documentation. Add a dedicated docs or bulk hostname
+  only when a demonstrated security, caching, entitlement or delivery requirement
+  justifies it.
+- These names are subdomains of the existing `aroqon.com` zone; no new domain purchase
+  is required. Inspect Cloudflare DNS, Worker routes and Custom Domains before creating
+  records. This amendment does **not** authorize public DNS cutover.
+- One canonical truth does not collapse permissions: public web/indexing, free API,
+  paid API, marketplace, MCP/agent, bulk/export and crawler delivery/payment remain
+  independently rights- and entitlement-gated. Crawler/payment settings never expand
+  upstream source rights.
+
+This amendment does not delay UA-002, weaken the private-canary/public-cutover gates,
+or activate a source, legal agreement, credential, payment destination or public route.
+
 ## Goal and constraints
 
-Launch HVAC Equipment Specifications & Evidence API for software and catalog
-developers through RapidAPI. Completion requires an external paying customer,
-lawfully sourced useful data, automated refresh/recovery, operating spend within
-$300/month, and a demonstrated second vertical on the same platform.
+Historical 2026-09-08 launch target: launch HVAC Equipment Specifications & Evidence API
+for software and catalog developers through RapidAPI. Under the 2026-09-16 amendment,
+HVAC/RapidAPI remain valid reference work but are no longer the platform's exclusive
+identity or only path to first revenue. Completion still requires an external paying
+customer, lawfully sourced useful data, automated refresh/recovery, operating spend
+within the approved envelope, and proof that the reusable platform can support another
+dataset/vertical without a fork.
 
-- HVAC equipment lookup first; ENERGY STAR remains deferred.
+- HVAC equipment lookup remains the reference proof; source selection follows current
+  `UA-001` evidence rather than this historical plan's source assumptions.
 - Sources receive fresh named human rights review before real acquisition/sale.
 - Reuse canonical Cloudflare and Alpha Lab private `data_foundry` infrastructure.
 - Keep acquisition, extraction, normalization, resolution, canonical storage and
@@ -28,7 +80,7 @@ $300/month, and a demonstrated second vertical on the same platform.
   README PR #29 without losing operator instructions. Record current Git/CI facts.
 - Refresh the source landscape against current publisher documents: acquisition,
   normalization, marketplace resale, refresh frequency, coverage, identifiers and
-  cost. ENERGY STAR stays deferred; unknown rights remain refusal.
+  cost. Current source selection is governed by `UA-001`; unknown rights remain refusal.
 - Define a bounded equipment category and dictionary: manufacturer, model,
   category, supported specifications/efficiency, evidence and freshness.
 - Prepare sample fixtures and three integration-partner interview/outreach
@@ -77,16 +129,21 @@ $300/month, and a demonstrated second vertical on the same platform.
   scoped identifiers and withdrawn claims without shared query code changes.
 - Preserve independent surface bundle admission. Expand vertical templates and
   adapter documentation with processing, freshness, rights, quality and cost gates.
+- After the first real production proof, qualify datasets across unrelated domains and
+  measure onboarding effort. Repeated source-specific code is a signal to improve the
+  reusable boundary; do not create separate infrastructure merely because a dataset
+  belongs to a different industry.
 
 ### E. Customer experience and first payment
 
 - Buyer-focused offering, truthful coverage/freshness/evidence, filters/pagination,
-  accessible mobile/keyboard flows, pricing and configurable RapidAPI CTA.
+  accessible mobile/keyboard flows, pricing and configurable channel CTA.
 - Executable TypeScript/Python model lookup, enrichment and evidence examples.
 - Customer license/privacy/support/correction material with legal review explicit.
-- Prove subscribe -> useful request -> integrate -> renewal; marketplace auth,
-  limits/cancellation/reconciliation and exclusion from direct invoicing.
-- Verify actual MCP client; keep MCP/NONE analytics until paid entitlement work.
+- Prove paid entitlement -> useful request -> integration -> renewal through at least
+  one verified machine-access channel; preserve channel-specific auth, limits,
+  cancellation/reconciliation and no-double-billing behavior.
+- Verify actual MCP client; paid MCP remains separately entitlement-gated.
 - Do not advertise unsupported comparison/replacement/compatibility workflows.
 
 ### F. Canonical deployment and recovery
@@ -106,45 +163,60 @@ $300/month, and a demonstrated second vertical on the same platform.
   Keep PUBLIC_CACHE_MODE=no-store. Prove rollback and restore; internal RPO24h /
   RTO4h are objectives until measured.
 
-### G. Successive releases after first marketplace revenue
+### G. Successive machine-data releases
 
 - Bulk: bounded CSV/JSONL/Parquet, immutable manifests/checksums, private R2,
-  versions, scheduled rebuilds and entitlement-checked delivery.
-- Direct: Stripe checkout/portal/webhooks, entitlements, key lifecycle, reporting,
-  quotas. Paid MCP adds commercial entitlements and supported-client auth.
-- New real verticals repeat source, buyer, rights, quality, cost and operational
-  gates. These releases do not delay the first marketplace sale.
+  versions, scheduled rebuilds and entitlement-checked delivery when justified.
+- Direct: paid entitlements, key lifecycle, reporting and quotas through the approved
+  billing path. Paid MCP adds commercial entitlements and supported-client auth.
+- New real datasets/verticals repeat source, buyer, rights, quality, cost and
+  operational gates. They may proceed in parallel after the factory proof and do not
+  wait for comprehensive coverage of an earlier industry.
+- API exchanges and supported paid-crawler programs are additional channels; provider
+  enrollment does not block a different verified paid machine-access path.
 
 ## Domains and commercial defaults
 
-| Purpose | Planned address |
-|---|---|
-| Public platform / HVAC | data.aroqon.com / data.aroqon.com/hvac |
-| Direct / marketplace API | hvac-api.aroqon.com/v1 / hvac-marketplace.aroqon.com/v1 |
-| MCP | hvac-mcp.aroqon.com/mcp |
+Current canonical capability architecture:
 
-Redirect existing /data/hvac routes to /hvac. Any optional hvac.aroqon.com alias
-redirects to the canonical site. Hostnames remain proposals until provider proof.
+| Purpose | Canonical address |
+|---|---|
+| Public catalog / human / search / permitted crawler discovery | `data.aroqon.com/{vertical-or-dataset}/...` |
+| Direct and exchange-backed API | `api.data.aroqon.com/v1/{vertical-or-dataset}/...` |
+| MCP / agent access | `mcp.data.aroqon.com/mcp` |
+| Documentation | Prefer `data.aroqon.com/docs` |
+
+The September 8 proposal used `hvac-api.aroqon.com`,
+`hvac-marketplace.aroqon.com`, and `hvac-mcp.aroqon.com`. Those values are
+**superseded as canonical long-term architecture before public deployment**. Do not
+create compatibility infrastructure for a proposed hostname that was never exposed to
+external consumers. A marketplace-specific hostname may exist only when a concrete
+provider/security requirement justifies it; it still converges on the canonical query
+layer. A dedicated bulk/download hostname is deferred until implementation evidence
+shows a separate security, caching, entitlement or delivery boundary is useful.
+
+Redirect existing `/data/hvac` routes to `/hvac` where that compatibility remains
+applicable. Hostnames remain proposals until provider proof and the existing public
+cutover authorization.
 
 Introductory price hypotheses: Free100 requests; Developer$49/5,000;
 Growth$149/25,000; Scale$299/75,000 monthly. Hard limits, no automatic overages.
-Benchmark costs and validate buyer demand before commercial activation.
-RapidAPI's current explicit policy is 25% plus PayPal payout fees:
-https://docs.rapidapi.com/docs/payouts-and-finance
+Benchmark costs and validate buyer demand before commercial activation. Channel fees
+must be verified from the provider at activation time rather than treated as timeless.
 
 Monthly envelopes: Cloudflare$50, database/recovery$75,
 acquisition/source/production-AI$75, monitoring/support$25, reserve$75.
 These are caps, not observed bills; one-time legal/source contracts are separate.
 
-After lawful beta: day30 three design partners/first payment; day60 five paid
-accounts/$300 gross MRR/three weekly integrations; day90 ten paid accounts/$600
-gross MRR/70% first-renewal retention/positive contribution. Targets are not
-forecasts. Hold expansion when activation, retention or margins fail.
+Historical beta targets remain experiments, not forecasts: day30 three design
+partners/first payment; day60 five paid accounts/$300 gross MRR/three weekly
+integrations; day90 ten paid accounts/$600 gross MRR/70% first-renewal retention/
+positive contribution. Hold expansion when activation, retention or margins fail.
 
 ## Execution and acceptance
 
-Use existing GitHub/Cloudflare/Supabase skills and connections; RapidAPI/PayPal
-owner flow, Stripe later. No additional plugin is required. Verify Ubuntu/WSL
+Use existing GitHub/Cloudflare/Supabase skills and connections. No additional plugin is
+required merely to implement the repository architecture. Verify Ubuntu/WSL
 Node/pnpm/Postgres tooling before secret-safe operator work.
 
 Coordinator plus up to three bounded lanes: data pipeline, customer experience,
@@ -160,4 +232,4 @@ mobile/keyboard/canonical/SEO; alerts/revocation/backup/rollback/cost evidence.
 
 Each release records exact SHA, local checks, protected CI/review, runtime IDs,
 observations and recovery point. Update checklist/progress once near closeout.
-UA-001..006 retain exact owner-only scope; unrelated engineering continues.
+Existing UA IDs retain exact owner-only scope; unrelated engineering continues.
