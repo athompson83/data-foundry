@@ -20,7 +20,18 @@ permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  # Superseding a pull-request push or a `main` push is the point of
+  # cancel-in-progress. A manual verification run is not superseded by anything:
+  # it answers one external request, is identified by its correlation id, and
+  # must be allowed to finish. Keying only on the ref put dispatches and pushes
+  # to `main` in the same group, so either could cancel the other, and a second
+  # verification request would kill the first.
+  group: >-
+    ${{ github.workflow }}-${{ github.event_name }}-${{
+      github.event_name == 'workflow_dispatch' && github.run_id
+      || github.event.pull_request.number
+      || github.ref
+    }}
   cancel-in-progress: true
 
 env:
@@ -1389,4 +1400,33 @@ jobs:
           STEP_RECONCILIATION: ${{ steps.reconciliation.outcome }}
           STEP_CREDENTIALS: ${{ steps.credentials.outcome }}
           STEP_ACQUISITION: ${{ steps.acquisition-controls.outcome }}
-        run: pnpm exec tsx tooling/scripts/verification-evidence.ts
+        run: |
+          set -uo pipefail
+          if pnpm exec tsx tooling/scripts/verification-evidence.ts; then
+            exit 0
+          fi
+          # The emitter needs a successful checkout and install. If either
+          # failed, the obligation to report a failed verification still
+          # stands -- silence would look identical to "no run happened".
+          # This fallback uses only the shell, carries no step outcomes
+          # because no step ran, and can only ever say `fail`.
+          correlation="$(printf '%s' "${CORRELATION_ID:-}" | tr -cd 'A-Za-z0-9._-' | cut -c1-64)"
+          [ -n "$correlation" ] || correlation='sanitized'
+          {
+            printf '## Data Foundry verification evidence\n\n'
+            printf '**Disposable-PostgreSQL end-to-end integration proof.**\n'
+            printf 'This is **not** hosted-production and **not** a Cloudflare deployed-runtime proof.\n\n'
+            printf '```json\n{\n'
+            printf '  "kind": "disposable-postgres-e2e-integration-proof",\n'
+            printf '  "notAProofOf": ["hosted-production-database", "cloudflare-deployed-runtime", "real-queue-delivery", "real-r2-persistence", "rest-or-mcp-surface-readback"],\n'
+            printf '  "correlationId": "%s",\n' "$correlation"
+            printf '  "gitSha": "%s",\n' "${DATA_FOUNDRY_CANDIDATE_SHA:-unknown}"
+            printf '  "runUrl": "%s/%s/actions/runs/%s",\n' \
+              "${GITHUB_SERVER_URL:-}" "${GITHUB_REPOSITORY:-}" "${GITHUB_RUN_ID:-}"
+            printf '  "stages": [],\n'
+            printf '  "syntheticFixtures": [],\n'
+            printf '  "overall": "fail",\n'
+            printf '  "reason": "the evidence emitter could not run; checkout or install did not complete, so no stage was verified"\n'
+            printf '}\n```\n\n'
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit 1

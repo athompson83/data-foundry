@@ -602,6 +602,54 @@ with the file at 600; and the default `~/.data-foundry` is still created at 700.
 
 Three tests cover these and fail against `d20e15f`.
 
+## Thirteenth round: the verification workflow itself
+
+Both findings are about `ci.yml` rather than the credential path, and both are
+real.
+
+**A manual verification could be cancelled by an ordinary push.** The
+concurrency key was `${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}`
+with `cancel-in-progress: true`. A `workflow_dispatch` on `main` has no pull
+request number, so it fell back to `refs/heads/main` — the same group a `push`
+to `main` uses. Either could cancel the other, and a second verification request
+would kill the first. For a feature whose entire purpose is answering one
+external request with one citable run, that is a direct defeat.
+
+The key now carries the event name, and a dispatch is keyed on its own run id,
+so it is neither cancelled nor cancelling. Superseding a pull-request push and a
+`main` push still works, which is what `cancel-in-progress` is for.
+
+**An early failure produced no evidence at all.** The emitter runs
+`pnpm exec tsx tooling/scripts/verification-evidence.ts`, which needs a
+successful checkout *and* install. With `if: always()` the step is still
+scheduled when those fail, but it then fails immediately and appends nothing —
+so the workflow's stated guarantee that a failed verification is reported did
+not hold for the failures most likely to occur on a clean runner. Confirmed:
+running the emitter without `node_modules` gives `ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL`.
+
+There is now a shell-only fallback that runs when the emitter cannot. It was
+exercised directly with a hostile correlation id and a planted secret in the
+environment:
+
+```
+correlationId  "../../etc/passwd; rm -rf /"  ->  "....etcpasswdrm-rf"
+overall        "fail"
+planted secret present in output?  no
+step exit      1
+```
+
+It carries the same `kind` and `notAProofOf` fields, reports empty `stages` and
+`syntheticFixtures` because nothing ran, and **can only ever say `fail`** — a
+fallback that could report success would be worse than no fallback.
+
+Both tests fail against `f3e987d`.
+
+**A note on the check that caught my own error here.** My first attempt added a
+second `env:` block to a step that already had one. `python3 -c "import yaml"`
+accepted the duplicate key and reported the file as valid; the repository's own
+test, which uses the stricter `yaml` package, rejected it. The looser parser I
+reached for would have let a broken workflow through.
+
 ## The TCP readiness repair, verified locally
 
 The loop was extracted from the workflow and driven with a stubbed `docker`

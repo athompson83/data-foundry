@@ -753,3 +753,45 @@ it('requires the actual ingestion role pipeline with TLS and a changed-file trig
   expect(source).toContain('DATA_FOUNDRY_INGESTION_CONTROL_POSTGRES_URL: ${{ env.POSTGRES_URL }}');
   expect(source).not.toContain('DATA_FOUNDRY_INGESTION_PLAINTEXT_LOOPBACK:');
 });
+
+describe('verification runs are not cancelled by unrelated activity', () => {
+  it('keys concurrency on the event, and gives each dispatch its own group', () => {
+    const group = String((workflow as { concurrency?: { group?: string } }).concurrency?.group ?? '')
+      .split(/\s+/u)
+      .join(' ');
+    // Keying only on the ref put a manual verification and a `main` push in the
+    // same group, so with cancel-in-progress either could kill the other, and a
+    // second verification request would kill the first.
+    expect(group).toContain('github.event_name');
+    expect(group).toContain("github.event_name == 'workflow_dispatch' && github.run_id");
+    expect(group).not.toBe('${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}');
+    // Superseding a pull-request push is still the desired behaviour.
+    expect(group).toContain('github.event.pull_request.number');
+  });
+});
+
+describe('a failed verification still reports', () => {
+  const evidenceStep = Object.values(workflow.jobs)
+    .flatMap((job) => job.steps ?? [])
+    .find((step) => (step.run ?? '').includes('verification-evidence.ts'));
+
+  it('runs even when earlier steps failed', () => {
+    expect(evidenceStep?.if).toBe('always()');
+  });
+
+  it('falls back to a shell-only emitter when the toolchain is unavailable', () => {
+    // `pnpm exec tsx` needs a successful checkout and install. If either fails,
+    // the emitter cannot run and silence would look identical to "no run
+    // happened", despite the guarantee that a failed verification is reported.
+    const run = evidenceStep?.run ?? '';
+    expect(run).toContain('pnpm exec tsx tooling/scripts/verification-evidence.ts');
+    expect(run, 'a fallback must append to the step summary').toContain('GITHUB_STEP_SUMMARY');
+    expect(run, 'the fallback must sanitize the correlation id').toContain(
+      "tr -cd 'A-Za-z0-9._-'",
+    );
+    // It can only ever report failure: no stage ran, so nothing is proven.
+    expect(run).toContain('"overall": "fail"');
+    expect(run).not.toContain('"overall": "pass"');
+    expect(run.trimEnd().endsWith('exit 1'), 'the fallback must fail the step').toBe(true);
+  });
+});
