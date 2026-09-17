@@ -2,6 +2,15 @@
 
 **Verdict: NO_GO for the product as scoped.**
 
+> **Confirmed and closed, 2026-09-17.** Both designated flip checks were run and
+> both failed — see
+> [`tariff-parked-sec-promoted-20260917.md`](tariff-parked-sec-promoted-20260917.md).
+> The terms are 403 **even from a real browser**, so the block is network-level
+> against this egress rather than User-Agent filtering (which corrects the
+> reasoning in Phase 1 below). The Chapter 99 U.S. Notes were located — a
+> **14 MB PDF**, 2.7M characters — and exist in no machine-readable form.
+> **Tariff research is permanently parked.**
+
 This reverses my own recommendation from the two preceding documents. The
 validation gate did its job: the rate arithmetic turned out to be *easier* than
 I claimed, and the part that decides whether a customer owes the money turned
