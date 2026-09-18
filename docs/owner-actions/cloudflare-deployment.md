@@ -6,7 +6,7 @@ from source code alone.
 
 ## 2026-09-08 private-canary control (current workstream)
 
-> **Update — 2026-09-18: the route-less private canary has passed and been independently reconciled.** Steps 1–5 below were executed on the hosted target and re-read from the provider: migrations `0027`–`0033` applied through the direct-TLS operator, the grant upgrade and both verifications passed, six runtime roles activated, six cache-disabled `verify-full` Hyperdrives created, the five dedicated queues and the receipt bucket created, the seven route-less private-canary Workers deployed (bundles byte-matching the tracked manifests at `55804842f5c5131640dd0435c7d203a66e95b63c`), and cycle `475e622a-a1bf-48a5-9d2b-52126281bff4` completed with six `READY` probes, exactly-once metering, an empty quarantine and a retained receipt. See [the reconciliation record](../evidence/ua002-hosted-execution-reconciliation-20260918.md). **The public-cutover controls below remain unexecuted and owner-gated (`UA-005`)**; no ordinary Worker, route, hostname, Cron or DNS record was created. The temporary canary identities are retained pending a recorded disposition decision. The text that follows is kept as the executed procedure and as the rollback/cleanup reference.
+> **Update — 2026-09-18: the route-less private canary has passed and been independently reconciled.** Steps 1–5 below were executed on the hosted target and re-read from the provider: migrations `0027`–`0033` applied through the direct-TLS operator, the grant upgrade and both verifications passed, six runtime roles activated, six cache-disabled `verify-full` Hyperdrives created, the five dedicated queues and the receipt bucket created, the seven route-less private-canary Workers deployed (bundles byte-matching the tracked manifests at `55804842f5c5131640dd0435c7d203a66e95b63c`), and cycle `475e622a-a1bf-48a5-9d2b-52126281bff4` completed with six `READY` probes, exactly-once metering, an empty quarantine and a retained receipt. See [the reconciliation record](../evidence/ua002-hosted-execution-reconciliation-20260918.md). **The public-cutover controls below remain unexecuted and owner-gated (`UA-005`)**; no ordinary Worker, route, hostname, Cron or DNS record was created. **Disposition recorded later on 2026-09-18 in [ADR-0013](../decisions/ADR-0013-private-canary-resource-disposition.md):** the seven private-canary Workers, five private-canary queues, six Hyperdrives, CA, receipt bucket and receipt are retained as standing pre-cutover validation infrastructure; deletion of the canary identities is now the rollback path only, not routine closeout. The two read-back gaps that reconciliation carried (queue retention/backlog; Worker routes, custom domains, `workers.dev` and preview flags) are closed by `pnpm cloudflare:readback:check`, which reads them from the provider's REST API with a read-only token and compares them to the tracked manifests; it has been unit-tested against captured shapes but **not yet executed against the account**, so those facts remain unattested until an operator with a read-only token runs it (see section 6, Verify). The text that follows is kept as the executed procedure and as the rollback/cleanup reference.
 
 This workstream is **not** a public deployment or hostname cutover. It
 overrides any later-public-route instruction below until the synthetic canary
@@ -245,6 +245,7 @@ canary:
    ```
 
    After receipt and provider-attestation evidence are retained, cleanup removes only those temporary identities.
+   *Superseded 2026-09-18 by [ADR-0013](../decisions/ADR-0013-private-canary-resource-disposition.md): the identities are retained as the standing pre-cutover canary topology and are redeployed from each new release SHA before its canary run; the deletion below is the rollback path, not routine closeout.*
    If the synthetic canary must be stopped, rollback is deletion or disablement of the temporary canary identities without touching ordinary Worker configuration; ordinary manifests, Cron schedules,
    R2 bindings, and shared usage Queue configuration remain intact.
 
@@ -1015,7 +1016,20 @@ deployment and needs the exact provider evidence described above.
    `data-foundry-private-canary-quarantine`. Read back, as sanitized provider
    evidence, those five names, their retentions, producers, consumers, retries,
    and dead-letter destinations. The synthetic-metering DLQ has no consumer; the
-   shared usage DLQ must have no private-canary consumer. Check these bindings
+   shared usage DLQ must have no private-canary consumer. From 2026-09-18 that
+   read-back is a command rather than a dashboard walk: with a read-only
+   `CLOUDFLARE_API_TOKEN` (permissions: Workers Scripts Read, Workers Routes Read,
+   Queues Read, Zone Read) and `CLOUDFLARE_ACCOUNT_ID` in the environment, never on argv,
+   `pnpm cloudflare:readback:check --phase private-canary` reads every
+   `data-foundry-*` queue's retention, backlog, producers, consumers, retry
+   policy and dead-letter target, and every `data-foundry-*` Worker's zone routes,
+   custom domains, `workers.dev` and preview flags, and fails closed on any
+   difference from the tracked manifests or on any Worker serving an ADR-0012
+   canonical hostname. Its output names Workers, queues and canonical hostnames
+   only. `--capture <file>` also writes the raw responses (which do carry
+   provider identifiers and route patterns) to a `0600` file for out-of-band
+   evidence; `--snapshot <file>` re-evaluates such a capture offline.
+   Check these bindings
    against both consumer blocks in
    `apps/usage-consumer/wrangler.private-canary.toml` and the private-canary
    consumer in `apps/private-canary/wrangler.toml`.
@@ -1142,7 +1156,10 @@ the production database increases by one, and the row's `route_key` column
 holds a registered key (`entities.detail`) rather than any path, query, slug,
 or entity id. Confirm
 `pnpm exec wrangler queues info data-foundry-usage-events --env-file tooling/wrangler-empty.env`
-reports 1,209,600 seconds of retention. Killing the consumer Worker's database
+reports 1,209,600 seconds of retention (Wrangler 4.x prints neither retention nor
+backlog; use `pnpm cloudflare:readback:check`, which reads both from the REST
+API, and `--phase ordinary-route-less` once the six ordinary Workers are deployed
+without routes). Killing the consumer Worker's database
 connectivity temporarily must not change the edge Worker's response time or
 status — that database-write decoupling is exercised (against PGlite, not this
 queue) by `apps/edge/test/index.test.ts`. Before accepting paying traffic, also

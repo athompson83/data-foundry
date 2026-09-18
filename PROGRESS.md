@@ -1,6 +1,114 @@
 # Progress
 
-## Current session — 2026-09-18 (second session): UA-002 hosted execution independently reconciled and closed
+## Current session — 2026-09-18 (third session): Part 2 opened — canary disposition recorded, provider read-back tooling added
+
+**Verdict: READY_FOR_USER_REVIEW for this work package. No provider mutation.
+No production change. The read-back has not been executed against the account.**
+
+- **Current state.** Protected `main` `fabd85d71b257eeeb7e9a6c4adb1b0effdd6e7e6`
+  (PR #53 merged). Lifecycle stage unchanged: MVP integrated / private canary
+  passed / pre-production. Control-graph node: `State changed → refresh
+  baseline → invalidate only affected evidence → rerun affected gates →
+  continue`; nothing hosted changed since the second session, so the baseline
+  is the second session's reconciliation.
+- **Session objective.** Pick up where the local "autonomous takeover Part 1"
+  session stopped: it ended waiting on the disposition of the seven temporary
+  Workers and five canary queues, and on a read-back for the two facts the
+  reconciliation could not observe (queue retention/backlog; Worker routes,
+  custom domains, `workers.dev` and preview flags). This session was run from
+  a remote container with no Cloudflare or PostgreSQL credential, so it did the
+  two Part 2 items that are engineering rather than provider work and left the
+  provider-touching items (ordinary route-less deployment, backup/restore and
+  rollback exercise) for an authenticated operator session.
+- **Disposition decided — [ADR-0013](docs/decisions/ADR-0013-private-canary-resource-disposition.md).**
+  The seven private-canary Workers, five private-canary queues, six
+  Hyperdrives, CA, receipt bucket and receipt are **retained** as standing
+  pre-cutover validation infrastructure. Reasoning: `REV-006` requires exact
+  current-SHA canaries before every public cutover, so the canary is a
+  recurring gate rather than a one-off; the Hyperdrives are the ordinary
+  production bindings anyway; and route-less idle Workers and empty queues have
+  no measurable cost. Consequences: the canary Workers are redeployed from each
+  new release SHA before its run; deletion of the identities becomes the
+  rollback path, not routine closeout; the receipt is never deleted or
+  lifecycle-expired. Engineering disposition, reversible, owner may override.
+- **Read-back gaps closed in tooling — `pnpm cloudflare:readback:check`**
+  ([`tooling/scripts/check-cloudflare-readback.ts`](tooling/scripts/check-cloudflare-readback.ts)).
+  Expectations are derived from the tracked manifests (every
+  `[[queues.producers]]`/`[[queues.consumers]]` block, `workers_dev`,
+  `preview_urls`, no routes), not typed in twice. With a read-only token it
+  reads `GET /accounts/{id}/queues` (retention, delivery pause/delay,
+  producers, consumers with batch/retry/wait/concurrency/DLQ),
+  `GET /accounts/{id}/queues/{queue}/metrics` (backlog), the Workers script
+  list, each `data-foundry-*` script's `/subdomain` flags, the zone's Worker
+  routes (zone resolved read-only by name `aroqon.com` when no id is given) and
+  the account's Worker custom domains, then fails closed on any difference.
+  Two phases: `private-canary` (current: seven Workers, five canary queues
+  exact, ordinary usage pair untouched by any canary script, nothing
+  `data-foundry-*` routed or exposed, no ADR-0012 canonical hostname served by
+  any Worker) and `ordinary-route-less` (next: six ordinary Workers present,
+  ordinary usage and ingestion topologies exact, still nothing routed).
+  Terminal queues (both DLQs, quarantine, ingestion DLQ) must have zero
+  backlog. Output is sanitized (names, booleans, counts, seconds; no
+  identifiers, route patterns or token); `--capture` writes the raw responses
+  to a `0600` file as out-of-band evidence and `--snapshot` re-evaluates one
+  offline. API response shapes were taken from Cloudflare's published OpenAPI
+  schema, not from memory.
+- **Tests and verification.** `pnpm install --frozen-lockfile`; `pnpm
+  typecheck` pass; new
+  [`tooling/test/cloudflare-readback.test.ts`](tooling/test/cloudflare-readback.test.ts)
+  23 / 23 (manifest-derived expectations for both phases, an agreeing snapshot
+  passes, then one fact broken at a time: retention, pause, delay, backlog,
+  consumer policy, DLQ target, extra/R2 producer, missing/doubled/wrong
+  consumer, absent Worker/queue, unexpected queue, subdomain/preview/route/
+  domain exposure, canonical hostname via route, wildcard route and trailing-dot
+  domain, unreadable zone; fake-fetch capture with bearer header, per-script
+  probing limited to `data-foundry-*`, zone lookup by name, pagination, API
+  error without token echo; CLI parsing including pnpm's forwarded `--`,
+  credential refusal, offline exit codes). Full `tooling` project 43 files /
+  852 tests pass on Linux. CLI smoke: a manifest-derived snapshot passes the
+  `private-canary` phase and fails the `ordinary-route-less` phase with the six
+  absent ordinary Workers and two absent ingestion queues named.
+- **Documents.** Runbook banner, step 5 and section 6 (checklist item 2 and
+  Verify) carry dated ADR-0013 and read-back notes; `README.md` provider
+  paragraph and key commands; the reconciliation record's "left in place"
+  section points to the decision; `PROJECT_CHECKLIST.md` rows
+  `FOUNDATION-006`, `BETA-002`, `BETA-003`, `PROD-002` updated (statuses
+  unchanged). History was annotated, not rewritten.
+- **Not done, deliberately.** The read-back was **not executed** against the
+  account: this container holds no Cloudflare token, and the connector exposes
+  no queue, route, domain or subdomain read. Until an operator runs it once
+  with a read-only token, retention/backlog and route/domain/subdomain state
+  remain unattested exactly as the reconciliation recorded. No ordinary Worker
+  was deployed; no backup/restore or rollback exercise was run (needs
+  PostgreSQL egress and Wrangler authentication); no `UA-005` packet was
+  written because it depends on the ordinary route-less deployment passing the
+  new read-back first.
+- **Open PR noted, not acted on.** The owner opened PR #54
+  (`REVENUE_PLAN.md`, revenue-first execution plan) after the second session.
+  Its MVP item "deploy ordinary paid API/MCP route" is the same work as
+  `PROD-002` → `UA-005`; nothing in this session conflicts with it, and it was
+  left for the owner to merge or amend.
+- **Deployment environment / database target.** Cloudflare account
+  `c2832821a9ab36419cde6ee08112f6d3` (read-only connector: nine Workers listed,
+  seven of them `data-foundry-private-canary*`, unchanged). Supabase
+  `fgxinxaqkwoqyywdgobs`, private schema `data_foundry` at `0033`, untouched.
+  **Production changed by this session: no.**
+- **Blockers.** None for this package. Owner-only gates unchanged: `UA-001`,
+  `UA-005`, `UA-004`, `UA-007`, `UA-008`.
+- **Required user actions.** None new. Optional and recommended: run
+  `pnpm cloudflare:readback:check --phase private-canary --capture <private-path>`
+  once from a machine with a read-only Cloudflare token and record the
+  sanitized stdout as evidence; if it fails, the failure text is the finding.
+- **Recommended next steps (Part 2, continued).** (1) Execute the read-back
+  once (above). (2) In an authenticated operator session: create
+  `data-foundry-ingestion` and `-dlq` at 14 days, deploy the six ordinary
+  Workers from the ignored `wrangler.production.toml` manifests **without
+  routes**, then require `pnpm cloudflare:readback:check --phase
+  ordinary-route-less` to pass (`PROD-002`). (3) Hosted backup/isolated
+  restore/rollback exercise (`BETA-003`, `REV-006`). (4) Only then the
+  `UA-005` public-cutover decision packet.
+
+## Earlier — 2026-09-18 (second session): UA-002 hosted execution independently reconciled and closed
 
 **Verdict: UA-002 COMPLETE. BETA-002 DONE. Private-canary success only — not
 production, not public cutover, not source activation, not commercial launch.**
