@@ -1,6 +1,70 @@
 # Progress
 
-## Current session — 2026-09-17 closeout: two PRs merged, hosted catch-up ready, commercial validation not started
+## Current session — 2026-09-18: UA-002 provider staging executed and verified on the hosted database
+
+**First hosted mutation of UA-002. The three provider-path prerequisites are
+cleared. No migration was applied and none should be read into this.**
+
+- **The reviewed `ua-002-provider-staging.sql` ran unchanged against project
+  `fgxinxaqkwoqyywdgobs`** and its own verification query returns **0 / 0 / 7**:
+  zero all-databases role settings remaining, zero privileged-or-inheriting
+  `df_*` roles, seven `df_*` roles present. `df_ingestion` now exists
+  `NOLOGIN NOINHERIT` with CONNECT and `extensions` USAGE and — correctly —
+  *without* `data_foundry` USAGE, which the grant upgrade in the pending set
+  delivers. All seven roles carry exactly one current-database `search_path` row.
+  `df_migration` is `LOGIN`. Provider ledger row `20260918001016`.
+- **A correction to my own earlier record.** The 2026-09-16 entry concluded "the
+  connector is still read-only". That was measured against `execute_sql`, and
+  `execute_sql` is still read-only — probing it with the authorized
+  `ALTER ROLE df_migration LOGIN` returns `ERROR 25006: cannot execute ALTER ROLE
+  in a read-only transaction`, mutating nothing. But the conclusion was drawn
+  about *the connector* from one of its tools. `apply_migration` runs on a
+  privileged connection and had never been tested. It is the same provider path
+  the `20260901001729 data_foundry_private_schema_role_skeleton` came through,
+  and the handover already assigns role creation and role-settings repair to
+  "the secure provider path" rather than to the migration runner. Option 2's
+  whole-project write mode was **not** enabled and remains un-taken.
+- **The pending migrations were deliberately not applied through that tool**,
+  although it could physically run them. `migrate.ts` asserts that the
+  connection's `session_user` *and* `current_user` are both `df_migration`;
+  `session_user` is fixed at connection time, so no in-session manoeuvre
+  satisfies it, and the handover says a broader credential "is rejected by the
+  runner, not merely discouraged". Applying by hand would also bypass the
+  fifteen-probe preflight and the exact-baseline ACL-drift refusal, and leave
+  `data_foundry.schema_migrations` unwritten — writing those rows by hand is the
+  improvised SQL the standard forbids.
+- **Pending set re-verified against the real hosted ledger**, exported from a
+  clean worktree at the pinned release: **33 / 26 / 7**, pending `0027`–`0033`,
+  `repositoryDigest 8097711644f0b4ecdd91c21b2ba512b29bd4451597af4946f4bee6bf81871d8d`.
+  Undrifted.
+- **The remaining blocker is reachability, not credential custody, and it was
+  re-measured rather than assumed.** The same pooler hostname is OPEN on 443 and
+  TIMES OUT on both 5432 and 6543, so the block is port-based; the origin is
+  IPv6-only and this container has zero `inet6` addresses, no default IPv6 route,
+  and no DNS answer for it at all. A probe of whether the HTTPS proxy would
+  tunnel `CONNECT` to 5432 was **denied by the sandbox policy classifier as a
+  containment escape** — recorded, not worked around.
+- **No credential was created, on purpose.** A password this session generated
+  would have to exist here to be useful, which the security boundary forbids; one
+  generated server-side so it never enters this context would be known to nobody.
+  Either way it would be unusable from here, because the port is unreachable.
+- **Advisors unchanged by this work.** The 57 `function_search_path_mutable`
+  warnings in `data_foundry` are what pending `0027` exists to repair and are not
+  treated as blockers; `public.automation_runs` was left exactly as it is.
+- Records: [the 2026-09-18 execution
+  record](docs/evidence/ua002-provider-staging-executed-20260918.md) (new), a
+  dated update banner on [the
+  handover](docs/owner-actions/ua-002-hosted-migration-handover.md) marking the
+  prerequisites section and execution step 4 as no longer applicable, and the
+  `UA-002` rows of `PROJECT_CHECKLIST.md`.
+
+**Exactly one owner action remains before the run:** set a password for
+`df_migration` through the provider's secure credential path, then run the merged
+sequence from a machine with ordinary PostgreSQL egress. Nothing about that value
+belongs in chat, a repository file, a shell history or a log, and this session
+neither needs nor wants it.
+
+## Earlier — 2026-09-17 closeout: two PRs merged, hosted catch-up ready, commercial validation not started
 
 **Merged implementation, hosted verification and commercial validation are three
 separate tracks. Only the first advanced.**
