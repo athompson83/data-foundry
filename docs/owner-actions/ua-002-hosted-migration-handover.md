@@ -1,5 +1,33 @@
 # Owner action — UA-002 hosted migration handover
 
+> ## Update — 2026-09-18: the provider prerequisites are done
+>
+> **[Prerequisites that are not yet satisfied](#prerequisites-that-are-not-yet-satisfied)
+> and step 4 of the execution sequence no longer apply.** The reviewed
+> [`ua-002-provider-staging.sql`](ua-002-provider-staging.sql) was executed
+> unchanged against the hosted project and verified: `df_ingestion` exists in the
+> shape its siblings have, all seven `df_*` roles carry exactly one
+> current-database `search_path` row and zero all-databases rows, and
+> `df_migration` is `LOGIN`. The script's own verification query returns
+> **0 / 0 / 7**.
+>
+> It ran through the Supabase MCP `apply_migration` tool, which is privileged —
+> a correction to the earlier finding that "the management connector is still
+> read-only". That was measured against `execute_sql`, which *is* read-only and
+> still is; `apply_migration` was never tested. This is the same provider path
+> the project's role skeleton already came through, not Option 2's
+> whole-project write mode, which remains un-taken.
+>
+> **What is left is one action and it is still yours:** set a password for
+> `df_migration` through the provider's secure path, then run the sequence below
+> from a machine with PostgreSQL egress. This environment cannot: the same
+> hostname that answers on 443 times out on 5432 and 6543, and the origin is
+> IPv6-only against a container with no IPv6 stack.
+>
+> The migration state is unchanged and undrifted — still 33 / 26 / 7, pending
+> `0027`–`0033`. Details in
+> [the 2026-09-18 execution record](../evidence/ua002-provider-staging-executed-20260918.md).
+
 Prepared 2026-09-16 and **bound to merged `main` `2063ea8d72247a9b2643e1c690e37ab55ab14252`**, which carries the
 operator this document tells you to run.
 
@@ -315,6 +343,11 @@ the job, and the job has a documented narrow path.
 
 ## Prerequisites that are not yet satisfied
 
+> **CLEARED 2026-09-18.** All three were executed and verified on the hosted
+> project; see the update at the top. The section is kept because it records
+> what the drift was and why each item mattered, and because the operator's
+> preflight still checks for all three.
+
 Measured read-only against the hosted project on 2026-09-16. Each of these
 blocks the run, and none of them can be done by `df_migration`.
 
@@ -477,9 +510,10 @@ export DATA_FOUNDRY_RELEASE_SHA=2063ea8d72247a9b2643e1c690e37ab55ab14252
 shasum -a 256 -c "$UA002_DIR/helper.sha256" \
   && "$UA002_DIR/ua002-migration-pgpassfile.sh" --check
 
-# 4. Provider staging, in one privileged session -- see the numbered procedure
-#    below -- then the migration password through the provider's secure
-#    credential path. Nothing after this point works until that is done.
+# 4. DONE 2026-09-18 -- provider staging already ran and is verified; skip it.
+#    What remains of this step is the migration password, set through the
+#    provider's secure credential path. Nothing after this point works until
+#    that is done.
 
 # 5. Snapshot the hosted ledger. Run this SQL through whatever psql invocation
 #    your secret handling allows; see the credential note below.
