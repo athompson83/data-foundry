@@ -1,5 +1,19 @@
 # Owner action — UA-002 hosted migration handover
 
+> ## Update — 2026-09-18 (later): executed and independently reconciled
+>
+> The sequence below was run from a machine with ordinary PostgreSQL egress:
+> `0027`–`0033` were applied through the direct-TLS operator as
+> `df_migration`, the exact-baseline grant upgrade and `verificationSql`
+> passed, the six runtime roles were activated and `postCredentialVerificationSql`
+> plus the six direct probes passed, and six cache-disabled Hyperdrives followed.
+> A second session then re-read the hosted ledger (33 / 33 / 0, every checksum
+> equal to release `2063ea8d72247a9b2643e1c690e37ab55ab14252`) and executed the release's own verification SQL
+> read-only with zero drift. **UA-002 is complete.** Details, digests and the
+> items that could not be re-read are in
+> [the reconciliation record](../evidence/ua002-hosted-execution-reconciliation-20260918.md). This document is retained as the
+> executed procedure; do not re-run it against the current database.
+
 > ## Update — 2026-09-18: the provider prerequisites are done
 >
 > **[Prerequisites that are not yet satisfied](#prerequisites-that-are-not-yet-satisfied)
