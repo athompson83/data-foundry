@@ -1,6 +1,21 @@
 # First paid data slice — decision
 
-**Decision: CONTINUE_TARGETED_VALIDATION.**
+> **Superseded in part, 2026-09-17** by
+> [`self-service-revenue-candidates-20260917.md`](self-service-revenue-candidates-20260917.md).
+> This document applied an interview-first test and treated the existence of a
+> free source as close to disqualifying. For a **self-service, low-touch API
+> business** that test is wrong: developers demonstrably pay to avoid
+> integration work against free data, and a paid competitor is evidence of
+> demand rather than proof of a closed market. The successor document rescreens
+> the field on that basis and recommends a different candidate.
+>
+> What still stands: the EMS credential-verification hypothesis remains
+> unvalidated with **zero independent interviews**, and the buyer gate below
+> still governs *that* candidate, which is a relationship-led business shape
+> rather than a self-service one.
+
+**Decision (self-service candidates): superseded — see above.**
+**Decision (EMS hypothesis): CONTINUE_TARGETED_VALIDATION.**
 
 Not `VALIDATED_FOR_SCOPED_PILOT`, because no candidate has an independent
 buyer. Not `REJECT_CURRENT_HYPOTHESIS`, because nothing has been tested hard
