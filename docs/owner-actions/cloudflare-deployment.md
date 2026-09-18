@@ -6,14 +6,18 @@ from source code alone.
 
 ## 2026-09-08 private-canary control (current workstream)
 
+> **Update — 2026-09-18: the route-less private canary has passed and been independently reconciled.** Steps 1–5 below were executed on the hosted target and re-read from the provider: migrations `0027`–`0033` applied through the direct-TLS operator, the grant upgrade and both verifications passed, six runtime roles activated, six cache-disabled `verify-full` Hyperdrives created, the five dedicated queues and the receipt bucket created, the seven route-less private-canary Workers deployed (bundles byte-matching the tracked manifests at `55804842f5c5131640dd0435c7d203a66e95b63c`), and cycle `475e622a-a1bf-48a5-9d2b-52126281bff4` completed with six `READY` probes, exactly-once metering, an empty quarantine and a retained receipt. See [the reconciliation record](../evidence/ua002-hosted-execution-reconciliation-20260918.md). **The public-cutover controls below remain unexecuted and owner-gated (`UA-005`)**; no ordinary Worker, route, hostname, Cron or DNS record was created. The temporary canary identities are retained pending a recorded disposition decision. The text that follows is kept as the executed procedure and as the rollback/cleanup reference.
+
 This workstream is **not** a public deployment or hostname cutover. It
 overrides any later-public-route instruction below until the synthetic canary
 has passed and an owner separately authorizes public production. Do not create
 or change a public DNS record, Worker route, custom domain, workers.dev
 endpoint, preview URL, real-source record, or public endpoint variable.
 
-The private Alpha Lab schema is already staged: the 2026-09-02 hosted record
-proves 26 ledgered migrations, objects, ownership, and the then-current 200
+**Historical snapshot, superseded 2026-09-18** (the pending set below has since
+been applied and verified; see the update banner above — nothing in this
+paragraph is current work): the private Alpha Lab schema was already staged;
+the 2026-09-02 hosted record proved 26 ledgered migrations, objects, ownership, and the then-current 200
 grants for five `NOLOGIN` runtime roles. It also records 57 function-search-path
 warnings. Repository migration `0027` closes those issues locally and `0028`
 adds the four justified rights-path indexes. The 2026-09-08 candidate also adds

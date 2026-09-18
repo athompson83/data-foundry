@@ -1,5 +1,19 @@
 # Owner action — UA-002 hosted migration handover
 
+> ## Update — 2026-09-18 (later): executed and independently reconciled
+>
+> The sequence below was run from a machine with ordinary PostgreSQL egress:
+> `0027`–`0033` were applied through the direct-TLS operator as
+> `df_migration`, the exact-baseline grant upgrade and `verificationSql`
+> passed, the six runtime roles were activated and `postCredentialVerificationSql`
+> plus the six direct probes passed, and six cache-disabled Hyperdrives followed.
+> A second session then re-read the hosted ledger (33 / 33 / 0, every checksum
+> equal to release `2063ea8d72247a9b2643e1c690e37ab55ab14252`) and executed the release's own verification SQL
+> read-only with zero drift. **UA-002 is complete.** Details, digests and the
+> items that could not be re-read are in
+> [the reconciliation record](../evidence/ua002-hosted-execution-reconciliation-20260918.md). This document is retained as the
+> executed procedure; do not re-run it against the current database.
+
 > ## Update — 2026-09-18: the provider prerequisites are done
 >
 > **[Prerequisites that are not yet satisfied](#prerequisites-that-are-not-yet-satisfied)
@@ -112,6 +126,8 @@ different release, and it needs its own checksum table rather than this one.
 The preflight treats the same disagreement as a blocker and mutates nothing.
 
 ## The single thing still missing — 2026-09-16
+
+> **Historical as of 2026-09-18.** The capability described here was supplied: the run happened from a machine with PostgreSQL egress, and `0027`–`0033` are applied and verified. Retained for reference and for a future replay or forward fix; not current action.
 
 Everything in this document is prepared and re-verified. One capability is
 absent, and it is not code, a checksum or a decision:
@@ -287,6 +303,8 @@ structural rather than configuration.
 
 ## The two ways forward
 
+> **Historical as of 2026-09-18.** Option 1 was executed; Option 2 was never taken. Retained for reference and for a future replay or forward fix; not current action.
+
 ### Option 1 — direct-TLS operator run (recommended)
 
 This is not a workaround. It is the procedure
@@ -421,6 +439,8 @@ grant options, no `public`-schema privilege and no private object privilege at
 this staging step — the grant upgrade adds its capabilities afterwards.
 
 ## Execution sequence
+
+> **Historical as of 2026-09-18.** This sequence was executed once and its results independently reconciled; do not re-run it against the current database. Retained for reference and for a future replay or forward fix; not current action.
 
 **The migration steps** run from a clean checkout of merged `main`
 `2063ea8d72247a9b2643e1c690e37ab55ab14252` — the release this document is bound
@@ -725,6 +745,8 @@ were observed from this SHA.
    signatures and 286 grants.
 
 ## Where this stops
+
+> **Historical as of 2026-09-18.** Everything listed as outstanding below has since been done: runtime credentials, `postCredentialVerificationSql`, the six direct probes, six Hyperdrives and the route-less private canary. The recovery exercise remains open under `BETA-003`/`REV-006`. Retained for reference and for a future replay or forward fix; not current action.
 
 Database success is the start of `UA-002`, not the end of it, and it must not be
 described as a deployment. Still outstanding afterwards, in order:

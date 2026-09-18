@@ -1,6 +1,93 @@
 # Progress
 
-## Current session — 2026-09-18: UA-002 provider staging executed and verified on the hosted database
+## Current session — 2026-09-18 (second session): UA-002 hosted execution independently reconciled and closed
+
+**Verdict: UA-002 COMPLETE. BETA-002 DONE. Private-canary success only — not
+production, not public cutover, not source activation, not commercial launch.**
+
+- **Current state.** Protected `main` `55804842f5c5131640dd0435c7d203a66e95b63c` (hosted CI run
+  35291689381 green). Lifecycle stage: MVP integrated / private canary passed /
+  pre-production. Control-graph node: `State changed → refresh baseline →
+  invalidate only affected evidence → rerun affected gates → continue`; this
+  session was the refresh. Current milestone: still "integrate and deploy the
+  first lawful, revenue-capable dataset".
+- **Session objective.** Take over from the earlier 2026-09-18 hosted
+  execution, verify its material claims from the provider and the database
+  rather than from its prose, preserve sanitized evidence, and reconcile the
+  status documents. Full record:
+  [`docs/evidence/ua002-hosted-execution-reconciliation-20260918.md`](docs/evidence/ua002-hosted-execution-reconciliation-20260918.md).
+- **What was read back, and matched.** Hosted ledger 33 / 33 / 0 with every
+  effective checksum equal to release `2063ea8d72247a9b2643e1c690e37ab55ab14252` (the exporter run against a
+  snapshot of the live ledger reports zero pending and the release's own
+  ledger-drift query returns empty). The release's
+  `postMigrationGrants.postCredentialVerificationSql` executed read-only:
+  both `DO` blocks pass, 286/286 runtime grants, 0 missing, 0 unexpected, 55
+  relations and 59 functions owned by `df_migration` with the canonical
+  `search_path`, 0 `SECURITY DEFINER`, 0 unsafe default ACLs, 0 unsafe
+  durable settings, 0 `PUBLIC` private ACLs, runtime roles LOGIN and
+  non-privileged with no memberships, external ACLs exactly `CONNECT` +
+  `extensions USAGE`, 0 reachable external capability. Six Hyperdrives with
+  the expected names, IDs and role users, all `caching.disabled`,
+  `verify-full`, CA `4856c681-5728-4008-8b1c-41323ce203bc`
+  (`data-foundry-supabase-root-2021`, expires 2031-04-26). Five private-canary
+  queues with the expected IDs and the runbook's exact producer/consumer/DLQ
+  topology; the ordinary usage pair untouched with no producer or consumer.
+  Both R2 buckets; the receipt retrieved by its exact key (sha256
+  `81435077ca99d64868f031d733bb849b3dc3193fa7cc3f3b255925c9c91269e4`): six
+  `READY` probes, edge and MCP metering `QUEUED`. Fixture residue: none.
+  Seven route-less Workers with the expected version IDs; bindings read back
+  and matching the tracked manifests; **deployed bundles byte-identical to
+  in-place builds of the tracked manifests at `5580484`** (and at
+  `2063ea8`, whose app sources are identical).
+- **What could not be read back with read-only tooling** (carried as Part 2
+  gaps, not asserted): queue retention and depth, Worker route / workers.dev /
+  preview flags. The six direct runtime-role credential probes were not re-run
+  (no credential is or should be in this session); they are corroborated by
+  Hyperdrive creation and by each target asserting its own role before
+  `READY`.
+- **Checklist changes.** `UA-002` → COMPLETED; `BETA-002` → DONE;
+  `FOUNDATION-006`, `MVP-005`, `PROD-001`, `PROD-002`, `REV-006` evidence
+  advanced, status unchanged; `FOUNDATION-008` records the Windows-only test
+  debt below. `README.md`, `SECURITY.md`, the Cloudflare runbook and the
+  UA-002 handover carry dated banners; history was kept, not rewritten.
+- **Tests and verification.** `pnpm install --frozen-lockfile`; `pnpm
+  typecheck` pass; `pnpm cloudflare:artifacts:check` pass (thirteen
+  artifacts); full `pnpm test` on Windows 3,556 / 3,583 with the 27 failures
+  confined to three POSIX-only tooling tests from PR #47 plus two vitest
+  worker-timeout errors, while Linux CI on the same SHA is green. The doc and
+  tooling suites relevant to this change were re-run after editing (see the
+  PR).
+- **Problems found and corrected.** (1) The main checkout was parked on the
+  stale branch `claude/foundation-hardening-20260818` with a stray untracked
+  draft test that broke `tsc`; the checkout was moved to `main` and the draft
+  was moved, not deleted, to `C:\Users\Adam\data-foundry-worktrees\stray-untracked-20260918\`.
+  (2) `node_modules` predated the lockfile (no `wrangler`); reinstalled from
+  the frozen lockfile. (3) Status documents still described the hosted state
+  as 26/33 with no Workers/Hyperdrives/R2; reconciled.
+- **Branch / PR.** `claude/ua002-hosted-reconciliation-20260918`, a
+  documentation-only PR (the CI scope gate runs the documentation-only path).
+- **Deployment environment / database target.** Cloudflare account
+  `c2832821a9ab36419cde6ee08112f6d3`: seven temporary route-less Workers, no
+  ordinary Worker, no route. Supabase `fgxinxaqkwoqyywdgobs`, private schema
+  `data_foundry` at `0033`. **Production changed by this session: no.**
+- **Blockers.** None for Part 2's technical work. Owner-only gates unchanged:
+  `UA-001` (first real source rights), `UA-005` (public cutover), `UA-004`,
+  `UA-007`, `UA-008`.
+- **Risks / debt.** `pgpass` deprecation warning for a future `pg@9` (record
+  only). Three POSIX-only tooling tests fail on Windows. `df_migration`
+  remains `LOGIN`; parking it is a Part 2 decision. The temporary canary
+  Workers, queues, CA, bucket and receipt are intentionally retained until Part
+  2 decides their disposition; do not delete the receipt.
+- **Required user actions.** None new.
+- **Recommended next steps (Part 2).** Decide the disposition of the seven
+  temporary Workers and five canary queues; establish the ordinary production
+  topology from the six tracked manifests (ignored deployment manifests with
+  the six Hyperdrive IDs, no routes); add a read-back for queue retention and
+  Worker routes/subdomain flags; recovery/rollback exercise on the hosted
+  target (`BETA-003`, `REV-006`); then the public-cutover decision packet
+  for `UA-005`.
+
+## Earlier — 2026-09-18 (first session): UA-002 provider staging executed and verified on the hosted database
 
 **First hosted mutation of UA-002. The three provider-path prerequisites are
 cleared. No migration was applied and none should be read into this.**

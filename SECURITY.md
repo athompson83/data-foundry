@@ -104,22 +104,29 @@ branch is the only supported thing to run.
 | default branch (`main`) | ✅ |
 | any tag or fork | ❌ |
 
-No production deployment of this integration candidate is recorded or
-verified. Dated, redacted 2026-09-01/09-02 evidence records a scoped read-only
-Cloudflare inventory: the active/full zone, standard usage model, and ordinary
-14-day Queue/DLQ pair were observed, while no Data Foundry Worker, route,
-Hyperdrive, or R2 bucket was observed. This authoritative 14:46Z refresh
-supersedes an earlier same-day raw-bucket observation. Those inventory facts are not live binding,
-receipt, or runtime proof; exact deployment IDs and runtime probes remain
-owner/platform evidence. The current candidate has six ordinary Worker
-manifests and seven route-less private-canary artifacts: six dedicated reduced
-targets plus the no-Hyperdrive harness, for thirteen core artifacts. A separate
-fourteenth synthetic ingestion profile uses the same temporary ingestion
-identity in a distinct phase with isolated Queue/DLQ and fixed-fixture artifact
-storage; it must restore the reduced profile before the receipt harness runs
-again. These remain repository code and credential-free artifacts, not deployed
-capability or real-source processing proof. The HVAC
-vertical is `status: DRAFT` with synthetic fixture data. If that changes, this
+No public production deployment exists. What does exist, independently read
+back on 2026-09-18 ([record](docs/evidence/ua002-hosted-execution-reconciliation-20260918.md)): the hosted private `data_foundry`
+schema at migrations `0001`–`0033` with the release's grant verification
+passing; six role-specific, cache-disabled, `verify-full` Hyperdrives; the
+five dedicated private-canary queues beside the untouched ordinary 14-day
+Queue/DLQ pair; both R2 buckets; and **seven route-less, temporary
+private-canary Workers** (six reduced targets plus the credential-free
+harness) whose deployed bundles byte-match the tracked manifests. One private
+canary cycle passed. Their tracked manifests declare no route, no `workers.dev`
+endpoint and no preview URL, and their read-back bindings carry no Cron trigger,
+raw-artifact binding or secret; the custom-domain, `workers.dev` and preview
+flags themselves were not readable with the available tooling and are an open
+read-back gap. The candidate still has six ordinary Worker
+manifests and seven route-less private-canary artifacts, thirteen core artifacts
+in all; only the seven private-canary artifacts are
+deployed, the six ordinary manifests remain undeployed, and the separate
+fourteenth synthetic ingestion profile has not been deployed either. Exact
+deployment IDs and bundle digests are in the record, and the receipt in R2 is
+retained evidence. The historical 2026-09-01/09-02 inventory that observed the
+zone as active/full under the standard usage model with the ordinary 14-day
+Queue/DLQ pair and no Data Foundry Worker, route, Hyperdrive or R2 bucket is
+superseded. The HVAC vertical is `status: DRAFT` with synthetic
+fixture data, and no real source has been activated. If that changes, this
 section changes with it.
 
 ## What this policy is not
