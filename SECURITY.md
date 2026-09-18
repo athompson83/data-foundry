@@ -112,8 +112,11 @@ five dedicated private-canary queues beside the untouched ordinary 14-day
 Queue/DLQ pair; both R2 buckets; and **seven route-less, temporary
 private-canary Workers** (six reduced targets plus the credential-free
 harness) whose deployed bundles byte-match the tracked manifests. One private
-canary cycle passed. Those Workers have no route, no public hostname, no Cron,
-no raw-artifact binding and no secret. The candidate still has six ordinary Worker
+canary cycle passed. Their tracked manifests declare no route, no `workers.dev`
+endpoint and no preview URL, and their read-back bindings carry no Cron trigger,
+raw-artifact binding or secret; the custom-domain, `workers.dev` and preview
+flags themselves were not readable with the available tooling and are an open
+read-back gap. The candidate still has six ordinary Worker
 manifests and seven route-less private-canary artifacts, thirteen core artifacts
 in all; only the seven private-canary artifacts are
 deployed, the six ordinary manifests remain undeployed, and the separate

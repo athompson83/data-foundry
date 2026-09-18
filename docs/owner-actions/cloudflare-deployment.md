@@ -14,8 +14,10 @@ has passed and an owner separately authorizes public production. Do not create
 or change a public DNS record, Worker route, custom domain, workers.dev
 endpoint, preview URL, real-source record, or public endpoint variable.
 
-The private Alpha Lab schema is already staged: the 2026-09-02 hosted record
-proves 26 ledgered migrations, objects, ownership, and the then-current 200
+**Historical snapshot, superseded 2026-09-18** (the pending set below has since
+been applied and verified; see the update banner above — nothing in this
+paragraph is current work): the private Alpha Lab schema was already staged;
+the 2026-09-02 hosted record proved 26 ledgered migrations, objects, ownership, and the then-current 200
 grants for five `NOLOGIN` runtime roles. It also records 57 function-search-path
 warnings. Repository migration `0027` closes those issues locally and `0028`
 adds the four justified rights-path indexes. The 2026-09-08 candidate also adds
