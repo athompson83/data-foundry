@@ -41,6 +41,7 @@
     "mcp:compile:check": "tsx tooling/scripts/compile-mcp-runtime.ts --check",
     "cloudflare:topology:check": "tsx tooling/scripts/check-cloudflare-topology.ts",
     "cloudflare:deployment:check": "tsx tooling/scripts/check-cloudflare-topology.ts --mode deployment",
+    "cloudflare:route-less-deployment:check": "tsx tooling/scripts/check-cloudflare-topology.ts --mode route-less-deployment",
     "cloudflare:private-canary:check": "tsx tooling/scripts/check-cloudflare-topology.ts --mode private-canary",
     "cloudflare:private-canary:deployment:check": "tsx tooling/scripts/check-cloudflare-topology.ts --mode private-canary-deployment",
     "cloudflare:private-canary:targets:check": "tsx tooling/scripts/check-cloudflare-topology.ts --mode private-canary-target",

@@ -36,7 +36,7 @@ afterAll(async () => {
 
 async function loadValidator(): Promise<(
   options?: {
-    readonly mode?: 'repository' | 'deployment' | 'private-canary' | 'private-canary-deployment' | 'private-canary-target' | 'private-canary-target-deployment' | 'private-canary-full-deployment';
+    readonly mode?: 'repository' | 'deployment' | 'route-less-deployment' | 'private-canary' | 'private-canary-deployment' | 'private-canary-target' | 'private-canary-target-deployment' | 'private-canary-full-deployment';
     readonly edgeConfigPath?: string;
     readonly consumerConfigPath?: string;
     readonly webConfigPath?: string;
@@ -64,7 +64,7 @@ async function loadValidator(): Promise<(
   expect(typeof validate).toBe('function');
   return validate as (
     options?: {
-      readonly mode?: 'repository' | 'deployment' | 'private-canary' | 'private-canary-deployment' | 'private-canary-target' | 'private-canary-target-deployment' | 'private-canary-full-deployment';
+      readonly mode?: 'repository' | 'deployment' | 'route-less-deployment' | 'private-canary' | 'private-canary-deployment' | 'private-canary-target' | 'private-canary-target-deployment' | 'private-canary-full-deployment';
       readonly edgeConfigPath?: string;
       readonly consumerConfigPath?: string;
       readonly webConfigPath?: string;
@@ -140,6 +140,34 @@ async function writeDeploymentManifests(directory: string): Promise<{
 }
 
 type DeploymentManifestPaths = Awaited<ReturnType<typeof writeDeploymentManifests>>;
+
+/**
+ * The Part 2 ordinary route-less deployment: the six tracked templates plus
+ * one account id and one role-specific Hyperdrive id each, and nothing else.
+ * No route, no public origin or hostname, no marketplace hostname.
+ */
+async function writeRouteLessDeploymentManifests(directory: string): Promise<DeploymentManifestPaths> {
+  const binding = (id: string): string => `\n[[hyperdrive]]\nbinding = "HYPERDRIVE"\nid = "${id}"\n`;
+  const withAccountId = (manifest: string): string =>
+    manifest.replace(/^name\s*=\s*[^\n]+/m, (name) => `${name}\naccount_id = "${ACCOUNT_ID}"`);
+  const paths = {
+    edgeConfigPath: join(directory, 'edge.toml'),
+    consumerConfigPath: join(directory, 'consumer.toml'),
+    webConfigPath: join(directory, 'web.toml'),
+    acquisitionConfigPath: join(directory, 'acquisition.toml'),
+    ingestionConfigPath: join(directory, 'ingestion.toml'),
+    mcpConfigPath: join(directory, 'mcp.toml'),
+  };
+  await Promise.all([
+    writeFile(paths.edgeConfigPath, `${withAccountId(await readFile(EDGE_CONFIG, 'utf8'))}${binding(HYPERDRIVE_ID)}`, 'utf8'),
+    writeFile(paths.consumerConfigPath, `${withAccountId(await readFile(CONSUMER_CONFIG, 'utf8'))}${binding(CONSUMER_HYPERDRIVE_ID)}`, 'utf8'),
+    writeFile(paths.webConfigPath, `${withAccountId(await readFile(WEB_CONFIG, 'utf8'))}${binding(WEB_HYPERDRIVE_ID)}`, 'utf8'),
+    writeFile(paths.acquisitionConfigPath, `${withAccountId(await readFile(ACQUISITION_CONFIG, 'utf8'))}${binding(ACQUISITION_HYPERDRIVE_ID)}`, 'utf8'),
+    writeFile(paths.ingestionConfigPath, `${withAccountId(await readFile(INGESTION_CONFIG, 'utf8'))}${binding(INGESTION_HYPERDRIVE_ID)}`, 'utf8'),
+    writeFile(paths.mcpConfigPath, `${withAccountId(await readFile(MCP_CONFIG, 'utf8'))}${binding(MCP_HYPERDRIVE_ID)}`, 'utf8'),
+  ]);
+  return paths;
+}
 
 function ordinaryDeploymentConfigPaths(paths: DeploymentManifestPaths) {
   return {
@@ -908,6 +936,105 @@ describe('the committed Cloudflare topology', () => {
     const paths = await writeDeploymentManifests(directory);
 
     expect(await validate({ mode: 'deployment', ...paths })).toEqual([]);
+  });
+
+  it('validates the Part 2 route-less ordinary deployment manifests, and refuses them as a public deployment', async () => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-cloudflare-route-less-'));
+    temporaryDirectories.push(directory);
+    const paths = await writeRouteLessDeploymentManifests(directory);
+
+    expect(await validate({ mode: 'route-less-deployment', ...paths })).toEqual([]);
+
+    // The same manifests are not a public deployment: `deployment` mode still
+    // demands routes and public endpoints, so the two steps cannot be confused.
+    const asPublic = (await validate({ mode: 'deployment', ...paths })).join('\n');
+    expect(asPublic).toMatch(/edge deployment manifest must declare canonical production route/);
+    expect(asPublic).toMatch(/web deployment manifest must provide a non-loopback exact HTTPS PUBLIC_ORIGIN/);
+    expect(asPublic).toMatch(/mcp-worker deployment manifest must provide a non-loopback exact MCP_HOSTNAME/);
+  });
+
+  it('rejects a route, a public endpoint variable, or a marketplace hostname in a route-less deployment manifest', async () => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-cloudflare-route-less-exposed-'));
+    temporaryDirectories.push(directory);
+    const paths = await writeRouteLessDeploymentManifests(directory);
+    await writeFile(
+      paths.edgeConfigPath,
+      (await readFile(paths.edgeConfigPath, 'utf8'))
+        .replace(/^name\s*=\s*[^\n]+/m, (name) => `${name}\nroutes = [{ pattern = "api.datafoundry.io/*", zone_name = "datafoundry.io" }]`)
+        .replace('API_KEY_ENVIRONMENT = "live"', 'API_KEY_ENVIRONMENT = "live"\nRAPIDAPI_HOSTNAME = "rapid.datafoundry.io"'),
+      'utf8',
+    );
+    await writeFile(
+      paths.webConfigPath,
+      (await readFile(paths.webConfigPath, 'utf8')).replace(
+        'PUBLIC_CACHE_MODE = "no-store"',
+        'PUBLIC_CACHE_MODE = "no-store"\nPUBLIC_ORIGIN = "https://www.datafoundry.io"',
+      ),
+      'utf8',
+    );
+    await writeFile(
+      paths.mcpConfigPath,
+      (await readFile(paths.mcpConfigPath, 'utf8')).replace(
+        'API_KEY_ENVIRONMENT = "live"',
+        'API_KEY_ENVIRONMENT = "live"\nMCP_HOSTNAME = "mcp.datafoundry.io"\nMCP_ALLOWED_ORIGINS = "https://app.datafoundry.io"',
+      ),
+      'utf8',
+    );
+
+    const errors = await validate({ mode: 'route-less-deployment', ...paths });
+
+    expect(errors).toEqual([
+      'edge route-less deployment manifest must not declare a route; public exposure is the separately authorized UA-005 cutover.',
+      'edge route-less deployment manifest must not set RAPIDAPI_HOSTNAME; public endpoint variables belong to the UA-005 cutover manifests.',
+      'web route-less deployment manifest must not set PUBLIC_ORIGIN; public endpoint variables belong to the UA-005 cutover manifests.',
+      'mcp-worker route-less deployment manifest must not set MCP_HOSTNAME; public endpoint variables belong to the UA-005 cutover manifests.',
+      'mcp-worker route-less deployment manifest must not set MCP_ALLOWED_ORIGINS; public endpoint variables belong to the UA-005 cutover manifests.',
+    ]);
+    expect(errors.join('\n')).not.toContain('datafoundry.io');
+    expect(errors.join('\n')).not.toContain(ACCOUNT_ID);
+  });
+
+  it('holds a route-less deployment to the same account, Hyperdrive, cache and privacy rules as a public one', async () => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-cloudflare-route-less-drift-'));
+    temporaryDirectories.push(directory);
+    const paths = await writeRouteLessDeploymentManifests(directory);
+    await writeFile(
+      paths.webConfigPath,
+      (await readFile(paths.webConfigPath, 'utf8'))
+        .replace(WEB_HYPERDRIVE_ID, HYPERDRIVE_ID)
+        .replace('PUBLIC_CACHE_MODE = "no-store"', 'PUBLIC_CACHE_MODE = "cache"')
+        .replace('preview_urls = false', 'preview_urls = true'),
+      'utf8',
+    );
+    await writeFile(
+      paths.ingestionConfigPath,
+      (await readFile(paths.ingestionConfigPath, 'utf8')).replace(ACCOUNT_ID, PRIVATE_CANARY_ACCOUNT_ID),
+      'utf8',
+    );
+
+    const errors = await validate({ mode: 'route-less-deployment', ...paths }).then((list) => list.join('\n'));
+
+    expect(errors).toMatch(/six distinct Hyperdrive configuration ids/);
+    expect(errors).toMatch(/one canonical account_id/);
+    expect(errors).toMatch(/PUBLIC_CACHE_MODE as exactly no-store/);
+    expect(errors).toMatch(/web must set preview_urls = false/);
+    expect(errors).not.toContain(HYPERDRIVE_ID);
+    expect(errors).not.toContain(PRIVATE_CANARY_ACCOUNT_ID);
+  });
+
+  it('fails a route-less deployment closed when an ignored ordinary manifest is absent', async () => {
+    const validate = await loadValidator();
+    const directory = await mkdtemp(join(tmpdir(), 'data-foundry-cloudflare-route-less-missing-'));
+    temporaryDirectories.push(directory);
+    const paths = await writeRouteLessDeploymentManifests(directory);
+    await rm(paths.mcpConfigPath);
+
+    const errors = await validate({ mode: 'route-less-deployment', ...paths });
+
+    expect(errors).toEqual(['mcp-worker manifest could not be read and parsed as TOML.']);
   });
 
   it('rejects deployment manifests that reuse a Hyperdrive configuration across Worker roles', async () => {

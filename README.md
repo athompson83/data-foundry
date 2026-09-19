@@ -149,6 +149,7 @@ pnpm schemas:check
 pnpm openapi:check
 pnpm cloudflare:topology:check
 pnpm cloudflare:artifacts:check
+pnpm cloudflare:route-less-deployment:check
 pnpm cloudflare:readback:check --snapshot <captured.json>
 pnpm verticals:validate
 pnpm acquisition:check

@@ -1,6 +1,6 @@
 # Progress
 
-## Current session — 2026-09-18 (third session): Part 2 opened — canary disposition recorded, provider read-back tooling added
+## Current session — 2026-09-18/19 (third session): Part 2 opened — canary disposition recorded, provider read-back tooling, route-less deployment gate
 
 **Verdict: READY_FOR_USER_REVIEW for this work package. No provider mutation.
 No production change. The read-back has not been executed against the account.**
@@ -53,6 +53,27 @@ No production change. The read-back has not been executed against the account.**
   to a `0600` file as out-of-band evidence and `--snapshot` re-evaluates one
   offline. API response shapes were taken from Cloudflare's published OpenAPI
   schema, not from memory.
+- **Route-less ordinary deployment gated and documented (2026-09-19
+  continuation).** The second session's recommendation — establish the ordinary
+  topology from the six tracked manifests with the six Hyperdrive IDs and no
+  routes — had no pre-deployment check: `cloudflare:deployment:check` demands
+  canonical routes, `PUBLIC_ORIGIN`, `MCP_HOSTNAME` and `MCP_ALLOWED_ORIGINS`,
+  so it would rightly reject route-less manifests, and the runbook's launch
+  order deployed the ordinary Workers only after public authorization. Added
+  `--mode route-less-deployment` to `check-cloudflare-topology.ts`
+  (`pnpm cloudflare:route-less-deployment:check`): same account, six distinct
+  Hyperdrives, `no-store`, privacy-flag and plaintext-secret rules as
+  `deployment`, but every route and every public endpoint variable is
+  forbidden. Four new tests (happy path that `deployment` mode rejects for
+  lacking routes; route/`RAPIDAPI_HOSTNAME`/`PUBLIC_ORIGIN`/`MCP_*` rejected
+  without echoing hostnames or ids; shared account/Hyperdrive/cache/preview
+  drift; absent manifest fails closed); the topology suite is 115 / 115. The
+  runbook gains a "Part 2: ordinary route-less deployment" procedure
+  (preconditions, what the two Crons will do against the production database
+  from the first minute — hourly `REFUSED`/`RIGHTS_REFUSED` acquisition audit
+  rows for any compiled target and five-minute health snapshots with alerts
+  disabled — six steps, read-back, rollback), and the launch order's step 4 is
+  split accordingly. No provider mutation; the step is documented, not run.
 - **Tests and verification.** `pnpm install --frozen-lockfile`; `pnpm
   typecheck` pass; new
   [`tooling/test/cloudflare-readback.test.ts`](tooling/test/cloudflare-readback.test.ts)
@@ -100,11 +121,12 @@ No production change. The read-back has not been executed against the account.**
   once from a machine with a read-only Cloudflare token and record the
   sanitized stdout as evidence; if it fails, the failure text is the finding.
 - **Recommended next steps (Part 2, continued).** (1) Execute the read-back
-  once (above). (2) In an authenticated operator session: create
+  once (above). (2) In an authenticated operator session, follow the runbook's
+  Part 2 procedure: decide on the Cron consequences, populate the six ignored
+  manifests, pass `pnpm cloudflare:route-less-deployment:check`, create
   `data-foundry-ingestion` and `-dlq` at 14 days, deploy the six ordinary
-  Workers from the ignored `wrangler.production.toml` manifests **without
-  routes**, then require `pnpm cloudflare:readback:check --phase
-  ordinary-route-less` to pass (`PROD-002`). (3) Hosted backup/isolated
+  Workers **without routes**, then require `pnpm cloudflare:readback:check
+  --phase ordinary-route-less` to pass (`PROD-002`). (3) Hosted backup/isolated
   restore/rollback exercise (`BETA-003`, `REV-006`). (4) Only then the
   `UA-005` public-cutover decision packet.
 

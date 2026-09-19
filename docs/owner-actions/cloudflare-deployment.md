@@ -175,6 +175,9 @@ canary:
    not add a service-binding environment selector, a local connection string, a
    public route, hostname, R2 raw-artifact binding, Cron, `POSTGRES_URL`, or
    protected value to the seven temporary manifests.
+   *2026-09-19: with the canary retained under ADR-0013, the ordinary manifests
+   may now be populated and deployed route-less under the Part 2 procedure
+   below; their collision-control role in the canary checks is unchanged.*
 
    The six reduced profiles create temporary dedicated Worker identities:
    `data-foundry-private-canary-edge`,
@@ -252,6 +255,82 @@ canary:
 The conventional `wrangler.production.toml` procedure and all public
 hostname/cutover steps below are later-production controls. They are not an
 alternative canary route for this workstream.
+
+### Part 2 (added 2026-09-19): ordinary route-less deployment
+
+With the private-canary topology retained as standing validation
+infrastructure ([ADR-0013](../decisions/ADR-0013-private-canary-resource-disposition.md)),
+the next hosted step is to prove the **six ordinary Workers** on the canonical
+account **without any public exposure**: ordinary names, ordinary Cron, R2 and
+Queue bindings, the six production Hyperdrives, and no route, custom domain,
+`workers.dev` subdomain, preview URL, public origin or hostname variable. It
+creates nothing user-visible, so it needs no `UA-005` authorization; `UA-005`
+remains the gate for routes, hostnames and DNS. It is not a customer path and
+proves nothing about public routing or TLS.
+
+**What it does run.** Two of the six Workers carry Cron triggers, and both begin
+executing against the production database as soon as they are deployed:
+
+- `data-foundry-acquisition-worker` runs hourly. Each cycle claims whatever
+  scheduled targets the compiled `hvac` acquisition runtime carries and then
+  authorizes each claim against stored rights; with no effective grant the run
+  is recorded `REFUSED` (`RIGHTS_REFUSED`) and nothing is fetched. That is the
+  fail-closed path working, but it writes acquisition-run audit rows every hour.
+- `data-foundry-ingestion-worker` runs every five minutes: it dispatches the
+  ingestion outbox (a no-op while empty) and takes the operational health
+  snapshot. Alerts stay disabled (`OPS_ALERTS_ENABLED = "false"` in the tracked
+  template); no email is sent.
+
+Decide before deploying whether that activity is acceptable now. If it is not,
+deploy the other four and stop; the read-back's `ordinary-route-less` phase will
+then fail on the two absent Workers and the ingestion queues, which is the
+truthful record of a partial step.
+
+**Procedure.** All of it runs from a clean checkout of the frozen candidate SHA
+whose private canary has passed (the exact-SHA rule above applies: a later
+commit needs fresh checks).
+
+1. `pnpm cloudflare:artifacts:check` on that checkout.
+2. Create the six ignored ordinary manifests from the tracked templates with
+   the `Copy-Item` block in section 6, then add **only** the non-secret
+   `account_id` (the same one the canary manifests carry) and one
+   `[[hyperdrive]]` object with exactly `binding = "HYPERDRIVE"` and the
+   role-specific `id` — the six Hyperdrives the canary targets already use. Do
+   not add a route, `PUBLIC_ORIGIN`, `MCP_HOSTNAME`, `MCP_ALLOWED_ORIGINS`,
+   `RAPIDAPI_HOSTNAME`, a connection string or any protected value.
+3. Run the fail-closed pre-deployment check for this step, which requires all
+   six ignored manifests, one account, six distinct Hyperdrives, `no-store`
+   caching, the privacy flags, **and the absence of every route and public
+   endpoint variable** (the ordinary `cloudflare:deployment:check` is the
+   `UA-005` check and would rightly reject these manifests for having no
+   routes):
+   ```powershell
+   pnpm cloudflare:route-less-deployment:check
+   git diff --exit-code HEAD -- apps/edge/wrangler.toml apps/web/wrangler.toml apps/usage-consumer/wrangler.toml apps/acquisition-worker/wrangler.toml apps/ingestion-worker/wrangler.toml apps/mcp-worker/wrangler.toml
+   ```
+4. Create `data-foundry-ingestion` and `data-foundry-ingestion-dlq` at
+   1,209,600 seconds (14 days) before deploying; the ingestion consumer binding
+   cannot resolve otherwise. Leave the ordinary usage pair and the five canary
+   queues untouched.
+5. Dry-run, then deploy, the six manifests with the repository-pinned Wrangler
+   and the tracked empty env file, using the same `wrangler deploy` command
+   forms as section 6. Deploy the Cron Workers last (`ingestion-worker`, then
+   `acquisition-worker`) so the earlier four are verified before any schedule
+   starts. No `wrangler secret put` is needed for this step.
+6. Read the result back from the provider, not from Wrangler's output:
+   ```powershell
+   pnpm cloudflare:readback:check --phase ordinary-route-less
+   ```
+   It must report all thirteen `data-foundry-*` Workers with `workers.dev` and
+   previews disabled and zero routes and custom domains, nine `data-foundry-*`
+   queues at 14 days with the exact manifest topology, empty terminal queues,
+   and no Worker on a canonical hostname. Record the sanitized stdout, and
+   record each ordinary Worker's version id and bundle digest against the
+   frozen SHA the way the canary evidence did.
+
+**Rollback** is deletion of the six ordinary Workers; it stops both Crons and
+leaves the canary topology, Hyperdrives, buckets and queues intact. Deleting
+the ordinary Workers does not delete the ingestion queues; leave them.
 
 Historical repository snapshot (2026-09-03): protected `main` contained the ordinary five-Worker production topology and
 repository migrations through `0028`:
@@ -1039,7 +1118,8 @@ deployment and needs the exact provider evidence described above.
    disabled, following section 2's steps.
 4. Keep every tracked `wrangler.toml` free of live account, route and Hyperdrive
    ids. The conventional `wrangler.production.toml` path below is a later public
-   production procedure. The current route-less canary must instead use the seven
+   production procedure (the route-less first use of those same ignored
+   manifests is the Part 2 procedure at the top of this document). The current route-less canary must instead use the seven
    ignored private-canary manifests: six reduced target Workers and the
    no-Hyperdrive harness, with the exact field restrictions in the 2026-09-01
    control at the top of this document. Its three deployment-mode checks also
@@ -1293,7 +1373,13 @@ pending `0027` through the selected candidate's latest migration (currently `003
    deployment as rollback.
 4. Only after that private-canary proof and separate public authorization, deploy
    the six ordinary production Workers with their ordinary Cron/R2/Queue/route
-   configuration.
+   configuration. Since 2026-09-19 this step is split: the route-less ordinary
+   deployment (Part 2 procedure at the top of this document, checked by
+   `pnpm cloudflare:route-less-deployment:check` and read back by
+   `pnpm cloudflare:readback:check --phase ordinary-route-less`) needs no
+   public authorization because it creates no route, hostname or DNS record;
+   adding routes and public endpoint variables to those same manifests is the
+   `UA-005` cutover, checked by `pnpm cloudflare:deployment:check`.
 5. Rights-clear and ingest the first real commercial vertical.
 6. Mark a vertical `ACTIVE` only after its real-source review is complete, and
    enable public pages only for exact `PUBLIC_WEB` grants. A rendered page may
