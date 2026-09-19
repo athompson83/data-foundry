@@ -201,6 +201,7 @@ export interface CloudflareTopologyOptions {
   readonly mode?:
     | 'repository'
     | 'deployment'
+    | 'route-less-deployment'
     | 'private-canary'
     | 'private-canary-deployment'
     | 'private-canary-target'
@@ -1034,11 +1035,54 @@ function checkDeploymentEndpoints(
   }
 }
 
+/**
+ * Public endpoint variables only make sense with a route. The route-less
+ * ordinary deployment (ADR-0013 Part 2: prove the six ordinary bundles,
+ * bindings, queues and Crons on the hosted target before any public exposure)
+ * must therefore carry none of them; they arrive with the `UA-005` cutover
+ * manifests, which `deployment` mode validates.
+ */
+const ROUTE_LESS_FORBIDDEN_VARIABLES = [
+  'PUBLIC_ORIGIN',
+  'MCP_HOSTNAME',
+  'MCP_ALLOWED_ORIGINS',
+  'RAPIDAPI_HOSTNAME',
+] as const;
+
+function checkRouteLessDeploymentEndpoints(
+  manifests: readonly (readonly [label: string, config: TomlObject])[],
+  errors: string[],
+): void {
+  for (const [label, config] of manifests) {
+    if (collectKeyPaths(config, new Set(['route', 'routes'])).length !== 0) {
+      errors.push(
+        `${label} route-less deployment manifest must not declare a route; public exposure is the separately authorized UA-005 cutover.`,
+      );
+    }
+    const vars = object(config['vars']);
+    for (const key of Object.keys(vars)) {
+      if ((ROUTE_LESS_FORBIDDEN_VARIABLES as readonly string[]).includes(key.toUpperCase())) {
+        errors.push(
+          `${label} route-less deployment manifest must not set ${key}; public endpoint variables belong to the UA-005 cutover manifests.`,
+        );
+      }
+    }
+  }
+  const web = manifests.find(([label]) => label === 'web')?.[1] ?? {};
+  if (object(web['vars'])['PUBLIC_CACHE_MODE'] !== 'no-store') {
+    errors.push('web deployment manifest must provide PUBLIC_CACHE_MODE as exactly no-store.');
+  }
+}
+
 export async function validateCloudflareTopology(
   options: CloudflareTopologyOptions = {},
 ): Promise<readonly string[]> {
   const errors: string[] = [];
   const mode = options.mode ?? 'repository';
+  // Both deployment modes read the six ignored ordinary production manifests;
+  // they differ only in whether public routes and endpoints are required
+  // (`deployment`) or forbidden (`route-less-deployment`).
+  const ordinaryDeployment = mode === 'deployment' || mode === 'route-less-deployment';
   if (mode === 'private-canary-target' || mode === 'private-canary-target-deployment') {
     const deployment = mode === 'private-canary-target-deployment';
     const targets = await loadPrivateCanaryTargets(options, deployment, errors);
@@ -1138,35 +1182,35 @@ export async function validateCloudflareTopology(
     return errors;
   }
   const edge = await parseConfig(
-    options.edgeConfigPath ?? (mode === 'deployment' ? EDGE_DEPLOYMENT_CONFIG_PATH : EDGE_CONFIG_PATH),
+    options.edgeConfigPath ?? (ordinaryDeployment ? EDGE_DEPLOYMENT_CONFIG_PATH : EDGE_CONFIG_PATH),
     'edge',
     errors,
   );
   const consumer = await parseConfig(
     options.consumerConfigPath ??
-      (mode === 'deployment' ? CONSUMER_DEPLOYMENT_CONFIG_PATH : CONSUMER_CONFIG_PATH),
+      (ordinaryDeployment ? CONSUMER_DEPLOYMENT_CONFIG_PATH : CONSUMER_CONFIG_PATH),
     'usage-consumer',
     errors,
   );
   const web = await parseConfig(
-    options.webConfigPath ?? (mode === 'deployment' ? WEB_DEPLOYMENT_CONFIG_PATH : WEB_CONFIG_PATH),
+    options.webConfigPath ?? (ordinaryDeployment ? WEB_DEPLOYMENT_CONFIG_PATH : WEB_CONFIG_PATH),
     'web',
     errors,
   );
   const acquisition = await parseConfig(
     options.acquisitionConfigPath ??
-      (mode === 'deployment' ? ACQUISITION_DEPLOYMENT_CONFIG_PATH : ACQUISITION_CONFIG_PATH),
+      (ordinaryDeployment ? ACQUISITION_DEPLOYMENT_CONFIG_PATH : ACQUISITION_CONFIG_PATH),
     'acquisition-worker',
     errors,
   );
   const ingestion = await parseConfig(
     options.ingestionConfigPath ??
-      (mode === 'deployment' ? INGESTION_DEPLOYMENT_CONFIG_PATH : INGESTION_CONFIG_PATH),
+      (ordinaryDeployment ? INGESTION_DEPLOYMENT_CONFIG_PATH : INGESTION_CONFIG_PATH),
     'ingestion-worker',
     errors,
   );
   const mcp = await parseConfig(
-    options.mcpConfigPath ?? (mode === 'deployment' ? MCP_DEPLOYMENT_CONFIG_PATH : MCP_CONFIG_PATH),
+    options.mcpConfigPath ?? (ordinaryDeployment ? MCP_DEPLOYMENT_CONFIG_PATH : MCP_CONFIG_PATH),
     'mcp-worker',
     errors,
   );
@@ -1247,7 +1291,18 @@ export async function validateCloudflareTopology(
       ['mcp-worker', mcp],
     ], errors);
     checkAcquisitionProviderAccountId(acquisition, canonicalAccountId, errors);
-    checkDeploymentEndpoints(edge, web, mcp, errors);
+    if (mode === 'route-less-deployment') {
+      checkRouteLessDeploymentEndpoints([
+        ['edge', edge],
+        ['usage-consumer', consumer],
+        ['web', web],
+        ['acquisition-worker', acquisition],
+        ['ingestion-worker', ingestion],
+        ['mcp-worker', mcp],
+      ], errors);
+    } else {
+      checkDeploymentEndpoints(edge, web, mcp, errors);
+    }
   }
 
   const edgeVars = object(edge['vars']);
@@ -1419,6 +1474,8 @@ export async function run(options: CloudflareTopologyOptions = {}): Promise<numb
   process.stdout.write(
     options.mode === 'deployment'
       ? 'OK: Cloudflare deployment manifests are internally consistent.\n'
+      : options.mode === 'route-less-deployment'
+        ? 'OK: Cloudflare ordinary deployment manifests are account-bound, role-bound and route-less.\n'
       : options.mode === 'private-canary'
         ? 'OK: Cloudflare private-canary manifest is route-less and service-bound.\n'
         : options.mode === 'private-canary-deployment'
@@ -1440,6 +1497,7 @@ if (isMain(import.meta.url)) {
     mode !== undefined &&
     mode !== 'repository' &&
     mode !== 'deployment' &&
+    mode !== 'route-less-deployment' &&
     mode !== 'private-canary' &&
     mode !== 'private-canary-deployment' &&
     mode !== 'private-canary-target' &&
@@ -1447,7 +1505,7 @@ if (isMain(import.meta.url)) {
     mode !== 'private-canary-full-deployment'
   ) {
     process.stderr.write(
-      'Usage: check-cloudflare-topology.ts [--mode repository|deployment|private-canary|private-canary-deployment|private-canary-target|private-canary-target-deployment|private-canary-full-deployment]\n',
+      'Usage: check-cloudflare-topology.ts [--mode repository|deployment|route-less-deployment|private-canary|private-canary-deployment|private-canary-target|private-canary-target-deployment|private-canary-full-deployment]\n',
     );
     process.exitCode = 1;
   } else {

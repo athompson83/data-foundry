@@ -328,6 +328,14 @@ technically once auth/metering is deployed, but commercial self-service billing
 can wait until marketplace demand demonstrates what pricing and customer
 behavior actually require.
 
+> **2026-09-19 direction.** Self-service is the model: no interviews, outreach,
+> manual onboarding or manual invoicing as launch prerequisites. RapidAPI stays
+> the preferred first channel; a Stripe-hosted checkout with automatic customer
+> and entitlement provisioning is the fallback if RapidAPI has a **verified**
+> external blocker, and only one of the two is built at a time. The direct
+> allowance and its hard stop now exist (ADR-0014), so the direct path is not
+> waiting on a quota either way.
+
 Build direct billing when one or more of these are true:
 
 - meaningful recurring marketplace revenue makes the marketplace fee material;

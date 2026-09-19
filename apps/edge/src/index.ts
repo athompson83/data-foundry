@@ -23,6 +23,14 @@ import type {
 import { buildUsageEvent, type UsageEvent } from '@data-foundry/usage-events';
 import { toApiRequest, toFetchResponse } from './adapter.js';
 import { authenticate, toAuthResponse, type AuthFailure } from './auth.js';
+import {
+  allowanceHeaders,
+  releaseEntitlement,
+  reserveEntitlement,
+  toEntitlementResponse,
+  type EntitlementRefusal,
+  type EntitlementReservation,
+} from './entitlement.js';
 import { getDeployment, type BuildOptions, type VerticalRuntime } from './composition.js';
 import {
   EdgeConfigurationError,
@@ -61,6 +69,14 @@ export {
   type ResolvedEdgeConfig,
 } from './env.js';
 export { probePrivateCanaryReadiness, type PrivateCanaryProbeOptions } from './private-canary.js';
+export {
+  ALLOWANCE_LIMIT_HEADER,
+  ALLOWANCE_REMAINING_HEADER,
+  ALLOWANCE_RESET_HEADER,
+  allowanceHeaders,
+  toEntitlementResponse,
+  type EntitlementResponseBody,
+} from './entitlement.js';
 
 /** Service-binding-only probe; no public route is added for the canary. */
 export class PrivateCanaryEntrypoint extends WorkerEntrypoint<EdgeEnv> implements PrivateCanaryProbe {
@@ -124,6 +140,26 @@ function authFailureResponse(request: Request, failure: AuthFailure): Response {
       'content-type': 'application/json; charset=utf-8',
       'cache-control': 'no-store',
       'content-length': String(new TextEncoder().encode(serialized).byteLength),
+    },
+  });
+}
+
+/**
+ * A request the allowance refused never reached `apps/api` and, like an
+ * authentication failure, consumed nothing billable: no usage event. The
+ * refusal is counted in Workers logs under a closed code instead.
+ */
+function entitlementFailureResponse(request: Request, refusal: EntitlementRefusal, now: Date): Response {
+  const { status, body, headers } = toEntitlementResponse(refusal, now);
+  const serialized = JSON.stringify(body);
+  const bodyless = request.method.toUpperCase() === 'HEAD';
+  return new Response(bodyless ? null : serialized, {
+    status,
+    headers: {
+      'content-type': 'application/json; charset=utf-8',
+      'cache-control': 'no-store',
+      'content-length': String(new TextEncoder().encode(serialized).byteLength),
+      ...headers,
     },
   });
 }
@@ -307,6 +343,25 @@ export async function serveRequest(
     );
     if (!auth.ok) return authFailureResponse(request, auth);
 
+    // Direct-billed tiers reserve one unit of the tenant's active allowance
+    // before any route executes (ADR-0014). The marketplace enforces its own
+    // plans per subscriber before the origin sees a request, and MCP is
+    // analytics-only, so neither is entitled here. A refusal is not metered.
+    let reservation: EntitlementReservation | null = null;
+    if (auth.billingSource === 'DIRECT') {
+      const reservedAt = new Date();
+      const decision = await reserveEntitlement(deployment.driver, {
+        tenantId: auth.tenantId,
+        verticalId: auth.verticalId,
+        now: reservedAt,
+      });
+      if (!decision.ok) {
+        console.error('[edge] allowance refused', { code: decision.reason });
+        return entitlementFailureResponse(request, decision, reservedAt);
+      }
+      reservation = decision;
+    }
+
     // `onRequest` is a closure fresh to this one `fetch` call — see
     // `apps/api`'s `ApiHandler` doc comment for why that matters. Two
     // requests from two different tenants running concurrently in this
@@ -325,6 +380,14 @@ export async function serveRequest(
       surface: auth.accessTier,
     });
     const durationMs = Date.now() - startedAt;
+
+    // A fault that was ours does not spend the customer's allowance. A client
+    // error keeps its unit: the request was served, the answer was "no".
+    if (reservation !== null && response.status >= 500) {
+      await releaseEntitlement(deployment.driver, reservation.entitlementId).catch(() => {
+        console.error('[edge] allowance release failed', { code: 'ALLOWANCE_RELEASE_FAILED' });
+      });
+    }
 
     const method = request.method.toUpperCase();
     if (method === 'GET' || method === 'HEAD') {
@@ -355,7 +418,13 @@ export async function serveRequest(
       }
     }
 
-    return toFetchResponse(response, request.method);
+    const served = toFetchResponse(response, request.method);
+    if (reservation === null) return served;
+    const withAllowance = new Headers(served.headers);
+    for (const [name, value] of Object.entries(allowanceHeaders(reservation))) {
+      withAllowance.set(name, value);
+    }
+    return new Response(served.body, { status: served.status, headers: withAllowance });
   } catch (error) {
     if (error instanceof EdgeConfigurationError) {
       console.error('[edge] configuration', { code: 'CONFIGURATION_UNAVAILABLE' });

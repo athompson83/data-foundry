@@ -8,7 +8,7 @@ import {
   type SqlDriver,
   type SqlTransactionExecutor,
 } from '@data-foundry/canonical-store';
-import type { MintedApiKey } from '@data-foundry/api-keys';
+import { mintApiKey as realMintApiKey, type MintedApiKey } from '@data-foundry/api-keys';
 import { loadMigrations } from '../scripts/migrate.js';
 import {
   CredentialProvisioningError,
@@ -274,6 +274,82 @@ describe('credential provisioning argument contract', () => {
       billingSource: 'NONE',
       delivery: { kind: 'FILE' },
     });
+  });
+
+  it('accepts an allowance period only for DIRECT tiers, both options together, and an evaluation tier', () => {
+    const developer = parseCredentialProvisioningArgs([...DIRECT_ARGS, '--plan-code', 'developer', '--included-requests', '5000']);
+    expect(developer.entitlement).toEqual({ planCode: 'developer', includedRequests: 5000 });
+    expect(parseCredentialProvisioningArgs(DIRECT_ARGS).entitlement).toBeNull();
+
+    const evaluation = parseCredentialProvisioningArgs([
+      ...DIRECT_ARGS.slice(0, -6),
+      '--access-tier', 'API_FREE', '--billing-source', 'DIRECT', '--output', DIRECT_OUTPUT,
+      '--plan-code', 'evaluate', '--included-requests', '100',
+    ]);
+    expect(evaluation).toMatchObject({
+      accessTier: 'API_FREE',
+      billingSource: 'DIRECT',
+      entitlement: { planCode: 'evaluate', includedRequests: 100 },
+    });
+
+    expect(() => parseCredentialProvisioningArgs([...DIRECT_ARGS, '--plan-code', 'developer'])).toThrow(
+      'supplied together',
+    );
+    expect(() => parseCredentialProvisioningArgs([...DIRECT_ARGS, '--plan-code', 'Developer', '--included-requests', '5000'])).toThrow(
+      'lowercase hyphenated slug',
+    );
+    expect(() => parseCredentialProvisioningArgs([...DIRECT_ARGS, '--plan-code', 'developer', '--included-requests', '-1'])).toThrow(
+      'non-negative integer',
+    );
+    expect(() => parseCredentialProvisioningArgs([...rapidApiArgs(), '--plan-code', 'developer', '--included-requests', '5000'])).toThrow(
+      'DIRECT-billed tiers',
+    );
+    expect(() =>
+      parseCredentialProvisioningArgs([
+        ...DIRECT_ARGS.slice(0, -6), '--access-tier', 'MCP', '--billing-source', 'NONE', '--output', MCP_OUTPUT,
+        '--plan-code', 'developer', '--included-requests', '5000',
+      ]),
+    ).toThrow('DIRECT-billed tiers');
+  });
+
+  it('creates the first one-month allowance period with the key and does not duplicate it on replay', async () => {
+    const driver = await migratedDriver();
+    const fileSystem = new FakeFileSystem();
+    const runner = new FakeRunner();
+    const options = parseCredentialProvisioningArgs([...DIRECT_ARGS, '--plan-code', 'developer', '--included-requests', '5000']);
+    const dependencies = { mintApiKey: vi.fn(async () => minted()), fileSystem, runner, wranglerCommand: WRANGLER_COMMAND, now: () => NOW };
+
+    const created = await provisionApiCredential(driver, options, dependencies);
+    expect(created.entitlement).toMatchObject({
+      planCode: 'developer',
+      includedRequests: 5000,
+      periodStart: NOW.toISOString(),
+      periodEnd: '2026-09-30T12:00:00.000Z',
+    });
+    expect(await driver.query(
+      `SELECT e.plan_code, e.included_requests, e.consumed_requests, e.status, e.billing_source, t.slug
+         FROM api_entitlements e JOIN api_tenants t ON t.id = e.tenant_id`,
+    )).toEqual([
+      { plan_code: 'developer', included_requests: 5000, consumed_requests: 0, status: 'ACTIVE', billing_source: 'DIRECT', slug: 'acme-direct' },
+    ]);
+
+    const replay = await provisionApiCredential(driver, options, dependencies);
+    expect(replay.credentialAction).toBe('UNCHANGED');
+    expect(replay).not.toHaveProperty('entitlement');
+    expect(await driver.query(`SELECT count(*)::int AS count FROM api_entitlements`)).toEqual([{ count: 1 }]);
+
+    // A key issued without a plan holds no period; the edge refuses it until one exists.
+    const bare = await provisionApiCredential(
+      driver,
+      parseCredentialProvisioningArgs([
+        ...DIRECT_ARGS.slice(0, 2), '--tenant-slug', 'bare-direct', ...DIRECT_ARGS.slice(4, -2),
+        '--output', resolve(SECURE_ROOT, 'bare-direct.json'),
+      ]),
+      { ...dependencies, mintApiKey: vi.fn(async () => realMintApiKey('live')) },
+    );
+    expect(bare.credentialAction).toBe('CREATED');
+    expect(bare).not.toHaveProperty('entitlement');
+    expect(await driver.query(`SELECT count(*)::int AS count FROM api_entitlements`)).toEqual([{ count: 1 }]);
   });
 
   it('requires one explicit canonical Cloudflare account id for Wrangler delivery', () => {

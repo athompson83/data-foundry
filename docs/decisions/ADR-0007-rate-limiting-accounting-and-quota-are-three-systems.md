@@ -76,6 +76,14 @@ it is ever needed it arrives as its own mechanism — a Durable Object or a
 Cloudflare rate-limiting binding keyed by tenant — and this ADR is revisited
 rather than worked around.
 
+> **Revisited 2026-09-19 — built as [ADR-0014](ADR-0014-request-allowance-hard-stop.md).**
+> The self-service direction asked for exactly this ceiling (a prepaid monthly
+> allowance with a hard stop and a capped evaluation tier). It arrived as its
+> own mechanism, as this section required: a synchronous reservation against
+> `api_entitlements` (migration `0034`), separate from both the abuse layer and
+> the metering queue. `api_keys` still holds no limits; the entitlement row
+> does. Everything else in this ADR stands.
+
 ## Consequences
 
 **The failure boundaries are the test.** Abuse protection fails closed. A

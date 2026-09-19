@@ -85,6 +85,9 @@ dataset/vertical without a fork.
   category, supported specifications/efficiency, evidence and freshness.
 - Prepare sample fixtures and three integration-partner interview/outreach
   packages. Sending is separately authorized. Human review selects the source.
+  *(2026-09-19: interview/outreach packages are optional under the self-service
+  direction and are not a Phase A exit condition; rights and a working
+  purchase-to-access path are.)*
 - Exit: useful scoped source with documented rights, fixtures and affordable
   approved refresh method. Continue independent engineering if this is pending.
 
@@ -212,6 +215,10 @@ Historical beta targets remain experiments, not forecasts: day30 three design
 partners/first payment; day60 five paid accounts/$300 gross MRR/three weekly
 integrations; day90 ten paid accounts/$600 gross MRR/70% first-renewal retention/
 positive contribution. Hold expansion when activation, retention or margins fail.
+*(2026-09-19: "three design partners" is no longer a day-30 target; the
+self-service measure is qualified visits → evaluation → checkout → paid
+activation → useful requests → renewal, with customer payment collected,
+settlement pending and owner payout received kept as distinct states.)*
 
 ## Execution and acceptance
 

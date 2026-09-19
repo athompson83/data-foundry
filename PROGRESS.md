@@ -1,6 +1,226 @@
 # Progress
 
-## Current session — 2026-09-18 (second session): UA-002 hosted execution independently reconciled and closed
+## Current session — 2026-09-19 (fourth session): self-service revenue directive — no product selectable, allowance hard stop built
+
+**Engineering verdict: READY_FOR_USER_REVIEW for this work package. Commercial
+status: NO PRODUCT SELECTED (precedes SELF_SERVICE_READY_NO_EXTERNAL_REVENUE).
+External payments 0, useful external consumption 0, owner payout 0. No provider
+mutation; hosted database untouched; nothing published, enrolled or charged.**
+
+- **Directive.** Deliver one narrow, lawful, differentiated machine-data
+  product with a working self-service purchase-to-access path; no interviews,
+  outreach, manual onboarding or manual invoicing as launch prerequisites;
+  RapidAPI preferred, Stripe-hosted checkout only as the fallback; initial
+  offer $49 / 5,000 requests / month, hard stop, 100-request evaluation where
+  rights allow; stop product-specific implementation and report precise
+  disqualifiers if no candidate passes; continue independently useful,
+  already-authorized work.
+- **Reconciled baseline.** `main` `fabd85d`; hosted `data_foundry` at `0033`
+  with **0 sources, 0 tenants, 0 keys, 0 usage events, 0 entities** (read-only
+  count); Cloudflare account holds the seven canary Workers only; every
+  previously studied candidate `NO_GO`/deferred; RapidAPI unenrolled
+  (`UA-004`); no payment provider code of any kind; no per-period allowance or
+  hard stop despite the pricing page promising one (ADR-0007 had declined it
+  "until asked").
+- **WP1 — active guidance corrected** (history annotated, not rewritten):
+  `REV-001` acceptance no longer requires three prospective integrations;
+  the offer document's design-partner trials, the 2026-09-08 plan's
+  interview/outreach packages and day-30 "three design partners", the pricing
+  decision's manual-invoicing proposal, and revenue-readiness's "wait for
+  marketplace demand" direct-billing stance carry dated supersession notes.
+  PR #54 (`REVENUE_PLAN.md`) was reused as the standing owner intent and not
+  duplicated; no new roadmap document was created.
+- **WP2 — bounded qualification, none selectable**
+  ([record](docs/commercial-validation/self-service-qualification-20260919.md);
+  benchmark script and JSON in `docs/evidence/`). US Vehicle Intelligence
+  (vPIC + recalls + fuel economy, 12 vehicles): the join is one-to-many for
+  half the vehicles (6/12 exact fuel-economy model matches, 5/12 fuzzy-only,
+  1/12 none; 1/12 recalls naming failure), so it needs either silent fuzzy
+  matching or a human-maintained mapping; `nhtsa.gov` policy pages 403 from
+  this egress; fueleconomy.gov is XML, which the extraction schema does not
+  accept. ENERGY STAR: both owner-side approvals still open; new observation
+  that every dataset republished 2026-09-18 (one point, not a cadence).
+  GLEIF: CC0 behind an excellent free API, NO_GO at screen. Demand proxies
+  recorded as proxies (npm 30-day downloads for NHTSA wrappers; RapidAPI
+  pages are client-rendered and expose nothing; PyPI 429). Product-specific
+  implementation stopped, as the directive requires.
+- **WP3.** Not applicable — no candidate to prepare a rights packet for.
+- **WP4 (product-independent part) — the request allowance with a hard stop
+  now exists** ([ADR-0014](docs/decisions/ADR-0014-request-allowance-hard-stop.md),
+  revisiting ADR-0007). Migration `0034_api_entitlements.sql` (per-tenant,
+  per-vertical, per-period allowance with check-constrained hard stop;
+  `RENEW_ENTITLEMENT`/`CANCEL_ENTITLEMENT` join the audited operator
+  vocabulary); `reserveEntitlement`/`releaseEntitlement` in
+  `packages/access-auth`; the edge reserves before any route executes for
+  `DIRECT` tiers only, refuses `403` (no active period, opaque) or `429
+  QUOTA_EXHAUSTED` with `Retry-After`, never meters a refusal, releases the
+  unit on a 5xx, and adds `x-allowance-limit/-remaining/-reset` to served
+  responses; the evaluation tier is the same mechanism (`API_FREE/DIRECT`
+  now provisionable); `pnpm credentials:provision --plan-code
+  --included-requests` creates the first one-month period; `CLOSE_ACCOUNT`
+  cancels active periods. OpenAPI regenerated with the documented `429`.
+  Runtime grant inventory 286 → 297 (eleven `df_edge` column grants); the
+  hosted database stays at `0033` / 286 until the next one-packet direct-TLS
+  catch-up, recorded on the handover and README. Channel selection and
+  checkout were **not** built: there is no product to sell, RapidAPI
+  enrollment is owner-gated, and building Stripe without a verified RapidAPI
+  blocker would violate the directive's one-channel rule.
+- **Tests and verification.** `pnpm typecheck` pass; `pnpm openapi:check`
+  and `pnpm schemas:check` current; `edge` 151/151 (7 new), `access-auth`
+  (5 new), `api` 179/179, private-canary / usage-consumer / mcp-worker 144/144,
+  doc-contract and policy suites 75/75; the tooling `operations`,
+  `provision-api-credential`, `supabase-runtime-grants`,
+  `supabase-migration-packets` and `migrations` suites re-pinned to 34
+  migrations / 297 grants; the full monorepo suite passes: **229 files,
+  3,625 tests** (Linux, `vitest run`).
+- **Not done, and why.** No listing, checkout, payment provider, funnel
+  measurement or product page change beyond truth (no product); no hosted
+  application of `0034` (no PostgreSQL egress or credential here); no
+  RapidAPI enrollment (`UA-004`, owner); `UA-007` operator identity still
+  placeholder.
+- **Economics.** Customer payments 0; channel/payment fees 0; refunds 0; net
+  receipts 0; variable serving/refresh cost 0 (nothing deployed to customers);
+  shared fixed overhead unchanged (Cloudflare/Supabase envelopes, not
+  observed bills); owner support effort 0; payout received 0. The 80%
+  variable-cost contribution target at full allowance is a management target
+  with no observation behind it.
+- **Highest-priority next constraint.** A source with readable, reviewer-
+  recorded rights and deterministic identity: ENERGY STAR's two owner-side
+  approvals (counsel; acquisition method) or a Vehicle Intelligence rights
+  read from an ordinary browser plus a deterministic (not adjudicated) answer
+  to one-to-many model identity. Until one exists there is nothing to list.
+
+## Earlier — 2026-09-18/19 (third session): Part 2 opened — canary disposition recorded, provider read-back tooling, route-less deployment gate
+
+**Verdict: READY_FOR_USER_REVIEW for this work package. No provider mutation.
+No production change. The read-back has not been executed against the account.**
+
+- **Current state.** Protected `main` `fabd85d71b257eeeb7e9a6c4adb1b0effdd6e7e6`
+  (PR #53 merged). Lifecycle stage unchanged: MVP integrated / private canary
+  passed / pre-production. Control-graph node: `State changed → refresh
+  baseline → invalidate only affected evidence → rerun affected gates →
+  continue`; nothing hosted changed since the second session, so the baseline
+  is the second session's reconciliation.
+- **Session objective.** Pick up where the local "autonomous takeover Part 1"
+  session stopped: it ended waiting on the disposition of the seven temporary
+  Workers and five canary queues, and on a read-back for the two facts the
+  reconciliation could not observe (queue retention/backlog; Worker routes,
+  custom domains, `workers.dev` and preview flags). This session was run from
+  a remote container with no Cloudflare or PostgreSQL credential, so it did the
+  two Part 2 items that are engineering rather than provider work and left the
+  provider-touching items (ordinary route-less deployment, backup/restore and
+  rollback exercise) for an authenticated operator session.
+- **Disposition decided — [ADR-0013](docs/decisions/ADR-0013-private-canary-resource-disposition.md).**
+  The seven private-canary Workers, five private-canary queues, six
+  Hyperdrives, CA, receipt bucket and receipt are **retained** as standing
+  pre-cutover validation infrastructure. Reasoning: `REV-006` requires exact
+  current-SHA canaries before every public cutover, so the canary is a
+  recurring gate rather than a one-off; the Hyperdrives are the ordinary
+  production bindings anyway; and route-less idle Workers and empty queues have
+  no measurable cost. Consequences: the canary Workers are redeployed from each
+  new release SHA before its run; deletion of the identities becomes the
+  rollback path, not routine closeout; the receipt is never deleted or
+  lifecycle-expired. Engineering disposition, reversible, owner may override.
+- **Read-back gaps closed in tooling — `pnpm cloudflare:readback:check`**
+  ([`tooling/scripts/check-cloudflare-readback.ts`](tooling/scripts/check-cloudflare-readback.ts)).
+  Expectations are derived from the tracked manifests (every
+  `[[queues.producers]]`/`[[queues.consumers]]` block, `workers_dev`,
+  `preview_urls`, no routes), not typed in twice. With a read-only token it
+  reads `GET /accounts/{id}/queues` (retention, delivery pause/delay,
+  producers, consumers with batch/retry/wait/concurrency/DLQ),
+  `GET /accounts/{id}/queues/{queue}/metrics` (backlog), the Workers script
+  list, each `data-foundry-*` script's `/subdomain` flags, the zone's Worker
+  routes (zone resolved read-only by name `aroqon.com` when no id is given) and
+  the account's Worker custom domains, then fails closed on any difference.
+  Two phases: `private-canary` (current: seven Workers, five canary queues
+  exact, ordinary usage pair untouched by any canary script, nothing
+  `data-foundry-*` routed or exposed, no ADR-0012 canonical hostname served by
+  any Worker) and `ordinary-route-less` (next: six ordinary Workers present,
+  ordinary usage and ingestion topologies exact, still nothing routed).
+  Terminal queues (both DLQs, quarantine, ingestion DLQ) must have zero
+  backlog. Output is sanitized (names, booleans, counts, seconds; no
+  identifiers, route patterns or token); `--capture` writes the raw responses
+  to a `0600` file as out-of-band evidence and `--snapshot` re-evaluates one
+  offline. API response shapes were taken from Cloudflare's published OpenAPI
+  schema, not from memory.
+- **Route-less ordinary deployment gated and documented (2026-09-19
+  continuation).** The second session's recommendation — establish the ordinary
+  topology from the six tracked manifests with the six Hyperdrive IDs and no
+  routes — had no pre-deployment check: `cloudflare:deployment:check` demands
+  canonical routes, `PUBLIC_ORIGIN`, `MCP_HOSTNAME` and `MCP_ALLOWED_ORIGINS`,
+  so it would rightly reject route-less manifests, and the runbook's launch
+  order deployed the ordinary Workers only after public authorization. Added
+  `--mode route-less-deployment` to `check-cloudflare-topology.ts`
+  (`pnpm cloudflare:route-less-deployment:check`): same account, six distinct
+  Hyperdrives, `no-store`, privacy-flag and plaintext-secret rules as
+  `deployment`, but every route and every public endpoint variable is
+  forbidden. Four new tests (happy path that `deployment` mode rejects for
+  lacking routes; route/`RAPIDAPI_HOSTNAME`/`PUBLIC_ORIGIN`/`MCP_*` rejected
+  without echoing hostnames or ids; shared account/Hyperdrive/cache/preview
+  drift; absent manifest fails closed); the topology suite is 115 / 115. The
+  runbook gains a "Part 2: ordinary route-less deployment" procedure
+  (preconditions, what the two Crons will do against the production database
+  from the first minute — hourly `REFUSED`/`RIGHTS_REFUSED` acquisition audit
+  rows for any compiled target and five-minute health snapshots with alerts
+  disabled — six steps, read-back, rollback), and the launch order's step 4 is
+  split accordingly. No provider mutation; the step is documented, not run.
+- **Tests and verification.** `pnpm install --frozen-lockfile`; `pnpm
+  typecheck` pass; new
+  [`tooling/test/cloudflare-readback.test.ts`](tooling/test/cloudflare-readback.test.ts)
+  23 / 23 (manifest-derived expectations for both phases, an agreeing snapshot
+  passes, then one fact broken at a time: retention, pause, delay, backlog,
+  consumer policy, DLQ target, extra/R2 producer, missing/doubled/wrong
+  consumer, absent Worker/queue, unexpected queue, subdomain/preview/route/
+  domain exposure, canonical hostname via route, wildcard route and trailing-dot
+  domain, unreadable zone; fake-fetch capture with bearer header, per-script
+  probing limited to `data-foundry-*`, zone lookup by name, pagination, API
+  error without token echo; CLI parsing including pnpm's forwarded `--`,
+  credential refusal, offline exit codes). Full `tooling` project 43 files /
+  852 tests pass on Linux. CLI smoke: a manifest-derived snapshot passes the
+  `private-canary` phase and fails the `ordinary-route-less` phase with the six
+  absent ordinary Workers and two absent ingestion queues named.
+- **Documents.** Runbook banner, step 5 and section 6 (checklist item 2 and
+  Verify) carry dated ADR-0013 and read-back notes; `README.md` provider
+  paragraph and key commands; the reconciliation record's "left in place"
+  section points to the decision; `PROJECT_CHECKLIST.md` rows
+  `FOUNDATION-006`, `BETA-002`, `BETA-003`, `PROD-002` updated (statuses
+  unchanged). History was annotated, not rewritten.
+- **Not done, deliberately.** The read-back was **not executed** against the
+  account: this container holds no Cloudflare token, and the connector exposes
+  no queue, route, domain or subdomain read. Until an operator runs it once
+  with a read-only token, retention/backlog and route/domain/subdomain state
+  remain unattested exactly as the reconciliation recorded. No ordinary Worker
+  was deployed; no backup/restore or rollback exercise was run (needs
+  PostgreSQL egress and Wrangler authentication); no `UA-005` packet was
+  written because it depends on the ordinary route-less deployment passing the
+  new read-back first.
+- **Open PR noted, not acted on.** The owner opened PR #54
+  (`REVENUE_PLAN.md`, revenue-first execution plan) after the second session.
+  Its MVP item "deploy ordinary paid API/MCP route" is the same work as
+  `PROD-002` → `UA-005`; nothing in this session conflicts with it, and it was
+  left for the owner to merge or amend.
+- **Deployment environment / database target.** Cloudflare account
+  `c2832821a9ab36419cde6ee08112f6d3` (read-only connector: nine Workers listed,
+  seven of them `data-foundry-private-canary*`, unchanged). Supabase
+  `fgxinxaqkwoqyywdgobs`, private schema `data_foundry` at `0033`, untouched.
+  **Production changed by this session: no.**
+- **Blockers.** None for this package. Owner-only gates unchanged: `UA-001`,
+  `UA-005`, `UA-004`, `UA-007`, `UA-008`.
+- **Required user actions.** None new. Optional and recommended: run
+  `pnpm cloudflare:readback:check --phase private-canary --capture <private-path>`
+  once from a machine with a read-only Cloudflare token and record the
+  sanitized stdout as evidence; if it fails, the failure text is the finding.
+- **Recommended next steps (Part 2, continued).** (1) Execute the read-back
+  once (above). (2) In an authenticated operator session, follow the runbook's
+  Part 2 procedure: decide on the Cron consequences, populate the six ignored
+  manifests, pass `pnpm cloudflare:route-less-deployment:check`, create
+  `data-foundry-ingestion` and `-dlq` at 14 days, deploy the six ordinary
+  Workers **without routes**, then require `pnpm cloudflare:readback:check
+  --phase ordinary-route-less` to pass (`PROD-002`). (3) Hosted backup/isolated
+  restore/rollback exercise (`BETA-003`, `REV-006`). (4) Only then the
+  `UA-005` public-cutover decision packet.
+
+## Earlier — 2026-09-18 (second session): UA-002 hosted execution independently reconciled and closed
 
 **Verdict: UA-002 COMPLETE. BETA-002 DONE. Private-canary success only — not
 production, not public cutover, not source activation, not commercial launch.**

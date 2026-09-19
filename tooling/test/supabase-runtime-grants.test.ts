@@ -184,7 +184,13 @@ describe('Supabase post-migration runtime grants', () => {
       /GRANT[^;]*UPDATE ON TABLE "data_foundry"\."(?:sources|source_artifacts)"/,
     );
     expect(first.functionSignatures).toHaveLength(59);
-    expect(first.expectedGrants).toHaveLength(286);
+    expect(first.expectedGrants).toHaveLength(297);
+    expect(first.sql).toContain(
+      'GRANT SELECT ("id", "tenant_id", "vertical_id", "billing_source", "included_requests", "consumed_requests", "period_start", "period_end", "status") ON TABLE "data_foundry"."api_entitlements" TO "df_edge";',
+    );
+    expect(first.sql).toContain(
+      'GRANT UPDATE ("consumed_requests", "updated_at") ON TABLE "data_foundry"."api_entitlements" TO "df_edge";',
+    );
     expect(first.expectedGrants).toEqual(buildRuntimeRoleExpectedGrants('data_foundry'));
     for (const signature of first.functionSignatures) {
       expect(first.sql).toContain(

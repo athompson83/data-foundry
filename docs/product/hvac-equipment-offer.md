@@ -34,6 +34,13 @@ variant from a name. Existing canonical schemas remain the serialization contrac
 
 ## Three design-partner trials
 
+> **Superseded as a launch prerequisite, 2026-09-19.** Under the self-service
+> direction, design-partner trials, interviews and outreach are optional
+> learning, never a gate: launch evidence is an unrelated customer who
+> voluntarily subscribes, consumes useful data and renews, measured from the
+> product's own funnel. The section is kept as reusable material for the
+> optional path; nothing in it is required before publication.
+
 Recruit three independent integrations only after explicit outreach authorization.
 Suggested segments: equipment catalogue/PIM developer, HVAC service-software
 developer, and product-data integration consultancy. No person or organization
@@ -79,7 +86,10 @@ enrollment. [RapidAPI payout policy](https://docs.rapidapi.com/docs/payouts-and-
 ## Launch evidence and economics
 
 An owner-controlled external subscription must pay, issue an authorized request,
-integrate usefully and have a working support path. Verify cancellation, quota
+integrate usefully and have a working support path. *(2026-09-19: an
+owner-controlled or sandbox subscription proves the mechanics only; first
+revenue means an unrelated customer pays and consumes — see the
+[qualification record](../commercial-validation/self-service-qualification-20260919.md).)* Verify cancellation, quota
 refusal, wrong-origin/proxy negatives and payout reconciliation. Test purchases
 or internal tenants do not establish external revenue.
 

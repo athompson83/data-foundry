@@ -94,6 +94,12 @@ async function mintKeyFor(tenantSlug: string): Promise<{
   );
   const apiKeyId = key?.id;
   if (apiKeyId === undefined) throw new Error('key insert returned no row');
+  // A direct key is served only inside an active allowance period (ADR-0014).
+  await fixtures.driver.query(
+    `insert into api_entitlements (tenant_id, vertical_id, plan_code, included_requests, period_start, period_end)
+     values ($1, $2, 'developer', 5000, now() - interval '1 minute', now() + interval '1 month')`,
+    [tenantId, fixtures.vertical.id],
+  );
   return {
     secret: minted.secret,
     tokenHash: minted.tokenHash,

@@ -173,6 +173,10 @@ function responsesFor(route: Route, method: 'GET' | 'HEAD'): JsonObject {
     '400': errorResponse('Invalid or missing request parameter.'),
     '401': errorResponse('Origin authentication failed.', true),
     '403': errorResponse('The authenticated key may not access this origin or vertical.', true),
+    '429': errorResponse(
+      'The request allowance for the current billing period is exhausted; Retry-After names the period end.',
+      true,
+    ),
     '404': errorResponse('The version, route, or entity was not found.'),
     '405': errorResponse('The method is not allowed; this API is read-only.'),
     '422': errorResponse('The query is syntactically valid but unsupported by this vertical.'),

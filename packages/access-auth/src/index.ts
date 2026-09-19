@@ -18,6 +18,16 @@ import {
 } from '@data-foundry/api-keys';
 import type { SqlExecutor } from '@data-foundry/canonical-store';
 
+export {
+  releaseEntitlement,
+  reserveEntitlement,
+  type EntitlementDecision,
+  type EntitlementRefusal,
+  type EntitlementRefusalReason,
+  type EntitlementReservation,
+  type ReserveEntitlementOptions,
+} from './entitlement.js';
+
 export type AuthFailureReason =
   | 'MISSING_CREDENTIAL'
   | 'MALFORMED_CREDENTIAL'

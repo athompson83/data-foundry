@@ -126,8 +126,15 @@ export interface CredentialProvisioningOptions {
   readonly tenantName: string;
   readonly verticalSlug: string;
   readonly credentialLabel: string;
-  readonly accessTier: Extract<ApiAccessTier, 'API_PAID' | 'RAPIDAPI' | 'MCP'>;
+  readonly accessTier: ApiAccessTier;
   readonly billingSource: ApiBillingSource;
+  /**
+   * The first prepaid allowance period for a DIRECT-billed tier (ADR-0014):
+   * `[now, now + 1 month)` with `includedRequests` and a hard stop. Optional
+   * because an operator may issue a key before the commercial arrangement is
+   * settled; such a key is refused at the edge until a period exists.
+   */
+  readonly entitlement: { readonly planCode: string; readonly includedRequests: number } | null;
   readonly existingCredentialId: string | null;
   readonly cloudflareAccountId: string | null;
   readonly delivery: FileDelivery | WranglerDelivery | NoDelivery;
@@ -146,9 +153,19 @@ export interface ProvisioningDependencies {
 type TenantAction = 'CREATED' | 'UPDATED' | 'UNCHANGED' | 'WOULD_CREATE' | 'WOULD_UPDATE';
 type CredentialAction = 'CREATED' | 'CLASSIFIED' | 'UNCHANGED' | 'WOULD_CREATE' | 'WOULD_CLASSIFY';
 
+export interface ProvisionedEntitlement {
+  readonly entitlementId: string;
+  readonly planCode: string;
+  readonly includedRequests: number;
+  readonly periodStart: string;
+  readonly periodEnd: string;
+}
+
 export interface CredentialProvisioningResult {
   readonly tenantAction: TenantAction;
   readonly credentialAction: CredentialAction;
+  /** Present when this run created the first allowance period. */
+  readonly entitlement?: ProvisionedEntitlement;
   readonly dryRun: boolean;
   readonly environment: KeyEnvironment;
   readonly tenantSlug: string;
@@ -264,6 +281,8 @@ export function parseCredentialProvisioningArgs(
     '--wrangler-config',
     '--cloudflare-account-id',
     '--classify-existing',
+    '--plan-code',
+    '--included-requests',
   ]);
 
   for (let index = 0; index < args.length; index += 1) {
@@ -310,13 +329,35 @@ export function parseCredentialProvisioningArgs(
     !isApiAccessClassification(classification) ||
     !(
       (accessTier === 'API_PAID' && billingSource === 'DIRECT') ||
+      (accessTier === 'API_FREE' && billingSource === 'DIRECT') ||
       (accessTier === 'RAPIDAPI' && billingSource === 'RAPIDAPI') ||
       (accessTier === 'MCP' && billingSource === 'NONE')
     )
   ) {
     throw new CredentialProvisioningError(
-      'classification must be API_PAID/DIRECT, RAPIDAPI/RAPIDAPI, or MCP/NONE',
+      'classification must be API_PAID/DIRECT, API_FREE/DIRECT, RAPIDAPI/RAPIDAPI, or MCP/NONE',
     );
+  }
+
+  const planCode = values.get('--plan-code');
+  const includedRequestsText = values.get('--included-requests');
+  let entitlement: CredentialProvisioningOptions['entitlement'] = null;
+  if (planCode !== undefined || includedRequestsText !== undefined) {
+    if (billingSource !== 'DIRECT') {
+      throw new CredentialProvisioningError(
+        'an allowance period applies only to DIRECT-billed tiers; the marketplace and MCP carry none here',
+      );
+    }
+    if (planCode === undefined || includedRequestsText === undefined) {
+      throw new CredentialProvisioningError('--plan-code and --included-requests must be supplied together');
+    }
+    if (planCode.length > 64 || !SLUG.test(planCode)) {
+      throw new CredentialProvisioningError('--plan-code must be a lowercase hyphenated slug');
+    }
+    if (!/^(?:0|[1-9][0-9]{0,7})$/.test(includedRequestsText)) {
+      throw new CredentialProvisioningError('--included-requests must be a non-negative integer below 100,000,000');
+    }
+    entitlement = { planCode, includedRequests: Number.parseInt(includedRequestsText, 10) };
   }
 
   const existingCredentialId = values.get('--classify-existing') ?? null;
@@ -383,12 +424,21 @@ export function parseCredentialProvisioningArgs(
     credentialLabel,
     accessTier,
     billingSource,
+    entitlement,
     existingCredentialId,
     cloudflareAccountId: cloudflareAccountId ?? null,
     delivery,
     dryRun,
   };
 }
+
+type EntitlementRow = {
+  readonly id: string;
+  readonly plan_code: string;
+  readonly included_requests: number | string;
+  readonly period_start: Date | string;
+  readonly period_end: Date | string;
+} & Record<string, unknown>;
 
 function fingerprint(tokenHash: string): string {
   return `sha256:${tokenHash.slice(0, 16)}`;
@@ -761,7 +811,34 @@ async function provisionApiCredentialPrepared(
       if (row === undefined) {
         throw new CredentialProvisioningError('credential provisioning returned no row');
       }
-      const safeMetadata = metadataResult(options, tenantAction, 'CREATED', row, options.delivery);
+      let entitlement: ProvisionedEntitlement | undefined;
+      if (options.entitlement !== null) {
+        // The first prepaid period starts now and runs one calendar month.
+        // Its hard stop is the table's check constraint, not this script.
+        const periodStart = dependencies.now().toISOString();
+        const periods = await tx.query<EntitlementRow>(
+          `INSERT INTO api_entitlements
+             (tenant_id, vertical_id, billing_source, plan_code, included_requests, period_start, period_end)
+           VALUES ($1, $2, 'DIRECT', $3, $4, $5::timestamptz, $5::timestamptz + interval '1 month')
+           RETURNING id, plan_code, included_requests, period_start, period_end`,
+          [tenant.id, vertical.id, options.entitlement.planCode, options.entitlement.includedRequests, periodStart],
+        );
+        const period = periods[0];
+        if (period === undefined) {
+          throw new CredentialProvisioningError('allowance provisioning returned no row');
+        }
+        entitlement = {
+          entitlementId: period.id,
+          planCode: period.plan_code,
+          includedRequests: Number(period.included_requests),
+          periodStart: new Date(period.period_start).toISOString(),
+          periodEnd: new Date(period.period_end).toISOString(),
+        };
+      }
+      const safeMetadata = {
+        ...metadataResult(options, tenantAction, 'CREATED', row, options.delivery),
+        ...(entitlement === undefined ? {} : { entitlement }),
+      };
 
       if (options.delivery.kind === 'FILE') {
         const contents = `${JSON.stringify(

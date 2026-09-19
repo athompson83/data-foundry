@@ -324,3 +324,9 @@ CA certificate, the receipt bucket and the receipt object. Their disposition
 (reuse as validation infrastructure, or removal of the temporary Worker
 identities) is Part 2's decision; nothing was deleted, and the receipt must not
 be.
+
+*Later on 2026-09-18: decided in
+[ADR-0013](../decisions/ADR-0013-private-canary-resource-disposition.md) —
+retained as standing pre-cutover validation infrastructure. The two read-back
+gaps above are covered by `pnpm cloudflare:readback:check`, not yet executed
+against the account.*

@@ -1019,6 +1019,7 @@ export const EXPECTED_TABLES = [
   'api_keys',
   'api_route_keys',
   'api_usage_events',
+  'api_entitlements',
   'acquisition_policy_snapshots',
   'rights_publishers',
   'rights_evidence_artifacts',

@@ -33,6 +33,15 @@ The implemented behaviour is a **hard stop at the allowance with no automatic
 overage**. That is a real constraint, not a placeholder: changing it is
 engineering work, not a number change.
 
+> **Correction, 2026-09-19.** When this was written nothing enforced the hard
+> stop — `api_keys` held no limits (ADR-0007) and no allowance existed anywhere.
+> It is enforced now by [ADR-0014](../decisions/ADR-0014-request-allowance-hard-stop.md)
+> and migration `0034`: a synchronous per-period reservation on every direct
+> request, `429 QUOTA_EXHAUSTED` with `Retry-After` when spent, allowance headers
+> on served responses, and the evaluation tier capped by the same mechanism.
+> It reaches the hosted database only when `0034` and the regenerated grant
+> SQL are applied there.
+
 ## Decision 1 — keep this ladder?
 
 **Proposed: keep it, unchanged, for the first paying customers.**
@@ -85,6 +94,18 @@ next cycle.
 
 **Proposed: manual invoicing for the first cohort, and no billing integration
 before there is demand to justify it.**
+
+> **Superseded, 2026-09-19.** The self-service direction removes manual
+> invoicing, founder-led onboarding and interviews as launch prerequisites. The
+> first paid channel is the existing RapidAPI adapter (marketplace billing,
+> payout and per-subscriber plans handled by the marketplace); the direct path
+> gets a hosted checkout with automatic entitlement provisioning **only** as the
+> fallback when RapidAPI has a verified external blocker, and one channel is
+> built at a time. The `api_entitlements` period, `RENEW_ENTITLEMENT` and
+> `CANCEL_ENTITLEMENT` (ADR-0014) are the seams a payment provider's signed,
+> idempotent events will drive. The cycle/currency/terms questions below remain
+> the direct-path defaults; the invoicing *mechanism* is no longer a
+> spreadsheet.
 
 Rationale. The repository's own revenue analysis already concluded that building
 self-service billing should not block launch, and nothing since has changed that.
