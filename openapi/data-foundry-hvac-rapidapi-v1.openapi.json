@@ -106,6 +106,23 @@
               }
             }
           },
+          "429": {
+            "description": "The request allowance for the current billing period is exhausted; Retry-After names the period end.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          },
           "500": {
             "description": "An opaque internal failure occurred.",
             "content": {
@@ -217,6 +234,23 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The request allowance for the current billing period is exhausted; Retry-After names the period end.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
                 }
               }
             }
@@ -381,6 +415,23 @@
               }
             }
           },
+          "429": {
+            "description": "The request allowance for the current billing period is exhausted; Retry-After names the period end.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          },
           "500": {
             "description": "An opaque internal failure occurred.",
             "content": {
@@ -521,6 +572,23 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The request allowance for the current billing period is exhausted; Retry-After names the period end.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
                 }
               }
             }
@@ -677,6 +745,23 @@
               }
             }
           },
+          "429": {
+            "description": "The request allowance for the current billing period is exhausted; Retry-After names the period end.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          },
           "500": {
             "description": "An opaque internal failure occurred.",
             "content": {
@@ -809,6 +894,23 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The request allowance for the current billing period is exhausted; Retry-After names the period end.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
                 }
               }
             }
@@ -1006,6 +1108,23 @@
               }
             }
           },
+          "429": {
+            "description": "The request allowance for the current billing period is exhausted; Retry-After names the period end.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          },
           "500": {
             "description": "An opaque internal failure occurred.",
             "content": {
@@ -1179,6 +1298,23 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The request allowance for the current billing period is exhausted; Retry-After names the period end.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
                 }
               }
             }
@@ -1392,6 +1528,23 @@
               }
             }
           },
+          "429": {
+            "description": "The request allowance for the current billing period is exhausted; Retry-After names the period end.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          },
           "500": {
             "description": "An opaque internal failure occurred.",
             "content": {
@@ -1581,6 +1734,23 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The request allowance for the current billing period is exhausted; Retry-After names the period end.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
                 }
               }
             }
@@ -2238,6 +2408,23 @@
               }
             }
           },
+          "429": {
+            "description": "The request allowance for the current billing period is exhausted; Retry-After names the period end.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          },
           "500": {
             "description": "An opaque internal failure occurred.",
             "content": {
@@ -2882,6 +3069,23 @@
               }
             }
           },
+          "429": {
+            "description": "The request allowance for the current billing period is exhausted; Retry-After names the period end.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          },
           "500": {
             "description": "An opaque internal failure occurred.",
             "content": {
@@ -3035,6 +3239,23 @@
               }
             }
           },
+          "429": {
+            "description": "The request allowance for the current billing period is exhausted; Retry-After names the period end.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          },
           "500": {
             "description": "An opaque internal failure occurred.",
             "content": {
@@ -3179,6 +3400,23 @@
               }
             }
           },
+          "429": {
+            "description": "The request allowance for the current billing period is exhausted; Retry-After names the period end.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpaqueEdgeErrorEnvelope"
+                    }
+                  ]
+                }
+              }
+            }
+          },
           "500": {
             "description": "An opaque internal failure occurred.",
             "content": {
@@ -3267,6 +3505,7 @@
                 "enum": [
                   "UNAUTHORIZED",
                   "FORBIDDEN",
+                  "QUOTA_EXHAUSTED",
                   "SERVICE_UNAVAILABLE"
                 ]
               },

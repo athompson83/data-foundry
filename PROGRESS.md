@@ -1,6 +1,96 @@
 # Progress
 
-## Current session — 2026-09-18/19 (third session): Part 2 opened — canary disposition recorded, provider read-back tooling, route-less deployment gate
+## Current session — 2026-09-19 (fourth session): self-service revenue directive — no product selectable, allowance hard stop built
+
+**Engineering verdict: READY_FOR_USER_REVIEW for this work package. Commercial
+status: NO PRODUCT SELECTED (precedes SELF_SERVICE_READY_NO_EXTERNAL_REVENUE).
+External payments 0, useful external consumption 0, owner payout 0. No provider
+mutation; hosted database untouched; nothing published, enrolled or charged.**
+
+- **Directive.** Deliver one narrow, lawful, differentiated machine-data
+  product with a working self-service purchase-to-access path; no interviews,
+  outreach, manual onboarding or manual invoicing as launch prerequisites;
+  RapidAPI preferred, Stripe-hosted checkout only as the fallback; initial
+  offer $49 / 5,000 requests / month, hard stop, 100-request evaluation where
+  rights allow; stop product-specific implementation and report precise
+  disqualifiers if no candidate passes; continue independently useful,
+  already-authorized work.
+- **Reconciled baseline.** `main` `fabd85d`; hosted `data_foundry` at `0033`
+  with **0 sources, 0 tenants, 0 keys, 0 usage events, 0 entities** (read-only
+  count); Cloudflare account holds the seven canary Workers only; every
+  previously studied candidate `NO_GO`/deferred; RapidAPI unenrolled
+  (`UA-004`); no payment provider code of any kind; no per-period allowance or
+  hard stop despite the pricing page promising one (ADR-0007 had declined it
+  "until asked").
+- **WP1 — active guidance corrected** (history annotated, not rewritten):
+  `REV-001` acceptance no longer requires three prospective integrations;
+  the offer document's design-partner trials, the 2026-09-08 plan's
+  interview/outreach packages and day-30 "three design partners", the pricing
+  decision's manual-invoicing proposal, and revenue-readiness's "wait for
+  marketplace demand" direct-billing stance carry dated supersession notes.
+  PR #54 (`REVENUE_PLAN.md`) was reused as the standing owner intent and not
+  duplicated; no new roadmap document was created.
+- **WP2 — bounded qualification, none selectable**
+  ([record](docs/commercial-validation/self-service-qualification-20260919.md);
+  benchmark script and JSON in `docs/evidence/`). US Vehicle Intelligence
+  (vPIC + recalls + fuel economy, 12 vehicles): the join is one-to-many for
+  half the vehicles (6/12 exact fuel-economy model matches, 5/12 fuzzy-only,
+  1/12 none; 1/12 recalls naming failure), so it needs either silent fuzzy
+  matching or a human-maintained mapping; `nhtsa.gov` policy pages 403 from
+  this egress; fueleconomy.gov is XML, which the extraction schema does not
+  accept. ENERGY STAR: both owner-side approvals still open; new observation
+  that every dataset republished 2026-09-18 (one point, not a cadence).
+  GLEIF: CC0 behind an excellent free API, NO_GO at screen. Demand proxies
+  recorded as proxies (npm 30-day downloads for NHTSA wrappers; RapidAPI
+  pages are client-rendered and expose nothing; PyPI 429). Product-specific
+  implementation stopped, as the directive requires.
+- **WP3.** Not applicable — no candidate to prepare a rights packet for.
+- **WP4 (product-independent part) — the request allowance with a hard stop
+  now exists** ([ADR-0014](docs/decisions/ADR-0014-request-allowance-hard-stop.md),
+  revisiting ADR-0007). Migration `0034_api_entitlements.sql` (per-tenant,
+  per-vertical, per-period allowance with check-constrained hard stop;
+  `RENEW_ENTITLEMENT`/`CANCEL_ENTITLEMENT` join the audited operator
+  vocabulary); `reserveEntitlement`/`releaseEntitlement` in
+  `packages/access-auth`; the edge reserves before any route executes for
+  `DIRECT` tiers only, refuses `403` (no active period, opaque) or `429
+  QUOTA_EXHAUSTED` with `Retry-After`, never meters a refusal, releases the
+  unit on a 5xx, and adds `x-allowance-limit/-remaining/-reset` to served
+  responses; the evaluation tier is the same mechanism (`API_FREE/DIRECT`
+  now provisionable); `pnpm credentials:provision --plan-code
+  --included-requests` creates the first one-month period; `CLOSE_ACCOUNT`
+  cancels active periods. OpenAPI regenerated with the documented `429`.
+  Runtime grant inventory 286 → 297 (eleven `df_edge` column grants); the
+  hosted database stays at `0033` / 286 until the next one-packet direct-TLS
+  catch-up, recorded on the handover and README. Channel selection and
+  checkout were **not** built: there is no product to sell, RapidAPI
+  enrollment is owner-gated, and building Stripe without a verified RapidAPI
+  blocker would violate the directive's one-channel rule.
+- **Tests and verification.** `pnpm typecheck` pass; `pnpm openapi:check`
+  and `pnpm schemas:check` current; `edge` 151/151 (7 new), `access-auth`
+  (5 new), `api` 179/179, private-canary / usage-consumer / mcp-worker 144/144,
+  doc-contract and policy suites 75/75; the tooling `operations`,
+  `provision-api-credential`, `supabase-runtime-grants`,
+  `supabase-migration-packets` and `migrations` suites re-pinned to 34
+  migrations / 297 grants; the full monorepo suite passes: **229 files,
+  3,625 tests** (Linux, `vitest run`).
+- **Not done, and why.** No listing, checkout, payment provider, funnel
+  measurement or product page change beyond truth (no product); no hosted
+  application of `0034` (no PostgreSQL egress or credential here); no
+  RapidAPI enrollment (`UA-004`, owner); `UA-007` operator identity still
+  placeholder.
+- **Economics.** Customer payments 0; channel/payment fees 0; refunds 0; net
+  receipts 0; variable serving/refresh cost 0 (nothing deployed to customers);
+  shared fixed overhead unchanged (Cloudflare/Supabase envelopes, not
+  observed bills); owner support effort 0; payout received 0. The 80%
+  variable-cost contribution target at full allowance is a management target
+  with no observation behind it.
+- **Highest-priority next constraint.** A source with readable, reviewer-
+  recorded rights and deterministic identity: ENERGY STAR's two owner-side
+  approvals (counsel; acquisition method) or a Vehicle Intelligence rights
+  read from an ordinary browser plus a deterministic (not adjudicated) answer
+  to one-to-many model identity. Until one exists there is nothing to list.
+
+## Earlier — 2026-09-18/19 (third session): Part 2 opened — canary disposition recorded, provider read-back tooling, route-less deployment gate
 
 **Verdict: READY_FOR_USER_REVIEW for this work package. No provider mutation.
 No production change. The read-back has not been executed against the account.**

@@ -1,0 +1,537 @@
+[
+ {
+  "vin": "1HGCV1F3XKA000000",
+  "decode": {
+   "status": 200,
+   "bytes": 4156,
+   "s": 0.77,
+   "make": "HONDA",
+   "model": "Accord",
+   "year": "2019",
+   "errorCode": "1",
+   "errorText": "1 - Check Digit (9th position) does not calculate properly",
+   "bodyClass": "Sedan/Saloon",
+   "fuel": "Gasoline"
+  },
+  "recalls": {
+   "status": 200,
+   "bytes": 8065,
+   "s": 0.33,
+   "count": 6,
+   "campaigns": [
+    "20V314000",
+    "20V771000",
+    "21V215000",
+    "23V158000",
+    "23V858000"
+   ]
+  },
+  "fueleconomy": {
+   "calls": 4,
+   "bytes": 8182,
+   "make_match": [
+    "Honda"
+   ],
+   "model_exact": [
+    "Accord"
+   ],
+   "model_fuzzy": [
+    "Accord",
+    "Accord 2.0T Sport/Touring",
+    "Accord Hybrid"
+   ],
+   "model_count": 23,
+   "options": 5,
+   "comb08": "31",
+   "fuelType": "Regular",
+   "content_type": "application/xml"
+  }
+ },
+ {
+  "vin": "5YJ3E1EA7KF000000",
+  "decode": {
+   "status": 200,
+   "bytes": 4116,
+   "s": 0.43,
+   "make": "TESLA",
+   "model": "Model 3",
+   "year": "2019",
+   "errorCode": "1",
+   "errorText": "1 - Check Digit (9th position) does not calculate properly",
+   "bodyClass": "Sedan/Saloon",
+   "fuel": "Electric"
+  },
+  "recalls": {
+   "status": 200,
+   "bytes": 27026,
+   "s": 0.54,
+   "count": 22,
+   "campaigns": [
+    "22V037000",
+    "21V835000",
+    "22V045000",
+    "21V389000",
+    "21V00D000"
+   ]
+  },
+  "fueleconomy": {
+   "calls": 4,
+   "bytes": 7870,
+   "make_match": [
+    "Tesla"
+   ],
+   "model_exact": [],
+   "model_fuzzy": [
+    "Model 3 Long Range",
+    "Model 3 Long Range AWD",
+    "Model 3 Long Range AWD Performance",
+    "Model 3 Mid Range",
+    "Model 3 Standard Range",
+    "Model 3 Standard Range Plus"
+   ],
+   "model_count": 18,
+   "options": 1,
+   "comb08": "130",
+   "fuelType": "Electricity",
+   "content_type": "application/xml"
+  }
+ },
+ {
+  "vin": "1FTFW1E5XKFA00000",
+  "decode": {
+   "status": 200,
+   "bytes": 4126,
+   "s": 0.38,
+   "make": "FORD",
+   "model": "F-150",
+   "year": "2019",
+   "errorCode": "1",
+   "errorText": "1 - Check Digit (9th position) does not calculate properly",
+   "bodyClass": "Pickup",
+   "fuel": "Gasoline"
+  },
+  "recalls": {
+   "status": 200,
+   "bytes": 12035,
+   "s": 0.23,
+   "count": 9,
+   "campaigns": [
+    "20V097000",
+    "19V805000",
+    "18V894000",
+    "19V633000",
+    "19V278000"
+   ]
+  },
+  "fueleconomy": {
+   "calls": 2,
+   "bytes": 8579,
+   "make_match": [
+    "Ford"
+   ],
+   "model_exact": [],
+   "model_fuzzy": [],
+   "model_count": 63
+  }
+ },
+ {
+  "vin": "2T1BURHE0JC000000",
+  "decode": {
+   "status": 200,
+   "bytes": 4338,
+   "s": 0.35,
+   "make": "TOYOTA",
+   "model": "Corolla",
+   "year": "2018",
+   "errorCode": "1",
+   "errorText": "1 - Check Digit (9th position) does not calculate properly",
+   "bodyClass": "Sedan/Saloon",
+   "fuel": "Gasoline"
+  },
+  "recalls": {
+   "status": 200,
+   "bytes": 4729,
+   "s": 0.23,
+   "count": 3,
+   "campaigns": [
+    "19V503000",
+    "20V024000",
+    "20V012000"
+   ]
+  },
+  "fueleconomy": {
+   "calls": 4,
+   "bytes": 9759,
+   "make_match": [
+    "Toyota"
+   ],
+   "model_exact": [
+    "Corolla"
+   ],
+   "model_fuzzy": [
+    "Corolla",
+    "Corolla iM",
+    "Corolla LE Eco"
+   ],
+   "model_count": 45,
+   "options": 3,
+   "comb08": "31",
+   "fuelType": "Regular",
+   "content_type": "application/xml"
+  }
+ },
+ {
+  "vin": "3VWDB7AJ5HM000000",
+  "decode": {
+   "status": 200,
+   "bytes": 4159,
+   "s": 0.44,
+   "make": "VOLKSWAGEN",
+   "model": "Jetta",
+   "year": "2017",
+   "errorCode": "1",
+   "errorText": "1 - Check Digit (9th position) does not calculate properly",
+   "bodyClass": "Sedan/Saloon",
+   "fuel": "Gasoline"
+  },
+  "recalls": {
+   "status": 200,
+   "bytes": 8340,
+   "s": 0.64,
+   "count": 7,
+   "campaigns": [
+    "20V648000",
+    "20E064000",
+    "19V615000",
+    "17V352000",
+    "17V070000"
+   ]
+  },
+  "fueleconomy": {
+   "calls": 4,
+   "bytes": 7546,
+   "make_match": [
+    "Volkswagen"
+   ],
+   "model_exact": [
+    "Jetta"
+   ],
+   "model_fuzzy": [
+    "Jetta"
+   ],
+   "model_count": 18,
+   "options": 5,
+   "comb08": "27",
+   "fuelType": "Regular",
+   "content_type": "application/xml"
+  }
+ },
+ {
+  "vin": "1C4RJFBG0LC000000",
+  "decode": {
+   "status": 200,
+   "bytes": 3994,
+   "s": 0.46,
+   "make": "JEEP",
+   "model": "Grand Cherokee",
+   "year": "2020",
+   "errorCode": "1",
+   "errorText": "1 - Check Digit (9th position) does not calculate properly",
+   "bodyClass": "Sport Utility Vehicle [SUV]/Multipurpose Vehicle [MPV]",
+   "fuel": "Gasoline"
+  },
+  "recalls": {
+   "status": 200,
+   "bytes": 4368,
+   "s": 1.09,
+   "count": 3,
+   "campaigns": [
+    "20V191000",
+    "22V406000",
+    "23V411000"
+   ]
+  },
+  "fueleconomy": {
+   "calls": 4,
+   "bytes": 7709,
+   "make_match": [
+    "Jeep"
+   ],
+   "model_exact": [],
+   "model_fuzzy": [
+    "Grand Cherokee 2WD",
+    "Grand Cherokee 4WD",
+    "Grand Cherokee SRT 4WD",
+    "Grand Cherokee Trackhawk 4WD"
+   ],
+   "model_count": 16,
+   "options": 1,
+   "comb08": "21",
+   "fuelType": "Regular",
+   "content_type": "application/xml"
+  }
+ },
+ {
+  "vin": "JTDKARFU0K3000000",
+  "decode": {
+   "status": 200,
+   "bytes": 4472,
+   "s": 0.38,
+   "make": "TOYOTA",
+   "model": "Prius",
+   "year": "2019",
+   "errorCode": "1",
+   "errorText": "1 - Check Digit (9th position) does not calculate properly",
+   "bodyClass": "Hatchback/Liftback/Notchback",
+   "fuel": "Gasoline"
+  },
+  "recalls": {
+   "status": 200,
+   "bytes": 4209,
+   "s": 0.35,
+   "count": 3,
+   "campaigns": [
+    "19V876000",
+    "19V544000",
+    "19V244000"
+   ]
+  },
+  "fueleconomy": {
+   "calls": 4,
+   "bytes": 9629,
+   "make_match": [
+    "Toyota"
+   ],
+   "model_exact": [
+    "Prius"
+   ],
+   "model_fuzzy": [
+    "Prius",
+    "Prius AWD",
+    "Prius c",
+    "Prius Eco",
+    "Prius Prime"
+   ],
+   "model_count": 46,
+   "options": 1,
+   "comb08": "52",
+   "fuelType": "Regular",
+   "content_type": "application/xml"
+  }
+ },
+ {
+  "vin": "KM8J3CA46KU000000",
+  "decode": {
+   "status": 200,
+   "bytes": 3933,
+   "s": 0.44,
+   "make": "HYUNDAI",
+   "model": "Tucson",
+   "year": "2019",
+   "errorCode": "1",
+   "errorText": "1 - Check Digit (9th position) does not calculate properly",
+   "bodyClass": "Sport Utility Vehicle [SUV]/Multipurpose Vehicle [MPV]",
+   "fuel": "Gasoline"
+  },
+  "recalls": {
+   "status": 200,
+   "bytes": 1554,
+   "s": 0.28,
+   "count": 1,
+   "campaigns": [
+    "20V543000"
+   ]
+  },
+  "fueleconomy": {
+   "calls": 4,
+   "bytes": 8316,
+   "make_match": [
+    "Hyundai"
+   ],
+   "model_exact": [],
+   "model_fuzzy": [
+    "Tucson AWD",
+    "Tucson FWD"
+   ],
+   "model_count": 28,
+   "options": 2,
+   "comb08": "23",
+   "fuelType": "Regular",
+   "content_type": "application/xml"
+  }
+ },
+ {
+  "vin": "WBA5A5C51FD000000",
+  "decode": {
+   "status": 200,
+   "bytes": 3822,
+   "s": 0.33,
+   "make": "BMW",
+   "model": "528i",
+   "year": "2015",
+   "errorCode": "0",
+   "errorText": "0 - VIN decoded clean. Check Digit (9th position) is correct",
+   "bodyClass": "Sedan/Saloon",
+   "fuel": "Gasoline"
+  },
+  "recalls": {
+   "status": 200,
+   "bytes": 1282,
+   "s": 0.27,
+   "count": 1,
+   "campaigns": [
+    "24V608000"
+   ]
+  },
+  "fueleconomy": {
+   "calls": 4,
+   "bytes": 13678,
+   "make_match": [
+    "BMW"
+   ],
+   "model_exact": [
+    "528i"
+   ],
+   "model_fuzzy": [
+    "528i",
+    "528i xDrive"
+   ],
+   "model_count": 103,
+   "options": 1,
+   "comb08": "26",
+   "fuelType": "Premium",
+   "content_type": "application/xml"
+  }
+ },
+ {
+  "vin": "1GCUYDED0KZ000000",
+  "decode": {
+   "status": 200,
+   "bytes": 4171,
+   "s": 0.36,
+   "make": "CHEVROLET",
+   "model": "Silverado",
+   "year": "2019",
+   "errorCode": "1",
+   "errorText": "1 - Check Digit (9th position) does not calculate properly",
+   "bodyClass": "Pickup",
+   "fuel": "Gasoline"
+  },
+  "recalls": {
+   "error": "HTTP Error 400: Bad Request"
+  },
+  "fueleconomy": {
+   "calls": 4,
+   "bytes": 9829,
+   "make_match": [
+    "Chevrolet"
+   ],
+   "model_exact": [],
+   "model_fuzzy": [
+    "Silverado C10 2WD",
+    "Silverado C10 Cab Chassis 2WD",
+    "Silverado C10 XFE 2WD",
+    "Silverado K10 4WD",
+    "Silverado K10 4WD TrailBoss",
+    "Silverado K10 Cab Chassis 4WD"
+   ],
+   "model_count": 41,
+   "options": 6,
+   "comb08": "17",
+   "fuelType": "Regular",
+   "content_type": "application/xml"
+  }
+ },
+ {
+  "vin": "5NPE24AF0FH000000",
+  "decode": {
+   "status": 200,
+   "bytes": 3984,
+   "s": 0.43,
+   "make": "HYUNDAI",
+   "model": "Sonata",
+   "year": "2015",
+   "errorCode": "1",
+   "errorText": "1 - Check Digit (9th position) does not calculate properly",
+   "bodyClass": "Sedan/Saloon",
+   "fuel": "Gasoline"
+  },
+  "recalls": {
+   "status": 200,
+   "bytes": 11574,
+   "s": 0.22,
+   "count": 9,
+   "campaigns": [
+    "16V726000",
+    "17V359000",
+    "16V232000",
+    "15V678000",
+    "15V414000"
+   ]
+  },
+  "fueleconomy": {
+   "calls": 4,
+   "bytes": 8179,
+   "make_match": [
+    "Hyundai"
+   ],
+   "model_exact": [
+    "Sonata"
+   ],
+   "model_fuzzy": [
+    "Sonata",
+    "Sonata Hybrid",
+    "Sonata Hybrid Limited",
+    "Sonata Limited",
+    "Sonata Sport Limited"
+   ],
+   "model_count": 27,
+   "options": 3,
+   "comb08": "31",
+   "fuelType": "Regular",
+   "content_type": "application/xml"
+  }
+ },
+ {
+  "vin": "JM3KFBDM0K0000000",
+  "decode": {
+   "status": 200,
+   "bytes": 4092,
+   "s": 0.31,
+   "make": "MAZDA",
+   "model": "CX-5",
+   "year": "2019",
+   "errorCode": "1",
+   "errorText": "1 - Check Digit (9th position) does not calculate properly",
+   "bodyClass": "Sport Utility Vehicle [SUV]/Multipurpose Vehicle [MPV]",
+   "fuel": "Gasoline"
+  },
+  "recalls": {
+   "status": 200,
+   "bytes": 2071,
+   "s": 0.32,
+   "count": 2,
+   "campaigns": [
+    "19V497000",
+    "21V875000"
+   ]
+  },
+  "fueleconomy": {
+   "calls": 4,
+   "bytes": 7230,
+   "make_match": [
+    "Mazda"
+   ],
+   "model_exact": [],
+   "model_fuzzy": [
+    "CX-5 2WD",
+    "CX-5 4WD"
+   ],
+   "model_count": 13,
+   "options": 3,
+   "comb08": "28",
+   "fuelType": "Regular",
+   "content_type": "application/xml"
+  }
+ }
+]

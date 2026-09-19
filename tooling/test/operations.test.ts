@@ -121,4 +121,40 @@ describe('audited operational actions', () => {
     expect(() => parseOperationsArgs([...args, '--database-url', 'postgres://do-not-print'])).toThrow();
     expect(() => parseOperationsArgs([...args, '--reason-code', 'arbitrary-exception'])).toThrow();
   });
+  it('renews an allowance into the next consecutive period once, cancels it, and cannot act on an ineligible one', async () => {
+    const TENANT2 = 'e1e1e1e1-e1e1-4e1e-8e1e-e1e1e1e1e1e1';
+    await db.query(`INSERT INTO api_tenants (id, slug, name) VALUES ($1, 'ops-entitled', 'Entitled account')`, [TENANT2]);
+    const [period] = await db.query<{ id: string }>(`INSERT INTO api_entitlements
+      (tenant_id, vertical_id, plan_code, included_requests, period_start, period_end)
+      VALUES ($1, $2, 'developer', 5000, '2026-09-01T00:00:00Z', '2026-10-01T00:00:00Z') RETURNING id`, [TENANT2, VERTICAL]);
+    const renew = { requestId: 'e2e2e2e2-e2e2-4e2e-8e2e-e2e2e2e2e2e2', action: 'RENEW_ENTITLEMENT',
+      targetId: period!.id, actorRef: 'billing.webhook', reasonCode: 'CUSTOMER_REQUEST' };
+    const renewed = await applyOperatorAction(db, renew);
+    expect(renewed).toMatchObject({ applied: true, affectedRows: 1 });
+    expect(renewed.resultId).not.toBeNull();
+    const rows = await db.query(`SELECT plan_code, included_requests, period_start, period_end, status
+      FROM api_entitlements WHERE tenant_id = $1 ORDER BY period_start`, [TENANT2]);
+    expect(rows).toHaveLength(2);
+    expect(rows[1]).toMatchObject({ plan_code: 'developer', included_requests: 5000, status: 'ACTIVE' });
+    expect(new Date(String(rows[1]!['period_start'])).toISOString()).toBe('2026-10-01T00:00:00.000Z');
+    expect(new Date(String(rows[1]!['period_end'])).toISOString()).toBe('2026-10-31T00:00:00.000Z');
+    // Replay is a no-op; a second renewal of the same period is refused because a later period exists.
+    expect(await applyOperatorAction(db, renew)).toMatchObject({ applied: false, affectedRows: 1, resultId: renewed.resultId });
+    await expect(applyOperatorAction(db, { ...renew, requestId: 'e3e3e3e3-e3e3-4e3e-8e3e-e3e3e3e3e3e3' }))
+      .rejects.toThrow('OPERATOR_TARGET_NOT_ELIGIBLE');
+    const renewedId = String(renewed.resultId);
+    const cancel = { requestId: 'e4e4e4e4-e4e4-4e4e-8e4e-e4e4e4e4e4e4', action: 'CANCEL_ENTITLEMENT',
+      targetId: renewedId, actorRef: 'ops.owner', reasonCode: 'CUSTOMER_REQUEST' };
+    expect(await applyOperatorAction(db, cancel)).toMatchObject({ applied: true, affectedRows: 1 });
+    const [cancelled] = await db.query(`SELECT status, cancelled_at FROM api_entitlements WHERE id = $1`, [renewedId]);
+    expect(cancelled?.['status']).toBe('CANCELLED');
+    expect(cancelled?.['cancelled_at']).not.toBeNull();
+    await expect(applyOperatorAction(db, { ...cancel, requestId: 'e5e5e5e5-e5e5-4e5e-8e5e-e5e5e5e5e5e5' }))
+      .rejects.toThrow('OPERATOR_TARGET_NOT_ELIGIBLE');
+    // Closing the account cancels its remaining active periods too.
+    await applyOperatorAction(db, { requestId: 'e6e6e6e6-e6e6-4e6e-8e6e-e6e6e6e6e6e6', action: 'CLOSE_ACCOUNT',
+      targetId: TENANT2, actorRef: 'ops.owner', reasonCode: 'CUSTOMER_REQUEST' });
+    expect(await db.query(`SELECT count(*)::int AS active FROM api_entitlements WHERE tenant_id = $1 AND status = 'ACTIVE'`, [TENANT2]))
+      .toEqual([{ active: 0 }]);
+  });
 });

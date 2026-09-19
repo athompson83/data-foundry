@@ -1,5 +1,11 @@
 # Self-service machine-data revenue — candidate screen and finalists
 
+> **Superseded, 2026-09-19.** The tariff recommendation below fell to its own
+> flip checks (`tariff-parked-sec-promoted-20260917.md`), SEC and FAA followed,
+> and the 2026-09-19 bounded pass
+> ([`self-service-qualification-20260919.md`](self-service-qualification-20260919.md))
+> found no selectable candidate. Retained as the screen's method and evidence.
+
 **Recommendation: build the US Import Duty & Tariff Stack API first.**
 
 This supersedes the candidate selection in

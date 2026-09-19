@@ -1,5 +1,12 @@
 # First paid data slice — decision
 
+> **Superseded for candidate selection, 2026-09-19** by
+> [`self-service-qualification-20260919.md`](self-service-qualification-20260919.md),
+> which records a bounded three-candidate pass with measurements and finds no
+> candidate selectable today. The interview gate this document set is no longer
+> a launch prerequisite under the self-service direction; the EMS hypothesis
+> remains a separate, relationship-led business shape.
+
 > **Superseded in part, 2026-09-17** by
 > [`self-service-revenue-candidates-20260917.md`](self-service-revenue-candidates-20260917.md).
 > This document applied an interview-first test and treated the existence of a

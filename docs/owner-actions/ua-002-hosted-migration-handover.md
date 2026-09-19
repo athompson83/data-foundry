@@ -1,5 +1,18 @@
 # Owner action — UA-002 hosted migration handover
 
+> ## Next catch-up — 2026-09-19: migration `0034` and 297 expected grants
+>
+> Release candidates after 2026-09-19 carry `0034_api_entitlements.sql`
+> ([ADR-0014](../decisions/ADR-0014-request-allowance-hard-stop.md)) and a
+> runtime grant inventory of **297** (286 + eleven `df_edge` column grants on
+> `api_entitlements`). The hosted database is at `0033` / 286. The same
+> direct-TLS operator procedure applies: `pnpm migrate:supabase:export
+> --release-sha <sha>` now plans exactly one pending packet against the
+> 2026-09-18 ledger, and the regenerated grant SQL plus `verificationSql` must
+> pass after it. Until then a direct key cannot be served on the hosted target
+> (the edge refuses a tenant without an active period). Nothing below has been
+> re-executed.
+
 > ## Update — 2026-09-18 (later): executed and independently reconciled
 >
 > The sequence below was run from a machine with ordinary PostgreSQL egress:

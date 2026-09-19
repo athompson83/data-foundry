@@ -39,7 +39,9 @@ No runtime identity receives operator audit or account-control privileges.
 | BACKFILL_RUN | Create idempotent processing work for a completed FETCHED acquisition and `--runtime-digest` from the reviewed compiled ingestion runtime; worker rejects an unknown digest |
 | RETRACT_FACT | End and retract one currently open fact revision; preserve its evidence and correction audit, then verify query surfaces |
 | REVOKE_KEY | Timestamp key revocation; retain its usage/accounting references |
-| CLOSE_ACCOUNT | Close the account and revoke its keys atomically; preserve billing references and contact data pending the separate approved retention/erasure policy |
+| CLOSE_ACCOUNT | Close the account, revoke its keys and cancel its active allowance periods atomically; preserve billing references and contact data pending the separate approved retention/erasure policy |
+| RENEW_ENTITLEMENT | Append the next consecutive allowance period with the same plan and included requests to an ACTIVE entitlement of an ACTIVE account (ADR-0014); refused once a later period already exists; the new period id is the result id |
+| CANCEL_ENTITLEMENT | End one ACTIVE allowance period now; the edge refuses the tenant's direct keys from the next request unless another active period covers it |
 
 For obsolete work whose replacement acquired different bytes, review both delivery
 IDs before retiring the old work. Automatic recovery cannot infer that a newer

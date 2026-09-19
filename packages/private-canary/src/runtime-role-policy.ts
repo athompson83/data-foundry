@@ -49,6 +49,24 @@ export const API_KEY_AUTH_COLUMNS = [
   'expires_at',
 ] as const;
 export const API_TENANT_AUTH_COLUMNS = ['id', 'status'] as const;
+/**
+ * The direct-customer allowance (migration 0034, ADR-0014). Only the edge
+ * reserves against it: it reads the active period and increments (or, on a
+ * server fault, decrements) the consumed counter. It cannot create, cancel,
+ * re-price or re-period an entitlement; those are operator actions.
+ */
+export const API_ENTITLEMENT_SELECT_COLUMNS = [
+  'id',
+  'tenant_id',
+  'vertical_id',
+  'billing_source',
+  'included_requests',
+  'consumed_requests',
+  'period_start',
+  'period_end',
+  'status',
+] as const;
+export const API_ENTITLEMENT_UPDATE_COLUMNS = ['consumed_requests', 'updated_at'] as const;
 export const USAGE_INSERT_COLUMNS = [
   'id',
   'tenant_id',
@@ -162,6 +180,8 @@ export function buildRuntimeRoleExpectedGrants(schema = 'data_foundry'): readonl
     addColumns(role, 'api_keys', 'SELECT', API_KEY_AUTH_COLUMNS);
     addColumns(role, 'api_tenants', 'SELECT', API_TENANT_AUTH_COLUMNS);
   }
+  addColumns('df_edge', 'api_entitlements', 'SELECT', API_ENTITLEMENT_SELECT_COLUMNS);
+  addColumns('df_edge', 'api_entitlements', 'UPDATE', API_ENTITLEMENT_UPDATE_COLUMNS);
   addColumns('df_usage', 'api_usage_events', 'INSERT', USAGE_INSERT_COLUMNS);
   addColumns('df_usage', 'api_usage_events', 'SELECT', ['id']);
   addColumns('df_usage', 'api_keys', 'SELECT', ['id', 'access_tier', 'billing_source']);

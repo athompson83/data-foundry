@@ -9,7 +9,7 @@ const operatorUuid = z.uuid().transform((value) => value.toLowerCase());
 
 export const OperatorActionSchema = z.object({
   requestId: operatorUuid,
-  action: z.enum(['PAUSE_SOURCE', 'RESUME_SOURCE', 'REPLAY_DELIVERY', 'RETIRE_DELIVERY', 'BACKFILL_RUN', 'RETRACT_FACT', 'REVOKE_KEY', 'CLOSE_ACCOUNT']),
+  action: z.enum(['PAUSE_SOURCE', 'RESUME_SOURCE', 'REPLAY_DELIVERY', 'RETIRE_DELIVERY', 'BACKFILL_RUN', 'RETRACT_FACT', 'REVOKE_KEY', 'CLOSE_ACCOUNT', 'RENEW_ENTITLEMENT', 'CANCEL_ENTITLEMENT']),
   targetId: operatorUuid,
   actorRef: z.string().regex(/^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,63}$/),
   reasonCode: z.enum(['INCIDENT', 'RECOVERY', 'CORRECTION', 'CUSTOMER_REQUEST', 'PLANNED_MAINTENANCE']),
@@ -118,6 +118,31 @@ export async function applyOperatorAction(driver: SqlDriver, value: unknown) {
           WHERE id = $1 AND status <> 'CLOSED' RETURNING id`, [input.targetId]);
         if (rows.length) await tx.query(`UPDATE api_keys SET revoked_at = clock_timestamp()
           WHERE tenant_id = $1 AND revoked_at IS NULL`, [input.targetId]);
+        // Closing an account also ends its allowance; a cancelled period cannot be reserved against.
+        if (rows.length) await tx.query(`UPDATE api_entitlements SET status = 'CANCELLED', cancelled_at = clock_timestamp(),
+          updated_at = clock_timestamp() WHERE tenant_id = $1 AND status = 'ACTIVE'`, [input.targetId]);
+        break;
+      case 'RENEW_ENTITLEMENT': {
+        // The next consecutive period with the same plan and allowance, appended
+        // to an ACTIVE entitlement whose tenant is still ACTIVE. Renewal is
+        // idempotent per request id, and a period already renewed (a later
+        // period exists) is not eligible again through this target.
+        rows = await tx.query(`INSERT INTO api_entitlements
+            (tenant_id, vertical_id, billing_source, plan_code, included_requests, period_start, period_end, external_ref)
+          SELECT e.tenant_id, e.vertical_id, e.billing_source, e.plan_code, e.included_requests,
+                 e.period_end, e.period_end + (e.period_end - e.period_start), e.external_ref
+            FROM api_entitlements e JOIN api_tenants t ON t.id = e.tenant_id
+           WHERE e.id = $1 AND e.status = 'ACTIVE' AND t.status = 'ACTIVE'
+             AND NOT EXISTS (SELECT 1 FROM api_entitlements later WHERE later.tenant_id = e.tenant_id
+                               AND later.vertical_id = e.vertical_id AND later.billing_source = e.billing_source
+                               AND later.period_start >= e.period_end)
+          RETURNING id`, [input.targetId]);
+        resultId = (rows[0]?.['id'] as string | undefined) ?? null;
+        break;
+      }
+      case 'CANCEL_ENTITLEMENT':
+        rows = await tx.query(`UPDATE api_entitlements SET status = 'CANCELLED', cancelled_at = clock_timestamp(),
+          updated_at = clock_timestamp() WHERE id = $1 AND status = 'ACTIVE' RETURNING id`, [input.targetId]);
         break;
     }
     if (!rows.length) throw new Error('OPERATOR_TARGET_NOT_ELIGIBLE');

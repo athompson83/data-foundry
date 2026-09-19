@@ -198,7 +198,7 @@ export type ApiErrorEnvelope = RuntimeSchemaOutput<typeof ApiErrorEnvelopeSchema
 
 export const OpaqueEdgeErrorEnvelopeSchema = z.strictObject({
   error: z.strictObject({
-    code: z.enum(['UNAUTHORIZED', 'FORBIDDEN', 'SERVICE_UNAVAILABLE']),
+    code: z.enum(['UNAUTHORIZED', 'FORBIDDEN', 'QUOTA_EXHAUSTED', 'SERVICE_UNAVAILABLE']),
     message: z.string(),
   }),
 });

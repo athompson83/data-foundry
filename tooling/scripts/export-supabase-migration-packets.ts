@@ -48,8 +48,8 @@ const RELEASE_SHA = /^[0-9a-f]{40}$/;
 const VERSION = /^\d{4}$/;
 const MIGRATION_FILENAME = /^(\d{4})_[a-z0-9_]+\.sql$/;
 const SHA256 = /^[0-9a-f]{64}$/;
-const EXPECTED_REPOSITORY_MIGRATION_COUNT = 33;
-const EXPECTED_TERMINAL_VERSION = '0033';
+const EXPECTED_REPOSITORY_MIGRATION_COUNT = 34;
+const EXPECTED_TERMINAL_VERSION = '0034';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPOSITORY_ROOT = resolve(HERE, '..', '..');
 const execFileAsync = promisify(execFile);
@@ -1211,7 +1211,7 @@ ${expectedRows}
   SELECT count(*) + ABS((SELECT count(*) FROM ${ledger}) - ${migrations.length})
     INTO prerequisite_drift_count FROM differences;
   IF prerequisite_drift_count <> 0 THEN
-    RAISE EXCEPTION 'Runtime grants require the canonical full application ledger 0001 through 0033.';
+    RAISE EXCEPTION 'Runtime grants require the canonical full application ledger 0001 through 0034.';
   END IF;
 
   IF (SELECT pg_get_userbyid(n.nspowner) FROM pg_namespace n WHERE n.nspname = ${sqlLiteral(schema)})
@@ -1494,7 +1494,7 @@ ${buildRuntimeRoleExternalDirectAclSql(schema, targetPredicate)}
     ),
     // Object-inventory drift, asked in the only direction that is answerable
     // before the pending migrations run. "Expected but absent" is meaningless
-    // here — `0027`–`0033` have not created their relations yet — but "present
+    // here — `0027`–`0034` have not created their relations yet — but "present
     // and unexpected" is drift now and stays drift afterwards, and the install
     // rejects it either way. An extra table someone left in the schema would
     // otherwise sail through preflight and fail the grant upgrade.

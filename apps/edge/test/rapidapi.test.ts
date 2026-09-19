@@ -56,6 +56,15 @@ async function seedKey(
     ],
   );
   if (key === undefined) throw new Error('key insert returned no row');
+  if (billingSource === 'DIRECT') {
+    // A direct key is served only inside an active allowance period (ADR-0014);
+    // the marketplace key carries none because RapidAPI enforces its own plans.
+    await fixtures.driver.query(
+      `insert into api_entitlements (tenant_id, vertical_id, plan_code, included_requests, period_start, period_end)
+       values ($1, $2, 'developer', 5000, now() - interval '1 minute', now() + interval '1 month')`,
+      [tenant.id, fixtures.vertical.id],
+    );
+  }
   return { secret: minted.secret, tenantId: tenant.id, apiKeyId: key.id };
 }
 
