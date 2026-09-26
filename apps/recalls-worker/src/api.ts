@@ -159,8 +159,9 @@ export function gtinCandidates(value: string): string[] {
   return [...out];
 }
 
+/** Lot, serial and model codes are stored uppercase without internal spaces ("130 EF" → "130EF"). */
 export function normaliseIdentifier(kind: 'lot' | 'serial' | 'model', value: string): string {
-  return value.trim().toUpperCase();
+  return value.replace(/\s+/g, '').toUpperCase();
 }
 
 /** A caller's NDC as either a 5-4-2 package code or a 5-4 product code. */
@@ -319,10 +320,12 @@ export function lookupCandidates(code: string): Array<readonly [KeyKind, string]
   const ndc = parseNdcInput(trimmed);
   if (ndc && 'package' in ndc) candidates.push(['ndc', ndc.package], ['ndc', productOfPackageNdc(ndc.package)]);
   else if (ndc) candidates.push(['ndc', ndc.product]);
-  const upper = trimmed.toUpperCase();
-  for (const kind of ['lot', 'serial', 'model'] as const) candidates.push([kind, upper]);
+  for (const kind of ['lot', 'serial', 'model'] as const) candidates.push([kind, normaliseIdentifier(kind, trimmed)]);
   return candidates;
 }
+
+/** Most recalls one lookup returns; the response states the total and whether it was truncated. */
+export const LOOKUP_LIMIT = 100;
 
 export async function lookupCode(db: D1Database, bucket: R2Bucket, code: string, includeRaw: boolean): Promise<Record<string, unknown>> {
   const candidates = lookupCandidates(code);
@@ -335,26 +338,42 @@ export async function lookupCode(db: D1Database, bucket: R2Bucket, code: string,
     clauses.push(condition.sql);
     binds.push(...condition.binds);
   }
-  const matches = await db
-    .prepare(`SELECT kind, value, recall_number FROM recall_key WHERE ${clauses.join(' OR ')} LIMIT 200`)
-    .bind(...binds)
+  const where = clauses.join(' OR ');
+  const limit = includeRaw ? 10 : LOOKUP_LIMIT;
+  // The newest matching recalls up to the limit, plus the exact total, so a
+  // truncated answer says so and points at the paginated filter.
+  const [rows, total] = await Promise.all([
+    db
+      .prepare(`SELECT ${COLUMNS} FROM recall WHERE recall_number IN (SELECT recall_number FROM recall_key WHERE ${where}) ORDER BY COALESCE(reported_on, '') DESC, recall_number DESC LIMIT ?`)
+      .bind(...binds, limit)
+      .all<RecallRow>(),
+    db.prepare(`SELECT COUNT(DISTINCT recall_number) AS n FROM recall_key WHERE ${where}`).bind(...binds).first<{ n: number }>(),
+  ]);
+  const interpretedAs = candidates.map(([kind, value]) => ({ kind, value }));
+  const totalMatches = total?.n ?? 0;
+  const bounds = {
+    total_matches: totalMatches,
+    truncated: totalMatches > rows.results.length,
+    // Every match, paginated: the same identifier as a /v1/recalls filter.
+    complete_results: interpretedAs.filter((item) => item.kind === 'gtin' || item.kind === 'ndc' || item.kind === 'lot' || item.kind === 'serial' || item.kind === 'model').map((item) => `/v1/recalls?${item.kind}=${encodeURIComponent(item.value)}`),
+  };
+  if (rows.results.length === 0) return { data: [], ...bounds, interpreted_as: interpretedAs, attribution: ATTRIBUTION };
+  const ids = rows.results.map((row) => row.recall_number);
+  const matched = await db
+    .prepare(`SELECT kind, value, recall_number FROM recall_key WHERE (${where}) AND recall_number IN (${ids.map(() => '?').join(',')})`)
+    .bind(...binds, ...ids)
     .all<{ kind: KeyKind; value: string; recall_number: string }>();
   const byRecall = new Map<string, Array<{ kind: KeyKind; value: string }>>();
-  for (const match of matches.results) {
+  for (const match of matched.results) {
     const list = byRecall.get(match.recall_number) ?? [];
     list.push({ kind: match.kind, value: match.value });
     byRecall.set(match.recall_number, list);
   }
-  const ids = [...byRecall.keys()].slice(0, includeRaw ? 10 : 100);
-  if (ids.length === 0) return { data: [], interpreted_as: candidates.map(([kind, value]) => ({ kind, value })), attribution: ATTRIBUTION };
-  const rows = await db
-    .prepare(`SELECT ${COLUMNS} FROM recall WHERE recall_number IN (${ids.map(() => '?').join(',')}) ORDER BY COALESCE(reported_on, '') DESC`)
-    .bind(...ids)
-    .all<RecallRow>();
   const presented = await present(bucket, rows.results, includeRaw);
   return {
     data: rows.results.map((row, index) => ({ matched_on: byRecall.get(row.recall_number), recall: presented[index] })),
-    interpreted_as: candidates.map(([kind, value]) => ({ kind, value })),
+    ...bounds,
+    interpreted_as: interpretedAs,
     attribution: ATTRIBUTION,
   };
 }

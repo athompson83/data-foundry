@@ -158,6 +158,9 @@ const EXPIRY_WITH_DATE = new RegExp(`(?:${EXPIRY_MARKER.source})(?:${DATE_TOKEN.
  * date-stamped lots such as 07282016G stay lots; no bare "l" unit, so lots
  * such as 651L stay lots.
  */
+/** Short words that are never a code's suffix ("12345 EXP", "A1 AND B2"). */
+const SUFFIX_STOP = /^(?:NO|NOS|BUD|EXP|AND|LOT|THE|FOR|OF|TO|IN|ON|AT|BY|USE|OR|SN|REF|UDI|NDC|UPC|CAT|QTY|CT|PCS|EA|PER|ALL|NUM|MFG|DOM)$/;
+
 const PACKAGE_SIZE = /^\d{1,3}(?:\.\d+)?(?:g|gm|mg|mcg|kg|oz|lbs?|ml|fl|ct|cc)$/i;
 
 /** A code token: must contain a digit, 3–30 chars of the lot alphabet. */
@@ -200,18 +203,39 @@ function listAfter(text: string, marker: RegExp, kind: keyof typeof STOPS): stri
     segment = segment
       .replace(EXPIRY_WITH_DATE, ' ')
       .replace(DATE_TOKEN, (match) => (/[\s/.,-]/.test(match) && parseLooseDate(match) !== null ? ' ' : match));
-    for (const raw of segment.split(/[\s,;&]+|\band\b/i)) {
+    // Tokens with their separators: a short uppercase letter suffix separated
+    // from the previous code by whitespace only is part of it ("130 EF"),
+    // stored without the space so it matches however the caller spaces it.
+    let joinable = false;
+    for (const part of segment.matchAll(/([^\s,;&]+)|([\s,;&]+)/g)) {
+      if (part[2] !== undefined) {
+        if (/[,;&]/.test(part[2])) joinable = false;
+        continue;
+      }
+      const raw = part[1] as string;
+      if (/^and$/i.test(raw)) {
+        joinable = false;
+        continue;
+      }
       const token = raw.replace(/^[#:.\-/]+|[.,:\-/]+$/g, '');
       if (!token) continue;
       if (!LOT_TOKEN.test(token)) {
+        if (joinable && token === raw && /^[A-Z]{1,3}$/.test(token) && !SUFFIX_STOP.test(token) && found.length > 0) {
+          found[found.length - 1] = `${found[found.length - 1] as string}${token}`;
+          joinable = false;
+          continue;
+        }
+        joinable = false;
         // A real word ends the list; short noise ("#", "No", "BUD") is skipped.
         if (/^[A-Za-z]{4,}$/.test(token) && !/^(?:code|codes|number|numbers|date|dates|lots?)$/i.test(token)) break;
         continue;
       }
+      joinable = false;
       if (/[/.-]/.test(token) && parseLooseDate(token) !== null) continue;
       // Package sizes ("85g", "12oz", "500mL") are not codes.
       if (PACKAGE_SIZE.test(token)) continue;
       found.push(token.toUpperCase());
+      joinable = token === raw;
       if (found.length >= MAX_LIST) return found;
     }
   }

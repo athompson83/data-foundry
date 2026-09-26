@@ -107,6 +107,12 @@ describe('product codes', () => {
     expect(parseCodes('Lot numbers: A12345, July 31, 2027, B67890').lots).toEqual(['A12345', 'B67890']);
   });
 
+  it('keeps a spaced letter suffix as part of the code', () => {
+    // Verbatim code_info of H-1331-2026.
+    expect(parseCodes('BATCH NO: 130 EF, 146 EF SERIAL NUMBER: 5055192640140').lots).toEqual(['130EF', '146EF']);
+    expect(parseCodes('Lot # A123 EXP 1/2/2027').lots).toEqual(['A123']);
+  });
+
   it('keeps every serial in a very long list', () => {
     const serials = Array.from({ length: 2000 }, (_, index) => `SN${100000 + index}`);
     const codes = parseCodes(`Serial Numbers: ${serials.join(', ')}`);

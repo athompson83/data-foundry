@@ -135,7 +135,7 @@ export function docsPage(ctx: PageContext): string {
 <h2>Authentication</h2>
 <p>Send your key as <code>Authorization: Bearer rcl_live_…</code> (or <code>X-API-Key</code>). Every authenticated data request counts toward your monthly allowance; when it is spent, requests return <code>429</code> until the next UTC month or an upgrade. <code>/v1/account</code> and <code>/v1/recalls/stats</code> are not counted.</p>
 <h2>Endpoints</h2>
-<h3>GET /v1/recalls/lookup?code=…</h3><p>One code, every exact interpretation: GTIN/UPC/UDI (check-digit verified), NDC, lot, serial and model. Returns matching recalls with <code>matched_on</code>.</p>
+<h3>GET /v1/recalls/lookup?code=…</h3><p>One code, every exact interpretation: GTIN/UPC/UDI (check-digit verified), NDC, lot, serial and model. Returns up to 100 matching recalls, newest first, with <code>matched_on</code>, plus <code>total_matches</code> and <code>truncated</code>; when truncated, page through every match with the <code>/v1/recalls</code> filters listed in <code>complete_results</code>. Lot, serial and model codes ignore internal spaces.</p>
 <pre><code>curl "${api}/v1/recalls/lookup?code=05708932072526" -H "Authorization: Bearer $KEY"</code></pre>
 <h3>GET /v1/recalls</h3><p>Filter and page through recalls, newest report first. Filters combine with AND.</p>
 <div class="table-wrap"><table><thead><tr><th>Parameter</th><th>Meaning</th></tr></thead><tbody>${rows.map(([name, text]) => `<tr><td><code>${name}</code></td><td>${text}</td></tr>`).join('')}</tbody></table></div>

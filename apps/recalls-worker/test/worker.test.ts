@@ -180,6 +180,7 @@ describe('API surface', () => {
       expect(body.data.map((match) => match.recall.recall_number)).toEqual(['Z-0002-2026']);
     }
     expect(lookupCandidates('12345-678-90')).toContainEqual(['ndc', '12345-0678-90']);
+    expect(lookupCandidates('130 ef')).toContainEqual(['lot', '130EF']);
     // A printed UPC-E is also read as its expanded UPC-A, the form the index stores.
     expect(lookupCandidates('04252614')).toContainEqual(['gtin', '00042100005264']);
     expect(gtinCandidates('04252614')).toEqual(['00042100005264']);
@@ -203,6 +204,19 @@ describe('API surface', () => {
     // A product code finds the product and every listed package of it.
     expect(await ids('/v1/recalls?ndc=12345-6789')).toEqual(['D-0001-2026', 'D-0002-2026']);
     expect(await ids('/v1/recalls/lookup?code=12345-6789')).toEqual(['D-0001-2026', 'D-0002-2026']);
+  });
+
+  it('states the total and truncation for large lookups', async () => {
+    const env = makeEnv();
+    const now = '2026-09-26T00:00:00.000Z';
+    const writes = await Promise.all(Array.from({ length: 105 }, async (_, index) => ({ prepared: await prepareRecall('food', { ...FOOD, recall_number: `F-${String(index).padStart(4, '0')}-2026` }), rawRef: 'k#0:1' })));
+    for (const group of writeRecallGroups(writes, now)) await env.DB.batch(group.map((statement) => env.DB.prepare(statement.sql).bind(...statement.params)));
+    const key = await seedCustomer(env);
+    const body = (await (await worker.fetch(get('/v1/recalls/lookup?code=AC2601', key), env)).json()) as { data: unknown[]; total_matches: number; truncated: boolean; complete_results: string[] };
+    expect(body.data).toHaveLength(100);
+    expect(body.total_matches).toBe(105);
+    expect(body.truncated).toBe(true);
+    expect(body.complete_results).toContain('/v1/recalls?lot=AC2601');
   });
 
   it('pages with a stable cursor and supports full-text search', async () => {
