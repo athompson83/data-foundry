@@ -143,10 +143,16 @@ export async function upsertCustomerFromSubscription(db: D1Database, env: Env, s
   if (!plan) return null;
   const status = customerStatusFor(subscription.status);
   const existing = await db
-    .prepare('SELECT id FROM customer WHERE stripe_subscription_id = ? OR stripe_customer_id = ? ORDER BY created_at LIMIT 1')
+    .prepare('SELECT id, stripe_subscription_id, status FROM customer WHERE stripe_subscription_id = ? OR stripe_customer_id = ? ORDER BY created_at LIMIT 1')
     .bind(subscription.id, subscription.customer)
-    .first<{ id: string }>();
+    .first<{ id: string; stripe_subscription_id: string | null; status: string }>();
   if (existing) {
+    // A different subscription may only replace the customer's current one
+    // when it is live and the current one is not: a late event (or a revisited
+    // Checkout) for an old, canceled subscription must never overwrite an
+    // active one and disable the customer's key.
+    const replacing = existing.stripe_subscription_id !== null && existing.stripe_subscription_id !== subscription.id;
+    if (replacing && (status === 'canceled' || existing.status !== 'canceled')) return existing.id;
     await db
       .prepare('UPDATE customer SET plan = ?, status = ?, stripe_subscription_id = ?, stripe_customer_id = ?, email = COALESCE(?, email), updated_at = ? WHERE id = ?')
       .bind(plan, status, subscription.id, subscription.customer, email, now, existing.id)

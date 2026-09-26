@@ -167,9 +167,13 @@ async function welcome(env: Env, url: URL): Promise<Response> {
     }
     const key = await issueKey(env.DB, customerId, session.id);
     return html(welcomePage(ctx, key, PLANS[customer?.plan ?? 'evaluate'].name), 200, { 'cache-control': 'no-store' });
-  } catch {
-    // Unique checkout_session_id: a concurrent reload already issued the key.
-    return html(messagePage(ctx, 'Key already issued', 'An API key was already shown for this checkout.'), 409);
+  } catch (error) {
+    // Only the unique checkout_session_id conflict means "already issued" (a
+    // concurrent reload won). Anything else is an operational failure and must
+    // surface as a retryable error, not as misleading recovery guidance.
+    const won = await env.DB.prepare('SELECT id FROM api_key WHERE checkout_session_id = ?').bind(session.id).first<{ id: string }>();
+    if (won) return html(messagePage(ctx, 'Key already issued', 'An API key was already shown for this checkout.'), 409);
+    throw error;
   }
 }
 

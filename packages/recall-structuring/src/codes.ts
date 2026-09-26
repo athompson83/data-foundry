@@ -219,6 +219,12 @@ export function parseCodes(...texts: ReadonlyArray<string | null | undefined>): 
     const digits = match[1] as string;
     if (gs1CheckDigitValid(digits)) gtins.add(toGtin14(digits));
   }
+  // EAN-8 / UPC-E only after an explicit marker: bare 8-digit runs (lots,
+  // dates, catalog numbers) pass a check digit one time in ten.
+  for (const match of text.matchAll(/\b(?:EAN|UPC|GTIN)(?:-?8|-?E)?\s*(?:#|no\.?|code)?\s*[:#]?\s*(\d{8})(?!\d)/gi)) {
+    const digits = match[1] as string;
+    if (gs1CheckDigitValid(digits)) gtins.add(toGtin14(digits));
+  }
   // Spaced UPC as printed on labels: "0 12345 67890 5"
   for (const match of text.matchAll(/(?<!\d)(\d)[\s-](\d{5})[\s-](\d{5})[\s-](\d)(?!\d)/g)) {
     const digits = `${match[1]}${match[2]}${match[3]}${match[4]}`;

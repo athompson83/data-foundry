@@ -78,6 +78,9 @@ export async function syncWindow(env: SyncEnv, category: RecallCategory, from: s
   let fetched = 0;
   let inserted = 0;
   let changed = 0;
+  // First occurrence per recall number across the whole window (as the bulk
+  // loader does), so duplicates straddling a page boundary cannot flip-flop.
+  const seenInWindow = new Set<string>();
   try {
     for (let skip = 0; skip <= MAX_SKIP; skip += PAGE) {
       const page = await fetchPage(category, from, to, skip);
@@ -92,8 +95,12 @@ export async function syncWindow(env: SyncEnv, category: RecallCategory, from: s
       const firstByNumber = new Map<string, OpenFdaEnforcementRecord>();
       const unpublishable: string[] = [];
       for (const record of page.results) {
-        if (isUsableRecallNumber(record.recall_number) && !firstByNumber.has(record.recall_number)) firstByNumber.set(record.recall_number, record);
-        else unpublishable.push(JSON.stringify(record));
+        if (isUsableRecallNumber(record.recall_number) && !seenInWindow.has(record.recall_number)) {
+          seenInWindow.add(record.recall_number);
+          firstByNumber.set(record.recall_number, record);
+        } else {
+          unpublishable.push(JSON.stringify(record));
+        }
       }
       const prepared = await Promise.all([...firstByNumber.values()].map((record) => prepareRecall(category, record)));
 

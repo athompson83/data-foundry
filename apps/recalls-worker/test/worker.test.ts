@@ -375,6 +375,18 @@ describe('sync', () => {
     expect(first.trim().split('\n').map((line) => JSON.parse(line).status)).toEqual(['Ongoing', 'Terminated']);
   });
 
+  it('keeps the first occurrence of a recall number across pages of one window', async () => {
+    const env = makeEnv();
+    const filler = Array.from({ length: 999 }, (_, index) => ({ ...FOOD, recall_number: `F-${String(index + 1).padStart(4, '0')}-2025` }));
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => {
+      const page = String(url).includes('skip=0') ? [...filler, FOOD] : String(url).includes('skip=1000') ? [{ ...FOOD, status: 'Terminated' }] : [];
+      return new Response(JSON.stringify({ results: page }), { status: 200 });
+    }));
+    await syncWindow(env, 'food', '2026-09-01', '2026-09-30');
+    expect(await syncWindow(env, 'food', '2026-09-01', '2026-09-30')).toMatchObject({ inserted: 0, changed: 0 });
+    expect(await env.DB.prepare("SELECT status FROM recall WHERE recall_number = 'F-0001-2026'").first()).toEqual({ status: 'Ongoing' });
+  });
+
   it('retries a failed history window before moving on, then skips it after repeated failures', async () => {
     const env = makeEnv();
     vi.stubGlobal('fetch', vi.fn(async (url: string) => (String(url).includes('/food/') && String(url).includes('20120601') ? new Response('boom', { status: 400 }) : new Response(JSON.stringify({ results: [] }), { status: 200 }))));
@@ -514,6 +526,33 @@ describe('Stripe', () => {
     expect(body.email).toBe('a@example.com');
     expect((await worker.fetch(get('/v1/recalls', oldKey), env)).status).toBe(401);
     expect((await worker.fetch(get('/v1/recalls', body.api_key), env)).status).toBe(200);
+  });
+
+  it('never lets an old canceled subscription overwrite the current active one', async () => {
+    const env = makeEnv();
+    const key = await seedCustomer(env, 'developer');
+    const { upsertCustomerFromSubscription } = await import('../src/stripe.js');
+    // Late event for an older subscription of the same Stripe customer.
+    await upsertCustomerFromSubscription(env.DB, env, { id: 'sub_old', customer: 'cus_1', status: 'canceled', items: { data: [{ price: { id: 'price_scale' } }] } }, null);
+    expect(await env.DB.prepare('SELECT plan, status, stripe_subscription_id FROM customer').first()).toEqual({ plan: 'developer', status: 'active', stripe_subscription_id: 'sub_1' });
+    expect((await worker.fetch(get('/v1/recalls', key), env)).status).toBe(200);
+    // A resubscription after cancellation does replace it.
+    await env.DB.prepare("UPDATE customer SET status = 'canceled'").run();
+    await upsertCustomerFromSubscription(env.DB, env, { id: 'sub_new', customer: 'cus_1', status: 'active', items: { data: [{ price: { id: 'price_growth' } }] } }, null);
+    expect(await env.DB.prepare('SELECT plan, status, stripe_subscription_id FROM customer').first()).toEqual({ plan: 'growth', status: 'active', stripe_subscription_id: 'sub_new' });
+  });
+
+  it('reports an operational key-issue failure as retryable, not as already issued', async () => {
+    const env = makeEnv();
+    vi.stubGlobal('fetch', vi.fn(async () => Response.json({
+      id: 'cs_test_fail', url: null, status: 'complete', payment_status: 'paid', customer: 'cus_f',
+      customer_details: { email: 'f@example.com' }, metadata: { plan: 'developer' },
+      subscription: { id: 'sub_f', status: 'active', items: { data: [{ price: { id: 'price_dev' } }] } },
+    })));
+    const prepare = env.DB.prepare.bind(env.DB);
+    (env.DB as { prepare: typeof env.DB.prepare }).prepare = (sql) => (sql.startsWith('INSERT INTO api_key') ? prepare('SELECT no_such_column FROM api_key') : prepare(sql));
+    const response = await worker.fetch(new Request('https://data.aroqon.com/recalls/welcome?session_id=cs_test_fail'), env);
+    expect(response.status).toBe(500);
   });
 
   it('applies a cancellation webhook from the re-read subscription', async () => {

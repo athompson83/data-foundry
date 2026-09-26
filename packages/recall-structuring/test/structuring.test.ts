@@ -122,6 +122,13 @@ describe('product codes', () => {
     expect(catalog.lots).toEqual(['H1068587S1', 'H1068590S1', 'H1078177']);
   });
 
+  it('extracts EAN-8 only after an explicit marker', () => {
+    expect(parseCodes('EAN-8: 96385074').gtins).toEqual(['00000096385074']);
+    expect(parseCodes('UPC 73513537').gtins).toEqual(['00000073513537']);
+    // A bare 8-digit run with a valid check digit is not assumed to be a GTIN.
+    expect(parseCodes('Lot 40170725').gtins).toEqual([]);
+  });
+
   it('normalises a 12-digit UPC to GTIN-14', () => {
     expect(parseCodes('EAN: 616612785503; SKU: 1000').gtins).toEqual(['00616612785503']);
   });
