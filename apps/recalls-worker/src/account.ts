@@ -130,6 +130,25 @@ export async function issueFreeKey(db: D1Database, customerId: string, email: st
   return row ? key : null;
 }
 
+/**
+ * Revoke keys and issue one new key in a single batch (one transaction), so a
+ * failed insert can never leave the customer without a working key. With
+ * `keyId`, only that key is revoked (rotation); otherwise every active key is
+ * (operator reissue after a lost key).
+ */
+export async function replaceKey(db: D1Database, customerId: string, keyId: string | null, now = new Date().toISOString()): Promise<string> {
+  const key = mintApiKey();
+  const revoke = keyId
+    ? db.prepare('UPDATE api_key SET revoked_at = ? WHERE id = ? AND customer_id = ? AND revoked_at IS NULL').bind(now, keyId, customerId)
+    : db.prepare('UPDATE api_key SET revoked_at = ? WHERE customer_id = ? AND revoked_at IS NULL').bind(now, customerId);
+  await db.batch([
+    revoke,
+    db.prepare('INSERT INTO api_key (id, customer_id, key_hash, key_prefix, checkout_session_id, created_at) VALUES (?, ?, ?, ?, NULL, ?)')
+      .bind(crypto.randomUUID(), customerId, await sha256Hex(key), key.slice(0, KEY_PREFIX.length + 4), now),
+  ]);
+  return key;
+}
+
 /** Issue a fresh key for a customer and return the plaintext exactly once. */
 export async function issueKey(db: D1Database, customerId: string, checkoutSessionId: string | null, now = new Date().toISOString()): Promise<string> {
   const key = mintApiKey();

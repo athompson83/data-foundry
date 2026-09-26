@@ -87,12 +87,15 @@ export async function syncWindow(env: SyncEnv, category: RecallCategory, from: s
       // until FDA assigns one, but they are still kept as evidence below.
       // One record per recall number per page, first occurrence (as the bulk
       // loader does), so a duplicate can never flip-flop between runs.
+      // Every other fetched record (placeholder numbers, later duplicates) is
+      // still archived below as evidence; only publication is deduplicated.
       const firstByNumber = new Map<string, OpenFdaEnforcementRecord>();
+      const unpublishable: string[] = [];
       for (const record of page.results) {
         if (isUsableRecallNumber(record.recall_number) && !firstByNumber.has(record.recall_number)) firstByNumber.set(record.recall_number, record);
+        else unpublishable.push(JSON.stringify(record));
       }
       const prepared = await Promise.all([...firstByNumber.values()].map((record) => prepareRecall(category, record)));
-      const unpublishable = page.results.filter((record) => !isUsableRecallNumber(record.recall_number)).map((record) => JSON.stringify(record));
 
       const existing = new Map<string, string>();
       // A record is current only when both its source bytes and the parser

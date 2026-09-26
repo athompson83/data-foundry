@@ -8,13 +8,12 @@
  * the dataset current from openFDA.
  */
 
-import { consumeRequest, currentUsage, findCustomerByKey, isPlanId, issueFreeKey, issueKey, KEY_PREFIX, mintApiKey, PLANS, presentedKey, type AuthenticatedCustomer } from './account.js';
+import { consumeRequest, currentUsage, findCustomerByKey, isPlanId, issueFreeKey, issueKey, PLANS, replaceKey, presentedKey, type AuthenticatedCustomer } from './account.js';
 import { BadRequest, getRecall, lookupCode, searchRecalls, stats } from './api.js';
 import type { Env } from './env.js';
 import { openApiDocument } from './openapi.js';
 import { catalogPage, docsPage, messagePage, privacyPage, recallsLanding, termsPage, welcomePage, type PageContext } from './pages.js';
 import { createCheckoutSession, createPortalSession, handleStripeWebhook, retrieveCheckoutSession, StripeError, upsertCustomerFromSubscription } from './stripe.js';
-import { sha256Hex } from './store.js';
 import { scheduledSync, syncWindow } from './sync.js';
 import { RECALL_CATEGORIES, type RecallCategory } from '@data-foundry/recall-structuring';
 
@@ -115,9 +114,7 @@ async function accountApi(env: Env, request: Request, url: URL): Promise<Respons
     return json({ plan: auth.plan, plan_name: plan.name, status: auth.status, month_requests: used, month_allowance: plan.requests, remaining: Math.max(0, plan.requests - used) }, 200, { 'cache-control': 'private, no-store' });
   }
   if (url.pathname === '/v1/account/rotate-key' && request.method === 'POST') {
-    const now = new Date().toISOString();
-    await env.DB.prepare('UPDATE api_key SET revoked_at = ? WHERE id = ? AND revoked_at IS NULL').bind(now, auth.keyId).run();
-    const key = await issueKey(env.DB, auth.customerId, null, now);
+    const key = await replaceKey(env.DB, auth.customerId, auth.keyId);
     return json({ api_key: key, note: 'The previous key is revoked. Store this one now; it is not shown again.' }, 200, { 'cache-control': 'no-store' });
   }
   if (url.pathname === '/v1/account/billing-portal' && request.method === 'POST') {
@@ -231,15 +228,7 @@ async function route(request: Request, env: Env): Promise<Response> {
     const stripeCustomerId = url.searchParams.get('stripe_customer_id') ?? '';
     const customer = await env.DB.prepare('SELECT id, email, plan, status FROM customer WHERE stripe_customer_id = ?').bind(stripeCustomerId).first<{ id: string; email: string | null; plan: string; status: string }>();
     if (!customer) return apiError(404, 'not_found', 'No customer with that Stripe id.');
-    // Revoke and issue in one batch (one transaction): the customer is never
-    // left without a working key if the insert fails.
-    const now = new Date().toISOString();
-    const key = mintApiKey();
-    await env.DB.batch([
-      env.DB.prepare('UPDATE api_key SET revoked_at = ? WHERE customer_id = ? AND revoked_at IS NULL').bind(now, customer.id),
-      env.DB.prepare('INSERT INTO api_key (id, customer_id, key_hash, key_prefix, checkout_session_id, created_at) VALUES (?, ?, ?, ?, NULL, ?)')
-        .bind(crypto.randomUUID(), customer.id, await sha256Hex(key), key.slice(0, KEY_PREFIX.length + 4), now),
-    ]);
+    const key = await replaceKey(env.DB, customer.id, null);
     return json({ api_key: key, email: customer.email, plan: customer.plan, status: customer.status }, 200, { 'cache-control': 'no-store' });
   }
 

@@ -367,6 +367,9 @@ describe('sync', () => {
     expect(await syncWindow(env, 'food', '2026-09-01', '2026-09-30')).toMatchObject({ inserted: 1, changed: 0 });
     expect(await syncWindow(env, 'food', '2026-09-01', '2026-09-30')).toMatchObject({ inserted: 0, changed: 0 });
     expect(await env.DB.prepare('SELECT status FROM recall').first<{ status: string }>()).toEqual({ status: 'Ongoing' });
+    // The later duplicate is not published but is archived as evidence.
+    const first = [...env.bucket.objects.values()][0] as string;
+    expect(first.trim().split('\n').map((line) => JSON.parse(line).status)).toEqual(['Ongoing', 'Terminated']);
   });
 
   it('retries a failed history window before moving on, then skips it after repeated failures', async () => {
@@ -485,6 +488,16 @@ describe('Stripe', () => {
     const second = await worker.fetch(new Request('https://data.aroqon.com/recalls/welcome?session_id=cs_test_free2'), env);
     expect(second.status).toBe(409);
     expect(await second.text()).not.toMatch(/rcl_live_[A-Za-z0-9]{32}/);
+  });
+
+  it('rotates atomically: a failed insert leaves the old key working', async () => {
+    const env = makeEnv();
+    const key = await seedCustomer(env, 'developer');
+    const batch = env.DB.batch.bind(env.DB);
+    (env.DB as { batch: typeof env.DB.batch }).batch = async (list) => batch([...list.slice(0, 1), env.DB.prepare('SELECT no_such_column FROM api_key')]);
+    expect((await worker.fetch(new Request('https://api.data.aroqon.com/v1/account/rotate-key', { method: 'POST', headers: { authorization: `Bearer ${key}` } }), env)).status).toBe(500);
+    (env.DB as { batch: typeof env.DB.batch }).batch = batch;
+    expect((await worker.fetch(get('/v1/account', key), env)).status).toBe(200);
   });
 
   it('reissues a lost key for an operator only, revoking the old one', async () => {
