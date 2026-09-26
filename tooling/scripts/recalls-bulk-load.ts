@@ -13,7 +13,9 @@
  *   wrangler r2 object put data-foundry-raw-artifacts/<prefix><file>.ndjson --file <out>/<file>.ndjson --remote
  *   wrangler d1 execute data-foundry-recalls --remote --file <out>/<file>.sql
  *
- * After loading, the Worker's Cron keeps the data current.
+ * After loading, the Worker's Cron keeps the data current. Evidence objects
+ * are never overwritten: a re-run that changes any bundle passes a new
+ * --evidence-prefix and uploads under it.
  */
 
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -31,13 +33,16 @@ const { values } = parseArgs({
     'max-records': { type: 'string', default: '8000' },
     'max-bytes': { type: 'string', default: String(80 * 1024 * 1024) },
     now: { type: 'string' },
+    // Evidence is append-only: a re-run whose bundles differ must use a new prefix.
+    'evidence-prefix': { type: 'string' },
   },
 });
 if (!values.input || !values.out) throw new Error('--input and --out are required');
 const maxRecords = Number(values['max-records']);
 const maxBytes = Number(values['max-bytes']);
 const now = values.now ?? new Date().toISOString();
-const prefix = `recalls/openfda/bulk/${now.slice(0, 10)}/`;
+const prefix = values['evidence-prefix'] ?? `recalls/openfda/bulk/${now.slice(0, 10)}/`;
+if (!/^recalls\/openfda\/bulk\/[A-Za-z0-9._-]+\/$/.test(prefix)) throw new Error('--evidence-prefix must look like recalls/openfda/bulk/<name>/');
 mkdirSync(values.out, { recursive: true });
 
 interface Item {
@@ -73,12 +78,12 @@ for (const category of RECALL_CATEGORIES) {
   let bytes = 0;
   let skipped = 0;
   for (const record of records) {
-    // Empty recall numbers were never part of the evidence snapshot.
-    if (!record.recall_number) continue;
-    const usable = isUsableRecallNumber(record.recall_number);
-    if (usable && seen.has(record.recall_number)) continue;
+    // Every fetched record is evidence. Only the first record per usable
+    // recall number is published; placeholders, empty numbers and later
+    // duplicates are archived only (as the scheduled sync does).
     const raw = JSON.stringify(record);
-    if (usable) seen.add(record.recall_number);
+    const usable = isUsableRecallNumber(record.recall_number) && !seen.has(record.recall_number);
+    if (usable) seen.add(record.recall_number as string);
     else skipped += 1;
     if (items.length > 0 && (items.length >= maxRecords || bytes + raw.length > maxBytes)) {
       part += 1;
@@ -91,6 +96,6 @@ for (const category of RECALL_CATEGORIES) {
   }
   if (items.length > 0) writePart(category, part + 1, items);
   total += seen.size;
-  console.log(category, seen.size, 'distinct recalls,', skipped, 'without a usable recall number (evidence only)');
+  console.log(category, seen.size, 'distinct recalls,', skipped, 'archived as evidence only (placeholder, empty or duplicate recall number)');
 }
 console.log('total', total, 'prefix', prefix);
