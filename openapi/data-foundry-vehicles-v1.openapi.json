@@ -13,7 +13,7 @@
     }
   ],
   "paths": {
-    "/v1/health": {
+    "/v1/vehicles/health": {
       "get": {
         "operationId": "getHealth",
         "summary": "Liveness plus a real round trip through the canonical query layer.",
@@ -262,7 +262,7 @@
         "x-data-foundry-route-key": "health"
       }
     },
-    "/v1/entities/by-slug/{slug}": {
+    "/v1/vehicles/entities/by-slug/{slug}": {
       "get": {
         "operationId": "getEntityBySlug",
         "summary": "Entity by canonical slug. Honours retired slugs: a slug a merge took away answers 301 to the surviving entity.",
@@ -576,7 +576,7 @@
         "x-data-foundry-route-key": "entities.by_slug"
       }
     },
-    "/v1/entities/{id}": {
+    "/v1/vehicles/entities/{id}": {
       "get": {
         "operationId": "getEntity",
         "summary": "Entity by id. A merged-away id answers 301 with its redirect chain, never 404.",
@@ -874,7 +874,7 @@
         "x-data-foundry-route-key": "entities.detail"
       }
     },
-    "/v1/entities/{id}/facts": {
+    "/v1/vehicles/entities/{id}/facts": {
       "get": {
         "operationId": "listEntityFacts",
         "summary": "The canonical view: one selected value per property, with the doc-04 rule that chose it and its correction state.",
@@ -1254,7 +1254,7 @@
         "x-data-foundry-route-key": "entities.facts"
       }
     },
-    "/v1/entities/{id}/relationships": {
+    "/v1/vehicles/entities/{id}/relationships": {
       "get": {
         "operationId": "listEntityRelationships",
         "summary": "Bounded graph traversal from this entity, breadth-first and cycle-guarded.",
@@ -1666,7 +1666,7 @@
         "x-data-foundry-route-key": "entities.relationships"
       }
     },
-    "/v1/search": {
+    "/v1/vehicles/search": {
       "get": {
         "operationId": "searchEntities",
         "summary": "Faceted search. Exact identifier matches lead the result set ahead of any text ranking (AGENTS.md rule 7).",
@@ -2875,7 +2875,7 @@
         "x-data-foundry-route-key": "search"
       }
     },
-    "/v1/compare": {
+    "/v1/vehicles/compare": {
       "get": {
         "operationId": "compareEntities",
         "summary": "Side-by-side canonical values for 2–8 entities, aligned on declared field order.",

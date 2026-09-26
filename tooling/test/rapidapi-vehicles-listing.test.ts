@@ -87,7 +87,7 @@ describe('RapidAPI vehicles listing package', () => {
     expect(listing).toContain('Not endorsed by NHTSA, EPA, DOE or the U.S. Department of Transportation');
   });
 
-  it('imports the generated RapidAPI projection with the vehicles path prefix applied', async () => {
+  it('imports the generated RapidAPI projection, which already carries the vehicles path prefix', async () => {
     expect(listing).toContain(`\`${OPENAPI}\``);
     const document = JSON.parse(await readFile(join(REPO_ROOT, OPENAPI), 'utf8')) as {
       paths: Record<string, unknown>;
@@ -95,8 +95,9 @@ describe('RapidAPI vehicles listing package', () => {
     };
     // The marketplace projection never documents the origin bearer.
     expect(document.components?.securitySchemes ?? {}).toEqual({});
-    const prefixed = Object.keys(document.paths).map((path) => path.replace(/^\/v1\//, '/v1/vehicles/'));
-    expect(Object.keys(document.paths).every((path) => path.startsWith('/v1/'))).toBe(true);
+    const prefixed = Object.keys(document.paths);
+    expect(prefixed.every((path) => path.startsWith('/v1/vehicles/'))).toBe(true);
+    expect(listing).not.toContain('node -e');
     for (const path of prefixed) expect(listing, path).toContain(`\`${path}\``);
     expect(listing).toMatch(new RegExp(`exactly ${['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight'][prefixed.length]} GET endpoints`));
   });

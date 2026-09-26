@@ -6,6 +6,7 @@ import {
   type OpenApiChannel,
 } from '../../apps/api/src/openapi.js';
 import { BUNDLED_VERTICALS, RUNTIMES } from '../../apps/edge/generated/runtime-registry.js';
+import { EDGE_VERTICAL_TEMPLATES } from '../lib/edge-vertical-templates.js';
 import { isMain } from '../lib/cli-entry.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -49,7 +50,23 @@ function serializeOpenApiFor(
 ): string {
   const runtime = runtimes[slug];
   if (runtime === undefined) throw new Error(`Missing compiled runtime for OpenAPI vertical "${slug}".`);
-  return `${JSON.stringify(buildOpenApiDocument({ slug, fields: runtime.fields }, { channel }), null, 2)}\n`;
+  const document = buildOpenApiDocument({ slug, fields: runtime.fields }, { channel }) as {
+    paths: Record<string, unknown>;
+  };
+  // A per-vertical edge serves only `/v1/<slug>/...` (ADR-0012, API_PATH_PREFIX),
+  // so its published contract names the public paths, not the internal ones.
+  const prefix = EDGE_VERTICAL_TEMPLATES.some((template) => template.verticalSlug === slug)
+    ? `/v1/${slug}`
+    : null;
+  if (prefix !== null) {
+    document.paths = Object.fromEntries(
+      Object.entries(document.paths).map(([path, item]) => [
+        path === '/v1' ? prefix : path.startsWith('/v1/') ? `${prefix}${path.slice(3)}` : path,
+        item,
+      ]),
+    );
+  }
+  return `${JSON.stringify(document, null, 2)}\n`;
 }
 
 export function openApiArtifactFilename(slug: string, channel: OpenApiChannel = 'DIRECT'): string {

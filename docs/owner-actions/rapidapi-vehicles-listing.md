@@ -30,9 +30,9 @@ All must be true. None is true on 2026-09-26.
    `RAPIDAPI_*` settings are installed
    (`docs/owner-actions/cloudflare-deployment.md` sections 10.1 and 10.2).
 4. **Path prefix.** RapidAPI calls the public prefixed paths
-   (`/v1/vehicles/...`). The generated OpenAPI file lists the internal
-   `/v1/...` paths, so import the prefixed copy made in
-   [Import the OpenAPI file](#import-the-openapi-file), never the raw file.
+   (`/v1/vehicles/...`). The generated vehicles OpenAPI file already lists
+   those paths, because the generator publishes each per-vertical edge's
+   public contract, so import it unchanged.
 
 ## Listing fields
 
@@ -139,15 +139,9 @@ labels as seen at the time of writing, confirm in the Studio UI):
 Source file: `openapi/data-foundry-vehicles-rapidapi-v1.openapi.json`. It is
 generated and drift-checked (`pnpm openapi:check`) and omits the origin bearer.
 
-Its paths are the internal `/v1/...` surface. The vehicles Worker serves them
-under `/v1/vehicles/...`. Make a prefixed copy outside the repository and import
-that copy:
+Its paths are the public `/v1/vehicles/...` surface the vehicles Worker serves.
 
-```powershell
-node -e "const fs=require('fs'),os=require('os'),path=require('path');const d=JSON.parse(fs.readFileSync('openapi/data-foundry-vehicles-rapidapi-v1.openapi.json','utf8'));d.paths=Object.fromEntries(Object.entries(d.paths).map(([p,v])=>[p.replace(/^\/v1\//,'/v1/vehicles/'),v]));const out=path.join(os.tmpdir(),'data-foundry-vehicles-rapidapi-import.json');fs.writeFileSync(out,JSON.stringify(d,null,2)+'\n');console.log(out)"
-```
-
-In RapidAPI Studio > Definitions, import the printed file. Then check that
+In RapidAPI Studio > Definitions, import that file unchanged. Then check that
 there are exactly seven GET endpoints: `/v1/vehicles/health`,
 `/v1/vehicles/entities/by-slug/{slug}`, `/v1/vehicles/entities/{id}`,
 `/v1/vehicles/entities/{id}/facts`, `/v1/vehicles/entities/{id}/relationships`,
