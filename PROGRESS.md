@@ -1,58 +1,66 @@
 # Progress
 
-## Current session — 2026-09-26: first real paid dataset (FDA Recall Intelligence) built and deployed
+## Current session — 2026-09-26: FDA Recall Intelligence built, loaded, reviewed; sales closed
 
-**Verdict: the product, domains, Stripe catalog and billing path are live; sales are
-closed (`SALES_OPEN=0`) because the dataset is not loaded yet (`UA-009`). No revenue
-yet. The HVAC track and the hosted Postgres baseline are unchanged.**
+**Verdict: the dataset is loaded and reconciled, the customer flows pass in an
+isolated Stripe sandbox, and PR #59 is going through review and CI. Public
+sales are closed (`SALES_OPEN="0"`) until the Product Owner's separate launch
+instruction. No revenue yet. The HVAC track and the hosted Postgres baseline are
+unchanged.**
 
-- **Owner direction (this session).** Approve any dataset whose restrictions can be
-  logically ruled out, with the value in structuring unstructured data. Accept the
-  pricing sheet. Approve launch. Support contact `data@mail.proviciency.com`. Use the
-  Stripe and Cloudflare keys in the environment; the owner will rotate them afterwards.
-- **Dataset.** openFDA enforcement reports: 87,356 food, drug and device recalls, CC0.
-  The rights reasoning and all eight direct-API cells are in
-  [the rights record](docs/sources/openfda-enforcement-rights-record-20260926.md).
-  The decision and trade-offs are in
-  [ADR-0013](docs/decisions/ADR-0013-first-paid-dataset-fda-recalls-on-d1.md).
-- **Built.**
-  - `packages/recall-structuring`: deterministic parser for distribution geography,
-    quantities, lots, check-digit-verified GTIN/UPC/UDI, NDC normalised to 5-4-2,
-    expiry dates, reason classes, allergens and pathogens, with provenance per field.
-    Measured over every record with 0 errors.
-  - `apps/recalls-worker`: pages, paid API, Stripe Checkout (key shown once and
-    stored hashed), billing portal, signed webhooks that re-read the subscription,
-    hard-stop monthly metering, and a 6-hourly openFDA refresh that archives new or
-    changed records to R2 as NDJSON and verifies byte ranges by SHA-256.
-  - `pnpm recalls:bulk-load`, which renders the initial load through the Worker's own
-    statement builders.
-- **Provider state.**
-  - D1 `data-foundry-recalls` (`84acdedd-…`) is at migration `0001` and empty.
-  - R2 holds 13 evidence bundles under `recalls/openfda/bulk/2026-09-26/`.
-  - Worker `data-foundry-recalls` version `758e1081` runs on Custom Domains
-    `data.aroqon.com` and `api.data.aroqon.com`, with Google-issued certificates
-    active. The domains override the zone's Vercel wildcard for those two names only.
-  - Stripe live: four products and prices, default billing portal, one webhook
-    endpoint. Worker secrets: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`,
-    `ADMIN_TOKEN`.
-  - A `recalls` Postgres schema and `recalls_app` role were created and then removed,
-    both verified empty and never login-enabled. Nothing else in Supabase changed.
-- **Verification.**
-  - `pnpm typecheck` is clean.
-  - The parser has 17 tests and the Worker 18, run against real SQLite with FTS5.
-    They cover the hard stop, the one-time key reveal, webhook signature and replay,
-    tampered evidence refusal, and sync insert/touch/change.
-  - Live: pages 200; API 401 without a key; public stats; 308 from the pages host to
-    the API host; unsigned webhook 400; checkout closed (503); live Checkout sessions
-    accepted for the $0 and $49 prices.
-- **Blocked, owner decisions.**
-  - `UA-009`: the D1 migration `0002` and bulk load. This session's automated safety
-    check declined them.
+- **Owner direction.**
+  - First message: approve any dataset whose restrictions can be ruled out, with
+    the value in structuring unstructured data. Accept the pricing sheet.
+    Approve launch. Support contact `data@mail.proviciency.com`.
+  - Second message: approve D1/R2 as the interim architecture and monthly
+    Stripe self-service billing on the four-tier catalog. Scoped authorization
+    of D1 migration `0002` and the initial import, with pre-checks. Keep sales
+    closed. Stripe verification, legal seller and support inbox stay with the
+    owner.
+- **Dataset.** openFDA enforcement reports, CC0 ([rights record](docs/sources/openfda-enforcement-rights-record-20260926.md),
+  which lists every redistributed field). Reports run from 2012-06-20 to
+  2026-09-16. See [ADR-0013](docs/decisions/ADR-0013-first-paid-dataset-fda-recalls-on-d1.md).
+- **D1 load, `UA-009` (completed under the scoped authorization).**
+  - Pre-checks: correct account and DB `84acdedd…`; only `0001` applied; every
+    table at 0 rows, so dropping `raw` destroyed nothing.
+  - Time Travel bookmark `00000005-00000000-000050f2-13d6c05b98708cefcb053cdd157124ba`.
+  - Cron paused; the 13 R2 bundle ETags equal the local MD5s.
+  - `0002` applied. One part failed atomically on the placeholder recall number
+    `N/A`, which collides across categories. It was root-caused and fixed in
+    code, and the single `N/A` row removed.
+  - Reconciled exactly: 87,354 recalls, 87,354 FTS rows, 10,748,197 keys;
+    0 FTS/rowid mismatches and 0 orphan keys.
+- **Reviews.** An independent reviewer (two rounds) and Codex (four rounds)
+  found real defects. All are fixed with regression tests, and every thread is
+  answered and resolved. The most material ones:
+  - code lists truncated at 600 characters;
+  - non-atomic sync writes;
+  - "not nationwide" read as nationwide;
+  - a stricter state rule that briefly dropped about 8,200 real state codes;
+  - compact lot codes (`MAY1613`) stripped as dates;
+  - placeholder and duplicate records missing from evidence;
+  - a free-key race;
+  - non-atomic key rotation.
+- **Parser v2 and evidence.** The published keys and structure still come from
+  parser v1 until the v2 re-import that follows the merge. The complete evidence
+  set (all 87,359 fetched records) is uploaded under
+  `recalls/openfda/bulk/2026-09-26-r2/`, with all 13 ETags verified. The
+  original bundles are kept.
+- **Customer flows.** Tested in the isolated Stripe sandbox (test key, separate
+  account) against the real Worker code, with no production secrets involved:
+  - real Checkout for the $49 and $0 plans, with the key shown once;
+  - 401 without a key or with a bad key;
+  - quota hard stop at request 101 (429);
+  - real test events relayed and signed, checkout and subscription created;
+  - plan change Developer → Growth, taking the allowance to 25,000;
+  - key rotation and operator lost-key reissue;
+  - cancellation (403), with duplicate events handled idempotently;
+  - billing portal session created.
+- **Owner actions.**
   - `UA-010`: Stripe payouts are disabled.
-  - `UA-011`: update the Worker's Stripe secret after rotating.
-- **Not done.** RapidAPI listing, MCP and bulk channels for this dataset. Resend email:
-  keys are shown on the checkout success page instead. Counsel review of the terms and
-  privacy pages, which are reasonable drafts rather than reviewed legal text.
+  - `UA-011`: after rotating the Stripe key, update the Worker secret.
+  - Confirm the legal seller and a working support inbox.
+  - The separate launch instruction to set `SALES_OPEN="1"`.
 
 ## Current session — 2026-09-18 (second session): UA-002 hosted execution independently reconciled and closed
 

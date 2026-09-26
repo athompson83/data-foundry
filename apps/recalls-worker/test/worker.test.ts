@@ -158,6 +158,9 @@ describe('API surface', () => {
     env.bucket.objects.set('recalls/test.ndjson', (env.bucket.objects.get('recalls/test.ndjson') as string).replace('Infusion', 'Infusian'));
     expect((await worker.fetch(get('/v1/recalls/Z-0002-2026?include=raw', key), env)).status).toBe(500);
     expect(parseRawRef('a/b.ndjson#10:20')).toEqual({ key: 'a/b.ndjson', offset: 10, length: 20 });
+    // Missing evidence is refused too, never served as raw: null.
+    env.bucket.objects.delete('recalls/test.ndjson');
+    expect((await worker.fetch(get('/v1/recalls/Z-0002-2026?include=raw', key), env)).status).toBe(500);
   });
 
   it('treats a nationwide recall as reaching every state', async () => {

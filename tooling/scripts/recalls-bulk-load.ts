@@ -3,13 +3,15 @@
  * JSON arrays (as downloaded from api.fda.gov), using the same statement
  * builders as the Worker's scheduled sync, so the two paths cannot drift.
  *
- *   tsx tooling/scripts/recalls-bulk-load.ts --input <dir with all_{food,drug,device}.json> --out <dir> [--now <iso>]
+ *   tsx tooling/scripts/recalls-bulk-load.ts --input <dir with all_{food,drug,device}.json> --out <dir> \
+ *     --evidence-prefix recalls/openfda/bulk/<new, unused name>/ [--now <iso>]
  *
  * For each part it writes `<category>-NN.ndjson` (the verbatim records, the
  * evidence) and `<category>-NN.sql` (whose raw_ref values point at byte ranges
  * in that NDJSON under the R2 prefix below). Upload every .ndjson to R2 first,
  * then execute the .sql files:
  *
+ *   (confirm nothing exists under the prefix first; objects are never overwritten)
  *   wrangler r2 object put data-foundry-raw-artifacts/<prefix><file>.ndjson --file <out>/<file>.ndjson --remote
  *   wrangler d1 execute data-foundry-recalls --remote --file <out>/<file>.sql
  *
@@ -41,7 +43,11 @@ if (!values.input || !values.out) throw new Error('--input and --out are require
 const maxRecords = Number(values['max-records']);
 const maxBytes = Number(values['max-bytes']);
 const now = values.now ?? new Date().toISOString();
-const prefix = values['evidence-prefix'] ?? `recalls/openfda/bulk/${now.slice(0, 10)}/`;
+// Required, never defaulted: evidence objects are immutable, and a derived
+// default (e.g. the date) would let a same-day re-run replace bundles that
+// existing raw_ref values still point at.
+const prefix = values['evidence-prefix'];
+if (!prefix) throw new Error('--evidence-prefix is required and must be unused, e.g. recalls/openfda/bulk/2026-09-26-r3/');
 if (!/^recalls\/openfda\/bulk\/[A-Za-z0-9._-]+\/$/.test(prefix)) throw new Error('--evidence-prefix must look like recalls/openfda/bulk/<name>/');
 mkdirSync(values.out, { recursive: true });
 

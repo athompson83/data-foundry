@@ -99,10 +99,11 @@ async function loadRaw(bucket: R2Bucket, rows: readonly RecallRow[]): Promise<Ma
   const out = new Map<string, unknown>();
   await Promise.all(
     rows.map(async (row) => {
+      // Missing evidence is an integrity failure, reported like a digest mismatch.
       const ref = parseRawRef(row.raw_ref);
-      if (!ref) return;
+      if (!ref) throw new Error(`raw evidence reference is invalid for ${row.recall_number}`);
       const object = await bucket.get(ref.key, { range: { offset: ref.offset, length: ref.length } });
-      if (!object) return;
+      if (!object) throw new Error(`raw evidence object is missing for ${row.recall_number}`);
       const text = await object.text();
       if ((await sha256Hex(text)) !== row.raw_sha256) throw new Error(`raw evidence digest mismatch for ${row.recall_number}`);
       out.set(row.recall_number, JSON.parse(text) as unknown);
