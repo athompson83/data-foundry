@@ -107,6 +107,29 @@ export async function currentUsage(db: D1Database, customerId: string, now = new
   return row?.requests ?? 0;
 }
 
+/**
+ * Issue the one free Evaluate key for an email, or return null when another
+ * Evaluate customer with the same email already holds a key. The check and the
+ * insert are one statement, which D1's single-writer database executes
+ * atomically, so two concurrent checkouts cannot both succeed.
+ */
+export async function issueFreeKey(db: D1Database, customerId: string, email: string, checkoutSessionId: string, now = new Date().toISOString()): Promise<string | null> {
+  const key = mintApiKey();
+  const row = await db
+    .prepare(
+      `INSERT INTO api_key (id, customer_id, key_hash, key_prefix, checkout_session_id, created_at)
+       SELECT ?, ?, ?, ?, ?, ?
+       WHERE NOT EXISTS (
+         SELECT 1 FROM customer c JOIN api_key k ON k.customer_id = c.id
+         WHERE c.plan = 'evaluate' AND lower(trim(c.email)) = lower(trim(?)) AND c.id <> ?
+       )
+       RETURNING id`,
+    )
+    .bind(crypto.randomUUID(), customerId, await sha256Hex(key), key.slice(0, KEY_PREFIX.length + 4), checkoutSessionId, now, email, customerId)
+    .first<{ id: string }>();
+  return row ? key : null;
+}
+
 /** Issue a fresh key for a customer and return the plaintext exactly once. */
 export async function issueKey(db: D1Database, customerId: string, checkoutSessionId: string | null, now = new Date().toISOString()): Promise<string> {
   const key = mintApiKey();

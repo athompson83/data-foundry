@@ -50,6 +50,14 @@ describe('distribution geography', () => {
     expect(parseDistribution('Distributed to IN, OR and ME').us_states).toEqual(['IN', 'ME', 'OR']);
   });
 
+  it('accepts ambiguous codes in space- and period-separated state lists', () => {
+    // Verbatim openFDA distribution patterns.
+    expect(parseDistribution('AZ  CA  FL  IA  IL  IN  MA  MI  MN  MO  OH  PA  TX  WI').us_states).toEqual(['AZ', 'CA', 'FL', 'IA', 'IL', 'IN', 'MA', 'MI', 'MN', 'MO', 'OH', 'PA', 'TX', 'WI']);
+    expect(parseDistribution('CA, FL. GA. HI').us_states).toEqual(['CA', 'FL', 'GA', 'HI']);
+    expect(parseDistribution('OH PA').us_states).toEqual(['OH', 'PA']);
+    expect(parseDistribution('Internationally to:  Canada  AR    IN').us_states).toEqual(['AR', 'IN']);
+  });
+
   it('keeps West Virginia distinct from Virginia', () => {
     expect(parseDistribution('Distributed in West Virginia and Ohio').us_states).toEqual(['OH', 'WV']);
   });

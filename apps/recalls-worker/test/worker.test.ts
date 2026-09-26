@@ -331,14 +331,14 @@ describe('sync', () => {
     }
   });
 
-  it('keeps syncing other windows when one fails, and advances the history cursor', async () => {
+  it('keeps syncing other windows when one fails', async () => {
     const env = makeEnv();
     vi.stubGlobal('fetch', vi.fn(async (url: string) => (String(url).includes('/food/') ? new Response('boom', { status: 400 }) : new Response(JSON.stringify({ results: [] }), { status: 200 }))));
     const results = await scheduledSync(env, '2026-09-26');
     expect(results).toHaveLength(6);
     expect(results.filter((result) => 'error' in result).map((result) => result.category)).toEqual(['food', 'food']);
-    const cursor = await env.DB.prepare("SELECT next_from FROM sync_cursor WHERE category = 'food'").first<{ next_from: string }>();
-    expect(cursor?.next_from).toBe('2012-09-29');
+    // The failed food history window is held for retry; drug and device advance.
+    expect(await env.DB.prepare("SELECT category FROM sync_cursor ORDER BY category").all<{ category: string }>()).toEqual({ results: [{ category: 'device' }, { category: 'drug' }] });
     expect(await scheduledSync(makeEnv({ SOURCE_KILL_SWITCH: '1' }), '2026-09-26')).toEqual([]);
   });
 
@@ -351,11 +351,34 @@ describe('sync', () => {
     expect(await syncWindow(env, 'food', '2026-09-01', '2026-09-30')).toMatchObject({ inserted: 0, changed: 0 });
   });
 
-  it('skips records whose recall number is a placeholder', async () => {
+  it('skips placeholder recall numbers from publication but keeps them as evidence', async () => {
     const env = makeEnv();
-    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ results: [FOOD, { ...DEVICE, recall_number: 'N/A' }] }), { status: 200 })));
+    const placeholder = { ...DEVICE, recall_number: 'N/A' };
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ results: [FOOD, placeholder] }), { status: 200 })));
     expect(await syncWindow(env, 'food', '2026-09-01', '2026-09-30')).toMatchObject({ fetched: 2, inserted: 1 });
     expect(await env.DB.prepare("SELECT COUNT(*) AS n FROM recall WHERE recall_number = 'N/A'").first<{ n: number }>()).toEqual({ n: 0 });
+    const bundle = [...env.bucket.objects.values()][0] as string;
+    expect(bundle.trim().split('\n').map((line) => JSON.parse(line).recall_number)).toEqual(['F-0001-2026', 'N/A']);
+  });
+
+  it('keeps the first of duplicate recall numbers on a page, stably across runs', async () => {
+    const env = makeEnv();
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ results: [FOOD, { ...FOOD, status: 'Terminated' }] }), { status: 200 })));
+    expect(await syncWindow(env, 'food', '2026-09-01', '2026-09-30')).toMatchObject({ inserted: 1, changed: 0 });
+    expect(await syncWindow(env, 'food', '2026-09-01', '2026-09-30')).toMatchObject({ inserted: 0, changed: 0 });
+    expect(await env.DB.prepare('SELECT status FROM recall').first<{ status: string }>()).toEqual({ status: 'Ongoing' });
+  });
+
+  it('retries a failed history window before moving on, then skips it after repeated failures', async () => {
+    const env = makeEnv();
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => (String(url).includes('/food/') && String(url).includes('20120601') ? new Response('boom', { status: 400 }) : new Response(JSON.stringify({ results: [] }), { status: 200 }))));
+    const cursor = async () => (await env.DB.prepare("SELECT next_from FROM sync_cursor WHERE category = 'food'").first<{ next_from: string }>())?.next_from ?? null;
+    await scheduledSync(env, '2026-09-26');
+    expect(await cursor()).toBeNull();
+    await scheduledSync(env, '2026-09-26');
+    expect(await cursor()).toBeNull();
+    await scheduledSync(env, '2026-09-26');
+    expect(await cursor()).toBe('2012-09-29');
   });
 
   it('records a failed run', async () => {
@@ -430,6 +453,16 @@ describe('Stripe', () => {
     const second = await worker.fetch(new Request('https://data.aroqon.com/recalls/welcome?session_id=cs_test_abc'), env);
     expect(second.status).toBe(409);
     expect(await second.text()).not.toMatch(/rcl_live_[A-Za-z0-9]{32}/);
+  });
+
+  it('never issues two free keys for one email, even concurrently', async () => {
+    const env = makeEnv();
+    for (const id of ['c1', 'c2']) {
+      await env.DB.prepare("INSERT INTO customer (id, email, plan, status, created_at, updated_at) VALUES (?, ?, 'evaluate', 'active', 'now', 'now')").bind(id, id === 'c1' ? 'Same@Example.com ' : 'same@example.com').run();
+    }
+    const { issueFreeKey } = await import('../src/account.js');
+    const results = await Promise.all([issueFreeKey(env.DB, 'c1', 'Same@Example.com ', 'cs_1'), issueFreeKey(env.DB, 'c2', 'same@example.com', 'cs_2')]);
+    expect(results.filter((key) => key !== null)).toHaveLength(1);
   });
 
   it('issues one free Evaluate key per email', async () => {

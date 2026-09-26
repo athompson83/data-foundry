@@ -19,6 +19,8 @@ const MAX_SKIP = 25_000;
 /** openFDA's earliest enforcement report_date (measured 2026-09-26: 2012-06-20). */
 const HISTORY_START = '2012-06-01';
 const ROLLING_WINDOW_DAYS = 120;
+/** A rolling window is skipped after this many failures, and stays visible in sync_run. */
+const MAX_WINDOW_FAILURES = 3;
 const RECENT_WINDOW_DAYS = 45;
 
 export interface SyncEnv {
@@ -81,8 +83,16 @@ export async function syncWindow(env: SyncEnv, category: RecallCategory, from: s
       const page = await fetchPage(category, from, to, skip);
       if (page.results.length === 0) break;
       fetched += page.results.length;
-      // Records without a real recall number yet ("N/A") are skipped until FDA assigns one.
-      const prepared = await Promise.all(page.results.filter((record) => isUsableRecallNumber(record.recall_number)).map((record) => prepareRecall(category, record)));
+      // Records without a real recall number yet ("N/A") are not published
+      // until FDA assigns one, but they are still kept as evidence below.
+      // One record per recall number per page, first occurrence (as the bulk
+      // loader does), so a duplicate can never flip-flop between runs.
+      const firstByNumber = new Map<string, OpenFdaEnforcementRecord>();
+      for (const record of page.results) {
+        if (isUsableRecallNumber(record.recall_number) && !firstByNumber.has(record.recall_number)) firstByNumber.set(record.recall_number, record);
+      }
+      const prepared = await Promise.all([...firstByNumber.values()].map((record) => prepareRecall(category, record)));
+      const unpublishable = page.results.filter((record) => !isUsableRecallNumber(record.recall_number)).map((record) => JSON.stringify(record));
 
       const existing = new Map<string, string>();
       // A record is current only when both its source bytes and the parser
@@ -96,14 +106,15 @@ export async function syncWindow(env: SyncEnv, category: RecallCategory, from: s
       const unchanged = prepared.filter(current);
       if (unchanged.length > 0) await runStatements(env.DB, [touchRecallsStatement(unchanged.map((item) => item.recall.recall_number), now)]);
 
-      // A page can repeat a recall number; the last occurrence wins, once.
-      const toWrite = [...new Map(prepared.filter((item) => !current(item)).map((item) => [item.recall.recall_number, item] as const)).values()];
-      if (toWrite.length > 0) {
+      const toWrite = prepared.filter((item) => !current(item));
+      if (toWrite.length > 0 || unpublishable.length > 0) {
         // Evidence first: new and changed records as NDJSON, so each raw_ref is
         // an exact byte range in an object that already exists. Unchanged
         // records keep pointing at the bundle that first carried their bytes.
         const key = `recalls/openfda/${category}/${now.slice(0, 10)}/run-${runId}-${from}-${to}-${skip}.ndjson`;
-        const bundle = ndjsonBundle(toWrite.map((item) => item.raw));
+        // Publishable records first (their ranges are indexed by position),
+        // then records held as evidence only.
+        const bundle = ndjsonBundle([...toWrite.map((item) => item.raw), ...unpublishable]);
         await env.RAW_ARTIFACTS.put(key, bundle.body, {
           httpMetadata: { contentType: 'application/x-ndjson' },
           customMetadata: { source: 'openfda-enforcement', retrieved_at: now, window: `${from}..${to}`, skip: String(skip) },
@@ -153,9 +164,9 @@ async function attempt(env: SyncEnv, category: RecallCategory, from: string, to:
 
 /**
  * One scheduled pass: the recent window for every category, then one rolling
- * history window each. Windows are independent. The rolling cursor advances
- * even when its window fails, so one bad window cannot freeze the history
- * refresh; the failure stays visible in sync_run and is retried next cycle.
+ * history window each. Windows are independent. A failed rolling window is
+ * retried on the next cycle, and skipped only after MAX_WINDOW_FAILURES, so
+ * one bad window can neither be silently skipped nor freeze the refresh.
  */
 export async function scheduledSync(env: SyncEnv, today = new Date().toISOString().slice(0, 10)): Promise<Array<WindowResult | WindowFailure>> {
   const results: Array<WindowResult | WindowFailure> = [];
@@ -166,7 +177,16 @@ export async function scheduledSync(env: SyncEnv, today = new Date().toISOString
     const cursor = await env.DB.prepare('SELECT next_from FROM sync_cursor WHERE category = ?').bind(category).first<{ next_from: string }>();
     const from = cursor?.next_from ?? HISTORY_START;
     const to = addDays(from, ROLLING_WINDOW_DAYS - 1);
-    results.push(await attempt(env, category, from, to));
+    const rolling = await attempt(env, category, from, to);
+    results.push(rolling);
+    if ('error' in rolling) {
+      // Retry the same window next cycle; only a window that has failed
+      // repeatedly is skipped, so one bad window cannot freeze the refresh.
+      const failures = await env.DB.prepare("SELECT COUNT(*) AS n FROM sync_run WHERE category = ? AND window_from = ? AND window_to = ? AND status = 'FAILED'")
+        .bind(category, from, to)
+        .first<{ n: number }>();
+      if ((failures?.n ?? 0) < MAX_WINDOW_FAILURES) continue;
+    }
     const next = to >= today ? HISTORY_START : addDays(to, 1);
     await env.DB.prepare('INSERT INTO sync_cursor (category, next_from, updated_at) VALUES (?, ?, ?) ON CONFLICT (category) DO UPDATE SET next_from = excluded.next_from, updated_at = excluded.updated_at')
       .bind(category, next, new Date().toISOString())

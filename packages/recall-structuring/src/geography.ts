@@ -117,28 +117,47 @@ export function parseDistribution(text: string | null | undefined): Distribution
   // Two-letter codes. Tokenize on the original casing: codes are uppercase.
   const tokens = [...residual.matchAll(/\b([A-Z]{2})\b/g)];
   const isCode = (value: string | undefined): boolean => value !== undefined && value in US_STATES;
+  // Two adjacent codes are "joined" when only list glue separates them, and
+  // "punctuated" when that glue includes list punctuation or "and".
+  const gap = (left: RegExpMatchArray, right: RegExpMatchArray): string => residual.slice((left.index ?? 0) + 2, right.index ?? 0);
+  const joined = tokens.map((match, index) => {
+    const next = tokens[index + 1];
+    return next !== undefined && isCode(match[1]) && isCode(next[1]) && /^[\s,;/&.]*(?:and\s+)?[\s,;/&.]*$/i.test(gap(match, next));
+  });
+  const punctuated = tokens.map((match, index) => {
+    const next = tokens[index + 1];
+    return joined[index] === true && next !== undefined && /[,;/&.]|\band\b/i.test(gap(match, next));
+  });
+  // A field that is nothing but state codes and list glue ("OH PA") is a list.
+  const pureList = tokens.length > 0 && tokens.every((match) => isCode(match[1])) && !/[A-Za-z]/.test(residual.replace(/\b[A-Z]{2}\b/g, '').replace(/\band\b/gi, ''));
+  // Length of the run of joined codes each token belongs to.
+  const runLength = new Array<number>(tokens.length).fill(1);
+  for (let start = 0; start < tokens.length; ) {
+    let end = start;
+    while (joined[end] === true) end += 1;
+    for (let index = start; index <= end; index += 1) runLength[index] = end - start + 1;
+    start = end + 1;
+  }
   for (let index = 0; index < tokens.length; index += 1) {
-    const match = tokens[index] as RegExpMatchArray;
-    const code = match[1] as string;
+    const code = (tokens[index] as RegExpMatchArray)[1] as string;
     if (!isCode(code)) continue;
-    if (!AMBIGUOUS_CODES.has(code)) {
+    // Ambiguous codes ("IN", "OR", "ME") need list context: a run of three or
+    // more codes ("AZ  CA  FL  IN  MA"), or a neighbour joined by list
+    // punctuation ("FL, IN", "CA, FL. GA", "PA and OH"). Two codes separated
+    // by bare spaces ("IN OR AROUND") are ordinary all-caps prose.
+    const previous = tokens[index - 1]?.[1];
+    const next = tokens[index + 1]?.[1];
+    if (
+      !AMBIGUOUS_CODES.has(code) ||
+      pureList ||
+      (runLength[index] ?? 1) >= 3 ||
+      punctuated[index] === true ||
+      punctuated[index - 1] === true ||
+      // A space-joined neighbour that is itself unambiguous ("AR  IN").
+      (joined[index - 1] === true && previous !== undefined && !AMBIGUOUS_CODES.has(previous)) ||
+      (joined[index] === true && next !== undefined && !AMBIGUOUS_CODES.has(next))
+    ) {
       states.add(code);
-      continue;
-    }
-    // An ambiguous code needs a neighbouring code joined only by list
-    // punctuation, e.g. "FL, IN, OH" or "PA and NJ".
-    const neighbours = [tokens[index - 1], tokens[index + 1]];
-    for (const neighbour of neighbours) {
-      if (!neighbour || !isCode(neighbour[1])) continue;
-      const start = Math.min(match.index ?? 0, neighbour.index ?? 0);
-      const end = Math.max(match.index ?? 0, neighbour.index ?? 0);
-      const between = residual.slice(start + 2, end);
-      // List punctuation or "and" is required: bare whitespace between two
-      // ambiguous codes is ordinary all-caps prose ("IN OR AROUND").
-      if (/^[\s,;/&.]*(?:and\s+)?[\s,;/&.]*$/i.test(between) && /[,;/&]|\band\b/i.test(between)) {
-        states.add(code);
-        break;
-      }
     }
   }
 

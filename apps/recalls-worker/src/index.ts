@@ -8,12 +8,13 @@
  * the dataset current from openFDA.
  */
 
-import { consumeRequest, currentUsage, findCustomerByKey, isPlanId, issueKey, PLANS, presentedKey, type AuthenticatedCustomer } from './account.js';
+import { consumeRequest, currentUsage, findCustomerByKey, isPlanId, issueFreeKey, issueKey, KEY_PREFIX, mintApiKey, PLANS, presentedKey, type AuthenticatedCustomer } from './account.js';
 import { BadRequest, getRecall, lookupCode, searchRecalls, stats } from './api.js';
 import type { Env } from './env.js';
 import { openApiDocument } from './openapi.js';
 import { catalogPage, docsPage, messagePage, privacyPage, recallsLanding, termsPage, welcomePage, type PageContext } from './pages.js';
 import { createCheckoutSession, createPortalSession, handleStripeWebhook, retrieveCheckoutSession, StripeError, upsertCustomerFromSubscription } from './stripe.js';
+import { sha256Hex } from './store.js';
 import { scheduledSync, syncWindow } from './sync.js';
 import { RECALL_CATEGORIES, type RecallCategory } from '@data-foundry/recall-structuring';
 
@@ -155,26 +156,18 @@ async function welcome(env: Env, url: URL): Promise<Response> {
     session.customer_details?.email ?? null,
   );
   if (!customerId) throw new StripeError('Subscription plan is not recognised', 502);
-  // One free key per email: each $0 checkout creates a fresh Stripe customer,
-  // so without this the Evaluate allowance could be multiplied at will.
   const email = session.customer_details?.email ?? null;
   const customer = await env.DB.prepare('SELECT plan FROM customer WHERE id = ?').bind(customerId).first<{ plan: keyof typeof PLANS }>();
-  if (customer?.plan === 'evaluate') {
-    if (!email) return html(messagePage(ctx, 'Email required', 'A free key needs an email address. Please check out again with one.'), 400);
-    const other = await env.DB.prepare(
-      "SELECT 1 AS found FROM customer c JOIN api_key k ON k.customer_id = c.id WHERE c.plan = 'evaluate' AND lower(c.email) = lower(?) AND c.id <> ? LIMIT 1",
-    )
-      .bind(email, customerId)
-      .first<{ found: number }>();
-    if (other) {
-      return html(messagePage(ctx, 'Free key already issued', `A free Evaluate key was already issued to this email. Use that key, rotate it with <code>POST /v1/account/rotate-key</code>, or choose a paid plan. Questions: <a href="mailto:${ctx.supportEmail}">${ctx.supportEmail}</a>.`), 409);
-    }
-  }
-  const issued = await env.DB.prepare('SELECT id FROM api_key WHERE checkout_session_id = ?').bind(session.id).first<{ id: string }>();
-  if (issued) {
-    return html(messagePage(ctx, 'Key already issued', `An API key was already shown for this checkout. If you lost it, email <a href="mailto:${ctx.supportEmail}">${ctx.supportEmail}</a> from your billing address, or rotate it with <code>POST /v1/account/rotate-key</code>.`), 409);
-  }
+  const alreadyIssued = () => html(messagePage(ctx, 'Free key already issued', `A free Evaluate key was already issued to this email. Use that key, rotate it with <code>POST /v1/account/rotate-key</code>, or choose a paid plan. Questions: <a href="mailto:${ctx.supportEmail}">${ctx.supportEmail}</a>.`), 409);
   try {
+    // One free key per email: each $0 checkout creates a fresh Stripe customer,
+    // so without this the Evaluate allowance could be multiplied at will.
+    if (customer?.plan === 'evaluate') {
+      if (!email) return html(messagePage(ctx, 'Email required', 'A free key needs an email address. Please check out again with one.'), 400);
+      const key = await issueFreeKey(env.DB, customerId, email, session.id);
+      if (!key) return alreadyIssued();
+      return html(welcomePage(ctx, key, PLANS.evaluate.name), 200, { 'cache-control': 'no-store' });
+    }
     const key = await issueKey(env.DB, customerId, session.id);
     return html(welcomePage(ctx, key, PLANS[customer?.plan ?? 'evaluate'].name), 200, { 'cache-control': 'no-store' });
   } catch {
@@ -238,9 +231,15 @@ async function route(request: Request, env: Env): Promise<Response> {
     const stripeCustomerId = url.searchParams.get('stripe_customer_id') ?? '';
     const customer = await env.DB.prepare('SELECT id, email, plan, status FROM customer WHERE stripe_customer_id = ?').bind(stripeCustomerId).first<{ id: string; email: string | null; plan: string; status: string }>();
     if (!customer) return apiError(404, 'not_found', 'No customer with that Stripe id.');
+    // Revoke and issue in one batch (one transaction): the customer is never
+    // left without a working key if the insert fails.
     const now = new Date().toISOString();
-    await env.DB.prepare('UPDATE api_key SET revoked_at = ? WHERE customer_id = ? AND revoked_at IS NULL').bind(now, customer.id).run();
-    const key = await issueKey(env.DB, customer.id, null, now);
+    const key = mintApiKey();
+    await env.DB.batch([
+      env.DB.prepare('UPDATE api_key SET revoked_at = ? WHERE customer_id = ? AND revoked_at IS NULL').bind(now, customer.id),
+      env.DB.prepare('INSERT INTO api_key (id, customer_id, key_hash, key_prefix, checkout_session_id, created_at) VALUES (?, ?, ?, ?, NULL, ?)')
+        .bind(crypto.randomUUID(), customer.id, await sha256Hex(key), key.slice(0, KEY_PREFIX.length + 4), now),
+    ]);
     return json({ api_key: key, email: customer.email, plan: customer.plan, status: customer.status }, 200, { 'cache-control': 'no-store' });
   }
 
