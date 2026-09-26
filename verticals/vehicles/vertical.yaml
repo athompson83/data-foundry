@@ -14,10 +14,10 @@
 # (`make_model_year` = make + model + year).
 #
 # STATUS: DRAFT, and every source is UNDER_REVIEW / UNREVIEWED / unapproved.
-# No rights determination has been captured (ADR-0013; the expected basis is
-# PUBLIC_DOMAIN_US_GOVERNMENT_WORK, pending the agencies' captured terms). The
-# fixtures are SYNTHETIC SHAPE FIXTURES with fictional makes, not captured
-# artifacts — see fixtures/README.md and SOURCES.md for every unverified column.
+# ADR-0013 determinations were written on 2026-09-26
+# (docs/sources/determinations/) but are not yet recorded or activated. The
+# fixtures are REAL SAMPLES of the files captured on 2026-09-26 — see
+# fixtures/README.md and SOURCES.md for what was verified and what is open.
 #
 # The vocabulary below is load-bearing. Renaming an entity type, alias type or
 # predicate is a breaking change: bump schema_version and record it in
@@ -94,7 +94,8 @@ alias_types:
       Make + model + model year, composed from three source columns
       (`make`/`baseModel`/`year` in EPA's file, `MAKETXT`/`MODELTXT`/`YEARTXT`
       in NHTSA's). The only key both agencies share. The normalized form folds
-      case and strips spaces and punctuation, so `PM-3` and `PM3` meet.
+      case and strips spaces and punctuation, so NHTSA `F-150` and EPA `F150`
+      meet.
 
   - type: epa_vehicle_id
     applies_to: [vehicle_configuration]
@@ -108,8 +109,9 @@ alias_types:
     strong: true
     description: >-
       NHTSA recall campaign number, e.g. `20V314000`: two-digit year, a type
-      letter (V vehicle, E equipment, T tire, C child restraint; I is accepted
-      provisionally — the full letter set is UNVERIFIED), six digits.
+      letter (V vehicle, E equipment, T tire, C child restraint; I and X occur
+      before 2010), then six characters whose third may be a letter
+      (`21V00H000`). Verified on the 2026-09-26 capture.
 
 entity_resolution:
   auto_merge_threshold: 0.95

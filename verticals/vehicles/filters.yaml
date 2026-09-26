@@ -253,7 +253,7 @@ indexable_combinations:
     max_depth: 2
     min_results: 10
     rationale: >-
-      "2020 Examplar Motors recalls" style navigation: a real intent with a
+      "2020 Honda recalls" style navigation: a real intent with a
       distinct result set, and the only combination allowed.
 
 denied_combinations:

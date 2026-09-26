@@ -99,6 +99,18 @@ export function toJson(value: unknown): unknown {
   return value;
 }
 
+/**
+ * A JSONB column whose value may be a JSON *scalar* (a fact value). Every
+ * driver in this repository (pg, PGlite, and Hyperdrive through pg) decodes
+ * JSONB, so a JavaScript string here IS the stored JSON string. `toJson` would
+ * parse it a second time and turn the string "2019030012" (a real NHTSA
+ * manufacturer campaign number) into the number 2019030012, so an unchanged
+ * re-run no longer recognised its own fact and wrote a new version.
+ */
+export function fromJsonbValue(value: unknown): unknown {
+  return value;
+}
+
 const field = (row: SqlRow, name: string): unknown => row[name];
 
 export function mapVertical(row: SqlRow): Vertical {
@@ -245,7 +257,7 @@ export function mapFact(row: SqlRow): Fact {
     id: field(row, 'id'),
     entity_id: field(row, 'entity_id'),
     property: field(row, 'property'),
-    normalized_value: toJson(field(row, 'normalized_value')),
+    normalized_value: fromJsonbValue(field(row, 'normalized_value')),
     value_type: field(row, 'value_type'),
     output_kind: field(row, 'output_kind') ?? null,
     unit: field(row, 'unit') ?? null,
@@ -325,7 +337,7 @@ export function mapFactVerification(row: SqlRow): FactVerification {
     entity_id: field(row, 'entity_id'),
     property: field(row, 'property'),
     fact_id: field(row, 'fact_id'),
-    selected_value: toJson(field(row, 'selected_value')),
+    selected_value: fromJsonbValue(field(row, 'selected_value')),
     unit: field(row, 'unit'),
     verified: field(row, 'verified'),
     reason: field(row, 'reason'),

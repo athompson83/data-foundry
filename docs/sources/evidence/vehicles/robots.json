@@ -1,0 +1,45 @@
+{
+  "user_agent": "DataFoundryBot/1.0 (+https://data.aroqon.com)",
+  "hosts": [
+    {
+      "url": "https://vpic.nhtsa.dot.gov/robots.txt",
+      "status": "HTTP/2 404",
+      "content_type": null,
+      "retrieved_at": "2026-09-26T21:19:21Z",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "body": "",
+      "note": "HTTP 404 with an empty body: vpic.nhtsa.dot.gov publishes no robots.txt, so no path is disallowed."
+    },
+    {
+      "url": "https://api.nhtsa.gov/robots.txt",
+      "status": "HTTP/2 403",
+      "content_type": "application/json",
+      "retrieved_at": "2026-09-26T21:19:22Z",
+      "bytes": 42,
+      "sha256": "f249b63cb2fcb66b47e86f906c98f8fd912e82dd035b4e53d7e72fc1960cfd16",
+      "body": "{\"message\":\"Missing Authentication Token\"}",
+      "note": "HTTP 403 {\"message\":\"Missing Authentication Token\"} is the AWS API Gateway response for an undefined route: api.nhtsa.gov publishes no robots.txt. The API itself answered unauthenticated GETs."
+    },
+    {
+      "url": "https://static.nhtsa.gov/robots.txt",
+      "status": "HTTP/2 404",
+      "content_type": "application/xml",
+      "retrieved_at": "2026-09-26T21:19:22Z",
+      "bytes": 301,
+      "sha256": "c167d2810dd461292761823cb047a50e10edaa179c6330d97114291a4e67a095",
+      "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Error><Code>NoSuchKey</Code><Message>The specified key does not exist.</Message><Key>robots.txt</Key><RequestId>A5QZSZ2AF48A75D5</RequestId><HostId>2X24wWD+8MluG19ojJraepsY1cQYFobiXhzrG7u60Opmq6QL+r5AU0QnQFDvJ2mRxyDCPUGupm+SAAG6REA+zfmHLkSecfna</HostId></Error>",
+      "note": "HTTP 404 NoSuchKey from the S3 bucket behind static.nhtsa.gov: no robots.txt is published."
+    },
+    {
+      "url": "https://www.fueleconomy.gov/robots.txt",
+      "status": "HTTP/1.1 200 Connection Established",
+      "content_type": null,
+      "retrieved_at": "2026-09-26T21:19:30Z",
+      "bytes": null,
+      "sha256": null,
+      "body": null,
+      "note": "No robots.txt could be retrieved: three attempts (HTTP/2 and HTTP/1.1, with and without the DataFoundryBot User-Agent) got an empty reply / stream reset from the server, while every other page on the host returned normally. Treated as \"no robots rules published\"; the connector must re-check on every run and stop if a robots.txt appears that disallows /feg/epadata/."
+    }
+  ]
+}

@@ -18,9 +18,10 @@ unmapped_term_policy: quarantine
 controlled_vocabularies:
   - property: drive
     description: >-
-      EPA drive axle type. The synonym list is the set of `drive` strings
-      believed to appear in vehicles.csv; it is UNVERIFIED against a captured
-      file (SOURCES.md), and an unseen string will quarantine its value.
+      EPA drive axle type. VERIFIED 2026-09-26: the seven non-blank `drive`
+      strings of the captured vehicles.csv are exactly the first synonym of
+      each term below (1,186 rows are blank, mapped as absent). An unseen
+      string will quarantine its value.
     terms:
       - canonical: front_wheel_drive
         label: Front-wheel drive

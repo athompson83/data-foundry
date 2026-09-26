@@ -5,10 +5,12 @@
  * platform proof (real pipeline, real database) is `shape-ingest.test.ts`.
  *
  * Three things this file holds that are specific to where this vertical is:
- *   1. every source is FAIL-CLOSED — no rights determination has been captured;
- *   2. every fixture is a SYNTHETIC SHAPE FIXTURE and says so;
- *   3. every source column the mappings read is listed in SOURCES.md as
- *      UNVERIFIED, so none can reach activation unchecked.
+ *   1. every source is still FAIL-CLOSED in YAML — the ADR-0013 determinations
+ *      are written (docs/sources/determinations/) but activation is a
+ *      separate, reviewed step;
+ *   2. every fixture is a REAL SAMPLE and names the captured file and digest;
+ *   3. every source column the mappings read is recorded in SOURCES.md's
+ *      verification section, so none reaches activation unchecked.
  */
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -21,6 +23,8 @@ const VERTICAL = join(HERE, '..');
 const HVAC = join(VERTICAL, '..', 'hvac');
 
 const read = (...segments: string[]): string => readFileSync(join(VERTICAL, ...segments), 'utf8');
+const readJsonAt = (...segments: string[]): any =>
+  JSON.parse(readFileSync(join(VERTICAL, '..', '..', ...segments), 'utf8'));
 const readYaml = (...segments: string[]): any => parseYaml(read(...segments));
 const readJson = (...segments: string[]): any => JSON.parse(read(...segments));
 
@@ -41,7 +45,9 @@ const sources = readdirSync(join(VERTICAL, 'sources'))
   .filter((file) => file.endsWith('.yaml'))
   .map((file) => readYaml('sources', file));
 
-const BANNER = 'SYNTHETIC SHAPE FIXTURE — replace with captured artifacts before activation';
+const BANNER = 'REAL SAMPLE captured 2026-09-26';
+const EPA_ZIP_SHA256 = 'fd9132961f2aff95464b9671aec025ecd886092521aa8855e79f77717a45ec0f';
+const NHTSA_POST_2010_ZIP_SHA256 = '306e4fb488c45e184d0dc79a786c9e8062029d634e3590ced869fd26ba2cac95';
 
 describe('vertical.yaml', () => {
   it('declares the agreed vocabulary', () => {
@@ -86,7 +92,7 @@ describe('vertical.yaml', () => {
   });
 });
 
-describe('sources are fail-closed until an ADR-0013 determination is captured', () => {
+describe('sources stay fail-closed until the determinations are recorded and activated', () => {
   it('declares exactly the three federal sources', () => {
     expect(sources.map((source) => source.key).sort()).toEqual([
       'epa-fueleconomy-vehicles',
@@ -123,24 +129,40 @@ describe('sources are fail-closed until an ADR-0013 determination is captured', 
   });
 });
 
-describe('synthetic shape fixtures', () => {
+describe('real sample fixtures', () => {
   const fixtures = readdirSync(join(VERTICAL, 'fixtures')).filter((file) => /\.(csv|json)$/.test(file));
 
-  it('marks every fixture and golden file with the synthetic banner', () => {
+  it('names the captured file and its digest on every fixture and golden file', () => {
     expect(fixtures.sort()).toEqual(['epa-vehicles.csv', 'nhtsa-flat-rcl.csv']);
     for (const file of fixtures) expect(read('fixtures', file).split('\n')[0], file).toContain(BANNER);
+    expect(read('fixtures', 'epa-vehicles.csv').split('\n')[0]).toContain(
+      `https://www.fueleconomy.gov/feg/epadata/vehicles.csv.zip, sha256 ${EPA_ZIP_SHA256}`,
+    );
+    expect(read('fixtures', 'nhtsa-flat-rcl.csv').split('\n')[0]).toContain(
+      `https://static.nhtsa.gov/odi/ffdd/rcl/FLAT_RCL_POST_2010.zip, sha256 ${NHTSA_POST_2010_ZIP_SHA256}`,
+    );
     for (const file of ['entities.json', 'facts.json', 'relationships.json']) {
       expect(readJson('fixtures', 'golden', file)._banner, file).toContain(BANNER);
     }
     expect(read('fixtures', 'README.md')).toContain(BANNER);
     expect(read('fixtures', 'golden', 'README.md')).toContain(BANNER);
+    // The digests match the committed evidence manifests.
+    const epa = readJsonAt('docs', 'sources', 'evidence', 'vehicles', 'vehicles.csv.zip.manifest.json');
+    const nhtsa = readJsonAt('docs', 'sources', 'evidence', 'vehicles', 'FLAT_RCL_POST_2010.zip.manifest.json');
+    expect(epa.sha256).toBe(EPA_ZIP_SHA256);
+    expect(nhtsa.sha256).toBe(NHTSA_POST_2010_ZIP_SHA256);
   });
 
-  it('uses only fictional makes that the publisher table declares', () => {
+  it('is a verbatim excerpt: the EPA header is the captured header, and every NHTSA row has 29 fields', () => {
+    const epa = readJsonAt('docs', 'sources', 'evidence', 'vehicles', 'vehicles.csv.zip.manifest.json');
+    expect(dataLines('epa-vehicles.csv')[0]!.split(',')).toEqual(epa.members[0].columns);
+    for (const row of nhtsaRows()) expect(Object.keys(row)).toHaveLength(29);
+  });
+
+  it('uses only makes that the publisher table declares', () => {
     const declared = Object.values(domain.publisher_aliases).flatMap((entry: any) =>
       [entry.canonical_name, ...entry.aliases].map((name: string) => name.toLowerCase()),
     );
-    expect(declared).not.toEqual(expect.arrayContaining(['honda', 'toyota', 'ford']));
     const epaMakes = new Set(epaRows().map((row) => row['make']!.toLowerCase()));
     const nhtsaMakes = new Set(nhtsaVehicleRows().map((row) => row['MAKETXT']!.toLowerCase()));
     for (const make of [...epaMakes, ...nhtsaMakes]) expect(declared).toContain(make);
@@ -171,12 +193,12 @@ function mappedColumns(): Map<string, Set<string>> {
   return out;
 }
 
-describe('SOURCES.md lists every column the mappings read as UNVERIFIED', () => {
+describe('SOURCES.md records the verification of every column the mappings read', () => {
   const sourcesDoc = read('SOURCES.md');
-  const section = sourcesDoc.slice(sourcesDoc.indexOf('## Unverified source assumptions'));
+  const section = sourcesDoc.slice(sourcesDoc.indexOf('## Source verification'));
 
-  it('has the unverified-assumptions section', () => {
-    expect(sourcesDoc).toContain('## Unverified source assumptions');
+  it('has the verification section', () => {
+    expect(sourcesDoc).toContain('## Source verification');
   });
 
   for (const [sourceKey, columns] of mappedColumns()) {
@@ -200,9 +222,9 @@ describe('NHTSA recall-type row filter', () => {
     }
   });
 
-  it('exercises the filter with at least one non-vehicle fixture row that no golden contains', () => {
+  it('exercises the filter with real non-vehicle fixture rows that no golden contains', () => {
     const excluded = nhtsaRows().filter((row) => row['RCLTYPECD'] !== 'V');
-    expect(excluded.map((row) => row['RCLTYPECD']).sort()).toEqual(['E', 'T']);
+    expect(excluded.map((row) => row['RCLTYPECD']).sort()).toEqual(['C', 'E', 'T']);
     // The equipment row names a declared make, so without the filter it would
     // create a model year and a campaign.
     const declared = Object.values(domain.publisher_aliases).flatMap((entry: any) =>
@@ -216,13 +238,14 @@ describe('NHTSA recall-type row filter', () => {
     ]).toUpperCase();
     for (const row of excluded) {
       expect(golden, row['CAMPNO']).not.toContain(row['CAMPNO']!);
-      expect(golden, row['MODELTXT']).not.toContain(row['MODELTXT']!.replace(/[-_. /\\]/g, ''));
+      const key = `${row['MAKETXT']}${row['MODELTXT']}${row['YEARTXT']}`.toUpperCase().replace(/[-_. /\\]/g, '');
+      expect(golden, key).not.toContain(key);
     }
   });
 
-  it('records the recall-type codes as unverified in SOURCES.md', () => {
+  it('records the verified recall-type code set in SOURCES.md', () => {
     const sourcesDoc = read('SOURCES.md');
-    expect(sourcesDoc).toMatch(/RCLTYPECD[^\n]*UNVERIFIED|UNVERIFIED[^\n]*RCLTYPECD/);
+    expect(sourcesDoc).toMatch(/`RCLTYPECD`[^\n]*`V`[^\n]*`E`[^\n]*`T`[^\n]*`C`[^\n]*`I`[^\n]*`X`/);
   });
 });
 
@@ -239,20 +262,23 @@ describe('identifier rules (ADR-0003 gate)', () => {
 
   const normalize = (raw: string): string => raw.toUpperCase().replace(/[-_. /\\]/g, '');
 
-  it('proves the declared equivalences and non-equivalences on fixture spellings', () => {
-    expect(normalize('Placeholder Motor Works PM-3 2022')).toBe(normalize('PLACEHOLDER MOTOR WORKS PM3 2022'));
-    expect(normalize('Examplar Motors Roadster 2020')).toBe(normalize('EXAMPLAR MOTORS ROADSTER 2020'));
-    expect(normalize('20v-901-000')).toBe('20V901000');
-    expect(normalize('Placeholder Motor Works PM-30 2022')).not.toBe(normalize('Placeholder Motor Works PM-300 2022'));
-    expect(normalize('Placeholder Motor Works PM-3 2021')).not.toBe(normalize('Placeholder Motor Works PM-3 2022'));
+  it('proves the declared equivalences and non-equivalences on real fixture spellings', () => {
+    expect(normalize('Ford F150 2019')).toBe(normalize('FORD F-150 2019'));
+    expect(normalize('Mercedes-Benz C300 2019')).toBe(normalize('MERCEDES-BENZ C 300 2019'));
+    expect(normalize('20v-314-000')).toBe('20V314000');
+    expect(normalize('Honda Accord 2018')).not.toBe(normalize('HONDA ACCORD HYBRID 2018'));
+    expect(normalize('Honda Accord 2018')).not.toBe(normalize('Honda Accord 2019'));
   });
 
-  it('validates the documented campaign-number shape', () => {
+  it('validates the campaign-number shape measured on the captured flat files', () => {
     const rule = domain.identifier_rules.find((candidate: any) => candidate.alias_type === 'nhtsa_campaign_number');
     const pattern = new RegExp(rule.validate.pattern);
-    expect(pattern.test('20V314000')).toBe(true);
-    expect(pattern.test('20X314000')).toBe(false);
-    expect(pattern.test('20V31400')).toBe(false);
+    for (const valid of ['20V314000', '21V00H000', '10E043000', '25T016000', '19C001000', '95I005000', '97X001000']) {
+      expect(pattern.test(valid), valid).toBe(true);
+    }
+    for (const invalid of ['20Q314000', '20V31400', '20V3140000', '2V0314000']) expect(pattern.test(invalid), invalid).toBe(false);
+    const campaign = entityDefs['recall_campaign'].quality_rules.find((candidate: any) => candidate.id === 'campaign_number_format');
+    expect(campaign.pattern).toBe(rule.validate.pattern);
   });
 });
 
@@ -263,9 +289,9 @@ describe('golden records are consistent with the fixtures and the declared rules
   const normalize = (raw: string): string => raw.toUpperCase().replace(/[-_. /\\]/g, '');
 
   it('has the documented population', () => {
-    expect(entities.counts).toEqual({ make: 3, vehicle_model_year: 10, vehicle_configuration: 12, recall_campaign: 5, total: 30 });
-    expect(entities.entities).toHaveLength(30);
-    expect(golden.counts).toEqual({ configuration_of: 12, makes: 10, recall_affects: 7 });
+    expect(entities.counts).toEqual({ make: 7, vehicle_model_year: 11, vehicle_configuration: 28, recall_campaign: 11, total: 57 });
+    expect(entities.entities).toHaveLength(57);
+    expect(golden.counts).toEqual({ configuration_of: 28, makes: 11, recall_affects: 12 });
     expect(facts.count).toBe(facts.facts.length);
   });
 
@@ -365,8 +391,35 @@ function dataLines(file: string): string[] {
 
 function epaRows(): Record<string, string>[] {
   const [header, ...rows] = dataLines('epa-vehicles.csv');
-  const columns = header!.split(',');
-  return rows.map((row) => Object.fromEntries(row.split(',').map((value, index) => [columns[index]!, value])));
+  const columns = splitCsvLine(header!);
+  return rows.map((row) => {
+    const values = splitCsvLine(row);
+    expect(values).toHaveLength(columns.length);
+    return Object.fromEntries(values.map((value, index) => [columns[index]!, value]));
+  });
+}
+
+/** One RFC 4180 line (the real EPA file quotes fields such as `"(FFS,TRBO)"`). */
+function splitCsvLine(line: string): string[] {
+  const out: string[] = [];
+  let value = '';
+  let quoted = false;
+  for (let index = 0; index < line.length; index += 1) {
+    const char = line[index]!;
+    if (quoted) {
+      if (char === '"' && line[index + 1] === '"') {
+        value += '"';
+        index += 1;
+      } else if (char === '"') quoted = false;
+      else value += char;
+    } else if (char === '"') quoted = true;
+    else if (char === ',') {
+      out.push(value);
+      value = '';
+    } else value += char;
+  }
+  out.push(value);
+  return out;
 }
 
 /** The rows the mapping's `where` filter admits (vehicle recalls). */

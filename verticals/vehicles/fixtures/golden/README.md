@@ -1,26 +1,31 @@
 # Golden records — `vehicles`
 
-> **SYNTHETIC SHAPE FIXTURE — replace with captured artifacts before activation.**
-> These files are the expected output over the synthetic fixtures, with the two
-> mapped sources activated only inside `tests/shape-ingest.test.ts`. They are
-> not EPA or NHTSA data.
+> **REAL SAMPLE captured 2026-09-26.** These files are the canonical output of
+> the real pipeline over `../epa-vehicles.csv` and `../nhtsa-flat-rcl.csv`,
+> which are verbatim rows of the EPA and NHTSA files. The two mapped sources
+> are activated only inside `tests/shape-ingest.test.ts`. That test writes
+> these files when `VEHICLES_UPDATE_GOLDENS=1`, and otherwise compares a fresh
+> run against them.
 
 | File | Contents |
 |---|---|
-| `entities.json` | 30 entities (3 makes, 10 model years, 12 configurations, 5 campaigns) with canonical names, slugs and every alias join key |
-| `facts.json` | 262 canonical `(entity, property, value)` facts, each with the source(s) whose evidence backs it |
-| `relationships.json` | 29 edges: 10 `makes`, 12 `configuration_of`, 7 `recall_affects` |
+| `entities.json` | 57 entities (7 makes, 11 model years, 28 configurations, 11 campaigns) with canonical names, slugs and every alias join key |
+| `facts.json` | 580 canonical `(entity, property, value)` facts, each with the source(s) whose evidence backs it |
+| `relationships.json` | 51 edges: 11 `makes`, 28 `configuration_of`, 12 `recall_affects` |
 
-Entities are addressed by a stable handle rather than a database id:
-`make:<slug>`, and `<entity_type>:<normalized primary alias>` for the rest
-(`vehicle_model_year:EXAMPLARMOTORSROADSTER2020`). The handle uses the
-*normalized* key on purpose: EPA's `PM-3` and NHTSA's `PM3` must both arrive at
-`PLACEHOLDERMOTORWORKSPM32022`.
+Entities are addressed by a stable handle, not a database id:
 
-Display names depend on the test-only authority ranks (EPA 85, NHTSA 80):
-the higher-ranked source's spelling of a shared alias is displayed, so
-`Placeholder Motor Works PM-3 2022` shows EPA's casing, while
-`PLACEHOLDER MOTOR WORKS PM-300 2022`, known only to NHTSA, shows NHTSA's.
+- `make:<slug>` for makes;
+- `<entity_type>:<normalized primary alias>` for everything else, for example
+  `vehicle_model_year:FORDF1502019`.
 
-No claim loses fact selection in this set (see `../README.md`). A golden file
-changes only with a reason recorded in `../../CHANGELOG.md`.
+EPA's `F150` and NHTSA's `F-150` both arrive at `FORDF1502019`.
+
+Display names depend on the test-only authority ranks (EPA 85, NHTSA 80). A
+key both agencies share shows EPA's spelling (`Honda Accord 2018`). A key only
+NHTSA knows shows NHTSA's (`HONDA ACCORD HYBRID 2018`).
+
+**One contested property.** `recall_campaign:18V629000` has two `component`
+values, one from each of its two rows. The fact model holds a scalar
+(QUALITY.md). A golden file changes only with a reason recorded in
+`../../CHANGELOG.md`.

@@ -41,7 +41,8 @@ robots_policy:
   user_agent: DataFoundryBot
   crawl_delay_seconds: null
   disallowed_paths: []
-  # UNVERIFIED: the vPIC API and its standalone database download.
+  # VERIFIED 2026-09-26: the API is under /api/ and the standalone databases
+  # under /downloads/. No robots.txt is published (HTTP 404).
   allowed_paths:
     - /api/
   robots_url: https://vpic.nhtsa.dot.gov/robots.txt
@@ -55,7 +56,9 @@ rights_policy:
   terms_url: null
   license_id: null
   license_text_ref: null
-  api_terms_url: null
+  # vPIC FAQ, captured 2026-09-26: no licensing or registration requirement;
+  # "free for use by the public ... Open Data initiatives".
+  api_terms_url: https://vpic.nhtsa.dot.gov/api/home/index/faq
   commercial_use_allowed: false
   redistribution_allowed: false
   derivative_normalization_allowed: false
@@ -85,9 +88,11 @@ acquisition_policy:
   max_requests_per_minute: 30
   notes: >-
     PROPOSED. Two candidate routes, neither designed yet: the vPIC API
-    (per-request VIN decode and make/model lists) or the standalone vPIC
-    database download for offline decoding. The choice depends on the captured
-    terms and on whether request-time decode fits the edge latency budget.
+    (per-request VIN decode; "automated traffic rate control"; FAQ: no daily
+    limit, 1,000-2,000 transactions/minute handled, large batches at night or
+    weekends) or the monthly standalone database (PostgreSQL 17 dump, 67.8 MB,
+    VIN decoding only; the downloads page says it avoids API quotas).
+    Captured 2026-09-26; a sample DecodeVinValues call decoded cleanly.
 
 image_policy:
   images_reusable: false
@@ -114,5 +119,8 @@ notes: >-
   DECLARED ONLY. Not mapped, not fixtured, not acquired. Required for the VIN
   lookup and for an authoritative make/model name list that would let EPA and
   NHTSA model names be reconciled deterministically instead of relying on the
-  two agencies happening to spell a model the same way. Expected ADR-0013
-  basis: PUBLIC_DOMAIN_US_GOVERNMENT_WORK, pending captured terms.
+  two agencies happening to spell a model the same way — though vPIC's model
+  names follow EPA's line names (C-Class), not the recall file's (C 300), so
+  it does not by itself close that gap (QUALITY.md). Expected ADR-0013 basis:
+  PUBLIC_DOMAIN_US_GOVERNMENT_WORK; its FAQ is captured, a determination is
+  not yet written.

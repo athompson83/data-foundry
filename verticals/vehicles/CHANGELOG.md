@@ -10,14 +10,48 @@ All notable changes to this vertical's **schema and data**. Versions are the
   are read from their ZIP archives with limits that fail closed. The ZIP is
   the recorded evidence artifact, and fact locators now cite
   `member=<name>;row=…;column=…` when the artifact is an archive.
-  `accept_unarchived` keeps the plain-CSV synthetic fixtures (and an
+  `accept_unarchived` keeps the plain-CSV fixtures (and an
   operator-extracted CSV) working. Goldens are unchanged.
 - An operator bulk-load path, `pnpm ingest --artifact <source-key>=<zip>`
   (`docs/owner-actions/vehicles-initial-load.md`), proven end to end on the
   shape fixtures packaged as ZIPs (`tests/zip-ingest.test.ts`).
 
-### Unverified
-- Member names, archive sizes and compression ratios of the real files.
+### Changed — verified against the real files (2026-09-26)
+- Captured the EPA and NHTSA bulk files, NHTSA's field description `RCL.txt`,
+  the fueleconomy.gov terms, vPIC docs and robots.txt for every host
+  (`docs/sources/evidence/vehicles/`). Every mapped column was checked. The
+  results are in SOURCES.md's "Source verification".
+- **NHTSA packaging corrected.** There is no `FLAT_RCL.zip`. The history ships
+  as `FLAT_RCL_PRE_2010.zip` and `FLAT_RCL_POST_2010.zip`, each holding one
+  same-named `.txt`. The member glob `FLAT_RCL*.txt` still selects it. The
+  column order matched `RCL.txt` exactly.
+- **NHTSA parsing: `quote: ""`.** The file is unquoted, and fields beginning
+  with `"` made the RFC 4180 parser throw.
+- **Campaign-number pattern widened** to
+  `^[0-9]{2}[VEICTX][0-9]{2}[0-9A-Z][0-9]{3}$`: `X` codes before 2010 and
+  `21V00H000`-style numbers in 2021.
+- `drive`, `trany` and `fuelType1` (EPA) and `DESC_DEFECT`,
+  `CONEQUENCE_DEFECT` and `CORRECTIVE_ACTION` (NHTSA) are now `optional`,
+  because they are blank on real rows.
+- **Fixtures replaced** with REAL SAMPLES: 28 EPA rows, 16 NHTSA rows,
+  including real `E`/`T`/`C` rows.
+- **Publisher table replaced** with the 7 real makes in the samples.
+- **Goldens regenerated** through the real pipeline: 57 entities, 580 facts,
+  51 edges. `VEHICLES_UPDATE_GOLDENS=1` regenerates them.
+- **ADR-0013 determinations written** (not recorded):
+  - NHTSA recalls: § 105, every surface ALLOW.
+  - EPA: `PUBLISHED_TERMS_PERMIT`, internal processing only, every customer
+    surface UNKNOWN. fueleconomy.gov's copyright statement is non-commercial.
+
+### Fixed
+- Canonical store re-parsed JSONB string values, so `"2019030012"` became a
+  number and every unchanged re-run re-versioned the fact. The real samples
+  caught it; the fix is platform-wide.
+
+### Known (QUALITY.md)
+- EPA `baseModel` ↔ NHTSA `MODELTXT` joins about 41% of shared-make keys.
+- `range` is the total range for PHEVs.
+- NHTSA's two-archive snapshot does not fit one `--artifact`.
 
 ## [0.1.0] — 2026-09-26
 

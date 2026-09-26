@@ -1,10 +1,12 @@
 /**
  * OPERATOR BULK-LOAD PROOF for `vehicles`: ZIP archives through `pnpm ingest`.
  *
- * The real EPA and NHTSA bulk files are believed to be ZIP archives larger than
- * any scheduled route accepts, so their initial load is
- * `pnpm ingest --artifact <source-key>=<zip>`. This test packages the synthetic
- * shape fixtures as ZIPs at test time (real deflate streams from `node:zlib`),
+ * The real EPA and NHTSA bulk files are ZIP archives (verified 2026-09-26:
+ * vehicles.csv.zip holding vehicles.csv; FLAT_RCL_PRE_2010.zip and
+ * FLAT_RCL_POST_2010.zip each holding one same-named .txt) larger than any
+ * scheduled route accepts, so their initial load is
+ * `pnpm ingest --artifact <source-key>=<zip>`. This test packages the real
+ * sample fixtures as ZIPs at test time (real deflate streams from `node:zlib`),
  * drives the real CLI entry point against a WASM Postgres, and proves:
  *
  *   - the committed fail-closed declarations are refused (no rights bypass);
@@ -15,8 +17,8 @@
  *     as well as the row and column;
  *   - a damaged archive fails its source closed with the ZIP error code.
  *
- * As with shape-ingest.test.ts, the fixtures are synthetic and their column
- * names UNVERIFIED; this proves the archive path, not the real files' mapping.
+ * The fixtures are small real samples (see fixtures/README.md); this proves
+ * the archive path with the publishers' real member names.
  */
 import { createHash } from 'node:crypto';
 import { cp, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
@@ -116,10 +118,10 @@ beforeAll(async () => {
   nhtsaBytes = buildZip([
     // A second member proves the glob selects exactly the flat file.
     { name: 'RCL_import_instructions.txt', data: 'synthetic readme' },
-    { name: 'FLAT_RCL.txt', data: await readFile(join(FIXTURES, 'nhtsa-flat-rcl.csv')) },
+    { name: 'FLAT_RCL_POST_2010.txt', data: await readFile(join(FIXTURES, 'nhtsa-flat-rcl.csv')) },
   ]);
   epaZip = join(work, 'vehicles.csv.zip');
-  nhtsaZip = join(work, 'FLAT_RCL.zip');
+  nhtsaZip = join(work, 'FLAT_RCL_POST_2010.zip');
   await writeFile(epaZip, epaBytes);
   await writeFile(nhtsaZip, nhtsaBytes);
 });
@@ -195,7 +197,7 @@ describe('operator ZIP load on a test-only activated copy', () => {
       `SELECT url, content_hash, mime_type, byte_size::text AS byte_size, r2_uri FROM source_artifacts ORDER BY url`,
     );
     expect(rows.map((row) => row.url)).toEqual([
-      'https://static.nhtsa.gov/odi/ffdd/rcl/FLAT_RCL.zip',
+      'https://static.nhtsa.gov/odi/ffdd/rcl/FLAT_RCL_POST_2010.zip',
       'https://www.fueleconomy.gov/feg/epadata/vehicles.csv.zip',
     ]);
     expect(rows.map((row) => row.content_hash)).toEqual([sha256(nhtsaBytes), sha256(epaBytes)]);
@@ -219,7 +221,7 @@ describe('operator ZIP load on a test-only activated copy', () => {
     expect(locators.length).toBeGreaterThan(0);
     for (const locator of locators) {
       expect(locator.locator_type).toBe('TABLE_CELL');
-      expect(locator.locator_value).toMatch(/^member=(vehicles\.csv|FLAT_RCL\.txt);row=\d+;column=/);
+      expect(locator.locator_value).toMatch(/^member=(vehicles\.csv|FLAT_RCL_POST_2010\.txt);row=\d+;column=/);
     }
     const claims = await driver.query<{ locator_value: string }>(
       `SELECT c.locator_value FROM entity_alias_claims c
@@ -229,16 +231,16 @@ describe('operator ZIP load on a test-only activated copy', () => {
     expect(claims.length).toBeGreaterThan(0);
     for (const claim of claims) {
       expect(claim.locator_value).toMatch(
-        /^member=(vehicles\.csv;row=\d+;columns=make,baseModel,year|FLAT_RCL\.txt;row=\d+;columns=MAKETXT,MODELTXT,YEARTXT);indexes=\d+,\d+,\d+$/,
+        /^member=(vehicles\.csv;row=\d+;columns=make,baseModel,year|FLAT_RCL_POST_2010\.txt;row=\d+;columns=MAKETXT,MODELTXT,YEARTXT);indexes=\d+,\d+,\d+$/,
       );
     }
   });
 
   it('fails a damaged archive closed with its ZIP error code', async () => {
     const damaged = buildZip([
-      { name: 'FLAT_RCL.txt', data: await readFile(join(FIXTURES, 'nhtsa-flat-rcl.csv')), crc32: 0xdeadbeef },
+      { name: 'FLAT_RCL_POST_2010.txt', data: await readFile(join(FIXTURES, 'nhtsa-flat-rcl.csv')), crc32: 0xdeadbeef },
     ]);
-    const path = join(work, 'damaged', 'FLAT_RCL.zip');
+    const path = join(work, 'damaged', 'FLAT_RCL_POST_2010.zip');
     await mkdir(join(work, 'damaged'), { recursive: true });
     await writeFile(path, damaged);
     const before = await driver.query<{ n: string }>(`SELECT count(*)::text AS n FROM facts`);

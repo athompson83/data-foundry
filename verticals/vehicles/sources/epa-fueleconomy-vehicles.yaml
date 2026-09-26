@@ -2,13 +2,14 @@
 # epa-fueleconomy-vehicles — EPA/DOE fueleconomy.gov vehicles.csv bulk file.
 #
 # FAIL-CLOSED DECLARATION. status UNDER_REVIEW, rights UNREVIEWED, acquisition
-# not approved, and NOT in acquisition.yaml. No ADR-0013 determination has been
-# captured: the build environment could not retrieve the agencies' terms or the
-# file itself. Nothing here is a rights decision. See RIGHTS.md.
+# not approved, and NOT in acquisition.yaml. Nothing here is a rights decision.
 #
-# Expected basis once evidence is captured: PUBLIC_DOMAIN_US_GOVERNMENT_WORK
-# (17 U.S.C. § 105; a U.S. EPA / U.S. DOE publication), subject to checking the
-# published terms for any contrary restriction and for third-party content.
+# ADR-0013 determination WRITTEN 2026-09-26 (not yet recorded):
+# docs/sources/determinations/epa-fueleconomy-vehicles.yaml. Basis
+# PUBLISHED_TERMS_PERMIT, NOT § 105: fueleconomy.gov is administered by Oak
+# Ridge National Laboratory and its copyright statement (/feg/ORNL-disclaimer.htm)
+# limits use to "non-commercial, scientific and educational purposes". Internal
+# ACQUIRE/STORE/CACHE only; every customer surface UNKNOWN. See RIGHTS.md.
 # =============================================================================
 
 key: epa-fueleconomy-vehicles
@@ -16,10 +17,10 @@ vertical_slug: vehicles
 
 publisher: U.S. Environmental Protection Agency / U.S. Department of Energy (fueleconomy.gov)
 domain: www.fueleconomy.gov
-# REGULATORY_FILING: the values are fuel-economy label data from manufacturer
-# certification tests; EPA confirms a subset in its own laboratory. The agency
-# hosts and publishes them, but most rows are not EPA's own measurement.
-# [REVIEW] confirm against EPA's published methodology when captured.
+# REGULATORY_FILING: the download page (captured 2026-09-26) says "Fuel economy
+# data are the result of vehicle testing done at the Environmental Protection
+# Agency's National Vehicle and Fuel Emissions Laboratory ... and by vehicle
+# manufacturers with oversight by EPA."
 source_type: REGULATORY_FILING
 
 # PROPOSED, not assigned. authority_rank affects fact selection and is set when
@@ -46,8 +47,11 @@ robots_policy:
   user_agent: DataFoundryBot
   crawl_delay_seconds: null
   disallowed_paths: []
-  # UNVERIFIED. The bulk download is believed to live under /feg/epadata/
-  # (as vehicles.csv.zip); robots.txt has not been retrieved.
+  # VERIFIED 2026-09-26: the bulk file is /feg/epadata/vehicles.csv.zip.
+  # robots.txt could NOT be retrieved (empty reply on three attempts while
+  # other pages loaded; docs/sources/evidence/vehicles/robots.json), so no
+  # snapshot hash exists. The connector must fetch it on every run and stop
+  # if it disallows /feg/epadata/.
   allowed_paths:
     - /feg/epadata/
   robots_url: https://www.fueleconomy.gov/robots.txt
@@ -58,12 +62,14 @@ rights_policy:
   publisher_legal_entity: >-
     United States Environmental Protection Agency; United States Department of
     Energy
-  terms_url: null
+  # The site's only terms page, captured 2026-09-26 (SHA-256 5ccccc18…0460).
+  terms_url: https://www.fueleconomy.gov/feg/ORNL-disclaimer.htm
   license_id: null
   license_text_ref: null
   api_terms_url: null
-  # ALL FALSE until a committed ADR-0013 determination says otherwise. Silence
-  # is not permission.
+  # ALL FALSE. The written determination does not permit commercial use or
+  # redistribution (non-commercial terms); these stay false until new
+  # evidence supports a new determination.
   commercial_use_allowed: false
   redistribution_allowed: false
   derivative_normalization_allowed: false
@@ -91,14 +97,14 @@ acquisition_policy:
   approved_at: null
   max_requests_per_minute: 5
   notes: >-
-    PROPOSED. One HTTPS GET of the complete vehicles.csv bulk file (believed to
-    be distributed zipped as /feg/epadata/vehicles.csv.zip — UNVERIFIED; the
-    ZIP is the evidence artifact and extraction reads its declared member,
-    see source-mappings.yaml parsing.archive). The file is tens of megabytes,
-    beyond the 16 MiB direct-HTTP ceiling and the scheduled ingestion limits,
-    so the initial load goes through the offline operator path
-    (docs/owner-actions/vehicles-initial-load.md). In the fixture harness
-    this reads fixtures/epa-vehicles.csv, a SYNTHETIC SHAPE FIXTURE.
+    PROPOSED. One HTTPS GET of /feg/epadata/vehicles.csv.zip (verified
+    2026-09-26: 2,211,728 B, one member vehicles.csv of 21,803,514 B, 50,409
+    rows). The ZIP is the evidence artifact and extraction reads its declared
+    member (source-mappings.yaml parsing.archive). The member exceeds the
+    scheduled ingestion limits, so the initial load goes through the offline
+    operator path (docs/owner-actions/vehicles-initial-load.md). In the
+    fixture harness this reads fixtures/epa-vehicles.csv, a REAL SAMPLE of 28
+    rows.
 
 image_policy:
   images_reusable: false
@@ -119,13 +125,17 @@ provenance_retention:
 license_split:
   code_license_id: null
   data_license_id: null
-  notes: No code is vendored. The data licence is undetermined pending the ADR-0013 determination.
+  notes: >-
+    No code is vendored. No data licence is published; the host's copyright
+    statement permits non-commercial, scientific and educational use only.
 
 kill_switch_engaged: false
 
 notes: >-
-  PROPOSED SOURCE. Every column name used by source-mappings.yaml is UNVERIFIED
-  until checked against a captured vehicles.csv (SOURCES.md lists them). The
-  fixture is synthetic, with fictional makes. Expected ADR-0013 basis:
-  PUBLIC_DOMAIN_US_GOVERNMENT_WORK, pending captured terms and a hard-stop check
-  (third-party content, rate limits, robots).
+  PROPOSED SOURCE. Every mapped column was verified against the vehicles.csv
+  captured 2026-09-26 (SOURCES.md); the fixture is a real sample. The expected
+  PUBLIC_DOMAIN_US_GOVERNMENT_WORK basis did NOT hold: the fueleconomy.gov
+  copyright statement restricts use to non-commercial purposes, so the written
+  determination (docs/sources/determinations/epa-fueleconomy-vehicles.yaml)
+  grants internal processing only. Customer surfaces need EPA-hosted evidence
+  or written approval first (RIGHTS.md).

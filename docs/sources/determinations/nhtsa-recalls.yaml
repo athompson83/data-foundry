@@ -1,0 +1,157 @@
+# =============================================================================
+# ADR-0013 evidence-based rights determination — nhtsa-recalls
+#
+# Validated by tooling/lib/rights-determination.ts (RightsDeterminationSchema)
+# and tooling/test/vehicles-determinations.test.ts, which also checks every
+# repo:// evidence digest against the committed bytes. Recorded, not yet:
+#   POSTGRES_URL=... corepack pnpm rights:record -- --file docs/sources/determinations/nhtsa-recalls.yaml --dry-run
+# Human-readable memo: docs/sources/vehicles-federal-rights-determination-20260926.md
+# =============================================================================
+schema_version: 1
+source_key: nhtsa-recalls
+vertical_slug: vehicles
+source:
+  domain: static.nhtsa.gov
+  source_type: REGULATORY_FILING
+publisher:
+  publisher_key: us-dot-nhtsa
+  legal_name: United States Department of Transportation, National Highway Traffic Safety Administration
+basis: PUBLIC_DOMAIN_US_GOVERNMENT_WORK
+determination_document: docs/sources/vehicles-federal-rights-determination-20260926.md
+evidence:
+  - key: determination_memo
+    kind: REVIEW_MEMO
+    canonical_uri: repo://docs/sources/vehicles-federal-rights-determination-20260926.md
+    storage_uri: repo://docs/sources/vehicles-federal-rights-determination-20260926.md
+    content_sha256: 42c47c50c19ffbbc887a4bbb8b6f6d01ca3d9c3aac0a028470968d00450cd5cb
+    mime_type: text/markdown
+    retrieved_at: "2026-09-26T21:45:00Z"
+    notes: >-
+      Human-readable determination with the evidence table and hard-stop
+      review for both federal vehicle sources.
+  - key: rcl_field_description
+    kind: POLICY
+    canonical_uri: https://static.nhtsa.gov/odi/ffdd/rcl/RCL.txt
+    storage_uri: repo://docs/sources/evidence/vehicles/nhtsa-RCL.txt
+    content_sha256: 3438cc7e4131efa401dfe6437dbe035607e092c129155dfb411d459d58802203
+    mime_type: text/plain
+    retrieved_at: "2026-09-26T21:21:19Z"
+    notes: >-
+      NHTSA field description: "The RECALL file contains all NHTSA safety-related defect and compliance campaigns since 1967." No licence or use restriction.
+  - key: rcl_directory
+    kind: POLICY
+    canonical_uri: https://static.nhtsa.gov/?prefix=odi/ffdd/rcl/
+    storage_uri: repo://docs/sources/evidence/vehicles/nhtsa-rcl-directory-listing.xml
+    content_sha256: f3a4397c67c627aa71af20e102a612ae8f8ed52366e52a8a38cbe722612869df
+    mime_type: application/xml
+    retrieved_at: "2026-09-26T21:21:18Z"
+    notes: >-
+      Public listing of NHTSA's own bucket production.static.nhtsa.dot.gov: the flat files are agency-published, unauthenticated downloads.
+  - key: vpic_faq
+    kind: POLICY
+    canonical_uri: https://vpic.nhtsa.dot.gov/api/home/index/faq
+    storage_uri: repo://docs/sources/evidence/vehicles/vpic-api-faq.html
+    content_sha256: 31862b354baa88d1068c3ea5e22f83d8e9892db2fe0d34ca3b5d329f14e2a975
+    mime_type: text/html
+    retrieved_at: "2026-09-26T21:25:36Z"
+    notes: >-
+      Corroborating agency policy (covers vPIC, not the flat files): "No, NHTSA is a government agency and the services provided on the API are free for use by the public as an offering as a part of our Open Data initiatives".
+  - key: flat_rcl_post_2010
+    kind: POLICY
+    canonical_uri: https://static.nhtsa.gov/odi/ffdd/rcl/FLAT_RCL_POST_2010.zip
+    storage_uri: repo://docs/sources/evidence/vehicles/FLAT_RCL_POST_2010.zip.manifest.json
+    content_sha256: b1fff600ab1a94c6c4a8c6b990b9f33f73b807fa2fee5362853f2215f0011eff
+    mime_type: application/json
+    retrieved_at: "2026-09-26T21:21:27Z"
+    notes: >-
+      Manifest of the archive as downloaded (archive SHA-256 306e4fb488c45e184d0dc79a786c9e8062029d634e3590ced869fd26ba2cac95);
+      the archive itself is kept outside the repository. Recalls with RCDATE 2010-01-01 onward.
+  - key: flat_rcl_pre_2010
+    kind: POLICY
+    canonical_uri: https://static.nhtsa.gov/odi/ffdd/rcl/FLAT_RCL_PRE_2010.zip
+    storage_uri: repo://docs/sources/evidence/vehicles/FLAT_RCL_PRE_2010.zip.manifest.json
+    content_sha256: bce5be7c06617093582b7ec59f36c824092f84faf3a8505865ca3f6cd147b720
+    mime_type: application/json
+    retrieved_at: "2026-09-26T21:21:25Z"
+    notes: >-
+      Manifest of the archive as downloaded (archive SHA-256 d771bf14248ee62f75050f3c61f62d4afc3a5d9a4a7f539bb32d07d9f48bfe46);
+      the archive itself is kept outside the repository. Recalls with RCDATE before 2010.
+  - key: robots
+    kind: POLICY
+    canonical_uri: https://static.nhtsa.gov/robots.txt
+    storage_uri: repo://docs/sources/evidence/vehicles/robots.json
+    content_sha256: 94bb36583e6b5108be66c35f9321690ceb7bb2365ed0d909732f389b1adcca38
+    mime_type: application/json
+    retrieved_at: "2026-09-26T21:19:30Z"
+    notes: >-
+      robots.txt status for vpic.nhtsa.dot.gov (404), api.nhtsa.gov (403 gateway, none published), static.nhtsa.gov (404 NoSuchKey) and www.fueleconomy.gov (empty reply; not retrievable).
+# § 105 rests on the publisher's identity, not on a terms text: NHTSA's
+# www.nhtsa.gov web-policies page returned HTTP 403 to the build environment
+# and is recorded as not retrieved (memo). The memo is therefore the
+# controlling record, which the schema permits only for this basis.
+terms_evidence: determination_memo
+decision_evidence: determination_memo
+clause_ref: >-
+  17 U.S.C. § 105 (work of the United States Government, published by NHTSA on
+  its own static.nhtsa.gov bucket); no licence, click-through or contrary
+  restriction on any captured NHTSA page; www.nhtsa.gov/about-nhtsa/web-policies-notices
+  not retrievable (HTTP 403) and to be captured at re-determination.
+reviewed_at: "2026-09-26T21:45:00Z"
+recheck_at: "2027-09-26T00:00:00Z"
+scope:
+  acquisition_route: BULK_FILE
+  account_or_product_plan: null
+  jurisdiction: null
+  asset_class: DATA
+  output_class: NORMALIZED_FACT
+surfaces:
+  PUBLIC_WEB:
+    decision: ALLOW
+    rationale: >-
+      § 105 federal work with no contrary restriction; pages render the NHTSA
+      attribution and "not endorsed by NHTSA or the U.S. Department of
+      Transportation" disclaimer. Indexability remains quality-gated.
+  SEARCH_INDEX:
+    decision: ALLOW
+    rationale: >-
+      § 105 federal work; search indexing of attributed recall pages is
+      permitted. seo.yaml's quality gates still decide which pages are indexable.
+  API_FREE:
+    decision: ALLOW
+    rationale: § 105 federal work; no licence, key or usage restriction on the flat files.
+  API_PAID:
+    decision: ALLOW
+    rationale: >-
+      § 105 federal work; commercial redistribution of normalized recall facts
+      is not restricted. Attribution and disclaimer travel with every response.
+  RAPIDAPI:
+    decision: ALLOW
+    rationale: >-
+      No licence exists that could forbid sublicensing through a marketplace;
+      § 105 places the data in the public domain in the United States.
+  MCP:
+    decision: ALLOW
+    rationale: § 105 federal work; agent retrieval is redistribution on the same terms as the API.
+  BULK_EXPORT:
+    decision: ALLOW
+    rationale: >-
+      NHTSA itself publishes the complete file; § 105 permits bulk
+      redistribution of the normalized derivative with attribution.
+internal_processing:
+  ACQUIRE:
+    decision: ALLOW
+    rationale: >-
+      Unauthenticated public download from the agency bucket; no robots.txt is
+      published on static.nhtsa.gov; one GET per refresh.
+  STORE:
+    decision: ALLOW
+    rationale: Retaining the agency file as evidence (AGENTS.md rule 10) is unrestricted for a § 105 work.
+  CACHE:
+    decision: ALLOW
+    rationale: § 105 federal work; caching is unrestricted.
+  NORMALIZE:
+    decision: ALLOW
+    rationale: § 105 federal work; derivative normalization is unrestricted.
+  DERIVE:
+    decision: ALLOW
+    rationale: § 105 federal work; derived metrics are unrestricted.

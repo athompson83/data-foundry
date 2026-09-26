@@ -259,7 +259,7 @@
         "validate": {
           "min_length": 9,
           "max_length": 9,
-          "pattern": "^[0-9]{2}[VEICT][0-9]{6}$"
+          "pattern": "^[0-9]{2}[VEICTX][0-9]{2}[0-9A-Z][0-9]{3}$"
         }
       },
       {

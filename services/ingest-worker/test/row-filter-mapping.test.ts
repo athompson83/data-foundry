@@ -1,7 +1,7 @@
 /**
  * The generic per-stream `where` row filter in `source-mappings.yaml`,
  * compiled to the extraction `csv_rows.where` selector. Tested on the real
- * `vehicles` configuration and its SYNTHETIC NHTSA fixture; the compiler
+ * `vehicles` configuration and its REAL-SAMPLE NHTSA fixture; the compiler
  * itself names no vertical, source or column.
  */
 import { readFile } from 'node:fs/promises';
@@ -48,18 +48,18 @@ describe('stream `where` row filter', () => {
     for (const stream of epa.streams) expect(stream.schema.record).not.toHaveProperty('where');
   });
 
-  it('excludes the fixture’s equipment and tire rows during extraction', async () => {
+  it('excludes the fixture’s real equipment, tire and child-seat rows during extraction', async () => {
     const body = await readFile(join(REPO_ROOT, 'verticals', 'vehicles', 'fixtures', 'nhtsa-flat-rcl.csv'), 'utf8');
     const skipped = body.split('\n').findIndex((line) => !line.startsWith('#'));
     const artifact: ExtractionArtifact = {
       artifact: {
         id: sourceArtifactId('77777777-7777-4777-8777-777777777777'),
         source_id: sourceId('11111111-1111-4111-8111-111111111111'),
-        url: 'https://static.nhtsa.gov/odi/ffdd/rcl/FLAT_RCL.txt',
+        url: 'https://static.nhtsa.gov/odi/ffdd/rcl/FLAT_RCL_POST_2010.zip',
         retrieved_at: '2026-01-15T09:30:00Z',
         content_hash: 'b'.repeat(64),
         mime_type: 'text/tab-separated-values',
-        r2_uri: 'r2://data-foundry-raw/vehicles/synthetic',
+        r2_uri: 'r2://data-foundry-raw/vehicles/fixture',
         http_status: 200,
         extractor_version: 'fixture@1.0.0',
         policy_snapshot_id: null,
@@ -77,8 +77,12 @@ describe('stream `where` row filter', () => {
       const schema = { ...stream.schema, record: { ...stream.schema.record, from_line: skipped + 1 } };
       const records = await createExtractionRegistry().extract(artifact, schema);
       const keys = records.map((record) => record.source_record_key);
-      expect(keys.length, stream.stream).toBe(7);
-      expect(keys.some((key) => key.startsWith('9000008') || key.startsWith('9000009')), stream.stream).toBe(false);
+      // 16 real rows: 13 vehicle (V) rows; 82223 (E), 301787 (T) and 145182 (C) are excluded.
+      expect(keys.length, stream.stream).toBe(13);
+      expect(
+        keys.some((key) => ['82223', '301787', '145182'].includes(key.split(/[^0-9]/)[0]!)),
+        stream.stream,
+      ).toBe(false);
     }
   });
 

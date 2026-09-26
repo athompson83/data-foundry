@@ -1,8 +1,10 @@
 # =============================================================================
 # recall_campaign — one NHTSA safety recall campaign ("20V314000").
 #
-# NHTSA's flat file carries one row per campaign x make/model/year (and,
-# UNVERIFIED, per component), so one campaign arrives as several rows. They all
+# NHTSA's flat file carries one row per campaign x make/model/year x component
+# x manufacturer part (verified 2026-09-26), so one campaign arrives as several
+# rows. 2,188 of 26,358 vehicle campaigns name more than one COMPNAME, whose
+# `component` values then compete (QUALITY.md). They all
 # resolve to this one entity on the exact campaign number, and each row
 # contributes one `recall_affects` edge to the model year it names.
 #
@@ -97,14 +99,14 @@ properties:
     value_type: boolean
     unit: null
     critical: false
-    description: NHTSA "park outside" advisory (`PARK_OUTSIDE`). UNVERIFIED column name and Yes/No encoding.
+    description: NHTSA "park outside" advisory (`PARK_OUTSIDE`, field 29 of RCL.txt, added May 2025; `Yes`/`No`).
     expected_sources: [nhtsa-recalls]
 
   - name: do_not_drive_advisory
     value_type: boolean
     unit: null
     critical: false
-    description: NHTSA "do not drive" advisory (`DO_NOT_DRIVE`). UNVERIFIED column name and Yes/No encoding.
+    description: NHTSA "do not drive" advisory (`DO_NOT_DRIVE`, field 28 of RCL.txt, added May 2025; `Yes`/`No`).
     expected_sources: [nhtsa-recalls]
 
 quality_rules:
@@ -130,6 +132,6 @@ quality_rules:
     rule: regex
     property: nhtsa_campaign_number
     applies_to_alias: true
-    pattern: "^[0-9]{2}[VEICT][0-9]{6}$"
+    pattern: "^[0-9]{2}[VEICTX][0-9]{2}[0-9A-Z][0-9]{3}$"
     description: Applied to the NORMALIZED alias value.
     severity: error
