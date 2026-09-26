@@ -13,6 +13,9 @@
 #   - `paths: [a, b, c]` — a composite value read from several columns of one
 #     row and joined with a space (`join:` overrides). Used for the
 #     make + model + year key neither agency publishes as one column.
+#   - `parsing.archive` — the artifact is a ZIP archive and one named member
+#     is the delimited file (extraction reads it with strict limits; the ZIP
+#     stays the evidence artifact).
 #   - `source_record_key: [a, b]` — a key composed of several columns. Source
 #     record keys are unique across ALL streams of a source, and each of these
 #     sources projects one row into two streams, so the second stream needs a
@@ -45,6 +48,18 @@ sources:
       # file, whose header and rows never start with `#`.
       skip_lines_matching: "^#"
       encoding: utf-8
+      # The published artifact is believed to be vehicles.csv.zip holding one
+      # member, vehicles.csv (UNVERIFIED). The ZIP is the preserved evidence
+      # artifact; locators read `member=vehicles.csv;row=…;column=…`.
+      # accept_unarchived lets the synthetic shape fixture (a plain CSV) and an
+      # operator-supplied extracted CSV through; any other non-ZIP body fails.
+      archive:
+        format: zip
+        member: vehicles.csv
+        accept_unarchived: true
+        max_members: 8
+        max_uncompressed_bytes: 268435456
+        max_compression_ratio: 200
     records:
 
       - stream: model_years
@@ -198,6 +213,16 @@ sources:
         - DO_NOT_DRIVE
         - PARK_OUTSIDE
       encoding: utf-8
+      # The published artifact is believed to be FLAT_RCL.zip holding one
+      # tab-delimited member whose exact name is UNVERIFIED (hence the glob,
+      # which must still match exactly one file). See `archive` above for EPA.
+      archive:
+        format: zip
+        member: "FLAT_RCL*.txt"
+        accept_unarchived: true
+        max_members: 8
+        max_uncompressed_bytes: 536870912
+        max_compression_ratio: 200
     records:
 
       - stream: affected_model_years

@@ -61,10 +61,14 @@ export class CsvExtractor implements ExtractionProvider {
     const header = options.header ?? true;
 
     const columns = header === true ? true : header === false ? false : [...header];
+    const text = artifactText(artifact);
     const parseOptions = {
       delimiter: options.delimiter ?? ',',
       skip_empty_lines: options.skip_empty_lines ?? true,
-      from_line: options.from_line ?? 1,
+      from_line:
+        options.skip_leading_lines_matching === undefined
+          ? (options.from_line ?? 1)
+          : Math.max(options.from_line ?? 1, firstUnmatchedLine(text, options.skip_leading_lines_matching)),
       quote: options.quote ?? '"',
       escape: options.escape ?? '"',
       trim: options.trim ?? false,
@@ -81,8 +85,8 @@ export class CsvExtractor implements ExtractionProvider {
             // positional parsing declares `string[][]`. The runtime still returns the
             // same `{ record, info }` envelope, which the headerless extraction tests
             // exercise end to end rather than leaving this cast unchecked.
-            (parse(artifactText(artifact), { ...parseOptions, columns }) as unknown as ParsedRow[])
-          : parse<ParsedRow>(artifactText(artifact), { ...parseOptions, columns });
+            (parse(text, { ...parseOptions, columns }) as unknown as ParsedRow[])
+          : parse<ParsedRow>(text, { ...parseOptions, columns });
     } catch (error) {
       throw new ExtractionError('artifact body is not parseable as delimited text', {
         artifactId: artifact.artifact.id,
@@ -124,6 +128,22 @@ export class CsvExtractor implements ExtractionProvider {
     });
 
     return Promise.resolve(applyRecordKeyPolicy(schema, records));
+  }
+}
+
+/** 1-based number of the first line that does not match `pattern` (a leading preamble filter). */
+function firstUnmatchedLine(text: string, pattern: string): number {
+  const regex = new RegExp(pattern);
+  const breaks = /\r\n|\r|\n/g;
+  let line = 1;
+  let start = 0;
+  for (;;) {
+    const found = breaks.exec(text);
+    const end = found === null ? text.length : found.index;
+    if (!regex.test(text.slice(start, end))) return line;
+    if (found === null) return line + 1;
+    start = breaks.lastIndex;
+    line += 1;
   }
 }
 

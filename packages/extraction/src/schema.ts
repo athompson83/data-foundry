@@ -1,5 +1,6 @@
 import type { Identifier } from '@data-foundry/canonical-schema';
 import type { ExtractionFormat } from './types.js';
+import { ZIP_LIMIT_CEILINGS } from './zip.js';
 
 /**
  * Extraction is schema-driven and declarative.
@@ -42,6 +43,12 @@ export type RecordSelector =
        * error, never a silent pass-through.
        */
       readonly where?: CsvRowFilter;
+      /**
+       * Leading lines matching this pattern are skipped before parsing (a
+       * preamble or banner). Evaluated against the bytes actually parsed, so
+       * it applies to an archive member rather than to the archive.
+       */
+      readonly skip_leading_lines_matching?: string;
     }
   /** HTML only. One record per matched element. */
   | { readonly kind: 'css'; readonly selector: string }
@@ -153,6 +160,34 @@ export interface ConfidencePolicy {
   readonly ceiling?: number;
 }
 
+export const ARCHIVE_FORMATS = ['zip'] as const;
+export type ArchiveFormat = (typeof ARCHIVE_FORMATS)[number];
+
+/**
+ * The artifact is an archive; extraction reads one member of it.
+ *
+ * The archive stays the preserved evidence artifact. Locators produced from the
+ * member are prefixed with `member=<name>`. Limits fail closed and default to
+ * `DEFAULT_ZIP_LIMITS`; a declared limit may not exceed `ZIP_LIMIT_CEILINGS`.
+ */
+export interface ArchiveSpec {
+  readonly format: ArchiveFormat;
+  /** Exact member name, or a glob (`*` within a segment, `**` across, `?`). Must match exactly one file. */
+  readonly member: string;
+  /**
+   * Also accept a body that is not an archive, reading it directly (synthetic
+   * fixtures; an operator-supplied extracted file). Default `false`: a declared
+   * archive that is not one is refused.
+   */
+  readonly accept_unarchived?: boolean;
+  readonly max_members?: number;
+  readonly max_uncompressed_bytes?: number;
+  readonly max_compression_ratio?: number;
+}
+
+/** Formats whose locators use the `key=value` grammar and so can name a member. */
+const ARCHIVE_CAPABLE_FORMATS: readonly ExtractionFormat[] = ['csv'];
+
 export interface ExtractionSchema {
   readonly schema_id: string;
   readonly format: ExtractionFormat;
@@ -162,6 +197,7 @@ export interface ExtractionSchema {
   readonly record_key: RecordKeyRule;
   readonly fields: readonly FieldRule[];
   readonly confidence?: ConfidencePolicy;
+  readonly archive?: ArchiveSpec;
 }
 
 /** Raised when a mapping config is structurally invalid. */
@@ -269,6 +305,7 @@ export function parseExtractionSchema(input: unknown, path = 'schema'): Extracti
       );
     }
   }
+  if (input['archive'] !== undefined) parseArchiveSpec(input['archive'], extractionFormat, `${path}.archive`);
 
   const recordKey = input['record_key'];
   if (!isRecord(recordKey) || !Array.isArray(recordKey['fields'])) {
@@ -343,4 +380,39 @@ export function parseExtractionSchema(input: unknown, path = 'schema'): Extracti
   }
 
   return input as unknown as ExtractionSchema;
+}
+
+const ARCHIVE_LIMIT_CEILINGS = {
+  max_members: ZIP_LIMIT_CEILINGS.maxMembers,
+  max_uncompressed_bytes: ZIP_LIMIT_CEILINGS.maxUncompressedBytes,
+  max_compression_ratio: ZIP_LIMIT_CEILINGS.maxCompressionRatio,
+} as const;
+
+export function parseArchiveSpec(input: unknown, format: ExtractionFormat, path = 'archive'): ArchiveSpec {
+  if (!isRecord(input)) throw new ExtractionSchemaError('must be an object', path);
+  if (!(ARCHIVE_FORMATS as readonly unknown[]).includes(input['format'])) {
+    throw new ExtractionSchemaError(`format must be one of ${ARCHIVE_FORMATS.join('|')}`, `${path}.format`);
+  }
+  if (!ARCHIVE_CAPABLE_FORMATS.includes(format)) {
+    throw new ExtractionSchemaError(`archive members are not supported for format ${format}`, path);
+  }
+  const member = input['member'];
+  if (typeof member !== 'string' || member.length === 0 || member.length > 1024 || member.includes('..') ||
+      member.startsWith('/') || member.includes('\\')) {
+    throw new ExtractionSchemaError('member must be a relative member name or glob', `${path}.member`);
+  }
+  if (input['accept_unarchived'] !== undefined && typeof input['accept_unarchived'] !== 'boolean') {
+    throw new ExtractionSchemaError('accept_unarchived must be a boolean', `${path}.accept_unarchived`);
+  }
+  for (const [key, ceiling] of Object.entries(ARCHIVE_LIMIT_CEILINGS)) {
+    const value = input[key];
+    if (value !== undefined && (!Number.isSafeInteger(value) || (value as number) <= 0 || (value as number) > ceiling)) {
+      throw new ExtractionSchemaError(`${key} must be a positive integer no greater than ${ceiling}`, `${path}.${key}`);
+    }
+  }
+  const known = new Set(['format', 'member', 'accept_unarchived', ...Object.keys(ARCHIVE_LIMIT_CEILINGS)]);
+  for (const key of Object.keys(input)) {
+    if (!known.has(key)) throw new ExtractionSchemaError(`unknown archive option ${key}`, `${path}.${key}`);
+  }
+  return input as unknown as ArchiveSpec;
 }

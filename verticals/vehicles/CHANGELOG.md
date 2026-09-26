@@ -3,6 +3,22 @@
 All notable changes to this vertical's **schema and data**. Versions are the
 `schema_version` in `vertical.yaml`.
 
+## [Unreleased]
+
+### Added
+- `parsing.archive` for both mapped sources. `vehicles.csv` and `FLAT_RCL*.txt`
+  are read from their ZIP archives with limits that fail closed. The ZIP is
+  the recorded evidence artifact, and fact locators now cite
+  `member=<name>;row=…;column=…` when the artifact is an archive.
+  `accept_unarchived` keeps the plain-CSV synthetic fixtures (and an
+  operator-extracted CSV) working. Goldens are unchanged.
+- An operator bulk-load path, `pnpm ingest --artifact <source-key>=<zip>`
+  (`docs/owner-actions/vehicles-initial-load.md`), proven end to end on the
+  shape fixtures packaged as ZIPs (`tests/zip-ingest.test.ts`).
+
+### Unverified
+- Member names, archive sizes and compression ratios of the real files.
+
 ## [0.1.0] — 2026-09-26
 
 ### Changed (prelaunch, before any activation)

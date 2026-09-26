@@ -35,9 +35,11 @@
  * a composite source-native value such as make + model + year, extracted
  * all-or-nothing with one locator naming every cell. Relationship `*_from`
  * accepts the same list form. A headerless delimited file declares its column
- * names in `parsing.columns`.
+ * names in `parsing.columns`. A file shipped inside a ZIP archive declares
+ * `parsing.archive: { format: zip, member: <name or glob> }`.
  */
-import type { ExtractionSchema, FieldRule, FieldSelector } from '@data-foundry/extraction';
+import type { ArchiveSpec, ExtractionSchema, FieldRule, FieldSelector } from '@data-foundry/extraction';
+import { parseArchiveSpec } from '@data-foundry/extraction/runtime';
 import type {
   NormalizationRuleSet,
   PropertyRule,
@@ -549,6 +551,9 @@ function compileStreamPlan(
     record: recordSelector(format, record, source, path),
     record_key: { fields: compositeKey ?? [keyField], fallback: 'fail' },
     fields: [...fields.rules],
+    ...(source.parsing?.archive === undefined
+      ? {}
+      : { archive: compileArchive(source.parsing.archive, format, `sources.${sourceKey}.parsing.archive`) }),
   };
 
   const vocabularies: Record<string, VocabularyDefinition> = {};
@@ -587,6 +592,19 @@ function compileStreamPlan(
   };
 }
 
+/**
+ * `parsing.archive` — the artifact is an archive and one member of it is the
+ * delimited file. The archive stays the evidence artifact; see
+ * `@data-foundry/extraction` `ArchiveSpec`.
+ */
+function compileArchive(declared: Yaml, format: string, path: string): ArchiveSpec {
+  try {
+    return parseArchiveSpec(declared, format as ExtractionSchema['format'], path);
+  } catch (error) {
+    throw new MappingCompilationError(path, error instanceof Error ? error.message : String(error));
+  }
+}
+
 function recordSelector(
   format: string,
   record: Yaml,
@@ -620,6 +638,11 @@ function recordSelector(
         ...(source.parsing?.delimiter === undefined
           ? {}
           : { delimiter: String(source.parsing.delimiter) }),
+        // `quote: ""` (or null) declares an unquoted file, such as a flat file
+        // whose free-text fields contain literal `"` characters.
+        ...(source.parsing?.quote === undefined
+          ? {}
+          : { quote: source.parsing.quote === null ? '' : String(source.parsing.quote) }),
         trim: true,
         ...(where === null ? {} : { where }),
       };

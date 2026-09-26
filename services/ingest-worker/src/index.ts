@@ -57,6 +57,13 @@ export {
   type FixtureManifestResult,
 } from './fixtures.js';
 export {
+  MAX_OPERATOR_ARTIFACT_BYTES,
+  OPERATOR_ARTIFACT_DIRECTORY,
+  buildOperatorArtifactManifest,
+  type OperatorArtifact,
+  type OperatorArtifactManifest,
+} from './operator-artifacts.js';
+export {
   AliasNormalizer,
   IDENTIFIER_OPS,
   isIdentifierOp,

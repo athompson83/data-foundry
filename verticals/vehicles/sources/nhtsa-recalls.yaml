@@ -90,7 +90,9 @@ acquisition_policy:
   notes: >-
     PROPOSED. One HTTPS GET of the recall flat file (believed to be
     /odi/ffdd/rcl/FLAT_RCL.zip, zipped, tab-delimited, headerless — UNVERIFIED;
-    the platform has no zip adapter). The per-vehicle recalls API
+    extraction reads the declared ZIP member, and the initial load is the
+    offline operator path in docs/owner-actions/vehicles-initial-load.md).
+    The per-vehicle recalls API
     (api.nhtsa.gov/recalls/recallsByVehicle) is the alternative for a
     request-time lookup, under its own terms. In the fixture harness this reads
     fixtures/nhtsa-flat-rcl.csv, a SYNTHETIC SHAPE FIXTURE with the declared

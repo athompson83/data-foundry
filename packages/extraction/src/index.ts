@@ -6,6 +6,7 @@
  *
  * What this package does:
  *
+ * - a strict ZIP reader so a schema can name one member of an archived artifact;
  * - one `ExtractionProvider` contract, four concrete providers (JSON, CSV, HTML,
  *   PDF), selected by format;
  * - schema-driven, declarative mapping configs — onboarding a new source of an
@@ -26,6 +27,8 @@ export * from './confidence.js';
 export * from './record-builder.js';
 export * from './registry.js';
 export * from './source-record.js';
+export * from './zip.js';
+export * from './archive.js';
 
 export { JsonExtractor, createJsonExtractor } from './providers/json-extractor.js';
 export { CsvExtractor, createCsvExtractor } from './providers/csv-extractor.js';

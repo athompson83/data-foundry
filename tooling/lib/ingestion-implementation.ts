@@ -29,6 +29,7 @@ const EXCLUDED_INPUTS = new Set([
   'services/ingest-worker/src/cli.ts',
   'services/ingest-worker/src/fixtures.ts',
   'services/ingest-worker/src/index.ts',
+  'services/ingest-worker/src/operator-artifacts.ts',
   'services/ingest-worker/src/pipeline.ts',
   'packages/acquisition/src/fs.ts',
   'packages/acquisition/src/providers/fixture.ts',

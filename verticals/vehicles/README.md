@@ -44,6 +44,10 @@ All in `services/ingest-worker/src/compile.ts`, `packages/extraction` and
 2. **Composite record keys** — `source_record_key: [a, b]`, because keys are
    unique across all streams of one source.
 3. **Headerless delimited files** — `parsing.columns`.
+   **Archived files** — `parsing.archive` (a ZIP member read by
+   `@data-foundry/extraction`'s strict reader; the ZIP stays the evidence
+   artifact and locators cite `member=…;row=…;column=…`). **Unquoted
+   files** — `parsing.quote: ""`.
 4. **Publisher entity type from configuration** — the entity type
    `publisher_aliases` resolves to (HVAC `manufacturer`, here `make`) is read
    from the source mappings instead of being hard-coded.

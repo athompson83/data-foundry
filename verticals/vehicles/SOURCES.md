@@ -84,15 +84,21 @@ section.
 ### Artifact locations and formats (all sources)
 
 - EPA bulk file URL and packaging: believed to be
-  `https://www.fueleconomy.gov/feg/epadata/vehicles.csv.zip` (zipped CSV).
-  The platform has no zip adapter.
+  `https://www.fueleconomy.gov/feg/epadata/vehicles.csv.zip` (zipped CSV),
+  with one member named `vehicles.csv`. `parsing.archive` reads that member,
+  and the ZIP is kept as the evidence artifact.
 - NHTSA flat file URL and packaging: believed to be
   `https://static.nhtsa.gov/odi/ffdd/rcl/FLAT_RCL.zip` (zipped, tab-delimited,
-  no header, no quoting). Quote handling of free-text fields is unverified.
+  no header, no quoting). The one member is assumed to match `FLAT_RCL*.txt`.
+  Quote handling of free-text fields is unverified; if the file is unquoted,
+  declare `parsing.quote: ""`.
 - vPIC API path `/api/` on `vpic.nhtsa.dot.gov`.
 - All three `robots.txt` files (not retrieved; `snapshot_hash` is null).
 - File sizes: both bulk files are believed to exceed the 16 MiB direct-HTTP
-  ceiling and the scheduled ingestion record limits.
+  ceiling and the scheduled ingestion record limits. The initial load is the
+  operator path in `docs/owner-actions/vehicles-initial-load.md`. The archive
+  limits declared in `parsing.archive` (members, uncompressed size,
+  compression ratio) are also unverified against the real files.
 
 ### `epa-fueleconomy-vehicles` columns (header names)
 

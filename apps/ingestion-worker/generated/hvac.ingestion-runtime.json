@@ -1,7 +1,7 @@
 {
   "version": 1,
   "vertical_slug": "hvac",
-  "implementation_digest": "158191b5764c05e207a18ce59205e3d302873ab19df921375203e22e64d23c24",
+  "implementation_digest": "48acc055fc7a280f4456e788cf3bdb8353f43ed6d1d5a75d3318f1b964cd099b",
   "implementation_inputs": [
     "apps/ingestion-worker/package.json",
     "apps/ingestion-worker/src/runner.ts",
@@ -100,6 +100,7 @@
     "packages/canonical-store/src/sql-driver.ts",
     "packages/canonical-store/src/store.ts",
     "packages/extraction/package.json",
+    "packages/extraction/src/archive.ts",
     "packages/extraction/src/confidence.ts",
     "packages/extraction/src/index.ts",
     "packages/extraction/src/locator.ts",
@@ -111,6 +112,7 @@
     "packages/extraction/src/schema.ts",
     "packages/extraction/src/source-record.ts",
     "packages/extraction/src/types.ts",
+    "packages/extraction/src/zip.ts",
     "packages/normalization/package.json",
     "packages/normalization/src/alias-normalization.ts",
     "packages/normalization/src/derived-graph.ts",
@@ -2903,5 +2905,5 @@
       }
     }
   },
-  "runtime_digest": "4feef64d7955384c24739512463c0475a216597b8ee88c1291ad50e710296c8f"
+  "runtime_digest": "d4c886a2c9169e385adfeff7198cb9cc2b61ac590743b7ca390597f01a5b06fc"
 }

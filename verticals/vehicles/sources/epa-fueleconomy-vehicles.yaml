@@ -93,10 +93,11 @@ acquisition_policy:
   notes: >-
     PROPOSED. One HTTPS GET of the complete vehicles.csv bulk file (believed to
     be distributed zipped as /feg/epadata/vehicles.csv.zip — UNVERIFIED; the
-    platform has no zip adapter, so activation needs either an unzipped
-    artifact route or an archive step). The file is tens of megabytes, beyond
-    the 16 MiB direct-HTTP ceiling and the scheduled ingestion limits, so the
-    initial load goes through the offline ingest path. In the fixture harness
+    ZIP is the evidence artifact and extraction reads its declared member,
+    see source-mappings.yaml parsing.archive). The file is tens of megabytes,
+    beyond the 16 MiB direct-HTTP ceiling and the scheduled ingestion limits,
+    so the initial load goes through the offline operator path
+    (docs/owner-actions/vehicles-initial-load.md). In the fixture harness
     this reads fixtures/epa-vehicles.csv, a SYNTHETIC SHAPE FIXTURE.
 
 image_policy:
