@@ -338,8 +338,15 @@ describe('sync', () => {
     expect(results).toHaveLength(6);
     expect(results.filter((result) => 'error' in result).map((result) => result.category)).toEqual(['food', 'food']);
     const cursor = await env.DB.prepare("SELECT next_from FROM sync_cursor WHERE category = 'food'").first<{ next_from: string }>();
-    expect(cursor?.next_from).toBe('2004-04-30');
+    expect(cursor?.next_from).toBe('2012-09-29');
     expect(await scheduledSync(makeEnv({ SOURCE_KILL_SWITCH: '1' }), '2026-09-26')).toEqual([]);
+  });
+
+  it('skips records whose recall number is a placeholder', async () => {
+    const env = makeEnv();
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ results: [FOOD, { ...DEVICE, recall_number: 'N/A' }] }), { status: 200 })));
+    expect(await syncWindow(env, 'food', '2026-09-01', '2026-09-30')).toMatchObject({ fetched: 2, inserted: 1 });
+    expect(await env.DB.prepare("SELECT COUNT(*) AS n FROM recall WHERE recall_number = 'N/A'").first<{ n: number }>()).toEqual({ n: 0 });
   });
 
   it('records a failed run', async () => {

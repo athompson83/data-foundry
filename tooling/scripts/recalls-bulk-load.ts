@@ -20,7 +20,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseArgs } from 'node:util';
 
-import { RECALL_CATEGORIES, type OpenFdaEnforcementRecord } from '@data-foundry/recall-structuring';
+import { isUsableRecallNumber, RECALL_CATEGORIES, type OpenFdaEnforcementRecord } from '@data-foundry/recall-structuring';
 
 import { ndjsonBundle, prepareRecall, rawRef, renderLiteral, writeRecallStatements, type PreparedRecall } from '../../apps/recalls-worker/src/store.js';
 
@@ -40,16 +40,23 @@ const now = values.now ?? new Date().toISOString();
 const prefix = `recalls/openfda/bulk/${now.slice(0, 10)}/`;
 mkdirSync(values.out, { recursive: true });
 
-function writePart(category: string, part: number, items: readonly PreparedRecall[]): void {
+interface Item {
+  readonly raw: string;
+  /** Null when the record has no usable recall number yet: kept as evidence, not loaded. */
+  readonly prepared: PreparedRecall | null;
+}
+
+function writePart(category: string, part: number, items: readonly Item[]): void {
   const name = `${category}-${String(part).padStart(2, '0')}`;
+  // The bundle carries every fetched record, so it is complete evidence of the snapshot.
   const bundle = ndjsonBundle(items.map((item) => item.raw));
   writeFileSync(join(values.out as string, `${name}.ndjson`), bundle.body);
   const lines: string[] = [];
   for (const [index, item] of items.entries()) {
+    if (!item.prepared) continue;
     const range = bundle.ranges[index] as { offset: number; length: number };
-    // A fresh database has nothing to delete; the rest is the Worker's exact write.
-    for (const statement of writeRecallStatements(item, rawRef(`${prefix}${name}.ndjson`, range.offset, range.length), now)) {
-      if (statement.sql.startsWith('DELETE')) continue;
+    // The Worker's exact write, deletes included: never assume an empty database.
+    for (const statement of writeRecallStatements(item.prepared, rawRef(`${prefix}${name}.ndjson`, range.offset, range.length), now)) {
       lines.push(renderLiteral(statement));
     }
   }
@@ -62,23 +69,28 @@ for (const category of RECALL_CATEGORIES) {
   const records = JSON.parse(readFileSync(join(values.input, `all_${category}.json`), 'utf8')) as OpenFdaEnforcementRecord[];
   const seen = new Set<string>();
   let part = 0;
-  let items: PreparedRecall[] = [];
+  let items: Item[] = [];
   let bytes = 0;
+  let skipped = 0;
   for (const record of records) {
-    if (!record.recall_number || seen.has(record.recall_number)) continue;
-    seen.add(record.recall_number);
-    const prepared = await prepareRecall(category, record);
-    if (items.length > 0 && (items.length >= maxRecords || bytes + prepared.raw.length > maxBytes)) {
+    // Empty recall numbers were never part of the evidence snapshot.
+    if (!record.recall_number) continue;
+    const usable = isUsableRecallNumber(record.recall_number);
+    if (usable && seen.has(record.recall_number)) continue;
+    const raw = JSON.stringify(record);
+    if (usable) seen.add(record.recall_number);
+    else skipped += 1;
+    if (items.length > 0 && (items.length >= maxRecords || bytes + raw.length > maxBytes)) {
       part += 1;
       writePart(category, part, items);
       items = [];
       bytes = 0;
     }
-    items.push(prepared);
-    bytes += prepared.raw.length + 1;
+    items.push({ raw, prepared: usable ? await prepareRecall(category, record) : null });
+    bytes += raw.length + 1;
   }
   if (items.length > 0) writePart(category, part + 1, items);
   total += seen.size;
-  console.log(category, seen.size, 'distinct recalls');
+  console.log(category, seen.size, 'distinct recalls,', skipped, 'without a usable recall number (evidence only)');
 }
 console.log('total', total, 'prefix', prefix);

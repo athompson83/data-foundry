@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   gs1CheckDigitValid,
+  isUsableRecallNumber,
   normaliseNdc,
   parseCodes,
   parseDistribution,
@@ -166,7 +167,10 @@ describe('structureRecall', () => {
     expect(recall.codes.ndcs).toEqual(['01234-5678', '12345-0678-90']);
   });
 
-  it('rejects a record without a recall number', () => {
+  it('rejects a record without a usable recall number', () => {
     expect(() => structureRecall('drug', {})).toThrow(/recall_number/);
+    expect(() => structureRecall('drug', { recall_number: 'N/A' })).toThrow(/recall_number/);
+    expect(isUsableRecallNumber('D-036-2013')).toBe(true);
+    expect(isUsableRecallNumber(' n/a ')).toBe(false);
   });
 });

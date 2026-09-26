@@ -72,7 +72,7 @@ export function catalogPage(ctx: PageContext): string {
 <p class="lede">Data Foundry turns lawfully sourced, unstructured records into clean, current, provenance-linked data for machines — over a simple API.</p>
 <h2>Datasets</h2>
 <div class="grid"><div class="card"><h3><a href="/recalls">FDA Recall Intelligence</a></h3>
-<p class="muted small">Every FDA food, drug and device enforcement report since 2004, with distribution states, lot numbers, UPC/GTIN/UDI, NDC, expiry dates, allergens and pathogens extracted from the free text.</p></div></div>`,
+<p class="muted small">Every FDA food, drug and device enforcement report on openFDA (reports from June 2012 on), with distribution states, lot numbers, UPC/GTIN/UDI, NDC, expiry dates, allergens and pathogens extracted from the free text.</p></div></div>`,
     { path: '/' },
   );
 }
@@ -95,7 +95,7 @@ export function recallsLanding(ctx: PageContext): string {
 <div class="card"><h3>Provenance on every record</h3><p class="muted small">The verbatim FDA record, its SHA-256, parser version, source URL, and first-seen / last-seen / changed timestamps. We check openFDA every six hours; how recent the newest report is depends on FDA's own publication schedule.</p></div>
 </div>
 <h2>Coverage</h2>
-<p class="muted">Every enforcement report openFDA publishes for food, drugs and medical devices, from 2004 on — about 87,000 recalls. Live counts, the latest FDA report date and our last successful sync: <a href="${ctx.apiOrigin}/v1/recalls/stats">/v1/recalls/stats</a>.</p>
+<p class="muted">Every enforcement report openFDA publishes for food, drugs and medical devices — reports from June 2012 on, about 87,000 recalls. Live counts, the latest FDA report date and our last successful sync: <a href="${ctx.apiOrigin}/v1/recalls/stats">/v1/recalls/stats</a>.</p>
 <h2 id="pricing">Pricing</h2>
 <div class="grid">${planCards()}</div>
 <p class="small muted">Monthly, billed by Stripe. Upgrade, downgrade or cancel any time from the billing portal. Your key is shown immediately after checkout.</p>

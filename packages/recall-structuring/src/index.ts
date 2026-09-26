@@ -103,9 +103,21 @@ export function sourceUrl(category: RecallCategory, recallNumber: string): strin
   return `https://api.fda.gov/${category}/enforcement.json?search=recall_number:%22${encodeURIComponent(recallNumber)}%22`;
 }
 
+/**
+ * Whether a record carries a real recall number. FDA publishes some very
+ * recent reports with a placeholder ("N/A") before a number is assigned; such
+ * a value is shared by unrelated recalls, so it cannot be an identity. Those
+ * records are skipped until FDA assigns the number, and the next sync picks
+ * them up under it.
+ */
+export function isUsableRecallNumber(value: string | undefined): value is string {
+  const trimmed = value?.trim() ?? '';
+  return trimmed.length > 0 && !/^(?:n\/?a|none|unknown|pending|tbd|null|-+)$/i.test(trimmed);
+}
+
 export function structureRecall(category: RecallCategory, record: OpenFdaEnforcementRecord): StructuredRecall {
   const recallNumber = text(record.recall_number);
-  if (!recallNumber) throw new Error('openFDA enforcement record has no recall_number');
+  if (!isUsableRecallNumber(recallNumber ?? undefined)) throw new Error('openFDA enforcement record has no usable recall_number');
 
   const codes = parseCodes(record.code_info, record.more_code_info, record.product_description);
   const ndcs = new Set(codes.ndcs);
@@ -123,7 +135,7 @@ export function structureRecall(category: RecallCategory, record: OpenFdaEnforce
   const voluntary = /voluntary/i.test(record.voluntary_mandated ?? '') ? true : /mandat|order/i.test(record.voluntary_mandated ?? '') ? false : null;
 
   return {
-    recall_number: recallNumber,
+    recall_number: recallNumber as string,
     category,
     event_id: text(record.event_id),
     classification: classification(record.classification),
@@ -150,7 +162,7 @@ export function structureRecall(category: RecallCategory, record: OpenFdaEnforce
     reason: parseReason(record.reason_for_recall),
     provenance: {
       source: 'openfda-enforcement',
-      source_url: sourceUrl(category, recallNumber),
+      source_url: sourceUrl(category, recallNumber as string),
       parser_version: PARSER_VERSION,
       derived_fields: {
         distribution: ['distribution_pattern'],

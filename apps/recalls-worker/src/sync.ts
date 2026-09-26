@@ -6,7 +6,7 @@
  * recalls (e.g. Ongoing → Terminated) are picked up without a full reload.
  */
 
-import { RECALL_CATEGORIES, type OpenFdaEnforcementRecord, type RecallCategory } from '@data-foundry/recall-structuring';
+import { isUsableRecallNumber, RECALL_CATEGORIES, type OpenFdaEnforcementRecord, type RecallCategory } from '@data-foundry/recall-structuring';
 
 import type { D1Database, R2Bucket } from './env.js';
 
@@ -16,7 +16,8 @@ export const USER_AGENT = 'DataFoundryBot/1.0 (+https://data.aroqon.com/recalls;
 const PAGE = 1000;
 /** openFDA refuses skip beyond 25,000; windows are sized far below that. */
 const MAX_SKIP = 25_000;
-const HISTORY_START = '2004-01-01';
+/** openFDA's earliest enforcement report_date (measured 2026-09-26: 2012-06-20). */
+const HISTORY_START = '2012-06-01';
 const ROLLING_WINDOW_DAYS = 120;
 const RECENT_WINDOW_DAYS = 45;
 
@@ -80,7 +81,8 @@ export async function syncWindow(env: SyncEnv, category: RecallCategory, from: s
       const page = await fetchPage(category, from, to, skip);
       if (page.results.length === 0) break;
       fetched += page.results.length;
-      const prepared = await Promise.all(page.results.filter((record) => record.recall_number).map((record) => prepareRecall(category, record)));
+      // Records without a real recall number yet ("N/A") are skipped until FDA assigns one.
+      const prepared = await Promise.all(page.results.filter((record) => isUsableRecallNumber(record.recall_number)).map((record) => prepareRecall(category, record)));
 
       const existing = new Map<string, string>();
       const rows = await env.DB.prepare('SELECT recall_number, raw_sha256 FROM recall WHERE recall_number IN (SELECT value FROM json_each(?))')
