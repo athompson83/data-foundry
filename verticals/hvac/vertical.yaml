@@ -126,11 +126,32 @@ entity_resolution:
     - product_type
     - voltage
 
-  # Doc 06 step 4 — candidate generation.
+  # Doc 06 step 4 — candidate generation. Each key is declared in the
+  # platform's closed blocking vocabulary (services/ingest-worker/src/blocking.ts):
+  # `alias`, `related_entity` or `property_values`. A key the vocabulary cannot
+  # interpret fails `verticals:validate`. `key` is the block label recorded in
+  # candidate features and judgment fingerprints, so renaming one is a
+  # breaking change to the resolution trail.
   blocking_keys:
-    - normalized_manufacturer
-    - model_number_prefix_6
-    - product_type_and_capacity_band
+    # Same manufacturer (the subject of `manufactures`). A pair blocked by any
+    # key whose manufacturers differ is rejected outright.
+    - key: normalized_manufacturer
+      entity_type: equipment_model
+      kind: related_entity
+      predicate: manufactures
+      role: object
+      reject_mismatch_as: manufacturers
+    # First six characters of the normalized model number.
+    - key: model_number_prefix_6
+      entity_type: equipment_model
+      kind: alias
+      alias_type: model_number
+      prefix_length: 6
+    # Exact product type plus exact normalized cooling capacity.
+    - key: product_type_and_capacity_band
+      entity_type: equipment_model
+      kind: property_values
+      properties: [product_type, cooling_capacity_btu]
 
   # Doc 06 step 7 / AGENTS.md rule 3: a model may recommend, never execute.
   llm_adjudication:

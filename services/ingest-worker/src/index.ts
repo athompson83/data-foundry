@@ -33,6 +33,12 @@ export {
   type VerticalConfig,
 } from './config.js';
 export {
+  BLOCKING_KEY_KINDS,
+  parseBlockingKeys,
+  type BlockingKey,
+  type BlockingKeyKind,
+} from './blocking.js';
+export {
   IngestError,
   MappingCompilationError,
   PipelineConfigurationError,

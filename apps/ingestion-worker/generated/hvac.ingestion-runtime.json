@@ -1,7 +1,7 @@
 {
   "version": 1,
   "vertical_slug": "hvac",
-  "implementation_digest": "971c3a204ef2779325c3202bbe95439ea2d2bb55b9ed9d7888a8c227a4c76f5a",
+  "implementation_digest": "06952ea7aa1d71a11f08df8b4706d50030f042673ebf08e978bdb5c290836de8",
   "implementation_inputs": [
     "apps/ingestion-worker/package.json",
     "apps/ingestion-worker/src/runner.ts",
@@ -161,6 +161,7 @@
     "packages/source-registry/src/rights-policy.ts",
     "pnpm-lock.yaml",
     "services/ingest-worker/package.json",
+    "services/ingest-worker/src/blocking.ts",
     "services/ingest-worker/src/compile.ts",
     "services/ingest-worker/src/config-core.ts",
     "services/ingest-worker/src/config.ts",
@@ -288,9 +289,30 @@
         "voltage"
       ],
       "blocking_keys": [
-        "normalized_manufacturer",
-        "model_number_prefix_6",
-        "product_type_and_capacity_band"
+        {
+          "key": "normalized_manufacturer",
+          "entity_type": "equipment_model",
+          "kind": "related_entity",
+          "predicate": "manufactures",
+          "role": "object",
+          "reject_mismatch_as": "manufacturers"
+        },
+        {
+          "key": "model_number_prefix_6",
+          "entity_type": "equipment_model",
+          "kind": "alias",
+          "alias_type": "model_number",
+          "prefix_length": 6
+        },
+        {
+          "key": "product_type_and_capacity_band",
+          "entity_type": "equipment_model",
+          "kind": "property_values",
+          "properties": [
+            "product_type",
+            "cooling_capacity_btu"
+          ]
+        }
       ],
       "llm_adjudication": {
         "enabled": true,
@@ -2881,5 +2903,5 @@
       }
     }
   },
-  "runtime_digest": "45abdd442e644cdd7a2d4055dd3e25a971e63cf6e73ded9a5411596a374af3fe"
+  "runtime_digest": "0e1b6bfeeb9e9c981b0d19cb53904b474ade0b136ffecd1cd8e06cad5a0fc614"
 }
