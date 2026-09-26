@@ -87,6 +87,17 @@ describe('product codes', () => {
     expect(parseCodes('Serial Numbers: BLX611513S, BLX610983S').serial_numbers).toEqual(['BLX610983S', 'BLX611513S']);
   });
 
+  it('keeps compact month-style lot codes and drops package sizes', () => {
+    // Verbatim code_info of F-1632-2012.
+    const codes = parseCodes('0.4oz: MAY2113;    0.8 oz: Lot MAY1613, MAY2013, MAY2113TM, MAY2613;    3 oz: MAY0313, MAY0813, MAY0913, MAY1013LY, MAY1513, MAY1613, MAY2113, MAY2113TM;    85g: Lot 13MA23TM and 13MA08');
+    expect(codes.lots).toEqual(['13MA08', '13MA23TM', 'MAY0313', 'MAY0813', 'MAY0913', 'MAY1013LY', 'MAY1513', 'MAY1613', 'MAY2013', 'MAY2113', 'MAY2113TM', 'MAY2613']);
+    // Date-stamped and letter-suffixed lots are not package sizes.
+    expect(parseCodes('Known lot codes: 07282016G, 07252016G; PTC #651L').lots).toEqual(['07252016G', '07282016G', '651L']);
+    expect(parseCodes('Lot: 651L, 12OZ, 500MG').lots).toEqual(['651L']);
+    // Separated dates are still dates, not lots.
+    expect(parseCodes('Lot numbers: A12345, July 31, 2027, B67890').lots).toEqual(['A12345', 'B67890']);
+  });
+
   it('keeps every serial in a very long list', () => {
     const serials = Array.from({ length: 2000 }, (_, index) => `SN${100000 + index}`);
     const codes = parseCodes(`Serial Numbers: ${serials.join(', ')}`);

@@ -133,6 +133,16 @@ const DATE_TOKEN = new RegExp(
 const EXPIRY_MARKER =
   /\b(?:exp(?:iry|iration|ires)?\.?(?:\s*date)?|use[\s-]*by|best[\s-]*(?:by|before|if\s+used\s+by)|sell[\s-]*by|BUD|beyond[\s-]+use(?:\s+date)?|enjoy\s+by)\s*(?:date)?\s*[:#.\-]?\s*/gi;
 
+/** An expiry phrase together with the date it introduces. */
+const EXPIRY_WITH_DATE = new RegExp(`(?:${EXPIRY_MARKER.source})(?:${DATE_TOKEN.source})?`, 'gi');
+
+/**
+ * Package sizes ("85g", "12oz", "500mg", "2.5ml"). At most three digits, so
+ * date-stamped lots such as 07282016G stay lots; no bare "l" unit, so lots
+ * such as 651L stay lots.
+ */
+const PACKAGE_SIZE = /^\d{1,3}(?:\.\d+)?(?:g|gm|mg|mcg|kg|oz|lbs?|ml|fl|ct|cc)$/i;
+
 /** A code token: must contain a digit, 3–30 chars of the lot alphabet. */
 const LOT_TOKEN = /^(?=.*\d)[A-Z0-9][A-Z0-9\-/.]{1,28}[A-Z0-9]$/i;
 
@@ -167,7 +177,12 @@ function listAfter(text: string, marker: RegExp, kind: keyof typeof STOPS): stri
     if (stop && stop.index > 0) segment = segment.slice(0, stop.index);
     // Expiry phrases and dates sit between lots ("A, Exp 1/2/27; B, Exp ...");
     // remove them so they neither end the list nor become lots.
-    segment = segment.replace(EXPIRY_MARKER, ' ').replace(DATE_TOKEN, ' ');
+    // A date is only treated as a date when an expiry phrase introduces it or
+    // it is written with separators ("7/31/2027", "July 31, 2027"). Compact
+    // tokens such as MAY1613 or MAY2013 are lot codes in this corpus.
+    segment = segment
+      .replace(EXPIRY_WITH_DATE, ' ')
+      .replace(DATE_TOKEN, (match) => (/[\s/.,-]/.test(match) && parseLooseDate(match) !== null ? ' ' : match));
     for (const raw of segment.split(/[\s,;&]+|\band\b/i)) {
       const token = raw.replace(/^[#:.\-/]+|[.,:\-/]+$/g, '');
       if (!token) continue;
@@ -176,7 +191,9 @@ function listAfter(text: string, marker: RegExp, kind: keyof typeof STOPS): stri
         if (/^[A-Za-z]{4,}$/.test(token) && !/^(?:code|codes|number|numbers|date|dates|lots?)$/i.test(token)) break;
         continue;
       }
-      if (parseLooseDate(token) !== null) continue;
+      if (/[/.-]/.test(token) && parseLooseDate(token) !== null) continue;
+      // Package sizes ("85g", "12oz", "500mL") are not codes.
+      if (PACKAGE_SIZE.test(token)) continue;
       found.push(token.toUpperCase());
       if (found.length >= MAX_LIST) return found;
     }

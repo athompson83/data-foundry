@@ -342,6 +342,15 @@ describe('sync', () => {
     expect(await scheduledSync(makeEnv({ SOURCE_KILL_SWITCH: '1' }), '2026-09-26')).toEqual([]);
   });
 
+  it('re-derives a record when the parser version changes, even if its bytes did not', async () => {
+    const env = makeEnv();
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ results: [FOOD] }), { status: 200 })));
+    await syncWindow(env, 'food', '2026-09-01', '2026-09-30');
+    await env.DB.prepare("UPDATE recall SET parser_version = 'recall-structuring@0'").run();
+    expect(await syncWindow(env, 'food', '2026-09-01', '2026-09-30')).toMatchObject({ inserted: 0, changed: 1 });
+    expect(await syncWindow(env, 'food', '2026-09-01', '2026-09-30')).toMatchObject({ inserted: 0, changed: 0 });
+  });
+
   it('skips records whose recall number is a placeholder', async () => {
     const env = makeEnv();
     vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ results: [FOOD, { ...DEVICE, recall_number: 'N/A' }] }), { status: 200 })));

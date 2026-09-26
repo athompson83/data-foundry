@@ -6,7 +6,7 @@
  * recalls (e.g. Ongoing → Terminated) are picked up without a full reload.
  */
 
-import { isUsableRecallNumber, RECALL_CATEGORIES, type OpenFdaEnforcementRecord, type RecallCategory } from '@data-foundry/recall-structuring';
+import { isUsableRecallNumber, PARSER_VERSION, RECALL_CATEGORIES, type OpenFdaEnforcementRecord, type RecallCategory } from '@data-foundry/recall-structuring';
 
 import type { D1Database, R2Bucket } from './env.js';
 
@@ -85,16 +85,19 @@ export async function syncWindow(env: SyncEnv, category: RecallCategory, from: s
       const prepared = await Promise.all(page.results.filter((record) => isUsableRecallNumber(record.recall_number)).map((record) => prepareRecall(category, record)));
 
       const existing = new Map<string, string>();
-      const rows = await env.DB.prepare('SELECT recall_number, raw_sha256 FROM recall WHERE recall_number IN (SELECT value FROM json_each(?))')
+      // A record is current only when both its source bytes and the parser
+      // that derived it are current; a parser upgrade re-derives on next sight.
+      const rows = await env.DB.prepare('SELECT recall_number, raw_sha256, parser_version FROM recall WHERE recall_number IN (SELECT value FROM json_each(?))')
         .bind(JSON.stringify(prepared.map((item) => item.recall.recall_number)))
-        .all<{ recall_number: string; raw_sha256: string }>();
-      for (const row of rows.results) existing.set(row.recall_number, row.raw_sha256);
+        .all<{ recall_number: string; raw_sha256: string; parser_version: string }>();
+      for (const row of rows.results) existing.set(row.recall_number, `${row.raw_sha256}|${row.parser_version}`);
+      const current = (item: (typeof prepared)[number]): boolean => existing.get(item.recall.recall_number) === `${item.rawSha256}|${PARSER_VERSION}`;
 
-      const unchanged = prepared.filter((item) => existing.get(item.recall.recall_number) === item.rawSha256);
+      const unchanged = prepared.filter(current);
       if (unchanged.length > 0) await runStatements(env.DB, [touchRecallsStatement(unchanged.map((item) => item.recall.recall_number), now)]);
 
       // A page can repeat a recall number; the last occurrence wins, once.
-      const toWrite = [...new Map(prepared.filter((item) => existing.get(item.recall.recall_number) !== item.rawSha256).map((item) => [item.recall.recall_number, item] as const)).values()];
+      const toWrite = [...new Map(prepared.filter((item) => !current(item)).map((item) => [item.recall.recall_number, item] as const)).values()];
       if (toWrite.length > 0) {
         // Evidence first: new and changed records as NDJSON, so each raw_ref is
         // an exact byte range in an object that already exists. Unchanged

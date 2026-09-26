@@ -16,7 +16,7 @@ export { parseQuantity } from './quantity.js';
 export { parseReason, REASON_CLASSES, ALLERGENS, PATHOGENS } from './reasons.js';
 export type { ProductCodes, DistributionGeography, ProductQuantity, RecallReason };
 
-export const PARSER_VERSION = 'recall-structuring@1';
+export const PARSER_VERSION = 'recall-structuring@2';
 
 export const RECALL_CATEGORIES = ['food', 'drug', 'device'] as const;
 export type RecallCategory = (typeof RECALL_CATEGORIES)[number];
