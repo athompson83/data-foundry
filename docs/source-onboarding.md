@@ -97,9 +97,11 @@ recorded honestly as `RED` is worth more than one optimistically marked
 If true, stop and get a handling decision before acquisition — the readiness
 report treats it as a blocker for exactly that reason.
 
-**5. Name a human reviewer and a review date.** `reviewed_by`, `reviewed_at`,
-`next_review_at`. Terms change. A review with no expiry is a review that will
-silently go stale.
+**5. Record the determination and a review date.** `reviewed_by`, `reviewed_at`,
+`next_review_at`. Under [ADR-0013](decisions/ADR-0013-evidence-based-rights-determination.md)
+`reviewed_by` names the committed evidence-based determination (legal basis,
+evidence, per-surface cells, hard stops, attribution), not a human approver.
+Terms change. A review with no expiry is a review that will silently go stale.
 
 ---
 
@@ -149,7 +151,7 @@ source it did not know about, without vertical-specific platform code and
 without weakening a control. All of the following, on one real source:
 
 - [ ] A real external artifact acquired through a supported provider adapter.
-- [ ] Rights metadata complete, with a named human reviewer and a review date.
+- [ ] Rights metadata complete, with a committed ADR-0013 determination and a review date.
 - [ ] Immutable raw evidence stored, addressed by content digest.
 - [ ] Field locators preserved — every extracted value points back into the bytes.
 - [ ] Records extracted without a source-specific branch in platform code.

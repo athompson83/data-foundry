@@ -1,6 +1,6 @@
 # ADR-0010 — Surface-aware rights-grant matrix
 
-**Status:** ACCEPTED
+**Status:** ACCEPTED — amended 2026-09-26 by [ADR-0013](ADR-0013-evidence-based-rights-determination.md): wherever this ADR requires a `HUMAN` or `COUNSEL` reviewer or activator for publisher mapping, terms activation or an `ALLOW`/`CONDITIONAL` decision, a committed evidence-based `DETERMINATION` now also qualifies (migration `0034`). `AUTOMATED` still cannot activate permission, and deny exceptions stay `HUMAN`/`COUNSEL` only.
 
 **Original proposal:** 2026-08-23
 

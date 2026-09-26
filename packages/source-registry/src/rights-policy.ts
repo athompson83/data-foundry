@@ -38,7 +38,11 @@ export const SourceRightsPolicySchema = z.object({
   geographic_notes: z.string().max(4000),
 
   reviewed_at: IsoDateTimeSchema.nullable(),
-  /** Named human reviewer. A model is not a reviewer. */
+  /**
+   * Who or what decided rights: a named human, counsel, or a committed
+   * evidence-based determination (ADR-0013). An uncommitted model opinion is
+   * not a reviewer.
+   */
   reviewed_by: z.string().min(1).max(200).nullable(),
   next_review_at: IsoDateSchema.nullable(),
 });
@@ -73,7 +77,7 @@ export const AcquisitionPolicySchema = z.object({
   account_or_product_plan: z.string().min(1).max(300).nullable(),
   /** Jurisdiction whose acquisition terms were reviewed, when scope is jurisdictional. */
   jurisdiction: z.string().min(1).max(120).nullable(),
-  /** Signed off by a human as compatible with the source's terms. */
+  /** Approved as compatible with the source's terms (human or ADR-0013 determination). */
   approved: z.boolean(),
   approved_by: z.string().max(200).nullable(),
   approved_at: IsoDateTimeSchema.nullable(),

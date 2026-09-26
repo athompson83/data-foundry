@@ -318,6 +318,11 @@ function conditionResult(
   return null;
 }
 
+/** HUMAN, COUNSEL, or an evidence-based DETERMINATION (ADR-0013). */
+function isApprovingReviewer(value: string | null | undefined): boolean {
+  return value === 'HUMAN' || value === 'COUNSEL' || value === 'DETERMINATION';
+}
+
 function permissionResult(
   request: RightsEvaluationRequest,
   candidate: RightsDecisionCandidate,
@@ -336,7 +341,7 @@ function permissionResult(
   const activationAt = timestamp(candidate.activation.occurredAt);
   if (
     candidate.activation.actorType === 'AUTOMATED' ||
-    (candidate.activation.actorType !== 'HUMAN' && candidate.activation.actorType !== 'COUNSEL') ||
+    !isApprovingReviewer(candidate.activation.actorType) ||
     activationAt === null ||
     activationAt > asOf
   ) {
@@ -347,7 +352,7 @@ function permissionResult(
   }
   if (
     decision.reviewStatus !== 'APPROVED' ||
-    (decision.reviewerType !== 'HUMAN' && decision.reviewerType !== 'COUNSEL') ||
+    !isApprovingReviewer(decision.reviewerType) ||
     !nonEmpty(decision.reviewedBy) ||
     !nonEmpty(decision.evidenceArtifactId) ||
     !nonEmpty(decision.clauseRef) ||

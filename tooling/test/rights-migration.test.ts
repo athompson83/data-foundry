@@ -969,6 +969,77 @@ describe.sequential('0014 decision activation', () => {
     }
   });
 
+  it('0034 activates an ALLOW approved by an evidence-based DETERMINATION (ADR-0013)', async () => {
+    const cell = '73000000-0000-4000-8000-000000000061';
+    const decision = '73000000-0000-4000-8000-000000000062';
+    const determination = 'Data Foundry evidence-based determination (ADR-0013)';
+    await driver.exec('BEGIN');
+    try {
+      await driver.query(
+        `INSERT INTO rights_cells
+           (id, source_id, acquisition_route, account_or_product_plan, jurisdiction,
+            asset_class, output_class, operation, channel, created_by)
+         VALUES ($1, $2, 'VENDOR_API', 'commercial', 'US', 'DATA', 'NORMALIZED_FACT',
+                 'DISPLAY_PUBLICLY', 'PUBLIC_WEBSITE', 'test-suite')`,
+        [cell, SOURCE],
+      );
+      await driver.query(
+        `INSERT INTO rights_decisions
+           (id, cell_id, state, controlling_terms_version_id, evidence_artifact_id, clause_ref,
+            review_status, reviewer_type, reviewed_by, reviewed_at, effective_from,
+            recheck_at, rationale, created_by)
+         VALUES ($1, $2, 'ALLOW', $3, $4, '17 U.S.C. 105', 'APPROVED', 'DETERMINATION',
+                 $7, $5, $5, $6, 'US government work', $7)`,
+        [decision, cell, TERMS_VERSION, DECISION_EVIDENCE, TS, RECHECK, determination],
+      );
+      const mismatched = await driver
+        .query(`SELECT activate_rights_decision($1, 'HUMAN', $2, 'wrong actor type', $3)`, [
+          decision,
+          determination,
+          TS,
+        ])
+        .then(
+          () => null,
+          (caught: unknown) => caught,
+        );
+      expect((mismatched as { code?: unknown } | null)?.code).toBe('23514');
+    } finally {
+      await driver.exec('ROLLBACK');
+    }
+
+    await driver.exec('BEGIN');
+    try {
+      await driver.query(
+        `INSERT INTO rights_cells
+           (id, source_id, acquisition_route, account_or_product_plan, jurisdiction,
+            asset_class, output_class, operation, channel, created_by)
+         VALUES ($1, $2, 'VENDOR_API', 'commercial', 'US', 'DATA', 'NORMALIZED_FACT',
+                 'DISPLAY_PUBLICLY', 'PUBLIC_WEBSITE', 'test-suite')`,
+        [cell, SOURCE],
+      );
+      await driver.query(
+        `INSERT INTO rights_decisions
+           (id, cell_id, state, controlling_terms_version_id, evidence_artifact_id, clause_ref,
+            review_status, reviewer_type, reviewed_by, reviewed_at, effective_from,
+            recheck_at, rationale, created_by)
+         VALUES ($1, $2, 'ALLOW', $3, $4, '17 U.S.C. 105', 'APPROVED', 'DETERMINATION',
+                 $7, $5, $5, $6, 'US government work', $7)`,
+        [decision, cell, TERMS_VERSION, DECISION_EVIDENCE, TS, RECHECK, determination],
+      );
+      await driver.query(
+        `SELECT activate_rights_decision($1, 'DETERMINATION', $2, 'ADR-0013 determination', $3)`,
+        [decision, determination, TS],
+      );
+      const current = await driver.query<{ decision_id: string; state: string }>(
+        `SELECT decision_id, state FROM current_rights_decisions WHERE cell_id = $1`,
+        [cell],
+      );
+      expect(current).toEqual([{ decision_id: decision, state: 'ALLOW' }]);
+    } finally {
+      await driver.exec('ROLLBACK');
+    }
+  });
+
   it('allows competing immutable draft successors without letting a draft reserve the live cell', async () => {
     const cell = '73000000-0000-4000-8000-000000000021';
     const current = '73000000-0000-4000-8000-000000000022';
