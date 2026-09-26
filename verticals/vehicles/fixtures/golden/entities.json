@@ -1,382 +1,718 @@
 {
-  "_banner": "SYNTHETIC SHAPE FIXTURE — replace with captured artifacts before activation. Expected canonical output of the real pipeline over fixtures/epa-vehicles.csv and fixtures/nhtsa-flat-rcl.csv (fictional makes, fictional values), with both sources activated ONLY inside tests/shape-ingest.test.ts. Not EPA or NHTSA data.",
+  "_banner": "REAL SAMPLE captured 2026-09-26 — expected canonical output of the real pipeline over fixtures/epa-vehicles.csv (verbatim rows of https://www.fueleconomy.gov/feg/epadata/vehicles.csv.zip) and fixtures/nhtsa-flat-rcl.csv (verbatim rows of https://static.nhtsa.gov/odi/ffdd/rcl/FLAT_RCL_POST_2010.zip), with both sources activated ONLY inside tests/shape-ingest.test.ts. Regenerate with VEHICLES_UPDATE_GOLDENS=1 npx vitest run verticals/vehicles/tests/shape-ingest.test.ts.",
   "counts": {
-    "make": 3,
-    "vehicle_model_year": 10,
-    "vehicle_configuration": 12,
-    "recall_campaign": 5,
-    "total": 30
+    "make": 7,
+    "vehicle_model_year": 11,
+    "vehicle_configuration": 28,
+    "recall_campaign": 11,
+    "total": 57
   },
   "entities": [
     {
-      "ref": "make:examplar-motors",
+      "ref": "make:chevrolet",
       "entity_type": "make",
-      "canonical_name": "Examplar Motors",
-      "canonical_slug": "examplar-motors",
+      "canonical_name": "Chevrolet",
+      "canonical_slug": "chevrolet",
       "aliases": [
         {
           "alias_type": "legal_name",
-          "normalized_value": "EXAMPLAR MOTORS"
-        },
-        {
-          "alias_type": "name",
-          "normalized_value": "EXAMPLAR MOTORS"
+          "normalized_value": "CHEVROLET"
         }
       ]
     },
     {
-      "ref": "make:fixture-automotive",
+      "ref": "make:ford",
       "entity_type": "make",
-      "canonical_name": "Fixture Automotive",
-      "canonical_slug": "fixture-automotive",
+      "canonical_name": "Ford",
+      "canonical_slug": "ford",
       "aliases": [
         {
           "alias_type": "legal_name",
-          "normalized_value": "FIXTURE AUTOMOTIVE"
+          "normalized_value": "FORD"
         },
         {
           "alias_type": "name",
-          "normalized_value": "FIXTURE AUTOMOTIVE"
+          "normalized_value": "FORD"
         }
       ]
     },
     {
-      "ref": "make:placeholder-motor-works",
+      "ref": "make:honda",
       "entity_type": "make",
-      "canonical_name": "Placeholder Motor Works",
-      "canonical_slug": "placeholder-motor-works",
+      "canonical_name": "Honda",
+      "canonical_slug": "honda",
       "aliases": [
         {
           "alias_type": "legal_name",
-          "normalized_value": "PLACEHOLDER MOTOR WORKS"
+          "normalized_value": "HONDA"
         },
         {
           "alias_type": "name",
-          "normalized_value": "PLACEHOLDER MOTOR WORKS"
+          "normalized_value": "HONDA"
         }
       ]
     },
     {
-      "ref": "recall_campaign:20V901000",
+      "ref": "make:mercedes-benz",
+      "entity_type": "make",
+      "canonical_name": "Mercedes-Benz",
+      "canonical_slug": "mercedes-benz",
+      "aliases": [
+        {
+          "alias_type": "legal_name",
+          "normalized_value": "MERCEDES-BENZ"
+        },
+        {
+          "alias_type": "name",
+          "normalized_value": "MERCEDES-BENZ"
+        }
+      ]
+    },
+    {
+      "ref": "make:tesla",
+      "entity_type": "make",
+      "canonical_name": "Tesla",
+      "canonical_slug": "tesla",
+      "aliases": [
+        {
+          "alias_type": "legal_name",
+          "normalized_value": "TESLA"
+        },
+        {
+          "alias_type": "name",
+          "normalized_value": "TESLA"
+        }
+      ]
+    },
+    {
+      "ref": "make:toyota",
+      "entity_type": "make",
+      "canonical_name": "Toyota",
+      "canonical_slug": "toyota",
+      "aliases": [
+        {
+          "alias_type": "legal_name",
+          "normalized_value": "TOYOTA"
+        },
+        {
+          "alias_type": "name",
+          "normalized_value": "TOYOTA"
+        }
+      ]
+    },
+    {
+      "ref": "make:volkswagen",
+      "entity_type": "make",
+      "canonical_name": "Volkswagen",
+      "canonical_slug": "volkswagen",
+      "aliases": [
+        {
+          "alias_type": "legal_name",
+          "normalized_value": "VOLKSWAGEN"
+        },
+        {
+          "alias_type": "name",
+          "normalized_value": "VOLKSWAGEN"
+        }
+      ]
+    },
+    {
+      "ref": "recall_campaign:18V108000",
       "entity_type": "recall_campaign",
-      "canonical_name": "NHTSA 20V901000",
-      "canonical_slug": "nhtsa-20v901000",
+      "canonical_name": "NHTSA 18V108000",
+      "canonical_slug": "nhtsa-18v108000",
       "aliases": [
         {
           "alias_type": "nhtsa_campaign_number",
-          "normalized_value": "20V901000"
+          "normalized_value": "18V108000"
         }
       ]
     },
     {
-      "ref": "recall_campaign:21V902000",
+      "ref": "recall_campaign:18V629000",
       "entity_type": "recall_campaign",
-      "canonical_name": "NHTSA 21V902000",
-      "canonical_slug": "nhtsa-21v902000",
+      "canonical_name": "NHTSA 18V629000",
+      "canonical_slug": "nhtsa-18v629000",
       "aliases": [
         {
           "alias_type": "nhtsa_campaign_number",
-          "normalized_value": "21V902000"
+          "normalized_value": "18V629000"
         }
       ]
     },
     {
-      "ref": "recall_campaign:21V903000",
+      "ref": "recall_campaign:18V761000",
       "entity_type": "recall_campaign",
-      "canonical_name": "NHTSA 21V903000",
-      "canonical_slug": "nhtsa-21v903000",
+      "canonical_name": "NHTSA 18V761000",
+      "canonical_slug": "nhtsa-18v761000",
       "aliases": [
         {
           "alias_type": "nhtsa_campaign_number",
-          "normalized_value": "21V903000"
+          "normalized_value": "18V761000"
         }
       ]
     },
     {
-      "ref": "recall_campaign:22V904000",
+      "ref": "recall_campaign:18V894000",
       "entity_type": "recall_campaign",
-      "canonical_name": "NHTSA 22V904000",
-      "canonical_slug": "nhtsa-22v904000",
+      "canonical_name": "NHTSA 18V894000",
+      "canonical_slug": "nhtsa-18v894000",
       "aliases": [
         {
           "alias_type": "nhtsa_campaign_number",
-          "normalized_value": "22V904000"
+          "normalized_value": "18V894000"
         }
       ]
     },
     {
-      "ref": "recall_campaign:22V905000",
+      "ref": "recall_campaign:20V314000",
       "entity_type": "recall_campaign",
-      "canonical_name": "NHTSA 22V905000",
-      "canonical_slug": "nhtsa-22v905000",
+      "canonical_name": "NHTSA 20V314000",
+      "canonical_slug": "nhtsa-20v314000",
       "aliases": [
         {
           "alias_type": "nhtsa_campaign_number",
-          "normalized_value": "22V905000"
+          "normalized_value": "20V314000"
         }
       ]
     },
     {
-      "ref": "vehicle_configuration:900001",
+      "ref": "recall_campaign:21V215000",
+      "entity_type": "recall_campaign",
+      "canonical_name": "NHTSA 21V215000",
+      "canonical_slug": "nhtsa-21v215000",
+      "aliases": [
+        {
+          "alias_type": "nhtsa_campaign_number",
+          "normalized_value": "21V215000"
+        }
+      ]
+    },
+    {
+      "ref": "recall_campaign:21V387000",
+      "entity_type": "recall_campaign",
+      "canonical_name": "NHTSA 21V387000",
+      "canonical_slug": "nhtsa-21v387000",
+      "aliases": [
+        {
+          "alias_type": "nhtsa_campaign_number",
+          "normalized_value": "21V387000"
+        }
+      ]
+    },
+    {
+      "ref": "recall_campaign:22V176000",
+      "entity_type": "recall_campaign",
+      "canonical_name": "NHTSA 22V176000",
+      "canonical_slug": "nhtsa-22v176000",
+      "aliases": [
+        {
+          "alias_type": "nhtsa_campaign_number",
+          "normalized_value": "22V176000"
+        }
+      ]
+    },
+    {
+      "ref": "recall_campaign:23V158000",
+      "entity_type": "recall_campaign",
+      "canonical_name": "NHTSA 23V158000",
+      "canonical_slug": "nhtsa-23v158000",
+      "aliases": [
+        {
+          "alias_type": "nhtsa_campaign_number",
+          "normalized_value": "23V158000"
+        }
+      ]
+    },
+    {
+      "ref": "recall_campaign:23V283000",
+      "entity_type": "recall_campaign",
+      "canonical_name": "NHTSA 23V283000",
+      "canonical_slug": "nhtsa-23v283000",
+      "aliases": [
+        {
+          "alias_type": "nhtsa_campaign_number",
+          "normalized_value": "23V283000"
+        }
+      ]
+    },
+    {
+      "ref": "recall_campaign:23V858000",
+      "entity_type": "recall_campaign",
+      "canonical_name": "NHTSA 23V858000",
+      "canonical_slug": "nhtsa-23v858000",
+      "aliases": [
+        {
+          "alias_type": "nhtsa_campaign_number",
+          "normalized_value": "23V858000"
+        }
+      ]
+    },
+    {
+      "ref": "vehicle_configuration:37309",
       "entity_type": "vehicle_configuration",
-      "canonical_name": "EPA 900001",
-      "canonical_slug": "epa-900001",
+      "canonical_name": "EPA 37309",
+      "canonical_slug": "epa-37309",
       "aliases": [
         {
           "alias_type": "epa_vehicle_id",
-          "normalized_value": "900001"
+          "normalized_value": "37309"
         }
       ]
     },
     {
-      "ref": "vehicle_configuration:900002",
+      "ref": "vehicle_configuration:38880",
       "entity_type": "vehicle_configuration",
-      "canonical_name": "EPA 900002",
-      "canonical_slug": "epa-900002",
+      "canonical_name": "EPA 38880",
+      "canonical_slug": "epa-38880",
       "aliases": [
         {
           "alias_type": "epa_vehicle_id",
-          "normalized_value": "900002"
+          "normalized_value": "38880"
         }
       ]
     },
     {
-      "ref": "vehicle_configuration:900003",
+      "ref": "vehicle_configuration:38881",
       "entity_type": "vehicle_configuration",
-      "canonical_name": "EPA 900003",
-      "canonical_slug": "epa-900003",
+      "canonical_name": "EPA 38881",
+      "canonical_slug": "epa-38881",
       "aliases": [
         {
           "alias_type": "epa_vehicle_id",
-          "normalized_value": "900003"
+          "normalized_value": "38881"
         }
       ]
     },
     {
-      "ref": "vehicle_configuration:900004",
+      "ref": "vehicle_configuration:38882",
       "entity_type": "vehicle_configuration",
-      "canonical_name": "EPA 900004",
-      "canonical_slug": "epa-900004",
+      "canonical_name": "EPA 38882",
+      "canonical_slug": "epa-38882",
       "aliases": [
         {
           "alias_type": "epa_vehicle_id",
-          "normalized_value": "900004"
+          "normalized_value": "38882"
         }
       ]
     },
     {
-      "ref": "vehicle_configuration:900005",
+      "ref": "vehicle_configuration:39594",
       "entity_type": "vehicle_configuration",
-      "canonical_name": "EPA 900005",
-      "canonical_slug": "epa-900005",
+      "canonical_name": "EPA 39594",
+      "canonical_slug": "epa-39594",
       "aliases": [
         {
           "alias_type": "epa_vehicle_id",
-          "normalized_value": "900005"
+          "normalized_value": "39594"
         }
       ]
     },
     {
-      "ref": "vehicle_configuration:900006",
+      "ref": "vehicle_configuration:39595",
       "entity_type": "vehicle_configuration",
-      "canonical_name": "EPA 900006",
-      "canonical_slug": "epa-900006",
+      "canonical_name": "EPA 39595",
+      "canonical_slug": "epa-39595",
       "aliases": [
         {
           "alias_type": "epa_vehicle_id",
-          "normalized_value": "900006"
+          "normalized_value": "39595"
         }
       ]
     },
     {
-      "ref": "vehicle_configuration:900007",
+      "ref": "vehicle_configuration:39596",
       "entity_type": "vehicle_configuration",
-      "canonical_name": "EPA 900007",
-      "canonical_slug": "epa-900007",
+      "canonical_name": "EPA 39596",
+      "canonical_slug": "epa-39596",
       "aliases": [
         {
           "alias_type": "epa_vehicle_id",
-          "normalized_value": "900007"
+          "normalized_value": "39596"
         }
       ]
     },
     {
-      "ref": "vehicle_configuration:900008",
+      "ref": "vehicle_configuration:39751",
       "entity_type": "vehicle_configuration",
-      "canonical_name": "EPA 900008",
-      "canonical_slug": "epa-900008",
+      "canonical_name": "EPA 39751",
+      "canonical_slug": "epa-39751",
       "aliases": [
         {
           "alias_type": "epa_vehicle_id",
-          "normalized_value": "900008"
+          "normalized_value": "39751"
         }
       ]
     },
     {
-      "ref": "vehicle_configuration:900009",
+      "ref": "vehicle_configuration:39754",
       "entity_type": "vehicle_configuration",
-      "canonical_name": "EPA 900009",
-      "canonical_slug": "epa-900009",
+      "canonical_name": "EPA 39754",
+      "canonical_slug": "epa-39754",
       "aliases": [
         {
           "alias_type": "epa_vehicle_id",
-          "normalized_value": "900009"
+          "normalized_value": "39754"
         }
       ]
     },
     {
-      "ref": "vehicle_configuration:900010",
+      "ref": "vehicle_configuration:39755",
       "entity_type": "vehicle_configuration",
-      "canonical_name": "EPA 900010",
-      "canonical_slug": "epa-900010",
+      "canonical_name": "EPA 39755",
+      "canonical_slug": "epa-39755",
       "aliases": [
         {
           "alias_type": "epa_vehicle_id",
-          "normalized_value": "900010"
+          "normalized_value": "39755"
         }
       ]
     },
     {
-      "ref": "vehicle_configuration:900011",
+      "ref": "vehicle_configuration:39918",
       "entity_type": "vehicle_configuration",
-      "canonical_name": "EPA 900011",
-      "canonical_slug": "epa-900011",
+      "canonical_name": "EPA 39918",
+      "canonical_slug": "epa-39918",
       "aliases": [
         {
           "alias_type": "epa_vehicle_id",
-          "normalized_value": "900011"
+          "normalized_value": "39918"
         }
       ]
     },
     {
-      "ref": "vehicle_configuration:900012",
+      "ref": "vehicle_configuration:40774",
       "entity_type": "vehicle_configuration",
-      "canonical_name": "EPA 900012",
-      "canonical_slug": "epa-900012",
+      "canonical_name": "EPA 40774",
+      "canonical_slug": "epa-40774",
       "aliases": [
         {
           "alias_type": "epa_vehicle_id",
-          "normalized_value": "900012"
+          "normalized_value": "40774"
         }
       ]
     },
     {
-      "ref": "vehicle_model_year:EXAMPLARMOTORSROADSTER2020",
+      "ref": "vehicle_configuration:40775",
+      "entity_type": "vehicle_configuration",
+      "canonical_name": "EPA 40775",
+      "canonical_slug": "epa-40775",
+      "aliases": [
+        {
+          "alias_type": "epa_vehicle_id",
+          "normalized_value": "40775"
+        }
+      ]
+    },
+    {
+      "ref": "vehicle_configuration:40874",
+      "entity_type": "vehicle_configuration",
+      "canonical_name": "EPA 40874",
+      "canonical_slug": "epa-40874",
+      "aliases": [
+        {
+          "alias_type": "epa_vehicle_id",
+          "normalized_value": "40874"
+        }
+      ]
+    },
+    {
+      "ref": "vehicle_configuration:40889",
+      "entity_type": "vehicle_configuration",
+      "canonical_name": "EPA 40889",
+      "canonical_slug": "epa-40889",
+      "aliases": [
+        {
+          "alias_type": "epa_vehicle_id",
+          "normalized_value": "40889"
+        }
+      ]
+    },
+    {
+      "ref": "vehicle_configuration:40890",
+      "entity_type": "vehicle_configuration",
+      "canonical_name": "EPA 40890",
+      "canonical_slug": "epa-40890",
+      "aliases": [
+        {
+          "alias_type": "epa_vehicle_id",
+          "normalized_value": "40890"
+        }
+      ]
+    },
+    {
+      "ref": "vehicle_configuration:41015",
+      "entity_type": "vehicle_configuration",
+      "canonical_name": "EPA 41015",
+      "canonical_slug": "epa-41015",
+      "aliases": [
+        {
+          "alias_type": "epa_vehicle_id",
+          "normalized_value": "41015"
+        }
+      ]
+    },
+    {
+      "ref": "vehicle_configuration:41020",
+      "entity_type": "vehicle_configuration",
+      "canonical_name": "EPA 41020",
+      "canonical_slug": "epa-41020",
+      "aliases": [
+        {
+          "alias_type": "epa_vehicle_id",
+          "normalized_value": "41020"
+        }
+      ]
+    },
+    {
+      "ref": "vehicle_configuration:41028",
+      "entity_type": "vehicle_configuration",
+      "canonical_name": "EPA 41028",
+      "canonical_slug": "epa-41028",
+      "aliases": [
+        {
+          "alias_type": "epa_vehicle_id",
+          "normalized_value": "41028"
+        }
+      ]
+    },
+    {
+      "ref": "vehicle_configuration:41034",
+      "entity_type": "vehicle_configuration",
+      "canonical_name": "EPA 41034",
+      "canonical_slug": "epa-41034",
+      "aliases": [
+        {
+          "alias_type": "epa_vehicle_id",
+          "normalized_value": "41034"
+        }
+      ]
+    },
+    {
+      "ref": "vehicle_configuration:41106",
+      "entity_type": "vehicle_configuration",
+      "canonical_name": "EPA 41106",
+      "canonical_slug": "epa-41106",
+      "aliases": [
+        {
+          "alias_type": "epa_vehicle_id",
+          "normalized_value": "41106"
+        }
+      ]
+    },
+    {
+      "ref": "vehicle_configuration:41113",
+      "entity_type": "vehicle_configuration",
+      "canonical_name": "EPA 41113",
+      "canonical_slug": "epa-41113",
+      "aliases": [
+        {
+          "alias_type": "epa_vehicle_id",
+          "normalized_value": "41113"
+        }
+      ]
+    },
+    {
+      "ref": "vehicle_configuration:43019",
+      "entity_type": "vehicle_configuration",
+      "canonical_name": "EPA 43019",
+      "canonical_slug": "epa-43019",
+      "aliases": [
+        {
+          "alias_type": "epa_vehicle_id",
+          "normalized_value": "43019"
+        }
+      ]
+    },
+    {
+      "ref": "vehicle_configuration:43023",
+      "entity_type": "vehicle_configuration",
+      "canonical_name": "EPA 43023",
+      "canonical_slug": "epa-43023",
+      "aliases": [
+        {
+          "alias_type": "epa_vehicle_id",
+          "normalized_value": "43023"
+        }
+      ]
+    },
+    {
+      "ref": "vehicle_configuration:43401",
+      "entity_type": "vehicle_configuration",
+      "canonical_name": "EPA 43401",
+      "canonical_slug": "epa-43401",
+      "aliases": [
+        {
+          "alias_type": "epa_vehicle_id",
+          "normalized_value": "43401"
+        }
+      ]
+    },
+    {
+      "ref": "vehicle_configuration:43402",
+      "entity_type": "vehicle_configuration",
+      "canonical_name": "EPA 43402",
+      "canonical_slug": "epa-43402",
+      "aliases": [
+        {
+          "alias_type": "epa_vehicle_id",
+          "normalized_value": "43402"
+        }
+      ]
+    },
+    {
+      "ref": "vehicle_configuration:46167",
+      "entity_type": "vehicle_configuration",
+      "canonical_name": "EPA 46167",
+      "canonical_slug": "epa-46167",
+      "aliases": [
+        {
+          "alias_type": "epa_vehicle_id",
+          "normalized_value": "46167"
+        }
+      ]
+    },
+    {
+      "ref": "vehicle_configuration:46168",
+      "entity_type": "vehicle_configuration",
+      "canonical_name": "EPA 46168",
+      "canonical_slug": "epa-46168",
+      "aliases": [
+        {
+          "alias_type": "epa_vehicle_id",
+          "normalized_value": "46168"
+        }
+      ]
+    },
+    {
+      "ref": "vehicle_model_year:CHEVROLETVOLT2017",
       "entity_type": "vehicle_model_year",
-      "canonical_name": "Examplar Motors Roadster 2020",
-      "canonical_slug": "examplar-motors-roadster-2020",
+      "canonical_name": "Chevrolet Volt 2017",
+      "canonical_slug": "chevrolet-volt-2017",
       "aliases": [
         {
           "alias_type": "make_model_year",
-          "normalized_value": "EXAMPLARMOTORSROADSTER2020"
+          "normalized_value": "CHEVROLETVOLT2017"
         }
       ]
     },
     {
-      "ref": "vehicle_model_year:EXAMPLARMOTORSROADSTER2021",
+      "ref": "vehicle_model_year:FORDF1502019",
       "entity_type": "vehicle_model_year",
-      "canonical_name": "Examplar Motors Roadster 2021",
-      "canonical_slug": "examplar-motors-roadster-2021",
+      "canonical_name": "Ford F150 2019",
+      "canonical_slug": "ford-f150-2019",
       "aliases": [
         {
           "alias_type": "make_model_year",
-          "normalized_value": "EXAMPLARMOTORSROADSTER2021"
+          "normalized_value": "FORDF1502019"
         }
       ]
     },
     {
-      "ref": "vehicle_model_year:EXAMPLARMOTORSVOLTLINE2021",
+      "ref": "vehicle_model_year:FORDRANGER2023",
       "entity_type": "vehicle_model_year",
-      "canonical_name": "Examplar Motors Voltline 2021",
-      "canonical_slug": "examplar-motors-voltline-2021",
+      "canonical_name": "Ford Ranger 2023",
+      "canonical_slug": "ford-ranger-2023",
       "aliases": [
         {
           "alias_type": "make_model_year",
-          "normalized_value": "EXAMPLARMOTORSVOLTLINE2021"
+          "normalized_value": "FORDRANGER2023"
         }
       ]
     },
     {
-      "ref": "vehicle_model_year:FIXTUREAUTOMOTIVEMULE2020",
+      "ref": "vehicle_model_year:HONDAACCORD2018",
       "entity_type": "vehicle_model_year",
-      "canonical_name": "Fixture Automotive Mule 2020",
-      "canonical_slug": "fixture-automotive-mule-2020",
+      "canonical_name": "Honda Accord 2018",
+      "canonical_slug": "honda-accord-2018",
       "aliases": [
         {
           "alias_type": "make_model_year",
-          "normalized_value": "FIXTUREAUTOMOTIVEMULE2020"
+          "normalized_value": "HONDAACCORD2018"
         }
       ]
     },
     {
-      "ref": "vehicle_model_year:FIXTUREAUTOMOTIVEMULE2021",
+      "ref": "vehicle_model_year:HONDAACCORD2019",
       "entity_type": "vehicle_model_year",
-      "canonical_name": "Fixture Automotive Mule 2021",
-      "canonical_slug": "fixture-automotive-mule-2021",
+      "canonical_name": "Honda Accord 2019",
+      "canonical_slug": "honda-accord-2019",
       "aliases": [
         {
           "alias_type": "make_model_year",
-          "normalized_value": "FIXTUREAUTOMOTIVEMULE2021"
+          "normalized_value": "HONDAACCORD2019"
         }
       ]
     },
     {
-      "ref": "vehicle_model_year:FIXTUREAUTOMOTIVEQUANTA2021",
+      "ref": "vehicle_model_year:HONDAACCORDHYBRID2018",
       "entity_type": "vehicle_model_year",
-      "canonical_name": "Fixture Automotive Quanta 2021",
-      "canonical_slug": "fixture-automotive-quanta-2021",
+      "canonical_name": "HONDA ACCORD HYBRID 2018",
+      "canonical_slug": "honda-accord-hybrid-2018",
       "aliases": [
         {
           "alias_type": "make_model_year",
-          "normalized_value": "FIXTUREAUTOMOTIVEQUANTA2021"
+          "normalized_value": "HONDAACCORDHYBRID2018"
         }
       ]
     },
     {
-      "ref": "vehicle_model_year:PLACEHOLDERMOTORWORKSPM3002022",
+      "ref": "vehicle_model_year:MERCEDESBENZC3002019",
       "entity_type": "vehicle_model_year",
-      "canonical_name": "PLACEHOLDER MOTOR WORKS PM-300 2022",
-      "canonical_slug": "placeholder-motor-works-pm-300-2022",
+      "canonical_name": "MERCEDES-BENZ C 300 2019",
+      "canonical_slug": "mercedes-benz-c-300-2019",
       "aliases": [
         {
           "alias_type": "make_model_year",
-          "normalized_value": "PLACEHOLDERMOTORWORKSPM3002022"
+          "normalized_value": "MERCEDESBENZC3002019"
         }
       ]
     },
     {
-      "ref": "vehicle_model_year:PLACEHOLDERMOTORWORKSPM302022",
+      "ref": "vehicle_model_year:MERCEDESBENZCCLASS2019",
       "entity_type": "vehicle_model_year",
-      "canonical_name": "Placeholder Motor Works PM-30 2022",
-      "canonical_slug": "placeholder-motor-works-pm-30-2022",
+      "canonical_name": "Mercedes-Benz C-Class 2019",
+      "canonical_slug": "mercedes-benz-c-class-2019",
       "aliases": [
         {
           "alias_type": "make_model_year",
-          "normalized_value": "PLACEHOLDERMOTORWORKSPM302022"
+          "normalized_value": "MERCEDESBENZCCLASS2019"
         }
       ]
     },
     {
-      "ref": "vehicle_model_year:PLACEHOLDERMOTORWORKSPM32021",
+      "ref": "vehicle_model_year:TESLAMODEL32021",
       "entity_type": "vehicle_model_year",
-      "canonical_name": "Placeholder Motor Works PM-3 2021",
-      "canonical_slug": "placeholder-motor-works-pm-3-2021",
+      "canonical_name": "Tesla Model 3 2021",
+      "canonical_slug": "tesla-model-3-2021",
       "aliases": [
         {
           "alias_type": "make_model_year",
-          "normalized_value": "PLACEHOLDERMOTORWORKSPM32021"
+          "normalized_value": "TESLAMODEL32021"
         }
       ]
     },
     {
-      "ref": "vehicle_model_year:PLACEHOLDERMOTORWORKSPM32022",
+      "ref": "vehicle_model_year:TOYOTACAMRY2018",
       "entity_type": "vehicle_model_year",
-      "canonical_name": "Placeholder Motor Works PM-3 2022",
-      "canonical_slug": "placeholder-motor-works-pm-3-2022",
+      "canonical_name": "Toyota Camry 2018",
+      "canonical_slug": "toyota-camry-2018",
       "aliases": [
         {
           "alias_type": "make_model_year",
-          "normalized_value": "PLACEHOLDERMOTORWORKSPM32022"
+          "normalized_value": "TOYOTACAMRY2018"
+        }
+      ]
+    },
+    {
+      "ref": "vehicle_model_year:VOLKSWAGENTIGUAN2021",
+      "entity_type": "vehicle_model_year",
+      "canonical_name": "Volkswagen Tiguan 2021",
+      "canonical_slug": "volkswagen-tiguan-2021",
+      "aliases": [
+        {
+          "alias_type": "make_model_year",
+          "normalized_value": "VOLKSWAGENTIGUAN2021"
         }
       ]
     }

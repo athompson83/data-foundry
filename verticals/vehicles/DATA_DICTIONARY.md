@@ -1,7 +1,8 @@
 # Data Dictionary — `vehicles`
 
-Coverage figures are measured on the **synthetic shape fixtures** and describe
-only them.
+Coverage figures are measured on the **real-sample fixtures** (28 EPA rows,
+16 NHTSA rows captured 2026-09-26) and describe only them. Full-file figures
+are in SOURCES.md and QUALITY.md.
 
 ## Entity types
 
@@ -19,21 +20,22 @@ Every rule is HVAC's chain: upper-case, strip `- _ . / \` and spaces
 
 | Alias type | Strong? | Built from | Example source form | Normalized form |
 |---|---|---|---|---|
-| `make_model_year` | yes | EPA `make`+`baseModel`+`year`; NHTSA `MAKETXT`+`MODELTXT`+`YEARTXT`, joined by a space | `Placeholder Motor Works PM-3 2022` / `PLACEHOLDER MOTOR WORKS PM3 2022` | `PLACEHOLDERMOTORWORKSPM32022` |
-| `epa_vehicle_id` | yes | EPA `id` | `900004` | `900004` |
-| `nhtsa_campaign_number` | yes | NHTSA `CAMPNO` | `20V901000` (users: `20v-901-000`) | `20V901000` |
-| `legal_name`, `name` (core) | yes / no | make spellings via `publisher_aliases` | `EXAMPLAR MOTORS` | `EXAMPLAR MOTORS` |
+| `make_model_year` | yes | EPA `make`+`baseModel`+`year`; NHTSA `MAKETXT`+`MODELTXT`+`YEARTXT`, joined by a space | `Ford F150 2019` / `FORD F-150 2019` | `FORDF1502019` |
+| `epa_vehicle_id` | yes | EPA `id` | `39594` | `39594` |
+| `nhtsa_campaign_number` | yes | NHTSA `CAMPNO` | `20V314000` (users: `20v-314-000`); also `21V00H000` | `20V314000` |
+| `legal_name`, `name` (core) | yes / no | make spellings via `publisher_aliases` | `HONDA` | `HONDA` |
 
 Display names: a model year shows its composite key's best-ranked source
-spelling (`Examplar Motors Roadster 2020`); a configuration shows
+spelling (`Honda Accord 2018`; an NHTSA-only key shows NHTSA's upper case,
+`HONDA ACCORD HYBRID 2018`); a configuration shows
 `EPA <id>`; a campaign `NHTSA <number>`.
 
 ## Properties — `vehicle_model_year`
 
-| Property | Type | Unit | Critical | Description | Coverage (synthetic) |
+| Property | Type | Unit | Critical | Description | Coverage (fixtures) |
 |---|---|---|---|---|---|
-| `model_year` | integer | — | yes | Model year | 10/10 (EPA 9, NHTSA 6, both 5 — agree) |
-| `model_name` | string | — | yes | EPA base model name | 9/10 (EPA only) |
+| `model_year` | integer | — | yes | Model year | 11/11 (EPA 9, NHTSA 9, both 7 — agree) |
+| `model_name` | string | — | yes | EPA base model name | 9/11 (EPA only; the 2 NHTSA-only keys are the measured join gap) |
 
 ## Properties — `vehicle_configuration` (EPA only)
 
@@ -42,23 +44,23 @@ unit registry has no fuel-economy, volume or emissions dimension.
 
 | Property | Type | Unit (by name) | Critical | Source column | Coverage |
 |---|---|---|---|---|---|
-| `model_year` | integer | — | yes | `year` | 12/12 |
-| `make` | string | — | no | `make` | 12/12 |
-| `model` | string | — | yes | `model` | 12/12 |
-| `base_model` | string | — | no | `baseModel` | 12/12 |
-| `vehicle_class` | string | — | no | `VClass` | 12/12 |
-| `cylinders` | integer | — | no | `cylinders` | 11/12 (EV absent) |
-| `displacement_l` | number | litres | no | `displ` | 11/12 (EV absent) |
-| `drive` | string (controlled) | — | yes | `drive` | 12/12 |
-| `transmission` | string | — | no | `trany` | 12/12 |
-| `fuel_type` | string | — | yes | `fuelType` | 12/12 |
-| `primary_fuel` | string | — | no | `fuelType1` | 12/12 |
-| `powertrain_type` | string | — | no | `atvType` | 3/12 (blank = conventional) |
-| `city_mpg` | number | mpg (MPGe for EVs) | yes | `city08` | 12/12 |
-| `highway_mpg` | number | mpg (MPGe for EVs) | yes | `highway08` | 12/12 |
-| `combined_mpg` | number | mpg (MPGe for EVs) | yes | `comb08` | 12/12 |
-| `co2_tailpipe_gpm` | number | g CO2/mi | no | `co2TailpipeGpm` | 12/12 |
-| `ev_range_mi` | integer | miles (0 = none, as published) | no | `range` | 12/12 |
+| `model_year` | integer | — | yes | `year` | 28/28 |
+| `make` | string | — | no | `make` | 28/28 |
+| `model` | string | — | yes | `model` | 28/28 |
+| `base_model` | string | — | no | `baseModel` | 28/28 |
+| `vehicle_class` | string | — | no | `VClass` | 28/28 |
+| `cylinders` | integer | — | no | `cylinders` | 26/28 (EVs absent) |
+| `displacement_l` | number | litres | no | `displ` | 26/28 (EVs absent) |
+| `drive` | string (controlled) | — | yes | `drive` | 28/28 (blank on 1,186 full-file rows, optional) |
+| `transmission` | string | — | no | `trany` | 28/28 |
+| `fuel_type` | string | — | yes | `fuelType` | 28/28 |
+| `primary_fuel` | string | — | no | `fuelType1` | 28/28 |
+| `powertrain_type` | string | — | no | `atvType` | 6/28 (blank = conventional) |
+| `city_mpg` | number | mpg (MPGe for EVs) | yes | `city08` | 28/28 |
+| `highway_mpg` | number | mpg (MPGe for EVs) | yes | `highway08` | 28/28 |
+| `combined_mpg` | number | mpg (MPGe for EVs) | yes | `comb08` | 28/28 |
+| `co2_tailpipe_gpm` | number | g CO2/mi | no | `co2TailpipeGpm` | 28/28 |
+| `ev_range_mi` | integer | miles (0 = none, as published) | no | `range` | 28/28. **Correct only for EVs**: the 2017 Volt (PHEV) row carries its total range, 420 (QUALITY.md) |
 
 `drive` terms: `front_wheel_drive`, `rear_wheel_drive`, `all_wheel_drive`,
 `four_wheel_drive`, `part_time_four_wheel_drive`, `four_or_all_wheel_drive`,
@@ -68,16 +70,16 @@ unit registry has no fuel-economy, volume or emissions dimension.
 
 | Property | Type | Unit | Critical | Source column | Coverage |
 |---|---|---|---|---|---|
-| `report_received_date` | date | — | yes | `RCDATE` (YYYYMMDD) | 5/5 |
-| `component` | string | — | yes | `COMPNAME` | 5/5 |
-| `summary` | string | — | yes | `DESC_DEFECT` | 5/5 |
-| `consequence` | string | — | yes | `CONEQUENCE_DEFECT` | 5/5 |
-| `remedy` | string | — | yes | `CORRECTIVE_ACTION` | 5/5 |
-| `manufacturer_campaign_number` | string | — | no | `MFGCAMPNO` | 5/5 |
-| `manufacturer_name` | string | — | no | `MFGNAME` | 5/5 |
-| `potentially_affected` | integer | vehicles | no | `POTAFF` | 5/5 |
-| `park_outside_advisory` | boolean | — | no | `PARK_OUTSIDE` | 5/5 |
-| `do_not_drive_advisory` | boolean | — | no | `DO_NOT_DRIVE` | 5/5 |
+| `report_received_date` | date | — | yes | `RCDATE` (YYYYMMDD) | 11/11 |
+| `component` | string | — | yes | `COMPNAME` | 11/11 (`18V629000` carries two competing values) |
+| `summary` | string | — | yes | `DESC_DEFECT` | 11/11 |
+| `consequence` | string | — | yes | `CONEQUENCE_DEFECT` | 11/11 |
+| `remedy` | string | — | yes | `CORRECTIVE_ACTION` | 11/11 |
+| `manufacturer_campaign_number` | string | — | no | `MFGCAMPNO` | 10/11 (free text, e.g. `K2G, V2F`) |
+| `manufacturer_name` | string | — | no | `MFGNAME` | 11/11 |
+| `potentially_affected` | integer | vehicles | no | `POTAFF` | 11/11 |
+| `park_outside_advisory` | boolean | — | no | `PARK_OUTSIDE` | 11/11 |
+| `do_not_drive_advisory` | boolean | — | no | `DO_NOT_DRIVE` | 11/11 (`23V283000` is `Yes`) |
 
 ## Properties — `make`
 

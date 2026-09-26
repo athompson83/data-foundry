@@ -1,14 +1,14 @@
 # =============================================================================
-# nhtsa-recalls — NHTSA recall flat file (FLAT_RCL, tab-delimited, no header).
+# nhtsa-recalls — NHTSA recall flat files (FLAT_RCL_PRE_2010 / FLAT_RCL_POST_2010,
+# tab-delimited, headerless, unquoted).
 #
 # FAIL-CLOSED DECLARATION. status UNDER_REVIEW, rights UNREVIEWED, acquisition
-# not approved, and NOT in acquisition.yaml. No ADR-0013 determination has been
-# captured. See RIGHTS.md.
+# not approved, and NOT in acquisition.yaml. See RIGHTS.md.
 #
-# Expected basis once evidence is captured: PUBLIC_DOMAIN_US_GOVERNMENT_WORK
-# (17 U.S.C. § 105; a National Highway Traffic Safety Administration
-# publication), subject to the terms check and the hard stops — in particular
-# the free-text NOTES field, which can carry contact details and is excluded.
+# ADR-0013 determination WRITTEN 2026-09-26 (not yet recorded):
+# docs/sources/determinations/nhtsa-recalls.yaml. Basis
+# PUBLIC_DOMAIN_US_GOVERNMENT_WORK (17 U.S.C. § 105), every surface ALLOW. The
+# free-text NOTES field (business phone numbers) stays excluded.
 # =============================================================================
 
 key: nhtsa-recalls
@@ -24,8 +24,9 @@ source_type: REGULATORY_FILING
 authority_rank: 0
 
 status: UNDER_REVIEW
-# Campaigns are added daily; the flat file is regenerated on NHTSA's schedule
-# (UNVERIFIED). WEEKLY is the proposed polling cadence.
+# Campaigns are added daily; both flat files carried a 07:02 member timestamp
+# and a 16:24 UTC Last-Modified on 2026-09-26 (daily regeneration). WEEKLY is
+# the proposed polling cadence.
 refresh_cadence: WEEKLY
 
 rights_classification: UNREVIEWED
@@ -43,8 +44,9 @@ robots_policy:
   user_agent: DataFoundryBot
   crawl_delay_seconds: null
   disallowed_paths: []
-  # UNVERIFIED. The flat-file downloads are believed to live under
-  # /odi/ffdd/rcl/ on static.nhtsa.gov; robots.txt has not been retrieved.
+  # VERIFIED 2026-09-26: the flat files live under /odi/ffdd/rcl/. No
+  # robots.txt is published (HTTP 404 NoSuchKey;
+  # docs/sources/evidence/vehicles/robots.json), so there is no snapshot hash.
   allowed_paths:
     - /odi/ffdd/rcl/
   robots_url: https://static.nhtsa.gov/robots.txt
@@ -58,7 +60,11 @@ rights_policy:
   terms_url: null
   license_id: null
   license_text_ref: null
+  # NHTSA's site-wide policies page (www.nhtsa.gov/about-nhtsa/web-policies-notices)
+  # answered HTTP 403 to the build environment; the § 105 basis does not
+  # depend on it (ADR-0013). terms_url stays null until it is captured.
   api_terms_url: null
+  # Still false: the determination is written but not recorded or activated.
   commercial_use_allowed: false
   redistribution_allowed: false
   derivative_normalization_allowed: false
@@ -88,15 +94,15 @@ acquisition_policy:
   approved_at: null
   max_requests_per_minute: 5
   notes: >-
-    PROPOSED. One HTTPS GET of the recall flat file (believed to be
-    /odi/ffdd/rcl/FLAT_RCL.zip, zipped, tab-delimited, headerless — UNVERIFIED;
-    extraction reads the declared ZIP member, and the initial load is the
-    offline operator path in docs/owner-actions/vehicles-initial-load.md).
-    The per-vehicle recalls API
-    (api.nhtsa.gov/recalls/recallsByVehicle) is the alternative for a
-    request-time lookup, under its own terms. In the fixture harness this reads
-    fixtures/nhtsa-flat-rcl.csv, a SYNTHETIC SHAPE FIXTURE with the declared
-    column order and tab delimiter.
+    PROPOSED. HTTPS GETs of /odi/ffdd/rcl/FLAT_RCL_PRE_2010.zip (7.4 MB) and
+    /odi/ffdd/rcl/FLAT_RCL_POST_2010.zip (15.0 MB; 311 MB uncompressed),
+    verified 2026-09-26. There is no single FLAT_RCL.zip: the two archives
+    together are the full snapshot, which the operator path cannot yet load
+    as one (QUALITY.md, docs/owner-actions/vehicles-initial-load.md). The
+    per-vehicle recalls API (api.nhtsa.gov/recalls/recallsByVehicle) returned
+    exactly the flat file's campaigns for HONDA/ACCORD/2018 and is the
+    alternative for a request-time lookup. In the fixture harness this reads
+    fixtures/nhtsa-flat-rcl.csv, a REAL SAMPLE of 16 rows.
 
 image_policy:
   images_reusable: false
@@ -115,14 +121,14 @@ provenance_retention:
 license_split:
   code_license_id: null
   data_license_id: null
-  notes: No code is vendored. The data licence is undetermined pending the ADR-0013 determination.
+  notes: No code is vendored. No data licence exists; the data is a § 105 federal work (determination written 2026-09-26).
 
 kill_switch_engaged: false
 
 notes: >-
-  PROPOSED SOURCE. The column ORDER in source-mappings.yaml `parsing.columns`
-  and every column name are UNVERIFIED until checked against a captured flat
-  file and NHTSA's current data dictionary (SOURCES.md). The flat file also
-  carries equipment, tire and child-seat campaigns; this vertical models vehicle
-  recalls only and has no row filter yet (QUALITY.md). Expected ADR-0013 basis:
-  PUBLIC_DOMAIN_US_GOVERNMENT_WORK, pending captured terms.
+  PROPOSED SOURCE. The column order in source-mappings.yaml `parsing.columns`
+  matches NHTSA's RCL.txt and every captured row (SOURCES.md, 2026-09-26). The
+  flat files also carry equipment, tire, child-seat and (pre-2010)
+  improvement campaigns; the `RCLTYPECD in [V]` row filter keeps vehicle
+  recalls only. ADR-0013 determination written:
+  PUBLIC_DOMAIN_US_GOVERNMENT_WORK, all surfaces ALLOW, not yet recorded.

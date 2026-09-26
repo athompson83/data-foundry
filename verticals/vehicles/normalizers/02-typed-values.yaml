@@ -8,8 +8,10 @@
 # fuel-economy, volume or emissions dimension, and adding one is a platform
 # change to make when a second source publishes a different unit.
 #
-# NHTSA's flat file writes dates as YYYYMMDD (`RCDATE`, UNVERIFIED against a
-# captured file); the platform's default date parser accepts that form.
+# NHTSA's flat file writes dates as YYYYMMDD (RCL.txt: "All dates are in
+# YYYYMMDD format"; every RCDATE of the 2026-09-26 capture matches). The
+# recalls API writes DD/MM/YYYY instead, which is not accepted here.
+# DO_NOT_DRIVE / PARK_OUTSIDE are exactly `Yes` / `No` in the capture.
 # =============================================================================
 
 layer: typed_values

@@ -1,0 +1,137 @@
+# =============================================================================
+# ADR-0013 evidence-based rights determination — epa-fueleconomy-vehicles
+#
+# Validated by tooling/lib/rights-determination.ts (RightsDeterminationSchema)
+# and tooling/test/vehicles-determinations.test.ts, which also checks every
+# repo:// evidence digest against the committed bytes. Recorded, not yet:
+#   POSTGRES_URL=... corepack pnpm rights:record -- --file docs/sources/determinations/epa-fueleconomy-vehicles.yaml --dry-run
+# Human-readable memo: docs/sources/vehicles-federal-rights-determination-20260926.md
+# =============================================================================
+# NOT § 105. fueleconomy.gov is administered by Oak Ridge National Laboratory
+# (a DOE contractor), and its only terms page limits the documents on the
+# server to "non-commercial, scientific and educational purposes". The basis
+# is therefore the published terms, and it grants ONLY what those terms
+# permit: internal acquisition, storage and caching for evaluation. Every
+# customer surface is UNKNOWN (refused). See the memo for how to lift it.
+schema_version: 1
+source_key: epa-fueleconomy-vehicles
+vertical_slug: vehicles
+source:
+  domain: www.fueleconomy.gov
+  source_type: REGULATORY_FILING
+publisher:
+  publisher_key: us-epa-doe-fueleconomy-gov
+  legal_name: >-
+    United States Environmental Protection Agency and United States Department
+    of Energy (fueleconomy.gov, administered by Oak Ridge National Laboratory)
+basis: PUBLISHED_TERMS_PERMIT
+determination_document: docs/sources/vehicles-federal-rights-determination-20260926.md
+evidence:
+  - key: determination_memo
+    kind: REVIEW_MEMO
+    canonical_uri: repo://docs/sources/vehicles-federal-rights-determination-20260926.md
+    storage_uri: repo://docs/sources/vehicles-federal-rights-determination-20260926.md
+    content_sha256: 42c47c50c19ffbbc887a4bbb8b6f6d01ca3d9c3aac0a028470968d00450cd5cb
+    mime_type: text/markdown
+    retrieved_at: "2026-09-26T21:45:00Z"
+    notes: >-
+      Human-readable determination with the evidence table and hard-stop
+      review for both federal vehicle sources.
+  - key: ornl_copyright_statement
+    kind: TERMS
+    canonical_uri: https://www.fueleconomy.gov/feg/ORNL-disclaimer.htm
+    storage_uri: repo://docs/sources/evidence/vehicles/fueleconomy-ORNL-disclaimer.html
+    content_sha256: 5ccccc187a4a6478a4d957ddf9258e1046999200ed7270e16680a43d61210460
+    mime_type: text/html
+    retrieved_at: "2026-09-26T21:20:35Z"
+    notes: >-
+      The site footer "Privacy/Security" page. "Copyright Status": documents were sponsored by a contractor of the U.S. Government under contract DE-AC05-00OR22725 and "may be freely distributed and used for non-commercial, scientific and educational purposes."
+  - key: download_page
+    kind: POLICY
+    canonical_uri: https://www.fueleconomy.gov/feg/download.shtml
+    storage_uri: repo://docs/sources/evidence/vehicles/fueleconomy-download.html
+    content_sha256: 1d196c4e780b6f426b9be25d90576c550bd4d345b3deed0275c70464801996bc
+    mime_type: text/html
+    retrieved_at: "2026-09-26T21:20:00Z"
+    notes: >-
+      "Fuel economy data are the result of vehicle testing done at the Environmental Protection Agency's National Vehicle and Fuel Emissions Laboratory ... and by vehicle manufacturers with oversight by EPA." Links /feg/epadata/vehicles.csv.zip.
+  - key: web_services_page
+    kind: POLICY
+    canonical_uri: https://www.fueleconomy.gov/feg/ws/index.shtml
+    storage_uri: repo://docs/sources/evidence/vehicles/fueleconomy-ws-index.html
+    content_sha256: a4d82d1d266b1070f396322ac2b387270e95a9e63b60704a4b1641bd430577a0
+    mime_type: text/html
+    retrieved_at: "2026-09-26T21:19:59Z"
+    notes: >-
+      Web services and the vehicles.csv data description; states no licence and no usage terms of its own.
+  - key: vehicles_csv_zip
+    kind: POLICY
+    canonical_uri: https://www.fueleconomy.gov/feg/epadata/vehicles.csv.zip
+    storage_uri: repo://docs/sources/evidence/vehicles/vehicles.csv.zip.manifest.json
+    content_sha256: 4ffbfcdcf3e21680d89ff65c34e0ff5757cf766f2f2c88eabaab7047ce147817
+    mime_type: application/json
+    retrieved_at: "2026-09-26T21:21:32Z"
+    notes: >-
+      Manifest of the archive as downloaded (archive SHA-256 fd9132961f2aff95464b9671aec025ecd886092521aa8855e79f77717a45ec0f);
+      the archive itself is kept outside the repository. Member vehicles.csv, 50,409 rows.
+  - key: robots
+    kind: POLICY
+    canonical_uri: https://static.nhtsa.gov/robots.txt
+    storage_uri: repo://docs/sources/evidence/vehicles/robots.json
+    content_sha256: 94bb36583e6b5108be66c35f9321690ceb7bb2365ed0d909732f389b1adcca38
+    mime_type: application/json
+    retrieved_at: "2026-09-26T21:19:30Z"
+    notes: >-
+      robots.txt status for vpic.nhtsa.dot.gov (404), api.nhtsa.gov (403 gateway, none published), static.nhtsa.gov (404 NoSuchKey) and www.fueleconomy.gov (empty reply; not retrievable).
+terms_evidence: ornl_copyright_statement
+decision_evidence: determination_memo
+clause_ref: >-
+  fueleconomy.gov /feg/ORNL-disclaimer.htm, "Copyright Status": "These
+  documents may be freely distributed and used for non-commercial, scientific
+  and educational purposes." (A contrary restriction for commercial surfaces,
+  so the ADR-0013 § 105 basis is not available.)
+reviewed_at: "2026-09-26T21:45:00Z"
+recheck_at: "2027-09-26T00:00:00Z"
+scope:
+  acquisition_route: BULK_FILE
+  account_or_product_plan: null
+  jurisdiction: null
+  asset_class: DATA
+  output_class: NORMALIZED_FACT
+surfaces:
+  PUBLIC_WEB:
+    decision: UNKNOWN
+    rationale: >-
+      The host's copyright statement permits only non-commercial, scientific
+      and educational use; display on a commercial site is not covered.
+  SEARCH_INDEX:
+    decision: UNKNOWN
+    rationale: Follows PUBLIC_WEB; no page may carry these facts yet.
+  API_FREE:
+    decision: UNKNOWN
+    rationale: A free tier of a commercial API is still commercial use; not covered by the statement.
+  API_PAID:
+    decision: UNKNOWN
+    rationale: Commercial redistribution is outside "non-commercial, scientific and educational purposes".
+  RAPIDAPI:
+    decision: UNKNOWN
+    rationale: Commercial marketplace redistribution; not covered by the statement.
+  MCP:
+    decision: UNKNOWN
+    rationale: Agent retrieval from a commercial service; not covered by the statement.
+  BULK_EXPORT:
+    decision: UNKNOWN
+    rationale: Commercial bulk redistribution; not covered by the statement.
+internal_processing:
+  ACQUIRE:
+    decision: ALLOW
+    rationale: >-
+      One public GET per month of the published bulk file for evaluation and
+      data-quality work (scientific use the statement permits). robots.txt was
+      not retrievable; the connector re-checks it on every run.
+  STORE:
+    decision: ALLOW
+    rationale: Retaining the downloaded file as evidence (AGENTS.md rule 10); no redistribution.
+  CACHE:
+    decision: ALLOW
+    rationale: Internal caching only; no customer surface reads it while every surface is UNKNOWN.

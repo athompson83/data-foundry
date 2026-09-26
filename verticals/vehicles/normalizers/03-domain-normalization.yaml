@@ -15,15 +15,14 @@
 # stripping the joining spaces is safe only because the year is always the
 # last four digits and the make is resolved separately. Worked example:
 #
-#     EPA    make=Examplar Motors  baseModel=Roadster  year=2020
-#            -> "Examplar Motors Roadster 2020"
-#     NHTSA  MAKETXT=EXAMPLAR MOTORS  MODELTXT=ROADSTER  YEARTXT=2020
-#            -> "EXAMPLAR MOTORS ROADSTER 2020"
+#     EPA    make=Ford  baseModel=F150  year=2019      -> "Ford F150 2019"
+#     NHTSA  MAKETXT=FORD  MODELTXT=F-150  YEARTXT=2019 -> "FORD F-150 2019"
 #                         |
-#     normalized_value:   EXAMPLARMOTORSROADSTER2020
+#     normalized_value:   FORDF1502019
 #
-#     EPA "PM-3" 2022 and NHTSA "PM3" 2022 meet (PLACEHOLDERMOTORWORKSPM32022);
-#     "PM-30" 2022 and "PM-300" 2022 stay distinct.
+#     (Real rows, captured 2026-09-26. NHTSA "C 300" meets EPA model "C300"
+#     but NOT EPA baseModel "C-Class", and NHTSA "ACCORD HYBRID" does not meet
+#     EPA baseModel "Accord": see QUALITY.md for the measured join rate.)
 #
 # Changing a rule changes every join key: bump schema_version, record it in
 # CHANGELOG.md and re-verify the goldens.
@@ -83,37 +82,69 @@ identifier_rules:
     validate:
       min_length: 9
       max_length: 9
-      pattern: "^[0-9]{2}[VEICT][0-9]{6}$"
+      # Verified on the captured flat files (2026-09-26): YY + recall type
+      # letter (V, E, T, C; I and X appear only before 2010) + six characters,
+      # the third of which is a letter in 1,678 rows of 2021 vehicle campaigns
+      # (for example 21V00H000).
+      pattern: "^[0-9]{2}[VEICTX][0-9]{2}[0-9A-Z][0-9]{3}$"
       on_failure: quarantine
 
 # --- Make resolution --------------------------------------------------------
 # A deterministic lookup table, not fuzzy matching. Matching is already
-# case-insensitive, so EPA's "Examplar Motors" and NHTSA's "EXAMPLAR MOTORS"
+# case-insensitive, so EPA's "Honda" and NHTSA's "HONDA"
 # are one spelling; list only genuinely different ones.
 #
-# SYNTHETIC MAKES. These three companies are fictional and exist only in the
-# shape fixtures. The real table (Honda, Toyota, Ford, ...) is written from the
-# captured EPA and NHTSA files and vPIC's make list — never from memory.
+# REAL MAKES, limited to the makes in the REAL SAMPLE fixtures. Both agencies
+# spell each of them identically up to case (EPA "Mercedes-Benz", NHTSA
+# "MERCEDES-BENZ"), so each entry lists one spelling. Make names are the
+# manufacturers' own marks, used nominatively to identify their vehicles.
+#
+# ACTIVATION GAP (QUALITY.md): the full files name 146 EPA makes and several
+# hundred NHTSA makes (most of them heavy-truck, bus, RV and trailer makers EPA
+# does not cover). Every make not listed here is quarantined. The complete
+# table must be generated from vPIC's make list (GetAllMakes) and reviewed,
+# never typed from memory.
 publisher_aliases:
-  examplar-motors:
-    canonical_name: Examplar Motors
+  chevrolet:
+    canonical_name: Chevrolet
     aliases:
-      - Examplar Motors
-      - Examplar
+      - Chevrolet
     match: case_insensitive_exact
 
-  fixture-automotive:
-    canonical_name: Fixture Automotive
+  ford:
+    canonical_name: Ford
     aliases:
-      - Fixture Automotive
-      - Fixture Auto
+      - Ford
     match: case_insensitive_exact
 
-  placeholder-motor-works:
-    canonical_name: Placeholder Motor Works
+  honda:
+    canonical_name: Honda
     aliases:
-      - Placeholder Motor Works
-      - PMW
+      - Honda
+    match: case_insensitive_exact
+
+  mercedes-benz:
+    canonical_name: Mercedes-Benz
+    aliases:
+      - Mercedes-Benz
+    match: case_insensitive_exact
+
+  tesla:
+    canonical_name: Tesla
+    aliases:
+      - Tesla
+    match: case_insensitive_exact
+
+  toyota:
+    canonical_name: Toyota
+    aliases:
+      - Toyota
+    match: case_insensitive_exact
+
+  volkswagen:
+    canonical_name: Volkswagen
+    aliases:
+      - Volkswagen
     match: case_insensitive_exact
 
 # A make matching nothing above is quarantined, never auto-created.

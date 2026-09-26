@@ -13,9 +13,10 @@ which is declared but not yet captured or mapped.
 |---|---|
 | Vertical | `DRAFT` |
 | Sources | 3 declared, all `UNDER_REVIEW` / `UNREVIEWED` / unapproved; 2 mapped |
-| Rights | No ADR-0013 determination captured. Expected basis `PUBLIC_DOMAIN_US_GOVERNMENT_WORK` ([RIGHTS.md](RIGHTS.md)) |
-| Fixtures | **SYNTHETIC SHAPE FIXTURES** with fictional makes ([fixtures/README.md](fixtures/README.md)) |
-| Column names | **UNVERIFIED** — every mapped column is listed in [SOURCES.md](SOURCES.md#unverified-source-assumptions) |
+| Rights | ADR-0013 determinations written 2026-09-26, not yet recorded: NHTSA recalls § 105 (all surfaces ALLOW); **EPA all customer surfaces UNKNOWN** (fueleconomy.gov terms are non-commercial) ([RIGHTS.md](RIGHTS.md)) |
+| Fixtures | **REAL SAMPLES** of the files captured 2026-09-26 ([fixtures/README.md](fixtures/README.md)) |
+| Column names | **VERIFIED** 2026-09-26 against the captured files and the agencies' field descriptions ([SOURCES.md](SOURCES.md#source-verification-2026-09-26)) |
+| Join | EPA `baseModel` ↔ NHTSA `MODELTXT` meets on only ~41% of shared-make keys ([QUALITY.md](QUALITY.md)) |
 | Acquisition | none scheduled (`acquisition.yaml` targets empty) |
 | Bundles | edge, web and MCP runtimes compiled (bundling is not publication); not in the acquisition or ingestion-worker bundles |
 | Offer | `product.yaml` prelaunch: Evaluate $0/100, Starter $9/1,000, Developer $49/5,000, Growth $149/25,000, Scale $299/75,000 |
@@ -62,14 +63,19 @@ npx vitest run verticals/vehicles
 ```
 
 `tests/vertical-config.test.ts` checks configuration, fail-closed sources,
-fixture banners and that SOURCES.md lists every mapped column.
+fixture provenance banners and that SOURCES.md records every mapped column.
 `tests/shape-ingest.test.ts` runs the real pipeline over the fixtures and
 compares the output with `fixtures/golden/`.
 
 ## Before activation
 
 See the ordered list in [RIGHTS.md](RIGHTS.md) and the gaps in
-[QUALITY.md](QUALITY.md): capture artifacts and terms (`UA-009`), verify every
-column (including the `RCLTYPECD` codes the vehicle-only row filter relies
-on), write and record the determinations, design the bulk load and refresh,
-then map vPIC for the VIN lookup.
+[QUALITY.md](QUALITY.md). Remaining steps:
+
+1. Record the determinations.
+2. Resolve EPA's customer-surface rights.
+3. Load NHTSA's two archives as one snapshot.
+4. Build the makes table.
+5. Fix `ev_range_mi` for plug-in hybrids.
+6. Decide the recall join key.
+7. Map vPIC for the VIN lookup.

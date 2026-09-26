@@ -3,8 +3,11 @@
 #
 # Mechanical string hygiene before anything is typed or interpreted. No domain
 # knowledge at this layer. Both vehicle sources are delimited text files, so
-# the interesting work is whitespace (NHTSA's fixed-width-era text fields pad
-# with trailing spaces — UNVERIFIED against a captured file).
+# the interesting work is whitespace. Verified 2026-09-26: 104 MAKETXT /
+# MODELTXT / YEARTXT cells of FLAT_RCL_POST_2010.txt carry leading or trailing
+# spaces, and the free text carries U+00A0 and U+3000 spaces and cp1252
+# mojibake (U+0091-U+0094 C1 controls) that NFKC and the control-character
+# strip clean up.
 # =============================================================================
 
 layer: primitive_cleanup

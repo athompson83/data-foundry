@@ -1,20 +1,30 @@
 # Vehicles initial load: operator bulk ingest from the ZIP files
 
-**Status:** tooling ready; **not yet runnable against real data.** The real
-files have not been downloaded or inspected, the column names and the NHTSA
-column order are unverified (`verticals/vehicles/SOURCES.md`), and all three
-vehicles sources are fail-closed (`UNDER_REVIEW`, `UNREVIEWED`, acquisition not
-approved). With the committed declarations the command below **refuses** both
-sources and writes no canonical claims. The refusal is intended.
+**Status:** tooling ready. The real files were downloaded and verified on
+2026-09-26, and the committed mappings extract every row with zero issues
+(`verticals/vehicles/SOURCES.md`, "Source verification").
 
-This is routine engineering work once network access (`UA-009`) is available.
-It is not an owner decision.
+The run is **still refused**, for three reasons:
+
+- all three vehicles sources are fail-closed (`UNDER_REVIEW`, `UNREVIEWED`,
+  acquisition not approved);
+- the determinations are written but not recorded;
+- the EPA determination permits **no customer surface**
+  (`verticals/vehicles/RIGHTS.md`).
+
+NHTSA also has one open design gap: its snapshot is **two** archives (below).
+
+With the committed declarations, the command below refuses both sources and
+writes no canonical claims. The refusal is intended. This is routine
+engineering work, not an owner decision.
 
 ## Why an operator step
 
-Both bulk files are expected to be ZIP archives larger than the 16 MiB
-direct-HTTP ceiling and the Worker ingestion limits (`INGESTION_LIMITS`: 1 MiB
-per artifact and 1,000 records). The initial snapshot is therefore loaded
+The bulk files are ZIP archives whose members far exceed the Worker ingestion
+limits (`INGESTION_LIMITS`: 1 MiB per artifact and 1,000 records):
+
+- `vehicles.csv`: 21.8 MB, 50,409 rows;
+- `FLAT_RCL_POST_2010.txt`: 311 MB, 245,535 rows. The initial snapshot is therefore loaded
 offline with `pnpm ingest --artifact`. This path uses the same acquisition
 provider as a fixture run, the same rights and status gates, the same
 extraction and normalization, and the same canonical store. It never bypasses
@@ -29,21 +39,45 @@ a gate.
   `member=vehicles.csv;row=1234;column=city08;index=5`.
 - **Archive limits (fail closed).** These are declared in
   `verticals/vehicles/normalizers/source-mappings.yaml` under `parsing.archive`:
-  - at most 8 members;
-  - EPA at most 256 MiB uncompressed, NHTSA at most 512 MiB;
-  - a compression ratio of at most 200x;
+  - at most 8 members (each real archive has 1);
+  - EPA at most 256 MiB uncompressed (real: 21.8 MB); NHTSA at most 512 MiB
+    (real: 311 MB for POST_2010, which grows weekly);
+  - a compression ratio of at most 200x (real: 9.9x, 11.3x and 20.7x);
   - exactly one member must match the declared name or glob;
   - no unsafe member names, no encryption, no ZIP64 multi-disk archives;
   - the CRC-32 is verified.
 
   A refusal reports a `ZIP_*` code.
 
-## Download URLs (expected, UNVERIFIED)
+## Download URLs (verified 2026-09-26)
 
-| Source key | Expected URL | Expected member |
-|---|---|---|
-| `epa-fueleconomy-vehicles` | `https://www.fueleconomy.gov/feg/epadata/vehicles.csv.zip` | `vehicles.csv` (exact) |
-| `nhtsa-recalls` | `https://static.nhtsa.gov/odi/ffdd/rcl/FLAT_RCL.zip` | `FLAT_RCL*.txt` (glob; the exact name is unverified) |
+| Source key | URL | Member | Size (zip / member) | Rows |
+|---|---|---|---|---|
+| `epa-fueleconomy-vehicles` | `https://www.fueleconomy.gov/feg/epadata/vehicles.csv.zip` | `vehicles.csv` | 2.2 MB / 21.8 MB | 50,409 |
+| `nhtsa-recalls` | `https://static.nhtsa.gov/odi/ffdd/rcl/FLAT_RCL_PRE_2010.zip` | `FLAT_RCL_PRE_2010.txt` | 7.4 MB / 83.8 MB | 81,710 (67,311 vehicle) |
+| `nhtsa-recalls` | `https://static.nhtsa.gov/odi/ffdd/rcl/FLAT_RCL_POST_2010.zip` | `FLAT_RCL_POST_2010.txt` | 15.0 MB / 311.1 MB | 245,535 (218,799 vehicle) |
+
+There is **no** `FLAT_RCL.zip`. The captured SHA-256s and manifests are in
+`docs/sources/evidence/vehicles/`.
+
+### Open gap: NHTSA's snapshot is two archives
+
+Both NHTSA streams are `refresh_mode: full_snapshot`. A complete-snapshot run
+**retires** every stored record the loaded artifact omits. The CLI accepts one
+`--artifact` per source. So loading `FLAT_RCL_PRE_2010.zip` and then
+`FLAT_RCL_POST_2010.zip` in two runs would retire all pre-2010 recalls in the
+second run.
+
+Until this is resolved, **load `FLAT_RCL_POST_2010.zip` only**. It covers
+every campaign received since 2010-01-01, including all model years still on
+the road that matter commercially. Treat pre-2010 recalls as absent.
+
+The fix is one of the following, as a reviewed platform change:
+
+- let one run take several archives of one source as a single snapshot;
+- declare the pre-2010 archive as its own source or stream;
+- make the NHTSA streams `incremental` and accept that withdrawn campaigns are
+  never retired.
 
 The URL recorded on the artifact is built from the source's robots
 `allowed_paths` plus the file name. **Keep the publisher's file names.**
@@ -55,20 +89,18 @@ Renaming the file changes the recorded URL.
 
    ```bash
    mkdir -p ~/vehicles-load && cd ~/vehicles-load
-   curl -fSLO https://www.fueleconomy.gov/feg/epadata/vehicles.csv.zip
-   curl -fSLO https://static.nhtsa.gov/odi/ffdd/rcl/FLAT_RCL.zip
-   sha256sum vehicles.csv.zip FLAT_RCL.zip | tee SHA256SUMS
-   unzip -l vehicles.csv.zip; unzip -l FLAT_RCL.zip
+   UA='DataFoundryBot/1.0 (+https://data.aroqon.com)'
+   curl -fSLO -A "$UA" https://www.fueleconomy.gov/feg/epadata/vehicles.csv.zip
+   curl -fSLO -A "$UA" https://static.nhtsa.gov/odi/ffdd/rcl/FLAT_RCL_POST_2010.zip
+   curl -fSLO -A "$UA" https://static.nhtsa.gov/odi/ffdd/rcl/RCL.txt
+   sha256sum vehicles.csv.zip FLAT_RCL_POST_2010.zip RCL.txt | tee SHA256SUMS
+   unzip -l vehicles.csv.zip; unzip -l FLAT_RCL_POST_2010.zip
    ```
 
-   If a member name does not match `parsing.archive.member`, correct the
-   mapping. Then work through every item under "Unverified source assumptions"
-   in `verticals/vehicles/SOURCES.md` against the real files: column names, the
-   NHTSA column order, and quoting. If NHTSA's free text contains literal `"`
-   characters and the file is unquoted, declare `quote: ""` under
-   `nhtsa-recalls` `parsing`. Record each correction in
-   `verticals/vehicles/CHANGELOG.md`, and replace the synthetic fixtures and
-   goldens with slices of the captured files.
+   Compare `RCL.txt` with `docs/sources/evidence/vehicles/nhtsa-RCL.txt`. If its
+   change log added a field, re-verify the column order before loading. The
+   mappings were verified on 2026-09-26: column names, the NHTSA column order,
+   and `quote: ""` for the unquoted flat file.
 
 2. **Refusal check with a throwaway database.** This proves the gates hold and
    that the CLI accepts the files:
@@ -77,7 +109,7 @@ Renaming the file changes the recorded URL.
    corepack pnpm --filter @data-foundry/ingest-worker ingest -- \
      --vertical vehicles \
      --artifact epa-fueleconomy-vehicles=$HOME/vehicles-load/vehicles.csv.zip \
-     --artifact nhtsa-recalls=$HOME/vehicles-load/FLAT_RCL.zip \
+     --artifact nhtsa-recalls=$HOME/vehicles-load/FLAT_RCL_POST_2010.zip \
      --max-records 2000000 --memory --dry-run
    ```
 
@@ -90,14 +122,17 @@ Renaming the file changes the recorded URL.
 
    `--max-records` is the per-source ceiling on extracted records, and each row
    produces two streams. The default is 100,000 and the maximum is 5,000,000.
-   The EPA file (about 48k rows, UNVERIFIED) fits in 100,000 stream records.
-   The NHTSA file (several hundred thousand rows, UNVERIFIED) does not.
+   The EPA file has 50,409 rows, which is 100,818 stream records. That is just
+   over the default, so pass `--max-records`. The NHTSA POST_2010 file has
+   245,535 rows (218,799 vehicle rows).
 
 3. **Activate through the normal governance path.** None of this is done by the
    CLI:
-   - Commit an ADR-0013 determination for each source. The expected basis is
-     `PUBLIC_DOMAIN_US_GOVERNMENT_WORK`; the determination rests on captured
-     terms and a captured `robots.txt`.
+   - The ADR-0013 determinations are committed in
+     `docs/sources/determinations/`:
+     - NHTSA recalls: § 105, every surface ALLOW.
+     - EPA: internal processing only, every customer surface UNKNOWN. EPA
+       facts may be loaded for evaluation but cannot reach a customer.
    - Record each determination:
      `POSTGRES_URL=... corepack pnpm rights:record -- --file docs/sources/determinations/<source-key>.yaml`.
    - Move each source YAML to an approved or active status, approve its
@@ -117,14 +152,14 @@ Renaming the file changes the recorded URL.
    corepack pnpm --filter @data-foundry/ingest-worker ingest -- \
      --vertical vehicles \
      --artifact epa-fueleconomy-vehicles=$HOME/vehicles-load/vehicles.csv.zip \
-     --artifact nhtsa-recalls=$HOME/vehicles-load/FLAT_RCL.zip \
+     --artifact nhtsa-recalls=$HOME/vehicles-load/FLAT_RCL_POST_2010.zip \
      --max-records 2000000 \
      --evidence-dir $HOME/vehicles-load/evidence --dry-run
    # Then the writing run:
    corepack pnpm --filter @data-foundry/ingest-worker ingest -- \
      --vertical vehicles \
      --artifact epa-fueleconomy-vehicles=$HOME/vehicles-load/vehicles.csv.zip \
-     --artifact nhtsa-recalls=$HOME/vehicles-load/FLAT_RCL.zip \
+     --artifact nhtsa-recalls=$HOME/vehicles-load/FLAT_RCL_POST_2010.zip \
      --max-records 2000000 \
      --evidence-dir $HOME/vehicles-load/evidence \
      --run-id vehicles-initial-$(date -u +%Y%m%d)

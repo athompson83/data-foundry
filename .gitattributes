@@ -13,3 +13,7 @@
 *.png   binary
 *.jpg   binary
 *.parquet binary
+
+# Captured source evidence is committed byte-for-byte: its SHA-256 is cited by
+# rights determinations, so line endings must not be normalized.
+docs/sources/evidence/vehicles/** -text

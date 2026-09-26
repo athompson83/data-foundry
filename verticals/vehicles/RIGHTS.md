@@ -3,47 +3,53 @@
 AGENTS.md rule 1: **no source without rights metadata; unreviewed sources must
 not publish.** Rights are decided by a committed, evidence-based determination
 under [ADR-0013](../../docs/decisions/ADR-0013-evidence-based-rights-determination.md).
-**No determination exists for any vehicles source yet.** Everything below is
+Determinations for the two mapped sources were **written on 2026-09-26** from
+captured evidence. They are **not yet recorded** (`pnpm rights:record`) and the
+source YAMLs are **not yet activated**, so everything below is still
 fail-closed.
 
 ## Classification summary
 
-| Source | Classification | Publishable? | Commercial | Redistribution | Derivative normalization | Attribution | Reviewed | Next review |
-|---|---|---|---|---|---|---|---|---|
-| `epa-fueleconomy-vehicles` | UNREVIEWED | ❌ | ❌ | ❌ | ❌ | required (drafted) | never | — |
-| `nhtsa-recalls` | UNREVIEWED | ❌ | ❌ | ❌ | ❌ | required (drafted) | never | — |
-| `nhtsa-vpic` | UNREVIEWED | ❌ | ❌ | ❌ | ❌ | required (drafted) | never | — |
+| Source | YAML classification | Determination | Customer surfaces | Internal processing | Next review |
+|---|---|---|---|---|---|
+| `nhtsa-recalls` | UNREVIEWED | [`nhtsa-recalls.yaml`](../../docs/sources/determinations/nhtsa-recalls.yaml): `PUBLIC_DOMAIN_US_GOVERNMENT_WORK` | all seven `ALLOW` | all `ALLOW` | 2027-09-26 |
+| `epa-fueleconomy-vehicles` | UNREVIEWED | [`epa-fueleconomy-vehicles.yaml`](../../docs/sources/determinations/epa-fueleconomy-vehicles.yaml): `PUBLISHED_TERMS_PERMIT` | all seven **`UNKNOWN`** (refused) | `ACQUIRE`/`STORE`/`CACHE` `ALLOW` | 2027-09-26 |
+| `nhtsa-vpic` | UNREVIEWED | none (not mapped). The vPIC FAQ supports § 105 | — | — | — |
 
 Every source is `status: UNDER_REVIEW` (not acquirable), `approved: false`,
 and absent from `acquisition.yaml`. `tests/shape-ingest.test.ts` proves the
-pipeline refuses the committed declarations.
+pipeline refuses the committed declarations. The human-readable record is
+[`docs/sources/vehicles-federal-rights-determination-20260926.md`](../../docs/sources/vehicles-federal-rights-determination-20260926.md).
 
-## Expected basis and what is missing
+## Why EPA is not § 105
 
-**Expected basis:** `PUBLIC_DOMAIN_US_GOVERNMENT_WORK` (17 U.S.C. § 105) for all
-three: they are publications of U.S. EPA, U.S. DOE and NHTSA. That is an
-expectation, not a determination. ADR-0013 requires, per source, a file under
-`docs/sources/determinations/<source-key>.yaml` stating:
+fueleconomy.gov is administered by Oak Ridge National Laboratory, a DOE
+contractor. Its only terms page (`/feg/ORNL-disclaimer.htm`, "Copyright
+Status") says the documents on the server "may be freely distributed and used
+for non-commercial, scientific and educational purposes."
 
-1. the basis, with the federal-work reasoning;
-2. evidence: the agency terms/policy URLs, retrieval dates and content digests
-   — or, where retrieval fails, an explicit statement that the basis rests on
-   § 105 alone;
-3. each surface cell (`PUBLIC_WEB`, `SEARCH_INDEX`, `API_FREE`, `API_PAID`,
-   `RAPIDAPI`, `MCP`, `BULK_EXPORT`) decided separately;
-4. hard stops checked: personal data (the NHTSA `NOTES` field is excluded
-   pending this check), third-party marks (make names are used as factual
-   identifiers, not branding), embedded third-party content, rate limits and
-   robots rules (not yet retrieved);
-5. attribution and a "not endorsed by the agency" disclaimer (drafted in each
-   source's `attribution_requirement`);
-6. `recheck_at` within 12 months.
+ADR-0013's § 105 basis requires no contrary restriction in the agency's
+published terms. This is one, for every commercial surface. The EPA
+determination therefore rests on those published terms. It grants only
+internal acquisition, storage and caching, and leaves every customer surface
+`UNKNOWN`.
 
-`docs/sources/vehicles-federal-rights-determination-20260926.md`, named in
-ADR-0013 as the first determination, **has not been written**: the build
-environment could not retrieve the terms (`UA-009`). Then run
-`pnpm rights:record` per source, update the source YAML (classification,
-reviewed fields, approval), and only then consider `acquisition.yaml` targets.
+Lifting that requires one of two things:
+
+- the same data from an EPA-hosted § 105 publication; or
+- written approval from the fueleconomy.gov maintainers or EPA.
+
+Both are routine engineering work.
+
+## Remaining steps to activation
+
+1. `POSTGRES_URL=... corepack pnpm rights:record -- --file docs/sources/determinations/<key>.yaml --dry-run`,
+   then without `--dry-run`, per source.
+2. Update the source YAML: `rights_classification`, `commercial_use_allowed`
+   and related booleans consistent with the determination, reviewed fields,
+   status, acquisition approval and `authority_rank`. Do this in a reviewed PR.
+3. Only then add `acquisition.yaml` targets. For NHTSA, first resolve the
+   two-archive snapshot gap (QUALITY.md).
 
 ## Government-source cautions
 
@@ -63,7 +69,8 @@ reviewed fields, approval), and only then consider `acquisition.yaml` targets.
 |---|---|---|---|---|
 | all | ❌ | ❌ | none | — |
 
-No source supplies images and none are acquired.
+No source supplies images and none are acquired. fueleconomy.gov's vehicle
+photographs belong to the manufacturers or Ward's and are never fetched.
 
 ## Provenance retention (AGENTS.md rule 10)
 
@@ -73,16 +80,21 @@ No source supplies images and none are acquired.
 
 ## Personal data
 
-None in the mapped fields. NHTSA `NOTES` is excluded until checked.
+None in the mapped fields. NHTSA `NOTES` and the remedy text carry
+manufacturer customer-service and NHTSA hotline **business** phone numbers,
+not personal data. `NOTES` stays excluded anyway. EPA's My MPG web service
+(per-driver data) is not used.
 
-## Synthetic fixture disclosure
+## Fixture disclosure
 
-The fixtures are **synthetic**: fictional makes (Examplar Motors, Fixture
-Automotive, Placeholder Motor Works), fictional ids, campaign numbers and text,
-authored by the Data Foundry team. They are not EPA, DOE or NHTSA data and make
-no claim about any real vehicle. The shape test activates the two mapped
-sources **only in a temporary copy** with synthetic internal-processing grants,
-exactly as the HVAC harness does; no customer-surface grant exists anywhere.
+The fixtures are **real samples**: verbatim rows of the files captured on
+2026-09-26, with the source URL and archive SHA-256 in each banner. They are
+committed as source evidence for tests. The shape test activates the two
+mapped sources **only in a temporary copy**, with synthetic
+internal-processing grants, exactly as the HVAC harness does. No
+customer-surface grant exists anywhere. The EPA rows are used here for
+internal testing, which the fueleconomy.gov terms permit ("scientific and
+educational purposes").
 
 ## Takedown and suspension
 

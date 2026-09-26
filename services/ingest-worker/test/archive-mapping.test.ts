@@ -68,9 +68,14 @@ describe('parsing.archive and parsing.quote compile into the extraction schema',
       const record = plan.streams[0]!.schema.record;
       expect(record.kind === 'csv_rows' ? record.quote : undefined).toBe(expected);
     }
+    // The committed NHTSA mapping declares the real flat file unquoted
+    // (verified 2026-09-26); EPA, which does quote, keeps the default.
     const plan = compileSourcePlans(vehicles).find((candidate) => candidate.sourceKey === 'nhtsa-recalls')!;
     const record = plan.streams[0]!.schema.record;
-    expect(record.kind === 'csv_rows' ? record.quote : 'n/a').toBeUndefined();
+    expect(record.kind === 'csv_rows' ? record.quote : 'n/a').toBe('');
+    const epa = compileSourcePlans(vehicles).find((candidate) => candidate.sourceKey === 'epa-fueleconomy-vehicles')!;
+    const epaRecord = epa.streams[0]!.schema.record;
+    expect(epaRecord.kind === 'csv_rows' ? epaRecord.quote : 'n/a').toBeUndefined();
   });
 });
 

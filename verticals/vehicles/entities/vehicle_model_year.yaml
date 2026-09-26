@@ -9,7 +9,7 @@
 # Identity is the composite `make_model_year` alias. Neither agency publishes
 # it as one column; the source mappings compose it from three columns
 # (`paths:`), and normalization folds case and strips separators so
-# `EXAMPLAR MOTORS ROADSTER 2020` and `Examplar Motors Roadster 2020` meet.
+# `FORD F-150 2019` (NHTSA) and `Ford F150 2019` (EPA) meet.
 #
 # KNOWN GAP (see QUALITY.md): EPA `baseModel` and NHTSA `MODELTXT` are not
 # guaranteed to spell a model the same way. Where they differ, two model-year
@@ -33,7 +33,7 @@ canonical_name:
   pattern: "{make_model_year}"
 
 canonical_slug:
-  # slugify("Examplar Motors Roadster 2020") = examplar-motors-roadster-2020
+  # slugify("Honda Accord 2018") = honda-accord-2018
   pattern: "{canonical_name}"
   case: lower
   separator: "-"

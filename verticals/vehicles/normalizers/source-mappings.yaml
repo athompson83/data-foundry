@@ -3,10 +3,13 @@
 #
 # THE ONLY FILE THAT KNOWS HOW EPA AND NHTSA SPELL THINGS.
 #
-# EVERY COLUMN NAME BELOW IS UNVERIFIED until checked against a captured
-# artifact. They are written from the agencies' published data dictionaries as
-# best understood, and exercised only by SYNTHETIC SHAPE FIXTURES. SOURCES.md
-# lists them, column by column, as an activation blocker.
+# VERIFIED 2026-09-26 against the captured files and the agencies' own field
+# descriptions (docs/sources/evidence/vehicles/): EPA vehicles.csv.zip (84
+# named columns; data description at fueleconomy.gov/feg/ws/) and NHTSA
+# FLAT_RCL_PRE_2010.zip / FLAT_RCL_POST_2010.zip (29 positional fields, order
+# per static.nhtsa.gov/odi/ffdd/rcl/RCL.txt). SOURCES.md records, column by
+# column, what was checked and what remains open. The fixtures are REAL
+# SAMPLES of those files.
 #
 # Two platform constructs this vertical introduced (see
 # services/ingest-worker/src/compile.ts):
@@ -44,15 +47,18 @@ sources:
     parsing:
       delimiter: ","
       header_row: true
-      # Skips the leading SYNTHETIC SHAPE FIXTURE banner. Harmless on the real
-      # file, whose header and rows never start with `#`.
+      # Skips the leading REAL SAMPLE provenance banner of the fixture. Harmless
+      # on the real file: its first line is the header (`barrels08,...`) and no
+      # line of the 2026-09-26 capture starts with `#`.
       skip_lines_matching: "^#"
       encoding: utf-8
-      # The published artifact is believed to be vehicles.csv.zip holding one
-      # member, vehicles.csv (UNVERIFIED). The ZIP is the preserved evidence
-      # artifact; locators read `member=vehicles.csv;row=…;column=…`.
-      # accept_unarchived lets the synthetic shape fixture (a plain CSV) and an
-      # operator-supplied extracted CSV through; any other non-ZIP body fails.
+      # VERIFIED 2026-09-26: vehicles.csv.zip (2,211,728 bytes) holds exactly
+      # one deflated member, vehicles.csv (21,803,514 bytes, ratio 9.9x, UTF-8
+      # ASCII-only, CRLF, RFC 4180 double-quote quoting, 50,409 data rows). The
+      # ZIP is the preserved evidence artifact; locators read
+      # `member=vehicles.csv;row=…;column=…`. The limits below leave >10x
+      # headroom. accept_unarchived lets the fixture (a plain CSV excerpt) and
+      # an operator-supplied extracted CSV through; any other non-ZIP body fails.
       archive:
         format: zip
         member: vehicles.csv
@@ -118,12 +124,19 @@ sources:
           - property: drive
             path: drive
             map_with: ontology.drive
+            # Blank on 1,186 of 50,409 rows (1,178 of them model year 1984):
+            # correct absence, not an error.
+            optional: true
           - property: transmission
             path: trany
+            # Blank on 11 rows (early EVs).
+            optional: true
           - property: fuel_type
             path: fuelType
           - property: primary_fuel
             path: fuelType1
+            # Blank on 2 rows (Honda CR-V e-FCEV, "Electricity and Hydrogen").
+            optional: true
           - property: powertrain_type
             path: atvType
             optional: true
@@ -135,6 +148,13 @@ sources:
             path: comb08
           - property: co2_tailpipe_gpm
             path: co2TailpipeGpm
+          # KNOWN GAP (QUALITY.md): EPA's `range` is the range on fuelType1 and is
+          # not in the published data description. It is the all-electric range
+          # for an EV, but the TOTAL gasoline+electric range for a plug-in
+          # hybrid (the 2017 Volt row says 420; its electric range is `rangeA`)
+          # and the hydrogen range for a fuel-cell vehicle. `ev_range_mi` is
+          # therefore correct only where powertrain_type is EV. Activation
+          # blocker.
           - property: ev_range_mi
             path: range
 
@@ -160,14 +180,17 @@ sources:
           documented vocabulary yet. Candidate for a later controlled mapping.
       - path: "*"
         reason: >-
-          The real file has roughly eighty columns (annual fuel cost, "you
+          The real file has 84 columns (annual fuel cost, "you
           save/spend", greenhouse score, alternate-fuel figures, PHEV
           charge-depleting values...). Only the columns mapped above are in
           scope for 0.1.0; each addition is a schema_version change.
 
   # ===========================================================================
-  # 2. nhtsa-recalls — NHTSA recall flat file (FLAT_RCL), tab-delimited, no
-  #    header row. One row per campaign x make/model/year (x component).
+  # 2. nhtsa-recalls — NHTSA recall flat files, tab-delimited, no header,
+  #    unquoted. VERIFIED 2026-09-26: one row per campaign x make/model/year x
+  #    component x manufacturer part (RCL_CMPT_ID / MFR_COMP_*), so one
+  #    campaign x make/model/year can span several rows (23,968 of 160,447
+  #    vehicle groups do).
   #    Yields TWO streams: the model year each row names, and the campaign.
   # ===========================================================================
   - source_key: nhtsa-recalls
@@ -175,13 +198,19 @@ sources:
     locator_type: TABLE_CELL
     parsing:
       delimiter: "\t"
-      # Skips the leading SYNTHETIC SHAPE FIXTURE banner. Harmless on the real
-      # file, whose rows start with the numeric RECORD_ID.
+      # Skips the leading REAL SAMPLE provenance banner of the fixture.
+      # Harmless on the real file, whose rows start with the numeric RECORD_ID.
       skip_lines_matching: "^#"
-      # UNVERIFIED column order, from NHTSA's RCL data dictionary as best
-      # understood. The flat file has no header row, so these names ARE the
-      # mapping; a wrong position silently maps the wrong column. Verify
-      # against a captured file and the current dictionary before activation.
+      # The file is NOT quoted: `"` is literal text and some fields begin with
+      # it (for example MFR_COMP_PTNO on 22V176000), which an RFC 4180 parser
+      # rejects. Quoting is therefore disabled.
+      quote: ""
+      # VERIFIED 2026-09-26 against NHTSA's field description RCL.txt ("Last
+      # Updated May 2025": 29 fields, 28-29 added May 2025) and against the
+      # captured files (all 327,245 data rows have exactly 29 fields). The file
+      # has no header row, so these names ARE the mapping; a wrong position
+      # silently maps the wrong column. Re-check RCL.txt's change log on every
+      # refresh (NHTSA appends fields there).
       columns:
         - RECORD_ID
         - CAMPNO
@@ -213,9 +242,15 @@ sources:
         - DO_NOT_DRIVE
         - PARK_OUTSIDE
       encoding: utf-8
-      # The published artifact is believed to be FLAT_RCL.zip holding one
-      # tab-delimited member whose exact name is UNVERIFIED (hence the glob,
-      # which must still match exactly one file). See `archive` above for EPA.
+      # VERIFIED 2026-09-26: there is NO single FLAT_RCL.zip. The complete
+      # history is split by report-received date (RCDATE) into two archives,
+      # each holding exactly one deflated member:
+      #   FLAT_RCL_PRE_2010.zip  (7,435,840 B)  -> FLAT_RCL_PRE_2010.txt  (83,786,437 B, 11.3x)
+      #   FLAT_RCL_POST_2010.zip (15,039,755 B) -> FLAT_RCL_POST_2010.txt (311,128,234 B, 20.7x)
+      # The glob matches either member (and exactly one per archive). The
+      # 512 MiB ceiling leaves ~1.7x headroom over POST_2010, which grows every
+      # week. Loading ONE archive as a `full_snapshot` would retire the other's
+      # rows: see docs/owner-actions/vehicles-initial-load.md before loading.
       archive:
         format: zip
         member: "FLAT_RCL*.txt"
@@ -229,9 +264,11 @@ sources:
         # The complete flat file is a full snapshot. A partial (by-year) file
         # would have to be declared `incremental` instead.
         refresh_mode: full_snapshot
-        # Vehicle recalls only. `RCLTYPECD` is believed to be V=vehicle,
-        # E=equipment, T=tire, C=child seat — UNVERIFIED (SOURCES.md). Other
-        # rows never become records, so they cannot create model years.
+        # Vehicle recalls only. RCL.txt: "Vehicle, Equipment, Child Restraint,
+        # Or Tire". Captured codes: V, E, T, C, plus I (393 rows) and X (143)
+        # before 2010, "safety/product improvement campaigns"; the campaign
+        # number's letter always repeats the code. Other rows never become
+        # records, so they cannot create model years.
         where: { column: RCLTYPECD, in: [V] }
         entity_type: vehicle_model_year
         source_record_key: [RECORD_ID, YEARTXT]
@@ -255,9 +292,11 @@ sources:
 
       - stream: campaigns
         refresh_mode: full_snapshot
-        # Vehicle recalls only. `RCLTYPECD` is believed to be V=vehicle,
-        # E=equipment, T=tire, C=child seat — UNVERIFIED (SOURCES.md). Other
-        # rows never become records, so they cannot create model years.
+        # Vehicle recalls only. RCL.txt: "Vehicle, Equipment, Child Restraint,
+        # Or Tire". Captured codes: V, E, T, C, plus I (393 rows) and X (143)
+        # before 2010, "safety/product improvement campaigns"; the campaign
+        # number's letter always repeats the code. Other rows never become
+        # records, so they cannot create model years.
         where: { column: RCLTYPECD, in: [V] }
         entity_type: recall_campaign
         source_record_key: RECORD_ID
@@ -274,10 +313,16 @@ sources:
             path: COMPNAME
           - property: summary
             path: DESC_DEFECT
+            # Blank on 7,632 of 286,110 vehicle rows (mostly old campaigns).
+            optional: true
           - property: consequence
             path: CONEQUENCE_DEFECT
+            # Blank on 16,015 vehicle rows.
+            optional: true
           - property: remedy
             path: CORRECTIVE_ACTION
+            # Blank on 7,535 vehicle rows.
+            optional: true
           - property: manufacturer_campaign_number
             path: MFGCAMPNO
             optional: true
@@ -309,9 +354,9 @@ sources:
         reason: Build-range end; same reason as BGMAN.
       - path: RCLTYPECD
         reason: >-
-          Recall type (believed V=vehicle, E=equipment, T=tire, C=child seat;
-          UNVERIFIED). Read only by both streams' `where` row filter, which
-          keeps vehicle (`V`) rows; it is not published as a fact.
+          Recall type (V vehicle, E equipment, T tire, C child restraint; I and X
+          improvement campaigns before 2010). Read only by both streams' `where`
+          row filter, which keeps vehicle (`V`) rows; not published as a fact.
       - path: ODATE
         reason: Owner notification date; not yet in the fact model.
       - path: INFLUENCED_BY
@@ -329,8 +374,11 @@ sources:
       - path: RCL_CMPT_ID
         reason: Internal component id.
       - path: MFR_COMP_NAME
-        reason: Manufacturer component fields; not verified to be populated.
+        reason: >-
+          Manufacturer component name. Populated since 2020, but cross-joined
+          with every make/model/year of the campaign (a HONDA ACCORD row can
+          carry an "RLX Sport Hybrid" part), so it is not a per-vehicle fact.
       - path: MFR_COMP_DESC
-        reason: Manufacturer component fields; not verified to be populated.
+        reason: Manufacturer component description; cross-joined like MFR_COMP_NAME.
       - path: MFR_COMP_PTNO
-        reason: Manufacturer part numbers; not verified to be populated.
+        reason: Manufacturer part numbers; cross-joined like MFR_COMP_NAME.

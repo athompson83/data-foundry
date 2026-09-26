@@ -65,6 +65,32 @@ describe('idempotent re-ingestion', () => {
     expect(versions).toHaveLength(1);
   });
 
+  it('keeps a numeric-looking string value a string, so an unchanged re-run is a no-op', async () => {
+    // Regression: real NHTSA data (MFGCAMPNO "2019030012") was read back from
+    // JSONB, parsed a second time into a number, and re-versioned every run.
+    const first = await claim(fixtures, 'manufacturer', {
+      property: 'manufacturer_campaign_number',
+      value: '2019030012',
+      value_type: 'string',
+      valid_from: '2026-02-01T00:00:00Z',
+    });
+    expect(first.outcome).toBe('CREATED');
+    expect(first.fact.normalized_value).toBe('2019030012');
+    const second = await claim(fixtures, 'manufacturer', {
+      property: 'manufacturer_campaign_number',
+      value: '2019030012',
+      value_type: 'string',
+      valid_from: '2026-02-01T00:00:00Z',
+    });
+    expect(second.outcome).toBe('UNCHANGED');
+    expect(second.fact.id).toBe(first.fact.id);
+    const versions = await fixtures.store.listFacts(fixtures.entity.id, {
+      property: 'manufacturer_campaign_number',
+      include_history: true,
+    });
+    expect(versions.map((fact) => fact.normalized_value)).toEqual(['2019030012']);
+  });
+
   it('records a second source asserting the same value as corroboration, not a new version', async () => {
     const before = await countRows(fixtures.driver, 'facts');
 
