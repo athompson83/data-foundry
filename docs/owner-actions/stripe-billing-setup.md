@@ -67,10 +67,10 @@ availability: available          # also requires approved terms_policy, privacy_
 listing_url: null                # the RapidAPI listing is an independent channel; either, both or neither
 direct_checkout:
   api_origin: https://api.data.aroqon.com   # bare HTTPS origin of the edge that serves /v1/billing/*
-  path_prefix: ""                           # or "/<slug>" if the canonical API host routes by vertical path
+  path_prefix: "/v1/vehicles"               # the edge API_PATH_PREFIX; "" for an unprefixed deployment
 ```
 
-Each paid plan then renders a plain HTML form that posts `plan=<code>` (and an optional `email`) to `<api_origin><path_prefix>/v1/billing/checkout`; the edge answers `303` to Stripe Checkout. The `$0` plan never gets a form. The vertical's `/docs` page documents the billing endpoints and the `429 ALLOWANCE_EXHAUSTED` response whenever `direct_checkout` is present, marked "not open yet" until the offer is `available`. Run `pnpm web:compile` after editing `product.yaml`. Set `BILLING_RETURN_URL` to that pricing page.
+Each paid plan then renders a plain HTML form that posts `plan=<code>` (and an optional `email`) to `<api_origin><path_prefix>/billing/checkout` (`<api_origin>/v1/billing/checkout` when the prefix is empty); the edge answers `303` to Stripe Checkout. The `$0` plan never gets a form. The vertical's `/docs` page documents the billing endpoints and the `429 ALLOWANCE_EXHAUSTED` response whenever `direct_checkout` is present, marked "not open yet" until the offer is `available`. Run `pnpm web:compile` after editing `product.yaml`. Set `BILLING_RETURN_URL` to that pricing page.
 
 ## 5. Database
 

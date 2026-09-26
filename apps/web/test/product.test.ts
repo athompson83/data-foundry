@@ -77,7 +77,7 @@ describe('direct self-service checkout', () => {
   it('accepts direct checkout as the only available channel when policies are approved', () => {
     expect(ProductOfferSchema.safeParse(available).success).toBe(true);
     expect(ProductOfferSchema.safeParse({ ...available, listing_url: 'https://rapidapi.com/synthetic-test/api/synthetic-data' }).success).toBe(true);
-    expect(ProductOfferSchema.safeParse({ ...available, direct_checkout: { ...direct_checkout, path_prefix: '/hvac' } }).success).toBe(true);
+    expect(ProductOfferSchema.safeParse({ ...available, direct_checkout: { ...direct_checkout, path_prefix: '/v1/hvac' } }).success).toBe(true);
   });
 
   it('refuses available status with neither channel, or with direct checkout but incomplete policies', () => {
@@ -99,7 +99,7 @@ describe('direct self-service checkout', () => {
     expect(ProductOfferSchema.safeParse({ ...available, direct_checkout: { ...direct_checkout, api_origin } }).success).toBe(false);
   });
 
-  it.each(['hvac', '/hvac/', '/HVAC', '/"><script>', '/a b'])('rejects an invalid path_prefix %s', (path_prefix) => {
+  it.each(['hvac', '/hvac', '/v1/hvac/', '/v1/HVAC', '/v1/"><script>', '/v1/a b', '/v2/hvac'])('rejects an invalid path_prefix %s', (path_prefix) => {
     expect(ProductOfferSchema.safeParse({ ...available, direct_checkout: { ...direct_checkout, path_prefix } }).success).toBe(false);
   });
 
@@ -128,8 +128,8 @@ describe('direct self-service checkout', () => {
   });
 
   it('prefixes the action with a configured vertical path', () => {
-    const html = pricing({ ...available, direct_checkout: { ...direct_checkout, path_prefix: '/hvac' } });
-    expect(html).toContain('action="https://api.data.aroqon.com/hvac/v1/billing/checkout"');
+    const html = pricing({ ...available, direct_checkout: { ...direct_checkout, path_prefix: '/v1/hvac' } });
+    expect(html).toContain('action="https://api.data.aroqon.com/v1/hvac/billing/checkout"');
   });
 
   it('renders direct forms alongside a marketplace listing when both channels are configured', () => {

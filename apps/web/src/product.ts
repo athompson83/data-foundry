@@ -16,10 +16,10 @@ const approvedPolicy = z.strictObject({ approved: z.literal(true), url: policyUr
 
 /**
  * The direct self-service channel (ADR-0014). `api_origin` is the bare HTTPS
- * origin of the direct API deployment that owns `/v1/billing/*`; `path_prefix`
- * is an optional vertical path segment in front of `/v1` when the canonical API
- * host routes vertical-scoped paths (ADR-0012). Empty means the billing routes
- * sit at the origin root, which is what the per-vertical edge Worker serves.
+ * origin of the direct API deployment; `path_prefix` is the canonical
+ * vertical-scoped API prefix (`/v1/<slug>`, ADR-0012) that the edge Worker's
+ * `API_PATH_PREFIX` serves, or empty for an unprefixed deployment (`/v1`).
+ * Billing routes are always `<api_origin><path_prefix or /v1>/billing/*`.
  */
 const apiOrigin = z.string().url().refine((value) => {
   const url = new URL(value);
@@ -27,9 +27,14 @@ const apiOrigin = z.string().url().refine((value) => {
 }, 'Direct checkout api_origin must be a bare HTTPS origin without path, trailing slash, credentials, query or fragment');
 const DirectCheckoutSchema = z.strictObject({
   api_origin: apiOrigin,
-  path_prefix: z.string().max(100).regex(/^(\/[a-z0-9][a-z0-9_-]*)*$/, 'Direct checkout path_prefix must be empty or lowercase /segments without a trailing slash'),
+  path_prefix: z.string().max(100).regex(/^(\/v1\/[a-z][a-z0-9-]{0,62})?$/, 'Direct checkout path_prefix must be empty or /v1/<slug> (lowercase, no trailing slash)'),
 });
 export type DirectCheckout = ReturnType<typeof DirectCheckoutSchema.parse>;
+
+/** `<api_origin>/v1/billing` or `<api_origin>/v1/<slug>/billing` (ADR-0012). */
+function billingBase(checkout: DirectCheckout): string {
+  return `${checkout.api_origin}${checkout.path_prefix === '' ? '/v1' : checkout.path_prefix}/billing`;
+}
 
 /**
  * The plan code the direct billing API accepts. Mirrors `planCode` in
@@ -43,7 +48,7 @@ const PLAN_CODE = /^[a-z][a-z0-9_-]{0,62}$/;
 
 /** The checkout form action for a configured direct channel. */
 export function directCheckoutAction(checkout: DirectCheckout): string {
-  return `${checkout.api_origin}${checkout.path_prefix}/v1/billing/checkout`;
+  return `${billingBase(checkout)}/checkout`;
 }
 
 export const ProductOfferSchema = z.strictObject({
@@ -102,7 +107,7 @@ function afterCheckout(): string {
 export function billingDocsContent(offer: ProductOffer): string {
   const checkout = offer.direct_checkout;
   if (checkout === undefined) return '';
-  const base = `${checkout.api_origin}${checkout.path_prefix}/v1/billing`;
+  const base = billingBase(checkout);
   const paid = offer.plans.find((plan) => plan.monthly_usd > 0);
   const example = paid === undefined ? 'developer' : planCode(paid.name);
   const status = directCheckoutAvailable(offer)
