@@ -1,4 +1,4 @@
-# ADR-0013 — First paid dataset: FDA Recall Intelligence on Cloudflare D1
+# ADR-0015 — First paid dataset: FDA Recall Intelligence on Cloudflare D1
 
 **Status:** Accepted, 2026-09-26. Product Owner direction the same day: approve any available dataset with no identified restrictions whose value is structuring unstructured data; accept the direct-API pricing ladder; approve launch; support contact `data@mail.proviciency.com`.
 
@@ -49,3 +49,24 @@ Two constraints shaped the storage decision:
 - **Every code is indexed.** Every extracted code is indexed, including device serial lists tens of thousands long: about 10.7 million `recall_key` rows over the full history, an estimated ~1 GB of D1's 10 GB. The stored JSON caps each list at 500 entries and says so with `truncated_lists`. Lookups use the full index.
 - **Worker writes are atomic and bounded.** The scheduled sync writes set-based `json_each` statements. Each chunk of recalls (its rows, search entries and keys) is one D1 batch, i.e. one transaction, so a failure cannot leave a current `raw_sha256` with missing keys. A 1,000-record page takes fewer than 20 statements, far inside D1's 1,000 queries per invocation. Windows fail independently, and the history cursor always advances.
 - **Accuracy.** Derived fields can be incomplete, and every response says so. The disclaimer, attribution and no-endorsement notice appear in every API response, the docs and the terms.
+
+## Coexistence with ADR-0014 and the per-vertical edge routes (added at merge with PR #57)
+
+This ADR was drafted as ADR-0013 and renumbered to ADR-0015 when `main` gained
+ADR-0013 (evidence-based rights determination) and ADR-0014 (self-service
+Stripe billing for the Postgres-backed edge Workers). The two billing paths are
+separate products on the same Stripe account: this dataset uses its own four
+live prices and its own webhook endpoint (`https://data.aroqon.com/stripe/webhook`);
+ADR-0014's edge billing uses `/v1/<slug>/billing/*` on its own Workers.
+
+The recall API already follows ADR-0012's canonical shape
+(`https://api.data.aroqon.com/v1/recalls...`). One deployment fact must be
+handled before the first per-vertical edge Worker is routed onto
+`api.data.aroqon.com/v1/<slug>/*` (runbook section 10 of
+`docs/owner-actions/cloudflare-deployment.md`): `data-foundry-recalls` currently
+holds `api.data.aroqon.com` and `data.aroqon.com` as Workers Custom Domains, and
+a Custom Domain takes precedence over zone routes on the same hostname. Before
+that deployment, move the recall Worker's API hostname to route patterns
+(`api.data.aroqon.com/v1/recalls*`, `/v1/account*`, `/openapi.json`) so the
+other `/v1/<slug>` prefixes reach their own Workers. Nothing is routed there
+today, so there is no live collision.

@@ -32,6 +32,8 @@ import {
   type ResolvedEdgeConfig,
 } from './env.js';
 import { probePrivateCanaryReadiness } from './private-canary.js';
+import { BILLING_PATH_PREFIX, allowanceExhaustedResponse, readAllowance, serveBilling } from './billing.js';
+import { toInternalPath, toPublicApiResponse, toPublicFetchResponse, toPublicPath } from './path-prefix.js';
 import { RUNTIMES } from '../generated/runtime-registry.js';
 
 export { toApiRequest, toFetchResponse } from './adapter.js';
@@ -61,6 +63,12 @@ export {
   type ResolvedEdgeConfig,
 } from './env.js';
 export { probePrivateCanaryReadiness, type PrivateCanaryProbeOptions } from './private-canary.js';
+export {
+  API_PATH_PREFIX_PATTERN,
+  toInternalPath,
+  toPublicLink,
+  toPublicPath,
+} from './path-prefix.js';
 
 /** Service-binding-only probe; no public route is added for the canary. */
 export class PrivateCanaryEntrypoint extends WorkerEntrypoint<EdgeEnv> implements PrivateCanaryProbe {
@@ -89,6 +97,14 @@ export { BUNDLED_VERTICALS, RUNTIMES } from '../generated/runtime-registry.js';
  * diagnosed as a query bug. The body carries no configuration detail; the
  * operator channel gets the cause.
  */
+function notFound(request: Request): Response {
+  const body = JSON.stringify({ error: { code: 'NOT_FOUND', message: 'No such route.' } });
+  return new Response(request.method.toUpperCase() === 'HEAD' ? null : body, {
+    status: 404,
+    headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
+  });
+}
+
 function unavailable(reason: string, method = 'GET'): Response {
   const body = JSON.stringify(validateOpaqueEdgeErrorEnvelope({
     error: { code: 'SERVICE_UNAVAILABLE', message: 'This deployment is not configured to serve requests.' },
@@ -279,6 +295,37 @@ export async function serveRequest(
     }
 
     const config = resolveEdgeConfig(env);
+    const requestUrl = new URL(request.url);
+    // With API_PATH_PREFIX set, only `/v1/<slug>` and below belong to this
+    // Worker; everything else is refused before authentication or metering.
+    // Without it, `internalPath` is the request's own pathname.
+    const prefix = config.apiPathPrefix;
+    const internalPath = toInternalPath(requestUrl.pathname, prefix);
+    if (internalPath === null) return notFound(request);
+    if (internalPath.startsWith(BILLING_PATH_PREFIX)) {
+      // Self-service billing lives only on the direct origin. The marketplace
+      // origin bills through RapidAPI and never sells or issues direct keys.
+      if (config.billing === null || requestUrl.hostname.toLowerCase() === config.rapidApi?.hostname) {
+        return notFound(request);
+      }
+      deployment = await getDeployment({
+        env,
+        runtime,
+        ...(driverOverride === undefined ? {} : { openDriver: driverOverride }),
+      });
+      const billingResponse = await serveBilling(request, {
+        config: config.billing,
+        plans: runtime.plans,
+        verticalSlug: config.verticalSlug,
+        verticalId: deployment.verticalId,
+        keyEnvironment: config.apiKeyEnvironment,
+        driver: deployment.driver,
+        now: new Date(),
+        ...(prefix === null ? {} : { publicApiRoot: prefix }),
+      }, internalPath);
+      return toPublicFetchResponse(billingResponse, prefix, requestUrl.origin);
+    }
+
     const channel = await resolveRequestChannel(request, config);
     if (!channel.ok) return authFailureResponse(request, channel);
 
@@ -307,6 +354,16 @@ export async function serveRequest(
     );
     if (!auth.ok) return authFailureResponse(request, auth);
 
+    // The published plans stop at their monthly allowance. Keys without an
+    // allowance row (operator-provisioned, marketplace, MCP) are unaffected.
+    if (auth.accessTier === 'API_PAID') {
+      const now = new Date();
+      const allowance = await readAllowance(deployment.driver, auth.tenantId, now);
+      if (allowance !== null && allowance.used >= allowance.allowance) {
+        return allowanceExhaustedResponse(request, allowance, now, toPublicPath('/v1', prefix));
+      }
+    }
+
     // `onRequest` is a closure fresh to this one `fetch` call — see
     // `apps/api`'s `ApiHandler` doc comment for why that matters. Two
     // requests from two different tenants running concurrently in this
@@ -321,7 +378,7 @@ export async function serveRequest(
     };
 
     const startedAt = Date.now();
-    const response = await deployment.app(toApiRequest(request), onRequest, {
+    const response = await deployment.app(toApiRequest(request, internalPath), onRequest, {
       surface: auth.accessTier,
     });
     const durationMs = Date.now() - startedAt;
@@ -355,7 +412,7 @@ export async function serveRequest(
       }
     }
 
-    return toFetchResponse(response, request.method);
+    return toFetchResponse(toPublicApiResponse(response, prefix, requestUrl.origin), request.method);
   } catch (error) {
     if (error instanceof EdgeConfigurationError) {
       console.error('[edge] configuration', { code: 'CONFIGURATION_UNAVAILABLE' });

@@ -1,7 +1,16 @@
 # Owner decision — direct API pricing and invoicing
 
-> **Decided 2026-09-26 — Product Owner: "Accept pricing."** Applied to the
-> first paid dataset, FDA Recall Intelligence ([ADR-0013](../decisions/ADR-0013-first-paid-dataset-fda-recalls-on-d1.md)):
+> **Superseded in part, 2026-09-26.** The Product Owner chose self-service
+> Stripe billing (plus RapidAPI) instead of manual invoicing:
+> [ADR-0014](../decisions/ADR-0014-self-service-stripe-billing.md). Decision 1
+> (the four-tier ladder) and Decision 2 (hard stop, no overage) are implemented
+> as proposed. The hard stop is now actually enforced; before migration `0035`
+> it existed only on the pricing page. Decision 3 (manual invoicing) is
+> replaced by Stripe Checkout and subscriptions. Decision 4 (the free tier)
+> remains unbuilt: Checkout never sells the $0 plan.
+>
+> **FDA Recall Intelligence (separate dataset), decided 2026-09-26 — Product Owner: "Accept pricing."** Applied to the
+> first paid dataset, FDA Recall Intelligence ([ADR-0015](../decisions/ADR-0015-first-paid-dataset-fda-recalls-on-d1.md)):
 > Decision 1, keep the four-tier ladder; Decision 2, hard stop at the allowance;
 > Decision 4, an `Evaluate` free tier at 100 requests a month, which the dataset's
 > CC0 rights permit. **One deviation, Decision 3:** billing is Stripe

@@ -149,6 +149,36 @@ describe('Cloudflare route-less private-canary artifacts', () => {
     );
   });
 
+  it('builds per-vertical edge templates separately, outside the thirteen-artifact count', async () => {
+    const module = await loadArtifactModule();
+    const verticalEdges = module['VERTICAL_EDGE_ARTIFACT_SERVICES'] as readonly {
+      readonly name: string;
+      readonly configPath: string;
+      readonly mainPath: string;
+      readonly needsHyperdrive: boolean;
+    }[];
+    const core = module['CLOUDFLARE_ARTIFACT_SERVICES'] as readonly { readonly name: string }[];
+    expect(core).toHaveLength(13);
+    expect(verticalEdges.map(({ name }) => name)).toEqual(['ordinary-edge-vehicles']);
+    expect(verticalEdges[0]?.configPath).toBe(join(REPO_ROOT, 'apps', 'edge', 'wrangler.vehicles.toml'));
+    expect(verticalEdges[0]?.mainPath).toBe(join(REPO_ROOT, 'apps', 'edge', 'src', 'index.ts'));
+    expect(verticalEdges[0]?.needsHyperdrive).toBe(true);
+    for (const { name } of verticalEdges) expect(core.map((service) => service.name)).not.toContain(name);
+
+    const format = module['formatCloudflareArtifactSuccessMessage'] as (result: Record<string, unknown>) => string;
+    expect(
+      format({
+        services: [],
+        artifacts: [],
+        files: 18,
+        bytes: 1,
+        additionalArtifacts: [{ name: 'ordinary-edge-vehicles', files: 2, bytes: 3 }],
+      }),
+    ).toMatch(
+      /^OK: Wrangler dry-run built thirteen Worker artifacts .*\nOK: also built 1 additional per-vertical edge artifact\(s\) outside the thirteen-artifact count \(ordinary-edge-vehicles: 2 files, 3 bytes\) with no PGlite runtime\.\n$/s,
+    );
+  });
+
   it('builds every ordinary and route-less private-canary artifact with pinned Wrangler dry-run and finds no local PGlite runtime', async () => {
     const module = await loadArtifactModule();
     const build = module['buildCloudflareArtifacts'];
@@ -167,8 +197,18 @@ describe('Cloudflare route-less private-canary artifacts', () => {
           readonly files: number;
           readonly bytes: number;
         }[];
+        readonly additionalArtifacts?: readonly {
+          readonly name: string;
+          readonly files: number;
+          readonly bytes: number;
+        }[];
       }>
     )({ outputRoot: relative(process.cwd(), outputRoot) });
+    expect(result.additionalArtifacts?.map(({ name }) => name)).toEqual(['ordinary-edge-vehicles']);
+    for (const artifact of result.additionalArtifacts ?? []) {
+      expect(artifact.files).toBeGreaterThan(0);
+      expect(artifact.bytes).toBeGreaterThan(100_000);
+    }
 
     expect(result.services).toEqual([
       'ordinary-edge',

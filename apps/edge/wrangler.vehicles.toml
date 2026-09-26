@@ -1,0 +1,45 @@
+# Per-vertical edge Worker template for the `vehicles` dataset (ADR-0011,
+# ADR-0012). Same code as `wrangler.toml` (`src/index.ts`), a separate Worker
+# identity, and the canonical public path `api.data.aroqon.com/v1/vehicles/*`.
+#
+# `API_PATH_PREFIX` makes this Worker accept only `/v1/vehicles` and below and
+# strip it to the internal `/v1/...` surface before auth, routing, billing and
+# metering. It must equal `/v1/${VERTICAL_SLUG}` or the Worker refuses to start.
+#
+# As with `wrangler.toml`, `account_id`, the route and the Hyperdrive `id` are
+# deployment facts. Copy this file to the ignored
+# `wrangler.vehicles.production.toml` and add them there; see
+# `docs/owner-actions/cloudflare-deployment.md` section 10. The Worker serves
+# requests only once the `vehicles` runtime is compiled into
+# `apps/edge/generated`; `pnpm cloudflare:deployment:check` refuses the
+# deployment manifest until then.
+
+name = "data-foundry-edge-vehicles"
+main = "src/index.ts"
+
+compatibility_date = "2026-08-23"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = false
+preview_urls = false
+
+[observability]
+enabled = true
+
+[observability.logs]
+invocation_logs = false
+
+[vars]
+DEPLOYMENT_ENVIRONMENT = "production"
+VERTICAL_SLUG = "vehicles"
+API_PATH_PREFIX = "/v1/vehicles"
+API_KEY_ENVIRONMENT = "live"
+
+# [[hyperdrive]]
+# binding = "HYPERDRIVE"
+# id = "<edge-role-hyperdrive-id>"
+
+# The same usage queue as the hvac edge Worker: usage events carry their own
+# vertical_id, and the one usage consumer is the only writer of usage rows.
+[[queues.producers]]
+binding = "USAGE_EVENTS_QUEUE"
+queue = "data-foundry-usage-events"

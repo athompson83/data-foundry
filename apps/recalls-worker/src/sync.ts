@@ -1,5 +1,5 @@
 /**
- * Acquisition from the openFDA enforcement API (CC0; see ADR-0013 for the
+ * Acquisition from the openFDA enforcement API (CC0; see ADR-0015 for the
  * rights record). Each run fetches one report-date window per category, keeps
  * each page's verbatim records in R2 as evidence, and rewrites only records whose raw
  * bytes changed. A rolling cursor re-walks history so status changes on old

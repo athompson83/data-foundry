@@ -1,0 +1,155 @@
+{
+  "_banner": "SYNTHETIC SHAPE FIXTURE — replace with captured artifacts before activation. Expected canonical output of the real pipeline over fixtures/epa-vehicles.csv and fixtures/nhtsa-flat-rcl.csv (fictional makes, fictional values), with both sources activated ONLY inside tests/shape-ingest.test.ts. Not EPA or NHTSA data.",
+  "counts": {
+    "configuration_of": 12,
+    "makes": 10,
+    "recall_affects": 7
+  },
+  "relationships": [
+    {
+      "subject": "vehicle_configuration:900001",
+      "predicate": "configuration_of",
+      "object": "vehicle_model_year:EXAMPLARMOTORSROADSTER2020"
+    },
+    {
+      "subject": "vehicle_configuration:900002",
+      "predicate": "configuration_of",
+      "object": "vehicle_model_year:EXAMPLARMOTORSROADSTER2020"
+    },
+    {
+      "subject": "vehicle_configuration:900003",
+      "predicate": "configuration_of",
+      "object": "vehicle_model_year:EXAMPLARMOTORSROADSTER2021"
+    },
+    {
+      "subject": "vehicle_configuration:900004",
+      "predicate": "configuration_of",
+      "object": "vehicle_model_year:EXAMPLARMOTORSVOLTLINE2021"
+    },
+    {
+      "subject": "vehicle_configuration:900005",
+      "predicate": "configuration_of",
+      "object": "vehicle_model_year:FIXTUREAUTOMOTIVEMULE2020"
+    },
+    {
+      "subject": "vehicle_configuration:900006",
+      "predicate": "configuration_of",
+      "object": "vehicle_model_year:FIXTUREAUTOMOTIVEMULE2020"
+    },
+    {
+      "subject": "vehicle_configuration:900007",
+      "predicate": "configuration_of",
+      "object": "vehicle_model_year:FIXTUREAUTOMOTIVEMULE2021"
+    },
+    {
+      "subject": "vehicle_configuration:900008",
+      "predicate": "configuration_of",
+      "object": "vehicle_model_year:FIXTUREAUTOMOTIVEQUANTA2021"
+    },
+    {
+      "subject": "vehicle_configuration:900009",
+      "predicate": "configuration_of",
+      "object": "vehicle_model_year:PLACEHOLDERMOTORWORKSPM32021"
+    },
+    {
+      "subject": "vehicle_configuration:900010",
+      "predicate": "configuration_of",
+      "object": "vehicle_model_year:PLACEHOLDERMOTORWORKSPM32022"
+    },
+    {
+      "subject": "vehicle_configuration:900011",
+      "predicate": "configuration_of",
+      "object": "vehicle_model_year:PLACEHOLDERMOTORWORKSPM302022"
+    },
+    {
+      "subject": "vehicle_configuration:900012",
+      "predicate": "configuration_of",
+      "object": "vehicle_model_year:EXAMPLARMOTORSROADSTER2021"
+    },
+    {
+      "subject": "make:examplar-motors",
+      "predicate": "makes",
+      "object": "vehicle_model_year:EXAMPLARMOTORSROADSTER2020"
+    },
+    {
+      "subject": "make:examplar-motors",
+      "predicate": "makes",
+      "object": "vehicle_model_year:EXAMPLARMOTORSROADSTER2021"
+    },
+    {
+      "subject": "make:examplar-motors",
+      "predicate": "makes",
+      "object": "vehicle_model_year:EXAMPLARMOTORSVOLTLINE2021"
+    },
+    {
+      "subject": "make:fixture-automotive",
+      "predicate": "makes",
+      "object": "vehicle_model_year:FIXTUREAUTOMOTIVEMULE2020"
+    },
+    {
+      "subject": "make:fixture-automotive",
+      "predicate": "makes",
+      "object": "vehicle_model_year:FIXTUREAUTOMOTIVEMULE2021"
+    },
+    {
+      "subject": "make:fixture-automotive",
+      "predicate": "makes",
+      "object": "vehicle_model_year:FIXTUREAUTOMOTIVEQUANTA2021"
+    },
+    {
+      "subject": "make:placeholder-motor-works",
+      "predicate": "makes",
+      "object": "vehicle_model_year:PLACEHOLDERMOTORWORKSPM3002022"
+    },
+    {
+      "subject": "make:placeholder-motor-works",
+      "predicate": "makes",
+      "object": "vehicle_model_year:PLACEHOLDERMOTORWORKSPM302022"
+    },
+    {
+      "subject": "make:placeholder-motor-works",
+      "predicate": "makes",
+      "object": "vehicle_model_year:PLACEHOLDERMOTORWORKSPM32021"
+    },
+    {
+      "subject": "make:placeholder-motor-works",
+      "predicate": "makes",
+      "object": "vehicle_model_year:PLACEHOLDERMOTORWORKSPM32022"
+    },
+    {
+      "subject": "recall_campaign:20V901000",
+      "predicate": "recall_affects",
+      "object": "vehicle_model_year:EXAMPLARMOTORSROADSTER2020"
+    },
+    {
+      "subject": "recall_campaign:20V901000",
+      "predicate": "recall_affects",
+      "object": "vehicle_model_year:EXAMPLARMOTORSROADSTER2021"
+    },
+    {
+      "subject": "recall_campaign:21V902000",
+      "predicate": "recall_affects",
+      "object": "vehicle_model_year:EXAMPLARMOTORSVOLTLINE2021"
+    },
+    {
+      "subject": "recall_campaign:21V903000",
+      "predicate": "recall_affects",
+      "object": "vehicle_model_year:FIXTUREAUTOMOTIVEMULE2020"
+    },
+    {
+      "subject": "recall_campaign:21V903000",
+      "predicate": "recall_affects",
+      "object": "vehicle_model_year:FIXTUREAUTOMOTIVEMULE2021"
+    },
+    {
+      "subject": "recall_campaign:22V904000",
+      "predicate": "recall_affects",
+      "object": "vehicle_model_year:PLACEHOLDERMOTORWORKSPM32022"
+    },
+    {
+      "subject": "recall_campaign:22V905000",
+      "predicate": "recall_affects",
+      "object": "vehicle_model_year:PLACEHOLDERMOTORWORKSPM3002022"
+    }
+  ]
+}

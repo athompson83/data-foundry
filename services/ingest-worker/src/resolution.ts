@@ -40,8 +40,22 @@ import type {
   SqlParam,
   SqlTransactionExecutor,
 } from '@data-foundry/canonical-store';
-import { primaryAliasType, resolvePublisher, type VerticalConfig } from './config-core.js';
+import {
+  primaryAliasType,
+  publisherEntityType,
+  publisherPredicates,
+  resolvePublisher,
+  type VerticalConfig,
+} from './config-core.js';
 import { AliasNormalizer, slugify } from './identifiers.js';
+import {
+  blockingValue,
+  parseBlockingKeys,
+  type BlockingKey,
+  type BlockingProfile,
+  type RelatedEntityBlockingKey,
+} from './blocking.js';
+import { PipelineConfigurationError } from './errors.js';
 
 export interface AliasClaim {
   readonly aliasType: Identifier;
@@ -151,9 +165,16 @@ export class EntityResolver {
   readonly #normalizer: AliasNormalizer;
   readonly diagnostics: string[] = [];
 
+  /** The entity type `publisher_aliases` resolves to (HVAC: `manufacturer`). */
+  readonly #publisherEntityType: Identifier;
+  /** Predicates whose subject is that publisher (HVAC: `manufactures`). */
+  readonly #publisherPredicates: readonly string[];
+
   constructor(deps: ResolverDeps) {
     this.#deps = deps;
     this.#normalizer = new AliasNormalizer(deps.config);
+    this.#publisherEntityType = publisherEntityType(deps.config) as Identifier;
+    this.#publisherPredicates = publisherPredicates(deps.config);
   }
 
   get normalizer(): AliasNormalizer {
@@ -197,7 +218,7 @@ export class EntityResolver {
     const entity = await this.#deps.store.upsertEntity(
       {
         vertical_id: this.#deps.verticalId,
-        entity_type: 'manufacturer' as Identifier,
+        entity_type: this.#publisherEntityType,
         canonical_name: publisher.canonicalName,
         canonical_slug: slug,
         status: 'ACTIVE',
@@ -243,13 +264,13 @@ export class EntityResolver {
     if (publisher === null) return [];
 
     const identities: AliasLockIdentity[] = [{
-      entityType: 'manufacturer' as Identifier,
+      entityType: this.#publisherEntityType,
       aliasType: 'legal_name' as Identifier,
       normalizedValue: this.#normalizer.normalize('legal_name', publisher.canonicalName),
     }];
     if (brand.trim() !== publisher.canonicalName) {
       identities.push({
-        entityType: 'manufacturer' as Identifier,
+        entityType: this.#publisherEntityType,
         aliasType: 'name' as Identifier,
         normalizedValue: this.#normalizer.normalize('name', brand.trim()),
       });
@@ -271,7 +292,7 @@ export class EntityResolver {
         continue;
       }
       identities.push({
-        entityType: 'manufacturer' as Identifier,
+        entityType: this.#publisherEntityType,
         aliasType: 'abbreviation' as Identifier,
         normalizedValue: this.#normalizer.normalize('abbreviation', prefix),
       });
@@ -908,7 +929,10 @@ export class EntityResolver {
       created_at: iso(row['created_at']),
       updated_at: iso(row['updated_at']),
     });
-    const manufacturerRows = await query.query<{
+    // The publisher predicates come from the vertical's own source mappings
+    // (HVAC: `manufactures`); a vertical with none has no publisher to name by.
+    const predicates = this.#publisherPredicates;
+    const manufacturerRows = predicates.length === 0 ? [] : await query.query<{
       readonly canonical_name: string;
       readonly canonical_slug: string;
     }>(
@@ -916,7 +940,7 @@ export class EntityResolver {
          FROM relationships relationship
          JOIN entities manufacturer ON manufacturer.id = relationship.subject_entity_id
         WHERE relationship.object_entity_id = $1
-          AND relationship.predicate = 'manufactures'
+          AND relationship.predicate IN (${predicates.map((_, index) => `$${index + 2}`).join(', ')})
           AND relationship.status <> 'RETRACTED'
           AND relationship.valid_to IS NULL
           AND EXISTS (
@@ -929,7 +953,7 @@ export class EntityResolver {
           )
         ORDER BY manufacturer.canonical_slug COLLATE "C"
         LIMIT 1`,
-      [entityId],
+      [entityId, ...predicates],
     );
     const manufacturer = manufacturerRows[0] ?? null;
     await this.refreshPreferredName(
@@ -963,8 +987,27 @@ export class EntityResolver {
    * One named only by a coded reference reads as `<SCHEME> <value>`, where the
    * scheme is the leading segment of its alias type (`ahri_ref` → `AHRI`) —
    * a bare number is not a name a human can act on.
+   *
+   * An entity type may instead declare `canonical_name.pattern` in its
+   * `entities/<type>.yaml`. Tokens are `{manufacturer_name}` and alias types,
+   * each resolved to the source spelling. A composite identifier that already
+   * contains the publisher's name (`make_model_year`) would otherwise be
+   * prefixed with it twice. A pattern that resolves to nothing falls back to the
+   * default rule above.
    */
   #buildName(input: ResolutionNamingInput, display: AliasClaim | null): string {
+    const declared = this.#deps.config.entities[input.entityType]?.canonical_name?.pattern;
+    if (typeof declared === 'string') {
+      const named = declared
+        .replace(/\{([a-z0-9_]+)\}/g, (_match, token: string) => {
+          if (token === 'manufacturer_name') return input.manufacturer?.canonical_name ?? '';
+          if (display?.aliasType === token) return display.aliasValue;
+          return input.aliases.find((alias) => alias.aliasType === token)?.aliasValue ?? '';
+        })
+        .replace(/\s+/g, ' ')
+        .trim();
+      if (named !== '') return named;
+    }
     const value = display?.aliasValue ?? display?.normalizedValue ?? 'unknown';
     if (input.manufacturer !== null) {
       return `${input.manufacturer.canonical_name} ${value}`;
@@ -1337,20 +1380,30 @@ export class EntityResolver {
    */
   async runBlockingPass(): Promise<{ readonly proposed: number; readonly rejected: number }> {
     const resolution = this.#deps.config.entityResolution ?? {};
-    const blockingKeys: string[] = (resolution.blocking_keys ?? []).map(String);
+    const parsedKeys = parseBlockingKeys(resolution.blocking_keys, this.#deps.config);
+    if (parsedKeys.errors.length > 0) {
+      throw new PipelineConfigurationError(
+        `vertical ${this.#deps.config.slug} declares invalid blocking keys:\n  ${parsedKeys.errors.join('\n  ')}`,
+      );
+    }
+    const blockingKeys = parsedKeys.keys;
     const hardConflicts: string[] = (resolution.hard_conflict_properties ?? []).map(String);
     const neverMergeAcross: string[] = (resolution.never_merge_across ?? []).map(String);
     if (blockingKeys.length === 0) return { proposed: 0, rejected: 0 };
+    const mismatchKeys = blockingKeys.filter(
+      (key): key is RelatedEntityBlockingKey =>
+        key.kind === 'related_entity' && key.rejectMismatchAs !== null,
+    );
 
-    const profiles = await this.#loadBlockingProfiles(hardConflicts);
+    const profiles = await this.#loadBlockingProfiles(blockingKeys, hardConflicts);
     const blocks = new Map<string, EntityId[]>();
     for (const profile of profiles) {
       for (const key of blockingKeys) {
         const value = blockingValue(key, profile);
         if (value === null) continue;
-        const bucket = blocks.get(`${key}=${value}`) ?? [];
-        bucket.push(profile.id);
-        blocks.set(`${key}=${value}`, bucket);
+        const bucket = blocks.get(`${key.key}=${value}`) ?? [];
+        bucket.push(profile.id as EntityId);
+        blocks.set(`${key.key}=${value}`, bucket);
       }
     }
 
@@ -1393,6 +1446,7 @@ export class EntityResolver {
             left: leftProfile,
             right: rightProfile,
             hardConflicts,
+            mismatchKeys,
             edges,
           });
 
@@ -1443,19 +1497,47 @@ export class EntityResolver {
     return { proposed, rejected };
   }
 
-  async #loadBlockingProfiles(properties: readonly string[]): Promise<BlockingProfile[]> {
+  /**
+   * One query per entity type the blocking keys cover, with one scalar
+   * subquery per key: every alias type, predicate and entity type comes from
+   * the vertical's declarations, never from this file (AGENTS.md rule 4).
+   */
+  async #loadBlockingProfiles(
+    keys: readonly BlockingKey[],
+    hardConflicts: readonly string[],
+  ): Promise<BlockingProfile[]> {
     const driver = this.#deps.store.driver;
-    const rows = await driver.query(
-      `SELECT e.id, e.canonical_slug, e.entity_type,
-              (SELECT a.normalized_value FROM current_entity_aliases a
-                WHERE a.entity_id = e.id AND a.alias_type = 'model_number'
+    const entityTypes = [...new Set(keys.map((key) => key.entityType))];
+    const profiles: BlockingProfile[] = [];
+    for (const entityType of entityTypes) {
+      const typeKeys = keys.filter((key) => key.entityType === entityType);
+      const params: SqlParam[] = [this.#deps.verticalId, entityType];
+      const columns: string[] = [];
+      const columnKeys: string[] = [];
+      for (const key of typeKeys) {
+        if (key.kind === 'property_values') continue;
+        params.push(key.kind === 'alias' ? key.aliasType : key.predicate);
+        const param = `$${params.length}`;
+        const column = `k${columnKeys.length}`;
+        columnKeys.push(key.key);
+        if (key.kind === 'alias') {
+          columns.push(
+            `(SELECT a.normalized_value FROM current_entity_aliases a
+                WHERE a.entity_id = e.id AND a.alias_type = ${param}
                 -- COLLATE "C": this LIMIT 1 picks the blocking key, which decides
                 -- which pairs are ever compared and lands in the evidence
                 -- fingerprint. A host collation must not choose it.
-                ORDER BY a.normalized_value COLLATE "C" LIMIT 1) AS model_number,
-               (SELECT m.canonical_slug FROM relationships r
-                  JOIN entities m ON m.id = r.subject_entity_id
-                 WHERE r.object_entity_id = e.id AND r.predicate = 'manufactures'
+                ORDER BY a.normalized_value COLLATE "C" LIMIT 1) AS ${column}`,
+          );
+        } else {
+          const [self, other] =
+            key.role === 'object'
+              ? ['object_entity_id', 'subject_entity_id']
+              : ['subject_entity_id', 'object_entity_id'];
+          columns.push(
+            `(SELECT m.canonical_slug FROM relationships r
+                  JOIN entities m ON m.id = r.${other}
+                 WHERE r.${self} = e.id AND r.predicate = ${param}
                    AND r.valid_to IS NULL
                    AND EXISTS (
                      SELECT 1 FROM relationship_evidence re
@@ -1463,30 +1545,49 @@ export class EntityResolver {
                      WHERE re.relationship_id = r.id
                        AND sr.is_current AND sr.revision_state = 'FINALIZED'
                    )
-                 LIMIT 1) AS manufacturer_slug
-         FROM entities e
-        WHERE e.vertical_id = $1 AND e.entity_type = 'equipment_model' AND e.status = 'ACTIVE'
-        ORDER BY e.id`,
-      [this.#deps.verticalId],
-    );
-
-    const profiles: BlockingProfile[] = [];
-    for (const row of rows) {
-      const id = String(row['id']) as EntityId;
-      const facts: Record<string, unknown> = {};
-      for (const property of properties) {
-        const selection = await this.#deps.store.selectFact(id, property as Identifier, {
-          at: this.#deps.now,
-        });
-        if (selection.selected !== null) facts[property] = selection.selected.fact.normalized_value;
+                 ORDER BY m.canonical_slug COLLATE "C"
+                 LIMIT 1) AS ${column}`,
+          );
+        }
       }
-      profiles.push({
-        id,
-        slug: String(row['canonical_slug']),
-        modelNumber: row['model_number'] === null ? null : String(row['model_number']),
-        manufacturerSlug: row['manufacturer_slug'] === null ? null : String(row['manufacturer_slug']),
-        facts,
-      });
+      const rows = await driver.query(
+        `SELECT e.id, e.canonical_slug${columns.map((column) => `,\n              ${column}`).join('')}
+           FROM entities e
+          WHERE e.vertical_id = $1 AND e.entity_type = $2 AND e.status = 'ACTIVE'
+          ORDER BY e.id`,
+        params,
+      );
+
+      // Hard-conflict properties first (they decide rejections), then any
+      // property a key of this entity type blocks on.
+      const properties = [
+        ...new Set([
+          ...hardConflicts,
+          ...typeKeys.flatMap((key) => (key.kind === 'property_values' ? key.properties : [])),
+        ]),
+      ];
+      for (const row of rows) {
+        const id = String(row['id']) as EntityId;
+        const facts: Record<string, unknown> = {};
+        for (const property of properties) {
+          const selection = await this.#deps.store.selectFact(id, property as Identifier, {
+            at: this.#deps.now,
+          });
+          if (selection.selected !== null) facts[property] = selection.selected.fact.normalized_value;
+        }
+        const keyValues = new Map<string, string | null>();
+        columnKeys.forEach((keyName, index) => {
+          const value = row[`k${index}`];
+          keyValues.set(keyName, value === null || value === undefined ? null : String(value));
+        });
+        profiles.push({
+          id,
+          slug: String(row['canonical_slug']),
+          entityType,
+          keyValues,
+          facts,
+        });
+      }
     }
     return profiles;
   }
@@ -1511,32 +1612,11 @@ export class EntityResolver {
   }
 }
 
-interface BlockingProfile {
-  readonly id: EntityId;
-  readonly slug: string;
-  readonly modelNumber: string | null;
-  readonly manufacturerSlug: string | null;
-  readonly facts: Readonly<Record<string, unknown>>;
-}
-
-function blockingValue(key: string, profile: BlockingProfile): string | null {
-  if (key === 'normalized_manufacturer') return profile.manufacturerSlug;
-  if (key === 'model_number_prefix_6') {
-    return profile.modelNumber === null ? null : profile.modelNumber.slice(0, 6);
-  }
-  if (key === 'product_type_and_capacity_band') {
-    const type = profile.facts['product_type'];
-    const capacity = profile.facts['cooling_capacity_btu'];
-    if (type === undefined || capacity === undefined) return null;
-    return `${String(type)}:${String(capacity)}`;
-  }
-  return null;
-}
-
 function rejectionReasons(input: {
   readonly left: BlockingProfile;
   readonly right: BlockingProfile;
   readonly hardConflicts: readonly string[];
+  readonly mismatchKeys: readonly RelatedEntityBlockingKey[];
   readonly edges: ReadonlySet<string>;
 }): string[] {
   const reasons: string[] = [];
@@ -1547,14 +1627,15 @@ function rejectionReasons(input: {
         '(supersession is a replacement, not the same product)',
     );
   }
-  if (
-    input.left.manufacturerSlug !== null &&
-    input.right.manufacturerSlug !== null &&
-    input.left.manufacturerSlug !== input.right.manufacturerSlug
-  ) {
-    reasons.push(
-      `different manufacturers (${input.left.manufacturerSlug} vs ${input.right.manufacturerSlug})`,
-    );
+  for (const key of input.mismatchKeys) {
+    if (key.entityType !== input.left.entityType || key.entityType !== input.right.entityType) {
+      continue;
+    }
+    const a = input.left.keyValues.get(key.key) ?? null;
+    const b = input.right.keyValues.get(key.key) ?? null;
+    if (a !== null && b !== null && a !== b) {
+      reasons.push(`different ${key.rejectMismatchAs} (${a} vs ${b})`);
+    }
   }
   for (const property of input.hardConflicts) {
     const a = input.left.facts[property];

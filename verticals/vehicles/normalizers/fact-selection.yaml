@@ -1,0 +1,67 @@
+# =============================================================================
+# fact-selection.yaml — which competing claim becomes the canonical value.
+#
+# Doc 04 criteria, in priority order (editorial override first, ADR-0002).
+#
+# NO AUTHORITATIVE-SOURCE PREFERENCES ARE DECLARED YET, deliberately.
+# `authoritative_by_property` may only name source types that a USABLE
+# (activated, publishable) source has; fact-policy.ts refuses a preference that
+# can never fire. Every vehicles source is UNDER_REVIEW / UNREVIEWED, so any
+# entry here would fail compilation — and would be a claim about sources we
+# have not reviewed. The two families also barely overlap: EPA alone asserts
+# fuel economy, NHTSA alone asserts recall text, and the one shared property
+# (`model_year` on a model year) is part of the join key both sides already
+# agree on. Declare preferences when the sources are activated and real
+# overlaps are observed in captured files.
+# =============================================================================
+
+strategy:
+  - editorial_override
+  - authoritative_source
+  - field_reliability
+  - corroboration
+  - recency
+  - consistency_check
+
+authoritative_by_property: {}
+
+field_reliability: {}
+
+recency:
+  applies_within_authority_band: 10
+  prefer: newest_observed_at
+
+corroboration:
+  bonus_per_agreeing_source: 0.05
+  max_bonus: 0.15
+  affects_selection: false
+  independent_source_groups:
+    - [epa-fueleconomy-vehicles]
+    - [nhtsa-recalls]
+  non_independent_pairs: []
+
+consistency_checks: []
+
+editorial_override:
+  enabled: true
+  requires_reason: true
+  requires_reviewer: true
+  note: >-
+    An override is a fact with its own evidence — a named reviewer and a
+    written reason. None are declared.
+  overrides: []
+
+conflict_policy:
+  retain_losing_claims: true
+  losing_status: SUPERSEDED
+  unresolved_status: DISPUTED
+  numeric_tolerance: 0.0
+  disputed_blocks_indexing: true
+  surface_conflicts_in_api: true
+  surface_conflicts_in_mcp: true
+  # A recall's component or remedy text changing between rows of one campaign
+  # is a signal to a human, not something to auto-resolve.
+  escalate_on_conflict:
+    - component
+    - remedy
+  record_selection_reason: true

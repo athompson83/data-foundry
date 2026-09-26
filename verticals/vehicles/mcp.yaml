@@ -1,0 +1,33 @@
+# MCP publication declaration for the vehicles vertical.
+#
+# The names, titles and summaries must match apps/mcp/src/tools.ts exactly.
+# The compiler takes descriptions, schemas and error codes from those
+# executable declarations, so this file cannot advertise an unimplemented
+# domain tool (no `check_recalls` or `decode_vin` tool exists — a recall lookup
+# is `get_entity` on a model year followed by `traverse_relationships`).
+
+server:
+  name: data-foundry-vehicles
+  version: 0.1.0
+  transport: streamable_http
+  endpoint: /mcp
+
+tools:
+  - name: search_entities
+    title: Search the catalogue
+    summary: Find entities by identifier or description.
+  - name: get_entity
+    title: Resolve an identifier to a canonical entity
+    summary: What is this thing, and what do we publish about it?
+  - name: list_facts
+    title: Read the published fact sheet
+    summary: What do we publish about this entity, and how sure are we?
+  - name: compare_entities
+    title: Compare entities side by side
+    summary: How do these differ?
+  - name: traverse_relationships
+    title: Follow canonical relationships
+    summary: What is this connected to — and what replaces it?
+  - name: explain_fact
+    title: Show the evidence behind one value
+    summary: Why does the catalogue say this?

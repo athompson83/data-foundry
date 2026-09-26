@@ -36,6 +36,7 @@ import {
   parseSourceRegistryEntry,
 } from '@data-foundry/source-registry';
 import { validateDeclaredOps } from './vertical-ops.js';
+import { parseBlockingKeys } from '../../services/ingest-worker/src/blocking.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const VERTICALS_DIR = resolve(HERE, '..', '..', 'verticals');
@@ -88,6 +89,33 @@ async function listDirectories(dir: string): Promise<string[]> {
     .sort();
 }
 
+/**
+ * `entity_resolution.blocking_keys` must use the platform's declared blocking
+ * vocabulary and reference only entity types, alias types and predicates this
+ * vertical declares. Interpreted by the same parser the ingest worker uses, so
+ * the gate cannot drift from the runtime. An undeclared key used to block
+ * nothing, silently; now it fails here.
+ */
+export function validateBlockingKeys(config: VerticalConfig): string[] {
+  const raw = config as Record<string, unknown>;
+  const resolution = (raw['entity_resolution'] ?? {}) as Record<string, unknown>;
+  const aliasTypes = Array.isArray(raw['alias_types'])
+    ? (raw['alias_types'] as Record<string, unknown>[]).map((alias) => ({
+        type: String(alias?.['type']),
+        applies_to: Array.isArray(alias?.['applies_to'])
+          ? (alias['applies_to'] as unknown[]).map(String)
+          : [],
+      }))
+    : [];
+  return [
+    ...parseBlockingKeys(resolution['blocking_keys'], {
+      entityTypes: config.entity_types,
+      relationshipPredicates: config.relationship_predicates,
+      aliasTypes,
+    }).errors,
+  ];
+}
+
 export async function validateVertical(dir: string, asOf: string): Promise<ValidationProblem[]> {
   const problems: ValidationProblem[] = [];
   const configPath = join(dir, 'vertical.yaml');
@@ -114,6 +142,12 @@ export async function validateVertical(dir: string, asOf: string): Promise<Valid
       file: configPath,
       message: `unparseable YAML: ${error instanceof Error ? error.message : String(error)}`,
     });
+  }
+
+  if (config !== null) {
+    problems.push(
+      ...validateBlockingKeys(config).map((message) => ({ file: configPath, message })),
+    );
   }
 
   for (const doc of REQUIRED_VERTICAL_DOCS) {

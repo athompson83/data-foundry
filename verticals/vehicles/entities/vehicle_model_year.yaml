@@ -1,0 +1,89 @@
+# =============================================================================
+# vehicle_model_year — one make + model + model year ("Honda Accord 2020").
+#
+# The centre of this vertical and the product's lookup entity: it is the level
+# at which NHTSA files recalls and the level a buyer asks about ("is there a
+# recall on a 2020 Accord?"). EPA's configurations and NHTSA's campaigns both
+# attach here.
+#
+# Identity is the composite `make_model_year` alias. Neither agency publishes
+# it as one column; the source mappings compose it from three columns
+# (`paths:`), and normalization folds case and strips separators so
+# `EXAMPLAR MOTORS ROADSTER 2020` and `Examplar Motors Roadster 2020` meet.
+#
+# KNOWN GAP (see QUALITY.md): EPA `baseModel` and NHTSA `MODELTXT` are not
+# guaranteed to spell a model the same way. Where they differ, two model-year
+# entities are created and the recall edge does not reach EPA's configurations
+# — the platform never guesses the join.
+# =============================================================================
+
+entity_type: vehicle_model_year
+
+label:
+  singular: Vehicle Model Year
+  plural: Vehicle Model Years
+
+description: >-
+  A vehicle make, model and model year, identified by the composite
+  make + model + year key both EPA and NHTSA can be read into.
+
+# The composite alias already contains the make, so the display name is the
+# alias spelling itself rather than "<make> <alias>".
+canonical_name:
+  pattern: "{make_model_year}"
+
+canonical_slug:
+  # slugify("Examplar Motors Roadster 2020") = examplar-motors-roadster-2020
+  pattern: "{canonical_name}"
+  case: lower
+  separator: "-"
+
+identity:
+  strong_aliases:
+    - make_model_year
+  weak_aliases: []
+  composite_keys: []
+
+properties:
+  - name: model_year
+    value_type: integer
+    unit: null
+    critical: true
+    description: Model year as published by the source (`year` / `YEARTXT`).
+    expected_sources: [epa-fueleconomy-vehicles, nhtsa-recalls]
+
+  - name: model_name
+    value_type: string
+    unit: null
+    critical: true
+    description: >-
+      EPA's base model name (`baseModel`), without trim or drivetrain. Taken
+      from EPA only: NHTSA's upper-case `MODELTXT` would compete as a different
+      string for the same model.
+    expected_sources: [epa-fueleconomy-vehicles]
+
+quality_rules:
+  - id: model_year_in_range
+    rule: range
+    property: model_year
+    min: 1949
+    max: 2030
+    description: >-
+      Outside this window the value is a placeholder (NHTSA uses 9999 for
+      "unknown") or an extraction error.
+    severity: error
+
+  - id: model_year_has_a_make
+    rule: required_edge
+    predicate: makes
+    direction: inbound
+    min_count: 1
+    severity: error
+
+  - id: make_model_year_format
+    rule: regex
+    property: make_model_year
+    applies_to_alias: true
+    pattern: "^[A-Z0-9]+[0-9]{4}$"
+    description: Applied to the NORMALIZED alias value; it must end in a four-digit year.
+    severity: error

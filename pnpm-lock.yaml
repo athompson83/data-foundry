@@ -11,6 +11,9 @@ importers:
       '@data-foundry/api-keys':
         specifier: workspace:*
         version: link:packages/api-keys
+      '@data-foundry/billing':
+        specifier: workspace:*
+        version: link:packages/billing
       '@data-foundry/canonical-schema':
         specifier: workspace:*
         version: link:packages/canonical-schema
@@ -117,6 +120,9 @@ importers:
       '@data-foundry/api-keys':
         specifier: workspace:*
         version: link:../../packages/api-keys
+      '@data-foundry/billing':
+        specifier: workspace:*
+        version: link:../../packages/billing
       '@data-foundry/canonical-schema':
         specifier: workspace:*
         version: link:../../packages/canonical-schema
@@ -281,6 +287,8 @@ importers:
         version: link:../source-registry
 
   packages/api-keys: {}
+
+  packages/billing: {}
 
   packages/canonical-schema:
     dependencies:

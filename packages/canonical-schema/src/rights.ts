@@ -204,7 +204,12 @@ export const RIGHTS_ASSET_CLASSES = [
 export const RightsAssetClassSchema = z.enum(RIGHTS_ASSET_CLASSES);
 export type RightsAssetClass = z.infer<typeof RightsAssetClassSchema>;
 
-export const RIGHTS_REVIEWER_TYPES = ['AUTOMATED', 'HUMAN', 'COUNSEL'] as const;
+/**
+ * `DETERMINATION` is a committed, evidence-based rights determination
+ * (ADR-0013). It may approve and activate permission like `HUMAN`/`COUNSEL`;
+ * `AUTOMATED` assessments still cannot.
+ */
+export const RIGHTS_REVIEWER_TYPES = ['AUTOMATED', 'HUMAN', 'COUNSEL', 'DETERMINATION'] as const;
 export const RightsReviewerTypeSchema = z.enum(RIGHTS_REVIEWER_TYPES);
 export type RightsReviewerType = z.infer<typeof RightsReviewerTypeSchema>;
 

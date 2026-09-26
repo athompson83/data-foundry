@@ -1,5 +1,5 @@
-import { readFile } from 'node:fs/promises';
-import { dirname, join, resolve } from 'node:path';
+import { access, readFile } from 'node:fs/promises';
+import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parse } from 'smol-toml';
 import {
@@ -8,6 +8,11 @@ import {
   parseCanonicalProductionWorkerRoute,
 } from '@data-foundry/canonical-schema';
 import { isMain } from '../lib/cli-entry.js';
+import { EDGE_VERTICAL_TEMPLATES } from '../lib/edge-vertical-templates.js';
+import { RUNTIMES as EDGE_RUNTIMES } from '../../apps/edge/generated/runtime-registry.js';
+import { MCP_RUNTIMES } from '../../apps/mcp-worker/generated/runtime-registry.js';
+import { ACQUISITION_RUNTIMES } from '../../apps/acquisition-worker/generated/runtime-registry.js';
+import { INGESTION_RUNTIMES } from '../../apps/ingestion-worker/generated/runtime-registry.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const REPO_ROOT = resolve(HERE, '..', '..');
@@ -133,6 +138,27 @@ export const INGESTION_DEPLOYMENT_CONFIG_PATH = join(
 );
 export const MCP_DEPLOYMENT_CONFIG_PATH = join(REPO_ROOT, 'apps', 'mcp-worker', 'wrangler.production.toml');
 
+/** Re-exported from the dependency-free registry shared with operator tools. */
+export { EDGE_VERTICAL_TEMPLATES } from '../lib/edge-vertical-templates.js';
+
+/** The slugs each Worker bundle actually carries, read from its compiled registry. */
+export interface BundledVerticals {
+  readonly edge: readonly string[];
+  readonly mcp: readonly string[];
+  readonly acquisition: readonly string[];
+  readonly ingestion: readonly string[];
+}
+
+export const BUNDLED_RUNTIME_VERTICALS: BundledVerticals = {
+  edge: Object.keys(EDGE_RUNTIMES).sort(),
+  mcp: Object.keys(MCP_RUNTIMES).sort(),
+  acquisition: Object.keys(ACQUISITION_RUNTIMES).sort(),
+  ingestion: Object.keys(INGESTION_RUNTIMES).sort(),
+};
+
+const VERTICAL_SLUG_PATTERN = /^[a-z][a-z0-9-]{0,62}$/;
+const API_PATH_PREFIX_PATTERN = /^\/v1\/[a-z][a-z0-9-]{0,62}$/;
+
 const USAGE_QUEUE = 'data-foundry-usage-events';
 const USAGE_DLQ = 'data-foundry-usage-events-dlq';
 const INGESTION_QUEUE = 'data-foundry-ingestion';
@@ -226,6 +252,22 @@ export interface CloudflareTopologyOptions {
   readonly acquisitionPrivateCanaryConfigPath?: string;
   readonly ingestionPrivateCanaryConfigPath?: string;
   readonly mcpPrivateCanaryConfigPath?: string;
+  /** Test seam: tracked per-vertical edge templates (default: `EDGE_VERTICAL_TEMPLATES`). */
+  readonly edgeVerticalConfigPaths?: readonly string[];
+  /**
+   * Test seam: ignored per-vertical edge deployment manifests. When supplied,
+   * each must exist; by default a template's ignored manifest is validated
+   * only when present.
+   */
+  readonly edgeVerticalDeploymentConfigPaths?: readonly string[];
+  /** Test seam: the compiled runtime registries (default: the bundled ones). */
+  readonly bundledVerticals?: Partial<BundledVerticals>;
+}
+
+export interface CloudflareTopologyReport {
+  readonly errors: readonly string[];
+  /** Non-failing, value-free operator notices (for example a deferred gate). */
+  readonly notices: readonly string[];
 }
 
 function object(value: unknown): TomlObject {
@@ -328,6 +370,11 @@ function checkRepositoryPolicy(label: string, config: TomlObject, errors: string
     'MCP_HOSTNAME',
     'MCP_ALLOWED_ORIGINS',
     'RAPIDAPI_HOSTNAME',
+    'STRIPE_SECRET_KEY',
+    'STRIPE_WEBHOOK_SECRET',
+    'STRIPE_PRICE_IDS',
+    'BILLING_PUBLIC_ORIGIN',
+    'BILLING_RETURN_URL',
   ]);
   for (const vars of valuesAtKey(config, 'vars')) {
     for (const key of keyNames(object(vars))) {
@@ -707,6 +754,11 @@ function checkPrivateCanaryTargetTopology(
     'RAPIDAPI_HOSTNAME',
     'RAPIDAPI_PROXY_SECRET',
     'RAPIDAPI_API_KEY',
+    'STRIPE_SECRET_KEY',
+    'STRIPE_WEBHOOK_SECRET',
+    'STRIPE_PRICE_IDS',
+    'BILLING_PUBLIC_ORIGIN',
+    'BILLING_RETURN_URL',
   ]);
   for (const path of collectKeyPaths(config, forbiddenEndpointVariables)) {
     errors.push(`${label} private-canary target must not configure ${path}.`);
@@ -861,7 +913,8 @@ function isPlaintextProtectedKey(key: string): boolean {
     normalized === 'RAPIDAPI_API_KEY' ||
     normalized === 'CLOUDFLARE_API_TOKEN' ||
     normalized === 'CRAWL4AI_API_TOKEN' ||
-    /(?:PASSWORD|PASSWD|TOKEN|SECRET)$/.test(normalized) ||
+    normalized === 'STRIPE_SECRET_KEY' ||
+    /(?:PASSWORD|PASSWD|TOKEN|SECRET|SECRET_?KEY)$/.test(normalized) ||
     /(?:API_?KEY|API_?SECRET|PRIVATE_?KEY)$/.test(normalized);
 }
 
@@ -968,8 +1021,184 @@ function checkAcquisitionProviderAccountId(
   }
 }
 
+interface EdgeRoute {
+  readonly hostname: string;
+  readonly pattern: string;
+  readonly wildcard: boolean;
+}
+
+/**
+ * An edge route for this deployment's path shape. An un-prefixed edge keeps
+ * the historical `<public-host>/*`. A prefixed edge may claim only its own
+ * `<public-host>/v1/<slug>/*` (and optionally the exact `<public-host>/v1/<slug>`
+ * contract document): a looser `/v1/<slug>*` would also capture another
+ * vertical such as `/v1/<slug>-archive/`.
+ */
+function parseEdgeRoute(value: string, prefix: string | null): EdgeRoute | null {
+  if (prefix === null) {
+    const route = parseCanonicalProductionWorkerRoute(value);
+    return route === null ? null : { hostname: route.hostname, pattern: route.pattern, wildcard: true };
+  }
+  for (const [suffix, wildcard] of [[`${prefix}/*`, true], [prefix, false]] as const) {
+    if (!value.endsWith(suffix)) continue;
+    const route = parseCanonicalProductionWorkerRoute(`${value.slice(0, -suffix.length)}/*`);
+    if (route !== null) return { hostname: route.hostname, pattern: value, wildcard };
+  }
+  return null;
+}
+
+/** The deployment's validated `API_PATH_PREFIX`, `null` when absent, or `undefined` when invalid. */
+function edgeApiPathPrefix(config: TomlObject): string | null | undefined {
+  const vars = object(config['vars']);
+  const value = vars['API_PATH_PREFIX'];
+  if (value === undefined) return null;
+  const slug = vars['VERTICAL_SLUG'];
+  return typeof value === 'string' &&
+    API_PATH_PREFIX_PATTERN.test(value) &&
+    typeof slug === 'string' &&
+    value === `/v1/${slug}`
+    ? value
+    : undefined;
+}
+
+function checkApiPathPrefix(label: string, config: TomlObject, required: boolean, errors: string[]): void {
+  const vars = object(config['vars']);
+  if (vars['API_PATH_PREFIX'] === undefined) {
+    if (required) {
+      errors.push(`${label} must set API_PATH_PREFIX to exactly /v1/<VERTICAL_SLUG>.`);
+    }
+    return;
+  }
+  if (edgeApiPathPrefix(config) === undefined) {
+    errors.push(
+      `${label} API_PATH_PREFIX must match ^/v1/[a-z][a-z0-9-]{0,62}$ and equal /v1/<VERTICAL_SLUG> exactly.`,
+    );
+  }
+}
+
+function isHttpsProductionUrl(value: unknown): boolean {
+  if (typeof value !== 'string' || value.trim() !== value || value === '') return false;
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === 'https:' &&
+      parsed.username === '' &&
+      parsed.password === '' &&
+      parsed.hostname === canonicalizeEndpointHostname(parsed.hostname) &&
+      !isUnsafeCanonicalProductionHostname(parsed.hostname);
+  } catch {
+    return false;
+  }
+}
+
+const EDGE_BILLING_VARS = ['STRIPE_PRICE_IDS', 'BILLING_PUBLIC_ORIGIN', 'BILLING_RETURN_URL'] as const;
+
+/**
+ * Self-service billing is all-or-nothing in the runtime (ADR-0014); the
+ * deployment check refuses a manifest that would boot into that refusal, and
+ * binds the Checkout return origin to a DIRECT route this Worker serves. The
+ * two Stripe secrets are Worker secrets and are refused in vars elsewhere.
+ */
+function checkEdgeBilling(
+  label: string,
+  vars: TomlObject,
+  directHosts: ReadonlySet<string>,
+  errors: string[],
+): void {
+  const present = EDGE_BILLING_VARS.filter((key) => vars[key] !== undefined);
+  if (present.length === 0) return;
+  if (present.length !== EDGE_BILLING_VARS.length) {
+    errors.push(
+      `${label} billing vars STRIPE_PRICE_IDS, BILLING_PUBLIC_ORIGIN and BILLING_RETURN_URL must be configured together.`,
+    );
+    return;
+  }
+  const origin = parseExactProductionOrigin(vars['BILLING_PUBLIC_ORIGIN']);
+  if (origin === null) {
+    errors.push(`${label} BILLING_PUBLIC_ORIGIN must be a non-loopback exact HTTPS origin.`);
+  } else if (!directHosts.has(origin.hostname)) {
+    errors.push(
+      `${label} BILLING_PUBLIC_ORIGIN hostname must match a DIRECT (non-RapidAPI) route of the same edge deployment.`,
+    );
+  }
+  if (!isHttpsProductionUrl(vars['BILLING_RETURN_URL'])) {
+    errors.push(`${label} BILLING_RETURN_URL must be a non-loopback absolute HTTPS URL.`);
+  }
+  let priceIds: unknown = null;
+  try {
+    priceIds = typeof vars['STRIPE_PRICE_IDS'] === 'string' ? JSON.parse(vars['STRIPE_PRICE_IDS']) : null;
+  } catch {
+    priceIds = null;
+  }
+  const entries = priceIds !== null && typeof priceIds === 'object' && !Array.isArray(priceIds)
+    ? Object.entries(priceIds as Record<string, unknown>)
+    : [];
+  if (
+    entries.length === 0 ||
+    entries.some(
+      ([code, id]) =>
+        !/^[a-z][a-z0-9-]{0,63}$/.test(code) || typeof id !== 'string' || !/^price_[A-Za-z0-9]{1,255}$/.test(id),
+    )
+  ) {
+    errors.push(`${label} STRIPE_PRICE_IDS must be a non-empty JSON object mapping plan codes to Stripe price ids.`);
+  }
+}
+
+/**
+ * Every edge deployment (the primary `apps/edge` Worker plus any per-vertical
+ * edge) may share one public host such as `api.data.aroqon.com`, but no two may
+ * claim the same route pattern, and a prefixed Worker may claim only its own
+ * `/v1/<slug>` routes.
+ */
+function checkEdgeDeploymentEndpoints(edges: readonly OrdinaryWorker[], errors: string[]): void {
+  const claimed = new Map<string, string>();
+  for (const { label, config } of edges) {
+    const prefix = edgeApiPathPrefix(config);
+    if (prefix === undefined) continue; // Reported by checkApiPathPrefix.
+    const routes = routeValues(config);
+    const parsed = routes.map((route) => parseEdgeRoute(route, prefix));
+    if (prefix === null) {
+      if (routes.length === 0 || parsed.some((route) => route === null)) {
+        errors.push(`${label} deployment manifest must declare canonical production route(s) as lowercase public-host/* patterns.`);
+      }
+    } else if (
+      routes.length === 0 ||
+      parsed.some((route) => route === null) ||
+      !parsed.some((route) => route?.wildcard === true)
+    ) {
+      errors.push(
+        `${label} deployment manifest routes must be exactly <public-host>${prefix}/* (optionally also <public-host>${prefix}) for its API_PATH_PREFIX.`,
+      );
+    }
+    for (const route of parsed) {
+      if (route === null) continue;
+      const owner = claimed.get(route.pattern);
+      if (owner !== undefined && owner !== label) {
+        errors.push(
+          `${label} and ${owner} deployment manifests claim the same edge route pattern; each vertical edge Worker needs its own /v1/<slug> routes.`,
+        );
+      }
+      claimed.set(route.pattern, label);
+    }
+
+    const routeHosts = new Set(
+      parsed.filter((route): route is EdgeRoute => route !== null).map((route) => route.hostname),
+    );
+    const vars = object(config['vars']);
+    const rapidApiHostname = parseExactProductionHostname(vars['RAPIDAPI_HOSTNAME']);
+    if (vars['RAPIDAPI_HOSTNAME'] !== undefined && rapidApiHostname === null) {
+      errors.push(`${label} RAPIDAPI_HOSTNAME must be a non-loopback exact production hostname when configured.`);
+    } else if (rapidApiHostname !== null && !routeHosts.has(rapidApiHostname)) {
+      errors.push(`${label} RAPIDAPI_HOSTNAME must match an edge canonical production route hostname.`);
+    } else if (rapidApiHostname !== null && [...routeHosts].every((hostname) => hostname === rapidApiHostname)) {
+      errors.push(`${label} RAPIDAPI_HOSTNAME requires a distinct DIRECT API canonical edge route hostname.`);
+    }
+    const directHosts = new Set([...routeHosts].filter((hostname) => hostname !== rapidApiHostname));
+    checkEdgeBilling(label, vars, directHosts, errors);
+  }
+}
+
 function checkDeploymentEndpoints(
-  edge: TomlObject,
+  edges: readonly OrdinaryWorker[],
   web: TomlObject,
   mcp: TomlObject,
   errors: string[],
@@ -981,10 +1210,10 @@ function checkDeploymentEndpoints(
         .filter((route) => route !== null)
         .map((route) => route.hostname),
     );
-  const edgeRouteHosts = routeHosts(edge);
   const webRouteHosts = routeHosts(web);
   const mcpRouteHosts = routeHosts(mcp);
-  for (const [label, config] of [['edge', edge], ['web', web], ['mcp-worker', mcp]] as const) {
+  checkEdgeDeploymentEndpoints(edges, errors);
+  for (const [label, config] of [['web', web], ['mcp-worker', mcp]] as const) {
     const routes = routeValues(config);
     if (
       routes.length === 0 ||
@@ -992,16 +1221,6 @@ function checkDeploymentEndpoints(
     ) {
       errors.push(`${label} deployment manifest must declare canonical production route(s) as lowercase public-host/* patterns.`);
     }
-  }
-
-  const edgeVars = object(edge['vars']);
-  const rapidApiHostname = parseExactProductionHostname(edgeVars['RAPIDAPI_HOSTNAME']);
-  if (edgeVars['RAPIDAPI_HOSTNAME'] !== undefined && rapidApiHostname === null) {
-    errors.push('edge RAPIDAPI_HOSTNAME must be a non-loopback exact production hostname when configured.');
-  } else if (rapidApiHostname !== null && !edgeRouteHosts.has(rapidApiHostname)) {
-    errors.push('edge RAPIDAPI_HOSTNAME must match an edge canonical production route hostname.');
-  } else if (rapidApiHostname !== null && [...edgeRouteHosts].every((hostname) => hostname === rapidApiHostname)) {
-    errors.push('edge RAPIDAPI_HOSTNAME requires a distinct DIRECT API canonical edge route hostname.');
   }
 
   const webVars = object(web['vars']);
@@ -1034,11 +1253,169 @@ function checkDeploymentEndpoints(
   }
 }
 
+async function fileExists(path: string): Promise<boolean> {
+  try {
+    await access(path);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function loadVerticalEdges(
+  options: CloudflareTopologyOptions,
+  deployment: boolean,
+  errors: string[],
+  notices: string[],
+): Promise<readonly OrdinaryWorker[]> {
+  const load = async (path: string): Promise<OrdinaryWorker> => {
+    const label = `edge:${basename(path)}`;
+    return { label, config: await parseConfig(path, label, errors) };
+  };
+  if (!deployment) {
+    const paths = options.edgeVerticalConfigPaths ?? EDGE_VERTICAL_TEMPLATES.map(({ configPath }) => configPath);
+    return Promise.all(paths.map(load));
+  }
+  if (options.edgeVerticalDeploymentConfigPaths !== undefined) {
+    return Promise.all(options.edgeVerticalDeploymentConfigPaths.map(load));
+  }
+  const edges: OrdinaryWorker[] = [];
+  for (const { deploymentConfigPath } of EDGE_VERTICAL_TEMPLATES) {
+    if (await fileExists(deploymentConfigPath)) {
+      edges.push(await load(deploymentConfigPath));
+    } else {
+      notices.push(
+        `edge:${basename(deploymentConfigPath)} is absent; that per-vertical edge Worker is not validated here and must not be deployed.`,
+      );
+    }
+  }
+  return edges;
+}
+
+const VERTICAL_EDGE_TOP_LEVEL_FIELDS = new Set([
+  'name',
+  'main',
+  'compatibility_date',
+  'compatibility_flags',
+  'workers_dev',
+  'preview_urls',
+  'observability',
+  'vars',
+  'queues',
+]);
+const VERTICAL_EDGE_DEPLOYMENT_FIELDS = new Set(['account_id', 'route', 'routes', 'hyperdrive']);
+
+/**
+ * One additional per-vertical edge Worker: the same `apps/edge` code and
+ * compatibility settings as the primary edge, its own Worker identity, one
+ * vertical, and the canonical `/v1/<slug>` path prefix. The runtime-registry
+ * gate is deferred (a notice, not an error) for a tracked template whose
+ * vertical is not compiled into this bundle yet, and enforced for any
+ * deployment manifest: an unbundled vertical would boot into a 503.
+ */
+function checkVerticalEdge(
+  edge: OrdinaryWorker,
+  primary: TomlObject,
+  deployment: boolean,
+  bundledEdge: readonly string[],
+  errors: string[],
+  notices: string[],
+): string | null {
+  const { label, config } = edge;
+  checkWorkerBase(label, config, errors);
+  if (deployment) {
+    checkDeploymentWorker(label, config, errors);
+  } else {
+    checkRepositoryPolicy(label, config, errors);
+  }
+  for (const field of Object.keys(config)) {
+    if (!VERTICAL_EDGE_TOP_LEVEL_FIELDS.has(field) && !(deployment && VERTICAL_EDGE_DEPLOYMENT_FIELDS.has(field))) {
+      errors.push(`${label} must not declare the ${field} top-level capability; it is a read API Worker only.`);
+    }
+  }
+  if (
+    config['main'] !== primary['main'] ||
+    config['compatibility_date'] !== primary['compatibility_date'] ||
+    JSON.stringify(config['compatibility_flags']) !== JSON.stringify(primary['compatibility_flags'])
+  ) {
+    errors.push(`${label} must run the same edge entry point and compatibility settings as apps/edge/wrangler.toml.`);
+  }
+
+  const vars = object(config['vars']);
+  const slug = vars['VERTICAL_SLUG'];
+  if (typeof slug !== 'string' || !VERTICAL_SLUG_PATTERN.test(slug)) {
+    errors.push(`${label} must set VERTICAL_SLUG to a lowercase vertical slug.`);
+    return null;
+  }
+  if (config['name'] !== `data-foundry-edge-${slug}`) {
+    errors.push(`${label} must use the data-foundry-edge-<VERTICAL_SLUG> Worker name.`);
+  }
+  checkApiPathPrefix(label, config, true, errors);
+  if (vars['API_KEY_ENVIRONMENT'] !== 'live') {
+    errors.push(`${label} production manifest must accept only live API keys.`);
+  }
+  if (vars['PRIVATE_CANARY_MODE'] !== undefined) {
+    errors.push(`${label} must not configure PRIVATE_CANARY_MODE; canary targets are separate reduced Workers.`);
+  }
+  if (slug === object(primary['vars'])['VERTICAL_SLUG']) {
+    errors.push(`${label} must serve a different vertical from the primary edge Worker.`);
+  }
+  if (!bundledEdge.includes(slug)) {
+    if (deployment) {
+      errors.push(
+        `${label} selects a vertical that is not compiled into the edge runtime registry (apps/edge/generated); it would refuse every request.`,
+      );
+    } else {
+      notices.push(
+        `${label}: the "${slug}" edge runtime is not compiled into apps/edge/generated yet; its runtime-registry gate is deferred, and deployment mode refuses it until it is bundled.`,
+      );
+    }
+  }
+
+  const queues = object(config['queues']);
+  const producers = objects(queues['producers']);
+  if (
+    Object.keys(queues).some((key) => key !== 'producers') ||
+    producers.length !== 1 ||
+    producers[0]?.['binding'] !== 'USAGE_EVENTS_QUEUE' ||
+    producers[0]?.['queue'] !== USAGE_QUEUE ||
+    Object.keys(producers[0] ?? {}).some((key) => key !== 'binding' && key !== 'queue')
+  ) {
+    errors.push(`${label} must declare exactly one USAGE_EVENTS_QUEUE producer to ${USAGE_QUEUE} and no consumer.`);
+  }
+  return slug;
+}
+
+function hyperdriveId(config: TomlObject): string | null {
+  const ids = objects(config['hyperdrive'])
+    .filter((binding) => binding['binding'] === 'HYPERDRIVE')
+    .map((binding) => binding['id'])
+    .filter(isExactCloudflareId);
+  return ids.length === 1 ? ids[0] ?? null : null;
+}
+
 export async function validateCloudflareTopology(
   options: CloudflareTopologyOptions = {},
 ): Promise<readonly string[]> {
+  return (await validateCloudflareTopologyReport(options)).errors;
+}
+
+/** The same validation, plus value-free notices such as a deferred runtime-registry gate. */
+export async function validateCloudflareTopologyReport(
+  options: CloudflareTopologyOptions = {},
+): Promise<CloudflareTopologyReport> {
+  const notices: string[] = [];
+  const errors = await validateTopology(options, notices);
+  return { errors, notices };
+}
+
+async function validateTopology(
+  options: CloudflareTopologyOptions,
+  notices: string[],
+): Promise<readonly string[]> {
   const errors: string[] = [];
   const mode = options.mode ?? 'repository';
+  const bundled: BundledVerticals = { ...BUNDLED_RUNTIME_VERTICALS, ...options.bundledVerticals };
   if (mode === 'private-canary-target' || mode === 'private-canary-target-deployment') {
     const deployment = mode === 'private-canary-target-deployment';
     const targets = await loadPrivateCanaryTargets(options, deployment, errors);
@@ -1180,6 +1557,7 @@ export async function validateCloudflareTopology(
   const privateCanaryTargets = mode === 'repository'
     ? await loadPrivateCanaryTargets(options, false, errors)
     : [];
+  const verticalEdges = await loadVerticalEdges(options, mode === 'deployment', errors, notices);
   // A missing ignored deployment manifest is an owner-action boundary, not a
   // malformed empty Worker. Return only the actionable file errors rather than
   // a cascade of consequences from parsing `{}`.
@@ -1211,8 +1589,12 @@ export async function validateCloudflareTopology(
       { label: 'acquisition-worker', config: acquisition },
       { label: 'ingestion-worker', config: ingestion },
       { label: 'mcp-worker', config: mcp },
+      ...verticalEdges,
     ];
     const ordinaryWorkerNames = collectOrdinaryWorkerNames(ordinaryWorkers, errors);
+    if (ordinaryWorkerNames.size !== ordinaryWorkers.length) {
+      errors.push('Ordinary Worker manifests, including every per-vertical edge, must use distinct Worker names.');
+    }
     if (privateCanary !== null) {
       checkPrivateCanaryHarnessIdentityIsolation(privateCanary, ordinaryWorkerNames, errors);
     }
@@ -1237,6 +1619,7 @@ export async function validateCloudflareTopology(
       ['acquisition-worker', acquisition],
       ['ingestion-worker', ingestion],
       ['mcp-worker', mcp],
+      ...verticalEdges.map(({ label, config }) => [label, config] as const),
     ], errors);
     checkDistinctDeploymentHyperdriveIds([
       ['edge', edge],
@@ -1246,21 +1629,46 @@ export async function validateCloudflareTopology(
       ['ingestion-worker', ingestion],
       ['mcp-worker', mcp],
     ], errors);
+    // A per-vertical edge is the same edge database role: it may share the
+    // edge role's Hyperdrive configuration or use its own, but never another
+    // role's credential path.
+    const otherRoleHyperdriveIds = new Set(
+      [consumer, web, acquisition, ingestion, mcp].map(hyperdriveId).filter((id) => id !== null),
+    );
+    for (const { label, config } of verticalEdges) {
+      const id = hyperdriveId(config);
+      if (id !== null && otherRoleHyperdriveIds.has(id)) {
+        errors.push(`${label} must bind the edge role's Hyperdrive configuration, never another Worker role's.`);
+      }
+    }
     checkAcquisitionProviderAccountId(acquisition, canonicalAccountId, errors);
-    checkDeploymentEndpoints(edge, web, mcp, errors);
+    checkDeploymentEndpoints([{ label: 'edge', config: edge }, ...verticalEdges], web, mcp, errors);
+  }
+
+  const verticalEdgeSlugs = new Set<string>();
+  for (const verticalEdge of verticalEdges) {
+    const slug = checkVerticalEdge(verticalEdge, edge, mode === 'deployment', bundled.edge, errors, notices);
+    if (slug === null) continue;
+    if (verticalEdgeSlugs.has(slug)) {
+      errors.push(`${verticalEdge.label} serves a vertical another per-vertical edge Worker already serves.`);
+    }
+    verticalEdgeSlugs.add(slug);
   }
 
   const edgeVars = object(edge['vars']);
-  if (edgeVars['VERTICAL_SLUG'] !== 'hvac') {
-    errors.push('edge must select the bundled hvac vertical in the canonical manifest.');
+  const edgeSlug = edgeVars['VERTICAL_SLUG'];
+  if (typeof edgeSlug !== 'string' || !bundled.edge.includes(edgeSlug)) {
+    errors.push('edge must select a vertical compiled into the edge runtime registry (apps/edge/generated).');
   }
+  checkApiPathPrefix('edge', edge, false, errors);
   if (edgeVars['API_KEY_ENVIRONMENT'] !== 'live') {
     errors.push('edge production manifest must accept only live API keys.');
   }
 
   const mcpVars = object(mcp['vars']);
-  if (mcpVars['VERTICAL_SLUG'] !== 'hvac') {
-    errors.push('mcp-worker must select the bundled hvac vertical in the canonical manifest.');
+  const mcpSlug = mcpVars['VERTICAL_SLUG'];
+  if (typeof mcpSlug !== 'string' || !bundled.mcp.includes(mcpSlug)) {
+    errors.push('mcp-worker must select a vertical compiled into the MCP runtime registry (apps/mcp-worker/generated).');
   }
   if (mcpVars['API_KEY_ENVIRONMENT'] !== 'live') {
     errors.push('mcp-worker production manifest must accept only live MCP keys.');
@@ -1316,8 +1724,11 @@ export async function validateCloudflareTopology(
   }
 
   const acquisitionVars = object(acquisition['vars']);
-  if (acquisitionVars['VERTICAL_SLUG'] !== 'hvac') {
-    errors.push('acquisition-worker must select the bundled hvac acquisition runtime.');
+  const acquisitionSlug = acquisitionVars['VERTICAL_SLUG'];
+  if (typeof acquisitionSlug !== 'string' || !bundled.acquisition.includes(acquisitionSlug)) {
+    errors.push(
+      'acquisition-worker must select a vertical compiled into the acquisition runtime registry (apps/acquisition-worker/generated).',
+    );
   }
   if (acquisitionVars['RAW_ARTIFACTS_BUCKET_NAME'] !== 'data-foundry-raw-artifacts') {
     errors.push('acquisition-worker must name the canonical raw-artifact bucket.');
@@ -1335,7 +1746,7 @@ export async function validateCloudflareTopology(
     errors.push('acquisition-worker must bind RAW_ARTIFACTS to data-foundry-raw-artifacts.');
   }
   checkIngestionProducer('acquisition-worker', acquisition, false, errors);
-  checkOrdinaryIngestion(ingestion, errors);
+  checkOrdinaryIngestion(ingestion, bundled.ingestion, errors);
 
   return errors;
 }
@@ -1377,15 +1788,21 @@ export function checkIngestionAlertBinding(config: TomlObject): string[] {
   return [];
 }
 
-function checkOrdinaryIngestion(config: TomlObject, errors: string[]): void {
+function checkOrdinaryIngestion(config: TomlObject, bundledIngestion: readonly string[], errors: string[]): void {
   errors.push(...checkIngestionAlertBinding(config));
   checkIngestionProducer('ingestion-worker', config, true, errors);
   if (collectKeyPaths(config, new Set(['route', 'routes'])).length !== 0) {
     errors.push('ingestion-worker must remain route-less.');
   }
   const vars = object(config['vars']);
-  if (vars['VERTICAL_SLUG'] !== 'hvac' || vars['RAW_ARTIFACTS_BUCKET_NAME'] !== 'data-foundry-raw-artifacts') {
-    errors.push('ingestion-worker must select the hvac runtime and canonical raw-artifact bucket.');
+  const ingestionSlug = vars['VERTICAL_SLUG'];
+  if (typeof ingestionSlug !== 'string' || !bundledIngestion.includes(ingestionSlug)) {
+    errors.push(
+      'ingestion-worker must select a vertical compiled into the ingestion runtime registry (apps/ingestion-worker/generated).',
+    );
+  }
+  if (vars['RAW_ARTIFACTS_BUCKET_NAME'] !== 'data-foundry-raw-artifacts') {
+    errors.push('ingestion-worker must select the canonical raw-artifact bucket.');
   }
   const buckets = objects(config['r2_buckets']);
   if (buckets.length !== 1 || buckets[0]?.['binding'] !== 'RAW_ARTIFACTS' || buckets[0]?.['bucket_name'] !== 'data-foundry-raw-artifacts') {
@@ -1411,7 +1828,8 @@ function checkOrdinaryIngestion(config: TomlObject, errors: string[]): void {
 }
 
 export async function run(options: CloudflareTopologyOptions = {}): Promise<number> {
-  const errors = await validateCloudflareTopology(options);
+  const { errors, notices } = await validateCloudflareTopologyReport(options);
+  for (const notice of notices) process.stdout.write(`NOTICE: ${notice}\n`);
   if (errors.length > 0) {
     process.stderr.write(`Cloudflare topology validation failed:\n${errors.map((error) => `- ${error}`).join('\n')}\n`);
     return 1;

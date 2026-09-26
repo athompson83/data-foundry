@@ -1092,7 +1092,8 @@ deployment and needs the exact provider evidence described above.
    `RAPIDAPI_API_KEY` directly to that Worker without echoing it or placing it
    on argv. `POSTGRES_URL` and authenticated Wrangler access must already be
    present in the process environment. The selected manifest is accepted only
-   when it is the ignored `apps/edge/wrangler.production.toml`, retains the
+   when it is the ignored `apps/edge/wrangler.production.toml` (or, per section
+   10.2, a registered per-vertical edge manifest for the same vertical), retains the
    production/live, no-preview, no-invocation-log markers, and has its active
    exact nonzero 32-hex `account_id`, non-`workers.dev` production route, and
    nonzero 32-hex `HYPERDRIVE` id. The manifest's `API_KEY_ENVIRONMENT` and
@@ -1312,3 +1313,321 @@ This is a second phase on the **same** temporary `data-foundry-private-canary-in
 7. Drain or quarantine the synthetic queue and account for every staged delivery before ending this phase. Restore the exact reduced `wrangler.private-canary.production.toml` on the same identity, verify the synthetic R2 and Queue consumer bindings are gone, then rerun the receipt harness. Do not run that harness against the synthetic profile, which intentionally has no readiness RPC entrypoint. Remove temporary synthetic resources only after retained evidence and explicit cleanup authorization. Keep production deployment blocked until the ordinary host, rights, billing and paid-delivery gates also pass.
 
 Ordinary operator alerts default to `OPS_ALERTS_ENABLED = "false"`. Enabling requires one `OPS_EMAIL` binding restricted by `destination_address = OPS_ALERT_TO` and exactly `allowed_sender_addresses = [OPS_ALERT_FROM]`, with single valid addresses. The owner must first verify the destination and onboard the sender with Cloudflare; then prove actual provider acceptance and alert deduplication. No email binding or addresses are needed for either private canary phase, and local tests never send mail.
+
+---
+
+## 10. Paid API production deployment — canonical `api.data.aroqon.com/v1/<slug>/*`
+
+This is the concrete procedure for step 4 of section 9 for the paid API. It
+does not relax section 9: do not run it before the route-less private-canary
+proof, the separate public authorization, and the section 8 rights gate for the
+exact vertical and surface being sold. Billing sells access; it never creates
+permission (ADR-0013, ADR-0014).
+
+### Shape
+
+- ADR-0012 fixes the public contract as `https://api.data.aroqon.com/v1/<slug>/...`.
+  ADR-0011's per-vertical edge isolation is preserved. Each vertical is its own
+  edge Worker, with the same `apps/edge` code but its own name, `VERTICAL_SLUG`,
+  credential scope and Stripe webhook. Cloudflare routes send
+  `api.data.aroqon.com/v1/<slug>/*` to it.
+- `API_PATH_PREFIX = "/v1/<slug>"` makes an edge Worker:
+  - accept only that prefix and answer `404` to anything outside it;
+  - strip the prefix to the internal `/v1/...` path before authentication,
+    routing, billing and metering. So `/v1/vehicles/search` is served as
+    `/v1/search`, with the unchanged `search` route key;
+  - rewrite its self-links back under the prefix: the 301 entity `Location`
+    header and body, the contract document's routes, the Checkout
+    `success_url` and billing hints.
+
+  The prefix must equal `/v1/${VERTICAL_SLUG}` or the Worker refuses to start.
+  Without it, the Worker behaves exactly as before.
+- Worker names: `data-foundry-edge` serves `hvac`. `data-foundry-edge-vehicles`
+  serves `vehicles`, from the tracked template `apps/edge/wrangler.vehicles.toml`.
+  - Both produce to the one `data-foundry-usage-events` queue and use the edge
+    database role (`df_edge`).
+  - The vehicles Worker may reuse the edge role's Hyperdrive id, but never
+    another role's.
+- HVAC's historical un-prefixed shape (`api.data.aroqon.com/*`, no
+  `API_PATH_PREFIX`) remains valid. Cloudflare picks the most specific route,
+  so an un-prefixed HVAC Worker still answers every path the vehicles routes do
+  not claim. The canonical shape below prefixes both Workers.
+- **Runtime gate.** `vehicles` must be compiled into `apps/edge/generated`
+  (`verticals/vehicles` plus the edge `BUNDLED_VERTICALS` entry). Until then:
+  - `pnpm cloudflare:topology:check` prints a deferred-gate `NOTICE` for the
+    template;
+  - `pnpm cloudflare:deployment:check` refuses `wrangler.vehicles.production.toml`,
+    because that Worker would refuse every request.
+- Per ADR-0012, inspect the `aroqon.com` zone's DNS, Worker routes and Custom
+  Domains before any provider change. Create the proxied `api.data.aroqon.com`
+  record only as part of this deployment, never merely to reserve the name.
+  Worker Custom Domains cannot carry a path, so these are zone routes.
+
+### 10.1 Ignored deployment manifests
+
+Both files are ignored by `apps/*/wrangler.production.toml` and
+`apps/*/wrangler.*.production.toml`. Replace every `<...>` placeholder. Nothing
+here is a secret, but none of it may be committed. Create the other five
+ordinary ignored manifests exactly as in section 6.
+
+`apps/edge/wrangler.production.toml`:
+
+```toml
+name = "data-foundry-edge"
+account_id = "<32-hex-cloudflare-account-id>"
+main = "src/index.ts"
+compatibility_date = "2026-08-23"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = false
+preview_urls = false
+routes = [
+  { pattern = "api.data.aroqon.com/v1/hvac/*", zone_name = "aroqon.com" },
+  { pattern = "api.data.aroqon.com/v1/hvac", zone_name = "aroqon.com" },
+]
+
+[observability]
+enabled = true
+
+[observability.logs]
+invocation_logs = false
+
+[vars]
+DEPLOYMENT_ENVIRONMENT = "production"
+VERTICAL_SLUG = "hvac"
+API_PATH_PREFIX = "/v1/hvac"
+API_KEY_ENVIRONMENT = "live"
+STRIPE_PRICE_IDS = '{"developer":"price_<live-hvac-developer>","growth":"price_<live-hvac-growth>","scale":"price_<live-hvac-scale>"}'
+BILLING_PUBLIC_ORIGIN = "https://api.data.aroqon.com"
+BILLING_RETURN_URL = "https://data.aroqon.com/hvac/pricing"
+
+[[hyperdrive]]
+binding = "HYPERDRIVE"
+id = "<32-hex-edge-role-hyperdrive-id>"
+
+[[queues.producers]]
+binding = "USAGE_EVENTS_QUEUE"
+queue = "data-foundry-usage-events"
+```
+
+`apps/edge/wrangler.vehicles.production.toml`:
+
+```toml
+name = "data-foundry-edge-vehicles"
+account_id = "<32-hex-cloudflare-account-id>"
+main = "src/index.ts"
+compatibility_date = "2026-08-23"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = false
+preview_urls = false
+routes = [
+  { pattern = "api.data.aroqon.com/v1/vehicles/*", zone_name = "aroqon.com" },
+  { pattern = "api.data.aroqon.com/v1/vehicles", zone_name = "aroqon.com" },
+]
+
+[observability]
+enabled = true
+
+[observability.logs]
+invocation_logs = false
+
+[vars]
+DEPLOYMENT_ENVIRONMENT = "production"
+VERTICAL_SLUG = "vehicles"
+API_PATH_PREFIX = "/v1/vehicles"
+API_KEY_ENVIRONMENT = "live"
+STRIPE_PRICE_IDS = '{"developer":"price_<live-vehicles-developer>","growth":"price_<live-vehicles-growth>","scale":"price_<live-vehicles-scale>"}'
+BILLING_PUBLIC_ORIGIN = "https://api.data.aroqon.com"
+BILLING_RETURN_URL = "https://data.aroqon.com/vehicles/pricing"
+
+[[hyperdrive]]
+binding = "HYPERDRIVE"
+id = "<32-hex-edge-role-hyperdrive-id>"
+
+[[queues.producers]]
+binding = "USAGE_EVENTS_QUEUE"
+queue = "data-foundry-usage-events"
+```
+
+`pnpm cloudflare:deployment:check` enforces these rules:
+
+- One `account_id` across every manifest.
+- Exactly one 32-hex `HYPERDRIVE` binding per Worker, with six distinct ids
+  across the six roles.
+- Each prefixed edge claims only `<host>/v1/<slug>/*`, optionally plus the
+  exact `<host>/v1/<slug>`. No two edges claim the same pattern.
+- The three billing vars are all-or-nothing:
+  - `BILLING_PUBLIC_ORIGIN` is an exact HTTPS origin on one of that Worker's
+    DIRECT route hosts;
+  - `BILLING_RETURN_URL` is HTTPS;
+  - `STRIPE_PRICE_IDS` maps plan codes to `price_` ids.
+
+To enable RapidAPI for a vertical:
+
+1. Add a second route on the dedicated marketplace origin host, for example
+   `{ pattern = "<marketplace-origin-host>/v1/hvac/*", zone_name = "aroqon.com" }`.
+2. Set `RAPIDAPI_HOSTNAME = "<marketplace-origin-host>"`. It must differ from
+   the DIRECT host.
+
+### 10.2 Worker secrets
+
+Set each secret interactively on the Worker that consumes it. Values never go
+in a manifest, on argv or in shell history.
+
+Stripe webhook endpoints are per vertical, so each Worker gets its own
+endpoint's signing secret. Both Workers may share one restricted live Stripe
+key. Register these endpoints with the events listed in
+`docs/owner-actions/stripe-billing-setup.md` section 3:
+
+- `https://api.data.aroqon.com/v1/hvac/billing/stripe-webhook`
+- `https://api.data.aroqon.com/v1/vehicles/billing/stripe-webhook`
+
+```powershell
+pnpm exec wrangler secret put STRIPE_SECRET_KEY --config apps/edge/wrangler.production.toml --env-file tooling/wrangler-empty.env
+pnpm exec wrangler secret put STRIPE_WEBHOOK_SECRET --config apps/edge/wrangler.production.toml --env-file tooling/wrangler-empty.env
+pnpm exec wrangler secret put STRIPE_SECRET_KEY --config apps/edge/wrangler.vehicles.production.toml --env-file tooling/wrangler-empty.env
+pnpm exec wrangler secret put STRIPE_WEBHOOK_SECRET --config apps/edge/wrangler.vehicles.production.toml --env-file tooling/wrangler-empty.env
+```
+
+RapidAPI applies only to a vertical whose marketplace listing is authorized
+(section 8 rights gate for the marketplace surface). The three `RAPIDAPI_*`
+settings are all-or-nothing in the runtime, so configure them together on the
+Worker that serves that vertical. `pnpm credentials:provision` accepts either
+the primary `apps/edge/wrangler.production.toml` or a registered per-vertical
+manifest (`EDGE_VERTICAL_TEMPLATES`, today only
+`apps/edge/wrangler.vehicles.production.toml`). For a per-vertical manifest it
+also requires:
+
+- `--vertical` equals that template's vertical (`vehicles`), and the manifest's
+  `VERTICAL_SLUG` equals `--vertical`;
+- the manifest's `name` is the template's Worker (`data-foundry-edge-vehicles`)
+  and `API_PATH_PREFIX` is exactly `/v1/<slug>`;
+- every route is `<host>/v1/<slug>/*` or the exact `<host>/v1/<slug>`, with a
+  wildcard route on `RAPIDAPI_HOSTNAME` and a distinct DIRECT host;
+- the manifest's `account_id` equals `--cloudflare-account-id`.
+
+Every section 6 safety property is unchanged: the minted key reaches Wrangler
+only on stdin, through a validated byte snapshot beside the selected manifest,
+after an existing deployment of that exact Worker is confirmed and after the
+database commit; a Wrangler failure revokes the new key.
+
+Vehicles RapidAPI, in order (the edge must already be deployed with the
+marketplace route and `RAPIDAPI_HOSTNAME` from 10.1, and `POSTGRES_URL` plus
+authenticated Wrangler access must already be in the process environment):
+
+```powershell
+# 1. Proxy secret from RapidAPI Studio (Gateway > Proxy secret), pasted at the prompt.
+pnpm exec wrangler secret put RAPIDAPI_PROXY_SECRET --config apps/edge/wrangler.vehicles.production.toml --env-file tooling/wrangler-empty.env
+# 2. Validate the marketplace tenant, key and manifest without minting or delivering anything.
+pnpm credentials:provision -- --dry-run --environment live --tenant-slug rapidapi-vehicles --tenant-name "RapidAPI Vehicles marketplace" --vertical vehicles --credential-label "production RapidAPI vehicles" --access-tier RAPIDAPI --billing-source RAPIDAPI --wrangler-secret RAPIDAPI_API_KEY --wrangler-config apps/edge/wrangler.vehicles.production.toml --cloudflare-account-id <32-hex-cloudflare-account-id>
+# 3. Mint the key and pipe it to the vehicles Worker's RAPIDAPI_API_KEY secret.
+pnpm credentials:provision -- --environment live --tenant-slug rapidapi-vehicles --tenant-name "RapidAPI Vehicles marketplace" --vertical vehicles --credential-label "production RapidAPI vehicles" --access-tier RAPIDAPI --billing-source RAPIDAPI --wrangler-secret RAPIDAPI_API_KEY --wrangler-config apps/edge/wrangler.vehicles.production.toml --cloudflare-account-id <32-hex-cloudflare-account-id>
+```
+
+Until step 3 succeeds, the vehicles Worker answers `503` with
+`x-unavailable-reason: configuration` because RapidAPI settings are partial.
+That is the intended fail-closed state. Then run the marketplace bypass test
+from section 7 and the listing verification in
+`docs/owner-actions/rapidapi-vehicles-listing.md`.
+
+### 10.3 Ordered commands (operator workstation)
+
+Run these from a clean checkout of the exact `main` SHA being released:
+
+```powershell
+git switch main
+git pull --ff-only
+corepack pnpm install --frozen-lockfile
+corepack pnpm typecheck
+corepack pnpm test
+corepack pnpm openapi:check
+corepack pnpm cloudflare:topology:check
+corepack pnpm cloudflare:artifacts:check
+corepack pnpm cloudflare:synthetic-ingestion:artifacts:check
+Copy-Item apps/edge/wrangler.vehicles.toml apps/edge/wrangler.vehicles.production.toml
+# Create the six ordinary ignored manifests as in section 6, then edit both edge files to match 10.1.
+corepack pnpm cloudflare:deployment:check
+git diff --exit-code HEAD -- apps/edge/wrangler.toml apps/edge/wrangler.vehicles.toml apps/web/wrangler.toml apps/usage-consumer/wrangler.toml apps/acquisition-worker/wrangler.toml apps/ingestion-worker/wrangler.toml apps/mcp-worker/wrangler.toml
+pnpm exec wrangler deploy --dry-run --config apps/edge/wrangler.production.toml --env-file tooling/wrangler-empty.env
+pnpm exec wrangler deploy --dry-run --config apps/edge/wrangler.vehicles.production.toml --env-file tooling/wrangler-empty.env
+pnpm exec wrangler deploy --config apps/usage-consumer/wrangler.production.toml --env-file tooling/wrangler-empty.env
+pnpm exec wrangler deploy --config apps/ingestion-worker/wrangler.production.toml --env-file tooling/wrangler-empty.env
+pnpm exec wrangler deploy --config apps/acquisition-worker/wrangler.production.toml --env-file tooling/wrangler-empty.env
+pnpm exec wrangler deploy --config apps/edge/wrangler.production.toml --env-file tooling/wrangler-empty.env
+pnpm exec wrangler deploy --config apps/edge/wrangler.vehicles.production.toml --env-file tooling/wrangler-empty.env
+pnpm exec wrangler deploy --config apps/mcp-worker/wrangler.production.toml --env-file tooling/wrangler-empty.env
+pnpm exec wrangler deploy --config apps/web/wrangler.production.toml --env-file tooling/wrangler-empty.env
+```
+
+Then set the 10.2 secrets. Between an edge deploy and its Stripe secrets, that
+Worker answers `503` with `x-unavailable-reason: configuration`, because billing
+is all-or-nothing. That is the intended fail-closed state.
+
+Verify from outside:
+
+```powershell
+curl.exe -sS -o NUL -w "%{http_code}`n" https://api.data.aroqon.com/v1/vehicles/health  # 401 without a key
+curl.exe -sS https://api.data.aroqon.com/v1/vehicles/billing/plans                       # 200, the vehicles plans
+curl.exe -sS -o NUL -w "%{http_code}`n" https://api.data.aroqon.com/v1/hvac/health      # 401 without a key
+```
+
+Complete one live Checkout for each vertical. The claim page must be
+`https://api.data.aroqon.com/v1/<slug>/billing/claim?...`. Record the evidence
+under `docs/evidence/`, as in `stripe-billing-setup.md` section 6.
+
+### 10.4 Manual GitHub Actions deployment
+
+`.github/workflows/deploy-production.yml` runs the checks from 10.3, renders the
+ignored manifests and deploys the ordinary Workers.
+
+- It never runs on push or pull requests. It runs only when dispatched manually
+  on `main` with `confirm = deploy-production`.
+- Its credentialed job uses the GitHub `production` environment. Configure that
+  environment with required reviewers and `main` as its only deployment branch.
+- It fails closed if any required secret or variable is missing, and never
+  prints a value.
+- It does not set Worker secrets. Set those once with 10.2; they persist across
+  deploys.
+
+Environment secrets:
+
+- `CLOUDFLARE_API_TOKEN`: an API token limited to Workers Scripts edit and
+  Workers Routes edit on `aroqon.com`.
+- `CLOUDFLARE_ACCOUNT_ID`.
+
+Required environment variables:
+
+- `DF_ZONE_NAME` (`aroqon.com`).
+- `DF_HYPERDRIVE_ID_EDGE`, `DF_HYPERDRIVE_ID_USAGE_CONSUMER`,
+  `DF_HYPERDRIVE_ID_WEB`, `DF_HYPERDRIVE_ID_ACQUISITION`,
+  `DF_HYPERDRIVE_ID_INGESTION` and `DF_HYPERDRIVE_ID_MCP`.
+- `DF_EDGE_ROUTES`, `DF_WEB_ROUTES` and `DF_MCP_ROUTES`, as comma-separated
+  route patterns.
+- `DF_WEB_PUBLIC_ORIGIN`, `DF_MCP_HOSTNAME` and `DF_MCP_ALLOWED_ORIGINS`.
+
+Optional environment variables:
+
+- HVAC edge: `DF_EDGE_API_PATH_PREFIX` (`/v1/hvac`), `DF_EDGE_RAPIDAPI_HOSTNAME`,
+  `DF_EDGE_STRIPE_PRICE_IDS`, `DF_EDGE_BILLING_PUBLIC_ORIGIN` and
+  `DF_EDGE_BILLING_RETURN_URL`.
+- Vehicles edge, rendered only when `DF_EDGE_VEHICLES_ROUTES` is set:
+  `DF_HYPERDRIVE_ID_EDGE_VEHICLES` (then required),
+  `DF_EDGE_VEHICLES_RAPIDAPI_HOSTNAME`, `DF_EDGE_VEHICLES_STRIPE_PRICE_IDS`,
+  `DF_EDGE_VEHICLES_BILLING_PUBLIC_ORIGIN` and
+  `DF_EDGE_VEHICLES_BILLING_RETURN_URL`.
+- Acquisition: `DF_ACQUISITION_BROWSER_RUN = true`, only with an admitted
+  Browser Run target.
+
+Canonical example values:
+
+- `DF_EDGE_ROUTES = api.data.aroqon.com/v1/hvac/*,api.data.aroqon.com/v1/hvac`
+- `DF_EDGE_VEHICLES_ROUTES = api.data.aroqon.com/v1/vehicles/*,api.data.aroqon.com/v1/vehicles`
+
+Dispatch it with:
+
+```powershell
+gh workflow run deploy-production.yml --ref main -f confirm=deploy-production
+```
+
+The same rendering runs locally as `corepack pnpm cloudflare:deployment:render`,
+with those variables exported. It refuses to overwrite an existing ignored
+manifest.

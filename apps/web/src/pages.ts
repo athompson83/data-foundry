@@ -1,6 +1,6 @@
 import { selectedFactEvidence } from '@data-foundry/query-model';
 import { parseSearchForm, SEARCH_PAGE_SIZE, SearchInputError } from './search-form.js';
-import { coverageContent, offerIntro, productNavigation } from './product.js';
+import { billingDocsContent, coverageContent, offerIntro, productNavigation } from './product.js';
 /**
  * Page renderers. Each one: read through a surface-bound query model (rule 5), build the
  * body HTML, measure its own real word count, evaluate the doc-07 quality
@@ -554,7 +554,7 @@ ${vertical.runtime.product === undefined ? '' : productNavigation(seo.url_prefix
 <h2>First useful request</h2>
 <ol><li>Search <code>GET /v1/search?q=YOUR_MODEL&amp;type=${escapeHtml(vertical.runtime.product?.lookup_entity_type ?? vertical.runtime.entity_types[0] ?? "entity")}</code>. Inspect <code>data[].matchKind</code> and confirm the entity; text similarity alone is not an identifier match.</li><li>Read <code>GET /v1/entities/{id}/facts</code> for specifications, units, conflict state, source names and selection provenance. The additive <code>evidence</code> object supplies the selected fact ID, immutable artifact ID/hash, source URL, locator and observation timestamps. Exact source text is null unless quoting is permitted; the same authorized evidence is available through MCP <code>explain_fact</code>.</li><li>Follow the response pagination metadata for additional facts. Keep evidence with the values you consume.</li></ol>
 <p>Executable <a href="https://github.com/athompson83/data-foundry/blob/main/examples/hvac-lookup.ts">TypeScript</a> and <a href="https://github.com/athompson83/data-foundry/blob/main/examples/hvac_lookup.py">Python</a> examples use environment variables for keys and never print credentials. Configure the verified API host from your access provider; this website is not the API origin.</p>
-<h2>Responses to handle</h2><p>Zero matches means unavailable; multiple exact matches require scope confirmation. Missing facts are omitted. A 401/403 response indicates authentication or access refusal, 429 means a request or quota limit, and 503 means the service could not safely complete the request. Keep the response request ID for support and respect Retry-After. Never retry a subscription or credential error as though it were missing data.</p>
+<h2>Responses to handle</h2><p>Zero matches means unavailable; multiple exact matches require scope confirmation. Missing facts are omitted. A 401/403 response indicates authentication or access refusal, 429 means a request or quota limit, and 503 means the service could not safely complete the request. Keep the response request ID for support and respect Retry-After. Never retry a subscription or credential error as though it were missing data.</p>${vertical.runtime.product === undefined ? '' : billingDocsContent(vertical.runtime.product)}
 <h2>MCP</h2>
 <p>Six tools over the same canonical query layer this site reads — <code>search_entities</code>, <code>get_entity</code>, <code>list_facts</code>, <code>compare_entities</code>, <code>traverse_relationships</code>, <code>explain_fact</code> — see <a href="https://github.com/athompson83/data-foundry/tree/main/apps/mcp">apps/mcp</a> in the repository for the full tool contract.</p>
 <h2>llms.txt</h2>

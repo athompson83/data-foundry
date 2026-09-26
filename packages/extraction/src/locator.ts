@@ -67,7 +67,25 @@ export const tableCellLocator = (row: number, column: string, columnIndex: numbe
   ]),
 });
 
-export const lineRangeLocator = (start: number, end: number): EvidenceLocator => ({
+/**
+ * Several cells of one row that together form one value (`csv_columns`). The
+ * header names and indexes are listed in the declared join order, so the value
+ * can be re-assembled from the stored bytes exactly as it was extracted.
+ */
+export const tableCellsLocator = (
+  row: number,
+  columns: readonly string[],
+  columnIndexes: readonly number[],
+): EvidenceLocator => ({
+  type: 'TABLE_CELL',
+  value: formatLocatorValue([
+    ['row', row],
+    ['columns', columns.join(',')],
+    ['indexes', columnIndexes.join(',')],
+  ]),
+});
+
+export const lineRangeLocator =(start: number, end: number): EvidenceLocator => ({
   type: 'LINE_RANGE',
   value: formatLocatorValue([
     ['start', start],

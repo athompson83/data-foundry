@@ -49,6 +49,16 @@ export const API_KEY_AUTH_COLUMNS = [
   'expires_at',
 ] as const;
 export const API_TENANT_AUTH_COLUMNS = ['id', 'status'] as const;
+export const BILLING_TENANT_INSERT_COLUMNS = ['slug', 'name', 'status', 'billing_ref', 'contact_email'] as const;
+export const BILLING_KEY_INSERT_COLUMNS = [
+  'tenant_id',
+  'token_hash',
+  'token_prefix',
+  'label',
+  'vertical_id',
+  'access_tier',
+  'billing_source',
+] as const;
 export const USAGE_INSERT_COLUMNS = [
   'id',
   'tenant_id',
@@ -64,10 +74,11 @@ export const USAGE_INSERT_COLUMNS = [
   'billing_source',
 ] as const;
 
-/** Final function identities after migrations 0001..0031; verified against pg_proc. */
+/** Final function identities after migrations 0001..0035; verified against pg_proc. */
 export const PRIVATE_FUNCTION_SIGNATURES = [
   'activate_rights_decision(uuid, text, text, text, timestamp with time zone)',
   'activate_rights_terms(uuid, text, text, text, timestamp with time zone)',
+  'api_usage_monthly_counters_increment()',
   'enforce_api_key_access_classification()',
   'entity_alias_claims_reject_mutation()',
   'entity_alias_claims_validate_insert()',
@@ -165,6 +176,22 @@ export function buildRuntimeRoleExpectedGrants(schema = 'data_foundry'): readonl
   addColumns('df_usage', 'api_usage_events', 'INSERT', USAGE_INSERT_COLUMNS);
   addColumns('df_usage', 'api_usage_events', 'SELECT', ['id']);
   addColumns('df_usage', 'api_keys', 'SELECT', ['id', 'access_tier', 'billing_source']);
+  // The monthly counter is maintained by an AFTER INSERT trigger on
+  // api_usage_events, which runs as the inserting role (ADR-0014).
+  addRelation('df_usage', 'api_usage_monthly_counters', ['SELECT', 'INSERT', 'UPDATE']);
+
+  // Self-service billing (ADR-0014). The edge issues a paid key only after a
+  // provider-verified Checkout, and changes tenant state only from a signed
+  // webhook. It can create tenants and keys and suspend or revoke them, but it
+  // cannot change a key's classification (0015/0018 trigger), read another
+  // key's secret (only hashes exist), or touch usage history.
+  addColumns('df_edge', 'api_tenants', 'INSERT', BILLING_TENANT_INSERT_COLUMNS);
+  addColumns('df_edge', 'api_tenants', 'UPDATE', ['status', 'updated_at']);
+  addColumns('df_edge', 'api_keys', 'INSERT', BILLING_KEY_INSERT_COLUMNS);
+  addRelation('df_edge', 'api_subscriptions', ['SELECT', 'INSERT', 'UPDATE']);
+  addRelation('df_edge', 'api_tenant_allowances', ['SELECT', 'INSERT', 'UPDATE']);
+  addRelation('df_edge', 'api_usage_monthly_counters', ['SELECT']);
+  addRelation('df_edge', 'billing_webhook_events', ['SELECT', 'INSERT']);
 
   addRelation('df_acquisition', 'verticals', ['SELECT', 'INSERT']);
   addRelation('df_acquisition', 'sources', ['SELECT', 'INSERT']);

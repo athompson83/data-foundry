@@ -1,0 +1,214 @@
+name: Deploy production
+
+# Manual, owner-initiated production deployment of the ordinary Cloudflare
+# Workers (ADR-0006). It never runs on push, pull_request, schedule or any other
+# event: an operator must dispatch it from `main` and type the confirmation
+# phrase, and the `production` GitHub environment's protection rules (required
+# reviewers, `main`-only deployment branches) gate the job that holds the
+# Cloudflare credentials. See docs/owner-actions/cloudflare-deployment.md
+# section 10 for the repository secrets and variables it reads.
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type exactly: deploy-production'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  # One production deployment at a time; a second dispatch waits rather than
+  # cancelling a deployment that is part-way through its Workers.
+  group: deploy-production
+  cancel-in-progress: false
+
+env:
+  CI: 'true'
+  WRANGLER_SEND_METRICS: 'false'
+
+jobs:
+  guard:
+    name: refuse anything but a confirmed dispatch on main
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require workflow_dispatch on refs/heads/main with the confirmation phrase
+        shell: bash
+        env:
+          CONFIRM: ${{ inputs.confirm }}
+        run: |
+          set -euo pipefail
+          if [[ "$GITHUB_EVENT_NAME" != "workflow_dispatch" ]]; then
+            echo "Production deployment runs only from a manual workflow_dispatch." >&2
+            exit 1
+          fi
+          if [[ "$GITHUB_REF" != "refs/heads/main" ]]; then
+            echo "Production deployment runs only from refs/heads/main." >&2
+            exit 1
+          fi
+          if [[ "$CONFIRM" != "deploy-production" ]]; then
+            echo "The confirm input must be exactly deploy-production." >&2
+            exit 1
+          fi
+
+  deploy:
+    name: full checks • render manifests • wrangler deploy
+    needs: guard
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && needs.guard.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment: production
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+          ref: ${{ github.sha }}
+
+      - name: Fail closed when a required secret or variable is missing
+        shell: bash
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          DF_ZONE_NAME: ${{ vars.DF_ZONE_NAME }}
+          DF_HYPERDRIVE_ID_EDGE: ${{ vars.DF_HYPERDRIVE_ID_EDGE }}
+          DF_HYPERDRIVE_ID_USAGE_CONSUMER: ${{ vars.DF_HYPERDRIVE_ID_USAGE_CONSUMER }}
+          DF_HYPERDRIVE_ID_WEB: ${{ vars.DF_HYPERDRIVE_ID_WEB }}
+          DF_HYPERDRIVE_ID_ACQUISITION: ${{ vars.DF_HYPERDRIVE_ID_ACQUISITION }}
+          DF_HYPERDRIVE_ID_INGESTION: ${{ vars.DF_HYPERDRIVE_ID_INGESTION }}
+          DF_HYPERDRIVE_ID_MCP: ${{ vars.DF_HYPERDRIVE_ID_MCP }}
+          DF_EDGE_ROUTES: ${{ vars.DF_EDGE_ROUTES }}
+          DF_WEB_ROUTES: ${{ vars.DF_WEB_ROUTES }}
+          DF_MCP_ROUTES: ${{ vars.DF_MCP_ROUTES }}
+          DF_WEB_PUBLIC_ORIGIN: ${{ vars.DF_WEB_PUBLIC_ORIGIN }}
+          DF_MCP_HOSTNAME: ${{ vars.DF_MCP_HOSTNAME }}
+          DF_MCP_ALLOWED_ORIGINS: ${{ vars.DF_MCP_ALLOWED_ORIGINS }}
+        run: |
+          set -euo pipefail
+          missing=0
+          for name in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID DF_ZONE_NAME \
+            DF_HYPERDRIVE_ID_EDGE DF_HYPERDRIVE_ID_USAGE_CONSUMER DF_HYPERDRIVE_ID_WEB \
+            DF_HYPERDRIVE_ID_ACQUISITION DF_HYPERDRIVE_ID_INGESTION DF_HYPERDRIVE_ID_MCP \
+            DF_EDGE_ROUTES DF_WEB_ROUTES DF_MCP_ROUTES \
+            DF_WEB_PUBLIC_ORIGIN DF_MCP_HOSTNAME DF_MCP_ALLOWED_ORIGINS; do
+            # Test presence only; a value is never printed.
+            if [[ -z "${!name:-}" ]]; then
+              echo "::error::Required secret or variable ${name} is not set for the production environment."
+              missing=1
+            fi
+          done
+          exit "$missing"
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      # The same gate set as the protected CI verify job, rerun on the exact
+      # commit being deployed. Nothing below runs unless every check passes.
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Test
+        run: pnpm test
+      - name: Migration apply check
+        run: pnpm migrate:check
+      - name: Canonical schema exports are current
+        run: pnpm schemas:check
+      - name: OpenAPI contract is current
+        run: pnpm openapi:check
+      - name: Cloudflare topology is internally consistent
+        run: pnpm cloudflare:topology:check
+      - name: Vertical config validation
+        run: pnpm verticals:validate
+      - name: Vertical runtime artifacts are current
+        run: pnpm verticals:compile:check
+      - name: Acquisition runtime artifacts are current
+        run: pnpm acquisition:check
+      - name: Ingestion runtime matches the schema and normalizer definitions
+        run: pnpm ingestion:check
+      - name: MCP runtime artifacts are current
+        run: pnpm mcp:compile:check
+      - name: Web runtime artifacts are current
+        run: pnpm web:compile:check
+      - name: Cloudflare artifacts build and are PGlite-free
+        run: pnpm cloudflare:artifacts:check
+      - name: Separate synthetic ingestion configuration builds
+        run: pnpm cloudflare:synthetic-ingestion:artifacts:check
+
+      # Deployment facts come from the production environment; the tracked
+      # templates supply every capability. Values are never printed.
+      - name: Render ignored deployment manifests
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          DF_ZONE_NAME: ${{ vars.DF_ZONE_NAME }}
+          DF_HYPERDRIVE_ID_EDGE: ${{ vars.DF_HYPERDRIVE_ID_EDGE }}
+          DF_HYPERDRIVE_ID_USAGE_CONSUMER: ${{ vars.DF_HYPERDRIVE_ID_USAGE_CONSUMER }}
+          DF_HYPERDRIVE_ID_WEB: ${{ vars.DF_HYPERDRIVE_ID_WEB }}
+          DF_HYPERDRIVE_ID_ACQUISITION: ${{ vars.DF_HYPERDRIVE_ID_ACQUISITION }}
+          DF_HYPERDRIVE_ID_INGESTION: ${{ vars.DF_HYPERDRIVE_ID_INGESTION }}
+          DF_HYPERDRIVE_ID_MCP: ${{ vars.DF_HYPERDRIVE_ID_MCP }}
+          DF_EDGE_ROUTES: ${{ vars.DF_EDGE_ROUTES }}
+          DF_EDGE_API_PATH_PREFIX: ${{ vars.DF_EDGE_API_PATH_PREFIX }}
+          DF_EDGE_RAPIDAPI_HOSTNAME: ${{ vars.DF_EDGE_RAPIDAPI_HOSTNAME }}
+          DF_EDGE_STRIPE_PRICE_IDS: ${{ vars.DF_EDGE_STRIPE_PRICE_IDS }}
+          DF_EDGE_BILLING_PUBLIC_ORIGIN: ${{ vars.DF_EDGE_BILLING_PUBLIC_ORIGIN }}
+          DF_EDGE_BILLING_RETURN_URL: ${{ vars.DF_EDGE_BILLING_RETURN_URL }}
+          DF_EDGE_VEHICLES_ROUTES: ${{ vars.DF_EDGE_VEHICLES_ROUTES }}
+          DF_HYPERDRIVE_ID_EDGE_VEHICLES: ${{ vars.DF_HYPERDRIVE_ID_EDGE_VEHICLES }}
+          DF_EDGE_VEHICLES_RAPIDAPI_HOSTNAME: ${{ vars.DF_EDGE_VEHICLES_RAPIDAPI_HOSTNAME }}
+          DF_EDGE_VEHICLES_STRIPE_PRICE_IDS: ${{ vars.DF_EDGE_VEHICLES_STRIPE_PRICE_IDS }}
+          DF_EDGE_VEHICLES_BILLING_PUBLIC_ORIGIN: ${{ vars.DF_EDGE_VEHICLES_BILLING_PUBLIC_ORIGIN }}
+          DF_EDGE_VEHICLES_BILLING_RETURN_URL: ${{ vars.DF_EDGE_VEHICLES_BILLING_RETURN_URL }}
+          DF_WEB_ROUTES: ${{ vars.DF_WEB_ROUTES }}
+          DF_WEB_PUBLIC_ORIGIN: ${{ vars.DF_WEB_PUBLIC_ORIGIN }}
+          DF_MCP_ROUTES: ${{ vars.DF_MCP_ROUTES }}
+          DF_MCP_HOSTNAME: ${{ vars.DF_MCP_HOSTNAME }}
+          DF_MCP_ALLOWED_ORIGINS: ${{ vars.DF_MCP_ALLOWED_ORIGINS }}
+          DF_ACQUISITION_BROWSER_RUN: ${{ vars.DF_ACQUISITION_BROWSER_RUN }}
+        run: pnpm cloudflare:deployment:render
+
+      - name: Deployment manifests are internally consistent
+        run: pnpm cloudflare:deployment:check
+
+      - name: Tracked templates are unchanged
+        run: git diff --exit-code HEAD -- apps/edge/wrangler.toml apps/edge/wrangler.vehicles.toml apps/web/wrangler.toml apps/usage-consumer/wrangler.toml apps/acquisition-worker/wrangler.toml apps/ingestion-worker/wrangler.toml apps/mcp-worker/wrangler.toml
+
+      # Consumers before producers, the API before the surfaces that link to it.
+      - name: Deploy ordinary Workers
+        shell: bash
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          manifests=(
+            apps/usage-consumer/wrangler.production.toml
+            apps/ingestion-worker/wrangler.production.toml
+            apps/acquisition-worker/wrangler.production.toml
+            apps/edge/wrangler.production.toml
+          )
+          if [[ -f apps/edge/wrangler.vehicles.production.toml ]]; then
+            manifests+=(apps/edge/wrangler.vehicles.production.toml)
+          fi
+          manifests+=(
+            apps/mcp-worker/wrangler.production.toml
+            apps/web/wrangler.production.toml
+          )
+          for manifest in "${manifests[@]}"; do
+            echo "Deploying ${manifest}"
+            pnpm exec wrangler deploy --config "$manifest" --env-file tooling/wrangler-empty.env
+          done
+
+      - name: Remove rendered manifests
+        if: always()
+        shell: bash
+        run: rm -f apps/*/wrangler.production.toml apps/edge/wrangler.*.production.toml

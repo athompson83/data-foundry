@@ -1,4 +1,4 @@
-# Data Foundry Recall Intelligence (ADR-0013).
+# Data Foundry Recall Intelligence (ADR-0015).
 #
 # Unlike the Postgres-backed Workers, every identifier here is a public binding
 # name or resource id, not a credential: D1 and R2 are reached through

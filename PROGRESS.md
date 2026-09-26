@@ -19,8 +19,8 @@ unchanged.**
     owner.
 - **Dataset.** openFDA enforcement reports, CC0 ([rights record](docs/sources/openfda-enforcement-rights-record-20260926.md),
   which lists every redistributed field). Reports run from 2012-06-20 to
-  2026-09-16. See [ADR-0013](docs/decisions/ADR-0013-first-paid-dataset-fda-recalls-on-d1.md).
-- **D1 load, `UA-009` (completed under the scoped authorization).**
+  2026-09-16. See [ADR-0015](docs/decisions/ADR-0015-first-paid-dataset-fda-recalls-on-d1.md).
+- **D1 load, `UA-012` (completed under the scoped authorization).**
   - Pre-checks: correct account and DB `84acdedd…`; only `0001` applied; every
     table at 0 rows, so dropping `raw` destroyed nothing.
   - Time Travel bookmark `00000005-00000000-000050f2-13d6c05b98708cefcb053cdd157124ba`.
@@ -57,10 +57,92 @@ unchanged.**
   - cancellation (403), with duplicate events handled idempotently;
   - billing portal session created.
 - **Owner actions.**
-  - `UA-010`: Stripe payouts are disabled.
-  - `UA-011`: after rotating the Stripe key, update the Worker secret.
+  - `UA-013`: Stripe payouts are disabled.
+  - `UA-014`: after rotating the Stripe key, update the Worker secret.
   - Confirm the legal seller and a working support inbox.
   - The separate launch instruction to set `SALES_OPEN="1"`.
+
+## Earlier session — 2026-09-26 (PR #57, merged to `main`): rights rule changed, self-service billing built, paid path blocked on environment access
+
+**Verdict: the paid-API machinery is now complete in code, but the platform is NOT earning revenue yet.** No
+real dataset is loaded, nothing new is deployed, and Stripe is test-mode only.
+
+- **Owner decisions (2026-09-26).**
+  - First paid dataset: US vehicle data (NHTSA vPIC + Recalls + EPA fuel economy).
+  - Rights: a named human reviewer is no longer required; a logical, evidence-based determination suffices
+    ([ADR-0013](docs/decisions/ADR-0013-evidence-based-rights-determination.md)).
+  - Payment: Stripe self-service and RapidAPI.
+  - Public cutover: authorized once checks pass.
+- **Done (PR #57, branch `claude/data-foundry-api-monetization-8dleew`).**
+  1. ADR-0013 and migration `0034`: a `DETERMINATION` reviewer type is accepted by the resolver and the
+     database guards. `AUTOMATED` still cannot activate permission; deny exceptions stay human/counsel only.
+  2. ADR-0014 and migration `0035`: self-service Stripe billing on the edge (`/v1/billing/...`); the
+     one-time key claim; signed, idempotent webhooks; the monthly allowance hard stop (`429`). df_edge and
+     df_usage gain narrow grants (313 grants, 60 functions).
+  3. Stripe sandbox product `prod_VKbcy7DLL3iNSH` with Developer/Growth/Scale prices
+     (`docs/owner-actions/stripe-billing-setup.md`).
+- **Also done (same PR, later in the session).**
+  - `pnpm rights:record` (`tooling/scripts/record-rights-determination.ts`) is the first production writer
+    of rights decisions. It records a committed ADR-0013 determination file into the rights matrix as
+    `DETERMINATION`; it is idempotent, supersedes correctly and has 14 tests.
+  - Entity-resolution blocking is now declared per vertical in `vertical.yaml` instead of hard-coded to
+    HVAC. HVAC output is unchanged. A vehicles-shaped integration test and a validator test are included.
+  - Hosted CI was green on `14a0fd6`. The local full suite on `45b3e7d` passed 3,652/3,652.
+- **Later the same day: vehicles, checkout, routing and deploy tooling.**
+  - `verticals/vehicles` (DRAFT) was added: make, model year, EPA configuration and NHTSA recall campaign,
+    with composite CSV keys and a configurable publisher entity type.
+    - Its sources are fail-closed (UNDER_REVIEW, UNREVIEWED, no acquisition targets).
+    - Its fixtures are SYNTHETIC SHAPE FIXTURES. Every unverified column and format assumption is listed in
+      `verticals/vehicles/SOURCES.md`.
+  - The web pricing page gets a direct Stripe "Subscribe" form via `product.yaml` `direct_checkout`. It
+    stays off while prelaunch.
+  - Canonical `api.data.aroqon.com/v1/<slug>` routing is in place: an edge `API_PATH_PREFIX`, per-vertical
+    edge topology checks, the `apps/edge/wrangler.vehicles.toml` template, a manifest renderer and a
+    manual-only, main-only `.github/workflows/deploy-production.yml`.
+  - Conversion-first choices, delegated by the owner: RapidAPI lead channel, free + $9 Starter entry tiers,
+    VIN-recall headline (`docs/commercial-validation/conversion-first-decision-20260926.md`).
+  - The local full suite on the merged head passed 3,785/3,785. The artifacts check builds 13 core
+    artifacts plus the vehicles edge.
+- **Final additions (same PR).**
+  - ZIP member extraction with strict limits, plus the operator bulk-load path
+    (`pnpm ingest --artifact … --evidence-dir …`).
+  - A generic `where` row filter; vehicles keeps only `RCLTYPECD = V` rows, and that code set is
+    unverified.
+  - `credentials:provision` works for per-vertical edges, with a copy-ready RapidAPI listing
+    (`docs/owner-actions/rapidapi-vehicles-listing.md`).
+  - The OpenAPI generator publishes per-vertical edge contracts under `/v1/<slug>`.
+  - The ordered path to the first paid request is `docs/owner-actions/launch-runbook.md`.
+  - Head `608c1bb`: hosted CI green; local full suite 3,883/3,883 and all 12 check scripts pass.
+- **Verification.**
+  - `pnpm test` passed 3,620/3,620.
+  - `typecheck` and every CI compile/topology/artifact check passed.
+  - A local native-PostgreSQL-16 port of the CI `migrations-postgres` job passed: 35/35 ledger, twice
+    idempotent; 0 missing/unexpected grants; 0 function/search-path drift; 0 `SECURITY DEFINER`. The
+    runtime-role, ingestion, source-record, credential and acquisition Postgres checks all passed.
+- **Correction.** The ingestion runtime digest covers `db/migrations` and the rights-engine sources, so the
+  first pushed commit (`acb542e`) carried a stale `hvac.ingestion-runtime.json`. The billing commit
+  regenerates it.
+- **Blocked (environment).** The network policy denies every vehicle source host, and WebFetch is blocked
+  too. No Cloudflare deploy token is present. Real fixtures, the rights determination text, the data load
+  and all deploys wait on `UA-009`. Live payments wait on `UA-010`.
+- **Next session (with UA-009 done), in order.**
+  1. Capture NHTSA/EPA terms and sample artifacts, then write
+     `docs/sources/vehicles-federal-rights-determination-*.md`.
+  2. Build `verticals/vehicles`.
+     - Candidate entities: model-year vehicle (make/model/year), EPA vehicle configuration (`epa_vehicle_id`)
+       and NHTSA recall campaign (`nhtsa_campaign_number`).
+     - Sources: the EPA `vehicles.csv` bulk file and the NHTSA recall flat file.
+     - The scheduled ingestion limits (1,000 records, 1 MiB per artifact, one target per source) cannot take
+       those files whole. Load the initial snapshot through the offline `pnpm ingest` path
+       (`maxRecords` 100k), and design partitioned refresh separately.
+     - The query/blocking code still hard-codes HVAC's resolution blocking
+       (`services/ingest-worker/src/resolution.ts`).
+  3. Record rights cells via a determination recorder (no production writer exists yet).
+  4. Apply `0034`/`0035` to hosted Supabase through the controlled path, deploy, then route
+     `api.data.aroqon.com`.
+  5. Run the test-mode purchase, then go live once `UA-010` is done.
+- **Production changed by this session:** no hosted database, Cloudflare or DNS change. Stripe sandbox
+  objects were created (test mode only).
 
 ## Current session — 2026-09-18 (second session): UA-002 hosted execution independently reconciled and closed
 

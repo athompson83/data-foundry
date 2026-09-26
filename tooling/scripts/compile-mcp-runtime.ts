@@ -18,7 +18,7 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 export const REPO_ROOT = resolve(HERE, '..', '..');
 export const OUTPUT_DIR = join(REPO_ROOT, 'apps', 'mcp-worker', 'generated');
 
-export const BUNDLED_MCP_VERTICALS: readonly string[] = ['hvac'];
+export const BUNDLED_MCP_VERTICALS: readonly string[] = ['hvac', 'vehicles'];
 
 export interface CompiledMcpTool {
   readonly name: string;

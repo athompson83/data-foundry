@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Cloudflare Worker serving the FDA Recall Intelligence dataset: pages, paid API, Stripe checkout and scheduled openFDA refresh (ADR-0013).",
+  "description": "Cloudflare Worker serving the FDA Recall Intelligence dataset: pages, paid API, Stripe checkout and scheduled openFDA refresh (ADR-0015).",
   "exports": {
     ".": "./src/index.ts"
   },

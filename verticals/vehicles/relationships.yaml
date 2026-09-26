@@ -1,0 +1,96 @@
+# =============================================================================
+# relationships.yaml — the vehicles graph.
+#
+# Three predicates, matching `relationship_predicates` in vertical.yaml. Every
+# edge requires evidence (doc 04). None is ever inferred: a recall reaches a
+# model year only because NHTSA's row names that make/model/year, and a
+# configuration belongs to a model year only because EPA's row does.
+#
+# The commercial value lives in `recall_affects`: "which open recalls touch this
+# model year?" joined to EPA's configurations is the lookup neither agency's own
+# site answers in one machine-readable call.
+# =============================================================================
+
+predicates:
+  - predicate: makes
+    label: Makes
+    inverse_label: Made by
+    subject_type: make
+    object_type: vehicle_model_year
+    cardinality: one_to_many
+    transitive: false
+    symmetric: false
+    evidence_required: true
+    min_confidence: 0.9
+    inference_allowed: false
+    description: >-
+      The make builds this model year. Asserted by every row of both sources,
+      through the deterministic publisher_aliases table.
+
+  - predicate: configuration_of
+    label: Configuration of
+    inverse_label: Configurations
+    subject_type: vehicle_configuration
+    object_type: vehicle_model_year
+    cardinality: many_to_one
+    transitive: false
+    symmetric: false
+    evidence_required: true
+    min_confidence: 0.9
+    inference_allowed: false
+    description: >-
+      The EPA-tested configuration is a version of this model year. Joined on
+      the exact make + base model + year key from the same EPA row.
+
+  - predicate: recall_affects
+    label: Affects
+    inverse_label: Affected by recall
+    subject_type: recall_campaign
+    object_type: vehicle_model_year
+    cardinality: many_to_many
+    transitive: false
+    symmetric: false
+    evidence_required: true
+    min_confidence: 0.9
+    # A recall reaches a model year only when NHTSA's row names it. Inferring
+    # coverage from similar models or adjacent years would fabricate a safety
+    # claim.
+    inference_allowed: false
+    description: >-
+      The recall campaign covers this make/model/year. Model-year level only:
+      a campaign may cover only part of a model year's build range (NHTSA
+      `BGMAN`/`ENDMAN`), and only a VIN check establishes whether one vehicle
+      is included.
+
+# --- Graph integrity rules --------------------------------------------------
+integrity_rules:
+  - id: every_model_year_has_a_make
+    rule: required_edge
+    entity_type: vehicle_model_year
+    predicate: makes
+    direction: inbound
+    min_count: 1
+    severity: error
+
+  - id: every_configuration_has_a_model_year
+    rule: required_edge
+    entity_type: vehicle_configuration
+    predicate: configuration_of
+    direction: outbound
+    min_count: 1
+    severity: error
+
+  - id: no_self_configuration
+    rule: no_self_edge
+    predicate: configuration_of
+    severity: error
+
+  - id: configuration_year_agrees_with_model_year
+    rule: cross_entity_property
+    predicate: configuration_of
+    property: model_year
+    tolerance: 0
+    description: >-
+      A configuration whose model year differs from the model year it joins
+      means the composite key resolved to the wrong entity.
+    severity: error

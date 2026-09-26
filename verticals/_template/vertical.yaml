@@ -106,7 +106,17 @@ entity_resolution:
   # Properties that must never disagree in an automatic merge (doc 06
   # "no hard-conflict fields").
   hard_conflict_properties: []
-  # Blocking keys for candidate generation (doc 06 step 4).
+  # Blocking keys for candidate generation (doc 06 step 4). Each entry is an
+  # object in the platform's closed vocabulary; anything else fails validation.
+  #   - key: <label>            # recorded in candidate features/fingerprints
+  #     entity_type: <declared entity type>
+  #     kind: alias             # alias_type: <declared alias type applying to
+  #                             #   entity_type>; optional prefix_length: <int>
+  #   - kind: related_entity    # predicate: <declared predicate>;
+  #                             #   role: subject | object (this entity's role);
+  #                             #   optional reject_mismatch_as: <plural noun>
+  #   - kind: property_values   # properties: [<property>, ...] (exact values
+  #                             #   joined with ":")
   blocking_keys: []
   # doc 06 step 7: an LLM may recommend, never execute (AGENTS.md rule 3).
   llm_adjudication:

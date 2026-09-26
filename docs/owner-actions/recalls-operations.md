@@ -1,6 +1,6 @@
 # FDA Recall Intelligence — operations runbook
 
-Worker `data-foundry-recalls` · D1 `data-foundry-recalls` (`84acdedd-4d3e-457e-9bdc-3b118590e172`) · R2 `data-foundry-raw-artifacts` under `recalls/` · Cloudflare account `c2832821a9ab36419cde6ee08112f6d3`. Architecture: [ADR-0013](../decisions/ADR-0013-first-paid-dataset-fda-recalls-on-d1.md).
+Worker `data-foundry-recalls` · D1 `data-foundry-recalls` (`84acdedd-4d3e-457e-9bdc-3b118590e172`) · R2 `data-foundry-raw-artifacts` under `recalls/` · Cloudflare account `c2832821a9ab36419cde6ee08112f6d3`. Architecture: [ADR-0015](../decisions/ADR-0015-first-paid-dataset-fda-recalls-on-d1.md).
 
 ## Lost API key
 

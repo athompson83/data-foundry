@@ -1,3 +1,4 @@
+import { readdressRecords, unpackArchivedArtifact } from './archive.js';
 import type { ExtractionSchema } from './schema.js';
 import {
   ExtractionError,
@@ -39,8 +40,16 @@ export class ExtractionProviderRegistry {
     });
   }
 
+  /**
+   * A schema that declares an `archive` is unpacked here, once, for every
+   * provider: the provider parses the member, and its locators are re-addressed
+   * to name that member inside the preserved archive artifact.
+   */
   async extract(artifact: ExtractionArtifact, schema: ExtractionSchema): Promise<ExtractedRecord[]> {
-    return this.resolve(schema).extract(artifact, schema);
+    if (schema.archive === undefined) return this.resolve(schema).extract(artifact, schema);
+    const unpacked = await unpackArchivedArtifact(artifact, schema);
+    const records = await this.resolve(unpacked.schema).extract(unpacked.artifact, unpacked.schema);
+    return readdressRecords(records, unpacked.member);
   }
 }
 

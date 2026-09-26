@@ -1,0 +1,20 @@
+lookup_entity_type: vehicle_model_year
+lookup_cta: Look up a vehicle
+title: US Vehicle Recalls & Fuel Economy API
+audience: Built for vehicle marketplaces, dealer, fleet and insurance software teams.
+summary: Look up open safety recalls for a vehicle, with its EPA fuel economy, from US federal data. VIN-to-recalls is the headline lookup and depends on NHTSA vPIC VIN decoding, which is not yet captured; make, model and year lookups come first.
+availability: prelaunch
+listing_url: null
+coverage: Real-source coverage is pending the NHTSA and EPA rights determinations and live data capture. VIN decoding is not available until NHTSA vPIC is captured and reviewed. The visible catalogue reports only data this surface is permitted to show.
+limitations:
+  - Recalls are matched at make, model and model-year level. A campaign may cover only part of a model year's production; only a VIN check with the manufacturer or at nhtsa.gov/recalls confirms whether a specific vehicle is included.
+  - Recall text is the manufacturer's report as published by NHTSA. It is not an NHTSA finding, and remedy availability can change.
+  - Fuel economy is EPA's published label data for a tested configuration. Real-world results vary, and electric-vehicle figures are MPGe.
+  - A model named differently by EPA and NHTSA is not joined automatically. An absent recall or configuration means none is matched, not that none exists.
+  - Not endorsed by NHTSA, EPA, DOE or the U.S. Department of Transportation. No commercial freshness guarantee is offered during validation.
+plans:
+  - {name: Evaluate, monthly_usd: 0, included_requests: 100}
+  - {name: Starter, monthly_usd: 9, included_requests: 1000}
+  - {name: Developer, monthly_usd: 49, included_requests: 5000}
+  - {name: Growth, monthly_usd: 149, included_requests: 25000}
+  - {name: Scale, monthly_usd: 299, included_requests: 75000}

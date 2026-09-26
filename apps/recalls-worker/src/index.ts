@@ -1,5 +1,5 @@
 /**
- * Data Foundry Recall Intelligence Worker (ADR-0013).
+ * Data Foundry Recall Intelligence Worker (ADR-0015).
  *
  *   data.aroqon.com      human pages, checkout, Stripe webhook
  *   api.data.aroqon.com  /v1 machine API

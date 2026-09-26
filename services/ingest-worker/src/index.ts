@@ -33,6 +33,12 @@ export {
   type VerticalConfig,
 } from './config.js';
 export {
+  BLOCKING_KEY_KINDS,
+  parseBlockingKeys,
+  type BlockingKey,
+  type BlockingKeyKind,
+} from './blocking.js';
+export {
   IngestError,
   MappingCompilationError,
   PipelineConfigurationError,
@@ -50,6 +56,13 @@ export {
   type FixtureBinding,
   type FixtureManifestResult,
 } from './fixtures.js';
+export {
+  MAX_OPERATOR_ARTIFACT_BYTES,
+  OPERATOR_ARTIFACT_DIRECTORY,
+  buildOperatorArtifactManifest,
+  type OperatorArtifact,
+  type OperatorArtifactManifest,
+} from './operator-artifacts.js';
 export {
   AliasNormalizer,
   IDENTIFIER_OPS,

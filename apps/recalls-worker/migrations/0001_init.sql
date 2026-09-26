@@ -1,4 +1,4 @@
--- Recall Intelligence dataset (ADR-0013), Cloudflare D1.
+-- Recall Intelligence dataset (ADR-0015), Cloudflare D1.
 --
 -- `raw` is the verbatim openFDA enforcement record (evidence, rule 10). Every
 -- other column, and every `recall_key` row, is derived from it by the parser

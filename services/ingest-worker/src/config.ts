@@ -24,6 +24,7 @@ import {
 } from '@data-foundry/source-registry';
 import type { VocabularyDefinition } from '@data-foundry/normalization';
 import { PipelineConfigurationError } from './errors.js';
+import { parseBlockingKeys } from './blocking.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 
@@ -83,6 +84,27 @@ export async function loadVerticalConfig(
     sources.push(parsed.entry);
   }
 
+  const relationshipPredicates: string[] = [...(vertical.relationship_predicates ?? [])].map(String);
+  const aliasTypes = (vertical.alias_types ?? []).map((alias: Yaml) => ({
+    type: String(alias.type),
+    applies_to: [...(alias.applies_to ?? [])].map(String),
+    strong: alias.strong === true,
+    scoped_to: alias.scoped_to === undefined ? null : String(alias.scoped_to),
+  }));
+  const entityResolution = vertical.entity_resolution ?? {};
+  // A blocking key the platform cannot interpret would silently propose no
+  // candidates; refuse the configuration instead.
+  const blocking = parseBlockingKeys(entityResolution.blocking_keys, {
+    entityTypes,
+    relationshipPredicates,
+    aliasTypes,
+  });
+  if (blocking.errors.length > 0) {
+    throw new PipelineConfigurationError(
+      `${join(directory, 'vertical.yaml')} declares invalid blocking keys:\n  ${blocking.errors.join('\n  ')}`,
+    );
+  }
+
   const domainNormalization = await readYaml(join(normalizersDir, '03-domain-normalization.yaml'));
   const ontology = await readYaml(join(normalizersDir, '04-ontology-mapping.yaml'));
 
@@ -93,14 +115,9 @@ export async function loadVerticalConfig(
     status: String(vertical.status),
     defaultRefreshPolicy: vertical.default_refresh_policy,
     entityTypes,
-    relationshipPredicates: [...(vertical.relationship_predicates ?? [])].map(String),
-    aliasTypes: (vertical.alias_types ?? []).map((alias: Yaml) => ({
-      type: String(alias.type),
-      applies_to: [...(alias.applies_to ?? [])].map(String),
-      strong: alias.strong === true,
-      scoped_to: alias.scoped_to === undefined ? null : String(alias.scoped_to),
-    })),
-    entityResolution: vertical.entity_resolution ?? {},
+    relationshipPredicates,
+    aliasTypes,
+    entityResolution,
     entities,
     sources,
     registry: new InMemorySourceRegistry(sources),

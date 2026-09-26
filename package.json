@@ -20,6 +20,7 @@
     "ua002:operator": "tsx tooling/scripts/ua002-direct-tls-operator.ts",
     "runtime-roles:postgres:check": "tsx tooling/scripts/check-runtime-role-connections-postgres.ts",
     "credentials:provision": "tsx tooling/scripts/provision-api-credential.ts",
+    "rights:record": "tsx tooling/scripts/record-rights-determination.ts",
     "schemas:generate": "tsx tooling/scripts/generate-json-schemas.ts && corepack pnpm run source-readiness:schema:generate",
     "schemas:check": "tsx tooling/scripts/generate-json-schemas.ts --check && corepack pnpm run source-readiness:schema:check",
     "source-readiness:schema:generate": "tsx tooling/scripts/generate-source-readiness-schema.ts",
@@ -41,6 +42,7 @@
     "mcp:compile:check": "tsx tooling/scripts/compile-mcp-runtime.ts --check",
     "cloudflare:topology:check": "tsx tooling/scripts/check-cloudflare-topology.ts",
     "cloudflare:deployment:check": "tsx tooling/scripts/check-cloudflare-topology.ts --mode deployment",
+    "cloudflare:deployment:render": "tsx tooling/scripts/render-deployment-manifests.ts",
     "cloudflare:private-canary:check": "tsx tooling/scripts/check-cloudflare-topology.ts --mode private-canary",
     "cloudflare:private-canary:deployment:check": "tsx tooling/scripts/check-cloudflare-topology.ts --mode private-canary-deployment",
     "cloudflare:private-canary:targets:check": "tsx tooling/scripts/check-cloudflare-topology.ts --mode private-canary-target",
@@ -56,6 +58,7 @@
   },
   "devDependencies": {
     "@data-foundry/api-keys": "workspace:*",
+    "@data-foundry/billing": "workspace:*",
     "@data-foundry/canonical-schema": "workspace:*",
     "@data-foundry/canonical-store": "workspace:*",
     "@data-foundry/private-canary": "workspace:*",

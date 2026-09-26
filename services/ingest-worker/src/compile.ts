@@ -29,8 +29,17 @@
  *     target entity type's primary alias. `supersedes` in this vertical is
  *     declared inverted (successor → predecessor) and that inversion is data,
  *     not code.
+ *
+ * A CSV mapping may name `paths: [a, b, c]` (with an optional `join`, default a
+ * single space) instead of `path`. That compiles to one `csv_columns` field:
+ * a composite source-native value such as make + model + year, extracted
+ * all-or-nothing with one locator naming every cell. Relationship `*_from`
+ * accepts the same list form. A headerless delimited file declares its column
+ * names in `parsing.columns`. A file shipped inside a ZIP archive declares
+ * `parsing.archive: { format: zip, member: <name or glob> }`.
  */
-import type { ExtractionSchema, FieldRule, FieldSelector } from '@data-foundry/extraction';
+import type { ArchiveSpec, ExtractionSchema, FieldRule, FieldSelector } from '@data-foundry/extraction';
+import { parseArchiveSpec } from '@data-foundry/extraction/runtime';
 import type {
   NormalizationRuleSet,
   PropertyRule,
@@ -105,6 +114,16 @@ const asIdentifier = (raw: string, path: string): Identifier => {
 };
 
 const escapeRegex = (raw: string): string => raw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/**
+ * One comparable key for a declared `path` (string) or composite `paths`
+ * (list), so a relationship endpoint naming the same composite as the
+ * stream's strong alias is recognised as the record's own entity.
+ */
+function mappingPathKey(declared: unknown): string | null {
+  if (declared === undefined || declared === null) return null;
+  return Array.isArray(declared) ? JSON.stringify(declared.map(String)) : String(declared);
+}
 
 /** Compile every source declared in `source-mappings.yaml`. */
 export function compileSourcePlans(config: VerticalConfig): SourcePlan[] {
@@ -231,6 +250,34 @@ function compileStreamPlan(
 
   /** Path → extraction field, with the format's selector dialect applied. */
   const locateFor = (mapping: Yaml, name: string, mappingPath: string): Identifier => {
+    if (mapping.paths !== undefined) {
+      // A composite value: several source fields, joined in declared order.
+      // Only the CSV dialect has a composite selector today; other formats
+      // refuse rather than silently reading only one part.
+      const paths = mapping.paths;
+      if (!Array.isArray(paths) || paths.length < 2 || mapping.path !== undefined) {
+        throw new MappingCompilationError(
+          mappingPath,
+          '`paths` must list at least two source fields and cannot be combined with `path`',
+        );
+      }
+      if (format !== 'csv') {
+        throw new MappingCompilationError(
+          mappingPath,
+          `composite \`paths\` are supported only for csv sources, not "${format}"`,
+        );
+      }
+      const pattern = mapping.pattern === undefined ? undefined : String(mapping.pattern);
+      return fields.add(
+        name,
+        {
+          kind: 'csv_columns',
+          columns: paths.map(String),
+          separator: mapping.join === undefined ? ' ' : String(mapping.join),
+        },
+        pattern === undefined ? undefined : { pattern },
+      );
+    }
     const rawPath = mapping.path === undefined ? undefined : String(mapping.path);
     const label = mapping.label === undefined ? undefined : String(mapping.label);
     const pattern = mapping.pattern === undefined ? undefined : String(mapping.pattern);
@@ -420,9 +467,10 @@ function compileStreamPlan(
   // relationship declaration does not repeat.
   const aliasFieldByPath = new Map<string, AliasPlan>();
   for (const [index, alias] of (record.aliases ?? []).entries()) {
-    if (alias.path === undefined) continue;
+    const key = mappingPathKey(alias.paths ?? alias.path);
+    if (key === null) continue;
     const plan = aliases[index];
-    if (plan !== undefined) aliasFieldByPath.set(String(alias.path), plan);
+    if (plan !== undefined) aliasFieldByPath.set(key, plan);
   }
 
   const relationships: RelationshipPlan[] = (record.relationships ?? []).map(
@@ -434,9 +482,35 @@ function compileStreamPlan(
       }),
   );
 
+  function compileCompositeRecordKey(declaration: Yaml, keyPath: string): Identifier[] {
+    const columns: unknown[] = declaration.source_record_key;
+    if (format === 'pdf' || columns.length < 2 || columns.some((column) => typeof column !== 'string')) {
+      throw new MappingCompilationError(
+        keyPath,
+        'a composite source_record_key lists at least two source field paths (not supported for pdf)',
+      );
+    }
+    return (columns as string[]).map((column, index) => {
+      const match = [...(declaration.aliases ?? []), ...(declaration.properties ?? [])].find(
+        (mapping: Yaml) => mapping.path !== undefined && String(mapping.path) === column,
+      );
+      return locateFor(match ?? { path: column }, `record_key_${index + 1}`, keyPath);
+    });
+  }
+
   // ---- record key ----------------------------------------------------------
-  const declaredKey = record.source_record_key === undefined ? null : String(record.source_record_key);
-  let keyField: Identifier | null = null;
+  // A list declares a key composed of several source fields, joined with `|`
+  // by the extraction contract. It exists because source-record keys are
+  // unique across ALL streams of one source batch: a second stream projecting
+  // the same row (for example a model-year stream beside a configuration
+  // stream, both born from one CSV row) needs a key distinct from the first.
+  const compositeKey: Identifier[] | null = Array.isArray(record.source_record_key)
+    ? compileCompositeRecordKey(record, `${path}.source_record_key`)
+    : null;
+  const declaredKey = record.source_record_key === undefined || compositeKey !== null
+    ? null
+    : String(record.source_record_key);
+  let keyField: Identifier | null = compositeKey?.[0] ?? null;
   if (declaredKey !== null) {
     const match = [...(record.aliases ?? []), ...(record.properties ?? [])].find(
       (mapping: Yaml) => mapping.path !== undefined && String(mapping.path) === declaredKey,
@@ -475,8 +549,11 @@ function compileStreamPlan(
     format: format as ExtractionSchema['format'],
     entity_type: entityType,
     record: recordSelector(format, record, source, path),
-    record_key: { fields: [keyField], fallback: 'fail' },
+    record_key: { fields: compositeKey ?? [keyField], fallback: 'fail' },
     fields: [...fields.rules],
+    ...(source.parsing?.archive === undefined
+      ? {}
+      : { archive: compileArchive(source.parsing.archive, format, `sources.${sourceKey}.parsing.archive`) }),
   };
 
   const vocabularies: Record<string, VocabularyDefinition> = {};
@@ -515,6 +592,19 @@ function compileStreamPlan(
   };
 }
 
+/**
+ * `parsing.archive` — the artifact is an archive and one member of it is the
+ * delimited file. The archive stays the evidence artifact; see
+ * `@data-foundry/extraction` `ArchiveSpec`.
+ */
+function compileArchive(declared: Yaml, format: string, path: string): ArchiveSpec {
+  try {
+    return parseArchiveSpec(declared, format as ExtractionSchema['format'], path);
+  } catch (error) {
+    throw new MappingCompilationError(path, error instanceof Error ? error.message : String(error));
+  }
+}
+
 function recordSelector(
   format: string,
   record: Yaml,
@@ -522,6 +612,12 @@ function recordSelector(
   path: string,
 ): ExtractionSchema['record'] {
   const recordPath = record.record_path === undefined ? null : String(record.record_path);
+  if (format !== 'csv' && record.where !== undefined) {
+    throw new MappingCompilationError(
+      `${path}.where`,
+      `a stream \`where\` row filter is supported only for csv sources, not "${format}"`,
+    );
+  }
   switch (format) {
     case 'json':
       if (recordPath === null) return { kind: 'whole_document' };
@@ -529,20 +625,75 @@ function recordSelector(
     case 'html':
       if (recordPath === null) return { kind: 'whole_document' };
       return { kind: 'css', selector: recordPath };
-    case 'csv':
+    case 'csv': {
+      const where = compileRowFilter(record, source, path);
       return {
         kind: 'csv_rows',
-        header: source.parsing?.header_row !== false,
+        // A headerless file (for example a tab-delimited flat file whose
+        // column names are published separately) declares its column names
+        // in `parsing.columns`; its first line is then data, not a header.
+        header: Array.isArray(source.parsing?.columns)
+          ? source.parsing.columns.map(String)
+          : source.parsing?.header_row !== false,
         ...(source.parsing?.delimiter === undefined
           ? {}
           : { delimiter: String(source.parsing.delimiter) }),
+        // `quote: ""` (or null) declares an unquoted file, such as a flat file
+        // whose free-text fields contain literal `"` characters.
+        ...(source.parsing?.quote === undefined
+          ? {}
+          : { quote: source.parsing.quote === null ? '' : String(source.parsing.quote) }),
         trim: true,
+        ...(where === null ? {} : { where }),
       };
+    }
     case 'pdf':
       return source.parsing?.record_per === 'page' ? { kind: 'pdf_pages' } : { kind: 'whole_document' };
     default:
       throw new MappingCompilationError(path, `unsupported format "${format}"`);
   }
+}
+
+/**
+ * A stream's declarative row filter, `where: { column: C, in: [v1, v2] }`:
+ * only rows whose column C is exactly one of the listed values become records
+ * of that stream. Generic record selection, not a per-source branch; a
+ * headerless source's column must be one of its declared `parsing.columns`.
+ */
+function compileRowFilter(
+  record: Yaml,
+  source: Yaml,
+  path: string,
+): { readonly column: string; readonly in: readonly string[] } | null {
+  const where = record.where;
+  if (where === undefined) return null;
+  const wherePath = `${path}.where`;
+  const values: unknown = where?.in;
+  if (
+    where === null ||
+    typeof where !== 'object' ||
+    Array.isArray(where) ||
+    Object.keys(where).some((key) => key !== 'column' && key !== 'in') ||
+    typeof where.column !== 'string' ||
+    where.column.trim() === '' ||
+    !Array.isArray(values) ||
+    values.length === 0 ||
+    values.some((value) => typeof value !== 'string' || value === '') ||
+    new Set(values).size !== values.length
+  ) {
+    throw new MappingCompilationError(
+      wherePath,
+      '`where` must be `{ column: <name>, in: [<value>, ...] }` with a non-empty list of distinct, non-empty string values',
+    );
+  }
+  const declaredColumns = source.parsing?.columns;
+  if (Array.isArray(declaredColumns) && !declaredColumns.map(String).includes(where.column)) {
+    throw new MappingCompilationError(
+      `${wherePath}.column`,
+      `column "${where.column}" is not one of the source's declared parsing.columns`,
+    );
+  }
+  return { column: where.column, in: [...(values as string[])] };
 }
 
 interface PropertyRuleInput {
@@ -658,13 +809,16 @@ function compileRelationship(
     const declaredType = relationship[`${side}_type`];
     const resolveWith = relationship[`${side}_resolve_with`];
 
+    // `*_from` names one source field, or a list of fields forming one
+    // composite value (the same shape as an alias `paths`).
+    const fromMapping = Array.isArray(from) ? { paths: from } : { path: String(from) };
     if (resolveWith === 'publisher_aliases') {
       return {
         kind: 'publisher',
         field:
           from === undefined
             ? null
-            : context.locateFor({ path: String(from) }, `rel_${predicate}_${side}`, path),
+            : context.locateFor(fromMapping, `rel_${predicate}_${side}`, path),
         literal: literal === undefined ? null : String(literal),
       };
     }
@@ -677,7 +831,7 @@ function compileRelationship(
 
     const targetType = asIdentifier(String(declaredType), `${path}.${side}_type`);
     // Reading the record's own strong identifier means "this record's entity".
-    const ownAlias = context.aliasFieldByPath.get(String(from));
+    const ownAlias = context.aliasFieldByPath.get(mappingPathKey(from) ?? '');
     if (targetType === context.entityType && ownAlias !== undefined && ownAlias.strong) {
       return { kind: 'self' };
     }
@@ -693,7 +847,7 @@ function compileRelationship(
       kind: 'alias',
       entityType: targetType,
       aliasType: asIdentifier(aliasType, `${path}.${side}_type`),
-      field: context.locateFor({ path: String(from) }, `rel_${predicate}_${side}`, path),
+      field: context.locateFor(fromMapping, `rel_${predicate}_${side}`, path),
     };
   };
 

@@ -48,13 +48,21 @@ Validate continuously:
 pnpm verticals:validate
 ```
 
-Identifier equivalence has one explicit pre-second-vertical gate. The current
-query helper covers HVAC's case-fold-and-strip-separators behavior, but is not
-yet compiled from an arbitrary vertical's alias-normalization operation chain.
-If the new industry's identifier rules differ from HVAC's, complete ADR-0003's
-configuration-derived read/write parity contract before bundling or publishing
-it. Do not add another query-layer guess or call the vertical configuration-only
-while that gate remains open.
+Identifier equivalence is compiled from configuration (ADR-0003): the edge,
+web, MCP and ingestion runtimes all carry the vertical's own alias-normalization
+operation chain. A new industry must still prove its declared equivalence and
+non-equivalence with source/golden examples read back through the compiled
+specification — `verticals/vehicles/tests/shape-ingest.test.ts` is the worked
+example, and its rules deliberately reuse HVAC's case-fold-and-strip-separators
+chain. Do not add a query-layer guess for a new kind of identifier; declare its
+operations and prove them.
+
+When a source spells one identity across several columns, or projects one row
+into several streams, use the CSV constructs documented in
+`verticals/_template/normalizers/source-mappings.yaml` (`paths`, composite
+`source_record_key`, `parsing.columns`) rather than a vertical-specific code
+path. An entity type may declare `canonical_name.pattern` when its default
+`<publisher> <identifier>` display name would repeat the publisher.
 
 ## 2. Write `seo.yaml`
 

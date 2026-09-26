@@ -1,0 +1,14 @@
+{
+  "name": "@data-foundry/billing",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Self-service billing: plan catalogue, Stripe REST client and webhook signature verification. Web Crypto and fetch only; no store, no HTTP routing.",
+  "exports": { ".": "./src/index.ts" },
+  "types": "./src/index.ts",
+  "files": ["src"],
+  "scripts": {
+    "test": "vitest run --root .",
+    "typecheck": "tsc -p tsconfig.json"
+  }
+}
