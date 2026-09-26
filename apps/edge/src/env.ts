@@ -11,6 +11,7 @@
  */
 
 import type { KeyEnvironment } from '@data-foundry/api-keys';
+import { API_PATH_PREFIX_PATTERN } from './path-prefix.js';
 import {
   canonicalizeEndpointHostname,
   isUnsafeCanonicalProductionHostname,
@@ -46,6 +47,13 @@ export interface EdgeEnv {
   readonly POSTGRES_URL?: string;
   /** Which vertical this deployment serves. One vertical per Worker. */
   readonly VERTICAL_SLUG?: string;
+  /**
+   * Public path prefix for the canonical `api.data.aroqon.com/v1/<slug>/...`
+   * contract (ADR-0012). Optional and explicit: when absent the Worker serves
+   * the un-prefixed `/v1/...` surface exactly as before. When present it must be
+   * exactly `/v1/${VERTICAL_SLUG}`; see `path-prefix.ts`.
+   */
+  readonly API_PATH_PREFIX?: string;
   /** Which credential namespace this deployment accepts. Never inferred. */
   readonly API_KEY_ENVIRONMENT?: string;
   /** Hostname reserved for requests proxied by RapidAPI. No scheme or path. */
@@ -61,6 +69,16 @@ export interface EdgeEnv {
    * Database persistence remains asynchronous in the queue consumer.
    */
   readonly USAGE_EVENTS_QUEUE?: QueueBinding;
+  /** Stripe secret (or restricted) key. Configure as a Worker secret. */
+  readonly STRIPE_SECRET_KEY?: string;
+  /** Signing secret of this deployment's Stripe webhook endpoint. Worker secret. */
+  readonly STRIPE_WEBHOOK_SECRET?: string;
+  /** JSON object mapping each paid plan code to its Stripe price id. */
+  readonly STRIPE_PRICE_IDS?: string;
+  /** HTTPS origin customers reach this API on; Checkout returns here to claim a key. */
+  readonly BILLING_PUBLIC_ORIGIN?: string;
+  /** HTTPS page Checkout cancels to and the billing portal returns to. */
+  readonly BILLING_RETURN_URL?: string;
 }
 
 export class EdgeConfigurationError extends Error {
@@ -73,9 +91,20 @@ export class EdgeConfigurationError extends Error {
 export interface ResolvedEdgeConfig {
   readonly connectionString: string;
   readonly verticalSlug: string;
+  /** `/v1/<slug>` when this deployment serves a vertical-scoped path, else `null`. */
+  readonly apiPathPrefix: string | null;
   readonly apiKeyEnvironment: KeyEnvironment;
   readonly deploymentEnvironment: DeploymentEnvironment;
   readonly rapidApi: RapidApiConfig | null;
+  readonly billing: BillingConfig | null;
+}
+
+export interface BillingConfig {
+  readonly secretKey: string;
+  readonly webhookSecret: string;
+  readonly priceIdsJson: string;
+  readonly publicOrigin: string;
+  readonly returnUrl: string;
 }
 
 export type DeploymentEnvironment = 'development' | 'production';
@@ -137,6 +166,86 @@ function resolveRapidApiConfig(
   return { hostname, proxySecret, apiKey };
 }
 
+function httpsUrl(value: string, label: string, originOnly: boolean): string {
+  let parsed: URL;
+  try {
+    parsed = new URL(value);
+  } catch {
+    throw new EdgeConfigurationError(`${label} must be an absolute HTTPS URL.`);
+  }
+  if (parsed.protocol !== 'https:' || parsed.username !== '' || parsed.password !== '') {
+    throw new EdgeConfigurationError(`${label} must be an absolute HTTPS URL.`);
+  }
+  if (originOnly && (parsed.pathname !== '/' || parsed.search !== '' || parsed.hash !== '')) {
+    throw new EdgeConfigurationError(`${label} must be an origin without a path.`);
+  }
+  return originOnly ? parsed.origin : parsed.toString();
+}
+
+/**
+ * Self-service billing is all-or-nothing, like the RapidAPI channel: a
+ * partially configured deployment refuses to start rather than selling plans
+ * it cannot provision. Production accepts only live-mode Stripe keys, because
+ * a test key would hand out live API credentials for fake payments.
+ */
+function resolveBillingConfig(
+  env: EdgeEnv,
+  deploymentEnvironment: DeploymentEnvironment,
+): BillingConfig | null {
+  const values = [
+    env.STRIPE_SECRET_KEY,
+    env.STRIPE_WEBHOOK_SECRET,
+    env.STRIPE_PRICE_IDS,
+    env.BILLING_PUBLIC_ORIGIN,
+    env.BILLING_RETURN_URL,
+  ];
+  if (values.every((value) => value === undefined)) return null;
+  if (values.some((value) => value === undefined || value.trim() === '')) {
+    throw new EdgeConfigurationError(
+      'Billing configuration is incomplete. STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, ' +
+        'STRIPE_PRICE_IDS, BILLING_PUBLIC_ORIGIN, and BILLING_RETURN_URL must be configured together.',
+    );
+  }
+  const secretKey = (env.STRIPE_SECRET_KEY ?? '').trim();
+  if (!/^(sk|rk)_(live|test)_[A-Za-z0-9]{10,}$/.test(secretKey)) {
+    throw new EdgeConfigurationError('STRIPE_SECRET_KEY is not a Stripe secret or restricted key.');
+  }
+  if (deploymentEnvironment === 'production' && !secretKey.includes('_live_')) {
+    throw new EdgeConfigurationError('Production billing requires a live-mode Stripe key.');
+  }
+  const webhookSecret = (env.STRIPE_WEBHOOK_SECRET ?? '').trim();
+  if (!webhookSecret.startsWith('whsec_')) {
+    throw new EdgeConfigurationError('STRIPE_WEBHOOK_SECRET is not a Stripe webhook signing secret.');
+  }
+  return {
+    secretKey,
+    webhookSecret,
+    priceIdsJson: env.STRIPE_PRICE_IDS ?? '',
+    publicOrigin: httpsUrl((env.BILLING_PUBLIC_ORIGIN ?? '').trim(), 'BILLING_PUBLIC_ORIGIN', true),
+    returnUrl: httpsUrl((env.BILLING_RETURN_URL ?? '').trim(), 'BILLING_RETURN_URL', false),
+  };
+}
+
+/**
+ * The optional public path prefix. Absent means the historical un-prefixed
+ * surface. Present means exactly `/v1/<VERTICAL_SLUG>`: a prefix naming another
+ * vertical would route one vertical's public path to a Worker whose QueryModel
+ * carries a different vertical's field metadata, so it refuses to start rather
+ * than answer. An empty or padded value is a misconfiguration, not "absent".
+ */
+function resolveApiPathPrefix(value: string | undefined, verticalSlug: string): string | null {
+  if (value === undefined) return null;
+  if (!API_PATH_PREFIX_PATTERN.test(value)) {
+    throw new EdgeConfigurationError(
+      'API_PATH_PREFIX must match ^/v1/[a-z][a-z0-9-]{0,62}$ when configured.',
+    );
+  }
+  if (value !== `/v1/${verticalSlug}`) {
+    throw new EdgeConfigurationError('API_PATH_PREFIX must equal /v1/<VERTICAL_SLUG> exactly.');
+  }
+  return value;
+}
+
 /**
  * Read the deployment's configuration, or refuse.
  *
@@ -188,8 +297,10 @@ export function resolveEdgeConfig(env: EdgeEnv): ResolvedEdgeConfig {
   return {
     connectionString,
     verticalSlug,
+    apiPathPrefix: resolveApiPathPrefix(env.API_PATH_PREFIX, verticalSlug),
     apiKeyEnvironment,
     deploymentEnvironment,
     rapidApi: resolveRapidApiConfig(env, deploymentEnvironment),
+    billing: resolveBillingConfig(env, deploymentEnvironment),
   };
 }

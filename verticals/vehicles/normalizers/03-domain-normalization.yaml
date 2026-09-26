@@ -1,0 +1,122 @@
+# =============================================================================
+# Layer 3 — Domain normalization (doc 06): THE IDENTIFIER LAYER.
+#
+# AGENTS.md rule 7: exact identifiers beat semantic search. These rules produce
+# `entity_aliases.normalized_value`, the key the pipeline resolves on and the
+# key every read surface probes (ADR-0003 compiles this file into the edge, web,
+# MCP and ingestion runtimes).
+#
+# IDENTIFIER EQUIVALENCE (ADR-0003 / docs/adding-a-new-industry.md).
+# All three vehicle rules use the SAME operation chain as HVAC's model numbers:
+# upper-case, then strip separators. So the equivalence relation is HVAC's
+# case-fold-and-strip-separators; nothing here asks the query layer for a new
+# kind of guess. What IS new is that `make_model_year` is a COMPOSITE value
+# (three source columns joined by a space before these rules run), and that
+# stripping the joining spaces is safe only because the year is always the
+# last four digits and the make is resolved separately. Worked example:
+#
+#     EPA    make=Examplar Motors  baseModel=Roadster  year=2020
+#            -> "Examplar Motors Roadster 2020"
+#     NHTSA  MAKETXT=EXAMPLAR MOTORS  MODELTXT=ROADSTER  YEARTXT=2020
+#            -> "EXAMPLAR MOTORS ROADSTER 2020"
+#                         |
+#     normalized_value:   EXAMPLARMOTORSROADSTER2020
+#
+#     EPA "PM-3" 2022 and NHTSA "PM3" 2022 meet (PLACEHOLDERMOTORWORKSPM32022);
+#     "PM-30" 2022 and "PM-300" 2022 stay distinct.
+#
+# Changing a rule changes every join key: bump schema_version, record it in
+# CHANGELOG.md and re-verify the goldens.
+# =============================================================================
+
+layer: domain_normalization
+
+identifier_rules:
+  - alias_type: make_model_year
+    strong: true
+    retain_source_form: true
+    description: >-
+      Composite make + model + year. Upper-case and strip every separator, so
+      case and punctuation differences between the agencies' spellings do not
+      split one model year into two.
+    # Exactly HVAC's model_number chain. A model name carrying other
+    # punctuation (an apostrophe, `&`, `+`) keeps it; widening the stripped set
+    # is a deliberate, versioned change, never a guess.
+    ops:
+      - op: uppercase
+      - op: strip_characters
+        characters: "-_. /\\"
+      - op: strip_whitespace
+    validate:
+      min_length: 6
+      max_length: 120
+      # Must end in a four-digit model year.
+      pattern: "^[A-Z0-9]+[0-9]{4}$"
+      on_failure: quarantine
+
+  - alias_type: epa_vehicle_id
+    strong: true
+    retain_source_form: true
+    description: EPA record id. Digits only; separators stripped like every other identifier.
+    ops:
+      - op: uppercase
+      - op: strip_characters
+        characters: "-_. /\\"
+      - op: strip_whitespace
+    validate:
+      min_length: 1
+      max_length: 8
+      pattern: "^[0-9]+$"
+      on_failure: quarantine
+
+  - alias_type: nhtsa_campaign_number
+    strong: true
+    retain_source_form: true
+    description: >-
+      NHTSA campaign number. Sources and users write `20V314000`, `20v314000`
+      or `20V-314-000`; the identity is the upper-case run of characters.
+    ops:
+      - op: uppercase
+      - op: strip_characters
+        characters: "-_. /\\"
+      - op: strip_whitespace
+    validate:
+      min_length: 9
+      max_length: 9
+      pattern: "^[0-9]{2}[VEICT][0-9]{6}$"
+      on_failure: quarantine
+
+# --- Make resolution --------------------------------------------------------
+# A deterministic lookup table, not fuzzy matching. Matching is already
+# case-insensitive, so EPA's "Examplar Motors" and NHTSA's "EXAMPLAR MOTORS"
+# are one spelling; list only genuinely different ones.
+#
+# SYNTHETIC MAKES. These three companies are fictional and exist only in the
+# shape fixtures. The real table (Honda, Toyota, Ford, ...) is written from the
+# captured EPA and NHTSA files and vPIC's make list — never from memory.
+publisher_aliases:
+  examplar-motors:
+    canonical_name: Examplar Motors
+    aliases:
+      - Examplar Motors
+      - Examplar
+    match: case_insensitive_exact
+
+  fixture-automotive:
+    canonical_name: Fixture Automotive
+    aliases:
+      - Fixture Automotive
+      - Fixture Auto
+    match: case_insensitive_exact
+
+  placeholder-motor-works:
+    canonical_name: Placeholder Motor Works
+    aliases:
+      - Placeholder Motor Works
+      - PMW
+    match: case_insensitive_exact
+
+# A make matching nothing above is quarantined, never auto-created.
+unknown_publisher_policy: quarantine
+
+notation_rules: []

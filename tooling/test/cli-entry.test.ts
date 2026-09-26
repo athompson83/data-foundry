@@ -28,7 +28,7 @@ describe('cross-platform CLI entry detection', () => {
     {
       script: 'tooling/scripts/compile-vertical-runtime.ts',
       args: ['--check'],
-      expected: 'OK: 1 vertical runtime artifact(s) are up to date.',
+      expected: 'OK: 2 vertical runtime artifact(s) are up to date.',
     },
     {
       script: 'tooling/scripts/source-readiness.ts',

@@ -26,15 +26,18 @@ const FORWARDED_HEADERS: readonly string[] = ['x-request-id'];
  * the app parses against its own placeholder base and never fetches anything,
  * so passing the origin through would be noise at best and an SSRF-shaped
  * temptation at worst.
+ *
+ * `pathname` is the internal path when the deployment serves a public path
+ * prefix (`path-prefix.ts`); the query string is always the request's own.
  */
-export function toApiRequest(request: Request): ApiRequest {
+export function toApiRequest(request: Request, pathname?: string): ApiRequest {
   const url = new URL(request.url);
   const headers: Record<string, string> = {};
   for (const name of FORWARDED_HEADERS) {
     const value = request.headers.get(name);
     if (value !== null) headers[name] = value;
   }
-  return { method: request.method, url: `${url.pathname}${url.search}`, headers };
+  return { method: request.method, url: `${pathname ?? url.pathname}${url.search}`, headers };
 }
 
 /**

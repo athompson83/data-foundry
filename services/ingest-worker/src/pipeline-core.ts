@@ -1193,6 +1193,14 @@ export class ArtifactPipeline {
     if (stream.skipLinesMatching === null || stream.schema.record.kind !== 'csv_rows') {
       return stream.schema;
     }
+    if (stream.schema.archive !== undefined) {
+      // The preamble lives in the archive member, not in the archive bytes, so
+      // extraction evaluates it after unpacking.
+      return {
+        ...stream.schema,
+        record: { ...stream.schema.record, skip_leading_lines_matching: stream.skipLinesMatching },
+      };
+    }
     const pattern = new RegExp(stream.skipLinesMatching);
     const lines = new TextDecoder().decode(body).split(/\r\n|\r|\n/);
     let skipped = 0;

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "vertical_slug": "hvac",
-  "implementation_digest": "45c1d0af7ffaf27a5860c70460462e5d5c94ae5f48aa7cad285389b103845e3a",
+  "implementation_digest": "48acc055fc7a280f4456e788cf3bdb8353f43ed6d1d5a75d3318f1b964cd099b",
   "implementation_inputs": [
     "apps/ingestion-worker/package.json",
     "apps/ingestion-worker/src/runner.ts",
@@ -38,6 +38,8 @@
     "db/migrations/0031_operation_alerts.sql",
     "db/migrations/0032_current_alias_source_projection.sql",
     "db/migrations/0033_not_modified_claim_boundary.sql",
+    "db/migrations/0034_evidence_based_rights_determination.sql",
+    "db/migrations/0035_self_service_billing.sql",
     "packages/acquisition/package.json",
     "packages/acquisition/src/clock.ts",
     "packages/acquisition/src/errors.ts",
@@ -98,6 +100,7 @@
     "packages/canonical-store/src/sql-driver.ts",
     "packages/canonical-store/src/store.ts",
     "packages/extraction/package.json",
+    "packages/extraction/src/archive.ts",
     "packages/extraction/src/confidence.ts",
     "packages/extraction/src/index.ts",
     "packages/extraction/src/locator.ts",
@@ -109,6 +112,7 @@
     "packages/extraction/src/schema.ts",
     "packages/extraction/src/source-record.ts",
     "packages/extraction/src/types.ts",
+    "packages/extraction/src/zip.ts",
     "packages/normalization/package.json",
     "packages/normalization/src/alias-normalization.ts",
     "packages/normalization/src/derived-graph.ts",
@@ -159,6 +163,7 @@
     "packages/source-registry/src/rights-policy.ts",
     "pnpm-lock.yaml",
     "services/ingest-worker/package.json",
+    "services/ingest-worker/src/blocking.ts",
     "services/ingest-worker/src/compile.ts",
     "services/ingest-worker/src/config-core.ts",
     "services/ingest-worker/src/config.ts",
@@ -286,9 +291,30 @@
         "voltage"
       ],
       "blocking_keys": [
-        "normalized_manufacturer",
-        "model_number_prefix_6",
-        "product_type_and_capacity_band"
+        {
+          "key": "normalized_manufacturer",
+          "entity_type": "equipment_model",
+          "kind": "related_entity",
+          "predicate": "manufactures",
+          "role": "object",
+          "reject_mismatch_as": "manufacturers"
+        },
+        {
+          "key": "model_number_prefix_6",
+          "entity_type": "equipment_model",
+          "kind": "alias",
+          "alias_type": "model_number",
+          "prefix_length": 6
+        },
+        {
+          "key": "product_type_and_capacity_band",
+          "entity_type": "equipment_model",
+          "kind": "property_values",
+          "properties": [
+            "product_type",
+            "cooling_capacity_btu"
+          ]
+        }
       ],
       "llm_adjudication": {
         "enabled": true,
@@ -2879,5 +2905,5 @@
       }
     }
   },
-  "runtime_digest": "3e2c7887b0174871fa78b598b71f41b38a1ce31f8dadedf47baeaec9806390d0"
+  "runtime_digest": "d4c886a2c9169e385adfeff7198cb9cc2b61ac590743b7ca390597f01a5b06fc"
 }

@@ -11,6 +11,8 @@ coverage/
 *.tsbuildinfo
 apps/*/wrangler.production.toml
 apps/*/wrangler.private-canary.production.toml
+# Per-vertical edge deployment manifests, e.g. apps/edge/wrangler.vehicles.production.toml.
+apps/*/wrangler.*.production.toml
 .DS_Store
 
 # Private product/business strategy — the 20-document foundation pack.

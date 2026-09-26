@@ -1,0 +1,17 @@
+# SYNTHETIC SHAPE FIXTURE — replace with captured artifacts before activation.
+# Every make, model, id, campaign number and value in this file is FICTIONAL.
+# It mirrors only the column names/shape believed to be used by the real file;
+# those names are UNVERIFIED (verticals/vehicles/SOURCES.md). Not EPA or NHTSA data.
+barrels08,city08,co2TailpipeGpm,comb08,cylinders,displ,drive,engId,eng_dscr,fuelType,fuelType1,highway08,id,make,model,mpgData,range,trany,VClass,year,atvType,mfrCode,createdOn,modifiedOn,baseModel
+10.9,27,296.0,30,4,2.0,Front-Wheel Drive,90001,SYNTHETIC,Regular,Regular Gasoline,36,900001,Examplar Motors,Roadster FWD,N,0,Automatic (S8),Midsize Cars,2020,,XEM,Wed Jan 01 00:00:00 EST 2025,Wed Jan 01 00:00:00 EST 2025,Roadster
+11.8,25,317.0,28,4,2.0,All-Wheel Drive,90002,SYNTHETIC,Regular,Regular Gasoline,33,900002,Examplar Motors,Roadster AWD,N,0,Automatic (S8),Midsize Cars,2020,,XEM,Wed Jan 01 00:00:00 EST 2025,Wed Jan 01 00:00:00 EST 2025,Roadster
+10.6,28,287.0,31,4,2.0,Front-Wheel Drive,90003,SYNTHETIC,Regular,Regular Gasoline,37,900003,Examplar Motors,Roadster FWD,N,0,Automatic (S8),Midsize Cars,2021,,XEM,Wed Jan 01 00:00:00 EST 2025,Wed Jan 01 00:00:00 EST 2025,Roadster
+11.8,25,317.0,28,4,2.0,All-Wheel Drive,90012,SYNTHETIC,Regular,Regular Gasoline,33,900012,Examplar Motors,Roadster AWD,N,0,Automatic (S8),Midsize Cars,2021,,XEM,Wed Jan 01 00:00:00 EST 2025,Wed Jan 01 00:00:00 EST 2025,Roadster
+0.3,121,0.0,113,,,Front-Wheel Drive,0,SYNTHETIC,Electricity,Electricity,104,900004,Examplar Motors,Voltline,N,251,Automatic (A1),Small Sport Utility Vehicle 2WD,2021,EV,XEM,Wed Jan 01 00:00:00 EST 2025,Wed Jan 01 00:00:00 EST 2025,Voltline
+16.5,18,444.0,20,6,3.5,4-Wheel Drive,90005,SYNTHETIC,Regular,Regular Gasoline,23,900005,Fixture Automotive,Mule 4WD,N,0,Automatic (S10),Standard Pick-up Trucks 4WD,2020,,XFA,Wed Jan 01 00:00:00 EST 2025,Wed Jan 01 00:00:00 EST 2025,Mule
+15.7,19,423.0,21,6,3.5,Rear-Wheel Drive,90006,SYNTHETIC,Regular,Regular Gasoline,25,900006,Fixture Automotive,Mule 2WD,N,0,Automatic (S10),Standard Pick-up Trucks 2WD,2020,,XFA,Wed Jan 01 00:00:00 EST 2025,Wed Jan 01 00:00:00 EST 2025,Mule
+14.3,20,441.0,23,6,3.0,4-Wheel Drive,90007,SYNTHETIC,Diesel,Diesel,27,900007,Fixture Automotive,Mule Diesel 4WD,N,0,Automatic (S10),Standard Pick-up Trucks 4WD,2021,Diesel,XFA,Wed Jan 01 00:00:00 EST 2025,Wed Jan 01 00:00:00 EST 2025,Mule
+6.3,51,171.0,52,4,2.5,Front-Wheel Drive,90008,SYNTHETIC,Regular,Regular Gasoline,53,900008,Fixture Automotive,Quanta Hybrid,N,0,Automatic (AV-S6),Midsize Cars,2021,Hybrid,XFA,Wed Jan 01 00:00:00 EST 2025,Wed Jan 01 00:00:00 EST 2025,Quanta
+11.4,26,305.0,29,4,1.5,Rear-Wheel Drive,90009,SYNTHETIC,Premium,Premium Gasoline,35,900009,Placeholder Motor Works,PM-3 Sedan,N,0,Manual 6-spd,Compact Cars,2021,,XPM,Wed Jan 01 00:00:00 EST 2025,Wed Jan 01 00:00:00 EST 2025,PM-3
+10.9,27,296.0,30,4,1.5,Rear-Wheel Drive,90010,SYNTHETIC,Premium,Premium Gasoline,36,900010,Placeholder Motor Works,PM-3 Sedan,N,0,Automatic (S7),Compact Cars,2022,,XPM,Wed Jan 01 00:00:00 EST 2025,Wed Jan 01 00:00:00 EST 2025,PM-3
+13.2,23,355.0,25,4,2.0,All-Wheel Drive,90011,SYNTHETIC,Premium,Premium Gasoline,29,900011,Placeholder Motor Works,PM-30 AWD,N,0,Automatic (S8),Small Sport Utility Vehicle 4WD,2022,,XPM,Wed Jan 01 00:00:00 EST 2025,Wed Jan 01 00:00:00 EST 2025,PM-30

@@ -138,7 +138,7 @@ export async function buildFixtureManifest(
  * Built from the robots allow-list rather than invented, so the URL the offline
  * run fetches is one the acquisition gate would also permit live.
  */
-function fixtureUrl(domain: string, allowedPaths: readonly string[], file: string): string {
+export function fixtureUrl(domain: string, allowedPaths: readonly string[], file: string): string {
   const path = allowedPaths[0] ?? '/';
   const normalized = path.startsWith('/') ? path : `/${path}`;
   const suffix = normalized.endsWith('/') ? file : '';

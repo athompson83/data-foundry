@@ -397,7 +397,8 @@
                               "enum": [
                                 "AUTOMATED",
                                 "HUMAN",
-                                "COUNSEL"
+                                "COUNSEL",
+                                "DETERMINATION"
                               ]
                             },
                             "reviewedBy": {
@@ -630,7 +631,8 @@
                                       "enum": [
                                         "AUTOMATED",
                                         "HUMAN",
-                                        "COUNSEL"
+                                        "COUNSEL",
+                                        "DETERMINATION"
                                       ]
                                     },
                                     {
@@ -756,7 +758,8 @@
                               "enum": [
                                 "AUTOMATED",
                                 "HUMAN",
-                                "COUNSEL"
+                                "COUNSEL",
+                                "DETERMINATION"
                               ]
                             },
                             "actor": {

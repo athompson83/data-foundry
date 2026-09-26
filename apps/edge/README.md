@@ -65,6 +65,26 @@ A bundle carries runtimes by slug, so standing up a second vertical is a
 rule 4). `composition.ts` refuses a slug the bundle does not carry instead of
 serving one vertical's data through another's field metadata.
 
+## Canonical per-vertical path prefix
+
+The public API contract is `https://api.data.aroqon.com/v1/<slug>/...` (ADR-0012).
+Each vertical stays its own Worker (ADR-0011): `wrangler.toml` serves `hvac`
+as `data-foundry-edge`, and `wrangler.vehicles.toml` serves `vehicles` as
+`data-foundry-edge-vehicles`.
+
+The optional `API_PATH_PREFIX` var must equal `/v1/${VERTICAL_SLUG}` exactly.
+When set, `src/path-prefix.ts`:
+
+- accepts only that prefix, and answers `404` to any other path before
+  authentication or metering;
+- strips the prefix to the internal `/v1/...` path before authentication,
+  routing, billing and metering, so route keys are unchanged;
+- rewrites self-links back under the prefix: the 301 `Location` header and
+  redirect body, the contract document's routes, a route-not-found echo, the
+  Checkout `success_url`, and billing hints.
+
+Without the var, behaviour is unchanged.
+
 ## Running
 
 ```bash

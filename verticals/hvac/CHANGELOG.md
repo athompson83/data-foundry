@@ -6,6 +6,19 @@ All notable changes to this vertical's schema and data. Format follows
 
 ## [Unreleased] — 2026-08-28
 
+### Changed — declarative entity-resolution blocking keys (2026-09-26)
+
+- `entity_resolution.blocking_keys` entries are now objects in the platform's
+  closed blocking vocabulary (`alias`, `related_entity`, `property_values`;
+  see `services/ingest-worker/src/blocking.ts`) instead of names the resolver
+  interpreted in HVAC-specific code. The three keys keep their labels
+  (`normalized_manufacturer`, `model_number_prefix_6`,
+  `product_type_and_capacity_band`), so candidate features, judgment
+  fingerprints and golden results are unchanged. The "different manufacturers"
+  rejection is now declared via `reject_mismatch_as` on the manufacturer key.
+- An undeclared or malformed blocking key now fails `verticals:validate`, the
+  config loader and the blocking pass instead of silently blocking nothing.
+
 ### Changed — MCP publication metadata
 
 - Replaced the aspirational vertical-specific MCP declarations with the exact

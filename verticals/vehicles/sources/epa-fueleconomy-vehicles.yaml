@@ -1,0 +1,131 @@
+# =============================================================================
+# epa-fueleconomy-vehicles — EPA/DOE fueleconomy.gov vehicles.csv bulk file.
+#
+# FAIL-CLOSED DECLARATION. status UNDER_REVIEW, rights UNREVIEWED, acquisition
+# not approved, and NOT in acquisition.yaml. No ADR-0013 determination has been
+# captured: the build environment could not retrieve the agencies' terms or the
+# file itself. Nothing here is a rights decision. See RIGHTS.md.
+#
+# Expected basis once evidence is captured: PUBLIC_DOMAIN_US_GOVERNMENT_WORK
+# (17 U.S.C. § 105; a U.S. EPA / U.S. DOE publication), subject to checking the
+# published terms for any contrary restriction and for third-party content.
+# =============================================================================
+
+key: epa-fueleconomy-vehicles
+vertical_slug: vehicles
+
+publisher: U.S. Environmental Protection Agency / U.S. Department of Energy (fueleconomy.gov)
+domain: www.fueleconomy.gov
+# REGULATORY_FILING: the values are fuel-economy label data from manufacturer
+# certification tests; EPA confirms a subset in its own laboratory. The agency
+# hosts and publishes them, but most rows are not EPA's own measurement.
+# [REVIEW] confirm against EPA's published methodology when captured.
+source_type: REGULATORY_FILING
+
+# PROPOSED, not assigned. authority_rank affects fact selection and is set when
+# the source is activated, not before.
+authority_rank: 0
+
+# UNDER_REVIEW is not an acquirable status: the acquisition gate refuses it.
+status: UNDER_REVIEW
+refresh_cadence: MONTHLY
+
+# No determination on record. Refused at the write boundary and the read
+# boundary.
+rights_classification: UNREVIEWED
+
+attribution_requirement:
+  required: true
+  text: >-
+    Source: U.S. EPA / U.S. DOE fueleconomy.gov vehicle data, retrieved <date>.
+    Not endorsed by EPA or DOE.
+  url: https://www.fueleconomy.gov/
+
+robots_policy:
+  respect_robots: true
+  user_agent: DataFoundryBot
+  crawl_delay_seconds: null
+  disallowed_paths: []
+  # UNVERIFIED. The bulk download is believed to live under /feg/epadata/
+  # (as vehicles.csv.zip); robots.txt has not been retrieved.
+  allowed_paths:
+    - /feg/epadata/
+  robots_url: https://www.fueleconomy.gov/robots.txt
+  snapshot_hash: null
+  snapshot_at: null
+
+rights_policy:
+  publisher_legal_entity: >-
+    United States Environmental Protection Agency; United States Department of
+    Energy
+  terms_url: null
+  license_id: null
+  license_text_ref: null
+  api_terms_url: null
+  # ALL FALSE until a committed ADR-0013 determination says otherwise. Silence
+  # is not permission.
+  commercial_use_allowed: false
+  redistribution_allowed: false
+  derivative_normalization_allowed: false
+  attribution:
+    required: true
+    text: >-
+      Source: U.S. EPA / U.S. DOE fueleconomy.gov vehicle data, retrieved
+      <date>. Not endorsed by EPA or DOE.
+    url: https://www.fueleconomy.gov/
+  images_reusable: false
+  personal_data_present: false
+  geographic_notes: >-
+    US federal publication covering vehicles sold in the United States.
+  reviewed_at: null
+  reviewed_by: null
+  next_review_at: null
+
+acquisition_policy:
+  # PROPOSED: the published bulk file, not the web UI or the web-services API.
+  method: BULK_FILE
+  account_or_product_plan: null
+  jurisdiction: null
+  approved: false
+  approved_by: null
+  approved_at: null
+  max_requests_per_minute: 5
+  notes: >-
+    PROPOSED. One HTTPS GET of the complete vehicles.csv bulk file (believed to
+    be distributed zipped as /feg/epadata/vehicles.csv.zip — UNVERIFIED; the
+    ZIP is the evidence artifact and extraction reads its declared member,
+    see source-mappings.yaml parsing.archive). The file is tens of megabytes,
+    beyond the 16 MiB direct-HTTP ceiling and the scheduled ingestion limits,
+    so the initial load goes through the offline operator path
+    (docs/owner-actions/vehicles-initial-load.md). In the fixture harness
+    this reads fixtures/epa-vehicles.csv, a SYNTHETIC SHAPE FIXTURE.
+
+image_policy:
+  images_reusable: false
+  cache_to_r2_permitted: false
+  default_display_modes: []
+  image_attribution:
+    required: false
+    text: null
+    url: null
+
+provenance_retention:
+  retain_artifacts: true
+  # Each monthly file is kept: "what did EPA publish for this configuration on
+  # that date" is only answerable from the retained series (AGENTS.md rule 10).
+  retention_days: null
+  legal_hold: false
+
+license_split:
+  code_license_id: null
+  data_license_id: null
+  notes: No code is vendored. The data licence is undetermined pending the ADR-0013 determination.
+
+kill_switch_engaged: false
+
+notes: >-
+  PROPOSED SOURCE. Every column name used by source-mappings.yaml is UNVERIFIED
+  until checked against a captured vehicles.csv (SOURCES.md lists them). The
+  fixture is synthetic, with fictional makes. Expected ADR-0013 basis:
+  PUBLIC_DOMAIN_US_GOVERNMENT_WORK, pending captured terms and a hard-stop check
+  (third-party content, rate limits, robots).

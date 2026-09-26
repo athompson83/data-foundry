@@ -1,0 +1,135 @@
+# =============================================================================
+# recall_campaign — one NHTSA safety recall campaign ("20V314000").
+#
+# NHTSA's flat file carries one row per campaign x make/model/year (and,
+# UNVERIFIED, per component), so one campaign arrives as several rows. They all
+# resolve to this one entity on the exact campaign number, and each row
+# contributes one `recall_affects` edge to the model year it names.
+#
+# These are manufacturer Part 573 reports held by NHTSA (REGULATORY_FILING): no
+# surface may describe a recall's text as NHTSA's own finding.
+# =============================================================================
+
+entity_type: recall_campaign
+
+label:
+  singular: Recall Campaign
+  plural: Recall Campaigns
+
+description: >-
+  An NHTSA recall campaign as reported by the manufacturer: what fails, the
+  safety consequence, the remedy, and the model years it affects.
+
+canonical_slug:
+  # "NHTSA 20V901000" -> nhtsa-20v901000
+  pattern: "{canonical_name}"
+  case: lower
+  separator: "-"
+
+identity:
+  strong_aliases:
+    - nhtsa_campaign_number
+  weak_aliases: []
+  composite_keys: []
+
+properties:
+  - name: report_received_date
+    value_type: date
+    unit: null
+    critical: true
+    description: Date NHTSA received the manufacturer's defect report (`RCDATE`, YYYYMMDD in the flat file).
+    expected_sources: [nhtsa-recalls]
+
+  - name: component
+    value_type: string
+    unit: null
+    critical: true
+    description: >-
+      NHTSA component path (`COMPNAME`), e.g. `STEERING:LINKAGES:TIE ROD
+      ASSEMBLY`. KNOWN GAP: a real campaign can name several components across
+      rows; this scalar property would then carry competing values. See
+      QUALITY.md.
+    expected_sources: [nhtsa-recalls]
+
+  - name: summary
+    value_type: string
+    unit: null
+    critical: true
+    description: Defect description (`DESC_DEFECT`).
+    expected_sources: [nhtsa-recalls]
+
+  - name: consequence
+    value_type: string
+    unit: null
+    critical: true
+    description: Safety consequence (`CONEQUENCE_DEFECT` — NHTSA's own spelling of the column).
+    expected_sources: [nhtsa-recalls]
+
+  - name: remedy
+    value_type: string
+    unit: null
+    critical: true
+    description: Corrective action (`CORRECTIVE_ACTION`).
+    expected_sources: [nhtsa-recalls]
+
+  - name: manufacturer_campaign_number
+    value_type: string
+    unit: null
+    critical: false
+    description: The manufacturer's own campaign number (`MFGCAMPNO`).
+    expected_sources: [nhtsa-recalls]
+
+  - name: manufacturer_name
+    value_type: string
+    unit: null
+    critical: false
+    description: Filing manufacturer's name as published (`MFGNAME`); can differ from the make.
+    expected_sources: [nhtsa-recalls]
+
+  - name: potentially_affected
+    value_type: integer
+    unit: null
+    critical: false
+    description: Number of vehicles potentially affected (`POTAFF`), as reported by the manufacturer.
+    expected_sources: [nhtsa-recalls]
+
+  - name: park_outside_advisory
+    value_type: boolean
+    unit: null
+    critical: false
+    description: NHTSA "park outside" advisory (`PARK_OUTSIDE`). UNVERIFIED column name and Yes/No encoding.
+    expected_sources: [nhtsa-recalls]
+
+  - name: do_not_drive_advisory
+    value_type: boolean
+    unit: null
+    critical: false
+    description: NHTSA "do not drive" advisory (`DO_NOT_DRIVE`). UNVERIFIED column name and Yes/No encoding.
+    expected_sources: [nhtsa-recalls]
+
+quality_rules:
+  - id: campaign_affects_a_model_year
+    rule: required_edge
+    predicate: recall_affects
+    direction: outbound
+    min_count: 1
+    description: >-
+      A campaign reaching no model year means every affected make/model/year
+      failed to resolve — or it is an equipment/tire campaign, which this
+      vertical does not model yet.
+    severity: warning
+
+  - id: potentially_affected_non_negative
+    rule: range
+    property: potentially_affected
+    min: 0
+    max: 100000000
+    severity: error
+
+  - id: campaign_number_format
+    rule: regex
+    property: nhtsa_campaign_number
+    applies_to_alias: true
+    pattern: "^[0-9]{2}[VEICT][0-9]{6}$"
+    description: Applied to the NORMALIZED alias value.
+    severity: error

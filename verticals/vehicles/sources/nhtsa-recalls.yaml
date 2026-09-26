@@ -1,0 +1,128 @@
+# =============================================================================
+# nhtsa-recalls — NHTSA recall flat file (FLAT_RCL, tab-delimited, no header).
+#
+# FAIL-CLOSED DECLARATION. status UNDER_REVIEW, rights UNREVIEWED, acquisition
+# not approved, and NOT in acquisition.yaml. No ADR-0013 determination has been
+# captured. See RIGHTS.md.
+#
+# Expected basis once evidence is captured: PUBLIC_DOMAIN_US_GOVERNMENT_WORK
+# (17 U.S.C. § 105; a National Highway Traffic Safety Administration
+# publication), subject to the terms check and the hard stops — in particular
+# the free-text NOTES field, which can carry contact details and is excluded.
+# =============================================================================
+
+key: nhtsa-recalls
+vertical_slug: vehicles
+
+publisher: U.S. Department of Transportation, National Highway Traffic Safety Administration (NHTSA)
+domain: static.nhtsa.gov
+# REGULATORY_FILING: recall campaigns are manufacturer Part 573 defect reports
+# filed with and published by NHTSA. The text is the manufacturer's report, not
+# an NHTSA finding.
+source_type: REGULATORY_FILING
+
+authority_rank: 0
+
+status: UNDER_REVIEW
+# Campaigns are added daily; the flat file is regenerated on NHTSA's schedule
+# (UNVERIFIED). WEEKLY is the proposed polling cadence.
+refresh_cadence: WEEKLY
+
+rights_classification: UNREVIEWED
+
+attribution_requirement:
+  required: true
+  text: >-
+    Source: NHTSA recall data (manufacturer-reported), retrieved <date>. Not
+    endorsed by NHTSA or the U.S. Department of Transportation. Check a
+    specific vehicle's VIN at nhtsa.gov/recalls.
+  url: https://www.nhtsa.gov/recalls
+
+robots_policy:
+  respect_robots: true
+  user_agent: DataFoundryBot
+  crawl_delay_seconds: null
+  disallowed_paths: []
+  # UNVERIFIED. The flat-file downloads are believed to live under
+  # /odi/ffdd/rcl/ on static.nhtsa.gov; robots.txt has not been retrieved.
+  allowed_paths:
+    - /odi/ffdd/rcl/
+  robots_url: https://static.nhtsa.gov/robots.txt
+  snapshot_hash: null
+  snapshot_at: null
+
+rights_policy:
+  publisher_legal_entity: >-
+    United States Department of Transportation, National Highway Traffic Safety
+    Administration
+  terms_url: null
+  license_id: null
+  license_text_ref: null
+  api_terms_url: null
+  commercial_use_allowed: false
+  redistribution_allowed: false
+  derivative_normalization_allowed: false
+  attribution:
+    required: true
+    text: >-
+      Source: NHTSA recall data (manufacturer-reported), retrieved <date>. Not
+      endorsed by NHTSA or the U.S. Department of Transportation. Check a
+      specific vehicle's VIN at nhtsa.gov/recalls.
+    url: https://www.nhtsa.gov/recalls
+  images_reusable: false
+  # The mapped fields carry no personal data. NOTES is excluded until checked.
+  personal_data_present: false
+  geographic_notes: >-
+    US federal publication covering recalls of vehicles and equipment sold in
+    the United States.
+  reviewed_at: null
+  reviewed_by: null
+  next_review_at: null
+
+acquisition_policy:
+  method: BULK_FILE
+  account_or_product_plan: null
+  jurisdiction: null
+  approved: false
+  approved_by: null
+  approved_at: null
+  max_requests_per_minute: 5
+  notes: >-
+    PROPOSED. One HTTPS GET of the recall flat file (believed to be
+    /odi/ffdd/rcl/FLAT_RCL.zip, zipped, tab-delimited, headerless — UNVERIFIED;
+    extraction reads the declared ZIP member, and the initial load is the
+    offline operator path in docs/owner-actions/vehicles-initial-load.md).
+    The per-vehicle recalls API
+    (api.nhtsa.gov/recalls/recallsByVehicle) is the alternative for a
+    request-time lookup, under its own terms. In the fixture harness this reads
+    fixtures/nhtsa-flat-rcl.csv, a SYNTHETIC SHAPE FIXTURE with the declared
+    column order and tab delimiter.
+
+image_policy:
+  images_reusable: false
+  cache_to_r2_permitted: false
+  default_display_modes: []
+  image_attribution:
+    required: false
+    text: null
+    url: null
+
+provenance_retention:
+  retain_artifacts: true
+  retention_days: null
+  legal_hold: false
+
+license_split:
+  code_license_id: null
+  data_license_id: null
+  notes: No code is vendored. The data licence is undetermined pending the ADR-0013 determination.
+
+kill_switch_engaged: false
+
+notes: >-
+  PROPOSED SOURCE. The column ORDER in source-mappings.yaml `parsing.columns`
+  and every column name are UNVERIFIED until checked against a captured flat
+  file and NHTSA's current data dictionary (SOURCES.md). The flat file also
+  carries equipment, tire and child-seat campaigns; this vertical models vehicle
+  recalls only and has no row filter yet (QUALITY.md). Expected ADR-0013 basis:
+  PUBLIC_DOMAIN_US_GOVERNMENT_WORK, pending captured terms.

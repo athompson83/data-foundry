@@ -124,7 +124,7 @@ export function evaluateSourcePublishGate(
     blockers.push({
       code: 'RIGHTS_REVIEW_MISSING_OR_LAPSED',
       message:
-        'No current human rights review on record (missing reviewer/date, or next_review_at has passed).',
+        'No current rights review or ADR-0013 determination on record (missing reviewer/date, or next_review_at has passed).',
     });
   } else if (entry.rights_policy.next_review_at !== null) {
     const daysLeft =
@@ -242,7 +242,7 @@ export function evaluateSourceActivationGate(
   if (!rightsReviewIsCurrent(entry.rights_policy, asOf)) {
     blockers.push({
       code: 'RIGHTS_REVIEW_MISSING_OR_LAPSED',
-      message: 'A named human reviewer and review date are required before activation.',
+      message: 'A rights review or ADR-0013 determination and a review date are required before activation.',
     });
   }
   if (!entry.acquisition_policy.approved) {

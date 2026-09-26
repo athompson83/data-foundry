@@ -10,13 +10,14 @@ import {
   writeFile,
 } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import { parse, stringify } from 'smol-toml';
 import { validateSyntheticIngestion, SYNTHETIC_CONFIG_PATH } from './check-synthetic-ingestion.js';
 import { isMain } from '../lib/cli-entry.js';
 import {
+  EDGE_VERTICAL_TEMPLATES,
   type CloudflareTopologyOptions,
   validateCloudflareTopology,
 } from './check-cloudflare-topology.js';
@@ -124,6 +125,20 @@ export const CLOUDFLARE_ARTIFACT_SERVICES = [
   },
 ] as const;
 
+/**
+ * Per-vertical edge templates (for example `apps/edge/wrangler.vehicles.toml`).
+ * They are built by the core artifact check but reported separately and are
+ * deliberately not counted in the thirteen-artifact release contract: each is
+ * the ordinary edge code under another Worker identity, and an HVAC-only
+ * release remains exactly the thirteen core artifacts.
+ */
+export const VERTICAL_EDGE_ARTIFACT_SERVICES = EDGE_VERTICAL_TEMPLATES.map(({ configPath }) => ({
+  name: `ordinary-edge-${basename(configPath).replace(/^wrangler\./, '').replace(/\.toml$/, '')}`,
+  configPath,
+  mainPath: join(REPO_ROOT, 'apps', 'edge', 'src', 'index.ts'),
+  needsHyperdrive: true,
+}));
+
 export const SYNTHETIC_ARTIFACT_SERVICE = { name: 'synthetic-ingestion-worker', configPath: SYNTHETIC_CONFIG_PATH,
   mainPath: join(REPO_ROOT, 'apps/ingestion-worker/src/synthetic-ingestion.ts'), needsHyperdrive: true } as const;
 
@@ -141,6 +156,8 @@ export interface CloudflareArtifactResult {
   readonly artifacts: readonly CloudflareArtifactServiceResult[];
   readonly files: number;
   readonly bytes: number;
+  /** Per-vertical edge artifacts, outside the thirteen-artifact count. */
+  readonly additionalArtifacts?: readonly CloudflareArtifactServiceResult[];
 }
 
 export interface CloudflareArtifactServiceResult {
@@ -150,10 +167,16 @@ export interface CloudflareArtifactServiceResult {
 }
 
 export function formatCloudflareArtifactSuccessMessage(result: CloudflareArtifactResult): string {
+  const additional = result.additionalArtifacts ?? [];
   return (
     'OK: Wrangler dry-run built thirteen Worker artifacts (six ordinary production Workers plus seven route-less ' +
     'private-canary artifacts: six reduced target Workers plus the private-canary harness; ' +
-    `${result.files} files, ${result.bytes} bytes) with no PGlite runtime.\n`
+    `${result.files} files, ${result.bytes} bytes) with no PGlite runtime.\n` +
+    (additional.length === 0
+      ? ''
+      : `OK: also built ${additional.length} additional per-vertical edge artifact(s) outside the thirteen-artifact count ` +
+        `(${additional.map((artifact) => `${artifact.name}: ${artifact.files} files, ${artifact.bytes} bytes`).join('; ')}) ` +
+        'with no PGlite runtime.\n')
   );
 }
 
@@ -251,6 +274,7 @@ export async function buildCloudflareArtifacts(
 ): Promise<CloudflareArtifactResult> {
   const topologyErrors = options.syntheticOnly ? await validateSyntheticIngestion() : await validateCloudflareArtifactTopology();
   const services = options.syntheticOnly ? [SYNTHETIC_ARTIFACT_SERVICE] : CLOUDFLARE_ARTIFACT_SERVICES;
+  const additionalServices = options.syntheticOnly ? [] : VERTICAL_EDGE_ARTIFACT_SERVICES;
   if (topologyErrors.length > 0) {
     throw new Error(`Cloudflare topology must pass before bundling:\n${topologyErrors.join('\n')}`);
   }
@@ -262,7 +286,7 @@ export async function buildCloudflareArtifacts(
   const configRoot = await mkdtemp(join(tmpdir(), 'data-foundry-wrangler-config-'));
   try {
     await mkdir(outputRoot, { recursive: true });
-    for (const service of services) {
+    for (const service of [...services, ...additionalServices]) {
       const configPath = join(configRoot, `${service.name}.toml`);
       const outdir = join(outputRoot, service.name);
       await mkdir(outdir, { recursive: true });
@@ -299,24 +323,32 @@ export async function buildCloudflareArtifacts(
         },
       );
     }
-    const artifacts: CloudflareArtifactServiceResult[] = [];
-    for (const service of services) {
-      const scanned = await scanCloudflareArtifacts(join(outputRoot, service.name), {
-        boundedIngestion: service.name.endsWith('-ingestion-worker'),
-      });
-      if (scanned.files === 0) {
-        throw new Error(`Wrangler dry-run produced no artifact files for ${service.name}.`);
+    const scanAll = async (
+      list: readonly { readonly name: string }[],
+    ): Promise<CloudflareArtifactServiceResult[]> => {
+      const artifacts: CloudflareArtifactServiceResult[] = [];
+      for (const service of list) {
+        const scanned = await scanCloudflareArtifacts(join(outputRoot, service.name), {
+          boundedIngestion: service.name.endsWith('-ingestion-worker'),
+        });
+        if (scanned.files === 0) {
+          throw new Error(`Wrangler dry-run produced no artifact files for ${service.name}.`);
+        }
+        artifacts.push({
+          name: service.name,
+          ...scanned,
+        });
       }
-      artifacts.push({
-        name: service.name,
-        ...scanned,
-      });
-    }
+      return artifacts;
+    };
+    const artifacts = await scanAll(services);
+    const additionalArtifacts = await scanAll(additionalServices);
     return {
       services: services.map(({ name }) => name),
       artifacts,
       files: artifacts.reduce((total, artifact) => total + artifact.files, 0),
       bytes: artifacts.reduce((total, artifact) => total + artifact.bytes, 0),
+      ...(additionalArtifacts.length === 0 ? {} : { additionalArtifacts }),
     };
   } finally {
     await rm(configRoot, { recursive: true, force: true });

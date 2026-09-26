@@ -33,7 +33,7 @@ export interface ProhibitedSource {
 const WRITTEN_LICENCE =
   'A separate written licence from the publisher, naming this platform, permitting ' +
   'automated acquisition and redistribution of derived data, recorded as a rights ' +
-  'review by a named human reviewer.';
+  'determination under ADR-0013 (DOCUMENTED_APPROVAL).';
 
 const MANUFACTURER_REASON =
   'Manufacturer-published manuals, images, parts data and specification documents are ' +

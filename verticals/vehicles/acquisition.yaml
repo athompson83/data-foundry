@@ -1,0 +1,12 @@
+version: 2
+
+# EMPTY BY DESIGN. Every vehicles source is UNDER_REVIEW / UNREVIEWED /
+# unapproved, and a scheduled target requires exact stored ACQUIRE, STORE and
+# CACHE decisions from a recorded ADR-0013 determination. `vehicles` is also
+# absent from BUNDLED_ACQUISITION_VERTICALS, so this file is not compiled.
+#
+# The bulk files are expected to exceed the 16 MiB direct-HTTP ceiling and the
+# scheduled ingestion limits anyway; the initial load is planned through the
+# offline ingest path (PROGRESS.md), with partitioned refresh designed
+# separately.
+targets: []

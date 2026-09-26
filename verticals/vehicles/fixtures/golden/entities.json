@@ -1,0 +1,384 @@
+{
+  "_banner": "SYNTHETIC SHAPE FIXTURE — replace with captured artifacts before activation. Expected canonical output of the real pipeline over fixtures/epa-vehicles.csv and fixtures/nhtsa-flat-rcl.csv (fictional makes, fictional values), with both sources activated ONLY inside tests/shape-ingest.test.ts. Not EPA or NHTSA data.",
+  "counts": {
+    "make": 3,
+    "vehicle_model_year": 10,
+    "vehicle_configuration": 12,
+    "recall_campaign": 5,
+    "total": 30
+  },
+  "entities": [
+    {
+      "ref": "make:examplar-motors",
+      "entity_type": "make",
+      "canonical_name": "Examplar Motors",
+      "canonical_slug": "examplar-motors",
+      "aliases": [
+        {
+          "alias_type": "legal_name",
+          "normalized_value": "EXAMPLAR MOTORS"
+        },
+        {
+          "alias_type": "name",
+          "normalized_value": "EXAMPLAR MOTORS"
+        }
+      ]
+    },
+    {
+      "ref": "make:fixture-automotive",
+      "entity_type": "make",
+      "canonical_name": "Fixture Automotive",
+      "canonical_slug": "fixture-automotive",
+      "aliases": [
+        {
+          "alias_type": "legal_name",
+          "normalized_value": "FIXTURE AUTOMOTIVE"
+        },
+        {
+          "alias_type": "name",
+          "normalized_value": "FIXTURE AUTOMOTIVE"
+        }
+      ]
+    },
+    {
+      "ref": "make:placeholder-motor-works",
+      "entity_type": "make",
+      "canonical_name": "Placeholder Motor Works",
+      "canonical_slug": "placeholder-motor-works",
+      "aliases": [
+        {
+          "alias_type": "legal_name",
+          "normalized_value": "PLACEHOLDER MOTOR WORKS"
+        },
+        {
+          "alias_type": "name",
+          "normalized_value": "PLACEHOLDER MOTOR WORKS"
+        }
+      ]
+    },
+    {
+      "ref": "recall_campaign:20V901000",
+      "entity_type": "recall_campaign",
+      "canonical_name": "NHTSA 20V901000",
+      "canonical_slug": "nhtsa-20v901000",
+      "aliases": [
+        {
+          "alias_type": "nhtsa_campaign_number",
+          "normalized_value": "20V901000"
+        }
+      ]
+    },
+    {
+      "ref": "recall_campaign:21V902000",
+      "entity_type": "recall_campaign",
+      "canonical_name": "NHTSA 21V902000",
+      "canonical_slug": "nhtsa-21v902000",
+      "aliases": [
+        {
+          "alias_type": "nhtsa_campaign_number",
+          "normalized_value": "21V902000"
+        }
+      ]
+    },
+    {
+      "ref": "recall_campaign:21V903000",
+      "entity_type": "recall_campaign",
+      "canonical_name": "NHTSA 21V903000",
+      "canonical_slug": "nhtsa-21v903000",
+      "aliases": [
+        {
+          "alias_type": "nhtsa_campaign_number",
+          "normalized_value": "21V903000"
+        }
+      ]
+    },
+    {
+      "ref": "recall_campaign:22V904000",
+      "entity_type": "recall_campaign",
+      "canonical_name": "NHTSA 22V904000",
+      "canonical_slug": "nhtsa-22v904000",
+      "aliases": [
+        {
+          "alias_type": "nhtsa_campaign_number",
+          "normalized_value": "22V904000"
+        }
+      ]
+    },
+    {
+      "ref": "recall_campaign:22V905000",
+      "entity_type": "recall_campaign",
+      "canonical_name": "NHTSA 22V905000",
+      "canonical_slug": "nhtsa-22v905000",
+      "aliases": [
+        {
+          "alias_type": "nhtsa_campaign_number",
+          "normalized_value": "22V905000"
+        }
+      ]
+    },
+    {
+      "ref": "vehicle_configuration:900001",
+      "entity_type": "vehicle_configuration",
+      "canonical_name": "EPA 900001",
+      "canonical_slug": "epa-900001",
+      "aliases": [
+        {
+          "alias_type": "epa_vehicle_id",
+          "normalized_value": "900001"
+        }
+      ]
+    },
+    {
+      "ref": "vehicle_configuration:900002",
+      "entity_type": "vehicle_configuration",
+      "canonical_name": "EPA 900002",
+      "canonical_slug": "epa-900002",
+      "aliases": [
+        {
+          "alias_type": "epa_vehicle_id",
+          "normalized_value": "900002"
+        }
+      ]
+    },
+    {
+      "ref": "vehicle_configuration:900003",
+      "entity_type": "vehicle_configuration",
+      "canonical_name": "EPA 900003",
+      "canonical_slug": "epa-900003",
+      "aliases": [
+        {
+          "alias_type": "epa_vehicle_id",
+          "normalized_value": "900003"
+        }
+      ]
+    },
+    {
+      "ref": "vehicle_configuration:900004",
+      "entity_type": "vehicle_configuration",
+      "canonical_name": "EPA 900004",
+      "canonical_slug": "epa-900004",
+      "aliases": [
+        {
+          "alias_type": "epa_vehicle_id",
+          "normalized_value": "900004"
+        }
+      ]
+    },
+    {
+      "ref": "vehicle_configuration:900005",
+      "entity_type": "vehicle_configuration",
+      "canonical_name": "EPA 900005",
+      "canonical_slug": "epa-900005",
+      "aliases": [
+        {
+          "alias_type": "epa_vehicle_id",
+          "normalized_value": "900005"
+        }
+      ]
+    },
+    {
+      "ref": "vehicle_configuration:900006",
+      "entity_type": "vehicle_configuration",
+      "canonical_name": "EPA 900006",
+      "canonical_slug": "epa-900006",
+      "aliases": [
+        {
+          "alias_type": "epa_vehicle_id",
+          "normalized_value": "900006"
+        }
+      ]
+    },
+    {
+      "ref": "vehicle_configuration:900007",
+      "entity_type": "vehicle_configuration",
+      "canonical_name": "EPA 900007",
+      "canonical_slug": "epa-900007",
+      "aliases": [
+        {
+          "alias_type": "epa_vehicle_id",
+          "normalized_value": "900007"
+        }
+      ]
+    },
+    {
+      "ref": "vehicle_configuration:900008",
+      "entity_type": "vehicle_configuration",
+      "canonical_name": "EPA 900008",
+      "canonical_slug": "epa-900008",
+      "aliases": [
+        {
+          "alias_type": "epa_vehicle_id",
+          "normalized_value": "900008"
+        }
+      ]
+    },
+    {
+      "ref": "vehicle_configuration:900009",
+      "entity_type": "vehicle_configuration",
+      "canonical_name": "EPA 900009",
+      "canonical_slug": "epa-900009",
+      "aliases": [
+        {
+          "alias_type": "epa_vehicle_id",
+          "normalized_value": "900009"
+        }
+      ]
+    },
+    {
+      "ref": "vehicle_configuration:900010",
+      "entity_type": "vehicle_configuration",
+      "canonical_name": "EPA 900010",
+      "canonical_slug": "epa-900010",
+      "aliases": [
+        {
+          "alias_type": "epa_vehicle_id",
+          "normalized_value": "900010"
+        }
+      ]
+    },
+    {
+      "ref": "vehicle_configuration:900011",
+      "entity_type": "vehicle_configuration",
+      "canonical_name": "EPA 900011",
+      "canonical_slug": "epa-900011",
+      "aliases": [
+        {
+          "alias_type": "epa_vehicle_id",
+          "normalized_value": "900011"
+        }
+      ]
+    },
+    {
+      "ref": "vehicle_configuration:900012",
+      "entity_type": "vehicle_configuration",
+      "canonical_name": "EPA 900012",
+      "canonical_slug": "epa-900012",
+      "aliases": [
+        {
+          "alias_type": "epa_vehicle_id",
+          "normalized_value": "900012"
+        }
+      ]
+    },
+    {
+      "ref": "vehicle_model_year:EXAMPLARMOTORSROADSTER2020",
+      "entity_type": "vehicle_model_year",
+      "canonical_name": "Examplar Motors Roadster 2020",
+      "canonical_slug": "examplar-motors-roadster-2020",
+      "aliases": [
+        {
+          "alias_type": "make_model_year",
+          "normalized_value": "EXAMPLARMOTORSROADSTER2020"
+        }
+      ]
+    },
+    {
+      "ref": "vehicle_model_year:EXAMPLARMOTORSROADSTER2021",
+      "entity_type": "vehicle_model_year",
+      "canonical_name": "Examplar Motors Roadster 2021",
+      "canonical_slug": "examplar-motors-roadster-2021",
+      "aliases": [
+        {
+          "alias_type": "make_model_year",
+          "normalized_value": "EXAMPLARMOTORSROADSTER2021"
+        }
+      ]
+    },
+    {
+      "ref": "vehicle_model_year:EXAMPLARMOTORSVOLTLINE2021",
+      "entity_type": "vehicle_model_year",
+      "canonical_name": "Examplar Motors Voltline 2021",
+      "canonical_slug": "examplar-motors-voltline-2021",
+      "aliases": [
+        {
+          "alias_type": "make_model_year",
+          "normalized_value": "EXAMPLARMOTORSVOLTLINE2021"
+        }
+      ]
+    },
+    {
+      "ref": "vehicle_model_year:FIXTUREAUTOMOTIVEMULE2020",
+      "entity_type": "vehicle_model_year",
+      "canonical_name": "Fixture Automotive Mule 2020",
+      "canonical_slug": "fixture-automotive-mule-2020",
+      "aliases": [
+        {
+          "alias_type": "make_model_year",
+          "normalized_value": "FIXTUREAUTOMOTIVEMULE2020"
+        }
+      ]
+    },
+    {
+      "ref": "vehicle_model_year:FIXTUREAUTOMOTIVEMULE2021",
+      "entity_type": "vehicle_model_year",
+      "canonical_name": "Fixture Automotive Mule 2021",
+      "canonical_slug": "fixture-automotive-mule-2021",
+      "aliases": [
+        {
+          "alias_type": "make_model_year",
+          "normalized_value": "FIXTUREAUTOMOTIVEMULE2021"
+        }
+      ]
+    },
+    {
+      "ref": "vehicle_model_year:FIXTUREAUTOMOTIVEQUANTA2021",
+      "entity_type": "vehicle_model_year",
+      "canonical_name": "Fixture Automotive Quanta 2021",
+      "canonical_slug": "fixture-automotive-quanta-2021",
+      "aliases": [
+        {
+          "alias_type": "make_model_year",
+          "normalized_value": "FIXTUREAUTOMOTIVEQUANTA2021"
+        }
+      ]
+    },
+    {
+      "ref": "vehicle_model_year:PLACEHOLDERMOTORWORKSPM3002022",
+      "entity_type": "vehicle_model_year",
+      "canonical_name": "PLACEHOLDER MOTOR WORKS PM-300 2022",
+      "canonical_slug": "placeholder-motor-works-pm-300-2022",
+      "aliases": [
+        {
+          "alias_type": "make_model_year",
+          "normalized_value": "PLACEHOLDERMOTORWORKSPM3002022"
+        }
+      ]
+    },
+    {
+      "ref": "vehicle_model_year:PLACEHOLDERMOTORWORKSPM302022",
+      "entity_type": "vehicle_model_year",
+      "canonical_name": "Placeholder Motor Works PM-30 2022",
+      "canonical_slug": "placeholder-motor-works-pm-30-2022",
+      "aliases": [
+        {
+          "alias_type": "make_model_year",
+          "normalized_value": "PLACEHOLDERMOTORWORKSPM302022"
+        }
+      ]
+    },
+    {
+      "ref": "vehicle_model_year:PLACEHOLDERMOTORWORKSPM32021",
+      "entity_type": "vehicle_model_year",
+      "canonical_name": "Placeholder Motor Works PM-3 2021",
+      "canonical_slug": "placeholder-motor-works-pm-3-2021",
+      "aliases": [
+        {
+          "alias_type": "make_model_year",
+          "normalized_value": "PLACEHOLDERMOTORWORKSPM32021"
+        }
+      ]
+    },
+    {
+      "ref": "vehicle_model_year:PLACEHOLDERMOTORWORKSPM32022",
+      "entity_type": "vehicle_model_year",
+      "canonical_name": "Placeholder Motor Works PM-3 2022",
+      "canonical_slug": "placeholder-motor-works-pm-3-2022",
+      "aliases": [
+        {
+          "alias_type": "make_model_year",
+          "normalized_value": "PLACEHOLDERMOTORWORKSPM32022"
+        }
+      ]
+    }
+  ]
+}

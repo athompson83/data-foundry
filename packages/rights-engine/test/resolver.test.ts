@@ -412,6 +412,40 @@ describe('specificity, immutable terms binding, and review status', () => {
     ).toMatchObject({ permitted: false, reasonCode: 'ACTIVATION_INVALID' });
   });
 
+  it('accepts a committed evidence-based DETERMINATION as approving review and activation (ADR-0013)', () => {
+    const base = candidate('determination', 'ALLOW');
+    const determined = {
+      ...base,
+      decision: {
+        ...base.decision,
+        reviewerType: 'DETERMINATION' as const,
+        reviewedBy: 'Data Foundry evidence-based determination (ADR-0013)',
+      },
+      activation: {
+        ...base.activation,
+        actorType: 'DETERMINATION' as const,
+        actor: 'Data Foundry evidence-based determination (ADR-0013)',
+      },
+    };
+    expect(evaluateRights(request(), snapshot([determined]))).toMatchObject({
+      permitted: true,
+      reasonCode: 'ALLOW',
+    });
+  });
+
+  it('still refuses a DETERMINATION review activated by an AUTOMATED actor', () => {
+    const base = candidate('determination-automated', 'ALLOW');
+    const determined = {
+      ...base,
+      decision: { ...base.decision, reviewerType: 'DETERMINATION' as const },
+      activation: { ...base.activation, actorType: 'AUTOMATED' as const },
+    };
+    expect(evaluateRights(request(), snapshot([determined]))).toMatchObject({
+      permitted: false,
+      reasonCode: 'ACTIVATION_INVALID',
+    });
+  });
+
   it('blocks when the independently reviewed controlling terms are due', () => {
     const due = candidate('terms-due', 'ALLOW');
     expect(

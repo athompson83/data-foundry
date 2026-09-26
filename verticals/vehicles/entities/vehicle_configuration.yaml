@@ -1,0 +1,240 @@
+# =============================================================================
+# vehicle_configuration — one EPA fuel-economy record (vehicles.csv row).
+#
+# A model year is sold in several configurations (engine, transmission, drive,
+# fuel), and EPA publishes fuel economy per configuration, keyed by its own
+# record id. Each configuration hangs off its model year by `configuration_of`.
+#
+# Units are carried in the property NAMES (`_mpg`, `_l`, `_gpm`, `_mi`) and the
+# declared `unit` is null: the platform's unit registry has no fuel-economy,
+# volume or emissions dimension yet, and a declared unit it cannot convert would
+# fail every value. The values are stored exactly as EPA publishes them. See
+# DATA_DICTIONARY.md.
+# =============================================================================
+
+entity_type: vehicle_configuration
+
+label:
+  singular: Vehicle Configuration
+  plural: Vehicle Configurations
+
+description: >-
+  One EPA-tested vehicle configuration (engine, transmission, drive and fuel)
+  of a model year, with its published fuel economy and tailpipe CO2.
+
+canonical_slug:
+  # "EPA 900001" -> epa-900001
+  pattern: "{canonical_name}"
+  case: lower
+  separator: "-"
+
+identity:
+  strong_aliases:
+    - epa_vehicle_id
+  weak_aliases: []
+  composite_keys: []
+
+properties:
+  - name: model_year
+    value_type: integer
+    unit: null
+    critical: true
+    description: Model year (`year`).
+    expected_sources: [epa-fueleconomy-vehicles]
+
+  - name: make
+    value_type: string
+    unit: null
+    critical: false
+    description: Make as EPA spells it (`make`). The resolved make is the `makes` edge on the model year.
+    expected_sources: [epa-fueleconomy-vehicles]
+
+  - name: model
+    value_type: string
+    unit: null
+    critical: true
+    description: EPA model name including trim/drivetrain (`model`).
+    expected_sources: [epa-fueleconomy-vehicles]
+
+  - name: base_model
+    value_type: string
+    unit: null
+    critical: false
+    description: EPA base model (`baseModel`), the model component of the model-year key.
+    expected_sources: [epa-fueleconomy-vehicles]
+
+  - name: vehicle_class
+    value_type: string
+    unit: null
+    critical: false
+    description: EPA size class (`VClass`), retained as published.
+    expected_sources: [epa-fueleconomy-vehicles]
+
+  - name: cylinders
+    value_type: integer
+    unit: null
+    critical: false
+    description: Engine cylinders (`cylinders`). Absent for battery-electric vehicles, which is correct absence.
+    expected_sources: [epa-fueleconomy-vehicles]
+
+  - name: displacement_l
+    value_type: number
+    unit: null
+    critical: false
+    description: Engine displacement in litres (`displ`). Absent for battery-electric vehicles.
+    expected_sources: [epa-fueleconomy-vehicles]
+
+  - name: drive
+    value_type: string
+    unit: null
+    critical: true
+    description: >-
+      Drive axle type (`drive`), mapped to a controlled vocabulary by
+      normalizers/04-ontology-mapping.yaml. EPA's own wording stays in evidence.
+    enum: [front_wheel_drive, rear_wheel_drive, all_wheel_drive, four_wheel_drive, part_time_four_wheel_drive, four_or_all_wheel_drive, two_wheel_drive]
+    expected_sources: [epa-fueleconomy-vehicles]
+
+  - name: transmission
+    value_type: string
+    unit: null
+    critical: false
+    description: Transmission as published (`trany`), e.g. `Automatic (S8)`.
+    expected_sources: [epa-fueleconomy-vehicles]
+
+  - name: fuel_type
+    value_type: string
+    unit: null
+    critical: true
+    description: EPA fuel type (`fuelType`), e.g. `Regular`, `Premium`, `Electricity`, retained as published.
+    expected_sources: [epa-fueleconomy-vehicles]
+
+  - name: primary_fuel
+    value_type: string
+    unit: null
+    critical: false
+    description: EPA primary fuel (`fuelType1`), e.g. `Regular Gasoline`.
+    expected_sources: [epa-fueleconomy-vehicles]
+
+  - name: powertrain_type
+    value_type: string
+    unit: null
+    critical: false
+    description: >-
+      EPA alternative-technology type (`atvType`), e.g. `EV`, `Hybrid`,
+      `Plug-in Hybrid`, `Diesel`. Blank for a conventional vehicle, which is
+      stored as absence.
+    expected_sources: [epa-fueleconomy-vehicles]
+
+  - name: city_mpg
+    value_type: number
+    unit: null
+    critical: true
+    description: >-
+      City fuel economy for the primary fuel (`city08`), miles per gallon. For
+      an electric vehicle EPA publishes miles per gallon-equivalent (MPGe) in
+      the same column.
+    expected_sources: [epa-fueleconomy-vehicles]
+
+  - name: highway_mpg
+    value_type: number
+    unit: null
+    critical: true
+    description: Highway fuel economy for the primary fuel (`highway08`); MPGe for an EV.
+    expected_sources: [epa-fueleconomy-vehicles]
+
+  - name: combined_mpg
+    value_type: number
+    unit: null
+    critical: true
+    description: Combined fuel economy for the primary fuel (`comb08`); MPGe for an EV.
+    expected_sources: [epa-fueleconomy-vehicles]
+
+  - name: co2_tailpipe_gpm
+    value_type: number
+    unit: null
+    critical: false
+    description: Tailpipe CO2 in grams per mile for the primary fuel (`co2TailpipeGpm`). 0 for an EV.
+    expected_sources: [epa-fueleconomy-vehicles]
+
+  - name: ev_range_mi
+    value_type: integer
+    unit: null
+    critical: false
+    description: >-
+      EPA all-electric range in miles (`range`). EPA publishes 0 for a vehicle
+      with no all-electric range; that 0 is retained as published and must be
+      read together with `powertrain_type`.
+    expected_sources: [epa-fueleconomy-vehicles]
+
+quality_rules:
+  - id: configuration_links_to_a_model_year
+    rule: required_edge
+    predicate: configuration_of
+    direction: outbound
+    min_count: 1
+    severity: error
+
+  - id: model_year_in_range
+    rule: range
+    property: model_year
+    min: 1949
+    max: 2030
+    severity: error
+
+  - id: city_mpg_in_range
+    rule: range
+    property: city_mpg
+    min: 5
+    max: 200
+    description: The upper bound admits EV MPGe values.
+    severity: error
+
+  - id: highway_mpg_in_range
+    rule: range
+    property: highway_mpg
+    min: 5
+    max: 200
+    severity: error
+
+  - id: combined_mpg_in_range
+    rule: range
+    property: combined_mpg
+    min: 5
+    max: 200
+    severity: error
+
+  - id: cylinders_in_range
+    rule: range
+    property: cylinders
+    min: 2
+    max: 16
+    severity: error
+
+  - id: displacement_in_range
+    rule: range
+    property: displacement_l
+    min: 0.5
+    max: 9
+    severity: error
+
+  - id: co2_in_range
+    rule: range
+    property: co2_tailpipe_gpm
+    min: 0
+    max: 1500
+    severity: error
+
+  - id: ev_range_in_range
+    rule: range
+    property: ev_range_mi
+    min: 0
+    max: 600
+    severity: error
+
+  - id: epa_vehicle_id_format
+    rule: regex
+    property: epa_vehicle_id
+    applies_to_alias: true
+    pattern: "^[0-9]{1,8}$"
+    description: Applied to the NORMALIZED alias value.
+    severity: error

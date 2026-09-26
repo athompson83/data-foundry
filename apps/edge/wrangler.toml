@@ -27,6 +27,10 @@ DEPLOYMENT_ENVIRONMENT = "production"
 # One vertical per deployment. The bundle carries the compiled runtimes by slug
 # (see src/index.ts RUNTIMES); this selects which one this Worker serves.
 VERTICAL_SLUG = "hvac"
+# Optional canonical path prefix (ADR-0012): when a deployment manifest sets
+# API_PATH_PREFIX = "/v1/hvac", this Worker serves only api.../v1/hvac/* and
+# strips the prefix internally. Absent here, so this template keeps the
+# historical un-prefixed /v1/... surface. See src/path-prefix.ts.
 # Credential namespaces are enforced, not labels. Production accepts only
 # df_live_* keys; local/test deployments must override this to "test".
 API_KEY_ENVIRONMENT = "live"

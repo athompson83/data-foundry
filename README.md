@@ -68,6 +68,7 @@ packages/provenance/         Field-level lineage, coverage reporting, the human-
 packages/query-model/        The single canonical query layer web, REST and MCP read through
 packages/api-keys/           Minting and verifying API credentials. Web Crypto only
 packages/access-auth/        Shared DB bearer-key, tenant and one-vertical authorization
+packages/billing/            Self-service plans, Stripe REST client and webhook signatures (ADR-0014)
 packages/usage-events/       The usage-event contract shared by the edge producer and its queue consumer
 packages/private-canary/     Closed synthetic canary control, target-probe, and receipt contracts
 services/ingest-worker/      DISCOVERED -> PUBLISHED job runner wiring the stages together
@@ -75,7 +76,7 @@ services/export-builder/     Bulk CSV and JSONL exports, rights-gated and review
 apps/api/                    Read-only REST surface over the query layer
 apps/mcp/                    MCP tool contract over the same query layer
 apps/mcp-worker/             Cloudflare Streamable HTTP adapter, MCP/NONE auth and analytics handoff
-apps/edge/                   Cloudflare Worker: composition root, auth, transport, no routing
+apps/edge/                   Cloudflare Worker: composition root, auth, billing, transport
 apps/acquisition-worker/     Cloudflare Cron Worker: rights-gated acquisition and immutable R2 evidence
 apps/ingestion-worker/       Cloudflare artifact processing, fenced publication and outbox recovery
 apps/usage-consumer/         Cloudflare Queue consumer: idempotent usage-event persistence

@@ -1,5 +1,6 @@
 /**
  * `pnpm ingest --vertical hvac [--source <key>] [--dry-run]`
+ * `pnpm ingest --vertical vehicles --artifact <source-key>=<file> [--max-records N] --evidence-dir <dir>`
  *
  * Runs the whole factory offline: real vertical configuration, real migrations,
  * real extraction and normalization, real canonical storage — and the fixture
@@ -10,9 +11,18 @@
  * Storage defaults to PGlite under `.data/pglite`, or real Postgres when
  * `POSTGRES_URL` is set. A real migration uses the separate approved
  * `DATA_FOUNDRY_MIGRATION_DATABASE_URL` credential. Identical SQL either way.
+ *
+ * `--artifact` is the operator bulk-load path for a source whose published file
+ * is too large for any scheduled route: the downloaded file (a ZIP archive when
+ * that is what the publisher ships) replaces the fixture set and goes through
+ * the same acquisition provider, rights gates and pipeline. It never bypasses a
+ * rights or status gate. Unless the database is a throwaway `--memory` one,
+ * the run must name `--evidence-dir`, so the raw artifact survives the process
+ * (AGENTS.md rule 10).
  */
 import { mkdir } from 'node:fs/promises';
-import { resolve } from 'node:path';
+import { isAbsolute, resolve } from 'node:path';
+import { LocalFsArtifactStore, type ArtifactStore } from '@data-foundry/acquisition';
 import {
   createPgliteDriver,
   createPostgresDriver,
@@ -34,6 +44,7 @@ import {
   type MigrationDriver,
 } from '../../../tooling/scripts/migrate.js';
 import { InMemoryArtifactStore } from './artifact-store.js';
+import type { OperatorArtifact } from './operator-artifacts.js';
 import { Pipeline } from './pipeline.js';
 
 export interface CliArgs {
@@ -42,7 +53,16 @@ export interface CliArgs {
   readonly dryRun: boolean;
   readonly memory: boolean;
   readonly runId: string | null;
+  /** Operator-supplied files, `--artifact <source-key>=<path>`; replaces the fixture set. */
+  readonly artifacts: readonly OperatorArtifact[];
+  /** Extracted-record ceiling per source; `null` keeps the pipeline default. */
+  readonly maxRecords: number | null;
+  /** Durable raw-evidence directory (local-disk artifact store). */
+  readonly evidenceDir: string | null;
 }
+
+/** Upper bound for `--max-records`; a larger load needs a partitioned design, not a flag. */
+export const MAX_CLI_RECORDS = 5_000_000;
 
 export function parseArgs(argv: readonly string[]): CliArgs {
   let vertical = 'hvac';
@@ -50,6 +70,17 @@ export function parseArgs(argv: readonly string[]): CliArgs {
   let dryRun = false;
   let memory = false;
   let runId: string | null = null;
+  let maxRecords: number | null = null;
+  let evidenceDir: string | null = null;
+  const artifacts: OperatorArtifact[] = [];
+
+  const valueOf = (option: string, index: number): string => {
+    const value = argv[index];
+    if (value === undefined || value === '' || value.startsWith('--')) {
+      throw new Error(`${option} requires a value\n${USAGE}`);
+    }
+    return value;
+  };
 
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
@@ -58,26 +89,74 @@ export function parseArgs(argv: readonly string[]): CliArgs {
     else if (arg === '--run-id') runId = String(argv[(index += 1)] ?? '');
     else if (arg === '--dry-run') dryRun = true;
     else if (arg === '--memory') memory = true;
+    else if (arg === '--artifact') {
+      const value = valueOf(arg, (index += 1));
+      const separator = value.indexOf('=');
+      const sourceKey = separator < 0 ? '' : value.slice(0, separator);
+      const path = separator < 0 ? '' : value.slice(separator + 1);
+      if (!/^[a-z0-9][a-z0-9-]*$/.test(sourceKey) || path === '') {
+        throw new Error(`--artifact expects <source-key>=<path>, got ${JSON.stringify(value)}\n${USAGE}`);
+      }
+      if (artifacts.some((artifact) => artifact.sourceKey === sourceKey)) {
+        throw new Error(`--artifact names source "${sourceKey}" more than once`);
+      }
+      artifacts.push({ sourceKey, path });
+    } else if (arg === '--max-records') {
+      const value = valueOf(arg, (index += 1));
+      const parsed = /^[1-9][0-9]*$/.test(value) ? Number(value) : Number.NaN;
+      if (!Number.isSafeInteger(parsed) || parsed > MAX_CLI_RECORDS) {
+        throw new Error(`--max-records must be an integer from 1 to ${MAX_CLI_RECORDS}, got ${JSON.stringify(value)}`);
+      }
+      maxRecords = parsed;
+    } else if (arg === '--evidence-dir') evidenceDir = valueOf(arg, (index += 1));
+    else if (arg === '--') continue;
     else if (arg === '--help' || arg === '-h') {
       process.stdout.write(USAGE);
       process.exit(0);
     } else if (arg !== undefined && arg.startsWith('--')) {
       throw new Error(`Unknown option ${arg}\n${USAGE}`);
+    } else if (arg !== undefined) {
+      throw new Error(`Unexpected argument ${JSON.stringify(arg)}\n${USAGE}`);
     }
   }
   if (vertical === '') throw new Error(`--vertical requires a value\n${USAGE}`);
-  return { vertical, source, dryRun, memory, runId };
+  if (artifacts.length > 0) {
+    if (source !== null && !artifacts.some((artifact) => artifact.sourceKey === source)) {
+      throw new Error(`--source ${source} is not one of the --artifact sources`);
+    }
+    // Rule 10: any run against a persistent database records the operator
+    // file as a source artifact (a dry run too), so the bytes must outlive the
+    // process. Only a throwaway `--memory` database may use the in-memory store.
+    if (!memory && evidenceDir === null) {
+      throw new Error(
+        '--artifact requires --evidence-dir <dir> unless --memory: ' +
+          'the raw artifact is the evidence for every record it produces (AGENTS.md rule 10)',
+      );
+    }
+  }
+  return { vertical, source, dryRun, memory, runId, artifacts, maxRecords, evidenceDir };
 }
 
 const USAGE = `
 Usage: pnpm ingest --vertical <slug> [--source <key>] [--dry-run] [--memory]
+       pnpm ingest --vertical <slug> --artifact <source-key>=<path> [...] [--max-records <n>]
+                   (--evidence-dir <dir> | --memory) [--dry-run]
 
-  --vertical <slug>  Vertical to ingest (default: hvac)
-  --source <key>     Ingest a single declared source instead of all active ones
-  --dry-run          Acquire, extract, normalize and resolve; write no claims
-  --memory           Use a throwaway in-memory database
-  --run-id <id>      Job idempotency scope; a repeated id rejoins the same jobs
+  --vertical <slug>        Vertical to ingest (default: hvac)
+  --source <key>           Ingest a single declared source instead of all active ones
+  --dry-run                Acquire, extract, normalize and resolve; write no claims
+  --memory                 Use a throwaway in-memory database
+  --run-id <id>            Job idempotency scope; a repeated id rejoins the same jobs
+  --artifact <key>=<path>  Load a downloaded bulk file (.zip/.csv/.tsv/.txt/.json) for a
+                           source instead of its fixture; repeatable. Rights and status
+                           gates apply exactly as for any acquisition.
+  --max-records <n>        Extracted-record ceiling per source (default 100000)
+  --evidence-dir <dir>     Keep raw artifacts in a local evidence tree (R2 key layout)
 `;
+
+/** pnpm runs package scripts in the package directory; resolve against where the operator typed. */
+const operatorPath = (path: string, env: Readonly<Record<string, string | undefined>>): string =>
+  isAbsolute(path) ? path : resolve(env['INIT_CWD'] ?? process.cwd(), path);
 
 /**
  * Live Postgres ingestion is restricted to Alpha Lab's private schema.
@@ -188,6 +267,10 @@ async function migrateRealPostgres(connectionString: string, schema: string): Pr
 
 export interface IngestCliDependencies {
   readonly env?: Readonly<Record<string, string | undefined>>;
+  /** Test seam: a vertical tree other than the repository's. */
+  readonly verticalsDir?: string;
+  /** Test seam: the raw evidence store. */
+  readonly artifactStore?: ArtifactStore;
   readonly migrateRealPostgres?: (connectionString: string, schema: string) => Promise<void>;
   readonly openDriver?: (
     args: CliArgs,
@@ -228,18 +311,36 @@ export async function main(
     if (realPostgresConnections === undefined) await migrate(driver);
 
     const now = new Date().toISOString() as IsoDateTime;
+    const artifacts = args.artifacts.map((artifact) => ({
+      sourceKey: artifact.sourceKey,
+      path: operatorPath(artifact.path, env),
+    }));
+    const artifactStore =
+      dependencies.artifactStore ??
+      (args.evidenceDir === null
+        ? new InMemoryArtifactStore()
+        : new LocalFsArtifactStore({ baseDir: operatorPath(args.evidenceDir, env) }));
     const pipeline = await Pipeline.create({
       driver,
       verticalSlug: args.vertical,
-      artifactStore: new InMemoryArtifactStore(),
+      ...(dependencies.verticalsDir === undefined ? {} : { verticalsDir: dependencies.verticalsDir }),
+      artifactStore,
       now,
       ...(args.runId === null ? {} : { runId: args.runId }),
       dryRun: args.dryRun,
+      ...(artifacts.length === 0 ? {} : { operatorArtifacts: artifacts }),
+      ...(args.maxRecords === null ? {} : { maxRecords: args.maxRecords }),
     });
 
-    const result = await pipeline.runVertical(
-      args.source === null ? {} : { sources: [args.source] },
-    );
+    // Operator artifacts name their sources explicitly; the rights and status
+    // gates inside the pipeline still decide whether each may run.
+    const sources =
+      args.source !== null
+        ? [args.source]
+        : artifacts.length > 0
+          ? artifacts.map((artifact) => artifact.sourceKey)
+          : null;
+    const result = await pipeline.runVertical(sources === null ? {} : { sources });
 
     let failed = 0;
     process.stdout.write(`\nvertical ${result.vertical.slug} (${driver.label})\n`);

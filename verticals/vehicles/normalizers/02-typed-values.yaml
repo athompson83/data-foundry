@@ -1,0 +1,41 @@
+# =============================================================================
+# Layer 2 — Typed values (doc 06).
+#
+# Deliberately small. Both agencies publish plain numbers in fixed units
+# (EPA: mpg / MPGe, litres, grams CO2 per mile, miles; NHTSA: vehicle counts),
+# so there is no unit conversion to declare. Units are carried in property
+# names and documented in DATA_DICTIONARY.md; the platform unit registry has no
+# fuel-economy, volume or emissions dimension, and adding one is a platform
+# change to make when a second source publishes a different unit.
+#
+# NHTSA's flat file writes dates as YYYYMMDD (`RCDATE`, UNVERIFIED against a
+# captured file); the platform's default date parser accepts that form.
+# =============================================================================
+
+layer: typed_values
+
+number_parsing:
+  decimal_separator: "."
+  thousands_separators: [","]
+  strip_trailing_units: false
+  reject_on_ambiguity: true
+
+datetime_parsing:
+  output_date_format: iso8601_date
+  output_datetime_format: iso8601_utc
+  retain_source_timezone: true
+  accepted_formats:
+    - "YYYYMMDD"
+    - "YYYY-MM-DD"
+
+boolean_parsing:
+  true_tokens: ["yes", "y", "true", "1"]
+  false_tokens: ["no", "n", "false", "0"]
+  case_sensitive: false
+
+unit_conversions: []
+
+# No derived properties. EPA's combined figure is published, not computed
+# here: EPA weights city/highway 55/45 on the underlying test values, and
+# recomputing it from the rounded published figures would disagree with EPA.
+derived_properties: []

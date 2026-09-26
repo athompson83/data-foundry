@@ -5,6 +5,7 @@ import type { SqlDriver } from '@data-foundry/canonical-store';
 import { createExtractionRegistry } from '@data-foundry/extraction';
 import { loadVerticalConfig, type LoadVerticalOptions } from './config.js';
 import { buildFixtureManifest } from './fixtures.js';
+import { buildOperatorArtifactManifest, type OperatorArtifact } from './operator-artifacts.js';
 import { ArtifactPipeline, requireStoredAcquisitionTransportRights, type PipelineOptions } from './pipeline-core.js';
 export * from './pipeline-core.js';
 export class Pipeline extends ArtifactPipeline {
@@ -13,9 +14,17 @@ export class Pipeline extends ArtifactPipeline {
     const config = await loadVerticalConfig(options.verticalSlug, {
       ...(options.verticalsDir === undefined ? {} : { verticalsDir: options.verticalsDir }),
     });
-    const { directory, bindings } = await buildFixtureManifest(config, {
-      ...(options.fixtureOverrides === undefined ? {} : { overrides: options.fixtureOverrides }),
-    });
+    // Operator-supplied artifacts replace the fixture set entirely, so a real
+    // bulk load can never be mixed with synthetic fixture bytes.
+    const operator =
+      options.operatorArtifacts === undefined || options.operatorArtifacts.length === 0
+        ? null
+        : await buildOperatorArtifactManifest(config, options.operatorArtifacts);
+    const { directory, bindings } =
+      operator ??
+      (await buildFixtureManifest(config, {
+        ...(options.fixtureOverrides === undefined ? {} : { overrides: options.fixtureOverrides }),
+      }));
     const validatorCache = options.validatorCache ?? new InMemoryValidatorCache();
     const clock: Clock = {
       now: () => Date.parse(options.now),
@@ -50,6 +59,7 @@ export class Pipeline extends ArtifactPipeline {
           }),
       },
       directory,
+      ...(operator === null ? {} : { fs: operator.fs }),
       manifest: { version: 1, entries: bindings.map((binding) => binding.entry) },
     });
 
@@ -62,6 +72,7 @@ export class Pipeline extends ArtifactPipeline {
       now: options.now,
       ...(options.runId === undefined ? {} : { runId: options.runId }),
       ...(options.dryRun === undefined ? {} : { dryRun: options.dryRun }),
+      ...(options.maxRecords === undefined ? {} : { maxRecords: options.maxRecords }),
       validatorCache,
     });
   }
@@ -78,4 +89,8 @@ export interface CreatePipelineOptions extends LoadVerticalOptions {
   readonly validatorCache?: ValidatorCache;
   /** Source key → replacement body; simulates an upstream change offline. */
   readonly fixtureOverrides?: Readonly<Record<string, string>>;
+  /** Operator-supplied bulk files; when present they replace the fixture set. */
+  readonly operatorArtifacts?: readonly OperatorArtifact[];
+  /** Extracted-record ceiling per source run (pipeline default 100 000). */
+  readonly maxRecords?: number;
 }
