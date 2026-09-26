@@ -66,6 +66,7 @@ packages/normalization/      Source-native records into typed canonical candidat
 packages/canonical-store/    Entities, facts, relationships and evidence over Postgres/PGlite
 packages/provenance/         Field-level lineage, coverage reporting, the human-readable trust surface
 packages/query-model/        The single canonical query layer web, REST and MCP read through
+packages/recall-structuring/  Deterministic structuring of FDA recall text: geography, lots, GTIN/NDC, reasons (ADR-0013)
 packages/api-keys/           Minting and verifying API credentials. Web Crypto only
 packages/access-auth/        Shared DB bearer-key, tenant and one-vertical authorization
 packages/usage-events/       The usage-event contract shared by the edge producer and its queue consumer
@@ -78,6 +79,7 @@ apps/mcp-worker/             Cloudflare Streamable HTTP adapter, MCP/NONE auth a
 apps/edge/                   Cloudflare Worker: composition root, auth, transport, no routing
 apps/acquisition-worker/     Cloudflare Cron Worker: rights-gated acquisition and immutable R2 evidence
 apps/ingestion-worker/       Cloudflare artifact processing, fenced publication and outbox recovery
+apps/recalls-worker/         Cloudflare Worker: FDA Recall Intelligence pages, paid API, Stripe, openFDA refresh (ADR-0013)
 apps/usage-consumer/         Cloudflare Queue consumer: idempotent usage-event persistence
 apps/private-canary/         Route-less service-bound synthetic canary consumer of the dedicated private DLQ, never the shared usage DLQ
 apps/web/                    Cloudflare Worker: the free public site — parent index + one child site per industry
