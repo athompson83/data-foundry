@@ -450,15 +450,16 @@ generation isn't available.
   - Generation works only when an OpenRouter API key is available in the
     environment and `openrouter.ai` is reachable. If either is missing,
     write the briefs, report generation as blocked, and stop.
-  - Choose the model with the selection rules in `PROVIDERS.md`. Check the
-    model's current price in OpenRouter's catalogue immediately before every
-    request. A route is free only if the catalogue says so at that moment;
-    names, promotions and past runs prove nothing.
-  - A request that costs anything is spend under §8. Stay within the budget
-    recorded in `PROVIDERS.md`; if none is recorded, make no paid requests.
-  - Free requests are still limited: follow the free-run cap in
-    `PROVIDERS.md`. That keeps a free promotion from turning into
-    hundreds of clips no one reviews.
+  - Choose the model with the selection rules in `PROVIDERS.md`. Before
+    every request, estimate its cost from the model's `pricing_skus` in
+    `/api/v1/videos/models` for the exact settings. Never use the token
+    prices in the general model list: they read zero for paid video models.
+    A request is free only if its estimate from `pricing_skus` is zero.
+  - Any request with a non-zero estimate is spend under §8. Stay within the
+    budget recorded in `PROVIDERS.md`; if none is recorded, submit nothing
+    that costs money.
+  - Follow the clip cap in `PROVIDERS.md` whatever the price, so a free
+    promotion can't turn into hundreds of clips no one reviews.
   - Record every request in the brief: model, route, price checked, job id,
     settings, and result. Never commit an API key or put it in a report.
   - Publishing always needs approval (§8).
