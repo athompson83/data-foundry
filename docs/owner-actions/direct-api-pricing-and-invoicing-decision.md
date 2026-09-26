@@ -8,6 +8,19 @@
 > it existed only on the pricing page. Decision 3 (manual invoicing) is
 > replaced by Stripe Checkout and subscriptions. Decision 4 (the free tier)
 > remains unbuilt: Checkout never sells the $0 plan.
+>
+> **FDA Recall Intelligence (separate dataset), decided 2026-09-26 — Product Owner: "Accept pricing."** Applied to the
+> first paid dataset, FDA Recall Intelligence ([ADR-0015](../decisions/ADR-0015-first-paid-dataset-fda-recalls-on-d1.md)):
+> Decision 1, keep the four-tier ladder; Decision 2, hard stop at the allowance;
+> Decision 4, an `Evaluate` free tier at 100 requests a month, which the dataset's
+> CC0 rights permit. **One deviation, Decision 3:** billing is Stripe
+> self-service subscriptions (monthly, in advance, USD, Stripe dunning), not
+> manual Net-30 invoicing in arrears. The owner supplied Stripe credentials for
+> a live profit stream, and manual invoicing cannot collect from an unattended
+> self-serve signup. Live Stripe prices: `price_1UK1SWLlvU3ZaHdipjWWJ8d1`
+> (Evaluate), `price_1UK1SXLlvU3ZaHdihexV3i4r` (Developer),
+> `price_1UK1SYLlvU3ZaHdiDieb1aQz` (Growth), `price_1UK1SZLlvU3ZaHdiPZZj62Rv`
+> (Scale). The sheet below is preserved as the decision record.
 
 Prepared 2026-09-16. This is the last commercial decision standing between a
 deployed direct API and a paid machine request. It is deliberately a short

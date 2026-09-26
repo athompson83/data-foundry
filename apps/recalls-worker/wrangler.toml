@@ -1,0 +1,54 @@
+# Data Foundry Recall Intelligence (ADR-0015).
+#
+# Unlike the Postgres-backed Workers, every identifier here is a public binding
+# name or resource id, not a credential: D1 and R2 are reached through
+# bindings, and the Stripe keys are Worker secrets set with `wrangler secret`.
+# account_id comes from CLOUDFLARE_ACCOUNT_ID at deploy time.
+
+name = "data-foundry-recalls"
+main = "src/index.ts"
+compatibility_date = "2026-08-23"
+workers_dev = false
+preview_urls = false
+
+routes = [
+  { pattern = "data.aroqon.com", custom_domain = true },
+  { pattern = "api.data.aroqon.com", custom_domain = true },
+]
+
+[triggers]
+# Every six hours: the recent window for each category plus one rolling
+# history window, so status changes on old recalls are picked up.
+crons = ["17 */6 * * *"]
+
+[limits]
+cpu_ms = 300000
+
+[observability]
+enabled = true
+
+[observability.logs]
+invocation_logs = false
+
+[vars]
+PUBLIC_ORIGIN = "https://data.aroqon.com"
+API_ORIGIN = "https://api.data.aroqon.com"
+SUPPORT_EMAIL = "data@mail.proviciency.com"
+SOURCE_KILL_SWITCH = "0"
+# "1" accepts new checkouts. Kept "0" until the dataset load is verified live.
+SALES_OPEN = "0"
+# Live Stripe price ids for the accepted plan ladder (not secrets).
+STRIPE_PRICE_EVALUATE = "price_1UK1SWLlvU3ZaHdipjWWJ8d1"
+STRIPE_PRICE_DEVELOPER = "price_1UK1SXLlvU3ZaHdihexV3i4r"
+STRIPE_PRICE_GROWTH = "price_1UK1SYLlvU3ZaHdiDieb1aQz"
+STRIPE_PRICE_SCALE = "price_1UK1SZLlvU3ZaHdiPZZj62Rv"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "data-foundry-recalls"
+database_id = "84acdedd-4d3e-457e-9bdc-3b118590e172"
+migrations_dir = "migrations"
+
+[[r2_buckets]]
+binding = "RAW_ARTIFACTS"
+bucket_name = "data-foundry-raw-artifacts"

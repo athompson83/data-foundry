@@ -1,6 +1,68 @@
 # Progress
 
-## Current session — 2026-09-26: rights rule changed, self-service billing built, paid path blocked on environment access
+## Current session — 2026-09-26: FDA Recall Intelligence built, loaded, reviewed; sales closed
+
+**Verdict: the dataset is loaded and reconciled, the customer flows pass in an
+isolated Stripe sandbox, and PR #59 is going through review and CI. Public
+sales are closed (`SALES_OPEN="0"`) until the Product Owner's separate launch
+instruction. No revenue yet. The HVAC track and the hosted Postgres baseline are
+unchanged.**
+
+- **Owner direction.**
+  - First message: approve any dataset whose restrictions can be ruled out, with
+    the value in structuring unstructured data. Accept the pricing sheet.
+    Approve launch. Support contact `data@mail.proviciency.com`.
+  - Second message: approve D1/R2 as the interim architecture and monthly
+    Stripe self-service billing on the four-tier catalog. Scoped authorization
+    of D1 migration `0002` and the initial import, with pre-checks. Keep sales
+    closed. Stripe verification, legal seller and support inbox stay with the
+    owner.
+- **Dataset.** openFDA enforcement reports, CC0 ([rights record](docs/sources/openfda-enforcement-rights-record-20260926.md),
+  which lists every redistributed field). Reports run from 2012-06-20 to
+  2026-09-16. See [ADR-0015](docs/decisions/ADR-0015-first-paid-dataset-fda-recalls-on-d1.md).
+- **D1 load, `UA-012` (completed under the scoped authorization).**
+  - Pre-checks: correct account and DB `84acdedd…`; only `0001` applied; every
+    table at 0 rows, so dropping `raw` destroyed nothing.
+  - Time Travel bookmark `00000005-00000000-000050f2-13d6c05b98708cefcb053cdd157124ba`.
+  - Cron paused; the 13 R2 bundle ETags equal the local MD5s.
+  - `0002` applied. One part failed atomically on the placeholder recall number
+    `N/A`, which collides across categories. It was root-caused and fixed in
+    code, and the single `N/A` row removed.
+  - Reconciled exactly: 87,354 recalls, 87,354 FTS rows, 10,748,197 keys;
+    0 FTS/rowid mismatches and 0 orphan keys.
+- **Reviews.** An independent reviewer (two rounds) and Codex (four rounds)
+  found real defects. All are fixed with regression tests, and every thread is
+  answered and resolved. The most material ones:
+  - code lists truncated at 600 characters;
+  - non-atomic sync writes;
+  - "not nationwide" read as nationwide;
+  - a stricter state rule that briefly dropped about 8,200 real state codes;
+  - compact lot codes (`MAY1613`) stripped as dates;
+  - placeholder and duplicate records missing from evidence;
+  - a free-key race;
+  - non-atomic key rotation.
+- **Parser v2 and evidence.** The published keys and structure still come from
+  parser v1 until the v2 re-import that follows the merge. The complete evidence
+  set (all 87,359 fetched records) is uploaded under
+  `recalls/openfda/bulk/2026-09-26-r2/`, with all 13 ETags verified. The
+  original bundles are kept.
+- **Customer flows.** Tested in the isolated Stripe sandbox (test key, separate
+  account) against the real Worker code, with no production secrets involved:
+  - real Checkout for the $49 and $0 plans, with the key shown once;
+  - 401 without a key or with a bad key;
+  - quota hard stop at request 101 (429);
+  - real test events relayed and signed, checkout and subscription created;
+  - plan change Developer → Growth, taking the allowance to 25,000;
+  - key rotation and operator lost-key reissue;
+  - cancellation (403), with duplicate events handled idempotently;
+  - billing portal session created.
+- **Owner actions.**
+  - `UA-013`: Stripe payouts are disabled.
+  - `UA-014`: after rotating the Stripe key, update the Worker secret.
+  - Confirm the legal seller and a working support inbox.
+  - The separate launch instruction to set `SALES_OPEN="1"`.
+
+## Earlier session — 2026-09-26 (PR #57, merged to `main`): rights rule changed, self-service billing built, paid path blocked on environment access
 
 **Verdict: the paid-API machinery is now complete in code, but the platform is NOT earning revenue yet.** No
 real dataset is loaded, nothing new is deployed, and Stripe is test-mode only.

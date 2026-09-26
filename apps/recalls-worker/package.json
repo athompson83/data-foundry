@@ -1,0 +1,20 @@
+{
+  "name": "@data-foundry/recalls-worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Cloudflare Worker serving the FDA Recall Intelligence dataset: pages, paid API, Stripe checkout and scheduled openFDA refresh (ADR-0015).",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "types": "./src/index.ts",
+  "files": ["src", "migrations"],
+  "scripts": {
+    "test": "vitest run --root .",
+    "typecheck": "tsc -p tsconfig.json",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "@data-foundry/recall-structuring": "workspace:*"
+  }
+}

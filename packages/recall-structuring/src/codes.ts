@@ -1,0 +1,315 @@
+/**
+ * Product identification codes buried in `code_info` / `product_description`
+ * prose. Exact identifiers are the product: GS1 numbers are accepted only with a
+ * valid check digit, NDCs only in a recognised segment layout, and lots only
+ * after an explicit lot marker.
+ */
+
+export interface ProductCodes {
+  /** GTIN-14 normalised (UPC-A, EAN-13 and UDI-DI all map here), check digit verified. */
+  readonly gtins: readonly string[];
+  /** NDCs: package codes as 5-4-2 and, where openFDA supplies them, product codes as 5-4. */
+  readonly ndcs: readonly string[];
+  readonly lots: readonly string[];
+  readonly serial_numbers: readonly string[];
+  readonly model_numbers: readonly string[];
+  /** ISO dates (YYYY-MM-DD, or YYYY-MM when the day is absent). */
+  readonly expiration_dates: readonly string[];
+}
+
+export function gs1CheckDigitValid(digits: string): boolean {
+  if (!/^\d{8,14}$/.test(digits)) return false;
+  const body = digits.slice(0, -1);
+  let sum = 0;
+  for (let index = 0; index < body.length; index += 1) {
+    const digit = Number(body[body.length - 1 - index]);
+    sum += index % 2 === 0 ? digit * 3 : digit;
+  }
+  return (10 - (sum % 10)) % 10 === Number(digits[digits.length - 1]);
+}
+
+/**
+ * Expand an 8-digit UPC-E (number system 0 or 1, six data digits, check digit)
+ * to its 12-digit UPC-A. Returns null for other number systems.
+ */
+export function expandUpcE(upcE: string): string | null {
+  if (!/^[01]\d{7}$/.test(upcE)) return null;
+  const system = upcE[0] as string;
+  const [d1, d2, d3, d4, d5, d6] = upcE.slice(1, 7).split('') as [string, string, string, string, string, string];
+  const check = upcE[7] as string;
+  let body: string;
+  if (d6 === '0' || d6 === '1' || d6 === '2') body = `${d1}${d2}${d6}0000${d3}${d4}${d5}`;
+  else if (d6 === '3') body = `${d1}${d2}${d3}00000${d4}${d5}`;
+  else if (d6 === '4') body = `${d1}${d2}${d3}${d4}00000${d5}`;
+  else body = `${d1}${d2}${d3}${d4}${d5}0000${d6}`;
+  return `${system}${body}${check}`;
+}
+
+function toGtin14(digits: string): string {
+  return digits.padStart(14, '0');
+}
+
+/** Normalise a hyphenated NDC to 5-4-2. Returns null for non-NDC layouts. */
+export function normaliseNdc(value: string): string | null {
+  const match = /^(\d{4,5})-(\d{3,4})-(\d{1,2})$/.exec(value);
+  if (!match) return null;
+  const [, labeler = '', product = '', pack = ''] = match;
+  const layout = `${labeler.length}-${product.length}-${pack.length}`;
+  switch (layout) {
+    case '4-4-2': return `0${labeler}-${product}-${pack}`;
+    case '5-3-2': return `${labeler}-0${product}-${pack}`;
+    case '5-4-1': return `${labeler}-${product}-0${pack}`;
+    case '5-4-2': return `${labeler}-${product}-${pack}`;
+    default: return null;
+  }
+}
+
+/** Normalise a two-segment product NDC (labeler-product) to 5-4. */
+export function normaliseProductNdc(value: string): string | null {
+  const match = /^(\d{4,5})-(\d{3,4})$/.exec(value.trim());
+  if (!match) return null;
+  const [, labeler = '', product = ''] = match;
+  const layout = `${labeler.length}-${product.length}`;
+  if (layout === '4-4') return `0${labeler}-${product}`;
+  if (layout === '5-3') return `${labeler}-0${product}`;
+  if (layout === '5-4') return `${labeler}-${product}`;
+  return null;
+}
+
+/** The 5-4 product code of a 5-4-2 package code. */
+export function productOfPackageNdc(packageNdc: string): string {
+  return packageNdc.slice(0, 10);
+}
+
+const MONTHS: Readonly<Record<string, number>> = {
+  jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, sept: 9, oct: 10, nov: 11, dec: 12,
+};
+
+function pad(value: number): string {
+  return String(value).padStart(2, '0');
+}
+
+function year4(value: string): number | null {
+  const n = Number(value);
+  if (value.length === 4) return n >= 1990 && n <= 2099 ? n : null;
+  if (value.length === 2) return 2000 + n;
+  return null;
+}
+
+/** Parse one date token in the formats FDA text uses. */
+export function parseLooseDate(token: string): string | null {
+  const text = token.trim().replace(/\.$/, '');
+  let m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(text);
+  if (m) return valid(Number(m[1]), Number(m[2]), Number(m[3]));
+  m = /^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2}|\d{4})$/.exec(text);
+  if (m) {
+    const y = year4(m[3] as string);
+    return y === null ? null : valid(y, Number(m[1]), Number(m[2]));
+  }
+  m = /^(\d{1,2})[/.-](\d{4})$/.exec(text);
+  if (m) {
+    const month = Number(m[1]);
+    const y = Number(m[2]);
+    return month >= 1 && month <= 12 && y >= 1990 && y <= 2099 ? `${y}-${pad(month)}` : null;
+  }
+  m = /^(\d{1,2})[\s-]?([A-Za-z]{3,9})[\s,-]*(\d{2}|\d{4})$/.exec(text);
+  if (m) {
+    const month = MONTHS[(m[2] as string).slice(0, 4).toLowerCase()] ?? MONTHS[(m[2] as string).slice(0, 3).toLowerCase()];
+    const y = year4(m[3] as string);
+    return month && y ? valid(y, month, Number(m[1])) : null;
+  }
+  m = /^([A-Za-z]{3,9})\.?\s*(\d{1,2})?,?\s*(\d{4}|\d{2})$/.exec(text);
+  if (m) {
+    const month = MONTHS[(m[1] as string).slice(0, 4).toLowerCase()] ?? MONTHS[(m[1] as string).slice(0, 3).toLowerCase()];
+    const y = year4(m[3] as string);
+    if (!month || !y) return null;
+    return m[2] ? valid(y, month, Number(m[2])) : `${y}-${pad(month)}`;
+  }
+  return null;
+}
+
+function valid(y: number, month: number, day: number): string | null {
+  if (y < 1990 || y > 2099 || month < 1 || month > 12 || day < 1) return null;
+  const last = new Date(Date.UTC(y, month, 0)).getUTCDate();
+  return day <= last ? `${y}-${pad(month)}-${pad(day)}` : null;
+}
+
+const MONTH_NAME = '(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)';
+
+const DATE_TOKEN = new RegExp(
+  [
+    String.raw`\b\d{4}-\d{1,2}-\d{1,2}\b`,
+    String.raw`\b\d{1,2}[/.-]\d{1,2}[/.-](?:\d{4}|\d{2})\b`,
+    String.raw`\b\d{1,2}[/.-]\d{4}\b`,
+    String.raw`\b\d{1,2}[\s-]?${MONTH_NAME}\.?[\s,-]*(?:\d{4}|\d{2})\b`,
+    String.raw`\b${MONTH_NAME}\.?\s*(?:\d{1,2},?\s*)?\d{4}\b`,
+  ].join('|'),
+  'gi',
+);
+
+const EXPIRY_MARKER =
+  /\b(?:exp(?:iry|iration|ires)?\.?(?:\s*date)?|use[\s-]*by|best[\s-]*(?:by|before|if\s+used\s+by)|sell[\s-]*by|BUD|beyond[\s-]+use(?:\s+date)?|enjoy\s+by)\s*(?:date)?\s*[:#.\-]?\s*/gi;
+
+/** An expiry phrase together with the date it introduces. */
+const EXPIRY_WITH_DATE = new RegExp(`(?:${EXPIRY_MARKER.source})(?:${DATE_TOKEN.source})?`, 'gi');
+
+/**
+ * Package sizes ("85g", "12oz", "500mg", "2.5ml"). At most three digits, so
+ * date-stamped lots such as 07282016G stay lots; no bare "l" unit, so lots
+ * such as 651L stay lots.
+ */
+/** Short words that are never a code's suffix ("12345 EXP", "A1 AND B2"). */
+const SUFFIX_STOP = /^(?:NO|NOS|BUD|EXP|AND|LOT|THE|FOR|OF|TO|IN|ON|AT|BY|USE|OR|SN|REF|UDI|NDC|UPC|CAT|QTY|CT|PCS|EA|PER|ALL|NUM|MFG|DOM)$/;
+
+const PACKAGE_SIZE = /^\d{1,3}(?:\.\d+)?(?:g|gm|mg|mcg|kg|oz|lbs?|ml|fl|ct|cc)$/i;
+
+/** A code token: must contain a digit, 3–30 chars of the lot alphabet. */
+const LOT_TOKEN = /^(?=.*\d)[A-Z0-9][A-Z0-9\-/.]{1,28}[A-Z0-9]$/i;
+
+const LOT_MARKER = /\b(?:lot|batch)(?:\s*(?:#|no\.?|nos\.?|numbers?|codes?|s))?\s*[:#.]?\s*/gi;
+const SERIAL_MARKER = /\bserial(?:\s*(?:#|no\.?|nos\.?|numbers?|s))?\s*[:#.]?\s*/gi;
+const MODEL_MARKER = /\b(?:model|catalog(?:ue)?|cat\.?|REF|part|item)(?:\s*(?:#|no\.?|nos\.?|numbers?|codes?|s))?\s*[:#.]?\s*/gi;
+
+/** Markers that end a code list of a different kind. */
+const STOPS: Readonly<Record<'lot' | 'serial' | 'model', RegExp>> = {
+  lot: /\b(?:udi|upc|gtin|ndc|serial|model|catalog|ref|sku|item\s+(?:#|no|number|code)|distributed|manufactured|packaged)\b|[()\n]/i,
+  serial: /\b(?:udi|upc|gtin|ndc|lot|batch|model|catalog|ref|sku|distributed|manufactured)\b|[()\n]/i,
+  model: /\b(?:udi|upc|gtin|ndc|lot|batch|serial|sku|distributed|manufactured)\b|[;()\n]/i,
+};
+
+/** Upper bound per list, far above any real record, so a malformed text cannot run away. */
+const MAX_LIST = 200_000;
+
+/**
+ * Every code after each marker of one kind. A list runs to the next marker of
+ * the same kind, a marker of another kind, or a real word, never a fixed
+ * character window: device recalls can list tens of thousands of serials,
+ * and every one must stay findable. Linear in the text length.
+ */
+function listAfter(text: string, marker: RegExp, kind: keyof typeof STOPS): string[] {
+  const found: string[] = [];
+  const matches = [...text.matchAll(marker)];
+  for (const [index, match] of matches.entries()) {
+    const start = (match.index ?? 0) + match[0].length;
+    const next = matches[index + 1];
+    let segment = text.slice(start, next ? (next.index ?? text.length) : text.length);
+    const stop = STOPS[kind].exec(segment);
+    if (stop && stop.index > 0) segment = segment.slice(0, stop.index);
+    // Expiry phrases and dates sit between lots ("A, Exp 1/2/27; B, Exp ...");
+    // remove them so they neither end the list nor become lots.
+    // A date is only treated as a date when an expiry phrase introduces it or
+    // it is written with separators ("7/31/2027", "July 31, 2027"). Compact
+    // tokens such as MAY1613 or MAY2013 are lot codes in this corpus.
+    segment = segment
+      .replace(EXPIRY_WITH_DATE, ' ')
+      .replace(DATE_TOKEN, (match) => (/[\s/.,-]/.test(match) && parseLooseDate(match) !== null ? ' ' : match));
+    // Tokens with their separators: a short uppercase letter suffix separated
+    // from the previous code by whitespace only is part of it ("130 EF"),
+    // stored without the space so it matches however the caller spaces it.
+    let joinable = false;
+    for (const part of segment.matchAll(/([^\s,;&]+)|([\s,;&]+)/g)) {
+      if (part[2] !== undefined) {
+        if (/[,;&]/.test(part[2])) joinable = false;
+        continue;
+      }
+      const raw = part[1] as string;
+      if (/^and$/i.test(raw)) {
+        joinable = false;
+        continue;
+      }
+      const token = raw.replace(/^[#:.\-/]+|[.,:\-/]+$/g, '');
+      if (!token) continue;
+      if (!LOT_TOKEN.test(token)) {
+        if (joinable && token === raw && /^[A-Z]{1,3}$/.test(token) && !SUFFIX_STOP.test(token) && found.length > 0) {
+          found[found.length - 1] = `${found[found.length - 1] as string}${token}`;
+          joinable = false;
+          continue;
+        }
+        joinable = false;
+        // A real word ends the list; short noise ("#", "No", "BUD") is skipped.
+        if (/^[A-Za-z]{4,}$/.test(token) && !/^(?:code|codes|number|numbers|date|dates|lots?)$/i.test(token)) break;
+        continue;
+      }
+      joinable = false;
+      if (/[/.-]/.test(token) && parseLooseDate(token) !== null) continue;
+      // Package sizes ("85g", "12oz", "500mL") are not codes.
+      if (PACKAGE_SIZE.test(token)) continue;
+      found.push(token.toUpperCase());
+      joinable = token === raw;
+      if (found.length >= MAX_LIST) return found;
+    }
+  }
+  return found;
+}
+
+function uniqueSorted(values: Iterable<string>): string[] {
+  return [...new Set(values)].sort();
+}
+
+export function parseCodes(...texts: ReadonlyArray<string | null | undefined>): ProductCodes {
+  const text = texts.filter((value): value is string => typeof value === 'string' && value.length > 0).join('\n');
+
+  const gtins = new Set<string>();
+  // GS1 application identifier form: (01)00801741121067
+  for (const match of text.matchAll(/\(01\)\s?(\d{14})/g)) {
+    const digits = match[1] as string;
+    if (gs1CheckDigitValid(digits)) gtins.add(digits);
+  }
+  // Bare 12/13/14-digit runs (UPC-A, EAN-13, GTIN-14 / UDI-DI), check-digit gated.
+  for (const match of text.matchAll(/(?<![\d-])(\d{12,14})(?![\d-])/g)) {
+    const digits = match[1] as string;
+    if (gs1CheckDigitValid(digits)) gtins.add(toGtin14(digits));
+  }
+  // 8-digit codes only after an explicit marker: bare 8-digit runs (lots,
+  // dates, catalog numbers) pass a check digit one time in ten. EAN-8/GTIN-8
+  // are GTINs as printed; an 8-digit UPC is UPC-E, a compressed UPC-A that is
+  // expanded first so it matches a scan of the same product.
+  for (const match of text.matchAll(/\b(EAN|GTIN|UPC)(?:-?(8|E))?\s*(?:#|no\.?|code)?\s*[:#]?\s*(\d{8})(?!\d)/gi)) {
+    const scheme = (match[1] as string).toUpperCase();
+    const digits = match[3] as string;
+    if (scheme === 'UPC') {
+      const upcA = expandUpcE(digits);
+      if (upcA && gs1CheckDigitValid(upcA)) gtins.add(toGtin14(upcA));
+    } else if (gs1CheckDigitValid(digits)) {
+      gtins.add(toGtin14(digits));
+    }
+  }
+  // Spaced UPC as printed on labels: "0 12345 67890 5"
+  for (const match of text.matchAll(/(?<!\d)(\d)[\s-](\d{5})[\s-](\d{5})[\s-](\d)(?!\d)/g)) {
+    const digits = `${match[1]}${match[2]}${match[3]}${match[4]}`;
+    if (gs1CheckDigitValid(digits)) gtins.add(toGtin14(digits));
+  }
+
+  const ndcs = new Set<string>();
+  for (const match of text.matchAll(/(?<![\d-])(\d{4,5}-\d{3,4}-\d{1,2})(?![\d-])/g)) {
+    const normalised = normaliseNdc(match[1] as string);
+    if (normalised) ndcs.add(normalised);
+  }
+
+  const expirations = new Set<string>();
+  for (const marker of text.matchAll(EXPIRY_MARKER)) {
+    const start = (marker.index ?? 0) + marker[0].length;
+    const window = text.slice(start, start + 40);
+    DATE_TOKEN.lastIndex = 0;
+    const date = DATE_TOKEN.exec(window);
+    if (date && date.index <= 3) {
+      const parsed = parseLooseDate(date[0]);
+      if (parsed) expirations.add(parsed);
+    }
+  }
+  // Parenthesised "(exp.11/13/2026)" is covered by the marker; also catch
+  // "Exp 11/13/26" variants already handled. Nothing inferred without a marker.
+
+  const lots = listAfter(text, LOT_MARKER, 'lot').filter((token) => !gtins.has(toGtin14(token)));
+  const serials = listAfter(text, SERIAL_MARKER, 'serial');
+  const models = listAfter(text, MODEL_MARKER, 'model');
+
+  return {
+    gtins: uniqueSorted(gtins),
+    ndcs: uniqueSorted(ndcs),
+    lots: uniqueSorted(lots),
+    serial_numbers: uniqueSorted(serials),
+    model_numbers: uniqueSorted(models),
+    expiration_dates: uniqueSorted(expirations),
+  };
+}
