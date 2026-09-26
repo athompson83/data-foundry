@@ -41,6 +41,16 @@ real dataset is loaded, nothing new is deployed, and Stripe is test-mode only.
     VIN-recall headline (`docs/commercial-validation/conversion-first-decision-20260926.md`).
   - The local full suite on the merged head passed 3,785/3,785. The artifacts check builds 13 core
     artifacts plus the vehicles edge.
+- **Final additions (same PR).**
+  - ZIP member extraction with strict limits, plus the operator bulk-load path
+    (`pnpm ingest --artifact … --evidence-dir …`).
+  - A generic `where` row filter; vehicles keeps only `RCLTYPECD = V` rows, and that code set is
+    unverified.
+  - `credentials:provision` works for per-vertical edges, with a copy-ready RapidAPI listing
+    (`docs/owner-actions/rapidapi-vehicles-listing.md`).
+  - The OpenAPI generator publishes per-vertical edge contracts under `/v1/<slug>`.
+  - The ordered path to the first paid request is `docs/owner-actions/launch-runbook.md`.
+  - Head `608c1bb`: hosted CI green; local full suite 3,883/3,883 and all 12 check scripts pass.
 - **Verification.**
   - `pnpm test` passed 3,620/3,620.
   - `typecheck` and every CI compile/topology/artifact check passed.
