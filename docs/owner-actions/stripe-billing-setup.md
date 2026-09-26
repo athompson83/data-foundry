@@ -17,6 +17,16 @@ STRIPE_PRICE_IDS = '{"developer":"price_…","growth":"price_…","scale":"price
 
 Keys must be exactly the paid plan codes: the lowercased plan names. The edge refuses a missing, extra or malformed id.
 
+### Created 2026-09-26 (test mode, "Aroqon Data sandbox")
+
+The vehicles product (`prod_VKbcy7DLL3iNSH`) exists with the published ladder as monthly USD prices:
+
+```toml
+STRIPE_PRICE_IDS = '{"developer":"price_1UJwPXLseI5hfWcxp9dzKYrn","growth":"price_1UJwPhLseI5hfWcxwDINPTMq","scale":"price_1UJx9GLseI5hfWcxFJftDHey"}'
+```
+
+Lookup keys: `vehicles_{developer,growth,scale}_monthly`. Recreate these in live mode after the account is activated; live ids differ.
+
 ## 3. Webhook endpoint
 
 Register `https://api.data.aroqon.com/v1/billing/stripe-webhook` for these events:

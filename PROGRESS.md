@@ -1,5 +1,55 @@
 # Progress
 
+## Current session — 2026-09-26: rights rule changed, self-service billing built, paid path blocked on environment access
+
+**Verdict: the paid-API machinery is now complete in code, but the platform is NOT earning revenue yet.** No
+real dataset is loaded, nothing new is deployed, and Stripe is test-mode only.
+
+- **Owner decisions (2026-09-26).**
+  - First paid dataset: US vehicle data (NHTSA vPIC + Recalls + EPA fuel economy).
+  - Rights: a named human reviewer is no longer required; a logical, evidence-based determination suffices
+    ([ADR-0013](docs/decisions/ADR-0013-evidence-based-rights-determination.md)).
+  - Payment: Stripe self-service and RapidAPI.
+  - Public cutover: authorized once checks pass.
+- **Done (PR #57, branch `claude/data-foundry-api-monetization-8dleew`).**
+  1. ADR-0013 and migration `0034`: a `DETERMINATION` reviewer type is accepted by the resolver and the
+     database guards. `AUTOMATED` still cannot activate permission; deny exceptions stay human/counsel only.
+  2. ADR-0014 and migration `0035`: self-service Stripe billing on the edge (`/v1/billing/...`); the
+     one-time key claim; signed, idempotent webhooks; the monthly allowance hard stop (`429`). df_edge and
+     df_usage gain narrow grants (313 grants, 60 functions).
+  3. Stripe sandbox product `prod_VKbcy7DLL3iNSH` with Developer/Growth/Scale prices
+     (`docs/owner-actions/stripe-billing-setup.md`).
+- **Verification.**
+  - `pnpm test` passed 3,620/3,620.
+  - `typecheck` and every CI compile/topology/artifact check passed.
+  - A local native-PostgreSQL-16 port of the CI `migrations-postgres` job passed: 35/35 ledger, twice
+    idempotent; 0 missing/unexpected grants; 0 function/search-path drift; 0 `SECURITY DEFINER`. The
+    runtime-role, ingestion, source-record, credential and acquisition Postgres checks all passed.
+- **Correction.** The ingestion runtime digest covers `db/migrations` and the rights-engine sources, so the
+  first pushed commit (`acb542e`) carried a stale `hvac.ingestion-runtime.json`. The billing commit
+  regenerates it.
+- **Blocked (environment).** The network policy denies every vehicle source host, and WebFetch is blocked
+  too. No Cloudflare deploy token is present. Real fixtures, the rights determination text, the data load
+  and all deploys wait on `UA-009`. Live payments wait on `UA-010`.
+- **Next session (with UA-009 done), in order.**
+  1. Capture NHTSA/EPA terms and sample artifacts, then write
+     `docs/sources/vehicles-federal-rights-determination-*.md`.
+  2. Build `verticals/vehicles`.
+     - Candidate entities: model-year vehicle (make/model/year), EPA vehicle configuration (`epa_vehicle_id`)
+       and NHTSA recall campaign (`nhtsa_campaign_number`).
+     - Sources: the EPA `vehicles.csv` bulk file and the NHTSA recall flat file.
+     - The scheduled ingestion limits (1,000 records, 1 MiB per artifact, one target per source) cannot take
+       those files whole. Load the initial snapshot through the offline `pnpm ingest` path
+       (`maxRecords` 100k), and design partitioned refresh separately.
+     - The query/blocking code still hard-codes HVAC's resolution blocking
+       (`services/ingest-worker/src/resolution.ts`).
+  3. Record rights cells via a determination recorder (no production writer exists yet).
+  4. Apply `0034`/`0035` to hosted Supabase through the controlled path, deploy, then route
+     `api.data.aroqon.com`.
+  5. Run the test-mode purchase, then go live once `UA-010` is done.
+- **Production changed by this session:** no hosted database, Cloudflare or DNS change. Stripe sandbox
+  objects were created (test mode only).
+
 ## Current session — 2026-09-18 (second session): UA-002 hosted execution independently reconciled and closed
 
 **Verdict: UA-002 COMPLETE. BETA-002 DONE. Private-canary success only — not
