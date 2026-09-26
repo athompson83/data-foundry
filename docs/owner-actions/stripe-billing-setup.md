@@ -22,10 +22,10 @@ Keys must be exactly the paid plan codes: the lowercased plan names. The edge re
 The vehicles product (`prod_VKbcy7DLL3iNSH`) exists with the published ladder as monthly USD prices:
 
 ```toml
-STRIPE_PRICE_IDS = '{"developer":"price_1UJwPXLseI5hfWcxp9dzKYrn","growth":"price_1UJwPhLseI5hfWcxwDINPTMq","scale":"price_1UJx9GLseI5hfWcxFJftDHey"}'
+STRIPE_PRICE_IDS = '{"starter":"price_1UJy2bLseI5hfWcxupnIYPn0","developer":"price_1UJwPXLseI5hfWcxp9dzKYrn","growth":"price_1UJwPhLseI5hfWcxwDINPTMq","scale":"price_1UJx9GLseI5hfWcxFJftDHey"}'
 ```
 
-Lookup keys: `vehicles_{developer,growth,scale}_monthly`. Recreate these in live mode after the account is activated; live ids differ.
+Lookup keys: `vehicles_{starter,developer,growth,scale}_monthly`. Starter ($9 / 1,000 requests) was added under the conversion-first decision (`docs/commercial-validation/conversion-first-decision-20260926.md`), and the vehicles `product.yaml` must list the same plan. Recreate these in live mode after the account is activated; live ids differ.
 
 ## 3. Webhook endpoint
 
