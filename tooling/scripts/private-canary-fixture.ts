@@ -263,6 +263,11 @@ export async function cleanupPrivateCanaryFixture(
            OR (id = $3 AND tenant_id = $2 AND label = 'Private canary MCP meter')`,
       [fixture.edgeApiKeyId, fixture.tenantId, fixture.mcpApiKeyId],
     );
+    // The 0035 monthly counter is derived from the usage rows removed above.
+    await tx.query(
+      `DELETE FROM ${relation('api_usage_monthly_counters')} WHERE tenant_id = $1`,
+      [fixture.tenantId],
+    );
     await tx.query(
       `DELETE FROM ${relation('api_tenants')} WHERE id = $1 AND slug = $2`,
       [fixture.tenantId, fixtureSlug(fixture)],

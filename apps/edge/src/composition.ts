@@ -31,6 +31,14 @@ export interface VerticalRuntime {
   readonly fields: readonly unknown[];
   readonly identifier_normalization: AliasNormalizationSpec;
   readonly fact_selection: Readonly<Record<string, unknown>>;
+  /** The vertical's published plans (compiled from `product.yaml`). */
+  readonly plans: readonly RuntimePlan[];
+}
+
+export interface RuntimePlan {
+  readonly name: string;
+  readonly monthly_usd: number;
+  readonly included_requests: number;
 }
 
 export interface EdgeDeployment {

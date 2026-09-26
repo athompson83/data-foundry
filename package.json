@@ -55,6 +55,7 @@
   },
   "devDependencies": {
     "@data-foundry/api-keys": "workspace:*",
+    "@data-foundry/billing": "workspace:*",
     "@data-foundry/canonical-schema": "workspace:*",
     "@data-foundry/canonical-store": "workspace:*",
     "@data-foundry/private-canary": "workspace:*",

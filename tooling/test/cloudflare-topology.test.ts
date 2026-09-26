@@ -828,7 +828,10 @@ describe('the committed Cloudflare topology', () => {
       `${edge}\naccount_id = "00000000000000000000000000000000"\n` +
         '[[env.production.hyperdrive]]\nbinding = "HYPERDRIVE"\nid = "11111111111111111111111111111111"\n' +
         '[env.production.vars]\nPOSTGRES_URL = "postgres://plain.example/db"\n' +
-        'RAPIDAPI_PROXY_SECRET = "plain-secret"\n',
+        'RAPIDAPI_PROXY_SECRET = "plain-secret"\n' +
+        'STRIPE_SECRET_KEY = "sk_live_plain"\n' +
+        'STRIPE_WEBHOOK_SECRET = "whsec_plain"\n' +
+        'STRIPE_PRICE_IDS = "{}"\n',
       'utf8',
     );
     await writeFile(consumerPath, await readFile(CONSUMER_CONFIG, 'utf8'), 'utf8');
@@ -838,6 +841,9 @@ describe('the committed Cloudflare topology', () => {
     expect(errors.join('\n')).toMatch(/hyperdrive.*id/i);
     expect(errors.join('\n')).toMatch(/POSTGRES_URL/);
     expect(errors.join('\n')).toMatch(/RAPIDAPI_PROXY_SECRET/);
+    expect(errors.join('\n')).toMatch(/STRIPE_SECRET_KEY/);
+    expect(errors.join('\n')).toMatch(/STRIPE_WEBHOOK_SECRET/);
+    expect(errors.join('\n')).toMatch(/STRIPE_PRICE_IDS/);
   });
 
   it('rejects deployment-only routes and host/origin values in repository templates', async () => {

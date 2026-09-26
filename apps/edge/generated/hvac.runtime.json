@@ -628,5 +628,27 @@
         "describe": "refrigerant is one of R-410A, R-454B, R-32, R-22"
       }
     ]
-  }
+  },
+  "plans": [
+    {
+      "name": "Evaluate",
+      "monthly_usd": 0,
+      "included_requests": 100
+    },
+    {
+      "name": "Developer",
+      "monthly_usd": 49,
+      "included_requests": 5000
+    },
+    {
+      "name": "Growth",
+      "monthly_usd": 149,
+      "included_requests": 25000
+    },
+    {
+      "name": "Scale",
+      "monthly_usd": 299,
+      "included_requests": 75000
+    }
+  ]
 }

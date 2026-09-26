@@ -1042,6 +1042,10 @@ export const EXPECTED_TABLES = [
   'operator_actions',
   'operation_incidents',
   'operation_alert_deliveries',
+  'api_tenant_allowances',
+  'api_usage_monthly_counters',
+  'api_subscriptions',
+  'billing_webhook_events',
 ] as const;
 
 /** Owned tables present, unowned tables found beside them, and owned tables missing. */

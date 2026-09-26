@@ -1,3 +1,4 @@
+import { ProductOfferSchema } from '../../apps/web/src/product.js';
 import { compileAliasNormalization } from '../../packages/normalization/src/alias-normalization.js';
 import type { AliasNormalizationSpec } from '@data-foundry/canonical-schema';
 /**
@@ -9,12 +10,15 @@ import type { AliasNormalizationSpec } from '@data-foundry/canonical-schema';
  * The deployed Worker imports the artifact; it never parses YAML and never
  * reaches for `services/ingest-worker`, which is the write side.
  *
- * Two things are compiled, and only two:
+ * Three things are compiled, and only three:
  *
  *   - `fields`, the filter/facet metadata `QueryModel` needs to know which
  *     vertical-declared fields may be filtered on at all. Without it `/v1/search`
  *     silently accepts no filters, which is worse than refusing them.
  *   - `fact_selection`, the doc-04 policy, minus `at`.
+ *   - `plans`, the published plan ladder from `product.yaml` (empty when the
+ *     vertical publishes none). Self-service checkout sells exactly these
+ *     plans and enforces their included-request allowance.
  *
  * `at` is deliberately absent. `buildFactSelectionPolicy` passes it straight
  * through — it is the caller's as-of instant, not a property of the vertical —
@@ -23,6 +27,7 @@ import type { AliasNormalizationSpec } from '@data-foundry/canonical-schema';
  * request.
  */
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { parse as parseYaml } from 'yaml';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
@@ -52,6 +57,29 @@ export interface VerticalRuntime {
   readonly identifier_normalization: AliasNormalizationSpec;
   /** The doc-04 policy without `at`; the caller supplies that per request. */
   readonly fact_selection: Readonly<Record<string, unknown>>;
+  /** Published plans from `product.yaml`; `[]` when the vertical has none. */
+  readonly plans: readonly RuntimePlan[];
+}
+
+export interface RuntimePlan {
+  readonly name: string;
+  readonly monthly_usd: number;
+  readonly included_requests: number;
+}
+
+async function compilePlans(directory: string): Promise<readonly RuntimePlan[]> {
+  let raw: string;
+  try {
+    raw = await readFile(join(directory, 'product.yaml'), 'utf8');
+  } catch (error) {
+    if (error instanceof Error && 'code' in error && error.code === 'ENOENT') return [];
+    throw error;
+  }
+  return ProductOfferSchema.parse(parseYaml(raw)).plans.map(({ name, monthly_usd, included_requests }) => ({
+    name,
+    monthly_usd,
+    included_requests,
+  }));
 }
 
 export interface CompileVerticalRuntimeOptions {
@@ -73,6 +101,7 @@ export async function compileVerticalRuntime(slug: string): Promise<VerticalRunt
     fields: buildFieldMetadata(config),
     identifier_normalization: compileAliasNormalization(config),
     fact_selection: factSelection,
+    plans: await compilePlans(config.directory),
   };
 }
 

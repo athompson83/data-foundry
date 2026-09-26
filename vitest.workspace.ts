@@ -10,6 +10,7 @@ export const projects = [
   'packages/canonical-schema',
   'packages/source-registry',
   'packages/api-keys',
+  'packages/billing',
   'packages/access-auth',
   'packages/usage-events',
   'packages/private-canary',

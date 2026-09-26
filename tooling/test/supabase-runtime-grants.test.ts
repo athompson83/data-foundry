@@ -1,4 +1,7 @@
 import { createHash } from 'node:crypto';
+import { computeStripeSignature } from '@data-foundry/billing';
+import { persistUsageEvents } from '../../packages/usage-events/src/index.js';
+import { readAllowance, serveBilling } from '../../apps/edge/src/billing.js';
 import { beforeAll, describe, expect, it } from 'vitest';
 import {
   createPGliteDriver,
@@ -183,8 +186,8 @@ describe('Supabase post-migration runtime grants', () => {
     expect(first.sql).not.toMatch(
       /GRANT[^;]*UPDATE ON TABLE "data_foundry"\."(?:sources|source_artifacts)"/,
     );
-    expect(first.functionSignatures).toHaveLength(59);
-    expect(first.expectedGrants).toHaveLength(286);
+    expect(first.functionSignatures).toHaveLength(60);
+    expect(first.expectedGrants).toHaveLength(313);
     expect(first.expectedGrants).toEqual(buildRuntimeRoleExpectedGrants('data_foundry'));
     for (const signature of first.functionSignatures) {
       expect(first.sql).toContain(
@@ -269,6 +272,147 @@ describe('Supabase post-migration runtime grants', () => {
         edge_schema_create: false,
       });
     } finally {
+      await database.close();
+    }
+  }, 120_000);
+
+  it('lets df_edge run self-service billing and df_usage maintain the monthly counter under the exact grants', async () => {
+    const { database, plan } = await createMigratedDatabase();
+    try {
+      await database.exec(`BEGIN;\n${plan.postMigrationGrants.sql}\nCOMMIT;`);
+      const [vertical] = await database.query<{ id: string }>(
+        `INSERT INTO data_foundry.verticals (slug, name, schema_version, status, default_refresh_policy)
+         VALUES ('hvac', 'HVAC', '1', 'ACTIVE', '{}'::jsonb) RETURNING id`,
+      );
+      const driver = {
+        label: 'df_edge billing probe',
+        dialect: 'pglite' as const,
+        query: <R,>(sql: string, params?: readonly unknown[]) => database.query<R>(sql, params),
+        exec: (sql: string) => database.exec(sql),
+        async transaction<T>(fn: (tx: never) => Promise<T>): Promise<T> {
+          await database.exec('BEGIN');
+          try {
+            const result = await fn(driver as never);
+            await database.exec('COMMIT');
+            return result;
+          } catch (error) {
+            await database.exec('ROLLBACK');
+            throw error;
+          }
+        },
+        close: async () => undefined,
+      };
+      const priceIds = { developer: 'price_Developer0001', growth: 'price_Growth000001', scale: 'price_Scale0000001' };
+      const session = {
+        id: 'cs_test_roleprobe0001',
+        status: 'complete',
+        payment_status: 'paid',
+        customer: 'cus_roleprobe',
+        customer_details: { email: 'probe@example.com' },
+        metadata: { vertical_slug: 'hvac', plan_code: 'developer' },
+        subscription: {
+          id: 'sub_roleprobe',
+          status: 'active',
+          items: { data: [{ price: { id: priceIds.developer }, current_period_end: 1_900_000_000 }] },
+        },
+      };
+      const fetch = async (url: string) =>
+        url.startsWith('https://api.stripe.com/v1/billing_portal/')
+          ? Response.json({ url: 'https://billing.stripe.com/p/session/probe' })
+          : Response.json(session);
+      const context = {
+        config: {
+          secretKey: 'sk_test_0123456789abcdef',
+          webhookSecret: 'whsec_probe',
+          priceIdsJson: JSON.stringify(priceIds),
+          publicOrigin: 'https://api.data.aroqon.com',
+          returnUrl: 'https://data.aroqon.com/hvac/pricing',
+        },
+        plans: [
+          { name: 'Developer', monthly_usd: 49, included_requests: 5000 },
+          { name: 'Growth', monthly_usd: 149, included_requests: 25000 },
+          { name: 'Scale', monthly_usd: 299, included_requests: 75000 },
+        ],
+        verticalSlug: 'hvac',
+        verticalId: vertical!.id,
+        keyEnvironment: 'test' as const,
+        driver: driver as never,
+        now: new Date(),
+        fetch,
+      };
+
+      await database.exec('SET ROLE df_edge; SET search_path TO data_foundry, pg_catalog, extensions;');
+      const claimed = await serveBilling(
+        new Request('https://api.data.aroqon.com/v1/billing/claim?session_id=cs_test_roleprobe0001'),
+        context,
+      );
+      expect(claimed.status).toBe(201);
+      const { data } = (await claimed.json()) as { data: { api_key: string } };
+
+      const payload = JSON.stringify({
+        id: 'evt_roleprobe',
+        type: 'customer.subscription.updated',
+        data: { object: { ...session.subscription, status: 'active', items: { data: [{ price: { id: priceIds.scale } }] } } },
+      });
+      const timestamp = Math.floor(Date.now() / 1000);
+      const signature = await computeStripeSignature('whsec_probe', timestamp, payload);
+      const webhook = await serveBilling(
+        new Request('https://api.data.aroqon.com/v1/billing/stripe-webhook', {
+          method: 'POST',
+          headers: { 'stripe-signature': `t=${timestamp},v1=${signature}` },
+          body: payload,
+        }),
+        context,
+      );
+      expect(webhook.status).toBe(200);
+      const portal = await serveBilling(
+        new Request('https://api.data.aroqon.com/v1/billing/portal', {
+          method: 'POST',
+          headers: { authorization: `Bearer ${data.api_key}` },
+        }),
+        context,
+      );
+      expect(portal.status).toBe(201);
+      const [tenant] = await database.query<{ tenant_id: string }>(
+        `SELECT tenant_id FROM api_subscriptions WHERE provider_subscription_id = 'sub_roleprobe'`,
+      );
+      expect(await readAllowance(driver as never, tenant!.tenant_id, new Date())).toEqual({ allowance: 75000, used: 0 });
+      // The edge still cannot write usage history or read another key's columns.
+      await expect(database.exec(`DELETE FROM api_usage_events`)).rejects.toThrow(/permission denied/i);
+      await expect(database.query(`SELECT label FROM api_keys`)).rejects.toThrow(/permission denied/i);
+      await database.exec('RESET ROLE; RESET search_path;');
+
+      const [key] = await database.query<{ id: string }>(
+        `SELECT id FROM data_foundry.api_keys WHERE tenant_id = $1`,
+        [tenant!.tenant_id],
+      );
+      await database.exec('SET ROLE df_usage; SET search_path TO data_foundry, pg_catalog, extensions;');
+      const persisted = await persistUsageEvents(driver as never, [
+        {
+          schema_version: 2,
+          id: '7b000000-0000-4000-8000-000000000001',
+          tenant_id: tenant!.tenant_id,
+          api_key_id: key!.id,
+          vertical_id: vertical!.id,
+          occurred_at: new Date().toISOString(),
+          route_key: 'health',
+          method: 'GET',
+          status: 200,
+          rows_served: 0,
+          duration_ms: 1,
+          access_tier: 'API_PAID',
+          billing_source: 'DIRECT',
+        } as never,
+      ]);
+      expect(persisted).toBe(1);
+      await database.exec('RESET ROLE; RESET search_path;');
+      const [counter] = await database.query<{ request_count: string }>(
+        `SELECT request_count::text FROM data_foundry.api_usage_monthly_counters WHERE tenant_id = $1`,
+        [tenant!.tenant_id],
+      );
+      expect(counter?.request_count).toBe('1');
+    } finally {
+      await database.exec('RESET ROLE').catch(() => undefined);
       await database.close();
     }
   }, 120_000);

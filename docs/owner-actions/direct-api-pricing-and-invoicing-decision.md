@@ -1,5 +1,14 @@
 # Owner decision — direct API pricing and invoicing
 
+> **Superseded in part, 2026-09-26.** The Product Owner chose self-service
+> Stripe billing (plus RapidAPI) instead of manual invoicing:
+> [ADR-0014](../decisions/ADR-0014-self-service-stripe-billing.md). Decision 1
+> (the four-tier ladder) and Decision 2 (hard stop, no overage) are implemented
+> as proposed. The hard stop is now actually enforced; before migration `0035`
+> it existed only on the pricing page. Decision 3 (manual invoicing) is
+> replaced by Stripe Checkout and subscriptions. Decision 4 (the free tier)
+> remains unbuilt: Checkout never sells the $0 plan.
+
 Prepared 2026-09-16. This is the last commercial decision standing between a
 deployed direct API and a paid machine request. It is deliberately a short
 decision, not a pricing study: four questions, each with a proposed answer and

@@ -328,6 +328,11 @@ function checkRepositoryPolicy(label: string, config: TomlObject, errors: string
     'MCP_HOSTNAME',
     'MCP_ALLOWED_ORIGINS',
     'RAPIDAPI_HOSTNAME',
+    'STRIPE_SECRET_KEY',
+    'STRIPE_WEBHOOK_SECRET',
+    'STRIPE_PRICE_IDS',
+    'BILLING_PUBLIC_ORIGIN',
+    'BILLING_RETURN_URL',
   ]);
   for (const vars of valuesAtKey(config, 'vars')) {
     for (const key of keyNames(object(vars))) {
@@ -707,6 +712,11 @@ function checkPrivateCanaryTargetTopology(
     'RAPIDAPI_HOSTNAME',
     'RAPIDAPI_PROXY_SECRET',
     'RAPIDAPI_API_KEY',
+    'STRIPE_SECRET_KEY',
+    'STRIPE_WEBHOOK_SECRET',
+    'STRIPE_PRICE_IDS',
+    'BILLING_PUBLIC_ORIGIN',
+    'BILLING_RETURN_URL',
   ]);
   for (const path of collectKeyPaths(config, forbiddenEndpointVariables)) {
     errors.push(`${label} private-canary target must not configure ${path}.`);
@@ -861,7 +871,8 @@ function isPlaintextProtectedKey(key: string): boolean {
     normalized === 'RAPIDAPI_API_KEY' ||
     normalized === 'CLOUDFLARE_API_TOKEN' ||
     normalized === 'CRAWL4AI_API_TOKEN' ||
-    /(?:PASSWORD|PASSWD|TOKEN|SECRET)$/.test(normalized) ||
+    normalized === 'STRIPE_SECRET_KEY' ||
+    /(?:PASSWORD|PASSWD|TOKEN|SECRET|SECRET_?KEY)$/.test(normalized) ||
     /(?:API_?KEY|API_?SECRET|PRIVATE_?KEY)$/.test(normalized);
 }
 
