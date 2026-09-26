@@ -13,7 +13,7 @@ import { BadRequest, getRecall, lookupCode, searchRecalls, stats } from './api.j
 import type { Env } from './env.js';
 import { openApiDocument } from './openapi.js';
 import { catalogPage, docsPage, messagePage, privacyPage, recallsLanding, termsPage, welcomePage, type PageContext } from './pages.js';
-import { createCheckoutSession, createPortalSession, handleStripeWebhook, retrieveCheckoutSession, StripeError, upsertCustomerFromSubscription } from './stripe.js';
+import { createCheckoutSession, createPortalSession, currentSubscription, handleStripeWebhook, retrieveCheckoutSession, StripeError, upsertCustomerFromSubscription } from './stripe.js';
 import { scheduledSync, syncWindow } from './sync.js';
 import { RECALL_CATEGORIES, type RecallCategory } from '@data-foundry/recall-structuring';
 
@@ -146,10 +146,13 @@ async function welcome(env: Env, url: URL): Promise<Response> {
   }
   const subscription = session.subscription;
   if (!subscription || typeof subscription === 'string') throw new StripeError('Checkout session has no subscription', 502);
+  const sessionSubscription = { id: subscription.id, customer: session.customer ?? '', status: subscription.status, items: subscription.items, metadata: session.metadata ?? {} };
+  // Revisiting an old Checkout must not revive or overwrite state: apply the
+  // customer's current subscription as Stripe reports it.
   const customerId = await upsertCustomerFromSubscription(
     env.DB,
     env,
-    { id: subscription.id, customer: session.customer ?? '', status: subscription.status, items: subscription.items, metadata: session.metadata ?? {} },
+    session.customer ? await currentSubscription(env, session.customer, sessionSubscription) : sessionSubscription,
     session.customer_details?.email ?? null,
   );
   if (!customerId) throw new StripeError('Subscription plan is not recognised', 502);

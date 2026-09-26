@@ -122,10 +122,11 @@ export async function verifyStripeSignature(payload: string, header: string | nu
   return signatures.some((signature) => timingSafeEqual(signature, expected));
 }
 
-interface Subscription {
+export interface Subscription {
   readonly id: string;
   readonly customer: string;
   readonly status: string;
+  readonly created?: number;
   readonly items: { data: Array<{ price: { id: string } }> };
   readonly metadata?: Record<string, string>;
 }
@@ -137,22 +138,32 @@ export function customerStatusFor(subscriptionStatus: string): 'active' | 'past_
   return 'canceled';
 }
 
+/**
+ * The Stripe customer's current subscription to this product, from Stripe
+ * itself: the newest live one (active, trialing, past_due), else the newest.
+ * Webhook events can arrive late and out of order, so neither an event's
+ * payload nor local state decides which subscription governs the customer.
+ */
+export async function currentSubscription(env: Env, stripeCustomerId: string, fallback: Subscription): Promise<Subscription> {
+  const list = await stripe<{ data?: Subscription[] }>(env, 'GET', 'subscriptions', { customer: stripeCustomerId, status: 'all', limit: 100 });
+  const ours = (list.data ?? []).filter((subscription) => planForPriceId(env, subscription.items.data[0]?.price.id) !== null);
+  const newestFirst = [...ours].sort((a, b) => (b.created ?? 0) - (a.created ?? 0));
+  return newestFirst.find((subscription) => customerStatusFor(subscription.status) !== 'canceled') ?? newestFirst[0] ?? fallback;
+}
+
 /** Create or update the local customer from a Stripe subscription. Returns the local id. */
 export async function upsertCustomerFromSubscription(db: D1Database, env: Env, subscription: Subscription, email: string | null, now = new Date().toISOString()): Promise<string | null> {
   const plan = planForPriceId(env, subscription.items.data[0]?.price.id) ?? (isPlanId(subscription.metadata?.['plan']) ? (subscription.metadata?.['plan'] as PlanId) : null);
   if (!plan) return null;
   const status = customerStatusFor(subscription.status);
   const existing = await db
-    .prepare('SELECT id, stripe_subscription_id, status FROM customer WHERE stripe_subscription_id = ? OR stripe_customer_id = ? ORDER BY created_at LIMIT 1')
-    .bind(subscription.id, subscription.customer)
-    .first<{ id: string; stripe_subscription_id: string | null; status: string }>();
+    .prepare('SELECT id FROM customer WHERE stripe_customer_id = ? OR stripe_subscription_id = ? ORDER BY created_at LIMIT 1')
+    .bind(subscription.customer, subscription.id)
+    .first<{ id: string }>();
   if (existing) {
-    // A different subscription may only replace the customer's current one
-    // when it is live and the current one is not: a late event (or a revisited
-    // Checkout) for an old, canceled subscription must never overwrite an
-    // active one and disable the customer's key.
-    const replacing = existing.stripe_subscription_id !== null && existing.stripe_subscription_id !== subscription.id;
-    if (replacing && (status === 'canceled' || existing.status !== 'canceled')) return existing.id;
+    // Callers pass the customer's current subscription as Stripe reports it
+    // (currentSubscription), so it is applied as-is whatever order events
+    // arrived in.
     await db
       .prepare('UPDATE customer SET plan = ?, status = ?, stripe_subscription_id = ?, stripe_customer_id = ?, email = COALESCE(?, email), updated_at = ? WHERE id = ?')
       .bind(plan, status, subscription.id, subscription.customer, email, now, existing.id)
@@ -192,7 +203,7 @@ export async function handleStripeWebhook(env: Env, request: Request): Promise<R
   }
   if (subscriptionId) {
     const subscription = await stripe<Subscription>(env, 'GET', `subscriptions/${encodeURIComponent(subscriptionId)}`);
-    await upsertCustomerFromSubscription(env.DB, env, subscription, email, now);
+    await upsertCustomerFromSubscription(env.DB, env, await currentSubscription(env, subscription.customer, subscription), email, now);
   }
   await env.DB.prepare('INSERT INTO stripe_event (id, type, received_at) VALUES (?, ?, ?) ON CONFLICT DO NOTHING').bind(event.id, event.type, now).run();
   return Response.json({ received: true });

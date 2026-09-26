@@ -528,18 +528,32 @@ describe('Stripe', () => {
     expect((await worker.fetch(get('/v1/recalls', body.api_key), env)).status).toBe(200);
   });
 
-  it('never lets an old canceled subscription overwrite the current active one', async () => {
+  it('applies the customer\'s current subscription whatever order webhooks arrive in', async () => {
     const env = makeEnv();
     const key = await seedCustomer(env, 'developer');
-    const { upsertCustomerFromSubscription } = await import('../src/stripe.js');
-    // Late event for an older subscription of the same Stripe customer.
-    await upsertCustomerFromSubscription(env.DB, env, { id: 'sub_old', customer: 'cus_1', status: 'canceled', items: { data: [{ price: { id: 'price_scale' } }] } }, null);
-    expect(await env.DB.prepare('SELECT plan, status, stripe_subscription_id FROM customer').first()).toEqual({ plan: 'developer', status: 'active', stripe_subscription_id: 'sub_1' });
+    const subs = {
+      sub_1: { id: 'sub_1', customer: 'cus_1', status: 'canceled', created: 1, items: { data: [{ price: { id: 'price_dev' } }] } },
+      sub_2: { id: 'sub_2', customer: 'cus_1', status: 'active', created: 2, items: { data: [{ price: { id: 'price_growth' } }] } },
+    } as const;
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => {
+      const path = new URL(url).pathname;
+      if (path === '/v1/subscriptions') return Response.json({ data: [subs.sub_1, subs.sub_2] });
+      return Response.json(subs[path.split('/').pop() as keyof typeof subs]);
+    }));
+    const deliver = async (id: string, type: string, subscription: string) => {
+      const payload = JSON.stringify({ id, type, data: { object: { id: subscription } } });
+      const request = new Request('https://data.aroqon.com/stripe/webhook', {
+        method: 'POST',
+        body: payload,
+        headers: { 'stripe-signature': await sign(payload, 'whsec_test_secret_value', Math.floor(Date.now() / 1000)) },
+      });
+      expect((await worker.fetch(request, env)).status).toBe(200);
+    };
+    // The new subscription's event first, then the old one's late cancellation.
+    await deliver('evt_new', 'customer.subscription.created', 'sub_2');
+    await deliver('evt_old', 'customer.subscription.deleted', 'sub_1');
+    expect(await env.DB.prepare('SELECT plan, status, stripe_subscription_id FROM customer').first()).toEqual({ plan: 'growth', status: 'active', stripe_subscription_id: 'sub_2' });
     expect((await worker.fetch(get('/v1/recalls', key), env)).status).toBe(200);
-    // A resubscription after cancellation does replace it.
-    await env.DB.prepare("UPDATE customer SET status = 'canceled'").run();
-    await upsertCustomerFromSubscription(env.DB, env, { id: 'sub_new', customer: 'cus_1', status: 'active', items: { data: [{ price: { id: 'price_growth' } }] } }, null);
-    expect(await env.DB.prepare('SELECT plan, status, stripe_subscription_id FROM customer').first()).toEqual({ plan: 'growth', status: 'active', stripe_subscription_id: 'sub_new' });
   });
 
   it('reports an operational key-issue failure as retryable, not as already issued', async () => {

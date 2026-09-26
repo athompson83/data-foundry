@@ -28,6 +28,23 @@ export function gs1CheckDigitValid(digits: string): boolean {
   return (10 - (sum % 10)) % 10 === Number(digits[digits.length - 1]);
 }
 
+/**
+ * Expand an 8-digit UPC-E (number system 0 or 1, six data digits, check digit)
+ * to its 12-digit UPC-A. Returns null for other number systems.
+ */
+export function expandUpcE(upcE: string): string | null {
+  if (!/^[01]\d{7}$/.test(upcE)) return null;
+  const system = upcE[0] as string;
+  const [d1, d2, d3, d4, d5, d6] = upcE.slice(1, 7).split('') as [string, string, string, string, string, string];
+  const check = upcE[7] as string;
+  let body: string;
+  if (d6 === '0' || d6 === '1' || d6 === '2') body = `${d1}${d2}${d6}0000${d3}${d4}${d5}`;
+  else if (d6 === '3') body = `${d1}${d2}${d3}00000${d4}${d5}`;
+  else if (d6 === '4') body = `${d1}${d2}${d3}${d4}00000${d5}`;
+  else body = `${d1}${d2}${d3}${d4}${d5}0000${d6}`;
+  return `${system}${body}${check}`;
+}
+
 function toGtin14(digits: string): string {
   return digits.padStart(14, '0');
 }
@@ -219,11 +236,19 @@ export function parseCodes(...texts: ReadonlyArray<string | null | undefined>): 
     const digits = match[1] as string;
     if (gs1CheckDigitValid(digits)) gtins.add(toGtin14(digits));
   }
-  // EAN-8 / UPC-E only after an explicit marker: bare 8-digit runs (lots,
-  // dates, catalog numbers) pass a check digit one time in ten.
-  for (const match of text.matchAll(/\b(?:EAN|UPC|GTIN)(?:-?8|-?E)?\s*(?:#|no\.?|code)?\s*[:#]?\s*(\d{8})(?!\d)/gi)) {
-    const digits = match[1] as string;
-    if (gs1CheckDigitValid(digits)) gtins.add(toGtin14(digits));
+  // 8-digit codes only after an explicit marker: bare 8-digit runs (lots,
+  // dates, catalog numbers) pass a check digit one time in ten. EAN-8/GTIN-8
+  // are GTINs as printed; an 8-digit UPC is UPC-E, a compressed UPC-A that is
+  // expanded first so it matches a scan of the same product.
+  for (const match of text.matchAll(/\b(EAN|GTIN|UPC)(?:-?(8|E))?\s*(?:#|no\.?|code)?\s*[:#]?\s*(\d{8})(?!\d)/gi)) {
+    const scheme = (match[1] as string).toUpperCase();
+    const digits = match[3] as string;
+    if (scheme === 'UPC') {
+      const upcA = expandUpcE(digits);
+      if (upcA && gs1CheckDigitValid(upcA)) gtins.add(toGtin14(upcA));
+    } else if (gs1CheckDigitValid(digits)) {
+      gtins.add(toGtin14(digits));
+    }
   }
   // Spaced UPC as printed on labels: "0 12345 67890 5"
   for (const match of text.matchAll(/(?<!\d)(\d)[\s-](\d{5})[\s-](\d{5})[\s-](\d)(?!\d)/g)) {

@@ -10,7 +10,7 @@ import { parseDistribution, type DistributionGeography } from './geography.js';
 import { parseQuantity, type ProductQuantity } from './quantity.js';
 import { parseReason, type RecallReason } from './reasons.js';
 
-export { parseCodes, gs1CheckDigitValid, normaliseNdc, normaliseProductNdc, productOfPackageNdc, parseLooseDate } from './codes.js';
+export { parseCodes, expandUpcE, gs1CheckDigitValid, normaliseNdc, normaliseProductNdc, productOfPackageNdc, parseLooseDate } from './codes.js';
 export { parseDistribution, US_STATES } from './geography.js';
 export { parseQuantity } from './quantity.js';
 export { parseReason, REASON_CLASSES, ALLERGENS, PATHOGENS } from './reasons.js';

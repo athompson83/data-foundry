@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  expandUpcE,
   gs1CheckDigitValid,
   isUsableRecallNumber,
   normaliseNdc,
@@ -124,7 +125,10 @@ describe('product codes', () => {
 
   it('extracts EAN-8 only after an explicit marker', () => {
     expect(parseCodes('EAN-8: 96385074').gtins).toEqual(['00000096385074']);
-    expect(parseCodes('UPC 73513537').gtins).toEqual(['00000073513537']);
+    // An 8-digit UPC is UPC-E: expanded to its UPC-A (042100005264) before indexing.
+    expect(expandUpcE('04252614')).toBe('042100005264');
+    expect(parseCodes('UPC-E: 04252614').gtins).toEqual(['00042100005264']);
+    expect(parseCodes('UPC 73513537').gtins).toEqual([]);
     // A bare 8-digit run with a valid check digit is not assumed to be a GTIN.
     expect(parseCodes('Lot 40170725').gtins).toEqual([]);
   });
