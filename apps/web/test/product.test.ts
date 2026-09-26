@@ -2,7 +2,7 @@ import { FieldMetadataRegistry } from '@data-foundry/query-model';
 import { parseSearchForm } from '../src/search-form.js';
 import { describe, expect, it } from 'vitest';
 import runtime from '../generated/hvac.web-runtime.json' with { type: 'json' };
-import { billingDocsContent, directCheckoutAvailable, planCode, ProductOfferSchema, renderProductPage } from '../src/product.js';
+import { billingDocsContent, directCheckoutAvailable, offerIntro, planCode, ProductOfferSchema, renderProductPage } from '../src/product.js';
 
 describe('optional marketplace offer', () => {
   it.each(['https://rapidapi.com.evil.invalid/user/api/data', 'http://rapidapi.com/user/api/data', 'https://key@rapidapi.com/user/api/data', 'https://rapidapi.com/user/api/data?key=value', 'https://rapidapi.com/user/api/data#key', 'https://rapidapi.com/', 'javascript:alert(1)'])('rejects an unsafe or non-listing URL %s', (listing_url) => {
@@ -165,5 +165,14 @@ describe('direct self-service checkout', () => {
     for (const header of ['retry-after', 'x-ratelimit-limit', 'x-ratelimit-remaining: 0', 'x-ratelimit-reset']) expect(docs).toContain(header);
     expect(docs).not.toContain('not open yet');
     expect(billingDocsContent(ProductOfferSchema.parse({ ...runtime.product, direct_checkout }))).toContain('Direct subscriptions are not open yet');
+  });
+});
+
+describe('hero lookup button', () => {
+  it('uses the configured lookup_cta and keeps the HVAC default', () => {
+    const base = ProductOfferSchema.parse(runtime.product);
+    expect(offerIntro(base, '/hvac')).toContain('>Look up equipment</a>');
+    const vehicles = ProductOfferSchema.parse({ ...runtime.product, lookup_cta: 'Look up a vehicle' });
+    expect(offerIntro(vehicles, '/vehicles')).toContain('>Look up a vehicle</a>');
   });
 });

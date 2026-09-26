@@ -3,6 +3,7 @@
   "product": {
     "title": "US Vehicle Recalls & Fuel Economy API",
     "lookup_entity_type": "vehicle_model_year",
+    "lookup_cta": "Look up a vehicle",
     "audience": "Built for vehicle marketplaces, dealer, fleet and insurance software teams.",
     "summary": "Look up open safety recalls for a vehicle, with its EPA fuel economy, from US federal data. VIN-to-recalls is the headline lookup and depends on NHTSA vPIC VIN decoding, which is not yet captured; make, model and year lookups come first.",
     "availability": "prelaunch",

@@ -26,6 +26,21 @@ real dataset is loaded, nothing new is deployed, and Stripe is test-mode only.
   - Entity-resolution blocking is now declared per vertical in `vertical.yaml` instead of hard-coded to
     HVAC. HVAC output is unchanged. A vehicles-shaped integration test and a validator test are included.
   - Hosted CI was green on `14a0fd6`. The local full suite on `45b3e7d` passed 3,652/3,652.
+- **Later the same day: vehicles, checkout, routing and deploy tooling.**
+  - `verticals/vehicles` (DRAFT) was added: make, model year, EPA configuration and NHTSA recall campaign,
+    with composite CSV keys and a configurable publisher entity type.
+    - Its sources are fail-closed (UNDER_REVIEW, UNREVIEWED, no acquisition targets).
+    - Its fixtures are SYNTHETIC SHAPE FIXTURES. Every unverified column and format assumption is listed in
+      `verticals/vehicles/SOURCES.md`.
+  - The web pricing page gets a direct Stripe "Subscribe" form via `product.yaml` `direct_checkout`. It
+    stays off while prelaunch.
+  - Canonical `api.data.aroqon.com/v1/<slug>` routing is in place: an edge `API_PATH_PREFIX`, per-vertical
+    edge topology checks, the `apps/edge/wrangler.vehicles.toml` template, a manifest renderer and a
+    manual-only, main-only `.github/workflows/deploy-production.yml`.
+  - Conversion-first choices, delegated by the owner: RapidAPI lead channel, free + $9 Starter entry tiers,
+    VIN-recall headline (`docs/commercial-validation/conversion-first-decision-20260926.md`).
+  - The local full suite on the merged head passed 3,785/3,785. The artifacts check builds 13 core
+    artifacts plus the vehicles edge.
 - **Verification.**
   - `pnpm test` passed 3,620/3,620.
   - `typecheck` and every CI compile/topology/artifact check passed.

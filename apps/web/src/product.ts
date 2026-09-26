@@ -54,6 +54,8 @@ export function directCheckoutAction(checkout: DirectCheckout): string {
 export const ProductOfferSchema = z.strictObject({
   title: z.string().min(1).max(160),
   lookup_entity_type: z.string().regex(/^[a-z][a-z0-9_]*$/),
+  /** Hero search button text; defaults to the original HVAC wording. */
+  lookup_cta: z.string().min(1).max(40).optional(),
   audience: z.string().min(1).max(300),
   summary: z.string().min(1).max(500),
   availability: z.enum(['prelaunch', 'available']),
@@ -78,7 +80,7 @@ export function productNavigation(prefix: string): string {
 }
 
 export function offerIntro(offer: ProductOffer, prefix: string): string {
-  return `${productNavigation(prefix)}<section class="hero"><p class="eyebrow">${escapeHtml(offer.audience)}</p><h1>${escapeHtml(offer.title)}</h1><p class="lede">${escapeHtml(offer.summary)}</p><div class="actions"><a class="button" href="${escapeAttr(prefix)}/search">Look up equipment</a><a class="button secondary" href="${escapeAttr(prefix)}/docs">Start integrating</a></div><p class="evidence">${offer.availability === 'prelaunch' ? 'Preparing for launch. Plans and coverage are being validated.' : offer.listing_url === null ? 'Subscribe directly from the pricing page.' : 'Confirm current availability and terms on the marketplace listing.'}</p></section>`;
+  return `${productNavigation(prefix)}<section class="hero"><p class="eyebrow">${escapeHtml(offer.audience)}</p><h1>${escapeHtml(offer.title)}</h1><p class="lede">${escapeHtml(offer.summary)}</p><div class="actions"><a class="button" href="${escapeAttr(prefix)}/search">${escapeHtml(offer.lookup_cta ?? 'Look up equipment')}</a><a class="button secondary" href="${escapeAttr(prefix)}/docs">Start integrating</a></div><p class="evidence">${offer.availability === 'prelaunch' ? 'Preparing for launch. Plans and coverage are being validated.' : offer.listing_url === null ? 'Subscribe directly from the pricing page.' : 'Confirm current availability and terms on the marketplace listing.'}</p></section>`;
 }
 
 export function coverageContent(offer: ProductOffer): string {
