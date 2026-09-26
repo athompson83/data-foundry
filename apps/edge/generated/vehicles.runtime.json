@@ -1,0 +1,586 @@
+{
+  "vertical_slug": "vehicles",
+  "fields": [
+    {
+      "field": "make",
+      "label": "Make",
+      "value_type": "string",
+      "unit": null,
+      "filter": {
+        "type": "multi_select",
+        "facet_count": true
+      },
+      "sort": false,
+      "search_boost": 0.9,
+      "indexable": true
+    },
+    {
+      "field": "model_year",
+      "label": "Model year",
+      "value_type": "integer",
+      "unit": null,
+      "filter": {
+        "type": "range",
+        "facet_count": true
+      },
+      "sort": true,
+      "search_boost": 0.7,
+      "indexable": true
+    },
+    {
+      "field": "model_name",
+      "label": "Model",
+      "value_type": "string",
+      "unit": null,
+      "filter": {
+        "type": "multi_select",
+        "facet_count": true
+      },
+      "sort": true,
+      "search_boost": 0.8,
+      "indexable": false
+    },
+    {
+      "field": "fuel_type",
+      "label": "Fuel type",
+      "value_type": "string",
+      "unit": null,
+      "filter": {
+        "type": "multi_select",
+        "facet_count": true
+      },
+      "sort": false,
+      "search_boost": 0.5,
+      "indexable": false
+    },
+    {
+      "field": "drive",
+      "label": "Drive",
+      "value_type": "string",
+      "unit": null,
+      "filter": {
+        "type": "multi_select",
+        "facet_count": true
+      },
+      "sort": false,
+      "search_boost": 0.3,
+      "indexable": false
+    },
+    {
+      "field": "vehicle_class",
+      "label": "EPA size class",
+      "value_type": "string",
+      "unit": null,
+      "filter": {
+        "type": "multi_select",
+        "facet_count": true
+      },
+      "sort": false,
+      "search_boost": 0.4,
+      "indexable": false
+    },
+    {
+      "field": "powertrain_type",
+      "label": "Powertrain",
+      "value_type": "string",
+      "unit": null,
+      "filter": {
+        "type": "multi_select",
+        "facet_count": true
+      },
+      "sort": false,
+      "search_boost": 0.5,
+      "indexable": false
+    },
+    {
+      "field": "combined_mpg",
+      "label": "Combined fuel economy (mpg / MPGe)",
+      "value_type": "number",
+      "unit": null,
+      "filter": {
+        "type": "range",
+        "facet_count": true
+      },
+      "sort": true,
+      "search_boost": 0.5,
+      "indexable": false
+    },
+    {
+      "field": "city_mpg",
+      "label": "City fuel economy (mpg / MPGe)",
+      "value_type": "number",
+      "unit": null,
+      "filter": {
+        "type": "range",
+        "facet_count": true
+      },
+      "sort": true,
+      "search_boost": 0.2,
+      "indexable": false
+    },
+    {
+      "field": "highway_mpg",
+      "label": "Highway fuel economy (mpg / MPGe)",
+      "value_type": "number",
+      "unit": null,
+      "filter": {
+        "type": "range",
+        "facet_count": true
+      },
+      "sort": true,
+      "search_boost": 0.2,
+      "indexable": false
+    },
+    {
+      "field": "co2_tailpipe_gpm",
+      "label": "Tailpipe CO2 (g/mi)",
+      "value_type": "number",
+      "unit": null,
+      "filter": {
+        "type": "range",
+        "facet_count": true
+      },
+      "sort": true,
+      "search_boost": 0.2,
+      "indexable": false
+    },
+    {
+      "field": "ev_range_mi",
+      "label": "All-electric range (mi)",
+      "value_type": "integer",
+      "unit": null,
+      "filter": {
+        "type": "range",
+        "facet_count": true
+      },
+      "sort": true,
+      "search_boost": 0.3,
+      "indexable": false
+    },
+    {
+      "field": "component",
+      "label": "Recall component",
+      "value_type": "string",
+      "unit": null,
+      "filter": {
+        "type": "multi_select",
+        "facet_count": true
+      },
+      "sort": false,
+      "search_boost": 0.6,
+      "indexable": false
+    },
+    {
+      "field": "report_received_date",
+      "label": "Report received",
+      "value_type": "date",
+      "unit": null,
+      "filter": {
+        "type": "range",
+        "facet_count": false
+      },
+      "sort": true,
+      "search_boost": 0.1,
+      "indexable": false
+    }
+  ],
+  "identifier_normalization": {
+    "version": 1,
+    "rules": [
+      {
+        "alias_type": "make_model_year",
+        "applies_to": [
+          "vehicle_model_year"
+        ],
+        "scoped_to": null,
+        "strong": true,
+        "ops": [
+          {
+            "op": "uppercase"
+          },
+          {
+            "op": "strip_characters",
+            "characters": "-_. /\\"
+          },
+          {
+            "op": "strip_whitespace"
+          }
+        ],
+        "validate": {
+          "min_length": 6,
+          "max_length": 120,
+          "pattern": "^[A-Z0-9]+[0-9]{4}$"
+        }
+      },
+      {
+        "alias_type": "epa_vehicle_id",
+        "applies_to": [
+          "vehicle_configuration"
+        ],
+        "scoped_to": null,
+        "strong": true,
+        "ops": [
+          {
+            "op": "uppercase"
+          },
+          {
+            "op": "strip_characters",
+            "characters": "-_. /\\"
+          },
+          {
+            "op": "strip_whitespace"
+          }
+        ],
+        "validate": {
+          "min_length": 1,
+          "max_length": 8,
+          "pattern": "^[0-9]+$"
+        }
+      },
+      {
+        "alias_type": "nhtsa_campaign_number",
+        "applies_to": [
+          "recall_campaign"
+        ],
+        "scoped_to": null,
+        "strong": true,
+        "ops": [
+          {
+            "op": "uppercase"
+          },
+          {
+            "op": "strip_characters",
+            "characters": "-_. /\\"
+          },
+          {
+            "op": "strip_whitespace"
+          }
+        ],
+        "validate": {
+          "min_length": 9,
+          "max_length": 9,
+          "pattern": "^[0-9]{2}[VEICT][0-9]{6}$"
+        }
+      },
+      {
+        "alias_type": "name",
+        "applies_to": [],
+        "scoped_to": null,
+        "strong": false,
+        "ops": [
+          {
+            "op": "collapse_whitespace"
+          },
+          {
+            "op": "uppercase"
+          }
+        ],
+        "validate": null
+      },
+      {
+        "alias_type": "legal_name",
+        "applies_to": [],
+        "scoped_to": null,
+        "strong": false,
+        "ops": [
+          {
+            "op": "collapse_whitespace"
+          },
+          {
+            "op": "uppercase"
+          }
+        ],
+        "validate": null
+      },
+      {
+        "alias_type": "dba",
+        "applies_to": [],
+        "scoped_to": null,
+        "strong": false,
+        "ops": [
+          {
+            "op": "collapse_whitespace"
+          },
+          {
+            "op": "uppercase"
+          }
+        ],
+        "validate": null
+      },
+      {
+        "alias_type": "abbreviation",
+        "applies_to": [],
+        "scoped_to": null,
+        "strong": false,
+        "ops": [
+          {
+            "op": "collapse_whitespace"
+          },
+          {
+            "op": "uppercase"
+          }
+        ],
+        "validate": null
+      },
+      {
+        "alias_type": "former_name",
+        "applies_to": [],
+        "scoped_to": null,
+        "strong": false,
+        "ops": [
+          {
+            "op": "collapse_whitespace"
+          },
+          {
+            "op": "uppercase"
+          }
+        ],
+        "validate": null
+      },
+      {
+        "alias_type": "misspelling",
+        "applies_to": [],
+        "scoped_to": null,
+        "strong": false,
+        "ops": [
+          {
+            "op": "collapse_whitespace"
+          },
+          {
+            "op": "uppercase"
+          }
+        ],
+        "validate": null
+      },
+      {
+        "alias_type": "model_number",
+        "applies_to": [],
+        "scoped_to": null,
+        "strong": false,
+        "ops": [
+          {
+            "op": "collapse_whitespace"
+          },
+          {
+            "op": "uppercase"
+          }
+        ],
+        "validate": null
+      },
+      {
+        "alias_type": "part_number",
+        "applies_to": [],
+        "scoped_to": null,
+        "strong": false,
+        "ops": [
+          {
+            "op": "collapse_whitespace"
+          },
+          {
+            "op": "uppercase"
+          }
+        ],
+        "validate": null
+      },
+      {
+        "alias_type": "sku",
+        "applies_to": [],
+        "scoped_to": null,
+        "strong": false,
+        "ops": [
+          {
+            "op": "collapse_whitespace"
+          },
+          {
+            "op": "uppercase"
+          }
+        ],
+        "validate": null
+      },
+      {
+        "alias_type": "mpn",
+        "applies_to": [],
+        "scoped_to": null,
+        "strong": false,
+        "ops": [
+          {
+            "op": "collapse_whitespace"
+          },
+          {
+            "op": "uppercase"
+          }
+        ],
+        "validate": null
+      },
+      {
+        "alias_type": "gtin",
+        "applies_to": [],
+        "scoped_to": null,
+        "strong": false,
+        "ops": [
+          {
+            "op": "collapse_whitespace"
+          },
+          {
+            "op": "uppercase"
+          }
+        ],
+        "validate": null
+      },
+      {
+        "alias_type": "upc",
+        "applies_to": [],
+        "scoped_to": null,
+        "strong": false,
+        "ops": [
+          {
+            "op": "collapse_whitespace"
+          },
+          {
+            "op": "uppercase"
+          }
+        ],
+        "validate": null
+      },
+      {
+        "alias_type": "domain",
+        "applies_to": [],
+        "scoped_to": null,
+        "strong": false,
+        "ops": [
+          {
+            "op": "collapse_whitespace"
+          },
+          {
+            "op": "uppercase"
+          }
+        ],
+        "validate": null
+      },
+      {
+        "alias_type": "url",
+        "applies_to": [],
+        "scoped_to": null,
+        "strong": false,
+        "ops": [
+          {
+            "op": "collapse_whitespace"
+          },
+          {
+            "op": "uppercase"
+          }
+        ],
+        "validate": null
+      },
+      {
+        "alias_type": "external_id",
+        "applies_to": [],
+        "scoped_to": null,
+        "strong": false,
+        "ops": [
+          {
+            "op": "collapse_whitespace"
+          },
+          {
+            "op": "uppercase"
+          }
+        ],
+        "validate": null
+      }
+    ]
+  },
+  "fact_selection": {
+    "requirePublishableRights": true,
+    "authoritativeSourceTypes": [
+      "REGULATORY",
+      "STANDARDS_BODY",
+      "CERTIFICATION_BODY",
+      "REGULATORY_FILING",
+      "MANUFACTURER"
+    ],
+    "authoritativeSourcesByProperty": {},
+    "fieldReliability": {},
+    "editorialOverrides": [],
+    "consistencyChecks": [
+      {
+        "id": "value_type_agreement",
+        "describe": "normalized_value matches its declared value_type"
+      },
+      {
+        "id": "quantity_requires_unit",
+        "describe": "quantity values carry a unit"
+      },
+      {
+        "id": "non_empty_value",
+        "describe": "value is not empty"
+      },
+      {
+        "id": "numeric_range:model_year",
+        "describe": "model_year within [1949, 2030]"
+      },
+      {
+        "id": "numeric_range:city_mpg",
+        "describe": "city_mpg within [5, 200]"
+      },
+      {
+        "id": "numeric_range:highway_mpg",
+        "describe": "highway_mpg within [5, 200]"
+      },
+      {
+        "id": "numeric_range:combined_mpg",
+        "describe": "combined_mpg within [5, 200]"
+      },
+      {
+        "id": "numeric_range:cylinders",
+        "describe": "cylinders within [2, 16]"
+      },
+      {
+        "id": "numeric_range:displacement_l",
+        "describe": "displacement_l within [0.5, 9]"
+      },
+      {
+        "id": "numeric_range:co2_tailpipe_gpm",
+        "describe": "co2_tailpipe_gpm within [0, 1500]"
+      },
+      {
+        "id": "numeric_range:ev_range_mi",
+        "describe": "ev_range_mi within [0, 600]"
+      },
+      {
+        "id": "enum_membership:drive",
+        "describe": "drive is one of front_wheel_drive, rear_wheel_drive, all_wheel_drive, four_wheel_drive, part_time_four_wheel_drive, four_or_all_wheel_drive, two_wheel_drive"
+      },
+      {
+        "id": "numeric_range:potentially_affected",
+        "describe": "potentially_affected within [0, 100000000]"
+      }
+    ]
+  },
+  "plans": [
+    {
+      "name": "Evaluate",
+      "monthly_usd": 0,
+      "included_requests": 100
+    },
+    {
+      "name": "Starter",
+      "monthly_usd": 9,
+      "included_requests": 1000
+    },
+    {
+      "name": "Developer",
+      "monthly_usd": 49,
+      "included_requests": 5000
+    },
+    {
+      "name": "Growth",
+      "monthly_usd": 149,
+      "included_requests": 25000
+    },
+    {
+      "name": "Scale",
+      "monthly_usd": 299,
+      "included_requests": 75000
+    }
+  ]
+}

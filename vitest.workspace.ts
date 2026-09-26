@@ -33,6 +33,7 @@ export const projects = [
   'apps/ingestion-worker',
   'apps/web',
   'verticals/hvac',
+  'verticals/vehicles',
   'tooling',
   // The repo-root `tests/` tree: integration, end-to-end and contract suites
   // that span packages and therefore belong to no single one of them. Its root

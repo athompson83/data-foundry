@@ -15,7 +15,7 @@ describe('the MCP Worker runtime compiler', () => {
     const module = await import('../scripts/compile-mcp-runtime.js');
     const runtime = await module.compileMcpRuntime('hvac');
 
-    expect(module.BUNDLED_MCP_VERTICALS).toEqual(['hvac']);
+    expect(module.BUNDLED_MCP_VERTICALS).toEqual(['hvac', 'vehicles']);
     expect(runtime.vertical_slug).toBe('hvac');
     expect(runtime.server).toEqual({
       name: 'data-foundry-hvac',
@@ -61,7 +61,7 @@ describe('the MCP Worker runtime compiler', () => {
     const registryPath = join(outputDir, 'runtime-registry.ts');
     const registry = await readFile(registryPath, 'utf8');
     expect(registry).toContain("import hvacRuntime from './hvac.runtime.json' with { type: 'json' };");
-    expect(registry).toContain('export const BUNDLED_MCP_VERTICALS = ["hvac"] as const;');
+    expect(registry).toContain('export const BUNDLED_MCP_VERTICALS = ["hvac","vehicles"] as const;');
     expect(registry).toContain('"hvac": hvacRuntime as McpWorkerRuntime');
 
     await writeFile(registryPath, `${registry} `, 'utf8');

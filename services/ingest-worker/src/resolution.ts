@@ -40,7 +40,13 @@ import type {
   SqlParam,
   SqlTransactionExecutor,
 } from '@data-foundry/canonical-store';
-import { primaryAliasType, resolvePublisher, type VerticalConfig } from './config-core.js';
+import {
+  primaryAliasType,
+  publisherEntityType,
+  publisherPredicates,
+  resolvePublisher,
+  type VerticalConfig,
+} from './config-core.js';
 import { AliasNormalizer, slugify } from './identifiers.js';
 import {
   blockingValue,
@@ -159,9 +165,16 @@ export class EntityResolver {
   readonly #normalizer: AliasNormalizer;
   readonly diagnostics: string[] = [];
 
+  /** The entity type `publisher_aliases` resolves to (HVAC: `manufacturer`). */
+  readonly #publisherEntityType: Identifier;
+  /** Predicates whose subject is that publisher (HVAC: `manufactures`). */
+  readonly #publisherPredicates: readonly string[];
+
   constructor(deps: ResolverDeps) {
     this.#deps = deps;
     this.#normalizer = new AliasNormalizer(deps.config);
+    this.#publisherEntityType = publisherEntityType(deps.config) as Identifier;
+    this.#publisherPredicates = publisherPredicates(deps.config);
   }
 
   get normalizer(): AliasNormalizer {
@@ -205,7 +218,7 @@ export class EntityResolver {
     const entity = await this.#deps.store.upsertEntity(
       {
         vertical_id: this.#deps.verticalId,
-        entity_type: 'manufacturer' as Identifier,
+        entity_type: this.#publisherEntityType,
         canonical_name: publisher.canonicalName,
         canonical_slug: slug,
         status: 'ACTIVE',
@@ -251,13 +264,13 @@ export class EntityResolver {
     if (publisher === null) return [];
 
     const identities: AliasLockIdentity[] = [{
-      entityType: 'manufacturer' as Identifier,
+      entityType: this.#publisherEntityType,
       aliasType: 'legal_name' as Identifier,
       normalizedValue: this.#normalizer.normalize('legal_name', publisher.canonicalName),
     }];
     if (brand.trim() !== publisher.canonicalName) {
       identities.push({
-        entityType: 'manufacturer' as Identifier,
+        entityType: this.#publisherEntityType,
         aliasType: 'name' as Identifier,
         normalizedValue: this.#normalizer.normalize('name', brand.trim()),
       });
@@ -279,7 +292,7 @@ export class EntityResolver {
         continue;
       }
       identities.push({
-        entityType: 'manufacturer' as Identifier,
+        entityType: this.#publisherEntityType,
         aliasType: 'abbreviation' as Identifier,
         normalizedValue: this.#normalizer.normalize('abbreviation', prefix),
       });
@@ -916,7 +929,10 @@ export class EntityResolver {
       created_at: iso(row['created_at']),
       updated_at: iso(row['updated_at']),
     });
-    const manufacturerRows = await query.query<{
+    // The publisher predicates come from the vertical's own source mappings
+    // (HVAC: `manufactures`); a vertical with none has no publisher to name by.
+    const predicates = this.#publisherPredicates;
+    const manufacturerRows = predicates.length === 0 ? [] : await query.query<{
       readonly canonical_name: string;
       readonly canonical_slug: string;
     }>(
@@ -924,7 +940,7 @@ export class EntityResolver {
          FROM relationships relationship
          JOIN entities manufacturer ON manufacturer.id = relationship.subject_entity_id
         WHERE relationship.object_entity_id = $1
-          AND relationship.predicate = 'manufactures'
+          AND relationship.predicate IN (${predicates.map((_, index) => `$${index + 2}`).join(', ')})
           AND relationship.status <> 'RETRACTED'
           AND relationship.valid_to IS NULL
           AND EXISTS (
@@ -937,7 +953,7 @@ export class EntityResolver {
           )
         ORDER BY manufacturer.canonical_slug COLLATE "C"
         LIMIT 1`,
-      [entityId],
+      [entityId, ...predicates],
     );
     const manufacturer = manufacturerRows[0] ?? null;
     await this.refreshPreferredName(
@@ -971,8 +987,27 @@ export class EntityResolver {
    * One named only by a coded reference reads as `<SCHEME> <value>`, where the
    * scheme is the leading segment of its alias type (`ahri_ref` → `AHRI`) —
    * a bare number is not a name a human can act on.
+   *
+   * An entity type may instead declare `canonical_name.pattern` in its
+   * `entities/<type>.yaml`. Tokens are `{manufacturer_name}` and alias types,
+   * each resolved to the source spelling. A composite identifier that already
+   * contains the publisher's name (`make_model_year`) would otherwise be
+   * prefixed with it twice. A pattern that resolves to nothing falls back to the
+   * default rule above.
    */
   #buildName(input: ResolutionNamingInput, display: AliasClaim | null): string {
+    const declared = this.#deps.config.entities[input.entityType]?.canonical_name?.pattern;
+    if (typeof declared === 'string') {
+      const named = declared
+        .replace(/\{([a-z0-9_]+)\}/g, (_match, token: string) => {
+          if (token === 'manufacturer_name') return input.manufacturer?.canonical_name ?? '';
+          if (display?.aliasType === token) return display.aliasValue;
+          return input.aliases.find((alias) => alias.aliasType === token)?.aliasValue ?? '';
+        })
+        .replace(/\s+/g, ' ')
+        .trim();
+      if (named !== '') return named;
+    }
     const value = display?.aliasValue ?? display?.normalizedValue ?? 'unknown';
     if (input.manufacturer !== null) {
       return `${input.manufacturer.canonical_name} ${value}`;

@@ -199,7 +199,7 @@ async function readIfPresent(path: string): Promise<string | null> {
 }
 
 /** Verticals bundled into the Worker. Bundling is not a rights/publication decision. */
-export const BUNDLED_WEB_VERTICALS: readonly string[] = ['hvac'];
+export const BUNDLED_WEB_VERTICALS: readonly string[] = ['hvac', 'vehicles'];
 
 export interface RunOptions {
   /** Isolates compiler verification in tests without changing the production artifact location. */

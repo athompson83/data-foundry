@@ -51,6 +51,14 @@ export type FieldSelector =
   | { readonly kind: 'json_path'; readonly path: readonly string[] }
   | { readonly kind: 'csv_column'; readonly column: string }
   | { readonly kind: 'csv_index'; readonly index: number }
+  /**
+   * CSV composite: the named cells of one row, trimmed and joined in the
+   * declared order. For a source-native identity that the publisher spells
+   * across several columns (make, model, year). All-or-nothing: if any part is
+   * missing or empty the field is absent, because a partial composite key is a
+   * different identity, not a less complete one.
+   */
+  | { readonly kind: 'csv_columns'; readonly columns: readonly string[]; readonly separator: string }
   | { readonly kind: 'css'; readonly selector: string; readonly attribute?: string }
   /**
    * Table-aware: finds the row whose label cell matches, returns the value cell.
@@ -169,6 +177,7 @@ const FIELD_SELECTOR_FORMATS: Readonly<Record<FieldSelector['kind'], ExtractionF
   json_path: 'json',
   csv_column: 'csv',
   csv_index: 'csv',
+  csv_columns: 'csv',
   css: 'html',
   html_table_label: 'html',
   html_definition_list: 'html',
@@ -270,6 +279,23 @@ export function parseExtractionSchema(input: unknown, path = 'schema'): Extracti
         `field selector ${String(locate['kind'])} is not valid for format ${extractionFormat}`,
         `${fieldPath}.locate`,
       );
+    }
+    if (locate['kind'] === 'csv_columns') {
+      const columns = locate['columns'];
+      if (
+        !Array.isArray(columns) ||
+        columns.length < 2 ||
+        columns.some((column) => typeof column !== 'string' || column.length === 0) ||
+        new Set(columns).size !== columns.length
+      ) {
+        throw new ExtractionSchemaError(
+          'csv_columns requires at least two distinct, non-empty column names',
+          `${fieldPath}.locate.columns`,
+        );
+      }
+      if (typeof locate['separator'] !== 'string') {
+        throw new ExtractionSchemaError('csv_columns requires a string separator', `${fieldPath}.locate.separator`);
+      }
     }
   });
 

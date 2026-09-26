@@ -55,3 +55,15 @@ sources: []
 #     # An explicit exclusion list stops the same "should we take this?" debate
 #     # recurring every time someone reads the fixture.
 #     excluded_fields: []
+#
+# CSV-only constructs (worked example: verticals/vehicles):
+#   - `paths: [make, model, year]` (+ optional `join:`, default " ") on an
+#     alias, property or relationship `*_from` reads ONE composite value from
+#     several columns of a row, all-or-nothing, with one locator citing every
+#     cell.
+#   - `source_record_key: [col_a, col_b]` composes the record key. Keys are
+#     unique across ALL streams of one source, so a second stream projecting
+#     the same row needs a key distinct from the first.
+#   - `parsing.columns: [...]` names the columns of a headerless file.
+#   - The entity type `*_resolve_with: publisher_aliases` endpoints resolve to
+#     is their declared `*_type` (HVAC `manufacturer`, vehicles `make`).

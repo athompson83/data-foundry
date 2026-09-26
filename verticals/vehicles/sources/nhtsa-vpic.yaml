@@ -1,0 +1,118 @@
+# =============================================================================
+# nhtsa-vpic — NHTSA Product Information Catalog and Vehicle Listing (vPIC).
+#
+# DECLARED, NOT MAPPED. vPIC is the VIN decoder and the authoritative make /
+# model name list. It is the source the headline VIN -> recalls lookup depends
+# on (docs/commercial-validation/conversion-first-decision-20260926.md), and
+# nothing in this vertical can decode a VIN until it is captured, determined
+# and mapped. It has no entry in source-mappings.yaml and no fixture, so no
+# pipeline stage reads it.
+#
+# FAIL-CLOSED: UNDER_REVIEW, UNREVIEWED, unapproved, not in acquisition.yaml.
+# Expected ADR-0013 basis: PUBLIC_DOMAIN_US_GOVERNMENT_WORK, pending captured
+# terms (including any API usage limits).
+# =============================================================================
+
+key: nhtsa-vpic
+vertical_slug: vehicles
+
+publisher: U.S. Department of Transportation, National Highway Traffic Safety Administration (NHTSA vPIC)
+domain: vpic.nhtsa.dot.gov
+# Manufacturers submit VIN-decoding data to NHTSA under 49 CFR Part 565; NHTSA
+# publishes it.
+source_type: REGULATORY_FILING
+
+authority_rank: 0
+
+status: UNDER_REVIEW
+refresh_cadence: MONTHLY
+
+rights_classification: UNREVIEWED
+
+attribution_requirement:
+  required: true
+  text: >-
+    VIN decoding from NHTSA vPIC, retrieved <date>. Not endorsed by NHTSA or the
+    U.S. Department of Transportation.
+  url: https://vpic.nhtsa.dot.gov/
+
+robots_policy:
+  respect_robots: true
+  user_agent: DataFoundryBot
+  crawl_delay_seconds: null
+  disallowed_paths: []
+  # UNVERIFIED: the vPIC API and its standalone database download.
+  allowed_paths:
+    - /api/
+  robots_url: https://vpic.nhtsa.dot.gov/robots.txt
+  snapshot_hash: null
+  snapshot_at: null
+
+rights_policy:
+  publisher_legal_entity: >-
+    United States Department of Transportation, National Highway Traffic Safety
+    Administration
+  terms_url: null
+  license_id: null
+  license_text_ref: null
+  api_terms_url: null
+  commercial_use_allowed: false
+  redistribution_allowed: false
+  derivative_normalization_allowed: false
+  attribution:
+    required: true
+    text: >-
+      VIN decoding from NHTSA vPIC, retrieved <date>. Not endorsed by NHTSA or
+      the U.S. Department of Transportation.
+    url: https://vpic.nhtsa.dot.gov/
+  images_reusable: false
+  personal_data_present: false
+  geographic_notes: >-
+    US federal publication. A VIN a customer submits is customer input, not
+    source data; its handling needs its own privacy decision before a VIN
+    surface exists.
+  reviewed_at: null
+  reviewed_by: null
+  next_review_at: null
+
+acquisition_policy:
+  method: VENDOR_API
+  account_or_product_plan: null
+  jurisdiction: null
+  approved: false
+  approved_by: null
+  approved_at: null
+  max_requests_per_minute: 30
+  notes: >-
+    PROPOSED. Two candidate routes, neither designed yet: the vPIC API
+    (per-request VIN decode and make/model lists) or the standalone vPIC
+    database download for offline decoding. The choice depends on the captured
+    terms and on whether request-time decode fits the edge latency budget.
+
+image_policy:
+  images_reusable: false
+  cache_to_r2_permitted: false
+  default_display_modes: []
+  image_attribution:
+    required: false
+    text: null
+    url: null
+
+provenance_retention:
+  retain_artifacts: true
+  retention_days: null
+  legal_hold: false
+
+license_split:
+  code_license_id: null
+  data_license_id: null
+  notes: No code is vendored. The data licence is undetermined pending the ADR-0013 determination.
+
+kill_switch_engaged: false
+
+notes: >-
+  DECLARED ONLY. Not mapped, not fixtured, not acquired. Required for the VIN
+  lookup and for an authoritative make/model name list that would let EPA and
+  NHTSA model names be reconciled deterministically instead of relying on the
+  two agencies happening to spell a model the same way. Expected ADR-0013
+  basis: PUBLIC_DOMAIN_US_GOVERNMENT_WORK, pending captured terms.

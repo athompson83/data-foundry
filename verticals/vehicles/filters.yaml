@@ -1,0 +1,267 @@
+# =============================================================================
+# filters.yaml — declarative filter metadata (doc 04 "Filter metadata").
+#
+# One file, three surfaces: the web filter UI, the API/OpenAPI parameters and
+# SEO facet generation. Field names are canonical property names.
+#
+# Indexability is conservative: every source is unreviewed and the vertical is
+# DRAFT, so nothing here is indexed today; the `seo` blocks record the policy
+# that will apply once real data clears the gates in seo.yaml.
+# =============================================================================
+
+defaults:
+  robots: "noindex,follow"
+  facet_count: true
+  sort: false
+  search_boost: 0.0
+  indexable: false
+
+fields:
+
+  - field: make
+    label: Make
+    entity_type: vehicle_configuration
+    value_type: string
+    unit: null
+    filter:
+      type: multi_select
+      facet_count: true
+    sort: false
+    search_boost: 0.9
+    indexable: true
+    seo:
+      indexable: true
+      min_results: 5
+      demand_threshold: 0.9
+    rationale: >-
+      The first thing anyone types. A make is a real entity with its own page,
+      so a lower result floor is legitimate.
+
+  - field: model_year
+    label: Model year
+    entity_type: vehicle_model_year
+    value_type: integer
+    unit: null
+    filter:
+      type: range
+      facet_count: true
+    sort: true
+    search_boost: 0.7
+    indexable: true
+    seo:
+      indexable: conditional
+      min_results: 10
+      demand_threshold: 0.7
+    rationale: The second half of every recall question ("2020 Accord recall").
+
+  - field: model_name
+    label: Model
+    entity_type: vehicle_model_year
+    value_type: string
+    unit: null
+    filter:
+      type: multi_select
+      facet_count: true
+    sort: true
+    search_boost: 0.8
+    indexable: false
+    seo:
+      indexable: false
+      reason: >-
+        A model page is the model-year entity page; a model facet page would
+        duplicate it.
+
+  - field: fuel_type
+    label: Fuel type
+    entity_type: vehicle_configuration
+    value_type: string
+    unit: null
+    filter:
+      type: multi_select
+      facet_count: true
+    sort: false
+    search_boost: 0.5
+    indexable: false
+    seo:
+      indexable: false
+      reason: Qualifier on a make/model search, not a search of its own.
+
+  - field: drive
+    label: Drive
+    entity_type: vehicle_configuration
+    value_type: string
+    unit: null
+    filter:
+      type: multi_select
+      facet_count: true
+      options: [front_wheel_drive, rear_wheel_drive, all_wheel_drive, four_wheel_drive, part_time_four_wheel_drive, four_or_all_wheel_drive, two_wheel_drive]
+    sort: false
+    search_boost: 0.3
+    indexable: false
+    seo:
+      indexable: false
+      reason: Qualifier only.
+
+  - field: vehicle_class
+    label: EPA size class
+    entity_type: vehicle_configuration
+    value_type: string
+    unit: null
+    filter:
+      type: multi_select
+      facet_count: true
+    sort: false
+    search_boost: 0.4
+    indexable: false
+    seo:
+      indexable: false
+      reason: EPA's class strings are retained as published and not yet a controlled vocabulary.
+
+  - field: powertrain_type
+    label: Powertrain
+    entity_type: vehicle_configuration
+    value_type: string
+    unit: null
+    filter:
+      type: multi_select
+      facet_count: true
+    sort: false
+    search_boost: 0.5
+    indexable: false
+    seo:
+      indexable: false
+      reason: Absent for conventional vehicles, so a facet silently drops most of the catalogue.
+
+  - field: combined_mpg
+    label: Combined fuel economy (mpg / MPGe)
+    entity_type: vehicle_configuration
+    value_type: number
+    unit: null
+    filter:
+      type: range
+      facet_count: true
+      buckets:
+        - { label: "Under 20", lt: 20 }
+        - { label: "20-29", gte: 20, lt: 30 }
+        - { label: "30-39", gte: 30, lt: 40 }
+        - { label: "40 and above", gte: 40 }
+    sort: true
+    search_boost: 0.5
+    indexable: false
+    seo:
+      indexable: false
+      reason: >-
+        MPG and MPGe share a column; a bucket page would mix them. UI and API
+        only.
+
+  - field: city_mpg
+    label: City fuel economy (mpg / MPGe)
+    entity_type: vehicle_configuration
+    value_type: number
+    unit: null
+    filter:
+      type: range
+      facet_count: true
+    sort: true
+    search_boost: 0.2
+    indexable: false
+    seo:
+      indexable: false
+      reason: Specialist filter.
+
+  - field: highway_mpg
+    label: Highway fuel economy (mpg / MPGe)
+    entity_type: vehicle_configuration
+    value_type: number
+    unit: null
+    filter:
+      type: range
+      facet_count: true
+    sort: true
+    search_boost: 0.2
+    indexable: false
+    seo:
+      indexable: false
+      reason: Specialist filter.
+
+  - field: co2_tailpipe_gpm
+    label: Tailpipe CO2 (g/mi)
+    entity_type: vehicle_configuration
+    value_type: number
+    unit: null
+    filter:
+      type: range
+      facet_count: true
+    sort: true
+    search_boost: 0.2
+    indexable: false
+    seo:
+      indexable: false
+      reason: Specialist filter.
+
+  - field: ev_range_mi
+    label: All-electric range (mi)
+    entity_type: vehicle_configuration
+    value_type: integer
+    unit: null
+    filter:
+      type: range
+      facet_count: true
+    sort: true
+    search_boost: 0.3
+    indexable: false
+    seo:
+      indexable: false
+      reason: Zero for every non-electric vehicle, as EPA publishes it.
+
+  - field: component
+    label: Recall component
+    entity_type: recall_campaign
+    value_type: string
+    unit: null
+    filter:
+      type: multi_select
+      facet_count: true
+    sort: false
+    search_boost: 0.6
+    indexable: false
+    seo:
+      indexable: false
+      reason: >-
+        NHTSA component paths are long and hierarchical; indexing each would
+        mint a thin page per path.
+
+  - field: report_received_date
+    label: Report received
+    entity_type: recall_campaign
+    value_type: date
+    unit: null
+    filter:
+      type: range
+      facet_count: false
+    sort: true
+    search_boost: 0.1
+    indexable: false
+    seo:
+      indexable: false
+      reason: Sortable and queryable; never a landing page.
+
+indexable_combinations:
+
+  - id: make_by_model_year
+    fields: [make, model_year]
+    max_depth: 2
+    min_results: 10
+    rationale: >-
+      "2020 Examplar Motors recalls" style navigation: a real intent with a
+      distinct result set, and the only combination allowed.
+
+denied_combinations:
+
+  - fields: [combined_mpg, city_mpg]
+    reason: Correlated ratings; near-identical result sets.
+
+  - pattern: any_combination_of_three_or_more
+    reason: >-
+      Deeper filtering stays available in the UI and API; it never becomes an
+      indexable URL.

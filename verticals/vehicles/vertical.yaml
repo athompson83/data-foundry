@@ -1,0 +1,169 @@
+# =============================================================================
+# vehicles — US Vehicle Recalls & Fuel Economy.
+#
+# The second vertical, and the first built after HVAC. It is CONFIGURATION AND
+# DATA (AGENTS.md rule 4): nothing in this folder is TypeScript except the
+# vertical's own tests.
+#
+# Two federal source families are modelled:
+#   - EPA/DOE fueleconomy.gov `vehicles.csv` — one row per tested vehicle
+#     configuration (fuel economy, CO2, EV range);
+#   - NHTSA recalls flat file — one row per recall campaign x make/model/year
+#     (x component).
+# They meet on one deterministic join key, the vehicle model year
+# (`make_model_year` = make + model + year).
+#
+# STATUS: DRAFT, and every source is UNDER_REVIEW / UNREVIEWED / unapproved.
+# No rights determination has been captured (ADR-0013; the expected basis is
+# PUBLIC_DOMAIN_US_GOVERNMENT_WORK, pending the agencies' captured terms). The
+# fixtures are SYNTHETIC SHAPE FIXTURES with fictional makes, not captured
+# artifacts — see fixtures/README.md and SOURCES.md for every unverified column.
+#
+# The vocabulary below is load-bearing. Renaming an entity type, alias type or
+# predicate is a breaking change: bump schema_version and record it in
+# CHANGELOG.md.
+# =============================================================================
+
+slug: vehicles
+name: US Vehicle Recalls & Fuel Economy
+schema_version: "0.1.0"
+
+# DRAFT until real artifacts are captured, the ADR-0013 determination is
+# written and recorded, and the sources are activated. See RIGHTS.md.
+status: DRAFT
+
+default_refresh_policy:
+  # NHTSA recalls change daily and EPA's file monthly or faster; MONTHLY is the
+  # conservative vertical default. Each source states its own cadence.
+  cadence: MONTHLY
+  max_staleness_hours: 720
+  priority: 60
+
+# `make` is the vehicle manufacturer/brand. The platform resolves it through
+# the deterministic publisher_aliases table (normalizers/03); the entity type
+# that table resolves to is read from the `*_type` of the publisher endpoints in
+# source-mappings.yaml, so it need not be called `manufacturer`.
+entity_types:
+  - make
+  - vehicle_model_year
+  - vehicle_configuration
+  - recall_campaign
+
+relationship_predicates:
+  - makes
+  - configuration_of
+  - recall_affects
+
+# --- Vertical-owned configuration -------------------------------------------
+
+documentation:
+  generated: []
+  hand_written:
+    - README.md
+    - DATA_DICTIONARY.md
+    - SOURCES.md
+    - RIGHTS.md
+    - QUALITY.md
+    - CHANGELOG.md
+
+config:
+  acquisition: acquisition.yaml
+  entities_dir: entities
+  relationships: relationships.yaml
+  filters: filters.yaml
+  seo: seo.yaml
+  mcp: mcp.yaml
+  sources_dir: sources
+  normalizers_dir: normalizers
+  fixtures_dir: fixtures
+  golden_dir: fixtures/golden
+  tests_dir: tests
+
+# Alias types defined by this vertical. Normalization rules live in
+# normalizers/03-domain-normalization.yaml. `make` identity uses the platform's
+# CORE_ALIAS_TYPES (`legal_name`, `name`).
+#
+# All three rules are the same equivalence as HVAC's identifiers: fold to upper
+# case and strip separators. ADR-0003 compiles that chain into every read
+# surface; the vertical tests prove equivalence and non-equivalence examples.
+alias_types:
+  - type: make_model_year
+    applies_to: [vehicle_model_year]
+    strong: true
+    description: >-
+      Make + model + model year, composed from three source columns
+      (`make`/`baseModel`/`year` in EPA's file, `MAKETXT`/`MODELTXT`/`YEARTXT`
+      in NHTSA's). The only key both agencies share. The normalized form folds
+      case and strips spaces and punctuation, so `PM-3` and `PM3` meet.
+
+  - type: epa_vehicle_id
+    applies_to: [vehicle_configuration]
+    strong: true
+    description: >-
+      EPA's record id for one tested vehicle configuration (`id` column of
+      vehicles.csv). Digits only.
+
+  - type: nhtsa_campaign_number
+    applies_to: [recall_campaign]
+    strong: true
+    description: >-
+      NHTSA recall campaign number, e.g. `20V314000`: two-digit year, a type
+      letter (V vehicle, E equipment, T tire, C child restraint; I is accepted
+      provisionally — the full letter set is UNVERIFIED), six digits.
+
+entity_resolution:
+  auto_merge_threshold: 0.95
+  candidate_floor: 0.55
+
+  # Two configurations differing in fuel type or drive are different vehicles,
+  # however similar their names.
+  hard_conflict_properties:
+    - model_year
+    - fuel_type
+    - drive
+
+  # Doc 06 step 4, in the platform's closed blocking vocabulary
+  # (services/ingest-worker/src/blocking.ts). Blocking proposes candidates for
+  # review; it never merges (AGENTS.md rule 3).
+  #
+  # Deliberately NARROW. A same-make key (HVAC's `normalized_manufacturer`
+  # shape) or a campaign-year prefix would propose every pair within a make or
+  # a filing year — n-squared review queues on files with tens of thousands of
+  # model years and campaigns. Only keys that should normally match nothing are
+  # declared; a hit is then a genuine finding.
+  blocking_keys:
+    # Exact model name + model year: the same model year split into two
+    # entities, e.g. because the two agencies' raw make or model spellings
+    # produced different composite keys.
+    - key: model_name_and_year
+      entity_type: vehicle_model_year
+      kind: property_values
+      properties: [model_name, model_year]
+    # The EPA id is an exact key; two entities sharing one is always a finding.
+    - key: epa_vehicle_id
+      entity_type: vehicle_configuration
+      kind: alias
+      alias_type: epa_vehicle_id
+    # Likewise the campaign number.
+    - key: nhtsa_campaign_number
+      entity_type: recall_campaign
+      kind: alias
+      alias_type: nhtsa_campaign_number
+
+  llm_adjudication:
+    enabled: false
+    allowed_decisions: [same, different, uncertain]
+    may_execute_merge: false
+    requires_structured_rationale: true
+    only_after_deterministic_failure: true
+
+  # A recall affecting a model year is an edge between two entities, never a
+  # reason to merge them.
+  never_merge_across:
+    - recall_affects
+    - configuration_of
+
+governance:
+  data_owner: Data Foundry platform team
+  rights_reviewer: Data Foundry evidence-based determination (ADR-0013)
+  rights_review_cadence_days: 365

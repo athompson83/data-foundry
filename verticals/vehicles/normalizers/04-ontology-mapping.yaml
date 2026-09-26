@@ -1,0 +1,63 @@
+# =============================================================================
+# Layer 4 — Ontology mapping (doc 06).
+#
+# Source vocabulary -> controlled vocabulary. Only `drive` is mapped: it is a
+# small closed set a filter needs to be exact about. EPA's size class, fuel type
+# and transmission strings are retained as published — mapping them before the
+# captured file's real distinct values are known would be guessing.
+#
+# Mapping ADDS a canonical term; EPA's own wording stays in
+# fact_evidence.source_value.
+# =============================================================================
+
+layer: ontology_mapping
+
+# A new drive string is quarantined for review, never guessed.
+unmapped_term_policy: quarantine
+
+controlled_vocabularies:
+  - property: drive
+    description: >-
+      EPA drive axle type. The synonym list is the set of `drive` strings
+      believed to appear in vehicles.csv; it is UNVERIFIED against a captured
+      file (SOURCES.md), and an unseen string will quarantine its value.
+    terms:
+      - canonical: front_wheel_drive
+        label: Front-wheel drive
+        match: case_insensitive_exact
+        synonyms: ["Front-Wheel Drive", "FWD"]
+
+      - canonical: rear_wheel_drive
+        label: Rear-wheel drive
+        match: case_insensitive_exact
+        synonyms: ["Rear-Wheel Drive", "RWD"]
+
+      - canonical: all_wheel_drive
+        label: All-wheel drive
+        match: case_insensitive_exact
+        synonyms: ["All-Wheel Drive", "AWD"]
+
+      - canonical: four_wheel_drive
+        label: Four-wheel drive
+        match: case_insensitive_exact
+        synonyms: ["4-Wheel Drive", "4WD"]
+
+      - canonical: part_time_four_wheel_drive
+        label: Part-time four-wheel drive
+        match: case_insensitive_exact
+        synonyms: ["Part-time 4-Wheel Drive"]
+
+      - canonical: four_or_all_wheel_drive
+        label: Four- or all-wheel drive
+        match: case_insensitive_exact
+        synonyms: ["4-Wheel or All-Wheel Drive"]
+
+      - canonical: two_wheel_drive
+        label: Two-wheel drive
+        match: case_insensitive_exact
+        synonyms: ["2-Wheel Drive"]
+
+source_wording:
+  retain_in_evidence: true
+  include_in_search_index: true
+  display_as_canonical: false

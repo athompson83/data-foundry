@@ -1,6 +1,7 @@
 /** Filesystem-free ingestion configuration contract and deterministic helpers. */
 import type { SourceRegistryEntry, SourceRegistryLoader } from '@data-foundry/source-registry';
 import type { VocabularyDefinition } from '@data-foundry/normalization';
+import { PipelineConfigurationError } from './errors.js';
 /**
  * YAML is untyped by nature. Every consumer below narrows what it reads and
  * fails loudly, by path, on the shape it needs.
@@ -105,6 +106,54 @@ export function resolvePublisher(
     if (publisher.aliases.some((alias) => alias.toLowerCase() === needle)) return publisher;
   }
   return null;
+}
+
+/** Every relationship declaration in `source-mappings.yaml`, across sources and streams. */
+function declaredRelationships(config: Pick<VerticalConfig, 'sourceMappings'>): Yaml[] {
+  const out: Yaml[] = [];
+  for (const source of config.sourceMappings?.sources ?? []) {
+    for (const record of source?.records ?? []) {
+      for (const relationship of record?.relationships ?? []) out.push(relationship);
+    }
+  }
+  return out;
+}
+
+/**
+ * The entity type a `publisher_aliases` endpoint resolves to.
+ *
+ * HVAC calls it `manufacturer`; another vertical may call the same role
+ * something else (a vehicle `make`). The type is read from the endpoints that
+ * declare `*_resolve_with: publisher_aliases`, which must agree — one
+ * deterministic publisher table cannot mint two entity types. A vertical with
+ * no publisher endpoint keeps the historical default.
+ */
+export function publisherEntityType(config: Pick<VerticalConfig, 'sourceMappings'>): string {
+  const types = new Set<string>();
+  for (const relationship of declaredRelationships(config)) {
+    for (const side of ['subject', 'object'] as const) {
+      if (relationship?.[`${side}_resolve_with`] !== 'publisher_aliases') continue;
+      types.add(String(relationship[`${side}_type`]));
+    }
+  }
+  if (types.size > 1) {
+    throw new PipelineConfigurationError(
+      `publisher_aliases endpoints declare more than one entity type (${[...types].sort().join(', ')}); ` +
+        'one publisher table resolves to exactly one entity type',
+    );
+  }
+  return [...types][0] ?? 'manufacturer';
+}
+
+/** Predicates whose subject is resolved through `publisher_aliases` (HVAC: `manufactures`). */
+export function publisherPredicates(config: Pick<VerticalConfig, 'sourceMappings'>): string[] {
+  const predicates = new Set<string>();
+  for (const relationship of declaredRelationships(config)) {
+    if (relationship?.subject_resolve_with === 'publisher_aliases') {
+      predicates.add(String(relationship.predicate));
+    }
+  }
+  return [...predicates].sort();
 }
 
 /**

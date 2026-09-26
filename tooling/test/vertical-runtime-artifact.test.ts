@@ -27,6 +27,7 @@ describe('the edge vertical runtime compiler', () => {
     const bundled = (module as Record<string, unknown>)['BUNDLED_VERTICALS'];
     expect(bundled, 'the compiler must name bundle presence without implying deployment/publication').toEqual([
       'hvac',
+      'vehicles',
     ]);
 
     const run = (module as Record<string, unknown>)['run'];
@@ -54,7 +55,7 @@ describe('the edge vertical runtime compiler', () => {
     const registryPath = join(directory, 'runtime-registry.ts');
     const registry = await readFile(registryPath, 'utf8');
     expect(registry).toContain("import hvacRuntime from './hvac.runtime.json' with { type: 'json' };");
-    expect(registry).toContain('export const BUNDLED_VERTICALS = ["hvac"] as const;');
+    expect(registry).toContain('export const BUNDLED_VERTICALS = ["hvac","vehicles"] as const;');
     expect(registry).toContain('"hvac": hvacRuntime as VerticalRuntime');
 
     await writeFile(registryPath, `${registry} `, 'utf8');

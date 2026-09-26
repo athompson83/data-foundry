@@ -1,0 +1,37 @@
+# =============================================================================
+# Layer 1 — Primitive cleanup (doc 06).
+#
+# Mechanical string hygiene before anything is typed or interpreted. No domain
+# knowledge at this layer. Both vehicle sources are delimited text files, so
+# the interesting work is whitespace (NHTSA's fixed-width-era text fields pad
+# with trailing spaces — UNVERIFIED against a captured file).
+# =============================================================================
+
+layer: primitive_cleanup
+applies_to: all_sources
+
+rules:
+  - id: unicode_nfkc
+    op: unicode_normalize
+    form: NFKC
+
+  - id: strip_control_characters
+    op: strip_control_characters
+
+  - id: trim_and_collapse_whitespace
+    op: collapse_whitespace
+    trim: true
+
+# Values that mean "the source does not know". EPA leaves `cylinders`/`displ`
+# blank for a battery-electric vehicle: that is correct absence, not unknown,
+# and a blank cell is already absence to the extractor.
+null_tokens:
+  - ""
+  - "-"
+  - "n/a"
+  - "na"
+  - "null"
+  - "unknown"
+null_token_matching:
+  case_sensitive: false
+  trim: true

@@ -1,0 +1,300 @@
+# =============================================================================
+# source-mappings.yaml — per-source field paths -> canonical properties.
+#
+# THE ONLY FILE THAT KNOWS HOW EPA AND NHTSA SPELL THINGS.
+#
+# EVERY COLUMN NAME BELOW IS UNVERIFIED until checked against a captured
+# artifact. They are written from the agencies' published data dictionaries as
+# best understood, and exercised only by SYNTHETIC SHAPE FIXTURES. SOURCES.md
+# lists them, column by column, as an activation blocker.
+#
+# Two platform constructs this vertical introduced (see
+# services/ingest-worker/src/compile.ts):
+#   - `paths: [a, b, c]` — a composite value read from several columns of one
+#     row and joined with a space (`join:` overrides). Used for the
+#     make + model + year key neither agency publishes as one column.
+#   - `source_record_key: [a, b]` — a key composed of several columns. Source
+#     record keys are unique across ALL streams of a source, and each of these
+#     sources projects one row into two streams, so the second stream needs a
+#     key distinct from the first.
+# and `parsing.columns` for NHTSA's headerless flat file.
+#
+# Stream order matters within a source: the model-year stream is listed first
+# so the configuration/campaign stream's edges can reach the model years its
+# own rows create.
+# =============================================================================
+
+sources:
+
+  # ===========================================================================
+  # 1. epa-fueleconomy-vehicles — fueleconomy.gov vehicles.csv (bulk CSV).
+  #    One row per tested configuration; it yields TWO streams: the model year
+  #    the row belongs to, and the configuration itself.
+  # ===========================================================================
+  - source_key: epa-fueleconomy-vehicles
+    format: csv
+    locator_type: TABLE_CELL
+    parsing:
+      delimiter: ","
+      header_row: true
+      # Skips the leading SYNTHETIC SHAPE FIXTURE banner. Harmless on the real
+      # file, whose header and rows never start with `#`.
+      skip_lines_matching: "^#"
+      encoding: utf-8
+    records:
+
+      - stream: model_years
+        # vehicles.csv is the complete current file, not a delta.
+        refresh_mode: full_snapshot
+        entity_type: vehicle_model_year
+        source_record_key: [id, year]
+
+        aliases:
+          - alias_type: make_model_year
+            paths: [make, baseModel, year]
+            strong: true
+
+        properties:
+          - property: model_year
+            path: year
+          - property: model_name
+            path: baseModel
+
+        relationships:
+          - predicate: makes
+            subject_from: make
+            subject_type: make
+            subject_resolve_with: publisher_aliases
+            object_from: [make, baseModel, year]
+            object_type: vehicle_model_year
+
+      - stream: configurations
+        refresh_mode: full_snapshot
+        entity_type: vehicle_configuration
+        source_record_key: id
+
+        aliases:
+          - alias_type: epa_vehicle_id
+            path: id
+            strong: true
+
+        properties:
+          - property: model_year
+            path: year
+          - property: make
+            path: make
+          - property: model
+            path: model
+          - property: base_model
+            path: baseModel
+          - property: vehicle_class
+            path: VClass
+          - property: cylinders
+            path: cylinders
+            # Blank for a battery-electric vehicle: correct absence.
+            optional: true
+          - property: displacement_l
+            path: displ
+            optional: true
+          - property: drive
+            path: drive
+            map_with: ontology.drive
+          - property: transmission
+            path: trany
+          - property: fuel_type
+            path: fuelType
+          - property: primary_fuel
+            path: fuelType1
+          - property: powertrain_type
+            path: atvType
+            optional: true
+          - property: city_mpg
+            path: city08
+          - property: highway_mpg
+            path: highway08
+          - property: combined_mpg
+            path: comb08
+          - property: co2_tailpipe_gpm
+            path: co2TailpipeGpm
+          - property: ev_range_mi
+            path: range
+
+        relationships:
+          - predicate: configuration_of
+            subject_from: id
+            subject_type: vehicle_configuration
+            object_from: [make, baseModel, year]
+            object_type: vehicle_model_year
+
+    excluded_fields:
+      - path: mfrCode
+        reason: >-
+          EPA's manufacturer code. Not a make identity we have verified against
+          vPIC or NHTSA, so it is not used as one.
+      - path: createdOn
+        reason: Record-keeping timestamp; recorded on the artifact, not as a vehicle fact.
+      - path: modifiedOn
+        reason: Record-keeping timestamp; recorded on the artifact, not as a vehicle fact.
+      - path: eng_dscr
+        reason: >-
+          Free-text engine notes (e.g. turbo, start-stop codes) with no
+          documented vocabulary yet. Candidate for a later controlled mapping.
+      - path: "*"
+        reason: >-
+          The real file has roughly eighty columns (annual fuel cost, "you
+          save/spend", greenhouse score, alternate-fuel figures, PHEV
+          charge-depleting values...). Only the columns mapped above are in
+          scope for 0.1.0; each addition is a schema_version change.
+
+  # ===========================================================================
+  # 2. nhtsa-recalls — NHTSA recall flat file (FLAT_RCL), tab-delimited, no
+  #    header row. One row per campaign x make/model/year (x component).
+  #    Yields TWO streams: the model year each row names, and the campaign.
+  # ===========================================================================
+  - source_key: nhtsa-recalls
+    format: csv
+    locator_type: TABLE_CELL
+    parsing:
+      delimiter: "\t"
+      # Skips the leading SYNTHETIC SHAPE FIXTURE banner. Harmless on the real
+      # file, whose rows start with the numeric RECORD_ID.
+      skip_lines_matching: "^#"
+      # UNVERIFIED column order, from NHTSA's RCL data dictionary as best
+      # understood. The flat file has no header row, so these names ARE the
+      # mapping; a wrong position silently maps the wrong column. Verify
+      # against a captured file and the current dictionary before activation.
+      columns:
+        - RECORD_ID
+        - CAMPNO
+        - MAKETXT
+        - MODELTXT
+        - YEARTXT
+        - MFGCAMPNO
+        - COMPNAME
+        - MFGNAME
+        - BGMAN
+        - ENDMAN
+        - RCLTYPECD
+        - POTAFF
+        - ODATE
+        - INFLUENCED_BY
+        - MFGTXT
+        - RCDATE
+        - DATEA
+        - RPNO
+        - FMVSS
+        - DESC_DEFECT
+        - CONEQUENCE_DEFECT
+        - CORRECTIVE_ACTION
+        - NOTES
+        - RCL_CMPT_ID
+        - MFR_COMP_NAME
+        - MFR_COMP_DESC
+        - MFR_COMP_PTNO
+        - DO_NOT_DRIVE
+        - PARK_OUTSIDE
+      encoding: utf-8
+    records:
+
+      - stream: affected_model_years
+        # The complete flat file is a full snapshot. A partial (by-year) file
+        # would have to be declared `incremental` instead.
+        refresh_mode: full_snapshot
+        entity_type: vehicle_model_year
+        source_record_key: [RECORD_ID, YEARTXT]
+
+        aliases:
+          - alias_type: make_model_year
+            paths: [MAKETXT, MODELTXT, YEARTXT]
+            strong: true
+
+        properties:
+          - property: model_year
+            path: YEARTXT
+
+        relationships:
+          - predicate: makes
+            subject_from: MAKETXT
+            subject_type: make
+            subject_resolve_with: publisher_aliases
+            object_from: [MAKETXT, MODELTXT, YEARTXT]
+            object_type: vehicle_model_year
+
+      - stream: campaigns
+        refresh_mode: full_snapshot
+        entity_type: recall_campaign
+        source_record_key: RECORD_ID
+
+        aliases:
+          - alias_type: nhtsa_campaign_number
+            path: CAMPNO
+            strong: true
+
+        properties:
+          - property: report_received_date
+            path: RCDATE
+          - property: component
+            path: COMPNAME
+          - property: summary
+            path: DESC_DEFECT
+          - property: consequence
+            path: CONEQUENCE_DEFECT
+          - property: remedy
+            path: CORRECTIVE_ACTION
+          - property: manufacturer_campaign_number
+            path: MFGCAMPNO
+            optional: true
+          - property: manufacturer_name
+            path: MFGNAME
+          - property: potentially_affected
+            path: POTAFF
+            optional: true
+          - property: park_outside_advisory
+            path: PARK_OUTSIDE
+            optional: true
+          - property: do_not_drive_advisory
+            path: DO_NOT_DRIVE
+            optional: true
+
+        relationships:
+          - predicate: recall_affects
+            subject_from: CAMPNO
+            subject_type: recall_campaign
+            object_from: [MAKETXT, MODELTXT, YEARTXT]
+            object_type: vehicle_model_year
+
+    excluded_fields:
+      - path: BGMAN
+        reason: >-
+          Build-range start. Meaningful only per VIN; kept out until a VIN
+          surface exists to use it honestly (see relationships.yaml).
+      - path: ENDMAN
+        reason: Build-range end; same reason as BGMAN.
+      - path: RCLTYPECD
+        reason: >-
+          Recall type (vehicle, equipment, tire, child seat). KNOWN GAP: this
+          vertical models vehicle recalls only and has no row filter yet, so a
+          non-vehicle row would still create a model-year entity when its make
+          resolves. Equipment makes do not resolve (unknown makes quarantine).
+      - path: ODATE
+        reason: Owner notification date; not yet in the fact model.
+      - path: INFLUENCED_BY
+        reason: Investigation provenance code; no documented vocabulary captured.
+      - path: MFGTXT
+        reason: Manufacturer free text; duplicative of MFGNAME for this vertical.
+      - path: DATEA
+        reason: Record-added date; recorded on the artifact rather than as a campaign fact.
+      - path: RPNO
+        reason: Regulation part number; no consumer need yet.
+      - path: FMVSS
+        reason: FMVSS standard reference; candidate for a later property.
+      - path: NOTES
+        reason: Free-text notes, often contact details; excluded pending a personal-data check.
+      - path: RCL_CMPT_ID
+        reason: Internal component id.
+      - path: MFR_COMP_NAME
+        reason: Manufacturer component fields; not verified to be populated.
+      - path: MFR_COMP_DESC
+        reason: Manufacturer component fields; not verified to be populated.
+      - path: MFR_COMP_PTNO
+        reason: Manufacturer part numbers; not verified to be populated.

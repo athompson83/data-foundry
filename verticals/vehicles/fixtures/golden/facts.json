@@ -1,0 +1,2109 @@
+{
+  "_banner": "SYNTHETIC SHAPE FIXTURE — replace with captured artifacts before activation. Expected canonical output of the real pipeline over fixtures/epa-vehicles.csv and fixtures/nhtsa-flat-rcl.csv (fictional makes, fictional values), with both sources activated ONLY inside tests/shape-ingest.test.ts. Not EPA or NHTSA data.",
+  "count": 262,
+  "note": "One entry per canonical (entity, property, value) fact; `sources` lists every source whose evidence backs it. No fact is contested in this fixture set: the two agencies' properties are disjoint except model_year on a model year, where they agree.",
+  "facts": [
+    {
+      "entity": "recall_campaign:20V901000",
+      "property": "component",
+      "normalized_value": "FUEL SYSTEM, GASOLINE:DELIVERY:FUEL PUMP",
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:20V901000",
+      "property": "consequence",
+      "normalized_value": "SYNTHETIC: an engine stall while driving increases the risk of a crash.",
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:20V901000",
+      "property": "do_not_drive_advisory",
+      "normalized_value": false,
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:20V901000",
+      "property": "manufacturer_campaign_number",
+      "normalized_value": "EXM-R20-01",
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:20V901000",
+      "property": "manufacturer_name",
+      "normalized_value": "Examplar Motors (synthetic)",
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:20V901000",
+      "property": "park_outside_advisory",
+      "normalized_value": false,
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:20V901000",
+      "property": "potentially_affected",
+      "normalized_value": 12000,
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:20V901000",
+      "property": "remedy",
+      "normalized_value": "SYNTHETIC: dealers will replace the fuel pump, free of charge.",
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:20V901000",
+      "property": "report_received_date",
+      "normalized_value": "2020-06-15",
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:20V901000",
+      "property": "summary",
+      "normalized_value": "SYNTHETIC: the low-pressure fuel pump may stop working.",
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:21V902000",
+      "property": "component",
+      "normalized_value": "ELECTRICAL SYSTEM:PROPULSION SYSTEM:TRACTION BATTERY",
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:21V902000",
+      "property": "consequence",
+      "normalized_value": "SYNTHETIC: an internal short increases the risk of a fire, even when parked.",
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:21V902000",
+      "property": "do_not_drive_advisory",
+      "normalized_value": false,
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:21V902000",
+      "property": "manufacturer_campaign_number",
+      "normalized_value": "EXM-V21-02",
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:21V902000",
+      "property": "manufacturer_name",
+      "normalized_value": "Examplar Motors (synthetic)",
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:21V902000",
+      "property": "park_outside_advisory",
+      "normalized_value": true,
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:21V902000",
+      "property": "potentially_affected",
+      "normalized_value": 850,
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:21V902000",
+      "property": "remedy",
+      "normalized_value": "SYNTHETIC: dealers will inspect and replace affected battery modules, free of charge.",
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:21V902000",
+      "property": "report_received_date",
+      "normalized_value": "2021-03-03",
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:21V902000",
+      "property": "summary",
+      "normalized_value": "SYNTHETIC: a traction battery module may short internally.",
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:21V903000",
+      "property": "component",
+      "normalized_value": "STEERING:LINKAGES:TIE ROD ASSEMBLY",
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:21V903000",
+      "property": "consequence",
+      "normalized_value": "SYNTHETIC: a fractured tie rod can cause a loss of steering control, increasing the risk of a crash.",
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:21V903000",
+      "property": "do_not_drive_advisory",
+      "normalized_value": true,
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:21V903000",
+      "property": "manufacturer_campaign_number",
+      "normalized_value": "FXA-21-117",
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:21V903000",
+      "property": "manufacturer_name",
+      "normalized_value": "Fixture Automotive (synthetic)",
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:21V903000",
+      "property": "park_outside_advisory",
+      "normalized_value": false,
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:21V903000",
+      "property": "potentially_affected",
+      "normalized_value": 40200,
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:21V903000",
+      "property": "remedy",
+      "normalized_value": "SYNTHETIC: dealers will replace both outer tie rods, free of charge.",
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:21V903000",
+      "property": "report_received_date",
+      "normalized_value": "2021-11-08",
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:21V903000",
+      "property": "summary",
+      "normalized_value": "SYNTHETIC: the outer tie rod may fracture.",
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:22V904000",
+      "property": "component",
+      "normalized_value": "AIR BAGS:FRONTAL:PASSENGER SIDE:INFLATOR MODULE",
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:22V904000",
+      "property": "consequence",
+      "normalized_value": "SYNTHETIC: an air bag that does not deploy properly increases the risk of injury in a crash.",
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:22V904000",
+      "property": "do_not_drive_advisory",
+      "normalized_value": false,
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:22V904000",
+      "property": "manufacturer_campaign_number",
+      "normalized_value": "PMW-2204",
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:22V904000",
+      "property": "manufacturer_name",
+      "normalized_value": "Placeholder Motor Works (synthetic)",
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:22V904000",
+      "property": "park_outside_advisory",
+      "normalized_value": false,
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:22V904000",
+      "property": "potentially_affected",
+      "normalized_value": 3100,
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:22V904000",
+      "property": "remedy",
+      "normalized_value": "SYNTHETIC: dealers will replace the passenger air bag inflator module, free of charge.",
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:22V904000",
+      "property": "report_received_date",
+      "normalized_value": "2022-05-20",
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:22V904000",
+      "property": "summary",
+      "normalized_value": "SYNTHETIC: the passenger frontal air bag inflator may not deploy as designed.",
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:22V905000",
+      "property": "component",
+      "normalized_value": "EXTERIOR LIGHTING:HEADLIGHTS",
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:22V905000",
+      "property": "consequence",
+      "normalized_value": "SYNTHETIC: reduced headlight output reduces visibility, increasing the risk of a crash.",
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:22V905000",
+      "property": "do_not_drive_advisory",
+      "normalized_value": false,
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:22V905000",
+      "property": "manufacturer_campaign_number",
+      "normalized_value": "PMW-2205",
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:22V905000",
+      "property": "manufacturer_name",
+      "normalized_value": "Placeholder Motor Works (synthetic)",
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:22V905000",
+      "property": "park_outside_advisory",
+      "normalized_value": false,
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:22V905000",
+      "property": "potentially_affected",
+      "normalized_value": 610,
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:22V905000",
+      "property": "remedy",
+      "normalized_value": "SYNTHETIC: dealers will replace the headlight connector, free of charge.",
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:22V905000",
+      "property": "report_received_date",
+      "normalized_value": "2022-09-01",
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "recall_campaign:22V905000",
+      "property": "summary",
+      "normalized_value": "SYNTHETIC: the headlight connector may overheat and dim the low beams.",
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900001",
+      "property": "base_model",
+      "normalized_value": "Roadster",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900001",
+      "property": "city_mpg",
+      "normalized_value": 27,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900001",
+      "property": "co2_tailpipe_gpm",
+      "normalized_value": 296,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900001",
+      "property": "combined_mpg",
+      "normalized_value": 30,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900001",
+      "property": "cylinders",
+      "normalized_value": 4,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900001",
+      "property": "displacement_l",
+      "normalized_value": 2,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900001",
+      "property": "drive",
+      "normalized_value": "front_wheel_drive",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900001",
+      "property": "ev_range_mi",
+      "normalized_value": 0,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900001",
+      "property": "fuel_type",
+      "normalized_value": "Regular",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900001",
+      "property": "highway_mpg",
+      "normalized_value": 36,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900001",
+      "property": "make",
+      "normalized_value": "Examplar Motors",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900001",
+      "property": "model",
+      "normalized_value": "Roadster FWD",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900001",
+      "property": "model_year",
+      "normalized_value": 2020,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900001",
+      "property": "primary_fuel",
+      "normalized_value": "Regular Gasoline",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900001",
+      "property": "transmission",
+      "normalized_value": "Automatic (S8)",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900001",
+      "property": "vehicle_class",
+      "normalized_value": "Midsize Cars",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900002",
+      "property": "base_model",
+      "normalized_value": "Roadster",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900002",
+      "property": "city_mpg",
+      "normalized_value": 25,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900002",
+      "property": "co2_tailpipe_gpm",
+      "normalized_value": 317,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900002",
+      "property": "combined_mpg",
+      "normalized_value": 28,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900002",
+      "property": "cylinders",
+      "normalized_value": 4,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900002",
+      "property": "displacement_l",
+      "normalized_value": 2,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900002",
+      "property": "drive",
+      "normalized_value": "all_wheel_drive",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900002",
+      "property": "ev_range_mi",
+      "normalized_value": 0,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900002",
+      "property": "fuel_type",
+      "normalized_value": "Regular",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900002",
+      "property": "highway_mpg",
+      "normalized_value": 33,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900002",
+      "property": "make",
+      "normalized_value": "Examplar Motors",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900002",
+      "property": "model",
+      "normalized_value": "Roadster AWD",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900002",
+      "property": "model_year",
+      "normalized_value": 2020,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900002",
+      "property": "primary_fuel",
+      "normalized_value": "Regular Gasoline",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900002",
+      "property": "transmission",
+      "normalized_value": "Automatic (S8)",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900002",
+      "property": "vehicle_class",
+      "normalized_value": "Midsize Cars",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900003",
+      "property": "base_model",
+      "normalized_value": "Roadster",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900003",
+      "property": "city_mpg",
+      "normalized_value": 28,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900003",
+      "property": "co2_tailpipe_gpm",
+      "normalized_value": 287,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900003",
+      "property": "combined_mpg",
+      "normalized_value": 31,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900003",
+      "property": "cylinders",
+      "normalized_value": 4,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900003",
+      "property": "displacement_l",
+      "normalized_value": 2,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900003",
+      "property": "drive",
+      "normalized_value": "front_wheel_drive",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900003",
+      "property": "ev_range_mi",
+      "normalized_value": 0,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900003",
+      "property": "fuel_type",
+      "normalized_value": "Regular",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900003",
+      "property": "highway_mpg",
+      "normalized_value": 37,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900003",
+      "property": "make",
+      "normalized_value": "Examplar Motors",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900003",
+      "property": "model",
+      "normalized_value": "Roadster FWD",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900003",
+      "property": "model_year",
+      "normalized_value": 2021,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900003",
+      "property": "primary_fuel",
+      "normalized_value": "Regular Gasoline",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900003",
+      "property": "transmission",
+      "normalized_value": "Automatic (S8)",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900003",
+      "property": "vehicle_class",
+      "normalized_value": "Midsize Cars",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900004",
+      "property": "base_model",
+      "normalized_value": "Voltline",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900004",
+      "property": "city_mpg",
+      "normalized_value": 121,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900004",
+      "property": "co2_tailpipe_gpm",
+      "normalized_value": 0,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900004",
+      "property": "combined_mpg",
+      "normalized_value": 113,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900004",
+      "property": "drive",
+      "normalized_value": "front_wheel_drive",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900004",
+      "property": "ev_range_mi",
+      "normalized_value": 251,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900004",
+      "property": "fuel_type",
+      "normalized_value": "Electricity",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900004",
+      "property": "highway_mpg",
+      "normalized_value": 104,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900004",
+      "property": "make",
+      "normalized_value": "Examplar Motors",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900004",
+      "property": "model",
+      "normalized_value": "Voltline",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900004",
+      "property": "model_year",
+      "normalized_value": 2021,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900004",
+      "property": "powertrain_type",
+      "normalized_value": "EV",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900004",
+      "property": "primary_fuel",
+      "normalized_value": "Electricity",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900004",
+      "property": "transmission",
+      "normalized_value": "Automatic (A1)",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900004",
+      "property": "vehicle_class",
+      "normalized_value": "Small Sport Utility Vehicle 2WD",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900005",
+      "property": "base_model",
+      "normalized_value": "Mule",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900005",
+      "property": "city_mpg",
+      "normalized_value": 18,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900005",
+      "property": "co2_tailpipe_gpm",
+      "normalized_value": 444,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900005",
+      "property": "combined_mpg",
+      "normalized_value": 20,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900005",
+      "property": "cylinders",
+      "normalized_value": 6,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900005",
+      "property": "displacement_l",
+      "normalized_value": 3.5,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900005",
+      "property": "drive",
+      "normalized_value": "four_wheel_drive",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900005",
+      "property": "ev_range_mi",
+      "normalized_value": 0,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900005",
+      "property": "fuel_type",
+      "normalized_value": "Regular",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900005",
+      "property": "highway_mpg",
+      "normalized_value": 23,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900005",
+      "property": "make",
+      "normalized_value": "Fixture Automotive",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900005",
+      "property": "model",
+      "normalized_value": "Mule 4WD",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900005",
+      "property": "model_year",
+      "normalized_value": 2020,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900005",
+      "property": "primary_fuel",
+      "normalized_value": "Regular Gasoline",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900005",
+      "property": "transmission",
+      "normalized_value": "Automatic (S10)",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900005",
+      "property": "vehicle_class",
+      "normalized_value": "Standard Pick-up Trucks 4WD",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900006",
+      "property": "base_model",
+      "normalized_value": "Mule",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900006",
+      "property": "city_mpg",
+      "normalized_value": 19,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900006",
+      "property": "co2_tailpipe_gpm",
+      "normalized_value": 423,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900006",
+      "property": "combined_mpg",
+      "normalized_value": 21,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900006",
+      "property": "cylinders",
+      "normalized_value": 6,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900006",
+      "property": "displacement_l",
+      "normalized_value": 3.5,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900006",
+      "property": "drive",
+      "normalized_value": "rear_wheel_drive",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900006",
+      "property": "ev_range_mi",
+      "normalized_value": 0,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900006",
+      "property": "fuel_type",
+      "normalized_value": "Regular",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900006",
+      "property": "highway_mpg",
+      "normalized_value": 25,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900006",
+      "property": "make",
+      "normalized_value": "Fixture Automotive",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900006",
+      "property": "model",
+      "normalized_value": "Mule 2WD",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900006",
+      "property": "model_year",
+      "normalized_value": 2020,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900006",
+      "property": "primary_fuel",
+      "normalized_value": "Regular Gasoline",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900006",
+      "property": "transmission",
+      "normalized_value": "Automatic (S10)",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900006",
+      "property": "vehicle_class",
+      "normalized_value": "Standard Pick-up Trucks 2WD",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900007",
+      "property": "base_model",
+      "normalized_value": "Mule",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900007",
+      "property": "city_mpg",
+      "normalized_value": 20,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900007",
+      "property": "co2_tailpipe_gpm",
+      "normalized_value": 441,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900007",
+      "property": "combined_mpg",
+      "normalized_value": 23,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900007",
+      "property": "cylinders",
+      "normalized_value": 6,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900007",
+      "property": "displacement_l",
+      "normalized_value": 3,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900007",
+      "property": "drive",
+      "normalized_value": "four_wheel_drive",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900007",
+      "property": "ev_range_mi",
+      "normalized_value": 0,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900007",
+      "property": "fuel_type",
+      "normalized_value": "Diesel",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900007",
+      "property": "highway_mpg",
+      "normalized_value": 27,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900007",
+      "property": "make",
+      "normalized_value": "Fixture Automotive",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900007",
+      "property": "model",
+      "normalized_value": "Mule Diesel 4WD",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900007",
+      "property": "model_year",
+      "normalized_value": 2021,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900007",
+      "property": "powertrain_type",
+      "normalized_value": "Diesel",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900007",
+      "property": "primary_fuel",
+      "normalized_value": "Diesel",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900007",
+      "property": "transmission",
+      "normalized_value": "Automatic (S10)",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900007",
+      "property": "vehicle_class",
+      "normalized_value": "Standard Pick-up Trucks 4WD",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900008",
+      "property": "base_model",
+      "normalized_value": "Quanta",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900008",
+      "property": "city_mpg",
+      "normalized_value": 51,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900008",
+      "property": "co2_tailpipe_gpm",
+      "normalized_value": 171,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900008",
+      "property": "combined_mpg",
+      "normalized_value": 52,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900008",
+      "property": "cylinders",
+      "normalized_value": 4,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900008",
+      "property": "displacement_l",
+      "normalized_value": 2.5,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900008",
+      "property": "drive",
+      "normalized_value": "front_wheel_drive",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900008",
+      "property": "ev_range_mi",
+      "normalized_value": 0,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900008",
+      "property": "fuel_type",
+      "normalized_value": "Regular",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900008",
+      "property": "highway_mpg",
+      "normalized_value": 53,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900008",
+      "property": "make",
+      "normalized_value": "Fixture Automotive",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900008",
+      "property": "model",
+      "normalized_value": "Quanta Hybrid",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900008",
+      "property": "model_year",
+      "normalized_value": 2021,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900008",
+      "property": "powertrain_type",
+      "normalized_value": "Hybrid",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900008",
+      "property": "primary_fuel",
+      "normalized_value": "Regular Gasoline",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900008",
+      "property": "transmission",
+      "normalized_value": "Automatic (AV-S6)",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900008",
+      "property": "vehicle_class",
+      "normalized_value": "Midsize Cars",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900009",
+      "property": "base_model",
+      "normalized_value": "PM-3",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900009",
+      "property": "city_mpg",
+      "normalized_value": 26,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900009",
+      "property": "co2_tailpipe_gpm",
+      "normalized_value": 305,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900009",
+      "property": "combined_mpg",
+      "normalized_value": 29,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900009",
+      "property": "cylinders",
+      "normalized_value": 4,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900009",
+      "property": "displacement_l",
+      "normalized_value": 1.5,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900009",
+      "property": "drive",
+      "normalized_value": "rear_wheel_drive",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900009",
+      "property": "ev_range_mi",
+      "normalized_value": 0,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900009",
+      "property": "fuel_type",
+      "normalized_value": "Premium",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900009",
+      "property": "highway_mpg",
+      "normalized_value": 35,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900009",
+      "property": "make",
+      "normalized_value": "Placeholder Motor Works",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900009",
+      "property": "model",
+      "normalized_value": "PM-3 Sedan",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900009",
+      "property": "model_year",
+      "normalized_value": 2021,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900009",
+      "property": "primary_fuel",
+      "normalized_value": "Premium Gasoline",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900009",
+      "property": "transmission",
+      "normalized_value": "Manual 6-spd",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900009",
+      "property": "vehicle_class",
+      "normalized_value": "Compact Cars",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900010",
+      "property": "base_model",
+      "normalized_value": "PM-3",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900010",
+      "property": "city_mpg",
+      "normalized_value": 27,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900010",
+      "property": "co2_tailpipe_gpm",
+      "normalized_value": 296,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900010",
+      "property": "combined_mpg",
+      "normalized_value": 30,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900010",
+      "property": "cylinders",
+      "normalized_value": 4,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900010",
+      "property": "displacement_l",
+      "normalized_value": 1.5,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900010",
+      "property": "drive",
+      "normalized_value": "rear_wheel_drive",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900010",
+      "property": "ev_range_mi",
+      "normalized_value": 0,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900010",
+      "property": "fuel_type",
+      "normalized_value": "Premium",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900010",
+      "property": "highway_mpg",
+      "normalized_value": 36,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900010",
+      "property": "make",
+      "normalized_value": "Placeholder Motor Works",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900010",
+      "property": "model",
+      "normalized_value": "PM-3 Sedan",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900010",
+      "property": "model_year",
+      "normalized_value": 2022,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900010",
+      "property": "primary_fuel",
+      "normalized_value": "Premium Gasoline",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900010",
+      "property": "transmission",
+      "normalized_value": "Automatic (S7)",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900010",
+      "property": "vehicle_class",
+      "normalized_value": "Compact Cars",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900011",
+      "property": "base_model",
+      "normalized_value": "PM-30",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900011",
+      "property": "city_mpg",
+      "normalized_value": 23,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900011",
+      "property": "co2_tailpipe_gpm",
+      "normalized_value": 355,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900011",
+      "property": "combined_mpg",
+      "normalized_value": 25,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900011",
+      "property": "cylinders",
+      "normalized_value": 4,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900011",
+      "property": "displacement_l",
+      "normalized_value": 2,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900011",
+      "property": "drive",
+      "normalized_value": "all_wheel_drive",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900011",
+      "property": "ev_range_mi",
+      "normalized_value": 0,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900011",
+      "property": "fuel_type",
+      "normalized_value": "Premium",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900011",
+      "property": "highway_mpg",
+      "normalized_value": 29,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900011",
+      "property": "make",
+      "normalized_value": "Placeholder Motor Works",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900011",
+      "property": "model",
+      "normalized_value": "PM-30 AWD",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900011",
+      "property": "model_year",
+      "normalized_value": 2022,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900011",
+      "property": "primary_fuel",
+      "normalized_value": "Premium Gasoline",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900011",
+      "property": "transmission",
+      "normalized_value": "Automatic (S8)",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900011",
+      "property": "vehicle_class",
+      "normalized_value": "Small Sport Utility Vehicle 4WD",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900012",
+      "property": "base_model",
+      "normalized_value": "Roadster",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900012",
+      "property": "city_mpg",
+      "normalized_value": 25,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900012",
+      "property": "co2_tailpipe_gpm",
+      "normalized_value": 317,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900012",
+      "property": "combined_mpg",
+      "normalized_value": 28,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900012",
+      "property": "cylinders",
+      "normalized_value": 4,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900012",
+      "property": "displacement_l",
+      "normalized_value": 2,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900012",
+      "property": "drive",
+      "normalized_value": "all_wheel_drive",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900012",
+      "property": "ev_range_mi",
+      "normalized_value": 0,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900012",
+      "property": "fuel_type",
+      "normalized_value": "Regular",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900012",
+      "property": "highway_mpg",
+      "normalized_value": 33,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900012",
+      "property": "make",
+      "normalized_value": "Examplar Motors",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900012",
+      "property": "model",
+      "normalized_value": "Roadster AWD",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900012",
+      "property": "model_year",
+      "normalized_value": 2021,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900012",
+      "property": "primary_fuel",
+      "normalized_value": "Regular Gasoline",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900012",
+      "property": "transmission",
+      "normalized_value": "Automatic (S8)",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_configuration:900012",
+      "property": "vehicle_class",
+      "normalized_value": "Midsize Cars",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_model_year:EXAMPLARMOTORSROADSTER2020",
+      "property": "model_name",
+      "normalized_value": "Roadster",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_model_year:EXAMPLARMOTORSROADSTER2020",
+      "property": "model_year",
+      "normalized_value": 2020,
+      "sources": [
+        "epa-fueleconomy-vehicles",
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "vehicle_model_year:EXAMPLARMOTORSROADSTER2021",
+      "property": "model_name",
+      "normalized_value": "Roadster",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_model_year:EXAMPLARMOTORSROADSTER2021",
+      "property": "model_year",
+      "normalized_value": 2021,
+      "sources": [
+        "epa-fueleconomy-vehicles",
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "vehicle_model_year:EXAMPLARMOTORSVOLTLINE2021",
+      "property": "model_name",
+      "normalized_value": "Voltline",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_model_year:EXAMPLARMOTORSVOLTLINE2021",
+      "property": "model_year",
+      "normalized_value": 2021,
+      "sources": [
+        "epa-fueleconomy-vehicles",
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "vehicle_model_year:FIXTUREAUTOMOTIVEMULE2020",
+      "property": "model_name",
+      "normalized_value": "Mule",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_model_year:FIXTUREAUTOMOTIVEMULE2020",
+      "property": "model_year",
+      "normalized_value": 2020,
+      "sources": [
+        "epa-fueleconomy-vehicles",
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "vehicle_model_year:FIXTUREAUTOMOTIVEMULE2021",
+      "property": "model_name",
+      "normalized_value": "Mule",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_model_year:FIXTUREAUTOMOTIVEMULE2021",
+      "property": "model_year",
+      "normalized_value": 2021,
+      "sources": [
+        "epa-fueleconomy-vehicles",
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "vehicle_model_year:FIXTUREAUTOMOTIVEQUANTA2021",
+      "property": "model_name",
+      "normalized_value": "Quanta",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_model_year:FIXTUREAUTOMOTIVEQUANTA2021",
+      "property": "model_year",
+      "normalized_value": 2021,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_model_year:PLACEHOLDERMOTORWORKSPM3002022",
+      "property": "model_year",
+      "normalized_value": 2022,
+      "sources": [
+        "nhtsa-recalls"
+      ]
+    },
+    {
+      "entity": "vehicle_model_year:PLACEHOLDERMOTORWORKSPM302022",
+      "property": "model_name",
+      "normalized_value": "PM-30",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_model_year:PLACEHOLDERMOTORWORKSPM302022",
+      "property": "model_year",
+      "normalized_value": 2022,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_model_year:PLACEHOLDERMOTORWORKSPM32021",
+      "property": "model_name",
+      "normalized_value": "PM-3",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_model_year:PLACEHOLDERMOTORWORKSPM32021",
+      "property": "model_year",
+      "normalized_value": 2021,
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_model_year:PLACEHOLDERMOTORWORKSPM32022",
+      "property": "model_name",
+      "normalized_value": "PM-3",
+      "sources": [
+        "epa-fueleconomy-vehicles"
+      ]
+    },
+    {
+      "entity": "vehicle_model_year:PLACEHOLDERMOTORWORKSPM32022",
+      "property": "model_year",
+      "normalized_value": 2022,
+      "sources": [
+        "epa-fueleconomy-vehicles",
+        "nhtsa-recalls"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+# =============================================================================
+# make — a vehicle manufacturer / brand ("Honda", "Ford").
+#
+# Deliberately thin, like HVAC's manufacturer: its value is as the anchor of
+# `makes` edges and as the first part of every model-year key. Both agencies
+# spell makes differently ("Honda" at EPA, "HONDA" at NHTSA); the deterministic
+# publisher_aliases table in normalizers/03-domain-normalization.yaml collapses
+# them. An unrecognised make is quarantined, never auto-created.
+# =============================================================================
+
+entity_type: make
+
+label:
+  singular: Make
+  plural: Makes
+
+description: >-
+  A vehicle make (manufacturer or brand), used as the subject of `makes`
+  relationships and as the first component of the model-year key.
+
+canonical_slug:
+  pattern: "{canonical_name}"
+  case: lower
+  separator: "-"
+
+identity:
+  strong_aliases:
+    - legal_name
+  weak_aliases:
+    - name
+    - abbreviation
+  composite_keys: []
+
+properties: []
+
+quality_rules:
+  - id: make_has_model_years
+    rule: required_edge
+    predicate: makes
+    direction: outbound
+    min_count: 1
+    description: >-
+      A make with no model years is an extraction artifact — usually a spelling
+      that should have been an alias of an existing make.
+    severity: warning

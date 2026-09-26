@@ -123,6 +123,53 @@ describe('schema-driven onboarding', () => {
       cooling_capacity_btu: '36000',
     });
   });
+
+  it('composes one value from several columns, all-or-nothing, citing every cell', async () => {
+    // A publisher that spells one identity across columns (make, model, year).
+    const composite = parseExtractionSchema({
+      schema_id: 'vehicles.composite.csv',
+      format: 'csv',
+      entity_type: 'vehicle_model_year',
+      record: { kind: 'csv_rows', header: ['id', 'make', 'model', 'year'], delimiter: '\t' },
+      record_key: { fields: ['row_id'] },
+      fields: [
+        { field: 'row_id', required: true, locate: { kind: 'csv_column', column: 'id' } },
+        {
+          field: 'make_model_year',
+          locate: { kind: 'csv_columns', columns: ['make', 'model', 'year'], separator: ' ' },
+        },
+      ],
+    });
+    const artifact = artifactFixture({
+      id: '88888888-8888-4888-8888-888888888888',
+      mime_type: 'text/csv',
+      url: 'https://synthetic.example/flat.txt',
+      body: '1\tExamplar Motors\t Roadster \t2020\n2\tExamplar Motors\t\t2021\n',
+      acquisition_route: 'BULK_FILE',
+    });
+
+    const records = await createExtractionRegistry().extract(artifact, composite);
+    expect(records.map((record) => record.raw_payload['make_model_year'])).toEqual([
+      'Examplar Motors Roadster 2020',
+      // A missing part is absence, never the partial key `Examplar Motors 2021`.
+      null,
+    ]);
+    const cited = records[0]?.values.find((value) => value.field === 'make_model_year')?.locator;
+    expect(cited).toEqual({ type: 'TABLE_CELL', value: 'row=1;columns=make,model,year;indexes=1,2,3' });
+  });
+
+  it('rejects a composite selector with fewer than two columns', () => {
+    expect(() =>
+      parseExtractionSchema({
+        schema_id: 'bad.composite',
+        format: 'csv',
+        entity_type: 'vehicle_model_year',
+        record: { kind: 'csv_rows' },
+        record_key: { fields: ['key'] },
+        fields: [{ field: 'key', locate: { kind: 'csv_columns', columns: ['make'], separator: ' ' } }],
+      }),
+    ).toThrow(ExtractionSchemaError);
+  });
 });
 
 describe('parseExtractionSchema', () => {

@@ -1,6 +1,11 @@
 import type { ExtractorVersion } from '@data-foundry/canonical-schema';
 import { parse } from 'csv-parse/sync';
-import { lineRangeLocator, tableCellLocator, type EvidenceLocator } from '../locator.js';
+import {
+  lineRangeLocator,
+  tableCellLocator,
+  tableCellsLocator,
+  type EvidenceLocator,
+} from '../locator.js';
 import {
   applyExtractPattern,
   applyRecordKeyPolicy,
@@ -129,6 +134,8 @@ function readField(
 ): FieldOutcome {
   const selector = rule.locate;
 
+  if (selector.kind === 'csv_columns') return readCompositeField(record, columnNames, line, rule, selector);
+
   let columnName: string;
   let columnIndex: number;
   let raw: string | undefined;
@@ -201,4 +208,63 @@ function readField(
   }
 
   return { field: rule.field, raw, locator, match_count: 1 };
+}
+
+/**
+ * `csv_columns`: one value assembled from several cells of the same row.
+ *
+ * All-or-nothing. A composite identity missing one of its parts names a
+ * different (and usually non-existent) thing, so any absent or empty part makes
+ * the whole field absent rather than joining what remains. An unknown column is
+ * a configuration failure, exactly as for `csv_column`. The declared `extract`
+ * pattern, when present, applies to the joined value.
+ */
+function readCompositeField(
+  record: Record<string, string> | readonly string[],
+  columnNames: readonly string[],
+  line: number,
+  rule: FieldRule,
+  selector: { readonly columns: readonly string[]; readonly separator: string },
+): FieldOutcome {
+  const indexes = selector.columns.map((column) => columnNames.indexOf(column));
+  const locator = tableCellsLocator(line, selector.columns, indexes);
+  const unknown = selector.columns.filter((_, position) => (indexes[position] ?? -1) < 0);
+  if (unknown.length > 0) {
+    return {
+      field: rule.field,
+      raw: null,
+      locator,
+      match_count: 0,
+      failure: {
+        code: 'UNKNOWN_COLUMN',
+        message: `column(s) ${unknown.join(', ')} are not present in the header [${columnNames.join(', ')}]`,
+      },
+    };
+  }
+
+  const parts: string[] = [];
+  for (const [position, column] of selector.columns.entries()) {
+    const raw = Array.isArray(record)
+      ? (record as readonly string[])[indexes[position] ?? -1]
+      : (record as Record<string, string>)[column];
+    const part = raw?.trim() ?? '';
+    if (part === '') return { field: rule.field, raw: null, locator, match_count: 0 };
+    parts.push(part);
+  }
+  const joined = parts.join(selector.separator);
+
+  if (rule.extract !== undefined) {
+    const extracted = applyExtractPattern(joined, rule.extract);
+    if (!extracted.ok) {
+      return {
+        field: rule.field,
+        raw: null,
+        locator,
+        match_count: 1,
+        failure: { code: 'FIELD_PARSE_FAILURE', message: extracted.message },
+      };
+    }
+    return { field: rule.field, raw: extracted.value, locator, match_count: 1 };
+  }
+  return { field: rule.field, raw: joined, locator, match_count: 1 };
 }

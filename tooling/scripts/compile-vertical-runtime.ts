@@ -199,7 +199,7 @@ export async function run(
 }
 
 /** Verticals bundled for edge use. Bundle presence is not publication or rights approval. */
-export const BUNDLED_VERTICALS: readonly string[] = ['hvac'];
+export const BUNDLED_VERTICALS: readonly string[] = ['hvac', 'vehicles'];
 
 if (isMain(import.meta.url)) {
   const check = process.argv.includes('--check');
