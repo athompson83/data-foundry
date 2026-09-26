@@ -92,10 +92,10 @@ export function recallsLanding(ctx: PageContext): string {
 <div class="card"><h3>Exact identifiers</h3><p class="muted small">UPC/EAN/GTIN/UDI-DI (check-digit verified, normalised to GTIN-14), NDC (normalised to 5-4-2), lot, serial and model numbers, expiration dates.</p></div>
 <div class="card"><h3>Distribution geography</h3><p class="muted small">US states and territories, countries (ISO codes), nationwide and international flags — parsed from free-text distribution patterns.</p></div>
 <div class="card"><h3>Why it was recalled</h3><p class="muted small">Reason classes (allergen, microbial, foreign material, labeling, sterility…), the nine major allergens and named pathogens.</p></div>
-<div class="card"><h3>Provenance on every record</h3><p class="muted small">The verbatim FDA record, its SHA-256, parser version, source URL, and first-seen / last-seen / changed timestamps. Refreshed from openFDA every six hours.</p></div>
+<div class="card"><h3>Provenance on every record</h3><p class="muted small">The verbatim FDA record, its SHA-256, parser version, source URL, and first-seen / last-seen / changed timestamps. We check openFDA every six hours; how recent the newest report is depends on FDA's own publication schedule.</p></div>
 </div>
 <h2>Coverage</h2>
-<p class="muted">All openFDA enforcement reports for food, drugs and medical devices, 2004 to present — about 87,000 recalls. Live counts: <a href="${ctx.apiOrigin}/v1/recalls/stats">/v1/recalls/stats</a>.</p>
+<p class="muted">Every enforcement report openFDA publishes for food, drugs and medical devices, from 2004 on — about 87,000 recalls. Live counts, the latest FDA report date and our last successful sync: <a href="${ctx.apiOrigin}/v1/recalls/stats">/v1/recalls/stats</a>.</p>
 <h2 id="pricing">Pricing</h2>
 <div class="grid">${planCards()}</div>
 <p class="small muted">Monthly, billed by Stripe. Upgrade, downgrade or cancel any time from the billing portal. Your key is shown immediately after checkout.</p>
@@ -109,7 +109,7 @@ export function docsPage(ctx: PageContext): string {
   const api = ctx.apiOrigin;
   const rows: Array<[string, string]> = [
     ['gtin', 'UPC, EAN, GTIN or UDI-DI. Any length 8–14 with a valid check digit; matched as GTIN-14.'],
-    ['ndc', 'National Drug Code, hyphenated in any standard layout or as 11 digits; matched as 5-4-2.'],
+    ['ndc', 'National Drug Code. A package code (any hyphenated layout or 11 digits) matches that package or a recall of its whole product; a product code (4-4, 5-3, 5-4) matches the product and all its packages.'],
     ['lot, serial, model', 'Exact code as printed (case-insensitive).'],
     ['state', 'Two-letter USPS code. Nationwide recalls always match.'],
     ['country', 'ISO 3166-1 alpha-2 code.'],
@@ -172,7 +172,7 @@ export function welcomePage(ctx: PageContext, key: string, planName: string): st
     `<h1>You're in.</h1><p class="lede">Plan: <strong>${escapeHtml(planName)}</strong>. Here is your API key. It is shown <strong>only once</strong> — copy it into your secret store now.</p>
 <p class="key"><code>${escapeHtml(key)}</code></p>
 <pre><code>curl "${ctx.apiOrigin}/v1/recalls?limit=3" -H "Authorization: Bearer ${escapeHtml(key)}"</code></pre>
-<p>Next: <a href="/recalls/docs">read the docs</a>. Manage billing any time with <code>POST ${ctx.apiOrigin}/v1/account/billing-portal</code>. Lost key? Email <a href="mailto:${ctx.supportEmail}">${ctx.supportEmail}</a> from your billing address.</p>`,
+<p>Next: <a href="/recalls/docs">read the docs</a>. Manage billing any time with <code>POST ${ctx.apiOrigin}/v1/account/billing-portal</code>. Lost key? Email <a href="mailto:${ctx.supportEmail}">${ctx.supportEmail}</a> from the email address you checked out with; we will verify it against your billing record, revoke the old key and send a new one.</p>`,
     { noindex: true },
   );
 }

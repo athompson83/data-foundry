@@ -5,12 +5,12 @@
  * re-derived or explained from preserved evidence.
  */
 
-import { normaliseNdc, parseCodes, type ProductCodes } from './codes.js';
+import { normaliseNdc, normaliseProductNdc, parseCodes, type ProductCodes } from './codes.js';
 import { parseDistribution, type DistributionGeography } from './geography.js';
 import { parseQuantity, type ProductQuantity } from './quantity.js';
 import { parseReason, type RecallReason } from './reasons.js';
 
-export { parseCodes, gs1CheckDigitValid, normaliseNdc, parseLooseDate } from './codes.js';
+export { parseCodes, gs1CheckDigitValid, normaliseNdc, normaliseProductNdc, productOfPackageNdc, parseLooseDate } from './codes.js';
 export { parseDistribution, US_STATES } from './geography.js';
 export { parseQuantity } from './quantity.js';
 export { parseReason, REASON_CLASSES, ALLERGENS, PATHOGENS } from './reasons.js';
@@ -108,12 +108,16 @@ export function structureRecall(category: RecallCategory, record: OpenFdaEnforce
   if (!recallNumber) throw new Error('openFDA enforcement record has no recall_number');
 
   const codes = parseCodes(record.code_info, record.more_code_info, record.product_description);
-  const openFdaNdcs = [...(record.openfda?.package_ndc ?? []), ...(record.openfda?.product_ndc ?? [])];
   const ndcs = new Set(codes.ndcs);
-  // openFDA's harmonised NDCs are authoritative where present; product-level
-  // (two-segment) NDCs are kept as-is because they identify no package.
-  for (const ndc of openFdaNdcs) {
+  // openFDA's harmonised NDCs are authoritative where present. Package codes
+  // are kept as 5-4-2; product codes (two segments, no package) as 5-4, so a
+  // recall of a whole product stays findable by its product code.
+  for (const ndc of record.openfda?.package_ndc ?? []) {
     const normalised = normaliseNdc(ndc);
+    if (normalised) ndcs.add(normalised);
+  }
+  for (const ndc of record.openfda?.product_ndc ?? []) {
+    const normalised = normaliseProductNdc(ndc) ?? normaliseNdc(ndc);
     if (normalised) ndcs.add(normalised);
   }
   const voluntary = /voluntary/i.test(record.voluntary_mandated ?? '') ? true : /mandat|order/i.test(record.voluntary_mandated ?? '') ? false : null;

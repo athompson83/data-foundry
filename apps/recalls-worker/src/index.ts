@@ -155,14 +155,28 @@ async function welcome(env: Env, url: URL): Promise<Response> {
     session.customer_details?.email ?? null,
   );
   if (!customerId) throw new StripeError('Subscription plan is not recognised', 502);
+  // One free key per email: each $0 checkout creates a fresh Stripe customer,
+  // so without this the Evaluate allowance could be multiplied at will.
+  const email = session.customer_details?.email ?? null;
+  const customer = await env.DB.prepare('SELECT plan FROM customer WHERE id = ?').bind(customerId).first<{ plan: keyof typeof PLANS }>();
+  if (customer?.plan === 'evaluate') {
+    if (!email) return html(messagePage(ctx, 'Email required', 'A free key needs an email address. Please check out again with one.'), 400);
+    const other = await env.DB.prepare(
+      "SELECT 1 AS found FROM customer c JOIN api_key k ON k.customer_id = c.id WHERE c.plan = 'evaluate' AND lower(c.email) = lower(?) AND c.id <> ? LIMIT 1",
+    )
+      .bind(email, customerId)
+      .first<{ found: number }>();
+    if (other) {
+      return html(messagePage(ctx, 'Free key already issued', `A free Evaluate key was already issued to this email. Use that key, rotate it with <code>POST /v1/account/rotate-key</code>, or choose a paid plan. Questions: <a href="mailto:${ctx.supportEmail}">${ctx.supportEmail}</a>.`), 409);
+    }
+  }
   const issued = await env.DB.prepare('SELECT id FROM api_key WHERE checkout_session_id = ?').bind(session.id).first<{ id: string }>();
   if (issued) {
     return html(messagePage(ctx, 'Key already issued', `An API key was already shown for this checkout. If you lost it, email <a href="mailto:${ctx.supportEmail}">${ctx.supportEmail}</a> from your billing address, or rotate it with <code>POST /v1/account/rotate-key</code>.`), 409);
   }
   try {
     const key = await issueKey(env.DB, customerId, session.id);
-    const plan = await env.DB.prepare('SELECT plan FROM customer WHERE id = ?').bind(customerId).first<{ plan: keyof typeof PLANS }>();
-    return html(welcomePage(ctx, key, PLANS[plan?.plan ?? 'evaluate'].name), 200, { 'cache-control': 'no-store' });
+    return html(welcomePage(ctx, key, PLANS[customer?.plan ?? 'evaluate'].name), 200, { 'cache-control': 'no-store' });
   } catch {
     // Unique checkout_session_id: a concurrent reload already issued the key.
     return html(messagePage(ctx, 'Key already issued', 'An API key was already shown for this checkout.'), 409);
@@ -190,6 +204,8 @@ async function route(request: Request, env: Env): Promise<Response> {
 
   if (url.pathname.startsWith('/v1/')) {
     if (!isApiHost && url.host.endsWith('aroqon.com')) return Response.redirect(`${ctx.apiOrigin}${url.pathname}${url.search}`, 308);
+    // The kill switch withdraws every dataset-derived response, cached or not.
+    if (env.SOURCE_KILL_SWITCH === '1' && url.pathname.startsWith('/v1/recalls')) return apiError(503, 'dataset_unavailable', 'The dataset is temporarily unavailable.');
     if (url.pathname === '/v1/recalls/stats') {
       const cache = (globalThis as unknown as { caches: { default: EdgeCache } }).caches.default;
       const cacheKey = new Request(`${ctx.apiOrigin}/v1/recalls/stats`);
@@ -212,6 +228,20 @@ async function route(request: Request, env: Env): Promise<Response> {
     const to = url.searchParams.get('to');
     if (!category || !RECALL_CATEGORIES.includes(category) || !from || !to) throw new BadRequest('category, from and to are required');
     return json(await syncWindow(env, category, from, to));
+  }
+
+  if (url.pathname === '/admin/reissue-key' && request.method === 'POST') {
+    // Lost-key recovery (docs/owner-actions/recalls-operations.md): an operator
+    // who has verified the requester against the Stripe customer's email
+    // revokes every key and issues one new key for that customer.
+    if (!isAuthorizedAdmin(env, request)) return apiError(404, 'not_found', 'Not found.');
+    const stripeCustomerId = url.searchParams.get('stripe_customer_id') ?? '';
+    const customer = await env.DB.prepare('SELECT id, email, plan, status FROM customer WHERE stripe_customer_id = ?').bind(stripeCustomerId).first<{ id: string; email: string | null; plan: string; status: string }>();
+    if (!customer) return apiError(404, 'not_found', 'No customer with that Stripe id.');
+    const now = new Date().toISOString();
+    await env.DB.prepare('UPDATE api_key SET revoked_at = ? WHERE customer_id = ? AND revoked_at IS NULL').bind(now, customer.id).run();
+    const key = await issueKey(env.DB, customer.id, null, now);
+    return json({ api_key: key, email: customer.email, plan: customer.plan, status: customer.status }, 200, { 'cache-control': 'no-store' });
   }
 
   if (isApiHost) {

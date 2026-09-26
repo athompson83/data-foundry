@@ -4,9 +4,9 @@ import { consumeRequest, findCustomerByKey, issueKey, mintApiKey, KEY_PREFIX } f
 import { lookupCandidates } from '../src/api.js';
 import type { Env } from '../src/env.js';
 import worker from '../src/index.js';
-import { ndjsonBundle, parseRawRef, prepareRecall, rawRef, renderLiteral, writeRecallStatements } from '../src/store.js';
+import { ndjsonBundle, parseRawRef, prepareRecall, rawRef, renderLiteral, writeRecallGroups, writeRecallStatements } from '../src/store.js';
 import { formEncode, verifyStripeSignature } from '../src/stripe.js';
-import { syncWindow } from '../src/sync.js';
+import { scheduledSync, syncWindow } from '../src/sync.js';
 import { createTestBucket, createTestDatabase } from './d1-sqlite.js';
 
 const FOOD = {
@@ -179,6 +179,25 @@ describe('API surface', () => {
     expect(lookupCandidates('12345-678-90')).toContainEqual(['ndc', '12345-0678-90']);
   });
 
+  it('matches NDCs across package and product forms', async () => {
+    const env = makeEnv();
+    const now = '2026-09-26T00:00:00.000Z';
+    const productOnly = await prepareRecall('drug', { recall_number: 'D-0001-2026', report_date: '20260901', openfda: { product_ndc: ['12345-6789'] } });
+    const packageOnly = await prepareRecall('drug', { recall_number: 'D-0002-2026', report_date: '20260902', code_info: 'NDC 12345-6789-01' });
+    for (const group of writeRecallGroups([{ prepared: productOnly, rawRef: 'k#0:1' }, { prepared: packageOnly, rawRef: 'k#0:1' }], now)) {
+      await env.DB.batch(group.map((statement) => env.DB.prepare(statement.sql).bind(...statement.params)));
+    }
+    const key = await seedCustomer(env);
+    const ids = async (path: string) => ((await (await worker.fetch(get(path, key), env)).json()) as { data: Array<{ recall_number?: string; recall?: { recall_number: string } }> }).data.map((item) => item.recall_number ?? item.recall?.recall_number).sort();
+    // A package code finds its own package and the whole-product recall.
+    expect(await ids('/v1/recalls?ndc=12345-6789-01')).toEqual(['D-0001-2026', 'D-0002-2026']);
+    // A different package of the same product finds only the whole-product recall.
+    expect(await ids('/v1/recalls?ndc=12345-6789-02')).toEqual(['D-0001-2026']);
+    // A product code finds the product and every listed package of it.
+    expect(await ids('/v1/recalls?ndc=12345-6789')).toEqual(['D-0001-2026', 'D-0002-2026']);
+    expect(await ids('/v1/recalls/lookup?code=12345-6789')).toEqual(['D-0001-2026', 'D-0002-2026']);
+  });
+
   it('pages with a stable cursor and supports full-text search', async () => {
     const env = makeEnv();
     await seed(env);
@@ -201,6 +220,9 @@ describe('API surface', () => {
     await env.DB.prepare("UPDATE usage_month SET requests = 0").run();
     expect((await worker.fetch(get('/v1/recalls?gtin=00012345678906', key), env)).status).toBe(400);
     expect((await worker.fetch(get('/v1/recalls?limit=500', key), env)).status).toBe(400);
+    // An offset timestamp is compared in UTC: 01:00+05:00 is 2026-09-25T20:00Z, before the seed's changed_at.
+    const since = (await (await worker.fetch(get(`/v1/recalls?changed_since=${encodeURIComponent('2026-09-26T01:00:00+05:00')}`, key), env)).json()) as { data: unknown[] };
+    expect(since.data).toHaveLength(2);
   });
 
   it('refuses canceled subscriptions and honours the kill switch', async () => {
@@ -208,6 +230,7 @@ describe('API surface', () => {
     const key = await seedCustomer(env, 'developer', 'canceled');
     expect((await worker.fetch(get('/v1/recalls', key), env)).status).toBe(403);
     const killed = makeEnv({ SOURCE_KILL_SWITCH: '1' });
+    expect((await worker.fetch(get('/v1/recalls/stats'), killed)).status).toBe(503);
     const killedKey = await seedCustomer(killed);
     expect((await worker.fetch(get('/v1/recalls', killedKey), killed)).status).toBe(503);
   });
@@ -248,6 +271,75 @@ describe('sync', () => {
     expect(env.bucket.objects.size).toBe(2);
     const runs = await env.DB.prepare("SELECT COUNT(*) AS n FROM sync_run WHERE status = 'SUCCEEDED'").first<{ n: number }>();
     expect(runs?.n).toBe(3);
+  });
+
+  it('writes a 1,000-record page in a handful of D1 statements', async () => {
+    const env = makeEnv();
+    const records = Array.from({ length: 1000 }, (_, index) => ({ ...FOOD, recall_number: `F-${String(index).padStart(4, '0')}-2026` }));
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => new Response(JSON.stringify({ results: String(url).includes('skip=0') ? records : [] }), { status: 200 })));
+    let statements = 0;
+    const batch = env.DB.batch.bind(env.DB);
+    (env.DB as { batch: typeof env.DB.batch }).batch = async (list) => {
+      statements += list.length;
+      return batch(list);
+    };
+    expect(await syncWindow(env, 'food', '2026-09-01', '2026-09-30')).toMatchObject({ fetched: 1000, inserted: 1000 });
+    expect(statements).toBeLessThan(20);
+    const keys = await env.DB.prepare('SELECT COUNT(*) AS n FROM recall_key').first<{ n: number }>();
+    expect(keys?.n).toBe(1000 * 10); // per record: 2 lots, 2 expiries, 1 gtin, 3 states, 1 reason class, 1 allergen
+    const fts = await env.DB.prepare("SELECT COUNT(*) AS n FROM recall_fts WHERE recall_fts MATCH 'peanuts'").first<{ n: number }>();
+    expect(fts?.n).toBe(1000);
+  });
+
+  it('rolls back a recall whose group fails, so the next run rewrites it', async () => {
+    const env = makeEnv();
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ results: [FOOD] }), { status: 200 })));
+    const batch = env.DB.batch.bind(env.DB);
+    let fail = true;
+    (env.DB as { batch: typeof env.DB.batch }).batch = async (list) => {
+      if (fail && list.length > 1) {
+        fail = false;
+        // Run the group's statements up to the keys, then fail: a transaction must undo all of it.
+        return batch([...list.slice(0, 4), env.DB.prepare('SELECT no_such_column FROM recall')]);
+      }
+      return batch(list);
+    };
+    await expect(syncWindow(env, 'food', '2026-09-01', '2026-09-30')).rejects.toThrow();
+    expect(await env.DB.prepare('SELECT COUNT(*) AS n FROM recall').first<{ n: number }>()).toEqual({ n: 0 });
+    expect(await syncWindow(env, 'food', '2026-09-01', '2026-09-30')).toMatchObject({ inserted: 1 });
+    expect(await env.DB.prepare("SELECT COUNT(*) AS n FROM recall_key WHERE kind = 'lot'").first<{ n: number }>()).toEqual({ n: 2 });
+  });
+
+  it('produces identical rows, keys and search entries from the bulk and Worker writers', async () => {
+    const now = '2026-09-26T00:00:00.000Z';
+    const writes = [
+      { prepared: await prepareRecall('food', FOOD), rawRef: 'k#0:1' },
+      { prepared: await prepareRecall('device', DEVICE), rawRef: 'k#2:3' },
+    ];
+    const bulk = createTestDatabase();
+    for (const write of writes) bulk.sqlite.exec(writeRecallStatements(write.prepared, write.rawRef, now).map(renderLiteral).join('\n'));
+    const worker = createTestDatabase();
+    for (const group of writeRecallGroups(writes, now)) await worker.db.batch(group.map((statement) => worker.db.prepare(statement.sql).bind(...statement.params)));
+    // Rewriting the same records must not duplicate search entries.
+    for (const group of writeRecallGroups(writes, now)) await worker.db.batch(group.map((statement) => worker.db.prepare(statement.sql).bind(...statement.params)));
+    for (const sql of [
+      'SELECT * FROM recall ORDER BY recall_number',
+      'SELECT * FROM recall_key ORDER BY kind, value, recall_number',
+      'SELECT rowid, recall_number, firm_name, product_description, reason_for_recall FROM recall_fts ORDER BY rowid',
+    ]) {
+      expect(worker.sqlite.prepare(sql).all()).toEqual(bulk.sqlite.prepare(sql).all());
+    }
+  });
+
+  it('keeps syncing other windows when one fails, and advances the history cursor', async () => {
+    const env = makeEnv();
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => (String(url).includes('/food/') ? new Response('boom', { status: 400 }) : new Response(JSON.stringify({ results: [] }), { status: 200 }))));
+    const results = await scheduledSync(env, '2026-09-26');
+    expect(results).toHaveLength(6);
+    expect(results.filter((result) => 'error' in result).map((result) => result.category)).toEqual(['food', 'food']);
+    const cursor = await env.DB.prepare("SELECT next_from FROM sync_cursor WHERE category = 'food'").first<{ next_from: string }>();
+    expect(cursor?.next_from).toBe('2004-04-30');
+    expect(await scheduledSync(makeEnv({ SOURCE_KILL_SWITCH: '1' }), '2026-09-26')).toEqual([]);
   });
 
   it('records a failed run', async () => {
@@ -322,6 +414,41 @@ describe('Stripe', () => {
     const second = await worker.fetch(new Request('https://data.aroqon.com/recalls/welcome?session_id=cs_test_abc'), env);
     expect(second.status).toBe(409);
     expect(await second.text()).not.toMatch(/rcl_live_[A-Za-z0-9]{32}/);
+  });
+
+  it('issues one free Evaluate key per email', async () => {
+    const env = makeEnv();
+    let sequence = 0;
+    vi.stubGlobal('fetch', vi.fn(async () => {
+      sequence += 1;
+      return Response.json({
+        id: `cs_test_free${sequence}`,
+        url: null,
+        status: 'complete',
+        payment_status: 'no_payment_required',
+        customer: `cus_free${sequence}`,
+        customer_details: { email: sequence === 1 ? 'Dev@Example.com' : 'dev@example.com' },
+        metadata: { plan: 'evaluate' },
+        subscription: { id: `sub_free${sequence}`, status: 'active', items: { data: [{ price: { id: 'price_eval' } }] } },
+      });
+    }));
+    expect((await worker.fetch(new Request('https://data.aroqon.com/recalls/welcome?session_id=cs_test_free1'), env)).status).toBe(200);
+    const second = await worker.fetch(new Request('https://data.aroqon.com/recalls/welcome?session_id=cs_test_free2'), env);
+    expect(second.status).toBe(409);
+    expect(await second.text()).not.toMatch(/rcl_live_[A-Za-z0-9]{32}/);
+  });
+
+  it('reissues a lost key for an operator only, revoking the old one', async () => {
+    const env = makeEnv({ ADMIN_TOKEN: 'a'.repeat(40) });
+    const oldKey = await seedCustomer(env, 'developer');
+    const reissue = (token: string) => worker.fetch(new Request('https://data.aroqon.com/admin/reissue-key?stripe_customer_id=cus_1', { method: 'POST', headers: { authorization: `Bearer ${token}` } }), env);
+    expect((await reissue('b'.repeat(40))).status).toBe(404);
+    const response = await reissue('a'.repeat(40));
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as { api_key: string; email: string };
+    expect(body.email).toBe('a@example.com');
+    expect((await worker.fetch(get('/v1/recalls', oldKey), env)).status).toBe(401);
+    expect((await worker.fetch(get('/v1/recalls', body.api_key), env)).status).toBe(200);
   });
 
   it('applies a cancellation webhook from the re-read subscription', async () => {

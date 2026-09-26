@@ -109,65 +109,133 @@ export function ndjsonBundle(raws: readonly string[]): { body: string; ranges: A
 
 const bool = (value: boolean | null): number | null => (value === null ? null : value ? 1 : 0);
 
+const RECALL_COLUMNS = [
+  'recall_number', 'category', 'event_id', 'classification', 'status', 'voluntary',
+  'firm_name', 'firm_city', 'firm_state', 'firm_postal_code', 'firm_country',
+  'initiated_on', 'classified_on', 'reported_on', 'terminated_on',
+  'product_description', 'reason_for_recall', 'nationwide_us', 'international',
+  'quantity_total', 'quantity_unit', 'structured', 'raw_ref', 'raw_sha256', 'parser_version',
+  'source_url', 'first_seen_at', 'last_seen_at', 'changed_at',
+] as const;
+
+/** `first_seen_at` survives an update; every other column is replaced. */
+const UPSERT_TAIL = `ON CONFLICT (recall_number) DO UPDATE SET ${RECALL_COLUMNS.filter((column) => column !== 'recall_number' && column !== 'first_seen_at')
+  .map((column) => `${column} = excluded.${column}`)
+  .join(', ')}`;
+
+export interface RecallWrite {
+  readonly prepared: PreparedRecall;
+  readonly rawRef: string;
+}
+
+/** Column values in RECALL_COLUMNS order. */
+export function recallRow(write: RecallWrite, now: string): Array<string | number | null> {
+  const { recall, rawSha256 } = write.prepared;
+  return [
+    recall.recall_number, recall.category, recall.event_id, recall.classification, recall.status, bool(recall.voluntary),
+    recall.firm.name, recall.firm.city, recall.firm.state, recall.firm.postal_code, recall.firm.country,
+    recall.dates.initiated, recall.dates.classified, recall.dates.reported, recall.dates.terminated,
+    recall.product_description, recall.reason_for_recall, bool(recall.distribution.nationwide_us), bool(recall.distribution.international),
+    recall.quantity.total, recall.quantity.unit, structuredJson(recall), write.rawRef, rawSha256, recall.provenance.parser_version,
+    recall.provenance.source_url, now, now, now,
+  ];
+}
+
 /**
- * Statements that (re)write one changed or new recall: the row, its keys and
- * its full-text entry. `first_seen_at` survives an update.
+ * The search entry is derived from the stored row and keyed by its rowid, so
+ * deleting it is an indexed rowid lookup rather than a scan of the FTS table
+ * (recall_number is an UNINDEXED FTS column). An upsert keeps the rowid.
+ */
+const FTS_FROM_ROWS = `INSERT INTO recall_fts (rowid, recall_number, firm_name, product_description, reason_for_recall)
+  SELECT r.rowid, r.recall_number, COALESCE(r.firm_name, ''), COALESCE(r.product_description, ''), COALESCE(r.reason_for_recall, '')
+  FROM recall r WHERE r.recall_number`;
+
+/**
+ * Per-recall literal statements for the offline bulk import: every statement
+ * stays far below D1's 100 KB statement limit however large the record.
  */
 export function writeRecallStatements(prepared: PreparedRecall, rawReference: string, now: string): Statement[] {
   const { recall } = prepared;
   const statements: Statement[] = [
     { sql: 'DELETE FROM recall_key WHERE recall_number = ?', params: [recall.recall_number] },
-    { sql: 'DELETE FROM recall_fts WHERE recall_number = ?', params: [recall.recall_number] },
+    { sql: 'DELETE FROM recall_fts WHERE rowid = (SELECT rowid FROM recall WHERE recall_number = ?)', params: [recall.recall_number] },
     {
-      sql: `INSERT INTO recall (
-          recall_number, category, event_id, classification, status, voluntary,
-          firm_name, firm_city, firm_state, firm_postal_code, firm_country,
-          initiated_on, classified_on, reported_on, terminated_on,
-          product_description, reason_for_recall, nationwide_us, international,
-          quantity_total, quantity_unit, structured, raw_ref, raw_sha256, parser_version,
-          source_url, first_seen_at, last_seen_at, changed_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ON CONFLICT (recall_number) DO UPDATE SET
-          category = excluded.category, event_id = excluded.event_id,
-          classification = excluded.classification, status = excluded.status,
-          voluntary = excluded.voluntary, firm_name = excluded.firm_name,
-          firm_city = excluded.firm_city, firm_state = excluded.firm_state,
-          firm_postal_code = excluded.firm_postal_code, firm_country = excluded.firm_country,
-          initiated_on = excluded.initiated_on, classified_on = excluded.classified_on,
-          reported_on = excluded.reported_on, terminated_on = excluded.terminated_on,
-          product_description = excluded.product_description,
-          reason_for_recall = excluded.reason_for_recall,
-          nationwide_us = excluded.nationwide_us, international = excluded.international,
-          quantity_total = excluded.quantity_total, quantity_unit = excluded.quantity_unit,
-          structured = excluded.structured, raw_ref = excluded.raw_ref,
-          raw_sha256 = excluded.raw_sha256, parser_version = excluded.parser_version,
-          source_url = excluded.source_url, last_seen_at = excluded.last_seen_at,
-          changed_at = excluded.changed_at`,
-      params: [
-        recall.recall_number, recall.category, recall.event_id, recall.classification, recall.status, bool(recall.voluntary),
-        recall.firm.name, recall.firm.city, recall.firm.state, recall.firm.postal_code, recall.firm.country,
-        recall.dates.initiated, recall.dates.classified, recall.dates.reported, recall.dates.terminated,
-        recall.product_description, recall.reason_for_recall, bool(recall.distribution.nationwide_us), bool(recall.distribution.international),
-        recall.quantity.total, recall.quantity.unit, structuredJson(recall), rawReference, prepared.rawSha256, recall.provenance.parser_version,
-        recall.provenance.source_url, now, now, now,
-      ],
+      sql: `INSERT INTO recall (${RECALL_COLUMNS.join(', ')}) VALUES (${RECALL_COLUMNS.map(() => '?').join(', ')}) ${UPSERT_TAIL}`,
+      params: recallRow({ prepared, rawRef: rawReference }, now),
     },
-    {
-      sql: 'INSERT INTO recall_fts (recall_number, firm_name, product_description, reason_for_recall) VALUES (?, ?, ?, ?)',
-      params: [recall.recall_number, recall.firm.name ?? '', recall.product_description ?? '', recall.reason_for_recall ?? ''],
-    },
+    { sql: `${FTS_FROM_ROWS} = ?`, params: [recall.recall_number] },
   ];
   for (const [kind, value] of recallKeys(recall)) {
-    statements.push({
-      sql: 'INSERT OR IGNORE INTO recall_key (kind, value, recall_number) VALUES (?, ?, ?)',
-      params: [kind, value, recall.recall_number],
-    });
+    statements.push({ sql: 'INSERT OR IGNORE INTO recall_key (kind, value, recall_number) VALUES (?, ?, ?)', params: [kind, value, recall.recall_number] });
   }
   return statements;
 }
 
-export function touchRecallStatement(recallNumber: string, now: string): Statement {
-  return { sql: 'UPDATE recall SET last_seen_at = ? WHERE recall_number = ?', params: [now, recallNumber] };
+/** Largest JSON parameter per statement, under D1's 2 MB value limit. */
+const MAX_JSON_BYTES = 1_500_000;
+const byteLength = (value: string): number => new TextEncoder().encode(value).byteLength;
+
+/** Split items into JSON arrays no larger than MAX_JSON_BYTES each. */
+function jsonChunks(items: readonly unknown[]): string[] {
+  const chunks: string[] = [];
+  let current: string[] = [];
+  let size = 2;
+  for (const item of items) {
+    const encoded = JSON.stringify(item);
+    const bytes = byteLength(encoded) + 1;
+    if (bytes + 2 > MAX_JSON_BYTES) throw new Error('single item exceeds the D1 value limit');
+    if (current.length > 0 && size + bytes > MAX_JSON_BYTES) {
+      chunks.push(`[${current.join(',')}]`);
+      current = [];
+      size = 2;
+    }
+    current.push(encoded);
+    size += bytes;
+  }
+  if (current.length > 0) chunks.push(`[${current.join(',')}]`);
+  return chunks;
+}
+
+/**
+ * Set-based writes for the Worker. Returns groups; each group is meant to run
+ * as one D1 batch (a transaction), and a recall's row, search entry and keys
+ * always share a group, so a failure can never leave a row whose raw_sha256 is
+ * current while its keys or search entry are missing. A handful of statements
+ * per group keeps a sync far inside D1's 1,000 queries per invocation.
+ */
+export function writeRecallGroups(writes: readonly RecallWrite[], now: string): Statement[][] {
+  const groups: Statement[][] = [];
+  for (const rowsJson of jsonChunks(writes.map((write) => recallRow(write, now)))) {
+    const ids = (JSON.parse(rowsJson) as Array<[string]>).map((row) => row[0]);
+    const idsJson = JSON.stringify(ids);
+    const members = new Set(ids);
+    const keys = writes
+      .filter((write) => members.has(write.prepared.recall.recall_number))
+      .flatMap((write) => recallKeys(write.prepared.recall).map(([kind, value]) => [kind, value, write.prepared.recall.recall_number]));
+    const group: Statement[] = [
+      { sql: 'DELETE FROM recall_key WHERE recall_number IN (SELECT value FROM json_each(?))', params: [idsJson] },
+      { sql: 'DELETE FROM recall_fts WHERE rowid IN (SELECT rowid FROM recall WHERE recall_number IN (SELECT value FROM json_each(?)))', params: [idsJson] },
+      {
+        sql: `INSERT INTO recall (${RECALL_COLUMNS.join(', ')})
+          SELECT ${RECALL_COLUMNS.map((_, index) => `json_extract(value, '$[${index}]')`).join(', ')}
+          FROM json_each(?) WHERE true ${UPSERT_TAIL}`,
+        params: [rowsJson],
+      },
+      { sql: `${FTS_FROM_ROWS} IN (SELECT value FROM json_each(?))`, params: [idsJson] },
+    ];
+    for (const keysJson of jsonChunks(keys)) {
+      group.push({
+        sql: "INSERT OR IGNORE INTO recall_key (kind, value, recall_number) SELECT json_extract(value, '$[0]'), json_extract(value, '$[1]'), json_extract(value, '$[2]') FROM json_each(?)",
+        params: [keysJson],
+      });
+    }
+    groups.push(group);
+  }
+  return groups;
+}
+
+export function touchRecallsStatement(recallNumbers: readonly string[], now: string): Statement {
+  return { sql: 'UPDATE recall SET last_seen_at = ? WHERE recall_number IN (SELECT value FROM json_each(?))', params: [now, JSON.stringify(recallNumbers)] };
 }
 
 /** Render a statement as literal SQL for offline bulk import files. */

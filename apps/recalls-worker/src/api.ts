@@ -4,7 +4,7 @@
  * separate, explicit `q` parameter.
  */
 
-import { gs1CheckDigitValid, normaliseNdc, REASON_CLASSES, ALLERGENS, PATHOGENS, RECALL_CATEGORIES } from '@data-foundry/recall-structuring';
+import { gs1CheckDigitValid, normaliseNdc, normaliseProductNdc, productOfPackageNdc, REASON_CLASSES, ALLERGENS, PATHOGENS, RECALL_CATEGORIES } from '@data-foundry/recall-structuring';
 
 import type { D1Database, R2Bucket } from './env.js';
 import { parseRawRef, sha256Hex, type KeyKind } from './store.js';
@@ -141,21 +141,38 @@ function oneOf<T extends string>(name: string, value: string | null, allowed: re
 }
 
 /** Normalise an identifier the way the parser stored it. */
-export function normaliseIdentifier(kind: 'gtin' | 'ndc' | 'lot' | 'serial' | 'model', value: string): string {
+export function normaliseIdentifier(kind: 'gtin' | 'lot' | 'serial' | 'model', value: string): string {
   const trimmed = value.trim();
   if (kind === 'gtin') {
     const digits = trimmed.replace(/[\s-]/g, '');
     if (!/^\d{8,14}$/.test(digits) || !gs1CheckDigitValid(digits)) throw new BadRequest('gtin must be a UPC/EAN/GTIN/UDI-DI with a valid check digit');
     return digits.padStart(14, '0');
   }
-  if (kind === 'ndc') {
-    const normalised = normaliseNdc(trimmed);
-    if (normalised) return normalised;
-    const digits = trimmed.replace(/-/g, '');
-    if (/^\d{11}$/.test(digits)) return `${digits.slice(0, 5)}-${digits.slice(5, 9)}-${digits.slice(9)}`;
-    throw new BadRequest('ndc must be hyphenated (4-4-2, 5-3-2, 5-4-1 or 5-4-2) or 11 digits');
-  }
   return trimmed.toUpperCase();
+}
+
+/** A caller's NDC as either a 5-4-2 package code or a 5-4 product code. */
+export function parseNdcInput(value: string): { package: string } | { product: string } | null {
+  const trimmed = value.trim();
+  const packaged = normaliseNdc(trimmed);
+  if (packaged) return { package: packaged };
+  const product = normaliseProductNdc(trimmed);
+  if (product) return { product };
+  const digits = trimmed.replace(/-/g, '');
+  if (/^\d{11}$/.test(digits)) return { package: `${digits.slice(0, 5)}-${digits.slice(5, 9)}-${digits.slice(9)}` };
+  return null;
+}
+
+/**
+ * SQL over recall_key for an NDC. A package code matches that package or a
+ * recall of its whole product; a product code matches the product or any of
+ * its packages (an index range scan on the key's prefix).
+ */
+export function ndcCondition(input: { package: string } | { product: string }): { sql: string; binds: string[] } {
+  if ('package' in input) {
+    return { sql: "(kind = 'ndc' AND value IN (?, ?))", binds: [input.package, productOfPackageNdc(input.package)] };
+  }
+  return { sql: "(kind = 'ndc' AND (value = ? OR (value >= ? AND value < ?)))", binds: [input.product, `${input.product}-`, `${input.product}.`] };
 }
 
 /** FTS5 query from free text: every token quoted, implicitly ANDed. */
@@ -173,9 +190,17 @@ export async function searchRecalls(db: D1Database, bucket: R2Bucket, params: UR
     binds.push(kind, value);
   };
 
-  for (const kind of ['gtin', 'ndc', 'lot', 'serial', 'model'] as const) {
+  for (const kind of ['gtin', 'lot', 'serial', 'model'] as const) {
     const value = params.get(kind);
     if (value) keyFilter(kind, normaliseIdentifier(kind, value));
+  }
+  const ndcParam = params.get('ndc');
+  if (ndcParam) {
+    const input = parseNdcInput(ndcParam);
+    if (!input) throw new BadRequest('ndc must be hyphenated (package 4-4-2, 5-3-2, 5-4-1, 5-4-2; product 4-4, 5-3, 5-4) or 11 digits');
+    const condition = ndcCondition(input);
+    where.push(`recall_number IN (SELECT recall_number FROM recall_key WHERE ${condition.sql})`);
+    binds.push(...condition.binds);
   }
   const state = params.get('state');
   if (state) {
@@ -220,7 +245,7 @@ export async function searchRecalls(db: D1Database, bucket: R2Bucket, params: UR
   }
   const q = params.get('q');
   if (q) {
-    where.push('recall_number IN (SELECT recall_number FROM recall_fts WHERE recall_fts MATCH ?)');
+    where.push('rowid IN (SELECT rowid FROM recall_fts WHERE recall_fts MATCH ?)');
     binds.push(ftsQuery(q));
   }
   for (const [param, column, op] of [
@@ -232,7 +257,8 @@ export async function searchRecalls(db: D1Database, bucket: R2Bucket, params: UR
     if (!value) continue;
     if (param === 'changed_since' ? Number.isNaN(Date.parse(value)) : !DATE.test(value)) throw new BadRequest(`${param} must be ${param === 'changed_since' ? 'an ISO timestamp' : 'YYYY-MM-DD'}`);
     where.push(`${column} ${op} ?`);
-    binds.push(value);
+    // changed_at is stored as UTC ISO text, so compare in the same form.
+    binds.push(param === 'changed_since' ? new Date(value).toISOString() : value);
   }
 
   const limitParam = Number(params.get('limit') ?? 25);
@@ -272,9 +298,9 @@ export function lookupCandidates(code: string): Array<readonly [KeyKind, string]
   const candidates: Array<readonly [KeyKind, string]> = [];
   const digits = trimmed.replace(/[\s-]/g, '');
   if (/^\d{8,14}$/.test(digits) && gs1CheckDigitValid(digits)) candidates.push(['gtin', digits.padStart(14, '0')]);
-  const ndc = normaliseNdc(trimmed);
-  if (ndc) candidates.push(['ndc', ndc]);
-  else if (/^\d{11}$/.test(digits)) candidates.push(['ndc', `${digits.slice(0, 5)}-${digits.slice(5, 9)}-${digits.slice(9)}`]);
+  const ndc = parseNdcInput(trimmed);
+  if (ndc && 'package' in ndc) candidates.push(['ndc', ndc.package], ['ndc', productOfPackageNdc(ndc.package)]);
+  else if (ndc) candidates.push(['ndc', ndc.product]);
   const upper = trimmed.toUpperCase();
   for (const kind of ['lot', 'serial', 'model'] as const) candidates.push([kind, upper]);
   return candidates;
@@ -282,10 +308,18 @@ export function lookupCandidates(code: string): Array<readonly [KeyKind, string]
 
 export async function lookupCode(db: D1Database, bucket: R2Bucket, code: string, includeRaw: boolean): Promise<Record<string, unknown>> {
   const candidates = lookupCandidates(code);
-  const clauses = candidates.map(() => '(kind = ? AND value = ?)').join(' OR ');
+  const clauses = candidates.map(() => '(kind = ? AND value = ?)');
+  const binds: string[] = candidates.flatMap(([kind, value]) => [kind, value]);
+  // A product code also finds the recalls that list only its packages.
+  const ndc = parseNdcInput(code);
+  if (ndc && 'product' in ndc) {
+    const condition = ndcCondition(ndc);
+    clauses.push(condition.sql);
+    binds.push(...condition.binds);
+  }
   const matches = await db
-    .prepare(`SELECT kind, value, recall_number FROM recall_key WHERE ${clauses} LIMIT 200`)
-    .bind(...candidates.flat())
+    .prepare(`SELECT kind, value, recall_number FROM recall_key WHERE ${clauses.join(' OR ')} LIMIT 200`)
+    .bind(...binds)
     .all<{ kind: KeyKind; value: string; recall_number: string }>();
   const byRecall = new Map<string, Array<{ kind: KeyKind; value: string }>>();
   for (const match of matches.results) {

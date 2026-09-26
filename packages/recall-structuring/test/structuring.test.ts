@@ -38,6 +38,17 @@ describe('distribution geography', () => {
     expect(geo.us_states).toHaveLength(18);
   });
 
+  it('honours negated nationwide distribution', () => {
+    const geo = parseDistribution('Distributed in Texas only. Not distributed nationwide.');
+    expect(geo.nationwide_us).toBe(false);
+    expect(geo.us_states).toEqual(['TX']);
+  });
+
+  it('rejects ambiguous codes separated only by spaces', () => {
+    expect(parseDistribution('SHIPPED TO DISTRIBUTORS IN OR AROUND CHICAGO').us_states).toEqual([]);
+    expect(parseDistribution('Distributed to IN, OR and ME').us_states).toEqual(['IN', 'ME', 'OR']);
+  });
+
   it('keeps West Virginia distinct from Virginia', () => {
     expect(parseDistribution('Distributed in West Virginia and Ohio').us_states).toEqual(['OH', 'WV']);
   });
@@ -73,6 +84,13 @@ describe('product codes', () => {
     expect(parseCodes('Lot numbers 20131, 20363, 20500 and 20641.').lots).toEqual(['20131', '20363', '20500', '20641']);
     expect(parseCodes('Lot #: 26JAN035, BUD 09/07/2026').lots).toEqual(['26JAN035']);
     expect(parseCodes('Serial Numbers: BLX611513S, BLX610983S').serial_numbers).toEqual(['BLX610983S', 'BLX611513S']);
+  });
+
+  it('keeps every serial in a very long list', () => {
+    const serials = Array.from({ length: 2000 }, (_, index) => `SN${100000 + index}`);
+    const codes = parseCodes(`Serial Numbers: ${serials.join(', ')}`);
+    expect(codes.serial_numbers).toHaveLength(2000);
+    expect(codes.serial_numbers).toContain('SN101999');
   });
 
   it('pairs UDI-DI with lots and catalog numbers', () => {
@@ -138,6 +156,14 @@ describe('structureRecall', () => {
     expect(recall.quantity.total).toBe(53);
     expect(recall.codes.gtins).toEqual(['05055192640140']);
     expect(recall.provenance.source_url).toContain('H-1331-2026');
+  });
+
+  it('keeps openFDA product NDCs as 5-4 alongside package NDCs', () => {
+    const recall = structureRecall('drug', {
+      recall_number: 'D-0001-2026',
+      openfda: { product_ndc: ['1234-5678'], package_ndc: ['12345-678-90'] },
+    });
+    expect(recall.codes.ndcs).toEqual(['01234-5678', '12345-0678-90']);
   });
 
   it('rejects a record without a recall number', () => {

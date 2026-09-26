@@ -51,7 +51,7 @@ export function openApiDocument(ctx: PageContext): Record<string, unknown> {
           summary: 'Filter recalls, newest report first',
           parameters: [
             stringParam('gtin', 'UPC/EAN/GTIN/UDI-DI with a valid check digit.'),
-            stringParam('ndc', 'National Drug Code.'),
+            stringParam('ndc', 'National Drug Code: a package code matches that package or a whole-product recall; a product code matches all its packages.'),
             stringParam('lot', 'Lot number.'),
             stringParam('serial', 'Serial number.'),
             stringParam('model', 'Model or catalog number.'),

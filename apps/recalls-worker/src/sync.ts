@@ -10,7 +10,7 @@ import { RECALL_CATEGORIES, type OpenFdaEnforcementRecord, type RecallCategory }
 
 import type { D1Database, R2Bucket } from './env.js';
 
-import { ndjsonBundle, prepareRecall, rawRef, touchRecallStatement, writeRecallStatements, type Statement } from './store.js';
+import { ndjsonBundle, prepareRecall, rawRef, touchRecallsStatement, writeRecallGroups, type Statement } from './store.js';
 
 export const USER_AGENT = 'DataFoundryBot/1.0 (+https://data.aroqon.com/recalls; data@mail.proviciency.com)';
 const PAGE = 1000;
@@ -19,7 +19,6 @@ const MAX_SKIP = 25_000;
 const HISTORY_START = '2004-01-01';
 const ROLLING_WINDOW_DAYS = 120;
 const RECENT_WINDOW_DAYS = 45;
-const D1_BATCH = 400;
 
 export interface SyncEnv {
   readonly DB: D1Database;
@@ -61,11 +60,9 @@ async function fetchPage(category: RecallCategory, from: string, to: string, ski
   throw new Error(`openFDA ${category} unavailable after retries`);
 }
 
-async function runBatches(db: D1Database, statements: Statement[]): Promise<void> {
-  for (let start = 0; start < statements.length; start += D1_BATCH) {
-    const chunk = statements.slice(start, start + D1_BATCH);
-    await db.batch(chunk.map((statement) => db.prepare(statement.sql).bind(...statement.params)));
-  }
+/** Run statements as one D1 batch, which D1 executes as a single transaction. */
+async function runStatements(db: D1Database, statements: readonly Statement[]): Promise<void> {
+  await db.batch(statements.map((statement) => db.prepare(statement.sql).bind(...statement.params)));
 }
 
 export async function syncWindow(env: SyncEnv, category: RecallCategory, from: string, to: string, now = new Date().toISOString()): Promise<WindowResult> {
@@ -86,18 +83,16 @@ export async function syncWindow(env: SyncEnv, category: RecallCategory, from: s
       const prepared = await Promise.all(page.results.filter((record) => record.recall_number).map((record) => prepareRecall(category, record)));
 
       const existing = new Map<string, string>();
-      for (let start = 0; start < prepared.length; start += 90) {
-        const ids = prepared.slice(start, start + 90).map((item) => item.recall.recall_number);
-        const rows = await env.DB.prepare(`SELECT recall_number, raw_sha256 FROM recall WHERE recall_number IN (${ids.map(() => '?').join(',')})`)
-          .bind(...ids)
-          .all<{ recall_number: string; raw_sha256: string }>();
-        for (const row of rows.results) existing.set(row.recall_number, row.raw_sha256);
-      }
-      const statements: Statement[] = [];
-      const toWrite = prepared.filter((item) => existing.get(item.recall.recall_number) !== item.rawSha256);
-      for (const item of prepared) {
-        if (existing.get(item.recall.recall_number) === item.rawSha256) statements.push(touchRecallStatement(item.recall.recall_number, now));
-      }
+      const rows = await env.DB.prepare('SELECT recall_number, raw_sha256 FROM recall WHERE recall_number IN (SELECT value FROM json_each(?))')
+        .bind(JSON.stringify(prepared.map((item) => item.recall.recall_number)))
+        .all<{ recall_number: string; raw_sha256: string }>();
+      for (const row of rows.results) existing.set(row.recall_number, row.raw_sha256);
+
+      const unchanged = prepared.filter((item) => existing.get(item.recall.recall_number) === item.rawSha256);
+      if (unchanged.length > 0) await runStatements(env.DB, [touchRecallsStatement(unchanged.map((item) => item.recall.recall_number), now)]);
+
+      // A page can repeat a recall number; the last occurrence wins, once.
+      const toWrite = [...new Map(prepared.filter((item) => existing.get(item.recall.recall_number) !== item.rawSha256).map((item) => [item.recall.recall_number, item] as const)).values()];
       if (toWrite.length > 0) {
         // Evidence first: new and changed records as NDJSON, so each raw_ref is
         // an exact byte range in an object that already exists. Unchanged
@@ -109,14 +104,17 @@ export async function syncWindow(env: SyncEnv, category: RecallCategory, from: s
           customMetadata: { source: 'openfda-enforcement', retrieved_at: now, window: `${from}..${to}`, skip: String(skip) },
         });
         artifactKeys.push(key);
-        for (const [index, item] of toWrite.entries()) {
+        const writes = toWrite.map((prepared, index) => {
+          const range = bundle.ranges[index] as { offset: number; length: number };
+          return { prepared, rawRef: rawRef(key, range.offset, range.length) };
+        });
+        // Each group is one D1 batch, i.e. one transaction.
+        for (const group of writeRecallGroups(writes, now)) await runStatements(env.DB, group);
+        for (const item of toWrite) {
           if (existing.has(item.recall.recall_number)) changed += 1;
           else inserted += 1;
-          const range = bundle.ranges[index] as { offset: number; length: number };
-          statements.push(...writeRecallStatements(item, rawRef(key, range.offset, range.length), now));
         }
       }
-      await runBatches(env.DB, statements);
       if (page.results.length < PAGE) break;
     }
     await env.DB.prepare("UPDATE sync_run SET finished_at = ?, fetched = ?, inserted = ?, changed = ?, artifact_keys = ?, status = 'SUCCEEDED' WHERE id = ?")
@@ -132,16 +130,38 @@ export async function syncWindow(env: SyncEnv, category: RecallCategory, from: s
   }
 }
 
-/** One scheduled pass: the recent window for every category, then one rolling history window each. */
-export async function scheduledSync(env: SyncEnv, today = new Date().toISOString().slice(0, 10)): Promise<WindowResult[]> {
-  const results: WindowResult[] = [];
+export interface WindowFailure {
+  readonly category: RecallCategory;
+  readonly from: string;
+  readonly to: string;
+  readonly error: string;
+}
+
+async function attempt(env: SyncEnv, category: RecallCategory, from: string, to: string): Promise<WindowResult | WindowFailure> {
+  try {
+    return await syncWindow(env, category, from, to);
+  } catch (error) {
+    // Already recorded as a FAILED sync_run; one window must not stop the rest.
+    return { category, from, to, error: error instanceof Error ? error.message : String(error) };
+  }
+}
+
+/**
+ * One scheduled pass: the recent window for every category, then one rolling
+ * history window each. Windows are independent. The rolling cursor advances
+ * even when its window fails, so one bad window cannot freeze the history
+ * refresh; the failure stays visible in sync_run and is retried next cycle.
+ */
+export async function scheduledSync(env: SyncEnv, today = new Date().toISOString().slice(0, 10)): Promise<Array<WindowResult | WindowFailure>> {
+  const results: Array<WindowResult | WindowFailure> = [];
+  if (env.SOURCE_KILL_SWITCH === '1') return results;
   for (const category of RECALL_CATEGORIES) {
-    results.push(await syncWindow(env, category, addDays(today, -RECENT_WINDOW_DAYS), today));
+    results.push(await attempt(env, category, addDays(today, -RECENT_WINDOW_DAYS), today));
 
     const cursor = await env.DB.prepare('SELECT next_from FROM sync_cursor WHERE category = ?').bind(category).first<{ next_from: string }>();
     const from = cursor?.next_from ?? HISTORY_START;
     const to = addDays(from, ROLLING_WINDOW_DAYS - 1);
-    results.push(await syncWindow(env, category, from, to));
+    results.push(await attempt(env, category, from, to));
     const next = to >= today ? HISTORY_START : addDays(to, 1);
     await env.DB.prepare('INSERT INTO sync_cursor (category, next_from, updated_at) VALUES (?, ?, ?) ON CONFLICT (category) DO UPDATE SET next_from = excluded.next_from, updated_at = excluded.updated_at')
       .bind(category, next, new Date().toISOString())

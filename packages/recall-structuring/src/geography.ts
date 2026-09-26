@@ -133,7 +133,9 @@ export function parseDistribution(text: string | null | undefined): Distribution
       const start = Math.min(match.index ?? 0, neighbour.index ?? 0);
       const end = Math.max(match.index ?? 0, neighbour.index ?? 0);
       const between = residual.slice(start + 2, end);
-      if (/^[\s,;/&.]*(?:and\s+)?[\s,;/&.]*$/i.test(between)) {
+      // List punctuation or "and" is required: bare whitespace between two
+      // ambiguous codes is ordinary all-caps prose ("IN OR AROUND").
+      if (/^[\s,;/&.]*(?:and\s+)?[\s,;/&.]*$/i.test(between) && /[,;/&]|\band\b/i.test(between)) {
         states.add(code);
         break;
       }
@@ -148,7 +150,9 @@ export function parseDistribution(text: string | null | undefined): Distribution
   }
   if (/\bpuerto\s+rico\b/i.test(raw)) states.add('PR');
 
-  const nationwide = NATIONWIDE.test(raw);
+  // "Not distributed nationwide", "no nationwide distribution" negate it.
+  const notNationwide = /\b(?:not|no|never)\s+(?:(?:been|being)\s+)?(?:distributed\s+|sold\s+|shipped\s+)?nation\s*-?\s*wide\b/i.test(raw);
+  const nationwide = NATIONWIDE.test(raw) && !notNationwide;
   // "International: None reported", "no foreign distribution".
   const noInternational = /\b(?:international|foreign|outside\s+(?:the\s+)?u\.?s\.?)\b[^.;]{0,20}\b(?:none|no|n\/a)\b|\bno\s+(?:international|foreign)\b|\bnot\s+(?:distributed\s+)?(?:internationally|outside)/i.test(raw);
   return {

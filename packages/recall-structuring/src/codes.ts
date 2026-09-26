@@ -8,7 +8,7 @@
 export interface ProductCodes {
   /** GTIN-14 normalised (UPC-A, EAN-13 and UDI-DI all map here), check digit verified. */
   readonly gtins: readonly string[];
-  /** NDC normalised to the 11-digit 5-4-2 billing form, hyphenated. */
+  /** NDCs: package codes as 5-4-2 and, where openFDA supplies them, product codes as 5-4. */
   readonly ndcs: readonly string[];
   readonly lots: readonly string[];
   readonly serial_numbers: readonly string[];
@@ -45,6 +45,23 @@ export function normaliseNdc(value: string): string | null {
     case '5-4-2': return `${labeler}-${product}-${pack}`;
     default: return null;
   }
+}
+
+/** Normalise a two-segment product NDC (labeler-product) to 5-4. */
+export function normaliseProductNdc(value: string): string | null {
+  const match = /^(\d{4,5})-(\d{3,4})$/.exec(value.trim());
+  if (!match) return null;
+  const [, labeler = '', product = ''] = match;
+  const layout = `${labeler.length}-${product.length}`;
+  if (layout === '4-4') return `0${labeler}-${product}`;
+  if (layout === '5-3') return `${labeler}-0${product}`;
+  if (layout === '5-4') return `${labeler}-${product}`;
+  return null;
+}
+
+/** The 5-4 product code of a 5-4-2 package code. */
+export function productOfPackageNdc(packageNdc: string): string {
+  return packageNdc.slice(0, 10);
 }
 
 const MONTHS: Readonly<Record<string, number>> = {
@@ -130,11 +147,22 @@ const STOPS: Readonly<Record<'lot' | 'serial' | 'model', RegExp>> = {
   model: /\b(?:udi|upc|gtin|ndc|lot|batch|serial|sku|distributed|manufactured)\b|[;()\n]/i,
 };
 
-function listAfter(text: string, marker: RegExp, kind: keyof typeof STOPS, limit = 600): string[] {
+/** Upper bound per list, far above any real record, so a malformed text cannot run away. */
+const MAX_LIST = 200_000;
+
+/**
+ * Every code after each marker of one kind. A list runs to the next marker of
+ * the same kind, a marker of another kind, or a real word, never a fixed
+ * character window: device recalls can list tens of thousands of serials,
+ * and every one must stay findable. Linear in the text length.
+ */
+function listAfter(text: string, marker: RegExp, kind: keyof typeof STOPS): string[] {
   const found: string[] = [];
-  for (const match of text.matchAll(marker)) {
+  const matches = [...text.matchAll(marker)];
+  for (const [index, match] of matches.entries()) {
     const start = (match.index ?? 0) + match[0].length;
-    let segment = text.slice(start, start + limit);
+    const next = matches[index + 1];
+    let segment = text.slice(start, next ? (next.index ?? text.length) : text.length);
     const stop = STOPS[kind].exec(segment);
     if (stop && stop.index > 0) segment = segment.slice(0, stop.index);
     // Expiry phrases and dates sit between lots ("A, Exp 1/2/27; B, Exp ...");
@@ -150,7 +178,7 @@ function listAfter(text: string, marker: RegExp, kind: keyof typeof STOPS, limit
       }
       if (parseLooseDate(token) !== null) continue;
       found.push(token.toUpperCase());
-      if (found.length > 500) return found;
+      if (found.length >= MAX_LIST) return found;
     }
   }
   return found;
@@ -202,7 +230,7 @@ export function parseCodes(...texts: ReadonlyArray<string | null | undefined>): 
 
   const lots = listAfter(text, LOT_MARKER, 'lot').filter((token) => !gtins.has(toGtin14(token)));
   const serials = listAfter(text, SERIAL_MARKER, 'serial');
-  const models = listAfter(text, MODEL_MARKER, 'model', 200);
+  const models = listAfter(text, MODEL_MARKER, 'model');
 
   return {
     gtins: uniqueSorted(gtins),
