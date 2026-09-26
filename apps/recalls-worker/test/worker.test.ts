@@ -415,6 +415,14 @@ describe('sync', () => {
     expect(await cursor()).toBeNull();
     await scheduledSync(env, '2026-09-26');
     expect(await cursor()).toBe('2012-09-29');
+
+    // The next full-history sweep returns to the same window: failures from
+    // the previous sweep must not count, so one new failure is retried.
+    await new Promise((resolve) => setTimeout(resolve, 5));
+    await env.DB.prepare("UPDATE sync_cursor SET next_from = '2012-06-01', updated_at = ? WHERE category = 'food'").bind(new Date().toISOString()).run();
+    await new Promise((resolve) => setTimeout(resolve, 5));
+    await scheduledSync(env, '2026-09-26');
+    expect(await cursor()).toBe('2012-06-01');
   });
 
   it('records a failed run', async () => {

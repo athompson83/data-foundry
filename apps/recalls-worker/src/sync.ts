@@ -184,7 +184,7 @@ export async function scheduledSync(env: SyncEnv, today = new Date().toISOString
   for (const category of RECALL_CATEGORIES) {
     results.push(await attempt(env, category, addDays(today, -RECENT_WINDOW_DAYS), today));
 
-    const cursor = await env.DB.prepare('SELECT next_from FROM sync_cursor WHERE category = ?').bind(category).first<{ next_from: string }>();
+    const cursor = await env.DB.prepare('SELECT next_from, updated_at FROM sync_cursor WHERE category = ?').bind(category).first<{ next_from: string; updated_at: string }>();
     const from = cursor?.next_from ?? HISTORY_START;
     const to = addDays(from, ROLLING_WINDOW_DAYS - 1);
     const rolling = await attempt(env, category, from, to);
@@ -192,8 +192,10 @@ export async function scheduledSync(env: SyncEnv, today = new Date().toISOString
     if ('error' in rolling) {
       // Retry the same window next cycle; only a window that has failed
       // repeatedly is skipped, so one bad window cannot freeze the refresh.
-      const failures = await env.DB.prepare("SELECT COUNT(*) AS n FROM sync_run WHERE category = ? AND window_from = ? AND window_to = ? AND status = 'FAILED'")
-        .bind(category, from, to)
+      // Count only failures since the cursor arrived at this window, so
+      // failures from an earlier full-history sweep do not carry over.
+      const failures = await env.DB.prepare("SELECT COUNT(*) AS n FROM sync_run WHERE category = ? AND window_from = ? AND window_to = ? AND status = 'FAILED' AND started_at >= ?")
+        .bind(category, from, to, cursor?.updated_at ?? '')
         .first<{ n: number }>();
       if ((failures?.n ?? 0) < MAX_WINDOW_FAILURES) continue;
     }
