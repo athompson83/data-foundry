@@ -51,13 +51,15 @@
     "web:compile:check": "tsx tooling/scripts/compile-web-runtime.ts --check",
     "sources:readiness": "tsx tooling/scripts/source-readiness.ts",
     "cloudflare:synthetic-ingestion:check": "tsx tooling/scripts/check-synthetic-ingestion.ts",
-    "cloudflare:synthetic-ingestion:artifacts:check": "tsx tooling/scripts/check-cloudflare-artifacts.ts --synthetic-only"
+    "cloudflare:synthetic-ingestion:artifacts:check": "tsx tooling/scripts/check-cloudflare-artifacts.ts --synthetic-only",
+    "recalls:bulk-load": "tsx tooling/scripts/recalls-bulk-load.ts"
   },
   "devDependencies": {
     "@data-foundry/api-keys": "workspace:*",
     "@data-foundry/canonical-schema": "workspace:*",
     "@data-foundry/canonical-store": "workspace:*",
     "@data-foundry/private-canary": "workspace:*",
+    "@data-foundry/recall-structuring": "workspace:*",
     "@data-foundry/rights-engine": "workspace:*",
     "@data-foundry/source-registry": "workspace:*",
     "@electric-sql/pglite": "^0.5.5",

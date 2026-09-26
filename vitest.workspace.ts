@@ -20,6 +20,7 @@ export const projects = [
   'packages/canonical-store',
   'packages/provenance',
   'packages/query-model',
+  'packages/recall-structuring',
   'services/ingest-worker',
   'services/export-builder',
   'apps/api',
@@ -31,6 +32,7 @@ export const projects = [
   'apps/acquisition-worker',
   'apps/ingestion-worker',
   'apps/web',
+  'apps/recalls-worker',
   'verticals/hvac',
   'tooling',
   // The repo-root `tests/` tree: integration, end-to-end and contract suites

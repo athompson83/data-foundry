@@ -1,5 +1,59 @@
 # Progress
 
+## Current session — 2026-09-26: first real paid dataset (FDA Recall Intelligence) built and deployed
+
+**Verdict: the product, domains, Stripe catalog and billing path are live; sales are
+closed (`SALES_OPEN=0`) because the dataset is not loaded yet (`UA-009`). No revenue
+yet. The HVAC track and the hosted Postgres baseline are unchanged.**
+
+- **Owner direction (this session).** Approve any dataset whose restrictions can be
+  logically ruled out, with the value in structuring unstructured data. Accept the
+  pricing sheet. Approve launch. Support contact `data@mail.proviciency.com`. Use the
+  Stripe and Cloudflare keys in the environment; the owner will rotate them afterwards.
+- **Dataset.** openFDA enforcement reports: 87,356 food, drug and device recalls, CC0.
+  The rights reasoning and all eight direct-API cells are in
+  [the rights record](docs/sources/openfda-enforcement-rights-record-20260926.md).
+  The decision and trade-offs are in
+  [ADR-0013](docs/decisions/ADR-0013-first-paid-dataset-fda-recalls-on-d1.md).
+- **Built.**
+  - `packages/recall-structuring`: deterministic parser for distribution geography,
+    quantities, lots, check-digit-verified GTIN/UPC/UDI, NDC normalised to 5-4-2,
+    expiry dates, reason classes, allergens and pathogens, with provenance per field.
+    Measured over every record with 0 errors.
+  - `apps/recalls-worker`: pages, paid API, Stripe Checkout (key shown once and
+    stored hashed), billing portal, signed webhooks that re-read the subscription,
+    hard-stop monthly metering, and a 6-hourly openFDA refresh that archives new or
+    changed records to R2 as NDJSON and verifies byte ranges by SHA-256.
+  - `pnpm recalls:bulk-load`, which renders the initial load through the Worker's own
+    statement builders.
+- **Provider state.**
+  - D1 `data-foundry-recalls` (`84acdedd-…`) is at migration `0001` and empty.
+  - R2 holds 13 evidence bundles under `recalls/openfda/bulk/2026-09-26/`.
+  - Worker `data-foundry-recalls` version `758e1081` runs on Custom Domains
+    `data.aroqon.com` and `api.data.aroqon.com`, with Google-issued certificates
+    active. The domains override the zone's Vercel wildcard for those two names only.
+  - Stripe live: four products and prices, default billing portal, one webhook
+    endpoint. Worker secrets: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`,
+    `ADMIN_TOKEN`.
+  - A `recalls` Postgres schema and `recalls_app` role were created and then removed,
+    both verified empty and never login-enabled. Nothing else in Supabase changed.
+- **Verification.**
+  - `pnpm typecheck` is clean.
+  - The parser has 17 tests and the Worker 18, run against real SQLite with FTS5.
+    They cover the hard stop, the one-time key reveal, webhook signature and replay,
+    tampered evidence refusal, and sync insert/touch/change.
+  - Live: pages 200; API 401 without a key; public stats; 308 from the pages host to
+    the API host; unsigned webhook 400; checkout closed (503); live Checkout sessions
+    accepted for the $0 and $49 prices.
+- **Blocked, owner decisions.**
+  - `UA-009`: the D1 migration `0002` and bulk load. This session's automated safety
+    check declined them.
+  - `UA-010`: Stripe payouts are disabled.
+  - `UA-011`: update the Worker's Stripe secret after rotating.
+- **Not done.** RapidAPI listing, MCP and bulk channels for this dataset. Resend email:
+  keys are shown on the checkout success page instead. Counsel review of the terms and
+  privacy pages, which are reasonable drafts rather than reviewed legal text.
+
 ## Current session — 2026-09-18 (second session): UA-002 hosted execution independently reconciled and closed
 
 **Verdict: UA-002 COMPLETE. BETA-002 DONE. Private-canary success only — not
