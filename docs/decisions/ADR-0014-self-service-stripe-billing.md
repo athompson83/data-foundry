@@ -43,6 +43,7 @@ The direct `API_PAID`/`DIRECT` channel had authentication, metering and a publis
 ## Consequences
 
 - The "manual invoicing" proposal in the pricing decision sheet is superseded for the direct channel. Stripe issues invoices and receipts and collects payment.
+- The public pricing page sells through this API only when the vertical's `product.yaml` declares `direct_checkout` (API origin and optional path prefix) and the offer is `available` with approved terms, privacy and support. Each paid plan is then a no-JavaScript form posting to `/v1/billing/checkout`. Direct checkout and the RapidAPI `listing_url` are independent: either, both or neither may be configured, and `available` requires at least one.
 - RapidAPI remains an independent channel with its own billing authority. `RAPIDAPI` usage is never an allowance or Stripe matter.
 - Revenue still requires a sellable dataset with effective `API_PAID` rights (ADR-0013). Billing sells access; it never creates permission.
 - Owner-side prerequisites: an activated live Stripe account, and the webhook endpoint registered in Stripe. See `docs/owner-actions/stripe-billing-setup.md`.

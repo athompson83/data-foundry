@@ -58,6 +58,20 @@ BILLING_RETURN_URL = "https://data.aroqon.com/<slug>/pricing"
 
 All five settings are all-or-nothing: set none of them to disable billing, or all of them to enable it. Production requires `sk_live_`/`rk_live_`.
 
+## 4a. Public pricing page (per vertical, `product.yaml`)
+
+The web pricing page offers direct purchase only when `verticals/<slug>/product.yaml` declares the direct channel and the offer is `available`:
+
+```yaml
+availability: available          # also requires approved terms_policy, privacy_policy and support_contact
+listing_url: null                # the RapidAPI listing is an independent channel; either, both or neither
+direct_checkout:
+  api_origin: https://api.data.aroqon.com   # bare HTTPS origin of the edge that serves /v1/billing/*
+  path_prefix: ""                           # or "/<slug>" if the canonical API host routes by vertical path
+```
+
+Each paid plan then renders a plain HTML form that posts `plan=<code>` (and an optional `email`) to `<api_origin><path_prefix>/v1/billing/checkout`; the edge answers `303` to Stripe Checkout. The `$0` plan never gets a form. The vertical's `/docs` page documents the billing endpoints and the `429 ALLOWANCE_EXHAUSTED` response whenever `direct_checkout` is present, marked "not open yet" until the offer is `available`. Run `pnpm web:compile` after editing `product.yaml`. Set `BILLING_RETURN_URL` to that pricing page.
+
 ## 5. Database
 
 Apply migration `0035` and the post-migration grant upgrade. That brings the runtime grants to 313 and the private functions to 60. Use the same controlled path used for `0027`–`0033`.
