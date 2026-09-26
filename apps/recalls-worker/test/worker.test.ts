@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { consumeRequest, findCustomerByKey, issueKey, mintApiKey, KEY_PREFIX } from '../src/account.js';
-import { lookupCandidates } from '../src/api.js';
+import { gtinCandidates, lookupCandidates } from '../src/api.js';
 import type { Env } from '../src/env.js';
 import worker from '../src/index.js';
 import { ndjsonBundle, parseRawRef, prepareRecall, rawRef, renderLiteral, writeRecallGroups, writeRecallStatements } from '../src/store.js';
@@ -180,6 +180,10 @@ describe('API surface', () => {
       expect(body.data.map((match) => match.recall.recall_number)).toEqual(['Z-0002-2026']);
     }
     expect(lookupCandidates('12345-678-90')).toContainEqual(['ndc', '12345-0678-90']);
+    // A printed UPC-E is also read as its expanded UPC-A, the form the index stores.
+    expect(lookupCandidates('04252614')).toContainEqual(['gtin', '00042100005264']);
+    expect(gtinCandidates('04252614')).toEqual(['00042100005264']);
+    expect(gtinCandidates('96385074')).toEqual(['00000096385074']);
   });
 
   it('matches NDCs across package and product forms', async () => {

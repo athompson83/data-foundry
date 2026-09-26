@@ -4,7 +4,7 @@
  * separate, explicit `q` parameter.
  */
 
-import { gs1CheckDigitValid, normaliseNdc, normaliseProductNdc, productOfPackageNdc, REASON_CLASSES, ALLERGENS, PATHOGENS, RECALL_CATEGORIES } from '@data-foundry/recall-structuring';
+import { expandUpcE, gs1CheckDigitValid, normaliseNdc, normaliseProductNdc, productOfPackageNdc, REASON_CLASSES, ALLERGENS, PATHOGENS, RECALL_CATEGORIES } from '@data-foundry/recall-structuring';
 
 import type { D1Database, R2Bucket } from './env.js';
 import { parseRawRef, sha256Hex, type KeyKind } from './store.js';
@@ -142,14 +142,25 @@ function oneOf<T extends string>(name: string, value: string | null, allowed: re
 }
 
 /** Normalise an identifier the way the parser stored it. */
-export function normaliseIdentifier(kind: 'gtin' | 'lot' | 'serial' | 'model', value: string): string {
-  const trimmed = value.trim();
-  if (kind === 'gtin') {
-    const digits = trimmed.replace(/[\s-]/g, '');
-    if (!/^\d{8,14}$/.test(digits) || !gs1CheckDigitValid(digits)) throw new BadRequest('gtin must be a UPC/EAN/GTIN/UDI-DI with a valid check digit');
-    return digits.padStart(14, '0');
+/**
+ * Every GTIN-14 a scanned or printed code can stand for. Eight digits are
+ * ambiguous: EAN-8 as printed, or UPC-E, which is expanded to its UPC-A (the
+ * form the index stores it in). Each reading must pass its own check digit.
+ */
+export function gtinCandidates(value: string): string[] {
+  const digits = value.trim().replace(/[\s-]/g, '');
+  if (!/^\d{8,14}$/.test(digits)) return [];
+  const out = new Set<string>();
+  if (gs1CheckDigitValid(digits)) out.add(digits.padStart(14, '0'));
+  if (digits.length === 8) {
+    const upcA = expandUpcE(digits);
+    if (upcA && gs1CheckDigitValid(upcA)) out.add(upcA.padStart(14, '0'));
   }
-  return trimmed.toUpperCase();
+  return [...out];
+}
+
+export function normaliseIdentifier(kind: 'lot' | 'serial' | 'model', value: string): string {
+  return value.trim().toUpperCase();
 }
 
 /** A caller's NDC as either a 5-4-2 package code or a 5-4 product code. */
@@ -191,7 +202,14 @@ export async function searchRecalls(db: D1Database, bucket: R2Bucket, params: UR
     binds.push(kind, value);
   };
 
-  for (const kind of ['gtin', 'lot', 'serial', 'model'] as const) {
+  const gtinParam = params.get('gtin');
+  if (gtinParam) {
+    const gtins = gtinCandidates(gtinParam);
+    if (gtins.length === 0) throw new BadRequest('gtin must be a UPC/UPC-E/EAN/GTIN/UDI-DI with a valid check digit');
+    where.push(`recall_number IN (SELECT recall_number FROM recall_key WHERE kind = 'gtin' AND value IN (${gtins.map(() => '?').join(', ')}))`);
+    binds.push(...gtins);
+  }
+  for (const kind of ['lot', 'serial', 'model'] as const) {
     const value = params.get(kind);
     if (value) keyFilter(kind, normaliseIdentifier(kind, value));
   }
@@ -297,8 +315,7 @@ export function lookupCandidates(code: string): Array<readonly [KeyKind, string]
   const trimmed = code.trim();
   if (!trimmed || trimmed.length > 64) throw new BadRequest('code must be 1–64 characters');
   const candidates: Array<readonly [KeyKind, string]> = [];
-  const digits = trimmed.replace(/[\s-]/g, '');
-  if (/^\d{8,14}$/.test(digits) && gs1CheckDigitValid(digits)) candidates.push(['gtin', digits.padStart(14, '0')]);
+  for (const gtin of gtinCandidates(trimmed)) candidates.push(['gtin', gtin]);
   const ndc = parseNdcInput(trimmed);
   if (ndc && 'package' in ndc) candidates.push(['ndc', ndc.package], ['ndc', productOfPackageNdc(ndc.package)]);
   else if (ndc) candidates.push(['ndc', ndc.product]);
