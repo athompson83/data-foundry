@@ -5,6 +5,13 @@ All notable changes to this vertical's **schema and data**. Versions are the
 
 ## [0.1.0] — 2026-09-26
 
+### Changed (prelaunch, before any activation)
+- Both `nhtsa-recalls` streams now declare the generic row filter
+  `where: { column: RCLTYPECD, in: [V] }`, closing the non-vehicle-recall
+  gap. `RCLTYPECD` codes (`V`/`E`/`T`/`C`) remain UNVERIFIED. The NHTSA fixture
+  gains one equipment (`E`) and one tire (`T`) SYNTHETIC row, both excluded;
+  goldens are unchanged (30 entities, 262 facts, 29 edges).
+
 ### Added
 - Vertical scaffold: `make`, `vehicle_model_year`, `vehicle_configuration`,
   `recall_campaign`; predicates `makes`, `configuration_of`, `recall_affects`;

@@ -594,6 +594,12 @@ function recordSelector(
   path: string,
 ): ExtractionSchema['record'] {
   const recordPath = record.record_path === undefined ? null : String(record.record_path);
+  if (format !== 'csv' && record.where !== undefined) {
+    throw new MappingCompilationError(
+      `${path}.where`,
+      `a stream \`where\` row filter is supported only for csv sources, not "${format}"`,
+    );
+  }
   switch (format) {
     case 'json':
       if (recordPath === null) return { kind: 'whole_document' };
@@ -601,7 +607,8 @@ function recordSelector(
     case 'html':
       if (recordPath === null) return { kind: 'whole_document' };
       return { kind: 'css', selector: recordPath };
-    case 'csv':
+    case 'csv': {
+      const where = compileRowFilter(record, source, path);
       return {
         kind: 'csv_rows',
         // A headerless file (for example a tab-delimited flat file whose
@@ -614,12 +621,56 @@ function recordSelector(
           ? {}
           : { delimiter: String(source.parsing.delimiter) }),
         trim: true,
+        ...(where === null ? {} : { where }),
       };
+    }
     case 'pdf':
       return source.parsing?.record_per === 'page' ? { kind: 'pdf_pages' } : { kind: 'whole_document' };
     default:
       throw new MappingCompilationError(path, `unsupported format "${format}"`);
   }
+}
+
+/**
+ * A stream's declarative row filter, `where: { column: C, in: [v1, v2] }`:
+ * only rows whose column C is exactly one of the listed values become records
+ * of that stream. Generic record selection, not a per-source branch; a
+ * headerless source's column must be one of its declared `parsing.columns`.
+ */
+function compileRowFilter(
+  record: Yaml,
+  source: Yaml,
+  path: string,
+): { readonly column: string; readonly in: readonly string[] } | null {
+  const where = record.where;
+  if (where === undefined) return null;
+  const wherePath = `${path}.where`;
+  const values: unknown = where?.in;
+  if (
+    where === null ||
+    typeof where !== 'object' ||
+    Array.isArray(where) ||
+    Object.keys(where).some((key) => key !== 'column' && key !== 'in') ||
+    typeof where.column !== 'string' ||
+    where.column.trim() === '' ||
+    !Array.isArray(values) ||
+    values.length === 0 ||
+    values.some((value) => typeof value !== 'string' || value === '') ||
+    new Set(values).size !== values.length
+  ) {
+    throw new MappingCompilationError(
+      wherePath,
+      '`where` must be `{ column: <name>, in: [<value>, ...] }` with a non-empty list of distinct, non-empty string values',
+    );
+  }
+  const declaredColumns = source.parsing?.columns;
+  if (Array.isArray(declaredColumns) && !declaredColumns.map(String).includes(where.column)) {
+    throw new MappingCompilationError(
+      `${wherePath}.column`,
+      `column "${where.column}" is not one of the source's declared parsing.columns`,
+    );
+  }
+  return { column: where.column, in: [...(values as string[])] };
 }
 
 interface PropertyRuleInput {

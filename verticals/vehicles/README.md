@@ -66,5 +66,6 @@ compares the output with `fixtures/golden/`.
 
 See the ordered list in [RIGHTS.md](RIGHTS.md) and the gaps in
 [QUALITY.md](QUALITY.md): capture artifacts and terms (`UA-009`), verify every
-column, write and record the determinations, add a row filter for non-vehicle
-recalls, design the bulk load and refresh, then map vPIC for the VIN lookup.
+column (including the `RCLTYPECD` codes the vehicle-only row filter relies
+on), write and record the determinations, design the bulk load and refresh,
+then map vPIC for the VIN lookup.

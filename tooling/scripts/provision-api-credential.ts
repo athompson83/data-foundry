@@ -37,6 +37,10 @@ import {
 } from '@data-foundry/canonical-schema';
 import { parse as parseToml } from 'smol-toml';
 import { isMain } from '../lib/cli-entry.js';
+import {
+  EDGE_VERTICAL_TEMPLATES,
+  type EdgeVerticalTemplate,
+} from '../lib/edge-vertical-templates.js';
 import { resolveOperationalSchema } from './migrate.js';
 
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -47,6 +51,8 @@ const ALLOWED_VERTICAL_STATUSES = new Set(['DRAFT', 'ACTIVE']);
 const FILE_MODE = 0o600;
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const EDGE_PRODUCTION_CONFIG = resolve(REPO_ROOT, 'apps', 'edge', 'wrangler.production.toml');
+const EDGE_PRIMARY_WORKER_NAME = 'data-foundry-edge';
+const API_PATH_PREFIX_PATTERN = /^\/v1\/[a-z][a-z0-9-]{0,62}$/;
 const WRANGLER_ENTRYPOINT = resolve(
   REPO_ROOT,
   'node_modules',
@@ -111,6 +117,24 @@ export interface WranglerManifestScope {
   readonly environment: KeyEnvironment;
   readonly verticalSlug: string;
 }
+
+/**
+ * Which edge Worker an accepted manifest must describe. The primary
+ * `apps/edge/wrangler.production.toml` is `data-foundry-edge` (HVAC today) and
+ * may be prefixed or un-prefixed. A registered per-vertical manifest (for
+ * example `apps/edge/wrangler.vehicles.production.toml`) is its template's own
+ * Worker, bound to exactly one vertical and required to carry
+ * `API_PATH_PREFIX = "/v1/<slug>"`.
+ */
+export interface EdgeManifestIdentity {
+  readonly workerName: string;
+  readonly perVertical: boolean;
+}
+
+const PRIMARY_EDGE_MANIFEST: EdgeManifestIdentity = {
+  workerName: EDGE_PRIMARY_WORKER_NAME,
+  perVertical: false,
+};
 
 type FileDelivery = { readonly kind: 'FILE'; readonly path: string };
 type WranglerDelivery = {
@@ -226,19 +250,38 @@ function secureOutputPath(value: string | undefined): string {
   return resolved;
 }
 
-function edgeProductionConfig(value: string | undefined): string {
+function samePathOnPlatform(left: string, right: string, platform: NodeJS.Platform): boolean {
+  return platform === 'win32'
+    ? left.toLocaleLowerCase('en-US') === right.toLocaleLowerCase('en-US')
+    : left === right;
+}
+
+/**
+ * Accept only the primary edge production manifest or a registered
+ * per-vertical edge manifest whose vertical is exactly `--vertical`. The
+ * manifest's own `VERTICAL_SLUG`, Worker name and path prefix are proved again
+ * against its exact bytes before any Wrangler call.
+ */
+function edgeProductionConfig(value: string | undefined, verticalSlug: string): string {
   const selected = explicitPath(value, '--wrangler-config');
   const resolved = resolve(selected);
-  const samePath =
-    process.platform === 'win32'
-      ? resolved.toLocaleLowerCase('en-US') === EDGE_PRODUCTION_CONFIG.toLocaleLowerCase('en-US')
-      : resolved === EDGE_PRODUCTION_CONFIG;
-  if (!samePath) {
+  if (samePathOnPlatform(resolved, EDGE_PRODUCTION_CONFIG, process.platform)) {
+    return EDGE_PRODUCTION_CONFIG;
+  }
+  const template = EDGE_VERTICAL_TEMPLATES.find(({ deploymentConfigPath }) =>
+    samePathOnPlatform(resolved, resolve(deploymentConfigPath), process.platform),
+  );
+  if (template === undefined) {
     throw new CredentialProvisioningError(
-      '--wrangler-config must select apps/edge/wrangler.production.toml',
+      '--wrangler-config must select apps/edge/wrangler.production.toml or a registered per-vertical edge manifest (apps/edge/wrangler.<slug>.production.toml)',
     );
   }
-  return EDGE_PRODUCTION_CONFIG;
+  if (template.verticalSlug !== verticalSlug) {
+    throw new CredentialProvisioningError(
+      `--wrangler-config selects the ${template.verticalSlug} edge manifest; --vertical must be ${template.verticalSlug}`,
+    );
+  }
+  return resolve(template.deploymentConfigPath);
 }
 
 /** Parse a deliberately closed CLI vocabulary without ever echoing a value. */
@@ -362,7 +405,7 @@ export function parseCredentialProvisioningArgs(
     delivery = {
       kind: 'WRANGLER',
       secretName: 'RAPIDAPI_API_KEY',
-      configPath: edgeProductionConfig(wranglerConfig),
+      configPath: edgeProductionConfig(wranglerConfig, verticalSlug),
     };
   } else {
     if (
@@ -931,13 +974,41 @@ export interface NodeCredentialFileSystemOptions {
   readonly platform: NodeJS.Platform;
   readonly workspaceRoot: string;
   readonly edgeProductionConfigPath?: string;
+  /** Test seam: registered per-vertical edge manifests (default: `EDGE_VERTICAL_TEMPLATES`). */
+  readonly edgeVerticalTemplates?: readonly Pick<
+    EdgeVerticalTemplate,
+    'verticalSlug' | 'workerName' | 'deploymentConfigPath'
+  >[];
   readonly snapshotId?: () => string;
+}
+
+/**
+ * One edge route for the manifest's path shape. An un-prefixed edge keeps the
+ * historical `<host>/*`. A prefixed edge may claim only `<host>/v1/<slug>/*`
+ * and optionally the exact `<host>/v1/<slug>` contract document, matching
+ * `pnpm cloudflare:deployment:check`.
+ */
+function parseEdgeManifestRoute(
+  value: string,
+  prefix: string | null,
+): { readonly hostname: string; readonly wildcard: boolean } | null {
+  if (prefix === null) {
+    const route = parseCanonicalProductionWorkerRoute(value);
+    return route === null ? null : { hostname: route.hostname, wildcard: true };
+  }
+  for (const [suffix, wildcard] of [[`${prefix}/*`, true], [prefix, false]] as const) {
+    if (!value.endsWith(suffix)) continue;
+    const route = parseCanonicalProductionWorkerRoute(`${value.slice(0, -suffix.length)}/*`);
+    if (route !== null) return { hostname: route.hostname, wildcard };
+  }
+  return null;
 }
 
 export function isSafeEdgeWranglerConfig(
   contents: string,
   expectedScope: WranglerManifestScope,
   expectedAccountId?: string,
+  identity: EdgeManifestIdentity = PRIMARY_EDGE_MANIFEST,
 ): boolean {
   const object = (value: unknown): Record<string, unknown> =>
     value !== null && typeof value === 'object' && !Array.isArray(value)
@@ -981,8 +1052,18 @@ export function isSafeEdgeWranglerConfig(
     const observabilityLogs = object(object(config['observability'])['logs']);
     const vars = object(config['vars']);
     const hyperdrive = Array.isArray(config['hyperdrive']) ? config['hyperdrive'].map(object) : [];
+    const rawPrefix = vars['API_PATH_PREFIX'];
+    const prefix =
+      rawPrefix === undefined
+        ? null
+        : typeof rawPrefix === 'string' &&
+            API_PATH_PREFIX_PATTERN.test(rawPrefix) &&
+            rawPrefix === `/v1/${expectedScope.verticalSlug}`
+          ? rawPrefix
+          : undefined;
+    if (prefix === undefined || (identity.perVertical && prefix === null)) return false;
     const routes = [config['route'], config['routes']].flatMap(values);
-    const parsedRoutes = routes.map((route) => parseCanonicalProductionWorkerRoute(route));
+    const parsedRoutes = routes.map((route) => parseEdgeManifestRoute(route, prefix));
     const rapidApiHostname = vars['RAPIDAPI_HOSTNAME'] === undefined
       ? null
       : productionHostname(vars['RAPIDAPI_HOSTNAME']);
@@ -992,7 +1073,7 @@ export function isSafeEdgeWranglerConfig(
       /(?:POSTGRES_URL|RAPIDAPI_API_KEY|RAPIDAPI_PROXY_SECRET|PASSWORD|TOKEN|SECRET)$/i.test(key),
     );
     return (
-      config['name'] === 'data-foundry-edge' &&
+      config['name'] === identity.workerName &&
       config['main'] === 'src/index.ts' &&
       config['workers_dev'] === false &&
       config['preview_urls'] === false &&
@@ -1002,11 +1083,13 @@ export function isSafeEdgeWranglerConfig(
       vars['API_KEY_ENVIRONMENT'] === expectedScope.environment &&
       vars['VERTICAL_SLUG'] === expectedScope.verticalSlug &&
       rapidApiHostname !== null &&
-      parsedRoutes.some((route) => route?.hostname === rapidApiHostname) &&
+      parsedRoutes.some((route) => route?.hostname === rapidApiHostname && route.wildcard) &&
       exactCloudflareId(accountId) &&
       routes.length > 0 &&
       parsedRoutes.every((route) => route !== null) &&
-      parsedRoutes.some((route) => route?.hostname === 'api.datafoundry.io') &&
+      // A distinct DIRECT API host must remain: the marketplace origin is an
+      // additional route on the same Worker, never its only public surface.
+      parsedRoutes.some((route) => route !== null && route.wildcard && route.hostname !== rapidApiHostname) &&
       hyperdrive.some(
         (binding) =>
           binding['binding'] === 'HYPERDRIVE' &&
@@ -1035,6 +1118,21 @@ export function createNodeCredentialFileSystem(
   const edgeProductionConfigPath = resolve(
     options.edgeProductionConfigPath ?? EDGE_PRODUCTION_CONFIG,
   );
+  const acceptedManifests: readonly {
+    readonly path: string;
+    readonly verticalSlug: string | null;
+    readonly identity: EdgeManifestIdentity;
+  }[] = [
+    { path: edgeProductionConfigPath, verticalSlug: null, identity: PRIMARY_EDGE_MANIFEST },
+    ...(options.edgeVerticalTemplates ?? EDGE_VERTICAL_TEMPLATES).map((template) => ({
+      path: resolve(template.deploymentConfigPath),
+      verticalSlug: template.verticalSlug,
+      identity: { workerName: template.workerName, perVertical: true },
+    })),
+  ];
+  const snapshotParents = new Set(acceptedManifests.map(({ path }) => dirname(path)));
+  const samePath = (left: string, right: string): boolean =>
+    samePathOnPlatform(left, right, options.platform);
   const requirePosixFileDelivery = (): void => {
     if (options.platform === 'win32') {
       throw new CredentialProvisioningError(
@@ -1076,14 +1174,20 @@ export function createNodeCredentialFileSystem(
       let snapshotHandle: Awaited<ReturnType<typeof open>> | null = null;
       let snapshotCreated = false;
       try {
-        const [selected, expected] = await Promise.all([
-          realpath(path),
-          realpath(edgeProductionConfigPath),
-        ]);
-        const samePath = options.platform === 'win32'
-          ? selected.toLocaleLowerCase('en-US') === expected.toLocaleLowerCase('en-US')
-          : selected === expected;
-        if (!samePath) throw new Error('wrong file');
+        const selected = await realpath(path);
+        let manifest: (typeof acceptedManifests)[number] | undefined;
+        for (const candidate of acceptedManifests) {
+          const expected = await realpath(candidate.path).catch(() => null);
+          if (expected !== null && samePath(selected, expected)) {
+            manifest = candidate;
+            break;
+          }
+        }
+        if (manifest === undefined) throw new Error('wrong file');
+        // A per-vertical manifest serves exactly its template's vertical.
+        if (manifest.verticalSlug !== null && manifest.verticalSlug !== scope.verticalSlug) {
+          throw new Error('wrong vertical');
+        }
 
         const sourceHandle = await open(path, fsConstants.O_RDONLY);
         let exactBytes: Buffer;
@@ -1093,14 +1197,21 @@ export function createNodeCredentialFileSystem(
         } finally {
           await sourceHandle.close();
         }
-        if (!isSafeEdgeWranglerConfig(exactBytes.toString('utf8'), scope, expectedAccountId)) {
+        if (
+          !isSafeEdgeWranglerConfig(
+            exactBytes.toString('utf8'),
+            scope,
+            expectedAccountId,
+            manifest.identity,
+          )
+        ) {
           throw new Error('unsafe manifest');
         }
 
         const snapshotId = (options.snapshotId ?? randomUUID)();
         if (!UUID.test(snapshotId)) throw new Error('invalid snapshot id');
         snapshotPath = resolve(
-          dirname(edgeProductionConfigPath),
+          dirname(manifest.path),
           `.wrangler-credential-snapshot-${snapshotId}.toml`,
         );
         snapshotHandle = await open(
@@ -1127,11 +1238,8 @@ export function createNodeCredentialFileSystem(
     },
 
     async removeWranglerConfigSnapshot(path) {
-      const expectedParent = dirname(edgeProductionConfigPath);
       const selectedParent = dirname(resolve(path));
-      const sameParent = options.platform === 'win32'
-        ? selectedParent.toLocaleLowerCase('en-US') === expectedParent.toLocaleLowerCase('en-US')
-        : selectedParent === expectedParent;
+      const sameParent = [...snapshotParents].some((parent) => samePath(selectedParent, parent));
       if (
         !sameParent ||
         !/^\.wrangler-credential-snapshot-[0-9a-f-]+\.toml$/.test(path.split(/[\\/]/).at(-1) ?? '')

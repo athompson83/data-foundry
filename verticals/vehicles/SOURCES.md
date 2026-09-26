@@ -58,7 +58,9 @@ is mapped; `seo.yaml`'s dataset gate asks for two.
   (`parsing.columns`) and a wrong position silently maps the wrong column —
   the most dangerous assumption in this vertical. Upper-case text. Unknown year
   written `9999` (UNVERIFIED). Includes equipment, tire and child-seat
-  campaigns this vertical does not model.
+  campaigns this vertical does not model; both streams declare
+  `where: { column: RCLTYPECD, in: [V] }`, so only vehicle rows become
+  records (the `RCLTYPECD` codes are UNVERIFIED, below).
 - **Failure modes:** a column inserted by NHTSA shifts every later column
   without any extraction error; verify against the dictionary on every refresh
   until a header-bearing artifact is available.
@@ -131,6 +133,7 @@ The whole ordered list is an assumption: `RECORD_ID`, `CAMPNO`, `MAKETXT`,
 | Column | Mapped to | What is unverified |
 |---|---|---|
 | `RECORD_ID` | record key (both streams) | position 1; unique per row; stable across releases |
+| `RCLTYPECD` | row filter only (`where ... in: [V]`, both streams); not a fact | position; the code set, believed `V`=vehicle, `E`=equipment, `T`=tire, `C`=child seat (UNVERIFIED); whether any vehicle row uses another code |
 | `CAMPNO` | `nhtsa_campaign_number` alias | position; format `^\d{2}[VEICT]\d{6}$` (the letter set) |
 | `MAKETXT` | `makes` subject; part of the model-year key | position; spellings vs EPA `make` |
 | `MODELTXT` | part of the model-year key | position; spellings vs EPA `baseModel` |
@@ -150,7 +153,12 @@ The whole ordered list is an assumption: `RECORD_ID`, `CAMPNO`, `MAKETXT`,
 
 - One flat-file row = one campaign × make/model/year; `POTAFF`, dates and text
   are repeated identically on every row of a campaign.
-- `RCLTYPECD = V` marks vehicle campaigns; others are equipment/tire/seat.
+- `RCLTYPECD` values are believed to be `V` (vehicle), `E` (equipment),
+  `T` (tire) and `C` (child seat) — UNVERIFIED. The row filter keeps only `V`;
+  if the real code set differs (for example a vehicle row coded otherwise),
+  vehicle recalls would be silently dropped, so verify the code set against a
+  captured file and the dictionary, and compare `V`-row counts with NHTSA's
+  published vehicle-recall totals, before activation.
 - EPA `baseModel` and NHTSA `MODELTXT` name the same model the same way often
   enough for a useful join (see QUALITY.md for what happens when they do not).
 - Both agencies' publications are works of the US Government with no contrary

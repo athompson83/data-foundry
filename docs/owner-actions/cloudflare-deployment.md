@@ -1092,7 +1092,8 @@ deployment and needs the exact provider evidence described above.
    `RAPIDAPI_API_KEY` directly to that Worker without echoing it or placing it
    on argv. `POSTGRES_URL` and authenticated Wrangler access must already be
    present in the process environment. The selected manifest is accepted only
-   when it is the ignored `apps/edge/wrangler.production.toml`, retains the
+   when it is the ignored `apps/edge/wrangler.production.toml` (or, per section
+   10.2, a registered per-vertical edge manifest for the same vertical), retains the
    production/live, no-preview, no-invocation-log markers, and has its active
    exact nonzero 32-hex `account_id`, non-`workers.dev` production route, and
    nonzero 32-hex `HYPERDRIVE` id. The manifest's `API_KEY_ENVIRONMENT` and
@@ -1487,12 +1488,46 @@ pnpm exec wrangler secret put STRIPE_SECRET_KEY --config apps/edge/wrangler.vehi
 pnpm exec wrangler secret put STRIPE_WEBHOOK_SECRET --config apps/edge/wrangler.vehicles.production.toml --env-file tooling/wrangler-empty.env
 ```
 
-RapidAPI applies only to a vertical whose marketplace listing is authorized.
-Set `RAPIDAPI_PROXY_SECRET` the same way, and mint `RAPIDAPI_API_KEY` with
-`pnpm credentials:provision` exactly as in section 6. The provisioner currently
-accepts only `apps/edge/wrangler.production.toml`. Vehicles RapidAPI
-provisioning therefore needs the provisioner extended first. Until then, leave
-all three `RAPIDAPI_*` settings unset on the vehicles Worker.
+RapidAPI applies only to a vertical whose marketplace listing is authorized
+(section 8 rights gate for the marketplace surface). The three `RAPIDAPI_*`
+settings are all-or-nothing in the runtime, so configure them together on the
+Worker that serves that vertical. `pnpm credentials:provision` accepts either
+the primary `apps/edge/wrangler.production.toml` or a registered per-vertical
+manifest (`EDGE_VERTICAL_TEMPLATES`, today only
+`apps/edge/wrangler.vehicles.production.toml`). For a per-vertical manifest it
+also requires:
+
+- `--vertical` equals that template's vertical (`vehicles`), and the manifest's
+  `VERTICAL_SLUG` equals `--vertical`;
+- the manifest's `name` is the template's Worker (`data-foundry-edge-vehicles`)
+  and `API_PATH_PREFIX` is exactly `/v1/<slug>`;
+- every route is `<host>/v1/<slug>/*` or the exact `<host>/v1/<slug>`, with a
+  wildcard route on `RAPIDAPI_HOSTNAME` and a distinct DIRECT host;
+- the manifest's `account_id` equals `--cloudflare-account-id`.
+
+Every section 6 safety property is unchanged: the minted key reaches Wrangler
+only on stdin, through a validated byte snapshot beside the selected manifest,
+after an existing deployment of that exact Worker is confirmed and after the
+database commit; a Wrangler failure revokes the new key.
+
+Vehicles RapidAPI, in order (the edge must already be deployed with the
+marketplace route and `RAPIDAPI_HOSTNAME` from 10.1, and `POSTGRES_URL` plus
+authenticated Wrangler access must already be in the process environment):
+
+```powershell
+# 1. Proxy secret from RapidAPI Studio (Gateway > Proxy secret), pasted at the prompt.
+pnpm exec wrangler secret put RAPIDAPI_PROXY_SECRET --config apps/edge/wrangler.vehicles.production.toml --env-file tooling/wrangler-empty.env
+# 2. Validate the marketplace tenant, key and manifest without minting or delivering anything.
+pnpm credentials:provision -- --dry-run --environment live --tenant-slug rapidapi-vehicles --tenant-name "RapidAPI Vehicles marketplace" --vertical vehicles --credential-label "production RapidAPI vehicles" --access-tier RAPIDAPI --billing-source RAPIDAPI --wrangler-secret RAPIDAPI_API_KEY --wrangler-config apps/edge/wrangler.vehicles.production.toml --cloudflare-account-id <32-hex-cloudflare-account-id>
+# 3. Mint the key and pipe it to the vehicles Worker's RAPIDAPI_API_KEY secret.
+pnpm credentials:provision -- --environment live --tenant-slug rapidapi-vehicles --tenant-name "RapidAPI Vehicles marketplace" --vertical vehicles --credential-label "production RapidAPI vehicles" --access-tier RAPIDAPI --billing-source RAPIDAPI --wrangler-secret RAPIDAPI_API_KEY --wrangler-config apps/edge/wrangler.vehicles.production.toml --cloudflare-account-id <32-hex-cloudflare-account-id>
+```
+
+Until step 3 succeeds, the vehicles Worker answers `503` with
+`x-unavailable-reason: configuration` because RapidAPI settings are partial.
+That is the intended fail-closed state. Then run the marketplace bypass test
+from section 7 and the listing verification in
+`docs/owner-actions/rapidapi-vehicles-listing.md`.
 
 ### 10.3 Ordered commands (operator workstation)
 

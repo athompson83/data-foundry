@@ -142,7 +142,7 @@ describe('synthetic shape fixtures', () => {
     );
     expect(declared).not.toEqual(expect.arrayContaining(['honda', 'toyota', 'ford']));
     const epaMakes = new Set(epaRows().map((row) => row['make']!.toLowerCase()));
-    const nhtsaMakes = new Set(nhtsaRows().map((row) => row['MAKETXT']!.toLowerCase()));
+    const nhtsaMakes = new Set(nhtsaVehicleRows().map((row) => row['MAKETXT']!.toLowerCase()));
     for (const make of [...epaMakes, ...nhtsaMakes]) expect(declared).toContain(make);
   });
 });
@@ -158,6 +158,7 @@ function mappedColumns(): Map<string, Set<string>> {
   for (const source of mappings.sources) {
     for (const record of source.records) {
       add(source.source_key, record.source_record_key);
+      add(source.source_key, record.where?.column);
       for (const mapping of [...(record.aliases ?? []), ...(record.properties ?? [])]) {
         add(source.source_key, mapping.path ?? mapping.paths);
       }
@@ -187,6 +188,41 @@ describe('SOURCES.md lists every column the mappings read as UNVERIFIED', () => 
   it('also names the declared NHTSA column order', () => {
     const nhtsa = mappings.sources.find((source: any) => source.source_key === 'nhtsa-recalls');
     for (const column of nhtsa.parsing.columns) expect(section, column).toContain(`\`${column}\``);
+  });
+});
+
+describe('NHTSA recall-type row filter', () => {
+  const nhtsa = mappings.sources.find((source: any) => source.source_key === 'nhtsa-recalls');
+
+  it('keeps only vehicle (RCLTYPECD V) rows on every NHTSA stream', () => {
+    for (const record of nhtsa.records) {
+      expect(record.where, record.stream).toEqual({ column: 'RCLTYPECD', in: ['V'] });
+    }
+  });
+
+  it('exercises the filter with at least one non-vehicle fixture row that no golden contains', () => {
+    const excluded = nhtsaRows().filter((row) => row['RCLTYPECD'] !== 'V');
+    expect(excluded.map((row) => row['RCLTYPECD']).sort()).toEqual(['E', 'T']);
+    // The equipment row names a declared make, so without the filter it would
+    // create a model year and a campaign.
+    const declared = Object.values(domain.publisher_aliases).flatMap((entry: any) =>
+      [entry.canonical_name, ...entry.aliases].map((name: string) => name.toLowerCase()),
+    );
+    expect(excluded.some((row) => declared.includes(row['MAKETXT']!.toLowerCase()))).toBe(true);
+    const golden = JSON.stringify([
+      readJson('fixtures', 'golden', 'entities.json'),
+      readJson('fixtures', 'golden', 'facts.json'),
+      readJson('fixtures', 'golden', 'relationships.json'),
+    ]).toUpperCase();
+    for (const row of excluded) {
+      expect(golden, row['CAMPNO']).not.toContain(row['CAMPNO']!);
+      expect(golden, row['MODELTXT']).not.toContain(row['MODELTXT']!.replace(/[-_. /\\]/g, ''));
+    }
+  });
+
+  it('records the recall-type codes as unverified in SOURCES.md', () => {
+    const sourcesDoc = read('SOURCES.md');
+    expect(sourcesDoc).toMatch(/RCLTYPECD[^\n]*UNVERIFIED|UNVERIFIED[^\n]*RCLTYPECD/);
   });
 });
 
@@ -235,7 +271,7 @@ describe('golden records are consistent with the fixtures and the declared rules
 
   it('derives every model-year key from a fixture row of either agency', () => {
     const fromEpa = epaRows().map((row) => normalize(`${row['make']} ${row['baseModel']} ${row['year']}`));
-    const fromNhtsa = nhtsaRows().map((row) => normalize(`${row['MAKETXT']} ${row['MODELTXT']} ${row['YEARTXT']}`));
+    const fromNhtsa = nhtsaVehicleRows().map((row) => normalize(`${row['MAKETXT']} ${row['MODELTXT']} ${row['YEARTXT']}`));
     const expected = new Set([...fromEpa, ...fromNhtsa]);
     const actual = new Set(
       entities.entities
@@ -331,6 +367,11 @@ function epaRows(): Record<string, string>[] {
   const [header, ...rows] = dataLines('epa-vehicles.csv');
   const columns = header!.split(',');
   return rows.map((row) => Object.fromEntries(row.split(',').map((value, index) => [columns[index]!, value])));
+}
+
+/** The rows the mapping's `where` filter admits (vehicle recalls). */
+function nhtsaVehicleRows(): Record<string, string>[] {
+  return nhtsaRows().filter((row) => row['RCLTYPECD'] === 'V');
 }
 
 function nhtsaRows(): Record<string, string>[] {

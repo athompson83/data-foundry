@@ -34,11 +34,25 @@ export type RecordSelector =
       readonly quote?: string;
       readonly escape?: string;
       readonly trim?: boolean;
+      /**
+       * Declarative row filter: only rows whose `column` value (after the
+       * selector's own trimming) is exactly one of `in` become records. Other
+       * rows are skipped before field extraction, so they produce no record,
+       * alias or failure. A column absent from the header is a configuration
+       * error, never a silent pass-through.
+       */
+      readonly where?: CsvRowFilter;
     }
   /** HTML only. One record per matched element. */
   | { readonly kind: 'css'; readonly selector: string }
   /** PDF only. One record per page. */
   | { readonly kind: 'pdf_pages' };
+
+/** A `csv_rows` membership filter on one column's exact (case-sensitive) value. */
+export interface CsvRowFilter {
+  readonly column: string;
+  readonly in: readonly string[];
+}
 
 /** Text matching mode shared by the label-driven selectors. */
 export const LABEL_MATCH_MODES = ['exact', 'contains', 'prefix'] as const;
@@ -234,6 +248,26 @@ export function parseExtractionSchema(input: unknown, path = 'schema'): Extracti
       `record selector ${recordKind} is not valid for format ${extractionFormat}`,
       `${path}.record`,
     );
+  }
+
+  if (recordKind === 'csv_rows' && record['where'] !== undefined) {
+    const where = record['where'];
+    const values = isRecord(where) ? where['in'] : undefined;
+    if (
+      !isRecord(where) ||
+      typeof where['column'] !== 'string' ||
+      where['column'].length === 0 ||
+      !Array.isArray(values) ||
+      values.length === 0 ||
+      values.some((value) => typeof value !== 'string') ||
+      new Set(values).size !== values.length ||
+      Object.keys(where).some((key) => key !== 'column' && key !== 'in')
+    ) {
+      throw new ExtractionSchemaError(
+        'where requires exactly a non-empty column and a non-empty list of distinct string values in `in`',
+        `${path}.record.where`,
+      );
+    }
   }
 
   const recordKey = input['record_key'];

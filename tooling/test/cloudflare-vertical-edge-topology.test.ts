@@ -10,6 +10,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterAll, describe, expect, it } from 'vitest';
+import { parse } from 'smol-toml';
 import {
   BUNDLED_RUNTIME_VERTICALS,
   EDGE_VERTICAL_TEMPLATES,
@@ -140,6 +141,21 @@ async function templateVariant(transform: (source: string) => string): Promise<s
 }
 
 describe('the tracked per-vertical edge template', () => {
+  it('declares the Worker name and vertical each template actually carries', async () => {
+    for (const template of EDGE_VERTICAL_TEMPLATES) {
+      const config = parse(await readFile(template.configPath, 'utf8')) as {
+        name?: unknown;
+        vars?: Record<string, unknown>;
+      };
+      expect(config.name).toBe(template.workerName);
+      expect(config.vars?.['VERTICAL_SLUG']).toBe(template.verticalSlug);
+      expect(config.vars?.['API_PATH_PREFIX']).toBe(`/v1/${template.verticalSlug}`);
+      expect(template.deploymentConfigPath).toBe(
+        join(APPS, 'edge', `wrangler.${template.verticalSlug}.production.toml`),
+      );
+    }
+  });
+
   it('is registered, route-less, id-free and passes with its runtime gate deferred until vehicles is bundled', async () => {
     expect(EDGE_VERTICAL_TEMPLATES.map(({ configPath }) => configPath)).toContain(VEHICLES_TEMPLATE);
     const source = await readFile(VEHICLES_TEMPLATE, 'utf8');

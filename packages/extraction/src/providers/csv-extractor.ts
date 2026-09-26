@@ -12,7 +12,7 @@ import {
   buildRecord,
   type FieldOutcome,
 } from '../record-builder.js';
-import type { ExtractionSchema, FieldRule } from '../schema.js';
+import type { CsvRowFilter, ExtractionSchema, FieldRule } from '../schema.js';
 import {
   ExtractionError,
   artifactText,
@@ -94,20 +94,33 @@ export class CsvExtractor implements ExtractionProvider {
     if (artifact.maxRecords !== undefined && rows.length > artifact.maxRecords) {
       throw new ExtractionError('INGESTION_RECORD_LIMIT');
     }
-    const records = rows.map((row, ordinal) => {
+    const where = options.where;
+    const records = rows.flatMap((row, ordinal) => {
       const line = typeof row.info.lines === 'number' ? row.info.lines : ordinal + 1;
       // `info.columns` is a descriptor array when a header is in play and a
       // plain count when the file is positional.
       const columnNames = Array.isArray(row.info.columns)
         ? row.info.columns.map((column) => column.name)
         : [];
-      return buildRecord({
+      // The declared row filter runs before field extraction. The ordinal
+      // stays the row's position in the file so excluding a row never
+      // renumbers the records around it.
+      if (where !== undefined && !rowMatches(row.record, columnNames, where)) {
+        if (!columnNames.includes(where.column)) {
+          throw new ExtractionError(
+            `record filter column ${where.column} is not present in the header [${columnNames.join(', ')}]`,
+            { artifactId: artifact.artifact.id, schemaId: schema.schema_id },
+          );
+        }
+        return [];
+      }
+      return [buildRecord({
         schema,
         artifact: artifact.artifact,
         ordinal,
         record_locator: lineRangeLocator(line, line),
         outcomes: schema.fields.map((rule) => readField(row.record, columnNames, line, rule)),
-      });
+      })];
     });
 
     return Promise.resolve(applyRecordKeyPolicy(schema, records));
@@ -116,6 +129,19 @@ export class CsvExtractor implements ExtractionProvider {
 
 export const createCsvExtractor = (version?: ExtractorVersion): ExtractionProvider =>
   version === undefined ? new CsvExtractor() : new CsvExtractor(version);
+
+function rowMatches(
+  record: Record<string, string> | readonly string[],
+  columnNames: readonly string[],
+  where: CsvRowFilter,
+): boolean {
+  const index = columnNames.indexOf(where.column);
+  if (index < 0) return false;
+  const raw = Array.isArray(record)
+    ? (record as readonly string[])[index]
+    : (record as Record<string, string>)[where.column];
+  return raw !== undefined && where.in.includes(raw);
+}
 
 interface ParsedRow {
   readonly record: Record<string, string> | readonly string[];

@@ -14,7 +14,7 @@
 | File | Mirrors | Shape | Rows |
 |---|---|---|---|
 | `epa-vehicles.csv` | fueleconomy.gov `vehicles.csv` | comma-delimited, header row, 25 of the real file's ~80 columns | 12 configurations |
-| `nhtsa-flat-rcl.csv` | NHTSA `FLAT_RCL.txt` | **tab**-delimited, **no header** (column order declared in `normalizers/source-mappings.yaml` `parsing.columns`), 29 columns | 7 campaign × model-year rows |
+| `nhtsa-flat-rcl.csv` | NHTSA `FLAT_RCL.txt` | **tab**-delimited, **no header** (column order declared in `normalizers/source-mappings.yaml` `parsing.columns`), 29 columns | 7 vehicle campaign × model-year rows + 2 non-vehicle rows (excluded) |
 | `golden/*.json` | — | expected canonical output of the real pipeline | 30 entities, 262 facts, 29 edges |
 
 Both files open with `#` banner lines. The mappings skip leading `#` lines
@@ -41,6 +41,11 @@ extension; the real artifact is a zipped `.txt`.
    model years and resolve to one campaign entity with two `recall_affects`
    edges.
 7. **Controlled vocabulary.** EPA `drive` strings map to canonical terms.
+8. **Non-vehicle recalls are excluded.** Row `9000008` is an equipment recall
+   (`RCLTYPECD` `E`) under the declared make `EXAMPLAR MOTORS`, and row
+   `9000009` a tire recall (`T`) with a `9999` year. Both NHTSA streams declare
+   `where: { column: RCLTYPECD, in: [V] }`, so neither becomes a record; the
+   goldens contain neither campaign `22E906000` nor `22T907000`.
 
 There is **no contested fact**: the two agencies' properties are disjoint
 except `model_year`, on which they agree by construction. A real conflict case

@@ -8,6 +8,7 @@ import {
   parseCanonicalProductionWorkerRoute,
 } from '@data-foundry/canonical-schema';
 import { isMain } from '../lib/cli-entry.js';
+import { EDGE_VERTICAL_TEMPLATES } from '../lib/edge-vertical-templates.js';
 import { RUNTIMES as EDGE_RUNTIMES } from '../../apps/edge/generated/runtime-registry.js';
 import { MCP_RUNTIMES } from '../../apps/mcp-worker/generated/runtime-registry.js';
 import { ACQUISITION_RUNTIMES } from '../../apps/acquisition-worker/generated/runtime-registry.js';
@@ -137,24 +138,8 @@ export const INGESTION_DEPLOYMENT_CONFIG_PATH = join(
 );
 export const MCP_DEPLOYMENT_CONFIG_PATH = join(REPO_ROOT, 'apps', 'mcp-worker', 'wrangler.production.toml');
 
-/**
- * Additional per-vertical edge Workers (ADR-0011 isolation behind the ADR-0012
- * canonical `api.data.aroqon.com/v1/<slug>/*` contract). Each is the same
- * `apps/edge` code under its own Worker name, `VERTICAL_SLUG` and matching
- * `API_PATH_PREFIX`. The tracked template is always checked; its ignored
- * production manifest is optional, because an HVAC-only deployment remains a
- * complete and valid release shape. Onboarding another vertical's edge is one
- * entry here plus its template.
- */
-export const EDGE_VERTICAL_TEMPLATES: readonly {
-  readonly configPath: string;
-  readonly deploymentConfigPath: string;
-}[] = [
-  {
-    configPath: join(REPO_ROOT, 'apps', 'edge', 'wrangler.vehicles.toml'),
-    deploymentConfigPath: join(REPO_ROOT, 'apps', 'edge', 'wrangler.vehicles.production.toml'),
-  },
-];
+/** Re-exported from the dependency-free registry shared with operator tools. */
+export { EDGE_VERTICAL_TEMPLATES } from '../lib/edge-vertical-templates.js';
 
 /** The slugs each Worker bundle actually carries, read from its compiled registry. */
 export interface BundledVerticals {

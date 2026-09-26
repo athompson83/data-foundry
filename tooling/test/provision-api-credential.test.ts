@@ -8,7 +8,7 @@ import {
   type SqlDriver,
   type SqlTransactionExecutor,
 } from '@data-foundry/canonical-store';
-import type { MintedApiKey } from '@data-foundry/api-keys';
+import { mintApiKey, type MintedApiKey } from '@data-foundry/api-keys';
 import { loadMigrations } from '../scripts/migrate.js';
 import {
   CredentialProvisioningError,
@@ -1464,5 +1464,286 @@ describe('CLI environment and output safety', () => {
     expect(createDriver).not.toHaveBeenCalled();
     expect(mint).not.toHaveBeenCalled();
     expect(fileSystem.written.size).toBe(0);
+  });
+});
+
+describe('per-vertical edge manifests (RapidAPI on a prefixed vertical edge)', () => {
+  const VEHICLES_CONFIG = resolve(REPO_ROOT, 'apps', 'edge', 'wrangler.vehicles.production.toml');
+  const VEHICLES_IDENTITY = { workerName: 'data-foundry-edge-vehicles', perVertical: true } as const;
+  const vehiclesLive = { environment: 'live', verticalSlug: 'vehicles' } as const;
+  const VEHICLES_MANIFEST = `
+name = "data-foundry-edge-vehicles"
+account_id = "${CLOUDFLARE_ACCOUNT_ID}"
+main = "src/index.ts"
+workers_dev = false
+preview_urls = false
+routes = [
+  { pattern = "api.data.aroqon.com/v1/vehicles/*", zone_name = "aroqon.com" },
+  { pattern = "api.data.aroqon.com/v1/vehicles", zone_name = "aroqon.com" },
+  { pattern = "marketplace.data.aroqon.com/v1/vehicles/*", zone_name = "aroqon.com" },
+]
+[observability.logs]
+invocation_logs = false
+[vars]
+DEPLOYMENT_ENVIRONMENT = "production"
+VERTICAL_SLUG = "vehicles"
+API_PATH_PREFIX = "/v1/vehicles"
+API_KEY_ENVIRONMENT = "live"
+RAPIDAPI_HOSTNAME = "marketplace.data.aroqon.com"
+STRIPE_PRICE_IDS = '{"developer":"price_live1"}'
+BILLING_PUBLIC_ORIGIN = "https://api.data.aroqon.com"
+BILLING_RETURN_URL = "https://data.aroqon.com/vehicles/pricing"
+[[hyperdrive]]
+binding = "HYPERDRIVE"
+id = "abcdef1234567890abcdef1234567890"
+[[queues.producers]]
+binding = "USAGE_EVENTS_QUEUE"
+queue = "data-foundry-usage-events"
+`;
+
+  function vehiclesRapidApiArgs(
+    vertical = 'vehicles',
+    config = 'apps/edge/wrangler.vehicles.production.toml',
+    label = 'production RapidAPI vehicles',
+  ): string[] {
+    return [
+      '--environment', 'live',
+      '--tenant-slug', 'rapidapi-vehicles',
+      '--tenant-name', 'RapidAPI Vehicles marketplace',
+      '--vertical', vertical,
+      '--credential-label', label,
+      '--access-tier', 'RAPIDAPI',
+      '--billing-source', 'RAPIDAPI',
+      '--wrangler-secret', 'RAPIDAPI_API_KEY',
+      '--wrangler-config', config,
+      '--cloudflare-account-id', CLOUDFLARE_ACCOUNT_ID,
+    ];
+  }
+
+  it('accepts a registered per-vertical manifest only for its own vertical', () => {
+    expect(parseCredentialProvisioningArgs(vehiclesRapidApiArgs()).delivery).toEqual({
+      kind: 'WRANGLER',
+      secretName: 'RAPIDAPI_API_KEY',
+      configPath: VEHICLES_CONFIG,
+    });
+    expect(() => parseCredentialProvisioningArgs(vehiclesRapidApiArgs('hvac'))).toThrow(
+      /vehicles edge manifest; --vertical must be vehicles/,
+    );
+    for (const config of [
+      'apps/edge/wrangler.plumbing.production.toml',
+      'apps/edge/wrangler.vehicles.toml',
+      'apps/mcp-worker/wrangler.vehicles.production.toml',
+    ]) {
+      expect(() => parseCredentialProvisioningArgs(vehiclesRapidApiArgs('vehicles', config))).toThrow(
+        /registered per-vertical edge manifest/,
+      );
+    }
+  });
+
+  it('validates the per-vertical Worker identity, prefix and routes', () => {
+    expect(
+      isSafeEdgeWranglerConfig(VEHICLES_MANIFEST, vehiclesLive, CLOUDFLARE_ACCOUNT_ID, VEHICLES_IDENTITY),
+    ).toBe(true);
+    // The primary identity never accepts another Worker's manifest, and vice versa.
+    expect(isSafeEdgeWranglerConfig(VEHICLES_MANIFEST, vehiclesLive, CLOUDFLARE_ACCOUNT_ID)).toBe(false);
+    expect(
+      isSafeEdgeWranglerConfig(
+        SAFE_EDGE_MANIFEST,
+        { environment: 'live', verticalSlug: 'hvac' },
+        CLOUDFLARE_ACCOUNT_ID,
+        VEHICLES_IDENTITY,
+      ),
+    ).toBe(false);
+    const hvacLive = { environment: 'live', verticalSlug: 'hvac' } as const;
+    const refused: ReadonlyArray<readonly [string, typeof vehiclesLive | typeof hvacLive, string]> = [
+      // Scope and account.
+      [VEHICLES_MANIFEST, hvacLive, CLOUDFLARE_ACCOUNT_ID],
+      [VEHICLES_MANIFEST, vehiclesLive, 'fedcba0987654321fedcba0987654321'],
+      // A per-vertical edge must carry its own /v1/<slug> prefix.
+      [VEHICLES_MANIFEST.replace('API_PATH_PREFIX = "/v1/vehicles"\n', ''), vehiclesLive, CLOUDFLARE_ACCOUNT_ID],
+      [
+        VEHICLES_MANIFEST.replace('API_PATH_PREFIX = "/v1/vehicles"', 'API_PATH_PREFIX = "/v1/hvac"'),
+        vehiclesLive,
+        CLOUDFLARE_ACCOUNT_ID,
+      ],
+      // Routes may claim only this vertical's prefix, never a looser or foreign one.
+      [
+        VEHICLES_MANIFEST.replace('api.data.aroqon.com/v1/vehicles/*', 'api.data.aroqon.com/*'),
+        vehiclesLive,
+        CLOUDFLARE_ACCOUNT_ID,
+      ],
+      [
+        VEHICLES_MANIFEST.replace('api.data.aroqon.com/v1/vehicles/*', 'api.data.aroqon.com/v1/vehicles*'),
+        vehiclesLive,
+        CLOUDFLARE_ACCOUNT_ID,
+      ],
+      [
+        VEHICLES_MANIFEST.replace(
+          'marketplace.data.aroqon.com/v1/vehicles/*',
+          'marketplace.data.aroqon.com/v1/hvac/*',
+        ),
+        vehiclesLive,
+        CLOUDFLARE_ACCOUNT_ID,
+      ],
+      // The marketplace host must be routed and a distinct DIRECT host must remain.
+      [
+        VEHICLES_MANIFEST.replace(
+          'RAPIDAPI_HOSTNAME = "marketplace.data.aroqon.com"',
+          'RAPIDAPI_HOSTNAME = "unrouted.data.aroqon.com"',
+        ),
+        vehiclesLive,
+        CLOUDFLARE_ACCOUNT_ID,
+      ],
+      [
+        VEHICLES_MANIFEST.replace('RAPIDAPI_HOSTNAME = "marketplace.data.aroqon.com"\n', ''),
+        vehiclesLive,
+        CLOUDFLARE_ACCOUNT_ID,
+      ],
+      [
+        VEHICLES_MANIFEST
+          .replace('  { pattern = "api.data.aroqon.com/v1/vehicles/*", zone_name = "aroqon.com" },\n', '')
+          .replace('  { pattern = "api.data.aroqon.com/v1/vehicles", zone_name = "aroqon.com" },\n', ''),
+        vehiclesLive,
+        CLOUDFLARE_ACCOUNT_ID,
+      ],
+      [`${VEHICLES_MANIFEST}\nRAPIDAPI_API_KEY = "${SECRET}"`, vehiclesLive, CLOUDFLARE_ACCOUNT_ID],
+    ];
+    for (const [contents, scope, account] of refused) {
+      expect(isSafeEdgeWranglerConfig(contents, scope, account, VEHICLES_IDENTITY)).toBe(false);
+    }
+  });
+
+  it('accepts the canonical prefixed primary HVAC manifest shape from runbook section 10.1', () => {
+    const prefixedHvac = VEHICLES_MANIFEST
+      .replace('name = "data-foundry-edge-vehicles"', 'name = "data-foundry-edge"')
+      .replaceAll('/v1/vehicles', '/v1/hvac')
+      .replace('VERTICAL_SLUG = "vehicles"', 'VERTICAL_SLUG = "hvac"')
+      .replace('data.aroqon.com/vehicles/pricing', 'data.aroqon.com/hvac/pricing');
+    const hvacLive = { environment: 'live', verticalSlug: 'hvac' } as const;
+    expect(isSafeEdgeWranglerConfig(prefixedHvac, hvacLive, CLOUDFLARE_ACCOUNT_ID)).toBe(true);
+    expect(
+      isSafeEdgeWranglerConfig(
+        prefixedHvac.replace('API_PATH_PREFIX = "/v1/hvac"\n', ''),
+        hvacLive,
+        CLOUDFLARE_ACCOUNT_ID,
+      ),
+    ).toBe(false);
+  });
+
+  it('snapshots a per-vertical manifest beside itself without a primary manifest, and binds its vertical', async () => {
+    const temporaryRoot = await mkdtemp(join(tmpdir(), 'data-foundry-wrangler-vertical-'));
+    const primaryConfig = join(temporaryRoot, 'edge', 'wrangler.production.toml');
+    const vehiclesConfig = join(temporaryRoot, 'edge', 'wrangler.vehicles.production.toml');
+    await mkdir(dirname(vehiclesConfig), { recursive: true });
+    await writeFile(vehiclesConfig, VEHICLES_MANIFEST, { encoding: 'utf8', flag: 'wx' });
+    try {
+      const fileSystem = createNodeCredentialFileSystem({
+        platform: process.platform,
+        workspaceRoot: REPO_ROOT,
+        edgeProductionConfigPath: primaryConfig,
+        edgeVerticalTemplates: [
+          {
+            verticalSlug: 'vehicles',
+            workerName: 'data-foundry-edge-vehicles',
+            deploymentConfigPath: vehiclesConfig,
+          },
+        ],
+      });
+      await expect(
+        fileSystem.createValidatedWranglerConfigSnapshot(
+          vehiclesConfig,
+          { environment: 'live', verticalSlug: 'hvac' },
+          CLOUDFLARE_ACCOUNT_ID,
+        ),
+      ).rejects.toThrow(/manifest/i);
+      await expect(
+        fileSystem.createValidatedWranglerConfigSnapshot(
+          vehiclesConfig,
+          vehiclesLive,
+          'fedcba0987654321fedcba0987654321',
+        ),
+      ).rejects.toThrow(/manifest/i);
+      const snapshotPath = await fileSystem.createValidatedWranglerConfigSnapshot(
+        vehiclesConfig,
+        vehiclesLive,
+        CLOUDFLARE_ACCOUNT_ID,
+      );
+      expect(dirname(snapshotPath)).toBe(dirname(vehiclesConfig));
+      expect(await readFile(snapshotPath, 'utf8')).toBe(VEHICLES_MANIFEST);
+      await fileSystem.removeWranglerConfigSnapshot(snapshotPath);
+      await expect(readFile(snapshotPath, 'utf8')).rejects.toMatchObject({ code: 'ENOENT' });
+
+      // An unregistered sibling manifest with otherwise valid content is refused.
+      const unregistered = join(temporaryRoot, 'edge', 'wrangler.plumbing.production.toml');
+      await writeFile(unregistered, VEHICLES_MANIFEST, { encoding: 'utf8', flag: 'wx' });
+      await expect(
+        fileSystem.createValidatedWranglerConfigSnapshot(unregistered, vehiclesLive, CLOUDFLARE_ACCOUNT_ID),
+      ).rejects.toThrow(/manifest/i);
+    } finally {
+      await rm(temporaryRoot, { recursive: true, force: true });
+    }
+  });
+
+  it('keeps stdin-only delivery and revoke-on-failure for the vehicles edge', async () => {
+    const driver = await migratedDriver();
+    await driver.query(
+      `INSERT INTO verticals (slug, name, schema_version, status, default_refresh_policy)
+       VALUES ('vehicles', 'Vehicles', '1.0.0', 'DRAFT', $1::jsonb)`,
+      [JSON.stringify({ cadence: 'MANUAL', max_staleness_hours: 24, priority: 1 })],
+    );
+    const fileSystem = new FakeFileSystem();
+    (fileSystem as unknown as { wranglerScope: unknown }).wranglerScope = {
+      environment: 'live',
+      verticalSlug: 'vehicles',
+    };
+    fileSystem.regularFiles.add(VEHICLES_CONFIG);
+    const runner = new FakeRunner();
+    const options = parseCredentialProvisioningArgs(vehiclesRapidApiArgs());
+
+    const result = await provisionApiCredential(driver, options, {
+      mintApiKey: async () => minted(),
+      fileSystem,
+      runner,
+      wranglerCommand: WRANGLER_COMMAND,
+      env: { CLOUDFLARE_API_TOKEN: 'synthetic-cloudflare-token' },
+      now: () => NOW,
+    });
+    expect(result).toMatchObject({ verticalSlug: 'vehicles', delivery: { configPath: VEHICLES_CONFIG } });
+    const snapshotPath = fileSystem.createdSnapshots[0]!;
+    expect(dirname(snapshotPath)).toBe(dirname(VEHICLES_CONFIG));
+    expect(runner.calls[1]!.args).toEqual([
+      ...WRANGLER_COMMAND.argsPrefix,
+      'secret', 'put', 'RAPIDAPI_API_KEY',
+      '--config', snapshotPath,
+      '--env-file', EMPTY_WRANGLER_ENV,
+    ]);
+    expect(runner.calls[1]!.stdin).toBe(`${SECRET}\n`);
+    expect(runner.calls[1]!.env['CLOUDFLARE_ACCOUNT_ID']).toBe(CLOUDFLARE_ACCOUNT_ID);
+    expect(JSON.stringify(runner.calls.map((call) => call.args))).not.toContain(SECRET);
+    expect(JSON.stringify(result)).not.toContain(SECRET);
+
+    // A second label whose Wrangler delivery is not confirmed is revoked.
+    const failing = new FakeRunner();
+    failing.secretExitCode = 1;
+    const second = parseCredentialProvisioningArgs(
+      vehiclesRapidApiArgs('vehicles', 'apps/edge/wrangler.vehicles.production.toml', 'rotated RapidAPI vehicles'),
+    );
+    await expect(
+      provisionApiCredential(driver, second, {
+        mintApiKey: () => mintApiKey('live'),
+        fileSystem,
+        runner: failing,
+        wranglerCommand: WRANGLER_COMMAND,
+        now: () => NOW,
+      }),
+    ).rejects.toThrow(/Wrangler/i);
+    expect(
+      await driver.query<{ label: string; revoked: boolean }>(
+        `SELECT label, revoked_at IS NOT NULL AS revoked FROM api_keys ORDER BY label`,
+      ),
+    ).toEqual([
+      { label: 'production RapidAPI vehicles', revoked: false },
+      { label: 'rotated RapidAPI vehicles', revoked: true },
+    ]);
   });
 });
