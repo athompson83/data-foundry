@@ -19,6 +19,13 @@ real dataset is loaded, nothing new is deployed, and Stripe is test-mode only.
      df_usage gain narrow grants (313 grants, 60 functions).
   3. Stripe sandbox product `prod_VKbcy7DLL3iNSH` with Developer/Growth/Scale prices
      (`docs/owner-actions/stripe-billing-setup.md`).
+- **Also done (same PR, later in the session).**
+  - `pnpm rights:record` (`tooling/scripts/record-rights-determination.ts`) is the first production writer
+    of rights decisions. It records a committed ADR-0013 determination file into the rights matrix as
+    `DETERMINATION`; it is idempotent, supersedes correctly and has 14 tests.
+  - Entity-resolution blocking is now declared per vertical in `vertical.yaml` instead of hard-coded to
+    HVAC. HVAC output is unchanged. A vehicles-shaped integration test and a validator test are included.
+  - Hosted CI was green on `14a0fd6`. The local full suite on `45b3e7d` passed 3,652/3,652.
 - **Verification.**
   - `pnpm test` passed 3,620/3,620.
   - `typecheck` and every CI compile/topology/artifact check passed.
