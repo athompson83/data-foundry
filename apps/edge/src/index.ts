@@ -33,6 +33,7 @@ import {
 } from './env.js';
 import { probePrivateCanaryReadiness } from './private-canary.js';
 import { BILLING_PATH_PREFIX, allowanceExhaustedResponse, readAllowance, serveBilling } from './billing.js';
+import { toInternalPath, toPublicApiResponse, toPublicFetchResponse, toPublicPath } from './path-prefix.js';
 import { RUNTIMES } from '../generated/runtime-registry.js';
 
 export { toApiRequest, toFetchResponse } from './adapter.js';
@@ -62,6 +63,12 @@ export {
   type ResolvedEdgeConfig,
 } from './env.js';
 export { probePrivateCanaryReadiness, type PrivateCanaryProbeOptions } from './private-canary.js';
+export {
+  API_PATH_PREFIX_PATTERN,
+  toInternalPath,
+  toPublicLink,
+  toPublicPath,
+} from './path-prefix.js';
 
 /** Service-binding-only probe; no public route is added for the canary. */
 export class PrivateCanaryEntrypoint extends WorkerEntrypoint<EdgeEnv> implements PrivateCanaryProbe {
@@ -289,7 +296,13 @@ export async function serveRequest(
 
     const config = resolveEdgeConfig(env);
     const requestUrl = new URL(request.url);
-    if (requestUrl.pathname.startsWith(BILLING_PATH_PREFIX)) {
+    // With API_PATH_PREFIX set, only `/v1/<slug>` and below belong to this
+    // Worker; everything else is refused before authentication or metering.
+    // Without it, `internalPath` is the request's own pathname.
+    const prefix = config.apiPathPrefix;
+    const internalPath = toInternalPath(requestUrl.pathname, prefix);
+    if (internalPath === null) return notFound(request);
+    if (internalPath.startsWith(BILLING_PATH_PREFIX)) {
       // Self-service billing lives only on the direct origin. The marketplace
       // origin bills through RapidAPI and never sells or issues direct keys.
       if (config.billing === null || requestUrl.hostname.toLowerCase() === config.rapidApi?.hostname) {
@@ -300,7 +313,7 @@ export async function serveRequest(
         runtime,
         ...(driverOverride === undefined ? {} : { openDriver: driverOverride }),
       });
-      return await serveBilling(request, {
+      const billingResponse = await serveBilling(request, {
         config: config.billing,
         plans: runtime.plans,
         verticalSlug: config.verticalSlug,
@@ -308,7 +321,9 @@ export async function serveRequest(
         keyEnvironment: config.apiKeyEnvironment,
         driver: deployment.driver,
         now: new Date(),
-      });
+        ...(prefix === null ? {} : { publicApiRoot: prefix }),
+      }, internalPath);
+      return toPublicFetchResponse(billingResponse, prefix, requestUrl.origin);
     }
 
     const channel = await resolveRequestChannel(request, config);
@@ -345,7 +360,7 @@ export async function serveRequest(
       const now = new Date();
       const allowance = await readAllowance(deployment.driver, auth.tenantId, now);
       if (allowance !== null && allowance.used >= allowance.allowance) {
-        return allowanceExhaustedResponse(request, allowance, now);
+        return allowanceExhaustedResponse(request, allowance, now, toPublicPath('/v1', prefix));
       }
     }
 
@@ -363,7 +378,7 @@ export async function serveRequest(
     };
 
     const startedAt = Date.now();
-    const response = await deployment.app(toApiRequest(request), onRequest, {
+    const response = await deployment.app(toApiRequest(request, internalPath), onRequest, {
       surface: auth.accessTier,
     });
     const durationMs = Date.now() - startedAt;
@@ -397,7 +412,7 @@ export async function serveRequest(
       }
     }
 
-    return toFetchResponse(response, request.method);
+    return toFetchResponse(toPublicApiResponse(response, prefix, requestUrl.origin), request.method);
   } catch (error) {
     if (error instanceof EdgeConfigurationError) {
       console.error('[edge] configuration', { code: 'CONFIGURATION_UNAVAILABLE' });

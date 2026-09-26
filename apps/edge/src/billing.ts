@@ -49,6 +49,18 @@ export interface BillingContext {
   readonly now: Date;
   /** Swappable for tests; production uses the global `fetch`. */
   readonly fetch?: FetchLike;
+  /**
+   * The public API root customers address, `/v1` by default or the
+   * deployment's `API_PATH_PREFIX` (`/v1/<slug>`). Every URL and route name
+   * billing hands a customer (the Checkout `success_url`, hints in messages)
+   * is spelled under it, so a prefixed deployment never sends a customer to
+   * an un-prefixed path another Worker owns.
+   */
+  readonly publicApiRoot?: string;
+}
+
+function apiRoot(context: BillingContext): string {
+  return context.publicApiRoot ?? '/v1';
 }
 
 type BillingErrorCode =
@@ -311,10 +323,12 @@ async function startCheckout(request: Request, context: BillingContext): Promise
     return billingError(400, 'BAD_REQUEST', 'Send {"plan": "<code>", "email": "<optional>"} as JSON or a form.');
   }
   const plan = findPlanByCode(purchasablePlans(context), input.plan);
-  if (plan === null) return billingError(404, 'UNKNOWN_PLAN', 'No purchasable plan has that code. See GET /v1/billing/plans.');
+  if (plan === null) {
+    return billingError(404, 'UNKNOWN_PLAN', `No purchasable plan has that code. See GET ${apiRoot(context)}/billing/plans.`);
+  }
   const session = await stripe(context).createCheckoutSession({
     priceId: plan.providerPriceId,
-    successUrl: `${context.config.publicOrigin}/v1/billing/claim?session_id={CHECKOUT_SESSION_ID}`,
+    successUrl: `${context.config.publicOrigin}${apiRoot(context)}/billing/claim?session_id={CHECKOUT_SESSION_ID}`,
     cancelUrl: context.config.returnUrl,
     customerEmail: input.email ?? undefined,
     metadata: { vertical_slug: context.verticalSlug, plan_code: plan.code },
@@ -352,7 +366,7 @@ async function claimKey(request: Request, context: BillingContext): Promise<Resp
         '<p><strong>Copy it now. It is shown only once and cannot be recovered.</strong></p>' +
         `<code>${escapeHtml(secret)}</code>` +
         `<p>Send it as <code>Authorization: Bearer ${escapeHtml(secret.slice(0, 12))}…</code></p>` +
-        '<p>Manage or cancel your subscription with <code>POST /v1/billing/portal</code> using this key.</p>',
+        `<p>Manage or cancel your subscription with <code>POST ${escapeHtml(apiRoot(context))}/billing/portal</code> using this key.</p>`,
     );
   }
   return json(201, {
@@ -519,9 +533,16 @@ async function openPortal(request: Request, context: BillingContext): Promise<Re
   return json(201, { data: { portal_url: url } });
 }
 
-/** Returns a response for `/v1/billing/*`, or `null` for any other path. */
-export async function serveBilling(request: Request, context: BillingContext): Promise<Response> {
-  const path = new URL(request.url).pathname;
+/**
+ * Returns a response for `/v1/billing/*`. `internalPath` is the request's
+ * un-prefixed path when the deployment serves an `API_PATH_PREFIX`.
+ */
+export async function serveBilling(
+  request: Request,
+  context: BillingContext,
+  internalPath: string = new URL(request.url).pathname,
+): Promise<Response> {
+  const path = internalPath;
   const method = request.method.toUpperCase();
   const route = path.slice(BILLING_PATH_PREFIX.length);
   const routes: Record<string, { method: string; run: () => Promise<Response> | Response }> = {
@@ -597,14 +618,19 @@ export async function readAllowance(
   return { allowance: Number(row.allowance), used: Number(row.used ?? 0) };
 }
 
-export function allowanceExhaustedResponse(request: Request, state: AllowanceState, now: Date): Response {
+export function allowanceExhaustedResponse(
+  request: Request,
+  state: AllowanceState,
+  now: Date,
+  publicApiRoot = '/v1',
+): Response {
   const nextMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
   const body = JSON.stringify({
     error: {
       code: 'ALLOWANCE_EXHAUSTED',
       message:
         `This key has used its ${state.allowance.toLocaleString('en-US')} included requests for this calendar month. ` +
-        'Upgrade through POST /v1/billing/portal, or wait for the allowance to reset.',
+        `Upgrade through POST ${publicApiRoot}/billing/portal, or wait for the allowance to reset.`,
     },
   });
   const retryAfter = Math.max(1, Math.ceil((nextMonth.getTime() - now.getTime()) / 1000));

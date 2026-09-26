@@ -37,6 +37,16 @@ ADR-0011 remains authoritative for the **implemented web Worker** and for the cu
 
 Do **not** refactor the current per-vertical edge Worker merely to satisfy this ADR before first revenue. The canonical `api.data.aroqon.com` contract may route vertical-scoped paths to isolated backing deployments if that preserves current safety with less release risk. A future consolidation to one multi-vertical API Worker requires its own evidence and review because `QueryModel`, tenant/vertical authorization, blast-radius isolation, rate limiting, and deployment recovery are security/reliability boundaries.
 
+**Implementation note (2026-09-26).** The routed option above is implemented without consolidating Workers:
+
+- Each per-vertical edge Worker may set `API_PATH_PREFIX = "/v1/<slug>"`, which must equal `/v1/${VERTICAL_SLUG}`.
+- The Worker then accepts only that prefix and strips it to its internal `/v1/...` surface before authentication, routing, billing and metering, so route keys are unchanged.
+- It answers `404` outside the prefix and rewrites its self-links back under the prefix.
+- Cloudflare zone routes `api.data.aroqon.com/v1/<slug>/*` select the Worker. The deployment check refuses overlapping edge routes and validates each Worker's slug against the compiled runtime registry.
+- Without the variable, an edge Worker behaves as before.
+
+See `apps/edge/src/path-prefix.ts`, `apps/edge/wrangler.vehicles.toml` and `docs/owner-actions/cloudflare-deployment.md` section 10.
+
 Similarly, the existing MCP implementation remains one-vertical credential scoped where currently designed. The public MCP hostname is stable; internal routing/composition may evolve separately without multiplying canonical hostnames.
 
 ## Rights and monetization consequences

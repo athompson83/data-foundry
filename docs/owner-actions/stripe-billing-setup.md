@@ -38,6 +38,8 @@ Register `https://api.data.aroqon.com/v1/billing/stripe-webhook` for these event
 - `customer.subscription.paused`
 - `customer.subscription.resumed`
 
+An edge Worker deployed with `API_PATH_PREFIX = "/v1/<slug>"` serves billing under that prefix. Register one endpoint per vertical, for example `https://api.data.aroqon.com/v1/vehicles/billing/stripe-webhook`, and give each Worker its own endpoint's signing secret. Checkout then returns to `https://api.data.aroqon.com/v1/<slug>/billing/claim`. See `cloudflare-deployment.md` section 10.
+
 Store the endpoint's signing secret as a Worker secret. Never put it in a manifest.
 
 ```bash

@@ -11,6 +11,7 @@
  */
 
 import type { KeyEnvironment } from '@data-foundry/api-keys';
+import { API_PATH_PREFIX_PATTERN } from './path-prefix.js';
 import {
   canonicalizeEndpointHostname,
   isUnsafeCanonicalProductionHostname,
@@ -46,6 +47,13 @@ export interface EdgeEnv {
   readonly POSTGRES_URL?: string;
   /** Which vertical this deployment serves. One vertical per Worker. */
   readonly VERTICAL_SLUG?: string;
+  /**
+   * Public path prefix for the canonical `api.data.aroqon.com/v1/<slug>/...`
+   * contract (ADR-0012). Optional and explicit: when absent the Worker serves
+   * the un-prefixed `/v1/...` surface exactly as before. When present it must be
+   * exactly `/v1/${VERTICAL_SLUG}`; see `path-prefix.ts`.
+   */
+  readonly API_PATH_PREFIX?: string;
   /** Which credential namespace this deployment accepts. Never inferred. */
   readonly API_KEY_ENVIRONMENT?: string;
   /** Hostname reserved for requests proxied by RapidAPI. No scheme or path. */
@@ -83,6 +91,8 @@ export class EdgeConfigurationError extends Error {
 export interface ResolvedEdgeConfig {
   readonly connectionString: string;
   readonly verticalSlug: string;
+  /** `/v1/<slug>` when this deployment serves a vertical-scoped path, else `null`. */
+  readonly apiPathPrefix: string | null;
   readonly apiKeyEnvironment: KeyEnvironment;
   readonly deploymentEnvironment: DeploymentEnvironment;
   readonly rapidApi: RapidApiConfig | null;
@@ -217,6 +227,26 @@ function resolveBillingConfig(
 }
 
 /**
+ * The optional public path prefix. Absent means the historical un-prefixed
+ * surface. Present means exactly `/v1/<VERTICAL_SLUG>`: a prefix naming another
+ * vertical would route one vertical's public path to a Worker whose QueryModel
+ * carries a different vertical's field metadata, so it refuses to start rather
+ * than answer. An empty or padded value is a misconfiguration, not "absent".
+ */
+function resolveApiPathPrefix(value: string | undefined, verticalSlug: string): string | null {
+  if (value === undefined) return null;
+  if (!API_PATH_PREFIX_PATTERN.test(value)) {
+    throw new EdgeConfigurationError(
+      'API_PATH_PREFIX must match ^/v1/[a-z][a-z0-9-]{0,62}$ when configured.',
+    );
+  }
+  if (value !== `/v1/${verticalSlug}`) {
+    throw new EdgeConfigurationError('API_PATH_PREFIX must equal /v1/<VERTICAL_SLUG> exactly.');
+  }
+  return value;
+}
+
+/**
  * Read the deployment's configuration, or refuse.
  *
  * Hyperdrive wins over `POSTGRES_URL` when both are present: if an operator has
@@ -267,6 +297,7 @@ export function resolveEdgeConfig(env: EdgeEnv): ResolvedEdgeConfig {
   return {
     connectionString,
     verticalSlug,
+    apiPathPrefix: resolveApiPathPrefix(env.API_PATH_PREFIX, verticalSlug),
     apiKeyEnvironment,
     deploymentEnvironment,
     rapidApi: resolveRapidApiConfig(env, deploymentEnvironment),
