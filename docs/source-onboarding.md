@@ -103,6 +103,76 @@ report treats it as a blocker for exactly that reason.
 evidence, per-surface cells, hard stops, attribution), not a human approver.
 Terms change. A review with no expiry is a review that will silently go stale.
 
+**6. Record the determination into the rights matrix.** The ADR-0013
+determination becomes enforceable only when its exact cells exist. Write it as
+`docs/sources/determinations/<source-key>.yaml` (schema:
+`tooling/lib/rights-determination.ts`, `schema_version: 1`). The file states:
+
+- `source_key`, `vertical_slug` and `source.domain`/`source.source_type`. When
+  `verticals/<slug>/sources/<source-key>.yaml` exists it must agree, and the
+  file name must equal `source_key`;
+- `publisher.publisher_key` and `publisher.legal_name`;
+- `basis`: `PUBLIC_DOMAIN_US_GOVERNMENT_WORK`, `OPEN_LICENSE`,
+  `PUBLISHED_TERMS_PERMIT` or `DOCUMENTED_APPROVAL`;
+- `evidence[]`: each item has `key`, `kind` (`TERMS`, `POLICY`, `AGREEMENT` or
+  `REVIEW_MEMO`), `canonical_uri`, `storage_uri`, `content_sha256`,
+  `mime_type` and `retrieved_at`. `terms_evidence` names the controlling terms
+  bytes. Only a § 105 federal work may use the memo as its terms evidence.
+  `decision_evidence` names the `REVIEW_MEMO` cited by every decision and by
+  the publisher mapping. `DOCUMENTED_APPROVAL` also requires `AGREEMENT`
+  evidence;
+- `clause_ref`, `reviewed_at`, an optional `effective_from` (it defaults to
+  `reviewed_at`) and `recheck_at`. `recheck_at` may be at most 12 months after
+  `reviewed_at`; a later date is rejected;
+- `scope`: `acquisition_route`, `account_or_product_plan`, `jurisdiction`,
+  `asset_class` and `output_class`. Personal data is refused;
+- `surfaces`: `PUBLIC_WEB`, `SEARCH_INDEX`, `API_FREE`, `API_PAID`,
+  `RAPIDAPI`, `MCP` and `BULK_EXPORT`, each `{decision: ALLOW|DENY|UNKNOWN,
+  rationale}`;
+- `internal_processing`: `ACQUIRE`, `STORE` and `CACHE` are required;
+  `NORMALIZE` and `DERIVE` are optional and default to `UNKNOWN`.
+
+Then run:
+
+```sh
+POSTGRES_URL=... corepack pnpm rights:record -- --file docs/sources/determinations/<source-key>.yaml --dry-run
+POSTGRES_URL=... corepack pnpm rights:record -- --file docs/sources/determinations/<source-key>.yaml
+```
+
+The command reads the connection only from `POSTGRES_URL` and prints a
+non-secret JSON receipt. `--dry-run` performs every write against the real
+triggers and then rolls it back. The command works in one transaction under a
+per-source advisory lock. In that transaction it:
+
+1. creates the rights publisher if it does not exist;
+2. maps the source to the publisher, but only if the source is unmapped (an
+   evidenced mapping is never changed);
+3. stores the evidence, addressed by content;
+4. activates the terms version, superseding the previous current version;
+5. writes a cell, decision and activation for each requirement of each
+   `ALLOW` or `DENY` surface, using the exact bundles in
+   `packages/rights-engine/src/surfaces.ts`.
+
+Every one of these writes uses reviewer and actor type `DETERMINATION` and
+`reviewed_by: Data Foundry evidence-based determination (ADR-0013)`. The
+command never writes `AUTOMATED`.
+
+The command follows these rules:
+
+- **An `UNKNOWN` surface writes nothing.** A missing cell is a refusal.
+- **A `DENY` writes an explicit DENY decision.**
+- **A cell the file no longer declares is superseded with `UNKNOWN`.** This
+  applies to cells that an earlier version of the same determination decided.
+- **An unchanged file writes nothing.** The receipt reports `changed: false`.
+- **Some files are refused before any write.** The command refuses a file
+  whose decisions the shared cells cannot represent. For example, `API_PAID:
+  ALLOW` also satisfies `API_FREE`'s only cell, so `API_FREE` must also be
+  `ALLOW`. The command also refuses to supersede a `HUMAN` or `COUNSEL`
+  decision.
+- **The source record is left alone.** The command does not change a source's
+  status, classification or kill switch. The receipt lists any of these that
+  still refuse every surface.
+
 ---
 
 ## Stage 2 — acquisition
