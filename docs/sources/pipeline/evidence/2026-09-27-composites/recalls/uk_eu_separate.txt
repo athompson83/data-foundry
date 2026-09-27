@@ -1,0 +1,5 @@
+UK home cats -> EU Safety Gate, window 2023-01-06..2026-09-25: denominator 697
+  brand + model (no GTIN branch): 103/697
+  model only, no brand check (control): 137/697
+  check-digit-valid GTIN: 24/697
+  GTIN only (no brand+model match): 13; brand+model only: 92; both: 11; either: 116

@@ -38,7 +38,7 @@ committed.
 | --- | --- | --- |
 | Health Canada ↔ CPSC, "joint recall" marker + date + title tokens (review candidates) | 341 / 352 marked notices | 25 / 25 correct |
 | Health Canada ↔ CPSC, title tokens without a marker | — | 6 / 15 correct: candidate only, never auto-linked |
-| UK OPSS ↔ EU Safety Gate (home categories) | 118 / 697 by brand+model or a shared code; **24 / 697 by a check-digit-valid GTIN** (29 before validation) | 18 / 20 correct |
+| UK OPSS ↔ EU Safety Gate (home categories) | 103 / 697 by brand+model alone; **24 / 697 by a check-digit-valid GTIN** (29 before validation); 116 / 697 by either | 18 / 20 correct |
 | SaferProducts incidents ↔ CPSC home recalls (brand + model) | 111 / 307 recalls (1,137 reports); 50 had a report before the recall | 11 / 12 correct |
 | CPSC recall ↔ current ENERGY STAR / WaterSense model | 18 / 10,027 recalls | 15 same product, 2 accessory, 1 false |
 | ENERGY STAR ↔ Canada (markets flag) | 1,644,779 / 1,796,876 models | — |
@@ -69,13 +69,21 @@ after measurement and are not archived, so the figures cannot be replayed exactl
 is advanced to `EVIDENCED`, its joins must be re-measured from inputs archived in R2
 with byte counts and SHA-256, under the same replay rules as round 1.
 
+**UK ↔ EU rule sets and multi-code barcodes (added after review).** `xmatch.py` counted a notice as a
+brand+model match when it matched by brand+model *or* by GTIN. `uk_eu_separate.py` re-measures the three rules
+independently from the archived `intl_recs.json`: brand+model 103/697, model only 137/697 and validated GTIN 24/697.
+The screening parser also deleted every space between digits, so a field listing two barcodes became one long
+number and neither was extracted. `parse_all.py` now splits on separators first, but the raw UK notices were not
+archived, so 24/697 is a lower bound until the notices are re-fetched and re-parsed.
+
 **Candidate outputs (added after review).** Health Canada ↔ CPSC was re-measured from inputs now archived in R2
 (`recalls/hc_cpsc_inputs.txt`: sizes and SHA-256). It reproduces 352 / 341 / 337 and the 863 / 238 control
 exactly. `hc_cpsc_links.json` and `hc_cpsc_control.json` now keep every candidate with its evidence: 62 notices
 have more than one, and the 4 tied top candidates are HC 82207, 81761, 64528 and 77014. The committed
 `equipment/link_cpsc_matches.json` and `recalls/spdb_cpsc_links.json` came from screening runs that kept at most
 2 or 3 IDs per match, and their inputs were not archived. They are screening summaries, not review-queue inputs.
-The scripts now keep every candidate, and the build regenerates both files from archived inputs.
+The same applies to `equipment/link_au_matches.json`, which predates the per-component output (its inputs were not
+archived either). The scripts now keep every candidate, and the build regenerates all three files from archived inputs.
 
 ## Rules the measurements impose
 
@@ -184,7 +192,7 @@ in the build order.
    - Across all CPSC products, the overlap is still small: 11 of 864 (EU) and 14 of 1,130 (UK). It is
      mostly globally sold power banks and chargers (Belkin, Anker, ESR, IKEA, Yamaha).
 3. **The EU, UK and France cluster links strongly.**
-   - 118 of 697 UK OPSS home-category notices match an EU Safety Gate alert (29 of them share a code; 24 by a check-digit-valid GTIN after re-measurement).
+   - 116 of 697 UK OPSS home-category notices match an EU Safety Gate alert: 103 by brand+model alone and 24 by a check-digit-valid GTIN (11 by both). Re-measured after review as independent rule sets (`uk_eu_separate.py`); screening reported 118, mixing an unvalidated GTIN branch into the brand+model count.
      18 of 20 were correct on hand check.
    - France's RappelConso cites Safety Gate case numbers directly: 102 of 109 are found in the EU XML.
 4. **The incident signal is new.**
@@ -345,7 +353,7 @@ CA↔US link deterministic under the OGL alone, with no page text needed.
 | CPSC (all) → UK (home categories) | 1,130 | 14 | 0 | 14 | **8/8** | 26090 (Belkin), 26011 (ESR), 25254 (Yamaha PA-300C), 23205 (PowerXL), 23147 (Anker) |
 | ACCC → CPSC | 36 | 4 | 0 | 4 | 3/4 confirmed | 2026/21017→26798, 2026/20921→26444, 2026/20925→26568 |
 | NZ sample → CPSC | 75 of 147 | 5 | 0 | 7 | **5/5** | Öhlins forks→19040; BMC SLR01→20042; Toshiba adapters→24122 |
-| **UK home → EU Safety Gate** | 697 | **118** | **29** | 149 | **18/20** (false: "6000-6500K" colour temperature read as a model; one uncertain) | 2511-0162→SR/04279/25, 2606-0201→SR/02105/26, Bosch TAT8611GB→2023-09-22 alert, Morco EUP11 water heater |
+| **UK home → EU Safety Gate** | 697 | **118** (brand+model alone 103; either rule with validated GTINs 116) | **29** (24 check-digit-valid) | 149 (137 without the GTIN branch) | **18/20** (false: "6000-6500K" colour temperature read as a model; one uncertain) | 2511-0162→SR/04279/25, 2606-0201→SR/02105/26, Bosch TAT8611GB→2023-09-22 alert, Morco EUP11 water heater |
 | ACCC → EU / ACCC → UK | 38 / 36 | 0 / 0 | — | 0 / 0 | — | — |
 | FR RappelConso → EU (declared case number) | 109 notices with `sr/…` or `a12/…` | **102** | — | — | 5/5 | sr/03749/25, sr/01532/26, sr/00012/26 |
 | FR RappelConso → EU (brand+model/GTIN) | 487 | 87 | 71 | 89 | 11/12 (false: 8-digit "58089005" read as a GTIN) | Gifi 3491955986094; BlendJet2; NALK&REY NRHD220023 |
@@ -450,7 +458,7 @@ Only steps 1 and 2 link automatically; steps 3 to 6 only enqueue review candidat
 3. **The HC `What you should do` "Joint recall … CPSC" marker**, plus a date within 45 days and at least 2
    distinctive title tokens (341/352; 25/25). A review candidate: the marker says a CPSC counterpart
    exists but does not name it, and 4 of the 341 matches were ambiguous.
-4. **Normalised model plus brand-token overlap within 365 days.** UK↔EU 118/697; CPSC↔SaferProducts
+4. **Normalised model plus brand-token overlap within 365 days.** UK↔EU 103/697; CPSC↔SaferProducts
    111/307.
 5. **Model-pattern expansion** (ENERGY STAR `*`, `#`, `?` as one-character wildcards) plus brand, for
    enrichment only (6/230).
@@ -481,7 +489,7 @@ The full enum lists are in the YAML. In outline:
 - "Were there consumer incident reports on this brand and model before the recall, and are reports still
   arriving after it?" (50 of 111 recalls had reports before the recall.)
 - "Which products that UK OPSS flagged were also notified to EU Safety Gate, and at what risk level?"
-  (118/697.)
+  (116/697: 103 by brand+model, 24 by GTIN.)
 - "Every recall of Rheem/Rinnai/A. O. Smith water heaters, with serial ranges and sale periods, across
   agencies."
 

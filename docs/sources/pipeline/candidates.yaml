@@ -3693,8 +3693,9 @@ datasets:
         between: &a5
           - uk-opss-product-safety-alerts
           - eu-safety-gate-alerts
-        measured: 118/697 UK home-category notices (29 of the 118 also share a code); 18/20 correct on hand check;
-          149/697 with model only (no brand check)
+        measured: 103/697 UK home-category notices by brand + model alone (uk_eu_separate.py on the archived
+          intl_recs.json; screening reported 118, which also counted GTIN-only matches); 137/697 with model only,
+          no brand check (was 149); hand check 18/20 correct on the screening set
         mode: candidate
         reviewed: { correct: 18, checked: 20 }
       - key: exact GTIN with a valid GS1 check digit, within 365 days (links the notice to the same product;

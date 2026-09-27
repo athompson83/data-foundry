@@ -9,7 +9,10 @@ def gs1_valid(g):
 def gtins(s):
     # Only codes with a valid GS1 check digit are GTINs; anything else is a model or lot token.
     out=set()
-    for g in GTIN.findall(re.sub(r'(?<=\d)[ -](?=\d)','',s or '')):
+    # Split on separators first, then rejoin a single code only where it was printed in groups (e.g. "5 012345
+    # 678900"): deleting every digit-to-digit space would fuse two adjacent codes into one unmatched number.
+    for tok in re.split(r'[,;/|\n]+|\s{2,}|\s(?=\d{8,14}(?!\d))',s or ''):
+      for g in GTIN.findall(re.sub(r'(?<=\d)[ -](?=\d)','',tok)):
         if len(g) in (8,12,13,14) and gs1_valid(g): out.add(g.lstrip('0').zfill(13) if len(g)>=12 else g)
     return out
 recs=[]
