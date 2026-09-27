@@ -375,6 +375,11 @@ describe('discoverability', () => {
     expect((await worker.fetch(site('/sitemaps/recalls-7.xml'), env)).status).toBe(404);
     expect((await worker.fetch(site('/sitemaps/recalls-7.xml'), offline)).status).toBe(404);
     expect((await worker.fetch(site('/sitemaps/recalls-0.xml'), offline)).status).toBe(404);
+    // Browse pages past the end and unknown recalls are cached misses too.
+    expect((await worker.fetch(site('/recalls/browse/food/2026?page=9999'), env)).status).toBe(404);
+    expect((await worker.fetch(site('/recalls/browse/food/2026?page=9999'), offline)).status).toBe(404);
+    expect((await worker.fetch(site('/recalls/F-9999-2026'), env)).status).toBe(404);
+    expect((await worker.fetch(site('/recalls/F-9999-2026'), offline)).status).toBe(404);
     // The one parameter that changes a response still separates cache entries.
     // (page 2 is not cached, so it needs D1, which is unavailable here: the Worker answers 500.)
     expect((await worker.fetch(site('/recalls/browse/food/2026?page=2'), offline)).status).toBe(500);

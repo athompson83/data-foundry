@@ -307,8 +307,9 @@ const EDGE_TTL_SECONDS = 3600;
  * traffic does not become D1 load. Only this cache, which sits behind the
  * kill-switch check, may hold a copy: clients and intermediaries get
  * `no-cache`, so a withdrawn dataset disappears on their next request.
- * `cacheMisses` also keeps 404s (e.g. sitemap shards past the end), so a
- * repeated miss cannot force repeated D1 scans.
+ * `cacheMisses` also keeps 404s (unknown recalls, browse pages and sitemap
+ * shards past the end) for the same hour, so a repeated miss cannot force
+ * repeated D1 queries; a newly published recall's page appears within the hour.
  */
 async function cached(key: Request, render: () => Promise<Response>, options: { cacheMisses?: boolean } = {}): Promise<Response> {
   const cache = (globalThis as unknown as { caches: { default: EdgeCache } }).caches.default;
@@ -341,21 +342,29 @@ async function publicDataPage(env: Env, ctx: PageContext, request: Request, url:
 
   const recall = RECALL_PAGE_PATTERN.exec(url.pathname);
   if (recall) {
-    return cached(cacheKey(ctx, url.pathname), async () => {
-      const found = await getRecall(env.DB, env.RAW_ARTIFACTS, recall[1] as string, false);
-      if (!found) return notFound(ctx);
-      return html(recallPage(ctx, found['data'] as PresentedRecall), 200, { 'cache-control': 'public, max-age=3600' });
-    });
+    return cached(
+      cacheKey(ctx, url.pathname),
+      async () => {
+        const found = await getRecall(env.DB, env.RAW_ARTIFACTS, recall[1] as string, false);
+        if (!found) return notFound(ctx);
+        return html(recallPage(ctx, found['data'] as PresentedRecall), 200, { 'cache-control': 'public, max-age=3600' });
+      },
+      { cacheMisses: true },
+    );
   }
   const browse = BROWSE_PATTERN.exec(url.pathname);
   if (browse) {
     const pageParam = url.searchParams.get('page') ?? '1';
     const page = /^[1-9]\d{0,3}$/.test(pageParam) ? Number(pageParam) : 0;
     if (!page) return notFound(ctx);
-    return cached(cacheKey(ctx, url.pathname, page), async () => {
-      const body = await browsePage(ctx, env.DB, browse[1] as string, browse[2] as string, page);
-      return body ? html(body, 200, { 'cache-control': 'public, max-age=3600' }) : notFound(ctx);
-    });
+    return cached(
+      cacheKey(ctx, url.pathname, page),
+      async () => {
+        const body = await browsePage(ctx, env.DB, browse[1] as string, browse[2] as string, page);
+        return body ? html(body, 200, { 'cache-control': 'public, max-age=3600' }) : notFound(ctx);
+      },
+      { cacheMisses: true },
+    );
   }
   const sitemap = SITEMAP_PATTERN.exec(url.pathname) as RegExpExecArray;
   return cached(
