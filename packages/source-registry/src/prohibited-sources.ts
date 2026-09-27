@@ -169,6 +169,7 @@ export const PROHIBITED_PUBLISHER_TOKENS: readonly string[] = [
   'Johnson Controls',
   'Goodman Manufacturing',
   'MCS Service Company',
+  'Consortium for Energy Efficiency',
 ] as const;
 
 /**
