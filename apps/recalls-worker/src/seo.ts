@@ -7,7 +7,7 @@
 
 import { RECALL_NUMBER_SOURCE } from '@data-foundry/recall-structuring';
 
-import type { D1Database } from './env.js';
+import type { D1Database, R2Bucket } from './env.js';
 import { escapeHtml, layout, type PageContext } from './pages.js';
 
 /** Routes use the ingestion grammar, so every published recall has a page and an API URL. */
@@ -23,6 +23,22 @@ export const SITEMAP_PATTERN = /^\/sitemaps\/recalls-([1-9]\d{0,2})\.xml$/;
 /** Well under the protocol's 50,000-URL and 50 MB limits. */
 export const SITEMAP_PAGE_SIZE = 20_000;
 export const BROWSE_PAGE_SIZE = 200;
+/** openFDA enforcement reports start in 2012; no category/year has more than a few thousand. */
+export const FIRST_BROWSE_YEAR = 2012;
+
+/** Whether a browse hub can exist at all, before any D1 read: a real year and a page number with rows behind it. */
+export function browseInRange(year: string, page: number, total: number): boolean {
+  const y = Number(year);
+  return y >= FIRST_BROWSE_YEAR && y <= new Date().getUTCFullYear() && page >= 1 && (page - 1) * BROWSE_PAGE_SIZE < total;
+}
+
+export async function browseCount(db: D1Database, category: string, year: string): Promise<number> {
+  const row = await db
+    .prepare('SELECT COUNT(*) AS n FROM recall WHERE category = ? AND reported_on >= ? AND reported_on < ?')
+    .bind(category, `${year}-01-01`, `${Number(year) + 1}-01-01`)
+    .first<{ n: number }>();
+  return row?.n ?? 0;
+}
 /** Rule 8 (no thin pages): index a recall page only when FDA gave both a product and a reason. */
 export const MIN_INDEXABLE_TEXT = 20;
 
@@ -345,10 +361,30 @@ export function indexNowBodies(ctx: PageContext, key: string, recallNumbers: rea
   return bodies;
 }
 
-/** Ping IndexNow with the indexable recall pages changed since `since`. Never throws: discovery must not fail a sync. */
-export async function pingChangedRecalls(ctx: PageContext, db: D1Database, key: string | undefined, since: string, fetcher: typeof fetch = fetch): Promise<{ submitted: number; status: number[] }> {
-  if (!key) return { submitted: 0, status: [] };
+/** Where the last fully accepted IndexNow submission is recorded (a small JSON object in the artifact bucket). */
+export const INDEXNOW_WATERMARK_KEY = 'state/indexnow-watermark.json';
+
+/**
+ * Ping IndexNow with the indexable recall pages changed since the last fully
+ * accepted submission (or since `started` the first time). The watermark only
+ * moves to `started` when every batch is accepted, so a 429 or 5xx is retried
+ * on the next scheduled run instead of skipping those pages. Never throws:
+ * discovery must not fail a sync.
+ */
+export async function pingChangedRecalls(
+  ctx: PageContext,
+  db: D1Database,
+  bucket: R2Bucket,
+  key: string | undefined,
+  started: string,
+  fetcher: typeof fetch = fetch,
+): Promise<{ since: string; submitted: number; status: number[]; advanced: boolean }> {
+  if (!key) return { since: started, submitted: 0, status: [], advanced: false };
+  let since = started;
   try {
+    const stored = await bucket.get(INDEXNOW_WATERMARK_KEY);
+    const previous = stored ? (JSON.parse(await stored.text()) as { since?: unknown }).since : undefined;
+    if (typeof previous === 'string' && !Number.isNaN(Date.parse(previous)) && previous < started) since = previous;
     const rows = await db.prepare(`SELECT recall_number FROM recall WHERE changed_at >= ? AND ${INDEXABLE_SQL} ORDER BY recall_number`).bind(since).all<{ recall_number: string }>();
     const numbers = rows.results.map((row) => row.recall_number).filter(isRoutableRecallNumber);
     const status: number[] = [];
@@ -356,9 +392,11 @@ export async function pingChangedRecalls(ctx: PageContext, db: D1Database, key: 
       const response = await fetcher(INDEXNOW_ENDPOINT, { method: 'POST', headers: { 'content-type': 'application/json; charset=utf-8' }, body });
       status.push(response.status);
     }
-    return { submitted: numbers.length, status };
+    const advanced = status.every((code) => code >= 200 && code < 300);
+    if (advanced) await bucket.put(INDEXNOW_WATERMARK_KEY, JSON.stringify({ since: started }), { httpMetadata: { contentType: 'application/json' } });
+    return { since, submitted: numbers.length, status, advanced };
   } catch (error) {
     console.error('indexnow_error', error instanceof Error ? error.message : String(error));
-    return { submitted: 0, status: [] };
+    return { since, submitted: 0, status: [], advanced: false };
   }
 }

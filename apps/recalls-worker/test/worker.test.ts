@@ -381,8 +381,8 @@ describe('discoverability', () => {
     expect((await worker.fetch(site('/recalls/F-9999-2026'), env)).status).toBe(404);
     expect((await worker.fetch(site('/recalls/F-9999-2026'), offline)).status).toBe(404);
     // The one parameter that changes a response still separates cache entries.
-    // (page 2 is not cached, so it needs D1, which is unavailable here: the Worker answers 500.)
-    expect((await worker.fetch(site('/recalls/browse/food/2026?page=2'), offline)).status).toBe(500);
+    // Page 2 is past the year's cached count, so it is refused without D1.
+    expect((await worker.fetch(site('/recalls/browse/food/2026?page=2'), offline)).status).toBe(404);
   });
 
   it('routes every published recall number, including irregular legacy ones, on pages, the API and sitemaps', async () => {
@@ -403,21 +403,42 @@ describe('discoverability', () => {
     expect((await worker.fetch(site('/recalls/docs'), env)).status).toBe(200);
   });
 
-  it('serves the IndexNow key and pings only changed, indexable pages in batches', async () => {
+  it('serves the IndexNow key and pings changed, indexable pages, retrying until a batch is accepted', async () => {
     const env = makeEnv({ INDEXNOW_KEY: 'a1b2c3d4e5f60718293a4b5c6d7e8f90' });
     await seed(env);
     expect(await (await worker.fetch(site('/a1b2c3d4e5f60718293a4b5c6d7e8f90.txt'), env)).text()).toBe('a1b2c3d4e5f60718293a4b5c6d7e8f90');
     const sent: string[] = [];
+    let reply = 429;
     const fetcher = (async (_url: string, init: { body: string }) => {
       sent.push(init.body);
-      return new Response(null, { status: 202 });
+      return new Response(null, { status: reply });
     }) as unknown as typeof fetch;
     const ctx = { publicOrigin: 'https://data.aroqon.com', apiOrigin: 'https://api.data.aroqon.com', supportEmail: 's@example.com' };
-    expect(await pingChangedRecalls(ctx, env.DB, env.INDEXNOW_KEY, '2026-09-25T00:00:00.000Z', fetcher)).toEqual({ submitted: 1, status: [202] });
-    expect(JSON.parse(sent[0] as string)).toEqual({ host: 'data.aroqon.com', key: 'a1b2c3d4e5f60718293a4b5c6d7e8f90', keyLocation: 'https://data.aroqon.com/a1b2c3d4e5f60718293a4b5c6d7e8f90.txt', urlList: ['https://data.aroqon.com/recalls/F-0001-2026'] });
-    expect(await pingChangedRecalls(ctx, env.DB, env.INDEXNOW_KEY, '2026-09-27T00:00:00.000Z', fetcher)).toEqual({ submitted: 0, status: [] });
-    expect(await pingChangedRecalls(ctx, env.DB, undefined, '2026-09-25T00:00:00.000Z', fetcher)).toEqual({ submitted: 0, status: [] });
+    const key = env.INDEXNOW_KEY;
+    // First run: nothing recorded yet, so it covers what changed in this run. A 429 does not advance.
+    expect(await pingChangedRecalls(ctx, env.DB, env.RAW_ARTIFACTS, key, '2026-09-25T00:00:00.000Z', fetcher)).toEqual({ since: '2026-09-25T00:00:00.000Z', submitted: 1, status: [429], advanced: false });
+    expect(JSON.parse(sent[0] as string)).toEqual({ host: 'data.aroqon.com', key, keyLocation: `https://data.aroqon.com/${key}.txt`, urlList: ['https://data.aroqon.com/recalls/F-0001-2026'] });
+    // A later run still has no watermark, so it starts from its own time: set one by succeeding.
+    reply = 202;
+    expect(await pingChangedRecalls(ctx, env.DB, env.RAW_ARTIFACTS, key, '2026-09-25T00:00:00.000Z', fetcher)).toMatchObject({ submitted: 1, status: [202], advanced: true });
+    // Now fail at a later run: the watermark stays, so the run after that resubmits from it.
+    reply = 503;
+    expect(await pingChangedRecalls(ctx, env.DB, env.RAW_ARTIFACTS, key, '2026-09-27T00:00:00.000Z', fetcher)).toMatchObject({ since: '2026-09-25T00:00:00.000Z', submitted: 1, advanced: false });
+    reply = 200;
+    expect(await pingChangedRecalls(ctx, env.DB, env.RAW_ARTIFACTS, key, '2026-09-28T00:00:00.000Z', fetcher)).toMatchObject({ since: '2026-09-25T00:00:00.000Z', submitted: 1, advanced: true });
+    expect(await pingChangedRecalls(ctx, env.DB, env.RAW_ARTIFACTS, key, '2026-09-29T00:00:00.000Z', fetcher)).toMatchObject({ since: '2026-09-28T00:00:00.000Z', submitted: 0, advanced: true });
+    expect(await pingChangedRecalls(ctx, env.DB, env.RAW_ARTIFACTS, undefined, '2026-09-29T00:00:00.000Z', fetcher)).toMatchObject({ submitted: 0, advanced: false });
     expect(indexNowBodies(ctx, 'k', Array.from({ length: 10_001 }, (_, index) => `F-${index}-2026`))).toHaveLength(2);
+  });
+
+  it('bounds browse pagination by the data, so unique page numbers cannot each query D1', async () => {
+    const env = makeEnv();
+    await seed(env);
+    expect((await worker.fetch(site('/recalls/browse/food/2026'), env)).status).toBe(200);
+    const offline = { ...env, DB: undefined as never };
+    // The year's count is cached, so any page past it is refused without touching D1.
+    for (const page of [2, 5000, 5001, 9999]) expect((await worker.fetch(site(`/recalls/browse/food/2026?page=${page}`), offline)).status, `page ${page}`).toBe(404);
+    for (const year of ['2011', '9999']) expect((await worker.fetch(site(`/recalls/browse/food/${year}`), offline)).status, year).toBe(404);
   });
 
   it('derives short product names for titles', () => {

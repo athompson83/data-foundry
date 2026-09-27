@@ -15,7 +15,7 @@ import { openApiDocument } from './openapi.js';
 import { catalogPage, docsPage, messagePage, privacyPage, recallsLanding, termsPage, welcomePage, type PageContext } from './pages.js';
 import { createCheckoutSession, createPortalSession, currentSubscription, handleStripeWebhook, retrieveCheckoutSession, StripeError, upsertCustomerFromSubscription } from './stripe.js';
 import { scheduledSync, syncWindow } from './sync.js';
-import { BROWSE_PATTERN, RECALL_API_PATTERN, RECALL_PAGE_PATTERN, SITEMAP_PATTERN, browseIndex, browsePage, llmsFullTxt, llmsTxt, pagesSitemap, pingChangedRecalls, recallPage, recallSitemap, robotsTxt, sitemapIndex, type PresentedRecall } from './seo.js';
+import { BROWSE_PATTERN, RECALL_API_PATTERN, RECALL_PAGE_PATTERN, SITEMAP_PATTERN, browseCount, browseInRange, browseIndex, browsePage, llmsFullTxt, llmsTxt, pagesSitemap, pingChangedRecalls, recallPage, recallSitemap, robotsTxt, sitemapIndex, type PresentedRecall } from './seo.js';
 import { RECALL_CATEGORIES, type RecallCategory } from '@data-foundry/recall-structuring';
 
 /** The Workers edge cache, declared locally like the other bindings. */
@@ -356,7 +356,13 @@ async function publicDataPage(env: Env, ctx: PageContext, request: Request, url:
   if (browse) {
     const pageParam = url.searchParams.get('page') ?? '1';
     const page = /^[1-9]\d{0,3}$/.test(pageParam) ? Number(pageParam) : 0;
-    if (!page) return notFound(ctx);
+    const [, category, year] = browse as unknown as [string, string, string];
+    if (!page || !browseInRange(year, 1, 1)) return notFound(ctx);
+    // Bound pagination by the data: one cached count per category and year, so
+    // unique out-of-range page numbers cannot each become a D1 OFFSET query.
+    const counted = await cached(cacheKey(ctx, `/recalls/browse/${category}/${year}/count`), async () => text(String(await browseCount(env.DB, category, year)), 'text/plain', 3600));
+    const total = Number(await counted.text());
+    if (!browseInRange(year, page, total)) return notFound(ctx);
     return cached(
       cacheKey(ctx, url.pathname, page),
       async () => {
@@ -396,6 +402,6 @@ export default {
     const started = new Date().toISOString();
     const results = await scheduledSync(env);
     console.log('recall_sync', JSON.stringify(results));
-    console.log('indexnow', JSON.stringify(await pingChangedRecalls(context(env), env.DB, env.INDEXNOW_KEY, started)));
+    console.log('indexnow', JSON.stringify(await pingChangedRecalls(context(env), env.DB, env.RAW_ARTIFACTS, env.INDEXNOW_KEY, started)));
   },
 };
