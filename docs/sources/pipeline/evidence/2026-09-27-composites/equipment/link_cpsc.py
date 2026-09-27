@@ -1,7 +1,7 @@
 import re, collections, random, sys
 from load import *; from norm import *
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'recalls'))
-from common import digit_codes  # separator-aware barcode tokenizer shared with recalls/es_link.py
+from common import digit_codes, slash_parts  # shared with recalls/ (barcode tokenizer, slash classification)
 mi=es_mi(); cac=es_cac(); wsr=ws(); rec=cpsc()
 # Case-insensitive: prose can print a model in mixed case (iComfort-S30); model_key() upper-cases before lookup.
 TOKEN=re.compile(r"\b(?=[A-Z0-9/\-\.]*\d)(?=[A-Z0-9/\-\.]*[A-Z])[A-Z0-9][A-Z0-9/\-\.]{3,}[A-Z0-9]\b",re.I)
@@ -44,7 +44,7 @@ for r in rec:
     # Structured model fields can list several models: tokenize them exactly like the prose.
     toks=set(TOKEN.findall(txt))|{t for p in r.get('Products') or [] for t in TOKEN.findall(p.get('Model') or '')}
     toks={t for t in toks if t and len(model_key(t))>=5 and not re.fullmatch(r'[\d\-\.]+',t)}
-    toks|={t.split('/')[0] for t in toks if '/' in t and len(model_key(t.split('/')[0]))>=5}
+    toks|={x for t in toks for x in slash_parts(t)}  # shared, form-aware slash classification (recalls/common.py)
     tok_total+=len(toks)
     rh=[]
     # Every brand and every matching listing is kept: these are review candidates, so the queue must see them all.
