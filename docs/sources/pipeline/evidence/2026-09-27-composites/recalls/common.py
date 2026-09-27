@@ -26,10 +26,15 @@ def model_tokens(text):
         if re.fullmatch(r'\d+(MM|CM|IN|V|W|KW|MAH|WH|HZ|LBS?|OZ|ML|L|G|KG|FT|BTU|AMPS?|A|GB|TB)',n): continue
         if re.fullmatch(r'(19|20)\d\d[A-Z]{1,3}',n): continue
         out.add(n)
-        # A market suffix after '/' (Samsung /AA, /EU): keep the base key too, so MODEL123/AA meets MODEL123.
-        if '/' in t:
-            b=base_model(t)
-            if len(b)>=5 and re.search(r'\d',b) and re.search(r'[A-Z]',b): out.add(b)
+        # '/' is source-dependent (research record, "/ has three meanings"), so only two unambiguous forms add keys:
+        # - a market suffix: one to three characters including a letter (Samsung /AA, /A5, /EU) -> also the base key;
+        # - an unspaced pair of two model-like halves (indoor/outdoor, ABC123/DEF456) -> also each half.
+        # Anything else (FV126.07/87, a numeric or long tail) stays one literal key.
+        if t.count('/')==1:
+            head,tail=[nmodel(x) for x in t.split('/')]
+            like=lambda k: len(k)>=5 and re.search(r'\d',k) and re.search(r'[A-Z]',k)
+            if like(head) and re.fullmatch(r'(?=[A-Z0-9]*[A-Z])[A-Z0-9]{1,3}',tail): out.add(head)
+            elif like(head) and like(tail): out.update((head,tail))
     return out
 def digit_codes(s):
     """Barcode-like digit runs in a field that may list several codes: split on separators first, then rejoin a code
