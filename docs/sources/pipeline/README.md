@@ -13,6 +13,7 @@ declarations) and the vertical/dataset build itself.
 | File | Purpose |
 | --- | --- |
 | [`candidates.yaml`](candidates.yaml) | Every candidate dataset: category, stage, rights verdict, scores, evidence and the single next action. Validated by `tooling/test/source-pipeline.test.ts`. |
+| [`scout-routine.md`](scout-routine.md) | The scheduler: the routine's ID, cron and verbatim prompt. |
 | `research-YYYY-MM-DD.md` | The evidence record for a research round: quoted terms, measured counts, samples, extraction hit rates. |
 
 ## Stages
@@ -76,8 +77,9 @@ perform: `identifier-extraction`, `eligibility-criteria`, `obligation-timeline`,
 
 ## The weekly run
 
-A scheduled Claude Code session (a routine that starts a fresh session each
-week) does the following:
+A scheduled Claude Code routine does the following, starting a fresh session
+each week. Its schedule, trigger ID, prompt and known limitation are recorded
+in [`scout-routine.md`](scout-routine.md):
 
 1. Reads this README, `candidates.yaml`, `AGENTS.md`, `PROJECT_CHECKLIST.md`
    and `PROGRESS.md`.

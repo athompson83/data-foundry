@@ -49,6 +49,14 @@ const beyond = (stage: (typeof STAGES)[number], floor: (typeof STAGES)[number]) 
   stage !== 'PARKED' && STAGES.indexOf(stage) >= STAGES.indexOf(floor);
 
 describe('dataset expansion pipeline registry', () => {
+  it('documents the scheduler that performs the weekly run', () => {
+    const routine = readFileSync(`${ROOT}docs/sources/pipeline/scout-routine.md`, 'utf8');
+    expect(routine).toMatch(/Trigger ID \| `trig_[A-Za-z0-9]+`/);
+    expect(routine).toMatch(/Schedule \| `[0-9*\/ ,-]+`/);
+    expect(routine).toContain('npx vitest run tooling/test/source-pipeline.test.ts');
+    expect(readFileSync(`${ROOT}docs/sources/pipeline/README.md`, 'utf8')).toContain('scout-routine.md');
+  });
+
   it('has unique keys', () => {
     const keys = registry.candidates.map((candidate) => candidate.key);
     expect(new Set(keys).size).toBe(keys.length);

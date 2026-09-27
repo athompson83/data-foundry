@@ -119,7 +119,10 @@ candidates:
       - Declared User-Agent with contact; at most 10 requests/second.
       - No SEC or EDGAR in product names; no seal or logo; cite the SEC.
       - Extracted facts plus links; no bulk republication of filer exhibits.
-    next_action: Narrow MVP on Items 1.05 (cyber), 1.03 (bankruptcy), 4.01 (auditor change); sec-api.io is an incumbent for 5.02 and 4.01.
+    next_action: >-
+      Narrow MVP on Items 1.05 (cyber), 1.03 (bankruptcy), 4.01 (auditor change); measure
+      extraction precision over at least 100 filings per item before RIGHTS_DETERMINED
+      (round 1 sampled only 4 per item). sec-api.io is an incumbent for 5.02 and 4.01.
 
   - key: vulnerability-intelligence
     name: NVD CVE + CISA KEV normalization
