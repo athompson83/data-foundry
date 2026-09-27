@@ -1,0 +1,765 @@
+{
+"hits": [
+{
+"recall": "26776",
+"date": "2026-09-17",
+"title": "Friedrich Air Conditioning Recalls K\u00dcHL Window Air Conditioners Due to Risk of Serious Inj",
+"hits": [
+[
+"KCVS12B10A",
+"exact",
+"friedrich",
+[
+"3999713"
+]
+],
+[
+"KCVS12B30A",
+"exact",
+"friedrich",
+[
+"3999714"
+]
+],
+[
+"KCVS16B30A",
+"exact",
+"friedrich",
+[
+"3999715"
+]
+],
+[
+"KCVS08B10A",
+"exact",
+"friedrich",
+[
+"3999712"
+]
+]
+],
+"cats": [
+"Room Air Conditioners"
+]
+},
+{
+"recall": "26649",
+"date": "2026-07-30",
+"title": "Galanz Americas Recalls Retro Refrigerators Due to Risk of Serious Injury or Death from Fi",
+"hits": [
+[
+"GLR76TWEER",
+"exact",
+"galanz",
+[
+"2624158"
+]
+],
+[
+"GLR76TBEER",
+"exact",
+"galanz",
+[
+"2624159"
+]
+]
+],
+"cats": [
+"Consumer Refrigeration Products"
+]
+},
+{
+"recall": "26026",
+"date": "2025-10-16",
+"title": "VESTA.DS Recalls VST Brand Tankless Water Heaters Due to Carbon Monoxide (CO) Poisoning Ha",
+"hits": [
+[
+"VRP-150",
+"exact",
+"vesta",
+[
+"2408824"
+]
+]
+],
+"cats": [
+"Water Heaters - Non Solar Electric and Non Solar Gas"
+]
+},
+{
+"recall": "25325",
+"date": "2025-06-05",
+"title": "HTP Brand Boilers Recalled Due to Fire and Carbon Monoxide (CO) Poisoning Hazards and Risk",
+"hits": [
+[
+"ELU-150WBN",
+"exact",
+"htp",
+[
+"2364735"
+]
+],
+[
+"ELU-199WBN",
+"exact",
+"htp",
+[
+"2364734"
+]
+]
+],
+"cats": [
+"Boilers"
+]
+},
+{
+"recall": "25320",
+"date": "2025-06-05",
+"title": "Midea Recalls About 1.7 Million U and U+ Window Air Conditioners Due to Risk of Mold Expos",
+"hits": [
+[
+"1PACU8000",
+"exact",
+"perfectaire",
+[
+"2608231"
+]
+],
+[
+"MAW12V1QWT-M",
+"exact",
+"midea",
+[
+"2620524"
+]
+],
+[
+"MAW08V1QWT",
+"exact",
+"midea",
+[
+"2620516"
+]
+],
+[
+"MAW08V1QWT-S",
+"exact",
+"midea",
+[
+"4429367"
+]
+],
+[
+"MWAUQB-12CRFN8-BCN10",
+"exact",
+"midea",
+[
+"3557080"
+]
+]
+],
+"cats": [
+"Room Air Conditioners"
+]
+},
+{
+"recall": "25326",
+"date": "2025-06-05",
+"title": "NTI Brand Boilers Recalled Due to Fire and Carbon Monoxide (CO) Poisoning Hazards and Risk",
+"hits": [
+[
+"TRX199C",
+"exact",
+"nti",
+[
+"2364395"
+]
+],
+[
+"TRX199",
+"exact",
+"nti",
+[
+"2364396"
+]
+],
+[
+"TRX150",
+"exact",
+"nti",
+[
+"2364394"
+]
+]
+],
+"cats": [
+"Boilers"
+]
+},
+{
+"recall": "24286",
+"date": "2024-06-27",
+"title": "Daikin Comfort Technologies Manufacturing Recalls Daikin FIT, Amana Brand S-series, and Go",
+"hits": [
+[
+"DZ6VSA241E-AB",
+"pattern",
+"daikin",
+[
+"2534098",
+"2534102"
+],
+[
+"DZ6VSA241EA*"
+]
+],
+[
+"ASZS60241E-AB",
+"pattern",
+"amana",
+[
+"2534149",
+"2534153"
+],
+[
+"ASZS60241EA*"
+]
+]
+],
+"cats": [
+"Central Air Conditioners and Air Source Heat Pumps"
+]
+},
+{
+"recall": "24110",
+"date": "2024-02-08",
+"title": "Electrolux Group Recalls Frigidaire Side by Side Refrigerators with Slim Ice Buckets Due t",
+"hits": [
+[
+"LGHK2336TF",
+"pattern",
+"frigidaire",
+[
+"2300480"
+],
+[
+"LGHK2336T*"
+]
+],
+[
+"LGHX2636TF",
+"pattern",
+"frigidaire",
+[
+"2300482"
+],
+[
+"LGHX2636T*"
+]
+],
+[
+"LGHX2636TD",
+"pattern",
+"frigidaire",
+[
+"2300482"
+],
+[
+"LGHX2636T*"
+]
+],
+[
+"DGHX2655TF",
+"pattern",
+"frigidaire",
+[
+"2302068"
+],
+[
+"DGHX2655T*"
+]
+],
+[
+"LGHK2336TD",
+"pattern",
+"frigidaire",
+[
+"2300480"
+],
+[
+"LGHK2336T*"
+]
+]
+],
+"cats": [
+"Consumer Refrigeration Products"
+]
+},
+{
+"recall": "24094",
+"date": "2024-01-25",
+"title": "Visual Comfort & Co. Recalls Maverick Coastal Outdoor Ceiling Fans Due to Impact Injury Ha",
+"hits": [
+[
+"3MGMR60XXX",
+"pattern",
+"visualcomfortand",
+[
+"4016382"
+],
+[
+"3MGMR60******"
+]
+]
+],
+"cats": [
+"Ceiling Fans"
+]
+},
+{
+"recall": "24018",
+"date": "2023-11-02",
+"title": "Lochinvar Recalls Condensing Boilers Due to Risk of Carbon Monoxide Poisoning",
+"hits": [
+[
+"NKC150L",
+"pattern",
+"lochinvar",
+[
+"2313420"
+],
+[
+"NKC150(N,L)"
+]
+],
+[
+"NKB080N",
+"pattern",
+"lochinvar",
+[
+"2327981"
+],
+[
+"NKB080(N,L)"
+]
+],
+[
+"NCF150N",
+"pattern",
+"lochinvar",
+[
+"2408991"
+],
+[
+"NCF150(N,L)"
+]
+],
+[
+"NCF110N",
+"pattern",
+"lochinvar",
+[
+"2408990"
+],
+[
+"NCF110(N,L)"
+]
+],
+[
+"NKC199N",
+"pattern",
+"lochinvar",
+[
+"2313421"
+],
+[
+"NKC199(N,L)"
+]
+]
+],
+"cats": [
+"Boilers"
+]
+},
+{
+"recall": "23218",
+"date": "2023-06-08",
+"title": "Allied Air Enterprises Recalls Armstrong Air and Air Ease Gas Furnaces Due to Carbon Monox",
+"hits": [
+[
+"A96UH1E045B12S",
+"pattern",
+"armstrongair",
+[
+"2399322"
+],
+[
+"A96UH1E045B12-**"
+]
+],
+[
+"A96UH1E110C20S",
+"pattern",
+"armstrongair",
+[
+"2399317",
+"4511583"
+],
+[
+"A96UH1E110C20-**"
+]
+],
+[
+"A96UH1E070B12S",
+"pattern",
+"armstrongair",
+[
+"3387812",
+"4471310"
+],
+[
+"A96UH1E070B12-**"
+]
+]
+],
+"cats": [
+"Furnaces"
+]
+},
+{
+"recall": "23080",
+"date": "2022-12-22",
+"title": "Samsung Recalls Top-Load Washing Machines Due to Fire Hazard; Software Repair Available",
+"hits": [
+[
+"WA52A5500AC",
+"pattern",
+"samsung",
+[
+"2378430"
+],
+[
+"WA52A55**A*"
+]
+],
+[
+"WA55A7300AE",
+"pattern",
+"samsung",
+[
+"2378432"
+],
+[
+"WA55A73**A*"
+]
+],
+[
+"WA51A5505AC",
+"pattern",
+"samsung",
+[
+"2389052"
+],
+[
+"WA51A5505A*"
+]
+],
+[
+"WA49B5205AW",
+"pattern",
+"samsung",
+[
+"2393093"
+],
+[
+"WA49B5205A*"
+]
+],
+[
+"WA51A5505AW",
+"pattern",
+"samsung",
+[
+"2389052"
+],
+[
+"WA51A5505A*"
+]
+]
+],
+"cats": [
+"Clothes Washers"
+]
+},
+{
+"recall": "22143",
+"date": "2022-06-02",
+"title": "Electrolux Recalls Frigidaire and Electrolux Refrigerators Due to Choking Hazard from Ice ",
+"hits": [
+[
+"PRMC2285AF",
+"pattern",
+"frigidaire",
+[
+"2353364"
+],
+[
+"PRMC2285A*"
+]
+],
+[
+"FRSS2323AS",
+"pattern",
+"frigidaire",
+[
+"2399215"
+],
+[
+"FRSS2323A*"
+]
+],
+[
+"FRSS2323AB",
+"pattern",
+"frigidaire",
+[
+"2399215"
+],
+[
+"FRSS2323A*"
+]
+],
+[
+"FRSS2633AS",
+"pattern",
+"frigidaire",
+[
+"2375551"
+],
+[
+"FRSS2633A*"
+]
+],
+[
+"ERMC2295AS",
+"pattern",
+"electrolux",
+[
+"2353365"
+],
+[
+"ERMC2295A*"
+]
+]
+],
+"cats": [
+"Consumer Refrigeration Products"
+]
+},
+{
+"recall": "20141",
+"date": "2020-06-18",
+"title": "Lochinvar Recalls Condensing Residential Boilers Due to Risk of Carbon Monoxide Poisoning",
+"hits": [
+[
+"NKC150L",
+"pattern",
+"lochinvar",
+[
+"2313420"
+],
+[
+"NKC150(N,L)"
+]
+],
+[
+"KHB110L",
+"pattern",
+"lochinvar",
+[
+"2327976"
+],
+[
+"KHB110(N,L)"
+]
+],
+[
+"WHB055N",
+"pattern",
+"lochinvar",
+[
+"2327961"
+],
+[
+"WHB055(N,L)"
+]
+],
+[
+"EPB199N",
+"pattern",
+"lochinvar",
+[
+"2323512"
+],
+[
+"EPB199(N,L)"
+]
+],
+[
+"KHB055L",
+"pattern",
+"lochinvar",
+[
+"2327974"
+],
+[
+"KHB055(N,L)"
+]
+]
+],
+"cats": [
+"Boilers",
+"Commercial Boilers"
+]
+},
+{
+"recall": "18186",
+"date": "2018-08-02",
+"title": "Zebra Technologies Expands Recall of Power Supply Units for Thermal Printers Due to Fire H",
+"hits": [
+[
+"GT800",
+"exact",
+"zebra",
+[
+"2350268"
+]
+],
+[
+"ZP450",
+"exact",
+"zebra",
+[
+"2350274"
+]
+]
+],
+"cats": [
+"Imaging Equipment"
+]
+},
+{
+"recall": "18181",
+"date": "2018-06-26",
+"title": "Huish Outdoors Recalls Scuba Diving Regulators Due to Drowning Hazard",
+"hits": [
+[
+"500SE",
+"pattern",
+"delta",
+[
+"ws14784"
+],
+[
+"500-S*"
+]
+]
+],
+"cats": [
+"WaterSense:LavatoryFaucets"
+]
+},
+{
+"recall": "17056",
+"date": "2016-12-20",
+"title": "Zebra Technologies Recalls Power Supply Units for Thermal Printers Due to Fire Hazard",
+"hits": [
+[
+"GK420D",
+"exact",
+"zebra",
+[
+"2350269"
+]
+],
+[
+"GT800",
+"exact",
+"zebra",
+[
+"2350268"
+]
+]
+],
+"cats": [
+"Imaging Equipment"
+]
+},
+{
+"recall": "17709",
+"date": "2016-11-08",
+"title": "Trane Recalls Furnaces Due to Shock Hazard (Recall Alert)",
+"hits": [
+[
+"AUHMC100ACV4VBB",
+"pattern",
+"americanstandard",
+[
+"2311344"
+],
+[
+"AUHMC100ACV4V**"
+]
+],
+[
+"TUHMB080ACV3VBC",
+"pattern",
+"trane",
+[
+"2311281"
+],
+[
+"TUHMB080ACV3V**"
+]
+],
+[
+"ADHMB080ACV3VBC",
+"pattern",
+"americanstandard",
+[
+"2311357"
+],
+[
+"ADHMB080ACV3VB*"
+]
+],
+[
+"TUHMB060ACV3VBC",
+"pattern",
+"trane",
+[
+"2311352"
+],
+[
+"TUHMB060ACV3V**"
+]
+],
+[
+"TUHMD120ACV5VBB",
+"pattern",
+"trane",
+[
+"2311358"
+],
+[
+"TUHMD120ACV5V**"
+]
+]
+],
+"cats": [
+"Furnaces"
+]
+}
+],
+"upc": []
+}
