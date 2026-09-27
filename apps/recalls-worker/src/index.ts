@@ -299,14 +299,33 @@ function cacheKey(ctx: PageContext, pathname: string, page?: number): Request {
 
 const withdrawn = (ctx: PageContext) => html(messagePage(ctx, 'Temporarily unavailable', 'This dataset is temporarily unavailable.'), 503, { 'cache-control': 'no-store' });
 
-/** Serve a D1-backed public page from the edge cache, so crawler traffic does not become D1 load. */
-async function cached(key: Request, render: () => Promise<Response>): Promise<Response> {
+/** How long the Worker's own edge cache keeps a D1-backed page. */
+const EDGE_TTL_SECONDS = 3600;
+
+/**
+ * Serve a D1-backed public page from the Workers edge cache, so crawler
+ * traffic does not become D1 load. Only this cache, which sits behind the
+ * kill-switch check, may hold a copy: clients and intermediaries get
+ * `no-cache`, so a withdrawn dataset disappears on their next request.
+ * `cacheMisses` also keeps 404s (e.g. sitemap shards past the end), so a
+ * repeated miss cannot force repeated D1 scans.
+ */
+async function cached(key: Request, render: () => Promise<Response>, options: { cacheMisses?: boolean } = {}): Promise<Response> {
   const cache = (globalThis as unknown as { caches: { default: EdgeCache } }).caches.default;
+  const forClient = (response: Response) => {
+    const out = new Response(response.body, response);
+    out.headers.set('cache-control', 'no-cache');
+    return out;
+  };
   const hit = await cache.match(key);
-  if (hit) return hit;
+  if (hit) return forClient(hit);
   const response = await render();
-  if (response.status === 200) await cache.put(key, response.clone());
-  return response;
+  if (response.status === 200 || (options.cacheMisses && response.status === 404)) {
+    const stored = new Response(response.clone().body, response);
+    stored.headers.set('cache-control', `public, max-age=${EDGE_TTL_SECONDS}`);
+    await cache.put(key, stored);
+  }
+  return forClient(response);
 }
 
 const notFound = (ctx: PageContext) => html(messagePage(ctx, 'Not found', 'That page does not exist.'), 404);
@@ -339,10 +358,14 @@ async function publicDataPage(env: Env, ctx: PageContext, request: Request, url:
     });
   }
   const sitemap = SITEMAP_PATTERN.exec(url.pathname) as RegExpExecArray;
-  return cached(cacheKey(ctx, url.pathname), async () => {
-    const body = await recallSitemap(ctx, env.DB, Number(sitemap[1]));
-    return body ? text(body, 'application/xml', 3600) : notFound(ctx);
-  });
+  return cached(
+    cacheKey(ctx, url.pathname),
+    async () => {
+      const body = await recallSitemap(ctx, env.DB, Number(sitemap[1]));
+      return body ? text(body, 'application/xml', 3600) : notFound(ctx);
+    },
+    { cacheMisses: true },
+  );
 }
 
 export default {

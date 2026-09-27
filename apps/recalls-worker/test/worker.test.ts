@@ -368,6 +368,13 @@ describe('discoverability', () => {
       expect((await worker.fetch(site(path), env)).status, path).toBe(200);
       expect((await worker.fetch(site(`${path}?nonce=${Math.random()}`), offline)).status, `${path} with a nonce`).toBe(200);
     }
+    // Only the Worker's own cache holds copies: clients must come back through the kill switch.
+    expect((await worker.fetch(site('/recalls/F-0001-2026'), offline)).headers.get('cache-control')).toBe('no-cache');
+    expect((await worker.fetch(site('/sitemaps/recalls-1.xml'), env)).headers.get('cache-control')).toBe('no-cache');
+    // A shard past the end is a cached 404, so repeating it cannot force D1 scans.
+    expect((await worker.fetch(site('/sitemaps/recalls-7.xml'), env)).status).toBe(404);
+    expect((await worker.fetch(site('/sitemaps/recalls-7.xml'), offline)).status).toBe(404);
+    expect((await worker.fetch(site('/sitemaps/recalls-0.xml'), offline)).status).toBe(404);
     // The one parameter that changes a response still separates cache entries.
     // (page 2 is not cached, so it needs D1, which is unavailable here: the Worker answers 500.)
     expect((await worker.fetch(site('/recalls/browse/food/2026?page=2'), offline)).status).toBe(500);

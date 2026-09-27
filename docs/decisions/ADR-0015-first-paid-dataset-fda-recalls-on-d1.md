@@ -129,8 +129,13 @@ API (rule 5):
 - IndexNow pings for changed, indexable recall pages after every scheduled
   sync. The key is public by design and served at `/<INDEXNOW_KEY>.txt`.
 
-D1-backed pages are served from the Workers edge cache for an hour, and all of
-them are withdrawn by `SOURCE_KILL_SWITCH`. The zone's Cloudflare AI-crawler
+D1-backed pages are served from the Workers edge cache for an hour, keyed on
+the canonical URL (path, plus `page` for hubs), and all of them are withdrawn
+by `SOURCE_KILL_SWITCH`, which is checked before the cache. Clients and
+intermediaries receive `Cache-Control: no-cache`, so a withdrawal takes effect
+on their next request. Sitemap shards past the end are cached as 404s. The
+recall-number grammar (`RECALL_NUMBER_SOURCE` in `recall-structuring`) is
+shared by ingestion and every route, so each published recall has a page. The zone's Cloudflare AI-crawler
 blocking was checked on 2026-09-27 and is disabled, so AI crawlers are not
 refused at the edge.
 

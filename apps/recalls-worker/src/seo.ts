@@ -5,16 +5,13 @@
  * (AGENTS.md rule 5), and nothing here exposes a field the API does not.
  */
 
+import { RECALL_NUMBER_SOURCE } from '@data-foundry/recall-structuring';
+
 import type { D1Database } from './env.js';
 import { escapeHtml, layout, type PageContext } from './pages.js';
 
-/**
- * One safe path segment for a recall number: FDA's are a centre letter, a
- * sequence and a year, but legacy ones are irregular (`D-66241-001`,
- * `F-1855.2013`). Requiring a digit keeps fixed paths such as /recalls/docs out,
- * and pages, the API, sitemaps and IndexNow all use this one definition.
- */
-export const RECALL_NUMBER_SEGMENT = '(?=[A-Za-z0-9.-]*\\d)[A-Za-z0-9.-]{3,40}';
+/** Routes use the ingestion grammar, so every published recall has a page and an API URL. */
+export const RECALL_NUMBER_SEGMENT = RECALL_NUMBER_SOURCE;
 export const RECALL_PAGE_PATTERN = new RegExp(`^/recalls/(${RECALL_NUMBER_SEGMENT})$`);
 export const RECALL_API_PATTERN = new RegExp(`^/v1/recalls/(${RECALL_NUMBER_SEGMENT})$`);
 const ROUTABLE = new RegExp(`^${RECALL_NUMBER_SEGMENT}$`);
@@ -22,7 +19,7 @@ export function isRoutableRecallNumber(value: string): boolean {
   return ROUTABLE.test(value);
 }
 export const BROWSE_PATTERN = /^\/recalls\/browse\/(food|drug|device)\/(\d{4})$/;
-export const SITEMAP_PATTERN = /^\/sitemaps\/recalls-(\d{1,3})\.xml$/;
+export const SITEMAP_PATTERN = /^\/sitemaps\/recalls-([1-9]\d{0,2})\.xml$/;
 /** Well under the protocol's 50,000-URL and 50 MB limits. */
 export const SITEMAP_PAGE_SIZE = 20_000;
 export const BROWSE_PAGE_SIZE = 200;
