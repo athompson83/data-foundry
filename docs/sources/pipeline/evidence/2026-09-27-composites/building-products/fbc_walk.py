@@ -1,4 +1,4 @@
-import json,sys,re,html
+import json,sys,re,html,os,time
 from fbc_lib import *
 out={}
 try: out=json.load(open('fbc_list.json'))  # other categories from earlier runs are kept
@@ -27,6 +27,7 @@ for cat in sys.argv[1:]:
     if not cp or int(cp.group(1))!=pg: raise SystemExit(f'{cat}: expected page {pg}, got {cp and cp.group(1)}')
     n=rows(t,cat)
     if pg%10==0 or n==0: print(cat,pg,cp and cp.group(1),n,len(out),flush=True)
-  json.dump(out,open('fbc_list.json','w'))
-json.dump(out,open('fbc_list.json','w'))
+# Saved once, atomically, only after every requested category was walked in full: a failure above exits before
+# this point and leaves the previous fbc_list.json untouched.
+json.dump(out,open('fbc_list.json.tmp','w')); os.replace('fbc_list.json.tmp','fbc_list.json')
 print('done',len(out))

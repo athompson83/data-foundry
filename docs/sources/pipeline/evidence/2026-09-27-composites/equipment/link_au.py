@@ -14,15 +14,15 @@ def run(name, rows, ix, modelf, brandf, split=None):
         models=[modelf(r)]
         if split: models=[m.strip() for m in re.split(split, modelf(r)) if m.strip()]
         fam=r.get('Family Name','').strip()
-        hit=None
-        for m in models+([fam] if fam else []):
-            mm,ids=ix.lookup(brandf(r),m)
-            if mm: hit=(mm,ids,m); break
-        if hit: c['brand:'+hit[0]]+=1; ex.append((r.get('Submit_ID') or r.get('Registration Number'),brandf(r),modelf(r),hit[0],list(hit[1])))
+        # Every component model (and the family name) is looked up, and every match is kept for review. The row is
+        # counted once, by the method of its first match, so the published per-row rates are unchanged.
+        rid=r.get('Submit_ID') or r.get('Registration Number')
+        hits=[(m,mm,list(ids)) for m in models+([fam] if fam else []) for mm,ids in [ix.lookup(brandf(r),m)] if mm]
+        if hits:
+            c['brand:'+hits[0][1]]+=1; ex.append((rid,brandf(r),modelf(r),hits[0][1],[{'component':m,'method':mm,'ids':ids} for m,mm,ids in hits]))
         else:
-            for m in models:
-                mm,ids=ix.lookup(brandf(r),m,brand_scoped=False)
-                if mm: c['ANY:'+mm]+=1; ex.append((r.get('Submit_ID'),brandf(r),modelf(r),'ANY:'+mm,list(ids))); break
+            hits=[(m,mm,list(ids)) for m in models for mm,ids in [ix.lookup(brandf(r),m,brand_scoped=False)] if mm]
+            if hits: c['ANY:'+hits[0][1]]+=1; ex.append((rid,brandf(r),modelf(r),'ANY:'+hits[0][1],[{'component':m,'method':'ANY:'+mm,'ids':ids} for m,mm,ids in hits]))
     n=len(rows); b=sum(v for k,v in c.items() if k.startswith('brand:'))
     print(f'== {name}: AU rows {n}; brand-scoped matched {b}; any-brand-only {n and sum(v for k,v in c.items() if k.startswith("ANY"))}', dict(c))
     for e in random.sample(ex,min(12,len(ex))): print('   ',e)
