@@ -908,7 +908,7 @@ Random seeds were 2027 (the FBC detail sample, the FBC evaluation-PDF sample and
 #### Summary
 
 - **The composite is real, but the join is mostly *component-level*, not "same product, two approvals".**
-  - Miami-Dade NOAs never cite Florida (FL#) numbers: **0/80** sampled NOA PDFs.
+  - Miami-Dade NOAs never cite Florida (FL#) numbers: **0/77** text-extractable NOA PDFs (3 of the 80 sampled are image-only scans and are excluded; corrected after review).
   - FL approval *detail pages* almost never cite an NOA: **1/200**.
   - FL *evaluation reports* do cite NOAs:
     - **8/24 (33%)** of sampled HVHZ roofing applications;
@@ -1028,7 +1028,7 @@ Terms are unreadable, so RED. Use NRI and NCEI instead.
 | FBC eval report → Miami-Dade NOA (roofing, HVHZ) | NOA number `\d{2}-\d{4}\.\d{2}` in report text | **8/24** HVHZ; **0/16** non-HVHZ; 36/40 text-extractable | Round 2 found 5/26. 2 of the 8 upload the NOA itself as the evaluation document (FL3794-R12 → 25-0313.01; FL47448 → 25-0131.01), which is a same-product link. The other 6 are component tables. | FL15545-R11, FL10264-R23, FL48146, FL3794-R12, FL48090, FL47448, FL46297-R7, FL48189 |
 | FBC eval report → NOA (mixed windows/doors/roof/skylight) | same | **7/70** (10%) after hand-check; the raw regex gave 8 | 1 false positive: FL48212 "Report: 26-0024.01-ACT-001" is a test-lab report ID. Require an `NOA`, `Miami-Dade` or `FBC NOA` column context, or a 2-digit-year check. | FL2534-R22, FL20873-R5, FL17454-R5, FL14087-R11, FL48095, FL23956-R2, FL21837-R12 |
 | FBC detail page → NOA | same | **1/200** (FL14087-R11); 9/200 mention "NOA"/"Miami-Dade" | Detail pages are not where the link lives | fbc_detail_sample.json |
-| Miami-Dade NOA → FL# | `FL\s?#?\d+(-R\d+)?` | **0/80** | Every "FL 33xxx" hit was a ZIP code. The link is one-directional. | md_sample.json (80 IDs, e.g. 21-1001.01, 22-0203.06 …) |
+| Miami-Dade NOA → FL# | `FL\s?#?\d+(-R\d+)?` | **0/77** text-extractable (3/80 image-only excluded) | Every "FL 33xxx" hit was a ZIP code. The link is one-directional. | md_sample.json (80 IDs, e.g. 21-1001.01, 22-0203.06 …) |
 | Cited NOA# → county PDF | URL rule `noa/<digits>.pdf` | **21/21** resolve (HTTP 200) | Only 11/21 appear in the current per-category HVHZ index. The rest are in other categories (e.g. 23-0713.20, PVB interlayer, valid to 2028) or expired, so resolution must use the PDF rule, not the index. | cited_noa_resolution.json |
 | Cited NOA → expiry | "Expiration Date:" on page 1 | **19/21** parsed; **6/19 expired** before 2026-09-27 | Formats "August 31, 2026" and "06/08/27" | 21-0201.06, 21-0216.01, 23-0713.18, 23-0718.06, 24-0102.06, 24-0215.03 |
 | FL# ↔ NOA# component pairs | same table row in an assembly table | **30** distinct pairs from 4 reports. **17** have both IDs in current indexes. Manufacturer agrees **15/17** (0 false; 2 true aliases). | Yields an alias table with evidence, e.g. FL20311 ↔ 22-0913.02 (SFS Group USA); FL4264 ↔ 25-1017.02 (United States Gypsum Company ↔ USG Corporation) | fl_noa_pairs.json |

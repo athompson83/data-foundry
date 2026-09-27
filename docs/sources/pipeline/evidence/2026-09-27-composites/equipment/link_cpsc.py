@@ -18,16 +18,21 @@ def ngrams(t):
     for n in (1,2,3):
         for i in range(len(w)-n+1): s.add(''.join(w[i:i+n]))
     return s
+def gs1_valid(g):
+    # A UPC/GTIN only counts as an identifier when its GS1 check digit is valid.
+    if not g.isdigit() or len(g) not in (8,12,13,14): return False
+    t=sum(int(c)*(3 if i%2==0 else 1) for i,c in enumerate(reversed(g[:-1])))
+    return (10-t%10)%10==int(g[-1])
 # UPC
 es_upc={}
 for r in mi:
     for u in re.split(r'[;,\s]+', r.get('upc') or ''):
         u=re.sub(r'\D','',u)
-        if len(u)>=11: es_upc.setdefault(u.lstrip('0'),[]).append(r['pd_id'])
+        if len(u)>=11 and gs1_valid(u): es_upc.setdefault(u.lstrip('0'),[]).append(r['pd_id'])
 for i,r in enumerate(wsr):
     for u in re.split(r'[;,\s]+', r.get('Universal Product Code(s)') or ''):
         u=re.sub(r'\D','',u)
-        if len(u)>=11: es_upc.setdefault(u.lstrip('0'),[]).append('ws%d'%i)
+        if len(u)>=11 and gs1_valid(u): es_upc.setdefault(u.lstrip('0'),[]).append('ws%d'%i)
 print('ES+WS UPCs',len(es_upc))
 stats=collections.Counter(); hits=[]; upchits=[]; tok_total=0; tok_hit=0
 for r in rec:
@@ -48,8 +53,8 @@ for r in rec:
             if ph: rh.append((t,'pattern',b,ph[:2],[raw for rx,raw,rid in es.pats[b] if rx.match(k)][:1])); found=True; break
         tok_hit+=found
     for u in r.get('ProductUPCs') or []:
-        uu=re.sub(r'\D','',u.get('UPC','') if isinstance(u,dict) else str(u)).lstrip('0')
-        if uu in es_upc: upchits.append((r['RecallNumber'],uu,es_upc[uu][:2]))
+        raw=re.sub(r'\D','',u.get('UPC','') if isinstance(u,dict) else str(u)); uu=raw.lstrip('0')
+        if gs1_valid(raw) and uu in es_upc: upchits.append((r['RecallNumber'],uu,es_upc[uu][:2]))
     if rh:
         stats['recalls_with_match']+=1
         if r['RecallDate']>='2015': stats['recalls_with_match_2015+']+=1
