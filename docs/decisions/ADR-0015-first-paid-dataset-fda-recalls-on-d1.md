@@ -89,7 +89,8 @@ key file `/<INDEXNOW_KEY>.txt`; see "Discoverability" below) move to the web Wor
 equivalents covering the recall product (its terms and privacy text, its
 sitemap entries and a link to `/recalls/docs`); until then they stay on the
 recall Worker as explicit routes. Verify every recall page, checkout, the Stripe
-webhook and an authorised `/admin/sync` call through the new routes before
+webhook, an authorised `/admin/sync` call, `/sitemap.xml`, one
+`/sitemaps/recalls-1.xml` shard, `/llms.txt` and the IndexNow key file through the new routes before
 routing the web Worker; rollback is re-attaching the Custom Domain to
 `data-foundry-recalls`.
 
