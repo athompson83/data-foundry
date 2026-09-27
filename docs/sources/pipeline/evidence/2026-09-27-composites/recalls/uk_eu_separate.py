@@ -38,3 +38,17 @@ print(f'  brand + model (no GTIN branch): {len(mb)}/{n}')
 print(f'  model only, no brand check (control): {len(mo)}/{n}')
 print(f'  check-digit-valid GTIN: {len(gt)}/{n}')
 print(f'  GTIN only (no brand+model match): {len(gt-mb)}; brand+model only: {len(mb-gt)}; both: {len(mb&gt)}; either: {len(mb|gt)}')
+
+# Hand-check sample drawn from the brand + model set alone (seed 20260927), with the evidence for each pair.
+import random
+byid={r['id']:r for r in eu}
+pairs=[]
+for a in den:
+    if a['id'] not in mb: continue
+    hits=sorted({(m,eu[j]['id']) for m in a['models'] if m not in GENERIC_MODELS for j in ixm.get(m,[]) if in_window(a,eu[j]) and brand_ok(a,eu[j])})
+    pairs.append((a,hits))
+random.seed(20260927)
+print('\nhand-check sample: 20 of',len(pairs),'brand + model matches')
+for a,hits in random.sample(pairs,20):
+    m,bid=hits[0]; b=byid[bid]
+    print(f"- UK {a['id']} | {a['title'][:90]} | brand {a['brand'][:30]!r}\n    EU {bid} | {b['title'][:90]} | brand {b['brand'][:30]!r} | shared model {m} | other hits {len(hits)-1}")

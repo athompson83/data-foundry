@@ -38,7 +38,7 @@ committed.
 | --- | --- | --- |
 | Health Canada ↔ CPSC, "joint recall" marker + date + title tokens (review candidates) | 341 / 352 marked notices | 25 / 25 correct |
 | Health Canada ↔ CPSC, title tokens without a marker | — | 6 / 15 correct: candidate only, never auto-linked |
-| UK OPSS ↔ EU Safety Gate (home categories) | 103 / 697 by brand+model alone; **24 / 697 by a check-digit-valid GTIN** (29 before validation); 116 / 697 by either | 18 / 20 correct |
+| UK OPSS ↔ EU Safety Gate (home categories) | 103 / 697 by brand+model alone; **24 / 697 by a check-digit-valid GTIN** (29 before validation); 116 / 697 by either | 20 / 20 brand+model pairs correct (re-sampled after review) |
 | SaferProducts incidents ↔ CPSC home recalls (brand + model) | 111 / 307 recalls (1,137 reports); 50 had a report before the recall | 11 / 12 correct |
 | CPSC recall ↔ current ENERGY STAR / WaterSense model | 18 / 10,027 recalls | 15 same product, 2 accessory, 1 false |
 | ENERGY STAR ↔ Canada (markets flag) | 1,644,779 / 1,796,876 models | — |
@@ -71,7 +71,9 @@ with byte counts and SHA-256, under the same replay rules as round 1.
 
 **UK ↔ EU rule sets and multi-code barcodes (added after review).** `xmatch.py` counted a notice as a
 brand+model match when it matched by brand+model *or* by GTIN. `uk_eu_separate.py` re-measures the three rules
-independently from the archived `intl_recs.json`: brand+model 103/697, model only 137/697 and validated GTIN 24/697.
+independently from the archived `intl_recs.json`: brand+model 103/697, model only 137/697 and validated GTIN 24/697. A fresh
+hand-check of 20 pairs drawn from the brand+model set alone (seed 20260927) found 20/20 the same product; the
+screening 18/20 had been drawn from the mixed set.
 The screening parser also deleted every space between digits, so a field listing two barcodes became one long
 number and neither was extracted. `parse_all.py` now splits on separators first, but the raw UK notices were not
 archived, so 24/697 is a lower bound until the notices are re-fetched and re-parsed.
