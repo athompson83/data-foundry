@@ -259,7 +259,7 @@ async function route(request: Request, env: Env): Promise<Response> {
     if (request.method !== 'GET') return apiError(405, 'method_not_allowed', 'Data endpoints accept GET only.');
     return meteredApi(env, request, url);
   }
-  if (url.pathname === '/openapi.json') return json(openApiDocument(ctx, productsServed(env)), 200, { 'cache-control': GATED });
+  if (url.pathname === '/openapi.json') return json(openApiDocument(ctx, { fda: env.SOURCE_KILL_SWITCH !== '1', products: productsServed(env) }), 200, { 'cache-control': GATED });
 
   if (url.pathname === '/admin/sync' && request.method === 'POST') {
     if (!isAuthorizedAdmin(env, request)) return apiError(404, 'not_found', 'Not found.');
@@ -318,7 +318,7 @@ async function route(request: Request, env: Env): Promise<Response> {
     case '/recalls/docs':
       return Response.redirect(`${ctx.publicOrigin}/docs`, 301);
     case '/docs':
-      return html(docsPage(ctx, productsServed(env)), 200, { 'cache-control': GATED });
+      return html(docsPage(ctx, { fda: env.SOURCE_KILL_SWITCH !== '1', products: productsServed(env) }), 200, { 'cache-control': GATED });
     case '/terms':
       return html(termsPage(ctx), 200, { 'cache-control': 'public, max-age=3600' });
     case '/privacy':

@@ -112,7 +112,7 @@ ${inspect}
 <h2>Why use Data Foundry instead of the raw source</h2>
 <div class="grid"><div class="card"><h3>Fields, not prose</h3><p class="small muted">Lots, codes, states, quantities, hazards and remedies are parsed out of free text by deterministic parsers — no model guesses.</p></div>
 <div class="card"><h3>Exact identifiers</h3><p class="small muted">UPC/EAN/GTIN are check-digit verified and normalised to GTIN-14; NDCs are normalised; one lookup tries every exact reading of a code.</p></div>
-<div class="card"><h3>Provenance on every record</h3><p class="small muted">Each record carries its source URL, parser version and the SHA-256 of the verbatim source record, which <code>include=raw</code> returns.</p></div>
+<div class="card"><h3>Provenance on every record</h3><p class="small muted">Each record carries its source URL, parser version and the SHA-256 of the stored source record. <code>include=raw</code> returns that record, with any contact details and images withheld and named in <code>raw_redaction</code>.</p></div>
 ${multiAgency ? '<div class="card"><h3>One schema across agencies</h3><p class="small muted">CPSC and Health Canada notices share one taxonomy, and a US notice links to its Canadian counterpart where CPSC cites it.</p></div>' : ''}
 <div class="card"><h3>Predictable billing</h3><p class="small muted">Monthly plans with a hard stop at the allowance; never an overage bill.</p></div></div>
 <h2>How access works</h2>

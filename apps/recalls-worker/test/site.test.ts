@@ -157,6 +157,21 @@ describe('withdrawing one dataset leaves no path into it', () => {
     expect(fda).toContain('Response · snapshot captured 2026-09-27');
   });
 
+  it('omits a withdrawn dataset from /docs and the OpenAPI contract', async () => {
+    const killed = makeEnv({ SOURCE_KILL_SWITCH: '1' });
+    const docs = (await page(killed, '/docs')).body;
+    expect(docs).not.toContain('id="fda-recalls"');
+    expect(docs).toContain('id="product-recalls-lookup"');
+    expect(docs).toContain('id="account"');
+    const openapi = (await (await worker.fetch(new Request('https://api.data.aroqon.com/openapi.json'), killed)).json()) as { paths: Record<string, unknown>; components: { schemas: Record<string, unknown> } };
+    expect(Object.keys(openapi.paths).filter((path) => path.startsWith('/v1/recalls'))).toEqual([]);
+    expect(openapi.paths['/v1/product-recalls/lookup']).toBeDefined();
+    expect(openapi.components.schemas['Recall']).toBeUndefined();
+    const both = (await (await worker.fetch(new Request('https://api.data.aroqon.com/openapi.json'), makeEnv())).json()) as { paths: Record<string, unknown> };
+    expect(both.paths['/v1/recalls/lookup']).toBeDefined();
+    expect((await page(makeEnv(), '/docs')).body).toContain('id="fda-recalls"');
+  });
+
   it('sends gate-dependent discovery output no-cache, so a withdrawal applies on the next request', async () => {
     const env = makeEnv();
     for (const path of ['/llms.txt', '/llms-full.txt', '/sitemaps/pages.xml', '/docs']) {

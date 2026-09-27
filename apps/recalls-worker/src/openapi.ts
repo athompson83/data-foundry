@@ -94,7 +94,9 @@ const PRODUCT_RECALL_SCHEMA = {
   },
 };
 
-export function openApiDocument(ctx: PageContext, products = false): Record<string, unknown> {
+/** The contract for the datasets served right now: a withdrawn dataset's paths and schema are omitted. */
+export function openApiDocument(ctx: PageContext, served: { readonly fda: boolean; readonly products: boolean }): Record<string, unknown> {
+  const { products } = served;
   const recallRef = { $ref: '#/components/schemas/Recall' };
   const errors = {
     '400': { $ref: '#/components/responses/Error' },
@@ -102,7 +104,7 @@ export function openApiDocument(ctx: PageContext, products = false): Record<stri
     '403': { $ref: '#/components/responses/Error' },
     '429': { $ref: '#/components/responses/Error' },
   };
-  return {
+  const document = {
     openapi: '3.1.0',
     info: {
       title: products ? 'Data Foundry — Recall APIs (FDA; CPSC and Health Canada)' : 'Data Foundry — FDA Recall Intelligence API',
@@ -233,4 +235,13 @@ export function openApiDocument(ctx: PageContext, products = false): Record<stri
       },
     },
   };
+  if (!served.fda) {
+    for (const path of ['/v1/recalls/lookup', '/v1/recalls', '/v1/recalls/{recall_number}', '/v1/recalls/stats']) delete (document.paths as Record<string, unknown>)[path];
+    delete (document.components.schemas as Record<string, unknown>)['Recall'];
+    document.info.title = products ? 'Data Foundry — Consumer Product Recall API (CPSC and Health Canada)' : 'Data Foundry API';
+    document.info.description = products
+      ? 'CPSC and Health Canada consumer-product recalls (US Government work; Open Government Licence – Canada): model numbers, GTINs, units, hazard and remedy classes, trade facets and declared cross-agency links. Not endorsed by CPSC or Health Canada.'
+      : 'No dataset is available right now.';
+  }
+  return document;
 }

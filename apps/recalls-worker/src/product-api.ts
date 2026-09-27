@@ -25,7 +25,7 @@ export const PRODUCT_ATTRIBUTION = {
     },
   ],
   disclaimer:
-    'Structured by Data Foundry from agency notices. Not affiliated with or endorsed by CPSC, Health Canada or the Government of Canada. Derived fields are produced by deterministic parsers and may be incomplete; the verbatim source record is available with include=raw. Notices are linked only where one agency cites the other; they are never merged by name.',
+    'Structured by Data Foundry from agency notices. Not affiliated with or endorsed by CPSC, Health Canada or the Government of Canada. Derived fields are produced by deterministic parsers and may be incomplete; the source record is available with include=raw, with contact text and images withheld (see raw_redaction). Notices are linked only where one agency cites the other; they are never merged by name.',
 } as const;
 
 interface ProductRow {

@@ -102,7 +102,7 @@ export function noticePage(ctx: PageContext, recall: PresentedProductRecall, ind
 <div class="table-wrap"><table>${rows.map(([name, value]) => `<tr><th scope="row">${name}</th><td>${value}</td></tr>`).join('')}</table></div>
 ${text('Description', recall.description)}${text('Hazard', recall.hazard.text)}${text('Remedy', recall.remedy.text)}${text('Incidents and injuries', recall.injuries)}${linked}
 <h2>Machine access</h2>
-<p class="muted">This record, with every extracted field, the verbatim source record and provenance: <code>GET ${escapeHtml(ctx.apiOrigin)}/v1/product-recalls/${escapeHtml(recall.id)}</code>. Look up a model number or UPC with <code>/v1/product-recalls/lookup?code=…</code>. <a href="/product-recalls">About the dataset</a> · <a href="/#pricing">free and paid keys</a>.</p>
+<p class="muted">This record, with every extracted field, the source record (contact text and images withheld) and provenance: <code>GET ${escapeHtml(ctx.apiOrigin)}/v1/product-recalls/${escapeHtml(recall.id)}</code>. Look up a model number or UPC with <code>/v1/product-recalls/lookup?code=…</code>. <a href="/product-recalls">About the dataset</a> · <a href="/#pricing">free and paid keys</a>.</p>
 <p class="small muted">${attribution} Structured by Data Foundry (${escapeHtml(recall.provenance.parser_version)}); last changed ${escapeHtml(recall.provenance.changed_at.slice(0, 10))}. Always confirm with the agency notice.</p>`;
   return layout(ctx, noticeTitle(recall), noticeDescription(recall), body, { path, jsonLd: [jsonLd], ...(indexable ? {} : { robots: 'noindex, follow' }) });
 }

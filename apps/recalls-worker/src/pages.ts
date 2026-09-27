@@ -125,7 +125,18 @@ ${action}</div>`;
   }).join('');
 }
 
-export function docsPage(ctx: PageContext, products = false): string {
+const FDA_RECORD_SHAPE = `{
+  "recall_number": "D-0123-2026", "category": "drug", "classification": "II", "status": "Ongoing",
+  "firm": { "name": "…", "city": "…", "state": "NJ", "postal_code": "…", "country": "United States" },
+  "dates": { "initiated": "2026-08-01", "classified": "2026-09-04", "reported": "2026-09-16", "terminated": null },
+  "distribution": { "nationwide_us": true, "international": true, "us_states": ["FL","GA"], "countries": ["PA"], … },
+  "quantity": { "items": [{ "value": 403200, "unit": "tablets" }], "total": 403200, "unit": "tablets" },
+  "codes": { "gtins": [], "ndcs": ["12345-0678-90"], "lots": ["DJ23254"], "expiration_dates": ["2026-11-30"], … },
+  "reason": { "classes": ["SPECIFICATION_FAILURE"], "allergens": [], "pathogens": [] },
+  "provenance": { "source_url": "https://api.fda.gov/…", "parser_version": "recall-structuring@1", "raw_sha256": "…", "changed_at": "…" }
+}`;
+
+export function docsPage(ctx: PageContext, served: { readonly fda: boolean; readonly products: boolean }): string {
   const api = ctx.apiOrigin;
   const rows: Array<[string, string]> = [
     ['gtin', 'UPC, EAN, GTIN or UDI-DI. Any length 8–14 with a valid check digit; matched as GTIN-14.'],
@@ -151,22 +162,30 @@ export function docsPage(ctx: PageContext, products = false): string {
     'API documentation — Data Foundry',
     'Endpoints, parameters, authentication and limits for the Data Foundry recall APIs.',
     `<h1>API documentation</h1>
-<p class="lede">Base URL <code>${api}</code>. JSON over HTTPS. OpenAPI: <a href="${api}/openapi.json">${api}/openapi.json</a>.</p>
+<p class="lede">Base URL <code>${api}</code>. JSON over HTTPS. OpenAPI: <a href="${api}/openapi.json">${api}/openapi.json</a>.${served.fda || served.products ? '' : ' No dataset is available right now.'}</p>
 <h2 id="authentication">Authentication</h2>
 <p>Send your key as <code>Authorization: Bearer rcl_live_…</code> (or <code>X-API-Key</code>). Every authenticated data request counts toward your monthly allowance; when it is spent, requests return <code>429</code> until the next UTC month or an upgrade. <code>/v1/account</code> and <code>/v1/recalls/stats</code> are not counted.</p>
-<h2 id="fda-recalls">FDA Recall Intelligence endpoints</h2>
+<h2 id="account">Account endpoints</h2>
+<h3>GET /v1/account</h3><p>Your plan, this month's usage and allowance.</p>
+<h3>POST /v1/account/rotate-key</h3><p>Revokes the presented key and returns a new one.</p>
+<h3>POST /v1/account/billing-portal</h3><p>Returns a Stripe billing-portal URL to upgrade, downgrade or cancel.</p>
+${
+      served.fda
+        ? `<h2 id="fda-recalls">FDA Recall Intelligence endpoints</h2>
 <h3 id="recalls-lookup">GET /v1/recalls/lookup?code=…</h3><p>One code, every exact interpretation: GTIN/UPC/UDI (check-digit verified), NDC, lot, serial and model. Returns up to 100 matching recalls, newest first, with <code>matched_on</code>, plus <code>total_matches</code> and <code>truncated</code>; when truncated, page through every match with the <code>/v1/recalls</code> filters listed in <code>complete_results</code>. Lot, serial and model codes ignore internal spaces.</p>
 <pre><code>curl "${api}/v1/recalls/lookup?code=05708932072526" -H "Authorization: Bearer $KEY"</code></pre>
 <h3 id="recalls-search">GET /v1/recalls</h3><p>Filter and page through recalls, newest report first. Filters combine with AND.</p>
 <div class="table-wrap"><table><thead><tr><th>Parameter</th><th>Meaning</th></tr></thead><tbody>${rows.map(([name, text]) => `<tr><td><code>${name}</code></td><td>${text}</td></tr>`).join('')}</tbody></table></div>
 <pre><code>curl "${api}/v1/recalls?state=TX&amp;category=food&amp;allergen=peanut&amp;status=Ongoing" -H "Authorization: Bearer $KEY"</code></pre>
 <h3 id="recalls-one">GET /v1/recalls/{recall_number}</h3><p>One recall, e.g. <code>/v1/recalls/H-1331-2026?include=raw</code>.</p>
-<h3>GET /v1/account</h3><p>Your plan, this month's usage and allowance.</p>
-<h3>POST /v1/account/rotate-key</h3><p>Revokes the presented key and returns a new one.</p>
-<h3>POST /v1/account/billing-portal</h3><p>Returns a Stripe billing-portal URL to upgrade, downgrade or cancel.</p>
 <h3 id="recalls-stats">GET /v1/recalls/stats</h3><p>Public coverage counts and last refresh time.</p>
+<h2 id="record-shape">FDA record shape</h2>
+<pre><code>${FDA_RECORD_SHAPE}</code></pre>
+<p class="notice">Derived FDA fields come from deterministic parsers over FDA prose. They are conservative — a code is only reported when an explicit marker or a valid check digit supports it — but they can be incomplete. The verbatim FDA text is always included for verification. This is not medical or legal advice; do not rely on it for decisions about medical care.</p>`
+        : ''
+    }
 ${
-      products
+      served.products
         ? `<h2 id="product-recalls">Consumer product recall endpoints</h2>
 <p>CPSC and Health Canada notices in one schema. Same key and allowance. Dataset page: <a href="/product-recalls">/product-recalls</a>.</p>
 <h3 id="product-recalls-lookup">GET /v1/product-recalls/lookup?code=…</h3><p>Every notice that names one model number or UPC/EAN/GTIN (check-digit verified), with <code>matched_on</code>, <code>total_matches</code>, <code>truncated</code> and <code>interpreted_as</code>.</p>
@@ -177,19 +196,6 @@ ${
 <p>Full field and enum reference: <a href="/llms-full.txt">llms-full.txt</a> and the <a href="${api}/openapi.json">OpenAPI description</a>.</p>`
         : ''
     }
-<h2 id="record-shape">FDA record shape</h2>
-<pre><code>{
-  "recall_number": "D-0123-2026", "category": "drug", "classification": "II", "status": "Ongoing",
-  "firm": { "name": "…", "city": "…", "state": "NJ", "postal_code": "…", "country": "United States" },
-  "dates": { "initiated": "2026-08-01", "classified": "2026-09-04", "reported": "2026-09-16", "terminated": null },
-  "distribution": { "nationwide_us": true, "international": true, "us_states": ["FL","GA"], "countries": ["PA"], … },
-  "quantity": { "items": [{ "value": 403200, "unit": "tablets" }], "total": 403200, "unit": "tablets" },
-  "codes": { "gtins": [], "ndcs": ["12345-0678-90"], "lots": ["DJ23254"], "expiration_dates": ["2026-11-30"], … },
-  "reason": { "classes": ["SPECIFICATION_FAILURE"], "allergens": [], "pathogens": [] },
-  "provenance": { "source_url": "https://api.fda.gov/…", "parser_version": "recall-structuring@1", "raw_sha256": "…", "changed_at": "…" }
-}</code></pre>
-<h2>Accuracy</h2>
-<p class="notice">Derived fields come from deterministic parsers over FDA prose. They are conservative — a code is only reported when an explicit marker or a valid check digit supports it — but they can be incomplete. The verbatim FDA text is always included for verification. This is not medical or legal advice; do not rely on it for decisions about medical care.</p>
 <h2>Errors</h2>
 <p><code>400</code> invalid parameter · <code>401</code> missing/unknown key · <code>403</code> subscription inactive · <code>404</code> not found · <code>429</code> monthly allowance spent · <code>503</code> temporarily unavailable. Errors are <code>{"error": {"code", "message"}}</code>.</p>`,
     { path: '/docs' },
