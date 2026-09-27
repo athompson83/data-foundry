@@ -15,6 +15,7 @@ import { openApiDocument } from './openapi.js';
 import { catalogPage, docsPage, messagePage, privacyPage, recallsLanding, termsPage, welcomePage, type PageContext } from './pages.js';
 import { createCheckoutSession, createPortalSession, currentSubscription, handleStripeWebhook, retrieveCheckoutSession, StripeError, upsertCustomerFromSubscription } from './stripe.js';
 import { scheduledSync, syncWindow } from './sync.js';
+import { BROWSE_PATTERN, RECALL_PAGE_PATTERN, SITEMAP_PATTERN, browseIndex, browsePage, llmsFullTxt, llmsTxt, pagesSitemap, pingChangedRecalls, recallPage, recallSitemap, robotsTxt, sitemapIndex, type PresentedRecall } from './seo.js';
 import { RECALL_CATEGORIES, type RecallCategory } from '@data-foundry/recall-structuring';
 
 /** The Workers edge cache, declared locally like the other bindings. */
@@ -266,15 +267,71 @@ async function route(request: Request, env: Env): Promise<Response> {
       if (request.method !== 'POST') return apiError(405, 'method_not_allowed', 'POST only.');
       return handleStripeWebhook(env, request);
     case '/robots.txt':
-      return new Response(`User-agent: *\nAllow: /\nDisallow: /recalls/welcome\nDisallow: /recalls/checkout\nSitemap: ${ctx.publicOrigin}/sitemap.xml\n`, { headers: { 'content-type': 'text/plain' } });
+      return text(robotsTxt(ctx), 'text/plain', 3600);
+    case '/llms.txt':
+      return text(llmsTxt(ctx), 'text/markdown', 3600);
+    case '/llms-full.txt':
+      return text(llmsFullTxt(ctx), 'text/markdown', 3600);
     case '/sitemap.xml':
-      return new Response(
-        `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${['/', '/recalls', '/recalls/docs', '/terms', '/privacy'].map((path) => `<url><loc>${ctx.publicOrigin}${path}</loc></url>`).join('')}</urlset>`,
-        { headers: { 'content-type': 'application/xml' } },
-      );
+      return cached(request, () => sitemapIndex(ctx, env.DB).then((body) => text(body, 'application/xml', 3600)));
+    case '/sitemaps/pages.xml':
+      return text(pagesSitemap(ctx), 'application/xml', 3600);
+    case '/recalls/browse':
+      return cached(request, async () => html(await browseIndex(ctx, env.DB), 200, { 'cache-control': 'public, max-age=3600' }));
     default:
-      return html(messagePage(ctx, 'Not found', 'That page does not exist.'), 404);
+      return publicDataPage(env, ctx, request, url);
   }
+}
+
+function text(body: string, contentType: string, maxAge: number): Response {
+  return new Response(body, { headers: { 'content-type': `${contentType}; charset=utf-8`, 'cache-control': `public, max-age=${maxAge}`, ...SECURITY_HEADERS } });
+}
+
+/** Serve a D1-backed public page from the edge cache, so crawler traffic does not become D1 load. */
+async function cached(request: Request, render: () => Promise<Response>): Promise<Response> {
+  const cache = (globalThis as unknown as { caches: { default: EdgeCache } }).caches.default;
+  const key = new Request(request.url, { method: 'GET' });
+  const hit = await cache.match(key);
+  if (hit) return hit;
+  const response = await render();
+  if (response.status === 200) await cache.put(key, response.clone());
+  return response;
+}
+
+const notFound = (ctx: PageContext) => html(messagePage(ctx, 'Not found', 'That page does not exist.'), 404);
+
+/** Per-recall pages, year hubs, sitemap files and the IndexNow key file. */
+async function publicDataPage(env: Env, ctx: PageContext, request: Request, url: URL): Promise<Response> {
+  if (env.INDEXNOW_KEY && url.pathname === `/${env.INDEXNOW_KEY}.txt`) return text(env.INDEXNOW_KEY, 'text/plain', 86400);
+  const isData = RECALL_PAGE_PATTERN.test(url.pathname) || BROWSE_PATTERN.test(url.pathname) || SITEMAP_PATTERN.test(url.pathname);
+  if (!isData) return notFound(ctx);
+  // The kill switch withdraws every dataset-derived response, pages included.
+  if (env.SOURCE_KILL_SWITCH === '1') return html(messagePage(ctx, 'Temporarily unavailable', 'This dataset is temporarily unavailable.'), 503, { 'cache-control': 'no-store' });
+  if (request.method !== 'GET' && request.method !== 'HEAD') return apiError(405, 'method_not_allowed', 'GET only.');
+
+  const recall = RECALL_PAGE_PATTERN.exec(url.pathname);
+  if (recall) {
+    return cached(request, async () => {
+      const found = await getRecall(env.DB, env.RAW_ARTIFACTS, recall[1] as string, false);
+      if (!found) return notFound(ctx);
+      return html(recallPage(ctx, found['data'] as PresentedRecall), 200, { 'cache-control': 'public, max-age=3600' });
+    });
+  }
+  const browse = BROWSE_PATTERN.exec(url.pathname);
+  if (browse) {
+    const pageParam = url.searchParams.get('page') ?? '1';
+    const page = /^[1-9]\d{0,3}$/.test(pageParam) ? Number(pageParam) : 0;
+    if (!page) return notFound(ctx);
+    return cached(request, async () => {
+      const body = await browsePage(ctx, env.DB, browse[1] as string, browse[2] as string, page);
+      return body ? html(body, 200, { 'cache-control': 'public, max-age=3600' }) : notFound(ctx);
+    });
+  }
+  const sitemap = SITEMAP_PATTERN.exec(url.pathname) as RegExpExecArray;
+  return cached(request, async () => {
+    const body = await recallSitemap(ctx, env.DB, Number(sitemap[1]));
+    return body ? text(body, 'application/xml', 3600) : notFound(ctx);
+  });
 }
 
 export default {
@@ -293,7 +350,9 @@ export default {
   },
 
   async scheduled(_controller: unknown, env: Env): Promise<void> {
+    const started = new Date().toISOString();
     const results = await scheduledSync(env);
     console.log('recall_sync', JSON.stringify(results));
+    console.log('indexnow', JSON.stringify(await pingChangedRecalls(context(env), env.DB, env.INDEXNOW_KEY, started)));
   },
 };

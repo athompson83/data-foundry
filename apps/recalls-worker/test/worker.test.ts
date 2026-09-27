@@ -6,6 +6,7 @@ import type { Env } from '../src/env.js';
 import worker from '../src/index.js';
 import { ndjsonBundle, parseRawRef, prepareRecall, rawRef, renderLiteral, writeRecallGroups, writeRecallStatements } from '../src/store.js';
 import { formEncode, verifyStripeSignature } from '../src/stripe.js';
+import { indexNowBodies, pingChangedRecalls, productName } from '../src/seo.js';
 import { scheduledSync, syncWindow } from '../src/sync.js';
 import { createTestBucket, createTestDatabase } from './d1-sqlite.js';
 
@@ -270,6 +271,114 @@ describe('API surface', () => {
     const redirect = await worker.fetch(get('/v1/recalls', undefined, 'data.aroqon.com'), env);
     expect(redirect.status).toBe(308);
     expect((await worker.fetch(get('/openapi.json'), env)).status).toBe(200);
+  });
+});
+
+describe('discoverability', () => {
+  const site = (path: string) => get(path, undefined, 'data.aroqon.com');
+  const jsonLd = (page: string) => [...page.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/g)].map((match) => JSON.parse(match[1] as string) as Record<string, unknown>);
+
+  it('serves one public page per recall from the same rows as the API, with JSON-LD', async () => {
+    const env = makeEnv();
+    await seed(env);
+    const response = await worker.fetch(site('/recalls/F-0001-2026'), env);
+    expect(response.status).toBe(200);
+    const page = await response.text();
+    expect(page).toContain('<link rel="canonical" href="https://data.aroqon.com/recalls/F-0001-2026">');
+    expect(page).not.toContain('noindex');
+    expect(page).toContain('AC2601');
+    expect(page).toContain('00012345678905');
+    expect(page).toContain('LA, OK, TX');
+    expect(page).toContain('Class I food recall F-0001-2026');
+    const [ld] = jsonLd(page);
+    expect(ld).toMatchObject({ '@type': 'WebPage', url: 'https://data.aroqon.com/recalls/F-0001-2026', isPartOf: { '@id': 'https://data.aroqon.com/recalls#dataset' }, about: { '@type': 'Product', gtin: '00012345678905' } });
+    // A cached second read does not depend on D1.
+    expect((await worker.fetch(site('/recalls/F-0001-2026'), { ...env, DB: undefined as never })).status).toBe(200);
+    expect((await worker.fetch(site('/recalls/F-9999-2026'), env)).status).toBe(404);
+  });
+
+  it('keeps thin records out of the index but reachable (rule 8)', async () => {
+    const env = makeEnv();
+    await seed(env);
+    const page = await (await worker.fetch(site('/recalls/Z-0002-2026'), env)).text();
+    expect(page).toContain('<meta name="robots" content="noindex, follow">');
+    const index = await (await worker.fetch(site('/sitemap.xml'), env)).text();
+    expect(index).toContain('<loc>https://data.aroqon.com/sitemaps/pages.xml</loc>');
+    expect(index).toContain('<loc>https://data.aroqon.com/sitemaps/recalls-1.xml</loc>');
+    const urls = await (await worker.fetch(site('/sitemaps/recalls-1.xml'), env)).text();
+    expect(urls).toContain('<loc>https://data.aroqon.com/recalls/F-0001-2026</loc><lastmod>2026-09-26</lastmod>');
+    expect(urls).not.toContain('Z-0002-2026');
+    expect((await worker.fetch(site('/sitemaps/recalls-2.xml'), env)).status).toBe(404);
+  });
+
+  it('links every recall from crawlable year hubs', async () => {
+    const env = makeEnv();
+    await seed(env);
+    const hub = await (await worker.fetch(site('/recalls/browse'), env)).text();
+    expect(hub).toContain('href="/recalls/browse/food/2026"');
+    const year = await (await worker.fetch(site('/recalls/browse/device/2026'), env)).text();
+    expect(year).toContain('href="/recalls/Z-0002-2026"');
+    expect(year).toContain('noindex, follow');
+    expect((await worker.fetch(site('/recalls/browse/device/2019'), env)).status).toBe(404);
+    expect((await worker.fetch(site('/recalls/browse/device/2026?page=0'), env)).status).toBe(404);
+  });
+
+  it('publishes llms.txt, robots.txt and Dataset JSON-LD for crawlers and agents', async () => {
+    const env = makeEnv();
+    const llms = await worker.fetch(site('/llms.txt'), env);
+    expect(llms.headers.get('content-type')).toContain('text/markdown');
+    const summary = await llms.text();
+    expect(summary.startsWith('# Data Foundry\n\n> ')).toBe(true);
+    expect(summary).toContain('https://api.data.aroqon.com/v1/recalls/lookup?code=');
+    expect(await (await worker.fetch(site('/llms-full.txt'), env)).text()).toContain('### GET /v1/recalls/lookup');
+    const robots = await (await worker.fetch(site('/robots.txt'), env)).text();
+    expect(robots).toContain('Sitemap: https://data.aroqon.com/sitemap.xml');
+    expect(robots).toContain('Disallow: /recalls/checkout');
+    const landing = await (await worker.fetch(site('/recalls'), env)).text();
+    expect(jsonLd(landing)[0]).toMatchObject({ '@type': 'Dataset', name: 'FDA Recall Intelligence' });
+    expect(jsonLd(await (await worker.fetch(site('/'), env)).text())[0]).toMatchObject({ '@type': 'DataCatalog' });
+  });
+
+  it('escapes page text and JSON-LD against injection', async () => {
+    const env = makeEnv();
+    const prepared = await prepareRecall('food', { ...FOOD, recall_number: 'F-0003-2026', product_description: 'Bars </script><script>alert(1)</script> with a long enough name' });
+    const bundle = ndjsonBundle([prepared.raw]);
+    await env.RAW_ARTIFACTS.put('recalls/x.ndjson', bundle.body);
+    const range = bundle.ranges[0] as { offset: number; length: number };
+    await env.DB.batch(writeRecallStatements(prepared, rawRef('recalls/x.ndjson', range.offset, range.length), 'now').map((statement) => env.DB.prepare(statement.sql).bind(...statement.params)));
+    const page = await (await worker.fetch(site('/recalls/F-0003-2026'), env)).text();
+    expect(page).not.toContain('<script>alert(1)');
+    expect(page).toContain('\\u003c/script>');
+  });
+
+  it('withdraws pages and sitemaps under the kill switch', async () => {
+    const env = makeEnv({ SOURCE_KILL_SWITCH: '1' });
+    await seed(env);
+    expect((await worker.fetch(site('/recalls/F-0001-2026'), env)).status).toBe(503);
+    expect((await worker.fetch(site('/sitemaps/recalls-1.xml'), env)).status).toBe(503);
+  });
+
+  it('serves the IndexNow key and pings only changed, indexable pages in batches', async () => {
+    const env = makeEnv({ INDEXNOW_KEY: 'a1b2c3d4e5f60718293a4b5c6d7e8f90' });
+    await seed(env);
+    expect(await (await worker.fetch(site('/a1b2c3d4e5f60718293a4b5c6d7e8f90.txt'), env)).text()).toBe('a1b2c3d4e5f60718293a4b5c6d7e8f90');
+    const sent: string[] = [];
+    const fetcher = (async (_url: string, init: { body: string }) => {
+      sent.push(init.body);
+      return new Response(null, { status: 202 });
+    }) as unknown as typeof fetch;
+    const ctx = { publicOrigin: 'https://data.aroqon.com', apiOrigin: 'https://api.data.aroqon.com', supportEmail: 's@example.com' };
+    expect(await pingChangedRecalls(ctx, env.DB, env.INDEXNOW_KEY, '2026-09-25T00:00:00.000Z', fetcher)).toEqual({ submitted: 1, status: [202] });
+    expect(JSON.parse(sent[0] as string)).toEqual({ host: 'data.aroqon.com', key: 'a1b2c3d4e5f60718293a4b5c6d7e8f90', keyLocation: 'https://data.aroqon.com/a1b2c3d4e5f60718293a4b5c6d7e8f90.txt', urlList: ['https://data.aroqon.com/recalls/F-0001-2026'] });
+    expect(await pingChangedRecalls(ctx, env.DB, env.INDEXNOW_KEY, '2026-09-27T00:00:00.000Z', fetcher)).toEqual({ submitted: 0, status: [] });
+    expect(await pingChangedRecalls(ctx, env.DB, undefined, '2026-09-25T00:00:00.000Z', fetcher)).toEqual({ submitted: 0, status: [] });
+    expect(indexNowBodies(ctx, 'k', Array.from({ length: 10_001 }, (_, index) => `F-${index}-2026`))).toHaveLength(2);
+  });
+
+  it('derives short product names for titles', () => {
+    expect(productName('Acme Peanut Crunch Bars, 2 oz, UPC 0 12345 67890 5')).toBe('Acme Peanut Crunch Bars');
+    expect(productName(null)).toBe('Product');
+    expect(productName('A'.repeat(20) + ' ' + 'word '.repeat(30)).length).toBeLessThanOrEqual(71);
   });
 });
 
