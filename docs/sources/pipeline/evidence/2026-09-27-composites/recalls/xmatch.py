@@ -1,7 +1,12 @@
-# Screening-grade matcher: its GTIN branch does not check GS1 check digits. It is kept to reproduce the
-# screened figures; gtin_validated.py supersedes its GTIN result, and only validated GTINs may auto-link.
+# Screening-grade matcher. CPSC UPC fields are split into codes with digit_codes() and check-digit validated (a
+# field can list several codes); the foreign GTINs come pre-parsed from intl_recs.json without check-digit
+# validation, so gtin_validated.py supersedes this script's GTIN results, and only validated GTINs may auto-link.
 import json,re,collections,sys,datetime,random
 sys.path.insert(0,'.');from common import *
+def gs1_ok(g):
+    if len(g) not in (8,12,13,14): return False
+    t=sum(int(c)*(3 if i%2==0 else 1) for i,c in enumerate(reversed(g[:-1])))
+    return (10-t%10)%10==int(g[-1])
 DATEY=re.compile(r'^\d{1,2}(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)\d{2,4}$')
 GEN={'LIGHTS','BATTERIES','BUTTON','COIN','LITHIUM','RECALLED','SUBMERSIBLE','CHARGERS','CHARGING','WIRELESS','BANKS','BANK','SCOOTERS','SCOOTER','ELECTRICAL','ADAPTER','ADAPTERS','PLUG','USB','','ELECTRIC','GAS','RANGES','HEATERS','HEATER','WATER','AIR','DUE','FIRE','HAZARD','BURN','POWER','PORTABLE','SMOKE','ALARMS','CORDS','EXTENSION','SOLD','DEPOT','LOWE','WALMART','AMAZON','CHINA','UNKNOWN','BRAND','NONE','GENERIC','NAME','OTHER','LIGHT','LED','CHARGER','BATTERY','TOY','KIDS','BABY'}
 # CPSC: all recalls (for foreign->CPSC direction) with model tokens + brand tokens
@@ -13,7 +18,7 @@ for r in cpall:
     firm2=re.split(r'\s+(?:Recalled|Recalls?)\b',r.get('Title') or '',1)[0] if 'Recalled' in (r.get('Title') or '') else firm
     bt=brand_tokens(firm2+' '+' '.join(re.split(r',\s*(?:of|in)\b',x.get('Name',''))[0] for k in ('Manufacturers','Importers','Distributors') for x in r.get(k) or [])+' '+' '.join(' '.join((p.get('Name') or '').split()[:1]) for p in r.get('Products') or []))-GEN
     C.append({'src':'us','id':r['RecallNumber'],'date':r['RecallDate'][:10],'title':r.get('Title'),'brand_tokens':sorted(bt),
-      'models':sorted(m for m in model_tokens(txt) if not DATEY.match(m)),'gtins':sorted(u.get('UPC','').lstrip('0').zfill(13) for u in r.get('ProductUPCs') or [] if u.get('UPC')),'home':r['RecallNumber'] in home})
+      'models':sorted(m for m in model_tokens(txt) if not DATEY.match(m)),'gtins':sorted({c.lstrip('0').zfill(13) for u in r.get('ProductUPCs') or [] for c in digit_codes(u.get('UPC','') if isinstance(u,dict) else str(u)) if gs1_ok(c)}),'home':r['RecallNumber'] in home})
 I=json.load(open('intl_recs.json'))
 for r in I: r['brand_tokens']=sorted(set(r['brand_tokens'])-GEN)
 ALL=C+I
