@@ -30,7 +30,7 @@ Set `SOURCE_KILL_SWITCH = "1"` in `apps/recalls-worker/wrangler.toml` and deploy
 
 ## Opening and closing sales
 
-`SALES_OPEN = "0"` shows "opening shortly" and creates no Checkout sessions. Only the Product Owner authorises `"1"`.
+`SALES_OPEN = "0"` shows "opening shortly" and creates no Checkout sessions. Only the Product Owner authorises `"1"`; sales were opened on 2026-09-27 on the owner's launch instruction. To stop new sales, set `"0"` and deploy; existing subscriptions and keys keep working.
 
 ## Pausing the scheduled sync
 

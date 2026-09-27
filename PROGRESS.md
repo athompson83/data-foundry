@@ -1,8 +1,18 @@
 # Progress
 
-## Current session — 2026-09-26: FDA Recall Intelligence merged, loaded, deployed, accepted; sales closed
+## Current session — 2026-09-26/27: FDA Recall Intelligence merged, loaded, deployed, accepted; sales opened
 
-**Verdict: technically ready for launch; public sales remain closed (`SALES_OPEN="0"`)
+**2026-09-27 launch.** The Product Owner confirmed the legal seller and the support
+inbox (`data@mail.proviciency.com`) and instructed go-live. Commit `de305d5`
+(PR #64, CI green) with `SALES_OPEN="1"` is deployed to `data-foundry-recalls` as
+version `de43507f-c4f8-4d11-bee6-f8fa3c252d8c` (both Custom Domains and the
+`17 */6 * * *` schedule unchanged). Live verification: `POST /recalls/checkout`
+returns 303 to a live `checkout.stripe.com` session for both the Developer and
+Evaluate plans (sessions left unpaid to expire), and the landing page renders the
+checkout forms without the "opening shortly" notice. `UA-014` (update the Worker
+secret after the owner rotates the Stripe key) remains open. No paid request yet.
+
+**Verdict at the 2026-09-26 closeout (superseded by the launch above): technically ready for launch; public sales remained closed (`SALES_OPEN="0"`)
 until the Product Owner's separate launch instruction. PR #59 merged as `449b3f6`
 (CI green on the PR head `0900c6d` and on `main`); Worker version
 `b51ac2ee-941b-41df-bac3-6045780c5897` is live with the six-hourly cron restored;
@@ -60,7 +70,9 @@ The HVAC track and the hosted Postgres baseline are unchanged.**
   changed 0.
 - **Deploy.** `449b3f6` deployed to `data-foundry-recalls` (version
   `b51ac2ee-941b-41df-bac3-6045780c5897`), custom domains `data.aroqon.com`
-  and `api.data.aroqon.com`, schedule `17 */6 * * *` restored, `SALES_OPEN="0"`.
+  and `api.data.aroqon.com`, schedule `17 */6 * * *` restored, `SALES_OPEN="0"`
+  (superseded on 2026-09-27 by version `de43507f-c4f8-4d11-bee6-f8fa3c252d8c` with
+  `SALES_OPEN="1"`).
 - **Hosted acceptance (production, internal key revoked afterwards).** 401 for
   a missing or bad key; representative food (listeria + TX, peanut allergen),
   drug (class I), device (software) and full-text queries 200; known codes
@@ -89,8 +101,8 @@ The HVAC track and the hosted Postgres baseline are unchanged.**
   - The Stripe account is an individual account with statement descriptor
     "ADAM THOMPSON" and no support email set; the owner confirms the legal
     seller and support inbox.
-  - Confirm the legal seller and a working support inbox.
-  - The separate launch instruction to set `SALES_OPEN="1"`.
+  - Legal seller and support inbox: confirmed by the owner 2026-09-27.
+  - Launch instruction: given 2026-09-27; `SALES_OPEN="1"`.
 
 ## Earlier session — 2026-09-26 (PR #57, merged to `main`): rights rule changed, self-service billing built, paid path blocked on environment access
 
