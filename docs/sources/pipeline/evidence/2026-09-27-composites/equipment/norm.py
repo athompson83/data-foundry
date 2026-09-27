@@ -81,13 +81,22 @@ class Index:
         """returns (method, ids) or (None, [])"""
         b = brand_key(brand)
         if is_pattern(model):
-            ids = self.patkeys.get((b, pattern_key(model))) if brand_scoped else None
-            if ids: return ('pattern=pattern', ids)
-            # compare pattern against concrete models of same brand: compile incoming
+            pk = pattern_key(model)
             rx = compile_pattern(model, self.mode)
+            if brand_scoped:
+                ids = self.patkeys.get((b, pk))
+                if ids: return ('pattern=pattern', ids)
+                # compare pattern against concrete models of same brand: compile incoming
+                if rx is None: return (None, [])
+                hits = [rid for k in self.by_brand.get(b, ()) if rx.match(k) for rid in self.exact[(b, k)]]
+                if hits: return ('their-pattern~our-exact', hits)
+                return (None, [])
+            # any-brand fallback: the same canonical pattern, or concrete models of any brand the pattern matches
+            ids = [rid for (bb, key), rids in self.patkeys.items() if key == pk for rid in rids]
+            if ids: return ('pattern=pattern-anybrand', ids)
             if rx is None: return (None, [])
-            hits = [rid for k in self.by_brand.get(b, ()) if rx.match(k) for rid in self.exact[(b, k)]] if brand_scoped else []
-            if hits: return ('their-pattern~our-exact', hits)
+            hits = [rid for k, lst in self.exact_any.items() if rx.match(k) for _, rid in lst]
+            if hits: return ('their-pattern~our-exact-anybrand', hits)
             return (None, [])
         k = model_key(model)
         if brand_scoped:

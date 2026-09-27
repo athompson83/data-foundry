@@ -197,7 +197,8 @@ in the build order.
      mostly globally sold power banks and chargers (Belkin, Anker, ESR, IKEA, Yamaha).
 3. **The EU, UK and France cluster links strongly.**
    - 94 of 697 UK OPSS home-category notices match an EU Safety Gate alert: 79 by brand+model alone (real brand fields only) and 24 by a check-digit-valid GTIN (9 by both). Re-measured after review as independent rule sets (`uk_eu_separate.py`); screening reported 118, mixing an unvalidated GTIN branch and title-word brands into the brand+model count.
-     18 of 20 were correct on hand check.
+     A seeded hand-check of 20 brand+model pairs found 19 the same product and 1 uncertain (the screening 18/20
+     was drawn from the earlier mixed set and is superseded).
    - France's RappelConso cites Safety Gate case numbers directly: 102 of 109 are found in the EU XML.
 4. **The incident signal is new.**
    - SaferProducts.gov publishes a bulk export (`SPDB.zip`) with 70,000 incident reports. Round 2 found no route to them.
@@ -358,7 +359,7 @@ proposed link is reviewed before publication.
 | CPSC (all) → UK (home categories) | 1,130 | 14 | 0 | 14 | **8/8** | 26090 (Belkin), 26011 (ESR), 25254 (Yamaha PA-300C), 23205 (PowerXL), 23147 (Anker) |
 | ACCC → CPSC | 36 | 4 | 0 | 4 | 3/4 confirmed | 2026/21017→26798, 2026/20921→26444, 2026/20925→26568 |
 | NZ sample → CPSC | 75 of 147 | 5 | 0 | 7 | **5/5** | Öhlins forks→19040; BMC SLR01→20042; Toshiba adapters→24122 |
-| **UK home → EU Safety Gate** | 697 | **118** (brand+model alone, real brands only, 79; either rule with validated GTINs 94) | **29** (24 check-digit-valid) | 149 (137 without the GTIN branch) | **18/20** (false: "6000-6500K" colour temperature read as a model; one uncertain) | 2511-0162→SR/04279/25, 2606-0201→SR/02105/26, Bosch TAT8611GB→2023-09-22 alert, Morco EUP11 water heater |
+| **UK home → EU Safety Gate** | 697 | **118** (brand+model alone, real brands only, 79; either rule with validated GTINs 94) | **29** (24 check-digit-valid) | 149 (137 without the GTIN branch) | **19/20** on the brand+model set (1 uncertain; `uk_eu_separate.txt`). Superseded screening sample: 18/20 (false: "6000-6500K" colour temperature read as a model; one uncertain) | 2511-0162→SR/04279/25, 2606-0201→SR/02105/26, Bosch TAT8611GB→2023-09-22 alert, Morco EUP11 water heater |
 | ACCC → EU / ACCC → UK | 38 / 36 | 0 / 0 | — | 0 / 0 | — | — |
 | FR RappelConso → EU (declared case number) | 109 notices with `sr/…` or `a12/…` | **102** | — | — | 5/5 | sr/03749/25, sr/01532/26, sr/00012/26 |
 | FR RappelConso → EU (brand+model/GTIN) | 487 | 87 | 71 | 89 | 11/12 (false: 8-digit "58089005" read as a GTIN) | Gifi 3491955986094; BlendJet2; NALK&REY NRHD220023 |
