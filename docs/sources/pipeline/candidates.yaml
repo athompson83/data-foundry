@@ -3957,8 +3957,8 @@ datasets:
         between:
           - cpsc-recalls
           - equipment-energystar-model-index
-        measured: 18/10027 recalls (15/18 true identity); 14/160 equipment recalls since 2015 with an upper-case model token (screening); with case-insensitive tokens
-          the eligible population is 173, and the numerator (a lower bound, >=14/173) is re-run once mi_noncac.csv and
+        measured: 18/10027 recalls (15/18 true identity); 14/160 equipment recalls since 2015 with an upper-case model token (screening); with case-insensitive tokens over the text the matcher reads (including Products[].Model)
+          the eligible population is 174, and the numerator (a lower bound, >=14/174) is re-run once mi_noncac.csv and
           akti.json are re-acquired
         mode: candidate
         reviewed: { correct: 15, checked: 18 }
