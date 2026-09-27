@@ -431,6 +431,24 @@ describe('discoverability', () => {
     expect(indexNowBodies(ctx, 'k', Array.from({ length: 10_001 }, (_, index) => `F-${index}-2026`))).toHaveLength(2);
   });
 
+  it('replaces a malformed or future IndexNow watermark before submitting, so a failed run is still retried', async () => {
+    const env = makeEnv({ INDEXNOW_KEY: 'a1b2c3d4e5f60718293a4b5c6d7e8f90' });
+    await seed(env);
+    const ctx = { publicOrigin: 'https://data.aroqon.com', apiOrigin: 'https://api.data.aroqon.com', supportEmail: 's@example.com' };
+    const failing = (async () => new Response(null, { status: 503 })) as unknown as typeof fetch;
+    for (const bad of ['not-a-date', '2099-01-01T00:00:00.000Z']) {
+      await env.RAW_ARTIFACTS.put('state/indexnow-watermark.json', JSON.stringify({ since: bad }));
+      const result = await pingChangedRecalls(ctx, env.DB, env.RAW_ARTIFACTS, env.INDEXNOW_KEY, '2026-09-25T00:00:00.000Z', failing);
+      expect(result, bad).toMatchObject({ since: '2026-09-24T22:55:00.000Z', advanced: true });
+      expect(await (await env.RAW_ARTIFACTS.get('state/indexnow-watermark.json'))?.text(), bad).toBe(JSON.stringify({ since: '2026-09-24T22:55:00.000Z' }));
+    }
+    // The replaced boundary is what later runs retry from: the change at 00:00 is sent, and resent while it fails.
+    await env.RAW_ARTIFACTS.put('state/indexnow-watermark.json', JSON.stringify({ since: 'garbage' }));
+    await pingChangedRecalls(ctx, env.DB, env.RAW_ARTIFACTS, env.INDEXNOW_KEY, '2026-09-26T00:30:00.000Z', failing);
+    expect(await pingChangedRecalls(ctx, env.DB, env.RAW_ARTIFACTS, env.INDEXNOW_KEY, '2026-09-26T01:10:00.000Z', failing)).toMatchObject({ since: '2026-09-25T23:25:00.000Z', submitted: 1, advanced: false });
+    expect(await pingChangedRecalls(ctx, env.DB, env.RAW_ARTIFACTS, env.INDEXNOW_KEY, '2026-09-26T07:00:00.000Z', failing)).toMatchObject({ since: '2026-09-25T23:25:00.000Z', submitted: 1, advanced: false });
+  });
+
   it('does not ping IndexNow or move its watermark while the kill switch is on', async () => {
     const env = makeEnv({ INDEXNOW_KEY: 'a1b2c3d4e5f60718293a4b5c6d7e8f90', SOURCE_KILL_SWITCH: '1' });
     await seed(env);

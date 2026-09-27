@@ -395,10 +395,12 @@ export async function pingChangedRecalls(
   try {
     const stored = await bucket.get(INDEXNOW_WATERMARK_KEY);
     const previous = stored ? (JSON.parse(await stored.text()) as { since?: unknown }).since : undefined;
-    if (typeof previous === 'string' && !Number.isNaN(Date.parse(previous)) && previous <= settled) since = previous;
-    // With no usable watermark (first deploy, or deleted), record this run's
-    // boundary before submitting, so a failed first submission is retried from it.
-    else if (typeof previous !== 'string') await bucket.put(INDEXNOW_WATERMARK_KEY, JSON.stringify({ since }), { httpMetadata: { contentType: 'application/json' } });
+    const usable = typeof previous === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(previous) && !Number.isNaN(Date.parse(previous)) && previous <= settled;
+    if (usable) since = previous;
+    // With no usable watermark (first deploy, deleted, malformed or in the
+    // future), record this run's boundary before submitting, so a failed
+    // submission is retried from it.
+    else await bucket.put(INDEXNOW_WATERMARK_KEY, JSON.stringify({ since }), { httpMetadata: { contentType: 'application/json' } });
     const rows = await db
       .prepare(`SELECT recall_number FROM recall WHERE changed_at >= ? AND changed_at < ? AND ${INDEXABLE_SQL} ORDER BY recall_number`)
       .bind(since, settled)

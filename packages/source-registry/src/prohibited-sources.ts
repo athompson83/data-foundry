@@ -131,6 +131,23 @@ export const PROHIBITED_SOURCES: readonly ProhibitedSource[] = [
     reason: MANUFACTURER_REASON,
     liftedBy: WRITTEN_LICENCE,
   },
+  {
+    // Research round 3 (2026-09-27): the home page answers 301 to
+    // ahridirectory.org, so it is the AHRI directory under another name.
+    domain: 'ceedirectory.org',
+    publisher: 'Consortium for Energy Efficiency directory (operated with AHRI)',
+    reason: 'Redirects to the prohibited AHRI Certification Directory; acquiring it would route around that prohibition.',
+    liftedBy: WRITTEN_LICENCE,
+  },
+  {
+    domain: 'mcscertified.com',
+    publisher: 'MCS Service Company Ltd (UK Microgeneration Certification Scheme)',
+    reason:
+      'Terms state: "Any copying, distribution, storing or transmission of any kind, or any sort of ' +
+      'commercial use of the Content is strictly prohibited without the MCS Service Company Ltd\'s ' +
+      'prior written permission."',
+    liftedBy: WRITTEN_LICENCE,
+  },
 ] as const;
 
 /**
@@ -150,6 +167,8 @@ export const PROHIBITED_PUBLISHER_TOKENS: readonly string[] = [
   'Lennox',
   'Daikin',
   'Johnson Controls',
+  'Goodman Manufacturing',
+  'MCS Service Company',
 ] as const;
 
 /**
