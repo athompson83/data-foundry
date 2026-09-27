@@ -1,0 +1,1474 @@
+[
+{
+"cpsc": "26649",
+"date": "2026-07-30",
+"facets": [
+"appliance"
+],
+"n_incidents": 4,
+"n_before_recall": 1,
+"sample_reports": [
+"20260808-A8696-2147312728",
+"20260804-930EB-2147312916",
+"20260802-04A5C-2147313026"
+]
+},
+{
+"cpsc": "26419",
+"date": "2026-04-16",
+"facets": [
+"appliance"
+],
+"n_incidents": 1,
+"n_before_recall": 1,
+"sample_reports": [
+"20260202-4F30E-2147323947"
+]
+},
+{
+"cpsc": "26407",
+"date": "2026-04-16",
+"facets": [
+"electrical"
+],
+"n_incidents": 3,
+"n_before_recall": 2,
+"sample_reports": [
+"20260425-77C34-2147320142",
+"20210909-69D6F-3435814",
+"20120402-CA371-2147468753"
+]
+},
+{
+"cpsc": "26403",
+"date": "2026-04-09",
+"facets": [
+"electrical"
+],
+"n_incidents": 1,
+"n_before_recall": 0,
+"sample_reports": [
+"20260511-612C3-2147319497"
+]
+},
+{
+"cpsc": "26398",
+"date": "2026-04-09",
+"facets": [
+"electrical"
+],
+"n_incidents": 1,
+"n_before_recall": 0,
+"sample_reports": [
+"20260511-612C3-2147319497"
+]
+},
+{
+"cpsc": "26333",
+"date": "2026-03-19",
+"facets": [
+"appliance"
+],
+"n_incidents": 34,
+"n_before_recall": 21,
+"sample_reports": [
+"20260903-3FA19-2147310611",
+"20260819-A8A7D-2147312182",
+"20260813-12074-2147312479"
+]
+},
+{
+"cpsc": "26246",
+"date": "2026-02-05",
+"facets": [
+"electrical"
+],
+"n_incidents": 1,
+"n_before_recall": 0,
+"sample_reports": [
+"20260511-612C3-2147319497"
+]
+},
+{
+"cpsc": "26222",
+"date": "2026-01-29",
+"facets": [
+"electrical"
+],
+"n_incidents": 1,
+"n_before_recall": 0,
+"sample_reports": [
+"20260511-612C3-2147319497"
+]
+},
+{
+"cpsc": "26010",
+"date": "2025-10-09",
+"facets": [
+"electrical"
+],
+"n_incidents": 1,
+"n_before_recall": 0,
+"sample_reports": [
+"20260821-397DB-2147312115"
+]
+},
+{
+"cpsc": "25459",
+"date": "2025-09-11",
+"facets": [
+"appliance"
+],
+"n_incidents": 2,
+"n_before_recall": 1,
+"sample_reports": [
+"20260612-4B3D4-2147316952",
+"20250815-CAD0B-2147328646"
+]
+},
+{
+"cpsc": "25431",
+"date": "2025-08-14",
+"facets": [
+"building-products"
+],
+"n_incidents": 1,
+"n_before_recall": 0,
+"sample_reports": [
+"20250908-2B392-2147327993"
+]
+},
+{
+"cpsc": "25320",
+"date": "2025-06-05",
+"facets": [
+"appliance",
+"building-products"
+],
+"n_incidents": 41,
+"n_before_recall": 3,
+"sample_reports": [
+"20260725-622C2-2147313404",
+"20260709-9EC42-2147314185",
+"20260527-BCF18-2147318561"
+]
+},
+{
+"cpsc": "25305",
+"date": "2025-05-29",
+"facets": [
+"plumbing-water-heating"
+],
+"n_incidents": 1,
+"n_before_recall": 0,
+"sample_reports": [
+"20250608-9982A-2147330692"
+]
+},
+{
+"cpsc": "25306",
+"date": "2025-05-29",
+"facets": [
+"plumbing-water-heating"
+],
+"n_incidents": 1,
+"n_before_recall": 0,
+"sample_reports": [
+"20250607-32A91-2147330714"
+]
+},
+{
+"cpsc": "25126",
+"date": "2025-02-06",
+"facets": [
+"appliance"
+],
+"n_incidents": 2,
+"n_before_recall": 0,
+"sample_reports": [
+"20250224-32CB0-2147332950",
+"20250220-43760-2147333048"
+]
+},
+{
+"cpsc": "25036",
+"date": "2024-11-07",
+"facets": [
+"hvac"
+],
+"n_incidents": 6,
+"n_before_recall": 1,
+"sample_reports": [
+"20250602-14256-2147330892",
+"20241227-4241D-2147334331",
+"20241114-64777-2147335278"
+]
+},
+{
+"cpsc": "24335",
+"date": "2024-08-08",
+"facets": [
+"appliance"
+],
+"n_incidents": 99,
+"n_before_recall": 43,
+"sample_reports": [
+"20260812-B0EB4-2147312533",
+"20260805-A82F6-2147312856",
+"20260801-5D8FC-2147313052"
+]
+},
+{
+"cpsc": "24298",
+"date": "2024-07-11",
+"facets": [
+"hvac"
+],
+"n_incidents": 1,
+"n_before_recall": 0,
+"sample_reports": [
+"20241016-F25F1-2147335944"
+]
+},
+{
+"cpsc": "24235",
+"date": "2024-05-16",
+"facets": [
+"appliance"
+],
+"n_incidents": 26,
+"n_before_recall": 26,
+"sample_reports": [
+"20230123-AFEFA-2147351222",
+"20210404-CFFE6-2147364994",
+"20201214-2732C-2147367443"
+]
+},
+{
+"cpsc": "24117",
+"date": "2024-02-15",
+"facets": [
+"appliance"
+],
+"n_incidents": 4,
+"n_before_recall": 0,
+"sample_reports": [
+"20260515-387F2-2147319309",
+"20260123-789E0-2147324269",
+"20251124-46ADE-2147326129"
+]
+},
+{
+"cpsc": "24110",
+"date": "2024-02-08",
+"facets": [
+"appliance"
+],
+"n_incidents": 9,
+"n_before_recall": 4,
+"sample_reports": [
+"20250226-495BE-5153030",
+"20250827-9BF14-2147328296",
+"20241007-AD0BC-2147336097"
+]
+},
+{
+"cpsc": "24033",
+"date": "2023-11-30",
+"facets": [
+"appliance"
+],
+"n_incidents": 2,
+"n_before_recall": 0,
+"sample_reports": [
+"20241031-A7501-2147335614",
+"20240523-A1D27-2147339029"
+]
+},
+{
+"cpsc": "24023",
+"date": "2023-11-09",
+"facets": [
+"building-products"
+],
+"n_incidents": 2,
+"n_before_recall": 0,
+"sample_reports": [
+"20241229-81186-2147334285",
+"20241211-177E5-2147334673"
+]
+},
+{
+"cpsc": "24008",
+"date": "2023-10-12",
+"facets": [
+"appliance"
+],
+"n_incidents": 3,
+"n_before_recall": 1,
+"sample_reports": [
+"20250713-E5D88-2147329615",
+"20231226-A6C56-2147343257",
+"20230310-C3A0D-2147348845"
+]
+},
+{
+"cpsc": "23288",
+"date": "2023-09-14",
+"facets": [
+"electrical"
+],
+"n_incidents": 1,
+"n_before_recall": 0,
+"sample_reports": [
+"20230919-41788-2147345121"
+]
+},
+{
+"cpsc": "23269",
+"date": "2023-08-31",
+"facets": [
+"appliance"
+],
+"n_incidents": 6,
+"n_before_recall": 1,
+"sample_reports": [
+"20260627-D47CE-2147314944",
+"20241014-BC3FD-2147335971",
+"20240222-6E3AD-2147340833"
+]
+},
+{
+"cpsc": "23262",
+"date": "2023-08-16",
+"facets": [
+"appliance"
+],
+"n_incidents": 9,
+"n_before_recall": 9,
+"sample_reports": [
+"20230427-B6D3E-2147347838",
+"20171231-5D8A9-2147394142",
+"20170906-50176-2147397621"
+]
+},
+{
+"cpsc": "23207",
+"date": "2023-05-18",
+"facets": [
+"building-products"
+],
+"n_incidents": 1,
+"n_before_recall": 1,
+"sample_reports": [
+"20221209-E7A3B-2147352133"
+]
+},
+{
+"cpsc": "23080",
+"date": "2022-12-22",
+"facets": [
+"appliance"
+],
+"n_incidents": 3,
+"n_before_recall": 0,
+"sample_reports": [
+"20240808-48F54-2147337397",
+"20221231-E0985-2147351743",
+"20221224-A661A-2147351886"
+]
+},
+{
+"cpsc": "23059",
+"date": "2022-12-01",
+"facets": [
+"electrical"
+],
+"n_incidents": 3,
+"n_before_recall": 3,
+"sample_reports": [
+"20220317-0366E-2147357217",
+"20220125-BE418-2147357842",
+"20210626-2CCE0-2147363275"
+]
+},
+{
+"cpsc": "23006",
+"date": "2022-10-13",
+"facets": [
+"appliance"
+],
+"n_incidents": 1,
+"n_before_recall": 1,
+"sample_reports": [
+"20190114-7FC0D-2147383276"
+]
+},
+{
+"cpsc": "22159",
+"date": "2022-06-16",
+"facets": [
+"electrical"
+],
+"n_incidents": 8,
+"n_before_recall": 0,
+"sample_reports": [
+"20250310-6F388-2147332659",
+"20240128-7B7E4-2147341421",
+"20230517-B9DFB-2147347504"
+]
+},
+{
+"cpsc": "22151",
+"date": "2022-06-09",
+"facets": [
+"appliance",
+"building-products"
+],
+"n_incidents": 5,
+"n_before_recall": 0,
+"sample_reports": [
+"20240815-3418F-2147337202",
+"20231004-4B666-2147344862",
+"20230515-B9A3A-2147347554"
+]
+},
+{
+"cpsc": "22154",
+"date": "2022-06-09",
+"facets": [
+"electrical"
+],
+"n_incidents": 1,
+"n_before_recall": 1,
+"sample_reports": [
+"20200215-A8760-2147374811"
+]
+},
+{
+"cpsc": "22143",
+"date": "2022-06-02",
+"facets": [
+"appliance",
+"building-products"
+],
+"n_incidents": 5,
+"n_before_recall": 0,
+"sample_reports": [
+"20251016-01CF5-2147327045",
+"20250801-FABC9-2147328998",
+"20240104-83E4D-2147343018"
+]
+},
+{
+"cpsc": "22117",
+"date": "2022-04-14",
+"facets": [
+"appliance",
+"building-products"
+],
+"n_incidents": 38,
+"n_before_recall": 3,
+"sample_reports": [
+"20240618-34D0D-2147338539",
+"20240304-09E98-2147340613",
+"20230904-FC8B3-2147345387"
+]
+},
+{
+"cpsc": "22111",
+"date": "2022-03-31",
+"facets": [
+"electrical",
+"building-products"
+],
+"n_incidents": 1,
+"n_before_recall": 0,
+"sample_reports": [
+"20230315-1822D-4137363"
+]
+},
+{
+"cpsc": "22028",
+"date": "2021-12-08",
+"facets": [
+"appliance"
+],
+"n_incidents": 3,
+"n_before_recall": 0,
+"sample_reports": [
+"20250720-BD8D3-2147329429",
+"20241231-E28D2-2147334244",
+"20230924-31F6F-2147345050"
+]
+},
+{
+"cpsc": "21174",
+"date": "2021-08-04",
+"facets": [
+"appliance"
+],
+"n_incidents": 8,
+"n_before_recall": 0,
+"sample_reports": [
+"20210816-1B43C-2147361083",
+"20210812-5F930-2147361159",
+"20210809-1EF14-2147361218"
+]
+},
+{
+"cpsc": "21151",
+"date": "2021-06-16",
+"facets": [
+"appliance"
+],
+"n_incidents": 2,
+"n_before_recall": 1,
+"sample_reports": [
+"20250709-3C5DC-2147329758",
+"20190114-7FC0D-2147383276"
+]
+},
+{
+"cpsc": "21074",
+"date": "2021-02-03",
+"facets": [
+"hvac"
+],
+"n_incidents": 1,
+"n_before_recall": 0,
+"sample_reports": [
+"20251212-1F232-2147325619"
+]
+},
+{
+"cpsc": "21046",
+"date": "2020-12-09",
+"facets": [
+"building-products"
+],
+"n_incidents": 3,
+"n_before_recall": 0,
+"sample_reports": [
+"20201219-A1E24-2147367370",
+"20201222-91179-2147367307",
+"20201224-C3292-2147367270"
+]
+},
+{
+"cpsc": "20185",
+"date": "2020-09-16",
+"facets": [
+"electrical"
+],
+"n_incidents": 3,
+"n_before_recall": 0,
+"sample_reports": [
+"20210224-B9393-2147365693",
+"20201210-2BFFA-2147367570",
+"20201020-F61D1-2025142"
+]
+},
+{
+"cpsc": "20172",
+"date": "2020-08-26",
+"facets": [
+"building-products"
+],
+"n_incidents": 1,
+"n_before_recall": 0,
+"sample_reports": [
+"20200828-FBF39-2147370177"
+]
+},
+{
+"cpsc": "20090",
+"date": "2020-03-17",
+"facets": [
+"electrical"
+],
+"n_incidents": 3,
+"n_before_recall": 2,
+"sample_reports": [
+"20200318-39286-2147374314",
+"20190321-E6F61-2147382071",
+"20190220-6B5CD-2147382583"
+]
+},
+{
+"cpsc": "20710",
+"date": "2019-11-26",
+"facets": [
+"electrical"
+],
+"n_incidents": 2,
+"n_before_recall": 0,
+"sample_reports": [
+"20220908-256B7-2147353963",
+"20210202-B1C0E-3008868"
+]
+},
+{
+"cpsc": "19189",
+"date": "2019-08-28",
+"facets": [
+"appliance"
+],
+"n_incidents": 4,
+"n_before_recall": 1,
+"sample_reports": [
+"20221121-0878B-3986700",
+"20190925-36359-2147377475",
+"20190901-2C4DE-2147377941"
+]
+},
+{
+"cpsc": "19162",
+"date": "2019-07-10",
+"facets": [
+"electrical",
+"building-products"
+],
+"n_incidents": 1,
+"n_before_recall": 0,
+"sample_reports": [
+"20190714-EC1C3-2147379890"
+]
+},
+{
+"cpsc": "19140",
+"date": "2019-06-21",
+"facets": [
+"hvac"
+],
+"n_incidents": 1,
+"n_before_recall": 0,
+"sample_reports": [
+"20191115-4C844-2147376556"
+]
+},
+{
+"cpsc": "19744",
+"date": "2019-05-02",
+"facets": [
+"electrical"
+],
+"n_incidents": 1,
+"n_before_recall": 0,
+"sample_reports": [
+"20191221-1327F-2147375896"
+]
+},
+{
+"cpsc": "19088",
+"date": "2019-03-20",
+"facets": [
+"electrical"
+],
+"n_incidents": 3,
+"n_before_recall": 1,
+"sample_reports": [
+"20200318-39286-2147374314",
+"20190321-E6F61-2147382071",
+"20190220-6B5CD-2147382583"
+]
+},
+{
+"cpsc": "19047",
+"date": "2018-12-12",
+"facets": [
+"hvac"
+],
+"n_incidents": 5,
+"n_before_recall": 1,
+"sample_reports": [
+"20191105-F23EC-2147376732",
+"20190112-9955D-2147383296",
+"20181214-3AA18-2147383760"
+]
+},
+{
+"cpsc": "19036",
+"date": "2018-11-20",
+"facets": [
+"hvac"
+],
+"n_incidents": 1,
+"n_before_recall": 0,
+"sample_reports": [
+"20181122-F2CD4-2147384215"
+]
+},
+{
+"cpsc": "19015",
+"date": "2018-10-25",
+"facets": [
+"appliance"
+],
+"n_incidents": 3,
+"n_before_recall": 0,
+"sample_reports": [
+"20200630-053A7-2147371390",
+"20190626-24ACE-2147380256",
+"20190119-6A35B-2147383194"
+]
+},
+{
+"cpsc": "19009",
+"date": "2018-10-11",
+"facets": [
+"electrical"
+],
+"n_incidents": 2,
+"n_before_recall": 0,
+"sample_reports": [
+"20201226-77B28-2147367233",
+"20190211-A9E8B-2147382775"
+]
+},
+{
+"cpsc": "18218",
+"date": "2018-09-11",
+"facets": [
+"appliance"
+],
+"n_incidents": 6,
+"n_before_recall": 1,
+"sample_reports": [
+"20250805-A2DEA-5464769",
+"20210830-13D2D-2147360787",
+"20210304-7496A-2147365547"
+]
+},
+{
+"cpsc": "18199",
+"date": "2018-08-22",
+"facets": [
+"hvac"
+],
+"n_incidents": 4,
+"n_before_recall": 2,
+"sample_reports": [
+"20210108-59520-2147366623",
+"20180824-AC6C9-2147385980",
+"20180413-95B6C-2147388630"
+]
+},
+{
+"cpsc": "18748",
+"date": "2018-06-26",
+"facets": [
+"electrical"
+],
+"n_incidents": 1,
+"n_before_recall": 1,
+"sample_reports": [
+"20170729-23F7E-2147398583"
+]
+},
+{
+"cpsc": "18179",
+"date": "2018-06-20",
+"facets": [
+"building-products"
+],
+"n_incidents": 3,
+"n_before_recall": 0,
+"sample_reports": [
+"20250806-B2368-2147328871",
+"20181110-F976A-2147384523",
+"20180625-F563C-1771959"
+]
+},
+{
+"cpsc": "18136",
+"date": "2018-04-04",
+"facets": [
+"hvac"
+],
+"n_incidents": 4,
+"n_before_recall": 0,
+"sample_reports": [
+"20210108-59520-2147366623",
+"20180824-AC6C9-2147385980",
+"20180413-95B6C-2147388630"
+]
+},
+{
+"cpsc": "18128",
+"date": "2018-03-21",
+"facets": [
+"electrical",
+"building-products"
+],
+"n_incidents": 6,
+"n_before_recall": 5,
+"sample_reports": [
+"20180716-5B018-2147386781",
+"20170711-5D50F-2147399061",
+"20161227-B538A-2147408845"
+]
+},
+{
+"cpsc": "18730",
+"date": "2018-03-15",
+"facets": [
+"hvac"
+],
+"n_incidents": 18,
+"n_before_recall": 3,
+"sample_reports": [
+"20230203-CBA89-2147350977",
+"20221012-18D27-2147353369",
+"20220111-B71AD-2147358047"
+]
+},
+{
+"cpsc": "18072",
+"date": "2017-12-21",
+"facets": [
+"electrical"
+],
+"n_incidents": 2,
+"n_before_recall": 0,
+"sample_reports": [
+"20200905-EAF4A-2147369998",
+"20180415-3F5D5-2147388607"
+]
+},
+{
+"cpsc": "18022",
+"date": "2017-11-02",
+"facets": [
+"building-products"
+],
+"n_incidents": 26,
+"n_before_recall": 3,
+"sample_reports": [
+"20260831-C5934-2147310741",
+"20260708-85FAE-2147314231",
+"20241110-009FE-2147335403"
+]
+},
+{
+"cpsc": "18013",
+"date": "2017-10-20",
+"facets": [
+"appliance"
+],
+"n_incidents": 1,
+"n_before_recall": 0,
+"sample_reports": [
+"20200131-95167-1944200"
+]
+},
+{
+"cpsc": "17760",
+"date": "2017-07-28",
+"facets": [
+"plumbing-water-heating"
+],
+"n_incidents": 1,
+"n_before_recall": 0,
+"sample_reports": [
+"20180130-1A5CE-2147393255"
+]
+},
+{
+"cpsc": "17179",
+"date": "2017-06-29",
+"facets": [
+"electrical"
+],
+"n_incidents": 1,
+"n_before_recall": 0,
+"sample_reports": [
+"20171119-C947A-2147395268"
+]
+},
+{
+"cpsc": "17129",
+"date": "2017-04-11",
+"facets": [
+"plumbing-water-heating"
+],
+"n_incidents": 3,
+"n_before_recall": 0,
+"sample_reports": [
+"20190929-ED72C-2147377402",
+"20190119-8BD59-2147383202",
+"20170805-2E800-2147398374"
+]
+},
+{
+"cpsc": "17113",
+"date": "2017-03-23",
+"facets": [
+"building-products"
+],
+"n_incidents": 1,
+"n_before_recall": 0,
+"sample_reports": [
+"20190809-97131-2147379357"
+]
+},
+{
+"cpsc": "17042",
+"date": "2016-12-01",
+"facets": [
+"electrical"
+],
+"n_incidents": 1,
+"n_before_recall": 0,
+"sample_reports": [
+"20231209-84895-2147343533"
+]
+},
+{
+"cpsc": "17039",
+"date": "2016-11-29",
+"facets": [
+"appliance"
+],
+"n_incidents": 83,
+"n_before_recall": 55,
+"sample_reports": [
+"20240915-F0C38-2147336522",
+"20240513-46845-2147339232",
+"20230817-DA4A6-2147345743"
+]
+},
+{
+"cpsc": "17709",
+"date": "2016-11-08",
+"facets": [
+"hvac"
+],
+"n_incidents": 4,
+"n_before_recall": 1,
+"sample_reports": [
+"20260826-9CBFF-2147311868",
+"20230404-AF2F0-2147348287",
+"20170412-FECF0-2147404478"
+]
+},
+{
+"cpsc": "17028",
+"date": "2016-11-04",
+"facets": [
+"appliance"
+],
+"n_incidents": 256,
+"n_before_recall": 70,
+"sample_reports": [
+"20250906-771B1-2147328027",
+"20240415-CCE11-2147339759",
+"20240213-97E71-4615536"
+]
+},
+{
+"cpsc": "16253",
+"date": "2016-08-25",
+"facets": [
+"appliance"
+],
+"n_incidents": 14,
+"n_before_recall": 0,
+"sample_reports": [
+"20250607-66107-2147330700",
+"20240620-7BE35-2147338502",
+"20211116-89A6B-2147358744"
+]
+},
+{
+"cpsc": "16177",
+"date": "2016-05-26",
+"facets": [
+"hvac",
+"plumbing-water-heating"
+],
+"n_incidents": 29,
+"n_before_recall": 0,
+"sample_reports": [
+"20240302-B093E-2147340652",
+"20231218-3CD3A-2147343366",
+"20220727-C838D-2147354747"
+]
+},
+{
+"cpsc": "16724",
+"date": "2016-01-27",
+"facets": [
+"electrical"
+],
+"n_incidents": 1,
+"n_before_recall": 1,
+"sample_reports": [
+"20111228-DBF4C-2147471947"
+]
+},
+{
+"cpsc": "15240",
+"date": "2015-09-10",
+"facets": [
+"plumbing-water-heating"
+],
+"n_incidents": 1,
+"n_before_recall": 0,
+"sample_reports": [
+"20160108-ADDFE-2147424941"
+]
+},
+{
+"cpsc": "15210",
+"date": "2015-08-06",
+"facets": [
+"appliance"
+],
+"n_incidents": 4,
+"n_before_recall": 3,
+"sample_reports": [
+"20151213-56CFE-2147425897",
+"20130127-52037-2147459420",
+"20120912-0E32A-2147463799"
+]
+},
+{
+"cpsc": "15167",
+"date": "2015-06-19",
+"facets": [
+"hvac"
+],
+"n_incidents": 5,
+"n_before_recall": 3,
+"sample_reports": [
+"20151124-FC4C7-2147426383",
+"20150823-6A96A-2147429069",
+"20150514-58820-2147432920"
+]
+},
+{
+"cpsc": "15084",
+"date": "2015-02-24",
+"facets": [
+"appliance"
+],
+"n_incidents": 1,
+"n_before_recall": 0,
+"sample_reports": [
+"20190114-7FC0D-2147383276"
+]
+},
+{
+"cpsc": "15079",
+"date": "2015-02-12",
+"facets": [
+"building-products"
+],
+"n_incidents": 8,
+"n_before_recall": 1,
+"sample_reports": [
+"20241110-009FE-2147335403",
+"20171103-B4F10-2147396034",
+"20171107-BB47E-2147395717"
+]
+},
+{
+"cpsc": "15065",
+"date": "2015-01-29",
+"facets": [
+"hvac"
+],
+"n_incidents": 3,
+"n_before_recall": 1,
+"sample_reports": [
+"20200504-A2704-2147372552",
+"20150402-8CEB8-2147434050",
+"20141103-B4424-2147439247"
+]
+},
+{
+"cpsc": "15039",
+"date": "2014-12-02",
+"facets": [
+"hvac"
+],
+"n_incidents": 1,
+"n_before_recall": 0,
+"sample_reports": [
+"20210720-22DF3-2147361756"
+]
+},
+{
+"cpsc": "14275",
+"date": "2014-09-11",
+"facets": [
+"electrical"
+],
+"n_incidents": 6,
+"n_before_recall": 0,
+"sample_reports": [
+"20210821-FBCC1-2147360976",
+"20210621-C03CF-2147363392",
+"20181126-EE3B7-2147384145"
+]
+},
+{
+"cpsc": "14750",
+"date": "2014-09-03",
+"facets": [
+"hvac"
+],
+"n_incidents": 2,
+"n_before_recall": 0,
+"sample_reports": [
+"20201224-7CD77-2147367277",
+"20140928-74E4D-2147440583"
+]
+},
+{
+"cpsc": "14256",
+"date": "2014-08-14",
+"facets": [
+"hvac"
+],
+"n_incidents": 1,
+"n_before_recall": 1,
+"sample_reports": [
+"20140319-75151-1392560"
+]
+},
+{
+"cpsc": "14244",
+"date": "2014-08-01",
+"facets": [
+"hvac"
+],
+"n_incidents": 5,
+"n_before_recall": 0,
+"sample_reports": [
+"20151124-FC4C7-2147426383",
+"20150823-6A96A-2147429069",
+"20150514-58820-2147432920"
+]
+},
+{
+"cpsc": "14231",
+"date": "2014-07-15",
+"facets": [
+"electrical"
+],
+"n_incidents": 2,
+"n_before_recall": 1,
+"sample_reports": [
+"20140806-9DF9F-2147442232",
+"20120908-4021C-2147463935"
+]
+},
+{
+"cpsc": "14195",
+"date": "2014-05-29",
+"facets": [
+"hvac"
+],
+"n_incidents": 6,
+"n_before_recall": 4,
+"sample_reports": [
+"20141230-70A15-2147437159",
+"20141209-22849-2147438087",
+"20140428-5FD57-1399945"
+]
+},
+{
+"cpsc": "14179",
+"date": "2014-05-15",
+"facets": [
+"appliance"
+],
+"n_incidents": 83,
+"n_before_recall": 29,
+"sample_reports": [
+"20240915-F0C38-2147336522",
+"20240513-46845-2147339232",
+"20230817-DA4A6-2147345743"
+]
+},
+{
+"cpsc": "14144",
+"date": "2014-04-04",
+"facets": [
+"building-products"
+],
+"n_incidents": 2,
+"n_before_recall": 0,
+"sample_reports": [
+"20140730-8A926-1419975",
+"20140404-BD7E3-2147445743"
+]
+},
+{
+"cpsc": "14023",
+"date": "2013-11-19",
+"facets": [
+"appliance",
+"building-products"
+],
+"n_incidents": 1,
+"n_before_recall": 0,
+"sample_reports": [
+"20200814-AF784-2147370479"
+]
+},
+{
+"cpsc": "14001",
+"date": "2013-10-03",
+"facets": [
+"electrical"
+],
+"n_incidents": 9,
+"n_before_recall": 3,
+"sample_reports": [
+"20240502-172CD-2147339401",
+"20220717-69246-2147354951",
+"20220627-AD054-2147355392"
+]
+},
+{
+"cpsc": "13283",
+"date": "2013-09-12",
+"facets": [
+"appliance"
+],
+"n_incidents": 80,
+"n_before_recall": 6,
+"sample_reports": [
+"20240915-F0C38-2147336522",
+"20240513-46845-2147339232",
+"20230817-DA4A6-2147345743"
+]
+},
+{
+"cpsc": "13265",
+"date": "2013-08-15",
+"facets": [
+"electrical"
+],
+"n_incidents": 10,
+"n_before_recall": 6,
+"sample_reports": [
+"20240419-340FC-4695242",
+"20231209-84895-2147343533",
+"20170127-AA0CB-2147407607"
+]
+},
+{
+"cpsc": "13744",
+"date": "2013-07-25",
+"facets": [
+"building-products"
+],
+"n_incidents": 1,
+"n_before_recall": 0,
+"sample_reports": [
+"20150302-ABDC5-1471550"
+]
+},
+{
+"cpsc": "13247",
+"date": "2013-07-23",
+"facets": [
+"electrical"
+],
+"n_incidents": 1,
+"n_before_recall": 0,
+"sample_reports": [
+"20230410-CFA95-2147348169"
+]
+},
+{
+"cpsc": "13191",
+"date": "2013-05-15",
+"facets": [
+"hvac"
+],
+"n_incidents": 7,
+"n_before_recall": 1,
+"sample_reports": [
+"20200617-17650-2147371662",
+"20131029-84081-1365115",
+"20130630-BAC9A-2147454679"
+]
+},
+{
+"cpsc": "13189",
+"date": "2013-05-10",
+"facets": [
+"hvac"
+],
+"n_incidents": 1,
+"n_before_recall": 0,
+"sample_reports": [
+"20131217-EDBEE-2147448949"
+]
+},
+{
+"cpsc": "13160",
+"date": "2013-04-02",
+"facets": [
+"appliance"
+],
+"n_incidents": 4,
+"n_before_recall": 2,
+"sample_reports": [
+"20140826-54019-2147441524",
+"20131203-7C7C2-2147449358",
+"20121213-13B25-1290187"
+]
+},
+{
+"cpsc": "13117",
+"date": "2013-02-07",
+"facets": [
+"appliance"
+],
+"n_incidents": 4,
+"n_before_recall": 0,
+"sample_reports": [
+"20210830-13D2D-2147360787",
+"20201203-DD3F5-2147367714",
+"20181106-B1C6E-2147384602"
+]
+},
+{
+"cpsc": "13072",
+"date": "2012-12-18",
+"facets": [
+"building-products"
+],
+"n_incidents": 1,
+"n_before_recall": 0,
+"sample_reports": [
+"20140729-07FBE-2147442444"
+]
+},
+{
+"cpsc": "13042",
+"date": "2012-11-15",
+"facets": [
+"electrical"
+],
+"n_incidents": 1,
+"n_before_recall": 0,
+"sample_reports": [
+"20201026-FCAE9-2147369026"
+]
+},
+{
+"cpsc": "13036",
+"date": "2012-11-13",
+"facets": [
+"electrical"
+],
+"n_incidents": 3,
+"n_before_recall": 3,
+"sample_reports": [
+"20121017-3573A-1278876",
+"20121004-21E12-2147463129",
+"20120724-B15A5-2147465401"
+]
+},
+{
+"cpsc": "12200",
+"date": "2012-06-20",
+"facets": [
+"hvac"
+],
+"n_incidents": 2,
+"n_before_recall": 2,
+"sample_reports": [
+"20120209-55C0A-2147470354",
+"20111229-D63BD-2147471923"
+]
+},
+{
+"cpsc": "12737",
+"date": "2012-06-20",
+"facets": [
+"appliance"
+],
+"n_incidents": 12,
+"n_before_recall": 1,
+"sample_reports": [
+"20240604-1BE8F-4758250",
+"20200323-DE489-2147374241",
+"20190128-35FE0-1828686"
+]
+},
+{
+"cpsc": "12147",
+"date": "2012-04-10",
+"facets": [
+"appliance"
+],
+"n_incidents": 4,
+"n_before_recall": 1,
+"sample_reports": [
+"20151213-56CFE-2147425897",
+"20130127-52037-2147459420",
+"20120912-0E32A-2147463799"
+]
+},
+{
+"cpsc": "12074",
+"date": "2011-12-27",
+"facets": [
+"hvac",
+"plumbing-water-heating"
+],
+"n_incidents": 2,
+"n_before_recall": 0,
+"sample_reports": [
+"20150917-F6BAB-2147428320",
+"20120801-2F707-2147465154"
+]
+},
+{
+"cpsc": "11324",
+"date": "2011-09-14",
+"facets": [
+"appliance"
+],
+"n_incidents": 2,
+"n_before_recall": 0,
+"sample_reports": [
+"20130923-E5E92-1357449",
+"20120521-80D2F-1248972"
+]
+},
+{
+"cpsc": "11289",
+"date": "2011-07-28",
+"facets": [
+"hvac"
+],
+"n_incidents": 1,
+"n_before_recall": 0,
+"sample_reports": [
+"20190411-6A43C-2147381717"
+]
+},
+{
+"cpsc": "11202",
+"date": "2011-04-21",
+"facets": [
+"hvac"
+],
+"n_incidents": 20,
+"n_before_recall": 0,
+"sample_reports": [
+"20210410-68BC0-2147364855",
+"20200221-6A5D5-2147374689",
+"20151105-DF389-2147426969"
+]
+}
+]

@@ -58,7 +58,10 @@ const Dataset = z
     stage: z.enum(STAGES),
     description: z.string().min(20),
     sources: z.array(z.string()).min(2),
-    join_keys: z.array(z.object({ key: z.string().min(3), between: z.tuple([z.string(), z.string()]), measured: z.string().min(1) }).strict()).min(1),
+    // `declared`: a published identifier or explicit cross-reference (licence number, GTIN, cited
+    // approval number, joint-recall marker) — may link automatically. `candidate`: names, brands,
+    // model tokens or titles — proposes a link for review only (AGENTS.md rules 3 and 7).
+    join_keys: z.array(z.object({ key: z.string().min(3), between: z.tuple([z.string(), z.string()]), measured: z.string().min(1), mode: z.enum(['declared', 'candidate']) }).strict()).min(1),
     taxonomy: z.array(z.string().min(3)).min(1),
     agent_questions: z.array(z.string().min(10)).min(1),
     scores: Candidate.shape.scores,
@@ -220,6 +223,12 @@ describe('dataset expansion pipeline registry', () => {
       return a !== b && ratio !== null && Number(ratio[1]!.replaceAll(',', '')) <= Number(ratio[2]!.replaceAll(',', ''));
     });
     expect(measured.length, 'at least one cross-source join measured as matched/total').toBeGreaterThan(0);
+  });
+
+  it.each(registry.datasets)('$key never auto-links on names, brands, model tokens or titles', (dataset) => {
+    for (const join of dataset.join_keys) {
+      if (/\b(name|brand|title|token|phone|prefix)\b/i.test(join.key) && !/\bmarker\b/i.test(join.key)) expect(join.mode, `${join.key} must be a review candidate`).toBe('candidate');
+    }
   });
 
   it.each(registry.candidates)('$key belongs to a dataset once it is being built', (candidate) => {

@@ -49,6 +49,15 @@ committed.
 | Oregon trade licence ↔ Oregon contractor registration (name + city) | 45 / 50 | — |
 | Cross-state contractor (name + zip/city) | 45 / 2,000 | 10 / 10 correct; name-only ≈ 1 / 10 |
 
+## Reproducibility
+
+These are **screening** measurements. Our scripts, sample identifiers and the small
+match outputs are committed, but the bulk source snapshots they ran on were deleted
+after measurement and are not archived, so the figures cannot be replayed exactly
+(the feeds are mutable). That is acceptable for `SCREENED`; before any member source
+is advanced to `EVIDENCED`, its joins must be re-measured from inputs archived in R2
+with byte counts and SHA-256, under the same replay rules as round 1.
+
 ## Rules the measurements impose
 
 - **Declared links beat inferred ones.** Explicit markers (joint-recall text,
@@ -393,8 +402,9 @@ Each field carries the rule ID that extracted it.
 **`notice_link`** is the cross-agency and enrichment layer. Its fields are `from_notice`,
 `to_notice | es_model_id | spdb_report_no`, `link_type`, `keys_matched`, `date_delta_days` and `rule_version`.
 
-- Only `declared-joint`, `declared-case-number`, `gtin` and `brand-model` links are published.
-- `candidate-title` links are stored for review and never shown as a link (rule 3: no silent merges).
+- Only declared links are published automatically: `declared-joint`, `declared-case-number` and a check-digit-valid `gtin`.
+- `brand-model` and `candidate-title` links are review candidates: stored with their evidence and shown only after review confirms them (rule 3: no silent merges). The measured precision (15/18 CPSC → certified model, 11/12 CPSC → incident, with host-device and brand-collision errors) is too low for automatic publication.
+- *Revised 2026-09-27 after review; the original draft also auto-published `brand-model`.*
 - Links are reversible, because notices are never merged. A `recall_event` cluster is a derived view over
   the published links.
 
@@ -1320,11 +1330,15 @@ never merged across jurisdictions.
 
 #### Join keys, in precedence order
 
+Only keys 1–2 (declared identifiers) link automatically. Keys 3–5 are review candidates: names and
+phones are not identifiers, can be shared across branches, and a shared-phone false match was
+observed. *Revised 2026-09-27 after review; the original draft auto-linked keys 3–4.*
+
 1. **Source-native identifiers** (licence number within one agency; WA licence ↔ bond/insurance) — exact.
 2. **WA UBI** — exact; clusters successive WA licences of one business.
-3. **Normalised name + legal form + (zip5 | city)** — within-state across agencies (OR BCD→CCB
+3. **Normalised name + legal form + (zip5 | city)** — candidate: within-state across agencies (OR BCD→CCB
    45/50) and across states (precision 10/10 hand-checked).
-4. **Normalised name + phone10** — WA→OR 11/50, precision 11/11.
+4. **Normalised name + phone10** — candidate: WA→OR 11/50, precision 11/11.
 5. **Phone alone** or **name alone** — candidates for review only, never auto-links (name-only
    cross-state precision ~1/10; phone-only 2/3 with a proven shared-phone false match).
 6. Future: SAM UEI and OSHA establishment name+address [UNVERIFIED].
@@ -1390,7 +1404,7 @@ CSLB 5/3/1/4/5/3/3 = 24 (blocked); NYC DOB RED; AZ ROC RED; CT trade credentials
 **Recommendation.** Build the composite as a multi-state *business-entity licence* dataset, starting
 with the four cleanest sources — **WA L&I (+bond/insurance), OR CCB + OR BCD, MN DLI, CO DORA** —
 plus the existing TX TDLR entity rows and EPA RRP as an attribute. Resolve with the precedence above
-(auto-link only on keys 1–4; everything else goes to a review queue; no silent merges). The first
+(auto-link only on keys 1–2, the declared identifiers; keys 3–5 go to a review queue; no silent merges). The first
 deliverable is the Oregon CCB×BCD trade join (45/50) and WA↔OR cross-registration (11/50 strict),
 which demonstrably produce facts no single source has. Next actions that need a credential or
 account (owner-visible blockers): **a free DOL API key** (OSHA linkage) and, optionally, a SAM.gov

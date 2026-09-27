@@ -39,9 +39,12 @@ cross-source join; a source past `PROTOTYPED` must belong to a dataset.
 
 Linking rules, from the round-3 measurements
 ([`research-2026-09-27-composites.md`](research-2026-09-27-composites.md)):
-declared identifiers (GTIN, licence number, a cited approval number, an
-explicit "joint recall" marker) link automatically; names or titles only
-propose a candidate link for review, never a merge (AGENTS.md rules 3 and 7).
+each join key has a `mode`. `declared` joins (GTIN, licence number, UBI, a
+cited approval number, an explicit "joint recall" marker) link automatically;
+`candidate` joins (names, brands, model tokens, titles, phones) only propose a
+link for review, never a merge (AGENTS.md rules 3 and 7). Round-3 match rates
+are screening measurements; a member source is re-measured from archived
+inputs before it reaches `EVIDENCED`.
 
 ## Stages
 

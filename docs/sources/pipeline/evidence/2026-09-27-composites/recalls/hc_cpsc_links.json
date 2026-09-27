@@ -1,0 +1,3753 @@
+[
+{
+"hc_nid": "82650",
+"cpsc": "26797",
+"shared": [
+"AIR3",
+"GLASSES",
+"INMO",
+"SMART"
+]
+},
+{
+"hc_nid": "82120",
+"cpsc": "26784",
+"shared": [
+"INFRARED",
+"KITS",
+"SAUNAS"
+]
+},
+{
+"hc_nid": "82607",
+"cpsc": "26773",
+"shared": [
+"BISTRO",
+"BROIL",
+"CHAR"
+]
+},
+{
+"hc_nid": "82570",
+"cpsc": "26756",
+"shared": [
+"AGA",
+"CORNUE",
+"DUAL",
+"FREESTANDING",
+"FUEL",
+"RANGES"
+]
+},
+{
+"hc_nid": "82249",
+"cpsc": "26739",
+"shared": [
+"ELMO",
+"HOP",
+"SESAME",
+"SILICONE",
+"SKIP",
+"STREET"
+]
+},
+{
+"hc_nid": "82579",
+"cpsc": "26735",
+"shared": [
+"BRANCH",
+"CHAIRS",
+"ERGONOMIC"
+]
+},
+{
+"hc_nid": "82580",
+"cpsc": "26734",
+"shared": [
+"AIR",
+"AMANA",
+"CONDITIONERS",
+"HEAT",
+"PUMPS",
+"THROUGH",
+"TTW",
+"WALL"
+]
+},
+{
+"hc_nid": "82472",
+"cpsc": "26722",
+"shared": [
+"KITS",
+"LED",
+"LIGHT"
+]
+},
+{
+"hc_nid": "82498",
+"cpsc": "26715",
+"shared": [
+"PRESSURE",
+"WASHERS",
+"WORKBLESS"
+]
+},
+{
+"hc_nid": "82446",
+"cpsc": "26688",
+"shared": [
+"GEAR",
+"JUMPER",
+"TALECO"
+]
+},
+{
+"hc_nid": "82408",
+"cpsc": "26677",
+"shared": [
+"APEKS",
+"DROWNING",
+"REGULATORS",
+"SCUBA"
+]
+},
+{
+"hc_nid": "82415",
+"cpsc": "26648",
+"shared": [
+"BEHIND",
+"LAWN",
+"MAX30",
+"MOWERS",
+"POWER",
+"PRO",
+"WALK"
+]
+},
+{
+"hc_nid": "82445",
+"cpsc": "26661",
+"shared": [
+"ATTIC",
+"FEATHERLITE",
+"LOUISVILLE",
+"STRUTS"
+]
+},
+{
+"hc_nid": "82291",
+"cpsc": "26647",
+"shared": [
+"BENQ",
+"GV31"
+]
+},
+{
+"hc_nid": "82296",
+"cpsc": "26618",
+"shared": [
+"PANASONIC",
+"TOASTER"
+]
+},
+{
+"hc_nid": "82323",
+"cpsc": "26620",
+"shared": [
+"BOON",
+"KITCHEN",
+"PIVOT",
+"STEP",
+"TODDLER",
+"TOWER"
+]
+},
+{
+"hc_nid": "82273",
+"cpsc": "26606",
+"shared": [
+"INSIGNIA",
+"RANGES"
+]
+},
+{
+"hc_nid": "82282",
+"cpsc": "26605",
+"shared": [
+"BURNER",
+"CUISINART",
+"FOUR",
+"GRILL",
+"GRILLS",
+"OVEN",
+"PIZZA",
+"PROPEL"
+]
+},
+{
+"hc_nid": "81861",
+"cpsc": "26507",
+"shared": [
+"KITHMAS",
+"LOUNGE",
+"PLAID"
+]
+},
+{
+"hc_nid": "81901",
+"cpsc": "26581",
+"shared": [
+"AIR",
+"AMANA",
+"CONDITIONERS",
+"HEAT",
+"PUMPS",
+"THROUGH",
+"WALL"
+]
+},
+{
+"hc_nid": "82213",
+"cpsc": "26575",
+"shared": [
+"000",
+"MAH",
+"OFF",
+"POWER",
+"ROAD",
+"SOLAR",
+"SUPER",
+"WIRELESS"
+]
+},
+{
+"hc_nid": "82207",
+"cpsc": "26569",
+"shared": [
+"AER2",
+"CAR",
+"JOOLZ",
+"SEAT"
+]
+},
+{
+"hc_nid": "82210",
+"cpsc": "26565",
+"shared": [
+"ARIZER",
+"BLACK",
+"III",
+"INTERGALACTIC",
+"SOLO",
+"VAPORIZERS"
+]
+},
+{
+"hc_nid": "82139",
+"cpsc": "26524",
+"shared": [
+"CAM",
+"PAN",
+"SOLAR",
+"WYZE"
+]
+},
+{
+"hc_nid": "82149",
+"cpsc": "26532",
+"shared": [
+"ROOM",
+"SMALL",
+"SRTH",
+"TOWER",
+"VORNADO"
+]
+},
+{
+"hc_nid": "81923",
+"cpsc": "26494",
+"shared": [
+"CARBON",
+"GENERAC",
+"MONOXIDE",
+"POWER",
+"PRESSURE",
+"START",
+"WASHERS"
+]
+},
+{
+"hc_nid": "82052",
+"cpsc": "26489",
+"shared": [
+"ENFINIGY",
+"PRO",
+"ZWILLING"
+]
+},
+{
+"hc_nid": "82068",
+"cpsc": "26488",
+"shared": [
+"ASTRO",
+"CANYON",
+"GUIDE",
+"HARNESSES",
+"PETZL"
+]
+},
+{
+"hc_nid": "82069",
+"cpsc": "26487",
+"shared": [
+"CLIMBING",
+"EASYFIT",
+"HARNESSES",
+"PARK",
+"PETZL",
+"SIMBA",
+"STAINLESS",
+"STEEL",
+"SWAN"
+]
+},
+{
+"hc_nid": "81999",
+"cpsc": "26457",
+"shared": [
+"BEAR",
+"BUILD",
+"HEARTWARMING",
+"HUGS",
+"WORKSHOP"
+]
+},
+{
+"hc_nid": "82006",
+"cpsc": "26456",
+"shared": [
+"BOO",
+"BUNNIE",
+"FRIENDS",
+"STEPHAN",
+"TOYS"
+]
+},
+{
+"hc_nid": "81856",
+"cpsc": "26388",
+"shared": [
+"BEDROOM",
+"BREEZ",
+"FAN",
+"MACHINE",
+"NOISE",
+"SMART",
+"WHITE"
+]
+},
+{
+"hc_nid": "81804",
+"cpsc": "26426",
+"shared": [
+"ATX",
+"COMPUTER",
+"ELECTRICAL",
+"POWER",
+"SUPPLIES"
+]
+},
+{
+"hc_nid": "81825",
+"cpsc": "26419",
+"shared": [
+"FISHER",
+"PAYKEL",
+"PROFESSIONAL",
+"RANGES"
+]
+},
+{
+"hc_nid": "81890",
+"cpsc": "26407",
+"shared": [
+"GENERAC",
+"GENERATORS"
+]
+},
+{
+"hc_nid": "81790",
+"cpsc": "26395",
+"shared": [
+"BOOTS",
+"HEAD",
+"SKI"
+]
+},
+{
+"hc_nid": "81815",
+"cpsc": "26385",
+"shared": [
+"ATTACHMENTS",
+"BISSELL",
+"CLEANERS",
+"OMNI",
+"OMNIREACH",
+"SHOT",
+"STEAM"
+]
+},
+{
+"hc_nid": "81819",
+"cpsc": "26393",
+"shared": [
+"DROWNING",
+"MONORAIL",
+"POCKETS",
+"SCUBAPRO",
+"WEIGHT"
+]
+},
+{
+"hc_nid": "81797",
+"cpsc": "26382",
+"shared": [
+"BED",
+"BROADMOORE",
+"CANOPY",
+"FRAMES",
+"UNIVERSAL"
+]
+},
+{
+"hc_nid": "81805",
+"cpsc": "26373",
+"shared": [
+"CARABINERS",
+"CONDOR",
+"HMS",
+"TRIPLE"
+]
+},
+{
+"hc_nid": "81781",
+"cpsc": "26347",
+"shared": [
+"AXES",
+"ERGONOMIC",
+"ICE",
+"NOMIC",
+"PETZL"
+]
+},
+{
+"hc_nid": "81787",
+"cpsc": "26349",
+"shared": [
+"DIY",
+"HEATER",
+"KITS",
+"SAUNA"
+]
+},
+{
+"hc_nid": "81761",
+"cpsc": "26333",
+"shared": [
+"FRIGIDAIRE",
+"RANGES"
+]
+},
+{
+"hc_nid": "81762",
+"cpsc": "26328",
+"shared": [
+"900",
+"POWER",
+"STEAMERS",
+"WAGNER"
+]
+},
+{
+"hc_nid": "81641",
+"cpsc": "26286",
+"shared": [
+"BATH",
+"FIZZY",
+"IMPACT",
+"MAGIC",
+"TOTS",
+"TUBBY"
+]
+},
+{
+"hc_nid": "81642",
+"cpsc": "26306",
+"shared": [
+"100",
+"ANDERSEN",
+"CASEMENT",
+"CONTROL",
+"DEVICES",
+"OPENING",
+"WINDOW",
+"WINDOWS"
+]
+},
+{
+"hc_nid": "81643",
+"cpsc": "26283",
+"shared": [
+"DUPRAY",
+"NEAT",
+"STEAM"
+]
+},
+{
+"hc_nid": "81593",
+"cpsc": "26268",
+"shared": [
+"COLLECTION",
+"DROWNING",
+"HIGHLIFE",
+"HYDROMASSAGE",
+"JETS",
+"ROTARY",
+"SPAS"
+]
+},
+{
+"hc_nid": "81456",
+"cpsc": "26201",
+"shared": [
+"ANGRY",
+"BACTERIA",
+"EXPOSURE",
+"ORANGE",
+"REMOVERS",
+"STAIN"
+]
+},
+{
+"hc_nid": "75452",
+"cpsc": "26166",
+"shared": [
+"BEHIND",
+"EQUIPMENT",
+"LEAF",
+"POWER",
+"TOW",
+"VACUUMS",
+"WALK"
+]
+},
+{
+"hc_nid": "81308",
+"cpsc": "26147",
+"shared": [
+"ICE",
+"VEVOR"
+]
+},
+{
+"hc_nid": "78113",
+"cpsc": null,
+"shared": []
+},
+{
+"hc_nid": "81243",
+"cpsc": "26134",
+"shared": [
+"DUTY",
+"G0815",
+"GRIZZLY",
+"HEAVY",
+"IMPACT"
+]
+},
+{
+"hc_nid": "81276",
+"cpsc": "26026",
+"shared": [
+"CARBON",
+"MONOXIDE"
+]
+},
+{
+"hc_nid": "78423",
+"cpsc": "26086",
+"shared": [
+"ACTIVITY",
+"MOBI",
+"ZIPPEE"
+]
+},
+{
+"hc_nid": "78485",
+"cpsc": "26088",
+"shared": [
+"BICYCLES",
+"BRAKES",
+"COASTER",
+"ELECTRA",
+"TREK"
+]
+},
+{
+"hc_nid": "81200",
+"cpsc": "26090",
+"shared": [
+"BELKIN",
+"POWER"
+]
+},
+{
+"hc_nid": "81201",
+"cpsc": null,
+"shared": []
+},
+{
+"hc_nid": "78426",
+"cpsc": "26078",
+"shared": [
+"BICYCLE",
+"DRIVE",
+"FLOOR",
+"LEZYNE",
+"PRESSURE",
+"PUMPS"
+]
+},
+{
+"hc_nid": "78280",
+"cpsc": "26059",
+"shared": [
+"ANA",
+"BARREL",
+"CHAIRS",
+"CRATE",
+"DINING"
+]
+},
+{
+"hc_nid": "78315",
+"cpsc": "26053",
+"shared": [
+"DRAWSTRINGS",
+"GRUNDENS",
+"JACKETS"
+]
+},
+{
+"hc_nid": "78344",
+"cpsc": "26058",
+"shared": [
+"COVERT",
+"DROWNING",
+"KAYAK",
+"PADDLES",
+"STEALTH",
+"WERNER"
+]
+},
+{
+"hc_nid": "78408",
+"cpsc": "26064",
+"shared": [
+"CHAINSAW",
+"CHAINSAWS",
+"FUEL",
+"HANDLE",
+"M18",
+"MILWAUKEE",
+"TOOL",
+"TOP"
+]
+},
+{
+"hc_nid": "78326",
+"cpsc": "26046",
+"shared": [
+"BARREL",
+"BIO",
+"CURLING",
+"INCH",
+"IONIC",
+"IRON",
+"LONG",
+"ONE"
+]
+},
+{
+"hc_nid": "78281",
+"cpsc": "26023",
+"shared": [
+"BYRON",
+"DESKS",
+"EMPERADOR",
+"REEDED",
+"STONE",
+"TABLES"
+]
+},
+{
+"hc_nid": "78282",
+"cpsc": "26026",
+"shared": [
+"CARBON",
+"MONOXIDE",
+"TANKLESS",
+"VESTA",
+"WATER"
+]
+},
+{
+"hc_nid": "78177",
+"cpsc": "26011",
+"shared": [
+"ESR",
+"EXPANDED",
+"HALOLOCK",
+"POWER",
+"WIRELESS"
+]
+},
+{
+"hc_nid": "77983",
+"cpsc": "25452",
+"shared": [
+"PRESSURE",
+"RYOBI",
+"WASHERS"
+]
+},
+{
+"hc_nid": "77985",
+"cpsc": "25444",
+"shared": [
+"CARABINERS",
+"LOCK",
+"NIMBUS"
+]
+},
+{
+"hc_nid": "77940",
+"cpsc": "25441",
+"shared": [
+"BOILERS",
+"COMBI"
+]
+},
+{
+"hc_nid": "77887",
+"cpsc": "25437",
+"shared": [
+"ESR",
+"HALOLOCK",
+"POWER",
+"WIRELESS"
+]
+},
+{
+"hc_nid": "77888",
+"cpsc": "25435",
+"shared": [
+"BOTTLES",
+"CARBONATION",
+"DRINKMATE"
+]
+},
+{
+"hc_nid": "77819",
+"cpsc": "25423",
+"shared": [
+"FIELDSHEER",
+"HEATED",
+"SOCKS"
+]
+},
+{
+"hc_nid": "77716",
+"cpsc": "25413",
+"shared": [
+"FLOATING",
+"INGESTION",
+"TEGU",
+"TOY"
+]
+},
+{
+"hc_nid": "77752",
+"cpsc": "25416",
+"shared": [
+"BRUSHLESS",
+"DEGREE",
+"FRAMING",
+"NAILERS",
+"RIDGID"
+]
+},
+{
+"hc_nid": "77780",
+"cpsc": "25412",
+"shared": [
+"COSCO",
+"KITCHEN",
+"STEP"
+]
+},
+{
+"hc_nid": "77783",
+"cpsc": "25415",
+"shared": [
+"FARM",
+"KIDKRAFT",
+"KITCHEN",
+"PLAY",
+"TABLE"
+]
+},
+{
+"hc_nid": "77742",
+"cpsc": "25393",
+"shared": [
+"ABOVE",
+"BESTWAY",
+"DROWNING",
+"GROUND",
+"INCHES",
+"INTEX",
+"POLYGROUP",
+"POOLS",
+"TALLER"
+]
+},
+{
+"hc_nid": "77661",
+"cpsc": "25390",
+"shared": [
+"BANKS",
+"ISTORE",
+"MAGNETIC",
+"POWER",
+"WIRELESS"
+]
+},
+{
+"hc_nid": "77711",
+"cpsc": "25408",
+"shared": [
+"COVERS",
+"DETACHABLE",
+"FRAGRANCE",
+"INGESTION",
+"PURA",
+"SMART"
+]
+},
+{
+"hc_nid": "77032",
+"cpsc": "25374",
+"shared": [
+"509",
+"HELMETS",
+"POLARIS"
+]
+},
+{
+"hc_nid": "77663",
+"cpsc": "25371",
+"shared": [
+"CHAINSAWS",
+"CORDED",
+"POLE",
+"SAWS",
+"WORX"
+]
+},
+{
+"hc_nid": "77575",
+"cpsc": "25353",
+"shared": [
+"AMPUTATION",
+"CAMPING",
+"CONVERTA",
+"STRETCHERS",
+"SUSPENSION"
+]
+},
+{
+"hc_nid": "77631",
+"cpsc": "25359",
+"shared": [
+"BELL",
+"HELMETS"
+]
+},
+{
+"hc_nid": "77547",
+"cpsc": "25320",
+"shared": [
+"AIR",
+"CONDITIONERS",
+"EXPOSURE",
+"MOLD",
+"WINDOW"
+]
+},
+{
+"hc_nid": "77281",
+"cpsc": "25318",
+"shared": [
+"CHAIRS",
+"CONVERTIBLE",
+"FUNLIO",
+"HIGH"
+]
+},
+{
+"hc_nid": "77544",
+"cpsc": "25339",
+"shared": [
+"COVERS",
+"DROWNING",
+"ENDLESS",
+"MANUAL",
+"POOL",
+"POOLS",
+"RETRACTABLE"
+]
+},
+{
+"hc_nid": "77573",
+"cpsc": "25336",
+"shared": [
+"BUGABOO",
+"GIRAFFE",
+"HIGH"
+]
+},
+{
+"hc_nid": "77574",
+"cpsc": "25334",
+"shared": [
+"40V",
+"CORDLESS",
+"HEDGE",
+"RYOBI"
+]
+},
+{
+"hc_nid": "64528",
+"cpsc": "25326",
+"shared": [
+"CARBON",
+"MONOXIDE",
+"NTI"
+]
+},
+{
+"hc_nid": "77273",
+"cpsc": "25325",
+"shared": [
+"CARBON",
+"HTP",
+"MONOXIDE"
+]
+},
+{
+"hc_nid": "77507",
+"cpsc": "25313",
+"shared": [
+"BOILERS",
+"PLUS",
+"RINNAI"
+]
+},
+{
+"hc_nid": "77534",
+"cpsc": "25317",
+"shared": [
+"LED",
+"LIGHTS",
+"LUTRON",
+"POWER",
+"TAPE"
+]
+},
+{
+"hc_nid": "77542",
+"cpsc": "25323",
+"shared": [
+"CHAINSAWS",
+"EQUIPMENT",
+"POWER",
+"POWERED"
+]
+},
+{
+"hc_nid": "77282",
+"cpsc": "25308",
+"shared": [
+"FIRST",
+"SNOWMAN",
+"STEP2"
+]
+},
+{
+"hc_nid": "76946",
+"cpsc": "25253",
+"shared": [
+"AMPUTATION",
+"COOLERS",
+"CRUSHING",
+"FINGERTIP",
+"FLIP",
+"IGLOO",
+"ROLLING",
+"TOW"
+]
+},
+{
+"hc_nid": "77374",
+"cpsc": "25255",
+"shared": [
+"BALL",
+"DELTA",
+"VALVES"
+]
+},
+{
+"hc_nid": "77361",
+"cpsc": "25247",
+"shared": [
+"COOKERS",
+"FOODI",
+"MULTI",
+"PRESSURE"
+]
+},
+{
+"hc_nid": "77314",
+"cpsc": "25236",
+"shared": [
+"BUTANE",
+"SONDIKO"
+]
+},
+{
+"hc_nid": "77226",
+"cpsc": "25226",
+"shared": [
+"BOOTS",
+"FACE",
+"MID",
+"SHELLISTA",
+"WATERPROOF",
+"WOMEN"
+]
+},
+{
+"hc_nid": "77243",
+"cpsc": "25216",
+"shared": [
+"ACTIVITY",
+"FISHER",
+"PRICE",
+"SNUGAPUPPY"
+]
+},
+{
+"hc_nid": "77244",
+"cpsc": "25215",
+"shared": [
+"BRUNCH",
+"FISHER",
+"PRICE",
+"STROLLER"
+]
+},
+{
+"hc_nid": "77184",
+"cpsc": "25203",
+"shared": [
+"000",
+"AIR",
+"BTU",
+"CORDLESS",
+"DEWALT",
+"FORCED",
+"OUTDOOR",
+"PROPANE"
+]
+},
+{
+"hc_nid": "77124",
+"cpsc": "25199",
+"shared": [
+"APOTHEKE",
+"GINGER",
+"PUMPKIN",
+"WICK"
+]
+},
+{
+"hc_nid": "77106",
+"cpsc": "25181",
+"shared": [
+"BLACK",
+"DIAMOND",
+"HARNESS",
+"VISION"
+]
+},
+{
+"hc_nid": "77108",
+"cpsc": "25177",
+"shared": [
+"BICYCLES",
+"BMC",
+"FRAMESETS",
+"KAIUS"
+]
+},
+{
+"hc_nid": "77058",
+"cpsc": "25167",
+"shared": [
+"AVALANCHE",
+"BLACK",
+"DIAMOND",
+"RECON"
+]
+},
+{
+"hc_nid": "76986",
+"cpsc": "25162",
+"shared": [
+"ELLERBECK",
+"KICHLER",
+"SCONCES",
+"WALL"
+]
+},
+{
+"hc_nid": "77014",
+"cpsc": "25161",
+"shared": [
+"FLAMMABILITY",
+"PAJAMA"
+]
+},
+{
+"hc_nid": "77029",
+"cpsc": "25157",
+"shared": [
+"AERCO",
+"BOILERS",
+"CARBON",
+"CONDENSING",
+"ESTEEM",
+"EXCELLENCE",
+"MONOXIDE",
+"PRESTIGE",
+"SOLO"
+]
+},
+{
+"hc_nid": "75780",
+"cpsc": null,
+"shared": []
+},
+{
+"hc_nid": "76897",
+"cpsc": "25141",
+"shared": [
+"KUBOTA",
+"MX5400DTC",
+"TRACTORS"
+]
+},
+{
+"hc_nid": "76942",
+"cpsc": "25146",
+"shared": [
+"BEGINNINGS",
+"CHESTS",
+"CLOTHING",
+"DRAWER",
+"DRESSERS",
+"RESTRAINT",
+"SAUDER",
+"STORAGE",
+"STRAPS",
+"UNIT",
+"WOODWORKING"
+]
+},
+{
+"hc_nid": "76717",
+"cpsc": "25125",
+"shared": [
+"GOT",
+"TALENT"
+]
+},
+{
+"hc_nid": "76814",
+"cpsc": "25121",
+"shared": [
+"AIRFX",
+"BOBCAT",
+"DECK",
+"FINISH",
+"MOWER",
+"STEINER"
+]
+},
+{
+"hc_nid": "76901",
+"cpsc": "25124",
+"shared": [
+"ARIENS",
+"DELUXE",
+"PLATINUM",
+"PROFESSIONAL",
+"SNOW",
+"THROWERS"
+]
+},
+{
+"hc_nid": "76902",
+"cpsc": "25127",
+"shared": [
+"BEHIND",
+"BRUSHLESS",
+"CORDLESS",
+"MOWERS",
+"POWERED",
+"RYOBI",
+"VOLT",
+"WALK"
+]
+},
+{
+"hc_nid": "76867",
+"cpsc": "25109",
+"shared": [
+"CYCLES",
+"HEALTH",
+"JOHNSON",
+"MATRIX",
+"TECH",
+"TRAINING"
+]
+},
+{
+"hc_nid": "76877",
+"cpsc": "25115",
+"shared": [
+"LEARNING",
+"PEARHEAD"
+]
+},
+{
+"hc_nid": "76797",
+"cpsc": "25090",
+"shared": [
+"LEXMARK",
+"PRINTERS",
+"SPECIALTY"
+]
+},
+{
+"hc_nid": "76813",
+"cpsc": "25091",
+"shared": [
+"ADJUSTABLE",
+"BACKRESTS",
+"NORTHERN",
+"SHOP",
+"STOOLS",
+"SWIVEL",
+"TOOL"
+]
+},
+{
+"hc_nid": "76699",
+"cpsc": "25077",
+"shared": [
+"AVALANCHE",
+"IPS",
+"PIEPS",
+"PRO",
+"TRANSCEIVERS"
+]
+},
+{
+"hc_nid": "76696",
+"cpsc": "25071",
+"shared": [
+"0AH",
+"40V",
+"LITHIUM",
+"SKIL"
+]
+},
+{
+"hc_nid": "75329",
+"cpsc": "25065",
+"shared": [
+"MINI",
+"SPEAKERS",
+"YOTO"
+]
+},
+{
+"hc_nid": "76673",
+"cpsc": "25063",
+"shared": [
+"ACTION",
+"MUGS",
+"STANLEY",
+"SWITCHBACK",
+"TRAVEL",
+"TRIGGER"
+]
+},
+{
+"hc_nid": "76572",
+"cpsc": "25061",
+"shared": [
+"10K",
+"BELKIN",
+"BOOSTCHARGE",
+"CHARGER",
+"FAST",
+"POWER",
+"PRO",
+"WIRELESS"
+]
+},
+{
+"hc_nid": "76540",
+"cpsc": "25053",
+"shared": [
+"BEDS",
+"CRUSH",
+"DOREL",
+"IMPACT",
+"WALL"
+]
+},
+{
+"hc_nid": "76415",
+"cpsc": "25034",
+"shared": [
+"DUAL",
+"FUEL",
+"INFRARED",
+"WOLF"
+]
+},
+{
+"hc_nid": "76445",
+"cpsc": "25035",
+"shared": [
+"LOCK",
+"MAG",
+"PACK",
+"QUAD"
+]
+},
+{
+"hc_nid": "76452",
+"cpsc": "25036",
+"shared": [
+"GOVEE",
+"GOVEELIFE",
+"HEATERS",
+"SMART",
+"SPACE"
+]
+},
+{
+"hc_nid": "75884",
+"cpsc": "25020",
+"shared": [
+"100",
+"COMMERCIAL",
+"IMPACT",
+"POWERBLOCK",
+"PRO"
+]
+},
+{
+"hc_nid": "76309",
+"cpsc": "25009",
+"shared": [
+"FISHER",
+"PRICE",
+"SNUGA",
+"SWINGS"
+]
+},
+{
+"hc_nid": "76040",
+"cpsc": "24377",
+"shared": [
+"1023E",
+"1025R",
+"2025R",
+"COMPACT",
+"DEERE",
+"JOHN",
+"TRACTORS",
+"UTILITY"
+]
+},
+{
+"hc_nid": "75828",
+"cpsc": "24371",
+"shared": [
+"CABINET",
+"CAFRAMO"
+]
+},
+{
+"hc_nid": "76029",
+"cpsc": "24372",
+"shared": [
+"BEDS",
+"LUCID",
+"PLATFORM",
+"SQUARE",
+"TUFTED",
+"UPHOLSTERED"
+]
+},
+{
+"hc_nid": "76053",
+"cpsc": "24368",
+"shared": [
+"GALLERY",
+"PHTHALATES",
+"TIME",
+"TUMMY"
+]
+},
+{
+"hc_nid": "75841",
+"cpsc": "24359",
+"shared": [
+"AIRJET",
+"HYDROJET",
+"PUMPS"
+]
+},
+{
+"hc_nid": "75922",
+"cpsc": "24357",
+"shared": [
+"BRANDED",
+"GARDEN",
+"PIECE",
+"STANLEY",
+"WHEELBARROW"
+]
+},
+{
+"hc_nid": "76026",
+"cpsc": "24358",
+"shared": [
+"GYM",
+"HARNESSES",
+"PANDION",
+"PANJI",
+"PETZL"
+]
+},
+{
+"hc_nid": "75997",
+"cpsc": "24354",
+"shared": [
+"CEILING",
+"CYCLE",
+"DELTA",
+"STRAPS"
+]
+},
+{
+"hc_nid": "75972",
+"cpsc": "24351",
+"shared": [
+"BICEPS",
+"DUMBBELL",
+"FISHER",
+"GIFT",
+"PRICE",
+"TOY"
+]
+},
+{
+"hc_nid": "75911",
+"cpsc": "24345",
+"shared": [
+"BEHIND",
+"DEWALT",
+"MOWERS",
+"WALK"
+]
+},
+{
+"hc_nid": "75823",
+"cpsc": "24331",
+"shared": [
+"CONTEMPORARY",
+"FRENCH",
+"JEUNE",
+"PANEL",
+"UPHOLSTERED"
+]
+},
+{
+"hc_nid": "75831",
+"cpsc": "24322",
+"shared": [
+"ESSENTIAL",
+"GOLF",
+"GRIP",
+"KITS",
+"SOLVENT",
+"VALUES"
+]
+},
+{
+"hc_nid": "75834",
+"cpsc": "24311",
+"shared": [
+"HEIGHT",
+"HIGH",
+"LANCASTER",
+"PLASTIC",
+"RESTAURANT",
+"SEATING",
+"TABLE"
+]
+},
+{
+"hc_nid": "75864",
+"cpsc": "24310",
+"shared": [
+"ADJUSTABLE",
+"DUMBBELL",
+"PROFORM",
+"RAPID",
+"STRIKE"
+]
+},
+{
+"hc_nid": "75576",
+"cpsc": "24298",
+"shared": [
+"ATOMI",
+"HEATERS",
+"SMART"
+]
+},
+{
+"hc_nid": "75736",
+"cpsc": "24299",
+"shared": [
+"CLAIRE",
+"FLAMMABILITY",
+"HALLOWEEN",
+"ICING",
+"STORES",
+"WITCH"
+]
+},
+{
+"hc_nid": "75800",
+"cpsc": "24302",
+"shared": [
+"BAY",
+"BEST",
+"FIXTURES",
+"HIGH",
+"LED",
+"LIGHT",
+"LIGHTING"
+]
+},
+{
+"hc_nid": "75785",
+"cpsc": "24291",
+"shared": [
+"1ST",
+"GENERATION",
+"HATCH",
+"REST",
+"SOUND"
+]
+},
+{
+"hc_nid": "75581",
+"cpsc": "24286",
+"shared": [
+"AMANA",
+"DAIKIN",
+"EXCESSIVE",
+"EXPOSURE",
+"GOODMAN",
+"HEAT",
+"PUMPS"
+]
+},
+{
+"hc_nid": "75735",
+"cpsc": "24281",
+"shared": [
+"EYE",
+"IRRITATION",
+"LIQUID",
+"MAKE",
+"MGA",
+"MINI",
+"MINIVERSE",
+"RESINS",
+"RESPIRATORY",
+"SENSITIZATION",
+"SKIN",
+"UNUSED"
+]
+},
+{
+"hc_nid": "75643",
+"cpsc": "24269",
+"shared": [
+"CORDLESS",
+"HAIR",
+"INSTINCT",
+"STYLECRAFT"
+]
+},
+{
+"hc_nid": "75666",
+"cpsc": "24275",
+"shared": [
+"BABBOE",
+"BICYCLES",
+"CARGO"
+]
+},
+{
+"hc_nid": "75685",
+"cpsc": "24276",
+"shared": [
+"ASCENT",
+"BASES",
+"BLADE",
+"BLENDING",
+"CONTAINERS",
+"OUNCE",
+"VENTURIST"
+]
+},
+{
+"hc_nid": "75686",
+"cpsc": "24270",
+"shared": [
+"CABLES",
+"EC8",
+"EXPANSION",
+"GOAL",
+"LINK",
+"YETI",
+"ZERO"
+]
+},
+{
+"hc_nid": "75655",
+"cpsc": "24261",
+"shared": [
+"BLACK",
+"CRAMPONS",
+"DIAMOND",
+"NEVE",
+"STRAP"
+]
+},
+{
+"hc_nid": "75611",
+"cpsc": "24259",
+"shared": [
+"ASCENDERS",
+"COUNTRY",
+"ROPEMAN",
+"WILD"
+]
+},
+{
+"hc_nid": "75580",
+"cpsc": "24254",
+"shared": [
+"EARTH",
+"GOOD",
+"LIGHTING",
+"RECHARGEABLE"
+]
+},
+{
+"hc_nid": "75609",
+"cpsc": "24257",
+"shared": [
+"CONDITIONER",
+"DESHEDDING",
+"DOG",
+"FURMINATOR",
+"GALLON",
+"PREMIUM",
+"ULTRA"
+]
+},
+{
+"hc_nid": "75615",
+"cpsc": "24256",
+"shared": [
+"BAD",
+"BOBCAT",
+"BOY",
+"CADET",
+"CUB",
+"DEERE",
+"ENGINES",
+"EQUIPMENT",
+"GARDEN",
+"HUSTLER",
+"JOHN",
+"KAWASAKI",
+"KUBOTA",
+"LAWN",
+"MOWERS",
+"USED"
+]
+},
+{
+"hc_nid": "75572",
+"cpsc": "24248",
+"shared": [
+"ADULT",
+"BED",
+"MEDLINE",
+"RAILS"
+]
+},
+{
+"hc_nid": "75519",
+"cpsc": "24235",
+"shared": [
+"FREESTANDING",
+"FRIGIDAIRE",
+"KENMORE",
+"RANGES",
+"SMOOTH",
+"TOP"
+]
+},
+{
+"hc_nid": "75493",
+"cpsc": "24231",
+"shared": [
+"ARTICLE",
+"SPIN",
+"SWIVEL"
+]
+},
+{
+"hc_nid": "75441",
+"cpsc": "24221",
+"shared": [
+"CREATIVITY",
+"FOAM",
+"ROLLERS",
+"STREET"
+]
+},
+{
+"hc_nid": "75454",
+"cpsc": "24263",
+"shared": [
+"FLAMMABILITY",
+"SLEEP"
+]
+},
+{
+"hc_nid": "75363",
+"cpsc": "24208",
+"shared": [
+"BRANDED",
+"COUNTRY",
+"CYLINDER",
+"KITS",
+"LOG",
+"OREGON",
+"POWERPRO",
+"SPEECO",
+"SPLITTERS",
+"TUFF"
+]
+},
+{
+"hc_nid": "75370",
+"cpsc": "24205",
+"shared": [
+"3MTM",
+"EARMUFFS",
+"PELTORTM"
+]
+},
+{
+"hc_nid": "75402",
+"cpsc": "24209",
+"shared": [
+"BARREL",
+"CRATE",
+"CRIBS",
+"HAMPSHIRE"
+]
+},
+{
+"hc_nid": "75394",
+"cpsc": "24203",
+"shared": [
+"AGX",
+"AHEAD",
+"BICYCLES",
+"CRANKSETS",
+"FULL",
+"GOSSAMER",
+"PRO",
+"SPEED"
+]
+},
+{
+"hc_nid": "75362",
+"cpsc": "24194",
+"shared": [
+"CYCLE",
+"DELTA",
+"RAISERS",
+"STEM"
+]
+},
+{
+"hc_nid": "64434",
+"cpsc": "24180",
+"shared": [
+"AID",
+"COCKING",
+"CRANK",
+"CROSSBOW",
+"EXCALIBUR",
+"IMPACT"
+]
+},
+{
+"hc_nid": "75269",
+"cpsc": "24182",
+"shared": [
+"BIKE",
+"CHEMICAL",
+"RIDEALONG",
+"THULE"
+]
+},
+{
+"hc_nid": "75264",
+"cpsc": "24167",
+"shared": [
+"FISHER",
+"FRIENDS",
+"LITTLE",
+"MICKEY",
+"PEOPLE",
+"PRICE"
+]
+},
+{
+"hc_nid": "75178",
+"cpsc": "24159",
+"shared": [
+"AIR",
+"FRYER",
+"FRYERS",
+"OVENS"
+]
+},
+{
+"hc_nid": "75161",
+"cpsc": "24148",
+"shared": [
+"BICYCLES",
+"LABOMBA"
+]
+},
+{
+"hc_nid": "75175",
+"cpsc": "24152",
+"shared": [
+"BAHAMA",
+"TOMMY",
+"TWILL"
+]
+},
+{
+"hc_nid": "75119",
+"cpsc": "24136",
+"shared": [
+"BICYCLES",
+"CANNONDALE",
+"DAVE"
+]
+},
+{
+"hc_nid": "75115",
+"cpsc": "24126",
+"shared": [
+"CAMPING",
+"CASCADE",
+"COOKING",
+"DESIGNS",
+"MSR",
+"POTS",
+"SCALD"
+]
+},
+{
+"hc_nid": "75104",
+"cpsc": "24122",
+"shared": [
+"ADAPTERS",
+"TOSHIBA"
+]
+},
+{
+"hc_nid": "74981",
+"cpsc": "24117",
+"shared": [
+"ELECTROCUTION",
+"FRIGIDAIRE",
+"REAR"
+]
+},
+{
+"hc_nid": "75007",
+"cpsc": "24118",
+"shared": [
+"BELL",
+"HELMETS",
+"SOQUEL",
+"YOUTH"
+]
+},
+{
+"hc_nid": "75033",
+"cpsc": "24116",
+"shared": [
+"BROIL",
+"CHAR",
+"DIGITAL",
+"SMOKERS"
+]
+},
+{
+"hc_nid": "74966",
+"cpsc": "24113",
+"shared": [
+"GRASS",
+"HUSQVARNA"
+]
+},
+{
+"hc_nid": "74967",
+"cpsc": "24110",
+"shared": [
+"BRANDED",
+"BUCKETS",
+"FRIGIDAIRE",
+"ICE",
+"REFRIGERATORS",
+"SIDE"
+]
+},
+{
+"hc_nid": "75001",
+"cpsc": "24109",
+"shared": [
+"GARMENT",
+"HANDHELD",
+"IMAGE",
+"SHARPER",
+"STEAMERS",
+"STEAMFAST",
+"VORNADO"
+]
+},
+{
+"hc_nid": "75008",
+"cpsc": "24114",
+"shared": [
+"BATHROBES",
+"FLAMMABILITY",
+"FLANNEL",
+"HOODED",
+"LOLANTA"
+]
+},
+{
+"hc_nid": "74927",
+"cpsc": "24102",
+"shared": [
+"ADJUSTABLE",
+"CONTROLLED",
+"DUMBBELLS",
+"ISELECT",
+"NORDICTRACK",
+"VOICE"
+]
+},
+{
+"hc_nid": "74964",
+"cpsc": "24107",
+"shared": [
+"BISSELL",
+"FLOOR",
+"HAND",
+"MULTI",
+"REACH",
+"VACUUM"
+]
+},
+{
+"hc_nid": "74965",
+"cpsc": "24103",
+"shared": [
+"BRAKE",
+"LEVERS",
+"SHIFT",
+"SRAM"
+]
+},
+{
+"hc_nid": "74968",
+"cpsc": "24098",
+"shared": [
+"BALL",
+"KNOBS",
+"LOVEVERY",
+"SEEK",
+"SLIDE",
+"WOODEN"
+]
+},
+{
+"hc_nid": "74781",
+"cpsc": "24094",
+"shared": [
+"CEILING",
+"COASTAL",
+"IMPACT",
+"INCH",
+"MAVERICK",
+"OUTDOOR"
+]
+},
+{
+"hc_nid": "74909",
+"cpsc": "24084",
+"shared": [
+"BEDS",
+"DESIGN",
+"LOW",
+"PROFILE"
+]
+},
+{
+"hc_nid": "74910",
+"cpsc": "24086",
+"shared": [
+"BATH",
+"SHOWER",
+"STEAMIST",
+"TILT"
+]
+},
+{
+"hc_nid": "74888",
+"cpsc": "24081",
+"shared": [
+"BICYCLE",
+"RETROSPEC",
+"SCOUT"
+]
+},
+{
+"hc_nid": "74782",
+"cpsc": "24076",
+"shared": [
+"HOMEDICS",
+"MASSAGERS",
+"PERCUSSION",
+"PERSONAL",
+"SELECT",
+"THERAPIST"
+]
+},
+{
+"hc_nid": "74760",
+"cpsc": "24069",
+"shared": [
+"BLENDERS",
+"BLENDJET"
+]
+},
+{
+"hc_nid": "74767",
+"cpsc": "24732",
+"shared": [
+"ARCHITECT",
+"CASEMENT",
+"PELLA",
+"WINDOWS"
+]
+},
+{
+"hc_nid": "73562",
+"cpsc": "24050",
+"shared": [
+"AWAY",
+"STEAM",
+"STEAMFAST",
+"TRAVEL"
+]
+},
+{
+"hc_nid": "74359",
+"cpsc": "24047",
+"shared": [
+"BEDS",
+"MOBILE",
+"MURPHY",
+"QUEEN",
+"WINDSOR",
+"XTRABEDTM"
+]
+},
+{
+"hc_nid": "74704",
+"cpsc": "24730",
+"shared": [
+"BUGABOO",
+"DRAGONFLY",
+"SEAT"
+]
+},
+{
+"hc_nid": "74623",
+"cpsc": "24031",
+"shared": [
+"LAPTOP",
+"LENOVO",
+"POWER",
+"USB"
+]
+},
+{
+"hc_nid": "74570",
+"cpsc": "24032",
+"shared": [
+"AW70V6",
+"IMPACT",
+"LOUDSPEAKERS",
+"RUSSOUND"
+]
+},
+{
+"hc_nid": "74653",
+"cpsc": "24718",
+"shared": [
+"ORBITRON",
+"PEDALS",
+"SUPACAZ"
+]
+},
+{
+"hc_nid": "74589",
+"cpsc": "24728",
+"shared": [
+"3705",
+"ERGODYNE",
+"SQUIDS",
+"TOOL",
+"WIRE"
+]
+},
+{
+"hc_nid": "74534",
+"cpsc": "24022",
+"shared": [
+"BEHIND",
+"BRUSH",
+"FIELD",
+"MOWERS",
+"TOW"
+]
+},
+{
+"hc_nid": "74497",
+"cpsc": "24018",
+"shared": [
+"BOILERS",
+"CARBON",
+"CONDENSING",
+"LOCHINVAR",
+"MONOXIDE",
+"RESIDENTIAL"
+]
+},
+{
+"hc_nid": "74501",
+"cpsc": "24021",
+"shared": [
+"ARMADA",
+"ATOMIC",
+"BINDINGS",
+"SALOMON",
+"SKI"
+]
+},
+{
+"hc_nid": "74430",
+"cpsc": "24013",
+"shared": [
+"COOKERS",
+"INSIGNIATM",
+"PRESSURE"
+]
+},
+{
+"hc_nid": "74470",
+"cpsc": "24706",
+"shared": [
+"BOBCAT",
+"BRANDED",
+"KUBOTA",
+"LAWNMOWERS",
+"STAND",
+"TURN",
+"ZERO"
+]
+},
+{
+"hc_nid": "74438",
+"cpsc": "24010",
+"shared": [
+"INGESTION",
+"RAILWAY",
+"THOMAS",
+"TROUBLESOME",
+"TRUCK",
+"WOODEN"
+]
+},
+{
+"hc_nid": "74403",
+"cpsc": "24007",
+"shared": [
+"BANDANA",
+"BIBS",
+"LITTLE",
+"LOVEYS",
+"SLEEPIES",
+"SLEEPYHEAD"
+]
+},
+{
+"hc_nid": "74379",
+"cpsc": "24003",
+"shared": [
+"CONTROLLER",
+"MCA",
+"MULTIZONE",
+"RUSSOUND"
+]
+},
+{
+"hc_nid": "74304",
+"cpsc": "23292",
+"shared": [
+"BOARD",
+"BOOKS",
+"RAINBOW",
+"ROAD"
+]
+},
+{
+"hc_nid": "74306",
+"cpsc": "23291",
+"shared": [
+"CHIPPER",
+"EQUIPMENT",
+"POWER",
+"SHREDDERS"
+]
+},
+{
+"hc_nid": "74311",
+"cpsc": "23294",
+"shared": [
+"BONDED",
+"CRANKSETS",
+"CRASH",
+"HOLLOWTECH",
+"ROAD",
+"SHIMANO",
+"SPEED"
+]
+},
+{
+"hc_nid": "74269",
+"cpsc": "23288",
+"shared": [
+"GENERAC",
+"GENERATORS"
+]
+},
+{
+"hc_nid": "74170",
+"cpsc": "23276",
+"shared": [
+"BICYCLE",
+"PIRELLI",
+"RACE",
+"TIRES",
+"TLR",
+"ZERO"
+]
+},
+{
+"hc_nid": "74227",
+"cpsc": "23271",
+"shared": [
+"GLASS",
+"LINE",
+"PRIME"
+]
+},
+{
+"hc_nid": "74228",
+"cpsc": "23272",
+"shared": [
+"BOON",
+"ELITE",
+"FLAIR"
+]
+},
+{
+"hc_nid": "73992",
+"cpsc": "23784",
+"shared": [
+"AIPER",
+"ELITE",
+"GS100",
+"POOL",
+"PRO",
+"ROBOTIC",
+"VACUUM"
+]
+},
+{
+"hc_nid": "74144",
+"cpsc": "23265",
+"shared": [
+"SIMPLAY3",
+"TODDLER",
+"TOWERS"
+]
+},
+{
+"hc_nid": "73935",
+"cpsc": "23257",
+"shared": [
+"BASIC",
+"BOY",
+"JEANS",
+"PLACE",
+"STRAIGHT",
+"STRETCH",
+"TODDLER"
+]
+},
+{
+"hc_nid": "74037",
+"cpsc": "23779",
+"shared": [
+"AIR",
+"AMANA",
+"CONDITIONERS",
+"DIGIAIR",
+"EQUIPPED",
+"HEAT",
+"MODULES",
+"PACKAGED",
+"PTACS",
+"PUMPS",
+"TERMINAL"
+]
+},
+{
+"hc_nid": "73829",
+"cpsc": "23247",
+"shared": [
+"COUNTRY",
+"ROCKS",
+"SUPERLIGHT",
+"WILD"
+]
+},
+{
+"hc_nid": "73897",
+"cpsc": "23240",
+"shared": [
+"300",
+"HUSQVARNA",
+"SNOW"
+]
+},
+{
+"hc_nid": "73903",
+"cpsc": "23239",
+"shared": [
+"BIKES",
+"ORIGINAL",
+"WOOM"
+]
+},
+{
+"hc_nid": "73900",
+"cpsc": "23234",
+"shared": [
+"ACOUSTIMASS",
+"BASS",
+"BOSE",
+"COMPANIONTM",
+"LIFESTYLE",
+"MODULES"
+]
+},
+{
+"hc_nid": "73853",
+"cpsc": "23231",
+"shared": [
+"HUMIDIFIERS",
+"STEAM"
+]
+},
+{
+"hc_nid": "73804",
+"cpsc": "23222",
+"shared": [
+"DROWNING",
+"EXCURSION",
+"HERA",
+"OCEANIC",
+"OCEANPRO"
+]
+},
+{
+"hc_nid": "73805",
+"cpsc": "23223",
+"shared": [
+"BRAKES",
+"DISC",
+"HYDRAULIC",
+"PROMAX"
+]
+},
+{
+"hc_nid": "73414",
+"cpsc": "23216",
+"shared": [
+"BICYCLE",
+"GIRO",
+"MERIT"
+]
+},
+{
+"hc_nid": "73684",
+"cpsc": "23767",
+"shared": [
+"CLOTHES",
+"COTTON",
+"FLAMMABILITY",
+"LITTLE"
+]
+},
+{
+"hc_nid": "73756",
+"cpsc": "23764",
+"shared": [
+"ASTORA",
+"KATE",
+"LAUREL",
+"MIRRORS",
+"VALENTI"
+]
+},
+{
+"hc_nid": "73769",
+"cpsc": "23215",
+"shared": [
+"ASHLEY",
+"FURNITURE",
+"LOVESEATS",
+"PARTY",
+"POWER",
+"RECLINERS",
+"SOFAS",
+"TIME"
+]
+},
+{
+"hc_nid": "73682",
+"cpsc": "23212",
+"shared": [
+"BRUSHLESS",
+"CORDLESS",
+"EGO",
+"HEDGE",
+"POWER",
+"TRIMMERS"
+]
+},
+{
+"hc_nid": "73685",
+"cpsc": "23213",
+"shared": [
+"CLEANING",
+"INGESTION",
+"JUICERS",
+"POWERXL",
+"SELF"
+]
+},
+{
+"hc_nid": "73701",
+"cpsc": "23762",
+"shared": [
+"BEAUTIFUL",
+"BOXES",
+"GOOD",
+"MATH",
+"METALLIC",
+"WHITEBOARDS"
+]
+},
+{
+"hc_nid": "73579",
+"cpsc": "23757",
+"shared": [
+"PRO",
+"SHIMANO",
+"VIBE"
+]
+},
+{
+"hc_nid": "73647",
+"cpsc": "23205",
+"shared": [
+"POWERXL",
+"STUFFED",
+"WAFFLE",
+"WAFFLIZER"
+]
+},
+{
+"hc_nid": "73583",
+"cpsc": "23753",
+"shared": [
+"DEHYDRATORS",
+"FOLDING",
+"FOOD",
+"SAHARA"
+]
+},
+{
+"hc_nid": "73572",
+"cpsc": "23190",
+"shared": [
+"AVALANCHE",
+"BLACK",
+"DIAMOND",
+"EQUIPMENT",
+"RECON"
+]
+},
+{
+"hc_nid": "73305",
+"cpsc": "23183",
+"shared": [
+"DEWALT",
+"FIBERGLASS",
+"IMPACT",
+"SLEDGEHAMMERS",
+"STANLEY"
+]
+},
+{
+"hc_nid": "73534",
+"cpsc": "23184",
+"shared": [
+"CASTERS",
+"FISHING",
+"KID"
+]
+},
+{
+"hc_nid": "73465",
+"cpsc": "23177",
+"shared": [
+"AUDIOVISUAL",
+"CARTS",
+"LUXOR",
+"WORKSPACES"
+]
+},
+{
+"hc_nid": "73475",
+"cpsc": "23178",
+"shared": [
+"FLO",
+"ION",
+"LITHIUM",
+"MONITORS",
+"SMART",
+"WATER"
+]
+},
+{
+"hc_nid": "73415",
+"cpsc": "23172",
+"shared": [
+"CHEMICAL",
+"CONDITIONERS",
+"FABRIC",
+"INCLUDING",
+"LAUNDRESS",
+"PREVIOUSLY"
+]
+},
+{
+"hc_nid": "73401",
+"cpsc": "23166",
+"shared": [
+"DECOYS",
+"HIGDON",
+"MOTION",
+"OUTDOORS",
+"PACKS",
+"REPLACEMENT",
+"WATERFOWL"
+]
+},
+{
+"hc_nid": "73328",
+"cpsc": "23157",
+"shared": [
+"BLANKETS",
+"HEATED",
+"QUEEN",
+"SIZE",
+"SUNBEAM"
+]
+},
+{
+"hc_nid": "72814",
+"cpsc": "23150",
+"shared": [
+"ACCESSORIES",
+"ANIMAL",
+"BOTTLE",
+"CALICO",
+"CRITTERS",
+"FIGURES",
+"PACIFIER"
+]
+},
+{
+"hc_nid": "73105",
+"cpsc": "23145",
+"shared": [
+"COOLERS",
+"GEAR",
+"INGESTION",
+"MAGNET",
+"SOFT",
+"YETI"
+]
+},
+{
+"hc_nid": "72813",
+"cpsc": "23138",
+"shared": [
+"BASE",
+"CAPILENE",
+"INFANT",
+"LAYER",
+"MIDWEIGHT",
+"PATAGONIA"
+]
+},
+{
+"hc_nid": "72963",
+"cpsc": null,
+"shared": []
+},
+{
+"hc_nid": "73061",
+"cpsc": "23732",
+"shared": [
+"CHIPPER",
+"EQUIPMENT",
+"POWER",
+"PRO",
+"SHREDDERS",
+"XL501"
+]
+},
+{
+"hc_nid": "72618",
+"cpsc": "23130",
+"shared": [
+"AIR",
+"COSORI",
+"FRYERS"
+]
+},
+{
+"hc_nid": "72725",
+"cpsc": "23134",
+"shared": [
+"CHAIRS",
+"HIGH",
+"LANCASTER",
+"SEATING",
+"TABLE"
+]
+},
+{
+"hc_nid": "72727",
+"cpsc": "23131",
+"shared": [
+"BOOTS",
+"SCARPA",
+"SKI"
+]
+},
+{
+"hc_nid": "72901",
+"cpsc": "23133",
+"shared": [
+"DROWNING",
+"SCUBA",
+"XDEEP"
+]
+},
+{
+"hc_nid": "72643",
+"cpsc": "23127",
+"shared": [
+"BUZZ",
+"DISNEY",
+"FIGURINES",
+"FIRST",
+"LIGHTYEAR",
+"MICKEY",
+"MINNIE",
+"MOUSE",
+"PREFERRED",
+"STITCH"
+]
+},
+{
+"hc_nid": "72564",
+"cpsc": "23117",
+"shared": [
+"ACTIVITY",
+"HOP",
+"LINING",
+"SILVER",
+"SKIP"
+]
+},
+{
+"hc_nid": "72642",
+"cpsc": "23116",
+"shared": [
+"EQUESTRIAN",
+"HELMETS",
+"IMPACT",
+"OVATION",
+"PROTEGE"
+]
+},
+{
+"hc_nid": "72666",
+"cpsc": "23725",
+"shared": [
+"CONTROL",
+"DOOR",
+"GARAGE",
+"LIFTMASTER",
+"MYQ",
+"PANELS"
+]
+},
+{
+"hc_nid": "72665",
+"cpsc": "23115",
+"shared": [
+"FABULOSO",
+"MULTI",
+"PURPOSE"
+]
+},
+{
+"hc_nid": "72569",
+"cpsc": "23096",
+"shared": [
+"CHOCOLATE",
+"HOT",
+"LIFETIME",
+"POTS"
+]
+},
+{
+"hc_nid": "72560",
+"cpsc": "23091",
+"shared": [
+"2551",
+"BISSELL",
+"CORDLESS",
+"DRY",
+"MULTI",
+"SURFACE",
+"VACUUMS",
+"WET"
+]
+},
+{
+"hc_nid": "72561",
+"cpsc": "23721",
+"shared": [
+"FREE",
+"INCH",
+"SMART",
+"STANDING",
+"STANDS"
+]
+},
+{
+"hc_nid": "72418",
+"cpsc": "23086",
+"shared": [
+"BICYCLE",
+"BICYCLES",
+"CARBON",
+"HANDLEBARS",
+"QUALITY"
+]
+},
+{
+"hc_nid": "72370",
+"cpsc": "23076",
+"shared": [
+"BLU3",
+"DIVING",
+"DROWNING",
+"NOMAD",
+"POWERED",
+"SYSTEMS",
+"TANKLESS"
+]
+},
+{
+"hc_nid": "72206",
+"cpsc": "23068",
+"shared": [
+"HOT",
+"JACUZZI",
+"SPAS",
+"SUNDANCE",
+"TUBS"
+]
+},
+{
+"hc_nid": "72345",
+"cpsc": "23073",
+"shared": [
+"DMI6",
+"MOTORS",
+"SIMU"
+]
+},
+{
+"hc_nid": "72365",
+"cpsc": "23717",
+"shared": [
+"CRATE",
+"THORNHILL"
+]
+},
+{
+"hc_nid": "64511",
+"cpsc": "23057",
+"shared": [
+"CORDLESS",
+"DOOYA",
+"WINDOW"
+]
+},
+{
+"hc_nid": "72184",
+"cpsc": "23064",
+"shared": [
+"SCOTCHTM",
+"THERMAL",
+"TL1302"
+]
+},
+{
+"hc_nid": "72237",
+"cpsc": "23714",
+"shared": [
+"ACTIVITY",
+"ANIMAL",
+"CUBES",
+"DISCOVERY",
+"HIDE",
+"INGESTION",
+"SEEK",
+"TOY"
+]
+},
+{
+"hc_nid": "72298",
+"cpsc": "23056",
+"shared": [
+"BLENDER",
+"COMPACT",
+"CUISINART",
+"EXTRACTOR",
+"JUICE"
+]
+},
+{
+"hc_nid": "72303",
+"cpsc": "23058",
+"shared": [
+"BACTERIA",
+"CLEANING",
+"DETERGENT",
+"EXPOSURE",
+"HOUSEHOLD",
+"LAUNDRESS",
+"LAUNDRY"
+]
+},
+{
+"hc_nid": "72207",
+"cpsc": "23053",
+"shared": [
+"BEAR",
+"BRANDED",
+"INDIGO",
+"MAMA",
+"MUGS",
+"PAPA"
+]
+},
+{
+"hc_nid": "72154",
+"cpsc": "23049",
+"shared": [
+"PROFESSOR",
+"PUZZLE",
+"RAINBOW"
+]
+},
+{
+"hc_nid": "72195",
+"cpsc": "23048",
+"shared": [
+"ANIMAL",
+"CARTER",
+"FLEECE",
+"FOOTED",
+"GRAPHIC",
+"PUNCTURE",
+"YELLOW"
+]
+},
+{
+"hc_nid": "62590",
+"cpsc": "23040",
+"shared": [
+"6500",
+"8000",
+"AMPUTATION",
+"FINGER",
+"GENERAC",
+"GENERATORS",
+"WATT"
+]
+},
+{
+"hc_nid": "72152",
+"cpsc": "23036",
+"shared": [
+"BREEZE",
+"CHEMICAL",
+"CLARKS",
+"SHOES",
+"WOMEN"
+]
+},
+{
+"hc_nid": "72153",
+"cpsc": "23708",
+"shared": [
+"EXERCISE",
+"MYX"
+]
+},
+{
+"hc_nid": "72145",
+"cpsc": null,
+"shared": []
+},
+{
+"hc_nid": "72120",
+"cpsc": null,
+"shared": []
+},
+{
+"hc_nid": "64539",
+"cpsc": "23026",
+"shared": [
+"HORIZON",
+"T101",
+"TREADMILLS"
+]
+},
+{
+"hc_nid": "72029",
+"cpsc": "23018",
+"shared": [
+"BLANKETS",
+"MITTAL"
+]
+},
+{
+"hc_nid": "61513",
+"cpsc": null,
+"shared": []
+},
+{
+"hc_nid": "64584",
+"cpsc": "23004",
+"shared": [
+"BURNER",
+"GEMINI",
+"OPTIMUS"
+]
+},
+{
+"hc_nid": "64217",
+"cpsc": "22227",
+"shared": [
+"BASKETBALL",
+"IMPACT",
+"MOMENTOUS",
+"SPALDING"
+]
+},
+{
+"hc_nid": "64551",
+"cpsc": "22222",
+"shared": [
+"BICYCLES",
+"CALEDONIA",
+"CERVELO",
+"REPLACEMENT",
+"ST31",
+"STEMS"
+]
+},
+{
+"hc_nid": "64438",
+"cpsc": "22214",
+"shared": [
+"CHAIRS",
+"HANGING"
+]
+},
+{
+"hc_nid": "64495",
+"cpsc": "22213",
+"shared": [
+"17LM",
+"24V",
+"CORDLESS",
+"JOE",
+"LAWN",
+"SUN"
+]
+},
+{
+"hc_nid": "64522",
+"cpsc": "22215",
+"shared": [
+"ALL",
+"AMPUTATION",
+"FINGERTIP",
+"JOGGING",
+"RIDGE",
+"STROLLERS",
+"TERRAIN",
+"UPPABABY"
+]
+},
+{
+"hc_nid": "64509",
+"cpsc": "22187",
+"shared": [
+"COMPUTERS",
+"DIVING",
+"DROWNING",
+"I330R",
+"SCUBA"
+]
+},
+{
+"hc_nid": "64232",
+"cpsc": "22205",
+"shared": [
+"ACTIVITY",
+"DESK",
+"FIRST",
+"KIDOOZIE"
+]
+},
+{
+"hc_nid": "64494",
+"cpsc": "22209",
+"shared": [
+"AEOLUS",
+"BICYCLES",
+"BONTRAGER",
+"CONCEPT",
+"EMONDA",
+"HANDLEBAR",
+"RSL",
+"SLR",
+"SPEED",
+"STEMS",
+"TREK"
+]
+},
+{
+"hc_nid": "64460",
+"cpsc": "22200",
+"shared": [
+"4MOMS",
+"INFANT",
+"MAMAROO",
+"ROCKAROO",
+"ROCKERS",
+"SWING",
+"SWINGS"
+]
+},
+{
+"hc_nid": "64454",
+"cpsc": "22188",
+"shared": [
+"ACTIVITY",
+"BEAR",
+"KONGES",
+"MIRROR",
+"SILICONE",
+"TOY"
+]
+},
+{
+"hc_nid": "64409",
+"cpsc": "22196",
+"shared": [
+"COMPOUND",
+"DEWALT",
+"INCH",
+"MITER",
+"SAWS",
+"SLIDING"
+]
+},
+{
+"hc_nid": "64231",
+"cpsc": "22192",
+"shared": [
+"FLAMMABILITY",
+"KIDOOZIE",
+"PLAY",
+"TENTS"
+]
+},
+{
+"hc_nid": "64320",
+"cpsc": "22194",
+"shared": [
+"AVALANCHE",
+"BLACK",
+"DIAMOND",
+"LOSS",
+"PIEPS",
+"TRANSCEIVERS"
+]
+},
+{
+"hc_nid": "64359",
+"cpsc": null,
+"shared": []
+},
+{
+"hc_nid": "64382",
+"cpsc": "22190",
+"shared": [
+"AESOP",
+"BLENDS",
+"BURNER",
+"DROPS",
+"OIL",
+"PACKAGING",
+"POO",
+"POST",
+"RESISTANT"
+]
+},
+{
+"hc_nid": "64407",
+"cpsc": "22765",
+"shared": [
+"240",
+"BOTTLES",
+"CHOICE",
+"FIRST",
+"GLASS",
+"NUK"
+]
+},
+{
+"hc_nid": "64408",
+"cpsc": "22193",
+"shared": [
+"COIL",
+"COMFORT",
+"CONDENSING",
+"DAIKIN",
+"DRAIN",
+"EVAPORATOR",
+"EXPANDS",
+"FURNACES",
+"INCLUDE",
+"INSTALLED",
+"NON",
+"PANS",
+"THOSE"
+]
+},
+{
+"hc_nid": "64333",
+"cpsc": "22758",
+"shared": [
+"BIG",
+"CABELA",
+"HORN",
+"OUTFITTER",
+"TENTS"
+]
+},
+{
+"hc_nid": "64230",
+"cpsc": "22181",
+"shared": [
+"LOOK",
+"SCHOLASTIC",
+"SHAKE",
+"TOUCH"
+]
+},
+{
+"hc_nid": "64337",
+"cpsc": "22756",
+"shared": [
+"DEERE",
+"JOHN",
+"LAWN",
+"TRACTORS"
+]
+},
+{
+"hc_nid": "64299",
+"cpsc": "22176",
+"shared": [
+"BOILERS",
+"CARBON",
+"FIRED",
+"LAARS",
+"MONOXIDE"
+]
+},
+{
+"hc_nid": "64270",
+"cpsc": "22752",
+"shared": [
+"LED",
+"MARKET",
+"SOLAR"
+]
+},
+{
+"hc_nid": "64279",
+"cpsc": "22170",
+"shared": [
+"BOY",
+"PLACE",
+"ROMPERS"
+]
+},
+{
+"hc_nid": "64298",
+"cpsc": "22751",
+"shared": [
+"CODA",
+"IMPACT",
+"LIGHT",
+"LIGHTING",
+"PENDANT",
+"TECH"
+]
+},
+{
+"hc_nid": "64216",
+"cpsc": "22159",
+"shared": [
+"NEUTRAL",
+"PLUG",
+"SCHNEIDER"
+]
+},
+{
+"hc_nid": "64269",
+"cpsc": "22168",
+"shared": [
+"CERAMIC",
+"HEATERS",
+"HUNTER",
+"OSCILLATING",
+"TOWER",
+"WARMWAVE"
+]
+},
+{
+"hc_nid": "64119",
+"cpsc": "22154",
+"shared": [
+"BLACK",
+"HALLOWEEN",
+"LIGHT",
+"SPIRIT"
+]
+},
+{
+"hc_nid": "64193",
+"cpsc": "22156",
+"shared": [
+"ACTIVITY",
+"LOOPS"
+]
+},
+{
+"hc_nid": "64218",
+"cpsc": "22151",
+"shared": [
+"BOTTOM",
+"DOOR",
+"FREEZER",
+"FRENCH",
+"HISENSE",
+"IMPACT",
+"REFRIGERATORS"
+]
+},
+{
+"hc_nid": "64038",
+"cpsc": null,
+"shared": []
+},
+{
+"hc_nid": "64191",
+"cpsc": "22144",
+"shared": [
+"BOWL",
+"DEMDACO",
+"HOLDERS",
+"MICROWAVABLE"
+]
+},
+{
+"hc_nid": "64192",
+"cpsc": "22143",
+"shared": [
+"DOOR",
+"ELECTROLUX",
+"FRIGIDAIRE",
+"ICE",
+"MAKER",
+"REFRIGERATORS",
+"SIDE"
+]
+},
+{
+"hc_nid": "64195",
+"cpsc": "22147",
+"shared": [
+"ACCESS",
+"AVALANCHE",
+"BACKCOUNTRY",
+"TRACKER4"
+]
+},
+{
+"hc_nid": "64125",
+"cpsc": "22130",
+"shared": [
+"FACTORY",
+"INFANT",
+"WATER",
+"WINTER"
+]
+},
+{
+"hc_nid": "64116",
+"cpsc": "22127",
+"shared": [
+"CARBON",
+"GENERAC",
+"MONOXIDE",
+"POWER",
+"PRESSURE",
+"START",
+"WASHERS"
+]
+},
+{
+"hc_nid": "64085",
+"cpsc": "22122",
+"shared": [
+"CERAMIC",
+"KNIVES",
+"NORWEX"
+]
+},
+{
+"hc_nid": "64096",
+"cpsc": "22125",
+"shared": [
+"AIR",
+"FRYER",
+"FRYERS",
+"INSIGNIA"
+]
+},
+{
+"hc_nid": "63961",
+"cpsc": "22117",
+"shared": [
+"BOTTOM",
+"DOOR",
+"FINGERPRINT",
+"FREE",
+"FREEZER",
+"FRENCH",
+"REFRIGERATORS",
+"RESISTANT",
+"STAINLESS",
+"STANDING",
+"STEEL"
+]
+},
+{
+"hc_nid": "64051",
+"cpsc": "22115",
+"shared": [
+"DIVING",
+"HYPOTHERMIA",
+"INFLATION",
+"SHELL"
+]
+},
+{
+"hc_nid": "64079",
+"cpsc": "22120",
+"shared": [
+"CRAFTER",
+"GLUE",
+"HOT",
+"SQUARE"
+]
+},
+{
+"hc_nid": "64032",
+"cpsc": "22113",
+"shared": [
+"HIGH",
+"STOKKE"
+]
+},
+{
+"hc_nid": "64034",
+"cpsc": "22739",
+"shared": [
+"BEDS",
+"BESTAR",
+"WALL"
+]
+},
+{
+"hc_nid": "64017",
+"cpsc": "22110",
+"shared": [
+"GLOW",
+"HUDSON",
+"KID"
+]
+},
+{
+"hc_nid": "63963",
+"cpsc": "22106",
+"shared": [
+"BLUETOOTH",
+"DIMENSIONS",
+"HELMETS",
+"SPEAKER"
+]
+},
+{
+"hc_nid": "63897",
+"cpsc": "22103",
+"shared": [
+"ACTIVITY",
+"LEARN",
+"TODDLER",
+"TOYS",
+"WALK",
+"WALKER",
+"WOODEN"
+]
+},
+{
+"hc_nid": "63994",
+"cpsc": "22102",
+"shared": [
+"ILLUMINATED",
+"MIRRORS"
+]
+},
+{
+"hc_nid": "63953",
+"cpsc": "22095",
+"shared": [
+"BAND",
+"CRATE",
+"MUSIC"
+]
+},
+{
+"hc_nid": "63934",
+"cpsc": "22091",
+"shared": [
+"DROWNING",
+"PETZL",
+"PIRANA"
+]
+},
+{
+"hc_nid": "63951",
+"cpsc": null,
+"shared": []
+},
+{
+"hc_nid": "63931",
+"cpsc": "22730",
+"shared": [
+"CUP",
+"DRINKING",
+"HANDLE",
+"INSPECTOR",
+"KITS",
+"LOVEVERY",
+"PLAY"
+]
+},
+{
+"hc_nid": "63915",
+"cpsc": "22085",
+"shared": [
+"ANECDOTE",
+"ANTHROPOLOGIE",
+"AUTUMN",
+"CANDLES",
+"DOUBLE",
+"GLASS",
+"WICK"
+]
+},
+{
+"hc_nid": "63898",
+"cpsc": "22072",
+"shared": [
+"EASHOOK",
+"SCORPIO"
+]
+},
+{
+"hc_nid": "63800",
+"cpsc": "22718",
+"shared": [
+"MATRIX",
+"TREADMILLS"
+]
+},
+{
+"hc_nid": "63558",
+"cpsc": "22021",
+"shared": [
+"COIL",
+"DRAIN",
+"EVAPORATOR",
+"GOODMAN",
+"PANS"
+]
+},
+{
+"hc_nid": "63563",
+"cpsc": "22707",
+"shared": [
+"LAMBETH",
+"METAL",
+"OUTDOOR",
+"TORCHES"
+]
+},
+{
+"hc_nid": "63568",
+"cpsc": "22709",
+"shared": [
+"ANDERSSON",
+"HANNA",
+"LONG",
+"WIGGLE"
+]
+},
+{
+"hc_nid": "63528",
+"cpsc": "22015",
+"shared": [
+"ELEKTRON",
+"HANDLES",
+"POWER"
+]
+},
+{
+"hc_nid": "62450",
+"cpsc": "21752",
+"shared": [
+"1500F",
+"KALORIK",
+"PRO",
+"STEAKHOUSE"
+]
+},
+{
+"hc_nid": "62037",
+"cpsc": "21073",
+"shared": [
+"ELECTROSTATIC",
+"ION",
+"LITHIUM",
+"PACKS",
+"PROTEXUS",
+"SPRAYERS",
+"VICTORY"
+]
+},
+{
+"hc_nid": "57778",
+"cpsc": "18040",
+"shared": [
+"ADULT",
+"CHESTS",
+"IKEA"
+]
+},
+{
+"hc_nid": "54155",
+"cpsc": "16061",
+"shared": [
+"BICYCLES",
+"FOCUS",
+"IZALCO",
+"MAX"
+]
+},
+{
+"hc_nid": "52539",
+"cpsc": "15026",
+"shared": [
+"CELTIC",
+"DAESUNG",
+"ENERSYS",
+"HEATERS",
+"TANKLESS",
+"WATER"
+]
+},
+{
+"hc_nid": "50595",
+"cpsc": "14094",
+"shared": [
+"BEDS",
+"IKEA",
+"JUNIOR",
+"KRITTER",
+"SNIGLAR"
+]
+},
+{
+"hc_nid": "23313",
+"cpsc": null,
+"shared": []
+}
+]

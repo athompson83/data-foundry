@@ -1,0 +1,2290 @@
+[
+{
+"hc_nid": "82647",
+"cpsc": "26731",
+"shared": [
+"AUDIO",
+"BLUETOOTH",
+"CAMBRIDGE",
+"SPEAKERS",
+"YOYO"
+]
+},
+{
+"hc_nid": "82627",
+"cpsc": "26782",
+"shared": [
+"CHEW",
+"MONTESSORI",
+"PULL",
+"TEETHING",
+"TOYS"
+]
+},
+{
+"hc_nid": "82608",
+"cpsc": "26712",
+"shared": [
+"3000X",
+"GOAL",
+"POWER",
+"STATIONS",
+"YETI",
+"ZERO"
+]
+},
+{
+"hc_nid": "82602",
+"cpsc": "26658",
+"shared": [
+"KITCHEN",
+"STEP",
+"TODDLER",
+"WOODURE"
+]
+},
+{
+"hc_nid": "82596",
+"cpsc": "26732",
+"shared": [
+"SPIRAL",
+"TOY"
+]
+},
+{
+"hc_nid": "82578",
+"cpsc": "26659",
+"shared": [
+"HAND",
+"OCOOPA",
+"RECHARGEABLE",
+"WARMERS"
+]
+},
+{
+"hc_nid": "82577",
+"cpsc": "26717",
+"shared": [
+"BRISTLE",
+"BRUSHES",
+"CUISINART",
+"GRILL",
+"METAL",
+"WIRE"
+]
+},
+{
+"hc_nid": "82500",
+"cpsc": "26702",
+"shared": [
+"INCH",
+"MANUFACTURED"
+]
+},
+{
+"hc_nid": "82482",
+"cpsc": "26625",
+"shared": [
+"CARDIGAN",
+"DOUBLE",
+"MADEWELL",
+"NECK",
+"PULLOVER",
+"SWEATERS"
+]
+},
+{
+"hc_nid": "82428",
+"cpsc": "26716",
+"shared": [
+"ACCHVR",
+"CCM",
+"HYBRID",
+"IMPACT",
+"REPLACEMENT",
+"VISOR"
+]
+},
+{
+"hc_nid": "82421",
+"cpsc": "26619",
+"shared": [
+"PACKAGING",
+"RESISTANT"
+]
+},
+{
+"hc_nid": "81869",
+"cpsc": "26619",
+"shared": [
+"PACKAGING",
+"RESISTANT",
+"THINNER"
+]
+},
+{
+"hc_nid": "82369",
+"cpsc": "26567",
+"shared": [
+"MICHLEY",
+"PAJAMAS"
+]
+},
+{
+"hc_nid": "82319",
+"cpsc": "26561",
+"shared": [
+"BABESIDE",
+"DOLL",
+"STROLLER",
+"TOYS"
+]
+},
+{
+"hc_nid": "82288",
+"cpsc": "26595",
+"shared": [
+"CLEANERS",
+"CORDLESS",
+"ROWENTA",
+"VACUUM"
+]
+},
+{
+"hc_nid": "82265",
+"cpsc": "26582",
+"shared": [
+"CARBON",
+"FAILURE",
+"MONOXIDE",
+"SMOKE"
+]
+},
+{
+"hc_nid": "82258",
+"cpsc": "26600",
+"shared": [
+"PACKAGING",
+"RESISTANT"
+]
+},
+{
+"hc_nid": "82184",
+"cpsc": "26540",
+"shared": [
+"CHILDCRAFT",
+"FURNITURE",
+"INCLUDED",
+"KITS",
+"PLASTIC",
+"RESTRAINT"
+]
+},
+{
+"hc_nid": "82174",
+"cpsc": "26493",
+"shared": [
+"STOOLS",
+"TOWER"
+]
+},
+{
+"hc_nid": "82162",
+"cpsc": "26510",
+"shared": [
+"PACKAGING",
+"RESISTANT"
+]
+},
+{
+"hc_nid": "82165",
+"cpsc": "26628",
+"shared": [
+"KITCHEN",
+"STEP",
+"STOOLS"
+]
+},
+{
+"hc_nid": "82111",
+"cpsc": "26497",
+"shared": [
+"INGESTION",
+"TOY"
+]
+},
+{
+"hc_nid": "82121",
+"cpsc": "26579",
+"shared": [
+"MONTESSORI",
+"TOYS"
+]
+},
+{
+"hc_nid": "82066",
+"cpsc": "26445",
+"shared": [
+"CONTAINERS",
+"FLUID",
+"FUEL",
+"HEATER",
+"KEROSENE"
+]
+},
+{
+"hc_nid": "81927",
+"cpsc": "26568",
+"shared": [
+"CAR",
+"SEAT",
+"STROLLER"
+]
+},
+{
+"hc_nid": "82048",
+"cpsc": "26469",
+"shared": [
+"PACKAGING",
+"RESISTANT"
+]
+},
+{
+"hc_nid": "82049",
+"cpsc": "26494",
+"shared": [
+"CARBON",
+"MONOXIDE"
+]
+},
+{
+"hc_nid": "82034",
+"cpsc": "26494",
+"shared": [
+"CARBON",
+"MONOXIDE"
+]
+},
+{
+"hc_nid": "82021",
+"cpsc": "26436",
+"shared": [
+"INGESTION",
+"MAGNETIC"
+]
+},
+{
+"hc_nid": "81984",
+"cpsc": "26539",
+"shared": [
+"COOL",
+"COOLING",
+"HEATING",
+"HOT",
+"INNOVATIONS",
+"MERKURY"
+]
+},
+{
+"hc_nid": "81919",
+"cpsc": "26401",
+"shared": [
+"CARBON",
+"MONOXIDE"
+]
+},
+{
+"hc_nid": "81904",
+"cpsc": "26401",
+"shared": [
+"CARBON",
+"MONOXIDE"
+]
+},
+{
+"hc_nid": "81875",
+"cpsc": "26403",
+"shared": [
+"LED",
+"LIGHT"
+]
+},
+{
+"hc_nid": "81870",
+"cpsc": "26302",
+"shared": [
+"GAME",
+"INGESTION",
+"MAGNET"
+]
+},
+{
+"hc_nid": "81835",
+"cpsc": "26392",
+"shared": [
+"MAGNET",
+"MAGNETIC"
+]
+},
+{
+"hc_nid": "81786",
+"cpsc": "26392",
+"shared": [
+"INGESTION",
+"MAGNETS"
+]
+},
+{
+"hc_nid": "81773",
+"cpsc": "26392",
+"shared": [
+"INGESTION",
+"MAGNET",
+"MAGNETIC"
+]
+},
+{
+"hc_nid": "81779",
+"cpsc": "26264",
+"shared": [
+"GATES",
+"RETRACTABLE",
+"VEVOR"
+]
+},
+{
+"hc_nid": "81725",
+"cpsc": "26260",
+"shared": [
+"ALARMS",
+"PHOTOELECTRIC",
+"SMOKE"
+]
+},
+{
+"hc_nid": "81719",
+"cpsc": "26260",
+"shared": [
+"DETECTOR",
+"FAILURE",
+"SMOKE"
+]
+},
+{
+"hc_nid": "81724",
+"cpsc": "26345",
+"shared": [
+"BALL",
+"FIDGET",
+"INGESTION",
+"MAGNET"
+]
+},
+{
+"hc_nid": "81699",
+"cpsc": "26302",
+"shared": [
+"CHESS",
+"GAME",
+"INGESTION"
+]
+},
+{
+"hc_nid": "81700",
+"cpsc": "26291",
+"shared": [
+"INGESTION",
+"MAGNETIC"
+]
+},
+{
+"hc_nid": "81685",
+"cpsc": "26312",
+"shared": [
+"PACKAGING",
+"RESISTANT"
+]
+},
+{
+"hc_nid": "81678",
+"cpsc": "26302",
+"shared": [
+"INGESTION",
+"MAGNET"
+]
+},
+{
+"hc_nid": "81632",
+"cpsc": "26260",
+"shared": [
+"DETECTOR",
+"FAILURE",
+"PHOTOELECTRIC",
+"SMOKE"
+]
+},
+{
+"hc_nid": "81594",
+"cpsc": "26277",
+"shared": [
+"HEAD",
+"HELMETS",
+"OUTDOOR",
+"YOUTH"
+]
+},
+{
+"hc_nid": "81449",
+"cpsc": "26180",
+"shared": [
+"BICYCLE",
+"COMPONENTS",
+"GEN",
+"LOAM",
+"PEDAL",
+"PEDALS",
+"PNW"
+]
+},
+{
+"hc_nid": "81473",
+"cpsc": "26161",
+"shared": [
+"ANNQUAN",
+"D106",
+"D112",
+"POWER",
+"STRIPS"
+]
+},
+{
+"hc_nid": "81481",
+"cpsc": "26142",
+"shared": [
+"GARMENT",
+"VEVOR"
+]
+},
+{
+"hc_nid": "81472",
+"cpsc": "26220",
+"shared": [
+"2026",
+"YEAR"
+]
+},
+{
+"hc_nid": "81462",
+"cpsc": "26158",
+"shared": [
+"BEARD",
+"OIL"
+]
+},
+{
+"hc_nid": "81448",
+"cpsc": "26198",
+"shared": [
+"PACKAGING",
+"RESISTANT"
+]
+},
+{
+"hc_nid": "81434",
+"cpsc": "26158",
+"shared": [
+"PACKAGING",
+"RESISTANT"
+]
+},
+{
+"hc_nid": "81348",
+"cpsc": "26115",
+"shared": [
+"ADULT",
+"BED",
+"RAILS",
+"VIVOHOME"
+]
+},
+{
+"hc_nid": "78407",
+"cpsc": "26179",
+"shared": [
+"ISLA",
+"MAGNETIC",
+"RAE",
+"WIRELESS"
+]
+},
+{
+"hc_nid": "81346",
+"cpsc": "26077",
+"shared": [
+"ADULT",
+"BED",
+"NEAUDE",
+"RAILS"
+]
+},
+{
+"hc_nid": "81319",
+"cpsc": "26158",
+"shared": [
+"PACKAGING",
+"RESISTANT"
+]
+},
+{
+"hc_nid": "81252",
+"cpsc": "26035",
+"shared": [
+"BICYCLES",
+"FRAMES",
+"VAAST"
+]
+},
+{
+"hc_nid": "81236",
+"cpsc": "26089",
+"shared": [
+"PACKAGING",
+"RESISTANT"
+]
+},
+{
+"hc_nid": "78486",
+"cpsc": "26025",
+"shared": [
+"MACHINES",
+"NORDICTRACK",
+"NTRW19147",
+"ROWING"
+]
+},
+{
+"hc_nid": "78451",
+"cpsc": "26067",
+"shared": [
+"BIKE",
+"ORIGINAL",
+"PELOTON",
+"PL02"
+]
+},
+{
+"hc_nid": "78427",
+"cpsc": "26004",
+"shared": [
+"DRAWER",
+"DRESSERS",
+"GUNAITO"
+]
+},
+{
+"hc_nid": "78361",
+"cpsc": "26063",
+"shared": [
+"FLAMMABILITY",
+"MATTRESS"
+]
+},
+{
+"hc_nid": "78357",
+"cpsc": "26010",
+"shared": [
+"2000",
+"DELTA",
+"ECOFLOW",
+"MAX",
+"POWER",
+"STATIONS"
+]
+},
+{
+"hc_nid": "78266",
+"cpsc": "25467",
+"shared": [
+"FLAME",
+"TABLETOP"
+]
+},
+{
+"hc_nid": "78121",
+"cpsc": "26051",
+"shared": [
+"1300",
+"900",
+"BICYCLE",
+"BLINDER",
+"KNOG",
+"LIGHTS"
+]
+},
+{
+"hc_nid": "77977",
+"cpsc": "25462",
+"shared": [
+"FLAMMABILITY",
+"PAJAMA"
+]
+},
+{
+"hc_nid": "77974",
+"cpsc": "25470",
+"shared": [
+"ARIZER",
+"SOLO",
+"VAPORIZER"
+]
+},
+{
+"hc_nid": "77891",
+"cpsc": "25392",
+"shared": [
+"ELECTRONIC",
+"GLIDERS",
+"KIWI",
+"PORT",
+"RECLINER",
+"SWIVEL",
+"USB"
+]
+},
+{
+"hc_nid": "77947",
+"cpsc": "25426",
+"shared": [
+"PACKAGING",
+"RESISTANT"
+]
+},
+{
+"hc_nid": "77907",
+"cpsc": "25392",
+"shared": [
+"PORT",
+"USB"
+]
+},
+{
+"hc_nid": "77817",
+"cpsc": "25357",
+"shared": [
+"CINCHES",
+"FIT",
+"RELIEF",
+"SADDLE",
+"SHOULDER",
+"TOTAL"
+]
+},
+{
+"hc_nid": "77803",
+"cpsc": "25467",
+"shared": [
+"FLAME",
+"JETTING",
+"TABLETOP"
+]
+},
+{
+"hc_nid": "77791",
+"cpsc": "25445",
+"shared": [
+"CARBON",
+"FIBER",
+"SWISS"
+]
+},
+{
+"hc_nid": "77776",
+"cpsc": "25381",
+"shared": [
+"BICYCLE",
+"GIANT",
+"MOMENTUM",
+"VIDA"
+]
+},
+{
+"hc_nid": "77774",
+"cpsc": "25362",
+"shared": [
+"HANDRAILS",
+"POST",
+"SINGLE",
+"VEVOR"
+]
+},
+{
+"hc_nid": "77743",
+"cpsc": "25342",
+"shared": [
+"ASTROAI",
+"CAN"
+]
+},
+{
+"hc_nid": "77651",
+"cpsc": "25301",
+"shared": [
+"FIXTURES",
+"FLOW",
+"IMPACT",
+"LIGHT",
+"LIGHTS",
+"MINKA",
+"VORTIC"
+]
+},
+{
+"hc_nid": "77650",
+"cpsc": "25338",
+"shared": [
+"ANKER",
+"BANKS",
+"POWER"
+]
+},
+{
+"hc_nid": "77647",
+"cpsc": "25355",
+"shared": [
+"ION",
+"LIPRO",
+"LITHIUM",
+"PACKS",
+"POWER",
+"RECHARGEABLE"
+]
+},
+{
+"hc_nid": "77585",
+"cpsc": "25254",
+"shared": [
+"300C",
+"ADAPTORS",
+"POWER",
+"YAMAHA"
+]
+},
+{
+"hc_nid": "77277",
+"cpsc": "25354",
+"shared": [
+"PACKAGING",
+"RESISTANT"
+]
+},
+{
+"hc_nid": "77537",
+"cpsc": "25248",
+"shared": [
+"BASEUS",
+"CHARGERS"
+]
+},
+{
+"hc_nid": "77541",
+"cpsc": "25251",
+"shared": [
+"CABLE",
+"KITS",
+"RAILING",
+"VEVOR"
+]
+},
+{
+"hc_nid": "77538",
+"cpsc": "25285",
+"shared": [
+"BUMPY",
+"CHILL",
+"FIDGET",
+"HAPTIC",
+"INGESTION",
+"MAGNETIC",
+"PILL",
+"RED",
+"TOYS"
+]
+},
+{
+"hc_nid": "77504",
+"cpsc": "25318",
+"shared": [
+"CONVERTIBLE",
+"HIGH"
+]
+},
+{
+"hc_nid": "77453",
+"cpsc": "25212",
+"shared": [
+"ASHLAND",
+"BAR",
+"CASEMENT",
+"HINGE",
+"IMPACT",
+"INCH",
+"TRACKS",
+"TWO",
+"WINDOW"
+]
+},
+{
+"hc_nid": "77446",
+"cpsc": "25281",
+"shared": [
+"ACTIVITY",
+"INGESTION",
+"MODULAR",
+"PLAYTAB",
+"ROLLERS",
+"TILE"
+]
+},
+{
+"hc_nid": "77442",
+"cpsc": "25223",
+"shared": [
+"PACKAGING",
+"RESISTANT"
+]
+},
+{
+"hc_nid": "77443",
+"cpsc": "25211",
+"shared": [
+"ALIEXPRESS",
+"DRYERS",
+"HAIR"
+]
+},
+{
+"hc_nid": "77324",
+"cpsc": "25194",
+"shared": [
+"LIQUID",
+"PACKAGING",
+"RESISTANT"
+]
+},
+{
+"hc_nid": "77298",
+"cpsc": "25180",
+"shared": [
+"CHEWS",
+"DECADE",
+"LIFE",
+"ROSARY",
+"SILICONE",
+"TEETHERS"
+]
+},
+{
+"hc_nid": "77283",
+"cpsc": "25222",
+"shared": [
+"CHAIR",
+"HIGH"
+]
+},
+{
+"hc_nid": "77258",
+"cpsc": "25222",
+"shared": [
+"CHAIR",
+"CONVERTIBLE",
+"HIGH"
+]
+},
+{
+"hc_nid": "77225",
+"cpsc": "25187",
+"shared": [
+"AIPER",
+"CORDLESS",
+"POOL",
+"PRO",
+"ROBOTIC",
+"SEAGULL",
+"VACUUM",
+"ZT6001"
+]
+},
+{
+"hc_nid": "77216",
+"cpsc": "25164",
+"shared": [
+"ARVA",
+"AVALANCHE",
+"NEO",
+"PRO",
+"TRANSCEIVERS",
+"TRANSMISSION"
+]
+},
+{
+"hc_nid": "77215",
+"cpsc": "25170",
+"shared": [
+"AUTO",
+"CARS",
+"DELUXE",
+"INGESTION",
+"KIT",
+"PIT",
+"SLOT",
+"UNASSEMBLED",
+"WORLD"
+]
+},
+{
+"hc_nid": "77191",
+"cpsc": "25704",
+"shared": [
+"INFANT",
+"LOUNGERS",
+"ZOOMIE"
+]
+},
+{
+"hc_nid": "77177",
+"cpsc": "25171",
+"shared": [
+"BATHROBES",
+"LOLANTA"
+]
+},
+{
+"hc_nid": "77180",
+"cpsc": "25168",
+"shared": [
+"CHANTAL",
+"FLAMMABILITY",
+"MARIE",
+"NIGHTGOWNS",
+"PAJAMA",
+"ROBES"
+]
+},
+{
+"hc_nid": "77157",
+"cpsc": "25704",
+"shared": [
+"ELEVEN",
+"LIFE",
+"LOUNGERS",
+"STYLE"
+]
+},
+{
+"hc_nid": "77172",
+"cpsc": "25222",
+"shared": [
+"BABYJOY",
+"CHAIR",
+"COSTWAY",
+"HIGH"
+]
+},
+{
+"hc_nid": "77130",
+"cpsc": "25131",
+"shared": [
+"EVRYDAY",
+"FLAMMABILITY",
+"PAJAMA",
+"SHEIN"
+]
+},
+{
+"hc_nid": "77140",
+"cpsc": "25132",
+"shared": [
+"ION",
+"LITHIUM",
+"MODE",
+"MULTI",
+"SLEEP"
+]
+},
+{
+"hc_nid": "77094",
+"cpsc": "25165",
+"shared": [
+"AUTO",
+"TRUBLUE"
+]
+},
+{
+"hc_nid": "77088",
+"cpsc": "25186",
+"shared": [
+"KIMPEX",
+"KITS",
+"SKI"
+]
+},
+{
+"hc_nid": "77015",
+"cpsc": "25159",
+"shared": [
+"COMBINER",
+"GOAL",
+"SOLAR",
+"ZERO"
+]
+},
+{
+"hc_nid": "76981",
+"cpsc": "25126",
+"shared": [
+"FREESTANDING",
+"RANGES",
+"SLIDE"
+]
+},
+{
+"hc_nid": "76991",
+"cpsc": "25118",
+"shared": [
+"FLAMMABILITY",
+"HOODIES",
+"SWEATSHIRTS",
+"TRAVISMATHEW"
+]
+},
+{
+"hc_nid": "76966",
+"cpsc": "25130",
+"shared": [
+"CARABINERS",
+"CLIMBING",
+"DUTY",
+"HEAVY",
+"HOOKS",
+"LOGEST",
+"METAL",
+"ROPES"
+]
+},
+{
+"hc_nid": "76756",
+"cpsc": "25156",
+"shared": [
+"CANYON",
+"SPEEDMAX"
+]
+},
+{
+"hc_nid": "76894",
+"cpsc": "25102",
+"shared": [
+"DULUTH",
+"FLAMMABILITY",
+"HOLIDAY",
+"PAJAMA"
+]
+},
+{
+"hc_nid": "76895",
+"cpsc": "25111",
+"shared": [
+"PACKAGING",
+"RESISTANT"
+]
+},
+{
+"hc_nid": "76879",
+"cpsc": "25096",
+"shared": [
+"BELLA",
+"BUNNY",
+"CAMILLE",
+"CITY",
+"FLAMMABILITY",
+"IVY",
+"MINI",
+"NIGHTGOWN",
+"PAJAMAS",
+"PETRA"
+]
+},
+{
+"hc_nid": "76807",
+"cpsc": "25066",
+"shared": [
+"C240",
+"CHARGERS",
+"HTRC"
+]
+},
+{
+"hc_nid": "76716",
+"cpsc": "25087",
+"shared": [
+"PACKAGING",
+"RESISTANT"
+]
+},
+{
+"hc_nid": "76665",
+"cpsc": "25040",
+"shared": [
+"CELEBRATION",
+"FLAMMABILITY",
+"GIRL",
+"PAJAMA",
+"PETIDOUX",
+"SUMMER"
+]
+},
+{
+"hc_nid": "76668",
+"cpsc": "25046",
+"shared": [
+"ADULT",
+"ASPHYXIA",
+"ASSIST",
+"BED",
+"KING",
+"MEDICAL",
+"RAIL",
+"RAILS"
+]
+},
+{
+"hc_nid": "76620",
+"cpsc": "25043",
+"shared": [
+"AIR",
+"BICYCLES",
+"OFF",
+"ORIGINAL",
+"WOOM"
+]
+},
+{
+"hc_nid": "76573",
+"cpsc": "25065",
+"shared": [
+"AVAILABLE",
+"MINI"
+]
+},
+{
+"hc_nid": "76570",
+"cpsc": "25058",
+"shared": [
+"LED",
+"LIGHT"
+]
+},
+{
+"hc_nid": "76518",
+"cpsc": "25044",
+"shared": [
+"STOKKE",
+"YOYO3"
+]
+},
+{
+"hc_nid": "76499",
+"cpsc": "25041",
+"shared": [
+"BANE",
+"BOBA",
+"BOOK",
+"CAD",
+"CHRISTMAS",
+"FEATURING",
+"FETT",
+"HALLMARK",
+"KEEPSAKE",
+"STAR",
+"TREE",
+"WARS"
+]
+},
+{
+"hc_nid": "76034",
+"cpsc": "24328",
+"shared": [
+"INGESTION",
+"LIGHT"
+]
+},
+{
+"hc_nid": "75974",
+"cpsc": "24335",
+"shared": [
+"RANGES",
+"SAMSUNG",
+"SLIDE"
+]
+},
+{
+"hc_nid": "75979",
+"cpsc": "25007",
+"shared": [
+"HEAD",
+"HELMETS",
+"MULTI",
+"PURPOSE"
+]
+},
+{
+"hc_nid": "75943",
+"cpsc": "24301",
+"shared": [
+"FLAMMABILITY",
+"PAJAMA",
+"PIECE",
+"TWO"
+]
+},
+{
+"hc_nid": "75917",
+"cpsc": "24296",
+"shared": [
+"FASHION",
+"FLAMMABILITY",
+"LONG",
+"PAJAMA",
+"PANTS",
+"PIECE",
+"SLEEVE",
+"TWO"
+]
+},
+{
+"hc_nid": "75910",
+"cpsc": "24301",
+"shared": [
+"BUTTON",
+"FLAMMABILITY",
+"JUVENNO",
+"PAJAMA",
+"PIECE",
+"SHORT",
+"SHORTS",
+"SLEEVE",
+"TWO"
+]
+},
+{
+"hc_nid": "75909",
+"cpsc": "24303",
+"shared": [
+"COVERS",
+"DRAIN",
+"POOL",
+"TONGASS"
+]
+},
+{
+"hc_nid": "73371",
+"cpsc": "24300",
+"shared": [
+"ANGEL",
+"FLAMMABILITY",
+"LOVELY",
+"NIGHTGOWNS"
+]
+},
+{
+"hc_nid": "75866",
+"cpsc": "24287",
+"shared": [
+"BANKS",
+"BASEUS",
+"CHARGING",
+"MAGNETIC",
+"POWER",
+"WIRELESS"
+]
+},
+{
+"hc_nid": "75842",
+"cpsc": "24332",
+"shared": [
+"BROMPTON",
+"LINE"
+]
+},
+{
+"hc_nid": "75840",
+"cpsc": "24264",
+"shared": [
+"BAMBU",
+"LAB",
+"PRINTERS"
+]
+},
+{
+"hc_nid": "75820",
+"cpsc": "24344",
+"shared": [
+"BANKS",
+"POWER",
+"VARMFRONT"
+]
+},
+{
+"hc_nid": "75817",
+"cpsc": "24257",
+"shared": [
+"GALLON",
+"ULTRA"
+]
+},
+{
+"hc_nid": "75809",
+"cpsc": "24269",
+"shared": [
+"HAIR",
+"PROFESSIONAL"
+]
+},
+{
+"hc_nid": "75772",
+"cpsc": "24287",
+"shared": [
+"BANKS",
+"POWER"
+]
+},
+{
+"hc_nid": "75746",
+"cpsc": "24322",
+"shared": [
+"ESSENTIAL",
+"GOLF",
+"GRIP",
+"VALUES"
+]
+},
+{
+"hc_nid": "75553",
+"cpsc": "24289",
+"shared": [
+"FLAMMABILITY",
+"PIECE"
+]
+},
+{
+"hc_nid": "75687",
+"cpsc": "24230",
+"shared": [
+"FLAMMABILITY",
+"NIGHTGOWNS",
+"ZEGOO"
+]
+},
+{
+"hc_nid": "75638",
+"cpsc": "24237",
+"shared": [
+"KANO",
+"LABORATORIES",
+"LUBE",
+"PACKAGING",
+"RESISTANT",
+"SIZES",
+"SUPER"
+]
+},
+{
+"hc_nid": "63670",
+"cpsc": "24183",
+"shared": [
+"FLAMMABILITY",
+"SLEEPWEAR"
+]
+},
+{
+"hc_nid": "75515",
+"cpsc": "24193",
+"shared": [
+"COTTON",
+"LAND",
+"QUILTED",
+"QUILTS",
+"RED",
+"SHAMS"
+]
+},
+{
+"hc_nid": "75456",
+"cpsc": "24248",
+"shared": [
+"ADULT",
+"BED",
+"MEDLINE",
+"RAILS"
+]
+},
+{
+"hc_nid": "75453",
+"cpsc": "24179",
+"shared": [
+"BED",
+"ENDURANCE",
+"ESSENTIAL",
+"HAND",
+"MEDICAL",
+"RAILS",
+"SUPPLY"
+]
+},
+{
+"hc_nid": "75393",
+"cpsc": "24149",
+"shared": [
+"POWER",
+"YAMAHA"
+]
+},
+{
+"hc_nid": "75392",
+"cpsc": "24201",
+"shared": [
+"HELMETS",
+"MULTI"
+]
+},
+{
+"hc_nid": "75375",
+"cpsc": "24237",
+"shared": [
+"PACKAGING",
+"RESISTANT"
+]
+},
+{
+"hc_nid": "63561",
+"cpsc": "24177",
+"shared": [
+"BERKLEY",
+"CITRONELLA",
+"JENSEN",
+"TORCHES"
+]
+},
+{
+"hc_nid": "75334",
+"cpsc": "24189",
+"shared": [
+"BAGS",
+"DETERGENT",
+"FLINGS",
+"GAIN",
+"LAUNDRY",
+"LIQUID",
+"PACKETS",
+"PODS",
+"TIDE"
+]
+},
+{
+"hc_nid": "75296",
+"cpsc": "24123",
+"shared": [
+"AREA",
+"FLAMMABILITY",
+"JURLEA",
+"RUGS"
+]
+},
+{
+"hc_nid": "75244",
+"cpsc": "24125",
+"shared": [
+"CHARGERS",
+"USB"
+]
+},
+{
+"hc_nid": "75245",
+"cpsc": "24142",
+"shared": [
+"PACKAGING",
+"RESISTANT"
+]
+},
+{
+"hc_nid": "75208",
+"cpsc": "24125",
+"shared": [
+"CHARGERS",
+"USB"
+]
+},
+{
+"hc_nid": "75173",
+"cpsc": "24112",
+"shared": [
+"ADAPTERS",
+"ANGLED",
+"GPU",
+"GRAPHICS",
+"PROCESSING",
+"UNIT"
+]
+},
+{
+"hc_nid": "75172",
+"cpsc": "24142",
+"shared": [
+"PACKAGING",
+"RESISTANT"
+]
+},
+{
+"hc_nid": "75106",
+"cpsc": "24120",
+"shared": [
+"FERADYNE",
+"OUTDOORS",
+"RHINO"
+]
+},
+{
+"hc_nid": "74914",
+"cpsc": "24080",
+"shared": [
+"ADDITIONAL",
+"COIL",
+"COMFORT",
+"DAIKIN",
+"DRAIN",
+"EVAPORATOR",
+"EXPANDS",
+"INCLUDE",
+"PANS"
+]
+},
+{
+"hc_nid": "74900",
+"cpsc": "24734",
+"shared": [
+"COLLEGIATE",
+"ENGLISH",
+"HORSE",
+"RIDING",
+"SADDLES"
+]
+},
+{
+"hc_nid": "74845",
+"cpsc": "24125",
+"shared": [
+"40W",
+"ASKSTORM",
+"USB"
+]
+},
+{
+"hc_nid": "74838",
+"cpsc": "24726",
+"shared": [
+"BLINDS",
+"ZEBRA"
+]
+},
+{
+"hc_nid": "74829",
+"cpsc": "24726",
+"shared": [
+"BLINDS",
+"ROLLER",
+"ZEBRA"
+]
+},
+{
+"hc_nid": "74796",
+"cpsc": "24067",
+"shared": [
+"BLACKFIRE",
+"KLEIN",
+"POWER",
+"TOOLS"
+]
+},
+{
+"hc_nid": "74818",
+"cpsc": "24726",
+"shared": [
+"BLINDS",
+"ROLLER"
+]
+},
+{
+"hc_nid": "74819",
+"cpsc": "24071",
+"shared": [
+"INGESTION",
+"MAGNETIC"
+]
+},
+{
+"hc_nid": "74776",
+"cpsc": "24729",
+"shared": [
+"MATTRESSES",
+"PLAYYARD"
+]
+},
+{
+"hc_nid": "74724",
+"cpsc": "24031",
+"shared": [
+"BANKS",
+"POWER"
+]
+},
+{
+"hc_nid": "74683",
+"cpsc": "24726",
+"shared": [
+"BLINDS",
+"ZEBRA"
+]
+},
+{
+"hc_nid": "74684",
+"cpsc": "24033",
+"shared": [
+"COOKTOPS",
+"KNOB",
+"RADIANT"
+]
+},
+{
+"hc_nid": "74449",
+"cpsc": "24703",
+"shared": [
+"PACKAGING",
+"RESISTANT"
+]
+},
+{
+"hc_nid": "74453",
+"cpsc": "24011",
+"shared": [
+"BIOMETRIC",
+"FORTRESS",
+"GUN",
+"SAFE",
+"SAFES"
+]
+},
+{
+"hc_nid": "74388",
+"cpsc": "23287",
+"shared": [
+"HONDA",
+"LAWNMOWERS"
+]
+},
+{
+"hc_nid": "74335",
+"cpsc": "23274",
+"shared": [
+"EMPORIA",
+"PLUGS",
+"SMART"
+]
+},
+{
+"hc_nid": "74334",
+"cpsc": "23286",
+"shared": [
+"INGESTION",
+"WATER"
+]
+},
+{
+"hc_nid": "74316",
+"cpsc": "23785",
+"shared": [
+"MULTI",
+"PURPOSE"
+]
+},
+{
+"hc_nid": "74303",
+"cpsc": "23269",
+"shared": [
+"STAINLESS",
+"STEEL"
+]
+},
+{
+"hc_nid": "74106",
+"cpsc": "23250",
+"shared": [
+"AVENT",
+"DIGITAL",
+"PHILIPS",
+"VIDEO"
+]
+},
+{
+"hc_nid": "73996",
+"cpsc": "23783",
+"shared": [
+"LABS",
+"UBIO"
+]
+},
+{
+"hc_nid": "74012",
+"cpsc": "23230",
+"shared": [
+"HELMET",
+"HURTLE",
+"MULTI",
+"PURPOSE"
+]
+},
+{
+"hc_nid": "73921",
+"cpsc": "23243",
+"shared": [
+"HOT",
+"WATER"
+]
+},
+{
+"hc_nid": "73918",
+"cpsc": "23227",
+"shared": [
+"PACKAGING",
+"RESISTANT"
+]
+},
+{
+"hc_nid": "73896",
+"cpsc": "23230",
+"shared": [
+"MULTI",
+"PURPOSE"
+]
+},
+{
+"hc_nid": "73875",
+"cpsc": "23773",
+"shared": [
+"MOTOR",
+"VEHICLES"
+]
+},
+{
+"hc_nid": "73857",
+"cpsc": "23229",
+"shared": [
+"ALIVE",
+"BATH",
+"JUNIOR",
+"ROBO",
+"SHARK",
+"ZURU"
+]
+},
+{
+"hc_nid": "73770",
+"cpsc": "23752",
+"shared": [
+"BOXES",
+"CULTUREFLY",
+"SURPRISE",
+"TREAT",
+"TRICK"
+]
+},
+{
+"hc_nid": "73757",
+"cpsc": "23227",
+"shared": [
+"PACKAGING",
+"RESISTANT"
+]
+},
+{
+"hc_nid": "73661",
+"cpsc": "23201",
+"shared": [
+"PELOTON",
+"PL01"
+]
+},
+{
+"hc_nid": "73564",
+"cpsc": "23203",
+"shared": [
+"PACKAGING",
+"RESISTANT"
+]
+},
+{
+"hc_nid": "73575",
+"cpsc": "23203",
+"shared": [
+"PACKAGING",
+"RESISTANT"
+]
+},
+{
+"hc_nid": "73476",
+"cpsc": "23192",
+"shared": [
+"BOUTIQUE",
+"BUTTERFLY",
+"CADMIUM",
+"JEWEL"
+]
+},
+{
+"hc_nid": "73463",
+"cpsc": "23136",
+"shared": [
+"ASSIST",
+"BED",
+"LUMARAIL",
+"RAILS"
+]
+},
+{
+"hc_nid": "73439",
+"cpsc": "23192",
+"shared": [
+"BOUTIQUE",
+"BUTTERFLY",
+"CADMIUM"
+]
+},
+{
+"hc_nid": "73423",
+"cpsc": "23192",
+"shared": [
+"BUNNY",
+"CADMIUM",
+"EASTER"
+]
+},
+{
+"hc_nid": "73396",
+"cpsc": "23149",
+"shared": [
+"BAMBOO",
+"BRAVELY",
+"HOODIES",
+"KINDRED",
+"NURSING"
+]
+},
+{
+"hc_nid": "73397",
+"cpsc": "23150",
+"shared": [
+"ACCESSORIES",
+"PLAY"
+]
+},
+{
+"hc_nid": "73395",
+"cpsc": "23165",
+"shared": [
+"BIKES",
+"JETSON",
+"SCOOTERS"
+]
+},
+{
+"hc_nid": "73368",
+"cpsc": "23155",
+"shared": [
+"PACKAGING",
+"RESISTANT"
+]
+},
+{
+"hc_nid": "73340",
+"cpsc": "23175",
+"shared": [
+"BLAVINGAD",
+"FISHING",
+"IKEA"
+]
+},
+{
+"hc_nid": "73107",
+"cpsc": "23146",
+"shared": [
+"PACKAGING",
+"RESISTANT"
+]
+},
+{
+"hc_nid": "72904",
+"cpsc": "23147",
+"shared": [
+"20K",
+"535",
+"ANKER",
+"POWER",
+"POWERCORE"
+]
+},
+{
+"hc_nid": "72673",
+"cpsc": "23093",
+"shared": [
+"DECORS",
+"INCH",
+"OVE",
+"VANESSA"
+]
+},
+{
+"hc_nid": "72628",
+"cpsc": "23141",
+"shared": [
+"FLAMMABILITY",
+"HANSEN",
+"HELLY",
+"HOODIES"
+]
+},
+{
+"hc_nid": "72635",
+"cpsc": "23105",
+"shared": [
+"PACKAGING",
+"RESISTANT"
+]
+},
+{
+"hc_nid": "72610",
+"cpsc": "23107",
+"shared": [
+"CARBON",
+"INCH",
+"MONOXIDE",
+"RANGES",
+"ZLINE"
+]
+},
+{
+"hc_nid": "72308",
+"cpsc": "23070",
+"shared": [
+"PACKAGING",
+"RESISTANT"
+]
+},
+{
+"hc_nid": "64247",
+"cpsc": "23711",
+"shared": [
+"STAINLESS",
+"STEEL"
+]
+},
+{
+"hc_nid": "72197",
+"cpsc": "23027",
+"shared": [
+"BASKETBALL",
+"GOALS",
+"GOALSETTER",
+"IMPACT",
+"MOUNTED",
+"WALL"
+]
+},
+{
+"hc_nid": "72185",
+"cpsc": "23003",
+"shared": [
+"RUBBER",
+"STRAPS",
+"SWIFT"
+]
+},
+{
+"hc_nid": "72193",
+"cpsc": "23032",
+"shared": [
+"PACKAGING",
+"RESISTANT"
+]
+},
+{
+"hc_nid": "72167",
+"cpsc": "23011",
+"shared": [
+"EKOUAER",
+"FLAMMABILITY",
+"SLEEPWEAR"
+]
+},
+{
+"hc_nid": "72056",
+"cpsc": "23704",
+"shared": [
+"BASICS",
+"CHAIRS",
+"DESK",
+"EXECUTIVE"
+]
+},
+{
+"hc_nid": "72089",
+"cpsc": "23022",
+"shared": [
+"BACTERIA",
+"CLEAN",
+"CLEANERS",
+"EXPOSURE",
+"FRESH",
+"LAVENDER",
+"LEMON",
+"MULTI",
+"PINE",
+"SCENTED",
+"SCENTS",
+"SOL",
+"SURFACE"
+]
+},
+{
+"hc_nid": "72052",
+"cpsc": "23032",
+"shared": [
+"PACKAGING",
+"RESISTANT"
+]
+},
+{
+"hc_nid": "72057",
+"cpsc": "23703",
+"shared": [
+"ACTION",
+"ARMY",
+"FIGURE",
+"JUVO",
+"PHTHALATES",
+"PLUS"
+]
+},
+{
+"hc_nid": "72058",
+"cpsc": "23703",
+"shared": [
+"BUTTERFLY",
+"JUVO",
+"NET",
+"PHTHALATES",
+"PLUS"
+]
+},
+{
+"hc_nid": "64596",
+"cpsc": "22770",
+"shared": [
+"CLIMBING",
+"GEN",
+"ONE",
+"STICK",
+"STICKS",
+"TETHRD"
+]
+},
+{
+"hc_nid": "64564",
+"cpsc": "23032",
+"shared": [
+"PACKAGING",
+"RESISTANT"
+]
+},
+{
+"hc_nid": "64483",
+"cpsc": "22190",
+"shared": [
+"PACKAGING",
+"RESISTANT"
+]
+},
+{
+"hc_nid": "64514",
+"cpsc": "22190",
+"shared": [
+"PACKAGING",
+"RESISTANT"
+]
+},
+{
+"hc_nid": "64468",
+"cpsc": "22197",
+"shared": [
+"CORDLESS",
+"HEDGE",
+"MAKITA"
+]
+},
+{
+"hc_nid": "64461",
+"cpsc": "22190",
+"shared": [
+"PACKAGING",
+"RESISTANT"
+]
+},
+{
+"hc_nid": "64437",
+"cpsc": "22190",
+"shared": [
+"PACKAGING",
+"RESISTANT"
+]
+},
+{
+"hc_nid": "64358",
+"cpsc": "22760",
+"shared": [
+"AMPOULES",
+"LIFTACTIV",
+"PEPTIDE",
+"VICHY"
+]
+},
+{
+"hc_nid": "64277",
+"cpsc": "22146",
+"shared": [
+"ACTIVITY",
+"PUSH",
+"WISE",
+"WONDER"
+]
+},
+{
+"hc_nid": "64227",
+"cpsc": "22163",
+"shared": [
+"CHAIRS",
+"EGG"
+]
+},
+{
+"hc_nid": "64194",
+"cpsc": "22745",
+"shared": [
+"OIL",
+"PACKAGING",
+"RESISTANT"
+]
+},
+{
+"hc_nid": "64180",
+"cpsc": "22128",
+"shared": [
+"FLAMMABILITY",
+"LINUM",
+"ROBES",
+"TEXTILES"
+]
+},
+{
+"hc_nid": "64121",
+"cpsc": "22743",
+"shared": [
+"AMAZONBASICS",
+"CHAIRS",
+"CLASSROOM",
+"SCHOOL",
+"STACK"
+]
+},
+{
+"hc_nid": "64101",
+"cpsc": "22103",
+"shared": [
+"ACTIVITY",
+"WALKERS"
+]
+},
+{
+"hc_nid": "64005",
+"cpsc": "22128",
+"shared": [
+"FLAMMABILITY",
+"ROBES"
+]
+},
+{
+"hc_nid": "63697",
+"cpsc": "22087",
+"shared": [
+"BEBE",
+"LAIT",
+"WOODEN"
+]
+},
+{
+"hc_nid": "63909",
+"cpsc": "22074",
+"shared": [
+"CREW",
+"CUSHION",
+"MID",
+"REINY",
+"SOCKS",
+"STANCE",
+"SZN"
+]
+},
+{
+"hc_nid": "63893",
+"cpsc": "22055",
+"shared": [
+"CHILDRENSALON",
+"FLAMMABILITY",
+"SLEEPWEAR"
+]
+},
+{
+"hc_nid": "63880",
+"cpsc": "22060",
+"shared": [
+"PACKAGING",
+"RESISTANT"
+]
+},
+{
+"hc_nid": "63839",
+"cpsc": "22054",
+"shared": [
+"FRIGG",
+"PACIFIERS",
+"SILICONE"
+]
+},
+{
+"hc_nid": "63798",
+"cpsc": "22023",
+"shared": [
+"DEWALT",
+"EARPHONES",
+"JOBSITE",
+"PRO",
+"WIRELESS"
+]
+}
+]
