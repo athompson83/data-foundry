@@ -399,7 +399,8 @@ describe('discoverability', () => {
     expect(urls).toContain('/recalls/D-66241-001</loc>');
     const key = await seedCustomer(env);
     expect((await worker.fetch(get('/v1/recalls/F-1855.2013', key), env)).status).toBe(200);
-    expect((await worker.fetch(site('/recalls/docs'), env)).status).toBe(200);
+    expect((await worker.fetch(site('/recalls/docs'), env)).status).toBe(301);
+    expect((await worker.fetch(site('/docs'), env)).status).toBe(200);
   });
 
   it('serves the IndexNow key and pings changed, indexable pages, retrying until a batch is accepted', async () => {

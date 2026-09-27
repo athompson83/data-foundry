@@ -119,7 +119,7 @@ async function meteredApi(env: Env, request: Request, url: URL): Promise<Respons
     const found = await getRecall(env.DB, env.RAW_ARTIFACTS, match[1] as string, includeRaw);
     return found ? json(found, 200, headers) : apiError(404, 'not_found', 'No recall with that number.', headers);
   }
-  return apiError(404, 'not_found', 'Unknown endpoint. See https://data.aroqon.com/recalls/docs');
+  return apiError(404, 'not_found', 'Unknown endpoint. See https://data.aroqon.com/docs');
 }
 
 async function accountApi(env: Env, request: Request, url: URL): Promise<Response> {
@@ -278,12 +278,12 @@ async function route(request: Request, env: Env): Promise<Response> {
       return json({
         name: 'Data Foundry API',
         datasets: {
-          recalls: { docs: `${ctx.publicOrigin}/recalls/docs`, openapi: `${ctx.apiOrigin}/openapi.json` },
+          recalls: { docs: `${ctx.publicOrigin}/docs`, openapi: `${ctx.apiOrigin}/openapi.json` },
           ...(productsServed(env) ? { 'product-recalls': { docs: `${ctx.publicOrigin}/product-recalls#api`, openapi: `${ctx.apiOrigin}/openapi.json` } } : {}),
         },
       });
     if (url.pathname === '/robots.txt') return new Response('User-agent: *\nDisallow: /\n', { headers: { 'content-type': 'text/plain' } });
-    return apiError(404, 'not_found', 'Unknown endpoint. See https://data.aroqon.com/recalls/docs');
+    return apiError(404, 'not_found', 'Unknown endpoint. See https://data.aroqon.com/docs');
   }
 
   switch (url.pathname) {
@@ -307,6 +307,7 @@ async function route(request: Request, env: Env): Promise<Response> {
     case '/recalls':
       return datasetRoute(env, ctx, 'recalls');
     case '/recalls/docs':
+      return Response.redirect(`${ctx.publicOrigin}/docs`, 301);
     case '/docs':
       return html(docsPage(ctx, productsServed(env)), 200, { 'cache-control': 'public, max-age=300' });
     case '/terms':

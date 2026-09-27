@@ -116,7 +116,7 @@ export function recallsDataset(ctx: PageContext): Record<string, unknown> {
     license: `${ctx.publicOrigin}/terms`,
     variableMeasured: ['recall classification', 'recall status', 'distribution states', 'GTIN', 'NDC', 'lot number', 'expiration date', 'recall reason class', 'allergen', 'pathogen'],
     distribution: [{ '@type': 'DataDownload', name: 'Recall API (JSON)', encodingFormat: 'application/json', contentUrl: `${ctx.apiOrigin}/v1/recalls` }],
-    documentation: `${ctx.publicOrigin}/recalls/docs`,
+    documentation: `${ctx.publicOrigin}/docs#fda-recalls`,
   };
 }
 
@@ -138,7 +138,7 @@ export function productDataset(ctx: PageContext): Record<string, unknown> {
     license: `${ctx.publicOrigin}/terms`,
     variableMeasured: ['model number', 'GTIN', 'units sold', 'hazard class', 'remedy class', 'trade facet', 'linked notice'],
     distribution: [{ '@type': 'DataDownload', name: 'Product recall API (JSON)', encodingFormat: 'application/json', contentUrl: `${ctx.apiOrigin}/v1/product-recalls` }],
-    documentation: `${ctx.publicOrigin}/product-recalls#api`,
+    documentation: `${ctx.publicOrigin}/docs#product-recalls-lookup`,
   };
 }
 
@@ -216,7 +216,7 @@ export function recallPage(ctx: PageContext, recall: PresentedRecall): string {
 <h2>Product</h2><p>${escapeHtml(recall.product_description ?? 'Not stated by FDA.')}</p>
 <h2>Reason for recall</h2><p>${escapeHtml(recall.reason_for_recall ?? 'Not stated by FDA.')}</p>
 <h2>Machine access</h2>
-<p class="muted">This record, with every extracted code, the verbatim FDA record and provenance, is available from the recall API: <code>GET ${escapeHtml(api)}</code>. Look up any UPC, UDI, NDC or lot with <code>/v1/recalls/lookup?code=…</code>. <a href="/recalls/docs">API docs</a> · <a href="/recalls#pricing">free and paid keys</a>.</p>
+<p class="muted">This record, with every extracted code, the verbatim FDA record and provenance, is available from the recall API: <code>GET ${escapeHtml(api)}</code>. Look up any UPC, UDI, NDC or lot with <code>/v1/recalls/lookup?code=…</code>. <a href="/docs">API docs</a> · <a href="/recalls#pricing">free and paid keys</a>.</p>
 <p class="small muted">Source: U.S. Food and Drug Administration enforcement report via <a href="${escapeHtml(recall.provenance.source_url)}">openFDA</a> (CC0). Structured by Data Foundry (${escapeHtml(recall.provenance.parser_version)}); last changed ${escapeHtml(recall.provenance.changed_at.slice(0, 10))}. Not affiliated with or endorsed by FDA. Not medical or legal advice.</p>`;
   return layout(ctx, recallTitle(recall), recallDescription(recall), body, { path, jsonLd: [jsonLd], ...(isIndexable(recall) ? {} : { robots: 'noindex, follow' }) });
 }
@@ -257,7 +257,7 @@ export async function browsePage(ctx: PageContext, db: D1Database, category: str
   });
 }
 
-const STATIC_PATHS = ['/', '/recalls', '/recalls/docs', '/terms', '/privacy'];
+const STATIC_PATHS = ['/', '/recalls', '/docs', '/terms', '/privacy'];
 
 export async function indexableCount(db: D1Database): Promise<number> {
   const row = await db.prepare(`SELECT COUNT(*) AS n FROM recall WHERE ${INDEXABLE_SQL}`).first<{ n: number }>();
@@ -350,7 +350,7 @@ Key facts for agents:
 ${products ? PRODUCT_LLMS_FACTS(ctx) : ''}
 ## Docs
 
-- [Recall API documentation](${ctx.publicOrigin}/recalls/docs): parameters, identifiers, response shape, errors.
+- [Recall API documentation](${ctx.publicOrigin}/docs): parameters, identifiers, response shape, errors.
 - [OpenAPI 3.1 description](${ctx.apiOrigin}/openapi.json): machine-readable contract for tool use.
 - [Full LLM reference](${ctx.publicOrigin}/llms-full.txt): this file plus the complete parameter reference.
 

@@ -184,7 +184,7 @@ ${
 <p class="notice">Derived fields come from deterministic parsers over FDA prose. They are conservative — a code is only reported when an explicit marker or a valid check digit supports it — but they can be incomplete. The verbatim FDA text is always included for verification. This is not medical or legal advice; do not rely on it for decisions about medical care.</p>
 <h2>Errors</h2>
 <p><code>400</code> invalid parameter · <code>401</code> missing/unknown key · <code>403</code> subscription inactive · <code>404</code> not found · <code>429</code> monthly allowance spent · <code>503</code> temporarily unavailable. Errors are <code>{"error": {"code", "message"}}</code>.</p>`,
-    { path: '/recalls/docs' },
+    { path: '/docs' },
   );
 }
 
@@ -196,7 +196,7 @@ export function welcomePage(ctx: PageContext, key: string, planName: string): st
     `<h1>You're in.</h1><p class="lede">Plan: <strong>${escapeHtml(planName)}</strong>. Here is your API key. It is shown <strong>only once</strong> — copy it into your secret store now.</p>
 <p class="key"><code>${escapeHtml(key)}</code></p>
 <pre><code>curl "${ctx.apiOrigin}/v1/recalls?limit=3" -H "Authorization: Bearer ${escapeHtml(key)}"</code></pre>
-<p>Next: <a href="/recalls/docs">read the docs</a>. Manage billing any time with <code>POST ${ctx.apiOrigin}/v1/account/billing-portal</code>. Lost key? Email <a href="mailto:${ctx.supportEmail}">${ctx.supportEmail}</a> from the email address you checked out with; we will verify it against your billing record, revoke the old key and send a new one.</p>`,
+<p>Next: <a href="/docs">read the docs</a>. Manage billing any time with <code>POST ${ctx.apiOrigin}/v1/account/billing-portal</code>. Lost key? Email <a href="mailto:${ctx.supportEmail}">${ctx.supportEmail}</a> from the email address you checked out with; we will verify it against your billing record, revoke the old key and send a new one.</p>`,
     { noindex: true },
   );
 }
