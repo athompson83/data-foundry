@@ -101,6 +101,46 @@ describe('dataset expansion pipeline registry', () => {
     }
   });
 
+  const Inputs = z
+    .object({
+      archive: z.object({ bucket: z.string().min(1), key: z.string().min(1), bytes: z.number().int().positive(), sha256: z.string().regex(/^[0-9a-f]{64}$/) }).strict(),
+      note: z.string().min(10),
+      replay: z.array(z.tuple([z.string(), z.string()])).min(1),
+      acquisition_only: z.array(z.string()).default([]),
+      files: z.array(z.object({ path: z.string().min(1), bytes: z.number().int().nonnegative(), sha256: z.string().regex(/^[0-9a-f]{64}$/) }).strict()).min(1),
+    })
+    .strict();
+
+  it.each(registry.candidates)('$key can be replayed from preserved inputs', (candidate) => {
+    if (!between(candidate.stage)) return;
+    for (const round of rounds(candidate.evidence)) {
+      const dir = `${ROOT}docs/sources/pipeline/evidence/${round}`;
+      expect(existsSync(`${dir}/replay.sh`), `evidence/${round}/replay.sh must exist`).toBe(true);
+      const inputs = Inputs.parse(JSON.parse(readFileSync(`${dir}/inputs.json`, 'utf8')));
+      const preserved = new Set(inputs.files.map((file) => file.path));
+      const replayed = new Map(inputs.replay.map(([script, result]) => [result, script]));
+      const samples = JSON.parse(readFileSync(`${dir}/samples.json`, 'utf8')) as Record<string, { results: string[]; scripts: string[] }>;
+      const entry = samples[candidate.key]!;
+      for (const result of entry.results) {
+        const script = replayed.get(result);
+        expect(script, `${result} must be produced by a replayed script`).toBeDefined();
+        // Every input the script reads must be in the preserved archive.
+        const source = readFileSync(`${dir}/${script}`, 'utf8');
+        const reads = [...source.matchAll(/open\(\s*['"]([^'"{}]+)['"]/g)].map((match) => match[1]!);
+        for (const file of reads) {
+          if (/'w'|"w"/.test(source.slice(source.indexOf(file), source.indexOf(file) + file.length + 8))) continue;
+          expect(preserved.has(file), `${script} reads ${file}, which must be in inputs.json`).toBe(true);
+        }
+        for (const glob of source.matchAll(/glob\(f?['"](?:\{R\}\/)?([^'"*]+)\*/g)) {
+          expect([...preserved].some((path) => path.startsWith(glob[1]!)), `${script} globs ${glob[1]}*, which must be in inputs.json`).toBe(true);
+        }
+      }
+      for (const script of entry.scripts) {
+        expect([...replayed.values()].includes(script) || inputs.acquisition_only.includes(script), `${script} must be replayed or marked acquisition_only`).toBe(true);
+      }
+    }
+  });
+
   it.each(registry.candidates)('$key quotes its terms verbatim, with URLs, once EVIDENCED', (candidate) => {
     if (!between(candidate.stage)) return;
     expect(candidate.terms?.length ?? 0, `${candidate.key} needs at least one terms {url, quote}`).toBeGreaterThan(0);

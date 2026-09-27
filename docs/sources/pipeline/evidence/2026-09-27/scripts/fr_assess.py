@@ -1,5 +1,5 @@
 import re,html,glob,json,collections,os
-R=os.path.dirname(os.path.abspath(__file__))
+R=os.getcwd()  # run from the extracted inputs directory (see ../replay.sh)
 meta={x['document_number']:x for f in ['fr_rules.json','fr_pro.json'] for x in json.load(open(f'{R}/{f}'))['results']}
 M=r'(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s+\d{4}'
 P={
