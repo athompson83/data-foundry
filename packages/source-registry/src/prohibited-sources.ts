@@ -123,6 +123,14 @@ export const PROHIBITED_SOURCES: readonly ProhibitedSource[] = [
     reason: MANUFACTURER_REASON,
     liftedBy: WRITTEN_LICENCE,
   },
+  {
+    // Research round 2 (2026-09-27): the site footer states "Duplication in
+    // part or in whole is strictly prohibited."
+    domain: 'goodmanmfg.com',
+    publisher: 'Goodman Manufacturing (Daikin)',
+    reason: MANUFACTURER_REASON,
+    liftedBy: WRITTEN_LICENCE,
+  },
 ] as const;
 
 /**

@@ -40,6 +40,7 @@ the same `RightsViolationError` as any other rule-1 violation.
 | `york.com` | York (Johnson Controls) | as above |
 | `daikin.com` | Daikin Industries | as above |
 | `daikincomfort.com` | Daikin Comfort Technologies | as above |
+| `goodmanmfg.com` | Goodman Manufacturing (Daikin) | as above; the footer states "Duplication in part or in whole is strictly prohibited." Added 2026-09-27 from [service-trade research](pipeline/research-2026-09-27-service-trades.md) |
 
 Every entry carries a `reason` and a `liftedBy`. A prohibition with no stated
 route out is indistinguishable from an unexplained veto, and will eventually be

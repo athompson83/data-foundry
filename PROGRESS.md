@@ -1,5 +1,12 @@
 # Progress
 
+## Current session — 2026-09-27 (continued): service trades, and search/LLM discoverability
+
+- **Owner direction.** "The next 5 data sets should be something nongovernmental … service based. HVAC, Plumbing, Electric, Roofing, and Appliance. We build those out. Also need a way to SEO and make data show up for LLMs."
+- **Redirect.** Prototypes for the round-1 government candidates (CPSC, ClinicalTrials.gov, Federal Register, drug labels, SEC 8-K) were stopped mid-work and not committed; their empty parser scaffolds were removed. Round-1 candidates keep their stages.
+- **Service-trade research** ([`research-2026-09-27-service-trades.md`](docs/sources/pipeline/research-2026-09-27-service-trades.md)): 61 candidates across the five trades, verbatim terms, measured samples. Finding: every nongovernmental trade source with rich data (IAPMO, ASSE, NSF, UL, DLC, CRRC, ICC-ES, FM RoofNav, iFixit, manufacturer manuals/warranties, parts sites) is RED for a commercial data product. What passes is manufacturer-filed data on public hosts. First dataset per trade: appliance recall model index (GREEN, 32), HVAC ENERGY STAR matched systems (AMBER, 29), plumbing WaterSense products (AMBER, 28), electrical CEC solar equipment lists (AMBER, 28), roofing Miami-Dade NOAs (AMBER, 26). Active build order: `cpsc-recalls` with trade facets, then HVAC, plumbing, roofing, electrical. `goodmanmfg.com` added to the prohibited-source list. The weekly scout routine's prompt was updated to the new build order (claude.ai and `scout-routine.md`).
+- **Discoverability** (recall Worker; ADR-0015 "Discoverability"): a public page per recall (`/recalls/<recall_number>`) with JSON-LD, `noindex, follow` year hubs, a sitemap index over 20,000-URL files, `DataCatalog`/`Dataset` JSON-LD, `/llms.txt` and `/llms-full.txt`, `robots.txt` with Content-Signal, and IndexNow pings after each sync. Thin records (no product or reason text of 20+ characters) are noindex and out of the sitemaps. Cloudflare's AI-crawler blocking on the zone was checked: disabled. Deployment and live verification: see the PR.
+
 ## Current session — 2026-09-27 (continued): dataset expansion pipeline, research round 1
 
 - **Owner direction.** Keep expanding data types and databases, categorise them,

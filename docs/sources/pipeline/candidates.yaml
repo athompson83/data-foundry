@@ -27,12 +27,14 @@ candidates:
     terms:
       - url: https://www.cpsc.gov/About-CPSC/Policies-Statements-and-Directives/Privacy-Policy
         quote: "You may freely copy and distribute recall notices, including photographs of recalled items, without permission."
-    evidence: [docs/sources/pipeline/research-2026-09-27.md]
+    evidence: [docs/sources/pipeline/research-2026-09-27.md, docs/sources/pipeline/research-2026-09-27-service-trades.md]
     next_action: >-
-      Write the CPSC rights record (public information, credit CPSC, no endorsement,
+      First in the service-trade build order (research-2026-09-27-service-trades.md):
+      write the CPSC rights record (public information, credit CPSC, no endorsement,
       exclude ConsumerContact personal data and licensed images), then generalise
-      StructuredRecall beyond openFDA categories and prototype model/UPC/lot extraction
-      over all 10,027 recalls.
+      StructuredRecall beyond openFDA categories and prototype model/serial/UPC extraction
+      over all 10,027 recalls, with trade facets for appliance, HVAC, plumbing/water
+      heating and electrical.
 
   - key: nhtsa-recalls
     name: NHTSA vehicle recalls in the recall API
@@ -189,3 +191,1040 @@ candidates:
     scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 4, structuring_value: 2, freshness: 4, low_onboarding_cost: 2, poor_existing_access: 2 }
     evidence: [docs/commercial-validation/sec-canonical-facts-validation-20260917.md]
     next_action: NO_GO on determinism (concepts disagree); superseded by sec-8k-events.
+
+  # --- Service trades, research round 2 (2026-09-27): appliance ---
+  - key: appliance-recall-model-index
+    name: CPSC major-appliance recalls — structured model-number and serial-range index
+    category: home-services
+    structuring: identifier-extraction
+    stage: SCREENED
+    rights: GREEN
+    sources: ["https://www.saferproducts.gov/RestWebServices/Recall?format=json"]
+    scores: { agent_demand: 5, rights_clarity: 5, acquisition_ease: 5, structuring_value: 5, freshness: 4, low_onboarding_cost: 5, poor_existing_access: 3 }
+    terms:
+      - url: https://www.cpsc.gov/About-CPSC/Policies-Statements-and-Directives/Privacy-Policy
+        quote: "You may freely copy and distribute recall notices, including photographs of recalled items, without permission."
+      - url: https://www.cpsc.gov/About-CPSC/Policies-Statements-and-Directives/Privacy-Policy
+        quote: "However, the information may not be used in a way that states or implies CPSC endorsement. If you distribute, copy or link to any of this information, please credit CPSC."
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/appliance]
+    next_action: >-
+      Commit the appliance classifier (186 of 10,027 recalls; 25/25 precision on the fixed
+      sample) and the fixed 25-recall sample as evidence. Then prototype a parser that
+      separates model lists, serial ranges (including xx wildcards and date-coded serials)
+      and "model beginning with" prefix rules, fetching recall-page tables for the ~16% of
+      recalls with no in-text list. Build it as the appliance slice of cpsc-recalls. Credit
+      CPSC, imply no endorsement, exclude ConsumerContact, and never follow firm links to
+      prohibited hosts.
+
+  - key: appliance-energy-star-registry
+    name: ENERGY STAR certified appliance model registry (fridges, freezers, dishwashers, washers, dryers, dehumidifiers, room AC, electric cooking)
+    category: home-services
+    structuring: normalization
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://data.energystar.gov/resource/p5st-her9.json
+      - https://data.energystar.gov/resource/8t9c-g3tn.json
+      - https://data.energystar.gov/resource/q8py-6w3f.json
+      - https://data.energystar.gov/resource/t9u7-4d2j.json
+      - https://data.energystar.gov/resource/bghd-e2wd.json
+      - https://data.energystar.gov/resource/mgiu-hu4z.json
+      - https://data.energystar.gov/resource/5xn2-dv4h.json
+      - https://data.energystar.gov/resource/m6gi-ng33.json
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: https://edg.epa.gov/EPA_Data_License.html
+        quote: "Unless otherwise specified, all data produced by the U.S EPA is by default in the public domain and is not subject to domestic copyright protection under 17 U.S.C. § 105."
+    conditions:
+      - Publish only factual fields (brand, model, UPC, capacities, energy use, dates, certification status).
+      - Make no use of the ENERGY STAR mark or logo and imply no EPA endorsement; describe it as "listed in EPA ENERGY STAR certified-products data as of <date>".
+      - Sync daily and display the source update date.
+      - Position the data as the voluntary higher-efficiency subset, not the regulated population.
+      - Write an ADR-0013 rights record that resolves partner-submitted fields before RIGHTS_DETERMINED.
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/appliance]
+    next_action: >-
+      Write the ADR-0013 rights record for partner-submitted fields and the certification mark.
+      Then prototype wildcard-pattern normalisation (3,303 of 8,667 rows), UPC splitting
+      (1,095 multi-UPC cells) and the join to the recall index (7 of 64 recalls since 2015
+      name a still-certified model).
+
+  - key: appliance-health-canada-recalls
+    name: Health Canada consumer-product recalls — major-appliance slice
+    category: home-services
+    structuring: identifier-extraction
+    stage: SCREENED
+    rights: AMBER
+    sources: ["https://recalls-rappels.canada.ca/sites/default/files/opendata-donneesouvertes/HCRSAMOpenData.json"]
+    scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 3, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: https://open.canada.ca/en/open-government-licence-canada
+        quote: "The Information Provider grants you a worldwide, royalty-free, perpetual, non-exclusive licence to use the Information, including for commercial purposes, subject to the terms below."
+      - url: https://www.canada.ca/en/transparency/terms.html
+        quote: "Unless otherwise specified, you may not reproduce materials on this site, in whole or in part, for the purposes of commercial redistribution without prior written permission from the copyright administrator."
+    conditions:
+      - Republish only the OGL open-data index fields verbatim; attribute Health Canada and link the OGL.
+      - From the recall pages, extract only non-copyrightable facts (model numbers, Canadian units sold, sale period); never republish page text.
+      - Deduplicate joint CPSC recalls (14 of 22 sampled) against the CPSC slice.
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/appliance]
+    next_action: >-
+      Decide whether facts extracted from the canada.ca pages are acceptable under ADR-0013
+      (a facts-not-expression argument). If not, keep only the OGL index. Add it after the
+      CPSC slice for Canadian units sold and Canada-only recalls.
+
+  - key: appliance-brand-ownership
+    name: Appliance brand to owner crosswalk from Wikidata (CC0)
+    category: home-services
+    structuring: normalization
+    stage: SCREENED
+    rights: GREEN
+    sources: ["https://query.wikidata.org/sparql"]
+    scores: { agent_demand: 3, rights_clarity: 5, acquisition_ease: 4, structuring_value: 2, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 2 }
+    terms:
+      - url: https://www.wikidata.org/wiki/Wikidata:Copyright
+        quote: "All structured data from the main, Property, Lexeme, and EntitySchema namespaces is available under the Creative Commons CC0 License"
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/appliance]
+    next_action: >-
+      Use it as enrichment only. Hand-seed brand-string to QID mappings: label matching
+      resolves the correct appliance owner for only about 10 of the top 40 ENERGY STAR
+      brands, and collisions such as GE and Summit are severe. Attach the mappings to the
+      recall index and the registry.
+
+  - key: appliance-au-energy-rating
+    name: Australian Energy Rating registered household appliances (fridges, dishwashers, washers, dryers)
+    category: home-services
+    structuring: normalization
+    stage: SCREENED
+    rights: AMBER
+    sources: ["https://data.gov.au/data/dataset/energy-rating-for-household-appliances"]
+    scores: { agent_demand: 2, rights_clarity: 3, acquisition_ease: 3, structuring_value: 3, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
+    conditions:
+      - Attribute the source under CC BY 3.0 AU (the licence is recorded in the data.gov.au package metadata).
+      - data.gov.au robots.txt is "Disallow /" for all agents; establish a documented basis for automated CSV download before acquisition.
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/appliance]
+    next_action: >-
+      Find a verbatim licence statement on an https page (the energyrating.gov.au data page)
+      and a documented basis for automated download despite robots.txt Disallow /. Low US
+      demand, so it stays behind the US datasets.
+
+  - key: appliance-osm-shops
+    name: OpenStreetMap appliance shops and repair businesses
+    category: home-services
+    structuring: normalization
+    stage: DISCOVERED
+    rights: AMBER
+    sources: ["https://taginfo.openstreetmap.org/api/4/tag/stats?key=shop&value=appliance"]
+    scores: { agent_demand: 2, rights_clarity: 3, acquisition_ease: 3, structuring_value: 2, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 2 }
+    terms:
+      - url: https://www.openstreetmap.org/copyright
+        quote: "You are free to copy, distribute, transmit and adapt our data, as long as you credit OpenStreetMap and its contributors. If you alter or build upon our data, you may distribute the result only under the same license."
+    conditions:
+      - Credit OpenStreetMap and its contributors; any derived database is distributed under ODbL.
+      - Exclude sole-trader personal names and phone numbers.
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/appliance]
+    next_action: Measure the US count (Overpass failed from this egress). There are only 21 craft=appliance_repair worldwide, so the value is low.
+
+  - key: appliance-saferproducts-incidents
+    name: SaferProducts.gov consumer incident reports for major appliances
+    category: home-services
+    structuring: event-extraction
+    stage: DISCOVERED
+    rights: UNKNOWN
+    sources: ["https://www.saferproducts.gov/PublicSearch"]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 1, structuring_value: 5, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 4 }
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/appliance]
+    next_action: >-
+      Find a documented bulk or API route; /RestWebServices exposes only Recall and Penalty,
+      and /PublicSearch answered a term query with a 302. Determine the rights in
+      consumer-submitted narratives and exclude victim personal data before screening.
+
+  - key: appliance-open-products-facts
+    name: Open Products Facts appliance entries
+    category: home-services
+    structuring: normalization
+    stage: PARKED
+    rights: AMBER
+    sources: ["https://world.openproductsfacts.org/api/v2/search"]
+    scores: { agent_demand: 1, rights_clarity: 4, acquisition_ease: 4, structuring_value: 1, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 1 }
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/appliance]
+    next_action: >-
+      Parked: 46,250 products in all, but refrigerators 1, washing machines 5, and dryers,
+      ovens and microwaves 0. Reopen only if appliance coverage grows substantially.
+
+  - key: appliance-doe-ccms
+    name: DOE CCMS appliance certification classes
+    category: home-services
+    structuring: normalization
+    stage: PARKED
+    rights: RED
+    sources: ["https://www.regulations.doe.gov/certification-data/products.html"]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 1, structuring_value: 3, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 4 }
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/appliance]
+    next_action: >-
+      Parked: HTTP 403 to the descriptive User-Agent on 2026-09-27; browser impersonation
+      was refused for production. Reopen if DOE answers the pending inquiry with a supported
+      extract.
+
+  - key: appliance-cec-maedbs
+    name: California Energy Commission MAEDbS appliance database
+    category: home-services
+    structuring: normalization
+    stage: PARKED
+    rights: RED
+    sources: ["https://cacertappliances.energy.ca.gov/"]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 1, structuring_value: 3, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 4 }
+    terms:
+      - url: https://cacertappliances.energy.ca.gov/Login.aspx
+        quote: "The Modernized Appliance Efficiency Database System (MAEDBS) is the property of the California Energy Commission (Commission) and may only be accessed by authorized users."
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/appliance]
+    next_action: Parked; it redirects to a login with a criminal-prosecution warning. Reopen only with written CEC permission or a published open extract.
+
+  - key: appliance-ifixit-error-codes
+    name: iFixit appliance repair guides and error-code pages
+    category: home-services
+    structuring: normalization
+    stage: PARKED
+    rights: RED
+    sources: ["https://www.ifixit.com/Info/Licensing"]
+    scores: { agent_demand: 5, rights_clarity: 1, acquisition_ease: 2, structuring_value: 4, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 3 }
+    terms:
+      - url: https://www.ifixit.com/Info/Licensing
+        quote: "Noncommercial — You may not use the material for commercial purposes."
+      - url: https://www.ifixit.com/Info/Licensing
+        quote: "Training AI — Using our data to train a machine learning or AI model is a violation of our terms of use."
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/appliance]
+    next_action: Parked; the CC BY-NC-SA licence forbids commercial use. Reopen only with a commercial licence from iFixit.
+
+  - key: appliance-manufacturer-error-codes
+    name: Manufacturer appliance error and fault-code meanings (manuals)
+    category: home-services
+    structuring: normalization
+    stage: PARKED
+    rights: RED
+    sources: ["https://www.geappliances.com/"]
+    scores: { agent_demand: 5, rights_clarity: 1, acquisition_ease: 1, structuring_value: 4, freshness: 2, low_onboarding_cost: 2, poor_existing_access: 3 }
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/appliance]
+    next_action: >-
+      Parked. Manuals are copyrighted with no reuse grant found. geappliances.com/terms is
+      404 and whirlpool.com terms returned 403 to both user agents. No openly licensed
+      error-code source was found. Reopen with a manufacturer licence.
+
+  - key: appliance-parts-crossref
+    name: Appliance replacement-part cross-reference (PartSelect, RepairClinic)
+    category: home-services
+    structuring: normalization
+    stage: PARKED
+    rights: RED
+    sources: ["https://www.partselect.com/Terms-Of-Use.aspx", "https://www.repairclinic.com/TermsOfUse"]
+    scores: { agent_demand: 4, rights_clarity: 1, acquisition_ease: 1, structuring_value: 3, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 2 }
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/appliance]
+    next_action: Parked; the terms pages return 403 to both user agents (unreadable terms mean RED). Reopen only with a data licence.
+
+  - key: appliance-eprel
+    name: EU EPREL product energy-label database (appliances)
+    category: home-services
+    structuring: normalization
+    stage: PARKED
+    rights: RED
+    sources: ["https://eprel.ec.europa.eu/screen/home"]
+    scores: { agent_demand: 2, rights_clarity: 1, acquisition_ease: 2, structuring_value: 2, freshness: 4, low_onboarding_cost: 2, poor_existing_access: 3 }
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/appliance]
+    next_action: >-
+      Parked. The API returns 403 without a key, and the reuse terms are unread. The
+      2026-08 note on a paid-redistribution restriction stands. Reopen after reading the
+      API-key terms.
+
+  # --- Service trades, research round 2 (2026-09-27): hvac ---
+  - key: hvac-energystar-matched-systems
+    name: ENERGY STAR rated matched HVAC systems (heat pumps, mini-splits, furnaces) with model-pattern matching
+    category: home-services
+    structuring: normalization
+    stage: SCREENED
+    rights: AMBER
+    sources: [https://data.energystar.gov/resource/83eb-xbyy.json, https://data.energystar.gov/resource/akti-mt5s.json, https://data.energystar.gov/resource/i97v-e8au.json]
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: https://edg.epa.gov/EPA_Data_License.html
+        quote: "Unless otherwise specified, all data produced by the U.S EPA is by default in the public domain and is not subject to domestic copyright protection under 17 U.S.C. § 105."
+      - url: https://data.energystar.gov/api/views/83eb-xbyy.json
+        quote: "\"License\": \"https://edg.epa.gov/EPA_Data_License.html\" (metadata.custom_fields Common Core, Publisher U.S. Environmental Protection Agency)"
+      - url: https://www.epa.gov/web-policies-and-procedures/epa-disclaimers
+        quote: "Mention of or referral to commercial products or services, and/or links to non-EPA sites does not imply official EPA endorsement of or responsibility for the opinions, ideas, data, or products presented at those locations"
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/hvac]
+    conditions:
+      - Attribute EPA ENERGY STAR; label values "manufacturer-reported to EPA ENERGY STAR", never "verified" or "certified by us".
+      - Imply no EPA endorsement and do not use the ENERGY STAR mark or logo.
+      - Keep ahri_reference_number only as reported to EPA; never use it to query AHRI (prohibited publisher).
+      - No completeness claim; ENERGY STAR is a voluntary above-minimum subset and Central/Mini-Split AC datasets return 0 rows.
+      - Acquire only through the documented SODA API at <= 1 request/second (robots Crawl-delay 1).
+    next_action: >-
+      EVIDENCE it: archive the three datasets, confirm the '*' wildcard semantics against
+      ENERGY STAR documentation, and hand-check model-pattern match precision on 100
+      nameplate-style model strings. Then write the ADR-0013 rights record and prototype
+      the pattern compiler (15,382/15,382 parts compiled in the screen), brand normaliser
+      (282 -> 277 keys) and capacity decoder (69.2% have a capacity token).
+
+  - key: hvac-brand-ownership-graph
+    name: HVAC brand -> filing manufacturer -> corporate parent graph (Wikidata CC0 + ENERGY STAR filings)
+    category: home-services
+    structuring: normalization
+    stage: SCREENED
+    rights: GREEN
+    sources: [https://dumps.wikimedia.org/wikidatawiki/entities/, https://query.wikidata.org/sparql, https://data.energystar.gov/resource/83eb-xbyy.json]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 4 }
+    terms:
+      - url: https://www.wikidata.org/wiki/Wikidata:Copyright
+        quote: "All structured data from the main, Property, Lexeme, and EntitySchema namespaces is available under the Creative Commons CC0 License"
+      - url: https://edg.epa.gov/EPA_Data_License.html
+        quote: "Unless otherwise specified, all data produced by the U.S EPA is by default in the public domain and is not subject to domestic copyright protection under 17 U.S.C. § 105."
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/hvac]
+    conditions:
+      - Exclude any P127/P749 target that is a human (Q5); three HVAC items name private individuals as owners.
+      - ENERGY STAR-derived edges say "filed with EPA by", not "owned by", and carry the ENERGY STAR conditions.
+      - No inferred ownership edge without a cited source (rule 3); stale Wikidata edges (e.g. Carrier -> UTC) must be end-dated from evidence, not by model belief.
+      - Use Wikidata JSON dumps for production (query.wikidata.org robots.txt disallows /sparql for crawlers).
+    next_action: >-
+      Link the 147 ENERGY STAR partners to Wikidata QIDs (20/147 by exact label today),
+      measure precision by hand, and record which of the 26-brand test set gain a sourced
+      ultimate-parent edge; reuse for appliance and water-heater brands.
+
+  - key: hvac-refrigerant-transition-rules
+    name: AIM Act refrigerant transition obligations (40 CFR 84.54) joined to per-model refrigerant
+    category: home-services
+    structuring: obligation-timeline
+    stage: SCREENED
+    rights: GREEN
+    sources: ["https://www.ecfr.gov/api/versioner/v1/full/2026-08-24/title-40.xml?part=84&section=84.54"]
+    scores: { agent_demand: 3, rights_clarity: 5, acquisition_ease: 5, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: https://www.govinfo.gov/about/policies
+        quote: "Copyright protection under this title is not available for any work of the United States Government"
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/hvac]
+    next_action: >-
+      Fold into federal-register-obligations as an HVAC overlay: parse the 71 dated clauses
+      of 84.54 (amended 2026-05-26 and 2026-07-27) into sector x GWP-threshold x date rows
+      and join to ENERGY STAR refrigerant_type (R-410A 50,360 of 283,901 systems).
+
+  - key: hvac-cpsc-recall-slice
+    name: HVAC slice of CPSC recalls (serial ranges, manufacture dates, models)
+    category: home-services
+    structuring: identifier-extraction
+    stage: SCREENED
+    rights: GREEN
+    sources: ["https://www.saferproducts.gov/RestWebServices/Recall?format=json"]
+    scores: { agent_demand: 3, rights_clarity: 5, acquisition_ease: 5, structuring_value: 4, freshness: 3, low_onboarding_cost: 5, poor_existing_access: 2 }
+    terms:
+      - url: https://www.cpsc.gov/About-CPSC/Policies-Statements-and-Directives/Privacy-Policy
+        quote: "You may freely copy and distribute recall notices, including photographs of recalled items, without permission."
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/hvac]
+    next_action: >-
+      Do not build separately; add HVAC keywords and serial-range -> manufacture-date
+      extraction to the cpsc-recalls prototype (55 HVAC recalls; serial range 17/55,
+      manufacture date 16/55, model 40/55).
+
+  - key: hvac-tx-acr-contractor-licences
+    name: Texas TDLR air-conditioning contractor licences (business facts only)
+    category: home-services
+    structuring: normalization
+    stage: SCREENED
+    rights: AMBER
+    sources: [https://www.tdlr.texas.gov/LicenseSearch/licfile.asp, https://data.texas.gov/resource/7358-krk7.json]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 5, structuring_value: 2, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: https://www.tdlr.texas.gov/disclaimer.htm
+        quote: "Texas Government Code, Chapter 552, gives you the right to access government records; and an officer for public information and the officer's agent may not ask why you want them. All government information is presumed to be available to the public."
+      - url: https://www.tdlr.texas.gov/disclaimer.htm
+        quote: "certain information on some state agency web sites may be trademarked, service marked, or otherwise protected as the state agency's intellectual property, and all agency content is protected by federal copyright laws."
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/hvac]
+    conditions:
+      - Publish only licence number, class/endorsement, status/expiry and county, as uncopyrightable facts.
+      - Exclude owner_name, owner and business phones, mailing addresses, and all technician (individual) licences.
+      - Exclude business_name when it is or embeds a natural person's name (sole traders).
+      - Use no TDLR logo; imply no endorsement.
+    next_action: >-
+      Confirm the license_subtype code table from TDLR rules, measure the share of the
+      20,436 contractor rows that survive the sole-trader exclusion, and check whether a
+      multi-state licence layer is worth it before advancing.
+
+  - key: hvac-osm-contractors
+    name: OpenStreetMap HVAC contractor locations (craft/shop=hvac)
+    category: home-services
+    structuring: normalization
+    stage: PARKED
+    rights: AMBER
+    sources: [https://overpass-api.de/api/interpreter]
+    scores: { agent_demand: 2, rights_clarity: 3, acquisition_ease: 3, structuring_value: 2, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 1 }
+    terms:
+      - url: https://www.openstreetmap.org/copyright
+        quote: "You are free to copy, distribute, transmit and adapt our data, as long as you credit OpenStreetMap and its contributors. If you alter or build upon our data, you may distribute the result only under the same license."
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/hvac]
+    next_action: >-
+      Parked: 2,734 US POIs is tiny coverage, 7% carry any description, ODbL share-alike
+      binds a derived database, and sole-trader names/phones are personal data.
+
+  - key: hvac-serial-date-decoder-guides
+    name: HVAC serial-number to manufacture-date decoding guides (Building Intelligence Center and similar)
+    category: home-services
+    structuring: identifier-extraction
+    stage: PARKED
+    rights: RED
+    sources: [https://www.building-center.org/terms-of-use/]
+    scores: { agent_demand: 5, rights_clarity: 1, acquisition_ease: 2, structuring_value: 4, freshness: 2, low_onboarding_cost: 3, poor_existing_access: 3 }
+    terms:
+      - url: https://www.building-center.org/terms-of-use/
+        quote: "This web site should not be relied upon for commercial use or interpretations. Accuracy and reliability of the information provided is believed accurate but is not guaranteed."
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/hvac]
+    next_action: >-
+      Parked RED: compiled decoder guides are proprietary (ALL Content ©2024, member
+      login) and manufacturer documents are prohibited. Reopen only via rights-clean
+      evidence: CPSC recall serial ranges (hvac-cpsc-recall-slice) or an open-licensed source.
+
+  - key: hvac-manufacturer-warranty-terms
+    name: HVAC manufacturer warranty terms (years, registration windows, transferability)
+    category: home-services
+    structuring: eligibility-criteria
+    stage: PARKED
+    rights: RED
+    sources: [https://www.goodmanmfg.com/terms-of-use]
+    scores: { agent_demand: 4, rights_clarity: 1, acquisition_ease: 2, structuring_value: 5, freshness: 2, low_onboarding_cost: 2, poor_existing_access: 3 }
+    terms:
+      - url: https://www.goodmanmfg.com/terms-of-use
+        quote: "Copyright © 2022 Daikin Comfort Technologies North America, Inc. Duplication in part or in whole is strictly prohibited."
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/hvac]
+    next_action: >-
+      Parked RED: warranty documents are manufacturer copyright with duplication
+      prohibited. Add goodmanmfg.com (Daikin-owned) to prohibited-sources.ts.
+
+  - key: hvac-hvi-certified-directory
+    name: Home Ventilating Institute certified products directory
+    category: home-services
+    structuring: normalization
+    stage: PARKED
+    rights: RED
+    sources: [https://www.hvi.org/terms-of-use/]
+    scores: { agent_demand: 2, rights_clarity: 1, acquisition_ease: 2, structuring_value: 3, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 2 }
+    terms:
+      - url: https://www.hvi.org/terms-of-use/
+        quote: "Home Ventilating Institute does not endorse, approve, or certify such information, nor does it guarantee the accuracy, completeness, efficacy, timeliness, or correct sequencing of such information."
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/hvac]
+    next_action: Parked RED; the terms are disclaimer-only with no reuse grant for the directory.
+
+  - key: hvac-ul-product-iq
+    name: UL Product iQ certification listings for HVAC equipment
+    category: home-services
+    structuring: normalization
+    stage: PARKED
+    rights: RED
+    sources: [https://productiq.ulprospector.com/en]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 1, structuring_value: 3, freshness: 3, low_onboarding_cost: 1, poor_existing_access: 1 }
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/hvac]
+    next_action: Parked RED; the WAF returns 403 "You have been blocked" to the descriptive agent, so the terms are unreadable.
+
+  # --- Service trades, research round 2 (2026-09-27): plumbing ---
+  - key: plumbing-watersense-products
+    name: EPA WaterSense labelled plumbing products (governmental-host; certifier/manufacturer-filed)
+    category: home-services
+    structuring: identifier-extraction
+    stage: SCREENED
+    rights: AMBER
+    sources: [https://api.epa.gov/watersense/downloadLinks, https://api.epa.gov/watersense/products/toilets/, https://lookforwatersense.epa.gov/]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 4 }
+    terms:
+      - url: https://edg.epa.gov/EPA_Data_License.html
+        quote: "Unless otherwise specified, all data produced by the U.S EPA is by default in the public domain and is not subject to domestic copyright protection under 17 U.S.C. § 105."
+      - url: https://www.epa.gov/web-policies-and-procedures/epa-disclaimers
+        quote: "Mention of or referral to commercial products or services, and/or links to non-EPA sites does not imply official EPA endorsement"
+    conditions:
+      - Do not reproduce the WaterSense label, logo or program marks.
+      - Do not state or imply EPA endorsement.
+      - Credit EPA WaterSense and show the export date.
+      - Publish facts only (brand, model, rating, UPC), worded as "certified as reported to EPA WaterSense".
+      - Sync daily so products removed from the list drop out.
+      - Use our own api.data.gov key, never the key embedded in the public site.
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/plumbing]
+    next_action: >-
+      Write the ADR-0013 rights record. Register an api.data.gov key. Prototype the
+      wildcard-pattern compiler (15,934 of 50,688 model numbers use * or #), GTIN
+      splitting and check-digit validation (1,819 multi-UPC cells, 28 bad check digits),
+      and brand canonicalization (756 raw strings to 634) over the full daily ZIP.
+
+  - key: plumbing-water-heating-recalls
+    name: CPSC recalls — plumbing and water-heater/boiler slice with serial-range parsing (governmental-host)
+    category: home-services
+    structuring: identifier-extraction
+    stage: SCREENED
+    rights: GREEN
+    sources: ["https://www.saferproducts.gov/RestWebServices/Recall?format=json"]
+    scores: { agent_demand: 5, rights_clarity: 5, acquisition_ease: 5, structuring_value: 5, freshness: 3, low_onboarding_cost: 5, poor_existing_access: 3 }
+    terms:
+      - url: https://www.cpsc.gov/About-CPSC/Policies-Statements-and-Directives/Privacy-Policy
+        quote: "You may freely copy and distribute recall notices, including photographs of recalled items, without permission."
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/plumbing]
+    next_action: >-
+      Deliver inside the cpsc-recalls build, not as a separate dataset: add a
+      plumbing/water-heating category filter (101 recalls; 79 water heaters/boilers) and a
+      serial-range parser. Serial ranges appear in prose in 33 of 79 water-heating recalls;
+      the structured Model field is empty in 101 of 101.
+
+  - key: plumbing-water-heater-serial-date-codes
+    name: Water-heater serial-number date-code rules from manufacturer-published schemes (nongovernmental)
+    category: home-services
+    structuring: normalization
+    stage: DISCOVERED
+    rights: AMBER
+    sources: [https://www.bradfordwhite.com/bw-faq/how-to-read-the-serial-number-date-code-reference-chart/]
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 2, structuring_value: 5, freshness: 2, low_onboarding_cost: 4, poor_existing_access: 5 }
+    terms:
+      - url: https://www.bradfordwhite.com/bw-faq/how-to-read-the-serial-number-date-code-reference-chart/
+        quote: "©2026, Bradford White Corporation, USA. All rights reserved."
+    conditions:
+      - Store only the encoding rules, as our own code and tables. No verbatim chart, image or page text. The rules are a system or method under 17 U.S.C. § 102(b).
+      - Cite each manufacturer's public page as provenance, and label output "decoded per manufacturer-published scheme".
+      - Return every candidate year where the letter code cycles (for example, Bradford White's ~20-year cycle).
+      - Never source from third-party decoder compilations (fastwaterheater.com, waterheaterhub.com, inspector PDFs).
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/plumbing]
+    next_action: >-
+      Collect the published schemes for the top brands by CPSC and ENERGY STAR share
+      (A.O. Smith/State/Reliance, Rheem/Ruud/Richmond, Bradford White, Rinnai, Navien,
+      Lochinvar), reading each site's terms. Then measure decode hit rates on the serial
+      ranges quoted in the 33 CPSC water-heating recalls.
+
+  - key: plumbing-watersense-rebates
+    name: WaterSense Rebate Finder utility rebate listings (governmental-host listing; amounts on third-party pages)
+    category: home-services
+    structuring: eligibility-criteria
+    stage: SCREENED
+    rights: AMBER
+    sources: [https://api.epa.gov/watersense/rebates/]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 4 }
+    terms:
+      - url: https://edg.epa.gov/EPA_Data_License.html
+        quote: "Unless otherwise specified, all data produced by the U.S EPA is by default in the public domain and is not subject to domestic copyright protection under 17 U.S.C. § 105."
+    conditions:
+      - Listing fields only (partner, state, product type, building type, link) until each linked utility page's terms are read.
+      - No WaterSense mark and no implied EPA endorsement.
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/plumbing]
+    next_action: >-
+      207 listings measured. Sample 20 linked utility pages and read their terms, then
+      measure whether rebate amounts and eligibility can be extracted deterministically.
+
+  - key: plumbing-energystar-water-heaters
+    name: ENERGY STAR Certified Water Heaters (governmental-host; partner-filed)
+    category: home-services
+    structuring: normalization
+    stage: SCREENED
+    rights: AMBER
+    sources: [https://data.energystar.gov/resource/pbpq-swnu.json, https://data.energystar.gov/api/views/pbpq-swnu.json]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 2, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 2 }
+    terms:
+      - url: https://edg.epa.gov/EPA_Data_License.html
+        quote: "Unless otherwise specified, all data produced by the U.S EPA is by default in the public domain and is not subject to domestic copyright protection under 17 U.S.C. § 105."
+    conditions:
+      - Facts only, worded as "manufacturer-reported, as certified to ENERGY STAR", with the source date.
+      - Do not use the ENERGY STAR mark and do not imply endorsement.
+      - Resolve the partner-submitted-content question in the ADR-0013 record (see energy-star-air-source-heat-pumps-review-packet.md §4).
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/plumbing]
+    next_action: >-
+      Low standalone structuring value (1,252 rows, already structured; wildcard models
+      587; private-label models shared across brands 17). Fold in as a product family of
+      the WaterSense product dataset or the appliance/HVAC dataset rather than building it
+      alone.
+
+  - key: plumbing-iapmo-rt-listings
+    name: IAPMO R&T Product Listing Directory (nongovernmental)
+    category: home-services
+    structuring: identifier-extraction
+    stage: PARKED
+    rights: RED
+    sources: [https://pld.iapmo.org/]
+    scores: { agent_demand: 4, rights_clarity: 1, acquisition_ease: 1, structuring_value: 4, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 4 }
+    terms:
+      - url: https://iapmo.org/terms-of-use/
+        quote: "All contents of the IAPMO Web Site are copyright by IAPMO and/or its suppliers. All rights reserved."
+      - url: https://iapmo.org/terms-of-use/
+        quote: "You may not obtain or attempt to obtain any materials or information through any means not intentionally made available or provided for through the IAPMO Web site."
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/plumbing]
+    next_action: Parked. There is no reuse grant and no bulk export. Reopen only with a data licence from IAPMO.
+
+  - key: plumbing-asse-listings
+    name: ASSE International seal listings (nongovernmental, IAPMO group)
+    category: home-services
+    structuring: identifier-extraction
+    stage: PARKED
+    rights: RED
+    sources: [https://asse-plumbing.org/]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 1, structuring_value: 4, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 4 }
+    terms:
+      - url: https://asse-plumbing.org/terms-of-use
+        quote: "Any rights not expressly granted herein are reserved."
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/plumbing]
+    next_action: Parked. The site uses IAPMO's terms, which give no reuse grant, and /listed-products is 404. Reopen only with a licence.
+
+  - key: plumbing-nsf-listings
+    name: NSF/ANSI 61 and 372 drinking-water component listings (nongovernmental)
+    category: home-services
+    structuring: identifier-extraction
+    stage: PARKED
+    rights: RED
+    sources: [https://info.nsf.org/Certified/PwsComponents/]
+    scores: { agent_demand: 4, rights_clarity: 1, acquisition_ease: 2, structuring_value: 4, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 4 }
+    terms:
+      - url: https://info.nsf.org/Certified/PwsComponents/
+        quote: "©2012 NSF International. All rights reserved."
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/plumbing]
+    next_action: >-
+      Parked. The terms pages on www.nsf.org return 403, even to a browser UA used only to
+      read terms, so the terms are unverified. Reopen when the terms can be read or a licence
+      is offered.
+
+  - key: plumbing-usc-backflow-list
+    name: USC FCCCHR List of Approved Backflow Prevention Assemblies (nongovernmental)
+    category: home-services
+    structuring: identifier-extraction
+    stage: PARKED
+    rights: RED
+    sources: [https://fccchr.usc.edu/list.html]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 2, structuring_value: 3, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 4 }
+    terms:
+      - url: https://fccchr.usc.edu/list.html
+        quote: "The USC Foundation's List of Approved Backflow Prevention Assemblies is copyrighted."
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/plumbing]
+    next_action: Parked. The list is copyrighted, the book is sold and the historical list is members-only. Reopen only with a licence.
+
+  - key: plumbing-map-toilet-scores
+    name: MaP toilet flush-performance scores (nongovernmental)
+    category: home-services
+    structuring: normalization
+    stage: PARKED
+    rights: RED
+    sources: [https://map-testing.com/map-search/]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 1, structuring_value: 2, freshness: 2, low_onboarding_cost: 2, poor_existing_access: 3 }
+    terms:
+      - url: https://map-testing.com/
+        quote: "Copyright © 2010-2022 MaP . All rights reserved."
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/plumbing]
+    next_action: Parked. There is no reuse grant (/terms-of-use/ is 404) and access is only through a web app. Reopen with a licence from MaP.
+
+  - key: plumbing-cec-maedbs
+    name: California Energy Commission MAEDbS plumbing fittings and water heaters (governmental-host)
+    category: home-services
+    structuring: normalization
+    stage: PARKED
+    rights: RED
+    sources: [https://cacertappliances.energy.ca.gov/Pages/ApplianceSearch.aspx]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 1, structuring_value: 3, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 3 }
+    terms:
+      - url: https://www.energy.ca.gov/conditions-of-use
+        quote: "Use or modification of these materials or information for commercial or profit-making purposes is prohibited and may violate the copyrights or other proprietary rights or both of the Energy Commission or third parties."
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/plumbing]
+    next_action: Parked. Commercial use is expressly prohibited, and the root redirects to a login.
+
+  - key: plumbing-doe-ccms-water-heaters
+    name: DOE CCMS water heaters (governmental-host)
+    category: home-services
+    structuring: normalization
+    stage: PARKED
+    rights: RED
+    sources: [https://www.regulations.doe.gov/certification-data/]
+    scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 1, structuring_value: 2, freshness: 4, low_onboarding_cost: 2, poor_existing_access: 3 }
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/plumbing]
+    next_action: >-
+      Parked. Still 403 to the declared UA on 2026-09-27, including robots.txt, which
+      matches doe-ccms-corroboration-assessment.md. Reopen when DOE publishes a documented
+      distribution.
+
+  - key: plumbing-csa-listings
+    name: CSA Group certified product listings (nongovernmental)
+    category: home-services
+    structuring: identifier-extraction
+    stage: PARKED
+    rights: RED
+    sources: [https://www.csagroup.org/]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 1, structuring_value: 3, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 3 }
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/plumbing]
+    next_action: Parked. robots.txt returns 403 to the declared UA, so the terms were not read. Reopen when the terms can be read.
+
+  - key: plumbing-wikidata-brand-owners
+    name: Wikidata plumbing brand to owner and private-label links (nongovernmental, CC0)
+    category: home-services
+    structuring: normalization
+    stage: DISCOVERED
+    rights: GREEN
+    sources: [https://query.wikidata.org/sparql]
+    scores: { agent_demand: 2, rights_clarity: 5, acquisition_ease: 3, structuring_value: 3, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/plumbing]
+    next_action: >-
+      wbsearchentities returned 429 from this egress on 2026-09-27, so coverage is
+      unmeasured. Measure how many of WaterSense's top 50 brands resolve to Wikidata items
+      with an owner (P127) or parent (P749), for use as a brand-canonicalization aid only.
+
+  # --- Service trades, research round 2 (2026-09-27): roofing ---
+  - key: roofing-miami-dade-noa
+    name: "Miami-Dade County Product Control NOAs, roofing (HVHZ): per-assembly deck, fastening and maximum design pressure"
+    category: home-services
+    structuring: normalization
+    stage: SCREENED
+    rights: AMBER
+    sources: [https://www.miamidade.gov/building/pc-search_app.asp, https://www.miamidade.gov/building/pc-result_app.asp, https://www.miamidade.gov/building/library/productcontrol/noa/25092605.pdf]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 3, structuring_value: 5, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 4 }
+    terms:
+      - url: https://www.miamidade.gov/global/disclaimer/disclaimer.page
+        quote: "Government personnel and the general public may use this system to review and retrieve publicly available government information. User agrees to use this website as permitted by applicable local, state, and federal laws."
+      - url: https://www.leg.state.fl.us/statutes/index.cfm?App_mode=Display_Statute&URL=0100-0199/0119/Sections/0119.01.html
+        quote: "It is the policy of this state that all state, county, and municipal records are open for personal inspection and copying by any person."
+      - url: https://www.miamidade.gov/building/library/productcontrol/noa/25092605.pdf
+        quote: "Misuse of this NOA as an endorsement of any product, for sales, advertising or any other purposes shall automatically terminate this NOA."
+    conditions:
+      - Publish extracted facts only (NOA id, company applicant, subcategory, material, deck type, per-assembly MDP, fastener spacing, test standards, component trade names, approval/expiry dates) and link each record to the official NOA PDF; do not republish the PDFs or present a partial NOA as the NOA.
+      - Attribute "Miami-Dade County RER Product Control Section", show fetch date, and state that the record is not an official NOA and implies no county endorsement.
+      - Display expiry and flag expired NOAs; re-sync the index at least weekly.
+      - Exclude natural-person data (engineer names, P.E. seals/signatures, individual contacts); keep company names.
+      - Acquire politely (<= 1 rps, off-peak backfill) so access for others is never degraded.
+      - Rights rest on Florida public-records policy plus non-copyrightable facts, despite a generic "All rights reserved" site footer; the rights record must state this argument.
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/roofing]
+    next_action: >-
+      Archive the full roofing index (1,860 NOAs, one GET) and all PDFs (~0.75 GB) to R2; write the
+      ADR-0013 rights record with the conditions above; prototype deterministic parsers for the NOA
+      header, the labelled Category/Deck Type/Maximum Design Pressure block and the metal-roof
+      MDP-by-spacing tables; golden-test on the 24 sampled NOAs (MDP first-value agreement 15/17).
+
+  - key: roofing-florida-product-approvals
+    name: "Florida Building Commission product approvals, roofing (FL#): assemblies and design pressures from evaluation reports"
+    category: home-services
+    structuring: normalization
+    stage: SCREENED
+    rights: AMBER
+    sources: [https://www.floridabuilding.org/pr/pr_app_srch.aspx, https://www.floridabuilding.org/pr/pr_app_dtl.aspx]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 2, structuring_value: 5, freshness: 4, low_onboarding_cost: 2, poor_existing_access: 4 }
+    terms:
+      - url: https://www.leg.state.fl.us/statutes/index.cfm?App_mode=Display_Statute&URL=0100-0199/0119/Sections/0119.01.html
+        quote: "It is the policy of this state that all state, county, and municipal records are open for personal inspection and copying by any person."
+      - url: https://www.dms.myflorida.com/terms_and_conditions
+        quote: "Various clipart and image collections appearing on this site are used under license by the department or its web managers for this site. These images are for viewing purposes only."
+    conditions:
+      - Extract facts only from third-party evaluation reports (NEMO ETC, ICC-ES and others carry "All rights reserved"); never mirror report text or assembly tables verbatim; cite and link the source document.
+      - Exclude every individual's name, email and phone on application pages (authorized signer, QA representative, validating engineer); keep company names.
+      - Attribute the Florida Building Commission / DBPR BCIS, show fetch date, imply no state endorsement.
+      - Show approval status and QA-contract expiry; re-sync weekly; acquire at <= 1 rps.
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/roofing]
+    next_action: >-
+      After the Miami-Dade NOA prototype, walk all 97 result pages (1,105 approved 2023-code roofing
+      applications), capture detail pages and PDFs, OCR the ~13% scanned reports, and map NEMO
+      PEER/NER assembly rows (e.g. 1,600 MDP rows in FL5293-R73) into the shared roofing-approval schema,
+      joining to NOAs cited in 5/26 samples.
+
+  - key: roofing-ncei-storm-events
+    name: NOAA NCEI Storm Events hail and thunderstorm-wind reports with roof-damage extraction
+    category: home-services
+    structuring: event-extraction
+    stage: SCREENED
+    rights: GREEN
+    sources: [https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d2025_c20260819.csv.gz]
+    scores: { agent_demand: 3, rights_clarity: 5, acquisition_ease: 5, structuring_value: 3, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 2 }
+    terms:
+      - url: https://www.weather.gov/disclaimer
+        quote: "The information on National Weather Service (NWS) Web pages are in the public domain, unless specifically noted otherwise, and may be used without charge for any lawful purpose so long as you do not: 1) claim it is your own"
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/roofing]
+    next_action: >-
+      Keep as a GREEN join for roofing-claims agents (hail size/wind at a location and date), not the lead
+      roofing dataset; if built, publish at county/lat-lon precision (narratives sometimes name streets)
+      and add 17 U.S.C. 403 notice. 2025: 31,012 hail/wind events, roof mentioned in 950.
+
+  - key: roofing-osm-roof-tags
+    name: OpenStreetMap building roof:material and roof:shape tags
+    category: home-services
+    structuring: normalization
+    stage: PARKED
+    rights: AMBER
+    sources: ["https://taginfo.openstreetmap.org/api/4/key/stats?key=roof:material"]
+    scores: { agent_demand: 2, rights_clarity: 3, acquisition_ease: 3, structuring_value: 1, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 2 }
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/roofing]
+    next_action: >-
+      Parked: roof:material covers 2,370,445 of 709,708,935 building objects (0.33%), values are already
+      tagged (little structuring), and ODbL share-alike conflicts with paid bulk. Reopen only as an
+      attributed join for a roof-attribute product.
+
+  - key: roofing-tdi-windstorm-evaluations
+    name: Texas Department of Insurance windstorm product evaluations (roof coverings)
+    category: home-services
+    structuring: normalization
+    stage: PARKED
+    rights: RED
+    sources: [https://appscenter.tdi.texas.gov/windstorm/p/publicProductEvaluations]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 4, structuring_value: 4, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 3 }
+    terms:
+      - url: https://appscenter.tdi.texas.gov/windstorm/p/productReport/RC-602/
+        quote: "The Texas Department of Insurance has not authorized the use of any information contained in the product evaluation for advertising, or other commercial or promotional purpose."
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/roofing]
+    next_action: >-
+      Parked RED: every sampled TDI report (22/22) reserves commercial use. Third-party roof links (503)
+      point mostly to floridabuilding.org and miamidade.gov, covered by the Florida candidates.
+
+  - key: roofing-crrc-rated-products
+    name: Cool Roof Rating Council Rated Roof Products Directory
+    category: home-services
+    structuring: normalization
+    stage: PARKED
+    rights: RED
+    sources: [https://coolroofs.org/directory/roof]
+    scores: { agent_demand: 2, rights_clarity: 1, acquisition_ease: 3, structuring_value: 1, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 2 }
+    terms:
+      - url: https://coolroofs.org/terms
+        quote: "Under no circumstance shall CRRC Materials, including but not limited to CRRC Member Directories or CRRC Materials be used for commercial purposes without explicit written authorization from CRRC."
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/roofing]
+    next_action: Parked RED; reopen only with written CRRC licence.
+
+  - key: roofing-icc-es-reports
+    name: ICC-ES evaluation reports (ESRs) for roofing products
+    category: home-services
+    structuring: normalization
+    stage: PARKED
+    rights: RED
+    sources: [https://icc-es.org/]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 2, structuring_value: 4, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 3 }
+    terms:
+      - url: https://icc-es.org/legal/website-user-agreement/
+        quote: "no portion of the Site or Site Information may be reprinted, republished, modified, or distributed in any form without Our express written permission."
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/roofing]
+    next_action: Parked RED; ESR copies attached to Florida approvals are also facts-only under roofing-florida-product-approvals.
+
+  - key: roofing-fm-roofnav
+    name: FM Approvals RoofNav approved roof assemblies
+    category: home-services
+    structuring: normalization
+    stage: PARKED
+    rights: RED
+    sources: [https://www.roofnav.com/]
+    scores: { agent_demand: 4, rights_clarity: 1, acquisition_ease: 1, structuring_value: 3, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 3 }
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/roofing]
+    next_action: Parked RED; roofnav.com redirects to roofnav.app.fmglobal.com (HTTP 403, account-based app); terms unread.
+
+  - key: roofing-ul-product-iq
+    name: UL Product iQ roof covering fire/wind listings
+    category: home-services
+    structuring: normalization
+    stage: PARKED
+    rights: RED
+    sources: [https://productiq.ulprospector.com/]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 1, structuring_value: 3, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 3 }
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/roofing]
+    next_action: Parked RED; HTTP 403 from this egress, login product, terms unread.
+
+  - key: roofing-manufacturer-warranties
+    name: Roofing manufacturer warranty and installation documents (GAF, Owens Corning, CertainTeed)
+    category: home-services
+    structuring: eligibility-criteria
+    stage: PARKED
+    rights: RED
+    sources: [https://www.gaf.com/en-us/terms-of-use]
+    scores: { agent_demand: 4, rights_clarity: 1, acquisition_ease: 1, structuring_value: 4, freshness: 2, low_onboarding_cost: 2, poor_existing_access: 3 }
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/roofing]
+    next_action: Parked RED; gaf.com terms return 403 even to a browser UA (unreadable); manufacturer documents are copyrighted with no known reuse grant.
+
+  - key: roofing-spc-storm-reports
+    name: NOAA SPC daily hail/wind storm reports
+    category: home-services
+    structuring: event-extraction
+    stage: PARKED
+    rights: RED
+    sources: [https://www.spc.noaa.gov/climo/reports/today.html]
+    scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 2, structuring_value: 2, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/roofing]
+    next_action: Parked; robots.txt disallows all automated collection (User-agent * Disallow /). Use roofing-ncei-storm-events instead.
+
+  - key: roofing-fl-dbpr-contractor-licences
+    name: Florida DBPR certified roofing contractor (CCC) licences
+    category: home-services
+    structuring: normalization
+    stage: PARKED
+    rights: RED
+    sources: [https://www2.myfloridalicense.com/construction-industry/public-records/]
+    scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 5, structuring_value: 1, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/roofing]
+    next_action: Parked RED; 10,597 CCC licensees are listed as individual names with street addresses (personal data that cannot be excluded without losing the product).
+
+  # --- Service trades, research round 2 (2026-09-27): electrical ---
+  - key: electrical-cec-solar-equipment
+    name: CEC Solar Equipment Lists (grid-support inverters, PV modules, energy storage, batteries, meters)
+    category: home-services
+    structuring: normalization
+    stage: SCREENED
+    rights: AMBER
+    sources: ["https://solarequipment.energy.ca.gov/Home/DownloadtoExcel?filename=InvertersList", "https://solarequipment.energy.ca.gov/Home/DownloadtoExcel?filename=PVModuleList", "https://solarequipment.energy.ca.gov/Home/DownloadtoExcel?filename=EnergyStorage", "https://solarequipment.energy.ca.gov/Home/DownloadtoExcel?filename=BatteryList", "https://solarequipment.energy.ca.gov/Home/DownloadtoExcel?filename=MeterList"]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 4 }
+    terms:
+      - url: https://www.energy.ca.gov/conditions-of-use
+        quote: "Most of these materials and information were generated, compiled, or assembled at public expense and are free for public use consistent with the Public Records Act (California Government Code Section 6250 et. seq.), provided the Energy Commission is credited when using these materials and information."
+      - url: https://www.energy.ca.gov/conditions-of-use
+        quote: "Some of the materials and information in this site, such as the third-party materials addressed below and select materials bearing a copyright notice, may not be used for any purpose. Use or modification of these materials or information for commercial or profit-making purposes is prohibited and may violate the copyrights or other proprietary rights or both of the Energy Commission or third parties."
+      - url: https://www.energy.ca.gov/conditions-of-use
+        quote: "Go Solar California TM is a trademark of the Energy Commission. The Energy Commission reserves all rights in the use of this trademark."
+      - url: https://www.energy.ca.gov/programs-and-topics/programs/solar-equipment-lists
+        quote: "Submitted information is reviewed by the California Energy Commission prior to equipment being added to the Energy Commission's Solar Equipment Lists, manufacturers' self-reported information is not confirmed."
+    conditions:
+      - Credit the California Energy Commission; imply no CEC endorsement; no CEC seal/logo or "Go Solar California" mark.
+      - Rely on the reading that the commercial-use prohibition is scoped to third-party and copyright-notice materials (0 copyright notices in the five .xlsx files); redistribute facts only, not the list-notes prose.
+      - Label values "manufacturer self-reported; not confirmed by CEC" and carry the list's "Data has not changed since" date.
+      - Optional upgrade to GREEN - ask SolarEquipment@energy.ca.gov whether commercial redistribution of the lists is permitted (agent action).
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/electrical]
+    next_action: >-
+      Commit the evidence (5 xlsx snapshots, cec_measure scripts, samples) and write the ADR-0013
+      rights record; then prototype the firmware-list parser (1,605 cells to 3,803 versions),
+      {variant}-suffix splitter (2,167/2,174 inverters), module-description extractor
+      (bifacial/half-cut/max-system-V/backsheet), PTC recomputation (21,946 formula cells) and
+      cross-manufacturer model resolution (17 inverter, 175 module base models).
+
+  - key: electrical-cpsc-recalls-facet
+    name: CPSC electrical recalls facet (breakers, GFCI/AFCI, cords, power strips, generators, power stations, LED fixtures, EV chargers)
+    category: home-services
+    structuring: identifier-extraction
+    stage: SCREENED
+    rights: GREEN
+    sources: ["https://www.saferproducts.gov/RestWebServices/Recall?format=json"]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 4, structuring_value: 4, freshness: 4, low_onboarding_cost: 5, poor_existing_access: 2 }
+    terms:
+      - url: https://www.cpsc.gov/About-CPSC/Policies-Statements-and-Directives/Privacy-Policy
+        quote: "You may freely copy and distribute recall notices, including photographs of recalled items, without permission."
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/electrical]
+    next_action: >-
+      Do not build separately - add an electrical trade classifier plus amp/volt/model/date-code
+      parsing to the cpsc-recalls prototype (322 electrical recalls; model markers 44/66 since 2020,
+      structured Model 0/66) and a UPC join to ENERGY STAR downlights/ceiling fans.
+
+  - key: electrical-tx-tdlr-contractors
+    name: Texas TDLR electrical contractor licences (business entities only)
+    category: home-services
+    structuring: normalization
+    stage: SCREENED
+    rights: AMBER
+    sources: ["https://data.texas.gov/resource/7358-krk7.json"]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 1, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: https://www.tdlr.texas.gov/disclaimer.htm
+        quote: "The Texas Department of Licensing and Regulation has intellectual property rights in its logos. No one may use any TDLR logo without permission from the agency."
+    conditions:
+      - No data licence located (dataset license null); rights rest on Texas Public Information Act public records and non-copyrightable facts - AMBER at best.
+      - Publish only Electrical Contractor rows whose business name is an entity form (9,543/14,019); exclude all individual licences (apprentice/journeyman/master), telephones, street and mailing addresses.
+      - No TDLR logo; imply no endorsement; show the source update date.
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/electrical]
+    next_action: >-
+      Locate an explicit data.texas.gov or TDLR reuse statement; if found, prototype a
+      multi-state contractor-licence schema shared with the HVAC/plumbing trades.
+
+  - key: electrical-energy-star-electrical
+    name: ENERGY STAR electrical categories (EVSE AC/DC, ceiling fans, downlights, UPS)
+    category: home-services
+    structuring: normalization
+    stage: SCREENED
+    rights: AMBER
+    sources: ["https://data.energystar.gov/resource/5jwe-c8xm.json", "https://data.energystar.gov/resource/t3a6-mkxz.json", "https://data.energystar.gov/resource/2te3-nmxp.json", "https://data.energystar.gov/resource/ej6d-wb4c.json", "https://data.energystar.gov/resource/ifxy-2uty.json"]
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 5, structuring_value: 2, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 2 }
+    terms:
+      - url: https://edg.epa.gov/EPA_Data_License.html
+        quote: "Unless otherwise specified, all data produced by the U.S EPA is by default in the public domain and is not subject to domestic copyright protection under 17 U.S.C. § 105 ."
+    conditions:
+      - Inherit the open conditions in docs/sources/energy-star-certified-products-qualification-20260916.md (partner-submitted fields outside the EPA licence scope; ENERGY STAR certification-mark rules).
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/electrical]
+    next_action: >-
+      Low structuring value alone; use as the UPC-keyed product spine joined to CPSC electrical
+      recalls once the ENERGY STAR rights record is written.
+
+  - key: electrical-open-charge-map
+    name: Open Charge Map EV charging locations and pricing
+    category: home-services
+    structuring: normalization
+    stage: DISCOVERED
+    rights: AMBER
+    sources: ["https://api.openchargemap.io/v3/poi"]
+    scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 3, structuring_value: 4, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 2 }
+    terms:
+      - url: https://openchargemap.org/about/terms
+        quote: "Data contributed to us by our users which we then redistribute is licensed under a Creative Commons Attribution 4.0 International (CC BY 4.0)."
+      - url: https://openchargemap.org/about/terms
+        quote: "Data imported from 3rd party Data Providers is copyright the original Data Provider in each case and is not provided under the same terms as the user-contributed data detailed above."
+    conditions:
+      - Keep only CC BY 4.0 records or providers whose licence permits commercial redistribution; show per-provider attribution visible to end users.
+      - Strip contributor/user identities.
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/electrical]
+    next_action: Register a free API key; measure record count by DataProvider licence and the free-text UsageCost parse rate.
+
+  - key: electrical-osm-power
+    name: OpenStreetMap power infrastructure (substations, plants, lines)
+    category: home-services
+    structuring: normalization
+    stage: DISCOVERED
+    rights: AMBER
+    sources: ["https://overpass-api.de/api/interpreter", "https://download.geofabrik.de/north-america.html"]
+    scores: { agent_demand: 2, rights_clarity: 2, acquisition_ease: 2, structuring_value: 3, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    terms:
+      - url: https://www.openstreetmap.org/copyright
+        quote: "You are free to copy, distribute, transmit and adapt our data, as long as you credit OpenStreetMap and its contributors. If you alter or build upon our data, you may distribute the result only under the same license."
+    conditions:
+      - ODbL share-alike - keep any OSM-derived layer as a separate ODbL database with OSM attribution.
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/electrical]
+    next_action: Overpass and Geofabrik unreachable from this egress (reset/504); retry from Cloudflare Worker egress.
+
+  - key: electrical-cec-maedbs
+    name: CEC MAEDbS Title 20 appliance database (LED lamps, battery chargers)
+    category: home-services
+    structuring: normalization
+    stage: DISCOVERED
+    rights: AMBER
+    sources: ["https://cacertappliances.energy.ca.gov/"]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 1, structuring_value: 2, freshness: 4, low_onboarding_cost: 2, poor_existing_access: 2 }
+    terms:
+      - url: https://www.energy.ca.gov/conditions-of-use
+        quote: "Materials and information in this site are provided as a public service. Most of these materials and information were generated, compiled, or assembled at public expense and are free for public use consistent with the Public Records Act (California Government Code Section 6250 et. seq.), provided the Energy Commission is credited when using these materials and information."
+    conditions:
+      - Same conditions as electrical-cec-solar-equipment.
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/electrical]
+    next_action: No documented bulk export found (ASP.NET postback UI behind Login.aspx); find a documented export or ask Appliances@energy.ca.gov.
+
+  - key: electrical-afdc-ev-stations
+    name: DOE/NREL AFDC EV charging stations (ev_pricing free text)
+    category: home-services
+    structuring: normalization
+    stage: DISCOVERED
+    rights: UNKNOWN
+    sources: ["https://afdc.energy.gov/data_download"]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 2, structuring_value: 3, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 2 }
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/electrical]
+    next_action: developer.nrel.gov and www.nrel.gov return proxy CONNECT 502 from this egress; read terms and measure from Cloudflare Worker egress.
+
+  - key: electrical-dlc-qpl
+    name: DesignLights Consortium Qualified Products Lists
+    category: home-services
+    structuring: normalization
+    stage: PARKED
+    rights: RED
+    sources: ["https://designlights.org/terms-of-use/"]
+    scores: { agent_demand: 4, rights_clarity: 1, acquisition_ease: 2, structuring_value: 3, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    terms:
+      - url: https://designlights.org/terms-of-use/
+        quote: "You may access and use the Data solely for your own internal, non-commercial business purposes; You shall not (i) access or use the Data for any commercial purpose, (ii) represent to any third party that any Data is your property (proprietary or otherwise), or (iii) make available any Data to any third party unless expressly permitted herein"
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/electrical]
+    next_action: Parked - reopen only with a signed DLC data-use agreement.
+
+  - key: electrical-ul-product-iq
+    name: UL Product iQ certification directory
+    category: home-services
+    structuring: identifier-extraction
+    stage: PARKED
+    rights: RED
+    sources: ["https://productiq.ulprospector.com/en"]
+    scores: { agent_demand: 5, rights_clarity: 1, acquisition_ease: 1, structuring_value: 3, freshness: 4, low_onboarding_cost: 2, poor_existing_access: 3 }
+    terms:
+      - url: https://www.ul.com/resources/online-policies/terms-of-use
+        quote: "You specifically agree not to access (or attempt to access), or systematically retrieve data from, any part of the Site through any automated means (including use of scripts, bots or web crawlers). Gathering data from the Site through harvesting or automated means is strictly prohibited."
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/electrical]
+    next_action: Parked - reopen only with a UL Solutions data licence.
+
+  - key: electrical-intertek-csa-sunspec
+    name: Intertek ETL, CSA Group and SunSpec certified-product directories
+    category: home-services
+    structuring: identifier-extraction
+    stage: PARKED
+    rights: RED
+    sources: ["https://bpdirectory.intertek.com/", "https://directories.csa-international.org/", "https://sunspec.org/certified-products/"]
+    scores: { agent_demand: 4, rights_clarity: 1, acquisition_ease: 1, structuring_value: 3, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 3 }
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/electrical]
+    next_action: Parked - terms unreadable (Intertek 403/503, CSA proxy 502 and 403, SunSpec Cloudflare challenge); reopen only if published terms grant commercial reuse.

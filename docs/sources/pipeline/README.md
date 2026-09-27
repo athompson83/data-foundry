@@ -77,7 +77,7 @@ applied to evidence. It is not itself a measurement.
 
 ## Categories
 
-Datasets are categorised by domain (`health`, `product-safety`, `regulatory`,
+Datasets are categorised by domain (`home-services`, `health`, `product-safety`, `regulatory`,
 `security`, `finance`, `transport`, `trade`, …) and by the structuring they
 perform: `identifier-extraction`, `eligibility-criteria`, `obligation-timeline`,
 `event-extraction`, `normalization`. Public paths follow ADR-0012:
@@ -99,9 +99,13 @@ in [`scout-routine.md`](scout-routine.md):
    It fixes any regression before doing anything else.
 3. Discovers at least three new candidates across unrelated domains, and
    screens them.
-4. Advances the first candidate in the latest research record's **build order**
-   by at least one stage, with evidence, provided it is in `EVIDENCED`–`BUILDING`.
-   The build order weighs cost and time to revenue as well as the score.
+4. Advances the first candidate in the active research record's **build order**
+   by at least one stage, with evidence, provided it is in `SCREENED`–`BUILDING`.
+   The build order weighs cost and time to revenue as well as the score. The
+   active build order is in
+   [`research-2026-09-27-service-trades.md`](research-2026-09-27-service-trades.md)
+   (HVAC, plumbing, electrical, roofing, appliance) until a later record
+   states that it replaces it.
 5. Records a `research-YYYY-MM-DD.md`, updates `candidates.yaml`, and opens a
    PR. Merging follows the normal gates: CI green and independent review clean.
 6. Reports to the owner only:
