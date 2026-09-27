@@ -22,6 +22,13 @@ const Candidate = z
     name: z.string().min(3),
     category: z.string().regex(/^[a-z]+(?:-[a-z]+)*$/),
     structuring: z.enum(['identifier-extraction', 'eligibility-criteria', 'obligation-timeline', 'event-extraction', 'normalization']),
+    // What the source publishes, independent of the work we do on it: `free-text` when the facts must be extracted from
+    // prose or documents (notices, PDFs, narratives), `structured` when they arrive as typed fields. Required for every
+    // dataset member.
+    format: z.enum(['free-text', 'structured']).optional(),
+    // Who publishes the data, independent of the URL it is served from (one agency may use several domains, and a data
+    // portal may republish another agency's feed). Required for every dataset member; independence compares it.
+    publisher: z.string().min(2).optional(),
     stage: z.enum(STAGES),
     rights: z.enum(['GREEN', 'AMBER', 'RED', 'UNKNOWN']),
     sources: z.array(z.string().url()).min(1),
@@ -43,7 +50,50 @@ const Candidate = z
   })
   .strict();
 
-const Registry = z.object({ version: z.literal(1), updated: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), candidates: z.array(Candidate).min(1) }).strict();
+/**
+ * A dataset is one entity type assembled from several candidate sources, linked
+ * by deterministic join keys whose match rates were measured on real samples
+ * (Product Owner direction, 2026-09-27: datasets are aggregates of several
+ * sources). Single candidates are feeds; the dataset is what is built and sold.
+ */
+const Dataset = z
+  .object({
+    key: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+    name: z.string().min(3),
+    category: z.string().regex(/^[a-z]+(?:-[a-z]+)*$/),
+    entity: z.string().min(3),
+    stage: z.enum(STAGES),
+    description: z.string().min(20),
+    sources: z.array(z.string()).min(2),
+    // `declared`: an identifier that names the counterpart record (licence number, check-digit-valid GTIN,
+    // cited approval or case number) — may link automatically, at the level it names. `candidate`: names,
+    // brands, model tokens, titles, markers that only say a counterpart exists (e.g. Health Canada's
+    // joint-recall marker) and shared attributes — proposes a link for review only (AGENTS.md rules 3 and 7).
+    // `reviewed`: a hand-check of candidate matches — how many of the checked matches were the same record.
+    join_keys: z
+      .array(
+        z
+          .object({
+            key: z.string().min(3),
+            between: z.tuple([z.string(), z.string()]),
+            measured: z.string().min(1),
+            mode: z.enum(['declared', 'candidate']),
+            reviewed: z.object({ correct: z.number().int().nonnegative(), checked: z.number().int().positive() }).strict().refine((r) => r.correct <= r.checked, 'correct <= checked').optional(),
+          })
+          .strict(),
+      )
+      .min(1),
+    taxonomy: z.array(z.string().min(3)).min(1),
+    agent_questions: z.array(z.string().min(10)).min(1),
+    scores: Candidate.shape.scores,
+    evidence: z.array(z.string()).min(1),
+    next_action: z.string().min(10),
+  })
+  .strict();
+
+const Registry = z
+  .object({ version: z.literal(1), updated: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), candidates: z.array(Candidate).min(1), datasets: z.array(Dataset).min(1) })
+  .strict();
 
 const registry = Registry.parse(parseYaml(readFileSync(REGISTRY, 'utf8')));
 const beyond = (stage: (typeof STAGES)[number], floor: (typeof STAGES)[number]) =>
@@ -162,6 +212,118 @@ describe('dataset expansion pipeline registry', () => {
   it.each(registry.candidates)('$key has a rights record once rights are determined', (candidate) => {
     if (!beyond(candidate.stage, 'RIGHTS_DETERMINED')) return;
     expect(candidate.evidence.some((path) => /^docs\/sources\/[a-z0-9-]+-rights-record-\d{8}\.md$/.test(path)), 'cite docs/sources/<source>-rights-record-YYYYMMDD.md').toBe(true);
+  });
+
+  const byKey = new Map(registry.candidates.map((candidate) => [candidate.key, candidate]));
+  /** A join endpoint may name a sub-table of a member, e.g. "x-licences (bond table)". */
+  const member = (endpoint: string) => endpoint.replace(/\s*\(.*\)$/, '');
+  /**
+   * The registrable domain (publisher) of a source URL, so alternate subdomains of one publisher
+   * (data.x.gov, api.x.gov) count as one source. Two-label public suffixes used in the registry are
+   * listed explicitly; anything else keeps its last two labels.
+   */
+  const MULTI_LABEL_SUFFIXES = new Set(['gov.uk', 'co.uk', 'org.uk', 'gov.au', 'com.au', 'govt.nz', 'co.nz']);
+  const hostOf = (url: string) => {
+    const labels = new URL(url).hostname.toLowerCase().split('.');
+    const keep = MULTI_LABEL_SUFFIXES.has(labels.slice(-2).join('.')) ? 3 : 2;
+    return labels.slice(-keep).join('.');
+  };
+
+  it('has unique dataset keys, distinct from candidate keys', () => {
+    const keys = registry.datasets.map((dataset) => dataset.key);
+    expect(new Set(keys).size).toBe(keys.length);
+    for (const key of keys) expect(byKey.has(key), `${key} is also a candidate key`).toBe(false);
+  });
+
+  it.each(registry.datasets)('$key aggregates at least two independent, lawful sources', (dataset) => {
+    for (const key of dataset.sources) expect(byKey.has(key), `${key} is not a candidate`).toBe(true);
+    expect(new Set(dataset.sources).size, 'members are listed once').toBe(dataset.sources.length);
+    const members = dataset.sources.map((key) => byKey.get(key)!);
+    // A composite structures unstructured data alongside structured feeds. Format is recorded per source, never inferred
+    // from the structuring task (a JSON API that needs event extraction is still a structured feed). A screened composite
+    // may still be missing one format; it cannot advance to EVIDENCED until it has at least one free-text member and at
+    // least one structured member.
+    for (const candidate of members) expect(candidate.format, `${candidate.key} must declare its source format`).toBeDefined();
+    if (beyond(dataset.stage, 'EVIDENCED')) {
+      expect(members.some((candidate) => candidate.format === 'free-text'), 'at least one member is published as free text').toBe(true);
+      expect(members.some((candidate) => candidate.format === 'structured'), 'at least one member is a structured feed').toBe(true);
+    }
+    // Independence is between members, not across the union of URLs: some pair of distinct members must share
+    // no host, so one feed republished under a second key cannot pass as a composite.
+    for (const candidate of members) expect(candidate.publisher, `${candidate.key} must declare its publisher`).toBeDefined();
+    // Independent publishers, and (as a second guard) no shared registrable domain between them.
+    const hostSets = members.map((candidate) => new Set(candidate.sources.map(hostOf)));
+    const independent = members.some((a, i) => members.some((b, j) => j > i && a.publisher !== b.publisher && [...hostSets[i]!].every((host) => !hostSets[j]!.has(host))));
+    expect(independent, 'at least two members share no source host').toBe(true);
+    for (const candidate of members) expect(candidate.rights, `${candidate.key} is RED; a dataset may not use it`).not.toBe('RED');
+    if (beyond(dataset.stage, 'EVIDENCED')) for (const candidate of members) expect(['GREEN', 'AMBER'], `${candidate.key} rights`).toContain(candidate.rights);
+    // A dataset cannot run ahead of its feeds. From RIGHTS_DETERMINED on (a rights label is provisional until
+    // the ADR-0013 determination is recorded), every member must have reached the dataset's own stage, so a
+    // BUILDING dataset has built feeds and a LIVE dataset has only LIVE, runtime-verified feeds.
+    if (beyond(dataset.stage, 'RIGHTS_DETERMINED'))
+      for (const candidate of members) expect(beyond(candidate.stage, dataset.stage), `${candidate.key} is ${candidate.stage}; a ${dataset.stage} dataset needs every member at ${dataset.stage} or later`).toBe(true);
+    for (const path of dataset.evidence) expect(existsSync(`${ROOT}${path}`), `${path} must exist`).toBe(true);
+  });
+
+  it.each(registry.datasets)('$key links its members on measured join keys', (dataset) => {
+    for (const join of dataset.join_keys) for (const end of join.between) expect(dataset.sources, `${join.key}: ${end} must be a member`).toContain(member(end));
+    const measured = dataset.join_keys.filter((join) => {
+      const [a, b] = join.between.map(member);
+      const ratio = /(\d[\d,]*)\s*\/\s*(\d[\d,]*)/.exec(join.measured);
+      const hostsA = new Set(byKey.get(a!)!.sources.map(hostOf));
+      const independent = byKey.get(a!)!.publisher !== byKey.get(b!)!.publisher && byKey.get(b!)!.sources.every((url) => !hostsA.has(hostOf(url)));
+      if (ratio === null) return false;
+      const [matched, total] = [Number(ratio[1]!.replaceAll(',', '')), Number(ratio[2]!.replaceAll(',', ''))];
+      // 0/0 records no sample, and 0/N records no link: zero-match rows stay in the registry as evidence, but only
+      // a join with at least one match shows that the members actually link. A declared match is a link by
+      // definition; a candidate match counts only once a hand-check confirmed at least one of them (the rest
+      // still go to review before publication).
+      const linked = join.mode === 'declared' || (join.reviewed !== undefined && join.reviewed.correct > 0);
+      return a !== b && independent && total > 0 && matched > 0 && matched <= total && linked;
+    });
+    expect(measured.length, 'at least one join with a confirmed link (declared, or a candidate with reviewed.correct > 0) between members that share no host').toBeGreaterThan(0);
+  });
+
+  it.each(registry.datasets)('$key never auto-links on names, brands, model tokens or titles', (dataset) => {
+    for (const join of dataset.join_keys) {
+      // Substring match on purpose: `brand_key`, `model_key` and "exact label" are all names, and `_`
+      // would defeat a \b word boundary.
+      if (/name|brand|model|title|token|phone|prefix|marker|label|pattern|filer/i.test(join.key)) expect(join.mode, `${join.key} must be a review candidate`).toBe('candidate');
+      // And a declared join must name an identifier that points at the counterpart record.
+      if (join.mode === 'declared') expect(join.key, `${join.key} is declared but names no identifier`).toMatch(/licen[cs]e number|\bUBI\b|GTIN|UPC|NOA|FL#|FIPS|zone|case number/i);
+    }
+  });
+
+  it.each(registry.datasets)('$key connects every member through confirmed joins once it advances', (dataset) => {
+    // One linked pair is enough while screening. From RIGHTS_DETERMINED on, every member must sit in a single connected
+    // graph of confirmed cross-source joins (declared with a match, or a candidate whose hand-check confirmed one), so
+    // a dataset cannot carry feeds that link to nothing.
+    if (!beyond(dataset.stage, 'RIGHTS_DETERMINED')) return;
+    const parent = new Map(dataset.sources.map((key) => [key, key]));
+    const find = (key: string): string => (parent.get(key) === key ? key : find(parent.get(key)!));
+    for (const join of dataset.join_keys) {
+      const [a, b] = join.between.map(member);
+      const ratio = /(\d[\d,]*)\s*\/\s*(\d[\d,]*)/.exec(join.measured);
+      const matched = ratio ? Number(ratio[1]!.replaceAll(',', '')) : 0;
+      const confirmed = matched > 0 && (join.mode === 'declared' || (join.reviewed?.correct ?? 0) > 0);
+      if (a !== b && confirmed) parent.set(find(a!), find(b!));
+    }
+    const roots = new Set(dataset.sources.map(find));
+    expect(roots.size, `${[...roots].join(', ')}: members not connected by confirmed joins`).toBe(1);
+  });
+
+  /** Feeds that were LIVE before 2026-09-27, when datasets became composites. Never add to this set. */
+  const GRANDFATHERED_LIVE = new Set(['fda-recalls']);
+
+  it('grandfathers only feeds that are still LIVE', () => {
+    for (const key of GRANDFATHERED_LIVE) expect(byKey.get(key)?.stage, `${key} is grandfathered`).toBe('LIVE');
+  });
+
+  it.each(registry.candidates)('$key belongs to a dataset once it is being built', (candidate) => {
+    // Only feeds that went LIVE before the composite rule keep standalone status, until a dataset adopts them.
+    if (candidate.stage === 'LIVE' && GRANDFATHERED_LIVE.has(candidate.key)) return;
+    if (!beyond(candidate.stage, 'PROTOTYPED')) return;
+    expect(registry.datasets.some((dataset) => dataset.sources.includes(candidate.key)), `${candidate.key} must be a member of a dataset`).toBe(true);
   });
 
   const Count = z.object({ hits: z.number().int().nonnegative(), of: z.number().int().positive() }).strict();

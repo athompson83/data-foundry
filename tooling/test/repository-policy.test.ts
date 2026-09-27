@@ -62,6 +62,9 @@ const DOMAIN_ALLOWLIST: readonly string[] = [
   // The service-trade source review. Like the landscape above, it records why a
   // manufacturer site was refused and which recalling firms sit on the list.
   'docs/sources/pipeline/research-2026-09-27-service-trades.md',
+  // The composite-dataset review. It records the redirect incident that led to
+  // ceedirectory.org being prohibited, so naming the hosts is the point.
+  'docs/sources/pipeline/research-2026-09-27-composites.md',
   'tooling/test/repository-policy.test.ts',
 ];
 

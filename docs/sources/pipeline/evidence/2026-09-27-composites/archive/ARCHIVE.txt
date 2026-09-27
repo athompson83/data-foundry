@@ -1,0 +1,8 @@
+Screening inputs archived 2026-09-27 (after review) in R2 bucket data-foundry-raw-artifacts under
+research/pipeline/2026-09-27-composites/archive/. Each tarball's per-file SHA-256 list is committed beside this file.
+
+remeasure.tar.gz  707344 bytes  sha256 0efb339c09c52b04738e13bff201d5bd7f5a1db2ae6c2d63dd7972bfbc91275a
+research2.tar.gz  64343828 bytes  sha256 0f44a1933ab1de74a6726159768a026320dab8e9421ec3bbef0dc5288bfee9dd
+research3.tar.gz  25129761 bytes  sha256 ca90f8dcc26078ea1544ae16bfda1ccd5b1dbb6bd130e9c8dae963f86197918c
+
+Also archived earlier under research/pipeline/2026-09-27-composites/: intl_recs.json, cpsc_all.json, hc_open.json (sizes and hashes in recalls/gtin_validated.txt and recalls/hc_cpsc_inputs.txt).
