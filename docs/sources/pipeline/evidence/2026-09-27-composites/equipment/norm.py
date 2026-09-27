@@ -78,35 +78,34 @@ class Index:
             self.by_brand.setdefault(b, set()).add(k)
             self.exact_any.setdefault(k, []).append((b, rid))
     def lookup(self, brand, model, brand_scoped=True):
-        """returns (method, ids) or (None, [])"""
+        """returns (method, ids) or (None, []).
+
+        Every matching listing is returned (exact and wildcard alike, de-duplicated) because the results feed a review
+        queue; `method` names the strongest kind found, so per-row counts keep their meaning.
+        """
         b = brand_key(brand)
+        found = []  # (method, ids) in order of strength
         if is_pattern(model):
             pk = pattern_key(model)
             rx = compile_pattern(model, self.mode)
             if brand_scoped:
-                ids = self.patkeys.get((b, pk))
-                if ids: return ('pattern=pattern', ids)
-                # compare pattern against concrete models of same brand: compile incoming
-                if rx is None: return (None, [])
-                hits = [rid for k in self.by_brand.get(b, ()) if rx.match(k) for rid in self.exact[(b, k)]]
-                if hits: return ('their-pattern~our-exact', hits)
-                return (None, [])
-            # any-brand fallback: the same canonical pattern, or concrete models of any brand the pattern matches
-            ids = [rid for (bb, key), rids in self.patkeys.items() if key == pk for rid in rids]
-            if ids: return ('pattern=pattern-anybrand', ids)
-            if rx is None: return (None, [])
-            hits = [rid for k, lst in self.exact_any.items() if rx.match(k) for _, rid in lst]
-            if hits: return ('their-pattern~our-exact-anybrand', hits)
-            return (None, [])
-        k = model_key(model)
-        if brand_scoped:
-            if (b, k) in self.exact: return ('exact', self.exact[(b, k)])
-            hits = [rid for rx, raw, rid in self.pats.get(b, []) if rx.match(k)]
-            if hits: return ('our-pattern~their-exact', hits)
-            return (None, [])
-        if k in self.exact_any: return ('exact-anybrand', [r for _, r in self.exact_any[k]])
-        # Patterns are bucketed by their literal prefix, which is shorter than 3 characters when a wildcard comes early
-        # (AB*123 -> 'AB'), so every prefix length up to 3 is probed.
-        hits = [rid for n in sorted({min(i, len(k)) for i in range(4)}) for rx, raw, bb, rid in self.pats_any.get(k[:n], []) if rx.match(k)]
-        if hits: return ('pattern-anybrand', hits)
-        return (None, [])
+                found.append(('pattern=pattern', self.patkeys.get((b, pk), [])))
+                if rx is not None:
+                    found.append(('their-pattern~our-exact', [rid for k in self.by_brand.get(b, ()) if rx.match(k) for rid in self.exact[(b, k)]]))
+            else:
+                found.append(('pattern=pattern-anybrand', [rid for (bb, key), rids in self.patkeys.items() if key == pk for rid in rids]))
+                if rx is not None:
+                    found.append(('their-pattern~our-exact-anybrand', [rid for k, lst in self.exact_any.items() if rx.match(k) for _, rid in lst]))
+        else:
+            k = model_key(model)
+            if brand_scoped:
+                found.append(('exact', self.exact.get((b, k), [])))
+                found.append(('our-pattern~their-exact', [rid for rx, raw, rid in self.pats.get(b, []) if rx.match(k)]))
+            else:
+                found.append(('exact-anybrand', [r for _, r in self.exact_any.get(k, [])]))
+                # Patterns are bucketed by their literal prefix, which is shorter than 3 characters when a wildcard comes
+                # early (AB*123 -> 'AB'), so every prefix length up to 3 is probed.
+                found.append(('pattern-anybrand', [rid for n in sorted({min(i, len(k)) for i in range(4)}) for rx, raw, bb, rid in self.pats_any.get(k[:n], []) if rx.match(k)]))
+        method = next((m for m, ids in found if ids), None)
+        ids = list(dict.fromkeys(rid for _, lst in found for rid in lst))
+        return (method, ids) if method else (None, [])
