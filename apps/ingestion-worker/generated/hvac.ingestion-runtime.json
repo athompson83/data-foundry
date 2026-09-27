@@ -1,7 +1,7 @@
 {
   "version": 1,
   "vertical_slug": "hvac",
-  "implementation_digest": "d7fed9b22acb993eb4f0e6206c90e63f0a66b16e4133443ce17bc594cf20b0e6",
+  "implementation_digest": "e9ee3c1461593fe81da1d5ddb95fed9000b6904de2729377be9cbb16acf2134f",
   "implementation_inputs": [
     "apps/ingestion-worker/package.json",
     "apps/ingestion-worker/src/runner.ts",
@@ -2905,5 +2905,5 @@
       }
     }
   },
-  "runtime_digest": "f2f8d41f3304a3349d08ddc850abbe0b069ce670a3b16af8d9b327764cf98bc0"
+  "runtime_digest": "c5d4f2ea402155bcf0ef91d20f68690b584443d3b9426f2ce28cc97f87be5f4f"
 }
