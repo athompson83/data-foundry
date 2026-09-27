@@ -1,0 +1,191 @@
+# Dataset expansion pipeline — candidate registry. See README.md in this folder.
+# Validated by tooling/test/source-pipeline.test.ts. Scores are 1-5 judgements
+# applied to the evidence in the linked research record; they are not
+# measurements.
+version: 1
+updated: 2026-09-27
+candidates:
+  - key: fda-recalls
+    name: FDA Recall Intelligence (food, drug, device enforcement reports)
+    category: product-safety
+    structuring: identifier-extraction
+    stage: LIVE
+    rights: GREEN
+    sources: [https://api.fda.gov/food/enforcement.json]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 5, structuring_value: 5, freshness: 4, low_onboarding_cost: 5, poor_existing_access: 4 }
+    evidence: [docs/sources/openfda-enforcement-rights-record-20260926.md, docs/decisions/ADR-0015-first-paid-dataset-fda-recalls-on-d1.md]
+    next_action: Weekly reconciliation to source totals; first paid request.
+
+  - key: cpsc-recalls
+    name: CPSC consumer-product recalls in the recall API
+    category: product-safety
+    structuring: identifier-extraction
+    stage: EVIDENCED
+    rights: GREEN
+    sources: [https://www.saferproducts.gov/RestWebServices/Recall?format=json]
+    scores: { agent_demand: 3, rights_clarity: 5, acquisition_ease: 4, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 2 }
+    terms:
+      - url: https://www.cpsc.gov/About-CPSC/Policies-Statements-and-Directives/Privacy-Policy
+        quote: "You may freely copy and distribute recall notices, including photographs of recalled items, without permission."
+    evidence: [docs/sources/pipeline/research-2026-09-27.md]
+    next_action: >-
+      Write the CPSC rights record (public information, credit CPSC, no endorsement,
+      exclude ConsumerContact personal data and licensed images), then generalise
+      StructuredRecall beyond openFDA categories and prototype model/UPC/lot extraction
+      over all 10,027 recalls.
+
+  - key: nhtsa-recalls
+    name: NHTSA vehicle recalls in the recall API
+    category: transport
+    structuring: normalization
+    stage: SCREENED
+    rights: GREEN
+    sources: [https://static.nhtsa.gov/odi/ffdd/rcl/FLAT_RCL_POST_2010.zip, https://api.nhtsa.gov/recalls/recallsByVehicle]
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 4, structuring_value: 2, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [docs/sources/pipeline/research-2026-09-27.md, verticals/vehicles/sources/nhtsa-recalls.yaml]
+    next_action: >-
+      Low structuring value alone (already structured, no VIN ranges); fold into the
+      recall API after CPSC. The flat file is now FLAT_RCL_POST_2010.zip (29 fields);
+      FLAT_RCL.zip is 404.
+
+  - key: fsis-recalls
+    name: USDA FSIS meat, poultry and egg recalls
+    category: product-safety
+    structuring: identifier-extraction
+    stage: DISCOVERED
+    rights: UNKNOWN
+    sources: [https://www.fsis.usda.gov/fsis/api/recall/v/1]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 1, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [docs/sources/pipeline/research-2026-09-27.md]
+    next_action: Akamai 403 from this egress for the API, the RSS feed and foodsafety.gov; retry from Cloudflare Worker egress.
+
+  - key: clinical-trial-eligibility
+    name: ClinicalTrials.gov structured eligibility criteria
+    category: health
+    structuring: eligibility-criteria
+    stage: EVIDENCED
+    rights: AMBER
+    sources: [https://clinicaltrials.gov/api/v2/studies/download?format=json.zip, https://clinicaltrials.gov/api/v2/studies]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
+    terms:
+      - url: https://clinicaltrials.gov/about-site/terms-conditions
+        quote: "Update the data such that they are current at all times"
+      - url: https://clinicaltrials.gov/about-site/terms-conditions
+        quote: "You shall not assert any proprietary rights to any portion of the database, or represent the database or any part thereof to anyone as other than a United States Government database."
+    evidence: [docs/sources/pipeline/research-2026-09-27.md]
+    conditions:
+      - Attribute ClinicalTrials.gov; show the source processing date and our modifications.
+      - Keep data current (daily delta sync).
+      - Claim no proprietary rights in the database.
+      - Exclude investigator and site contact personal data.
+      - Acquire via the documented bulk download and API only (robots.txt disallows /api/ for crawlers).
+      - Present as a screening aid, not medical advice.
+    next_action: >-
+      Write the ADR-0013 rights record that satisfies every condition, then prototype
+      the inclusion/exclusion splitter and typed extractors (age, ECOG, labs, infections,
+      pregnancy, prior therapy) over all 65,044 recruiting studies.
+
+  - key: federal-register-obligations
+    name: Federal Register + eCFR regulatory obligation timelines
+    category: regulatory
+    structuring: obligation-timeline
+    stage: EVIDENCED
+    rights: GREEN
+    sources: [https://www.federalregister.gov/api/v1/documents.json, https://www.govinfo.gov/content/pkg/, https://www.ecfr.gov/api/versioner/v1/]
+    scores: { agent_demand: 3, rights_clarity: 5, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 2, poor_existing_access: 3 }
+    terms:
+      - url: https://www.govinfo.gov/about/policies
+        quote: "Copyright protection under this title is not available for any work of the United States Government"
+    evidence: [docs/sources/pipeline/research-2026-09-27.md]
+    next_action: >-
+      Prototype the compliance-date and stay-chain parser over 12 months of rules
+      (2,719) using the API metadata and GovInfo full text; FederalRegister.gov full
+      text is bot-blocked, so do not use it.
+
+  - key: drug-label-facts
+    name: Drug label facts (boxed warnings, contraindications, pregnancy/lactation)
+    category: health
+    structuring: identifier-extraction
+    stage: EVIDENCED
+    rights: AMBER
+    sources: [https://api.fda.gov/drug/label.json, https://dailymed.nlm.nih.gov/dailymed/services/v2/]
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 5, structuring_value: 4, freshness: 4, low_onboarding_cost: 2, poor_existing_access: 4 }
+    terms:
+      - url: https://open.fda.gov/terms/
+        quote: "Some data on openFDA may not be public domain, such as copies of copyrightable works made available to the FDA by private entities."
+      - url: https://www.nlm.nih.gov/web_policies.html
+        quote: "Transmission or reproduction of copyrighted items (beyond that allowed by fair use as defined in the U.S. copyright laws) requires the written permission of the copyright holders."
+    evidence: [docs/sources/pipeline/research-2026-09-27.md]
+    conditions:
+      - Sell structured facts with short evidence spans and a DailyMed set_id link; no bulk verbatim label text.
+      - Exclude medication guides and patient package inserts (14 of 100 labels carry sponsor copyright notices).
+      - Not for clinical decisions.
+    next_action: After clinical trials; start with a narrow boxed-warning + contraindication + pregnancy/lactation MVP.
+
+  - key: sec-8k-events
+    name: SEC 8-K item-level corporate events
+    category: finance
+    structuring: event-extraction
+    stage: EVIDENCED
+    rights: GREEN
+    sources: [https://data.sec.gov/submissions/, https://efts.sec.gov/LATEST/search-index]
+    scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 2, poor_existing_access: 2 }
+    terms:
+      - url: https://www.sec.gov/about/privacy-information
+        quote: "Information presented on sec.gov is considered public information and may be copied or further distributed by users of the web site without the SEC's permission."
+    evidence: [docs/sources/pipeline/research-2026-09-27.md]
+    conditions:
+      - Declared User-Agent with contact; at most 10 requests/second.
+      - No SEC or EDGAR in product names; no seal or logo; cite the SEC.
+      - Extracted facts plus links; no bulk republication of filer exhibits.
+    next_action: >-
+      Narrow MVP on Items 1.05 (cyber), 1.03 (bankruptcy), 4.01 (auditor change); measure
+      extraction precision over at least 100 filings per item before RIGHTS_DETERMINED
+      (round 1 sampled only 4 per item). sec-api.io is an incumbent for 5.02 and 4.01.
+
+  - key: vulnerability-intelligence
+    name: NVD CVE + CISA KEV normalization
+    category: security
+    structuring: normalization
+    stage: PARKED
+    rights: GREEN
+    sources: [https://services.nvd.nist.gov/rest/json/cves/2.0, https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json]
+    scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 4, structuring_value: 2, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 2 }
+    evidence: [docs/sources/pipeline/research-2026-09-27.md]
+    next_action: >-
+      Parked: CNA "affected" data already supplies vendor/product for 92% of the NVD
+      backlog, and OSV, VulnCheck and CIRCL serve agents well. Reopen for a
+      version-range normalization product only on demand evidence.
+
+  - key: faa-aircraft-registry
+    name: FAA aircraft registry by N-number
+    category: transport
+    structuring: normalization
+    stage: SCREENED
+    rights: UNKNOWN
+    sources: [https://registry.faa.gov/database/ReleasableAircraft.zip]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 2, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 4 }
+    evidence: [docs/commercial-validation/deterministic-candidate-screen-20260917.md]
+    next_action: Already structured (little parsing value) but lacks an official JSON API; revisit as a fast convenience dataset.
+
+  - key: us-tariff-duty-stack
+    name: US HTS duty stack with Chapter 99 remedies
+    category: trade
+    structuring: obligation-timeline
+    stage: PARKED
+    rights: RED
+    sources: [https://hts.usitc.gov/]
+    scores: { agent_demand: 5, rights_clarity: 1, acquisition_ease: 2, structuring_value: 5, freshness: 4, low_onboarding_cost: 2, poor_existing_access: 5 }
+    evidence: [docs/commercial-validation/tariff-parked-sec-promoted-20260917.md]
+    next_action: USITC terms unreadable from this egress (403 to a real browser); reopen only when the terms can be read.
+
+  - key: sec-xbrl-financial-facts
+    name: SEC XBRL canonical financial facts
+    category: finance
+    structuring: normalization
+    stage: PARKED
+    rights: AMBER
+    sources: [https://data.sec.gov/api/xbrl/companyfacts/]
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 4, structuring_value: 2, freshness: 4, low_onboarding_cost: 2, poor_existing_access: 2 }
+    evidence: [docs/commercial-validation/sec-canonical-facts-validation-20260917.md]
+    next_action: NO_GO on determinism (concepts disagree); superseded by sec-8k-events.

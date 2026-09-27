@@ -1,5 +1,26 @@
 # Progress
 
+## Current session — 2026-09-27 (continued): dataset expansion pipeline, research round 1
+
+- **Owner direction.** Keep expanding data types and databases, categorise them,
+  automate it, and prioritise unstructured data that is most useful to AI agents.
+- **Pipeline.** `docs/sources/pipeline/`:
+  - `README.md` sets out the stages, the rights gate, the scoring and the weekly run.
+  - `candidates.yaml` is the registry, validated by `tooling/test/source-pipeline.test.ts`.
+  - `research-2026-09-27.md` is the round-1 evidence.
+- **Round 1 result.** Evidenced against live sources:
+  - ClinicalTrials.gov eligibility: 27/35, AMBER with satisfiable conditions. Next
+    new data type.
+  - CPSC recalls: GREEN; the model/UPC/lot codes are only in prose. Quick
+    expansion of the live recall API.
+  - Federal Register + eCFR: GREEN; compliance-date and stay chains exist only in
+    prose.
+  - Drug label facts: AMBER; sponsor copyright blocks verbatim text.
+  - SEC 8-K: GREEN, but there is an incumbent.
+  - NVD/KEV: parked, because CNA data already fills 92% of the backlog.
+- **Environment.** NHTSA is now reachable. The NHTSA flat file moved to
+  `FLAT_RCL_POST_2010.zip`. FSIS is still blocked by Akamai from this egress.
+
 ## Current session — 2026-09-26/27: FDA Recall Intelligence merged, loaded, deployed, accepted; sales opened
 
 **2026-09-27 launch.** The Product Owner confirmed the legal seller and the support
