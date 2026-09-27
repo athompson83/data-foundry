@@ -104,15 +104,26 @@ export function sourceUrl(category: RecallCategory, recallNumber: string): strin
 }
 
 /**
- * Whether a record carries a real recall number. FDA publishes some very
- * recent reports with a placeholder ("N/A") before a number is assigned; such
- * a value is shared by unrelated recalls, so it cannot be an identity. Those
- * records are skipped until FDA assigns the number, and the next sync picks
- * them up under it.
+ * The grammar of a publishable recall number, as one safe URL path segment.
+ * FDA's are a centre letter, a sequence and a year, but legacy ones are
+ * irregular (`D-66241-001`, `F-1855.2013`). Requiring a digit keeps fixed
+ * paths such as /recalls/docs out. Ingestion, pages, the API, sitemaps and
+ * IndexNow all use this one definition, so every published recall is routable.
+ */
+export const RECALL_NUMBER_SOURCE = '(?=[A-Za-z0-9.-]*\\d)[A-Za-z0-9.-]{3,40}';
+const RECALL_NUMBER = new RegExp(`^${RECALL_NUMBER_SOURCE}$`);
+
+/**
+ * Whether a record carries a real, routable recall number. FDA publishes some
+ * very recent reports with a placeholder ("N/A") before a number is assigned;
+ * such a value is shared by unrelated recalls, so it cannot be an identity. A
+ * value outside the grammar above could not be served at its own URL. Those
+ * records are kept as evidence but not published, and the next sync picks
+ * them up under a real number.
  */
 export function isUsableRecallNumber(value: string | undefined): value is string {
   const trimmed = value?.trim() ?? '';
-  return trimmed.length > 0 && !/^(?:n\/?a|none|unknown|pending|tbd|null|-+)$/i.test(trimmed);
+  return trimmed.length > 0 && !/^(?:n\/?a|none|unknown|pending|tbd|null|-+)$/i.test(trimmed) && RECALL_NUMBER.test(trimmed);
 }
 
 export function structureRecall(category: RecallCategory, record: OpenFdaEnforcementRecord): StructuredRecall {

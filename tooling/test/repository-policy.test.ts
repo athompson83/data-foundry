@@ -59,6 +59,9 @@ const DOMAIN_ALLOWLIST: readonly string[] = [
   // WHY neep.org is prohibited, quoting its terms, and an assessment that could
   // not name what it assessed would be unreviewable.
   'docs/sources/hvac-source-landscape-2026-08.md',
+  // The service-trade source review. Like the landscape above, it records why a
+  // manufacturer site was refused and which recalling firms sit on the list.
+  'docs/sources/pipeline/research-2026-09-27-service-trades.md',
   'tooling/test/repository-policy.test.ts',
 ];
 

@@ -208,5 +208,8 @@ describe('structureRecall', () => {
     expect(() => structureRecall('drug', { recall_number: 'N/A' })).toThrow(/recall_number/);
     expect(isUsableRecallNumber('D-036-2013')).toBe(true);
     expect(isUsableRecallNumber(' n/a ')).toBe(false);
+    expect(isUsableRecallNumber('F-1855.2013')).toBe(true);
+    expect(isUsableRecallNumber('D-66241-001')).toBe(true);
+    for (const unroutable of ['F/0001/2026', 'F_0001_2026', 'F 0001 2026', 'docs', 'F-'.padEnd(41, '1')]) expect(isUsableRecallNumber(unroutable), unroutable).toBe(false);
   });
 });
