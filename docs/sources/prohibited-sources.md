@@ -40,6 +40,9 @@ the same `RightsViolationError` as any other rule-1 violation.
 | `york.com` | York (Johnson Controls) | as above |
 | `daikin.com` | Daikin Industries | as above |
 | `daikincomfort.com` | Daikin Comfort Technologies | as above |
+| `goodmanmfg.com` | Goodman Manufacturing (Daikin) | as above; the footer states "Duplication in part or in whole is strictly prohibited." Added 2026-09-27 from [service-trade research](pipeline/research-2026-09-27-service-trades.md) |
+| `ceedirectory.org` | Consortium for Energy Efficiency directory (with AHRI) | Answers `301` to `ahridirectory.org`; acquiring it routes around the AHRI prohibition. Added 2026-09-27 |
+| `mcscertified.com` | MCS Service Company Ltd (UK) | Terms: "Any copying, distribution, storing or transmission of any kind, or any sort of commercial use of the Content is strictly prohibited without the MCS Service Company Ltd's prior written permission." Added 2026-09-27 |
 
 Every entry carries a `reason` and a `liftedBy`. A prohibition with no stated
 route out is indistinguishable from an unexplained veto, and will eventually be

@@ -4,6 +4,7 @@
  */
 
 import { PLANS, PLAN_IDS } from './account.js';
+import { catalogJsonLd, recallsDataset } from './seo.js';
 
 export interface PageContext {
   readonly publicOrigin: string;
@@ -42,12 +43,29 @@ table{border-collapse:collapse;width:100%;font-size:14.5px}th,td{text-align:left
 footer{max-width:980px;margin:0 auto;padding:24px 16px 48px;color:var(--muted);font-size:14px;border-top:1px solid var(--line)}
 `;
 
-function layout(ctx: PageContext, title: string, description: string, body: string, options: { noindex?: boolean; path?: string } = {}): string {
+export interface LayoutOptions {
+  readonly noindex?: boolean;
+  /** A robots directive other than plain noindex, e.g. "noindex, follow" for navigation hubs. */
+  readonly robots?: string;
+  readonly path?: string;
+  /** schema.org objects, emitted as JSON-LD for search engines and LLM crawlers. */
+  readonly jsonLd?: readonly unknown[];
+}
+
+/** JSON-LD inside <script>: escape "<" so text such as "</script>" cannot end the block. */
+export function jsonLdScript(value: unknown): string {
+  return `<script type="application/ld+json">${JSON.stringify(value).replace(/</g, '\\u003c')}</script>`;
+}
+
+export function layout(ctx: PageContext, title: string, description: string, body: string, options: LayoutOptions = {}): string {
+  const robots = options.robots ?? (options.noindex ? 'noindex' : null);
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${escapeHtml(title)}</title><meta name="description" content="${escapeHtml(description)}">
-${options.noindex ? '<meta name="robots" content="noindex">' : ''}${options.path ? `<link rel="canonical" href="${ctx.publicOrigin}${options.path}">` : ''}
+${robots ? `<meta name="robots" content="${robots}">` : ''}${options.path ? `<link rel="canonical" href="${ctx.publicOrigin}${options.path}">` : ''}
+<link rel="alternate" type="text/plain" title="LLM summary" href="/llms.txt"><link rel="service-desc" type="application/json" href="${ctx.apiOrigin}/openapi.json">
+${(options.jsonLd ?? []).map(jsonLdScript).join('')}
 <style>${CSS}</style></head><body>
-<header class="site"><a class="brand" href="/">Data Foundry</a><nav><a href="/recalls">Recall API</a><a href="/recalls/docs">Docs</a><a href="/recalls#pricing">Pricing</a></nav></header>
+<header class="site"><a class="brand" href="/">Data Foundry</a><nav><a href="/recalls">Recall API</a><a href="/recalls/browse">Browse recalls</a><a href="/recalls/docs">Docs</a><a href="/recalls#pricing">Pricing</a></nav></header>
 <main>${body}</main>
 <footer>Data Foundry by Aroqon Data · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="mailto:${ctx.supportEmail}">${ctx.supportEmail}</a><br>
 Recall data: U.S. Food and Drug Administration via <a href="https://open.fda.gov">openFDA</a> (CC0). Not affiliated with or endorsed by FDA.</footer>
@@ -73,7 +91,7 @@ export function catalogPage(ctx: PageContext): string {
 <h2>Datasets</h2>
 <div class="grid"><div class="card"><h3><a href="/recalls">FDA Recall Intelligence</a></h3>
 <p class="muted small">Every FDA food, drug and device enforcement report on openFDA (reports from June 2012 on), with distribution states, lot numbers, UPC/GTIN/UDI, NDC, expiry dates, allergens and pathogens extracted from the free text.</p></div></div>`,
-    { path: '/' },
+    { path: '/', jsonLd: [catalogJsonLd(ctx)] },
   );
 }
 
@@ -100,8 +118,10 @@ export function recallsLanding(ctx: PageContext): string {
 <div class="grid">${planCards()}</div>
 <p class="small muted">Monthly, billed by Stripe. Upgrade, downgrade or cancel any time from the billing portal. Your key is shown immediately after checkout.</p>
 <h2>Good for</h2>
-<p class="muted">Retail and grocery systems checking inventory against recalls · pharmacy and hospital supply chains matching NDCs and UDIs · marketplaces screening listings · compliance and QA dashboards · AI agents that need a reliable recall answer instead of a web search.</p>`,
-    { path: '/recalls' },
+<p class="muted">Retail and grocery systems checking inventory against recalls · pharmacy and hospital supply chains matching NDCs and UDIs · marketplaces screening listings · compliance and QA dashboards · AI agents that need a reliable recall answer instead of a web search.</p>
+<h2>Browse every recall</h2>
+<p class="muted">Each recall has a public page with its codes, distribution and reasons: <a href="/recalls/browse">browse by product type and year</a>. Agents: see <a href="/llms.txt">/llms.txt</a>.</p>`,
+    { path: '/recalls', jsonLd: [recallsDataset(ctx)] },
   );
 }
 

@@ -15,6 +15,7 @@ declarations) and the vertical/dataset build itself.
 | [`candidates.yaml`](candidates.yaml) | Every candidate dataset: category, stage, rights verdict, scores, evidence and the single next action. Validated by `tooling/test/source-pipeline.test.ts`. |
 | [`scout-routine.md`](scout-routine.md) | The scheduler: the routine's ID, cron and verbatim prompt. |
 | `evidence/YYYY-MM-DD/` | Sample identifiers (`samples.json`), assessment scripts, their outputs, and `inputs.json` + `replay.sh`. The source responses themselves are preserved in the R2 evidence bucket, so every measurement can be re-run. |
+| `prototypes/<key>/` | The PROTOTYPED evidence for one candidate: report and `coverage.json`. |
 | `research-YYYY-MM-DD.md` | The evidence record for a research round: quoted terms, measured counts, samples, extraction hit rates. |
 
 ## Stages
@@ -32,7 +33,11 @@ A candidate moves forward only on evidence, one stage at a time:
    (`docs/sources/<source>-rights-record-YYYYMMDD.md`), listing the exact fields
    to be redistributed and the attribution and conditions.
 5. `PROTOTYPED`: a deterministic parser runs over the full snapshot with 0
-   errors, with golden tests and measured field coverage.
+   errors, with golden tests and measured field coverage. The evidence is
+   `prototypes/<key>/README.md` plus `prototypes/<key>/coverage.json`: the
+   package, golden tests, runner (`tooling/prototypes/<key>.ts`), the snapshot
+   archived in R2 with byte counts and SHA-256, per-field hits, and hand-checked
+   precision where it was measured.
 6. `BUILDING`: storage, sync, API/MCP surface and billing, in a reviewed PR.
 7. `LIVE`: deployed, reconciled to the source, and hosted acceptance passed.
    Selling stays gated by `SALES_OPEN` per dataset.
@@ -72,7 +77,7 @@ applied to evidence. It is not itself a measurement.
 
 ## Categories
 
-Datasets are categorised by domain (`health`, `product-safety`, `regulatory`,
+Datasets are categorised by domain (`home-services`, `health`, `product-safety`, `regulatory`,
 `security`, `finance`, `transport`, `trade`, …) and by the structuring they
 perform: `identifier-extraction`, `eligibility-criteria`, `obligation-timeline`,
 `event-extraction`, `normalization`. Public paths follow ADR-0012:
@@ -94,9 +99,13 @@ in [`scout-routine.md`](scout-routine.md):
    It fixes any regression before doing anything else.
 3. Discovers at least three new candidates across unrelated domains, and
    screens them.
-4. Advances the first candidate in the latest research record's **build order**
-   by at least one stage, with evidence, provided it is in `EVIDENCED`–`BUILDING`.
-   The build order weighs cost and time to revenue as well as the score.
+4. Advances the first candidate in the active research record's **build order**
+   by at least one stage, with evidence, provided it is in `SCREENED`–`BUILDING`.
+   The build order weighs cost and time to revenue as well as the score. The
+   active build order is in
+   [`research-2026-09-27-service-trades.md`](research-2026-09-27-service-trades.md)
+   (HVAC, plumbing, electrical, roofing, appliance) until a later record
+   states that it replaces it.
 5. Records a `research-YYYY-MM-DD.md`, updates `candidates.yaml`, and opens a
    PR. Merging follows the normal gates: CI green and independent review clean.
 6. Reports to the owner only:

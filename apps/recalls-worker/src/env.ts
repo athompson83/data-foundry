@@ -45,4 +45,6 @@ export interface Env {
   readonly PUBLIC_ORIGIN?: string;
   readonly API_ORIGIN?: string;
   readonly SUPPORT_EMAIL?: string;
+  /** Public IndexNow key, served at /<key>.txt; unset disables pings. */
+  readonly INDEXNOW_KEY?: string;
 }

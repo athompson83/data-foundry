@@ -84,11 +84,13 @@ endpoints `/admin/sync` and
 `/admin/reissue-key` back the lost-key procedure in
 `docs/owner-actions/recalls-operations.md`). The site-wide
 paths it also serves today (`/`, `/docs`, `/terms`, `/privacy`, `/robots.txt`,
-`/sitemap.xml`) move to the web Worker only once that Worker serves
+`/sitemap.xml`, `/sitemaps/*`, `/llms.txt`, `/llms-full.txt` and the IndexNow
+key file `/<INDEXNOW_KEY>.txt`; see "Discoverability" below) move to the web Worker only once that Worker serves
 equivalents covering the recall product (its terms and privacy text, its
 sitemap entries and a link to `/recalls/docs`); until then they stay on the
 recall Worker as explicit routes. Verify every recall page, checkout, the Stripe
-webhook and an authorised `/admin/sync` call through the new routes before
+webhook, an authorised `/admin/sync` call, `/sitemap.xml`, one
+`/sitemaps/recalls-1.xml` shard, `/llms.txt` and the IndexNow key file through the new routes before
 routing the web Worker; rollback is re-attaching the Custom Domain to
 `data-foundry-recalls`.
 
@@ -104,3 +106,43 @@ launch runbook refer to it.
 Converting only in the dashboard is not enough: the next routine
 `wrangler deploy` of the unchanged manifest would re-attach the Custom Domains
 and shadow the edge and web routes again.
+
+## Discoverability (2026-09-27)
+
+Product Owner direction: make the data show up in search engines and LLM
+answers. The recall Worker therefore also serves, from the same D1 rows as the
+API (rule 5):
+
+- one public page per recall at `/recalls/<recall_number>`, with schema.org
+  JSON-LD (`WebPage` about a `Product`, part of the `Dataset`), a canonical
+  URL, and a pointer to the API record. Records without both an FDA product
+  description and a reason of at least 20 characters are `noindex, follow`
+  and left out of the sitemaps (rule 8: no thin pages);
+- `noindex, follow` navigation hubs at `/recalls/browse` and
+  `/recalls/browse/<category>/<year>`, so crawlers that ignore sitemaps still
+  reach every record;
+- a sitemap index at `/sitemap.xml` over `/sitemaps/pages.xml` and
+  `/sitemaps/recalls-<n>.xml` (20,000 URLs each, stable order);
+- `DataCatalog` and `Dataset` JSON-LD on `/` and `/recalls` (Google Dataset
+  Search);
+- `/llms.txt` and `/llms-full.txt` (llmstxt.org format) for agents;
+- `robots.txt` allowing search and AI crawlers, with a Content-Signal line;
+- IndexNow pings for changed, indexable recall pages after every scheduled
+  sync. The key is public by design and served at `/<INDEXNOW_KEY>.txt`. A
+  watermark in R2 (`state/indexnow-watermark.json`) advances only when every
+  batch is accepted, so a rejected or throttled submission is retried on the
+  next run. A page is announced only once it changed more than an edge-cache
+  lifetime (plus five minutes) ago, so a crawler following the ping cannot be
+  served the previous cached version from any data centre. Nothing is submitted while `SOURCE_KILL_SWITCH` is on, and the
+  watermark stays put so pending pages are sent after reactivation.
+
+D1-backed pages are served from the Workers edge cache for an hour, keyed on
+the canonical URL (path, plus `page` for hubs), and all of them are withdrawn
+by `SOURCE_KILL_SWITCH`, which is checked before the cache. Clients and
+intermediaries receive `Cache-Control: no-cache`, so a withdrawal takes effect
+on their next request. Unknown recalls and misses are cached as 404s; sitemap shards are bounded by a cached count of indexable recalls, and browse pagination by a cached per-year count (years 2012 to the current year), so no unique URL can force a large-OFFSET D1 query. The
+recall-number grammar (`RECALL_NUMBER_SOURCE` in `recall-structuring`) is
+shared by ingestion and every route, so each published recall has a page. The zone's Cloudflare AI-crawler
+blocking was checked on 2026-09-27 and is disabled, so AI crawlers are not
+refused at the edge.
+

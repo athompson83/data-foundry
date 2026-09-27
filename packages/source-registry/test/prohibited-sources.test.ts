@@ -61,6 +61,9 @@ describe('the prohibited-source list', () => {
       'lennox.com',
       'york.com',
       'daikin.com',
+      'goodmanmfg.com',
+      'ceedirectory.org',
+      'mcscertified.com',
     ]) {
       expect(prohibitedSourceFor(domain), domain).not.toBeNull();
     }

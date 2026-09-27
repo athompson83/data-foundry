@@ -34,6 +34,9 @@ invocation_logs = false
 PUBLIC_ORIGIN = "https://data.aroqon.com"
 API_ORIGIN = "https://api.data.aroqon.com"
 SUPPORT_EMAIL = "data@mail.proviciency.com"
+# Public by design: IndexNow proves host ownership by serving this key at
+# https://data.aroqon.com/<key>.txt. Changed recall pages are pinged after each sync.
+INDEXNOW_KEY = "fe64f391da31667d2989e57acd0ad461"
 SOURCE_KILL_SWITCH = "0"
 # "1" accepts new checkouts. Opened 2026-09-27 on the Product Owner's launch
 # instruction; set "0" to stop new sales (docs/owner-actions/recalls-operations.md).
