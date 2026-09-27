@@ -1,5 +1,7 @@
-import re, collections, random
+import re, collections, random, sys
 from load import *; from norm import *
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'recalls'))
+from common import digit_codes  # separator-aware barcode tokenizer shared with recalls/es_link.py
 mi=es_mi(); cac=es_cac(); wsr=ws(); rec=cpsc()
 TOKEN=re.compile(r"\b(?=[A-Z0-9/\-\.]*\d)(?=[A-Z0-9/\-\.]*[A-Z])[A-Z0-9][A-Z0-9/\-\.]{3,}[A-Z0-9]\b")
 es=Index(); cat_of={}; brand_of={}
@@ -26,12 +28,10 @@ def gs1_valid(g):
 # UPC
 es_upc={}
 for r in mi:
-    for u in re.split(r'[;,\s]+', r.get('upc') or ''):
-        u=re.sub(r'\D','',u)
+    for u in digit_codes(r.get('upc')):
         if len(u)>=11 and gs1_valid(u): es_upc.setdefault(u.lstrip('0'),[]).append(r['pd_id'])
 for i,r in enumerate(wsr):
-    for u in re.split(r'[;,\s]+', r.get('Universal Product Code(s)') or ''):
-        u=re.sub(r'\D','',u)
+    for u in digit_codes(r.get('Universal Product Code(s)')):
         if len(u)>=11 and gs1_valid(u): es_upc.setdefault(u.lstrip('0'),[]).append('ws%d'%i)
 print('ES+WS UPCs',len(es_upc))
 stats=collections.Counter(); hits=[]; upchits=[]; tok_total=0; tok_hit=0
@@ -54,8 +54,10 @@ for r in rec:
             if ph: rh.append((t,'pattern',b,[rid for rid,_ in ph],sorted({raw for _,raw in ph}))); found=True
         tok_hit+=found
     for u in r.get('ProductUPCs') or []:
-        raw=re.sub(r'\D','',u.get('UPC','') if isinstance(u,dict) else str(u)); uu=raw.lstrip('0')
-        if gs1_valid(raw) and uu in es_upc: upchits.append((r['RecallNumber'],uu,list(es_upc[uu])))
+        # A CPSC UPC field can list several codes: each token is validated on its own.
+        for raw in digit_codes(u.get('UPC','') if isinstance(u,dict) else str(u)):
+            uu=raw.lstrip('0')
+            if gs1_valid(raw) and uu in es_upc: upchits.append((r['RecallNumber'],uu,list(es_upc[uu])))
     if rh:
         stats['recalls_with_match']+=1
         if r['RecallDate']>='2015': stats['recalls_with_match_2015+']+=1
