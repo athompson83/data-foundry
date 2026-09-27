@@ -232,6 +232,10 @@ describe('dataset expansion pipeline registry', () => {
     for (const key of dataset.sources) expect(byKey.has(key), `${key} is not a candidate`).toBe(true);
     expect(new Set(dataset.sources).size, 'members are listed once').toBe(dataset.sources.length);
     const members = dataset.sources.map((key) => byKey.get(key)!);
+    // A composite structures unstructured data: at least one member is extracted from free text (identifiers, events,
+    // eligibility or obligations), and at least one is an already-structured feed that is normalised.
+    expect(members.some((candidate) => candidate.structuring !== 'normalization'), 'at least one member is extracted from unstructured text').toBe(true);
+    expect(members.some((candidate) => candidate.structuring === 'normalization'), 'at least one member is a structured feed').toBe(true);
     // Independence is between members, not across the union of URLs: some pair of distinct members must share
     // no host, so one feed republished under a second key cannot pass as a composite.
     const hostSets = members.map((candidate) => new Set(candidate.sources.map(hostOf)));
@@ -272,7 +276,7 @@ describe('dataset expansion pipeline registry', () => {
       // would defeat a \b word boundary.
       if (/name|brand|model|title|token|phone|prefix|marker|label|pattern|filer/i.test(join.key)) expect(join.mode, `${join.key} must be a review candidate`).toBe('candidate');
       // And a declared join must name an identifier that points at the counterpart record.
-      if (join.mode === 'declared') expect(join.key, `${join.key} is declared but names no identifier`).toMatch(/licen[cs]e number|\bUBI\b|GTIN|UPC|NOA|FL#|FIPS|zone|code version|case number|HVHZ flag/i);
+      if (join.mode === 'declared') expect(join.key, `${join.key} is declared but names no identifier`).toMatch(/licen[cs]e number|\bUBI\b|GTIN|UPC|NOA|FL#|FIPS|zone|case number/i);
     }
   });
 

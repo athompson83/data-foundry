@@ -4012,18 +4012,20 @@ datasets:
         measured: 242/636 applicants (1,380/2,891 NOAs; 1,077/4,645 FL apps); false 0/30 (+1 uncertain)
         mode: candidate
         reviewed: { correct: 29, checked: 30 }
-      - key: HVHZ flag -> Miami-Dade/Broward jurisdictions
+      - key: HVHZ flag -> Miami-Dade/Broward jurisdictions (a derived applicability mapping, not a record link; the
+          jurisdiction rows are selected by county FIPS)
         between:
           - roofing-florida-product-approvals
           - building-products-fema-bcat
         measured: 113/200 FL apps HVHZ-approved -> 67 BCAT jurisdictions
-        mode: declared
-      - key: FBC code version 2023 <-> BCAT Florida 8th Edition note
+        mode: candidate
+      - key: FBC code version 2023 <-> BCAT Florida 8th Edition note (a shared attribute used as filter evidence, not a
+          record link)
         between:
           - roofing-florida-product-approvals
           - building-products-fema-bcat
         measured: 477/477
-        mode: declared
+        mode: candidate
       - key: county FIPS (before crosswalk)
         between:
           - building-products-fema-bcat
