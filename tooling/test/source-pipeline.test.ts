@@ -71,7 +71,7 @@ const Dataset = z
   .strict();
 
 const Registry = z
-  .object({ version: z.literal(1), updated: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), candidates: z.array(Candidate).min(1), datasets: z.array(Dataset).default([]) })
+  .object({ version: z.literal(1), updated: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), candidates: z.array(Candidate).min(1), datasets: z.array(Dataset).min(1) })
   .strict();
 
 const registry = Registry.parse(parseYaml(readFileSync(REGISTRY, 'utf8')));
@@ -227,7 +227,7 @@ describe('dataset expansion pipeline registry', () => {
 
   it.each(registry.datasets)('$key never auto-links on names, brands, model tokens or titles', (dataset) => {
     for (const join of dataset.join_keys) {
-      if (/\b(name|brand|title|token|phone|prefix)\b/i.test(join.key) && !/\bmarker\b/i.test(join.key)) expect(join.mode, `${join.key} must be a review candidate`).toBe('candidate');
+      if (/\b(name|brand|title|tokens?|phone|prefix|marker)\b/i.test(join.key)) expect(join.mode, `${join.key} must be a review candidate`).toBe('candidate');
     }
   });
 

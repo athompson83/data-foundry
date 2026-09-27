@@ -60,9 +60,12 @@ with byte counts and SHA-256, under the same replay rules as round 1.
 
 ## Rules the measurements impose
 
-- **Declared links beat inferred ones.** Explicit markers (joint-recall text,
-  cited approval numbers, licence numbers, GTINs) link automatically; name or
-  title similarity only proposes a candidate link, which is recorded with its
+- **Declared links beat inferred ones.** Identifiers that name the counterpart
+  record (cited approval numbers, licence numbers, GTINs) link automatically.
+  Health Canada's joint-recall marker says a CPSC counterpart exists but not
+  which one (the target is chosen by date and title tokens; 4 of 341 were
+  ambiguous), so it narrows candidates for review rather than auto-linking.
+  Name or title similarity only proposes a candidate link, recorded with its
   evidence and never merged (AGENTS.md rules 3 and 7).
 - **Brand alone is not a manufacturer.** At least 8 WaterSense and ENERGY STAR
   brands with the same name are different companies; key by brand plus filer.
@@ -402,7 +405,7 @@ Each field carries the rule ID that extracted it.
 **`notice_link`** is the cross-agency and enrichment layer. Its fields are `from_notice`,
 `to_notice | es_model_id | spdb_report_no`, `link_type`, `keys_matched`, `date_delta_days` and `rule_version`.
 
-- Only declared links are published automatically: `declared-joint`, `declared-case-number` and a check-digit-valid `gtin`.
+- Only declared links are published automatically: `declared-case-number` (a cited Safety Gate case number) and a check-digit-valid `gtin`. `declared-joint` narrows candidates (the marker does not name the CPSC counterpart; 4 of 341 were ambiguous), so it is reviewed before publication.
 - `brand-model` and `candidate-title` links are review candidates: stored with their evidence and shown only after review confirms them (rule 3: no silent merges). The measured precision (15/18 CPSC → certified model, 11/12 CPSC → incident, with host-device and brand-collision errors) is too low for automatic publication.
 - *Revised 2026-09-27 after review; the original draft also auto-published `brand-model`.*
 - Links are reversible, because notices are never merged. A `recall_event` cluster is a derived view over

@@ -6,10 +6,13 @@ out={}
 def between(s,a,b):
   m=re.search(re.escape(a)+r'\s*(.*?)\s*'+re.escape(b),s); return m.group(1) if m else None
 for k in samp:
+  r=None  # reset per key, so a failed fetch can never reuse the previous approval's page
   for att in range(3):
-    try: r=S.get("https://www.floridabuilding.org/pr/pr_app_dtl.aspx?param="+d[k]['param'],timeout=60); break
-    except Exception as e: time.sleep(5)
+    try: r=S.get("https://www.floridabuilding.org/pr/pr_app_dtl.aspx?param="+d[k]['param'],timeout=60); r.raise_for_status(); break
+    except Exception as e: r=None; time.sleep(5)
   time.sleep(1.1)
+  if r is None:
+    print(k,'FETCH_FAILED',flush=True); out[k]={'cat':d[k]['cat'],'fetch_failed':True}; continue
   raw=r.text
   t=re.sub(r'<script.*?</script>|<style.*?</style>','',raw,flags=re.S)
   s=re.sub(r'\s+',' ',html.unescape(re.sub('<[^>]+>',' ',t)))

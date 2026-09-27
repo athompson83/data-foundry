@@ -3671,7 +3671,7 @@ datasets:
           - appliance-health-canada-recalls
           - cpsc-recalls
         measured: 341/352 HC joint notices linked (337 unambiguous); 25/25 correct on hand check
-        mode: declared
+        mode: candidate
       - key: title-token match WITHOUT a declared marker (candidate only, never auto-linked)
         between:
           - appliance-health-canada-recalls
@@ -3683,7 +3683,7 @@ datasets:
           - cpsc-recalls
           - appliance-health-canada-recalls
         measured: 43/138 CPSC home-equipment recalls since 2022
-        mode: declared
+        mode: candidate
       - key: normalised brand + model within 365 days, or exact GTIN-13
         between:
           - uk-opss-product-safety-alerts

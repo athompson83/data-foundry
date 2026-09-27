@@ -40,7 +40,9 @@ cross-source join; a source past `PROTOTYPED` must belong to a dataset.
 Linking rules, from the round-3 measurements
 ([`research-2026-09-27-composites.md`](research-2026-09-27-composites.md)):
 each join key has a `mode`. `declared` joins (GTIN, licence number, UBI, a
-cited approval number, an explicit "joint recall" marker) link automatically;
+cited approval number: an identifier that names the counterpart record) link
+automatically; a marker that only says a counterpart exists (Health Canada's
+"joint recall" note) narrows candidates but is not declared;
 `candidate` joins (names, brands, model tokens, titles, phones) only propose a
 link for review, never a merge (AGENTS.md rules 3 and 7). Round-3 match rates
 are screening measurements; a member source is re-measured from archived
