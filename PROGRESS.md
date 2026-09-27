@@ -1,12 +1,15 @@
 # Progress
 
-## Current session — 2026-09-26: FDA Recall Intelligence built, loaded, reviewed; sales closed
+## Current session — 2026-09-26: FDA Recall Intelligence merged, loaded, deployed, accepted; sales closed
 
-**Verdict: the dataset is loaded and reconciled, the customer flows pass in an
-isolated Stripe sandbox, and PR #59 is going through review and CI. Public
-sales are closed (`SALES_OPEN="0"`) until the Product Owner's separate launch
-instruction. No revenue yet. The HVAC track and the hosted Postgres baseline are
-unchanged.**
+**Verdict: technically ready for launch; public sales remain closed (`SALES_OPEN="0"`)
+until the Product Owner's separate launch instruction. PR #59 merged as `449b3f6`
+(CI green on the PR head `0900c6d` and on `main`); Worker version
+`b51ac2ee-941b-41df-bac3-6045780c5897` is live with the six-hourly cron restored;
+the dataset is reconciled to the openFDA source; hosted acceptance and the
+sandbox customer flows pass. Remaining items are owner confirmations (legal
+seller, support inbox, key rotation) and the launch instruction. No revenue yet.
+The HVAC track and the hosted Postgres baseline are unchanged.**
 
 - **Owner direction.**
   - First message: approve any dataset whose restrictions can be ruled out, with
@@ -41,12 +44,35 @@ unchanged.**
   - placeholder and duplicate records missing from evidence;
   - a free-key race;
   - non-atomic key rotation.
-- **Parser v2 and evidence.** The published keys and structure still come from
-  parser v1 until the v2 re-import that follows the merge. The complete evidence
-  set (all 87,359 fetched records) is uploaded under
-  `recalls/openfda/bulk/2026-09-26-r2/`, with all 13 ETags verified. The
-  original bundles are kept.
-- **Customer flows.** Tested in the isolated Stripe sandbox (test key, separate
+- **Parser v2 re-import (after the merge, owner-approved).** Bookmark
+  `00000009-00000000-000050f2-77dfa2fcc344adad0a2eb4bbaf18986b`; cron still
+  paused; 0 customers. The load, regenerated with the merged parser, touches
+  only `recall`, `recall_fts` and `recall_key` (in-place upserts). Its 13
+  evidence bundles are byte-identical to the objects under
+  `recalls/openfda/bulk/2026-09-26-r2/` (ETags verified). Reconciled: 87,354
+  recalls, all `recall-structuring@2`; 87,354 FTS rows, 0 missing; 10,763,121
+  keys, 0 orphans; every `raw_ref` under the `-r2` prefix.
+- **Source reconciliation.** openFDA totals on 2026-09-26: food 29,415, drug
+  17,975, device 39,969 (87,359), latest report 2026-09-16 in each, matching
+  the snapshot. D1 holds 29,413 / 17,973 / 39,968: the 5 records with placeholder
+  or duplicate recall numbers are kept as evidence, not published. Catch-up sync
+  (2026-08-27..2026-09-26, per category) fetched 47 / 58 / 134, inserted 0,
+  changed 0.
+- **Deploy.** `449b3f6` deployed to `data-foundry-recalls` (version
+  `b51ac2ee-941b-41df-bac3-6045780c5897`), custom domains `data.aroqon.com`
+  and `api.data.aroqon.com`, schedule `17 */6 * * *` restored, `SALES_OPEN="0"`.
+- **Hosted acceptance (production, internal key revoked afterwards).** 401 for
+  a missing or bad key; representative food (listeria + TX, peanut allergen),
+  drug (class I), device (software) and full-text queries 200; known codes
+  NDC `0409-6729-41` → D-1390-2012, UDI `00885403167839` → Z-1927-2012 and lot
+  `MAY1613` → F-1632-2012 all found; raw evidence for all three served from its
+  R2 range with a matching SHA-256; hard stop 200 at request 5,000 and 429
+  `allowance_exhausted` at 5,001; operator lost-key reissue revoked the old key
+  (401) and issued a working one (200); checkout 503 while closed; public pages
+  200. The acceptance customer `acceptance-20260926` is `canceled` and its keys
+  are revoked. Public coverage ("from June 2012", ~87,000 recalls) and
+  freshness ("we check openFDA every six hours") match the data.
+- **Customer flows.** Re-run on the final code (`0900c6d`) and passing. Tested in the isolated Stripe sandbox (test key, separate
   account) against the real Worker code, with no production secrets involved:
   - real Checkout for the $49 and $0 plans, with the key shown once;
   - 401 without a key or with a bad key;
@@ -57,8 +83,12 @@ unchanged.**
   - cancellation (403), with duplicate events handled idempotently;
   - billing portal session created.
 - **Owner actions.**
-  - `UA-013`: Stripe payouts are disabled.
+  - `UA-013`: resolved — live account `acct_1U3gItLlvU3ZaHdi` now reports
+    `charges_enabled` and `payouts_enabled` true with nothing currently due.
   - `UA-014`: after rotating the Stripe key, update the Worker secret.
+  - The Stripe account is an individual account with statement descriptor
+    "ADAM THOMPSON" and no support email set; the owner confirms the legal
+    seller and support inbox.
   - Confirm the legal seller and a working support inbox.
   - The separate launch instruction to set `SALES_OPEN="1"`.
 
