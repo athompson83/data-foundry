@@ -14,7 +14,8 @@ def brand_key(s):
 
 WILD = set('*#?')
 def is_pattern(m):
-    return bool(m) and (any(c in m for c in WILD) or bool(re.search(r'\([A-Z0-9 ]+(,[A-Z0-9 ]+)+\)', m.upper())))
+    # Wildcards, a parenthesised alternation (EPC110(N,L)) or a single optional literal (RS36W(X)) make a pattern.
+    return bool(m) and (any(c in m for c in WILD) or bool(re.search(r'\([A-Z0-9 ]+(,[A-Z0-9 ]+)*\)', m.upper())))
 
 def model_key(m):
     """concrete key: uppercase alnum only"""
@@ -35,6 +36,9 @@ def compile_pattern(m, mode='opt1'):
             if j > 0 and ',' in u[i:j]:
                 alts = [re.sub(r'[^A-Z0-9]', '', a) for a in u[i+1:j].split(',')]
                 out.append('(?:' + '|'.join(map(re.escape, alts)) + ')'); i = j + 1; continue
+            if j > 0 and re.fullmatch(r'[A-Z0-9 ]+', u[i+1:j]):
+                # A single parenthesised option is an optional literal: RS36W(X) matches RS36W and RS36WX.
+                out.append('(?:' + re.escape(re.sub(r'[^A-Z0-9]', '', u[i+1:j])) + ')?'); i = j + 1; continue
         if c in WILD:
             out.append({'opt1': '[A-Z0-9]?', 'one': '[A-Z0-9]', 'run': '[A-Z0-9]*'}[mode])
         elif c.isalnum():

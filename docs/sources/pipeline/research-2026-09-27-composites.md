@@ -809,7 +809,8 @@ suffixes `/US`, `/AA` are stripped. So: **opt1 plus suffix stripping, never any-
    - AU `Family Name` and WaterSense use it too (31.4%, R2).
 2. `(A,B,C)` alternation: 6,279 rows, for example Lochinvar `EPC110(N,L)`.
 3. `(X)` with a single option is an optional literal, for example `RS36W(X)`. A comma-only
-   alternation parser misses it.
+   alternation parser misses it. `equipment/norm.py` now compiles it as optional; the round-3 model
+   match rates were measured before that change, so they are lower bounds for rows using this form.
 4. `+` composites mean indoor + accessory or control: 19,691 rows. Split them, then match each part.
 5. `/` has three meanings, and it is ambiguous. Resolve it by source, never globally:
    - an indoor/outdoor pair: AU `FDMA71AV1A / RZAV71CV1`, Gree `…/O` `…/I`;
