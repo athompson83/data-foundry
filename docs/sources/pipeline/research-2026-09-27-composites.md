@@ -36,7 +36,7 @@ committed.
 
 | Join | Measured | Hand-checked |
 | --- | --- | --- |
-| Health Canada ↔ CPSC, declared "joint recall" marker | 341 / 352 marked notices | 25 / 25 correct |
+| Health Canada ↔ CPSC, "joint recall" marker + date + title tokens (review candidates) | 341 / 352 marked notices | 25 / 25 correct |
 | Health Canada ↔ CPSC, title tokens without a marker | — | 6 / 15 correct: candidate only, never auto-linked |
 | UK OPSS ↔ EU Safety Gate (home categories) | 118 / 697 by brand+model or a shared code; **24 / 697 by a check-digit-valid GTIN** (29 before validation) | 18 / 20 correct |
 | SaferProducts incidents ↔ CPSC home recalls (brand + model) | 111 / 307 recalls (1,137 reports); 50 had a report before the recall | 11 / 12 correct |
@@ -161,11 +161,12 @@ in the build order.
 
 **What the measurements show:**
 
-1. **For US home equipment, the cross-agency link is US to Canada, and it is declared.**
+1. **For US home equipment, the cross-agency link is US to Canada, flagged by a marker.**
    - The OGL Health Canada index carries a "Joint recall with Health Canada, the United States Consumer
      Product Safety Commission" sentence in its `What you should do` field.
-   - It appears in 352 consumer notices. We link 341 of them to a CPSC recall (337 unambiguously), and the
-     hand check found 25 of 25 correct.
+   - It appears in 352 consumer notices. With a date window and title tokens it proposes a CPSC recall for
+     341 of them (337 unambiguously), and the hand check found 25 of 25 correct. The marker does not name
+     the CPSC notice, so these are review candidates, never automatic links (revised after review).
    - This covers 43 of the 138 CPSC home-equipment recalls since 2022 (31%).
    - Without the marker, title matching is only 6 of 15 correct, so it must never auto-link.
 2. **US home equipment almost never appears in EU, UK or Australian notices.**
@@ -418,7 +419,7 @@ Each field carries the rule ID that extracted it.
 **`notice_link`** is the cross-agency and enrichment layer. Its fields are `from_notice`,
 `to_notice | es_model_id | spdb_report_no`, `link_type`, `keys_matched`, `date_delta_days` and `rule_version`.
 
-- Only declared links are published automatically: `declared-case-number` (a cited Safety Gate case number) and a check-digit-valid `gtin`. `declared-joint` narrows candidates (the marker does not name the CPSC counterpart; 4 of 341 were ambiguous), so it is reviewed before publication.
+- Only declared links are published automatically: `declared-case-number` (a cited Safety Gate case number) and a check-digit-valid `gtin`. `joint-marker` narrows candidates (the marker does not name the CPSC counterpart; 4 of 341 were ambiguous), so it is reviewed before publication.
 - `brand-model` and `candidate-title` links are review candidates: stored with their evidence and shown only after review confirms them (rule 3: no silent merges). The measured precision (15/18 CPSC → certified model, 11/12 CPSC → incident, with host-device and brand-collision errors) is too low for automatic publication.
 - *Revised 2026-09-27 after review; the original draft also auto-published `brand-model`.*
 - Links are reversible, because notices are never merged. A `recall_event` cluster is a derived view over
@@ -445,7 +446,7 @@ Only steps 1 and 2 link automatically; steps 3 to 6 only enqueue review candidat
    111/307.
 5. **Model-pattern expansion** (ENERGY STAR `*`, `#`, `?` as one-character wildcards) plus brand, for
    enrichment only (6/230).
-6. **Title-token similarity without a declared marker.** A candidate only (6/15), and never published.
+6. **Title-token similarity without the joint marker.** A candidate only (6/15), and never published.
 
 ### Classification taxonomy
 
@@ -466,7 +467,7 @@ The full enum lists are in the YAML. In outline:
 - "Is model KCVS12B30A / GTIN 5060138820289 under recall in the US, Canada, EU, UK or Australia, and what
   is the remedy in each?"
 - "Was this CPSC recall also issued in Canada, and under which Health Canada notice?" (341
-  deterministic links.)
+  reviewed candidate links.)
 - "Which models still listed as ENERGY STAR certified are named in a recall?" (6, including a water
   heater.)
 - "Were there consumer incident reports on this brand and model before the recall, and are reports still
@@ -486,8 +487,8 @@ The full enum lists are in the YAML. In outline:
 
 **Build it as the `cpsc-recalls` build, in phases:**
 
-1. **CPSC plus the HC OGL index.** CPSC is GREEN and HC is OGL. The joint-recall marker gives
-   deterministic US↔CA links today, with no page text needed.
+1. **CPSC plus the HC OGL index.** CPSC is GREEN and HC is OGL. The joint-recall marker proposes
+   US↔CA candidate links today (341, reviewed before publication), with no page text needed.
 2. **Add SaferProducts incident counts** from `SPDB.zip`, restricted to structured product fields and
    aggregates, which answers the "reports before the recall" question.
 3. **Add ENERGY STAR model matches** as an enrichment.
@@ -501,7 +502,7 @@ Keep OECD GlobalRecalls parked.
 **Existing candidate updates to make when this is merged into `candidates.yaml`:**
 
 - `appliance-health-canada-recalls`: correct "no product text". Record the joint-recall marker, which
-  gives 341 links.
+  proposes 341 candidate links for review.
 - `appliance-saferproducts-incidents`: DISCOVERED → SCREENED. The route is
   `https://www.SaferProducts.gov/SPDB.zip`, with 70,000 reports.
   - That row count is exactly 70,000, which may be a cap. Whether the export is complete is [UNVERIFIED].

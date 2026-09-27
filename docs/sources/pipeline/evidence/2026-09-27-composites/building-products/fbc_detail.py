@@ -29,3 +29,7 @@ for k in samp:
     'noa_refs':sorted(set(re.findall(r'\b\d{2}-\d{4}\.\d{2}\b',s))),'mentions_miami_dade':bool(re.search(r'(?i)miami[- ]dade|\bNOA\b',s))}
   print(k,out[k]['cat'],len(prods),out[k]['noa_refs'],flush=True)
 json.dump(out,open('fbc_detail_sample.json','w'),indent=1)
+failed=[k for k,v in out.items() if v.get('fetch_failed')]
+# Consumers (fbc_pdf_sample.py, fbc_roof_noa.py) expect every saved key to be a complete detail record,
+# so an incomplete sample is a failed run: rerun it rather than measure over it.
+if failed: raise SystemExit(f'{len(failed)} detail pages failed after 3 attempts (saved as fetch_failed); sample incomplete: {failed[:20]}')

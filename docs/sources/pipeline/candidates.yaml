@@ -450,7 +450,8 @@ candidates:
       ]
     next_action: >-
       Round 3 correction: the OGL index now carries `Product` and "What you should do" text, and the latter's
-      declared "Joint recall … CPSC" marker links 341 of 352 joint notices to a CPSC recall (25/25 correct),
+      "Joint recall … CPSC" marker proposes a CPSC recall for 341 of 352 joint notices (25/25 correct), as
+      review candidates,
       under the open licence alone. Build on the index; decide separately whether any canada.ca page facts are
       needed.
 
@@ -3666,20 +3667,20 @@ datasets:
       - plumbing-energystar-water-heaters
       - appliance-brand-ownership
     join_keys:
-      - key: declared joint-recall marker ("Joint recall with ... CPSC" in the HC OGL field) + date within 45 days +
+      - key: joint-recall marker ("Joint recall with ... CPSC" in the HC OGL field) + date within 45 days +
           at least 2 shared distinctive title tokens
         between:
           - appliance-health-canada-recalls
           - cpsc-recalls
-        measured: 341/352 HC joint notices linked (337 unambiguous); 25/25 correct on hand check
+        measured: 341/352 HC joint notices matched as candidates (337 unambiguous); 25/25 correct on hand check
         mode: candidate
-      - key: title-token match WITHOUT a declared marker (candidate only, never auto-linked)
+      - key: title-token match WITHOUT the joint marker (candidate only, never auto-linked)
         between:
           - appliance-health-canada-recalls
           - cpsc-recalls
         measured: 238/863 non-joint HC consumer notices since 2022 match; 6/15 correct on hand check
         mode: candidate
-      - key: declared joint recall, home-equipment facets
+      - key: joint-recall marker, home-equipment facets
         between:
           - cpsc-recalls
           - appliance-health-canada-recalls
@@ -3764,7 +3765,7 @@ datasets:
       - "risk_level: serious | high | medium | low | unspecified (source scale kept alongside)"
       - "remedy: refund | repair | replace | stop-use | dispose | software-update | recall-from-end-users |
         withdrawal-from-market | marketplace-listing-removal | import-rejected"
-      - "link_type: declared-joint | declared-case-number | gtin | brand-model | candidate-title (not
+      - "link_type: joint-marker | declared-case-number | gtin | brand-model | candidate-title (not
         published as a link)"
       - "key: declared Safety Gate case number in RappelConso numero_fiche (measurement only; source RED
         today); between: fr-rappelconso-v2, eu-safety-gate-alerts; measured: 102/109 FR non-food home notices
@@ -3807,7 +3808,7 @@ datasets:
     description: One record per equipment model (or model pattern and component system), assembled from ENERGY
       STAR category datasets and the Model Index, WaterSense, CEC solar lists, CPSC recall text, a curated
       Wikidata filer/parent crosswalk and the eCFR/SNAP refrigerant rules. Every fact carries its source.
-      Identity links automatically only on declared keys (source ID, GTIN); brand+model, compiled wildcard
+      Identity links automatically only on declared keys (source ID, check-digit-valid GTIN); brand+model, compiled wildcard
       patterns and component sets propose candidate links for review. Cross-brand and cross-region candidates
       are stored for audit, never merged. AU/NZ GEMS and EU EPREL are later regional partitions. Canada
       availability comes from ENERGY STAR's own markets field (1,644,779 of 1,796,876 models); the live NRCan
@@ -3941,8 +3942,8 @@ datasets:
       underlayments, roof components, windows, doors, shutters and skylights. Assemblies, design pressures,
       test standards and validity are parsed from PDFs. Each record carries typed cites_approval edges: FL
       evaluation reports -> NOA numbers, as component_of or same_product_as, with expiry checked against the
-      county PDF. Organisation identity comes from exact normalised keys plus evidence-backed FL<->NOA alias
-      pairs. Jurisdiction and code edition come from FEMA BCAT (HVHZ = Miami-Dade + Broward). County hazard
+      county PDF. Organisation aliases are accepted automatically only from evidence-backed FL<->NOA pairs;
+      exact normalised name keys only propose organisation candidates for review. Jurisdiction and code edition come from FEMA BCAT (HVHZ = Miami-Dade + Broward). County hazard
       context comes from FEMA NRI and NCEI Storm Events. Facts only, with provenance per field. Personal data
       excluded."
     sources:
