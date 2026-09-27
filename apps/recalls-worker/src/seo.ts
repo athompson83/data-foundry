@@ -218,7 +218,7 @@ export function recallPage(ctx: PageContext, recall: PresentedRecall): string {
 <h2>Product</h2><p>${escapeHtml(recall.product_description ?? 'Not stated by FDA.')}</p>
 <h2>Reason for recall</h2><p>${escapeHtml(recall.reason_for_recall ?? 'Not stated by FDA.')}</p>
 <h2>Machine access</h2>
-<p class="muted">This record, with every extracted code, the verbatim FDA record and provenance, is available from the recall API: <code>GET ${escapeHtml(api)}</code>. Look up any UPC, UDI, NDC or lot with <code>/v1/recalls/lookup?code=…</code>. <a href="/docs">API docs</a> · <a href="/recalls#pricing">free and paid keys</a>.</p>
+<p class="muted">This record, with every extracted code, the verbatim FDA record and provenance, is available from the recall API: <code>GET ${escapeHtml(api)}</code>. Look up any UPC, UDI, NDC or lot with <code>/v1/recalls/lookup?code=…</code>. <a href="/docs">API docs</a> · <a href="/#pricing">free and paid keys</a>.</p>
 <p class="small muted">Source: U.S. Food and Drug Administration enforcement report via <a href="${escapeHtml(recall.provenance.source_url)}">openFDA</a> (CC0). Structured by Data Foundry (${escapeHtml(recall.provenance.parser_version)}); last changed ${escapeHtml(recall.provenance.changed_at.slice(0, 10))}. Not affiliated with or endorsed by FDA. Not medical or legal advice.</p>`;
   return layout(ctx, recallTitle(recall), recallDescription(recall), body, { path, jsonLd: [jsonLd], ...(isIndexable(recall) ? {} : { robots: 'noindex, follow' }) });
 }
@@ -292,8 +292,9 @@ export async function sitemapIndex(ctx: PageContext, db: D1Database, datasets: S
   return `<?xml version="1.0" encoding="UTF-8"?><sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${entries.join('')}</sitemapindex>`;
 }
 
-export function pagesSitemap(ctx: PageContext, products = false): string {
-  const paths = products ? [...STATIC_PATHS, '/product-recalls'] : STATIC_PATHS;
+/** Static pages, with each dataset's page only while that dataset is served. */
+export function pagesSitemap(ctx: PageContext, datasets: { readonly fda: boolean; readonly products: boolean }): string {
+  const paths = [...STATIC_PATHS.filter((path) => datasets.fda || path !== '/recalls'), ...(datasets.products ? ['/product-recalls'] : [])];
   return `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${paths.map((path) => `<url><loc>${ctx.publicOrigin}${path}</loc></url>`).join('')}</urlset>`;
 }
 
@@ -336,20 +337,30 @@ Consumer product recalls (US and Canada):
 - Data: U.S. Consumer Product Safety Commission (US Government work); Health Canada Recalls and Safety Alerts, which contain information licensed under the Open Government Licence – Canada. Not affiliated with or endorsed by CPSC or Health Canada.
 `;
 
-export function llmsTxt(ctx: PageContext, products = false): string {
-  return `# Data Foundry
+/** Which datasets are served right now; a withdrawn dataset is never described to agents. */
+export interface ServedDatasets {
+  readonly fda: boolean;
+  readonly products: boolean;
+}
 
-> Data Foundry turns lawfully sourced, unstructured public records into clean, current, provenance-linked data for software and AI agents, served over a JSON API. Its first dataset, FDA Recall Intelligence, structures every FDA food, drug and medical-device recall since June 2012 (about 87,000) — distribution states, lot and serial numbers, UPC/GTIN/UDI, NDC, expiry dates, reason classes, allergens and pathogens — and answers "is this product recalled, and where?" from a single code.
+const FDA_LLMS_FACTS = (ctx: PageContext): string => `
+FDA Recall Intelligence structures every FDA food, drug and medical-device recall since June 2012 (live counts at \`${ctx.apiOrigin}/v1/recalls/stats\`): distribution states, lot and serial numbers, UPC/GTIN/UDI, NDC, expiry dates, reason classes, allergens and pathogens. It answers "is this product recalled, and where?" from a single code.
 
 Key facts for agents:
 - Look up one scanned or typed code (UPC, EAN, GTIN, UDI-DI, NDC or lot): \`GET ${ctx.apiOrigin}/v1/recalls/lookup?code=<code>\` with \`Authorization: Bearer <key>\`.
 - Search with filters (state, category, classification, status, reason_class, allergen, dates, text): \`GET ${ctx.apiOrigin}/v1/recalls?...\`.
 - One recall: \`GET ${ctx.apiOrigin}/v1/recalls/<recall_number>\`; public page: \`${ctx.publicOrigin}/recalls/<recall_number>\`.
 - Live coverage and freshness, no key needed: \`GET ${ctx.apiOrigin}/v1/recalls/stats\`.
-- Keys: a free Evaluate plan and paid monthly plans at ${ctx.publicOrigin}/recalls#pricing. The source is refreshed from openFDA every six hours.
+- Keys: a free Evaluate plan and paid monthly plans at ${ctx.publicOrigin}/#pricing. The source is refreshed from openFDA every six hours.
 - Every record carries its FDA source URL, parser version and the SHA-256 of the verbatim FDA record. Cite the recall number and ${ctx.publicOrigin}/recalls/<recall_number>.
 - Data: U.S. FDA via openFDA (CC0). Not affiliated with or endorsed by FDA. Not medical or legal advice.
-${products ? PRODUCT_LLMS_FACTS(ctx) : ''}
+`;
+
+export function llmsTxt(ctx: PageContext, served: ServedDatasets): string {
+  return `# Data Foundry
+
+> Data Foundry turns lawfully sourced, unstructured public records into clean, current, provenance-linked data for software and AI agents, served over a JSON API. Every dataset listed here is live; one key covers all of them.
+${served.fda ? FDA_LLMS_FACTS(ctx) : ''}${served.products ? PRODUCT_LLMS_FACTS(ctx) : ''}${served.fda || served.products ? '' : '\nNo dataset is available right now.\n'}
 ## Docs
 
 - [Recall API documentation](${ctx.publicOrigin}/docs): parameters, identifiers, response shape, errors.
@@ -358,9 +369,7 @@ ${products ? PRODUCT_LLMS_FACTS(ctx) : ''}
 
 ## Datasets
 
-- [FDA Recall Intelligence](${ctx.publicOrigin}/recalls): food, drug and device recalls with structured codes and geography.
-- [Browse recalls by year](${ctx.publicOrigin}/recalls/browse): one public page per recall.
-${products ? `- [North American Consumer Product Recalls](${ctx.publicOrigin}/product-recalls): CPSC and Health Canada notices with model numbers, UPCs, units, hazards and linked joint recalls.\n- [Browse product recalls](${ctx.publicOrigin}/product-recalls/browse): one public page per notice.\n` : ''}
+${served.fda ? `- [FDA Recall Intelligence](${ctx.publicOrigin}/recalls): food, drug and device recalls with structured codes and geography.\n- [Browse recalls by year](${ctx.publicOrigin}/recalls/browse): one public page per recall.\n` : ''}${served.products ? `- [North American Consumer Product Recalls](${ctx.publicOrigin}/product-recalls): CPSC and Health Canada notices with model numbers, UPCs, units, hazards and linked joint recalls.\n- [Browse product recalls](${ctx.publicOrigin}/product-recalls/browse): one public page per notice.\n` : ''}
 ## Optional
 
 - [Terms](${ctx.publicOrigin}/terms)
@@ -395,8 +404,11 @@ One notice. Fields: id, agency, jurisdiction, source_id, title, url, published_o
 Notice counts and latest date per agency, distinct GTIN and model counts, trade-facet counts, declared cross-agency links and the last successful sync per source.
 `;
 
-export function llmsFullTxt(ctx: PageContext, products = false): string {
-  return `${llmsTxt(ctx, products)}
+export function llmsFullTxt(ctx: PageContext, served: ServedDatasets): string {
+  return `${llmsTxt(ctx, served)}${served.fda ? FDA_REFERENCE(ctx) : ''}${served.products ? PRODUCT_REFERENCE(ctx) : ''}${ERRORS_REFERENCE}`;
+}
+
+const FDA_REFERENCE = (ctx: PageContext): string => `
 ## Recall API reference
 
 Base URL: ${ctx.apiOrigin}. Authentication: \`Authorization: Bearer rcl_live_…\` (or \`x-api-key\`). Responses are JSON.
@@ -419,12 +431,13 @@ One recall. Fields: recall_number, category, event_id, classification, status, v
 ### GET /v1/recalls/stats (no key)
 
 Record counts and latest FDA report date per category, distinct identifier counts, and the last successful sync time.
+`;
 
-### Errors and limits
+const ERRORS_REFERENCE = `
+## Errors and limits (every dataset)
 
 401 missing_key / invalid_key; 403 subscription_inactive; 429 allowance_exhausted (monthly allowance; never an overage bill); 400 invalid_request; 503 dataset_unavailable. Rate-limit headers: x-ratelimit-limit, x-ratelimit-remaining.
-${products ? PRODUCT_REFERENCE(ctx) : ''}`;
-}
+`;
 
 /**
  * IndexNow (Bing, Yandex, Seznam, Naver; Bing's index also feeds Copilot and

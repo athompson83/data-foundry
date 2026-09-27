@@ -73,10 +73,10 @@ function apiError(status: number, code: string, message: string, extra: Record<s
 
 async function authenticate(env: Env, request: Request): Promise<AuthenticatedCustomer | Response> {
   const key = presentedKey(request);
-  if (!key) return apiError(401, 'missing_key', 'Send your key as "Authorization: Bearer rcl_live_…". Get one at https://data.aroqon.com/recalls#pricing', { 'www-authenticate': 'Bearer' });
+  if (!key) return apiError(401, 'missing_key', 'Send your key as "Authorization: Bearer rcl_live_…". Get one at https://data.aroqon.com/#pricing', { 'www-authenticate': 'Bearer' });
   const customer = await findCustomerByKey(env.DB, key);
   if (!customer) return apiError(401, 'invalid_key', 'Unknown or revoked API key.', { 'www-authenticate': 'Bearer' });
-  if (customer.status !== 'active' && customer.status !== 'past_due') return apiError(403, 'subscription_inactive', 'This subscription is not active. Resubscribe at https://data.aroqon.com/recalls#pricing');
+  if (customer.status !== 'active' && customer.status !== 'past_due') return apiError(403, 'subscription_inactive', 'This subscription is not active. Resubscribe at https://data.aroqon.com/#pricing');
   return customer;
 }
 
@@ -315,7 +315,7 @@ async function route(request: Request, env: Env): Promise<Response> {
     case '/privacy':
       return html(privacyPage(ctx), 200, { 'cache-control': 'public, max-age=3600' });
     case '/recalls/checkout':
-      if (request.method !== 'POST') return Response.redirect(`${ctx.publicOrigin}/recalls#pricing`, 303);
+      if (request.method !== 'POST') return Response.redirect(`${ctx.publicOrigin}/#pricing`, 303);
       return checkout(env, request);
     case '/recalls/welcome':
       return welcome(env, url);
@@ -325,9 +325,9 @@ async function route(request: Request, env: Env): Promise<Response> {
     case '/robots.txt':
       return text(robotsTxt(ctx), 'text/plain', 3600);
     case '/llms.txt':
-      return text(llmsTxt(ctx, productsServed(env)), 'text/markdown', 3600);
+      return text(llmsTxt(ctx, { fda: env.SOURCE_KILL_SWITCH !== '1', products: productsServed(env) }), 'text/markdown', 3600);
     case '/llms-full.txt':
-      return text(llmsFullTxt(ctx, productsServed(env)), 'text/markdown', 3600);
+      return text(llmsFullTxt(ctx, { fda: env.SOURCE_KILL_SWITCH !== '1', products: productsServed(env) }), 'text/markdown', 3600);
     case '/sitemap.xml': {
       const fda = env.SOURCE_KILL_SWITCH !== '1';
       const products = productsServed(env);
@@ -343,7 +343,7 @@ async function route(request: Request, env: Env): Promise<Response> {
       });
     }
     case '/sitemaps/pages.xml':
-      return text(pagesSitemap(ctx, productsServed(env)), 'application/xml', 3600);
+      return text(pagesSitemap(ctx, { fda: env.SOURCE_KILL_SWITCH !== '1', products: productsServed(env) }), 'application/xml', 3600);
     case '/recalls/browse':
       if (env.SOURCE_KILL_SWITCH === '1') return withdrawn(ctx);
       return cached(cacheKey(ctx, url.pathname), async () => html(await browseIndex(ctx, env.DB), 200, { 'cache-control': 'public, max-age=3600' }));

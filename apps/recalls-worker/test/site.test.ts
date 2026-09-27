@@ -134,6 +134,45 @@ describe('homepage and catalog', () => {
   });
 });
 
+describe('withdrawing one dataset leaves no path into it', () => {
+  it('drops a withdrawn dataset page from the static sitemap', async () => {
+    const env = makeEnv({ SOURCE_KILL_SWITCH: '1' });
+    const pages = (await page(env, '/sitemaps/pages.xml')).body;
+    expect(pages).not.toContain('<loc>https://data.aroqon.com/recalls</loc>');
+    expect(pages).toContain('<loc>https://data.aroqon.com/product-recalls</loc>');
+    const both = (await page(makeEnv(), '/sitemaps/pages.xml')).body;
+    expect(both).toContain('<loc>https://data.aroqon.com/recalls</loc>');
+  });
+
+  it('describes only served datasets to agents in llms.txt and llms-full.txt', async () => {
+    const killed = makeEnv({ SOURCE_KILL_SWITCH: '1' });
+    for (const path of ['/llms.txt', '/llms-full.txt']) {
+      const body = (await page(killed, path)).body;
+      expect(body, path).not.toContain('/v1/recalls/lookup');
+      expect(body, path).not.toContain('[FDA Recall Intelligence]');
+      expect(body, path).toContain('/v1/product-recalls/lookup');
+    }
+    expect((await page(killed, '/llms-full.txt')).body).toContain('## Errors and limits');
+    const both = (await page(makeEnv(), '/llms-full.txt')).body;
+    expect(both).toContain('## Recall API reference');
+    expect(both).toContain('## Product recall API reference');
+    expect(both).not.toMatch(/about 87,000/);
+    const none = (await page(makeEnv({ SOURCE_KILL_SWITCH: '1', PRODUCT_RECALLS_OPEN: '0' }), '/llms.txt')).body;
+    expect(none).toContain('No dataset is available right now.');
+  });
+
+  it('sends product-recall readers to pricing that is served whatever the FDA state', async () => {
+    const env = makeEnv({ SOURCE_KILL_SWITCH: '1' });
+    await seed(env);
+    const notice = (await page(env, '/product-recalls/cpsc-25203')).body;
+    expect(notice).toContain('href="/#pricing"');
+    expect(notice).not.toContain('/recalls#pricing');
+    const home = await page(env, '/');
+    expect(home.status).toBe(200);
+    expect(home.body).toContain('id="pricing"');
+  });
+});
+
 describe('dataset product pages', () => {
   it('separates the refresh schedule from the last successful refresh', async () => {
     const env = makeEnv();

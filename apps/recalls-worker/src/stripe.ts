@@ -75,7 +75,7 @@ export async function createCheckoutSession(env: Env, plan: PlanId): Promise<Che
     mode: 'subscription',
     line_items: [{ price, quantity: 1 }],
     success_url: `${origin}/recalls/welcome?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${origin}/recalls#pricing`,
+    cancel_url: `${origin}/#pricing`,
     allow_promotion_codes: plan === 'evaluate' ? undefined : true,
     payment_method_collection: 'if_required',
     billing_address_collection: 'auto',
