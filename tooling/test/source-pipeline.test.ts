@@ -38,6 +38,7 @@ const Candidate = z
       .strict(),
     evidence: z.array(z.string()).default([]),
     conditions: z.array(z.string().min(3)).optional(),
+    terms: z.array(z.object({ url: z.string().url().startsWith('https://'), quote: z.string().min(40) }).strict()).optional(),
     next_action: z.string().min(10),
   })
   .strict();
@@ -68,24 +69,45 @@ describe('dataset expansion pipeline registry', () => {
     for (const path of candidate.evidence) expect(existsSync(`${ROOT}${path}`), `${path} must exist`).toBe(true);
   });
 
-  it.each(registry.candidates)('$key commits its sample evidence while between EVIDENCED and BUILDING', (candidate) => {
-    // LIVE datasets are evidenced by their rights record and reconciliation; PARKED ones are stopped.
-    if (!beyond(candidate.stage, 'EVIDENCED') || candidate.stage === 'LIVE') return;
-    const rounds = candidate.evidence
+  const SampleEntry = z
+    .object({
+      population: z.string().min(10),
+      sample: z.string().min(10),
+      sample_size: z.number().int().min(20),
+      scripts: z.array(z.string()).min(1),
+      results: z.array(z.string()).min(1),
+      identifiers: z.record(z.string(), z.array(z.unknown()).min(1)),
+    })
+    .strict();
+  const between = (stage: (typeof STAGES)[number]) => beyond(stage, 'EVIDENCED') && stage !== 'LIVE';
+  const rounds = (evidence: string[]) =>
+    evidence
       .map((path) => /^docs\/sources\/pipeline\/research-(\d{4}-\d{2}-\d{2})\.md$/.exec(path)?.[1])
       .filter((round): round is string => Boolean(round));
-    expect(rounds.length, `${candidate.key} must cite a docs/sources/pipeline/research-*.md round`).toBeGreaterThan(0);
-    for (const round of rounds) {
+  const normalise = (text: string) => text.replace(/\s+/g, ' ');
+
+  it.each(registry.candidates)('$key commits its own sample evidence while between EVIDENCED and BUILDING', (candidate) => {
+    // LIVE datasets are evidenced by their rights record and reconciliation; PARKED ones are stopped.
+    if (!between(candidate.stage)) return;
+    const cited = rounds(candidate.evidence);
+    expect(cited.length, `${candidate.key} must cite a docs/sources/pipeline/research-*.md round`).toBeGreaterThan(0);
+    for (const round of cited) {
       const dir = `${ROOT}docs/sources/pipeline/evidence/${round}`;
-      for (const sub of ['scripts', 'results']) {
-        expect(existsSync(`${dir}/${sub}`) && readdirSync(`${dir}/${sub}`).length > 0, `evidence/${round}/${sub} must not be empty`).toBe(true);
-      }
-      const samples = JSON.parse(readFileSync(`${dir}/samples.json`, 'utf8')) as Record<string, Record<string, unknown>>;
-      const entry = samples[candidate.key];
-      expect(entry, `evidence/${round}/samples.json lists ${candidate.key}`).toBeDefined();
-      expect(typeof entry?.['population'] === 'string' && typeof entry?.['sample'] === 'string', 'population and sample are described').toBe(true);
-      const identifiers = Object.values(entry ?? {}).filter((value): value is unknown[] => Array.isArray(value));
-      expect(identifiers.length > 0 && identifiers.every((list) => list.length > 0), 'every identifier list is non-empty').toBe(true);
+      const samples = JSON.parse(readFileSync(`${dir}/samples.json`, 'utf8')) as Record<string, unknown>;
+      const entry = SampleEntry.parse(samples[candidate.key]);
+      for (const path of [...entry.scripts, ...entry.results]) expect(existsSync(`${dir}/${path}`), `evidence/${round}/${path} must exist`).toBe(true);
+      const identified = Object.values(entry.identifiers).reduce((total, list) => total + list.length, 0);
+      expect(identified, 'the identifiers cover the declared sample size').toBeGreaterThanOrEqual(entry.sample_size);
+    }
+  });
+
+  it.each(registry.candidates)('$key quotes its terms verbatim, with URLs, once EVIDENCED', (candidate) => {
+    if (!between(candidate.stage)) return;
+    expect(candidate.terms?.length ?? 0, `${candidate.key} needs at least one terms {url, quote}`).toBeGreaterThan(0);
+    const research = rounds(candidate.evidence).map((round) => normalise(readFileSync(`${ROOT}docs/sources/pipeline/research-${round}.md`, 'utf8')));
+    for (const term of candidate.terms ?? []) {
+      expect(research.some((text) => text.includes(normalise(term.quote))), `quote must appear verbatim in the research record: ${term.quote}`).toBe(true);
+      expect(research.some((text) => text.includes(term.url)), `terms URL must be cited in the research record: ${term.url}`).toBe(true);
     }
   });
 

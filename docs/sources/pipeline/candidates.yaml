@@ -24,6 +24,9 @@ candidates:
     rights: GREEN
     sources: [https://www.saferproducts.gov/RestWebServices/Recall?format=json]
     scores: { agent_demand: 3, rights_clarity: 5, acquisition_ease: 4, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 2 }
+    terms:
+      - url: https://www.cpsc.gov/About-CPSC/Policies-Statements-and-Directives/Privacy-Policy
+        quote: "You may freely copy and distribute recall notices, including photographs of recalled items, without permission."
     evidence: [docs/sources/pipeline/research-2026-09-27.md]
     next_action: >-
       Write the CPSC rights record (public information, credit CPSC, no endorsement,
@@ -64,6 +67,11 @@ candidates:
     rights: AMBER
     sources: [https://clinicaltrials.gov/api/v2/studies/download?format=json.zip, https://clinicaltrials.gov/api/v2/studies]
     scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
+    terms:
+      - url: https://clinicaltrials.gov/about-site/terms-conditions
+        quote: "Update the data such that they are current at all times"
+      - url: https://clinicaltrials.gov/about-site/terms-conditions
+        quote: "You shall not assert any proprietary rights to any portion of the database, or represent the database or any part thereof to anyone as other than a United States Government database."
     evidence: [docs/sources/pipeline/research-2026-09-27.md]
     conditions:
       - Attribute ClinicalTrials.gov; show the source processing date and our modifications.
@@ -85,6 +93,9 @@ candidates:
     rights: GREEN
     sources: [https://www.federalregister.gov/api/v1/documents.json, https://www.govinfo.gov/content/pkg/, https://www.ecfr.gov/api/versioner/v1/]
     scores: { agent_demand: 3, rights_clarity: 5, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 2, poor_existing_access: 3 }
+    terms:
+      - url: https://www.govinfo.gov/about/policies
+        quote: "Copyright protection under this title is not available for any work of the United States Government"
     evidence: [docs/sources/pipeline/research-2026-09-27.md]
     next_action: >-
       Prototype the compliance-date and stay-chain parser over 12 months of rules
@@ -99,6 +110,11 @@ candidates:
     rights: AMBER
     sources: [https://api.fda.gov/drug/label.json, https://dailymed.nlm.nih.gov/dailymed/services/v2/]
     scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 5, structuring_value: 4, freshness: 4, low_onboarding_cost: 2, poor_existing_access: 4 }
+    terms:
+      - url: https://open.fda.gov/terms/
+        quote: "Some data on openFDA may not be public domain, such as copies of copyrightable works made available to the FDA by private entities."
+      - url: https://www.nlm.nih.gov/web_policies.html
+        quote: "Transmission or reproduction of copyrighted items (beyond that allowed by fair use as defined in the U.S. copyright laws) requires the written permission of the copyright holders."
     evidence: [docs/sources/pipeline/research-2026-09-27.md]
     conditions:
       - Sell structured facts with short evidence spans and a DailyMed set_id link; no bulk verbatim label text.
@@ -114,6 +130,9 @@ candidates:
     rights: GREEN
     sources: [https://data.sec.gov/submissions/, https://efts.sec.gov/LATEST/search-index]
     scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 2, poor_existing_access: 2 }
+    terms:
+      - url: https://www.sec.gov/about/privacy-information
+        quote: "Information presented on sec.gov is considered public information and may be copied or further distributed by users of the web site without the SEC's permission."
     evidence: [docs/sources/pipeline/research-2026-09-27.md]
     conditions:
       - Declared User-Agent with contact; at most 10 requests/second.
