@@ -10,15 +10,18 @@ for k in samp:
   for p in ae:
     u='https://www.floridabuilding.org/upload/'+urllib.parse.quote(p)
     try:
-      r=S.get(u,timeout=120); time.sleep(1.1)
-      if len(r.content)>25e6: continue
+      r=S.get(u,timeout=120); time.sleep(1.1); r.raise_for_status()
+      if len(r.content)>25e6: raise ValueError(f'{len(r.content)} bytes; too large to parse')
       txt+=' '.join((pg.extract_text() or '') for pg in pypdf.PdfReader(io.BytesIO(r.content)).pages)
     except Exception as e: print('err',k,e); failed+=1
   txt=re.sub(r'\s+',' ',txt); open('fbc_pdf/%s.txt'%k,'w').write(txt)
   noas=sorted(set(re.findall(r'\b(\d{2}-\d{4}\.\d{2})\b',txt)))
-  out[k]={'cat':d[k]['cat'],'hvhz':any(p['hvhz']=='Yes' for p in d[k]['products']),'n_ae':len(ae),'pdf_failed':failed,'chars':len(txt),'noa_refs':noas,
+  # Rows with no extractable evaluation text (image-only scans) are kept but excluded from every denominator.
+  out[k]={'testable':not failed and len(txt)>=200,'cat':d[k]['cat'],'hvhz':any(p['hvhz']=='Yes' for p in d[k]['products']),'n_ae':len(ae),'pdf_failed':failed,'chars':len(txt),'noa_refs':noas,
           'mentions_noa':bool(re.search(r'(?i)\bNOA\b|notice of acceptance|miami[- ]dade',txt))}
   print(k,out[k]['cat'],out[k]['hvhz'],len(txt),noas[:4],flush=True)
 json.dump(out,open('fbc_pdf_sample.json','w'),indent=1)
 bad=[k for k,v in out.items() if v.get('pdf_failed')]
 if bad: raise SystemExit(f'{len(bad)} approvals had unreadable PDFs (marked pdf_failed; exclude them from denominators): {bad[:20]}')
+t=[v for v in out.values() if v['testable']]
+print('cites an NOA (raw regex; hand-check before reporting)',sum(1 for v in t if v['noa_refs']),'/',len(t),'testable')

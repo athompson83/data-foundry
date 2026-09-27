@@ -3964,7 +3964,7 @@ datasets:
         between:
           - roofing-florida-product-approvals
           - roofing-miami-dade-noa
-        measured: 7/70
+        measured: 7/64 text-extractable evaluation reports (6 of 70 sampled produced no text and are excluded)
         mode: declared
       - key: FL# cited inside Miami-Dade NOA PDF
         between:

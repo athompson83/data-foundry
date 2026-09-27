@@ -1,3 +1,5 @@
+# Screening-grade matcher: its GTIN branch does not check GS1 check digits. It is kept to reproduce the
+# screened figures; gtin_validated.py supersedes its GTIN result, and only validated GTINs may auto-link.
 import json,re,collections,sys,datetime,random
 sys.path.insert(0,'.');from common import *
 DATEY=re.compile(r'^\d{1,2}(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)\d{2,4}$')

@@ -13,13 +13,13 @@ def fields(t):
   return d
 def search(cat,code='2023',status='APPROVED'):
   U="https://www.floridabuilding.org/pr/pr_app_srch.aspx"
-  t=S.get(U).text; d=fields(t)
+  x=S.get(U,timeout=60); x.raise_for_status(); t=x.text; d=fields(t)
   d['lstCategory:drpCustomDropdown']=cat; d['lstCodeVersion:drpCustomDropdown']=code
   d['lstAppStatus:drpCustomDropdown']=status; d['rbGenOutPut']='1'
   d['__EVENTTARGET']='lnkSearch';d['__EVENTARGUMENT']=''
-  time.sleep(1.1); r=S.post(U,data=d); return r.text
+  time.sleep(1.1); r=S.post(U,data=d,timeout=120); r.raise_for_status(); return r.text
 def nextpage(t,pg):
   d=fields(t); d.pop('__EVENTTARGET',None)
   d['pagTopPager:txtGoToPage']=str(pg); d['pagTopPager:btnPageJump.x']='5'; d['pagTopPager:btnPageJump.y']='5'
   time.sleep(1.1)
-  return S.post("https://www.floridabuilding.org/pr/pr_app_lst.aspx",data=d).text
+  r=S.post("https://www.floridabuilding.org/pr/pr_app_lst.aspx",data=d,timeout=120); r.raise_for_status(); return r.text

@@ -799,13 +799,16 @@ not merged (rule 3).
 
 #### Join keys, in precedence order
 
+Only keys 1 and 2 link automatically. Keys 3 to 6 only enqueue review candidates, with their evidence;
+nothing is merged on them (revised after review: the CPSC measurement found non-identities).
+
 1. `source_record_id` within a source (exact).
 2. GTIN with a valid check digit (exact, cross-source). Measured 0 hits to CPSC today, but it stays
    first-rank where it exists.
-3. `brand_key` + `model_key` (exact) within one jurisdiction family (US/CA).
+3. `brand_key` + `model_key` (exact) within one jurisdiction family (US/CA). Candidate.
 4. `brand_key` + ES/WS/NRCan pattern (opt1) matched against a concrete model, or identical canonical
-   pattern.
-5. Component-set match for systems: indoor + outdoor (+ furnace) all match.
+   pattern. Candidate.
+5. Component-set match for systems: indoor + outdoor (+ furnace) all match. Candidate.
 6. `model_key` alone across brands: recorded **only** as a `same_model_candidate`. It is never
    merged.
 7. Cross-region stem or series: rejected (see pair #3).
@@ -921,7 +924,7 @@ Random seeds were 2027 (the FBC detail sample, the FBC evaluation-PDF sample and
   - FL *evaluation reports* do cite NOAs:
     - **8/22 (36%)** of sampled HVHZ roofing applications with a text-extractable evaluation report;
     - **0/14** such non-HVHZ roofing applications (corrected after review: of the 40 sampled, 3 evaluation reports are image-only scans and 1 approval has no evaluation report, so 36 were testable; screening had reported 8/24 and 0/16);
-    - **7/70 (10%)** of a mixed windows/doors/roofing/skylight sample, after hand-removing one false positive (a test-report number shaped like an NOA).
+    - **7/64 (11%)** of a mixed windows/doors/roofing/skylight sample with text-extractable evaluation reports, after hand-removing one false positive (a test-report number shaped like an NOA). Corrected after review: 6 of the 70 sampled are image-only scans with no extractable text (none exceeded the size limit) and are excluded; screening had reported 7/70.
   - The NOAs cited are mostly the *components* inside an assembly: fasteners, insulation boards, adhesives, PVB interlayers and anchors. Many of them belong to other manufacturers.
   - Assembly tables that list the same component with both an FL# and an NOA# gave **30 FL#↔NOA# pairs**. Of the 17 where both IDs resolve in the current indexes, **15/17 have the same manufacturer after normalisation**. The other 2 are true alias pairs (USG Corporation ↔ United States Gypsum Company; Elevate ↔ Amrize Building Envelope LLC). So the pairs are also a deterministic, evidence-backed **alias source** for manufacturer names.
 - **Deterministic staleness detection is the killer join.**
@@ -1034,7 +1037,7 @@ Terms are unreadable, so RED. Use NRI and NCEI instead.
 | Pair | Join key | Measured | Normalisation / notes | Sample IDs |
 |---|---|---|---|---|
 | FBC eval report → Miami-Dade NOA (roofing, HVHZ) | NOA number `\d{2}-\d{4}\.\d{2}` in report text | **8/22** HVHZ; **0/14** non-HVHZ; 36/40 text-extractable (the 4 untestable approvals are excluded from both denominators) | Round 2 found 5/26. 2 of the 8 upload the NOA itself as the evaluation document (FL3794-R12 → 25-0313.01; FL47448 → 25-0131.01), which is a same-product link. The other 6 are component tables. | FL15545-R11, FL10264-R23, FL48146, FL3794-R12, FL48090, FL47448, FL46297-R7, FL48189 |
-| FBC eval report → NOA (mixed windows/doors/roof/skylight) | same | **7/70** (10%) after hand-check; the raw regex gave 8 | 1 false positive: FL48212 "Report: 26-0024.01-ACT-001" is a test-lab report ID. Require an `NOA`, `Miami-Dade` or `FBC NOA` column context, or a 2-digit-year check. | FL2534-R22, FL20873-R5, FL17454-R5, FL14087-R11, FL48095, FL23956-R2, FL21837-R12 |
+| FBC eval report → NOA (mixed windows/doors/roof/skylight) | same | **7/64** (11%) text-extractable, after hand-check; the raw regex gave 8 (6 of 70 sampled produced no text and are excluded) | 1 false positive: FL48212 "Report: 26-0024.01-ACT-001" is a test-lab report ID. Require an `NOA`, `Miami-Dade` or `FBC NOA` column context, or a 2-digit-year check. | FL2534-R22, FL20873-R5, FL17454-R5, FL14087-R11, FL48095, FL23956-R2, FL21837-R12 |
 | FBC detail page → NOA | same | **1/200** (FL14087-R11); 9/200 mention "NOA"/"Miami-Dade" | Detail pages are not where the link lives | fbc_detail_sample.json |
 | Miami-Dade NOA → FL# | `FL\s?#?\d+(-R\d+)?` | **0/77** text-extractable (3/80 image-only excluded) | Every "FL 33xxx" hit was a ZIP code. The link is one-directional. | md_sample.json (80 IDs, e.g. 21-1001.01, 22-0203.06 …) |
 | Cited NOA# → county PDF | URL rule `noa/<digits>.pdf` | **21/21** resolve (HTTP 200) | Only 11/21 appear in the current per-category HVHZ index. The rest are in other categories (e.g. 23-0713.20, PVB interlayer, valid to 2028) or expired, so resolution must use the PDF rule, not the index. | cited_noa_resolution.json |
@@ -1072,7 +1075,7 @@ Terms are unreadable, so RED. Use NRI and NCEI instead.
 1. Exact approval ID: NOA#, or FL# plus revision.
 2. The NOA# or FL# pair stated in the same assembly-table row. Evidence required.
 3. The NOA uploaded as an FBC evaluation document, giving `same_product_as`.
-4. Normalised organization key L3, which creates only an organization *candidate*. The alias is accepted only on exact key equality or on a (2) pair.
+4. Normalised organization key L3, which creates only an organization *candidate*, even on exact key equality (revised after review). An alias is accepted automatically only from a (2) pair, which states both identifiers.
 5. County FIPS, through a crosswalk table for legacy codes.
 6. NWS zone → county, one-to-many.
 
