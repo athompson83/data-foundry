@@ -1,6 +1,9 @@
 import csv, json, sys, glob, os
 csv.field_size_limit(10**9)
-B='/tmp/claude-0/-home-user-data-foundry/ea325b01-a089-5c05-94c4-acbba3dfebfa/scratchpad'
+# Input root for a replay: set DF_EVIDENCE_INPUTS to the directory holding the restored inputs, laid out as
+# research3/equipment/{es,au,nrcan,ws}/..., research2/appliance/au_*.csv, research2/electrical/cec_*.xlsx and
+# cpsc-recalls/recalls.json. Defaults to ./inputs next to this script.
+B=os.environ.get('DF_EVIDENCE_INPUTS', os.path.join(os.path.dirname(os.path.abspath(__file__)), 'inputs'))
 E3=B+'/research3/equipment'
 def es_mi():
     return list(csv.DictReader(open(E3+'/es/mi_noncac.csv', encoding='utf-8')))

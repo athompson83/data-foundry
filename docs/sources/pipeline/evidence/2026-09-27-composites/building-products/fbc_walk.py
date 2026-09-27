@@ -15,6 +15,7 @@ def rows(t,cat):
   return n
 for cat in sys.argv[1:]:
   t=search(cat); tp=int(re.search(r'lblTotalPages">(\d+)',t).group(1)); n=rows(t,cat)
+  if n==0: raise SystemExit(f'{cat}: page 1 parsed no approvals; population incomplete')
   print(cat,'pages',tp,'p1',n,flush=True)
   for pg in range(2,tp+1):
     page=None  # the postback chain needs each page, so a page that cannot be fetched ends the run
@@ -26,7 +27,9 @@ for cat in sys.argv[1:]:
     cp=re.search(r'lblCurrentPage">(\d+)',t)
     if not cp or int(cp.group(1))!=pg: raise SystemExit(f'{cat}: expected page {pg}, got {cp and cp.group(1)}')
     n=rows(t,cat)
-    if pg%10==0 or n==0: print(cat,pg,cp and cp.group(1),n,len(out),flush=True)
+    # A result page with no parsable approvals (an interstitial, or changed row markup) is an incomplete walk.
+    if n==0: raise SystemExit(f'{cat}: page {pg} parsed no approvals; population incomplete')
+    if pg%10==0: print(cat,pg,cp and cp.group(1),n,len(out),flush=True)
 # Saved once, atomically, only after every requested category was walked in full: a failure above exits before
 # this point and leaves the previous fbc_list.json untouched.
 json.dump(out,open('fbc_list.json.tmp','w')); os.replace('fbc_list.json.tmp','fbc_list.json')

@@ -1,4 +1,4 @@
-import collections, random
+import collections, os, random
 from load import *; from norm import *
 import openpyxl
 mi=es_mi(); cac=es_cac(); wsr=ws()
@@ -12,7 +12,7 @@ print('WS raw brand strings',len(ws_raw),'WS brand keys',len(wsb),'ES brand keys
 print('shared with ES partner keys (filer)',len(set(wsb)&esp))
 random.seed(20260927); print(sorted(inter))
 # CEC
-B2='/tmp/claude-0/-home-user-data-foundry/ea325b01-a089-5c05-94c4-acbba3dfebfa/scratchpad/research2/electrical/'
+B2=os.path.join(B,'research2','electrical')+os.sep  # same input root as load.py
 cecm=set()
 for f in ['cec_InvertersList.xlsx','cec_EnergyStorage.xlsx','cec_BatteryList.xlsx']:
     wb=openpyxl.load_workbook(B2+f,read_only=True)
