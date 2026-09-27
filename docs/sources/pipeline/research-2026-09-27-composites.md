@@ -111,7 +111,14 @@ Two more screening rates were measured before a later script fix, and their inpu
 `PAR30`, and 2 more carry one, so the rate is 106-108/307. ENERGY STAR ↔ CPSC 6/230 treated wildcards as exactly one
 character, so it is a lower bound under the documented zero-or-one grammar. `spdb_link.py` and `es_link.py` now
 apply both rules. The same applies to `equipment/link_au_matches.json`, which predates the per-component output (its inputs were not
-archived either). The scripts now keep every candidate, and the build regenerates all three files from archived inputs.
+archived either). The scripts now keep every candidate, but these three files cannot be regenerated from the current archive
+because some of their inputs were deleted before archiving. The missing inputs are:
+- the ENERGY STAR Model Index file `mi_noncac.csv` and `akti.json` (for `link_au.py` and `link_cpsc.py`);
+- the SaferProducts extract `spdb_inc.pkl` (for `spdb_link.py`).
+
+`link_cpsc.py`'s `cpsc-recalls/recalls.json` can be replaced by the archived `cpsc_all.json`, which comes from the same API.
+The build must re-acquire and archive the missing inputs, with SHA-256, before it regenerates these files. Until
+then the committed files remain screening summaries.
 
 ## Rules the measurements impose
 
