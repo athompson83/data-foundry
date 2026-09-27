@@ -21,7 +21,7 @@ def run(name, rows, ix, modelf, brandf, split=None):
         if hits:
             c['brand:'+hits[0][1]]+=1; ex.append((rid,brandf(r),modelf(r),hits[0][1],[{'component':m,'method':mm,'ids':ids} for m,mm,ids in hits]))
         else:
-            hits=[(m,mm,list(ids)) for m in models for mm,ids in [ix.lookup(brandf(r),m,brand_scoped=False)] if mm]
+            hits=[(m,mm,list(ids)) for m in models+([fam] if fam else []) for mm,ids in [ix.lookup(brandf(r),m,brand_scoped=False)] if mm]
             if hits: c['ANY:'+hits[0][1]]+=1; ex.append((rid,brandf(r),modelf(r),'ANY:'+hits[0][1],[{'component':m,'method':'ANY:'+mm,'ids':ids} for m,mm,ids in hits]))
     n=len(rows); b=sum(v for k,v in c.items() if k.startswith('brand:'))
     print(f'== {name}: AU rows {n}; brand-scoped matched {b}; any-brand-only {n and sum(v for k,v in c.items() if k.startswith("ANY"))}', dict(c))

@@ -16,18 +16,20 @@ for k in samp:
   if r is None: out[k]={'fetch_failed':True}; continue  # excluded from every denominator
   pdfs=sorted(set(re.findall(r"href='\.\./upload/([^']*\.pdf)'",r.text,re.I)))
   hv='Approved for use in HVHZ: Yes' in re.sub(r'\s+',' ',html.unescape(re.sub('<[^>]+>',' ',r.text)))
-  ae=[p for p in pdfs if '_AE_' in p][:2]; txt='';failed=0
+  ae=[p for p in pdfs if '_AE_' in p]; txt='';failed=0;per_pdf=[]  # every evaluation report
   for p in ae:
     try:
       x=S.get('https://www.floridabuilding.org/upload/'+urllib.parse.quote(p),timeout=180); time.sleep(1.1)
       x.raise_for_status()
       if len(x.content)>=30e6: raise ValueError(f'{len(x.content)} bytes; too large to parse')
-      txt+=' '.join((pg.extract_text() or '') for pg in pypdf.PdfReader(io.BytesIO(x.content)).pages)
+      one=re.sub(r'\s+',' ',' '.join((pg.extract_text() or '') for pg in pypdf.PdfReader(io.BytesIO(x.content)).pages))
+      per_pdf.append(len(one)); txt+=' '+one
     except Exception as e: print('err',k,e,flush=True); failed+=1
   txt=re.sub(r'\s+',' ',txt); open('fbc_pdf/%s.txt'%k,'w').write(txt)
   ctx=[txt[max(0,m.start()-60):m.end()+10] for m in re.finditer(r'\b\d{2}-\d{4}\.\d{2}\b',txt)]
-  # Untestable rows (no evaluation report, or only image scans) are kept but excluded from every denominator.
-  out[k]={'hvhz':hv,'n_ae':len(ae),'pdf_failed':failed,'testable':bool(ae) and not failed and len(txt)>=200,'chars':len(txt),'noa_refs':sorted(set(re.findall(r'\b(\d{2}-\d{4}\.\d{2})\b',txt))),'ctx':ctx[:3],
+  # Testable only if there is an evaluation report and every one was fetched and yields text; untestable rows
+  # (no report, or any image-only report) are kept but excluded from every denominator.
+  out[k]={'hvhz':hv,'n_ae':len(ae),'pdf_failed':failed,'per_pdf_chars':per_pdf,'testable':bool(ae) and not failed and all(n>=200 for n in per_pdf),'chars':len(txt),'noa_refs':sorted(set(re.findall(r'\b(\d{2}-\d{4}\.\d{2})\b',txt))),'ctx':ctx[:3],
           'mentions_noa':bool(re.search(r'(?i)\bNOA\b|notice of acceptance|miami[- ]dade',txt))}
   print('ROW',k,hv,len(ae),len(txt),out[k]['noa_refs'][:4],flush=True)
 json.dump(out,open('fbc_roof_noa.json','w'),indent=1)

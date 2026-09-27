@@ -3967,13 +3967,15 @@ datasets:
         between:
           - roofing-florida-product-approvals
           - roofing-miami-dade-noa
-        measured: 8/22 text-extractable HVHZ evaluation reports (0/14 non-HVHZ; 4 of 40 sampled untestable and excluded)
+        measured: 8/22 HVHZ approvals with every evaluation report extractable (0/14 non-HVHZ; 4 of 40 sampled untestable and excluded;
+          re-measured over all reports, unchanged)
         mode: declared
       - key: NOA number cited in FL evaluation report (mixed envelope categories, hand-checked)
         between:
           - roofing-florida-product-approvals
           - roofing-miami-dade-noa
-        measured: 7/64 text-extractable evaluation reports (6 of 70 sampled produced no text and are excluded)
+        measured: 8/63 approvals with every evaluation report extractable, hand-checked (7 of 70 excluded; re-measured over all reports
+          after review, was 7/64 when at most two reports were read)
         mode: declared
       - key: FL# cited inside Miami-Dade NOA PDF
         between:
