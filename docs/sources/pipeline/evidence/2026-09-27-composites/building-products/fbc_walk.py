@@ -1,8 +1,11 @@
 import json,sys,re,html
 from fbc_lib import *
 out={}
-try: out=json.load(open('fbc_list.json'))  # resume a previous walk
+try: out=json.load(open('fbc_list.json'))  # other categories from earlier runs are kept
 except FileNotFoundError: pass
+# Each requested category is walked from page 1, so drop its old rows first: an approval that has left the
+# APPROVED view must not survive a rerun.
+out={k:v for k,v in out.items() if v['cat'] not in sys.argv[1:]}
 def rows(t,cat):
   n=0
   for m in re.finditer(r"href='\.\./pr/pr_app_dtl\.aspx\?param=([^']*)'>(FL[^<]*)</a>(.*?)(?=href='\.\./pr/pr_app_dtl|lblCurrentPage|$)",t,re.S):

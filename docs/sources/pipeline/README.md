@@ -41,7 +41,11 @@ Linking rules, from the round-3 measurements
 ([`research-2026-09-27-composites.md`](research-2026-09-27-composites.md)):
 each join key has a `mode`. `declared` joins (GTIN, licence number, UBI, a
 cited approval number: an identifier that names the counterpart record) link
-automatically; a marker that only says a counterpart exists (Health Canada's
+automatically, and only at the level that identifier names: a GTIN links a
+notice to a product but never merges two recall events, which needs a cited
+case number or review. Shared attributes such as a refrigerant designation
+select nothing on their own (a rule applies only after filtering by end use,
+equipment class, jurisdiction and date), so they are candidates. A marker that only says a counterpart exists (Health Canada's
 "joint recall" note) narrows candidates but is not declared;
 `candidate` joins (names, brands, model tokens, titles, phones) only propose a
 link for review, never a merge (AGENTS.md rules 3 and 7). Round-3 match rates

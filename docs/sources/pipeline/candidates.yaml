@@ -3645,8 +3645,10 @@ datasets:
     description: "One record per regulator notice from CPSC (US), Health Canada (CA), EU Safety Gate, UK OPSS,
       ACCC (AU) and MBIE (NZ), extending the LIVE fda-recalls StructuredRecall pipeline. Free text is parsed
       deterministically into model numbers, serial ranges, GTINs, units, sale periods, hazards and remedies.
-      Notices link automatically across agencies only on identifiers that name the counterpart: a
-      check-digit-valid GTIN or a cited Safety Gate case number. The joint-recall marker, title tokens and
+      A cited Safety Gate case number is the only automatic event link: it merges notices into one
+      recall_event. A check-digit-valid GTIN links each notice automatically to the affected product, but
+      never merges events, because one product can be recalled twice for different defects; notices that
+      share only a GTIN become a reviewed event candidate. The joint-recall marker, title tokens and
       brand + model within a date window only enqueue candidate links for review. Enrichment with the ENERGY
       STAR model a notice names and with SaferProducts.gov incident counts on the same brand + model is
       likewise a reviewed candidate link, except where a check-digit-valid GTIN matches. Every fact carries
@@ -3693,7 +3695,8 @@ datasets:
         measured: 118/697 UK home-category notices (29 of the 118 also share a code); 18/20 correct on hand check;
           149/697 with model only (no brand check)
         mode: candidate
-      - key: exact GTIN with a valid GS1 check digit, within 365 days
+      - key: exact GTIN with a valid GS1 check digit, within 365 days (links the notice to the same product;
+          never merges recall events)
         between: *a5
         measured: 24/697 UK home-category notices (29 before check-digit validation; 5 matched codes fail the GS1
           check); re-measured from the archived intl_recs.json by gtin_validated.py
@@ -3705,7 +3708,8 @@ datasets:
         measured: 0/88 CPSC home-equipment recalls with model tokens (2023-01..2026-09); 11/864 across all CPSC
           products
         mode: candidate
-      - key: exact GTIN with a valid GS1 check digit, within 365 days
+      - key: exact GTIN with a valid GS1 check digit, within 365 days (links the notice to the same product;
+          never merges recall events)
         between: *a6
         measured: "0/864 CPSC recalls with model or code tokens (xmatch_out: via GTIN 0)"
         mode: declared
@@ -3716,7 +3720,8 @@ datasets:
         measured: 0/119 CPSC home-equipment recalls (2021-01..2026-09); 14/1130 across all CPSC products vs UK home
           categories; 8/8 correct on hand check
         mode: candidate
-      - key: exact GTIN with a valid GS1 check digit, within 365 days
+      - key: exact GTIN with a valid GS1 check digit, within 365 days (links the notice to the same product;
+          never merges recall events)
         between: *a7
         measured: "0/1130 CPSC recalls vs UK home categories (xmatch_out: via GTIN 0)"
         mode: declared
@@ -3727,7 +3732,8 @@ datasets:
         measured: 4/36 ACCC notices with model/GTIN (May-Sep 2026) match a CPSC recall; 3/4 confirmed on hand check;
           0/9 CPSC home recalls in the window
         mode: candidate
-      - key: exact GTIN with a valid GS1 check digit, within 365 days
+      - key: exact GTIN with a valid GS1 check digit, within 365 days (links the notice to the same product;
+          never merges recall events)
         between: *a8
         measured: "0/36 ACCC notices (xmatch_out: via GTIN 0)"
         mode: declared
@@ -3881,12 +3887,14 @@ datasets:
           - equipment-energystar-model-index
         measured: 13/260 CEC manufacturer keys
         mode: candidate
-      - key: normalised refrigerant designation
+      - key: normalised refrigerant designation, then filtered by regulated end use, equipment class,
+          jurisdiction and effective date (a designation alone does not select a rule)
         between:
           - hvac-energystar-matched-systems
           - hvac-refrigerant-transition-rules
-        measured: 17699/17699 mini-split rows carry refrigerant
-        mode: declared
+        measured: "coverage only, not a match rate: all 17,699 mini-split rows carry a refrigerant; rule
+          applicability after the end-use filter is not yet measured"
+        mode: candidate
     taxonomy:
       - "trade: hvac | plumbing | electrical | appliance | energy"
       - "category/subcategory: hvac/heat-pump/{split,mini-multi-split,single-package,geothermal};

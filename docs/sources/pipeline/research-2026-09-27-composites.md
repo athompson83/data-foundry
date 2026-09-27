@@ -419,7 +419,7 @@ Each field carries the rule ID that extracted it.
 **`notice_link`** is the cross-agency and enrichment layer. Its fields are `from_notice`,
 `to_notice | es_model_id | spdb_report_no`, `link_type`, `keys_matched`, `date_delta_days` and `rule_version`.
 
-- Only declared links are published automatically: `declared-case-number` (a cited Safety Gate case number) and a check-digit-valid `gtin`. `joint-marker` narrows candidates (the marker does not name the CPSC counterpart; 4 of 341 were ambiguous), so it is reviewed before publication.
+- Only declared links are published automatically: `declared-case-number` (a cited Safety Gate case number), which merges notices into one `recall_event`, and a check-digit-valid `gtin`, which links a notice to the affected product but never merges events (one product can be recalled twice for different defects; notices sharing only a GTIN are a reviewed event candidate). *Revised after review.* `joint-marker` narrows candidates (the marker does not name the CPSC counterpart; 4 of 341 were ambiguous), so it is reviewed before publication.
 - `brand-model` and `candidate-title` links are review candidates: stored with their evidence and shown only after review confirms them (rule 3: no silent merges). The measured precision (15/18 CPSC → certified model, 11/12 CPSC → incident, with host-device and brand-collision errors) is too low for automatic publication.
 - *Revised 2026-09-27 after review; the original draft also auto-published `brand-model`.*
 - Links are reversible, because notices are never merged. A `recall_event` cluster is a derived view over
@@ -435,7 +435,7 @@ Only steps 1 and 2 link automatically; steps 3 to 6 only enqueue review candidat
 
 1. **A declared cross-reference that names the counterpart notice:** a Safety Gate case number cited by a
    national notice (FR 102/109).
-2. **Exact GTIN on both sides with a valid GS1 check digit.** UK↔EU 24/697 (re-measured; 29 exact strings
+2. **Exact GTIN on both sides with a valid GS1 check digit.** A product link, not an event merge. UK↔EU 24/697 (re-measured; 29 exact strings
    before validation, 5 of which fail the check digit). FR↔EU was screened as 71 exact strings without
    validation and must be re-measured with the check digit before it counts. It never joins to ENERGY
    STAR: 0 matches.
