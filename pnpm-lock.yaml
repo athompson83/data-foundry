@@ -311,8 +311,6 @@ importers:
         specifier: ^8.23.0
         version: 8.23.0
 
-  packages/eligibility-structuring: {}
-
   packages/extraction:
     dependencies:
       '@data-foundry/canonical-schema':
@@ -332,17 +330,11 @@ importers:
         specifier: ^1.17.1
         version: 1.17.1
 
-  packages/filing-event-structuring: {}
-
-  packages/label-structuring: {}
-
   packages/normalization:
     dependencies:
       '@data-foundry/canonical-schema':
         specifier: workspace:*
         version: link:../canonical-schema
-
-  packages/obligation-structuring: {}
 
   packages/private-canary: {}
 
