@@ -265,11 +265,12 @@ candidates:
       - Republish only the OGL open-data index fields verbatim; attribute Health Canada and link the OGL.
       - From the recall pages, extract only non-copyrightable facts (model numbers, Canadian units sold, sale period); never republish page text.
       - Deduplicate joint CPSC recalls (14 of 22 sampled) against the CPSC slice.
-    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/appliance]
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/appliance, docs/sources/pipeline/research-2026-09-27-composites.md]
     next_action: >-
-      Decide whether facts extracted from the canada.ca pages are acceptable under ADR-0013
-      (a facts-not-expression argument). If not, keep only the OGL index. Add it after the
-      CPSC slice for Canadian units sold and Canada-only recalls.
+      Round 3 correction: the OGL index now carries `Product` and "What you should do" text,
+      and the latter's declared "Joint recall … CPSC" marker links 341 of 352 joint notices to
+      a CPSC recall (25/25 correct), under the open licence alone. Build on the index; decide
+      separately whether any canada.ca page facts are needed.
 
   - key: appliance-brand-ownership
     name: Appliance brand to owner crosswalk from Wikidata (CC0)
@@ -327,15 +328,19 @@ candidates:
     name: SaferProducts.gov consumer incident reports for major appliances
     category: home-services
     structuring: event-extraction
-    stage: DISCOVERED
-    rights: UNKNOWN
-    sources: ["https://www.saferproducts.gov/PublicSearch"]
-    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 1, structuring_value: 5, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 4 }
-    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/appliance]
+    stage: SCREENED
+    rights: AMBER
+    sources: ["https://www.saferproducts.gov/SPDB.zip", "https://www.saferproducts.gov/PublicSearch"]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 5, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 4 }
+    conditions:
+      - Publish structured product fields (brand, model, serial, UPC, category, dates) and counts only.
+      - Exclude incident narratives, victim, location and any submitter personal data.
+      - Present counts as consumer-submitted reports, not verified findings.
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/appliance, docs/sources/pipeline/research-2026-09-27-composites.md, docs/sources/pipeline/evidence/2026-09-27-composites/recalls]
     next_action: >-
-      Find a documented bulk or API route; /RestWebServices exposes only Recall and Penalty,
-      and /PublicSearch answered a term query with a 302. Determine the rights in
-      consumer-submitted narratives and exclude victim personal data before screening.
+      Round 3 found the bulk export (SPDB.zip, 70,000 reports, 2011-03 to 2026-09; whether 70,000
+      is a cap is [UNVERIFIED]). Evidence it: quote the SaferProducts terms verbatim, archive the
+      export, and confirm completeness. 111 of 307 CPSC home recalls have matching reports.
 
   - key: appliance-open-products-facts
     name: Open Products Facts appliance entries
@@ -424,14 +429,19 @@ candidates:
     category: home-services
     structuring: normalization
     stage: PARKED
-    rights: RED
+    rights: AMBER
     sources: ["https://eprel.ec.europa.eu/screen/home"]
-    scores: { agent_demand: 2, rights_clarity: 1, acquisition_ease: 2, structuring_value: 2, freshness: 4, low_onboarding_cost: 2, poor_existing_access: 3 }
-    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/appliance]
+    scores: { agent_demand: 2, rights_clarity: 2, acquisition_ease: 2, structuring_value: 2, freshness: 4, low_onboarding_cost: 2, poor_existing_access: 3 }
+    conditions:
+      - EPREL data only inside a value-added linked product, never bulk resale of EPREL records.
+      - Keep EPREL fields unaltered and never aggregate them into composite figures (the API terms forbid "modifying, transforming, remixing, aggregating" that could mislead).
+      - Access only with our own API key (EU Login account).
+    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/appliance, docs/sources/pipeline/research-2026-09-27-composites.md]
     next_action: >-
-      Parked. The API returns 403 without a key, and the reuse terms are unread. The
-      2026-08 note on a paid-redistribution restriction stands. Reopen after reading the
-      API-key terms.
+      Parked, and not a member of home-equipment-model-registry: the API terms (read in
+      round 3) forbid "aggregating" or "remixing" EPREL data, which a composite dataset does,
+      and the API needs a key (owner-only EU Login account). Reopen with a written reading of
+      clause (d) or EPREL's confirmation, plus a key.
 
   # --- Service trades, research round 2 (2026-09-27): hvac ---
   - key: hvac-energystar-matched-systems
@@ -1212,3 +1222,1258 @@ candidates:
     scores: { agent_demand: 4, rights_clarity: 1, acquisition_ease: 1, structuring_value: 3, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 3 }
     evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/electrical]
     next_action: Parked - terms unreadable (Intertek 403/503, CSA proxy 502 and 403, SunSpec Cloudflare challenge); reopen only if published terms grant commercial reuse.
+
+  # --- Composite-dataset sources, research round 3 (2026-09-27) ---
+  - key: eu-safety-gate-alerts
+    name: EU Safety Gate (ex-RAPEX) non-food product alerts — weekly XML reports with brand, model, barcode and batch
+      fields
+    category: product-safety
+    structuring: identifier-extraction
+    stage: SCREENED
+    rights: AMBER
+    sources: ['https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/list/xml/en', 'https://data.europa.eu/api/hub/search/datasets/rapex-rapid-alert-system-non-food']
+    scores: {agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 4, freshness: 4, low_onboarding_cost: 4,
+      poor_existing_access: 3}
+    terms:
+    - {url: 'https://data.europa.eu/api/hub/search/datasets/rapex-rapid-alert-system-non-food', quote: '"resource":
+        "https://creativecommons.org/publicdomain/zero/1.0/", "description": "Creative Commons CC0 1.0 Universal"
+        (licence of distribution ''4. Weekly Reports - XML format'')'}
+    - {url: 'https://commission.europa.eu/legal-notice_en', quote: 'Unless otherwise indicated (e.g. in individual
+        copyright notices), content owned by the EU on this website is licensed under the Creative Commons Attribution
+        4.0 International (CC BY 4.0) licence. This means that reuse is allowed, provided appropriate credit is given
+        and changes are indicated.'}
+    - {url: 'https://commission.europa.eu/legal-notice_en', quote: 'Software or documents covered by industrial property
+        rights, such as patents, trade marks, registered designs, logos and names, are excluded from the Commission''s
+        reuse policy and are not licensed to you.'}
+    conditions: ['Apply the stricter of the two declared licences (CC BY 4.0): credit "European Commission, Safety
+        Gate" and state that records were normalised.', Do not republish the <pictures> image URLs or images (supplied
+        by national authorities/traders; not shown to be EU-owned)., Use brand names only as factual identifiers;
+        no logos; imply no Commission endorsement., 'Keep the notifying country, risk level and measures as authority-notified
+        facts, not our own safety finding.']
+    evidence: &id001 [docs/sources/pipeline/research-2026-09-27-composites.md, docs/sources/pipeline/evidence/2026-09-27-composites/recalls]
+    next_action: Backfill all 1,117 weekly XML reports (2005-2026, about 180 KB each) into the recall notice store;
+      parse type_numberOfModel/barcode/batchNumber into model, GTIN and lot keys; write the ADR-0013 rights record
+      (CC0 distribution + CC BY 4.0 site notice, images excluded).
+  - key: uk-opss-product-safety-alerts
+    name: UK OPSS product safety alerts, reports and recalls (GOV.UK finder) — brand/model/barcode tables and PSD
+      notification numbers
+    category: product-safety
+    structuring: identifier-extraction
+    stage: SCREENED
+    rights: AMBER
+    sources: ['https://www.gov.uk/api/search.json?filter_format=product_safety_alert_report_recall', 'https://www.gov.uk/api/content/product-safety-alerts-reports-recalls']
+    scores: {agent_demand: 3, rights_clarity: 4, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 4,
+      poor_existing_access: 3}
+    terms:
+    - {url: 'https://www.gov.uk/help/terms-conditions', quote: 'Most content on GOV.UK is subject to Crown copyright
+        protection and is published under the Open Government Licence ( OGL ), which also sets out which content is
+        exempt.'}
+    - {url: 'https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/', quote: 'exploit the Information
+        commercially and non-commercially for example, by combining it with other Information, or by including it
+        in your own product or application.'}
+    conditions: [Attribute with "Contains public sector information licensed under the Open Government Licence v3.0."
+        and link the licence., Do not republish the attached product-image PDFs or images ("except where otherwise
+        stated" content)., Publish the Brand/Model/Barcode/Batch/PSD-number facts and metadata facets; do not present
+        them as an OPSS endorsement.]
+    evidence: *id001
+    next_action: Page the search API (3,730 notices since 2022-03) and fetch /api/content for each; parse the Product
+      information table rows (Brand, Model, Barcode, Batch, SKU, ASIN) and the PSD notification number; write the
+      ADR-0013 rights record.
+  - key: au-accc-product-recalls
+    name: ACCC Product Safety Australia recalls (productsafety.gov.au) — PRA numbers with brand, model, SKU and GTIN
+      fields
+    category: product-safety
+    structuring: identifier-extraction
+    stage: SCREENED
+    rights: AMBER
+    sources: ['https://www.productsafety.gov.au/rss/feed.xml/psa_recall', 'https://www.productsafety.gov.au/search-consumer-product-recalls']
+    scores: {agent_demand: 3, rights_clarity: 3, acquisition_ease: 2, structuring_value: 4, freshness: 4, low_onboarding_cost: 3,
+      poor_existing_access: 3}
+    terms:
+    - {url: 'https://www.productsafety.gov.au/about-us/using-our-website/disclaimer-and-copyright', quote: 'All information
+        presented on this website is provided under a Creative Commons Attribution 4.0 International licence (or CC
+        BY 4.0 licence), except for: the Commonwealth Coat of Arms (view guidance on the use of the Coat of Arms )
+        all logos used by the ACCC on the websites, publications and elsewhere content supplied by third parties material
+        where it is expressly stated otherwise.'}
+    - {url: 'https://www.productsafety.gov.au/about-us/using-our-website/disclaimer-and-copyright', quote: 'Where
+        a third party holds copyright in information presented on this website, the copyright remains with that party.
+        Their permission may be required to use the information.'}
+    conditions: ['Attribute "Source: Based on ACCC data" (modified material) under CC BY 4.0.', 'Publish only factual
+        identifier fields (PRA number, brand, model, SKU, GTIN, dates, hazard class); do not republish supplier photographs,
+        recall-advertisement PDFs or supplier-written prose (third-party carve-out).', Exclude supplier contact phone/email.]
+    evidence: *id001
+    next_action: 'Find a complete listing route: the RSS feed carries only the latest 100 recalls (15 May to 25 Sep
+      2026), the listing is JavaScript-rendered and /sitemap.xml is 404. Ask whether data.gov.au or the ACCC publishes
+      a bulk export before crawling detail pages at 1 req/s.'
+  - key: nz-mbie-product-recalls
+    name: New Zealand MBIE Trading Standards product recalls (productsafety.govt.nz)
+    category: product-safety
+    structuring: identifier-extraction
+    stage: SCREENED
+    rights: AMBER
+    sources: ['https://www.productsafety.govt.nz/sitemap.xml', 'https://www.productsafety.govt.nz/recalls']
+    scores: {agent_demand: 2, rights_clarity: 4, acquisition_ease: 3, structuring_value: 3, freshness: 3, low_onboarding_cost: 3,
+      poor_existing_access: 3}
+    terms:
+    - {url: 'https://www.productsafety.govt.nz/about-us/copyright', quote: 'this copyright material is licensed for
+        re-use under a Creative Commons Attribution 4.0 International Licence. In essence, you are free to copy, distribute
+        and adapt the material, as long as you attribute it to the Ministry of Business, Innovation and Employment
+        and abide by other licence terms.'}
+    - {url: 'https://www.productsafety.govt.nz/about-us/copyright', quote: 'Please note that this licence does not
+        apply to any logos, emblems and trademarks on the website or to the website’s design elements or to any photography
+        and imagery.'}
+    conditions: ['Attribute the Ministry of Business, Innovation and Employment under CC BY 4.0.', No photographs
+        or imagery; exclude supplier contact details., 'Product Identifiers is free text; publish parsed identifier
+        facts with provenance, not the page prose.']
+    evidence: *id001
+    next_action: Enumerate the 1,619 /recalls/ URLs from the sitemap; parse Product Identifiers and the supplier;
+      low priority (0 of 31 sampled NZ recalls with models matched a CPSC recall).
+  - key: fr-rappelconso-v2
+    name: France RappelConso V2 product recalls with GTIN (DGCCRF, data.economie.gouv.fr)
+    category: product-safety
+    structuring: identifier-extraction
+    stage: PARKED
+    rights: RED
+    sources: ['https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/rappelconso-v2-gtin-espaces']
+    scores: {agent_demand: 3, rights_clarity: 1, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 4,
+      poor_existing_access: 3}
+    terms:
+    - {url: 'https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/rappelconso-v2-gtin-espaces', quote: '"license":
+        "Licence Ouverte v2.0 (Etalab)", "license_url": "https://www.etalab.gouv.fr/wp-content/uploads/2017/04/ETALAB-Licence-Ouverte-v2.0.pdf"'}
+    evidence: *id001
+    next_action: 'Parked only because the licence text could not be read today (etalab.gouv.fr and data.gouv.fr reset
+      the connection from this egress; the metadata declares Licence Ouverte 2.0). Re-read the licence; if it is the
+      standard Etalab 2.0 grant, move to SCREENED: 109 of 647 non-food home notices since 2023 carry a Safety Gate
+      case number and 102 of those are found in the EU XML.'
+  - key: oecd-globalrecalls-portal
+    name: OECD GlobalRecalls portal (aggregated multi-country recalls)
+    category: product-safety
+    structuring: normalization
+    stage: PARKED
+    rights: RED
+    sources: ['https://globalrecalls.oecd.org/']
+    scores: {agent_demand: 3, rights_clarity: 1, acquisition_ease: 1, structuring_value: 2, freshness: 4, low_onboarding_cost: 2,
+      poor_existing_access: 2}
+    terms:
+    - {url: 'https://globalrecalls.oecd.org/robots.txt', quote: 'User-agent: * Disallow: / (whole portal disallowed
+        to all agents; https://www.oecd.org/en/about/terms-conditions.html returned 403 to both the descriptive and
+        a browser user agent on 2026-09-27)'}
+    evidence: *id001
+    next_action: None. Its content is the national regulators' data, which we take directly from CPSC, Health Canada,
+      Safety Gate, OPSS, ACCC and MBIE under their own licences.
+  - key: ca-healthycanadians-recall-api
+    name: Legacy Health Canada recalls JSON API (healthycanadians.gc.ca/recall-alert-rappel-avis/api)
+    category: product-safety
+    structuring: identifier-extraction
+    stage: PARKED
+    rights: RED
+    sources: ['https://healthycanadians.gc.ca/recall-alert-rappel-avis/api/recent/en']
+    scores: {agent_demand: 2, rights_clarity: 1, acquisition_ease: 3, structuring_value: 2, freshness: 1, low_onboarding_cost: 3,
+      poor_existing_access: 1}
+    terms:
+    - {url: 'https://www.canada.ca/en/transparency/terms.html', quote: 'Unless otherwise specified, you may not reproduce
+        materials on this site, in whole or in part, for the purposes of commercial redistribution without prior written
+        permission from the copyright administrator.'}
+    evidence: *id001
+    next_action: None. /api/recent/en still answers 200 but its newest items are dated October 2021; the OGL open-data
+      index (appliance-health-canada-recalls) supersedes it.
+  - key: equipment-energystar-model-index
+    name: ENERGY STAR Model Index (all certified models, all categories incl. central AC) and UPC Codes index
+    category: home-services
+    structuring: normalization
+    stage: SCREENED
+    rights: AMBER
+    sources: ['https://data.energystar.gov/resource/8wj2-sec8.json', 'https://data.energystar.gov/resource/8edu-y555.json']
+    scores: {agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 4,
+      poor_existing_access: 3}
+    terms:
+    - {url: 'https://edg.epa.gov/EPA_Data_License.html', quote: 'Unless otherwise specified, all data produced by
+        the U.S EPA is by default in the public domain and is not subject to domestic copyright protection under 17
+        U.S.C. § 105.'}
+    - {url: 'https://data.energystar.gov/api/views/8wj2-sec8.json', quote: '"License": "https://edg.epa.gov/EPA_Data_License.html"
+        (metadata.custom_fields Common Core, Publisher U.S. Environmental Protection Agency)'}
+    conditions: ['Publish factual fields only (brand, filer, model/pattern, category, markets, UPC, dates); label
+        them "listed in EPA ENERGY STAR data as of <date>".', No ENERGY STAR mark or logo and no implied EPA endorsement.,
+      Partner-filed fields need the ADR-0013 rights record already required for the category datasets., 'Sync daily;
+        a model absent from the index is "no longer listed", not "never certified".']
+    evidence: &id002 [docs/sources/pipeline/research-2026-09-27-composites.md, docs/sources/pipeline/evidence/2026-09-27-composites/equipment]
+    next_action: 1,796,876 rows (Central AC split 1,491,897 collapse to 3,253 brand x filer x outdoor-pattern groups
+      via $group). Use it as the identity spine and the source of the markets flag (1,644,779 rows list Canada). Ratings
+      still come from the category datasets.
+  - key: equipment-nrcan-energuide-2017
+    name: NRCan EnerGuide energy consumption of home appliances (historical 2017 snapshot)
+    category: home-services
+    structuring: normalization
+    stage: SCREENED
+    rights: AMBER
+    sources: ['https://open.canada.ca/data/en/dataset/fbfdf946-8dd1-4830-a5c9-f8a72d8fabda']
+    scores: {agent_demand: 2, rights_clarity: 4, acquisition_ease: 5, structuring_value: 2, freshness: 1, low_onboarding_cost: 4,
+      poor_existing_access: 3}
+    terms:
+    - {url: 'https://open.canada.ca/en/open-government-licence-canada', quote: 'The Information Provider grants you
+        a worldwide, royalty-free, perpetual, non-exclusive licence to use the Information, including for commercial
+        purposes, subject to the terms below.'}
+    conditions: [Attribute Natural Resources Canada and link the Open Government Licence - Canada., 'Label the data
+        as historical (data change date 2017-02-01), not current Canadian listing status.']
+    evidence: *id002
+    next_action: 'Low priority: 5,868 rows; 330 still match current ENERGY STAR listings (25/25 hand-checked). Use
+      only for the historical rated kWh of older models. Replace it with the live NRCan list if that host becomes
+      reachable.'
+  - key: equipment-nrcan-searchable-product-list
+    name: NRCan Searchable Product List (ENERGY STAR Canada / EnerGuide / former Greener Homes eligible lists)
+    category: home-services
+    structuring: normalization
+    stage: PARKED
+    rights: RED
+    sources: ['https://oee.nrcan.gc.ca/pml-lmp/index.cfm?language_langue=en']
+    scores: {agent_demand: 3, rights_clarity: 1, acquisition_ease: 1, structuring_value: 3, freshness: 4, low_onboarding_cost: 3,
+      poor_existing_access: 3}
+    evidence: *id002
+    next_action: 'Parked because it is unreachable: oee.nrcan.gc.ca returns 403 (robots.txt too) or a connection reset
+      to the descriptive UA, so the terms are unread. Retry from Cloudflare Worker egress, or ask NRCan for an OGL
+      bulk export.'
+  - key: equipment-au-gems-ac-water-heaters
+    name: AU/NZ GEMS registered air conditioners and electric water heaters (data.gov.au)
+    category: home-services
+    structuring: normalization
+    stage: SCREENED
+    rights: AMBER
+    sources: ['https://data.gov.au/data/dataset/energy-rating-for-household-appliances', 'https://data.gov.au/data/dataset/energy-rating-data-for-household-appliances-non-labelled-products']
+    scores: {agent_demand: 2, rights_clarity: 3, acquisition_ease: 3, structuring_value: 3, freshness: 5, low_onboarding_cost: 3,
+      poor_existing_access: 3}
+    terms:
+    - {url: 'https://data.gov.au/data/api/3/action/package_show?id=energy-rating-for-household-appliances', quote: '"license_title":
+        "Creative Commons Attribution 3.0 Australia", "license_url": "http://creativecommons.org/licenses/by/3.0/au/"'}
+    conditions: [Attribute the source under CC BY 3.0 AU., data.gov.au and reg.energyrating.gov.au robots.txt are
+        "Disallow /"; acquire only through the documented CKAN API (linked as Developers / CKAN Documentation) and
+        record that basis in the rights record., 'Treat AU/NZ as a separate regional partition; do not assert identity
+        with US models (measured 0/6,036 AC systems).']
+    evidence: *id002
+    next_action: 'AC 6,036 rows (with a Refrigerant field: R32 4,018, R410A 1,497, R290 461) and HW 1,490. Build it
+      after the US/Canada core as the AU/NZ partition of home-equipment-model-registry.'
+  - key: equipment-epa-snap-substitutes
+    name: EPA SNAP acceptable/unacceptable refrigerant substitutes by end-use (Federal Register / 40 CFR 82 subpart
+      G)
+    category: home-services
+    structuring: obligation-timeline
+    stage: DISCOVERED
+    rights: GREEN
+    sources: ['https://www.federalregister.gov/api/v1/documents.json?conditions%5Bterm%5D=%22Significant+New+Alternatives+Policy%22&conditions%5Bagencies%5D%5B%5D=environmental-protection-agency&conditions%5Btype%5D%5B%5D=RULE']
+    scores: {agent_demand: 3, rights_clarity: 5, acquisition_ease: 4, structuring_value: 4, freshness: 3, low_onboarding_cost: 4,
+      poor_existing_access: 3}
+    terms:
+    - {url: 'https://www.govinfo.gov/about/policies', quote: Copyright protection under this title is not available
+        for any work of the United States Government}
+    evidence: *id002
+    next_action: 129 EPA SNAP rules. Fold them into federal-register-obligations with hvac-refrigerant-transition-rules
+      as the refrigerant x end-use overlay, and parse the substitute tables deterministically.
+  - key: equipment-irs-energy-credit-criteria
+    name: IRS 25C / 25D energy credit eligibility criteria applied to model ratings
+    category: home-services
+    structuring: eligibility-criteria
+    stage: PARKED
+    rights: GREEN
+    sources: ['https://www.irs.gov/credits-deductions/energy-efficient-home-improvement-credit', 'https://www.irs.gov/credits-deductions/residential-clean-energy-credit']
+    scores: {agent_demand: 2, rights_clarity: 5, acquisition_ease: 4, structuring_value: 2, freshness: 1, low_onboarding_cost: 4,
+      poor_existing_access: 2}
+    terms:
+    - {url: 'https://www.irs.gov/credits-deductions/residential-clean-energy-credit', quote: 'The credit is not available
+        for any property placed in service after December 31, 2025.'}
+    evidence: *id002
+    next_action: Parked. Both credits ended for property placed in service after 2025-12-31, and the ENERGY STAR tax-credit
+      views return 0 rows. The heat-pump/AC criteria also depend on CEE tiers (see equipment-cee-directory, RED).
+      Reopen only if a new credit is enacted.
+  - key: equipment-uk-pcdb
+    name: UK SAP Product Characteristics Database (BRE for DESNZ)
+    category: home-services
+    structuring: normalization
+    stage: PARKED
+    rights: RED
+    sources: ['https://www.ncm-pcdb.org.uk/sap/']
+    scores: {agent_demand: 2, rights_clarity: 1, acquisition_ease: 2, structuring_value: 3, freshness: 3, low_onboarding_cost: 2,
+      poor_existing_access: 3}
+    terms:
+    - {url: 'https://www.ncm-pcdb.org.uk/sap/page.jsp?id=10', quote: 'BRE and the Department for Energy Security &
+        Net Zero (DESNZ) do not warrant the accuracy of data held within this website, or the Product Characteristics
+        Database (PCDB)'}
+    evidence: *id002
+    next_action: Parked. The site terms carry disclaimers only and no reuse grant. Reopen if BRE/DESNZ publish an
+      OGL licence for the PCDB.
+  - key: equipment-eccc-creed
+    name: ECCC Compliance Regulatory Energy Efficiency Database (Canadian regulated-product reports)
+    category: home-services
+    structuring: normalization
+    stage: DISCOVERED
+    rights: UNKNOWN
+    sources: ['https://energy-reporting-rapports-energetiques.canada.ca/creed/s/']
+    scores: {agent_demand: 3, rights_clarity: 2, acquisition_ease: 1, structuring_value: 3, freshness: 4, low_onboarding_cost: 2,
+      poor_existing_access: 3}
+    evidence: *id002
+    next_action: The open.canada.ca ECCC packages (e.g. 02e85d01-..., c1d860a2-...) contain only blank EER reporting
+      templates. The CREED portal failed TLS verification from this egress. Check whether a public listing or an OGL
+      export exists.
+  - key: building-products-fema-bcat
+    name: 'FEMA Building Code Adoption Tracking (BCAT): code edition, adoption notes and hazard-resistance by jurisdiction'
+    category: home-services
+    structuring: normalization
+    stage: SCREENED
+    rights: GREEN
+    sources: ['https://services.arcgis.com/DN2fPfpggEPlLhP6/arcgis/rest/services/FEMA_Building_Code_Adoption_Tracking_Jurisdictions/FeatureServer/1',
+      'https://services.arcgis.com/DN2fPfpggEPlLhP6/arcgis/rest/services/2024_Q4_Government_Jurisdictions_for_Portal/FeatureServer/0',
+      'https://services.arcgis.com/DN2fPfpggEPlLhP6/arcgis/rest/services/BCAT_Counties_Shareable_BCAT/FeatureServer/0']
+    scores: {agent_demand: 3, rights_clarity: 4, acquisition_ease: 5, structuring_value: 3, freshness: 2, low_onboarding_cost: 4,
+      poor_existing_access: 3}
+    terms:
+    - {url: 'https://www.arcgis.com/sharing/rest/content/items/62b587b2caff4b16ae800f4cc0a4a684?f=json', quote: 'This
+        work is marked with CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0?ref=chooser-v1)'}
+    - {url: 'https://www.arcgis.com/sharing/rest/content/items/ded22c2eac5b4a7694f3152c98147436?f=json', quote: 'FEMA
+        tracks current building code adoption status for state, local, tribal and territorial governments (SLTTs),
+        reaching approximately 22,000 jurisdictions across the nation.'}
+    conditions: ['Prefer the CC0-marked jurisdictions layer; the 2024-Q4 portal layer (contractor-hosted, empty licenseInfo)
+        is used only after its FEMA provenance is confirmed.', Show the Data_Currency as-of date on every code-edition
+        fact (CC0 layer 2024-04..07; Q4 layer 2024-09-30; counties 2023-03-31); do not present as current adoption
+        status beyond that date., 'Apply a FIPS crosswalk (BCAT uses legacy 12025 for Miami-Dade, pre-2022 Connecticut
+        counties).']
+    evidence: &id003 [docs/sources/pipeline/research-2026-09-27-composites.md, docs/sources/pipeline/evidence/2026-09-27-composites/building-products]
+    next_action: 'Snapshot the CC0 jurisdictions layer (79,130 rows) and the Q4 layer (39,565 rows) to R2; parse Adoption_Notes
+      (56 distinct texts: edition 34,294/39,565, effective date 3,528) and Hurricane_Wind_Notes (7 texts citing code
+      sections); build the county FIPS crosswalk (3,122/3,232 exact vs NRI); link FBC 2023-code approvals to the 477
+      Florida jurisdictions (8th Edition note 477/477) and HVHZ approvals to the 67 Miami-Dade/Broward jurisdictions.'
+  - key: building-products-fema-nri-counties
+    name: 'FEMA National Risk Index (county): hail, hurricane and strong-wind frequency, expected annual loss and
+      ratings'
+    category: home-services
+    structuring: normalization
+    stage: SCREENED
+    rights: AMBER
+    sources: ['https://services.arcgis.com/XG15cJAlne2vxtgt/arcgis/rest/services/National_Risk_Index_Counties/FeatureServer/0']
+    scores: {agent_demand: 3, rights_clarity: 3, acquisition_ease: 5, structuring_value: 1, freshness: 3, low_onboarding_cost: 4,
+      poor_existing_access: 2}
+    terms:
+    - {url: 'https://www.arcgis.com/sharing/rest/content/items/39485e8035d446a5bff03259508ae355?f=json', quote: Data
+        accessed through the National Risk Index dataset API or downloadable datasets do not include controls over
+        its end use. The National Risk Index data are meant for planning purposes only.}
+    - {url: 'https://www.arcgis.com/sharing/rest/content/items/39485e8035d446a5bff03259508ae355?f=json', quote: FEMA
+        may rescind your use of the data if FEMA believes that it does not serve the public interest. You agree you
+        will cease using the data and destroy any copy you may have if requested by FEMA.}
+    conditions: ['Carry FEMA''s mandated statement ("This product uses the Federal Emergency Management Agency''s
+        National Risk Index dataset API or downloadable datasets but is not endorsed by FEMA ...") with dataset version
+        (December 2025, 1.20.0) and retrieval time.', 'Present values as county planning-level context only, never
+        site-specific risk; no FEMA/DHS logos.', Do not reverse engineer or re-derive NRI inputs; keep a removal switch
+        to honour a FEMA rescission request.]
+    evidence: *id003
+    next_action: Use as a reference table only (3,232 counties; HAIL/HRCN/SWND fields) joined by county FIPS; not
+      a standalone product (already numeric, widely redistributed).
+  - key: building-products-nws-zone-county
+    name: NWS County-Public Forecast Zone correlation file (zone to county crosswalk for NCEI Storm Events)
+    category: home-services
+    structuring: normalization
+    stage: SCREENED
+    rights: GREEN
+    sources: ['https://www.weather.gov/source/gis/Shapefiles/County/bp16ap26.dbx']
+    scores: {agent_demand: 1, rights_clarity: 5, acquisition_ease: 5, structuring_value: 2, freshness: 3, low_onboarding_cost: 5,
+      poor_existing_access: 1}
+    terms:
+    - {url: 'https://www.weather.gov/disclaimer', quote: 'The information on National Weather Service (NWS) Web pages
+        are in the public domain, unless specifically noted otherwise, and may be used without charge for any lawful
+        purpose so long as you do not: 1) claim it is your own'}
+    evidence: *id003
+    next_action: 'Join helper only: resolves 5,279/5,728 zone-coded 2025 NCEI wind events to >=1 county (4,489 to
+      exactly one); store as one-to-many, never collapse to a single county.'
+  - key: building-products-ibhs-fortified-incentives
+    name: IBHS FORTIFIED state incentives and standards pages (insurance discounts, grants, tax credits by state)
+    category: home-services
+    structuring: obligation-timeline
+    stage: DISCOVERED
+    rights: AMBER
+    sources: ['https://fortifiedhome.org/incentives/', 'https://fortifiedhome.org/technical-documents/']
+    scores: {agent_demand: 3, rights_clarity: 3, acquisition_ease: 3, structuring_value: 3, freshness: 2, low_onboarding_cost: 3,
+      poor_existing_access: 3}
+    terms:
+    - {url: 'https://fortifiedhome.org/legal/', quote: 'Any reproduction, retransmission, or republication of all
+        or part of any graphic images, materials or documents found on the Site is allowed with proper attribution
+        to IBHS.'}
+    - {url: 'https://fortifiedhome.org/legal/', quote: 'The names, trademarks, service marks and logos appearing on
+        this site may not be used in any advertising or publicity, or otherwise to indicate IBHS''s sponsorship of
+        or affiliation with any product or service'}
+    conditions: [Attribute IBHS on every record; no FORTIFIED mark/logo; imply no IBHS endorsement of any listed product.,
+      Respect robots Crawl-delay 10., 'Contains no product listings; use only as state incentive/standard context,
+        not as approval evidence.']
+    evidence: *id003
+    next_action: Parse the incentives page into state -> incentive type (discount / grant / tax credit) -> amount/limit
+      with source sentence; cross-check against state programme pages (SC Safe Home, Louisiana Fortify Homes) before
+      use.
+  - key: building-products-wikidata-manufacturers
+    name: Wikidata items for building-envelope manufacturers (parent organisation / alias only)
+    category: home-services
+    structuring: normalization
+    stage: DISCOVERED
+    rights: GREEN
+    sources: ['https://www.wikidata.org/w/api.php', 'https://query.wikidata.org/sparql']
+    scores: {agent_demand: 2, rights_clarity: 5, acquisition_ease: 3, structuring_value: 2, freshness: 4, low_onboarding_cost: 4,
+      poor_existing_access: 2}
+    terms:
+    - {url: 'https://www.wikidata.org/wiki/Wikidata:Licensing', quote: 'All structured data (i.e. the main, Property,
+        Lexeme, and EntitySchema namespaces) is released into the public domain under Creative Commons Zero.'}
+    evidence: *id003
+    next_action: Re-run the exact-label match over all 636 Miami-Dade applicants from the weekly JSON dump (the API
+      returned 429 for 19/50 queries today; 3/31 answered matched). Reuse the hvac-brand-ownership-graph pipeline.
+  - key: building-products-energystar-roof-archive
+    name: ENERGY STAR Roof Products (historical certified list)
+    category: home-services
+    structuring: normalization
+    stage: PARKED
+    rights: GREEN
+    sources: ['https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Roof%20Products%20Sunset%20Decision%20Memo.pdf']
+    scores: {agent_demand: 1, rights_clarity: 4, acquisition_ease: 1, structuring_value: 1, freshness: 1, low_onboarding_cost: 2,
+      poor_existing_access: 1}
+    terms:
+    - {url: 'https://www.energystar.gov/sites/default/files/ENERGY%20STAR%20Roof%20Products%20Sunset%20Decision%20Memo.pdf',
+      quote: 'EPA is finalizing the sunset of the ENERGY STAR specification for roof products effective June 1, 2022.'}
+    evidence: *id003
+    next_action: 'Parked: the programme ended 2022-06-01; data.energystar.gov lists 0 roof datasets and /products/roof_products
+      returns 404, so no authoritative historical list remains to acquire.'
+  - key: building-products-ccmc-registry
+    name: NRC Canada CCMC Registry of Product Assessments (JSON API)
+    category: home-services
+    structuring: normalization
+    stage: PARKED
+    rights: RED
+    sources: ['https://nrc.canada.ca/en/certifications-evaluations-standards/canadian-construction-materials-centre/ccmc-publications/published_evaluations.html']
+    scores: {agent_demand: 2, rights_clarity: 1, acquisition_ease: 5, structuring_value: 3, freshness: 3, low_onboarding_cost: 4,
+      poor_existing_access: 3}
+    terms:
+    - {url: 'https://www.canada.ca/en/transparency/terms.html', quote: 'Unless otherwise specified, you may not reproduce
+        materials on this site, in whole or in part, for the purposes of commercial redistribution without prior written
+        permission from the copyright administrator.'}
+    evidence: *id003
+    next_action: 'Parked RED: 463 assessments via JSON API, but not published on open.canada.ca (0 CCMC datasets),
+      so the Open Government Licence does not apply. Reopen if NRC publishes it under OGL or grants written permission.'
+  - key: building-products-eota-eta-database
+    name: EOTA European Technical Assessment (ETA) database
+    category: home-services
+    structuring: normalization
+    stage: PARKED
+    rights: RED
+    sources: ['https://www.eota.eu/etassessments']
+    scores: {agent_demand: 2, rights_clarity: 1, acquisition_ease: 2, structuring_value: 3, freshness: 3, low_onboarding_cost: 2,
+      poor_existing_access: 3}
+    terms:
+    - {url: 'https://www.eota.eu/disclaimer-privacy-copyright-intranet', quote: 'It is prohibited to reproduce, modify,
+        distribute or use in any commercial way the Protected Content of this Website. The Protected Content can be
+        used only for private and non-commercial reasons.'}
+    evidence: *id003
+    next_action: Parked RED; bibliographic ETA information is expressly "All such rights are reserved".
+  - key: building-products-codemark-register
+    name: CodeMark Australia certificates of conformity register (JAS-ANZ)
+    category: home-services
+    structuring: normalization
+    stage: PARKED
+    rights: RED
+    sources: ['https://codemark.abcb.gov.au/building-practitioners/check-products']
+    scores: {agent_demand: 1, rights_clarity: 1, acquisition_ease: 1, structuring_value: 3, freshness: 3, low_onboarding_cost: 2,
+      poor_existing_access: 3}
+    terms:
+    - {url: 'https://www.abcb.gov.au/copyright', quote: 'All material presented on this website is provided under
+        a Creative Commons (CC) Attribution 4.0 Australia Licensing model, with the exception of: trade marks and
+        logos owned by the ABCB content supplied by third parties'}
+    evidence: *id003
+    next_action: 'Parked RED: the register is hosted by JAS-ANZ (www.jas-anz.org failed TLS hostname verification
+      from this egress), so its terms are unread; ABCB licences vary per resource (some CC-BY-NC-ND).'
+  - key: building-products-asce-atc-hazard-tools
+    name: ASCE 7 Hazard Tool and ATC Hazards by Location (design wind speed / hail by address)
+    category: home-services
+    structuring: normalization
+    stage: PARKED
+    rights: RED
+    sources: ['https://ascehazardtool.org/', 'https://hazards.atcouncil.org/']
+    scores: {agent_demand: 4, rights_clarity: 1, acquisition_ease: 1, structuring_value: 2, freshness: 2, low_onboarding_cost: 2,
+      poor_existing_access: 2}
+    terms:
+    - {url: 'https://hazards.atcouncil.org/', quote: Website Suspended Temporary under construction This website is
+        temporary under construction. We will back again soon.}
+    - {url: 'https://ascehazardtool.org/legal', quote: '404 - File or directory not found. The resource you are looking
+        for might have been removed, had its name changed, or is temporarily unavailable.'}
+    evidence: *id003
+    next_action: Parked RED (terms unreadable, ATC suspended). Use building-products-fema-nri-counties and roofing-ncei-storm-events
+      for hazard context; design wind speeds stay out of scope.
+  - key: building-products-nc-osfm-interpretations
+    name: North Carolina OSFM/DOI informal building-code interpretations (wind-borne debris, replacement windows)
+    category: home-services
+    structuring: obligation-timeline
+    stage: PARKED
+    rights: RED
+    sources: ['https://www.ncosfm.gov/residential/06129-replacement-windows-windborne-debris-protection/open']
+    scores: {agent_demand: 2, rights_clarity: 1, acquisition_ease: 2, structuring_value: 3, freshness: 2, low_onboarding_cost: 2,
+      poor_existing_access: 3}
+    terms:
+    - {url: 'https://www.nc.gov/disclaimer-terms-use', quote: 'the State of North Carolina grants permission to copy
+        and distribute non-image files, documents, and information for non-commercial use, provided they are copied
+        and distributed without alteration'}
+    evidence: *id003
+    next_action: 'Parked RED (non-commercial grant). Note: no statewide product-approval registry exists in NC, LA,
+      SC or AL; only Florida (A, B) and Texas TDI (RED, round 2) run one.'
+  - key: building-products-fenestration-manufacturer-sites
+    name: Window/door/shutter manufacturer product sites (PGT/MITER Brands, Owens Corning roofing and similar)
+    category: home-services
+    structuring: normalization
+    stage: PARKED
+    rights: RED
+    sources: ['https://www.pgtwindows.com/content/terms-use', 'https://www.owenscorning.com/en-us/terms-of-use']
+    scores: {agent_demand: 3, rights_clarity: 1, acquisition_ease: 2, structuring_value: 3, freshness: 3, low_onboarding_cost: 2,
+      poor_existing_access: 2}
+    terms:
+    - {url: 'https://www.pgtwindows.com/content/terms-use', quote: 'This excludes resale or commercial use, collecting
+        product listings, creating derivative works, and data mining or similar extraction methods.'}
+    evidence: *id003
+    next_action: Parked RED (PGT expressly bars listing collection; Owens Corning terms render no text without JS,
+      unreadable). Complements round-2 roofing-manufacturer-warranties.
+  - key: contractors-wa-lni-licences
+    name: Washington L&I contractor licences with bond and insurance (business entities only)
+    category: home-services
+    structuring: normalization
+    stage: SCREENED
+    rights: AMBER
+    sources: ['https://data.wa.gov/resource/m8qx-ubtq.json', 'https://data.wa.gov/resource/bzff-4fmt.json', 'https://data.wa.gov/resource/ciwg-agsx.json']
+    scores: {agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 4,
+      poor_existing_access: 3}
+    terms:
+    - {url: 'https://opendatacommons.org/licenses/pddl/1-0/', quote: 'Recipients may use this work commercially, use
+        technical protection measures, combine this data or database with other databases or data, and share their
+        changes and additions or keep them secret.'}
+    - {url: 'https://app.leg.wa.gov/RCW/default.aspx?cite=42.56.070', quote: 'This chapter shall not be construed
+        as giving authority to any agency, the office of the secretary of the senate, or the office of the chief clerk
+        of the house of representatives to give, sell or provide access to lists of individuals requested for commercial
+        purposes'}
+    conditions: ['Dataset licence is PDDL (general, principal) / Public Domain (insurance); bond table licence is
+        null, so publish only bond facts (surety, amount, dates, impaired flag).', 'Publish only business types LLC,
+        Corporation, Partnership, LLP, Joint Venture, Association, Trust; exclude businesstype Individual (32,946
+        licences) and PASSED AWAY status rows.', Never publish primaryprincipalname or anything from the Principal
+        (4xk5-x9j6) or Authorized Signer datasets., Credit Washington State Department of Labor & Industries; imply
+        no endorsement; show source update time.]
+    evidence: &id004 [docs/sources/pipeline/research-2026-09-27-composites.md, docs/sources/pipeline/evidence/2026-09-27-composites/contractors]
+    next_action: Write the ADR-0013 rights record (PDDL), build the WA name-abbreviation table (e.g. TECHNLGIES, INTGRTD,
+      SERVS) and cluster successive licences on UBI.
+  - key: contractors-or-ccb-registrations
+    name: Oregon CCB active contractor registrations with bond and insurance (entity-form names)
+    category: home-services
+    structuring: normalization
+    stage: SCREENED
+    rights: AMBER
+    sources: ['https://data.oregon.gov/resource/g77e-6bhs.json']
+    scores: {agent_demand: 3, rights_clarity: 4, acquisition_ease: 5, structuring_value: 2, freshness: 5, low_onboarding_cost: 4,
+      poor_existing_access: 3}
+    terms:
+    - {url: 'https://data.oregon.gov/api/views/g77e-6bhs.json', quote: '"license" : { "name" : "Public Domain U.S.
+        Government", "termsLink" : "https://www.usa.gov/government-works" }'}
+    conditions: ['Dataset licence metadata says Public Domain; no portal-level data terms beyond the platform vendor''s,
+        so AMBER on the facts argument.', 'Drop rmi_name (responsible managing individual) and every non-entity-form
+        full_name (8,026 of 45,619 licences); phone only for entity-form rows.', 'Deduplicate the 56,341 rows to 45,619
+        licence numbers; no endorsement implied; credit Oregon Construction Contractors Board.']
+    evidence: *id004
+    next_action: Join to contractors-or-bcd-trade-licences on name+city (45/50 measured) to attach trades.
+  - key: contractors-or-bcd-trade-licences
+    name: Oregon Building Codes Division plumbing, electrical, HVAC-R and boiler contractor licences (businesses)
+    category: home-services
+    structuring: normalization
+    stage: SCREENED
+    rights: AMBER
+    sources: ['https://data.oregon.gov/resource/vhbr-cuaq.json']
+    scores: {agent_demand: 3, rights_clarity: 4, acquisition_ease: 5, structuring_value: 3, freshness: 4, low_onboarding_cost: 4,
+      poor_existing_access: 3}
+    terms:
+    - {url: 'https://data.oregon.gov/api/views/vhbr-cuaq.json', quote: Building Codes division provides this list
+        of all active license holders as required by Oregon Revised Statute Chapter 192.}
+    conditions: ['Dataset licence is Public Domain; publish only contractor licence types (PB, C, LHR, CLE, CRE, LMS,
+        CPI, BB) with entity-form full_name (4,822 of 5,167).', 'Never publish individual licences (journeyman, supervising,
+        water-heater installer) or a person''s name even when a dba is present.', Credit Oregon DCBS Building Codes
+        Division.]
+    evidence: *id004
+    next_action: Map lictype codes to the trade taxonomy and publish the CCB x BCD joined view.
+  - key: contractors-co-dora-trade-licences
+    name: Colorado DORA electrical, plumbing and water-conditioning contractor licences with discipline
+    category: home-services
+    structuring: event-extraction
+    stage: SCREENED
+    rights: AMBER
+    sources: ['https://data.colorado.gov/resource/7s5z-vewr.json', 'https://data.colorado.gov/resource/349y-twqi.json']
+    scores: {agent_demand: 3, rights_clarity: 3, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 4,
+      poor_existing_access: 3}
+    terms:
+    - {url: 'https://data.colorado.gov/terms', quote: 'The data made available here has been modified for use from
+        its original source, which is the State of Colorado.'}
+    - {url: 'https://data.colorado.gov/terms', quote: 'The State of Colorado reserves the right to modify and/or discontinue
+        providing any or all of the data feeds at any time and to require the termination of any and all displaying,
+        distributing or otherwise using any or all of the data for any reason'}
+    conditions: ['Display the State of Colorado disclaimer verbatim wherever the data is served (API, MCP, pages,
+        exports).', The State may require termination of distribution; keep a kill switch per source., 'Only Business
+        licence types EC, PC, WC with entity-form entityname (5,872 of 7,990 active); never individual types (ME,
+        JW, MP, JP ...).']
+    evidence: *id004
+    next_action: Normalise the programaction strings (945 discipline rows) into the discipline taxonomy.
+  - key: contractors-ct-hic-registrations
+    name: Connecticut home-improvement contractor registrations (LLC, corporation, partnership only)
+    category: home-services
+    structuring: normalization
+    stage: SCREENED
+    rights: AMBER
+    sources: ['https://data.ct.gov/resource/5r9m-qgni.json']
+    scores: {agent_demand: 3, rights_clarity: 4, acquisition_ease: 5, structuring_value: 2, freshness: 5, low_onboarding_cost: 4,
+      poor_existing_access: 2}
+    terms:
+    - {url: 'https://data.ct.gov/terms', quote: Publishable data made available on the Connecticut Open Data Portal
+        shall be provided as a public service on an “as is” basis.}
+    conditions: ['Dataset licence is Public Domain; publish only type LIMITED LIABILITY COMPANY, CORPORATION, PARTNERSHIP,
+        LIMITED LIABILITY PARTNERSHIP (19,602 active).', 'Exclude INDIVIDUAL and SOLE PROPRIETOR rows even with a
+        DBA, and all CT trade credentials (ELC/PLM/HTG are individual licences, e.g. 13,863 of 13,879 Electrical Unlimited).']
+    evidence: *id004
+    next_action: Use as the general-registry anchor for EPA RRP links in Connecticut (31/50 measured).
+  - key: contractors-ct-trade-credentials
+    name: Connecticut electrical, plumbing and heating-cooling contractor credentials
+    category: home-services
+    structuring: normalization
+    stage: PARKED
+    rights: RED
+    sources: ['https://data.ct.gov/resource/ngch-56tr.json']
+    scores: {agent_demand: 3, rights_clarity: 1, acquisition_ease: 5, structuring_value: 1, freshness: 5, low_onboarding_cost: 4,
+      poor_existing_access: 2}
+    evidence: *id004
+    next_action: Parked RED - the credentials are held by individuals (13,863 of 13,879 Electrical Unlimited rows
+      are type INDIVIDUAL); personal data cannot be separated from the licence.
+  - key: contractors-mn-dli-licences
+    name: Minnesota DLI electrical, plumbing, mechanical-bond and residential roofer contractor licences (businesses)
+    category: home-services
+    structuring: normalization
+    stage: SCREENED
+    rights: AMBER
+    sources: ['https://secure.doli.state.mn.us/ccld/data/MNDLILicRegCertExport_Electrical.csv', 'https://secure.doli.state.mn.us/ccld/data/MNDLILicRegCertExport_Plumbing.csv',
+      'https://secure.doli.state.mn.us/ccld/data/MNDLILicRegCertExport_Mechanical_Contractor_Bond.csv', 'https://secure.doli.state.mn.us/ccld/data/MNDLILicRegCertExport_Residential_Contractors.csv']
+    scores: {agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 4,
+      poor_existing_access: 3}
+    terms:
+    - {url: 'https://www.dli.mn.gov/about-department/about-dli/disclaimer', quote: All of the information and documents
+        on the DLI website are in the public domain.}
+    - {url: 'https://www.dli.mn.gov/about-department/about-dli/disclaimer', quote: 'If you link to DLI''s site, we
+        request that you do not pull text from the DLI''s site or its publications without proper source attribution.'}
+    conditions: [Attribute Minnesota Department of Labor and Industry on every surface., 'Publish only Bus_Pers=Business
+        rows (36,745); drop Email_Address and all Personal rows (home addresses, emails).', Enforcement_Action is
+        a flag only; do not infer the nature of the action.]
+    evidence: *id004
+    next_action: Map License_Subtype to the taxonomy; measure the Enforcement_Action flag against DLI's published
+      orders.
+  - key: contractors-epa-rrp-firms
+    name: EPA lead-safe (RRP) certified renovation firms
+    category: home-services
+    structuring: normalization
+    stage: SCREENED
+    rights: AMBER
+    sources: ['https://cdxocsppapps.epa.gov/ocspp-oppt-lead/firm-location-search']
+    scores: {agent_demand: 3, rights_clarity: 3, acquisition_ease: 3, structuring_value: 3, freshness: 4, low_onboarding_cost: 3,
+      poor_existing_access: 3}
+    terms:
+    - {url: 'https://www.epa.gov/web-policies-and-procedures/epa-disclaimers', quote: 'Mention of or referral to commercial
+        products or services, and/or links to non-EPA sites does not imply official EPA endorsement'}
+    - {url: 'https://edg.epa.gov/EPA_Data_License.html', quote: 'Unless otherwise specified, all data produced by
+        the U.S EPA is by default in the public domain and is not subject to domestic copyright protection under 17
+        U.S.C. § 105.'}
+    conditions: ['Firm fields are submitted by firms; publish as facts (firm name, certification number, expiry, city/state)
+        only.', 'Entity-form firm names only (e.g. TX 1,431 of 2,612); no phone or street address for any name that
+        is or embeds a person''s name.', Acquire via the locator's per-state endpoint at 1 request per second or a
+        documented bulk route requested from EPA; imply no endorsement.]
+    evidence: *id004
+    next_action: Ask EPA OCSPP for a documented bulk export; add the OR CCB LBPR endorsement as the Oregon equivalent.
+  - key: contractors-osha-inspections
+    name: OSHA inspections and violations for specialty-trade contractor establishments (NAICS 2381-2382)
+    category: home-services
+    structuring: event-extraction
+    stage: DISCOVERED
+    rights: GREEN
+    sources: ['https://apiprod.dol.gov/v4/get/OSHA/inspection/json']
+    scores: {agent_demand: 4, rights_clarity: 5, acquisition_ease: 2, structuring_value: 4, freshness: 5, low_onboarding_cost: 3,
+      poor_existing_access: 3}
+    terms:
+    - {url: 'https://www.dol.gov/general/aboutdol/copyright', quote: 'Materials created by the federal government
+        are generally part of the public domain and may be used, reproduced and distributed without permission.'}
+    conditions: [Never publish accident or injury abstracts (injured-worker personal data); inspection and violation
+        facts only., No implied DOL affiliation or endorsement.]
+    evidence: *id004
+    next_action: Register a free DOL API key (owner blocker - an account is required), then measure licence to establishment
+      linkage on name + address.
+  - key: contractors-sam-entities
+    name: SAM.gov public entity registrations for trade contractors
+    category: home-services
+    structuring: normalization
+    stage: PARKED
+    rights: AMBER
+    sources: ['https://api.sam.gov/entity-information/v4/entities']
+    scores: {agent_demand: 2, rights_clarity: 2, acquisition_ease: 2, structuring_value: 2, freshness: 4, low_onboarding_cost: 2,
+      poor_existing_access: 2}
+    terms:
+    - {url: 'https://sam.gov/about/terms-of-use', quote: 'You may not share D&B Open Data in bulk (that is, enough
+        records that someone could use them as an original data source or a substitute for getting data from D&B).'}
+    - {url: 'https://sam.gov/about/terms-of-use', quote: 'If you want to share data publicly, only share data from
+        public versions of APIs.'}
+    conditions: [Public API only; exclude D&B Open Data records and point-of-contact names.]
+    evidence: *id004
+    next_action: Parked - needs a SAM.gov account and key, bulk D&B-sourced rows are restricted, and home-service
+      coverage is expected to be low [UNVERIFIED].
+  - key: contractors-ca-cslb-master
+    name: California CSLB License Master (classifications, bond, workers' compensation)
+    category: home-services
+    structuring: normalization
+    stage: DISCOVERED
+    rights: AMBER
+    sources: ['https://www.cslb.ca.gov/OnlineServices/DataPortal/ContractorList']
+    scores: {agent_demand: 5, rights_clarity: 3, acquisition_ease: 1, structuring_value: 4, freshness: 5, low_onboarding_cost: 3,
+      poor_existing_access: 3}
+    terms:
+    - {url: 'https://www.ca.gov/legal/conditions-of-use/', quote: 'In general, information presented on this website,
+        unless otherwise indicated, is considered in the public domain. It may be distributed or copied as permitted
+        by law.'}
+    conditions: ['License Master only, entity-form business names; the Personnel file (natural persons) is excluded.',
+      No phone or address for sole-owner licences.]
+    evidence: *id004
+    next_action: The download POST was rejected by the CSLB web application firewall from this egress; retry from
+      Cloudflare Worker egress or request the file from CSLB, then measure volumes.
+  - key: contractors-nyc-dob-licences
+    name: NYC DOB licensed trades (electrical firms, master plumbers, oil burner installers)
+    category: home-services
+    structuring: normalization
+    stage: PARKED
+    rights: RED
+    sources: ['https://data.cityofnewyork.us/resource/t8hj-ruu2.json']
+    scores: {agent_demand: 3, rights_clarity: 1, acquisition_ease: 5, structuring_value: 1, freshness: 5, low_onboarding_cost: 4,
+      poor_existing_access: 2}
+    evidence: *id004
+    next_action: Parked RED - terms unreadable (NYC Admin Code page 403 to both user agents; dataset licence null)
+      and rows carry first/last names and business_email.
+  - key: contractors-az-roc-posting-list
+    name: Arizona Registrar of Contractors posting list
+    category: home-services
+    structuring: normalization
+    stage: PARKED
+    rights: RED
+    sources: ['https://roc.az.gov/posting-list']
+    scores: {agent_demand: 3, rights_clarity: 1, acquisition_ease: 1, structuring_value: 2, freshness: 4, low_onboarding_cost: 3,
+      poor_existing_access: 3}
+    evidence: *id004
+    next_action: Parked RED - the page and terms returned 403 to both the descriptive and a browser user agent; retry
+      from another egress.
+
+# Composite datasets (research round 3, 2026-09-27): one entity type assembled from
+# several candidate sources linked by measured deterministic join keys. See README.md.
+datasets:
+- key: home-product-recalls-global
+  name: Global home-equipment and consumer-product recall register (multi-agency, model/GTIN-linked)
+  category: product-safety
+  entity: recall_notice (one agency notice) grouped into recall_event clusters, each linked to affected products
+    (brand, model / model pattern, serial range, GTIN, lot)
+  stage: SCREENED
+  description: One record per regulator notice from CPSC (US), Health Canada (CA), EU Safety Gate, UK OPSS, ACCC
+    (AU) and MBIE (NZ), extending the LIVE fda-recalls StructuredRecall pipeline. Free text is parsed deterministically
+    into model numbers, serial ranges, GTINs, units, sale periods, hazards and remedies. Notices are linked across
+    agencies only by declared markers or exact normalised keys (joint-recall marker, Safety Gate case number, GTIN,
+    brand + model within a date window). Each notice is enriched with the ENERGY STAR model it names and with counts
+    of SaferProducts.gov incident reports on the same brand + model before and after the recall. Every fact carries
+    its source notice; disagreements are kept per source, never averaged.
+  sources:
+  - cpsc-recalls
+  - appliance-recall-model-index
+  - hvac-cpsc-recall-slice
+  - plumbing-water-heating-recalls
+  - electrical-cpsc-recalls-facet
+  - appliance-health-canada-recalls
+  - eu-safety-gate-alerts
+  - uk-opss-product-safety-alerts
+  - au-accc-product-recalls
+  - nz-mbie-product-recalls
+  - appliance-saferproducts-incidents
+  - appliance-energy-star-registry
+  - plumbing-energystar-water-heaters
+  - appliance-brand-ownership
+  join_keys:
+  - key: declared joint-recall marker ("Joint recall with ... CPSC" in the HC OGL field) + date within 45 days +
+      at least 2 shared distinctive title tokens
+    between:
+    - appliance-health-canada-recalls
+    - cpsc-recalls
+    measured: 341/352 HC joint notices linked (337 unambiguous); 25/25 correct on hand check
+  - key: title-token match WITHOUT a declared marker (candidate only, never auto-linked)
+    between:
+    - appliance-health-canada-recalls
+    - cpsc-recalls
+    measured: 238/863 non-joint HC consumer notices since 2022 match; 6/15 correct on hand check
+  - key: declared joint recall, home-equipment facets
+    between:
+    - cpsc-recalls
+    - appliance-health-canada-recalls
+    measured: 43/138 CPSC home-equipment recalls since 2022
+  - key: normalised brand + model within 365 days, or exact GTIN-13
+    between:
+    - uk-opss-product-safety-alerts
+    - eu-safety-gate-alerts
+    measured: 118/697 UK home-category notices (29 via GTIN); 18/20 correct on hand check; 149/697 with model only
+      (no brand check)
+  - key: normalised brand + model within 365 days, or exact GTIN-13
+    between:
+    - cpsc-recalls
+    - eu-safety-gate-alerts
+    measured: 0/88 CPSC home-equipment recalls with model tokens (2023-01..2026-09); 11/864 across all CPSC products
+  - key: normalised brand + model within 365 days, or exact GTIN-13
+    between:
+    - cpsc-recalls
+    - uk-opss-product-safety-alerts
+    measured: 0/119 CPSC home-equipment recalls (2021-01..2026-09); 14/1130 across all CPSC products vs UK home
+      categories; 8/8 correct on hand check
+  - key: normalised brand + model within 365 days, or exact GTIN-13
+    between:
+    - au-accc-product-recalls
+    - cpsc-recalls
+    measured: 4/36 ACCC notices with model/GTIN (May-Sep 2026) match a CPSC recall; 3/4 confirmed on hand check;
+      0/9 CPSC home recalls in the window
+  - key: normalised model token + brand/manufacturer token overlap
+    between:
+    - cpsc-recalls
+    - appliance-saferproducts-incidents
+    measured: 111/307 CPSC home recalls since 2011-03 with model tokens have >=1 matching incident report (1,137
+      reports); 50/111 have a report dated before the recall; 11/12 correct on hand check
+  - key: normalised model (ENERGY STAR wildcard pattern expansion) + brand token overlap
+    between:
+    - cpsc-recalls
+    - appliance-energy-star-registry
+    measured: 6/230 CPSC home recalls since 2015 with model tokens (7/230 without the brand check)
+  - key: exact GTIN-13 / UPC
+    between:
+    - cpsc-recalls
+    - appliance-energy-star-registry
+    measured: 0/87 CPSC home-recall UPCs; 0/8,399 EU GTINs; 0/93 UK GTINs match an ENERGY STAR UPC
+  taxonomy:
+  - 'jurisdiction: US | CA | EU (+ notifying member state) | GB | AU | NZ'
+  - 'agency: CPSC | HC | EC-SafetyGate | OPSS | ACCC | MBIE'
+  - 'notice_type: recall | recall-alert | safety-report (no recall) | safety-alert | warning | withdrawal | border-rejection'
+  - 'trade_facet: appliance | hvac | plumbing-water-heating | electrical | building-products | other-consumer'
+  - 'product_category: crosswalk of CPSC Products.Type, HC Category, Safety Gate category, OPSS product_category,
+    ACCC topics'
+  - 'hazard: fire | burn | electric-shock | carbon-monoxide | explosion | injury-laceration | fall | entrapment-strangulation
+    | choking-ingestion | drowning | chemical | microbiological | non-compliance-only'
+  - 'risk_level: serious | high | medium | low | unspecified (source scale kept alongside)'
+  - 'remedy: refund | repair | replace | stop-use | dispose | software-update | recall-from-end-users | withdrawal-from-market
+    | marketplace-listing-removal | import-rejected'
+  - 'link_type: declared-joint | declared-case-number | gtin | brand-model | candidate-title (not published as a
+    link)'
+  - 'key: declared Safety Gate case number in RappelConso numero_fiche (measurement only; source RED today); between:
+    fr-rappelconso-v2, eu-safety-gate-alerts; measured: 102/109 FR non-food home notices since 2023 carrying an
+    SR/ or A12/ case number are found in the EU XML; brand+model/GTIN: 87/487 (71 via GTIN), 11/12 correct on hand
+    check'
+  agent_questions:
+  - Is model KCVS12B30A (or GTIN 5060138820289) under recall anywhere — US, Canada, EU, UK or Australia — and what
+    remedy applies in each jurisdiction?
+  - 'This CPSC recall: was it also issued jointly in Canada, and under which Health Canada notice?'
+  - Which currently ENERGY STAR-listed appliance or water-heater models are named in a safety recall?
+  - Did consumers report incidents on this brand and model on SaferProducts.gov before the recall date, and are
+    reports still arriving after the remedy?
+  - Which products flagged by the UK OPSS were also notified to EU Safety Gate, and with what risk level in each?
+  - List every recall affecting Rheem, Rinnai or A. O. Smith water heaters, with the serial ranges and sale periods,
+    across all agencies.
+  scores:
+    agent_demand: 5
+    rights_clarity: 4
+    acquisition_ease: 4
+    structuring_value: 5
+    freshness: 5
+    low_onboarding_cost: 4
+    poor_existing_access: 4
+  evidence:
+  - docs/sources/pipeline/research-2026-09-27-composites.md
+  - docs/sources/pipeline/evidence/2026-09-27-composites/recalls
+  next_action: 'Build inside the cpsc-recalls build (first in the service-trade build order): generalise the LIVE
+    fda-recalls StructuredRecall schema to recall_notice + affected_product + notice_link, load CPSC and the HC
+    OGL index first (the joint-recall marker gives 341 deterministic links), then EU Safety Gate XML and UK OPSS
+    via their APIs. Attach ENERGY STAR matches and SaferProducts incident counts as enrichment with their own provenance.'
+- key: home-equipment-model-registry
+  name: Home equipment model registry (HVAC, water heating, plumbing fixtures, appliances, EV/solar) with recalls,
+    ownership and refrigerant rules
+  category: home-services
+  entity: equipment_model
+  stage: SCREENED
+  description: One record per equipment model (or model pattern and component system), assembled from ENERGY STAR
+    category datasets and the Model Index, WaterSense, CEC solar lists, CPSC recall text, a curated Wikidata filer/parent
+    crosswalk and the eCFR/SNAP refrigerant rules. Every fact carries its source. Identity comes only from deterministic
+    keys (source ID, GTIN, brand+model, compiled wildcard pattern, component set). Cross-brand and cross-region
+    candidates are stored for audit, never merged. AU/NZ GEMS and EU EPREL are later regional partitions. Canada
+    availability comes from ENERGY STAR's own markets field (1,644,779 of 1,796,876 models); the live NRCan list
+    was unreachable. EU EPREL is excluded while its terms forbid aggregating.
+  sources:
+  - hvac-energystar-matched-systems
+  - appliance-energy-star-registry
+  - plumbing-energystar-water-heaters
+  - electrical-energy-star-electrical
+  - equipment-energystar-model-index
+  - plumbing-watersense-products
+  - electrical-cec-solar-equipment
+  - cpsc-recalls
+  - appliance-recall-model-index
+  - hvac-brand-ownership-graph
+  - appliance-brand-ownership
+  - hvac-refrigerant-transition-rules
+  - equipment-epa-snap-substitutes
+  - equipment-nrcan-energuide-2017
+  - appliance-au-energy-rating
+  - equipment-au-gems-ac-water-heaters
+  join_keys:
+  - key: brand_key + model_key / opt1 wildcard pattern
+    between:
+    - equipment-nrcan-energuide-2017
+    - equipment-energystar-model-index
+    measured: 330/5868 (25/25 hand-checked correct; 2017 vs 2026 lists)
+  - key: brand_key + model_key / pattern
+    between:
+    - appliance-au-energy-rating
+    - appliance-energy-star-registry
+    measured: 19/3941 fridges, 0/1411 dishwashers, 1/1516 washers
+  - key: indoor+outdoor component pair
+    between:
+    - equipment-au-gems-ac-water-heaters
+    - hvac-energystar-matched-systems
+    measured: 0/6036 AC systems; 0/1490 water heaters
+  - key: recall text model token (brand in text) vs model/pattern
+    between:
+    - cpsc-recalls
+    - equipment-energystar-model-index
+    measured: 18/10027 recalls (15/18 true identity); 14/160 equipment recalls since 2015
+  - key: GTIN
+    between:
+    - cpsc-recalls
+    - equipment-energystar-model-index
+    measured: 0/1462 CPSC UPCs vs 38899 ES+WaterSense UPCs
+  - key: ES filer exact label -> Wikidata org
+    between:
+    - equipment-energystar-model-index
+    - hvac-brand-ownership-graph
+    measured: 154/1198 org-typed (57 with parent); top-50 filers 7/50 correct and unique
+  - key: brand_key
+    between:
+    - plumbing-watersense-products
+    - equipment-energystar-model-index
+    measured: 36/623 WaterSense brand keys (at least 8 are collisions)
+  - key: manufacturer brand_key
+    between:
+    - electrical-cec-solar-equipment
+    - equipment-energystar-model-index
+    measured: 13/260 CEC manufacturer keys
+  - key: normalised refrigerant designation
+    between:
+    - hvac-energystar-matched-systems
+    - hvac-refrigerant-transition-rules
+    measured: 17699/17699 mini-split rows carry refrigerant
+  taxonomy:
+  - 'trade: hvac | plumbing | electrical | appliance | energy'
+  - 'category/subcategory: hvac/heat-pump/{split,mini-multi-split,single-package,geothermal}; hvac/air-conditioner/{central-split,mini-split,room-window,portable,ptac};
+    hvac/furnace/{gas,oil,electric}; hvac/boiler/{gas,oil}; hvac/ventilation/{erv-hrv,bath-fan}; plumbing/water-heater/{heat-pump,gas-storage,gas-tankless,electric,solar};
+    plumbing/fixture/{toilet-tank,toilet-flushometer,urinal,faucet-lav,showerhead}; plumbing/irrigation/{controller,spray-body};
+    appliance/{refrigerator,freezer,dishwasher,clothes-washer,clothes-dryer,washer-dryer,cooking,dehumidifier,air-cleaner,microwave};
+    electrical/{evse-ac,evse-dc,ceiling-fan,downlight,ups,smart-thermostat}; energy/{pv-inverter,battery-inverter,pv-module,ess,battery,meter}'
+  - 'fuel: electric | gas | propane | oil | solar'
+  - 'refrigerant_class: hfc-high-gwp (>=700) | hfc-hfo-lower-gwp | natural (R-290, R-600a, R-744)'
+  - 'hazard (from linked recalls): fire | carbon-monoxide | shock | injury | mold | other'
+  - 'listing_status: listed | delisted | recalled-while-listed'
+  - 'jurisdiction_partition: us-ca | au-nz | eu'
+  agent_questions:
+  - 'Nameplate Friedrich KCVS12B30A: is it under a CPSC recall, still ENERGY STAR-listed, and what refrigerant does
+    it use?'
+  - Who filed and who ultimately owns the Amana/Daikin heat pump in recall 24286, and which other brands share that
+    filer?
+  - Can this R-410A mini-split certified in 2026 still be installed under 40 CFR 84.54, given its component manufacture
+    dates?
+  - Is this model listed for the Canadian market, and under which wildcard family?
+  - Which models are sold under several brand names (e.g. Beko/Blomberg, Midea/Arctic King), and does a recall on
+    one apply to the other?
+  - For this UPC or SKU, give its efficiency rating (SEER2/UEF/gpm) and recall status with provenance.
+  - Is this inverter/firmware Rule 21-listed, and is its maker in the same corporate group as my battery?
+  scores:
+    agent_demand: 5
+    rights_clarity: 3
+    acquisition_ease: 4
+    structuring_value: 5
+    freshness: 5
+    low_onboarding_cost: 3
+    poor_existing_access: 4
+  evidence:
+  - docs/sources/pipeline/research-2026-09-27-composites.md
+  - docs/sources/pipeline/evidence/2026-09-27-composites/equipment
+  next_action: Build the US/Canada core first. Freeze the wildcard grammar (opt1 plus source-specific '/' and 'XX'
+    rules) with golden tests from the 25 NRCan and 18 CPSC hand-checked matches. Hand-seed Wikidata QIDs for the
+    top 50 ES filers (98.4% of rows). Wire the CPSC model-token extraction from the cpsc-recalls build into recall_links.
+    Measure the EPREL partition once an API key exists and its aggregation clause is resolved.
+- key: building-envelope-product-approvals
+  name: Wind-rated building-envelope product approvals (Miami-Dade NOA + Florida FL#), with cited-component validity,
+    jurisdiction code editions and county hazard context
+  category: home-services
+  entity: building_product_approval
+  stage: SCREENED
+  description: 'One record per issuer approval (Miami-Dade NOA or Florida FL# product) for roof coverings, underlayments,
+    roof components, windows, doors, shutters and skylights. Assemblies, design pressures, test standards and validity
+    are parsed from PDFs. Each record carries typed cites_approval edges: FL evaluation reports -> NOA numbers,
+    as component_of or same_product_as, with expiry checked against the county PDF. Organisation identity comes
+    from exact normalised keys plus evidence-backed FL<->NOA alias pairs. Jurisdiction and code edition come from
+    FEMA BCAT (HVHZ = Miami-Dade + Broward). County hazard context comes from FEMA NRI and NCEI Storm Events. Facts
+    only, with provenance per field. Personal data excluded.'
+  sources:
+  - roofing-miami-dade-noa
+  - roofing-florida-product-approvals
+  - building-products-fema-bcat
+  - building-products-fema-nri-counties
+  - roofing-ncei-storm-events
+  - building-products-nws-zone-county
+  - building-products-wikidata-manufacturers
+  join_keys:
+  - key: NOA number cited in FL evaluation report (roofing, HVHZ)
+    between:
+    - roofing-florida-product-approvals
+    - roofing-miami-dade-noa
+    measured: 8/24
+  - key: NOA number cited in FL evaluation report (mixed envelope categories, hand-checked)
+    between:
+    - roofing-florida-product-approvals
+    - roofing-miami-dade-noa
+    measured: 7/70
+  - key: FL# cited inside Miami-Dade NOA PDF
+    between:
+    - roofing-miami-dade-noa
+    - roofing-florida-product-approvals
+    measured: 0/80
+  - key: cited NOA number -> county PDF by URL rule (resolves / expiry parsed / expired)
+    between:
+    - roofing-florida-product-approvals
+    - roofing-miami-dade-noa
+    measured: 21/21 resolve; 19/21 expiry parsed; 6/19 expired
+  - key: FL#<->NOA# pair in same assembly-table row; manufacturer agreement
+    between:
+    - roofing-florida-product-approvals
+    - roofing-miami-dade-noa
+    measured: 15/17 agree (2 true aliases, 0 false)
+  - key: normalised organisation name L3 (applicants)
+    between:
+    - roofing-miami-dade-noa
+    - roofing-florida-product-approvals
+    measured: 242/636 applicants (1,380/2,891 NOAs; 1,077/4,645 FL apps); false 0/30 (+1 uncertain)
+  - key: HVHZ flag -> Miami-Dade/Broward jurisdictions
+    between:
+    - roofing-florida-product-approvals
+    - building-products-fema-bcat
+    measured: 113/200 FL apps HVHZ-approved -> 67 BCAT jurisdictions
+  - key: FBC code version 2023 <-> BCAT Florida 8th Edition note
+    between:
+    - roofing-florida-product-approvals
+    - building-products-fema-bcat
+    measured: 477/477
+  - key: county FIPS (before crosswalk)
+    between:
+    - building-products-fema-bcat
+    - building-products-fema-nri-counties
+    measured: 3122/3232
+  - key: county FIPS (CZ_TYPE=C) 2025 hail/wind/tornado
+    between:
+    - roofing-ncei-storm-events
+    - building-products-fema-nri-counties
+    measured: 32431/32604
+  - key: NWS zone -> county (>=1 county)
+    between:
+    - roofing-ncei-storm-events
+    - building-products-nws-zone-county
+    measured: 5279/5728
+  - key: normalised exact label
+    between:
+    - roofing-miami-dade-noa
+    - building-products-wikidata-manufacturers
+    measured: 3/31 (19 of 50 queries rate-limited)
+  taxonomy:
+  - 'trade: roofing | fenestration | opening-protection | ventilation | cladding'
+  - 'category: roof-covering(asphalt-shingle, metal-panel, tile, single-ply, modified-bitumen, BUR, spray-foam,
+    coating) | underlayment | roof-insulation-board | roof-fastener-adhesive | window(single-hung, casement, fixed,
+    slider, awning) | door(swinging, sliding, garage-overhead, rolling) | shutter(accordion, roll-down, panel, fabric)
+    | skylight | vent | wall-panel'
+  - 'hazard: hurricane-wind | wind-borne-debris-impact | hail | fire'
+  - 'approval_regime: miami-dade-hvhz | florida-statewide | florida-hvhz'
+  - 'relation: component_of | same_product_as | alias_of (evidence required)'
+  - 'evidence_type: index-field | pdf-text | pdf-table | derived'
+  agent_questions:
+  - Does Florida approval FL14087-R11 rely on any Miami-Dade NOA whose listed expiration date has passed?
+  - Which HVHZ roof assemblies use the fastener approved as FL20311 / NOA 22-0913.02, and which approvals are exposed
+    if that NOA lapses?
+  - Which impact-rated garage doors are approved by both Miami-Dade and Florida, with each issuer's design pressure
+    and expiry?
+  - What building-code edition applies in Coral Gables, is it HVHZ, and which roof-covering approvals are valid
+    there today?
+  - In Lee County (NRI hurricane 'Very High'), which large-missile shutter approvals are valid outside the HVHZ?
+  - Which Miami-Dade applicants and Florida manufacturers are the same firm, and which filers are distributors (Beacon,
+    SRS, Home Depot c/o Owens Corning)?
+  scores:
+    agent_demand: 4
+    rights_clarity: 3
+    acquisition_ease: 3
+    structuring_value: 5
+    freshness: 4
+    low_onboarding_cost: 3
+    poor_existing_access: 5
+  evidence:
+  - docs/sources/pipeline/research-2026-09-27-composites.md
+  - docs/sources/pipeline/evidence/2026-09-27-composites/building-products
+  next_action: Widen roofing-miami-dade-noa and roofing-florida-product-approvals to all envelope categories (2,891
+    NOAs; 4,645 FL apps). Prototype the FL->NOA edge extractor (NOA regex with column context, URL-rule resolution,
+    page-1 expiry parse) with golden tests on FL2534-R22, FL14087-R11, FL21837-R12, FL23956-R2, FL48095, FL20873-R5,
+    FL17454-R5, FL15545-R11, FL10264-R23, FL48146, FL3794-R12, FL48090, FL47448, FL46297-R7 and FL48189. Add the
+    FIPS crosswalk (12025->12086, CT planning regions) and the BCAT/NRI reference tables.
+- key: contractors-licensed-trade-businesses
+  name: Licensed trade-contractor businesses (multi-state licence, bond, insurance, discipline and lead-safe composite)
+  category: home-services
+  entity: ContractorBusiness - a business entity (never a natural person) licensed or registered for HVAC, plumbing,
+    electrical, roofing or appliance work
+  stage: SCREENED
+  description: One record per resolved contractor business, assembled from state regulators' open bulk licence data
+    (WA L&I, OR CCB + BCD, CO DORA, CT DCP, MN DLI, TX TDLR), EPA's lead-safe firm list and OpenStreetMap, linked
+    only on deterministic keys (licence number, WA UBI, normalised name + legal form + zip/city/phone). Every credential,
+    bond, insurance policy and disciplinary event keeps its source; statuses are never merged across jurisdictions.
+    Individuals, principals and sole traders are excluded.
+  sources:
+  - contractors-wa-lni-licences
+  - contractors-or-ccb-registrations
+  - contractors-or-bcd-trade-licences
+  - contractors-co-dora-trade-licences
+  - contractors-ct-hic-registrations
+  - contractors-mn-dli-licences
+  - hvac-tx-acr-contractor-licences
+  - electrical-tx-tdlr-contractors
+  - contractors-epa-rrp-firms
+  - hvac-osm-contractors
+  - appliance-osm-shops
+  - contractors-osha-inspections
+  - contractors-ca-cslb-master
+  join_keys:
+  - key: licence number (exact)
+    between:
+    - contractors-wa-lni-licences
+    - contractors-wa-lni-licences (bond table)
+    measured: 49/50
+  - key: licence number (exact)
+    between:
+    - contractors-wa-lni-licences
+    - contractors-wa-lni-licences (insurance table)
+    measured: 20/50
+  - key: WA UBI (exact)
+    between:
+    - contractors-wa-lni-licences
+    - contractors-wa-lni-licences
+    measured: 161674 rows -> 149781 UBIs
+  - key: normalised name (incl. dba) + city
+    between:
+    - contractors-or-bcd-trade-licences
+    - contractors-or-ccb-registrations
+    measured: 45/50
+  - key: normalised name + phone10
+    between:
+    - contractors-wa-lni-licences
+    - contractors-or-ccb-registrations
+    measured: 11/50 (precision 11/11)
+  - key: normalised name + (zip5|city)
+    between:
+    - contractors-co-dora-trade-licences
+    - electrical-tx-tdlr-contractors
+    measured: 45/2000 (hand-check 10/10 correct; name-only ~1/10)
+  - key: normalised name + (zip5|city|phone)
+    between:
+    - contractors-mn-dli-licences
+    - contractors-wa-lni-licences
+    measured: 81/2652 population; 1/50 sample
+  - key: normalised name + (phone|zip)
+    between:
+    - contractors-epa-rrp-firms
+    - contractors-ct-hic-registrations
+    measured: 31/50
+  - key: normalised name + (phone|zip)
+    between:
+    - contractors-epa-rrp-firms
+    - contractors-wa-lni-licences
+    measured: 30/50
+  - key: normalised name + (phone|zip)
+    between:
+    - contractors-epa-rrp-firms
+    - contractors-or-ccb-registrations
+    measured: 28/50
+  - key: normalised name + (phone|zip)
+    between:
+    - contractors-epa-rrp-firms
+    - hvac-tx-acr-contractor-licences
+    measured: 0/50 (TX A/C+EC+appliance)
+  - key: normalised name + (phone|zip)
+    between:
+    - contractors-epa-rrp-firms
+    - contractors-co-dora-trade-licences
+    measured: 3/50
+  - key: normalised name + (city|phone)
+    between:
+    - hvac-osm-contractors
+    - contractors-wa-lni-licences
+    measured: 23/50
+  - key: normalised name + (city|zip)
+    between:
+    - hvac-osm-contractors
+    - contractors-co-dora-trade-licences
+    measured: 36/114 (all electrician/plumber POIs)
+  - key: normalised name + county
+    between:
+    - hvac-tx-acr-contractor-licences
+    - electrical-tx-tdlr-contractors
+    measured: 455/9237 (sample 2/50)
+  - key: normalised name + address (NAICS 2381-2382)
+    between:
+    - contractors-wa-lni-licences
+    - contractors-osha-inspections
+    measured: UNVERIFIED (DOL API key required)
+  taxonomy:
+  - hvac.air_conditioning_refrigeration
+  - hvac.boiler_steam
+  - hvac.sheet_metal
+  - plumbing.general
+  - plumbing.backflow
+  - plumbing.drain_sewer
+  - plumbing.water_conditioning
+  - plumbing.pump
+  - electrical.general
+  - electrical.limited_energy
+  - electrical.sign
+  - electrical.solar
+  - roofing.general
+  - roofing.gutters
+  - appliance.installation
+  - appliance.repair
+  - general.home_improvement
+  - 'facet credential_status: active|expired|suspended|revoked|surrendered|inactive|out_of_business'
+  - 'facet scope: residential|commercial|both; facet class: A|B|level_1|level_2'
+  - 'facet discipline_action: admonition|citation|stipulation|cease_and_desist|final_order|revocation|surrender|probation|other'
+  - 'facet certification: epa_rrp|or_lbpr'
+  agent_questions:
+  - Is this business licensed for electrical work in both Washington and Oregon today, and are its WA bond and OR
+    insurance current?
+  - Which Oregon plumbing contractors are CCB-registered with a current bond and at least $1M liability insurance?
+  - This HVAC company listed on the map - does it hold an active licence, in which trades and states?
+  - Has this Colorado electrical contractor had a disciplinary action, and is it licensed in other states?
+  - Which Minnesota mechanical (HVAC) contractors also hold a plumbing contractor licence?
+  - Is this renovation firm EPA lead-safe certified and a registered home-improvement contractor?
+  - Are CA C-20, TX ACR, OR LHR and WA HVAC/RFRG the same trade, and which of this firm's credentials are active?
+  - Has this contractor's Washington bond been impaired by a claim?
+  scores:
+    agent_demand: 4
+    rights_clarity: 3
+    acquisition_ease: 4
+    structuring_value: 4
+    freshness: 5
+    low_onboarding_cost: 3
+    poor_existing_access: 3
+  evidence:
+  - docs/sources/pipeline/research-2026-09-27-composites.md
+  - docs/sources/pipeline/evidence/2026-09-27-composites/contractors
+  next_action: 'Write ADR-0013 rights records for WA (PDDL), OR, MN, CO (disclaimer + revocation) and CT; prototype
+    the resolver with auto-links only on licence number, UBI, name+legal-form+(zip|city) and name+phone (everything
+    else to a review queue); ship the OR CCB x BCD trade view first. Owner-visible blocker: a free DOL API key for
+    OSHA linkage.'

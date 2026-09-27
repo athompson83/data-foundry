@@ -1,0 +1,62 @@
+import re, collections, random
+from load import *; from norm import *
+mi=es_mi(); cac=es_cac(); wsr=ws(); rec=cpsc()
+TOKEN=re.compile(r"\b(?=[A-Z0-9/\-\.]*\d)(?=[A-Z0-9/\-\.]*[A-Z])[A-Z0-9][A-Z0-9/\-\.]{3,}[A-Z0-9]\b")
+es=Index(); cat_of={}; brand_of={}
+for r in mi:
+    es.add(r['brand_name'], r['model_number'], r['pd_id']); cat_of[r['pd_id']]=r['product_category']; brand_of[r['pd_id']]=r['brand_name']
+for i,r in enumerate(cac):
+    rid='cac%d'%i; es.add(r['brand_name'], r['model_number'], rid); cat_of[rid]='Central AC (split)'; brand_of[rid]=r['brand_name']
+for i,r in enumerate(wsr):
+    rid='ws%d'%i; es.add(r['Brand Name'], r['Model Number'], rid); cat_of[rid]='WaterSense:'+r['_file'].replace('WaterSense-Products-','').replace('.csv',''); brand_of[rid]=r['Brand Name']
+brands={b for (b,k) in es.exact}|set(es.pats)
+brands={b for b in brands if len(b)>=3}
+print('index brands',len(brands))
+def ngrams(t):
+    w=re.sub(r'[^a-z0-9 ]',' ',t.lower().replace('&',' and ')).split()
+    s=set()
+    for n in (1,2,3):
+        for i in range(len(w)-n+1): s.add(''.join(w[i:i+n]))
+    return s
+# UPC
+es_upc={}
+for r in mi:
+    for u in re.split(r'[;,\s]+', r.get('upc') or ''):
+        u=re.sub(r'\D','',u)
+        if len(u)>=11: es_upc.setdefault(u.lstrip('0'),[]).append(r['pd_id'])
+for i,r in enumerate(wsr):
+    for u in re.split(r'[;,\s]+', r.get('Universal Product Code(s)') or ''):
+        u=re.sub(r'\D','',u)
+        if len(u)>=11: es_upc.setdefault(u.lstrip('0'),[]).append('ws%d'%i)
+print('ES+WS UPCs',len(es_upc))
+stats=collections.Counter(); hits=[]; upchits=[]; tok_total=0; tok_hit=0
+for r in rec:
+    head=' '.join([r.get('Title') or '']+[p.get('Name') or '' for p in r.get('Products') or []]+[m.get('Name') or '' for m in (r.get('Manufacturers') or [])+(r.get('Importers') or [])+(r.get('Distributors') or [])])
+    txt=head+' '+(r.get('Description') or '')
+    cand=ngrams(txt)&brands
+    toks=set(TOKEN.findall(txt))|{p.get('Model') for p in r.get('Products') or [] if (p.get('Model') or '').strip()}
+    toks={t for t in toks if t and len(model_key(t))>=5 and not re.fullmatch(r'[\d\-\.]+',t)}
+    toks|={t.split('/')[0] for t in toks if '/' in t and len(model_key(t.split('/')[0]))>=5}
+    tok_total+=len(toks)
+    rh=[]
+    for t in toks:
+        k=model_key(t); found=False
+        for b in cand:
+            if (b,k) in es.exact:
+                rh.append((t,'exact',b,es.exact[(b,k)][:2])); found=True; break
+            ph=[rid for rx,raw,rid in es.pats.get(b,[]) if rx.match(k)]
+            if ph: rh.append((t,'pattern',b,ph[:2],[raw for rx,raw,rid in es.pats[b] if rx.match(k)][:1])); found=True; break
+        tok_hit+=found
+    for u in r.get('ProductUPCs') or []:
+        uu=re.sub(r'\D','',u.get('UPC','') if isinstance(u,dict) else str(u)).lstrip('0')
+        if uu in es_upc: upchits.append((r['RecallNumber'],uu,es_upc[uu][:2]))
+    if rh:
+        stats['recalls_with_match']+=1
+        if r['RecallDate']>='2015': stats['recalls_with_match_2015+']+=1
+        hits.append({'recall':r['RecallNumber'],'date':r['RecallDate'][:10],'title':r['Title'][:90],'hits':rh[:5],'cats':sorted({cat_of[x] for h in rh for x in h[3]})})
+stats['recalls']=len(rec); stats['recalls_2015+']=sum(1 for r in rec if r['RecallDate']>='2015')
+print(stats,'tokens',tok_total,'token hits',tok_hit,'upc hits',len(upchits),upchits[:10])
+cc=collections.Counter(c for h in hits for c in h['cats']); print(cc.most_common(40))
+random.seed(20260927)
+for h in random.sample(hits,min(30,len(hits))): print(h)
+json.dump({'hits':hits,'upc':upchits},open(E3+'/link_cpsc_matches.json','w'),indent=0)

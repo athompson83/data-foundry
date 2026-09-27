@@ -1,5 +1,12 @@
 # Progress
 
+## Current session — 2026-09-27 (continued): composite datasets, and discoverability live
+
+- **Owner direction.** "We need to make sure our datasets are aggregates of several different sources of data. Find all related data (including unstructured) and structure it for our purposes. Classify and organize accordingly."
+- **Composite model.** `candidates.yaml` now has a `datasets:` section: one entity type per dataset, member sources, join keys with measured match rates, taxonomy and agent questions. `tooling/test/source-pipeline.test.ts` requires ≥2 members from different hosts, no RED member, ≥1 measured cross-source join, and dataset membership for any source past PROTOTYPED. The direction is recorded in AGENTS.md.
+- **Round 3** ([`research-2026-09-27-composites.md`](docs/sources/pipeline/research-2026-09-27-composites.md)): four composites — recalls (31/35; Health Canada ↔ CPSC declared joint marker 341/352, 25/25 correct; SaferProducts bulk export found), equipment models (29; US/Canada overlap, AU/EU are separate partitions), building-envelope approvals (27; 6/19 cited Miami-Dade NOAs past expiry), licensed contractor businesses (26; business entities only). 40 new sources; EPREL re-read and kept parked (its terms forbid aggregating). One redirect reached a prohibited host during research (one GET, discarded unread); the CEE directory and the UK MCS site are now prohibited (see docs/sources/prohibited-sources.md).
+- **Discoverability live.** PR #67 merged (`35118fe`) and deployed (version `00d362e1`); live checks passed and all 84,908 indexable recall URLs were submitted to IndexNow.
+
 ## Current session — 2026-09-27 (continued): service trades, and search/LLM discoverability
 
 - **Owner direction.** "The next 5 data sets should be something nongovernmental … service based. HVAC, Plumbing, Electric, Roofing, and Appliance. We build those out. Also need a way to SEO and make data show up for LLMs."

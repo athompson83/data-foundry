@@ -15,8 +15,33 @@ declarations) and the vertical/dataset build itself.
 | [`candidates.yaml`](candidates.yaml) | Every candidate dataset: category, stage, rights verdict, scores, evidence and the single next action. Validated by `tooling/test/source-pipeline.test.ts`. |
 | [`scout-routine.md`](scout-routine.md) | The scheduler: the routine's ID, cron and verbatim prompt. |
 | `evidence/YYYY-MM-DD/` | Sample identifiers (`samples.json`), assessment scripts, their outputs, and `inputs.json` + `replay.sh`. The source responses themselves are preserved in the R2 evidence bucket, so every measurement can be re-run. |
+| `research-2026-09-27-composites.md` | The composite-dataset round: the four datasets and their measured linkage. |
 | `prototypes/<key>/` | The PROTOTYPED evidence for one candidate: report and `coverage.json`. |
 | `research-YYYY-MM-DD.md` | The evidence record for a research round: quoted terms, measured counts, samples, extraction hit rates. |
+
+## Datasets are composites
+
+Product Owner direction (2026-09-27): "We need to make sure our datasets are
+aggregates of several different sources of data. Find all related data
+(including unstructured) and structure it for our purposes. Classify and
+organize accordingly."
+
+So a **dataset** is one entity type (a recall notice, an equipment model, a
+product approval, a licensed business) assembled from several independent
+**sources**, linked by deterministic join keys, with every fact carrying its
+source. Each entry in `candidates:` is a source (a feed); each entry in
+`datasets:` names its member sources, the join keys between them with the
+match rate measured on real samples (`matched/total`), its classification
+taxonomy and the agent questions only the aggregate answers.
+`tooling/test/source-pipeline.test.ts` requires every dataset to have at least
+two members from different hosts, no RED member, and at least one measured
+cross-source join; a source past `PROTOTYPED` must belong to a dataset.
+
+Linking rules, from the round-3 measurements
+([`research-2026-09-27-composites.md`](research-2026-09-27-composites.md)):
+declared identifiers (GTIN, licence number, a cited approval number, an
+explicit "joint recall" marker) link automatically; names or titles only
+propose a candidate link for review, never a merge (AGENTS.md rules 3 and 7).
 
 ## Stages
 
@@ -98,14 +123,15 @@ in [`scout-routine.md`](scout-routine.md):
 
    It fixes any regression before doing anything else.
 3. Discovers at least three new candidates across unrelated domains, and
-   screens them.
+   screens them, including new sources for the existing datasets and the
+   linkage between them.
 4. Advances the first candidate in the active research record's **build order**
    by at least one stage, with evidence, provided it is in `SCREENED`–`BUILDING`.
    The build order weighs cost and time to revenue as well as the score. The
    active build order is in
-   [`research-2026-09-27-service-trades.md`](research-2026-09-27-service-trades.md)
-   (HVAC, plumbing, electrical, roofing, appliance) until a later record
-   states that it replaces it.
+   [`research-2026-09-27-composites.md`](research-2026-09-27-composites.md):
+   the first eligible member source of the first composite dataset, until a
+   later record states that it replaces it.
 5. Records a `research-YYYY-MM-DD.md`, updates `candidates.yaml`, and opens a
    PR. Merging follows the normal gates: CI green and independent review clean.
 6. Reports to the owner only:

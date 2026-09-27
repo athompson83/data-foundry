@@ -43,7 +43,33 @@ const Candidate = z
   })
   .strict();
 
-const Registry = z.object({ version: z.literal(1), updated: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), candidates: z.array(Candidate).min(1) }).strict();
+/**
+ * A dataset is one entity type assembled from several candidate sources, linked
+ * by deterministic join keys whose match rates were measured on real samples
+ * (Product Owner direction, 2026-09-27: datasets are aggregates of several
+ * sources). Single candidates are feeds; the dataset is what is built and sold.
+ */
+const Dataset = z
+  .object({
+    key: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+    name: z.string().min(3),
+    category: z.string().regex(/^[a-z]+(?:-[a-z]+)*$/),
+    entity: z.string().min(3),
+    stage: z.enum(STAGES),
+    description: z.string().min(20),
+    sources: z.array(z.string()).min(2),
+    join_keys: z.array(z.object({ key: z.string().min(3), between: z.tuple([z.string(), z.string()]), measured: z.string().min(1) }).strict()).min(1),
+    taxonomy: z.array(z.string().min(3)).min(1),
+    agent_questions: z.array(z.string().min(10)).min(1),
+    scores: Candidate.shape.scores,
+    evidence: z.array(z.string()).min(1),
+    next_action: z.string().min(10),
+  })
+  .strict();
+
+const Registry = z
+  .object({ version: z.literal(1), updated: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), candidates: z.array(Candidate).min(1), datasets: z.array(Dataset).default([]) })
+  .strict();
 
 const registry = Registry.parse(parseYaml(readFileSync(REGISTRY, 'utf8')));
 const beyond = (stage: (typeof STAGES)[number], floor: (typeof STAGES)[number]) =>
@@ -162,6 +188,44 @@ describe('dataset expansion pipeline registry', () => {
   it.each(registry.candidates)('$key has a rights record once rights are determined', (candidate) => {
     if (!beyond(candidate.stage, 'RIGHTS_DETERMINED')) return;
     expect(candidate.evidence.some((path) => /^docs\/sources\/[a-z0-9-]+-rights-record-\d{8}\.md$/.test(path)), 'cite docs/sources/<source>-rights-record-YYYYMMDD.md').toBe(true);
+  });
+
+  const byKey = new Map(registry.candidates.map((candidate) => [candidate.key, candidate]));
+  /** A join endpoint may name a sub-table of a member, e.g. "x-licences (bond table)". */
+  const member = (endpoint: string) => endpoint.replace(/\s*\(.*\)$/, '');
+  const hostOf = (url: string) => new URL(url).host.replace(/^www\./, '').toLowerCase();
+
+  it('has unique dataset keys, distinct from candidate keys', () => {
+    const keys = registry.datasets.map((dataset) => dataset.key);
+    expect(new Set(keys).size).toBe(keys.length);
+    for (const key of keys) expect(byKey.has(key), `${key} is also a candidate key`).toBe(false);
+  });
+
+  it.each(registry.datasets)('$key aggregates at least two independent, lawful sources', (dataset) => {
+    for (const key of dataset.sources) expect(byKey.has(key), `${key} is not a candidate`).toBe(true);
+    expect(new Set(dataset.sources).size, 'members are listed once').toBe(dataset.sources.length);
+    const members = dataset.sources.map((key) => byKey.get(key)!);
+    const hosts = new Set(members.flatMap((candidate) => candidate.sources.map(hostOf)));
+    expect(hosts.size, 'members come from at least two different hosts').toBeGreaterThanOrEqual(2);
+    for (const candidate of members) expect(candidate.rights, `${candidate.key} is RED; a dataset may not use it`).not.toBe('RED');
+    if (beyond(dataset.stage, 'EVIDENCED')) for (const candidate of members) expect(['GREEN', 'AMBER'], `${candidate.key} rights`).toContain(candidate.rights);
+    for (const path of dataset.evidence) expect(existsSync(`${ROOT}${path}`), `${path} must exist`).toBe(true);
+  });
+
+  it.each(registry.datasets)('$key links its members on measured join keys', (dataset) => {
+    for (const join of dataset.join_keys) for (const end of join.between) expect(dataset.sources, `${join.key}: ${end} must be a member`).toContain(member(end));
+    const measured = dataset.join_keys.filter((join) => {
+      const [a, b] = join.between.map(member);
+      const ratio = /(\d[\d,]*)\s*\/\s*(\d[\d,]*)/.exec(join.measured);
+      return a !== b && ratio !== null && Number(ratio[1]!.replaceAll(',', '')) <= Number(ratio[2]!.replaceAll(',', ''));
+    });
+    expect(measured.length, 'at least one cross-source join measured as matched/total').toBeGreaterThan(0);
+  });
+
+  it.each(registry.candidates)('$key belongs to a dataset once it is being built', (candidate) => {
+    // LIVE datasets that predate the composite rule keep their standalone status until a dataset adopts them.
+    if (!between(candidate.stage) || !beyond(candidate.stage, 'PROTOTYPED')) return;
+    expect(registry.datasets.some((dataset) => dataset.sources.includes(candidate.key)), `${candidate.key} must be a member of a dataset`).toBe(true);
   });
 
   const Count = z.object({ hits: z.number().int().nonnegative(), of: z.number().int().positive() }).strict();
