@@ -8,7 +8,7 @@
 export { structureCpscRecall, isUsableCpscRecord, titleFirm, sumUnits, CPSC_RECALL_NUMBER, type CpscRecallRecord } from './cpsc.js';
 export { structureHcRecall, isConsumerProductRecord, HC_CONSUMER_ORGANIZATION, type HcRecallRecord } from './hc.js';
 export { canonicalHcUrl, crossReference, jointAgencies } from './links.js';
-export { extractModelNumbers, type ModelNumbers } from './models.js';
+export { extractModelNumbers, extractModelNumbersWithFields, type ModelNumbers } from './models.js';
 export { classifyHazards, classifyRemedies, tradeFacets, HAZARD_CLASSES, REMEDY_CLASSES, TRADE_FACETS, type HazardClass, type RemedyClass, type TradeFacet } from './taxonomy.js';
 export { cleanText, digitCodes, gtin14, modelKey } from './text.js';
 export { parseUnits, type UnitCounts } from './units.js';

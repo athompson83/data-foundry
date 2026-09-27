@@ -123,7 +123,7 @@ ${multiAgency ? '<div class="card"><h3>One schema across agencies</h3><p class="
 <h2>Questions</h2>${faq.map(([q, a]) => `<details><summary>${q}</summary><p>${a}</p></details>`).join('')}`;
   return layout(ctx, 'Data Foundry — clean data for applications and AI agents', 'Structured, provenance-linked recall data for software and AI agents: exact identifiers, distribution, hazards and source records, over a JSON API.', body, {
     path: '/',
-    jsonLd: [catalogJsonLd(ctx, state.datasets.some(({ entry }) => entry.key === 'product-recalls'))],
+    jsonLd: [catalogJsonLd(ctx, { recalls: state.datasets.some(({ entry }) => entry.key === 'recalls'), products: state.datasets.some(({ entry }) => entry.key === 'product-recalls') })],
     scripts: true,
   });
 }

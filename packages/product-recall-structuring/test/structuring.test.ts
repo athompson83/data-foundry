@@ -83,6 +83,16 @@ describe('CPSC recall', () => {
     expect(recall.identifiers.model_numbers).toEqual(['DXH70CFAVX']);
   });
 
+  it('indexes models given only in the structured Products[].Model field', () => {
+    const structured = structureCpscRecall({
+      ...DEWALT_CPSC,
+      Description: 'This recall involves outdoor propane heaters. The heaters are yellow and black.',
+      Products: [{ ...DEWALT_CPSC.Products![0]!, Model: 'DXH70CFAVX, DXH90CFAV' }],
+    });
+    expect(structured.identifiers.model_numbers).toEqual(['DXH70CFAVX', 'DXH90CFAV']);
+    expect(structured.identifiers.model_keys).toEqual(['DXH70CFAVX', 'DXH90CFAV']);
+  });
+
   it('splits US and Canadian units', () => {
     expect(recall.units).toMatchObject({ us: 21250, canada: 500, mexico: null });
   });

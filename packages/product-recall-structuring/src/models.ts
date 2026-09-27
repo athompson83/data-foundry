@@ -70,3 +70,12 @@ export function extractModelNumbers(...texts: ReadonlyArray<string | null | unde
   }
   return { printed, keys: uniqueSorted(seen) };
 }
+
+/**
+ * Model numbers from fields that are models by structure (CPSC `Products[].Model`):
+ * the field itself is the anchor, so its model-like tokens are taken without a
+ * "model" label in the value. Merged with the prose extraction, keyed alike.
+ */
+export function extractModelNumbersWithFields(texts: ReadonlyArray<string | null | undefined>, fields: ReadonlyArray<string | null | undefined>): ModelNumbers {
+  return extractModelNumbers(...texts, ...fields.map((value) => (value && value.trim() ? `model ${value}` : null)));
+}

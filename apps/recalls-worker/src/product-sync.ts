@@ -8,13 +8,16 @@
  * CPSC list, so corrections to old notices are picked up. Only new or changed
  * records (by raw SHA-256 and parser version) are written; their verbatim
  * bytes go to R2 first, so each row's raw_ref points at evidence that exists.
+ * Before anything is parsed, the whole fetched response is archived in R2
+ * under its SHA-256 (rule 10), so every run can be replayed exactly even for
+ * records that were unchanged, out of scope or unusable.
  */
 
 import { PARSER_VERSION } from '@data-foundry/product-recall-structuring';
 
 import type { D1Database, R2Bucket } from './env.js';
 import { isPublishable, prepareProductRecall, touchProductRecallsStatement, writeProductGroups, type PreparedProductRecall, type ProductAgency } from './product-store.js';
-import { ndjsonBundle, rawRef, type Statement } from './store.js';
+import { ndjsonBundle, rawRef, sha256Hex, type Statement } from './store.js';
 import { USER_AGENT, addDays } from './sync.js';
 
 export const CPSC_ENDPOINT = 'https://www.saferproducts.gov/RestWebServices/Recall';
@@ -40,10 +43,24 @@ export interface ProductSyncResult {
   readonly error?: string;
 }
 
-async function fetchJson(url: string, fetcher: typeof fetch): Promise<unknown> {
+export interface SourceArtifact {
+  readonly key: string;
+  readonly records: unknown;
+}
+
+/**
+ * Fetch one source response, archive its exact bytes in R2 (content-addressed,
+ * so an unchanged file is stored once), and only then parse it.
+ */
+async function fetchSource(url: string, agency: ProductAgency, bucket: R2Bucket, fetcher: typeof fetch, now: string): Promise<SourceArtifact> {
   for (let attempt = 0; attempt < 4; attempt += 1) {
     const response = await fetcher(url, { headers: { accept: 'application/json', 'user-agent': USER_AGENT } });
-    if (response.ok) return response.json();
+    if (response.ok) {
+      const body = await response.text();
+      const key = `product-recalls/source/${agency.toLowerCase()}/sha256-${await sha256Hex(body)}.json`;
+      await bucket.put(key, body, { httpMetadata: { contentType: 'application/json' }, customMetadata: { url, retrieved_at: now } });
+      return { key, records: JSON.parse(body) as unknown };
+    }
     if (response.status !== 429 && response.status < 500) throw new Error(`${new URL(url).host} ${response.status}`);
     await new Promise((resolve) => setTimeout(resolve, 1000 * 2 ** attempt));
   }
@@ -59,13 +76,13 @@ async function runStatements(db: D1Database, statements: readonly Statement[]): 
 }
 
 /** Write one agency's fetched records: evidence to R2, then only new or changed rows to D1. */
-export async function ingestRecords(env: ProductSyncEnv, agency: ProductAgency, records: readonly unknown[], window: string, now: string): Promise<ProductSyncResult> {
+export async function ingestRecords(env: ProductSyncEnv, agency: ProductAgency, records: readonly unknown[], window: string, now: string, sourceArtifact?: string): Promise<ProductSyncResult> {
   const source = `product:${agency}`;
   const run = await env.DB.prepare('INSERT INTO sync_run (category, window_from, window_to, started_at) VALUES (?, ?, ?, ?) RETURNING id')
     .bind(source, window, now.slice(0, 10), now)
     .first<{ id: number }>();
   const runId = run?.id ?? 0;
-  const artifactKeys: string[] = [];
+  const artifactKeys: string[] = sourceArtifact ? [sourceArtifact] : [];
   let inserted = 0;
   let changed = 0;
   try {
@@ -140,19 +157,19 @@ export async function scheduledProductSync(env: ProductSyncEnv, options: { full:
   results.push(
     await attempt('product:CPSC', async () => {
       const from = options.full ? undefined : addDays(today, -RECENT_DAYS);
-      const records = await fetchJson(cpscUrl(from), fetcher);
+      const { key, records } = await fetchSource(cpscUrl(from), 'CPSC', env.RAW_ARTIFACTS, fetcher, now);
       if (!Array.isArray(records)) throw new Error('CPSC response is not a JSON array');
       if (options.full && records.length < MIN_FULL_CPSC) throw new Error(`CPSC full list has only ${records.length} records`);
-      return ingestRecords(env, 'CPSC', records, from ?? 'full', now);
+      return ingestRecords(env, 'CPSC', records, from ?? 'full', now, key);
     }),
   );
   results.push(
     await attempt('product:HC', async () => {
-      const records = await fetchJson(HC_ENDPOINT, fetcher);
+      const { key, records } = await fetchSource(HC_ENDPOINT, 'HC', env.RAW_ARTIFACTS, fetcher, now);
       if (!Array.isArray(records)) throw new Error('Health Canada response is not a JSON array');
       const inScope = records.filter((record) => isPublishable('HC', record));
       if (inScope.length < MIN_FULL_HC_CONSUMER) throw new Error(`Health Canada index has only ${inScope.length} consumer-product records`);
-      return ingestRecords(env, 'HC', inScope, 'full', now);
+      return ingestRecords(env, 'HC', inScope, 'full', now, key);
     }),
   );
   return results;

@@ -7,7 +7,7 @@
 import { parseCodes } from '@data-foundry/recall-structuring';
 
 import { crossReference } from './links.js';
-import { extractModelNumbers } from './models.js';
+import { extractModelNumbersWithFields } from './models.js';
 import { classifyHazards, classifyRemedies, tradeFacets } from './taxonomy.js';
 import { cleanText, digitCodes, gtin14, uniqueSorted } from './text.js';
 import { PARSER_VERSION, type CrossReference, type FirmMention, type RecallProduct, type StructuredProductRecall } from './types.js';
@@ -118,7 +118,7 @@ export function structureCpscRecall(record: CpscRecallRecord): StructuredProduct
   }
   for (const gtin of parseCodes(description).gtins) gtins.add(gtin);
 
-  const models = extractModelNumbers(description, ...(record.Products ?? []).map((product) => cleanText(product.Model)));
+  const models = extractModelNumbersWithFields([description], (record.Products ?? []).map((product) => cleanText(product.Model)));
 
   const references = new Map<string, CrossReference>();
   for (const item of record.Inconjunctions ?? []) {

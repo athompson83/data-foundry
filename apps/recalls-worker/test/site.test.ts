@@ -123,6 +123,15 @@ describe('homepage and catalog', () => {
     expect(ld['@type']).toBe('DataCatalog');
     expect(ld.dataset.map((dataset) => dataset.name)).toEqual(['FDA Recall Intelligence']);
   });
+
+  it('drops a withdrawn dataset from the JSON-LD as well as the page', async () => {
+    const env = makeEnv({ SOURCE_KILL_SWITCH: '1' });
+    await seed(env);
+    const { body } = await page(env, '/');
+    const ld = JSON.parse(/<script type="application\/ld\+json">(.*?)<\/script>/.exec(body)![1]!) as { dataset: Array<{ name: string }> };
+    expect(ld.dataset.map((dataset) => dataset.name)).toEqual(['North American Consumer Product Recalls']);
+    expect(body).not.toContain('href="/recalls"');
+  });
 });
 
 describe('dataset product pages', () => {

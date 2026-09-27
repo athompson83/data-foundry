@@ -23,6 +23,7 @@ The remaining members (EU Safety Gate, UK OPSS, ACCC, MBIE, SaferProducts incide
 2. **Storage:** the existing D1 database `data-foundry-recalls` (migration `0003`), in separate tables:
    - `product_recall`, `product_recall_key`, `product_recall_citation` and `product_recall_fts`, so the FDA tables are untouched;
    - verbatim records as NDJSON in the existing R2 bucket under `product-recalls/`, with `raw_ref` byte ranges and `raw_sha256`, as in ADR-0015.
+   - every fetched source response, archived whole before parsing under `product-recalls/source/<agency>/sha256-<hash>.json` (content-addressed, so an unchanged file is stored once) and listed in the run's `artifact_keys`, so any run can be replayed exactly, including records that were unchanged or out of scope.
 
    Citations are resolved at read time against the target's canonical URL, so a link appears whichever notice arrives first.
 3. **Serving:** the same Worker and hostnames (ADR-0012 paths, not new hostnames).

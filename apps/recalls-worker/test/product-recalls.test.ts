@@ -142,6 +142,20 @@ describe('product-recall ingestion', () => {
     expect(await env.DB.prepare('SELECT COUNT(*) AS n FROM product_recall').first()).toEqual({ n: MIN_FULL_HC_CONSUMER + 2 });
   });
 
+  it('archives each whole response before parsing it, out-of-scope records included', async () => {
+    const env = makeEnv();
+    const many = Array.from({ length: MIN_FULL_HC_CONSUMER }, (_, index) => ({ ...HC_ONLY, NID: String(100000 + index), URL: `https://recalls-rappels.canada.ca/en/alert-recall/n-${index}` }));
+    const food = { ...HC_ONLY, NID: '999', Organization: 'Food', URL: 'https://recalls-rappels.canada.ca/en/alert-recall/food' };
+    const bodies = { hc: JSON.stringify([HC, food, ...many]), cpsc: JSON.stringify([CPSC]) };
+    const fetcher = vi.fn(async (url: string) => new Response(String(url).includes('canada.ca') ? bodies.hc : bodies.cpsc, { status: 200 }));
+    await scheduledProductSync(env, { full: false, today: '2026-09-27', fetcher: fetcher as unknown as typeof fetch });
+    const archived = [...env.bucket.objects].filter(([key]) => key.startsWith('product-recalls/source/'));
+    expect(archived.map(([key]) => key.replace(/[0-9a-f]{64}/, 'HASH')).sort()).toEqual(['product-recalls/source/cpsc/sha256-HASH.json', 'product-recalls/source/hc/sha256-HASH.json']);
+    expect(archived.map(([, body]) => body).sort()).toEqual([bodies.cpsc, bodies.hc].sort());
+    const runs = await env.DB.prepare("SELECT category, artifact_keys FROM sync_run WHERE category LIKE 'product:%' ORDER BY id").all<{ category: string; artifact_keys: string }>();
+    for (const run of runs.results) expect(JSON.parse(run.artifact_keys)[0]).toMatch(/^product-recalls\/source\/(cpsc|hc)\/sha256-[0-9a-f]{64}\.json$/);
+  });
+
   it('does not acquire under the kill switch', async () => {
     const env = makeEnv({ PRODUCT_RECALLS_KILL_SWITCH: '1' });
     const fetcher = vi.fn();

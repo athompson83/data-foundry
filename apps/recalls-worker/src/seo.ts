@@ -142,8 +142,10 @@ export function productDataset(ctx: PageContext): Record<string, unknown> {
   };
 }
 
-export function catalogJsonLd(ctx: PageContext, products = false): Record<string, unknown> {
-  return { '@context': 'https://schema.org', '@type': 'DataCatalog', name: 'Data Foundry', url: `${ctx.publicOrigin}/`, publisher: organization(ctx), dataset: [recallsDataset(ctx), ...(products ? [productDataset(ctx)] : [])] };
+/** The catalog lists exactly the datasets the caller says are published, so a withdrawn dataset is never advertised. */
+export function catalogJsonLd(ctx: PageContext, published: { readonly recalls: boolean; readonly products: boolean }): Record<string, unknown> {
+  const dataset = [...(published.recalls ? [recallsDataset(ctx)] : []), ...(published.products ? [productDataset(ctx)] : [])];
+  return { '@context': 'https://schema.org', '@type': 'DataCatalog', name: 'Data Foundry', url: `${ctx.publicOrigin}/`, publisher: organization(ctx), dataset };
 }
 
 export function recallTitle(recall: PresentedRecall): string {
