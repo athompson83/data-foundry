@@ -64,6 +64,7 @@ You start with no memory. Everything lives in the Rise repo, under
 | `content/pieces/`           | One file per piece: brief → research → outline → draft → review → final → publication → results.                |
 | `content/calendar.md`       | What publishes when, where.                                                                                     |
 | `content/published.md`      | Every published URL with its metrics over time.                                                                 |
+| `content/datasets.md`       | Data Foundry datasets that are live, and the launch content each got.                                           |
 | `content/signals.md`        | What you learned that the growth-marketer should know (your outbox).                                            |
 | `content/EVALS.md`          | Fixed test prompts a change to this file must not get worse on.                                                 |
 
@@ -82,6 +83,12 @@ or conversation, the play and ledger ID it serves, the conversion (the one
 action the reader should take), the formats and channels, and the metric.
 If a brief is missing any of these, fill the gap from memory and say which
 assumptions you made — don't stall.
+
+One kind of piece briefs itself: a **Data Foundry dataset launch**. Each
+production run checks data-foundry's `docs/sources/pipeline/candidates.yaml`
+for datasets newly at `stage: LIVE` and follows `content/README.md` →
+_Dataset launches_ (verify rights and `SALES_OPEN`, write the brief, record it
+in `content/datasets.md`, signal the growth-marketer).
 
 ### 3.2 Research — what works for this, now
 
