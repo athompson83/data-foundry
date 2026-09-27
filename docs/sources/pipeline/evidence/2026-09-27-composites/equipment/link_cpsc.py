@@ -41,7 +41,8 @@ for r in rec:
     head=' '.join([r.get('Title') or '']+[p.get('Name') or '' for p in r.get('Products') or []]+[m.get('Name') or '' for m in (r.get('Manufacturers') or [])+(r.get('Importers') or [])+(r.get('Distributors') or [])])
     txt=head+' '+(r.get('Description') or '')
     cand=ngrams(txt)&brands
-    toks=set(TOKEN.findall(txt))|{p.get('Model') for p in r.get('Products') or [] if (p.get('Model') or '').strip()}
+    # Structured model fields can list several models: tokenize them exactly like the prose.
+    toks=set(TOKEN.findall(txt))|{t for p in r.get('Products') or [] for t in TOKEN.findall(p.get('Model') or '')}
     toks={t for t in toks if t and len(model_key(t))>=5 and not re.fullmatch(r'[\d\-\.]+',t)}
     toks|={t.split('/')[0] for t in toks if '/' in t and len(model_key(t.split('/')[0]))>=5}
     tok_total+=len(toks)

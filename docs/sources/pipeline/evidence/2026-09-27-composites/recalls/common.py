@@ -26,6 +26,10 @@ def model_tokens(text):
         if re.fullmatch(r'\d+(MM|CM|IN|V|W|KW|MAH|WH|HZ|LBS?|OZ|ML|L|G|KG|FT|BTU|AMPS?|A|GB|TB)',n): continue
         if re.fullmatch(r'(19|20)\d\d[A-Z]{1,3}',n): continue
         out.add(n)
+        # A market suffix after '/' (Samsung /AA, /EU): keep the base key too, so MODEL123/AA meets MODEL123.
+        if '/' in t:
+            b=base_model(t)
+            if len(b)>=5 and re.search(r'\d',b) and re.search(r'[A-Z]',b): out.add(b)
     return out
 def digit_codes(s):
     """Barcode-like digit runs in a field that may list several codes: split on separators first, then rejoin a code
