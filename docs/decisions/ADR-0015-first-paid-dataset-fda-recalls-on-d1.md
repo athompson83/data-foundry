@@ -77,9 +77,10 @@ The same applies to `data.aroqon.com` before the shared web Worker
 (`apps/web`, `DF_WEB_ROUTES`) is routed there: convert the recall Worker's
 Custom Domain to route patterns for the paths it owns
 (`data.aroqon.com/recalls*`, `data.aroqon.com/stripe/webhook`,
-`data.aroqon.com/admin/*`, and `data.aroqon.com/v1/recalls*`,
-`/v1/account*` and `/openapi.json`, where the recall Worker 308-redirects API
-paths to the API hostname; the operator endpoints `/admin/sync` and
+`data.aroqon.com/admin/*`, `data.aroqon.com/v1/recalls*` and `/v1/account*`
+(which the recall Worker 308-redirects to the API hostname), and
+`data.aroqon.com/openapi.json` (served directly with 200); the operator
+endpoints `/admin/sync` and
 `/admin/reissue-key` back the lost-key procedure in
 `docs/owner-actions/recalls-operations.md`). The site-wide
 paths it also serves today (`/`, `/docs`, `/terms`, `/privacy`, `/robots.txt`,
