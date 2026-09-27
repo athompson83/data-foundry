@@ -212,10 +212,11 @@ describe('dataset expansion pipeline registry', () => {
     expect(hosts.size, 'members come from at least two different hosts').toBeGreaterThanOrEqual(2);
     for (const candidate of members) expect(candidate.rights, `${candidate.key} is RED; a dataset may not use it`).not.toBe('RED');
     if (beyond(dataset.stage, 'EVIDENCED')) for (const candidate of members) expect(['GREEN', 'AMBER'], `${candidate.key} rights`).toContain(candidate.rights);
-    // A rights label is provisional until the ADR-0013 determination is recorded, so a dataset that has
-    // reached RIGHTS_DETERMINED (or would publish) may only contain members that have reached it too.
+    // A dataset cannot run ahead of its feeds. From RIGHTS_DETERMINED on (a rights label is provisional until
+    // the ADR-0013 determination is recorded), every member must have reached the dataset's own stage, so a
+    // BUILDING dataset has built feeds and a LIVE dataset has only LIVE, runtime-verified feeds.
     if (beyond(dataset.stage, 'RIGHTS_DETERMINED'))
-      for (const candidate of members) expect(beyond(candidate.stage, 'RIGHTS_DETERMINED'), `${candidate.key} is ${candidate.stage}; a ${dataset.stage} dataset needs every member rights-determined`).toBe(true);
+      for (const candidate of members) expect(beyond(candidate.stage, dataset.stage), `${candidate.key} is ${candidate.stage}; a ${dataset.stage} dataset needs every member at ${dataset.stage} or later`).toBe(true);
     for (const path of dataset.evidence) expect(existsSync(`${ROOT}${path}`), `${path} must exist`).toBe(true);
   });
 

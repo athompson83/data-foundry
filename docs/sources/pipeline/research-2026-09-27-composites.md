@@ -779,7 +779,7 @@ not merged (rule 3).
 
 | Field | Type | Supplied by | Conflict rule |
 |---|---|---|---|
-| `model_id` | our stable ID (hash of source + source record ID for listings; cluster ID after resolution) | derived | — |
+| `model_id` | our stable ID (hash of source + source record ID for listings; cluster ID after resolution) | derived | Clusters form automatically only on join keys 1–2 (source ID, check-digit-valid GTIN); keys 3–6 join a cluster only after review |
 | `source_listings[]` | {source, source_record_id (ES `pd_id`, `energy_star_model_identifier`, WS `id`, CEC row, GEMS `Submit_ID`/`Registration Number`, NRCan `REC_REF_KEY`, EPREL registration no.), listed_from, listed_to, as_of} | each registry | one row per source |
 | `brand_raw`, `brand_key`, `brand_id` | string, string, QID or our brand ID | all registries; Wikidata | brand_id only via the curated crosswalk |
 | `filer` / `manufacturer` | {name_raw, key, org_id} | ES `energy_star_partner`, CEC manufacturer, GEMS supplier [UNVERIFIED field] | the label says "filed with EPA by", never "made by" |
@@ -1060,7 +1060,7 @@ Terms are unreadable, so RED. Use NRI and NCEI instead.
 | `approval_id` | string, e.g. `mdc:NOA:25-0715.04`, `fl:FL5293-R73`, `fl:FL5293.1` (product) | A, B | Namespaced; never merged across issuers |
 | `issuer` | enum `miami-dade-rer`, `fl-building-commission` | A, B | — |
 | `status`, `valid_from`, `expires_on` | enum, date | A (index expiry + PDF), B (status, QA-contract expiry, dates) | Keep both issuers' dates. `expired` is computed against the fetch date. |
-| `applicant_raw`, `organization_id` | string, FK | A, B, alias pairs (FL↔NOA), Wikidata | Raw string always kept. `organization_id` is assigned only by an exact L3 key or an evidence-backed alias pair, and every merge is logged and reversible (rule 3). |
+| `applicant_raw`, `organization_id` | string, FK | A, B, alias pairs (FL↔NOA), Wikidata | Raw string always kept. `organization_id` is assigned automatically only by an evidence-backed identifier pair (an FL#↔NOA# row naming both). An exact L3 key only proposes a candidate for review (revised after review). Every merge is logged and reversible (rule 3). |
 | `category`, `subcategory`, `material` | taxonomy codes | A, B | Map both vocabularies to the taxonomy below; keep the source labels |
 | `hvhz_approved`, `non_hvhz_approved`, `impact_rating` | bool, enum (Large/Small Missile, Level E) | A (index), B (per product) | Per issuer |
 | `design_pressure_pos_psf`, `design_pressure_neg_psf` | number per assembly | A (index max + PDF tables), B (DP field + report tables) | Per assembly and issuer. Never averaged. The index max is flagged `summary_max`. |
@@ -1339,7 +1339,7 @@ never merged across jurisdictions.
 
 | Field | Type | Supplied by | Conflict rule |
 |---|---|---|---|
-| `business_id` | stable surrogate (ours) | resolver | minted per resolved cluster; clusters are auditable, reversible link sets |
+| `business_id` | stable surrogate (ours) | resolver | minted per resolved cluster; clusters form automatically only on declared identifiers (licence number, UBI) and otherwise only after review; auditable, reversible link sets |
 | `identifiers` | list `{scheme, value}`: `wa_ubi`, `state_licence:{ST}:{issuer}`, `epa_rrp_cert`, `osm_id`, `sam_uei`[UNVERIFIED], `osha_activity_nr`[UNVERIFIED] | all | union; an identifier belongs to exactly one cluster (a collision blocks auto-link) |
 | `legal_name` / `names[]` | string / list `{name, kind: legal|dba|as_listed, source}` | all | keep every as-listed spelling |
 | `entity_form` | enum llc/corporation/partnership/llp/… | WA biztype, CT type, suffix parse elsewhere | explicit field beats suffix parse; mismatch = no auto-link |
