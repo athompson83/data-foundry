@@ -32,11 +32,15 @@ export interface DatasetEntry {
   readonly path: string;
   /** One sentence: what the buyer gets. */
   readonly summary: string;
+  /** Catalog classification, so a long list stays scannable: subject area, what one record is, and where it applies. */
+  readonly domain: string;
+  readonly recordType: string;
+  readonly region: string;
   /** The buyer's problem, as the product-page headline. */
   readonly headline: string;
   readonly lede: string;
   readonly useCases: readonly string[];
-  readonly sources: ReadonlyArray<{ readonly name: string; readonly url: string; readonly terms: string }>;
+  readonly sources: ReadonlyArray<{ readonly name: string; readonly short: string; readonly url: string; readonly terms: string }>;
   readonly limitations: readonly string[];
   /** The configured refresh, stated as an intention; the last successful refresh comes from sync records. */
   readonly refreshSchedule: string;
@@ -117,6 +121,9 @@ export const DATASETS: Readonly<Record<DatasetKey, DatasetEntry>> = {
     key: 'recalls',
     name: 'FDA Recall Intelligence',
     path: '/recalls',
+    domain: 'Food, drugs and medical devices',
+    recordType: 'Recall events',
+    region: 'United States',
     summary:
       'FDA food, drug and medical-device enforcement reports with the lots, UPC/GTIN/UDI, NDC, expiry dates, distribution states, allergens and pathogens pulled out of the free text.',
     headline: 'Is this product recalled — and where?',
@@ -127,7 +134,7 @@ export const DATASETS: Readonly<Record<DatasetKey, DatasetEntry>> = {
       'Sync changed recalls incrementally with changed_since and keep the verbatim FDA record for audit.',
       'Give an AI agent a deterministic recall answer with the FDA source URL to cite.',
     ],
-    sources: [{ name: 'U.S. Food and Drug Administration enforcement reports via openFDA', url: 'https://open.fda.gov/apis/food/enforcement/', terms: 'CC0 1.0' }],
+    sources: [{ name: 'U.S. Food and Drug Administration enforcement reports via openFDA', short: 'FDA', url: 'https://open.fda.gov/apis/food/enforcement/', terms: 'CC0 1.0' }],
     limitations: [
       'Covers enforcement reports openFDA publishes (from June 2012); FDA decides what is published and when.',
       'Structured fields are produced by deterministic parsers from FDA text and can be incomplete; the verbatim record is available with include=raw.',
@@ -160,6 +167,9 @@ export const DATASETS: Readonly<Record<DatasetKey, DatasetEntry>> = {
     key: 'product-recalls',
     name: 'North American Consumer Product Recalls',
     path: '/product-recalls',
+    domain: 'Consumer products',
+    recordType: 'Recall notices',
+    region: 'United States and Canada',
     summary:
       'CPSC and Health Canada consumer-product recalls in one schema: model numbers, check-digit-verified UPC/GTIN, units sold in the US and Canada, hazard and remedy classes, trade facets, and linked joint recalls.',
     headline: 'Is this appliance, tool or toy recalled in the US or Canada?',
@@ -171,8 +181,8 @@ export const DATASETS: Readonly<Record<DatasetKey, DatasetEntry>> = {
       'Compare units recalled in the US and in Canada for the same notice.',
     ],
     sources: [
-      { name: 'U.S. Consumer Product Safety Commission Recall API', url: 'https://www.saferproducts.gov/RestWebServices/Recall', terms: 'US Government work' },
-      { name: 'Health Canada Recalls and Safety Alerts (open data)', url: 'https://open.canada.ca/data/en/dataset/d38de914-c94c-429b-8ab1-8776c31643e3', terms: 'Open Government Licence – Canada' },
+      { name: 'U.S. Consumer Product Safety Commission Recall API', short: 'CPSC', url: 'https://www.saferproducts.gov/RestWebServices/Recall', terms: 'US Government work' },
+      { name: 'Health Canada Recalls and Safety Alerts (open data)', short: 'Health Canada', url: 'https://open.canada.ca/data/en/dataset/d38de914-c94c-429b-8ab1-8776c31643e3', terms: 'Open Government Licence – Canada' },
     ],
     limitations: [
       'Model numbers are read only after an explicit “model” label, so notices that list models in tables or images may have none.',

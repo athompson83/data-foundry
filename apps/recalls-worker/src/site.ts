@@ -75,10 +75,10 @@ export function homePage(ctx: PageContext, state: SiteState): string {
     : '';
   const cards = state.datasets
     .map(
-      ({ entry, coverage }) => `<article class="card dataset"><div><p class="eyebrow">Dataset</p><h3><a href="${entry.path}">${escapeHtml(entry.name)}</a></h3>
-<p>${escapeHtml(entry.summary)}</p><p>${accessLine(state.salesOpen)}</p>
-<p><a class="button secondary" href="${entry.path}">View dataset</a></p></div>
-<div>${coverageFacts(coverage)}<p class="small muted">${escapeHtml(entry.refreshSchedule)}</p></div></article>`,
+      ({ entry, coverage }) => `<li class="catalog-row"><div><h3><a href="${entry.path}">${escapeHtml(entry.name)}</a></h3>
+<p class="tags"><span class="tag">${escapeHtml(entry.domain)}</span><span class="tag">${escapeHtml(entry.recordType)}</span><span class="tag">${escapeHtml(entry.region)}</span></p>
+<p class="small">${escapeHtml(entry.summary)}</p></div>
+<dl class="catalog-meta"><div><dt>Records</dt><dd>${coverage ? number(coverage.records) : 'unavailable'}</dd></div><div><dt>Sources</dt><dd>${entry.sources.map((source) => escapeHtml(source.short)).join(', ')}</dd></div><div><dt>Last refresh</dt><dd>${coverage ? escapeHtml(when(coverage.lastSuccessfulSync)) : 'unavailable'}</dd></div></dl></li>`,
     )
     .join('');
   const inspect = first
@@ -103,8 +103,9 @@ ${codeWindow('inspect-response', `Response · snapshot captured ${escapeHtml(fir
   const body = `<section class="hero"><div><p class="eyebrow">Data Foundry</p><h1>Clean data for applications and AI agents.</h1>
 <p class="lede">Government agencies publish recalls as prose. We turn them into exact fields — lot numbers, UPC/GTIN, model numbers, distribution states, hazards${multiAgency ? ', US–Canada links' : ''} — served as JSON, with the source record behind every answer.</p>
 <div class="actions"><a class="button" href="#datasets">Explore datasets</a><a class="button secondary" href="/docs">View API docs</a></div></div>${hero}</section>
-<h2 id="datasets">Datasets</h2><p class="lede">Every dataset listed here is live on the API.</p>
-${cards || '<p class="notice">No dataset is available right now.</p>'}
+<h2 id="datasets">Datasets</h2><p class="lede">Every dataset listed here is live on the API. One key covers all of them.</p>
+<p>${accessLine(state.salesOpen)}</p>
+${cards ? `<div class="catalog-row catalog-head" aria-hidden="true"><span>Dataset</span><div class="catalog-meta"><span>Records</span><span>Sources</span><span>Last refresh</span></div></div><ul class="catalog">${cards}</ul>` : '<p class="notice">No dataset is available right now.</p>'}
 ${inspect}
 <h2>Why use Data Foundry instead of the raw source</h2>
 <div class="grid"><div class="card"><h3>Fields, not prose</h3><p class="small muted">Lots, codes, states, quantities, hazards and remedies are parsed out of free text by deterministic parsers — no model guesses.</p></div>

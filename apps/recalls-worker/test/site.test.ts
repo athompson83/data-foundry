@@ -72,8 +72,14 @@ describe('homepage and catalog', () => {
     expect(body).toContain('href="/recalls"');
     expect(body).toContain('href="/product-recalls"');
     // Coverage comes from the data (1 FDA recall, 1 CPSC notice), not from copy.
-    expect(body).toMatch(/<dt>Records<\/dt><dd>1 <span class="muted small">\(food 1\)/);
-    expect(body).toMatch(/<dt>Records<\/dt><dd>1 <span class="muted small">\(CPSC 1\)/);
+    const rows = body.match(/<li class="catalog-row">[\s\S]*?<\/li>/g) ?? [];
+    expect(rows).toHaveLength(2);
+    expect(rows[0]).toContain('<dt>Records</dt><dd>1</dd>');
+    expect(rows[0]).toContain('<dt>Sources</dt><dd>FDA</dd>');
+    expect(rows[0]).toContain('<dt>Last refresh</dt><dd>not yet recorded</dd>');
+    expect(rows[1]).toContain('<dt>Sources</dt><dd>CPSC, Health Canada</dd>');
+    expect(rows[1]).toMatch(/<dt>Last refresh<\/dt><dd>(\d{4}-\d\d-\d\d \d\d:\d\d UTC|not yet recorded)<\/dd>/);
+    expect(rows[1]).toContain('<span class="tag">Consumer products</span>');
     expect(body).toContain('Snapshot of a real response, not live.');
   });
 
