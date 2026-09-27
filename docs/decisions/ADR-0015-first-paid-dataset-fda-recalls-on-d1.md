@@ -70,3 +70,15 @@ that deployment, move the recall Worker's API hostname to route patterns
 (`api.data.aroqon.com/v1/recalls*`, `/v1/account*`, `/openapi.json`) so the
 other `/v1/<slug>` prefixes reach their own Workers. Nothing is routed there
 today, so there is no live collision.
+
+The same applies to `data.aroqon.com` before the shared web Worker
+(`apps/web`, `DF_WEB_ROUTES`) is routed there: convert the recall Worker's
+Custom Domain to route patterns for the paths it owns
+(`data.aroqon.com/recalls*`, `data.aroqon.com/stripe/webhook`). The site-wide
+paths it also serves today (`/`, `/docs`, `/terms`, `/privacy`, `/robots.txt`,
+`/sitemap.xml`) move to the web Worker only once that Worker serves
+equivalents covering the recall product (its terms and privacy text, its
+sitemap entries and a link to `/recalls/docs`); until then they stay on the
+recall Worker as explicit routes. Verify every recall page, checkout and the
+Stripe webhook through the new routes before routing the web Worker; rollback
+is re-attaching the Custom Domain to `data-foundry-recalls`.
