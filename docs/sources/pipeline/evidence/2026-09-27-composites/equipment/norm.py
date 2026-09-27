@@ -105,6 +105,8 @@ class Index:
             if hits: return ('our-pattern~their-exact', hits)
             return (None, [])
         if k in self.exact_any: return ('exact-anybrand', [r for _, r in self.exact_any[k]])
-        hits = [rid for rx, raw, bb, rid in self.pats_any.get(k[:3], []) if rx.match(k)]
+        # Patterns are bucketed by their literal prefix, which is shorter than 3 characters when a wildcard comes early
+        # (AB*123 -> 'AB'), so every prefix length up to 3 is probed.
+        hits = [rid for n in sorted({min(i, len(k)) for i in range(4)}) for rx, raw, bb, rid in self.pats_any.get(k[:n], []) if rx.match(k)]
         if hits: return ('pattern-anybrand', hits)
         return (None, [])
