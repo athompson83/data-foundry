@@ -6,11 +6,17 @@
  *   tsx tooling/scripts/product-recalls-bulk-load.ts --cpsc <cpsc.json> --hc <HCRSAMOpenData.json> --out <dir> \
  *     --evidence-prefix product-recalls/bulk/<new, unused name>/ [--now <iso>]
  *
- * Writes `<agency>-NN.ndjson` (the verbatim in-scope records: the evidence)
- * and `<agency>-NN.sql` (whose raw_ref values point at byte ranges in that
- * NDJSON under the prefix). Upload every .ndjson to R2 first, then execute
- * the .sql files:
+ * Writes, for each agency:
+ * - `source-<agency>.json`: a byte-exact copy of the complete input, out-of-scope
+ *   records included, to upload under the content-addressed key the scheduled
+ *   sync also uses (`product-recalls/source/<agency>/sha256-<hash>.json`, printed
+ *   in the summary), so the snapshot can be replayed after the local file is gone;
+ * - `<agency>-NN.ndjson`: the verbatim in-scope records (the per-row evidence);
+ * - `<agency>-NN.sql`: whose raw_ref values point at byte ranges in that NDJSON
+ *   under the prefix.
+ * Upload the source copies and every .ndjson to R2 first, then execute the .sql files:
  *
+ *   wrangler r2 object put data-foundry-raw-artifacts/<source key> --file <out>/source-<agency>.json --remote
  *   wrangler r2 object put data-foundry-raw-artifacts/<prefix><file>.ndjson --file <out>/<file>.ndjson --remote
  *   wrangler d1 execute data-foundry-recalls --remote --file <out>/<file>.sql
  *
@@ -18,6 +24,7 @@
  * passes a new --evidence-prefix.
  */
 
+import { createHash } from 'node:crypto';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseArgs } from 'node:util';
@@ -42,13 +49,17 @@ const now = values.now ?? new Date().toISOString();
 const partSize = Number(values['part-size']);
 mkdirSync(values.out, { recursive: true });
 
-const summary: Record<string, { records: number; loaded: number; skipped: number; parts: number }> = {};
+const summary: Record<string, { records: number; loaded: number; skipped: number; parts: number; source_key: string }> = {};
 
 for (const [agency, path] of [
   ['CPSC', values.cpsc],
   ['HC', values.hc],
 ] as Array<[ProductAgency, string]>) {
-  const records = JSON.parse(readFileSync(path, 'utf8')) as unknown[];
+  const bytes = readFileSync(path);
+  // The complete input, before any filtering, under the same key the Worker's sync would give it.
+  const sourceKey = `product-recalls/source/${agency.toLowerCase()}/sha256-${createHash('sha256').update(bytes).digest('hex')}.json`;
+  writeFileSync(join(values.out, `source-${agency.toLowerCase()}.json`), bytes);
+  const records = JSON.parse(bytes.toString('utf8')) as unknown[];
   const byId = new Map<string, PreparedProductRecall>();
   let skipped = 0;
   for (const record of records) {
@@ -75,6 +86,6 @@ for (const [agency, path] of [
     const sql = writeProductGroups(writes, now, MAX_LITERAL_JSON_BYTES).flat().map(renderLiteral).join('\n');
     writeFileSync(join(values.out, `${name}.sql`), `${sql}\n`);
   }
-  summary[agency] = { records: records.length, loaded: items.length, skipped, parts };
+  summary[agency] = { records: records.length, loaded: items.length, skipped, parts, source_key: sourceKey };
 }
 console.log(JSON.stringify({ now, prefix, summary }, null, 2));

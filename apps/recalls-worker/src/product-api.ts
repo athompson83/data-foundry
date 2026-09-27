@@ -282,11 +282,15 @@ export async function lookupProductCode(db: D1Database, bucket: R2Bucket, code: 
   const clause = interpretations.map(() => '(kind = ? AND value = ?)').join(' OR ');
   const binds = interpretations.flatMap((item) => [item.kind, item.value]);
   const limit = includeRaw ? 25 : PRODUCT_LOOKUP_LIMIT;
-  const [rows, total, matched] = await Promise.all([
+  const [rows, total] = await Promise.all([
     db.prepare(`SELECT ${COLUMNS} FROM product_recall WHERE id IN (SELECT recall_id FROM product_recall_key WHERE ${clause}) ORDER BY sort_date DESC, id DESC LIMIT ?`).bind(...binds, limit).all<ProductRow>(),
     db.prepare(`SELECT COUNT(DISTINCT recall_id) AS n FROM product_recall_key WHERE ${clause}`).bind(...binds).first<{ n: number }>(),
-    db.prepare(`SELECT kind, value, recall_id FROM product_recall_key WHERE ${clause}`).bind(...binds).all<{ kind: string; value: string; recall_id: string }>(),
   ]);
+  // Match details only for the notices returned, so a key shared by thousands of notices stays bounded.
+  const matched = await db
+    .prepare(`SELECT kind, value, recall_id FROM product_recall_key WHERE (${clause}) AND recall_id IN (SELECT value FROM json_each(?))`)
+    .bind(...binds, JSON.stringify(rows.results.map((row) => row.id)))
+    .all<{ kind: string; value: string; recall_id: string }>();
   const byRecall = new Map<string, Array<{ kind: string; value: string }>>();
   for (const match of matched.results) byRecall.set(match.recall_id, [...(byRecall.get(match.recall_id) ?? []), { kind: match.kind, value: match.value }]);
   const presented = await presentRows(db, bucket, rows.results, includeRaw);

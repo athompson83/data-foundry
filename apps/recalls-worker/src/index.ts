@@ -287,8 +287,9 @@ async function route(request: Request, env: Env): Promise<Response> {
       return json({
         name: 'Data Foundry API',
         datasets: {
-          recalls: { docs: `${ctx.publicOrigin}/docs`, openapi: `${ctx.apiOrigin}/openapi.json` },
-          ...(productsServed(env) ? { 'product-recalls': { docs: `${ctx.publicOrigin}/product-recalls#api`, openapi: `${ctx.apiOrigin}/openapi.json` } } : {}),
+          // The same independent gates as the homepage, docs and OpenAPI: a withdrawn dataset is not listed.
+          ...(env.SOURCE_KILL_SWITCH !== '1' ? { recalls: { docs: `${ctx.publicOrigin}/docs#fda-recalls`, openapi: `${ctx.apiOrigin}/openapi.json` } } : {}),
+          ...(productsServed(env) ? { 'product-recalls': { docs: `${ctx.publicOrigin}/docs#product-recalls`, openapi: `${ctx.apiOrigin}/openapi.json` } } : {}),
         },
       });
     if (url.pathname === '/robots.txt') return new Response('User-agent: *\nDisallow: /\n', { headers: { 'content-type': 'text/plain' } });

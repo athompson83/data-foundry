@@ -218,6 +218,28 @@ describe('product-recall API', () => {
     expect(none.data).toEqual([]);
   });
 
+  it('returns match details only for the notices in the bounded page', async () => {
+    const env = makeEnv();
+    const many = Array.from({ length: 30 }, (_, index) => ({ ...CPSC, RecallNumber: String(30000 + index), Inconjunctions: [] }));
+    await ingestRecords(env, 'CPSC', many, 'full', NOW);
+    const apiKey = await key(env);
+    type Body = { data: Array<{ matched_on: Array<{ kind: string; value: string }>; recall: { id: string } }>; total_matches: number; truncated: boolean };
+    const body = (await (await worker.fetch(api('/v1/product-recalls/lookup?code=DXH70CFAVX&include=raw', apiKey), env)).json()) as Body;
+    expect(body.total_matches).toBe(30);
+    expect(body.truncated).toBe(true);
+    expect(body.data).toHaveLength(25);
+    for (const item of body.data) expect(item.matched_on).toEqual([{ kind: 'model', value: 'DXH70CFAVX' }]);
+  });
+
+  it('lists on the API root only the datasets that are served', async () => {
+    const killed = makeEnv({ SOURCE_KILL_SWITCH: '1' });
+    const root = (await (await worker.fetch(api('/'), killed)).json()) as { datasets: Record<string, unknown> };
+    expect(Object.keys(root.datasets)).toEqual(['product-recalls']);
+    const both = (await (await worker.fetch(api('/'), makeEnv())).json()) as { datasets: Record<string, { docs: string }> };
+    expect(Object.keys(both.datasets)).toEqual(['recalls', 'product-recalls']);
+    expect(both.datasets['product-recalls']!.docs).toBe('https://data.aroqon.com/docs#product-recalls');
+  });
+
   it('filters by agency, hazard, facet, firm, text and link status, with a stable cursor', async () => {
     const env = makeEnv();
     await seed(env);
