@@ -40,6 +40,8 @@ code{background:var(--code);padding:1px 5px;border-radius:4px}pre code{backgroun
 table{border-collapse:collapse;width:100%;font-size:14.5px}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
 .table-wrap{overflow-x:auto}.key{font-size:16px;word-break:break-all;padding:14px;background:var(--code);border:1px dashed var(--accent);border-radius:10px}
 .notice{border-left:3px solid var(--warn);padding:8px 14px;background:var(--card)}
+article.prose{max-width:760px}article.prose h2{font-size:22px;margin:36px 0 10px}article.prose blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--line);color:var(--muted)}
+ul.articles{list-style:none;padding:0;max-width:760px}ul.articles li{border-bottom:1px solid var(--line);padding:4px 0 8px}ul.articles h2{font-size:20px;margin:18px 0 4px}ul.articles h2 a{text-decoration:none}
 footer{max-width:980px;margin:0 auto;padding:24px 16px 48px;color:var(--muted);font-size:14px;border-top:1px solid var(--line)}
 `;
 
@@ -50,6 +52,8 @@ export interface LayoutOptions {
   readonly path?: string;
   /** schema.org objects, emitted as JSON-LD for search engines and LLM crawlers. */
   readonly jsonLd?: readonly unknown[];
+  /** Open Graph properties (og:*, article:*), emitted as <meta property> tags. */
+  readonly openGraph?: Readonly<Record<string, string>>;
 }
 
 /** JSON-LD inside <script>: escape "<" so text such as "</script>" cannot end the block. */
@@ -63,11 +67,12 @@ export function layout(ctx: PageContext, title: string, description: string, bod
 <title>${escapeHtml(title)}</title><meta name="description" content="${escapeHtml(description)}">
 ${robots ? `<meta name="robots" content="${robots}">` : ''}${options.path ? `<link rel="canonical" href="${ctx.publicOrigin}${options.path}">` : ''}
 <link rel="alternate" type="text/plain" title="LLM summary" href="/llms.txt"><link rel="service-desc" type="application/json" href="${ctx.apiOrigin}/openapi.json">
+${Object.entries(options.openGraph ?? {}).map(([property, content]) => `<meta property="${escapeHtml(property)}" content="${escapeHtml(content)}">`).join('')}
 ${(options.jsonLd ?? []).map(jsonLdScript).join('')}
 <style>${CSS}</style></head><body>
-<header class="site"><a class="brand" href="/">Data Foundry</a><nav><a href="/recalls">Recall API</a><a href="/recalls/browse">Browse recalls</a><a href="/recalls/docs">Docs</a><a href="/recalls#pricing">Pricing</a></nav></header>
+<header class="site"><a class="brand" href="/">Data Foundry</a><nav><a href="/recalls">Recall API</a><a href="/recalls/browse">Browse recalls</a><a href="/recalls/docs">Docs</a><a href="/recalls#pricing">Pricing</a><a href="/articles">Articles</a></nav></header>
 <main>${body}</main>
-<footer>Data Foundry by Aroqon Data · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="mailto:${ctx.supportEmail}">${ctx.supportEmail}</a><br>
+<footer>Data Foundry by Aroqon Data · <a href="/articles">Articles</a> · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="mailto:${ctx.supportEmail}">${ctx.supportEmail}</a><br>
 Recall data: U.S. Food and Drug Administration via <a href="https://open.fda.gov">openFDA</a> (CC0). Not affiliated with or endorsed by FDA.</footer>
 </body></html>`;
 }

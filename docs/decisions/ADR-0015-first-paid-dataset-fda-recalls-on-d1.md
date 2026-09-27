@@ -84,10 +84,11 @@ endpoints `/admin/sync` and
 `/admin/reissue-key` back the lost-key procedure in
 `docs/owner-actions/recalls-operations.md`). The site-wide
 paths it also serves today (`/`, `/docs`, `/terms`, `/privacy`, `/robots.txt`,
-`/sitemap.xml`, `/sitemaps/*`, `/llms.txt`, `/llms-full.txt` and the IndexNow
-key file `/<INDEXNOW_KEY>.txt`; see "Discoverability" below) move to the web Worker only once that Worker serves
+`/sitemap.xml`, `/sitemaps/*`, `/llms.txt`, `/llms-full.txt`, the IndexNow
+key file `/<INDEXNOW_KEY>.txt`, and `/articles` and `/articles/*`; see
+"Discoverability" below and [`docs/articles.md`](../articles.md)) move to the web Worker only once that Worker serves
 equivalents covering the recall product (its terms and privacy text, its
-sitemap entries and a link to `/recalls/docs`); until then they stay on the
+sitemap entries, the articles and a link to `/recalls/docs`); until then they stay on the
 recall Worker as explicit routes. Verify every recall page, checkout, the Stripe
 webhook, an authorised `/admin/sync` call, `/sitemap.xml`, one
 `/sitemaps/recalls-1.xml` shard, `/llms.txt` and the IndexNow key file through the new routes before
@@ -127,6 +128,13 @@ API (rule 5):
   Search);
 - `/llms.txt` and `/llms-full.txt` (llmstxt.org format) for agents;
 - `robots.txt` allowing search and AI crawlers, with a Content-Signal line;
+- owned articles at `/articles` and `/articles/<slug>` (added 2026-09-27;
+  [`docs/articles.md`](../articles.md)): Markdown in `content/articles/`,
+  validated and rendered at build time into
+  `apps/recalls-worker/generated/articles.ts`, with `Article` JSON-LD, Open
+  Graph tags and entries in `/sitemaps/pages.xml` and `llms.txt`. They are not
+  dataset rows, so the kill switch does not withdraw them, and IndexNow does
+  not announce them;
 - IndexNow pings for changed, indexable recall pages after every scheduled
   sync. The key is public by design and served at `/<INDEXNOW_KEY>.txt`. A
   watermark in R2 (`state/indexnow-watermark.json`) advances only when every

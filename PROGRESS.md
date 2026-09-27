@@ -1,5 +1,13 @@
 # Progress
 
+## Current session — 2026-09-27 (continued): owned articles on data.aroqon.com (PR #66, open)
+
+- **Why.** The content-writer agent (Rise `docs/growth-hq/content/`) writes dataset-launch and developer articles and publishes by PR; Data Foundry had no page for them.
+- **Built** ([`docs/articles.md`](docs/articles.md)): Markdown in `content/articles/<slug>.md`, validated by zod (strict keys; `dataset` must be a LIVE key in `candidates.yaml`; drafts excluded; at least 150 words) and rendered with `markdown-it` at build time into `apps/recalls-worker/generated/articles.ts` (`pnpm articles:generate` / `articles:check`). Raw HTML, images and links other than http(s)/mailto/site-relative/#anchor are refused by the loader and dropped by the renderer. The recall Worker serves `/articles` and `/articles/<slug>` on the public host only, with canonical URL, Open Graph `article` tags, `Article` JSON-LD matching the visible byline, `/sitemaps/pages.xml` and `llms.txt` entries, and "Articles" in the nav and footer. CI now runs full verification for `content/` changes.
+- **Seeded** one article, "FDA Recall API: openFDA enforcement reports, structured", built from the live source record `H-1331-2026`, the Worker's actual response for it (reproduced locally through the real handler), `/v1/recalls/stats` fetched 2026-09-27, the rights record and `account.ts` prices.
+- **Not done here.** Nothing deployed; articles go live only after merge plus a `wrangler deploy` of `data-foundry-recalls`. IndexNow does not announce articles (it runs only for changed recall pages after the scheduled sync).
+- **Verification (local).** `pnpm typecheck` and the recall Worker `tsc` pass; `pnpm articles:check` OK; recall Worker tests 59/59; `tooling/test/articles.test.ts` 24/24; `tooling/test/source-pipeline.test.ts` 578/578; full `pnpm test` 249 files / 4,576 tests passed. An esbuild bundle of the Worker contains the article and no `markdown-it`.
+
 ## Current session — 2026-09-27 (continued): service trades, and search/LLM discoverability
 
 - **Owner direction.** "The next 5 data sets should be something nongovernmental … service based. HVAC, Plumbing, Electric, Roofing, and Appliance. We build those out. Also need a way to SEO and make data show up for LLMs."

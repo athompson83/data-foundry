@@ -4,5 +4,5 @@
     "noEmit": true,
     "lib": ["ES2023"]
   },
-  "include": ["src/**/*.ts", "test/**/*.ts", "vitest.config.ts", "../../types/**/*.d.ts"]
+  "include": ["src/**/*.ts", "generated/**/*.ts", "test/**/*.ts", "vitest.config.ts", "../../types/**/*.d.ts"]
 }

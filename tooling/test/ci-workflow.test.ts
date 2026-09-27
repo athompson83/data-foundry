@@ -738,6 +738,16 @@ describe('CI workflow policy', () => {
     }
   });
 
+  it('runs full verification for article-only changes, which ship in the recall Worker', () => {
+    const verifyArm = [...scopeScript.matchAll(/case "\$path" in([\s\S]*?)\n\s+esac/g)][0]?.[1] ?? '';
+    const selectsVerify = (path: string): boolean =>
+      execFileSync('bash', ['-c', `run_verify=false; path="$1"; case "$path" in${verifyArm}\n esac; echo "$run_verify"`, 'scope', path], { encoding: 'utf8' }).trim() === 'true';
+    expect(selectsVerify('content/articles/fda-recall-api.md')).toBe(true);
+    expect(selectsVerify('docs/articles.md')).toBe(false);
+    expect(selectsVerify('README.md')).toBe(false);
+    expect(selectsVerify('apps/recalls-worker/src/articles.ts')).toBe(true);
+  });
+
   it('selects real Postgres for a policy-only private-canary change and treats renames conservatively', () => {
     expect(scopeScript).toContain('git diff --no-renames --name-only');
     expect(selectsRealPostgres('packages/private-canary/src/runtime-role-policy.ts')).toBe(true);

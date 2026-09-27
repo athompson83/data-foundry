@@ -8,6 +8,7 @@
  * the dataset current from openFDA.
  */
 
+import { ARTICLE_PAGE_PATTERN, articleBySlug, articleLlmsLinks, articlePage, articleSitemapEntries, articlesIndexPage } from './articles.js';
 import { consumeRequest, currentUsage, findCustomerByKey, isPlanId, issueFreeKey, issueKey, PLANS, replaceKey, presentedKey, type AuthenticatedCustomer } from './account.js';
 import { BadRequest, getRecall, lookupCode, searchRecalls, stats } from './api.js';
 import type { Env } from './env.js';
@@ -258,6 +259,8 @@ async function route(request: Request, env: Env): Promise<Response> {
       return html(termsPage(ctx), 200, { 'cache-control': 'public, max-age=3600' });
     case '/privacy':
       return html(privacyPage(ctx), 200, { 'cache-control': 'public, max-age=3600' });
+    case '/articles':
+      return html(articlesIndexPage(ctx), 200, { 'cache-control': 'public, max-age=300' });
     case '/recalls/checkout':
       if (request.method !== 'POST') return Response.redirect(`${ctx.publicOrigin}/recalls#pricing`, 303);
       return checkout(env, request);
@@ -269,19 +272,27 @@ async function route(request: Request, env: Env): Promise<Response> {
     case '/robots.txt':
       return text(robotsTxt(ctx), 'text/plain', 3600);
     case '/llms.txt':
-      return text(llmsTxt(ctx), 'text/markdown', 3600);
+      return text(llmsTxt(ctx, articleLlmsLinks(ctx)), 'text/markdown', 3600);
     case '/llms-full.txt':
-      return text(llmsFullTxt(ctx), 'text/markdown', 3600);
+      return text(llmsFullTxt(ctx, articleLlmsLinks(ctx)), 'text/markdown', 3600);
     case '/sitemap.xml':
       if (env.SOURCE_KILL_SWITCH === '1') return withdrawn(ctx);
       return cached(cacheKey(ctx, url.pathname), () => sitemapIndex(ctx, env.DB).then((body) => text(body, 'application/xml', 3600)));
     case '/sitemaps/pages.xml':
-      return text(pagesSitemap(ctx), 'application/xml', 3600);
+      return text(pagesSitemap(ctx, articleSitemapEntries(ctx)), 'application/xml', 3600);
     case '/recalls/browse':
       if (env.SOURCE_KILL_SWITCH === '1') return withdrawn(ctx);
       return cached(cacheKey(ctx, url.pathname), async () => html(await browseIndex(ctx, env.DB), 200, { 'cache-control': 'public, max-age=3600' }));
-    default:
+    default: {
+      // Articles are bundled with the Worker rather than read from D1, so they
+      // are served like the other static pages, outside the kill switch.
+      const article = ARTICLE_PAGE_PATTERN.exec(url.pathname);
+      if (article) {
+        const found = articleBySlug(article[1] as string);
+        return found ? html(articlePage(ctx, found), 200, { 'cache-control': 'public, max-age=300' }) : notFound(ctx);
+      }
       return publicDataPage(env, ctx, request, url);
+    }
   }
 }
 

@@ -255,8 +255,10 @@ export async function sitemapIndex(ctx: PageContext, db: D1Database): Promise<st
   return `<?xml version="1.0" encoding="UTF-8"?><sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${entries.join('')}</sitemapindex>`;
 }
 
-export function pagesSitemap(ctx: PageContext): string {
-  return `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${STATIC_PATHS.map((path) => `<url><loc>${ctx.publicOrigin}${path}</loc></url>`).join('')}</urlset>`;
+/** The static pages, plus any bundled pages (articles) the caller adds with their last-modified dates. */
+export function pagesSitemap(ctx: PageContext, extra: ReadonlyArray<{ readonly loc: string; readonly lastmod?: string }> = []): string {
+  const entries = [...STATIC_PATHS.map((path) => ({ loc: `${ctx.publicOrigin}${path}`, lastmod: undefined as string | undefined })), ...extra];
+  return `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${entries.map((entry) => `<url><loc>${escapeHtml(entry.loc)}</loc>${entry.lastmod ? `<lastmod>${escapeHtml(entry.lastmod)}</lastmod>` : ''}</url>`).join('')}</urlset>`;
 }
 
 /** Stable order by recall number, so a URL stays in the same sitemap file between syncs. */
@@ -288,7 +290,7 @@ Sitemap: ${ctx.publicOrigin}/sitemap.xml
 `;
 }
 
-export function llmsTxt(ctx: PageContext): string {
+export function llmsTxt(ctx: PageContext, articles: ReadonlyArray<{ readonly title: string; readonly url: string; readonly description: string }> = []): string {
   return `# Data Foundry
 
 > Data Foundry turns lawfully sourced, unstructured public records into clean, current, provenance-linked data for software and AI agents, served over a JSON API. Its first dataset, FDA Recall Intelligence, structures every FDA food, drug and medical-device recall since June 2012 (about 87,000) — distribution states, lot and serial numbers, UPC/GTIN/UDI, NDC, expiry dates, reason classes, allergens and pathogens — and answers "is this product recalled, and where?" from a single code.
@@ -312,7 +314,7 @@ Key facts for agents:
 
 - [FDA Recall Intelligence](${ctx.publicOrigin}/recalls): food, drug and device recalls with structured codes and geography.
 - [Browse recalls by year](${ctx.publicOrigin}/recalls/browse): one public page per recall.
-
+${articles.length ? `\n## Articles\n\n${articles.map((article) => `- [${article.title}](${article.url}): ${article.description}`).join('\n')}\n` : ''}
 ## Optional
 
 - [Terms](${ctx.publicOrigin}/terms)
@@ -321,8 +323,8 @@ Key facts for agents:
 `;
 }
 
-export function llmsFullTxt(ctx: PageContext): string {
-  return `${llmsTxt(ctx)}
+export function llmsFullTxt(ctx: PageContext, articles: Parameters<typeof llmsTxt>[1] = []): string {
+  return `${llmsTxt(ctx, articles)}
 ## Recall API reference
 
 Base URL: ${ctx.apiOrigin}. Authentication: \`Authorization: Bearer rcl_live_…\` (or \`x-api-key\`). Responses are JSON.

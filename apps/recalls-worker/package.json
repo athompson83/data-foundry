@@ -8,7 +8,7 @@
     ".": "./src/index.ts"
   },
   "types": "./src/index.ts",
-  "files": ["src", "migrations"],
+  "files": ["src", "generated", "migrations"],
   "scripts": {
     "test": "vitest run --root .",
     "typecheck": "tsc -p tsconfig.json",
