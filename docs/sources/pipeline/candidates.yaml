@@ -3776,9 +3776,10 @@ datasets:
       - docs/sources/pipeline/evidence/2026-09-27-composites/recalls
     next_action: "Build inside the cpsc-recalls build (first in the service-trade build order): generalise the
       LIVE fda-recalls StructuredRecall schema to recall_notice + affected_product + notice_link, load CPSC
-      and the HC OGL index first (the joint-recall marker gives 341 deterministic links), then EU Safety Gate
-      XML and UK OPSS via their APIs. Attach ENERGY STAR matches and SaferProducts incident counts as
-      enrichment with their own provenance."
+      and the HC OGL index first (the joint-recall marker narrows 341 candidate links, which go to a review
+      queue before publication; only GTIN and cited case numbers link automatically), then EU Safety Gate XML
+      and UK OPSS via their APIs. Attach ENERGY STAR matches and SaferProducts incident counts as enrichment
+      with their own provenance."
   - key: home-equipment-model-registry
     name: Home equipment model registry (HVAC, water heating, plumbing fixtures, appliances, EV/solar) with
       recalls, ownership and refrigerant rules
@@ -3788,11 +3789,11 @@ datasets:
     description: One record per equipment model (or model pattern and component system), assembled from ENERGY
       STAR category datasets and the Model Index, WaterSense, CEC solar lists, CPSC recall text, a curated
       Wikidata filer/parent crosswalk and the eCFR/SNAP refrigerant rules. Every fact carries its source.
-      Identity comes only from deterministic keys (source ID, GTIN, brand+model, compiled wildcard pattern,
-      component set). Cross-brand and cross-region candidates are stored for audit, never merged. AU/NZ GEMS
-      and EU EPREL are later regional partitions. Canada availability comes from ENERGY STAR's own markets
-      field (1,644,779 of 1,796,876 models); the live NRCan list was unreachable. EU EPREL is excluded while
-      its terms forbid aggregating.
+      Identity links automatically only on declared keys (source ID, GTIN); brand+model, compiled wildcard
+      patterns and component sets propose candidate links for review. Cross-brand and cross-region candidates
+      are stored for audit, never merged. AU/NZ GEMS and EU EPREL are later regional partitions. Canada
+      availability comes from ENERGY STAR's own markets field (1,644,779 of 1,796,876 models); the live NRCan
+      list was unreachable. EU EPREL is excluded while its terms forbid aggregating.
     sources:
       - hvac-energystar-matched-systems
       - appliance-energy-star-registry
@@ -3845,7 +3846,9 @@ datasets:
         between:
           - equipment-energystar-model-index
           - hvac-brand-ownership-graph
-        measured: 154/1198 org-typed (57 with parent); top-50 filers 7/50 correct and unique
+        measured: "154/1198 org-typed (57 with parent); top-50 filers 7/50 correct and unique (completeness of the
+          Wikidata batches unverified: the run left no log, and Wikidata rate-limited this egress the same
+          day)"
         mode: candidate
       - key: brand_key
         between:
@@ -4052,9 +4055,10 @@ datasets:
     stage: SCREENED
     description: One record per resolved contractor business, assembled from state regulators' open bulk licence
       data (WA L&I, OR CCB + BCD, CO DORA, CT DCP, MN DLI, TX TDLR), EPA's lead-safe firm list and
-      OpenStreetMap, linked only on deterministic keys (licence number, WA UBI, normalised name + legal form +
-      zip/city/phone). Every credential, bond, insurance policy and disciplinary event keeps its source;
-      statuses are never merged across jurisdictions. Individuals, principals and sole traders are excluded.
+      OpenStreetMap, linked automatically only on declared keys (licence number, WA UBI); normalised name +
+      legal form + zip/city/phone matches are review candidates. Every credential, bond, insurance policy and
+      disciplinary event keeps its source; statuses are never merged across jurisdictions. Individuals,
+      principals and sole traders are excluded.
     sources:
       - contractors-wa-lni-licences
       - contractors-or-ccb-registrations

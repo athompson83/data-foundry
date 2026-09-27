@@ -14,10 +14,15 @@ for cat in sys.argv[1:]:
   t=search(cat); tp=int(re.search(r'lblTotalPages">(\d+)',t).group(1)); n=rows(t,cat)
   print(cat,'pages',tp,'p1',n,flush=True)
   for pg in range(2,tp+1):
+    page=None  # the postback chain needs each page, so a page that cannot be fetched ends the run
     for attempt in range(3):
-      try: t=nextpage(t,pg); break
+      try: page=nextpage(t,pg); break
       except Exception as e: print('retry',pg,e,flush=True); time.sleep(5)
-    cp=re.search(r'lblCurrentPage">(\d+)',t); n=rows(t,cat)
+    if page is None: raise SystemExit(f'{cat}: page {pg} failed after 3 attempts; population incomplete')
+    t=page
+    cp=re.search(r'lblCurrentPage">(\d+)',t)
+    if not cp or int(cp.group(1))!=pg: raise SystemExit(f'{cat}: expected page {pg}, got {cp and cp.group(1)}')
+    n=rows(t,cat)
     if pg%10==0 or n==0: print(cat,pg,cp and cp.group(1),n,len(out),flush=True)
   json.dump(out,open('fbc_list.json','w'))
 json.dump(out,open('fbc_list.json','w'))

@@ -27,6 +27,9 @@ def run(names, tag):
         for attempt in range(3):
             try: res+=sparql(labs[i:i+120]); break
             except Exception as e: print('err',e); time.sleep(10)
+        else:
+            # A dropped batch would silently lower the measured match rate.
+            raise SystemExit(f'batch {i}: failed after 3 attempts; measurement incomplete')
         time.sleep(2)
     json.dump(res,open(E3+f'/wd_{tag}.json','w'))
     return res,lab2name
