@@ -26,6 +26,9 @@ const Candidate = z
     // prose or documents (notices, PDFs, narratives), `structured` when they arrive as typed fields. Required for every
     // dataset member.
     format: z.enum(['free-text', 'structured']).optional(),
+    // Who publishes the data, independent of the URL it is served from (one agency may use several domains, and a data
+    // portal may republish another agency's feed). Required for every dataset member; independence compares it.
+    publisher: z.string().min(2).optional(),
     stage: z.enum(STAGES),
     rights: z.enum(['GREEN', 'AMBER', 'RED', 'UNKNOWN']),
     sources: z.array(z.string().url()).min(1),
@@ -247,8 +250,10 @@ describe('dataset expansion pipeline registry', () => {
     }
     // Independence is between members, not across the union of URLs: some pair of distinct members must share
     // no host, so one feed republished under a second key cannot pass as a composite.
+    for (const candidate of members) expect(candidate.publisher, `${candidate.key} must declare its publisher`).toBeDefined();
+    // Independent publishers, and (as a second guard) no shared registrable domain between them.
     const hostSets = members.map((candidate) => new Set(candidate.sources.map(hostOf)));
-    const independent = hostSets.some((a, i) => hostSets.some((b, j) => j > i && [...a].every((host) => !b.has(host))));
+    const independent = members.some((a, i) => members.some((b, j) => j > i && a.publisher !== b.publisher && [...hostSets[i]!].every((host) => !hostSets[j]!.has(host))));
     expect(independent, 'at least two members share no source host').toBe(true);
     for (const candidate of members) expect(candidate.rights, `${candidate.key} is RED; a dataset may not use it`).not.toBe('RED');
     if (beyond(dataset.stage, 'EVIDENCED')) for (const candidate of members) expect(['GREEN', 'AMBER'], `${candidate.key} rights`).toContain(candidate.rights);
@@ -266,7 +271,7 @@ describe('dataset expansion pipeline registry', () => {
       const [a, b] = join.between.map(member);
       const ratio = /(\d[\d,]*)\s*\/\s*(\d[\d,]*)/.exec(join.measured);
       const hostsA = new Set(byKey.get(a!)!.sources.map(hostOf));
-      const independent = byKey.get(b!)!.sources.every((url) => !hostsA.has(hostOf(url)));
+      const independent = byKey.get(a!)!.publisher !== byKey.get(b!)!.publisher && byKey.get(b!)!.sources.every((url) => !hostsA.has(hostOf(url)));
       if (ratio === null) return false;
       const [matched, total] = [Number(ratio[1]!.replaceAll(',', '')), Number(ratio[2]!.replaceAll(',', ''))];
       // 0/0 records no sample, and 0/N records no link: zero-match rows stay in the registry as evidence, but only

@@ -53,7 +53,8 @@ members actually link through a join between independent publishers with at
 least one match that is either `declared` or a `candidate` whose hand-check
 (`reviewed: { correct, checked }`) confirmed at least one same-record match;
 every candidate link is still reviewed before publication. Every member records
-its source `format` (`free-text` when its facts must be extracted from prose or
+its `publisher` (independence compares publishers, not URL domains, since one
+agency can serve a feed from several domains) and its source `format` (`free-text` when its facts must be extracted from prose or
 documents, `structured` when they arrive as typed fields), independently of the
 structuring task. A dataset combines both formats: it cannot advance to
 `EVIDENCED` without at least one free-text member and one structured member.

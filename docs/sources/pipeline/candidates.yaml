@@ -34,6 +34,7 @@ candidates:
     category: product-safety
     structuring: identifier-extraction
     format: free-text
+    publisher: US CPSC
     stage: EVIDENCED
     rights: GREEN
     sources: [ https://www.saferproducts.gov/RestWebServices/Recall?format=json ]
@@ -334,6 +335,7 @@ candidates:
     category: home-services
     structuring: identifier-extraction
     format: free-text
+    publisher: US CPSC
     stage: SCREENED
     rights: GREEN
     sources: [ "https://www.saferproducts.gov/RestWebServices/Recall?format=json" ]
@@ -373,6 +375,7 @@ candidates:
     category: home-services
     structuring: normalization
     format: structured
+    publisher: US EPA ENERGY STAR
     stage: SCREENED
     rights: AMBER
     sources:
@@ -420,6 +423,7 @@ candidates:
     category: home-services
     structuring: identifier-extraction
     format: free-text
+    publisher: Health Canada
     stage: SCREENED
     rights: AMBER
     sources: [ "https://recalls-rappels.canada.ca/sites/default/files/opendata-donneesouvertes/HCRSAMOpenData.json" ]
@@ -464,6 +468,7 @@ candidates:
     category: home-services
     structuring: normalization
     format: structured
+    publisher: Wikidata
     stage: SCREENED
     rights: GREEN
     sources: [ "https://query.wikidata.org/sparql" ]
@@ -496,6 +501,7 @@ candidates:
     category: home-services
     structuring: normalization
     format: structured
+    publisher: AU GEMS Regulator
     stage: SCREENED
     rights: AMBER
     sources: [ "https://data.gov.au/data/dataset/energy-rating-for-household-appliances" ]
@@ -528,6 +534,7 @@ candidates:
     category: home-services
     structuring: normalization
     format: structured
+    publisher: OpenStreetMap
     stage: DISCOVERED
     rights: AMBER
     sources: [ "https://taginfo.openstreetmap.org/api/4/tag/stats?key=shop&value=appliance" ]
@@ -562,6 +569,7 @@ candidates:
     category: home-services
     structuring: event-extraction
     format: structured
+    publisher: US CPSC
     stage: SCREENED
     rights: AMBER
     sources: [ "https://www.saferproducts.gov/SPDB.zip", "https://www.saferproducts.gov/PublicSearch" ]
@@ -795,6 +803,7 @@ candidates:
     category: home-services
     structuring: normalization
     format: structured
+    publisher: US EPA ENERGY STAR
     stage: SCREENED
     rights: AMBER
     sources:
@@ -848,6 +857,7 @@ candidates:
     category: home-services
     structuring: normalization
     format: structured
+    publisher: Wikidata
     stage: SCREENED
     rights: GREEN
     sources:
@@ -895,6 +905,7 @@ candidates:
     category: home-services
     structuring: obligation-timeline
     format: free-text
+    publisher: US EPA (eCFR)
     stage: SCREENED
     rights: GREEN
     sources: [ "https://www.ecfr.gov/api/versioner/v1/full/2026-08-24/title-40.xml?part=84&section=84.54" ]
@@ -926,6 +937,7 @@ candidates:
     category: home-services
     structuring: identifier-extraction
     format: free-text
+    publisher: US CPSC
     stage: SCREENED
     rights: GREEN
     sources: [ "https://www.saferproducts.gov/RestWebServices/Recall?format=json" ]
@@ -957,6 +969,7 @@ candidates:
     category: home-services
     structuring: normalization
     format: structured
+    publisher: TX TDLR
     stage: SCREENED
     rights: AMBER
     sources: [ https://www.tdlr.texas.gov/LicenseSearch/licfile.asp, https://data.texas.gov/resource/7358-krk7.json ]
@@ -1000,6 +1013,7 @@ candidates:
     category: home-services
     structuring: normalization
     format: structured
+    publisher: OpenStreetMap
     stage: PARKED
     rights: AMBER
     sources: [ https://overpass-api.de/api/interpreter ]
@@ -1118,6 +1132,7 @@ candidates:
     category: home-services
     structuring: identifier-extraction
     format: structured
+    publisher: US EPA WaterSense
     stage: SCREENED
     rights: AMBER
     sources:
@@ -1166,6 +1181,7 @@ candidates:
     category: home-services
     structuring: identifier-extraction
     format: free-text
+    publisher: US CPSC
     stage: SCREENED
     rights: GREEN
     sources: [ "https://www.saferproducts.gov/RestWebServices/Recall?format=json" ]
@@ -1273,6 +1289,7 @@ candidates:
     category: home-services
     structuring: normalization
     format: structured
+    publisher: US EPA ENERGY STAR
     stage: SCREENED
     rights: AMBER
     sources: [ https://data.energystar.gov/resource/pbpq-swnu.json, https://data.energystar.gov/api/views/pbpq-swnu.json ]
@@ -1562,6 +1579,7 @@ candidates:
     category: home-services
     structuring: normalization
     format: free-text
+    publisher: Miami-Dade County
     stage: SCREENED
     rights: AMBER
     sources:
@@ -1621,6 +1639,7 @@ candidates:
     category: home-services
     structuring: normalization
     format: free-text
+    publisher: Florida Building Commission
     stage: SCREENED
     rights: AMBER
     sources: [ https://www.floridabuilding.org/pr/pr_app_srch.aspx, https://www.floridabuilding.org/pr/pr_app_dtl.aspx ]
@@ -1664,6 +1683,7 @@ candidates:
     category: home-services
     structuring: event-extraction
     format: free-text
+    publisher: NOAA
     stage: SCREENED
     rights: GREEN
     sources:
@@ -1939,6 +1959,7 @@ candidates:
     category: home-services
     structuring: normalization
     format: structured
+    publisher: California Energy Commission
     stage: SCREENED
     rights: AMBER
     sources:
@@ -2006,6 +2027,7 @@ candidates:
     category: home-services
     structuring: identifier-extraction
     format: free-text
+    publisher: US CPSC
     stage: SCREENED
     rights: GREEN
     sources: [ "https://www.saferproducts.gov/RestWebServices/Recall?format=json" ]
@@ -2038,6 +2060,7 @@ candidates:
     category: home-services
     structuring: normalization
     format: structured
+    publisher: TX TDLR
     stage: SCREENED
     rights: AMBER
     sources: [ "https://data.texas.gov/resource/7358-krk7.json" ]
@@ -2075,6 +2098,7 @@ candidates:
     category: home-services
     structuring: normalization
     format: structured
+    publisher: US EPA ENERGY STAR
     stage: SCREENED
     rights: AMBER
     sources:
@@ -2332,6 +2356,7 @@ candidates:
     category: product-safety
     structuring: identifier-extraction
     format: free-text
+    publisher: European Commission
     stage: SCREENED
     rights: AMBER
     sources:
@@ -2391,6 +2416,7 @@ candidates:
     category: product-safety
     structuring: identifier-extraction
     format: free-text
+    publisher: UK OPSS
     stage: SCREENED
     rights: AMBER
     sources:
@@ -2437,6 +2463,7 @@ candidates:
     category: product-safety
     structuring: identifier-extraction
     format: free-text
+    publisher: ACCC
     stage: SCREENED
     rights: AMBER
     sources:
@@ -2484,6 +2511,7 @@ candidates:
     category: product-safety
     structuring: identifier-extraction
     format: free-text
+    publisher: NZ MBIE
     stage: SCREENED
     rights: AMBER
     sources: [ 'https://www.productsafety.govt.nz/sitemap.xml', 'https://www.productsafety.govt.nz/recalls' ]
@@ -2607,6 +2635,7 @@ candidates:
     category: home-services
     structuring: normalization
     format: structured
+    publisher: US EPA ENERGY STAR
     stage: SCREENED
     rights: AMBER
     sources:
@@ -2656,6 +2685,7 @@ candidates:
     category: home-services
     structuring: normalization
     format: structured
+    publisher: Natural Resources Canada
     stage: SCREENED
     rights: AMBER
     sources: [ 'https://open.canada.ca/data/en/dataset/fbfdf946-8dd1-4830-a5c9-f8a72d8fabda' ]
@@ -2710,6 +2740,7 @@ candidates:
     category: home-services
     structuring: normalization
     format: structured
+    publisher: AU GEMS Regulator
     stage: SCREENED
     rights: AMBER
     sources:
@@ -2751,6 +2782,7 @@ candidates:
     category: home-services
     structuring: obligation-timeline
     format: free-text
+    publisher: US EPA (eCFR)
     stage: DISCOVERED
     rights: GREEN
     sources:
@@ -2859,6 +2891,7 @@ candidates:
     category: home-services
     structuring: normalization
     format: structured
+    publisher: FEMA
     stage: SCREENED
     rights: GREEN
     sources:
@@ -2911,6 +2944,7 @@ candidates:
     category: home-services
     structuring: normalization
     format: structured
+    publisher: FEMA
     stage: SCREENED
     rights: AMBER
     sources:
@@ -2955,6 +2989,7 @@ candidates:
     category: home-services
     structuring: normalization
     format: structured
+    publisher: NOAA
     stage: SCREENED
     rights: GREEN
     sources: [ 'https://www.weather.gov/source/gis/Shapefiles/County/bp16ap26.dbx' ]
@@ -3024,6 +3059,7 @@ candidates:
     category: home-services
     structuring: normalization
     format: structured
+    publisher: Wikidata
     stage: DISCOVERED
     rights: GREEN
     sources: [ 'https://www.wikidata.org/w/api.php', 'https://query.wikidata.org/sparql' ]
@@ -3247,6 +3283,7 @@ candidates:
     category: home-services
     structuring: normalization
     format: structured
+    publisher: WA L&I
     stage: SCREENED
     rights: AMBER
     sources:
@@ -3300,6 +3337,7 @@ candidates:
     category: home-services
     structuring: normalization
     format: structured
+    publisher: OR CCB
     stage: SCREENED
     rights: AMBER
     sources: [ 'https://data.oregon.gov/resource/g77e-6bhs.json' ]
@@ -3335,6 +3373,7 @@ candidates:
     category: home-services
     structuring: normalization
     format: structured
+    publisher: OR BCD
     stage: SCREENED
     rights: AMBER
     sources: [ 'https://data.oregon.gov/resource/vhbr-cuaq.json' ]
@@ -3369,6 +3408,7 @@ candidates:
     category: home-services
     structuring: event-extraction
     format: structured
+    publisher: CO DORA
     stage: SCREENED
     rights: AMBER
     sources: [ 'https://data.colorado.gov/resource/7s5z-vewr.json', 'https://data.colorado.gov/resource/349y-twqi.json' ]
@@ -3409,6 +3449,7 @@ candidates:
     category: home-services
     structuring: normalization
     format: structured
+    publisher: CT DCP
     stage: SCREENED
     rights: AMBER
     sources: [ 'https://data.ct.gov/resource/5r9m-qgni.json' ]
@@ -3463,6 +3504,7 @@ candidates:
     category: home-services
     structuring: normalization
     format: structured
+    publisher: MN DLI
     stage: SCREENED
     rights: AMBER
     sources:
@@ -3506,6 +3548,7 @@ candidates:
     category: home-services
     structuring: normalization
     format: structured
+    publisher: US EPA RRP
     stage: SCREENED
     rights: AMBER
     sources: [ 'https://cdxocsppapps.epa.gov/ocspp-oppt-lead/firm-location-search' ]
@@ -3546,6 +3589,7 @@ candidates:
     category: home-services
     structuring: event-extraction
     format: structured
+    publisher: US DOL OSHA
     stage: DISCOVERED
     rights: GREEN
     sources: [ 'https://apiprod.dol.gov/v4/get/OSHA/inspection/json' ]
@@ -3610,6 +3654,7 @@ candidates:
     category: home-services
     structuring: normalization
     format: structured
+    publisher: CA CSLB
     stage: DISCOVERED
     rights: AMBER
     sources: [ 'https://www.cslb.ca.gov/OnlineServices/DataPortal/ContractorList' ]
