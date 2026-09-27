@@ -3,7 +3,8 @@ from load import *; from norm import *
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'recalls'))
 from common import digit_codes  # separator-aware barcode tokenizer shared with recalls/es_link.py
 mi=es_mi(); cac=es_cac(); wsr=ws(); rec=cpsc()
-TOKEN=re.compile(r"\b(?=[A-Z0-9/\-\.]*\d)(?=[A-Z0-9/\-\.]*[A-Z])[A-Z0-9][A-Z0-9/\-\.]{3,}[A-Z0-9]\b")
+# Case-insensitive: prose can print a model in mixed case (iComfort-S30); model_key() upper-cases before lookup.
+TOKEN=re.compile(r"\b(?=[A-Z0-9/\-\.]*\d)(?=[A-Z0-9/\-\.]*[A-Z])[A-Z0-9][A-Z0-9/\-\.]{3,}[A-Z0-9]\b",re.I)
 es=Index(); cat_of={}; brand_of={}
 for r in mi:
     es.add(r['brand_name'], r['model_number'], r['pd_id']); cat_of[r['pd_id']]=r['product_category']; brand_of[r['pd_id']]=r['brand_name']
@@ -12,7 +13,8 @@ for i,r in enumerate(cac):
 for i,r in enumerate(wsr):
     rid='ws%d'%i; es.add(r['Brand Name'], r['Model Number'], rid); cat_of[rid]='WaterSense:'+r['_file'].replace('WaterSense-Products-','').replace('.csv',''); brand_of[rid]=r['Brand Name']
 brands={b for (b,k) in es.exact}|set(es.pats)
-brands={b for b in brands if len(b)>=3}
+# Two-character brands (GE, LG) are real; only single characters are too ambiguous to gate a candidate.
+brands={b for b in brands if len(b)>=2}
 print('index brands',len(brands))
 def ngrams(t):
     w=re.sub(r'[^a-z0-9 ]',' ',t.lower().replace('&',' and ')).split()
