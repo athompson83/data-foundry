@@ -12,8 +12,10 @@ def brand_key(s):
     """Normalised brand: folded, upper, alnum words, legal-form/stop words removed, first 2 remaining words joined."""
     w=[x for x in re.findall(r'[A-Z0-9]+',fold(s).upper()) if x not in STOP]
     return ' '.join(w[:2])
+# Real two-character brands. Other two-character tokens (initials, sizes, "UK") are too ambiguous to gate a candidate.
+SHORT_BRANDS={'GE','LG','HP','3M','JL','AO','BK','KC'}
 def brand_tokens(s):
-    return {x for x in re.findall(r'[A-Z0-9]+',fold(s).upper()) if x not in STOP and len(x)>=3}
+    return {x for x in re.findall(r'[A-Z0-9]+',fold(s).upper()) if x not in STOP and (len(x)>=3 or x in SHORT_BRANDS)}
 # model-like token: >=5 chars after normalisation, has a letter and a digit (round-2 TOKEN regex, extended)
 TOKEN=re.compile(r"(?<![A-Za-z0-9])(?=[A-Za-z0-9/\-\.]*\d)(?=[A-Za-z0-9/\-\.]*[A-Za-z])[A-Za-z0-9][A-Za-z0-9/\-\.]{3,}[A-Za-z0-9](?![A-Za-z0-9])")
 def model_tokens(text):
