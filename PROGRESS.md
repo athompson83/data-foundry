@@ -1,6 +1,12 @@
 # Progress
 
-## Current session — 2026-09-26: FDA Recall Intelligence merged, loaded, deployed, accepted; sales closed
+## Current session — 2026-09-26/27: FDA Recall Intelligence merged, loaded, deployed, accepted; sales opened
+
+**2026-09-27 launch.** The Product Owner confirmed the legal seller and the support
+inbox (`data@mail.proviciency.com`) and instructed go-live. `SALES_OPEN` is set to
+`"1"` and deployed; see the launch PR for the deployed version and the live
+checkout verification. `UA-014` (update the Worker secret after the owner rotates
+the Stripe key) remains open.
 
 **Verdict: technically ready for launch; public sales remain closed (`SALES_OPEN="0"`)
 until the Product Owner's separate launch instruction. PR #59 merged as `449b3f6`
@@ -89,8 +95,8 @@ The HVAC track and the hosted Postgres baseline are unchanged.**
   - The Stripe account is an individual account with statement descriptor
     "ADAM THOMPSON" and no support email set; the owner confirms the legal
     seller and support inbox.
-  - Confirm the legal seller and a working support inbox.
-  - The separate launch instruction to set `SALES_OPEN="1"`.
+  - Legal seller and support inbox: confirmed by the owner 2026-09-27.
+  - Launch instruction: given 2026-09-27; `SALES_OPEN="1"`.
 
 ## Earlier session — 2026-09-26 (PR #57, merged to `main`): rights rule changed, self-service billing built, paid path blocked on environment access
 

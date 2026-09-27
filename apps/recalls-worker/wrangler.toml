@@ -35,8 +35,9 @@ PUBLIC_ORIGIN = "https://data.aroqon.com"
 API_ORIGIN = "https://api.data.aroqon.com"
 SUPPORT_EMAIL = "data@mail.proviciency.com"
 SOURCE_KILL_SWITCH = "0"
-# "1" accepts new checkouts. Kept "0" until the dataset load is verified live.
-SALES_OPEN = "0"
+# "1" accepts new checkouts. Opened 2026-09-27 on the Product Owner's launch
+# instruction; set "0" to stop new sales (docs/owner-actions/recalls-operations.md).
+SALES_OPEN = "1"
 # Live Stripe price ids for the accepted plan ladder (not secrets).
 STRIPE_PRICE_EVALUATE = "price_1UK1SWLlvU3ZaHdipjWWJ8d1"
 STRIPE_PRICE_DEVELOPER = "price_1UK1SXLlvU3ZaHdihexV3i4r"
