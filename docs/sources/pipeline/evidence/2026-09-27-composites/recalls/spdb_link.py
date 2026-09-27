@@ -4,7 +4,7 @@ inc=pickle.load(open('spdb_inc.pkl','rb'))
 DATEY=re.compile(r'^\d{1,2}(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)\d{2,4}$')
 def mdate(s):
     try: return datetime.datetime.strptime(s,'%m/%d/%Y').date()
-    except: return None
+    except ValueError: return None  # blank or malformed date
 idx=collections.defaultdict(list)
 for i,r in enumerate(inc):
     ms=model_tokens(r['Model Name or Number'])|({nmodel(r['Model Name or Number'])} if 5<=len(nmodel(r['Model Name or Number']))<=20 and re.search(r'\d',r['Model Name or Number']) and re.search(r'[A-Za-z]',r['Model Name or Number']) else set())

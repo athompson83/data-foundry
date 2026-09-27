@@ -3684,34 +3684,51 @@ datasets:
           - appliance-health-canada-recalls
         measured: 43/138 CPSC home-equipment recalls since 2022
         mode: candidate
-      - key: normalised brand + model within 365 days, or exact GTIN-13
-        between:
+      - key: normalised brand + model within 365 days
+        between: &a1
           - uk-opss-product-safety-alerts
           - eu-safety-gate-alerts
-        measured: 118/697 UK home-category notices (29 via GTIN); 18/20 correct on hand check; 149/697 with model only
-          (no brand check)
+        measured: 118/697 UK home-category notices (29 of the 118 also share a code); 18/20 correct on hand check;
+          149/697 with model only (no brand check)
         mode: candidate
-      - key: normalised brand + model within 365 days, or exact GTIN-13
-        between:
+      - key: exact GTIN with a valid GS1 check digit, within 365 days
+        between: *a1
+        measured: 24/697 UK home-category notices (29 before check-digit validation; 5 matched codes fail the GS1
+          check); re-measured from the archived intl_recs.json by gtin_validated.py
+        mode: declared
+      - key: normalised brand + model within 365 days
+        between: &a2
           - cpsc-recalls
           - eu-safety-gate-alerts
         measured: 0/88 CPSC home-equipment recalls with model tokens (2023-01..2026-09); 11/864 across all CPSC
           products
         mode: candidate
-      - key: normalised brand + model within 365 days, or exact GTIN-13
-        between:
+      - key: exact GTIN with a valid GS1 check digit, within 365 days
+        between: *a2
+        measured: "0/864 CPSC recalls with model or code tokens (xmatch_out: via GTIN 0)"
+        mode: declared
+      - key: normalised brand + model within 365 days
+        between: &a3
           - cpsc-recalls
           - uk-opss-product-safety-alerts
         measured: 0/119 CPSC home-equipment recalls (2021-01..2026-09); 14/1130 across all CPSC products vs UK home
           categories; 8/8 correct on hand check
         mode: candidate
-      - key: normalised brand + model within 365 days, or exact GTIN-13
-        between:
+      - key: exact GTIN with a valid GS1 check digit, within 365 days
+        between: *a3
+        measured: "0/1130 CPSC recalls vs UK home categories (xmatch_out: via GTIN 0)"
+        mode: declared
+      - key: normalised brand + model within 365 days
+        between: &a4
           - au-accc-product-recalls
           - cpsc-recalls
         measured: 4/36 ACCC notices with model/GTIN (May-Sep 2026) match a CPSC recall; 3/4 confirmed on hand check;
           0/9 CPSC home recalls in the window
         mode: candidate
+      - key: exact GTIN with a valid GS1 check digit, within 365 days
+        between: *a4
+        measured: "0/36 ACCC notices (xmatch_out: via GTIN 0)"
+        mode: declared
       - key: normalised model token + brand/manufacturer token overlap
         between:
           - cpsc-recalls

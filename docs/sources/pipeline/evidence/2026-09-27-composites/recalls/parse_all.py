@@ -2,17 +2,21 @@ import json,glob,re,html,collections,sys,os
 sys.path.insert(0,'.');from common import *
 def strip(s): return re.sub(r'\s+',' ',html.unescape(re.sub(r'<[^>]+>',' ',s or ''))).strip()
 GTIN=re.compile(r'(?<!\d)(\d{12,14}|\d{8})(?!\d)')
+def gs1_valid(g):
+    if not g.isdigit() or len(g) not in (8,12,13,14): return False
+    t=sum(int(c)*(3 if i%2==0 else 1) for i,c in enumerate(reversed(g[:-1])))
+    return (10-t%10)%10==int(g[-1])
 def gtins(s):
+    # Only codes with a valid GS1 check digit are GTINs; anything else is a model or lot token.
     out=set()
     for g in GTIN.findall(re.sub(r'(?<=\d)[ -](?=\d)','',s or '')):
-        if len(g) in (8,12,13,14): out.add(g.lstrip('0').zfill(13) if len(g)>=12 else g)
+        if len(g) in (8,12,13,14) and gs1_valid(g): out.add(g.lstrip('0').zfill(13) if len(g)>=12 else g)
     return out
 recs=[]
 # ---- UK OPSS (GOV.UK content API)
 idx={r['link'].rsplit('/',1)[1]:r for r in json.load(open('uk_index.json'))}
 for f in glob.glob('uk/*.json'):
-    try: j=json.load(open(f))
-    except Exception: continue
+    j=json.load(open(f))  # an unreadable notice is an incomplete run, not a skipped row
     slug=os.path.basename(f)[:-5]; b=j['details'].get('body','')
     rows={}
     for k,v in re.findall(r'<tr>\s*<td>(.*?)</td>\s*<td>(.*?)</td>',b,re.S): rows.setdefault(strip(k).lower(),[]).append(strip(v))
@@ -64,7 +68,7 @@ for f in glob.glob('nz/*.html'):
     dd=''
     if date:
         try: dd=datetime.datetime.strptime(date.group(1),'%d %B %Y').strftime('%Y-%m-%d')
-        except: pass
+        except ValueError: pass  # an unparseable date leaves the notice undated (excluded from date-windowed joins)
     recs.append({'src':'nz','id':os.path.basename(f)[:-5],'date':dd,'title':title,'brand':sup,'brand_tokens':sorted(brand_tokens(title+' '+sup)),
       'models':sorted(model_tokens(ident)),'gtins':sorted(gtins(ident)),'category':'','has_model_field':bool(ident.strip()),'has_brand_field':bool(sup),'has_barcode_field':bool(gtins(ident)),'url':'https://www.productsafety.govt.nz/recalls/'+os.path.basename(f)[:-5]})
 # ---- France RappelConso V2 (non-food home categories) -- measurement only, rights RED today

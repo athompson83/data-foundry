@@ -38,7 +38,7 @@ committed.
 | --- | --- | --- |
 | Health Canada ↔ CPSC, declared "joint recall" marker | 341 / 352 marked notices | 25 / 25 correct |
 | Health Canada ↔ CPSC, title tokens without a marker | — | 6 / 15 correct: candidate only, never auto-linked |
-| UK OPSS ↔ EU Safety Gate (home categories) | 118 / 697 (29 by GTIN) | 18 / 20 correct |
+| UK OPSS ↔ EU Safety Gate (home categories) | 118 / 697 by brand+model or a shared code; **24 / 697 by a check-digit-valid GTIN** (29 before validation) | 18 / 20 correct |
 | SaferProducts incidents ↔ CPSC home recalls (brand + model) | 111 / 307 recalls (1,137 reports); 50 had a report before the recall | 11 / 12 correct |
 | CPSC recall ↔ current ENERGY STAR / WaterSense model | 18 / 10,027 recalls | 15 same product, 2 accessory, 1 false |
 | ENERGY STAR ↔ Canada (markets flag) | 1,644,779 / 1,796,876 models | — |
@@ -48,6 +48,17 @@ committed.
 | Miami-Dade ↔ Florida manufacturer names (normalised) | 242 / 636 applicants | 0 false in 30 (1 uncertain) |
 | Oregon trade licence ↔ Oregon contractor registration (name + city) | 45 / 50 | — |
 | Cross-state contractor (name + zip/city) | 45 / 2,000 | 10 / 10 correct; name-only ≈ 1 / 10 |
+
+## GTIN re-measurement (after review)
+
+The screening parser accepted any 8–14 digit string as a GTIN. Re-measured with
+GS1 check-digit validation from the parsed international notices (archived in R2
+as `research/pipeline/2026-09-27-composites/intl_recs.json`, 8,076,460 bytes,
+SHA-256 `e7aaee0dcc9331495bdfca6c16bc81bd4c3ec48482bc77abfb0be2c5360b42db`;
+script `evidence/2026-09-27-composites/recalls/gtin_validated.py`, output
+`gtin_validated.txt`), the UK OPSS → EU Safety Gate GTIN join is **24 / 697**, not
+29: five matched codes fail the check digit. `parse_all.py` now validates check
+digits. This one join is replayable; the others below are not.
 
 ## Reproducibility
 

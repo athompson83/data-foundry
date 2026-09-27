@@ -1,8 +1,8 @@
 import json,sys,re,html
 from fbc_lib import *
 out={}
-try: out=json.load(open('fbc_list.json'))
-except: pass
+try: out=json.load(open('fbc_list.json'))  # resume a previous walk
+except FileNotFoundError: pass
 def rows(t,cat):
   n=0
   for m in re.finditer(r"href='\.\./pr/pr_app_dtl\.aspx\?param=([^']*)'>(FL[^<]*)</a>(.*?)(?=href='\.\./pr/pr_app_dtl|lblCurrentPage|$)",t,re.S):
