@@ -104,7 +104,9 @@ async function meteredApi(env: Env, request: Request, url: URL): Promise<Respons
   }
   const product = /^\/v1\/product-recalls\/([^/]+)$/.exec(url.pathname);
   if (product) {
-    const id = decodeURIComponent(product[1] as string).toLowerCase();
+    // Ids are ASCII letters, digits and hyphens, so the raw segment is matched as is: a malformed
+    // percent escape ("%", "%ZZ") is simply not an id, never a decode error.
+    const id = (product[1] as string).toLowerCase();
     const found = PRODUCT_ID.test(id) ? await getProductRecall(env.DB, env.RAW_ARTIFACTS, id, includeRaw) : null;
     return found ? json(found, 200, headers) : apiError(404, 'not_found', 'No notice with that id. Ids look like cpsc-25203 or hc-77184.', headers);
   }

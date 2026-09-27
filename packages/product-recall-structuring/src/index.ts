@@ -10,6 +10,6 @@ export { structureHcRecall, isConsumerProductRecord, HC_CONSUMER_ORGANIZATION, t
 export { canonicalHcUrl, crossReference, jointAgencies } from './links.js';
 export { extractModelNumbers, extractModelNumbersWithFields, type ModelNumbers } from './models.js';
 export { classifyHazards, classifyRemedies, tradeFacets, HAZARD_CLASSES, REMEDY_CLASSES, TRADE_FACETS, type HazardClass, type RemedyClass, type TradeFacet } from './taxonomy.js';
-export { cleanText, digitCodes, gtin14, modelKey } from './text.js';
+export { cleanText, digitCodes, gtin14, gtinReadings, modelKey } from './text.js';
 export { parseUnits, type UnitCounts } from './units.js';
 export { PARSER_VERSION, type Agency, type CounterpartAgency, type CrossReference, type FirmMention, type RecallProduct, type StructuredProductRecall } from './types.js';

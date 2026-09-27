@@ -267,6 +267,17 @@ describe('product-recall API', () => {
     expect(plain.data['raw_redaction']).toBeUndefined();
   });
 
+  it('answers 404, not 500, for malformed escapes in a notice id', async () => {
+    const env = makeEnv();
+    await seed(env);
+    const apiKey = await key(env);
+    for (const bad of ['%', '%ZZ', 'cpsc-%E0%A4%A']) {
+      const response = await worker.fetch(api(`/v1/product-recalls/${bad}`, apiKey), env);
+      expect(response.status, bad).toBe(404);
+    }
+    expect((await worker.fetch(api('/v1/product-recalls/CPSC-25203', apiKey), env)).status).toBe(200);
+  });
+
   it('requires a key, and stays closed until opened or when killed', async () => {
     const env = makeEnv();
     await seed(env);

@@ -4,7 +4,7 @@
  * tokenisation.
  */
 
-import { gs1CheckDigitValid } from '@data-foundry/recall-structuring';
+import { expandUpcE, gs1CheckDigitValid } from '@data-foundry/recall-structuring';
 
 const ENTITIES: Readonly<Record<string, string>> = { nbsp: ' ', amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", rsquo: '’', lsquo: '‘', ldquo: '“', rdquo: '”', ndash: '–', mdash: '—', eacute: 'é', egrave: 'è', trade: '™', reg: '®' };
 
@@ -47,6 +47,23 @@ export function digitCodes(value: string | null | undefined): string[] {
 export function gtin14(code: string): string | null {
   if (!/^\d{12,14}$/.test(code) || !gs1CheckDigitValid(code)) return null;
   return code.padStart(14, '0');
+}
+
+/**
+ * Every GTIN-14 a printed barcode can stand for, the same readings the lookup
+ * endpoint tries: a 12-14 digit code as printed; for eight digits, EAN-8 as
+ * printed and UPC-E expanded to its UPC-A. Each reading must pass its own check digit.
+ */
+export function gtinReadings(code: string): string[] {
+  const out = new Set<string>();
+  const direct = gtin14(code);
+  if (direct) out.add(direct);
+  if (/^\d{8}$/.test(code)) {
+    if (gs1CheckDigitValid(code)) out.add(code.padStart(14, '0'));
+    const upcA = expandUpcE(code);
+    if (upcA && gs1CheckDigitValid(upcA)) out.add(upcA.padStart(14, '0'));
+  }
+  return [...out];
 }
 
 export function uniqueSorted(values: Iterable<string>): string[] {

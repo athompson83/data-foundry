@@ -8,6 +8,7 @@ import {
   digitCodes,
   extractModelNumbers,
   gtin14,
+  gtinReadings,
   isConsumerProductRecord,
   jointAgencies,
   parseUnits,
@@ -196,6 +197,10 @@ describe('barcodes', () => {
     expect(digitCodes('5 012345 678900')).toEqual(['5012345678900']);
     expect(gtin14('089301008588')).toBe('00089301008588');
     expect(gtin14('089301008589')).toBeNull();
+    // Eight digits: every reading the lookup endpoint tries, each on its own check digit.
+    expect(gtinReadings('13826864')).toEqual(['00000013826864', '00138268000064']);
+    expect(gtinReadings('24245159')).toEqual(['00000024245159']);
+    expect(gtinReadings('12345678')).toEqual([]);
   });
 });
 

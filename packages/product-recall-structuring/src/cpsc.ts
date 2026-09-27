@@ -9,7 +9,7 @@ import { parseCodes } from '@data-foundry/recall-structuring';
 import { crossReference } from './links.js';
 import { extractModelNumbersWithFields } from './models.js';
 import { classifyHazards, classifyRemedies, tradeFacets } from './taxonomy.js';
-import { cleanText, digitCodes, gtin14, uniqueSorted } from './text.js';
+import { cleanText, digitCodes, gtinReadings, uniqueSorted } from './text.js';
 import { PARSER_VERSION, type CrossReference, type FirmMention, type RecallProduct, type StructuredProductRecall } from './types.js';
 import { parseUnits, type UnitCounts } from './units.js';
 
@@ -112,8 +112,7 @@ export function structureCpscRecall(record: CpscRecallRecord): StructuredProduct
   const gtins = new Set<string>();
   for (const upc of record.ProductUPCs ?? []) {
     for (const code of digitCodes(typeof upc === 'string' ? upc : (upc.UPC ?? ''))) {
-      const gtin = gtin14(code);
-      if (gtin) gtins.add(gtin);
+      for (const gtin of gtinReadings(code)) gtins.add(gtin);
     }
   }
   for (const gtin of parseCodes(description).gtins) gtins.add(gtin);

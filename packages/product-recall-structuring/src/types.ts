@@ -1,7 +1,12 @@
 import type { HazardClass, RemedyClass, TradeFacet } from './taxonomy.js';
 import type { UnitCounts } from './units.js';
 
-export const PARSER_VERSION = 'product-recall-structuring@1';
+/**
+ * Bumped whenever stored output can change, so the sync rewrites every record.
+ * @2: 8-digit UPCs are indexed as EAN-8 and as UPC-E expanded to UPC-A (each on its own check digit),
+ * and CPSC Products[].Model values are read as models (3 of 10,027 CPSC notices change).
+ */
+export const PARSER_VERSION = 'product-recall-structuring@2';
 
 export type Agency = 'CPSC' | 'HC';
 
