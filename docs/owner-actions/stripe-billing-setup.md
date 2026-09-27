@@ -2,10 +2,11 @@
 
 Implements [ADR-0014](../decisions/ADR-0014-self-service-stripe-billing.md). Everything below can be done by an operator or an agent that holds the credentials, except where marked **owner**.
 
-## 1. Stripe account (owner, once)
+## 1. Stripe account (owner, once) — done 2026-09-26
 
-- Activate the **Aroqon Data** Stripe account for live payments: business details, bank account and public business information. Until then it only has test mode.
-- In the billing-portal settings, enable cancellation and plan switching between the product's prices.
+- **Done.** The **Aroqon Data** account (`acct_1U3gItLlvU3ZaHdi`) is activated for live payments: `charges_enabled` and `payouts_enabled` are true with nothing currently due (read back 2026-09-26).
+- **Done.** The default billing-portal configuration `bpc_1UK1SiLlvU3ZaHdiFgKErwwq` is active with cancellation (at period end) and price updates enabled; it serves the FDA Recall Intelligence product (ADR-0015).
+- **Agent, per vertical:** when a vertical's live prices are created (section 2), add them to the portal's plan-switching products so customers can move between that vertical's plans.
 
 ## 2. Products and prices (per vertical, per mode)
 
