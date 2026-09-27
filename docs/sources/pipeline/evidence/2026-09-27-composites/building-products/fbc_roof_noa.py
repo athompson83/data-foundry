@@ -10,7 +10,8 @@ for k in samp:
     try:
       r=S.get("https://www.floridabuilding.org/pr/pr_app_dtl.aspx?param="+L[k]['param'],timeout=60); time.sleep(1.1)
       r.raise_for_status()
-      if 'Product Approval' not in r.text: raise ValueError('not a product approval detail page')
+      # Same detail-only markers as fbc_detail.py: an interstitial can keep the generic heading.
+      if 'Product Approval' not in r.text or 'Code Version' not in r.text: raise ValueError('not a product approval detail page')
       break
     except Exception as e: print('retry',k,attempt,e,flush=True); r=None; time.sleep(5)
   if r is None: out[k]={'fetch_failed':True}; continue  # excluded from every denominator
