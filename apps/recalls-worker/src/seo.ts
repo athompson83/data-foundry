@@ -8,8 +8,19 @@
 import type { D1Database } from './env.js';
 import { escapeHtml, layout, type PageContext } from './pages.js';
 
-/** FDA recall numbers: a centre letter, a sequence and a year (a few legacy ones are irregular). */
-export const RECALL_PAGE_PATTERN = /^\/recalls\/([A-Z]-\d{1,6}-\d{1,6})$/;
+/**
+ * One safe path segment for a recall number: FDA's are a centre letter, a
+ * sequence and a year, but legacy ones are irregular (`D-66241-001`,
+ * `F-1855.2013`). Requiring a digit keeps fixed paths such as /recalls/docs out,
+ * and pages, the API, sitemaps and IndexNow all use this one definition.
+ */
+export const RECALL_NUMBER_SEGMENT = '(?=[A-Za-z0-9.-]*\\d)[A-Za-z0-9.-]{3,40}';
+export const RECALL_PAGE_PATTERN = new RegExp(`^/recalls/(${RECALL_NUMBER_SEGMENT})$`);
+export const RECALL_API_PATTERN = new RegExp(`^/v1/recalls/(${RECALL_NUMBER_SEGMENT})$`);
+const ROUTABLE = new RegExp(`^${RECALL_NUMBER_SEGMENT}$`);
+export function isRoutableRecallNumber(value: string): boolean {
+  return ROUTABLE.test(value);
+}
 export const BROWSE_PATTERN = /^\/recalls\/browse\/(food|drug|device)\/(\d{4})$/;
 export const SITEMAP_PATTERN = /^\/sitemaps\/recalls-(\d{1,3})\.xml$/;
 /** Well under the protocol's 50,000-URL and 50 MB limits. */
@@ -201,6 +212,7 @@ export async function browsePage(ctx: PageContext, db: D1Database, category: str
   const base = `/recalls/browse/${category}/${year}`;
   const nav = [page > 1 ? `<a href="${base}${page === 2 ? '' : `?page=${page - 1}`}">← Newer</a>` : '', rows.results.length > BROWSE_PAGE_SIZE ? `<a href="${base}?page=${page + 1}">Older →</a>` : ''].filter(Boolean).join(' · ');
   const list = items
+    .filter((row) => isRoutableRecallNumber(row.recall_number))
     .map((row) => `<tr><td>${escapeHtml(row.reported_on)}</td><td><a href="/recalls/${escapeHtml(row.recall_number)}">${escapeHtml(row.recall_number)}</a></td><td>${row.classification ? `Class ${escapeHtml(row.classification)}` : ''}</td><td>${escapeHtml(productName(row.product_description))}</td><td>${escapeHtml(row.firm_name ?? '')}</td></tr>`)
     .join('');
   const name = `${CATEGORY_LABEL[category] ?? category} recalls reported in ${year}`;
@@ -232,6 +244,7 @@ export async function recallSitemap(ctx: PageContext, db: D1Database, page: numb
     .all<{ recall_number: string; changed_at: string }>();
   if (rows.results.length === 0) return null;
   return `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${rows.results
+    .filter((row) => isRoutableRecallNumber(row.recall_number))
     .map((row) => `<url><loc>${ctx.publicOrigin}/recalls/${encodeURIComponent(row.recall_number)}</loc><lastmod>${row.changed_at.slice(0, 10)}</lastmod></url>`)
     .join('')}</urlset>`;
 }
@@ -340,7 +353,7 @@ export async function pingChangedRecalls(ctx: PageContext, db: D1Database, key: 
   if (!key) return { submitted: 0, status: [] };
   try {
     const rows = await db.prepare(`SELECT recall_number FROM recall WHERE changed_at >= ? AND ${INDEXABLE_SQL} ORDER BY recall_number`).bind(since).all<{ recall_number: string }>();
-    const numbers = rows.results.map((row) => row.recall_number);
+    const numbers = rows.results.map((row) => row.recall_number).filter(isRoutableRecallNumber);
     const status: number[] = [];
     for (const body of indexNowBodies(ctx, key, numbers)) {
       const response = await fetcher(INDEXNOW_ENDPOINT, { method: 'POST', headers: { 'content-type': 'application/json; charset=utf-8' }, body });

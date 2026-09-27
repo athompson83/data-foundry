@@ -15,7 +15,7 @@ import { openApiDocument } from './openapi.js';
 import { catalogPage, docsPage, messagePage, privacyPage, recallsLanding, termsPage, welcomePage, type PageContext } from './pages.js';
 import { createCheckoutSession, createPortalSession, currentSubscription, handleStripeWebhook, retrieveCheckoutSession, StripeError, upsertCustomerFromSubscription } from './stripe.js';
 import { scheduledSync, syncWindow } from './sync.js';
-import { BROWSE_PATTERN, RECALL_PAGE_PATTERN, SITEMAP_PATTERN, browseIndex, browsePage, llmsFullTxt, llmsTxt, pagesSitemap, pingChangedRecalls, recallPage, recallSitemap, robotsTxt, sitemapIndex, type PresentedRecall } from './seo.js';
+import { BROWSE_PATTERN, RECALL_API_PATTERN, RECALL_PAGE_PATTERN, SITEMAP_PATTERN, browseIndex, browsePage, llmsFullTxt, llmsTxt, pagesSitemap, pingChangedRecalls, recallPage, recallSitemap, robotsTxt, sitemapIndex, type PresentedRecall } from './seo.js';
 import { RECALL_CATEGORIES, type RecallCategory } from '@data-foundry/recall-structuring';
 
 /** The Workers edge cache, declared locally like the other bindings. */
@@ -91,7 +91,7 @@ async function meteredApi(env: Env, request: Request, url: URL): Promise<Respons
     if (!code) throw new BadRequest('code is required');
     return json(await lookupCode(env.DB, env.RAW_ARTIFACTS, code, includeRaw), 200, headers);
   }
-  const match = /^\/v1\/recalls\/([A-Za-z0-9-]{3,40})$/.exec(url.pathname);
+  const match = RECALL_API_PATTERN.exec(url.pathname);
   if (match) {
     const found = await getRecall(env.DB, env.RAW_ARTIFACTS, match[1] as string, includeRaw);
     return found ? json(found, 200, headers) : apiError(404, 'not_found', 'No recall with that number.', headers);
@@ -273,11 +273,13 @@ async function route(request: Request, env: Env): Promise<Response> {
     case '/llms-full.txt':
       return text(llmsFullTxt(ctx), 'text/markdown', 3600);
     case '/sitemap.xml':
-      return cached(request, () => sitemapIndex(ctx, env.DB).then((body) => text(body, 'application/xml', 3600)));
+      if (env.SOURCE_KILL_SWITCH === '1') return withdrawn(ctx);
+      return cached(cacheKey(ctx, url.pathname), () => sitemapIndex(ctx, env.DB).then((body) => text(body, 'application/xml', 3600)));
     case '/sitemaps/pages.xml':
       return text(pagesSitemap(ctx), 'application/xml', 3600);
     case '/recalls/browse':
-      return cached(request, async () => html(await browseIndex(ctx, env.DB), 200, { 'cache-control': 'public, max-age=3600' }));
+      if (env.SOURCE_KILL_SWITCH === '1') return withdrawn(ctx);
+      return cached(cacheKey(ctx, url.pathname), async () => html(await browseIndex(ctx, env.DB), 200, { 'cache-control': 'public, max-age=3600' }));
     default:
       return publicDataPage(env, ctx, request, url);
   }
@@ -287,10 +289,19 @@ function text(body: string, contentType: string, maxAge: number): Response {
   return new Response(body, { headers: { 'content-type': `${contentType}; charset=utf-8`, 'cache-control': `public, max-age=${maxAge}`, ...SECURITY_HEADERS } });
 }
 
+/**
+ * The cache key is the canonical URL — the path plus only the parameters that
+ * change the response — so nonce query strings cannot force D1 reads.
+ */
+function cacheKey(ctx: PageContext, pathname: string, page?: number): Request {
+  return new Request(`${ctx.publicOrigin}${pathname}${page && page > 1 ? `?page=${page}` : ''}`, { method: 'GET' });
+}
+
+const withdrawn = (ctx: PageContext) => html(messagePage(ctx, 'Temporarily unavailable', 'This dataset is temporarily unavailable.'), 503, { 'cache-control': 'no-store' });
+
 /** Serve a D1-backed public page from the edge cache, so crawler traffic does not become D1 load. */
-async function cached(request: Request, render: () => Promise<Response>): Promise<Response> {
+async function cached(key: Request, render: () => Promise<Response>): Promise<Response> {
   const cache = (globalThis as unknown as { caches: { default: EdgeCache } }).caches.default;
-  const key = new Request(request.url, { method: 'GET' });
   const hit = await cache.match(key);
   if (hit) return hit;
   const response = await render();
@@ -306,12 +317,12 @@ async function publicDataPage(env: Env, ctx: PageContext, request: Request, url:
   const isData = RECALL_PAGE_PATTERN.test(url.pathname) || BROWSE_PATTERN.test(url.pathname) || SITEMAP_PATTERN.test(url.pathname);
   if (!isData) return notFound(ctx);
   // The kill switch withdraws every dataset-derived response, pages included.
-  if (env.SOURCE_KILL_SWITCH === '1') return html(messagePage(ctx, 'Temporarily unavailable', 'This dataset is temporarily unavailable.'), 503, { 'cache-control': 'no-store' });
+  if (env.SOURCE_KILL_SWITCH === '1') return withdrawn(ctx);
   if (request.method !== 'GET' && request.method !== 'HEAD') return apiError(405, 'method_not_allowed', 'GET only.');
 
   const recall = RECALL_PAGE_PATTERN.exec(url.pathname);
   if (recall) {
-    return cached(request, async () => {
+    return cached(cacheKey(ctx, url.pathname), async () => {
       const found = await getRecall(env.DB, env.RAW_ARTIFACTS, recall[1] as string, false);
       if (!found) return notFound(ctx);
       return html(recallPage(ctx, found['data'] as PresentedRecall), 200, { 'cache-control': 'public, max-age=3600' });
@@ -322,13 +333,13 @@ async function publicDataPage(env: Env, ctx: PageContext, request: Request, url:
     const pageParam = url.searchParams.get('page') ?? '1';
     const page = /^[1-9]\d{0,3}$/.test(pageParam) ? Number(pageParam) : 0;
     if (!page) return notFound(ctx);
-    return cached(request, async () => {
+    return cached(cacheKey(ctx, url.pathname, page), async () => {
       const body = await browsePage(ctx, env.DB, browse[1] as string, browse[2] as string, page);
       return body ? html(body, 200, { 'cache-control': 'public, max-age=3600' }) : notFound(ctx);
     });
   }
   const sitemap = SITEMAP_PATTERN.exec(url.pathname) as RegExpExecArray;
-  return cached(request, async () => {
+  return cached(cacheKey(ctx, url.pathname), async () => {
     const body = await recallSitemap(ctx, env.DB, Number(sitemap[1]));
     return body ? text(body, 'application/xml', 3600) : notFound(ctx);
   });

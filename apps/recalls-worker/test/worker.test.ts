@@ -351,11 +351,44 @@ describe('discoverability', () => {
     expect(page).toContain('\\u003c/script>');
   });
 
-  it('withdraws pages and sitemaps under the kill switch', async () => {
-    const env = makeEnv({ SOURCE_KILL_SWITCH: '1' });
+  it('withdraws pages, hubs and sitemaps under the kill switch, even when cached', async () => {
+    const live = makeEnv();
+    await seed(live);
+    for (const path of ['/recalls/F-0001-2026', '/sitemap.xml', '/sitemaps/recalls-1.xml', '/recalls/browse', '/recalls/browse/food/2026']) {
+      expect((await worker.fetch(site(path), live)).status, path).toBe(200);
+      expect((await worker.fetch(site(path), { ...live, SOURCE_KILL_SWITCH: '1' })).status, path).toBe(503);
+    }
+  });
+
+  it('keys the cache on the canonical URL, so nonce parameters cannot force D1 reads', async () => {
+    const env = makeEnv();
     await seed(env);
-    expect((await worker.fetch(site('/recalls/F-0001-2026'), env)).status).toBe(503);
-    expect((await worker.fetch(site('/sitemaps/recalls-1.xml'), env)).status).toBe(503);
+    const offline = { ...env, DB: undefined as never };
+    for (const path of ['/recalls/F-0001-2026', '/sitemap.xml', '/sitemaps/recalls-1.xml', '/recalls/browse', '/recalls/browse/food/2026']) {
+      expect((await worker.fetch(site(path), env)).status, path).toBe(200);
+      expect((await worker.fetch(site(`${path}?nonce=${Math.random()}`), offline)).status, `${path} with a nonce`).toBe(200);
+    }
+    // The one parameter that changes a response still separates cache entries.
+    // (page 2 is not cached, so it needs D1, which is unavailable here: the Worker answers 500.)
+    expect((await worker.fetch(site('/recalls/browse/food/2026?page=2'), offline)).status).toBe(500);
+  });
+
+  it('routes every published recall number, including irregular legacy ones, on pages, the API and sitemaps', async () => {
+    const env = makeEnv();
+    for (const recall_number of ['F-1855.2013', 'D-66241-001']) {
+      const prepared = await prepareRecall('food', { ...FOOD, recall_number });
+      const bundle = ndjsonBundle([prepared.raw]);
+      await env.RAW_ARTIFACTS.put(`recalls/${recall_number}.ndjson`, bundle.body);
+      const range = bundle.ranges[0] as { offset: number; length: number };
+      await env.DB.batch(writeRecallStatements(prepared, rawRef(`recalls/${recall_number}.ndjson`, range.offset, range.length), 'now').map((statement) => env.DB.prepare(statement.sql).bind(...statement.params)));
+      expect((await worker.fetch(site(`/recalls/${recall_number}`), env)).status, recall_number).toBe(200);
+    }
+    const urls = await (await worker.fetch(site('/sitemaps/recalls-1.xml'), env)).text();
+    expect(urls).toContain('/recalls/F-1855.2013</loc>');
+    expect(urls).toContain('/recalls/D-66241-001</loc>');
+    const key = await seedCustomer(env);
+    expect((await worker.fetch(get('/v1/recalls/F-1855.2013', key), env)).status).toBe(200);
+    expect((await worker.fetch(site('/recalls/docs'), env)).status).toBe(200);
   });
 
   it('serves the IndexNow key and pings only changed, indexable pages in batches', async () => {
