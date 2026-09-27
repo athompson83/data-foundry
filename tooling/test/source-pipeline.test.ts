@@ -243,10 +243,11 @@ describe('dataset expansion pipeline registry', () => {
       const independent = byKey.get(b!)!.sources.every((url) => !hostsA.has(hostOf(url)));
       if (ratio === null) return false;
       const [matched, total] = [Number(ratio[1]!.replaceAll(',', '')), Number(ratio[2]!.replaceAll(',', ''))];
-      // A 0/0 records no sample at all, so it is not a measurement.
-      return a !== b && independent && total > 0 && matched <= total;
+      // 0/0 records no sample, and 0/N records no link: zero-match rows stay in the registry as evidence, but only
+      // a join with at least one match shows that the members actually link.
+      return a !== b && independent && total > 0 && matched > 0 && matched <= total;
     });
-    expect(measured.length, 'at least one join measured as matched/total between members that share no host').toBeGreaterThan(0);
+    expect(measured.length, 'at least one join with a match (matched/total, matched > 0) between members that share no host').toBeGreaterThan(0);
   });
 
   it.each(registry.datasets)('$key never auto-links on names, brands, model tokens or titles', (dataset) => {
