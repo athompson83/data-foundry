@@ -1,4 +1,5 @@
-# Screening-grade matcher. CPSC UPC fields are split into codes with digit_codes() and check-digit validated (a
+# Screening-grade matcher. GTIN keys use parse_all.gtins' length-aware form (GTIN-8 as printed, longer codes as
+# 13 digits). CPSC UPC fields are split into codes with digit_codes() and check-digit validated (a
 # field can list several codes); the foreign GTINs come pre-parsed from intl_recs.json without check-digit
 # validation, so gtin_validated.py supersedes this script's GTIN results, and only validated GTINs may auto-link.
 import json,re,collections,sys,datetime,random
@@ -18,7 +19,7 @@ for r in cpall:
     firm2=re.split(r'\s+(?:Recalled|Recalls?)\b',r.get('Title') or '',1)[0] if 'Recalled' in (r.get('Title') or '') else firm
     bt=brand_tokens(firm2+' '+' '.join(re.split(r',\s*(?:of|in)\b',x.get('Name',''))[0] for k in ('Manufacturers','Importers','Distributors') for x in r.get(k) or [])+' '+' '.join(' '.join((p.get('Name') or '').split()[:1]) for p in r.get('Products') or []))-GEN
     C.append({'src':'us','id':r['RecallNumber'],'date':r['RecallDate'][:10],'title':r.get('Title'),'brand_tokens':sorted(bt),
-      'models':sorted(m for m in model_tokens(txt) if not DATEY.match(m)),'gtins':sorted({c.lstrip('0').zfill(13) for u in r.get('ProductUPCs') or [] for c in digit_codes(u.get('UPC','') if isinstance(u,dict) else str(u)) if gs1_ok(c)}),'home':r['RecallNumber'] in home})
+      'models':sorted(m for m in model_tokens(txt) if not DATEY.match(m)),'gtins':sorted({(c.lstrip('0').zfill(13) if len(c)>=12 else c) for u in r.get('ProductUPCs') or [] for c in digit_codes(u.get('UPC','') if isinstance(u,dict) else str(u)) if gs1_ok(c)}),'home':r['RecallNumber'] in home})
 I=json.load(open('intl_recs.json'))
 for r in I: r['brand_tokens']=sorted(set(r['brand_tokens'])-GEN)
 ALL=C+I

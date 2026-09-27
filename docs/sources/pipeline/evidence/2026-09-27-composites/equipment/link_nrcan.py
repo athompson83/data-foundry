@@ -13,10 +13,12 @@ per=collections.Counter(); perh=collections.Counter()
 for r in nr:
     ix=idx[catmap[r['file']]]; per[r['file']]+=1
     m,ids=ix.lookup(r['brand'],r['model'])
-    if m: stats[m]+=1; perh[r['file']]+=1; ex.append((r['id'],r['brand'],r['model'],m,list(ids)))
-    else:
-        m2,ids2=ix.lookup(r['brand'],r['model'],brand_scoped=False)
-        if m2: stats['anybrand:'+m2]+=1; ex.append((r['id'],r['brand'],r['model'],'ANY:'+m2,list(ids2)))
+    # The any-brand lookup always runs, so a model also listed under another brand (a rebrand) reaches the review
+    # queue even when the stated brand matched; per-row counts still use the strongest kind (brand-scoped first).
+    m2,ids2=ix.lookup(r['brand'],r['model'],brand_scoped=False)
+    cross=sorted(set(ids2 or [])-set(ids or []))
+    if m: stats[m]+=1; perh[r['file']]+=1; ex.append((r['id'],r['brand'],r['model'],m,list(ids),cross))
+    elif m2: stats['anybrand:'+m2]+=1; ex.append((r['id'],r['brand'],r['model'],'ANY:'+m2,list(ids2),[]))
 print(stats); 
 for f in per: print(f, perh[f],'/',per[f])
 print('brand-scoped matched',sum(perh.values()),'/',len(nr))

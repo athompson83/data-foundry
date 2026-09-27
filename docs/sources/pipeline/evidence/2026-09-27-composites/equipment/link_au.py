@@ -14,16 +14,17 @@ def run(name, rows, ix, modelf, brandf, split=None):
         models=[modelf(r)]
         if split: models=[m.strip() for m in re.split(split, modelf(r)) if m.strip()]
         fam=r.get('Family Name','').strip()
-        # Every component model (and the family name) is looked up, first under its own brand and otherwise under any
-        # brand, and every match is kept for review with duplicate listing IDs dropped.
+        # Every component model (and the family name) is looked up both under its own brand and under any brand (a
+        # rebrand lists the same model under another brand), and every match is kept for review with duplicate listing
+        # IDs dropped. The row is counted brand-scoped if any component matched under its own brand.
         rid=r.get('Submit_ID') or r.get('Registration Number')
         cands=[]; seen=set()
         for m in models+([fam] if fam else []):
-            mm,ids=ix.lookup(brandf(r),m)
-            if not mm:  # the any-brand search runs for every component without a brand-scoped match
-                mm,ids=ix.lookup(brandf(r),m,brand_scoped=False); mm=mm and 'ANY:'+mm
-            ids=[i for i in ids or [] if i not in seen]; seen.update(ids)
-            if mm and ids: cands.append({'component':m,'method':mm,'ids':ids})
+            for scoped in (True,False):
+                mm,ids=ix.lookup(brandf(r),m,brand_scoped=scoped)
+                if mm and not scoped: mm='ANY:'+mm
+                ids=[i for i in ids or [] if i not in seen]; seen.update(ids)
+                if mm and ids: cands.append({'component':m,'method':mm,'ids':ids})
         if cands:
             # Counted once per row: brand-scoped if any component matched under its own brand, else any-brand.
             scoped=[x for x in cands if not x['method'].startswith('ANY:')]
