@@ -12,11 +12,13 @@ import { consumeRequest, currentUsage, findCustomerByKey, isPlanId, issueFreeKey
 import { BadRequest, getRecall, lookupCode, searchRecalls, stats } from './api.js';
 import type { Env } from './env.js';
 import { openApiDocument } from './openapi.js';
-import { catalogPage, docsPage, messagePage, privacyPage, recallsLanding, termsPage, welcomePage, type PageContext } from './pages.js';
+import { docsPage, messagePage, privacyPage, termsPage, welcomePage, type PageContext } from './pages.js';
+import { DATASETS, isPublished, publishedDatasets, salesOpen, type DatasetKey } from './catalog.js';
+import { datasetPage, homePage, SITE_JS, type Coverage } from './site.js';
 import { createCheckoutSession, createPortalSession, currentSubscription, handleStripeWebhook, retrieveCheckoutSession, StripeError, upsertCustomerFromSubscription } from './stripe.js';
 import { scheduledSync, syncWindow } from './sync.js';
 import { getProductRecall, lookupProductCode, PRODUCT_ID, productStats, searchProductRecalls } from './product-api.js';
-import { FIRST_PRODUCT_YEAR, PRODUCT_BROWSE_PAGE_SIZE, PRODUCT_BROWSE_PATTERN, PRODUCT_PAGE_PATTERN, PRODUCT_SITEMAP_PAGE_SIZE, PRODUCT_SITEMAP_PATTERN, productBrowseIndex, productBrowsePage, productIndexableStats, productLanding, productNoticePage, productSitemap } from './product-pages.js';
+import { FIRST_PRODUCT_YEAR, PRODUCT_BROWSE_PAGE_SIZE, PRODUCT_BROWSE_PATTERN, PRODUCT_PAGE_PATTERN, PRODUCT_SITEMAP_PAGE_SIZE, PRODUCT_SITEMAP_PATTERN, productBrowseIndex, productBrowsePage, productIndexableStats, productNoticePage, productSitemap } from './product-pages.js';
 import { scheduledProductSync } from './product-sync.js';
 import { BROWSE_PATTERN, EDGE_TTL_SECONDS, RECALL_API_PATTERN, RECALL_PAGE_PATTERN, SITEMAP_PATTERN, browseCount, browseInRange, browseIndex, browsePage, indexableCount, shardInRange, llmsFullTxt, llmsTxt, pagesSitemap, pingChangedRecalls, recallPage, recallSitemap, robotsTxt, sitemapIndex, type PresentedRecall } from './seo.js';
 import { RECALL_CATEGORIES, type RecallCategory } from '@data-foundry/recall-structuring';
@@ -51,7 +53,7 @@ function html(body: string, status = 200, extra: Record<string, string> = {}): R
     status,
     headers: {
       'content-type': 'text/html; charset=utf-8',
-      'content-security-policy': "default-src 'none'; style-src 'unsafe-inline'; img-src 'self' data:; form-action 'self' https://checkout.stripe.com; base-uri 'none'; frame-ancestors 'none'",
+      'content-security-policy': "default-src 'none'; script-src 'self'; style-src 'unsafe-inline'; img-src 'self' data:; form-action 'self' https://checkout.stripe.com; base-uri 'none'; frame-ancestors 'none'",
       ...SECURITY_HEADERS,
       ...extra,
     },
@@ -285,19 +287,28 @@ async function route(request: Request, env: Env): Promise<Response> {
   }
 
   switch (url.pathname) {
-    case '/':
-      return html(catalogPage(ctx, productsServed(env)), 200, { 'cache-control': 'public, max-age=300' });
+    case '/': {
+      const published = publishedDatasets(env);
+      // The cache key names the published datasets and the sales gate, so a withdrawn dataset or a closed gate never
+      // serves a cached page that still lists or sells it.
+      const variant = `${published.map((entry) => entry.key).join('+') || 'none'}/${salesOpen(env) ? 'open' : 'closed'}`;
+      return cached(cacheKey(ctx, `/_home/${variant}`), async () => {
+        const datasets = await Promise.all(published.map(async (entry) => ({ entry, coverage: await coverage(env, entry.key) })));
+        return html(homePage(ctx, { datasets, salesOpen: salesOpen(env) }), 200, { 'cache-control': 'public, max-age=300' });
+      });
+    }
+    case '/assets/site.js':
+      return new Response(SITE_JS, { headers: { 'content-type': 'text/javascript; charset=utf-8', 'cache-control': 'public, max-age=3600', ...SECURITY_HEADERS } });
     case '/product-recalls':
-      if (!productsServed(env)) return withdrawn(ctx);
-      return html(productLanding(ctx), 200, { 'cache-control': 'public, max-age=300' });
+      return datasetRoute(env, ctx, 'product-recalls');
     case '/product-recalls/browse':
       if (!productsServed(env)) return withdrawn(ctx);
       return cached(cacheKey(ctx, url.pathname), async () => html(await productBrowseIndex(ctx, env.DB), 200, { 'cache-control': 'public, max-age=3600' }));
     case '/recalls':
-      return html(recallsLanding(ctx), 200, { 'cache-control': 'public, max-age=300' });
+      return datasetRoute(env, ctx, 'recalls');
     case '/recalls/docs':
     case '/docs':
-      return html(docsPage(ctx), 200, { 'cache-control': 'public, max-age=300' });
+      return html(docsPage(ctx, productsServed(env)), 200, { 'cache-control': 'public, max-age=300' });
     case '/terms':
       return html(termsPage(ctx), 200, { 'cache-control': 'public, max-age=3600' });
     case '/privacy':
@@ -438,6 +449,42 @@ async function publicDataPage(env: Env, ctx: PageContext, request: Request, url:
       return body ? text(body, 'application/xml', 3600) : notFound(ctx);
     },
     { cacheMisses: true },
+  );
+}
+
+/** Public coverage for a dataset, from the same queries as its stats endpoint. */
+async function coverage(env: Env, key: DatasetKey): Promise<Coverage | null> {
+  try {
+    if (key === 'recalls') {
+      const s = (await stats(env.DB)) as { categories: Array<{ category: string; recalls: number; latest_report: string | null }>; last_successful_sync: string | null };
+      return {
+        records: s.categories.reduce((total, row) => total + row.recalls, 0),
+        breakdown: s.categories.map((row) => `${row.category} ${row.recalls.toLocaleString('en-US')}`).join(' · '),
+        latestRecord: s.categories.map((row) => row.latest_report).filter((date): date is string => Boolean(date)).sort().at(-1) ?? null,
+        lastSuccessfulSync: s.last_successful_sync,
+      };
+    }
+    const s = (await productStats(env.DB)) as { agencies: Array<{ agency: string; notices: number; latest: string | null }>; last_successful_sync: Record<string, string> };
+    const syncs = Object.values(s.last_successful_sync).sort();
+    return {
+      records: s.agencies.reduce((total, row) => total + row.notices, 0),
+      breakdown: s.agencies.map((row) => `${row.agency === 'HC' ? 'Health Canada' : row.agency} ${row.notices.toLocaleString('en-US')}`).join(' · '),
+      latestRecord: s.agencies.map((row) => row.latest).filter((date): date is string => Boolean(date)).sort().at(-1) ?? null,
+      // The oldest of the per-source last successes: every source has refreshed at least that recently.
+      lastSuccessfulSync: syncs.length === s.agencies.length ? (syncs[0] ?? null) : null,
+    };
+  } catch (error) {
+    console.error('coverage_error', key, error instanceof Error ? error.message : String(error));
+    return null;
+  }
+}
+
+/** A dataset's product page, withdrawn with the dataset. */
+function datasetRoute(env: Env, ctx: PageContext, key: DatasetKey): Promise<Response> | Response {
+  if (!isPublished(env, key)) return withdrawn(ctx);
+  const entry = DATASETS[key];
+  return cached(cacheKey(ctx, `/_dataset/${key}/${salesOpen(env) ? 'open' : 'closed'}`), async () =>
+    html(datasetPage(ctx, entry, await coverage(env, key), salesOpen(env)), 200, { 'cache-control': 'public, max-age=300' }),
   );
 }
 

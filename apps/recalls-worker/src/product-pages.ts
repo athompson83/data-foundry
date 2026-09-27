@@ -20,34 +20,6 @@ export const FIRST_PRODUCT_YEAR = 1973;
 const AGENCY_NAME: Readonly<Record<string, string>> = { CPSC: 'U.S. Consumer Product Safety Commission', HC: 'Health Canada' };
 const AGENCY_SHORT: Readonly<Record<string, string>> = { CPSC: 'CPSC', HC: 'Health Canada' };
 
-export function productLanding(ctx: PageContext): string {
-  const example = `curl "${ctx.apiOrigin}/v1/product-recalls/lookup?code=DXH70CFAVX" \\
-  -H "Authorization: Bearer $DATA_FOUNDRY_KEY"`;
-  return layout(
-    ctx,
-    'Consumer Product Recall API — CPSC and Health Canada, by model number and UPC',
-    'CPSC and Health Canada consumer-product recalls in one schema: model numbers, UPC/GTIN, units, hazards, remedies, trade facets and linked joint recalls, with source provenance.',
-    `<h1>Is this appliance, tool or toy recalled in the US or Canada?</h1>
-<p class="lede">CPSC and Health Canada publish recalls as prose: “model number DXH70CFAVX”, “About 21,250 (In addition, about 500 were sold in Canada)”. This API turns both agencies' notices into one set of exact, queryable fields and links a US recall to its Canadian counterpart wherever CPSC cites it.</p>
-<pre><code>${escapeHtml(example)}</code></pre>
-<h2>What you get</h2>
-<div class="grid">
-<div class="card"><h3>Exact identifiers</h3><p class="muted small">Model numbers read only after an explicit “model” label, and UPC/EAN/GTIN verified by check digit and normalised to GTIN-14.</p></div>
-<div class="card"><h3>One taxonomy, two agencies</h3><p class="muted small">Hazard classes (fire, shock, carbon monoxide, tip-over, choking…), remedy classes (refund, repair, replace…), and appliance, HVAC, plumbing, electrical and building-product facets.</p></div>
-<div class="card"><h3>Linked joint recalls</h3><p class="muted small">A CPSC notice that cites a Health Canada notice is linked to it. Name or title similarity never links notices.</p></div>
-<div class="card"><h3>Provenance on every record</h3><p class="muted small">Each record carries the agency source URL, the SHA-256 of the verbatim source record, the parser version and first-seen/changed timestamps. We check both agencies every six hours.</p></div>
-</div>
-<h2 id="api">API</h2>
-<p><code>GET ${escapeHtml(ctx.apiOrigin)}/v1/product-recalls/lookup?code=&lt;model or UPC&gt;</code> · <code>GET /v1/product-recalls?hazard=fire&amp;facet=appliance&amp;agency=CPSC</code> · <code>GET /v1/product-recalls/&lt;id&gt;</code> · live coverage without a key: <a href="${escapeHtml(ctx.apiOrigin)}/v1/product-recalls/stats">/v1/product-recalls/stats</a>. Full reference: <a href="/llms-full.txt">llms-full.txt</a> and <a href="${escapeHtml(ctx.apiOrigin)}/openapi.json">OpenAPI</a>.</p>
-<h2>Keys and pricing</h2>
-<p class="muted">The same keys and monthly plans as the FDA recall API cover this dataset, including the free Evaluate plan: <a href="/recalls#pricing">see plans</a>.</p>
-<h2>Browse</h2>
-<p class="muted"><a href="/product-recalls/browse">Every notice by agency and year</a>. Agents: see <a href="/llms.txt">/llms.txt</a>.</p>
-<p class="small muted">Sources: U.S. Consumer Product Safety Commission (US Government work). Health Canada Recalls and Safety Alerts: contains information licensed under the <a href="https://open.canada.ca/en/open-government-licence-canada">Open Government Licence – Canada</a>. Not affiliated with or endorsed by CPSC, Health Canada or the Government of Canada.</p>`,
-    { path: '/product-recalls', jsonLd: [productDataset(ctx)] },
-  );
-}
-
 function list(values: readonly string[], limit: number): string {
   const shown = values.slice(0, limit).map((value) => `<code>${escapeHtml(value)}</code>`).join(', ');
   return values.length > limit ? `${shown} and ${values.length - limit} more` : shown;
