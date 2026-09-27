@@ -58,9 +58,10 @@ const Dataset = z
     stage: z.enum(STAGES),
     description: z.string().min(20),
     sources: z.array(z.string()).min(2),
-    // `declared`: a published identifier or explicit cross-reference (licence number, GTIN, cited
-    // approval number, joint-recall marker) — may link automatically. `candidate`: names, brands,
-    // model tokens or titles — proposes a link for review only (AGENTS.md rules 3 and 7).
+    // `declared`: an identifier that names the counterpart record (licence number, check-digit-valid GTIN,
+    // cited approval or case number) — may link automatically, at the level it names. `candidate`: names,
+    // brands, model tokens, titles, markers that only say a counterpart exists (e.g. Health Canada's
+    // joint-recall marker) and shared attributes — proposes a link for review only (AGENTS.md rules 3 and 7).
     join_keys: z.array(z.object({ key: z.string().min(3), between: z.tuple([z.string(), z.string()]), measured: z.string().min(1), mode: z.enum(['declared', 'candidate']) }).strict()).min(1),
     taxonomy: z.array(z.string().min(3)).min(1),
     agent_questions: z.array(z.string().min(10)).min(1),
@@ -196,7 +197,17 @@ describe('dataset expansion pipeline registry', () => {
   const byKey = new Map(registry.candidates.map((candidate) => [candidate.key, candidate]));
   /** A join endpoint may name a sub-table of a member, e.g. "x-licences (bond table)". */
   const member = (endpoint: string) => endpoint.replace(/\s*\(.*\)$/, '');
-  const hostOf = (url: string) => new URL(url).host.replace(/^www\./, '').toLowerCase();
+  /**
+   * The registrable domain (publisher) of a source URL, so alternate subdomains of one publisher
+   * (data.x.gov, api.x.gov) count as one source. Two-label public suffixes used in the registry are
+   * listed explicitly; anything else keeps its last two labels.
+   */
+  const MULTI_LABEL_SUFFIXES = new Set(['gov.uk', 'co.uk', 'org.uk', 'gov.au', 'com.au', 'govt.nz', 'co.nz']);
+  const hostOf = (url: string) => {
+    const labels = new URL(url).hostname.toLowerCase().split('.');
+    const keep = MULTI_LABEL_SUFFIXES.has(labels.slice(-2).join('.')) ? 3 : 2;
+    return labels.slice(-keep).join('.');
+  };
 
   it('has unique dataset keys, distinct from candidate keys', () => {
     const keys = registry.datasets.map((dataset) => dataset.key);
@@ -230,7 +241,10 @@ describe('dataset expansion pipeline registry', () => {
       const ratio = /(\d[\d,]*)\s*\/\s*(\d[\d,]*)/.exec(join.measured);
       const hostsA = new Set(byKey.get(a!)!.sources.map(hostOf));
       const independent = byKey.get(b!)!.sources.every((url) => !hostsA.has(hostOf(url)));
-      return a !== b && independent && ratio !== null && Number(ratio[1]!.replaceAll(',', '')) <= Number(ratio[2]!.replaceAll(',', ''));
+      if (ratio === null) return false;
+      const [matched, total] = [Number(ratio[1]!.replaceAll(',', '')), Number(ratio[2]!.replaceAll(',', ''))];
+      // A 0/0 records no sample at all, so it is not a measurement.
+      return a !== b && independent && total > 0 && matched <= total;
     });
     expect(measured.length, 'at least one join measured as matched/total between members that share no host').toBeGreaterThan(0);
   });
