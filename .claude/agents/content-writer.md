@@ -123,12 +123,17 @@ The outline is where discovery is designed, not bolted on:
   link (with UTMs), deep links to the relevant product or data pages, and one
   or two related pieces of ours. Descriptive anchor text, never "click here".
 - **Citable facts.** Specific, sourced, stated in one sentence each, with a
-  table where a comparison exists. Assistants cite pages that state facts
+  table where a comparison exists; quotations and statistics with their
+  sources are what generative engines measurably favour, first-hand data
+  most of all. Assistants cite pages that state facts
   plainly and consistently; product facts must match `LINKS.md` word for word
   on the numbers.
 - **Structured data and metadata** to ship with it: meta title (≤60 chars),
-  description (≤155), slug, `Article` / `FAQPage` / `HowTo` where the page
-  really has that shape, canonical URL, OG image concept.
+  description (≤155), slug, `Article` with a visible byline and
+  `dateModified`, other types only where they match the visible text,
+  canonical URL, OG image concept. There is no special markup for AI answers
+  and no magic length — check `RESEARCH.md` before adding any technique that
+  claims otherwise.
 - **Where it goes** — the owned canonical page first; newsletter, syndication
   and social versions derive from it and point back to it.
 
