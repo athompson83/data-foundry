@@ -91,7 +91,7 @@ class Index:
             if brand_scoped:
                 found.append(('pattern=pattern', self.patkeys.get((b, pk), [])))
                 if rx is not None:
-                    found.append(('their-pattern~our-exact', [rid for k in self.by_brand.get(b, ()) if rx.match(k) for rid in self.exact[(b, k)]]))
+                    found.append(('their-pattern~our-exact', [rid for k in sorted(self.by_brand.get(b, ())) if rx.match(k) for rid in self.exact[(b, k)]]))
             else:
                 found.append(('pattern=pattern-anybrand', [rid for (bb, key), rids in self.patkeys.items() if key == pk for rid in rids]))
                 if rx is not None:

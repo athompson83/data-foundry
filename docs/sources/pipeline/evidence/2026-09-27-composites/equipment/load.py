@@ -5,6 +5,8 @@ csv.field_size_limit(10**9)
 # cpsc-recalls/recalls.json. Defaults to ./inputs next to this script.
 B=os.environ.get('DF_EVIDENCE_INPUTS', os.path.join(os.path.dirname(os.path.abspath(__file__)), 'inputs'))
 E3=B+'/research3/equipment'
+# Generated outputs are written next to the scripts (the committed evidence), never into the restored input tree.
+OUT=os.path.dirname(os.path.abspath(__file__))
 def es_mi():
     return list(csv.DictReader(open(E3+'/es/mi_noncac.csv', encoding='utf-8')))
 def es_cac():

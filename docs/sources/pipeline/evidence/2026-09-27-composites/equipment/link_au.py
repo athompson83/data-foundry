@@ -55,4 +55,4 @@ for r in aurows:
     b=brand_key(r['Brand']); i,o=parts
     if i in pairs.get((b,o),()) or o in pairs.get((b,i),()): sys_hit+=1; sysx.append((r['Submit_ID'],r['Brand'],r['Model_No'],r['Refrigerant']))
 print('AU AC exact indoor+outdoor system pairs found in ES mini-split:',sys_hit,'/',len(aurows), sysx[:8])
-json.dump(res,open(E3+'/link_au_matches.json','w'))
+json.dump(res,open(os.path.join(OUT,'link_au_matches.json'),'w'))

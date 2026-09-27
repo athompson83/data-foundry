@@ -7,5 +7,5 @@ d=[r for r in rec if r['RecallDate']>='2015' and KW.search(r['Title'] or '')]
 dt=[r for r in d if TOKEN.search(r.get('Description') or '')]
 print('2015+ recalls with equipment keyword in title',len(d),'with a model-like token in Description',len(dt))
 import json
-h=json.load(open(E3+'/link_cpsc_matches.json'))['hits']
+h=json.load(open(os.path.join(OUT,'link_cpsc_matches.json')))['hits']
 ids={x['recall'] for x in h}; print('matched in that set',len(ids&{r['RecallNumber'] for r in dt}))

@@ -47,7 +47,7 @@ for r in rec:
     # Every brand and every matching listing is kept: these are review candidates, so the queue must see them all.
     for t in sorted(toks):  # deterministic order
         k=model_key(t); found=False
-        for b in cand:
+        for b in sorted(cand):  # deterministic order
             if (b,k) in es.exact:
                 rh.append((t,'exact',b,list(es.exact[(b,k)]))); found=True
             ph=[(rid,raw) for rx,raw,rid in es.pats.get(b,[]) if rx.match(k)]
@@ -65,4 +65,4 @@ print(stats,'tokens',tok_total,'token hits',tok_hit,'upc hits',len(upchits),upch
 cc=collections.Counter(c for h in hits for c in h['cats']); print(cc.most_common(40))
 random.seed(20260927)
 for h in random.sample(hits,min(30,len(hits))): print(h)
-json.dump({'hits':hits,'upc':upchits},open(E3+'/link_cpsc_matches.json','w'),indent=0)
+json.dump({'hits':hits,'upc':upchits},open(os.path.join(OUT,'link_cpsc_matches.json'),'w'),indent=0)

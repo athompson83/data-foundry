@@ -31,7 +31,7 @@ def run(names, tag):
             # A dropped batch would silently lower the measured match rate.
             raise SystemExit(f'batch {i}: failed after 3 attempts; measurement incomplete')
         time.sleep(2)
-    json.dump(res,open(E3+f'/wd_{tag}.json','w'))
+    json.dump(res,open(os.path.join(OUT,f'wd_{tag}.json'),'w'))
     return res,lab2name
 top=[p for p,_ in partners.most_common()]
 res,l2n=run(top,'partners')
