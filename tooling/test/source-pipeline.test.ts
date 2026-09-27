@@ -4,7 +4,7 @@
  * so this test is the only thing that stops a run from recording a malformed
  * candidate, an invented stage, or a claim with no evidence behind it.
  */
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { parse as parseYaml } from 'yaml';
@@ -68,13 +68,24 @@ describe('dataset expansion pipeline registry', () => {
     for (const path of candidate.evidence) expect(existsSync(`${ROOT}${path}`), `${path} must exist`).toBe(true);
   });
 
-  it.each(registry.candidates)('$key commits its sample evidence once EVIDENCED', (candidate) => {
-    if (!beyond(candidate.stage, 'EVIDENCED')) return;
-    const research = candidate.evidence.filter((path) => /pipeline\/research-\d{4}-\d{2}-\d{2}\.md$/.test(path));
-    for (const path of research) {
-      const round = path.match(/research-(\d{4}-\d{2}-\d{2})/)![1];
-      const samples = JSON.parse(readFileSync(`${ROOT}docs/sources/pipeline/evidence/${round}/samples.json`, 'utf8')) as Record<string, unknown>;
-      expect(Object.keys(samples), `evidence/${round}/samples.json lists ${candidate.key}`).toContain(candidate.key);
+  it.each(registry.candidates)('$key commits its sample evidence while between EVIDENCED and BUILDING', (candidate) => {
+    // LIVE datasets are evidenced by their rights record and reconciliation; PARKED ones are stopped.
+    if (!beyond(candidate.stage, 'EVIDENCED') || candidate.stage === 'LIVE') return;
+    const rounds = candidate.evidence
+      .map((path) => /^docs\/sources\/pipeline\/research-(\d{4}-\d{2}-\d{2})\.md$/.exec(path)?.[1])
+      .filter((round): round is string => Boolean(round));
+    expect(rounds.length, `${candidate.key} must cite a docs/sources/pipeline/research-*.md round`).toBeGreaterThan(0);
+    for (const round of rounds) {
+      const dir = `${ROOT}docs/sources/pipeline/evidence/${round}`;
+      for (const sub of ['scripts', 'results']) {
+        expect(existsSync(`${dir}/${sub}`) && readdirSync(`${dir}/${sub}`).length > 0, `evidence/${round}/${sub} must not be empty`).toBe(true);
+      }
+      const samples = JSON.parse(readFileSync(`${dir}/samples.json`, 'utf8')) as Record<string, Record<string, unknown>>;
+      const entry = samples[candidate.key];
+      expect(entry, `evidence/${round}/samples.json lists ${candidate.key}`).toBeDefined();
+      expect(typeof entry?.['population'] === 'string' && typeof entry?.['sample'] === 'string', 'population and sample are described').toBe(true);
+      const identifiers = Object.values(entry ?? {}).filter((value): value is unknown[] => Array.isArray(value));
+      expect(identifiers.length > 0 && identifiers.every((list) => list.length > 0), 'every identifier list is non-empty').toBe(true);
     }
   });
 
