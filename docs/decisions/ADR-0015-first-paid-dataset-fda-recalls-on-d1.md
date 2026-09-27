@@ -129,7 +129,9 @@ API (rule 5):
 - IndexNow pings for changed, indexable recall pages after every scheduled
   sync. The key is public by design and served at `/<INDEXNOW_KEY>.txt`. A
   watermark in R2 (`state/indexnow-watermark.json`) advances only when every
-  batch is accepted, so a rejected or throttled submission is retried on the
+  batch is accepted. A page is announced only once it changed more than an
+  edge-cache lifetime (plus five minutes) ago, so a crawler following the ping
+  cannot be served the previous cached version from any data centre; so a rejected or throttled submission is retried on the
   next run. Nothing is submitted while `SOURCE_KILL_SWITCH` is on, and the
   watermark stays put so pending pages are sent after reactivation.
 

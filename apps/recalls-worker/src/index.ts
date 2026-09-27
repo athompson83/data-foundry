@@ -15,7 +15,7 @@ import { openApiDocument } from './openapi.js';
 import { catalogPage, docsPage, messagePage, privacyPage, recallsLanding, termsPage, welcomePage, type PageContext } from './pages.js';
 import { createCheckoutSession, createPortalSession, currentSubscription, handleStripeWebhook, retrieveCheckoutSession, StripeError, upsertCustomerFromSubscription } from './stripe.js';
 import { scheduledSync, syncWindow } from './sync.js';
-import { BROWSE_PATTERN, RECALL_API_PATTERN, RECALL_PAGE_PATTERN, SITEMAP_PATTERN, browseCount, browseInRange, browseIndex, browsePage, llmsFullTxt, llmsTxt, pagesSitemap, pingChangedRecalls, recallPage, recallSitemap, robotsTxt, sitemapIndex, type PresentedRecall } from './seo.js';
+import { BROWSE_PATTERN, EDGE_TTL_SECONDS, RECALL_API_PATTERN, RECALL_PAGE_PATTERN, SITEMAP_PATTERN, browseCount, browseInRange, browseIndex, browsePage, llmsFullTxt, llmsTxt, pagesSitemap, pingChangedRecalls, recallPage, recallSitemap, robotsTxt, sitemapIndex, type PresentedRecall } from './seo.js';
 import { RECALL_CATEGORIES, type RecallCategory } from '@data-foundry/recall-structuring';
 
 /** The Workers edge cache, declared locally like the other bindings. */
@@ -299,8 +299,6 @@ function cacheKey(ctx: PageContext, pathname: string, page?: number): Request {
 
 const withdrawn = (ctx: PageContext) => html(messagePage(ctx, 'Temporarily unavailable', 'This dataset is temporarily unavailable.'), 503, { 'cache-control': 'no-store' });
 
-/** How long the Worker's own edge cache keeps a D1-backed page. */
-const EDGE_TTL_SECONDS = 3600;
 
 /**
  * Serve a D1-backed public page from the Workers edge cache, so crawler

@@ -361,13 +361,22 @@ export function indexNowBodies(ctx: PageContext, key: string, recallNumbers: rea
   return bodies;
 }
 
+/** How long the Worker's edge cache keeps a D1-backed page (per Cloudflare data centre). */
+export const EDGE_TTL_SECONDS = 3600;
+/**
+ * IndexNow announces a changed page only once every edge copy of its old
+ * version has expired, so a crawler that follows the ping sees the new page.
+ * Deleting the cache entry is not enough: the Cache API is per data centre.
+ */
+export const INDEXNOW_SETTLE_MS = (EDGE_TTL_SECONDS + 300) * 1000;
+
 /** Where the last fully accepted IndexNow submission is recorded (a small JSON object in the artifact bucket). */
 export const INDEXNOW_WATERMARK_KEY = 'state/indexnow-watermark.json';
 
 /**
  * Ping IndexNow with the indexable recall pages changed since the last fully
- * accepted submission (or since `started` the first time). The watermark only
- * moves to `started` when every batch is accepted, so a 429 or 5xx is retried
+ * accepted submission, up to one edge-cache lifetime before `started`. The
+ * watermark only moves forward when every batch is accepted, so a 429 or 5xx is retried
  * on the next scheduled run instead of skipping those pages. Never throws:
  * discovery must not fail a sync.
  */
@@ -379,16 +388,21 @@ export async function pingChangedRecalls(
   started: string,
   fetcher: typeof fetch = fetch,
 ): Promise<{ since: string; submitted: number; status: number[]; advanced: boolean }> {
-  if (!key) return { since: started, submitted: 0, status: [], advanced: false };
-  let since = started;
+  // Only changes old enough that no edge cache can still serve the previous page.
+  const settled = new Date(Date.parse(started) - INDEXNOW_SETTLE_MS).toISOString();
+  if (!key) return { since: settled, submitted: 0, status: [], advanced: false };
+  let since = settled;
   try {
     const stored = await bucket.get(INDEXNOW_WATERMARK_KEY);
     const previous = stored ? (JSON.parse(await stored.text()) as { since?: unknown }).since : undefined;
-    if (typeof previous === 'string' && !Number.isNaN(Date.parse(previous)) && previous < started) since = previous;
+    if (typeof previous === 'string' && !Number.isNaN(Date.parse(previous)) && previous <= settled) since = previous;
     // With no usable watermark (first deploy, or deleted), record this run's
     // boundary before submitting, so a failed first submission is retried from it.
     else if (typeof previous !== 'string') await bucket.put(INDEXNOW_WATERMARK_KEY, JSON.stringify({ since }), { httpMetadata: { contentType: 'application/json' } });
-    const rows = await db.prepare(`SELECT recall_number FROM recall WHERE changed_at >= ? AND ${INDEXABLE_SQL} ORDER BY recall_number`).bind(since).all<{ recall_number: string }>();
+    const rows = await db
+      .prepare(`SELECT recall_number FROM recall WHERE changed_at >= ? AND changed_at < ? AND ${INDEXABLE_SQL} ORDER BY recall_number`)
+      .bind(since, settled)
+      .all<{ recall_number: string }>();
     const numbers = rows.results.map((row) => row.recall_number).filter(isRoutableRecallNumber);
     const status: number[] = [];
     for (const body of indexNowBodies(ctx, key, numbers)) {
@@ -396,7 +410,7 @@ export async function pingChangedRecalls(
       status.push(response.status);
     }
     const advanced = status.every((code) => code >= 200 && code < 300);
-    if (advanced) await bucket.put(INDEXNOW_WATERMARK_KEY, JSON.stringify({ since: started }), { httpMetadata: { contentType: 'application/json' } });
+    if (advanced) await bucket.put(INDEXNOW_WATERMARK_KEY, JSON.stringify({ since: settled }), { httpMetadata: { contentType: 'application/json' } });
     return { since, submitted: numbers.length, status, advanced };
   } catch (error) {
     console.error('indexnow_error', error instanceof Error ? error.message : String(error));

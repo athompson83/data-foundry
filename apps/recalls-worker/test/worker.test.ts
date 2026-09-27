@@ -415,16 +415,18 @@ describe('discoverability', () => {
     }) as unknown as typeof fetch;
     const ctx = { publicOrigin: 'https://data.aroqon.com', apiOrigin: 'https://api.data.aroqon.com', supportEmail: 's@example.com' };
     const key = env.INDEXNOW_KEY;
-    // First run, no watermark yet: it records its own boundary before submitting. A 429 does not advance it.
-    expect(await pingChangedRecalls(ctx, env.DB, env.RAW_ARTIFACTS, key, '2026-09-25T00:00:00.000Z', fetcher)).toEqual({ since: '2026-09-25T00:00:00.000Z', submitted: 1, status: [429], advanced: false });
+    // The seeded recall changed at 2026-09-26T00:00Z. First run, no watermark yet: it records its own
+    // boundary (one edge-cache lifetime before it started) and has nothing settled to send.
+    expect(await pingChangedRecalls(ctx, env.DB, env.RAW_ARTIFACTS, key, '2026-09-26T00:30:00.000Z', fetcher)).toEqual({ since: '2026-09-25T23:25:00.000Z', submitted: 0, status: [], advanced: true });
+    // 40 minutes after the change the old page may still be cached somewhere, so it is not announced yet.
+    expect(await pingChangedRecalls(ctx, env.DB, env.RAW_ARTIFACTS, key, '2026-09-26T00:40:00.000Z', fetcher)).toMatchObject({ submitted: 0 });
+    // Once settled it is sent; a 429 keeps the watermark, so the next run retries…
+    expect(await pingChangedRecalls(ctx, env.DB, env.RAW_ARTIFACTS, key, '2026-09-26T01:10:00.000Z', fetcher)).toEqual({ since: '2026-09-25T23:35:00.000Z', submitted: 1, status: [429], advanced: false });
     expect(JSON.parse(sent[0] as string)).toEqual({ host: 'data.aroqon.com', key, keyLocation: `https://data.aroqon.com/${key}.txt`, urlList: ['https://data.aroqon.com/recalls/F-0001-2026'] });
-    // Later runs retry from that boundary until a submission is accepted…
-    reply = 503;
-    expect(await pingChangedRecalls(ctx, env.DB, env.RAW_ARTIFACTS, key, '2026-09-26T12:00:00.000Z', fetcher)).toMatchObject({ since: '2026-09-25T00:00:00.000Z', submitted: 1, status: [503], advanced: false });
     reply = 202;
-    expect(await pingChangedRecalls(ctx, env.DB, env.RAW_ARTIFACTS, key, '2026-09-27T00:00:00.000Z', fetcher)).toMatchObject({ since: '2026-09-25T00:00:00.000Z', submitted: 1, status: [202], advanced: true });
-    // …and then move on.
-    expect(await pingChangedRecalls(ctx, env.DB, env.RAW_ARTIFACTS, key, '2026-09-28T00:00:00.000Z', fetcher)).toMatchObject({ since: '2026-09-27T00:00:00.000Z', submitted: 0, advanced: true });
+    expect(await pingChangedRecalls(ctx, env.DB, env.RAW_ARTIFACTS, key, '2026-09-26T07:00:00.000Z', fetcher)).toMatchObject({ since: '2026-09-25T23:35:00.000Z', submitted: 1, status: [202], advanced: true });
+    // …and then moves on.
+    expect(await pingChangedRecalls(ctx, env.DB, env.RAW_ARTIFACTS, key, '2026-09-26T13:00:00.000Z', fetcher)).toMatchObject({ since: '2026-09-26T05:55:00.000Z', submitted: 0, advanced: true });
     expect(await pingChangedRecalls(ctx, env.DB, env.RAW_ARTIFACTS, undefined, '2026-09-29T00:00:00.000Z', fetcher)).toMatchObject({ submitted: 0, advanced: false });
     expect(indexNowBodies(ctx, 'k', Array.from({ length: 10_001 }, (_, index) => `F-${index}-2026`))).toHaveLength(2);
   });
