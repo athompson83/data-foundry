@@ -161,6 +161,43 @@ describe('dataset expansion pipeline registry', () => {
 
   it.each(registry.candidates)('$key has a rights record once rights are determined', (candidate) => {
     if (!beyond(candidate.stage, 'RIGHTS_DETERMINED')) return;
-    expect(candidate.evidence.some((path) => /rights-record/.test(path)), 'cite docs/sources/*rights-record*').toBe(true);
+    expect(candidate.evidence.some((path) => /^docs\/sources\/[a-z0-9-]+-rights-record-\d{8}\.md$/.test(path)), 'cite docs/sources/<source>-rights-record-YYYYMMDD.md').toBe(true);
+  });
+
+  const Count = z.object({ hits: z.number().int().nonnegative(), of: z.number().int().positive() }).strict();
+  const Coverage = z
+    .object({
+      key: z.string(),
+      parser_version: z.string().regex(/^[a-z0-9-]+@\d+$/),
+      package: z.string().regex(/^packages\/[a-z0-9-]+$/),
+      golden_tests: z.array(z.string().regex(/^packages\/[a-z0-9-]+\/test\/.+\.test\.ts$/)).min(1),
+      runner: z.string().regex(/^tooling\/prototypes\/[a-z0-9-]+\.ts$/),
+      command: z.string().min(10),
+      snapshot: z
+        .object({
+          source: z.string().url(),
+          retrieved: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+          records: z.number().int().positive(),
+          archives: z.array(z.object({ bucket: z.string().min(1), key: z.string().min(1), bytes: z.number().int().positive(), sha256: z.string().regex(/^[0-9a-f]{64}$/) }).strict()).min(1),
+        })
+        .strict(),
+      errors: z.literal(0),
+      fields: z.record(z.string(), Count).refine((fields) => Object.keys(fields).length > 0),
+      precision: z.record(z.string(), z.object({ correct: z.number().int().nonnegative(), checked: z.number().int().positive(), method: z.string().min(20) }).strict()).optional(),
+    })
+    .strict();
+
+  it.each(registry.candidates)('$key runs a deterministic prototype over the full snapshot once PROTOTYPED', (candidate) => {
+    if (!between(candidate.stage) || !beyond(candidate.stage, 'PROTOTYPED')) return;
+    const report = `docs/sources/pipeline/prototypes/${candidate.key}/README.md`;
+    expect(candidate.evidence, `cite ${report}`).toContain(report);
+    const dir = `${ROOT}docs/sources/pipeline/prototypes/${candidate.key}`;
+    const coverage = Coverage.parse(JSON.parse(readFileSync(`${dir}/coverage.json`, 'utf8')));
+    expect(coverage.key).toBe(candidate.key);
+    expect(existsSync(`${ROOT}${coverage.package}/src/index.ts`), `${coverage.package} must exist`).toBe(true);
+    for (const test of coverage.golden_tests) expect(existsSync(`${ROOT}${test}`), `${test} must exist`).toBe(true);
+    expect(existsSync(`${ROOT}${coverage.runner}`), `${coverage.runner} must exist`).toBe(true);
+    for (const [field, count] of Object.entries(coverage.fields)) expect(count.hits, `${field} hits cannot exceed its denominator`).toBeLessThanOrEqual(count.of);
+    for (const [field, check] of Object.entries(coverage.precision ?? {})) expect(check.correct, `${field} precision`).toBeLessThanOrEqual(check.checked);
   });
 });

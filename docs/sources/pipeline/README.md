@@ -15,6 +15,7 @@ declarations) and the vertical/dataset build itself.
 | [`candidates.yaml`](candidates.yaml) | Every candidate dataset: category, stage, rights verdict, scores, evidence and the single next action. Validated by `tooling/test/source-pipeline.test.ts`. |
 | [`scout-routine.md`](scout-routine.md) | The scheduler: the routine's ID, cron and verbatim prompt. |
 | `evidence/YYYY-MM-DD/` | Sample identifiers (`samples.json`), assessment scripts, their outputs, and `inputs.json` + `replay.sh`. The source responses themselves are preserved in the R2 evidence bucket, so every measurement can be re-run. |
+| `prototypes/<key>/` | The PROTOTYPED evidence for one candidate: report and `coverage.json`. |
 | `research-YYYY-MM-DD.md` | The evidence record for a research round: quoted terms, measured counts, samples, extraction hit rates. |
 
 ## Stages
@@ -32,7 +33,11 @@ A candidate moves forward only on evidence, one stage at a time:
    (`docs/sources/<source>-rights-record-YYYYMMDD.md`), listing the exact fields
    to be redistributed and the attribution and conditions.
 5. `PROTOTYPED`: a deterministic parser runs over the full snapshot with 0
-   errors, with golden tests and measured field coverage.
+   errors, with golden tests and measured field coverage. The evidence is
+   `prototypes/<key>/README.md` plus `prototypes/<key>/coverage.json`: the
+   package, golden tests, runner (`tooling/prototypes/<key>.ts`), the snapshot
+   archived in R2 with byte counts and SHA-256, per-field hits, and hand-checked
+   precision where it was measured.
 6. `BUILDING`: storage, sync, API/MCP surface and billing, in a reviewed PR.
 7. `LIVE`: deployed, reconciled to the source, and hosted acceptance passed.
    Selling stays gated by `SALES_OPEN` per dataset.
