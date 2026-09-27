@@ -280,6 +280,24 @@ describe('dataset expansion pipeline registry', () => {
     }
   });
 
+  it.each(registry.datasets)('$key connects every member through confirmed joins once it advances', (dataset) => {
+    // One linked pair is enough while screening. From RIGHTS_DETERMINED on, every member must sit in a single connected
+    // graph of confirmed cross-source joins (declared with a match, or a candidate whose hand-check confirmed one), so
+    // a dataset cannot carry feeds that link to nothing.
+    if (!beyond(dataset.stage, 'RIGHTS_DETERMINED')) return;
+    const parent = new Map(dataset.sources.map((key) => [key, key]));
+    const find = (key: string): string => (parent.get(key) === key ? key : find(parent.get(key)!));
+    for (const join of dataset.join_keys) {
+      const [a, b] = join.between.map(member);
+      const ratio = /(\d[\d,]*)\s*\/\s*(\d[\d,]*)/.exec(join.measured);
+      const matched = ratio ? Number(ratio[1]!.replaceAll(',', '')) : 0;
+      const confirmed = matched > 0 && (join.mode === 'declared' || (join.reviewed?.correct ?? 0) > 0);
+      if (a !== b && confirmed) parent.set(find(a!), find(b!));
+    }
+    const roots = new Set(dataset.sources.map(find));
+    expect(roots.size, `${[...roots].join(', ')}: members not connected by confirmed joins`).toBe(1);
+  });
+
   /** Feeds that were LIVE before 2026-09-27, when datasets became composites. Never add to this set. */
   const GRANDFATHERED_LIVE = new Set(['fda-recalls']);
 

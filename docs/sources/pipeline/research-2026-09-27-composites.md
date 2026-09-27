@@ -62,12 +62,32 @@ digits. This one join is replayable; the others below are not.
 
 ## Reproducibility
 
-These are **screening** measurements. Our scripts, sample identifiers and the small
-match outputs are committed, but the bulk source snapshots they ran on were deleted
-after measurement and are not archived, so the figures cannot be replayed exactly
-(the feeds are mutable). That is acceptable for `SCREENED`; before any member source
-is advanced to `EVIDENCED`, its joins must be re-measured from inputs archived in R2
-with byte counts and SHA-256, under the same replay rules as round 1.
+These are **screening** measurements. Every input still on hand after screening is now
+archived in R2 with SHA-256 (`evidence/2026-09-27-composites/archive/`: three tarballs plus a
+per-file hash list, 996 files, added after review), alongside the parsed international notices
+and the CPSC and Health Canada downloads archived earlier.
+
+Archived and replayable:
+- Health Canada ↔ CPSC;
+- UK ↔ EU rule sets, from the parsed notices;
+- the Florida detail, evaluation-report and roofing samples, and the Miami-Dade NOA sample;
+- the FEMA NRI/BCAT county pulls;
+- AU GEMS and the NRCan 2017 extracts;
+- the round-2 appliance and electrical files.
+
+Some bulk snapshots had already been deleted and could not be archived, so the figures built on them
+cannot be replayed exactly:
+- the raw UK OPSS notice JSON;
+- the EU Safety Gate weekly XML (one week kept);
+- the French RappelConso dump;
+- the SaferProducts incident extract;
+- most ENERGY STAR category and Model Index files (only the matched-systems group file was kept);
+- the WaterSense extract;
+- the contractor registries.
+
+The figures derived from them are labelled screening-grade or lower bounds in this record.
+Before any member source advances to `EVIDENCED`, its joins are re-measured from inputs archived
+in R2 with byte counts and SHA-256, under the same replay rules as round 1.
 
 **UK ↔ EU rule sets and multi-code barcodes (added after review).** `xmatch.py` counted a notice as a
 brand+model match when it matched by brand+model *or* by GTIN. `uk_eu_separate.py` re-measures the three rules
