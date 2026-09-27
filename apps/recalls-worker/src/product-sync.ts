@@ -91,8 +91,13 @@ async function runStatements(db: D1Database, statements: readonly Statement[]): 
 }
 
 /** Write one agency's fetched records: evidence to R2, then only new or changed rows to D1. */
-export async function ingestRecords(env: ProductSyncEnv, agency: ProductAgency, records: readonly unknown[], window: string, now: string, sourceArtifact?: string): Promise<ProductSyncResult> {
-  const source = `product:${agency}`;
+/**
+ * Sync runs recorded under `product:<agency>` are what the public freshness field reads. A window of
+ * the full CPSC pass is recorded under `product-window:CPSC` instead; the pass records one
+ * `product:CPSC` run only after every window and the full-list floor have succeeded.
+ */
+export async function ingestRecords(env: ProductSyncEnv, agency: ProductAgency, records: readonly unknown[], window: string, now: string, sourceArtifact?: string, category = `product:${agency}`): Promise<ProductSyncResult> {
+  const source = category;
   const run = await env.DB.prepare('INSERT INTO sync_run (category, window_from, window_to, started_at) VALUES (?, ?, ?, ?) RETURNING id')
     .bind(source, window, now.slice(0, 10), now)
     .first<{ id: number }>();
@@ -181,18 +186,33 @@ export async function scheduledProductSync(env: ProductSyncEnv, options: { full:
         return ingestRecords(env, 'CPSC', records, from, now, key);
       }
       // One window at a time: each is archived, ingested and released before the next is fetched.
+      const run = await env.DB.prepare("INSERT INTO sync_run (category, window_from, window_to, started_at) VALUES ('product:CPSC', 'full', ?, ?) RETURNING id")
+        .bind(today, now)
+        .first<{ id: number }>();
+      const keys: string[] = [];
       let fetched = 0;
       let inserted = 0;
       let changed = 0;
-      for (const window of cpscFullWindows(today)) {
-        const { key, records } = await fetchSource(window.url, 'CPSC', env.RAW_ARTIFACTS, fetcher, now);
-        if (!Array.isArray(records)) throw new Error(`CPSC ${window.label} response is not a JSON array`);
-        const result = await ingestRecords(env, 'CPSC', records, window.label, now, key);
-        fetched += result.fetched;
-        inserted += result.inserted;
-        changed += result.changed;
+      try {
+        for (const window of cpscFullWindows(today)) {
+          const { key, records } = await fetchSource(window.url, 'CPSC', env.RAW_ARTIFACTS, fetcher, now);
+          keys.push(key);
+          if (!Array.isArray(records)) throw new Error(`CPSC ${window.label} response is not a JSON array`);
+          const result = await ingestRecords(env, 'CPSC', records, window.label, now, key, 'product-window:CPSC');
+          fetched += result.fetched;
+          inserted += result.inserted;
+          changed += result.changed;
+        }
+        if (fetched < MIN_FULL_CPSC) throw new Error(`CPSC full list has only ${fetched} records`);
+      } catch (error) {
+        await env.DB.prepare("UPDATE sync_run SET finished_at = ?, fetched = ?, inserted = ?, changed = ?, artifact_keys = ?, status = 'FAILED', error = ? WHERE id = ?")
+          .bind(new Date().toISOString(), fetched, inserted, changed, JSON.stringify(keys), (error instanceof Error ? error.message : String(error)).slice(0, 500), run?.id ?? 0)
+          .run();
+        throw error;
       }
-      if (fetched < MIN_FULL_CPSC) throw new Error(`CPSC full list has only ${fetched} records`);
+      await env.DB.prepare("UPDATE sync_run SET finished_at = ?, fetched = ?, inserted = ?, changed = ?, artifact_keys = ?, status = 'SUCCEEDED' WHERE id = ?")
+        .bind(new Date().toISOString(), fetched, inserted, changed, JSON.stringify(keys), run?.id ?? 0)
+        .run();
       return { source: 'product:CPSC', fetched, inserted, changed };
     }),
   );

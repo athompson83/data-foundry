@@ -31,6 +31,8 @@ The remaining members (EU Safety Gate, UK OPSS, ACCC, MBIE, SaferProducts incide
    - Pages: `data.aroqon.com/product-recalls[/browse|/<id>]`, plus sitemap shards, llms.txt and the catalog.
 
    Notice pages are indexable only for CPSC notices with a substantive description and hazard statement. Health Canada index-only pages are served `noindex` (rule 8).
+
+   **Channels.** Web and the direct-customer API only, as for FDA Recall Intelligence (ADR-0015 creates no `mcp.data.aroqon.com`). MCP/agent access, RapidAPI and bulk export are rights-permitted but not enabled (both rights records), and each is a separate, independently gated channel decision (AGENTS.md: "one truth does not mean one permission"). When the MCP channel is opened for the recall datasets, its tools must read this dataset's query layer and meet the API/MCP parity tests before it is enabled; until then there is no MCP surface to be out of parity with.
 4. **Commerce:** the existing keys and plan ladder cover the dataset. There is no repricing and no new Stripe objects.
 5. **Gates:**
    - `PRODUCT_RECALLS_KILL_SWITCH="1"` stops acquisition and serving, the rights kill switch for both sources.

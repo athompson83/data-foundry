@@ -4,7 +4,7 @@ import { issueKey } from '../src/account.js';
 import type { Env } from '../src/env.js';
 import worker from '../src/index.js';
 import { renderLiteral, sha256Hex } from '../src/store.js';
-import { ingestRecords, MIN_FULL_HC_CONSUMER,
+import { ingestRecords, MIN_FULL_CPSC, MIN_FULL_HC_CONSUMER,
   cpscFullWindows, scheduledProductSync } from '../src/product-sync.js';
 import { isIndexableNotice, prepareProductRecall, writeProductGroups, MAX_LITERAL_JSON_BYTES } from '../src/product-store.js';
 import { createTestBucket, createTestDatabase } from './d1-sqlite.js';
@@ -149,7 +149,27 @@ describe('product-recall ingestion', () => {
     // Every window was read and ingested; the total is then checked against the full-list floor.
     expect(cpsc!.error).toMatch(/CPSC full list has only 1 records/);
     expect(await env.DB.prepare("SELECT COUNT(*) AS n FROM product_recall WHERE agency = 'CPSC'").first()).toEqual({ n: 1 });
+    // A pass that fails its floor is never reported as a successful CPSC refresh, even though its windows ran.
+    const runs = await env.DB.prepare("SELECT category, status FROM sync_run WHERE category LIKE 'product%CPSC' ORDER BY id").all<{ category: string; status: string }>();
+    expect(runs.results.filter((run) => run.category === 'product:CPSC')).toEqual([{ category: 'product:CPSC', status: 'FAILED' }]);
+    expect(runs.results.filter((run) => run.category === 'product-window:CPSC')).toHaveLength(windows.length);
+    const stats = (await (await worker.fetch(api('/v1/product-recalls/stats'), env)).json()) as { last_successful_sync: Record<string, string | null> };
+    expect(stats.last_successful_sync['CPSC'] ?? null).toBeNull();
+    expect(Object.keys(stats.last_successful_sync)).not.toContain('product-window:CPSC');
   });
+
+  it('records one successful CPSC refresh after every window of a complete pass', async () => {
+    const env = makeEnv();
+    const many = Array.from({ length: MIN_FULL_CPSC }, (_, index) => ({ ...CPSC, RecallNumber: String(40000 + index), Inconjunctions: [] }));
+    const fetcher = vi.fn(async (url: string) =>
+      new Response(JSON.stringify(String(url).includes('canada.ca') ? [HC] : String(url).includes('RecallDateStart=2025-01-01') ? many : []), { status: 200 }),
+    );
+    const [cpsc] = await scheduledProductSync(env, { full: true, today: '2026-09-27', fetcher: fetcher as unknown as typeof fetch });
+    expect(cpsc!.error).toBeUndefined();
+    expect(cpsc!.fetched).toBe(MIN_FULL_CPSC);
+    const runs = await env.DB.prepare("SELECT status, fetched FROM sync_run WHERE category = 'product:CPSC'").all<{ status: string; fetched: number }>();
+    expect(runs.results).toEqual([{ status: 'SUCCEEDED', fetched: MIN_FULL_CPSC }]);
+  }, 60_000);
 
   it('reads the recent CPSC window and the Health Canada index on a normal run', async () => {
     const env = makeEnv();
@@ -216,6 +236,17 @@ describe('product-recall API', () => {
     }
     const none = (await (await worker.fetch(api('/v1/product-recalls/lookup?code=089301008589', apiKey), env)).json()) as { data: unknown[] };
     expect(none.data).toEqual([]);
+  });
+
+  it('indexes every distinct product type as a category, not only the first', async () => {
+    const env = makeEnv();
+    const multi = { ...CPSC, RecallNumber: '31000', Inconjunctions: [], Products: [{ Name: 'Heater', Type: 'Heaters' }, { Name: 'Tank adapter', Type: 'Propane Accessories' }] };
+    await ingestRecords(env, 'CPSC', [multi], 'full', NOW);
+    const apiKey = await key(env);
+    for (const category of ['heaters', 'propane accessories']) {
+      const body = (await (await worker.fetch(api(`/v1/product-recalls?category=${encodeURIComponent(category)}`, apiKey), env)).json()) as { data: Array<{ id: string }> };
+      expect(body.data.map((item) => item.id), category).toEqual(['cpsc-31000']);
+    }
   });
 
   it('returns match details only for the notices in the bounded page', async () => {

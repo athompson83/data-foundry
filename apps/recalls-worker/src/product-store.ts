@@ -57,7 +57,9 @@ export function productKeys(recall: StructuredProductRecall): Array<readonly [Pr
   for (const hazard of recall.hazard.classes) keys.push(['hazard', hazard]);
   for (const remedy of recall.remedy.classes) keys.push(['remedy', remedy]);
   for (const facet of recall.trade_facets) keys.push(['facet', facet]);
-  if (recall.product_category) keys.push(['category', recall.product_category.toLowerCase()]);
+  // Every distinct product type, not only the headline category, so a filter on any type the notice lists finds it.
+  const categories = new Set([recall.product_category, ...recall.products.map((product) => product.type)].filter((value): value is string => Boolean(value)).map((value) => value.toLowerCase()));
+  for (const category of categories) keys.push(['category', category]);
   for (const country of recall.manufacturer_countries) keys.push(['country', country.toLowerCase()]);
   return keys;
 }

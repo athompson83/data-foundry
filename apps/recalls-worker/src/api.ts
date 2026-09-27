@@ -382,7 +382,7 @@ export async function stats(db: D1Database): Promise<Record<string, unknown>> {
   const [byCategory, lastSync, keyCounts] = await Promise.all([
     db.prepare('SELECT category, COUNT(*) AS recalls, MAX(reported_on) AS latest_report FROM recall GROUP BY category ORDER BY category').all<{ category: string; recalls: number; latest_report: string }>(),
     // FDA syncs only: the product-recall dataset records its own runs as 'product:*'.
-    db.prepare("SELECT MAX(finished_at) AS finished_at FROM sync_run WHERE status = 'SUCCEEDED' AND category NOT LIKE 'product:%'").first<{ finished_at: string | null }>(),
+    db.prepare("SELECT MAX(finished_at) AS finished_at FROM sync_run WHERE status = 'SUCCEEDED' AND category NOT LIKE 'product%'").first<{ finished_at: string | null }>(),
     db.prepare("SELECT kind, COUNT(DISTINCT value) AS distinct_values FROM recall_key WHERE kind IN ('gtin', 'ndc', 'lot') GROUP BY kind").all<{ kind: string; distinct_values: number }>(),
   ]);
   return {
