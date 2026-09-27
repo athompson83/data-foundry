@@ -117,7 +117,11 @@ export function structureCpscRecall(record: CpscRecallRecord): StructuredProduct
   }
   for (const gtin of parseCodes(description).gtins) gtins.add(gtin);
 
-  const models = extractModelNumbersWithFields([description], (record.Products ?? []).map((product) => cleanText(product.Model)));
+  // Product-level descriptions are prose like the notice description (anchored extraction); Products[].Model is a model by structure.
+  const models = extractModelNumbersWithFields(
+    [description, ...(record.Products ?? []).map((product) => cleanText(product.Description))],
+    (record.Products ?? []).map((product) => cleanText(product.Model)),
+  );
 
   const references = new Map<string, CrossReference>();
   for (const item of record.Inconjunctions ?? []) {
@@ -160,7 +164,7 @@ export function structureCpscRecall(record: CpscRecallRecord): StructuredProduct
         title_firm: ['Title'],
         units: ['Products[].NumberOfUnits'],
         'identifiers.gtins': ['ProductUPCs[].UPC', 'Description'],
-        'identifiers.model_numbers': ['Description', 'Products[].Model'],
+        'identifiers.model_numbers': ['Description', 'Products[].Description', 'Products[].Model'],
         'hazard.classes': ['Title', 'Hazards[].Name'],
         'remedy.classes': ['RemedyOptions[].Option', 'Remedies[].Name'],
         trade_facets: ['Title', 'Products[].Name', 'Products[].Type', 'Hazards[].Name', 'Description'],

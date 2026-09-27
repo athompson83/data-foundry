@@ -42,6 +42,13 @@ function context(env: Env): PageContext {
   };
 }
 
+/**
+ * Output that depends on a dataset gate (llms files, the pages sitemap, docs, OpenAPI) is sent
+ * `no-cache`, so withdrawing a dataset takes effect for every client on its next request.
+ * It is rendered from strings, without a database read.
+ */
+const GATED = 'no-cache';
+
 const SECURITY_HEADERS: Record<string, string> = {
   'x-content-type-options': 'nosniff',
   'referrer-policy': 'strict-origin-when-cross-origin',
@@ -252,7 +259,7 @@ async function route(request: Request, env: Env): Promise<Response> {
     if (request.method !== 'GET') return apiError(405, 'method_not_allowed', 'Data endpoints accept GET only.');
     return meteredApi(env, request, url);
   }
-  if (url.pathname === '/openapi.json') return json(openApiDocument(ctx, productsServed(env)), 200, { 'cache-control': 'public, max-age=3600' });
+  if (url.pathname === '/openapi.json') return json(openApiDocument(ctx, productsServed(env)), 200, { 'cache-control': GATED });
 
   if (url.pathname === '/admin/sync' && request.method === 'POST') {
     if (!isAuthorizedAdmin(env, request)) return apiError(404, 'not_found', 'Not found.');
@@ -311,7 +318,7 @@ async function route(request: Request, env: Env): Promise<Response> {
     case '/recalls/docs':
       return Response.redirect(`${ctx.publicOrigin}/docs`, 301);
     case '/docs':
-      return html(docsPage(ctx, productsServed(env)), 200, { 'cache-control': 'public, max-age=300' });
+      return html(docsPage(ctx, productsServed(env)), 200, { 'cache-control': GATED });
     case '/terms':
       return html(termsPage(ctx), 200, { 'cache-control': 'public, max-age=3600' });
     case '/privacy':
@@ -327,9 +334,9 @@ async function route(request: Request, env: Env): Promise<Response> {
     case '/robots.txt':
       return text(robotsTxt(ctx), 'text/plain', 3600);
     case '/llms.txt':
-      return text(llmsTxt(ctx, { fda: env.SOURCE_KILL_SWITCH !== '1', products: productsServed(env) }), 'text/markdown', 3600);
+      return text(llmsTxt(ctx, { fda: env.SOURCE_KILL_SWITCH !== '1', products: productsServed(env) }), 'text/markdown', GATED);
     case '/llms-full.txt':
-      return text(llmsFullTxt(ctx, { fda: env.SOURCE_KILL_SWITCH !== '1', products: productsServed(env) }), 'text/markdown', 3600);
+      return text(llmsFullTxt(ctx, { fda: env.SOURCE_KILL_SWITCH !== '1', products: productsServed(env) }), 'text/markdown', GATED);
     case '/sitemap.xml': {
       const fda = env.SOURCE_KILL_SWITCH !== '1';
       const products = productsServed(env);
@@ -345,7 +352,7 @@ async function route(request: Request, env: Env): Promise<Response> {
       });
     }
     case '/sitemaps/pages.xml':
-      return text(pagesSitemap(ctx, { fda: env.SOURCE_KILL_SWITCH !== '1', products: productsServed(env) }), 'application/xml', 3600);
+      return text(pagesSitemap(ctx, { fda: env.SOURCE_KILL_SWITCH !== '1', products: productsServed(env) }), 'application/xml', GATED);
     case '/recalls/browse':
       if (env.SOURCE_KILL_SWITCH === '1') return withdrawn(ctx);
       return cached(cacheKey(ctx, url.pathname), async () => html(await browseIndex(ctx, env.DB), 200, { 'cache-control': 'public, max-age=3600' }));
@@ -354,8 +361,8 @@ async function route(request: Request, env: Env): Promise<Response> {
   }
 }
 
-function text(body: string, contentType: string, maxAge: number): Response {
-  return new Response(body, { headers: { 'content-type': `${contentType}; charset=utf-8`, 'cache-control': `public, max-age=${maxAge}`, ...SECURITY_HEADERS } });
+function text(body: string, contentType: string, maxAge: number | typeof GATED): Response {
+  return new Response(body, { headers: { 'content-type': `${contentType}; charset=utf-8`, 'cache-control': maxAge === GATED ? GATED : `public, max-age=${maxAge}`, ...SECURITY_HEADERS } });
 }
 
 /**

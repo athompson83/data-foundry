@@ -144,6 +144,28 @@ describe('withdrawing one dataset leaves no path into it', () => {
     expect(both).toContain('<loc>https://data.aroqon.com/recalls</loc>');
   });
 
+  it('never calls a parser-output sample a real response', async () => {
+    const env = makeEnv({ SOURCE_KILL_SWITCH: '1' });
+    await seed(env);
+    const home = (await page(env, '/')).body;
+    expect(home).not.toContain('A real response captured');
+    expect(home).toContain('Parser output · snapshot of');
+    const product = (await page(env, '/product-recalls')).body;
+    expect(product).toContain('<h2>Sample record</h2>');
+    expect(product).not.toContain('Response · snapshot captured');
+    const fda = (await page(makeEnv(), '/recalls')).body;
+    expect(fda).toContain('Response · snapshot captured 2026-09-27');
+  });
+
+  it('sends gate-dependent discovery output no-cache, so a withdrawal applies on the next request', async () => {
+    const env = makeEnv();
+    for (const path of ['/llms.txt', '/llms-full.txt', '/sitemaps/pages.xml', '/docs']) {
+      expect((await page(env, path)).headers.get('cache-control'), path).toBe('no-cache');
+    }
+    const openapi = await worker.fetch(new Request('https://api.data.aroqon.com/openapi.json'), env);
+    expect(openapi.headers.get('cache-control')).toBe('no-cache');
+  });
+
   it('describes only served datasets to agents in llms.txt and llms-full.txt', async () => {
     const killed = makeEnv({ SOURCE_KILL_SWITCH: '1' });
     for (const path of ['/llms.txt', '/llms-full.txt']) {
@@ -204,6 +226,8 @@ describe('dataset product pages', () => {
       expect(entry.sample.request).toContain('Authorization: Bearer $DATA_FOUNDRY_KEY');
       expect(entry.sample.request + entry.sample.response).not.toMatch(/rcl_live_[A-Za-z0-9]{8,}|sk_(live|test)_/);
       expect(entry.sample.note).toMatch(/^Snapshot/);
+      // Only a response actually captured from the live API may be called one.
+      if (entry.sample.origin !== 'live-api') expect(entry.sample.note).toContain('not a captured API response');
     }
     expect(JSON.parse(DATASETS.recalls.sample.response).data.recall_number).toBe('H-1275-2026');
     expect(JSON.parse(DATASETS['product-recalls'].sample.response).data.id).toBe('cpsc-25203');

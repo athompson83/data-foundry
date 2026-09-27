@@ -50,6 +50,8 @@ export interface DatasetEntry {
   readonly sample: {
     readonly request: string;
     readonly capturedOn: string;
+    /** Where the sample came from: a response captured from the live API, or the production parser's output before the API was live. */
+    readonly origin: 'live-api' | 'parser';
     readonly note: string;
     readonly response: string;
   };
@@ -158,6 +160,7 @@ export const DATASETS: Readonly<Record<DatasetKey, DatasetEntry>> = {
     sample: {
       request: 'curl "https://api.data.aroqon.com/v1/recalls/H-1275-2026" \\\n  -H "Authorization: Bearer $DATA_FOUNDRY_KEY"',
       capturedOn: '2026-09-27',
+      origin: 'live-api',
       note: 'Snapshot of a real response, not live. Abbreviated: the attribution object and provenance.derived_fields, first_seen_at, last_seen_at and raw_evidence are omitted.',
       response: JSON.stringify(FDA_SAMPLE, null, 2),
     },
@@ -208,7 +211,8 @@ export const DATASETS: Readonly<Record<DatasetKey, DatasetEntry>> = {
     sample: {
       request: 'curl "https://api.data.aroqon.com/v1/product-recalls/cpsc-25203" \\\n  -H "Authorization: Bearer $DATA_FOUNDRY_KEY"',
       capturedOn: '2026-09-27',
-      note: 'Snapshot, not live. Abbreviated: several fields (description, products, hazard and remedy text, injuries, sold_at, provenance details) and the attribution object are omitted.',
+      origin: 'parser',
+      note: 'Snapshot of the production parser’s output for CPSC notice 25203, produced before this API went live; not a captured API response. Abbreviated: several fields (description, products, hazard and remedy text, injuries, sold_at, provenance details) and the attribution object are omitted.',
       response: JSON.stringify(PRODUCT_SAMPLE, null, 2),
     },
     attribution:

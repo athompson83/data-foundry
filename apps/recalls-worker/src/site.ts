@@ -68,10 +68,12 @@ function heroExcerpt(entry: DatasetEntry): string {
 }
 
 export function homePage(ctx: PageContext, state: SiteState): string {
-  const [first] = state.datasets;
+  // Showcase a sample captured from the live API when one is published; label a parser-output sample as such.
+  const first = state.datasets.find(({ entry }) => entry.sample.origin === 'live-api') ?? state.datasets[0];
+  const live = first?.entry.sample.origin === 'live-api';
   const hero = first
     ? `<div>${codeWindow('hero-sample', `Excerpt · snapshot of <code>GET /v1/${first.entry.key === 'recalls' ? 'recalls/H-1275-2026' : 'product-recalls/cpsc-25203'}</code>`, heroExcerpt(first.entry), 'response')}
-<p class="small muted">A real response captured ${escapeHtml(first.entry.sample.capturedOn)}, showing selected fields. <a href="#inspect">See the full sample</a>.</p></div>`
+<p class="small muted">${live ? 'A real response captured' : 'The production parser’s output, snapshot of'} ${escapeHtml(first.entry.sample.capturedOn)}, showing selected fields. <a href="#inspect">See the full sample</a>.</p></div>`
     : '';
   const cards = state.datasets
     .map(
@@ -83,9 +85,9 @@ export function homePage(ctx: PageContext, state: SiteState): string {
     .join('');
   const inspect = first
     ? `<h2 id="inspect">Inspect the data</h2>
-<p class="lede">A real ${escapeHtml(first.entry.name)} response and the request that returns it. ${escapeHtml(first.entry.sample.note)}</p>
+<p class="lede">${live ? `A real ${escapeHtml(first.entry.name)} response and the request that returns it.` : `A ${escapeHtml(first.entry.name)} record as the API returns it, and the request for it.`} ${escapeHtml(first.entry.sample.note)}</p>
 <div class="grid" style="grid-template-columns:minmax(0,1fr)">${codeWindow('inspect-request', 'Request', first.entry.sample.request)}
-${codeWindow('inspect-response', `Response · snapshot captured ${escapeHtml(first.entry.sample.capturedOn)}`, first.entry.sample.response, 'response')}</div>
+${codeWindow('inspect-response', `${live ? 'Response · snapshot captured' : 'Parser output · snapshot of'} ${escapeHtml(first.entry.sample.capturedOn)}`, first.entry.sample.response, 'response')}</div>
 <p class="small muted">Replace <code>$DATA_FOUNDRY_KEY</code> with your own key. Live responses carry the same fields plus an <code>attribution</code> object; see the <a href="/docs">API docs</a> and <a href="${ctx.apiOrigin}/openapi.json">OpenAPI description</a>.</p>`
     : '';
   const multiAgency = state.datasets.some(({ entry }) => entry.key === 'product-recalls');
@@ -139,8 +141,8 @@ export function datasetPage(ctx: PageContext, entry: DatasetEntry, coverage: Cov
 <p class="small muted">Schedule: ${escapeHtml(entry.refreshSchedule)} The “last successful refresh” above is when a sync last completed, not the schedule. Live figures: <a href="${ctx.apiOrigin}${entry.statsPath}"><code>GET ${escapeHtml(entry.statsPath)}</code></a> (no key needed).</p>
 <h2>First request</h2>${codeWindow('first-request', 'Request', entry.sample.request)}
 <p class="small muted">Replace <code>$DATA_FOUNDRY_KEY</code> with your key.</p>
-<h2>Sample response</h2><p class="small muted">${escapeHtml(entry.sample.note)} Captured ${escapeHtml(entry.sample.capturedOn)}.</p>
-${codeWindow('sample-response', `Response · snapshot captured ${escapeHtml(entry.sample.capturedOn)}`, entry.sample.response, 'response')}
+<h2>${entry.sample.origin === 'live-api' ? 'Sample response' : 'Sample record'}</h2><p class="small muted">${escapeHtml(entry.sample.note)} Captured ${escapeHtml(entry.sample.capturedOn)}.</p>
+${codeWindow('sample-response', `${entry.sample.origin === 'live-api' ? 'Response · snapshot captured' : 'Parser output · snapshot of'} ${escapeHtml(entry.sample.capturedOn)}`, entry.sample.response, 'response')}
 <h2>Key fields</h2><div class="table-wrap"><table><thead><tr><th scope="col">Field</th><th scope="col">What it holds</th></tr></thead><tbody>${entry.fields.map((field) => `<tr><td><code>${escapeHtml(field.name)}</code></td><td>${escapeHtml(field.meaning)}</td></tr>`).join('')}</tbody></table></div>
 <h2>Endpoints</h2><div class="table-wrap"><table><thead><tr><th scope="col">Endpoint</th><th scope="col">Returns</th></tr></thead><tbody>${entry.endpoints.map((endpoint) => `<tr><td><a href="${endpoint.docs}"><code>${endpoint.method} ${escapeHtml(endpoint.path)}</code></a></td><td>${escapeHtml(endpoint.summary)}</td></tr>`).join('')}</tbody></table></div>
 <p class="small muted">Full parameters and errors: <a href="/docs">API docs</a> · <a href="${ctx.apiOrigin}/openapi.json">OpenAPI 3.1</a> · every record also has a public page: <a href="${browse}">browse by year</a>.</p>

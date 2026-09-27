@@ -84,6 +84,16 @@ describe('CPSC recall', () => {
     expect(recall.identifiers.model_numbers).toEqual(['DXH70CFAVX']);
   });
 
+  it('reads models from product-level descriptions as prose', () => {
+    const structured = structureCpscRecall({
+      ...DEWALT_CPSC,
+      Description: 'This recall involves outdoor propane heaters. The heaters are yellow and black.',
+      Products: [{ ...DEWALT_CPSC.Products![0]!, Description: 'Outdoor heater, model number DXH70CFAVX, sold in yellow.' }],
+    });
+    expect(structured.identifiers.model_numbers).toEqual(['DXH70CFAVX']);
+    expect(structured.provenance.derived_fields['identifiers.model_numbers']).toContain('Products[].Description');
+  });
+
   it('indexes models given only in the structured Products[].Model field', () => {
     const structured = structureCpscRecall({
       ...DEWALT_CPSC,
