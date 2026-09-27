@@ -1,0 +1,53 @@
+index records 34131 consumer product safety 5206
+last updated range 1995-01-01 2026-09-24
+archived [('1', 3094), ('0', 2112)]
+non-empty Title 5206
+non-empty URL 5206
+non-empty Product 1299
+non-empty Issue 3295
+non-empty Category 5206
+non-empty What you should do 1299
+joint CPSC marker 352
+categories [('Household items', 1255), ('Toys and games', 657), ('Sports and fitness', 452), ('Clothing and accessories', 448), ('Chemicals', 325), ('Other', 261), ('Electronics', 246), ('Tools and accessories', 237), ('Beauty and personal care', 170), ('Household items - Other', 119)]
+issues [('', 1911), ('Physical hazard', 375), ('Fire hazard', 371), ('Chemical hazard', 344), ('Flammability hazard', 294), ('Labelling and packaging', 258), ('Choking hazard', 256), ('Fall hazard', 254), ('Injury hazard', 139), ('Strangulation hazard', 138)]
+unique NID 5206 unique URL 5206
+21765 2002-07-01 '' 'Toys and games' - -   Archived - Toddler Activity Sets and Puzzles 
+21868 2010-07-16 '' 'Household items' - -   Grooming Tables and Dryers sold by Ren's Feed & Supplies Limited 
+22049 2011-01-26 '' 'Toys and games' - -   Foam Number Puzzle 
+22077 2011-09-29 '' 'Sports and fitness - Other' - -   John Deere Lawn Tractors models X300, X300R, X304 
+23107 2009-09-24 '' 'Household items' - -   Lutron Manual Roller Shades 
+23329 2010-03-09 '' 'Household items' - -   Lutron Shading Solutions Roman Shades 
+23464 2005-02-01 'Physical hazard' 'Household items' - -   Archived - Playtex Hip Hammock 
+23789 2006-11-22 'Physical hazard' 'Toys and games' - -   Archived – Health Canada advises parents and caregivers about the ha
+23947 2006-05-04 '' 'Clothing and accessories - Hobby and craft items - Household items - Sports and fitness - Toys and games - Other' - -   Archive - Health Canada reminds Canadians to check for safety of gar
+24057 2010-10-25 '' 'Food' - -   Reminding Canadians of Food Safety This Halloween 
+48112 2012-12-20 '' 'Household items' - -   2012 Signature Collection: Ornaments, Frames and Tree 
+48440 2012-11-15 '' 'Sports and fitness' - -   Wilier Triestina Izoard XP Bicycle Fork 
+49668 2013-07-26 '' 'Electronics' - -   Tourmaline Ionic Hair Dryer 
+50032 2013-07-31 'Labelling and packaging' 'Household items' - -   Horizontal Venetian Blinds by Nulook Blinds P.E.I. 
+52338 2014-11-06 '' 'Specialized products' - -   Princess Auto Ltd. recalls Emergency Automotive Hammer 
+53420 2015-03-23 'Choking hazard' 'Toys and games' - -   Variétés Pierre Prud'homme Inc. recalls the toy “Happy Cabin, Welcom
+55266 2016-05-11 'Strangulation hazard' 'Clothing and accessories' - -   Buffalo Import & Trading Co. recalls Montania Mountain children's ja
+55355 2016-05-27 '' 'Beauty and personal care - Household items - Other' - -   Consumer Product Update: Health Canada informs Canadians of potentia
+55827 2016-11-17 'Flammability hazard' 'Clothing and accessories' - -   SABG recalls John Deere brand boy infant sleeper, size 6-9 months 
+56146 2017-03-01 'Laceration hazard' 'Household items' - -   Pier 1 Imports recalls glass knobs 
+57670 2018-02-09 'Microbial hazard' 'Beauty and personal care' - -   Radiant Colors recalls Victor Portugal Lining Black tattoo ink 
+58451 2018-08-30 'Burn hazard - Fire hazard' 'Electronics' - -   Jean Coutu Group recalls ibiZ Portable USB Wall Chargers 
+59647 2019-10-07 'Burn hazard - Laceration hazard' 'Household items' - -   Indigo branded "If I wasn't the best Dad/Grandpa " mugs recalled due
+61693 2020-08-22 '' 'Food' - -   Fresh imported peaches recalled by Prima Wawona may be unsafe due to
+63117 2020-01-30 '' 'Chemicals' - -   Randy's Black Label Cleaner recalled due to lack of bilingual labell
+64019 2022-03-25 'Injury hazard' 'Household items' product - Prepworks by Progressive Nut Chopper recalled due to potential injury 
+64454 2022-08-09 'Laceration hazard' 'Toys and games' product joint Silicone Baby Mirror Toy Bear Activity Toy recalled due to Laceration 
+72610 2023-01-26 'Injury hazard' 'Appliances' product - ZLINE 30-inch, 36-inch, and 48-inch RG gas ranges recalled due to risk
+72963 2023-03-02 'Fall hazard' 'Furniture and furnishings' product joint Anji Guotai Office Chair Recalled due to Fall Hazard 
+73583 2023-05-04 'Fire hazard' 'Electronics' product joint Sahara Folding Food Dehydrators recalled due to fire hazard
+73933 2023-07-12 'Labelling and packaging' 'Chemicals' product - Royal Purple Royal Flush Cooling System Flush & Cleaner and POR 15 Top
+75456 2024-05-06 'Entrapment hazard' 'Other' product - Various Medline Adult Portable Bed Rails recalled due to entrapment ha
+75864 2024-07-25 'Injury hazard' 'Sports and fitness' product joint ProForm Rapid Strike 50 Lb Adjustable Dumbbell Sets recalled due to In
+75866 2024-07-26 'Fire hazard' 'Electronics' product - Baseus Magnetic Wireless Charging Power Banks recalled due to fire haz
+75891 2024-08-02 'Chemical hazard' 'Toys and games' product - Toy Race Cars recalled due to Chemical Hazard 
+76877 2025-01-30 'Choking hazard' 'Toys and games' product joint Pearhead Learning Kit recalled due to choking hazard 
+77798 2025-07-31 'Labelling and packaging' 'Beauty and personal care' product - REF Stockholm dry shampoo recalled due to missing mandatory hazard lab
+77817 2025-08-06 'Fall hazard - Injury hazard' 'Sports and fitness' product - Total Saddle Fit Shoulder Relief Saddle Cinches recalled due to Fall a
+81923 2026-05-14 'Poisoning hazard' 'Outdoor living' product joint Generac power electric start pressure washers recalled due to carbon m
+82284 2026-07-07 'Burn hazard' 'Appliances' product - Sunluway Oven Bottom Panel Replacement recalled due to burn hazard 

@@ -15,6 +15,9 @@ import { openApiDocument } from './openapi.js';
 import { catalogPage, docsPage, messagePage, privacyPage, recallsLanding, termsPage, welcomePage, type PageContext } from './pages.js';
 import { createCheckoutSession, createPortalSession, currentSubscription, handleStripeWebhook, retrieveCheckoutSession, StripeError, upsertCustomerFromSubscription } from './stripe.js';
 import { scheduledSync, syncWindow } from './sync.js';
+import { getProductRecall, lookupProductCode, PRODUCT_ID, productStats, searchProductRecalls } from './product-api.js';
+import { FIRST_PRODUCT_YEAR, PRODUCT_BROWSE_PAGE_SIZE, PRODUCT_BROWSE_PATTERN, PRODUCT_PAGE_PATTERN, PRODUCT_SITEMAP_PAGE_SIZE, PRODUCT_SITEMAP_PATTERN, productBrowseIndex, productBrowsePage, productIndexableStats, productLanding, productNoticePage, productSitemap } from './product-pages.js';
+import { scheduledProductSync } from './product-sync.js';
 import { BROWSE_PATTERN, EDGE_TTL_SECONDS, RECALL_API_PATTERN, RECALL_PAGE_PATTERN, SITEMAP_PATTERN, browseCount, browseInRange, browseIndex, browsePage, indexableCount, shardInRange, llmsFullTxt, llmsTxt, pagesSitemap, pingChangedRecalls, recallPage, recallSitemap, robotsTxt, sitemapIndex, type PresentedRecall } from './seo.js';
 import { RECALL_CATEGORIES, type RecallCategory } from '@data-foundry/recall-structuring';
 
@@ -22,6 +25,11 @@ import { RECALL_CATEGORIES, type RecallCategory } from '@data-foundry/recall-str
 interface EdgeCache {
   match(request: Request): Promise<Response | undefined>;
   put(request: Request, response: Response): Promise<void>;
+}
+
+/** The CPSC/Health Canada dataset is served only when opened and not withdrawn. */
+export function productsServed(env: Env): boolean {
+  return env.PRODUCT_RECALLS_OPEN === '1' && env.PRODUCT_RECALLS_KILL_SWITCH !== '1';
 }
 
 function context(env: Env): PageContext {
@@ -71,7 +79,8 @@ async function authenticate(env: Env, request: Request): Promise<AuthenticatedCu
 }
 
 async function meteredApi(env: Env, request: Request, url: URL): Promise<Response> {
-  if (env.SOURCE_KILL_SWITCH === '1') return apiError(503, 'dataset_unavailable', 'The dataset is temporarily unavailable.');
+  const products = url.pathname === '/v1/product-recalls' || url.pathname.startsWith('/v1/product-recalls/');
+  if (products ? !productsServed(env) : env.SOURCE_KILL_SWITCH === '1') return apiError(503, 'dataset_unavailable', 'The dataset is temporarily unavailable.');
   const auth = await authenticate(env, request);
   if (auth instanceof Response) return auth;
   const count = await consumeRequest(env.DB, auth);
@@ -85,6 +94,18 @@ async function meteredApi(env: Env, request: Request, url: URL): Promise<Respons
   const headers = { 'x-ratelimit-limit': String(limit), 'x-ratelimit-remaining': String(Math.max(0, limit - count)), 'cache-control': 'private, no-store' };
   const includeRaw = url.searchParams.get('include') === 'raw';
 
+  if (url.pathname === '/v1/product-recalls') return json(await searchProductRecalls(env.DB, env.RAW_ARTIFACTS, url.searchParams), 200, headers);
+  if (url.pathname === '/v1/product-recalls/lookup') {
+    const code = url.searchParams.get('code');
+    if (!code) throw new BadRequest('code is required');
+    return json(await lookupProductCode(env.DB, env.RAW_ARTIFACTS, code, includeRaw), 200, headers);
+  }
+  const product = /^\/v1\/product-recalls\/([^/]+)$/.exec(url.pathname);
+  if (product) {
+    const id = decodeURIComponent(product[1] as string).toLowerCase();
+    const found = PRODUCT_ID.test(id) ? await getProductRecall(env.DB, env.RAW_ARTIFACTS, id, includeRaw) : null;
+    return found ? json(found, 200, headers) : apiError(404, 'not_found', 'No notice with that id. Ids look like cpsc-25203 or hc-77184.', headers);
+  }
   if (url.pathname === '/v1/recalls') return json(await searchRecalls(env.DB, env.RAW_ARTIFACTS, url.searchParams), 200, headers);
   if (url.pathname === '/v1/recalls/lookup') {
     const code = url.searchParams.get('code');
@@ -213,11 +234,21 @@ async function route(request: Request, env: Env): Promise<Response> {
       await cache.put(cacheKey, response.clone());
       return response;
     }
+    if (url.pathname === '/v1/product-recalls/stats') {
+      if (!productsServed(env)) return apiError(503, 'dataset_unavailable', 'The dataset is temporarily unavailable.');
+      const cache = (globalThis as unknown as { caches: { default: EdgeCache } }).caches.default;
+      const cacheKey = new Request(`${ctx.apiOrigin}/v1/product-recalls/stats`);
+      const hit = await cache.match(cacheKey);
+      if (hit) return hit;
+      const response = json(await productStats(env.DB), 200, { 'cache-control': 'public, max-age=600' });
+      await cache.put(cacheKey, response.clone());
+      return response;
+    }
     if (url.pathname.startsWith('/v1/account')) return accountApi(env, request, url);
     if (request.method !== 'GET') return apiError(405, 'method_not_allowed', 'Data endpoints accept GET only.');
     return meteredApi(env, request, url);
   }
-  if (url.pathname === '/openapi.json') return json(openApiDocument(ctx), 200, { 'cache-control': 'public, max-age=3600' });
+  if (url.pathname === '/openapi.json') return json(openApiDocument(ctx, productsServed(env)), 200, { 'cache-control': 'public, max-age=3600' });
 
   if (url.pathname === '/admin/sync' && request.method === 'POST') {
     if (!isAuthorizedAdmin(env, request)) return apiError(404, 'not_found', 'Not found.');
@@ -241,14 +272,27 @@ async function route(request: Request, env: Env): Promise<Response> {
   }
 
   if (isApiHost) {
-    if (url.pathname === '/') return json({ name: 'Data Foundry API', datasets: { recalls: { docs: `${ctx.publicOrigin}/recalls/docs`, openapi: `${ctx.apiOrigin}/openapi.json` } } });
+    if (url.pathname === '/')
+      return json({
+        name: 'Data Foundry API',
+        datasets: {
+          recalls: { docs: `${ctx.publicOrigin}/recalls/docs`, openapi: `${ctx.apiOrigin}/openapi.json` },
+          ...(productsServed(env) ? { 'product-recalls': { docs: `${ctx.publicOrigin}/product-recalls#api`, openapi: `${ctx.apiOrigin}/openapi.json` } } : {}),
+        },
+      });
     if (url.pathname === '/robots.txt') return new Response('User-agent: *\nDisallow: /\n', { headers: { 'content-type': 'text/plain' } });
     return apiError(404, 'not_found', 'Unknown endpoint. See https://data.aroqon.com/recalls/docs');
   }
 
   switch (url.pathname) {
     case '/':
-      return html(catalogPage(ctx), 200, { 'cache-control': 'public, max-age=300' });
+      return html(catalogPage(ctx, productsServed(env)), 200, { 'cache-control': 'public, max-age=300' });
+    case '/product-recalls':
+      if (!productsServed(env)) return withdrawn(ctx);
+      return html(productLanding(ctx), 200, { 'cache-control': 'public, max-age=300' });
+    case '/product-recalls/browse':
+      if (!productsServed(env)) return withdrawn(ctx);
+      return cached(cacheKey(ctx, url.pathname), async () => html(await productBrowseIndex(ctx, env.DB), 200, { 'cache-control': 'public, max-age=3600' }));
     case '/recalls':
       return html(recallsLanding(ctx), 200, { 'cache-control': 'public, max-age=300' });
     case '/recalls/docs':
@@ -269,14 +313,25 @@ async function route(request: Request, env: Env): Promise<Response> {
     case '/robots.txt':
       return text(robotsTxt(ctx), 'text/plain', 3600);
     case '/llms.txt':
-      return text(llmsTxt(ctx), 'text/markdown', 3600);
+      return text(llmsTxt(ctx, productsServed(env)), 'text/markdown', 3600);
     case '/llms-full.txt':
-      return text(llmsFullTxt(ctx), 'text/markdown', 3600);
-    case '/sitemap.xml':
-      if (env.SOURCE_KILL_SWITCH === '1') return withdrawn(ctx);
-      return cached(cacheKey(ctx, url.pathname), () => sitemapIndex(ctx, env.DB).then((body) => text(body, 'application/xml', 3600)));
+      return text(llmsFullTxt(ctx, productsServed(env)), 'text/markdown', 3600);
+    case '/sitemap.xml': {
+      const fda = env.SOURCE_KILL_SWITCH !== '1';
+      const products = productsServed(env);
+      if (!fda && !products) return withdrawn(ctx);
+      // The cache key names the datasets included, so withdrawing one never serves a cached index that lists it.
+      return cached(cacheKey(ctx, `${url.pathname}/${fda ? 'f' : ''}${products ? 'p' : ''}`), async () => {
+        const productShards = products ? await productIndexableStats(env.DB) : null;
+        const body = await sitemapIndex(ctx, env.DB, {
+          fda,
+          products: productShards ? { shards: Math.ceil(productShards.n / PRODUCT_SITEMAP_PAGE_SIZE), last: productShards.last } : null,
+        });
+        return text(body, 'application/xml', 3600);
+      });
+    }
     case '/sitemaps/pages.xml':
-      return text(pagesSitemap(ctx), 'application/xml', 3600);
+      return text(pagesSitemap(ctx, productsServed(env)), 'application/xml', 3600);
     case '/recalls/browse':
       if (env.SOURCE_KILL_SWITCH === '1') return withdrawn(ctx);
       return cached(cacheKey(ctx, url.pathname), async () => html(await browseIndex(ctx, env.DB), 200, { 'cache-control': 'public, max-age=3600' }));
@@ -332,6 +387,7 @@ const notFound = (ctx: PageContext) => html(messagePage(ctx, 'Not found', 'That 
 /** Per-recall pages, year hubs, sitemap files and the IndexNow key file. */
 async function publicDataPage(env: Env, ctx: PageContext, request: Request, url: URL): Promise<Response> {
   if (env.INDEXNOW_KEY && url.pathname === `/${env.INDEXNOW_KEY}.txt`) return text(env.INDEXNOW_KEY, 'text/plain', 86400);
+  if (PRODUCT_PAGE_PATTERN.test(url.pathname) || PRODUCT_BROWSE_PATTERN.test(url.pathname) || PRODUCT_SITEMAP_PATTERN.test(url.pathname)) return productDataPage(env, ctx, request, url);
   const isData = RECALL_PAGE_PATTERN.test(url.pathname) || BROWSE_PATTERN.test(url.pathname) || SITEMAP_PATTERN.test(url.pathname);
   if (!isData) return notFound(ctx);
   // The kill switch withdraws every dataset-derived response, pages included.
@@ -385,6 +441,54 @@ async function publicDataPage(env: Env, ctx: PageContext, request: Request, url:
   );
 }
 
+/** Product-recall notice pages, year hubs and sitemap shards. */
+async function productDataPage(env: Env, ctx: PageContext, request: Request, url: URL): Promise<Response> {
+  if (!productsServed(env)) return withdrawn(ctx);
+  if (request.method !== 'GET' && request.method !== 'HEAD') return apiError(405, 'method_not_allowed', 'GET only.');
+  const notice = PRODUCT_PAGE_PATTERN.exec(url.pathname);
+  if (notice) {
+    return cached(
+      cacheKey(ctx, url.pathname),
+      async () => {
+        const body = await productNoticePage(ctx, env.DB, notice[1] as string);
+        return body ? html(body, 200, { 'cache-control': 'public, max-age=3600' }) : notFound(ctx);
+      },
+      { cacheMisses: true },
+    );
+  }
+  const browse = PRODUCT_BROWSE_PATTERN.exec(url.pathname);
+  if (browse) {
+    const pageParam = url.searchParams.get('page') ?? '1';
+    const page = /^[1-9]\d{0,3}$/.test(pageParam) ? Number(pageParam) : 0;
+    const [, agency, year] = browse as unknown as [string, string, string];
+    if (!page || Number(year) < FIRST_PRODUCT_YEAR || Number(year) > new Date().getUTCFullYear()) return notFound(ctx);
+    const counted = await cached(cacheKey(ctx, `/product-recalls/browse/${agency}/${year}/count`), async () => {
+      const row = await env.DB.prepare('SELECT COUNT(*) AS n FROM product_recall WHERE agency = ? AND sort_date >= ? AND sort_date < ?').bind(agency.toUpperCase(), `${year}-01-01`, `${Number(year) + 1}-01-01`).first<{ n: number }>();
+      return text(String(row?.n ?? 0), 'text/plain', 3600);
+    });
+    if ((page - 1) * PRODUCT_BROWSE_PAGE_SIZE >= Number(await counted.text())) return notFound(ctx);
+    return cached(
+      cacheKey(ctx, url.pathname, page),
+      async () => {
+        const body = await productBrowsePage(ctx, env.DB, agency, year, page);
+        return body ? html(body, 200, { 'cache-control': 'public, max-age=3600' }) : notFound(ctx);
+      },
+      { cacheMisses: true },
+    );
+  }
+  const shard = Number((PRODUCT_SITEMAP_PATTERN.exec(url.pathname) as RegExpExecArray)[1]);
+  const counted = await cached(cacheKey(ctx, '/sitemaps/product-count'), async () => text(String((await productIndexableStats(env.DB)).n), 'text/plain', 3600));
+  if ((shard - 1) * PRODUCT_SITEMAP_PAGE_SIZE >= Number(await counted.text())) return notFound(ctx);
+  return cached(
+    cacheKey(ctx, url.pathname),
+    async () => {
+      const body = await productSitemap(ctx, env.DB, shard);
+      return body ? text(body, 'application/xml', 3600) : notFound(ctx);
+    },
+    { cacheMisses: true },
+  );
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     try {
@@ -400,10 +504,14 @@ export default {
     }
   },
 
-  async scheduled(_controller: unknown, env: Env): Promise<void> {
+  async scheduled(controller: { scheduledTime?: number } | undefined, env: Env): Promise<void> {
     const started = new Date().toISOString();
     const results = await scheduledSync(env);
     console.log('recall_sync', JSON.stringify(results));
+    // The product-recall dataset loads while closed, so acquisition runs unless its kill switch is set.
+    // The first run of each UTC day also re-reads the full CPSC list.
+    const hour = new Date(controller?.scheduledTime ?? Date.now()).getUTCHours();
+    console.log('product_recall_sync', JSON.stringify(await scheduledProductSync(env, { full: hour < 6 })));
     // A withdrawn dataset is not announced to search engines, and its IndexNow
     // watermark stays put so pending pages are retried after reactivation.
     if (env.SOURCE_KILL_SWITCH === '1') return;

@@ -1,11 +1,11 @@
 {
  "archive": {
   "bucket": "data-foundry-raw-artifacts",
-  "key": "research/pipeline/2026-09-27/inputs.tar.gz",
-  "bytes": 18612428,
-  "sha256": "7e941d75ecbab4c947458a1055d810497125944bf90d581362cc1e8b06deafbe"
+  "key": "research/pipeline/2026-09-27/inputs-r2.tar.gz",
+  "bytes": 20757869,
+  "sha256": "c3f331c3421f105f6a2f1371703c38b35f8b6b66f5bdc9d91f32badcadecdd87"
  },
- "note": "Source responses and terms captures as fetched on 2026-09-27, kept privately as raw evidence (AGENTS.md rule 10). Some are third-party text (sponsor labels, filer exhibits) and are not redistributed; replay.sh restores them for re-running the assessments.",
+ "note": "Source responses and terms captures as fetched on 2026-09-27, kept privately as raw evidence (AGENTS.md rule 10). Some are third-party text (sponsor labels, filer exhibits) and are not redistributed; replay.sh restores them for re-running the assessments. inputs-r2.tar.gz (2026-09-27) is the original inputs.tar.gz plus hc_open.json, the Health Canada open-data index, for scripts/hc_assess.py; the original archive is kept unchanged.",
  "replay": [
   [
    "scripts/assess.py",
@@ -34,6 +34,10 @@
   [
    "scripts/sec_assess8k.py",
    "results/sec_assess8k.txt"
+  ],
+  [
+   "scripts/hc_assess.py",
+   "results/hc_assess.txt"
   ]
  ],
  "acquisition_only": [
@@ -249,6 +253,11 @@
    "path": "gi/2026-19723.htm",
    "bytes": 14505,
    "sha256": "a0f91e9948b23c1ff20e420a79325e207e01791b94b2a914ad61e505cff6ea06"
+  },
+  {
+   "path": "hc_open.json",
+   "bytes": 15719914,
+   "sha256": "9879b64121511ea77bcf434de625b68c4e2a0d5c2545bce3c7cb34536573cb68"
   },
   {
    "path": "nvd_last.json",

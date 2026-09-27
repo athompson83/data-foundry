@@ -62,6 +62,7 @@
     "@data-foundry/canonical-schema": "workspace:*",
     "@data-foundry/canonical-store": "workspace:*",
     "@data-foundry/private-canary": "workspace:*",
+    "@data-foundry/product-recall-structuring": "workspace:*",
     "@data-foundry/recall-structuring": "workspace:*",
     "@data-foundry/rights-engine": "workspace:*",
     "@data-foundry/source-registry": "workspace:*",

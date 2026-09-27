@@ -40,7 +40,7 @@ cross-source join; a source past `PROTOTYPED` must belong to a dataset.
 Linking rules, from the round-3 measurements
 ([`research-2026-09-27-composites.md`](research-2026-09-27-composites.md)):
 each join key has a `mode`. `declared` joins (GTIN, licence number, UBI, a
-cited approval number: an identifier that names the counterpart record) link
+cited approval number, a cited notice URL: an identifier that names the counterpart record) link
 automatically, and only at the level that identifier names: a GTIN links a
 notice to a product but never merges two recall events, which needs a cited
 case number or review. Shared attributes such as a refrigerant designation

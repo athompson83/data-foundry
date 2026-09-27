@@ -65,10 +65,10 @@ ${robots ? `<meta name="robots" content="${robots}">` : ''}${options.path ? `<li
 <link rel="alternate" type="text/plain" title="LLM summary" href="/llms.txt"><link rel="service-desc" type="application/json" href="${ctx.apiOrigin}/openapi.json">
 ${(options.jsonLd ?? []).map(jsonLdScript).join('')}
 <style>${CSS}</style></head><body>
-<header class="site"><a class="brand" href="/">Data Foundry</a><nav><a href="/recalls">Recall API</a><a href="/recalls/browse">Browse recalls</a><a href="/recalls/docs">Docs</a><a href="/recalls#pricing">Pricing</a></nav></header>
+<header class="site"><a class="brand" href="/">Data Foundry</a><nav><a href="/recalls">Recall API</a><a href="/recalls/browse">Browse recalls</a><a href="/product-recalls">Product recalls</a><a href="/recalls/docs">Docs</a><a href="/recalls#pricing">Pricing</a></nav></header>
 <main>${body}</main>
 <footer>Data Foundry by Aroqon Data · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="mailto:${ctx.supportEmail}">${ctx.supportEmail}</a><br>
-Recall data: U.S. Food and Drug Administration via <a href="https://open.fda.gov">openFDA</a> (CC0). Not affiliated with or endorsed by FDA.</footer>
+Data: U.S. Food and Drug Administration via <a href="https://open.fda.gov">openFDA</a> (CC0); U.S. Consumer Product Safety Commission; Health Canada (Open Government Licence – Canada). Not affiliated with or endorsed by FDA, CPSC or Health Canada.</footer>
 </body></html>`;
 }
 
@@ -81,7 +81,7 @@ function planCards(): string {
   }).join('');
 }
 
-export function catalogPage(ctx: PageContext): string {
+export function catalogPage(ctx: PageContext, products = false): string {
   return layout(
     ctx,
     'Data Foundry — structured machine data',
@@ -90,8 +90,13 @@ export function catalogPage(ctx: PageContext): string {
 <p class="lede">Data Foundry turns lawfully sourced, unstructured records into clean, current, provenance-linked data for machines — over a simple API.</p>
 <h2>Datasets</h2>
 <div class="grid"><div class="card"><h3><a href="/recalls">FDA Recall Intelligence</a></h3>
-<p class="muted small">Every FDA food, drug and device enforcement report on openFDA (reports from June 2012 on), with distribution states, lot numbers, UPC/GTIN/UDI, NDC, expiry dates, allergens and pathogens extracted from the free text.</p></div></div>`,
-    { path: '/', jsonLd: [catalogJsonLd(ctx)] },
+<p class="muted small">Every FDA food, drug and device enforcement report on openFDA (reports from June 2012 on), with distribution states, lot numbers, UPC/GTIN/UDI, NDC, expiry dates, allergens and pathogens extracted from the free text.</p></div>${
+      products
+        ? `<div class="card"><h3><a href="/product-recalls">North American Consumer Product Recalls</a></h3>
+<p class="muted small">Every CPSC recall and Health Canada consumer-product recall in one schema: model numbers, UPC/GTIN, units sold in the US and Canada, hazard and remedy classes, appliance/HVAC/plumbing/electrical facets and linked joint recalls.</p></div>`
+        : ''
+    }</div>`,
+    { path: '/', jsonLd: [catalogJsonLd(ctx, products)] },
   );
 }
 
@@ -206,12 +211,12 @@ export function termsPage(ctx: PageContext): string {
     ctx,
     'Terms of Service — Data Foundry',
     'Terms of Service for Data Foundry APIs.',
-    `<h1>Terms of Service</h1><p class="muted">Effective 2026-09-26. Operator: Aroqon Data (“we”). Contact: <a href="mailto:${ctx.supportEmail}">${ctx.supportEmail}</a>.</p>
-<h3>1. The service</h3><p>We provide API access to datasets we compile and structure from lawfully obtained sources. The FDA Recall Intelligence dataset is derived from U.S. Food and Drug Administration enforcement reports published through openFDA under CC0. We are not affiliated with or endorsed by FDA.</p>
+    `<h1>Terms of Service</h1><p class="muted">Effective 2026-09-27. Operator: Aroqon Data (“we”). Contact: <a href="mailto:${ctx.supportEmail}">${ctx.supportEmail}</a>.</p>
+<h3>1. The service</h3><p>We provide API access to datasets we compile and structure from lawfully obtained sources. The FDA Recall Intelligence dataset is derived from U.S. Food and Drug Administration enforcement reports published through openFDA under CC0. The North American Consumer Product Recalls dataset is derived from U.S. Consumer Product Safety Commission recall notices (US Government works) and Health Canada's Recalls and Safety Alerts open data, which contains information licensed under the Open Government Licence – Canada. We are not affiliated with or endorsed by FDA, CPSC, Health Canada or the Government of Canada.</p>
 <h3>2. Accounts and keys</h3><p>Keep your API key secret; you are responsible for use of your key. You may rotate it at any time. We may suspend keys used abusively or in breach of these terms.</p>
 <h3>3. Plans, billing and cancellation</h3><p>Paid plans are billed monthly in advance in USD by Stripe and renew until cancelled. Each plan includes a monthly request allowance; requests beyond it are refused (HTTP 429) and never billed as overage. You can upgrade, downgrade or cancel from the billing portal; cancellation takes effect at the end of the paid period. Fees are non-refundable except where required by law. Access ends if payment fails and is not resolved.</p>
-<h3>4. Acceptable use</h3><p>Do not attempt to circumvent allowances, share keys across unrelated organisations, overload the service, or use it unlawfully. You may use and redistribute the data returned to you, including commercially, with attribution to FDA/openFDA where practicable.</p>
-<h3>5. No warranty</h3><p>The data is provided “as is”. Derived fields are produced by automated parsers from FDA text and may be incomplete or inaccurate; the verbatim source record is provided for verification. The service is not medical, legal or regulatory advice and must not be the sole basis for decisions about medical care, product safety or compliance. Always confirm against the official FDA recall notice.</p>
+<h3>4. Acceptable use</h3><p>Do not attempt to circumvent allowances, share keys across unrelated organisations, overload the service, or use it unlawfully. You may use and redistribute the data returned to you, including commercially, with attribution to the source agency where practicable (FDA/openFDA; CPSC; for Health Canada data, the statement “Contains information licensed under the Open Government Licence – Canada”).</p>
+<h3>5. No warranty</h3><p>The data is provided “as is”. Derived fields are produced by automated parsers from agency text and may be incomplete or inaccurate; the verbatim source record is provided for verification. The service is not medical, legal or regulatory advice and must not be the sole basis for decisions about medical care, product safety or compliance. Always confirm against the official agency recall notice.</p>
 <h3>6. Liability</h3><p>To the maximum extent permitted by law, our total liability for any claim is limited to the fees you paid in the three months before the claim, and we are not liable for indirect or consequential losses.</p>
 <h3>7. Changes</h3><p>We may change these terms or the service with notice on this page; material changes to paid plans take effect at your next billing period.</p>`,
     { path: '/terms' },

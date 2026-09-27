@@ -1,0 +1,77 @@
+{
+  "key": "cpsc-recalls",
+  "parser_version": "product-recall-structuring@1",
+  "package": "packages/product-recall-structuring",
+  "golden_tests": [
+    "packages/product-recall-structuring/test/structuring.test.ts"
+  ],
+  "runner": "tooling/prototypes/cpsc-recalls.ts",
+  "command": "pnpm exec tsx tooling/prototypes/cpsc-recalls.ts <snapshot.json> (snapshot restored from the archive below)",
+  "snapshot": {
+    "source": "https://www.saferproducts.gov/RestWebServices/Recall?format=json",
+    "retrieved": "2026-09-27",
+    "records": 10027,
+    "archives": [
+      {
+        "bucket": "data-foundry-raw-artifacts",
+        "key": "research/pipeline/2026-09-27-composites/cpsc_all.json",
+        "bytes": 27695909,
+        "sha256": "864f678cc1e34dcb60b41daaf9c4ca3614fdde6908d08dc5106a59066a69f9cf"
+      }
+    ]
+  },
+  "errors": 0,
+  "fields": {
+    "title_firm": {
+      "hits": 8470,
+      "of": 10027
+    },
+    "published_on": {
+      "hits": 10027,
+      "of": 10027
+    },
+    "product_type": {
+      "hits": 6904,
+      "of": 10027
+    },
+    "units.us": {
+      "hits": 8335,
+      "of": 10027
+    },
+    "units.canada": {
+      "hits": 1299,
+      "of": 10027
+    },
+    "identifiers.model_numbers": {
+      "hits": 3329,
+      "of": 10027
+    },
+    "identifiers.gtins": {
+      "hits": 473,
+      "of": 10027
+    },
+    "hazard.classes": {
+      "hits": 9514,
+      "of": 10027
+    },
+    "remedy.classes": {
+      "hits": 8231,
+      "of": 10027
+    },
+    "trade_facets": {
+      "hits": 901,
+      "of": 10027
+    },
+    "cross_references.hc": {
+      "hits": 371,
+      "of": 10027
+    }
+  },
+  "precision": {
+    "identifiers.model_numbers": {
+      "correct": 26,
+      "checked": 30,
+      "method": "random.seed(20260927); random.sample of 30 notices with at least one model number; a notice counts as correct only when every extracted token is a model number of the recalled product, read against the CPSC description"
+    }
+  }
+}

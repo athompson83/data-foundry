@@ -1,5 +1,20 @@
 # Progress
 
+## Current session — 2026-09-27 (continued): second dataset, North American consumer-product recalls
+
+- **Owner direction.** "Continue to add data types and ship to production."
+- **Dataset.** `consumer-product-recalls-north-america` (ADR-0016), the first shippable slice of the round-3 recall composite.
+  - Members: CPSC (US Government work, free text) and Health Canada's consumer-product index (OGL-Canada, structured).
+  - Linking: a CPSC notice is linked to a Health Canada notice only where it cites the notice's URL (declared; 342 recalls). Health Canada's joint marker stays a candidate.
+  - Rights records and prototypes (0 errors over 10,027 + 5,206 notices) are committed. Evidence round `2026-09-27` gains `hc_assess.py`, with its input in `inputs-r2.tar.gz` in R2.
+- **Build.** On the recalls Worker, with the existing keys and plans (no repricing):
+  - `packages/product-recall-structuring`, migration `0003`, a six-hourly sync with a daily full CPSC read;
+  - `/v1/product-recalls` API (lookup by model or UPC, filters, verified raw evidence with contact text removed);
+  - `/product-recalls` pages, sitemap shards, llms.txt/OpenAPI entries;
+  - `PRODUCT_RECALLS_OPEN` and `PRODUCT_RECALLS_KILL_SWITCH` gates;
+  - `tooling/scripts/product-recalls-bulk-load.ts`.
+- **Deployment and live verification:** see the PR.
+
 ## Current session — 2026-09-27 (continued): composite datasets, and discoverability live
 
 - **Owner direction.** "We need to make sure our datasets are aggregates of several different sources of data. Find all related data (including unstructured) and structure it for our purposes. Classify and organize accordingly."
