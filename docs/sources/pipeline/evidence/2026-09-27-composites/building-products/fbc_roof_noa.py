@@ -5,7 +5,15 @@ L=json.load(open('fbc_list.json')); done=set(json.load(open('fbc_detail_sample.j
 roof=sorted(k for k,v in L.items() if v['cat']=='ROOFING' and k not in done)
 random.seed(2028); samp=random.sample(roof,40); out={}
 for k in samp:
-  r=S.get("https://www.floridabuilding.org/pr/pr_app_dtl.aspx?param="+L[k]['param'],timeout=60); time.sleep(1.1)
+  r=None  # reset per key so a failed fetch can never reuse another approval's page
+  for attempt in range(3):
+    try:
+      r=S.get("https://www.floridabuilding.org/pr/pr_app_dtl.aspx?param="+L[k]['param'],timeout=60); time.sleep(1.1)
+      r.raise_for_status()
+      if 'Product Approval' not in r.text: raise ValueError('not a product approval detail page')
+      break
+    except Exception as e: print('retry',k,attempt,e,flush=True); r=None; time.sleep(5)
+  if r is None: out[k]={'fetch_failed':True}; continue  # excluded from every denominator
   pdfs=sorted(set(re.findall(r"href='\.\./upload/([^']*\.pdf)'",r.text,re.I)))
   hv='Approved for use in HVHZ: Yes' in re.sub(r'\s+',' ',html.unescape(re.sub('<[^>]+>',' ',r.text)))
   ae=[p for p in pdfs if '_AE_' in p][:2]; txt='';failed=0
@@ -20,5 +28,5 @@ for k in samp:
           'mentions_noa':bool(re.search(r'(?i)\bNOA\b|notice of acceptance|miami[- ]dade',txt))}
   print('ROW',k,hv,len(ae),len(txt),out[k]['noa_refs'][:4],flush=True)
 json.dump(out,open('fbc_roof_noa.json','w'),indent=1)
-bad=[k for k,v in out.items() if v.get('pdf_failed')]
-if bad: raise SystemExit(f'{len(bad)} approvals had unreadable PDFs (marked pdf_failed; exclude them from denominators): {bad[:20]}')
+bad=[k for k,v in out.items() if v.get('pdf_failed') or v.get('fetch_failed')]
+if bad: raise SystemExit(f'{len(bad)} approvals failed (marked fetch_failed or pdf_failed; exclude them from denominators): {bad[:20]}')

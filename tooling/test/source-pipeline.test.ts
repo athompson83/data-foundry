@@ -212,6 +212,10 @@ describe('dataset expansion pipeline registry', () => {
     expect(hosts.size, 'members come from at least two different hosts').toBeGreaterThanOrEqual(2);
     for (const candidate of members) expect(candidate.rights, `${candidate.key} is RED; a dataset may not use it`).not.toBe('RED');
     if (beyond(dataset.stage, 'EVIDENCED')) for (const candidate of members) expect(['GREEN', 'AMBER'], `${candidate.key} rights`).toContain(candidate.rights);
+    // A rights label is provisional until the ADR-0013 determination is recorded, so a dataset that has
+    // reached RIGHTS_DETERMINED (or would publish) may only contain members that have reached it too.
+    if (beyond(dataset.stage, 'RIGHTS_DETERMINED'))
+      for (const candidate of members) expect(beyond(candidate.stage, 'RIGHTS_DETERMINED'), `${candidate.key} is ${candidate.stage}; a ${dataset.stage} dataset needs every member rights-determined`).toBe(true);
     for (const path of dataset.evidence) expect(existsSync(`${ROOT}${path}`), `${path} must exist`).toBe(true);
   });
 
@@ -235,9 +239,17 @@ describe('dataset expansion pipeline registry', () => {
     }
   });
 
+  /** Feeds that were LIVE before 2026-09-27, when datasets became composites. Never add to this set. */
+  const GRANDFATHERED_LIVE = new Set(['fda-recalls']);
+
+  it('grandfathers only feeds that are still LIVE', () => {
+    for (const key of GRANDFATHERED_LIVE) expect(byKey.get(key)?.stage, `${key} is grandfathered`).toBe('LIVE');
+  });
+
   it.each(registry.candidates)('$key belongs to a dataset once it is being built', (candidate) => {
-    // LIVE datasets that predate the composite rule keep their standalone status until a dataset adopts them.
-    if (!between(candidate.stage) || !beyond(candidate.stage, 'PROTOTYPED')) return;
+    // Only feeds that went LIVE before the composite rule keep standalone status, until a dataset adopts them.
+    if (candidate.stage === 'LIVE' && GRANDFATHERED_LIVE.has(candidate.key)) return;
+    if (!beyond(candidate.stage, 'PROTOTYPED')) return;
     expect(registry.datasets.some((dataset) => dataset.sources.includes(candidate.key)), `${candidate.key} must be a member of a dataset`).toBe(true);
   });
 
