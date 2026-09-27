@@ -3676,6 +3676,7 @@ datasets:
           - cpsc-recalls
         measured: 341/352 HC joint notices matched as candidates (337 unambiguous); 25/25 correct on hand check
         mode: candidate
+        reviewed: { correct: 25, checked: 25 }
       - key: title-token match WITHOUT the joint marker (candidate only, never auto-linked)
         between:
           - appliance-health-canada-recalls
@@ -3695,6 +3696,7 @@ datasets:
         measured: 118/697 UK home-category notices (29 of the 118 also share a code); 18/20 correct on hand check;
           149/697 with model only (no brand check)
         mode: candidate
+        reviewed: { correct: 18, checked: 20 }
       - key: exact GTIN with a valid GS1 check digit, within 365 days (links the notice to the same product;
           never merges recall events)
         between: *a5
@@ -3732,6 +3734,7 @@ datasets:
         measured: 4/36 ACCC notices with model/GTIN (May-Sep 2026) match a CPSC recall; 3/4 confirmed on hand check;
           0/9 CPSC home recalls in the window
         mode: candidate
+        reviewed: { correct: 3, checked: 4 }
       - key: exact GTIN with a valid GS1 check digit, within 365 days (links the notice to the same product;
           never merges recall events)
         between: *a8
@@ -3843,6 +3846,7 @@ datasets:
           - equipment-energystar-model-index
         measured: 330/5868 (25/25 hand-checked correct; 2017 vs 2026 lists)
         mode: candidate
+        reviewed: { correct: 25, checked: 25 }
       - key: brand_key + model_key / pattern
         between:
           - appliance-au-energy-rating
@@ -3861,6 +3865,7 @@ datasets:
           - equipment-energystar-model-index
         measured: 18/10027 recalls (15/18 true identity); 14/160 equipment recalls since 2015
         mode: candidate
+        reviewed: { correct: 15, checked: 18 }
       - key: GTIN
         between:
           - cpsc-recalls
@@ -4002,6 +4007,7 @@ datasets:
           - roofing-florida-product-approvals
         measured: 242/636 applicants (1,380/2,891 NOAs; 1,077/4,645 FL apps); false 0/30 (+1 uncertain)
         mode: candidate
+        reviewed: { correct: 29, checked: 30 }
       - key: HVHZ flag -> Miami-Dade/Broward jurisdictions
         between:
           - roofing-florida-product-approvals
@@ -4135,12 +4141,14 @@ datasets:
           - contractors-or-ccb-registrations
         measured: 11/50 (precision 11/11)
         mode: candidate
+        reviewed: { correct: 11, checked: 11 }
       - key: normalised name + (zip5|city)
         between:
           - contractors-co-dora-trade-licences
           - electrical-tx-tdlr-contractors
         measured: 45/2000 (hand-check 10/10 correct; name-only ~1/10)
         mode: candidate
+        reviewed: { correct: 10, checked: 10 }
       - key: normalised name + (zip5|city|phone)
         between:
           - contractors-mn-dli-licences

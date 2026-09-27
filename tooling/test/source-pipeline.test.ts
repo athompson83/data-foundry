@@ -62,7 +62,20 @@ const Dataset = z
     // cited approval or case number) — may link automatically, at the level it names. `candidate`: names,
     // brands, model tokens, titles, markers that only say a counterpart exists (e.g. Health Canada's
     // joint-recall marker) and shared attributes — proposes a link for review only (AGENTS.md rules 3 and 7).
-    join_keys: z.array(z.object({ key: z.string().min(3), between: z.tuple([z.string(), z.string()]), measured: z.string().min(1), mode: z.enum(['declared', 'candidate']) }).strict()).min(1),
+    // `reviewed`: a hand-check of candidate matches — how many of the checked matches were the same record.
+    join_keys: z
+      .array(
+        z
+          .object({
+            key: z.string().min(3),
+            between: z.tuple([z.string(), z.string()]),
+            measured: z.string().min(1),
+            mode: z.enum(['declared', 'candidate']),
+            reviewed: z.object({ correct: z.number().int().nonnegative(), checked: z.number().int().positive() }).strict().refine((r) => r.correct <= r.checked, 'correct <= checked').optional(),
+          })
+          .strict(),
+      )
+      .min(1),
     taxonomy: z.array(z.string().min(3)).min(1),
     agent_questions: z.array(z.string().min(10)).min(1),
     scores: Candidate.shape.scores,
@@ -244,10 +257,13 @@ describe('dataset expansion pipeline registry', () => {
       if (ratio === null) return false;
       const [matched, total] = [Number(ratio[1]!.replaceAll(',', '')), Number(ratio[2]!.replaceAll(',', ''))];
       // 0/0 records no sample, and 0/N records no link: zero-match rows stay in the registry as evidence, but only
-      // a join with at least one match shows that the members actually link.
-      return a !== b && independent && total > 0 && matched > 0 && matched <= total;
+      // a join with at least one match shows that the members actually link. A declared match is a link by
+      // definition; a candidate match counts only once a hand-check confirmed at least one of them (the rest
+      // still go to review before publication).
+      const linked = join.mode === 'declared' || (join.reviewed !== undefined && join.reviewed.correct > 0);
+      return a !== b && independent && total > 0 && matched > 0 && matched <= total && linked;
     });
-    expect(measured.length, 'at least one join with a match (matched/total, matched > 0) between members that share no host').toBeGreaterThan(0);
+    expect(measured.length, 'at least one join with a confirmed link (declared, or a candidate with reviewed.correct > 0) between members that share no host').toBeGreaterThan(0);
   });
 
   it.each(registry.datasets)('$key never auto-links on names, brands, model tokens or titles', (dataset) => {

@@ -48,7 +48,11 @@ select nothing on their own (a rule applies only after filtering by end use,
 equipment class, jurisdiction and date), so they are candidates. A marker that only says a counterpart exists (Health Canada's
 "joint recall" note) narrows candidates but is not declared;
 `candidate` joins (names, brands, model tokens, titles, phones) only propose a
-link for review, never a merge (AGENTS.md rules 3 and 7). Round-3 match rates
+link for review, never a merge (AGENTS.md rules 3 and 7). A dataset shows that its
+members actually link through a join between independent publishers with at
+least one match that is either `declared` or a `candidate` whose hand-check
+(`reviewed: { correct, checked }`) confirmed at least one same-record match;
+every candidate link is still reviewed before publication. Round-3 match rates
 are screening measurements; a member source is re-measured from archived
 inputs before it reaches `EVIDENCED`.
 
