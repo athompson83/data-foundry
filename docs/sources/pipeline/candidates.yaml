@@ -33,6 +33,7 @@ candidates:
     name: CPSC consumer-product recalls in the recall API
     category: product-safety
     structuring: identifier-extraction
+    format: free-text
     stage: EVIDENCED
     rights: GREEN
     sources: [ https://www.saferproducts.gov/RestWebServices/Recall?format=json ]
@@ -332,6 +333,7 @@ candidates:
     name: CPSC major-appliance recalls — structured model-number and serial-range index
     category: home-services
     structuring: identifier-extraction
+    format: free-text
     stage: SCREENED
     rights: GREEN
     sources: [ "https://www.saferproducts.gov/RestWebServices/Recall?format=json" ]
@@ -370,6 +372,7 @@ candidates:
       dehumidifiers, room AC, electric cooking)
     category: home-services
     structuring: normalization
+    format: structured
     stage: SCREENED
     rights: AMBER
     sources:
@@ -416,6 +419,7 @@ candidates:
     name: Health Canada consumer-product recalls — major-appliance slice
     category: home-services
     structuring: identifier-extraction
+    format: free-text
     stage: SCREENED
     rights: AMBER
     sources: [ "https://recalls-rappels.canada.ca/sites/default/files/opendata-donneesouvertes/HCRSAMOpenData.json" ]
@@ -459,6 +463,7 @@ candidates:
     name: Appliance brand to owner crosswalk from Wikidata (CC0)
     category: home-services
     structuring: normalization
+    format: structured
     stage: SCREENED
     rights: GREEN
     sources: [ "https://query.wikidata.org/sparql" ]
@@ -490,6 +495,7 @@ candidates:
     name: Australian Energy Rating registered household appliances (fridges, dishwashers, washers, dryers)
     category: home-services
     structuring: normalization
+    format: structured
     stage: SCREENED
     rights: AMBER
     sources: [ "https://data.gov.au/data/dataset/energy-rating-for-household-appliances" ]
@@ -521,6 +527,7 @@ candidates:
     name: OpenStreetMap appliance shops and repair businesses
     category: home-services
     structuring: normalization
+    format: structured
     stage: DISCOVERED
     rights: AMBER
     sources: [ "https://taginfo.openstreetmap.org/api/4/tag/stats?key=shop&value=appliance" ]
@@ -554,6 +561,7 @@ candidates:
     name: SaferProducts.gov consumer incident reports for major appliances
     category: home-services
     structuring: event-extraction
+    format: structured
     stage: SCREENED
     rights: AMBER
     sources: [ "https://www.saferproducts.gov/SPDB.zip", "https://www.saferproducts.gov/PublicSearch" ]
@@ -786,6 +794,7 @@ candidates:
     name: ENERGY STAR rated matched HVAC systems (heat pumps, mini-splits, furnaces) with model-pattern matching
     category: home-services
     structuring: normalization
+    format: structured
     stage: SCREENED
     rights: AMBER
     sources:
@@ -838,6 +847,7 @@ candidates:
     name: HVAC brand -> filing manufacturer -> corporate parent graph (Wikidata CC0 + ENERGY STAR filings)
     category: home-services
     structuring: normalization
+    format: structured
     stage: SCREENED
     rights: GREEN
     sources:
@@ -884,6 +894,7 @@ candidates:
     name: AIM Act refrigerant transition obligations (40 CFR 84.54) joined to per-model refrigerant
     category: home-services
     structuring: obligation-timeline
+    format: free-text
     stage: SCREENED
     rights: GREEN
     sources: [ "https://www.ecfr.gov/api/versioner/v1/full/2026-08-24/title-40.xml?part=84&section=84.54" ]
@@ -914,6 +925,7 @@ candidates:
     name: HVAC slice of CPSC recalls (serial ranges, manufacture dates, models)
     category: home-services
     structuring: identifier-extraction
+    format: free-text
     stage: SCREENED
     rights: GREEN
     sources: [ "https://www.saferproducts.gov/RestWebServices/Recall?format=json" ]
@@ -944,6 +956,7 @@ candidates:
     name: Texas TDLR air-conditioning contractor licences (business facts only)
     category: home-services
     structuring: normalization
+    format: structured
     stage: SCREENED
     rights: AMBER
     sources: [ https://www.tdlr.texas.gov/LicenseSearch/licfile.asp, https://data.texas.gov/resource/7358-krk7.json ]
@@ -986,6 +999,7 @@ candidates:
     name: OpenStreetMap HVAC contractor locations (craft/shop=hvac)
     category: home-services
     structuring: normalization
+    format: structured
     stage: PARKED
     rights: AMBER
     sources: [ https://overpass-api.de/api/interpreter ]
@@ -1103,6 +1117,7 @@ candidates:
     name: EPA WaterSense labelled plumbing products (governmental-host; certifier/manufacturer-filed)
     category: home-services
     structuring: identifier-extraction
+    format: structured
     stage: SCREENED
     rights: AMBER
     sources:
@@ -1150,6 +1165,7 @@ candidates:
     name: CPSC recalls — plumbing and water-heater/boiler slice with serial-range parsing (governmental-host)
     category: home-services
     structuring: identifier-extraction
+    format: free-text
     stage: SCREENED
     rights: GREEN
     sources: [ "https://www.saferproducts.gov/RestWebServices/Recall?format=json" ]
@@ -1256,6 +1272,7 @@ candidates:
     name: ENERGY STAR Certified Water Heaters (governmental-host; partner-filed)
     category: home-services
     structuring: normalization
+    format: structured
     stage: SCREENED
     rights: AMBER
     sources: [ https://data.energystar.gov/resource/pbpq-swnu.json, https://data.energystar.gov/api/views/pbpq-swnu.json ]
@@ -1544,6 +1561,7 @@ candidates:
       pressure"
     category: home-services
     structuring: normalization
+    format: free-text
     stage: SCREENED
     rights: AMBER
     sources:
@@ -1602,6 +1620,7 @@ candidates:
       evaluation reports"
     category: home-services
     structuring: normalization
+    format: free-text
     stage: SCREENED
     rights: AMBER
     sources: [ https://www.floridabuilding.org/pr/pr_app_srch.aspx, https://www.floridabuilding.org/pr/pr_app_dtl.aspx ]
@@ -1644,6 +1663,7 @@ candidates:
     name: NOAA NCEI Storm Events hail and thunderstorm-wind reports with roof-damage extraction
     category: home-services
     structuring: event-extraction
+    format: free-text
     stage: SCREENED
     rights: GREEN
     sources:
@@ -1918,6 +1938,7 @@ candidates:
     name: CEC Solar Equipment Lists (grid-support inverters, PV modules, energy storage, batteries, meters)
     category: home-services
     structuring: normalization
+    format: structured
     stage: SCREENED
     rights: AMBER
     sources:
@@ -1984,6 +2005,7 @@ candidates:
       fixtures, EV chargers)
     category: home-services
     structuring: identifier-extraction
+    format: free-text
     stage: SCREENED
     rights: GREEN
     sources: [ "https://www.saferproducts.gov/RestWebServices/Recall?format=json" ]
@@ -2015,6 +2037,7 @@ candidates:
     name: Texas TDLR electrical contractor licences (business entities only)
     category: home-services
     structuring: normalization
+    format: structured
     stage: SCREENED
     rights: AMBER
     sources: [ "https://data.texas.gov/resource/7358-krk7.json" ]
@@ -2051,6 +2074,7 @@ candidates:
     name: ENERGY STAR electrical categories (EVSE AC/DC, ceiling fans, downlights, UPS)
     category: home-services
     structuring: normalization
+    format: structured
     stage: SCREENED
     rights: AMBER
     sources:
@@ -2307,6 +2331,7 @@ candidates:
       batch fields
     category: product-safety
     structuring: identifier-extraction
+    format: free-text
     stage: SCREENED
     rights: AMBER
     sources:
@@ -2365,6 +2390,7 @@ candidates:
       notification numbers
     category: product-safety
     structuring: identifier-extraction
+    format: free-text
     stage: SCREENED
     rights: AMBER
     sources:
@@ -2410,6 +2436,7 @@ candidates:
       GTIN fields
     category: product-safety
     structuring: identifier-extraction
+    format: free-text
     stage: SCREENED
     rights: AMBER
     sources:
@@ -2456,6 +2483,7 @@ candidates:
     name: New Zealand MBIE Trading Standards product recalls (productsafety.govt.nz)
     category: product-safety
     structuring: identifier-extraction
+    format: free-text
     stage: SCREENED
     rights: AMBER
     sources: [ 'https://www.productsafety.govt.nz/sitemap.xml', 'https://www.productsafety.govt.nz/recalls' ]
@@ -2578,6 +2606,7 @@ candidates:
     name: ENERGY STAR Model Index (all certified models, all categories incl. central AC) and UPC Codes index
     category: home-services
     structuring: normalization
+    format: structured
     stage: SCREENED
     rights: AMBER
     sources:
@@ -2626,6 +2655,7 @@ candidates:
     name: NRCan EnerGuide energy consumption of home appliances (historical 2017 snapshot)
     category: home-services
     structuring: normalization
+    format: structured
     stage: SCREENED
     rights: AMBER
     sources: [ 'https://open.canada.ca/data/en/dataset/fbfdf946-8dd1-4830-a5c9-f8a72d8fabda' ]
@@ -2679,6 +2709,7 @@ candidates:
     name: AU/NZ GEMS registered air conditioners and electric water heaters (data.gov.au)
     category: home-services
     structuring: normalization
+    format: structured
     stage: SCREENED
     rights: AMBER
     sources:
@@ -2719,6 +2750,7 @@ candidates:
       subpart G)
     category: home-services
     structuring: obligation-timeline
+    format: free-text
     stage: DISCOVERED
     rights: GREEN
     sources:
@@ -2826,6 +2858,7 @@ candidates:
       jurisdiction'
     category: home-services
     structuring: normalization
+    format: structured
     stage: SCREENED
     rights: GREEN
     sources:
@@ -2877,6 +2910,7 @@ candidates:
       ratings'
     category: home-services
     structuring: normalization
+    format: structured
     stage: SCREENED
     rights: AMBER
     sources:
@@ -2920,6 +2954,7 @@ candidates:
     name: NWS County-Public Forecast Zone correlation file (zone to county crosswalk for NCEI Storm Events)
     category: home-services
     structuring: normalization
+    format: structured
     stage: SCREENED
     rights: GREEN
     sources: [ 'https://www.weather.gov/source/gis/Shapefiles/County/bp16ap26.dbx' ]
@@ -2988,6 +3023,7 @@ candidates:
     name: Wikidata items for building-envelope manufacturers (parent organisation / alias only)
     category: home-services
     structuring: normalization
+    format: structured
     stage: DISCOVERED
     rights: GREEN
     sources: [ 'https://www.wikidata.org/w/api.php', 'https://query.wikidata.org/sparql' ]
@@ -3210,6 +3246,7 @@ candidates:
     name: Washington L&I contractor licences with bond and insurance (business entities only)
     category: home-services
     structuring: normalization
+    format: structured
     stage: SCREENED
     rights: AMBER
     sources:
@@ -3262,6 +3299,7 @@ candidates:
     name: Oregon CCB active contractor registrations with bond and insurance (entity-form names)
     category: home-services
     structuring: normalization
+    format: structured
     stage: SCREENED
     rights: AMBER
     sources: [ 'https://data.oregon.gov/resource/g77e-6bhs.json' ]
@@ -3296,6 +3334,7 @@ candidates:
     name: Oregon Building Codes Division plumbing, electrical, HVAC-R and boiler contractor licences (businesses)
     category: home-services
     structuring: normalization
+    format: structured
     stage: SCREENED
     rights: AMBER
     sources: [ 'https://data.oregon.gov/resource/vhbr-cuaq.json' ]
@@ -3329,6 +3368,7 @@ candidates:
     name: Colorado DORA electrical, plumbing and water-conditioning contractor licences with discipline
     category: home-services
     structuring: event-extraction
+    format: structured
     stage: SCREENED
     rights: AMBER
     sources: [ 'https://data.colorado.gov/resource/7s5z-vewr.json', 'https://data.colorado.gov/resource/349y-twqi.json' ]
@@ -3368,6 +3408,7 @@ candidates:
     name: Connecticut home-improvement contractor registrations (LLC, corporation, partnership only)
     category: home-services
     structuring: normalization
+    format: structured
     stage: SCREENED
     rights: AMBER
     sources: [ 'https://data.ct.gov/resource/5r9m-qgni.json' ]
@@ -3421,6 +3462,7 @@ candidates:
       (businesses)
     category: home-services
     structuring: normalization
+    format: structured
     stage: SCREENED
     rights: AMBER
     sources:
@@ -3463,6 +3505,7 @@ candidates:
     name: EPA lead-safe (RRP) certified renovation firms
     category: home-services
     structuring: normalization
+    format: structured
     stage: SCREENED
     rights: AMBER
     sources: [ 'https://cdxocsppapps.epa.gov/ocspp-oppt-lead/firm-location-search' ]
@@ -3502,6 +3545,7 @@ candidates:
     name: OSHA inspections and violations for specialty-trade contractor establishments (NAICS 2381-2382)
     category: home-services
     structuring: event-extraction
+    format: structured
     stage: DISCOVERED
     rights: GREEN
     sources: [ 'https://apiprod.dol.gov/v4/get/OSHA/inspection/json' ]
@@ -3565,6 +3609,7 @@ candidates:
     name: California CSLB License Master (classifications, bond, workers' compensation)
     category: home-services
     structuring: normalization
+    format: structured
     stage: DISCOVERED
     rights: AMBER
     sources: [ 'https://www.cslb.ca.gov/OnlineServices/DataPortal/ContractorList' ]
@@ -4263,7 +4308,9 @@ datasets:
     evidence:
       - docs/sources/pipeline/research-2026-09-27-composites.md
       - docs/sources/pipeline/evidence/2026-09-27-composites/contractors
-    next_action: "Write ADR-0013 rights records for WA (PDDL), OR, MN, CO (disclaimer + revocation) and CT;
+    next_action: "Every member is a structured registry (CO DORA's discipline field holds short action labels, not prose),
+      so this composite needs a free-text member before EVIDENCED: evidence OSHA accident-investigation narratives or
+      state disciplinary orders first. Then write ADR-0013 rights records for WA (PDDL), OR, MN, CO (disclaimer + revocation) and CT;
       prototype the resolver with auto-links only on declared identifiers (licence number, UBI);
       name+legal-form+(zip|city) and name+phone matches go to a review queue; ship the OR CCB x BCD trade view
       first. Owner-visible blocker: a free DOL API key for OSHA linkage."

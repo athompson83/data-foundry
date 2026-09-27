@@ -52,9 +52,11 @@ link for review, never a merge (AGENTS.md rules 3 and 7). A dataset shows that i
 members actually link through a join between independent publishers with at
 least one match that is either `declared` or a `candidate` whose hand-check
 (`reviewed: { correct, checked }`) confirmed at least one same-record match;
-every candidate link is still reviewed before publication. A dataset also
-combines both source formats: at least one member extracted from free text
-(`structuring` other than `normalization`) and at least one structured feed.
+every candidate link is still reviewed before publication. Every member records
+its source `format` (`free-text` when its facts must be extracted from prose or
+documents, `structured` when they arrive as typed fields), independently of the
+structuring task. A dataset combines both formats: it cannot advance to
+`EVIDENCED` without at least one free-text member and one structured member.
 Shared attributes such as an HVHZ flag, a code edition or a refrigerant are
 filter evidence, never declared links. Round-3 match rates
 are screening measurements; a member source is re-measured from archived

@@ -22,6 +22,10 @@ const Candidate = z
     name: z.string().min(3),
     category: z.string().regex(/^[a-z]+(?:-[a-z]+)*$/),
     structuring: z.enum(['identifier-extraction', 'eligibility-criteria', 'obligation-timeline', 'event-extraction', 'normalization']),
+    // What the source publishes, independent of the work we do on it: `free-text` when the facts must be extracted from
+    // prose or documents (notices, PDFs, narratives), `structured` when they arrive as typed fields. Required for every
+    // dataset member.
+    format: z.enum(['free-text', 'structured']).optional(),
     stage: z.enum(STAGES),
     rights: z.enum(['GREEN', 'AMBER', 'RED', 'UNKNOWN']),
     sources: z.array(z.string().url()).min(1),
@@ -232,10 +236,15 @@ describe('dataset expansion pipeline registry', () => {
     for (const key of dataset.sources) expect(byKey.has(key), `${key} is not a candidate`).toBe(true);
     expect(new Set(dataset.sources).size, 'members are listed once').toBe(dataset.sources.length);
     const members = dataset.sources.map((key) => byKey.get(key)!);
-    // A composite structures unstructured data: at least one member is extracted from free text (identifiers, events,
-    // eligibility or obligations), and at least one is an already-structured feed that is normalised.
-    expect(members.some((candidate) => candidate.structuring !== 'normalization'), 'at least one member is extracted from unstructured text').toBe(true);
-    expect(members.some((candidate) => candidate.structuring === 'normalization'), 'at least one member is a structured feed').toBe(true);
+    // A composite structures unstructured data alongside structured feeds. Format is recorded per source, never inferred
+    // from the structuring task (a JSON API that needs event extraction is still a structured feed). A screened composite
+    // may still be missing one format; it cannot advance to EVIDENCED until it has at least one free-text member and at
+    // least one structured member.
+    for (const candidate of members) expect(candidate.format, `${candidate.key} must declare its source format`).toBeDefined();
+    if (beyond(dataset.stage, 'EVIDENCED')) {
+      expect(members.some((candidate) => candidate.format === 'free-text'), 'at least one member is published as free text').toBe(true);
+      expect(members.some((candidate) => candidate.format === 'structured'), 'at least one member is a structured feed').toBe(true);
+    }
     // Independence is between members, not across the union of URLs: some pair of distinct members must share
     // no host, so one feed republished under a second key cannot pass as a composite.
     const hostSets = members.map((candidate) => new Set(candidate.sources.map(hostOf)));
