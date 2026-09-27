@@ -11,10 +11,13 @@ for k in samp:
   except Exception as e: out[k]={'err':str(e)}; continue  # excluded from every denominator below
   t=re.sub(r'\s+',' ',t); open('md_pdf/%s.txt'%k,'w').write(t)
   fl=sorted(set(re.findall(r'\bFL\s?#?\s?(\d{2,5})(?:[.\-]R?\d+)?\b',t)))
-  out[k]={'bytes':len(r.content),'chars':len(t),'fl_numbers':fl,'noa_refs':sorted(set(re.findall(r'\b\d{2}-\d{4}\.\d{2}\b',t))-{k}),
+  # An image-only scan parses without error but yields no text: keep the row, exclude it from every denominator.
+  out[k]={'testable':len(t)>=200,'bytes':len(r.content),'chars':len(t),'fl_numbers':fl,'noa_refs':sorted(set(re.findall(r'\b\d{2}-\d{4}\.\d{2}\b',t))-{k}),
           'category':d[k]['category']}
   print(k,d[k]['category'],len(t),fl[:5],flush=True)
 json.dump(out,open('md_sample.json','w'),indent=1)
+t=[v for v in out.values() if v.get('testable')]
+print('raw FL-number hits (hand-check before reporting)',sum(1 for v in t if v['fl_numbers']),'/',len(t),'testable NOAs')
 failed=[k for k,v in out.items() if 'err' in v]
 if failed:
   # An unreadable NOA is not a tested non-match: report the reduced denominator and fail the run.

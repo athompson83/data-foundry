@@ -208,8 +208,11 @@ describe('dataset expansion pipeline registry', () => {
     for (const key of dataset.sources) expect(byKey.has(key), `${key} is not a candidate`).toBe(true);
     expect(new Set(dataset.sources).size, 'members are listed once').toBe(dataset.sources.length);
     const members = dataset.sources.map((key) => byKey.get(key)!);
-    const hosts = new Set(members.flatMap((candidate) => candidate.sources.map(hostOf)));
-    expect(hosts.size, 'members come from at least two different hosts').toBeGreaterThanOrEqual(2);
+    // Independence is between members, not across the union of URLs: some pair of distinct members must share
+    // no host, so one feed republished under a second key cannot pass as a composite.
+    const hostSets = members.map((candidate) => new Set(candidate.sources.map(hostOf)));
+    const independent = hostSets.some((a, i) => hostSets.some((b, j) => j > i && [...a].every((host) => !b.has(host))));
+    expect(independent, 'at least two members share no source host').toBe(true);
     for (const candidate of members) expect(candidate.rights, `${candidate.key} is RED; a dataset may not use it`).not.toBe('RED');
     if (beyond(dataset.stage, 'EVIDENCED')) for (const candidate of members) expect(['GREEN', 'AMBER'], `${candidate.key} rights`).toContain(candidate.rights);
     // A dataset cannot run ahead of its feeds. From RIGHTS_DETERMINED on (a rights label is provisional until
@@ -225,9 +228,11 @@ describe('dataset expansion pipeline registry', () => {
     const measured = dataset.join_keys.filter((join) => {
       const [a, b] = join.between.map(member);
       const ratio = /(\d[\d,]*)\s*\/\s*(\d[\d,]*)/.exec(join.measured);
-      return a !== b && ratio !== null && Number(ratio[1]!.replaceAll(',', '')) <= Number(ratio[2]!.replaceAll(',', ''));
+      const hostsA = new Set(byKey.get(a!)!.sources.map(hostOf));
+      const independent = byKey.get(b!)!.sources.every((url) => !hostsA.has(hostOf(url)));
+      return a !== b && independent && ratio !== null && Number(ratio[1]!.replaceAll(',', '')) <= Number(ratio[2]!.replaceAll(',', ''));
     });
-    expect(measured.length, 'at least one cross-source join measured as matched/total').toBeGreaterThan(0);
+    expect(measured.length, 'at least one join measured as matched/total between members that share no host').toBeGreaterThan(0);
   });
 
   it.each(registry.datasets)('$key never auto-links on names, brands, model tokens or titles', (dataset) => {
