@@ -1,0 +1,41 @@
+5.02 Armata Pharmaceuticals, Inc.  (ARMP)  (C 2026-06-24 len 342 | exhibits EX-99? False
+    {'person': 'Dr. Gilmer'}
+5.02 FIRST FINANCIAL BANCORP /OH/  (FFBC)  (C 2026-09-15 len 18518 | exhibits EX-99? True
+    {'role': 'President', 'event': 'appointed', 'eff_date': 'effective September 14, 2026', 'person': 'Financial Bank'}
+5.02 Nauticus Robotics, Inc.  (KITT, KITTW)   2026-06-08 len 1839 | exhibits EX-99? False
+    {'person': 'Incentive Plan'}
+5.02 Ocean Power Technologies, Inc.  (OPTT)   2026-09-17 len 7374 | exhibits EX-99? True
+    {'role': 'Chief Operating Officer', 'event': 'appointment', 'eff_date': 'effective September 14, 2026', 'person': 'Mr. Pagliara', 'salary': 'base salary not to exceed $400,000,'}
+1.01 NATIONAL HEALTHCARE CORP  (NHC)  (CIK 00 2026-07-01 len 7139 | exhibits EX-99? True
+    {'agreement_type': 'Credit Agreement', 'amount': '$50 million', 'date': 'June 29, 2026', 'counterparty': 'by and among National Health Investors, Inc.'}
+1.01 Honeywell Aerospace Inc.  (HONA, HONAV)  2026-06-29 len 31829 | exhibits EX-99? True
+    {'agreement_type': 'License', 'amount': '$0.01 ', 'date': 'June 25, 2026', 'counterparty': 'with Honeywell International Inc.', 'rate': '%'}
+1.01 STANDEX INTERNATIONAL CORP/DE/  (SXI)  ( 2026-07-02 len 8696 | exhibits EX-99? True
+    {'agreement_type': 'Securities Purchase', 'amount': '$64,000,000 ', 'date': 'October 28, 2024', 'counterparty': 'by and among Standex International Corporation', 'rate': '%'}
+1.01 NextBoat Inc.  (NXB)  (CIK 0002067767) 2026-08-18 len 6170 | exhibits EX-99? False
+    {'agreement_type': 'Loan', 'amount': '$510,000 ', 'date': 'August 14, 2026', 'counterparty': 'with\nGreentree Financial Group, Inc.', 'rate': '%'}
+1.05 AMGEN INC  (AMGN)  (CIK 0000318154) 2026-07-31 len 2084 | exhibits EX-99? False
+    {'discovery_date': 'On July 29, 2026', 'actor': 'unauthorized', 'material': 'material impact', 'data': 'data'}
+1.05 8X8 INC /DE/  (EGHT)  (CIK 0001023731) 2026-06-23 len 3654 | exhibits EX-99? False
+    {'discovery_date': 'On June 13, 2026', 'actor': 'unauthorized', 'material': 'material impact', 'data': 'customer'}
+1.05 iRhythm Holdings, Inc.  (IRTC)  (CIK 000 2026-06-15 len 4288 | exhibits EX-99? False
+    {'discovery_date': 'On June 8, 2026', 'actor': 'unauthorized', 'material': 'material impact', 'data': 'data'}
+1.05 AdaptHealth Corp.  (AHCO)  (CIK 00017252 2026-07-02 len 5587 | exhibits EX-99? False
+    {'discovery_date': 'on June 27, 2026', 'actor': 'threat actor', 'material': 'material impact', 'law_enf': 'law enforcement', 'data': 'data'}
+1.03 Sleep Number Corp  (SNBR)  (CIK 00008271 2026-06-12 len 17717 | exhibits EX-99? False
+    {'chapter': 'Chapter 11', 'case_no': 'Case No. 26-11399', 'date': 'June 12, 2026', 'dip': 'DIP'}
+1.03 LIPELLA PHARMACEUTICALS INC.  (LIPO)  (C 2026-07-15 len 2166 | exhibits EX-99? False
+    {'court': 'Bankruptcy Court for the Western District of Pennsylvania', 'chapter': 'Chapter 11', 'case_no': 'Case No. 26-20879-CMB', 'date': 'March 30, 2026'}
+1.03 Synergy CHC Corp.  (SNYR)  (CIK 00015627 2026-09-08 len 1997 | exhibits EX-99? False
+    {'court': 'Bankruptcy Court for the District of Columbia', 'case_no': 'Case No. 26-465-ELG', 'date': 'September 4, 2026', 'dip': 'debtor-in-possession'}
+1.03 SANGAMO THERAPEUTICS, INC  (SGMOQ)  (CIK 2026-09-21 len 4012 | exhibits EX-99? False
+    {'court': 'Bankruptcy Court for the District of Delaware', 'chapter': 'Chapter 11', 'case_no': 'Case No. 26-10989', 'date': 'June 23, 2026', 'dip': 'debtor-in-possession'}
+4.01 ALEXANDER TECH CORP  (CIK 0001347491) 2026-08-05 len 558 | exhibits EX-99? False
+    {'firm': 'Fruci & Associates II, PLLC'}
+4.01 BioRestorative Therapies, Inc.  (BRTX)   2026-09-10 len 6478 | exhibits EX-99? False
+    {'old_auditor': 'dismissed', 'firm': 'CBIZ CPAs', 'date': 'August 28, 2026', 'no_disagree': 'no disagreements', 'adverse': 'adverse opinion', 'reportable': 'reportable events'}
+4.01 BestGofer Inc.  (BGFR)  (CIK 0001722556) 2026-07-09 len 4010 | exhibits EX-99? False
+    {'old_auditor': 'dismissal', 'firm': 'Barton CPA PLLC', 'date': 'July 7, 2026', 'no_disagree': 'no disagreements', 'adverse': 'adverse opinion', 'reportable': 'reportable events'}
+4.01 BCB BANCORP INC  (BCBP)  (CIK 0001228454 2026-09-03 len 24 | exhibits EX-99? False
+    {}
+{"5.02": {"role": 2, "event": 2, "eff_date": 2, "person": 4, "salary": 1, "no_disagreement": 0}, "1.01": {"agreement_type": 4, "amount": 4, "date": 4, "counterparty": 4, "rate": 3}, "1.05": {"discovery_date": 4, "actor": 4, "material": 4, "law_enf": 1, "data": 4}, "1.03": {"court": 3, "chapter": 3, "case_no": 4, "date": 4, "dip": 3}, "4.01": {"old_auditor": 2, "firm": 3, "date": 2, "no_disagree": 2, "adverse": 2, "reportable": 2}}

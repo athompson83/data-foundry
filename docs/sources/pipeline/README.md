@@ -14,6 +14,7 @@ declarations) and the vertical/dataset build itself.
 | --- | --- |
 | [`candidates.yaml`](candidates.yaml) | Every candidate dataset: category, stage, rights verdict, scores, evidence and the single next action. Validated by `tooling/test/source-pipeline.test.ts`. |
 | [`scout-routine.md`](scout-routine.md) | The scheduler: the routine's ID, cron and verbatim prompt. |
+| `evidence/YYYY-MM-DD/` | Sample identifiers, assessment scripts and their outputs for that round, so every measurement can be re-run. |
 | `research-YYYY-MM-DD.md` | The evidence record for a research round: quoted terms, measured counts, samples, extraction hit rates. |
 
 ## Stages
@@ -24,7 +25,8 @@ A candidate moves forward only on evidence, one stage at a time:
 2. `SCREENED`: reachable from our egress, record counts and update frequency
    measured, free-text fields identified.
 3. `EVIDENCED`: terms or licence quoted verbatim with URL, about 20 or more live
-   samples pulled, and deterministic-extraction hit rates measured. Scored.
+   samples pulled, and deterministic-extraction hit rates measured, with the
+   sample identifiers, scripts and outputs committed under `evidence/`. Scored.
 4. `RIGHTS_DETERMINED`: an ADR-0013 evidence-based rights record is written
    (`docs/sources/<source>-rights-record-YYYYMMDD.md`), listing the exact fields
    to be redistributed and the attribution and conditions.
@@ -91,8 +93,9 @@ in [`scout-routine.md`](scout-routine.md):
    It fixes any regression before doing anything else.
 3. Discovers at least three new candidates across unrelated domains, and
    screens them.
-4. Advances the top-ranked `EVIDENCED`–`BUILDING` candidate by at least one
-   stage, with evidence.
+4. Advances the first candidate in the latest research record's **build order**
+   by at least one stage, with evidence, provided it is in `EVIDENCED`–`BUILDING`.
+   The build order weighs cost and time to revenue as well as the score.
 5. Records a `research-YYYY-MM-DD.md`, updates `candidates.yaml`, and opens a
    PR. Merging follows the normal gates: CI green and independent review clean.
 6. Reports to the owner only:

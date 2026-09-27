@@ -1,0 +1,4 @@
+rules=50 effective_on=43 dates_mentions_compliance_date=1
+proposed=30 comments_close_on=27
+cfr_references_present=80/80
+compliance_date_rules_total=145 sampled=40 dates_field_mentions=14 effective_on_missing=1

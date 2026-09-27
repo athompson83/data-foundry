@@ -68,6 +68,16 @@ describe('dataset expansion pipeline registry', () => {
     for (const path of candidate.evidence) expect(existsSync(`${ROOT}${path}`), `${path} must exist`).toBe(true);
   });
 
+  it.each(registry.candidates)('$key commits its sample evidence once EVIDENCED', (candidate) => {
+    if (!beyond(candidate.stage, 'EVIDENCED')) return;
+    const research = candidate.evidence.filter((path) => /pipeline\/research-\d{4}-\d{2}-\d{2}\.md$/.test(path));
+    for (const path of research) {
+      const round = path.match(/research-(\d{4}-\d{2}-\d{2})/)![1];
+      const samples = JSON.parse(readFileSync(`${ROOT}docs/sources/pipeline/evidence/${round}/samples.json`, 'utf8')) as Record<string, unknown>;
+      expect(Object.keys(samples), `evidence/${round}/samples.json lists ${candidate.key}`).toContain(candidate.key);
+    }
+  });
+
   it.each(registry.candidates)('$key never advances past EVIDENCED on RED or UNKNOWN rights', (candidate) => {
     if (beyond(candidate.stage, 'RIGHTS_DETERMINED')) expect(['GREEN', 'AMBER']).toContain(candidate.rights);
   });

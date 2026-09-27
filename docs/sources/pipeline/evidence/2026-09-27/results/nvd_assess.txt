@@ -1,0 +1,13 @@
+non-rejected 3927 noconf 3581
+noconf w/ CNA affected 3581
+among noconf: {'range': 2367, 'anyversion': 2466, 'cnacpe': 510, 'vendorproduct': 3299}
+noconf with weaknesses 2788 with metrics 3012
+noconf without structured range 1214
+50-sample regex hits: {'range_before': 16, 'fixed_in': 5, 'any_version': 35, 'vuln_class': 31, 'remote': 26, 'exploit_public': 6}
+- CVE-2026-82678 cna@vuldb.com | A vulnerability was identified in diem-project diem up to 5.1.3. The affected element is the function executeCommand of the file dmAdminPlugin/modules/dmConsole/actions/actions.class.php of the component Administrative Console. Such manipulation of the argumen
+- CVE-2026-84458 security-advisories@github.com | Zammad is a web based open source helpdesk/customer support system. Prior to 7.1.2, when the "Automatic account link on initial logon" setting is enabled, Zammad binds an incoming third-party (SSO) identity to an existing local account by matching the email ad
+- CVE-2026-55068 security-advisories@github.com | free5GC is an open-source implementation of the 5G core network. In 4.2.2 and earlier, the NRF RegisterNFInstance handler at PUT /nnrf-nfm/v1/nf-instances/{nfInstanceID} accepts NF Profiles without enforcing UUID format, nfStatus enum values, heartBeatTimer ra
+- CVE-2026-83610 security-advisories@github.com | xmldom is a pure JavaScript W3C standard-based (XML DOM Level 2 Core) DOMParser and XMLSerializer module. Prior to @xmldom/xmldom versions 0.8.15 and 0.9.12, and in xmldom version 0.6.0 and earlier, Document.createEntityReference(name) accepts an invalid name 
+- CVE-2026-82609 cna@vuldb.com | A vulnerability was identified in itsourcecode Sales and Inventory System 1.0. This impacts an unknown function of the file /pages/inv_edit.php. The manipulation of the argument ID leads to sql injection. It is possible to initiate the attack remotely. The exp
+- CVE-2026-97324 cna@vuldb.com | A vulnerability was identified in YunaiV/zhijiantianya ruoyi-vue-pro up to 2026.08. Affected is the function updateDemoOrderPaid of the file yudao-module-pay/src/main/java/cn/iocoder/yudao/module/pay/controller/admin/demo/PayDemoOrderController.java of the com
+kernel CNA 775

@@ -1,0 +1,22 @@
+LABELS n= 120 raw bytes/label median 94613.0
+  boxed_warning                  present 64/120 (53%) median chars 1090 max 6626
+  contraindications              present 119/120 (99%) median chars 417 max 2755
+  drug_interactions              present 119/120 (99%) median chars 2420 max 23937
+  dosage_and_administration      present 120/120 (100%) median chars 3221 max 29394
+  pregnancy                      present 108/120 (90%) median chars 2680 max 15997
+  use_in_specific_populations    present 83/120 (69%) median chars 6979 max 15868
+  nursing_mothers                present 50/120 (41%) median chars 379 max 1028
+  pediatric_use                  present 105/120 (87%) median chars 612 max 7335
+  geriatric_use                  present 93/120 (77%) median chars 754 max 2572
+  warnings_and_cautions          present 83/120 (69%) median chars 8010 max 49316
+  adverse_reactions              present 120/120 (100%) median chars 5234 max 33705
+  ids {'ndc': '120/120 (100%)', 'rxcui': '118/120 (98%)', 'set_id': '120/120 (100%)'}
+  regex hits: {'cyp': '37/120 (30%)', 'strength': '18/120 (15%)', 'action': '93/120 (77%)', 'dose': '110/120 (91%)', 'freq': '82/120 (68%)', 'renal': '24/120 (20%)', 'hepatic': '24/120 (20%)', 'pllr': '84/120 (70%)', 'lact': '105/120 (87%)', 'bwtitle': '50/64 (78%)', 'ci_list': '40/120 (33%)'}
+  boxed-warning titles sample: ['SUICIDAL', 'EMBRYO-FETAL', 'SUICIDAL', 'SUPINE', 'FETAL', 'FETAL', 'SERIOUS', 'SUICIDAL']
+  DI excerpt: 7 DRUG INTERACTIONS Refer to the full prescribing information for drug interactions with methotrexate. (7) 7.1 Effects of Other Drugs on Methotrexate Drugs that Increase Methotrexate Exposure Coadministration of methotrexate with the following products may increase methotrexate plasma concentrations, which may increase the risk of methotrexate severe adverse reactions. In some cases, the coadminis
+  tables present: 106/120 (88%)
+
+TRIALS n= 120 criteria chars median 1805 max 14403
+  structured already: minAge 117/120 (97%) maxAge 57/120 (47%) sex 120/120 (100%)
+  regex hits: {'split': '114/120 (95%)', 'bullets': '117/120 (97%)', 'age_text': '70/120 (58%)', 'lab': '25/120 (20%)', 'ecog': '32/120 (26%)', 'prior': '50/120 (41%)', 'preg': '59/120 (49%)', 'inf': '31/120 (25%)'} median bullet items 16.0
+  lab samples: ['INR) greater than (\\>) 3', 'absolute neutrophil count (ANC) \\<=750', 'creatinine \\>=1', 'ALT \\>=1', 'hemoglobin A1c \\>8', 'eGFR ≥ 40', 'AST) less than or equal to (≤) 3', 'bilirubin \\<1']

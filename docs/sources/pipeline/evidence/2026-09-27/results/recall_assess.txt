@@ -1,0 +1,28 @@
+CPSC sample 40 of 2276 (2020+)
+  model_no         11/40  e.g. ['model number and', 'model number and']
+  upc               3/40  e.g. ['UPC codes 759578392443', 'UPC Codes Utilitech #148009 1017 - 0219 054757098483']
+  date_code        14/40  e.g. ['date code', 'Lot']
+  units            40/40  e.g. ['310', '2,720']
+  price            40/40  e.g. ['$900.', '$80.']
+  date_range_sold  39/40  e.g. ['from September 2022 through April 2023', 'from August 2023 through June 2025']
+  hazard_class     39/40  e.g. ['lacerat', 'fire']
+  remedy_class     40/40  e.g. ['stop using', 'replace']
+  violates_std      9/40  e.g. ['violate the mandatory', 'violate the mandatory']
+  country          40/40  e.g. ['I', 'C']
+  structured Products.Model non-empty: 0 / 2276
+  structured Hazards.HazardType non-empty: 0
+  ProductUPCs non-empty: 133
+  Inconjunctions (Canada/Mexico) non-empty: 546
+  units unparseable (no digit): 2
+NHTSA sample 40 of 1659 campaigns 2025-26; total campaigns post-2010 15269
+  build_dates_text  0/40 e.g. []
+  vin_in_text       0/40 e.g. []
+  part_no           2/40 e.g. ['part numbers', 'part numbers']
+  fmvss_field       9/40 e.g. []
+  bgman_field      25/40 e.g. []
+  potaff_field     40/40 e.g. []
+  ota               1/40 e.g. ['over-the-air']
+  software         11/40 e.g. ['software', 'software']
+  remedy_free      37/40 e.g. ['free of charge', 'free of charge']
+  interim           3/40 e.g. ['Interim', 'Interim']
+  example DESC_DEFECT: Hyundai Motor America (Hyundai) is recalling certain 2025-2026 IONIQ 5 and 2026 IONIQ 9 vehicles. The high voltage battery system may contain an improperly tightened bus bar, which can cause a short-circuit.

@@ -1,0 +1,9 @@
+docs 35 {'dollar': 15, 'applies_to_me': 13, 'through_end': 4, 'comment_deadline': 8, 'naics': 4, 'cfr_amend': 5, 'small_entities_count': 1, 'paperwork_burden': 3}
+dollar ('2026-19429', '$100,000,000')
+applies_to_me ('2026-19448', 'applies to')
+through_end ('2026-19456', 'through December 31, 2026')
+comment_deadline ('2026-19493', 'comments must be received at one of the addresses provided below, by November 21, 2026')
+naics ('2026-19579', 'NAICS')
+cfr_amend ('2026-19579', 'revise part 1120')
+small_entities_count ('2026-19652', '34 small entities')
+paperwork_burden ('2026-19652', 'total annual burden')
