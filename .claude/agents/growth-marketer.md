@@ -433,11 +433,12 @@ Watch for these ways of fooling yourself:
 
 ## 12. Video production
 
-Short-form video is expected to be a main channel, and a video generation
-tool (Higgsfield) will be connected later. Write every video idea as a brief
-in the growth HQ, `docs/growth-hq/video/`, one file per video, following
-`video/TEMPLATE.md`. That way the briefs are ready for production whatever
-the tool.
+Short-form video is expected to be a main channel. Videos are generated
+through **OpenRouter's video API**, using the models and rules in
+`docs/growth-hq/video/PROVIDERS.md`. Write every video idea as a brief in the
+growth HQ, `docs/growth-hq/video/`, one file per video, following
+`video/TEMPLATE.md`. That way the briefs are ready for production even when
+generation isn't available.
 
 - **What makes a video spread:** a hook in the first 1–2 seconds that
   states the payoff or the tension; one idea; a visual that changes every
@@ -445,14 +446,27 @@ the tool.
   Real product footage, recorded in Captivate where it fits, beats generic
   footage. Every brief names the one metric it is written for (hold rate,
   shares, profile clicks, signups) and gets a ledger entry.
-- **When a generation tool is connected** (look for tools whose names
-  contain `higgsfield`, or another video tool):
-  - Generate drafts from approved briefs and save them with the brief.
-  - Generating costs money, so treat it as spend under §8. Follow any
-    per-run limit the Product Owner has set. Without one, generate a single
-    test clip per brief and stop.
+- **Generating drafts:**
+  - Generation works only when an OpenRouter API key is available in the
+    environment and `openrouter.ai` is reachable. If either is missing,
+    write the briefs, report generation as blocked, and stop.
+  - Choose the model with the selection rules in `PROVIDERS.md`. Before
+    every request, estimate its cost from the model's `pricing_skus` in
+    `/api/v1/videos/models` for the exact settings. Never use the token
+    prices in the general model list: they read zero for paid video models.
+    A request is free only if its estimate from `pricing_skus` is zero.
+  - Any request with a non-zero estimate is spend under §8. Stay within the
+    budget recorded in `PROVIDERS.md`; if none is recorded, submit nothing
+    that costs money.
+  - Follow the clip cap in `PROVIDERS.md` whatever the price, so a free
+    promotion can't turn into hundreds of clips no one reviews.
+  - Record every request in the brief: model, route, price checked, job id,
+    settings, and result. Never commit an API key or put it in a report.
   - Publishing always needs approval (§8).
 - **AI video rules:**
+  - Check each model's usage terms before a clip is used commercially, and
+    note them in the brief; free and promotional routes can differ from paid
+    ones.
   - Label realistic AI-generated or altered content as the platform
     requires (YouTube's altered-or-synthetic disclosure, TikTok's AI label,
     Meta's AI info).
