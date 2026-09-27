@@ -44,7 +44,9 @@ for r in rec:
     # Structured model fields can list several models: tokenize them exactly like the prose.
     toks=set(TOKEN.findall(txt))|{t for p in r.get('Products') or [] for t in TOKEN.findall(p.get('Model') or '')}
     toks={t for t in toks if t and len(model_key(t))>=5 and not re.fullmatch(r'[\d\-\.]+',t)}
-    toks|={x for t in toks for x in slash_parts(t)}  # shared, form-aware slash classification (recalls/common.py)
+    # Shared, form-aware slash classification (recalls/common.py): a model pair is replaced by its two halves (the
+    # fused whole names no product); a market suffix keeps the whole and adds the base.
+    toks={x for t in toks for x in ([t] if len(slash_parts(t))<2 else [])+slash_parts(t)}
     tok_total+=len(toks)
     rh=[]
     # Every brand and every matching listing is kept: these are review candidates, so the queue must see them all.
@@ -55,15 +57,22 @@ for r in rec:
                 rh.append((t,'exact',b,list(es.exact[(b,k)]))); found=True
             ph=[(rid,raw) for rx,raw,rid in es.pats.get(b,[]) if rx.match(k)]
             if ph: rh.append((t,'pattern',b,[rid for rid,_ in ph],sorted({raw for _,raw in ph}))); found=True
-        tok_hit+=found
+        # A rebranded listing carries the same model under another brand: the any-brand lookup also runs, and its
+        # listings not already found above are kept as cross-brand review candidates (never links).
+        seen={rid for h in rh if h[0]==t for rid in h[3]}
+        mm,ids=es.lookup('',t,brand_scoped=False)
+        extra=sorted(set(ids or [])-seen)
+        if mm and extra: rh.append((t,'ANY:'+mm,'*',extra))
+        tok_hit+=found  # brand-scoped matches only, so the reported rates keep their meaning
     for u in r.get('ProductUPCs') or []:
         # A CPSC UPC field can list several codes: each token is validated on its own.
         for raw in digit_codes(u.get('UPC','') if isinstance(u,dict) else str(u)):
             uu=raw.lstrip('0')
             if gs1_valid(raw) and uu in es_upc: upchits.append((r['RecallNumber'],uu,list(es_upc[uu])))
-    if rh:
+    if any(not h[1].startswith('ANY:') for h in rh):  # counted only on a brand-scoped match
         stats['recalls_with_match']+=1
         if r['RecallDate']>='2015': stats['recalls_with_match_2015+']+=1
+    if rh:  # every candidate, cross-brand included, goes to the review file
         hits.append({'recall':r['RecallNumber'],'date':r['RecallDate'][:10],'title':r['Title'][:90],'hits':rh,'cats':sorted({cat_of[x] for h in rh for x in h[3]})})
 stats['recalls']=len(rec); stats['recalls_2015+']=sum(1 for r in rec if r['RecallDate']>='2015')
 print(stats,'tokens',tok_total,'token hits',tok_hit,'upc hits',len(upchits),upchits[:10])

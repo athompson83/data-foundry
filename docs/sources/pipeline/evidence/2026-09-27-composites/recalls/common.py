@@ -32,12 +32,15 @@ def model_tokens(text):
         if len(n)<5 or not re.search(r'\d',n) or not re.search(r'[A-Z]',n): continue
         if re.fullmatch(r'\d+(MM|CM|IN|V|W|KW|MAH|WH|HZ|LBS?|OZ|ML|L|G|KG|FT|BTU|AMPS?|A|GB|TB)',n): continue
         if re.fullmatch(r'(19|20)\d\d[A-Z]{1,3}',n): continue
-        out.add(n)
-        # '/' is source-dependent (research record, "/ has three meanings"), so only two unambiguous forms add keys:
-        # - a market suffix: one to three characters including a letter (Samsung /AA, /A5, /EU) -> also the base key;
-        # - an unspaced pair of two model-like halves (indoor/outdoor, ABC123/DEF456) -> also each half.
+        # '/' is source-dependent (research record, "/ has three meanings"), so only two unambiguous forms change keys:
+        # - a market suffix: one to three characters including a letter (Samsung /AA, /A5, /EU) -> the whole key plus
+        #   the base key;
+        # - an unspaced pair of two model-like halves (indoor/outdoor, ABC123/DEF456) -> each half, never the fused
+        #   whole, which names no product.
         # Anything else (FV126.07/87, a numeric or long tail) stays one literal key.
-        out.update(nmodel(x) for x in slash_parts(t))
+        parts=slash_parts(t)
+        if len(parts)<2: out.add(n)
+        out.update(nmodel(x) for x in parts)
     return out
 def digit_codes(s):
     """Barcode-like digit runs in a field that may list several codes: split on separators first, then rejoin a code
