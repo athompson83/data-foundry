@@ -3,8 +3,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { issueKey } from '../src/account.js';
 import type { Env } from '../src/env.js';
 import worker from '../src/index.js';
-import { renderLiteral } from '../src/store.js';
-import { ingestRecords, MIN_FULL_HC_CONSUMER, scheduledProductSync } from '../src/product-sync.js';
+import { renderLiteral, sha256Hex } from '../src/store.js';
+import { ingestRecords, MIN_FULL_HC_CONSUMER,
+  cpscFullWindows, scheduledProductSync } from '../src/product-sync.js';
 import { isIndexableNotice, prepareProductRecall, writeProductGroups, MAX_LITERAL_JSON_BYTES } from '../src/product-store.js';
 import { createTestBucket, createTestDatabase } from './d1-sqlite.js';
 
@@ -132,6 +133,24 @@ describe('product-recall ingestion', () => {
     expect(MIN_FULL_HC_CONSUMER).toBeGreaterThan(1000);
   });
 
+  it('reads the full CPSC list in bounded RecallDate windows, archiving each', async () => {
+    const env = makeEnv();
+    const windows = cpscFullWindows('2026-09-27');
+    expect(windows[0]!.url).toContain('RecallDateStart=1900-01-01&RecallDateEnd=1989-12-31');
+    expect(windows.at(-1)!.url).toContain('RecallDateStart=2026-01-01&RecallDateEnd=2026-12-31');
+    expect(windows).toHaveLength(2 + 27);
+    const fetcher = vi.fn(async (url: string) =>
+      new Response(JSON.stringify(String(url).includes('canada.ca') ? [HC] : String(url).includes('RecallDateStart=2025-01-01') ? [CPSC] : []), { status: 200 }),
+    );
+    const [cpsc] = await scheduledProductSync(env, { full: true, today: '2026-09-27', fetcher: fetcher as unknown as typeof fetch });
+    const cpscCalls = fetcher.mock.calls.map(([url]) => String(url)).filter((url) => url.includes('saferproducts'));
+    expect(cpscCalls).toHaveLength(windows.length);
+    expect(cpscCalls.every((url) => url.includes('RecallDateStart='))).toBe(true);
+    // Every window was read and ingested; the total is then checked against the full-list floor.
+    expect(cpsc!.error).toMatch(/CPSC full list has only 1 records/);
+    expect(await env.DB.prepare("SELECT COUNT(*) AS n FROM product_recall WHERE agency = 'CPSC'").first()).toEqual({ n: 1 });
+  });
+
   it('reads the recent CPSC window and the Health Canada index on a normal run', async () => {
     const env = makeEnv();
     const many = Array.from({ length: MIN_FULL_HC_CONSUMER }, (_, index) => ({ ...HC_ONLY, NID: String(100000 + index), URL: `https://recalls-rappels.canada.ca/en/alert-recall/n-${index}` }));
@@ -230,6 +249,22 @@ describe('product-recall API', () => {
     expect(JSON.stringify(body)).not.toContain('800-964-4328');
     const hc = (await (await worker.fetch(api('/v1/product-recalls/hc-77184?include=raw', apiKey), env)).json()) as { data: { raw: Record<string, unknown> } };
     expect(hc.data.raw['What you should do']).toBeUndefined();
+  });
+
+  it('reports what was withheld and a digest that matches the raw object returned', async () => {
+    const env = makeEnv();
+    await seed(env);
+    const apiKey = await key(env);
+    type Body = { data: { raw: Record<string, unknown>; raw_redaction: { removed_fields: string[]; presented_sha256: string }; provenance: { raw_sha256: string } } };
+    for (const [id, withheld] of [['cpsc-25203', ['ConsumerContact']], ['hc-77184', ['What you should do']]] as const) {
+      const body = (await (await worker.fetch(api(`/v1/product-recalls/${id}?include=raw`, apiKey), env)).json()) as Body;
+      expect(body.data.raw_redaction.removed_fields).toEqual(expect.arrayContaining([...withheld]));
+      expect(body.data.raw_redaction.presented_sha256).toBe(await sha256Hex(JSON.stringify(body.data.raw)));
+      // The provenance digest stays that of the stored original, which differs once fields are withheld.
+      expect(body.data.provenance.raw_sha256).not.toBe(body.data.raw_redaction.presented_sha256);
+    }
+    const plain = (await (await worker.fetch(api('/v1/product-recalls/cpsc-25203', apiKey), env)).json()) as { data: Record<string, unknown> };
+    expect(plain.data['raw_redaction']).toBeUndefined();
   });
 
   it('requires a key, and stays closed until opened or when killed', async () => {

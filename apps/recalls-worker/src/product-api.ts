@@ -63,6 +63,8 @@ export type PresentedProductRecall = Omit<StructuredProductRecall, 'provenance'>
     readonly changed_at: string;
   };
   readonly raw?: unknown;
+  /** With include=raw: which source fields were removed, and the SHA-256 of `raw` exactly as returned. */
+  readonly raw_redaction?: { readonly removed_fields: string[]; readonly presented_sha256: string };
 };
 
 async function linksFor(db: D1Database, rows: readonly ProductRow[]): Promise<Map<string, LinkedNotice[]>> {
@@ -107,22 +109,25 @@ async function loadRaw(bucket: R2Bucket, rows: readonly ProductRow[]): Promise<M
   return out;
 }
 
-/** The raw CPSC record includes ConsumerContact and Images, which are not republished (rights record). */
-function redactRaw(agency: string, raw: unknown): unknown {
-  if (!raw || typeof raw !== 'object') return raw;
+/** Source fields never republished (rights records): CPSC contact text and images; Health Canada's advice/contact text. */
+const WITHHELD_FIELDS: Readonly<Record<string, readonly string[]>> = { CPSC: ['ConsumerContact', 'Images'], HC: ['What you should do'] };
+
+/**
+ * The raw record as served. provenance.raw_sha256 stays the digest of the stored
+ * original (the evidence); the removed field names and the digest of the object
+ * returned are reported beside it, so a consumer can verify what it received.
+ */
+async function redactRaw(agency: string, raw: unknown): Promise<{ raw: unknown; raw_redaction?: { removed_fields: string[]; presented_sha256: string } }> {
+  if (!raw || typeof raw !== 'object') return { raw };
   const copy = { ...(raw as Record<string, unknown>) };
-  if (agency === 'CPSC') {
-    delete copy['ConsumerContact'];
-    delete copy['Images'];
-  } else {
-    delete copy['What you should do'];
-  }
-  return copy;
+  const removed = (WITHHELD_FIELDS[agency] ?? []).filter((field) => field in copy);
+  for (const field of removed) delete copy[field];
+  return { raw: copy, raw_redaction: { removed_fields: removed, presented_sha256: await sha256Hex(JSON.stringify(copy)) } };
 }
 
 export async function presentRows(db: D1Database, bucket: R2Bucket, rows: readonly ProductRow[], includeRaw: boolean): Promise<PresentedProductRecall[]> {
   const [links, raws] = await Promise.all([linksFor(db, rows), includeRaw ? loadRaw(bucket, rows) : Promise.resolve(new Map<string, unknown>())]);
-  return rows.map((row) => {
+  return Promise.all(rows.map(async (row) => {
     const recall = JSON.parse(row.structured) as StructuredProductRecall;
     return {
       ...recall,
@@ -135,9 +140,9 @@ export async function presentRows(db: D1Database, bucket: R2Bucket, rows: readon
         last_seen_at: row.last_seen_at,
         changed_at: row.changed_at,
       },
-      ...(includeRaw ? { raw: redactRaw(row.agency, raws.get(row.id) ?? null) } : {}),
+      ...(includeRaw ? await redactRaw(row.agency, raws.get(row.id) ?? null) : {}),
     };
-  });
+  }));
 }
 
 function encodeCursor(sortDate: string, id: string): string {

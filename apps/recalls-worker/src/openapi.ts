@@ -85,7 +85,12 @@ const PRODUCT_RECALL_SCHEMA = {
     trade_facets: { type: 'array', items: { type: 'string', enum: [...TRADE_FACETS] } },
     linked_notices: { type: 'array', items: { type: 'object', properties: { id: { type: 'string' }, agency: { type: 'string' }, relation: { type: 'string', enum: ['cites', 'cited_by'] }, basis: { type: 'string', enum: ['declared_citation'] } } } },
     provenance: { type: 'object' },
-    raw: { type: 'object', description: 'Verbatim source record (include=raw).' },
+    raw: { type: 'object', description: 'Verbatim source record (include=raw) with the fields listed in raw_redaction.removed_fields withheld.' },
+    raw_redaction: {
+      type: 'object',
+      description: 'With include=raw. provenance.raw_sha256 is the digest of the stored original record; presented_sha256 is the SHA-256 of JSON.stringify(raw) as returned.',
+      properties: { removed_fields: { type: 'array', items: { type: 'string' } }, presented_sha256: { type: 'string' } },
+    },
   },
 };
 

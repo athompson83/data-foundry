@@ -5,7 +5,9 @@
  *
  * Every run reads CPSC notices published or updated in the last
  * RECENT_DAYS days plus the full Health Canada index, and once a day the full
- * CPSC list, so corrections to old notices are picked up. Only new or changed
+ * CPSC list, so corrections to old notices are picked up. The full list
+ * (10,027 notices, 27.7 MB) is read in RecallDate windows of at most one year
+ * and prepared in chunks, so no step holds the whole list in the isolate. Only new or changed
  * records (by raw SHA-256 and parser version) are written; their verbatim
  * bytes go to R2 first, so each row's raw_ref points at evidence that exists.
  * Before anything is parsed, the whole fetched response is archived in R2
@@ -25,7 +27,7 @@ export const HC_ENDPOINT = 'https://recalls-rappels.canada.ca/sites/default/file
 export const RECENT_DAYS = 30;
 /** Records per D1 batch group and per R2 bundle. */
 const CHUNK = 500;
-/** A full CPSC list below this is a truncated or failed response, never a real shrink. */
+/** A full CPSC list below this is a truncated or failed read, never a real shrink. Nothing is deleted either way. */
 export const MIN_FULL_CPSC = 9_000;
 export const MIN_FULL_HC_CONSUMER = 4_500;
 
@@ -71,6 +73,19 @@ export function cpscUrl(from?: string): string {
   return `${CPSC_ENDPOINT}?format=json${from ? `&LastPublishDateStart=${from}` : ''}`;
 }
 
+/** The full CPSC list as RecallDate windows: two before 2000 (small), then one per year (the largest is about 1.4 MB). */
+export function cpscFullWindows(today: string): Array<{ label: string; url: string }> {
+  const windows = [
+    ['1900-01-01', '1989-12-31'],
+    ['1990-01-01', '1999-12-31'],
+  ];
+  for (let year = 2000; year <= Number(today.slice(0, 4)); year += 1) windows.push([`${year}-01-01`, `${year}-12-31`]);
+  return windows.map(([start, end]) => ({
+    label: `full:${start}..${end}`,
+    url: `${CPSC_ENDPOINT}?format=json&RecallDateStart=${start}&RecallDateEnd=${end}`,
+  }));
+}
+
 async function runStatements(db: D1Database, statements: readonly Statement[]): Promise<void> {
   await db.batch(statements.map((statement) => db.prepare(statement.sql).bind(...statement.params)));
 }
@@ -86,16 +101,19 @@ export async function ingestRecords(env: ProductSyncEnv, agency: ProductAgency, 
   let inserted = 0;
   let changed = 0;
   try {
-    // First occurrence per id, so a duplicate in one response cannot flip-flop.
-    const byId = new Map<string, PreparedProductRecall>();
-    for (const record of records) {
-      if (!isPublishable(agency, record)) continue;
-      const prepared = await prepareProductRecall(agency, record);
-      if (!byId.has(prepared.recall.id)) byId.set(prepared.recall.id, prepared);
-    }
-    const prepared = [...byId.values()];
-    for (let start = 0; start < prepared.length; start += CHUNK) {
-      const chunk = prepared.slice(start, start + CHUNK);
+    // Prepared one bounded chunk at a time, so the serialised raw and structured forms of the whole
+    // response are never held at once. First occurrence per id wins, so a duplicate cannot flip-flop.
+    const seen = new Set<string>();
+    for (let start = 0; start < records.length; start += CHUNK) {
+      const chunk: PreparedProductRecall[] = [];
+      for (const record of records.slice(start, start + CHUNK)) {
+        if (!isPublishable(agency, record)) continue;
+        const prepared = await prepareProductRecall(agency, record);
+        if (seen.has(prepared.recall.id)) continue;
+        seen.add(prepared.recall.id);
+        chunk.push(prepared);
+      }
+      if (chunk.length === 0) continue;
       const rows = await env.DB.prepare('SELECT id, raw_sha256, parser_version FROM product_recall WHERE id IN (SELECT value FROM json_each(?))')
         .bind(JSON.stringify(chunk.map((item) => item.recall.id)))
         .all<{ id: string; raw_sha256: string; parser_version: string }>();
@@ -156,11 +174,26 @@ export async function scheduledProductSync(env: ProductSyncEnv, options: { full:
   const results: ProductSyncResult[] = [];
   results.push(
     await attempt('product:CPSC', async () => {
-      const from = options.full ? undefined : addDays(today, -RECENT_DAYS);
-      const { key, records } = await fetchSource(cpscUrl(from), 'CPSC', env.RAW_ARTIFACTS, fetcher, now);
-      if (!Array.isArray(records)) throw new Error('CPSC response is not a JSON array');
-      if (options.full && records.length < MIN_FULL_CPSC) throw new Error(`CPSC full list has only ${records.length} records`);
-      return ingestRecords(env, 'CPSC', records, from ?? 'full', now, key);
+      if (!options.full) {
+        const from = addDays(today, -RECENT_DAYS);
+        const { key, records } = await fetchSource(cpscUrl(from), 'CPSC', env.RAW_ARTIFACTS, fetcher, now);
+        if (!Array.isArray(records)) throw new Error('CPSC response is not a JSON array');
+        return ingestRecords(env, 'CPSC', records, from, now, key);
+      }
+      // One window at a time: each is archived, ingested and released before the next is fetched.
+      let fetched = 0;
+      let inserted = 0;
+      let changed = 0;
+      for (const window of cpscFullWindows(today)) {
+        const { key, records } = await fetchSource(window.url, 'CPSC', env.RAW_ARTIFACTS, fetcher, now);
+        if (!Array.isArray(records)) throw new Error(`CPSC ${window.label} response is not a JSON array`);
+        const result = await ingestRecords(env, 'CPSC', records, window.label, now, key);
+        fetched += result.fetched;
+        inserted += result.inserted;
+        changed += result.changed;
+      }
+      if (fetched < MIN_FULL_CPSC) throw new Error(`CPSC full list has only ${fetched} records`);
+      return { source: 'product:CPSC', fetched, inserted, changed };
     }),
   );
   results.push(
