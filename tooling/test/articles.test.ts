@@ -59,6 +59,9 @@ describe('article loader', () => {
     ['updatedAt before publishedAt', `${VALID}\nupdatedAt: "2026-09-19"`],
     ['a dataset that is not LIVE', `${VALID}\ndataset: cpsc-recalls`],
     ['a draft flag that is not a boolean', `${VALID}\ndraft: "yes"`],
+    ['a title carrying Markdown link syntax', VALID.replace('A valid title', 'Docs](https://example.invalid)[x')],
+    ['a multi-line description', VALID.replace('description: "A short description of the article."', 'description: |\n  line one\n  ## injected heading')],
+    ['a backtick in the author', VALID.replace('author: "Data Foundry"', 'author: "Data `Foundry`"')],
   ])('refuses %s', (_name, frontmatter) => {
     expect(problemsOf(frontmatter)).toMatch(/frontmatter/);
   });

@@ -133,6 +133,14 @@ describe('articles on data.aroqon.com', () => {
     expect(pages).toContain('<url><loc>https://data.aroqon.com/recalls</loc></url>');
   });
 
+  it('escapes article text in llms.txt, so frontmatter cannot add links or headings there', async () => {
+    const { llmsTxt } = await import('../src/seo.js');
+    const ctx = { publicOrigin: 'https://data.aroqon.com', apiOrigin: 'https://api.data.aroqon.com', supportEmail: 'support@example.com' };
+    const llms = llmsTxt(ctx, [{ title: 'Docs](https://example.invalid)[x', url: 'https://data.aroqon.com/articles/a', description: 'one\n## injected' }]);
+    expect(llms).toContain('- [Docs\\](https://example.invalid)\\[x](https://data.aroqon.com/articles/a): one \\#\\# injected');
+    expect(llms).not.toMatch(/^## injected/m);
+  });
+
   it('lists articles in llms.txt and links them from the site navigation and footer', async () => {
     const env = makeEnv();
     const llms = await (await worker.fetch(site('/llms.txt'), env)).text();

@@ -47,8 +47,6 @@ The parser is plain code, not a model, and it is conservative: a code is reporte
 | the same | `codes.expiration_dates` | Only after an expiry phrase such as "Exp" or "Best by" |
 | `reason_for_recall` | `reason.classes`, `allergens`, `pathogens` | Reason classes, the nine major allergens and named pathogens |
 
-When we ran the parser over all 87,356 records on 2026-09-26 it produced no parse errors, and it extracted distribution geography for 92–98% of records, lots for 31–51%, GTIN/UPC/UDI codes for 31–37% of food and device records, and NDCs for 51% of drug records.
-
 Every lot, GTIN, NDC, serial and model number goes into an exact-match index, so a lookup is a key match rather than a text search.
 
 ## What does a request look like?

@@ -44,7 +44,16 @@ function isCalendarDate(value: string): boolean {
 }
 
 const IsoDate = z.string().refine(isCalendarDate, 'must be a real date written YYYY-MM-DD');
-const Text = (max: number) => z.string().trim().min(1, 'is required').max(max, `must be at most ${max} characters`);
+// These values are also interpolated into llms.txt, which is Markdown: a bracket, backtick, angle bracket
+// or line break would let frontmatter add links or headings there while the HTML page stayed valid.
+const Text = (max: number) =>
+  z
+    .string()
+    .trim()
+    .min(1, 'is required')
+    .max(max, `must be at most ${max} characters`)
+    .refine((value) => !/[\r\n]/.test(value), 'must be a single line')
+    .refine((value) => !/[[\]`<>]/.test(value), 'must not contain [ ] ` < or >');
 
 /** Unknown keys are refused, so a misspelt `updatedat` fails instead of being ignored. */
 export const ArticleFrontmatter = z

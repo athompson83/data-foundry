@@ -50,6 +50,8 @@ The answer first, then `##` sections.
 | `dataset` | no | A key in `docs/sources/pipeline/candidates.yaml` whose `stage` is `LIVE`. For `fda-recalls` the article links to `/recalls` and names the dataset in JSON-LD (`about`). |
 | `draft` | no | `true` validates the file but does not publish it. |
 
+`title`, `description` and `author` must each be a single line without `[`, `]`, backticks, `<` or `>`: they are also written into `/llms.txt`, which is Markdown, and those characters would let a value add links or headings there. The Worker escapes them anyway.
+
 Any other key is an error, so a misspelt key cannot be silently ignored.
 
 ## Markdown rules

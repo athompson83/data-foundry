@@ -314,13 +314,18 @@ Key facts for agents:
 
 - [FDA Recall Intelligence](${ctx.publicOrigin}/recalls): food, drug and device recalls with structured codes and geography.
 - [Browse recalls by year](${ctx.publicOrigin}/recalls/browse): one public page per recall.
-${articles.length ? `\n## Articles\n\n${articles.map((article) => `- [${article.title}](${article.url}): ${article.description}`).join('\n')}\n` : ''}
+${articles.length ? `\n## Articles\n\n${articles.map((article) => `- [${markdownText(article.title)}](${article.url}): ${markdownText(article.description)}`).join('\n')}\n` : ''}
 ## Optional
 
 - [Terms](${ctx.publicOrigin}/terms)
 - [Privacy](${ctx.publicOrigin}/privacy)
 - Support: ${ctx.supportEmail}
 `;
+}
+
+/** Frontmatter is validated to one line without link syntax; this escapes anyway, so llms.txt cannot be restructured by a value that slips through. */
+function markdownText(value: string): string {
+  return value.replace(/\s+/g, ' ').replace(/[\\`*_[\]<>#|]/g, (character) => `\\${character}`);
 }
 
 export function llmsFullTxt(ctx: PageContext, articles: Parameters<typeof llmsTxt>[1] = []): string {
