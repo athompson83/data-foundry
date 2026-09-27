@@ -20,13 +20,19 @@ for k in samp:
   for p in ae:
     try:
       x=S.get('https://www.floridabuilding.org/upload/'+urllib.parse.quote(p),timeout=180); time.sleep(1.1)
-      if len(x.content)<30e6: txt+=' '.join((pg.extract_text() or '') for pg in pypdf.PdfReader(io.BytesIO(x.content)).pages)
+      x.raise_for_status()
+      if len(x.content)>=30e6: raise ValueError(f'{len(x.content)} bytes; too large to parse')
+      txt+=' '.join((pg.extract_text() or '') for pg in pypdf.PdfReader(io.BytesIO(x.content)).pages)
     except Exception as e: print('err',k,e,flush=True); failed+=1
   txt=re.sub(r'\s+',' ',txt); open('fbc_pdf/%s.txt'%k,'w').write(txt)
   ctx=[txt[max(0,m.start()-60):m.end()+10] for m in re.finditer(r'\b\d{2}-\d{4}\.\d{2}\b',txt)]
-  out[k]={'hvhz':hv,'n_ae':len(ae),'pdf_failed':failed,'chars':len(txt),'noa_refs':sorted(set(re.findall(r'\b(\d{2}-\d{4}\.\d{2})\b',txt))),'ctx':ctx[:3],
+  # Untestable rows (no evaluation report, or only image scans) are kept but excluded from every denominator.
+  out[k]={'hvhz':hv,'n_ae':len(ae),'pdf_failed':failed,'testable':bool(ae) and not failed and len(txt)>=200,'chars':len(txt),'noa_refs':sorted(set(re.findall(r'\b(\d{2}-\d{4}\.\d{2})\b',txt))),'ctx':ctx[:3],
           'mentions_noa':bool(re.search(r'(?i)\bNOA\b|notice of acceptance|miami[- ]dade',txt))}
   print('ROW',k,hv,len(ae),len(txt),out[k]['noa_refs'][:4],flush=True)
 json.dump(out,open('fbc_roof_noa.json','w'),indent=1)
 bad=[k for k,v in out.items() if v.get('pdf_failed') or v.get('fetch_failed')]
 if bad: raise SystemExit(f'{len(bad)} approvals failed (marked fetch_failed or pdf_failed; exclude them from denominators): {bad[:20]}')
+for hz in (True,False):
+  t=[v for v in out.values() if v.get('testable') and v['hvhz']==hz]
+  print('HVHZ' if hz else 'non-HVHZ','cites an NOA',sum(1 for v in t if v['noa_refs']),'/',len(t),'testable')

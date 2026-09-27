@@ -3743,7 +3743,7 @@ datasets:
           - appliance-energy-star-registry
         measured: 6/230 CPSC home recalls since 2015 with model tokens (7/230 without the brand check)
         mode: candidate
-      - key: exact GTIN-13 / UPC
+      - key: exact GTIN-13 / UPC with a valid GS1 check digit
         between:
           - cpsc-recalls
           - appliance-energy-star-registry
@@ -3958,7 +3958,7 @@ datasets:
         between:
           - roofing-florida-product-approvals
           - roofing-miami-dade-noa
-        measured: 8/24
+        measured: 8/22 text-extractable HVHZ evaluation reports (0/14 non-HVHZ; 4 of 40 sampled untestable and excluded)
         mode: declared
       - key: NOA number cited in FL evaluation report (mixed envelope categories, hand-checked)
         between:

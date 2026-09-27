@@ -44,7 +44,7 @@ committed.
 | ENERGY STAR ↔ Canada (markets flag) | 1,644,779 / 1,796,876 models | — |
 | ENERGY STAR ↔ AU GEMS (same model) | 19 / 3,941 fridges; 0 / 6,036 AC | prefix matches rejected as sibling models |
 | ENERGY STAR filer ↔ Wikidata parent | 7 correct of the top 50 filers | needs a curated mapping |
-| Florida approval cites a Miami-Dade NOA (HVHZ roofing) | 8 / 24 | 6 / 19 cited NOAs past their listed expiry |
+| Florida approval cites a Miami-Dade NOA (HVHZ roofing) | 8 / 22 text-extractable | 6 / 19 cited NOAs past their listed expiry |
 | Miami-Dade ↔ Florida manufacturer names (normalised) | 242 / 636 applicants | 0 false in 30 (1 uncertain) |
 | Oregon trade licence ↔ Oregon contractor registration (name + city) | 45 / 50 | — |
 | Cross-state contractor (name + zip/city) | 45 / 2,000 | 10 / 10 correct; name-only ≈ 1 / 10 |
@@ -320,6 +320,8 @@ CA↔US link deterministic under the OGL alone, with no page text needed.
 - **Match rule:**
   - shared normalised model and brand-token overlap and dates within 365 days, **or**
   - exact GTIN-13.
+  - This is the screening rule behind the table below. It did not check GS1 check digits; the build keeps
+    the two branches apart and auto-links only on a check-digit-valid GTIN (see "GTIN re-measurement").
 - **"Model only"** is the same rule without the brand check. It is the false-match control.
 
 | Pair (A → B) | Denominator (A records with model/GTIN, inside B's date window) | Matched (strict) | Via GTIN | Model-only control | Hand check | Sample IDs (A → B) |
@@ -428,16 +430,22 @@ is labelled "first notice".
 
 ### Join keys, in order of precedence
 
-1. **A declared cross-reference.**
-   - The HC `What you should do` "Joint recall … CPSC" marker, plus a date within 45 days and at least 2
-     distinctive title tokens (341/352; 25/25).
-   - A Safety Gate case number cited by a national notice (FR 102/109).
-2. **Exact GTIN-13 on both sides.** UK↔EU 29, FR↔EU 71. It never joins to ENERGY STAR: 0 matches.
-3. **Normalised model plus brand-token overlap within 365 days.** UK↔EU 118/697; CPSC↔SaferProducts
+Only steps 1 and 2 link automatically; steps 3 to 6 only enqueue review candidates (revised after review).
+
+1. **A declared cross-reference that names the counterpart notice:** a Safety Gate case number cited by a
+   national notice (FR 102/109).
+2. **Exact GTIN on both sides with a valid GS1 check digit.** UK↔EU 24/697 (re-measured; 29 exact strings
+   before validation, 5 of which fail the check digit). FR↔EU was screened as 71 exact strings without
+   validation and must be re-measured with the check digit before it counts. It never joins to ENERGY
+   STAR: 0 matches.
+3. **The HC `What you should do` "Joint recall … CPSC" marker**, plus a date within 45 days and at least 2
+   distinctive title tokens (341/352; 25/25). A review candidate: the marker says a CPSC counterpart
+   exists but does not name it, and 4 of the 341 matches were ambiguous.
+4. **Normalised model plus brand-token overlap within 365 days.** UK↔EU 118/697; CPSC↔SaferProducts
    111/307.
-4. **Model-pattern expansion** (ENERGY STAR `*`, `#`, `?` as one-character wildcards) plus brand, for
+5. **Model-pattern expansion** (ENERGY STAR `*`, `#`, `?` as one-character wildcards) plus brand, for
    enrichment only (6/230).
-5. **Title-token similarity without a declared marker.** A candidate only (6/15), and never published.
+6. **Title-token similarity without a declared marker.** A candidate only (6/15), and never published.
 
 ### Classification taxonomy
 
@@ -911,8 +919,8 @@ Random seeds were 2027 (the FBC detail sample, the FBC evaluation-PDF sample and
   - Miami-Dade NOAs never cite Florida (FL#) numbers: **0/77** text-extractable NOA PDFs (3 of the 80 sampled are image-only scans and are excluded; corrected after review).
   - FL approval *detail pages* almost never cite an NOA: **1/200**.
   - FL *evaluation reports* do cite NOAs:
-    - **8/24 (33%)** of sampled HVHZ roofing applications;
-    - **0/16** non-HVHZ roofing applications;
+    - **8/22 (36%)** of sampled HVHZ roofing applications with a text-extractable evaluation report;
+    - **0/14** such non-HVHZ roofing applications (corrected after review: of the 40 sampled, 3 evaluation reports are image-only scans and 1 approval has no evaluation report, so 36 were testable; screening had reported 8/24 and 0/16);
     - **7/70 (10%)** of a mixed windows/doors/roofing/skylight sample, after hand-removing one false positive (a test-report number shaped like an NOA).
   - The NOAs cited are mostly the *components* inside an assembly: fasteners, insulation boards, adhesives, PVB interlayers and anchors. Many of them belong to other manufacturers.
   - Assembly tables that list the same component with both an FL# and an NOA# gave **30 FL#↔NOA# pairs**. Of the 17 where both IDs resolve in the current indexes, **15/17 have the same manufacturer after normalisation**. The other 2 are true alias pairs (USG Corporation ↔ United States Gypsum Company; Elevate ↔ Amrize Building Envelope LLC). So the pairs are also a deterministic, evidence-backed **alias source** for manufacturer names.
@@ -1025,7 +1033,7 @@ Terms are unreadable, so RED. Use NRI and NCEI instead.
 
 | Pair | Join key | Measured | Normalisation / notes | Sample IDs |
 |---|---|---|---|---|
-| FBC eval report → Miami-Dade NOA (roofing, HVHZ) | NOA number `\d{2}-\d{4}\.\d{2}` in report text | **8/24** HVHZ; **0/16** non-HVHZ; 36/40 text-extractable | Round 2 found 5/26. 2 of the 8 upload the NOA itself as the evaluation document (FL3794-R12 → 25-0313.01; FL47448 → 25-0131.01), which is a same-product link. The other 6 are component tables. | FL15545-R11, FL10264-R23, FL48146, FL3794-R12, FL48090, FL47448, FL46297-R7, FL48189 |
+| FBC eval report → Miami-Dade NOA (roofing, HVHZ) | NOA number `\d{2}-\d{4}\.\d{2}` in report text | **8/22** HVHZ; **0/14** non-HVHZ; 36/40 text-extractable (the 4 untestable approvals are excluded from both denominators) | Round 2 found 5/26. 2 of the 8 upload the NOA itself as the evaluation document (FL3794-R12 → 25-0313.01; FL47448 → 25-0131.01), which is a same-product link. The other 6 are component tables. | FL15545-R11, FL10264-R23, FL48146, FL3794-R12, FL48090, FL47448, FL46297-R7, FL48189 |
 | FBC eval report → NOA (mixed windows/doors/roof/skylight) | same | **7/70** (10%) after hand-check; the raw regex gave 8 | 1 false positive: FL48212 "Report: 26-0024.01-ACT-001" is a test-lab report ID. Require an `NOA`, `Miami-Dade` or `FBC NOA` column context, or a 2-digit-year check. | FL2534-R22, FL20873-R5, FL17454-R5, FL14087-R11, FL48095, FL23956-R2, FL21837-R12 |
 | FBC detail page → NOA | same | **1/200** (FL14087-R11); 9/200 mention "NOA"/"Miami-Dade" | Detail pages are not where the link lives | fbc_detail_sample.json |
 | Miami-Dade NOA → FL# | `FL\s?#?\d+(-R\d+)?` | **0/77** text-extractable (3/80 image-only excluded) | Every "FL 33xxx" hit was a ZIP code. The link is one-directional. | md_sample.json (80 IDs, e.g. 21-1001.01, 22-0203.06 …) |
