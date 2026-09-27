@@ -371,9 +371,8 @@ describe('discoverability', () => {
     // Only the Worker's own cache holds copies: clients must come back through the kill switch.
     expect((await worker.fetch(site('/recalls/F-0001-2026'), offline)).headers.get('cache-control')).toBe('no-cache');
     expect((await worker.fetch(site('/sitemaps/recalls-1.xml'), env)).headers.get('cache-control')).toBe('no-cache');
-    // A shard past the end is a cached 404, so repeating it cannot force D1 scans.
-    expect((await worker.fetch(site('/sitemaps/recalls-7.xml'), env)).status).toBe(404);
-    expect((await worker.fetch(site('/sitemaps/recalls-7.xml'), offline)).status).toBe(404);
+    // Shards past the end are refused from the cached count, so no unique shard number can force a D1 query.
+    for (const shard of [2, 7, 500, 999]) expect((await worker.fetch(site(`/sitemaps/recalls-${shard}.xml`), offline)).status, `shard ${shard}`).toBe(404);
     expect((await worker.fetch(site('/sitemaps/recalls-0.xml'), offline)).status).toBe(404);
     // Browse pages past the end and unknown recalls are cached misses too.
     expect((await worker.fetch(site('/recalls/browse/food/2026?page=9999'), env)).status).toBe(404);

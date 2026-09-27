@@ -15,7 +15,7 @@ import { openApiDocument } from './openapi.js';
 import { catalogPage, docsPage, messagePage, privacyPage, recallsLanding, termsPage, welcomePage, type PageContext } from './pages.js';
 import { createCheckoutSession, createPortalSession, currentSubscription, handleStripeWebhook, retrieveCheckoutSession, StripeError, upsertCustomerFromSubscription } from './stripe.js';
 import { scheduledSync, syncWindow } from './sync.js';
-import { BROWSE_PATTERN, EDGE_TTL_SECONDS, RECALL_API_PATTERN, RECALL_PAGE_PATTERN, SITEMAP_PATTERN, browseCount, browseInRange, browseIndex, browsePage, llmsFullTxt, llmsTxt, pagesSitemap, pingChangedRecalls, recallPage, recallSitemap, robotsTxt, sitemapIndex, type PresentedRecall } from './seo.js';
+import { BROWSE_PATTERN, EDGE_TTL_SECONDS, RECALL_API_PATTERN, RECALL_PAGE_PATTERN, SITEMAP_PATTERN, browseCount, browseInRange, browseIndex, browsePage, indexableCount, shardInRange, llmsFullTxt, llmsTxt, pagesSitemap, pingChangedRecalls, recallPage, recallSitemap, robotsTxt, sitemapIndex, type PresentedRecall } from './seo.js';
 import { RECALL_CATEGORIES, type RecallCategory } from '@data-foundry/recall-structuring';
 
 /** The Workers edge cache, declared locally like the other bindings. */
@@ -371,6 +371,10 @@ async function publicDataPage(env: Env, ctx: PageContext, request: Request, url:
     );
   }
   const sitemap = SITEMAP_PATTERN.exec(url.pathname) as RegExpExecArray;
+  // Bound shards by the data: one cached count, so unique shard numbers past
+  // the end cannot each become a large-OFFSET D1 query.
+  const counted = await cached(cacheKey(ctx, '/sitemaps/count'), async () => text(String(await indexableCount(env.DB)), 'text/plain', 3600));
+  if (!shardInRange(Number(sitemap[1]), Number(await counted.text()))) return notFound(ctx);
   return cached(
     cacheKey(ctx, url.pathname),
     async () => {

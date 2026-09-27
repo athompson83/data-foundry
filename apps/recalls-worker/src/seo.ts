@@ -237,6 +237,16 @@ export async function browsePage(ctx: PageContext, db: D1Database, category: str
 
 const STATIC_PATHS = ['/', '/recalls', '/recalls/docs', '/terms', '/privacy'];
 
+export async function indexableCount(db: D1Database): Promise<number> {
+  const row = await db.prepare(`SELECT COUNT(*) AS n FROM recall WHERE ${INDEXABLE_SQL}`).first<{ n: number }>();
+  return row?.n ?? 0;
+}
+
+/** Whether a sitemap shard can hold any URL, given the indexable-row count. */
+export function shardInRange(page: number, total: number): boolean {
+  return page >= 1 && (page - 1) * SITEMAP_PAGE_SIZE < total;
+}
+
 export async function sitemapIndex(ctx: PageContext, db: D1Database): Promise<string> {
   const row = await db.prepare(`SELECT COUNT(*) AS n, MAX(changed_at) AS last FROM recall WHERE ${INDEXABLE_SQL}`).first<{ n: number; last: string | null }>();
   const pages = Math.ceil((row?.n ?? 0) / SITEMAP_PAGE_SIZE);
