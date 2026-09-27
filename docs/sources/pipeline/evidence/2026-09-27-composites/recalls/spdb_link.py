@@ -25,7 +25,7 @@ for r in cands:
     rd=datetime.date.fromisoformat(r['date'])
     prec=[i for i in good if (mdate(inc[i]['Report Date']) or rd)<rd]
     if prec: pre+=1
-    links.append({'cpsc':r['id'],'date':r['date'],'facets':r['facets'],'n_incidents':len(good),'n_before_recall':len(prec),'sample_reports':[inc[i]['Report No.'] for i in sorted(good)[:3]]})
+    links.append({'cpsc':r['id'],'date':r['date'],'facets':r['facets'],'n_incidents':len(good),'n_before_recall':len(prec),'reports':[inc[i]['Report No.'] for i in sorted(good)],'reports_before_recall':[inc[i]['Report No.'] for i in sorted(prec)]})
 print('CPSC home recalls since 2011-03 with model tokens',len(cands))
 print('  >=1 incident sharing a normalised model token',hit)
 print('  ... and brand/manufacturer token overlap',hit_brand)

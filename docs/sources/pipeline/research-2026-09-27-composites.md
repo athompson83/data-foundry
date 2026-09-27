@@ -69,6 +69,14 @@ after measurement and are not archived, so the figures cannot be replayed exactl
 is advanced to `EVIDENCED`, its joins must be re-measured from inputs archived in R2
 with byte counts and SHA-256, under the same replay rules as round 1.
 
+**Candidate outputs (added after review).** Health Canada ↔ CPSC was re-measured from inputs now archived in R2
+(`recalls/hc_cpsc_inputs.txt`: sizes and SHA-256). It reproduces 352 / 341 / 337 and the 863 / 238 control
+exactly. `hc_cpsc_links.json` and `hc_cpsc_control.json` now keep every candidate with its evidence: 62 notices
+have more than one, and the 4 tied top candidates are HC 82207, 81761, 64528 and 77014. The committed
+`equipment/link_cpsc_matches.json` and `recalls/spdb_cpsc_links.json` came from screening runs that kept at most
+2 or 3 IDs per match, and their inputs were not archived. They are screening summaries, not review-queue inputs.
+The scripts now keep every candidate, and the build regenerates both files from archived inputs.
+
 ## Rules the measurements impose
 
 - **Declared links beat inferred ones.** Identifiers that name the counterpart

@@ -15,8 +15,10 @@ def gtins(s):
 recs=[]
 # ---- UK OPSS (GOV.UK content API)
 idx={r['link'].rsplit('/',1)[1]:r for r in json.load(open('uk_index.json'))}
-for f in glob.glob('uk/*.json'):
-    j=json.load(open(f))  # an unreadable notice is an incomplete run, not a skipped row
+# Read exactly the notices uk_fetch.py reconciled to the current index, never whatever is in the cache.
+for slug in json.load(open('uk_manifest.json')):
+    f=f'uk/{slug}.json'
+    j=json.load(open(f))  # a missing or unreadable notice is an incomplete run, not a skipped row
     slug=os.path.basename(f)[:-5]; b=j['details'].get('body','')
     rows={}
     for k,v in re.findall(r'<tr>\s*<td>(.*?)</td>\s*<td>(.*?)</td>',b,re.S): rows.setdefault(strip(k).lower(),[]).append(strip(v))

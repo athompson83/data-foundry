@@ -1,69 +1,123 @@
 [
 {
 "hc_nid": "82650",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26797",
-"shared": [
+"shared_tokens": [
 "AIR3",
 "GLASSES",
 "INMO",
 "SMART"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "82120",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26784",
-"shared": [
+"shared_tokens": [
 "INFRARED",
 "KITS",
 "SAUNAS"
+],
+"n_shared": 3,
+"days_apart": 0
+},
+{
+"cpsc": "26783",
+"shared_tokens": [
+"SAUNAS",
+"TYLO"
+],
+"n_shared": 2,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "82607",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26773",
-"shared": [
+"shared_tokens": [
 "BISTRO",
 "BROIL",
 "CHAR"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "82570",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26756",
-"shared": [
+"shared_tokens": [
 "AGA",
 "CORNUE",
 "DUAL",
 "FREESTANDING",
 "FUEL",
 "RANGES"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "82249",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26739",
-"shared": [
+"shared_tokens": [
 "ELMO",
 "HOP",
 "SESAME",
 "SILICONE",
 "SKIP",
 "STREET"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "82579",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26735",
-"shared": [
+"shared_tokens": [
 "BRANCH",
 "CHAIRS",
 "ERGONOMIC"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "82580",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26734",
-"shared": [
+"shared_tokens": [
 "AIR",
 "AMANA",
 "CONDITIONERS",
@@ -72,49 +126,184 @@
 "THROUGH",
 "TTW",
 "WALL"
+],
+"n_shared": 8,
+"days_apart": 0
+},
+{
+"cpsc": "26711",
+"shared_tokens": [
+"AIR",
+"HEAT",
+"PUMPS"
+],
+"n_shared": 3,
+"days_apart": 14
+},
+{
+"cpsc": "26776",
+"shared_tokens": [
+"AIR",
+"CONDITIONERS"
+],
+"n_shared": 2,
+"days_apart": 14
+}
 ]
 },
 {
 "hc_nid": "82472",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26722",
-"shared": [
+"shared_tokens": [
 "KITS",
 "LED",
 "LIGHT"
+],
+"n_shared": 3,
+"days_apart": 0
+},
+{
+"cpsc": "26673",
+"shared_tokens": [
+"LED",
+"LIGHT"
+],
+"n_shared": 2,
+"days_apart": 21
+},
+{
+"cpsc": "26672",
+"shared_tokens": [
+"LED",
+"LIGHT"
+],
+"n_shared": 2,
+"days_apart": 21
+},
+{
+"cpsc": "26617",
+"shared_tokens": [
+"LED",
+"LIGHT"
+],
+"n_shared": 2,
+"days_apart": 42
+}
 ]
 },
 {
 "hc_nid": "82498",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26715",
-"shared": [
+"shared_tokens": [
 "PRESSURE",
 "WASHERS",
 "WORKBLESS"
+],
+"n_shared": 3,
+"days_apart": 0
+},
+{
+"cpsc": "26725",
+"shared_tokens": [
+"PRESSURE",
+"WASHERS"
+],
+"n_shared": 2,
+"days_apart": 7
+},
+{
+"cpsc": "26723",
+"shared_tokens": [
+"PRESSURE",
+"WASHERS"
+],
+"n_shared": 2,
+"days_apart": 7
+},
+{
+"cpsc": "26699",
+"shared_tokens": [
+"PRESSURE",
+"WASHERS"
+],
+"n_shared": 2,
+"days_apart": 7
+},
+{
+"cpsc": "26692",
+"shared_tokens": [
+"PRESSURE",
+"WASHERS"
+],
+"n_shared": 2,
+"days_apart": 7
+},
+{
+"cpsc": "26779",
+"shared_tokens": [
+"PRESSURE",
+"WASHERS"
+],
+"n_shared": 2,
+"days_apart": 28
+}
 ]
 },
 {
 "hc_nid": "82446",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26688",
-"shared": [
+"shared_tokens": [
 "GEAR",
 "JUMPER",
 "TALECO"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "82408",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26677",
-"shared": [
+"shared_tokens": [
 "APEKS",
 "DROWNING",
 "REGULATORS",
 "SCUBA"
+],
+"n_shared": 4,
+"days_apart": 0
+},
+{
+"cpsc": "26624",
+"shared_tokens": [
+"DROWNING",
+"REGULATORS"
+],
+"n_shared": 2,
+"days_apart": 21
+}
 ]
 },
 {
 "hc_nid": "82415",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26648",
-"shared": [
+"shared_tokens": [
 "BEHIND",
 "LAWN",
 "MAX30",
@@ -122,58 +311,137 @@
 "POWER",
 "PRO",
 "WALK"
+],
+"n_shared": 7,
+"days_apart": 0
+},
+{
+"cpsc": "26611",
+"shared_tokens": [
+"MOWERS",
+"POWER"
+],
+"n_shared": 2,
+"days_apart": 28
+}
 ]
 },
 {
 "hc_nid": "82445",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26661",
-"shared": [
+"shared_tokens": [
 "ATTIC",
 "FEATHERLITE",
 "LOUISVILLE",
 "STRUTS"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "82291",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26647",
-"shared": [
+"shared_tokens": [
 "BENQ",
 "GV31"
+],
+"n_shared": 2,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "82296",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26618",
-"shared": [
+"shared_tokens": [
 "PANASONIC",
 "TOASTER"
+],
+"n_shared": 2,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "82323",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26620",
-"shared": [
+"shared_tokens": [
 "BOON",
 "KITCHEN",
 "PIVOT",
 "STEP",
 "TODDLER",
 "TOWER"
+],
+"n_shared": 6,
+"days_apart": 0
+},
+{
+"cpsc": "26658",
+"shared_tokens": [
+"KITCHEN",
+"STEP",
+"TODDLER"
+],
+"n_shared": 3,
+"days_apart": 14
+},
+{
+"cpsc": "26628",
+"shared_tokens": [
+"KITCHEN",
+"STEP"
+],
+"n_shared": 2,
+"days_apart": 0
+},
+{
+"cpsc": "26651",
+"shared_tokens": [
+"TODDLER",
+"TOWER"
+],
+"n_shared": 2,
+"days_apart": 14
+}
 ]
 },
 {
 "hc_nid": "82273",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26606",
-"shared": [
+"shared_tokens": [
 "INSIGNIA",
 "RANGES"
+],
+"n_shared": 2,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "82282",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26605",
-"shared": [
+"shared_tokens": [
 "BURNER",
 "CUISINART",
 "FOUR",
@@ -182,21 +450,44 @@
 "OVEN",
 "PIZZA",
 "PROPEL"
+],
+"n_shared": 8,
+"days_apart": 0
+},
+{
+"cpsc": "26601",
+"shared_tokens": [
+"CUISINART",
+"GRILL"
+],
+"n_shared": 2,
+"days_apart": 7
+}
 ]
 },
 {
 "hc_nid": "81861",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26507",
-"shared": [
+"shared_tokens": [
 "KITHMAS",
 "LOUNGE",
 "PLAID"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "81901",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26581",
-"shared": [
+"shared_tokens": [
 "AIR",
 "AMANA",
 "CONDITIONERS",
@@ -204,12 +495,19 @@
 "PUMPS",
 "THROUGH",
 "WALL"
+],
+"n_shared": 7,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "82213",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26575",
-"shared": [
+"shared_tokens": [
 "000",
 "MAH",
 "OFF",
@@ -218,55 +516,110 @@
 "SOLAR",
 "SUPER",
 "WIRELESS"
+],
+"n_shared": 8,
+"days_apart": 0
+},
+{
+"cpsc": "26550",
+"shared_tokens": [
+"OFF",
+"ROAD"
+],
+"n_shared": 2,
+"days_apart": 14
+}
 ]
 },
 {
 "hc_nid": "82207",
+"ambiguous": true,
+"candidates": [
+{
 "cpsc": "26569",
-"shared": [
+"shared_tokens": [
 "AER2",
 "CAR",
 "JOOLZ",
 "SEAT"
+],
+"n_shared": 4,
+"days_apart": 0
+},
+{
+"cpsc": "26568",
+"shared_tokens": [
+"AER2",
+"CAR",
+"JOOLZ",
+"SEAT"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "82210",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26565",
-"shared": [
+"shared_tokens": [
 "ARIZER",
 "BLACK",
 "III",
 "INTERGALACTIC",
 "SOLO",
 "VAPORIZERS"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "82139",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26524",
-"shared": [
+"shared_tokens": [
 "CAM",
 "PAN",
 "SOLAR",
 "WYZE"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "82149",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26532",
-"shared": [
+"shared_tokens": [
 "ROOM",
 "SMALL",
 "SRTH",
 "TOWER",
 "VORNADO"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "81923",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26494",
-"shared": [
+"shared_tokens": [
 "CARBON",
 "GENERAC",
 "MONOXIDE",
@@ -274,32 +627,161 @@
 "PRESSURE",
 "START",
 "WASHERS"
+],
+"n_shared": 7,
+"days_apart": 0
+},
+{
+"cpsc": "26452",
+"shared_tokens": [
+"PRESSURE",
+"WASHERS"
+],
+"n_shared": 2,
+"days_apart": 14
+},
+{
+"cpsc": "26426",
+"shared_tokens": [
+"BRANDED",
+"POWER"
+],
+"n_shared": 2,
+"days_apart": 28
+},
+{
+"cpsc": "26423",
+"shared_tokens": [
+"PRESSURE",
+"WASHERS"
+],
+"n_shared": 2,
+"days_apart": 28
+},
+{
+"cpsc": "26422",
+"shared_tokens": [
+"PRESSURE",
+"WASHERS"
+],
+"n_shared": 2,
+"days_apart": 28
+},
+{
+"cpsc": "26421",
+"shared_tokens": [
+"PRESSURE",
+"WASHERS"
+],
+"n_shared": 2,
+"days_apart": 28
+},
+{
+"cpsc": "26420",
+"shared_tokens": [
+"PRESSURE",
+"WASHERS"
+],
+"n_shared": 2,
+"days_apart": 28
+},
+{
+"cpsc": "26417",
+"shared_tokens": [
+"PRESSURE",
+"WASHERS"
+],
+"n_shared": 2,
+"days_apart": 28
+},
+{
+"cpsc": "26407",
+"shared_tokens": [
+"GENERAC",
+"POWER"
+],
+"n_shared": 2,
+"days_apart": 28
+},
+{
+"cpsc": "26406",
+"shared_tokens": [
+"PRESSURE",
+"WASHERS"
+],
+"n_shared": 2,
+"days_apart": 28
+},
+{
+"cpsc": "26401",
+"shared_tokens": [
+"CARBON",
+"MONOXIDE"
+],
+"n_shared": 2,
+"days_apart": 35
+},
+{
+"cpsc": "26582",
+"shared_tokens": [
+"CARBON",
+"MONOXIDE"
+],
+"n_shared": 2,
+"days_apart": 42
+}
 ]
 },
 {
 "hc_nid": "82052",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26489",
-"shared": [
+"shared_tokens": [
 "ENFINIGY",
 "PRO",
 "ZWILLING"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "82068",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26488",
-"shared": [
+"shared_tokens": [
 "ASTRO",
 "CANYON",
 "GUIDE",
 "HARNESSES",
 "PETZL"
+],
+"n_shared": 5,
+"days_apart": 0
+},
+{
+"cpsc": "26487",
+"shared_tokens": [
+"HARNESSES",
+"PETZL"
+],
+"n_shared": 2,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "82069",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26487",
-"shared": [
+"shared_tokens": [
 "CLIMBING",
 "EASYFIT",
 "HARNESSES",
@@ -309,34 +791,64 @@
 "STAINLESS",
 "STEEL",
 "SWAN"
+],
+"n_shared": 9,
+"days_apart": 0
+},
+{
+"cpsc": "26488",
+"shared_tokens": [
+"HARNESSES",
+"PETZL"
+],
+"n_shared": 2,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "81999",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26457",
-"shared": [
+"shared_tokens": [
 "BEAR",
 "BUILD",
 "HEARTWARMING",
 "HUGS",
 "WORKSHOP"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "82006",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26456",
-"shared": [
+"shared_tokens": [
 "BOO",
 "BUNNIE",
 "FRIENDS",
 "STEPHAN",
 "TOYS"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "81856",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26388",
-"shared": [
+"shared_tokens": [
 "BEDROOM",
 "BREEZ",
 "FAN",
@@ -344,50 +856,85 @@
 "NOISE",
 "SMART",
 "WHITE"
+],
+"n_shared": 7,
+"days_apart": 12
+}
 ]
 },
 {
 "hc_nid": "81804",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26426",
-"shared": [
+"shared_tokens": [
 "ATX",
 "COMPUTER",
 "ELECTRICAL",
 "POWER",
 "SUPPLIES"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "81825",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26419",
-"shared": [
+"shared_tokens": [
 "FISHER",
 "PAYKEL",
 "PROFESSIONAL",
 "RANGES"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "81890",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26407",
-"shared": [
+"shared_tokens": [
 "GENERAC",
 "GENERATORS"
+],
+"n_shared": 2,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "81790",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26395",
-"shared": [
+"shared_tokens": [
 "BOOTS",
 "HEAD",
 "SKI"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "81815",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26385",
-"shared": [
+"shared_tokens": [
 "ATTACHMENTS",
 "BISSELL",
 "CLEANERS",
@@ -395,95 +942,176 @@
 "OMNIREACH",
 "SHOT",
 "STEAM"
+],
+"n_shared": 7,
+"days_apart": 0
+},
+{
+"cpsc": "26283",
+"shared_tokens": [
+"CLEANERS",
+"STEAM"
+],
+"n_shared": 2,
+"days_apart": 42
+}
 ]
 },
 {
 "hc_nid": "81819",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26393",
-"shared": [
+"shared_tokens": [
 "DROWNING",
 "MONORAIL",
 "POCKETS",
 "SCUBAPRO",
 "WEIGHT"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "81797",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26382",
-"shared": [
+"shared_tokens": [
 "BED",
 "BROADMOORE",
 "CANOPY",
 "FRAMES",
 "UNIVERSAL"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "81805",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26373",
-"shared": [
+"shared_tokens": [
 "CARABINERS",
 "CONDOR",
 "HMS",
 "TRIPLE"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "81781",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26347",
-"shared": [
+"shared_tokens": [
 "AXES",
 "ERGONOMIC",
 "ICE",
 "NOMIC",
 "PETZL"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "81787",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26349",
-"shared": [
+"shared_tokens": [
 "DIY",
 "HEATER",
 "KITS",
 "SAUNA"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "81761",
+"ambiguous": true,
+"candidates": [
+{
 "cpsc": "26333",
-"shared": [
+"shared_tokens": [
 "FRIGIDAIRE",
 "RANGES"
+],
+"n_shared": 2,
+"days_apart": 0
+},
+{
+"cpsc": "26419",
+"shared_tokens": [
+"PROFESSIONAL",
+"RANGES"
+],
+"n_shared": 2,
+"days_apart": 28
+}
 ]
 },
 {
 "hc_nid": "81762",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26328",
-"shared": [
+"shared_tokens": [
 "900",
 "POWER",
 "STEAMERS",
 "WAGNER"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "81641",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26286",
-"shared": [
+"shared_tokens": [
 "BATH",
 "FIZZY",
 "IMPACT",
 "MAGIC",
 "TOTS",
 "TUBBY"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "81642",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26306",
-"shared": [
+"shared_tokens": [
 "100",
 "ANDERSEN",
 "CASEMENT",
@@ -492,21 +1120,35 @@
 "OPENING",
 "WINDOW",
 "WINDOWS"
+],
+"n_shared": 8,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "81643",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26283",
-"shared": [
+"shared_tokens": [
 "DUPRAY",
 "NEAT",
 "STEAM"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "81593",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26268",
-"shared": [
+"shared_tokens": [
 "COLLECTION",
 "DROWNING",
 "HIGHLIFE",
@@ -514,24 +1156,38 @@
 "JETS",
 "ROTARY",
 "SPAS"
+],
+"n_shared": 7,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "81456",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26201",
-"shared": [
+"shared_tokens": [
 "ANGRY",
 "BACTERIA",
 "EXPOSURE",
 "ORANGE",
 "REMOVERS",
 "STAIN"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75452",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26166",
-"shared": [
+"shared_tokens": [
 "BEHIND",
 "EQUIPMENT",
 "LEAF",
@@ -539,121 +1195,216 @@
 "TOW",
 "VACUUMS",
 "WALK"
+],
+"n_shared": 7,
+"days_apart": 0
+},
+{
+"cpsc": "26194",
+"shared_tokens": [
+"BRANDED",
+"POWER"
+],
+"n_shared": 2,
+"days_apart": 7
+}
 ]
 },
 {
 "hc_nid": "81308",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26147",
-"shared": [
+"shared_tokens": [
 "ICE",
 "VEVOR"
+],
+"n_shared": 2,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "78113",
-"cpsc": null,
-"shared": []
+"ambiguous": false,
+"candidates": []
 },
 {
 "hc_nid": "81243",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26134",
-"shared": [
+"shared_tokens": [
 "DUTY",
 "G0815",
 "GRIZZLY",
 "HEAVY",
 "IMPACT"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "81276",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26026",
-"shared": [
+"shared_tokens": [
 "CARBON",
 "MONOXIDE"
+],
+"n_shared": 2,
+"days_apart": 40
+}
 ]
 },
 {
 "hc_nid": "78423",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26086",
-"shared": [
+"shared_tokens": [
 "ACTIVITY",
 "MOBI",
 "ZIPPEE"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "78485",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26088",
-"shared": [
+"shared_tokens": [
 "BICYCLES",
 "BRAKES",
 "COASTER",
 "ELECTRA",
 "TREK"
+],
+"n_shared": 5,
+"days_apart": 0
+},
+{
+"cpsc": "26138",
+"shared_tokens": [
+"BICYCLES",
+"TREK"
+],
+"n_shared": 2,
+"days_apart": 28
+}
 ]
 },
 {
 "hc_nid": "81200",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26090",
-"shared": [
+"shared_tokens": [
 "BELKIN",
 "POWER"
+],
+"n_shared": 2,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "81201",
-"cpsc": null,
-"shared": []
+"ambiguous": false,
+"candidates": []
 },
 {
 "hc_nid": "78426",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26078",
-"shared": [
+"shared_tokens": [
 "BICYCLE",
 "DRIVE",
 "FLOOR",
 "LEZYNE",
 "PRESSURE",
 "PUMPS"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "78280",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26059",
-"shared": [
+"shared_tokens": [
 "ANA",
 "BARREL",
 "CHAIRS",
 "CRATE",
 "DINING"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "78315",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26053",
-"shared": [
+"shared_tokens": [
 "DRAWSTRINGS",
 "GRUNDENS",
 "JACKETS"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "78344",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26058",
-"shared": [
+"shared_tokens": [
 "COVERT",
 "DROWNING",
 "KAYAK",
 "PADDLES",
 "STEALTH",
 "WERNER"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "78408",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26064",
-"shared": [
+"shared_tokens": [
 "CHAINSAW",
 "CHAINSAWS",
 "FUEL",
@@ -662,12 +1413,19 @@
 "MILWAUKEE",
 "TOOL",
 "TOP"
+],
+"n_shared": 8,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "78326",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26046",
-"shared": [
+"shared_tokens": [
 "BARREL",
 "BIO",
 "CURLING",
@@ -676,141 +1434,275 @@
 "IRON",
 "LONG",
 "ONE"
+],
+"n_shared": 8,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "78281",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26023",
-"shared": [
+"shared_tokens": [
 "BYRON",
 "DESKS",
 "EMPERADOR",
 "REEDED",
 "STONE",
 "TABLES"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "78282",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26026",
-"shared": [
+"shared_tokens": [
 "CARBON",
 "MONOXIDE",
 "TANKLESS",
 "VESTA",
 "WATER"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "78177",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "26011",
-"shared": [
+"shared_tokens": [
 "ESR",
 "EXPANDED",
 "HALOLOCK",
 "POWER",
 "WIRELESS"
+],
+"n_shared": 5,
+"days_apart": 0
+},
+{
+"cpsc": "26090",
+"shared_tokens": [
+"POWER",
+"WIRELESS"
+],
+"n_shared": 2,
+"days_apart": 35
+}
 ]
 },
 {
 "hc_nid": "77983",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25452",
-"shared": [
+"shared_tokens": [
 "PRESSURE",
 "RYOBI",
 "WASHERS"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "77985",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25444",
-"shared": [
+"shared_tokens": [
 "CARABINERS",
 "LOCK",
 "NIMBUS"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "77940",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25441",
-"shared": [
+"shared_tokens": [
 "BOILERS",
 "COMBI"
+],
+"n_shared": 2,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "77887",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25437",
-"shared": [
+"shared_tokens": [
 "ESR",
 "HALOLOCK",
 "POWER",
 "WIRELESS"
+],
+"n_shared": 4,
+"days_apart": 0
+},
+{
+"cpsc": "25390",
+"shared_tokens": [
+"POWER",
+"WIRELESS"
+],
+"n_shared": 2,
+"days_apart": 28
+}
 ]
 },
 {
 "hc_nid": "77888",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25435",
-"shared": [
+"shared_tokens": [
 "BOTTLES",
 "CARBONATION",
 "DRINKMATE"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "77819",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25423",
-"shared": [
+"shared_tokens": [
 "FIELDSHEER",
 "HEATED",
 "SOCKS"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "77716",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25413",
-"shared": [
+"shared_tokens": [
 "FLOATING",
 "INGESTION",
 "TEGU",
 "TOY"
+],
+"n_shared": 4,
+"days_apart": 0
+},
+{
+"cpsc": "25398",
+"shared_tokens": [
+"INGESTION",
+"TOY"
+],
+"n_shared": 2,
+"days_apart": 7
+},
+{
+"cpsc": "25372",
+"shared_tokens": [
+"INGESTION",
+"TOY"
+],
+"n_shared": 2,
+"days_apart": 28
+}
 ]
 },
 {
 "hc_nid": "77752",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25416",
-"shared": [
+"shared_tokens": [
 "BRUSHLESS",
 "DEGREE",
 "FRAMING",
 "NAILERS",
 "RIDGID"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "77780",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25412",
-"shared": [
+"shared_tokens": [
 "COSCO",
 "KITCHEN",
 "STEP"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "77783",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25415",
-"shared": [
+"shared_tokens": [
 "FARM",
 "KIDKRAFT",
 "KITCHEN",
 "PLAY",
 "TABLE"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "77742",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25393",
-"shared": [
+"shared_tokens": [
 "ABOVE",
 "BESTWAY",
 "DROWNING",
@@ -820,95 +1712,223 @@
 "POLYGROUP",
 "POOLS",
 "TALLER"
+],
+"n_shared": 9,
+"days_apart": 0
+},
+{
+"cpsc": "25339",
+"shared_tokens": [
+"DROWNING",
+"POOLS"
+],
+"n_shared": 2,
+"days_apart": 39
+}
 ]
 },
 {
 "hc_nid": "77661",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25390",
-"shared": [
+"shared_tokens": [
 "BANKS",
 "ISTORE",
 "MAGNETIC",
 "POWER",
 "WIRELESS"
+],
+"n_shared": 5,
+"days_apart": 0
+},
+{
+"cpsc": "25437",
+"shared_tokens": [
+"BANKS",
+"POWER",
+"WIRELESS"
+],
+"n_shared": 3,
+"days_apart": 28
+},
+{
+"cpsc": "25338",
+"shared_tokens": [
+"BANKS",
+"POWER"
+],
+"n_shared": 2,
+"days_apart": 35
+},
+{
+"cpsc": "25317",
+"shared_tokens": [
+"BRANDED",
+"POWER"
+],
+"n_shared": 2,
+"days_apart": 42
+}
 ]
 },
 {
 "hc_nid": "77711",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25408",
-"shared": [
+"shared_tokens": [
 "COVERS",
 "DETACHABLE",
 "FRAGRANCE",
 "INGESTION",
 "PURA",
 "SMART"
+],
+"n_shared": 6,
+"days_apart": 7
+}
 ]
 },
 {
 "hc_nid": "77032",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25374",
-"shared": [
+"shared_tokens": [
 "509",
 "HELMETS",
 "POLARIS"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "77663",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25371",
-"shared": [
+"shared_tokens": [
 "CHAINSAWS",
 "CORDED",
 "POLE",
 "SAWS",
 "WORX"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "77575",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25353",
-"shared": [
+"shared_tokens": [
 "AMPUTATION",
 "CAMPING",
 "CONVERTA",
 "STRETCHERS",
 "SUSPENSION"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "77631",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25359",
-"shared": [
+"shared_tokens": [
 "BELL",
 "HELMETS"
+],
+"n_shared": 2,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "77547",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25320",
-"shared": [
+"shared_tokens": [
 "AIR",
 "CONDITIONERS",
 "EXPOSURE",
 "MOLD",
 "WINDOW"
+],
+"n_shared": 5,
+"days_apart": 18
+}
 ]
 },
 {
 "hc_nid": "77281",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25318",
-"shared": [
+"shared_tokens": [
 "CHAIRS",
 "CONVERTIBLE",
 "FUNLIO",
 "HIGH"
+],
+"n_shared": 4,
+"days_apart": 15
+},
+{
+"cpsc": "25278",
+"shared_tokens": [
+"CHAIRS",
+"CONVERTIBLE",
+"HIGH"
+],
+"n_shared": 3,
+"days_apart": 36
+},
+{
+"cpsc": "25706",
+"shared_tokens": [
+"CHAIRS",
+"HIGH"
+],
+"n_shared": 2,
+"days_apart": 6
+},
+{
+"cpsc": "25336",
+"shared_tokens": [
+"CHAIRS",
+"HIGH"
+],
+"n_shared": 2,
+"days_apart": 8
+}
 ]
 },
 {
 "hc_nid": "77544",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25339",
-"shared": [
+"shared_tokens": [
 "COVERS",
 "DROWNING",
 "ENDLESS",
@@ -916,88 +1936,270 @@
 "POOL",
 "POOLS",
 "RETRACTABLE"
+],
+"n_shared": 7,
+"days_apart": 0
+},
+{
+"cpsc": "25368",
+"shared_tokens": [
+"COVERS",
+"POOL"
+],
+"n_shared": 2,
+"days_apart": 21
+},
+{
+"cpsc": "25393",
+"shared_tokens": [
+"DROWNING",
+"POOLS"
+],
+"n_shared": 2,
+"days_apart": 39
+}
 ]
 },
 {
 "hc_nid": "77573",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25336",
-"shared": [
+"shared_tokens": [
 "BUGABOO",
 "GIRAFFE",
 "HIGH"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "77574",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25334",
-"shared": [
+"shared_tokens": [
 "40V",
 "CORDLESS",
 "HEDGE",
 "RYOBI"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "64528",
+"ambiguous": true,
+"candidates": [
+{
 "cpsc": "25326",
-"shared": [
+"shared_tokens": [
 "CARBON",
 "MONOXIDE",
 "NTI"
+],
+"n_shared": 3,
+"days_apart": 0
+},
+{
+"cpsc": "25325",
+"shared_tokens": [
+"CARBON",
+"MONOXIDE",
+"NTI"
+],
+"n_shared": 3,
+"days_apart": 0
+},
+{
+"cpsc": "25322",
+"shared_tokens": [
+"CARBON",
+"MONOXIDE"
+],
+"n_shared": 2,
+"days_apart": 0
+},
+{
+"cpsc": "25313",
+"shared_tokens": [
+"CARBON",
+"MONOXIDE"
+],
+"n_shared": 2,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "77273",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25325",
-"shared": [
+"shared_tokens": [
 "CARBON",
 "HTP",
 "MONOXIDE"
+],
+"n_shared": 3,
+"days_apart": 0
+},
+{
+"cpsc": "25326",
+"shared_tokens": [
+"CARBON",
+"MONOXIDE"
+],
+"n_shared": 2,
+"days_apart": 0
+},
+{
+"cpsc": "25322",
+"shared_tokens": [
+"CARBON",
+"MONOXIDE"
+],
+"n_shared": 2,
+"days_apart": 0
+},
+{
+"cpsc": "25313",
+"shared_tokens": [
+"CARBON",
+"MONOXIDE"
+],
+"n_shared": 2,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "77507",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25313",
-"shared": [
+"shared_tokens": [
 "BOILERS",
 "PLUS",
 "RINNAI"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "77534",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25317",
-"shared": [
+"shared_tokens": [
 "LED",
 "LIGHTS",
 "LUTRON",
 "POWER",
 "TAPE"
+],
+"n_shared": 5,
+"days_apart": 0
+},
+{
+"cpsc": "25279",
+"shared_tokens": [
+"LED",
+"LIGHTS"
+],
+"n_shared": 2,
+"days_apart": 21
+},
+{
+"cpsc": "25232",
+"shared_tokens": [
+"LED",
+"LIGHTS"
+],
+"n_shared": 2,
+"days_apart": 42
+}
 ]
 },
 {
 "hc_nid": "77542",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25323",
-"shared": [
+"shared_tokens": [
 "CHAINSAWS",
 "EQUIPMENT",
 "POWER",
 "POWERED"
+],
+"n_shared": 4,
+"days_apart": 0
+},
+{
+"cpsc": "25355",
+"shared_tokens": [
+"ION",
+"LITHIUM",
+"POWER"
+],
+"n_shared": 3,
+"days_apart": 21
+},
+{
+"cpsc": "25334",
+"shared_tokens": [
+"EQUIPMENT",
+"POWER"
+],
+"n_shared": 2,
+"days_apart": 7
+},
+{
+"cpsc": "25391",
+"shared_tokens": [
+"ION",
+"LITHIUM"
+],
+"n_shared": 2,
+"days_apart": 42
+}
 ]
 },
 {
 "hc_nid": "77282",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25308",
-"shared": [
+"shared_tokens": [
 "FIRST",
 "SNOWMAN",
 "STEP2"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "76946",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25253",
-"shared": [
+"shared_tokens": [
 "AMPUTATION",
 "COOLERS",
 "CRUSHING",
@@ -1006,71 +2208,139 @@
 "IGLOO",
 "ROLLING",
 "TOW"
+],
+"n_shared": 8,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "77374",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25255",
-"shared": [
+"shared_tokens": [
 "BALL",
 "DELTA",
 "VALVES"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "77361",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25247",
-"shared": [
+"shared_tokens": [
 "COOKERS",
 "FOODI",
 "MULTI",
 "PRESSURE"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "77314",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25236",
-"shared": [
+"shared_tokens": [
 "BUTANE",
 "SONDIKO"
+],
+"n_shared": 2,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "77226",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25226",
-"shared": [
+"shared_tokens": [
 "BOOTS",
 "FACE",
 "MID",
 "SHELLISTA",
 "WATERPROOF",
 "WOMEN"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "77243",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25216",
-"shared": [
+"shared_tokens": [
 "ACTIVITY",
 "FISHER",
 "PRICE",
 "SNUGAPUPPY"
+],
+"n_shared": 4,
+"days_apart": 0
+},
+{
+"cpsc": "25215",
+"shared_tokens": [
+"FISHER",
+"PRICE"
+],
+"n_shared": 2,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "77244",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25215",
-"shared": [
+"shared_tokens": [
 "BRUNCH",
 "FISHER",
 "PRICE",
 "STROLLER"
+],
+"n_shared": 4,
+"days_apart": 0
+},
+{
+"cpsc": "25216",
+"shared_tokens": [
+"FISHER",
+"PRICE",
+"TOY"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "77184",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25203",
-"shared": [
+"shared_tokens": [
 "000",
 "AIR",
 "BTU",
@@ -1079,70 +2349,182 @@
 "FORCED",
 "OUTDOOR",
 "PROPANE"
+],
+"n_shared": 8,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "77124",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25199",
-"shared": [
+"shared_tokens": [
 "APOTHEKE",
 "GINGER",
 "PUMPKIN",
 "WICK"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "77106",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25181",
-"shared": [
+"shared_tokens": [
 "BLACK",
 "DIAMOND",
 "HARNESS",
 "VISION"
+],
+"n_shared": 4,
+"days_apart": 0
+},
+{
+"cpsc": "25167",
+"shared_tokens": [
+"BLACK",
+"DIAMOND"
+],
+"n_shared": 2,
+"days_apart": 7
+}
 ]
 },
 {
 "hc_nid": "77108",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25177",
-"shared": [
+"shared_tokens": [
 "BICYCLES",
 "BMC",
 "FRAMESETS",
 "KAIUS"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "77058",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25167",
-"shared": [
+"shared_tokens": [
 "AVALANCHE",
 "BLACK",
 "DIAMOND",
 "RECON"
+],
+"n_shared": 4,
+"days_apart": 0
+},
+{
+"cpsc": "25181",
+"shared_tokens": [
+"BLACK",
+"DIAMOND"
+],
+"n_shared": 2,
+"days_apart": 7
+},
+{
+"cpsc": "25164",
+"shared_tokens": [
+"AVALANCHE",
+"TRANSMISSION"
+],
+"n_shared": 2,
+"days_apart": 7
+}
 ]
 },
 {
 "hc_nid": "76986",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25162",
-"shared": [
+"shared_tokens": [
 "ELLERBECK",
 "KICHLER",
 "SCONCES",
 "WALL"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "77014",
+"ambiguous": true,
+"candidates": [
+{
 "cpsc": "25161",
-"shared": [
+"shared_tokens": [
 "FLAMMABILITY",
 "PAJAMA"
+],
+"n_shared": 2,
+"days_apart": 0
+},
+{
+"cpsc": "25158",
+"shared_tokens": [
+"FLAMMABILITY",
+"FOREVER"
+],
+"n_shared": 2,
+"days_apart": 0
+},
+{
+"cpsc": "25168",
+"shared_tokens": [
+"FLAMMABILITY",
+"PAJAMA"
+],
+"n_shared": 2,
+"days_apart": 7
+},
+{
+"cpsc": "25131",
+"shared_tokens": [
+"FLAMMABILITY",
+"PAJAMA"
+],
+"n_shared": 2,
+"days_apart": 14
+},
+{
+"cpsc": "25102",
+"shared_tokens": [
+"FLAMMABILITY",
+"PAJAMA"
+],
+"n_shared": 2,
+"days_apart": 35
+}
 ]
 },
 {
 "hc_nid": "77029",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25157",
-"shared": [
+"shared_tokens": [
 "AERCO",
 "BOILERS",
 "CARBON",
@@ -1152,26 +2534,40 @@
 "MONOXIDE",
 "PRESTIGE",
 "SOLO"
+],
+"n_shared": 9,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75780",
-"cpsc": null,
-"shared": []
+"ambiguous": false,
+"candidates": []
 },
 {
 "hc_nid": "76897",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25141",
-"shared": [
+"shared_tokens": [
 "KUBOTA",
 "MX5400DTC",
 "TRACTORS"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "76942",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25146",
-"shared": [
+"shared_tokens": [
 "BEGINNINGS",
 "CHESTS",
 "CLOTHING",
@@ -1183,44 +2579,115 @@
 "STRAPS",
 "UNIT",
 "WOODWORKING"
+],
+"n_shared": 11,
+"days_apart": 0
+},
+{
+"cpsc": "25145",
+"shared_tokens": [
+"CLOTHING",
+"DRAWER",
+"DRESSERS",
+"STORAGE"
+],
+"n_shared": 4,
+"days_apart": 0
+},
+{
+"cpsc": "25192",
+"shared_tokens": [
+"CLOTHING",
+"DRAWER",
+"DRESSERS",
+"STORAGE"
+],
+"n_shared": 4,
+"days_apart": 28
+},
+{
+"cpsc": "25094",
+"shared_tokens": [
+"CLOTHING",
+"DRAWER",
+"DRESSERS",
+"STORAGE"
+],
+"n_shared": 4,
+"days_apart": 35
+},
+{
+"cpsc": "25202",
+"shared_tokens": [
+"CLOTHING",
+"DRESSERS",
+"STORAGE"
+],
+"n_shared": 3,
+"days_apart": 35
+}
 ]
 },
 {
 "hc_nid": "76717",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25125",
-"shared": [
+"shared_tokens": [
 "GOT",
 "TALENT"
+],
+"n_shared": 2,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "76814",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25121",
-"shared": [
+"shared_tokens": [
 "AIRFX",
 "BOBCAT",
 "DECK",
 "FINISH",
 "MOWER",
 "STEINER"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "76901",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25124",
-"shared": [
+"shared_tokens": [
 "ARIENS",
 "DELUXE",
 "PLATINUM",
 "PROFESSIONAL",
 "SNOW",
 "THROWERS"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "76902",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25127",
-"shared": [
+"shared_tokens": [
 "BEHIND",
 "BRUSHLESS",
 "CORDLESS",
@@ -1229,41 +2696,78 @@
 "RYOBI",
 "VOLT",
 "WALK"
+],
+"n_shared": 8,
+"days_apart": 0
+},
+{
+"cpsc": "25140",
+"shared_tokens": [
+"BEHIND",
+"MOWERS"
+],
+"n_shared": 2,
+"days_apart": 14
+}
 ]
 },
 {
 "hc_nid": "76867",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25109",
-"shared": [
+"shared_tokens": [
 "CYCLES",
 "HEALTH",
 "JOHNSON",
 "MATRIX",
 "TECH",
 "TRAINING"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "76877",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25115",
-"shared": [
+"shared_tokens": [
 "LEARNING",
 "PEARHEAD"
+],
+"n_shared": 2,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "76797",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25090",
-"shared": [
+"shared_tokens": [
 "LEXMARK",
 "PRINTERS",
 "SPECIALTY"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "76813",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25091",
-"shared": [
+"shared_tokens": [
 "ADJUSTABLE",
 "BACKRESTS",
 "NORTHERN",
@@ -1271,54 +2775,89 @@
 "STOOLS",
 "SWIVEL",
 "TOOL"
+],
+"n_shared": 7,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "76699",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25077",
-"shared": [
+"shared_tokens": [
 "AVALANCHE",
 "IPS",
 "PIEPS",
 "PRO",
 "TRANSCEIVERS"
+],
+"n_shared": 5,
+"days_apart": 2
+}
 ]
 },
 {
 "hc_nid": "76696",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25071",
-"shared": [
+"shared_tokens": [
 "0AH",
 "40V",
 "LITHIUM",
 "SKIL"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75329",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25065",
-"shared": [
+"shared_tokens": [
 "MINI",
 "SPEAKERS",
 "YOTO"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "76673",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25063",
-"shared": [
+"shared_tokens": [
 "ACTION",
 "MUGS",
 "STANLEY",
 "SWITCHBACK",
 "TRAVEL",
 "TRIGGER"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "76572",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25061",
-"shared": [
+"shared_tokens": [
 "10K",
 "BELKIN",
 "BOOSTCHARGE",
@@ -1327,75 +2866,142 @@
 "POWER",
 "PRO",
 "WIRELESS"
+],
+"n_shared": 8,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "76540",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25053",
-"shared": [
+"shared_tokens": [
 "BEDS",
 "CRUSH",
 "DOREL",
 "IMPACT",
 "WALL"
+],
+"n_shared": 5,
+"days_apart": 0
+},
+{
+"cpsc": "25064",
+"shared_tokens": [
+"BED",
+"WALL"
+],
+"n_shared": 2,
+"days_apart": 21
+}
 ]
 },
 {
 "hc_nid": "76415",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25034",
-"shared": [
+"shared_tokens": [
 "DUAL",
 "FUEL",
 "INFRARED",
 "WOLF"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "76445",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25035",
-"shared": [
+"shared_tokens": [
 "LOCK",
 "MAG",
 "PACK",
 "QUAD"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "76452",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25036",
-"shared": [
+"shared_tokens": [
 "GOVEE",
 "GOVEELIFE",
 "HEATERS",
 "SMART",
 "SPACE"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75884",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25020",
-"shared": [
+"shared_tokens": [
 "100",
 "COMMERCIAL",
 "IMPACT",
 "POWERBLOCK",
 "PRO"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "76309",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "25009",
-"shared": [
+"shared_tokens": [
 "FISHER",
 "PRICE",
 "SNUGA",
 "SWINGS"
+],
+"n_shared": 4,
+"days_apart": 0
+},
+{
+"cpsc": "24351",
+"shared_tokens": [
+"FISHER",
+"PRICE"
+],
+"n_shared": 2,
+"days_apart": 42
+}
 ]
 },
 {
 "hc_nid": "76040",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24377",
-"shared": [
+"shared_tokens": [
 "1023E",
 "1025R",
 "2025R",
@@ -1404,128 +3010,221 @@
 "JOHN",
 "TRACTORS",
 "UTILITY"
+],
+"n_shared": 8,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75828",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24371",
-"shared": [
+"shared_tokens": [
 "CABINET",
 "CAFRAMO"
+],
+"n_shared": 2,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "76029",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24372",
-"shared": [
+"shared_tokens": [
 "BEDS",
 "LUCID",
 "PLATFORM",
 "SQUARE",
 "TUFTED",
 "UPHOLSTERED"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "76053",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24368",
-"shared": [
+"shared_tokens": [
 "GALLERY",
 "PHTHALATES",
 "TIME",
 "TUMMY"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75841",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24359",
-"shared": [
+"shared_tokens": [
 "AIRJET",
 "HYDROJET",
 "PUMPS"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75922",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24357",
-"shared": [
+"shared_tokens": [
 "BRANDED",
 "GARDEN",
 "PIECE",
 "STANLEY",
 "WHEELBARROW"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "76026",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24358",
-"shared": [
+"shared_tokens": [
 "GYM",
 "HARNESSES",
 "PANDION",
 "PANJI",
 "PETZL"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75997",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24354",
-"shared": [
+"shared_tokens": [
 "CEILING",
 "CYCLE",
 "DELTA",
 "STRAPS"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75972",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24351",
-"shared": [
+"shared_tokens": [
 "BICEPS",
 "DUMBBELL",
 "FISHER",
 "GIFT",
 "PRICE",
 "TOY"
+],
+"n_shared": 6,
+"days_apart": 0
+},
+{
+"cpsc": "25009",
+"shared_tokens": [
+"FISHER",
+"PRICE"
+],
+"n_shared": 2,
+"days_apart": 42
+}
 ]
 },
 {
 "hc_nid": "75911",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24345",
-"shared": [
+"shared_tokens": [
 "BEHIND",
 "DEWALT",
 "MOWERS",
 "WALK"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75823",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24331",
-"shared": [
+"shared_tokens": [
 "CONTEMPORARY",
 "FRENCH",
 "JEUNE",
 "PANEL",
 "UPHOLSTERED"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75831",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24322",
-"shared": [
+"shared_tokens": [
 "ESSENTIAL",
 "GOLF",
 "GRIP",
 "KITS",
 "SOLVENT",
 "VALUES"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75834",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24311",
-"shared": [
+"shared_tokens": [
 "HEIGHT",
 "HIGH",
 "LANCASTER",
@@ -1533,44 +3232,72 @@
 "RESTAURANT",
 "SEATING",
 "TABLE"
+],
+"n_shared": 7,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75864",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24310",
-"shared": [
+"shared_tokens": [
 "ADJUSTABLE",
 "DUMBBELL",
 "PROFORM",
 "RAPID",
 "STRIKE"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75576",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24298",
-"shared": [
+"shared_tokens": [
 "ATOMI",
 "HEATERS",
 "SMART"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75736",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24299",
-"shared": [
+"shared_tokens": [
 "CLAIRE",
 "FLAMMABILITY",
 "HALLOWEEN",
 "ICING",
 "STORES",
 "WITCH"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75800",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24302",
-"shared": [
+"shared_tokens": [
 "BAY",
 "BEST",
 "FIXTURES",
@@ -1578,23 +3305,46 @@
 "LED",
 "LIGHT",
 "LIGHTING"
+],
+"n_shared": 7,
+"days_apart": 0
+},
+{
+"cpsc": "24328",
+"shared_tokens": [
+"LED",
+"LIGHT"
+],
+"n_shared": 2,
+"days_apart": 21
+}
 ]
 },
 {
 "hc_nid": "75785",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24291",
-"shared": [
+"shared_tokens": [
 "1ST",
 "GENERATION",
 "HATCH",
 "REST",
 "SOUND"
+],
+"n_shared": 5,
+"days_apart": 1
+}
 ]
 },
 {
 "hc_nid": "75581",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24286",
-"shared": [
+"shared_tokens": [
 "AMANA",
 "DAIKIN",
 "EXCESSIVE",
@@ -1602,12 +3352,31 @@
 "GOODMAN",
 "HEAT",
 "PUMPS"
+],
+"n_shared": 7,
+"days_apart": 0
+},
+{
+"cpsc": "24260",
+"shared_tokens": [
+"AMANA",
+"BRANDED",
+"DAIKIN",
+"GOODMAN",
+"HEAT"
+],
+"n_shared": 5,
+"days_apart": 14
+}
 ]
 },
 {
 "hc_nid": "75735",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24281",
-"shared": [
+"shared_tokens": [
 "EYE",
 "IRRITATION",
 "LIQUID",
@@ -1620,31 +3389,61 @@
 "SENSITIZATION",
 "SKIN",
 "UNUSED"
+],
+"n_shared": 12,
+"days_apart": 0
+},
+{
+"cpsc": "24337",
+"shared_tokens": [
+"IRRITATION",
+"SKIN"
+],
+"n_shared": 2,
+"days_apart": 44
+}
 ]
 },
 {
 "hc_nid": "75643",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24269",
-"shared": [
+"shared_tokens": [
 "CORDLESS",
 "HAIR",
 "INSTINCT",
 "STYLECRAFT"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75666",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24275",
-"shared": [
+"shared_tokens": [
 "BABBOE",
 "BICYCLES",
 "CARGO"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75685",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24276",
-"shared": [
+"shared_tokens": [
 "ASCENT",
 "BASES",
 "BLADE",
@@ -1652,12 +3451,19 @@
 "CONTAINERS",
 "OUNCE",
 "VENTURIST"
+],
+"n_shared": 7,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75686",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24270",
-"shared": [
+"shared_tokens": [
 "CABLES",
 "EC8",
 "EXPANSION",
@@ -1665,43 +3471,81 @@
 "LINK",
 "YETI",
 "ZERO"
+],
+"n_shared": 7,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75655",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24261",
-"shared": [
+"shared_tokens": [
 "BLACK",
 "CRAMPONS",
 "DIAMOND",
 "NEVE",
 "STRAP"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75611",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24259",
-"shared": [
+"shared_tokens": [
 "ASCENDERS",
 "COUNTRY",
 "ROPEMAN",
 "WILD"
+],
+"n_shared": 4,
+"days_apart": 4
+}
 ]
 },
 {
 "hc_nid": "75580",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24254",
-"shared": [
+"shared_tokens": [
 "EARTH",
 "GOOD",
 "LIGHTING",
 "RECHARGEABLE"
+],
+"n_shared": 4,
+"days_apart": 0
+},
+{
+"cpsc": "24302",
+"shared_tokens": [
+"LED",
+"LIGHT",
+"LIGHTING"
+],
+"n_shared": 3,
+"days_apart": 35
+}
 ]
 },
 {
 "hc_nid": "75609",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24257",
-"shared": [
+"shared_tokens": [
 "CONDITIONER",
 "DESHEDDING",
 "DOG",
@@ -1709,12 +3553,19 @@
 "GALLON",
 "PREMIUM",
 "ULTRA"
+],
+"n_shared": 7,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75615",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24256",
-"shared": [
+"shared_tokens": [
 "BAD",
 "BOBCAT",
 "BOY",
@@ -1731,61 +3582,103 @@
 "LAWN",
 "MOWERS",
 "USED"
+],
+"n_shared": 16,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75572",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24248",
-"shared": [
+"shared_tokens": [
 "ADULT",
 "BED",
 "MEDLINE",
 "RAILS"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75519",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24235",
-"shared": [
+"shared_tokens": [
 "FREESTANDING",
 "FRIGIDAIRE",
 "KENMORE",
 "RANGES",
 "SMOOTH",
 "TOP"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75493",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24231",
-"shared": [
+"shared_tokens": [
 "ARTICLE",
 "SPIN",
 "SWIVEL"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75441",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24221",
-"shared": [
+"shared_tokens": [
 "CREATIVITY",
 "FOAM",
 "ROLLERS",
 "STREET"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75454",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24263",
-"shared": [
+"shared_tokens": [
 "FLAMMABILITY",
 "SLEEP"
+],
+"n_shared": 2,
+"days_apart": 42
+}
 ]
 },
 {
 "hc_nid": "75363",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24208",
-"shared": [
+"shared_tokens": [
 "BRANDED",
 "COUNTRY",
 "CYLINDER",
@@ -1796,31 +3689,52 @@
 "SPEECO",
 "SPLITTERS",
 "TUFF"
+],
+"n_shared": 10,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75370",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24205",
-"shared": [
+"shared_tokens": [
 "3MTM",
 "EARMUFFS",
 "PELTORTM"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75402",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24209",
-"shared": [
+"shared_tokens": [
 "BARREL",
 "CRATE",
 "CRIBS",
 "HAMPSHIRE"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75394",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24203",
-"shared": [
+"shared_tokens": [
 "AGX",
 "AHEAD",
 "BICYCLES",
@@ -1829,92 +3743,155 @@
 "GOSSAMER",
 "PRO",
 "SPEED"
+],
+"n_shared": 8,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75362",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24194",
-"shared": [
+"shared_tokens": [
 "CYCLE",
 "DELTA",
 "RAISERS",
 "STEM"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "64434",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24180",
-"shared": [
+"shared_tokens": [
 "AID",
 "COCKING",
 "CRANK",
 "CROSSBOW",
 "EXCALIBUR",
 "IMPACT"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75269",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24182",
-"shared": [
+"shared_tokens": [
 "BIKE",
 "CHEMICAL",
 "RIDEALONG",
 "THULE"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75264",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24167",
-"shared": [
+"shared_tokens": [
 "FISHER",
 "FRIENDS",
 "LITTLE",
 "MICKEY",
 "PEOPLE",
 "PRICE"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75178",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24159",
-"shared": [
+"shared_tokens": [
 "AIR",
 "FRYER",
 "FRYERS",
 "OVENS"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75161",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24148",
-"shared": [
+"shared_tokens": [
 "BICYCLES",
 "LABOMBA"
+],
+"n_shared": 2,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75175",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24152",
-"shared": [
+"shared_tokens": [
 "BAHAMA",
 "TOMMY",
 "TWILL"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75119",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24136",
-"shared": [
+"shared_tokens": [
 "BICYCLES",
 "CANNONDALE",
 "DAVE"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75115",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24126",
-"shared": [
+"shared_tokens": [
 "CAMPING",
 "CASCADE",
 "COOKING",
@@ -1922,69 +3899,145 @@
 "MSR",
 "POTS",
 "SCALD"
+],
+"n_shared": 7,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75104",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24122",
-"shared": [
+"shared_tokens": [
 "ADAPTERS",
 "TOSHIBA"
+],
+"n_shared": 2,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "74981",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24117",
-"shared": [
+"shared_tokens": [
 "ELECTROCUTION",
 "FRIGIDAIRE",
 "REAR"
+],
+"n_shared": 3,
+"days_apart": 0
+},
+{
+"cpsc": "24110",
+"shared_tokens": [
+"BRANDED",
+"FRIGIDAIRE"
+],
+"n_shared": 2,
+"days_apart": 7
+},
+{
+"cpsc": "24149",
+"shared_tokens": [
+"ELECTRICAL",
+"ELECTROCUTION"
+],
+"n_shared": 2,
+"days_apart": 21
+}
 ]
 },
 {
 "hc_nid": "75007",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24118",
-"shared": [
+"shared_tokens": [
 "BELL",
 "HELMETS",
 "SOQUEL",
 "YOUTH"
+],
+"n_shared": 4,
+"days_apart": 0
+},
+{
+"cpsc": "24074",
+"shared_tokens": [
+"BELL",
+"HELMETS"
+],
+"n_shared": 2,
+"days_apart": 42
+}
 ]
 },
 {
 "hc_nid": "75033",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24116",
-"shared": [
+"shared_tokens": [
 "BROIL",
 "CHAR",
 "DIGITAL",
 "SMOKERS"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "74966",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24113",
-"shared": [
+"shared_tokens": [
 "GRASS",
 "HUSQVARNA"
+],
+"n_shared": 2,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "74967",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24110",
-"shared": [
+"shared_tokens": [
 "BRANDED",
 "BUCKETS",
 "FRIGIDAIRE",
 "ICE",
 "REFRIGERATORS",
 "SIDE"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75001",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24109",
-"shared": [
+"shared_tokens": [
 "GARMENT",
 "HANDHELD",
 "IMAGE",
@@ -1992,254 +4045,431 @@
 "STEAMERS",
 "STEAMFAST",
 "VORNADO"
+],
+"n_shared": 7,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "75008",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24114",
-"shared": [
+"shared_tokens": [
 "BATHROBES",
 "FLAMMABILITY",
 "FLANNEL",
 "HOODED",
 "LOLANTA"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "74927",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24102",
-"shared": [
+"shared_tokens": [
 "ADJUSTABLE",
 "CONTROLLED",
 "DUMBBELLS",
 "ISELECT",
 "NORDICTRACK",
 "VOICE"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "74964",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24107",
-"shared": [
+"shared_tokens": [
 "BISSELL",
 "FLOOR",
 "HAND",
 "MULTI",
 "REACH",
 "VACUUM"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "74965",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24103",
-"shared": [
+"shared_tokens": [
 "BRAKE",
 "LEVERS",
 "SHIFT",
 "SRAM"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "74968",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24098",
-"shared": [
+"shared_tokens": [
 "BALL",
 "KNOBS",
 "LOVEVERY",
 "SEEK",
 "SLIDE",
 "WOODEN"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "74781",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24094",
-"shared": [
+"shared_tokens": [
 "CEILING",
 "COASTAL",
 "IMPACT",
 "INCH",
 "MAVERICK",
 "OUTDOOR"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "74909",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24084",
-"shared": [
+"shared_tokens": [
 "BEDS",
 "DESIGN",
 "LOW",
 "PROFILE"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "74910",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24086",
-"shared": [
+"shared_tokens": [
 "BATH",
 "SHOWER",
 "STEAMIST",
 "TILT"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "74888",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24081",
-"shared": [
+"shared_tokens": [
 "BICYCLE",
 "RETROSPEC",
 "SCOUT"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "74782",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24076",
-"shared": [
+"shared_tokens": [
 "HOMEDICS",
 "MASSAGERS",
 "PERCUSSION",
 "PERSONAL",
 "SELECT",
 "THERAPIST"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "74760",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24069",
-"shared": [
+"shared_tokens": [
 "BLENDERS",
 "BLENDJET"
+],
+"n_shared": 2,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "74767",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24732",
-"shared": [
+"shared_tokens": [
 "ARCHITECT",
 "CASEMENT",
 "PELLA",
 "WINDOWS"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "73562",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24050",
-"shared": [
+"shared_tokens": [
 "AWAY",
 "STEAM",
 "STEAMFAST",
 "TRAVEL"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "74359",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24047",
-"shared": [
+"shared_tokens": [
 "BEDS",
 "MOBILE",
 "MURPHY",
 "QUEEN",
 "WINDSOR",
 "XTRABEDTM"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "74704",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24730",
-"shared": [
+"shared_tokens": [
 "BUGABOO",
 "DRAGONFLY",
 "SEAT"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "74623",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24031",
-"shared": [
+"shared_tokens": [
 "LAPTOP",
 "LENOVO",
 "POWER",
 "USB"
+],
+"n_shared": 4,
+"days_apart": 13
+}
 ]
 },
 {
 "hc_nid": "74570",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24032",
-"shared": [
+"shared_tokens": [
 "AW70V6",
 "IMPACT",
 "LOUDSPEAKERS",
 "RUSSOUND"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "74653",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24718",
-"shared": [
+"shared_tokens": [
 "ORBITRON",
 "PEDALS",
 "SUPACAZ"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "74589",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24728",
-"shared": [
+"shared_tokens": [
 "3705",
 "ERGODYNE",
 "SQUIDS",
 "TOOL",
 "WIRE"
+],
+"n_shared": 5,
+"days_apart": 14
+}
 ]
 },
 {
 "hc_nid": "74534",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24022",
-"shared": [
+"shared_tokens": [
 "BEHIND",
 "BRUSH",
 "FIELD",
 "MOWERS",
 "TOW"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "74497",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24018",
-"shared": [
+"shared_tokens": [
 "BOILERS",
 "CARBON",
 "CONDENSING",
 "LOCHINVAR",
 "MONOXIDE",
 "RESIDENTIAL"
+],
+"n_shared": 6,
+"days_apart": 0
+},
+{
+"cpsc": "24028",
+"shared_tokens": [
+"CARBON",
+"MONOXIDE"
+],
+"n_shared": 2,
+"days_apart": 19
+}
 ]
 },
 {
 "hc_nid": "74501",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24021",
-"shared": [
+"shared_tokens": [
 "ARMADA",
 "ATOMIC",
 "BINDINGS",
 "SALOMON",
 "SKI"
+],
+"n_shared": 5,
+"days_apart": 7
+}
 ]
 },
 {
 "hc_nid": "74430",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24013",
-"shared": [
+"shared_tokens": [
 "COOKERS",
 "INSIGNIATM",
 "PRESSURE"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "74470",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24706",
-"shared": [
+"shared_tokens": [
 "BOBCAT",
 "BRANDED",
 "KUBOTA",
@@ -2247,66 +4477,108 @@
 "STAND",
 "TURN",
 "ZERO"
+],
+"n_shared": 7,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "74438",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24010",
-"shared": [
+"shared_tokens": [
 "INGESTION",
 "RAILWAY",
 "THOMAS",
 "TROUBLESOME",
 "TRUCK",
 "WOODEN"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "74403",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24007",
-"shared": [
+"shared_tokens": [
 "BANDANA",
 "BIBS",
 "LITTLE",
 "LOVEYS",
 "SLEEPIES",
 "SLEEPYHEAD"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "74379",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "24003",
-"shared": [
+"shared_tokens": [
 "CONTROLLER",
 "MCA",
 "MULTIZONE",
 "RUSSOUND"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "74304",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23292",
-"shared": [
+"shared_tokens": [
 "BOARD",
 "BOOKS",
 "RAINBOW",
 "ROAD"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "74306",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23291",
-"shared": [
+"shared_tokens": [
 "CHIPPER",
 "EQUIPMENT",
 "POWER",
 "SHREDDERS"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "74311",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23294",
-"shared": [
+"shared_tokens": [
 "BONDED",
 "CRANKSETS",
 "CRASH",
@@ -2314,50 +4586,94 @@
 "ROAD",
 "SHIMANO",
 "SPEED"
+],
+"n_shared": 7,
+"days_apart": 0
+},
+{
+"cpsc": "24704",
+"shared_tokens": [
+"CRASH",
+"ROAD"
+],
+"n_shared": 2,
+"days_apart": 28
+}
 ]
 },
 {
 "hc_nid": "74269",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23288",
-"shared": [
+"shared_tokens": [
 "GENERAC",
 "GENERATORS"
+],
+"n_shared": 2,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "74170",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23276",
-"shared": [
+"shared_tokens": [
 "BICYCLE",
 "PIRELLI",
 "RACE",
 "TIRES",
 "TLR",
 "ZERO"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "74227",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23271",
-"shared": [
+"shared_tokens": [
 "GLASS",
 "LINE",
 "PRIME"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "74228",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23272",
-"shared": [
+"shared_tokens": [
 "BOON",
 "ELITE",
 "FLAIR"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "73992",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23784",
-"shared": [
+"shared_tokens": [
 "AIPER",
 "ELITE",
 "GS100",
@@ -2365,21 +4681,35 @@
 "PRO",
 "ROBOTIC",
 "VACUUM"
+],
+"n_shared": 7,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "74144",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23265",
-"shared": [
+"shared_tokens": [
 "SIMPLAY3",
 "TODDLER",
 "TOWERS"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "73935",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23257",
-"shared": [
+"shared_tokens": [
 "BASIC",
 "BOY",
 "JEANS",
@@ -2387,12 +4717,19 @@
 "STRAIGHT",
 "STRETCH",
 "TODDLER"
+],
+"n_shared": 7,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "74037",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23779",
-"shared": [
+"shared_tokens": [
 "AIR",
 "AMANA",
 "CONDITIONERS",
@@ -2404,111 +4741,188 @@
 "PTACS",
 "PUMPS",
 "TERMINAL"
+],
+"n_shared": 11,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "73829",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23247",
-"shared": [
+"shared_tokens": [
 "COUNTRY",
 "ROCKS",
 "SUPERLIGHT",
 "WILD"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "73897",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23240",
-"shared": [
+"shared_tokens": [
 "300",
 "HUSQVARNA",
 "SNOW"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "73903",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23239",
-"shared": [
+"shared_tokens": [
 "BIKES",
 "ORIGINAL",
 "WOOM"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "73900",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23234",
-"shared": [
+"shared_tokens": [
 "ACOUSTIMASS",
 "BASS",
 "BOSE",
 "COMPANIONTM",
 "LIFESTYLE",
 "MODULES"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "73853",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23231",
-"shared": [
+"shared_tokens": [
 "HUMIDIFIERS",
 "STEAM"
+],
+"n_shared": 2,
+"days_apart": 1
+}
 ]
 },
 {
 "hc_nid": "73804",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23222",
-"shared": [
+"shared_tokens": [
 "DROWNING",
 "EXCURSION",
 "HERA",
 "OCEANIC",
 "OCEANPRO"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "73805",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23223",
-"shared": [
+"shared_tokens": [
 "BRAKES",
 "DISC",
 "HYDRAULIC",
 "PROMAX"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "73414",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23216",
-"shared": [
+"shared_tokens": [
 "BICYCLE",
 "GIRO",
 "MERIT"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "73684",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23767",
-"shared": [
+"shared_tokens": [
 "CLOTHES",
 "COTTON",
 "FLAMMABILITY",
 "LITTLE"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "73756",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23764",
-"shared": [
+"shared_tokens": [
 "ASTORA",
 "KATE",
 "LAUREL",
 "MIRRORS",
 "VALENTI"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "73769",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23215",
-"shared": [
+"shared_tokens": [
 "ASHLEY",
 "FURNITURE",
 "LOVESEATS",
@@ -2517,141 +4931,232 @@
 "RECLINERS",
 "SOFAS",
 "TIME"
+],
+"n_shared": 8,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "73682",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23212",
-"shared": [
+"shared_tokens": [
 "BRUSHLESS",
 "CORDLESS",
 "EGO",
 "HEDGE",
 "POWER",
 "TRIMMERS"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "73685",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23213",
-"shared": [
+"shared_tokens": [
 "CLEANING",
 "INGESTION",
 "JUICERS",
 "POWERXL",
 "SELF"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "73701",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23762",
-"shared": [
+"shared_tokens": [
 "BEAUTIFUL",
 "BOXES",
 "GOOD",
 "MATH",
 "METALLIC",
 "WHITEBOARDS"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "73579",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23757",
-"shared": [
+"shared_tokens": [
 "PRO",
 "SHIMANO",
 "VIBE"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "73647",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23205",
-"shared": [
+"shared_tokens": [
 "POWERXL",
 "STUFFED",
 "WAFFLE",
 "WAFFLIZER"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "73583",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23753",
-"shared": [
+"shared_tokens": [
 "DEHYDRATORS",
 "FOLDING",
 "FOOD",
 "SAHARA"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "73572",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23190",
-"shared": [
+"shared_tokens": [
 "AVALANCHE",
 "BLACK",
 "DIAMOND",
 "EQUIPMENT",
 "RECON"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "73305",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23183",
-"shared": [
+"shared_tokens": [
 "DEWALT",
 "FIBERGLASS",
 "IMPACT",
 "SLEDGEHAMMERS",
 "STANLEY"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "73534",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23184",
-"shared": [
+"shared_tokens": [
 "CASTERS",
 "FISHING",
 "KID"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "73465",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23177",
-"shared": [
+"shared_tokens": [
 "AUDIOVISUAL",
 "CARTS",
 "LUXOR",
 "WORKSPACES"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "73475",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23178",
-"shared": [
+"shared_tokens": [
 "FLO",
 "ION",
 "LITHIUM",
 "MONITORS",
 "SMART",
 "WATER"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "73415",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23172",
-"shared": [
+"shared_tokens": [
 "CHEMICAL",
 "CONDITIONERS",
 "FABRIC",
 "INCLUDING",
 "LAUNDRESS",
 "PREVIOUSLY"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "73401",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23166",
-"shared": [
+"shared_tokens": [
 "DECOYS",
 "HIGDON",
 "MOTION",
@@ -2659,23 +5164,37 @@
 "PACKS",
 "REPLACEMENT",
 "WATERFOWL"
+],
+"n_shared": 7,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "73328",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23157",
-"shared": [
+"shared_tokens": [
 "BLANKETS",
 "HEATED",
 "QUEEN",
 "SIZE",
 "SUNBEAM"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "72814",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23150",
-"shared": [
+"shared_tokens": [
 "ACCESSORIES",
 "ANIMAL",
 "BOTTLE",
@@ -2683,91 +5202,147 @@
 "CRITTERS",
 "FIGURES",
 "PACIFIER"
+],
+"n_shared": 7,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "73105",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23145",
-"shared": [
+"shared_tokens": [
 "COOLERS",
 "GEAR",
 "INGESTION",
 "MAGNET",
 "SOFT",
 "YETI"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "72813",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23138",
-"shared": [
+"shared_tokens": [
 "BASE",
 "CAPILENE",
 "INFANT",
 "LAYER",
 "MIDWEIGHT",
 "PATAGONIA"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "72963",
-"cpsc": null,
-"shared": []
+"ambiguous": false,
+"candidates": []
 },
 {
 "hc_nid": "73061",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23732",
-"shared": [
+"shared_tokens": [
 "CHIPPER",
 "EQUIPMENT",
 "POWER",
 "PRO",
 "SHREDDERS",
 "XL501"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "72618",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23130",
-"shared": [
+"shared_tokens": [
 "AIR",
 "COSORI",
 "FRYERS"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "72725",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23134",
-"shared": [
+"shared_tokens": [
 "CHAIRS",
 "HIGH",
 "LANCASTER",
 "SEATING",
 "TABLE"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "72727",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23131",
-"shared": [
+"shared_tokens": [
 "BOOTS",
 "SCARPA",
 "SKI"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "72901",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23133",
-"shared": [
+"shared_tokens": [
 "DROWNING",
 "SCUBA",
 "XDEEP"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "72643",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23127",
-"shared": [
+"shared_tokens": [
 "BUZZ",
 "DISNEY",
 "FIGURINES",
@@ -2778,65 +5353,125 @@
 "MOUSE",
 "PREFERRED",
 "STITCH"
+],
+"n_shared": 10,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "72564",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23117",
-"shared": [
+"shared_tokens": [
 "ACTIVITY",
 "HOP",
 "LINING",
 "SILVER",
 "SKIP"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "72642",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23116",
-"shared": [
+"shared_tokens": [
 "EQUESTRIAN",
 "HELMETS",
 "IMPACT",
 "OVATION",
 "PROTEGE"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "72666",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23725",
-"shared": [
+"shared_tokens": [
 "CONTROL",
 "DOOR",
 "GARAGE",
 "LIFTMASTER",
 "MYQ",
 "PANELS"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "72665",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23115",
-"shared": [
+"shared_tokens": [
 "FABULOSO",
 "MULTI",
 "PURPOSE"
+],
+"n_shared": 3,
+"days_apart": 0
+},
+{
+"cpsc": "23098",
+"shared_tokens": [
+"MULTI",
+"PURPOSE"
+],
+"n_shared": 2,
+"days_apart": 20
+},
+{
+"cpsc": "23730",
+"shared_tokens": [
+"MULTI",
+"PURPOSE"
+],
+"n_shared": 2,
+"days_apart": 22
+}
 ]
 },
 {
 "hc_nid": "72569",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23096",
-"shared": [
+"shared_tokens": [
 "CHOCOLATE",
 "HOT",
 "LIFETIME",
 "POTS"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "72560",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23091",
-"shared": [
+"shared_tokens": [
 "2551",
 "BISSELL",
 "CORDLESS",
@@ -2845,34 +5480,64 @@
 "SURFACE",
 "VACUUMS",
 "WET"
+],
+"n_shared": 8,
+"days_apart": 0
+},
+{
+"cpsc": "23098",
+"shared_tokens": [
+"DRY",
+"MULTI"
+],
+"n_shared": 2,
+"days_apart": 7
+}
 ]
 },
 {
 "hc_nid": "72561",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23721",
-"shared": [
+"shared_tokens": [
 "FREE",
 "INCH",
 "SMART",
 "STANDING",
 "STANDS"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "72418",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23086",
-"shared": [
+"shared_tokens": [
 "BICYCLE",
 "BICYCLES",
 "CARBON",
 "HANDLEBARS",
 "QUALITY"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "72370",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23076",
-"shared": [
+"shared_tokens": [
 "BLU3",
 "DIVING",
 "DROWNING",
@@ -2880,58 +5545,100 @@
 "POWERED",
 "SYSTEMS",
 "TANKLESS"
+],
+"n_shared": 7,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "72206",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23068",
-"shared": [
+"shared_tokens": [
 "HOT",
 "JACUZZI",
 "SPAS",
 "SUNDANCE",
 "TUBS"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "72345",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23073",
-"shared": [
+"shared_tokens": [
 "DMI6",
 "MOTORS",
 "SIMU"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "72365",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23717",
-"shared": [
+"shared_tokens": [
 "CRATE",
 "THORNHILL"
+],
+"n_shared": 2,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "64511",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23057",
-"shared": [
+"shared_tokens": [
 "CORDLESS",
 "DOOYA",
 "WINDOW"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "72184",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23064",
-"shared": [
+"shared_tokens": [
 "SCOTCHTM",
 "THERMAL",
 "TL1302"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "72237",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23714",
-"shared": [
+"shared_tokens": [
 "ACTIVITY",
 "ANIMAL",
 "CUBES",
@@ -2940,23 +5647,37 @@
 "INGESTION",
 "SEEK",
 "TOY"
+],
+"n_shared": 8,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "72298",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23056",
-"shared": [
+"shared_tokens": [
 "BLENDER",
 "COMPACT",
 "CUISINART",
 "EXTRACTOR",
 "JUICE"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "72303",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23058",
-"shared": [
+"shared_tokens": [
 "BACTERIA",
 "CLEANING",
 "DETERGENT",
@@ -2964,33 +5685,74 @@
 "HOUSEHOLD",
 "LAUNDRESS",
 "LAUNDRY"
+],
+"n_shared": 7,
+"days_apart": 0
+},
+{
+"cpsc": "23066",
+"shared_tokens": [
+"BACTERIA",
+"DETERGENT",
+"EXPOSURE",
+"LAUNDRY"
+],
+"n_shared": 4,
+"days_apart": 11
+},
+{
+"cpsc": "23022",
+"shared_tokens": [
+"BACTERIA",
+"EXPOSURE"
+],
+"n_shared": 2,
+"days_apart": 37
+}
 ]
 },
 {
 "hc_nid": "72207",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23053",
-"shared": [
+"shared_tokens": [
 "BEAR",
 "BRANDED",
 "INDIGO",
 "MAMA",
 "MUGS",
 "PAPA"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "72154",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23049",
-"shared": [
+"shared_tokens": [
 "PROFESSOR",
 "PUZZLE",
 "RAINBOW"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "72195",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23048",
-"shared": [
+"shared_tokens": [
 "ANIMAL",
 "CARTER",
 "FLEECE",
@@ -2998,12 +5760,19 @@
 "GRAPHIC",
 "PUNCTURE",
 "YELLOW"
+],
+"n_shared": 7,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "62590",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23040",
-"shared": [
+"shared_tokens": [
 "6500",
 "8000",
 "AMPUTATION",
@@ -3011,114 +5780,202 @@
 "GENERAC",
 "GENERATORS",
 "WATT"
+],
+"n_shared": 7,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "72152",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23036",
-"shared": [
+"shared_tokens": [
 "BREEZE",
 "CHEMICAL",
 "CLARKS",
 "SHOES",
 "WOMEN"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "72153",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23708",
-"shared": [
+"shared_tokens": [
 "EXERCISE",
 "MYX"
+],
+"n_shared": 2,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "72145",
-"cpsc": null,
-"shared": []
+"ambiguous": false,
+"candidates": []
 },
 {
 "hc_nid": "72120",
-"cpsc": null,
-"shared": []
+"ambiguous": false,
+"candidates": []
 },
 {
 "hc_nid": "64539",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23026",
-"shared": [
+"shared_tokens": [
 "HORIZON",
 "T101",
 "TREADMILLS"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "72029",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23018",
-"shared": [
+"shared_tokens": [
 "BLANKETS",
 "MITTAL"
+],
+"n_shared": 2,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "61513",
-"cpsc": null,
-"shared": []
+"ambiguous": false,
+"candidates": []
 },
 {
 "hc_nid": "64584",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "23004",
-"shared": [
+"shared_tokens": [
 "BURNER",
 "GEMINI",
 "OPTIMUS"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "64217",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22227",
-"shared": [
+"shared_tokens": [
 "BASKETBALL",
 "IMPACT",
 "MOMENTOUS",
 "SPALDING"
+],
+"n_shared": 4,
+"days_apart": 0
+},
+{
+"cpsc": "23027",
+"shared_tokens": [
+"BASKETBALL",
+"IMPACT"
+],
+"n_shared": 2,
+"days_apart": 35
+}
 ]
 },
 {
 "hc_nid": "64551",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22222",
-"shared": [
+"shared_tokens": [
 "BICYCLES",
 "CALEDONIA",
 "CERVELO",
 "REPLACEMENT",
 "ST31",
 "STEMS"
+],
+"n_shared": 6,
+"days_apart": 0
+},
+{
+"cpsc": "22209",
+"shared_tokens": [
+"BICYCLES",
+"STEMS"
+],
+"n_shared": 2,
+"days_apart": 21
+}
 ]
 },
 {
 "hc_nid": "64438",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22214",
-"shared": [
+"shared_tokens": [
 "CHAIRS",
 "HANGING"
+],
+"n_shared": 2,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "64495",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22213",
-"shared": [
+"shared_tokens": [
 "17LM",
 "24V",
 "CORDLESS",
 "JOE",
 "LAWN",
 "SUN"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "64522",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22215",
-"shared": [
+"shared_tokens": [
 "ALL",
 "AMPUTATION",
 "FINGERTIP",
@@ -3127,33 +5984,72 @@
 "STROLLERS",
 "TERRAIN",
 "UPPABABY"
+],
+"n_shared": 8,
+"days_apart": 0
+},
+{
+"cpsc": "22763",
+"shared_tokens": [
+"ALL",
+"TERRAIN"
+],
+"n_shared": 2,
+"days_apart": 35
+}
 ]
 },
 {
 "hc_nid": "64509",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22187",
-"shared": [
+"shared_tokens": [
 "COMPUTERS",
 "DIVING",
 "DROWNING",
 "I330R",
 "SCUBA"
+],
+"n_shared": 5,
+"days_apart": 40
+},
+{
+"cpsc": "23013",
+"shared_tokens": [
+"DROWNING",
+"SCUBA"
+],
+"n_shared": 2,
+"days_apart": 44
+}
 ]
 },
 {
 "hc_nid": "64232",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22205",
-"shared": [
+"shared_tokens": [
 "ACTIVITY",
 "DESK",
 "FIRST",
 "KIDOOZIE"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "64494",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22209",
-"shared": [
+"shared_tokens": [
 "AEOLUS",
 "BICYCLES",
 "BONTRAGER",
@@ -3165,12 +6061,28 @@
 "SPEED",
 "STEMS",
 "TREK"
+],
+"n_shared": 11,
+"days_apart": 0
+},
+{
+"cpsc": "22222",
+"shared_tokens": [
+"BICYCLES",
+"STEMS"
+],
+"n_shared": 2,
+"days_apart": 21
+}
 ]
 },
 {
 "hc_nid": "64460",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22200",
-"shared": [
+"shared_tokens": [
 "4MOMS",
 "INFANT",
 "MAMAROO",
@@ -3178,63 +6090,107 @@
 "ROCKERS",
 "SWING",
 "SWINGS"
+],
+"n_shared": 7,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "64454",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22188",
-"shared": [
+"shared_tokens": [
 "ACTIVITY",
 "BEAR",
 "KONGES",
 "MIRROR",
 "SILICONE",
 "TOY"
+],
+"n_shared": 6,
+"days_apart": 19
+}
 ]
 },
 {
 "hc_nid": "64409",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22196",
-"shared": [
+"shared_tokens": [
 "COMPOUND",
 "DEWALT",
 "INCH",
 "MITER",
 "SAWS",
 "SLIDING"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "64231",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22192",
-"shared": [
+"shared_tokens": [
 "FLAMMABILITY",
 "KIDOOZIE",
 "PLAY",
 "TENTS"
+],
+"n_shared": 4,
+"days_apart": 0
+},
+{
+"cpsc": "22205",
+"shared_tokens": [
+"KIDOOZIE",
+"PLAY"
+],
+"n_shared": 2,
+"days_apart": 28
+}
 ]
 },
 {
 "hc_nid": "64320",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22194",
-"shared": [
+"shared_tokens": [
 "AVALANCHE",
 "BLACK",
 "DIAMOND",
 "LOSS",
 "PIEPS",
 "TRANSCEIVERS"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "64359",
-"cpsc": null,
-"shared": []
+"ambiguous": false,
+"candidates": []
 },
 {
 "hc_nid": "64382",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22190",
-"shared": [
+"shared_tokens": [
 "AESOP",
 "BLENDS",
 "BURNER",
@@ -3244,24 +6200,83 @@
 "POO",
 "POST",
 "RESISTANT"
+],
+"n_shared": 9,
+"days_apart": 0
+},
+{
+"cpsc": "22754",
+"shared_tokens": [
+"PACKAGING",
+"RESISTANT"
+],
+"n_shared": 2,
+"days_apart": 28
+},
+{
+"cpsc": "22164",
+"shared_tokens": [
+"PACKAGING",
+"RESISTANT"
+],
+"n_shared": 2,
+"days_apart": 42
+},
+{
+"cpsc": "22162",
+"shared_tokens": [
+"PACKAGING",
+"RESISTANT"
+],
+"n_shared": 2,
+"days_apart": 42
+},
+{
+"cpsc": "22161",
+"shared_tokens": [
+"PACKAGING",
+"RESISTANT"
+],
+"n_shared": 2,
+"days_apart": 42
+},
+{
+"cpsc": "22160",
+"shared_tokens": [
+"PACKAGING",
+"RESISTANT"
+],
+"n_shared": 2,
+"days_apart": 42
+}
 ]
 },
 {
 "hc_nid": "64407",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22765",
-"shared": [
+"shared_tokens": [
 "240",
 "BOTTLES",
 "CHOICE",
 "FIRST",
 "GLASS",
 "NUK"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "64408",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22193",
-"shared": [
+"shared_tokens": [
 "COIL",
 "COMFORT",
 "CONDENSING",
@@ -3275,123 +6290,207 @@
 "NON",
 "PANS",
 "THOSE"
+],
+"n_shared": 13,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "64333",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22758",
-"shared": [
+"shared_tokens": [
 "BIG",
 "CABELA",
 "HORN",
 "OUTFITTER",
 "TENTS"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "64230",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22181",
-"shared": [
+"shared_tokens": [
 "LOOK",
 "SCHOLASTIC",
 "SHAKE",
 "TOUCH"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "64337",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22756",
-"shared": [
+"shared_tokens": [
 "DEERE",
 "JOHN",
 "LAWN",
 "TRACTORS"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "64299",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22176",
-"shared": [
+"shared_tokens": [
 "BOILERS",
 "CARBON",
 "FIRED",
 "LAARS",
 "MONOXIDE"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "64270",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22752",
-"shared": [
+"shared_tokens": [
 "LED",
 "MARKET",
 "SOLAR"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "64279",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22170",
-"shared": [
+"shared_tokens": [
 "BOY",
 "PLACE",
 "ROMPERS"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "64298",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22751",
-"shared": [
+"shared_tokens": [
 "CODA",
 "IMPACT",
 "LIGHT",
 "LIGHTING",
 "PENDANT",
 "TECH"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "64216",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22159",
-"shared": [
+"shared_tokens": [
 "NEUTRAL",
 "PLUG",
 "SCHNEIDER"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "64269",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22168",
-"shared": [
+"shared_tokens": [
 "CERAMIC",
 "HEATERS",
 "HUNTER",
 "OSCILLATING",
 "TOWER",
 "WARMWAVE"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "64119",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22154",
-"shared": [
+"shared_tokens": [
 "BLACK",
 "HALLOWEEN",
 "LIGHT",
 "SPIRIT"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "64193",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22156",
-"shared": [
+"shared_tokens": [
 "ACTIVITY",
 "LOOPS"
+],
+"n_shared": 2,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "64218",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22151",
-"shared": [
+"shared_tokens": [
 "BOTTOM",
 "DOOR",
 "FREEZER",
@@ -3399,27 +6498,51 @@
 "HISENSE",
 "IMPACT",
 "REFRIGERATORS"
+],
+"n_shared": 7,
+"days_apart": 0
+},
+{
+"cpsc": "22143",
+"shared_tokens": [
+"DOOR",
+"FREEZER",
+"REFRIGERATORS"
+],
+"n_shared": 3,
+"days_apart": 7
+}
 ]
 },
 {
 "hc_nid": "64038",
-"cpsc": null,
-"shared": []
+"ambiguous": false,
+"candidates": []
 },
 {
 "hc_nid": "64191",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22144",
-"shared": [
+"shared_tokens": [
 "BOWL",
 "DEMDACO",
 "HOLDERS",
 "MICROWAVABLE"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "64192",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22143",
-"shared": [
+"shared_tokens": [
 "DOOR",
 "ELECTROLUX",
 "FRIGIDAIRE",
@@ -3427,32 +6550,64 @@
 "MAKER",
 "REFRIGERATORS",
 "SIDE"
+],
+"n_shared": 7,
+"days_apart": 0
+},
+{
+"cpsc": "22151",
+"shared_tokens": [
+"DOOR",
+"ICE",
+"MAKER",
+"REFRIGERATORS"
+],
+"n_shared": 4,
+"days_apart": 7
+}
 ]
 },
 {
 "hc_nid": "64195",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22147",
-"shared": [
+"shared_tokens": [
 "ACCESS",
 "AVALANCHE",
 "BACKCOUNTRY",
 "TRACKER4"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "64125",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22130",
-"shared": [
+"shared_tokens": [
 "FACTORY",
 "INFANT",
 "WATER",
 "WINTER"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "64116",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22127",
-"shared": [
+"shared_tokens": [
 "CARBON",
 "GENERAC",
 "MONOXIDE",
@@ -3460,31 +6615,61 @@
 "PRESSURE",
 "START",
 "WASHERS"
+],
+"n_shared": 7,
+"days_apart": 0
+},
+{
+"cpsc": "22111",
+"shared_tokens": [
+"CARBON",
+"MONOXIDE"
+],
+"n_shared": 2,
+"days_apart": 28
+}
 ]
 },
 {
 "hc_nid": "64085",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22122",
-"shared": [
+"shared_tokens": [
 "CERAMIC",
 "KNIVES",
 "NORWEX"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "64096",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22125",
-"shared": [
+"shared_tokens": [
 "AIR",
 "FRYER",
 "FRYERS",
 "INSIGNIA"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "63961",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22117",
-"shared": [
+"shared_tokens": [
 "BOTTOM",
 "DOOR",
 "FINGERPRINT",
@@ -3496,68 +6681,126 @@
 "STAINLESS",
 "STANDING",
 "STEEL"
+],
+"n_shared": 11,
+"days_apart": 0
+},
+{
+"cpsc": "22093",
+"shared_tokens": [
+"FREE",
+"STANDING"
+],
+"n_shared": 2,
+"days_apart": 36
+}
 ]
 },
 {
 "hc_nid": "64051",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22115",
-"shared": [
+"shared_tokens": [
 "DIVING",
 "HYPOTHERMIA",
 "INFLATION",
 "SHELL"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "64079",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22120",
-"shared": [
+"shared_tokens": [
 "CRAFTER",
 "GLUE",
 "HOT",
 "SQUARE"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "64032",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22113",
-"shared": [
+"shared_tokens": [
 "HIGH",
 "STOKKE"
+],
+"n_shared": 2,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "64034",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22739",
-"shared": [
+"shared_tokens": [
 "BEDS",
 "BESTAR",
 "WALL"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "64017",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22110",
-"shared": [
+"shared_tokens": [
 "GLOW",
 "HUDSON",
 "KID"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "63963",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22106",
-"shared": [
+"shared_tokens": [
 "BLUETOOTH",
 "DIMENSIONS",
 "HELMETS",
 "SPEAKER"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "63897",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22103",
-"shared": [
+"shared_tokens": [
 "ACTIVITY",
 "LEARN",
 "TODDLER",
@@ -3565,43 +6808,80 @@
 "WALK",
 "WALKER",
 "WOODEN"
+],
+"n_shared": 7,
+"days_apart": 0
+},
+{
+"cpsc": "22741",
+"shared_tokens": [
+"TOYS",
+"WOODEN"
+],
+"n_shared": 2,
+"days_apart": 36
+}
 ]
 },
 {
 "hc_nid": "63994",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22102",
-"shared": [
+"shared_tokens": [
 "ILLUMINATED",
 "MIRRORS"
+],
+"n_shared": 2,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "63953",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22095",
-"shared": [
+"shared_tokens": [
 "BAND",
 "CRATE",
 "MUSIC"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "63934",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22091",
-"shared": [
+"shared_tokens": [
 "DROWNING",
 "PETZL",
 "PIRANA"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "63951",
-"cpsc": null,
-"shared": []
+"ambiguous": false,
+"candidates": []
 },
 {
 "hc_nid": "63931",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22730",
-"shared": [
+"shared_tokens": [
 "CUP",
 "DRINKING",
 "HANDLE",
@@ -3609,12 +6889,19 @@
 "KITS",
 "LOVEVERY",
 "PLAY"
+],
+"n_shared": 7,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "63915",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22085",
-"shared": [
+"shared_tokens": [
 "ANECDOTE",
 "ANTHROPOLOGIE",
 "AUTUMN",
@@ -3622,78 +6909,144 @@
 "DOUBLE",
 "GLASS",
 "WICK"
+],
+"n_shared": 7,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "63898",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22072",
-"shared": [
+"shared_tokens": [
 "EASHOOK",
 "SCORPIO"
+],
+"n_shared": 2,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "63800",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22718",
-"shared": [
+"shared_tokens": [
 "MATRIX",
 "TREADMILLS"
+],
+"n_shared": 2,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "63558",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22021",
-"shared": [
+"shared_tokens": [
 "COIL",
 "DRAIN",
 "EVAPORATOR",
 "GOODMAN",
 "PANS"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "63563",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22707",
-"shared": [
+"shared_tokens": [
 "LAMBETH",
 "METAL",
 "OUTDOOR",
 "TORCHES"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "63568",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22709",
-"shared": [
+"shared_tokens": [
 "ANDERSSON",
 "HANNA",
 "LONG",
 "WIGGLE"
+],
+"n_shared": 4,
+"days_apart": 0
+},
+{
+"cpsc": "22710",
+"shared_tokens": [
+"ANDERSSON",
+"HANNA",
+"RUFFLE"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "63528",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "22015",
-"shared": [
+"shared_tokens": [
 "ELEKTRON",
 "HANDLES",
 "POWER"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "62450",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "21752",
-"shared": [
+"shared_tokens": [
 "1500F",
 "KALORIK",
 "PRO",
 "STEAKHOUSE"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "62037",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "21073",
-"shared": [
+"shared_tokens": [
 "ELECTROSTATIC",
 "ION",
 "LITHIUM",
@@ -3701,53 +7054,85 @@
 "PROTEXUS",
 "SPRAYERS",
 "VICTORY"
+],
+"n_shared": 7,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "57778",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "18040",
-"shared": [
+"shared_tokens": [
 "ADULT",
 "CHESTS",
 "IKEA"
+],
+"n_shared": 3,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "54155",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "16061",
-"shared": [
+"shared_tokens": [
 "BICYCLES",
 "FOCUS",
 "IZALCO",
 "MAX"
+],
+"n_shared": 4,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "52539",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "15026",
-"shared": [
+"shared_tokens": [
 "CELTIC",
 "DAESUNG",
 "ENERSYS",
 "HEATERS",
 "TANKLESS",
 "WATER"
+],
+"n_shared": 6,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "50595",
+"ambiguous": false,
+"candidates": [
+{
 "cpsc": "14094",
-"shared": [
+"shared_tokens": [
 "BEDS",
 "IKEA",
 "JUNIOR",
 "KRITTER",
 "SNIGLAR"
+],
+"n_shared": 5,
+"days_apart": 0
+}
 ]
 },
 {
 "hc_nid": "23313",
-"cpsc": null,
-"shared": []
+"ambiguous": false,
+"candidates": []
 }
 ]

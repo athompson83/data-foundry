@@ -44,17 +44,18 @@ for r in rec:
     toks|={t.split('/')[0] for t in toks if '/' in t and len(model_key(t.split('/')[0]))>=5}
     tok_total+=len(toks)
     rh=[]
+    # Every brand and every matching listing is kept: these are review candidates, so the queue must see them all.
     for t in toks:
         k=model_key(t); found=False
         for b in cand:
             if (b,k) in es.exact:
-                rh.append((t,'exact',b,es.exact[(b,k)][:2])); found=True; break
-            ph=[rid for rx,raw,rid in es.pats.get(b,[]) if rx.match(k)]
-            if ph: rh.append((t,'pattern',b,ph[:2],[raw for rx,raw,rid in es.pats[b] if rx.match(k)][:1])); found=True; break
+                rh.append((t,'exact',b,list(es.exact[(b,k)]))); found=True
+            ph=[(rid,raw) for rx,raw,rid in es.pats.get(b,[]) if rx.match(k)]
+            if ph: rh.append((t,'pattern',b,[rid for rid,_ in ph],sorted({raw for _,raw in ph}))); found=True
         tok_hit+=found
     for u in r.get('ProductUPCs') or []:
         raw=re.sub(r'\D','',u.get('UPC','') if isinstance(u,dict) else str(u)); uu=raw.lstrip('0')
-        if gs1_valid(raw) and uu in es_upc: upchits.append((r['RecallNumber'],uu,es_upc[uu][:2]))
+        if gs1_valid(raw) and uu in es_upc: upchits.append((r['RecallNumber'],uu,list(es_upc[uu])))
     if rh:
         stats['recalls_with_match']+=1
         if r['RecallDate']>='2015': stats['recalls_with_match_2015+']+=1

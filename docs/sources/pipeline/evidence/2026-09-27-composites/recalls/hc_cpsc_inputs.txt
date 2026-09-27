@@ -1,0 +1,6 @@
+Re-measured 2026-09-27 after review, from inputs archived in R2 (bucket data-foundry-raw-artifacts):
+research/pipeline/2026-09-27-composites/cpsc_all.json  27695909 bytes  sha256 864f678cc1e34dcb60b41daaf9c4ca3614fdde6908d08dc5106a59066a69f9cf  (10,027 CPSC recalls)
+research/pipeline/2026-09-27-composites/hc_open.json   15719914 bytes  sha256 9879b64121511ea77bcf434de625b68c4e2a0d5c2545bce3c7cb34536573cb68  (34,131 Health Canada rows)
+hc_cpsc.py reproduces the screened figures: 352 joint notices, 341 with a candidate, 337 with a unique top candidate;
+control 863 non-joint notices since 2022, 238 with a candidate. hc_cpsc_links.json and hc_cpsc_control.json keep every
+candidate with its evidence (62 notices have more than one; the 4 tied top candidates are HC 82207, 81761, 64528, 77014).

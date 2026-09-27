@@ -17,12 +17,15 @@ def best(h,win=45):
     return cands
 res=[]
 for h in joint:
-    c=best(h); res.append((h['NID'],h['Last updated'],h['Title'][:80],c[:2]))
+    c=best(h); res.append((h['NID'],h['Last updated'],h['Title'][:80],c))
 m=[x for x in res if x[3]]; uniq=[x for x in m if len(x[3])==1 or x[3][0][0]>x[3][1][0]]
 print('HC joint-with-CPSC',len(joint),'matched (>=2 shared distinctive title tokens, +/-45d)',len(m),'unambiguous top',len(uniq))
 random.seed(20260927); s=random.sample(m,25)
 for x in s: print(x[0],x[1],x[2],'->',x[3][0][2],[cc for cc in x[3][0][3]][:5], 'runner-up', (x[3][1][:3] if len(x[3])>1 else '-'))
-json.dump([{'hc_nid':x[0],'cpsc':x[3][0][2] if x[3] else None,'shared':x[3][0][3] if x[3] else []} for x in res],open('hc_cpsc_links.json','w'),indent=0)
+# Every candidate is kept with its evidence: the marker names no counterpart, so the review queue must be able
+# to compare all plausible CPSC notices, not a first choice ordered by date and recall number.
+def cand(c): return {'cpsc':c[2],'shared_tokens':c[3],'n_shared':c[0],'days_apart':-c[1]}
+json.dump([{'hc_nid':x[0],'ambiguous':len(x[3])>1 and x[3][0][0]==x[3][1][0],'candidates':[cand(c) for c in x[3]]} for x in res],open('hc_cpsc_links.json','w'),indent=0)
 # control: HC consumer rows WITHOUT the joint marker since 2022 - how many still match a CPSC recall?
 ctrl=[h for h in hc if h['Last updated']>='2022' and h not in joint]
 cm=sum(1 for h in ctrl if best(h))
@@ -30,4 +33,4 @@ print('control: non-joint HC consumer since 2022',len(ctrl),'with a CPSC title m
 cmatch=[(h,best(h)) for h in ctrl]; cmatch=[(h,c) for h,c in cmatch if c]
 random.seed(7); cpm={r['RecallNumber']:r for r in cp}
 for h,c in random.sample(cmatch,15): print('CTRL',h['NID'],h['Last updated'],h['Title'][:55],'||',c[0][2],cpm[c[0][2]]['RecallDate'][:10],cpm[c[0][2]]['Title'][:70],c[0][3])
-json.dump([{'hc_nid':h['NID'],'cpsc':c[0][2],'shared':c[0][3]} for h,c in cmatch],open('hc_cpsc_control.json','w'),indent=0)
+json.dump([{'hc_nid':h['NID'],'ambiguous':len(c)>1 and c[0][0]==c[1][0],'candidates':[cand(x) for x in c]} for h,c in cmatch],open('hc_cpsc_control.json','w'),indent=0)
