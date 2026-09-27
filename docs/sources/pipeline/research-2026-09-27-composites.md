@@ -38,7 +38,7 @@ committed.
 | --- | --- | --- |
 | Health Canada ↔ CPSC, "joint recall" marker + date + title tokens (review candidates) | 341 / 352 marked notices | 25 / 25 correct |
 | Health Canada ↔ CPSC, title tokens without a marker | — | 6 / 15 correct: candidate only, never auto-linked |
-| UK OPSS ↔ EU Safety Gate (home categories) | 103 / 697 by brand+model alone; **24 / 697 by a check-digit-valid GTIN** (29 before validation); 116 / 697 by either | 20 / 20 brand+model pairs correct (re-sampled after review) |
+| UK OPSS ↔ EU Safety Gate (home categories) | 79 / 697 by brand+model alone; **24 / 697 by a check-digit-valid GTIN** (29 before validation); 94 / 697 by either | 19 / 20 brand+model pairs correct (re-sampled after review; 1 uncertain) |
 | SaferProducts incidents ↔ CPSC home recalls (brand + model) | 111 / 307 recalls (1,137 reports); 50 had a report before the recall | 11 / 12 correct |
 | CPSC recall ↔ current ENERGY STAR / WaterSense model | 18 / 10,027 recalls | 15 same product, 2 accessory, 1 false |
 | ENERGY STAR ↔ Canada (markets flag) | 1,644,779 / 1,796,876 models | — |
@@ -71,9 +71,11 @@ with byte counts and SHA-256, under the same replay rules as round 1.
 
 **UK ↔ EU rule sets and multi-code barcodes (added after review).** `xmatch.py` counted a notice as a
 brand+model match when it matched by brand+model *or* by GTIN. `uk_eu_separate.py` re-measures the three rules
-independently from the archived `intl_recs.json`: brand+model 103/697, model only 137/697 and validated GTIN 24/697. A fresh
-hand-check of 20 pairs drawn from the brand+model set alone (seed 20260927) found 20/20 the same product; the
-screening 18/20 had been drawn from the mixed set.
+independently from the archived `intl_recs.json`: brand+model 79/697, model only 137/697 and validated GTIN 24/697.
+Brand evidence is taken only from a real brand field: the screening parser gave a brandless UK notice the first
+title word ("Fan", "Washing") as its brand, which alone accounted for 24 of an interim 103. A fresh hand-check of 20
+pairs drawn from the 79 (seed 20260927) found 19 the same product and 1 uncertain (brand evidence only the word
+"Li-ion"); the screening 18/20 had been drawn from the mixed set.
 The screening parser also deleted every space between digits, so a field listing two barcodes became one long
 number and neither was extracted. `parse_all.py` now splits on separators first, but the raw UK notices were not
 archived, so 24/697 is a lower bound until the notices are re-fetched and re-parsed.
@@ -194,7 +196,7 @@ in the build order.
    - Across all CPSC products, the overlap is still small: 11 of 864 (EU) and 14 of 1,130 (UK). It is
      mostly globally sold power banks and chargers (Belkin, Anker, ESR, IKEA, Yamaha).
 3. **The EU, UK and France cluster links strongly.**
-   - 116 of 697 UK OPSS home-category notices match an EU Safety Gate alert: 103 by brand+model alone and 24 by a check-digit-valid GTIN (11 by both). Re-measured after review as independent rule sets (`uk_eu_separate.py`); screening reported 118, mixing an unvalidated GTIN branch into the brand+model count.
+   - 94 of 697 UK OPSS home-category notices match an EU Safety Gate alert: 79 by brand+model alone (real brand fields only) and 24 by a check-digit-valid GTIN (9 by both). Re-measured after review as independent rule sets (`uk_eu_separate.py`); screening reported 118, mixing an unvalidated GTIN branch and title-word brands into the brand+model count.
      18 of 20 were correct on hand check.
    - France's RappelConso cites Safety Gate case numbers directly: 102 of 109 are found in the EU XML.
 4. **The incident signal is new.**
@@ -209,8 +211,9 @@ in the build order.
 
 **A correction to round 2.** Round 2 said the Health Canada OGL index "carries only title, category,
 issue, class and date." Today it also carries `Product` (a product name) and `What you should do`, which
-is populated in 1,299 of 5,206 consumer notices. That field holds the joint-recall marker that makes the
-CA↔US link deterministic under the OGL alone, with no page text needed.
+is populated in 1,299 of 5,206 consumer notices. That field holds the joint-recall marker, which proposes
+CA↔US candidate links under the OGL alone, with no page text needed. The marker names no CPSC notice, so each
+proposed link is reviewed before publication.
 
 ### Source inventory
 
@@ -355,7 +358,7 @@ CA↔US link deterministic under the OGL alone, with no page text needed.
 | CPSC (all) → UK (home categories) | 1,130 | 14 | 0 | 14 | **8/8** | 26090 (Belkin), 26011 (ESR), 25254 (Yamaha PA-300C), 23205 (PowerXL), 23147 (Anker) |
 | ACCC → CPSC | 36 | 4 | 0 | 4 | 3/4 confirmed | 2026/21017→26798, 2026/20921→26444, 2026/20925→26568 |
 | NZ sample → CPSC | 75 of 147 | 5 | 0 | 7 | **5/5** | Öhlins forks→19040; BMC SLR01→20042; Toshiba adapters→24122 |
-| **UK home → EU Safety Gate** | 697 | **118** (brand+model alone 103; either rule with validated GTINs 116) | **29** (24 check-digit-valid) | 149 (137 without the GTIN branch) | **18/20** (false: "6000-6500K" colour temperature read as a model; one uncertain) | 2511-0162→SR/04279/25, 2606-0201→SR/02105/26, Bosch TAT8611GB→2023-09-22 alert, Morco EUP11 water heater |
+| **UK home → EU Safety Gate** | 697 | **118** (brand+model alone, real brands only, 79; either rule with validated GTINs 94) | **29** (24 check-digit-valid) | 149 (137 without the GTIN branch) | **18/20** (false: "6000-6500K" colour temperature read as a model; one uncertain) | 2511-0162→SR/04279/25, 2606-0201→SR/02105/26, Bosch TAT8611GB→2023-09-22 alert, Morco EUP11 water heater |
 | ACCC → EU / ACCC → UK | 38 / 36 | 0 / 0 | — | 0 / 0 | — | — |
 | FR RappelConso → EU (declared case number) | 109 notices with `sr/…` or `a12/…` | **102** | — | — | 5/5 | sr/03749/25, sr/01532/26, sr/00012/26 |
 | FR RappelConso → EU (brand+model/GTIN) | 487 | 87 | 71 | 89 | 11/12 (false: 8-digit "58089005" read as a GTIN) | Gifi 3491955986094; BlendJet2; NALK&REY NRHD220023 |
@@ -460,7 +463,7 @@ Only steps 1 and 2 link automatically; steps 3 to 6 only enqueue review candidat
 3. **The HC `What you should do` "Joint recall … CPSC" marker**, plus a date within 45 days and at least 2
    distinctive title tokens (341/352; 25/25). A review candidate: the marker says a CPSC counterpart
    exists but does not name it, and 4 of the 341 matches were ambiguous.
-4. **Normalised model plus brand-token overlap within 365 days.** UK↔EU 103/697; CPSC↔SaferProducts
+4. **Normalised model plus brand-token overlap within 365 days.** UK↔EU 79/697; CPSC↔SaferProducts
    111/307.
 5. **Model-pattern expansion** (ENERGY STAR `*`, `#`, `?` as one-character wildcards) plus brand, for
    enrichment only (6/230).
@@ -491,7 +494,7 @@ The full enum lists are in the YAML. In outline:
 - "Were there consumer incident reports on this brand and model before the recall, and are reports still
   arriving after it?" (50 of 111 recalls had reports before the recall.)
 - "Which products that UK OPSS flagged were also notified to EU Safety Gate, and at what risk level?"
-  (116/697: 103 by brand+model, 24 by GTIN.)
+  (94/697: 79 by brand+model, 24 by GTIN.)
 - "Every recall of Rheem/Rinnai/A. O. Smith water heaters, with serial ranges and sale periods, across
   agencies."
 
@@ -791,7 +794,7 @@ suffixes `/US`, `/AA` are stripped. So: **opt1 plus suffix stripping, never any-
 ### Proposed canonical schema (entity `equipment_model`)
 
 Rule for every fact: **keep each source's value with its provenance and never average.** A
-disagreement is exposed as two facts. Identity is asserted only by the deterministic keys below. Any
+disagreement is exposed as two facts. Identity is asserted automatically only by join keys 1–2 below; the other keys propose reviewed candidates. Any
 cross-brand or cross-region candidate is stored as a `same_model_candidate` relationship for audit,
 not merged (rule 3).
 
@@ -1164,7 +1167,7 @@ folder. Raw downloads were deleted at the end (see "Housekeeping").
   rows incl. residential; TX A/C 9,237 + electrical 8,856 + appliance 498) plus ~57k entity-form
   general-contractor registrations (OR CCB 37,593; CT HIC 19,602 active LLC/corp/partnership), with bond, insurance, status,
   suspension and disciplinary facets that no single source has.
-- **The linkage that works is deterministic and address-anchored.** Same-state agency↔agency joins
+- **The linkage that works is normalised and address-anchored, and reviewed before it links.** Same-state agency↔agency joins
   are strong (Oregon trade licence → CCB registration **45/50**); cross-state joins work only with
   name + (zip|city|phone) (hand-checked precision **10/10**) — name-only is **~1/10** precise and
   must never auto-link. Washington's **UBI** is the only true business identifier in any source.

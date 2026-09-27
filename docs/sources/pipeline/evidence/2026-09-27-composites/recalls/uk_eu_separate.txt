@@ -1,52 +1,53 @@
 UK home cats -> EU Safety Gate, window 2023-01-06..2026-09-25: denominator 697
-  brand + model (no GTIN branch): 103/697
+  brand + model (no GTIN branch): 79/697
   model only, no brand check (control): 137/697
   check-digit-valid GTIN: 24/697
-  GTIN only (no brand+model match): 13; brand+model only: 92; both: 11; either: 116
+  GTIN only (no brand+model match): 15; brand+model only: 70; both: 9; either: 94
 
-hand-check sample: 20 of 103 brand + model matches
-- UK 2603-0260 | Product Recall: Bluzen Infrared Sauna Blanket sold by TK Maxx and Homesense (2603-0260) | brand 'Bluzen'
-    EU SR/01300/26 | Infrared sauna blanket Infrared Sauna Blanket | brand 'Bluzen' | shared model LER01 | other hits 0
-- UK 2504-0047 | Product Safety Report: Wefomey Power Adaptor sold via Amazon (2504-0047) | brand 'Wefomey'
-    EU SR/02358/25 | Power adaptor Power Adaptor | brand 'Wefomey' | shared model WFM2406 | other hits 0
-- UK 2511-0255 | Product Safety Report: Fan Heater ML-9001 sold via Amazon (2511-0255) | brand ''
-    EU SR/00030/26 | Fan heater Fan Heater | brand '' | shared model ML9001 | other hits 0
-- UK 2602-0172 | Product Safety Report: Xahpower Escooter Charger (2602-0172) | brand 'Xahpower'
-    EU SR/01026/26 | Power adaptor Escooter Charger | brand 'Xahpower' | shared model YH4220 | other hits 0
-- UK product-safety-report-ebl-battery-carger-c9042w-2505-0204 | Product Safety Report: EBL Battery Charger C9042W (2505-0204) | brand 'EBL'
-    EU SR/02676/25 | Charger Smart Battery Charger | brand 'EBL' | shared model C9042W | other hits 1
-- UK 2511-0090 | Product Safety Report: Mini Folding Washing Machine DKS1202 sold via Amazon (2511-0090) | brand ''
-    EU SR/04240/25 | Washing machine Mini Folding Washing Machine | brand '' | shared model DKS1202 | other hits 0
+hand-check sample: 20 of 79 brand + model matches
+- UK product-recall-brookstone-beverage-warmer-sold-by-tk-maxx-2401-0039 | Product Recall: Brookstone Beverage Warmer sold by TK Maxx (2401-0039) | brand 'Brookstone'
+    EU A12/00363/24 | Beverage Warmer Beverage warmer | brand 'Brookstone' | shared model DX8012 | other hits 0
+- UK 2510-0171 | Product Recall: Henry Quick Corded Vacuum (2510-0171) | brand 'Numatic International Limited'
+    EU SR/03935/25 | Vacuum cleaner Quick Corded Vacuum | brand 'Henry' | shared model HEC100 | other hits 0
 - UK 2504-0224 | Product Safety Report: Wall Charger RE-PD3509 (2504-0224) | brand 'Chongzheng(HK)Co Ltd'
     EU SR/02376/25 | USB charger Wall Charger | brand 'Chongzheng(HK)Co Ltd' | shared model REPD3509 | other hits 0
+- UK product-recall-online-home-shop-electric-heated-blankets-2302-0034 | Product Recall: Online Home Shop Electric Heated Blankets (2302-0034) | brand 'Online Home Shop'
+    EU A12/01349/23 | Electric blanket Online Home Shop Electric Blanket | brand 'Online Home Shop' | shared model OBEBPOLCL13 | other hits 1
+- UK 2505-0135 | Product Safety Report: Haier Heat Pump Tumble Dryer (2505-0135) | brand 'Haier'
+    EU SR/03291/25 | Tumble dryer Built-In Heat Pump Tumble Dryers | brand 'Baumatic, CANDY, Caple, Haier,' | shared model H7A2TBERX80 | other hits 1
+- UK 2603-0217 | Product Safety Report: SOKANY “Electric Grill Maker”  (2603-0226) | brand 'SOKANY'
+    EU SR/01184/26 | Electric grill Grill Maker | brand 'Sokany' | shared model SK223 | other hits 0
+- UK 2505-0166 | Product Safety Report: Iberna Heat Pump Tumble Dryer (2505-0166) | brand 'Iberna'
+    EU SR/03291/25 | Tumble dryer Built-In Heat Pump Tumble Dryers | brand 'Baumatic, CANDY, Caple, Haier,' | shared model BITDH7A1TE80 | other hits 1
+- UK 2506-0121 | Product Safety Report: SREMTCH Soldering Iron Kit MH2001 (2506-0121) | brand 'SREMTCH'
+    EU SR/03311/25 | Soldering iron kit Soldering Iron Kit | brand 'SREMTCH' | shared model MH2001 | other hits 0
+- UK 2504-0047 | Product Safety Report: Wefomey Power Adaptor sold via Amazon (2504-0047) | brand 'Wefomey'
+    EU SR/02358/25 | Power adaptor Power Adaptor | brand 'Wefomey' | shared model WFM2406 | other hits 0
+- UK 2511-0300 | Product Safety Report: Vevor Diesel Heater (2511-0300) | brand 'Vevor'
+    EU SR/00073/26 | Diesel heater Diesel Heater | brand 'Vevor' | shared model XMZWD3 | other hits 0
+- UK product-recall-miami-carry-on-universal-travel-adaptor-sold-by-tk-maxx-2308-0156 | Product Recall: Miami Carry On Universal Travel Adaptor sold by TK Maxx (2308-0156) | brand 'Miami Carry On'
+    EU A12/02342/23 | Travel adaptor Universal Travel Adapter | brand 'Miami Carry On' | shared model TLK3012USBWH | other hits 0
+- UK 2504-0048 | Product Safety Report: Wefomey Universal Power Supply (2504-0048) | brand 'Wefomey'
+    EU SR/02192/25 | Power supply 144W Universal Power Supply | brand 'Wefomey' | shared model LGY363000 | other hits 0
+- UK 2507-0010 | Product Safety Report: Floson 2m Extension Socket (2507-0010a) | brand 'Floson'
+    EU SR/03191/25 | Extension lead 2m Extension Socket | brand 'Floson' | shared model ST8933 | other hits 0
+- UK 2504-0019 | Product Recall: Lithium-Ion Battery Charger sold via TikTok (2504-0019) | brand ''
+    EU SR/02190/25 | Charger Swithching Power Supply | brand 'Li-ion Charger' | shared model LP60L | other hits 0
 - UK 2608-0133 | Product Safety Report: BioloMix Bread Maker sold via Amazon (2608-0133) | brand 'BioloMix'
     EU SR/02538/26 | Bread maker Bread Maker | brand 'BioloMix' | shared model BBM013 | other hits 0
-- UK 2602-0165 | Product Safety Report: CLIUNT 42V 2A Electric Scooter Charger sold via Amazon (2602-0165) | brand 'Cliunt'
-    EU SR/01039/26 | Power adaptor Electric Scooter Charger | brand 'CLIUNT' | shared model JYH4202 | other hits 0
-- UK 2511-0230 | Product Safety Report: Jeneca Low Water Filter sold via Amazon (2511-0230) | brand 'Jeneca'
-    EU SR/00214/26 | Water filter Low Water Filter | brand 'Jeneca' | shared model XP01C | other hits 0
-- UK product-safety-report-bauer-electric-hot-water-bottle-2412-0084 | Product Safety Report: Bauer Electric Hot Water Bottle (2412-0084) | brand 'Bauer'
-    EU SR/01322/25 | Electric hot water bottle  | brand 'Bauer' | shared model CHB006 | other hits 0
-- UK 2502-0133 | Product Safety Report: Wire Xtra Super Fast USB Adaptor (2502-0133) | brand 'Wire Xtra'
-    EU SR/02646/25 | Power adaptor  | brand 'Wire Xtra' | shared model EC1165 | other hits 0
-- UK 2509-0262 | Product Safety Report: Vacuum Sealing Machine (2509-0262) | brand ''
-    EU SR/03605/25 | Vacuum sealing machine Vacuum Sealing Machine | brand '' | shared model HF9011 | other hits 1
-- UK 2511-0070 | Product Safety Report: THISS (SZYDZS) Technology Co Ltd Charger sold via eBay (2511-0070) | brand 'THISS (SZYDZS) Technology Co L'
-    EU SR/04138/25 | Charger  | brand 'THISS (SZYDZS) Technology Co L' | shared model MTC2003 | other hits 0
-- UK 2604-0084 | Product Safety Report: Counterfeit Silver Crest Food Blender sold via eBay and AliExpress  | brand 'Silver Crest'
-    EU SR/01845/26 | Blender Food Blender | brand 'Silver Crest' | shared model SC1589 | other hits 0
 - UK product-recall-elpine-plug-in-heater-2405-0115 | Product Recall: ELPINE Plug-In Heater (2405-0115) | brand 'ELPINE'
     EU SR/00290/25 | Electric heater Plug-In Heater | brand 'ELPINE' | shared model 31492N | other hits 0
-- UK 2503-0094 | Product Recall: Tower Air Fryers (2503-0094) | brand 'Tower'
-    EU OR/00112/25 | Air fryer Vortx 2.2L Manual Air Fryer, Vortx 4L Manual Air Fryer - Black, Vortx 4L Digital | brand 'Tower' | shared model T17023 | other hits 4
 - UK 2505-0079 | Product Safety Report: EZEGO TD10 E-Bike and EZEGO Lithium-Ion Battery Charger (2505-0079) | brand 'EZEGO'
     EU SR/02277/25 | Charger TD10 E-Bike and Lithium-Ion Battery Charger | brand 'EZEGO' | shared model STC8139LC | other hits 1
-- UK 2603-0274 | Product Safety Report: Modundry Automatic Hand Dryer sold via Amazon (2603-0274) | brand 'Modundry'
-    EU SR/01369/26 | Hand dryer Automatic Hand Dryer | brand 'Modundry' | shared model GSQM798ABSS | other hits 0
-- UK product-safety-report-nuision-5-in-1-hot-air-styler-sold-via-amazon-2505-0181 | Product Safety Report: NUISION 5-in-1 Hot Air Styler sold via Amazon (2505-0181) | brand 'NUISION'
-    EU SR/02462/25 | Hair styler 5-in-1 Hot Air Styler | brand 'NUISION' | shared model WT631 | other hits 0
+- UK product-recall-key-universal-uk-plug-wall-charger-sold-by-tk-maxx-2312-0102 | Product Recall: Key Universal UK Plug Wall Charger sold by TK Maxx (2312-0102) | brand 'Key'
+    EU A12/03157/23 | Wall charger Wall Charger (Universal UK Plug) | brand 'Key' | shared model KUSBTC2A | other hits 0
+- UK product-recall-bosch-styline-toaster-2307-0173 | Product Recall: Bosch Styline Toaster (2307-0173) | brand 'Bosch'
+    EU A11/00101/23 | Electric toaster StyleLine Electric Toaster | brand 'Bosch' | shared model TAT8611GB | other hits 1
+- UK 2508-0201 | Product Safety Report: ESWING Electric Golf Scooter (2508-0201) | brand 'ESWING'
+    EU SR/03852/25 | Electric scooter Electric golf scooter | brand 'ESWING' | shared model GJS1505460200 | other hits 0
 
-Hand-check (2026-09-27, after review): 20/20 pairs are the same product. Each pair shares a distinctive model code
-and product type. 17 pairs also share the brand field; in the other 3 (2511-0255 fan heater ML-9001, 2511-0090
-washing machine DKS1202, 2509-0262 vacuum sealer HF9011) both brand fields are blank, so those rest on the model
-code and product type.
+Hand-check (2026-09-27, after review; brand evidence from real brand fields only): 19/20 are the same product, and
+1 is uncertain. Each confirmed pair shares a distinctive model code and product type, and a real brand either
+matches or appears in the other notice's title (Henry vs Numatic International; the Haier and Iberna dryers against
+one multi-brand EU notice). Uncertain: UK 2504-0019 has no brand, and its only brand evidence is the word "Li-ion"
+in the EU brand field; the LP60L model code matches, but the brand evidence is not a brand, so it is not counted.

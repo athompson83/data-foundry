@@ -24,7 +24,12 @@ for j,r in enumerate(eu):
 bd=[x['date'] for x in eu if x['date']]; lo,hi=min(bd),max(bd)
 den=[a for a in uk if (a['models'] or a['gtins']) and a['date'] and lo<=a['date']<=hi]
 def in_window(a,b): return not (a['date'] and b['date']) or abs((d(b['date'])-d(a['date'])).days)<=365
-def brand_ok(a,b): return bool(set(a['brand_tokens'])&set(b['brand_tokens'])|(set(a['brand_tokens'])&(brand_tokens(b['title'])-GEN))|(set(b['brand_tokens'])&(brand_tokens(a['title'])-GEN)))
+# Brand evidence comes only from a real brand field. intl_recs.json was parsed when a UK notice without a brand
+# borrowed the first title word ("Fan", "Washing") as its brand, so tokens are recomputed from the field here.
+def real_brand(r): return (brand_tokens(r['brand'])-GEN) if r['has_brand_field'] else set()
+def brand_ok(a,b):
+    ba,bb=real_brand(a),real_brand(b)
+    return bool(ba&bb or ba&(brand_tokens(b['title'])-GEN) or bb&(brand_tokens(a['title'])-GEN))
 def model_hits(a,need_brand):
     return {eu[j]['id'] for m in a['models'] if m not in GENERIC_MODELS for j in ixm.get(m,[]) if in_window(a,eu[j]) and (not need_brand or brand_ok(a,eu[j]))}
 def gtin_hits(a):

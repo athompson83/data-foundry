@@ -3693,12 +3693,12 @@ datasets:
         between: &a5
           - uk-opss-product-safety-alerts
           - eu-safety-gate-alerts
-        measured: 103/697 UK home-category notices by brand + model alone (uk_eu_separate.py on the archived
-          intl_recs.json; screening reported 118, which also counted GTIN-only matches); 137/697 with model only,
-          no brand check (was 149); hand check 20/20 on a seeded sample of the 103 brand + model matches alone (the
-          screening 18/20 mixed in GTIN matches)
+        measured: 79/697 UK home-category notices by brand + model alone, with brand evidence only from a real
+          brand field (uk_eu_separate.py on the archived intl_recs.json; screening reported 118, which also counted
+          GTIN-only matches and title words used as brands); 137/697 with model only, no brand check (was 149);
+          hand check 19/20 on a seeded sample of the 79 (1 uncertain, brand evidence only the word "Li-ion")
         mode: candidate
-        reviewed: { correct: 20, checked: 20 }
+        reviewed: { correct: 19, checked: 20 }
       - key: exact GTIN with a valid GS1 check digit, within 365 days (links the notice to the same product;
           never merges recall events)
         between: *a5

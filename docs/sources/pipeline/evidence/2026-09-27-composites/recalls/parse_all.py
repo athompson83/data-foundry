@@ -32,7 +32,7 @@ for slug in json.load(open('uk_manifest.json')):
     psd=re.search(r'PSD notification number:\s*([0-9-]+)',strip(b))
     title=j['title']; prod=re.sub(r'^Product (?:Recall|Safety Report|Safety Alert):\s*','',title)
     recs.append({'src':'uk','id':psd.group(1) if psd else slug,'date':(idx.get(slug) or {}).get('product_recall_alert_date') or j['first_published_at'][:10],
-      'title':title,'brand':brand,'brand_tokens':sorted(brand_tokens(brand) or brand_tokens(prod.split()[0] if prod else '')),
+      'title':title,'brand':brand,'brand_tokens':sorted(brand_tokens(brand)),  # empty when there is no brand: never borrowed from the title
       'models':sorted(model_tokens(modeltxt)),'gtins':sorted(gtins(bar)),'category':(idx.get(slug) or {}).get('product_category'),
       'has_model_field':bool(modeltxt.strip()),'has_brand_field':bool(brand.strip()),'has_barcode_field':bool(bar.strip()),'url':'https://www.gov.uk'+j['base_path']})
 # ---- EU Safety Gate weekly XML
@@ -58,7 +58,7 @@ for f in glob.glob('accc/*.html'):
     brand=fld('recall-brand'); model=fld('recall-model'); sku=fld('recall-sku'); other=fld('recall-other-identify'); gt=fld('recall-gtin')+' '+fld('recall-ean')
     desc=fld('recall-product-desc'); sup=fld('recall-supplier-name')
     recs.append({'src':'au','id':pra.group(1) if pra else os.path.basename(f)[:-5],'date':date.group(1) if date else '','title':title,
-      'brand':brand or sup,'brand_tokens':sorted(brand_tokens(brand or sup or title)),'models':sorted(model_tokens(model+' '+sku+' '+other)),'gtins':sorted(gtins(gt+' '+other)),
+      'brand':brand or sup,'brand_tokens':sorted(brand_tokens(brand or sup)),'models':sorted(model_tokens(model+' '+sku+' '+other)),'gtins':sorted(gtins(gt+' '+other)),
       'category':fld('product-category'),'has_model_field':bool(model.strip()),'has_brand_field':bool(brand.strip()),'has_barcode_field':bool(gt.strip()),'url':'https://www.productsafety.gov.au/search-consumer-product-recalls/'+os.path.basename(f)[:-5]})
 # ---- NZ MBIE product recalls pages
 for f in glob.glob('nz/*.html'):
@@ -74,7 +74,7 @@ for f in glob.glob('nz/*.html'):
     if date:
         try: dd=datetime.datetime.strptime(date.group(1),'%d %B %Y').strftime('%Y-%m-%d')
         except ValueError: pass  # an unparseable date leaves the notice undated (excluded from date-windowed joins)
-    recs.append({'src':'nz','id':os.path.basename(f)[:-5],'date':dd,'title':title,'brand':sup,'brand_tokens':sorted(brand_tokens(title+' '+sup)),
+    recs.append({'src':'nz','id':os.path.basename(f)[:-5],'date':dd,'title':title,'brand':sup,'brand_tokens':sorted(brand_tokens(sup)),
       'models':sorted(model_tokens(ident)),'gtins':sorted(gtins(ident)),'category':'','has_model_field':bool(ident.strip()),'has_brand_field':bool(sup),'has_barcode_field':bool(gtins(ident)),'url':'https://www.productsafety.govt.nz/recalls/'+os.path.basename(f)[:-5]})
 # ---- France RappelConso V2 (non-food home categories) -- measurement only, rights RED today
 for x in json.load(open('fr_rc.json')):
