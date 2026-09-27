@@ -94,7 +94,7 @@ export async function retrieveCheckoutSession(env: Env, id: string): Promise<Che
 
 export async function createPortalSession(env: Env, stripeCustomerId: string): Promise<string> {
   const origin = env.PUBLIC_ORIGIN ?? 'https://data.aroqon.com';
-  const session = await stripe<{ url: string }>(env, 'POST', 'billing_portal/sessions', { customer: stripeCustomerId, return_url: `${origin}/recalls` });
+  const session = await stripe<{ url: string }>(env, 'POST', 'billing_portal/sessions', { customer: stripeCustomerId, return_url: `${origin}/` });
   return session.url;
 }
 

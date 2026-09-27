@@ -111,7 +111,7 @@ export function openApiDocument(ctx: PageContext, served: { readonly fda: boolea
       version: '1.0.0',
       description:
         `Structured FDA food, drug and device enforcement reports (openFDA, CC0): distribution states, lots, GTIN/UPC/UDI, NDC, expiry dates, allergens and pathogens, each with provenance.${products ? ' CPSC and Health Canada consumer-product recalls (US Government work; Open Government Licence – Canada): model numbers, GTINs, units, hazard and remedy classes, trade facets and declared cross-agency links.' : ''} Not endorsed by FDA, CPSC or Health Canada.`,
-      contact: { email: ctx.supportEmail, url: `${ctx.publicOrigin}/recalls` },
+      contact: { email: ctx.supportEmail, url: `${ctx.publicOrigin}/` },
       termsOfService: `${ctx.publicOrigin}/terms`,
     },
     servers: [{ url: ctx.apiOrigin }],

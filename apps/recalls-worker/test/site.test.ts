@@ -260,3 +260,22 @@ describe('dataset product pages', () => {
     expect(await script.text()).toContain('navigator.clipboard');
   });
 });
+
+describe('billing portal', () => {
+  it('returns customers to the homepage, which is served whatever either dataset state', async () => {
+    const { createPortalSession } = await import('../src/stripe.js');
+    const bodies: string[] = [];
+    const original = globalThis.fetch;
+    globalThis.fetch = (async (_url: string, init?: RequestInit) => {
+      bodies.push(String(init?.body ?? ''));
+      return new Response(JSON.stringify({ url: 'https://billing.stripe.com/p/session/test' }), { status: 200 });
+    }) as typeof fetch;
+    try {
+      const env = makeEnv({ STRIPE_SECRET_KEY: 'sk_test_placeholder', SOURCE_KILL_SWITCH: '1' } as Partial<Env>);
+      await createPortalSession(env, 'cus_test');
+    } finally {
+      globalThis.fetch = original;
+    }
+    expect(new URLSearchParams(bodies[0]).get('return_url')).toBe('https://data.aroqon.com/');
+  });
+});
