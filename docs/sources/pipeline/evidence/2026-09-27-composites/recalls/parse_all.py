@@ -58,7 +58,8 @@ for f in glob.glob('accc/*.html'):
     brand=fld('recall-brand'); model=fld('recall-model'); sku=fld('recall-sku'); other=fld('recall-other-identify'); gt=fld('recall-gtin')+' '+fld('recall-ean')
     desc=fld('recall-product-desc'); sup=fld('recall-supplier-name')
     recs.append({'src':'au','id':pra.group(1) if pra else os.path.basename(f)[:-5],'date':date.group(1) if date else '','title':title,
-      'brand':brand or sup,'brand_tokens':sorted(brand_tokens(brand or sup)),'models':sorted(model_tokens(model+' '+sku+' '+other)),'gtins':sorted(gtins(gt+' '+other)),
+      # Brand evidence comes only from the brand field; the supplier (often an importer or retailer) is kept separately.
+      'brand':brand,'supplier':sup,'brand_tokens':sorted(brand_tokens(brand)),'models':sorted(model_tokens(model+' '+sku+' '+other)),'gtins':sorted(gtins(gt+' '+other)),
       'category':fld('product-category'),'has_model_field':bool(model.strip()),'has_brand_field':bool(brand.strip()),'has_barcode_field':bool(gt.strip()),'url':'https://www.productsafety.gov.au/search-consumer-product-recalls/'+os.path.basename(f)[:-5]})
 # ---- NZ MBIE product recalls pages
 for f in glob.glob('nz/*.html'):
@@ -67,15 +68,17 @@ for f in glob.glob('nz/*.html'):
     tm=re.search(r'<h1[^>]*>(.*?)</h1>',s,re.S) or re.search(r'<title>(.*?)</title>',s,re.S)
     if not tm: continue
     title=strip(tm.group(1))
-    m=re.search(r'Product Identifiers\n(.*?)\nSupplier Contact\n(.*?)\n',t,re.S); ident=m.group(1) if m else ''; sup=m.group(2) if m else ''
+    # Only the identifiers are kept. The Supplier Contact block is contact detail, which the NZ condition excludes, and a
+    # supplier is not the product brand, so NZ notices carry no brand evidence.
+    m=re.search(r'Product Identifiers\n(.*?)\nSupplier Contact\n',t,re.S); ident=m.group(1) if m else ''
     date=re.search(r'(?:Date|Recall date)[^\n]*\n\s*(\d{1,2} \w+ \d{4})',t) or re.search(r'(\d{1,2} (?:January|February|March|April|May|June|July|August|September|October|November|December) \d{4})',t)
     import datetime
     dd=''
     if date:
         try: dd=datetime.datetime.strptime(date.group(1),'%d %B %Y').strftime('%Y-%m-%d')
         except ValueError: pass  # an unparseable date leaves the notice undated (excluded from date-windowed joins)
-    recs.append({'src':'nz','id':os.path.basename(f)[:-5],'date':dd,'title':title,'brand':sup,'brand_tokens':sorted(brand_tokens(sup)),
-      'models':sorted(model_tokens(ident)),'gtins':sorted(gtins(ident)),'category':'','has_model_field':bool(ident.strip()),'has_brand_field':bool(sup),'has_barcode_field':bool(gtins(ident)),'url':'https://www.productsafety.govt.nz/recalls/'+os.path.basename(f)[:-5]})
+    recs.append({'src':'nz','id':os.path.basename(f)[:-5],'date':dd,'title':title,'brand':'','brand_tokens':[],
+      'models':sorted(model_tokens(ident)),'gtins':sorted(gtins(ident)),'category':'','has_model_field':bool(ident.strip()),'has_brand_field':False,'has_barcode_field':bool(gtins(ident)),'url':'https://www.productsafety.govt.nz/recalls/'+os.path.basename(f)[:-5]})
 # ---- France RappelConso V2 (non-food home categories) -- measurement only, rights RED today
 for x in json.load(open('fr_rc.json')):
     ip=x.get('identification_produits') or ''; ident=(json.dumps(ip) if not isinstance(ip,str) else ip)+' '+(x.get('modeles_ou_references') or '')

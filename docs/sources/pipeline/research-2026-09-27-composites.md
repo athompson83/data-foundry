@@ -389,7 +389,7 @@ proposed link is reviewed before publication.
 | CPSC (all products) → EU | 864 | 11 | 0 | 13 | 2/2 checked (IKEA VARMFRONT 24344; Acer scooter 26453) | 24344, 26453, 26749, 26514 |
 | CPSC (all) → UK (home categories) | 1,130 | 14 | 0 | 14 | **8/8** | 26090 (Belkin), 26011 (ESR), 25254 (Yamaha PA-300C), 23205 (PowerXL), 23147 (Anker) |
 | ACCC → CPSC | 36 | 4 | 0 | 4 | 3/4 confirmed | 2026/21017→26798, 2026/20921→26444, 2026/20925→26568 |
-| NZ sample → CPSC | 75 of 147 | 5 | 0 | 7 | **5/5** | Öhlins forks→19040; BMC SLR01→20042; Toshiba adapters→24122 |
+| NZ sample → CPSC | 75 of 147 | 5 | 0 | 7 | **5/5** | Öhlins forks→19040; BMC SLR01→20042; Toshiba adapters→24122. Screening took NZ brand evidence from the Supplier Contact line and ACCC's from the supplier when the brand field was empty; `parse_all.py` now uses real brand fields only and drops the contact line, so on replay the brand-agreement counts in this row and the ACCC row can fall. The hand-checked confirmations stand as reviewed candidates |
 | **UK home → EU Safety Gate** | 697 | **118** (brand+model alone, real brands only, 79; either rule with validated GTINs 94) | **29** (24 check-digit-valid) | 149 (137 without the GTIN branch) | **19/20** on the brand+model set (1 uncertain; `uk_eu_separate.txt`). Superseded screening sample: 18/20 (false: "6000-6500K" colour temperature read as a model; one uncertain) | 2511-0162→SR/04279/25, 2606-0201→SR/02105/26, Bosch TAT8611GB→2023-09-22 alert, Morco EUP11 water heater |
 | ACCC → EU / ACCC → UK | 38 / 36 | 0 / 0 | — | 0 / 0 | — | — |
 | FR RappelConso → EU (declared case number) | 109 notices with `sr/…` or `a12/…` | **102** | — | — | 5/5 | sr/03749/25, sr/01532/26, sr/00012/26 |
