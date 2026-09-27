@@ -109,11 +109,13 @@ have more than one, and the 4 tied top candidates are HC 82207, 81761, 64528 and
 Two more screening rates were measured before a later script fix, and their inputs were not archived. SaferProducts
 ↔ CPSC 111/307 ran without the generic-model denylist: 3 of the 111 recalls match only on generic tokens such as
 `PAR30`, and 2 more carry one, so the rate is 106-108/307. ENERGY STAR ↔ CPSC 6/230 treated wildcards as exactly one
-character, so it is a lower bound under the documented zero-or-one grammar. `spdb_link.py` and `es_link.py` now
+character and did not parse `(A,B)` or `(X)` forms, so it is a lower bound under the documented grammar. `spdb_link.py` and `es_link.py` now
 apply both rules. The same applies to `equipment/link_au_matches.json`, which predates the per-component output (its inputs were not
 archived either). The scripts now keep every candidate, but these three files cannot be regenerated from the current archive
 because some of their inputs were deleted before archiving. The missing inputs are:
-- the ENERGY STAR Model Index file `mi_noncac.csv` and `akti.json` (for `link_au.py` and `link_cpsc.py`);
+- the ENERGY STAR Model Index file `mi_noncac.csv` (for `link_au.py`, `link_cpsc.py` and `link_nrcan.py`, which all call
+  `es_mi()`) and `akti.json` (for `link_au.py` and `link_cpsc.py`). So `equipment/link_nrcan_matches.json` and the
+  NRCan ↔ ENERGY STAR rates are screening summaries too, until `mi_noncac.csv` is re-acquired and archived;
 - the SaferProducts extract `spdb_inc.pkl` (for `spdb_link.py`).
 
 `link_cpsc.py`'s `cpsc-recalls/recalls.json` can be replaced by the archived `cpsc_all.json`, which comes from the same API.

@@ -1,5 +1,8 @@
-import json,glob,re,collections,sys
+import json,glob,re,collections,sys,os
 sys.path.insert(0,'.');from common import *
+# The shared pattern grammar (wildcards, (A,B) alternation, (X) optional literal) from equipment/norm.py.
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'equipment'))
+import norm
 def gs1_valid(g):
     # A UPC/GTIN only counts as an identifier when its GS1 check digit is valid.
     if not g.isdigit() or len(g) not in (8,12,13,14): return False
@@ -10,12 +13,14 @@ for f in glob.glob('es/*.json'):
     for r in json.load(open(f)): r['_ds']=f[3:-5]; es.append(r)
 exact=collections.defaultdict(list); pats=[]; upc=collections.defaultdict(list)
 for r in es:
-    for mm in re.split(r'[,;]\s*',r.get('model_number') or ''):
-        p=re.sub(r'[^A-Z0-9*#?]','',fold(mm).upper())
-        if len(p)<5: continue
-        # ENERGY STAR wildcards mean zero or one character (the opt1 grammar in equipment/norm.py).
-        if re.search(r'[*#?]',p): pats.append((re.compile('^'+re.sub(r'[*#?]','[A-Z0-9]?',p)+'$'),r))
-        else: exact[p].append(r)
+    # Split a multi-model field on commas and semicolons outside parentheses, so EPC110(N,L) stays one pattern.
+    for mm in re.split(r'[,;]\s*(?![^()]*\))',r.get('model_number') or ''):
+        mm=fold(mm)
+        if len(re.sub(r'[^A-Z0-9]','',mm.upper()))<5: continue
+        if norm.is_pattern(mm):
+            rx=norm.compile_pattern(mm,'opt1')  # wildcards are zero-or-one; (A,B) alternation; (X) optional
+            if rx: pats.append((rx,r))
+        else: exact[norm.model_key(mm)].append(r)
     for u in [c for c in digit_codes(r.get('upc')) if 11<=len(c)<=14]:  # split multi-code fields before normalising
         if gs1_valid(u): upc[u.lstrip('0').zfill(13)].append(r)
 print('ES rows',len(es),'exact model keys',len(exact),'wildcard patterns',len(pats),'UPC keys',len(upc))
