@@ -13,7 +13,8 @@ for r in es:
     for mm in re.split(r'[,;]\s*',r.get('model_number') or ''):
         p=re.sub(r'[^A-Z0-9*#?]','',fold(mm).upper())
         if len(p)<5: continue
-        if re.search(r'[*#?]',p): pats.append((re.compile('^'+re.sub(r'[*#?]','[A-Z0-9]',p)+'$'),r))
+        # ENERGY STAR wildcards mean zero or one character (the opt1 grammar in equipment/norm.py).
+        if re.search(r'[*#?]',p): pats.append((re.compile('^'+re.sub(r'[*#?]','[A-Z0-9]?',p)+'$'),r))
         else: exact[p].append(r)
     for u in re.findall(r'\d{11,14}',re.sub(r'[ -]','',r.get('upc') or '')):
         if gs1_valid(u): upc[u.lstrip('0').zfill(13)].append(r)

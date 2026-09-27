@@ -39,7 +39,7 @@ committed.
 | Health Canada ↔ CPSC, "joint recall" marker + date + title tokens (review candidates) | 341 / 352 marked notices | 25 / 25 correct |
 | Health Canada ↔ CPSC, title tokens without a marker | — | 6 / 15 correct: candidate only, never auto-linked |
 | UK OPSS ↔ EU Safety Gate (home categories) | 79 / 697 by brand+model alone; **24 / 697 by a check-digit-valid GTIN** (29 before validation); 94 / 697 by either | 19 / 20 brand+model pairs correct (re-sampled after review; 1 uncertain) |
-| SaferProducts incidents ↔ CPSC home recalls (brand + model) | 111 / 307 recalls (1,137 reports); 50 had a report before the recall | 11 / 12 correct |
+| SaferProducts incidents ↔ CPSC home recalls (brand + model) | 111 / 307 recalls (1,137 reports; 106–108 after the generic-model denylist); 50 had a report before the recall | 11 / 12 correct |
 | CPSC recall ↔ current ENERGY STAR / WaterSense model | 18 / 10,027 recalls | 15 same product, 2 accessory, 1 false |
 | ENERGY STAR ↔ Canada (markets flag) | 1,644,779 / 1,796,876 models | — |
 | ENERGY STAR ↔ AU GEMS (same model) | 19 / 3,941 fridges; 0 / 6,036 AC | prefix matches rejected as sibling models |
@@ -86,7 +86,11 @@ exactly. `hc_cpsc_links.json` and `hc_cpsc_control.json` now keep every candidat
 have more than one, and the 4 tied top candidates are HC 82207, 81761, 64528 and 77014. The committed
 `equipment/link_cpsc_matches.json` and `recalls/spdb_cpsc_links.json` came from screening runs that kept at most
 2 or 3 IDs per match, and their inputs were not archived. They are screening summaries, not review-queue inputs.
-The same applies to `equipment/link_au_matches.json`, which predates the per-component output (its inputs were not
+Two more screening rates were measured before a later script fix, and their inputs were not archived. SaferProducts
+↔ CPSC 111/307 ran without the generic-model denylist: 3 of the 111 recalls match only on generic tokens such as
+`PAR30`, and 2 more carry one, so the rate is 106-108/307. ENERGY STAR ↔ CPSC 6/230 treated wildcards as exactly one
+character, so it is a lower bound under the documented zero-or-one grammar. `spdb_link.py` and `es_link.py` now
+apply both rules. The same applies to `equipment/link_au_matches.json`, which predates the per-component output (its inputs were not
 archived either). The scripts now keep every candidate, and the build regenerates all three files from archived inputs.
 
 ## Rules the measurements impose

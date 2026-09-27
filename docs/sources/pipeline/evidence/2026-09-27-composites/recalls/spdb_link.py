@@ -9,12 +9,13 @@ idx=collections.defaultdict(list)
 for i,r in enumerate(inc):
     ms=model_tokens(r['Model Name or Number'])|({nmodel(r['Model Name or Number'])} if 5<=len(nmodel(r['Model Name or Number']))<=20 and re.search(r'\d',r['Model Name or Number']) and re.search(r'[A-Za-z]',r['Model Name or Number']) else set())
     for m in ms: idx[m].append(i)
+GENERIC_MODELS={'CR2032','CR2025','CR2016','CR2450','CR1220','CR1632','CR1616','LR1130','LR41','SR626','18650','21700','PAR30','PAR38','PAR20','A19LED','BR30','GU10','MR16','E26','E27','USB2','USBC','QI2','HDMI2','WIFI6','IP65','IP44','IP67','CE2023','UL1310','UL2272','UL498','UL817','EN60335','R410A','R32','R454B','R290','R600A'}  # same denylist as xmatch.py
 home=json.load(open('cpsc_home.json'))
 cands=[r for r in home if r['date']>='2011-03-11' and r['models']]
 hit=0;hit_brand=0;pre=0;links=[];modelonly_nobrand=[]
 GEN={'ELECTRIC','GAS','RANGES','HEATERS','WATER','AIR','DUE','FIRE','HAZARD','BURN','POWER','PORTABLE','SMOKE','ALARMS','CORDS','EXTENSION','SOLD','HOME','DEPOT','LOWE','WALMART','AMAZON','CHINA'}
 for r in cands:
-    ms=[m for m in r['models'] if not DATEY.match(m)]
+    ms=[m for m in r['models'] if not DATEY.match(m) and m not in GENERIC_MODELS]
     bt=set(r['brand_tokens'])-GEN
     ii=set(i for m in ms for i in idx.get(m,[]))
     if not ii: continue
@@ -47,7 +48,7 @@ for r in home:
     for m in r['models']:
         rid.setdefault(m,[]).append(r)
 for i in hi:
-    ms=model_tokens(inc[i]['Model Name or Number'])|{nmodel(inc[i]['Model Name or Number'])}
+    ms=(model_tokens(inc[i]['Model Name or Number'])|{nmodel(inc[i]['Model Name or Number'])})-GENERIC_MODELS
     bt=brand_tokens(inc[i]['Brand']+' '+inc[i]['Manufacturer / Importer / Private Labeler Name'])-GEN
     for m in ms:
         for r in rid.get(m,[]):

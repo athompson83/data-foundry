@@ -1,4 +1,5 @@
 import json,random,re,io,time,pypdf,urllib.parse
+import os; os.makedirs('fbc_pdf',exist_ok=True)  # per-document text is written here
 from fbc_lib import S
 d=json.load(open('fbc_detail_sample.json'))
 cands=[k for k,v in sorted(d.items()) if any('_AE_' in p for p in v['pdfs'])]

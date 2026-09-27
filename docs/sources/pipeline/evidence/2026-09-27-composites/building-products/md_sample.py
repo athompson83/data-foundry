@@ -1,4 +1,5 @@
 import json,random,requests,time,re,pypdf,io
+import os; os.makedirs('md_pdf',exist_ok=True)  # per-document text is written here
 S=requests.Session();S.headers['User-Agent']="DataFoundry/1.0 (data@mail.proviciency.com)"
 d=json.load(open('md_index.json'))
 keys=sorted(d); random.seed(2027); samp=random.sample(keys,80)

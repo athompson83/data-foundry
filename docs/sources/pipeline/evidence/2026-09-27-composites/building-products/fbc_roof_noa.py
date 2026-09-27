@@ -1,4 +1,5 @@
 import json,random,re,io,time,pypdf,urllib.parse,html,logging
+import os; os.makedirs('fbc_pdf',exist_ok=True)  # per-document text is written here
 logging.disable(logging.WARNING)
 from fbc_lib import S
 L=json.load(open('fbc_list.json')); done=set(json.load(open('fbc_detail_sample.json')))

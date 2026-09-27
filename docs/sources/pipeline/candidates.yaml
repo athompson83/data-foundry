@@ -3746,14 +3746,16 @@ datasets:
         between:
           - cpsc-recalls
           - appliance-saferproducts-incidents
-        measured: 111/307 CPSC home recalls since 2011-03 with model tokens have >=1 matching incident report (1,137
+        measured: 111/307 CPSC home recalls since 2011-03 with model tokens have >=1 matching incident report (screening
+          run before the generic-model denylist; 3 of the 111 match only on generic tokens and 2 more may, so 106-108/307; 1,137
           reports); 50/111 have a report dated before the recall; 11/12 correct on hand check
         mode: candidate
       - key: normalised model (ENERGY STAR wildcard pattern expansion) + brand token overlap
         between:
           - cpsc-recalls
           - appliance-energy-star-registry
-        measured: 6/230 CPSC home recalls since 2015 with model tokens (7/230 without the brand check)
+        measured: 6/230 CPSC home recalls since 2015 with model tokens (7/230 without the brand check); a lower bound,
+          measured with one-character wildcards before the zero-or-one grammar was applied
         mode: candidate
       - key: exact GTIN-13 / UPC with a valid GS1 check digit
         between:
