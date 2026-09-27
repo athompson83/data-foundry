@@ -45,7 +45,7 @@ for r in rec:
     tok_total+=len(toks)
     rh=[]
     # Every brand and every matching listing is kept: these are review candidates, so the queue must see them all.
-    for t in toks:
+    for t in sorted(toks):  # deterministic order
         k=model_key(t); found=False
         for b in cand:
             if (b,k) in es.exact:
@@ -59,7 +59,7 @@ for r in rec:
     if rh:
         stats['recalls_with_match']+=1
         if r['RecallDate']>='2015': stats['recalls_with_match_2015+']+=1
-        hits.append({'recall':r['RecallNumber'],'date':r['RecallDate'][:10],'title':r['Title'][:90],'hits':rh[:5],'cats':sorted({cat_of[x] for h in rh for x in h[3]})})
+        hits.append({'recall':r['RecallNumber'],'date':r['RecallDate'][:10],'title':r['Title'][:90],'hits':rh,'cats':sorted({cat_of[x] for h in rh for x in h[3]})})
 stats['recalls']=len(rec); stats['recalls_2015+']=sum(1 for r in rec if r['RecallDate']>='2015')
 print(stats,'tokens',tok_total,'token hits',tok_hit,'upc hits',len(upchits),upchits[:10])
 cc=collections.Counter(c for h in hits for c in h['cats']); print(cc.most_common(40))

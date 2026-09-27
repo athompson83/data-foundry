@@ -30,7 +30,7 @@ for since in ('2015','2000'):
         # brand check
         bt=set(r['brand_tokens'])
         mb=[(m,x) for m,x in mt if brand_tokens(x.get('brand_name',''))&bt]
-        if mb: hits.append((r['id'],r['date'],r['facets'],sorted({m for m,_ in mb})[:4],sorted({x['_ds']+':'+x.get('energy_star_model_identifier','') for _,x in mb})[:3],len(mt),len(mb)))
+        if mb: hits.append((r['id'],r['date'],r['facets'],sorted({m for m,_ in mb}),sorted({x['_ds']+':'+x.get('energy_star_model_identifier','') for _,x in mb}),len(mt),len(mb)))
     print(f'CPSC home recalls since {since} with model tokens',len(rs),'-> naming an ENERGY STAR-listed model (model match + brand token overlap)',len(hits))
     if since=='2015':
         for h in hits: print('  ',h)

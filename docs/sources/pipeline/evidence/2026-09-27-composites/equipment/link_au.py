@@ -18,11 +18,11 @@ def run(name, rows, ix, modelf, brandf, split=None):
         for m in models+([fam] if fam else []):
             mm,ids=ix.lookup(brandf(r),m)
             if mm: hit=(mm,ids,m); break
-        if hit: c['brand:'+hit[0]]+=1; ex.append((r.get('Submit_ID') or r.get('Registration Number'),brandf(r),modelf(r),hit[0],hit[1][:2]))
+        if hit: c['brand:'+hit[0]]+=1; ex.append((r.get('Submit_ID') or r.get('Registration Number'),brandf(r),modelf(r),hit[0],list(hit[1])))
         else:
             for m in models:
                 mm,ids=ix.lookup(brandf(r),m,brand_scoped=False)
-                if mm: c['ANY:'+mm]+=1; ex.append((r.get('Submit_ID'),brandf(r),modelf(r),'ANY:'+mm,ids[:2])); break
+                if mm: c['ANY:'+mm]+=1; ex.append((r.get('Submit_ID'),brandf(r),modelf(r),'ANY:'+mm,list(ids))); break
     n=len(rows); b=sum(v for k,v in c.items() if k.startswith('brand:'))
     print(f'== {name}: AU rows {n}; brand-scoped matched {b}; any-brand-only {n and sum(v for k,v in c.items() if k.startswith("ANY"))}', dict(c))
     for e in random.sample(ex,min(12,len(ex))): print('   ',e)

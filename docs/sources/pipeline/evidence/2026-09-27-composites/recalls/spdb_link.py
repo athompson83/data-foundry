@@ -35,7 +35,7 @@ print('by facet',collections.Counter(f for l in links for f in l['facets']))
 json.dump(links,open('spdb_cpsc_links.json','w'),indent=0)
 random.seed(20260927)
 for l in random.sample(links,12): 
-    i=[x for x in inc if x['Report No.']==l['sample_reports'][0]][0]
+    i=[x for x in inc if x['Report No.']==l['reports'][0]][0]
     print(l['cpsc'],l['date'],l['n_incidents'],l['n_before_recall'],'|',i['Report No.'],i['Brand'][:20],'|',i['Model Name or Number'][:30],'|',i['Product Description'][:60].replace('\n',' '))
 print('model-only (no brand) matches',len(modelonly_nobrand),modelonly_nobrand[:8])
 # incident-side view: of home-category incidents with a model, how many match any CPSC recall model+brand
