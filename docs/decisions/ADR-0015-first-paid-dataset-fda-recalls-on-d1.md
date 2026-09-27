@@ -74,11 +74,22 @@ today, so there is no live collision.
 The same applies to `data.aroqon.com` before the shared web Worker
 (`apps/web`, `DF_WEB_ROUTES`) is routed there: convert the recall Worker's
 Custom Domain to route patterns for the paths it owns
-(`data.aroqon.com/recalls*`, `data.aroqon.com/stripe/webhook`). The site-wide
+(`data.aroqon.com/recalls*`, `data.aroqon.com/stripe/webhook`,
+`data.aroqon.com/admin/*`; the operator endpoints `/admin/sync` and
+`/admin/reissue-key` back the lost-key procedure in
+`docs/owner-actions/recalls-operations.md`). The site-wide
 paths it also serves today (`/`, `/docs`, `/terms`, `/privacy`, `/robots.txt`,
 `/sitemap.xml`) move to the web Worker only once that Worker serves
 equivalents covering the recall product (its terms and privacy text, its
 sitemap entries and a link to `/recalls/docs`); until then they stay on the
-recall Worker as explicit routes. Verify every recall page, checkout and the
-Stripe webhook through the new routes before routing the web Worker; rollback
-is re-attaching the Custom Domain to `data-foundry-recalls`.
+recall Worker as explicit routes. Verify every recall page, checkout, the Stripe
+webhook and an authorised `/admin/sync` call through the new routes before
+routing the web Worker; rollback is re-attaching the Custom Domain to
+`data-foundry-recalls`.
+
+The conversion is made in `apps/recalls-worker/wrangler.toml` in a reviewed
+PR, replacing both `custom_domain = true` entries with the zone route patterns
+above (`zone_name = "aroqon.com"`), and deployed from that merged commit.
+Converting only in the dashboard is not enough: the next routine
+`wrangler deploy` of the unchanged manifest would re-attach the Custom Domains
+and shadow the edge and web routes again.
