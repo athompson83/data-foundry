@@ -149,13 +149,18 @@ is 5 to 10 new data types a day:
    member is screened with live requests. A data type that fails screening is
    recorded as `PARKED` or `REJECTED` with its reason and counts as screened,
    not added.
-4. Advances the highest-scoring data types that are not yet `LIVE` through as
+4. Widens existing datasets: adds at least one new member source to a `LIVE`
+   or `BUILDING` dataset each run, and checks that every approved source is
+   acquired with its full history and every field its rights allow, with the
+   raw artifact kept in R2.
+5. Advances the highest-scoring data types that are not yet `LIVE` through as
    many stages as the evidence supports. A dataset that passes every gate is
    built on the recalls Worker pattern (ADR-0016) in a PR. Deploying it
    requires the merged PR, a D1 bookmark and read-back reconciliation; sales
    gates, pricing and hostnames are never changed.
-5. Records a `research-YYYY-MM-DD.md`, updates `candidates.yaml`, and opens a
+6. Records a `research-YYYY-MM-DD.md`, updates `candidates.yaml`, and opens a
    PR. Merging follows the normal gates: CI green and independent review clean.
-6. Reports to the owner how many data types were added, screened and advanced,
+7. Reports to the owner how many data types were added, screened and advanced,
+   which sources were added and any capture gaps fixed,
    what went live, and anything that failed. It asks the owner for action only
    on a blocker that needs a credential, account or legal identity.
