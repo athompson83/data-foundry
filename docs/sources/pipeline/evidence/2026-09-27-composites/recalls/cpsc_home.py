@@ -28,7 +28,7 @@ for r in d:
     desc=(r.get('Description') or '')+' '+' '.join((p.get('Model') or '')+' '+(p.get('Description') or '') for p in r.get('Products') or [])
     out.append({'id':r['RecallNumber'],'date':r['RecallDate'][:10],'title':r.get('Title'),'facets':f,'firm':firm,
       'brand_tokens':sorted(set().union(*[brand_tokens(x) for x in firms])|brand_tokens(' '.join(p.get('Name') or '' for p in r.get('Products') or []))),
-      'models':sorted(model_tokens(desc)),'upcs':[re.sub(r'\D','',u.get('UPC','') if isinstance(u,dict) else str(u)) for u in r.get('ProductUPCs') or []],
+      'models':sorted(model_tokens(desc)),'upcs':[c for u in r.get('ProductUPCs') or [] for c in digit_codes(u.get('UPC','') if isinstance(u,dict) else str(u))],
       'units':' '.join(p.get('NumberOfUnits') or '' for p in r.get('Products') or []),'url':r.get('URL')})
 json.dump(out,open('cpsc_home.json','w'))
 c=collections.Counter(x for r in out for x in r['facets']);print(len(out),c)

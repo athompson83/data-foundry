@@ -16,7 +16,7 @@ for r in es:
         # ENERGY STAR wildcards mean zero or one character (the opt1 grammar in equipment/norm.py).
         if re.search(r'[*#?]',p): pats.append((re.compile('^'+re.sub(r'[*#?]','[A-Z0-9]?',p)+'$'),r))
         else: exact[p].append(r)
-    for u in re.findall(r'\d{11,14}',re.sub(r'[ -]','',r.get('upc') or '')):
+    for u in [c for c in digit_codes(r.get('upc')) if 11<=len(c)<=14]:  # split multi-code fields before normalising
         if gs1_valid(u): upc[u.lstrip('0').zfill(13)].append(r)
 print('ES rows',len(es),'exact model keys',len(exact),'wildcard patterns',len(pats),'UPC keys',len(upc))
 

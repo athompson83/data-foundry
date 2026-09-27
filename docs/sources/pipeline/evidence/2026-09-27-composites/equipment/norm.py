@@ -21,8 +21,9 @@ def model_key(m):
     return re.sub(r'[^A-Z0-9]', '', (m or '').upper())
 
 def pattern_key(m):
-    """canonical pattern string: uppercase, punctuation dropped, wildcards kept"""
-    return re.sub(r'[^A-Z0-9*#?(),]', '', (m or '').upper())
+    """canonical pattern string: uppercase, punctuation dropped, wildcards kept. `*`, `#` and `?` compile to the same
+    zero-or-one-character grammar, so they are canonicalised to `*` and equivalent patterns share one key."""
+    return re.sub(r'[#?]', '*', re.sub(r'[^A-Z0-9*#?(),]', '', (m or '').upper()))
 
 def compile_pattern(m, mode='opt1'):
     u = (m or '').upper()

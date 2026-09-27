@@ -25,3 +25,10 @@ def model_tokens(text):
         if re.fullmatch(r'(19|20)\d\d[A-Z]{1,3}',n): continue
         out.add(n)
     return out
+def digit_codes(s):
+    """Barcode-like digit runs in a field that may list several codes: split on separators first, then rejoin a code
+    printed in groups ("5 012345 678900"). Deleting every space first would fuse adjacent codes into one number."""
+    out=[]
+    for tok in re.split(r'[,;/|\n]+|\s{2,}|\s(?=\d{8,14}(?!\d))',s or ''):
+        out+=re.findall(r'(?<!\d)\d{8,14}(?!\d)',re.sub(r'(?<=\d)[ -](?=\d)','',tok))
+    return out
