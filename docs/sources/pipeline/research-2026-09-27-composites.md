@@ -175,7 +175,7 @@ in the build order.
    - Across all CPSC products, the overlap is still small: 11 of 864 (EU) and 14 of 1,130 (UK). It is
      mostly globally sold power banks and chargers (Belkin, Anker, ESR, IKEA, Yamaha).
 3. **The EU, UK and France cluster links strongly.**
-   - 118 of 697 UK OPSS home-category notices match an EU Safety Gate alert (29 of them by GTIN).
+   - 118 of 697 UK OPSS home-category notices match an EU Safety Gate alert (29 of them share a code; 24 by a check-digit-valid GTIN after re-measurement).
      18 of 20 were correct on hand check.
    - France's RappelConso cites Safety Gate case numbers directly: 102 of 109 are found in the EU XML.
 4. **The incident signal is new.**
