@@ -402,6 +402,9 @@ export default {
     const started = new Date().toISOString();
     const results = await scheduledSync(env);
     console.log('recall_sync', JSON.stringify(results));
+    // A withdrawn dataset is not announced to search engines, and its IndexNow
+    // watermark stays put so pending pages are retried after reactivation.
+    if (env.SOURCE_KILL_SWITCH === '1') return;
     console.log('indexnow', JSON.stringify(await pingChangedRecalls(context(env), env.DB, env.RAW_ARTIFACTS, env.INDEXNOW_KEY, started)));
   },
 };

@@ -429,6 +429,17 @@ describe('discoverability', () => {
     expect(indexNowBodies(ctx, 'k', Array.from({ length: 10_001 }, (_, index) => `F-${index}-2026`))).toHaveLength(2);
   });
 
+  it('does not ping IndexNow or move its watermark while the kill switch is on', async () => {
+    const env = makeEnv({ INDEXNOW_KEY: 'a1b2c3d4e5f60718293a4b5c6d7e8f90', SOURCE_KILL_SWITCH: '1' });
+    await seed(env);
+    await env.RAW_ARTIFACTS.put('state/indexnow-watermark.json', JSON.stringify({ since: '2026-09-25T00:00:00.000Z' }));
+    const fetcher = vi.fn(async () => new Response(null, { status: 200 }));
+    vi.stubGlobal('fetch', fetcher);
+    await worker.scheduled({}, env);
+    expect(fetcher).not.toHaveBeenCalled();
+    expect(await (await env.RAW_ARTIFACTS.get('state/indexnow-watermark.json'))?.text()).toBe(JSON.stringify({ since: '2026-09-25T00:00:00.000Z' }));
+  });
+
   it('bounds browse pagination by the data, so unique page numbers cannot each query D1', async () => {
     const env = makeEnv();
     await seed(env);

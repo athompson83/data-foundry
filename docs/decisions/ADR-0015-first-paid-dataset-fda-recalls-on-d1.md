@@ -130,7 +130,8 @@ API (rule 5):
   sync. The key is public by design and served at `/<INDEXNOW_KEY>.txt`. A
   watermark in R2 (`state/indexnow-watermark.json`) advances only when every
   batch is accepted, so a rejected or throttled submission is retried on the
-  next run.
+  next run. Nothing is submitted while `SOURCE_KILL_SWITCH` is on, and the
+  watermark stays put so pending pages are sent after reactivation.
 
 D1-backed pages are served from the Workers edge cache for an hour, keyed on
 the canonical URL (path, plus `page` for hubs), and all of them are withdrawn
