@@ -578,22 +578,6 @@ candidates:
       login) and manufacturer documents are prohibited. Reopen only via rights-clean
       evidence: CPSC recall serial ranges (hvac-cpsc-recall-slice) or an open-licensed source.
 
-  - key: hvac-manufacturer-warranty-terms
-    name: HVAC manufacturer warranty terms (years, registration windows, transferability)
-    category: home-services
-    structuring: eligibility-criteria
-    stage: PARKED
-    rights: RED
-    sources: [https://www.goodmanmfg.com/terms-of-use]
-    scores: { agent_demand: 4, rights_clarity: 1, acquisition_ease: 2, structuring_value: 5, freshness: 2, low_onboarding_cost: 2, poor_existing_access: 3 }
-    terms:
-      - url: https://www.goodmanmfg.com/terms-of-use
-        quote: "Copyright © 2022 Daikin Comfort Technologies North America, Inc. Duplication in part or in whole is strictly prohibited."
-    evidence: [docs/sources/pipeline/research-2026-09-27-service-trades.md, docs/sources/pipeline/evidence/2026-09-27-service-trades/hvac]
-    next_action: >-
-      Parked RED: warranty documents are manufacturer copyright with duplication
-      prohibited. Add goodmanmfg.com (Daikin-owned) to prohibited-sources.ts.
-
   - key: hvac-hvi-certified-directory
     name: Home Ventilating Institute certified products directory
     category: home-services

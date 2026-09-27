@@ -89,6 +89,8 @@ approvals (5 of 26 sampled Florida applications cite a Miami-Dade NOA).
   "commercial or profit-making purposes", and the database sits behind a login.
 - `goodmanmfg.com` (Daikin-owned) states "Duplication in part or in whole is
   strictly prohibited" and has been added to the prohibited-source list.
+  Its candidate (`hvac-manufacturer-warranty-terms`) is therefore not carried
+  into `candidates.yaml`: the prohibition, not the registry, records it.
 
 
 ## Trade: Appliance
