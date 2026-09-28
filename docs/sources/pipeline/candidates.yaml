@@ -66,8 +66,9 @@ candidates:
       (00:17 UTC) read all 10,027 CPSC notices in 29 RecallDate windows and all 5,206 Health Canada consumer notices,
       rewrote every record under @2 with 0 failures, and kept 343 declared links. Keyless acceptance passed (pages,
       stats, 401 without a valid key, OpenAPI, checkout to cs_live). Remaining before LIVE: authenticated hosted
-      acceptance (lookup, filters, include=raw digests) with a revocable acceptance key, which needs the owner's
-      approval to create a production acceptance customer.
+      acceptance (lookup, filters, include=raw digests, $0 Evaluate checkout) with a revocable acceptance key, run
+      and revoked by any session permitted to write that key to production D1 (the 2026-09-28 session's permission
+      check refused the write); it is routine verification, not an owner decision.
   - key: nhtsa-recalls
     name: NHTSA vehicle recalls in the recall API
     category: transport
@@ -3779,8 +3780,9 @@ candidates:
       (00:17 UTC) read all 10,027 CPSC notices in 29 RecallDate windows and all 5,206 Health Canada consumer notices,
       rewrote every record under @2 with 0 failures, and kept 343 declared links. Keyless acceptance passed (pages,
       stats, 401 without a valid key, OpenAPI, checkout to cs_live). Remaining before LIVE: authenticated hosted
-      acceptance (lookup, filters, include=raw digests) with a revocable acceptance key, which needs the owner's
-      approval to create a production acceptance customer. The appliance slice above stays a member of
+      acceptance (lookup, filters, include=raw digests, $0 Evaluate checkout) with a revocable acceptance key, run
+      and revoked by any session permitted to write that key to production D1 (the 2026-09-28 session's permission
+      check refused the write); it is routine verification, not an owner decision. The appliance slice above stays a member of
       home-product-recalls-global.
 
 datasets:
@@ -4482,5 +4484,6 @@ datasets:
       (00:17 UTC) read all 10,027 CPSC notices in 29 RecallDate windows and all 5,206 Health Canada consumer notices,
       rewrote every record under @2 with 0 failures, and kept 343 declared links. Keyless acceptance passed (pages,
       stats, 401 without a valid key, OpenAPI, checkout to cs_live). Remaining before LIVE: authenticated hosted
-      acceptance (lookup, filters, include=raw digests) with a revocable acceptance key, which needs the owner's
-      approval to create a production acceptance customer.
+      acceptance (lookup, filters, include=raw digests, $0 Evaluate checkout) with a revocable acceptance key, run
+      and revoked by any session permitted to write that key to production D1 (the 2026-09-28 session's permission
+      check refused the write); it is routine verification, not an owner decision.

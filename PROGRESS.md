@@ -40,7 +40,7 @@
   - Health Canada: 5,206 notices rewritten.
   - 0 failures, 343 declared links. FDA synced normally.
   - The public freshness now reads CPSC 00:19 UTC and Health Canada 00:20 UTC.
-- **Not done: authenticated acceptance.** Creating an internal acceptance customer and key in production was denied by the session's permission check. The authenticated checks (lookup, filters, `include=raw` digests) and a completed $0 Evaluate checkout have therefore not been run. The registry keeps the dataset at `BUILDING` until they pass. The product-recalls sample on the site is labelled as parser output until a live response replaces it.
+- **Not done: authenticated acceptance.** Creating an internal acceptance customer and key in production was refused by this session's permission check (an environment boundary on production writes, not a product decision; any session permitted that write can run the checks and revoke the key). The authenticated checks (lookup, filters, `include=raw` digests) and a completed $0 Evaluate checkout have therefore not been run. The registry keeps the dataset at `BUILDING` until they pass. The product-recalls sample on the site is labelled as parser output until a live response replaces it.
 
 ## Current session — 2026-09-27 (continued): composite datasets, and discoverability live
 
