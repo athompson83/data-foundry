@@ -37,10 +37,13 @@ eu-safety-gate/raw/detail_10000323.xml 213844 bytes  sha256 da158985a9b004232160
 eu-safety-gate/raw/detail_10000324.xml 181468 bytes  sha256 1b53623beb7e19c5302b38d19df4279ca10c7cd61886378e7f3e1b1b11069c9b
 eu-safety-gate/raw/weekly_list.xml     390110 bytes  sha256 be3c3fab3c2e50840c943ddd1eb7af6e2b1f32a4413627c21c38e7cad0f23aea
 
-Three of the files above are removed from git and only exist here:
+Four of the files above are removed from git and only exist here:
 `aviation/raw/aircraft.csv` and `aviation/raw/up01AUG.zip` (see
-`../aviation/raw/NOTE-aircraft.md`) and `aviation/raw/narratives.csv` (see
-`../aviation/raw/NOTE-narratives.md`), all for a personal-data reason (AGENTS.md rule
-9). The rest of the tarball's contents stay committed directly under this round's
-evidence directories, current and byte-identical to their copy here; this archive is a
-redundant backup for them, not their only copy.
+`../aviation/raw/NOTE-aircraft.md`), `aviation/raw/narratives.csv` (see
+`../aviation/raw/NOTE-narratives.md`), and `aviation/raw/events.csv` (see
+`../aviation/raw/NOTE-events.md`), all for a personal-data reason (AGENTS.md rule 9).
+`events.csv`'s removal did not require rebuilding this tarball again: its content is
+unchanged from the original upload (same hash above), so it was already archived here.
+The rest of the tarball's contents stay committed directly under this round's evidence
+directories, current and byte-identical to their copy here; this archive is a redundant
+backup for them, not their only copy.

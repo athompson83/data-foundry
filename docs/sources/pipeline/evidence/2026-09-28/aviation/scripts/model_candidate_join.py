@@ -40,7 +40,7 @@ CHECKS = [
 ]
 
 
-def model_matches(model: str, fr: dict) -> tuple[bool, str]:
+def model_matches(make: str, model: str, fr: dict) -> tuple[bool, str]:
     """Does any result actually name this exact model?
 
     A Codex review on PR #72 found the first version of this function was a
@@ -65,10 +65,15 @@ def model_matches(model: str, fr: dict) -> tuple[bool, str]:
     # literal search for "737-7CT" can therefore never match even when a
     # directive genuinely covers this airplane. Detect a customer-code
     # suffix (a digit followed by two non-digit characters) and also check
-    # the series it belongs to.
+    # the series it belongs to. A further Codex review found this rule had
+    # no manufacturer check, so it would misfire on non-Boeing dash-suffixed
+    # models in the same NTSB sample (e.g. Schweizer SGS 2-33A, Enstrom
+    # F-28F, Bell OH-58A) that happen to match the same digit+2-character
+    # shape but are not Boeing customer codes at all; only Boeing uses this
+    # convention, so it is now gated on `make`.
     series_pattern = None
     series = None
-    if sep and re.fullmatch(r"\d[A-Za-z0-9]{2}", suffix) and not suffix.isdigit():
+    if make.upper() == "BOEING" and sep and re.fullmatch(r"\d[A-Za-z0-9]{2}", suffix) and not suffix.isdigit():
         series = f"{suffix[0]}00"
         series_pattern = re.compile(r"\b" + re.escape(family) + "-" + series + r"\b")
     for result in fr.get("results", []):
@@ -125,7 +130,7 @@ def main() -> None:
             f"{fr_file} has {fr['count']} total results but only "
             f"{len(fr.get('results', []))} were fetched"
         )
-        ok, note = model_matches(model, fr)
+        ok, note = model_matches(make, model, fr)
         if not ok:
             note = f"{note}; {confirm_negative_live(model)}"
         correct += 1 if ok else 0

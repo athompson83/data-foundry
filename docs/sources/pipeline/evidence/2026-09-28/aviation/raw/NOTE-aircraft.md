@@ -29,14 +29,16 @@ had gone stale after they were re-fetched in full (`per_page=1000`) to fix
 an unrelated pagination bug. This tarball was rebuilt to include the
 current `narratives.csv` and the current, complete Federal Register JSON
 files, replacing the original upload at the same key (the sha256 above is
-for the current, rebuilt tarball). The tarball still also holds a complete,
-redundant copy of this round's other raw inputs (`events.csv`, the five
-Federal Register JSON responses, and the EU Safety Gate XML files), which
-stay committed directly here since none of them carry personal data.
-Per-file sizes and hashes for everything in the tarball are in
-`../../archive/ARCHIVE.txt`.
+for the current, rebuilt tarball). A still later Codex review found
+`events.csv` also identifies people (see `NOTE-events.md`); its content was
+already unchanged in this archive since the original upload, so it did not
+need a further rebuild. The tarball still also holds a complete, redundant
+copy of this round's other raw inputs (the five Federal Register JSON
+responses and the EU Safety Gate XML files), which stay committed directly
+here since none of them carry personal data. Per-file sizes and hashes for
+everything in the tarball are in `../../archive/ARCHIVE.txt`.
 
 To replay `parse_ntsb_month.py` or `model_candidate_join.py`, download the
 tarball with the command above and extract `aviation/raw/aircraft.csv`,
-`aviation/raw/narratives.csv` and `aviation/raw/up01AUG.zip` next to this
-note.
+`aviation/raw/narratives.csv`, `aviation/raw/events.csv` and
+`aviation/raw/up01AUG.zip` next to this note.
