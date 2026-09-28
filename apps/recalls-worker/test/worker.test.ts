@@ -9,40 +9,7 @@ import { formEncode, verifyStripeSignature } from '../src/stripe.js';
 import { indexNowBodies, pingChangedRecalls, productName } from '../src/seo.js';
 import { scheduledSync, syncWindow } from '../src/sync.js';
 import { createTestBucket, createTestDatabase } from './d1-sqlite.js';
-
-const FOOD = {
-  recall_number: 'F-0001-2026',
-  event_id: '90001',
-  status: 'Ongoing',
-  classification: 'Class I',
-  product_type: 'Food',
-  recalling_firm: 'Acme Snacks LLC',
-  city: 'Austin',
-  state: 'TX',
-  country: 'United States',
-  voluntary_mandated: 'Voluntary: Firm initiated',
-  distribution_pattern: 'Distributed to retailers in TX, OK and LA.',
-  product_description: 'Acme Peanut Crunch Bars, 2 oz, UPC 0 12345 67890 5',
-  product_quantity: '1,200 cases',
-  reason_for_recall: 'Product contains undeclared peanuts.',
-  recall_initiation_date: '20260901',
-  report_date: '20260915',
-  code_info: 'Lot #: AC2601, Best By 03/01/2027; AC2602, Best By 03/08/2027',
-};
-
-const DEVICE = {
-  recall_number: 'Z-0002-2026',
-  event_id: '90002',
-  status: 'Ongoing',
-  classification: 'Class II',
-  recalling_firm: 'Medi Devices Inc',
-  distribution_pattern: 'US Nationwide distribution.',
-  product_description: 'Infusion set',
-  product_quantity: '3618',
-  reason_for_recall: 'Software anomaly may cause an occlusion alarm to fail.',
-  report_date: '20260910',
-  code_info: 'UDI/DI 05708932072526, Lot Numbers: 8849570, 8904168',
-};
+import { DEVICE, FOOD } from './fixtures.js';
 
 function makeEnv(overrides: Partial<Env> = {}): Env & { bucket: ReturnType<typeof createTestBucket> } {
   const { db } = createTestDatabase();
@@ -760,6 +727,109 @@ describe('Stripe', () => {
     expect((await worker.fetch(get('/v1/recalls', body.api_key), env)).status).toBe(200);
   });
 
+  it('revokes every key of one customer for an operator only, leaving the customer and usage intact', async () => {
+    const env = makeEnv({ ADMIN_TOKEN: 'a'.repeat(40) });
+    const key = await seedCustomer(env, 'developer');
+    await seed(env);
+    expect((await worker.fetch(get('/v1/recalls', key), env)).status).toBe(200);
+    const revoke = (token: string, id = 'cus_1') => worker.fetch(new Request(`https://data.aroqon.com/admin/revoke-keys?stripe_customer_id=${id}`, { method: 'POST', headers: { authorization: `Bearer ${token}` } }), env);
+    expect((await revoke('b'.repeat(40))).status).toBe(404);
+    expect((await worker.fetch(get('/v1/recalls', key), env)).status).toBe(200);
+    expect((await revoke('a'.repeat(40), 'cus_unknown')).status).toBe(404);
+    const response = await revoke('a'.repeat(40));
+    expect(response.status).toBe(200);
+    expect(((await response.json()) as { active_keys: number }).active_keys).toBe(0);
+    expect((await worker.fetch(get('/v1/recalls', key), env)).status).toBe(401);
+    expect(await env.DB.prepare('SELECT status FROM customer').first()).toEqual({ status: 'active' });
+    expect(await env.DB.prepare('SELECT requests FROM usage_month').first()).toEqual({ requests: 2 });
+    // A reissue after revocation works again: acceptance runs are repeatable.
+    const reissued = (await (await worker.fetch(new Request('https://data.aroqon.com/admin/reissue-key?stripe_customer_id=cus_1', { method: 'POST', headers: { authorization: `Bearer ${'a'.repeat(40)}` } }), env)).json()) as { api_key: string };
+    expect((await worker.fetch(get('/v1/recalls', reissued.api_key), env)).status).toBe(200);
+  });
+
+  it('opens and closes only internal acceptance fixtures, closing atomically to a suspended state', async () => {
+    const env = makeEnv({ ADMIN_TOKEN: 'a'.repeat(40) });
+    const realKey = await seedCustomer(env, 'developer');
+    await seed(env);
+    await env.DB.prepare("INSERT INTO customer (id, email, stripe_customer_id, plan, status, created_at, updated_at) VALUES ('acc', 'acceptance-internal@aroqon.invalid', 'cus_acceptance_internal_20260928', 'developer', 'suspended', 'now', 'now')").run();
+    const fixture = (id: string, state: string, token = 'a'.repeat(40)) => worker.fetch(new Request(`https://data.aroqon.com/admin/acceptance-fixture?stripe_customer_id=${id}&state=${state}`, { method: 'POST', headers: { authorization: `Bearer ${token}` } }), env);
+    expect((await fixture('cus_acceptance_internal_20260928', 'open', 'b'.repeat(40))).status).toBe(404);
+    // A real customer is never touched: its id does not qualify.
+    expect((await fixture('cus_1', 'closed')).status).toBe(400);
+    expect((await worker.fetch(get('/v1/recalls', realKey), env)).status).toBe(200);
+    expect(await (await fixture('cus_acceptance_internal_20260928', 'open')).json()).toMatchObject({ status: 'active', active_keys: 0 });
+    const key = await issueKey(env.DB, 'acc', null);
+    expect((await worker.fetch(get('/v1/recalls', key), env)).status).toBe(200);
+    // Opening never revives a fixture that still holds an active key.
+    await env.DB.prepare("UPDATE customer SET status = 'suspended' WHERE id = 'acc'").run();
+    expect(await (await fixture('cus_acceptance_internal_20260928', 'open')).json()).toMatchObject({ status: 'suspended', active_keys: 1 });
+    expect(await (await fixture('cus_acceptance_internal_20260928', 'closed')).json()).toMatchObject({ status: 'suspended', active_keys: 0 });
+    expect((await worker.fetch(get('/v1/recalls', key), env)).status).toBe(401);
+    // An internal-looking id whose customer lacks the internal email is refused.
+    await env.DB.prepare("UPDATE customer SET email = 'x@example.com' WHERE id = 'acc'").run();
+    expect((await fixture('cus_acceptance_internal_20260928', 'open')).status).toBe(404);
+  });
+
+  it('expires an opened acceptance fixture\'s keys server-side after the lease, whether or not the run closed it', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    try {
+      vi.setSystemTime(new Date('2026-09-28T19:00:00.000Z'));
+      const env = makeEnv({ ADMIN_TOKEN: 'a'.repeat(40) });
+      await seed(env);
+      const realKey = await seedCustomer(env, 'developer');
+      await env.DB.prepare("UPDATE customer SET updated_at = '2020-01-01T00:00:00.000Z' WHERE id = 'c1'").run();
+      await env.DB.prepare("INSERT INTO customer (id, email, stripe_customer_id, plan, status, created_at, updated_at) VALUES ('acc', 'acceptance-internal@aroqon.invalid', 'cus_acceptance_internal_20260928', 'developer', 'suspended', 'now', 'now')").run();
+      await worker.fetch(new Request('https://data.aroqon.com/admin/acceptance-fixture?stripe_customer_id=cus_acceptance_internal_20260928&state=open', { method: 'POST', headers: { authorization: `Bearer ${'a'.repeat(40)}` } }), env);
+      const key = await issueKey(env.DB, 'acc', null);
+      vi.setSystemTime(new Date('2026-09-28T19:19:00.000Z'));
+      expect((await worker.fetch(get('/v1/recalls', key), env)).status).toBe(200);
+      vi.setSystemTime(new Date('2026-09-28T19:21:00.000Z'));
+      const expired = await worker.fetch(get('/v1/recalls', key), env);
+      expect(expired.status).toBe(403);
+      expect(((await expired.json()) as { error: { code: string } }).error.code).toBe('acceptance_lease_expired');
+      expect((await worker.fetch(get('/v1/account', key), env)).status).toBe(403);
+      // A real customer with an old updated_at is unaffected.
+      expect((await worker.fetch(get('/v1/recalls', realKey), env)).status).toBe(200);
+      // Neither an expired nor a closed fixture key reaches Stripe through the billing-portal recovery path.
+      const stripe = vi.fn(async () => Response.json({ url: 'https://billing.stripe.com/x' }));
+      vi.stubGlobal('fetch', stripe);
+      const portal = () => worker.fetch(new Request('https://api.data.aroqon.com/v1/account/billing-portal', { method: 'POST', headers: { authorization: `Bearer ${key}` } }), env);
+      expect((await portal()).status).toBe(403);
+      await env.DB.prepare("UPDATE customer SET status = 'suspended' WHERE id = 'acc'").run();
+      expect((await portal()).status).toBe(403);
+      expect(stripe).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('reports the serving version and its source tag to an operator only', async () => {
+    const env = makeEnv({ ADMIN_TOKEN: 'a'.repeat(40), CF_VERSION_METADATA: { id: 'v-123', tag: 'abcdef012345', timestamp: '2026-09-28T18:00:00Z' } });
+    const version = (token: string) => worker.fetch(new Request('https://data.aroqon.com/admin/version', { headers: { authorization: `Bearer ${token}` } }), env);
+    expect((await version('b'.repeat(40))).status).toBe(404);
+    expect(await (await version('a'.repeat(40))).json()).toEqual({ version_id: 'v-123', tag: 'abcdef012345', timestamp: '2026-09-28T18:00:00Z' });
+  });
+
+  it('reports each IndexNow feed\'s watermark and last scheduled run to an operator only', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-09-27T14:00:00.000Z'));
+    try {
+      const env = makeEnv({ ADMIN_TOKEN: 'a'.repeat(40), INDEXNOW_KEY: 'a1b2c3d4e5f60718293a4b5c6d7e8f90', PRODUCT_RECALLS_OPEN: '1' });
+      vi.stubGlobal('fetch', vi.fn(async () => new Response(null, { status: 200 })));
+      const status = (token: string) => worker.fetch(new Request('https://data.aroqon.com/admin/indexnow-status', { headers: { authorization: `Bearer ${token}` } }), env);
+      expect((await status('b'.repeat(40))).status).toBe(404);
+      expect(await (await status('a'.repeat(40))).json()).toEqual({ recalls: { watermark: null, last_run: null }, 'product-recalls': { watermark: null, last_run: null } });
+      await worker.scheduled({ scheduledTime: Date.parse('2026-09-27T12:17:00.000Z') }, env);
+      const body = (await (await status('a'.repeat(40))).json()) as Record<string, { watermark: { since: string }; last_run: Record<string, unknown> }>;
+      for (const name of ['recalls', 'product-recalls']) {
+        expect(body[name]?.watermark.since).toBe('2026-09-27T12:55:00.000Z');
+        expect(body[name]?.last_run).toMatchObject({ trigger: 'scheduled', scheduled_time: '2026-09-27T12:17:00.000Z', started: '2026-09-27T14:00:00.000Z', advanced: true });
+      }
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('applies the customer\'s current subscription whatever order webhooks arrive in', async () => {
     const env = makeEnv();
     const key = await seedCustomer(env, 'developer');
@@ -815,5 +885,109 @@ describe('Stripe', () => {
     expect((await worker.fetch(get('/v1/recalls', key), env)).status).toBe(403);
     const unsigned = new Request('https://data.aroqon.com/stripe/webhook', { method: 'POST', body: payload });
     expect((await worker.fetch(unsigned, env)).status).toBe(400);
+  });
+});
+
+describe('RapidAPI channel', () => {
+  const SECRET = 'rapidapi-proxy-secret-0123456789';
+  const market = (path: string, headers: Record<string, string>) => new Request(`https://api.data.aroqon.com${path}`, { headers });
+  const usage = async (env: Env) => (await env.DB.prepare('SELECT coalesce(sum(requests), 0) AS n FROM usage_month').first<{ n: number }>())?.n;
+
+  it('is closed by default: marketplace-shaped requests are refused, even with a valid direct key', async () => {
+    const env = makeEnv();
+    await seed(env);
+    const key = await seedCustomer(env, 'developer');
+    for (const env2 of [env, makeEnv({ RAPIDAPI_ENABLED: '1' })]) {
+      const response = await worker.fetch(market('/v1/recalls', { authorization: `Bearer ${key}`, 'x-rapidapi-proxy-secret': SECRET, 'x-rapidapi-user': 'someone' }), env2);
+      expect(response.status).toBe(403);
+      expect(((await response.json()) as { error: { code: string } }).error.code).toBe('marketplace_disabled');
+    }
+    expect(await usage(env)).toBe(0);
+  });
+
+  it('rejects a missing or wrong proxy secret without falling back to the direct key', async () => {
+    const env = makeEnv({ RAPIDAPI_ENABLED: '1', RAPIDAPI_PROXY_SECRET: SECRET });
+    await seed(env);
+    const key = await seedCustomer(env, 'developer');
+    for (const headers of [
+      { authorization: `Bearer ${key}`, 'x-rapidapi-user': 'spoofer' },
+      { authorization: `Bearer ${key}`, 'x-rapidapi-user': 'spoofer', 'x-rapidapi-proxy-secret': 'wrong-secret-value-0000000000' },
+      { authorization: `Bearer ${key}`, 'x-rapidapi-host': 'recalls.p.rapidapi.com' },
+    ]) {
+      const response = await worker.fetch(market('/v1/recalls', headers), env);
+      expect(response.status).toBe(401);
+      expect(((await response.json()) as { error: { code: string } }).error.code).toBe('invalid_proxy_secret');
+    }
+    expect(await usage(env)).toBe(0);
+    // The direct path is unchanged.
+    expect((await worker.fetch(get('/v1/recalls', key), env)).status).toBe(200);
+    expect(await usage(env)).toBe(1);
+  });
+
+  it('serves a verified subscriber without touching any Stripe customer allowance, ignoring Authorization', async () => {
+    const env = makeEnv({ RAPIDAPI_ENABLED: '1', RAPIDAPI_PROXY_SECRET: SECRET });
+    await seed(env);
+    const key = await seedCustomer(env, 'evaluate');
+    const logged: string[] = [];
+    vi.spyOn(console, 'log').mockImplementation((...args: unknown[]) => void logged.push(args.map(String).join(' ')));
+    const headers = { 'x-rapidapi-proxy-secret': SECRET, 'x-rapidapi-user': 'alice@example.com', 'x-rapidapi-subscription': 'pro', authorization: `Bearer ${key}` };
+    const response = await worker.fetch(market('/v1/recalls?limit=1', headers), env);
+    expect(response.status).toBe(200);
+    expect(response.headers.get('x-ratelimit-limit')).toBeNull();
+    expect(((await response.json()) as { data: unknown[] }).data).toHaveLength(1);
+    expect((await worker.fetch(market('/v1/recalls/F-0000-2026', headers), env)).status).toBe(404);
+    expect(await usage(env)).toBe(0);
+    const lines = logged.filter((line) => line.startsWith('rapidapi_request'));
+    expect(lines).toHaveLength(2);
+    expect(lines[0]).toContain('"subscription":"PRO"');
+    expect(lines.join('\n')).not.toContain('alice');
+    vi.restoreAllMocks();
+  });
+
+  it('logs every marketplace response once, stats cache hits and refusals included', async () => {
+    const env = makeEnv({ RAPIDAPI_ENABLED: '1', RAPIDAPI_PROXY_SECRET: SECRET });
+    await seed(env);
+    const logged: string[] = [];
+    vi.spyOn(console, 'log').mockImplementation((...args: unknown[]) => void logged.push(args.map(String).join(' ')));
+    const headers = { 'x-rapidapi-proxy-secret': SECRET, 'x-rapidapi-user': 'carol' };
+    expect((await worker.fetch(market('/v1/recalls/stats', headers), env)).status).toBe(200);
+    expect((await worker.fetch(market('/v1/recalls/stats', headers), env)).status).toBe(200); // cache hit
+    expect((await worker.fetch(market('/v1/account', headers), env)).status).toBe(403);
+    expect((await worker.fetch(market('/v1/recalls?limit=500', headers), env)).status).toBe(400);
+    const lines = logged.filter((line) => line.startsWith('rapidapi_request')).map((line) => JSON.parse(line.slice('rapidapi_request '.length)) as { path: string; status: number });
+    expect(lines.map((line) => [line.path, line.status])).toEqual([['/v1/recalls/stats', 200], ['/v1/recalls/stats', 200], ['/v1/account', 403], ['/v1/recalls', 400]]);
+    // Refusals before any subscriber is verified are logged as unverified, with only a digest of the claimed user.
+    logged.length = 0;
+    expect((await worker.fetch(market('/v1/recalls', { 'x-rapidapi-user': 'mallory' }), env)).status).toBe(401);
+    expect((await worker.fetch(market('/v1/recalls', { 'x-rapidapi-proxy-secret': SECRET }), env)).status).toBe(401);
+    expect((await worker.fetch(market('/v1/recalls', headers), makeEnv())).status).toBe(403);
+    const refused = logged.filter((line) => line.startsWith('rapidapi_request')).map((line) => JSON.parse(line.slice('rapidapi_request '.length)) as { status: number; verified: boolean; code: string; user: string | null });
+    expect(refused.map((line) => [line.status, line.verified, line.code])).toEqual([[401, false, 'invalid_proxy_secret'], [401, false, 'missing_marketplace_user'], [403, false, 'marketplace_disabled']]);
+    expect(refused[0]?.user).toMatch(/^[0-9a-f]{16}$/);
+    expect(logged.join('\n')).not.toContain('mallory');
+    vi.restoreAllMocks();
+  });
+
+  it('requires the subscriber identity and keeps account endpoints to direct keys', async () => {
+    const env = makeEnv({ RAPIDAPI_ENABLED: '1', RAPIDAPI_PROXY_SECRET: SECRET });
+    await seed(env);
+    expect((await worker.fetch(market('/v1/recalls', { 'x-rapidapi-proxy-secret': SECRET }), env)).status).toBe(401);
+    expect((await worker.fetch(market('/v1/recalls', { 'x-rapidapi-proxy-secret': SECRET, 'x-rapidapi-user': 'x'.repeat(129) }), env)).status).toBe(401);
+    for (const path of ['/v1/account', '/v1/account/rotate-key']) {
+      const response = await worker.fetch(new Request(`https://api.data.aroqon.com${path}`, { method: path.endsWith('key') ? 'POST' : 'GET', headers: { 'x-rapidapi-proxy-secret': SECRET, 'x-rapidapi-user': 'bob' } }), env);
+      expect(response.status).toBe(403);
+    }
+  });
+
+  it('publishes a marketplace contract without account endpoints or the bearer scheme', async () => {
+    const env = makeEnv({ PRODUCT_RECALLS_OPEN: '1' });
+    const direct = (await (await worker.fetch(get('/openapi.json'), env)).json()) as { paths: Record<string, unknown>; components: Record<string, unknown> };
+    const rapid = (await (await worker.fetch(get('/openapi.json?channel=rapidapi'), env)).json()) as { paths: Record<string, unknown>; components: Record<string, unknown>; security: unknown[] };
+    expect(Object.keys(direct.paths)).toContain('/v1/account');
+    expect(direct.components['securitySchemes']).toBeDefined();
+    expect(Object.keys(rapid.paths).some((path) => path.startsWith('/v1/account'))).toBe(false);
+    expect(Object.keys(rapid.paths)).toEqual(expect.arrayContaining(['/v1/recalls', '/v1/recalls/lookup', '/v1/product-recalls', '/v1/product-recalls/lookup']));
+    expect(rapid.components['securitySchemes']).toBeUndefined();
+    expect(rapid.security).toEqual([]);
   });
 });

@@ -56,6 +56,23 @@ export interface AuthenticatedCustomer {
   readonly status: 'active' | 'past_due' | 'suspended' | 'canceled';
   readonly stripeCustomerId: string | null;
   readonly email: string | null;
+  readonly updatedAt: string | null;
+}
+
+/** Internal acceptance fixtures (docs/owner-actions/recalls-operations.md, "Production acceptance"). */
+export const ACCEPTANCE_FIXTURE_ID = /^cus_acceptance_internal_[0-9]{8}$/;
+/**
+ * An opened acceptance fixture authenticates for this long after it was opened (its
+ * `updated_at`), longer than the acceptance workflow's 15-minute timeout. After that its keys
+ * are refused even if the run never closed it (a killed runner, a lost close request).
+ */
+export const ACCEPTANCE_LEASE_MS = 20 * 60 * 1000;
+
+export function acceptanceLeaseExpired(customer: AuthenticatedCustomer, now = Date.now()): boolean {
+  if (!customer.stripeCustomerId || !ACCEPTANCE_FIXTURE_ID.test(customer.stripeCustomerId)) return false;
+  const opened = Date.parse(customer.updatedAt ?? '');
+  // An unreadable timestamp fails closed.
+  return !Number.isFinite(opened) || now - opened > ACCEPTANCE_LEASE_MS;
 }
 
 export function presentedKey(request: Request): string | null {
@@ -71,14 +88,14 @@ export async function findCustomerByKey(db: D1Database, key: string): Promise<Au
   if (!key.startsWith(KEY_PREFIX) || key.length !== KEY_PREFIX.length + 32) return null;
   const row = await db
     .prepare(
-      `SELECT k.id AS key_id, c.id AS customer_id, c.plan, c.status, c.stripe_customer_id, c.email
+      `SELECT k.id AS key_id, c.id AS customer_id, c.plan, c.status, c.stripe_customer_id, c.email, c.updated_at
          FROM api_key k JOIN customer c ON c.id = k.customer_id
         WHERE k.key_hash = ? AND k.revoked_at IS NULL`,
     )
     .bind(await sha256Hex(key))
-    .first<{ key_id: string; customer_id: string; plan: PlanId; status: AuthenticatedCustomer['status']; stripe_customer_id: string | null; email: string | null }>();
+    .first<{ key_id: string; customer_id: string; plan: PlanId; status: AuthenticatedCustomer['status']; stripe_customer_id: string | null; email: string | null; updated_at: string | null }>();
   if (!row) return null;
-  return { customerId: row.customer_id, keyId: row.key_id, plan: row.plan, status: row.status, stripeCustomerId: row.stripe_customer_id, email: row.email };
+  return { customerId: row.customer_id, keyId: row.key_id, plan: row.plan, status: row.status, stripeCustomerId: row.stripe_customer_id, email: row.email, updatedAt: row.updated_at };
 }
 
 export function usageMonth(now = new Date()): string {

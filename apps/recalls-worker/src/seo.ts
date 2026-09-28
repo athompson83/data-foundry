@@ -546,3 +546,20 @@ export function pingChangedRecalls(
 ): Promise<{ since: string; submitted: number; status: number[]; advanced: boolean }> {
   return pingChanged(FDA_INDEXNOW_FEED, ctx, db, bucket, key, started, fetcher);
 }
+
+/** Where a feed's last scheduled run is recorded, next to its watermark. */
+export function lastRunKey(feed: IndexNowFeed): string {
+  return feed.watermarkKey.replace(/-watermark\.json$/, '-last-run.json');
+}
+
+/**
+ * Record one run of a feed (never throws): runtime evidence that the feed
+ * executed, separate from the watermark, which only moves on full acceptance.
+ */
+export async function recordIndexNowRun(bucket: R2Bucket, feed: IndexNowFeed, run: Record<string, unknown>): Promise<void> {
+  try {
+    await bucket.put(lastRunKey(feed), JSON.stringify(run), { httpMetadata: { contentType: 'application/json' } });
+  } catch (error) {
+    console.error('indexnow_record_error', error instanceof Error ? error.message : String(error));
+  }
+}
