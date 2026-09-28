@@ -1,43 +1,33 @@
-R2 archive of this round's raw inputs that are not committed to git.
+Round-4 raw inputs archived 2026-09-28 in R2 bucket data-foundry-raw-artifacts under
+research/pipeline/2026-09-28/archive/. Per-file SHA-256 (of the original files, before
+tarring) is listed below; the tarball itself is also hashed. Round-trip verified:
+`wrangler r2 object get research/pipeline/2026-09-28/archive/evidence-2026-09-28-raw.tar.gz --remote`
+reproduces the same sha256.
 
-  bucket: data-foundry-raw-artifacts
-  key:    research/pipeline/2026-09-28/archive/evidence-2026-09-28-raw.tar.gz
-  bytes:  1570317
-  sha256: 52a5ddef3ed37efbfa7375bf7bc3d1c69f7d343579db7b0481662ecb3b5b1d2b
+evidence-2026-09-28-raw.tar.gz  1570317 bytes  sha256 52a5ddef3ed37efbfa7375bf7bc3d1c69f7d343579db7b0481662ecb3b5b1d2b
 
-Downloaded and re-hashed independently in this session (`wrangler r2 object
-get data-foundry-raw-artifacts/research/pipeline/2026-09-28/archive/evidence-2026-09-28-raw.tar.gz --remote --pipe`);
-the archive-level sha256 above was confirmed exact. Per-file contents and
-hashes (sha256, computed after extraction):
+Contents (relative path inside the tarball, original bytes, sha256):
 
-path                                        bytes    sha256
-aviation/raw/aircraft.csv                   57195    e54145dee2dafd64a28098a89d24a69687b322871b69d1768a007d5ea56e3e8e
-aviation/raw/events.csv                     52193    b3c3d3b43f37b9b463696f56a058efd04e0ee6d83a1e35a6aa87d7cdfd1004fc
-aviation/raw/fr_airbusA319.json             8367     84248a9b148f1debe1e3e9afeb22a659a599b88e8d9fa3b8320e314ae57b8c5e
-aviation/raw/fr_boeing737_v2.json           8876     bcc121ba13d31cc3fecae7ef1189bb45ed5c409f9b53cace00ba6c49569d8f2c
-aviation/raw/fr_cessna182.json              7760     5293361dc45cff1927d581a10a26fab9f13770f77c160f78925a9a8fbe4caae3
-aviation/raw/fr_robinsonR44.json            8655     63d5b7462b0015780e38f17ac1eff31400da50a0cccd05bdf13aff42fc00ab27
-aviation/raw/fr_textron560xl.json           8650     7246de41b5b2b83727a6e6295ac375fff59c7fa248ea1fcad012875c5f14bf92
-aviation/raw/narratives.csv                 203595   37050ce39d41f375d1af258768188aa30143c7cb0184fb00a0f6edaac661f414
-aviation/raw/up01AUG.zip                    648950   f42fd62cf6707d6f24f09081cecc435e7cf860bffc02f486d82cf49ab1b2ddea
-eu-safety-gate/raw/cpsc_recent.json         3726749  4700e47560f4b7c5b37d8b746ec04b1aba8aff1f3e8c49a80c7908f380fb2923
-eu-safety-gate/raw/detail_10000322.xml      85620    7e8ad38eff02792a712be1947f536d578fbd5149c46b2d0196c95a474eabc4fe
-eu-safety-gate/raw/detail_10000323.xml      213844   da158985a9b004232160c17fda3b10b2a058d7751cd8ec49a9b86b4d452d5076
-eu-safety-gate/raw/detail_10000324.xml      181468   1b53623beb7e19c5302b38d19df4279ca10c7cd61886378e7f3e1b1b11069c9b
-eu-safety-gate/raw/weekly_list.xml          390110   be3c3fab3c2e50840c943ddd1eb7af6e2b1f32a4413627c21c38e7cad0f23aea
+aviation/raw/aircraft.csv               57195 bytes  sha256 e54145dee2dafd64a28098a89d24a69687b322871b69d1768a007d5ea56e3e8e
+aviation/raw/events.csv                 52193 bytes  sha256 b3c3d3b43f37b9b463696f56a058efd04e0ee6d83a1e35a6aa87d7cdfd1004fc
+aviation/raw/fr_airbusA319.json          8367 bytes  sha256 84248a9b148f1debe1e3e9afeb22a659a599b88e8d9fa3b8320e314ae57b8c5e
+aviation/raw/fr_boeing737_v2.json        8876 bytes  sha256 bcc121ba13d31cc3fecae7ef1189bb45ed5c409f9b53cace00ba6c49569d8f2c
+aviation/raw/fr_cessna182.json           7760 bytes  sha256 5293361dc45cff1927d581a10a26fab9f13770f77c160f78925a9a8fbe4caae3
+aviation/raw/fr_robinsonR44.json         8655 bytes  sha256 63d5b7462b0015780e38f17ac1eff31400da50a0cccd05bdf13aff42fc00ab27
+aviation/raw/fr_textron560xl.json        8650 bytes  sha256 7246de41b5b2b83727a6e6295ac375fff59c7fa248ea1fcad012875c5f14bf92
+aviation/raw/narratives.csv            203595 bytes  sha256 37050ce39d41f375d1af258768188aa30143c7cb0184fb00a0f6edaac661f414
+aviation/raw/up01AUG.zip               648950 bytes  sha256 f42fd62cf6707d6f24f09081cecc435e7cf860bffc02f486d82cf49ab1b2ddea
+eu-safety-gate/raw/cpsc_recent.json    3726749 bytes  sha256 4700e47560f4b7c5b37d8b746ec04b1aba8aff1f3e8c49a80c7908f380fb2923
+eu-safety-gate/raw/detail_10000322.xml   85620 bytes  sha256 7e8ad38eff02792a712be1947f536d578fbd5149c46b2d0196c95a474eabc4fe
+eu-safety-gate/raw/detail_10000323.xml  213844 bytes  sha256 da158985a9b004232160c17fda3b10b2a058d7751cd8ec49a9b86b4d452d5076
+eu-safety-gate/raw/detail_10000324.xml  181468 bytes  sha256 1b53623beb7e19c5302b38d19df4279ca10c7cd61886378e7f3e1b1b11069c9b
+eu-safety-gate/raw/weekly_list.xml      390110 bytes  sha256 be3c3fab3c2e50840c943ddd1eb7af6e2b1f32a4413627c21c38e7cad0f23aea
 
-Note: `eu-safety-gate/raw/cpsc_recent.json` in this archive is the same live
-CPSC sample described in `eu-safety-gate/raw/NOTE-cpsc_recent.md`, archived
-here for reproducibility even though it's excluded from git for the
-repository-policy reason that note explains. `aviation/raw/aircraft.csv` and
-`up01AUG.zip` are excluded from git for the personal-data reason
-`aviation/raw/NOTE-aircraft-pii.md` explains.
-
-This archive alone does not yet satisfy `tooling/test/source-pipeline.test.ts`'s
-EVIDENCED-stage evidence contract, which additionally requires a conforming
-`inputs.json` (with this `archive` block, a `files` manifest, `replay`
-script/result pairs and a `replay.sh`) and a `samples.json` entry per
-candidate (scripts, results, identifiers, sample_size) in this same
-`docs/sources/pipeline/evidence/2026-09-28/` directory. Writing those is the
-next concrete step for `eu-safety-gate-alerts` (which already has quoted
-terms) — see the "Stage decision" section of `research-2026-09-28.md`.
+Only two of the files above were actually removed from git (`aviation/raw/aircraft.csv`
+and `aviation/raw/up01AUG.zip`, for the personal-data reason in
+`../aviation/raw/NOTE-aircraft.md`); the rest of the tarball's contents stay committed
+directly under this round's evidence directories and this archive is a redundant backup
+for them, not their only copy. `eu-safety-gate/raw/cpsc_recent.json` was separately
+dropped without R2 archival (see `../eu-safety-gate/raw/NOTE-cpsc_recent.md` for why);
+this tarball happens to also hold a copy of it from before that decision, which is
+harmless but not the reason this archive exists.
