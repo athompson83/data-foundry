@@ -62,7 +62,8 @@ def snapshot(config: Config, state: State, collector: Collector | None) -> dict:
     counts = state.counts()
     latency = state.one("SELECT AVG(latency_ms) AS avg, COUNT(*) AS n FROM document WHERE latency_ms IS NOT NULL AND updated_at > ?", time.time() - 86400)
     last_extract = state.one("SELECT MAX(updated_at) AS at FROM document WHERE state IN ('extracted', 'quarantined')")
-    last_upload = state.one("SELECT MAX(acked_at) AS at FROM outbox WHERE state = 'acked'")
+    # Acknowledged rows are deleted at once, so the last upload time is kept as a setting.
+    last_upload = {"at": float(state.get("last_upload_at") or 0) or None}
     last_read = state.one("SELECT MAX(retrieved_at) AS at FROM retrieval")
     loaded = []
     if collector and collector.client:

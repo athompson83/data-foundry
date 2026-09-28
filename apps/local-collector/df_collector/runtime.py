@@ -48,6 +48,8 @@ SWEEP_INTERVAL_S = 60
 CAP_PAUSE = "cap: "
 # A refused ingestion credential is retried after this long, so a fixed or re-issued credential resumes on its own.
 CREDENTIAL_RETRY_S = 3600
+# A served-or-not read-back of one notice happens at most this often.
+VERIFY_RECHECK_S = 3600
 PREFILTER = re.compile(r"\b(?:models?|items?|styles?|skus?|part|catalog(?:ue)?|product|article|stock|p/n)\b", re.I | re.A)
 CODE = re.compile(r"\b[A-Za-z0-9-]*[0-9][A-Za-z0-9-]{2,}\b", re.A)
 
@@ -403,9 +405,13 @@ class Collector:
         Read-back may use at most half the daily API allowance, so it never starves the source reading."""
         if self._requests_today() >= self.config.limits.max_api_requests_per_day // 2:
             return 0
+        # Each notice is re-checked at most hourly, oldest check first. A check never touches updated_at, so a
+        # candidate the server does not serve (gate closed, build not publishable) still ages out in the sweep.
         rows = self.state.q(
-            "SELECT DISTINCT recall_id, raw_sha256 FROM candidate WHERE server_status IN ('accepted', 'replayed') AND queryable = 0 AND updated_at < ? LIMIT ?",
+            "SELECT recall_id, raw_sha256 FROM candidate WHERE server_status IN ('accepted', 'replayed') AND queryable = 0 AND updated_at < ? AND COALESCE(checked_at, 0) < ?"
+            " GROUP BY recall_id, raw_sha256 ORDER BY MIN(COALESCE(checked_at, 0)) LIMIT ?",
             time.time() - 60,
+            time.time() - VERIFY_RECHECK_S,
             limit,
         )
         marked = 0
@@ -417,7 +423,7 @@ class Collector:
             with self.state.tx() as db:
                 for candidate in self.state.q("SELECT value, field FROM candidate WHERE recall_id = ? AND raw_sha256 = ? AND server_status IN ('accepted', 'replayed')", row["recall_id"], row["raw_sha256"]):
                     ok = current and validate.model_key(candidate["value"]) in served
-                    db.execute("UPDATE candidate SET queryable = ?, updated_at = ? WHERE recall_id = ? AND raw_sha256 = ? AND field = ? AND value = ?", (1 if ok else 0, time.time(), row["recall_id"], row["raw_sha256"], candidate["field"], candidate["value"]))
+                    db.execute("UPDATE candidate SET queryable = ?, checked_at = ? WHERE recall_id = ? AND raw_sha256 = ? AND field = ? AND value = ?", (1 if ok else 0, time.time(), row["recall_id"], row["raw_sha256"], candidate["field"], candidate["value"]))
                     marked += ok
         return marked
 
@@ -632,6 +638,7 @@ class Uploader:
             # local copy is deleted now; only the count is kept.
             db.execute("DELETE FROM outbox WHERE id = ?", (row["id"],))
             self.state.bump(db, "outbox:acked")
+            db.execute("INSERT INTO setting (key, value) VALUES ('last_upload_at', ?) ON CONFLICT (key) DO UPDATE SET value = excluded.value", (str(time.time()),))
         self.state.event("info", "uploaded", {"id": row["id"], "accepted": answer.get("accepted"), "replayed": answer.get("replayed"), "rejected": answer.get("rejected"), "replay": bool(answer.get("idempotent_replay"))})
 
     def run(self) -> None:

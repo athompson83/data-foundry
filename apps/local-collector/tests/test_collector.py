@@ -823,3 +823,63 @@ class CodexRegressionsRound5(unittest.TestCase):
                 with self.assertRaises(OSError):
                     cli.cmd_run(config, None)
             popen.assert_not_called()
+
+
+class CodexRegressionsRound6(unittest.TestCase):
+    def test_the_dashboard_reports_the_last_successful_upload(self):
+        from df_collector.dashboard import snapshot
+
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Config(data_dir=tmp)
+            config.secrets_dir.mkdir(parents=True)
+            (config.secrets_dir / "ingest-token").write_text("dfi_" + "a" * 40)
+            state = State(config.db_path)
+            with state.tx() as db:
+                state.outbox_add(db, "f" * 64, {"task": TASK, "extractor": {}, "notices": []})
+            self.assertIsNone(snapshot(config, state, None)["last"]["upload"])
+            ok = {"extractor_version": extract.EXTRACTOR_VERSION, "accepted": 0, "replayed": 0, "rejected": 0, "results": []}
+            self.assertTrue(Uploader(config, state, POLICY, opener=FakeOpener([ok])).send_one())
+            self.assertIsNone(state.one("SELECT 1 FROM outbox"))
+            self.assertIsNotNone(snapshot(config, state, None)["last"]["upload"])
+
+    def test_read_back_does_not_keep_unserved_candidates_young(self):
+        import time as _time
+
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Config(data_dir=tmp)
+            state = State(config.db_path)
+            collector = Collector(config, state, client=FakeClient("{}"), policy=POLICY)
+            accepted_at = _time.time() - 6 * 86400
+            with state.tx() as db:
+                db.execute("INSERT INTO candidate (recall_id, raw_sha256, extractor_version, value, field, label, local_decision, server_status, updated_at) VALUES ('cpsc-15034', 'r', 'b', 'SA904', 'Description', 'item', 'accepted', 'accepted', ?)", (accepted_at,))
+            calls = []
+
+            def api_get(task, path, params):
+                calls.append(path)
+                return {"data": {"provenance": {"raw_sha256": "r"}, "extracted_identifiers": []}}  # gate closed: nothing served
+
+            collector.api_get = api_get
+            task = POLICY.task(TASK)
+            self.assertEqual(collector.verify_queryable(task), 0)
+            row = state.one("SELECT updated_at, checked_at, queryable FROM candidate")
+            self.assertEqual(row["updated_at"], accepted_at)
+            self.assertIsNotNone(row["checked_at"])
+            collector.verify_queryable(task)
+            self.assertEqual(len(calls), 1)  # re-checked at most hourly
+            # A day later it is past the seven-day retention and the sweep removes it.
+            with state.tx() as db:
+                db.execute("UPDATE candidate SET updated_at = updated_at - 86400")
+            state.sweep(config.evidence_dir)
+            self.assertIsNone(state.one("SELECT 1 FROM candidate"))
+
+    def test_older_state_files_gain_the_checked_at_column(self):
+        import sqlite3
+
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Config(data_dir=tmp)
+            State(config.db_path).db.close()
+            db = sqlite3.connect(str(config.db_path))
+            db.execute("ALTER TABLE candidate DROP COLUMN checked_at")
+            db.close()
+            state = State(config.db_path)
+            self.assertIn("checked_at", {r[1] for r in state.db.execute("PRAGMA table_info(candidate)")})

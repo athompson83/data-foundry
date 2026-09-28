@@ -98,6 +98,8 @@ CREATE TABLE IF NOT EXISTS candidate (
   server_reason TEXT,
   queryable INTEGER NOT NULL DEFAULT 0,
   updated_at REAL NOT NULL,
+  -- When the read-back last looked for it. Kept apart from updated_at, which the retention sweep ages from.
+  checked_at REAL,
   PRIMARY KEY (recall_id, raw_sha256, extractor_version, field, value)
 );
 CREATE TABLE IF NOT EXISTS outbox (
@@ -140,6 +142,8 @@ class State:
         for column, ddl in (("attempts", "INTEGER NOT NULL DEFAULT 0"), ("server_errors", "INTEGER NOT NULL DEFAULT 0"), ("last_server_error_at", "REAL")):
             if column not in present:
                 self.db.execute(f"ALTER TABLE document ADD COLUMN {column} {ddl}")
+        if "checked_at" not in {row[1] for row in self.db.execute("PRAGMA table_info(candidate)")}:
+            self.db.execute("ALTER TABLE candidate ADD COLUMN checked_at REAL")
 
     @contextmanager
     def tx(self) -> Iterator[sqlite3.Connection]:
