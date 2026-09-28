@@ -29,8 +29,10 @@ permissions:
   contents: read
 
 concurrency:
-  # One acceptance run at a time: two would reissue the same customer's key.
-  group: recalls-acceptance
+  # The production deployment lock: no deploy can change the serving version mid-run, and
+  # two acceptance runs never reissue the same customer's key at once. The script also
+  # re-reads the live version after its checks.
+  group: deploy-production
   cancel-in-progress: false
 
 env:

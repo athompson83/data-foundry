@@ -117,6 +117,32 @@ describe('production acceptance script', () => {
     expect(evidence.source_sha).toBe(SHA);
   });
 
+  it('names an inactive fixture instead of failing obscurely, and still revokes', async () => {
+    const env = makeEnv();
+    await seed(env);
+    await env.DB.prepare("UPDATE customer SET status = 'canceled'").run();
+    const evidence = await runAcceptance(options(env));
+    expect(evidence.ok).toBe(false);
+    expect(evidence.checks.find((check) => check.name === 'acceptance fixture is active')).toMatchObject({ ok: false, detail: expect.stringContaining('status=canceled') });
+    expect(evidence.checks.some((check) => check.name.startsWith('CPSC'))).toBe(false);
+    expect(await env.DB.prepare('SELECT count(*) AS n FROM api_key WHERE revoked_at IS NULL').first()).toEqual({ n: 0 });
+  });
+
+  it('fails when the serving version changes during the run', async () => {
+    const env = makeEnv();
+    await seed(env);
+    let reads = 0;
+    const redeployed = async (request: Request): Promise<Response> => {
+      if (new URL(request.url).pathname === '/admin/version' && ++reads > 1) {
+        return Response.json({ version_id: 'ver-2', tag: SHA.slice(0, 12), timestamp: NOW });
+      }
+      return worker.fetch(request, env);
+    };
+    const evidence = await runAcceptance(options(env, { fetch: redeployed }));
+    expect(evidence.ok).toBe(false);
+    expect(evidence.checks.find((check) => check.name === 'live version unchanged for the whole run')?.ok).toBe(false);
+  });
+
   it('issues nothing when the admin token is wrong', async () => {
     const env = makeEnv();
     await seed(env);

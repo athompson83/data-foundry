@@ -84,7 +84,8 @@ describe('recalls-acceptance workflow', () => {
     const job = accept.workflow.jobs['accept'] as Job;
     expect(job.environment).toBe('production');
     expect(job.if).toContain("github.ref == 'refs/heads/main'");
-    expect(accept.workflow.concurrency).toEqual({ group: 'recalls-acceptance', 'cancel-in-progress': false });
+    // Shares the deployment lock, so the serving version cannot change during a run.
+    expect(accept.workflow.concurrency).toEqual({ group: 'deploy-production', 'cancel-in-progress': false });
     const runs = allRuns(accept.workflow);
     expect(runs).toContain('accept-recalls');
     expect(runs).toContain('^cus_acceptance_internal_[0-9]{8}$');

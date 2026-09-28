@@ -25,11 +25,11 @@ The token needs Workers Scripts:Edit and D1:Read on account `c2832821a9ab36419cd
 
 ## Production acceptance
 
-The `Recalls production acceptance` workflow (`.github/workflows/recalls-acceptance.yml`) runs `apps/recalls-worker/scripts/acceptance.ts` against production. Dispatch it on `main` with `confirm = accept-recalls` and `expected_sha` set to the commit the deploy workflow put live, then approve the environment. It checks out that commit, which must be on `main`, and the script refuses to issue a key unless `/admin/version` shows the live version tagged with that commit. Evidence therefore always describes what is serving. It needs the `RECALLS_ADMIN_TOKEN` environment secret, holding the same value as the Worker's `ADMIN_TOKEN`.
+The `Recalls production acceptance` workflow (`.github/workflows/recalls-acceptance.yml`) runs `apps/recalls-worker/scripts/acceptance.ts` against production. Dispatch it on `main` with `confirm = accept-recalls` and `expected_sha` set to the commit the deploy workflow put live, then approve the environment. It checks out that commit, which must be on `main`, and the script refuses to issue a key unless `/admin/version` shows the live version tagged with that commit, and it fails if the serving version changed by the end of the run. The workflow shares the `deploy-production` lock, so no deploy can start mid-run. Evidence therefore always describes what is serving. It needs the `RECALLS_ADMIN_TOKEN` environment secret, holding the same value as the Worker's `ADMIN_TOKEN`.
 
 The script works on the internal customer `acceptance-20260928`:
 
-- **Customer.** Stripe id `cus_acceptance_internal_20260928`, email `acceptance-internal@aroqon.invalid`, `developer` plan, `active`. The customer holds no active key between runs. The script refuses any customer id that does not match `cus_acceptance_internal_YYYYMMDD`, because a reissue revokes that customer's existing keys.
+- **Customer.** Stripe id `cus_acceptance_internal_20260928`, email `acceptance-internal@aroqon.invalid`, `developer` plan, `active`. The customer stays `active` and holds no active key between runs. If it is ever found `canceled`, reactivate that one row (`UPDATE customer SET status = 'active' WHERE id = 'acceptance-20260928'`, only while it has no active key). The script checks the status and names it. The script refuses any customer id that does not match `cus_acceptance_internal_YYYYMMDD`, because a reissue revokes that customer's existing keys.
 - **Key.** Issued through `POST /admin/reissue-key`. It exists only inside the script's process and is never printed.
 - **Requests.** About fifteen metered requests:
   - CPSC and Health Canada search, pagination, the fire hazard filter, and code lookup;

@@ -208,8 +208,14 @@ export async function runAcceptance(options: AcceptanceOptions): Promise<Accepta
   };
 
   try {
-    if (check('operator reissue returned a key for the internal customer', issued.status === 200 && key !== null && email.endsWith(ACCEPTANCE_EMAIL_SUFFIX), `${issued.status} plan=${customer.plan} status=${customer.status}`)) {
+    const issuedOk = check('operator reissue returned a key for the internal customer', issued.status === 200 && key !== null && email.endsWith(ACCEPTANCE_EMAIL_SUFFIX), `${issued.status} plan=${customer.plan} status=${customer.status}`);
+    // A key for an inactive fixture authenticates to 403 on every endpoint: say so instead of failing obscurely.
+    const activeOk = issuedOk && check('acceptance fixture is active', customer.status === 'active', customer.status === 'active' ? 'active' : `status=${customer.status}: reactivate the fixture (docs/owner-actions/recalls-operations.md, "Production acceptance")`);
+    if (activeOk) {
       await runChecks(key as string);
+      // The whole run must have been served by the version the evidence names.
+      const again = await call(options.publicOrigin, '/admin/version', { admin: true });
+      check('live version unchanged for the whole run', again.status === 200 && again.body?.['version_id'] === liveVersion.version_id && again.body?.['tag'] === liveVersion.tag, `${again.status} version=${String(again.body?.['version_id'])}`);
     }
   } finally {
     // Always revoke, whatever happened above, including a thrown error.
