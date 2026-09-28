@@ -62,9 +62,15 @@ def gtin_readings(code: str) -> set[str]:
 
 def digit_codes(value: str) -> list[str]:
     """Matches the production parser's packages/product-recall-structuring/src/text.ts digitCodes:
-    split on separators, rejoin a grouped code, then pull 8-14 digit runs."""
+    split on separators (including a single space directly before an 8-14
+    digit run, which is how a single-space-delimited list of codes like
+    "675817511256 675817511386 675817511546" is separated — an earlier
+    version of this port omitted that third alternative, so the join-adjacent
+    substitution below fused such a list into one un-splittable 36-digit
+    string instead of three valid codes; Codex review, PR #72), rejoin a
+    grouped code, then pull 8-14 digit runs."""
     out: list[str] = []
-    for token in re.split(r"[,;/|\n]+|\s{2,}", value or ""):
+    for token in re.split(r"[,;/|\n]+|\s{2,}|\s(?=\d{8,14}(?!\d))", value or ""):
         joined = re.sub(r"(?<=\d)[ -](?=\d)", "", token)
         out.extend(re.findall(r"(?<!\d)\d{8,14}(?!\d)", joined))
     return out

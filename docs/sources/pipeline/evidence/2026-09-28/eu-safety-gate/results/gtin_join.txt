@@ -1,8 +1,8 @@
 EU barcodes present: 132/223
-EU barcodes with a valid GS1 check digit (canonical GTIN-14 readings): 106
+EU barcodes with a valid GS1 check digit (canonical GTIN-14 readings): 118
 CPSC recalls (RecallDate 2024-01-01..2026-09-28, n=1184) carrying a GS1-valid ProductUPCs[].UPC: 40
 distinct valid CPSC UPCs (canonical GTIN-14 readings): 170
-declared GTIN overlap (EU barcode == CPSC UPC, both as canonical GTIN-14): 0/106
+declared GTIN overlap (EU barcode == CPSC UPC, both as canonical GTIN-14): 0/118
 Finding: CPSC's ProductUPCs[].UPC field IS populated in this window (40 recalls, 170
 distinct GS1-valid codes) — the earlier '0 UPC data' conclusion in this script was a
 field-name bug, not a real source limitation. This particular 223-record EU sample simply

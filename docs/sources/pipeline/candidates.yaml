@@ -4737,17 +4737,23 @@ datasets:
   - key: aviation-safety-events
     name: US aviation accident/incident and airworthiness-action register (NTSB + FAA)
     category: transport
-    entity: aviation_safety_event (one NTSB accident/incident record, or one FAA airworthiness/special-conditions
-      action), linked where they concern the same aircraft make/model
+    entity: aircraft_model (one make + model designation, e.g. "Cessna 182"), with its NTSB accident/incident
+      history and its current FAA airworthiness/special-conditions actions as per-model facts from two
+      independent federal publishers
     stage: SCREENED
-    description: "One record per NTSB aviation accident/incident (aircraft, event, flight-crew and narrative
-      facts from the monthly eADMSPUB extract) or FAA airworthiness directive/special-conditions action (from
-      the Federal Register API), covering the same aircraft population from two independent federal
-      publishers. No declared identifier links the two record types (an accident names a specific aircraft by
-      N-number; an airworthiness action names an aircraft type/model, not a tail number), so the aircraft
-      make/model is a reviewed candidate link only, never an automatic merge (AGENTS.md rules 3 and 7): it
-      tells an agent that a model involved in a real accident also has open manufacturer/FAA safety actions,
-      not that any specific accident caused any specific directive."
+    description: "A Codex review on PR #72 correctly rejected an earlier version of this entry: NTSB publishes
+      accident/incident records (an investigated event) and Federal Register publishes regulatory actions (an
+      airworthiness directive), which are not the same entity type — describing 'one record per NTSB accident
+      or FAA action' as a single entity, per member, does not satisfy this pipeline's composite definition
+      (README: a dataset is one entity type assembled from several sources). The entity is instead the
+      aircraft model itself: NTSB contributes which models appeared in which investigated accidents/incidents
+      (aircraft, event, flight-crew and narrative facts from the monthly eADMSPUB extract, keyed by
+      make+model), and Federal Register contributes which models are named in a current airworthiness or
+      special-conditions action (keyed the same way). No declared identifier links a specific accident to a
+      specific directive (an accident names a tail number; a directive names a model, never a tail number), so
+      the make/model key is a reviewed candidate link only, never an automatic merge (AGENTS.md rules 3 and
+      7): it tells an agent that a model involved in a real accident also has open manufacturer/FAA safety
+      actions, not that any specific accident caused any specific directive."
     sources:
       - ntsb-aviation-accidents
       - faa-airworthiness-directives
