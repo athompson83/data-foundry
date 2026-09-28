@@ -82,3 +82,11 @@ Read-only Stripe, live account `acct_1U3gItLlvU3ZaHdi` (Aroqon Data), 2026-09-28
 - **Fixture reactivated (2026-09-28 17:45 UTC).** `acceptance-20260928` was set back to `active`, touching one row and only while it had 0 active keys, so the acceptance workflow can authenticate. It still has no key until a run issues and revokes one.
 - **Fixture lifecycle, superseding the manual reactivation.** From PR #74's final code, each acceptance run opens the fixture itself and closes it (revoke plus suspend, in one transaction) through `/admin/acceptance-fixture`. The 17:45 manual reactivation is therefore no longer needed, and the fixture is left `suspended` after every run.
 
+## 8. First dispatch of `Deploy recalls Worker` (run 36473322447, 2026-09-28 19:35 UTC)
+
+- **Source.** PR #74 merged as `9e487ff`. Push CI run 36471296870 on it succeeded (typecheck, tests, migrations on real Postgres).
+- **Guard.** Passed: the approved SHA matched and CI on `9e487ff` was green.
+- **Environment.** The `production` environment released the job with no approval wait. `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` are present, and the account id matches the recalls account.
+- **Checks.** The recalls typecheck and tests passed, and the bundle built (SHA-256 `b58a498f…83d7`).
+- **Stopped at the migration gate. Nothing was deployed and the live version is unchanged.** `wrangler d1 migrations list --remote` exited non-zero. The step's `set -e` hid wrangler's message, which a follow-up change now prints. Production D1 read through the connector shows `0001`–`0003` applied, so no migration is pending. The failure is the listing itself, most likely a token without D1 read access. The gate stays fail-closed.
+
