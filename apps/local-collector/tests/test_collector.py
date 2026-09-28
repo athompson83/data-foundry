@@ -588,3 +588,75 @@ class CatalogRecheck(unittest.TestCase):
             collector.tick()
             due = state.one("SELECT due_at FROM job WHERE kind = 'catalog'")["due_at"]
             self.assertLessEqual(due, now + CATALOG_RETRY_S + 5)
+
+
+class CodexRegressions(unittest.TestCase):
+    def test_uploader_never_follows_a_redirect_with_the_credential(self):
+        seen = []
+
+        class Recorder(BaseHTTPRequestHandler):
+            def log_message(self, *args):
+                return
+
+            def do_GET(self):
+                seen.append(self.headers.get("Authorization"))
+                self.send_response(200)
+                self.end_headers()
+
+            do_POST = do_GET
+
+        elsewhere = ThreadingHTTPServer(("127.0.0.1", 0), Recorder)
+        threading.Thread(target=elsewhere.serve_forever, daemon=True).start()
+        self.addCleanup(elsewhere.server_close)
+        self.addCleanup(elsewhere.shutdown)
+        target = f"http://127.0.0.1:{elsewhere.server_address[1]}/steal"
+
+        class Redirector(BaseHTTPRequestHandler):
+            def log_message(self, *args):
+                return
+
+            def do_POST(self):
+                self.rfile.read(int(self.headers.get("Content-Length") or 0))
+                self.send_response(302)
+                self.send_header("Location", target)
+                self.send_header("Content-Length", "0")
+                self.end_headers()
+
+        intake = ThreadingHTTPServer(("127.0.0.1", 0), Redirector)
+        threading.Thread(target=intake.serve_forever, daemon=True).start()
+        self.addCleanup(intake.server_close)
+        self.addCleanup(intake.shutdown)
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Config(data_dir=tmp, api_origin=f"http://127.0.0.1:{intake.server_address[1]}")
+            config.secrets_dir.mkdir(parents=True)
+            (config.secrets_dir / "ingest-token").write_text("dfi_" + "b" * 40)
+            state = State(config.db_path)
+            with state.tx() as db:
+                state.outbox_add(db, "e" * 64, {"task": TASK, "extractor": {}, "notices": []})
+            import os
+
+            os.environ.setdefault("NO_PROXY", "127.0.0.1")
+            self.assertFalse(Uploader(config, state, POLICY).send_one())
+            self.assertEqual(seen, [])
+            row = state.one("SELECT state, last_error FROM outbox")
+            self.assertEqual(row["state"], "pending")
+            self.assertIn("redirect refused", row["last_error"])
+
+    def test_the_daily_allowance_pauses_jobs_without_dead_lettering_them(self):
+        from df_collector import catalog
+
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Config(data_dir=tmp)
+            config.limits.max_api_requests_per_day = 0
+            state = State(config.db_path)
+            collector = Collector(config, state, client=FakeClient("{}"), policy=POLICY)
+            hosted = catalog.parse_root(ROOT_BODY)
+            state.set("catalog", json.dumps({"fetched_at": __import__("time").time(), "hosted": hosted, "plan": catalog.capture_plan(POLICY, hosted)}))
+            for _ in range(12):
+                with state.tx() as db:
+                    db.execute("UPDATE job SET due_at = 0")
+                collector.tick()
+            jobs = {r["kind"]: (r["state"], r["attempts"]) for r in state.q("SELECT kind, state, attempts FROM job")}
+            self.assertEqual(jobs["read"], ("pending", 0))
+            self.assertEqual(jobs["catalog"], ("pending", 0))
+            self.assertGreater(state.one("SELECT due_at FROM job WHERE kind = 'read'")["due_at"], __import__("time").time() + 50)

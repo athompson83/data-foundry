@@ -32,7 +32,7 @@ from urllib.parse import urlencode, urlsplit
 
 from . import COLLECTOR_ID, catalog as catalog_mod, extract, policy as policy_mod, validate
 from .config import Config
-from .netguard import FetchFailed, FetchRefused, HostPolicy, SafeFetcher
+from .netguard import FetchFailed, FetchRefused, HostPolicy, RateLimited, SafeFetcher
 from .ollama import LocalModelError, OllamaClient
 from .state import State, backoff_seconds
 
@@ -71,6 +71,18 @@ def rewind_backfill(db, state: State) -> None:
     """Restart the backfill from the first page. Notices already done are skipped by id and hash, so this costs only
     API reads, and any notice whose working copy was removed is queued again."""
     db.execute("DELETE FROM cursor WHERE task = ? AND name IN ('backfill_cursor', 'backfill_done')", (TASK,))
+
+
+def seconds_until_utc_midnight() -> float:
+    now = datetime.now(timezone.utc)
+    return 86400 - (now.hour * 3600 + now.minute * 60 + now.second) + 5
+
+
+class NoRedirect(urllib.request.HTTPRedirectHandler):
+    """The uploader never follows a redirect: the ingestion credential goes only to the policy-checked intake URL."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):  # noqa: D401 - urllib hook
+        return None
 
 
 def worth_extracting(record: dict) -> bool:
@@ -151,7 +163,7 @@ class Collector:
 
     def api_get(self, task: policy_mod.TaskPolicy, path: str, params: dict) -> dict:
         if self._requests_today() >= self.config.limits.max_api_requests_per_day:
-            raise FetchFailed("daily API request cap reached", retry_after=3600)
+            raise RateLimited("daily API request cap reached", retry_after=seconds_until_utc_midnight())
         url = self.config.api_origin.rstrip("/") + path + "?" + urlencode(params)
         self._count_request()
         # The API host is Data Foundry's own; robots.txt on the api host disallows crawlers, and this is an
@@ -167,7 +179,7 @@ class Collector:
         """Read the datasets Data Foundry serves now (keyless API root and stats) and rebuild the capture plan."""
         origin = self.config.api_origin.rstrip("/")
         if self._requests_today() >= self.config.limits.max_api_requests_per_day:
-            raise FetchFailed("daily API request cap reached", retry_after=3600)
+            raise RateLimited("daily API request cap reached", retry_after=seconds_until_utc_midnight())
         self._count_request()
         root = self._fetcher(task).get(origin + "/", check_robots=False)
         hosted = catalog_mod.parse_root(root.body)
@@ -415,6 +427,8 @@ class Collector:
             try:
                 self.refresh_catalog(task)
                 self.state.finish(job["id"], self.owner, next_due=time.time() + CATALOG_INTERVAL_S)
+            except RateLimited as error:
+                self._wait_for_allowance(job, error)
             except (FetchFailed, FetchRefused, ValueError) as error:
                 self.state.fail(job["id"], self.owner, str(error), retry_after=getattr(error, "retry_after", None))
                 self.state.event("warn", "catalog_failed", str(error))
@@ -434,6 +448,8 @@ class Collector:
                 try:
                     delay = self.read_page(task)
                     self.state.finish(job["id"], self.owner, next_due=time.time() + delay)
+                except RateLimited as error:
+                    self._wait_for_allowance(job, error)
                 except FetchRefused as error:
                     self.state.fail(job["id"], self.owner, str(error), refused=True)
                     self.state.event("error", "refused", str(error))
@@ -461,9 +477,18 @@ class Collector:
             try:
                 self.verify_queryable(task)
                 self.state.finish(job["id"], self.owner, next_due=time.time() + 300)
+            except RateLimited as error:
+                self._wait_for_allowance(job, error)
             except (FetchFailed, FetchRefused, policy_mod.PolicyRefused, ValueError) as error:
                 self.state.fail(job["id"], self.owner, str(error), retry_after=getattr(error, "retry_after", None))
                 self.state.event("warn", "verify_failed", str(error))
+
+    def _wait_for_allowance(self, job, error: RateLimited) -> None:
+        """A used-up allowance is a pause, not a failure: release the job without charging an attempt."""
+        delay = max(float(error.retry_after or 0), 60.0) if error.retry_after is not None else 3600.0
+        self.state.release(job["id"], self.owner, delay)
+        self.status.update(phase=f"waiting for the request allowance ({error})", current=None)
+        self.state.event("info", "allowance_wait", {"job": job["kind"], "seconds": round(delay)})
 
     def run(self) -> None:
         self.state.event("info", "started", {"collector": COLLECTOR_ID, "pid": os.getpid()})
@@ -486,7 +511,7 @@ class Uploader:
         self.state = state
         self.policy = policy or policy_mod.load()
         self.stop = threading.Event()
-        self._opener = opener or urllib.request.build_opener()
+        self._opener = opener or urllib.request.build_opener(NoRedirect())
 
     def _token(self) -> str | None:
         return self.config.secret("ingest-token")
@@ -530,6 +555,9 @@ class Uploader:
                 self._defer(row, f"{error.code}: {detail}", 3600)
             elif error.code in (400, 409, 413):
                 self._dead(row, f"{error.code}: {detail}")
+            elif 300 <= error.code < 400:
+                # Never followed (the credential stays with the checked URL); an intake that redirects is misconfigured.
+                self._defer(row, f"{error.code} redirect refused: {detail}", 3600)
             else:
                 retry = error.headers.get("retry-after") if error.headers else None
                 self._defer(row, f"{error.code}: {detail}", max(float(retry) if retry and retry.isdigit() else 0, backoff_seconds(row["attempts"])))

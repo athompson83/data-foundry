@@ -39,6 +39,10 @@ class FetchFailed(RuntimeError):
         self.retry_after = retry_after
 
 
+class RateLimited(FetchFailed):
+    """A 429 or a local request allowance used up: wait until it resets. Not a failed attempt, so it never dead-letters."""
+
+
 BLOCKED_NETWORKS = [ipaddress.ip_network(n) for n in ("100.64.0.0/10", "192.0.0.0/24", "198.18.0.0/15", "64:ff9b::/96", "2001:db8::/32")]
 
 
@@ -201,7 +205,9 @@ class SafeFetcher:
                     raise FetchFailed(f"redirect without Location from {current}")
                 current = urljoin(current, location)
                 continue  # the next hop is re-checked (scheme, host allowlist, prohibited list, DNS/IP)
-            if response.status == 429 or response.status >= 500:
+            if response.status == 429:
+                raise RateLimited(f"429 from {current}", retry_after=_retry_after(response.headers.get("retry-after")))
+            if response.status >= 500:
                 raise FetchFailed(f"{response.status} from {current}", retry_after=_retry_after(response.headers.get("retry-after")))
             if response.status >= 400:
                 raise FetchRefused(f"{response.status} from {current}")
