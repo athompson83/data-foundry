@@ -113,10 +113,11 @@ export async function runAcceptance(options: AcceptanceOptions): Promise<Accepta
   const indexnow = await call(options.publicOrigin, '/admin/indexnow-status', { admin: true });
   check('operator IndexNow status readable (deployed code has the per-feed watermark path)', indexnow.status === 200, String(indexnow.status));
 
-  const issued = await call(options.publicOrigin, `/admin/reissue-key?stripe_customer_id=${encodeURIComponent(options.stripeCustomerId)}`, { method: 'POST', admin: true });
-  const key = typeof issued.body?.['api_key'] === 'string' ? (issued.body['api_key'] as string) : null;
-  const email = String(issued.body?.['email'] ?? '');
-  const customer = { stripe_customer_id: options.stripeCustomerId, plan: (issued.body?.['plan'] as string | undefined) ?? null, status: (issued.body?.['status'] as string | undefined) ?? null };
+  // Set inside the guarded block below, so a key created by a reissue whose response is lost
+  // (or whose fetch throws) is still revoked by customer id in `finally`.
+  let key: string | null = null;
+  let reissueAttempted = false;
+  const customer: { stripe_customer_id: string; plan: string | null; status: string | null } = { stripe_customer_id: options.stripeCustomerId, plan: null, status: null };
   let metered = 0;
   let revocation: AcceptanceEvidence['revocation'] = { revoked: false, active_keys: null, rejected_after: false };
 
@@ -210,6 +211,12 @@ export async function runAcceptance(options: AcceptanceOptions): Promise<Accepta
   };
 
   try {
+    reissueAttempted = true;
+    const issued = await call(options.publicOrigin, `/admin/reissue-key?stripe_customer_id=${encodeURIComponent(options.stripeCustomerId)}`, { method: 'POST', admin: true });
+    key = typeof issued.body?.['api_key'] === 'string' ? (issued.body['api_key'] as string) : null;
+    const email = String(issued.body?.['email'] ?? '');
+    customer.plan = (issued.body?.['plan'] as string | undefined) ?? null;
+    customer.status = (issued.body?.['status'] as string | undefined) ?? null;
     const issuedOk = check('operator reissue returned a key for the internal customer', issued.status === 200 && key !== null && email.endsWith(ACCEPTANCE_EMAIL_SUFFIX), `${issued.status} plan=${customer.plan} status=${customer.status}`);
     // A key for an inactive fixture authenticates to 403 on every endpoint: say so instead of failing obscurely.
     const activeOk = issuedOk && check('acceptance fixture is active', customer.status === 'active', customer.status === 'active' ? 'active' : `status=${customer.status}: reactivate the fixture (docs/owner-actions/recalls-operations.md, "Production acceptance")`);
@@ -220,17 +227,20 @@ export async function runAcceptance(options: AcceptanceOptions): Promise<Accepta
       check('live version unchanged for the whole run', again.status === 200 && again.body?.['version_id'] === liveVersion.version_id && again.body?.['tag'] === liveVersion.tag, `${again.status} version=${String(again.body?.['version_id'])}`);
     }
   } finally {
-    // Always revoke, whatever happened above, including a thrown error.
-    if (key) {
+    // Always revoke once a reissue was attempted, by customer id, whether or not a key came back
+    // and whatever happened above, including a thrown error.
+    if (reissueAttempted) {
       const revoked = await call(options.publicOrigin, `/admin/revoke-keys?stripe_customer_id=${encodeURIComponent(options.stripeCustomerId)}`, { method: 'POST', admin: true });
-      const rejected = await call(api, '/v1/account', { key });
-      const rejectedData = await call(api, '/v1/product-recalls?limit=1', { key });
-      revocation = {
-        revoked: revoked.status === 200,
-        active_keys: typeof revoked.body?.['active_keys'] === 'number' ? (revoked.body['active_keys'] as number) : null,
-        rejected_after: rejected.status === 401 && rejectedData.status === 401 && errorCode(rejectedData.body) === 'invalid_key',
-      };
-      check('temporary key revoked and rejected afterwards', revocation.revoked && revocation.active_keys === 0 && revocation.rejected_after, `revoke=${revoked.status} active_keys=${revocation.active_keys} after=${rejected.status}/${rejectedData.status}`);
+      const activeKeys = typeof revoked.body?.['active_keys'] === 'number' ? (revoked.body['active_keys'] as number) : null;
+      if (key) {
+        const rejected = await call(api, '/v1/account', { key });
+        const rejectedData = await call(api, '/v1/product-recalls?limit=1', { key });
+        revocation = { revoked: revoked.status === 200, active_keys: activeKeys, rejected_after: rejected.status === 401 && rejectedData.status === 401 && errorCode(rejectedData.body) === 'invalid_key' };
+        check('temporary key revoked and rejected afterwards', revocation.revoked && revocation.active_keys === 0 && revocation.rejected_after, `revoke=${revoked.status} active_keys=${revocation.active_keys} after=${rejected.status}/${rejectedData.status}`);
+      } else {
+        revocation = { revoked: revoked.status === 200, active_keys: activeKeys, rejected_after: false };
+        check('no key left active after a reissue that returned none', revocation.revoked && activeKeys === 0, `revoke=${revoked.status} active_keys=${activeKeys}`);
+      }
     }
   }
 

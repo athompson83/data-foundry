@@ -158,6 +158,20 @@ describe('production acceptance script', () => {
     expect(evidence.checks.find((check) => check.name === 'FDA code lookup returns the recall that lists the code')).toMatchObject({ ok: false });
   });
 
+  it('revokes by customer id when the reissue response is lost after the key was created', async () => {
+    const env = makeEnv();
+    await seed(env);
+    const lossy = async (request: Request): Promise<Response> => {
+      const response = await worker.fetch(request, env);
+      if (new URL(request.url).pathname === '/admin/reissue-key') throw new Error('connection reset');
+      return response;
+    };
+    await expect(runAcceptance(options(env, { fetch: lossy }))).rejects.toThrow('connection reset');
+    // The Worker created a key, the script never saw it, and it is revoked anyway.
+    expect(await env.DB.prepare('SELECT count(*) AS n FROM api_key').first()).toEqual({ n: 1 });
+    expect(await env.DB.prepare('SELECT count(*) AS n FROM api_key WHERE revoked_at IS NULL').first()).toEqual({ n: 0 });
+  });
+
   it('issues nothing when the admin token is wrong', async () => {
     const env = makeEnv();
     await seed(env);
