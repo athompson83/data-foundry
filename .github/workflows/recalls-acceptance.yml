@@ -63,6 +63,10 @@ jobs:
             echo "::error::RECALLS_ADMIN_TOKEN (the Worker's ADMIN_TOKEN) is not set for the production environment."
             exit 1
           fi
+          if [[ "$ADMIN_TOKEN" =~ [[:space:]] ]]; then
+            echo "::error::RECALLS_ADMIN_TOKEN contains whitespace or a line break. Re-save it as the single-line value of the Worker's ADMIN_TOKEN."
+            exit 1
+          fi
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:

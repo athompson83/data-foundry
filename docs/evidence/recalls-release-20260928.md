@@ -88,5 +88,26 @@ Read-only Stripe, live account `acct_1U3gItLlvU3ZaHdi` (Aroqon Data), 2026-09-28
 - **Guard.** Passed: the approved SHA matched and CI on `9e487ff` was green.
 - **Environment.** The `production` environment released the job with no approval wait. `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` are present, and the account id matches the recalls account.
 - **Checks.** The recalls typecheck and tests passed, and the bundle built (SHA-256 `b58a498f…83d7`).
-- **Stopped at the migration gate. Nothing was deployed and the live version is unchanged.** `wrangler d1 migrations list --remote` exited non-zero. The step's `set -e` hid wrangler's message, which a follow-up change now prints. Production D1 read through the connector shows `0001`–`0003` applied, so no migration is pending. The failure is the listing itself, most likely a token without D1 read access. The gate stays fail-closed.
+- **Stopped at the migration gate. Nothing was deployed and the live version is unchanged.** `wrangler d1 migrations list --remote` exited non-zero. The step's `set -e` hid wrangler's message, which a follow-up change now prints. Production D1 read through the connector shows `0001`–`0003` applied, so no migration is pending. The failure is the listing itself. The gate stays fail-closed. (The "missing D1 read" guess made here was wrong; see §9.)
+
+## 9. Second dispatch (run 36478142394, source `3a256c6` = PR #76, 20:17 UTC): root cause found
+
+- **Before the gate.** The guard, environment release, secrets presence, account-id match, recalls tests and bundle all passed again. Nothing was deployed.
+- **What wrangler printed.** With its output now visible, wrangler failed before any API call: `Headers.set: "***⏎***" is an invalid header value.` GitHub masks each line of a secret separately, so the masked value spanning two lines means **the `production` environment secret `CLOUDFLARE_API_TOKEN` contains a line break.** Every Cloudflare API call made with it fails (listing, deploy, rollback), so this is not a D1-permission problem. Run 1 failed the same way.
+- **Why this is left to the owner.** The token is not repaired in the workflow. Stripping the break could silently join two lines into a different credential.
+- **What the workflow now does.** It refuses a token containing whitespace or a line break before any call, with a message naming the fix. The acceptance workflow checks `RECALLS_ADMIN_TOKEN` the same way.
+- **Unblocking the deploy.** The owner re-saves `CLOUDFLARE_API_TOKEN` in GitHub → Settings → Environments → `production` as the single-line token, then the workflow is dispatched again. The same secret name is read by `deploy-production.yml`, so the same fix applies there.
+
+## 10. Release state at session end (2026-09-28 ~20:25 UTC)
+
+| Item | State |
+| --- | --- |
+| Source | `main` at `3a256c6`. #74 (`9e487ff`) and #76 (`3a256c6`) merged with required CI green on the exact heads and Codex clean. |
+| Production Worker | **Unchanged**, still the pre-#73 bundle (version recorded as `40ea452b`, not re-read through the API this session). Nothing from #73/#74/#76 is live. |
+| Product-recall authenticated acceptance | **Not run.** It needs the deploy, then `RECALLS_ADMIN_TOKEN`. The fixture `acceptance-20260928` is `active` with 0 keys (reactivated 17:45 UTC). The first acceptance run leaves it `suspended`. |
+| Temporary credentials | None active. The two hand-made keys from 15:53 UTC are revoked, and the D1 read-back showed 0 active keys at 17:45 UTC. |
+| IndexNow product feed | Merged, not deployed. No scheduled run has occurred, and there is no runtime evidence. Submissions are not proof of indexing. |
+| Purchase fulfilment | Sandbox end-to-end run on 2026-09-26. The fulfilment code is unchanged since then (only the return URLs changed). Live prices and webhook were reconciled read-only. Live purchases: 0. Revenue: 0. |
+| RapidAPI | Adapter merged and tested, closed (`RAPIDAPI_ENABLED = "0"`). Not deployed, not listed. |
+| Pay Per Crawl | Closed beta per Cloudflare docs (2026-07-28). Enrollment unknown. Owner steps in `docs/owner-actions/pay-per-crawl-recalls.md`. |
 

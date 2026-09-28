@@ -58,6 +58,8 @@ describe('deploy-recalls workflow', () => {
   it('targets only the recalls Worker on its recorded account, with rollback and verification', () => {
     const runs = allRuns(deploy.workflow);
     expect(runs).toContain('"$CLOUDFLARE_ACCOUNT_ID" != "$RECALLS_ACCOUNT_ID"');
+    // A multi-line or padded token is refused by shape before any API call (run 36478142394).
+    expect(runs).toContain('if [[ "$CLOUDFLARE_API_TOKEN" =~ [[:space:]] ]]; then');
     expect(deploy.source).toContain('RECALLS_ACCOUNT_ID: c2832821a9ab36419cde6ee08112f6d3');
     const deploySteps = (deploy.workflow.jobs['deploy'] as Job).steps.filter((step) => /wrangler deploy (?!--dry-run)/.test(step.run ?? ''));
     expect(deploySteps).toHaveLength(1);
@@ -91,6 +93,7 @@ describe('recalls-acceptance workflow', () => {
     const runs = allRuns(accept.workflow);
     expect(runs).toContain('accept-recalls');
     expect(runs).toContain('^cus_acceptance_internal_[0-9]{8}$');
+    expect(runs).toContain('if [[ "$ADMIN_TOKEN" =~ [[:space:]] ]]; then');
   });
 
   it('accepts only the deployed commit: an approved SHA on main, checked out and passed to the script', () => {
