@@ -532,6 +532,28 @@ class Retention(unittest.TestCase):
         self.collector.tick()
         self.assertEqual(self.state.paused(), "paused from the dashboard")
 
+    def test_purge_refuses_while_notices_wait_and_force_rewinds_the_backfill(self):
+        from df_collector.__main__ import main
+
+        self.collector.queue_documents([self.notice("cpsc-00001", RECORD)])
+        with self.state.tx() as db:
+            self.state.set_cursor(db, TASK, "backfill_cursor", "abc")
+        self.assertEqual(main(["--data-dir", self.tmp.name, "purge"]), 1)
+        self.assertEqual(main(["--data-dir", self.tmp.name, "purge", "--force"]), 0)
+        state = State(self.config.db_path)
+        self.assertIsNone(state.one("SELECT 1 FROM document"))
+        self.assertIsNone(state.cursor(TASK, "backfill_cursor"))
+
+    def test_a_missing_working_copy_rewinds_instead_of_crashing(self):
+        self.collector.queue_documents([self.notice("cpsc-00001", RECORD)])
+        for path in self.config.evidence_dir.rglob("*.json"):
+            path.unlink()
+        with self.state.tx() as db:
+            self.state.set_cursor(db, TASK, "backfill_done", "1")
+        self.assertTrue(self.collector.extract_one())
+        self.assertIsNone(self.state.one("SELECT 1 FROM document"))
+        self.assertIsNone(self.state.cursor(TASK, "backfill_done"))
+
     def test_purge_refuses_with_uploads_owed_then_leaves_no_notice_data(self):
         from df_collector.__main__ import main
 

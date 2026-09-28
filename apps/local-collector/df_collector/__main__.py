@@ -230,6 +230,17 @@ def cmd_purge(config: Config, everything: bool, remove_model: bool, force: bool)
         if pending and not force:
             print(f"{pending} upload(s) are not yet acknowledged by Data Foundry; run the collector until they are, or pass --force", file=sys.stderr)
             return 1
+        waiting = int(state.one("SELECT COUNT(*) AS n FROM document WHERE state = 'queued'")["n"])
+        if waiting and not force:
+            print(f"{waiting} notice(s) are still waiting for the model: the work is not done. Let the collector finish, or pass --force (they are read again from Data Foundry on the next run)", file=sys.stderr)
+            return 1
+        if waiting:
+            from .runtime import rewind_backfill
+
+            with state.tx() as db:
+                db.execute("DELETE FROM document WHERE state = 'queued'")
+                rewind_backfill(db, state)
+            report["rewound"] = f"{waiting} queued notice(s) forgotten; the backfill restarts from the first page on the next run"
         report["swept"] = state.sweep(config.evidence_dir, unverified_days=0)
         with state.tx() as db:
             db.execute("DELETE FROM candidate")
@@ -257,7 +268,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("arg", nargs="?")
     parser.add_argument("--everything", action="store_true", help="purge: delete the whole data directory")
     parser.add_argument("--remove-model", action="store_true", help="purge: also run `ollama rm` on the configured model")
-    parser.add_argument("--force", action="store_true", help="purge: even with uploads still pending (their candidates are lost)")
+    parser.add_argument("--force", action="store_true", help="purge: even with work outstanding; queued notices are re-read from Data Foundry on the next run, and owed uploads are kept and sent then (with --everything they are lost)")
     args = parser.parse_args(argv)
     config = load(args.config, args.data_dir)
     if args.command == "init":

@@ -50,3 +50,35 @@ feeds, for the snapshot.
   Task, `winget` and desktop shortcuts need the owner's Windows computer.
 - **A production deploy.** The session has no Cloudflare credentials.
 - **Elapsed stability.** The run lasted minutes, not days.
+
+## Unattended run and local retention (later the same day)
+
+Product Owner direction: "Make sure this stays on an autonomous run. It should get a large load of data into our
+database without keeping it locally after the work is done."
+
+The collector ran from 18:21 to 19:06 UTC against the same local Worker, with no input after start. It was sampled
+every five minutes:
+
+| UTC | Extracted | Queued | Skipped | Outbox rows | Candidate rows | Notice text on disk | Server-accepted identifiers |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 18:25 | 31 | 420 | 274 | 0 | 5 | 2.7 MB | 16 |
+| 18:35 | 49 | 515 | 336 | 0 | 5 | 3.1 MB | 41 |
+| 18:45 | 68 | 512 | 345 | 0 | 34 | 3.1 MB | 62 |
+| 18:55 | 93 | 501 | 356 | 0 | 11 | 3.1 MB | 72 |
+| 19:06 | 117 | 512 | 370 | 0 | 13 | 3.1 MB | 100 |
+
+- **Throughput.** About 125 notices an hour on 4 CPU cores. Acknowledged uploads were deleted on arrival, so the
+  outbox stayed at 0. Notice text on disk was only the waiting backlog, capped by `max_queue`.
+- **Candidate rows.** These rose while read-back checked one notice per pass. After read-back was raised to five
+  (limited to half the daily API allowance), they fell back.
+- **Self-recovery.**
+  - At the start the collector idled, because its stored catalog still said the dataset was withdrawn (from the
+    kill-switch test). This led to the hourly catalog re-read while waiting, and a catalog re-read on every start.
+  - The container had also restarted, taking Ollama down. The collector waited for it, as designed.
+- **Purge.**
+  - `purge` refused while an upload was still owed, and again while notices were queued.
+  - `purge --force` rewound the backfill instead of orphaning the queue. Local data went from 3.9 MB to 296 KB:
+    config, secrets and a state file holding notice ids, hashes and counts.
+  - After the last upload was delivered (85 in total), `purge --everything` removed the data directory.
+  - The session's own snapshots and the local database replica were then deleted as well (303 MB to 108 KB).
+- **Final local Data Foundry database** before deletion: 100 accepted identifiers across 23 notices.

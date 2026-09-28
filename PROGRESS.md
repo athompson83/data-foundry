@@ -41,6 +41,16 @@
   - Replay with the same and with new keys created no duplicates.
   - After `kill -9`, the restart resumed with 0 duplicate documents.
   - Source withdrawal, credential revocation and the dataset kill switch were each refused or idled correctly.
+- **Unattended run with no lasting local copy** (owner: "Make sure this stays on an autonomous run … without keeping
+  it locally after the work is done").
+  - Every stop condition now recovers by itself. Notice text exists locally only while queued, and acknowledged
+    uploads and final candidates are deleted at once, keeping only counts.
+  - `purge` refuses while work is owed, and `--everything` removes the data directory.
+    `apps/local-collector/deploy/enable-production.sh` makes production enablement one operator command. It does
+    not change the gates, and setting them to `"1"` in `wrangler.toml` was refused by the session's permission
+    check as a feature-flag write.
+  - A 41-minute unattended run added 84 identifiers at about 125 notices an hour, with 0 outbox rows kept.
+  - Purge left no local notice data, and this session's snapshots and local replica were deleted (303 MB to 108 KB).
 - **Not done.**
   - Production: the deploy, migration `0004`, a minted credential, and the open gates. The session has no
     Cloudflare credentials, and deploys run through the owner-dispatched `deploy-production` workflow or an

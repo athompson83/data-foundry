@@ -67,6 +67,12 @@ def dir_size_mb(path: Path) -> float:
     return total / (1024 * 1024)
 
 
+def rewind_backfill(db, state: State) -> None:
+    """Restart the backfill from the first page. Notices already done are skipped by id and hash, so this costs only
+    API reads, and any notice whose working copy was removed is queued again."""
+    db.execute("DELETE FROM cursor WHERE task = ? AND name IN ('backfill_cursor', 'backfill_done')", (TASK,))
+
+
 def worth_extracting(record: dict) -> bool:
     """A cheap scheduling heuristic (not a decision): a product label word and a digit-bearing code somewhere."""
     text = "\n".join(validate.candidate_field_text(record, f) or "" for f in validate.candidate_fields(record))
@@ -281,7 +287,16 @@ class Collector:
         row = self.state.one("SELECT * FROM document WHERE state = 'queued' AND task = ? ORDER BY attempts, retrieved_at LIMIT 1", TASK)
         if row is None:
             return False
-        record = json.loads(Path(row["evidence_path"]).read_text())
+        try:
+            record = json.loads(Path(row["evidence_path"]).read_text())
+        except (OSError, ValueError):
+            # The working copy is gone (a purge or a manual clean-up): forget the notice and rewind the backfill, so
+            # it is read again from Data Foundry rather than lost.
+            with self.state.tx() as db:
+                db.execute("DELETE FROM document WHERE recall_id = ? AND raw_sha256 = ? AND extractor_version = ?", (row["recall_id"], row["raw_sha256"], row["extractor_version"]))
+                rewind_backfill(db, self.state)
+            self.state.event("warn", "working_copy_missing", {"recall_id": row["recall_id"]})
+            return True
         self.status.update(phase="extracting", current=row["recall_id"])
         started = time.monotonic()
         try:
@@ -338,8 +353,12 @@ class Collector:
 
     # -- publication check ---------------------------------------------------------------------------------------
 
-    def verify_queryable(self, task: policy_mod.TaskPolicy, limit: int = 1) -> int:
-        """Read back server-accepted candidates through the authenticated customer API; mark the ones it serves."""
+    def verify_queryable(self, task: policy_mod.TaskPolicy, limit: int = 5) -> int:
+        """Read back server-accepted candidates through the authenticated customer API; mark the ones it serves.
+
+        Read-back may use at most half the daily API allowance, so it never starves the source reading."""
+        if self._requests_today() >= self.config.limits.max_api_requests_per_day // 2:
+            return 0
         rows = self.state.q(
             "SELECT DISTINCT recall_id, raw_sha256 FROM candidate WHERE server_status IN ('accepted', 'replayed') AND queryable = 0 AND updated_at < ? LIMIT ?",
             time.time() - 60,
