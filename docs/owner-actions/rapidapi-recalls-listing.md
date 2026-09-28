@@ -1,14 +1,28 @@
 # RapidAPI listing package: Recall Intelligence API (FDA + North American consumer products)
 
-**Status (2026-09-28): not publishable.** Do not create the listing yet. Two gates are open (see [Before you publish](#before-you-publish)). This file holds the copy-paste fields so the listing can go up as soon as both gates close.
+**Status (2026-09-28): adapter built and tested, channel closed, not publishable.** Do not create the listing until every gate in [Before you publish](#before-you-publish) holds.
 
-Billing sells access. It never creates permission (ADR-0013, ADR-0014). Both product-recall rights records permit RapidAPI; ADR-0016 leaves the channel **not enabled** until it is decided separately.
+Billing sells access. It never creates permission (ADR-0013, ADR-0014). Both product-recall rights records permit RapidAPI. The channel decision and the adapter's behaviour are in ADR-0016, section "RapidAPI channel".
 
 ## Before you publish
 
-1. **Proxy adapter (engineering, not built).** `apps/recalls-worker` accepts only its own Stripe-issued `rcl_live_` keys. It has no `X-RapidAPI-Proxy-Secret` check, no marketplace principal, and no per-subscriber metering. The Postgres edge Worker's adapter (`apps/edge/src/index.ts`, `apps/edge/test/rapidapi.test.ts`) is the pattern. Without an adapter, RapidAPI subscribers could not call the API. Building it is a separate, reviewed change: an ADR-0016 channel decision, a `RAPIDAPI_PROXY_SECRET` Worker secret, tests, and no double billing with Stripe.
-2. **Authenticated acceptance of both datasets.** As of 2026-09-28, product recalls have not passed authenticated acceptance ([record](../evidence/recalls-release-20260928.md)).
-3. **Owner account actions (`UA-004`).** Provider enrollment, the marketplace agreement, payout settings and plan configuration in the RapidAPI dashboard.
+1. **Proxy adapter. Done in code.** `apps/recalls-worker/src/marketplace.ts` does the following:
+   - verifies `X-RapidAPI-Proxy-Secret` in constant time;
+   - requires `X-RapidAPI-User`;
+   - serves without touching any Stripe key or allowance, so there is no double billing;
+   - never falls back to a direct `rcl_live_` key;
+   - keeps `/v1/account*` off the channel.
+
+   Tests: `apps/recalls-worker/test/worker.test.ts`, "RapidAPI channel". It stays closed (`RAPIDAPI_ENABLED = "0"`).
+2. **Authenticated acceptance of the direct API for both datasets.** See `docs/owner-actions/recalls-operations.md`, "Production acceptance".
+3. **Owner account actions (`UA-004`).** Provider enrollment, the marketplace agreement, payout settings, and approving the plan prices below.
+4. **Activation (after 3):**
+   - put the listing's proxy secret on the Worker with `wrangler secret put RAPIDAPI_PROXY_SECRET`;
+   - set `RAPIDAPI_ENABLED = "1"` in `apps/recalls-worker/wrangler.toml` through a reviewed PR and the `Deploy recalls Worker` workflow;
+   - send one test-subscriber request through RapidAPI and check it is served;
+   - confirm that no `usage_month` row moved and that a `rapidapi_request` log line was written.
+
+   Only then is the listing publishable.
 
 ## Listing fields
 
@@ -43,7 +57,7 @@ Sources are US federal government works and Health Canada open data (Open Govern
 https://api.data.aroqon.com
 ```
 
-**OpenAPI definition.** Import `https://api.data.aroqon.com/openapi.json` (OpenAPI 3.1.0). It validated on 2026-09-28 with Redocly CLI with 0 errors and 3 warnings: two operations lack a 4xx response, and there is no `info.license`. Before import, remove `/v1/account/*` (account management belongs to the direct channel) and the bearer scheme. RapidAPI supplies `X-RapidAPI-Key`.
+**OpenAPI definition.** Import `https://api.data.aroqon.com/openapi.json?channel=rapidapi` (OpenAPI 3.1.0) once the release that serves it is deployed. It has the same data paths as the direct contract, with no `/v1/account*` endpoints and no bearer scheme, because RapidAPI authenticates subscribers. Both variants validate with Redocly CLI 1.x: 0 errors and 3 warnings (two operations lack a 4xx response, and there is no `info.license`). The direct variant was checked live on 2026-09-28, and the marketplace variant was generated from the release code. The direct contract is unchanged by this release.
 
 **Authentication instructions (for subscribers).** Send your RapidAPI key as `X-RapidAPI-Key` and `X-RapidAPI-Host` on each request, as RapidAPI's generated snippets do. Do not send a `rcl_live_` key through RapidAPI; those keys belong to the direct plans at data.aroqon.com.
 
@@ -78,5 +92,5 @@ There is no approved RapidAPI-specific pricing. Mirroring the ladder above (Eval
 ## Owner-only actions
 
 1. Enroll or confirm the RapidAPI provider account, accept the marketplace agreement, and set up payouts (`UA-004`).
-2. Approve the RapidAPI plan prices (mirror the ladder or change it).
-3. After the adapter ships: copy the listing's proxy secret into `wrangler secret put RAPIDAPI_PROXY_SECRET` on `data-foundry-recalls`, then run one test-subscriber request.
+2. Approve the RapidAPI plan prices: mirror the ladder above onto BASIC/PRO/ULTRA/MEGA, or change it.
+3. Copy the listing's proxy secret from the RapidAPI provider dashboard into `wrangler secret put RAPIDAPI_PROXY_SECRET` on `data-foundry-recalls`, then approve the reviewed change that sets `RAPIDAPI_ENABLED = "1"`. The end-to-end test request follows.

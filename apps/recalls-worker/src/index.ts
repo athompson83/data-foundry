@@ -20,7 +20,8 @@ import { scheduledSync, syncWindow } from './sync.js';
 import { getProductRecall, lookupProductCode, PRODUCT_ID, productStats, searchProductRecalls } from './product-api.js';
 import { FIRST_PRODUCT_YEAR, PRODUCT_BROWSE_PAGE_SIZE, PRODUCT_INDEXNOW_FEED, PRODUCT_BROWSE_PATTERN, PRODUCT_PAGE_PATTERN, PRODUCT_SITEMAP_PAGE_SIZE, PRODUCT_SITEMAP_PATTERN, productBrowseIndex, productBrowsePage, productIndexableStats, productNoticePage, productSitemap } from './product-pages.js';
 import { scheduledProductSync } from './product-sync.js';
-import { BROWSE_PATTERN, EDGE_TTL_SECONDS, RECALL_API_PATTERN, RECALL_PAGE_PATTERN, SITEMAP_PATTERN, browseCount, browseInRange, browseIndex, browsePage, indexableCount, shardInRange, llmsFullTxt, llmsTxt, pagesSitemap, pingChanged, pingChangedRecalls, recallPage, recallSitemap, robotsTxt, sitemapIndex, type PresentedRecall } from './seo.js';
+import { logMarketplaceRequest, resolveChannel, type MarketplacePrincipal } from './marketplace.js';
+import { BROWSE_PATTERN, EDGE_TTL_SECONDS, RECALL_API_PATTERN, RECALL_PAGE_PATTERN, SITEMAP_PATTERN, browseCount, browseInRange, browseIndex, browsePage, indexableCount, shardInRange, llmsFullTxt, llmsTxt, pagesSitemap, FDA_INDEXNOW_FEED, lastRunKey, pingChanged, recallPage, recordIndexNowRun, recallSitemap, robotsTxt, sitemapIndex, type PresentedRecall } from './seo.js';
 import { RECALL_CATEGORIES, type RecallCategory } from '@data-foundry/recall-structuring';
 
 /** The Workers edge cache, declared locally like the other bindings. */
@@ -28,6 +29,9 @@ interface EdgeCache {
   match(request: Request): Promise<Response | undefined>;
   put(request: Request, response: Response): Promise<void>;
 }
+
+/** Every IndexNow feed, by the name /admin/indexnow-status reports it under. */
+const INDEXNOW_FEEDS = { recalls: FDA_INDEXNOW_FEED, 'product-recalls': PRODUCT_INDEXNOW_FEED } as const;
 
 /** The CPSC/Health Canada dataset is served only when opened and not withdrawn. */
 export function productsServed(env: Env): boolean {
@@ -87,9 +91,23 @@ async function authenticate(env: Env, request: Request): Promise<AuthenticatedCu
   return customer;
 }
 
-async function meteredApi(env: Env, request: Request, url: URL): Promise<Response> {
+async function meteredApi(env: Env, request: Request, url: URL, marketplace: MarketplacePrincipal | null): Promise<Response> {
   const products = url.pathname === '/v1/product-recalls' || url.pathname.startsWith('/v1/product-recalls/');
   if (products ? !productsServed(env) : env.SOURCE_KILL_SWITCH === '1') return apiError(503, 'dataset_unavailable', 'The dataset is temporarily unavailable.');
+  if (marketplace) {
+    // RapidAPI meters and bills this request; no Stripe customer or allowance is touched.
+    let status = 500;
+    try {
+      const response = await serveData(env, url, { 'cache-control': 'private, no-store' });
+      status = response.status;
+      return response;
+    } catch (error) {
+      if (error instanceof BadRequest) status = 400;
+      throw error;
+    } finally {
+      await logMarketplaceRequest(marketplace, url.pathname, status);
+    }
+  }
   const auth = await authenticate(env, request);
   if (auth instanceof Response) return auth;
   const count = await consumeRequest(env.DB, auth);
@@ -100,7 +118,11 @@ async function meteredApi(env: Env, request: Request, url: URL): Promise<Respons
       'x-ratelimit-remaining': '0',
     });
   }
-  const headers = { 'x-ratelimit-limit': String(limit), 'x-ratelimit-remaining': String(Math.max(0, limit - count)), 'cache-control': 'private, no-store' };
+  return serveData(env, url, { 'x-ratelimit-limit': String(limit), 'x-ratelimit-remaining': String(Math.max(0, limit - count)), 'cache-control': 'private, no-store' });
+}
+
+/** The data endpoints, after the request's channel has authorised (and, if direct, metered) it. */
+async function serveData(env: Env, url: URL, headers: Record<string, string>): Promise<Response> {
   const includeRaw = url.searchParams.get('include') === 'raw';
 
   if (url.pathname === '/v1/product-recalls') return json(await searchProductRecalls(env.DB, env.RAW_ARTIFACTS, url.searchParams), 200, headers);
@@ -234,6 +256,10 @@ async function route(request: Request, env: Env): Promise<Response> {
 
   if (url.pathname.startsWith('/v1/')) {
     if (!isApiHost && url.host.endsWith('aroqon.com')) return Response.redirect(`${ctx.apiOrigin}${url.pathname}${url.search}`, 308);
+    // Marketplace-shaped requests are decided before anything else and never fall through to direct keys.
+    const channel = await resolveChannel(env, request);
+    if (channel.channel === 'rejected') return apiError(channel.status, channel.code, channel.message);
+    const marketplace = channel.channel === 'rapidapi' ? channel : null;
     // The kill switch withdraws every dataset-derived response, cached or not.
     if (env.SOURCE_KILL_SWITCH === '1' && url.pathname.startsWith('/v1/recalls')) return apiError(503, 'dataset_unavailable', 'The dataset is temporarily unavailable.');
     if (url.pathname === '/v1/recalls/stats') {
@@ -255,11 +281,17 @@ async function route(request: Request, env: Env): Promise<Response> {
       await cache.put(cacheKey, response.clone());
       return response;
     }
-    if (url.pathname.startsWith('/v1/account')) return accountApi(env, request, url);
+    if (url.pathname.startsWith('/v1/account')) {
+      if (marketplace) return apiError(403, 'not_available_on_marketplace', 'Account endpoints belong to direct API keys. Manage a RapidAPI subscription on RapidAPI.');
+      return accountApi(env, request, url);
+    }
     if (request.method !== 'GET') return apiError(405, 'method_not_allowed', 'Data endpoints accept GET only.');
-    return meteredApi(env, request, url);
+    return meteredApi(env, request, url, marketplace);
   }
-  if (url.pathname === '/openapi.json') return json(openApiDocument(ctx, { fda: env.SOURCE_KILL_SWITCH !== '1', products: productsServed(env) }), 200, { 'cache-control': GATED });
+  if (url.pathname === '/openapi.json') {
+    const marketplace = url.searchParams.get('channel') === 'rapidapi';
+    return json(openApiDocument(ctx, { fda: env.SOURCE_KILL_SWITCH !== '1', products: productsServed(env), marketplace }), 200, { 'cache-control': GATED });
+  }
 
   if (url.pathname === '/admin/sync' && request.method === 'POST') {
     if (!isAuthorizedAdmin(env, request)) return apiError(404, 'not_found', 'Not found.');
@@ -280,6 +312,32 @@ async function route(request: Request, env: Env): Promise<Response> {
     if (!customer) return apiError(404, 'not_found', 'No customer with that Stripe id.');
     const key = await replaceKey(env.DB, customer.id, null);
     return json({ api_key: key, email: customer.email, plan: customer.plan, status: customer.status }, 200, { 'cache-control': 'no-store' });
+  }
+
+  if (url.pathname === '/admin/revoke-keys' && request.method === 'POST') {
+    // Revokes every active key of one customer, leaving the customer row and its
+    // usage history untouched. Used to end an acceptance run
+    // (docs/owner-actions/recalls-operations.md) and for abuse response.
+    if (!isAuthorizedAdmin(env, request)) return apiError(404, 'not_found', 'Not found.');
+    const stripeCustomerId = url.searchParams.get('stripe_customer_id') ?? '';
+    const customer = await env.DB.prepare('SELECT id FROM customer WHERE stripe_customer_id = ?').bind(stripeCustomerId).first<{ id: string }>();
+    if (!customer) return apiError(404, 'not_found', 'No customer with that Stripe id.');
+    const now = new Date().toISOString();
+    await env.DB.prepare('UPDATE api_key SET revoked_at = ? WHERE customer_id = ? AND revoked_at IS NULL').bind(now, customer.id).run();
+    const remaining = await env.DB.prepare('SELECT count(*) AS n FROM api_key WHERE customer_id = ? AND revoked_at IS NULL').bind(customer.id).first<{ n: number }>();
+    return json({ revoked_at: now, active_keys: remaining?.n ?? 0 }, 200, { 'cache-control': 'no-store' });
+  }
+
+  if (url.pathname === '/admin/indexnow-status' && request.method === 'GET') {
+    // Runtime evidence for each IndexNow feed: its watermark and its last scheduled run.
+    if (!isAuthorizedAdmin(env, request)) return apiError(404, 'not_found', 'Not found.');
+    const read = async (key: string): Promise<unknown> => {
+      const object = await env.RAW_ARTIFACTS.get(key);
+      return object ? (JSON.parse(await object.text()) as unknown) : null;
+    };
+    const feeds: Record<string, unknown> = {};
+    for (const [name, feed] of Object.entries(INDEXNOW_FEEDS)) feeds[name] = { watermark: await read(feed.watermarkKey), last_run: await read(lastRunKey(feed)) };
+    return json(feeds, 200, { 'cache-control': 'no-store' });
   }
 
   if (isApiHost) {
@@ -572,7 +630,16 @@ export default {
     console.log('product_recall_sync', JSON.stringify(await scheduledProductSync(env, { full: hour < 6 })));
     // A withdrawn dataset is not announced to search engines, and its IndexNow
     // watermark stays put so pending pages are retried after reactivation.
-    if (env.SOURCE_KILL_SWITCH !== '1') console.log('indexnow', JSON.stringify(await pingChangedRecalls(context(env), env.DB, env.RAW_ARTIFACTS, env.INDEXNOW_KEY, started)));
-    if (productsServed(env)) console.log('indexnow_product_recalls', JSON.stringify(await pingChanged(PRODUCT_INDEXNOW_FEED, context(env), env.DB, env.RAW_ARTIFACTS, env.INDEXNOW_KEY, started)));
+    const scheduledTime = new Date(controller?.scheduledTime ?? Date.now()).toISOString();
+    if (env.SOURCE_KILL_SWITCH !== '1') {
+      const result = await pingChanged(FDA_INDEXNOW_FEED, context(env), env.DB, env.RAW_ARTIFACTS, env.INDEXNOW_KEY, started);
+      console.log('indexnow', JSON.stringify(result));
+      await recordIndexNowRun(env.RAW_ARTIFACTS, FDA_INDEXNOW_FEED, { trigger: 'scheduled', scheduled_time: scheduledTime, started, ...result });
+    }
+    if (productsServed(env)) {
+      const result = await pingChanged(PRODUCT_INDEXNOW_FEED, context(env), env.DB, env.RAW_ARTIFACTS, env.INDEXNOW_KEY, started);
+      console.log('indexnow_product_recalls', JSON.stringify(result));
+      await recordIndexNowRun(env.RAW_ARTIFACTS, PRODUCT_INDEXNOW_FEED, { trigger: 'scheduled', scheduled_time: scheduledTime, started, ...result });
+    }
   },
 };

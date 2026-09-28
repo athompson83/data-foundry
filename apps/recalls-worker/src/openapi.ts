@@ -95,7 +95,11 @@ const PRODUCT_RECALL_SCHEMA = {
 };
 
 /** The contract for the datasets served right now: a withdrawn dataset's paths and schema are omitted. */
-export function openApiDocument(ctx: PageContext, served: { readonly fda: boolean; readonly products: boolean }): Record<string, unknown> {
+/**
+ * `marketplace` renders the contract RapidAPI imports: the same data paths, with
+ * no account endpoints and no bearer scheme (RapidAPI authenticates its subscribers).
+ */
+export function openApiDocument(ctx: PageContext, served: { readonly fda: boolean; readonly products: boolean; readonly marketplace?: boolean }): Record<string, unknown> {
   const { products } = served;
   const recallRef = { $ref: '#/components/schemas/Recall' };
   const errors = {
@@ -242,6 +246,11 @@ export function openApiDocument(ctx: PageContext, served: { readonly fda: boolea
     document.info.description = products
       ? 'CPSC and Health Canada consumer-product recalls (US Government work; Open Government Licence – Canada): model numbers, GTINs, units, hazard and remedy classes, trade facets and declared cross-agency links. Not endorsed by CPSC or Health Canada.'
       : 'No dataset is available right now.';
+  }
+  if (served.marketplace) {
+    for (const path of ['/v1/account', '/v1/account/rotate-key', '/v1/account/billing-portal']) delete (document.paths as Record<string, unknown>)[path];
+    (document as { security: unknown[] }).security = [];
+    delete (document.components as { securitySchemes?: unknown }).securitySchemes;
   }
   return document;
 }

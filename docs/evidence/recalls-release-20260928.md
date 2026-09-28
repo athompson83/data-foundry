@@ -29,7 +29,8 @@ At 2026-09-28 ~16:05 UTC:
 Procedure: the 2026-09-26 FDA acceptance, which used an internal customer provisioned in D1 and a hashed `rcl_live_` key.
 
 1. At 15:53:35 UTC, created customer `acceptance-20260928` (email `acceptance-internal@aroqon.invalid`, `developer`, `active`, no Stripe subscription) and key id `9a7429f8-48ea-4cb3-8660-70881d9a5318`. The key was generated locally into a mode-600 file and only its SHA-256 was written.
-2. Every authenticated request returned **401 `invalid_key`**, including after the key was regenerated as a 32-byte base64url body. The session's permission check denied reading the local key-handling source, so the cause was not diagnosed. Guessing further stopped there.
+2. Every authenticated request returned **401 `invalid_key`**, including after the key was regenerated as a 32-byte base64url body.
+   **Root cause (diagnosed later the same day, section 7):** `findCustomerByKey` (`apps/recalls-worker/src/account.ts:71`) accepts only `rcl_live_` followed by exactly 32 characters. Both hand-made keys had longer bodies (40 and 43 characters), so they were refused before any D1 lookup. Customer authentication was not broken, and the hand-inserted rows were never reachable.
 3. At 16:02:00 UTC, revoked the key (`revoked_at` set) and set the customer to `canceled`. Read-back showed `status=canceled`, `revoked_at=2026-09-28T16:02:00.000Z`, and `usage_month` rows = 0. The key then returned 401 on `/v1/account` and `/v1/product-recalls`. The local key files were shredded.
 4. That post-revocation 401 does **not** prove revocation, because the key never authenticated. What is established is that the D1 row is revoked and no usage was metered.
 
@@ -53,3 +54,29 @@ Read-only Stripe, live account `acct_1U3gItLlvU3ZaHdi` (Aroqon Data), 2026-09-28
 | RapidAPI | Not listed. The recalls Worker has no RapidAPI proxy adapter, and ADR-0016 leaves it not enabled. Package: `docs/owner-actions/rapidapi-recalls-listing.md` |
 | Cloudflare Pay Per Crawl | **Unknown.** It was closed beta at the last check (2026-09-16). No zone-level read access this session. `UA-008` is open. |
 | Search discovery | IndexNow submissions: FDA 84,908 (2026-09-27) and product 8,868 by hand (2026-09-28), both HTTP 200. Observed indexing: not measured. |
+
+## 7. Evening follow-up: the release path is repaired in code (PR #74)
+
+- **Diagnosis.** See section 4, step 2. Manually written credentials are no longer part of any procedure. Keys come only from the Worker (`mintApiKey` through `/admin/reissue-key`).
+- **Deployment path.** `.github/workflows/deploy-recalls.yml`:
+  - manual dispatch on `main` only, with a confirmation phrase and the exact approved SHA;
+  - requires green push-to-`main` CI on that SHA;
+  - runs in the `production` environment, with its secrets checked for presence and for the recalls account id;
+  - runs the recalls typecheck and tests, and refuses a pending D1 migration;
+  - records the rollback version, deploys with the tag `<sha:12>`, verifies that tag on the live version, and smoke-tests both origins;
+  - shares the `deploy-production` lock with no cancellation.
+- **Acceptance path.** `.github/workflows/recalls-acceptance.yml` and `apps/recalls-worker/scripts/acceptance.ts`:
+  - issues a key through the operator reissue path for `cus_acceptance_internal_20260928` only;
+  - runs about fifteen customer-equivalent requests covering CPSC, Health Canada and FDA;
+  - checks metering against the account delta;
+  - always revokes through the new `/admin/revoke-keys` and proves the key is rejected.
+  - Tested against the Worker on local D1, including thrown errors, tampered data and non-internal customer ids.
+- **IndexNow runtime evidence.** Each scheduled run records `state/indexnow{,-product-recalls}-last-run.json`, readable through `/admin/indexnow-status` with `trigger: "scheduled"`.
+- **RapidAPI adapter.** Built and tested, and closed by default (ADR-0016 "RapidAPI channel").
+- **Stripe reconciliation (read-only, live).** The four prices in `wrangler.toml` exist, are active, are monthly, and are $0/$49/$149/$299. The webhook's four events are all handled. The only purchase-path change since the 2026-09-26 sandbox run is the checkout `cancel_url` and portal `return_url`.
+- **Local verification.**
+  - `apps/recalls-worker`: 100/100 tests, typecheck clean.
+  - Workflow contract tests: 7/7.
+  - The dry-run bundle contains the product IndexNow feed, the admin endpoints and the adapter.
+  - Both OpenAPI variants validate. The direct contract is identical to the live one.
+

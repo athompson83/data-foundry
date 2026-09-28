@@ -1,5 +1,17 @@
 # Progress
 
+## Current session — 2026-09-28 (late): repeatable deploy and acceptance path, RapidAPI adapter
+
+- **Diagnosis of the rejected key.** The Worker accepts only `rcl_live_` followed by exactly 32 characters (`account.ts:71`). The hand-made keys had 40 and 43, so they were refused before the D1 lookup. Authentication was never broken. Keys are now only issued by the Worker.
+- **Built (PR #74, not yet merged or deployed at the time of writing):**
+  - `deploy-recalls.yml`: manual, on `main`, pinned to the approved SHA, requires green CI, runs in the `production` environment, records a rollback target, verifies the tag, serialized.
+  - `recalls-acceptance.yml` with `scripts/acceptance.ts`: operator reissue, bounded checks on CPSC, Health Canada and FDA, metering, always-revoke.
+  - `/admin/revoke-keys` and `/admin/indexnow-status`.
+  - A per-feed IndexNow last-run record.
+  - The RapidAPI adapter, closed by default, with ADR-0016 and the listing updated.
+- **Verified locally:** 100/100 Worker tests, 7/7 workflow tests, a dry-run bundle and OpenAPI lint. Live Stripe prices and webhook were reconciled read-only.
+- **Not yet verified:** production deploy, authenticated acceptance, and a scheduled IndexNow run of the product feed. These follow the merge through the two workflows. See `PROJECT_CHECKLIST.md` `UA-015`/`UA-016` for the environment secrets they need.
+
 ## Current session — 2026-09-28 (evening): PR #73 release and product-recall acceptance
 
 Full record: [`docs/evidence/recalls-release-20260928.md`](docs/evidence/recalls-release-20260928.md).

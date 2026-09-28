@@ -1,0 +1,251 @@
+name: Deploy recalls Worker
+
+# Manual, owner-approved production deployment of `data-foundry-recalls`
+# (ADR-0015, ADR-0016) only. The recalls Worker is not part of
+# deploy-production.yml. This workflow never runs on push, pull_request or a
+# schedule, so no change (docs-only or otherwise) deploys by itself.
+#
+# Gates, in order: a dispatch on `main` with the confirmation phrase and the
+# exact commit the operator approved; green protected-main CI on that commit;
+# the `production` environment's protection rules before any credential is
+# read; the recalls-worker typecheck and tests; no pending D1 migration. The
+# live version is recorded as the rollback target before the deploy, and the
+# new version is verified by its source tag afterwards.
+# See docs/owner-actions/recalls-operations.md, "Deploying".
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type exactly: deploy-recalls'
+        required: true
+        type: string
+      expected_sha:
+        description: 'Full 40-character main commit SHA you approved for deployment'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  # The same group as deploy-production.yml: production deployments run one at
+  # a time and a second dispatch waits instead of interrupting an active one.
+  group: deploy-production
+  cancel-in-progress: false
+
+env:
+  CI: 'true'
+  WRANGLER_SEND_METRICS: 'false'
+  RECALLS_ACCOUNT_ID: c2832821a9ab36419cde6ee08112f6d3
+  RECALLS_WORKER: data-foundry-recalls
+
+jobs:
+  guard:
+    name: confirmed dispatch of the approved main commit with green CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - name: Require workflow_dispatch on main, the confirmation phrase and the approved SHA
+        shell: bash
+        env:
+          CONFIRM: ${{ inputs.confirm }}
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+        run: |
+          set -euo pipefail
+          if [[ "$GITHUB_EVENT_NAME" != "workflow_dispatch" || "$GITHUB_REF" != "refs/heads/main" ]]; then
+            echo "The recalls Worker deploys only from a manual workflow_dispatch on refs/heads/main." >&2
+            exit 1
+          fi
+          if [[ "$CONFIRM" != "deploy-recalls" ]]; then
+            echo "The confirm input must be exactly deploy-recalls." >&2
+            exit 1
+          fi
+          if [[ ! "$EXPECTED_SHA" =~ ^[0-9a-f]{40}$ || "$EXPECTED_SHA" != "$GITHUB_SHA" ]]; then
+            echo "expected_sha must be the full SHA of the main commit being deployed ($GITHUB_SHA). main may have moved since approval." >&2
+            exit 1
+          fi
+
+      - name: Require green protected-main CI on this exact commit
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # The push-to-main CI run on this commit is the full required check set.
+          conclusion="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/ci.yml/runs?head_sha=${GITHUB_SHA}&event=push&status=completed&per_page=20" \
+            --jq '[.workflow_runs[] | select(.head_sha == env.GITHUB_SHA)] | sort_by(.run_started_at) | last | .conclusion // "missing"')"
+          echo "CI on ${GITHUB_SHA}: ${conclusion}"
+          if [[ "$conclusion" != "success" ]]; then
+            echo "::error::Protected-main CI has not succeeded on ${GITHUB_SHA} (${conclusion}). Wait for it or fix it; do not deploy an unverified commit."
+            exit 1
+          fi
+
+  deploy:
+    name: recalls checks • rollback record • wrangler deploy • verify
+    needs: guard
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && needs.guard.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+          ref: ${{ github.sha }}
+
+      - name: Fail closed on a missing credential or a different Cloudflare account
+        shell: bash
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          # Presence and account identity only; no value is printed.
+          missing=0
+          for name in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID; do
+            if [[ -z "${!name:-}" ]]; then
+              echo "::error::Required secret ${name} is not set for the production environment."
+              missing=1
+            fi
+          done
+          [[ "$missing" == 0 ]] || exit 1
+          if [[ "$CLOUDFLARE_ACCOUNT_ID" != "$RECALLS_ACCOUNT_ID" ]]; then
+            echo "::error::CLOUDFLARE_ACCOUNT_ID is not the recalls account recorded in docs/owner-actions/recalls-operations.md."
+            exit 1
+          fi
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      # Change-relevant checks on the exact commit: the Worker and the packages
+      # it bundles. The full suite already passed in protected-main CI (guard).
+      - name: Typecheck and test the recalls Worker and its packages
+        run: |
+          pnpm --filter @data-foundry/recalls-worker typecheck
+          pnpm --filter "@data-foundry/recalls-worker..." --workspace-concurrency=1 test
+
+      - name: Tracked Worker configuration is the reviewed one
+        run: git diff --exit-code HEAD -- apps/recalls-worker/wrangler.toml
+
+      - name: Build the exact bundle that will be uploaded
+        working-directory: apps/recalls-worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          pnpm exec wrangler deploy --dry-run --outdir "$RUNNER_TEMP/recalls-bundle"
+          bundle_sha="$(cat "$RUNNER_TEMP"/recalls-bundle/*.js | sha256sum | cut -d' ' -f1)"
+          echo "BUNDLE_SHA256=${bundle_sha}" >> "$GITHUB_ENV"
+
+      - name: Refuse to deploy over a pending D1 migration
+        working-directory: apps/recalls-worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          output="$(pnpm exec wrangler d1 migrations list data-foundry-recalls --remote 2>&1)"
+          echo "$output"
+          if ! grep -q "No migrations to apply" <<<"$output"; then
+            echo "::error::data-foundry-recalls has pending migrations. Apply them under their own reviewed procedure first."
+            exit 1
+          fi
+
+      - name: Record the live version as the rollback target
+        working-directory: apps/recalls-worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          pnpm exec wrangler deployments list --name "$RECALLS_WORKER" --json > "$RUNNER_TEMP/before.json"
+          rollback="$(node -e '
+            const list = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"));
+            const latest = [...list].sort((a, b) => String(a.created_on).localeCompare(String(b.created_on))).pop();
+            const full = latest?.versions?.find((v) => v.percentage === 100) ?? latest?.versions?.[0];
+            if (!full) process.exit(1);
+            process.stdout.write(full.version_id);
+          ' "$RUNNER_TEMP/before.json")"
+          echo "ROLLBACK_VERSION=${rollback}" >> "$GITHUB_ENV"
+          echo "Rollback target: ${rollback}"
+
+      - name: Deploy
+        working-directory: apps/recalls-worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: pnpm exec wrangler deploy --tag "${GITHUB_SHA:0:12}" --message "source ${GITHUB_SHA} run ${GITHUB_RUN_ID}"
+
+      - name: Verify the new live version is this commit's
+        working-directory: apps/recalls-worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          pnpm exec wrangler deployments list --name "$RECALLS_WORKER" --json > "$RUNNER_TEMP/after.json"
+          deployed="$(node -e '
+            const list = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"));
+            const latest = [...list].sort((a, b) => String(a.created_on).localeCompare(String(b.created_on))).pop();
+            const full = latest?.versions?.find((v) => v.percentage === 100);
+            if (!full) process.exit(1);
+            process.stdout.write(full.version_id);
+          ' "$RUNNER_TEMP/after.json")"
+          pnpm exec wrangler versions view "$deployed" --name "$RECALLS_WORKER" --json > "$RUNNER_TEMP/version.json"
+          node -e '
+            const v = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"));
+            const a = v.annotations ?? {};
+            if (a["workers/tag"] !== process.env.GITHUB_SHA.slice(0, 12) || !String(a["workers/message"] ?? "").includes(process.env.GITHUB_SHA)) {
+              console.error("The live version is not tagged with this commit.");
+              process.exit(1);
+            }
+          ' "$RUNNER_TEMP/version.json"
+          if [[ "$deployed" == "$ROLLBACK_VERSION" ]]; then
+            echo "::error::The live version did not change."
+            exit 1
+          fi
+          echo "DEPLOYED_VERSION=${deployed}" >> "$GITHUB_ENV"
+
+      - name: Smoke-test the canonical origins
+        shell: bash
+        run: |
+          set -euo pipefail
+          expect() { local code; code="$(curl -sS -o /dev/null -w '%{http_code}' "$2")"; echo "$code $2"; [[ "$code" == "$1" ]]; }
+          expect 200 https://data.aroqon.com/
+          expect 200 https://data.aroqon.com/product-recalls
+          expect 200 https://api.data.aroqon.com/
+          expect 200 https://api.data.aroqon.com/openapi.json
+          expect 401 https://api.data.aroqon.com/v1/product-recalls
+          expect 401 https://api.data.aroqon.com/v1/recalls
+          # Operator routes answer 404 without the token.
+          expect 404 https://data.aroqon.com/admin/indexnow-status
+
+      - name: Deployment record
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## data-foundry-recalls deployment"
+            echo "| Field | Value |"
+            echo "| --- | --- |"
+            echo "| Source commit | \`${GITHUB_SHA}\` |"
+            echo "| Bundle SHA-256 | \`${BUNDLE_SHA256:-not built}\` |"
+            echo "| Rollback target (previous live version) | \`${ROLLBACK_VERSION:-not recorded}\` |"
+            echo "| Deployed version | \`${DEPLOYED_VERSION:-not verified}\` |"
+            echo ""
+            echo "Roll back: \`pnpm exec wrangler rollback ${ROLLBACK_VERSION:-<version>} --name ${RECALLS_WORKER}\` from apps/recalls-worker."
+          } >> "$GITHUB_STEP_SUMMARY"
