@@ -18,8 +18,8 @@ Hand review (6 of the 13 distinct candidates, chosen across the frequency spread
   SR/02399/26 (Seven): false positive - EU 'Seven' furniture chair brand; CPSC hits are Shein toys / Aojieni teething toys - coincidental token match, not the same firm.
   SR/02405/26 (Allegro): false positive - EU 'Allegro' e-bike; CPSC hit is 'Lancaster Table & Seating Brand Allegro' plastic chairs - different firm, coincidental brand-name reuse.
   SR/02414/26 (Husqvarna): CORRECT - EU notice lists Husqvarna off-road motorcycle models FX350/450, FE 250/350/450/501, TE 150/250/300 MY22-24 (Austria); CPSC 26710 'KTM North America Recalls Off-Road Motorcycles' explicitly lists 'Husqvarna Models 2022 FE 350, 2022 FE 501, 2022 TE 150i...' - same brand family (KTM Group) and overlapping model codes.
-  SR/02448/26 (Shein): CORRECT - EU notice: Shein cushion cover, chemical risk, Ireland. CPSC 26782/26732/26567: 'SHEIN Distribution Corporation Recalls ...' - the same real-world distributor named in both, different specific products (brand-level match, not same-product).
+  SR/02448/26 (Shein): false positive - EU notice: Shein cushion cover, chemical risk, Ireland. CPSC 26782/26732/26567: 'SHEIN Distribution Corporation Recalls Pull and Chew Montessori Teething Toys ...' - same distributor, but this dataset's entity is a recall notice about a specific product (README: 'grouped into recall_event clusters ... linked to affected products'), not a distributor; a cushion cover and a teething toy are different, unrelated recalled products, so sharing a distributor does not make this a same-record candidate. Distributor identity could be a separate reviewed enrichment, but is not counted as a positive product-level match here.
   SR/02496/26 (Best): false positive - EU 'Best' degreaser; CPSC hits are 'SUGIFT' pressure washers and 'Best Buy Insignia' gas ranges - coincidental common-word match, not the same firm.
   SR/02617/26 (Torch): false positive - EU 'Torch' toy gun set; CPSC hits are Fantastic Four cups and 'Jobon Torch Lighters' - coincidental common-word match, not the same firm.
 
-reviewed: 2/6 correct
+reviewed: 1/6 correct

@@ -7,4 +7,4 @@ models checked against a live Federal Register FAA-agency query: 5
   N328NB (AIRBUS INDUSTRIE A319-114) vs fr_airbusA319.json (FR count=569): no exact-model match - top AD is for Model A319-115, -132, -133 - same family, but not the -114 sub-variant on file
 
 reviewed: 3/5 correct exact-model matches
-measured (population-level, from this hand-reviewed sample only, not exhaustive): 3/163 of this round's 163 NTSB aircraft records have a confirmed current FAA airworthiness/special-conditions action for the same aircraft model.
+Only these 5 of this round's 163 NTSB aircraft records were queried against Federal Register; the other 158 were never checked and must not be counted as reviewed non-matches. This is a 5-record reviewed sample, not a population-level match rate.

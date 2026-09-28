@@ -11,6 +11,7 @@ Requires mdbtools (mdb-export) on PATH. Run from this scripts/ directory:
 """
 
 import csv
+from datetime import datetime
 
 
 def main() -> None:
@@ -28,7 +29,12 @@ def main() -> None:
 
     with open("../raw/events.csv") as handle:
         events = list(csv.DictReader(handle))
-    print(f"{len(events)} event rows; ev_date range: {min(e['ev_date'] for e in events)} .. {max(e['ev_date'] for e in events)}")
+    parsed_dates = [datetime.strptime(e["ev_date"], "%m/%d/%y %H:%M:%S") for e in events if e.get("ev_date")]
+    print(
+        f"{len(events)} event rows; ev_date range: {min(parsed_dates).date().isoformat()} .. "
+        f"{max(parsed_dates).date().isoformat()} (parsed as MM/DD/YY; string min/max on the raw "
+        f"field would misreport this as 01/03/11 .. 12/14/25, ordering by month not chronology)"
+    )
 
 
 if __name__ == "__main__":

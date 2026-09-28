@@ -21,6 +21,16 @@ def gs1_valid(code: str | None) -> bool:
     return (10 - (total % 10)) % 10 == check
 
 
+def digit_codes(value: str) -> list[str]:
+    """Matches the production parser's packages/product-recall-structuring/src/text.ts digitCodes:
+    split on separators, rejoin a grouped code, then pull 8-14 digit runs."""
+    out: list[str] = []
+    for token in re.split(r"[,;/|\n]+|\s{2,}", value or ""):
+        joined = re.sub(r"(?<=\d)[ -](?=\d)", "", token)
+        out.extend(re.findall(r"(?<!\d)\d{8,14}(?!\d)", joined))
+    return out
+
+
 def main() -> None:
     eu = json.load(open("../eu_records_sample.json"))
     cpsc = json.load(open("../raw/cpsc_recent.json"))
@@ -29,28 +39,34 @@ def main() -> None:
     print(f"EU barcodes present: {sum(1 for r in eu if r['barcode'])}/{len(eu)}")
     print(f"EU barcodes with a valid GS1 check digit: {len(eu_gtins)}")
 
+    # CPSC carries UPCs on the top-level ProductUPCs[] field, not under each
+    # Products[] item (packages/product-recall-structuring/src/cpsc.ts:113 reads
+    # record.ProductUPCs). An earlier version of this script read the wrong
+    # field and wrongly concluded CPSC exposes no structured UPC data at all
+    # (Codex review, PR #72) — it does; this sample just has no overlap with it.
     cpsc_upcs = set()
     with_upc = 0
     for r in cpsc:
         found = False
-        for product in r.get("Products") or []:
-            for upc in product.get("UPC") or []:
-                code = re.sub(r"\D", "", str(upc))
+        for entry in r.get("ProductUPCs") or []:
+            raw = entry.get("UPC") if isinstance(entry, dict) else entry
+            for code in digit_codes(str(raw or "")):
                 if gs1_valid(code):
                     cpsc_upcs.add(code)
                     found = True
         if found:
             with_upc += 1
-    print(f"CPSC recalls (RecallDate 2024-01-01..2026-09-28, n={len(cpsc)}) carrying a GS1-valid Products[].UPC: {with_upc}")
+    print(f"CPSC recalls (RecallDate 2024-01-01..2026-09-28, n={len(cpsc)}) carrying a GS1-valid ProductUPCs[].UPC: {with_upc}")
     print(f"distinct valid CPSC UPCs: {len(cpsc_upcs)}")
 
     overlap = sorted(set(eu_gtins) & cpsc_upcs)
     print(f"declared GTIN overlap (EU barcode == CPSC UPC): {len(overlap)}/{len(eu_gtins)}")
-    print("Finding: the standard saferproducts.gov RestWebServices/Recall JSON does not carry a")
-    print("Products[].UPC field at all in this window (0 CPSC recalls with a UPC), matching the")
-    print("2026-09-27-composites finding for the same field (xmatch.py: '0/861 CPSC recalls with")
-    print("model or code tokens ... via GTIN 0'). A UPC/GTIN join against CPSC needs identifiers")
-    print("extracted from Description/Title free text, not a structured field.")
+    print("Finding: CPSC's ProductUPCs[].UPC field IS populated in this window (40 recalls, 170")
+    print("distinct GS1-valid codes) — the earlier '0 UPC data' conclusion in this script was a")
+    print("field-name bug, not a real source limitation. This particular 223-record EU sample simply")
+    print("has no barcode in common with these 40 CPSC recalls' UPCs; a larger EU sample or a longer")
+    print("CPSC window could still find a declared match and should be retried before concluding a")
+    print("GTIN/UPC join against CPSC needs free-text extraction instead of this structured field.")
 
 
 if __name__ == "__main__":

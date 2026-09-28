@@ -41,9 +41,12 @@ def main() -> None:
         correct += 1 if ok else 0
         print(f"  {regis_no} ({make} {model}) vs {fr_file} (FR count={fr['count']}): {'MATCH' if ok else 'no exact-model match'} - {note}")
     print(f"\nreviewed: {correct}/{len(CHECKS)} correct exact-model matches")
-    print("measured (population-level, from this hand-reviewed sample only, not exhaustive): "
-          f"{correct}/{len(aircraft)} of this round's 163 NTSB aircraft records have a confirmed current FAA "
-          "airworthiness/special-conditions action for the same aircraft model.")
+    print(
+        f"Only these {len(CHECKS)} of this round's {len(aircraft)} NTSB aircraft records were queried against "
+        "Federal Register; the other "
+        f"{len(aircraft) - len(CHECKS)} were never checked and must not be counted as reviewed non-matches. "
+        f"This is a {len(CHECKS)}-record reviewed sample, not a population-level match rate."
+    )
 
 
 if __name__ == "__main__":

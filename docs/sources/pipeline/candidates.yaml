@@ -4748,11 +4748,12 @@ datasets:
         between:
           - ntsb-aviation-accidents
           - faa-airworthiness-directives
-        measured: "3/163 NTSB aircraft records (July 2026 monthly update) hand-checked against a live Federal
-          Register FAA-agency query for the same manufacturer+model; 3/5 checked models confirmed with an
-          exact-model current airworthiness/special-conditions action (Textron 560XL, Robinson R44, Cessna
-          182); 2/5 checked (Boeing 737-7CT, Airbus A319-114) found only a same-family, different-sub-variant
-          action, not counted as correct"
+        measured: "3/5 of a hand-picked reviewed sample confirmed an exact-model current FAA
+          airworthiness/special-conditions action for the same manufacturer+model, checked against a live
+          Federal Register FAA-agency query (Textron 560XL, Robinson R44, Cessna 182 matched; Boeing 737-7CT
+          and Airbus A319-114 found only a same-family, different-sub-variant action, not counted as correct).
+          This 5-record sample is drawn from, but not representative of, the round's 163 NTSB aircraft records
+          (July 2026 monthly update); the other 158 were never queried and are not counted as non-matches."
         mode: candidate
         reviewed: { correct: 3, checked: 5 }
     taxonomy:

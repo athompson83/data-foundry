@@ -5,4 +5,4 @@ acft_make: 163/163
 acft_model: 163/163
 acft_serial_no: 96/163
 58 narrative rows (free-text finding/cause fields) for the same 163 events
-157 event rows; ev_date range: 01/03/11 00:00:00 .. 12/14/25 00:00:00
+157 event rows; ev_date range: 2008-01-30 .. 2026-07-29 (parsed as MM/DD/YY; string min/max on the raw field would misreport this as 01/03/11 .. 12/14/25, ordering by month not chronology)
