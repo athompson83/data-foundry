@@ -38,10 +38,12 @@ export const INTAKE_SOURCES: Readonly<Record<string, { readonly idPrefix: string
  * model build or prompt is still accepted and stored as evidence, but never served. Adding an entry is a reviewed
  * change that cites its benchmark (tooling/test/local-collector.test.ts checks the prompt hash against the collector).
  */
-export const PUBLISHABLE_EXTRACTORS: ReadonlyArray<{ readonly version: string; readonly modelDigestPrefix: string; readonly promptSha256: string; readonly benchmark: string }> = [
+export const PUBLISHABLE_EXTRACTORS: ReadonlyArray<{ readonly version: string; readonly model: string; readonly modelDigest: string; readonly promptSha256: string; readonly benchmark: string }> = [
   {
     version: 'cpsc-product-identifiers@1/prompt-3',
-    modelDigestPrefix: '2a654d98e6fb',
+    model: 'qwen3.5:4b',
+    // The full manifest digest the benchmark ran on (apps/local-collector/benchmark/data/model.json), without "sha256:".
+    modelDigest: '2a654d98e6fba55d452b7043684e9b57a947e393bbffa62485a7aac05ee4eefd',
     promptSha256: 'e4a912fb71b2f0edbcb5929cd483cad57b7a8e9ebc419ea3fef3f3e19ee69d53',
     benchmark: 'apps/local-collector/benchmark/RESULTS.md (held-out precision 38/38, 0/18 negative false positives)',
   },
@@ -51,8 +53,9 @@ export const PUBLISHABLE_EXTRACTORS: ReadonlyArray<{ readonly version: string; r
 export function publishableExtractorClause(): { sql: string; binds: string[] } {
   if (PUBLISHABLE_EXTRACTORS.length === 0) return { sql: '0', binds: [] };
   return {
-    sql: `(${PUBLISHABLE_EXTRACTORS.map(() => "(e.extractor_version = ? AND replace(e.model_digest, 'sha256:', '') LIKE ? AND e.prompt_sha256 = ?)").join(' OR ')})`,
-    binds: PUBLISHABLE_EXTRACTORS.flatMap((entry) => [entry.version, `${entry.modelDigestPrefix}%`, entry.promptSha256]),
+    // The whole tuple, compared exactly: version, model name, full model digest and prompt hash.
+    sql: `(${PUBLISHABLE_EXTRACTORS.map(() => "(e.extractor_version = ? AND e.model = ? AND replace(e.model_digest, 'sha256:', '') = ? AND e.prompt_sha256 = ?)").join(' OR ')})`,
+    binds: PUBLISHABLE_EXTRACTORS.flatMap((entry) => [entry.version, entry.model, entry.modelDigest, entry.promptSha256]),
   };
 }
 
@@ -274,12 +277,22 @@ export async function handleIntake(env: Env, request: Request): Promise<{ status
   return { status: 200, body: response };
 }
 
-/** Operator withdrawal of every accepted candidate from one extractor version (optionally one notice). Reversible audit: rows are kept. */
+/** Operator withdrawal of every accepted candidate from one extractor version (optionally one notice). Rows are kept; restoreExtractions reverses it. */
 export async function withdrawExtractions(db: D1Database, extractorVersion: string, recallId: string | null, now: string): Promise<number> {
   if (!/^[\w.@/:+-]{3,100}$/.test(extractorVersion)) throw new BadRequest('extractor_version is required');
   const rows = await db
     .prepare(`UPDATE product_recall_extracted_key SET status = 'withdrawn', withdrawn_at = ? WHERE extractor_version = ? AND status = 'accepted' ${recallId ? 'AND recall_id = ?' : ''} RETURNING recall_id`)
     .bind(now, extractorVersion, ...(recallId ? [recallId] : []))
+    .all<{ recall_id: string }>();
+  return rows.results.length;
+}
+
+/** Reverses withdrawExtractions for one extractor version (optionally one notice): withdrawn rows are accepted again. */
+export async function restoreExtractions(db: D1Database, extractorVersion: string, recallId: string | null): Promise<number> {
+  if (!/^[\w.@/:+-]{3,100}$/.test(extractorVersion)) throw new BadRequest('extractor_version is required');
+  const rows = await db
+    .prepare(`UPDATE product_recall_extracted_key SET status = 'accepted', withdrawn_at = NULL WHERE extractor_version = ? AND status = 'withdrawn' ${recallId ? 'AND recall_id = ?' : ''} RETURNING recall_id`)
+    .bind(extractorVersion, ...(recallId ? [recallId] : []))
     .all<{ recall_id: string }>();
   return rows.results.length;
 }

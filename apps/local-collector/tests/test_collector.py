@@ -883,3 +883,53 @@ class CodexRegressionsRound6(unittest.TestCase):
             db.close()
             state = State(config.db_path)
             self.assertIn("checked_at", {r[1] for r in state.db.execute("PRAGMA table_info(candidate)")})
+
+
+class CodexRegressionsRound7(unittest.TestCase):
+    def test_an_exited_uploader_is_restarted_with_backoff_and_the_collector_keeps_running(self):
+        from df_collector.__main__ import UploaderSupervisor
+
+        class Child:
+            def __init__(self, pid):
+                self.pid, self.returncode = pid, None
+
+            def poll(self):
+                return self.returncode
+
+        spawned = []
+
+        def spawn():
+            spawned.append(Child(len(spawned) + 1))
+            return spawned[-1]
+
+        now = [0.0]
+        with tempfile.TemporaryDirectory() as tmp:
+            state = State(Config(data_dir=tmp).db_path)
+            sup = UploaderSupervisor(spawn, state, clock=lambda: now[0])
+            sup.check()
+            self.assertEqual(len(spawned), 1)
+            spawned[0].returncode = 1  # crashed
+            sup.check()
+            now[0] += 29
+            sup.check()
+            self.assertEqual(len(spawned), 1)  # still backing off
+            now[0] += 1
+            sup.check()
+            self.assertEqual(len(spawned), 2)
+            spawned[1].returncode = 1  # crashes again at once: the backoff doubles
+            sup.check()
+            now[0] += 59
+            sup.check()
+            self.assertEqual(len(spawned), 2)
+            now[0] += 1
+            sup.check()
+            self.assertEqual(len(spawned), 3)
+            now[0] += 700  # runs healthily, then crashes: the backoff resets
+            spawned[2].returncode = 1
+            sup.check()
+            now[0] += 30
+            sup.check()
+            self.assertEqual(len(spawned), 4)
+            kinds = [r["kind"] for r in state.q("SELECT kind FROM event ORDER BY id")]
+            self.assertEqual(kinds.count("uploader_exited"), 3)
+            self.assertEqual(kinds.count("uploader_restarted"), 3)

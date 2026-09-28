@@ -34,10 +34,15 @@ describe('local collector', () => {
 
   it("publishes only the collector's own benchmarked extractor build", () => {
     const python = process.env['PYTHON'] ?? 'python3';
-    const out = spawnSync(python, ['-c', 'from df_collector import extract, config; print(extract.EXTRACTOR_VERSION); print(extract.prompt_sha256()); print(config.Config().model_digest)'], { cwd: APP, encoding: 'utf8' });
-    const [version, promptSha, digest] = out.stdout.trim().split('\n');
+    const out = spawnSync(python, ['-c', 'from df_collector import extract, config; c = config.Config(); print(extract.EXTRACTOR_VERSION); print(extract.prompt_sha256()); print(c.model); print(c.model_digest)'], { cwd: APP, encoding: 'utf8' });
+    const [version, promptSha, model, pin] = out.stdout.trim().split('\n');
     // The collector's current build must be the benchmarked, publishable one; changing the prompt or pin needs a new benchmark entry.
-    expect(PUBLISHABLE_EXTRACTORS).toContainEqual(expect.objectContaining({ version, promptSha256: promptSha, modelDigestPrefix: digest }));
+    const entry = PUBLISHABLE_EXTRACTORS.find((candidate) => candidate.version === version && candidate.promptSha256 === promptSha && candidate.model === model);
+    expect(entry).toBeDefined();
+    // The collector's pin selects the benchmarked build, and the entry's full digest is the one the benchmark recorded.
+    expect(entry?.modelDigest.startsWith(pin as string)).toBe(true);
+    const benchmarked = JSON.parse(readFileSync(join(APP, 'benchmark/data/model.json'), 'utf8')) as { name: string; digest: string };
+    expect({ model: benchmarked.name, digest: benchmarked.digest }).toEqual({ model: entry?.model, digest: entry?.modelDigest });
   });
 
   it('passes its Python unit tests (network guard, leases, outbox, policy, model output, dashboard, shared vectors)', () => {

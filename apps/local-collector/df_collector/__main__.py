@@ -152,6 +152,41 @@ def cmd_set_secret(config: Config, name: str) -> int:
     return 0
 
 
+class UploaderSupervisor:
+    """Keeps the uploader child running: an unexpected exit is logged and the child restarted after a backoff.
+
+    The collector keeps reading and extracting meanwhile (the outbox holds the work), so one crash never stops the
+    unattended pipeline. The backoff doubles from 30 s up to an hour, and resets once a child has run for 10 minutes."""
+
+    BASE_S = 30.0
+    MAX_S = 3600.0
+    HEALTHY_S = 600.0
+
+    def __init__(self, spawn, state: State, clock=time.monotonic):
+        self.spawn = spawn
+        self.state = state
+        self.clock = clock
+        self.child = spawn()
+        self.started = clock()
+        self.failures = 0
+        self.restart_at: float | None = None
+
+    def check(self) -> None:
+        now = self.clock()
+        if self.restart_at is None:
+            if self.child.poll() is None:
+                return
+            self.failures = 1 if now - self.started >= self.HEALTHY_S else self.failures + 1
+            delay = min(self.BASE_S * 2 ** (self.failures - 1), self.MAX_S)
+            self.restart_at = now + delay
+            self.state.event("error", "uploader_exited", {"code": self.child.returncode, "restart_in_s": int(delay)})
+        elif now >= self.restart_at:
+            self.child = self.spawn()
+            self.started = now
+            self.restart_at = None
+            self.state.event("info", "uploader_restarted", {"pid": self.child.pid, "failures": self.failures})
+
+
 def cmd_run(config: Config, config_path: str | None) -> int:
     from .dashboard import Dashboard
     from .runtime import Collector
@@ -170,8 +205,13 @@ def cmd_run(config: Config, config_path: str | None) -> int:
     # The uploader is a separate process: only it reads the ingestion credential.
     child_args = [sys.executable, "-m", "df_collector", "--data-dir", str(config.root)] + (["--config", config_path] if config_path else []) + ["uploader"]
     creationflags = 0x08000000 if os.name == "nt" else 0  # CREATE_NO_WINDOW
-    uploader = subprocess.Popen(child_args, cwd=str(Path(__file__).resolve().parents[1]), creationflags=creationflags)
-    (rd / "uploader.pid").write_text(str(uploader.pid))
+
+    def spawn_uploader() -> subprocess.Popen:
+        child = subprocess.Popen(child_args, cwd=str(Path(__file__).resolve().parents[1]), creationflags=creationflags)
+        (rd / "uploader.pid").write_text(str(child.pid))
+        return child
+
+    uploader = UploaderSupervisor(spawn_uploader, state)
     threading.Thread(target=dashboard.serve, daemon=True).start()
     print(f"{COLLECTOR_ID} running; dashboard http://{config.dashboard_host}:{config.dashboard_port}/", flush=True)
 
@@ -183,9 +223,7 @@ def cmd_run(config: Config, config_path: str | None) -> int:
 
     def watch() -> None:
         while not stop_file.exists():
-            if uploader.poll() is not None and not stop_file.exists():
-                state.event("error", "uploader_exited", {"code": uploader.returncode})
-                stop_file.touch()
+            uploader.check()
             time.sleep(1)
         collector.stop.set()
 
@@ -195,9 +233,9 @@ def cmd_run(config: Config, config_path: str | None) -> int:
     finally:
         stop_file.touch()
         try:
-            uploader.wait(timeout=30)
+            uploader.child.wait(timeout=30)
         except subprocess.TimeoutExpired:
-            uploader.terminate()
+            uploader.child.terminate()
         dashboard.shutdown()
         (rd / "collector.pid").unlink(missing_ok=True)
         (rd / "uploader.pid").unlink(missing_ok=True)

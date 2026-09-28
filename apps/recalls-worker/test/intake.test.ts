@@ -234,6 +234,9 @@ describe('publication of extracted identifiers', () => {
       { ...EXTRACTOR, version: 'cpsc-product-identifiers@1/prompt-4' },
       { ...EXTRACTOR, model: 'gpt-oss:20b', model_digest: 'sha256:aa11bb22cc33' },
       { ...EXTRACTOR, prompt_sha256: 'f'.repeat(64) },
+      // The benchmarked version and prompt with a different model, or a digest that only shares the pinned prefix.
+      { ...EXTRACTOR, model: 'gpt-oss:20b' },
+      { ...EXTRACTOR, model_digest: `sha256:2a654d98e6fb${'0'.repeat(52)}` },
     ]) {
       const stored = (await (await submit(env, token, [{ recall_id: 'cpsc-15034', raw_sha256: sha, candidates: [CANDIDATES[0]] }], undefined, extractor)).json()) as { accepted: number };
       expect(stored.accepted).toBe(1); // kept as evidence
@@ -251,8 +254,14 @@ describe('publication of extracted identifiers', () => {
     expect(await withdrawn.json()).toEqual({ withdrawn: 1 });
     let notice = (await (await get(env, apiKey, '/v1/product-recalls/cpsc-15034')).json()) as { data: { extracted_identifiers: unknown[] } };
     expect(notice.data.extracted_identifiers).toEqual([]);
-    // The row is kept for audit.
+    // The row is kept for audit, and the withdrawal can be reversed.
     expect(await env.DB.prepare("SELECT status FROM product_recall_extracted_key").first()).toEqual({ status: 'withdrawn' });
+    const restored = await call(env, '/admin/extractions/restore?extractor_version=cpsc-product-identifiers@1/prompt-3', { method: 'POST', headers: { authorization: `Bearer ${ADMIN}` } });
+    expect(await restored.json()).toEqual({ restored: 1 });
+    notice = (await (await get(env, apiKey, '/v1/product-recalls/cpsc-15034')).json()) as { data: { extracted_identifiers: unknown[] } };
+    expect(notice.data.extracted_identifiers).toEqual([expect.objectContaining({ value: 'SA904' })]);
+    const anonymous = await call(env, '/admin/extractions/restore?extractor_version=cpsc-product-identifiers@1/prompt-3', { method: 'POST' });
+    expect(anonymous.status).toBe(404);
 
     const fresh = await accepted({ EXTRACTED_IDENTIFIERS_OPEN: '1' });
     await ingestRecords(fresh.env, 'CPSC', [{ ...CPSC, Description: `${CPSC.Description} Updated.` }], 'full', '2026-09-29T00:00:00.000Z');

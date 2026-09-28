@@ -59,15 +59,15 @@ recalls on the recalls Worker); [`docs/sources/cpsc-recalls-rights-record-202609
      notice's current bytes.
    - They appear as `extracted_identifiers`, with method `local-model-proposal+deterministic-verification`, and as
      the lookup match kind `extracted_model`. They are never mixed into the agency parser's `identifiers`.
-   - Only rows from a **publishable extractor build** are served: the exact extractor version, model digest and
-     prompt hash listed in `PUBLISHABLE_EXTRACTORS` (`apps/recalls-worker/src/intake.ts`), each with its benchmark.
+   - Only rows from a **publishable extractor build** are served: the exact extractor version, model name, full model
+     digest and prompt hash listed in `PUBLISHABLE_EXTRACTORS` (`apps/recalls-worker/src/intake.ts`), each with its benchmark.
      Output from any other build is stored as evidence but never served, and rows are keyed by the whole build, so
      one build never shadows another. A CI test requires the collector's own build to be on that list.
    - The gate opens only when the pre-registered bar in
      [`apps/local-collector/benchmark/QUALITY_BAR.md`](../../apps/local-collector/benchmark/QUALITY_BAR.md) is met on
      held-out data.
-   - Operators withdraw a whole extractor version with `/admin/extractions/withdraw`. Rows are kept for audit, so
-     the withdrawal is reversible.
+   - Operators withdraw a whole extractor version with `/admin/extractions/withdraw`. Rows are kept for audit, and
+     `/admin/extractions/restore` reverses the withdrawal.
 5. **Local-only inference.**
    - The Ollama URL must be loopback. Cloud tags and models without local weights are refused. The model build is
      pinned by ID (`qwen3.5:4b`, `2a654d98e6fb`, Q4_K_M, Apache-2.0, weights layer

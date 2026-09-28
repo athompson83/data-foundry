@@ -154,4 +154,4 @@ Enabling it takes three operator steps. `apps/local-collector/deploy/enable-prod
 
 4. To open the intake, a reviewed change sets `COLLECTOR_INTAKE_OPEN = "1"`, and the workflow deploys it. `--finish` then passes only when the probe answers 401.
 
-Revoke a credential with `POST /admin/ingest-credentials/revoke?id=<ic_…>`. Withdraw everything one extractor version produced with `POST /admin/extractions/withdraw?extractor_version=<version>[&recall_id=<id>]`. Withdrawn rows are kept for audit and are no longer served.
+Revoke a credential with `POST /admin/ingest-credentials/revoke?id=<ic_…>`. Withdraw everything one extractor version produced with `POST /admin/extractions/withdraw?extractor_version=<version>[&recall_id=<id>]`. Withdrawn rows are kept for audit and are no longer served. `POST /admin/extractions/restore?extractor_version=<version>[&recall_id=<id>]` reverses a withdrawal.

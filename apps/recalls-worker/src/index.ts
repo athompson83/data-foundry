@@ -20,7 +20,7 @@ import { scheduledSync, syncWindow } from './sync.js';
 import { getProductRecall, lookupProductCode, PRODUCT_ID, productStats, searchProductRecalls } from './product-api.js';
 import { FIRST_PRODUCT_YEAR, PRODUCT_BROWSE_PAGE_SIZE, PRODUCT_INDEXNOW_FEED, PRODUCT_BROWSE_PATTERN, PRODUCT_PAGE_PATTERN, PRODUCT_SITEMAP_PAGE_SIZE, PRODUCT_SITEMAP_PATTERN, productBrowseIndex, productBrowsePage, productIndexableStats, productNoticePage, productSitemap } from './product-pages.js';
 import { scheduledProductSync } from './product-sync.js';
-import { createIngestCredential, handleIntake, IntakeRefused, revokeIngestCredential, withdrawExtractions } from './intake.js';
+import { createIngestCredential, handleIntake, IntakeRefused, restoreExtractions, revokeIngestCredential, withdrawExtractions } from './intake.js';
 import { logMarketplaceRejection, logMarketplaceRequest, resolveChannel, type MarketplacePrincipal } from './marketplace.js';
 import { BROWSE_PATTERN, EDGE_TTL_SECONDS, RECALL_API_PATTERN, RECALL_PAGE_PATTERN, SITEMAP_PATTERN, browseCount, browseInRange, browseIndex, browsePage, indexableCount, shardInRange, llmsFullTxt, llmsTxt, pagesSitemap, FDA_INDEXNOW_FEED, lastRunKey, pingChanged, recallPage, recordIndexNowRun, recallSitemap, robotsTxt, sitemapIndex, type PresentedRecall } from './seo.js';
 import { RECALL_CATEGORIES, type RecallCategory } from '@data-foundry/recall-structuring';
@@ -360,6 +360,12 @@ async function route(request: Request, env: Env): Promise<Response> {
   if (url.pathname === '/admin/extractions/withdraw' && request.method === 'POST') {
     if (!isAuthorizedAdmin(env, request)) return apiError(404, 'not_found', 'Not found.');
     return json({ withdrawn: await withdrawExtractions(env.DB, url.searchParams.get('extractor_version') ?? '', url.searchParams.get('recall_id'), new Date().toISOString()) });
+  }
+
+  if (url.pathname === '/admin/extractions/restore' && request.method === 'POST') {
+    // Reverses a withdrawal: the rows were kept, so they are served again (still only from publishable builds).
+    if (!isAuthorizedAdmin(env, request)) return apiError(404, 'not_found', 'Not found.');
+    return json({ restored: await restoreExtractions(env.DB, url.searchParams.get('extractor_version') ?? '', url.searchParams.get('recall_id')) });
   }
 
   if (url.pathname === '/admin/revoke-keys' && request.method === 'POST') {
