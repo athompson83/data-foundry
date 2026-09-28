@@ -1,5 +1,54 @@
 # Progress
 
+## Current session — 2026-09-28: Local Collector (local-model extraction through a governed intake)
+
+- **Owner direction.** Set up the Data Foundry Local Collector (goal document of 2026-09-28). Use Ollama with a free
+  local model (start with `qwen3.5:4b`), benchmark it, and disable cloud and paid fallbacks. Reuse the existing
+  infrastructure, registry, rights controls, parsers and publication path. Mid-session: "This tool will need to be
+  able to see what types of data we are hosting on Data Foundry (and refresh as needed) and then seek out and
+  capture that data. We can also set it up with any OpenAI free models as needed."
+- **Reconciled.**
+  - The deployed path for the target dataset is the recalls Worker (D1/R2). The Postgres acquisition and ingestion
+    Workers are not deployed, and no intake existed.
+  - This session runs in a cloud Linux container (4 vCPU, 15.7 GB RAM, no GPU, Docker daemon unavailable), not on
+    the owner's Windows computer, and has no Cloudflare credentials.
+  - Production was healthy throughout (CPSC 10,027, Health Canada 5,206, syncs 12:17 UTC).
+- **Gap chosen.** 6,698 of 10,027 CPSC notices have no indexed identifier, because the parser reads models only after
+  a "model" label. 3,642 of them print labelled item, style, SKU, part or catalog codes.
+- **Built** ([ADR-0017](docs/decisions/ADR-0017-local-collector-extraction-intake.md)):
+  - `apps/local-collector` (Python stdlib): catalog-driven capture plan, SSRF-guarded fetches, SQLite
+    leases/outbox, a local-only Ollama client with a pinned digest, a loopback dashboard, a Windows installer and
+    Start/Stop/Status launchers, and a benchmark harness.
+  - The recalls Worker intake `POST /v1/intake/product-recalls/identifiers` (migration `0004`, ingestion
+    credentials, re-verification against R2 evidence, idempotency, withdrawal). It is served only behind
+    `EXTRACTED_IDENTIFIERS_OPEN`, as `extracted_identifiers` and lookup kind `extracted_model`.
+  - Shared acceptance rules in `product-recall-structuring` with TS/Python shared vectors.
+  - Policy compiled from `candidates.yaml` (`pnpm collector:policy`, checked in CI).
+  - The API root now names each dataset's registry key and stats path.
+- **Benchmark** ([results](apps/local-collector/benchmark/RESULTS.md)). 130 notices, blind gold labels, 30
+  held out. The bar was fixed before the held-out run.
+  - Held-out, model plus server checks: precision 38/38 = 1.00 (95% CI 0.91–1.00), recall 0.84, 0/18 negatives with
+    a false positive, 0 hallucinated values. **Passes the bar.**
+  - Dev: precision 0.96, recall 0.63. The rules alone reached only 0.58 precision on dev.
+  - Speed: median 12 s per notice (p95 about 50 s), 6.7 tokens/s on 4 CPU cores.
+  - Memory: `llama-server` reached 8.3 GB RSS after 130 notices (prompt cache), so 16 GB of RAM is recommended.
+  - `gpt-oss:20b` (OpenAI open-weight, Apache-2.0, 12.9 GB) is supported but not benchmarked: it would not fit
+    beside the rest in 15.7 GB.
+- **End-to-end on the real Worker locally** ([evidence](docs/evidence/local-collector-e2e-20260928.md)):
+  - 16 identifiers accepted; with the gate closed, none were served.
+  - With the gate opened, the authenticated lookup of `LDQMFJ8D-BK` returned `cpsc-26794` as `extracted_model`, and
+    11 identifiers were read back as queryable.
+  - Replay with the same and with new keys created no duplicates.
+  - After `kill -9`, the restart resumed with 0 duplicate documents.
+  - Source withdrawal, credential revocation and the dataset kill switch were each refused or idled correctly.
+- **Not done.**
+  - Production: the deploy, migration `0004`, a minted credential, and the open gates. The session has no
+    Cloudflare credentials, and deploys run through the owner-dispatched `deploy-production` workflow or an
+    operator's wrangler.
+  - Installation on the owner's Windows computer (outside this environment).
+  - Elapsed multi-day stability.
+  - An adapter for the permitted Health Canada member.
+
 ## Current session — 2026-09-27/28 (continued): second dataset, website, daily scout — deployed
 
 - **Owner direction.** "Continue to add data types and ship to production."

@@ -1,0 +1,1515 @@
+{
+ "cpsc-97076": {
+  "identifiers": [
+   {
+    "value": "42 34375",
+    "label": "item"
+   }
+  ],
+  "ambiguous": []
+ },
+ "cpsc-22750": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-00136": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-06156": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-26734": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-26107": {
+  "identifiers": [],
+  "ambiguous": [
+   {
+    "value": "HD011BL-SL",
+    "reason": "code printed on packaging, no model/item label"
+   },
+   {
+    "value": "HD011WH-SL",
+    "reason": "code printed on packaging, no model/item label"
+   }
+  ]
+ },
+ "cpsc-96036": {
+  "identifiers": [
+   {
+    "value": "65301",
+    "label": "style"
+   },
+   {
+    "value": "65302",
+    "label": "style"
+   },
+   {
+    "value": "65303",
+    "label": "style"
+   },
+   {
+    "value": "65304",
+    "label": "style"
+   },
+   {
+    "value": "65305",
+    "label": "style"
+   }
+  ],
+  "ambiguous": []
+ },
+ "cpsc-02020": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-16728": {
+  "identifiers": [
+   {
+    "value": "C9048",
+    "label": "style"
+   }
+  ],
+  "ambiguous": [
+   {
+    "value": "5055794",
+    "reason": "PO (purchase order) number, not a listed identifier type"
+   },
+   {
+    "value": "5056319",
+    "reason": "PO (purchase order) number, not a listed identifier type"
+   },
+   {
+    "value": "50565325",
+    "reason": "PO (purchase order) number, not a listed identifier type"
+   },
+   {
+    "value": "8053606",
+    "reason": "PO (purchase order) number, not a listed identifier type"
+   },
+   {
+    "value": "8053098",
+    "reason": "PO (purchase order) number, not a listed identifier type"
+   },
+   {
+    "value": "8053603",
+    "reason": "PO (purchase order) number, not a listed identifier type"
+   }
+  ]
+ },
+ "cpsc-21026": {
+  "identifiers": [
+   {
+    "value": "001969",
+    "label": "style"
+   },
+   {
+    "value": "001970",
+    "label": "style"
+   },
+   {
+    "value": "001969-501",
+    "label": "style"
+   },
+   {
+    "value": "001969-605",
+    "label": "style"
+   },
+   {
+    "value": "001969-905",
+    "label": "style"
+   },
+   {
+    "value": "001970-501",
+    "label": "style"
+   },
+   {
+    "value": "001970-605",
+    "label": "style"
+   }
+  ],
+  "ambiguous": []
+ },
+ "cpsc-21764": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-02110": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-21100": {
+  "identifiers": [
+   {
+    "value": "YSN100HOG",
+    "label": "sku"
+   }
+  ],
+  "ambiguous": []
+ },
+ "cpsc-08530": {
+  "identifiers": [
+   {
+    "value": "PTAC12B208",
+    "label": "model"
+   },
+   {
+    "value": "PTAC12B265",
+    "label": "model"
+   },
+   {
+    "value": "PTHP12B208",
+    "label": "model"
+   },
+   {
+    "value": "PTHP12B265",
+    "label": "model"
+   },
+   {
+    "value": "PTAC15B208",
+    "label": "model"
+   },
+   {
+    "value": "PTAC15B265",
+    "label": "model"
+   },
+   {
+    "value": "PTHP15B208",
+    "label": "model"
+   },
+   {
+    "value": "PTHP15B265",
+    "label": "model"
+   }
+  ],
+  "ambiguous": [
+   {
+    "value": "105575703",
+    "reason": "unlabelled number on power cord (possibly part number)"
+   },
+   {
+    "value": "105575803",
+    "reason": "unlabelled number on power cord (possibly part number)"
+   }
+  ]
+ },
+ "cpsc-20167": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-94058": {
+  "identifiers": [
+   {
+    "value": "2129",
+    "label": "style"
+   },
+   {
+    "value": "4200",
+    "label": "item"
+   }
+  ],
+  "ambiguous": [
+   {
+    "value": "M4311",
+    "reason": "unlabelled code on hangtag alongside style/item"
+   }
+  ]
+ },
+ "cpsc-94138": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-89064": {
+  "identifiers": [
+   {
+    "value": "951418",
+    "label": "item"
+   }
+  ],
+  "ambiguous": [
+   {
+    "value": "11110",
+    "reason": "unlabelled number on air pump label (air pump not the recalled component)"
+   }
+  ]
+ },
+ "cpsc-84045": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-94107": {
+  "identifiers": [],
+  "ambiguous": [
+   {
+    "value": "B771",
+    "reason": "unlabelled code following product name on package"
+   }
+  ]
+ },
+ "cpsc-06072": {
+  "identifiers": [
+   {
+    "value": "891",
+    "label": "model"
+   },
+   {
+    "value": "892",
+    "label": "model"
+   },
+   {
+    "value": "893PK",
+    "label": "model"
+   },
+   {
+    "value": "894PK",
+    "label": "model"
+   },
+   {
+    "value": "895PK",
+    "label": "model"
+   },
+   {
+    "value": "8902",
+    "label": "model"
+   }
+  ],
+  "ambiguous": [
+   {
+    "value": "890",
+    "reason": "series name in product name, not presented as a model number"
+   }
+  ]
+ },
+ "cpsc-12093": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-15059": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-23228": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-19108": {
+  "identifiers": [
+   {
+    "value": "89304",
+    "label": "item"
+   },
+   {
+    "value": "89297",
+    "label": "item"
+   },
+   {
+    "value": "89298",
+    "label": "item"
+   },
+   {
+    "value": "89301",
+    "label": "item"
+   },
+   {
+    "value": "89303",
+    "label": "item"
+   },
+   {
+    "value": "89302",
+    "label": "item"
+   },
+   {
+    "value": "89300",
+    "label": "item"
+   },
+   {
+    "value": "89299",
+    "label": "item"
+   },
+   {
+    "value": "234-18-0100",
+    "label": "model"
+   },
+   {
+    "value": "234-20-0189",
+    "label": "model"
+   }
+  ],
+  "ambiguous": []
+ },
+ "cpsc-04049": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-12040": {
+  "identifiers": [
+   {
+    "value": "425827",
+    "label": "sku"
+   }
+  ],
+  "ambiguous": []
+ },
+ "cpsc-19132": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-02052": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-95024": {
+  "identifiers": [
+   {
+    "value": "74503",
+    "label": "item"
+   },
+   {
+    "value": "79750",
+    "label": "item"
+   }
+  ],
+  "ambiguous": []
+ },
+ "cpsc-17191": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-97085": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-19028": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-11324": {
+  "identifiers": [
+   {
+    "value": "GHD30Y7",
+    "label": "model"
+   },
+   {
+    "value": "DH305Y7",
+    "label": "model"
+   },
+   {
+    "value": "BHD-301-C",
+    "label": "model"
+   }
+  ],
+  "ambiguous": []
+ },
+ "cpsc-16238": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-00014": {
+  "identifiers": [],
+  "ambiguous": [
+   {
+    "value": "T-2",
+    "reason": "labelled Model T-2 but has only two alphanumeric characters (guideline minimum is three)"
+   }
+  ]
+ },
+ "cpsc-15124": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-00028": {
+  "identifiers": [
+   {
+    "value": "13150",
+    "label": "item"
+   }
+  ],
+  "ambiguous": []
+ },
+ "cpsc-92032": {
+  "identifiers": [
+   {
+    "value": "172",
+    "label": "style"
+   }
+  ],
+  "ambiguous": []
+ },
+ "cpsc-78001": {
+  "identifiers": [
+   {
+    "value": "LC-7005P",
+    "label": "item"
+   }
+  ],
+  "ambiguous": []
+ },
+ "cpsc-24315": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-03535": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-94134": {
+  "identifiers": [
+   {
+    "value": "PA-1106S",
+    "label": "item"
+   },
+   {
+    "value": "PA-1109S",
+    "label": "item"
+   },
+   {
+    "value": "PA-1112S",
+    "label": "item"
+   },
+   {
+    "value": "PA-1115S",
+    "label": "item"
+   },
+   {
+    "value": "PA-1118S",
+    "label": "item"
+   },
+   {
+    "value": "PA-1121S",
+    "label": "item"
+   }
+  ],
+  "ambiguous": []
+ },
+ "cpsc-09240": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-06152": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-89068": {
+  "identifiers": [
+   {
+    "value": "790494",
+    "label": "item"
+   }
+  ],
+  "ambiguous": []
+ },
+ "cpsc-98053": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-02514": {
+  "identifiers": [],
+  "ambiguous": [
+   {
+    "value": "30499",
+    "reason": "'#30499' printed on the controller's front plate; # implies a number but type (part/model) unstated"
+   },
+   {
+    "value": "Fusion 35",
+    "reason": "product name with number, not labelled as a code"
+   }
+  ]
+ },
+ "cpsc-14202": {
+  "identifiers": [
+   {
+    "value": "Speedster 30",
+    "label": "model"
+   },
+   {
+    "value": "Speedster 40",
+    "label": "model"
+   },
+   {
+    "value": "Contessa Speedster 25",
+    "label": "model"
+   },
+   {
+    "value": "Contessa Speedster 35",
+    "label": "model"
+   }
+  ],
+  "ambiguous": []
+ },
+ "cpsc-12283": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-18152": {
+  "identifiers": [],
+  "ambiguous": [
+   {
+    "value": "20072483",
+    "reason": "listed under 'Color/Model Barcode Number' - a barcode, so treated as negative, but column header mentions Model"
+   },
+   {
+    "value": "20072490",
+    "reason": "listed under 'Color/Model Barcode Number' - a barcode, so treated as negative, but column header mentions Model"
+   }
+  ]
+ },
+ "cpsc-26068": {
+  "identifiers": [
+   {
+    "value": "1879870",
+    "label": "item"
+   }
+  ],
+  "ambiguous": []
+ },
+ "cpsc-17162": {
+  "identifiers": [
+   {
+    "value": "8803-31",
+    "label": "model"
+   },
+   {
+    "value": "8803-38",
+    "label": "model"
+   },
+   {
+    "value": "8801-96U",
+    "label": "model"
+   }
+  ],
+  "ambiguous": []
+ },
+ "cpsc-11146": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-04046": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-04079": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-10349": {
+  "identifiers": [
+   {
+    "value": "405334",
+    "label": "sku"
+   }
+  ],
+  "ambiguous": []
+ },
+ "cpsc-12258": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-06001": {
+  "identifiers": [
+   {
+    "value": "1816",
+    "label": "style"
+   },
+   {
+    "value": "2816",
+    "label": "style"
+   },
+   {
+    "value": "3816",
+    "label": "style"
+   },
+   {
+    "value": "1816N",
+    "label": "style"
+   },
+   {
+    "value": "2816N",
+    "label": "style"
+   },
+   {
+    "value": "1814",
+    "label": "style"
+   },
+   {
+    "value": "2814",
+    "label": "style"
+   },
+   {
+    "value": "4814",
+    "label": "style"
+   },
+   {
+    "value": "5814",
+    "label": "style"
+   }
+  ],
+  "ambiguous": []
+ },
+ "cpsc-21784": {
+  "identifiers": [],
+  "ambiguous": [
+   {
+    "value": "Phoenix 200",
+    "reason": "vehicle model name containing a number, not presented as a model code"
+   }
+  ]
+ },
+ "cpsc-00170": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-93095": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-11065": {
+  "identifiers": [
+   {
+    "value": "3007",
+    "label": "style"
+   },
+   {
+    "value": "3012",
+    "label": "style"
+   },
+   {
+    "value": "3013",
+    "label": "style"
+   },
+   {
+    "value": "3029",
+    "label": "style"
+   },
+   {
+    "value": "3030",
+    "label": "style"
+   },
+   {
+    "value": "3034",
+    "label": "style"
+   },
+   {
+    "value": "3035",
+    "label": "style"
+   }
+  ],
+  "ambiguous": []
+ },
+ "cpsc-81015": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-09002": {
+  "identifiers": [
+   {
+    "value": "WB2 6-24C",
+    "label": "model"
+   },
+   {
+    "value": "WB2 6-24",
+    "label": "model"
+   },
+   {
+    "value": "WB2 8-32",
+    "label": "model"
+   },
+   {
+    "value": "WB2 11-44",
+    "label": "model"
+   },
+   {
+    "value": "WB2 15-60",
+    "label": "model"
+   }
+  ],
+  "ambiguous": [
+   {
+    "value": "Vitodens 200",
+    "reason": "product line name with number, not labelled as a model code"
+   }
+  ]
+ },
+ "cpsc-78086": {
+  "identifiers": [
+   {
+    "value": "51GA0661",
+    "label": "model"
+   },
+   {
+    "value": "51GB0661",
+    "label": "model"
+   }
+  ],
+  "ambiguous": []
+ },
+ "cpsc-25164": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-02147": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-97019": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-20023": {
+  "identifiers": [
+   {
+    "value": "3017653",
+    "label": "item"
+   }
+  ],
+  "ambiguous": []
+ },
+ "cpsc-22074": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-23020": {
+  "identifiers": [
+   {
+    "value": "AAP206",
+    "label": "sku"
+   },
+   {
+    "value": "AAP214",
+    "label": "sku"
+   },
+   {
+    "value": "AAP216",
+    "label": "sku"
+   },
+   {
+    "value": "AAH206",
+    "label": "sku"
+   },
+   {
+    "value": "AAH214",
+    "label": "sku"
+   },
+   {
+    "value": "AAH216",
+    "label": "sku"
+   }
+  ],
+  "ambiguous": []
+ },
+ "cpsc-06513": {
+  "identifiers": [],
+  "ambiguous": [
+   {
+    "value": "S90 ES",
+    "reason": "product name that looks like a model designation but is not labelled as a model"
+   }
+  ]
+ },
+ "cpsc-10345": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-96168": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-79031": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-99149": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-24368": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-96113": {
+  "identifiers": [],
+  "ambiguous": [
+   {
+    "value": "0-525-45468-3",
+    "reason": "ISBN - a book product identifier but not one of the guideline label types (barcode-like)"
+   },
+   {
+    "value": "0-525-45469-1",
+    "reason": "ISBN - a book product identifier but not one of the guideline label types (barcode-like)"
+   }
+  ]
+ },
+ "cpsc-09213": {
+  "identifiers": [
+   {
+    "value": "1708",
+    "label": "style"
+   }
+  ],
+  "ambiguous": []
+ },
+ "cpsc-05128": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-17714": {
+  "identifiers": [
+   {
+    "value": "Can-Am Maverick X3 STD",
+    "label": "model"
+   },
+   {
+    "value": "Can-Am Maverick X3 XDS",
+    "label": "model"
+   },
+   {
+    "value": "Can-Am Maverick X3 XRS",
+    "label": "model"
+   }
+  ],
+  "ambiguous": []
+ },
+ "cpsc-06130": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-08327": {
+  "identifiers": [
+   {
+    "value": "63403",
+    "label": "item"
+   },
+   {
+    "value": "67310",
+    "label": "item"
+   }
+  ],
+  "ambiguous": []
+ },
+ "cpsc-15017": {
+  "identifiers": [
+   {
+    "value": "491996",
+    "label": "sku"
+   },
+   {
+    "value": "491997",
+    "label": "sku"
+   }
+  ],
+  "ambiguous": []
+ },
+ "cpsc-87067": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-25173": {
+  "identifiers": [
+   {
+    "value": "K-1106",
+    "label": "part"
+   },
+   {
+    "value": "R-0980",
+    "label": "part"
+   }
+  ],
+  "ambiguous": []
+ },
+ "cpsc-03152": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-89080": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-99101": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-96149": {
+  "identifiers": [
+   {
+    "value": "306H",
+    "label": "part"
+   },
+   {
+    "value": "302H",
+    "label": "part"
+   }
+  ],
+  "ambiguous": [
+   {
+    "value": "7327",
+    "reason": "number stamped on brass fittings, not labelled as a part/model number"
+   }
+  ]
+ },
+ "cpsc-22751": {
+  "identifiers": [
+   {
+    "value": "700TDCDAPLCCS-LED930",
+    "label": "model"
+   },
+   {
+    "value": "700TDCDAPLKCS-LED930",
+    "label": "model"
+   },
+   {
+    "value": "700TDCDAPSCCS-LED930",
+    "label": "model"
+   },
+   {
+    "value": "700TDCDAPSKCS-LED930",
+    "label": "model"
+   },
+   {
+    "value": "365TDMISC4052",
+    "label": "model"
+   },
+   {
+    "value": "365TDCODALS-A",
+    "label": "model"
+   }
+  ],
+  "ambiguous": []
+ },
+ "cpsc-07551": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-10740": {
+  "identifiers": [],
+  "ambiguous": [
+   {
+    "value": "Expedition TUV 1200",
+    "reason": "model name with number; only 'model year' label precedes it"
+   },
+   {
+    "value": "Expedition TUV SE 1200",
+    "reason": "model name with number; only 'model year' label precedes it"
+   }
+  ]
+ },
+ "cpsc-26275": {
+  "identifiers": [
+   {
+    "value": "7903815",
+    "label": "style"
+   },
+   {
+    "value": "7903816",
+    "label": "style"
+   },
+   {
+    "value": "7903824",
+    "label": "style"
+   },
+   {
+    "value": "7903830",
+    "label": "style"
+   },
+   {
+    "value": "7904011",
+    "label": "style"
+   },
+   {
+    "value": "7904012",
+    "label": "style"
+   },
+   {
+    "value": "7904013",
+    "label": "style"
+   },
+   {
+    "value": "7904907",
+    "label": "style"
+   },
+   {
+    "value": "7905217",
+    "label": "style"
+   },
+   {
+    "value": "7905218",
+    "label": "style"
+   },
+   {
+    "value": "7905646",
+    "label": "style"
+   }
+  ],
+  "ambiguous": []
+ },
+ "cpsc-10048": {
+  "identifiers": [
+   {
+    "value": "E30GF74HPS",
+    "label": "model"
+   },
+   {
+    "value": "790.79613800",
+    "label": "model"
+   },
+   {
+    "value": "790.79613801",
+    "label": "model"
+   }
+  ],
+  "ambiguous": []
+ },
+ "cpsc-23095": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-20123": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-97013": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-88020": {
+  "identifiers": [
+   {
+    "value": "1928",
+    "label": "style"
+   },
+   {
+    "value": "2213",
+    "label": "style"
+   },
+   {
+    "value": "2188",
+    "label": "style"
+   },
+   {
+    "value": "2120",
+    "label": "style"
+   }
+  ],
+  "ambiguous": []
+ },
+ "cpsc-92044": {
+  "identifiers": [
+   {
+    "value": "A0534",
+    "label": "item"
+   },
+   {
+    "value": "A0533",
+    "label": "item"
+   }
+  ],
+  "ambiguous": []
+ },
+ "cpsc-26005": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-23790": {
+  "identifiers": [
+   {
+    "value": "XPLORER XR 500",
+    "label": "model"
+   },
+   {
+    "value": "XPLORER XR 500 LE",
+    "label": "model"
+   },
+   {
+    "value": "XPLORER XR 570",
+    "label": "model"
+   },
+   {
+    "value": "XPLORER XR 570 LE",
+    "label": "model"
+   },
+   {
+    "value": "XPLORER XRT 500",
+    "label": "model"
+   },
+   {
+    "value": "XPLORER XRT 570",
+    "label": "model"
+   },
+   {
+    "value": "XPLORER XRT 570 LE",
+    "label": "model"
+   }
+  ],
+  "ambiguous": []
+ },
+ "cpsc-05210": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-20104": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-11022": {
+  "identifiers": [
+   {
+    "value": "PDW9200J",
+    "label": "model"
+   },
+   {
+    "value": "PDW9280J",
+    "label": "model"
+   },
+   {
+    "value": "PDW9800J",
+    "label": "model"
+   },
+   {
+    "value": "PDW9880J",
+    "label": "model"
+   },
+   {
+    "value": "PDW9700J",
+    "label": "model"
+   },
+   {
+    "value": "ZBD6800K00",
+    "label": "model"
+   },
+   {
+    "value": "ZBD6800K01",
+    "label": "model"
+   },
+   {
+    "value": "ZBD6800K03",
+    "label": "model"
+   },
+   {
+    "value": "ZBD6800K10",
+    "label": "model"
+   },
+   {
+    "value": "ZBD6880K00",
+    "label": "model"
+   },
+   {
+    "value": "ZBD6880K01",
+    "label": "model"
+   },
+   {
+    "value": "ZBD6880K03",
+    "label": "model"
+   },
+   {
+    "value": "ZBD6880K10",
+    "label": "model"
+   },
+   {
+    "value": "ZBD6890K00",
+    "label": "model"
+   },
+   {
+    "value": "ZBD6890K01",
+    "label": "model"
+   },
+   {
+    "value": "ZBD6890K03",
+    "label": "model"
+   },
+   {
+    "value": "ZBD6890K10",
+    "label": "model"
+   },
+   {
+    "value": "ZBD0700K00",
+    "label": "model"
+   },
+   {
+    "value": "ZBD0700K01",
+    "label": "model"
+   },
+   {
+    "value": "ZBD0700K03",
+    "label": "model"
+   },
+   {
+    "value": "ZBD0700K10",
+    "label": "model"
+   },
+   {
+    "value": "ZBD0710K00",
+    "label": "model"
+   },
+   {
+    "value": "ZBD0710K01",
+    "label": "model"
+   },
+   {
+    "value": "ZBD0710K03",
+    "label": "model"
+   },
+   {
+    "value": "ZBD0710K10",
+    "label": "model"
+   }
+  ],
+  "ambiguous": []
+ },
+ "cpsc-12164": {
+  "identifiers": [],
+  "ambiguous": [
+   {
+    "value": "000015931955",
+    "reason": "labelled 'SKU/UPC number'; 12-digit value looks like a UPC barcode"
+   }
+  ]
+ },
+ "cpsc-22020": {
+  "identifiers": [],
+  "ambiguous": [
+   {
+    "value": "Pioneer 700",
+    "reason": "vehicle name with number, not labelled as a model code"
+   },
+   {
+    "value": "Pioneer 1000",
+    "reason": "vehicle name with number, not labelled as a model code"
+   },
+   {
+    "value": "Talon 1000",
+    "reason": "vehicle name with number, not labelled as a model code"
+   }
+  ]
+ },
+ "cpsc-03538": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-11187": {
+  "identifiers": [
+   {
+    "value": "8108",
+    "label": "model"
+   },
+   {
+    "value": "8133",
+    "label": "model"
+   },
+   {
+    "value": "8111",
+    "label": "model"
+   },
+   {
+    "value": "8112",
+    "label": "model"
+   },
+   {
+    "value": "8199",
+    "label": "model"
+   },
+   {
+    "value": "8311",
+    "label": "model"
+   }
+  ],
+  "ambiguous": []
+ },
+ "cpsc-94051": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-75002": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-84027": {
+  "identifiers": [],
+  "ambiguous": [
+   {
+    "value": "V5130",
+    "reason": "code-like valve designation used as product name; never explicitly labelled model/part"
+   }
+  ]
+ },
+ "cpsc-24119": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-96002": {
+  "identifiers": [
+   {
+    "value": "6148",
+    "label": "catalog"
+   },
+   {
+    "value": "6151",
+    "label": "catalog"
+   },
+   {
+    "value": "6148-6",
+    "label": "catalog"
+   },
+   {
+    "value": "6149-6",
+    "label": "catalog"
+   }
+  ],
+  "ambiguous": []
+ },
+ "cpsc-04152": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-26086": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-82040": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-25172": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-11745": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-04162": {
+  "identifiers": [
+   {
+    "value": "AV5105",
+    "label": "model"
+   },
+   {
+    "value": "LK240",
+    "label": "model"
+   },
+   {
+    "value": "AV5150",
+    "label": "model"
+   }
+  ],
+  "ambiguous": []
+ },
+ "cpsc-09125": {
+  "identifiers": [],
+  "ambiguous": [
+   {
+    "value": "888RC3",
+    "reason": "fork model designation preceded only by 'model year'; not explicitly labelled model number"
+   },
+   {
+    "value": "888RC3WC",
+    "reason": "fork model designation preceded only by 'model year'; not explicitly labelled model number"
+   }
+  ]
+ },
+ "cpsc-19750": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-09747": {
+  "identifiers": [
+   {
+    "value": "75-7070",
+    "label": "part"
+   },
+   {
+    "value": "559419",
+    "label": "part"
+   }
+  ],
+  "ambiguous": []
+ },
+ "cpsc-10144": {
+  "identifiers": [
+   {
+    "value": "ZZJ-2J",
+    "label": "style"
+   },
+   {
+    "value": "ZZJ-01J",
+    "label": "style"
+   },
+   {
+    "value": "ZZJ-04J",
+    "label": "style"
+   },
+   {
+    "value": "ZZJ-5J",
+    "label": "style"
+   }
+  ],
+  "ambiguous": []
+ },
+ "cpsc-21172": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-01098": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-84031": {
+  "identifiers": [],
+  "ambiguous": []
+ },
+ "cpsc-23258": {
+  "identifiers": [
+   {
+    "value": "2208123",
+    "label": "part"
+   },
+   {
+    "value": "2521943",
+    "label": "part"
+   },
+   {
+    "value": "2522060",
+    "label": "part"
+   },
+   {
+    "value": "2522267",
+    "label": "part"
+   },
+   {
+    "value": "7396260",
+    "label": "part"
+   }
+  ],
+  "ambiguous": [
+   {
+    "value": "UV34",
+    "reason": "vehicle model designation in running text after 'Model Year', not labelled as a model code"
+   },
+   {
+    "value": "JSV 3400",
+    "reason": "vehicle model designation in running text, not labelled as a model code"
+   },
+   {
+    "value": "JSV 6400",
+    "reason": "vehicle model designation in running text, not labelled as a model code"
+   }
+  ]
+ },
+ "cpsc-24261": {
+  "identifiers": [
+   {
+    "value": "400073",
+    "label": "style"
+   },
+   {
+    "value": "400683",
+    "label": "style"
+   },
+   {
+    "value": "400687",
+    "label": "style"
+   }
+  ],
+  "ambiguous": []
+ }
+}

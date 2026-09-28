@@ -50,9 +50,11 @@ class NetworkGuard(unittest.TestCase):
             f.check_url("https://evil.example.com/")
         with self.assertRaises(FetchRefused):
             f.check_url("https://user:pw@api.data.aroqon.com/")
-        prohibited = fetcher(allowed_hosts=("ahridirectory.org",))
+        # A prohibited domain is refused even when a policy lists it as allowed (read from the list, never written here).
+        domain = POLICY.prohibited_domains[0]
+        prohibited = fetcher(allowed_hosts=(domain,))
         with self.assertRaisesRegex(FetchRefused, "prohibited"):
-            prohibited.check_url("https://www.ahridirectory.org/search")
+            prohibited.check_url(f"https://www.{domain}/search")
         self.assertEqual(f.check_url("https://api.data.aroqon.com/v1/x")[1], "93.184.216.34")
 
 

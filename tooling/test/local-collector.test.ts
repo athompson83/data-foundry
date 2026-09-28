@@ -9,6 +9,7 @@ import { join } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
+import { PROHIBITED_SOURCES } from '../../packages/source-registry/src/prohibited-sources.js';
 import { compilePolicy } from '../scripts/local-collector-policy.js';
 
 const ROOT = join(import.meta.dirname, '..', '..');
@@ -27,7 +28,7 @@ describe('local collector', () => {
         expect(task.refused_because).toEqual([]);
       }
     }
-    expect(policy.prohibited_domains).toContain('ahridirectory.org');
+    expect(policy.prohibited_domains).toEqual([...new Set(PROHIBITED_SOURCES.map((source) => source.domain))].sort());
   });
 
   it('passes its Python unit tests (network guard, leases, outbox, policy, model output, dashboard, shared vectors)', () => {
