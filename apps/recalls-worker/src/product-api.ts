@@ -128,6 +128,7 @@ export interface ExtractedIdentifier {
   readonly prompt_sha256: string;
   readonly generation: string;
   readonly behaviour_sha256: string;
+  readonly runtime: string;
   readonly submitted_at: string;
 }
 
@@ -140,11 +141,11 @@ async function extractedFor(db: D1Database, rows: readonly ProductRow[]): Promis
   if (rows.length === 0) return out;
   const publishable = publishableExtractorClause();
   const found = await db
-    .prepare(`SELECT e.recall_id, e.value_key, e.printed, e.label, e.source_field, e.span_start, e.span_end, e.extractor_version, e.model, e.model_digest, e.prompt_sha256, e.generation, e.behaviour_sha256, e.submitted_at
+    .prepare(`SELECT e.recall_id, e.value_key, e.printed, e.label, e.source_field, e.span_start, e.span_end, e.extractor_version, e.model, e.model_digest, e.prompt_sha256, e.generation, e.runtime, e.behaviour_sha256, e.submitted_at
       FROM product_recall_extracted_key e JOIN product_recall r ON r.id = e.recall_id AND r.raw_sha256 = e.raw_sha256
       WHERE e.status = 'accepted' AND ${publishable.sql} AND e.recall_id IN (SELECT value FROM json_each(?)) ORDER BY e.recall_id, e.span_start, e.value_key`)
     .bind(...publishable.binds, JSON.stringify(rows.map((row) => row.id)))
-    .all<{ recall_id: string; value_key: string; printed: string; label: string; source_field: string; span_start: number; span_end: number; extractor_version: string; model: string; model_digest: string; prompt_sha256: string; generation: string; behaviour_sha256: string; submitted_at: string }>();
+    .all<{ recall_id: string; value_key: string; printed: string; label: string; source_field: string; span_start: number; span_end: number; extractor_version: string; model: string; model_digest: string; prompt_sha256: string; generation: string; runtime: string; behaviour_sha256: string; submitted_at: string }>();
   for (const row of found.results) {
     const list = out.get(row.recall_id);
     if (!list || list.some((item) => item.key === row.value_key)) continue;
@@ -162,6 +163,7 @@ async function extractedFor(db: D1Database, rows: readonly ProductRow[]): Promis
       prompt_sha256: row.prompt_sha256,
       generation: row.generation,
       behaviour_sha256: row.behaviour_sha256,
+      runtime: row.runtime,
       submitted_at: row.submitted_at,
     });
   }

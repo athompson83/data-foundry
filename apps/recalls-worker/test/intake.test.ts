@@ -43,7 +43,7 @@ const CPSC = {
 const ADMIN = 'a'.repeat(40);
 const NOW = '2026-09-28T12:00:00.000Z';
 // The benchmarked, publishable build (PUBLISHABLE_EXTRACTORS).
-const EXTRACTOR = { version: 'cpsc-product-identifiers@1/prompt-3', model: 'qwen3.5:4b', model_digest: 'sha256:2a654d98e6fba55d452b7043684e9b57a947e393bbffa62485a7aac05ee4eefd', prompt_sha256: 'e4a912fb71b2f0edbcb5929cd483cad57b7a8e9ebc419ea3fef3f3e19ee69d53', generation: { num_ctx: 8192, think: false }, behaviour_sha256: EXTRACTION_BEHAVIOUR_SHA256 };
+const EXTRACTOR = { version: 'cpsc-product-identifiers@1/prompt-3', model: 'qwen3.5:4b', model_digest: 'sha256:2a654d98e6fba55d452b7043684e9b57a947e393bbffa62485a7aac05ee4eefd', prompt_sha256: 'e4a912fb71b2f0edbcb5929cd483cad57b7a8e9ebc419ea3fef3f3e19ee69d53', generation: { num_ctx: 8192, think: false }, behaviour_sha256: EXTRACTION_BEHAVIOUR_SHA256, runtime: 'ollama/0.34.4' };
 
 function makeEnv(overrides: Partial<Env> = {}): Env {
   const { db } = createTestDatabase();
@@ -354,6 +354,44 @@ describe('publication of extracted identifiers', () => {
     expect(notice.data.extracted_identifiers).toEqual([]);
     // The benchmarked build's submission of the same value is a separate, publishable row.
     expect(await (await submit(env, token, notices)).json()).toMatchObject({ accepted: 1, publishable_build: true, published: true });
+  });
+
+  it('enforces the size cap on the streamed body, whatever Content-Length claims', async () => {
+    const { env, token } = await seeded();
+    let pulled = 0;
+    // A chunked body with no Content-Length that would run far past the cap if read whole.
+    const endless = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        pulled += 1;
+        if (pulled > 1000) controller.close();
+        else controller.enqueue(new Uint8Array(64 * 1024).fill(0x20));
+      },
+    });
+    const response = await call(env, '/v1/intake/product-recalls/identifiers', {
+      method: 'POST',
+      headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json', 'idempotency-key': await sha256Hex('chunked') },
+      body: endless,
+      duplex: 'half',
+    } as RequestInit);
+    expect(response.status).toBe(413);
+    // Reading stopped at the cap: 256 KiB is five 64 KiB chunks, not the 64 MB on offer.
+    expect(pulled).toBeLessThan(10);
+    expect((await env.DB.prepare('SELECT count(*) AS n FROM extraction_submission').first<{ n: number }>())?.n).toBe(0);
+  });
+
+  it('publishes only output served by the benchmarked Ollama runtime, and requires the runtime', async () => {
+    const { env, token, sha } = await seeded({ EXTRACTED_IDENTIFIERS_OPEN: '1' });
+    const notices = [{ recall_id: 'cpsc-15034', raw_sha256: sha, candidates: [CANDIDATES[0]] }];
+    const { runtime: _omitted, ...withoutRuntime } = EXTRACTOR;
+    expect((await submit(env, token, notices, undefined, withoutRuntime)).status).toBe(400);
+    expect((await submit(env, token, notices, undefined, { ...EXTRACTOR, runtime: 'vllm/1.0.0' })).status).toBe(400);
+    // Identical weights, prompt and settings on another Ollama release: kept, never served.
+    expect(await (await submit(env, token, notices, undefined, { ...EXTRACTOR, runtime: 'ollama/0.35.0' })).json()).toMatchObject({ accepted: 1, publishable_build: false, published: false });
+    const apiKey = await customerKey(env);
+    const served = async () => ((await (await get(env, apiKey, '/v1/product-recalls/cpsc-15034')).json()) as { data: { extracted_identifiers: unknown[] } }).data.extracted_identifiers;
+    expect(await served()).toEqual([]);
+    expect(await (await submit(env, token, notices)).json()).toMatchObject({ accepted: 1, publishable_build: true, published: true });
+    expect(await served()).toEqual([expect.objectContaining({ value: 'SA904', runtime: 'ollama/0.34.4' })]);
   });
 
   it('a submission that fails part-way keeps none of the candidates it wrote, so a retry accepts it afresh', async () => {

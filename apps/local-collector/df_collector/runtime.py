@@ -370,9 +370,9 @@ class Collector:
             self.status.update(phase="idle", current=None, last_error=str(error))
             return True
         after = client.verify()
-        if after.digest != before.digest:
-            self.state.event("warn", "model_changed", {"recall_id": row["recall_id"], "before": before.digest[:12], "after": after.digest[:12]})
-            raise LocalModelError(f"the local model changed during extraction ({before.digest[:12]} -> {after.digest[:12]}); result discarded")
+        if (after.digest, after.runtime) != (before.digest, before.runtime):
+            self.state.event("warn", "model_changed", {"recall_id": row["recall_id"], "before": f"{before.digest[:12]} {before.runtime}", "after": f"{after.digest[:12]} {after.runtime}"})
+            raise LocalModelError(f"the local model or Ollama runtime changed during extraction ({before.digest[:12]} {before.runtime} -> {after.digest[:12]} {after.runtime}); result discarded")
         latency = (time.monotonic() - started) * 1000
         self.state.set("last_model_outcome", "success")
         accepted = result.accepted
@@ -388,7 +388,7 @@ class Collector:
                 identity = before
                 payload = {
                     "task": TASK,
-                    "extractor": {"version": extract.EXTRACTOR_VERSION, "model": self.config.model, "model_digest": identity.digest if identity else self.config.model_digest, "prompt_sha256": extract.prompt_sha256(), "generation": self.generation, "behaviour_sha256": behaviour_sha256()},
+                    "extractor": {"version": extract.EXTRACTOR_VERSION, "model": self.config.model, "model_digest": identity.digest if identity else self.config.model_digest, "prompt_sha256": extract.prompt_sha256(), "generation": self.generation, "behaviour_sha256": behaviour_sha256(), "runtime": identity.runtime},
                     "notices": [{"recall_id": row["recall_id"], "raw_sha256": row["raw_sha256"], "candidates": [{"value": p.value, "field": p.field, "label": p.label} for p in accepted]}],
                     "collector": COLLECTOR_ID,
                 }
@@ -442,6 +442,7 @@ class Collector:
             and item.get("prompt_sha256") == extract.prompt_sha256()
             and item.get("generation") == json.dumps(self.generation, separators=(",", ":"))
             and item.get("behaviour_sha256") == behaviour_sha256()
+            and (self.model_identity is None or item.get("runtime") == self.model_identity.runtime)
         )
 
     def verify_queryable(self, task: policy_mod.TaskPolicy, limit: int = 5) -> int:

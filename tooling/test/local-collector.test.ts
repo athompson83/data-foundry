@@ -63,6 +63,13 @@ describe('local collector', () => {
     expect(run.status, run.stderr.slice(-4000)).toBe(0);
   }, 150_000);
 
+  it('allowlists the Ollama runtime the benchmark actually ran on', () => {
+    const results = readFileSync(join(APP, 'benchmark', 'RESULTS.md'), 'utf8');
+    const benchmarked = /"ollama": "(\d+\.\d+\.\d+)/.exec(results)?.[1];
+    expect(benchmarked, 'RESULTS.md records the Ollama version').toBeTruthy();
+    for (const entry of PUBLISHABLE_EXTRACTORS) expect(entry.runtime).toBe(`ollama/${benchmarked}`);
+  });
+
   it('uninstall -Purge goes through the guarded purge, and deletes unchecked data only with -Force', () => {
     // PowerShell is not available in CI; this pins the script's structure.
     const script = readFileSync(join(APP, 'windows', 'uninstall.ps1'), 'utf8');

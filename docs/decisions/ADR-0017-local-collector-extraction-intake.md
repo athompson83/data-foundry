@@ -67,7 +67,8 @@ recalls on the recalls Worker); [`docs/sources/cpsc-recalls-rights-record-202609
      the lookup match kind `extracted_model`. They are never mixed into the agency parser's `identifiers`.
    - Only rows from a **publishable extractor build** are served: the exact extractor version, model name, full model
      digest, prompt hash and generation settings (`num_ctx`, `think`, and `num_thread` when overridden, reported by
-     the collector; an override not benchmarked is stored but never served) listed in
+     the collector; an override not benchmarked is stored but never served), and the inference runtime
+     (`ollama/<version>`, re-read around every notice; output that straddles an upgrade is discarded) listed in
      `PUBLISHABLE_EXTRACTORS` (`apps/recalls-worker/src/intake.ts`), each with its benchmark.
      Output from any other build is stored as evidence but never served, and rows are keyed by the whole build, so
      one build never shadows another. A CI test requires the collector's own build to be on that list.

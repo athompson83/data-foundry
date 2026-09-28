@@ -70,6 +70,9 @@ class ModelIdentity:
     parameter_size: str
     quantization: str
     license_head: str
+    # The inference runtime that serves the model ("ollama/<version>"): part of the build, since a different release
+    # can tokenize, template or sample differently with the same weights and options.
+    runtime: str = ""
 
 
 @dataclass
@@ -131,6 +134,9 @@ class OllamaClient:
         if self.pinned_digest and not digest.startswith(self.pinned_digest.removeprefix("sha256:")):
             raise LocalModelError(f"model digest {digest[:12]} does not match the pinned {self.pinned_digest[:19]}")
         details = show.get("details", {})
+        version = self.version()
+        if not version:
+            raise LocalModelError("the Ollama server did not report its version")
         return ModelIdentity(
             name=self.model,
             digest=digest,
@@ -138,6 +144,7 @@ class OllamaClient:
             parameter_size=str(details.get("parameter_size", "")),
             quantization=str(details.get("quantization_level", "")),
             license_head=str(show.get("license", "")).strip().splitlines()[0] if show.get("license") else "",
+            runtime=f"ollama/{version}",
         )
 
     def loaded(self) -> list[dict]:

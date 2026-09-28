@@ -150,7 +150,7 @@ class LocalModelOnly(unittest.TestCase):
 
     def test_cloud_stub_without_local_weights_is_refused(self):
         client = OllamaClient("http://127.0.0.1:11434", "qwen3.5:4b", None)
-        listed = {"/api/tags": {"models": [{"name": "qwen3.5:4b", "digest": "2a654d98e6fb", "size": 0}]}, "/api/show": {"details": {}}}
+        listed = {"/api/tags": {"models": [{"name": "qwen3.5:4b", "digest": "2a654d98e6fb", "size": 0}]}, "/api/show": {"details": {}}, "/api/version": {"version": "0.34.4"}}
         client._request = lambda path, body=None, timeout=None: listed[path]
         with self.assertRaisesRegex(LocalModelError, "no local weights"):
             client.verify()
@@ -182,7 +182,7 @@ class FakeClient:
     def verify(self):
         from df_collector.ollama import ModelIdentity
 
-        return ModelIdentity("qwen3.5:4b", "2a654d98e6fb", "qwen35", "4.7B", "Q4_K_M", "Apache License")
+        return ModelIdentity("qwen3.5:4b", "2a654d98e6fb", "qwen35", "4.7B", "Q4_K_M", "Apache License", "ollama/0.34.4")
 
     def loaded(self):
         return []
@@ -1135,7 +1135,7 @@ class CodexRegressionsRound14(unittest.TestCase):
             def verify(self):
                 self.verifies += 1
                 digest = "2a654d98e6fb" if self.verifies == 1 else "ffffffffffff"
-                return ModelIdentity("qwen3.5:4b", digest, "qwen35", "4.7B", "Q4_K_M", "Apache License")
+                return ModelIdentity("qwen3.5:4b", digest, "qwen35", "4.7B", "Q4_K_M", "Apache License", "ollama/0.34.4")
 
         collector, state = self.collector(Swapping(json.dumps({"identifiers": [{"value": "SA904", "label": "item", "field": "Description"}]})))
         with self.assertRaises(LocalModelError):
@@ -1300,7 +1300,7 @@ class CodexRegressionsRound19(unittest.TestCase):
             collector.extract_one()
             payload = json.loads(collector.state.one("SELECT payload FROM outbox")["payload"])
             self.assertEqual(payload["extractor"]["behaviour_sha256"], behaviour_sha256())
-            item = {"extractor_version": extract.EXTRACTOR_VERSION, "model": config.model, "model_digest": "sha256:" + config.model_digest + "a" * 52, "prompt_sha256": extract.prompt_sha256(), "generation": '{"num_ctx":8192,"think":false}', "behaviour_sha256": behaviour_sha256()}
+            item = {"extractor_version": extract.EXTRACTOR_VERSION, "model": config.model, "model_digest": "sha256:" + config.model_digest + "a" * 52, "prompt_sha256": extract.prompt_sha256(), "generation": '{"num_ctx":8192,"think":false}', "behaviour_sha256": behaviour_sha256(), "runtime": "ollama/0.34.4"}
             self.assertTrue(collector._is_this_build(item))
             # The same tuple from a collector with other extraction behaviour is not this build.
             self.assertFalse(collector._is_this_build(dict(item, behaviour_sha256="e" * 64)))
@@ -1331,3 +1331,44 @@ class CodexRegressionsRound20(unittest.TestCase):
         # BaseHTTPRequestHandler logs every request with sys.stderr.write, which fails without a console; the
         # dashboard's handler overrides log_message (log_error goes through it too).
         self.assertIn("def log_message(self, *args) -> None:", inspect.getsource(dashboard))
+
+
+class CodexRegressionsRound21(unittest.TestCase):
+    def test_the_ollama_runtime_is_part_of_the_submitted_build(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Config(data_dir=tmp)
+            collector = Collector(config, State(config.db_path), client=FakeClient(json.dumps({"identifiers": [{"value": "SA904", "label": "item", "field": "Description"}]})), policy=POLICY)
+            collector.queue_documents([{"id": "cpsc-15034", "raw": RECORD, "provenance": {"raw_sha256": "a" * 64}}])
+            collector.extract_one()
+            payload = json.loads(collector.state.one("SELECT payload FROM outbox")["payload"])
+            self.assertEqual(payload["extractor"]["runtime"], "ollama/0.34.4")
+            item = dict(payload["extractor"], extractor_version=extract.EXTRACTOR_VERSION, generation='{"num_ctx":8192,"think":false}')
+            self.assertTrue(collector._is_this_build(item))
+            # The same build served by another Ollama release is not this collector's output.
+            self.assertFalse(collector._is_this_build(dict(item, runtime="ollama/0.35.0")))
+
+    def test_verify_reports_the_runtime_and_refuses_a_server_without_a_version(self):
+        client = OllamaClient("http://127.0.0.1:11434", "qwen3.5:4b", "2a654d98e6fb")
+        listed = {"/api/tags": {"models": [{"name": "qwen3.5:4b", "digest": "2a654d98e6fb", "size": 3_389_971_840}]}, "/api/show": {"details": {}}, "/api/version": {"version": "0.34.4"}}
+        client._request = lambda path, body=None, timeout=None: listed[path]
+        self.assertEqual(client.verify().runtime, "ollama/0.34.4")
+        listed["/api/version"] = {}
+        with self.assertRaises(LocalModelError):
+            client.verify()
+
+    def test_an_ollama_upgrade_during_extraction_discards_the_result(self):
+        versions = iter(["ollama/0.34.4", "ollama/0.35.0"])
+
+        class Upgrading(FakeClient):
+            def verify(self):
+                identity = super().verify()
+                identity.runtime = next(versions)
+                return identity
+
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Config(data_dir=tmp)
+            collector = Collector(config, State(config.db_path), client=Upgrading(json.dumps({"identifiers": [{"value": "SA904", "label": "item", "field": "Description"}]})), policy=POLICY)
+            collector.queue_documents([{"id": "cpsc-15034", "raw": RECORD, "provenance": {"raw_sha256": "a" * 64}}])
+            with self.assertRaises(LocalModelError):
+                collector.extract_one()
+            self.assertIsNone(collector.state.one("SELECT payload FROM outbox"))

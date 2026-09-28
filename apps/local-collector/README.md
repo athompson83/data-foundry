@@ -48,6 +48,9 @@ bytes (`raw_sha256`) or the extractor version change.
 - **Local model only.** The Ollama URL must be loopback. Cloud tags (`*:cloud`, `*-cloud`) are refused. The model
   must be in the local store with local weights and the pinned ID `2a654d98e6fb`. Requests use
   `temperature: 0`, `think: false`, a JSON schema and a bounded `num_predict`. There is no fallback provider.
+  The Ollama version is part of the build: submissions report it, and only output from the benchmarked release
+  (0.34.4) is published. After an Ollama upgrade, new output is stored but not served until that release is
+  benchmarked and allowlisted.
   `install.ps1` sets `OLLAMA_NO_CLOUD=1` and proves the server refuses a cloud model.
 - **Hostile text.** Notice text is data. The model has no tools. A proposal survives only if it is printed
   verbatim in the stored record and passes the acceptance rules. The server re-decides everything.

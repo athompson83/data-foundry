@@ -44,9 +44,9 @@ export const INTAKE_SOURCES: Readonly<Record<string, { readonly idPrefix: string
  * (tooling/scripts/extraction-behaviour.ts). Recorded on every accepted row as rules_sha256; CI fails when those files change until
  * the benchmark is re-run and this constant and the entry below are updated.
  */
-export const EXTRACTION_BEHAVIOUR_SHA256 = 'c2e3b2090496031af7a0206154c50607b7eacc2b727e01d1ec5e0172a1dd9a1f';
+export const EXTRACTION_BEHAVIOUR_SHA256 = 'f8d63cd833e39298e6e4bac58d1409ac682a3fa78a3b609018b28d5952ce90da';
 
-export const PUBLISHABLE_EXTRACTORS: ReadonlyArray<{ readonly version: string; readonly model: string; readonly modelDigest: string; readonly promptSha256: string; readonly generation: string; readonly behaviourSha256: string; readonly benchmark: string }> = [
+export const PUBLISHABLE_EXTRACTORS: ReadonlyArray<{ readonly version: string; readonly model: string; readonly modelDigest: string; readonly promptSha256: string; readonly generation: string; readonly behaviourSha256: string; readonly runtime: string; readonly benchmark: string }> = [
   {
     version: 'cpsc-product-identifiers@1/prompt-3',
     model: 'qwen3.5:4b',
@@ -56,7 +56,9 @@ export const PUBLISHABLE_EXTRACTORS: ReadonlyArray<{ readonly version: string; r
     // The generation settings the benchmark ran with (run_benchmark.py defaults), as the collector reports them.
     generation: '{"num_ctx":8192,"think":false}',
     // The acceptance rules re-scored from the stored predictions (run_benchmark.py --score-only): identical report.
-    behaviourSha256: 'c2e3b2090496031af7a0206154c50607b7eacc2b727e01d1ec5e0172a1dd9a1f',
+    behaviourSha256: 'f8d63cd833e39298e6e4bac58d1409ac682a3fa78a3b609018b28d5952ce90da',
+    // The inference runtime the benchmark ran on (RESULTS.md, "ollama"): another release is another build.
+    runtime: 'ollama/0.34.4',
     benchmark: 'apps/local-collector/benchmark/RESULTS.md (held-out precision 38/38, 0/18 negative false positives)',
   },
 ];
@@ -72,11 +74,11 @@ export function extractedServed(env: Env): boolean {
 }
 
 /** Whether a submitted extractor tuple is exactly a publishable build (the JavaScript twin of the SQL clause below). */
-export function isPublishableExtractor(extractor: { readonly version: string; readonly model: string; readonly model_digest: string; readonly prompt_sha256: string; readonly generation: string; readonly behaviour_sha256: string }): boolean {
+export function isPublishableExtractor(extractor: { readonly version: string; readonly model: string; readonly model_digest: string; readonly prompt_sha256: string; readonly generation: string; readonly behaviour_sha256: string; readonly runtime: string }): boolean {
   const digest = extractor.model_digest.replace(/^sha256:/, '');
   // Both fingerprints must be the benchmarked one: the collector's (what produced the candidates) and this Worker's
   // (the rules that accepted them). Rows record both, so the SQL clause applies the same test.
-  return PUBLISHABLE_EXTRACTORS.some((entry) => entry.version === extractor.version && entry.model === extractor.model && entry.modelDigest === digest && entry.promptSha256 === extractor.prompt_sha256 && entry.generation === extractor.generation && entry.behaviourSha256 === extractor.behaviour_sha256 && entry.behaviourSha256 === EXTRACTION_BEHAVIOUR_SHA256);
+  return PUBLISHABLE_EXTRACTORS.some((entry) => entry.version === extractor.version && entry.model === extractor.model && entry.modelDigest === digest && entry.promptSha256 === extractor.prompt_sha256 && entry.generation === extractor.generation && entry.runtime === extractor.runtime && entry.behaviourSha256 === extractor.behaviour_sha256 && entry.behaviourSha256 === EXTRACTION_BEHAVIOUR_SHA256);
 }
 
 /** SQL condition (on alias `e`) matching rows produced by a publishable extractor build, with its bind values. */
@@ -85,8 +87,8 @@ export function publishableExtractorClause(): { sql: string; binds: string[] } {
   return {
     // The whole tuple, compared exactly: version, model name, full model digest, prompt hash, generation settings and
     // behaviour fingerprints of the collector that extracted the row and of the Worker that accepted it.
-    sql: `(${PUBLISHABLE_EXTRACTORS.map(() => "(e.extractor_version = ? AND e.model = ? AND replace(e.model_digest, 'sha256:', '') = ? AND e.prompt_sha256 = ? AND e.generation = ? AND e.behaviour_sha256 = ? AND e.rules_sha256 = ?)").join(' OR ')})`,
-    binds: PUBLISHABLE_EXTRACTORS.flatMap((entry) => [entry.version, entry.model, entry.modelDigest, entry.promptSha256, entry.generation, entry.behaviourSha256, entry.behaviourSha256]),
+    sql: `(${PUBLISHABLE_EXTRACTORS.map(() => "(e.extractor_version = ? AND e.model = ? AND replace(e.model_digest, 'sha256:', '') = ? AND e.prompt_sha256 = ? AND e.generation = ? AND e.runtime = ? AND e.behaviour_sha256 = ? AND e.rules_sha256 = ?)").join(' OR ')})`,
+    binds: PUBLISHABLE_EXTRACTORS.flatMap((entry) => [entry.version, entry.model, entry.modelDigest, entry.promptSha256, entry.generation, entry.runtime, entry.behaviourSha256, entry.behaviourSha256]),
   };
 }
 
@@ -168,6 +170,8 @@ interface Extractor {
   readonly generation: string;
   /** The collector's own extraction-behaviour fingerprint (df_collector/behaviour.py), computed from its installed code. */
   readonly behaviour_sha256: string;
+  /** The inference runtime that served the model, "ollama/<version>" (the collector re-reads it around every notice). */
+  readonly runtime: string;
 }
 
 /**
@@ -191,8 +195,8 @@ function parseBody(body: unknown): { extractor: Extractor; notices: NoticeInput[
   const { task, extractor, notices } = body as Record<string, unknown>;
   if (task !== IDENTIFIER_TASK) throw new BadRequest(`task must be ${IDENTIFIER_TASK}`);
   const e = extractor as Record<string, unknown> | undefined;
-  if (!e || !str(e['version'], /^[\w.@/:+-]{3,100}$/) || !str(e['model'], /^[\w.:/-]{2,100}$/) || !str(e['model_digest'], /^(?:sha256:)?[0-9a-f]{12,64}$/) || !str(e['prompt_sha256'], /^[0-9a-f]{64}$/) || !str(e['behaviour_sha256'], /^[0-9a-f]{64}$/)) {
-    throw new BadRequest('extractor must have version, model, model_digest, prompt_sha256 and behaviour_sha256');
+  if (!e || !str(e['version'], /^[\w.@/:+-]{3,100}$/) || !str(e['model'], /^[\w.:/-]{2,100}$/) || !str(e['model_digest'], /^(?:sha256:)?[0-9a-f]{12,64}$/) || !str(e['prompt_sha256'], /^[0-9a-f]{64}$/) || !str(e['behaviour_sha256'], /^[0-9a-f]{64}$/) || !str(e['runtime'], /^ollama\/\d+\.\d+\.\d+[\w.+-]{0,40}$/)) {
+    throw new BadRequest('extractor must have version, model, model_digest, prompt_sha256, behaviour_sha256 and runtime (ollama/<version>)');
   }
   const generation = canonicalGeneration(e['generation']);
   if (generation === null) throw new BadRequest('extractor.generation must give num_ctx (an integer) and think (a boolean or low|medium|high)');
@@ -212,7 +216,7 @@ function parseBody(body: unknown): { extractor: Extractor; notices: NoticeInput[
     });
     return { recall_id: n['recall_id'] as string, raw_sha256: n['raw_sha256'] as string, candidates };
   });
-  return { extractor: { version: e['version'] as string, model: e['model'] as string, model_digest: e['model_digest'] as string, prompt_sha256: e['prompt_sha256'] as string, generation, behaviour_sha256: e['behaviour_sha256'] as string }, notices: parsed };
+  return { extractor: { version: e['version'] as string, model: e['model'] as string, model_digest: e['model_digest'] as string, prompt_sha256: e['prompt_sha256'] as string, generation, behaviour_sha256: e['behaviour_sha256'] as string, runtime: e['runtime'] as string }, notices: parsed };
 }
 
 type CandidateStatus = 'accepted' | 'replayed' | 'duplicate_of_agency_fact' | 'rejected';
@@ -276,10 +280,10 @@ async function checkNotice(db: D1Database, bucket: R2Bucket, notice: NoticeInput
     // Written only while this request still owns its reservation, so a request whose reservation was taken over
     // commits nothing more.
     const inserted = await db
-      .prepare(`INSERT INTO product_recall_extracted_key (recall_id, raw_sha256, extractor_version, kind, value_key, printed, label, source_field, span_start, span_end, model, model_digest, prompt_sha256, generation, behaviour_sha256, rules_sha256, credential_id, submission_id, status, submitted_at)
-        SELECT ?, ?, ?, 'model', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'accepted', ?
+      .prepare(`INSERT INTO product_recall_extracted_key (recall_id, raw_sha256, extractor_version, kind, value_key, printed, label, source_field, span_start, span_end, model, model_digest, prompt_sha256, generation, runtime, behaviour_sha256, rules_sha256, credential_id, submission_id, status, submitted_at)
+        SELECT ?, ?, ?, 'model', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'accepted', ?
         WHERE EXISTS (SELECT 1 FROM extraction_submission WHERE id = ? AND lease = ? AND response IS NULL) ON CONFLICT DO NOTHING RETURNING recall_id`)
-      .bind(row.id, row.raw_sha256, extractor.version, decision.key, candidate.value, decision.label, decision.field, decision.start, decision.end, extractor.model, extractor.model_digest, extractor.prompt_sha256, extractor.generation, extractor.behaviour_sha256, EXTRACTION_BEHAVIOUR_SHA256, credential.id, owner.id, now, owner.id, owner.lease)
+      .bind(row.id, row.raw_sha256, extractor.version, decision.key, candidate.value, decision.label, decision.field, decision.start, decision.end, extractor.model, extractor.model_digest, extractor.prompt_sha256, extractor.generation, extractor.runtime, extractor.behaviour_sha256, EXTRACTION_BEHAVIOUR_SHA256, credential.id, owner.id, now, owner.id, owner.lease)
       .first<{ recall_id: string }>();
     if (!inserted) await assertOwner(db, owner, false);
     results.push({ ...base, status: inserted ? 'accepted' : 'replayed' });
@@ -296,8 +300,9 @@ export async function handleIntake(env: Env, request: Request): Promise<{ status
   if (!/^[0-9a-f]{64}$/.test(idempotencyKey)) throw new BadRequest('Idempotency-Key must be 64 lowercase hex characters');
   const declared = Number(request.headers.get('content-length') ?? '0');
   if (declared > MAX_INTAKE_BYTES) throw new IntakeRefused(413, 'too_large', `Bodies are limited to ${MAX_INTAKE_BYTES} bytes.`);
-  const text = await request.text();
-  if (new TextEncoder().encode(text).byteLength > MAX_INTAKE_BYTES) throw new IntakeRefused(413, 'too_large', `Bodies are limited to ${MAX_INTAKE_BYTES} bytes.`);
+  // Content-Length is only a hint (absent when chunked, or understated): the cap is enforced on the bytes as they
+  // arrive, so an oversized body is refused without ever being buffered whole.
+  const text = await readCappedBody(request, MAX_INTAKE_BYTES);
   const bodySha = await sha256Hex(text);
   const reservation = await reserveSubmission(env.DB, credential.id, idempotencyKey, bodySha);
   if ('replay' in reservation) return { status: 200, body: reservation.replay };
@@ -319,6 +324,30 @@ export async function handleIntake(env: Env, request: Request): Promise<{ status
     ]);
     throw error;
   }
+}
+
+async function readCappedBody(request: Request, limit: number): Promise<string> {
+  if (!request.body) return '';
+  const reader = request.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    size += value.byteLength;
+    if (size > limit) {
+      await reader.cancel();
+      throw new IntakeRefused(413, 'too_large', `Bodies are limited to ${limit} bytes.`);
+    }
+    chunks.push(value);
+  }
+  const bytes = new Uint8Array(size);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return new TextDecoder().decode(bytes);
 }
 
 interface Reservation {

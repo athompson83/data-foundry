@@ -104,6 +104,7 @@ const PRODUCT_RECALL_SCHEMA = {
           prompt_sha256: { type: 'string' },
           generation: { type: 'string', description: 'The generation settings the extractor ran with, canonical JSON.' },
           behaviour_sha256: { type: 'string', description: 'The extraction-behaviour fingerprint of the collector build that produced the identifier.' },
+          runtime: { type: 'string', description: 'The inference runtime that served the model, "ollama/<version>".' },
           submitted_at: { type: 'string', format: 'date-time' },
         },
       },
