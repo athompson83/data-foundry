@@ -7,6 +7,8 @@ import { renderLiteral, sha256Hex } from '../src/store.js';
 import { ingestRecords, MIN_FULL_CPSC, MIN_FULL_HC_CONSUMER,
   cpscFullWindows, scheduledProductSync } from '../src/product-sync.js';
 import { isIndexableNotice, prepareProductRecall, writeProductGroups, MAX_LITERAL_JSON_BYTES } from '../src/product-store.js';
+import { PRODUCT_INDEXNOW_FEED } from '../src/product-pages.js';
+import { pingChanged } from '../src/seo.js';
 import { createTestBucket, createTestDatabase } from './d1-sqlite.js';
 
 // Verbatim source records (CPSC Recall API and Health Canada open data), retrieved 2026-09-27.
@@ -384,6 +386,49 @@ describe('product-recall pages', () => {
     expect(Object.keys(openapi.paths)).toEqual(expect.arrayContaining(['/v1/product-recalls', '/v1/product-recalls/lookup', '/v1/product-recalls/{id}']));
     const closedApi = (await (await worker.fetch(api('/openapi.json'), { ...env, PRODUCT_RECALLS_OPEN: '0' })).json()) as { paths: Record<string, unknown> };
     expect(Object.keys(closedApi.paths).some((path) => path.startsWith('/v1/product-recalls'))).toBe(false);
+  });
+
+  it('announces changed, indexable notice pages to IndexNow under their own watermark', async () => {
+    const env = makeEnv({ INDEXNOW_KEY: 'a1b2c3d4e5f60718293a4b5c6d7e8f90' });
+    await seed(env);
+    await env.RAW_ARTIFACTS.put(PRODUCT_INDEXNOW_FEED.watermarkKey, JSON.stringify({ since: '2026-09-27T00:00:00.000Z' }));
+    const sent: string[] = [];
+    const fetcher = (async (_url: string, init: { body: string }) => {
+      sent.push(init.body);
+      return new Response(null, { status: 202 });
+    }) as unknown as typeof fetch;
+    const ctx = { publicOrigin: 'https://data.aroqon.com', apiOrigin: 'https://api.data.aroqon.com', supportEmail: 's@example.com' };
+    // Seeded at 12:00; by 14:00 every edge copy has expired. Only the substantive CPSC notice is indexable, as in the sitemap.
+    expect(await pingChanged(PRODUCT_INDEXNOW_FEED, ctx, env.DB, env.RAW_ARTIFACTS, env.INDEXNOW_KEY, '2026-09-27T14:00:00.000Z', fetcher)).toEqual({ since: '2026-09-27T00:00:00.000Z', submitted: 1, status: [202], advanced: true });
+    expect((JSON.parse(sent[0] as string) as { urlList: string[] }).urlList).toEqual(['https://data.aroqon.com/product-recalls/cpsc-25203']);
+    expect(await (await env.RAW_ARTIFACTS.get(PRODUCT_INDEXNOW_FEED.watermarkKey))?.text()).toBe(JSON.stringify({ since: '2026-09-27T12:55:00.000Z' }));
+    // The FDA feed's watermark is untouched.
+    expect(await env.RAW_ARTIFACTS.get('state/indexnow-watermark.json')).toBeNull();
+  });
+
+  it('pings product pages on schedule only while the dataset is served, independently of the FDA kill switch', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-09-27T14:00:00.000Z'));
+    try {
+      for (const [overrides, expected] of [
+        [{ SOURCE_KILL_SWITCH: '1' }, 1],
+        [{ SOURCE_KILL_SWITCH: '1', PRODUCT_RECALLS_OPEN: '0' }, 0],
+        [{ SOURCE_KILL_SWITCH: '1', PRODUCT_RECALLS_KILL_SWITCH: '1' }, 0],
+      ] as const) {
+        const env = makeEnv({ INDEXNOW_KEY: 'a1b2c3d4e5f60718293a4b5c6d7e8f90', ...overrides });
+        await seed(env);
+        await env.RAW_ARTIFACTS.put(PRODUCT_INDEXNOW_FEED.watermarkKey, JSON.stringify({ since: '2026-09-27T00:00:00.000Z' }));
+        const fetcher = vi.fn(async () => new Response(null, { status: 200 }));
+        vi.stubGlobal('fetch', fetcher);
+        await worker.scheduled({ scheduledTime: Date.parse('2026-09-27T12:17:00.000Z') }, env);
+        const pings = fetcher.mock.calls.filter((call) => String((call as unknown[])[0]).includes('indexnow'));
+        expect(pings.length, JSON.stringify(overrides)).toBe(expected);
+        for (const call of pings) expect(String(((call as unknown[])[1] as { body: string }).body)).toContain('/product-recalls/cpsc-25203');
+        vi.unstubAllGlobals();
+      }
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('escapes notice text', async () => {
