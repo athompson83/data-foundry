@@ -35,6 +35,8 @@ $ModelId = '2a654d98e6fb'                            # `ollama list` ID of the b
 $TaskName = 'Data Foundry Local Collector'
 
 function Step($text) { Write-Host "`n== $text" -ForegroundColor Cyan }
+# $ErrorActionPreference does not stop on a native command's non-zero exit, so each one is checked.
+function Assert-Exit($what) { if ($LASTEXITCODE -ne 0) { throw "$what failed (exit code $LASTEXITCODE); nothing was scheduled. Fix the problem above and re-run install.ps1." } }
 
 Step 'Measuring this computer'
 $cs = Get-CimInstance Win32_ComputerSystem
@@ -118,6 +120,7 @@ try {
 
 Step "Model $Model"
 & ollama.exe pull $Model
+Assert-Exit "ollama pull $Model"
 $line = (& ollama.exe list | Select-String -SimpleMatch $Model | Select-Object -First 1).Line
 if (-not $line -or $line -notmatch $ModelId) {
   Write-Warning "The pulled $Model is not the benchmarked build $ModelId. The collector refuses an unpinned build; update model_digest in collector.json only after re-running the benchmark."
@@ -127,17 +130,20 @@ Step 'Collector data directory'
 Push-Location $AppDir
 try {
   & $Python -m df_collector --data-dir $DataDir init | Write-Host
+  Assert-Exit 'df_collector init'
   & $Python -m df_collector --data-dir $DataDir doctor | Tee-Object -FilePath (Join-Path $DataDir 'doctor.json') | Out-Null
+  # doctor fails when the model is missing, not the pinned build, or the source policy cannot be loaded.
+  Assert-Exit "df_collector doctor (details in $(Join-Path $DataDir 'doctor.json'))"
   ($hw | ConvertTo-Json -Depth 4) | Set-Content -Path (Join-Path $DataDir 'hardware-windows.json') -Encoding UTF8
   if (-not $SkipSecrets) {
     Write-Host 'Paste the Data Foundry read API key (rcl_live_...), or press Enter to skip:'
     $read = Read-Host -AsSecureString
     $plain = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($read))
-    if ($plain) { $plain | & $Python -m df_collector --data-dir $DataDir set-secret read-api-key }
+    if ($plain) { $plain | & $Python -m df_collector --data-dir $DataDir set-secret read-api-key; Assert-Exit 'set-secret read-api-key' }
     Write-Host 'Paste the ingestion credential (dfi_...), or press Enter to skip:'
     $ingest = Read-Host -AsSecureString
     $plain = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($ingest))
-    if ($plain) { $plain | & $Python -m df_collector --data-dir $DataDir set-secret ingest-token }
+    if ($plain) { $plain | & $Python -m df_collector --data-dir $DataDir set-secret ingest-token; Assert-Exit 'set-secret ingest-token' }
     $plain = $null
   }
   # Only this user may read the secrets directory.

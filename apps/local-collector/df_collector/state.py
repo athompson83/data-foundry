@@ -76,6 +76,8 @@ CREATE TABLE IF NOT EXISTS document (
   detail TEXT,
   latency_ms REAL,
   attempts INTEGER NOT NULL DEFAULT 0,
+  server_errors INTEGER NOT NULL DEFAULT 0,
+  last_server_error_at REAL,
   updated_at REAL NOT NULL,
   PRIMARY KEY (recall_id, raw_sha256, extractor_version)
 );
@@ -133,6 +135,11 @@ class State:
         self.db = sqlite3.connect(str(path), timeout=30, isolation_level=None, check_same_thread=False)
         self.db.row_factory = sqlite3.Row
         self.db.executescript(SCHEMA)
+        # Columns added after a state file may have been created by an earlier version.
+        present = {row[1] for row in self.db.execute("PRAGMA table_info(document)")}
+        for column, ddl in (("attempts", "INTEGER NOT NULL DEFAULT 0"), ("server_errors", "INTEGER NOT NULL DEFAULT 0"), ("last_server_error_at", "REAL")):
+            if column not in present:
+                self.db.execute(f"ALTER TABLE document ADD COLUMN {column} {ddl}")
 
     @contextmanager
     def tx(self) -> Iterator[sqlite3.Connection]:

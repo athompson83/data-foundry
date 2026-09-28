@@ -26,11 +26,16 @@ from urllib.parse import urlsplit
 class LocalModelError(RuntimeError):
     """The local model is unavailable or does not satisfy the local-only policy."""
 
-    def __init__(self, message: str, request_failed: bool = False):
+    def __init__(self, message: str, request_failed: bool = False, status: int | None = None):
         super().__init__(message)
-        # True when the server was reachable but failed this request (HTTP error): the failure is charged to the
-        # document, so one poisonous notice cannot block the queue. False: the server itself is unavailable.
+        # request_failed: the server answered this request with an HTTP error (status set); False: unreachable.
         self.request_failed = request_failed
+        self.status = status
+
+    @property
+    def input_specific(self) -> bool:
+        """A 4xx other than a missing model: this input was refused, so it counts against the notice."""
+        return self.request_failed and self.status is not None and 400 <= self.status < 500 and self.status != 404
 
 
 LOOPBACK_HOSTS = {"localhost"}
@@ -101,7 +106,7 @@ class OllamaClient:
                 return json.loads(response.read().decode())
         except urllib.error.HTTPError as error:
             detail = error.read().decode(errors="replace")[:300]
-            raise LocalModelError(f"local Ollama failed {path}: HTTP {error.code} {detail}", request_failed=True) from error
+            raise LocalModelError(f"local Ollama failed {path}: HTTP {error.code} {detail}", request_failed=True, status=error.code) from error
         except (urllib.error.URLError, TimeoutError, ConnectionError) as error:
             raise LocalModelError(f"local Ollama unavailable at {self.base_url}: {error}") from error
 

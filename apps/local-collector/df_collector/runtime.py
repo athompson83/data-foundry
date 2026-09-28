@@ -316,7 +316,17 @@ class Collector:
         except LocalModelError as error:
             if not error.request_failed:
                 raise
-            # The model server answered with an error for this notice: charge it, and dead-letter it after three.
+            if not error.input_specific:
+                # A 5xx is the model server's fault (a crashed runner, out of memory): the notice is not charged. It
+                # goes to the back of the queue and the collector waits for the server. Only a notice that keeps
+                # failing while others succeed in between is set aside (see _retire_poison_notices).
+                with self.state.tx() as db:
+                    db.execute(
+                        "UPDATE document SET server_errors = server_errors + 1, last_server_error_at = ?, retrieved_at = ?, detail = ?, updated_at = ? WHERE recall_id = ? AND raw_sha256 = ? AND extractor_version = ?",
+                        (time.time(), time.time(), str(error)[:500], time.time(), row["recall_id"], row["raw_sha256"], row["extractor_version"]),
+                    )
+                raise LocalModelError(str(error)) from error
+            # The model refused this input (4xx): charge the notice, and dead-letter it after three.
             with self.state.tx() as db:
                 db.execute(
                     "UPDATE document SET attempts = attempts + 1, state = CASE WHEN attempts + 1 >= ? THEN 'failed' ELSE state END, detail = ?, updated_at = ? WHERE recall_id = ? AND raw_sha256 = ? AND extractor_version = ?",
@@ -328,6 +338,7 @@ class Collector:
             self.status.update(phase="idle", current=None, last_error=str(error))
             return True
         latency = (time.monotonic() - started) * 1000
+        self._retire_poison_notices()
         accepted = result.accepted
         with self.state.tx() as db:
             db.execute("UPDATE document SET state = ?, detail = ?, latency_ms = ?, updated_at = ? WHERE recall_id = ? AND raw_sha256 = ? AND extractor_version = ?", (result.status, result.error, latency, time.time(), row["recall_id"], row["raw_sha256"], row["extractor_version"]))
@@ -352,6 +363,16 @@ class Collector:
         self.state.event("info", "extracted", {"recall_id": row["recall_id"], "status": result.status, "proposed": len(result.proposals), "accepted_locally": len(accepted), "latency_ms": round(latency)})
         self.status.update(phase="idle", current=None)
         return True
+
+    def _retire_poison_notices(self) -> None:
+        """The server just succeeded, so notices that failed it repeatedly before this success are the problem."""
+        now = time.time()
+        rows = self.state.q("SELECT * FROM document WHERE state = 'queued' AND server_errors >= ? AND last_server_error_at < ?", MAX_DOCUMENT_ATTEMPTS, now)
+        for poison in rows:
+            with self.state.tx() as db:
+                db.execute("UPDATE document SET state = 'failed', updated_at = ? WHERE recall_id = ? AND raw_sha256 = ? AND extractor_version = ?", (now, poison["recall_id"], poison["raw_sha256"], poison["extractor_version"]))
+            self._drop_working_copy(poison)
+            self.state.event("warn", "extraction_failed", {"recall_id": poison["recall_id"], "error": "model server failed on this notice repeatedly while others succeeded"})
 
     def _drop_working_copy(self, row) -> None:
         with self.state.tx() as db:
@@ -407,11 +428,12 @@ class Collector:
         if paused:
             self.status["phase"] = f"paused: {paused}"
             return
+        # A disk or free-space cap stops new reads only: extraction and uploads keep draining the backlog, which is
+        # what frees the space, so the cap clears on its own. (Older versions paused everything; that is lifted above.)
         cap = self.check_caps()
-        if cap:
-            self.state.set("paused", CAP_PAUSE + cap)
+        if cap and self.state.get("cap_reached") != cap:
             self.state.event("warn", "cap", cap)
-            return
+        self.state.set("cap_reached", cap or "")
         try:
             task = self.task_policy()
         except policy_mod.PolicyRefused as refusal:
@@ -441,7 +463,9 @@ class Collector:
             return
         self.state.ensure_job("read", TASK, f"{TASK}:read", {})
         queue = int((self.state.one("SELECT COUNT(*) AS n FROM document WHERE state = 'queued'") or {"n": 0})["n"])
-        if queue < self.config.limits.max_queue:
+        if cap:
+            self.status.update(phase=f"reading paused: {cap}; draining the backlog")
+        elif queue < self.config.limits.max_queue:
             job = self.state.claim(self.owner, ("read",))
             if job is not None:
                 self.status.update(phase="reading source", current=task.input["path"])

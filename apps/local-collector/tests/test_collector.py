@@ -399,39 +399,64 @@ if __name__ == "__main__":
 
 
 class PoisonNotice(unittest.TestCase):
-    def test_a_notice_the_model_server_keeps_failing_is_dead_lettered_and_the_queue_moves_on(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            config = Config(data_dir=tmp)
-            state = State(config.db_path)
-            config.evidence_dir.mkdir(parents=True)
-            path = config.evidence_dir / "r.json"
-            path.write_text(json.dumps(RECORD))
-            with state.tx() as db:
-                for recall_id in ("cpsc-00001", "cpsc-00002"):
-                    db.execute("INSERT INTO document (recall_id, raw_sha256, task, extractor_version, evidence_path, retrieved_at, state, updated_at) VALUES (?, 'r', ?, ?, ?, ?, 'queued', 0)", (recall_id, TASK, extract.EXTRACTOR_VERSION, str(path), 1 if recall_id.endswith("1") else 2))
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.config = Config(data_dir=self.tmp.name)
+        self.state = State(self.config.db_path)
+        for recall_id in ("cpsc-00001", "cpsc-00002"):
+            Collector(self.config, self.state, client=FakeClient("{}"), policy=POLICY).queue_documents([{"id": recall_id, "raw": RECORD, "provenance": {"raw_sha256": recall_id * 2}}])
 
-            class Failing(FakeClient):
-                def chat_json(self, *args, **kwargs):
-                    raise LocalModelError("local Ollama failed /api/chat: HTTP 500", request_failed=True)
+    def docs(self):
+        return {r["recall_id"]: (r["state"], r["attempts"], r["server_errors"]) for r in self.state.q("SELECT recall_id, state, attempts, server_errors FROM document")}
 
-            collector = Collector(config, state, client=Failing("{}"), policy=POLICY)
-            # Failures rotate between notices (least-attempted first), and each is dead-lettered at its third.
-            for _ in range(5):
+    def test_a_notice_the_model_refuses_is_dead_lettered_and_the_queue_moves_on(self):
+        class Refusing(FakeClient):
+            def chat_json(self, *args, **kwargs):
+                raise LocalModelError("local Ollama failed /api/chat: HTTP 400 bad input", request_failed=True, status=400)
+
+        collector = Collector(self.config, self.state, client=Refusing("{}"), policy=POLICY)
+        for _ in range(5):
+            collector.extract_one()
+        docs = self.docs()
+        self.assertEqual(docs["cpsc-00001"][:2], ("failed", 3))
+        self.assertEqual(docs["cpsc-00002"][:2], ("queued", 2))
+
+    def test_a_server_error_charges_no_notice_and_waits_for_the_server(self):
+        class Down(FakeClient):
+            def chat_json(self, *args, **kwargs):
+                raise LocalModelError("local Ollama failed /api/chat: HTTP 503 runner crashed", request_failed=True, status=503)
+
+        collector = Collector(self.config, self.state, client=Down("{}"), policy=POLICY)
+        for _ in range(6):
+            with self.assertRaises(LocalModelError) as raised:
                 collector.extract_one()
-            states = {r["recall_id"]: (r["state"], r["attempts"]) for r in state.q("SELECT recall_id, state, attempts FROM document")}
-            self.assertEqual(states["cpsc-00001"], ("failed", 3))
-            self.assertEqual(states["cpsc-00002"], ("queued", 2))
+            self.assertFalse(raised.exception.request_failed)  # handled as an outage by tick()
+        docs = self.docs()
+        self.assertEqual({d[0] for d in docs.values()}, {"queued"})
+        self.assertEqual({d[1] for d in docs.values()}, {0})
+        self.assertEqual(sum(d[2] for d in docs.values()), 6)
 
-            class Down(FakeClient):
-                def chat_json(self, *args, **kwargs):
-                    raise LocalModelError("local Ollama unavailable")
+    def test_a_notice_that_keeps_failing_while_others_succeed_is_set_aside(self):
+        with self.state.tx() as db:
+            db.execute("UPDATE document SET server_errors = 3, last_server_error_at = 1 WHERE recall_id = 'cpsc-00001'")
+            db.execute("UPDATE document SET retrieved_at = 0 WHERE recall_id = 'cpsc-00002'")
+        collector = Collector(self.config, self.state, client=FakeClient(json.dumps({"identifiers": []})), policy=POLICY)
+        collector.extract_one()  # cpsc-00002 succeeds: the server is healthy
+        docs = self.docs()
+        self.assertEqual(docs["cpsc-00001"][0], "failed")
+        self.assertEqual(docs["cpsc-00002"][0], "extracted")
 
-            collector.client = Down("{}")
-            with self.assertRaises(LocalModelError):
-                collector.extract_one()
-            # An unreachable server is not charged to the notice.
-            self.assertEqual(state.one("SELECT attempts FROM document WHERE recall_id = 'cpsc-00002'")["attempts"], 2)
+    def test_state_files_from_before_these_columns_are_upgraded(self):
+        import sqlite3
 
+        old = Path(self.tmp.name) / "old.sqlite3"
+        db = sqlite3.connect(old)
+        db.execute("CREATE TABLE document (recall_id TEXT NOT NULL, raw_sha256 TEXT NOT NULL, task TEXT NOT NULL, extractor_version TEXT NOT NULL, evidence_path TEXT NOT NULL, evidence_ref TEXT, retrieved_at REAL NOT NULL, state TEXT NOT NULL, detail TEXT, latency_ms REAL, updated_at REAL NOT NULL, PRIMARY KEY (recall_id, raw_sha256, extractor_version))")
+        db.commit()
+        db.close()
+        columns = {r[1] for r in State(old).db.execute("PRAGMA table_info(document)")}
+        self.assertTrue({"attempts", "server_errors", "last_server_error_at"} <= columns)
 
 ROOT_BODY = json.dumps({"name": "Data Foundry API", "datasets": {
     "recalls": {"name": "FDA Recall Intelligence", "registry": "fda-recalls", "stats": "https://api.data.aroqon.com/v1/recalls/stats"},
@@ -660,3 +685,23 @@ class CodexRegressions(unittest.TestCase):
             self.assertEqual(jobs["read"], ("pending", 0))
             self.assertEqual(jobs["catalog"], ("pending", 0))
             self.assertGreater(state.one("SELECT due_at FROM job WHERE kind = 'read'")["due_at"], __import__("time").time() + 50)
+
+
+class DiskCap(unittest.TestCase):
+    def test_a_disk_cap_stops_reading_but_keeps_draining(self):
+        from df_collector import catalog
+
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Config(data_dir=tmp)
+            state = State(config.db_path)
+            collector = Collector(config, state, client=FakeClient(json.dumps({"identifiers": []})), policy=POLICY)
+            collector.queue_documents([{"id": "cpsc-00001", "raw": RECORD, "provenance": {"raw_sha256": "a" * 64}}])
+            hosted = catalog.parse_root(ROOT_BODY)
+            state.set("catalog", json.dumps({"fetched_at": __import__("time").time(), "hosted": hosted, "plan": catalog.capture_plan(POLICY, hosted)}))
+            state.ensure_job("catalog", "catalog", "catalog", {}, due_at=__import__("time").time() + 86400)
+            collector.check_caps = lambda: "disk cap reached (3000 MB of 2048 MB)"
+            collector.read_page = lambda task: self.fail("must not read while a cap is reached")
+            collector.tick()
+            self.assertIsNone(state.paused())
+            self.assertEqual(state.one("SELECT state FROM document")["state"], "extracted")
+            self.assertEqual([p for p in config.evidence_dir.rglob("*") if p.is_file()], [])
