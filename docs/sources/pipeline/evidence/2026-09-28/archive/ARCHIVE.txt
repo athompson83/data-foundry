@@ -4,22 +4,27 @@ tarring) is listed below; the tarball itself is also hashed. Round-trip verified
 `wrangler r2 object get research/pipeline/2026-09-28/archive/evidence-2026-09-28-raw.tar.gz --remote`
 reproduces the same sha256.
 
-This manifest describes the tarball currently at that key. It was rebuilt once after
-the initial upload, replacing the object at the same key (not a new key), for two
-Codex-review-driven reasons on PR #72: (1) `narratives.csv` was found to also carry
-personal/identifiable data (autopsy, toxicology and disease-history detail tied to a
-specific event, tail number, date and location) and was removed from git and added to
-this archive, alongside `aircraft.csv` and `up01AUG.zip`; (2) the five Federal Register
-JSON files were re-fetched in full (`per_page=1000`) to fix an unpaginated-search bug,
-and the archive's copies of those files (still the original, 3-results-per-page
-snapshot) were stale relative to the evidence the committed measurement now relies on
-— replaying `model_candidate_join.py` from the old archive copies would fail its own
-`next_page_url`/result-count assertions rather than reproduce the published 5/5 result.
-`eu-safety-gate/raw/cpsc_recent.json`, present in the original upload, is not included
-in the rebuilt tarball: it was always redundant (see
-`../eu-safety-gate/raw/NOTE-cpsc_recent.md`) and never the reason this archive exists.
+This manifest describes the tarball currently at that key. It was rebuilt twice after
+the initial upload, replacing the object at the same key (not a new key) each time,
+for Codex-review-driven reasons on PR #72: (1) `narratives.csv` was found to also
+carry personal/identifiable data (autopsy, toxicology and disease-history detail tied
+to a specific event, tail number, date and location) and was removed from git and
+added to this archive, alongside `aircraft.csv` and `up01AUG.zip`; the five Federal
+Register JSON files were re-fetched in full (`per_page=1000`) to fix an
+unpaginated-search bug, and the archive's copies of those files (still the original,
+3-results-per-page snapshot) were stale relative to the evidence the committed
+measurement now relies on — replaying `model_candidate_join.py` from the old archive
+copies would fail its own `next_page_url`/result-count assertions rather than
+reproduce the published 5/5 result; (2) `eu-safety-gate/raw/cpsc_recent.json`,
+present in the original upload, was dropped from that first rebuild on the reasoning
+that it was redundant with the production recalls Worker's own R2 archival — a Codex
+review correctly rejected that: the production Worker's archives aren't identified by
+key/hash as this exact input, and the documented fallback ("re-fetch the URL") points
+at mutable live data, so a later replay could get different `0/151`/`15/223` counts
+than published. It is re-added here (re-fetched once more first, to confirm
+byte-for-byte stability against the original fetch — same sha256 both times).
 
-evidence-2026-09-28-raw.tar.gz  1355312 bytes  sha256 6cf2e0906c9d2b66f2d7656c149079e570a59f3721591c509a1b63d13e4186ae
+evidence-2026-09-28-raw.tar.gz  2131183 bytes  sha256 683b0b3e0d47f881007b2b9b84a4f3858b6832f5a15bc63606dfad265b916b30
 
 Contents (relative path inside the tarball, original bytes, sha256):
 
@@ -32,23 +37,25 @@ aviation/raw/fr_robinsonR44.json       123508 bytes  sha256 239c306bd61d2ac75fec
 aviation/raw/fr_textron560xl.json       50061 bytes  sha256 6745f0d7139c42556f70e358c2792d4f04f4361ce34fb1746688db34cc000c8a
 aviation/raw/narratives.csv            203595 bytes  sha256 37050ce39d41f375d1af258768188aa30143c7cb0184fb00a0f6edaac661f414
 aviation/raw/up01AUG.zip               648950 bytes  sha256 f42fd62cf6707d6f24f09081cecc435e7cf860bffc02f486d82cf49ab1b2ddea
+eu-safety-gate/raw/cpsc_recent.json   3726749 bytes  sha256 4700e47560f4b7c5b37d8b746ec04b1aba8aff1f3e8c49a80c7908f380fb2923
 eu-safety-gate/raw/detail_10000322.xml  85620 bytes  sha256 7e8ad38eff02792a712be1947f536d578fbd5149c46b2d0196c95a474eabc4fe
 eu-safety-gate/raw/detail_10000323.xml 213844 bytes  sha256 da158985a9b004232160c17fda3b10b2a058d7751cd8ec49a9b86b4d452d5076
 eu-safety-gate/raw/detail_10000324.xml 181468 bytes  sha256 1b53623beb7e19c5302b38d19df4279ca10c7cd61886378e7f3e1b1b11069c9b
 eu-safety-gate/raw/weekly_list.xml     390110 bytes  sha256 be3c3fab3c2e50840c943ddd1eb7af6e2b1f32a4413627c21c38e7cad0f23aea
 
-Four of the files above are removed from git and only exist here:
+Five of the files above are removed from git and only exist here:
 `aviation/raw/aircraft.csv` and `aviation/raw/up01AUG.zip` (see
 `../aviation/raw/NOTE-aircraft.md`), `aviation/raw/narratives.csv` (see
-`../aviation/raw/NOTE-narratives.md`), and `aviation/raw/events.csv` (see
-`../aviation/raw/NOTE-events.md`), all for a personal-data reason (AGENTS.md rule 9).
-`events.csv`'s removal did not require rebuilding this tarball again: its content is
-unchanged from the original upload (same hash above), so it was already archived here.
-The rest of the tarball's contents stay committed directly under this round's evidence
-directories, current and byte-identical to their copy here — with one exception:
-`eu-safety-gate/raw/detail_10000322.xml`, `_10000323.xml` and `_10000324.xml` are
-committed with every `<pictures>` image-URL block stripped (image rights, AGENTS.md
-rule 9; see `../eu-safety-gate/raw/NOTE-images.md`), so their committed copies do
-NOT byte-match the hashes above, which are for the original, unredacted responses
-this archive preserves. This archive is a redundant backup for the unmodified files,
-and the only copy of the three modified ones' original, unredacted content.
+`../aviation/raw/NOTE-narratives.md`) and `aviation/raw/events.csv` (see
+`../aviation/raw/NOTE-events.md`), all for a personal-data reason (AGENTS.md rule 9),
+and `eu-safety-gate/raw/cpsc_recent.json` (see
+`../eu-safety-gate/raw/NOTE-cpsc_recent.md`), refused by
+`tooling/test/repository-policy.test.ts` for naming a prohibited domain in genuine
+CPSC text. The rest of the tarball's contents stay committed directly under this
+round's evidence directories, current and byte-identical to their copy here — with one
+exception: `eu-safety-gate/raw/detail_10000322.xml`, `_10000323.xml` and
+`_10000324.xml` are committed with every `<pictures>` image-URL block stripped (image
+rights, AGENTS.md rule 9; see `../eu-safety-gate/raw/NOTE-images.md`), so their
+committed copies do NOT byte-match the hashes above, which are for the original,
+unredacted responses this archive preserves. This archive is a redundant backup for
+the unmodified files, and the only copy of the modified/removed ones' original content.

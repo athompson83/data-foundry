@@ -17,7 +17,7 @@ of dropped, alongside `aircraft.csv` and `up01AUG.zip`:
 
 - bucket: `data-foundry-raw-artifacts`
 - key: `research/pipeline/2026-09-28/archive/evidence-2026-09-28-raw.tar.gz`
-- sha256 `6cf2e0906c9d2b66f2d7656c149079e570a59f3721591c509a1b63d13e4186ae`
+- sha256 `683b0b3e0d47f881007b2b9b84a4f3858b6832f5a15bc63606dfad265b916b30`
 - round-trip verified: upload, then `wrangler r2 object get
   research/pipeline/2026-09-28/archive/evidence-2026-09-28-raw.tar.gz --remote`
   reproduces the same sha256, then the test copy was deleted.

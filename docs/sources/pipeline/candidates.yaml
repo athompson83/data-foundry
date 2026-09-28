@@ -4834,7 +4834,7 @@ datasets:
       personal-data-bearing raw NTSB files (aircraft.csv, narratives.csv, events.csv, up01AUG.zip) are already
       archived to R2 (bucket data-foundry-raw-artifacts, key
       research/pipeline/2026-09-28/archive/evidence-2026-09-28-raw.tar.gz, verified sha256
-      6cf2e0906c9d2b66f2d7656c149079e570a59f3721591c509a1b63d13e4186ae) rather than committed (AGENTS.md rule 9 —
+      683b0b3e0d47f881007b2b9b84a4f3858b6832f5a15bc63606dfad265b916b30) rather than committed (AGENTS.md rule 9 —
       a Codex review on PR #72 found narratives.csv identifies people even with aircraft.csv's owner/operator
       fields already removed, via its autopsy/toxicology detail plus the same row's event ID, tail number, date
       and location; a further review found events.csv identifies people too, via its exact date/time/ZIP/

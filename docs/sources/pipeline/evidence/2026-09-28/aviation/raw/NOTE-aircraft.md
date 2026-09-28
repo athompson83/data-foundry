@@ -9,15 +9,16 @@ this: per AGENTS.md rule 9 (personal-data exclusion), that must not sit in a
 public git history even as raw evidence, and `up01AUG.zip` is the source
 `.mdb`'s zip, so it embeds the same table.
 
-Unlike the same round's dropped `eu-safety-gate/raw/cpsc_recent.json` (see
-`../../eu-safety-gate/raw/NOTE-cpsc_recent.md`), this data is not redundant
-with anything else already archived in this system, so AGENTS.md rule 10
-(preserve raw evidence) still applies — it is archived in R2 instead of
-dropped:
+This data is not redundant with anything else already archived in this
+system (unlike the same round's `eu-safety-gate/raw/cpsc_recent.json`,
+which is also archived here rather than dropped — see
+`../../eu-safety-gate/raw/NOTE-cpsc_recent.md` — after an earlier version
+of that note wrongly reasoned it was redundant), so AGENTS.md rule 10
+(preserve raw evidence) applies — it is archived in R2 instead of dropped:
 
 - bucket: `data-foundry-raw-artifacts`
 - key: `research/pipeline/2026-09-28/archive/evidence-2026-09-28-raw.tar.gz`
-- sha256 `6cf2e0906c9d2b66f2d7656c149079e570a59f3721591c509a1b63d13e4186ae`
+- sha256 `683b0b3e0d47f881007b2b9b84a4f3858b6832f5a15bc63606dfad265b916b30`
 - round-trip verified: upload, then `wrangler r2 object get
   research/pipeline/2026-09-28/archive/evidence-2026-09-28-raw.tar.gz --remote`
   reproduces the same sha256, then the test copy was deleted.
@@ -32,7 +33,11 @@ files, replacing the original upload at the same key (the sha256 above is
 for the current, rebuilt tarball). A still later Codex review found
 `events.csv` also identifies people (see `NOTE-events.md`); its content was
 already unchanged in this archive since the original upload, so it did not
-need a further rebuild. The tarball still also holds a complete, redundant
+need a further rebuild. A fourth Codex review found `eu-safety-gate/raw/cpsc_recent.json`
+had been wrongly dropped from the rebuilt tarball as "redundant"; it is the
+exact input behind the published `0/151`/`15/223` measurements and is not
+identified anywhere else by key/hash, so this tarball was rebuilt once more
+to add it back (see `../../eu-safety-gate/raw/NOTE-cpsc_recent.md`). The tarball still also holds a complete, redundant
 copy of this round's other raw inputs (the five Federal Register JSON
 responses and the EU Safety Gate XML files), which stay committed directly
 here since none of them carry personal data. Per-file sizes and hashes for
