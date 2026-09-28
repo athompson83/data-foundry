@@ -158,6 +158,39 @@ describe('extraction intake', () => {
     expect((await env.DB.prepare('SELECT count(*) AS n FROM extraction_submission').first<{ n: number }>())?.n).toBe(2);
   });
 
+  it('answers a request that lost a concurrent race for its idempotency key with the stored winning response', async () => {
+    const { env, token, sha } = await seeded();
+    const key = await sha256Hex('race');
+    const winner = JSON.stringify({ task: 'cpsc-product-identifiers@1', accepted: 7, replayed: 0, rejected: 0, results: [] });
+    // The winner commits between this request's replay lookup and its own insert.
+    const db = env.DB;
+    let lookups = 0;
+    const racing = new Proxy(db, {
+      get(target, prop) {
+        if (prop !== 'prepare') return Reflect.get(target, prop);
+        return (sql: string) => {
+          if (sql.startsWith('SELECT response FROM extraction_submission') && lookups++ === 0) {
+            return {
+              bind: () => ({
+                first: async () => {
+                  const id = await sha256Hex(token);
+                  const credential = await target.prepare('SELECT id FROM ingest_credential WHERE token_sha256 = ?').bind(id).first<{ id: string }>();
+                  await target.prepare('INSERT INTO extraction_submission (credential_id, idempotency_key, received_at, items, accepted, replayed, rejected, response) VALUES (?, ?, ?, 1, 7, 0, 0, ?)').bind(credential?.id ?? null, key, NOW, winner).run();
+                  return null;
+                },
+              }),
+            };
+          }
+          return target.prepare(sql);
+        };
+      },
+    });
+    const response = await submit({ ...env, DB: racing as unknown as Env['DB'] }, token, [{ recall_id: 'cpsc-15034', raw_sha256: sha, candidates: [CANDIDATES[0]] }], key);
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ accepted: 7, idempotent_replay: true });
+    expect((await db.prepare('SELECT count(*) AS n FROM extraction_submission').first<{ n: number }>())?.n).toBe(1);
+  });
+
   it('is idempotent: a replayed request returns the stored response, and a resubmission creates no duplicate', async () => {
     const { env, token, sha } = await seeded();
     const notices = [{ recall_id: 'cpsc-15034', raw_sha256: sha, candidates: CANDIDATES }];

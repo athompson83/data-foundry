@@ -214,8 +214,12 @@ export function decideIdentifierCandidate(text: string, value: string, field: st
     const end = at + value.length;
     if (isAlnum(text[at - 1]) || isAlnum(text[end])) continue;
     occurred = true;
+    // A context rejection (a measurement, a year) applies to this occurrence only; a later one may still pass.
     const shape = shapeRejection(value, text, end);
-    if (shape) return { ok: false, reason: shape };
+    if (shape) {
+      firstRejection ??= shape;
+      continue;
+    }
     const label = field.endsWith('.Model') ? 'model' : anchor(text, at, end);
     if ((IDENTIFIER_LABELS as readonly string[]).includes(label)) return { ok: true, start: at, end, key: modelKey(value), label: label as IdentifierLabel };
     firstRejection ??= label as CandidateRejection;

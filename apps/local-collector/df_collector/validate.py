@@ -197,9 +197,12 @@ def decide(text: str, value: str, field: str) -> Decision:
         end = at + len(value)
         if not (_is_alnum(text, at - 1) or _is_alnum(text, end)):
             occurred = True
+            # A context rejection (a measurement, a year) applies to this occurrence only; a later one may still pass.
             shape = _shape_rejection(value, text, end)
             if shape:
-                return Decision(False, shape)
+                first_rejection = first_rejection or shape
+                at = text.find(value, at + 1)
+                continue
             label = "model" if field.endswith(".Model") else _anchor(text, at, end)
             if label in IDENTIFIER_LABELS:
                 return Decision(True, start=at, end=end, key=model_key(value), label=label)

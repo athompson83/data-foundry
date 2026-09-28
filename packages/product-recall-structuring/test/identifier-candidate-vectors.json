@@ -324,6 +324,28 @@
     "ok": false,
     "reason": "year_or_date"
    }
+  },
+  {
+   "name": "a measurement occurrence does not hide a later labelled one",
+   "field": "Description",
+   "text": "The heaters run on 120 volts. Only model number 120 is recalled.",
+   "value": "120",
+   "expect": {
+    "ok": true,
+    "label": "model",
+    "key": "120",
+    "start": 48
+   }
+  },
+  {
+   "name": "a value seen only as a measurement is still rejected",
+   "field": "Description",
+   "text": "The heaters run on 120 volts and have model number HX-9.",
+   "value": "120",
+   "expect": {
+    "ok": false,
+    "reason": "measurement"
+   }
   }
  ],
  "records": [

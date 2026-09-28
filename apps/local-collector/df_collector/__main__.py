@@ -199,7 +199,16 @@ class UploaderSupervisor:
             self.restart_at = now + delay
             self.state.event("error", "uploader_exited", {"code": self.child.returncode, "restart_in_s": int(delay)})
         elif now >= self.restart_at:
-            self.child = self.spawn()
+            try:
+                child = self.spawn()
+            except OSError as error:
+                # A failed spawn (e.g. a transient resource error) is retried on the same backoff; supervision never ends.
+                self.failures += 1
+                delay = min(self.BASE_S * 2 ** (self.failures - 1), self.MAX_S)
+                self.restart_at = now + delay
+                self.state.event("error", "uploader_spawn_failed", {"error": str(error), "restart_in_s": int(delay)})
+                return
+            self.child = child
             self.started = now
             self.restart_at = None
             self.state.event("info", "uploader_restarted", {"pid": self.child.pid, "failures": self.failures})
@@ -241,7 +250,10 @@ def cmd_run(config: Config, config_path: str | None) -> int:
 
     def watch() -> None:
         while not stop_file.exists():
-            uploader.check()
+            try:
+                uploader.check()
+            except Exception as error:  # noqa: BLE001 - supervision must outlive any single failure
+                state.event("error", "uploader_supervision", {"error": str(error)})
             time.sleep(1)
         collector.stop.set()
 

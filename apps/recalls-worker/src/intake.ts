@@ -271,9 +271,15 @@ export async function handleIntake(env: Env, request: Request): Promise<{ status
     published: env.EXTRACTED_IDENTIFIERS_OPEN === '1',
     results,
   };
-  await env.DB.prepare('INSERT INTO extraction_submission (credential_id, idempotency_key, received_at, items, accepted, replayed, rejected, response) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (credential_id, idempotency_key) DO NOTHING')
+  const stored = await env.DB.prepare('INSERT INTO extraction_submission (credential_id, idempotency_key, received_at, items, accepted, replayed, rejected, response) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (credential_id, idempotency_key) DO NOTHING RETURNING id')
     .bind(credential.id, idempotencyKey, now, all.length, response.accepted, response.replayed, response.rejected, JSON.stringify(response))
-    .run();
+    .first<{ id: number }>();
+  if (!stored) {
+    // A concurrent request with the same key won the insert: every answer for the key is the stored one. The loser's
+    // candidate inserts were each fully re-checked and idempotent (ON CONFLICT DO NOTHING), so nothing is duplicated.
+    const winner = await env.DB.prepare('SELECT response FROM extraction_submission WHERE credential_id = ? AND idempotency_key = ?').bind(credential.id, idempotencyKey).first<{ response: string }>();
+    if (winner) return { status: 200, body: { ...(JSON.parse(winner.response) as Record<string, unknown>), idempotent_replay: true } };
+  }
   return { status: 200, body: response };
 }
 

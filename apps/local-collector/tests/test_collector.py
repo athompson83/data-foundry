@@ -1042,3 +1042,40 @@ class CodexRegressionsRound10(unittest.TestCase):
             state.sweep(config.evidence_dir)
             # cpsc-1's upload was dead-lettered: its candidate goes. cpsc-2's upload is still owed: its candidate stays.
             self.assertEqual([r["recall_id"] for r in state.q("SELECT recall_id FROM candidate")], ["cpsc-2"])
+
+
+class CodexRegressionsRound11(unittest.TestCase):
+    def test_a_failed_restart_spawn_is_retried_on_the_backoff(self):
+        from df_collector.__main__ import UploaderSupervisor
+
+        class Child:
+            def __init__(self):
+                self.pid, self.returncode = 1, None
+
+            def poll(self):
+                return self.returncode
+
+        attempts = []
+
+        def spawn():
+            attempts.append(1)
+            if len(attempts) == 2:
+                raise OSError("resource temporarily unavailable")
+            return Child()
+
+        now = [0.0]
+        with tempfile.TemporaryDirectory() as tmp:
+            state = State(Config(data_dir=tmp).db_path)
+            sup = UploaderSupervisor(spawn, state, clock=lambda: now[0])
+            sup.child.returncode = 1
+            sup.check()
+            now[0] += 30
+            sup.check()  # the restart spawn fails: logged, rescheduled, no exception
+            self.assertIsNotNone(sup.restart_at)
+            now[0] += 60
+            sup.check()
+            self.assertEqual(len(attempts), 3)
+            self.assertIsNone(sup.restart_at)
+            kinds = [r["kind"] for r in state.q("SELECT kind FROM event ORDER BY id")]
+            self.assertIn("uploader_spawn_failed", kinds)
+            self.assertEqual(kinds[-1], "uploader_restarted")
