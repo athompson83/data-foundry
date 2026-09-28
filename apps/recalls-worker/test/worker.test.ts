@@ -770,6 +770,31 @@ describe('Stripe', () => {
     expect((await fixture('cus_acceptance_internal_20260928', 'open')).status).toBe(404);
   });
 
+  it('expires an opened acceptance fixture\'s keys server-side after the lease, whether or not the run closed it', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    try {
+      vi.setSystemTime(new Date('2026-09-28T19:00:00.000Z'));
+      const env = makeEnv({ ADMIN_TOKEN: 'a'.repeat(40) });
+      await seed(env);
+      const realKey = await seedCustomer(env, 'developer');
+      await env.DB.prepare("UPDATE customer SET updated_at = '2020-01-01T00:00:00.000Z' WHERE id = 'c1'").run();
+      await env.DB.prepare("INSERT INTO customer (id, email, stripe_customer_id, plan, status, created_at, updated_at) VALUES ('acc', 'acceptance-internal@aroqon.invalid', 'cus_acceptance_internal_20260928', 'developer', 'suspended', 'now', 'now')").run();
+      await worker.fetch(new Request('https://data.aroqon.com/admin/acceptance-fixture?stripe_customer_id=cus_acceptance_internal_20260928&state=open', { method: 'POST', headers: { authorization: `Bearer ${'a'.repeat(40)}` } }), env);
+      const key = await issueKey(env.DB, 'acc', null);
+      vi.setSystemTime(new Date('2026-09-28T19:19:00.000Z'));
+      expect((await worker.fetch(get('/v1/recalls', key), env)).status).toBe(200);
+      vi.setSystemTime(new Date('2026-09-28T19:21:00.000Z'));
+      const expired = await worker.fetch(get('/v1/recalls', key), env);
+      expect(expired.status).toBe(403);
+      expect(((await expired.json()) as { error: { code: string } }).error.code).toBe('acceptance_lease_expired');
+      expect((await worker.fetch(get('/v1/account', key), env)).status).toBe(403);
+      // A real customer with an old updated_at is unaffected.
+      expect((await worker.fetch(get('/v1/recalls', realKey), env)).status).toBe(200);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('reports the serving version and its source tag to an operator only', async () => {
     const env = makeEnv({ ADMIN_TOKEN: 'a'.repeat(40), CF_VERSION_METADATA: { id: 'v-123', tag: 'abcdef012345', timestamp: '2026-09-28T18:00:00Z' } });
     const version = (token: string) => worker.fetch(new Request('https://data.aroqon.com/admin/version', { headers: { authorization: `Bearer ${token}` } }), env);

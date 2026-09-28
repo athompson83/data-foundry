@@ -8,7 +8,7 @@
  * the dataset current from openFDA.
  */
 
-import { consumeRequest, currentUsage, findCustomerByKey, isPlanId, issueFreeKey, issueKey, PLANS, replaceKey, presentedKey, type AuthenticatedCustomer } from './account.js';
+import { ACCEPTANCE_FIXTURE_ID, acceptanceLeaseExpired, consumeRequest, currentUsage, findCustomerByKey, isPlanId, issueFreeKey, issueKey, PLANS, replaceKey, presentedKey, type AuthenticatedCustomer } from './account.js';
 import { BadRequest, getRecall, lookupCode, searchRecalls, stats } from './api.js';
 import type { Env } from './env.js';
 import { openApiDocument } from './openapi.js';
@@ -88,6 +88,8 @@ async function authenticate(env: Env, request: Request): Promise<AuthenticatedCu
   const customer = await findCustomerByKey(env.DB, key);
   if (!customer) return apiError(401, 'invalid_key', 'Unknown or revoked API key.', { 'www-authenticate': 'Bearer' });
   if (customer.status !== 'active' && customer.status !== 'past_due') return apiError(403, 'subscription_inactive', 'This subscription is not active. Resubscribe at https://data.aroqon.com/#pricing');
+  // Server-side bound on internal acceptance keys, independent of the run closing its fixture.
+  if (acceptanceLeaseExpired(customer)) return apiError(403, 'acceptance_lease_expired', 'This internal acceptance key has expired.');
   return customer;
 }
 
@@ -345,7 +347,7 @@ async function route(request: Request, env: Env): Promise<Response> {
     if (!isAuthorizedAdmin(env, request)) return apiError(404, 'not_found', 'Not found.');
     const stripeCustomerId = url.searchParams.get('stripe_customer_id') ?? '';
     const state = url.searchParams.get('state');
-    if (!/^cus_acceptance_internal_[0-9]{8}$/.test(stripeCustomerId) || (state !== 'open' && state !== 'closed')) throw new BadRequest('an internal acceptance stripe_customer_id and state=open|closed are required');
+    if (!ACCEPTANCE_FIXTURE_ID.test(stripeCustomerId) || (state !== 'open' && state !== 'closed')) throw new BadRequest('an internal acceptance stripe_customer_id and state=open|closed are required');
     const fixture = await env.DB.prepare("SELECT id FROM customer WHERE stripe_customer_id = ? AND email LIKE '%@aroqon.invalid'").bind(stripeCustomerId).first<{ id: string }>();
     if (!fixture) return apiError(404, 'not_found', 'No internal acceptance customer with that id.');
     const now = new Date().toISOString();
