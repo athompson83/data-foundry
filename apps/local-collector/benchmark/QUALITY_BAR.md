@@ -19,3 +19,16 @@ next version), but they are not served, and a new extractor version must pass a 
 
 Scale caveat: a held-out split of 30 notices is an acceptance screen, not a guarantee. The report gives Wilson 95%
 intervals, and a larger audit is due before the published share of extracted identifiers grows materially.
+
+## Changing the extractor or the rules
+
+The publishable build (`PUBLISHABLE_EXTRACTORS` in `apps/recalls-worker/src/intake.ts`) pins the extractor version,
+model, full model digest, prompt hash and the extraction-behaviour fingerprint (`pnpm collector:behaviour`). The
+fingerprint covers the acceptance rules, the extractor's schema, truncation and options, and the generation defaults.
+Any change to them fails CI until this bar is met again for the changed behaviour:
+
+- a rules-only change: re-score the stored predictions (`python benchmark/run_benchmark.py … --score-only`);
+- a prompt, schema, truncation or option change: a full run on the dev and held-out splits.
+
+Then update `EXTRACTION_BEHAVIOUR_SHA256` and the entry (with its benchmark note) in the same reviewed change. Rows
+accepted under an earlier fingerprint stay stored as evidence and are no longer served.

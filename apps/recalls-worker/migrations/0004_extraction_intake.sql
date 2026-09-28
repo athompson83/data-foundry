@@ -39,12 +39,15 @@ CREATE TABLE IF NOT EXISTS product_recall_extracted_key (
   model             TEXT NOT NULL,
   model_digest      TEXT NOT NULL,
   prompt_sha256     TEXT NOT NULL,
+  -- The Worker's extraction-behaviour fingerprint (acceptance rules, extractor schema and options) when the row was
+  -- accepted: EXTRACTION_BEHAVIOUR_SHA256 in src/intake.ts. Publication requires the benchmarked one.
+  behaviour_sha256  TEXT NOT NULL,
   credential_id     TEXT NOT NULL,
   -- accepted: passed every server check; withdrawn: removed by an operator (reversible audit trail, never deleted).
   status            TEXT NOT NULL CHECK (status IN ('accepted', 'withdrawn')),
   submitted_at      TEXT NOT NULL,
   withdrawn_at      TEXT,
-  PRIMARY KEY (recall_id, raw_sha256, extractor_version, model, model_digest, prompt_sha256, kind, value_key)
+  PRIMARY KEY (recall_id, raw_sha256, extractor_version, model, model_digest, prompt_sha256, behaviour_sha256, kind, value_key)
 ) WITHOUT ROWID;
 CREATE INDEX IF NOT EXISTS product_recall_extracted_key_lookup_idx ON product_recall_extracted_key (kind, value_key, status);
 CREATE INDEX IF NOT EXISTS product_recall_extracted_key_version_idx ON product_recall_extracted_key (extractor_version, status);

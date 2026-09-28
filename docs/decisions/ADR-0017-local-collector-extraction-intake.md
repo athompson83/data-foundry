@@ -65,6 +65,12 @@ recalls on the recalls Worker); [`docs/sources/cpsc-recalls-rights-record-202609
      digest and prompt hash listed in `PUBLISHABLE_EXTRACTORS` (`apps/recalls-worker/src/intake.ts`), each with its benchmark.
      Output from any other build is stored as evidence but never served, and rows are keyed by the whole build, so
      one build never shadows another. A CI test requires the collector's own build to be on that list.
+   - The build also includes the **extraction-behaviour fingerprint** (`EXTRACTION_BEHAVIOUR_SHA256`,
+     `tooling/scripts/extraction-behaviour.ts`). It covers the acceptance rules in both languages, the extractor's
+     schema, truncation and prompt assembly, the model options and the generation defaults. Every accepted row is
+     stamped with the Worker's fingerprint, and publication requires the benchmarked one. CI fails when any of those
+     files changes, until the benchmark is re-run and the constant and entry are updated in a reviewed change.
+     `--score-only` suffices for a rules-only change; a prompt, schema or option change needs a full run.
    - The gate opens only when the pre-registered bar in
      [`apps/local-collector/benchmark/QUALITY_BAR.md`](../../apps/local-collector/benchmark/QUALITY_BAR.md) is met on
      held-out data.

@@ -8,7 +8,7 @@ import { describe, expect, it } from 'vitest';
 import { issueKey } from '../src/account.js';
 import type { Env } from '../src/env.js';
 import worker from '../src/index.js';
-import { MAX_INTAKE_BYTES } from '../src/intake.js';
+import { EXTRACTION_BEHAVIOUR_SHA256, MAX_INTAKE_BYTES } from '../src/intake.js';
 import { ingestRecords } from '../src/product-sync.js';
 import { sha256Hex } from '../src/store.js';
 import { createTestBucket, createTestDatabase } from './d1-sqlite.js';
@@ -313,6 +313,17 @@ describe('publication of extracted identifiers', () => {
     expect(((await (await submit(env, token, notices)).json()) as { accepted: number }).accepted).toBe(1);
     const notice = (await (await get(env, await customerKey(env), '/v1/product-recalls/cpsc-15034')).json()) as { data: { extracted_identifiers: unknown[] } };
     expect(notice.data.extracted_identifiers).toEqual([expect.objectContaining({ value: 'SA904', model: 'qwen3.5:4b', prompt_sha256: EXTRACTOR.prompt_sha256 })]);
+  });
+
+  it('serves only rows accepted under the benchmarked acceptance rules and extractor behaviour', async () => {
+    const { env, apiKey } = await accepted({ EXTRACTED_IDENTIFIERS_OPEN: '1' });
+    expect(await env.DB.prepare('SELECT behaviour_sha256 FROM product_recall_extracted_key').first()).toEqual({ behaviour_sha256: EXTRACTION_BEHAVIOUR_SHA256 });
+    // A row stamped by a Worker whose rules or extractor behaviour differ from the benchmarked ones is kept, not served.
+    await env.DB.prepare("UPDATE product_recall_extracted_key SET behaviour_sha256 = 'other-rules'").run();
+    const notice = (await (await get(env, apiKey, '/v1/product-recalls/cpsc-15034')).json()) as { data: { extracted_identifiers: unknown[] } };
+    expect(notice.data.extracted_identifiers).toEqual([]);
+    const lookup = (await (await get(env, apiKey, '/v1/product-recalls/lookup?code=SA904')).json()) as { total_matches: number };
+    expect(lookup.total_matches).toBe(0);
   });
 
   it('stops serving a candidate when the source bytes change, and after withdrawal', async () => {

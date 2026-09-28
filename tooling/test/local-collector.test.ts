@@ -10,7 +10,8 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 import { PROHIBITED_SOURCES } from '../../packages/source-registry/src/prohibited-sources.js';
-import { PUBLISHABLE_EXTRACTORS } from '../../apps/recalls-worker/src/intake.js';
+import { EXTRACTION_BEHAVIOUR_SHA256, PUBLISHABLE_EXTRACTORS } from '../../apps/recalls-worker/src/intake.js';
+import { extractionBehaviourSha256 } from '../scripts/extraction-behaviour.js';
 import { compilePolicy } from '../scripts/local-collector-policy.js';
 
 const ROOT = join(import.meta.dirname, '..', '..');
@@ -41,6 +42,10 @@ describe('local collector', () => {
     expect(entry).toBeDefined();
     // The collector's pin selects the benchmarked build, and the entry's full digest is the one the benchmark recorded.
     expect(entry?.modelDigest.startsWith(pin as string)).toBe(true);
+    // The acceptance rules, extractor schema and options are pinned too: changing them needs a re-run benchmark and a
+    // reviewed update of EXTRACTION_BEHAVIOUR_SHA256 and the entry (pnpm exec tsx tooling/scripts/extraction-behaviour.ts).
+    expect(EXTRACTION_BEHAVIOUR_SHA256).toBe(extractionBehaviourSha256());
+    expect(entry?.behaviourSha256).toBe(EXTRACTION_BEHAVIOUR_SHA256);
     const benchmarked = JSON.parse(readFileSync(join(APP, 'benchmark/data/model.json'), 'utf8')) as { name: string; digest: string };
     expect({ model: benchmarked.name, digest: benchmarked.digest }).toEqual({ model: entry?.model, digest: entry?.modelDigest });
   });
