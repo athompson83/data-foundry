@@ -136,7 +136,7 @@ describe('articles on data.aroqon.com', () => {
   it('escapes article text in llms.txt, so frontmatter cannot add links or headings there', async () => {
     const { llmsTxt } = await import('../src/seo.js');
     const ctx = { publicOrigin: 'https://data.aroqon.com', apiOrigin: 'https://api.data.aroqon.com', supportEmail: 'support@example.com' };
-    const llms = llmsTxt(ctx, [{ title: 'Docs](https://example.invalid)[x', url: 'https://data.aroqon.com/articles/a', description: 'one\n## injected' }]);
+    const llms = llmsTxt(ctx, { fda: true, products: false }, [{ title: 'Docs](https://example.invalid)[x', url: 'https://data.aroqon.com/articles/a', description: 'one\n## injected' }]);
     expect(llms).toContain('- [Docs\\](https://example.invalid)\\[x](https://data.aroqon.com/articles/a): one \\#\\# injected');
     expect(llms).not.toMatch(/^## injected/m);
   });
@@ -147,8 +147,8 @@ describe('articles on data.aroqon.com', () => {
     expect(llms).toContain('## Articles\n\n- [Newer article](https://data.aroqon.com/articles/newer-article): The newer of two fixture articles.');
     expect(await (await worker.fetch(site('/llms-full.txt'), env)).text()).toContain('https://data.aroqon.com/articles/older-article');
     const home = await (await worker.fetch(site('/'), env)).text();
-    expect(home).toContain('<a href="/recalls#pricing">Pricing</a><a href="/articles">Articles</a></nav>');
-    expect(home).toContain('· <a href="/articles">Articles</a> ·');
+    expect(home).toContain('<a href="/#pricing">Pricing</a><a href="/articles">Articles</a></nav>');
+    expect(home).toContain('<a href="/docs">API docs</a><a href="/articles">Articles</a><a href="https://api.data.aroqon.com/openapi.json">OpenAPI</a>');
   });
 
   it('keeps articles up under the recall kill switch, which withdraws only dataset-derived responses', async () => {

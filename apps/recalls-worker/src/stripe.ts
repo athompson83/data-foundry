@@ -75,7 +75,7 @@ export async function createCheckoutSession(env: Env, plan: PlanId): Promise<Che
     mode: 'subscription',
     line_items: [{ price, quantity: 1 }],
     success_url: `${origin}/recalls/welcome?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${origin}/recalls#pricing`,
+    cancel_url: `${origin}/#pricing`,
     allow_promotion_codes: plan === 'evaluate' ? undefined : true,
     payment_method_collection: 'if_required',
     billing_address_collection: 'auto',
@@ -94,7 +94,7 @@ export async function retrieveCheckoutSession(env: Env, id: string): Promise<Che
 
 export async function createPortalSession(env: Env, stripeCustomerId: string): Promise<string> {
   const origin = env.PUBLIC_ORIGIN ?? 'https://data.aroqon.com';
-  const session = await stripe<{ url: string }>(env, 'POST', 'billing_portal/sessions', { customer: stripeCustomerId, return_url: `${origin}/recalls` });
+  const session = await stripe<{ url: string }>(env, 'POST', 'billing_portal/sessions', { customer: stripeCustomerId, return_url: `${origin}/` });
   return session.url;
 }
 

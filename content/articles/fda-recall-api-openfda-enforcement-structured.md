@@ -111,7 +111,7 @@ curl "https://api.data.aroqon.com/v1/recalls/lookup?code=130EF" \
   -H "Authorization: Bearer $DATA_FOUNDRY_KEY"
 ```
 
-Its results include `H-1331-2026` with `"matched_on": [{ "kind": "lot", "value": "130EF" }]`, plus `total_matches` and `truncated` so you know whether you saw everything. The same record is public at [its recall page](/recalls/H-1331-2026), and every parameter is in the [API documentation](/recalls/docs).
+Its results include `H-1331-2026` with `"matched_on": [{ "kind": "lot", "value": "130EF" }]`, plus `total_matches` and `truncated` so you know whether you saw everything. The same record is public at [its recall page](/recalls/H-1331-2026), and every parameter is in the [API documentation](/docs).
 
 ## Where does the parser stop?
 
@@ -129,4 +129,4 @@ Sometimes. openFDA is free, official and needs no account, and if a text search 
 
 Recall data: U.S. Food and Drug Administration enforcement reports via [openFDA](https://open.fda.gov), dedicated to the public domain under [CC0 1.0](https://open.fda.gov/license/). openFDA asks that users credit it, and we do on every page and in every data response. Data Foundry is not affiliated with or endorsed by FDA.
 
-The Evaluate plan is free for 100 requests a month; paid plans are $49, $149 and $299 a month for 5,000, 25,000 and 75,000 requests. A plan stops at its allowance with HTTP 429 and never bills overage, and `/v1/recalls/stats` and `/v1/account` do not count. Keys come from [the pricing section](/recalls#pricing).
+The Evaluate plan is free for 100 requests a month; paid plans are $49, $149 and $299 a month for 5,000, 25,000 and 75,000 requests. A plan stops at its allowance with HTTP 429 and never bills overage, and `/v1/recalls/stats` and `/v1/account` do not count. Keys come from [the pricing section](/#pricing).

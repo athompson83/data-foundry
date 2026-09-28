@@ -35,7 +35,7 @@ candidates:
     structuring: identifier-extraction
     format: free-text
     publisher: US CPSC
-    stage: EVIDENCED
+    stage: BUILDING
     rights: GREEN
     sources: [ https://www.saferproducts.gov/RestWebServices/Recall?format=json ]
     scores:
@@ -52,14 +52,23 @@ candidates:
       - url: https://www.cpsc.gov/About-CPSC/Policies-Statements-and-Directives/Privacy-Policy
         quote: "You may freely copy and distribute recall notices, including photographs of recalled items, without
           permission."
-    evidence: [ docs/sources/pipeline/research-2026-09-27.md, docs/sources/pipeline/research-2026-09-27-service-trades.md ]
+    evidence:
+      [
+        docs/sources/pipeline/research-2026-09-27.md,
+        docs/sources/pipeline/research-2026-09-27-service-trades.md,
+        docs/sources/cpsc-recalls-rights-record-20260927.md,
+        docs/sources/pipeline/prototypes/cpsc-recalls/README.md
+      ]
     next_action: >-
-      First in the service-trade build order (research-2026-09-27-service-trades.md): write the CPSC rights
-      record (public information, credit CPSC, no endorsement, exclude ConsumerContact personal data and
-      licensed images), then generalise StructuredRecall beyond openFDA categories and prototype
-      model/serial/UPC extraction over all 10,027 recalls, with trade facets for appliance, HVAC,
-      plumbing/water heating and electrical.
-
+      Member of consumer-product-recalls-north-america; see that dataset. Deployed 2026-09-28 (#69, Worker version
+      40ea452b) and serving on data.aroqon.com and api.data.aroqon.com
+      behind PRODUCT_RECALLS_OPEN; parser product-recall-structuring@2. Reconciled: the first scheduled full pass
+      (00:17 UTC) read all 10,027 CPSC notices in 29 RecallDate windows and all 5,206 Health Canada consumer notices,
+      rewrote every record under @2 with 0 failures, and kept 343 declared links. Keyless acceptance passed (pages,
+      stats, 401 without a valid key, OpenAPI, checkout to cs_live). Remaining before LIVE: authenticated hosted
+      acceptance (lookup, filters, include=raw digests, $0 Evaluate checkout) with a revocable acceptance key, run
+      and revoked by any session permitted to write that key to production D1 (the 2026-09-28 session's permission
+      check refused the write); it is routine verification, not an owner decision.
   - key: nhtsa-recalls
     name: NHTSA vehicle recalls in the recall API
     category: transport
@@ -3725,6 +3734,57 @@ candidates:
 
 # Composite datasets (research round 3, 2026-09-27): one entity type assembled from
 # several candidate sources linked by measured deterministic join keys. See README.md.
+  - key: health-canada-consumer-product-recalls
+    name: Health Canada consumer-product recalls and alerts (open-data index, all categories)
+    category: product-safety
+    structuring: normalization
+    format: structured
+    publisher: Health Canada
+    stage: BUILDING
+    rights: AMBER
+    sources: [ "https://recalls-rappels.canada.ca/sites/default/files/opendata-donneesouvertes/HCRSAMOpenData.json" ]
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 4,
+        acquisition_ease: 5,
+        structuring_value: 3,
+        freshness: 4,
+        low_onboarding_cost: 5,
+        poor_existing_access: 3
+      }
+    terms:
+      - url: https://open.canada.ca/en/open-government-licence-canada
+        quote: "The Information Provider grants you a worldwide, royalty-free, perpetual, non-exclusive licence to use
+          the Information, including for commercial purposes, subject to the terms below."
+      - url: https://open.canada.ca/en/open-government-licence-canada
+        quote: "This licence does not grant you any right to use: Personal Information; third party rights the
+          Information Provider is not authorized to license; the names, crests, logos, or other official symbols of the
+          Information Provider; and Information subject to other intellectual property rights, including patents,
+          trade-marks and official marks."
+    conditions:
+      - Attribute with "Contains information licensed under the Open Government Licence – Canada" and link the licence.
+      - Never republish the "What you should do" text (contact details); derive remedy classes and the joint marker only.
+      - Use only the open-data resource, never canada.ca page text; say Data Foundry is not endorsed by Health Canada.
+    evidence:
+      [
+        docs/sources/pipeline/research-2026-09-27.md,
+        docs/sources/health-canada-consumer-product-recalls-rights-record-20260927.md,
+        docs/sources/pipeline/prototypes/health-canada-consumer-product-recalls/README.md
+      ]
+    next_action: >-
+      Member of consumer-product-recalls-north-america; see that dataset. Next source widening: Health Canada's
+      other recall organisations (food, health products, vehicles) under an extended rights record. Deployed
+      2026-09-28 (#69, Worker version 40ea452b) and serving on data.aroqon.com and api.data.aroqon.com
+      behind PRODUCT_RECALLS_OPEN; parser product-recall-structuring@2. Reconciled: the first scheduled full pass
+      (00:17 UTC) read all 10,027 CPSC notices in 29 RecallDate windows and all 5,206 Health Canada consumer notices,
+      rewrote every record under @2 with 0 failures, and kept 343 declared links. Keyless acceptance passed (pages,
+      stats, 401 without a valid key, OpenAPI, checkout to cs_live). Remaining before LIVE: authenticated hosted
+      acceptance (lookup, filters, include=raw digests, $0 Evaluate checkout) with a revocable acceptance key, run
+      and revoked by any session permitted to write that key to production D1 (the 2026-09-28 session's permission
+      check refused the write); it is routine verification, not an owner decision. The appliance slice above stays a member of
+      home-product-recalls-global.
+
 datasets:
   - key: home-product-recalls-global
     name: Global home-equipment and consumer-product recall register (multi-agency, model/GTIN-linked)
@@ -4359,3 +4419,71 @@ datasets:
       prototype the resolver with auto-links only on declared identifiers (licence number, UBI);
       name+legal-form+(zip|city) and name+phone matches go to a review queue; ship the OR CCB x BCD trade view
       first. Owner-visible blocker: a free DOL API key for OSHA linkage."
+  - key: consumer-product-recalls-north-america
+    name: North American consumer-product recalls (CPSC + Health Canada, declared cross-agency links)
+    category: product-safety
+    entity: recall_notice (one agency notice), linked to the other agency's notice where one cites the other
+    stage: BUILDING
+    description: "The first shippable slice of home-product-recalls-global. Every CPSC recall (US, since 1973) and
+      every Health Canada consumer-product recall or alert, in one schema: CPSC free text is parsed deterministically
+      into model numbers, check-digit-valid GTINs, US/Canada/Mexico units, hazard and remedy classes and trade
+      facets; Health Canada's structured index fields are normalised into the same taxonomy. A CPSC notice that cites
+      a Health Canada notice URL is linked to it (declared). The Health Canada joint-recall marker only proposes a
+      candidate and never links. Each fact carries its agency notice."
+    sources:
+      - cpsc-recalls
+      - health-canada-consumer-product-recalls
+    join_keys:
+      - key: cited Health Canada notice URL (CPSC Inconjunctions[].URL, canonicalised)
+        between:
+          - cpsc-recalls
+          - health-canada-consumer-product-recalls
+        measured: 342/371 CPSC recalls citing a recalls-rappels.canada.ca notice resolve to a consumer-product notice
+          in the index (343/372 citations; 25 cite a URL not in the index, 4 a Transport Canada notice), full
+          snapshots of 2026-09-27
+        mode: declared
+      - key: joint-recall marker ("Joint recall with ... CPSC") + date within 45 days + shared title tokens
+        between:
+          - health-canada-consumer-product-recalls
+          - cpsc-recalls
+        measured: 352 Health Canada notices carry the marker, 302 of them already linked by a declared citation; the
+          other 50 stay unlinked candidates (341/352 matched as candidates in round 3, 25/25 correct)
+        mode: candidate
+        reviewed: { correct: 25, checked: 25 }
+    taxonomy:
+      - "agency: CPSC | HC; jurisdiction: US | CA"
+      - "hazard: fire | burn | electric-shock | carbon-monoxide | explosion | laceration | fall | tip-over |
+        entrapment | strangulation | suffocation | choking | ingestion | drowning | chemical | lead | microbial |
+        crash | impact-injury | injury | non-compliance"
+      - "remedy: refund | repair | replace | new-instructions | dispose | label | inspect | firmware-update |
+        stop-use | no-remedy"
+      - "trade_facet: appliance | hvac | plumbing-water-heating | electrical | building-products"
+      - "product_category: CPSC Products.Type and Health Canada Category, verbatim"
+    agent_questions:
+      - Is this model number or UPC under a CPSC or Health Canada recall, and what is the remedy?
+      - Was this US recall also issued in Canada, and how many units were sold in each country?
+      - Which HVAC, water-heating or appliance recalls involve carbon monoxide or fire hazards since 2020?
+      - Which recalls name this firm, and where were the products manufactured?
+    scores:
+      agent_demand: 4
+      rights_clarity: 5
+      acquisition_ease: 5
+      structuring_value: 4
+      freshness: 4
+      low_onboarding_cost: 5
+      poor_existing_access: 3
+    evidence:
+      - docs/sources/cpsc-recalls-rights-record-20260927.md
+      - docs/sources/health-canada-consumer-product-recalls-rights-record-20260927.md
+      - docs/sources/pipeline/prototypes/cpsc-recalls/README.md
+      - docs/sources/pipeline/prototypes/health-canada-consumer-product-recalls/README.md
+      - docs/decisions/ADR-0016-product-recalls-on-the-recalls-worker.md
+    next_action: >-
+      Deployed 2026-09-28 (#69, Worker version 40ea452b) and serving on data.aroqon.com and api.data.aroqon.com
+      behind PRODUCT_RECALLS_OPEN; parser product-recall-structuring@2. Reconciled: the first scheduled full pass
+      (00:17 UTC) read all 10,027 CPSC notices in 29 RecallDate windows and all 5,206 Health Canada consumer notices,
+      rewrote every record under @2 with 0 failures, and kept 343 declared links. Keyless acceptance passed (pages,
+      stats, 401 without a valid key, OpenAPI, checkout to cs_live). Remaining before LIVE: authenticated hosted
+      acceptance (lookup, filters, include=raw digests, $0 Evaluate checkout) with a revocable acceptance key, run
+      and revoked by any session permitted to write that key to production D1 (the 2026-09-28 session's permission
+      check refused the write); it is routine verification, not an owner decision.

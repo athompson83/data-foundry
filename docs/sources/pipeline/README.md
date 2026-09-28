@@ -40,7 +40,7 @@ cross-source join; a source past `PROTOTYPED` must belong to a dataset.
 Linking rules, from the round-3 measurements
 ([`research-2026-09-27-composites.md`](research-2026-09-27-composites.md)):
 each join key has a `mode`. `declared` joins (GTIN, licence number, UBI, a
-cited approval number: an identifier that names the counterpart record) link
+cited approval number, a cited notice URL: an identifier that names the counterpart record) link
 automatically, and only at the level that identifier names: a GTIN links a
 notice to a product but never merges two recall events, which needs a cited
 case number or review. Shared attributes such as a refrigerant designation
@@ -128,11 +128,12 @@ perform: `identifier-extraction`, `eligibility-criteria`, `obligation-timeline`,
 `event-extraction`, `normalization`. Public paths follow ADR-0012:
 `api.data.aroqon.com/v1/<dataset>`.
 
-## The weekly run
+## The daily run
 
 A scheduled Claude Code routine does the following, starting a fresh session
-each week. Its schedule, trigger ID, prompt and known limitation are recorded
-in [`scout-routine.md`](scout-routine.md):
+every day (weekly until 2026-09-27). Its schedule, trigger ID and prompt are
+recorded in [`scout-routine.md`](scout-routine.md). The Product Owner's target
+is 5 to 10 new data types a day:
 
 1. Reads this README, `candidates.yaml`, `AGENTS.md`, `PROJECT_CHECKLIST.md`
    and `PROGRESS.md`.
@@ -142,19 +143,24 @@ in [`scout-routine.md`](scout-routine.md):
    - the source totals still reconcile.
 
    It fixes any regression before doing anything else.
-3. Discovers at least three new candidates across unrelated domains, and
-   screens them, including new sources for the existing datasets and the
-   linkage between them.
-4. Advances the first candidate in the active research record's **build order**
-   by at least one stage, with evidence, provided it is in `SCREENED`–`BUILDING`.
-   The build order weighs cost and time to revenue as well as the score. The
-   active build order is in
-   [`research-2026-09-27-composites.md`](research-2026-09-27-composites.md):
-   the first eligible member source of the first composite dataset, until a
-   later record states that it replaces it.
-5. Records a `research-YYYY-MM-DD.md`, updates `candidates.yaml`, and opens a
+3. Adds 5 to 10 new data types. Each is one entity type with a `datasets:`
+   entry, a category, a target machine use case and at least two candidate
+   member sources from different publishers, one of them free text. Every
+   member is screened with live requests. A data type that fails screening is
+   recorded as `PARKED` or `REJECTED` with its reason and counts as screened,
+   not added.
+4. Widens existing datasets: adds at least one new member source to a `LIVE`
+   or `BUILDING` dataset each run, and checks that every approved source is
+   acquired with its full history and every field its rights allow, with the
+   raw artifact kept in R2.
+5. Advances the highest-scoring data types that are not yet `LIVE` through as
+   many stages as the evidence supports. A dataset that passes every gate is
+   built on the recalls Worker pattern (ADR-0016) in a PR. Deploying it
+   requires the merged PR, a D1 bookmark and read-back reconciliation; sales
+   gates, pricing and hostnames are never changed.
+6. Records a `research-YYYY-MM-DD.md`, updates `candidates.yaml`, and opens a
    PR. Merging follows the normal gates: CI green and independent review clean.
-6. Reports to the owner only:
-   - new revenue;
-   - a dataset ready for its `SALES_OPEN` decision;
-   - a blocker that needs a credential, account or legal identity.
+7. Reports to the owner how many data types were added, screened and advanced,
+   which sources were added and any capture gaps fixed,
+   what went live, and anything that failed. It asks the owner for action only
+   on a blocker that needs a credential, account or legal identity.

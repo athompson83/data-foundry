@@ -111,7 +111,7 @@ export function articlesIndexPage(ctx: PageContext, articles: readonly Article[]
     .join('');
   const body = articles.length
     ? `<ul class="articles">${list}</ul>`
-    : `<p class="muted">No articles yet. Meanwhile, the <a href="/recalls/docs">API docs</a> show every endpoint with a working request.</p>`;
+    : `<p class="muted">No articles yet. Meanwhile, the <a href="/docs">API docs</a> show every endpoint with a working request.</p>`;
   return layout(
     ctx,
     'Articles — Data Foundry',

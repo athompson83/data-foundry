@@ -4,7 +4,6 @@
  */
 
 import { PLANS, PLAN_IDS } from './account.js';
-import { catalogJsonLd, recallsDataset } from './seo.js';
 
 export interface PageContext {
   readonly publicOrigin: string;
@@ -17,32 +16,65 @@ export function escapeHtml(value: string): string {
 }
 
 const CSS = `
-:root{--bg:#fbfaf7;--fg:#16181d;--muted:#5b6170;--line:#e4e1d8;--card:#fff;--accent:#0b5d4b;--accent-fg:#fff;--code:#f2efe7;--warn:#8a4b00}
-@media (prefers-color-scheme:dark){:root{--bg:#111316;--fg:#e9e7e1;--muted:#a3a7b0;--line:#2a2e35;--card:#171a1f;--accent:#46c29d;--accent-fg:#06221b;--code:#1e2229;--warn:#f0b35a}}
-*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+:root{--bg:#fbfaf7;--fg:#15171c;--muted:#565c6a;--line:#e3e0d6;--card:#fff;--accent:#0b5d4b;--accent-fg:#fff;--accent-soft:#e3f1ec;--code:#f3f0e8;--code-fg:#1d2330;--warn:#8a4b00;--focus:#1a56db}
+@media (prefers-color-scheme:dark){:root{--bg:#111316;--fg:#e9e7e1;--muted:#a6aab3;--line:#2a2e35;--card:#171a1f;--accent:#46c29d;--accent-fg:#06221b;--accent-soft:#16302a;--code:#1b1f26;--code-fg:#e2e5ea;--warn:#f0b35a;--focus:#8ab4ff}}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
 body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-a{color:var(--accent)}main{max-width:980px;margin:0 auto;padding:0 16px 64px}
-header.site{max-width:980px;margin:0 auto;padding:18px 16px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-header.site a.brand{font-weight:700;text-decoration:none;color:var(--fg);letter-spacing:-.01em}
-header.site nav a{margin-left:16px;color:var(--muted);text-decoration:none;font-size:15px}
-h1{font-size:clamp(30px,5vw,46px);line-height:1.1;letter-spacing:-.02em;margin:40px 0 14px}
-h2{font-size:24px;letter-spacing:-.01em;margin:48px 0 12px}h3{font-size:17px;margin:24px 0 6px}
-p.lede{font-size:19px;color:var(--muted);max-width:720px}
-.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px}
+a{color:var(--accent);text-underline-offset:2px}main{max-width:1080px;margin:0 auto;padding:24px 20px 72px}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:4px}
+.skip{position:absolute;left:-999px;top:8px;background:var(--card);padding:8px 12px;border-radius:6px;z-index:10}.skip:focus{left:12px}
+header.site{max-width:1080px;margin:0 auto;padding:18px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+header.site a.brand{font-weight:750;text-decoration:none;color:var(--fg);letter-spacing:-.015em;font-size:18px}
+header.site nav{display:flex;gap:18px;flex-wrap:wrap}header.site nav a{color:var(--muted);text-decoration:none;font-size:15px;padding:4px 0}
+header.site nav a:hover{color:var(--fg)}
+h1{font-size:clamp(32px,5.4vw,52px);line-height:1.06;letter-spacing:-.025em;margin:44px 0 16px;max-width:17ch}
+h2{font-size:clamp(24px,3vw,30px);letter-spacing:-.015em;margin:64px 0 10px;line-height:1.2}h3{font-size:17px;margin:22px 0 6px}
+.eyebrow{font-size:13px;font-weight:650;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin:0}
+p.lede{font-size:19px;color:var(--muted);max-width:680px;margin-top:0}
+.hero{display:grid;gap:36px;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);align-items:start;padding-bottom:12px}
+@media (max-width:880px){.hero{grid-template-columns:minmax(0,1fr)}}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin:22px 0 8px}
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
 .card h3{margin-top:0}.price{font-size:30px;font-weight:700}.price small{font-size:14px;color:var(--muted);font-weight:400}
+.catalog{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.catalog-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,400px);gap:10px 28px;padding:18px 4px;border-bottom:1px solid var(--line)}
+.catalog-row h3{font-size:18px;margin:0 0 6px}.catalog-row h3 a{color:var(--fg)}.catalog-row h3 a:hover{color:var(--accent)}.catalog-row p{margin:0 0 6px}
+.tags{display:flex;flex-wrap:wrap;gap:6px}.tag{font-size:12.5px;padding:2px 8px;border-radius:6px;border:1px solid var(--line);color:var(--muted)}
+.catalog-meta{display:grid;grid-template-columns:90px minmax(0,1fr) 120px;gap:14px;margin:0;font-size:14.5px}.catalog-meta dd{margin:0;font-variant-numeric:tabular-nums}
+.catalog-meta dt{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.catalog-head{font-size:12.5px;font-weight:650;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);padding:18px 4px 8px;border-bottom:0}.catalog-head .catalog-meta{font-size:inherit}
+@media (max-width:760px){.catalog-head{display:none}.catalog-row{grid-template-columns:minmax(0,1fr)}.catalog-meta{grid-template-columns:repeat(3,auto);justify-content:start;gap:4px 18px}.catalog-meta dt{position:static;width:auto;height:auto;clip:auto;font-size:12px;color:var(--muted)}}
+.dataset{display:grid;gap:18px;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);align-items:start}
+@media (max-width:760px){.dataset{grid-template-columns:minmax(0,1fr)}}
+.dataset h3{font-size:21px;margin:0 0 6px}.dataset h3 a{color:var(--fg);text-decoration:none}.dataset h3 a:hover{color:var(--accent)}
+dl.facts{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0;font-size:14.5px}dl.facts dt{color:var(--muted)}dl.facts dd{margin:0;font-variant-numeric:tabular-nums}
+.badge{display:inline-block;font-size:12.5px;font-weight:650;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent);margin:0 6px 6px 0}
+.badge.warn{background:transparent;color:var(--warn);border:1px solid var(--warn)}
 .muted{color:var(--muted)}.small{font-size:14px}
-button,.button{display:inline-block;border:0;border-radius:8px;background:var(--accent);color:var(--accent-fg);font:600 15px/1 inherit;padding:11px 16px;cursor:pointer;text-decoration:none}
-button.secondary{background:transparent;color:var(--accent);border:1px solid var(--accent)}
-pre,code{font:13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
-pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:14px;overflow-x:auto}
+ol.steps{counter-reset:s;list-style:none;padding:0;display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+ol.steps li{counter-increment:s;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+ol.steps li::before{content:counter(s);display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--accent-fg);font-weight:700;font-size:14px;margin-bottom:8px}
+button,.button{display:inline-block;border:1px solid var(--accent);border-radius:9px;background:var(--accent);color:var(--accent-fg);font:600 15px/1 inherit;padding:12px 17px;cursor:pointer;text-decoration:none}
+button.secondary,.button.secondary{background:transparent;color:var(--accent)}
+button.copy{font-size:13px;padding:6px 10px;background:transparent;color:var(--accent)}
+pre,code{font:13.5px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+pre{background:var(--code);color:var(--code-fg);border:1px solid var(--line);border-radius:12px;padding:16px;overflow:auto;margin:0}
+pre.response{max-height:460px}
 code{background:var(--code);padding:1px 5px;border-radius:4px}pre code{background:none;padding:0}
-table{border-collapse:collapse;width:100%;font-size:14.5px}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.window{border:1px solid var(--line);border-radius:14px;background:var(--card);overflow:hidden}
+.window .bar{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);font-size:13px;color:var(--muted);flex-wrap:wrap}
+.window pre{border:0;border-radius:0}
+table{border-collapse:collapse;width:100%;font-size:14.5px}th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
 .table-wrap{overflow-x:auto}.key{font-size:16px;word-break:break-all;padding:14px;background:var(--code);border:1px dashed var(--accent);border-radius:10px}
-.notice{border-left:3px solid var(--warn);padding:8px 14px;background:var(--card)}
+p a,li a,td a,p code,li code{overflow-wrap:anywhere}
+.notice{border-left:3px solid var(--warn);padding:10px 14px;background:var(--card);border-radius:0 8px 8px 0}
+details{border-bottom:1px solid var(--line);padding:12px 0}summary{cursor:pointer;font-weight:600}details p{margin:8px 0 0;color:var(--muted)}
 article.prose{max-width:760px}article.prose h2{font-size:22px;margin:36px 0 10px}article.prose blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--line);color:var(--muted)}
 ul.articles{list-style:none;padding:0;max-width:760px}ul.articles li{border-bottom:1px solid var(--line);padding:4px 0 8px}ul.articles h2{font-size:20px;margin:18px 0 4px}ul.articles h2 a{text-decoration:none}
-footer{max-width:980px;margin:0 auto;padding:24px 16px 48px;color:var(--muted);font-size:14px;border-top:1px solid var(--line)}
+footer{max-width:1080px;margin:0 auto;padding:28px 20px 56px;color:var(--muted);font-size:14px;border-top:1px solid var(--line)}
+footer nav{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:10px}
 `;
 
 export interface LayoutOptions {
@@ -54,6 +86,8 @@ export interface LayoutOptions {
   readonly jsonLd?: readonly unknown[];
   /** Open Graph properties (og:*, article:*), emitted as <meta property> tags. */
   readonly openGraph?: Readonly<Record<string, string>>;
+  /** Load /assets/site.js (copy buttons). Content never depends on it. */
+  readonly scripts?: boolean;
 }
 
 /** JSON-LD inside <script>: escape "<" so text such as "</script>" cannot end the block. */
@@ -61,76 +95,64 @@ export function jsonLdScript(value: unknown): string {
   return `<script type="application/ld+json">${JSON.stringify(value).replace(/</g, '\\u003c')}</script>`;
 }
 
+/** Site-wide Open Graph defaults; a page (an article) overrides or extends them. */
+function openGraph(ctx: PageContext, title: string, description: string, options: LayoutOptions): Record<string, string> {
+  return {
+    'og:type': 'website',
+    'og:site_name': 'Data Foundry',
+    'og:title': title,
+    'og:description': description,
+    ...(options.path ? { 'og:url': `${ctx.publicOrigin}${options.path}` } : {}),
+    ...options.openGraph,
+  };
+}
+
 export function layout(ctx: PageContext, title: string, description: string, body: string, options: LayoutOptions = {}): string {
   const robots = options.robots ?? (options.noindex ? 'noindex' : null);
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${escapeHtml(title)}</title><meta name="description" content="${escapeHtml(description)}">
 ${robots ? `<meta name="robots" content="${robots}">` : ''}${options.path ? `<link rel="canonical" href="${ctx.publicOrigin}${options.path}">` : ''}
-<link rel="alternate" type="text/plain" title="LLM summary" href="/llms.txt"><link rel="service-desc" type="application/json" href="${ctx.apiOrigin}/openapi.json">
-${Object.entries(options.openGraph ?? {}).map(([property, content]) => `<meta property="${escapeHtml(property)}" content="${escapeHtml(content)}">`).join('')}
+<link rel="icon" href="data:,"><link rel="alternate" type="text/plain" title="LLM summary" href="/llms.txt"><link rel="service-desc" type="application/json" href="${ctx.apiOrigin}/openapi.json">
 ${(options.jsonLd ?? []).map(jsonLdScript).join('')}
-<style>${CSS}</style></head><body>
-<header class="site"><a class="brand" href="/">Data Foundry</a><nav><a href="/recalls">Recall API</a><a href="/recalls/browse">Browse recalls</a><a href="/recalls/docs">Docs</a><a href="/recalls#pricing">Pricing</a><a href="/articles">Articles</a></nav></header>
-<main>${body}</main>
-<footer>Data Foundry by Aroqon Data · <a href="/articles">Articles</a> · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="mailto:${ctx.supportEmail}">${ctx.supportEmail}</a><br>
-Recall data: U.S. Food and Drug Administration via <a href="https://open.fda.gov">openFDA</a> (CC0). Not affiliated with or endorsed by FDA.</footer>
+${Object.entries(openGraph(ctx, title, description, options)).map(([property, content]) => `<meta property="${escapeHtml(property)}" content="${escapeHtml(content)}">`).join('')}<meta name="twitter:card" content="summary">
+<style>${CSS}</style>${options.scripts ? '<script src="/assets/site.js" defer></script>' : ''}</head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site"><a class="brand" href="/">Data Foundry</a><nav aria-label="Main"><a href="/#datasets">Datasets</a><a href="/docs">API docs</a><a href="/#pricing">Pricing</a><a href="/articles">Articles</a></nav></header>
+<main id="main">${body}</main>
+<footer><nav aria-label="Footer"><a href="/#datasets">Datasets</a><a href="/docs">API docs</a><a href="/articles">Articles</a><a href="${ctx.apiOrigin}/openapi.json">OpenAPI</a><a href="/llms.txt">llms.txt</a><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="mailto:${ctx.supportEmail}">${ctx.supportEmail}</a></nav>
+Data Foundry by Aroqon Data. Source agencies are credited on each dataset page and in every API response; Data Foundry is not affiliated with or endorsed by them.</footer>
 </body></html>`;
 }
 
-function planCards(): string {
+/**
+ * Plan cards from the one plan ladder (account.PLANS). Checkout buttons appear
+ * only while the sales gate is open; otherwise the cards state that sign-ups
+ * are not open, and no button leads to a dead end.
+ */
+export function planCards(salesOpen: boolean): string {
   return PLAN_IDS.map((id) => {
     const plan = PLANS[id];
+    const action = salesOpen
+      ? `<form method="post" action="/recalls/checkout"><input type="hidden" name="plan" value="${id}"><button ${id === 'evaluate' ? 'class="secondary"' : ''}>${id === 'evaluate' ? 'Get a free key' : `Subscribe — ${plan.name}`}</button></form>`
+      : '<p class="small muted">Sign-ups are not open yet.</p>';
     return `<div class="card"><h3>${plan.name}</h3><div class="price">$${plan.monthlyUsd}<small>/month</small></div>
-<p class="muted small">${plan.requests.toLocaleString('en-US')} requests per month. Hard stop at the allowance — never an overage bill.</p>
-<form method="post" action="/recalls/checkout"><input type="hidden" name="plan" value="${id}"><button ${id === 'evaluate' ? 'class="secondary"' : ''}>${id === 'evaluate' ? 'Get a free key' : `Subscribe — ${plan.name}`}</button></form></div>`;
+<p class="muted small">${plan.requests.toLocaleString('en-US')} requests per month across every dataset. Hard stop at the allowance — never an overage bill.</p>
+${action}</div>`;
   }).join('');
 }
 
-export function catalogPage(ctx: PageContext): string {
-  return layout(
-    ctx,
-    'Data Foundry — structured machine data',
-    'Clean, current, evidence-backed datasets for software and agents.',
-    `<h1>Structured data from messy public records.</h1>
-<p class="lede">Data Foundry turns lawfully sourced, unstructured records into clean, current, provenance-linked data for machines — over a simple API.</p>
-<h2>Datasets</h2>
-<div class="grid"><div class="card"><h3><a href="/recalls">FDA Recall Intelligence</a></h3>
-<p class="muted small">Every FDA food, drug and device enforcement report on openFDA (reports from June 2012 on), with distribution states, lot numbers, UPC/GTIN/UDI, NDC, expiry dates, allergens and pathogens extracted from the free text.</p></div></div>`,
-    { path: '/', jsonLd: [catalogJsonLd(ctx)] },
-  );
-}
+const FDA_RECORD_SHAPE = `{
+  "recall_number": "D-0123-2026", "category": "drug", "classification": "II", "status": "Ongoing",
+  "firm": { "name": "…", "city": "…", "state": "NJ", "postal_code": "…", "country": "United States" },
+  "dates": { "initiated": "2026-08-01", "classified": "2026-09-04", "reported": "2026-09-16", "terminated": null },
+  "distribution": { "nationwide_us": true, "international": true, "us_states": ["FL","GA"], "countries": ["PA"], … },
+  "quantity": { "items": [{ "value": 403200, "unit": "tablets" }], "total": 403200, "unit": "tablets" },
+  "codes": { "gtins": [], "ndcs": ["12345-0678-90"], "lots": ["DJ23254"], "expiration_dates": ["2026-11-30"], … },
+  "reason": { "classes": ["SPECIFICATION_FAILURE"], "allergens": [], "pathogens": [] },
+  "provenance": { "source_url": "https://api.fda.gov/…", "parser_version": "recall-structuring@1", "raw_sha256": "…", "changed_at": "…" }
+}`;
 
-export function recallsLanding(ctx: PageContext): string {
-  const example = `curl "${ctx.apiOrigin}/v1/recalls/lookup?code=00801741121067" \\
-  -H "Authorization: Bearer $DATA_FOUNDRY_KEY"`;
-  return layout(
-    ctx,
-    'FDA Recall Intelligence API — lot, UPC, UDI and NDC recall lookup',
-    'Structured FDA food, drug and device recalls: distribution states, lots, GTIN/UPC/UDI, NDC, expiry dates, allergens and pathogens, with source provenance.',
-    `<h1>Is this product recalled — and where?</h1>
-<p class="lede">FDA publishes recalls as prose: “distributed to FL, GA, IL and the countries of Guatemala and Panama”, “Lot #: DJ23254, Exp. Date 11/30/2026”. This API turns that text into exact, queryable fields — so one call answers whether a UPC, UDI, NDC or lot is under recall, and in which states.</p>
-<pre><code>${escapeHtml(example)}</code></pre>
-<h2>What you get</h2>
-<div class="grid">
-<div class="card"><h3>Exact identifiers</h3><p class="muted small">UPC/EAN/GTIN/UDI-DI (check-digit verified, normalised to GTIN-14), NDC (normalised to 5-4-2), lot, serial and model numbers, expiration dates.</p></div>
-<div class="card"><h3>Distribution geography</h3><p class="muted small">US states and territories, countries (ISO codes), nationwide and international flags — parsed from free-text distribution patterns.</p></div>
-<div class="card"><h3>Why it was recalled</h3><p class="muted small">Reason classes (allergen, microbial, foreign material, labeling, sterility…), the nine major allergens and named pathogens.</p></div>
-<div class="card"><h3>Provenance on every record</h3><p class="muted small">The verbatim FDA record, its SHA-256, parser version, source URL, and first-seen / last-seen / changed timestamps. We check openFDA every six hours; how recent the newest report is depends on FDA's own publication schedule.</p></div>
-</div>
-<h2>Coverage</h2>
-<p class="muted">Every enforcement report openFDA publishes for food, drugs and medical devices — reports from June 2012 on, about 87,000 recalls. Live counts, the latest FDA report date and our last successful sync: <a href="${ctx.apiOrigin}/v1/recalls/stats">/v1/recalls/stats</a>.</p>
-<h2 id="pricing">Pricing</h2>
-<div class="grid">${planCards()}</div>
-<p class="small muted">Monthly, billed by Stripe. Upgrade, downgrade or cancel any time from the billing portal. Your key is shown immediately after checkout.</p>
-<h2>Good for</h2>
-<p class="muted">Retail and grocery systems checking inventory against recalls · pharmacy and hospital supply chains matching NDCs and UDIs · marketplaces screening listings · compliance and QA dashboards · AI agents that need a reliable recall answer instead of a web search.</p>
-<h2>Browse every recall</h2>
-<p class="muted">Each recall has a public page with its codes, distribution and reasons: <a href="/recalls/browse">browse by product type and year</a>. Agents: see <a href="/llms.txt">/llms.txt</a>.</p>`,
-    { path: '/recalls', jsonLd: [recallsDataset(ctx)] },
-  );
-}
-
-export function docsPage(ctx: PageContext): string {
+export function docsPage(ctx: PageContext, served: { readonly fda: boolean; readonly products: boolean }): string {
   const api = ctx.apiOrigin;
   const rows: Array<[string, string]> = [
     ['gtin', 'UPC, EAN, GTIN or UDI-DI. Any length 8–14 with a valid check digit; matched as GTIN-14.'],
@@ -153,39 +175,46 @@ export function docsPage(ctx: PageContext): string {
   ];
   return layout(
     ctx,
-    'Docs — FDA Recall Intelligence API',
-    'Endpoints, parameters, authentication and limits for the FDA Recall Intelligence API.',
+    'API documentation — Data Foundry',
+    'Endpoints, parameters, authentication and limits for the Data Foundry recall APIs.',
     `<h1>API documentation</h1>
-<p class="lede">Base URL <code>${api}</code>. JSON over HTTPS. OpenAPI: <a href="${api}/openapi.json">${api}/openapi.json</a>.</p>
-<h2>Authentication</h2>
+<p class="lede">Base URL <code>${api}</code>. JSON over HTTPS. OpenAPI: <a href="${api}/openapi.json">${api}/openapi.json</a>.${served.fda || served.products ? '' : ' No dataset is available right now.'}</p>
+<h2 id="authentication">Authentication</h2>
 <p>Send your key as <code>Authorization: Bearer rcl_live_…</code> (or <code>X-API-Key</code>). Every authenticated data request counts toward your monthly allowance; when it is spent, requests return <code>429</code> until the next UTC month or an upgrade. <code>/v1/account</code> and <code>/v1/recalls/stats</code> are not counted.</p>
-<h2>Endpoints</h2>
-<h3>GET /v1/recalls/lookup?code=…</h3><p>One code, every exact interpretation: GTIN/UPC/UDI (check-digit verified), NDC, lot, serial and model. Returns up to 100 matching recalls, newest first, with <code>matched_on</code>, plus <code>total_matches</code> and <code>truncated</code>; when truncated, page through every match with the <code>/v1/recalls</code> filters listed in <code>complete_results</code>. Lot, serial and model codes ignore internal spaces.</p>
-<pre><code>curl "${api}/v1/recalls/lookup?code=05708932072526" -H "Authorization: Bearer $KEY"</code></pre>
-<h3>GET /v1/recalls</h3><p>Filter and page through recalls, newest report first. Filters combine with AND.</p>
-<div class="table-wrap"><table><thead><tr><th>Parameter</th><th>Meaning</th></tr></thead><tbody>${rows.map(([name, text]) => `<tr><td><code>${name}</code></td><td>${text}</td></tr>`).join('')}</tbody></table></div>
-<pre><code>curl "${api}/v1/recalls?state=TX&amp;category=food&amp;allergen=peanut&amp;status=Ongoing" -H "Authorization: Bearer $KEY"</code></pre>
-<h3>GET /v1/recalls/{recall_number}</h3><p>One recall, e.g. <code>/v1/recalls/H-1331-2026?include=raw</code>.</p>
+<h2 id="account">Account endpoints</h2>
 <h3>GET /v1/account</h3><p>Your plan, this month's usage and allowance.</p>
 <h3>POST /v1/account/rotate-key</h3><p>Revokes the presented key and returns a new one.</p>
 <h3>POST /v1/account/billing-portal</h3><p>Returns a Stripe billing-portal URL to upgrade, downgrade or cancel.</p>
-<h3>GET /v1/recalls/stats</h3><p>Public coverage counts and last refresh time.</p>
-<h2>Record shape</h2>
-<pre><code>{
-  "recall_number": "D-0123-2026", "category": "drug", "classification": "II", "status": "Ongoing",
-  "firm": { "name": "…", "city": "…", "state": "NJ", "postal_code": "…", "country": "United States" },
-  "dates": { "initiated": "2026-08-01", "classified": "2026-09-04", "reported": "2026-09-16", "terminated": null },
-  "distribution": { "nationwide_us": true, "international": true, "us_states": ["FL","GA"], "countries": ["PA"], … },
-  "quantity": { "items": [{ "value": 403200, "unit": "tablets" }], "total": 403200, "unit": "tablets" },
-  "codes": { "gtins": [], "ndcs": ["12345-0678-90"], "lots": ["DJ23254"], "expiration_dates": ["2026-11-30"], … },
-  "reason": { "classes": ["SPECIFICATION_FAILURE"], "allergens": [], "pathogens": [] },
-  "provenance": { "source_url": "https://api.fda.gov/…", "parser_version": "recall-structuring@1", "raw_sha256": "…", "changed_at": "…" }
-}</code></pre>
-<h2>Accuracy</h2>
-<p class="notice">Derived fields come from deterministic parsers over FDA prose. They are conservative — a code is only reported when an explicit marker or a valid check digit supports it — but they can be incomplete. The verbatim FDA text is always included for verification. This is not medical or legal advice; do not rely on it for decisions about medical care.</p>
+${
+      served.fda
+        ? `<h2 id="fda-recalls">FDA Recall Intelligence endpoints</h2>
+<h3 id="recalls-lookup">GET /v1/recalls/lookup?code=…</h3><p>One code, every exact interpretation: GTIN/UPC/UDI (check-digit verified), NDC, lot, serial and model. Returns up to 100 matching recalls, newest first, with <code>matched_on</code>, plus <code>total_matches</code> and <code>truncated</code>; when truncated, page through every match with the <code>/v1/recalls</code> filters listed in <code>complete_results</code>. Lot, serial and model codes ignore internal spaces.</p>
+<pre><code>curl "${api}/v1/recalls/lookup?code=05708932072526" -H "Authorization: Bearer $KEY"</code></pre>
+<h3 id="recalls-search">GET /v1/recalls</h3><p>Filter and page through recalls, newest report first. Filters combine with AND.</p>
+<div class="table-wrap"><table><thead><tr><th>Parameter</th><th>Meaning</th></tr></thead><tbody>${rows.map(([name, text]) => `<tr><td><code>${name}</code></td><td>${text}</td></tr>`).join('')}</tbody></table></div>
+<pre><code>curl "${api}/v1/recalls?state=TX&amp;category=food&amp;allergen=peanut&amp;status=Ongoing" -H "Authorization: Bearer $KEY"</code></pre>
+<h3 id="recalls-one">GET /v1/recalls/{recall_number}</h3><p>One recall, e.g. <code>/v1/recalls/H-1331-2026?include=raw</code>.</p>
+<h3 id="recalls-stats">GET /v1/recalls/stats</h3><p>Public coverage counts and last refresh time.</p>
+<h2 id="record-shape">FDA record shape</h2>
+<pre><code>${FDA_RECORD_SHAPE}</code></pre>
+<p class="notice">Derived FDA fields come from deterministic parsers over FDA prose. They are conservative — a code is only reported when an explicit marker or a valid check digit supports it — but they can be incomplete. The verbatim FDA text is always included for verification. This is not medical or legal advice; do not rely on it for decisions about medical care.</p>`
+        : ''
+    }
+${
+      served.products
+        ? `<h2 id="product-recalls">Consumer product recall endpoints</h2>
+<p>CPSC and Health Canada notices in one schema. Same key and allowance. Dataset page: <a href="/product-recalls">/product-recalls</a>.</p>
+<h3 id="product-recalls-lookup">GET /v1/product-recalls/lookup?code=…</h3><p>Every notice that names one model number or UPC/EAN/GTIN (check-digit verified), with <code>matched_on</code>, <code>total_matches</code>, <code>truncated</code> and <code>interpreted_as</code>.</p>
+<pre><code>curl "${api}/v1/product-recalls/lookup?code=DXH70CFAVX" -H "Authorization: Bearer $KEY"</code></pre>
+<h3 id="product-recalls-search">GET /v1/product-recalls</h3><p>Filters (AND): <code>gtin</code>, <code>model</code>, <code>agency</code> (CPSC|HC), <code>hazard</code>, <code>remedy</code>, <code>facet</code>, <code>category</code>, <code>manufacturer_country</code>, <code>firm</code>, <code>q</code>, <code>linked</code>, <code>from</code>, <code>to</code>, <code>changed_since</code>, <code>limit</code> (≤100), <code>cursor</code>, <code>include=raw</code>. Newest first.</p>
+<h3 id="product-recalls-one">GET /v1/product-recalls/{id}</h3><p>One notice, e.g. <code>/v1/product-recalls/cpsc-25203</code> or <code>/v1/product-recalls/hc-77184</code>, with <code>linked_notices</code> (declared citations only). With <code>include=raw</code>, <code>raw</code> is the source record without contact text and images, and <code>raw_redaction</code> names the withheld fields and gives the SHA-256 of <code>raw</code> as returned; <code>provenance.raw_sha256</code> stays the digest of the stored original.</p>
+<h3 id="product-recalls-stats">GET /v1/product-recalls/stats</h3><p>Public notice counts per agency, identifier counts, declared links and the last successful sync per source. Not counted.</p>
+<p>Full field and enum reference: <a href="/llms-full.txt">llms-full.txt</a> and the <a href="${api}/openapi.json">OpenAPI description</a>.</p>`
+        : ''
+    }
 <h2>Errors</h2>
 <p><code>400</code> invalid parameter · <code>401</code> missing/unknown key · <code>403</code> subscription inactive · <code>404</code> not found · <code>429</code> monthly allowance spent · <code>503</code> temporarily unavailable. Errors are <code>{"error": {"code", "message"}}</code>.</p>`,
-    { path: '/recalls/docs' },
+    { path: '/docs' },
   );
 }
 
@@ -197,13 +226,13 @@ export function welcomePage(ctx: PageContext, key: string, planName: string): st
     `<h1>You're in.</h1><p class="lede">Plan: <strong>${escapeHtml(planName)}</strong>. Here is your API key. It is shown <strong>only once</strong> — copy it into your secret store now.</p>
 <p class="key"><code>${escapeHtml(key)}</code></p>
 <pre><code>curl "${ctx.apiOrigin}/v1/recalls?limit=3" -H "Authorization: Bearer ${escapeHtml(key)}"</code></pre>
-<p>Next: <a href="/recalls/docs">read the docs</a>. Manage billing any time with <code>POST ${ctx.apiOrigin}/v1/account/billing-portal</code>. Lost key? Email <a href="mailto:${ctx.supportEmail}">${ctx.supportEmail}</a> from the email address you checked out with; we will verify it against your billing record, revoke the old key and send a new one.</p>`,
+<p>Next: <a href="/docs">read the docs</a>. Manage billing any time with <code>POST ${ctx.apiOrigin}/v1/account/billing-portal</code>. Lost key? Email <a href="mailto:${ctx.supportEmail}">${ctx.supportEmail}</a> from the email address you checked out with; we will verify it against your billing record, revoke the old key and send a new one.</p>`,
     { noindex: true },
   );
 }
 
 export function messagePage(ctx: PageContext, title: string, message: string): string {
-  return layout(ctx, `${title} — Data Foundry`, title, `<h1>${escapeHtml(title)}</h1><p class="lede">${message}</p><p><a href="/recalls">Back to Recall Intelligence</a></p>`, { noindex: true });
+  return layout(ctx, `${title} — Data Foundry`, title, `<h1>${escapeHtml(title)}</h1><p class="lede">${message}</p><p><a href="/">Back to Data Foundry</a></p>`, { noindex: true });
 }
 
 export function termsPage(ctx: PageContext): string {
@@ -211,12 +240,12 @@ export function termsPage(ctx: PageContext): string {
     ctx,
     'Terms of Service — Data Foundry',
     'Terms of Service for Data Foundry APIs.',
-    `<h1>Terms of Service</h1><p class="muted">Effective 2026-09-26. Operator: Aroqon Data (“we”). Contact: <a href="mailto:${ctx.supportEmail}">${ctx.supportEmail}</a>.</p>
-<h3>1. The service</h3><p>We provide API access to datasets we compile and structure from lawfully obtained sources. The FDA Recall Intelligence dataset is derived from U.S. Food and Drug Administration enforcement reports published through openFDA under CC0. We are not affiliated with or endorsed by FDA.</p>
+    `<h1>Terms of Service</h1><p class="muted">Effective 2026-09-27. Operator: Aroqon Data (“we”). Contact: <a href="mailto:${ctx.supportEmail}">${ctx.supportEmail}</a>.</p>
+<h3>1. The service</h3><p>We provide API access to datasets we compile and structure from lawfully obtained sources. The FDA Recall Intelligence dataset is derived from U.S. Food and Drug Administration enforcement reports published through openFDA under CC0. The North American Consumer Product Recalls dataset is derived from U.S. Consumer Product Safety Commission recall notices (US Government works) and Health Canada's Recalls and Safety Alerts open data, which contains information licensed under the Open Government Licence – Canada. We are not affiliated with or endorsed by FDA, CPSC, Health Canada or the Government of Canada.</p>
 <h3>2. Accounts and keys</h3><p>Keep your API key secret; you are responsible for use of your key. You may rotate it at any time. We may suspend keys used abusively or in breach of these terms.</p>
 <h3>3. Plans, billing and cancellation</h3><p>Paid plans are billed monthly in advance in USD by Stripe and renew until cancelled. Each plan includes a monthly request allowance; requests beyond it are refused (HTTP 429) and never billed as overage. You can upgrade, downgrade or cancel from the billing portal; cancellation takes effect at the end of the paid period. Fees are non-refundable except where required by law. Access ends if payment fails and is not resolved.</p>
-<h3>4. Acceptable use</h3><p>Do not attempt to circumvent allowances, share keys across unrelated organisations, overload the service, or use it unlawfully. You may use and redistribute the data returned to you, including commercially, with attribution to FDA/openFDA where practicable.</p>
-<h3>5. No warranty</h3><p>The data is provided “as is”. Derived fields are produced by automated parsers from FDA text and may be incomplete or inaccurate; the verbatim source record is provided for verification. The service is not medical, legal or regulatory advice and must not be the sole basis for decisions about medical care, product safety or compliance. Always confirm against the official FDA recall notice.</p>
+<h3>4. Acceptable use</h3><p>Do not attempt to circumvent allowances, share keys across unrelated organisations, overload the service, or use it unlawfully. You may use and redistribute the data returned to you, including commercially, with attribution to the source agency where practicable (FDA/openFDA; CPSC; for Health Canada data, the statement “Contains information licensed under the Open Government Licence – Canada”).</p>
+<h3>5. No warranty</h3><p>The data is provided “as is”. Derived fields are produced by automated parsers from agency text and may be incomplete or inaccurate; the verbatim source record is provided for verification. The service is not medical, legal or regulatory advice and must not be the sole basis for decisions about medical care, product safety or compliance. Always confirm against the official agency recall notice.</p>
 <h3>6. Liability</h3><p>To the maximum extent permitted by law, our total liability for any claim is limited to the fees you paid in the three months before the claim, and we are not liable for indirect or consequential losses.</p>
 <h3>7. Changes</h3><p>We may change these terms or the service with notice on this page; material changes to paid plans take effect at your next billing period.</p>`,
     { path: '/terms' },
