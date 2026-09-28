@@ -23,10 +23,6 @@ def main() -> None:
         hits = sum(1 for row in rows if row.get(name))
         print(f"{name}: {hits}/{len(rows)}")
 
-    with open("../raw/narratives.csv") as handle:
-        narratives = list(csv.DictReader(handle))
-    print(f"{len(narratives)} narrative rows (free-text finding/cause fields) for the same {len(rows)} events")
-
     with open("../raw/events.csv") as handle:
         events = list(csv.DictReader(handle))
     parsed_dates = [datetime.strptime(e["ev_date"], "%m/%d/%y %H:%M:%S") for e in events if e.get("ev_date")]
@@ -35,6 +31,13 @@ def main() -> None:
         f"{max(parsed_dates).date().isoformat()} (parsed as MM/DD/YY; string min/max on the raw "
         f"field would misreport this as 01/03/11 .. 12/14/25, ordering by month not chronology)"
     )
+
+    with open("../raw/narratives.csv") as handle:
+        narratives = list(csv.DictReader(handle))
+    # A Codex review on PR #72 found this previously reported coverage against
+    # len(rows) (163 aircraft rows), not the event count: multiple aircraft can
+    # share one event, so the two counts are not the same population.
+    print(f"{len(narratives)} narrative rows (free-text finding/cause fields) for the same {len(events)} events")
 
 
 if __name__ == "__main__":

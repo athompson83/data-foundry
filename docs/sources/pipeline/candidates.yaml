@@ -3821,8 +3821,10 @@ candidates:
       Member of aviation-safety-events; see that dataset. Reachable (200) with the declared scout User-Agent;
       up01AUG.zip (retrieved 2026-09-28, dated 2026-08-01) is a real MS Access .mdb (mdbtools) with aircraft,
       events, narratives and 15 other tables. 163 aircraft rows this update, regis_no/acft_make/acft_model
-      100% present, acft_serial_no 96/163, 58 free-text narrative rows for the same events (events span
-      2008-01-30 to 2026-07-29, parsed correctly after a Codex-caught string-sort bug). Rights basis is US
+      100% present, acft_serial_no 96/163; 157 event rows (fewer than 163 since one event can involve multiple
+      aircraft — a Codex review on PR #72 caught an earlier version reporting narrative coverage against the
+      aircraft count instead), 58 free-text narrative rows for those events (events span 2008-01-30 to
+      2026-07-29, parsed correctly after a Codex-caught string-sort bug). Rights basis is US
       government work (17 U.S.C. Sec 105,
       NTSB is a federal agency); no ntsb.gov terms/copyright page could be read from this egress this round
       (the SharePoint site returns an empty body or a generic "Page not found" for every guessed policy URL) -
@@ -4763,8 +4765,9 @@ datasets:
       join_keys.measured). No declared identifier links a specific accident to a
       specific directive (an accident names a tail number; a directive names a model, never a tail number), so
       the make/model key is a reviewed candidate link only, never an automatic merge (AGENTS.md rules 3 and
-      7): it tells an agent that a model involved in a real accident also has open manufacturer/FAA safety
-      actions, not that any specific accident caused any specific directive."
+      7): it tells an agent that a model involved in a real accident has also been named in a published
+      FAA safety filing (not that it currently has an open, still-in-effect one — see join_keys.measured),
+      and not that any specific accident caused any specific directive."
     sources:
       - ntsb-aviation-accidents
       - faa-airworthiness-directives

@@ -45,5 +45,10 @@ Four of the files above are removed from git and only exist here:
 `events.csv`'s removal did not require rebuilding this tarball again: its content is
 unchanged from the original upload (same hash above), so it was already archived here.
 The rest of the tarball's contents stay committed directly under this round's evidence
-directories, current and byte-identical to their copy here; this archive is a redundant
-backup for them, not their only copy.
+directories, current and byte-identical to their copy here — with one exception:
+`eu-safety-gate/raw/detail_10000322.xml`, `_10000323.xml` and `_10000324.xml` are
+committed with every `<pictures>` image-URL block stripped (image rights, AGENTS.md
+rule 9; see `../eu-safety-gate/raw/NOTE-images.md`), so their committed copies do
+NOT byte-match the hashes above, which are for the original, unredacted responses
+this archive preserves. This archive is a redundant backup for the unmodified files,
+and the only copy of the three modified ones' original, unredacted content.
