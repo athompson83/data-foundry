@@ -1,5 +1,16 @@
 # Progress
 
+## Current session — 2026-09-28 (continued): production and revenue-readiness check
+
+- **Owner direction.** "Make sure this is fully deployed to production and everything is done that is needed to start earning revenue."
+- **Live state, verified read-only (13:30–13:50 UTC).**
+  - Every public page answers 200 on `data.aroqon.com` (home, `/recalls`, `/product-recalls`, `/docs`, terms, privacy, `llms` files, sitemaps, a recall page); `/recalls/docs` answers 301. Data endpoints answer 401 without a key. The deployed Worker is still `40ea452b` (PR #69); `main` has only docs since.
+  - Scheduled syncs: every run through 12:17 UTC today succeeded (FDA food/drug/device recent and history windows, CPSC recent, Health Canada full index).
+  - Stripe live (`acct_1U3gItLlvU3ZaHdi`): the four plan prices are active and the webhook `we_1UK1TtLlvU3ZaHdiy7KqSNdW` (`https://data.aroqon.com/stripe/webhook`) is enabled; the route answers 405 to GET. Every live Checkout Session so far is an internal verification probe; none completed.
+  - D1: no customers besides the canceled acceptance customer. **Revenue has not started: sales are open but no one has bought.**
+- **Fixed: product-recall pages were never announced to IndexNow.** The pinger only covered `/recalls/…`. It now takes a per-dataset feed with its own watermark, and the product-recall feed runs while that dataset is served, independently of FDA's kill switch (ADR-0016). Two new tests fail against the previous source and pass now; recalls-worker 88/88, repo typecheck clean. The 8,868 indexable product pages were submitted to IndexNow by hand (HTTP 200). **The code change needs a `wrangler deploy` of `data-foundry-recalls` after merge**; this session has no Cloudflare token.
+- **Still not done: authenticated acceptance of product recalls.** Creating a production acceptance key, and even posting to the live checkout, were refused again by this session's permission check. Any session permitted those writes can run them (procedure: the 2026-09-26 FDA acceptance below), then revoke the key.
+
 ## Current session — 2026-09-27/28 (continued): second dataset, website, daily scout — deployed
 
 - **Owner direction.** "Continue to add data types and ship to production."

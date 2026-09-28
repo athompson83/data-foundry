@@ -8,7 +8,7 @@
 import type { D1Database } from './env.js';
 import { escapeHtml, layout, type PageContext } from './pages.js';
 import { presentRows, type PresentedProductRecall } from './product-api.js';
-import { organization, productDataset } from './seo.js';
+import { type IndexNowFeed, organization, productDataset } from './seo.js';
 
 export const PRODUCT_PAGE_PATTERN = /^\/product-recalls\/(cpsc-\d{5}[a-z]?|hc-\d{1,8})$/;
 export const PRODUCT_BROWSE_PATTERN = /^\/product-recalls\/browse\/(cpsc|hc)\/(\d{4})$/;
@@ -16,6 +16,14 @@ export const PRODUCT_SITEMAP_PATTERN = /^\/sitemaps\/product-recalls-([1-9]\d{0,
 export const PRODUCT_SITEMAP_PAGE_SIZE = 20_000;
 export const PRODUCT_BROWSE_PAGE_SIZE = 200;
 export const FIRST_PRODUCT_YEAR = 1973;
+
+/** IndexNow feed for the product-recall notice pages: the rows the product sitemap lists, with their own watermark. */
+export const PRODUCT_INDEXNOW_FEED: IndexNowFeed = {
+  watermarkKey: 'state/indexnow-product-recalls-watermark.json',
+  changedSql: 'SELECT id FROM product_recall WHERE changed_at >= ? AND changed_at < ? AND indexable = 1 ORDER BY id',
+  pathPrefix: '/product-recalls/',
+  routable: (id) => PRODUCT_PAGE_PATTERN.test(`/product-recalls/${id}`),
+};
 
 const AGENCY_NAME: Readonly<Record<string, string>> = { CPSC: 'U.S. Consumer Product Safety Commission', HC: 'Health Canada' };
 const AGENCY_SHORT: Readonly<Record<string, string>> = { CPSC: 'CPSC', HC: 'Health Canada' };
