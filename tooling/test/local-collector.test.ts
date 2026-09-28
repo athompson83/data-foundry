@@ -35,11 +35,13 @@ describe('local collector', () => {
 
   it("publishes only the collector's own benchmarked extractor build", () => {
     const python = process.env['PYTHON'] ?? 'python3';
-    const out = spawnSync(python, ['-c', 'from df_collector import extract, config; c = config.Config(); print(extract.EXTRACTOR_VERSION); print(extract.prompt_sha256()); print(c.model); print(c.model_digest)'], { cwd: APP, encoding: 'utf8' });
-    const [version, promptSha, model, pin] = out.stdout.trim().split('\n');
+    const out = spawnSync(python, ['-c', 'import json; from df_collector import extract, config; c = config.Config(); print(extract.EXTRACTOR_VERSION); print(extract.prompt_sha256()); print(c.model); print(c.model_digest); print(json.dumps(extract.generation(c.num_ctx, c.think), separators=(",", ":")))'], { cwd: APP, encoding: 'utf8' });
+    const [version, promptSha, model, pin, generation] = out.stdout.trim().split('\n');
     // The collector's current build must be the benchmarked, publishable one; changing the prompt or pin needs a new benchmark entry.
     const entry = PUBLISHABLE_EXTRACTORS.find((candidate) => candidate.version === version && candidate.promptSha256 === promptSha && candidate.model === model);
     expect(entry).toBeDefined();
+    // The collector's default generation settings are the benchmarked ones.
+    expect(entry?.generation).toBe(generation);
     // The collector's pin selects the benchmarked build, and the entry's full digest is the one the benchmark recorded.
     expect(entry?.modelDigest.startsWith(pin as string)).toBe(true);
     // The acceptance rules, extractor schema and options are pinned too: changing them needs a re-run benchmark and a

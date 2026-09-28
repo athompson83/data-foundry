@@ -67,12 +67,19 @@ def prompt_sha256() -> str:
     return hashlib.sha256((EXTRACTOR_VERSION + "\n" + SYSTEM_PROMPT).encode()).hexdigest()
 
 
-def build_id(model: str, model_digest: str) -> str:
+def generation(num_ctx: int, think: bool | str) -> dict:
+    """The output-affecting generation settings, as reported to the intake (it keys and publishes by them)."""
+    return {"num_ctx": num_ctx, "think": think}
+
+
+def build_id(model: str, model_digest: str, num_ctx: int = 8192, think: bool | str = False) -> str:
     """The complete extractor build: version, model name, pinned model build and prompt hash (the tuple the server
     keys and publishes by). Local checkpoints, candidates and
     upload idempotency are keyed by it, so changing the model (or prompt) re-extracts under its own key instead of
     being skipped or answered with another build's result (the server keys its rows the same way)."""
-    return f"{EXTRACTOR_VERSION}|{model}|{model_digest.removeprefix('sha256:')[:12]}|{prompt_sha256()[:16]}"
+    base = f"{EXTRACTOR_VERSION}|{model}|{model_digest.removeprefix('sha256:')[:12]}|{prompt_sha256()[:16]}"
+    # The benchmarked settings keep the short form; any other settings are their own build.
+    return base if (num_ctx, think) == (8192, False) else f"{base}|ctx{num_ctx}-think{str(think).lower()}"
 
 
 @dataclass

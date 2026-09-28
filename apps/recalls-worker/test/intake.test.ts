@@ -43,7 +43,7 @@ const CPSC = {
 const ADMIN = 'a'.repeat(40);
 const NOW = '2026-09-28T12:00:00.000Z';
 // The benchmarked, publishable build (PUBLISHABLE_EXTRACTORS).
-const EXTRACTOR = { version: 'cpsc-product-identifiers@1/prompt-3', model: 'qwen3.5:4b', model_digest: 'sha256:2a654d98e6fba55d452b7043684e9b57a947e393bbffa62485a7aac05ee4eefd', prompt_sha256: 'e4a912fb71b2f0edbcb5929cd483cad57b7a8e9ebc419ea3fef3f3e19ee69d53' };
+const EXTRACTOR = { version: 'cpsc-product-identifiers@1/prompt-3', model: 'qwen3.5:4b', model_digest: 'sha256:2a654d98e6fba55d452b7043684e9b57a947e393bbffa62485a7aac05ee4eefd', prompt_sha256: 'e4a912fb71b2f0edbcb5929cd483cad57b7a8e9ebc419ea3fef3f3e19ee69d53', generation: { num_ctx: 8192, think: false } };
 
 function makeEnv(overrides: Partial<Env> = {}): Env {
   const { db } = createTestDatabase();
@@ -65,7 +65,7 @@ async function rawSha(env: Env, id = 'cpsc-15034'): Promise<string> {
 }
 
 let counter = 0;
-async function submit(env: Env, token: string, notices: unknown[], idempotencyKey?: string, extractor = EXTRACTOR): Promise<Response> {
+async function submit(env: Env, token: string, notices: unknown[], idempotencyKey?: string, extractor: Record<string, unknown> = EXTRACTOR): Promise<Response> {
   const body = JSON.stringify({ task: 'cpsc-product-identifiers@1', extractor, notices });
   return call(env, '/v1/intake/product-recalls/identifiers', {
     method: 'POST',
@@ -196,6 +196,13 @@ describe('extraction intake', () => {
     expect((await env.DB.prepare('SELECT response FROM extraction_submission WHERE idempotency_key = ?').bind(stale).first<{ response: string | null }>())?.response).toContain('"accepted":1');
   });
 
+  it('requires the extractor to report its generation settings', async () => {
+    const { env, token, sha } = await seeded();
+    const { generation: _omitted, ...withoutGeneration } = EXTRACTOR;
+    const response = await submit(env, token, [{ recall_id: 'cpsc-15034', raw_sha256: sha, candidates: [CANDIDATES[0]] }], undefined, withoutGeneration);
+    expect(response.status).toBe(400);
+  });
+
   it('reports published only for an allowlisted build while the gate is open', async () => {
     const { env, token, sha } = await seeded({ EXTRACTED_IDENTIFIERS_OPEN: '1' });
     const notices = [{ recall_id: 'cpsc-15034', raw_sha256: sha, candidates: [CANDIDATES[0]] }];
@@ -295,6 +302,9 @@ describe('publication of extracted identifiers', () => {
       // The benchmarked version and prompt with a different model, or a digest that only shares the pinned prefix.
       { ...EXTRACTOR, model: 'gpt-oss:20b' },
       { ...EXTRACTOR, model_digest: `sha256:2a654d98e6fb${'0'.repeat(52)}` },
+      // The benchmarked build run with other generation settings (collector.json overrides).
+      { ...EXTRACTOR, generation: { num_ctx: 4096, think: false } },
+      { ...EXTRACTOR, generation: { num_ctx: 8192, think: 'low' } },
     ]) {
       const stored = (await (await submit(env, token, [{ recall_id: 'cpsc-15034', raw_sha256: sha, candidates: [CANDIDATES[0]] }], undefined, extractor)).json()) as { accepted: number };
       expect(stored.accepted).toBe(1); // kept as evidence

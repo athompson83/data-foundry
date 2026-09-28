@@ -62,7 +62,8 @@ recalls on the recalls Worker); [`docs/sources/cpsc-recalls-rights-record-202609
    - They appear as `extracted_identifiers`, with method `local-model-proposal+deterministic-verification`, and as
      the lookup match kind `extracted_model`. They are never mixed into the agency parser's `identifiers`.
    - Only rows from a **publishable extractor build** are served: the exact extractor version, model name, full model
-     digest and prompt hash listed in `PUBLISHABLE_EXTRACTORS` (`apps/recalls-worker/src/intake.ts`), each with its benchmark.
+     digest, prompt hash and generation settings (`num_ctx`, `think`, reported by the collector) listed in
+     `PUBLISHABLE_EXTRACTORS` (`apps/recalls-worker/src/intake.ts`), each with its benchmark.
      Output from any other build is stored as evidence but never served, and rows are keyed by the whole build, so
      one build never shadows another. A CI test requires the collector's own build to be on that list.
    - The build also includes the **extraction-behaviour fingerprint** (`EXTRACTION_BEHAVIOUR_SHA256`,

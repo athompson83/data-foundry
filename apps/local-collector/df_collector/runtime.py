@@ -115,7 +115,7 @@ class Collector:
         self.model_identity = None
         self._last_sweep = 0.0
         # Local rows are keyed by the whole build (column extractor_version holds it), not by the version string.
-        self.build = extract.build_id(config.model, config.model_digest)
+        self.build = extract.build_id(config.model, config.model_digest, config.num_ctx, config.think)
 
     # -- helpers -------------------------------------------------------------------------------------------------
 
@@ -371,7 +371,7 @@ class Collector:
                 identity = self.model_identity
                 payload = {
                     "task": TASK,
-                    "extractor": {"version": extract.EXTRACTOR_VERSION, "model": self.config.model, "model_digest": identity.digest if identity else self.config.model_digest, "prompt_sha256": extract.prompt_sha256()},
+                    "extractor": {"version": extract.EXTRACTOR_VERSION, "model": self.config.model, "model_digest": identity.digest if identity else self.config.model_digest, "prompt_sha256": extract.prompt_sha256(), "generation": extract.generation(self.config.num_ctx, self.config.think)},
                     "notices": [{"recall_id": row["recall_id"], "raw_sha256": row["raw_sha256"], "candidates": [{"value": p.value, "field": p.field, "label": p.label} for p in accepted]}],
                     "collector": COLLECTOR_ID,
                 }
@@ -414,6 +414,7 @@ class Collector:
             and item.get("model") == self.config.model
             and digest.startswith(self.config.model_digest.removeprefix("sha256:"))
             and item.get("prompt_sha256") == extract.prompt_sha256()
+            and item.get("generation") == json.dumps(extract.generation(self.config.num_ctx, self.config.think), separators=(",", ":"))
         )
 
     def verify_queryable(self, task: policy_mod.TaskPolicy, limit: int = 5) -> int:

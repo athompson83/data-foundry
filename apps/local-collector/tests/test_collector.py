@@ -944,7 +944,7 @@ class CodexRegressionsRound8(unittest.TestCase):
             with state.tx() as db:
                 for build in (collector.build, "experimental-build"):
                     db.execute("INSERT INTO candidate (recall_id, raw_sha256, extractor_version, value, field, label, local_decision, server_status, updated_at) VALUES ('cpsc-15034', 'r', ?, 'SA904', 'Description', 'item', 'accepted', 'accepted', 0)", (build,))
-            mine = {"key": "SA904", "extractor_version": extract.EXTRACTOR_VERSION, "model": config.model, "model_digest": "sha256:" + config.model_digest + "a" * 52, "prompt_sha256": extract.prompt_sha256()}
+            mine = {"key": "SA904", "extractor_version": extract.EXTRACTOR_VERSION, "model": config.model, "model_digest": "sha256:" + config.model_digest + "a" * 52, "prompt_sha256": extract.prompt_sha256(), "generation": '{"num_ctx":8192,"think":false}'}
             served = [dict(mine, prompt_sha256="f" * 64)]  # the same key, served from another build
             collector.api_get = lambda task, path, params: {"data": {"provenance": {"raw_sha256": "r"}, "extracted_identifiers": served}}
             task = POLICY.task(TASK)
@@ -1096,3 +1096,20 @@ class CodexRegressionsRound12(unittest.TestCase):
             self.assertTrue(Uploader(config, state, POLICY, opener=FakeOpener([answer])).send_one())
             rows = {r["raw_sha256"]: r["server_status"] for r in state.q("SELECT raw_sha256, server_status FROM candidate")}
             self.assertEqual(rows, {"old": "rejected", "new": None})
+
+
+class CodexRegressionsRound13(unittest.TestCase):
+    def test_generation_settings_are_part_of_the_build_and_reported_to_the_intake(self):
+        self.assertEqual(extract.build_id("qwen3.5:4b", "2a654d98e6fb"), extract.build_id("qwen3.5:4b", "2a654d98e6fb", 8192, False))
+        self.assertNotEqual(extract.build_id("qwen3.5:4b", "2a654d98e6fb"), extract.build_id("qwen3.5:4b", "2a654d98e6fb", 4096, False))
+        self.assertNotEqual(extract.build_id("qwen3.5:4b", "2a654d98e6fb"), extract.build_id("qwen3.5:4b", "2a654d98e6fb", 8192, "low"))
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Config(data_dir=tmp, num_ctx=4096)
+            state = State(config.db_path)
+            client = FakeClient(json.dumps({"identifiers": [{"value": "SA904", "label": "item", "field": "Description"}]}))
+            collector = Collector(config, state, client=client, policy=POLICY)
+            self.assertTrue(collector.build.endswith("|ctx4096-thinkfalse"))
+            collector.queue_documents([{"id": "cpsc-15034", "raw": RECORD, "provenance": {"raw_sha256": "a" * 64}}])
+            collector.extract_one()
+            payload = json.loads(state.one("SELECT payload FROM outbox")["payload"])
+            self.assertEqual(payload["extractor"]["generation"], {"num_ctx": 4096, "think": False})

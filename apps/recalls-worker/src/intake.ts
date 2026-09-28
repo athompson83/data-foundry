@@ -44,35 +44,38 @@ export const INTAKE_SOURCES: Readonly<Record<string, { readonly idPrefix: string
  * (tooling/scripts/extraction-behaviour.ts). Stamped on every accepted row; CI fails when those files change until
  * the benchmark is re-run and this constant and the entry below are updated.
  */
-export const EXTRACTION_BEHAVIOUR_SHA256 = 'bb9a65a6f4217c44a76307a3006d7143de51dd2d2a7ce0cd922e033ceb058a72';
+export const EXTRACTION_BEHAVIOUR_SHA256 = '1fca985a4b222a6e2264a49df60f68506018eb0f8148bb586134a4a2d0d0d6c5';
 
-export const PUBLISHABLE_EXTRACTORS: ReadonlyArray<{ readonly version: string; readonly model: string; readonly modelDigest: string; readonly promptSha256: string; readonly behaviourSha256: string; readonly benchmark: string }> = [
+export const PUBLISHABLE_EXTRACTORS: ReadonlyArray<{ readonly version: string; readonly model: string; readonly modelDigest: string; readonly promptSha256: string; readonly generation: string; readonly behaviourSha256: string; readonly benchmark: string }> = [
   {
     version: 'cpsc-product-identifiers@1/prompt-3',
     model: 'qwen3.5:4b',
     // The full manifest digest the benchmark ran on (apps/local-collector/benchmark/data/model.json), without "sha256:".
     modelDigest: '2a654d98e6fba55d452b7043684e9b57a947e393bbffa62485a7aac05ee4eefd',
     promptSha256: 'e4a912fb71b2f0edbcb5929cd483cad57b7a8e9ebc419ea3fef3f3e19ee69d53',
+    // The generation settings the benchmark ran with (run_benchmark.py defaults), as the collector reports them.
+    generation: '{"num_ctx":8192,"think":false}',
     // The acceptance rules re-scored from the stored predictions (run_benchmark.py --score-only): identical report.
-    behaviourSha256: 'bb9a65a6f4217c44a76307a3006d7143de51dd2d2a7ce0cd922e033ceb058a72',
+    behaviourSha256: '1fca985a4b222a6e2264a49df60f68506018eb0f8148bb586134a4a2d0d0d6c5',
     benchmark: 'apps/local-collector/benchmark/RESULTS.md (held-out precision 38/38, 0/18 negative false positives)',
   },
 ];
 
 /** Whether a submitted extractor tuple is exactly a publishable build (the JavaScript twin of the SQL clause below). */
-export function isPublishableExtractor(extractor: { readonly version: string; readonly model: string; readonly model_digest: string; readonly prompt_sha256: string }): boolean {
+export function isPublishableExtractor(extractor: { readonly version: string; readonly model: string; readonly model_digest: string; readonly prompt_sha256: string; readonly generation: string }): boolean {
   const digest = extractor.model_digest.replace(/^sha256:/, '');
   // Rows are stamped with this Worker's behaviour fingerprint, so a build is publishable only under the behaviour it was benchmarked with.
-  return PUBLISHABLE_EXTRACTORS.some((entry) => entry.version === extractor.version && entry.model === extractor.model && entry.modelDigest === digest && entry.promptSha256 === extractor.prompt_sha256 && entry.behaviourSha256 === EXTRACTION_BEHAVIOUR_SHA256);
+  return PUBLISHABLE_EXTRACTORS.some((entry) => entry.version === extractor.version && entry.model === extractor.model && entry.modelDigest === digest && entry.promptSha256 === extractor.prompt_sha256 && entry.generation === extractor.generation && entry.behaviourSha256 === EXTRACTION_BEHAVIOUR_SHA256);
 }
 
 /** SQL condition (on alias `e`) matching rows produced by a publishable extractor build, with its bind values. */
 export function publishableExtractorClause(): { sql: string; binds: string[] } {
   if (PUBLISHABLE_EXTRACTORS.length === 0) return { sql: '0', binds: [] };
   return {
-    // The whole tuple, compared exactly: version, model name, full model digest, prompt hash and behaviour fingerprint.
-    sql: `(${PUBLISHABLE_EXTRACTORS.map(() => "(e.extractor_version = ? AND e.model = ? AND replace(e.model_digest, 'sha256:', '') = ? AND e.prompt_sha256 = ? AND e.behaviour_sha256 = ?)").join(' OR ')})`,
-    binds: PUBLISHABLE_EXTRACTORS.flatMap((entry) => [entry.version, entry.model, entry.modelDigest, entry.promptSha256, entry.behaviourSha256]),
+    // The whole tuple, compared exactly: version, model name, full model digest, prompt hash, generation settings and
+    // behaviour fingerprint.
+    sql: `(${PUBLISHABLE_EXTRACTORS.map(() => "(e.extractor_version = ? AND e.model = ? AND replace(e.model_digest, 'sha256:', '') = ? AND e.prompt_sha256 = ? AND e.generation = ? AND e.behaviour_sha256 = ?)").join(' OR ')})`,
+    binds: PUBLISHABLE_EXTRACTORS.flatMap((entry) => [entry.version, entry.model, entry.modelDigest, entry.promptSha256, entry.generation, entry.behaviourSha256]),
   };
 }
 
@@ -150,6 +153,17 @@ interface Extractor {
   readonly model: string;
   readonly model_digest: string;
   readonly prompt_sha256: string;
+  /** The collector's effective output-affecting generation settings, canonical JSON: {"num_ctx":…,"think":…}. */
+  readonly generation: string;
+}
+
+/** Canonical form of the output-affecting generation settings the collector reports (num_ctx and think). */
+function canonicalGeneration(value: unknown): string | null {
+  if (!value || typeof value !== 'object') return null;
+  const { num_ctx: ctx, think } = value as Record<string, unknown>;
+  if (typeof ctx !== 'number' || !Number.isInteger(ctx) || ctx < 512 || ctx > 262_144) return null;
+  if (typeof think !== 'boolean' && !(typeof think === 'string' && ['low', 'medium', 'high'].includes(think))) return null;
+  return JSON.stringify({ num_ctx: ctx, think });
 }
 
 const str = (value: unknown, pattern: RegExp): value is string => typeof value === 'string' && pattern.test(value);
@@ -162,6 +176,8 @@ function parseBody(body: unknown): { extractor: Extractor; notices: NoticeInput[
   if (!e || !str(e['version'], /^[\w.@/:+-]{3,100}$/) || !str(e['model'], /^[\w.:/-]{2,100}$/) || !str(e['model_digest'], /^(?:sha256:)?[0-9a-f]{12,64}$/) || !str(e['prompt_sha256'], /^[0-9a-f]{64}$/)) {
     throw new BadRequest('extractor must have version, model, model_digest and prompt_sha256');
   }
+  const generation = canonicalGeneration(e['generation']);
+  if (generation === null) throw new BadRequest('extractor.generation must give num_ctx (an integer) and think (a boolean or low|medium|high)');
   if (/cloud/i.test(e['model'] as string)) throw new BadRequest('cloud models are not accepted');
   if (!Array.isArray(notices) || notices.length === 0 || notices.length > MAX_INTAKE_NOTICES) throw new BadRequest(`notices must be an array of 1–${MAX_INTAKE_NOTICES}`);
   const parsed = notices.map((notice): NoticeInput => {
@@ -178,7 +194,7 @@ function parseBody(body: unknown): { extractor: Extractor; notices: NoticeInput[
     });
     return { recall_id: n['recall_id'] as string, raw_sha256: n['raw_sha256'] as string, candidates };
   });
-  return { extractor: { version: e['version'] as string, model: e['model'] as string, model_digest: e['model_digest'] as string, prompt_sha256: e['prompt_sha256'] as string }, notices: parsed };
+  return { extractor: { version: e['version'] as string, model: e['model'] as string, model_digest: e['model_digest'] as string, prompt_sha256: e['prompt_sha256'] as string, generation }, notices: parsed };
 }
 
 type CandidateStatus = 'accepted' | 'replayed' | 'duplicate_of_agency_fact' | 'rejected';
@@ -240,9 +256,9 @@ async function checkNotice(db: D1Database, bucket: R2Bucket, notice: NoticeInput
     }
     seen.add(decision.key);
     const inserted = await db
-      .prepare(`INSERT INTO product_recall_extracted_key (recall_id, raw_sha256, extractor_version, kind, value_key, printed, label, source_field, span_start, span_end, model, model_digest, prompt_sha256, behaviour_sha256, credential_id, status, submitted_at)
-        VALUES (?, ?, ?, 'model', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'accepted', ?) ON CONFLICT DO NOTHING RETURNING recall_id`)
-      .bind(row.id, row.raw_sha256, extractor.version, decision.key, candidate.value, decision.label, decision.field, decision.start, decision.end, extractor.model, extractor.model_digest, extractor.prompt_sha256, EXTRACTION_BEHAVIOUR_SHA256, credential.id, now)
+      .prepare(`INSERT INTO product_recall_extracted_key (recall_id, raw_sha256, extractor_version, kind, value_key, printed, label, source_field, span_start, span_end, model, model_digest, prompt_sha256, generation, behaviour_sha256, credential_id, status, submitted_at)
+        VALUES (?, ?, ?, 'model', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'accepted', ?) ON CONFLICT DO NOTHING RETURNING recall_id`)
+      .bind(row.id, row.raw_sha256, extractor.version, decision.key, candidate.value, decision.label, decision.field, decision.start, decision.end, extractor.model, extractor.model_digest, extractor.prompt_sha256, extractor.generation, EXTRACTION_BEHAVIOUR_SHA256, credential.id, now)
       .first<{ recall_id: string }>();
     results.push({ ...base, status: inserted ? 'accepted' : 'replayed' });
   }
