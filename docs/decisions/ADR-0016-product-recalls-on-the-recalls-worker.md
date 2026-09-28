@@ -32,6 +32,8 @@ The remaining members (EU Safety Gate, UK OPSS, ACCC, MBIE, SaferProducts incide
 
    Notice pages are indexable only for CPSC notices with a substantive description and hazard statement. Health Canada index-only pages are served `noindex` (rule 8).
 
+   **IndexNow.** Changed, indexable notice pages (the rows the product sitemap lists) are pinged to IndexNow after every scheduled sync, on the same settle and retry rules as ADR-0015, under their own R2 watermark `state/indexnow-product-recalls-watermark.json`, so one dataset's throttled batch never holds back or skips the other's. The pings run only while the dataset is served (`PRODUCT_RECALLS_OPEN="1"` and its kill switch off), independently of FDA's `SOURCE_KILL_SWITCH`. The pages that existed before this feed (8,868 indexable notices) were submitted once by hand on 2026-09-28 (HTTP 200).
+
    **Channels.** Web and the direct-customer API only, as for FDA Recall Intelligence (ADR-0015 creates no `mcp.data.aroqon.com`). MCP/agent access, RapidAPI and bulk export are rights-permitted but not enabled (both rights records), and each is a separate, independently gated channel decision (AGENTS.md: "one truth does not mean one permission"). When the MCP channel is opened for the recall datasets, its tools must read this dataset's query layer and meet the API/MCP parity tests before it is enabled; until then there is no MCP surface to be out of parity with.
 4. **Commerce:** the existing keys and plan ladder cover the dataset. There is no repricing and no new Stripe objects.
 5. **Gates:**

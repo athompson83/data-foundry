@@ -448,11 +448,11 @@ const ERRORS_REFERENCE = `
 export const INDEXNOW_ENDPOINT = 'https://api.indexnow.org/indexnow';
 export const INDEXNOW_BATCH = 10_000;
 
-export function indexNowBodies(ctx: PageContext, key: string, recallNumbers: readonly string[]): string[] {
+export function indexNowBodies(ctx: PageContext, key: string, ids: readonly string[], pathPrefix = '/recalls/'): string[] {
   const host = new URL(ctx.publicOrigin).host;
   const bodies: string[] = [];
-  for (let index = 0; index < recallNumbers.length; index += INDEXNOW_BATCH) {
-    const urlList = recallNumbers.slice(index, index + INDEXNOW_BATCH).map((number) => `${ctx.publicOrigin}/recalls/${encodeURIComponent(number)}`);
+  for (let index = 0; index < ids.length; index += INDEXNOW_BATCH) {
+    const urlList = ids.slice(index, index + INDEXNOW_BATCH).map((id) => `${ctx.publicOrigin}${pathPrefix}${encodeURIComponent(id)}`);
     bodies.push(JSON.stringify({ host, key, keyLocation: `${ctx.publicOrigin}/${key}.txt`, urlList }));
   }
   return bodies;
@@ -471,13 +471,34 @@ export const INDEXNOW_SETTLE_MS = (EDGE_TTL_SECONDS + 300) * 1000;
 export const INDEXNOW_WATERMARK_KEY = 'state/indexnow-watermark.json';
 
 /**
- * Ping IndexNow with the indexable recall pages changed since the last fully
+ * One dataset's IndexNow feed: which rows are announced, under which page
+ * path, and where its own watermark lives (so one dataset's failed batch never
+ * holds back, or skips, another's).
+ */
+export interface IndexNowFeed {
+  readonly watermarkKey: string;
+  /** Selects `id` for indexable rows with `changed_at >= ?1 AND changed_at < ?2`. */
+  readonly changedSql: string;
+  readonly pathPrefix: string;
+  readonly routable: (id: string) => boolean;
+}
+
+export const FDA_INDEXNOW_FEED: IndexNowFeed = {
+  watermarkKey: INDEXNOW_WATERMARK_KEY,
+  changedSql: `SELECT recall_number AS id FROM recall WHERE changed_at >= ? AND changed_at < ? AND ${INDEXABLE_SQL} ORDER BY recall_number`,
+  pathPrefix: '/recalls/',
+  routable: isRoutableRecallNumber,
+};
+
+/**
+ * Ping IndexNow with a feed's indexable pages changed since its last fully
  * accepted submission, up to one edge-cache lifetime before `started`. The
  * watermark only moves forward when every batch is accepted, so a 429 or 5xx is retried
  * on the next scheduled run instead of skipping those pages. Never throws:
  * discovery must not fail a sync.
  */
-export async function pingChangedRecalls(
+export async function pingChanged(
+  feed: IndexNowFeed,
   ctx: PageContext,
   db: D1Database,
   bucket: R2Bucket,
@@ -490,29 +511,38 @@ export async function pingChangedRecalls(
   if (!key) return { since: settled, submitted: 0, status: [], advanced: false };
   let since = settled;
   try {
-    const stored = await bucket.get(INDEXNOW_WATERMARK_KEY);
+    const stored = await bucket.get(feed.watermarkKey);
     const previous = stored ? (JSON.parse(await stored.text()) as { since?: unknown }).since : undefined;
     const usable = typeof previous === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(previous) && !Number.isNaN(Date.parse(previous)) && previous <= settled;
     if (usable) since = previous;
     // With no usable watermark (first deploy, deleted, malformed or in the
     // future), record this run's boundary before submitting, so a failed
     // submission is retried from it.
-    else await bucket.put(INDEXNOW_WATERMARK_KEY, JSON.stringify({ since }), { httpMetadata: { contentType: 'application/json' } });
-    const rows = await db
-      .prepare(`SELECT recall_number FROM recall WHERE changed_at >= ? AND changed_at < ? AND ${INDEXABLE_SQL} ORDER BY recall_number`)
-      .bind(since, settled)
-      .all<{ recall_number: string }>();
-    const numbers = rows.results.map((row) => row.recall_number).filter(isRoutableRecallNumber);
+    else await bucket.put(feed.watermarkKey, JSON.stringify({ since }), { httpMetadata: { contentType: 'application/json' } });
+    const rows = await db.prepare(feed.changedSql).bind(since, settled).all<{ id: string }>();
+    const ids = rows.results.map((row) => row.id).filter(feed.routable);
     const status: number[] = [];
-    for (const body of indexNowBodies(ctx, key, numbers)) {
+    for (const body of indexNowBodies(ctx, key, ids, feed.pathPrefix)) {
       const response = await fetcher(INDEXNOW_ENDPOINT, { method: 'POST', headers: { 'content-type': 'application/json; charset=utf-8' }, body });
       status.push(response.status);
     }
     const advanced = status.every((code) => code >= 200 && code < 300);
-    if (advanced) await bucket.put(INDEXNOW_WATERMARK_KEY, JSON.stringify({ since: settled }), { httpMetadata: { contentType: 'application/json' } });
-    return { since, submitted: numbers.length, status, advanced };
+    if (advanced) await bucket.put(feed.watermarkKey, JSON.stringify({ since: settled }), { httpMetadata: { contentType: 'application/json' } });
+    return { since, submitted: ids.length, status, advanced };
   } catch (error) {
     console.error('indexnow_error', error instanceof Error ? error.message : String(error));
     return { since, submitted: 0, status: [], advanced: false };
   }
+}
+
+/** The FDA recall pages' feed (see `pingChanged`). */
+export function pingChangedRecalls(
+  ctx: PageContext,
+  db: D1Database,
+  bucket: R2Bucket,
+  key: string | undefined,
+  started: string,
+  fetcher: typeof fetch = fetch,
+): Promise<{ since: string; submitted: number; status: number[]; advanced: boolean }> {
+  return pingChanged(FDA_INDEXNOW_FEED, ctx, db, bucket, key, started, fetcher);
 }
