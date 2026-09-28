@@ -1,5 +1,23 @@
 # Progress
 
+## Current session — 2026-09-28 (evening): PR #73 release and product-recall acceptance
+
+Full record: [`docs/evidence/recalls-release-20260928.md`](docs/evidence/recalls-release-20260928.md).
+
+- **Source merged.** PR #73 (product-recall IndexNow feed) was squash-merged as `efc1121`, after required CI passed on its exact head `62451d1` and the Codex review came back clean with no open threads. CI was not rerun and no duplicate review was requested.
+- **Production deploy: not done.** This cloud session has no Cloudflare token, and the Cloudflare connector cannot deploy. The live bundle (recorded version `40ea452b`) was read through the connector: it has the FDA IndexNow feed but **not** the product-recall feed. The new path is therefore merged but not deployed, and it has never run on schedule. Owner action `UA-015`.
+- **Keyless live checks passed** on the current version:
+  - public pages, sitemap, `llms.txt`, robots and the IndexNow key file answer 200;
+  - data endpoints answer 401 without a key or with a bad key;
+  - stats show CPSC 10,027 and Health Canada 5,206 notices with 343 links, and both synced at 12:17 UTC;
+  - the live OpenAPI validates with 0 errors.
+- **Authenticated product-recall acceptance: not passed.** Following the FDA procedure, an internal customer `acceptance-20260928` and a hashed key were written to production D1. Every authenticated call returned 401 `invalid_key`. The permission check denied reading the key-handling source, so the cause was not diagnosed and no further guesses were made. The key was revoked and the customer canceled (read back, 0 usage rows). The revoked key still returns 401, but because it never authenticated, that proves nothing about revocation. Both product-recall members stay `BUILDING`, and the site sample stays labelled as parser output.
+- **Purchase flow.** Read-only Stripe on the live account: the webhook is enabled for 4 events, there are 0 subscriptions, and all 10 live Checkout sessions are unpaid. A live buyer journey has never completed. The only end-to-end proof is the 2026-09-26 sandbox run. There is no revenue.
+- **Channels.**
+  - RapidAPI: a listing package was prepared ([`rapidapi-recalls-listing.md`](docs/owner-actions/rapidapi-recalls-listing.md)). It is not publishable, because the recalls Worker has no RapidAPI proxy adapter and ADR-0016 leaves the channel not enabled.
+  - Pay Per Crawl: unknown. There was no zone-level access this session, and the last check (2026-09-16) found it in closed beta (`UA-008`).
+  - Outreach: drafts written, none sent ([`recalls-outreach-drafts.md`](docs/owner-actions/recalls-outreach-drafts.md)).
+
 ## Current session — 2026-09-28 (continued): production and revenue-readiness check
 
 - **Owner direction.** "Make sure this is fully deployed to production and everything is done that is needed to start earning revenue."
