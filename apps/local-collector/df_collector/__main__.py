@@ -60,12 +60,57 @@ def run_dir(config: Config) -> Path:
     return path
 
 
+class ProcessLock:
+    """An exclusive OS file lock held for a process's lifetime. The OS releases it when the process dies, however it
+    dies, so a stale PID file or a reused PID never makes a dead collector (or uploader) look alive."""
+
+    def __init__(self, path: Path):
+        self.path = path
+        self.handle = None
+
+    def acquire(self) -> bool:
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        handle = open(self.path, "a+b")
+        try:
+            if os.name == "nt":
+                import msvcrt
+
+                handle.seek(0)
+                msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
+            else:
+                import fcntl
+
+                fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except OSError:
+            handle.close()
+            return False
+        self.handle = handle
+        return True
+
+    def release(self) -> None:
+        if self.handle is not None:
+            self.handle.close()  # closing the handle releases the lock
+            self.handle = None
+
+
+def lock_held(path: Path) -> bool:
+    """Whether a live process holds the lock at path."""
+    probe = ProcessLock(path)
+    if probe.acquire():
+        probe.release()
+        return False
+    return True
+
+
 def running_pid(config: Config) -> int | None:
-    try:
-        pid = int((run_dir(config) / "collector.pid").read_text())
-    except (OSError, ValueError):
+    """The running collector's PID (0 when it holds the lock but its PID file is unreadable), or None."""
+    rd = run_dir(config)
+    if not lock_held(rd / "collector.lock"):
         return None
-    return pid if pid_alive(pid) else None
+    try:
+        return int((rd / "collector.pid").read_text())
+    except (OSError, ValueError):
+        return 0
 
 
 def hardware() -> dict:
@@ -163,18 +208,14 @@ def cmd_set_secret(config: Config, name: str) -> int:
 
 
 def reap_leftover_uploader(rd: Path, wait_s: float = 90.0, sleep=time.sleep) -> bool:
-    """True once no uploader recorded in the run directory is alive (signalling it through the stop file)."""
-    try:
-        pid = int((rd / "uploader.pid").read_text())
-    except (OSError, ValueError):
-        return True
-    if not pid_alive(pid):
+    """True once no uploader holds its lock in the run directory (signalling it through the stop file)."""
+    if not lock_held(rd / "uploader.lock"):
         (rd / "uploader.pid").unlink(missing_ok=True)
         return True
     (rd / "stop").touch()
     waited = 0.0
     while waited < wait_s:
-        if not pid_alive(pid):
+        if not lock_held(rd / "uploader.lock"):
             (rd / "uploader.pid").unlink(missing_ok=True)
             return True
         sleep(1)
@@ -238,10 +279,11 @@ def cmd_run(config: Config, config_path: str | None) -> int:
     from .dashboard import Dashboard
     from .runtime import Collector
 
-    if running_pid(config):
+    rd = run_dir(config)
+    lock = ProcessLock(rd / "collector.lock")
+    if not lock.acquire():
         print(f"already running (pid {running_pid(config)})")
         return 0
-    rd = run_dir(config)
     stop_file = rd / "stop"
     # An uploader left by a collector that was killed outright must be gone before the stop signal is cleared:
     # signal it, wait for it, and refuse to start (the next scheduled start retries) if it is still running.
@@ -301,11 +343,11 @@ def cmd_run(config: Config, config_path: str | None) -> int:
 def cmd_stop(config: Config) -> int:
     pid = running_pid(config)
     (run_dir(config) / "stop").touch()
-    if not pid:
+    if pid is None:
         print("not running")
         return 0
     for _ in range(120):
-        if not pid_alive(pid):
+        if running_pid(config) is None:
             print("stopped")
             return 0
         time.sleep(1)
@@ -315,7 +357,7 @@ def cmd_stop(config: Config) -> int:
 
 def cmd_purge(config: Config, everything: bool, remove_model: bool, force: bool) -> int:
     """Delete local data once Data Foundry holds it. Refuses while running or while uploads are still owed."""
-    if running_pid(config):
+    if running_pid(config) is not None:
         print("stop the collector first (df_collector stop)", file=sys.stderr)
         return 1
     report: dict = {"data_dir": str(config.root)}
@@ -383,8 +425,15 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "uploader":
         from .runtime import uploader_main
 
-        parent = int(os.environ.get("DF_COLLECTOR_PARENT_PID", "0") or 0)
-        uploader_main(config, run_dir(config) / "stop", parent_alive=(lambda: pid_alive(parent)) if parent else None)
+        rd = run_dir(config)
+        # One uploader at a time: a second one (a leftover, or a manual start) exits at once.
+        lock = ProcessLock(rd / "uploader.lock")
+        if not lock.acquire():
+            print("an uploader is already running", file=sys.stderr)
+            return 1
+        started_by_collector = bool(os.environ.get("DF_COLLECTOR_PARENT_PID"))
+        # The parent collector is judged by its lock, not its PID (a PID can be reused once it exits).
+        uploader_main(config, rd / "stop", parent_alive=(lambda: lock_held(rd / "collector.lock")) if started_by_collector else None)
         return 0
     if args.command == "stop":
         return cmd_stop(config)

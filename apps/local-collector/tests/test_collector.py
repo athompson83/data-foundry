@@ -1184,10 +1184,12 @@ class CodexRegressionsRound15(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as tmp:
             rd = Path(tmp)
-            (rd / "uploader.pid").write_text(str(os.getpid()))  # alive for the whole test
+            (rd / "uploader.pid").write_text(str(os.getpid()))
+            leftover = cli.ProcessLock(rd / "uploader.lock")
+            self.assertTrue(leftover.acquire())  # a live uploader holds its lock
             self.assertFalse(cli.reap_leftover_uploader(rd, wait_s=2, sleep=lambda s: None))
             self.assertTrue((rd / "stop").exists())  # it was told to stop
-            (rd / "uploader.pid").write_text("999999999")  # gone
+            leftover.release()  # it exits
             self.assertTrue(cli.reap_leftover_uploader(rd, wait_s=2, sleep=lambda s: None))
             self.assertFalse((rd / "uploader.pid").exists())
 
@@ -1252,3 +1254,37 @@ class CodexRegressionsRound17(unittest.TestCase):
         with mock.patch.object(behaviour, "behaviour_sha256", lambda: "f" * 64):
             # A rules-only change (re-scored benchmark, new fingerprint) is a new build: every notice is re-extracted.
             self.assertNotEqual(extract.build_id("qwen3.5:4b", "2a654d98e6fb"), current)
+
+
+class CodexRegressionsRound18(unittest.TestCase):
+    def test_a_stale_pid_file_of_a_reused_pid_does_not_look_like_a_running_collector(self):
+        import os
+
+        from df_collector import __main__ as cli
+
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Config(data_dir=tmp)
+            rd = cli.run_dir(config)
+            (rd / "collector.pid").write_text(str(os.getpid()))  # a live process, but not a collector
+            self.assertIsNone(cli.running_pid(config))
+            lock = cli.ProcessLock(rd / "collector.lock")
+            self.assertTrue(lock.acquire())
+            self.assertEqual(cli.running_pid(config), os.getpid())
+            self.assertFalse(cli.ProcessLock(rd / "collector.lock").acquire())  # a second collector is refused
+            lock.release()
+            self.assertIsNone(cli.running_pid(config))
+
+    def test_only_one_uploader_runs_at_a_time(self):
+        import contextlib
+        import sys as _sys
+        from unittest import mock
+
+        from df_collector import __main__ as cli
+
+        with tempfile.TemporaryDirectory() as tmp:
+            rd = cli.run_dir(Config(data_dir=tmp))
+            held = cli.ProcessLock(rd / "uploader.lock")
+            self.assertTrue(held.acquire())
+            with mock.patch.object(_sys, "argv", ["df_collector", "--data-dir", tmp, "uploader"]), contextlib.redirect_stderr(io.StringIO()):
+                self.assertEqual(cli.main(), 1)
+            held.release()

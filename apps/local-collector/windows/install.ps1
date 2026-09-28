@@ -41,14 +41,25 @@ function Assert-Exit($what) { if ($LASTEXITCODE -ne 0) { throw "$what failed (ex
 Step 'Measuring this computer'
 $cs = Get-CimInstance Win32_ComputerSystem
 $cpu = Get-CimInstance Win32_Processor | Select-Object -First 1
-$drive = Get-PSDrive -Name ($env:LOCALAPPDATA.Substring(0, 1))
+# Free space is measured on the volumes that will hold the data (SQLite, working copies) and the model weights,
+# which differ when -DataDir or OLLAMA_MODELS points to another drive.
+function Get-FreeGB([string]$path) {
+  $root = [System.IO.Path]::GetPathRoot([System.IO.Path]::GetFullPath($path))
+  return @{ root = $root; gb = [math]::Round((New-Object System.IO.DriveInfo($root)).AvailableFreeSpace / 1GB, 1) }
+}
+$ModelDir = if ($env:OLLAMA_MODELS) { $env:OLLAMA_MODELS } else { Join-Path $env:USERPROFILE '.ollama' }
+$dataDrive = Get-FreeGB $DataDir
+$modelDrive = Get-FreeGB $ModelDir
 $hw = [ordered]@{
   os                = (Get-CimInstance Win32_OperatingSystem).Caption
   cpu               = $cpu.Name
   cores             = $cpu.NumberOfCores
   logical_processors = $cpu.NumberOfLogicalProcessors
   ram_total_gb      = [math]::Round($cs.TotalPhysicalMemory / 1GB, 1)
-  disk_free_gb      = [math]::Round($drive.Free / 1GB, 1)
+  data_drive        = $dataDrive.root
+  data_free_gb      = $dataDrive.gb
+  model_drive       = $modelDrive.root
+  model_free_gb     = $modelDrive.gb
   video_adapters    = @(Get-CimInstance Win32_VideoController | ForEach-Object { $_.Name })
   nvidia            = $null
   wsl               = [bool](Get-Command wsl.exe -ErrorAction SilentlyContinue)
@@ -60,7 +71,12 @@ if (Get-Command nvidia-smi.exe -ErrorAction SilentlyContinue) {
 }
 $hw | Format-List | Out-String | Write-Host
 if ($hw.ram_total_gb -lt 8) { Write-Warning 'Less than 8 GB RAM: qwen3.5:4b needs about 4-5 GB while loaded. Expect slow extraction.' }
-if ($hw.disk_free_gb -lt 10) { throw "Only $($hw.disk_free_gb) GB free; the model (3.4 GB) plus evidence needs at least 10 GB." }
+if ($dataDrive.root -eq $modelDrive.root) {
+  if ($dataDrive.gb -lt 10) { throw "Only $($dataDrive.gb) GB free on $($dataDrive.root); the model (3.4 GB) plus the collector's data needs at least 10 GB." }
+} else {
+  if ($modelDrive.gb -lt 4) { throw "Only $($modelDrive.gb) GB free on $($modelDrive.root) (the model store); the model needs at least 4 GB." }
+  if ($dataDrive.gb -lt 7) { throw "Only $($dataDrive.gb) GB free on $($dataDrive.root) (-DataDir); the collector pauses below 5 GB free and may keep up to 2 GB, so it needs at least 7 GB." }
+}
 
 Step 'Python 3.11+'
 function Find-Python {
