@@ -113,6 +113,12 @@ jobs:
             fi
           done
           [[ "$missing" == 0 ]] || exit 1
+          # A pasted secret with a line break or surrounding whitespace breaks every API call
+          # ("invalid header value"). Refuse it by shape; never print or repair it.
+          if [[ "$CLOUDFLARE_API_TOKEN" =~ [[:space:]] ]]; then
+            echo "::error::CLOUDFLARE_API_TOKEN contains whitespace or a line break. Re-save the production environment secret as the single-line token."
+            exit 1
+          fi
           if [[ "$CLOUDFLARE_ACCOUNT_ID" != "$RECALLS_ACCOUNT_ID" ]]; then
             echo "::error::CLOUDFLARE_ACCOUNT_ID is not the recalls account recorded in docs/owner-actions/recalls-operations.md."
             exit 1
