@@ -25,7 +25,7 @@ The token needs Workers Scripts:Edit and D1:Read on account `c2832821a9ab36419cd
 
 ## Production acceptance
 
-The `Recalls production acceptance` workflow (`.github/workflows/recalls-acceptance.yml`) runs `apps/recalls-worker/scripts/acceptance.ts` against production. Dispatch it on `main` with `confirm = accept-recalls`, then approve the environment. It needs the `RECALLS_ADMIN_TOKEN` environment secret, holding the same value as the Worker's `ADMIN_TOKEN`.
+The `Recalls production acceptance` workflow (`.github/workflows/recalls-acceptance.yml`) runs `apps/recalls-worker/scripts/acceptance.ts` against production. Dispatch it on `main` with `confirm = accept-recalls` and `expected_sha` set to the commit the deploy workflow put live, then approve the environment. It checks out that commit, which must be on `main`, and the script refuses to issue a key unless `/admin/version` shows the live version tagged with that commit. Evidence therefore always describes what is serving. It needs the `RECALLS_ADMIN_TOKEN` environment secret, holding the same value as the Worker's `ADMIN_TOKEN`.
 
 The script works on the internal customer `acceptance-20260928`:
 
@@ -40,7 +40,7 @@ The script works on the internal customer `acceptance-20260928`:
   - rejection of missing and unissued keys.
 - **Revocation.** The script always revokes through `POST /admin/revoke-keys`, then proves the key returns 401.
 
-The evidence (statuses, ids, counts and digests) goes to the job log and step summary. An operator holding `ADMIN_TOKEN` can run the same script locally with `ADMIN_TOKEN=… pnpm exec tsx apps/recalls-worker/scripts/acceptance.ts`.
+The evidence (statuses, ids, counts and digests) goes to the job log and step summary. An operator holding `ADMIN_TOKEN` can run the same script locally with `ADMIN_TOKEN=… ACCEPTANCE_EXPECTED_SHA=<live commit> pnpm exec tsx apps/recalls-worker/scripts/acceptance.ts`.
 
 API keys are `rcl_live_` followed by exactly 32 characters from `[A-Za-z0-9]` (`mintApiKey`). The Worker refuses any other shape before looking the key up, so a key must be issued by the Worker and never written into D1 by hand. That shape check is why the hand-written keys of 2026-09-28 were rejected.
 
@@ -52,6 +52,7 @@ All operator endpoints need `Authorization: Bearer $ADMIN_TOKEN`. Without it the
 | --- | --- |
 | `POST /admin/reissue-key?stripe_customer_id=…` | Revokes every key of that customer and returns one new key |
 | `POST /admin/revoke-keys?stripe_customer_id=…` | Revokes every key of that customer. The customer row and usage history are kept |
+| `GET /admin/version` | The serving version's id, tag (the source commit's first 12 characters, set by the deploy workflow) and upload time, from the `CF_VERSION_METADATA` binding |
 | `GET /admin/indexnow-status` | For each feed (`recalls`, `product-recalls`), its R2 watermark and its last scheduled run (`trigger: "scheduled"`, scheduled time, submitted count, statuses, whether the watermark advanced) |
 | `POST /admin/sync?category=…&from=…&to=…` | Manual FDA window sync (not during a migration) |
 

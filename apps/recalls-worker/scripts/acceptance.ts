@@ -10,7 +10,7 @@
  * The evidence returned (and printed by the CLI) holds statuses, ids, counts and
  * digests only. Run from the `recalls-acceptance` workflow, or by an operator:
  *
- *   ADMIN_TOKEN=… pnpm --filter @data-foundry/recalls-worker exec tsx scripts/acceptance.ts
+ *   ADMIN_TOKEN=… ACCEPTANCE_EXPECTED_SHA=<deployed commit> pnpm exec tsx apps/recalls-worker/scripts/acceptance.ts
  */
 
 import { createHash, randomInt } from 'node:crypto';
@@ -24,6 +24,8 @@ export interface AcceptanceOptions {
   readonly publicOrigin: string;
   readonly adminToken: string;
   readonly stripeCustomerId: string;
+  /** The 40-hex source commit being accepted: the live Worker version must be tagged with its first 12 characters. */
+  readonly expectedSha: string;
   readonly fetch: (request: Request) => Promise<Response>;
 }
 
@@ -38,6 +40,8 @@ export interface AcceptanceEvidence {
   readonly started_at: string;
   readonly finished_at: string;
   readonly api_origin: string;
+  readonly source_sha: string;
+  readonly live_version: { readonly version_id: string | null; readonly tag: string | null; readonly timestamp: string | null };
   readonly customer: { readonly stripe_customer_id: string; readonly plan: string | null; readonly status: string | null };
   readonly key_prefix: string | null;
   readonly metered_requests: number;
@@ -84,6 +88,18 @@ export async function runAcceptance(options: AcceptanceOptions): Promise<Accepta
 
   if (!ACCEPTANCE_CUSTOMER_PATTERN.test(options.stripeCustomerId)) {
     throw new Error(`Refusing ${options.stripeCustomerId}: acceptance runs only against an internal cus_acceptance_internal_YYYYMMDD customer.`);
+  }
+
+  // Evidence must describe the version that is actually serving: refuse before issuing a key otherwise.
+  if (!/^[0-9a-f]{40}$/.test(options.expectedSha)) throw new Error('expectedSha must be a full 40-character commit SHA.');
+  const version = await call(options.publicOrigin, '/admin/version', { admin: true });
+  const liveVersion = {
+    version_id: (version.body?.['version_id'] as string | null | undefined) ?? null,
+    tag: (version.body?.['tag'] as string | null | undefined) ?? null,
+    timestamp: (version.body?.['timestamp'] as string | null | undefined) ?? null,
+  };
+  if (version.status !== 200 || liveVersion.tag !== options.expectedSha.slice(0, 12)) {
+    throw new Error(`Refusing: the live Worker version (${version.status}, tag ${liveVersion.tag ?? 'none'}) is not ${options.expectedSha.slice(0, 12)}. Deploy that commit first.`);
   }
 
   // Credential rejection before any key exists.
@@ -215,6 +231,8 @@ export async function runAcceptance(options: AcceptanceOptions): Promise<Accepta
     started_at: startedAt,
     finished_at: new Date().toISOString(),
     api_origin: api,
+    source_sha: options.expectedSha,
+    live_version: liveVersion,
     customer,
     key_prefix: key ? key.slice(0, 'rcl_live_'.length + 4) : null,
     metered_requests: metered,
@@ -232,6 +250,7 @@ async function main(): Promise<void> {
     publicOrigin: process.env['PUBLIC_ORIGIN'] ?? 'https://data.aroqon.com',
     adminToken,
     stripeCustomerId: process.env['ACCEPTANCE_STRIPE_CUSTOMER_ID'] ?? 'cus_acceptance_internal_20260928',
+    expectedSha: process.env['ACCEPTANCE_EXPECTED_SHA'] ?? '',
     fetch: (request) => fetch(request),
   });
   const serialized = JSON.stringify(evidence, null, 2);

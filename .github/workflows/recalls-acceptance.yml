@@ -15,6 +15,10 @@ on:
         description: 'Type exactly: accept-recalls'
         required: true
         type: string
+      expected_sha:
+        description: 'Full 40-character main commit SHA that the deploy workflow put live'
+        required: true
+        type: string
       stripe_customer_id:
         description: 'Internal acceptance customer (cus_acceptance_internal_YYYYMMDD)'
         required: true
@@ -46,10 +50,12 @@ jobs:
         env:
           CONFIRM: ${{ inputs.confirm }}
           CUSTOMER: ${{ inputs.stripe_customer_id }}
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
           ADMIN_TOKEN: ${{ secrets.RECALLS_ADMIN_TOKEN }}
         run: |
           set -euo pipefail
           [[ "$CONFIRM" == "accept-recalls" ]] || { echo "The confirm input must be exactly accept-recalls." >&2; exit 1; }
+          [[ "$EXPECTED_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "expected_sha must be a full 40-character commit SHA." >&2; exit 1; }
           [[ "$CUSTOMER" =~ ^cus_acceptance_internal_[0-9]{8}$ ]] || { echo "Only an internal acceptance customer may be used." >&2; exit 1; }
           if [[ ${#ADMIN_TOKEN} -lt 32 ]]; then
             echo "::error::RECALLS_ADMIN_TOKEN (the Worker's ADMIN_TOKEN) is not set for the production environment."
@@ -60,6 +66,17 @@ jobs:
         with:
           persist-credentials: false
           ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      # Accept the commit that is live, with that commit's own script: it must be on main, and
+      # the script refuses to issue a key unless the live Worker version is tagged with it.
+      - name: Check out the deployed commit, which must be on main
+        env:
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+        run: |
+          set -euo pipefail
+          git merge-base --is-ancestor "$EXPECTED_SHA" "$GITHUB_SHA" || { echo "$EXPECTED_SHA is not on main." >&2; exit 1; }
+          git checkout --quiet --detach "$EXPECTED_SHA"
 
       - name: Enable corepack
         run: corepack enable
@@ -77,6 +94,7 @@ jobs:
         env:
           ADMIN_TOKEN: ${{ secrets.RECALLS_ADMIN_TOKEN }}
           ACCEPTANCE_STRIPE_CUSTOMER_ID: ${{ inputs.stripe_customer_id }}
+          ACCEPTANCE_EXPECTED_SHA: ${{ inputs.expected_sha }}
           ACCEPTANCE_EVIDENCE_FILE: ${{ runner.temp }}/recalls-acceptance.json
         run: pnpm exec tsx apps/recalls-worker/scripts/acceptance.ts
 
@@ -89,5 +107,5 @@ jobs:
           node -e '
             const e = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"));
             const rows = e.checks.map((c) => `| ${c.ok ? "pass" : "FAIL"} | ${c.name} | ${String(c.detail).replace(/\|/g, "/")} |`);
-            console.log([`## Recalls acceptance: ${e.ok ? "PASSED" : "FAILED"}`, "", `Commit \`${process.env.GITHUB_SHA}\`, ${e.started_at} to ${e.finished_at}, key prefix \`${e.key_prefix}\`, ${e.metered_requests} metered requests.`, "", "| Result | Check | Detail |", "| --- | --- | --- |", ...rows].join("\n"));
+            console.log([`## Recalls acceptance: ${e.ok ? "PASSED" : "FAILED"}`, "", `Source commit \`${e.source_sha}\`, live version \`${e.live_version.version_id}\` (tag \`${e.live_version.tag}\`), ${e.started_at} to ${e.finished_at}, key prefix \`${e.key_prefix}\`, ${e.metered_requests} metered requests.`, "", "| Result | Check | Detail |", "| --- | --- | --- |", ...rows].join("\n"));
           ' "$file" >> "$GITHUB_STEP_SUMMARY"

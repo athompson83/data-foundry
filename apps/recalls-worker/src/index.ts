@@ -94,20 +94,8 @@ async function authenticate(env: Env, request: Request): Promise<AuthenticatedCu
 async function meteredApi(env: Env, request: Request, url: URL, marketplace: MarketplacePrincipal | null): Promise<Response> {
   const products = url.pathname === '/v1/product-recalls' || url.pathname.startsWith('/v1/product-recalls/');
   if (products ? !productsServed(env) : env.SOURCE_KILL_SWITCH === '1') return apiError(503, 'dataset_unavailable', 'The dataset is temporarily unavailable.');
-  if (marketplace) {
-    // RapidAPI meters and bills this request; no Stripe customer or allowance is touched.
-    let status = 500;
-    try {
-      const response = await serveData(env, url, { 'cache-control': 'private, no-store' });
-      status = response.status;
-      return response;
-    } catch (error) {
-      if (error instanceof BadRequest) status = 400;
-      throw error;
-    } finally {
-      await logMarketplaceRequest(marketplace, url.pathname, status);
-    }
-  }
+  // RapidAPI meters and bills this request; no Stripe customer or allowance is touched.
+  if (marketplace) return serveData(env, url, { 'cache-control': 'private, no-store' });
   const auth = await authenticate(env, request);
   if (auth instanceof Response) return auth;
   const count = await consumeRequest(env.DB, auth);
@@ -244,6 +232,37 @@ function isAuthorizedAdmin(env: Env, request: Request): boolean {
   return diff === 0;
 }
 
+/** The /v1/ API once the request's channel is decided: stats, account and metered data endpoints. */
+async function v1Api(request: Request, env: Env, url: URL, ctx: PageContext, marketplace: MarketplacePrincipal | null): Promise<Response> {
+  // The kill switch withdraws every dataset-derived response, cached or not.
+  if (env.SOURCE_KILL_SWITCH === '1' && url.pathname.startsWith('/v1/recalls')) return apiError(503, 'dataset_unavailable', 'The dataset is temporarily unavailable.');
+  if (url.pathname === '/v1/recalls/stats') {
+    const cache = (globalThis as unknown as { caches: { default: EdgeCache } }).caches.default;
+    const cacheKey = new Request(`${ctx.apiOrigin}/v1/recalls/stats`);
+    const cached = await cache.match(cacheKey);
+    if (cached) return cached;
+    const response = json(await stats(env.DB), 200, { 'cache-control': 'public, max-age=600' });
+    await cache.put(cacheKey, response.clone());
+    return response;
+  }
+  if (url.pathname === '/v1/product-recalls/stats') {
+    if (!productsServed(env)) return apiError(503, 'dataset_unavailable', 'The dataset is temporarily unavailable.');
+    const cache = (globalThis as unknown as { caches: { default: EdgeCache } }).caches.default;
+    const cacheKey = new Request(`${ctx.apiOrigin}/v1/product-recalls/stats`);
+    const hit = await cache.match(cacheKey);
+    if (hit) return hit;
+    const response = json(await productStats(env.DB), 200, { 'cache-control': 'public, max-age=600' });
+    await cache.put(cacheKey, response.clone());
+    return response;
+  }
+  if (url.pathname.startsWith('/v1/account')) {
+    if (marketplace) return apiError(403, 'not_available_on_marketplace', 'Account endpoints belong to direct API keys. Manage a RapidAPI subscription on RapidAPI.');
+    return accountApi(env, request, url);
+  }
+  if (request.method !== 'GET') return apiError(405, 'method_not_allowed', 'Data endpoints accept GET only.');
+  return meteredApi(env, request, url, marketplace);
+}
+
 async function route(request: Request, env: Env): Promise<Response> {
   const url = new URL(request.url);
   const ctx = context(env);
@@ -260,33 +279,20 @@ async function route(request: Request, env: Env): Promise<Response> {
     const channel = await resolveChannel(env, request);
     if (channel.channel === 'rejected') return apiError(channel.status, channel.code, channel.message);
     const marketplace = channel.channel === 'rapidapi' ? channel : null;
-    // The kill switch withdraws every dataset-derived response, cached or not.
-    if (env.SOURCE_KILL_SWITCH === '1' && url.pathname.startsWith('/v1/recalls')) return apiError(503, 'dataset_unavailable', 'The dataset is temporarily unavailable.');
-    if (url.pathname === '/v1/recalls/stats') {
-      const cache = (globalThis as unknown as { caches: { default: EdgeCache } }).caches.default;
-      const cacheKey = new Request(`${ctx.apiOrigin}/v1/recalls/stats`);
-      const cached = await cache.match(cacheKey);
-      if (cached) return cached;
-      const response = json(await stats(env.DB), 200, { 'cache-control': 'public, max-age=600' });
-      await cache.put(cacheKey, response.clone());
+    if (!marketplace) return v1Api(request, env, url, ctx, null);
+    // Every marketplace response is logged once, whatever answered it (stats cache hits and
+    // errors included), so the log reconciles with what RapidAPI meters and bills.
+    let status = 500;
+    try {
+      const response = await v1Api(request, env, url, ctx, marketplace);
+      status = response.status;
       return response;
+    } catch (error) {
+      if (error instanceof BadRequest) status = 400;
+      throw error;
+    } finally {
+      await logMarketplaceRequest(marketplace, url.pathname, status);
     }
-    if (url.pathname === '/v1/product-recalls/stats') {
-      if (!productsServed(env)) return apiError(503, 'dataset_unavailable', 'The dataset is temporarily unavailable.');
-      const cache = (globalThis as unknown as { caches: { default: EdgeCache } }).caches.default;
-      const cacheKey = new Request(`${ctx.apiOrigin}/v1/product-recalls/stats`);
-      const hit = await cache.match(cacheKey);
-      if (hit) return hit;
-      const response = json(await productStats(env.DB), 200, { 'cache-control': 'public, max-age=600' });
-      await cache.put(cacheKey, response.clone());
-      return response;
-    }
-    if (url.pathname.startsWith('/v1/account')) {
-      if (marketplace) return apiError(403, 'not_available_on_marketplace', 'Account endpoints belong to direct API keys. Manage a RapidAPI subscription on RapidAPI.');
-      return accountApi(env, request, url);
-    }
-    if (request.method !== 'GET') return apiError(405, 'method_not_allowed', 'Data endpoints accept GET only.');
-    return meteredApi(env, request, url, marketplace);
   }
   if (url.pathname === '/openapi.json') {
     const marketplace = url.searchParams.get('channel') === 'rapidapi';
@@ -326,6 +332,13 @@ async function route(request: Request, env: Env): Promise<Response> {
     await env.DB.prepare('UPDATE api_key SET revoked_at = ? WHERE customer_id = ? AND revoked_at IS NULL').bind(now, customer.id).run();
     const remaining = await env.DB.prepare('SELECT count(*) AS n FROM api_key WHERE customer_id = ? AND revoked_at IS NULL').bind(customer.id).first<{ n: number }>();
     return json({ revoked_at: now, active_keys: remaining?.n ?? 0 }, 200, { 'cache-control': 'no-store' });
+  }
+
+  if (url.pathname === '/admin/version' && request.method === 'GET') {
+    // Which Worker version is serving: the deploy workflow tags each version with its source commit.
+    if (!isAuthorizedAdmin(env, request)) return apiError(404, 'not_found', 'Not found.');
+    const version = env.CF_VERSION_METADATA;
+    return json({ version_id: version?.id ?? null, tag: version?.tag || null, timestamp: version?.timestamp ?? null }, 200, { 'cache-control': 'no-store' });
   }
 
   if (url.pathname === '/admin/indexnow-status' && request.method === 'GET') {

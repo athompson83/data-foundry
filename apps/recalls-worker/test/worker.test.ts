@@ -747,6 +747,13 @@ describe('Stripe', () => {
     expect((await worker.fetch(get('/v1/recalls', reissued.api_key), env)).status).toBe(200);
   });
 
+  it('reports the serving version and its source tag to an operator only', async () => {
+    const env = makeEnv({ ADMIN_TOKEN: 'a'.repeat(40), CF_VERSION_METADATA: { id: 'v-123', tag: 'abcdef012345', timestamp: '2026-09-28T18:00:00Z' } });
+    const version = (token: string) => worker.fetch(new Request('https://data.aroqon.com/admin/version', { headers: { authorization: `Bearer ${token}` } }), env);
+    expect((await version('b'.repeat(40))).status).toBe(404);
+    expect(await (await version('a'.repeat(40))).json()).toEqual({ version_id: 'v-123', tag: 'abcdef012345', timestamp: '2026-09-28T18:00:00Z' });
+  });
+
   it('reports each IndexNow feed\'s watermark and last scheduled run to an operator only', async () => {
     vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date('2026-09-27T14:00:00.000Z'));
@@ -878,6 +885,21 @@ describe('RapidAPI channel', () => {
     expect(lines).toHaveLength(2);
     expect(lines[0]).toContain('"subscription":"PRO"');
     expect(lines.join('\n')).not.toContain('alice');
+    vi.restoreAllMocks();
+  });
+
+  it('logs every marketplace response once, stats cache hits and refusals included', async () => {
+    const env = makeEnv({ RAPIDAPI_ENABLED: '1', RAPIDAPI_PROXY_SECRET: SECRET });
+    await seed(env);
+    const logged: string[] = [];
+    vi.spyOn(console, 'log').mockImplementation((...args: unknown[]) => void logged.push(args.map(String).join(' ')));
+    const headers = { 'x-rapidapi-proxy-secret': SECRET, 'x-rapidapi-user': 'carol' };
+    expect((await worker.fetch(market('/v1/recalls/stats', headers), env)).status).toBe(200);
+    expect((await worker.fetch(market('/v1/recalls/stats', headers), env)).status).toBe(200); // cache hit
+    expect((await worker.fetch(market('/v1/account', headers), env)).status).toBe(403);
+    expect((await worker.fetch(market('/v1/recalls?limit=500', headers), env)).status).toBe(400);
+    const lines = logged.filter((line) => line.startsWith('rapidapi_request')).map((line) => JSON.parse(line.slice('rapidapi_request '.length)) as { path: string; status: number });
+    expect(lines.map((line) => [line.path, line.status])).toEqual([['/v1/recalls/stats', 200], ['/v1/recalls/stats', 200], ['/v1/account', 403], ['/v1/recalls', 400]]);
     vi.restoreAllMocks();
   });
 

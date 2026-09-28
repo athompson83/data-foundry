@@ -90,6 +90,18 @@ describe('recalls-acceptance workflow', () => {
     expect(runs).toContain('^cus_acceptance_internal_[0-9]{8}$');
   });
 
+  it('accepts only the deployed commit: an approved SHA on main, checked out and passed to the script', () => {
+    expect(accept.workflow.on['workflow_dispatch']?.inputs?.['expected_sha']?.required).toBe(true);
+    const runs = allRuns(accept.workflow);
+    expect(runs).toContain('git merge-base --is-ancestor "$EXPECTED_SHA" "$GITHUB_SHA"');
+    expect(runs).toContain('git checkout --quiet --detach "$EXPECTED_SHA"');
+    expect(accept.source).toContain('ACCEPTANCE_EXPECTED_SHA: ${{ inputs.expected_sha }}');
+    // The deploy workflow tags each version with the same 12-character prefix the script checks.
+    expect(allRuns(deploy.workflow)).toContain('--tag "${GITHUB_SHA:0:12}"');
+    expect(readFileSync(join(ROOT, 'apps', 'recalls-worker', 'scripts', 'acceptance.ts'), 'utf8')).toContain('options.expectedSha.slice(0, 12)');
+    expect(readFileSync(join(ROOT, 'apps', 'recalls-worker', 'wrangler.toml'), 'utf8')).toMatch(/\[version_metadata\]\nbinding = "CF_VERSION_METADATA"/);
+  });
+
   it('passes the admin token only as an environment variable and never echoes it', () => {
     expect(accept.source).not.toMatch(/echo[^\n]*\$\{?ADMIN_TOKEN/);
     expect(accept.source).not.toMatch(/set -x/);

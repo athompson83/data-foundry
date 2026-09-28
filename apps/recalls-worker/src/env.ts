@@ -53,6 +53,8 @@ export interface Env {
   readonly PUBLIC_ORIGIN?: string;
   readonly API_ORIGIN?: string;
   readonly SUPPORT_EMAIL?: string;
+  /** Workers version metadata binding: the running version's id, tag and upload time. */
+  readonly CF_VERSION_METADATA?: { readonly id: string; readonly tag: string; readonly timestamp: string };
   /** Public IndexNow key, served at /<key>.txt; unset disables pings. */
   readonly INDEXNOW_KEY?: string;
 }

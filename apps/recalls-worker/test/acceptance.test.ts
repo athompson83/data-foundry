@@ -11,10 +11,11 @@ import { CPSC, FOOD, HC } from './fixtures.js';
 const ADMIN = 'z'.repeat(40);
 const CUSTOMER = 'cus_acceptance_internal_20260928';
 const NOW = '2026-09-27T12:00:00.000Z';
+const SHA = 'abcdef0123456789abcdef0123456789abcdef01';
 
 function makeEnv(): Env {
   const { db } = createTestDatabase();
-  return { DB: db, RAW_ARTIFACTS: createTestBucket(), PUBLIC_ORIGIN: 'https://data.aroqon.com', API_ORIGIN: 'https://api.data.aroqon.com', PRODUCT_RECALLS_OPEN: '1', ADMIN_TOKEN: ADMIN };
+  return { DB: db, RAW_ARTIFACTS: createTestBucket(), PUBLIC_ORIGIN: 'https://data.aroqon.com', API_ORIGIN: 'https://api.data.aroqon.com', PRODUCT_RECALLS_OPEN: '1', ADMIN_TOKEN: ADMIN, CF_VERSION_METADATA: { id: 'ver-1', tag: SHA.slice(0, 12), timestamp: NOW } };
 }
 
 async function seed(env: Env): Promise<void> {
@@ -35,7 +36,7 @@ async function seed(env: Env): Promise<void> {
 }
 
 function options(env: Env, overrides: Partial<AcceptanceOptions> = {}): AcceptanceOptions {
-  return { apiOrigin: 'https://api.data.aroqon.com', publicOrigin: 'https://data.aroqon.com', adminToken: ADMIN, stripeCustomerId: CUSTOMER, fetch: (request) => worker.fetch(request, env), ...overrides };
+  return { apiOrigin: 'https://api.data.aroqon.com', publicOrigin: 'https://data.aroqon.com', adminToken: ADMIN, stripeCustomerId: CUSTOMER, expectedSha: SHA, fetch: (request) => worker.fetch(request, env), ...overrides };
 }
 
 beforeEach(() => {
@@ -104,11 +105,23 @@ describe('production acceptance script', () => {
     expect(await env.DB.prepare('SELECT count(*) AS n FROM api_key').first()).toEqual({ n: 0 });
   });
 
-  it('fails without a key when the admin token is wrong', async () => {
+  it('refuses, before issuing a key, when the live version is not the commit being accepted', async () => {
     const env = makeEnv();
     await seed(env);
-    const evidence = await runAcceptance(options(env, { adminToken: 'y'.repeat(40) }));
-    expect(evidence.ok).toBe(false);
-    expect(evidence.key_prefix).toBeNull();
+    await expect(runAcceptance(options(env, { expectedSha: '1'.repeat(40) }))).rejects.toThrow('is not 111111111111');
+    const untagged = { ...env, CF_VERSION_METADATA: { id: 'ver-0', tag: '', timestamp: NOW } };
+    await expect(runAcceptance(options(untagged, { fetch: (request) => worker.fetch(request, untagged) }))).rejects.toThrow('tag none');
+    expect(await env.DB.prepare('SELECT count(*) AS n FROM api_key').first()).toEqual({ n: 0 });
+    const evidence = await runAcceptance(options(env));
+    expect(evidence.live_version).toEqual({ version_id: 'ver-1', tag: SHA.slice(0, 12), timestamp: NOW });
+    expect(evidence.source_sha).toBe(SHA);
+  });
+
+  it('issues nothing when the admin token is wrong', async () => {
+    const env = makeEnv();
+    await seed(env);
+    // The version check needs the operator token too, so nothing is issued.
+    await expect(runAcceptance(options(env, { adminToken: 'y'.repeat(40) }))).rejects.toThrow('Refusing');
+    expect(await env.DB.prepare('SELECT count(*) AS n FROM api_key').first()).toEqual({ n: 0 });
   });
 });
