@@ -49,18 +49,21 @@ CREATE TABLE IF NOT EXISTS product_recall_extracted_key (
 CREATE INDEX IF NOT EXISTS product_recall_extracted_key_lookup_idx ON product_recall_extracted_key (kind, value_key, status);
 CREATE INDEX IF NOT EXISTS product_recall_extracted_key_version_idx ON product_recall_extracted_key (extractor_version, status);
 
--- Every submission, accepted or not, for audit and for the collector's counters. Idempotency keys are scoped to
--- the credential, so a rotated or re-issued credential can resend a payload whose answer was lost: its candidates
+-- Every submission, accepted or not, for audit and for the collector's counters. A row is reserved (response NULL)
+-- before any candidate is written, so two requests with one key never both write; a different body under a used key
+-- is refused. Idempotency keys are scoped to the credential, so a rotated or re-issued credential can resend a payload whose answer was lost: its candidates
 -- are then reported as replayed, never duplicated.
 CREATE TABLE IF NOT EXISTS extraction_submission (
   id              INTEGER PRIMARY KEY AUTOINCREMENT,
   credential_id   TEXT NOT NULL,
   idempotency_key TEXT NOT NULL,
+  body_sha256     TEXT NOT NULL,
   received_at     TEXT NOT NULL,
-  items           INTEGER NOT NULL,
-  accepted        INTEGER NOT NULL,
-  replayed        INTEGER NOT NULL,
-  rejected        INTEGER NOT NULL,
-  response        TEXT NOT NULL,
+  items           INTEGER NOT NULL DEFAULT 0,
+  accepted        INTEGER NOT NULL DEFAULT 0,
+  replayed        INTEGER NOT NULL DEFAULT 0,
+  rejected        INTEGER NOT NULL DEFAULT 0,
+  -- NULL while the reserving request is still processing.
+  response        TEXT,
   UNIQUE (credential_id, idempotency_key)
 );

@@ -53,7 +53,9 @@ recalls on the recalls Worker); [`docs/sources/cpsc-recalls-rights-record-202609
    - Codes the agency parser already indexes are reported as duplicates. Everything else is inserted idempotently,
      keyed by notice, source bytes, extractor version and identifier key.
    - Each accepted candidate stores the extractor version, model and digest, prompt hash, credential and exact span.
-   - Every request carries an `Idempotency-Key`. A replay returns the stored response.
+   - Every request carries an `Idempotency-Key`, scoped to the credential. The key is reserved before any candidate is
+     written: a replay returns the stored response, the same key with a different body is refused (409), and a key still
+     being processed answers 503 so the client retries.
 4. **Publication is a separate gate.**
    - Accepted candidates are served only while `EXTRACTED_IDENTIFIERS_OPEN` is `"1"`, and only against each
      notice's current bytes.

@@ -285,7 +285,7 @@ class UploaderBehaviour(unittest.TestCase):
         self.state = State(self.config.db_path)
         with self.state.tx() as db:
             db.execute("INSERT INTO candidate (recall_id, raw_sha256, extractor_version, value, field, label, local_decision, updated_at) VALUES ('cpsc-15034', 'r', ?, 'SA904', 'Description', 'item', 'accepted', 0)", (extract.EXTRACTOR_VERSION,))
-            self.state.outbox_add(db, "f" * 64, {"task": TASK, "extractor": {}, "notices": []})
+            self.state.outbox_add(db, "f" * 64, {"task": TASK, "extractor": {}, "notices": [{"recall_id": "cpsc-15034", "raw_sha256": "r", "candidates": [{"value": "SA904", "field": "Description", "label": "item"}]}]})
 
     def uploader(self, outcomes):
         opener = FakeOpener(outcomes)
@@ -1079,3 +1079,20 @@ class CodexRegressionsRound11(unittest.TestCase):
             kinds = [r["kind"] for r in state.q("SELECT kind FROM event ORDER BY id")]
             self.assertIn("uploader_spawn_failed", kinds)
             self.assertEqual(kinds[-1], "uploader_restarted")
+
+
+class CodexRegressionsRound12(unittest.TestCase):
+    def test_an_acknowledgement_updates_only_the_source_version_it_was_submitted_against(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Config(data_dir=tmp)
+            config.secrets_dir.mkdir(parents=True)
+            (config.secrets_dir / "ingest-token").write_text("dfi_" + "a" * 40)
+            state = State(config.db_path)
+            with state.tx() as db:
+                for raw in ("old", "new"):
+                    db.execute("INSERT INTO candidate (recall_id, raw_sha256, extractor_version, value, field, label, local_decision, updated_at) VALUES ('cpsc-1', ?, 'b', 'SA904', 'Description', 'item', 'accepted', 0)", (raw,))
+                state.outbox_add(db, "1" * 64, {"task": TASK, "build": "b", "notices": [{"recall_id": "cpsc-1", "raw_sha256": "old", "candidates": []}]})
+            answer = {"extractor_version": "v", "accepted": 0, "replayed": 0, "rejected": 1, "results": [{"recall_id": "cpsc-1", "candidates": [{"value": "SA904", "field": "Description", "status": "rejected", "reason": "not_in_source"}]}]}
+            self.assertTrue(Uploader(config, state, POLICY, opener=FakeOpener([answer])).send_one())
+            rows = {r["raw_sha256"]: r["server_status"] for r in state.q("SELECT raw_sha256, server_status FROM candidate")}
+            self.assertEqual(rows, {"old": "rejected", "new": None})

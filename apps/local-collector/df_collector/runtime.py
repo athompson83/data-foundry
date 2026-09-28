@@ -645,13 +645,20 @@ class Uploader:
 
     def _ack(self, row, answer: dict) -> None:
         """Record the server's answer, then mark the row acknowledged, in one transaction."""
-        build = json.loads(row["payload"]).get("build") or answer.get("extractor_version")
+        payload = json.loads(row["payload"])
+        build = payload.get("build") or answer.get("extractor_version")
+        # The source bytes each notice was submitted against: an answer applies to that version only, never to a newer
+        # version of the same notice that has its own candidates (and its own upload).
+        submitted = {n.get("recall_id"): n.get("raw_sha256") for n in payload.get("notices", [])}
         with self.state.tx() as db:
             for notice in answer.get("results", []):
+                raw_sha = submitted.get(notice.get("recall_id"))
+                if raw_sha is None:
+                    continue
                 for candidate in notice.get("candidates", []):
                     db.execute(
-                        "UPDATE candidate SET server_status = ?, server_reason = ?, updated_at = ? WHERE recall_id = ? AND field = ? AND value = ? AND extractor_version = ?",
-                        (candidate.get("status"), candidate.get("reason"), time.time(), notice.get("recall_id"), candidate.get("field"), candidate.get("value"), build),
+                        "UPDATE candidate SET server_status = ?, server_reason = ?, updated_at = ? WHERE recall_id = ? AND raw_sha256 = ? AND field = ? AND value = ? AND extractor_version = ?",
+                        (candidate.get("status"), candidate.get("reason"), time.time(), notice.get("recall_id"), raw_sha, candidate.get("field"), candidate.get("value"), build),
                     )
             # Acknowledged: the server holds the result (and answers a resend from its stored response), so the
             # local copy is deleted now; only the count is kept.

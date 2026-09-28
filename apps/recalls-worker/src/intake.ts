@@ -49,6 +49,12 @@ export const PUBLISHABLE_EXTRACTORS: ReadonlyArray<{ readonly version: string; r
   },
 ];
 
+/** Whether a submitted extractor tuple is exactly a publishable build (the JavaScript twin of the SQL clause below). */
+export function isPublishableExtractor(extractor: { readonly version: string; readonly model: string; readonly model_digest: string; readonly prompt_sha256: string }): boolean {
+  const digest = extractor.model_digest.replace(/^sha256:/, '');
+  return PUBLISHABLE_EXTRACTORS.some((entry) => entry.version === extractor.version && entry.model === extractor.model && entry.modelDigest === digest && entry.promptSha256 === extractor.prompt_sha256);
+}
+
 /** SQL condition (on alias `e`) matching rows produced by a publishable extractor build, with its bind values. */
 export function publishableExtractorClause(): { sql: string; binds: string[] } {
   if (PUBLISHABLE_EXTRACTORS.length === 0) return { sql: '0', binds: [] };
@@ -243,11 +249,51 @@ export async function handleIntake(env: Env, request: Request): Promise<{ status
   if (declared > MAX_INTAKE_BYTES) throw new IntakeRefused(413, 'too_large', `Bodies are limited to ${MAX_INTAKE_BYTES} bytes.`);
   const text = await request.text();
   if (new TextEncoder().encode(text).byteLength > MAX_INTAKE_BYTES) throw new IntakeRefused(413, 'too_large', `Bodies are limited to ${MAX_INTAKE_BYTES} bytes.`);
-  // Scoped to the credential: another credential's use of the same key is a separate submission (its candidates replay).
-  const previous = await env.DB.prepare('SELECT response FROM extraction_submission WHERE credential_id = ? AND idempotency_key = ?').bind(credential.id, idempotencyKey).first<{ response: string }>();
-  if (previous) {
-    return { status: 200, body: { ...(JSON.parse(previous.response) as Record<string, unknown>), idempotent_replay: true } };
+  const bodySha = await sha256Hex(text);
+  const reservation = await reserveSubmission(env.DB, credential.id, idempotencyKey, bodySha);
+  if ('replay' in reservation) return { status: 200, body: reservation.replay };
+  try {
+    const response = await processSubmission(env, credential, text);
+    const all = (response.results as NoticeResult[]).flatMap((result) => result.candidates);
+    await env.DB.prepare('UPDATE extraction_submission SET items = ?, accepted = ?, replayed = ?, rejected = ?, response = ? WHERE id = ?')
+      .bind(all.length, response.accepted, response.replayed, response.rejected, JSON.stringify(response), reservation.id)
+      .run();
+    return { status: 200, body: response };
+  } catch (error) {
+    // Release the reservation so a retry of the same payload can proceed; nothing it wrote is lost (inserts are idempotent).
+    await env.DB.prepare('DELETE FROM extraction_submission WHERE id = ? AND response IS NULL').bind(reservation.id).run();
+    throw error;
   }
+}
+
+/** A reservation older than this, still without a response, belongs to a request that died; a retry may take it over. */
+export const STALE_RESERVATION_MS = 120_000;
+
+/**
+ * Claims (credential, Idempotency-Key) before any candidate is written. Scoped to the credential: another credential's
+ * use of the same key is a separate submission. A completed key replays its stored response; the same key with a
+ * different body is refused (409); a key another request is still processing answers 503 so the client retries.
+ */
+async function reserveSubmission(db: D1Database, credentialId: string, key: string, bodySha: string): Promise<{ id: number } | { replay: Record<string, unknown> }> {
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const now = new Date();
+    const reserved = await db
+      .prepare('INSERT INTO extraction_submission (credential_id, idempotency_key, body_sha256, received_at) VALUES (?, ?, ?, ?) ON CONFLICT (credential_id, idempotency_key) DO NOTHING RETURNING id')
+      .bind(credentialId, key, bodySha, now.toISOString())
+      .first<{ id: number }>();
+    if (reserved) return reserved;
+    const existing = await db.prepare('SELECT id, body_sha256, received_at, response FROM extraction_submission WHERE credential_id = ? AND idempotency_key = ?').bind(credentialId, key).first<{ id: number; body_sha256: string; received_at: string; response: string | null }>();
+    if (!existing) continue; // released between the insert and the read: try once more
+    if (existing.body_sha256 !== bodySha) throw new IntakeRefused(409, 'idempotency_mismatch', 'This Idempotency-Key was already used with a different body.');
+    if (existing.response !== null) return { replay: { ...(JSON.parse(existing.response) as Record<string, unknown>), idempotent_replay: true } };
+    if (now.getTime() - Date.parse(existing.received_at) < STALE_RESERVATION_MS) throw new IntakeRefused(503, 'submission_in_progress', 'A request with this Idempotency-Key is still being processed; retry shortly.');
+    const takenOver = await db.prepare('UPDATE extraction_submission SET received_at = ? WHERE id = ? AND response IS NULL AND received_at = ? RETURNING id').bind(now.toISOString(), existing.id, existing.received_at).first<{ id: number }>();
+    if (takenOver) return takenOver;
+  }
+  throw new IntakeRefused(503, 'submission_in_progress', 'A request with this Idempotency-Key is still being processed; retry shortly.');
+}
+
+async function processSubmission(env: Env, credential: IngestCredential, text: string): Promise<Record<string, unknown> & { accepted: number; replayed: number; rejected: number; results: NoticeResult[] }> {
   let body: unknown;
   try {
     body = JSON.parse(text);
@@ -268,19 +314,12 @@ export async function handleIntake(env: Env, request: Request): Promise<{ status
     replayed: count('replayed'),
     duplicate_of_agency_fact: count('duplicate_of_agency_fact'),
     rejected: count('rejected'),
-    published: env.EXTRACTED_IDENTIFIERS_OPEN === '1',
+    // Served only when the quality gate is open AND this exact build is allowlisted (the same test every query applies).
+    publishable_build: isPublishableExtractor(extractor),
+    published: env.EXTRACTED_IDENTIFIERS_OPEN === '1' && isPublishableExtractor(extractor),
     results,
   };
-  const stored = await env.DB.prepare('INSERT INTO extraction_submission (credential_id, idempotency_key, received_at, items, accepted, replayed, rejected, response) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (credential_id, idempotency_key) DO NOTHING RETURNING id')
-    .bind(credential.id, idempotencyKey, now, all.length, response.accepted, response.replayed, response.rejected, JSON.stringify(response))
-    .first<{ id: number }>();
-  if (!stored) {
-    // A concurrent request with the same key won the insert: every answer for the key is the stored one. The loser's
-    // candidate inserts were each fully re-checked and idempotent (ON CONFLICT DO NOTHING), so nothing is duplicated.
-    const winner = await env.DB.prepare('SELECT response FROM extraction_submission WHERE credential_id = ? AND idempotency_key = ?').bind(credential.id, idempotencyKey).first<{ response: string }>();
-    if (winner) return { status: 200, body: { ...(JSON.parse(winner.response) as Record<string, unknown>), idempotent_replay: true } };
-  }
-  return { status: 200, body: response };
+  return response;
 }
 
 /** Operator withdrawal of every accepted candidate from one extractor version (optionally one notice). Rows are kept; restoreExtractions reverses it. */

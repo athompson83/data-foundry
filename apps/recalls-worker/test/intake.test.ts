@@ -158,37 +158,49 @@ describe('extraction intake', () => {
     expect((await env.DB.prepare('SELECT count(*) AS n FROM extraction_submission').first<{ n: number }>())?.n).toBe(2);
   });
 
-  it('answers a request that lost a concurrent race for its idempotency key with the stored winning response', async () => {
+  it('reserves the idempotency key before writing: in-progress, mismatched, completed and stale reservations', async () => {
     const { env, token, sha } = await seeded();
-    const key = await sha256Hex('race');
-    const winner = JSON.stringify({ task: 'cpsc-product-identifiers@1', accepted: 7, replayed: 0, rejected: 0, results: [] });
-    // The winner commits between this request's replay lookup and its own insert.
-    const db = env.DB;
-    let lookups = 0;
-    const racing = new Proxy(db, {
-      get(target, prop) {
-        if (prop !== 'prepare') return Reflect.get(target, prop);
-        return (sql: string) => {
-          if (sql.startsWith('SELECT response FROM extraction_submission') && lookups++ === 0) {
-            return {
-              bind: () => ({
-                first: async () => {
-                  const id = await sha256Hex(token);
-                  const credential = await target.prepare('SELECT id FROM ingest_credential WHERE token_sha256 = ?').bind(id).first<{ id: string }>();
-                  await target.prepare('INSERT INTO extraction_submission (credential_id, idempotency_key, received_at, items, accepted, replayed, rejected, response) VALUES (?, ?, ?, 1, 7, 0, 0, ?)').bind(credential?.id ?? null, key, NOW, winner).run();
-                  return null;
-                },
-              }),
-            };
-          }
-          return target.prepare(sql);
-        };
-      },
-    });
-    const response = await submit({ ...env, DB: racing as unknown as Env['DB'] }, token, [{ recall_id: 'cpsc-15034', raw_sha256: sha, candidates: [CANDIDATES[0]] }], key);
-    expect(response.status).toBe(200);
-    expect(await response.json()).toMatchObject({ accepted: 7, idempotent_replay: true });
-    expect((await db.prepare('SELECT count(*) AS n FROM extraction_submission').first<{ n: number }>())?.n).toBe(1);
+    const notices = [{ recall_id: 'cpsc-15034', raw_sha256: sha, candidates: [CANDIDATES[0]] }];
+    const bodyOf = (items: unknown[]) => JSON.stringify({ task: 'cpsc-product-identifiers@1', extractor: EXTRACTOR, notices: items });
+    const credentialId = (await env.DB.prepare('SELECT id FROM ingest_credential WHERE token_sha256 = ?').bind(await sha256Hex(token)).first<{ id: string }>())?.id ?? null;
+    const reserve = async (key: string, body: string, receivedAt: string, response: string | null) =>
+      env.DB.prepare('INSERT INTO extraction_submission (credential_id, idempotency_key, body_sha256, received_at, response) VALUES (?, ?, ?, ?, ?)').bind(credentialId, key, await sha256Hex(body), receivedAt, response).run();
+    const keys = async () => (await env.DB.prepare('SELECT count(*) AS n FROM product_recall_extracted_key').first<{ n: number }>())?.n;
+
+    // Another request with this key is still processing: 503, and nothing is written.
+    const busy = await sha256Hex('busy');
+    await reserve(busy, bodyOf(notices), new Date().toISOString(), null);
+    const inProgress = await submit(env, token, notices, busy);
+    expect(inProgress.status).toBe(503);
+    expect(await keys()).toBe(0);
+
+    // The same key with a different body: refused, nothing written.
+    const used = await sha256Hex('used');
+    await reserve(used, bodyOf([]), NOW, JSON.stringify({ accepted: 0, replayed: 0, rejected: 0, results: [] }));
+    const mismatch = await submit(env, token, notices, used);
+    expect(mismatch.status).toBe(409);
+    expect(((await mismatch.json()) as { error: { code: string } }).error.code).toBe('idempotency_mismatch');
+    expect(await keys()).toBe(0);
+
+    // A completed key with the same body replays the stored (winning) response.
+    const done = await sha256Hex('done');
+    await reserve(done, bodyOf(notices), NOW, JSON.stringify({ accepted: 7, replayed: 0, rejected: 0, results: [] }));
+    expect(await (await submit(env, token, notices, done)).json()).toMatchObject({ accepted: 7, idempotent_replay: true });
+    expect(await keys()).toBe(0);
+
+    // A reservation abandoned by a request that died is taken over and completed.
+    const stale = await sha256Hex('stale');
+    await reserve(stale, bodyOf(notices), new Date(Date.now() - 10 * 60_000).toISOString(), null);
+    expect(await (await submit(env, token, notices, stale)).json()).toMatchObject({ accepted: 1 });
+    expect(await keys()).toBe(1);
+    expect((await env.DB.prepare('SELECT response FROM extraction_submission WHERE idempotency_key = ?').bind(stale).first<{ response: string | null }>())?.response).toContain('"accepted":1');
+  });
+
+  it('reports published only for an allowlisted build while the gate is open', async () => {
+    const { env, token, sha } = await seeded({ EXTRACTED_IDENTIFIERS_OPEN: '1' });
+    const notices = [{ recall_id: 'cpsc-15034', raw_sha256: sha, candidates: [CANDIDATES[0]] }];
+    expect(await (await submit(env, token, notices)).json()).toMatchObject({ publishable_build: true, published: true });
+    expect(await (await submit(env, token, notices, undefined, { ...EXTRACTOR, prompt_sha256: 'f'.repeat(64) })).json()).toMatchObject({ publishable_build: false, published: false });
   });
 
   it('is idempotent: a replayed request returns the stored response, and a resubmission creates no duplicate', async () => {
