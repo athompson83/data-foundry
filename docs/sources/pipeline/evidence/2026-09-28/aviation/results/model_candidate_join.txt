@@ -3,7 +3,7 @@ models checked against a live Federal Register FAA-agency query: 5
   N887PC (TEXTRON AVIATION INC 560XL) vs fr_textron560xl.json (FR count=18): MATCH - 2025-10320: names '560XL' exactly
   N224RH (ROBINSON HELICOPTER R44) vs fr_robinsonR44.json (FR count=47): MATCH - 2025-10097: names 'R44' exactly
   N43TB (CESSNA 182) vs fr_cessna182.json (FR count=65): MATCH - 2020-24046: names '182' exactly
-  N566WN (BOEING 737-7CT) vs fr_boeing737_v2.json (FR count=890): no exact-model match - no result names this exact model or an explicit sub-variant of it
+  N566WN (BOEING 737-7CT) vs fr_boeing737_v2.json (FR count=890): no exact-model match - no result names this exact model or an explicit sub-variant of it; live site-wide search for "737-7CT" (no agency/type filter): 0 documents
   N328NB (AIRBUS INDUSTRIE A319-114) vs fr_airbusA319.json (FR count=569): MATCH - 2026-17551: A319 sub-variant list includes -114
 
 reviewed: 4/5 correct exact-model matches

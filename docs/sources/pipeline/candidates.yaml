@@ -3860,12 +3860,13 @@ candidates:
       as cpsc-recalls: a JSON API whose transport is typed but whose needed fact is prose), so `format` is
       free-text, not structured (a Codex review on PR #72 corrected the earlier `structured` label, which would
       have let this composite falsely pass the two-format EVIDENCED gate with no structured member at all).
-      Before EVIDENCED, either add a genuinely structured member to aviation-safety-events, or model a
-      separate structured slice of this same source (its typed document_number/effective_date/type fields,
-      independent of model-name text-matching) as its own member. Rights basis is US government work (44
-      U.S.C. Chapter 15, Federal Register content); a readable govinfo.gov/federalregister.gov terms citation
-      is still needed before RIGHTS_DETERMINED (the /about/policies pages are client-rendered and returned no
-      readable text to a plain HTTP GET this round).
+      With ntsb-aviation-accidents also `free-text`, this composite has two free-text members and no
+      structured one. Before EVIDENCED, either add a genuinely structured member to aviation-safety-events, or
+      model a separate structured slice of this same source (its typed document_number/effective_date/type
+      fields, independent of model-name text-matching) as its own member. Rights basis is US government work
+      (44 U.S.C. Chapter 15, Federal Register content); a readable govinfo.gov/federalregister.gov terms
+      citation is still needed before RIGHTS_DETERMINED (the /about/policies pages are client-rendered and
+      returned no readable text to a plain HTTP GET this round).
 
   - key: federal-contract-awards
     name: USASpending.gov federal prime contract award transactions
@@ -4774,11 +4775,13 @@ datasets:
           result of a live Federal Register FAA-agency query fetched in full (per_page=1000, no next_page_url
           left on any of the five queries — a Codex review on PR #72 found the prior evidence run had cached
           only each query's first default-size page, e.g. 3 of 890 Boeing 737 results, and reported an
-          incomplete search as a confirmed negative; every query is now exhaustively fetched in one page and
-          verdicts are unchanged: Textron 560XL, Robinson R44, Cessna 182 and Airbus A319-114 matched — the
+          incomplete search as a confirmed negative; every query is now exhaustively fetched in one page).
+          Verdicts are unchanged: Textron 560XL, Robinson R44, Cessna 182 and Airbus A319-114 matched — the
           A319-114 match is document 2026-17551, a sub-variant list further down the result set; Boeing
-          737-7CT has no match anywhere in its full 890-result set, now a genuine confirmed negative rather
-          than an artifact of pagination). This 5-record sample is drawn from, but not representative of, the
+          737-7CT has no match anywhere in its full 890-result set, independently double-checked with a live
+          site-wide term search for \"737-7CT\" across all of federalregister.gov (no agency/type filter)
+          also returning 0 — a genuine confirmed negative on two independent checks, not an artifact of
+          pagination. This 5-record sample is drawn from, but not representative of, the
           round's 163 NTSB aircraft records (July 2026 monthly update); the other 158 were never queried and
           are not counted as non-matches."
         mode: candidate
