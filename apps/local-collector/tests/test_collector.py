@@ -767,7 +767,7 @@ class BuildKeys(unittest.TestCase):
             second.extract_one()
             keys = [json.loads(r["payload"])["build"] for r in state.q("SELECT payload FROM outbox")]
             self.assertEqual(len(set(r["idempotency_key"] for r in state.q("SELECT idempotency_key FROM outbox"))), 2)
-            self.assertEqual({k.split("|")[1] for k in keys}, {"2a654d98e6fb", "aa11bb22cc33"})
+            self.assertEqual({k.split("|")[2] for k in keys}, {"2a654d98e6fb", "aa11bb22cc33"})
             self.assertTrue(all("build" not in json.loads(r["payload"]).get("extractor", {}) for r in state.q("SELECT payload FROM outbox")))
 
 
@@ -1010,3 +1010,35 @@ class CodexRegressionsRound9(unittest.TestCase):
             self.assertEqual(load(str(custom), data_dir=str(Path(tmp) / "data")).limits.max_queue, 9)
             self.assertNotIn("source_path", json.loads(custom.read_text()))
             self.assertFalse((Path(tmp) / "data" / "collector.json").exists())
+
+
+class CodexRegressionsRound10(unittest.TestCase):
+    def test_the_local_build_id_includes_the_model_name(self):
+        self.assertNotEqual(extract.build_id("qwen3.5:4b", "2a654d98e6fb"), extract.build_id("qwen-alias:latest", "2a654d98e6fb"))
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Config(data_dir=tmp)
+            collector = Collector(config, State(config.db_path), client=FakeClient("{}"), policy=POLICY)
+            self.assertIn(f"|{config.model}|", collector.build)
+
+    def test_the_prefilter_passes_a_populated_model_field_and_the_validators_code_shapes(self):
+        # The only identifier sits in Products[0].Model and no text says "model"; slash forms count as codes.
+        self.assertTrue(worth_extracting({"Title": "Lamps recalled", "Description": "The lamps can overheat.", "Products": [{"Name": "Desk lamp", "Model": "AB/12"}]}))
+        self.assertTrue(worth_extracting({"Title": "Kettles recalled", "Description": "Item AB/12 can leak.", "Products": []}))
+        self.assertFalse(worth_extracting({"Title": "Lamps recalled", "Description": "The lamps can overheat.", "Products": [{"Name": "Desk lamp", "Model": ""}]}))
+
+    def test_candidates_of_a_dead_lettered_upload_age_out(self):
+        import time as _time
+
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Config(data_dir=tmp)
+            state = State(config.db_path)
+            old = _time.time() - 8 * 86400
+            with state.tx() as db:
+                for recall_id in ("cpsc-1", "cpsc-2"):
+                    db.execute("INSERT INTO candidate (recall_id, raw_sha256, extractor_version, value, field, label, local_decision, updated_at) VALUES (?, 'r', 'b', 'SA904', 'Description', 'item', 'accepted', ?)", (recall_id, old))
+                state.outbox_add(db, "1" * 64, {"task": TASK, "notices": [{"recall_id": "cpsc-1"}]})
+                state.outbox_add(db, "2" * 64, {"task": TASK, "notices": [{"recall_id": "cpsc-2"}]})
+                db.execute("UPDATE outbox SET state = 'dead' WHERE idempotency_key = ?", ("1" * 64,))
+            state.sweep(config.evidence_dir)
+            # cpsc-1's upload was dead-lettered: its candidate goes. cpsc-2's upload is still owed: its candidate stays.
+            self.assertEqual([r["recall_id"] for r in state.q("SELECT recall_id FROM candidate")], ["cpsc-2"])

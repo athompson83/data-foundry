@@ -295,13 +295,17 @@ class State:
         with self.tx() as db:
             final = """local_decision = 'rejected'
                 OR server_status IN ('duplicate_of_agency_fact', 'rejected')
-                OR (server_status IN ('accepted', 'replayed') AND (queryable = 1 OR updated_at < ?))"""
-            for row in db.execute(f"SELECT local_decision, server_status, queryable FROM candidate WHERE {final}", (now - unverified_days * 86400,)).fetchall():
+                OR (server_status IN ('accepted', 'replayed') AND (queryable = 1 OR updated_at < ?))
+                OR (server_status IS NULL AND updated_at < ? AND NOT EXISTS (
+                    SELECT 1 FROM outbox o, json_each(o.payload, '$.notices') n
+                    WHERE o.state != 'dead' AND json_extract(n.value, '$.recall_id') = candidate.recall_id))"""
+            cutoff = now - unverified_days * 86400
+            for row in db.execute(f"SELECT local_decision, server_status, queryable FROM candidate WHERE {final}", (cutoff, cutoff)).fetchall():
                 self.bump(db, f"candidates_local:{row['local_decision']}")
                 if row["local_decision"] == "accepted":
                     self.bump(db, f"candidates_server:{row['server_status'] or 'not_submitted'}")
                 self.bump(db, "queryable", int(row["queryable"] or 0))
-            removed["candidates"] = db.execute(f"DELETE FROM candidate WHERE {final}", (now - unverified_days * 86400,)).rowcount
+            removed["candidates"] = db.execute(f"DELETE FROM candidate WHERE {final}", (cutoff, cutoff)).rowcount
             removed["outbox_dead"] = db.execute("DELETE FROM outbox WHERE state = 'dead' AND created_at < ?", (now - unverified_days * 86400,)).rowcount
             # Rows acknowledged by an older version that kept them.
             self.bump(db, "outbox:acked", db.execute("DELETE FROM outbox WHERE state = 'acked'").rowcount)
