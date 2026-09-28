@@ -1113,3 +1113,46 @@ class CodexRegressionsRound13(unittest.TestCase):
             collector.extract_one()
             payload = json.loads(state.one("SELECT payload FROM outbox")["payload"])
             self.assertEqual(payload["extractor"]["generation"], {"num_ctx": 4096, "think": False})
+
+
+class CodexRegressionsRound14(unittest.TestCase):
+    def collector(self, client):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        config = Config(data_dir=tmp.name)
+        state = State(config.db_path)
+        collector = Collector(config, state, client=client, policy=POLICY)
+        collector.queue_documents([{"id": "cpsc-15034", "raw": RECORD, "provenance": {"raw_sha256": "a" * 64}}])
+        return collector, state
+
+    def test_output_that_straddles_a_model_swap_is_discarded_uncharged(self):
+        from df_collector.ollama import ModelIdentity
+
+        class Swapping(FakeClient):
+            verifies = 0
+
+            def verify(self):
+                self.verifies += 1
+                digest = "2a654d98e6fb" if self.verifies == 1 else "ffffffffffff"
+                return ModelIdentity("qwen3.5:4b", digest, "qwen35", "4.7B", "Q4_K_M", "Apache License")
+
+        collector, state = self.collector(Swapping(json.dumps({"identifiers": [{"value": "SA904", "label": "item", "field": "Description"}]})))
+        with self.assertRaises(LocalModelError):
+            collector.extract_one()
+        self.assertIsNone(state.one("SELECT 1 FROM outbox"))
+        self.assertEqual(dict(state.one("SELECT state, attempts, server_errors FROM document")), {"state": "queued", "attempts": 0, "server_errors": 0})
+
+    def test_the_last_queued_notice_that_keeps_failing_a_healthy_server_is_set_aside(self):
+        class PoisonOnly(FakeClient):
+            def chat_json(self, system, user, schema, seed=0):
+                if user == "{}":  # the health probe: the server is fine
+                    return super().chat_json(system, user, schema, seed)
+                raise LocalModelError("local Ollama failed /api/chat: HTTP 500", request_failed=True, status=500)
+
+        collector, state = self.collector(PoisonOnly("{}"))
+        for _ in range(5):
+            try:
+                collector.extract_one()
+            except LocalModelError:
+                pass
+        self.assertEqual(state.one("SELECT state FROM document")["state"], "failed")

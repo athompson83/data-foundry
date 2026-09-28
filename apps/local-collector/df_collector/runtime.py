@@ -325,9 +325,15 @@ class Collector:
             self.state.event("warn", "working_copy_missing", {"recall_id": row["recall_id"]})
             return True
         self.status.update(phase="extracting", current=row["recall_id"])
+        client = self._client()
+        # The pinned local build is re-proved for every notice, before and after the model runs: a tag replaced while
+        # the collector runs (a re-install, an `ollama pull`) is refused, and output that straddles a swap is discarded
+        # uncharged, so a payload never labels other weights with the benchmarked digest.
+        before = client.verify()
+        self.model_identity = before
         started = time.monotonic()
         try:
-            result = extract.extract(self._client(), record)
+            result = extract.extract(client, record)
         except LocalModelError as error:
             if not error.request_failed:
                 raise
@@ -336,7 +342,9 @@ class Collector:
                 # the queue and the collector waits for the server. It counts against this notice only when the
                 # previous extraction succeeded (the server was healthy just before), so an outage, however long,
                 # charges no notice; a notice that fails three times right after successes is set aside.
-                isolated = self.state.get("last_model_outcome") == "success"
+                # A notice with nothing succeeding around it (the last one queued) is judged by a tiny health probe:
+                # a server that answers it is healthy, so the failure is this notice's.
+                isolated = self.state.get("last_model_outcome") == "success" or self._model_server_healthy(client)
                 self.state.set("last_model_outcome", "server_error")
                 with self.state.tx() as db:
                     db.execute(
@@ -356,6 +364,10 @@ class Collector:
                 self._drop_working_copy(row)
             self.status.update(phase="idle", current=None, last_error=str(error))
             return True
+        after = client.verify()
+        if after.digest != before.digest:
+            self.state.event("warn", "model_changed", {"recall_id": row["recall_id"], "before": before.digest[:12], "after": after.digest[:12]})
+            raise LocalModelError(f"the local model changed during extraction ({before.digest[:12]} -> {after.digest[:12]}); result discarded")
         latency = (time.monotonic() - started) * 1000
         self.state.set("last_model_outcome", "success")
         accepted = result.accepted
@@ -368,7 +380,7 @@ class Collector:
                     (row["recall_id"], row["raw_sha256"], row["extractor_version"], p.value, p.field, p.decision.label or p.label, "accepted" if p.decision.ok else "rejected", p.decision.reason, p.decision.start, p.decision.end, time.time()),
                 )
             if accepted:
-                identity = self.model_identity
+                identity = before
                 payload = {
                     "task": TASK,
                     "extractor": {"version": extract.EXTRACTOR_VERSION, "model": self.config.model, "model_digest": identity.digest if identity else self.config.model_digest, "prompt_sha256": extract.prompt_sha256(), "generation": extract.generation(self.config.num_ctx, self.config.think)},
@@ -383,6 +395,15 @@ class Collector:
         self.state.event("info", "extracted", {"recall_id": row["recall_id"], "status": result.status, "proposed": len(result.proposals), "accepted_locally": len(accepted), "latency_ms": round(latency)})
         self.status.update(phase="idle", current=None)
         return True
+
+    @staticmethod
+    def _model_server_healthy(client) -> bool:
+        """A tiny request with a fixed input: answered means the server is up, so a 5xx was specific to the notice."""
+        try:
+            client.chat_json("Return a JSON object.", "{}", {"type": "object", "properties": {"ok": {"type": "boolean"}}, "required": ["ok"]})
+            return True
+        except LocalModelError:
+            return False
 
     def _retire_poison_notices(self) -> None:
         """Set aside notices that failed the model server three times, each time right after a success."""
