@@ -195,6 +195,8 @@ export async function runAcceptance(options: AcceptanceOptions): Promise<Accepta
       const lookup = await metered200(`/v1/recalls/lookup?code=${encodeURIComponent(list[0] as string)}`);
       const found = rows(lookup.body).some((match) => (match['recall'] as Json | undefined)?.['recall_number'] === fdaCoded['recall_number']);
       check('FDA code lookup returns the recall that lists the code', lookup.status === 200 && found, `${lookup.status} code_kind=${kind} recall=${String(fdaCoded['recall_number'])}`);
+    } else {
+      check('FDA code lookup returns the recall that lists the code', false, 'no sampled FDA recall carried an extracted code');
     }
     if (fdaRows[0]) {
       const number = String(fdaRows[0]['recall_number']);

@@ -900,6 +900,15 @@ describe('RapidAPI channel', () => {
     expect((await worker.fetch(market('/v1/recalls?limit=500', headers), env)).status).toBe(400);
     const lines = logged.filter((line) => line.startsWith('rapidapi_request')).map((line) => JSON.parse(line.slice('rapidapi_request '.length)) as { path: string; status: number });
     expect(lines.map((line) => [line.path, line.status])).toEqual([['/v1/recalls/stats', 200], ['/v1/recalls/stats', 200], ['/v1/account', 403], ['/v1/recalls', 400]]);
+    // Refusals before any subscriber is verified are logged as unverified, with only a digest of the claimed user.
+    logged.length = 0;
+    expect((await worker.fetch(market('/v1/recalls', { 'x-rapidapi-user': 'mallory' }), env)).status).toBe(401);
+    expect((await worker.fetch(market('/v1/recalls', { 'x-rapidapi-proxy-secret': SECRET }), env)).status).toBe(401);
+    expect((await worker.fetch(market('/v1/recalls', headers), makeEnv())).status).toBe(403);
+    const refused = logged.filter((line) => line.startsWith('rapidapi_request')).map((line) => JSON.parse(line.slice('rapidapi_request '.length)) as { status: number; verified: boolean; code: string; user: string | null });
+    expect(refused.map((line) => [line.status, line.verified, line.code])).toEqual([[401, false, 'invalid_proxy_secret'], [401, false, 'missing_marketplace_user'], [403, false, 'marketplace_disabled']]);
+    expect(refused[0]?.user).toMatch(/^[0-9a-f]{16}$/);
+    expect(logged.join('\n')).not.toContain('mallory');
     vi.restoreAllMocks();
   });
 

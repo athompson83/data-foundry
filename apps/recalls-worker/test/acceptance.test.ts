@@ -143,6 +143,21 @@ describe('production acceptance script', () => {
     expect(evidence.checks.find((check) => check.name === 'live version unchanged for the whole run')?.ok).toBe(false);
   });
 
+  it('fails when no sampled FDA recall has a code to look up', async () => {
+    const env = makeEnv();
+    await seed(env);
+    const uncoded = async (request: Request): Promise<Response> => {
+      const response = await worker.fetch(request, env);
+      if (new URL(request.url).pathname !== '/v1/recalls' || response.status !== 200) return response;
+      const body = (await response.json()) as { data: Array<Record<string, unknown>> };
+      for (const row of body.data) row['codes'] = { gtins: [], ndcs: [], lots: [], serial_numbers: [], model_numbers: [], expiration_dates: [] };
+      return Response.json(body);
+    };
+    const evidence = await runAcceptance(options(env, { fetch: uncoded }));
+    expect(evidence.ok).toBe(false);
+    expect(evidence.checks.find((check) => check.name === 'FDA code lookup returns the recall that lists the code')).toMatchObject({ ok: false });
+  });
+
   it('issues nothing when the admin token is wrong', async () => {
     const env = makeEnv();
     await seed(env);

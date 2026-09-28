@@ -20,7 +20,7 @@ import { scheduledSync, syncWindow } from './sync.js';
 import { getProductRecall, lookupProductCode, PRODUCT_ID, productStats, searchProductRecalls } from './product-api.js';
 import { FIRST_PRODUCT_YEAR, PRODUCT_BROWSE_PAGE_SIZE, PRODUCT_INDEXNOW_FEED, PRODUCT_BROWSE_PATTERN, PRODUCT_PAGE_PATTERN, PRODUCT_SITEMAP_PAGE_SIZE, PRODUCT_SITEMAP_PATTERN, productBrowseIndex, productBrowsePage, productIndexableStats, productNoticePage, productSitemap } from './product-pages.js';
 import { scheduledProductSync } from './product-sync.js';
-import { logMarketplaceRequest, resolveChannel, type MarketplacePrincipal } from './marketplace.js';
+import { logMarketplaceRejection, logMarketplaceRequest, resolveChannel, type MarketplacePrincipal } from './marketplace.js';
 import { BROWSE_PATTERN, EDGE_TTL_SECONDS, RECALL_API_PATTERN, RECALL_PAGE_PATTERN, SITEMAP_PATTERN, browseCount, browseInRange, browseIndex, browsePage, indexableCount, shardInRange, llmsFullTxt, llmsTxt, pagesSitemap, FDA_INDEXNOW_FEED, lastRunKey, pingChanged, recallPage, recordIndexNowRun, recallSitemap, robotsTxt, sitemapIndex, type PresentedRecall } from './seo.js';
 import { RECALL_CATEGORIES, type RecallCategory } from '@data-foundry/recall-structuring';
 
@@ -277,7 +277,10 @@ async function route(request: Request, env: Env): Promise<Response> {
     if (!isApiHost && url.host.endsWith('aroqon.com')) return Response.redirect(`${ctx.apiOrigin}${url.pathname}${url.search}`, 308);
     // Marketplace-shaped requests are decided before anything else and never fall through to direct keys.
     const channel = await resolveChannel(env, request);
-    if (channel.channel === 'rejected') return apiError(channel.status, channel.code, channel.message);
+    if (channel.channel === 'rejected') {
+      await logMarketplaceRejection(request, url.pathname, channel.status, channel.code);
+      return apiError(channel.status, channel.code, channel.message);
+    }
     const marketplace = channel.channel === 'rapidapi' ? channel : null;
     if (!marketplace) return v1Api(request, env, url, ctx, null);
     // Every marketplace response is logged once, whatever answered it (stats cache hits and

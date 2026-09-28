@@ -84,3 +84,15 @@ export async function logMarketplaceRequest(principal: MarketplacePrincipal, pat
   const user = (await sha256Hex(principal.user)).slice(0, 16);
   console.log('rapidapi_request', JSON.stringify({ user, subscription: principal.subscription, path, status }));
 }
+
+/**
+ * A refused marketplace-shaped request (channel closed, bad or missing proxy secret,
+ * missing subscriber) is logged too, marked unverified: RapidAPI may still count it.
+ * The claimed username is unverified and logged only as a digest.
+ */
+export async function logMarketplaceRejection(request: Request, path: string, status: number, code: string): Promise<void> {
+  const claimed = request.headers.get('x-rapidapi-user')?.trim() ?? '';
+  const user = claimed ? (await sha256Hex(claimed)).slice(0, 16) : null;
+  console.log('rapidapi_request', JSON.stringify({ user, subscription: null, path, status, verified: false, code }));
+}
+
