@@ -3887,9 +3887,16 @@ candidates:
     next_action: >-
       Standalone this round; the natural composite partner (SAM.gov entity exclusions, same UEI identifier
       space) is PARKED below for lack of a registered API key. Live POST to spending_by_award (2026-09-28)
-      returned real recent awards with a recipient_id (UEI-derived) and Award Amount; already structured
-      (low structuring_value alone), so only worth building once a second UEI-bearing source is reachable.
-      Reopen the join with sam-entity-exclusions if a registered SAM.gov api.sam.gov key becomes available.
+      returned real recent awards with a recipient_id and Award Amount; recipient_id is a USASpending-internal
+      hashed identifier (e.g. "1068e466-707d-6b6f-367f-0255fab79b8c-C"), NOT itself a 12-character SAM UEI —
+      a Codex review on PR #72 caught an earlier draft claiming otherwise, which would have made the described
+      SAM join impossible to implement as written. The real UEI is one more live call away: GET
+      https://api.usaspending.gov/api/v2/recipient/duns/<recipient_id>/ returns it directly (verified live
+      2026-09-28: recipient_id "1068e466-707d-6b6f-367f-0255fab79b8c-C" -> uei "ZE6ZM6NKSV43", matching
+      Award ID HT940216C0001's recipient "HUMANA GOVERNMENT BUSINESS INC"). Already structured (low
+      structuring_value alone), so only worth building once a second UEI-bearing source is reachable. Reopen
+      the join with sam-entity-exclusions if a registered SAM.gov api.sam.gov key becomes available, fetching
+      each award's real UEI via the recipient endpoint above before attempting the join.
 
   - key: sam-entity-exclusions
     name: SAM.gov excluded-parties list (suspensions, debarments)

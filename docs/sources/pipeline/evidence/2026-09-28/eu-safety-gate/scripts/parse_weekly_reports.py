@@ -7,6 +7,7 @@ with User-Agent "Data Foundry Scout (data@mail.proviciency.com)").
 Run from this scripts/ directory: python3 parse_weekly_reports.py
 """
 
+import html
 import json
 import re
 
@@ -23,6 +24,13 @@ def field(block: str, tag: str) -> str | None:
     cdata = re.search(r"<!\[CDATA\[(.*?)\]\]>", value, re.S)
     if cdata:
         value = cdata.group(1)
+    # Decode HTML-style entities (e.g. "S&amp;W" -> "S&W"), matching the
+    # production packages/product-recall-structuring/src/text.ts cleanText
+    # helper — an earlier version of this script returned the raw CDATA text,
+    # producing tokens like the literal word "amp" that never matched the
+    # correctly-decoded CPSC text on the other side of the join (Codex review,
+    # PR #72).
+    value = html.unescape(value)
     value = value.strip()
     return value or None
 
