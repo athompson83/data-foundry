@@ -67,19 +67,26 @@ def prompt_sha256() -> str:
     return hashlib.sha256((EXTRACTOR_VERSION + "\n" + SYSTEM_PROMPT).encode()).hexdigest()
 
 
-def generation(num_ctx: int, think: bool | str) -> dict:
-    """The output-affecting generation settings, as reported to the intake (it keys and publishes by them)."""
-    return {"num_ctx": num_ctx, "think": think}
+def generation(num_ctx: int, think: bool | str, num_thread: int | None = None) -> dict:
+    """The generation settings passed to the model, as reported to the intake (it keys and publishes by them). A thread
+    override is included when set: the benchmark ran with Ollama's default, so overridden output is stored, not served,
+    until a benchmark covers that setting."""
+    settings: dict = {"num_ctx": num_ctx, "think": think}
+    if num_thread is not None:
+        settings["num_thread"] = num_thread
+    return settings
 
 
-def build_id(model: str, model_digest: str, num_ctx: int = 8192, think: bool | str = False) -> str:
+def build_id(model: str, model_digest: str, num_ctx: int = 8192, think: bool | str = False, num_thread: int | None = None) -> str:
     """The complete extractor build: version, model name, pinned model build and prompt hash (the tuple the server
     keys and publishes by). Local checkpoints, candidates and
     upload idempotency are keyed by it, so changing the model (or prompt) re-extracts under its own key instead of
     being skipped or answered with another build's result (the server keys its rows the same way)."""
     base = f"{EXTRACTOR_VERSION}|{model}|{model_digest.removeprefix('sha256:')[:12]}|{prompt_sha256()[:16]}"
     # The benchmarked settings keep the short form; any other settings are their own build.
-    return base if (num_ctx, think) == (8192, False) else f"{base}|ctx{num_ctx}-think{str(think).lower()}"
+    if (num_ctx, think, num_thread) == (8192, False, None):
+        return base
+    return f"{base}|ctx{num_ctx}-think{str(think).lower()}" + (f"-threads{num_thread}" if num_thread is not None else "")
 
 
 @dataclass

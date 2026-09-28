@@ -44,7 +44,7 @@ export const INTAKE_SOURCES: Readonly<Record<string, { readonly idPrefix: string
  * (tooling/scripts/extraction-behaviour.ts). Stamped on every accepted row; CI fails when those files change until
  * the benchmark is re-run and this constant and the entry below are updated.
  */
-export const EXTRACTION_BEHAVIOUR_SHA256 = '1fca985a4b222a6e2264a49df60f68506018eb0f8148bb586134a4a2d0d0d6c5';
+export const EXTRACTION_BEHAVIOUR_SHA256 = 'bdd8c43d0936c25c41f2cd4583792d4538f40aff73fdb8c1f3add339ba035e06';
 
 export const PUBLISHABLE_EXTRACTORS: ReadonlyArray<{ readonly version: string; readonly model: string; readonly modelDigest: string; readonly promptSha256: string; readonly generation: string; readonly behaviourSha256: string; readonly benchmark: string }> = [
   {
@@ -56,7 +56,7 @@ export const PUBLISHABLE_EXTRACTORS: ReadonlyArray<{ readonly version: string; r
     // The generation settings the benchmark ran with (run_benchmark.py defaults), as the collector reports them.
     generation: '{"num_ctx":8192,"think":false}',
     // The acceptance rules re-scored from the stored predictions (run_benchmark.py --score-only): identical report.
-    behaviourSha256: '1fca985a4b222a6e2264a49df60f68506018eb0f8148bb586134a4a2d0d0d6c5',
+    behaviourSha256: 'bdd8c43d0936c25c41f2cd4583792d4538f40aff73fdb8c1f3add339ba035e06',
     benchmark: 'apps/local-collector/benchmark/RESULTS.md (held-out precision 38/38, 0/18 negative false positives)',
   },
 ];
@@ -157,13 +157,18 @@ interface Extractor {
   readonly generation: string;
 }
 
-/** Canonical form of the output-affecting generation settings the collector reports (num_ctx and think). */
+/**
+ * Canonical form of the generation settings the collector reports: num_ctx, think and, when overridden, num_thread.
+ * The benchmark ran with Ollama's default thread count, so a thread override makes a different (unpublished) build.
+ */
 function canonicalGeneration(value: unknown): string | null {
   if (!value || typeof value !== 'object') return null;
-  const { num_ctx: ctx, think } = value as Record<string, unknown>;
+  const { num_ctx: ctx, think, num_thread: threads } = value as Record<string, unknown>;
   if (typeof ctx !== 'number' || !Number.isInteger(ctx) || ctx < 512 || ctx > 262_144) return null;
   if (typeof think !== 'boolean' && !(typeof think === 'string' && ['low', 'medium', 'high'].includes(think))) return null;
-  return JSON.stringify({ num_ctx: ctx, think });
+  if (threads === undefined || threads === null) return JSON.stringify({ num_ctx: ctx, think });
+  if (typeof threads !== 'number' || !Number.isInteger(threads) || threads < 1 || threads > 256) return null;
+  return JSON.stringify({ num_ctx: ctx, think, num_thread: threads });
 }
 
 const str = (value: unknown, pattern: RegExp): value is string => typeof value === 'string' && pattern.test(value);

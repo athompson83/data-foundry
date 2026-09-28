@@ -305,6 +305,7 @@ describe('publication of extracted identifiers', () => {
       // The benchmarked build run with other generation settings (collector.json overrides).
       { ...EXTRACTOR, generation: { num_ctx: 4096, think: false } },
       { ...EXTRACTOR, generation: { num_ctx: 8192, think: 'low' } },
+      { ...EXTRACTOR, generation: { num_ctx: 8192, think: false, num_thread: 4 } },
     ]) {
       const stored = (await (await submit(env, token, [{ recall_id: 'cpsc-15034', raw_sha256: sha, candidates: [CANDIDATES[0]] }], undefined, extractor)).json()) as { accepted: number };
       expect(stored.accepted).toBe(1); // kept as evidence

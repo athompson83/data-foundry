@@ -1036,8 +1036,8 @@ class CodexRegressionsRound10(unittest.TestCase):
             with state.tx() as db:
                 for recall_id in ("cpsc-1", "cpsc-2"):
                     db.execute("INSERT INTO candidate (recall_id, raw_sha256, extractor_version, value, field, label, local_decision, updated_at) VALUES (?, 'r', 'b', 'SA904', 'Description', 'item', 'accepted', ?)", (recall_id, old))
-                state.outbox_add(db, "1" * 64, {"task": TASK, "notices": [{"recall_id": "cpsc-1"}]})
-                state.outbox_add(db, "2" * 64, {"task": TASK, "notices": [{"recall_id": "cpsc-2"}]})
+                state.outbox_add(db, "1" * 64, {"task": TASK, "build": "b", "notices": [{"recall_id": "cpsc-1", "raw_sha256": "r"}]})
+                state.outbox_add(db, "2" * 64, {"task": TASK, "build": "b", "notices": [{"recall_id": "cpsc-2", "raw_sha256": "r"}]})
                 db.execute("UPDATE outbox SET state = 'dead' WHERE idempotency_key = ?", ("1" * 64,))
             state.sweep(config.evidence_dir)
             # cpsc-1's upload was dead-lettered: its candidate goes. cpsc-2's upload is still owed: its candidate stays.
@@ -1156,3 +1156,51 @@ class CodexRegressionsRound14(unittest.TestCase):
             except LocalModelError:
                 pass
         self.assertEqual(state.one("SELECT state FROM document")["state"], "failed")
+
+
+class CodexRegressionsRound15(unittest.TestCase):
+    def test_a_pending_upload_of_another_revision_does_not_keep_old_candidates(self):
+        import time as _time
+
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Config(data_dir=tmp)
+            state = State(config.db_path)
+            with state.tx() as db:
+                db.execute("INSERT INTO candidate (recall_id, raw_sha256, extractor_version, value, field, label, local_decision, updated_at) VALUES ('cpsc-1', 'old', 'b', 'SA904', 'Description', 'item', 'accepted', ?)", (_time.time() - 8 * 86400,))
+                # A newer source revision of the same notice is still owed an upload.
+                state.outbox_add(db, "3" * 64, {"task": TASK, "build": "b", "notices": [{"recall_id": "cpsc-1", "raw_sha256": "new"}]})
+            state.sweep(config.evidence_dir)
+            self.assertIsNone(state.one("SELECT 1 FROM candidate"))
+
+    def test_a_thread_override_is_reported_and_makes_its_own_build(self):
+        self.assertEqual(extract.generation(8192, False), {"num_ctx": 8192, "think": False})
+        self.assertEqual(extract.generation(8192, False, 4), {"num_ctx": 8192, "think": False, "num_thread": 4})
+        self.assertNotEqual(extract.build_id("qwen3.5:4b", "2a654d98e6fb"), extract.build_id("qwen3.5:4b", "2a654d98e6fb", num_thread=4))
+
+    def test_a_leftover_uploader_is_signalled_and_waited_for_before_a_new_start(self):
+        import os
+
+        from df_collector import __main__ as cli
+
+        with tempfile.TemporaryDirectory() as tmp:
+            rd = Path(tmp)
+            (rd / "uploader.pid").write_text(str(os.getpid()))  # alive for the whole test
+            self.assertFalse(cli.reap_leftover_uploader(rd, wait_s=2, sleep=lambda s: None))
+            self.assertTrue((rd / "stop").exists())  # it was told to stop
+            (rd / "uploader.pid").write_text("999999999")  # gone
+            self.assertTrue(cli.reap_leftover_uploader(rd, wait_s=2, sleep=lambda s: None))
+            self.assertFalse((rd / "uploader.pid").exists())
+
+    def test_the_uploader_stops_when_its_parent_collector_is_gone(self):
+        from unittest import mock
+
+        from df_collector import runtime as rt
+
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Config(data_dir=tmp)
+            State(config.db_path)
+            with mock.patch.object(rt.Uploader, "run", lambda self: self.stop.wait(5)), mock.patch.object(rt.sys, "exit") as exited:
+                started = __import__("time").monotonic()
+                rt.uploader_main(config, Path(tmp) / "stop", parent_alive=lambda: False)
+                self.assertLess(__import__("time").monotonic() - started, 4)
+                exited.assert_called_once_with(0)

@@ -115,7 +115,7 @@ class Collector:
         self.model_identity = None
         self._last_sweep = 0.0
         # Local rows are keyed by the whole build (column extractor_version holds it), not by the version string.
-        self.build = extract.build_id(config.model, config.model_digest, config.num_ctx, config.think)
+        self.build = extract.build_id(config.model, config.model_digest, config.num_ctx, config.think, config.limits.llm_threads)
 
     # -- helpers -------------------------------------------------------------------------------------------------
 
@@ -383,7 +383,7 @@ class Collector:
                 identity = before
                 payload = {
                     "task": TASK,
-                    "extractor": {"version": extract.EXTRACTOR_VERSION, "model": self.config.model, "model_digest": identity.digest if identity else self.config.model_digest, "prompt_sha256": extract.prompt_sha256(), "generation": extract.generation(self.config.num_ctx, self.config.think)},
+                    "extractor": {"version": extract.EXTRACTOR_VERSION, "model": self.config.model, "model_digest": identity.digest if identity else self.config.model_digest, "prompt_sha256": extract.prompt_sha256(), "generation": extract.generation(self.config.num_ctx, self.config.think, self.config.limits.llm_threads)},
                     "notices": [{"recall_id": row["recall_id"], "raw_sha256": row["raw_sha256"], "candidates": [{"value": p.value, "field": p.field, "label": p.label} for p in accepted]}],
                     "collector": COLLECTOR_ID,
                 }
@@ -435,7 +435,7 @@ class Collector:
             and item.get("model") == self.config.model
             and digest.startswith(self.config.model_digest.removeprefix("sha256:"))
             and item.get("prompt_sha256") == extract.prompt_sha256()
-            and item.get("generation") == json.dumps(extract.generation(self.config.num_ctx, self.config.think), separators=(",", ":"))
+            and item.get("generation") == json.dumps(extract.generation(self.config.num_ctx, self.config.think, self.config.limits.llm_threads), separators=(",", ":"))
         )
 
     def verify_queryable(self, task: policy_mod.TaskPolicy, limit: int = 5) -> int:
@@ -700,11 +700,13 @@ class Uploader:
             self.stop.wait(0.5 if sent else 5)
 
 
-def uploader_main(config: Config, stop_file: Path) -> None:
+def uploader_main(config: Config, stop_file: Path, parent_alive=None) -> None:
+    """Run the uploader until the stop file appears or, when started by a collector, until that collector is gone
+    (a force-killed parent never leaves a credential-holding child behind)."""
     uploader = Uploader(config, State(config.db_path))
 
     def watch() -> None:
-        while not stop_file.exists():
+        while not stop_file.exists() and (parent_alive is None or parent_alive()):
             time.sleep(1)
         uploader.stop.set()
 

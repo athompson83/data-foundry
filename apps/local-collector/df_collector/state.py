@@ -298,7 +298,9 @@ class State:
                 OR (server_status IN ('accepted', 'replayed') AND (queryable = 1 OR updated_at < ?))
                 OR (server_status IS NULL AND updated_at < ? AND NOT EXISTS (
                     SELECT 1 FROM outbox o, json_each(o.payload, '$.notices') n
-                    WHERE o.state != 'dead' AND json_extract(n.value, '$.recall_id') = candidate.recall_id))"""
+                    WHERE o.state != 'dead' AND json_extract(n.value, '$.recall_id') = candidate.recall_id
+                      AND json_extract(n.value, '$.raw_sha256') = candidate.raw_sha256
+                      AND COALESCE(json_extract(o.payload, '$.build'), candidate.extractor_version) = candidate.extractor_version))"""
             cutoff = now - unverified_days * 86400
             for row in db.execute(f"SELECT local_decision, server_status, queryable FROM candidate WHERE {final}", (cutoff, cutoff)).fetchall():
                 self.bump(db, f"candidates_local:{row['local_decision']}")

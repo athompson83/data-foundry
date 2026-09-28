@@ -116,6 +116,7 @@ python -m df_collector purge --everything --remove-model   # and removes the mod
 | Simultaneous model extractions | 1 |
 | Per-host interval | 2 s |
 | Browser sessions | 0 (no task needs a browser) |
+| Model CPU threads (`llm_threads`) | unset (Ollama's default). The benchmark ran with the default: an override is reported to the intake, and output produced with it is stored but not served until a benchmark covers it |
 
 Measured on a 4-core CPU with no GPU: a median of 12 s per notice sent to the model (p95 about 50 s). The full backfill
 therefore takes on the order of a day of CPU time on such a machine. Throughput on your computer is shown in the

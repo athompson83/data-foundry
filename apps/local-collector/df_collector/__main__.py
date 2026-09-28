@@ -162,6 +162,26 @@ def cmd_set_secret(config: Config, name: str) -> int:
     return 0
 
 
+def reap_leftover_uploader(rd: Path, wait_s: float = 90.0, sleep=time.sleep) -> bool:
+    """True once no uploader recorded in the run directory is alive (signalling it through the stop file)."""
+    try:
+        pid = int((rd / "uploader.pid").read_text())
+    except (OSError, ValueError):
+        return True
+    if not pid_alive(pid):
+        (rd / "uploader.pid").unlink(missing_ok=True)
+        return True
+    (rd / "stop").touch()
+    waited = 0.0
+    while waited < wait_s:
+        if not pid_alive(pid):
+            (rd / "uploader.pid").unlink(missing_ok=True)
+            return True
+        sleep(1)
+        waited += 1
+    return False
+
+
 def uploader_args(config: Config, config_path: str | None) -> list[str]:
     """The uploader child's command line. It runs from the app directory, so paths are made absolute first."""
     args = [sys.executable, "-m", "df_collector", "--data-dir", str(Path(config.root).resolve())]
@@ -223,6 +243,11 @@ def cmd_run(config: Config, config_path: str | None) -> int:
         return 0
     rd = run_dir(config)
     stop_file = rd / "stop"
+    # An uploader left by a collector that was killed outright must be gone before the stop signal is cleared:
+    # signal it, wait for it, and refuse to start (the next scheduled start retries) if it is still running.
+    if not reap_leftover_uploader(rd):
+        print("a previous uploader is still running; not starting a second one", file=sys.stderr)
+        return 1
     stop_file.unlink(missing_ok=True)
     (rd / "collector.pid").write_text(str(os.getpid()))
     state = State(config.db_path)
@@ -231,10 +256,11 @@ def cmd_run(config: Config, config_path: str | None) -> int:
     dashboard = Dashboard(config, state, collector)
     # The uploader is a separate process: only it reads the ingestion credential.
     child_args = uploader_args(config, config_path)
+    child_env = {**os.environ, "DF_COLLECTOR_PARENT_PID": str(os.getpid())}
     creationflags = 0x08000000 if os.name == "nt" else 0  # CREATE_NO_WINDOW
 
     def spawn_uploader() -> subprocess.Popen:
-        child = subprocess.Popen(child_args, cwd=str(Path(__file__).resolve().parents[1]), creationflags=creationflags)
+        child = subprocess.Popen(child_args, env=child_env, cwd=str(Path(__file__).resolve().parents[1]), creationflags=creationflags)
         (rd / "uploader.pid").write_text(str(child.pid))
         return child
 
@@ -357,7 +383,8 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "uploader":
         from .runtime import uploader_main
 
-        uploader_main(config, run_dir(config) / "stop")
+        parent = int(os.environ.get("DF_COLLECTOR_PARENT_PID", "0") or 0)
+        uploader_main(config, run_dir(config) / "stop", parent_alive=(lambda: pid_alive(parent)) if parent else None)
         return 0
     if args.command == "stop":
         return cmd_stop(config)
