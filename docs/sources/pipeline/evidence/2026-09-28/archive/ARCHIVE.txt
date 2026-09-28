@@ -31,3 +31,20 @@ for them, not their only copy. `eu-safety-gate/raw/cpsc_recent.json` was separat
 dropped without R2 archival (see `../eu-safety-gate/raw/NOTE-cpsc_recent.md` for why);
 this tarball happens to also hold a copy of it from before that decision, which is
 harmless but not the reason this archive exists.
+
+The five `aviation/raw/fr_*.json` files listed above are this tarball's original
+snapshot (each truncated to the Federal Register API's default 3-result page). A
+Codex review on PR #72 found `model_candidate_join.py` never followed pagination, so
+these five files were re-fetched live (per_page=1000, one page each, no
+`next_page_url` remaining) and the committed copies under `../aviation/raw/` were
+replaced with the complete result sets. Their current sizes/hashes no longer match
+this tarball's copies; that is expected — this tarball is a point-in-time backup of
+the round's original (now-superseded) fetch, not the current evidence, and was not
+re-uploaded to R2 since none of these five files carry personal data (git history is
+sufficient preservation for them, unlike `aircraft.csv`/`up01AUG.zip` above):
+
+aviation/raw/fr_airbusA319.json (re-fetched) 1448842 bytes  sha256 e6925d589c2ef2878a8f1feee9a04a9144dbaa8dd4d40e9bdd49bbde7fdf213d
+aviation/raw/fr_boeing737_v2.json (re-fetched) 2318201 bytes  sha256 f449b8a64c1f493693444193bf5fd6a6cb9c1db5844454a07e5ec67101b91302
+aviation/raw/fr_cessna182.json (re-fetched) 176048 bytes  sha256 4fae7d64b1f7c91c3255edf992b6e1210f81d396e45dabdc571e895dde025c93
+aviation/raw/fr_robinsonR44.json (re-fetched) 123508 bytes  sha256 239c306bd61d2ac75fec0467401fd2fee59e73fc27b785ef2949882268384fdd
+aviation/raw/fr_textron560xl.json (re-fetched) 50061 bytes  sha256 6745f0d7139c42556f70e358c2792d4f04f4361ce34fb1746688db34cc000c8a

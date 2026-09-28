@@ -7,13 +7,22 @@ their own"), never a declared identifier; only a hand-reviewed match counts
 
 Inputs (raw/, fetched 2026-09-28 from federalregister.gov/api/v1/documents.json
 with conditions[agencies][]=federal-aviation-administration, conditions[term]=
-<manufacturer + model>, conditions[type][]=RULE, with the declared scout
-User-Agent):
-  fr_boeing737_v2.json     term "Boeing 737"
-  fr_airbusA319.json       term "Airbus A319"
-  fr_textron560xl.json     term "Textron Aviation 560XL"
-  fr_robinsonR44.json      term "Robinson Helicopter R44"
-  fr_cessna182.json        term "Cessna 182"
+<manufacturer + model>, conditions[type][]=RULE, per_page=1000, with the
+declared scout User-Agent):
+  fr_boeing737_v2.json     term "Boeing 737"      (890 results, one page)
+  fr_airbusA319.json       term "Airbus A319"      (569 results, one page)
+  fr_textron560xl.json     term "Textron Aviation 560XL" (18 results, one page)
+  fr_robinsonR44.json      term "Robinson Helicopter R44" (47 results, one page)
+  fr_cessna182.json        term "Cessna 182"        (65 results, one page)
+
+A Codex review on PR #72 found the first version of these inputs was fetched
+with the API's default page size (3 results per page) and never followed
+`next_page_url`, so `model_matches` below only ever searched the first 3 of
+up to 890 results and reported the remainder as a confirmed non-match. Every
+query is now re-fetched with `per_page=1000`, which the API accepts in one
+page for every query here (no `next_page_url` left on any of them) — a
+negative verdict is therefore a genuine "no result in the full set", not an
+artifact of pagination.
 """
 
 import csv
@@ -66,6 +75,14 @@ def main() -> None:
         row = next((a for a in aircraft if a["regis_no"] == regis_no), None)
         assert row is not None, f"{regis_no} not in this month's NTSB sample"
         fr = json.load(open(f"../raw/{fr_file}"))
+        assert fr.get("next_page_url") is None, (
+            f"{fr_file} is paginated (next_page_url set); a negative verdict from a "
+            "partial result set is not a confirmed non-match (Codex review, PR #72)"
+        )
+        assert len(fr.get("results", [])) == fr["count"], (
+            f"{fr_file} has {fr['count']} total results but only "
+            f"{len(fr.get('results', []))} were fetched"
+        )
         ok, note = model_matches(model, fr)
         correct += 1 if ok else 0
         print(f"  {regis_no} ({make} {model}) vs {fr_file} (FR count={fr['count']}): {'MATCH' if ok else 'no exact-model match'} - {note}")

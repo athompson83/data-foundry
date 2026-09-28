@@ -3834,7 +3834,7 @@ candidates:
     name: FAA airworthiness directives and special conditions, via the Federal Register API
     category: transport
     structuring: obligation-timeline
-    format: structured
+    format: free-text
     publisher: Office of the Federal Register (National Archives and Records Administration)
     stage: SCREENED
     rights: GREEN
@@ -3855,10 +3855,17 @@ candidates:
       the declared scout User-Agent even though full HTML pages on www.federalregister.gov redirect to a bot
       check (confirmed again this round, matching the 2026-09-27 finding); use the API exclusively. 10,000+
       total FAA-agency documents match "airworthiness directive"; document_number/title/agencies/dates arrive
-      as typed JSON fields with a free-text abstract. Rights basis is US government work (44 U.S.C. Chapter 15,
-      Federal Register content); a readable govinfo.gov/federalregister.gov terms citation is still needed
-      before RIGHTS_DETERMINED (the /about/policies pages are client-rendered and returned no readable text
-      to a plain HTTP GET this round).
+      as typed JSON fields, but the aircraft-model-applicability fact this composite's join actually uses is
+      not one of them — it is derived by text-matching each document's free-text title/abstract (same pattern
+      as cpsc-recalls: a JSON API whose transport is typed but whose needed fact is prose), so `format` is
+      free-text, not structured (a Codex review on PR #72 corrected the earlier `structured` label, which would
+      have let this composite falsely pass the two-format EVIDENCED gate with no structured member at all).
+      Before EVIDENCED, either add a genuinely structured member to aviation-safety-events, or model a
+      separate structured slice of this same source (its typed document_number/effective_date/type fields,
+      independent of model-name text-matching) as its own member. Rights basis is US government work (44
+      U.S.C. Chapter 15, Federal Register content); a readable govinfo.gov/federalregister.gov terms citation
+      is still needed before RIGHTS_DETERMINED (the /about/policies pages are client-rendered and returned no
+      readable text to a plain HTTP GET this round).
 
   - key: federal-contract-awards
     name: USASpending.gov federal prime contract award transactions
@@ -4764,12 +4771,16 @@ datasets:
           - faa-airworthiness-directives
         measured: "4/5 of a hand-picked reviewed sample confirmed an exact-model current FAA
           airworthiness/special-conditions action for the same manufacturer+model, checked against every
-          cached result of a live Federal Register FAA-agency query (Textron 560XL, Robinson R44, Cessna 182
-          and Airbus A319-114 matched — the A319-114 match is document 2026-17551, found only by scanning past
-          the first cached result; Boeing 737-7CT found no cached result naming that sub-variant, not counted
-          as correct). This 5-record sample is drawn from, but not representative of, the round's 163 NTSB
-          aircraft records (July 2026 monthly update); the other 158 were never queried and are not counted as
-          non-matches."
+          result of a live Federal Register FAA-agency query fetched in full (per_page=1000, no next_page_url
+          left on any of the five queries — a Codex review on PR #72 found the prior evidence run had cached
+          only each query's first default-size page, e.g. 3 of 890 Boeing 737 results, and reported an
+          incomplete search as a confirmed negative; every query is now exhaustively fetched in one page and
+          verdicts are unchanged: Textron 560XL, Robinson R44, Cessna 182 and Airbus A319-114 matched — the
+          A319-114 match is document 2026-17551, a sub-variant list further down the result set; Boeing
+          737-7CT has no match anywhere in its full 890-result set, now a genuine confirmed negative rather
+          than an artifact of pagination). This 5-record sample is drawn from, but not representative of, the
+          round's 163 NTSB aircraft records (July 2026 monthly update); the other 158 were never queried and
+          are not counted as non-matches."
         mode: candidate
         reviewed: { correct: 4, checked: 5 }
     taxonomy:
@@ -4806,4 +4817,9 @@ datasets:
       verified sha256 52a5ddef3ed37efbfa7375bf7bc3d1c69f7d343579db7b0481662ecb3b5b1d2b) rather than committed
       (AGENTS.md rule 9); events.csv/narratives.csv and the Federal Register JSON files are committed under
       evidence/2026-09-28/aviation/raw/. Writing a conforming inputs.json/samples.json against that archive is
-      the remaining gap, not R2 access.
+      the remaining gap, not R2 access. Both members are now format: free-text (a Codex review on PR #72 caught
+      faa-airworthiness-directives mislabeled structured, since the model-applicability fact this composite
+      uses is text-matched from its free-text title/abstract, not a typed field); this composite has no
+      structured member yet, so it cannot reach EVIDENCED (README's two-format rule) until one is added — either
+      a genuinely structured third source, or a separately modeled structured slice of faa-airworthiness-directives
+      itself (document_number/effective_date/type, independent of model-name text-matching).
