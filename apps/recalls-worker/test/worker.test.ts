@@ -790,6 +790,14 @@ describe('Stripe', () => {
       expect((await worker.fetch(get('/v1/account', key), env)).status).toBe(403);
       // A real customer with an old updated_at is unaffected.
       expect((await worker.fetch(get('/v1/recalls', realKey), env)).status).toBe(200);
+      // Neither an expired nor a closed fixture key reaches Stripe through the billing-portal recovery path.
+      const stripe = vi.fn(async () => Response.json({ url: 'https://billing.stripe.com/x' }));
+      vi.stubGlobal('fetch', stripe);
+      const portal = () => worker.fetch(new Request('https://api.data.aroqon.com/v1/account/billing-portal', { method: 'POST', headers: { authorization: `Bearer ${key}` } }), env);
+      expect((await portal()).status).toBe(403);
+      await env.DB.prepare("UPDATE customer SET status = 'suspended' WHERE id = 'acc'").run();
+      expect((await portal()).status).toBe(403);
+      expect(stripe).not.toHaveBeenCalled();
     } finally {
       vi.useRealTimers();
     }

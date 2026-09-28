@@ -150,7 +150,8 @@ async function accountApi(env: Env, request: Request, url: URL): Promise<Respons
     if (url.pathname !== '/v1/account/billing-portal' || auth.status !== 403) return auth;
     const key = presentedKey(request);
     const customer = key ? await findCustomerByKey(env.DB, key) : null;
-    if (!customer?.stripeCustomerId) return auth;
+    // Internal acceptance fixtures (expired lease, closed fixture) never reach Stripe.
+    if (!customer?.stripeCustomerId || ACCEPTANCE_FIXTURE_ID.test(customer.stripeCustomerId)) return auth;
     return json({ url: await createPortalSession(env, customer.stripeCustomerId) });
   }
   if (url.pathname === '/v1/account' && request.method === 'GET') {
