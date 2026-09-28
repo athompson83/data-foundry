@@ -1,0 +1,10 @@
+NTSB aircraft population this round: 163
+models checked against a live Federal Register FAA-agency query: 5
+  N887PC (TEXTRON AVIATION INC 560XL) vs fr_textron560xl.json (FR count=18): MATCH - abstract explicitly names 'the Textron Model 560XL airplane'
+  N224RH (ROBINSON HELICOPTER R44) vs fr_robinsonR44.json (FR count=47): MATCH - abstract: 'Robinson Helicopter Company Model R44 and R44 II helicopters' - exact model match
+  N43TB (CESSNA 182) vs fr_cessna182.json (FR count=65): MATCH - abstract lists 'Models 180, 180A, ..., 182, 182A, 182B, ...' - exact model match
+  N566WN (BOEING 737-7CT) vs fr_boeing737_v2.json (FR count=890): no exact-model match - top AD is for Model 737-8, 737-9, 737-8200 - same family, but not the -7CT sub-variant on file
+  N328NB (AIRBUS INDUSTRIE A319-114) vs fr_airbusA319.json (FR count=569): no exact-model match - top AD is for Model A319-115, -132, -133 - same family, but not the -114 sub-variant on file
+
+reviewed: 3/5 correct exact-model matches
+measured (population-level, from this hand-reviewed sample only, not exhaustive): 3/163 of this round's 163 NTSB aircraft records have a confirmed current FAA airworthiness/special-conditions action for the same aircraft model.

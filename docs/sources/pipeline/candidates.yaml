@@ -3,7 +3,7 @@
 # applied to the evidence in the linked research record; they are not
 # measurements.
 version: 1
-updated: 2026-09-27
+updated: 2026-09-28
 candidates:
   - key: fda-recalls
     name: FDA Recall Intelligence (food, drug, device enforcement reports)
@@ -2412,9 +2412,11 @@ candidates:
           finding.'
       ]
     evidence:
-      &id001 [
+      [
         docs/sources/pipeline/research-2026-09-27-composites.md,
-        docs/sources/pipeline/evidence/2026-09-27-composites/recalls
+        docs/sources/pipeline/evidence/2026-09-27-composites/recalls,
+        docs/sources/pipeline/research-2026-09-28.md,
+        docs/sources/pipeline/evidence/2026-09-28/eu-safety-gate
       ]
     next_action: Backfill all 1,117 weekly XML reports (2005-2026, about 180 KB each) into the recall notice
       store; parse type_numberOfModel/barcode/batchNumber into model, GTIN and lot keys; write the ADR-0013
@@ -2462,7 +2464,11 @@ candidates:
         Publish the Brand/Model/Barcode/Batch/PSD-number facts and metadata facets; do not present them as
           an OPSS endorsement.
       ]
-    evidence: *id001
+    evidence:
+      &id001 [
+        docs/sources/pipeline/research-2026-09-27-composites.md,
+        docs/sources/pipeline/evidence/2026-09-27-composites/recalls
+      ]
     next_action: Page the search API (3,730 notices since 2022-03) and fetch /api/content for each; parse the
       Product information table rows (Brand, Model, Barcode, Batch, SKU, ASIN) and the PSD notification
       number; write the ADR-0013 rights record.
@@ -3785,6 +3791,238 @@ candidates:
       check refused the write); it is routine verification, not an owner decision. The appliance slice above stays a member of
       home-product-recalls-global.
 
+  # --- Round 4 (2026-09-28): breadth into unrelated domains (transport, government contracting,
+  # agriculture, labor, environment, finance). See research-2026-09-28.md for every live check.
+  - key: ntsb-aviation-accidents
+    name: NTSB aviation accident/incident database (monthly eADMSPUB extract, aircraft/events/narratives)
+    category: transport
+    structuring: event-extraction
+    format: free-text
+    publisher: US National Transportation Safety Board
+    stage: SCREENED
+    rights: GREEN
+    sources:
+      [
+        https://data.ntsb.gov/avdata,
+        https://data.ntsb.gov/avdata/FileDirectory/DownloadFile?fileID=C%3A%5Cavdata%5Cup01AUG.zip
+      ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 3,
+        acquisition_ease: 4,
+        structuring_value: 3,
+        freshness: 4,
+        low_onboarding_cost: 3,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-09-28.md ]
+    next_action: >-
+      Member of aviation-safety-events; see that dataset. Reachable (200) with the declared scout User-Agent;
+      up01AUG.zip (retrieved 2026-09-28, dated 2026-08-01) is a real MS Access .mdb (mdbtools) with aircraft,
+      events, narratives and 15 other tables. 163 aircraft rows this update, regis_no/acft_make/acft_model
+      100% present, acft_serial_no 96/163, 58 free-text narrative rows for the same events (events span
+      2011-2025 lchg dates, latest ev_date 2026-07-17). Rights basis is US government work (17 U.S.C. Sec 105,
+      NTSB is a federal agency); no ntsb.gov terms/copyright page could be read from this egress this round
+      (the SharePoint site returns an empty body or a generic "Page not found" for every guessed policy URL) -
+      write the formal rights record from a working citation, or from the well-established public-domain
+      status of NTSB accident data, before RIGHTS_DETERMINED. avall.zip (full 2005-present history) and
+      PRE1982.zip/Pre2008.zip are also listed in the download directory for full backfill.
+
+  - key: faa-airworthiness-directives
+    name: FAA airworthiness directives and special conditions, via the Federal Register API
+    category: transport
+    structuring: obligation-timeline
+    format: structured
+    publisher: Office of the Federal Register (National Archives and Records Administration)
+    stage: SCREENED
+    rights: GREEN
+    sources: [ https://www.federalregister.gov/api/v1/documents.json ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 4,
+        acquisition_ease: 4,
+        structuring_value: 3,
+        freshness: 4,
+        low_onboarding_cost: 3,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-09-28.md ]
+    next_action: >-
+      Member of aviation-safety-events; see that dataset. The JSON API (200, real content) is reachable with
+      the declared scout User-Agent even though full HTML pages on www.federalregister.gov redirect to a bot
+      check (confirmed again this round, matching the 2026-09-27 finding); use the API exclusively. 10,000+
+      total FAA-agency documents match "airworthiness directive"; document_number/title/agencies/dates arrive
+      as typed JSON fields with a free-text abstract. Rights basis is US government work (44 U.S.C. Chapter 15,
+      Federal Register content); a readable govinfo.gov/federalregister.gov terms citation is still needed
+      before RIGHTS_DETERMINED (the /about/policies pages are client-rendered and returned no readable text
+      to a plain HTTP GET this round).
+
+  - key: federal-contract-awards
+    name: USASpending.gov federal prime contract award transactions
+    category: regulatory
+    structuring: normalization
+    format: structured
+    publisher: US Department of the Treasury (USAspending.gov)
+    stage: SCREENED
+    rights: GREEN
+    sources:
+      [
+        https://api.usaspending.gov/api/v2/search/spending_by_award/,
+        https://api.usaspending.gov/api/v2/references/agency/097/
+      ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 4,
+        acquisition_ease: 5,
+        structuring_value: 2,
+        freshness: 4,
+        low_onboarding_cost: 4,
+        poor_existing_access: 2
+      }
+    evidence: [ docs/sources/pipeline/research-2026-09-28.md ]
+    next_action: >-
+      Standalone this round; the natural composite partner (SAM.gov entity exclusions, same UEI identifier
+      space) is PARKED below for lack of a registered API key. Live POST to spending_by_award (2026-09-28)
+      returned real recent awards with a recipient_id (UEI-derived) and Award Amount; already structured
+      (low structuring_value alone), so only worth building once a second UEI-bearing source is reachable.
+      Reopen the join with sam-entity-exclusions if a registered SAM.gov api.sam.gov key becomes available.
+
+  - key: sam-entity-exclusions
+    name: SAM.gov excluded-parties list (suspensions, debarments)
+    category: regulatory
+    structuring: normalization
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ https://api.sam.gov/entity-information/v3/exclusions ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 2,
+        acquisition_ease: 1,
+        structuring_value: 3,
+        freshness: 3,
+        low_onboarding_cost: 3,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-09-28.md ]
+    next_action: >-
+      Parked: api.sam.gov/entity-information/v3/exclusions requires a registered SAM.gov API key (api_key=DEMO_KEY
+      returned 404, not the usual unauthorized-but-reachable response); no credential is available in this
+      session. The undocumented sam.gov public-search endpoint does not reliably filter to exclusions from this
+      egress (exclusion/is_active query parameters were ignored; it kept returning opportunity notices), and
+      guessing at an undocumented filter is not evidence. Reopen once a registered key is provisioned (UA-class
+      owner action) or a documented bulk exclusions extract URL is found.
+
+  - key: usda-nass-quickstats
+    name: USDA NASS QuickStats agricultural survey and census statistics
+    category: agriculture
+    structuring: normalization
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ https://quickstats.nass.usda.gov/api/api_GET/ ]
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 3,
+        acquisition_ease: 2,
+        structuring_value: 2,
+        freshness: 3,
+        low_onboarding_cost: 3,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-09-28.md ]
+    next_action: >-
+      Parked: quickstats.nass.usda.gov/api/api_GET requires a registered API key; key=DEMO_KEY returned
+      401 {"error":["unauthorized"]}. No credential is available in this session. NASS QuickStats keys are
+      free to register (owner action, a few-minute web form); reopen once one exists. Agriculture is otherwise
+      unrepresented in this registry.
+
+  - key: bls-local-area-unemployment
+    name: BLS Local Area Unemployment Statistics (LAUS) time series
+    category: labor
+    structuring: normalization
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ https://api.bls.gov/publicAPI/v2/timeseries/data/LAUCN040010000000005 ]
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 4,
+        acquisition_ease: 2,
+        structuring_value: 2,
+        freshness: 3,
+        low_onboarding_cost: 3,
+        poor_existing_access: 2
+      }
+    evidence: [ docs/sources/pipeline/research-2026-09-28.md ]
+    next_action: >-
+      Parked: the unauthenticated BLS public API v2 endpoint returned HTTP 200 but
+      {"status":"REQUEST_NOT_PROCESSED","message":["Request could not be serviced, as the daily threshold for
+      total number of requests allocated to the user with registration key  has been reached."]} - the shared,
+      unregistered quota was already exhausted from this egress at the time of this round's check. No
+      registered BLS key is available in this session. Labor statistics are otherwise unrepresented in this
+      registry; reopen with a registered key.
+
+  - key: epa-echo-facility-compliance
+    name: EPA ECHO (Enforcement and Compliance History Online) facility compliance and enforcement data
+    category: environment
+    structuring: normalization
+    format: structured
+    publisher: US Environmental Protection Agency
+    stage: SCREENED
+    rights: GREEN
+    sources: [ https://echodata.epa.gov/echo/echo_rest_services.get_facilities ]
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 4,
+        acquisition_ease: 4,
+        structuring_value: 3,
+        freshness: 3,
+        low_onboarding_cost: 3,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-09-28.md ]
+    next_action: >-
+      Standalone this round (environment was entirely unrepresented in this registry). Live query for
+      Delaware active facilities (p_st=DE&p_act=Y) returned 200 with real counts (2,159 query rows; 460
+      inspections; $20,254,992 total penalties in the default window) with the declared scout User-Agent; a
+      too-broad national query correctly refuses with a "Queryset Limit would be exceeded" error rather than
+      truncating silently. Needs a second, independent environmental-enforcement publisher (a state agency,
+      e.g. CalEPA/DTSC or a state water board) before a composite dataset; not yet attempted this round.
+
+  - key: fdic-bank-failures
+    name: FDIC BankFind bank failures and institution directory
+    category: finance
+    structuring: normalization
+    format: structured
+    publisher: US Federal Deposit Insurance Corporation
+    stage: SCREENED
+    rights: GREEN
+    sources: [ https://api.fdic.gov/banks/failures, https://api.fdic.gov/banks/institutions ]
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 4,
+        acquisition_ease: 5,
+        structuring_value: 2,
+        freshness: 3,
+        low_onboarding_cost: 4,
+        poor_existing_access: 2
+      }
+    evidence: [ docs/sources/pipeline/research-2026-09-28.md ]
+    next_action: >-
+      Standalone this round. banks.data.fdic.gov/api/failures redirects (301) to api.fdic.gov/banks/failures,
+      which returned 200 with 4,117 total failure records back to 1934 (CERT-numbered) and the institutions
+      endpoint returned 200 with 4,231 active institutions; both already structured (low structuring_value).
+      finance already has sec-8k-events (EVIDENCED) and sec-xbrl-financial-facts (PARKED); no independent
+      second publisher covering the same bank-failure population was found reachable this round (FINRA
+      BrokerCheck is a different entity population - individuals/firms, not failed banks - and its own
+      redistribution terms were not readable from this egress, so it is not used here).
+
 datasets:
   - key: home-product-recalls-global
     name: Global home-equipment and consumer-product recall register (multi-agency, model/GTIN-linked)
@@ -4487,3 +4725,66 @@ datasets:
       acceptance (lookup, filters, include=raw digests, $0 Evaluate checkout) with a revocable acceptance key, run
       and revoked by any session permitted to write that key to production D1 (the 2026-09-28 session's permission
       check refused the write); it is routine verification, not an owner decision.
+
+  - key: aviation-safety-events
+    name: US aviation accident/incident and airworthiness-action register (NTSB + FAA)
+    category: transport
+    entity: aviation_safety_event (one NTSB accident/incident record, or one FAA airworthiness/special-conditions
+      action), linked where they concern the same aircraft make/model
+    stage: SCREENED
+    description: "One record per NTSB aviation accident/incident (aircraft, event, flight-crew and narrative
+      facts from the monthly eADMSPUB extract) or FAA airworthiness directive/special-conditions action (from
+      the Federal Register API), covering the same aircraft population from two independent federal
+      publishers. No declared identifier links the two record types (an accident names a specific aircraft by
+      N-number; an airworthiness action names an aircraft type/model, not a tail number), so the aircraft
+      make/model is a reviewed candidate link only, never an automatic merge (AGENTS.md rules 3 and 7): it
+      tells an agent that a model involved in a real accident also has open manufacturer/FAA safety actions,
+      not that any specific accident caused any specific directive."
+    sources:
+      - ntsb-aviation-accidents
+      - faa-airworthiness-directives
+    join_keys:
+      - key: aircraft make/model token (candidate only, never auto-linked)
+        between:
+          - ntsb-aviation-accidents
+          - faa-airworthiness-directives
+        measured: "3/163 NTSB aircraft records (July 2026 monthly update) hand-checked against a live Federal
+          Register FAA-agency query for the same manufacturer+model; 3/5 checked models confirmed with an
+          exact-model current airworthiness/special-conditions action (Textron 560XL, Robinson R44, Cessna
+          182); 2/5 checked (Boeing 737-7CT, Airbus A319-114) found only a same-family, different-sub-variant
+          action, not counted as correct"
+        mode: candidate
+        reviewed: { correct: 3, checked: 5 }
+    taxonomy:
+      - "record_type: accident | incident | airworthiness_directive | special_conditions"
+      - "publisher: NTSB | FAA (via Federal Register)"
+      - "aircraft_category: airplane | helicopter | glider | other"
+      - "injury_severity: fatal | serious | minor | none (NTSB ev_highest_injury)"
+    agent_questions:
+      - Has this aircraft model (by manufacturer and model designation) been involved in an NTSB-investigated
+        accident, and is it currently subject to an FAA airworthiness directive?
+      - What is the probable cause or finding narrative for accidents involving this aircraft make/model in
+        the last month?
+      - Which aircraft models named in a recent FAA airworthiness directive have also had a recent NTSB
+        accident or incident?
+    scores:
+      agent_demand: 4
+      rights_clarity: 3
+      acquisition_ease: 4
+      structuring_value: 3
+      freshness: 4
+      low_onboarding_cost: 3
+      poor_existing_access: 3
+    evidence:
+      - docs/sources/pipeline/research-2026-09-28.md
+      - docs/sources/pipeline/evidence/2026-09-28/aviation
+    next_action: >-
+      Write the ADR-0013 rights records for both members from a readable terms citation (neither ntsb.gov nor
+      federalregister.gov/govinfo.gov returned readable policy text to a plain HTTP GET this round; the basis
+      is otherwise the well-established US-government-work status of NTSB and Federal Register content).
+      Then pull a full monthly NTSB update plus a broader Federal Register manufacturer/model sweep (not just
+      the 5 models hand-checked this round) for a proper EVIDENCED sample under evidence/<date>/, with the raw
+      inputs archived to R2 (this round's R2 write attempt was refused by the session's own permission
+      classifier as a shared-resource mutation; the raw NTSB/Federal Register files are committed directly
+      under evidence/2026-09-28/aviation/raw/ instead, per AGENTS.md rule 10, pending a session with R2 write
+      access).

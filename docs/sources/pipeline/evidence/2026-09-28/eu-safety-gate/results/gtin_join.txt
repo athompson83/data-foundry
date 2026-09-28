@@ -1,0 +1,10 @@
+EU barcodes present: 132/223
+EU barcodes with a valid GS1 check digit: 105
+CPSC recalls (RecallDate 2024-01-01..2026-09-28, n=1184) carrying a GS1-valid Products[].UPC: 0
+distinct valid CPSC UPCs: 0
+declared GTIN overlap (EU barcode == CPSC UPC): 0/105
+Finding: the standard saferproducts.gov RestWebServices/Recall JSON does not carry a
+Products[].UPC field at all in this window (0 CPSC recalls with a UPC), matching the
+2026-09-27-composites finding for the same field (xmatch.py: '0/861 CPSC recalls with
+model or code tokens ... via GTIN 0'). A UPC/GTIN join against CPSC needs identifiers
+extracted from Description/Title free text, not a structured field.

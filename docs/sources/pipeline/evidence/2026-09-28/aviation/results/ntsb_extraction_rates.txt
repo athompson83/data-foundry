@@ -1,0 +1,8 @@
+163 aircraft rows in the up01AUG.mdb (July 2026 events) update
+ev_id: 163/163
+regis_no: 163/163
+acft_make: 163/163
+acft_model: 163/163
+acft_serial_no: 96/163
+58 narrative rows (free-text finding/cause fields) for the same 163 events
+157 event rows; ev_date range: 01/03/11 00:00:00 .. 12/14/25 00:00:00
