@@ -3822,7 +3822,8 @@ candidates:
       up01AUG.zip (retrieved 2026-09-28, dated 2026-08-01) is a real MS Access .mdb (mdbtools) with aircraft,
       events, narratives and 15 other tables. 163 aircraft rows this update, regis_no/acft_make/acft_model
       100% present, acft_serial_no 96/163, 58 free-text narrative rows for the same events (events span
-      2011-2025 lchg dates, latest ev_date 2026-07-17). Rights basis is US government work (17 U.S.C. Sec 105,
+      2008-01-30 to 2026-07-29, parsed correctly after a Codex-caught string-sort bug). Rights basis is US
+      government work (17 U.S.C. Sec 105,
       NTSB is a federal agency); no ntsb.gov terms/copyright page could be read from this egress this round
       (the SharePoint site returns an empty body or a generic "Page not found" for every guessed policy URL) -
       write the formal rights record from a working citation, or from the well-established public-domain
@@ -4748,14 +4749,16 @@ datasets:
         between:
           - ntsb-aviation-accidents
           - faa-airworthiness-directives
-        measured: "3/5 of a hand-picked reviewed sample confirmed an exact-model current FAA
-          airworthiness/special-conditions action for the same manufacturer+model, checked against a live
-          Federal Register FAA-agency query (Textron 560XL, Robinson R44, Cessna 182 matched; Boeing 737-7CT
-          and Airbus A319-114 found only a same-family, different-sub-variant action, not counted as correct).
-          This 5-record sample is drawn from, but not representative of, the round's 163 NTSB aircraft records
-          (July 2026 monthly update); the other 158 were never queried and are not counted as non-matches."
+        measured: "4/5 of a hand-picked reviewed sample confirmed an exact-model current FAA
+          airworthiness/special-conditions action for the same manufacturer+model, checked against every
+          cached result of a live Federal Register FAA-agency query (Textron 560XL, Robinson R44, Cessna 182
+          and Airbus A319-114 matched — the A319-114 match is document 2026-17551, found only by scanning past
+          the first cached result; Boeing 737-7CT found no cached result naming that sub-variant, not counted
+          as correct). This 5-record sample is drawn from, but not representative of, the round's 163 NTSB
+          aircraft records (July 2026 monthly update); the other 158 were never queried and are not counted as
+          non-matches."
         mode: candidate
-        reviewed: { correct: 3, checked: 5 }
+        reviewed: { correct: 4, checked: 5 }
     taxonomy:
       - "record_type: accident | incident | airworthiness_directive | special_conditions"
       - "publisher: NTSB | FAA (via Federal Register)"

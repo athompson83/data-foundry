@@ -18,13 +18,16 @@ User-Agent):
 
 import csv
 import json
+import re
 
+# (registration, make, model, FR response file, a regex the model must match
+# somewhere in a cached result's title+abstract to count as an exact-model hit)
 CHECKS = [
-    ("N887PC", "TEXTRON AVIATION INC", "560XL", "fr_textron560xl.json", True, "abstract explicitly names 'the Textron Model 560XL airplane'"),
-    ("N224RH", "ROBINSON HELICOPTER", "R44", "fr_robinsonR44.json", True, "abstract: 'Robinson Helicopter Company Model R44 and R44 II helicopters' - exact model match"),
-    ("N43TB", "CESSNA", "182", "fr_cessna182.json", True, "abstract lists 'Models 180, 180A, ..., 182, 182A, 182B, ...' - exact model match"),
-    ("N566WN", "BOEING", "737-7CT", "fr_boeing737_v2.json", False, "top AD is for Model 737-8, 737-9, 737-8200 - same family, but not the -7CT sub-variant on file"),
-    ("N328NB", "AIRBUS INDUSTRIE", "A319-114", "fr_airbusA319.json", False, "top AD is for Model A319-115, -132, -133 - same family, but not the -114 sub-variant on file"),
+    ("N887PC", "TEXTRON AVIATION INC", "560XL", "fr_textron560xl.json", r"560XL"),
+    ("N224RH", "ROBINSON HELICOPTER", "R44", "fr_robinsonR44.json", r"\bR44\b"),
+    ("N43TB", "CESSNA", "182", "fr_cessna182.json", r"\b182\b"),
+    ("N566WN", "BOEING", "737-7CT", "fr_boeing737_v2.json", r"737-7CT\b"),
+    ("N328NB", "AIRBUS INDUSTRIE", "A319-114", "fr_airbusA319.json", r"-114\b"),
 ]
 
 
@@ -34,12 +37,24 @@ def main() -> None:
     print(f"NTSB aircraft population this round: {len(aircraft)}")
     print(f"models checked against a live Federal Register FAA-agency query: {len(CHECKS)}")
     correct = 0
-    for regis_no, make, model, fr_file, ok, note in CHECKS:
+    for regis_no, make, model, fr_file, pattern in CHECKS:
         row = next((a for a in aircraft if a["regis_no"] == regis_no), None)
         assert row is not None, f"{regis_no} not in this month's NTSB sample"
         fr = json.load(open(f"../raw/{fr_file}"))
+        # Search every cached result, not just the first — an earlier version
+        # of this script only inspected fr["count"] and hard-coded the verdict
+        # by hand, missing that the FR results actually go on to list Model
+        # A319-114 explicitly (document 2026-17551) further down the page
+        # (Codex review, PR #72).
+        matches = [
+            r["document_number"]
+            for r in fr.get("results", [])
+            if re.search(pattern, (r.get("title", "") or "") + " " + (r.get("abstract", "") or ""), re.I)
+        ]
+        ok = bool(matches)
         correct += 1 if ok else 0
-        print(f"  {regis_no} ({make} {model}) vs {fr_file} (FR count={fr['count']}): {'MATCH' if ok else 'no exact-model match'} - {note}")
+        detail = f"matched {matches[0]}" if ok else f"no result in the cached page (of {len(fr.get('results', []))}) names this model"
+        print(f"  {regis_no} ({make} {model}) vs {fr_file} (FR count={fr['count']}): {'MATCH' if ok else 'no exact-model match'} - {detail}")
     print(f"\nreviewed: {correct}/{len(CHECKS)} correct exact-model matches")
     print(
         f"Only these {len(CHECKS)} of this round's {len(aircraft)} NTSB aircraft records were queried against "
