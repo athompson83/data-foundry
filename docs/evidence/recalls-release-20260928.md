@@ -80,4 +80,5 @@ Read-only Stripe, live account `acct_1U3gItLlvU3ZaHdi` (Aroqon Data), 2026-09-28
   - The dry-run bundle contains the product IndexNow feed, the admin endpoints and the adapter.
   - Both OpenAPI variants validate. The direct contract is identical to the live one.
 - **Fixture reactivated (2026-09-28 17:45 UTC).** `acceptance-20260928` was set back to `active`, touching one row and only while it had 0 active keys, so the acceptance workflow can authenticate. It still has no key until a run issues and revokes one.
+- **Fixture lifecycle, superseding the manual reactivation.** From PR #74's final code, each acceptance run opens the fixture itself and closes it (revoke plus suspend, in one transaction) through `/admin/acceptance-fixture`. The 17:45 manual reactivation is therefore no longer needed, and the fixture is left `suspended` after every run.
 

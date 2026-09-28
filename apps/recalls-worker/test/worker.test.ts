@@ -747,6 +747,29 @@ describe('Stripe', () => {
     expect((await worker.fetch(get('/v1/recalls', reissued.api_key), env)).status).toBe(200);
   });
 
+  it('opens and closes only internal acceptance fixtures, closing atomically to a suspended state', async () => {
+    const env = makeEnv({ ADMIN_TOKEN: 'a'.repeat(40) });
+    const realKey = await seedCustomer(env, 'developer');
+    await seed(env);
+    await env.DB.prepare("INSERT INTO customer (id, email, stripe_customer_id, plan, status, created_at, updated_at) VALUES ('acc', 'acceptance-internal@aroqon.invalid', 'cus_acceptance_internal_20260928', 'developer', 'suspended', 'now', 'now')").run();
+    const fixture = (id: string, state: string, token = 'a'.repeat(40)) => worker.fetch(new Request(`https://data.aroqon.com/admin/acceptance-fixture?stripe_customer_id=${id}&state=${state}`, { method: 'POST', headers: { authorization: `Bearer ${token}` } }), env);
+    expect((await fixture('cus_acceptance_internal_20260928', 'open', 'b'.repeat(40))).status).toBe(404);
+    // A real customer is never touched: its id does not qualify.
+    expect((await fixture('cus_1', 'closed')).status).toBe(400);
+    expect((await worker.fetch(get('/v1/recalls', realKey), env)).status).toBe(200);
+    expect(await (await fixture('cus_acceptance_internal_20260928', 'open')).json()).toMatchObject({ status: 'active', active_keys: 0 });
+    const key = await issueKey(env.DB, 'acc', null);
+    expect((await worker.fetch(get('/v1/recalls', key), env)).status).toBe(200);
+    // Opening never revives a fixture that still holds an active key.
+    await env.DB.prepare("UPDATE customer SET status = 'suspended' WHERE id = 'acc'").run();
+    expect(await (await fixture('cus_acceptance_internal_20260928', 'open')).json()).toMatchObject({ status: 'suspended', active_keys: 1 });
+    expect(await (await fixture('cus_acceptance_internal_20260928', 'closed')).json()).toMatchObject({ status: 'suspended', active_keys: 0 });
+    expect((await worker.fetch(get('/v1/recalls', key), env)).status).toBe(401);
+    // An internal-looking id whose customer lacks the internal email is refused.
+    await env.DB.prepare("UPDATE customer SET email = 'x@example.com' WHERE id = 'acc'").run();
+    expect((await fixture('cus_acceptance_internal_20260928', 'open')).status).toBe(404);
+  });
+
   it('reports the serving version and its source tag to an operator only', async () => {
     const env = makeEnv({ ADMIN_TOKEN: 'a'.repeat(40), CF_VERSION_METADATA: { id: 'v-123', tag: 'abcdef012345', timestamp: '2026-09-28T18:00:00Z' } });
     const version = (token: string) => worker.fetch(new Request('https://data.aroqon.com/admin/version', { headers: { authorization: `Bearer ${token}` } }), env);

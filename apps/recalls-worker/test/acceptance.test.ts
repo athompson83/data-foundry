@@ -60,7 +60,8 @@ describe('production acceptance script', () => {
     expect(evidence.metered_requests).toBeGreaterThanOrEqual(10);
     expect(await env.DB.prepare('SELECT requests FROM usage_month').first()).toEqual({ requests: evidence.metered_requests });
     expect(await env.DB.prepare('SELECT count(*) AS n FROM api_key WHERE revoked_at IS NULL').first()).toEqual({ n: 0 });
-    expect(await env.DB.prepare('SELECT status FROM customer').first()).toEqual({ status: 'active' });
+    // Closed at the end: suspended, so no key of the fixture can authenticate until the next run opens it.
+    expect(await env.DB.prepare('SELECT status FROM customer').first()).toEqual({ status: 'suspended' });
     // The evidence never carries the key or the admin token.
     const serialized = JSON.stringify(evidence);
     expect(serialized).not.toMatch(/rcl_live_[A-Za-z0-9]{32}/);
@@ -117,14 +118,13 @@ describe('production acceptance script', () => {
     expect(evidence.source_sha).toBe(SHA);
   });
 
-  it('names an inactive fixture instead of failing obscurely, and still revokes', async () => {
+  it('opens a closed or canceled fixture itself, and refuses one without an internal email before issuing a key', async () => {
     const env = makeEnv();
     await seed(env);
     await env.DB.prepare("UPDATE customer SET status = 'canceled'").run();
-    const evidence = await runAcceptance(options(env));
-    expect(evidence.ok).toBe(false);
-    expect(evidence.checks.find((check) => check.name === 'acceptance fixture is active')).toMatchObject({ ok: false, detail: expect.stringContaining('status=canceled') });
-    expect(evidence.checks.some((check) => check.name.startsWith('CPSC'))).toBe(false);
+    expect((await runAcceptance(options(env))).ok).toBe(true);
+    await env.DB.prepare("UPDATE customer SET email = 'someone@example.com'").run();
+    await expect(runAcceptance(options(env))).rejects.toThrow('could not be opened');
     expect(await env.DB.prepare('SELECT count(*) AS n FROM api_key WHERE revoked_at IS NULL').first()).toEqual({ n: 0 });
   });
 
@@ -166,28 +166,38 @@ describe('production acceptance script', () => {
       if (new URL(request.url).pathname === '/admin/reissue-key') throw new Error('connection reset');
       return response;
     };
-    await expect(runAcceptance(options(env, { fetch: lossy, settleMs: 0 }))).rejects.toThrow('connection reset');
+    await expect(runAcceptance(options(env, { fetch: lossy }))).rejects.toThrow('connection reset');
     // The Worker created a key, the script never saw it, and it is revoked anyway.
     expect(await env.DB.prepare('SELECT count(*) AS n FROM api_key').first()).toEqual({ n: 1 });
     expect(await env.DB.prepare('SELECT count(*) AS n FROM api_key WHERE revoked_at IS NULL').first()).toEqual({ n: 0 });
   });
 
-  it('revokes again after settling when a reissue is still in flight at the first revoke', async () => {
+  it('leaves a reissue that lands after the close unusable, whatever its timing', async () => {
     const env = makeEnv();
     await seed(env);
-    // The client connection drops at once while the Worker's reissue is still running.
+    // The client connection drops at once; the Worker's reissue lands only after the run has closed the fixture.
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => { release = resolve; });
     let inFlight: Promise<Response> | null = null;
     const racing = async (request: Request): Promise<Response> => {
       if (new URL(request.url).pathname === '/admin/reissue-key') {
-        inFlight = new Promise((resolve) => setTimeout(resolve, 20)).then(() => worker.fetch(request, env));
+        inFlight = gate.then(() => worker.fetch(request, env));
         throw new Error('connection reset');
       }
       return worker.fetch(request, env);
     };
-    await expect(runAcceptance(options(env, { fetch: racing, settleMs: 60 }))).rejects.toThrow('connection reset');
-    await inFlight;
-    // The late key was inserted after the first revoke and removed by the settled second one.
-    expect(await env.DB.prepare('SELECT count(*) AS n FROM api_key').first()).toEqual({ n: 1 });
+    await expect(runAcceptance(options(env, { fetch: racing }))).rejects.toThrow('connection reset');
+    release();
+    const late = (await ((await inFlight) as unknown as Response).json()) as { api_key: string };
+    // The late key exists and is not revoked, but its customer is suspended, so it cannot be used.
+    expect(await env.DB.prepare('SELECT count(*) AS n FROM api_key WHERE revoked_at IS NULL').first()).toEqual({ n: 1 });
+    expect(await env.DB.prepare('SELECT status FROM customer').first()).toEqual({ status: 'suspended' });
+    for (const path of ['/v1/product-recalls?limit=1', '/v1/recalls?limit=1', '/v1/account']) {
+      const response = await worker.fetch(new Request(`https://api.data.aroqon.com${path}`, { headers: { authorization: `Bearer ${late.api_key}` } }), env);
+      expect(response.status, path).toBe(403);
+    }
+    // The next run's opening close revokes it.
+    expect((await runAcceptance(options(env))).ok).toBe(true);
     expect(await env.DB.prepare('SELECT count(*) AS n FROM api_key WHERE revoked_at IS NULL').first()).toEqual({ n: 0 });
   });
 

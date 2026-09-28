@@ -337,6 +337,31 @@ async function route(request: Request, env: Env): Promise<Response> {
     return json({ revoked_at: now, active_keys: remaining?.n ?? 0 }, 200, { 'cache-control': 'no-store' });
   }
 
+  if (url.pathname === '/admin/acceptance-fixture' && request.method === 'POST') {
+    // Opens or closes the internal acceptance customer. Only internal fixtures qualify
+    // (cus_acceptance_internal_YYYYMMDD with an .invalid email). Closing revokes every key
+    // and suspends the fixture in one transaction. The Worker refuses keys of a suspended
+    // customer, so a reissue that lands after the close is unusable, whatever its timing.
+    if (!isAuthorizedAdmin(env, request)) return apiError(404, 'not_found', 'Not found.');
+    const stripeCustomerId = url.searchParams.get('stripe_customer_id') ?? '';
+    const state = url.searchParams.get('state');
+    if (!/^cus_acceptance_internal_[0-9]{8}$/.test(stripeCustomerId) || (state !== 'open' && state !== 'closed')) throw new BadRequest('an internal acceptance stripe_customer_id and state=open|closed are required');
+    const fixture = await env.DB.prepare("SELECT id FROM customer WHERE stripe_customer_id = ? AND email LIKE '%@aroqon.invalid'").bind(stripeCustomerId).first<{ id: string }>();
+    if (!fixture) return apiError(404, 'not_found', 'No internal acceptance customer with that id.');
+    const now = new Date().toISOString();
+    if (state === 'open') {
+      // Only a fixture holding no active key is opened, so opening never revives a stray key.
+      await env.DB.prepare("UPDATE customer SET status = 'active', updated_at = ? WHERE id = ? AND NOT EXISTS (SELECT 1 FROM api_key WHERE customer_id = ? AND revoked_at IS NULL)").bind(now, fixture.id, fixture.id).run();
+    } else {
+      await env.DB.batch([
+        env.DB.prepare('UPDATE api_key SET revoked_at = ? WHERE customer_id = ? AND revoked_at IS NULL').bind(now, fixture.id),
+        env.DB.prepare("UPDATE customer SET status = 'suspended', updated_at = ? WHERE id = ?").bind(now, fixture.id),
+      ]);
+    }
+    const after = await env.DB.prepare('SELECT status, (SELECT count(*) FROM api_key WHERE customer_id = customer.id AND revoked_at IS NULL) AS active_keys FROM customer WHERE id = ?').bind(fixture.id).first<{ status: string; active_keys: number }>();
+    return json({ status: after?.status ?? null, active_keys: after?.active_keys ?? null, at: now }, 200, { 'cache-control': 'no-store' });
+  }
+
   if (url.pathname === '/admin/version' && request.method === 'GET') {
     // Which Worker version is serving: the deploy workflow tags each version with its source commit.
     if (!isAuthorizedAdmin(env, request)) return apiError(404, 'not_found', 'Not found.');

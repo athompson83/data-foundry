@@ -1,10 +1,11 @@
 /**
  * Authenticated production acceptance for the recalls API (both datasets).
  *
- * Issues one key for the dedicated internal acceptance customer through the
- * supported operator path (POST /admin/reissue-key), runs a bounded set of
- * customer-equivalent requests with it, then always revokes it
- * (POST /admin/revoke-keys) and proves the key is rejected afterwards.
+ * Opens the dedicated internal acceptance customer (POST /admin/acceptance-fixture),
+ * issues one key for it through the supported operator path (POST /admin/reissue-key),
+ * runs a bounded set of customer-equivalent requests with it, then always closes the
+ * fixture (every key revoked and the fixture suspended in one transaction) and proves
+ * the key is rejected afterwards.
  *
  * The key never leaves this process: it is not printed, logged or written.
  * The evidence returned (and printed by the CLI) holds statuses, ids, counts and
@@ -27,11 +28,6 @@ export interface AcceptanceOptions {
   /** The 40-hex source commit being accepted: the live Worker version must be tagged with its first 12 characters. */
   readonly expectedSha: string;
   readonly fetch: (request: Request) => Promise<Response>;
-  /**
-   * When a reissue's outcome is unknown (the request threw or returned no key), the Worker may
-   * still be inserting the key. Revocation is repeated after this interval. Default 30 s.
-   */
-  readonly settleMs?: number;
 }
 
 export interface Check {
@@ -126,6 +122,8 @@ export async function runAcceptance(options: AcceptanceOptions): Promise<Accepta
   let metered = 0;
   let revocation: AcceptanceEvidence['revocation'] = { revoked: false, active_keys: null, rejected_after: false };
 
+  const fixture = (state: 'open' | 'closed') => call(options.publicOrigin, `/admin/acceptance-fixture?stripe_customer_id=${encodeURIComponent(options.stripeCustomerId)}&state=${state}`, { method: 'POST', admin: true });
+
   const runChecks = async (k: string): Promise<void> => {
     const metered200 = async (path: string): Promise<{ status: number; body: Json | null; headers: Headers }> => {
       metered += 1;
@@ -215,6 +213,13 @@ export async function runAcceptance(options: AcceptanceOptions): Promise<Accepta
     check('metering: each data request counted once, account reads not counted', after.status === 200 && usedAfter - usedBefore === metered, `delta=${usedAfter - usedBefore} metered=${metered} allowance=${String(after.body?.['month_allowance'])}`);
   };
 
+  // Start from a clean fixture: close it (revoking anything a previous run left), then open it.
+  const reset = await fixture('closed');
+  const opened = await fixture('open');
+  if (reset.status !== 200 || opened.status !== 200 || opened.body?.['status'] !== 'active' || opened.body?.['active_keys'] !== 0) {
+    throw new Error(`Refusing: the acceptance fixture could not be opened (${reset.status}/${opened.status}, status ${String(opened.body?.['status'])}).`);
+  }
+
   try {
     reissueAttempted = true;
     const issued = await call(options.publicOrigin, `/admin/reissue-key?stripe_customer_id=${encodeURIComponent(options.stripeCustomerId)}`, { method: 'POST', admin: true });
@@ -223,8 +228,8 @@ export async function runAcceptance(options: AcceptanceOptions): Promise<Accepta
     customer.plan = (issued.body?.['plan'] as string | undefined) ?? null;
     customer.status = (issued.body?.['status'] as string | undefined) ?? null;
     const issuedOk = check('operator reissue returned a key for the internal customer', issued.status === 200 && key !== null && email.endsWith(ACCEPTANCE_EMAIL_SUFFIX), `${issued.status} plan=${customer.plan} status=${customer.status}`);
-    // A key for an inactive fixture authenticates to 403 on every endpoint: say so instead of failing obscurely.
-    const activeOk = issuedOk && check('acceptance fixture is active', customer.status === 'active', customer.status === 'active' ? 'active' : `status=${customer.status}: reactivate the fixture (docs/owner-actions/recalls-operations.md, "Production acceptance")`);
+    // The fixture was just opened; confirm the reissue saw it active before spending requests.
+    const activeOk = issuedOk && check('acceptance fixture is active', customer.status === 'active', `status=${customer.status}`);
     if (activeOk) {
       await runChecks(key as string);
       // The whole run must have been served by the version the evidence names.
@@ -232,24 +237,22 @@ export async function runAcceptance(options: AcceptanceOptions): Promise<Accepta
       check('live version unchanged for the whole run', again.status === 200 && again.body?.['version_id'] === liveVersion.version_id && again.body?.['tag'] === liveVersion.tag, `${again.status} version=${String(again.body?.['version_id'])}`);
     }
   } finally {
-    // Always revoke once a reissue was attempted, by customer id, whether or not a key came back
-    // and whatever happened above, including a thrown error.
+    // Close the fixture once a reissue was attempted, whether or not a key came back and whatever
+    // happened above: every key is revoked and the fixture suspended in one transaction. A reissue
+    // still in flight that lands later creates a key for a suspended customer, which the Worker
+    // refuses (403), so no timing assumption is needed.
     if (reissueAttempted) {
-      const revoked = await call(options.publicOrigin, `/admin/revoke-keys?stripe_customer_id=${encodeURIComponent(options.stripeCustomerId)}`, { method: 'POST', admin: true });
-      const activeKeys = typeof revoked.body?.['active_keys'] === 'number' ? (revoked.body['active_keys'] as number) : null;
+      const closed = await fixture('closed');
+      const activeKeys = typeof closed.body?.['active_keys'] === 'number' ? (closed.body['active_keys'] as number) : null;
+      const closedOk = closed.status === 200 && closed.body?.['status'] === 'suspended' && activeKeys === 0;
       if (key) {
         const rejected = await call(api, '/v1/account', { key });
         const rejectedData = await call(api, '/v1/product-recalls?limit=1', { key });
-        revocation = { revoked: revoked.status === 200, active_keys: activeKeys, rejected_after: rejected.status === 401 && rejectedData.status === 401 && errorCode(rejectedData.body) === 'invalid_key' };
-        check('temporary key revoked and rejected afterwards', revocation.revoked && revocation.active_keys === 0 && revocation.rejected_after, `revoke=${revoked.status} active_keys=${revocation.active_keys} after=${rejected.status}/${rejectedData.status}`);
+        revocation = { revoked: closedOk, active_keys: activeKeys, rejected_after: rejected.status === 401 && rejectedData.status === 401 && errorCode(rejectedData.body) === 'invalid_key' };
+        check('fixture closed: key revoked, fixture suspended, key rejected afterwards', closedOk && revocation.rejected_after, `close=${closed.status} status=${String(closed.body?.['status'])} active_keys=${activeKeys} after=${rejected.status}/${rejectedData.status}`);
       } else {
-        // Unknown outcome: an in-flight reissue may insert its key after the first revoke. Revoke
-        // again once it has had time to finish, and require both passes to leave no active key.
-        await new Promise((resolve) => setTimeout(resolve, options.settleMs ?? 30_000));
-        const settled = await call(options.publicOrigin, `/admin/revoke-keys?stripe_customer_id=${encodeURIComponent(options.stripeCustomerId)}`, { method: 'POST', admin: true });
-        const settledKeys = typeof settled.body?.['active_keys'] === 'number' ? (settled.body['active_keys'] as number) : null;
-        revocation = { revoked: revoked.status === 200 && settled.status === 200, active_keys: settledKeys, rejected_after: false };
-        check('no key left active after a reissue that returned none (revoked, settled, revoked again)', revocation.revoked && activeKeys === 0 && settledKeys === 0, `revoke=${revoked.status}/${settled.status} active_keys=${activeKeys}/${settledKeys}`);
+        revocation = { revoked: closedOk, active_keys: activeKeys, rejected_after: false };
+        check('fixture closed after a reissue that returned no key (any late key belongs to a suspended customer)', closedOk, `close=${closed.status} status=${String(closed.body?.['status'])} active_keys=${activeKeys}`);
       }
     }
   }

@@ -29,7 +29,7 @@ The `Recalls production acceptance` workflow (`.github/workflows/recalls-accepta
 
 The script works on the internal customer `acceptance-20260928`:
 
-- **Customer.** Stripe id `cus_acceptance_internal_20260928`, email `acceptance-internal@aroqon.invalid`, `developer` plan, `active`. The customer stays `active` and holds no active key between runs. If it is ever found `canceled`, reactivate that one row (`UPDATE customer SET status = 'active' WHERE id = 'acceptance-20260928'`, only while it has no active key). The script checks the status and names it. The script refuses any customer id that does not match `cus_acceptance_internal_YYYYMMDD`, because a reissue revokes that customer's existing keys.
+- **Customer.** Stripe id `cus_acceptance_internal_20260928`, email `acceptance-internal@aroqon.invalid`, `developer` plan, `active`. Between runs the customer is `suspended` with no active key. Each run opens it with `POST /admin/acceptance-fixture?state=open`, which sets it `active` only while it holds no active key. The run then closes it with `state=closed`, which revokes every key and suspends the customer in one transaction. A key that lands late (for example, from a reissue still running when the client lost its connection) therefore belongs to a suspended customer and is refused. The next run's opening close revokes it. The script refuses any customer id that does not match `cus_acceptance_internal_YYYYMMDD`, because a reissue revokes that customer's existing keys.
 - **Key.** Issued through `POST /admin/reissue-key`. It exists only inside the script's process and is never printed.
 - **Requests.** About fifteen metered requests:
   - CPSC and Health Canada search, pagination, the fire hazard filter, and code lookup;
@@ -38,7 +38,7 @@ The script works on the internal customer `acceptance-20260928`:
   - FDA search, lookup and record;
   - metering (the account delta equals the data requests);
   - rejection of missing and unissued keys.
-- **Revocation.** The script always revokes through `POST /admin/revoke-keys`, then proves the key returns 401.
+- **Revocation.** The script always closes the fixture (see above), then proves the key returns 401.
 
 The evidence (statuses, ids, counts and digests) goes to the job log and step summary. An operator holding `ADMIN_TOKEN` can run the same script locally with `ADMIN_TOKEN=… ACCEPTANCE_EXPECTED_SHA=<live commit> pnpm exec tsx apps/recalls-worker/scripts/acceptance.ts`.
 
@@ -52,6 +52,7 @@ All operator endpoints need `Authorization: Bearer $ADMIN_TOKEN`. Without it the
 | --- | --- |
 | `POST /admin/reissue-key?stripe_customer_id=…` | Revokes every key of that customer and returns one new key |
 | `POST /admin/revoke-keys?stripe_customer_id=…` | Revokes every key of that customer. The customer row and usage history are kept |
+| `POST /admin/acceptance-fixture?stripe_customer_id=cus_acceptance_internal_…&state=open\|closed` | Opens (sets `active`, only while the customer holds no active key) or closes (revokes every key and sets `suspended`, in one transaction) an internal acceptance customer. Any other id is refused |
 | `GET /admin/version` | The serving version's id, tag (the source commit's first 12 characters, set by the deploy workflow) and upload time, from the `CF_VERSION_METADATA` binding |
 | `GET /admin/indexnow-status` | For each feed (`recalls`, `product-recalls`), its R2 watermark and its last scheduled run (`trigger: "scheduled"`, scheduled time, submitted count, statuses, whether the watermark advanced) |
 | `POST /admin/sync?category=…&from=…&to=…` | Manual FDA window sync (not during a migration) |
