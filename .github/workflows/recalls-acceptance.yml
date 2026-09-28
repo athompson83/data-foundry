@@ -63,8 +63,10 @@ jobs:
             echo "::error::RECALLS_ADMIN_TOKEN (the Worker's ADMIN_TOKEN) is not set for the production environment."
             exit 1
           fi
-          if [[ "$ADMIN_TOKEN" =~ [[:space:]] ]]; then
-            echo "::error::RECALLS_ADMIN_TOKEN contains whitespace or a line break. Re-save it as the single-line value of the Worker's ADMIN_TOKEN."
+          # Internal spaces are valid in ADMIN_TOKEN; a line break or edge whitespace (a paste
+          # artefact) makes the Authorization header unusable or the value wrong.
+          if [[ "$ADMIN_TOKEN" == *$'\n'* || "$ADMIN_TOKEN" == *$'\r'* || "$ADMIN_TOKEN" =~ ^[[:space:]] || "$ADMIN_TOKEN" =~ [[:space:]]$ ]]; then
+            echo "::error::RECALLS_ADMIN_TOKEN contains a line break or leading/trailing whitespace. Re-save it as the exact single-line value of the Worker's ADMIN_TOKEN."
             exit 1
           fi
 

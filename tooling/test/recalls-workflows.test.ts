@@ -93,7 +93,8 @@ describe('recalls-acceptance workflow', () => {
     const runs = allRuns(accept.workflow);
     expect(runs).toContain('accept-recalls');
     expect(runs).toContain('^cus_acceptance_internal_[0-9]{8}$');
-    expect(runs).toContain('if [[ "$ADMIN_TOKEN" =~ [[:space:]] ]]; then');
+    expect(runs).toContain('"$ADMIN_TOKEN" == *$\'\\n\'*');
+    expect(runs).toContain('"$ADMIN_TOKEN" =~ ^[[:space:]] || "$ADMIN_TOKEN" =~ [[:space:]]$');
   });
 
   it('accepts only the deployed commit: an approved SHA on main, checked out and passed to the script', () => {
