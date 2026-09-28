@@ -13,6 +13,7 @@
     "apps/*/src/**/*.ts",
     "apps/*/generated/**/*.ts",
     "apps/*/test/**/*.ts",
+    "apps/*/scripts/**/*.ts",
     "apps/*/vitest.config.ts",
     "verticals/*/tests/**/*.ts",
     "verticals/*/fixtures/**/*.ts",

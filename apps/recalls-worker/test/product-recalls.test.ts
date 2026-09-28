@@ -10,57 +10,8 @@ import { isIndexableNotice, prepareProductRecall, writeProductGroups, MAX_LITERA
 import { PRODUCT_INDEXNOW_FEED } from '../src/product-pages.js';
 import { pingChanged } from '../src/seo.js';
 import { createTestBucket, createTestDatabase } from './d1-sqlite.js';
+import { CPSC, HC, HC_ONLY, MEDICAL } from './fixtures.js';
 
-// Verbatim source records (CPSC Recall API and Health Canada open data), retrieved 2026-09-27.
-const CPSC = {
-  RecallID: 10220,
-  RecallNumber: '25203',
-  RecallDate: '2025-04-03T00:00:00',
-  Description:
-    'This recall involves DEWALT 70,000 BTU outdoor portable cordless forced air propane heaters model number DXH70CFAVX. The heaters are yellow and black. The model number is located on the hang tag. "DEWALT" is printed in black on the side of the bottom yellow portion of the units. ',
-  URL: 'https://www.cpsc.gov/Recalls/2025/Enerco-Recalls-DEWALT-70000-BTU-Outdoor-Portable-Cordless-Forced-Air-Propane-Heaters-Due-to-Fire-and-Burn-Hazards-Sold-Exclusively-at-Lowes',
-  Title: "Enerco Recalls DEWALT 70,000 BTU Outdoor Portable Cordless Forced Air Propane Heaters Due to Fire and Burn Hazards; Sold Exclusively at Lowe's",
-  ConsumerContact: 'Enerco toll-free at 800-964-4328',
-  LastPublishDate: '2025-04-03T00:00:00',
-  Products: [{ Name: 'DEWALT 70,000 BTU Outdoor Portable Cordless Forced Air Propane Heaters', Description: '', Model: '', Type: '', CategoryID: '', NumberOfUnits: 'About 21,250 (In addition, about 500 were sold in Canada)' }],
-  Inconjunctions: [{ URL: 'https://recalls-rappels.canada.ca/en/alert-recall/dewalt-70000-btu-outdoor-portable-cordless-forced-air-propane-heater-recalled-due-fire' }],
-  Images: [{ URL: 'https://cpsc.gov/s3fs-public/heater.jpg', Caption: 'Recalled heater' }],
-  Injuries: [{ Name: 'The firm has received 11 reports of overheating. No injuries have been reported.' }],
-  Manufacturers: [],
-  Retailers: [{ Name: "Lowe's stores nationwide and online at Lowes.com from May 2024 through January 2025 for about $200.", CompanyID: '' }],
-  Importers: [{ Name: 'Enerco Group Inc., of Cleveland, Ohio', CompanyID: '' }],
-  Distributors: [],
-  SoldAtLabel: null,
-  ManufacturerCountries: [{ Country: 'China' }],
-  ProductUPCs: [{ UPC: '089301008588' }],
-  Hazards: [
-    {
-      Name: "The recalled portable heaters' operating instructions can cause consumers to incorrectly depress the start button too quickly and prevent the fan from starting, causing the heaters to overheat, posing fire and burn hazards.",
-      HazardType: '',
-      HazardTypeID: '',
-    },
-  ],
-  Remedies: [{ Name: 'Consumers should immediately stop using the recalled heaters and contact Enerco to request new instructions and a warning sticker describing how to start the heater using the power button.' }],
-  RemedyOptions: [{ Option: 'Repair' }],
-};
-
-const HC = {
-  NID: '77184',
-  Title: 'DeWalt 70,000-BTU Outdoor Portable Cordless Forced Air Propane Heater recalled due to fire hazard ',
-  URL: 'https://recalls-rappels.canada.ca/en/alert-recall/dewalt-70000-btu-outdoor-portable-cordless-forced-air-propane-heater-recalled-due-fire',
-  Organization: 'Consumer product safety',
-  Product: 'DeWalt 70,000-BTU Outdoor Portable Cordless Forced Air Propane Heater',
-  Issue: 'Fire hazard',
-  'What you should do':
-    'Consumers should immediately stop using the recalled product.For more information, consumers can contact Enerco Group by telephone at 1-800-964-4328.Joint recall with Health Canada, the United States Consumer Product Safety Commission (US CPSC) and Enerco Group.Please note that the Canada Consumer Product Safety Act prohibits recalled products from being redistributed.',
-  Category: 'Outdoor living',
-  'Recall class': '',
-  'Last updated': '2025-04-03',
-  Archived: '0',
-};
-
-const HC_ONLY = { ...HC, NID: '82659', Title: "Make Believe Ideas Groovy Baby 'I Spy a Fly!' board book recalled due to choking hazard", URL: 'https://recalls-rappels.canada.ca/en/alert-recall/make-believe-ideas-groovy-baby-spy-fly-board-book-recalled-due-choking-hazard', Product: "Make Believe Ideas Groovy Baby 'I Spy a Fly!' board book", Issue: 'Choking hazard', Category: 'Toys and games', 'What you should do': '', 'Last updated': '2026-09-22' };
-const MEDICAL = { ...HC, NID: '82681', Organization: 'Medical devices', Title: 'PERMA-HAND Silk Suture' };
 
 function makeEnv(overrides: Partial<Env> = {}): Env & { bucket: ReturnType<typeof createTestBucket> } {
   const { db } = createTestDatabase();

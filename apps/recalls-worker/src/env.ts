@@ -44,6 +44,10 @@ export interface Env {
   readonly STRIPE_PRICE_DEVELOPER?: string;
   readonly STRIPE_PRICE_GROWTH?: string;
   readonly STRIPE_PRICE_SCALE?: string;
+  /** "1" opens the RapidAPI channel (ADR-0016); it also needs RAPIDAPI_PROXY_SECRET. */
+  readonly RAPIDAPI_ENABLED?: string;
+  /** The listing's X-RapidAPI-Proxy-Secret (a Worker secret). */
+  readonly RAPIDAPI_PROXY_SECRET?: string;
   /** Bearer token for the operator-only /admin endpoints. */
   readonly ADMIN_TOKEN?: string;
   readonly PUBLIC_ORIGIN?: string;
@@ -55,6 +59,8 @@ export interface Env {
   readonly EXTRACTED_IDENTIFIERS_OPEN?: string;
   /** Comma-separated intake source keys an operator has withdrawn (e.g. "cpsc-recalls"): submissions for them are refused. */
   readonly INTAKE_WITHDRAWN_SOURCES?: string;
+  /** Workers version metadata binding: the running version's id, tag and upload time. */
+  readonly CF_VERSION_METADATA?: { readonly id: string; readonly tag: string; readonly timestamp: string };
   /** Public IndexNow key, served at /<key>.txt; unset disables pings. */
   readonly INDEXNOW_KEY?: string;
 }

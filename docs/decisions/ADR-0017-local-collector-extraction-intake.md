@@ -104,9 +104,11 @@ recalls on the recalls Worker); [`docs/sources/cpsc-recalls-rights-record-202609
 - Dataset #2 through #N extraction tasks reuse the collector, the intake pattern and the gate. Each needs its own
   task, acceptance rules, benchmark and bar.
 - Production enablement needs, in order:
-  1. the merged PR and a deploy of the recalls Worker;
-  2. migration `0004` on D1, after a Time Travel bookmark;
-  3. an ingestion credential minted with `ADMIN_TOKEN`;
+  1. the merged PR, then migration `0004` on D1 after a Time Travel bookmark (`enable-production.sh --migrate`). This
+     comes before the deploy because the `Deploy recalls Worker` workflow refuses a pending migration. The migration only
+     adds tables, so the Worker already live is unaffected;
+  2. a deploy of the merge commit through that workflow, the only deployment path;
+  3. an ingestion credential minted with `ADMIN_TOKEN` (`enable-production.sh --finish`);
   4. `COLLECTOR_INTAKE_OPEN = "1"`;
   5. only after the held-out bar is met, `EXTRACTED_IDENTIFIERS_OPEN = "1"`.
 - Existing tables, keys, prices, sales gates and hostnames are unchanged. Migration `0004` adds tables only.

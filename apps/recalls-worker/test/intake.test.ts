@@ -95,6 +95,19 @@ const CANDIDATES = [
 ];
 
 describe('extraction intake', () => {
+  it('is refused on the RapidAPI channel, even with a valid ingestion credential', async () => {
+    const secret = 'p'.repeat(40);
+    const { env, token, sha } = await seeded({ RAPIDAPI_ENABLED: '1', RAPIDAPI_PROXY_SECRET: secret });
+    const response = await call(env, '/v1/intake/product-recalls/identifiers', {
+      method: 'POST',
+      headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json', 'idempotency-key': await sha256Hex('marketplace'), 'x-rapidapi-proxy-secret': secret, 'x-rapidapi-user': 'someone' },
+      body: JSON.stringify({ task: 'cpsc-product-identifiers@1', extractor: EXTRACTOR, notices: [{ recall_id: 'cpsc-15034', raw_sha256: sha, candidates: CANDIDATES }] }),
+    });
+    expect(response.status).toBe(403);
+    expect(((await response.json()) as { error: { code: string } }).error.code).toBe('not_available_on_marketplace');
+    expect((await env.DB.prepare('SELECT count(*) AS n FROM product_recall_extracted_key').first<{ n: number }>())?.n).toBe(0);
+  });
+
   it('is closed unless COLLECTOR_INTAKE_OPEN is "1"', async () => {
     const { env, token, sha } = await seeded();
     const closed = { ...env, COLLECTOR_INTAKE_OPEN: '0' };
