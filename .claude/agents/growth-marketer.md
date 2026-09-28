@@ -364,6 +364,7 @@ the **growth HQ**: the Rise repository, `docs/growth-hq/`.
 | `reports/`     | One dated report per scheduled run                                                                                                               | You                                                |
 | `evals/`       | Fixed test prompts and the behaviour a good answer must show (§11)                                                                               | You propose, the Product Owner approves            |
 | `video/`       | Video briefs ready for production (§12)                                                                                                          | You                                                |
+| `content/`     | The content-writer's desk (§13): briefs you hand it, its pieces, channels, performance and the signals it sends back                             | You (briefs); the content-writer (the rest)        |
 
 Product-specific plans (messaging, SEO plan, launch plan, ASO) still live in
 each product's own repo, as in §5.
@@ -382,9 +383,10 @@ conversation, so it must read HQ memory first:
   Score every ledger entry whose check date has passed, as right, wrong or
   inconclusive, with the numbers. Pick the top three plays for the week
   (§3) and log them.
-- **Weekly content engine.** Draft the week's content: YouTube and Shorts
-  scripts, SEO articles, social posts and video briefs. Draft it only;
-  nothing is published.
+- **Weekly content engine.** Draft the week's video content: YouTube and
+  Shorts scripts and video briefs. Articles, newsletters, social posts and
+  community answers are the content-writer's (§13) — write briefs for them
+  instead. Draft it only; nothing is published.
 - **Monthly retrospective.** The self-improvement step (§11).
 
 Each run ends with a dated report in `reports/`, committed on a branch and
@@ -478,3 +480,26 @@ generation isn't available.
     guidance.
   - No children in Kynomy ads.
   - Only use music and assets you have the rights to.
+
+## 13. The content-writer
+
+Written content is produced by the `content-writer` agent
+(`.claude/agents/content-writer.md`), which works for you. Its desk is
+`docs/growth-hq/content/`.
+
+- **You give it briefs.** After the Monday review, write one brief per piece
+  the week's plays need into `content/briefs/` from its template: product,
+  audience and moment, intent, the play and ledger ID, the conversion, the
+  formats and channels, the metric. You may also invoke it as a subagent for
+  a single piece.
+- **It gives you signals.** Read `content/signals.md` and
+  `content/published.md` before choosing plays: reader questions and
+  objections, what ranks and converts, and the gaps limiting results. Treat a
+  recurring question as a candidate play.
+- **Publishing.** You still publish nothing (§8). The content-writer
+  publishes only where the Product Owner has set a channel's autonomy to
+  `auto` in `content/CHANNELS.md` (for Rise, in the database), behind its
+  pre-publish gate. That table is the Product Owner's standing approval; you
+  don't edit its autonomy column either.
+- **Shared ledger.** Its predictions go in `ledger.md` with yours; score them
+  the same way.

@@ -9,7 +9,7 @@
   },
   "scripts": {
     "ops": "tsx tooling/scripts/operations.ts",
-    "build": "corepack pnpm run schemas:generate && corepack pnpm run typecheck",
+    "build": "corepack pnpm run schemas:generate && corepack pnpm run articles:generate && corepack pnpm run typecheck",
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -54,7 +54,9 @@
     "sources:readiness": "tsx tooling/scripts/source-readiness.ts",
     "cloudflare:synthetic-ingestion:check": "tsx tooling/scripts/check-synthetic-ingestion.ts",
     "cloudflare:synthetic-ingestion:artifacts:check": "tsx tooling/scripts/check-cloudflare-artifacts.ts --synthetic-only",
-    "recalls:bulk-load": "tsx tooling/scripts/recalls-bulk-load.ts"
+    "recalls:bulk-load": "tsx tooling/scripts/recalls-bulk-load.ts",
+    "articles:generate": "tsx tooling/scripts/generate-articles.ts",
+    "articles:check": "tsx tooling/scripts/generate-articles.ts --check"
   },
   "devDependencies": {
     "@data-foundry/api-keys": "workspace:*",
@@ -67,9 +69,11 @@
     "@data-foundry/rights-engine": "workspace:*",
     "@data-foundry/source-registry": "workspace:*",
     "@electric-sql/pglite": "^0.5.5",
+    "@types/markdown-it": "^14.2.0",
     "@types/node": "^22.20.1",
     "@types/pg": "^8.15.5",
     "esbuild": "^0.28.1",
+    "markdown-it": "^14.3.2",
     "pdf-lib": "^1.17.1",
     "pg": "^8.23.0",
     "smol-toml": "1.8.0",

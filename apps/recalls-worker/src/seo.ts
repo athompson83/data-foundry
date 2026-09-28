@@ -292,10 +292,11 @@ export async function sitemapIndex(ctx: PageContext, db: D1Database, datasets: S
   return `<?xml version="1.0" encoding="UTF-8"?><sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${entries.join('')}</sitemapindex>`;
 }
 
-/** Static pages, with each dataset's page only while that dataset is served. */
-export function pagesSitemap(ctx: PageContext, datasets: { readonly fda: boolean; readonly products: boolean }): string {
+/** Static pages, with each dataset's page only while that dataset is served, plus bundled pages (articles) with their last-modified dates. */
+export function pagesSitemap(ctx: PageContext, datasets: { readonly fda: boolean; readonly products: boolean }, extra: ReadonlyArray<{ readonly loc: string; readonly lastmod?: string }> = []): string {
   const paths = [...STATIC_PATHS.filter((path) => datasets.fda || path !== '/recalls'), ...(datasets.products ? ['/product-recalls'] : [])];
-  return `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${paths.map((path) => `<url><loc>${ctx.publicOrigin}${path}</loc></url>`).join('')}</urlset>`;
+  const entries = [...paths.map((path) => ({ loc: `${ctx.publicOrigin}${path}`, lastmod: undefined as string | undefined })), ...extra];
+  return `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${entries.map((entry) => `<url><loc>${escapeHtml(entry.loc)}</loc>${entry.lastmod ? `<lastmod>${escapeHtml(entry.lastmod)}</lastmod>` : ''}</url>`).join('')}</urlset>`;
 }
 
 /** Stable order by recall number, so a URL stays in the same sitemap file between syncs. */
@@ -356,7 +357,9 @@ Key facts for agents:
 - Data: U.S. FDA via openFDA (CC0). Not affiliated with or endorsed by FDA. Not medical or legal advice.
 `;
 
-export function llmsTxt(ctx: PageContext, served: ServedDatasets): string {
+type ArticleLink = { readonly title: string; readonly url: string; readonly description: string };
+
+export function llmsTxt(ctx: PageContext, served: ServedDatasets, articles: readonly ArticleLink[] = []): string {
   return `# Data Foundry
 
 > Data Foundry turns lawfully sourced, unstructured public records into clean, current, provenance-linked data for software and AI agents, served over a JSON API. Every dataset listed here is live; one key covers all of them.
@@ -369,13 +372,18 @@ ${served.fda ? FDA_LLMS_FACTS(ctx) : ''}${served.products ? PRODUCT_LLMS_FACTS(c
 
 ## Datasets
 
-${served.fda ? `- [FDA Recall Intelligence](${ctx.publicOrigin}/recalls): food, drug and device recalls with structured codes and geography.\n- [Browse recalls by year](${ctx.publicOrigin}/recalls/browse): one public page per recall.\n` : ''}${served.products ? `- [North American Consumer Product Recalls](${ctx.publicOrigin}/product-recalls): CPSC and Health Canada notices with model numbers, UPCs, units, hazards and linked joint recalls.\n- [Browse product recalls](${ctx.publicOrigin}/product-recalls/browse): one public page per notice.\n` : ''}
+${served.fda ? `- [FDA Recall Intelligence](${ctx.publicOrigin}/recalls): food, drug and device recalls with structured codes and geography.\n- [Browse recalls by year](${ctx.publicOrigin}/recalls/browse): one public page per recall.\n` : ''}${served.products ? `- [North American Consumer Product Recalls](${ctx.publicOrigin}/product-recalls): CPSC and Health Canada notices with model numbers, UPCs, units, hazards and linked joint recalls.\n- [Browse product recalls](${ctx.publicOrigin}/product-recalls/browse): one public page per notice.\n` : ''}${articles.length ? `\n## Articles\n\n${articles.map((article) => `- [${markdownText(article.title)}](${article.url}): ${markdownText(article.description)}`).join('\n')}\n` : ''}
 ## Optional
 
 - [Terms](${ctx.publicOrigin}/terms)
 - [Privacy](${ctx.publicOrigin}/privacy)
 - Support: ${ctx.supportEmail}
 `;
+}
+
+/** Frontmatter is validated to one line without link syntax; this escapes anyway, so llms.txt cannot be restructured by a value that slips through. */
+function markdownText(value: string): string {
+  return value.replace(/\s+/g, ' ').replace(/[\\`*_[\]<>#|]/g, (character) => `\\${character}`);
 }
 
 const PRODUCT_REFERENCE = (ctx: PageContext): string => `
@@ -404,8 +412,8 @@ One notice. Fields: id, agency, jurisdiction, source_id, title, url, published_o
 Notice counts and latest date per agency, distinct GTIN and model counts, trade-facet counts, declared cross-agency links and the last successful sync per source.
 `;
 
-export function llmsFullTxt(ctx: PageContext, served: ServedDatasets): string {
-  return `${llmsTxt(ctx, served)}${served.fda ? FDA_REFERENCE(ctx) : ''}${served.products ? PRODUCT_REFERENCE(ctx) : ''}${ERRORS_REFERENCE}`;
+export function llmsFullTxt(ctx: PageContext, served: ServedDatasets, articles: readonly ArticleLink[] = []): string {
+  return `${llmsTxt(ctx, served, articles)}${served.fda ? FDA_REFERENCE(ctx) : ''}${served.products ? PRODUCT_REFERENCE(ctx) : ''}${ERRORS_REFERENCE}`;
 }
 
 const FDA_REFERENCE = (ctx: PageContext): string => `

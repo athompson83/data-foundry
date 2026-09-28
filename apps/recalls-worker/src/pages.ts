@@ -71,6 +71,8 @@ table{border-collapse:collapse;width:100%;font-size:14.5px}th,td{text-align:left
 p a,li a,td a,p code,li code{overflow-wrap:anywhere}
 .notice{border-left:3px solid var(--warn);padding:10px 14px;background:var(--card);border-radius:0 8px 8px 0}
 details{border-bottom:1px solid var(--line);padding:12px 0}summary{cursor:pointer;font-weight:600}details p{margin:8px 0 0;color:var(--muted)}
+article.prose{max-width:760px}article.prose h2{font-size:22px;margin:36px 0 10px}article.prose blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--line);color:var(--muted)}
+ul.articles{list-style:none;padding:0;max-width:760px}ul.articles li{border-bottom:1px solid var(--line);padding:4px 0 8px}ul.articles h2{font-size:20px;margin:18px 0 4px}ul.articles h2 a{text-decoration:none}
 footer{max-width:1080px;margin:0 auto;padding:28px 20px 56px;color:var(--muted);font-size:14px;border-top:1px solid var(--line)}
 footer nav{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:10px}
 `;
@@ -82,6 +84,8 @@ export interface LayoutOptions {
   readonly path?: string;
   /** schema.org objects, emitted as JSON-LD for search engines and LLM crawlers. */
   readonly jsonLd?: readonly unknown[];
+  /** Open Graph properties (og:*, article:*), emitted as <meta property> tags. */
+  readonly openGraph?: Readonly<Record<string, string>>;
   /** Load /assets/site.js (copy buttons). Content never depends on it. */
   readonly scripts?: boolean;
 }
@@ -91,6 +95,18 @@ export function jsonLdScript(value: unknown): string {
   return `<script type="application/ld+json">${JSON.stringify(value).replace(/</g, '\\u003c')}</script>`;
 }
 
+/** Site-wide Open Graph defaults; a page (an article) overrides or extends them. */
+function openGraph(ctx: PageContext, title: string, description: string, options: LayoutOptions): Record<string, string> {
+  return {
+    'og:type': 'website',
+    'og:site_name': 'Data Foundry',
+    'og:title': title,
+    'og:description': description,
+    ...(options.path ? { 'og:url': `${ctx.publicOrigin}${options.path}` } : {}),
+    ...options.openGraph,
+  };
+}
+
 export function layout(ctx: PageContext, title: string, description: string, body: string, options: LayoutOptions = {}): string {
   const robots = options.robots ?? (options.noindex ? 'noindex' : null);
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -98,12 +114,12 @@ export function layout(ctx: PageContext, title: string, description: string, bod
 ${robots ? `<meta name="robots" content="${robots}">` : ''}${options.path ? `<link rel="canonical" href="${ctx.publicOrigin}${options.path}">` : ''}
 <link rel="icon" href="data:,"><link rel="alternate" type="text/plain" title="LLM summary" href="/llms.txt"><link rel="service-desc" type="application/json" href="${ctx.apiOrigin}/openapi.json">
 ${(options.jsonLd ?? []).map(jsonLdScript).join('')}
-<meta property="og:type" content="website"><meta property="og:site_name" content="Data Foundry"><meta property="og:title" content="${escapeHtml(title)}"><meta property="og:description" content="${escapeHtml(description)}">${options.path ? `<meta property="og:url" content="${ctx.publicOrigin}${options.path}">` : ''}<meta name="twitter:card" content="summary">
+${Object.entries(openGraph(ctx, title, description, options)).map(([property, content]) => `<meta property="${escapeHtml(property)}" content="${escapeHtml(content)}">`).join('')}<meta name="twitter:card" content="summary">
 <style>${CSS}</style>${options.scripts ? '<script src="/assets/site.js" defer></script>' : ''}</head><body>
 <a class="skip" href="#main">Skip to content</a>
-<header class="site"><a class="brand" href="/">Data Foundry</a><nav aria-label="Main"><a href="/#datasets">Datasets</a><a href="/docs">API docs</a><a href="/#pricing">Pricing</a></nav></header>
+<header class="site"><a class="brand" href="/">Data Foundry</a><nav aria-label="Main"><a href="/#datasets">Datasets</a><a href="/docs">API docs</a><a href="/#pricing">Pricing</a><a href="/articles">Articles</a></nav></header>
 <main id="main">${body}</main>
-<footer><nav aria-label="Footer"><a href="/#datasets">Datasets</a><a href="/docs">API docs</a><a href="${ctx.apiOrigin}/openapi.json">OpenAPI</a><a href="/llms.txt">llms.txt</a><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="mailto:${ctx.supportEmail}">${ctx.supportEmail}</a></nav>
+<footer><nav aria-label="Footer"><a href="/#datasets">Datasets</a><a href="/docs">API docs</a><a href="/articles">Articles</a><a href="${ctx.apiOrigin}/openapi.json">OpenAPI</a><a href="/llms.txt">llms.txt</a><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="mailto:${ctx.supportEmail}">${ctx.supportEmail}</a></nav>
 Data Foundry by Aroqon Data. Source agencies are credited on each dataset page and in every API response; Data Foundry is not affiliated with or endorsed by them.</footer>
 </body></html>`;
 }

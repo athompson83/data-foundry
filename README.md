@@ -87,6 +87,7 @@ apps/private-canary/         Route-less service-bound synthetic canary consumer 
 apps/web/                    Cloudflare Worker: the free public site — parent index + one child site per industry
 verticals/hvac/              The first vertical: configuration, fixtures and golden records
 db/migrations/               Plain, portable Postgres DDL for every canonical table
+content/articles/            Owned articles for data.aroqon.com/articles, built into the recall Worker (docs/articles.md)
 schemas/canonical/           JSON Schema exports, generated from the Zod definitions
 tooling/scripts/             Migration runner, schema generator, vertical runtime compiler, readiness report
 tooling/validators/          Vertical configuration validator (CI gate)
