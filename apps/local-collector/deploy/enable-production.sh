@@ -57,9 +57,6 @@ fi
 echo "== Verify the deployed Worker carries ADR-0017 (the API root names each dataset's registry key)"
 curl -fsS "$API/" | grep -q '"registry"' || { echo "The API root does not show registry keys: the Deploy recalls Worker workflow has not deployed this commit yet." >&2; exit 1; }
 
-echo "== Mint the collector's ingestion credential (shown once; store it only in the collector: set-secret ingest-token)"
-curl -fsS -X POST -H "Authorization: Bearer $ADMIN_TOKEN" "$API/admin/ingest-credentials?label=owner-windows-collector&sources=cpsc-recalls"
-echo
 echo "== Intake probe (without a credential, an open and healthy intake answers 401)"
 code="$(curl -s -o /dev/null -w "%{http_code}" -X POST "$API/v1/intake/product-recalls/identifiers")"
 if [[ "$code" == "503" ]]; then
@@ -69,4 +66,9 @@ elif [[ "$code" != "401" ]]; then
   echo "The intake probe answered $code, not 401: the deploy is not verified." >&2
   exit 1
 fi
-echo "Intake open and refusing unauthenticated submissions (401). Record the Worker version and bookmark in PROGRESS.md."
+echo "Intake open and refusing unauthenticated submissions (401)."
+# Minted only after the probe passes, so a closed or unhealthy intake never leaves an unused live credential behind.
+echo "== Mint the collector's ingestion credential (shown once; store it only in the collector: set-secret ingest-token)"
+curl -fsS -X POST -H "Authorization: Bearer $ADMIN_TOKEN" "$API/admin/ingest-credentials?label=owner-windows-collector&sources=cpsc-recalls"
+echo
+echo "Record the Worker version and bookmark in PROGRESS.md."

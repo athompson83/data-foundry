@@ -88,7 +88,8 @@ class Config:
         return value or None
 
     def save(self, path: Path | None = None) -> Path:
-        target = path or self.root / "collector.json"
+        # The file this configuration was loaded from, so dashboard edits persist where the next start reads them.
+        target = path or getattr(self, "source_path", None) or self.root / "collector.json"
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(json.dumps(asdict(self), indent=2))
         return target
@@ -105,4 +106,6 @@ def load(path: str | None = None, data_dir: str | None = None) -> Config:
         config = Config(**{**known, "limits": limits})
         if data_dir:
             config.data_dir = str(base)
+    if path:
+        config.source_path = file.resolve()  # not a dataclass field, so never written into the file itself
     return config

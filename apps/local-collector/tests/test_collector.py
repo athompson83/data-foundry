@@ -968,3 +968,45 @@ class CodexRegressionsRound8(unittest.TestCase):
             args = uploader_args(Config(data_dir="data"), "collector.json")
             self.assertEqual(args[args.index("--config") + 1], str(Path(tmp).resolve() / "collector.json"))
             self.assertEqual(args[args.index("--data-dir") + 1], str(Path(tmp).resolve() / "data"))
+
+
+class CodexRegressionsRound9(unittest.TestCase):
+    def run_set_secret(self, config, name, value):
+        import contextlib
+        import sys as _sys
+        from unittest import mock
+
+        from df_collector.__main__ import cmd_set_secret
+
+        with mock.patch.object(_sys, "stdin", io.StringIO(value + "\n")), contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+            return cmd_set_secret(config, name)
+
+    def test_set_secret_refuses_truncated_values_and_revives_refused_jobs(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Config(data_dir=tmp)
+            self.assertEqual(self.run_set_secret(config, "read-api-key", "rcl_live_" + "a" * 31), 2)
+            self.assertEqual(self.run_set_secret(config, "ingest-token", "dfi_" + "b" * 39), 2)
+            self.assertEqual(self.run_set_secret(config, "ingest-token", "dfi_" + "b" * 39 + "!"), 2)
+            self.assertFalse((config.secrets_dir / "read-api-key").exists())
+            state = State(config.db_path)
+            state.ensure_job("read", TASK, f"{TASK}:read", {})
+            with state.tx() as db:
+                db.execute("UPDATE job SET state = 'refused', last_error = '401'")
+            state.set("uploader_paused", "intake refused the credential (401)")
+            self.assertEqual(self.run_set_secret(config, "read-api-key", "rcl_live_" + "a" * 32), 0)
+            self.assertEqual(state.one("SELECT state FROM job")["state"], "pending")
+            self.assertEqual(self.run_set_secret(config, "ingest-token", "dfi_" + "b" * 40), 0)
+            self.assertFalse(state.get("uploader_paused"))
+
+    def test_saving_limits_writes_back_to_the_loaded_config_file(self):
+        from df_collector.config import load
+
+        with tempfile.TemporaryDirectory() as tmp:
+            custom = Path(tmp) / "custom.json"
+            custom.write_text(json.dumps({"api_origin": "https://api.data.aroqon.com", "limits": {"max_queue": 7}}))
+            config = load(str(custom), data_dir=str(Path(tmp) / "data"))
+            config.limits.max_queue = 9
+            self.assertEqual(config.save(), custom.resolve())
+            self.assertEqual(load(str(custom), data_dir=str(Path(tmp) / "data")).limits.max_queue, 9)
+            self.assertNotIn("source_path", json.loads(custom.read_text()))
+            self.assertFalse((Path(tmp) / "data" / "collector.json").exists())

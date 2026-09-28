@@ -19,6 +19,7 @@ import getpass
 import json
 import os
 import platform
+import re
 import shutil
 import signal
 import subprocess
@@ -137,9 +138,10 @@ def cmd_set_secret(config: Config, name: str) -> int:
         print("secret must be read-api-key or ingest-token", file=sys.stderr)
         return 2
     value = sys.stdin.readline().strip() if not sys.stdin.isatty() else getpass.getpass(f"{name}: ")
-    prefix = {"read-api-key": "rcl_live_", "ingest-token": "dfi_"}[name]
-    if not value.startswith(prefix):
-        print(f"{name} must start with {prefix}", file=sys.stderr)
+    # The exact shapes the Worker issues: a truncated or mangled paste is refused here, not at the first request.
+    shape = {"read-api-key": (r"rcl_live_[A-Za-z0-9]{32}", "rcl_live_ followed by 32 letters and digits"), "ingest-token": (r"dfi_[A-Za-z0-9]{40}", "dfi_ followed by 40 letters and digits")}[name]
+    if not re.fullmatch(shape[0], value):
+        print(f"{name} must be {shape[1]}; check the value was pasted whole", file=sys.stderr)
         return 2
     config.secrets_dir.mkdir(parents=True, exist_ok=True)
     path = config.secrets_dir / name
@@ -148,6 +150,14 @@ def cmd_set_secret(config: Config, name: str) -> int:
         os.chmod(path, 0o600)
     except OSError:
         pass
+    if config.db_path.exists():
+        # A job refused by the old value (a 401) runs again now, and a paused uploader retries at once.
+        state = State(config.db_path)
+        revived = state.revive_refused()
+        if name == "ingest-token":
+            state.set("uploader_paused", "")
+        if revived:
+            print(f"resumed {revived} job(s) refused with the previous value")
     print(f"saved {name} to {path}")
     return 0
 

@@ -145,7 +145,7 @@ Enabling it takes three operator steps. `apps/local-collector/deploy/enable-prod
 
 1. After the PR is merged: `enable-production.sh --migrate`. It takes a D1 bookmark (`wrangler d1 time-travel info data-foundry-recalls`), then runs `wrangler d1 migrations apply data-foundry-recalls --remote`.
 2. Deploy the merge commit with the *Deploy recalls Worker* workflow (see "Deploying").
-3. `ADMIN_TOKEN=… enable-production.sh --finish`. It checks that the deployed API root names each dataset's registry key, mints the collector's credential, and probes the intake. Store the token only in the collector's `secrets/ingest-token`. The mint call it makes is:
+3. `ADMIN_TOKEN=… enable-production.sh --finish`. It checks that the deployed API root names each dataset's registry key and probes the intake. Only when the probe answers 401 does it mint the collector's credential, so a closed intake never leaves an unused credential behind. Store the token only in the collector's `secrets/ingest-token`. The mint call it makes is:
 
    ```sh
    curl -X POST -H "Authorization: Bearer $ADMIN_TOKEN" \

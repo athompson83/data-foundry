@@ -250,6 +250,11 @@ class State:
             if self._owned(db, job_id, owner):
                 db.execute("UPDATE job SET state = 'pending', due_at = ?, attempts = MAX(0, attempts - 1), lease_owner = NULL, lease_expires_at = NULL, updated_at = ? WHERE id = ?", (now + delay, now, job_id))
 
+    def revive_refused(self) -> int:
+        """Makes every refused job due now (after a credential is replaced); policy is re-checked when it runs."""
+        with self.tx() as db:
+            return db.execute("UPDATE job SET state = 'pending', attempts = 0, due_at = ?, last_error = NULL WHERE state = 'refused'", (self.clock(),)).rowcount
+
     def run_now(self, job_id: int) -> bool:
         with self.tx() as db:
             # An operator's "run now" also revives a dead-lettered or refused job; policy is re-checked when it runs.
