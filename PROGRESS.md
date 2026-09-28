@@ -1,5 +1,16 @@
 # Progress
 
+## Current session — 2026-09-28 (night): merged, deploy blocked on a malformed secret
+
+- **Merged.**
+  - #74 as `9e487ff`: deploy and acceptance workflows, fixture open/close with a 20-minute server-side lease, RapidAPI adapter (closed), `/admin/*` operator endpoints.
+  - #76 as `3a256c6`: the migration gate now shows wrangler's error.
+  - Required CI was green on the exact heads. Codex found 11 issues on #74 across 7 rounds; all were fixed, and its final review was clean.
+- **Deploy dispatched twice** (runs 36473322447 and 36478142394). Both passed the guard, environment release, secret presence, account match, tests and bundle. Both stopped at the first Cloudflare API call: `CLOUDFLARE_API_TOKEN` in the `production` environment contains a line break (`invalid header value`). **Production is unchanged.**
+  - The workflows now refuse a whitespace-containing token up front (this PR).
+  - Owner action `UA-015`: re-save the token as a single line.
+- **Not verified, in order:** deploy, authenticated acceptance of both datasets (needs `UA-016`), then scheduled IndexNow evidence. Full state table: `docs/evidence/recalls-release-20260928.md` §10.
+
 ## Current session — 2026-09-28 (late): repeatable deploy and acceptance path, RapidAPI adapter
 
 - **Diagnosis of the rejected key.** The Worker accepts only `rcl_live_` followed by exactly 32 characters (`account.ts:71`). The hand-made keys had 40 and 43, so they were refused before the D1 lookup. Authentication was never broken. Keys are now only issued by the Worker.
