@@ -72,7 +72,9 @@ recalls on the recalls Worker); [`docs/sources/cpsc-recalls-rights-record-202609
      schema, truncation and prompt assembly, the model options and the generation defaults. Every accepted row is
      stamped with the Worker's fingerprint, and publication requires the benchmarked one. CI fails when any of those
      files changes, until the benchmark is re-run and the constant and entry are updated in a reviewed change.
-     `--score-only` suffices for a rules-only change; a prompt, schema or option change needs a full run.
+     `--score-only` suffices for a rules-only change; a prompt, schema or option change needs a full run. The
+     collector computes the same fingerprint (`df_collector/behaviour.py`, pinned to the Worker's by CI) and keys its
+     local build by it, so a rules change re-extracts every notice rather than leaving them unpublished.
    - The gate opens only when the pre-registered bar in
      [`apps/local-collector/benchmark/QUALITY_BAR.md`](../../apps/local-collector/benchmark/QUALITY_BAR.md) is met on
      held-out data.

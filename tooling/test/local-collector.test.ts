@@ -47,6 +47,9 @@ describe('local collector', () => {
     // The acceptance rules, extractor schema and options are pinned too: changing them needs a re-run benchmark and a
     // reviewed update of EXTRACTION_BEHAVIOUR_SHA256 and the entry (pnpm exec tsx tooling/scripts/extraction-behaviour.ts).
     expect(EXTRACTION_BEHAVIOUR_SHA256).toBe(extractionBehaviourSha256());
+    // The collector computes the same fingerprint (df_collector/behaviour.py) and keys its local build by it.
+    const collectorFingerprint = spawnSync(python, ['-c', 'from df_collector.behaviour import behaviour_sha256; print(behaviour_sha256())'], { cwd: APP, encoding: 'utf8' }).stdout.trim();
+    expect(collectorFingerprint).toBe(EXTRACTION_BEHAVIOUR_SHA256);
     expect(entry?.behaviourSha256).toBe(EXTRACTION_BEHAVIOUR_SHA256);
     const benchmarked = JSON.parse(readFileSync(join(APP, 'benchmark/data/model.json'), 'utf8')) as { name: string; digest: string };
     expect({ model: benchmarked.name, digest: benchmarked.digest }).toEqual({ model: entry?.model, digest: entry?.modelDigest });

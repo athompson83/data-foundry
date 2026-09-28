@@ -1239,3 +1239,16 @@ class CodexRegressionsRound16(unittest.TestCase):
             collector.extract_one()
             payload = json.loads(collector.state.one("SELECT payload FROM outbox")["payload"])
             self.assertEqual(payload["extractor"]["generation"], {"num_ctx": 8192, "think": False})
+
+
+class CodexRegressionsRound17(unittest.TestCase):
+    def test_the_behaviour_fingerprint_is_part_of_the_local_build(self):
+        from unittest import mock
+
+        from df_collector import behaviour
+
+        current = extract.build_id("qwen3.5:4b", "2a654d98e6fb")
+        self.assertIn(f"|b{behaviour.behaviour_sha256()[:12]}", current)
+        with mock.patch.object(behaviour, "behaviour_sha256", lambda: "f" * 64):
+            # A rules-only change (re-scored benchmark, new fingerprint) is a new build: every notice is re-extracted.
+            self.assertNotEqual(extract.build_id("qwen3.5:4b", "2a654d98e6fb"), current)

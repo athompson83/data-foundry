@@ -82,7 +82,10 @@ def build_id(model: str, model_digest: str, num_ctx: int = 8192, think: bool | s
     keys and publishes by). Local checkpoints, candidates and
     upload idempotency are keyed by it, so changing the model (or prompt) re-extracts under its own key instead of
     being skipped or answered with another build's result (the server keys its rows the same way)."""
-    base = f"{EXTRACTOR_VERSION}|{model}|{model_digest.removeprefix('sha256:')[:12]}|{prompt_sha256()[:16]}"
+    from .behaviour import behaviour_sha256
+
+    # The behaviour fingerprint is part of the build: a rules-only change re-extracts every notice under a new key.
+    base = f"{EXTRACTOR_VERSION}|{model}|{model_digest.removeprefix('sha256:')[:12]}|{prompt_sha256()[:16]}|b{behaviour_sha256()[:12]}"
     # The benchmarked settings keep the short form; any other settings are their own build.
     if (num_ctx, think, num_thread) == (8192, False, None):
         return base
