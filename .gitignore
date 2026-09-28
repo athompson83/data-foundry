@@ -54,3 +54,8 @@ docs/verticals/**
 
 # Private second-phase deployment metadata stays local.
 apps/*/wrangler.synthetic-ingestion.production.toml
+
+# Local wrangler dev state and Python caches (apps/local-collector)
+.wrangler/
+__pycache__/
+*.pyc

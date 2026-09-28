@@ -269,6 +269,9 @@ describe('product-recall API', () => {
     const both = (await (await worker.fetch(api('/'), makeEnv())).json()) as { datasets: Record<string, { docs: string }> };
     expect(Object.keys(both.datasets)).toEqual(['recalls', 'product-recalls']);
     expect(both.datasets['product-recalls']!.docs).toBe('https://data.aroqon.com/docs#product-recalls');
+    // The registry key and stats path let a client (the local collector) map what is hosted to its member sources.
+    expect(both.datasets['product-recalls']).toMatchObject({ registry: 'consumer-product-recalls-north-america', stats: 'https://api.data.aroqon.com/v1/product-recalls/stats' });
+    expect(both.datasets['recalls']).toMatchObject({ registry: 'fda-recalls', stats: 'https://api.data.aroqon.com/v1/recalls/stats' });
   });
 
   it('filters by agency, hazard, facet, firm, text and link status, with a stable cursor', async () => {

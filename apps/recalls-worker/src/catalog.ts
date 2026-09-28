@@ -27,6 +27,8 @@ export interface DatasetField {
 
 export interface DatasetEntry {
   readonly key: DatasetKey;
+  /** The registry entry this product serves (docs/sources/pipeline/candidates.yaml): a `datasets:` key, or a source key. */
+  readonly registry: string;
   readonly name: string;
   /** Canonical product-page path. */
   readonly path: string;
@@ -121,6 +123,7 @@ const PRODUCT_SAMPLE = {
 export const DATASETS: Readonly<Record<DatasetKey, DatasetEntry>> = {
   recalls: {
     key: 'recalls',
+    registry: 'fda-recalls',
     name: 'FDA Recall Intelligence',
     path: '/recalls',
     domain: 'Food, drugs and medical devices',
@@ -168,6 +171,7 @@ export const DATASETS: Readonly<Record<DatasetKey, DatasetEntry>> = {
   },
   'product-recalls': {
     key: 'product-recalls',
+    registry: 'consumer-product-recalls-north-america',
     name: 'North American Consumer Product Recalls',
     path: '/product-recalls',
     domain: 'Consumer products',

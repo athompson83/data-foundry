@@ -70,3 +70,30 @@ Raw evidence in R2 is append-only and is not touched by a D1 restore. A restored
 | `STRIPE_SECRET_KEY` | Stripe dashboard → API keys | `wrangler secret put STRIPE_SECRET_KEY` on `data-foundry-recalls` right away, or checkout and webhooks fail |
 | `STRIPE_WEBHOOK_SECRET` | Stripe → Webhooks → endpoint `we_1UK1TtLlvU3ZaHdiy7KqSNdW` → roll signing secret | `wrangler secret put STRIPE_WEBHOOK_SECRET` |
 | `ADMIN_TOKEN` | any random value of 32 or more characters | `wrangler secret put ADMIN_TOKEN` |
+
+## Local-collector extraction intake (ADR-0017)
+
+Three variables in `wrangler.toml` gate it. All ship closed:
+
+| Variable | Effect |
+| --- | --- |
+| `COLLECTOR_INTAKE_OPEN` | `"1"` accepts submissions at `POST /v1/intake/product-recalls/identifiers`; otherwise 503 `intake_closed` |
+| `EXTRACTED_IDENTIFIERS_OPEN` | `"1"` serves accepted candidates (`extracted_identifiers`, lookup kind `extracted_model`). Set only when the held-out result meets `apps/local-collector/benchmark/QUALITY_BAR.md` |
+| `INTAKE_WITHDRAWN_SOURCES` | comma-separated source keys (e.g. `cpsc-recalls`) whose submissions are refused, independent of credentials |
+
+`PRODUCT_RECALLS_KILL_SWITCH = "1"` also refuses every submission and hides every extracted identifier.
+
+Enabling it in production, in order:
+
+1. Merge the PR and deploy the Worker.
+2. Take a D1 bookmark (`wrangler d1 time-travel info data-foundry-recalls`), then run `wrangler d1 migrations apply data-foundry-recalls --remote`. Migration `0004` only adds tables.
+3. Mint a credential for the collector. Store the token only in the collector's `secrets/ingest-token`:
+
+   ```sh
+   curl -X POST -H "Authorization: Bearer $ADMIN_TOKEN" \
+     "https://api.data.aroqon.com/admin/ingest-credentials?label=owner-windows-collector&sources=cpsc-recalls"
+   ```
+
+4. Set `COLLECTOR_INTAKE_OPEN = "1"` and deploy.
+
+Revoke a credential with `POST /admin/ingest-credentials/revoke?id=<ic_…>`. Withdraw everything one extractor version produced with `POST /admin/extractions/withdraw?extractor_version=<version>[&recall_id=<id>]`. Withdrawn rows are kept for audit and are no longer served.

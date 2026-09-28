@@ -63,6 +63,8 @@ export type PresentedProductRecall = Omit<StructuredProductRecall, 'provenance'>
     readonly changed_at: string;
   };
   readonly raw?: unknown;
+  /** Present only while extracted identifiers are published (EXTRACTED_IDENTIFIERS_OPEN): model-proposed, server-verified identifiers, kept apart from the agency parser's `identifiers`. */
+  readonly extracted_identifiers?: ExtractedIdentifier[];
   /** With include=raw: which source fields were removed, and the SHA-256 of `raw` exactly as returned. */
   readonly raw_redaction?: { readonly removed_fields: string[]; readonly presented_sha256: string };
 };
@@ -93,19 +95,68 @@ async function linksFor(db: D1Database, rows: readonly ProductRow[]): Promise<Ma
   return out;
 }
 
+/** The stored source record for one row, read from its exact R2 byte range and verified against raw_sha256. */
+export async function loadRawRecord(bucket: R2Bucket, row: { id: string; raw_ref: string; raw_sha256: string }): Promise<unknown> {
+  const ref = parseRawRef(row.raw_ref);
+  if (!ref) throw new Error(`raw evidence reference is invalid for ${row.id}`);
+  const object = await bucket.get(ref.key, { range: { offset: ref.offset, length: ref.length } });
+  if (!object) throw new Error(`raw evidence object is missing for ${row.id}`);
+  const text = await object.text();
+  if ((await sha256Hex(text)) !== row.raw_sha256) throw new Error(`raw evidence digest mismatch for ${row.id}`);
+  return JSON.parse(text) as unknown;
+}
+
 async function loadRaw(bucket: R2Bucket, rows: readonly ProductRow[]): Promise<Map<string, unknown>> {
   const out = new Map<string, unknown>();
-  await Promise.all(
-    rows.map(async (row) => {
-      const ref = parseRawRef(row.raw_ref);
-      if (!ref) throw new Error(`raw evidence reference is invalid for ${row.id}`);
-      const object = await bucket.get(ref.key, { range: { offset: ref.offset, length: ref.length } });
-      if (!object) throw new Error(`raw evidence object is missing for ${row.id}`);
-      const text = await object.text();
-      if ((await sha256Hex(text)) !== row.raw_sha256) throw new Error(`raw evidence digest mismatch for ${row.id}`);
-      out.set(row.id, JSON.parse(text) as unknown);
-    }),
-  );
+  await Promise.all(rows.map(async (row) => out.set(row.id, await loadRawRecord(bucket, row))));
+  return out;
+}
+
+/** One accepted identifier proposed by an extractor and verified by the intake (ADR-0017), as served. */
+export interface ExtractedIdentifier {
+  readonly kind: 'model';
+  readonly value: string;
+  readonly key: string;
+  readonly label: string;
+  readonly method: 'local-model-proposal+deterministic-verification';
+  readonly source_field: string;
+  readonly span: readonly [number, number];
+  readonly extractor_version: string;
+  readonly model: string;
+  readonly model_digest: string;
+  readonly submitted_at: string;
+}
+
+/**
+ * Accepted extracted identifiers for these rows, only against each row's current source bytes: after the sync
+ * stores new bytes for a notice, candidates checked against the old bytes are not served.
+ */
+async function extractedFor(db: D1Database, rows: readonly ProductRow[]): Promise<Map<string, ExtractedIdentifier[]>> {
+  const out = new Map<string, ExtractedIdentifier[]>(rows.map((row) => [row.id, []]));
+  if (rows.length === 0) return out;
+  const found = await db
+    .prepare(`SELECT e.recall_id, e.value_key, e.printed, e.label, e.source_field, e.span_start, e.span_end, e.extractor_version, e.model, e.model_digest, e.submitted_at
+      FROM product_recall_extracted_key e JOIN product_recall r ON r.id = e.recall_id AND r.raw_sha256 = e.raw_sha256
+      WHERE e.status = 'accepted' AND e.recall_id IN (SELECT value FROM json_each(?)) ORDER BY e.recall_id, e.span_start, e.value_key`)
+    .bind(JSON.stringify(rows.map((row) => row.id)))
+    .all<{ recall_id: string; value_key: string; printed: string; label: string; source_field: string; span_start: number; span_end: number; extractor_version: string; model: string; model_digest: string; submitted_at: string }>();
+  for (const row of found.results) {
+    const list = out.get(row.recall_id);
+    if (!list || list.some((item) => item.key === row.value_key)) continue;
+    list.push({
+      kind: 'model',
+      value: row.printed,
+      key: row.value_key,
+      label: row.label,
+      method: 'local-model-proposal+deterministic-verification',
+      source_field: row.source_field,
+      span: [row.span_start, row.span_end],
+      extractor_version: row.extractor_version,
+      model: row.model,
+      model_digest: row.model_digest,
+      submitted_at: row.submitted_at,
+    });
+  }
   return out;
 }
 
@@ -125,8 +176,12 @@ async function redactRaw(agency: string, raw: unknown): Promise<{ raw: unknown; 
   return { raw: copy, raw_redaction: { removed_fields: removed, presented_sha256: await sha256Hex(JSON.stringify(copy)) } };
 }
 
-export async function presentRows(db: D1Database, bucket: R2Bucket, rows: readonly ProductRow[], includeRaw: boolean): Promise<PresentedProductRecall[]> {
-  const [links, raws] = await Promise.all([linksFor(db, rows), includeRaw ? loadRaw(bucket, rows) : Promise.resolve(new Map<string, unknown>())]);
+export async function presentRows(db: D1Database, bucket: R2Bucket, rows: readonly ProductRow[], includeRaw: boolean, extracted = false): Promise<PresentedProductRecall[]> {
+  const [links, raws, extras] = await Promise.all([
+    linksFor(db, rows),
+    includeRaw ? loadRaw(bucket, rows) : Promise.resolve(new Map<string, unknown>()),
+    extracted ? extractedFor(db, rows) : Promise.resolve(null),
+  ]);
   return Promise.all(rows.map(async (row) => {
     const recall = JSON.parse(row.structured) as StructuredProductRecall;
     return {
@@ -140,6 +195,7 @@ export async function presentRows(db: D1Database, bucket: R2Bucket, rows: readon
         last_seen_at: row.last_seen_at,
         changed_at: row.changed_at,
       },
+      ...(extras ? { extracted_identifiers: extras.get(row.id) ?? [] } : {}),
       ...(includeRaw ? await redactRaw(row.agency, raws.get(row.id) ?? null) : {}),
     };
   }));
@@ -175,7 +231,7 @@ function ftsQuery(text: string): string {
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const AGENCIES = ['CPSC', 'HC'] as const;
 
-export async function searchProductRecalls(db: D1Database, bucket: R2Bucket, params: URLSearchParams): Promise<Record<string, unknown>> {
+export async function searchProductRecalls(db: D1Database, bucket: R2Bucket, params: URLSearchParams, extracted = false): Promise<Record<string, unknown>> {
   const where: string[] = [];
   const binds: Array<string | number> = [];
   const keyFilter = (kind: string, values: readonly string[]): void => {
@@ -256,7 +312,7 @@ export async function searchProductRecalls(db: D1Database, bucket: R2Bucket, par
   const page = rows.results.slice(0, limit);
   const last = page[page.length - 1];
   return {
-    data: await presentRows(db, bucket, page, includeRaw),
+    data: await presentRows(db, bucket, page, includeRaw, extracted),
     next_cursor: rows.results.length > limit && last ? encodeCursor(last.sort_date, last.id) : null,
     attribution: PRODUCT_ATTRIBUTION,
   };
@@ -264,15 +320,15 @@ export async function searchProductRecalls(db: D1Database, bucket: R2Bucket, par
 
 export const PRODUCT_ID = /^(cpsc-\d{5}[a-z]?|hc-\d{1,8})$/;
 
-export async function getProductRecall(db: D1Database, bucket: R2Bucket, id: string, includeRaw: boolean): Promise<Record<string, unknown> | null> {
+export async function getProductRecall(db: D1Database, bucket: R2Bucket, id: string, includeRaw: boolean, extracted = false): Promise<Record<string, unknown> | null> {
   const row = await db.prepare(`SELECT ${COLUMNS} FROM product_recall WHERE id = ?`).bind(id.toLowerCase()).first<ProductRow>();
-  return row ? { data: (await presentRows(db, bucket, [row], includeRaw))[0], attribution: PRODUCT_ATTRIBUTION } : null;
+  return row ? { data: (await presentRows(db, bucket, [row], includeRaw, extracted))[0], attribution: PRODUCT_ATTRIBUTION } : null;
 }
 
 export const PRODUCT_LOOKUP_LIMIT = 100;
 
 /** Every exact interpretation of one scanned or typed code: GTIN (check-digit valid) and model key. */
-export async function lookupProductCode(db: D1Database, bucket: R2Bucket, code: string, includeRaw: boolean): Promise<Record<string, unknown>> {
+export async function lookupProductCode(db: D1Database, bucket: R2Bucket, code: string, includeRaw: boolean, extracted = false): Promise<Record<string, unknown>> {
   const trimmed = code.trim();
   if (!trimmed || trimmed.length > 64) throw new BadRequest('code must be 1–64 characters');
   const interpretations: Array<{ kind: string; value: string }> = gtinCandidates(trimmed).map((value) => ({ kind: 'gtin', value }));
@@ -281,24 +337,38 @@ export async function lookupProductCode(db: D1Database, bucket: R2Bucket, code: 
   if (interpretations.length === 0) throw new BadRequest('code must contain letters or digits');
   const clause = interpretations.map(() => '(kind = ? AND value = ?)').join(' OR ');
   const binds = interpretations.flatMap((item) => [item.kind, item.value]);
+  // Published extracted identifiers match only on the notice's current source bytes, reported as their own kind.
+  const withExtracted = extracted && key.length >= 2;
+  const EXTRACTED = `SELECT e.recall_id FROM product_recall_extracted_key e JOIN product_recall r ON r.id = e.recall_id AND r.raw_sha256 = e.raw_sha256
+    WHERE e.status = 'accepted' AND e.kind = 'model' AND e.value_key = ?`;
+  const matching = `SELECT DISTINCT recall_id FROM product_recall_key WHERE ${clause}${withExtracted ? ` UNION ${EXTRACTED}` : ''}`;
+  const matchBinds = withExtracted ? [...binds, key] : binds;
   const limit = includeRaw ? 25 : PRODUCT_LOOKUP_LIMIT;
   const [rows, total] = await Promise.all([
-    db.prepare(`SELECT ${COLUMNS} FROM product_recall WHERE id IN (SELECT recall_id FROM product_recall_key WHERE ${clause}) ORDER BY sort_date DESC, id DESC LIMIT ?`).bind(...binds, limit).all<ProductRow>(),
-    db.prepare(`SELECT COUNT(DISTINCT recall_id) AS n FROM product_recall_key WHERE ${clause}`).bind(...binds).first<{ n: number }>(),
+    db.prepare(`SELECT ${COLUMNS} FROM product_recall WHERE id IN (${matching}) ORDER BY sort_date DESC, id DESC LIMIT ?`).bind(...matchBinds, limit).all<ProductRow>(),
+    db.prepare(`SELECT COUNT(*) AS n FROM (${matching})`).bind(...matchBinds).first<{ n: number }>(),
   ]);
   // Match details only for the notices returned, so a key shared by thousands of notices stays bounded.
+  const returned = JSON.stringify(rows.results.map((row) => row.id));
   const matched = await db
     .prepare(`SELECT kind, value, recall_id FROM product_recall_key WHERE (${clause}) AND recall_id IN (SELECT value FROM json_each(?))`)
-    .bind(...binds, JSON.stringify(rows.results.map((row) => row.id)))
+    .bind(...binds, returned)
     .all<{ kind: string; value: string; recall_id: string }>();
+  const extractedMatches = withExtracted
+    ? await db.prepare(`${EXTRACTED} AND e.recall_id IN (SELECT value FROM json_each(?))`).bind(key, returned).all<{ recall_id: string }>()
+    : { results: [] as Array<{ recall_id: string }> };
   const byRecall = new Map<string, Array<{ kind: string; value: string }>>();
   for (const match of matched.results) byRecall.set(match.recall_id, [...(byRecall.get(match.recall_id) ?? []), { kind: match.kind, value: match.value }]);
-  const presented = await presentRows(db, bucket, rows.results, includeRaw);
+  for (const match of extractedMatches.results) {
+    const list = byRecall.get(match.recall_id) ?? [];
+    if (!list.some((item) => item.kind === 'extracted_model')) byRecall.set(match.recall_id, [...list, { kind: 'extracted_model', value: key }]);
+  }
+  const presented = await presentRows(db, bucket, rows.results, includeRaw, extracted);
   return {
     data: presented.map((recall) => ({ matched_on: byRecall.get(recall.id) ?? [], recall })),
     total_matches: total?.n ?? 0,
     truncated: (total?.n ?? 0) > rows.results.length,
-    interpreted_as: interpretations,
+    interpreted_as: withExtracted ? [...interpretations, { kind: 'extracted_model', value: key }] : interpretations,
     attribution: PRODUCT_ATTRIBUTION,
   };
 }

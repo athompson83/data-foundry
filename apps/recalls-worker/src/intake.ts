@@ -1,0 +1,261 @@
+/**
+ * Governed intake for identifier candidates proposed by the local collector
+ * (apps/local-collector; docs/decisions/ADR-0017-local-collector-extraction-intake.md).
+ *
+ *   POST /v1/intake/product-recalls/identifiers   (api host, ingestion credential)
+ *
+ * The collector's model and its local checks are untrusted. For every
+ * candidate this Worker independently
+ *
+ * 1. authenticates an ingestion-scoped credential (not a customer API key, not an admin token) and checks that
+ *    it lists the notice's source;
+ * 2. refuses when intake is closed, the dataset's kill switch is set or the source is withdrawn;
+ * 3. requires the submitted raw_sha256 to equal the stored record's, then re-reads that record from R2 and
+ *    verifies its digest (the text checked is always the stored evidence, never text the client sends);
+ * 4. re-runs the deterministic acceptance rules (identifier-candidates.ts) and derives the label itself;
+ * 5. skips identifiers the agency parser already indexes, and stores the rest idempotently, with the
+ *    extractor, model digest, prompt hash, credential and exact source span.
+ *
+ * Accepted candidates are not published by acceptance: they are served only while EXTRACTED_IDENTIFIERS_OPEN
+ * is "1" (the quality gate), labelled as extracted, and every one can be withdrawn by extractor version.
+ */
+
+import { decideIdentifierInRecord, IDENTIFIER_TASK, type StructuredProductRecall } from '@data-foundry/product-recall-structuring';
+
+import type { D1Database, Env, R2Bucket } from './env.js';
+import { BadRequest } from './api.js';
+import { loadRawRecord, PRODUCT_ID } from './product-api.js';
+import { sha256Hex } from './store.js';
+
+export const INGEST_TOKEN_PREFIX = 'dfi_';
+/** Sources the intake knows, with the notice-id prefix their records carry. Rights: the source's rights record. */
+export const INTAKE_SOURCES: Readonly<Record<string, { readonly idPrefix: string; readonly rightsRecord: string }>> = {
+  'cpsc-recalls': { idPrefix: 'cpsc-', rightsRecord: 'docs/sources/cpsc-recalls-rights-record-20260927.md' },
+};
+export const MAX_INTAKE_BYTES = 262_144;
+export const MAX_INTAKE_NOTICES = 25;
+export const MAX_CANDIDATES_PER_NOTICE = 60;
+
+export interface IngestCredential {
+  readonly id: string;
+  readonly sources: readonly string[];
+}
+
+export class IntakeRefused extends Error {
+  constructor(readonly status: number, readonly code: string, message: string) {
+    super(message);
+  }
+}
+
+export function intakeOpen(env: Env): boolean {
+  return env.COLLECTOR_INTAKE_OPEN === '1';
+}
+
+/** Sources an operator has withdrawn from intake (comma-separated source keys), independent of credentials. */
+export function withdrawnSources(env: Env): Set<string> {
+  return new Set((env.INTAKE_WITHDRAWN_SOURCES ?? '').split(',').map((value) => value.trim()).filter(Boolean));
+}
+
+export function mintIngestToken(): string {
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const out: string[] = [];
+  while (out.length < 40) {
+    for (const byte of crypto.getRandomValues(new Uint8Array(64))) {
+      if (byte < 248 && out.length < 40) out.push(alphabet[byte % 62] as string);
+    }
+  }
+  return `${INGEST_TOKEN_PREFIX}${out.join('')}`;
+}
+
+export async function createIngestCredential(db: D1Database, label: string, sources: readonly string[], now: string): Promise<{ id: string; token: string }> {
+  if (!/^[\w .@-]{3,80}$/.test(label)) throw new BadRequest('label must be 3–80 letters, digits, spaces or ._@-');
+  if (sources.length === 0 || sources.some((source) => !(source in INTAKE_SOURCES))) throw new BadRequest(`sources must be a comma-separated subset of: ${Object.keys(INTAKE_SOURCES).join(', ')}`);
+  const token = mintIngestToken();
+  const id = `ic_${crypto.randomUUID()}`;
+  await db.prepare('INSERT INTO ingest_credential (id, token_sha256, label, sources, created_at) VALUES (?, ?, ?, ?, ?)').bind(id, await sha256Hex(token), label, JSON.stringify([...new Set(sources)]), now).run();
+  return { id, token };
+}
+
+export async function revokeIngestCredential(db: D1Database, id: string, now: string): Promise<boolean> {
+  const row = await db.prepare('UPDATE ingest_credential SET revoked_at = ? WHERE id = ? AND revoked_at IS NULL RETURNING id').bind(now, id).first<{ id: string }>();
+  return Boolean(row);
+}
+
+async function findCredential(db: D1Database, request: Request): Promise<IngestCredential | null> {
+  const match = /^Bearer\s+(\S+)$/i.exec(request.headers.get('authorization')?.trim() ?? '');
+  const token = match?.[1] ?? '';
+  if (!token.startsWith(INGEST_TOKEN_PREFIX) || token.length !== INGEST_TOKEN_PREFIX.length + 40) return null;
+  const row = await db.prepare('SELECT id, sources FROM ingest_credential WHERE token_sha256 = ? AND revoked_at IS NULL').bind(await sha256Hex(token)).first<{ id: string; sources: string }>();
+  return row ? { id: row.id, sources: JSON.parse(row.sources) as string[] } : null;
+}
+
+interface CandidateInput {
+  readonly value: string;
+  readonly field: string;
+  readonly label?: string;
+}
+
+interface NoticeInput {
+  readonly recall_id: string;
+  readonly raw_sha256: string;
+  readonly candidates: readonly CandidateInput[];
+}
+
+interface Extractor {
+  readonly version: string;
+  readonly model: string;
+  readonly model_digest: string;
+  readonly prompt_sha256: string;
+}
+
+const str = (value: unknown, pattern: RegExp): value is string => typeof value === 'string' && pattern.test(value);
+
+function parseBody(body: unknown): { extractor: Extractor; notices: NoticeInput[] } {
+  if (!body || typeof body !== 'object') throw new BadRequest('body must be a JSON object');
+  const { task, extractor, notices } = body as Record<string, unknown>;
+  if (task !== IDENTIFIER_TASK) throw new BadRequest(`task must be ${IDENTIFIER_TASK}`);
+  const e = extractor as Record<string, unknown> | undefined;
+  if (!e || !str(e['version'], /^[\w.@/:+-]{3,100}$/) || !str(e['model'], /^[\w.:/-]{2,100}$/) || !str(e['model_digest'], /^(?:sha256:)?[0-9a-f]{12,64}$/) || !str(e['prompt_sha256'], /^[0-9a-f]{64}$/)) {
+    throw new BadRequest('extractor must have version, model, model_digest and prompt_sha256');
+  }
+  if (/cloud/i.test(e['model'] as string)) throw new BadRequest('cloud models are not accepted');
+  if (!Array.isArray(notices) || notices.length === 0 || notices.length > MAX_INTAKE_NOTICES) throw new BadRequest(`notices must be an array of 1–${MAX_INTAKE_NOTICES}`);
+  const parsed = notices.map((notice): NoticeInput => {
+    const n = notice as Record<string, unknown>;
+    if (!n || !str(n['recall_id'], /^[a-z0-9-]{3,20}$/) || !str(n['raw_sha256'], /^[0-9a-f]{64}$/) || !Array.isArray(n['candidates']) || (n['candidates'] as unknown[]).length > MAX_CANDIDATES_PER_NOTICE) {
+      throw new BadRequest(`each notice needs recall_id, raw_sha256 and up to ${MAX_CANDIDATES_PER_NOTICE} candidates`);
+    }
+    const candidates = (n['candidates'] as unknown[]).map((candidate) => {
+      const c = candidate as Record<string, unknown>;
+      if (!c || typeof c['value'] !== 'string' || (c['value'] as string).length > 60 || typeof c['field'] !== 'string' || (c['field'] as string).length > 40) {
+        throw new BadRequest('each candidate needs a value (≤60 chars) and a field');
+      }
+      return { value: c['value'] as string, field: c['field'] as string, ...(typeof c['label'] === 'string' ? { label: (c['label'] as string).slice(0, 20) } : {}) };
+    });
+    return { recall_id: n['recall_id'] as string, raw_sha256: n['raw_sha256'] as string, candidates };
+  });
+  return { extractor: { version: e['version'] as string, model: e['model'] as string, model_digest: e['model_digest'] as string, prompt_sha256: e['prompt_sha256'] as string }, notices: parsed };
+}
+
+type CandidateStatus = 'accepted' | 'replayed' | 'duplicate_of_agency_fact' | 'rejected';
+
+interface CandidateResult {
+  readonly value: string;
+  readonly field: string;
+  readonly status: CandidateStatus;
+  readonly reason?: string;
+  /** Where the server found the value in the stored record (may differ from the extractor's claimed field). */
+  readonly source_field?: string;
+  readonly key?: string;
+  readonly label?: string;
+  readonly label_matches_extractor?: boolean;
+  readonly span?: readonly [number, number];
+}
+
+interface NoticeResult {
+  readonly recall_id: string;
+  readonly status: 'checked' | 'unknown_notice' | 'stale_source' | 'source_not_allowed';
+  readonly candidates: CandidateResult[];
+}
+
+function sourceOf(recallId: string): string | null {
+  return Object.entries(INTAKE_SOURCES).find(([, source]) => recallId.startsWith(source.idPrefix))?.[0] ?? null;
+}
+
+async function checkNotice(db: D1Database, bucket: R2Bucket, notice: NoticeInput, credential: IngestCredential, extractor: Extractor, withdrawn: Set<string>, now: string): Promise<NoticeResult> {
+  const reject = (status: NoticeResult['status'], reason: string): NoticeResult => ({
+    recall_id: notice.recall_id,
+    status,
+    candidates: notice.candidates.map((candidate) => ({ value: candidate.value, field: candidate.field, status: 'rejected', reason })),
+  });
+  const source = sourceOf(notice.recall_id);
+  if (!source || !credential.sources.includes(source) || withdrawn.has(source) || !PRODUCT_ID.test(notice.recall_id)) return reject('source_not_allowed', 'source_not_allowed');
+  const row = await db.prepare('SELECT id, raw_ref, raw_sha256, structured FROM product_recall WHERE id = ?').bind(notice.recall_id).first<{ id: string; raw_ref: string; raw_sha256: string; structured: string }>();
+  if (!row) return reject('unknown_notice', 'unknown_notice');
+  // The candidate must have been extracted from exactly the bytes the dataset holds now.
+  if (row.raw_sha256 !== notice.raw_sha256) return reject('stale_source', 'stale_source');
+  const raw = await loadRawRecord(bucket, row);
+  const agencyKeys = new Set((JSON.parse(row.structured) as StructuredProductRecall).identifiers.model_keys);
+  const results: CandidateResult[] = [];
+  const seen = new Set<string>();
+  for (const candidate of notice.candidates) {
+    // The field claim is a hint; the server finds where the value is printed in the stored record.
+    const decision = decideIdentifierInRecord(raw, candidate.value, candidate.field);
+    if (!decision.ok) {
+      results.push({ value: candidate.value, field: candidate.field, status: 'rejected', reason: decision.reason });
+      continue;
+    }
+    const base = { value: candidate.value, field: candidate.field, source_field: decision.field, key: decision.key, label: decision.label, label_matches_extractor: candidate.label === decision.label, span: [decision.start, decision.end] as const };
+    if (agencyKeys.has(decision.key)) {
+      results.push({ ...base, status: 'duplicate_of_agency_fact' });
+      continue;
+    }
+    if (seen.has(decision.key)) {
+      results.push({ ...base, status: 'replayed' });
+      continue;
+    }
+    seen.add(decision.key);
+    const inserted = await db
+      .prepare(`INSERT INTO product_recall_extracted_key (recall_id, raw_sha256, extractor_version, kind, value_key, printed, label, source_field, span_start, span_end, model, model_digest, prompt_sha256, credential_id, status, submitted_at)
+        VALUES (?, ?, ?, 'model', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'accepted', ?) ON CONFLICT DO NOTHING RETURNING recall_id`)
+      .bind(row.id, row.raw_sha256, extractor.version, decision.key, candidate.value, decision.label, decision.field, decision.start, decision.end, extractor.model, extractor.model_digest, extractor.prompt_sha256, credential.id, now)
+      .first<{ recall_id: string }>();
+    results.push({ ...base, status: inserted ? 'accepted' : 'replayed' });
+  }
+  return { recall_id: notice.recall_id, status: 'checked', candidates: results };
+}
+
+export async function handleIntake(env: Env, request: Request): Promise<{ status: number; body: Record<string, unknown> }> {
+  if (!intakeOpen(env)) throw new IntakeRefused(503, 'intake_closed', 'Extraction intake is closed.');
+  const credential = await findCredential(env.DB, request);
+  if (!credential) throw new IntakeRefused(401, 'invalid_ingest_credential', 'Send an ingestion credential as "Authorization: Bearer dfi_…".');
+  if (env.PRODUCT_RECALLS_KILL_SWITCH === '1') throw new IntakeRefused(503, 'source_withdrawn', 'The product-recall sources are withdrawn.');
+  const idempotencyKey = request.headers.get('idempotency-key') ?? '';
+  if (!/^[0-9a-f]{64}$/.test(idempotencyKey)) throw new BadRequest('Idempotency-Key must be 64 lowercase hex characters');
+  const declared = Number(request.headers.get('content-length') ?? '0');
+  if (declared > MAX_INTAKE_BYTES) throw new IntakeRefused(413, 'too_large', `Bodies are limited to ${MAX_INTAKE_BYTES} bytes.`);
+  const text = await request.text();
+  if (new TextEncoder().encode(text).byteLength > MAX_INTAKE_BYTES) throw new IntakeRefused(413, 'too_large', `Bodies are limited to ${MAX_INTAKE_BYTES} bytes.`);
+  const previous = await env.DB.prepare('SELECT credential_id, response FROM extraction_submission WHERE idempotency_key = ?').bind(idempotencyKey).first<{ credential_id: string; response: string }>();
+  if (previous) {
+    if (previous.credential_id !== credential.id) throw new IntakeRefused(409, 'idempotency_conflict', 'This Idempotency-Key was used by another credential.');
+    return { status: 200, body: { ...(JSON.parse(previous.response) as Record<string, unknown>), idempotent_replay: true } };
+  }
+  let body: unknown;
+  try {
+    body = JSON.parse(text);
+  } catch {
+    throw new BadRequest('body is not valid JSON');
+  }
+  const { extractor, notices } = parseBody(body);
+  const withdrawn = withdrawnSources(env);
+  const now = new Date().toISOString();
+  const results: NoticeResult[] = [];
+  for (const notice of notices) results.push(await checkNotice(env.DB, env.RAW_ARTIFACTS, notice, credential, extractor, withdrawn, now));
+  const all = results.flatMap((result) => result.candidates);
+  const count = (status: CandidateStatus) => all.filter((candidate) => candidate.status === status).length;
+  const response = {
+    task: IDENTIFIER_TASK,
+    extractor_version: extractor.version,
+    accepted: count('accepted'),
+    replayed: count('replayed'),
+    duplicate_of_agency_fact: count('duplicate_of_agency_fact'),
+    rejected: count('rejected'),
+    published: env.EXTRACTED_IDENTIFIERS_OPEN === '1',
+    results,
+  };
+  await env.DB.prepare('INSERT INTO extraction_submission (credential_id, idempotency_key, received_at, items, accepted, replayed, rejected, response) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (idempotency_key) DO NOTHING')
+    .bind(credential.id, idempotencyKey, now, all.length, response.accepted, response.replayed, response.rejected, JSON.stringify(response))
+    .run();
+  return { status: 200, body: response };
+}
+
+/** Operator withdrawal of every accepted candidate from one extractor version (optionally one notice). Reversible audit: rows are kept. */
+export async function withdrawExtractions(db: D1Database, extractorVersion: string, recallId: string | null, now: string): Promise<number> {
+  if (!/^[\w.@/:+-]{3,100}$/.test(extractorVersion)) throw new BadRequest('extractor_version is required');
+  const rows = await db
+    .prepare(`UPDATE product_recall_extracted_key SET status = 'withdrawn', withdrawn_at = ? WHERE extractor_version = ? AND status = 'accepted' ${recallId ? 'AND recall_id = ?' : ''} RETURNING recall_id`)
+    .bind(now, extractorVersion, ...(recallId ? [recallId] : []))
+    .all<{ recall_id: string }>();
+  return rows.results.length;
+}

@@ -49,6 +49,12 @@ export interface Env {
   readonly PUBLIC_ORIGIN?: string;
   readonly API_ORIGIN?: string;
   readonly SUPPORT_EMAIL?: string;
+  /** "1" accepts extracted-identifier candidates at /v1/intake (ADR-0017); anything else answers 503. */
+  readonly COLLECTOR_INTAKE_OPEN?: string;
+  /** "1" serves accepted extracted identifiers (`extracted_identifiers`, lookup kind `extracted_model`): the quality gate. */
+  readonly EXTRACTED_IDENTIFIERS_OPEN?: string;
+  /** Comma-separated intake source keys an operator has withdrawn (e.g. "cpsc-recalls"): submissions for them are refused. */
+  readonly INTAKE_WITHDRAWN_SOURCES?: string;
   /** Public IndexNow key, served at /<key>.txt; unset disables pings. */
   readonly INDEXNOW_KEY?: string;
 }
