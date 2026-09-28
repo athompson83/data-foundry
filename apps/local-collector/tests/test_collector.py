@@ -300,7 +300,9 @@ class UploaderBehaviour(unittest.TestCase):
         self.assertTrue(uploader.send_one())
         keys = {r.get_header("Idempotency-key") for r in opener.requests}
         self.assertEqual(keys, {"f" * 64})
-        self.assertEqual(self.state.one("SELECT state FROM outbox")["state"], "acked")
+        # Acknowledged uploads are deleted at once; only the count remains.
+        self.assertIsNone(self.state.one("SELECT 1 FROM outbox"))
+        self.assertEqual(self.state.counts()["outbox"], {"acked": 1})
         self.assertEqual(self.state.one("SELECT server_status FROM candidate")["server_status"], "accepted")
         self.assertNotIn("collector", json.loads(opener.requests[-1].data))
 
@@ -470,3 +472,97 @@ class LiveCatalog(unittest.TestCase):
             # An API root without registry keys (a Worker before ADR-0017) maps to nothing: fail closed.
             bare = catalog.parse_root(json.dumps({"datasets": {"product-recalls": {"docs": "x"}}}).encode())
             self.assertEqual(catalog.capture_plan(POLICY, bare)["hosted_sources"], [])
+
+
+class Retention(unittest.TestCase):
+    """Nothing stays on this computer once Data Foundry holds it; counts survive."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.config = Config(data_dir=self.tmp.name)
+        self.state = State(self.config.db_path)
+        self.collector = Collector(self.config, self.state, client=FakeClient(json.dumps({"identifiers": [
+            {"value": "SA904", "label": "item", "field": "Description"}, {"value": "44871", "label": "item", "field": "Description"}]})), policy=POLICY)
+
+    def notice(self, recall_id, record):
+        return {"id": recall_id, "raw": record, "provenance": {"raw_sha256": recall_id * 2}}
+
+    def test_working_copies_exist_only_while_queued_and_skipped_notices_are_never_written(self):
+        queued = self.collector.queue_documents([self.notice("cpsc-00001", RECORD), self.notice("cpsc-00002", {"Title": "Dresses", "Description": "Snaps detach.", "Products": []})])
+        self.assertEqual(queued, 1)
+        files = [p for p in self.config.evidence_dir.rglob("*") if p.is_file()]
+        self.assertEqual(len(files), 1)
+        self.assertEqual(self.state.one("SELECT evidence_path FROM document WHERE recall_id = 'cpsc-00002'")["evidence_path"], "")
+        self.collector.extract_one()
+        self.assertEqual([p for p in self.config.evidence_dir.rglob("*") if p.is_file()], [])
+        self.assertEqual(self.state.one("SELECT state, evidence_path FROM document WHERE recall_id = 'cpsc-00001'")["evidence_path"], "")
+
+    def test_sweep_deletes_final_candidates_and_orphans_but_keeps_counts(self):
+        self.collector.queue_documents([self.notice("cpsc-00001", RECORD)])
+        self.collector.extract_one()
+        with self.state.tx() as db:
+            db.execute("UPDATE candidate SET server_status = 'accepted', queryable = 1 WHERE value = 'SA904'")
+        orphan = self.config.evidence_dir / "ab" / "orphan.json"
+        orphan.parent.mkdir(parents=True, exist_ok=True)
+        orphan.write_text("{}")
+        removed = self.state.sweep(self.config.evidence_dir)
+        self.assertEqual(removed["candidates"], 2)
+        self.assertFalse(orphan.exists())
+        self.assertIsNone(self.state.one("SELECT 1 FROM candidate"))
+        counts = self.state.counts()
+        self.assertEqual(counts["candidates_local"], {"accepted": 1, "rejected": 1})
+        self.assertEqual(counts["candidates_server"], {"accepted": 1})
+        self.assertEqual(counts["queryable"], 1)
+
+    def test_unverified_accepted_candidates_wait_for_read_back(self):
+        self.collector.queue_documents([self.notice("cpsc-00001", RECORD)])
+        self.collector.extract_one()
+        with self.state.tx() as db:
+            db.execute("UPDATE candidate SET server_status = 'accepted' WHERE value = 'SA904'")
+        self.state.sweep(self.config.evidence_dir)
+        self.assertEqual(self.state.one("SELECT value FROM candidate")["value"], "SA904")
+
+    def test_cap_pause_lifts_itself(self):
+        self.state.set("paused", "cap: disk cap reached")
+        self.collector.check_caps = lambda: None
+        self.collector.tick()
+        self.assertIsNone(self.state.paused())
+        self.state.set("paused", "paused from the dashboard")
+        self.collector.tick()
+        self.assertEqual(self.state.paused(), "paused from the dashboard")
+
+    def test_purge_refuses_with_uploads_owed_then_leaves_no_notice_data(self):
+        from df_collector.__main__ import main
+
+        self.collector.queue_documents([self.notice("cpsc-00001", RECORD)])
+        self.collector.extract_one()
+        self.assertEqual(main(["--data-dir", self.tmp.name, "purge"]), 1)
+        with self.state.tx() as db:
+            db.execute("DELETE FROM outbox")
+        self.assertEqual(main(["--data-dir", self.tmp.name, "purge"]), 0)
+        state = State(self.config.db_path)
+        self.assertIsNone(state.one("SELECT 1 FROM candidate"))
+        self.assertFalse(self.config.evidence_dir.exists())
+        self.assertEqual(main(["--data-dir", self.tmp.name, "purge", "--everything"]), 0)
+        self.assertFalse(Path(self.tmp.name).exists())
+
+
+class CatalogRecheck(unittest.TestCase):
+    def test_a_task_waiting_on_the_catalog_rechecks_it_hourly(self):
+        from df_collector import catalog
+        from df_collector.runtime import CATALOG_RETRY_S
+
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Config(data_dir=tmp)
+            state = State(config.db_path)
+            collector = Collector(config, state, client=FakeClient("{}"), policy=POLICY)
+            hosted = catalog.parse_root(ROOT_BODY)
+            hosted.pop("product-recalls")
+            now = __import__("time").time()
+            state.set("catalog", json.dumps({"fetched_at": now, "hosted": hosted, "plan": catalog.capture_plan(POLICY, hosted)}))
+            state.ensure_job("catalog", "catalog", "catalog", {}, due_at=now + 86400)
+            collector.refresh_catalog = lambda task: None  # not due, so not called
+            collector.tick()
+            due = state.one("SELECT due_at FROM job WHERE kind = 'catalog'")["due_at"]
+            self.assertLessEqual(due, now + CATALOG_RETRY_S + 5)

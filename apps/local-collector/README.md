@@ -65,6 +65,44 @@ bytes (`raw_sha256`) or the extractor version change.
   dead-letter and refused states. An outbox row is deleted only 30 days after the server's acknowledgement is
   recorded. A lost response is resent with the same Idempotency-Key and answered from the server's stored response.
 
+## Unattended operation and local retention
+
+The collector is built to run unattended, and to leave nothing on the computer once Data Foundry holds it.
+
+**Unattended.** Every stop condition resolves on its own, except a revoked credential, which still retries hourly:
+
+| Condition | What happens |
+| --- | --- |
+| Local model down | It waits and retries, with backoff |
+| A notice the model keeps failing on | Dead-lettered after 3 attempts; the queue moves on |
+| Network or 5xx errors, 429 / Retry-After, the daily request cap | Jobs back off and retry, then dead-letter at the ceiling |
+| A cap reached (disk, free space) | It pauses, then resumes by itself once the sweep or the drain clears it |
+| Ingestion credential refused | Uploads pause and are retried hourly, so a fixed credential resumes without anyone touching it |
+| Dataset withdrawn from the live catalog | The task idles and the catalog is re-read hourly, so collection resumes when the dataset returns |
+| Restart | The catalog is re-read at start-up, and work resumes from the saved cursor and outbox |
+
+Only the pause button and the kill switch need a person to undo them.
+
+**Retention.** Data Foundry's R2 evidence is the canonical copy, and the server re-reads it for every candidate:
+
+- A notice's text is written locally only while it waits for the model, and deleted as soon as it is extracted or
+  dead-lettered. Skipped notices are never written.
+- An upload is deleted the moment the server acknowledges it. A resend is answered from the server's stored
+  response.
+- Candidate values are deleted once their outcome is final: rejected, a duplicate, verified queryable, or
+  unverified after 7 days.
+- A sweep runs every minute and also removes files orphaned by a crash.
+- What stays is notice ids and hashes (so nothing is extracted twice), running counts, and bounded logs.
+
+When the work is done:
+
+```bash
+python -m df_collector stop
+python -m df_collector purge                       # refuses while uploads are still owed to Data Foundry
+python -m df_collector purge --everything          # also deletes state, secrets and config
+python -m df_collector purge --everything --remove-model   # and removes the model from Ollama
+```
+
 ## Limits (defaults; editable in the dashboard or `collector.json`)
 
 | Limit | Default |
@@ -73,7 +111,7 @@ bytes (`raw_sha256`) or the extractor version change.
 | Minimum free disk | 5,120 MB, then pause |
 | Queued notices | 500 (reading pauses) |
 | Outbox | 200 (extraction pauses) |
-| Data Foundry API requests per UTC day | 150 (25 notices each; metered on the read key's plan) |
+| Data Foundry API requests per UTC day | 400 (25 notices each, so the 10,027-notice backfill takes about a day; metered on the read key's plan) |
 | Response size | 16 MB |
 | Simultaneous model extractions | 1 |
 | Per-host interval | 2 s |

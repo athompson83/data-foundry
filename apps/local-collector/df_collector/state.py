@@ -15,6 +15,18 @@ Crash safety:
   recorded (acknowledged), and every upload carries a stable Idempotency-Key,
   so a crash between send and record resends the same request, which the
   server answers from its stored response.
+
+Retention (nothing is kept locally once Data Foundry holds it):
+
+- a notice's text is on disk only while it waits for the model; the canonical
+  copy is the R2 evidence the server re-reads, so the local file is deleted as
+  soon as the notice leaves the queue (and never written for skipped notices);
+- an acknowledged upload is deleted at once;
+- candidate values are deleted once their outcome is final (rejected, a
+  duplicate, or verified queryable; unverified ones after 7 days), and only
+  their counts are kept;
+- what remains is identifiers and hashes (which notices were done), counters,
+  and a bounded event and retrieval log.
 """
 
 from __future__ import annotations
@@ -98,6 +110,8 @@ CREATE TABLE IF NOT EXISTS outbox (
   created_at REAL NOT NULL,
   acked_at REAL
 );
+-- Running totals for rows the retention sweep has deleted, so counters survive deletion.
+CREATE TABLE IF NOT EXISTS counter (name TEXT PRIMARY KEY, value INTEGER NOT NULL);
 CREATE TABLE IF NOT EXISTS event (id INTEGER PRIMARY KEY AUTOINCREMENT, at REAL NOT NULL, level TEXT NOT NULL, kind TEXT NOT NULL, detail TEXT NOT NULL);
 """
 
@@ -248,15 +262,62 @@ class State:
         row = self.one("SELECT COUNT(*) AS n FROM outbox WHERE state = 'pending'")
         return int(row["n"]) if row else 0
 
+    # -- counters and retention -----------------------------------------------------------------------------------
+
+    def bump(self, db: sqlite3.Connection, name: str, by: int = 1) -> None:
+        if by:
+            db.execute("INSERT INTO counter (name, value) VALUES (?, ?) ON CONFLICT (name) DO UPDATE SET value = value + excluded.value", (name, by))
+
+    def sweep(self, evidence_dir: Path, unverified_days: float = 7.0) -> dict[str, int]:
+        """Delete local data Data Foundry no longer needs from this computer; keep only counts. Safe to run anytime."""
+        now = self.clock()
+        removed = {"evidence_files": 0, "candidates": 0, "outbox_dead": 0}
+        with self.tx() as db:
+            final = """local_decision = 'rejected'
+                OR server_status IN ('duplicate_of_agency_fact', 'rejected')
+                OR (server_status IN ('accepted', 'replayed') AND (queryable = 1 OR updated_at < ?))"""
+            for row in db.execute(f"SELECT local_decision, server_status, queryable FROM candidate WHERE {final}", (now - unverified_days * 86400,)).fetchall():
+                self.bump(db, f"candidates_local:{row['local_decision']}")
+                if row["local_decision"] == "accepted":
+                    self.bump(db, f"candidates_server:{row['server_status'] or 'not_submitted'}")
+                self.bump(db, "queryable", int(row["queryable"] or 0))
+            removed["candidates"] = db.execute(f"DELETE FROM candidate WHERE {final}", (now - unverified_days * 86400,)).rowcount
+            removed["outbox_dead"] = db.execute("DELETE FROM outbox WHERE state = 'dead' AND created_at < ?", (now - unverified_days * 86400,)).rowcount
+            # Rows acknowledged by an older version that kept them.
+            self.bump(db, "outbox:acked", db.execute("DELETE FROM outbox WHERE state = 'acked'").rowcount)
+            db.execute("DELETE FROM retrieval WHERE id <= (SELECT MAX(id) - 1000 FROM retrieval)")
+            keep = {row["evidence_path"] for row in db.execute("SELECT evidence_path FROM document WHERE state = 'queued' AND evidence_path <> ''")}
+            db.execute("UPDATE document SET evidence_path = '' WHERE state <> 'queued' AND evidence_path <> ''")
+        # Orphans too: files left by a crash between extraction and deletion.
+        if evidence_dir.exists():
+            for path in evidence_dir.rglob("*"):
+                if path.is_file() and str(path) not in keep:
+                    try:
+                        path.unlink()
+                        removed["evidence_files"] += 1
+                    except OSError:
+                        pass
+        return removed
+
     def counts(self) -> dict[str, Any]:
         def group(sql: str) -> dict[str, int]:
             return {row[0]: row[1] for row in self.q(sql)}
 
+        swept = group("SELECT name, value FROM counter")
+
+        def merged(live: dict[str, int], prefix: str) -> dict[str, int]:
+            out = dict(live)
+            for name, value in swept.items():
+                if name.startswith(prefix):
+                    key = name[len(prefix):]
+                    out[key] = out.get(key, 0) + value
+            return out
+
         return {
             "jobs": group("SELECT state, COUNT(*) FROM job GROUP BY state"),
             "documents": group("SELECT state, COUNT(*) FROM document GROUP BY state"),
-            "candidates_local": group("SELECT local_decision, COUNT(*) FROM candidate GROUP BY local_decision"),
-            "candidates_server": group("SELECT COALESCE(server_status, 'not_submitted'), COUNT(*) FROM candidate WHERE local_decision = 'accepted' GROUP BY 1"),
-            "queryable": int((self.one("SELECT COUNT(*) AS n FROM candidate WHERE queryable = 1") or {"n": 0})["n"]),
-            "outbox": group("SELECT state, COUNT(*) FROM outbox GROUP BY state"),
+            "candidates_local": merged(group("SELECT local_decision, COUNT(*) FROM candidate GROUP BY local_decision"), "candidates_local:"),
+            "candidates_server": merged(group("SELECT COALESCE(server_status, 'not_submitted'), COUNT(*) FROM candidate WHERE local_decision = 'accepted' GROUP BY 1"), "candidates_server:"),
+            "queryable": int((self.one("SELECT COUNT(*) AS n FROM candidate WHERE queryable = 1") or {"n": 0})["n"]) + swept.get("queryable", 0),
+            "outbox": merged(group("SELECT state, COUNT(*) FROM outbox GROUP BY state"), "outbox:"),
         }

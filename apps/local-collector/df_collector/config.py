@@ -31,7 +31,7 @@ class Limits:
     # Outbox rows waiting for upload; extraction pauses while the outbox is at the cap.
     max_outbox: int = 200
     # Data Foundry read-API requests per UTC day (each returns up to 25 notices). Metered against the read key's plan.
-    max_api_requests_per_day: int = 150
+    max_api_requests_per_day: int = 400
     # Largest response body accepted from any source.
     max_response_mb: int = 16
     # Simultaneous LLM extractions. One on a CPU-only machine.

@@ -39,9 +39,15 @@ from .state import State, backoff_seconds
 TASK = "cpsc-product-identifiers@1"
 PAGE_SIZE = 25
 CATALOG_INTERVAL_S = 24 * 3600
+# While a task waits on the catalog (its dataset not hosted, or no catalog yet), it is re-read hourly instead.
+CATALOG_RETRY_S = 3600
 # A catalog older than this (its refresh keeps failing) no longer counts as knowing what is hosted: tasks wait.
 CATALOG_MAX_AGE_S = 7 * 86400
 MAX_DOCUMENT_ATTEMPTS = 3
+SWEEP_INTERVAL_S = 60
+CAP_PAUSE = "cap: "
+# A refused ingestion credential is retried after this long, so a fixed or re-issued credential resumes on its own.
+CREDENTIAL_RETRY_S = 3600
 PREFILTER = re.compile(r"\b(?:models?|items?|styles?|skus?|part|catalog(?:ue)?|product|article|stock|p/n)\b", re.I | re.A)
 CODE = re.compile(r"\b[A-Za-z0-9-]*[0-9][A-Za-z0-9-]{2,}\b", re.A)
 
@@ -80,6 +86,7 @@ class Collector:
         self.client = client
         self.fetcher = fetcher
         self.model_identity = None
+        self._last_sweep = 0.0
 
     # -- helpers -------------------------------------------------------------------------------------------------
 
@@ -240,15 +247,18 @@ class Collector:
                 continue
             if self.state.one("SELECT 1 FROM document WHERE recall_id = ? AND raw_sha256 = ? AND extractor_version = ?", recall_id, raw_sha, extract.EXTRACTOR_VERSION):
                 continue
-            body = json.dumps(raw, ensure_ascii=False, sort_keys=True).encode()
-            digest = hashlib.sha256(body).hexdigest()
-            path = self.config.evidence_dir / digest[:2] / f"{digest}.json"
-            if not path.exists():
-                path.parent.mkdir(parents=True, exist_ok=True)
-                tmp = path.with_suffix(".tmp")
-                tmp.write_bytes(body)
-                os.replace(tmp, path)
             state = "queued" if worth_extracting(raw) else "skipped"
+            path: Path | str = ""
+            if state == "queued":
+                # A working copy only while the notice waits for the model; R2 holds the evidence.
+                body = json.dumps(raw, ensure_ascii=False, sort_keys=True).encode()
+                digest = hashlib.sha256(body).hexdigest()
+                path = self.config.evidence_dir / digest[:2] / f"{digest}.json"
+                if not path.exists():
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    tmp = path.with_suffix(".tmp")
+                    tmp.write_bytes(body)
+                    os.replace(tmp, path)
             with self.state.tx() as db:
                 db.execute(
                     "INSERT INTO document (recall_id, raw_sha256, task, extractor_version, evidence_path, evidence_ref, retrieved_at, state, detail, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING",
@@ -286,6 +296,8 @@ class Collector:
                     (MAX_DOCUMENT_ATTEMPTS, str(error)[:500], time.time(), row["recall_id"], row["raw_sha256"], row["extractor_version"]),
                 )
             self.state.event("warn", "extraction_failed", {"recall_id": row["recall_id"], "error": str(error)[:300]})
+            if (self.state.one("SELECT state FROM document WHERE recall_id = ? AND raw_sha256 = ? AND extractor_version = ?", row["recall_id"], row["raw_sha256"], row["extractor_version"]) or {"state": ""})["state"] == "failed":
+                self._drop_working_copy(row)
             self.status.update(phase="idle", current=None, last_error=str(error))
             return True
         latency = (time.monotonic() - started) * 1000
@@ -308,9 +320,21 @@ class Collector:
                 }
                 key_material = json.dumps([TASK, extract.EXTRACTOR_VERSION, row["recall_id"], row["raw_sha256"], sorted((p.field, p.value) for p in accepted)])
                 self.state.outbox_add(db, hashlib.sha256(key_material.encode()).hexdigest(), payload)
+        # The candidates are in the outbox; the notice text is no longer needed on this computer.
+        self._drop_working_copy(row)
         self.state.event("info", "extracted", {"recall_id": row["recall_id"], "status": result.status, "proposed": len(result.proposals), "accepted_locally": len(accepted), "latency_ms": round(latency)})
         self.status.update(phase="idle", current=None)
         return True
+
+    def _drop_working_copy(self, row) -> None:
+        with self.state.tx() as db:
+            db.execute("UPDATE document SET evidence_path = '' WHERE recall_id = ? AND raw_sha256 = ? AND extractor_version = ?", (row["recall_id"], row["raw_sha256"], row["extractor_version"]))
+            still_needed = db.execute("SELECT 1 FROM document WHERE evidence_path = ? AND state = 'queued'", (row["evidence_path"],)).fetchone()
+        if row["evidence_path"] and not still_needed:
+            try:
+                Path(row["evidence_path"]).unlink()
+            except OSError:
+                pass
 
     # -- publication check ---------------------------------------------------------------------------------------
 
@@ -337,13 +361,24 @@ class Collector:
     # -- main loop -----------------------------------------------------------------------------------------------
 
     def tick(self) -> None:
+        if time.time() - self._last_sweep > SWEEP_INTERVAL_S:
+            self._last_sweep = time.time()
+            removed = self.state.sweep(self.config.evidence_dir)
+            if any(removed.values()):
+                self.state.event("info", "sweep", removed)
         paused = self.state.paused()
+        if paused and paused.startswith(CAP_PAUSE):
+            # A cap pause lifts itself when the condition clears (the sweep frees disk; the backlog drains).
+            if self.check_caps() is None:
+                self.state.set("paused", "")
+                self.state.event("info", "resumed", paused)
+                paused = None
         if paused:
             self.status["phase"] = f"paused: {paused}"
             return
         cap = self.check_caps()
         if cap:
-            self.state.set("paused", cap)
+            self.state.set("paused", CAP_PAUSE + cap)
             self.state.event("warn", "cap", cap)
             return
         try:
@@ -367,6 +402,9 @@ class Collector:
         gate = self.hosted_gate(task)
         if gate:
             self.status.update(phase=f"idle: {gate}", current=None)
+            # Unattended: re-read the catalog hourly while waiting, so a dataset that returns is picked up on its own.
+            with self.state.tx() as db:
+                db.execute("UPDATE job SET due_at = MIN(due_at, ?) WHERE kind = 'catalog' AND state = 'pending'", (time.time() + CATALOG_RETRY_S,))
             return
         self.state.ensure_job("read", TASK, f"{TASK}:read", {})
         queue = int((self.state.one("SELECT COUNT(*) AS n FROM document WHERE state = 'queued'") or {"n": 0})["n"])
@@ -410,6 +448,9 @@ class Collector:
 
     def run(self) -> None:
         self.state.event("info", "started", {"collector": COLLECTOR_ID, "pid": os.getpid()})
+        # Always start from what Data Foundry hosts now, not from a catalog read before a restart.
+        with self.state.tx() as db:
+            db.execute("UPDATE job SET due_at = ? WHERE kind = 'catalog' AND state = 'pending'", (time.time(),))
         while not self.stop.is_set():
             before = self.status.get("phase")
             self.tick()
@@ -466,6 +507,7 @@ class Uploader:
             detail = error.read().decode(errors="replace")[:500]
             if error.code in (401, 403):
                 self.state.set("uploader_paused", f"intake refused the credential ({error.code})")
+                self.state.set("uploader_paused_at", str(time.time()))
                 self._defer(row, f"{error.code}: {detail}", 3600)
             elif error.code in (400, 409, 413):
                 self._dead(row, f"{error.code}: {detail}")
@@ -498,13 +540,16 @@ class Uploader:
                         "UPDATE candidate SET server_status = ?, server_reason = ?, updated_at = ? WHERE recall_id = ? AND field = ? AND value = ? AND extractor_version = ?",
                         (candidate.get("status"), candidate.get("reason"), time.time(), notice.get("recall_id"), candidate.get("field"), candidate.get("value"), answer.get("extractor_version")),
                     )
-            db.execute("UPDATE outbox SET state = 'acked', acked_at = ?, response = ? WHERE id = ?", (time.time(), json.dumps(answer)[:20000], row["id"]))
-            # Only acknowledged rows are ever deleted, and only after 30 days.
-            db.execute("DELETE FROM outbox WHERE state = 'acked' AND acked_at < ?", (time.time() - 30 * 86400,))
+            # Acknowledged: the server holds the result (and answers a resend from its stored response), so the
+            # local copy is deleted now; only the count is kept.
+            db.execute("DELETE FROM outbox WHERE id = ?", (row["id"],))
+            self.state.bump(db, "outbox:acked")
         self.state.event("info", "uploaded", {"id": row["id"], "accepted": answer.get("accepted"), "replayed": answer.get("replayed"), "rejected": answer.get("rejected"), "replay": bool(answer.get("idempotent_replay"))})
 
     def run(self) -> None:
         while not self.stop.is_set():
+            if self.state.get("uploader_paused") and time.time() - float(self.state.get("uploader_paused_at", "0") or 0) > CREDENTIAL_RETRY_S:
+                self.state.set("uploader_paused", "")  # retry hourly: a fixed or re-issued credential resumes unattended
             if self.state.get("uploader_paused") or self.state.paused():
                 self.stop.wait(10)
                 continue

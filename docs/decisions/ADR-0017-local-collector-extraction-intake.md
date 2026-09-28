@@ -84,7 +84,13 @@ recalls on the recalls Worker); [`docs/sources/cpsc-recalls-rights-record-202609
    `gpt-oss:20b` (Apache-2.0, about 14 GB of RAM, `think: "low"`) once it passes the same benchmark. OpenAI's hosted
    API is paid and is not used. Product Owner, the same day: "We can also set it up with any OpenAI free models as
    needed."
-9. **Operation on the owner's Windows computer.** A per-user Scheduled Task starts the collector at logon (no wake
+9. **Unattended, with no lasting local copy.** Product Owner, 2026-09-28: "Make sure this stays on an autonomous
+   run. It should get a large load of data into our database without keeping it locally after the work is done."
+   - Every stop condition recovers by itself, and a refused credential is retried hourly.
+   - Local notice text exists only while a notice is queued. Acknowledged uploads and final candidates are deleted
+     at once, keeping only counts. `purge` removes the rest when the work is done.
+   - The canonical copy is always Data Foundry's R2 evidence and D1 rows.
+10. **Operation on the owner's Windows computer.** A per-user Scheduled Task starts the collector at logon (no wake
    timers, no power-setting changes). Start, Stop and Status launchers are provided. The dashboard is at
    `127.0.0.1:8765` only, with CSRF, origin and host checks. SQLite (WAL) holds only checkpoints and the outbox;
    it is not a second canonical store.

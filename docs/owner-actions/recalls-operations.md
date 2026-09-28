@@ -83,7 +83,7 @@ Three variables in `wrangler.toml` gate it. All ship closed:
 
 `PRODUCT_RECALLS_KILL_SWITCH = "1"` also refuses every submission and hides every extracted identifier.
 
-Enabling it in production, in order:
+An operator with the Cloudflare token can run steps 1–3 and the verification in one command (dry run without `--apply`): `apps/local-collector/deploy/enable-production.sh --apply`. It does not change the gates. In order:
 
 1. Merge the PR and deploy the Worker.
 2. Take a D1 bookmark (`wrangler d1 time-travel info data-foundry-recalls`), then run `wrangler d1 migrations apply data-foundry-recalls --remote`. Migration `0004` only adds tables.

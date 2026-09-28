@@ -8,6 +8,8 @@
   status          print the current state as JSON
   pause | resume  pause or resume collection
   kill | unkill   stop or re-enable the source (local kill switch)
+  purge           when the work is done: delete local working data (keeps what is needed to resume);
+                  --everything also deletes state, secrets and config; --remove-model also removes the model
 """
 
 from __future__ import annotations
@@ -216,12 +218,46 @@ def cmd_stop(config: Config) -> int:
     return 1
 
 
+def cmd_purge(config: Config, everything: bool, remove_model: bool, force: bool) -> int:
+    """Delete local data once Data Foundry holds it. Refuses while running or while uploads are still owed."""
+    if running_pid(config):
+        print("stop the collector first (df_collector stop)", file=sys.stderr)
+        return 1
+    report: dict = {"data_dir": str(config.root)}
+    if config.db_path.exists():
+        state = State(config.db_path)
+        pending = state.outbox_pending()
+        if pending and not force:
+            print(f"{pending} upload(s) are not yet acknowledged by Data Foundry; run the collector until they are, or pass --force", file=sys.stderr)
+            return 1
+        report["swept"] = state.sweep(config.evidence_dir, unverified_days=0)
+        with state.tx() as db:
+            db.execute("DELETE FROM candidate")
+            db.execute("DELETE FROM retrieval")
+            db.execute("DELETE FROM event")
+            db.execute("UPDATE document SET detail = NULL")
+        state.db.execute("VACUUM")
+        state.db.close()
+    if config.evidence_dir.exists():
+        shutil.rmtree(config.evidence_dir, ignore_errors=True)
+    if everything and config.root.exists():
+        shutil.rmtree(config.root, ignore_errors=True)
+        report["deleted"] = "everything (state, secrets, config)"
+    if remove_model and shutil.which("ollama"):
+        report["model_removed"] = subprocess.run(["ollama", "rm", config.model], capture_output=True, text=True).returncode == 0
+    print(json.dumps(report, indent=2))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="df_collector")
     parser.add_argument("--data-dir")
     parser.add_argument("--config")
-    parser.add_argument("command", choices=["init", "doctor", "set-secret", "run", "uploader", "stop", "status", "pause", "resume", "kill", "unkill"])
+    parser.add_argument("command", choices=["init", "doctor", "set-secret", "run", "uploader", "stop", "status", "pause", "resume", "kill", "unkill", "purge"])
     parser.add_argument("arg", nargs="?")
+    parser.add_argument("--everything", action="store_true", help="purge: delete the whole data directory")
+    parser.add_argument("--remove-model", action="store_true", help="purge: also run `ollama rm` on the configured model")
+    parser.add_argument("--force", action="store_true", help="purge: even with uploads still pending (their candidates are lost)")
     args = parser.parse_args(argv)
     config = load(args.config, args.data_dir)
     if args.command == "init":
@@ -245,6 +281,8 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "stop":
         return cmd_stop(config)
+    if args.command == "purge":
+        return cmd_purge(config, args.everything, args.remove_model, args.force)
     state = State(config.db_path)
     if args.command == "status":
         from .dashboard import snapshot
