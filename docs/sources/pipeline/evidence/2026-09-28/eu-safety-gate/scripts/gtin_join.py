@@ -60,6 +60,34 @@ def gtin_readings(code: str) -> set[str]:
     return out
 
 
+def decompose_concatenated(run: str) -> list[str] | None:
+    """A run of digits too long to be one GTIN (>14) and with no separator at
+    all — e.g. "11234567893014443536520172" — is not split by `digit_codes`'s
+    separator regex, so it was previously dropped outright even when it is
+    two or three individually GS1-valid codes concatenated back to back
+    (a Codex review on PR #72 found 12 such records in this sample). Try
+    every way to partition the run into consecutive 8/12/13/14-digit pieces
+    that are each GS1-valid; only accept the split when exactly one such
+    partition covers the whole run, since an ambiguous run (more than one
+    valid partition) cannot be safely disambiguated without more context."""
+    found: list[list[str]] = []
+
+    def recurse(rest: str, acc: list[str]) -> None:
+        if not rest:
+            found.append(list(acc))
+            return
+        if len(found) > 1:
+            return
+        for length in (14, 13, 12, 8):
+            if length <= len(rest) and gs1_valid(rest[:length]):
+                acc.append(rest[:length])
+                recurse(rest[length:], acc)
+                acc.pop()
+
+    recurse(run, [])
+    return found[0] if len(found) == 1 else None
+
+
 def digit_codes(value: str) -> list[str]:
     """Matches the production parser's packages/product-recall-structuring/src/text.ts digitCodes:
     split on separators, rejoin a grouped code, then pull 8-14 digit runs.
@@ -74,7 +102,19 @@ def digit_codes(value: str) -> list[str]:
     out: list[str] = []
     for token in re.split(r"[,;/|\n]+|\s{2,}|\s(?=\d{8,14}(?!\d))", value or ""):
         joined = re.sub(r"(?<=\d)[ -](?=\d)", "", token)
-        out.extend(re.findall(r"(?<!\d)\d{8,14}(?!\d)", joined))
+        matches = re.findall(r"(?<!\d)\d{8,14}(?!\d)", joined)
+        if matches:
+            out.extend(matches)
+            continue
+        # No separator-bounded match at all: joined may be one delimiter-free
+        # concatenation of several valid codes (Codex review, PR #72) rather
+        # than genuinely unparseable text. Only this evidence script performs
+        # this uniqueness-gated decomposition; it is not part of the ported
+        # production `digitCodes` and is not proposed as a change to it.
+        for run in re.findall(r"\d{15,}", joined):
+            decomposed = decompose_concatenated(run)
+            if decomposed:
+                out.extend(decomposed)
     return out
 
 

@@ -13,6 +13,17 @@ def norm(text: str | None) -> str:
     return re.sub(r"[^a-z0-9]+", " ", (text or "").lower()).strip()
 
 
+def brand_tokens(field: str | None) -> list[str]:
+    """Safety Gate's `brand` field can list several brands in one string
+    (e.g. "Hua Sheng Toys, Torch"); normalizing and searching for the whole
+    field as one phrase never matches, since CPSC never repeats that exact
+    multi-brand sequence (a Codex review on PR #72 found this silently
+    dropped every multi-brand record, including one with a real Torch
+    candidate already present elsewhere in the reviewed sample). Split on
+    comma/slash and treat each brand separately."""
+    return [norm(part) for part in re.split(r"[,/]", field or "") if part.strip()]
+
+
 def main() -> None:
     eu = json.load(open("../eu_records_sample.json"))
     cpsc = json.load(open("../raw/cpsc_recent.json"))
@@ -24,15 +35,17 @@ def main() -> None:
 
     matches = []
     for record in eu:
-        brand = norm(record.get("brand"))
-        if not brand or len(brand) < 4 or brand in GENERIC:
-            continue
-        for recall_no, title, text in cpsc_text:
-            if re.search(r"\b" + re.escape(brand) + r"\b", text):
-                matches.append({"eu_case": record["caseNumber"], "eu_brand": record["brand"], "eu_product": record["product"], "eu_model": record["model"], "cpsc_recall": recall_no, "cpsc_title": title})
+        for brand in brand_tokens(record.get("brand")):
+            if not brand or len(brand) < 4 or brand in GENERIC:
+                continue
+            for recall_no, title, text in cpsc_text:
+                if re.search(r"\b" + re.escape(brand) + r"\b", text):
+                    matches.append({"eu_case": record["caseNumber"], "eu_brand": brand, "eu_product": record["product"], "eu_model": record["model"], "cpsc_recall": recall_no, "cpsc_title": title})
 
     distinct_eu = sorted({m["eu_case"] for m in matches})
-    non_generic_brand_count = sum(1 for r in eu if r.get("brand") and norm(r["brand"]) not in GENERIC and len(norm(r["brand"])) >= 4)
+    non_generic_brand_count = sum(
+        1 for r in eu if any(t and t not in GENERIC and len(t) >= 4 for t in brand_tokens(r.get("brand")))
+    )
     print(f"EU records with a non-generic brand field (candidate-join eligible): {non_generic_brand_count}/{len(eu)}")
     print(f"distinct EU records with >=1 brand-token candidate match against the live CPSC sample: {len(distinct_eu)}/{len(eu)}")
     for case in distinct_eu:
@@ -41,8 +54,13 @@ def main() -> None:
         print(f"  {case}  brand={first['eu_brand']!r}  eu_product={first['eu_product']!r}  -> {count} CPSC candidate(s), e.g. {first['cpsc_title'][:90]!r}")
 
     print()
-    print("Hand review (6 of the 13 distinct candidates, chosen across the frequency spread):")
-    reviewed = ["SR/02399/26", "SR/02405/26", "SR/02414/26", "SR/02448/26", "SR/02496/26", "SR/02617/26"]
+    print(
+        f"Hand review (7 of the {len(distinct_eu)} distinct candidates: the original 6, plus "
+        "SR/02560/26 — a Codex review on PR #72 found this multi-brand record was silently "
+        "omitted before brand fields were tokenized, so it is now added and reviewed rather "
+        "than left as an untracked new candidate):"
+    )
+    reviewed = ["SR/02399/26", "SR/02405/26", "SR/02414/26", "SR/02448/26", "SR/02496/26", "SR/02617/26", "SR/02560/26"]
     verdicts = {
         "SR/02399/26": ("Seven", False, "EU 'Seven' furniture chair brand; CPSC hits are Shein toys / Aojieni teething toys - coincidental token match, not the same firm."),
         "SR/02405/26": ("Allegro", False, "EU 'Allegro' e-bike; CPSC hit is 'Lancaster Table & Seating Brand Allegro' plastic chairs - different firm, coincidental brand-name reuse."),
@@ -50,6 +68,7 @@ def main() -> None:
         "SR/02448/26": ("Shein", False, "EU notice: Shein cushion cover, chemical risk, Ireland. CPSC 26782/26732/26567: 'SHEIN Distribution Corporation Recalls Pull and Chew Montessori Teething Toys ...' - same distributor, but this dataset's entity is a recall notice about a specific product (README: 'grouped into recall_event clusters ... linked to affected products'), not a distributor; a cushion cover and a teething toy are different, unrelated recalled products, so sharing a distributor does not make this a same-record candidate. Distributor identity could be a separate reviewed enrichment, but is not counted as a positive product-level match here."),
         "SR/02496/26": ("Best", False, "EU 'Best' degreaser; CPSC hits are 'SUGIFT' pressure washers and 'Best Buy Insignia' gas ranges - coincidental common-word match, not the same firm."),
         "SR/02617/26": ("Torch", False, "EU 'Torch' toy gun set; CPSC hits are Fantastic Four cups and 'Jobon Torch Lighters' - coincidental common-word match, not the same firm."),
+        "SR/02560/26": ("Torch", False, "EU brand field 'Hua Sheng Toys, Torch' (a plastic doll castle set); same CPSC hits as SR/02617/26 (Fantastic Four cups, 'Jobon Torch Lighters') by the same 'Torch' token - coincidental common-word match, not the same firm, for the same reason SR/02617/26 was rejected."),
     }
     correct = 0
     for case in reviewed:

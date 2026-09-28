@@ -56,6 +56,21 @@ def model_matches(model: str, fr: dict) -> tuple[bool, str]:
     exact = re.compile(r"\b" + re.escape(model) + r"\b")
     family, sep, suffix = model.partition("-")
     list_pattern = re.compile(re.escape(family) + r"((?:[\s,;]*(?:and\s+)?-\s*\w+)+)") if sep else None
+    # A Codex review on PR #72 found a further gap: Boeing's dash-suffix is a
+    # customer code (e.g. "7CT" for a specific airline), not itself a model
+    # series — the series is Boeing's own documented convention of the
+    # customer code's leading digit plus "00" (737-7xx is always the 737-700
+    # series, whichever airline's two-character code follows), and FAA
+    # airworthiness directives name the series, never a customer code. A
+    # literal search for "737-7CT" can therefore never match even when a
+    # directive genuinely covers this airplane. Detect a customer-code
+    # suffix (a digit followed by two non-digit characters) and also check
+    # the series it belongs to.
+    series_pattern = None
+    series = None
+    if sep and re.fullmatch(r"\d[A-Za-z0-9]{2}", suffix) and not suffix.isdigit():
+        series = f"{suffix[0]}00"
+        series_pattern = re.compile(r"\b" + re.escape(family) + "-" + series + r"\b")
     for result in fr.get("results", []):
         text = f"{result.get('title', '')} {result.get('abstract', '')}"
         if exact.search(text):
@@ -64,7 +79,12 @@ def model_matches(model: str, fr: dict) -> tuple[bool, str]:
             match = list_pattern.search(text)
             if match and suffix in re.findall(r"-\s*(\w+)", match.group(1)):
                 return True, f"{result.get('document_number')}: {family} sub-variant list includes -{suffix}"
-    return False, "no result names this exact model or an explicit sub-variant of it"
+        if series_pattern and series_pattern.search(text):
+            return True, (
+                f"{result.get('document_number')}: names {family}-{series} exactly, the series that {model}'s "
+                f"customer code -{suffix} belongs to (Boeing customer codes are airline-specific, not model-series)"
+            )
+    return False, "no result names this exact model, an explicit sub-variant, or (where applicable) its base series"
 
 
 def confirm_negative_live(model: str) -> str:

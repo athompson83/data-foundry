@@ -4770,22 +4770,23 @@ datasets:
         between:
           - ntsb-aviation-accidents
           - faa-airworthiness-directives
-        measured: "4/5 of a hand-picked reviewed sample confirmed an exact-model current FAA
+        measured: "5/5 of a hand-picked reviewed sample confirmed an exact-model or exact-series current FAA
           airworthiness/special-conditions action for the same manufacturer+model, checked against every
           result of a live Federal Register FAA-agency query fetched in full (per_page=1000, no next_page_url
           left on any of the five queries — a Codex review on PR #72 found the prior evidence run had cached
           only each query's first default-size page, e.g. 3 of 890 Boeing 737 results, and reported an
           incomplete search as a confirmed negative; every query is now exhaustively fetched in one page).
-          Verdicts are unchanged: Textron 560XL, Robinson R44, Cessna 182 and Airbus A319-114 matched — the
-          A319-114 match is document 2026-17551, a sub-variant list further down the result set; Boeing
-          737-7CT has no match anywhere in its full 890-result set, independently double-checked with a live
-          site-wide term search for \"737-7CT\" across all of federalregister.gov (no agency/type filter)
-          also returning 0 — a genuine confirmed negative on two independent checks, not an artifact of
-          pagination. This 5-record sample is drawn from, but not representative of, the
+          Textron 560XL, Robinson R44, Cessna 182 and Airbus A319-114 matched exactly — the A319-114 match is
+          document 2026-17551, a sub-variant list further down the result set. Boeing 737-7CT, initially
+          reported as a confirmed negative, is also a match once corrected: a Codex review on PR #72 found
+          '7CT' is a Boeing customer code (airline-specific, e.g. for one operator's fleet), not a model
+          series, and the FAA writes directives against the series (737-700) that the customer code's leading
+          digit denotes, never the customer code itself; document 2025-20951 names '737-700' exactly. This
+          5-record sample is drawn from, but not representative of, the
           round's 163 NTSB aircraft records (July 2026 monthly update); the other 158 were never queried and
           are not counted as non-matches."
         mode: candidate
-        reviewed: { correct: 4, checked: 5 }
+        reviewed: { correct: 5, checked: 5 }
     taxonomy:
       - "record_type: accident | incident | airworthiness_directive | special_conditions"
       - "publisher: NTSB | FAA (via Federal Register)"
