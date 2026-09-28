@@ -4816,10 +4816,12 @@ datasets:
       is otherwise the well-established US-government-work status of NTSB and Federal Register content).
       Then pull a full monthly NTSB update plus a broader Federal Register manufacturer/model sweep (not just
       the 5 models hand-checked this round) for a proper EVIDENCED sample under evidence/<date>/. The
-      personal-data-bearing raw NTSB files (aircraft.csv, up01AUG.zip) are already archived to R2 (bucket
-      data-foundry-raw-artifacts, key research/pipeline/2026-09-28/archive/evidence-2026-09-28-raw.tar.gz,
-      verified sha256 52a5ddef3ed37efbfa7375bf7bc3d1c69f7d343579db7b0481662ecb3b5b1d2b) rather than committed
-      (AGENTS.md rule 9); events.csv/narratives.csv and the Federal Register JSON files are committed under
+      personal-data-bearing raw NTSB files (aircraft.csv, narratives.csv, up01AUG.zip) are already archived to R2
+      (bucket data-foundry-raw-artifacts, key research/pipeline/2026-09-28/archive/evidence-2026-09-28-raw.tar.gz,
+      verified sha256 6cf2e0906c9d2b66f2d7656c149079e570a59f3721591c509a1b63d13e4186ae) rather than committed
+      (AGENTS.md rule 9 — a Codex review on PR #72 found narratives.csv identifies people even with aircraft.csv's
+      owner/operator fields already removed, via its autopsy/toxicology detail plus the same row's event ID, tail
+      number, date and location); events.csv and the Federal Register JSON files are committed under
       evidence/2026-09-28/aviation/raw/. Writing a conforming inputs.json/samples.json against that archive is
       the remaining gap, not R2 access. Both members are now format: free-text (a Codex review on PR #72 caught
       faa-airworthiness-directives mislabeled structured, since the model-applicability fact this composite

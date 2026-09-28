@@ -4,47 +4,43 @@ tarring) is listed below; the tarball itself is also hashed. Round-trip verified
 `wrangler r2 object get research/pipeline/2026-09-28/archive/evidence-2026-09-28-raw.tar.gz --remote`
 reproduces the same sha256.
 
-evidence-2026-09-28-raw.tar.gz  1570317 bytes  sha256 52a5ddef3ed37efbfa7375bf7bc3d1c69f7d343579db7b0481662ecb3b5b1d2b
+This manifest describes the tarball currently at that key. It was rebuilt once after
+the initial upload, replacing the object at the same key (not a new key), for two
+Codex-review-driven reasons on PR #72: (1) `narratives.csv` was found to also carry
+personal/identifiable data (autopsy, toxicology and disease-history detail tied to a
+specific event, tail number, date and location) and was removed from git and added to
+this archive, alongside `aircraft.csv` and `up01AUG.zip`; (2) the five Federal Register
+JSON files were re-fetched in full (`per_page=1000`) to fix an unpaginated-search bug,
+and the archive's copies of those files (still the original, 3-results-per-page
+snapshot) were stale relative to the evidence the committed measurement now relies on
+— replaying `model_candidate_join.py` from the old archive copies would fail its own
+`next_page_url`/result-count assertions rather than reproduce the published 5/5 result.
+`eu-safety-gate/raw/cpsc_recent.json`, present in the original upload, is not included
+in the rebuilt tarball: it was always redundant (see
+`../eu-safety-gate/raw/NOTE-cpsc_recent.md`) and never the reason this archive exists.
+
+evidence-2026-09-28-raw.tar.gz  1355312 bytes  sha256 6cf2e0906c9d2b66f2d7656c149079e570a59f3721591c509a1b63d13e4186ae
 
 Contents (relative path inside the tarball, original bytes, sha256):
 
 aviation/raw/aircraft.csv               57195 bytes  sha256 e54145dee2dafd64a28098a89d24a69687b322871b69d1768a007d5ea56e3e8e
 aviation/raw/events.csv                 52193 bytes  sha256 b3c3d3b43f37b9b463696f56a058efd04e0ee6d83a1e35a6aa87d7cdfd1004fc
-aviation/raw/fr_airbusA319.json          8367 bytes  sha256 84248a9b148f1debe1e3e9afeb22a659a599b88e8d9fa3b8320e314ae57b8c5e
-aviation/raw/fr_boeing737_v2.json        8876 bytes  sha256 bcc121ba13d31cc3fecae7ef1189bb45ed5c409f9b53cace00ba6c49569d8f2c
-aviation/raw/fr_cessna182.json           7760 bytes  sha256 5293361dc45cff1927d581a10a26fab9f13770f77c160f78925a9a8fbe4caae3
-aviation/raw/fr_robinsonR44.json         8655 bytes  sha256 63d5b7462b0015780e38f17ac1eff31400da50a0cccd05bdf13aff42fc00ab27
-aviation/raw/fr_textron560xl.json        8650 bytes  sha256 7246de41b5b2b83727a6e6295ac375fff59c7fa248ea1fcad012875c5f14bf92
+aviation/raw/fr_airbusA319.json       1448842 bytes  sha256 e6925d589c2ef2878a8f1feee9a04a9144dbaa8dd4d40e9bdd49bbde7fdf213d
+aviation/raw/fr_boeing737_v2.json     2318201 bytes  sha256 f449b8a64c1f493693444193bf5fd6a6cb9c1db5844454a07e5ec67101b91302
+aviation/raw/fr_cessna182.json         176048 bytes  sha256 4fae7d64b1f7c91c3255edf992b6e1210f81d396e45dabdc571e895dde025c93
+aviation/raw/fr_robinsonR44.json       123508 bytes  sha256 239c306bd61d2ac75fec0467401fd2fee59e73fc27b785ef2949882268384fdd
+aviation/raw/fr_textron560xl.json       50061 bytes  sha256 6745f0d7139c42556f70e358c2792d4f04f4361ce34fb1746688db34cc000c8a
 aviation/raw/narratives.csv            203595 bytes  sha256 37050ce39d41f375d1af258768188aa30143c7cb0184fb00a0f6edaac661f414
 aviation/raw/up01AUG.zip               648950 bytes  sha256 f42fd62cf6707d6f24f09081cecc435e7cf860bffc02f486d82cf49ab1b2ddea
-eu-safety-gate/raw/cpsc_recent.json    3726749 bytes  sha256 4700e47560f4b7c5b37d8b746ec04b1aba8aff1f3e8c49a80c7908f380fb2923
-eu-safety-gate/raw/detail_10000322.xml   85620 bytes  sha256 7e8ad38eff02792a712be1947f536d578fbd5149c46b2d0196c95a474eabc4fe
-eu-safety-gate/raw/detail_10000323.xml  213844 bytes  sha256 da158985a9b004232160c17fda3b10b2a058d7751cd8ec49a9b86b4d452d5076
-eu-safety-gate/raw/detail_10000324.xml  181468 bytes  sha256 1b53623beb7e19c5302b38d19df4279ca10c7cd61886378e7f3e1b1b11069c9b
-eu-safety-gate/raw/weekly_list.xml      390110 bytes  sha256 be3c3fab3c2e50840c943ddd1eb7af6e2b1f32a4413627c21c38e7cad0f23aea
+eu-safety-gate/raw/detail_10000322.xml  85620 bytes  sha256 7e8ad38eff02792a712be1947f536d578fbd5149c46b2d0196c95a474eabc4fe
+eu-safety-gate/raw/detail_10000323.xml 213844 bytes  sha256 da158985a9b004232160c17fda3b10b2a058d7751cd8ec49a9b86b4d452d5076
+eu-safety-gate/raw/detail_10000324.xml 181468 bytes  sha256 1b53623beb7e19c5302b38d19df4279ca10c7cd61886378e7f3e1b1b11069c9b
+eu-safety-gate/raw/weekly_list.xml     390110 bytes  sha256 be3c3fab3c2e50840c943ddd1eb7af6e2b1f32a4413627c21c38e7cad0f23aea
 
-Only two of the files above were actually removed from git (`aviation/raw/aircraft.csv`
-and `aviation/raw/up01AUG.zip`, for the personal-data reason in
-`../aviation/raw/NOTE-aircraft.md`); the rest of the tarball's contents stay committed
-directly under this round's evidence directories and this archive is a redundant backup
-for them, not their only copy. `eu-safety-gate/raw/cpsc_recent.json` was separately
-dropped without R2 archival (see `../eu-safety-gate/raw/NOTE-cpsc_recent.md` for why);
-this tarball happens to also hold a copy of it from before that decision, which is
-harmless but not the reason this archive exists.
-
-The five `aviation/raw/fr_*.json` files listed above are this tarball's original
-snapshot (each truncated to the Federal Register API's default 3-result page). A
-Codex review on PR #72 found `model_candidate_join.py` never followed pagination, so
-these five files were re-fetched live (per_page=1000, one page each, no
-`next_page_url` remaining) and the committed copies under `../aviation/raw/` were
-replaced with the complete result sets. Their current sizes/hashes no longer match
-this tarball's copies; that is expected — this tarball is a point-in-time backup of
-the round's original (now-superseded) fetch, not the current evidence, and was not
-re-uploaded to R2 since none of these five files carry personal data (git history is
-sufficient preservation for them, unlike `aircraft.csv`/`up01AUG.zip` above):
-
-aviation/raw/fr_airbusA319.json (re-fetched) 1448842 bytes  sha256 e6925d589c2ef2878a8f1feee9a04a9144dbaa8dd4d40e9bdd49bbde7fdf213d
-aviation/raw/fr_boeing737_v2.json (re-fetched) 2318201 bytes  sha256 f449b8a64c1f493693444193bf5fd6a6cb9c1db5844454a07e5ec67101b91302
-aviation/raw/fr_cessna182.json (re-fetched) 176048 bytes  sha256 4fae7d64b1f7c91c3255edf992b6e1210f81d396e45dabdc571e895dde025c93
-aviation/raw/fr_robinsonR44.json (re-fetched) 123508 bytes  sha256 239c306bd61d2ac75fec0467401fd2fee59e73fc27b785ef2949882268384fdd
-aviation/raw/fr_textron560xl.json (re-fetched) 50061 bytes  sha256 6745f0d7139c42556f70e358c2792d4f04f4361ce34fb1746688db34cc000c8a
+Three of the files above are removed from git and only exist here:
+`aviation/raw/aircraft.csv` and `aviation/raw/up01AUG.zip` (see
+`../aviation/raw/NOTE-aircraft.md`) and `aviation/raw/narratives.csv` (see
+`../aviation/raw/NOTE-narratives.md`), all for a personal-data reason (AGENTS.md rule
+9). The rest of the tarball's contents stay committed directly under this round's
+evidence directories, current and byte-identical to their copy here; this archive is a
+redundant backup for them, not their only copy.

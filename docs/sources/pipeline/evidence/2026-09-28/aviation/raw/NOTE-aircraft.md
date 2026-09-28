@@ -17,17 +17,26 @@ dropped:
 
 - bucket: `data-foundry-raw-artifacts`
 - key: `research/pipeline/2026-09-28/archive/evidence-2026-09-28-raw.tar.gz`
-- 1,570,317 bytes, sha256 `52a5ddef3ed37efbfa7375bf7bc3d1c69f7d343579db7b0481662ecb3b5b1d2b`
+- sha256 `6cf2e0906c9d2b66f2d7656c149079e570a59f3721591c509a1b63d13e4186ae`
 - round-trip verified: upload, then `wrangler r2 object get
   research/pipeline/2026-09-28/archive/evidence-2026-09-28-raw.tar.gz --remote`
   reproduces the same sha256, then the test copy was deleted.
 
-The tarball also holds a complete, redundant copy of this round's other raw
-inputs (`events.csv`, `narratives.csv`, the five Federal Register JSON
-responses, and the EU Safety Gate XML files), which stay committed directly
-here since none of them carry personal data. Per-file sizes and hashes for
-everything in the tarball are in `../../archive/ARCHIVE.txt`.
+A later Codex review found `narratives.csv` also identifies people (see
+`NOTE-narratives.md`) and belongs in this same archive, not committed
+directly; a further review found the archive's Federal Register JSON copies
+had gone stale after they were re-fetched in full (`per_page=1000`) to fix
+an unrelated pagination bug. This tarball was rebuilt to include the
+current `narratives.csv` and the current, complete Federal Register JSON
+files, replacing the original upload at the same key (the sha256 above is
+for the current, rebuilt tarball). The tarball still also holds a complete,
+redundant copy of this round's other raw inputs (`events.csv`, the five
+Federal Register JSON responses, and the EU Safety Gate XML files), which
+stay committed directly here since none of them carry personal data.
+Per-file sizes and hashes for everything in the tarball are in
+`../../archive/ARCHIVE.txt`.
 
 To replay `parse_ntsb_month.py` or `model_candidate_join.py`, download the
-tarball with the command above and extract `aviation/raw/aircraft.csv` and
-`aviation/raw/up01AUG.zip` next to this note.
+tarball with the command above and extract `aviation/raw/aircraft.csv`,
+`aviation/raw/narratives.csv` and `aviation/raw/up01AUG.zip` next to this
+note.
