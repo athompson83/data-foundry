@@ -27,6 +27,11 @@ export interface AcceptanceOptions {
   /** The 40-hex source commit being accepted: the live Worker version must be tagged with its first 12 characters. */
   readonly expectedSha: string;
   readonly fetch: (request: Request) => Promise<Response>;
+  /**
+   * When a reissue's outcome is unknown (the request threw or returned no key), the Worker may
+   * still be inserting the key. Revocation is repeated after this interval. Default 30 s.
+   */
+  readonly settleMs?: number;
 }
 
 export interface Check {
@@ -238,8 +243,13 @@ export async function runAcceptance(options: AcceptanceOptions): Promise<Accepta
         revocation = { revoked: revoked.status === 200, active_keys: activeKeys, rejected_after: rejected.status === 401 && rejectedData.status === 401 && errorCode(rejectedData.body) === 'invalid_key' };
         check('temporary key revoked and rejected afterwards', revocation.revoked && revocation.active_keys === 0 && revocation.rejected_after, `revoke=${revoked.status} active_keys=${revocation.active_keys} after=${rejected.status}/${rejectedData.status}`);
       } else {
-        revocation = { revoked: revoked.status === 200, active_keys: activeKeys, rejected_after: false };
-        check('no key left active after a reissue that returned none', revocation.revoked && activeKeys === 0, `revoke=${revoked.status} active_keys=${activeKeys}`);
+        // Unknown outcome: an in-flight reissue may insert its key after the first revoke. Revoke
+        // again once it has had time to finish, and require both passes to leave no active key.
+        await new Promise((resolve) => setTimeout(resolve, options.settleMs ?? 30_000));
+        const settled = await call(options.publicOrigin, `/admin/revoke-keys?stripe_customer_id=${encodeURIComponent(options.stripeCustomerId)}`, { method: 'POST', admin: true });
+        const settledKeys = typeof settled.body?.['active_keys'] === 'number' ? (settled.body['active_keys'] as number) : null;
+        revocation = { revoked: revoked.status === 200 && settled.status === 200, active_keys: settledKeys, rejected_after: false };
+        check('no key left active after a reissue that returned none (revoked, settled, revoked again)', revocation.revoked && activeKeys === 0 && settledKeys === 0, `revoke=${revoked.status}/${settled.status} active_keys=${activeKeys}/${settledKeys}`);
       }
     }
   }

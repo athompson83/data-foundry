@@ -166,8 +166,27 @@ describe('production acceptance script', () => {
       if (new URL(request.url).pathname === '/admin/reissue-key') throw new Error('connection reset');
       return response;
     };
-    await expect(runAcceptance(options(env, { fetch: lossy }))).rejects.toThrow('connection reset');
+    await expect(runAcceptance(options(env, { fetch: lossy, settleMs: 0 }))).rejects.toThrow('connection reset');
     // The Worker created a key, the script never saw it, and it is revoked anyway.
+    expect(await env.DB.prepare('SELECT count(*) AS n FROM api_key').first()).toEqual({ n: 1 });
+    expect(await env.DB.prepare('SELECT count(*) AS n FROM api_key WHERE revoked_at IS NULL').first()).toEqual({ n: 0 });
+  });
+
+  it('revokes again after settling when a reissue is still in flight at the first revoke', async () => {
+    const env = makeEnv();
+    await seed(env);
+    // The client connection drops at once while the Worker's reissue is still running.
+    let inFlight: Promise<Response> | null = null;
+    const racing = async (request: Request): Promise<Response> => {
+      if (new URL(request.url).pathname === '/admin/reissue-key') {
+        inFlight = new Promise((resolve) => setTimeout(resolve, 20)).then(() => worker.fetch(request, env));
+        throw new Error('connection reset');
+      }
+      return worker.fetch(request, env);
+    };
+    await expect(runAcceptance(options(env, { fetch: racing, settleMs: 60 }))).rejects.toThrow('connection reset');
+    await inFlight;
+    // The late key was inserted after the first revoke and removed by the settled second one.
     expect(await env.DB.prepare('SELECT count(*) AS n FROM api_key').first()).toEqual({ n: 1 });
     expect(await env.DB.prepare('SELECT count(*) AS n FROM api_key WHERE revoked_at IS NULL').first()).toEqual({ n: 0 });
   });
