@@ -157,8 +157,14 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
-          set -euo pipefail
-          output="$(pnpm exec wrangler d1 migrations list data-foundry-recalls --remote 2>&1)"
+          set -uo pipefail
+          # Capture wrangler's own error: under `set -e` a failing command substitution would
+          # exit before its output is shown, hiding the reason (for example a token without D1 access).
+          if ! output="$(pnpm exec wrangler d1 migrations list data-foundry-recalls --remote 2>&1)"; then
+            echo "$output"
+            echo "::error::Could not list data-foundry-recalls migrations (output above). The deploy token needs D1 read access on the recalls account; this check fails closed rather than deploy blind."
+            exit 1
+          fi
           echo "$output"
           if ! grep -q "No migrations to apply" <<<"$output"; then
             echo "::error::data-foundry-recalls has pending migrations. Apply them under their own reviewed procedure first."

@@ -64,6 +64,8 @@ describe('deploy-recalls workflow', () => {
     expect(deploySteps[0]?.['working-directory']).toBe('apps/recalls-worker');
     expect(runs).not.toMatch(/--config|wrangler\.production/);
     expect(runs).toContain('wrangler d1 migrations list data-foundry-recalls --remote');
+    // A failing listing must show wrangler's error and still fail closed.
+    expect(runs).toContain('if ! output="$(pnpm exec wrangler d1 migrations list data-foundry-recalls --remote 2>&1)"; then');
     expect(runs).toContain('ROLLBACK_VERSION=');
     expect(runs).toContain('workers/tag');
     expect(runs).toContain('pnpm --filter @data-foundry/recalls-worker typecheck');
