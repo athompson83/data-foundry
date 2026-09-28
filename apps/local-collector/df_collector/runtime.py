@@ -115,7 +115,11 @@ class Collector:
         self.model_identity = None
         self._last_sweep = 0.0
         # Local rows are keyed by the whole build (column extractor_version holds it), not by the version string.
-        self.build = extract.build_id(config.model, config.model_digest, config.num_ctx, config.think, config.limits.llm_threads)
+        # The generation settings are fixed for the life of this process: the model client, the build id and every
+        # payload use this one snapshot, so a dashboard edit (llm_threads) takes effect only at the next start.
+        self.threads = config.limits.llm_threads
+        self.generation = extract.generation(config.num_ctx, config.think, self.threads)
+        self.build = extract.build_id(config.model, config.model_digest, config.num_ctx, config.think, self.threads)
 
     # -- helpers -------------------------------------------------------------------------------------------------
 
@@ -145,7 +149,7 @@ class Collector:
 
     def _client(self) -> OllamaClient:
         if self.client is None:
-            self.client = OllamaClient(self.config.ollama_url, self.config.model, self.config.model_digest, num_ctx=self.config.num_ctx, num_thread=self.config.limits.llm_threads, think=self.config.think)
+            self.client = OllamaClient(self.config.ollama_url, self.config.model, self.config.model_digest, num_ctx=self.config.num_ctx, num_thread=self.threads, think=self.config.think)
         return self.client
 
     def _read_key(self) -> str:
@@ -383,7 +387,7 @@ class Collector:
                 identity = before
                 payload = {
                     "task": TASK,
-                    "extractor": {"version": extract.EXTRACTOR_VERSION, "model": self.config.model, "model_digest": identity.digest if identity else self.config.model_digest, "prompt_sha256": extract.prompt_sha256(), "generation": extract.generation(self.config.num_ctx, self.config.think, self.config.limits.llm_threads)},
+                    "extractor": {"version": extract.EXTRACTOR_VERSION, "model": self.config.model, "model_digest": identity.digest if identity else self.config.model_digest, "prompt_sha256": extract.prompt_sha256(), "generation": self.generation},
                     "notices": [{"recall_id": row["recall_id"], "raw_sha256": row["raw_sha256"], "candidates": [{"value": p.value, "field": p.field, "label": p.label} for p in accepted]}],
                     "collector": COLLECTOR_ID,
                 }
@@ -435,7 +439,7 @@ class Collector:
             and item.get("model") == self.config.model
             and digest.startswith(self.config.model_digest.removeprefix("sha256:"))
             and item.get("prompt_sha256") == extract.prompt_sha256()
-            and item.get("generation") == json.dumps(extract.generation(self.config.num_ctx, self.config.think, self.config.limits.llm_threads), separators=(",", ":"))
+            and item.get("generation") == json.dumps(self.generation, separators=(",", ":"))
         )
 
     def verify_queryable(self, task: policy_mod.TaskPolicy, limit: int = 5) -> int:
@@ -456,6 +460,9 @@ class Collector:
         )
         marked = 0
         for row in rows:
+            # The half-allowance reservation holds for every request, not only the first.
+            if self._requests_today() >= self.config.limits.max_api_requests_per_day // 2:
+                break
             notice = self.api_get(task, f"{task.input['path']}/{row['recall_id']}", {})
             data = notice.get("data") or {}
             # Only this build's own served rows count: another build may serve the same key for the same bytes.

@@ -1204,3 +1204,38 @@ class CodexRegressionsRound15(unittest.TestCase):
                 rt.uploader_main(config, Path(tmp) / "stop", parent_alive=lambda: False)
                 self.assertLess(__import__("time").monotonic() - started, 4)
                 exited.assert_called_once_with(0)
+
+
+class CodexRegressionsRound16(unittest.TestCase):
+    def test_read_back_stops_at_the_half_allowance_inside_the_loop(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Config(data_dir=tmp)
+            config.limits.max_api_requests_per_day = 10
+            state = State(config.db_path)
+            collector = Collector(config, state, client=FakeClient("{}"), policy=POLICY)
+            with state.tx() as db:
+                for n in range(5):
+                    db.execute("INSERT INTO candidate (recall_id, raw_sha256, extractor_version, value, field, label, local_decision, server_status, updated_at) VALUES (?, 'r', ?, 'SA904', 'Description', 'item', 'accepted', 'accepted', 0)", (f"cpsc-{n}", collector.build))
+            for _ in range(4):
+                collector._count_request()
+
+            def api_get(task, path, params):
+                collector._count_request()
+                return {"data": {"provenance": {"raw_sha256": "r"}, "extracted_identifiers": []}}
+
+            collector.api_get = api_get
+            collector.verify_queryable(POLICY.task(TASK))
+            self.assertEqual(collector._requests_today(), 5)  # one read-back, then the half-allowance (5) is reached
+
+    def test_generation_settings_are_a_snapshot_taken_at_start(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Config(data_dir=tmp)
+            collector = Collector(config, State(config.db_path), client=FakeClient("{}"), policy=POLICY)
+            build, generation = collector.build, dict(collector.generation)
+            config.limits.llm_threads = 4  # a dashboard edit while running
+            self.assertEqual((collector.build, collector.generation), (build, generation))
+            collector.queue_documents([{"id": "cpsc-15034", "raw": RECORD, "provenance": {"raw_sha256": "a" * 64}}])
+            collector.client = FakeClient(json.dumps({"identifiers": [{"value": "SA904", "label": "item", "field": "Description"}]}))
+            collector.extract_one()
+            payload = json.loads(collector.state.one("SELECT payload FROM outbox")["payload"])
+            self.assertEqual(payload["extractor"]["generation"], {"num_ctx": 8192, "think": False})

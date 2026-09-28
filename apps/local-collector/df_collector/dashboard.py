@@ -138,6 +138,9 @@ def render(snap: dict, csrf: str) -> str:
     events = "".join(f"<tr><td>{_fmt_time(ev['at'])}</td><td>{e(ev['level'])}</td><td>{e(ev['kind'])}</td><td><code>{e(ev['detail'][:200])}</code></td></tr>" for ev in snap["events"])
     limits = "".join(
         f'<label>{e(k)} <input name="{e(k)}" value="{e(str(v if v is not None else ""))}" size="8"></label> ' for k, v in snap["limits"].items() if k in EDITABLE_LIMITS
+    ) + (
+        '<br><small>llm_threads takes effect at the next start, and output produced with a thread override is stored but'
+        " not published until a benchmark covers it.</small>"
     )
     status = snap["status"] or {}
     state_line = "PAUSED: " + snap["paused"] if snap["paused"] else status.get("phase", "?")
