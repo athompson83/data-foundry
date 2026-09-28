@@ -243,9 +243,9 @@ export async function handleIntake(env: Env, request: Request): Promise<{ status
   if (declared > MAX_INTAKE_BYTES) throw new IntakeRefused(413, 'too_large', `Bodies are limited to ${MAX_INTAKE_BYTES} bytes.`);
   const text = await request.text();
   if (new TextEncoder().encode(text).byteLength > MAX_INTAKE_BYTES) throw new IntakeRefused(413, 'too_large', `Bodies are limited to ${MAX_INTAKE_BYTES} bytes.`);
-  const previous = await env.DB.prepare('SELECT credential_id, response FROM extraction_submission WHERE idempotency_key = ?').bind(idempotencyKey).first<{ credential_id: string; response: string }>();
+  // Scoped to the credential: another credential's use of the same key is a separate submission (its candidates replay).
+  const previous = await env.DB.prepare('SELECT response FROM extraction_submission WHERE credential_id = ? AND idempotency_key = ?').bind(credential.id, idempotencyKey).first<{ response: string }>();
   if (previous) {
-    if (previous.credential_id !== credential.id) throw new IntakeRefused(409, 'idempotency_conflict', 'This Idempotency-Key was used by another credential.');
     return { status: 200, body: { ...(JSON.parse(previous.response) as Record<string, unknown>), idempotent_replay: true } };
   }
   let body: unknown;
@@ -271,7 +271,7 @@ export async function handleIntake(env: Env, request: Request): Promise<{ status
     published: env.EXTRACTED_IDENTIFIERS_OPEN === '1',
     results,
   };
-  await env.DB.prepare('INSERT INTO extraction_submission (credential_id, idempotency_key, received_at, items, accepted, replayed, rejected, response) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (idempotency_key) DO NOTHING')
+  await env.DB.prepare('INSERT INTO extraction_submission (credential_id, idempotency_key, received_at, items, accepted, replayed, rejected, response) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (credential_id, idempotency_key) DO NOTHING')
     .bind(credential.id, idempotencyKey, now, all.length, response.accepted, response.replayed, response.rejected, JSON.stringify(response))
     .run();
   return { status: 200, body: response };

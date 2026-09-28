@@ -145,6 +145,19 @@ describe('extraction intake', () => {
     expect(stored.results).toEqual([{ printed: 'SA904', label: 'item', source_field: 'Description', span_start: CPSC.Description.indexOf('SA904'), span_end: CPSC.Description.indexOf('SA904') + 5, model_digest: EXTRACTOR.model_digest, status: 'accepted' }]);
   });
 
+  it('lets a rotated credential resend a payload whose answer was lost: replayed, never a conflict or a duplicate', async () => {
+    const { env, token, sha } = await seeded();
+    const notices = [{ recall_id: 'cpsc-15034', raw_sha256: sha, candidates: [CANDIDATES[0]] }];
+    const key = await sha256Hex('lost-answer');
+    expect(((await (await submit(env, token, notices, key)).json()) as { accepted: number }).accepted).toBe(1);
+    const next = await mint(env);
+    const resent = await submit(env, next.token, notices, key);
+    expect(resent.status).toBe(200);
+    expect(await resent.json()).toMatchObject({ accepted: 0, replayed: 1 });
+    expect((await env.DB.prepare('SELECT count(*) AS n FROM product_recall_extracted_key').first<{ n: number }>())?.n).toBe(1);
+    expect((await env.DB.prepare('SELECT count(*) AS n FROM extraction_submission').first<{ n: number }>())?.n).toBe(2);
+  });
+
   it('is idempotent: a replayed request returns the stored response, and a resubmission creates no duplicate', async () => {
     const { env, token, sha } = await seeded();
     const notices = [{ recall_id: 'cpsc-15034', raw_sha256: sha, candidates: CANDIDATES }];
@@ -246,6 +259,15 @@ describe('publication of extracted identifiers', () => {
     expect(notice.data.extracted_identifiers).toEqual([]);
     const lookup = (await (await get(env, apiKey, '/v1/product-recalls/lookup?code=SA904')).json()) as { total_matches: number };
     expect(lookup.total_matches).toBe(0);
+  });
+
+  it('keys rows by the model name too, so a mislabelled submission never shadows the benchmarked build', async () => {
+    const { env, token, sha } = await seeded({ EXTRACTED_IDENTIFIERS_OPEN: '1' });
+    const notices = [{ recall_id: 'cpsc-15034', raw_sha256: sha, candidates: [CANDIDATES[0]] }];
+    expect(((await (await submit(env, token, notices, undefined, { ...EXTRACTOR, model: 'gpt-oss:20b' })).json()) as { accepted: number }).accepted).toBe(1);
+    expect(((await (await submit(env, token, notices)).json()) as { accepted: number }).accepted).toBe(1);
+    const notice = (await (await get(env, await customerKey(env), '/v1/product-recalls/cpsc-15034')).json()) as { data: { extracted_identifiers: unknown[] } };
+    expect(notice.data.extracted_identifiers).toEqual([expect.objectContaining({ value: 'SA904', model: 'qwen3.5:4b', prompt_sha256: EXTRACTOR.prompt_sha256 })]);
   });
 
   it('stops serving a candidate when the source bytes change, and after withdrawal', async () => {

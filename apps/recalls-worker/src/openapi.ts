@@ -101,6 +101,7 @@ const PRODUCT_RECALL_SCHEMA = {
           extractor_version: { type: 'string' },
           model: { type: 'string' },
           model_digest: { type: 'string' },
+          prompt_sha256: { type: 'string' },
           submitted_at: { type: 'string', format: 'date-time' },
         },
       },

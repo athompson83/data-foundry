@@ -851,7 +851,7 @@ class CodexRegressionsRound6(unittest.TestCase):
             collector = Collector(config, state, client=FakeClient("{}"), policy=POLICY)
             accepted_at = _time.time() - 6 * 86400
             with state.tx() as db:
-                db.execute("INSERT INTO candidate (recall_id, raw_sha256, extractor_version, value, field, label, local_decision, server_status, updated_at) VALUES ('cpsc-15034', 'r', 'b', 'SA904', 'Description', 'item', 'accepted', 'accepted', ?)", (accepted_at,))
+                db.execute("INSERT INTO candidate (recall_id, raw_sha256, extractor_version, value, field, label, local_decision, server_status, updated_at) VALUES ('cpsc-15034', 'r', ?, 'SA904', 'Description', 'item', 'accepted', 'accepted', ?)", (collector.build, accepted_at))
             calls = []
 
             def api_get(task, path, params):
@@ -933,3 +933,38 @@ class CodexRegressionsRound7(unittest.TestCase):
             kinds = [r["kind"] for r in state.q("SELECT kind FROM event ORDER BY id")]
             self.assertEqual(kinds.count("uploader_exited"), 3)
             self.assertEqual(kinds.count("uploader_restarted"), 3)
+
+
+class CodexRegressionsRound8(unittest.TestCase):
+    def test_read_back_marks_only_this_builds_candidates_and_only_for_this_builds_rows(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Config(data_dir=tmp)
+            state = State(config.db_path)
+            collector = Collector(config, state, client=FakeClient("{}"), policy=POLICY)
+            with state.tx() as db:
+                for build in (collector.build, "experimental-build"):
+                    db.execute("INSERT INTO candidate (recall_id, raw_sha256, extractor_version, value, field, label, local_decision, server_status, updated_at) VALUES ('cpsc-15034', 'r', ?, 'SA904', 'Description', 'item', 'accepted', 'accepted', 0)", (build,))
+            mine = {"key": "SA904", "extractor_version": extract.EXTRACTOR_VERSION, "model": config.model, "model_digest": "sha256:" + config.model_digest + "a" * 52, "prompt_sha256": extract.prompt_sha256()}
+            served = [dict(mine, prompt_sha256="f" * 64)]  # the same key, served from another build
+            collector.api_get = lambda task, path, params: {"data": {"provenance": {"raw_sha256": "r"}, "extracted_identifiers": served}}
+            task = POLICY.task(TASK)
+            self.assertEqual(collector.verify_queryable(task), 0)
+            served[:] = [mine]
+            with state.tx() as db:
+                db.execute("UPDATE candidate SET checked_at = NULL")
+            self.assertEqual(collector.verify_queryable(task), 1)
+            rows = {r["extractor_version"]: r["queryable"] for r in state.q("SELECT extractor_version, queryable FROM candidate")}
+            self.assertEqual(rows, {collector.build: 1, "experimental-build": 0})
+
+    def test_the_uploader_gets_absolute_paths_for_a_relative_config(self):
+        import os
+
+        from df_collector.__main__ import uploader_args
+
+        with tempfile.TemporaryDirectory() as tmp:
+            cwd = os.getcwd()
+            os.chdir(tmp)
+            self.addCleanup(os.chdir, cwd)
+            args = uploader_args(Config(data_dir="data"), "collector.json")
+            self.assertEqual(args[args.index("--config") + 1], str(Path(tmp).resolve() / "collector.json"))
+            self.assertEqual(args[args.index("--data-dir") + 1], str(Path(tmp).resolve() / "data"))

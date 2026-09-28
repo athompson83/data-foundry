@@ -399,6 +399,16 @@ class Collector:
 
     # -- publication check ---------------------------------------------------------------------------------------
 
+    def _is_this_build(self, item: dict) -> bool:
+        """Whether a served extracted identifier came from this collector's build (version, model, pinned digest, prompt)."""
+        digest = str(item.get("model_digest") or "").removeprefix("sha256:")
+        return (
+            item.get("extractor_version") == extract.EXTRACTOR_VERSION
+            and item.get("model") == self.config.model
+            and digest.startswith(self.config.model_digest.removeprefix("sha256:"))
+            and item.get("prompt_sha256") == extract.prompt_sha256()
+        )
+
     def verify_queryable(self, task: policy_mod.TaskPolicy, limit: int = 5) -> int:
         """Read back server-accepted candidates through the authenticated customer API; mark the ones it serves.
 
@@ -408,8 +418,9 @@ class Collector:
         # Each notice is re-checked at most hourly, oldest check first. A check never touches updated_at, so a
         # candidate the server does not serve (gate closed, build not publishable) still ages out in the sweep.
         rows = self.state.q(
-            "SELECT recall_id, raw_sha256 FROM candidate WHERE server_status IN ('accepted', 'replayed') AND queryable = 0 AND updated_at < ? AND COALESCE(checked_at, 0) < ?"
+            "SELECT recall_id, raw_sha256 FROM candidate WHERE extractor_version = ? AND server_status IN ('accepted', 'replayed') AND queryable = 0 AND updated_at < ? AND COALESCE(checked_at, 0) < ?"
             " GROUP BY recall_id, raw_sha256 ORDER BY MIN(COALESCE(checked_at, 0)) LIMIT ?",
+            self.build,
             time.time() - 60,
             time.time() - VERIFY_RECHECK_S,
             limit,
@@ -418,12 +429,13 @@ class Collector:
         for row in rows:
             notice = self.api_get(task, f"{task.input['path']}/{row['recall_id']}", {})
             data = notice.get("data") or {}
-            served = {item.get("key") for item in data.get("extracted_identifiers") or []}
+            # Only this build's own served rows count: another build may serve the same key for the same bytes.
+            served = {item.get("key") for item in data.get("extracted_identifiers") or [] if self._is_this_build(item)}
             current = (data.get("provenance") or {}).get("raw_sha256") == row["raw_sha256"]
             with self.state.tx() as db:
-                for candidate in self.state.q("SELECT value, field FROM candidate WHERE recall_id = ? AND raw_sha256 = ? AND server_status IN ('accepted', 'replayed')", row["recall_id"], row["raw_sha256"]):
+                for candidate in self.state.q("SELECT value, field FROM candidate WHERE recall_id = ? AND raw_sha256 = ? AND extractor_version = ? AND server_status IN ('accepted', 'replayed')", row["recall_id"], row["raw_sha256"], self.build):
                     ok = current and validate.model_key(candidate["value"]) in served
-                    db.execute("UPDATE candidate SET queryable = ?, checked_at = ? WHERE recall_id = ? AND raw_sha256 = ? AND field = ? AND value = ?", (1 if ok else 0, time.time(), row["recall_id"], row["raw_sha256"], candidate["field"], candidate["value"]))
+                    db.execute("UPDATE candidate SET queryable = ?, checked_at = ? WHERE recall_id = ? AND raw_sha256 = ? AND extractor_version = ? AND field = ? AND value = ?", (1 if ok else 0, time.time(), row["recall_id"], row["raw_sha256"], self.build, candidate["field"], candidate["value"]))
                     marked += ok
         return marked
 

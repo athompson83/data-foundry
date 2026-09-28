@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS ingest_credential (
 );
 
 -- One accepted candidate per (notice, source bytes, extractor build, identifier key). The build is the version,
--- model digest and prompt hash together, so output from one build never shadows another's (publication is limited
+-- model name, model digest and prompt hash together (the same tuple publication matches), so output from one build never shadows another's (publication is limited
 -- to benchmarked builds, PUBLISHABLE_EXTRACTORS in src/intake.ts).
 -- raw_sha256 pins the exact stored source record it was checked against; when
 -- the sync stores new bytes for the notice the candidate is no longer current
@@ -44,20 +44,23 @@ CREATE TABLE IF NOT EXISTS product_recall_extracted_key (
   status            TEXT NOT NULL CHECK (status IN ('accepted', 'withdrawn')),
   submitted_at      TEXT NOT NULL,
   withdrawn_at      TEXT,
-  PRIMARY KEY (recall_id, raw_sha256, extractor_version, model_digest, prompt_sha256, kind, value_key)
+  PRIMARY KEY (recall_id, raw_sha256, extractor_version, model, model_digest, prompt_sha256, kind, value_key)
 ) WITHOUT ROWID;
 CREATE INDEX IF NOT EXISTS product_recall_extracted_key_lookup_idx ON product_recall_extracted_key (kind, value_key, status);
 CREATE INDEX IF NOT EXISTS product_recall_extracted_key_version_idx ON product_recall_extracted_key (extractor_version, status);
 
--- Every submission, accepted or not, for audit and for the collector's counters.
+-- Every submission, accepted or not, for audit and for the collector's counters. Idempotency keys are scoped to
+-- the credential, so a rotated or re-issued credential can resend a payload whose answer was lost: its candidates
+-- are then reported as replayed, never duplicated.
 CREATE TABLE IF NOT EXISTS extraction_submission (
   id              INTEGER PRIMARY KEY AUTOINCREMENT,
   credential_id   TEXT NOT NULL,
-  idempotency_key TEXT NOT NULL UNIQUE,
+  idempotency_key TEXT NOT NULL,
   received_at     TEXT NOT NULL,
   items           INTEGER NOT NULL,
   accepted        INTEGER NOT NULL,
   replayed        INTEGER NOT NULL,
   rejected        INTEGER NOT NULL,
-  response        TEXT NOT NULL
+  response        TEXT NOT NULL,
+  UNIQUE (credential_id, idempotency_key)
 );
