@@ -60,9 +60,15 @@ candidates:
         docs/sources/pipeline/prototypes/cpsc-recalls/README.md
       ]
     next_action: >-
-      BUILDING in consumer-product-recalls-north-america: parser product-recall-structuring@1 over all 10,027 recalls
-      (0 errors), D1 storage, six-hourly sync, /v1/product-recalls API and pages on the recalls Worker. Next: deploy,
-      reconcile to the source total and pass hosted acceptance, then mark LIVE.
+      Member of consumer-product-recalls-north-america; see that dataset. Deployed 2026-09-28 (#69, Worker version
+      40ea452b) and serving on data.aroqon.com and api.data.aroqon.com
+      behind PRODUCT_RECALLS_OPEN; parser product-recall-structuring@2. Reconciled: the first scheduled full pass
+      (00:17 UTC) read all 10,027 CPSC notices in 29 RecallDate windows and all 5,206 Health Canada consumer notices,
+      rewrote every record under @2 with 0 failures, and kept 343 declared links. Keyless acceptance passed (pages,
+      stats, 401 without a valid key, OpenAPI, checkout to cs_live). Remaining before LIVE: authenticated hosted
+      acceptance (lookup, filters, include=raw digests, $0 Evaluate checkout) with a revocable acceptance key, run
+      and revoked by any session permitted to write that key to production D1 (the 2026-09-28 session's permission
+      check refused the write); it is routine verification, not an owner decision.
   - key: nhtsa-recalls
     name: NHTSA vehicle recalls in the recall API
     category: transport
@@ -3767,10 +3773,16 @@ candidates:
         docs/sources/pipeline/prototypes/health-canada-consumer-product-recalls/README.md
       ]
     next_action: >-
-      A structured feed: the index already carries typed fields (Issue, Category, Recall class, Last updated,
-      Archived), which the parser normalises into the shared hazard/facet taxonomy; free text ("What you should do")
-      only yields remedy classes and the joint marker. BUILDING in consumer-product-recalls-north-america (5,206
-      notices, 0 errors). Next: deploy, reconcile and mark LIVE. The appliance slice above stays a member of
+      Member of consumer-product-recalls-north-america; see that dataset. Next source widening: Health Canada's
+      other recall organisations (food, health products, vehicles) under an extended rights record. Deployed
+      2026-09-28 (#69, Worker version 40ea452b) and serving on data.aroqon.com and api.data.aroqon.com
+      behind PRODUCT_RECALLS_OPEN; parser product-recall-structuring@2. Reconciled: the first scheduled full pass
+      (00:17 UTC) read all 10,027 CPSC notices in 29 RecallDate windows and all 5,206 Health Canada consumer notices,
+      rewrote every record under @2 with 0 failures, and kept 343 declared links. Keyless acceptance passed (pages,
+      stats, 401 without a valid key, OpenAPI, checkout to cs_live). Remaining before LIVE: authenticated hosted
+      acceptance (lookup, filters, include=raw digests, $0 Evaluate checkout) with a revocable acceptance key, run
+      and revoked by any session permitted to write that key to production D1 (the 2026-09-28 session's permission
+      check refused the write); it is routine verification, not an owner decision. The appliance slice above stays a member of
       home-product-recalls-global.
 
 datasets:
@@ -4466,5 +4478,12 @@ datasets:
       - docs/sources/pipeline/prototypes/cpsc-recalls/README.md
       - docs/sources/pipeline/prototypes/health-canada-consumer-product-recalls/README.md
       - docs/decisions/ADR-0016-product-recalls-on-the-recalls-worker.md
-    next_action: Deploy on the recalls Worker (migration 0003, bulk load, PRODUCT_RECALLS_OPEN), reconcile both sources
-      and pass hosted acceptance, then mark the dataset and both members LIVE.
+    next_action: >-
+      Deployed 2026-09-28 (#69, Worker version 40ea452b) and serving on data.aroqon.com and api.data.aroqon.com
+      behind PRODUCT_RECALLS_OPEN; parser product-recall-structuring@2. Reconciled: the first scheduled full pass
+      (00:17 UTC) read all 10,027 CPSC notices in 29 RecallDate windows and all 5,206 Health Canada consumer notices,
+      rewrote every record under @2 with 0 failures, and kept 343 declared links. Keyless acceptance passed (pages,
+      stats, 401 without a valid key, OpenAPI, checkout to cs_live). Remaining before LIVE: authenticated hosted
+      acceptance (lookup, filters, include=raw digests, $0 Evaluate checkout) with a revocable acceptance key, run
+      and revoked by any session permitted to write that key to production D1 (the 2026-09-28 session's permission
+      check refused the write); it is routine verification, not an owner decision.

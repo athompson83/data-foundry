@@ -1,6 +1,6 @@
 # Progress
 
-## Current session — 2026-09-27 (continued): second dataset, North American consumer-product recalls
+## Current session — 2026-09-27/28 (continued): second dataset, website, daily scout — deployed
 
 - **Owner direction.** "Continue to add data types and ship to production."
 - **Dataset.** `consumer-product-recalls-north-america` (ADR-0016), the first shippable slice of the round-3 recall composite.
@@ -13,7 +13,34 @@
   - `/product-recalls` pages, sitemap shards, llms.txt/OpenAPI entries;
   - `PRODUCT_RECALLS_OPEN` and `PRODUCT_RECALLS_KILL_SWITCH` gates;
   - `tooling/scripts/product-recalls-bulk-load.ts`.
-- **Deployment and live verification:** see the PR.
+- **Also shipped in #69.**
+  - **Website** (owner task "Build the Data Foundry landing page and dataset catalog"). A server-rendered homepage with a list catalog of the published datasets: tags, live record counts, sources and last successful refresh. One product-page template serves `/recalls` and `/product-recalls`. `/docs` is canonical, with endpoint anchors, and `/recalls/docs` now answers 301. Checkout renders only while `SALES_OPEN=1`, and there is no marketplace button.
+  - **Gates.** A withdrawn dataset disappears from the catalog, JSON-LD, sitemap, `llms` files, docs, OpenAPI and the API root, all sent `no-cache`.
+  - **Daily scout.** The routine `trig_01W3FJssxnuYT3h3RVWsHZyu` now runs daily with a target of 5 to 10 new data types, adds member sources to live datasets and checks full-history capture. `AGENTS.md` records the owner's source-breadth and capture direction.
+  - **Review.** Nine Codex rounds, all findings fixed. Among them:
+    - whole source responses archived in R2 before parsing;
+    - bounded memory for the full CPSC read;
+    - freshness published only after a complete pass;
+    - parser @2 (UPC-E/EAN-8, structured model fields);
+    - bounded lookups;
+    - gate-consistent discovery;
+    - honest `include=raw` digests.
+- **Merged and deployed 2026-09-28.**
+  - #69 was squash-merged as `6520d5a`, with CI green on `7f02951` and Codex clean.
+  - It was deployed as Worker version `40ea452b-1b4a-41c9-931b-82719b1dc7cd`; the previous version was `00d362e1`.
+  - No migrations were pending, and `PRODUCT_RECALLS_OPEN="1"`, `SALES_OPEN="1"`.
+  - The bulk load's complete inputs were archived in R2 (CPSC `sha256-864f678c…`, Health Canada `sha256-9879b641…`) and verified by read-back.
+- **Live verification.**
+  - Every public page, sitemap and `llms` file answers 200, `/recalls/docs` answers 301, and gated responses are sent `no-cache`.
+  - The catalog shows FDA 87,354 and product recalls 15,233 records, with no RapidAPI button and JSON-LD listing both datasets.
+  - The API root and OpenAPI list both datasets. Data endpoints answer 401 without a valid key.
+  - Checkout for `evaluate` and `developer` answers 303 to `cs_live` sessions. The webhook answers 405 to GET and 400 to an unsigned POST.
+- **First scheduled sync (00:17 UTC).**
+  - CPSC: a full pass in 29 windows plus one `product:CPSC` run, 10,027 notices rewritten under `product-recall-structuring@2`.
+  - Health Canada: 5,206 notices rewritten.
+  - 0 failures, 343 declared links. FDA synced normally.
+  - The public freshness now reads CPSC 00:19 UTC and Health Canada 00:20 UTC.
+- **Not done: authenticated acceptance.** Creating an internal acceptance customer and key in production was refused by this session's permission check (an environment boundary on production writes, not a product decision; any session permitted that write can run the checks and revoke the key). The authenticated checks (lookup, filters, `include=raw` digests) and a completed $0 Evaluate checkout have therefore not been run. The registry keeps the dataset at `BUILDING` until they pass. The product-recalls sample on the site is labelled as parser output until a live response replaces it.
 
 ## Current session — 2026-09-27 (continued): composite datasets, and discoverability live
 
