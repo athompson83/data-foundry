@@ -62,4 +62,15 @@ describe('local collector', () => {
     const run = spawnSync(python, ['-m', 'unittest', 'discover', '-s', 'tests', '-t', '.'], { cwd: APP, encoding: 'utf8', env: { ...process.env, NO_PROXY: '127.0.0.1,localhost', no_proxy: '127.0.0.1,localhost' }, timeout: 120_000 });
     expect(run.status, run.stderr.slice(-4000)).toBe(0);
   }, 150_000);
+
+  it('uninstall -Purge goes through the guarded purge, and deletes unchecked data only with -Force', () => {
+    // PowerShell is not available in CI; this pins the script's structure.
+    const script = readFileSync(join(APP, 'windows', 'uninstall.ps1'), 'utf8');
+    expect(script).toMatch(/'purge', '--everything'/);
+    expect(script).toMatch(/if \(\$purged -ne 0\) \{ throw/);
+    // The only direct delete is on the path where the guard cannot run, and it requires -Force.
+    const deletes = script.split('\n').filter((line) => /Remove-Item -Recurse/.test(line));
+    expect(deletes).toHaveLength(1);
+    expect(script.slice(0, script.indexOf(deletes[0] as string))).toMatch(/if \(-not \$Force\) \{ throw[^\n]*\n\s*$/);
+  });
 });

@@ -41,15 +41,18 @@ CREATE TABLE IF NOT EXISTS product_recall_extracted_key (
   prompt_sha256     TEXT NOT NULL,
   -- The collector's output-affecting generation settings, canonical JSON ({"num_ctx":…,"think":…}).
   generation        TEXT NOT NULL,
-  -- The Worker's extraction-behaviour fingerprint (acceptance rules, extractor schema and options) when the row was
-  -- accepted: EXTRACTION_BEHAVIOUR_SHA256 in src/intake.ts. Publication requires the benchmarked one.
+  -- The extraction-behaviour fingerprint (acceptance rules, extractor schema and options) of the collector that
+  -- produced the row, as it reported it (df_collector/behaviour.py).
   behaviour_sha256  TEXT NOT NULL,
+  -- The same fingerprint for the Worker that accepted the row: EXTRACTION_BEHAVIOUR_SHA256 in src/intake.ts.
+  -- Publication requires both to be the benchmarked one.
+  rules_sha256      TEXT NOT NULL,
   credential_id     TEXT NOT NULL,
   -- accepted: passed every server check; withdrawn: removed by an operator (reversible audit trail, never deleted).
   status            TEXT NOT NULL CHECK (status IN ('accepted', 'withdrawn')),
   submitted_at      TEXT NOT NULL,
   withdrawn_at      TEXT,
-  PRIMARY KEY (recall_id, raw_sha256, extractor_version, model, model_digest, prompt_sha256, generation, behaviour_sha256, kind, value_key)
+  PRIMARY KEY (recall_id, raw_sha256, extractor_version, model, model_digest, prompt_sha256, generation, behaviour_sha256, rules_sha256, kind, value_key)
 ) WITHOUT ROWID;
 CREATE INDEX IF NOT EXISTS product_recall_extracted_key_lookup_idx ON product_recall_extracted_key (kind, value_key, status);
 CREATE INDEX IF NOT EXISTS product_recall_extracted_key_version_idx ON product_recall_extracted_key (extractor_version, status);
@@ -63,7 +66,11 @@ CREATE TABLE IF NOT EXISTS extraction_submission (
   credential_id   TEXT NOT NULL,
   idempotency_key TEXT NOT NULL,
   body_sha256     TEXT NOT NULL,
+  -- Refreshed by the owning request as it works (a heartbeat), so only a request that died goes stale.
   received_at     TEXT NOT NULL,
+  -- The owning request's random token. A retry that takes over a stale reservation replaces it, after which the
+  -- earlier request can write neither candidates nor the response.
+  lease           TEXT NOT NULL DEFAULT '',
   items           INTEGER NOT NULL DEFAULT 0,
   accepted        INTEGER NOT NULL DEFAULT 0,
   replayed        INTEGER NOT NULL DEFAULT 0,

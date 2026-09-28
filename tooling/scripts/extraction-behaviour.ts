@@ -7,8 +7,9 @@
  * - the extractor's request (schema, field truncation, prompt assembly: df_collector/extract.py) and model options
  *   (df_collector/ollama.py), with the generation defaults from df_collector/config.py.
  *
- * The recalls Worker stamps EXTRACTION_BEHAVIOUR_SHA256 on every accepted row and publishes only rows whose
- * fingerprint is the one a PUBLISHABLE_EXTRACTORS entry was benchmarked with. tooling/test/local-collector.test.ts
+ * The collector sends its own fingerprint with every submission; the recalls Worker records it and its own
+ * EXTRACTION_BEHAVIOUR_SHA256 on every accepted row, and publishes only rows where both are the fingerprint a
+ * PUBLISHABLE_EXTRACTORS entry was benchmarked with. tooling/test/local-collector.test.ts
  * fails when any of these files changes until the benchmark is re-run (--score-only suffices for a rules-only change;
  * a prompt, schema or option change needs a full run) and both constants are updated in a reviewed change.
  *

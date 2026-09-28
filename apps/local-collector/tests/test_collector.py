@@ -10,6 +10,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 from df_collector import extract, policy as policy_mod
+from df_collector.behaviour import behaviour_sha256
 from df_collector.config import Config, Limits
 from df_collector.netguard import FetchFailed, FetchRefused, HostPolicy, SafeFetcher, address_allowed
 from df_collector.ollama import ChatResult, LocalModelError, OllamaClient, assert_local_model_name, assert_loopback
@@ -944,7 +945,7 @@ class CodexRegressionsRound8(unittest.TestCase):
             with state.tx() as db:
                 for build in (collector.build, "experimental-build"):
                     db.execute("INSERT INTO candidate (recall_id, raw_sha256, extractor_version, value, field, label, local_decision, server_status, updated_at) VALUES ('cpsc-15034', 'r', ?, 'SA904', 'Description', 'item', 'accepted', 'accepted', 0)", (build,))
-            mine = {"key": "SA904", "extractor_version": extract.EXTRACTOR_VERSION, "model": config.model, "model_digest": "sha256:" + config.model_digest + "a" * 52, "prompt_sha256": extract.prompt_sha256(), "generation": '{"num_ctx":8192,"think":false}'}
+            mine = {"key": "SA904", "extractor_version": extract.EXTRACTOR_VERSION, "model": config.model, "model_digest": "sha256:" + config.model_digest + "a" * 52, "prompt_sha256": extract.prompt_sha256(), "generation": '{"num_ctx":8192,"think":false}', "behaviour_sha256": behaviour_sha256()}
             served = [dict(mine, prompt_sha256="f" * 64)]  # the same key, served from another build
             collector.api_get = lambda task, path, params: {"data": {"provenance": {"raw_sha256": "r"}, "extracted_identifiers": served}}
             task = POLICY.task(TASK)
@@ -1288,3 +1289,18 @@ class CodexRegressionsRound18(unittest.TestCase):
             with mock.patch.object(_sys, "argv", ["df_collector", "--data-dir", tmp, "uploader"]), contextlib.redirect_stderr(io.StringIO()):
                 self.assertEqual(cli.main(), 1)
             held.release()
+
+
+class CodexRegressionsRound19(unittest.TestCase):
+    def test_the_collector_sends_its_behaviour_fingerprint_and_reads_back_only_its_own(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Config(data_dir=tmp)
+            collector = Collector(config, State(config.db_path), client=FakeClient(json.dumps({"identifiers": [{"value": "SA904", "label": "item", "field": "Description"}]})), policy=POLICY)
+            collector.queue_documents([{"id": "cpsc-15034", "raw": RECORD, "provenance": {"raw_sha256": "a" * 64}}])
+            collector.extract_one()
+            payload = json.loads(collector.state.one("SELECT payload FROM outbox")["payload"])
+            self.assertEqual(payload["extractor"]["behaviour_sha256"], behaviour_sha256())
+            item = {"extractor_version": extract.EXTRACTOR_VERSION, "model": config.model, "model_digest": "sha256:" + config.model_digest + "a" * 52, "prompt_sha256": extract.prompt_sha256(), "generation": '{"num_ctx":8192,"think":false}', "behaviour_sha256": behaviour_sha256()}
+            self.assertTrue(collector._is_this_build(item))
+            # The same tuple from a collector with other extraction behaviour is not this build.
+            self.assertFalse(collector._is_this_build(dict(item, behaviour_sha256="e" * 64)))

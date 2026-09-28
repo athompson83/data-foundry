@@ -190,6 +190,10 @@ Secrets needed:
   `POST /admin/ingest-credentials?label=<name>&sources=cpsc-recalls` (ADMIN_TOKEN). It is shown once and revoked
   with `/admin/ingest-credentials/revoke?id=`.
 
+To remove it, run `.\uninstall.ps1` in the same folder. It keeps the data directory; `-Purge` also deletes it
+through the collector's guarded `purge --everything`, which refuses (and removes nothing) while uploads are still owed
+to Data Foundry or notices are waiting for the model. `-Purge -Force` discards that work.
+
 ## Commands
 
 ```bash

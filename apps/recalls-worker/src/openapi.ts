@@ -103,6 +103,7 @@ const PRODUCT_RECALL_SCHEMA = {
           model_digest: { type: 'string' },
           prompt_sha256: { type: 'string' },
           generation: { type: 'string', description: 'The generation settings the extractor ran with, canonical JSON.' },
+          behaviour_sha256: { type: 'string', description: 'The extraction-behaviour fingerprint of the collector build that produced the identifier.' },
           submitted_at: { type: 'string', format: 'date-time' },
         },
       },

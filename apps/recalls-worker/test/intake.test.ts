@@ -43,7 +43,7 @@ const CPSC = {
 const ADMIN = 'a'.repeat(40);
 const NOW = '2026-09-28T12:00:00.000Z';
 // The benchmarked, publishable build (PUBLISHABLE_EXTRACTORS).
-const EXTRACTOR = { version: 'cpsc-product-identifiers@1/prompt-3', model: 'qwen3.5:4b', model_digest: 'sha256:2a654d98e6fba55d452b7043684e9b57a947e393bbffa62485a7aac05ee4eefd', prompt_sha256: 'e4a912fb71b2f0edbcb5929cd483cad57b7a8e9ebc419ea3fef3f3e19ee69d53', generation: { num_ctx: 8192, think: false } };
+const EXTRACTOR = { version: 'cpsc-product-identifiers@1/prompt-3', model: 'qwen3.5:4b', model_digest: 'sha256:2a654d98e6fba55d452b7043684e9b57a947e393bbffa62485a7aac05ee4eefd', prompt_sha256: 'e4a912fb71b2f0edbcb5929cd483cad57b7a8e9ebc419ea3fef3f3e19ee69d53', generation: { num_ctx: 8192, think: false }, behaviour_sha256: EXTRACTION_BEHAVIOUR_SHA256 };
 
 function makeEnv(overrides: Partial<Env> = {}): Env {
   const { db } = createTestDatabase();
@@ -330,13 +330,58 @@ describe('publication of extracted identifiers', () => {
 
   it('serves only rows accepted under the benchmarked acceptance rules and extractor behaviour', async () => {
     const { env, apiKey } = await accepted({ EXTRACTED_IDENTIFIERS_OPEN: '1' });
-    expect(await env.DB.prepare('SELECT behaviour_sha256 FROM product_recall_extracted_key').first()).toEqual({ behaviour_sha256: EXTRACTION_BEHAVIOUR_SHA256 });
-    // A row stamped by a Worker whose rules or extractor behaviour differ from the benchmarked ones is kept, not served.
-    await env.DB.prepare("UPDATE product_recall_extracted_key SET behaviour_sha256 = 'other-rules'").run();
-    const notice = (await (await get(env, apiKey, '/v1/product-recalls/cpsc-15034')).json()) as { data: { extracted_identifiers: unknown[] } };
-    expect(notice.data.extracted_identifiers).toEqual([]);
+    expect(await env.DB.prepare('SELECT behaviour_sha256, rules_sha256 FROM product_recall_extracted_key').first()).toEqual({ behaviour_sha256: EXTRACTION_BEHAVIOUR_SHA256, rules_sha256: EXTRACTION_BEHAVIOUR_SHA256 });
+    const served = async () => ((await (await get(env, apiKey, '/v1/product-recalls/cpsc-15034')).json()) as { data: { extracted_identifiers: unknown[] } }).data.extracted_identifiers;
+    expect(await served()).toEqual([expect.objectContaining({ value: 'SA904', behaviour_sha256: EXTRACTION_BEHAVIOUR_SHA256 })]);
+    // A row accepted by a Worker whose rules differ from the benchmarked ones is kept, not served.
+    await env.DB.prepare("UPDATE product_recall_extracted_key SET rules_sha256 = 'other-rules'").run();
+    expect(await served()).toEqual([]);
     const lookup = (await (await get(env, apiKey, '/v1/product-recalls/lookup?code=SA904')).json()) as { total_matches: number };
     expect(lookup.total_matches).toBe(0);
+  });
+
+  it("keeps, but never serves, candidates from a collector whose own behaviour fingerprint is not the benchmarked one", async () => {
+    const { env, token, sha } = await seeded({ EXTRACTED_IDENTIFIERS_OPEN: '1' });
+    const notices = [{ recall_id: 'cpsc-15034', raw_sha256: sha, candidates: [CANDIDATES[0]] }];
+    const { behaviour_sha256: _omitted, ...withoutFingerprint } = EXTRACTOR;
+    expect((await submit(env, token, notices, undefined, withoutFingerprint)).status).toBe(400);
+    // An older (or newer) collector build: same version, model, prompt and generation, different behaviour.
+    const older = await submit(env, token, notices, undefined, { ...EXTRACTOR, behaviour_sha256: 'e'.repeat(64) });
+    expect(await older.json()).toMatchObject({ accepted: 1, publishable_build: false, published: false });
+    expect(await env.DB.prepare('SELECT behaviour_sha256, rules_sha256 FROM product_recall_extracted_key').first()).toEqual({ behaviour_sha256: 'e'.repeat(64), rules_sha256: EXTRACTION_BEHAVIOUR_SHA256 });
+    const apiKey = await customerKey(env);
+    const notice = (await (await get(env, apiKey, '/v1/product-recalls/cpsc-15034')).json()) as { data: { extracted_identifiers: unknown[] } };
+    expect(notice.data.extracted_identifiers).toEqual([]);
+    // The benchmarked build's submission of the same value is a separate, publishable row.
+    expect(await (await submit(env, token, notices)).json()).toMatchObject({ accepted: 1, publishable_build: true, published: true });
+  });
+
+  it('a request whose stale reservation was taken over by a retry commits nothing more', async () => {
+    const { env, token, sha } = await seeded();
+    const bucket = env.RAW_ARTIFACTS;
+    let tookOver = false;
+    // While the first request reads its evidence, a retry with the same key takes the reservation over.
+    const racing: Env = {
+      ...env,
+      RAW_ARTIFACTS: new Proxy(bucket, {
+        get(target, prop, receiver) {
+          if (prop !== 'get') return Reflect.get(target, prop, receiver) as unknown;
+          return async (...args: Parameters<Env['RAW_ARTIFACTS']['get']>) => {
+            if (!tookOver) {
+              tookOver = true;
+              await env.DB.prepare("UPDATE extraction_submission SET lease = 'the-retry', received_at = ?").bind(new Date().toISOString()).run();
+            }
+            return target.get(...args);
+          };
+        },
+      }),
+    };
+    const key = await sha256Hex('raced');
+    const first = await submit(racing, token, [{ recall_id: 'cpsc-15034', raw_sha256: sha, candidates: [CANDIDATES[0]] }], key);
+    expect(first.status).toBe(503);
+    expect((await env.DB.prepare('SELECT count(*) AS n FROM product_recall_extracted_key').first<{ n: number }>())?.n).toBe(0);
+    // The retry's reservation is left intact: neither released nor completed by the request that lost it.
+    expect(await env.DB.prepare('SELECT lease, response FROM extraction_submission WHERE idempotency_key = ?').bind(key).first()).toEqual({ lease: 'the-retry', response: null });
   });
 
   it('stops serving a candidate when the source bytes change, and after withdrawal', async () => {

@@ -55,7 +55,9 @@ recalls on the recalls Worker); [`docs/sources/cpsc-recalls-rights-record-202609
    - Each accepted candidate stores the extractor version, model and digest, prompt hash, credential and exact span.
    - Every request carries an `Idempotency-Key`, scoped to the credential. The key is reserved before any candidate is
      written: a replay returns the stored response, the same key with a different body is refused (409), and a key still
-     being processed answers 503 so the client retries.
+     being processed answers 503 so the client retries. The owning request refreshes its reservation before each
+     notice and holds a random lease; a retry may take over only a reservation left unrefreshed for 120 s, and then
+     replaces the lease, after which the earlier request can write neither candidates nor the response.
 4. **Publication is a separate gate.**
    - Accepted candidates are served only while `EXTRACTED_IDENTIFIERS_OPEN` is `"1"`, and only against each
      notice's current bytes.
@@ -69,8 +71,10 @@ recalls on the recalls Worker); [`docs/sources/cpsc-recalls-rights-record-202609
      one build never shadows another. A CI test requires the collector's own build to be on that list.
    - The build also includes the **extraction-behaviour fingerprint** (`EXTRACTION_BEHAVIOUR_SHA256`,
      `tooling/scripts/extraction-behaviour.ts`). It covers the acceptance rules in both languages, the extractor's
-     schema, truncation and prompt assembly, the model options and the generation defaults. Every accepted row is
-     stamped with the Worker's fingerprint, and publication requires the benchmarked one. CI fails when any of those
+     schema, truncation and prompt assembly, the model options and the generation defaults. The collector sends its
+     own fingerprint with every submission; each accepted row records it (`behaviour_sha256`) and the accepting
+     Worker's (`rules_sha256`), and publication requires both to be the benchmarked one, so output from an older or
+     newer collector build is kept but never served. CI fails when any of those
      files changes, until the benchmark is re-run and the constant and entry are updated in a reviewed change.
      `--score-only` suffices for a rules-only change; a prompt, schema or option change needs a full run. The
      collector computes the same fingerprint (`df_collector/behaviour.py`, pinned to the Worker's by CI) and keys its

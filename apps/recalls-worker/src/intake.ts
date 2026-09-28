@@ -41,7 +41,7 @@ export const INTAKE_SOURCES: Readonly<Record<string, { readonly idPrefix: string
 /**
  * The extraction-behaviour fingerprint this Worker runs: acceptance rules (TypeScript and the collector's mirror),
  * extractor schema, truncation and prompt assembly, model options and generation defaults
- * (tooling/scripts/extraction-behaviour.ts). Stamped on every accepted row; CI fails when those files change until
+ * (tooling/scripts/extraction-behaviour.ts). Recorded on every accepted row as rules_sha256; CI fails when those files change until
  * the benchmark is re-run and this constant and the entry below are updated.
  */
 export const EXTRACTION_BEHAVIOUR_SHA256 = 'c2e3b2090496031af7a0206154c50607b7eacc2b727e01d1ec5e0172a1dd9a1f';
@@ -72,10 +72,11 @@ export function extractedServed(env: Env): boolean {
 }
 
 /** Whether a submitted extractor tuple is exactly a publishable build (the JavaScript twin of the SQL clause below). */
-export function isPublishableExtractor(extractor: { readonly version: string; readonly model: string; readonly model_digest: string; readonly prompt_sha256: string; readonly generation: string }): boolean {
+export function isPublishableExtractor(extractor: { readonly version: string; readonly model: string; readonly model_digest: string; readonly prompt_sha256: string; readonly generation: string; readonly behaviour_sha256: string }): boolean {
   const digest = extractor.model_digest.replace(/^sha256:/, '');
-  // Rows are stamped with this Worker's behaviour fingerprint, so a build is publishable only under the behaviour it was benchmarked with.
-  return PUBLISHABLE_EXTRACTORS.some((entry) => entry.version === extractor.version && entry.model === extractor.model && entry.modelDigest === digest && entry.promptSha256 === extractor.prompt_sha256 && entry.generation === extractor.generation && entry.behaviourSha256 === EXTRACTION_BEHAVIOUR_SHA256);
+  // Both fingerprints must be the benchmarked one: the collector's (what produced the candidates) and this Worker's
+  // (the rules that accepted them). Rows record both, so the SQL clause applies the same test.
+  return PUBLISHABLE_EXTRACTORS.some((entry) => entry.version === extractor.version && entry.model === extractor.model && entry.modelDigest === digest && entry.promptSha256 === extractor.prompt_sha256 && entry.generation === extractor.generation && entry.behaviourSha256 === extractor.behaviour_sha256 && entry.behaviourSha256 === EXTRACTION_BEHAVIOUR_SHA256);
 }
 
 /** SQL condition (on alias `e`) matching rows produced by a publishable extractor build, with its bind values. */
@@ -83,9 +84,9 @@ export function publishableExtractorClause(): { sql: string; binds: string[] } {
   if (PUBLISHABLE_EXTRACTORS.length === 0) return { sql: '0', binds: [] };
   return {
     // The whole tuple, compared exactly: version, model name, full model digest, prompt hash, generation settings and
-    // behaviour fingerprint.
-    sql: `(${PUBLISHABLE_EXTRACTORS.map(() => "(e.extractor_version = ? AND e.model = ? AND replace(e.model_digest, 'sha256:', '') = ? AND e.prompt_sha256 = ? AND e.generation = ? AND e.behaviour_sha256 = ?)").join(' OR ')})`,
-    binds: PUBLISHABLE_EXTRACTORS.flatMap((entry) => [entry.version, entry.model, entry.modelDigest, entry.promptSha256, entry.generation, entry.behaviourSha256]),
+    // behaviour fingerprints of the collector that extracted the row and of the Worker that accepted it.
+    sql: `(${PUBLISHABLE_EXTRACTORS.map(() => "(e.extractor_version = ? AND e.model = ? AND replace(e.model_digest, 'sha256:', '') = ? AND e.prompt_sha256 = ? AND e.generation = ? AND e.behaviour_sha256 = ? AND e.rules_sha256 = ?)").join(' OR ')})`,
+    binds: PUBLISHABLE_EXTRACTORS.flatMap((entry) => [entry.version, entry.model, entry.modelDigest, entry.promptSha256, entry.generation, entry.behaviourSha256, entry.behaviourSha256]),
   };
 }
 
@@ -165,6 +166,8 @@ interface Extractor {
   readonly prompt_sha256: string;
   /** The collector's effective output-affecting generation settings, canonical JSON: {"num_ctx":…,"think":…}. */
   readonly generation: string;
+  /** The collector's own extraction-behaviour fingerprint (df_collector/behaviour.py), computed from its installed code. */
+  readonly behaviour_sha256: string;
 }
 
 /**
@@ -188,8 +191,8 @@ function parseBody(body: unknown): { extractor: Extractor; notices: NoticeInput[
   const { task, extractor, notices } = body as Record<string, unknown>;
   if (task !== IDENTIFIER_TASK) throw new BadRequest(`task must be ${IDENTIFIER_TASK}`);
   const e = extractor as Record<string, unknown> | undefined;
-  if (!e || !str(e['version'], /^[\w.@/:+-]{3,100}$/) || !str(e['model'], /^[\w.:/-]{2,100}$/) || !str(e['model_digest'], /^(?:sha256:)?[0-9a-f]{12,64}$/) || !str(e['prompt_sha256'], /^[0-9a-f]{64}$/)) {
-    throw new BadRequest('extractor must have version, model, model_digest and prompt_sha256');
+  if (!e || !str(e['version'], /^[\w.@/:+-]{3,100}$/) || !str(e['model'], /^[\w.:/-]{2,100}$/) || !str(e['model_digest'], /^(?:sha256:)?[0-9a-f]{12,64}$/) || !str(e['prompt_sha256'], /^[0-9a-f]{64}$/) || !str(e['behaviour_sha256'], /^[0-9a-f]{64}$/)) {
+    throw new BadRequest('extractor must have version, model, model_digest, prompt_sha256 and behaviour_sha256');
   }
   const generation = canonicalGeneration(e['generation']);
   if (generation === null) throw new BadRequest('extractor.generation must give num_ctx (an integer) and think (a boolean or low|medium|high)');
@@ -209,7 +212,7 @@ function parseBody(body: unknown): { extractor: Extractor; notices: NoticeInput[
     });
     return { recall_id: n['recall_id'] as string, raw_sha256: n['raw_sha256'] as string, candidates };
   });
-  return { extractor: { version: e['version'] as string, model: e['model'] as string, model_digest: e['model_digest'] as string, prompt_sha256: e['prompt_sha256'] as string, generation }, notices: parsed };
+  return { extractor: { version: e['version'] as string, model: e['model'] as string, model_digest: e['model_digest'] as string, prompt_sha256: e['prompt_sha256'] as string, generation, behaviour_sha256: e['behaviour_sha256'] as string }, notices: parsed };
 }
 
 type CandidateStatus = 'accepted' | 'replayed' | 'duplicate_of_agency_fact' | 'rejected';
@@ -237,7 +240,7 @@ function sourceOf(recallId: string): string | null {
   return Object.entries(INTAKE_SOURCES).find(([, source]) => recallId.startsWith(source.idPrefix))?.[0] ?? null;
 }
 
-async function checkNotice(db: D1Database, bucket: R2Bucket, notice: NoticeInput, credential: IngestCredential, extractor: Extractor, withdrawn: Set<string>, now: string): Promise<NoticeResult> {
+async function checkNotice(db: D1Database, bucket: R2Bucket, notice: NoticeInput, credential: IngestCredential, extractor: Extractor, withdrawn: Set<string>, now: string, owner: Reservation): Promise<NoticeResult> {
   const reject = (status: NoticeResult['status'], reason: string): NoticeResult => ({
     recall_id: notice.recall_id,
     status,
@@ -270,11 +273,15 @@ async function checkNotice(db: D1Database, bucket: R2Bucket, notice: NoticeInput
       continue;
     }
     seen.add(decision.key);
+    // Written only while this request still owns its reservation, so a request whose reservation was taken over
+    // commits nothing more.
     const inserted = await db
-      .prepare(`INSERT INTO product_recall_extracted_key (recall_id, raw_sha256, extractor_version, kind, value_key, printed, label, source_field, span_start, span_end, model, model_digest, prompt_sha256, generation, behaviour_sha256, credential_id, status, submitted_at)
-        VALUES (?, ?, ?, 'model', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'accepted', ?) ON CONFLICT DO NOTHING RETURNING recall_id`)
-      .bind(row.id, row.raw_sha256, extractor.version, decision.key, candidate.value, decision.label, decision.field, decision.start, decision.end, extractor.model, extractor.model_digest, extractor.prompt_sha256, extractor.generation, EXTRACTION_BEHAVIOUR_SHA256, credential.id, now)
+      .prepare(`INSERT INTO product_recall_extracted_key (recall_id, raw_sha256, extractor_version, kind, value_key, printed, label, source_field, span_start, span_end, model, model_digest, prompt_sha256, generation, behaviour_sha256, rules_sha256, credential_id, status, submitted_at)
+        SELECT ?, ?, ?, 'model', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'accepted', ?
+        WHERE EXISTS (SELECT 1 FROM extraction_submission WHERE id = ? AND lease = ? AND response IS NULL) ON CONFLICT DO NOTHING RETURNING recall_id`)
+      .bind(row.id, row.raw_sha256, extractor.version, decision.key, candidate.value, decision.label, decision.field, decision.start, decision.end, extractor.model, extractor.model_digest, extractor.prompt_sha256, extractor.generation, extractor.behaviour_sha256, EXTRACTION_BEHAVIOUR_SHA256, credential.id, now, owner.id, owner.lease)
       .first<{ recall_id: string }>();
+    if (!inserted) await assertOwner(db, owner, false);
     results.push({ ...base, status: inserted ? 'accepted' : 'replayed' });
   }
   return { recall_id: notice.recall_id, status: 'checked', candidates: results };
@@ -295,20 +302,41 @@ export async function handleIntake(env: Env, request: Request): Promise<{ status
   const reservation = await reserveSubmission(env.DB, credential.id, idempotencyKey, bodySha);
   if ('replay' in reservation) return { status: 200, body: reservation.replay };
   try {
-    const response = await processSubmission(env, credential, text);
+    const response = await processSubmission(env, credential, text, reservation);
     const all = (response.results as NoticeResult[]).flatMap((result) => result.candidates);
-    await env.DB.prepare('UPDATE extraction_submission SET items = ?, accepted = ?, replayed = ?, rejected = ?, response = ? WHERE id = ?')
-      .bind(all.length, response.accepted, response.replayed, response.rejected, JSON.stringify(response), reservation.id)
-      .run();
+    const stored = await env.DB.prepare('UPDATE extraction_submission SET items = ?, accepted = ?, replayed = ?, rejected = ?, response = ? WHERE id = ? AND lease = ? AND response IS NULL RETURNING id')
+      .bind(all.length, response.accepted, response.replayed, response.rejected, JSON.stringify(response), reservation.id, reservation.lease)
+      .first<{ id: number }>();
+    if (!stored) throw reservationLost();
     return { status: 200, body: response };
   } catch (error) {
-    // Release the reservation so a retry of the same payload can proceed; nothing it wrote is lost (inserts are idempotent).
-    await env.DB.prepare('DELETE FROM extraction_submission WHERE id = ? AND response IS NULL').bind(reservation.id).run();
+    // Release the reservation (only while still ours) so a retry of the same payload can proceed; nothing it wrote is
+    // lost (inserts are idempotent).
+    await env.DB.prepare('DELETE FROM extraction_submission WHERE id = ? AND lease = ? AND response IS NULL').bind(reservation.id, reservation.lease).run();
     throw error;
   }
 }
 
-/** A reservation older than this, still without a response, belongs to a request that died; a retry may take it over. */
+interface Reservation {
+  readonly id: number;
+  /** Random per request: proves this request still owns the reservation. */
+  readonly lease: string;
+}
+
+const reservationLost = () => new IntakeRefused(503, 'submission_in_progress', 'This request lost its reservation to a retry with the same Idempotency-Key; retry to read its result.');
+
+/** Throws unless the request still owns its reservation; with `heartbeat`, also marks it alive so it never goes stale mid-request. */
+async function assertOwner(db: D1Database, owner: Reservation, heartbeat: boolean): Promise<void> {
+  const held = heartbeat
+    ? await db.prepare('UPDATE extraction_submission SET received_at = ? WHERE id = ? AND lease = ? AND response IS NULL RETURNING id').bind(new Date().toISOString(), owner.id, owner.lease).first()
+    : await db.prepare('SELECT id FROM extraction_submission WHERE id = ? AND lease = ? AND response IS NULL').bind(owner.id, owner.lease).first();
+  if (!held) throw reservationLost();
+}
+
+/**
+ * A reservation not refreshed for this long, still without a response, belongs to a request that died; a retry may
+ * take it over. The owning request refreshes it before every notice, and loses the right to write once taken over.
+ */
 export const STALE_RESERVATION_MS = 120_000;
 
 /**
@@ -316,26 +344,28 @@ export const STALE_RESERVATION_MS = 120_000;
  * use of the same key is a separate submission. A completed key replays its stored response; the same key with a
  * different body is refused (409); a key another request is still processing answers 503 so the client retries.
  */
-async function reserveSubmission(db: D1Database, credentialId: string, key: string, bodySha: string): Promise<{ id: number } | { replay: Record<string, unknown> }> {
+async function reserveSubmission(db: D1Database, credentialId: string, key: string, bodySha: string): Promise<Reservation | { replay: Record<string, unknown> }> {
+  const lease = crypto.randomUUID();
   for (let attempt = 0; attempt < 2; attempt += 1) {
     const now = new Date();
     const reserved = await db
-      .prepare('INSERT INTO extraction_submission (credential_id, idempotency_key, body_sha256, received_at) VALUES (?, ?, ?, ?) ON CONFLICT (credential_id, idempotency_key) DO NOTHING RETURNING id')
-      .bind(credentialId, key, bodySha, now.toISOString())
+      .prepare('INSERT INTO extraction_submission (credential_id, idempotency_key, body_sha256, received_at, lease) VALUES (?, ?, ?, ?, ?) ON CONFLICT (credential_id, idempotency_key) DO NOTHING RETURNING id')
+      .bind(credentialId, key, bodySha, now.toISOString(), lease)
       .first<{ id: number }>();
-    if (reserved) return reserved;
+    if (reserved) return { id: reserved.id, lease };
     const existing = await db.prepare('SELECT id, body_sha256, received_at, response FROM extraction_submission WHERE credential_id = ? AND idempotency_key = ?').bind(credentialId, key).first<{ id: number; body_sha256: string; received_at: string; response: string | null }>();
     if (!existing) continue; // released between the insert and the read: try once more
     if (existing.body_sha256 !== bodySha) throw new IntakeRefused(409, 'idempotency_mismatch', 'This Idempotency-Key was already used with a different body.');
     if (existing.response !== null) return { replay: { ...(JSON.parse(existing.response) as Record<string, unknown>), idempotent_replay: true } };
     if (now.getTime() - Date.parse(existing.received_at) < STALE_RESERVATION_MS) throw new IntakeRefused(503, 'submission_in_progress', 'A request with this Idempotency-Key is still being processed; retry shortly.');
-    const takenOver = await db.prepare('UPDATE extraction_submission SET received_at = ? WHERE id = ? AND response IS NULL AND received_at = ? RETURNING id').bind(now.toISOString(), existing.id, existing.received_at).first<{ id: number }>();
-    if (takenOver) return takenOver;
+    // A new lease: from here on the earlier request can write neither candidates nor the response.
+    const takenOver = await db.prepare('UPDATE extraction_submission SET received_at = ?, lease = ? WHERE id = ? AND response IS NULL AND received_at = ? RETURNING id').bind(now.toISOString(), lease, existing.id, existing.received_at).first<{ id: number }>();
+    if (takenOver) return { id: takenOver.id, lease };
   }
   throw new IntakeRefused(503, 'submission_in_progress', 'A request with this Idempotency-Key is still being processed; retry shortly.');
 }
 
-async function processSubmission(env: Env, credential: IngestCredential, text: string): Promise<Record<string, unknown> & { accepted: number; replayed: number; rejected: number; results: NoticeResult[] }> {
+async function processSubmission(env: Env, credential: IngestCredential, text: string, owner: Reservation): Promise<Record<string, unknown> & { accepted: number; replayed: number; rejected: number; results: NoticeResult[] }> {
   let body: unknown;
   try {
     body = JSON.parse(text);
@@ -346,7 +376,10 @@ async function processSubmission(env: Env, credential: IngestCredential, text: s
   const withdrawn = withdrawnSources(env);
   const now = new Date().toISOString();
   const results: NoticeResult[] = [];
-  for (const notice of notices) results.push(await checkNotice(env.DB, env.RAW_ARTIFACTS, notice, credential, extractor, withdrawn, now));
+  for (const notice of notices) {
+    await assertOwner(env.DB, owner, true);
+    results.push(await checkNotice(env.DB, env.RAW_ARTIFACTS, notice, credential, extractor, withdrawn, now, owner));
+  }
   const all = results.flatMap((result) => result.candidates);
   const count = (status: CandidateStatus) => all.filter((candidate) => candidate.status === status).length;
   const response = {

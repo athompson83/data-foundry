@@ -31,6 +31,7 @@ from pathlib import Path
 from urllib.parse import urlencode, urlsplit
 
 from . import COLLECTOR_ID, catalog as catalog_mod, extract, policy as policy_mod, validate
+from .behaviour import behaviour_sha256
 from .config import Config
 from .netguard import FetchFailed, FetchRefused, HostPolicy, RateLimited, SafeFetcher
 from .ollama import LocalModelError, OllamaClient
@@ -387,7 +388,7 @@ class Collector:
                 identity = before
                 payload = {
                     "task": TASK,
-                    "extractor": {"version": extract.EXTRACTOR_VERSION, "model": self.config.model, "model_digest": identity.digest if identity else self.config.model_digest, "prompt_sha256": extract.prompt_sha256(), "generation": self.generation},
+                    "extractor": {"version": extract.EXTRACTOR_VERSION, "model": self.config.model, "model_digest": identity.digest if identity else self.config.model_digest, "prompt_sha256": extract.prompt_sha256(), "generation": self.generation, "behaviour_sha256": behaviour_sha256()},
                     "notices": [{"recall_id": row["recall_id"], "raw_sha256": row["raw_sha256"], "candidates": [{"value": p.value, "field": p.field, "label": p.label} for p in accepted]}],
                     "collector": COLLECTOR_ID,
                 }
@@ -432,7 +433,7 @@ class Collector:
     # -- publication check ---------------------------------------------------------------------------------------
 
     def _is_this_build(self, item: dict) -> bool:
-        """Whether a served extracted identifier came from this collector's build (version, model, pinned digest, prompt)."""
+        """Whether a served extracted identifier came from this collector's build (version, model, pinned digest, prompt, generation, behaviour)."""
         digest = str(item.get("model_digest") or "").removeprefix("sha256:")
         return (
             item.get("extractor_version") == extract.EXTRACTOR_VERSION
@@ -440,6 +441,7 @@ class Collector:
             and digest.startswith(self.config.model_digest.removeprefix("sha256:"))
             and item.get("prompt_sha256") == extract.prompt_sha256()
             and item.get("generation") == json.dumps(self.generation, separators=(",", ":"))
+            and item.get("behaviour_sha256") == behaviour_sha256()
         )
 
     def verify_queryable(self, task: policy_mod.TaskPolicy, limit: int = 5) -> int:
