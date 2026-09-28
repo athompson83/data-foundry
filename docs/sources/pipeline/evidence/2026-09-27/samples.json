@@ -759,5 +759,60 @@
     "2026-12669"
    ]
   }
+ },
+ "health-canada-consumer-product-recalls": {
+  "population": "Health Canada Recalls and Safety Alerts open-data index (HCRSAMOpenData.json, OGL-Canada), Organization = \"Consumer product safety\" (5206 records), fetched 2026-09-27",
+  "sample": "random.seed(20260927); random.sample(population, 40) in scripts/hc_assess.py",
+  "sample_size": 40,
+  "scripts": [
+   "scripts/hc_assess.py"
+  ],
+  "results": [
+   "results/hc_assess.txt"
+  ],
+  "identifiers": {
+   "nids": [
+    "21765",
+    "21868",
+    "22049",
+    "22077",
+    "23107",
+    "23329",
+    "23464",
+    "23789",
+    "23947",
+    "24057",
+    "48112",
+    "48440",
+    "49668",
+    "50032",
+    "52338",
+    "53420",
+    "55266",
+    "55355",
+    "55827",
+    "56146",
+    "57670",
+    "58451",
+    "59647",
+    "61693",
+    "63117",
+    "64019",
+    "64454",
+    "72610",
+    "72963",
+    "73583",
+    "73933",
+    "75456",
+    "75864",
+    "75866",
+    "75891",
+    "76877",
+    "77798",
+    "77817",
+    "81923",
+    "82284"
+   ]
+  }
  }
 }

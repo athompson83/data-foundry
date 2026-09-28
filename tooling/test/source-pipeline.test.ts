@@ -66,7 +66,7 @@ const Dataset = z
     description: z.string().min(20),
     sources: z.array(z.string()).min(2),
     // `declared`: an identifier that names the counterpart record (licence number, check-digit-valid GTIN,
-    // cited approval or case number) — may link automatically, at the level it names. `candidate`: names,
+    // cited approval or case number, a cited notice URL) — may link automatically, at the level it names. `candidate`: names,
     // brands, model tokens, titles, markers that only say a counterpart exists (e.g. Health Canada's
     // joint-recall marker) and shared attributes — proposes a link for review only (AGENTS.md rules 3 and 7).
     // `reviewed`: a hand-check of candidate matches — how many of the checked matches were the same record.
@@ -290,7 +290,7 @@ describe('dataset expansion pipeline registry', () => {
       // would defeat a \b word boundary.
       if (/name|brand|model|title|token|phone|prefix|marker|label|pattern|filer/i.test(join.key)) expect(join.mode, `${join.key} must be a review candidate`).toBe('candidate');
       // And a declared join must name an identifier that points at the counterpart record.
-      if (join.mode === 'declared') expect(join.key, `${join.key} is declared but names no identifier`).toMatch(/licen[cs]e number|\bUBI\b|GTIN|UPC|NOA|FL#|FIPS|zone|case number/i);
+      if (join.mode === 'declared') expect(join.key, `${join.key} is declared but names no identifier`).toMatch(/licen[cs]e number|\bUBI\b|GTIN|UPC|NOA|FL#|FIPS|zone|case number|cited [A-Za-z ]*notice URL/i);
     }
   });
 

@@ -32,6 +32,10 @@ export interface Env {
   readonly RAW_ARTIFACTS: R2Bucket;
   /** "1" stops acquisition and data serving immediately (rights kill switch). */
   readonly SOURCE_KILL_SWITCH?: string;
+  /** "1" stops acquisition and serving of the CPSC/Health Canada product-recall dataset (its rights kill switch). */
+  readonly PRODUCT_RECALLS_KILL_SWITCH?: string;
+  /** "1" serves the product-recall dataset (API and pages); anything else keeps it private while it loads. */
+  readonly PRODUCT_RECALLS_OPEN?: string;
   /** "1" accepts new checkouts; anything else shows an opening-soon page. */
   readonly SALES_OPEN?: string;
   readonly STRIPE_SECRET_KEY?: string;

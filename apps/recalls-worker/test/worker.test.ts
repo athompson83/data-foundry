@@ -399,7 +399,8 @@ describe('discoverability', () => {
     expect(urls).toContain('/recalls/D-66241-001</loc>');
     const key = await seedCustomer(env);
     expect((await worker.fetch(get('/v1/recalls/F-1855.2013', key), env)).status).toBe(200);
-    expect((await worker.fetch(site('/recalls/docs'), env)).status).toBe(200);
+    expect((await worker.fetch(site('/recalls/docs'), env)).status).toBe(301);
+    expect((await worker.fetch(site('/docs'), env)).status).toBe(200);
   });
 
   it('serves the IndexNow key and pings changed, indexable pages, retrying until a batch is accepted', async () => {
@@ -455,7 +456,9 @@ describe('discoverability', () => {
     const fetcher = vi.fn(async () => new Response(null, { status: 200 }));
     vi.stubGlobal('fetch', fetcher);
     await worker.scheduled({}, env);
-    expect(fetcher).not.toHaveBeenCalled();
+    // The product-recall sources have their own kill switch; only the FDA dataset is withdrawn here.
+    expect(fetcher.mock.calls.filter((call) => String((call as unknown[])[0]).includes('indexnow'))).toEqual([]);
+    expect(fetcher.mock.calls.filter((call) => String((call as unknown[])[0]).includes('api.fda.gov'))).toEqual([]);
     expect(await (await env.RAW_ARTIFACTS.get('state/indexnow-watermark.json'))?.text()).toBe(JSON.stringify({ since: '2026-09-25T00:00:00.000Z' }));
   });
 

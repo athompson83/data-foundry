@@ -41,6 +41,10 @@ SOURCE_KILL_SWITCH = "0"
 # "1" accepts new checkouts. Opened 2026-09-27 on the Product Owner's launch
 # instruction; set "0" to stop new sales (docs/owner-actions/recalls-operations.md).
 SALES_OPEN = "1"
+# North American consumer-product recalls (ADR-0016). OPEN serves the dataset's API and pages under the existing
+# plans; KILL_SWITCH = "1" stops its acquisition and serving (rights kill switch for CPSC and Health Canada).
+PRODUCT_RECALLS_OPEN = "1"
+PRODUCT_RECALLS_KILL_SWITCH = "0"
 # Live Stripe price ids for the accepted plan ladder (not secrets).
 STRIPE_PRICE_EVALUATE = "price_1UK1SWLlvU3ZaHdipjWWJ8d1"
 STRIPE_PRICE_DEVELOPER = "price_1UK1SXLlvU3ZaHdihexV3i4r"

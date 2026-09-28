@@ -67,6 +67,7 @@ packages/canonical-store/    Entities, facts, relationships and evidence over Po
 packages/provenance/         Field-level lineage, coverage reporting, the human-readable trust surface
 packages/query-model/        The single canonical query layer web, REST and MCP read through
 packages/recall-structuring/  Deterministic structuring of FDA recall text: geography, lots, GTIN/NDC, reasons (ADR-0015)
+packages/product-recall-structuring/  CPSC and Health Canada recall structuring: models, GTINs, units, hazards, declared links (ADR-0016)
 packages/api-keys/           Minting and verifying API credentials. Web Crypto only
 packages/access-auth/        Shared DB bearer-key, tenant and one-vertical authorization
 packages/billing/            Self-service plans, Stripe REST client and webhook signatures (ADR-0014)

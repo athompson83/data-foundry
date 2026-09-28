@@ -1,0 +1,62 @@
+{
+  "key": "health-canada-consumer-product-recalls",
+  "parser_version": "product-recall-structuring@1",
+  "package": "packages/product-recall-structuring",
+  "golden_tests": [
+    "packages/product-recall-structuring/test/structuring.test.ts"
+  ],
+  "runner": "tooling/prototypes/health-canada-consumer-product-recalls.ts",
+  "command": "pnpm exec tsx tooling/prototypes/health-canada-consumer-product-recalls.ts <snapshot.json> (snapshot restored from the archive below)",
+  "snapshot": {
+    "source": "https://recalls-rappels.canada.ca/sites/default/files/opendata-donneesouvertes/HCRSAMOpenData.json",
+    "retrieved": "2026-09-27",
+    "records": 5206,
+    "archives": [
+      {
+        "bucket": "data-foundry-raw-artifacts",
+        "key": "research/pipeline/2026-09-27-composites/hc_open.json",
+        "bytes": 15719914,
+        "sha256": "9879b64121511ea77bcf434de625b68c4e2a0d5c2545bce3c7cb34536573cb68"
+      }
+    ]
+  },
+  "errors": 0,
+  "fields": {
+    "updated_on": {
+      "hits": 5206,
+      "of": 5206
+    },
+    "product": {
+      "hits": 1299,
+      "of": 5206
+    },
+    "product_category": {
+      "hits": 5206,
+      "of": 5206
+    },
+    "hazard.text": {
+      "hits": 3295,
+      "of": 5206
+    },
+    "hazard.classes": {
+      "hits": 3592,
+      "of": 5206
+    },
+    "remedy.classes": {
+      "hits": 1284,
+      "of": 5206
+    },
+    "identifiers.model_numbers": {
+      "hits": 59,
+      "of": 5206
+    },
+    "trade_facets": {
+      "hits": 338,
+      "of": 5206
+    },
+    "joint_with.cpsc": {
+      "hits": 352,
+      "of": 5206
+    }
+  }
+}
