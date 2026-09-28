@@ -317,14 +317,18 @@ class Collector:
             if not error.request_failed:
                 raise
             if not error.input_specific:
-                # A 5xx is the model server's fault (a crashed runner, out of memory): the notice is not charged. It
-                # goes to the back of the queue and the collector waits for the server. Only a notice that keeps
-                # failing while others succeed in between is set aside (see _retire_poison_notices).
+                # A 5xx is the model server's fault (a crashed runner, out of memory): the notice goes to the back of
+                # the queue and the collector waits for the server. It counts against this notice only when the
+                # previous extraction succeeded (the server was healthy just before), so an outage, however long,
+                # charges no notice; a notice that fails three times right after successes is set aside.
+                isolated = self.state.get("last_model_outcome") == "success"
+                self.state.set("last_model_outcome", "server_error")
                 with self.state.tx() as db:
                     db.execute(
-                        "UPDATE document SET server_errors = server_errors + 1, last_server_error_at = ?, retrieved_at = ?, detail = ?, updated_at = ? WHERE recall_id = ? AND raw_sha256 = ? AND extractor_version = ?",
-                        (time.time(), time.time(), str(error)[:500], time.time(), row["recall_id"], row["raw_sha256"], row["extractor_version"]),
+                        "UPDATE document SET server_errors = server_errors + ?, last_server_error_at = ?, retrieved_at = ?, detail = ?, updated_at = ? WHERE recall_id = ? AND raw_sha256 = ? AND extractor_version = ?",
+                        (1 if isolated else 0, time.time(), time.time(), str(error)[:500], time.time(), row["recall_id"], row["raw_sha256"], row["extractor_version"]),
                     )
+                self._retire_poison_notices()
                 raise LocalModelError(str(error)) from error
             # The model refused this input (4xx): charge the notice, and dead-letter it after three.
             with self.state.tx() as db:
@@ -338,7 +342,7 @@ class Collector:
             self.status.update(phase="idle", current=None, last_error=str(error))
             return True
         latency = (time.monotonic() - started) * 1000
-        self._retire_poison_notices()
+        self.state.set("last_model_outcome", "success")
         accepted = result.accepted
         with self.state.tx() as db:
             db.execute("UPDATE document SET state = ?, detail = ?, latency_ms = ?, updated_at = ? WHERE recall_id = ? AND raw_sha256 = ? AND extractor_version = ?", (result.status, result.error, latency, time.time(), row["recall_id"], row["raw_sha256"], row["extractor_version"]))
@@ -365,9 +369,9 @@ class Collector:
         return True
 
     def _retire_poison_notices(self) -> None:
-        """The server just succeeded, so notices that failed it repeatedly before this success are the problem."""
+        """Set aside notices that failed the model server three times, each time right after a success."""
         now = time.time()
-        rows = self.state.q("SELECT * FROM document WHERE state = 'queued' AND server_errors >= ? AND last_server_error_at < ?", MAX_DOCUMENT_ATTEMPTS, now)
+        rows = self.state.q("SELECT * FROM document WHERE state = 'queued' AND server_errors >= ?", MAX_DOCUMENT_ATTEMPTS)
         for poison in rows:
             with self.state.tx() as db:
                 db.execute("UPDATE document SET state = 'failed', updated_at = ? WHERE recall_id = ? AND raw_sha256 = ? AND extractor_version = ?", (now, poison["recall_id"], poison["raw_sha256"], poison["extractor_version"]))
@@ -441,6 +445,9 @@ class Collector:
             with self.state.tx() as db:
                 db.execute("UPDATE job SET state = 'refused', last_error = ?, updated_at = ? WHERE task = ? AND state IN ('pending', 'leased')", (str(refusal), time.time(), TASK))
             return
+        # Recurring jobs dead-lettered by an earlier version are revived; they now only back off.
+        with self.state.tx() as db:
+            db.execute("UPDATE job SET state = 'pending', attempts = 0 WHERE kind IN ('catalog', 'read', 'verify') AND state = 'dead'")
         # The live catalog decides which hosted datasets (and so which sources) there is anything to collect for.
         self.state.ensure_job("catalog", "catalog", "catalog", {})
         job = self.state.claim(self.owner, ("catalog",))
@@ -452,7 +459,7 @@ class Collector:
             except RateLimited as error:
                 self._wait_for_allowance(job, error)
             except (FetchFailed, FetchRefused, ValueError) as error:
-                self.state.fail(job["id"], self.owner, str(error), retry_after=getattr(error, "retry_after", None))
+                self.state.fail(job["id"], self.owner, str(error), retry_after=getattr(error, "retry_after", None), recurring=True)
                 self.state.event("warn", "catalog_failed", str(error))
         gate = self.hosted_gate(task)
         if gate:
@@ -479,7 +486,7 @@ class Collector:
                     self.state.event("error", "refused", str(error))
                 except (FetchFailed, policy_mod.PolicyRefused, ValueError, OSError) as error:
                     retry = getattr(error, "retry_after", None)
-                    outcome = self.state.fail(job["id"], self.owner, str(error), retry_after=retry)
+                    outcome = self.state.fail(job["id"], self.owner, str(error), retry_after=retry, recurring=True)
                     self.status["last_error"] = str(error)
                     self.state.event("warn", "read_failed", {"error": str(error), "outcome": outcome})
         try:
@@ -504,7 +511,7 @@ class Collector:
             except RateLimited as error:
                 self._wait_for_allowance(job, error)
             except (FetchFailed, FetchRefused, policy_mod.PolicyRefused, ValueError) as error:
-                self.state.fail(job["id"], self.owner, str(error), retry_after=getattr(error, "retry_after", None))
+                self.state.fail(job["id"], self.owner, str(error), retry_after=getattr(error, "retry_after", None), recurring=True)
                 self.state.event("warn", "verify_failed", str(error))
 
     def _wait_for_allowance(self, job, error: RateLimited) -> None:

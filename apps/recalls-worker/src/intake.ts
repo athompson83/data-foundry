@@ -32,6 +32,30 @@ export const INGEST_TOKEN_PREFIX = 'dfi_';
 export const INTAKE_SOURCES: Readonly<Record<string, { readonly idPrefix: string; readonly rightsRecord: string }>> = {
   'cpsc-recalls': { idPrefix: 'cpsc-', rightsRecord: 'docs/sources/cpsc-recalls-rights-record-20260927.md' },
 };
+/**
+ * Extractor builds whose accepted candidates may be served (ADR-0017): each passed the pre-registered bar in
+ * apps/local-collector/benchmark/QUALITY_BAR.md on held-out data as this exact tuple. Output from any other version,
+ * model build or prompt is still accepted and stored as evidence, but never served. Adding an entry is a reviewed
+ * change that cites its benchmark (tooling/test/local-collector.test.ts checks the prompt hash against the collector).
+ */
+export const PUBLISHABLE_EXTRACTORS: ReadonlyArray<{ readonly version: string; readonly modelDigestPrefix: string; readonly promptSha256: string; readonly benchmark: string }> = [
+  {
+    version: 'cpsc-product-identifiers@1/prompt-3',
+    modelDigestPrefix: '2a654d98e6fb',
+    promptSha256: 'e4a912fb71b2f0edbcb5929cd483cad57b7a8e9ebc419ea3fef3f3e19ee69d53',
+    benchmark: 'apps/local-collector/benchmark/RESULTS.md (held-out precision 38/38, 0/18 negative false positives)',
+  },
+];
+
+/** SQL condition (on alias `e`) matching rows produced by a publishable extractor build, with its bind values. */
+export function publishableExtractorClause(): { sql: string; binds: string[] } {
+  if (PUBLISHABLE_EXTRACTORS.length === 0) return { sql: '0', binds: [] };
+  return {
+    sql: `(${PUBLISHABLE_EXTRACTORS.map(() => "(e.extractor_version = ? AND replace(e.model_digest, 'sha256:', '') LIKE ? AND e.prompt_sha256 = ?)").join(' OR ')})`,
+    binds: PUBLISHABLE_EXTRACTORS.flatMap((entry) => [entry.version, `${entry.modelDigestPrefix}%`, entry.promptSha256]),
+  };
+}
+
 export const MAX_INTAKE_BYTES = 262_144;
 export const MAX_INTAKE_NOTICES = 25;
 export const MAX_CANDIDATES_PER_NOTICE = 60;

@@ -42,7 +42,8 @@ const CPSC = {
 
 const ADMIN = 'a'.repeat(40);
 const NOW = '2026-09-28T12:00:00.000Z';
-const EXTRACTOR = { version: 'cpsc-product-identifiers@1/prompt-3', model: 'qwen3.5:4b', model_digest: 'sha256:2a654d98e6fb', prompt_sha256: 'b'.repeat(64) };
+// The benchmarked, publishable build (PUBLISHABLE_EXTRACTORS).
+const EXTRACTOR = { version: 'cpsc-product-identifiers@1/prompt-3', model: 'qwen3.5:4b', model_digest: 'sha256:2a654d98e6fba55d452b7043684e9b57a947e393bbffa62485a7aac05ee4eefd', prompt_sha256: 'e4a912fb71b2f0edbcb5929cd483cad57b7a8e9ebc419ea3fef3f3e19ee69d53' };
 
 function makeEnv(overrides: Partial<Env> = {}): Env {
   const { db } = createTestDatabase();
@@ -64,8 +65,8 @@ async function rawSha(env: Env, id = 'cpsc-15034'): Promise<string> {
 }
 
 let counter = 0;
-async function submit(env: Env, token: string, notices: unknown[], idempotencyKey?: string): Promise<Response> {
-  const body = JSON.stringify({ task: 'cpsc-product-identifiers@1', extractor: EXTRACTOR, notices });
+async function submit(env: Env, token: string, notices: unknown[], idempotencyKey?: string, extractor = EXTRACTOR): Promise<Response> {
+  const body = JSON.stringify({ task: 'cpsc-product-identifiers@1', extractor, notices });
   return call(env, '/v1/intake/product-recalls/identifiers', {
     method: 'POST',
     headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json', 'idempotency-key': idempotencyKey ?? (await sha256Hex(`${counter++}`)) },
@@ -128,7 +129,7 @@ describe('extraction intake', () => {
     expect(byValue['SA904@ConsumerContact']).toMatchObject({ status: 'rejected', reason: 'field_not_allowed' });
     expect(body).toMatchObject({ accepted: 1, duplicate_of_agency_fact: 1, rejected: 3, published: false });
     const stored = await env.DB.prepare('SELECT printed, label, source_field, span_start, span_end, model_digest, status FROM product_recall_extracted_key').all();
-    expect(stored.results).toEqual([{ printed: 'SA904', label: 'item', source_field: 'Description', span_start: CPSC.Description.indexOf('SA904'), span_end: CPSC.Description.indexOf('SA904') + 5, model_digest: 'sha256:2a654d98e6fb', status: 'accepted' }]);
+    expect(stored.results).toEqual([{ printed: 'SA904', label: 'item', source_field: 'Description', span_start: CPSC.Description.indexOf('SA904'), span_end: CPSC.Description.indexOf('SA904') + 5, model_digest: EXTRACTOR.model_digest, status: 'accepted' }]);
   });
 
   it('is idempotent: a replayed request returns the stored response, and a resubmission creates no duplicate', async () => {
@@ -204,7 +205,7 @@ describe('publication of extracted identifiers', () => {
     const notice = (await (await get(env, apiKey, '/v1/product-recalls/cpsc-15034')).json()) as { data: { identifiers: { model_numbers: string[] }; extracted_identifiers: Array<Record<string, unknown>> } };
     expect(notice.data.identifiers.model_numbers).toEqual(['HB-22']);
     expect(notice.data.extracted_identifiers).toEqual([
-      expect.objectContaining({ value: 'SA904', key: 'SA904', label: 'item', method: 'local-model-proposal+deterministic-verification', source_field: 'Description', model: 'qwen3.5:4b', model_digest: 'sha256:2a654d98e6fb' }),
+      expect.objectContaining({ value: 'SA904', key: 'SA904', label: 'item', method: 'local-model-proposal+deterministic-verification', source_field: 'Description', model: 'qwen3.5:4b', model_digest: EXTRACTOR.model_digest }),
     ]);
     const lookup = (await (await get(env, apiKey, '/v1/product-recalls/lookup?code=sa-904')).json()) as { total_matches: number; data: Array<{ matched_on: unknown[]; recall: { id: string } }> };
     expect(lookup.total_matches).toBe(1);
@@ -212,6 +213,23 @@ describe('publication of extracted identifiers', () => {
     // An agency-parsed model still resolves once, through the key index.
     const agency = (await (await get(env, apiKey, '/v1/product-recalls/lookup?code=HB-22')).json()) as { total_matches: number; data: Array<{ matched_on: unknown[] }> };
     expect(agency).toMatchObject({ total_matches: 1, data: [{ matched_on: [{ kind: 'model', value: 'HB22' }] }] });
+  });
+
+  it('never serves output from an extractor build that was not benchmarked, even with the gate open', async () => {
+    const { env, token, sha } = await seeded({ EXTRACTED_IDENTIFIERS_OPEN: '1' });
+    for (const extractor of [
+      { ...EXTRACTOR, version: 'cpsc-product-identifiers@1/prompt-4' },
+      { ...EXTRACTOR, model: 'gpt-oss:20b', model_digest: 'sha256:aa11bb22cc33' },
+      { ...EXTRACTOR, prompt_sha256: 'f'.repeat(64) },
+    ]) {
+      const stored = (await (await submit(env, token, [{ recall_id: 'cpsc-15034', raw_sha256: sha, candidates: [CANDIDATES[0]] }], undefined, extractor)).json()) as { accepted: number };
+      expect(stored.accepted).toBe(1); // kept as evidence
+    }
+    const apiKey = await customerKey(env);
+    const notice = (await (await get(env, apiKey, '/v1/product-recalls/cpsc-15034')).json()) as { data: { extracted_identifiers: unknown[] } };
+    expect(notice.data.extracted_identifiers).toEqual([]);
+    const lookup = (await (await get(env, apiKey, '/v1/product-recalls/lookup?code=SA904')).json()) as { total_matches: number };
+    expect(lookup.total_matches).toBe(0);
   });
 
   it('stops serving a candidate when the source bytes change, and after withdrawal', async () => {

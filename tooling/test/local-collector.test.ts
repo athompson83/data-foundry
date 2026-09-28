@@ -10,6 +10,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 import { PROHIBITED_SOURCES } from '../../packages/source-registry/src/prohibited-sources.js';
+import { PUBLISHABLE_EXTRACTORS } from '../../apps/recalls-worker/src/intake.js';
 import { compilePolicy } from '../scripts/local-collector-policy.js';
 
 const ROOT = join(import.meta.dirname, '..', '..');
@@ -29,6 +30,14 @@ describe('local collector', () => {
       }
     }
     expect(policy.prohibited_domains).toEqual([...new Set(PROHIBITED_SOURCES.map((source) => source.domain))].sort());
+  });
+
+  it("publishes only the collector's own benchmarked extractor build", () => {
+    const python = process.env['PYTHON'] ?? 'python3';
+    const out = spawnSync(python, ['-c', 'from df_collector import extract, config; print(extract.EXTRACTOR_VERSION); print(extract.prompt_sha256()); print(config.Config().model_digest)'], { cwd: APP, encoding: 'utf8' });
+    const [version, promptSha, digest] = out.stdout.trim().split('\n');
+    // The collector's current build must be the benchmarked, publishable one; changing the prompt or pin needs a new benchmark entry.
+    expect(PUBLISHABLE_EXTRACTORS).toContainEqual(expect.objectContaining({ version, promptSha256: promptSha, modelDigestPrefix: digest }));
   });
 
   it('passes its Python unit tests (network guard, leases, outbox, policy, model output, dashboard, shared vectors)', () => {

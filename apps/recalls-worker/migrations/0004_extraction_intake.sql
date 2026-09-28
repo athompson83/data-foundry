@@ -18,7 +18,9 @@ CREATE TABLE IF NOT EXISTS ingest_credential (
   revoked_at   TEXT
 );
 
--- One accepted candidate per (notice, source bytes, extractor version, identifier key).
+-- One accepted candidate per (notice, source bytes, extractor build, identifier key). The build is the version,
+-- model digest and prompt hash together, so output from one build never shadows another's (publication is limited
+-- to benchmarked builds, PUBLISHABLE_EXTRACTORS in src/intake.ts).
 -- raw_sha256 pins the exact stored source record it was checked against; when
 -- the sync stores new bytes for the notice the candidate is no longer current
 -- and is not served until it is resubmitted against them.
@@ -42,7 +44,7 @@ CREATE TABLE IF NOT EXISTS product_recall_extracted_key (
   status            TEXT NOT NULL CHECK (status IN ('accepted', 'withdrawn')),
   submitted_at      TEXT NOT NULL,
   withdrawn_at      TEXT,
-  PRIMARY KEY (recall_id, raw_sha256, extractor_version, kind, value_key)
+  PRIMARY KEY (recall_id, raw_sha256, extractor_version, model_digest, prompt_sha256, kind, value_key)
 ) WITHOUT ROWID;
 CREATE INDEX IF NOT EXISTS product_recall_extracted_key_lookup_idx ON product_recall_extracted_key (kind, value_key, status);
 CREATE INDEX IF NOT EXISTS product_recall_extracted_key_version_idx ON product_recall_extracted_key (extractor_version, status);

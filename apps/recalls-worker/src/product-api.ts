@@ -10,6 +10,7 @@ import { HAZARD_CLASSES, REMEDY_CLASSES, TRADE_FACETS, modelKey, type Structured
 import { BadRequest, gtinCandidates } from './api.js';
 import type { D1Database, R2Bucket } from './env.js';
 import { parseRawRef, sha256Hex } from './store.js';
+import { publishableExtractorClause } from './intake.js';
 
 export const PRODUCT_ATTRIBUTION = {
   sources: [
@@ -134,11 +135,12 @@ export interface ExtractedIdentifier {
 async function extractedFor(db: D1Database, rows: readonly ProductRow[]): Promise<Map<string, ExtractedIdentifier[]>> {
   const out = new Map<string, ExtractedIdentifier[]>(rows.map((row) => [row.id, []]));
   if (rows.length === 0) return out;
+  const publishable = publishableExtractorClause();
   const found = await db
     .prepare(`SELECT e.recall_id, e.value_key, e.printed, e.label, e.source_field, e.span_start, e.span_end, e.extractor_version, e.model, e.model_digest, e.submitted_at
       FROM product_recall_extracted_key e JOIN product_recall r ON r.id = e.recall_id AND r.raw_sha256 = e.raw_sha256
-      WHERE e.status = 'accepted' AND e.recall_id IN (SELECT value FROM json_each(?)) ORDER BY e.recall_id, e.span_start, e.value_key`)
-    .bind(JSON.stringify(rows.map((row) => row.id)))
+      WHERE e.status = 'accepted' AND ${publishable.sql} AND e.recall_id IN (SELECT value FROM json_each(?)) ORDER BY e.recall_id, e.span_start, e.value_key`)
+    .bind(...publishable.binds, JSON.stringify(rows.map((row) => row.id)))
     .all<{ recall_id: string; value_key: string; printed: string; label: string; source_field: string; span_start: number; span_end: number; extractor_version: string; model: string; model_digest: string; submitted_at: string }>();
   for (const row of found.results) {
     const list = out.get(row.recall_id);
@@ -339,10 +341,12 @@ export async function lookupProductCode(db: D1Database, bucket: R2Bucket, code: 
   const binds = interpretations.flatMap((item) => [item.kind, item.value]);
   // Published extracted identifiers match only on the notice's current source bytes, reported as their own kind.
   const withExtracted = extracted && key.length >= 2;
+  // Only rows from a publishable extractor build (PUBLISHABLE_EXTRACTORS) are matched.
+  const publishable = publishableExtractorClause();
   const EXTRACTED = `SELECT e.recall_id FROM product_recall_extracted_key e JOIN product_recall r ON r.id = e.recall_id AND r.raw_sha256 = e.raw_sha256
-    WHERE e.status = 'accepted' AND e.kind = 'model' AND e.value_key = ?`;
+    WHERE e.status = 'accepted' AND e.kind = 'model' AND ${publishable.sql} AND e.value_key = ?`;
   const matching = `SELECT DISTINCT recall_id FROM product_recall_key WHERE ${clause}${withExtracted ? ` UNION ${EXTRACTED}` : ''}`;
-  const matchBinds = withExtracted ? [...binds, key] : binds;
+  const matchBinds = withExtracted ? [...binds, ...publishable.binds, key] : binds;
   const limit = includeRaw ? 25 : PRODUCT_LOOKUP_LIMIT;
   const [rows, total] = await Promise.all([
     db.prepare(`SELECT ${COLUMNS} FROM product_recall WHERE id IN (${matching}) ORDER BY sort_date DESC, id DESC LIMIT ?`).bind(...matchBinds, limit).all<ProductRow>(),
@@ -355,7 +359,7 @@ export async function lookupProductCode(db: D1Database, bucket: R2Bucket, code: 
     .bind(...binds, returned)
     .all<{ kind: string; value: string; recall_id: string }>();
   const extractedMatches = withExtracted
-    ? await db.prepare(`${EXTRACTED} AND e.recall_id IN (SELECT value FROM json_each(?))`).bind(key, returned).all<{ recall_id: string }>()
+    ? await db.prepare(`${EXTRACTED} AND e.recall_id IN (SELECT value FROM json_each(?))`).bind(...publishable.binds, key, returned).all<{ recall_id: string }>()
     : { results: [] as Array<{ recall_id: string }> };
   const byRecall = new Map<string, Array<{ kind: string; value: string }>>();
   for (const match of matched.results) byRecall.set(match.recall_id, [...(byRecall.get(match.recall_id) ?? []), { kind: match.kind, value: match.value }]);

@@ -59,6 +59,10 @@ recalls on the recalls Worker); [`docs/sources/cpsc-recalls-rights-record-202609
      notice's current bytes.
    - They appear as `extracted_identifiers`, with method `local-model-proposal+deterministic-verification`, and as
      the lookup match kind `extracted_model`. They are never mixed into the agency parser's `identifiers`.
+   - Only rows from a **publishable extractor build** are served: the exact extractor version, model digest and
+     prompt hash listed in `PUBLISHABLE_EXTRACTORS` (`apps/recalls-worker/src/intake.ts`), each with its benchmark.
+     Output from any other build is stored as evidence but never served, and rows are keyed by the whole build, so
+     one build never shadows another. A CI test requires the collector's own build to be on that list.
    - The gate opens only when the pre-registered bar in
      [`apps/local-collector/benchmark/QUALITY_BAR.md`](../../apps/local-collector/benchmark/QUALITY_BAR.md) is met on
      held-out data.

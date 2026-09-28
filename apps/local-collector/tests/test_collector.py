@@ -172,6 +172,7 @@ class FakeClient:
     def __init__(self, content):
         self.content = content
         self.calls = 0
+        self.current = ""
 
     def chat_json(self, system, user, schema, seed=0):
         self.calls += 1
@@ -435,17 +436,48 @@ class PoisonNotice(unittest.TestCase):
         docs = self.docs()
         self.assertEqual({d[0] for d in docs.values()}, {"queued"})
         self.assertEqual({d[1] for d in docs.values()}, {0})
-        self.assertEqual(sum(d[2] for d in docs.values()), 6)
+        # No success preceded these errors, so this is an outage: no notice is charged at all.
+        self.assertEqual(sum(d[2] for d in docs.values()), 0)
 
     def test_a_notice_that_keeps_failing_while_others_succeed_is_set_aside(self):
-        with self.state.tx() as db:
-            db.execute("UPDATE document SET server_errors = 3, last_server_error_at = 1 WHERE recall_id = 'cpsc-00001'")
-            db.execute("UPDATE document SET retrieved_at = 0 WHERE recall_id = 'cpsc-00002'")
-        collector = Collector(self.config, self.state, client=FakeClient(json.dumps({"identifiers": []})), policy=POLICY)
-        collector.extract_one()  # cpsc-00002 succeeds: the server is healthy
-        docs = self.docs()
-        self.assertEqual(docs["cpsc-00001"][0], "failed")
-        self.assertEqual(docs["cpsc-00002"][0], "extracted")
+        class Flaky(FakeClient):
+            """Fails only on cpsc-00001; every other notice succeeds."""
+
+            def chat_json(self, system, user, schema, seed=0):
+                if "cpsc-00001" in self.current:
+                    raise LocalModelError("local Ollama failed /api/chat: HTTP 500", request_failed=True, status=500)
+                return super().chat_json(system, user, schema, seed)
+
+        client = Flaky(json.dumps({"identifiers": []}))
+        collector = Collector(self.config, self.state, client=client, policy=POLICY)
+        for n in range(3):
+            # A healthy extraction of another notice, then the poison notice fails right after it.
+            Collector(self.config, self.state, client=client, policy=POLICY).queue_documents([{"id": f"cpsc-1000{n}", "raw": RECORD, "provenance": {"raw_sha256": f"b{n}" * 32}}])
+            with self.state.tx() as db:
+                db.execute("UPDATE document SET retrieved_at = CASE WHEN recall_id = ? THEN 0 WHEN recall_id = 'cpsc-00001' THEN 1 ELSE 9e9 END WHERE state = 'queued'", (f"cpsc-1000{n}",))
+            client.current = f"cpsc-1000{n}"
+            collector.extract_one()
+            client.current = "cpsc-00001"
+            with self.assertRaises(LocalModelError):
+                collector.extract_one()
+        self.assertEqual(self.docs()["cpsc-00001"][0], "failed")
+        self.assertEqual(self.docs()["cpsc-00002"][0], "queued")
+
+    def test_a_long_outage_cycling_the_backlog_sets_nothing_aside(self):
+        class Down(FakeClient):
+            def chat_json(self, *args, **kwargs):
+                raise LocalModelError("local Ollama failed /api/chat: HTTP 503", request_failed=True, status=503)
+
+        self.state.set("last_model_outcome", "success")  # the server was healthy, then went down
+        collector = Collector(self.config, self.state, client=Down("{}"), policy=POLICY)
+        for _ in range(20):  # ten passes over the two-notice backlog
+            with self.assertRaises(LocalModelError):
+                collector.extract_one()
+        collector.client = FakeClient(json.dumps({"identifiers": []}))
+        collector.extract_one()  # recovery
+        states = [d[0] for d in self.docs().values()]
+        self.assertNotIn("failed", states)
+        self.assertEqual(states.count("extracted"), 1)
 
     def test_state_files_from_before_these_columns_are_upgraded(self):
         import sqlite3
@@ -705,3 +737,16 @@ class DiskCap(unittest.TestCase):
             self.assertIsNone(state.paused())
             self.assertEqual(state.one("SELECT state FROM document")["state"], "extracted")
             self.assertEqual([p for p in config.evidence_dir.rglob("*") if p.is_file()], [])
+
+
+class RecurringJobs(unittest.TestCase):
+    def test_transient_failures_never_dead_letter_a_recurring_job(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            now = [1000.0]
+            state = State(Path(tmp) / "s.sqlite3", clock=lambda: now[0])
+            state.ensure_job("read", TASK, "k", {})
+            for _ in range(30):
+                now[0] += 10**6
+                job = state.claim("w", ("read",))
+                self.assertEqual(state.fail(job["id"], "w", "503 from api", recurring=True), "pending")
+            self.assertLessEqual(state.one("SELECT due_at FROM job")["due_at"] - now[0], 6 * 3600)

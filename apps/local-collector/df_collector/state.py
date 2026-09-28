@@ -219,8 +219,12 @@ class State:
             else:
                 db.execute("UPDATE job SET state = 'pending', due_at = ?, attempts = 0, lease_owner = NULL, lease_expires_at = NULL, last_error = NULL, updated_at = ? WHERE id = ?", (next_due, now, job_id))
 
-    def fail(self, job_id: int, owner: str, error: str, retry_after: float | None = None, refused: bool = False) -> str:
-        """Record a failure: retry with backoff, dead-letter at the ceiling, or refuse (policy) without retry."""
+    def fail(self, job_id: int, owner: str, error: str, retry_after: float | None = None, refused: bool = False, recurring: bool = False) -> str:
+        """Record a failure: retry with backoff, dead-letter at the ceiling, or refuse (policy) without retry.
+
+        A recurring job (the catalog, source reading, read-back) is never dead-lettered by transient failures: it
+        backs off up to the ceiling and keeps retrying, so collection resumes by itself when the network or service
+        does. Only a policy refusal stops it."""
         now = self.clock()
         with self.tx() as db:
             if not self._owned(db, job_id, owner):
@@ -228,10 +232,10 @@ class State:
             row = db.execute("SELECT attempts, max_attempts FROM job WHERE id = ?", (job_id,)).fetchone()
             if refused:
                 state, due = "refused", now
-            elif row["attempts"] >= row["max_attempts"]:
+            elif row["attempts"] >= row["max_attempts"] and not recurring:
                 state, due = "dead", now
             else:
-                state, due = "pending", now + max(retry_after or 0.0, backoff_seconds(row["attempts"]))
+                state, due = "pending", now + max(retry_after or 0.0, backoff_seconds(min(row["attempts"], row["max_attempts"])))
             db.execute("UPDATE job SET state = ?, due_at = ?, last_error = ?, lease_owner = NULL, lease_expires_at = NULL, updated_at = ? WHERE id = ?", (state, due, error[:1000], now, job_id))
             return state
 
