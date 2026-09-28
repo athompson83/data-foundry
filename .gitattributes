@@ -13,3 +13,6 @@
 *.png   binary
 *.jpg   binary
 *.parquet binary
+# Windows launchers keep CRLF in checkouts (apps/local-collector/windows)
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
