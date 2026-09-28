@@ -66,10 +66,12 @@ Step 'Python 3.11+'
 function Find-Python {
   foreach ($candidate in @('py -3.12', 'py -3.11', 'python')) {
     $parts = $candidate.Split(' ')
+    # 'python' has no launcher arguments; 1..0 would count down and pass the executable name itself.
+    $launcherArgs = if ($parts.Length -gt 1) { $parts[1..($parts.Length - 1)] } else { @() }
     try {
-      $version = & $parts[0] $parts[1..($parts.Length - 1)] -c 'import sys; print("%d.%d" % sys.version_info[:2])' 2>$null
+      $version = & $parts[0] $launcherArgs -c 'import sys; print("%d.%d" % sys.version_info[:2])' 2>$null
       if ($version -and [version]$version -ge [version]'3.11') {
-        $exe = & $parts[0] $parts[1..($parts.Length - 1)] -c 'import sys; print(sys.executable)'
+        $exe = & $parts[0] $launcherArgs -c 'import sys; print(sys.executable)'
         return $exe.Trim()
       }
     } catch { }

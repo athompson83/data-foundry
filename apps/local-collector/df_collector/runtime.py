@@ -192,6 +192,10 @@ class Collector:
             if urlsplit(stats).hostname != urlsplit(origin).hostname and not stats.startswith(origin):
                 continue
             path = urlsplit(stats).path
+            if self._requests_today() >= self.config.limits.max_api_requests_per_day:
+                # Stats are optional: the plan needs only the root, so an exhausted allowance skips them.
+                freshness[key] = {"error": "skipped: daily API request cap reached"}
+                continue
             try:
                 self._count_request()
                 freshness[key] = catalog_mod.stats_summary(self._fetcher(task).get(origin + path, check_robots=False).body)
@@ -567,9 +571,11 @@ class Uploader:
             self._defer(row, "no ingestion credential in secrets/ingest-token", 600)
             return False
         origin = self.config.api_origin.rstrip("/")
-        host = urlsplit(origin).hostname or ""
-        if not (host in tp.allowed_hosts or (origin.startswith("http://") and host in ("127.0.0.1", "localhost"))):
-            self._defer(row, f"intake host {host} is not allowed by the policy", 3600)
+        parts = urlsplit(origin)
+        host = parts.hostname or ""
+        # The credential travels only over https to a policy host; plain http only to a loopback test origin.
+        if not ((parts.scheme == "https" and host in tp.allowed_hosts) or (parts.scheme == "http" and host in ("127.0.0.1", "localhost"))):
+            self._defer(row, f"intake origin {parts.scheme}://{host} is not allowed (https to a policy host only)", 3600)
             return False
         body = json.dumps({k: v for k, v in payload.items() if k not in ("collector", "build")}).encode()
         request = urllib.request.Request(origin + tp.intake_path, data=body, method="POST", headers={

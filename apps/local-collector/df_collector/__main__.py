@@ -165,12 +165,13 @@ def cmd_run(config: Config, config_path: str | None) -> int:
     (rd / "collector.pid").write_text(str(os.getpid()))
     state = State(config.db_path)
     collector = Collector(config, state)
+    # Bind the dashboard first: if its port is taken this raises before any child process exists.
+    dashboard = Dashboard(config, state, collector)
     # The uploader is a separate process: only it reads the ingestion credential.
     child_args = [sys.executable, "-m", "df_collector", "--data-dir", str(config.root)] + (["--config", config_path] if config_path else []) + ["uploader"]
     creationflags = 0x08000000 if os.name == "nt" else 0  # CREATE_NO_WINDOW
     uploader = subprocess.Popen(child_args, cwd=str(Path(__file__).resolve().parents[1]), creationflags=creationflags)
     (rd / "uploader.pid").write_text(str(uploader.pid))
-    dashboard = Dashboard(config, state, collector)
     threading.Thread(target=dashboard.serve, daemon=True).start()
     print(f"{COLLECTOR_ID} running; dashboard http://{config.dashboard_host}:{config.dashboard_port}/", flush=True)
 

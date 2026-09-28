@@ -769,3 +769,57 @@ class BuildKeys(unittest.TestCase):
             self.assertEqual(len(set(r["idempotency_key"] for r in state.q("SELECT idempotency_key FROM outbox"))), 2)
             self.assertEqual({k.split("|")[1] for k in keys}, {"2a654d98e6fb", "aa11bb22cc33"})
             self.assertTrue(all("build" not in json.loads(r["payload"]).get("extractor", {}) for r in state.q("SELECT payload FROM outbox")))
+
+
+class CodexRegressionsRound5(unittest.TestCase):
+    def test_the_uploader_never_sends_the_credential_over_plain_http_to_a_policy_host(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Config(data_dir=tmp, api_origin="http://api.data.aroqon.com")
+            config.secrets_dir.mkdir(parents=True)
+            (config.secrets_dir / "ingest-token").write_text("dfi_" + "c" * 40)
+            state = State(config.db_path)
+            with state.tx() as db:
+                state.outbox_add(db, "d" * 64, {"task": TASK, "extractor": {}, "notices": []})
+            opener = FakeOpener([])
+            self.assertFalse(Uploader(config, state, POLICY, opener=opener).send_one())
+            self.assertEqual(opener.requests, [])
+            row = state.one("SELECT state, last_error FROM outbox")
+            self.assertEqual(row["state"], "pending")
+            self.assertIn("https", row["last_error"])
+
+    def test_catalog_refresh_stops_fetching_stats_at_the_daily_cap(self):
+        class Fetcher:
+            def __init__(self):
+                self.urls = []
+
+            def get(self, url, headers=None, check_robots=True):
+                self.urls.append(url)
+                return type("R", (), {"body": ROOT_BODY if url.endswith("/") else b"{}"})()
+
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Config(data_dir=tmp)
+            config.limits.max_api_requests_per_day = 1  # the root only; two stats URLs would exceed it
+            state = State(config.db_path)
+            collector = Collector(config, state, client=FakeClient("{}"), policy=POLICY)
+            collector.fetcher = fake = Fetcher()
+            snapshot = collector.refresh_catalog(POLICY.task(TASK))
+            self.assertEqual(fake.urls, ["https://api.data.aroqon.com/"])
+            self.assertEqual(collector._requests_today(), 1)
+            self.assertEqual(set(snapshot["hosted"]), {"recalls", "product-recalls"})
+            self.assertTrue(all("cap" in f["error"] for f in snapshot["freshness"].values()))
+
+    def test_a_taken_dashboard_port_fails_before_the_uploader_is_spawned(self):
+        from unittest import mock
+
+        from df_collector import __main__ as cli
+
+        taken = socket.socket()
+        taken.bind(("127.0.0.1", 0))
+        taken.listen(1)
+        self.addCleanup(taken.close)
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Config(data_dir=tmp, dashboard_port=taken.getsockname()[1])
+            with mock.patch.object(cli.subprocess, "Popen") as popen:
+                with self.assertRaises(OSError):
+                    cli.cmd_run(config, None)
+            popen.assert_not_called()
