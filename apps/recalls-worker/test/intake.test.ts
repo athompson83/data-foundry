@@ -208,6 +208,8 @@ describe('extraction intake', () => {
     const notices = [{ recall_id: 'cpsc-15034', raw_sha256: sha, candidates: [CANDIDATES[0]] }];
     expect(await (await submit(env, token, notices)).json()).toMatchObject({ publishable_build: true, published: true });
     expect(await (await submit(env, token, notices, undefined, { ...EXTRACTOR, prompt_sha256: 'f'.repeat(64) })).json()).toMatchObject({ publishable_build: false, published: false });
+    // The dataset itself closed: nothing is retrievable, so nothing is reported as published.
+    expect(await (await submit({ ...env, PRODUCT_RECALLS_OPEN: '0' }, token, notices)).json()).toMatchObject({ publishable_build: true, published: false });
   });
 
   it('is idempotent: a replayed request returns the stored response, and a resubmission creates no duplicate', async () => {

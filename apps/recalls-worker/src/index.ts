@@ -20,7 +20,7 @@ import { scheduledSync, syncWindow } from './sync.js';
 import { getProductRecall, lookupProductCode, PRODUCT_ID, productStats, searchProductRecalls } from './product-api.js';
 import { FIRST_PRODUCT_YEAR, PRODUCT_BROWSE_PAGE_SIZE, PRODUCT_INDEXNOW_FEED, PRODUCT_BROWSE_PATTERN, PRODUCT_PAGE_PATTERN, PRODUCT_SITEMAP_PAGE_SIZE, PRODUCT_SITEMAP_PATTERN, productBrowseIndex, productBrowsePage, productIndexableStats, productNoticePage, productSitemap } from './product-pages.js';
 import { scheduledProductSync } from './product-sync.js';
-import { createIngestCredential, handleIntake, IntakeRefused, restoreExtractions, revokeIngestCredential, withdrawExtractions } from './intake.js';
+import { createIngestCredential, extractedServed, handleIntake, IntakeRefused, productsServed, restoreExtractions, revokeIngestCredential, withdrawExtractions } from './intake.js';
 import { logMarketplaceRejection, logMarketplaceRequest, resolveChannel, type MarketplacePrincipal } from './marketplace.js';
 import { BROWSE_PATTERN, EDGE_TTL_SECONDS, RECALL_API_PATTERN, RECALL_PAGE_PATTERN, SITEMAP_PATTERN, browseCount, browseInRange, browseIndex, browsePage, indexableCount, shardInRange, llmsFullTxt, llmsTxt, pagesSitemap, FDA_INDEXNOW_FEED, lastRunKey, pingChanged, recallPage, recordIndexNowRun, recallSitemap, robotsTxt, sitemapIndex, type PresentedRecall } from './seo.js';
 import { RECALL_CATEGORIES, type RecallCategory } from '@data-foundry/recall-structuring';
@@ -34,15 +34,7 @@ interface EdgeCache {
 /** Every IndexNow feed, by the name /admin/indexnow-status reports it under. */
 const INDEXNOW_FEEDS = { recalls: FDA_INDEXNOW_FEED, 'product-recalls': PRODUCT_INDEXNOW_FEED } as const;
 
-/** The CPSC/Health Canada dataset is served only when opened and not withdrawn. */
-export function productsServed(env: Env): boolean {
-  return env.PRODUCT_RECALLS_OPEN === '1' && env.PRODUCT_RECALLS_KILL_SWITCH !== '1';
-}
-
-/** Extracted identifiers (ADR-0017) are served only with the dataset, while their quality gate is open. */
-export function extractedServed(env: Env): boolean {
-  return productsServed(env) && env.EXTRACTED_IDENTIFIERS_OPEN === '1';
-}
+export { extractedServed, productsServed };
 
 function context(env: Env): PageContext {
   return {

@@ -61,6 +61,16 @@ export const PUBLISHABLE_EXTRACTORS: ReadonlyArray<{ readonly version: string; r
   },
 ];
 
+/** The CPSC/Health Canada dataset is served only when opened and not withdrawn. */
+export function productsServed(env: Env): boolean {
+  return env.PRODUCT_RECALLS_OPEN === '1' && env.PRODUCT_RECALLS_KILL_SWITCH !== '1';
+}
+
+/** Extracted identifiers (ADR-0017) are served only with the dataset, while their quality gate is open. */
+export function extractedServed(env: Env): boolean {
+  return productsServed(env) && env.EXTRACTED_IDENTIFIERS_OPEN === '1';
+}
+
 /** Whether a submitted extractor tuple is exactly a publishable build (the JavaScript twin of the SQL clause below). */
 export function isPublishableExtractor(extractor: { readonly version: string; readonly model: string; readonly model_digest: string; readonly prompt_sha256: string; readonly generation: string }): boolean {
   const digest = extractor.model_digest.replace(/^sha256:/, '');
@@ -348,7 +358,8 @@ async function processSubmission(env: Env, credential: IngestCredential, text: s
     rejected: count('rejected'),
     // Served only when the quality gate is open AND this exact build is allowlisted (the same test every query applies).
     publishable_build: isPublishableExtractor(extractor),
-    published: env.EXTRACTED_IDENTIFIERS_OPEN === '1' && isPublishableExtractor(extractor),
+    // The read path's own conditions: dataset open and not withdrawn, quality gate open, and an allowlisted build.
+    published: extractedServed(env) && isPublishableExtractor(extractor),
     results,
   };
   return response;
