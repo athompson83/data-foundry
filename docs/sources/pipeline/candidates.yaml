@@ -3834,7 +3834,7 @@ candidates:
     name: FAA airworthiness directives and special conditions, via the Federal Register API
     category: transport
     structuring: obligation-timeline
-    format: structured
+    format: free-text
     publisher: Office of the Federal Register (National Archives and Records Administration)
     stage: SCREENED
     rights: GREEN
@@ -3855,10 +3855,16 @@ candidates:
       the declared scout User-Agent even though full HTML pages on www.federalregister.gov redirect to a bot
       check (confirmed again this round, matching the 2026-09-27 finding); use the API exclusively. 10,000+
       total FAA-agency documents match "airworthiness directive"; document_number/title/agencies/dates arrive
-      as typed JSON fields with a free-text abstract. Rights basis is US government work (44 U.S.C. Chapter 15,
-      Federal Register content); a readable govinfo.gov/federalregister.gov terms citation is still needed
-      before RIGHTS_DETERMINED (the /about/policies pages are client-rendered and returned no readable text
-      to a plain HTTP GET this round).
+      as typed JSON fields, but the aircraft-model applicability fact this composite actually joins on is not
+      one of them — model_candidate_join.py extracts it from the free-text title/abstract, the same way
+      cpsc-recalls extracts model numbers from Description (a Codex review on PR #72 caught the format field
+      wrongly recorded as `structured` from the delivery mechanism rather than this key fact). With
+      ntsb-aviation-accidents also `free-text`, this composite has two free-text members and no structured one,
+      so before it can pass EVIDENCED it needs either a genuinely structured aircraft-model applicability field
+      (none found so far) or a third, structured member added to the dataset. Rights basis is US government
+      work (44 U.S.C. Chapter 15, Federal Register content); a readable govinfo.gov/federalregister.gov terms
+      citation is still needed before RIGHTS_DETERMINED (the /about/policies pages are client-rendered and
+      returned no readable text to a plain HTTP GET this round).
 
   - key: federal-contract-awards
     name: USASpending.gov federal prime contract award transactions
@@ -4766,10 +4772,12 @@ datasets:
           airworthiness/special-conditions action for the same manufacturer+model, checked against every
           cached result of a live Federal Register FAA-agency query (Textron 560XL, Robinson R44, Cessna 182
           and Airbus A319-114 matched — the A319-114 match is document 2026-17551, found only by scanning past
-          the first cached result; Boeing 737-7CT found no cached result naming that sub-variant, not counted
-          as correct). This 5-record sample is drawn from, but not representative of, the round's 163 NTSB
-          aircraft records (July 2026 monthly update); the other 158 were never queried and are not counted as
-          non-matches."
+          the first cached result; Boeing 737-7CT found no cached result naming that sub-variant, confirmed a
+          real negative by a live site-wide term search for \"737-7CT\" across all of federalregister.gov
+          returning 0, not just an artifact of the 3-result cached page out of 890 total \"Boeing 737\"
+          matches, not counted as correct). This 5-record sample is drawn from, but not representative of, the
+          round's 163 NTSB aircraft records (July 2026 monthly update); the other 158 were never queried and
+          are not counted as non-matches."
         mode: candidate
         reviewed: { correct: 4, checked: 5 }
     taxonomy:

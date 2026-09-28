@@ -19,6 +19,8 @@ User-Agent):
 import csv
 import json
 import re
+import urllib.parse
+import urllib.request
 
 CHECKS = [
     ("N887PC", "TEXTRON AVIATION INC", "560XL", "fr_textron560xl.json"),
@@ -56,6 +58,26 @@ def model_matches(model: str, fr: dict) -> tuple[bool, str]:
     return False, "no result names this exact model or an explicit sub-variant of it"
 
 
+def confirm_negative_live(model: str) -> str:
+    """A negative from `model_matches` only inspected the cached page (3
+    results per query), which a Codex review on PR #72 caught: the Boeing
+    query alone has 890 total matches and a real next_page_url, so "no match
+    in the first 3" is an incompletely searched case, not a confirmed
+    negative. Rather than paginate through hundreds of pages, run a live,
+    comprehensive site-wide term search for the exact model string (no
+    agency/type filter, so it also catches non-RULE documents) — if that
+    returns zero, the model provably appears nowhere on federalregister.gov,
+    which is a real negative."""
+    url = "https://www.federalregister.gov/api/v1/documents?" + urllib.parse.urlencode(
+        {"conditions[term]": f'"{model}"', "format": "json", "per_page": "1"}
+    )
+    request = urllib.request.Request(url, headers={"User-Agent": "Data Foundry Scout (data@mail.proviciency.com)"})
+    with urllib.request.urlopen(request, timeout=30) as response:
+        data = json.load(response)
+    count = data.get("count", 0)
+    return f"live site-wide search for \"{model}\" (no agency/type filter): {count} documents"
+
+
 def main() -> None:
     with open("../raw/aircraft.csv") as handle:
         aircraft = list(csv.DictReader(handle))
@@ -67,6 +89,8 @@ def main() -> None:
         assert row is not None, f"{regis_no} not in this month's NTSB sample"
         fr = json.load(open(f"../raw/{fr_file}"))
         ok, note = model_matches(model, fr)
+        if not ok:
+            note = f"{note}; {confirm_negative_live(model)}"
         correct += 1 if ok else 0
         print(f"  {regis_no} ({make} {model}) vs {fr_file} (FR count={fr['count']}): {'MATCH' if ok else 'no exact-model match'} - {note}")
     print(f"\nreviewed: {correct}/{len(CHECKS)} correct exact-model matches")
