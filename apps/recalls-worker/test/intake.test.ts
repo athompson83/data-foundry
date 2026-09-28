@@ -356,6 +356,36 @@ describe('publication of extracted identifiers', () => {
     expect(await (await submit(env, token, notices)).json()).toMatchObject({ accepted: 1, publishable_build: true, published: true });
   });
 
+  it('a submission that fails part-way keeps none of the candidates it wrote, so a retry accepts it afresh', async () => {
+    const { env, token, sha } = await seeded();
+    let reads = 0;
+    // The first notice's evidence reads; the second's read fails (an unreadable R2 object).
+    const failing: Env = {
+      ...env,
+      RAW_ARTIFACTS: new Proxy(env.RAW_ARTIFACTS, {
+        get(target, prop, receiver) {
+          if (prop !== 'get') return Reflect.get(target, prop, receiver) as unknown;
+          return async (...args: Parameters<Env['RAW_ARTIFACTS']['get']>) => {
+            reads += 1;
+            if (reads > 1) throw new Error('R2 read failed');
+            return target.get(...args);
+          };
+        },
+      }),
+    };
+    const notices = [
+      { recall_id: 'cpsc-15034', raw_sha256: sha, candidates: [CANDIDATES[0]] },
+      { recall_id: 'cpsc-15034', raw_sha256: sha, candidates: [CANDIDATES[3]] },
+    ];
+    const key = await sha256Hex('partial');
+    expect((await submit(failing, token, notices, key)).status).toBe(500);
+    expect((await env.DB.prepare('SELECT count(*) AS n FROM product_recall_extracted_key').first<{ n: number }>())?.n).toBe(0);
+    expect((await env.DB.prepare('SELECT count(*) AS n FROM extraction_submission').first<{ n: number }>())?.n).toBe(0);
+    // The retry is accounted for in full: the candidate the failed attempt wrote is accepted again, not replayed.
+    expect(await (await submit(env, token, notices, key)).json()).toMatchObject({ accepted: 1, replayed: 0 });
+    expect(await env.DB.prepare('SELECT count(DISTINCT submission_id) AS n FROM product_recall_extracted_key').first()).toEqual({ n: 1 });
+  });
+
   it('a request whose stale reservation was taken over by a retry commits nothing more', async () => {
     const { env, token, sha } = await seeded();
     const bucket = env.RAW_ARTIFACTS;

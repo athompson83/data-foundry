@@ -276,10 +276,10 @@ async function checkNotice(db: D1Database, bucket: R2Bucket, notice: NoticeInput
     // Written only while this request still owns its reservation, so a request whose reservation was taken over
     // commits nothing more.
     const inserted = await db
-      .prepare(`INSERT INTO product_recall_extracted_key (recall_id, raw_sha256, extractor_version, kind, value_key, printed, label, source_field, span_start, span_end, model, model_digest, prompt_sha256, generation, behaviour_sha256, rules_sha256, credential_id, status, submitted_at)
-        SELECT ?, ?, ?, 'model', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'accepted', ?
+      .prepare(`INSERT INTO product_recall_extracted_key (recall_id, raw_sha256, extractor_version, kind, value_key, printed, label, source_field, span_start, span_end, model, model_digest, prompt_sha256, generation, behaviour_sha256, rules_sha256, credential_id, submission_id, status, submitted_at)
+        SELECT ?, ?, ?, 'model', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'accepted', ?
         WHERE EXISTS (SELECT 1 FROM extraction_submission WHERE id = ? AND lease = ? AND response IS NULL) ON CONFLICT DO NOTHING RETURNING recall_id`)
-      .bind(row.id, row.raw_sha256, extractor.version, decision.key, candidate.value, decision.label, decision.field, decision.start, decision.end, extractor.model, extractor.model_digest, extractor.prompt_sha256, extractor.generation, extractor.behaviour_sha256, EXTRACTION_BEHAVIOUR_SHA256, credential.id, now, owner.id, owner.lease)
+      .bind(row.id, row.raw_sha256, extractor.version, decision.key, candidate.value, decision.label, decision.field, decision.start, decision.end, extractor.model, extractor.model_digest, extractor.prompt_sha256, extractor.generation, extractor.behaviour_sha256, EXTRACTION_BEHAVIOUR_SHA256, credential.id, owner.id, now, owner.id, owner.lease)
       .first<{ recall_id: string }>();
     if (!inserted) await assertOwner(db, owner, false);
     results.push({ ...base, status: inserted ? 'accepted' : 'replayed' });
@@ -310,9 +310,13 @@ export async function handleIntake(env: Env, request: Request): Promise<{ status
     if (!stored) throw reservationLost();
     return { status: 200, body: response };
   } catch (error) {
-    // Release the reservation (only while still ours) so a retry of the same payload can proceed; nothing it wrote is
-    // lost (inserts are idempotent).
-    await env.DB.prepare('DELETE FROM extraction_submission WHERE id = ? AND lease = ? AND response IS NULL').bind(reservation.id, reservation.lease).run();
+    // While the reservation is still ours, undo the candidates this request wrote and release the reservation, so no
+    // row outlives a failed submission and a retry of the same payload starts clean. A request that lost its
+    // reservation leaves both to the retry that took it over, whose response accounts for those rows.
+    await env.DB.batch([
+      env.DB.prepare('DELETE FROM product_recall_extracted_key WHERE submission_id = ? AND EXISTS (SELECT 1 FROM extraction_submission WHERE id = ? AND lease = ? AND response IS NULL)').bind(reservation.id, reservation.id, reservation.lease),
+      env.DB.prepare('DELETE FROM extraction_submission WHERE id = ? AND lease = ? AND response IS NULL').bind(reservation.id, reservation.lease),
+    ]);
     throw error;
   }
 }

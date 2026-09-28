@@ -1304,3 +1304,30 @@ class CodexRegressionsRound19(unittest.TestCase):
             self.assertTrue(collector._is_this_build(item))
             # The same tuple from a collector with other extraction behaviour is not this build.
             self.assertFalse(collector._is_this_build(dict(item, behaviour_sha256="e" * 64)))
+
+
+class CodexRegressionsRound20(unittest.TestCase):
+    def test_runs_without_console_streams_as_under_pythonw(self):
+        import contextlib
+        import sys as _sys
+        from unittest import mock
+
+        from df_collector import __main__ as cli
+
+        with tempfile.TemporaryDirectory() as tmp, contextlib.ExitStack() as stack:
+            stack.enter_context(mock.patch.object(_sys, "stdout", None))
+            stack.enter_context(mock.patch.object(_sys, "stderr", None))
+            # pythonw.exe (the Scheduled Task) gives no console streams: print() is then a no-op, so commands that
+            # print to either stream still return normally.
+            self.assertEqual(cli.main(["--data-dir", tmp, "set-secret", "no-such-secret"]), 2)
+            self.assertEqual(cli.main(["--data-dir", tmp, "status"]), 0)
+            print("started", flush=True)
+
+    def test_the_dashboard_never_writes_request_logs_to_the_console(self):
+        import inspect
+
+        from df_collector import dashboard
+
+        # BaseHTTPRequestHandler logs every request with sys.stderr.write, which fails without a console; the
+        # dashboard's handler overrides log_message (log_error goes through it too).
+        self.assertIn("def log_message(self, *args) -> None:", inspect.getsource(dashboard))

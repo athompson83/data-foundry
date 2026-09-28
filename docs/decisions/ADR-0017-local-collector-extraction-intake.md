@@ -57,7 +57,9 @@ recalls on the recalls Worker); [`docs/sources/cpsc-recalls-rights-record-202609
      written: a replay returns the stored response, the same key with a different body is refused (409), and a key still
      being processed answers 503 so the client retries. The owning request refreshes its reservation before each
      notice and holds a random lease; a retry may take over only a reservation left unrefreshed for 120 s, and then
-     replaces the lease, after which the earlier request can write neither candidates nor the response.
+     replaces the lease, after which the earlier request can write neither candidates nor the response. Each row
+     records the submission that wrote it; a submission that fails part-way removes its rows with its reservation,
+     so every stored candidate is accounted for by a completed submission.
 4. **Publication is a separate gate.**
    - Accepted candidates are served only while `EXTRACTED_IDENTIFIERS_OPEN` is `"1"`, and only against each
      notice's current bytes.
