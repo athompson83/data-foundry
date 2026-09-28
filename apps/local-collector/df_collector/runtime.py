@@ -105,6 +105,8 @@ class Collector:
         self.fetcher = fetcher
         self.model_identity = None
         self._last_sweep = 0.0
+        # Local rows are keyed by the whole build (column extractor_version holds it), not by the version string.
+        self.build = extract.build_id(config.model_digest)
 
     # -- helpers -------------------------------------------------------------------------------------------------
 
@@ -263,7 +265,7 @@ class Collector:
             raw_sha = (notice.get("provenance") or {}).get("raw_sha256")
             if not (isinstance(recall_id, str) and recall_id.startswith("cpsc-") and isinstance(raw, dict) and isinstance(raw_sha, str)):
                 continue
-            if self.state.one("SELECT 1 FROM document WHERE recall_id = ? AND raw_sha256 = ? AND extractor_version = ?", recall_id, raw_sha, extract.EXTRACTOR_VERSION):
+            if self.state.one("SELECT 1 FROM document WHERE recall_id = ? AND raw_sha256 = ? AND extractor_version = ?", recall_id, raw_sha, self.build):
                 continue
             state = "queued" if worth_extracting(raw) else "skipped"
             path: Path | str = ""
@@ -280,7 +282,7 @@ class Collector:
             with self.state.tx() as db:
                 db.execute(
                     "INSERT INTO document (recall_id, raw_sha256, task, extractor_version, evidence_path, evidence_ref, retrieved_at, state, detail, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING",
-                    (recall_id, raw_sha, TASK, extract.EXTRACTOR_VERSION, str(path), (notice.get("provenance") or {}).get("raw_evidence"), time.time(), state, None if state == "queued" else "no product label or code in the allowed fields", time.time()),
+                    (recall_id, raw_sha, TASK, self.build, str(path), (notice.get("provenance") or {}).get("raw_evidence"), time.time(), state, None if state == "queued" else "no product label or code in the allowed fields", time.time()),
                 )
             queued += state == "queued"
         return queued
@@ -360,7 +362,8 @@ class Collector:
                     "notices": [{"recall_id": row["recall_id"], "raw_sha256": row["raw_sha256"], "candidates": [{"value": p.value, "field": p.field, "label": p.label} for p in accepted]}],
                     "collector": COLLECTOR_ID,
                 }
-                key_material = json.dumps([TASK, extract.EXTRACTOR_VERSION, row["recall_id"], row["raw_sha256"], sorted((p.field, p.value) for p in accepted)])
+                payload["build"] = row["extractor_version"]  # local only; not sent
+                key_material = json.dumps([TASK, row["extractor_version"], row["recall_id"], row["raw_sha256"], sorted((p.field, p.value) for p in accepted)])
                 self.state.outbox_add(db, hashlib.sha256(key_material.encode()).hexdigest(), payload)
         # The candidates are in the outbox; the notice text is no longer needed on this computer.
         self._drop_working_copy(row)
@@ -568,7 +571,7 @@ class Uploader:
         if not (host in tp.allowed_hosts or (origin.startswith("http://") and host in ("127.0.0.1", "localhost"))):
             self._defer(row, f"intake host {host} is not allowed by the policy", 3600)
             return False
-        body = json.dumps({k: v for k, v in payload.items() if k != "collector"}).encode()
+        body = json.dumps({k: v for k, v in payload.items() if k not in ("collector", "build")}).encode()
         request = urllib.request.Request(origin + tp.intake_path, data=body, method="POST", headers={
             "Authorization": f"Bearer {token}",
             "Content-Type": "application/json",
@@ -611,12 +614,13 @@ class Uploader:
 
     def _ack(self, row, answer: dict) -> None:
         """Record the server's answer, then mark the row acknowledged, in one transaction."""
+        build = json.loads(row["payload"]).get("build") or answer.get("extractor_version")
         with self.state.tx() as db:
             for notice in answer.get("results", []):
                 for candidate in notice.get("candidates", []):
                     db.execute(
                         "UPDATE candidate SET server_status = ?, server_reason = ?, updated_at = ? WHERE recall_id = ? AND field = ? AND value = ? AND extractor_version = ?",
-                        (candidate.get("status"), candidate.get("reason"), time.time(), notice.get("recall_id"), candidate.get("field"), candidate.get("value"), answer.get("extractor_version")),
+                        (candidate.get("status"), candidate.get("reason"), time.time(), notice.get("recall_id"), candidate.get("field"), candidate.get("value"), build),
                     )
             # Acknowledged: the server holds the result (and answers a resend from its stored response), so the
             # local copy is deleted now; only the count is kept.

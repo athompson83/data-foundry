@@ -750,3 +750,22 @@ class RecurringJobs(unittest.TestCase):
                 job = state.claim("w", ("read",))
                 self.assertEqual(state.fail(job["id"], "w", "503 from api", recurring=True), "pending")
             self.assertLessEqual(state.one("SELECT due_at FROM job")["due_at"] - now[0], 6 * 3600)
+
+
+class BuildKeys(unittest.TestCase):
+    def test_a_new_model_build_re_extracts_under_its_own_keys(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Config(data_dir=tmp)
+            state = State(config.db_path)
+            notice = {"id": "cpsc-00001", "raw": RECORD, "provenance": {"raw_sha256": "a" * 64}}
+            first = Collector(config, state, client=FakeClient(json.dumps({"identifiers": [{"value": "SA904", "label": "item", "field": "Description"}]})), policy=POLICY)
+            self.assertEqual(first.queue_documents([notice]), 1)
+            first.extract_one()
+            config.model_digest = "aa11bb22cc33"  # the documented model switch
+            second = Collector(config, state, client=FakeClient(json.dumps({"identifiers": [{"value": "SA904", "label": "item", "field": "Description"}]})), policy=POLICY)
+            self.assertEqual(second.queue_documents([notice]), 1)  # not skipped
+            second.extract_one()
+            keys = [json.loads(r["payload"])["build"] for r in state.q("SELECT payload FROM outbox")]
+            self.assertEqual(len(set(r["idempotency_key"] for r in state.q("SELECT idempotency_key FROM outbox"))), 2)
+            self.assertEqual({k.split("|")[1] for k in keys}, {"2a654d98e6fb", "aa11bb22cc33"})
+            self.assertTrue(all("build" not in json.loads(r["payload"]).get("extractor", {}) for r in state.q("SELECT payload FROM outbox")))

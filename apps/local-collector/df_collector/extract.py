@@ -67,6 +67,13 @@ def prompt_sha256() -> str:
     return hashlib.sha256((EXTRACTOR_VERSION + "\n" + SYSTEM_PROMPT).encode()).hexdigest()
 
 
+def build_id(model_digest: str) -> str:
+    """The complete extractor build: version, pinned model build and prompt hash. Local checkpoints, candidates and
+    upload idempotency are keyed by it, so changing the model (or prompt) re-extracts under its own key instead of
+    being skipped or answered with another build's result (the server keys its rows the same way)."""
+    return f"{EXTRACTOR_VERSION}|{model_digest.removeprefix('sha256:')[:12]}|{prompt_sha256()[:16]}"
+
+
 @dataclass
 class Proposal:
     value: str
