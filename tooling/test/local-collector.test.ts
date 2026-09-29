@@ -4,7 +4,8 @@
  * no workflow change and no Python dependencies.
  */
 import { spawnSync } from 'node:child_process';
-import { readdirSync, readFileSync } from 'node:fs';
+import { copyFileSync, mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
@@ -156,6 +157,22 @@ describe('local collector', () => {
     for (const entry of PUBLISHABLE_EXTRACTORS) expect(entry.runtime).toBe(`ollama/${benchmarked}`);
     // The collector keys its short-form (benchmarked) local build by the same release.
     expect(readFileSync(join(APP, 'df_collector', 'extract.py'), 'utf8')).toContain(`BENCHMARKED_RUNTIME = "ollama/${benchmarked}"`);
+  });
+
+  it('re-scores the committed predictions to exactly the committed report', () => {
+    // The report is only as good as the predictions it summarises: scoring is recomputed here from the committed
+    // prediction files, build, sample and gold, so an edited or half-rewritten prediction file cannot keep stale metrics.
+    const out = mkdtempSync(join(tmpdir(), 'collector-rescore-'));
+    try {
+      const data = join(APP, 'benchmark', 'data');
+      for (const file of readdirSync(data).filter((name) => /^predictions-.*\.jsonl$/.test(name) || name === 'predictions-build.json')) copyFileSync(join(data, file), join(out, file));
+      const python = process.env['PYTHON'] ?? 'python3';
+      const run = spawnSync(python, ['benchmark/run_benchmark.py', '--sample', 'benchmark/data/sample.json', '--gold', 'benchmark/data/gold.json', '--out', out, '--score-only'], { cwd: APP, encoding: 'utf8' });
+      expect(run.status, run.stderr).toBe(0);
+      expect(JSON.parse(readFileSync(join(out, 'report.json'), 'utf8')), 'benchmark/data/report.json must be exactly what the committed predictions score to').toEqual(JSON.parse(readFileSync(join(data, 'report.json'), 'utf8')));
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
   });
 
   it('caps model answers at the intake\'s per-notice candidate limit', () => {

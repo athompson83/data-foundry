@@ -40,6 +40,9 @@ Any change to them fails CI until this bar is met again for the changed behaviou
 - a gold correction: a re-score. The report records the digest of the gold annotations it was scored against
   (`gold_sha256`), and CI requires it to match the committed `gold.json`.
 
+CI also re-scores the committed prediction files (with the committed build, sample and gold) and requires the result
+to equal `report.json` exactly, so the report can never outlive the predictions it summarises.
+
 Long fields: a field longer than `MAX_FIELD_CHARS` (6,000) is read in windows overlapping by the whole span the validator reads around a code (880 characters), each its own one-field
 request with the same prompt and schema, and the answers are merged under the same 60-identifier cap. A field
 needing more than `MAX_LATER_WINDOWS` extra windows is quarantined, never cut short. The first request is unchanged,
