@@ -456,16 +456,17 @@ async function processSubmission(env: Env, credential: IngestCredential, text: s
 /** Operator withdrawal of every accepted candidate from one extractor version (optionally one notice). Rows are kept; restoreExtractions reverses it. */
 export async function withdrawExtractions(db: D1Database, extractorVersion: string, recallId: string | null, now: string): Promise<number> {
   if (!/^[\w.@/:+-]{3,100}$/.test(extractorVersion)) throw new BadRequest('extractor_version is required');
-  // Withdrawing a whole version is durable: later submissions from it are stored withdrawn too.
-  if (!recallId) await db.prepare('INSERT INTO extractor_withdrawal (extractor_version, withdrawn_at) VALUES (?, ?) ON CONFLICT (extractor_version) DO NOTHING').bind(extractorVersion, now).run();
   // Adds this scope's hold to every row, whatever holds it already has; the count is of rows newly withheld.
   const scope = recallId ? 'notice' : 'version';
   const other = recallId ? 'version' : 'notice';
   const filter = `extractor_version = ? ${recallId ? 'AND recall_id = ?' : ''}`;
   const binds = [extractorVersion, ...(recallId ? [recallId] : [])];
   const served = await db.prepare(`SELECT count(*) AS n FROM product_recall_extracted_key WHERE ${filter} AND status = 'accepted'`).bind(...binds).first<{ n: number }>();
-  // One transaction: rows held only by the other scope gain this hold too, then served rows are withheld.
+  // One transaction: a version-wide withdrawal's durable marker (later submissions from the version are stored
+  // withdrawn), rows held only by the other scope gaining this hold, and served rows being withheld. A failure
+  // leaves none of them, so the version is never half-withdrawn.
   await db.batch([
+    ...(recallId ? [] : [db.prepare('INSERT INTO extractor_withdrawal (extractor_version, withdrawn_at) VALUES (?, ?) ON CONFLICT (extractor_version) DO NOTHING').bind(extractorVersion, now)]),
     db.prepare(`UPDATE product_recall_extracted_key SET withdrawn_scope = 'both' WHERE ${filter} AND status = 'withdrawn' AND withdrawn_scope = ?`).bind(...binds, other),
     db.prepare(`UPDATE product_recall_extracted_key SET status = 'withdrawn', withdrawn_at = ?, withdrawn_scope = ? WHERE ${filter} AND status = 'accepted'`).bind(now, scope, ...binds),
   ]);
@@ -479,23 +480,26 @@ export async function restoreExtractions(db: D1Database, extractorVersion: strin
     // A notice-level restore cannot lift a version-wide withdrawal: that needs the version-wide restore.
     const held = await db.prepare('SELECT 1 AS w FROM extractor_withdrawal WHERE extractor_version = ?').bind(extractorVersion).first();
     if (held) throw new IntakeRefused(409, 'version_withdrawn', 'The whole extractor version is withdrawn; restore the version (without recall_id) first.');
-  } else {
-    await db.prepare('DELETE FROM extractor_withdrawal WHERE extractor_version = ?').bind(extractorVersion).run();
   }
   // Each restore lifts only its own hold; a row still held by the other scope stays withdrawn. The count is of rows
   // served again.
   const scope = recallId ? 'notice' : 'version';
   const other = recallId ? 'version' : 'notice';
-  const rows = await db
-    .prepare(
-      `UPDATE product_recall_extracted_key
-         SET status = CASE WHEN withdrawn_scope = 'both' THEN 'withdrawn' ELSE 'accepted' END,
-             withdrawn_at = CASE WHEN withdrawn_scope = 'both' THEN withdrawn_at ELSE NULL END,
-             withdrawn_scope = CASE WHEN withdrawn_scope = 'both' THEN ? ELSE NULL END
-       WHERE extractor_version = ? AND status = 'withdrawn' AND withdrawn_scope IN (?, 'both') ${recallId ? 'AND recall_id = ?' : ''}
-       RETURNING recall_id, status`,
-    )
-    .bind(other, extractorVersion, scope, ...(recallId ? [recallId] : []))
-    .all<{ recall_id: string; status: string }>();
-  return rows.results.filter((row) => row.status === 'accepted').length;
+  const filter = `extractor_version = ? AND status = 'withdrawn' ${recallId ? 'AND recall_id = ?' : ''}`;
+  const binds = [extractorVersion, ...(recallId ? [recallId] : [])];
+  const served = await db.prepare(`SELECT count(*) AS n FROM product_recall_extracted_key WHERE ${filter} AND withdrawn_scope = ?`).bind(...binds, scope).first<{ n: number }>();
+  // One transaction with the version marker's removal, so a failure leaves the withdrawal whole.
+  await db.batch([
+    ...(recallId ? [] : [db.prepare('DELETE FROM extractor_withdrawal WHERE extractor_version = ?').bind(extractorVersion)]),
+    db
+      .prepare(
+        `UPDATE product_recall_extracted_key
+           SET status = CASE WHEN withdrawn_scope = 'both' THEN 'withdrawn' ELSE 'accepted' END,
+               withdrawn_at = CASE WHEN withdrawn_scope = 'both' THEN withdrawn_at ELSE NULL END,
+               withdrawn_scope = CASE WHEN withdrawn_scope = 'both' THEN ? ELSE NULL END
+         WHERE ${filter} AND withdrawn_scope IN (?, 'both')`,
+      )
+      .bind(other, ...binds, scope),
+  ]);
+  return served?.n ?? 0;
 }

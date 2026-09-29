@@ -22,6 +22,17 @@ describe('local collector', () => {
     expect(readFileSync(join(APP, 'policy', 'sources.json'), 'utf8'), 'run: pnpm collector:policy').toBe(compilePolicy());
   });
 
+  it('refuses a GREEN task once the registry no longer links its rights record, even if the file remains', () => {
+    const registry = readFileSync(join(ROOT, 'docs', 'sources', 'pipeline', 'candidates.yaml'), 'utf8');
+    // The source's own evidence list (the dataset entry that also cites the record is left alone).
+    const unlinked = registry.replace(/^\s*docs\/sources\/cpsc-recalls-rights-record-20260927\.md,\n/m, '');
+    expect(unlinked).not.toBe(registry);
+    const policy = JSON.parse(compilePolicy(unlinked)) as { tasks: Array<{ source: string; rights: string; enabled: boolean; refused_because: string[] }> };
+    const task = policy.tasks.find((entry) => entry.source === 'cpsc-recalls');
+    expect(task).toMatchObject({ rights: 'GREEN', enabled: false });
+    expect(task?.refused_because.join(' ')).toMatch(/without its rights record/);
+  });
+
   it('enables only registered GREEN/AMBER tasks with a rights record', () => {
     const policy = JSON.parse(compilePolicy()) as { tasks: Array<{ task: string; enabled: boolean; rights: string; refused_because: string[] }>; prohibited_domains: string[] };
     for (const task of policy.tasks) {

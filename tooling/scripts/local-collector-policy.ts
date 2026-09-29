@@ -74,8 +74,8 @@ function acquisitionBlockers(entry: Candidate): string[] {
   return reasons;
 }
 
-export function compilePolicy(): string {
-  const registryText = readFileSync(join(ROOT, REGISTRY), 'utf8');
+/** Compiles the policy from the registry (or, for tests, from the given registry text). */
+export function compilePolicy(registryText: string = readFileSync(join(ROOT, REGISTRY), 'utf8')): string {
   const registry = parse(registryText) as { candidates: Candidate[]; datasets?: RegistryDataset[] };
   const tasks = COLLECTOR_TASKS.map((task) => {
     const entry = registry.candidates.find((candidate) => candidate.key === task.source);
@@ -84,7 +84,8 @@ export function compilePolicy(): string {
     else {
       if (entry.rights !== 'GREEN' && entry.rights !== 'AMBER') reasons.push(`rights verdict is ${entry.rights}`);
       if (!PERMITTED_STAGES.has(entry.stage)) reasons.push(`stage ${entry.stage} is before PROTOTYPED`);
-      if (entry.rights === 'AMBER' && !(entry.evidence ?? []).includes(task.rights_record)) reasons.push('AMBER source without its rights record in the registry evidence');
+      // GREEN and AMBER alike: the registry must still associate the source with the task's rights determination.
+      if (!(entry.evidence ?? []).includes(task.rights_record)) reasons.push(`${entry.rights ?? 'unrecorded'} source without its rights record ${task.rights_record} in the registry evidence`);
       for (const url of entry.sources ?? []) if (prohibitedSourceFor(url)) reasons.push(`source host ${url} is prohibited`);
     }
     if (!existsSync(join(ROOT, task.rights_record))) reasons.push(`rights record ${task.rights_record} is missing`);

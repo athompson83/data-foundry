@@ -528,6 +528,24 @@ describe('publication of extracted identifiers', () => {
     expect(await served()).toEqual([expect.objectContaining({ value: 'SA904' })]);
   });
 
+  it('leaves nothing half-done when a version withdrawal or restore fails', async () => {
+    const { env, apiKey } = await accepted({ EXTRACTED_IDENTIFIERS_OPEN: '1' });
+    const version = encodeURIComponent(EXTRACTOR.version);
+    const failing: Env = { ...env, DB: new Proxy(env.DB, { get: (target, prop) => (prop === 'batch' ? async () => { throw new Error('D1 unavailable'); } : (Reflect.get(target, prop) as (...args: unknown[]) => unknown).bind(target)) }) as unknown as Env['DB'] };
+    const admin = (target: Env, action: string) => call(target, `/admin/extractions/${action}?extractor_version=${version}`, { method: 'POST', headers: { authorization: `Bearer ${ADMIN}` } });
+    const marker = async () => (await env.DB.prepare('SELECT count(*) AS n FROM extractor_withdrawal').first<{ n: number }>())?.n;
+    const served = async () => ((await (await get(env, apiKey, '/v1/product-recalls/cpsc-15034')).json()) as { data: { extracted_identifiers: unknown[] } }).data.extracted_identifiers;
+    // A failed withdrawal leaves no marker behind (and the row served, as before the attempt).
+    expect((await admin(failing, 'withdraw')).status).toBe(500);
+    expect(await marker()).toBe(0);
+    expect(await served()).toHaveLength(1);
+    // A failed restore leaves the withdrawal whole: marker and rows.
+    expect(await (await admin(env, 'withdraw')).json()).toEqual({ withdrawn: 1 });
+    expect((await admin(failing, 'restore')).status).toBe(500);
+    expect(await marker()).toBe(1);
+    expect(await served()).toEqual([]);
+  });
+
   it('keeps a maximal request inside D1\'s 1,000 queries per invocation', async () => {
     expect(MAX_INTAKE_QUERIES).toBeLessThan(1000);
     const { env, token, sha } = await seeded();
